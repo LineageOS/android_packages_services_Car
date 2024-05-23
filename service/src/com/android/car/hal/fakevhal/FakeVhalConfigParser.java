@@ -35,19 +35,21 @@ import android.hardware.automotive.vehicle.VehicleLightState;
 import android.hardware.automotive.vehicle.VehicleLightSwitch;
 import android.hardware.automotive.vehicle.VehiclePropConfig;
 import android.hardware.automotive.vehicle.VehicleProperty;
+import android.util.JsonReader;
+import android.util.JsonToken;
+import android.util.MalformedJsonException;
 import android.util.Pair;
 import android.util.SparseArray;
 
 import com.android.car.CarLog;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.android.car.internal.util.IntArray;
+import com.android.car.internal.util.LongArray;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
@@ -60,6 +62,10 @@ import java.util.Objects;
 public final class FakeVhalConfigParser {
 
     private static final String TAG = CarLog.tagFor(FakeVhalConfigParser.class);
+
+    // Defined VehiclePropertyAccess is always 0+
+    private static final int ACCESS_NOT_SET = -1;
+
     private static final String ENUM_CLASS_DIRECTORY = "android.hardware.automotive.vehicle.";
     private static final String JSON_FIELD_NAME_ROOT = "properties";
     private static final String JSON_FIELD_NAME_PROPERTY_ID = "property";
@@ -211,7 +217,7 @@ public final class FakeVhalConfigParser {
      * @param customConfigFile The custom config JSON file to parse from.
      * @return a list of {@link ConfigDeclaration} storing configs and values for each property.
      * @throws IOException if unable to read the config file.
-     * @throws IllegalArgumentException if file is invalid JSON or when a JSONException is caught.
+     * @throws IllegalArgumentException if the config file content is not in expected format.
      */
     public SparseArray<ConfigDeclaration> parseJsonConfig(File customConfigFile) throws
             IOException, IllegalArgumentException {
@@ -235,47 +241,55 @@ public final class FakeVhalConfigParser {
      * @param configInputStream The {@link InputStream} to parse from.
      * @return a list of {@link ConfigDeclaration} storing configs and values for each property.
      * @throws IOException if unable to read the config file.
-     * @throws IllegalArgumentException if file is invalid JSON or when a JSONException is caught.
+     * @throws IllegalArgumentException if file is not a valid expected JSON file.
      */
     public SparseArray<ConfigDeclaration> parseJsonConfig(InputStream configInputStream)
             throws IOException {
-        String configString = new String(configInputStream.readAllBytes());
-
-        // Parse JSON root object.
-        JSONObject configJsonObject;
-        JSONArray configJsonArray;
-        try {
-            configJsonObject = new JSONObject(configString);
-        } catch (JSONException e) {
-            throw new IllegalArgumentException("This file does not contain a valid JSONObject.", e);
-        }
-        try {
-            configJsonArray = configJsonObject.getJSONArray(JSON_FIELD_NAME_ROOT);
-        } catch (JSONException e) {
-            throw new IllegalArgumentException(JSON_FIELD_NAME_ROOT + " field value is not a valid "
-                + "JSONArray.", e);
-        }
-
         SparseArray<ConfigDeclaration> allPropConfigs = new SparseArray<>();
         List<String> errors = new ArrayList<>();
-        // Parse each property.
-        for (int i = 0; i < configJsonArray.length(); i++) {
-            JSONObject propertyObject = configJsonArray.optJSONObject(i);
-            if (propertyObject == null) {
-                errors.add(JSON_FIELD_NAME_ROOT + " array has an invalid JSON element at index "
-                        + i);
-                continue;
-            }
-            ConfigDeclaration propConfig = parseEachProperty(propertyObject, errors);
-            if (propConfig == null) {
-                errors.add("Unable to parse JSON object: " + propertyObject + " at index " + i);
-                if (allPropConfigs.size() != 0) {
-                    errors.add("Last successfully parsed property Id: "
-                            + allPropConfigs.valueAt(allPropConfigs.size() - 1).getConfig().prop);
+        // A wrapper to be effective final. We need the wrapper to be passed into lambda. Only one
+        // element is expected.
+        List<Boolean> rootFound = new ArrayList<>();
+
+        try (var reader = new JsonReader(new InputStreamReader(configInputStream, "UTF-8"))) {
+            reader.setLenient(true);
+            int parsed = parseObjectEntry(reader, (String fieldName) -> {
+                if (!fieldName.equals(JSON_FIELD_NAME_ROOT)) {
+                    reader.skipValue();
+                    return;
                 }
-                continue;
+
+                rootFound.add(true);
+                int propertyParsed = parseArrayEntry(reader, (int index) -> {
+                    ConfigDeclaration propConfig = parseEachProperty(reader, index, errors);
+                    if (propConfig == null) {
+                        errors.add("Unable to parse property config at index " + index);
+                        if (allPropConfigs.size() != 0) {
+                            errors.add("Last successfully parsed property Id: "
+                                    + allPropConfigs.valueAt(allPropConfigs.size() - 1)
+                                            .getConfig().prop);
+                        }
+                        return;
+                    }
+                    allPropConfigs.put(propConfig.getConfig().prop, propConfig);
+                });
+
+                if (propertyParsed < 0) {
+                    throw new IllegalArgumentException(JSON_FIELD_NAME_ROOT
+                            + " field value is not a valid JSONArray.");
+                }
+            });
+            if (parsed < 0) {
+                throw new IllegalArgumentException(
+                        "This file does not contain a valid JSONObject.");
             }
-            allPropConfigs.put(propConfig.getConfig().prop, propConfig);
+        } catch (IllegalStateException | MalformedJsonException e) {
+            // Captures all unexpected json parsing error.
+            throw new IllegalArgumentException("Invalid json syntax", e);
+        }
+
+        if (rootFound.size() == 0) {
+            throw new IllegalArgumentException("Missing root field: " + JSON_FIELD_NAME_ROOT);
         }
         if (!errors.isEmpty()) {
             throw new IllegalArgumentException(String.join("\n", errors));
@@ -286,131 +300,121 @@ public final class FakeVhalConfigParser {
     /**
      * Parses each property for its configs and values.
      *
-     * @param propertyObject A JSONObject which stores all configs and values of a property.
+     * @param reader The reader to parse.
+     * @param index The property index.
      * @param errors A list to keep all errors.
      * @return a {@link ConfigDeclaration} instance, null if failed to parse.
      */
     @Nullable
-    private ConfigDeclaration parseEachProperty(JSONObject propertyObject, List<String> errors) {
+    private ConfigDeclaration parseEachProperty(JsonReader reader, int index, List<String> errors)
+            throws IOException {
         int initialErrorCount = errors.size();
-        List<String> fieldNames = getFieldNames(propertyObject);
-
-        if (fieldNames == null) {
-            errors.add("The JSONObject " + propertyObject + " is empty.");
-            return null;
-        }
 
         VehiclePropConfig vehiclePropConfig = new VehiclePropConfig();
         vehiclePropConfig.prop = VehicleProperty.INVALID;
-        boolean isAccessSet = false;
-        boolean isChangeModeSet = false;
-        boolean isAreasSet = false;
-        RawPropValues rawPropValues = null;
-        JSONArray areas = null;
 
-        for (int i = 0; i < fieldNames.size(); i++) {
-            String fieldName = fieldNames.get(i);
-            switch (fieldName) {
-                case JSON_FIELD_NAME_PROPERTY_ID:
-                    vehiclePropConfig.prop = parseIntValue(propertyObject, fieldName, errors);
-                    break;
-                case JSON_FIELD_NAME_CONFIG_STRING:
-                    vehiclePropConfig.configString = parseStringValue(propertyObject, fieldName,
-                        errors);
-                    break;
-                case JSON_FIELD_NAME_MIN_SAMPLE_RATE:
-                    vehiclePropConfig.minSampleRate = parseFloatValue(propertyObject, fieldName,
-                        errors);
-                    break;
-                case JSON_FIELD_NAME_MAX_SAMPLE_RATE:
-                    vehiclePropConfig.maxSampleRate = parseFloatValue(propertyObject, fieldName,
-                        errors);
-                    break;
-                case JSON_FIELD_NAME_ACCESS:
-                    vehiclePropConfig.access = parseIntValue(propertyObject, fieldName, errors);
-                    isAccessSet = true;
-                    break;
-                case JSON_FIELD_NAME_CHANGE_MODE:
-                    vehiclePropConfig.changeMode = parseIntValue(propertyObject, fieldName, errors);
-                    isChangeModeSet = true;
-                    break;
-                case JSON_FIELD_NAME_CONFIG_ARRAY:
-                    JSONArray configArray = propertyObject.optJSONArray(fieldName);
-                    if (configArray == null) {
-                        errors.add(fieldName + " doesn't have a mapped JSONArray value.");
-                        continue;
-                    }
-                    vehiclePropConfig.configArray = parseIntArrayValue(configArray, errors);
-                    break;
-                case JSON_FIELD_NAME_DEFAULT_VALUE:
-                    JSONObject defaultValueObject = propertyObject.optJSONObject(fieldName);
-                    if (defaultValueObject == null) {
-                        Slogf.w(TAG, "%s doesn't have a mapped value.", fieldName);
-                        continue;
-                    }
-                    rawPropValues = parseDefaultValue(defaultValueObject, errors);
-                    break;
-                case JSON_FIELD_NAME_AREAS:
-                    areas = propertyObject.optJSONArray(fieldName);
-                    isAreasSet = true;
-                    break;
-                case JSON_FIELD_NAME_COMMENT:
-                    // The "comment" field is used for comment in the config files and is ignored
-                    // by the parser.
-                    break;
-                default:
-                    Slogf.i(TAG, "%s is an unknown field name. It didn't get parsed.", fieldName);
-            }
+        class Wrapper {
+            boolean mIsAccessSet;
+            boolean mIsChangeModeSet;
+            RawPropValues mRawPropValues;
         }
 
-        if (vehiclePropConfig.prop == VehicleProperty.INVALID) {
-            errors.add(propertyObject + " doesn't have propId. PropId is required.");
+        var wrapper = new Wrapper();
+        SparseArray<RawPropValues> defaultValuesByAreaId = new SparseArray<>();
+
+        try {
+            int parsed = parseObjectEntry(reader, (String fieldName) -> {
+                switch (fieldName) {
+                    case JSON_FIELD_NAME_PROPERTY_ID:
+                        vehiclePropConfig.prop = parseIntValue(reader, fieldName, errors);
+                        break;
+                    case JSON_FIELD_NAME_CONFIG_STRING:
+                        vehiclePropConfig.configString = parseStringValue(reader, fieldName,
+                            errors);
+                        break;
+                    case JSON_FIELD_NAME_MIN_SAMPLE_RATE:
+                        vehiclePropConfig.minSampleRate = parseFloatValue(reader, fieldName,
+                                errors);
+                        break;
+                    case JSON_FIELD_NAME_MAX_SAMPLE_RATE:
+                        vehiclePropConfig.maxSampleRate = parseFloatValue(reader, fieldName,
+                                errors);
+                        break;
+                    case JSON_FIELD_NAME_ACCESS:
+                        vehiclePropConfig.access = parseIntValue(reader, fieldName, errors);
+                        wrapper.mIsAccessSet = true;
+                        break;
+                    case JSON_FIELD_NAME_CHANGE_MODE:
+                        vehiclePropConfig.changeMode = parseIntValue(reader, fieldName, errors);
+                        wrapper.mIsChangeModeSet = true;
+                        break;
+                    case JSON_FIELD_NAME_CONFIG_ARRAY:
+                        vehiclePropConfig.configArray = parseIntArrayValue(reader, fieldName,
+                                errors);
+                        break;
+                    case JSON_FIELD_NAME_DEFAULT_VALUE:
+                        wrapper.mRawPropValues = parseDefaultValue(reader, errors);
+                        break;
+                    case JSON_FIELD_NAME_AREAS:
+                        vehiclePropConfig.areaConfigs = parseAreaConfigs(reader,
+                                defaultValuesByAreaId, errors);
+                        break;
+                    case JSON_FIELD_NAME_COMMENT:
+                        // The "comment" field is used for comment in the config files and is
+                        // ignored by the parser.
+                        reader.skipValue();
+                        break;
+                    default:
+                        Slogf.w(TAG, "%s is an unknown field name. It didn't get parsed.",
+                                fieldName);
+                        reader.skipValue();
+                }
+            });
+            if (parsed < 0) {
+                errors.add(JSON_FIELD_NAME_ROOT
+                        + " array has an invalid JSON element at index " + index);
+                return null;
+            }
+            if (parsed == 0) {
+                errors.add("The property object at index" + index + " is empty.");
+                return null;
+            }
+        } catch (IllegalArgumentException e) {
+            errors.add("Faild to parse property field, error: " + e.getMessage());
             return null;
         }
 
-        if (!isAccessSet) {
-            if (AccessForVehicleProperty.values.containsKey(vehiclePropConfig.prop)) {
+        if (vehiclePropConfig.prop == VehicleProperty.INVALID) {
+            errors.add("PropId is required for any property.");
+            return null;
+        }
+
+        int propertyId = vehiclePropConfig.prop;
+
+        if (!wrapper.mIsAccessSet) {
+            if (AccessForVehicleProperty.values.containsKey(propertyId)) {
                 vehiclePropConfig.access = AccessForVehicleProperty.values
-                        .get(vehiclePropConfig.prop);
+                        .get(propertyId);
             } else {
-                errors.add("Access field is not set for this property: " + propertyObject);
+                errors.add("Access field is not set for this property: " + propertyId);
             }
         }
 
-        if (!isChangeModeSet) {
+        if (!wrapper.mIsChangeModeSet) {
             if (ChangeModeForVehicleProperty.values.containsKey(vehiclePropConfig.prop)) {
                 vehiclePropConfig.changeMode = ChangeModeForVehicleProperty.values
-                        .get(vehiclePropConfig.prop);
+                        .get(propertyId);
             } else {
-                errors.add("ChangeMode field is not set for this property: " + propertyObject);
+                errors.add("ChangeMode field is not set for this property: " + propertyId);
             }
         }
 
-        List<VehicleAreaConfig> areaConfigs = new ArrayList<>();
-        SparseArray<RawPropValues> defaultValuesByAreaId = new SparseArray<>();
-
-        if (isAreasSet) {
-            if (areas == null) {
-                errors.add(JSON_FIELD_NAME_AREAS + " doesn't have a mapped array value.");
-            } else {
-                for (int j = 0; j < areas.length(); j++) {
-                    JSONObject areaObject = areas.optJSONObject(j);
-                    if (areaObject == null) {
-                        errors.add("Unable to get a JSONObject element for "
-                                + JSON_FIELD_NAME_AREAS + " at index " + j);
-                        continue;
-                    }
-                    Pair<VehicleAreaConfig, RawPropValues> result =
-                            parseAreaConfig(areaObject, vehiclePropConfig.access, errors);
-                    if (result != null) {
-                        areaConfigs.add(result.first);
-                        if (result.second != null) {
-                            defaultValuesByAreaId.put(result.first.areaId, result.second);
-                        }
-                    }
+        // If area access is not set, set it to the global access.
+        if (vehiclePropConfig.areaConfigs != null) {
+            for (int i = 0; i < vehiclePropConfig.areaConfigs.length; i++) {
+                if (vehiclePropConfig.areaConfigs[i].access == ACCESS_NOT_SET) {
+                    vehiclePropConfig.areaConfigs[i].access = vehiclePropConfig.access;
                 }
-                vehiclePropConfig.areaConfigs = areaConfigs.toArray(
-                        new VehicleAreaConfig[areaConfigs.size()]);
             }
         }
 
@@ -426,65 +430,123 @@ public final class FakeVhalConfigParser {
             return null;
         }
 
-        return new ConfigDeclaration(vehiclePropConfig, rawPropValues, defaultValuesByAreaId);
+        return new ConfigDeclaration(vehiclePropConfig, wrapper.mRawPropValues,
+                defaultValuesByAreaId);
+    }
+
+    /**
+     * Parses area configs array.
+     *
+     * @param reader The reader to parse.
+     * @param defaultValuesByAreaId The output default property value by specific area ID.
+     * @param errors The list to store all errors.
+     * @return a pair of configs and values for one area, null if failed to parse.
+     */
+    @Nullable
+    private VehicleAreaConfig[] parseAreaConfigs(JsonReader reader,
+            SparseArray<RawPropValues> defaultValuesByAreaId, List<String> errors)
+            throws IOException {
+        int initialErrorCount = errors.size();
+        List<VehicleAreaConfig> areaConfigs = new ArrayList<>();
+        int parsed = 0;
+
+        try {
+            parsed = parseArrayEntry(reader, (int index) -> {
+                Pair<VehicleAreaConfig, RawPropValues> result = parseAreaConfig(reader, index,
+                        errors);
+                if (result != null) {
+                    areaConfigs.add(result.first);
+                    if (result.second != null) {
+                        defaultValuesByAreaId.put(result.first.areaId, result.second);
+                    }
+                }
+            });
+        } catch (IllegalArgumentException e) {
+            errors.add("Failed to parse " + JSON_FIELD_NAME_AREAS + ", error: " + e.getMessage());
+            return null;
+        }
+
+        if (parsed < 0) {
+            errors.add(JSON_FIELD_NAME_AREAS + " doesn't have a valid JSONArray value.");
+            return null;
+        }
+        if (errors.size() > initialErrorCount) {
+            return null;
+        }
+        return areaConfigs.toArray(new VehicleAreaConfig[areaConfigs.size()]);
     }
 
     /**
      * Parses area JSON config object.
      *
-     * @param areaObject A JSONObject of field name "areas".
+     * @param reader The reader to parse.
      * @param errors The list to store all errors.
      * @return a pair of configs and values for one area, null if failed to parse.
      */
     @Nullable
-    private Pair<VehicleAreaConfig, RawPropValues> parseAreaConfig(JSONObject areaObject,
-            int defaultAccessMode, List<String> errors) {
+    private Pair<VehicleAreaConfig, RawPropValues> parseAreaConfig(JsonReader reader,
+            int index, List<String> errors) throws IOException {
         int initialErrorCount = errors.size();
-        List<String> fieldNames = getFieldNames(areaObject);
+        VehicleAreaConfig areaConfig = new VehicleAreaConfig();
 
-        if (fieldNames == null) {
-            errors.add("The JSONObject " + areaObject + " is empty.");
+        class Wrapper {
+            RawPropValues mDefaultValue;
+            boolean mHasAreaId;
+            boolean mIsAccessSet;
+        }
+        var wrapper = new Wrapper();
+        int parsed = 0;
+
+        try {
+            parsed = parseObjectEntry(reader, (String fieldName) -> {
+                switch (fieldName) {
+                    case JSON_FIELD_NAME_ACCESS:
+                        areaConfig.access = parseIntValue(reader, fieldName, errors);
+                        wrapper.mIsAccessSet = true;
+                        break;
+                    case JSON_FIELD_NAME_AREA_ID:
+                        areaConfig.areaId = parseIntValue(reader, fieldName, errors);
+                        wrapper.mHasAreaId = true;
+                        break;
+                    case JSON_FIELD_NAME_MIN_INT32_VALUE:
+                        areaConfig.minInt32Value = parseIntValue(reader, fieldName, errors);
+                        break;
+                    case JSON_FIELD_NAME_MAX_INT32_VALUE:
+                        areaConfig.maxInt32Value = parseIntValue(reader, fieldName, errors);
+                        break;
+                    case JSON_FIELD_NAME_MIN_FLOAT_VALUE:
+                        areaConfig.minFloatValue = parseFloatValue(reader, fieldName, errors);
+                        break;
+                    case JSON_FIELD_NAME_MAX_FLOAT_VALUE:
+                        areaConfig.maxFloatValue = parseFloatValue(reader, fieldName, errors);
+                        break;
+                    case JSON_FIELD_NAME_DEFAULT_VALUE:
+                        wrapper.mDefaultValue = parseDefaultValue(reader, errors);
+                        break;
+                    default:
+                        Slogf.i(TAG, "%s is an unknown field name. It didn't get parsed.",
+                                fieldName);
+                        reader.skipValue();
+                }
+            });
+        } catch (IllegalArgumentException e) {
+            errors.add("Failed to parse areaConfig, error: " + e.getMessage());
             return null;
         }
 
-        VehicleAreaConfig areaConfig = new VehicleAreaConfig();
-        RawPropValues defaultValue = null;
-        boolean hasAreaId = false;
-        boolean isAccessSet = false;
-
-        for (int i = 0; i < fieldNames.size(); i++) {
-            String fieldName = fieldNames.get(i);
-            switch (fieldName) {
-                case JSON_FIELD_NAME_ACCESS:
-                    areaConfig.access = parseIntValue(areaObject, fieldName, errors);
-                    isAccessSet = true;
-                    break;
-                case JSON_FIELD_NAME_AREA_ID:
-                    areaConfig.areaId = parseIntValue(areaObject, fieldName, errors);
-                    hasAreaId = true;
-                    break;
-                case JSON_FIELD_NAME_MIN_INT32_VALUE:
-                    areaConfig.minInt32Value = parseIntValue(areaObject, fieldName, errors);
-                    break;
-                case JSON_FIELD_NAME_MAX_INT32_VALUE:
-                    areaConfig.maxInt32Value = parseIntValue(areaObject, fieldName, errors);
-                    break;
-                case JSON_FIELD_NAME_MIN_FLOAT_VALUE:
-                    areaConfig.minFloatValue = parseFloatValue(areaObject, fieldName, errors);
-                    break;
-                case JSON_FIELD_NAME_MAX_FLOAT_VALUE:
-                    areaConfig.maxFloatValue = parseFloatValue(areaObject, fieldName, errors);
-                    break;
-                case JSON_FIELD_NAME_DEFAULT_VALUE:
-                    defaultValue = parseDefaultValue(areaObject.optJSONObject(fieldName), errors);
-                    break;
-                default:
-                    Slogf.i(TAG, "%s is an unknown field name. It didn't get parsed.", fieldName);
-            }
+        if (parsed < 0) {
+            errors.add("Unable to get a JSONObject element for " + JSON_FIELD_NAME_AREAS
+                    + " at index " + index);
+            return null;
+        }
+        if (parsed == 0) {
+            errors.add("The JSONObject element for " + JSON_FIELD_NAME_AREAS + " at index "
+                    + index + " is empty.");
+            return null;
         }
 
-        if (!hasAreaId) {
-            errors.add(areaObject + " doesn't have areaId. AreaId is required.");
+        if (!wrapper.mHasAreaId) {
+            errors.add(areaConfig + " doesn't have areaId. AreaId is required.");
             return null;
         }
 
@@ -492,74 +554,66 @@ public final class FakeVhalConfigParser {
             return null;
         }
 
-        if (!isAccessSet) {
-            areaConfig.access = defaultAccessMode;
+        if (!wrapper.mIsAccessSet) {
+            areaConfig.access = ACCESS_NOT_SET;
         }
 
-        return Pair.create(areaConfig, defaultValue);
+        return Pair.create(areaConfig, wrapper.mDefaultValue);
     }
 
     /**
      * Parses the "defaultValue" field of a property object and area property object.
      *
-     * @param defaultValue The defaultValue JSONObject to be parsed.
+     * @param reader The reader to parse.
      * @param errors The list to store all errors.
      * @return a {@link RawPropValues} object which stores defaultValue, null if failed to parse.
      */
     @Nullable
-    private RawPropValues parseDefaultValue(JSONObject defaultValue, List<String> errors) {
+    private RawPropValues parseDefaultValue(JsonReader reader, List<String> errors)
+            throws IOException {
         int initialErrorCount = errors.size();
-        List<String> fieldNames = getFieldNames(defaultValue);
+        RawPropValues rawPropValues = new RawPropValues();
+        int parsed = 0;
 
-        if (fieldNames == null) {
-            Slogf.w(TAG, "The JSONObject %s is empty.", defaultValue.toString());
+        try {
+            parsed = parseObjectEntry(reader, (String fieldName) -> {
+                switch (fieldName) {
+                    case JSON_FIELD_NAME_INT32_VALUES: {
+                        rawPropValues.int32Values = parseIntArrayValue(reader, fieldName,  errors);
+                        break;
+                    }
+                    case JSON_FIELD_NAME_INT64_VALUES: {
+                        rawPropValues.int64Values = parseLongArrayValue(reader, fieldName, errors);
+                        break;
+                    }
+                    case JSON_FIELD_NAME_FLOAT_VALUES: {
+                        rawPropValues.floatValues = parseFloatArrayValue(reader, fieldName, errors);
+                        break;
+                    }
+                    case JSON_FIELD_NAME_STRING_VALUE: {
+                        rawPropValues.stringValue = parseStringValue(reader, fieldName, errors);
+                        break;
+                    }
+                    default:
+                        Slogf.i(TAG, "%s is an unknown field name. It didn't get parsed.",
+                                fieldName);
+                        reader.skipValue();
+                }
+            });
+        } catch (IllegalArgumentException e) {
+            errors.add("Failed to parse " + JSON_FIELD_NAME_DEFAULT_VALUE + ", error: "
+                     + e.getMessage());
             return null;
         }
 
-        RawPropValues rawPropValues = new RawPropValues();
-
-        for (int i = 0; i < fieldNames.size(); i++) {
-            String fieldName = fieldNames.get(i);
-            switch (fieldName) {
-                case JSON_FIELD_NAME_INT32_VALUES: {
-                    JSONArray int32Values = defaultValue.optJSONArray(fieldName);
-                    if (int32Values == null) {
-                        errors.add("Failed to parse the field name: " + fieldName + " for "
-                                + "defaultValueObject: " + defaultValue);
-                        continue;
-                    }
-                    rawPropValues.int32Values = parseIntArrayValue(int32Values, errors);
-                    break;
-                }
-                case JSON_FIELD_NAME_INT64_VALUES: {
-                    JSONArray int64Values = defaultValue.optJSONArray(fieldName);
-                    if (int64Values == null) {
-                        errors.add("Failed to parse the field name: " + fieldName + " for "
-                                + "defaultValueObject: " + defaultValue);
-                        continue;
-                    }
-                    rawPropValues.int64Values = parseLongArrayValue(int64Values, errors);
-                    break;
-                }
-                case JSON_FIELD_NAME_FLOAT_VALUES: {
-                    JSONArray floatValues = defaultValue.optJSONArray(fieldName);
-                    if (floatValues == null) {
-                        errors.add("Failed to parse the field name: " + fieldName + " for "
-                                + "defaultValueObject: " + defaultValue);
-                        continue;
-                    }
-                    rawPropValues.floatValues = parseFloatArrayValue(floatValues, errors);
-                    break;
-                }
-                case JSON_FIELD_NAME_STRING_VALUE: {
-                    rawPropValues.stringValue = parseStringValue(defaultValue, fieldName, errors);
-                    break;
-                }
-                default:
-                    Slogf.i(TAG, "%s is an unknown field name. It didn't get parsed.", fieldName);
-            }
+        if (parsed < 0) {
+            errors.add(JSON_FIELD_NAME_DEFAULT_VALUE + " doesn't have a valid JSONObject value");
+            return null;
         }
-
+        if (parsed == 0) {
+            Slogf.w(TAG, JSON_FIELD_NAME_DEFAULT_VALUE + " is empty, assuming no overwrite");
+            return null;
+        }
         if (errors.size() > initialErrorCount) {
             return null;
         }
@@ -569,76 +623,67 @@ public final class FakeVhalConfigParser {
     /**
      * Parses String Json value.
      *
-     * @param parentObject The JSONObject will be parsed.
+     * @param reader The reader to parse.
      * @param fieldName Field name of JSON object name/value mapping.
      * @param errors The list to store all errors.
      * @return a string of parsed value, null if failed to parse.
      */
     @Nullable
-    private String parseStringValue(JSONObject parentObject, String fieldName,
-            List<String> errors) {
-        String value = parentObject.optString(fieldName);
-        if (Objects.equals(value, "")) {
-            errors.add(fieldName + " doesn't have a mapped value.");
+    private String parseStringValue(JsonReader reader, String fieldName,
+            List<String> errors) throws IOException {
+        try {
+            String result = nextStringAdvance(reader);
+            if (result.equals("")) {
+                errors.add(fieldName + " doesn't have a valid string value.");
+                return null;
+            }
+            return result;
+        } catch (Exception e) {
+            errors.add(fieldName + " doesn't have a valid string value.");
             return null;
         }
-        return value;
     }
 
     /**
      * Parses int Json value.
      *
-     * @param parentObject The JSONObject will be parsed.
+     * @param reader The reader to parse.
      * @param fieldName Field name of JSON object name/value mapping.
      * @param errors The list to store all errors.
      * @return a value as int, 0 if failed to parse.
      */
-    private int parseIntValue(JSONObject parentObject, String fieldName, List<String> errors) {
-        if (isString(parentObject, fieldName)) {
-            String constantValue;
-            try {
-                constantValue = parentObject.getString(fieldName);
-                return parseConstantValue(constantValue, errors);
-            } catch (JSONException e) {
-                errors.add(fieldName + " doesn't have a mapped string value. " + e.getMessage());
-                return 0;
-            }
+    private int parseIntValue(JsonReader reader,  String fieldName, List<String> errors)
+            throws IOException {
+        if (isString(reader)) {
+            String constantValue = nextStringAdvance(reader);
+            return parseConstantValue(constantValue, errors);
         }
-        Object value = parentObject.opt(fieldName);
-        if (value != JSONObject.NULL) {
-            if (value.getClass() == Integer.class) {
-                return parentObject.optInt(fieldName);
-            }
-            errors.add(fieldName + " doesn't have a mapped int value.");
+        try {
+            return nextIntAdvance(reader);
+        } catch (Exception e) {
+            errors.add(fieldName + " doesn't have a valid int value.");
             return 0;
         }
-        errors.add(fieldName + " doesn't have a mapped value.");
-        return 0;
     }
 
     /**
      * Parses float Json value.
      *
-     * @param parentObject The JSONObject will be parsed.
+     * @param reader The reader to parse.
      * @param fieldName Field name of JSON object name/value mapping.
      * @param errors The list to store all errors.
      * @return the parsed value as float, {@code 0f} if failed to parse.
      */
-    private float parseFloatValue(JSONObject parentObject, String fieldName, List<String> errors) {
-        if (isString(parentObject, fieldName)) {
-            String constantValue;
-            try {
-                constantValue = parentObject.getString(fieldName);
-            } catch (JSONException e) {
-                errors.add(fieldName + " doesn't have a mapped string value. " + e.getMessage());
-                return 0f;
-            }
+    private float parseFloatValue(JsonReader reader, String fieldName, List<String> errors)
+            throws IOException {
+        if (isString(reader)) {
+            String constantValue = nextStringAdvance(reader);
             return (float) parseConstantValue(constantValue, errors);
         }
         try {
-            return (float) parentObject.getDouble(fieldName);
-        } catch (JSONException e) {
-            errors.add(fieldName + " doesn't have a mapped float value. " + e.getMessage());
+            return (float) nextDoubleAdvance(reader);
+        } catch (Exception e) {
+            errors.add(fieldName + " doesn't have a valid float value. " + e.getMessage());
             return 0f;
         }
     }
@@ -691,149 +736,145 @@ public final class FakeVhalConfigParser {
     }
 
     /**
-     * Parses int values in a {@link JSONArray}.
+     * Parses a intger JSON array.
      *
-     * @param values The JSON array to be parsed.
+     * @param reader The reader to parse.
+     * @param fieldName Field name of JSON object name/value mapping.
      * @param errors The list to store all errors.
      * @return an int array of default values, null if failed to parse.
      */
     @Nullable
-    private int[] parseIntArrayValue(JSONArray values, List<String> errors) {
+    private int[] parseIntArrayValue(JsonReader reader, String fieldName, List<String> errors)
+            throws IOException {
         int initialErrorCount = errors.size();
-        int[] valueArray = new int[values.length()];
+        var values = new IntArray();
 
-        for (int i = 0; i < values.length(); i++) {
-            if (isString(values, i)) {
-                String stringValue = values.optString(i);
-                valueArray[i] = parseConstantValue(stringValue, errors);
-            } else {
+        try {
+            int parsed = parseArrayEntry(reader, (int index) -> {
+                if (isString(reader)) {
+                    values.add(parseConstantValue(nextStringAdvance(reader), errors));
+                    return;
+                }
                 try {
-                    valueArray[i] = values.getInt(i);
-                } catch (JSONException e) {
-                    errors.add(values + " doesn't have a mapped int value at index " + i + " "
+                    values.add(nextIntAdvance(reader));
+                } catch (Exception e) {
+                    errors.add(fieldName + " doesn't have a valid int value at index " + index + " "
                             + e.getMessage());
                 }
+            });
+            if (parsed < 0) {
+                errors.add(fieldName + " doesn't have a valid JSONArray value.");
+                return null;
             }
+        } catch (IllegalArgumentException e) {
+            errors.add("Failed to parse field: " + fieldName + ", error: " + e.getMessage());
+            return null;
         }
 
         if (errors.size() > initialErrorCount) {
             return null;
         }
 
-        return valueArray;
+        return values.toArray();
     }
 
     /**
-     * Parses long values in a {@link JSONArray}.
+     * Parses a long JSON array.
      *
-     * @param values The JSON array to be parsed.
+     * @param reader The reader to parse.
+     * @param fieldName Field name of JSON object name/value mapping.
      * @param errors The list to store all errors.
      * @return a long array of default values, null if failed to parse.
      */
     @Nullable
-    private long[] parseLongArrayValue(JSONArray values, List<String> errors) {
+    private long[] parseLongArrayValue(JsonReader reader, String fieldName, List<String> errors)
+            throws IOException {
         int initialErrorCount = errors.size();
-        long[] valueArray = new long[values.length()];
+        var values = new LongArray();
 
-        for (int i = 0; i < values.length(); i++) {
-            if (isString(values, i)) {
-                String stringValue = values.optString(i);
-                valueArray[i] = parseConstantValue(stringValue, errors);
-            } else {
-                try {
-                    valueArray[i] = values.getLong(i);
-                } catch (JSONException e) {
-                    errors.add(values + " doesn't have a mapped long value at index " + i + " "
-                            + e.getMessage());
+        try {
+            int parsed = parseArrayEntry(reader, (int index) -> {
+                if (isString(reader)) {
+                    values.add(parseConstantValue(nextStringAdvance(reader), errors));
+                    return;
                 }
+                try {
+                    values.add(nextLongAdvance(reader));
+                } catch (Exception e) {
+                    errors.add(fieldName + " doesn't have a valid long value at index " + index
+                            + " " + e.getMessage());
+                }
+            });
+            if (parsed < 0) {
+                errors.add(fieldName + " doesn't have a valid JSONArray value.");
+                return null;
             }
+        } catch (IllegalArgumentException e) {
+            errors.add("Failed to parse field: " + fieldName + ", error: " + e.getMessage());
+            return null;
         }
 
         if (errors.size() > initialErrorCount) {
             return null;
         }
 
-        return valueArray;
+        return values.toArray();
     }
 
     /**
-     * Parses float values in a {@link JSONArray}.
+     * Parses a float JSON array.
      *
-     * @param values The JSON array to be parsed.
+     * @param reader The reader to parse.
+     * @param fieldName Field name of JSON object name/value mapping.
      * @param errors The list to store all errors.
      * @return a float array of default value, null if failed to parse.
      */
     @Nullable
-    private float[] parseFloatArrayValue(JSONArray values, List<String> errors) {
+    private float[] parseFloatArrayValue(JsonReader reader, String fieldName, List<String> errors)
+            throws IOException {
         int initialErrorCount = errors.size();
-        float[] valueArray = new float[values.length()];
+        List<Float> values = new ArrayList<>();
 
-        for (int i = 0; i < values.length(); i++) {
-            if (isString(values, i)) {
-                String stringValue = values.optString(i);
-                valueArray[i] = (float) parseConstantValue(stringValue, errors);
-            } else {
-                try {
-                    valueArray[i] = (float) values.getDouble(i);
-                } catch (JSONException e) {
-                    errors.add(values + " doesn't have a mapped float value at index " + i + " "
-                            + e.getMessage());
+        try {
+            int parsed = parseArrayEntry(reader, (int index) -> {
+                if (isString(reader)) {
+                    values.add((float) parseConstantValue(nextStringAdvance(reader), errors));
+                    return;
                 }
+                try {
+                    values.add((float) nextDoubleAdvance(reader));
+                } catch (Exception e) {
+                    errors.add(fieldName + " doesn't have a valid float value at index " + index
+                            + " " + e.getMessage());
+                }
+            });
+            if (parsed < 0) {
+                errors.add(fieldName + " doesn't have a valid JSONArray value.");
+                return null;
             }
+        } catch (IllegalArgumentException e) {
+            errors.add("Failed to parse field: " + fieldName + ", error: " + e.getMessage());
+            return null;
         }
 
         if (errors.size() > initialErrorCount) {
             return null;
         }
+        var valueArray = new float[values.size()];
+        for (int i = 0; i < values.size(); i++) {
+            valueArray[i] = values.get(i);
+        }
         return valueArray;
     }
 
     /**
-     * Checks if parentObject contains field and the field is a String.
+     * Checks if the next token is a string.
      *
-     * @param parentObject The JSONObject containing the field.
-     * @param fieldName The name for the JSON field.
-     * @return {@code true} if parent object contains this field and the value is string.
+     * @param reader The reader.
+     * @return {@code true} if the next token is a string.
      */
-    private boolean isString(JSONObject parentObject, String fieldName) {
-        return parentObject.opt(fieldName) != JSONObject.NULL && parentObject.opt(fieldName)
-                .getClass() == String.class;
-    }
-
-    /**
-     * Checks if the JSON array contains the index and the element at the index is a String.
-     *
-     * @param jsonArray The JSON array to be checked.
-     * @param index The index of the JSON array element which will be checked.
-     * @return {@code true} if the JSON array has value at index and the value is string.
-     */
-    private boolean isString(JSONArray jsonArray, int index) {
-        return jsonArray.opt(index) != JSONObject.NULL && jsonArray.opt(index).getClass()
-                == String.class;
-    }
-
-    /**
-     * Gets all field names of a {@link JSONObject}.
-     *
-     * @param jsonObject The JSON object to read field names from.
-     * @return a list of all the field names of an JSONObject, null if the object is empty.
-     */
-    @Nullable
-    private List<String> getFieldNames(JSONObject jsonObject) {
-        JSONArray names = jsonObject.names();
-
-        if (names == null) {
-            return null;
-        }
-
-        List<String> fieldNames = new ArrayList<>();
-        for (int i = 0; i < names.length(); i++) {
-            String fieldName = names.optString(i);
-            if (fieldName != null) {
-                fieldNames.add(fieldName);
-            }
-        }
-        return fieldNames;
+    private boolean isString(JsonReader reader) throws IOException {
+        return reader.peek() == JsonToken.STRING;
     }
 
     /**
@@ -844,5 +885,98 @@ public final class FakeVhalConfigParser {
      */
     private boolean isFileValid(File configFile) {
         return configFile.exists() && configFile.isFile();
+    }
+
+    private interface RunanbleWithException {
+        void run(String fieldName) throws IOException;
+    }
+
+    /**
+     * Iterates through entries in a JSONObject.
+     *
+     * If reader is not currently parsing an object, the cursor will still be advanced.
+     *
+     * @param reader The reader.
+     * @param forEachEntry The invokable for each entry.
+     * @return How many entries are iterated or -1 if the reader is not currently parsing an object.
+     */
+    private static int parseObjectEntry(JsonReader reader, RunanbleWithException forEachEntry)
+            throws IOException {
+        if (reader.peek() != JsonToken.BEGIN_OBJECT) {
+            reader.skipValue();
+            return -1;
+        }
+        int i = 0;
+        reader.beginObject();
+        while (reader.hasNext()) {
+            forEachEntry.run(reader.nextName());
+            i++;
+        }
+        reader.endObject();
+        return i;
+    }
+
+    private interface RunanbleIndexWithException {
+        void run(int index) throws IOException;
+    }
+
+    /**
+     * Iterates through entries in a JSONArray.
+     *
+     * If reader is not currently parsing an array, the cursor will still be advanced.
+     *
+     * @param reader The reader.
+     * @param forEachEntry The invokable for each entry.
+     * @return How many entries are iterated or -1 if the reader is not currently parsing an array.
+     */
+    private static int parseArrayEntry(JsonReader reader, RunanbleIndexWithException forEachEntry)
+            throws IOException {
+        if (reader.peek() != JsonToken.BEGIN_ARRAY) {
+            reader.skipValue();
+            return -1;
+        }
+        reader.beginArray();
+        int i = 0;
+        while (reader.hasNext()) {
+            forEachEntry.run(i++);
+        }
+        reader.endArray();
+        return i;
+    }
+
+    private static int nextIntAdvance(JsonReader reader) throws IOException {
+        try {
+            return reader.nextInt();
+        } catch (RuntimeException | IOException e) {
+            reader.skipValue();
+            throw e;
+        }
+    }
+
+    private static long nextLongAdvance(JsonReader reader) throws IOException {
+        try {
+            return reader.nextLong();
+        } catch (RuntimeException | IOException e) {
+            reader.skipValue();
+            throw e;
+        }
+    }
+
+    private static double nextDoubleAdvance(JsonReader reader) throws IOException {
+        try {
+            return reader.nextDouble();
+        } catch (RuntimeException | IOException e) {
+            reader.skipValue();
+            throw e;
+        }
+    }
+
+    private static String nextStringAdvance(JsonReader reader) throws IOException {
+        try {
+            return reader.nextString();
+        } catch (RuntimeException | IOException e) {
+            reader.skipValue();
+            throw e;
+        }
     }
 }

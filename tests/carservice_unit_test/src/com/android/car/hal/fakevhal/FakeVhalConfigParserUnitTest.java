@@ -35,19 +35,18 @@ import android.hardware.automotive.vehicle.VehicleSeatOccupancyState;
 import android.hardware.automotive.vehicle.VehicleUnit;
 import android.util.SparseArray;
 
-import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.SmallTest;
 
-import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 
-@RunWith(AndroidJUnit4.class)
+@SmallTest
 public class FakeVhalConfigParserUnitTest {
     private static final int DOOR_1_LEFT = VehicleAreaDoor.ROW_1_LEFT;
     private static final int WHEEL_FRONT_LEFT = VehicleAreaWheel.LEFT_FRONT;
@@ -64,11 +63,8 @@ public class FakeVhalConfigParserUnitTest {
         InputStream tempFileIS =
                 new FileInputStream(createTempFileWithContent(/* fileContent= */ ""));
 
-        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class,
+        assertThrows(IOException.class,
                 () -> mFakeVhalConfigParser.parseJsonConfig(tempFileIS));
-
-        assertThat(thrown).hasMessageThat().contains("This file does not contain a valid "
-                + "JSONObject.");
     }
 
     @Test
@@ -102,6 +98,17 @@ public class FakeVhalConfigParserUnitTest {
     }
 
     @Test
+    public void testConfigFileInvalidJsonKey() throws Exception {
+        String jsonString = "{[]: 123}";
+        File tempFile = createTempFileWithContent(jsonString);
+
+        var thrown = assertThrows(IllegalArgumentException.class, () ->
+                mFakeVhalConfigParser.parseJsonConfig(tempFile));
+
+        assertThat(thrown).hasMessageThat().contains("Invalid json syntax");
+    }
+
+    @Test
     public void testConfigFileRootIsNotArray() throws Exception {
         String jsonString = "{\"properties\": 123}";
         File tempFile = createTempFileWithContent(jsonString);
@@ -127,15 +134,12 @@ public class FakeVhalConfigParserUnitTest {
     @Test
     public void testParseEachPropertyJsonObjectIsEmpty() throws Exception {
         String jsonString = "{\"properties\": [{}]}";
-        JSONObject jsonObject = new JSONObject(jsonString);
-        Object propertyObject = jsonObject.optJSONArray("properties").optJSONObject(0);
         File tempFile = createTempFileWithContent(jsonString);
 
         IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () ->
                 mFakeVhalConfigParser.parseJsonConfig(tempFile));
 
-        assertThat(thrown).hasMessageThat().contains("The JSONObject " + propertyObject
-                + " is empty.");
+        assertThat(thrown).hasMessageThat().contains("is empty");
     }
 
     @Test
@@ -159,7 +163,7 @@ public class FakeVhalConfigParserUnitTest {
         IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () ->
                 mFakeVhalConfigParser.parseJsonConfig(tempFile));
 
-        assertThat(thrown).hasMessageThat().contains(" doesn't have propId. PropId is required.");
+        assertThat(thrown).hasMessageThat().contains("PropId is required");
     }
 
     @Test
@@ -170,18 +174,18 @@ public class FakeVhalConfigParserUnitTest {
         IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () ->
                 mFakeVhalConfigParser.parseJsonConfig(tempFile));
 
-        assertThat(thrown).hasMessageThat().contains("property doesn't have a mapped value.");
+        assertThat(thrown).hasMessageThat().contains("property doesn't have a valid int value.");
     }
 
     @Test
     public void testParsePropertyIdWithWrongValueType() throws Exception {
-        String jsonString = "{\"properties\": [{\"property\": 12.3f}]}";
+        String jsonString = "{\"properties\": [{\"property\": 12.3}]}";
         File tempFile = createTempFileWithContent(jsonString);
 
         IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () ->
                 mFakeVhalConfigParser.parseJsonConfig(tempFile));
 
-        assertThat(thrown).hasMessageThat().contains("property doesn't have a mapped int value.");
+        assertThat(thrown).hasMessageThat().contains("property doesn't have a valid int value.");
     }
 
     @Test
@@ -303,7 +307,8 @@ public class FakeVhalConfigParserUnitTest {
         IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () ->
                 mFakeVhalConfigParser.parseJsonConfig(tempFile));
 
-        assertThat(thrown).hasMessageThat().contains("configString doesn't have a mapped value.");
+        assertThat(thrown).hasMessageThat().contains(
+                "configString doesn't have a valid string value.");
     }
 
     @Test
@@ -340,7 +345,7 @@ public class FakeVhalConfigParserUnitTest {
         IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () ->
                 mFakeVhalConfigParser.parseJsonConfig(tempFile));
 
-        assertThat(thrown).hasMessageThat().contains("minSampleRate doesn't have a mapped float "
+        assertThat(thrown).hasMessageThat().contains("minSampleRate doesn't have a valid float "
                 + "value.");
     }
 
@@ -445,7 +450,7 @@ public class FakeVhalConfigParserUnitTest {
         IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () ->
                 mFakeVhalConfigParser.parseJsonConfig(tempFile));
 
-        assertThat(thrown).hasMessageThat().contains("configArray doesn't have a mapped JSONArray "
+        assertThat(thrown).hasMessageThat().contains("configArray doesn't have a valid JSONArray "
                 + "value.");
     }
 
@@ -458,7 +463,7 @@ public class FakeVhalConfigParserUnitTest {
         IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () ->
                 mFakeVhalConfigParser.parseJsonConfig(tempFile));
 
-        assertThat(thrown).hasMessageThat().contains("[123,null] doesn't have a mapped int value "
+        assertThat(thrown).hasMessageThat().contains("configArray doesn't have a valid int value "
                 + "at index 1");
     }
 
@@ -467,10 +472,8 @@ public class FakeVhalConfigParserUnitTest {
         String jsonString = "{\"properties\": [{\"property\": 286261504, \"defaultValue\": null}]}";
         File tempFile = createTempFileWithContent(jsonString);
 
-        ConfigDeclaration configDeclaration = mFakeVhalConfigParser.parseJsonConfig(tempFile)
-                .get(286261504);
-
-        assertThat(configDeclaration.getInitialValue()).isEqualTo(null);
+        assertThrows(IllegalArgumentException.class, () ->
+                mFakeVhalConfigParser.parseJsonConfig(tempFile));
     }
 
     @Test
@@ -493,8 +496,8 @@ public class FakeVhalConfigParserUnitTest {
         IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () ->
                 mFakeVhalConfigParser.parseJsonConfig(tempFile));
 
-        assertThat(thrown).hasMessageThat().contains("Failed to parse the field name: int32Values "
-                + "for defaultValueObject: {\"int32Values\":null}");
+        assertThat(thrown).hasMessageThat().contains(
+                "int32Values doesn't have a valid JSONArray value");
     }
 
     @Test
@@ -545,7 +548,7 @@ public class FakeVhalConfigParserUnitTest {
         IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () ->
                 mFakeVhalConfigParser.parseJsonConfig(tempFile));
 
-        assertThat(thrown).hasMessageThat().contains("areas doesn't have a mapped array value.");
+        assertThat(thrown).hasMessageThat().contains("areas doesn't have a valid JSONArray value.");
     }
 
     @Test
@@ -568,7 +571,7 @@ public class FakeVhalConfigParserUnitTest {
         IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () ->
                 mFakeVhalConfigParser.parseJsonConfig(tempFile));
 
-        assertThat(thrown).hasMessageThat().contains("The JSONObject {} is empty.");
+        assertThat(thrown).hasMessageThat().contains("is empty");
     }
 
     @Test
@@ -580,8 +583,7 @@ public class FakeVhalConfigParserUnitTest {
         IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () ->
                 mFakeVhalConfigParser.parseJsonConfig(tempFile));
 
-        assertThat(thrown).hasMessageThat().contains("{\"minInt32Value\":0} doesn't have areaId. "
-                + "AreaId is required.");
+        assertThat(thrown).hasMessageThat().contains("doesn't have areaId. AreaId is required.");
     }
 
     @Test
@@ -832,19 +834,20 @@ public class FakeVhalConfigParserUnitTest {
         assertThat(thrown).hasMessageThat().contains("Access field is not set for this property:");
         assertThat(thrown).hasMessageThat().contains("ChangeMode field is not set for this "
                 + "property:");
-        assertThat(thrown).hasMessageThat().contains("Unable to parse JSON object:");
-        assertThat(thrown).hasMessageThat().contains("at index 0");
+        assertThat(thrown).hasMessageThat().contains("Unable to parse property config at index 0");
         assertThat(thrown).hasMessageThat().contains("properties array has an invalid JSON element "
                 + "at index 1");
-        assertThat(thrown).hasMessageThat().contains("The JSONObject {} is empty.");
+        assertThat(thrown).hasMessageThat().contains("is empty");
         assertThat(thrown).hasMessageThat().contains("at index 2");
-        assertThat(thrown).hasMessageThat().contains("doesn't have propId. PropId is required.");
+        assertThat(thrown).hasMessageThat().contains("PropId is required");
         assertThat(thrown).hasMessageThat().contains("at index 3");
         assertThat(thrown).hasMessageThat().contains("is not a valid class name.");
         assertThat(thrown).hasMessageThat().contains("at index 4");
-        assertThat(thrown).hasMessageThat().contains("doesn't have a mapped JSONArray value.");
+        assertThat(thrown).hasMessageThat().contains(
+                "configArray doesn't have a valid JSONArray value");
         assertThat(thrown).hasMessageThat().contains("at index 5");
-        assertThat(thrown).hasMessageThat().contains("Failed to parse the field name:");
+        assertThat(thrown).hasMessageThat().contains(
+                "int32Values doesn't have a valid JSONArray value");
         assertThat(thrown).hasMessageThat().contains("at index 6");
         assertThat(thrown).hasMessageThat().contains("doesn't have areaId. AreaId is required.");
         assertThat(thrown).hasMessageThat().contains("at index 7");
@@ -870,6 +873,73 @@ public class FakeVhalConfigParserUnitTest {
                 .isEqualTo(VehicleSeatOccupancyState.VACANT);
         assertThat(result.get(VehicleProperty.TIRE_PRESSURE).getConfig().areaConfigs[0].areaId)
                 .isEqualTo(WHEEL_FRONT_LEFT);
+    }
+
+    @Test
+    public void testParseJsonConfig_areaAccessInheritFromGlobal() throws Exception {
+        // Create a JSON config object with all field values set.
+        String jsonString = "{\"properties\": [{"
+                + "             \"property\": 12345,"
+                + "               \"areas\": [{"
+                + "                 \"minInt32Value\": 0,"
+                + "                 \"maxInt32Value\": 10,"
+                + "                 \"areaId\": 54321"
+                + "               }],"
+                + "            \"access\": \"VehiclePropertyAccess::READ\","
+                + "            \"changeMode\": \"VehiclePropertyChangeMode::STATIC\""
+                + "        }]}";
+        File tempFile = createTempFileWithContent(jsonString);
+
+        ConfigDeclaration configDeclaration = mFakeVhalConfigParser.parseJsonConfig(tempFile)
+                .get(12345);
+
+        assertThat(configDeclaration.getConfig().areaConfigs[0].access).isEqualTo(
+                VehiclePropertyAccess.READ);
+    }
+
+    @Test
+    public void testParseJsonConfig_areaAccessOverwritesGlobal() throws Exception {
+        // Create a JSON config object with all field values set.
+        String jsonString = "{\"properties\": [{"
+                + "             \"property\": 12345,"
+                + "               \"areas\": [{"
+                + "                 \"minInt32Value\": 0,"
+                + "                 \"maxInt32Value\": 10,"
+                + "                 \"access\": \"VehiclePropertyAccess::READ_WRITE\","
+                + "                 \"areaId\": 54321"
+                + "               }],"
+                + "            \"access\": \"VehiclePropertyAccess::READ\","
+                + "            \"changeMode\": \"VehiclePropertyChangeMode::STATIC\""
+                + "        }]}";
+        File tempFile = createTempFileWithContent(jsonString);
+
+        ConfigDeclaration configDeclaration = mFakeVhalConfigParser.parseJsonConfig(tempFile)
+                .get(12345);
+
+        assertThat(configDeclaration.getConfig().areaConfigs[0].access).isEqualTo(
+                VehiclePropertyAccess.READ_WRITE);
+    }
+
+    @Test
+    public void testParseJsonConfig_areaAccessUseDefault() throws Exception {
+        // Create a JSON config object with all field values set.
+        String jsonString = "{\"properties\": [{"
+                + "             \"property\": \"VehicleProperty::WHEEL_TICK\","
+                + "               \"areas\": [{"
+                + "                 \"minInt32Value\": 0,"
+                + "                 \"maxInt32Value\": 10,"
+                + "                 \"areaId\": 54321"
+                + "               }],"
+                + "            \"changeMode\": \"VehiclePropertyChangeMode::STATIC\""
+                + "        }]}";
+        File tempFile = createTempFileWithContent(jsonString);
+
+        ConfigDeclaration configDeclaration = mFakeVhalConfigParser.parseJsonConfig(tempFile)
+                .get(VehicleProperty.WHEEL_TICK);
+
+        // WHEEL_TICK default access is READ.
+        assertThat(configDeclaration.getConfig().areaConfigs[0].access).isEqualTo(
+                VehiclePropertyAccess.READ);
     }
 
     private File createTempFileWithContent(String fileContent) throws Exception {
