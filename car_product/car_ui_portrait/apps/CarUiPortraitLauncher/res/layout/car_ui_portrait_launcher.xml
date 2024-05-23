@@ -38,7 +38,6 @@
         android:background="@drawable/control_bar_background"
         android:layout_gravity="bottom"
         android:gravity="bottom"
-        android:elevation="@dimen/panel_elevation"
         android:orientation="vertical">
 
         <FrameLayout
