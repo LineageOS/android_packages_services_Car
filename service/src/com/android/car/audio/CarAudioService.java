@@ -2025,7 +2025,7 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
                 };
 
         mCarAudioPolicyVolumeCallback = new CarAudioPolicyVolumeCallback(volumeCallbackInternal,
-                mAudioManager, new CarVolumeInfoWrapper(this), mUseCarVolumeGroupMuting);
+                mAudioManagerWrapper, new CarVolumeInfoWrapper(this), mUseCarVolumeGroupMuting);
         // Attach the {@link AudioPolicyVolumeCallback}
         CarAudioPolicyVolumeCallback.addVolumeCallbackToPolicy(volumeControlPolicyBuilder,
                 mCarAudioPolicyVolumeCallback);

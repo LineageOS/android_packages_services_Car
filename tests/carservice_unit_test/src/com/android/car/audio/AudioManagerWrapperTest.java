@@ -97,6 +97,8 @@ public final class AudioManagerWrapperTest extends AbstractExtendedMockitoTestCa
         doReturn(TEST_GAIN_SET_STATE).when(() -> AudioManagerHelper
                 .setAudioDeviceGain(eq(mAudioManager), eq(TEST_ADDRESS),
                         eq(TEST_GAIN), eq(TEST_IS_OUTPUT)));
+        doReturn(TEST_MUTED_STATE)
+                .when(() -> AudioManagerHelper.isMasterMute(eq(mAudioManager)));
 
         mAudioManagerWrapper = new AudioManagerWrapper(mAudioManager);
     }
@@ -180,5 +182,11 @@ public final class AudioManagerWrapperTest extends AbstractExtendedMockitoTestCa
         mAudioManagerWrapper.abandonAudioFocusRequest(request);
 
         verify(mAudioManager).abandonAudioFocusRequest(request);
+    }
+
+    @Test
+    public void isMasterMuted() {
+        expectWithMessage("Master mute state").that(mAudioManagerWrapper.isMasterMuted())
+                .isEqualTo(TEST_MUTED_STATE);
     }
 }

@@ -86,4 +86,8 @@ public final class AudioManagerWrapper {
     public int requestAudioFocus(AudioFocusRequest audioFocusRequest) {
         return mAudioManager.requestAudioFocus(audioFocusRequest);
     }
+
+    boolean isMasterMuted() {
+        return AudioManagerHelper.isMasterMute(mAudioManager);
+    }
 }
