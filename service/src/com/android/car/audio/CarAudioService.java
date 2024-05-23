@@ -2241,11 +2241,6 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
         if (mCarAudioModuleChangeMonitor == null) {
             return;
         }
-        AudioControlWrapper audioControlWrapper = getAudioControlWrapperLocked();
-        if (!audioControlWrapper.supportsFeature(AUDIOCONTROL_FEATURE_AUDIO_MODULE_CALLBACK)) {
-            Slogf.w(CarLog.TAG_AUDIO, "HalModuleChangeCallback is not supported on this device");
-            return;
-        }
         try {
             mCarAudioModuleChangeMonitor.clearModuleChangeCallback();
         } catch (Exception e) {
