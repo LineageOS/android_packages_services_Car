@@ -30,6 +30,7 @@ import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase.CustomMockitoSessionBuilder;
 import android.media.AudioAttributes;
 import android.media.AudioDeviceAttributes;
+import android.media.AudioFocusRequest;
 import android.media.AudioManager;
 import android.media.audiopolicy.AudioProductStrategy;
 
@@ -41,6 +42,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 
 @RunWith(AndroidJUnit4.class)
 public final class AudioManagerWrapperTest extends AbstractExtendedMockitoTestCase {
@@ -160,5 +162,23 @@ public final class AudioManagerWrapperTest extends AbstractExtendedMockitoTestCa
         expectWithMessage("Volume gain set state")
                 .that(mAudioManagerWrapper
                         .setAudioDeviceGain(TEST_ADDRESS, TEST_GAIN, TEST_IS_OUTPUT));
+    }
+
+    @Test
+    public void requestAudioFocus() {
+        AudioFocusRequest request = Mockito.mock(AudioFocusRequest.class);
+
+        mAudioManagerWrapper.requestAudioFocus(request);
+
+        verify(mAudioManager).requestAudioFocus(request);
+    }
+
+    @Test
+    public void abandonAudioFocusRequest() {
+        AudioFocusRequest request = Mockito.mock(AudioFocusRequest.class);
+
+        mAudioManagerWrapper.abandonAudioFocusRequest(request);
+
+        verify(mAudioManager).abandonAudioFocusRequest(request);
     }
 }

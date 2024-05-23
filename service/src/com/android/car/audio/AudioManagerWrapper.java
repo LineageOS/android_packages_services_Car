@@ -18,6 +18,7 @@ package com.android.car.audio;
 import android.car.builtin.media.AudioManagerHelper;
 import android.media.AudioAttributes;
 import android.media.AudioDeviceAttributes;
+import android.media.AudioFocusRequest;
 import android.media.AudioManager;
 import android.media.audiopolicy.AudioProductStrategy;
 
@@ -70,5 +71,19 @@ public final class AudioManagerWrapper {
 
     boolean setAudioDeviceGain(String address, int gain, boolean isOutput) {
         return AudioManagerHelper.setAudioDeviceGain(mAudioManager, address, gain, isOutput);
+    }
+
+    /**
+     * {@link AudioManager#abandonAudioFocusRequest(AudioFocusRequest)}
+     */
+    public int abandonAudioFocusRequest(AudioFocusRequest audioFocusRequest) {
+        return mAudioManager.abandonAudioFocusRequest(audioFocusRequest);
+    }
+
+    /**
+     * {@link AudioManager#requestAudioFocus(AudioFocusRequest)}
+     */
+    public int requestAudioFocus(AudioFocusRequest audioFocusRequest) {
+        return mAudioManager.requestAudioFocus(audioFocusRequest);
     }
 }
