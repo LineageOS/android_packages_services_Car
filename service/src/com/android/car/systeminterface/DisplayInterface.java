@@ -420,7 +420,12 @@ public interface DisplayInterface {
             // setDisplayState has a binder call to system_server. Should not wrap setDisplayState
             // with a lock.
             for (int i = 0; i < displayIds.size(); i++) {
-                setDisplayState(displayIds.get(i), on);
+                int displayId = displayIds.get(i);
+                try {
+                    setDisplayState(displayId, on);
+                } catch (IllegalArgumentException e) {
+                    Slogf.w(TAG, "Cannot set display(%d) state(%b)", displayId, on);
+                }
             }
         }
 
