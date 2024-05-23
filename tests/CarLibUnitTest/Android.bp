@@ -40,7 +40,6 @@ java_defaults {
         "android.car.test.utils",
         "androidx.annotation_annotation",
         "androidx.test.rules",
-        "ravenwood-junit",
         "truth",
         "vehicle-hal-support-lib",
     ],
@@ -68,6 +67,7 @@ android_test {
     name: "CarLibDeviceUnitTest",
     static_libs: [
         "mockito-target-extended",
+        "ravenwood-junit",
     ],
     defaults: [
         "CarLibUnitTestDefault",

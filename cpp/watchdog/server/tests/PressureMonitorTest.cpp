@@ -32,6 +32,8 @@ namespace android {
 namespace automotive {
 namespace watchdog {
 
+namespace {
+
 using ::android::sp;
 using ::android::base::StringAppendF;
 using ::android::base::StringPrintf;
@@ -50,7 +52,6 @@ using ::testing::Return;
 using ::testing::Test;
 using ::testing::UnorderedElementsAreArray;
 
-namespace {
 constexpr const char kSamplePsiData[] = "some avg10=0.00 avg60=0.00 avg300=0.00 total=51013728\n"
                                         "full avg10=0.00 avg60=0.00 avg300=0.00 total=25154435";
 constexpr std::chrono::milliseconds kTestPollingIntervalMillis = 100ms;
@@ -154,7 +155,8 @@ protected:
 
     struct EpollResponseInfo {
         EpollResponse response = EVENT_TRIGGERED;
-        PressureMonitor::PressureLevel highestPressureLevel = PressureMonitor::PRESSURE_LEVEL_NONE;
+        PressureMonitorInterface::PressureLevel highestPressureLevel =
+                PressureMonitor::PRESSURE_LEVEL_NONE;
     };
 
     void SetUp() override {

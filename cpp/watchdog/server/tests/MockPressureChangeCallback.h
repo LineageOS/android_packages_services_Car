@@ -25,9 +25,10 @@ namespace android {
 namespace automotive {
 namespace watchdog {
 
-class MockPressureChangeCallback : virtual public PressureMonitor::PressureChangeCallbackInterface {
+class MockPressureChangeCallback :
+      virtual public PressureMonitorInterface::PressureChangeCallbackInterface {
 public:
-    MOCK_METHOD(void, onPressureChanged, (PressureMonitor::PressureLevel), (override));
+    MOCK_METHOD(void, onPressureChanged, (PressureMonitorInterface::PressureLevel), (override));
 };
 
 }  // namespace watchdog

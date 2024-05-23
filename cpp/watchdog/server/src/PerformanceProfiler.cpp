@@ -18,6 +18,8 @@
 
 #include "PerformanceProfiler.h"
 
+#include "ServiceManager.h"
+
 #include <WatchdogProperties.sysprop.h>
 #include <android-base/file.h>
 #include <android-base/stringprintf.h>
@@ -58,6 +60,9 @@ using ::android::base::StringAppendF;
 using ::android::base::StringPrintf;
 using ::android::base::WriteStringToFd;
 using ::android::util::ProtoOutputStream;
+
+using PressureLevelDurationMap =
+        std::unordered_map<PressureMonitorInterface::PressureLevel, std::chrono::milliseconds>;
 
 constexpr int32_t kDefaultTopNStatsPerCategory = 10;
 constexpr int32_t kDefaultTopNStatsPerSubcategory = 5;
@@ -258,6 +263,27 @@ SystemSummaryUsageStats constructSystemSummaryUsageStats(
             .totalIoReads = totalIoReads,
             .totalIoWrites = totalIoWrites,
     };
+}
+
+std::string pressureLevelDurationMapToString(
+        const PressureLevelDurationMap& pressureLevelDurations) {
+    std::string buffer;
+    StringAppendF(&buffer, "Duration spent in various memory pressure levels:\n");
+    // The keys stored in PressureLevelDurationMap are unordered, so the pressure level ordering is
+    // inconsistent across different runs. In order to print values in a consistent order, iterate
+    // through the PressureLevel enum instead.
+    for (int i = PressureMonitorInterface::PRESSURE_LEVEL_NONE;
+         i < PressureMonitorInterface::PRESSURE_LEVEL_COUNT; ++i) {
+        PressureMonitorInterface::PressureLevel pressureLevel =
+                static_cast<PressureMonitorInterface::PressureLevel>(i);
+        if (const auto& it = pressureLevelDurations.find(pressureLevel);
+            it != pressureLevelDurations.end()) {
+            StringAppendF(&buffer, "\tPressure level: %s, Duration: %" PRIi64 " ms\n",
+                          PressureMonitorInterface::PressureLevelToString(pressureLevel).c_str(),
+                          it->second.count());
+        }
+    }
+    return buffer;
 }
 
 }  // namespace
@@ -587,7 +613,9 @@ std::string SystemSummaryStats::toString() const {
 
 std::string PerfStatsRecord::toString() const {
     std::string buffer;
-    StringAppendF(&buffer, "%s%s", systemSummaryStats.toString().c_str(),
+    StringAppendF(&buffer, "%s\n%s\n%s",
+                  pressureLevelDurationMapToString(memoryPressureLevelDurations).c_str(),
+                  systemSummaryStats.toString().c_str(),
                   userPackageSummaryStats.toString().c_str());
     return buffer;
 }
@@ -644,12 +672,26 @@ Result<void> PerformanceProfiler::init() {
             .maxCacheSize = std::numeric_limits<std::size_t>::max(),
             .records = {},
     };
+    if (!mIsMemoryProfilingEnabled) {
+        return {};
+    }
+    if (auto result = kPressureMonitor->registerPressureChangeCallback(
+                sp<PerformanceProfiler>::fromExisting(this));
+        !result.ok()) {
+        ALOGE("Failed to register pressure change callback for '%s'. Error: %s", name().c_str(),
+              result.error().message().c_str());
+    }
     return {};
 }
 
 void PerformanceProfiler::terminate() {
     Mutex::Autolock lock(mMutex);
     ALOGW("Terminating %s", name().c_str());
+
+    if (mIsMemoryProfilingEnabled) {
+        kPressureMonitor->unregisterPressureChangeCallback(
+                sp<PerformanceProfiler>::fromExisting(this));
+    }
 
     mBoottimeCollection.records.clear();
     mBoottimeCollection = {};
@@ -1085,6 +1127,9 @@ Result<void> PerformanceProfiler::processLocked(
     PerfStatsRecord record{
             .collectionTimeMillis = time,
     };
+    if (mIsMemoryProfilingEnabled) {
+        record.memoryPressureLevelDurations = mMemoryPressureLevelDeltaInfo.onCollectionLocked();
+    }
     bool isGarageModeActive = systemState == SystemState::GARAGE_MODE;
     bool shouldSendResourceUsageStats = mDoSendResourceUsageStats && (resourceStats != nullptr);
     std::vector<UidResourceUsageStats>* uidResourceUsageStats =
@@ -1283,6 +1328,35 @@ Result<void> PerformanceProfiler::onUserSwitchCollectionDump(int fd) const {
         }
     }
     return {};
+}
+
+void PerformanceProfiler::PressureLevelDeltaInfo::setLatestPressureLevelLocked(
+        PressureMonitorInterface::PressureLevel pressureLevel) {
+    auto now = kGetElapsedTimeSinceBootMillisFunc();
+    auto duration = now - mLatestPressureLevelElapsedRealtimeMillis;
+    if (mPressureLevelDurations.find(pressureLevel) == mPressureLevelDurations.end()) {
+        mPressureLevelDurations[pressureLevel] = 0ms;
+    }
+    mPressureLevelDurations[pressureLevel] += std::chrono::milliseconds(duration);
+    mLatestPressureLevelElapsedRealtimeMillis = now;
+    mLatestPressureLevel = pressureLevel;
+}
+
+PressureLevelDurationMap PerformanceProfiler::PressureLevelDeltaInfo::onCollectionLocked() {
+    // Reset pressure level to trigger accounting and flushing the latest timing info to
+    // mPressureLevelDurations.
+    setLatestPressureLevelLocked(mLatestPressureLevel);
+    auto durationsMap = mPressureLevelDurations;
+    mPressureLevelDurations.clear();
+    return durationsMap;
+}
+
+void PerformanceProfiler::onPressureChanged(PressureMonitorInterface::PressureLevel pressureLevel) {
+    if (!mIsMemoryProfilingEnabled) {
+        return;
+    }
+    Mutex::Autolock lock(mMutex);
+    mMemoryPressureLevelDeltaInfo.setLatestPressureLevelLocked(pressureLevel);
 }
 
 void PerformanceProfiler::clearExpiredSystemEventCollections(time_point_millis now) {

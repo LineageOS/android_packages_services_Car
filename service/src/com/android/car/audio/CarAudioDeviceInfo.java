@@ -32,7 +32,6 @@ import android.car.builtin.media.AudioManagerHelper.AudioGainInfo;
 import android.car.builtin.util.Slogf;
 import android.media.AudioDeviceAttributes;
 import android.media.AudioDeviceInfo;
-import android.media.AudioManager;
 import android.util.proto.ProtoOutputStream;
 
 import com.android.car.CarLog;
@@ -64,7 +63,7 @@ import java.util.Objects;
      * per {@link ENCODING_PCM_16BIT}'s documentation.
      */
     private static final int DEFAULT_ENCODING_FORMAT = ENCODING_PCM_16BIT;
-    private final AudioManager mAudioManager;
+    private final AudioManagerWrapper mAudioManager;
 
     private final Object mLock = new Object();
     @GuardedBy("mLock")
@@ -96,7 +95,8 @@ import java.util.Objects;
     @GuardedBy("mLock")
     private boolean mIsActive;
 
-    CarAudioDeviceInfo(AudioManager audioManager, AudioDeviceAttributes audioDeviceAttributes) {
+    CarAudioDeviceInfo(AudioManagerWrapper audioManager,
+            AudioDeviceAttributes audioDeviceAttributes) {
         mAudioManager = audioManager;
         mAudioDeviceAttributes = audioDeviceAttributes;
         // Device specific information will be initialized once an actual audio device info is set
@@ -280,8 +280,7 @@ import java.util.Objects;
             }
         }
 
-        if (AudioManagerHelper.setAudioDeviceGain(mAudioManager,
-                getAddress(), gain, true)) {
+        if (mAudioManager.setAudioDeviceGain(getAddress(), gain, true)) {
             // Since we can't query for the gain on a device port later,
             // we have to remember what we asked for
             synchronized (mLock) {

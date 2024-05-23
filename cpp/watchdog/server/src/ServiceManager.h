@@ -18,6 +18,7 @@
 #define CPP_WATCHDOG_SERVER_SRC_SERVICEMANAGER_H_
 
 #include "IoOveruseMonitor.h"
+#include "PressureMonitor.h"
 #include "WatchdogBinderMediator.h"
 #include "WatchdogPerfService.h"
 #include "WatchdogProcessService.h"
@@ -40,8 +41,10 @@ public:
           mWatchdogPerfService(nullptr),
           mWatchdogBinderMediator(nullptr),
           mWatchdogServiceHelper(nullptr),
-          mIoOveruseMonitor(nullptr) {}
+          mIoOveruseMonitor(nullptr),
+          mPressureMonitor(nullptr) {}
 
+    // Returns the singleton ServiceManager instance.
     static android::sp<ServiceManager> getInstance() {
         if (sServiceManager == nullptr) {
             sServiceManager = android::sp<ServiceManager>::make();
@@ -49,6 +52,7 @@ public:
         return sServiceManager;
     }
 
+    // Terminates all services and resets the singleton instance.
     static void terminate() {
         if (sServiceManager == nullptr) {
             return;
@@ -80,6 +84,7 @@ private:
 
     void terminateServices();
     android::base::Result<void> startWatchdogProcessService(const android::sp<Looper>& mainLooper);
+    android::base::Result<void> startPressureMonitor();
     android::base::Result<void> startWatchdogPerfService(
             const sp<WatchdogServiceHelperInterface>& watchdogServiceHelper);
 
@@ -88,6 +93,7 @@ private:
     std::shared_ptr<WatchdogBinderMediatorInterface> mWatchdogBinderMediator;
     android::sp<WatchdogServiceHelperInterface> mWatchdogServiceHelper;
     android::sp<IoOveruseMonitorInterface> mIoOveruseMonitor;
+    android::sp<PressureMonitorInterface> mPressureMonitor;
 };
 
 }  // namespace watchdog

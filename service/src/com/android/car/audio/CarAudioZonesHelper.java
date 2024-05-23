@@ -43,7 +43,6 @@ import android.car.oem.CarAudioFadeConfiguration;
 import android.media.AudioAttributes;
 import android.media.AudioDeviceAttributes;
 import android.media.AudioDeviceInfo;
-import android.media.AudioManager;
 import android.media.audiopolicy.AudioProductStrategy;
 import android.text.TextUtils;
 import android.util.ArrayMap;
@@ -145,7 +144,7 @@ import java.util.Set;
                     | CarActivationVolumeConfig.ACTIVATION_VOLUME_ON_SOURCE_CHANGED
                     | CarActivationVolumeConfig.ACTIVATION_VOLUME_ON_PLAYBACK_CHANGED;
 
-    private final AudioManager mAudioManager;
+    private final AudioManagerWrapper mAudioManager;
     private final CarAudioSettings mCarAudioSettings;
     private final List<CarAudioContextInfo> mCarAudioContextInfos = new ArrayList<>();
     private final Map<String, CarAudioDeviceInfo> mAddressToCarAudioDeviceInfo;
@@ -174,7 +173,7 @@ import java.util.Set;
      * <p><b>Note: <b/> CarAudioZonesHelper is expected to be used from a single thread. This
      * should be the same thread that originally called new CarAudioZonesHelper.
      */
-    CarAudioZonesHelper(AudioManager audioManager, CarAudioSettings carAudioSettings,
+    CarAudioZonesHelper(AudioManagerWrapper audioManager, CarAudioSettings carAudioSettings,
             InputStream inputStream, List<CarAudioDeviceInfo> carAudioDeviceInfos,
             AudioDeviceInfo[] inputDeviceInfo, LocalLog serviceLog, boolean useCarVolumeGroupMute,
             boolean useCoreAudioVolume, boolean useCoreAudioRouting,

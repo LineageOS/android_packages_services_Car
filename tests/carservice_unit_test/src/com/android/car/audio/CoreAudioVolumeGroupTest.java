@@ -55,7 +55,6 @@ import static com.android.car.audio.CoreAudioRoutingUtils.OEM_STRATEGY_ID;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.verify;
 
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -63,7 +62,6 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.when;
 
 import android.car.Car;
-import android.car.builtin.media.AudioManagerHelper;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.media.AudioDeviceAttributes;
 import android.media.AudioDeviceInfo;
@@ -96,7 +94,7 @@ public final class CoreAudioVolumeGroupTest  extends AbstractExtendedMockitoTest
     private CarAudioDeviceInfo mOemInfoMock = mock(CarAudioDeviceInfo.class);
 
     @Mock
-    AudioManager mMockAudioManager;
+    AudioManagerWrapper mMockAudioManager;
     @Mock
     CarAudioSettings mSettingsMock;
 
@@ -112,7 +110,6 @@ public final class CoreAudioVolumeGroupTest  extends AbstractExtendedMockitoTest
     @Override
     protected void onSessionBuilder(CustomMockitoSessionBuilder session) {
         session.spyStatic(CoreAudioHelper.class)
-                .spyStatic(AudioManagerHelper.class)
                 .spyStatic(Car.class);
     }
     void setupMock() {
@@ -262,8 +259,8 @@ public final class CoreAudioVolumeGroupTest  extends AbstractExtendedMockitoTest
         mMusicCoreAudioVolumeGroup.setCurrentGainIndex(MUSIC_AM_INIT_INDEX);
         mMusicCoreAudioVolumeGroup.setMute(true);
 
-        verify(() -> AudioManagerHelper.adjustVolumeGroupVolume(any(),
-                eq(MUSIC_GROUP_ID), eq(AudioManager.ADJUST_MUTE), anyInt()));
+        verify(mMockAudioManager).adjustVolumeGroupVolume(
+                eq(MUSIC_GROUP_ID), eq(AudioManager.ADJUST_MUTE), anyInt());
         expectWithMessage("Car volume group mute state after group muted")
                 .that(mMusicCoreAudioVolumeGroup.isMuted()).isTrue();
         expectWithMessage("Index after group muted")
@@ -273,8 +270,8 @@ public final class CoreAudioVolumeGroupTest  extends AbstractExtendedMockitoTest
 
         mMusicCoreAudioVolumeGroup.setMute(false);
 
-        verify(() -> AudioManagerHelper.adjustVolumeGroupVolume(any(),
-                eq(MUSIC_GROUP_ID), eq(AudioManager.ADJUST_UNMUTE), anyInt()));
+        verify(mMockAudioManager).adjustVolumeGroupVolume(
+                eq(MUSIC_GROUP_ID), eq(AudioManager.ADJUST_UNMUTE), anyInt());
         expectWithMessage("Car volume group mute state after group unmuted")
                 .that(mMusicCoreAudioVolumeGroup.isMuted()).isFalse();
         expectWithMessage("Index after group unmuted")
@@ -293,8 +290,8 @@ public final class CoreAudioVolumeGroupTest  extends AbstractExtendedMockitoTest
 
         mMusicCoreAudioVolumeGroup.setMute(true);
 
-        verify(() -> AudioManagerHelper.adjustVolumeGroupVolume(any(),
-                eq(MUSIC_GROUP_ID), eq(AudioManager.ADJUST_MUTE), anyInt()));
+        verify(mMockAudioManager).adjustVolumeGroupVolume(
+                eq(MUSIC_GROUP_ID), eq(AudioManager.ADJUST_MUTE), anyInt());
         expectWithMessage("Car volume group mute state after group muted")
                 .that(mMusicCoreAudioVolumeGroup.isMuted()).isTrue();
         expectWithMessage("Index after group muted")
@@ -304,8 +301,8 @@ public final class CoreAudioVolumeGroupTest  extends AbstractExtendedMockitoTest
 
         mMusicCoreAudioVolumeGroup.setMute(false);
 
-        verify(() -> AudioManagerHelper.adjustVolumeGroupVolume(any(),
-                eq(MUSIC_GROUP_ID), eq(AudioManager.ADJUST_UNMUTE), anyInt()));
+        verify(mMockAudioManager).adjustVolumeGroupVolume(
+                eq(MUSIC_GROUP_ID), eq(AudioManager.ADJUST_UNMUTE), anyInt());
         expectWithMessage("Car volume group mute state after group unmuted")
                 .that(mMusicCoreAudioVolumeGroup.isMuted()).isFalse();
         expectWithMessage("Index after group unmuted")

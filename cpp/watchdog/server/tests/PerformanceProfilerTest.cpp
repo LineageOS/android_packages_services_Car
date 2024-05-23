@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include "MockPressureMonitor.h"
 #include "MockProcStatCollector.h"
 #include "MockUidStatsCollector.h"
 #include "MockWatchdogServiceHelper.h"
@@ -68,6 +69,11 @@ using ::testing::Return;
 using ::testing::Test;
 using ::testing::UnorderedElementsAreArray;
 using ::testing::VariantWith;
+
+using PressureLevelDurationPair = std::pair<PressureMonitorInterface::PressureLevel, int64_t>;
+using PressureLevelTransitions = std::vector<PressureLevelDurationPair>;
+using PressureLevelDurations =
+        std::unordered_map<PressureMonitorInterface::PressureLevel, std::chrono::milliseconds>;
 
 constexpr int kTestBaseUserId = 100;
 constexpr bool kTestIsSmapsRollupSupported = true;
@@ -336,7 +342,10 @@ MATCHER_P(PerfStatsRecordEq, expected, "") {
                                           SystemSummaryStatsEq(expected.systemSummaryStats)),
                                     Field(&PerfStatsRecord::userPackageSummaryStats,
                                           UserPackageSummaryStatsEq(
-                                                  expected.userPackageSummaryStats))),
+                                                  expected.userPackageSummaryStats)),
+                                    Field(&PerfStatsRecord::memoryPressureLevelDurations,
+                                          UnorderedElementsAreArray(
+                                                  expected.memoryPressureLevelDurations))),
                               arg, result_listener);
 }
 
@@ -651,6 +660,28 @@ std::tuple<ProcStatInfo, SystemSummaryStats> sampleProcStat(auto int64Multiplier
                                           /*ioBlockedProcessCount=*/uint32Multiplier(57),
                                           /*totalProcessCount=*/uint32Multiplier(157)};
     return std::make_tuple(procStatInfo, systemSummaryStats);
+}
+
+std::tuple<PressureLevelTransitions, PressureLevelDurations> samplePressureLevels(
+        int advanceUptimeSec = 1) {
+    PressureLevelTransitions pressureLevelTransitions{
+            PressureLevelDurationPair{PressureMonitor::PRESSURE_LEVEL_NONE, 100 * advanceUptimeSec},
+            PressureLevelDurationPair{PressureMonitor::PRESSURE_LEVEL_HIGH, 200 * advanceUptimeSec},
+            PressureLevelDurationPair{PressureMonitor::PRESSURE_LEVEL_HIGH, 100 * advanceUptimeSec},
+            PressureLevelDurationPair{PressureMonitor::PRESSURE_LEVEL_LOW, 200 * advanceUptimeSec},
+            PressureLevelDurationPair{PressureMonitor::PRESSURE_LEVEL_MEDIUM,
+                                      100 * advanceUptimeSec},
+            PressureLevelDurationPair{PressureMonitor::PRESSURE_LEVEL_LOW, 200 * advanceUptimeSec},
+            PressureLevelDurationPair{PressureMonitor::PRESSURE_LEVEL_MEDIUM,
+                                      100 * advanceUptimeSec},
+    };
+    PressureLevelDurations pressureLevelDurations{
+            {PressureMonitor::PRESSURE_LEVEL_NONE, 100ms * advanceUptimeSec},
+            {PressureMonitor::PRESSURE_LEVEL_LOW, 400ms * advanceUptimeSec},
+            {PressureMonitor::PRESSURE_LEVEL_MEDIUM, 200ms * advanceUptimeSec},
+            {PressureMonitor::PRESSURE_LEVEL_HIGH, 300ms * advanceUptimeSec},
+    };
+    return std::make_tuple(pressureLevelTransitions, pressureLevelDurations);
 }
 
 ResourceStats getResourceStatsForSampledStats(auto int32Multiplier, auto int64Multiplier,
@@ -1142,14 +1173,24 @@ private:
 class PerformanceProfilerTest : public Test {
 protected:
     void SetUp() override {
+        mPeriodicCollectionBufferSize =
+                static_cast<size_t>(sysprop::periodicCollectionBufferSize().value_or(
+                        kDefaultPeriodicCollectionBufferSize));
         mElapsedRealtimeSinceBootMillis = kTestElapsedRealtimeSinceBootMillis;
         mNowMillis = kTestNowMillis;
         mMockUidStatsCollector = sp<MockUidStatsCollector>::make();
+        mMockPressureMonitor = sp<MockPressureMonitor>::make();
         mMockProcStatCollector = sp<MockProcStatCollector>::make();
-        mCollector = sp<PerformanceProfiler>::make(
-                std::bind(&PerformanceProfilerTest::getTestElapsedRealtimeSinceBootMs, this));
+        mCollector = sp<PerformanceProfiler>::
+                make(mMockPressureMonitor,
+                     std::bind(&PerformanceProfilerTest::getTestElapsedRealtimeSinceBootMs, this));
         mCollectorPeer = sp<internal::PerformanceProfilerPeer>::make(mCollector);
+
+        EXPECT_CALL(*mMockPressureMonitor, registerPressureChangeCallback(Eq(mCollector)))
+                .Times(car_watchdog_memory_profiling() ? 1 : 0);
+
         ASSERT_RESULT_OK(mCollectorPeer->init());
+
         mCollectorPeer->setTopNStatsPerCategory(kTestTopNStatsPerCategory);
         mCollectorPeer->setTopNStatsPerSubcategory(kTestTopNStatsPerSubcategory);
         mCollectorPeer->setMaxUserSwitchEvents(kTestMaxUserSwitchEvents);
@@ -1162,6 +1203,10 @@ protected:
     void TearDown() override {
         mMockUidStatsCollector.clear();
         mMockProcStatCollector.clear();
+
+        EXPECT_CALL(*mMockPressureMonitor, unregisterPressureChangeCallback(Eq(mCollector)))
+                .Times(car_watchdog_memory_profiling() ? 1 : 0);
+
         mCollector.clear();
         mCollectorPeer.clear();
     }
@@ -1183,11 +1228,26 @@ protected:
         checkDumpFd(/*wantedEmptyCollectionInstances=*/0, dump.fd);
     }
 
+    PressureLevelDurations injectPressureLevelTransitions(int advanceUptimeSec) {
+        if (!car_watchdog_memory_profiling()) {
+            mElapsedRealtimeSinceBootMillis += advanceUptimeSec * 1000;
+            return PressureLevelDurations{};
+        }
+        auto [pressureLevelTransitions, pressureLevelDurations] =
+                samplePressureLevels(advanceUptimeSec);
+        for (const auto transition : pressureLevelTransitions) {
+            mElapsedRealtimeSinceBootMillis += transition.second;
+            mCollector->onPressureChanged(transition.first);
+        }
+        return pressureLevelDurations;
+    }
+
     // Direct use of this method in tests is not recommended because further setup (such as calling
-    // constructing CollectionInfo struct, advancing time, and setting up EXPECT_CALL) is required
-    // before testing a collection. Please consider using one of the PerformanceProfilerTest::setup*
-    // methods instead. If none of them work for a new use case, either update the existing
-    // PerformanceProfilerTest::setup* methods or add a new PerformanceProfilerTest::setup* method.
+    // injectPressureLevelTransitions, constructing CollectionInfo struct, advancing time, and
+    // setting up EXPECT_CALL) is required before testing a collection. Please consider using one of
+    // the PerformanceProfilerTest::setup* methods instead. If none of them work for a new use case,
+    // either update the existing PerformanceProfilerTest::setup* methods or add a new
+    // PerformanceProfilerTest::setup* method.
     StatsInfo getSampleStatsInfo(int multiplier = 1,
                                  bool isSmapsRollupSupported = kTestIsSmapsRollupSupported) {
         const auto int64Multiplier = [&](int64_t bytes) -> int64_t {
@@ -1221,13 +1281,15 @@ protected:
     }
 
     void advanceTime(int durationMillis) {
-        mElapsedRealtimeSinceBootMillis += durationMillis;
         mNowMillis += std::chrono::milliseconds(durationMillis);
     }
 
     std::tuple<CollectionInfo, ResourceStats> setupFirstCollection(
             size_t maxCollectionCacheSize = std::numeric_limits<std::size_t>::max(),
             bool isSmapsRollupSupported = kTestIsSmapsRollupSupported) {
+        // Trigger pressure level transitions to test the pressure level accounting done by the
+        // implementation.
+        auto pressureLevelDurations = injectPressureLevelTransitions(/*advanceUptimeSec=*/1);
         auto statsInfo = getSampleStatsInfo(/*multiplier=*/1, isSmapsRollupSupported);
 
         EXPECT_CALL(*mMockUidStatsCollector, deltaStats()).WillOnce(Return(statsInfo.uidStats));
@@ -1239,6 +1301,7 @@ protected:
                                        .collectionTimeMillis = mNowMillis,
                                        .systemSummaryStats = statsInfo.systemSummaryStats,
                                        .userPackageSummaryStats = statsInfo.userPackageSummaryStats,
+                                       .memoryPressureLevelDurations = pressureLevelDurations,
                                }}};
         auto expectedResourceStats = statsInfo.resourceStats;
         return std::make_tuple(expectedCollectionInfo, expectedResourceStats);
@@ -1247,6 +1310,9 @@ protected:
     void setupNextCollection(CollectionInfo* prevCollectionInfo, ResourceStats* outResourceStats,
                              int multiplier = 1) {
         advanceTime(/*durationMillis=*/1000);
+        // Trigger pressure level transitions to test the pressure level accounting done by the
+        // implementation.
+        auto pressureLevelDurations = injectPressureLevelTransitions(/*advanceUptimeSec=*/1);
         auto statsInfo = getSampleStatsInfo(multiplier, kTestIsSmapsRollupSupported);
 
         EXPECT_CALL(*mMockUidStatsCollector, deltaStats()).WillOnce(Return(statsInfo.uidStats));
@@ -1263,6 +1329,7 @@ protected:
                 .collectionTimeMillis = mNowMillis,
                 .systemSummaryStats = statsInfo.systemSummaryStats,
                 .userPackageSummaryStats = statsInfo.userPackageSummaryStats,
+                .memoryPressureLevelDurations = pressureLevelDurations,
         });
         *outResourceStats = statsInfo.resourceStats;
     }
@@ -1302,7 +1369,9 @@ private:
     }
 
 protected:
+    size_t mPeriodicCollectionBufferSize;
     sp<MockUidStatsCollector> mMockUidStatsCollector;
+    sp<MockPressureMonitor> mMockPressureMonitor;
     sp<MockProcStatCollector> mMockProcStatCollector;
     sp<PerformanceProfiler> mCollector;
     sp<internal::PerformanceProfilerPeer> mCollectorPeer;
@@ -1435,7 +1504,9 @@ TEST_F(PerformanceProfilerTest, TestOnUserSwitchCollection) {
 
     // TODO(b/336835345): Revisit this test and update the below logic to use setupNextCollection
     //  instead.
+    auto nextPressureLevelDurations = injectPressureLevelTransitions(/*advanceUptimeSec=*/2);
     advanceTime(/*durationMillis=*/2000);
+
     const auto statsInfo = getSampleStatsInfo();
     ProcStatInfo nextProcStatInfo = statsInfo.procStatInfo;
     SystemSummaryStats nextSystemSummaryStats = statsInfo.systemSummaryStats;
@@ -1456,7 +1527,8 @@ TEST_F(PerformanceProfilerTest, TestOnUserSwitchCollection) {
     expected[0].records.push_back(
             PerfStatsRecord{.collectionTimeMillis = getNowMillis(),
                             .systemSummaryStats = nextSystemSummaryStats,
-                            .userPackageSummaryStats = nextUserPackageSummaryStats});
+                            .userPackageSummaryStats = nextUserPackageSummaryStats,
+                            .memoryPressureLevelDurations = nextPressureLevelDurations});
 
     EXPECT_THAT(actual, UserSwitchCollectionsEq(expected))
             << "User switch collection info after continuation doesn't match.\nExpected:\n"

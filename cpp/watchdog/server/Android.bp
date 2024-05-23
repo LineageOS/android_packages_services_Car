@@ -41,6 +41,7 @@ cc_defaults {
         "libbinder_ndk",
         "liblog",
         "libmeminfo",
+        "libpsi",
         "libutils",
         "packagemanager_aidl-cpp",
         "libprotoutil",
@@ -98,7 +99,6 @@ cc_defaults {
     name: "libwatchdog_perf_service_defaults",
     shared_libs: [
         "libprocessgroup",
-        "libpsi",
         "libtinyxml2",
     ],
 }

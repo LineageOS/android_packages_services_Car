@@ -35,7 +35,7 @@ package android.automotive.powerpolicy.internal;
 /* @hide */
 interface ICarPowerPolicyDelegateCallback {
   void updatePowerComponents(in android.frameworks.automotive.powerpolicy.CarPowerPolicy powerPolicy);
-  oneway void onApplyPowerPolicySucceeded(int requestId, in android.frameworks.automotive.powerpolicy.CarPowerPolicy accumulatedPolicy);
+  oneway void onApplyPowerPolicySucceeded(int requestId, in android.frameworks.automotive.powerpolicy.CarPowerPolicy accumulatedPolicy, boolean deferred);
   oneway void onApplyPowerPolicyFailed(int requestId, in android.automotive.powerpolicy.internal.PowerPolicyFailureReason reason);
   oneway void onPowerPolicyChanged(in android.frameworks.automotive.powerpolicy.CarPowerPolicy accumulatedPolicy);
 }
