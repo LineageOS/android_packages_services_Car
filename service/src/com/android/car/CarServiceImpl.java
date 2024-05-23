@@ -24,6 +24,7 @@ import android.car.builtin.os.SystemPropertiesHelper;
 import android.car.builtin.os.TraceHelper;
 import android.car.builtin.util.EventLogHelper;
 import android.car.builtin.util.Slogf;
+import android.car.builtin.util.TimingsTraceLog;
 import android.content.Intent;
 import android.os.IBinder;
 import android.os.Process;
@@ -31,7 +32,6 @@ import android.os.Process;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.ProxiedService;
 import com.android.car.systeminterface.SystemInterface;
-import com.android.car.util.LimitedTimingsTraceLog;
 import com.android.internal.annotations.Keep;
 
 import java.io.FileDescriptor;
@@ -52,7 +52,7 @@ public class CarServiceImpl extends ProxiedService {
 
     @Override
     public void onCreate() {
-        LimitedTimingsTraceLog initTiming = new LimitedTimingsTraceLog(CAR_SERVICE_INIT_TIMING_TAG,
+        TimingsTraceLog initTiming = new TimingsTraceLog(CAR_SERVICE_INIT_TIMING_TAG,
                 TraceHelper.TRACE_TAG_CAR_SERVICE, CAR_SERVICE_INIT_TIMING_MIN_DURATION_MS);
         initTiming.traceBegin("CarService.onCreate");
 
