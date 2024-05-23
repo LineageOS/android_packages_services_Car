@@ -29,6 +29,7 @@ import static android.media.audiopolicy.Flags.FLAG_ENABLE_FADE_MANAGER_CONFIGURA
 
 import static com.android.car.audio.CarAudioService.CAR_DEFAULT_AUDIO_ATTRIBUTE;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
+import static com.android.dx.mockito.inline.extended.ExtendedMockito.mockitoSession;
 
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
@@ -39,7 +40,7 @@ import static org.mockito.Mockito.when;
 
 import android.car.Car;
 import android.car.feature.Flags;
-import android.car.test.mocks.AbstractExtendedMockitoTestCase;
+import android.car.test.AbstractExpectableTestCase;
 import android.content.Context;
 import android.media.AudioAttributes;
 import android.media.AudioDeviceAttributes;
@@ -53,6 +54,8 @@ import androidx.test.core.app.ApplicationProvider;
 
 import com.android.car.R;
 import com.android.car.internal.util.LocalLog;
+import com.android.dx.mockito.inline.extended.StaticMockitoSession;
+import com.android.dx.mockito.inline.extended.StaticMockitoSessionBuilder;
 
 import com.google.common.collect.ImmutableList;
 
@@ -63,6 +66,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.quality.Strictness;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
@@ -72,8 +76,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RunWith(MockitoJUnitRunner.class)
-public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
-    private static final String TAG = CarAudioZonesHelperTest.class.getSimpleName();
+public final class CarAudioZonesHelperTest extends AbstractExpectableTestCase {
 
     private static final CarAudioContextInfo OEM_CONTEXT_INFO_MUSIC =
             new CarAudioContextInfo(new AudioAttributes[] {
@@ -208,21 +211,19 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
 
     @Rule
     public final SetFlagsRule mSetFlagsRule = new SetFlagsRule();
+    private StaticMockitoSession mSession;
 
-    public CarAudioZonesHelperTest() {
-        super(TAG);
-    }
-
-    @Override
-    protected void onSessionBuilder(CustomMockitoSessionBuilder session) {
-        session
-                .spyStatic(AudioManager.class)
-                .spyStatic(Car.class)
-                .spyStatic(CoreAudioHelper.class);
-    }
 
     @Before
     public void setUp() {
+        StaticMockitoSessionBuilder builder = mockitoSession()
+                .strictness(Strictness.LENIENT)
+                .spyStatic(AudioManager.class)
+                .spyStatic(Car.class)
+                .spyStatic(CoreAudioHelper.class);
+
+        mSession = builder.initMocks(this).startMocking();
+
         setupAudioManagerMock();
 
         mCarAudioOutputDeviceInfos = generateCarDeviceInfos();
@@ -238,6 +239,7 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
         if (mInputStream != null) {
             mInputStream.close();
         }
+        mSession.finishMocking();
     }
 
     private List<CarAudioDeviceInfo> generateCarDeviceInfos() {
