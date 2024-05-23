@@ -311,7 +311,8 @@ private:
     void applyAndNotifyPowerPolicy(const CarPowerPolicyMeta& policyMeta,
                                    const std::vector<CallbackInfo>& clients,
                                    const bool notifyCarService);
-    android::base::Result<void> applyPowerPolicyInternal(const std::string& policyId,
+    // Returns true if the application is done, false if it is deferred.
+    android::base::Result<bool> applyPowerPolicyInternal(const std::string& policyId,
                                                          const bool force,
                                                          const bool notifyCarService)
             EXCLUDES(mMutex);

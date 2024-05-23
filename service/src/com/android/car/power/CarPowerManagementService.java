@@ -954,6 +954,10 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                     powerStateName, request.getFailureReason());
             return;
         }
+        if (request.isDeferred()) {
+            Slogf.i(TAG, "Applying power policy for power state(%s) is deferred", powerStateName);
+            return;
+        }
         CarPowerPolicy accumulatedPolicy = request.getAccumulatedPolicy();
         updateCurrentPowerPolicy(accumulatedPolicy);
         notifyPowerPolicyChange(accumulatedPolicy);
@@ -2243,9 +2247,10 @@ public class CarPowerManagementService extends ICarPower.Stub implements
 
         @Override
         public void onApplyPowerPolicySucceeded(int requestId,
-                android.frameworks.automotive.powerpolicy.CarPowerPolicy accumulatedPolicy) {
-            Slogf.i(TAG, "onApplyPowerPolicySucceeded: requestId = %d, policyId = %s", requestId,
-                    accumulatedPolicy.policyId);
+                android.frameworks.automotive.powerpolicy.CarPowerPolicy accumulatedPolicy,
+                boolean deferred) {
+            Slogf.i(TAG, "onApplyPowerPolicySucceeded: requestId = %d, policyId = %s, "
+                    + "deferred = %b", requestId, accumulatedPolicy.policyId, deferred);
             AsyncPolicyRequest policyRequest;
             synchronized (mLock) {
                 policyRequest = mRequestIdToPolicyRequest.get(requestId);
@@ -2255,7 +2260,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                 return;
             }
             CarPowerPolicy accumulatedPowerPolicy = convertPowerPolicyFromDaemon(accumulatedPolicy);
-            policyRequest.onPolicyRequestSucceeded(accumulatedPowerPolicy);
+            policyRequest.onPolicyRequestSucceeded(accumulatedPowerPolicy, deferred);
         }
 
         @Override
@@ -2446,10 +2451,13 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         @GuardedBy("mLock")
         private boolean mPolicyRequestSucceeded;
         @GuardedBy("mLock")
+        @Nullable
         private CarPowerPolicy mAccumulatedPolicy;
         @GuardedBy("mLock")
         @PowerPolicyFailureReason
         private int mFailureReason;
+        @GuardedBy("mLock")
+        private boolean mIsDeferred;
 
         AsyncPolicyRequest(int requestId, long timeoutMs) {
             mRequestId = requestId;
@@ -2466,6 +2474,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             }
         }
 
+        @Nullable
         public CarPowerPolicy getAccumulatedPolicy() {
             synchronized (mLock) {
                 return mAccumulatedPolicy;
@@ -2479,14 +2488,23 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             }
         }
 
+        public boolean isDeferred() {
+            synchronized (mLock) {
+                return mIsDeferred;
+            }
+        }
+
         public boolean await() throws InterruptedException {
             return mPolicyRequestLatch.await(mTimeoutMs, TimeUnit.MILLISECONDS);
         }
 
-        public void onPolicyRequestSucceeded(CarPowerPolicy accumulatedPolicy) {
+        public void onPolicyRequestSucceeded(CarPowerPolicy accumulatedPolicy, boolean deferred) {
             synchronized (mLock) {
                 mPolicyRequestSucceeded = true;
-                mAccumulatedPolicy = accumulatedPolicy;
+                if (!deferred) {
+                    mAccumulatedPolicy = accumulatedPolicy;
+                }
+                mIsDeferred = deferred;
             }
             mPolicyRequestLatch.countDown();
         }
@@ -2585,6 +2603,10 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                 Slogf.w(TAG, "Failed to apply power policy, failure reason = %d",
                         request.getFailureReason());
                 return getPolicyRequestError(requestId, request.getFailureReason());
+            }
+            if (request.isDeferred()) {
+                Slogf.i(TAG, "Applying power policy(%s) is deferred", policyId);
+                return PolicyOperationStatus.OK;
             }
             CarPowerPolicy accumulatedPolicy = request.getAccumulatedPolicy();
             updateCurrentPowerPolicy(accumulatedPolicy);
