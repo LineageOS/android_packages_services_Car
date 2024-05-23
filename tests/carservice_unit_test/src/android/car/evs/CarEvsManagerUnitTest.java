@@ -67,6 +67,7 @@ import android.car.evs.CarEvsStatus;
 import android.car.evs.ICarEvsService;
 import android.car.evs.ICarEvsStatusListener;
 import android.car.evs.ICarEvsStreamCallback;
+import android.car.feature.Flags;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.car.Car;
 import android.content.Context;
@@ -75,6 +76,7 @@ import android.os.IBinder;
 import android.os.Process;
 import android.os.RemoteException;
 import android.os.ServiceManager;
+import android.platform.test.flag.junit.SetFlagsRule;
 import android.util.Log;
 
 import com.android.car.evs.CarEvsService;
@@ -82,6 +84,7 @@ import com.android.car.evs.CarEvsService;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.runner.RunWith;
+import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.ArgumentCaptor;
@@ -100,6 +103,14 @@ public final class CarEvsManagerUnitTest extends AbstractExtendedMockitoTestCase
 
     private static final String TAG = CarEvsManagerUnitTest.class.getSimpleName();
 
+    private static final int SERVICE_TYPES[] = {
+        CarEvsManager.SERVICE_TYPE_REARVIEW, CarEvsManager.SERVICE_TYPE_SURROUNDVIEW,
+        CarEvsManager.SERVICE_TYPE_FRONTVIEW, CarEvsManager.SERVICE_TYPE_LEFTVIEW,
+        CarEvsManager.SERVICE_TYPE_RIGHTVIEW, CarEvsManager.SERVICE_TYPE_DRIVERVIEW,
+        CarEvsManager.SERVICE_TYPE_FRONT_PASSENGERSVIEW,
+        CarEvsManager.SERVICE_TYPE_REAR_PASSENGERSVIEW,
+    };
+
     @Mock private Car mMockCar;
     @Mock private CarEvsStatusListener mMockCarEvsStatusListener;
     @Mock private CarEvsStreamCallback mMockCarEvsStreamCallback;
@@ -109,6 +120,9 @@ public final class CarEvsManagerUnitTest extends AbstractExtendedMockitoTestCase
     @Captor private ArgumentCaptor<ICarEvsStatusListener> mCarEvsStatusListenerCaptor;
     @Captor private ArgumentCaptor<ICarEvsStreamCallback> mCarEvsStreamCallbackCaptor;
     @Captor private ArgumentCaptor<CarEvsStatus> mCarEvsStatusCaptor;
+
+    @Rule
+    public final SetFlagsRule mSetFlagsRule = new SetFlagsRule();
 
     private CarEvsManager mManager;
 
@@ -275,7 +289,8 @@ public final class CarEvsManagerUnitTest extends AbstractExtendedMockitoTestCase
 
     @Test
     public void testGetCurrentStatus() throws Exception {
-        when(mMockICarEvsService.getCurrentStatus())
+        mSetFlagsRule.disableFlags(Flags.FLAG_CAR_EVS_STREAM_MANAGEMENT);
+        when(mMockICarEvsService.getCurrentStatus(anyInt()))
                 .thenReturn(new CarEvsStatus(CarEvsManager.SERVICE_TYPE_REARVIEW,
                                              CarEvsManager.SERVICE_STATE_INACTIVE));
 
@@ -287,13 +302,39 @@ public final class CarEvsManagerUnitTest extends AbstractExtendedMockitoTestCase
     }
 
     @Test
+    public void testGetCurrentStatusWithType() throws Exception {
+        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_EVS_STREAM_MANAGEMENT);
+        for (int type : SERVICE_TYPES) {
+            when(mMockICarEvsService.getCurrentStatus(anyInt()))
+                    .thenReturn(new CarEvsStatus(type, CarEvsManager.SERVICE_STATE_INACTIVE));
+
+            CarEvsStatus currentStatus = mManager.getCurrentStatus(type);
+
+            assertThat(currentStatus).isNotNull();
+            assertThat(currentStatus.getServiceType()).isEqualTo(type);
+            assertThat(currentStatus.getState()).isEqualTo(CarEvsManager.SERVICE_STATE_INACTIVE);
+        }
+    }
+
+    @Test
     public void testGetCurrentStatusRemoteExceptionThrown() throws Exception {
-        when(mMockICarEvsService.getCurrentStatus()).thenThrow(new RemoteException());
+        mSetFlagsRule.disableFlags(Flags.FLAG_CAR_EVS_STREAM_MANAGEMENT);
+        when(mMockICarEvsService.getCurrentStatus(anyInt())).thenThrow(new RemoteException());
 
         CarEvsStatus currentStatus = mManager.getCurrentStatus();
 
         assertThat(currentStatus.getServiceType()).isEqualTo(CarEvsManager.SERVICE_TYPE_REARVIEW);
         assertThat(currentStatus.getState()).isEqualTo(CarEvsManager.SERVICE_STATE_UNAVAILABLE);
+    }
+
+    @Test
+    public void testGetCurrentStatusWithTypeRemoteExceptionThrown() throws Exception {
+        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_EVS_STREAM_MANAGEMENT);
+        when(mMockICarEvsService.getCurrentStatus(anyInt())).thenThrow(new RemoteException());
+
+        for (int type : SERVICE_TYPES) {
+            assertThat(mManager.getCurrentStatus(type)).isNull();
+        }
     }
 
     @Test

@@ -108,12 +108,16 @@ public final class ClusterHomeManager extends CarManagerBase {
 
     /**
      * Callback for ClusterHome to get notifications when cluster navigation state changes.
-     *
-     * @hide
      */
+    @FlaggedApi(FLAG_CLUSTER_HEALTH_MONITORING)
     public interface ClusterNavigationStateListener {
-        /** Called when the App who owns the navigation focus casts the new navigation state. */
-        void onNavigationState(byte[] navigationState);
+        /**
+         * Called when the app who owns the navigation focus casts the new navigation state.
+         *
+         * @param navigationState Byte array that is serialized from a {@link
+         *        android.car.cluster.navigation.NavigationState.NavigationStateProto} proto value.
+         */
+        void onNavigationStateChanged(@NonNull byte[] navigationState);
     }
 
     private static class ClusterStateListenerRecord {
@@ -217,9 +221,12 @@ public final class ClusterHomeManager extends CarManagerBase {
     }
 
     /**
-     * Registers the callback for ClusterHome.
+     * Registers a listener for navigation state changes.
      *
-     * @hide
+     * <p>Note that multiple listeners can be registered. All registered listeners are invoked
+     * when the navigation app that has the focus sends a state change.
+     * <p>A listener is invoked only for changes that occur after the registration. It is not
+     * called for the previous or current states at the time of the registration.
      */
     @RequiresPermission(Car.PERMISSION_CAR_MONITOR_CLUSTER_NAVIGATION_STATE)
     public void registerClusterNavigationStateListener(
@@ -263,9 +270,7 @@ public final class ClusterHomeManager extends CarManagerBase {
     }
 
     /**
-     * Unregisters the callback.
-     *
-     * @hide
+     * Unregisters a listener for navigation state changes.
      */
     @RequiresPermission(Car.PERMISSION_CAR_MONITOR_CLUSTER_NAVIGATION_STATE)
     public void unregisterClusterNavigationStateListener(
@@ -317,7 +322,8 @@ public final class ClusterHomeManager extends CarManagerBase {
             ClusterHomeManager manager = mManager.get();
             if (manager != null) {
                 for (ClusterNavigationStateListenerRecord lr : manager.mNavigationStateListeners) {
-                    lr.mExecutor.execute(() -> lr.mListener.onNavigationState(navigationState));
+                    lr.mExecutor.execute(
+                            () -> lr.mListener.onNavigationStateChanged(navigationState));
                 }
             }
         }
@@ -422,7 +428,6 @@ public final class ClusterHomeManager extends CarManagerBase {
      * @param appMetadata the application specific metadata which will be delivered with
      *                    the heartbeat.
      */
-    @FlaggedApi(FLAG_CLUSTER_HEALTH_MONITORING)
     @RequiresPermission(Car.PERMISSION_CAR_INSTRUMENT_CLUSTER_CONTROL)
     public void sendHeartbeat(long epochTimeNs, @Nullable byte[] appMetadata) {
         try {
@@ -439,7 +444,6 @@ public final class ClusterHomeManager extends CarManagerBase {
      *
      * @param activity               the {@link Activity} to track the visibility of its Window
      */
-    @FlaggedApi(FLAG_CLUSTER_HEALTH_MONITORING)
     @RequiresPermission(Car.PERMISSION_CAR_INSTRUMENT_CLUSTER_CONTROL)
     public void startVisibilityMonitoring(@NonNull Activity activity) {
         // We'd like to check the permission locally too, since the actual execution happens later.

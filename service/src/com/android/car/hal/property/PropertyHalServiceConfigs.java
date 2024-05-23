@@ -22,6 +22,8 @@ import android.annotation.Nullable;
 import android.car.VehiclePropertyIds;
 import android.car.builtin.os.TraceHelper;
 import android.car.builtin.util.Slogf;
+import android.car.feature.FeatureFlags;
+import android.car.feature.FeatureFlagsImpl;
 import android.content.Context;
 import android.hardware.automotive.vehicle.VehiclePropertyStatus;
 import android.hardware.automotive.vehicle.VehiclePropertyType;
@@ -135,6 +137,10 @@ public class PropertyHalServiceConfigs {
     private static final String CONFIG_RESOURCE_NAME = "CarSvcProps.json";
     private static final String JSON_FIELD_NAME_PROPERTIES = "properties";
 
+    private static final String VIC_FLAG_NAME = "FLAG_ANDROID_VIC_VEHICLE_PROPERTIES";
+
+    private final FeatureFlags mFeatureFlags;
+
     /**
      * Index key is an AIDL HAL property ID, and the value is readPermission, writePermission.
      * If the property can not be written (or read), set value as NULL.
@@ -157,12 +163,22 @@ public class PropertyHalServiceConfigs {
      * Should only be used in unit tests. Use {@link getInsance} instead.
      */
     @VisibleForTesting
-    /* package */ PropertyHalServiceConfigs() {
+    /* package */ PropertyHalServiceConfigs(@Nullable FeatureFlags featureFlags) {
         Trace.traceBegin(TRACE_TAG, "initialize PropertyHalServiceConfigs");
-        InputStream defaultConfigInputStream = this.getClass().getClassLoader()
-                .getResourceAsStream(CONFIG_RESOURCE_NAME);
-        mHalPropIdToCarSvcConfig = parseJsonConfig(defaultConfigInputStream,
-                "defaultResource");
+        if (featureFlags == null) {
+            mFeatureFlags = new FeatureFlagsImpl();
+        } else {
+            mFeatureFlags = featureFlags;
+        }
+        try (InputStream defaultConfigInputStream = this.getClass().getClassLoader()
+                    .getResourceAsStream(CONFIG_RESOURCE_NAME)) {
+            mHalPropIdToCarSvcConfig = parseJsonConfig(defaultConfigInputStream,
+                    "defaultResource");
+        } catch (IOException e) {
+            String errorMsg = "failed to close resource input stream for: " + CONFIG_RESOURCE_NAME;
+            Slogf.e(TAG, errorMsg, e);
+            throw new IllegalStateException(errorMsg, e);
+        }
         List<Integer> halPropIdMgrIds = new ArrayList<>();
         for (int i = 0; i < mHalPropIdToCarSvcConfig.size(); i++) {
             CarSvcPropertyConfig config = mHalPropIdToCarSvcConfig.valueAt(i);
@@ -207,7 +223,8 @@ public class PropertyHalServiceConfigs {
     public static PropertyHalServiceConfigs getInstance() {
         synchronized (sLock) {
             if (sPropertyHalServiceConfigs == null) {
-                sPropertyHalServiceConfigs = new PropertyHalServiceConfigs();
+                sPropertyHalServiceConfigs = new PropertyHalServiceConfigs(
+                        /* featureFlags= */ null);
             }
             return sPropertyHalServiceConfigs;
         }
@@ -218,7 +235,7 @@ public class PropertyHalServiceConfigs {
      */
     @VisibleForTesting
     public static PropertyHalServiceConfigs newConfigs() {
-        return new PropertyHalServiceConfigs();
+        return new PropertyHalServiceConfigs(/* featureFlags= */ null);
     }
 
     /**
@@ -491,6 +508,20 @@ public class PropertyHalServiceConfigs {
             properties = configJsonObject.getJSONObject(JSON_FIELD_NAME_PROPERTIES);
             for (String propertyName : properties.keySet()) {
                 JSONObject propertyObj = properties.getJSONObject(propertyName);
+                String featureFlag = propertyObj.optString("featureFlag");
+                if (!featureFlag.isEmpty()) {
+                    if (featureFlag.equals(VIC_FLAG_NAME)) {
+                        if (!mFeatureFlags.androidVicVehicleProperties()) {
+                            Slogf.w(TAG, "The required feature flag for property: "
+                                    + propertyName + " is not enabled, so its config is ignored");
+                            continue;
+                        }
+                    } else {
+                        throw new IllegalArgumentException("Unknown feature flag: "
+                                + featureFlag + " for property: " + propertyName);
+                    }
+                }
+
                 CarSvcPropertyConfig config = new CarSvcPropertyConfig();
                 if (propertyObj.optBoolean("deprecated")) {
                     continue;
@@ -569,15 +600,21 @@ public class PropertyHalServiceConfigs {
 
     private static boolean checkFormatForAllProperties(HalPropValue propValue) {
         int propId = propValue.getPropId();
-        //Records sum size of int32values, floatValue, int64Values, bytes, String
+        int vehiclePropertyType = propId & VehiclePropertyType.MASK;
+
+        // Records sum size of int32values, floatValue, int64Values, bytes, String
         int sizeOfAllValue = propValue.getInt32ValuesSize() + propValue.getFloatValuesSize()
                 + propValue.getInt64ValuesSize() + propValue.getByteValuesSize()
                 + propValue.getStringValue().length();
-        if (sizeOfAllValue == 0) {
+        if (sizeOfAllValue == 0
+                && vehiclePropertyType != VehiclePropertyType.FLOAT_VEC
+                && vehiclePropertyType != VehiclePropertyType.INT64_VEC
+                && vehiclePropertyType != VehiclePropertyType.INT32_VEC) {
             Slogf.e(TAG, "Property value is empty: " + propValue);
             return false;
         }
-        switch (propId & VehiclePropertyType.MASK) {
+
+        switch (vehiclePropertyType) {
             case VehiclePropertyType.BOOLEAN:
             case VehiclePropertyType.INT32:
                 return sizeOfAllValue == 1 && propValue.getInt32ValuesSize() == 1;

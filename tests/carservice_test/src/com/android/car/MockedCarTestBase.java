@@ -15,16 +15,23 @@
  */
 package com.android.car;
 
+import static android.content.pm.PackageManager.PERMISSION_DENIED;
+
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doNothing;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.mockitoSession;
+
+import static com.google.common.truth.Truth.assertWithMessage;
 
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 
+import android.automotive.powerpolicy.internal.ICarPowerPolicyDelegate;
 import android.car.Car;
+import android.car.feature.Flags;
 import android.car.test.CarTestManager;
+import android.car.testapi.FakeRefactoredCarPowerPolicyDaemon;
 import android.car.user.CarUserManager.UserLifecycleListener;
 import android.content.ComponentName;
 import android.content.Context;
@@ -36,9 +43,12 @@ import android.frameworks.automotive.powerpolicy.internal.ICarPowerPolicySystemN
 import android.hardware.automotive.vehicle.VehiclePropertyAccess;
 import android.hardware.automotive.vehicle.VehiclePropertyChangeMode;
 import android.os.Binder;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.IInterface;
 import android.os.UserHandle;
 import android.util.ArrayMap;
+import android.util.ArraySet;
 import android.util.Log;
 import android.util.SparseArray;
 
@@ -80,6 +90,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Base class for testing with mocked vehicle HAL (=car).
@@ -90,6 +101,7 @@ public class MockedCarTestBase {
     protected static final long DEFAULT_WAIT_TIMEOUT_MS = 3000;
     protected static final long SHORT_WAIT_TIMEOUT_MS = 500;
     private static final int STATE_HANDLING_TIMEOUT = 5_000;
+    private static final int MAIN_LOOPER_TIMEOUT_MS = 1_000;
     private static final String TAG = MockedCarTestBase.class.getSimpleName();
     private static final IBinder sCarServiceToken = new Binder();
     private static boolean sRealCarServiceReleased;
@@ -111,6 +123,8 @@ public class MockedCarTestBase {
     private final CarUserService mCarUserService = mock(CarUserService.class);
     private final MockIOInterface mMockIOInterface = new MockIOInterface();
     private final GarageModeService mGarageModeService = mock(GarageModeService.class);
+    // TODO(286303350): Replace mPowerPolicyDaemon with mRefactoredPowerPolicyDaemon
+    //                  once refactor complete
     private final ICarPowerPolicySystemNotification.Stub mPowerPolicyDaemon =
             mock(ICarPowerPolicySystemNotification.Stub.class);
     private final ICarServiceHelper mICarServiceHelper = mock(ICarServiceHelper.class);
@@ -131,6 +145,7 @@ public class MockedCarTestBase {
     @GuardedBy("mLock")
     private final List<UserLifecycleListener> mUserLifecycleListeners = new ArrayList<>();
 
+    private ICarPowerPolicyDelegate mRefactoredPowerPolicyDaemon;
     private MockitoSession mSession;
 
     protected HidlMockedVehicleHal createHidlMockedVehicleHal() {
@@ -153,8 +168,12 @@ public class MockedCarTestBase {
         return mFakeSystemInterface;
     }
 
-    protected ICarPowerPolicySystemNotification.Stub getMockedPowerPolicyDaemon() {
-        return mPowerPolicyDaemon;
+    protected android.os.IInterface getMockedPowerPolicyDaemon() {
+        if (Flags.carPowerPolicyRefactoring()) {
+            return mRefactoredPowerPolicyDaemon;
+        } else {
+            return mPowerPolicyDaemon;
+        }
     }
 
     protected void configureMockedHal() {
@@ -211,7 +230,7 @@ public class MockedCarTestBase {
      *
      * <p> Subclass that intend to apply spyOn() to the service under testing should override this.
      * <pre class="prettyprint">
-     * @Override
+     * {@literal @}Override
      * protected void spyOnBeforeCarImplInit() {
      *     mServiceUnderTest = CarLocalServices.getService(CarXXXService.class);
      *     ExtendedMockito.spyOn(mServiceUnderTest);
@@ -336,10 +355,28 @@ public class MockedCarTestBase {
         }
 
         // Setup car
-        ICarImpl carImpl = new ICarImpl(mMockedCarTestContext, /*builtinContext=*/null,
-                mockedVehicleStub, mFakeSystemInterface, /*vehicleInterfaceName=*/"MockedCar",
-                mCarUserService, mCarWatchdogService, mCarPerformanceService, mGarageModeService,
-                mPowerPolicyDaemon, mCarTelemetryService, mCarRemoteAccessService, false);
+        IInterface powerPolicyDaemon;
+        if (Flags.carPowerPolicyRefactoring()) {
+            mRefactoredPowerPolicyDaemon = new FakeRefactoredCarPowerPolicyDaemon(
+                    /* fileKernelSilentMode= */ null, /* customComponents= */ null);
+            powerPolicyDaemon = mRefactoredPowerPolicyDaemon;
+        } else {
+            powerPolicyDaemon = mPowerPolicyDaemon;
+        }
+        ICarImpl carImpl = new ICarImpl.Builder()
+                .setServiceContext(mMockedCarTestContext)
+                .setVehicle(mockedVehicleStub)
+                .setVehicleInterfaceName("MockedCar")
+                .setSystemInterface(mFakeSystemInterface)
+                .setCarUserService(mCarUserService)
+                .setCarWatchdogService(mCarWatchdogService)
+                .setCarPerformanceService(mCarPerformanceService)
+                .setCarTelemetryService(mCarTelemetryService)
+                .setCarRemoteAccessService(mCarRemoteAccessService)
+                .setGarageModeService(mGarageModeService)
+                .setPowerPolicyDaemon(powerPolicyDaemon)
+                .setDoPriorityInitInConstruction(false)
+                .build();
 
         doNothing().when(() -> ICarImpl.assertCallingFromSystemProcess());
         carImpl.setSystemServerConnections(mICarServiceHelper,
@@ -353,7 +390,6 @@ public class MockedCarTestBase {
     }
 
     @After
-    @UiThreadTest
     public void tearDown() throws Exception {
         Log.i(TAG, "tearDown");
 
@@ -376,9 +412,14 @@ public class MockedCarTestBase {
             mHidlMockedVehicleHal = null;
             mAidlMockedVehicleHal = null;
         } finally {
-            if (mSession != null) {
-                mSession.finishMocking();
-            }
+            // Wait for the main looper to handle the current queued tasks before finishing the
+            // mocking session since the task might use the mocked object.
+            assertWithMessage("main looper not idle in %sms", MAIN_LOOPER_TIMEOUT_MS)
+                    .that(Handler.getMain().runWithScissors(() -> {
+                        if (mSession != null) {
+                            mSession.finishMocking();
+                        }
+                    }, MAIN_LOOPER_TIMEOUT_MS)).isTrue();
         }
     }
 
@@ -401,7 +442,6 @@ public class MockedCarTestBase {
         return mCarImpl.getCarService(service);
     }
 
-    @GuardedBy("mLock")
     private void initMockedHal() throws Exception {
         synchronized (mLock) {
             for (Map.Entry<HidlVehiclePropConfigBuilder,
@@ -650,21 +690,44 @@ public class MockedCarTestBase {
      * a {@link MockResources}, so tests are free to set resources. This class represents an
      * alternative of using Mockito spy (see b/148240178).
      *
+     * This class also overwrites {@code checkCallingOrSelfPermission} to allow setting caller's
+     * permissions. By default, caller is typically within the same process so permission will
+     * always be granted. Caller can use {@code setDeniedPermissions} to set permissions
+     * that should not be granted.
+     *
      * Tests may specialize this class. If they decide so, then they are required to override
      * {@link createMockedCarTestContext} to provide their own context.
      */
     protected static class MockedCarTestContext extends ContextWrapper {
 
         private final Resources mMockedResources;
+        private final Set<String> mDeniedPermissions = new ArraySet<>();
 
         protected MockedCarTestContext(Context base) {
             super(base);
             mMockedResources = new MockResources(base.getResources());
         }
 
+        /**
+         * Sets the permissions that should be denied.
+         */
+        public void setDeniedPermissions(String[] permissions) {
+            for (String permission : permissions) {
+                mDeniedPermissions.add(permission);
+            }
+        }
+
         @Override
         public Resources getResources() {
             return mMockedResources;
+        }
+
+        @Override
+        public int checkCallingOrSelfPermission(String permission) {
+            if (mDeniedPermissions.contains(permission)) {
+                return PERMISSION_DENIED;
+            }
+            return super.checkCallingOrSelfPermission(permission);
         }
     }
 

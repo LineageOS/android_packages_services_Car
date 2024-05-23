@@ -21,7 +21,7 @@ runtime_resource_overlay {
     manifest: "AndroidManifest.xml",
     resource_dirs: ["res"],
     static_libs: [
-        "car-portrait-ui-common"
+        "car-portrait-ui-common",
     ],
 }
 

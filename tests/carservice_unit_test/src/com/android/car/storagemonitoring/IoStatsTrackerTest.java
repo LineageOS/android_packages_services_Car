@@ -18,8 +18,9 @@ package com.android.car.storagemonitoring;
 
 import android.car.storagemonitoring.IoStatsEntry;
 import android.car.storagemonitoring.UidIoRecord;
-import android.test.suitebuilder.annotation.MediumTest;
 import android.util.SparseArray;
+
+import androidx.test.filters.MediumTest;
 
 import com.android.car.procfsinspector.ProcessInfo;
 import com.android.car.systeminterface.SystemStateInterface;

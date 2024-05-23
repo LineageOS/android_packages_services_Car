@@ -23,4 +23,8 @@
     <string name="loading_welcome_message" msgid="2351582619179505398">"AAOS"</string>
     <string name="loading_action_button_text" msgid="1296096984805774507">"ສືບຕໍ່"</string>
     <string name="hvac_panel_header" msgid="1299061170810305529">"ການຄວບຄຸມຄວາມສະດວກສະບາຍ"</string>
+    <string name="confirm_pin_title" msgid="8340408103287697843">"ໃສ່ລະຫັດ PIN ຂອງທ່ານ"</string>
+    <string name="confirm_pattern_title" msgid="601765683212039890">"ໃສ່ຮູບແບບຂອງທ່ານ"</string>
+    <string name="confirm_password_title" msgid="4719840258132492554">"ໃສ່ລະຫັດຜ່ານຂອງທ່ານ"</string>
+    <string name="cancel" msgid="8552804384519299161">"ຍົກເລີກ"</string>
 </resources>

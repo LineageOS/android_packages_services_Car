@@ -26,9 +26,9 @@ java_library {
     name: "car-experimental-api-static-lib",
 
     srcs: [
-            "src/**/*.java",
-            "src/**/*.aidl"
-        ],
+        "src/**/*.java",
+        "src/**/*.aidl",
+    ],
 
     libs: ["android.car"],
 

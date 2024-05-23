@@ -206,13 +206,25 @@ void HalCamera::requestNewFrame(std::shared_ptr<VirtualCamera> client, int64_t l
 ScopedAStatus HalCamera::clientStreamStarting() {
     {
         std::lock_guard lock(mFrameMutex);
-        if (mStreamState != STOPPED) {
+        if (mStreamState == RUNNING) {
+            // This camera device is already active.
             return ScopedAStatus::ok();
         }
 
-        mStreamState = RUNNING;
+        if (mStreamState == STOPPED) {
+            // Try to start a video stream.
+            ScopedAStatus status = mHwCamera->startVideoStream(ref<HalCamera>());
+            if (status.isOk()) {
+                mStreamState = RUNNING;
+            }
+            return status;
+        }
+
+        // We cannot start a video stream.
+        return Utils::buildScopedAStatusFromEvsResult(
+                mStreamState == STOPPING ? EvsResult::RESOURCE_BUSY
+                                         : EvsResult::UNDERLYING_SERVICE_ERROR);
     }
-    return mHwCamera->startVideoStream(ref<HalCamera>());
 }
 
 void HalCamera::clientStreamEnding(const VirtualCamera* client) {
@@ -266,17 +278,18 @@ ScopedAStatus HalCamera::doneWithFrame(BufferDesc buffer) {
         return ScopedAStatus::ok();
     }
 
-    // Are there still clients using this buffer?
-    if (it->refCount > 0) {
-        it->refCount = it->refCount - 1;
-        if (it->refCount > 0) {
-            LOG(DEBUG) << "Buffer " << buffer.bufferId << " is still being used by " << it->refCount
-                       << " other client(s).";
-            return ScopedAStatus::ok();
-        }
-    } else {
+    if (it->refCount < 1) {
         LOG(WARNING) << "Buffer " << buffer.bufferId
                      << " is returned with a zero reference counter.";
+        return ScopedAStatus::ok();
+    }
+
+    // Are there still clients using this buffer?
+    it->refCount = it->refCount - 1;
+    if (it->refCount > 0) {
+        LOG(DEBUG) << "Buffer " << buffer.bufferId << " is still being used by " << it->refCount
+                   << " other client(s).";
+        return ScopedAStatus::ok();
     }
 
     // Since all our clients are done with this buffer, return it to the device layer
@@ -307,6 +320,7 @@ ScopedAStatus HalCamera::deliverFrame(const std::vector<BufferDesc>& buffers) {
     constexpr int64_t kThreshold = 16'000;  // ms
     unsigned frameDeliveries = 0;
     std::deque<FrameRequest> currentRequests;
+    std::deque<FrameRequest> puntedRequests;
     {
         std::lock_guard<std::mutex> lock(mFrameMutex);
         currentRequests.insert(currentRequests.end(),
@@ -328,6 +342,7 @@ ScopedAStatus HalCamera::deliverFrame(const std::vector<BufferDesc>& buffers) {
             // Skip current frame because it arrives too soon.
             LOG(DEBUG) << "Skips a frame from " << getId();
             mUsageStats->framesSkippedToSync();
+            puntedRequests.push_back(req);
             continue;
         }
 
@@ -366,6 +381,14 @@ ScopedAStatus HalCamera::deliverFrame(const std::vector<BufferDesc>& buffers) {
             mFrames[i].frameId = buffers[0].bufferId;
         }
         mFrames[i].refCount = frameDeliveries;
+    }
+
+    {
+        // Adding skipped capture requests back to the queue.
+        std::lock_guard<std::mutex> lock(mFrameMutex);
+        mNextRequests.insert(mNextRequests.end(),
+                             std::make_move_iterator(puntedRequests.begin()),
+                             std::make_move_iterator(puntedRequests.end()));
     }
 
     return ScopedAStatus::ok();

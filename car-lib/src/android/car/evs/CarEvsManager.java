@@ -16,9 +16,12 @@
 
 package android.car.evs;
 
+import static android.car.feature.Flags.FLAG_CAR_EVS_QUERY_SERVICE_STATUS;
+import static android.car.feature.Flags.FLAG_CAR_EVS_STREAM_MANAGEMENT;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
 
 import android.annotation.CallbackExecutor;
+import android.annotation.FlaggedApi;
 import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
@@ -29,6 +32,7 @@ import android.car.Car;
 import android.car.CarManagerBase;
 import android.car.annotation.RequiredFeature;
 import android.car.builtin.util.Slogf;
+import android.car.feature.Flags;
 import android.os.Binder;
 import android.os.IBinder;
 import android.os.RemoteException;
@@ -85,6 +89,12 @@ public final class CarEvsManager extends CarManagerBase {
             new CarEvsStatusListenerToService(this);
 
     /**
+     * This literal represents an unknown service type and is added for the backward compatibility.
+     */
+    @FlaggedApi(FLAG_CAR_EVS_STREAM_MANAGEMENT)
+    public static final int SERVICE_TYPE_UNKNOWN = -1;
+
+    /**
      * Service type to represent the rearview camera service.
      */
     public static final int SERVICE_TYPE_REARVIEW = 0;
@@ -129,7 +139,7 @@ public final class CarEvsManager extends CarManagerBase {
      */
     public static final int SERVICE_TYPE_REAR_PASSENGERSVIEW = 7;
 
-  /**
+   /**
      * Service type to represent the camera service that captures the scene
      * the user defines.
      */
@@ -137,6 +147,7 @@ public final class CarEvsManager extends CarManagerBase {
 
     /** @hide */
     @IntDef (prefix = {"SERVICE_TYPE_"}, value = {
+            SERVICE_TYPE_UNKNOWN,
             SERVICE_TYPE_REARVIEW,
             SERVICE_TYPE_SURROUNDVIEW,
             SERVICE_TYPE_FRONTVIEW,
@@ -581,6 +592,39 @@ public final class CarEvsManager extends CarManagerBase {
         mStreamCallbackExecutor = null;
     }
 
+    /** Stops all active stream callbacks. */
+    @GuardedBy("mStreamLock")
+    private void stopVideoStreamLocked(@CarEvsServiceType int type) {
+        CarEvsStreamCallback cb = mStreamCallbacks.get(type);
+        if (cb == null) {
+            Slogf.i(TAG, "A requested service type %d is not active.", type);
+            return;
+        }
+
+        try {
+            mService.stopVideoStreamFrom(type, mStreamListenerToService);
+        } catch (RemoteException err) {
+            handleRemoteExceptionFromCarService(err);
+        }
+
+        // Wait for a confirmation.
+        // TODO(b/321913871): Check whether or not we need to verify the origin of a received event.
+        if (!mStreamListenerToService.waitForStreamEvent(STREAM_EVENT_STREAM_STOPPED)) {
+            Slogf.w(TAG, "EVS did not notify us that target streams are stopped " +
+                    "before a time expires.");
+        }
+
+        // Notify clients that streams are stopped.
+        handleStreamEventLocked(STREAM_EVENT_STREAM_STOPPED);
+
+        // We're not interested in frames and events anymore from a given stream type.
+        mStreamCallbacks.remove(type);
+        if (mStreamCallbacks.size() < 1) {
+            // Remove an executor if we stopped listening from the last active stream.
+            mStreamCallbackExecutor = null;
+        }
+    }
+
     /**
      * Returns a consumed {@link android.car.evs.CarEvsBufferDescriptor}.
      *
@@ -667,6 +711,8 @@ public final class CarEvsManager extends CarManagerBase {
 
         synchronized (mStreamLock) {
             mStreamCallbacks.put(type, callback);
+            // TODO(b/321913871): Check whether we want to allow the clients to use more than a
+            //                    single executor or not.
             mStreamCallbackExecutor = executor;
         }
 
@@ -682,7 +728,7 @@ public final class CarEvsManager extends CarManagerBase {
     }
 
     /**
-     * Requests to stop a current {@link #CarEvsServiceType}.
+     * Requests to stop all active {@link #CarEvsServiceType} streams.
      */
     @RequiresPermission(Car.PERMISSION_USE_CAR_EVS_CAMERA)
     public void stopVideoStream() {
@@ -692,19 +738,48 @@ public final class CarEvsManager extends CarManagerBase {
     }
 
     /**
-     * Queries the current status of CarEvsService
+     * Requests to stop a given {@link #CarEvsServiceType}.
+     */
+    @FlaggedApi(FLAG_CAR_EVS_STREAM_MANAGEMENT)
+    @RequiresPermission(Car.PERMISSION_USE_CAR_EVS_CAMERA)
+    public void stopVideoStream(@CarEvsServiceType int type) {
+        synchronized (mStreamLock) {
+            stopVideoStreamLocked(type);
+        }
+    }
+
+    /**
+     * Queries the current status of the rearview CarEvsService type.
      *
      * @return {@link android.car.evs.CarEvsStatus} that describes current status of
-     * CarEvsService.
+     * the rearview CarEvsService type.
      */
     @RequiresPermission(Car.PERMISSION_MONITOR_CAR_EVS_STATUS)
     @NonNull
     public CarEvsStatus getCurrentStatus() {
         try {
-            return mService.getCurrentStatus();
+            return mService.getCurrentStatus(SERVICE_TYPE_REARVIEW);
         } catch (RemoteException err) {
             Slogf.e(TAG, "Failed to read a status of the service.");
             return new CarEvsStatus(SERVICE_TYPE_REARVIEW, SERVICE_STATE_UNAVAILABLE);
+        }
+    }
+
+    /**
+     * Queries the current status of a given CarEvsService type.
+     *
+     * @return {@link android.car.evs.CarEvsStatus} that describes current status of
+     * a given CarEvsService type.
+     */
+    @FlaggedApi(FLAG_CAR_EVS_QUERY_SERVICE_STATUS)
+    @RequiresPermission(Car.PERMISSION_MONITOR_CAR_EVS_STATUS)
+    @Nullable
+    public CarEvsStatus getCurrentStatus(@CarEvsServiceType int type) {
+        try {
+            return mService.getCurrentStatus(type);
+        } catch (RemoteException err) {
+            Slogf.e(TAG, "Failed to read a status of the service.");
+            return null;
         }
     }
 

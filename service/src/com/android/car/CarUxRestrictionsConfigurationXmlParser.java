@@ -406,21 +406,23 @@ public final class CarUxRestrictionsConfigurationXmlParser {
         while (XML_RESTRICTIONS.equals(parser.getName())) {
             if (parser.getEventType() == XmlResourceParser.START_TAG) {
                 // Parse one restrictions tag.
-                DrivingStateRestrictions restrictions = parseRestrictions(parser);
-                if (restrictions == null) {
+                List<DrivingStateRestrictions> restrictions = parseRestrictions(parser);
+                if (restrictions == null || restrictions.isEmpty()) {
                     Slogf.e(TAG, "");
                     return false;
                 }
-                restrictions.setSpeedRange(speedRange);
-
-                if (DBG) {
-                    Slogf.d(TAG, "Map " + drivingState + " : " + restrictions);
-                }
-
                 // Update the builder if the driving state and restrictions info are valid.
                 if (drivingState != CarDrivingStateEvent.DRIVING_STATE_UNKNOWN
                         && restrictions != null) {
-                    getCurrentBuilder().setUxRestrictions(drivingState, restrictions);
+                    for (int i = 0; i < restrictions.size(); i++) {
+                        DrivingStateRestrictions restriction = restrictions.get(i);
+                        restriction.setSpeedRange(speedRange);
+
+                        if (DBG) {
+                            Slogf.d(TAG, "Map " + drivingState + " : " + restriction);
+                        }
+                        getCurrentBuilder().setUxRestrictions(drivingState, restriction);
+                    }
                 }
             }
             parser.next();
@@ -431,9 +433,12 @@ public final class CarUxRestrictionsConfigurationXmlParser {
     /**
      * Parses the <restrictions> tag nested with the <drivingState>.  This provides the restrictions
      * for the enclosing driving state.
+     *
+     * @return Driving state restrictions list. The list would contain more than one value if mode
+     * attribute defines more than one mode separated by "|".
      */
     @Nullable
-    private DrivingStateRestrictions parseRestrictions(XmlResourceParser parser)
+    private List<DrivingStateRestrictions> parseRestrictions(XmlResourceParser parser)
             throws IOException, XmlPullParserException {
         if (parser == null) {
             Slogf.e(TAG, "Invalid Arguments");
@@ -441,23 +446,39 @@ public final class CarUxRestrictionsConfigurationXmlParser {
         }
 
         int restrictions = UX_RESTRICTIONS_UNKNOWN;
-        String restrictionMode = UX_RESTRICTION_MODE_BASELINE;
+        List<String> restrictionModes =  new ArrayList<>();
         boolean requiresOpt = true;
-        while (XML_RESTRICTIONS.equals(parser.getName())
+        if (XML_RESTRICTIONS.equals(parser.getName())
                 && parser.getEventType() == XmlResourceParser.START_TAG) {
             restrictions = getRestrictions(parser.getAttributeValue(XML_NAMESPACE, XML_UXR));
-            restrictionMode = parser.getAttributeValue(XML_NAMESPACE, XML_MODE);
+            updateModes(parser.getAttributeValue(XML_NAMESPACE, XML_MODE), restrictionModes);
             requiresOpt = parser.getAttributeBooleanValue(XML_NAMESPACE,
                     XML_REQUIRES_DISTRACTION_OPTIMIZATION, true);
             parser.next();
         }
-        if (restrictionMode == null) {
-            restrictionMode = UX_RESTRICTION_MODE_BASELINE;
+
+        List<DrivingStateRestrictions> drivingStateRestrictions = new ArrayList<>();
+
+        for (int i = 0; i < restrictionModes.size(); i++) {
+            drivingStateRestrictions.add(new DrivingStateRestrictions()
+                    .setDistractionOptimizationRequired(requiresOpt)
+                    .setRestrictions(restrictions)
+                    .setMode(restrictionModes.get(i)));
         }
-        return new DrivingStateRestrictions()
-                .setDistractionOptimizationRequired(requiresOpt)
-                .setRestrictions(restrictions)
-                .setMode(restrictionMode);
+
+        return drivingStateRestrictions;
+    }
+
+    private void updateModes(String allModes, List<String> modes) {
+        if (allModes == null) {
+            modes.add(UX_RESTRICTION_MODE_BASELINE);
+            return;
+        }
+        String[] allModesArray = allModes.split("\\|");
+
+        for (int i = 0; i < allModesArray.length; i++) {
+            modes.add(allModesArray[i].trim());
+        }
     }
 
     private int getRestrictions(String allRestrictions) {

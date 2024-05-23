@@ -201,10 +201,9 @@ public final class WatchdogProcessHandler {
             for (int i = 0; i < clients.size(); i++) {
                 ClientInfo clientInfo = clients.get(i);
                 if (binder == clientInfo.client.asBinder()) {
-                    Slogf.w(CarWatchdogService.TAG,
-                            "Cannot register the client: the client(pid: %d) has been already "
-                                    + "registered", clientInfo.pid);
-                    return;
+                    throw new IllegalStateException(
+                            "Cannot register the client: the client(pid:" + clientInfo.pid
+                                    + ") has been already registered");
                 }
             }
             int pid = Binder.getCallingPid();

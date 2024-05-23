@@ -339,7 +339,6 @@ public class CarAudioDeviceInfoTest extends AbstractExpectableTestCase {
         AudioDeviceAttributes attributes = getMockAudioDeviceAttribute(TYPE_BUS);
         CarAudioDeviceInfo info = new CarAudioDeviceInfo(mAudioManager, attributes);
 
-        boolean initialState = info.canBeRoutedWithDynamicPolicyMix();
         expectWithMessage("Dynamic policy mix is enabled by default on Devices")
                 .that(info.canBeRoutedWithDynamicPolicyMix())
                 .isEqualTo(true);

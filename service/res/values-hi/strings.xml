@@ -34,6 +34,8 @@
     <string name="car_permission_desc_speed" msgid="2047965198165448241">"आपकी कार की रफ़्तार की जानकारी ऐक्सेस कर सकता है."</string>
     <string name="car_permission_label_vehicle_dynamics_state" msgid="313779267420048367">"कार के चलने की स्थिति ऐक्सेस कर सकता है"</string>
     <string name="car_permission_desc_vehicle_dynamics_state" msgid="8891506193446375660">"आपकी कार के चलने से जुड़ी जानकारी ऐक्सेस कर सकता है."</string>
+    <string name="car_permission_label_control_vehicle_dynamics_state" msgid="1912154069363074986">"कार की डाइनैमिक स्टेट कंट्रोल करें"</string>
+    <string name="car_permission_desc_control_vehicle_dynamics_state" msgid="5603436779163086928">"कार की डाइनैमिक स्टेट कंट्रोल करें."</string>
     <string name="car_permission_label_vendor_extension" msgid="7141601811734127361">"कार बनाने वाली कंपनी से जुड़ी जानकारी ऐक्सेस कर सकता है"</string>
     <string name="car_permission_desc_vendor_extension" msgid="2970718502334714035">"कार की खास जानकारी लेने-देने के लिए आपकी कार का विक्रेता, चैनल ऐक्सेस कर सकता है."</string>
     <string name="car_permission_label_radio" msgid="6009465291685935112">"कार का रेडियो मैनेज कर सकता है"</string>
@@ -84,6 +86,8 @@
     <string name="car_permission_desc_vms_publisher" msgid="5589489298597386828">"वीएमएस मैसेज भेज सकता है"</string>
     <string name="car_permission_label_vms_subscriber" msgid="5648841182059222299">"वीएमएस का डेटा पा सकता है"</string>
     <string name="car_permission_desc_vms_subscriber" msgid="7551009457847673620">"वीएमएस मैसेज की सदस्यता ले सकता है"</string>
+    <string name="car_permission_label_read_ultrasonics_sensor_data" msgid="1097940233242534149">"अल्ट्रासोनिक सेंसर डेटा देखें"</string>
+    <string name="car_permission_desc_read_ultrasonics_sensor_data" msgid="1717892304330623332">"कार का अल्ट्रासोनिक सेंसर डेटा देखें."</string>
     <string name="car_permission_label_storage_monitoring" msgid="2327639346522530549">"फ़्लैश डिवाइस की मेमोरी पर नज़र रख सकता है"</string>
     <string name="car_permission_desc_storage_monitoring" msgid="2075712271139671318">"फ़्लैश डिवाइस की मेमोरी के इस्तेमाल की निगरानी कर सकता है"</string>
     <string name="car_permission_label_driving_state" msgid="7754624599537393650">"गाड़ी चलाते समय होने वाले बदलावों की स्थिति को सुन सकता है"</string>
@@ -116,6 +120,20 @@
     <string name="car_permission_desc_control_car_mirrors" msgid="1224135684068855032">"कार के शीशे नियंत्रित कर सकता है."</string>
     <string name="car_permission_label_control_car_seats" msgid="1826934820585497135">"कार की सीटें नियंत्रित कर सकता है"</string>
     <string name="car_permission_desc_control_car_seats" msgid="2407536601226470563">"कार की सीटें नियंत्रित कर सकता है."</string>
+    <string name="car_permission_label_read_car_seat_belts" msgid="2051828795852087659">"कार की सीट बेल्ट देखें"</string>
+    <string name="car_permission_desc_read_car_seat_belts" msgid="7076977711613912339">"कार की सीट बेल्ट देखें."</string>
+    <string name="car_permission_label_read_impact_sensors" msgid="9193288836326363975">"कार के इंपेक्ट सेंसर देखें"</string>
+    <string name="car_permission_desc_read_impact_sensors" msgid="6479840965130272944">"कार के इंपेक्ट सेंसर देखें."</string>
+    <string name="car_permission_label_read_valet_mode" msgid="1807900160666761320">"वैलेट मोड देखें"</string>
+    <string name="car_permission_desc_read_valet_mode" msgid="8645550481045813299">"वैलेट मोड देखें."</string>
+    <string name="car_permission_label_control_valet_mode" msgid="180432980177027905">"वैलेट मोड कंट्रोल करें"</string>
+    <string name="car_permission_desc_control_valet_mode" msgid="8442573192492763994">"वैलेट मोड कंट्रोल करें."</string>
+    <string name="car_permission_label_read_head_up_display_status" msgid="8117112886452578905">"ऐप्लिकेशन, हेड अप डिसप्ले की स्थिति पढ़ सकते हैं"</string>
+    <string name="car_permission_desc_read_head_up_display_status" msgid="3255763055570462667">"ऐप्लिकेशन, हेड अप डिसप्ले की स्थिति पढ़ सकते हैं"</string>
+    <string name="car_permission_label_control_head_up_display" msgid="2990483192001919370">"ऐप्लिकेशन, हेड अप डिसप्ले कंट्रोल कर सकते हैं"</string>
+    <string name="car_permission_desc_control_head_up_display" msgid="483313982751387504">"ऐप्लिकेशन, हेड अप डिसप्ले कंट्रोल कर सकते हैं."</string>
+    <string name="car_permission_label_read_car_airbags" msgid="5495423499616379238">"कार के एयरबैग देखें"</string>
+    <string name="car_permission_desc_read_car_airbags" msgid="7961580013929420722">"कार के एयरबैग देखें."</string>
     <string name="car_permission_label_control_car_airbags" msgid="6823727183218389617">"कार के एयरबैग कंट्रोल करें"</string>
     <string name="car_permission_desc_control_car_airbags" msgid="6181671903761622348">"कार के एयरबैग कंट्रोल करें."</string>
     <string name="car_permission_label_car_info" msgid="4707513570676492315">"कार की बुनियादी जानकारी ऐक्सेस कर सकता है"</string>
@@ -210,6 +228,8 @@
     <string name="car_permission_desc_register_car_system_ui_proxy" msgid="8863676956785764681">"सिस्टम यूज़र इंटरफ़ेस (यूआई) के लिए प्रॉक्सी उपलब्ध कराएं, ताकि इसका इस्तेमाल करके दूसरे ऐप्लिकेशन सिस्टम यूज़र इंटरफ़ेस (यूआई) को मैनेज कर सकें और टास्क व्यू बना सकें."</string>
     <string name="car_permission_label_manage_car_system_ui" msgid="1361615518679353414">"टास्क व्यू बनाने या सिस्टम यूज़र इंटरफ़ेस (यूआई) में हुए बदलावों की सूचना पाने के लिए, कार के सिस्टम यूज़र इंटरफ़ेस (यूआई) से कनेक्ट करें."</string>
     <string name="car_permission_desc_manage_car_system_ui" msgid="6201733970421818637">"टास्क व्यू बनाने या सिस्टम यूज़र इंटरफ़ेस (यूआई) में हुए बदलावों की सूचना पाने के लिए, कार के सिस्टम यूज़र इंटरफ़ेस (यूआई) से कनेक्ट करें."</string>
+    <string name="car_permission_label_read_persist_tethering_settings" msgid="6395145649477916950">"कार में हमेशा चालू रहने वाली टेदरिंग की सेटिंग पढ़ने की अनुमति दें"</string>
+    <string name="car_permission_desc_read_persist_tethering_settings" msgid="7373546466696896323">"कार में हमेशा चालू रहने वाली टेदरिंग की सेटिंग पढ़ने की अनुमति दें"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"\'CAN बस\' काम नहीं कर पा रहा है"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"\'CAN बस\' जवाब नहीं दे रहा है. हेडयूनिट बॉक्स का प्लग निकालकर वापस लगाएं और कार को रीस्टार्ट करें"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"मेरा डिवाइस"</string>

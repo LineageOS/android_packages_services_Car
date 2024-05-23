@@ -46,5 +46,5 @@ android_app {
     ],
 
     required: ["allowed_privapp_com.google.android.car.multidisplaytest"],
-
+    system_ext_specific: true,
 }

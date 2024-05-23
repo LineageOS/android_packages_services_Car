@@ -23,80 +23,26 @@ import static android.media.AudioAttributes.USAGE_VEHICLE_STATUS;
 
 import static com.google.android.car.kitchensink.R.raw.well_worth_the_wait;
 
-import android.car.media.CarAudioManager;
-import android.media.AudioAttributes;
-import android.media.AudioManager;
-import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-
-import androidx.fragment.app.Fragment;
-
-import com.android.internal.widget.LinearLayoutManager;
-import com.android.internal.widget.RecyclerView;
-
-import com.google.android.car.kitchensink.R;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public final class AudioSystemPlayerFragment extends Fragment {
+public final class AudioSystemPlayerFragment extends AudioPlayersFragment {
 
     private static final List<Integer> CAR_SOUND_USAGES = new ArrayList<>(Arrays.asList(
             USAGE_EMERGENCY, USAGE_SAFETY,
             USAGE_VEHICLE_STATUS, USAGE_ANNOUNCEMENT
     ));
 
-    private final List<AudioPlayer> mSystemPlayers =
-            new ArrayList<>(CAR_SOUND_USAGES.size());
-
-    private final CarAudioManager mCarAudioManager;
-    private final AudioManager mAudioManager;
-
-    private RecyclerView mRecyclerView;
-    private PlayerAdapter mSystemPlayerAdapter;
-
-    AudioSystemPlayerFragment(CarAudioManager carAudioManager, AudioManager audioManager) {
-        mCarAudioManager = carAudioManager;
-        mAudioManager = audioManager;
+    AudioSystemPlayerFragment() {
     }
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.audio_player_tab, container, false);
-        initPlayers();
 
-        mRecyclerView = view.findViewById(R.id.players_view);
-
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-
-        mSystemPlayerAdapter = new PlayerAdapter(mSystemPlayers);
-        mRecyclerView.setAdapter(mSystemPlayerAdapter);
-        mRecyclerView.scrollToPosition(0);
-
-        return view;
+    int getPlayerResource(int usage) {
+        return well_worth_the_wait;
     }
 
     @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        for (int index = 0; index < mSystemPlayers.size(); index++) {
-            mSystemPlayers.get(index).stop();
-        }
-        mSystemPlayers.clear();
-    }
-
-    private void initPlayers() {
-        for (int index = 0; index < CAR_SOUND_USAGES.size(); index++) {
-            int usage = CAR_SOUND_USAGES.get(index);
-            mSystemPlayers.add(getCarSoundsPlayer(usage));
-        }
-    }
-
-    private AudioPlayer getCarSoundsPlayer(int usage) {
-        AudioAttributes attributes = new AudioAttributes.Builder().setSystemUsage(usage).build();
-        return new AudioPlayer(getContext(), well_worth_the_wait, attributes);
+    List<Integer> getUsages() {
+        return CAR_SOUND_USAGES;
     }
 }

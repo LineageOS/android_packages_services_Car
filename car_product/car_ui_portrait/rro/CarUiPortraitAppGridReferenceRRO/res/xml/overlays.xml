@@ -27,6 +27,7 @@
     <item target="id/focus_area" value="@id/focus_area" />
     <item target="id/apps_grid" value="@id/apps_grid" />
     <item target="id/apps_grid_background" value="@id/apps_grid_background" />
+    <item target="id/apps_grid_background_container" value="@id/apps_grid_background_container" />
     <item target="id/page_indicator" value="@id/page_indicator" />
     <item target="id/page_indicator_container" value="@id/page_indicator_container" />
 

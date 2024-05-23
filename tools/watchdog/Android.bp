@@ -29,7 +29,9 @@ python_binary_host {
         "perf_stats_proto",
     ],
     version: {
-        py3: { embedded_launcher: true },
+        py3: {
+            embedded_launcher: true,
+        },
     },
 }
 
@@ -43,8 +45,8 @@ python_library_host {
 
 cc_binary {
     name: "watchdog_cycles",
-    srcs: [ "cpufreq/watchdog_cycles_task.cpp" ],
-    header_libs: [ "libeigen" ],
+    srcs: ["cpufreq/watchdog_cycles_task.cpp"],
+    header_libs: ["libeigen"],
     cppflags: [
         "-O2",
         "-Wall",

@@ -49,7 +49,7 @@ android_app {
 
     libs: [
         "android.car",
-        "android.car.builtin"
+        "android.car.builtin",
     ],
 
     static_libs: [
@@ -75,9 +75,9 @@ android_library {
     ],
 
     static_libs: [
-            "car-service-lib-for-builtin",
-            // TODO(b/181911960): remove this after moving NewUserDisclaimerActivity
-            // to CarSystemUi
-            "car-admin-ui-lib",
-        ],
+        "car-service-lib-for-builtin",
+        // TODO(b/181911960): remove this after moving NewUserDisclaimerActivity
+        // to CarSystemUi
+        "car-admin-ui-lib",
+    ],
 }

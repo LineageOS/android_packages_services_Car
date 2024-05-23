@@ -21,6 +21,7 @@ namespace frameworks {
 namespace automotive {
 namespace vhal {
 
+using ::aidl::android::hardware::automotive::vehicle::VehiclePropertyStatus;
 using ::android::hardware::automotive::vehicle::V2_0::VehiclePropValue;
 
 HidlHalPropValue::HidlHalPropValue(int32_t propId) {
@@ -48,6 +49,10 @@ int32_t HidlHalPropValue::getAreaId() const {
 
 int64_t HidlHalPropValue::getTimestamp() const {
     return mPropValue.timestamp;
+}
+
+VehiclePropertyStatus HidlHalPropValue::getStatus() const {
+    return static_cast<VehiclePropertyStatus>(mPropValue.status);
 }
 
 void HidlHalPropValue::setInt32Values(const std::vector<int32_t>& values) {
@@ -92,6 +97,11 @@ std::string HidlHalPropValue::getStringValue() const {
 
 const void* HidlHalPropValue::toVehiclePropValue() const {
     return &mPropValue;
+}
+
+std::unique_ptr<IHalPropValue> HidlHalPropValue::clone() const {
+    auto propValueCopy = mPropValue;
+    return std::make_unique<HidlHalPropValue>(std::move(propValueCopy));
 }
 
 }  // namespace vhal

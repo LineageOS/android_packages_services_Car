@@ -181,6 +181,12 @@ public final class PowerComponentUtil {
             case POWER_COMPONENT_CPU:
                 return PowerComponent.CPU;
             default:
+                if (component.matches("\\d+")) {
+                    int componentNumber = Integer.parseInt(component);
+                    if (componentNumber >= PowerComponent.MINIMUM_CUSTOM_COMPONENT_VALUE) {
+                        return componentNumber;
+                    }
+                }
                 return INVALID_POWER_COMPONENT;
         }
     }
@@ -262,5 +268,19 @@ public final class PowerComponentUtil {
                     String.format(", %s", powerComponentToString(componentsIterator.next())));
         }
         return builder.toString();
+    }
+
+    /**
+     * Convert list of strings to list of {@link PowerComponent}.
+     */
+    @NonNull
+    public static Iterable<Integer> toPowerComponents(Iterable<String> components, boolean prefix) {
+        List<Integer> powerComponents = new ArrayList<>();
+        Iterator<String> componentsIterator = components.iterator();
+        while (componentsIterator.hasNext()) {
+            String component = componentsIterator.next();
+            powerComponents.add(toPowerComponent(component, prefix));
+        }
+        return powerComponents;
     }
 }

@@ -37,9 +37,9 @@ cc_prebuilt_library_shared {
         "libc",
         "libdl",
         "liblog",
-        "libm"
+        "libm",
     ],
     strip: {
         keep_symbols: true,
-    }
+    },
 }

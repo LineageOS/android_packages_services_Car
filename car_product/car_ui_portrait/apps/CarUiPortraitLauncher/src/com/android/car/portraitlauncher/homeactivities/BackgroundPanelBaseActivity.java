@@ -69,4 +69,10 @@ public class BackgroundPanelBaseActivity extends AppCompatActivity {
         getWindow().getDecorView().getRootView().setOnApplyWindowInsetsListener(
                 mOnApplyWindowInsetsListener);
     }
+
+    @SuppressWarnings("MissingSuperCall")
+    @Override
+    public void onBackPressed() {
+        // no-op - this activity should always be present and not closed on back press.
+    }
 }

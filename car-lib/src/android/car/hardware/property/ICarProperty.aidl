@@ -25,6 +25,7 @@ import com.android.car.internal.property.IAsyncPropertyResultCallback;
 import com.android.car.internal.property.CarPropertyConfigList;
 import com.android.car.internal.property.AsyncPropertyServiceRequestList;
 import com.android.car.internal.property.CarSubscription;
+import com.android.car.internal.property.GetPropertyConfigListResult;
 
 /**
  * @hide
@@ -46,7 +47,7 @@ interface ICarProperty {
 
     String getWritePermission(int propId);
 
-    CarPropertyConfigList getPropertyConfigList(in int[] propIds);
+    GetPropertyConfigListResult getPropertyConfigList(in int[] propIds);
 
     /**
      * Gets CarPropertyValues asynchronously.
@@ -68,4 +69,15 @@ interface ICarProperty {
     void setPropertiesAsync(in AsyncPropertyServiceRequestList asyncPropertyServiceRequests,
                 in IAsyncPropertyResultCallback asyncPropertyResultCallback,
                 long timeoutInMs);
+
+    /**
+     * Returns the property IDs that are supported but the caller does not have read permission for.
+     */
+    int[] getSupportedNoReadPermPropIds(in int[] propIds);
+
+    /**
+     * Returns whether the property is supported and the caller only has write permission, but
+     * no read permission for the property.
+     */
+    boolean isSupportedAndHasWritePermissionOnly(int propId);
 }

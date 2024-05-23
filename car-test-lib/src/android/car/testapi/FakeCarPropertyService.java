@@ -37,6 +37,7 @@ import com.android.car.internal.property.AsyncPropertyServiceRequest;
 import com.android.car.internal.property.AsyncPropertyServiceRequestList;
 import com.android.car.internal.property.CarPropertyConfigList;
 import com.android.car.internal.property.CarSubscription;
+import com.android.car.internal.property.GetPropertyConfigListResult;
 import com.android.car.internal.property.GetSetValueResult;
 import com.android.car.internal.property.GetSetValueResultList;
 import com.android.car.internal.property.IAsyncPropertyResultCallback;
@@ -110,7 +111,7 @@ class FakeCarPropertyService extends ICarProperty.Stub implements CarPropertyCon
     }
 
     @Override
-    public CarPropertyConfigList getPropertyConfigList(int[] propIds) {
+    public GetPropertyConfigListResult getPropertyConfigList(int[] propIds) {
         List<CarPropertyConfig> configs = new ArrayList<>(propIds.length);
         for (int prop : propIds) {
             CarPropertyConfig cfg = mConfigs.get(prop);
@@ -118,7 +119,11 @@ class FakeCarPropertyService extends ICarProperty.Stub implements CarPropertyCon
                 configs.add(cfg);
             }
         }
-        return new CarPropertyConfigList(configs);
+        GetPropertyConfigListResult result = new GetPropertyConfigListResult();
+        result.unsupportedPropIds = new int[0];
+        result.missingPermissionPropIds = new int[0];
+        result.carPropertyConfigList = new CarPropertyConfigList(configs);
+        return result;
     }
 
     @Override
@@ -182,6 +187,16 @@ class FakeCarPropertyService extends ICarProperty.Stub implements CarPropertyCon
     @Override
     public String getWritePermission(int propId) throws RemoteException {
         return mConfigs.containsKey(propId) ? mPermissions.getWritePermission(propId) : null;
+    }
+
+    @Override
+    public int[] getSupportedNoReadPermPropIds(int[] propertyids) {
+        return new int[0];
+    }
+
+    @Override
+    public boolean isSupportedAndHasWritePermissionOnly(int propertyId) {
+        return false;
     }
 
     @Override

@@ -16,19 +16,11 @@
   -->
 <resources>
     <dimen name="biometric_dialog_elevation">1dp</dimen>
-    <dimen name="biometric_auth_pattern_view_size">348dp</dimen>
+    <dimen name="biometric_auth_pattern_view_size">360dp</dimen>
     <dimen name="confirm_lock_message_vertical_spacing">@*android:dimen/car_padding_2</dimen>
-    <dimen name="pin_password_entry_padding_horizontal">@*android:dimen/car_padding_5</dimen>
-    <dimen name="car_ui_margin">112dp</dimen>
-    <dimen name="car_ui_body1_size">50sp</dimen>
-    <dimen name="button_layout_height">88dp</dimen>
-    <dimen name="car_alert_dialog_button_margin">16dp</dimen>
-    <dimen name="car_portrait_ui_button_radius">44dp</dimen>
-    <dimen name="car_ui_rotary_focus_stroke_width">8dp</dimen>
-    <dimen name="car_ui_rotary_focus_pressed_stroke_width">4dp</dimen>
-    <dimen name="icon_size">44dp</dimen>
-    <dimen name="cancel_button_padding_bottom">@*android:dimen/car_padding_5</dimen>
-    <dimen name="cancel_button_margin_horizontal">76dp</dimen>
-    <dimen name="credential_input_padding_top">@*android:dimen/car_padding_6</dimen>
-    <dimen name="password_credential_input_padding_top">@*android:dimen/car_padding_2</dimen>
+    <dimen name="credential_input_width">640dp</dimen>
+    <dimen name="credential_input_vertical_padding">@*android:dimen/car_padding_6</dimen>
+    <dimen name="password_credential_input_vertical_padding">@*android:dimen/car_padding_4</dimen>
+    <dimen name="credential_input_margin_horizontal">116dp</dimen>
+    <dimen name="lock_pattern_dot_size">24dp</dimen>
 </resources>

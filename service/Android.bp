@@ -43,13 +43,13 @@ gensrcs {
     ],
 
     cmd: "mkdir -p $(genDir)/$(in) " +
-            "&& $(location aprotoc) " +
-            "  --plugin=$(location protoc-gen-javastream) " +
-            "  --javastream_out=$(genDir)/$(in) " +
-            "  -Iexternal/protobuf/src " +
-            "  -I . " +
-            "  $(in) " +
-            "&& $(location soong_zip) -jar -o $(out) -C $(genDir)/$(in) -D $(genDir)/$(in)",
+        "&& $(location aprotoc) " +
+        "  --plugin=$(location protoc-gen-javastream) " +
+        "  --javastream_out=$(genDir)/$(in) " +
+        "  -Iexternal/protobuf/src " +
+        "  -I . " +
+        "  $(in) " +
+        "&& $(location soong_zip) -jar -o $(out) -C $(genDir)/$(in) -D $(genDir)/$(in)",
 
     srcs: [
         ":car-service-dump-proto-srcs",
@@ -65,13 +65,13 @@ genrule {
         "protoc-gen-cppstream",
     ],
     cmd: "mkdir -p $(genDir) " +
-            "&& $(location aprotoc) " +
-            "  --plugin=$(location protoc-gen-cppstream) " +
-            "  --cppstream_out=$(genDir) " +
-            "  --cppstream_opt=experimental_allow_proto3_optional " +
-            "  -Iexternal/protobuf/src " +
-            "  -Ipackages/services/Car/service/proto/android/car/watchdog " +
-            "  $(in) ",
+        "&& $(location aprotoc) " +
+        "  --plugin=$(location protoc-gen-cppstream) " +
+        "  --cppstream_out=$(genDir) " +
+        "  --cppstream_opt=experimental_allow_proto3_optional " +
+        "  -Iexternal/protobuf/src " +
+        "  -Ipackages/services/Car/service/proto/android/car/watchdog " +
+        "  $(in) ",
     srcs: [
         ":native-dump-proto-srcs",
     ],
@@ -89,11 +89,11 @@ genrule {
         "aprotoc",
     ],
     cmd: "mkdir -p $(genDir) " +
-            "&& $(location aprotoc) " +
-            "  --cpp_out=$(genDir) " +
-            "  --proto_path=external/protobuf/src/google/protobuf " +
-            "  --proto_path=packages/services/Car/service/proto/android/car/watchdog " +
-            "  $(in) ",
+        "&& $(location aprotoc) " +
+        "  --cpp_out=$(genDir) " +
+        "  --proto_path=external/protobuf/src/google/protobuf " +
+        "  --proto_path=packages/services/Car/service/proto/android/car/watchdog " +
+        "  $(in) ",
     srcs: [
         ":native-dump-proto-srcs",
     ],
@@ -110,11 +110,11 @@ genrule {
         "aprotoc",
     ],
     cmd: "mkdir -p $(genDir) " +
-            "&& $(location aprotoc) " +
-            "  --cpp_out=$(genDir) " +
-            "  --proto_path=external/protobuf/src/google/protobuf " +
-            "  --proto_path=packages/services/Car/service/proto/android/car/watchdog " +
-            "  $(in) ",
+        "&& $(location aprotoc) " +
+        "  --cpp_out=$(genDir) " +
+        "  --proto_path=external/protobuf/src/google/protobuf " +
+        "  --proto_path=packages/services/Car/service/proto/android/car/watchdog " +
+        "  $(in) ",
     srcs: [
         ":native-dump-proto-srcs",
     ],
@@ -131,16 +131,16 @@ filegroup {
         "proto/android/car/**/*_dump.proto",
     ],
     exclude_srcs: [
-         ":native-dump-proto-srcs",
+        ":native-dump-proto-srcs",
     ],
 }
 
 filegroup {
     name: "native-dump-proto-srcs",
     srcs: [
-       "proto/android/car/watchdog/*_daemon_dump.proto",
-       "proto/android/car/watchdog/performance_stats.proto",
-       "proto/android/car/watchdog/health_check_client_info.proto",
+        "proto/android/car/watchdog/*_daemon_dump.proto",
+        "proto/android/car/watchdog/performance_stats.proto",
+        "proto/android/car/watchdog/health_check_client_info.proto",
     ],
 }
 
@@ -221,6 +221,7 @@ java_defaults {
         "android.hardware.health-V1.0-java",
         "android.hardware.health-V2.0-java",
         "android.hardware.automotive.occupant_awareness-V1-java",
+        "android.media.audiopolicy-aconfig-java",
         "libprotobuf-java-lite",
         "modules-utils-expresslog",
     ],
@@ -263,9 +264,6 @@ android_app {
     privileged: true,
 
     required: ["allowed_privapp_com.android.car"],
-    lint: {
-        baseline_filename: "lint-baseline.xml",
-    },
 }
 
 // Added to car.framework module
@@ -276,9 +274,6 @@ android_app {
     privileged: true,
 
     apex_available: ["com.android.car.framework"],
-    lint: {
-        baseline_filename: "lint-baseline.xml",
-    },
 }
 
 java_library {
@@ -302,9 +297,6 @@ java_library {
         "android.hardware.automotive.vehicle-V3-java",
         "android.hardware.automotive.vehicle-V2.0-java",
     ],
-    lint: {
-        baseline_filename: "lint-baseline.xml",
-    },
 }
 
 // Minimum code shared with carservice builtin.
@@ -320,9 +312,6 @@ java_library {
     libs: [
         "android.car",
     ],
-    lint: {
-        baseline_filename: "lint-baseline.xml",
-    },
 }
 
 //####################################################################################
@@ -335,9 +324,6 @@ android_library {
     defaults: ["carservice-updatable-min-java-defaults"],
 
     manifest: "EmptyAndroidManifest.xml",
-    lint: {
-        baseline_filename: "lint-baseline.xml",
-    },
 }
 
 filegroup {

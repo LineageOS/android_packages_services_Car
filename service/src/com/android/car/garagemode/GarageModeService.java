@@ -16,10 +16,11 @@
 
 package com.android.car.garagemode;
 
+import static com.android.car.CarServiceUtils.getHandlerThread;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
 import android.content.Context;
-import android.os.Looper;
+import android.os.HandlerThread;
 import android.util.proto.ProtoOutputStream;
 
 import com.android.car.CarServiceBase;
@@ -33,16 +34,19 @@ import com.android.internal.annotations.VisibleForTesting;
  */
 public class GarageModeService implements CarServiceBase {
 
-    private final Controller mController;
+    private static final String HANDLER_THREAD_NAME = "GarageModeService";
+
+    private final GarageModeController mController;
+    private final HandlerThread mHandlerThread = getHandlerThread(HANDLER_THREAD_NAME);
 
     public GarageModeService(Context context) {
         this(context, /* controller= */ null);
     }
 
     @VisibleForTesting
-    protected GarageModeService(Context context, Controller controller) {
+    protected GarageModeService(Context context, GarageModeController controller) {
         mController = (controller != null ? controller
-                : new Controller(context, Looper.myLooper()));
+                : new GarageModeController(context, mHandlerThread.getLooper()));
     }
 
     /**
@@ -59,6 +63,7 @@ public class GarageModeService implements CarServiceBase {
     @Override
     public void release() {
         mController.release();
+        mHandlerThread.quitSafely();
     }
 
     /**
@@ -95,6 +100,6 @@ public class GarageModeService implements CarServiceBase {
      * Stops and resets the GarageMode. Used by {@link com.android.car.ICarImpl}.
      */
     public void stopAndResetGarageMode() {
-        mController.resetGarageMode();
+        mController.resetGarageMode(null);
     }
 }

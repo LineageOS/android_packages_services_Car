@@ -123,7 +123,7 @@ public:
                     monitor,
             std::chrono::nanoseconds overriddenClientHealthCheckWindowNs,
             std::unordered_set<userid_t> stoppedUserIds,
-            std::chrono::milliseconds vhalHealthCheckWindowMs,
+            std::chrono::milliseconds vhalHealthCheckWindowMillis,
             const ProcessIdentifier& processIdentifier) {
         Mutex::Autolock lock(mWatchdogProcessService->mMutex);
         mWatchdogProcessService->mIsEnabled = isEnabled;
@@ -131,7 +131,7 @@ public:
         mWatchdogProcessService->mOverriddenClientHealthCheckWindowNs =
                 overriddenClientHealthCheckWindowNs;
         mWatchdogProcessService->mStoppedUserIds = stoppedUserIds;
-        mWatchdogProcessService->mVhalHealthCheckWindowMs = vhalHealthCheckWindowMs;
+        mWatchdogProcessService->mVhalHealthCheckWindowMillis = vhalHealthCheckWindowMillis;
         mWatchdogProcessService->mVhalProcessIdentifier = processIdentifier;
 
         WatchdogProcessService::ClientInfoMap clientInfoMap;

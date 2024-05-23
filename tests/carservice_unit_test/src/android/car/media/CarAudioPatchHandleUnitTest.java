@@ -71,7 +71,7 @@ public final class CarAudioPatchHandleUnitTest extends AbstractExpectableTestCas
         Parcel parcel = Parcel.obtain();
 
         TEST_AUDIO_PATCH_HANDLE.writeToParcel(parcel, TEST_PARCEL_FLAGS);
-        parcel.setDataPosition(/* position= */ 0);
+        parcel.setDataPosition(/* pos= */ 0);
         CarAudioPatchHandle handleFromParcel = CarAudioPatchHandle.CREATOR.createFromParcel(parcel);
 
         expectWithMessage("Handle id in car audio handle created from parcel")

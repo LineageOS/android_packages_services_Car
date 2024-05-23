@@ -27,4 +27,13 @@
     <dimen name="overlay_icon_size">80dp</dimen>
     <dimen name="overlay_background_icon_size">120dp</dimen>
     <dimen name="displaycompat_toolbar_height">96dp</dimen>
+
+    <!-- Calm mode sizes -->
+    <dimen name="calm_mode_padding_horizontal">18dp</dimen>
+    <dimen name="calm_mode_padding_vertical">16dp</dimen>
+    <dimen name="calm_mode_icon_size">48dp</dimen>
+    <dimen name="calm_mode_icon_margin">8dp</dimen>
+    <dimen name="calm_mode_clock_translationY">100dp</dimen>
+    <dimen name="calm_mode_clock_media_title_margin">100dp</dimen>
+
 </resources>

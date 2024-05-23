@@ -37,7 +37,7 @@ cc_defaults {
 cc_library {
     name: "libpowerpolicyclient",
     vendor_available: true,
-    system_ext_specific:true,
+    system_ext_specific: true,
     srcs: [
         "src/PowerPolicyClientBase.cpp",
     ],

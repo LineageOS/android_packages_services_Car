@@ -31,14 +31,13 @@ import static android.media.AudioAttributes.USAGE_NOTIFICATION_RINGTONE;
 import static android.media.AudioAttributes.USAGE_SAFETY;
 import static android.media.AudioAttributes.USAGE_UNKNOWN;
 import static android.media.AudioAttributes.USAGE_VEHICLE_STATUS;
+import static android.media.AudioAttributes.USAGE_VIRTUAL_SOURCE;
 import static android.media.AudioAttributes.USAGE_VOICE_COMMUNICATION;
 
 import static com.android.car.audio.CarAudioContext.isCriticalAudioAudioAttribute;
 import static com.android.car.audio.CarAudioContext.isNotificationAudioAttribute;
 import static com.android.car.audio.CarAudioContext.isRingerOrCallAudioAttribute;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
-
-import static com.google.common.truth.Truth.assertWithMessage;
 
 import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.eq;
@@ -52,6 +51,7 @@ import android.util.ArraySet;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.android.car.audio.CarAudioContext.AudioContext;
+import com.android.car.internal.util.DebugUtils;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -177,12 +177,11 @@ public class CarAudioContextTest extends AbstractExtendedMockitoTestCase {
         CarAudioContext carAudioContextUsingCoreRouting = new CarAudioContext(
                 CoreAudioRoutingUtils.getCarAudioContextInfos(), /* useCoreAudioRouting= */ true);
 
-        assertWithMessage("Context for valid audio attributes")
+        expectWithMessage("Context for valid audio attributes")
                 .that(carAudioContextUsingCoreRouting.getContextForAttributes(
                         CoreAudioRoutingUtils.MUSIC_ATTRIBUTES))
                 .isEqualTo(CoreAudioRoutingUtils.MUSIC_STRATEGY_ID);
-
-        assertWithMessage("Context for unsupported audio attributes")
+        expectWithMessage("Context for unsupported audio attributes")
                 .that(carAudioContextUsingCoreRouting.getContextForAttributes(
                         CoreAudioRoutingUtils.UNSUPPORTED_ATTRIBUTES))
                 .isEqualTo(INVALID_CONTEXT_ID);
@@ -193,15 +192,15 @@ public class CarAudioContextTest extends AbstractExtendedMockitoTestCase {
         CarAudioContext carAudioContextUsingCoreRouting = new CarAudioContext(
                 CoreAudioRoutingUtils.getCarAudioContextInfos(), /* useCoreAudioRouting= */ true);
 
-        assertWithMessage("Oem extension Context for music audio attributes")
+        expectWithMessage("Oem extension Context for music audio attributes")
                 .that(carAudioContextUsingCoreRouting.isOemExtensionAudioContext(
                         CoreAudioRoutingUtils.MUSIC_STRATEGY_ID))
                 .isTrue();
-        assertWithMessage("Nav Context for USAGE_ASSISTANCE_NAVIGATION_GUIDANCE")
+        expectWithMessage("Nav Context for USAGE_ASSISTANCE_NAVIGATION_GUIDANCE")
                 .that(carAudioContextUsingCoreRouting.isOemExtensionAudioContext(
                         CoreAudioRoutingUtils.NAV_STRATEGY_ID))
                 .isFalse();
-        assertWithMessage("Oem extension Context for oem audio attributes")
+        expectWithMessage("Oem extension Context for oem audio attributes")
                 .that(carAudioContextUsingCoreRouting.isOemExtensionAudioContext(
                         CoreAudioRoutingUtils.OEM_STRATEGY_ID))
                 .isTrue();
@@ -211,14 +210,14 @@ public class CarAudioContextTest extends AbstractExtendedMockitoTestCase {
     public void getContextForAudioAttributes_forAttributeWithValidUsage_returnsContext() {
         AudioAttributes attributes = new AudioAttributes.Builder().setUsage(USAGE_MEDIA).build();
 
-        assertWithMessage("Context for valid audio attributes usage")
+        expectWithMessage("Context for valid audio attributes usage")
                 .that(TEST_CAR_AUDIO_CONTEXT.getContextForAttributes(attributes))
                 .isEqualTo(TEST_MEDIA_CONTEXT);
     }
 
     @Test
     public void getContextForAudioAttributes_forAttributesWithInvalidUsage_returnsInvalidContext() {
-        assertWithMessage("Context for invalid audio attribute")
+        expectWithMessage("Context for invalid audio attribute")
                 .that(TEST_CAR_AUDIO_CONTEXT.getContextForAttributes(TEST_INVALID_ATTRIBUTE))
                 .isEqualTo(CarAudioContext.getInvalidContext());
     }
@@ -227,7 +226,7 @@ public class CarAudioContextTest extends AbstractExtendedMockitoTestCase {
     public void getAudioAttributesForContext_withValidContext_returnsAttributes() {
         AudioAttributes[] attributes =
                 TEST_CAR_AUDIO_CONTEXT.getAudioAttributesForContext(TEST_MEDIA_CONTEXT);
-        assertWithMessage("Music context's audio attributes")
+        expectWithMessage("Music context's audio attributes")
                 .that(attributes).asList().containsExactly(UNKNOWN_USAGE_ATTRIBUTE,
                         TEST_MEDIA_ATTRIBUTE, GAME_USAGE_ATTRIBUTE);
     }
@@ -238,7 +237,7 @@ public class CarAudioContextTest extends AbstractExtendedMockitoTestCase {
             TEST_CAR_AUDIO_CONTEXT.getAudioAttributesForContext(INVALID_CONTEXT);
         });
 
-        assertWithMessage("Invalid context exception").that(thrown)
+        expectWithMessage("Invalid context exception").that(thrown)
                 .hasMessageThat().contains("Car audio context " + INVALID_CONTEXT + " is invalid");
     }
 
@@ -252,7 +251,7 @@ public class CarAudioContextTest extends AbstractExtendedMockitoTestCase {
                     Arrays.stream(audioAttributes).map(CarAudioContext.AudioAttributesWrapper::new)
                             .collect(Collectors.toList());
 
-            assertWithMessage("Unique audio attributes wrapper for context %s",
+            expectWithMessage("Unique audio attributes wrapper for context %s",
                     TEST_CAR_AUDIO_CONTEXT.toString(audioContext))
                     .that(allUsages.addAll(attributesWrappers)).isTrue();
         }
@@ -263,7 +262,7 @@ public class CarAudioContextTest extends AbstractExtendedMockitoTestCase {
         Set<Integer> result =
                 TEST_CAR_AUDIO_CONTEXT.getUniqueContextsForAudioAttributes(new ArrayList<>());
 
-        assertWithMessage("Empty unique context list").that(result).isEmpty();
+        expectWithMessage("Empty unique context list").that(result).isEmpty();
     }
 
     @Test
@@ -275,7 +274,7 @@ public class CarAudioContextTest extends AbstractExtendedMockitoTestCase {
                                         .getAudioAttributeFromUsage(AudioManagerHelper
                                                 .getUsageVirtualSource()))));
 
-        assertWithMessage("Empty unique context list for invalid context")
+        expectWithMessage("Empty unique context list for invalid context")
                 .that(result).isEmpty();
     }
 
@@ -285,7 +284,7 @@ public class CarAudioContextTest extends AbstractExtendedMockitoTestCase {
             TEST_CAR_AUDIO_CONTEXT.getUniqueContextsForAudioAttributes(null);
         });
 
-        assertWithMessage("Unique contexts conversion exception")
+        expectWithMessage("Unique contexts conversion exception")
                 .that(thrown).hasMessageThat().contains("can not be null");
     }
 
@@ -298,7 +297,7 @@ public class CarAudioContextTest extends AbstractExtendedMockitoTestCase {
         Set<Integer> result = TEST_CAR_AUDIO_CONTEXT
                 .getUniqueContextsForAudioAttributes(audioAttributes);
 
-        assertWithMessage("Media and Game audio attribute's context")
+        expectWithMessage("Media and Game audio attribute's context")
                 .that(result).containsExactly(TEST_MEDIA_CONTEXT);
     }
 
@@ -312,7 +311,7 @@ public class CarAudioContextTest extends AbstractExtendedMockitoTestCase {
         Set<Integer> result =
                 TEST_CAR_AUDIO_CONTEXT.getUniqueContextsForAudioAttributes(audioAttributes);
 
-        assertWithMessage("Separate audio attribute's contexts")
+        expectWithMessage("Separate audio attribute's contexts")
                 .that(result).containsExactly(TEST_MEDIA_CONTEXT,
                         TEST_NAVIGATION_CONTEXT,
                         TEST_EMERGENCY_CONTEXT);
@@ -323,7 +322,7 @@ public class CarAudioContextTest extends AbstractExtendedMockitoTestCase {
         Set<Integer> contexts =
                 TEST_CAR_AUDIO_CONTEXT.getUniqueContextsForAudioAttributes(new ArrayList<>());
 
-        assertWithMessage("Empty unique contexts set")
+        expectWithMessage("Empty unique contexts set")
                 .that(contexts).isEmpty();
     }
 
@@ -337,7 +336,7 @@ public class CarAudioContextTest extends AbstractExtendedMockitoTestCase {
         Set<Integer> contexts =
                 TEST_CAR_AUDIO_CONTEXT.getUniqueContextsForAudioAttributes(audioAttributes);
 
-        assertWithMessage("Non duplicates unique contexts set")
+        expectWithMessage("Non duplicates unique contexts set")
                 .that(contexts).containsExactly(TEST_MEDIA_CONTEXT,
                         TEST_NOTIFICATION_CONTEXT);
     }
@@ -352,7 +351,7 @@ public class CarAudioContextTest extends AbstractExtendedMockitoTestCase {
         Set<Integer> contexts =
                 TEST_CAR_AUDIO_CONTEXT.getUniqueContextsForAudioAttributes(audioAttributes);
 
-        assertWithMessage("Non duplicates unique contexts set")
+        expectWithMessage("Non duplicates unique contexts set")
                 .that(contexts).containsExactly(TEST_MEDIA_CONTEXT,
                         TEST_SAFETY_CONTEXT,
                         TEST_EMERGENCY_CONTEXT);
@@ -367,109 +366,109 @@ public class CarAudioContextTest extends AbstractExtendedMockitoTestCase {
         Set<Integer> contexts =
                 TEST_CAR_AUDIO_CONTEXT.getUniqueContextsForAudioAttributes(audioAttributes);
 
-        assertWithMessage("Unique contexts without invalid")
+        expectWithMessage("Unique contexts without invalid")
                 .that(contexts).isEmpty();
     }
 
     @Test
     public void isCriticalAudioContext_forNonCriticalContexts_returnsFalse() {
-        assertWithMessage("Non-critical context INVALID")
+        expectWithMessage("Non-critical context INVALID")
                 .that(isCriticalAudioAudioAttribute(TEST_INVALID_ATTRIBUTE)).isFalse();
-        assertWithMessage("Non-critical context MUSIC")
+        expectWithMessage("Non-critical context MUSIC")
                 .that(isCriticalAudioAudioAttribute(TEST_MEDIA_ATTRIBUTE)).isFalse();
-        assertWithMessage("Non-critical context NAVIGATION")
+        expectWithMessage("Non-critical context NAVIGATION")
                 .that(isCriticalAudioAudioAttribute(TEST_NAVIGATION_ATTRIBUTE)).isFalse();
-        assertWithMessage("Non-critical context VOICE_COMMAND")
+        expectWithMessage("Non-critical context VOICE_COMMAND")
                 .that(isCriticalAudioAudioAttribute(TEST_ASSISTANT_ATTRIBUTE)).isFalse();
-        assertWithMessage("Non-critical context CALL_RING")
+        expectWithMessage("Non-critical context CALL_RING")
                 .that(isCriticalAudioAudioAttribute(TEST_RINGER_ATTRIBUTE)).isFalse();
-        assertWithMessage("Non-critical context CALL")
+        expectWithMessage("Non-critical context CALL")
                 .that(isCriticalAudioAudioAttribute(TEST_CALL_ATTRIBUTE)).isFalse();
-        assertWithMessage("Non-critical context ALARM")
+        expectWithMessage("Non-critical context ALARM")
                 .that(isCriticalAudioAudioAttribute(TEST_ALARM_ATTRIBUTE)).isFalse();
-        assertWithMessage("Non-critical context NOTIFICATION")
+        expectWithMessage("Non-critical context NOTIFICATION")
                 .that(isCriticalAudioAudioAttribute(TEST_NOTIFICATION_ATTRIBUTE)).isFalse();
-        assertWithMessage("Non-critical context SYSTEM_SOUND")
+        expectWithMessage("Non-critical context SYSTEM_SOUND")
                 .that(isCriticalAudioAudioAttribute(TEST_SYSTEM_ATTRIBUTE)).isFalse();
-        assertWithMessage("Non-critical context VEHICLE_STATUS")
+        expectWithMessage("Non-critical context VEHICLE_STATUS")
                 .that(isCriticalAudioAudioAttribute(TEST_VEHICLE_ATTRIBUTE)).isFalse();
-        assertWithMessage("Non-critical context ANNOUNCEMENT")
+        expectWithMessage("Non-critical context ANNOUNCEMENT")
                 .that(isCriticalAudioAudioAttribute(TEST_ANNOUNCEMENT_ATTRIBUTE)).isFalse();
     }
 
     @Test
     public void isCriticalAudioContext_forCriticalContexts_returnsTrue() {
-        assertWithMessage("Critical context EMERGENCY")
+        expectWithMessage("Critical context EMERGENCY")
                 .that(isCriticalAudioAudioAttribute(TEST_EMERGENCY_ATTRIBUTE)).isTrue();
-        assertWithMessage("Critical context SAFETY")
+        expectWithMessage("Critical context SAFETY")
                 .that(isCriticalAudioAudioAttribute(TEST_SAFETY_ATTRIBUTE)).isTrue();
     }
 
     @Test
     public void isNotificationAudioAttribute_forNonNotification_returnsFalse() {
-        assertWithMessage("Non Notification attribute INVALID")
+        expectWithMessage("Non Notification attribute INVALID")
                 .that(isNotificationAudioAttribute(TEST_INVALID_ATTRIBUTE)).isFalse();
-        assertWithMessage("Non notification attribute MUSIC")
+        expectWithMessage("Non notification attribute MUSIC")
                 .that(isNotificationAudioAttribute(TEST_MEDIA_ATTRIBUTE)).isFalse();
-        assertWithMessage("Non notification attribute NAVIGATION")
+        expectWithMessage("Non notification attribute NAVIGATION")
                 .that(isNotificationAudioAttribute(TEST_NAVIGATION_ATTRIBUTE)).isFalse();
-        assertWithMessage("Non notification attribute VOICE_COMMAND")
+        expectWithMessage("Non notification attribute VOICE_COMMAND")
                 .that(isNotificationAudioAttribute(TEST_ASSISTANT_ATTRIBUTE)).isFalse();
-        assertWithMessage("Non notification attribute ALARM")
+        expectWithMessage("Non notification attribute ALARM")
                 .that(isNotificationAudioAttribute(TEST_ALARM_ATTRIBUTE)).isFalse();
-        assertWithMessage("Non notification attribute SYSTEM_SOUND")
+        expectWithMessage("Non notification attribute SYSTEM_SOUND")
                 .that(isNotificationAudioAttribute(TEST_SYSTEM_ATTRIBUTE)).isFalse();
-        assertWithMessage("Non notification attribute VEHICLE_STATUS")
+        expectWithMessage("Non notification attribute VEHICLE_STATUS")
                 .that(isNotificationAudioAttribute(TEST_VEHICLE_ATTRIBUTE)).isFalse();
-        assertWithMessage("Non notification attribute ANNOUNCEMENT")
+        expectWithMessage("Non notification attribute ANNOUNCEMENT")
                 .that(isNotificationAudioAttribute(TEST_ANNOUNCEMENT_ATTRIBUTE)).isFalse();
-        assertWithMessage("Non Notification attribute EMERGENCY")
+        expectWithMessage("Non Notification attribute EMERGENCY")
                 .that(isNotificationAudioAttribute(TEST_EMERGENCY_ATTRIBUTE)).isFalse();
-        assertWithMessage("Non Notification attribute SAFETY")
+        expectWithMessage("Non Notification attribute SAFETY")
                 .that(isNotificationAudioAttribute(TEST_SAFETY_ATTRIBUTE)).isFalse();
     }
 
     @Test
     public void isNotificationAudioAttribute_forNotification_returnsTrue() {
-        assertWithMessage("Notification attribute NOTIFICATION")
+        expectWithMessage("Notification attribute NOTIFICATION")
                 .that(isNotificationAudioAttribute(TEST_NOTIFICATION_ATTRIBUTE)).isTrue();
-        assertWithMessage("Notification attribute MUSIC")
+        expectWithMessage("Notification attribute MUSIC")
                 .that(isNotificationAudioAttribute(TEST_NOTIFICATION_EVENT_ATTRIBUTE)).isTrue();
     }
 
     @Test
     public void isRingerOrCallAudioAttribute_forNonCall_returnsFalse() {
-        assertWithMessage("Non call attribute INVALID")
+        expectWithMessage("Non call attribute INVALID")
                 .that(isRingerOrCallAudioAttribute(TEST_INVALID_ATTRIBUTE)).isFalse();
-        assertWithMessage("Non call attribute MUSIC")
+        expectWithMessage("Non call attribute MUSIC")
                 .that(isRingerOrCallAudioAttribute(TEST_MEDIA_ATTRIBUTE)).isFalse();
-        assertWithMessage("Non call attribute NAVIGATION")
+        expectWithMessage("Non call attribute NAVIGATION")
                 .that(isRingerOrCallAudioAttribute(TEST_NAVIGATION_ATTRIBUTE)).isFalse();
-        assertWithMessage("Non call attribute VOICE_COMMAND")
+        expectWithMessage("Non call attribute VOICE_COMMAND")
                 .that(isRingerOrCallAudioAttribute(TEST_ASSISTANT_ATTRIBUTE)).isFalse();
-        assertWithMessage("Non call attribute ALARM")
+        expectWithMessage("Non call attribute ALARM")
                 .that(isRingerOrCallAudioAttribute(TEST_ALARM_ATTRIBUTE)).isFalse();
-        assertWithMessage("Non call attribute SYSTEM_SOUND")
+        expectWithMessage("Non call attribute SYSTEM_SOUND")
                 .that(isRingerOrCallAudioAttribute(TEST_SYSTEM_ATTRIBUTE)).isFalse();
-        assertWithMessage("Non call attribute VEHICLE_STATUS")
+        expectWithMessage("Non call attribute VEHICLE_STATUS")
                 .that(isRingerOrCallAudioAttribute(TEST_VEHICLE_ATTRIBUTE)).isFalse();
-        assertWithMessage("Non call attribute ANNOUNCEMENT")
+        expectWithMessage("Non call attribute ANNOUNCEMENT")
                 .that(isRingerOrCallAudioAttribute(TEST_ANNOUNCEMENT_ATTRIBUTE)).isFalse();
-        assertWithMessage("Non call attribute EMERGENCY")
+        expectWithMessage("Non call attribute EMERGENCY")
                 .that(isRingerOrCallAudioAttribute(TEST_EMERGENCY_ATTRIBUTE)).isFalse();
-        assertWithMessage("Non call attribute SAFETY")
+        expectWithMessage("Non call attribute SAFETY")
                 .that(isRingerOrCallAudioAttribute(TEST_SAFETY_ATTRIBUTE)).isFalse();
-        assertWithMessage("Non call attribute NOTIFICATION")
+        expectWithMessage("Non call attribute NOTIFICATION")
                 .that(isRingerOrCallAudioAttribute(TEST_NOTIFICATION_ATTRIBUTE)).isFalse();
-        assertWithMessage("Non call attribute NOTIFICATION_EVENT")
+        expectWithMessage("Non call attribute NOTIFICATION_EVENT")
                 .that(isRingerOrCallAudioAttribute(TEST_NOTIFICATION_EVENT_ATTRIBUTE)).isFalse();
     }
 
     @Test
     public void isRingerOrCallAudioAttribute_forCallOrRinger_returnsTrue() {
-        assertWithMessage("Non call attribute CALL")
+        expectWithMessage("Non call attribute CALL")
                 .that(isRingerOrCallAudioAttribute(TEST_CALL_ATTRIBUTE)).isTrue();
-        assertWithMessage("Non call attribute CALL_RING")
+        expectWithMessage("Non call attribute CALL_RING")
                 .that(isRingerOrCallAudioAttribute(TEST_RINGER_ATTRIBUTE)).isTrue();
     }
 
@@ -478,7 +477,7 @@ public class CarAudioContextTest extends AbstractExtendedMockitoTestCase {
         CarAudioContext.AudioAttributesWrapper wrapper =
                 CarAudioContext.getAudioAttributeWrapperFromUsage(USAGE_MEDIA);
 
-        assertWithMessage("Non critical audio attributes for wrapper")
+        expectWithMessage("Non critical audio attributes for wrapper")
                 .that(wrapper.getAudioAttributes()).isEqualTo(TEST_MEDIA_ATTRIBUTE);
     }
 
@@ -487,7 +486,7 @@ public class CarAudioContextTest extends AbstractExtendedMockitoTestCase {
         CarAudioContext.AudioAttributesWrapper wrapper =
                 CarAudioContext.getAudioAttributeWrapperFromUsage(USAGE_MEDIA);
 
-        assertWithMessage("Non critical audio attributes for wrapper string")
+        expectWithMessage("Non critical audio attributes for wrapper string")
                 .that(wrapper.toString()).isEqualTo(TEST_MEDIA_ATTRIBUTE.toString());
     }
 
@@ -499,7 +498,7 @@ public class CarAudioContextTest extends AbstractExtendedMockitoTestCase {
         CarAudioContext.AudioAttributesWrapper createdWrapper =
                 CarAudioContext.getAudioAttributeWrapperFromUsage(USAGE_MEDIA);
 
-        assertWithMessage("Non critical audio attributes wrapper is equal check")
+        expectWithMessage("Non critical audio attributes wrapper is equal check")
                 .that(createdWrapper.equals(wrapper)).isTrue();
     }
 
@@ -508,7 +507,7 @@ public class CarAudioContextTest extends AbstractExtendedMockitoTestCase {
         CarAudioContext.AudioAttributesWrapper createdWrapper =
                 CarAudioContext.getAudioAttributeWrapperFromUsage(USAGE_MEDIA);
 
-        assertWithMessage("Non critical audio attributes wrapper hash code")
+        expectWithMessage("Non critical audio attributes wrapper hash code")
                 .that(createdWrapper.hashCode()).isEqualTo(Integer.hashCode(USAGE_MEDIA));
     }
 
@@ -517,7 +516,7 @@ public class CarAudioContextTest extends AbstractExtendedMockitoTestCase {
         CarAudioContext.AudioAttributesWrapper wrapper =
                 CarAudioContext.getAudioAttributeWrapperFromUsage(USAGE_EMERGENCY);
 
-        assertWithMessage("Critical audio attributes for wrapper")
+        expectWithMessage("Critical audio attributes for wrapper")
                 .that(wrapper.getAudioAttributes()).isEqualTo(TEST_EMERGENCY_ATTRIBUTE);
     }
 
@@ -526,7 +525,7 @@ public class CarAudioContextTest extends AbstractExtendedMockitoTestCase {
         CarAudioContext.AudioAttributesWrapper wrapper =
                 CarAudioContext.getAudioAttributeWrapperFromUsage(USAGE_EMERGENCY);
 
-        assertWithMessage("Critical audio attributes for wrapper string")
+        expectWithMessage("Critical audio attributes for wrapper string")
                 .that(wrapper.toString()).isEqualTo(TEST_EMERGENCY_ATTRIBUTE.toString());
     }
 
@@ -538,7 +537,7 @@ public class CarAudioContextTest extends AbstractExtendedMockitoTestCase {
         CarAudioContext.AudioAttributesWrapper createdWrapper =
                 CarAudioContext.getAudioAttributeWrapperFromUsage(USAGE_EMERGENCY);
 
-        assertWithMessage("Critical audio attributes wrapper is equal check")
+        expectWithMessage("Critical audio attributes wrapper is equal check")
                 .that(createdWrapper.equals(wrapper)).isTrue();
     }
 
@@ -547,7 +546,7 @@ public class CarAudioContextTest extends AbstractExtendedMockitoTestCase {
         CarAudioContext.AudioAttributesWrapper createdWrapper =
                 CarAudioContext.getAudioAttributeWrapperFromUsage(USAGE_EMERGENCY);
 
-        assertWithMessage("Critical audio attributes wrapper hash code")
+        expectWithMessage("Critical audio attributes wrapper hash code")
                 .that(createdWrapper.hashCode()).isEqualTo(Integer.hashCode(USAGE_EMERGENCY));
     }
 
@@ -557,7 +556,7 @@ public class CarAudioContextTest extends AbstractExtendedMockitoTestCase {
 
         AudioAttributes createdAttributes = CarAudioContext.getAudioAttributeFromUsage(USAGE_MEDIA);
 
-        assertWithMessage("Non critical audio attributes")
+        expectWithMessage("Non critical audio attributes")
                 .that(createdAttributes).isEqualTo(attributes);
     }
 
@@ -569,7 +568,7 @@ public class CarAudioContextTest extends AbstractExtendedMockitoTestCase {
         AudioAttributes createdAttributes =
                 CarAudioContext.getAudioAttributeFromUsage(USAGE_EMERGENCY);
 
-        assertWithMessage("Critical audio attributes")
+        expectWithMessage("Critical audio attributes")
                 .that(createdAttributes).isEqualTo(attributes);
     }
 
@@ -577,7 +576,7 @@ public class CarAudioContextTest extends AbstractExtendedMockitoTestCase {
     public void isRingerOrCallContext_withCallContext_returnsTrue() {
         boolean isRingerOrCall = isRingerOrCallAudioAttribute(TEST_CALL_ATTRIBUTE);
 
-        assertWithMessage("Is call check")
+        expectWithMessage("Is call check")
                 .that(isRingerOrCall).isTrue();
     }
 
@@ -585,7 +584,7 @@ public class CarAudioContextTest extends AbstractExtendedMockitoTestCase {
     public void isRingerOrCallContext_withRingerContext_returnsTrue() {
         boolean isRingerOrCall = isRingerOrCallAudioAttribute(TEST_RINGER_ATTRIBUTE);
 
-        assertWithMessage("Is ringer check")
+        expectWithMessage("Is ringer check")
                 .that(isRingerOrCall).isTrue();
     }
 
@@ -593,7 +592,7 @@ public class CarAudioContextTest extends AbstractExtendedMockitoTestCase {
     public void isRingerOrCallContext_withNonCriticalContext_returnsFalse() {
         boolean isRingerOrCall = isRingerOrCallAudioAttribute(TEST_MEDIA_ATTRIBUTE);
 
-        assertWithMessage("Non critical context is ringer or call check")
+        expectWithMessage("Non critical context is ringer or call check")
                 .that(isRingerOrCall).isFalse();
     }
 
@@ -601,7 +600,7 @@ public class CarAudioContextTest extends AbstractExtendedMockitoTestCase {
     public void isRingerOrCallContext_withCriticalContext_returnsFalse() {
         boolean isRingerOrCall = isRingerOrCallAudioAttribute(TEST_EMERGENCY_ATTRIBUTE);
 
-        assertWithMessage("Critical context is ringer or call check")
+        expectWithMessage("Critical context is ringer or call check")
                 .that(isRingerOrCall).isFalse();
     }
 
@@ -611,7 +610,7 @@ public class CarAudioContextTest extends AbstractExtendedMockitoTestCase {
             TEST_CAR_AUDIO_CONTEXT.preconditionCheckAudioContext(-TEST_EMERGENCY_CONTEXT);
         });
 
-        assertWithMessage("Precondition exception with non existent context check")
+        expectWithMessage("Precondition exception with non existent context check")
                 .that(thrown).hasMessageThat()
                 .contains("Car audio context " + -TEST_EMERGENCY_CONTEXT + " is invalid");
     }
@@ -622,7 +621,7 @@ public class CarAudioContextTest extends AbstractExtendedMockitoTestCase {
             TEST_CAR_AUDIO_CONTEXT.preconditionCheckAudioContext(INVALID_CONTEXT);
         });
 
-        assertWithMessage("Precondition exception with invalid context check")
+        expectWithMessage("Precondition exception with invalid context check")
                 .that(thrown).hasMessageThat()
                 .contains("Car audio context " + INVALID_CONTEXT + " is invalid");
     }
@@ -631,7 +630,7 @@ public class CarAudioContextTest extends AbstractExtendedMockitoTestCase {
     public void getSystemUsages_returnsAllSystemUsages() {
         int[] systemUsages = CarAudioContext.getSystemUsages();
 
-        assertWithMessage("System Usages")
+        expectWithMessage("System Usages")
                 .that(systemUsages).asList().containsExactly(
                         USAGE_CALL_ASSISTANT,
                         USAGE_EMERGENCY,
@@ -642,57 +641,57 @@ public class CarAudioContextTest extends AbstractExtendedMockitoTestCase {
 
     @Test
     public void toString_forNonSystemSoundsContexts_returnsStrings() {
-        assertWithMessage("Context String for INVALID")
+        expectWithMessage("Context String for INVALID")
                 .that(TEST_CAR_AUDIO_CONTEXT.toString(CarAudioContext.getInvalidContext()))
                 .isEqualTo("INVALID");
-        assertWithMessage("Context String for MUSIC")
+        expectWithMessage("Context String for MUSIC")
                 .that(TEST_CAR_AUDIO_CONTEXT.toString(TEST_MEDIA_CONTEXT)).isEqualTo("MUSIC");
-        assertWithMessage("Context String for NAVIGATION")
+        expectWithMessage("Context String for NAVIGATION")
                 .that(TEST_CAR_AUDIO_CONTEXT.toString(TEST_NAVIGATION_CONTEXT))
                 .isEqualTo("NAVIGATION");
-        assertWithMessage("Context String for VOICE_COMMAND")
+        expectWithMessage("Context String for VOICE_COMMAND")
                 .that(TEST_CAR_AUDIO_CONTEXT.toString(TEST_ASSISTANT_CONTEXT))
                 .isEqualTo("VOICE_COMMAND");
-        assertWithMessage("Context String for CALL_RING")
+        expectWithMessage("Context String for CALL_RING")
                 .that(TEST_CAR_AUDIO_CONTEXT.toString(TEST_CALL_RING_CONTEXT))
                 .isEqualTo("CALL_RING");
-        assertWithMessage("Context String for CALL")
+        expectWithMessage("Context String for CALL")
                 .that(TEST_CAR_AUDIO_CONTEXT.toString(TEST_CALL_CONTEXT)).isEqualTo("CALL");
-        assertWithMessage("Context String for ALARM")
+        expectWithMessage("Context String for ALARM")
                 .that(TEST_CAR_AUDIO_CONTEXT.toString(TEST_ALARM_CONTEXT)).isEqualTo("ALARM");
-        assertWithMessage("Context String for NOTIFICATION")
+        expectWithMessage("Context String for NOTIFICATION")
                 .that(TEST_CAR_AUDIO_CONTEXT.toString(TEST_NOTIFICATION_CONTEXT))
                 .isEqualTo("NOTIFICATION");
     }
 
     @Test
     public void toString_forSystemSoundsContexts_returnsStrings() {
-        assertWithMessage("Context String for SYSTEM_SOUND")
+        expectWithMessage("Context String for SYSTEM_SOUND")
                 .that(TEST_CAR_AUDIO_CONTEXT.toString(TEST_SYSTEM_SOUND_CONTEXT))
                 .isEqualTo("SYSTEM_SOUND");
-        assertWithMessage("Context String for EMERGENCY")
+        expectWithMessage("Context String for EMERGENCY")
                 .that(TEST_CAR_AUDIO_CONTEXT.toString(TEST_EMERGENCY_CONTEXT))
                 .isEqualTo("EMERGENCY");
-        assertWithMessage("Context String for SAFETY")
+        expectWithMessage("Context String for SAFETY")
                 .that(TEST_CAR_AUDIO_CONTEXT.toString(TEST_SAFETY_CONTEXT)).isEqualTo("SAFETY");
-        assertWithMessage("Context String for VEHICLE_STATUS")
+        expectWithMessage("Context String for VEHICLE_STATUS")
                 .that(TEST_CAR_AUDIO_CONTEXT.toString(TEST_VEHICLE_STATUS_CONTEXT))
                 .isEqualTo("VEHICLE_STATUS");
-        assertWithMessage("Context String for ANNOUNCEMENT")
+        expectWithMessage("Context String for ANNOUNCEMENT")
                 .that(TEST_CAR_AUDIO_CONTEXT.toString(TEST_ANNOUNCEMENT_CONTEXT))
                 .isEqualTo("ANNOUNCEMENT");
     }
 
     @Test
     public void toString_forInvalidContext_returnsUnsupportedContext() {
-        assertWithMessage("Context String for invalid context")
-                .that(TEST_CAR_AUDIO_CONTEXT.toString(/* context= */ -1))
+        expectWithMessage("Context String for invalid context")
+                .that(TEST_CAR_AUDIO_CONTEXT.toString(/* audioContext= */ -1))
                 .contains("Unsupported Context");
     }
 
     @Test
     public void getAllContextIds_returnsAllContext() {
-        assertWithMessage("All context IDs")
+        expectWithMessage("All context IDs")
                 .that(TEST_CAR_AUDIO_CONTEXT.getAllContextsIds())
                 .containsExactly(TEST_MEDIA_CONTEXT,
                         TEST_NAVIGATION_CONTEXT,
@@ -710,7 +709,7 @@ public class CarAudioContextTest extends AbstractExtendedMockitoTestCase {
 
     @Test
     public void getAllContextIds_failsForInvalid() {
-        assertWithMessage("All context IDs")
+        expectWithMessage("All context IDs")
                 .that(TEST_CAR_AUDIO_CONTEXT.getAllContextsIds())
                 .doesNotContain(CarAudioContext.getInvalidContext());
     }
@@ -719,7 +718,7 @@ public class CarAudioContextTest extends AbstractExtendedMockitoTestCase {
     public void getCarSystemContextIds() {
         List<Integer> systemContextIds = CarAudioContext.getCarSystemContextIds();
 
-        assertWithMessage("Car audio system contexts")
+        expectWithMessage("Car audio system contexts")
                 .that(systemContextIds)
                 .containsExactly(TEST_EMERGENCY_CONTEXT, TEST_SAFETY_CONTEXT,
                         TEST_VEHICLE_STATUS_CONTEXT, TEST_ANNOUNCEMENT_CONTEXT);
@@ -729,7 +728,7 @@ public class CarAudioContextTest extends AbstractExtendedMockitoTestCase {
     public void getNonCarSystemContextIds() {
         List<Integer> nonCarSystemContextIds = CarAudioContext.getNonCarSystemContextIds();
 
-        assertWithMessage("Car audio non system contexts")
+        expectWithMessage("Car audio non system contexts")
                 .that(nonCarSystemContextIds)
                 .containsExactly(TEST_MEDIA_CONTEXT, TEST_NAVIGATION_CONTEXT,
                         TEST_ASSISTANT_CONTEXT, TEST_CALL_RING_CONTEXT,
@@ -743,7 +742,7 @@ public class CarAudioContextTest extends AbstractExtendedMockitoTestCase {
         boolean valid = TEST_CAR_AUDIO_CONTEXT.validateAllAudioAttributesSupported(
                 TEST_CAR_AUDIO_CONTEXT.getAllContextsIds());
 
-        assertWithMessage("All audio attributes are supported flag")
+        expectWithMessage("All audio attributes are supported flag")
                 .that(valid).isTrue();
     }
 
@@ -752,7 +751,7 @@ public class CarAudioContextTest extends AbstractExtendedMockitoTestCase {
         boolean valid = TEST_CAR_AUDIO_CONTEXT.validateAllAudioAttributesSupported(
                 CarAudioContext.getNonCarSystemContextIds());
 
-        assertWithMessage("Missing car audio system audio attributes are supported flag")
+        expectWithMessage("Missing car audio system audio attributes are supported flag")
                 .that(valid).isFalse();
     }
 
@@ -761,7 +760,7 @@ public class CarAudioContextTest extends AbstractExtendedMockitoTestCase {
         boolean valid = TEST_CAR_AUDIO_CONTEXT.validateAllAudioAttributesSupported(
                 CarAudioContext.getCarSystemContextIds());
 
-        assertWithMessage("Missing non car audio system audio attributes are supported flag")
+        expectWithMessage("Missing non car audio system audio attributes are supported flag")
                 .that(valid).isFalse();
     }
 
@@ -774,7 +773,7 @@ public class CarAudioContextTest extends AbstractExtendedMockitoTestCase {
         List<CarAudioContextInfo> contextInfos = CarAudioContext.getAllContextsInfo();
 
         for (CarAudioContextInfo info : contextInfos) {
-            assertWithMessage("Context info id for %s", info)
+            expectWithMessage("Context info id for %s", info)
                     .that(info.getId()).isIn(allContextIds);
         }
     }
@@ -787,19 +786,19 @@ public class CarAudioContextTest extends AbstractExtendedMockitoTestCase {
 
         List<CarAudioContextInfo> contextInfos = CarAudioContext.getAllContextsInfo();
 
-        assertWithMessage("All contexts info size")
+        expectWithMessage("All contexts info size")
                 .that(contextInfos.size()).isEqualTo(allContextIds.size());
     }
 
     @Test
     public void getInvalidContext() {
-        assertWithMessage("Invalid context id")
+        expectWithMessage("Invalid context id")
                 .that(CarAudioContext.getInvalidContext()).isEqualTo(INVALID_CONTEXT_ID);
     }
 
     @Test
     public void isInvalidContext() {
-        assertWithMessage("Is invalid context id")
+        expectWithMessage("Is invalid context id")
                 .that(CarAudioContext.isInvalidContextId(INVALID_CONTEXT_ID)).isTrue();
     }
 
@@ -810,7 +809,7 @@ public class CarAudioContextTest extends AbstractExtendedMockitoTestCase {
         AudioAttributes mediaAudioAttributeMatched =
                 new AudioAttributes.Builder().setUsage(USAGE_MEDIA).build();
 
-        assertWithMessage("Wrapper audio attribute's %s and %s matched results",
+        expectWithMessage("Wrapper audio attribute's %s and %s matched results",
                 mediaAudioAttribute, mediaAudioAttributeMatched)
                 .that(CarAudioContext.AudioAttributesWrapper
                         .audioAttributeMatches(mediaAudioAttribute, mediaAudioAttributeMatched))
@@ -824,7 +823,7 @@ public class CarAudioContextTest extends AbstractExtendedMockitoTestCase {
         AudioAttributes gameAudioAttributeMatched =
                 new AudioAttributes.Builder().setUsage(USAGE_GAME).build();
 
-        assertWithMessage("Wrapper audio attribute's %s and %s non-matched results",
+        expectWithMessage("Wrapper audio attribute's %s and %s non-matched results",
                 mediaAudioAttribute, gameAudioAttributeMatched)
                 .that(CarAudioContext.AudioAttributesWrapper
                         .audioAttributeMatches(mediaAudioAttribute, gameAudioAttributeMatched))
@@ -837,7 +836,7 @@ public class CarAudioContextTest extends AbstractExtendedMockitoTestCase {
                 () -> new CarAudioContext(/* carAudioContexts= */ null,
                         /* useCoreAudioRouting= */ false));
 
-        assertWithMessage("Constructor exception")
+        expectWithMessage("Constructor exception")
                 .that(thrown).hasMessageThat()
                 .contains("Car audio contexts");
     }
@@ -848,7 +847,7 @@ public class CarAudioContextTest extends AbstractExtendedMockitoTestCase {
                 () -> new CarAudioContext(/* carAudioContexts= */ Collections.EMPTY_LIST,
                         /* useCoreAudioRouting= */ false));
 
-        assertWithMessage("Empty list constructor exception")
+        expectWithMessage("Empty list constructor exception")
                 .that(thrown).hasMessageThat()
                 .contains("Car audio contexts must not be empty");
     }
@@ -920,7 +919,7 @@ public class CarAudioContextTest extends AbstractExtendedMockitoTestCase {
     @Test
     public void isOemExtensionAudioContext_returnsAlwaysFalse() {
         for (@AudioContext int audioContext : TEST_CAR_AUDIO_CONTEXT.getAllContextsIds()) {
-            assertWithMessage("When using core audio routing, not oem extnesion expected")
+            expectWithMessage("When using core audio routing, not oem extnesion expected")
                     .that(TEST_CAR_AUDIO_CONTEXT.isOemExtensionAudioContext(audioContext))
                     .isEqualTo(false);
         }
@@ -935,7 +934,7 @@ public class CarAudioContextTest extends AbstractExtendedMockitoTestCase {
                 carAudioContextUsingCoreRouting.getAudioAttributeWrapperFromAttributes(
                         CoreAudioRoutingUtils.MUSIC_ATTRIBUTES);
 
-        assertWithMessage("Music strategy audio attributes wrapper hash code")
+        expectWithMessage("Music strategy audio attributes wrapper hash code")
                 .that(createdWrapper.hashCode()).isEqualTo(Integer.hashCode(
                         CoreAudioRoutingUtils.MUSIC_STRATEGY_ID));
     }
@@ -949,8 +948,26 @@ public class CarAudioContextTest extends AbstractExtendedMockitoTestCase {
                 carAudioContextUsingCoreRouting.getAudioAttributeWrapperFromAttributes(
                         CoreAudioRoutingUtils.OEM_ATTRIBUTES);
 
-        assertWithMessage("OEM strategy audio attributes wrapper hash code")
+        expectWithMessage("OEM strategy audio attributes wrapper hash code")
                 .that(createdWrapper.hashCode()).isEqualTo(Integer.hashCode(
                         CoreAudioRoutingUtils.OEM_STRATEGY_ID));
+    }
+
+    @Test
+    public void getLegacyContextForUsage() {
+        List<Integer> usages = List.of(USAGE_ALARM, USAGE_ANNOUNCEMENT, USAGE_VIRTUAL_SOURCE,
+                USAGE_ASSISTANCE_NAVIGATION_GUIDANCE, USAGE_ASSISTANCE_SONIFICATION,
+                USAGE_ASSISTANT, USAGE_CALL_ASSISTANT, USAGE_EMERGENCY, USAGE_GAME, USAGE_MEDIA,
+                USAGE_NOTIFICATION, USAGE_NOTIFICATION_EVENT, USAGE_NOTIFICATION_RINGTONE,
+                USAGE_SAFETY, USAGE_UNKNOWN, USAGE_VEHICLE_STATUS,  USAGE_VOICE_COMMUNICATION);
+
+        for (int usage: usages) {
+            AudioAttributes attributes = CarAudioContext.getAudioAttributeFromUsage(usage);
+
+            expectWithMessage("Legacy car audio context for usage %s",
+                    DebugUtils.constantToString(AudioAttributes.class, "USAGE_", usage))
+                    .that(CarAudioContext.getLegacyContextForUsage(usage))
+                    .isEqualTo(TEST_CAR_AUDIO_CONTEXT.getContextForAudioAttribute(attributes));
+        }
     }
 }

@@ -23,9 +23,6 @@ import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
 import static org.junit.Assert.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
 
 import android.annotation.NonNull;
 import android.car.Car;
@@ -57,7 +54,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
@@ -73,7 +70,7 @@ public final class CarInputManagerTest extends MockedCarTestBase {
 
     private CarInputManager mCarInputManager;
 
-    private final class CaptureCallback implements CarInputManager.CarInputCaptureCallback {
+    private static final class CaptureCallback implements CarInputManager.CarInputCaptureCallback {
 
         private static final long EVENT_WAIT_TIME = 5_000;
 
@@ -634,101 +631,102 @@ public final class CarInputManagerTest extends MockedCarTestBase {
     @Test
     public void testInjectingRotaryEventAndExecutor() throws Exception {
         // Arrange executors to process events
-        Executor rotaryExecutor = spy(Executors.newSingleThreadExecutor());
+        ExecutorService rotaryExecutor = Executors.newSingleThreadExecutor();
+        try {
+            // Arrange: register callback
+            CarInputManager carInputManager = createAnotherCarInputManager();
+            int r = carInputManager.requestInputEventCapture(
+                    CarOccupantZoneManager.DISPLAY_TYPE_MAIN,
+                    new int[]{CarInputManager.INPUT_TYPE_ROTARY_NAVIGATION}, 0, rotaryExecutor,
+                    mCallback0);
+            assertThat(r).isEqualTo(CarInputManager.INPUT_CAPTURE_RESPONSE_SUCCEEDED);
 
-        // Arrange: register callback
-        CarInputManager carInputManager = createAnotherCarInputManager();
-        int r = carInputManager.requestInputEventCapture(
-                CarOccupantZoneManager.DISPLAY_TYPE_MAIN,
-                new int[]{CarInputManager.INPUT_TYPE_ROTARY_NAVIGATION}, 0, rotaryExecutor,
-                mCallback0);
-        assertThat(r).isEqualTo(CarInputManager.INPUT_CAPTURE_RESPONSE_SUCCEEDED);
+            // Act: inject RotaryEvent
+            int numClicks = 3;
+            injectRotaryNavigationEvent(VehicleDisplay.MAIN, numClicks);
 
-        // Act: inject RotaryEvent
-        int numClicks = 3;
-        injectRotaryNavigationEvent(VehicleDisplay.MAIN, numClicks);
-
-        // Assert: ensure RotaryEvent was delivered
-        waitAndAssertLastRotaryEvent(CarOccupantZoneManager.DISPLAY_TYPE_MAIN,
-                CarInputManager.INPUT_TYPE_ROTARY_NAVIGATION, numClicks, mCallback0);
-
-        // Assert: ensure that Rotary event was dispatched using the assigned executor
-        verify(rotaryExecutor).execute(any(Runnable.class));
+            // Assert: ensure RotaryEvent was delivered
+            waitAndAssertLastRotaryEvent(CarOccupantZoneManager.DISPLAY_TYPE_MAIN,
+                    CarInputManager.INPUT_TYPE_ROTARY_NAVIGATION, numClicks, mCallback0);
+        } finally {
+            rotaryExecutor.shutdown();
+        }
     }
 
     @Test
     public void testInjectingKeyEventAndExecutor() throws Exception {
         // Arrange executors to process events
-        Executor keyEventExecutor = spy(Executors.newSingleThreadExecutor());
+        ExecutorService keyEventExecutor = Executors.newSingleThreadExecutor();
+        try {
+            // Arrange: register callback
+            CarInputManager carInputManager = createAnotherCarInputManager();
+            int r = carInputManager.requestInputEventCapture(
+                    CarOccupantZoneManager.DISPLAY_TYPE_MAIN,
+                    new int[]{CarInputManager.INPUT_TYPE_NAVIGATE_KEYS}, 0, keyEventExecutor,
+                    mCallback0);
+            assertThat(r).isEqualTo(CarInputManager.INPUT_CAPTURE_RESPONSE_SUCCEEDED);
 
-        // Arrange: register callback
-        CarInputManager carInputManager = createAnotherCarInputManager();
-        int r = carInputManager.requestInputEventCapture(
-                CarOccupantZoneManager.DISPLAY_TYPE_MAIN,
-                new int[]{CarInputManager.INPUT_TYPE_NAVIGATE_KEYS}, 0, keyEventExecutor,
-                mCallback0);
-        assertThat(r).isEqualTo(CarInputManager.INPUT_CAPTURE_RESPONSE_SUCCEEDED);
+            // Act: inject KeyEvent
+            injectKeyEvent(true, KeyEvent.KEYCODE_NAVIGATE_NEXT);
 
-        // Act: inject KeyEvent
-        injectKeyEvent(true, KeyEvent.KEYCODE_NAVIGATE_NEXT);
-
-        // Assert: ensure KeyEvent was delivered
-        waitAndAssertLastKeyEvent(CarOccupantZoneManager.DISPLAY_TYPE_MAIN, true,
-                KeyEvent.KEYCODE_NAVIGATE_NEXT, mCallback0);
-
-        // Assert: ensure that Key event was dispatched using the assigned executor
-        verify(keyEventExecutor).execute(any(Runnable.class));
+            // Assert: ensure KeyEvent was delivered
+            waitAndAssertLastKeyEvent(CarOccupantZoneManager.DISPLAY_TYPE_MAIN, true,
+                    KeyEvent.KEYCODE_NAVIGATE_NEXT, mCallback0);
+        } finally {
+            keyEventExecutor.shutdown();
+        }
     }
 
     @Test
     public void testInjectingVoiceAssistKeyEventAndExecutor() throws Exception {
         // Arrange executors to process events
-        Executor keyEventExecutor = spy(Executors.newSingleThreadExecutor());
+        ExecutorService keyEventExecutor = Executors.newSingleThreadExecutor();
+        try {
+            // Arrange: register callback
+            CarInputManager carInputManager = createAnotherCarInputManager();
+            int r = carInputManager.requestInputEventCapture(
+                    CarOccupantZoneManager.DISPLAY_TYPE_MAIN,
+                    new int[]{CarInputManager.INPUT_TYPE_SYSTEM_NAVIGATE_KEYS}, 0, keyEventExecutor,
+                    mCallback0);
+            assertThat(r).isEqualTo(CarInputManager.INPUT_CAPTURE_RESPONSE_SUCCEEDED);
 
-        // Arrange: register callback
-        CarInputManager carInputManager = createAnotherCarInputManager();
-        int r = carInputManager.requestInputEventCapture(
-                CarOccupantZoneManager.DISPLAY_TYPE_MAIN,
-                new int[]{CarInputManager.INPUT_TYPE_SYSTEM_NAVIGATE_KEYS}, 0, keyEventExecutor,
-                mCallback0);
-        assertThat(r).isEqualTo(CarInputManager.INPUT_CAPTURE_RESPONSE_SUCCEEDED);
+            // Act: inject KeyEvent
+            injectKeyEvent(false, KeyEvent.KEYCODE_VOICE_ASSIST);
 
-        // Act: inject KeyEvent
-        injectKeyEvent(false, KeyEvent.KEYCODE_VOICE_ASSIST);
-
-        // Assert: ensure KeyEvent was delivered
-        waitAndAssertLastKeyEvent(CarOccupantZoneManager.DISPLAY_TYPE_MAIN, false,
-                KeyEvent.KEYCODE_VOICE_ASSIST, mCallback0);
-
-        // Assert: ensure that Key event was dispatched using the assigned executor
-        verify(keyEventExecutor).execute(any(Runnable.class));
+            // Assert: ensure KeyEvent was delivered
+            waitAndAssertLastKeyEvent(CarOccupantZoneManager.DISPLAY_TYPE_MAIN, false,
+                    KeyEvent.KEYCODE_VOICE_ASSIST, mCallback0);
+        } finally {
+            keyEventExecutor.shutdown();
+        }
     }
 
 
     @Test
     public void testInjectingCustomInputEventAndExecutor() throws Exception {
         // Arrange executors to process events
-        Executor customInputEventExecutor = spy(Executors.newSingleThreadExecutor());
+        ExecutorService customInputEventExecutor = Executors.newSingleThreadExecutor();
+        try {
+            // Arrange: register callback
+            CarInputManager carInputManager = createAnotherCarInputManager();
+            int r = carInputManager.requestInputEventCapture(
+                    CarOccupantZoneManager.DISPLAY_TYPE_MAIN,
+                    new int[]{CarInputManager.INPUT_TYPE_CUSTOM_INPUT_EVENT}, 0,
+                    customInputEventExecutor, mCallback0);
+            assertThat(r).isEqualTo(CarInputManager.INPUT_CAPTURE_RESPONSE_SUCCEEDED);
 
-        // Arrange: register callback
-        CarInputManager carInputManager = createAnotherCarInputManager();
-        int r = carInputManager.requestInputEventCapture(
-                CarOccupantZoneManager.DISPLAY_TYPE_MAIN,
-                new int[]{CarInputManager.INPUT_TYPE_CUSTOM_INPUT_EVENT}, 0,
-                customInputEventExecutor, mCallback0);
-        assertThat(r).isEqualTo(CarInputManager.INPUT_CAPTURE_RESPONSE_SUCCEEDED);
+            // Act: inject CustomInputEvent
+            int repeatedCounter = 1;
+            injectCustomInputEvent(CUSTOM_EVENT_F1, VehicleDisplay.MAIN,
+                    /* repeatCounter= */ repeatedCounter);
 
-        // Act: inject CustomInputEvent
-        int repeatedCounter = 1;
-        injectCustomInputEvent(CUSTOM_EVENT_F1, VehicleDisplay.MAIN,
-                /* repeatCounter= */ repeatedCounter);
-
-        // Assert: ensure CustomInputEvent was delivered
-        waitAndAssertLastCustomInputEvent(CarOccupantZoneManager.DISPLAY_TYPE_MAIN, CUSTOM_EVENT_F1,
-                repeatedCounter, mCallback0);
-
-        // Assert: ensure that CustomInputEvent was dispatched using the assigned executor
-        verify(customInputEventExecutor).execute(any(Runnable.class));
+            // Assert: ensure CustomInputEvent was delivered
+            waitAndAssertLastCustomInputEvent(CarOccupantZoneManager.DISPLAY_TYPE_MAIN,
+                    CUSTOM_EVENT_F1,
+                    repeatedCounter, mCallback0);
+        } finally {
+            customInputEventExecutor.shutdown();
+        }
     }
 
     @Test

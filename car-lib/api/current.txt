@@ -19,8 +19,8 @@ package android.car {
     method @Deprecated public int getCarConnectionType();
     method @Nullable public Object getCarManager(String);
     method @Nullable public <T> T getCarManager(@NonNull Class<T>);
-    method @Deprecated @NonNull public static android.car.CarVersion getCarVersion();
-    method @Deprecated @NonNull public static android.car.PlatformVersion getPlatformVersion();
+    method @NonNull public static android.car.CarVersion getCarVersion();
+    method @NonNull public static android.car.PlatformVersion getPlatformVersion();
     method @Deprecated public static boolean isApiAndPlatformVersionAtLeast(int, int);
     method @Deprecated public static boolean isApiAndPlatformVersionAtLeast(int, int, int);
     method @Deprecated public static boolean isApiVersionAtLeast(int);
@@ -317,14 +317,14 @@ package android.car {
     ctor @Deprecated public VehiclePropertyIds();
     method public static String toString(int);
     field @RequiresPermission("android.car.permission.CAR_DYNAMICS_STATE") public static final int ABS_ACTIVE = 287310858; // 0x1120040a
-    field @Deprecated @RequiresPermission("android.car.permission.CAR_POWER") public static final int AP_POWER_BOOTUP_REASON = 289409538; // 0x11400a02
-    field @Deprecated @RequiresPermission("android.car.permission.CAR_POWER") public static final int AP_POWER_STATE_REPORT = 289475073; // 0x11410a01
-    field @Deprecated public static final int AP_POWER_STATE_REQ = 289475072; // 0x11410a00
+    field @RequiresPermission("android.car.permission.CAR_POWER") public static final int AP_POWER_BOOTUP_REASON = 289409538; // 0x11400a02
+    field @RequiresPermission("android.car.permission.CAR_POWER") public static final int AP_POWER_STATE_REPORT = 289475073; // 0x11410a01
+    field @RequiresPermission("android.car.permission.CAR_POWER") public static final int AP_POWER_STATE_REQ = 289475072; // 0x11410a00
     field @RequiresPermission(android.car.Car.PERMISSION_READ_INTERIOR_LIGHTS) public static final int CABIN_LIGHTS_STATE = 289410817; // 0x11400f01
     field @RequiresPermission(android.car.Car.PERMISSION_CONTROL_INTERIOR_LIGHTS) public static final int CABIN_LIGHTS_SWITCH = 289410818; // 0x11400f02
     field @RequiresPermission("android.car.permission.CAR_TIRES") public static final int CRITICALLY_LOW_TIRE_PRESSURE = 392168202; // 0x1760030a
     field @RequiresPermission(android.car.Car.PERMISSION_POWERTRAIN) public static final int CURRENT_GEAR = 289408001; // 0x11400401
-    field @Deprecated @RequiresPermission("android.car.permission.CAR_POWER") public static final int DISPLAY_BRIGHTNESS = 289409539; // 0x11400a03
+    field @RequiresPermission("android.car.permission.CAR_POWER") public static final int DISPLAY_BRIGHTNESS = 289409539; // 0x11400a03
     field @RequiresPermission.Read(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_READ_DISPLAY_UNITS)) @RequiresPermission.Write(@androidx.annotation.RequiresPermission(allOf={android.car.Car.PERMISSION_CONTROL_DISPLAY_UNITS, "android.car.permission.CAR_VENDOR_EXTENSION"})) public static final int DISTANCE_DISPLAY_UNITS = 289408512; // 0x11400600
     field @RequiresPermission("android.car.permission.CONTROL_CAR_DOORS") public static final int DOOR_LOCK = 371198722; // 0x16200b02
     field @RequiresPermission("android.car.permission.CONTROL_CAR_DOORS") public static final int DOOR_MOVE = 373295873; // 0x16400b01
@@ -390,7 +390,7 @@ package android.car {
     field @RequiresPermission.Read(@androidx.annotation.RequiresPermission(anyOf={android.car.Car.PERMISSION_READ_DISPLAY_UNITS, "android.car.permission.CONTROL_CAR_CLIMATE"})) @RequiresPermission.Write(@androidx.annotation.RequiresPermission("android.car.permission.CONTROL_CAR_CLIMATE")) public static final int HVAC_TEMPERATURE_DISPLAY_UNITS = 289408270; // 0x1140050e
     field @RequiresPermission("android.car.permission.CONTROL_CAR_CLIMATE") public static final int HVAC_TEMPERATURE_SET = 358614275; // 0x15600503
     field @RequiresPermission("android.car.permission.CONTROL_CAR_CLIMATE") public static final int HVAC_TEMPERATURE_VALUE_SUGGESTION = 291570965; // 0x11610515
-    field @Deprecated public static final int HW_KEY_INPUT = 289475088; // 0x11410a10
+    field public static final int HW_KEY_INPUT = 289475088; // 0x11410a10
     field @RequiresPermission(android.car.Car.PERMISSION_POWERTRAIN) public static final int IGNITION_STATE = 289408009; // 0x11400409
     field @RequiresPermission(android.car.Car.PERMISSION_CAR_INFO) public static final int INFO_DRIVER_SEAT = 356516106; // 0x1540010a
     field @RequiresPermission(android.car.Car.PERMISSION_CAR_INFO) public static final int INFO_EV_BATTERY_CAPACITY = 291504390; // 0x11600106
@@ -414,10 +414,10 @@ package android.car {
     field @RequiresPermission("android.car.permission.CONTROL_CAR_MIRRORS") public static final int MIRROR_Z_MOVE = 339741505; // 0x14400b41
     field @RequiresPermission("android.car.permission.CONTROL_CAR_MIRRORS") public static final int MIRROR_Z_POS = 339741504; // 0x14400b40
     field @RequiresPermission(android.car.Car.PERMISSION_EXTERIOR_ENVIRONMENT) public static final int NIGHT_MODE = 287310855; // 0x11200407
-    field @Deprecated public static final int OBD2_FREEZE_FRAME = 299896065; // 0x11e00d01
-    field @Deprecated public static final int OBD2_FREEZE_FRAME_CLEAR = 299896067; // 0x11e00d03
-    field @Deprecated public static final int OBD2_FREEZE_FRAME_INFO = 299896066; // 0x11e00d02
-    field @Deprecated public static final int OBD2_LIVE_FRAME = 299896064; // 0x11e00d00
+    field @RequiresPermission("android.car.permission.CAR_DIAGNOSTICS") public static final int OBD2_FREEZE_FRAME = 299896065; // 0x11e00d01
+    field @RequiresPermission("android.car.permission.CLEAR_CAR_DIAGNOSTICS") public static final int OBD2_FREEZE_FRAME_CLEAR = 299896067; // 0x11e00d03
+    field @RequiresPermission("android.car.permission.CAR_DIAGNOSTICS") public static final int OBD2_FREEZE_FRAME_INFO = 299896066; // 0x11e00d02
+    field @RequiresPermission("android.car.permission.CAR_DIAGNOSTICS") public static final int OBD2_LIVE_FRAME = 299896064; // 0x11e00d00
     field @RequiresPermission(android.car.Car.PERMISSION_POWERTRAIN) public static final int PARKING_BRAKE_AUTO_APPLY = 287310851; // 0x11200403
     field @RequiresPermission(android.car.Car.PERMISSION_POWERTRAIN) public static final int PARKING_BRAKE_ON = 287310850; // 0x11200402
     field @RequiresPermission("android.car.permission.CAR_MILEAGE") public static final int PERF_ODOMETER = 291504644; // 0x11600204
@@ -425,7 +425,7 @@ package android.car {
     field @RequiresPermission(android.car.Car.PERMISSION_READ_STEERING_STATE) public static final int PERF_STEERING_ANGLE = 291504649; // 0x11600209
     field @RequiresPermission(android.car.Car.PERMISSION_SPEED) public static final int PERF_VEHICLE_SPEED = 291504647; // 0x11600207
     field @RequiresPermission(android.car.Car.PERMISSION_SPEED) public static final int PERF_VEHICLE_SPEED_DISPLAY = 291504648; // 0x11600208
-    field @Deprecated @RequiresPermission("android.car.permission.CAR_POWER") public static final int PER_DISPLAY_BRIGHTNESS = 289475076; // 0x11410a04
+    field @RequiresPermission("android.car.permission.CAR_POWER") public static final int PER_DISPLAY_BRIGHTNESS = 289475076; // 0x11410a04
     field @RequiresPermission.Read(@androidx.annotation.RequiresPermission(anyOf={android.car.Car.PERMISSION_ENERGY, "android.car.permission.ADJUST_RANGE_REMAINING"})) @RequiresPermission.Write(@androidx.annotation.RequiresPermission("android.car.permission.ADJUST_RANGE_REMAINING")) public static final int RANGE_REMAINING = 291504904; // 0x11600308
     field @RequiresPermission(android.car.Car.PERMISSION_READ_INTERIOR_LIGHTS) public static final int READING_LIGHTS_STATE = 356519683; // 0x15400f03
     field @RequiresPermission(android.car.Car.PERMISSION_CONTROL_INTERIOR_LIGHTS) public static final int READING_LIGHTS_SWITCH = 356519684; // 0x15400f04
@@ -449,7 +449,7 @@ package android.car {
     field @RequiresPermission("android.car.permission.CONTROL_CAR_SEATS") public static final int SEAT_HEADREST_FORE_AFT_MOVE = 356518810; // 0x15400b9a
     field @RequiresPermission("android.car.permission.CONTROL_CAR_SEATS") public static final int SEAT_HEADREST_FORE_AFT_POS = 356518809; // 0x15400b99
     field @RequiresPermission("android.car.permission.CONTROL_CAR_SEATS") public static final int SEAT_HEADREST_HEIGHT_MOVE = 356518806; // 0x15400b96
-    field @Deprecated public static final int SEAT_HEADREST_HEIGHT_POS = 289409941; // 0x11400b95
+    field @Deprecated @RequiresPermission("android.car.permission.CONTROL_CAR_SEATS") public static final int SEAT_HEADREST_HEIGHT_POS = 289409941; // 0x11400b95
     field @RequiresPermission("android.car.permission.CONTROL_CAR_SEATS") public static final int SEAT_HEADREST_HEIGHT_POS_V2 = 356518820; // 0x15400ba4
     field @RequiresPermission("android.car.permission.CONTROL_CAR_SEATS") public static final int SEAT_HEIGHT_MOVE = 356518796; // 0x15400b8c
     field @RequiresPermission("android.car.permission.CONTROL_CAR_SEATS") public static final int SEAT_HEIGHT_POS = 356518795; // 0x15400b8b
@@ -470,7 +470,7 @@ package android.car {
     field @RequiresPermission.Read(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_PRIVILEGED_CAR_INFO)) public static final int TRAILER_PRESENT = 289410885; // 0x11400f45
     field @RequiresPermission("android.car.permission.CAR_EXTERIOR_LIGHTS") public static final int TURN_SIGNAL_STATE = 289408008; // 0x11400408
     field @RequiresPermission.Read(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_PRIVILEGED_CAR_INFO)) public static final int VEHICLE_CURB_WEIGHT = 289410886; // 0x11400f46
-    field @Deprecated public static final int VEHICLE_MAP_SERVICE = 299895808; // 0x11e00c00
+    field @RequiresPermission(anyOf={"android.car.permission.VMS_PUBLISHER", "android.car.permission.VMS_SUBSCRIBER"}) public static final int VEHICLE_MAP_SERVICE = 299895808; // 0x11e00c00
     field @RequiresPermission.Read(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_READ_DISPLAY_UNITS)) @RequiresPermission.Write(@androidx.annotation.RequiresPermission(allOf={android.car.Car.PERMISSION_CONTROL_DISPLAY_UNITS, "android.car.permission.CAR_VENDOR_EXTENSION"})) public static final int VEHICLE_SPEED_DISPLAY_UNITS = 289408516; // 0x11400604
     field @RequiresPermission(android.car.Car.PERMISSION_SPEED) public static final int WHEEL_TICK = 290521862; // 0x11510306
     field @RequiresPermission("android.car.permission.CONTROL_CAR_WINDOWS") public static final int WINDOW_LOCK = 320867268; // 0x13200bc4
@@ -506,11 +506,11 @@ package android.car {
 package android.car.content.pm {
 
   public final class CarPackageManager {
-    method @Deprecated @NonNull public android.car.CarVersion getTargetCarVersion();
+    method @NonNull public android.car.CarVersion getTargetCarVersion();
     method public boolean isActivityDistractionOptimized(String, String);
     method public boolean isPendingIntentDistractionOptimized(@NonNull android.app.PendingIntent);
     method public boolean isServiceDistractionOptimized(String, String);
-    field @Deprecated public static final String MANIFEST_METADATA_TARGET_CAR_VERSION = "android.car.targetCarVersion";
+    field public static final String MANIFEST_METADATA_TARGET_CAR_VERSION = "android.car.targetCarVersion";
   }
 
 }
@@ -596,7 +596,8 @@ package android.car.hardware {
     method public int describeContents();
     method public int getAreaId();
     method public int getPropertyId();
-    method public int getStatus();
+    method @FlaggedApi("android.car.feature.car_property_value_property_status") public int getPropertyStatus();
+    method @Deprecated public int getStatus();
     method public long getTimestamp();
     method @NonNull public T getValue();
     method public void writeToParcel(android.os.Parcel, int);
@@ -748,6 +749,7 @@ package android.car.hardware.property {
 
   public final class AreaIdConfig<T> implements android.os.Parcelable {
     method public int describeContents();
+    method @FlaggedApi("android.car.feature.area_id_config_access") public int getAccess();
     method public int getAreaId();
     method @Nullable public T getMaxValue();
     method @Nullable public T getMinValue();
@@ -791,7 +793,7 @@ package android.car.hardware.property {
     method public void unregisterCallback(@NonNull android.car.hardware.property.CarPropertyManager.CarPropertyEventCallback);
     method public void unregisterCallback(@NonNull android.car.hardware.property.CarPropertyManager.CarPropertyEventCallback, int);
     method @FlaggedApi("android.car.feature.batched_subscriptions") public void unsubscribePropertyEvents(@NonNull android.car.hardware.property.CarPropertyManager.CarPropertyEventCallback);
-    method @FlaggedApi("android.car.feature.batched_subscriptions") public void unsubscribePropertyEvents(@NonNull android.car.hardware.property.CarPropertyManager.CarPropertyEventCallback, int);
+    method @FlaggedApi("android.car.feature.batched_subscriptions") public void unsubscribePropertyEvents(int, @NonNull android.car.hardware.property.CarPropertyManager.CarPropertyEventCallback);
     field public static final long ASYNC_GET_DEFAULT_TIMEOUT_MS = 10000L; // 0x2710L
     field public static final int CAR_SET_PROPERTY_ERROR_CODE_ACCESS_DENIED = 4; // 0x4
     field public static final int CAR_SET_PROPERTY_ERROR_CODE_INVALID_ARG = 2; // 0x2
@@ -841,6 +843,7 @@ package android.car.hardware.property {
 
   public static final class CarPropertyManager.PropertyAsyncError {
     method public int getAreaId();
+    method @FlaggedApi("android.car.feature.car_property_detailed_error_codes") public int getDetailedErrorCode();
     method public int getErrorCode();
     method public int getPropertyId();
     method public int getRequestId();
@@ -867,6 +870,16 @@ package android.car.hardware.property {
     method public int getPropertyId();
     method public int getRequestId();
     method public long getUpdateTimestampNanos();
+  }
+
+  @FlaggedApi("android.car.feature.car_property_detailed_error_codes") public final class DetailedErrorCode {
+    method @FlaggedApi("android.car.feature.car_property_detailed_error_codes") @NonNull public static String toString(int);
+    field @FlaggedApi("android.car.feature.car_property_detailed_error_codes") public static final int NOT_AVAILABLE_DISABLED = 1; // 0x1
+    field @FlaggedApi("android.car.feature.car_property_detailed_error_codes") public static final int NOT_AVAILABLE_POOR_VISIBILITY = 4; // 0x4
+    field @FlaggedApi("android.car.feature.car_property_detailed_error_codes") public static final int NOT_AVAILABLE_SAFETY = 5; // 0x5
+    field @FlaggedApi("android.car.feature.car_property_detailed_error_codes") public static final int NOT_AVAILABLE_SPEED_HIGH = 3; // 0x3
+    field @FlaggedApi("android.car.feature.car_property_detailed_error_codes") public static final int NOT_AVAILABLE_SPEED_LOW = 2; // 0x2
+    field @FlaggedApi("android.car.feature.car_property_detailed_error_codes") public static final int NO_DETAILED_ERROR_CODE = 0; // 0x0
   }
 
   public final class EvChargeState {
@@ -937,8 +950,9 @@ package android.car.hardware.property {
   }
 
   @FlaggedApi("android.car.feature.batched_subscriptions") public final class Subscription {
-    method @Nullable public int[] getAreaIds();
+    method @NonNull public int[] getAreaIds();
     method public int getPropertyId();
+    method @FlaggedApi("android.car.feature.subscription_with_resolution") public float getResolution();
     method public float getUpdateRateFast();
     method public float getUpdateRateFastest();
     method public float getUpdateRateHz();
@@ -947,10 +961,11 @@ package android.car.hardware.property {
     method @FlaggedApi("android.car.feature.variable_update_rate") public boolean isVariableUpdateRateEnabled();
   }
 
-  public static final class Subscription.Builder {
+  @FlaggedApi("android.car.feature.batched_subscriptions") public static final class Subscription.Builder {
     ctor public Subscription.Builder(int);
     method @NonNull public android.car.hardware.property.Subscription.Builder addAreaId(int);
     method @NonNull public android.car.hardware.property.Subscription build();
+    method @FlaggedApi("android.car.feature.subscription_with_resolution") @NonNull public android.car.hardware.property.Subscription.Builder setResolution(float);
     method @NonNull public android.car.hardware.property.Subscription.Builder setUpdateRateFast();
     method @NonNull public android.car.hardware.property.Subscription.Builder setUpdateRateFastest();
     method @NonNull public android.car.hardware.property.Subscription.Builder setUpdateRateHz(@FloatRange(from=0.0, to=100.0) float);
@@ -997,6 +1012,7 @@ package android.car.media {
     method public void unregisterCarVolumeCallback(@NonNull android.car.media.CarAudioManager.CarVolumeCallback);
     field public static final int AUDIO_FEATURE_AUDIO_MIRRORING = 5; // 0x5
     field public static final int AUDIO_FEATURE_DYNAMIC_ROUTING = 1; // 0x1
+    field @FlaggedApi("android.car.feature.car_audio_min_max_activation_volume") public static final int AUDIO_FEATURE_MIN_MAX_ACTIVATION_VOLUME = 6; // 0x6
     field public static final int AUDIO_FEATURE_OEM_AUDIO_SERVICE = 3; // 0x3
     field public static final int AUDIO_FEATURE_VOLUME_GROUP_EVENTS = 4; // 0x4
     field public static final int AUDIO_FEATURE_VOLUME_GROUP_MUTING = 2; // 0x2
@@ -1033,7 +1049,7 @@ package android.car.remoteaccess {
     method public void onRegistrationFailed();
     method public void onRegistrationUpdated(@NonNull android.car.remoteaccess.RemoteTaskClientRegistrationInfo);
     method public void onRemoteTaskRequested(@NonNull String, @Nullable byte[], int);
-    method public default void onServerlessClientRegistered();
+    method @FlaggedApi("android.car.feature.serverless_remote_access") public default void onServerlessClientRegistered();
     method public void onShutdownStarting(@NonNull android.car.remoteaccess.CarRemoteAccessManager.CompletableRemoteTaskFuture);
   }
 

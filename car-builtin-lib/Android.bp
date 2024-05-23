@@ -72,6 +72,7 @@ java_sdk_library {
         "//packages/services/Car/procfs-inspector/client",
         "//packages/services/Car/service-builtin",
         "//packages/services/Car/service",
+        "//packages/services/Car/tests/CarLibHostUnitTest",
         "//packages/services/Car/tests/carservice_test",
         "//packages/services/Car/tests/carservice_unit_test",
         "//packages/services/Car/cpp/watchdog/car-watchdog-lib",
@@ -87,7 +88,7 @@ java_sdk_library {
     ],
 
     droiddoc_options: [
-       "--include-annotations --pass-through-annotation android.annotation.RequiresApi"
+        "--include-annotations --pass-through-annotation android.annotation.RequiresApi",
     ],
 
     compile_dex: true,

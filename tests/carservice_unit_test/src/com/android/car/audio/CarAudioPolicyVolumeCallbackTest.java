@@ -41,7 +41,7 @@ import static org.mockito.Mockito.when;
 import android.car.media.CarVolumeGroupInfo;
 import android.car.oem.OemCarVolumeChangeInfo;
 import android.media.AudioManager;
-import android.media.audiopolicy.AudioPolicy.Builder;
+import android.media.audiopolicy.AudioPolicy;
 
 import com.android.car.CarLocalServices;
 import com.android.car.audio.CarAudioPolicyVolumeCallback.AudioPolicyVolumeCallbackInternal;
@@ -68,6 +68,8 @@ public class CarAudioPolicyVolumeCallbackTest {
     private static final int TEST_VOLUME = 5;
     private static final int TEST_MIN_VOLUME = 0;
     private static final int TEST_MAX_VOLUME = 10;
+    private static final int TEST_MIN_ACTIVATION_VOLUME = 2;
+    private static final int TEST_MAX_ACTIVATION_VOLUME = 8;
 
     private static final int TEST_EXPECTED_FLAGS = FLAG_FROM_KEY | FLAG_SHOW_UI;
 
@@ -76,9 +78,9 @@ public class CarAudioPolicyVolumeCallbackTest {
     @Mock
     private CarVolumeInfoWrapper mMockVolumeInfoWrapper;
     @Mock
-    AudioManager mMockAudioManager;
+    private AudioManager mMockAudioManager;
     @Mock
-    Builder mMockBuilder;
+    private AudioPolicy.Builder mMockBuilder;
 
     @Mock
     private AudioPolicyVolumeCallbackInternal mVolumeCallbackInternal;
@@ -91,8 +93,10 @@ public class CarAudioPolicyVolumeCallbackTest {
 
     private static final CarVolumeGroupInfo TEST_PRIMARY_GROUP_INFO =
             new CarVolumeGroupInfo.Builder("group id " + TEST_VOLUME_GROUP, PRIMARY_AUDIO_ZONE,
-                    TEST_VOLUME_GROUP).setMaxVolumeGainIndex(10)
-                    .setMinVolumeGainIndex(0).build();
+                    TEST_VOLUME_GROUP).setMaxVolumeGainIndex(TEST_MAX_VOLUME)
+                    .setMinVolumeGainIndex(TEST_MIN_VOLUME)
+                    .setMaxActivationVolumeGainIndex(TEST_MAX_ACTIVATION_VOLUME)
+                    .setMinActivationVolumeGainIndex(TEST_MIN_ACTIVATION_VOLUME).build();
 
     @Before
     public void setUp() {

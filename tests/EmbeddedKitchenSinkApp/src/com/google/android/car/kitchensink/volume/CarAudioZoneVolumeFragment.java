@@ -19,6 +19,7 @@ package com.google.android.car.kitchensink.volume;
 import static android.car.media.CarAudioManager.AUDIO_FEATURE_VOLUME_GROUP_MUTING;
 import static android.media.AudioManager.FLAG_PLAY_SOUND;
 
+import android.car.feature.Flags;
 import android.car.media.CarAudioManager;
 import android.car.media.CarVolumeGroupEvent;
 import android.car.media.CarVolumeGroupInfo;
@@ -195,14 +196,18 @@ public final class CarAudioZoneVolumeFragment extends Fragment {
         volumeInfo.isMuted = info.isMuted();
         volumeInfo.isAttenuated = info.isAttenuated();
         volumeInfo.isBlocked = info.isBlocked();
-        volumeInfo.isHalMuted = info.isBlocked() && info.isMuted();
+        if (Flags.carAudioMuteAmbiguity()) {
+            volumeInfo.isSystemMuted = info.isMutedBySystem();
+        } else {
+            volumeInfo.isSystemMuted = info.isBlocked() && info.isMuted();
+        }
         if (DEBUG) {
             Log.d(TAG, "createCarAudioZoneVolumeInfo: Group Id: " + info.getId()
                     + " max: " + volumeInfo.maxGain + " current: " + volumeInfo.currentGain
                     + " is muted " + volumeInfo.isMuted
                     + " is attenuated " + volumeInfo.isAttenuated
                     + " is blocked " + volumeInfo.isBlocked
-                    + " is muted by hal " + volumeInfo.isHalMuted);
+                    + " is muted by system " + volumeInfo.isSystemMuted);
         }
         return volumeInfo;
     }

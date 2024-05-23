@@ -21,6 +21,7 @@ import static com.android.car.audio.CarAudioUtils.hasExpired;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
 import android.annotation.NonNull;
+import android.annotation.Nullable;
 import android.media.AudioAttributes;
 import android.media.AudioPlaybackConfiguration;
 import android.util.ArrayMap;
@@ -33,6 +34,7 @@ import com.android.internal.annotations.GuardedBy;
 import com.android.internal.util.Preconditions;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -45,13 +47,16 @@ final class ZoneAudioPlaybackCallback {
     private final ArrayMap<String, AudioPlaybackConfiguration> mLastActiveConfigs =
             new ArrayMap<>();
     private final CarAudioZone mCarAudioZone;
+    private final @Nullable  CarAudioPlaybackMonitor mCarAudioPlaybackMonitor;
     private final SystemClockWrapper mClock;
     private final int mVolumeKeyEventTimeoutMs;
 
     ZoneAudioPlaybackCallback(@NonNull CarAudioZone carAudioZone,
-            @NonNull SystemClockWrapper clock,
-            int volumeKeyEventTimeoutMs) {
+                              @Nullable CarAudioPlaybackMonitor carAudioPlaybackMonitor,
+                              @NonNull SystemClockWrapper clock,
+                              int volumeKeyEventTimeoutMs) {
         mCarAudioZone = Objects.requireNonNull(carAudioZone, "Audio zone cannot be null");
+        mCarAudioPlaybackMonitor = carAudioPlaybackMonitor;
         mClock = Objects.requireNonNull(clock, "Clock cannot be null");
         mVolumeKeyEventTimeoutMs = Preconditions.checkArgumentNonnegative(volumeKeyEventTimeoutMs,
                 "Volume key event timeout must be positive");
@@ -60,15 +65,24 @@ final class ZoneAudioPlaybackCallback {
     public void onPlaybackConfigChanged(List<AudioPlaybackConfiguration> configurations) {
         ArrayMap<String, AudioPlaybackConfiguration> newActiveConfigs =
                 filterNewActiveConfiguration(configurations);
+        List<AudioAttributes> newlyActiveAudioAttributes = new ArrayList<>();
 
         synchronized (mLock) {
             List<AudioPlaybackConfiguration> newlyInactiveConfigurations =
                     getNewlyInactiveConfigurationsLocked(newActiveConfigs);
+            if (mCarAudioPlaybackMonitor != null) {
+                newlyActiveAudioAttributes = getNewlyActiveAudioAttributes(newActiveConfigs);
+            }
 
             mLastActiveConfigs.clear();
             mLastActiveConfigs.putAll(newActiveConfigs);
 
             startTimersForContextThatBecameInactiveLocked(newlyInactiveConfigurations);
+        }
+
+        if (mCarAudioPlaybackMonitor != null && !newlyActiveAudioAttributes.isEmpty()) {
+            mCarAudioPlaybackMonitor.onActiveAudioPlaybackAttributesAdded(
+                    newlyActiveAudioAttributes, mCarAudioZone.getId());
         }
     }
 
@@ -111,6 +125,21 @@ final class ZoneAudioPlaybackCallback {
         return newlyInactiveConfigurations;
     }
 
+    @GuardedBy("mLock")
+    private List<AudioAttributes> getNewlyActiveAudioAttributes(
+            ArrayMap<String, AudioPlaybackConfiguration> newActiveConfigurations) {
+        List<AudioPlaybackConfiguration> audioPlaybackConfigurationsWithNewAttributes =
+                new ArrayList<>();
+        for (int index = 0; index < newActiveConfigurations.size(); index++) {
+            if (mLastActiveConfigs.containsKey(newActiveConfigurations.keyAt(index))) {
+                continue;
+            }
+            audioPlaybackConfigurationsWithNewAttributes
+                    .add(newActiveConfigurations.valueAt(index));
+        }
+        return getAudioAttributesFromPlaybacks(audioPlaybackConfigurationsWithNewAttributes);
+    }
+
     private ArrayMap<String, AudioPlaybackConfiguration> filterNewActiveConfiguration(
             List<AudioPlaybackConfiguration> configurations) {
         ArrayMap<String, AudioPlaybackConfiguration> newActiveConfigs = new ArrayMap<>();
@@ -130,8 +159,7 @@ final class ZoneAudioPlaybackCallback {
 
     @GuardedBy("mLock")
     private List<AudioAttributes> getCurrentlyActiveAttributesLocked() {
-        return mCarAudioZone.findActiveAudioAttributesFromPlaybackConfigurations(
-                new ArrayList<>(mLastActiveConfigs.values()));
+        return getAudioAttributesFromPlaybacks(mLastActiveConfigs.values());
     }
 
     @GuardedBy("mLock")
@@ -157,6 +185,12 @@ final class ZoneAudioPlaybackCallback {
         synchronized (mLock) {
             mAudioAttributesStartTime.clear();
         }
+    }
+
+    private List<AudioAttributes> getAudioAttributesFromPlaybacks(
+            Collection<AudioPlaybackConfiguration> playbacks) {
+        return mCarAudioZone.findActiveAudioAttributesFromPlaybackConfigurations(
+                new ArrayList<>(playbacks));
     }
 
     @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)

@@ -48,14 +48,19 @@ interface ICarEvsService {
     void stopVideoStream(in ICarEvsStreamCallback callback);
 
     /**
+     * Requests to stop an active video stream from a given service type.
+     */
+    void stopVideoStreamFrom(in int serviceType, in ICarEvsStreamCallback callback);
+
+    /**
      * Returns the buffer when its usages are done.
      */
     void returnFrameBuffer(in CarEvsBufferDescriptor buffer);
 
     /**
-     * Returns a current status of CarEvsService.
+     * Returns a current status of a given CarEvsService type.
      */
-    CarEvsStatus getCurrentStatus();
+    CarEvsStatus getCurrentStatus(in int serviceType);
 
     /**
      * Returns a generated session token.

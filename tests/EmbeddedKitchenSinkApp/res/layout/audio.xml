@@ -57,46 +57,10 @@
             android:layout_width="3dp"
             android:layout_height="match_parent" />
     </LinearLayout>
-    <LinearLayout
-        android:layout_width="match_parent"
+    <include android:id="@+id/audio_zone_configuration_layout"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:id="@+id/audio_zone_configuration_layout" >
-        <Space
-            android:layout_width="3dp"
-            android:layout_height="match_parent" />
-        <TextView
-            android:id="@+id/select_zone_configuration_title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/zone_configuration" />
-        <Space
-            android:layout_width="3dp"
-            android:layout_height="match_parent" />
-        <Spinner
-            android:id="@+id/zone_configuration_spinner"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-        <Space
-            android:layout_width="3dp"
-            android:layout_height="match_parent" />
-        <Button
-            android:id="@+id/switch_zone_configuration_key_event_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/switch_zone_configuration" />
-        <Space
-            android:layout_width="3dp"
-            android:layout_height="match_parent" />
-        <TextView
-            android:id="@+id/text_current_configuration"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/empty" />
-        <Space
-            android:layout_width="3dp"
-            android:layout_height="match_parent" />
-    </LinearLayout>
+        layout="@layout/audio_configuration_select_layout" />
     <ScrollView
         android:layout_width="fill_parent"
         android:layout_height="wrap_content">
@@ -496,21 +460,10 @@
                     android:layout_height="wrap_content"
                     android:text="@string/stop" />
             </LinearLayout>
-            <LinearLayout
-                android:layout_width="match_parent"
+            <include android:id="@+id/audio_players"
+                android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical" >
-                <com.google.android.material.tabs.TabLayout
-                    android:id="@+id/audio_player_tabs"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content" >
-                </com.google.android.material.tabs.TabLayout>
-                <androidx.viewpager.widget.ViewPager
-                    android:id="@+id/zones_player_view_pager"
-                    android:layout_width="match_parent"
-                    android:layout_height="300dp" >
-                </androidx.viewpager.widget.ViewPager>
-            </LinearLayout>
+                layout="@layout/audio_player_tabs" />
         </LinearLayout>
     </ScrollView>
 </LinearLayout>

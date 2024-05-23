@@ -25,26 +25,31 @@ import androidx.lifecycle.Observer;
 
 import com.android.systemui.R;
 import com.android.systemui.car.CarServiceProvider;
-import com.android.systemui.car.statusicon.StatusIconController;
+import com.android.systemui.car.statusicon.StatusIconView;
+import com.android.systemui.car.statusicon.StatusIconViewController;
+import com.android.systemui.car.systembar.element.CarSystemBarElementStateController;
+import com.android.systemui.car.systembar.element.CarSystemBarElementStatusBarDisableController;
 import com.android.systemui.dagger.qualifiers.Main;
 import com.android.systemui.dagger.qualifiers.UiBackground;
-import com.android.systemui.statusbar.policy.ConfigurationController;
+
+import dagger.assisted.Assisted;
+import dagger.assisted.AssistedFactory;
+import dagger.assisted.AssistedInject;
 
 import java.util.concurrent.Executor;
-
-import javax.inject.Inject;
 
 /**
  * A controller for the read-only icon that shows sensor info
  */
-public class StatusBarSensorInfoController extends StatusIconController implements
-        ConfigurationController.ConfigurationListener {
+public class StatusBarSensorInfoController extends StatusIconViewController {
     private static final String TAG = StatusBarSensorInfoController.class.getSimpleName();
     private static final boolean DEBUG = false;
 
     private final Context mContext;
     private final MutableLiveData<String> mSensorStringLiveData;
     private final MutableLiveData<Boolean> mSensorAvailabilityData;
+    private final Observer<String> mSensorStringObserver = this::updateDrawable;
+    private final Observer<Boolean> mSensorAvailabilityObserver = this::updateAvailability;
     private final StatusBarSensorInfoManager mStatusBarSensorInfoManager;
 
     private final String mSensorString;
@@ -53,12 +58,16 @@ public class StatusBarSensorInfoController extends StatusIconController implemen
     private Boolean mSensorAvailability;
     private TextDrawable mDrawable;
 
-    @Inject
-    StatusBarSensorInfoController(
-            @UiBackground Executor executor,
+    @AssistedInject
+    protected StatusBarSensorInfoController(
+            @Assisted StatusIconView view,
+            CarSystemBarElementStatusBarDisableController disableController,
+            CarSystemBarElementStateController stateController,
             Context context,
             @Main Resources resources,
+            @UiBackground Executor executor,
             CarServiceProvider carServiceProvider) {
+        super(view, disableController, stateController);
         mContext = context;
         mSensorString = resources.getString(R.string.default_sensor_string);
         mSensorAvailability = false;
@@ -71,16 +80,34 @@ public class StatusBarSensorInfoController extends StatusIconController implemen
                 R.dimen.statusbar_sensor_text_width);
         mDrawableHeight = resources.getDimensionPixelSize(
                 com.android.internal.R.dimen.status_bar_height);
-
-        registerSensorObserver();
     }
 
-    private void registerSensorObserver() {
-        Observer<String> sensorStringObserver = this::updateDrawable;
-        mSensorStringLiveData.observeForever(sensorStringObserver);
+    @AssistedFactory
+    public interface Factory extends
+            StatusIconViewController.Factory<StatusBarSensorInfoController> {
+    }
 
-        Observer<Boolean> sensorAvailabilityObserver = this::updateAvailability;
-        mSensorAvailabilityData.observeForever(sensorAvailabilityObserver);
+    @Override
+    protected void onViewAttached() {
+        super.onViewAttached();
+        mStatusBarSensorInfoManager.onAttached();
+        mSensorStringLiveData.observeForever(mSensorStringObserver);
+        mSensorAvailabilityData.observeForever(mSensorAvailabilityObserver);
+    }
+
+    @Override
+    protected void onViewDetached() {
+        super.onViewDetached();
+        mStatusBarSensorInfoManager.onDetached();
+        mSensorStringLiveData.removeObserver(mSensorStringObserver);
+        mSensorAvailabilityData.removeObserver(mSensorAvailabilityObserver);
+    }
+
+    @Override
+    protected void updateStatus() {
+        setIconVisibility(mSensorAvailability);
+        setIconDrawableToDisplay(mDrawable);
+        onStatusUpdated();
     }
 
     private void updateAvailability(Boolean availability) {
@@ -96,21 +123,9 @@ public class StatusBarSensorInfoController extends StatusIconController implemen
         updateStatus();
     }
 
-    @Override
-    protected void updateStatus() {
-        setIconVisibility(mSensorAvailability);
-        setIconDrawableToDisplay(mDrawable);
-        onStatusUpdated();
-    }
-
     private void logIfDebug(String msg) {
         if (DEBUG) {
             Log.d(TAG, msg);
         }
-    }
-
-    @Override
-    protected int getId() {
-        return R.id.read_only_sensor_info;
     }
 }

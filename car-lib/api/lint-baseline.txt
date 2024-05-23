@@ -37,6 +37,8 @@ ExecutorRegistration: android.car.hardware.CarSensorManager#registerListener(and
     Registration methods should have overload that accepts delivery Executor: `registerListener`
 ExecutorRegistration: android.car.hardware.property.CarPropertyManager#registerCallback(android.car.hardware.property.CarPropertyManager.CarPropertyEventCallback, int, float):
     Registration methods should have overload that accepts delivery Executor: `registerCallback`
+ExecutorRegistration: android.car.hardware.property.CarPropertyManager#unsubscribePropertyEvents(android.car.hardware.property.CarPropertyManager.CarPropertyEventCallback, int):
+    Registration methods should have overload that accepts delivery Executor: `unsubscribePropertyEvents`
 ExecutorRegistration: android.car.media.CarAudioManager#registerCarVolumeCallback(android.car.media.CarAudioManager.CarVolumeCallback):
     Registration methods should have overload that accepts delivery Executor: `registerCarVolumeCallback`
 
@@ -51,6 +53,8 @@ ListenerLast: android.car.CarAppFocusManager#abandonAppFocus(android.car.CarAppF
     Listeners should always be at end of argument list (method `abandonAppFocus`)
 ListenerLast: android.car.CarAppFocusManager#isOwningFocus(android.car.CarAppFocusManager.OnAppFocusOwnershipCallback, int) parameter #1:
     Listeners should always be at end of argument list (method `isOwningFocus`)
+ListenerLast: android.car.hardware.property.CarPropertyManager#unsubscribePropertyEvents(android.car.hardware.property.CarPropertyManager.CarPropertyEventCallback, int) parameter #1:
+    Listeners should always be at end of argument list (method `unsubscribePropertyEvents`)
 
 
 MissingGetterMatchingBuilder: android.car.drivingstate.CarUxRestrictions.Builder#setMaxStringLength(int):
@@ -195,6 +199,32 @@ StaticUtils: android.car.VehiclePropertyIds:
     Fully-static utility classes must not have constructor
 
 
+Todo: android.car.VehiclePropertyIds#AP_POWER_BOOTUP_REASON:
+    Documentation mentions 'TODO'
+Todo: android.car.VehiclePropertyIds#AP_POWER_STATE_REPORT:
+    Documentation mentions 'TODO'
+Todo: android.car.VehiclePropertyIds#AP_POWER_STATE_REQ:
+    Documentation mentions 'TODO'
+Todo: android.car.VehiclePropertyIds#DISPLAY_BRIGHTNESS:
+    Documentation mentions 'TODO'
+Todo: android.car.VehiclePropertyIds#HW_KEY_INPUT:
+    Documentation mentions 'TODO'
+Todo: android.car.VehiclePropertyIds#OBD2_FREEZE_FRAME:
+    Documentation mentions 'TODO'
+Todo: android.car.VehiclePropertyIds#OBD2_FREEZE_FRAME_CLEAR:
+    Documentation mentions 'TODO'
+Todo: android.car.VehiclePropertyIds#OBD2_FREEZE_FRAME_INFO:
+    Documentation mentions 'TODO'
+Todo: android.car.VehiclePropertyIds#OBD2_LIVE_FRAME:
+    Documentation mentions 'TODO'
+Todo: android.car.VehiclePropertyIds#PER_DISPLAY_BRIGHTNESS:
+    Documentation mentions 'TODO'
+Todo: android.car.VehiclePropertyIds#SEAT_HEADREST_HEIGHT_POS:
+    Documentation mentions 'TODO'
+Todo: android.car.VehiclePropertyIds#VEHICLE_MAP_SERVICE:
+    Documentation mentions 'TODO'
+
+
 UnflaggedApi: android.car.ApiVersion:
     New API must be flagged with @FlaggedApi: class android.car.ApiVersion
 UnflaggedApi: android.car.ApiVersion#getMajorVersion():
@@ -287,6 +317,10 @@ UnflaggedApi: android.car.Car#getCarManager(Class<T>):
     New API must be flagged with @FlaggedApi: method android.car.Car.getCarManager(Class<T>)
 UnflaggedApi: android.car.Car#getCarManager(String):
     New API must be flagged with @FlaggedApi: method android.car.Car.getCarManager(String)
+UnflaggedApi: android.car.Car#getCarVersion():
+    New API must be flagged with @FlaggedApi: method android.car.Car.getCarVersion()
+UnflaggedApi: android.car.Car#getPlatformVersion():
+    New API must be flagged with @FlaggedApi: method android.car.Car.getPlatformVersion()
 UnflaggedApi: android.car.Car#isConnected():
     New API must be flagged with @FlaggedApi: method android.car.Car.isConnected()
 UnflaggedApi: android.car.Car#isConnecting():
@@ -667,6 +701,12 @@ UnflaggedApi: android.car.VehiclePropertyIds:
     New API must be flagged with @FlaggedApi: class android.car.VehiclePropertyIds
 UnflaggedApi: android.car.VehiclePropertyIds#ABS_ACTIVE:
     New API must be flagged with @FlaggedApi: field android.car.VehiclePropertyIds.ABS_ACTIVE
+UnflaggedApi: android.car.VehiclePropertyIds#AP_POWER_BOOTUP_REASON:
+    New API must be flagged with @FlaggedApi: field android.car.VehiclePropertyIds.AP_POWER_BOOTUP_REASON
+UnflaggedApi: android.car.VehiclePropertyIds#AP_POWER_STATE_REPORT:
+    New API must be flagged with @FlaggedApi: field android.car.VehiclePropertyIds.AP_POWER_STATE_REPORT
+UnflaggedApi: android.car.VehiclePropertyIds#AP_POWER_STATE_REQ:
+    New API must be flagged with @FlaggedApi: field android.car.VehiclePropertyIds.AP_POWER_STATE_REQ
 UnflaggedApi: android.car.VehiclePropertyIds#CABIN_LIGHTS_STATE:
     New API must be flagged with @FlaggedApi: field android.car.VehiclePropertyIds.CABIN_LIGHTS_STATE
 UnflaggedApi: android.car.VehiclePropertyIds#CABIN_LIGHTS_SWITCH:
@@ -675,6 +715,8 @@ UnflaggedApi: android.car.VehiclePropertyIds#CRITICALLY_LOW_TIRE_PRESSURE:
     New API must be flagged with @FlaggedApi: field android.car.VehiclePropertyIds.CRITICALLY_LOW_TIRE_PRESSURE
 UnflaggedApi: android.car.VehiclePropertyIds#CURRENT_GEAR:
     New API must be flagged with @FlaggedApi: field android.car.VehiclePropertyIds.CURRENT_GEAR
+UnflaggedApi: android.car.VehiclePropertyIds#DISPLAY_BRIGHTNESS:
+    New API must be flagged with @FlaggedApi: field android.car.VehiclePropertyIds.DISPLAY_BRIGHTNESS
 UnflaggedApi: android.car.VehiclePropertyIds#DISTANCE_DISPLAY_UNITS:
     New API must be flagged with @FlaggedApi: field android.car.VehiclePropertyIds.DISTANCE_DISPLAY_UNITS
 UnflaggedApi: android.car.VehiclePropertyIds#DOOR_LOCK:
@@ -803,6 +845,8 @@ UnflaggedApi: android.car.VehiclePropertyIds#HVAC_TEMPERATURE_SET:
     New API must be flagged with @FlaggedApi: field android.car.VehiclePropertyIds.HVAC_TEMPERATURE_SET
 UnflaggedApi: android.car.VehiclePropertyIds#HVAC_TEMPERATURE_VALUE_SUGGESTION:
     New API must be flagged with @FlaggedApi: field android.car.VehiclePropertyIds.HVAC_TEMPERATURE_VALUE_SUGGESTION
+UnflaggedApi: android.car.VehiclePropertyIds#HW_KEY_INPUT:
+    New API must be flagged with @FlaggedApi: field android.car.VehiclePropertyIds.HW_KEY_INPUT
 UnflaggedApi: android.car.VehiclePropertyIds#IGNITION_STATE:
     New API must be flagged with @FlaggedApi: field android.car.VehiclePropertyIds.IGNITION_STATE
 UnflaggedApi: android.car.VehiclePropertyIds#INFO_DRIVER_SEAT:
@@ -849,6 +893,14 @@ UnflaggedApi: android.car.VehiclePropertyIds#MIRROR_Z_POS:
     New API must be flagged with @FlaggedApi: field android.car.VehiclePropertyIds.MIRROR_Z_POS
 UnflaggedApi: android.car.VehiclePropertyIds#NIGHT_MODE:
     New API must be flagged with @FlaggedApi: field android.car.VehiclePropertyIds.NIGHT_MODE
+UnflaggedApi: android.car.VehiclePropertyIds#OBD2_FREEZE_FRAME:
+    New API must be flagged with @FlaggedApi: field android.car.VehiclePropertyIds.OBD2_FREEZE_FRAME
+UnflaggedApi: android.car.VehiclePropertyIds#OBD2_FREEZE_FRAME_CLEAR:
+    New API must be flagged with @FlaggedApi: field android.car.VehiclePropertyIds.OBD2_FREEZE_FRAME_CLEAR
+UnflaggedApi: android.car.VehiclePropertyIds#OBD2_FREEZE_FRAME_INFO:
+    New API must be flagged with @FlaggedApi: field android.car.VehiclePropertyIds.OBD2_FREEZE_FRAME_INFO
+UnflaggedApi: android.car.VehiclePropertyIds#OBD2_LIVE_FRAME:
+    New API must be flagged with @FlaggedApi: field android.car.VehiclePropertyIds.OBD2_LIVE_FRAME
 UnflaggedApi: android.car.VehiclePropertyIds#PARKING_BRAKE_AUTO_APPLY:
     New API must be flagged with @FlaggedApi: field android.car.VehiclePropertyIds.PARKING_BRAKE_AUTO_APPLY
 UnflaggedApi: android.car.VehiclePropertyIds#PARKING_BRAKE_ON:
@@ -863,6 +915,8 @@ UnflaggedApi: android.car.VehiclePropertyIds#PERF_VEHICLE_SPEED:
     New API must be flagged with @FlaggedApi: field android.car.VehiclePropertyIds.PERF_VEHICLE_SPEED
 UnflaggedApi: android.car.VehiclePropertyIds#PERF_VEHICLE_SPEED_DISPLAY:
     New API must be flagged with @FlaggedApi: field android.car.VehiclePropertyIds.PERF_VEHICLE_SPEED_DISPLAY
+UnflaggedApi: android.car.VehiclePropertyIds#PER_DISPLAY_BRIGHTNESS:
+    New API must be flagged with @FlaggedApi: field android.car.VehiclePropertyIds.PER_DISPLAY_BRIGHTNESS
 UnflaggedApi: android.car.VehiclePropertyIds#RANGE_REMAINING:
     New API must be flagged with @FlaggedApi: field android.car.VehiclePropertyIds.RANGE_REMAINING
 UnflaggedApi: android.car.VehiclePropertyIds#READING_LIGHTS_STATE:
@@ -949,6 +1003,8 @@ UnflaggedApi: android.car.VehiclePropertyIds#TURN_SIGNAL_STATE:
     New API must be flagged with @FlaggedApi: field android.car.VehiclePropertyIds.TURN_SIGNAL_STATE
 UnflaggedApi: android.car.VehiclePropertyIds#VEHICLE_CURB_WEIGHT:
     New API must be flagged with @FlaggedApi: field android.car.VehiclePropertyIds.VEHICLE_CURB_WEIGHT
+UnflaggedApi: android.car.VehiclePropertyIds#VEHICLE_MAP_SERVICE:
+    New API must be flagged with @FlaggedApi: field android.car.VehiclePropertyIds.VEHICLE_MAP_SERVICE
 UnflaggedApi: android.car.VehiclePropertyIds#VEHICLE_SPEED_DISPLAY_UNITS:
     New API must be flagged with @FlaggedApi: field android.car.VehiclePropertyIds.VEHICLE_SPEED_DISPLAY_UNITS
 UnflaggedApi: android.car.VehiclePropertyIds#WHEEL_TICK:
@@ -1005,6 +1061,10 @@ UnflaggedApi: android.car.VehicleUnit#WATT_HOUR:
     New API must be flagged with @FlaggedApi: field android.car.VehicleUnit.WATT_HOUR
 UnflaggedApi: android.car.content.pm.CarPackageManager:
     New API must be flagged with @FlaggedApi: class android.car.content.pm.CarPackageManager
+UnflaggedApi: android.car.content.pm.CarPackageManager#MANIFEST_METADATA_TARGET_CAR_VERSION:
+    New API must be flagged with @FlaggedApi: field android.car.content.pm.CarPackageManager.MANIFEST_METADATA_TARGET_CAR_VERSION
+UnflaggedApi: android.car.content.pm.CarPackageManager#getTargetCarVersion():
+    New API must be flagged with @FlaggedApi: method android.car.content.pm.CarPackageManager.getTargetCarVersion()
 UnflaggedApi: android.car.content.pm.CarPackageManager#isActivityDistractionOptimized(String, String):
     New API must be flagged with @FlaggedApi: method android.car.content.pm.CarPackageManager.isActivityDistractionOptimized(String,String)
 UnflaggedApi: android.car.content.pm.CarPackageManager#isPendingIntentDistractionOptimized(android.app.PendingIntent):

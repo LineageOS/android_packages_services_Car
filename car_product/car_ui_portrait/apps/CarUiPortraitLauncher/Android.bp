@@ -17,21 +17,13 @@ package {
     default_applicable_licenses: ["Android-Apache-2.0"],
 }
 
-android_app {
-    name: "CarUiPortraitLauncher",
-
-        overrides: [
-            "Launcher2",
-            "Launcher3",
-            "Launcher3QuickStep",
-            "CarLauncher",
-        ],
+android_library {
+    name: "CarUiPortraitLauncher-core",
 
     // Only compile source java files in this apk.
     srcs: ["src/**/*.java"],
     // Needs the platform api because CarLauncher-core also uses platform_apis.
     platform_apis: true,
-    certificate: "platform",
     static_libs: [
         "androidx-constraintlayout_constraintlayout-solver",
         "androidx-constraintlayout_constraintlayout",
@@ -41,8 +33,27 @@ android_app {
         "CarLauncher-core",
         "WindowManager-Shell",
         "car-portrait-ui-common",
-        "car-media-common"
+        "car-media-common",
     ],
+
+    libs: ["android.car"],
+    // TODO(b/319708040): re-enable use_resource_processor
+    use_resource_processor: false,
+}
+
+android_app {
+    name: "CarUiPortraitLauncher",
+
+    overrides: [
+        "Launcher2",
+        "Launcher3",
+        "Launcher3QuickStep",
+        "CarLauncher",
+    ],
+
+    platform_apis: true,
+    certificate: "platform",
+    static_libs: ["CarUiPortraitLauncher-core"],
 
     libs: ["android.car"],
 

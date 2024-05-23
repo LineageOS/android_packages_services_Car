@@ -236,12 +236,9 @@ PRODUCT_PACKAGES += \
 # RROs
 PRODUCT_PACKAGES += \
     CarPermissionControllerRRO \
-    CarSystemUIRRO \
-    CarSystemUIBottomRRO \
-    CarSystemUIBottomRoundedRRO \
-    CarSystemUILeftRRO \
-    CarSystemUIRightRRO \
-    CarSystemUIPersistentRRO \
+    CarSystemUIRRO
+
+$(call inherit-product-if-exists, packages/apps/Car/SystemUI/samples/systemui_sample_rros.mk)
 
 # System Server components
 # Order is important: if X depends on Y, then Y should precede X on the list.
@@ -258,7 +255,7 @@ ifeq ($(USE_CAR_FRAMEWORK_APEX),true)
     PRODUCT_APEX_BOOT_JARS += com.android.car.framework:android.car-module
     PRODUCT_APEX_SYSTEM_SERVER_JARS += com.android.car.framework:car-frameworks-service-module
 
-    $(call soong_config_set,AUTO,car_bootclasspath_fragment,true)
+    $(call soong_config_set,bootclasspath,car_bootclasspath_fragment,true)
 
     PRODUCT_HIDDENAPI_STUBS := android.car-module.stubs
     PRODUCT_HIDDENAPI_STUBS_SYSTEM := android.car-module.stubs.system

@@ -24,7 +24,7 @@ import java.lang.annotation.RetentionPolicy;
 /**
  * Reasons why {@link TaskViewPanel}'s {@link TaskViewPanel.State} changes.
  */
-public class TaskViewPanelStateChangeReason {
+public final class TaskViewPanelStateChangeReason {
     public static final String ON_ACTIVITY_RESTART_ATTEMPT = "ON_ACTIVITY_RESTART_ATTEMPT";
     public static final String ON_COLLAPSE_MSG = "ON_COLLAPSE_MSG";
     public static final String ON_DRIVE_STATE_CHANGED = "ON_DRIVE_STATE_CHANGED";
@@ -39,6 +39,9 @@ public class TaskViewPanelStateChangeReason {
     public static final String ON_SUW_STATE_CHANGED = "ON_SUW_STATE_CHANGED";
     public static final String ON_TASK_MOVED_TO_FRONT = "ON_TASK_MOVED_TO_FRONT";
     public static final String ON_TASK_REMOVED = "ON_TASK_REMOVED";
+    public static final String ON_CALM_MODE_STARTED = "ON_CALM_MODE_STARTED";
+    public static final String ON_TASK_INFO_CHANGED = "ON_TASK_INFO_CHANGED";
+
     private static final int EMPTY_TASK_ID = -1;
     private final String mReason;
     private final int mTaskId;
@@ -102,6 +105,8 @@ public class TaskViewPanelStateChangeReason {
             ON_SUW_STATE_CHANGED,
             ON_TASK_MOVED_TO_FRONT,
             ON_TASK_REMOVED,
+            ON_CALM_MODE_STARTED,
+            ON_TASK_INFO_CHANGED,
     })
     @Retention(RetentionPolicy.SOURCE)
     @interface Reason {

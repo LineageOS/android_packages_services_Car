@@ -50,6 +50,3 @@ PRODUCT_SYSTEM_EXT_PROPERTIES += \
     ro.carrier=unknown \
     ro.com.android.dataroaming?=true \
     ro.hardware.type=automotive \
-
-# Always disable Compose features in SystemUI to avoid APK size increase.
-SYSTEMUI_USE_COMPOSE := false

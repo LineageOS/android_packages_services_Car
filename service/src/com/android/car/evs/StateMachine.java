@@ -32,6 +32,7 @@ import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DE
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.car.builtin.util.Slogf;
+import android.car.feature.Flags;
 import android.car.evs.CarEvsBufferDescriptor;
 import android.car.evs.CarEvsManager;
 import android.car.evs.CarEvsManager.CarEvsError;
@@ -262,7 +263,13 @@ final class StateMachine {
                     ICarEvsStreamCallback callback = mCallbacks.getBroadcastItem(idx);
                     try {
                         int bufferId = CarEvsUtils.putTag(mServiceType, id);
-                        callback.onNewFrame(new CarEvsBufferDescriptor(bufferId, buffer));
+                        CarEvsBufferDescriptor descriptor;
+                        if (Flags.carEvsStreamManagement()) {
+                            descriptor = new CarEvsBufferDescriptor(bufferId, mServiceType, buffer);
+                        } else {
+                            descriptor = new CarEvsBufferDescriptor(bufferId, buffer);
+                        }
+                        callback.onNewFrame(descriptor);
                         refcount += 1;
                     } catch (RemoteException e) {
                         Slogf.w(mLogTag, "Failed to forward a frame to %s", callback);
@@ -530,7 +537,7 @@ final class StateMachine {
      */
     CarEvsStatus getCurrentStatus() {
         synchronized (mLock) {
-            return new CarEvsStatus(CarEvsManager.SERVICE_TYPE_REARVIEW, mState);
+            return new CarEvsStatus(mServiceType, mState);
         }
     }
 

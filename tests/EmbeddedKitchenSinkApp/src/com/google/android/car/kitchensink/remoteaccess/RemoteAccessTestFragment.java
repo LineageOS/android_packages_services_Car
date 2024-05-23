@@ -16,7 +16,8 @@
 
 package com.google.android.car.kitchensink.remoteaccess;
 
-
+import static android.car.remoteaccess.CarRemoteAccessManager.TASK_TYPE_ENTER_GARAGE_MODE;
+import static android.car.remoteaccess.CarRemoteAccessManager.TASK_TYPE_CUSTOM;
 import static android.preference.PreferenceManager.getDefaultSharedPreferences;
 
 import android.car.Car;
@@ -197,25 +198,29 @@ public final class RemoteAccessTestFragment extends Fragment {
             Log.e(TAG, "Task scheduling is not supported");
             return;
         }
+        int taskTypePos = mTaskType.getSelectedItemPosition();
         String taskData = mRemoteTaskDataView.getText().toString();
-        if (taskData.length() == 0) {
+        if (taskTypePos != 0 && taskData.length() == 0) {
             Log.e(TAG, "No task data specified");
             return;
         }
         int delay = Integer.parseInt(mTaskDelayView.getText().toString());
         long startTimeInEpochSeconds = (long) (System.currentTimeMillis() / 1000) + (long) delay;
-        int taskTypePos = mTaskType.getSelectedItemPosition();
         String scheduleId = "scheduleId" + mScheduleId.getAndIncrement();
-
-        switch (taskTypePos) {
-            case 0:
+        ScheduleInfo.Builder scheduleInfoBuilder;
+        if (taskTypePos == 0) {
+            // Enter garage mode.
+            scheduleInfoBuilder = new ScheduleInfo.Builder(
+                    scheduleId, TASK_TYPE_ENTER_GARAGE_MODE, startTimeInEpochSeconds);
+        } else {
+            if (taskTypePos == 1) {
                 taskData = "SetTemp:" + Float.parseFloat(taskData);
-                break;
-            default:
-                // Do nothing
+            }
+            scheduleInfoBuilder = new ScheduleInfo.Builder(
+                    scheduleId, TASK_TYPE_CUSTOM, startTimeInEpochSeconds)
+                    .setTaskData(taskData.getBytes());
         }
-        ScheduleInfo.Builder scheduleInfoBuilder = new ScheduleInfo.Builder(
-                scheduleId, taskData.getBytes(), startTimeInEpochSeconds);
+
         int count = Integer.parseInt(mTaskRepeatView.getText().toString());
         scheduleInfoBuilder.setCount(count);
         if (count > 1) {

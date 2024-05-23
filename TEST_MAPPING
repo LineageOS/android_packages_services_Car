@@ -24,5 +24,10 @@
     {
       "name": "hal_implementation_test"
     }
+  ],
+  "ravenwood-presubmit": [
+    {
+      "name": "CarLibHostUnitTest"
+    }
   ]
 }

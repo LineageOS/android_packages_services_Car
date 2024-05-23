@@ -18,6 +18,7 @@ package android.car;
 
 import static android.car.CarLibLog.TAG_CAR;
 import static android.car.feature.Flags.FLAG_ANDROID_VIC_VEHICLE_PROPERTIES;
+import static android.car.feature.Flags.FLAG_CLUSTER_HEALTH_MONITORING;
 
 import android.annotation.FlaggedApi;
 import android.annotation.IntDef;
@@ -35,6 +36,7 @@ import android.car.admin.CarDevicePolicyManager;
 import android.car.annotation.MandatoryFeature;
 import android.car.annotation.OptionalFeature;
 import android.car.app.CarActivityManager;
+import android.car.app.CarDisplayCompatManager;
 import android.car.builtin.os.BuildHelper;
 import android.car.builtin.os.ServiceManagerHelper;
 import android.car.cluster.CarInstrumentClusterManager;
@@ -70,6 +72,7 @@ import android.car.user.ExperimentalCarUserManager;
 import android.car.vms.VmsClientManager;
 import android.car.vms.VmsSubscriberManager;
 import android.car.watchdog.CarWatchdogManager;
+import android.car.wifi.CarWifiManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.ContextWrapper;
@@ -81,13 +84,14 @@ import android.os.IBinder;
 import android.os.Looper;
 import android.os.Process;
 import android.os.RemoteException;
-import android.os.SystemProperties;
 import android.os.TransactionTooLargeException;
 import android.util.ArrayMap;
 import android.util.Log;
 
+import com.android.car.internal.ICarBase;
 import com.android.car.internal.VisibleForHiddenApiCheck;
 import com.android.car.internal.common.CommonConstants;
+import com.android.car.internal.dep.SystemProperties;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 
@@ -108,7 +112,7 @@ import java.util.Objects;
  *   This API works only for devices with {@link PackageManager#FEATURE_AUTOMOTIVE}
  *   Calling this API on a device with no such feature will lead to an exception.
  */
-public final class Car {
+public final class Car implements ICarBase {
 
     /**
      * System property to define platform minor version.
@@ -176,7 +180,7 @@ public final class Car {
     // Car service registry information.
     // This information never changes after the static initialization completes.
     private static final Map<Class<?>, String> CAR_SERVICE_NAMES =
-            new ArrayMap<Class<?>, String>(36);
+            new ArrayMap<Class<?>, String>(38);
 
     /**
      * Binder service name of car service registered to service manager.
@@ -521,6 +525,16 @@ public final class Car {
     public static final String CAR_REMOTE_ACCESS_SERVICE = "car_remote_access_service";
 
     /**
+     * Service name for {@link android.car.wifi.CarWifiManager}
+     *
+     * @hide
+     */
+    @MandatoryFeature
+    @SystemApi
+    @FlaggedApi(Flags.FLAG_PERSIST_AP_SETTINGS)
+    public static final String CAR_WIFI_SERVICE = "car_wifi_service";
+
+    /**
      * Permission necessary to read driver monitoring systems settings information.
      *
      * Examples of settings include the ENABLED properties for the supported driver monitoring
@@ -690,9 +704,10 @@ public final class Car {
      *
      * @hide
      */
+    @FlaggedApi(FLAG_CLUSTER_HEALTH_MONITORING)
+    @SystemApi
     public static final String PERMISSION_CAR_MONITOR_CLUSTER_NAVIGATION_STATE =
             "android.car.permission.CAR_MONITOR_CLUSTER_NAVIGATION_STATE";
-
 
     /**
      * Application must have this permission in order to be launched in the instrument cluster
@@ -1350,6 +1365,35 @@ public final class Car {
             "android.car.permission.CONTROL_VALET_MODE";
 
     /**
+     * Permission necessary to read head up display status (e.g. whether the head up display is
+     * enabled)
+     *
+     * @hide
+     */
+    @FlaggedApi(Flags.FLAG_ANDROID_VIC_VEHICLE_PROPERTIES)
+    @SystemApi
+    public static final String PERMISSION_READ_HEAD_UP_DISPLAY_STATUS =
+            "android.car.permission.READ_HEAD_UP_DISPLAY_STATUS";
+
+    /**
+     * Permission necessary to control head up display
+     * @hide
+     */
+    @FlaggedApi(Flags.FLAG_ANDROID_VIC_VEHICLE_PROPERTIES)
+    @SystemApi
+    public static final String PERMISSION_CONTROL_HEAD_UP_DISPLAY =
+            "android.car.permission.CONTROL_HEAD_UP_DISPLAY";
+
+    /**
+     * Permission necessary to read persist tethering settings.
+     * @hide
+     */
+    @FlaggedApi(Flags.FLAG_PERSIST_AP_SETTINGS)
+    @SystemApi
+    public static final String PERMISSION_READ_PERSIST_TETHERING_SETTINGS =
+            "android.car.permission.READ_PERSIST_TETHERING_SETTINGS";
+
+    /**
      * Intent for connecting to the template renderer. Services that handle this intent must also
      * hold {@link #PERMISSION_TEMPLATE_RENDERER}. Applications would not bind to this service
      * directly, but instead they would use
@@ -1448,6 +1492,13 @@ public final class Car {
     public static final String CAR_EXTRA_CLUSTER_ACTIVITY_STATE =
             "android.car.cluster.ClusterActivityState";
 
+    /**
+     * @hide
+     */
+    @OptionalFeature
+    @FlaggedApi(Flags.FLAG_DISPLAY_COMPATIBILITY)
+    @SystemApi
+    public static final String CAR_DISPLAY_COMPAT_SERVICE = "car_display_compat_service";
 
     /**
      * Callback to notify the Lifecycle of car service.
@@ -1678,6 +1729,12 @@ public final class Car {
         CAR_SERVICE_NAMES.put(CarRemoteAccessManager.class, CAR_REMOTE_ACCESS_SERVICE);
         CAR_SERVICE_NAMES.put(CarOccupantConnectionManager.class, CAR_OCCUPANT_CONNECTION_SERVICE);
         CAR_SERVICE_NAMES.put(CarRemoteDeviceManager.class, CAR_REMOTE_DEVICE_SERVICE);
+        if (Flags.persistApSettings()) {
+            CAR_SERVICE_NAMES.put(CarWifiManager.class, CAR_WIFI_SERVICE);
+        }
+        if (Flags.displayCompatibility()) {
+            CAR_SERVICE_NAMES.put(CarDisplayCompatManager.class, CAR_DISPLAY_COMPAT_SERVICE);
+        }
         // Note: if a new entry is added here, the capacity of CAR_SERVICE_NAMES should be increased
         // as well.
     }
@@ -1688,11 +1745,8 @@ public final class Car {
      * <p>Starting on {@link android.os.Build.VERSION_CODES#TIRAMISU Android 13}, the {@code Car}
      * APIs can be upgraded without an OTA, so it's possible that these APIs are higher than the
      * {@link #getPlatformVersion() platform's}.
-     *
-     * @deprecated - use {@code android.os.Build.VERSION#SDK_INT} instead
      */
     @NonNull
-    @Deprecated
     public static android.car.CarVersion getCarVersion() {
         return CAR_VERSION;
     }
@@ -1704,11 +1758,8 @@ public final class Car {
      * <p>Its {@link ApiVersion#getMajorVersion() major version} will be the same as
      * {@link android.os.Build.VERSION#SDK_INT} for released build but will be
      * {@link android.os.Build.VERSION_CODES#CUR_DEVELOPMENT} for platform still under development.
-     *
-     * @deprecated - use {@code android.os.Build.VERSION#SDK_INT} instead
      */
     @NonNull
-    @Deprecated
     public static android.car.PlatformVersion getPlatformVersion() {
         return PLATFORM_VERSION;
     }
@@ -2604,6 +2655,18 @@ public final class Car {
                 break;
             default:
                 // Experimental or non-existing
+                if (Flags.displayCompatibility()) {
+                    if (serviceName.equals(CAR_DISPLAY_COMPAT_SERVICE)) {
+                        manager =  new CarDisplayCompatManager(this, binder);
+                        break;
+                    }
+                }
+                if (Flags.persistApSettings()) {
+                    if (serviceName.equals(CAR_WIFI_SERVICE)) {
+                        manager = new CarWifiManager(this, binder);
+                        break;
+                    }
+                }
                 String className = null;
                 try {
                     synchronized (mLock) {

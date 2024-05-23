@@ -156,7 +156,7 @@ public class CarProjectionManagerTest extends MockedCarTestBase {
     }
 
 
-    private class PropertyHandler implements VehicleHalPropertyHandler {
+    private static final class PropertyHandler implements VehicleHalPropertyHandler {
         HashMap<Integer, VehiclePropValue> mMap = new HashMap<>();
 
         @Override

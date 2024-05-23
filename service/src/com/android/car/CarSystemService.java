@@ -35,6 +35,11 @@ public interface CarSystemService {
      */
     void init();
 
+    /**
+     * Called when all other CarSystemService init completes.
+     */
+    default void onInitComplete() {}
+
     /** Releases all reources to stop the service. */
     void release();
 

@@ -36,4 +36,5 @@ android_app {
     platform_apis: true,
     privileged: true,
     required: ["allowed_privapp_com.android.car.multidisplay"],
+    system_ext_specific: true,
 }

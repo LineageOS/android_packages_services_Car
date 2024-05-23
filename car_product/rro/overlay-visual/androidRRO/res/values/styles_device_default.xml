@@ -107,7 +107,7 @@
 
     <style name="TextAppearance.DeviceDefault.Widget.Button.Colored"
            parent="TextAppearance.DeviceDefault.Widget.Button">
-        <item name="android:textColor">@color/car_on_primary</item>
+        <item name="android:textColor">@color/car_button_colored_text_color</item>
     </style>
 
     <style name="TextAppearance.DeviceDefault.Widget.Button.Borderless"

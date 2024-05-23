@@ -57,6 +57,7 @@ class TaskCategoryManager {
     private final ComponentName mAppGridActivityComponent;
     private final ComponentName mNotificationActivityComponent;
     private final ComponentName mRecentsActivityComponent;
+    private final ComponentName mCalmModeComponent;
     private final ArraySet<ComponentName> mIgnoreOpeningRootTaskViewComponentsSet;
     private final Set<ComponentName> mFullScreenActivities;
     private final Set<ComponentName> mBackgroundActivities;
@@ -78,7 +79,8 @@ class TaskCategoryManager {
                 mContext.getResources().getString(R.string.config_notificationActivity));
         mRecentsActivityComponent = ComponentName.unflattenFromString(mContext.getResources()
                 .getString(com.android.internal.R.string.config_recentsComponentName));
-
+        mCalmModeComponent = ComponentName.unflattenFromString(mContext.getResources()
+                .getString(R.string.config_calmMode_componentName));
         mOnApplicationInstallUninstallListeners = new HashSet<>();
 
         updateFullScreenActivities();
@@ -161,6 +163,7 @@ class TaskCategoryManager {
 
         mBackgroundActivities.addAll(convertToComponentNames(mContext.getResources()
                 .getStringArray(R.array.config_backgroundActivities)));
+        mBackgroundActivities.add(mCalmModeComponent);
     }
 
     /**
@@ -232,6 +235,10 @@ class TaskCategoryManager {
 
     boolean isRecentsActivity(TaskInfo taskInfo) {
         return mRecentsActivityComponent.equals(taskInfo.baseActivity);
+    }
+
+    boolean isCalmModeActivity(TaskInfo taskInfo) {
+        return mCalmModeComponent.equals(taskInfo.baseActivity);
     }
 
     boolean shouldIgnoreOpeningForegroundDA(TaskInfo taskInfo) {

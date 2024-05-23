@@ -11,5 +11,5 @@ android_app {
     certificate: "platform",
     overrides: ["Shell"],
     privileged: true,
-    static_libs: ["Shell-package-library"]
+    static_libs: ["Shell-package-library"],
 }

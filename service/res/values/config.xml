@@ -87,6 +87,33 @@
             all the applications migrate to the new callback interface for consistent behavior. -->
     <bool name="audioUseCarVolumeGroupEvent">false</bool>
 
+    <!-- Configuration to enable fade during audio focus changes. If this is set to true, car audio
+         framework will parse the car audio fade config definitions and apply the respective
+         FadeManagerConfiguration when dispatching audio focus loss.
+         Note:
+         - Although car audio framework expects valid fade config definitions when the flag is
+           enabled, the absence of the such definitions does not automatically result in a fatal
+           exception.
+         - All applications of fade configs must have matching fade definitions. It is a fatal error
+           to call out a fade config (by its name) as part of car audio configuration without
+           providing a valid definition.
+         - When the flag is disabled, all fade config definitions and any config application shall
+           be ignored. -->
+    <bool name="audioUseFadeManagerConfiguration">false</bool>
+
+    <!--  Configuration to enable min/max activation volume. If this is set to true, the volume of
+          the volume group with min/max activation volume setting will be set to min activation
+          volume or max activation volume if volume during activation is lower than min activation
+          volume or higher than max activation volume respectively. If this is set to false, no
+          volume level will be changed during activation.-->
+    <bool name="audioUseMinMaxActivationVolume">false</bool>
+
+    <!--  Configuration to enable isolated audio focus request for playback on dynamic devices. If
+          this is set to true, focus requests should only interact if the focus requests are
+          for the same zone and targeting playback will be routed to the same device. Otherwise,
+          the focus requests should interact only if the requests are for the same audio zone.-->
+    <bool name="audioUseIsolatedAudioFocusForDynamicDevices">false</bool>
+
     <!-- Whether to block other audio while media audio is muted with display off. When set to true,
          other sounds cannot be played either while display is off. If false, only media is muted
          and other sounds can be still played. -->
@@ -612,4 +639,7 @@
     <fraction name="config_clusterHomeVisibility_minRendered">99.9%</fraction>
     <integer name="config_clusterHomeVisibility_stabilityMs">100</integer>
 
+    <!-- A configuration flag to adjust the enabling of persistent tethering within
+         CarWifiService. -->
+    <bool name="config_enablePersistTetheringCapabilities">false</bool>
 </resources>

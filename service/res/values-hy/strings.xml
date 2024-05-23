@@ -34,6 +34,8 @@
     <string name="car_permission_desc_speed" msgid="2047965198165448241">"Ընթերցել մեքենայի արագության մասին տեղեկությունները"</string>
     <string name="car_permission_label_vehicle_dynamics_state" msgid="313779267420048367">"օգտագործել մեքենայի դինամիկայի մասին տվյալները"</string>
     <string name="car_permission_desc_vehicle_dynamics_state" msgid="8891506193446375660">"Օգտագործել մեքենայի դինամիկայի մասին տվյալները։"</string>
+    <string name="car_permission_label_control_vehicle_dynamics_state" msgid="1912154069363074986">"կառավարել մեքենայի դինամիկայի վիճակը"</string>
+    <string name="car_permission_desc_control_vehicle_dynamics_state" msgid="5603436779163086928">"Կառավարել ձեր մեքենայի դինամիկայի վիճակը։"</string>
     <string name="car_permission_label_vendor_extension" msgid="7141601811734127361">"օգտագործել մեքենան արտադրողի կապուղու տվյալները"</string>
     <string name="car_permission_desc_vendor_extension" msgid="2970718502334714035">"Մուտք գործել վաճառողի ալիք՝ մեքենային բնորոշ տեղեկություններ փոխանակելու համար"</string>
     <string name="car_permission_label_radio" msgid="6009465291685935112">"կառավարել մեքենայի ռադիոն"</string>
@@ -84,6 +86,8 @@
     <string name="car_permission_desc_vms_publisher" msgid="5589489298597386828">"Հրապարակել VMS հաղորդագրություններ"</string>
     <string name="car_permission_label_vms_subscriber" msgid="5648841182059222299">"Բաժանորդագրում VMS հաղորդագրություններին"</string>
     <string name="car_permission_desc_vms_subscriber" msgid="7551009457847673620">"Բաժանորդագրվել VMS հաղորդագրություններին"</string>
+    <string name="car_permission_label_read_ultrasonics_sensor_data" msgid="1097940233242534149">"Կարդալ ուլտրաձայնային տվիչի տվյալները։"</string>
+    <string name="car_permission_desc_read_ultrasonics_sensor_data" msgid="1717892304330623332">"Կարդալ ուլտրաձայնային տվիչների տվյալները մեքենայից։"</string>
     <string name="car_permission_label_storage_monitoring" msgid="2327639346522530549">"Ֆլեշ պահեստի մոնիթորինգ"</string>
     <string name="car_permission_desc_storage_monitoring" msgid="2075712271139671318">"Հետագծել ֆլեշ պահեստի օգտագործումը"</string>
     <string name="car_permission_label_driving_state" msgid="7754624599537393650">"հետագծել վարելու ռեժիմը"</string>
@@ -116,6 +120,20 @@
     <string name="car_permission_desc_control_car_mirrors" msgid="1224135684068855032">"Կառավարել մեքենայի հայելիները։"</string>
     <string name="car_permission_label_control_car_seats" msgid="1826934820585497135">"կառավարել մեքենայի նստատեղերը"</string>
     <string name="car_permission_desc_control_car_seats" msgid="2407536601226470563">"Կառավարել մեքենայի նստատեղերը։"</string>
+    <string name="car_permission_label_read_car_seat_belts" msgid="2051828795852087659">"կարդալ մեքենայի ամրագոտիների մասին տվյալները"</string>
+    <string name="car_permission_desc_read_car_seat_belts" msgid="7076977711613912339">"Կարդալ մեքենայի ամրագոտիների մասին տվյալները։"</string>
+    <string name="car_permission_label_read_impact_sensors" msgid="9193288836326363975">"կարդալ մեքենայի բախման տվիչների տվյալները"</string>
+    <string name="car_permission_desc_read_impact_sensors" msgid="6479840965130272944">"Կարդալ մեքենայի բախման տվիչների տվյալները։"</string>
+    <string name="car_permission_label_read_valet_mode" msgid="1807900160666761320">"կարդալ valet ռեժիմի տվյալները"</string>
+    <string name="car_permission_desc_read_valet_mode" msgid="8645550481045813299">"Կարդալ valet ռեժիմի մասին տվյալները։"</string>
+    <string name="car_permission_label_control_valet_mode" msgid="180432980177027905">"կառավարել valet ռեժիմը"</string>
+    <string name="car_permission_desc_control_valet_mode" msgid="8442573192492763994">"Կառավարել valet ռեժիմը։"</string>
+    <string name="car_permission_label_read_head_up_display_status" msgid="8117112886452578905">"կարդալ HUD էկրանի կարգավիճակը"</string>
+    <string name="car_permission_desc_read_head_up_display_status" msgid="3255763055570462667">"Կարդալ HUD էկրանի կարգավիճակը։"</string>
+    <string name="car_permission_label_control_head_up_display" msgid="2990483192001919370">"կառավարել HUD էկրանը"</string>
+    <string name="car_permission_desc_control_head_up_display" msgid="483313982751387504">"Կառավարել HUD էկրանը։"</string>
+    <string name="car_permission_label_read_car_airbags" msgid="5495423499616379238">"կարդալ մեքենայի անվտանգության բարձիկների մասին տվյալները"</string>
+    <string name="car_permission_desc_read_car_airbags" msgid="7961580013929420722">"Կարդալ մեքենայի անվտանգության բարձիկների մասին տվյալները։"</string>
     <string name="car_permission_label_control_car_airbags" msgid="6823727183218389617">"կառավարել մեքենայի անվտանգության բարձիկները"</string>
     <string name="car_permission_desc_control_car_airbags" msgid="6181671903761622348">"Կառավարել մեքենայի անվտանգության բարձիկները։"</string>
     <string name="car_permission_label_car_info" msgid="4707513570676492315">"օգտագործել մեքենայի հիմնական տվյալները"</string>
@@ -210,6 +228,8 @@
     <string name="car_permission_desc_register_car_system_ui_proxy" msgid="8863676956785764681">"Տրամադրել համակարգի միջերեսի պրոքսի լուծում, որը կարող են օգտագործել այլ հավելվածներ՝ համակարգի միջերեսը կառավարելու և առաջադրանքների ներկայացումներ ստեղծելու համար։"</string>
     <string name="car_permission_label_manage_car_system_ui" msgid="1361615518679353414">"Միանալ մեքենայի համակարգի միջերեսին՝ առաջադրանքների ներկայացումներ ստեղծելու և համակարգի միջերեսի փոփոխությունների մասին ծանուցումներ ստանալու համար։"</string>
     <string name="car_permission_desc_manage_car_system_ui" msgid="6201733970421818637">"Միանալ մեքենայի համակարգի միջերեսին՝ առաջադրանքների ներկայացումներ ստեղծելու և համակարգի միջերեսի փոփոխությունների մասին ծանուցումներ ստանալու համար։"</string>
+    <string name="car_permission_label_read_persist_tethering_settings" msgid="6395145649477916950">"Կարդալ մեքենայի մոդեմի ռեժիմի մշտական կարգավորումները"</string>
+    <string name="car_permission_desc_read_persist_tethering_settings" msgid="7373546466696896323">"Կարդալ մեքենայի մոդեմի ռեժիմի մշտական կարգավորումները"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN անվադողի սխալ"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN անվադողը չի պատասխանում: Անջատեք և նորից միացրեք միակցիչը, ապա անջատեք վառոցքը և վերագործարկեք մեքենան:"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"Իմ սարքը"</string>

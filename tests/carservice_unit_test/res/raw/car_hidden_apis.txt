@@ -23,7 +23,6 @@ android.car Car String EXPERIMENTAL_CAR_KEYGUARD_SERVICE
 android.car Car String EXPERIMENTAL_CAR_USER_SERVICE
 android.car Car String PERMISSION_BIND_VMS_CLIENT
 android.car Car String PERMISSION_CAR_DISPLAY_IN_CLUSTER
-android.car Car String PERMISSION_CAR_MONITOR_CLUSTER_NAVIGATION_STATE
 android.car Car String PERMISSION_COLLECT_CAR_CPU_INFO
 android.car Car String PROPERTY_EMULATED_PLATFORM_VERSION_MAJOR
 android.car Car String PROPERTY_EMULATED_PLATFORM_VERSION_MINOR
@@ -31,7 +30,6 @@ android.car Car T handleRemoteExceptionFromCarService(RemoteException e, T retur
 android.car Car T handleRemoteExceptionFromCarService(Service service, RemoteException e, T returnValue)
 android.car Car void handleRemoteExceptionFromCarService(RemoteException e)
 android.car Car void handleRemoteExceptionFromCarService(Service service, RemoteException e)
-android.car CarAppFocusManager List<String> getAppTypeOwner(int appType)
 android.car CarAppFocusManager int APP_FOCUS_MAX
 android.car CarAppFocusManager int[] getActiveAppTypes()
 android.car CarAppFocusManager void onCarDisconnected()
@@ -57,15 +55,19 @@ android.car CarLibLog String TAG_DIAGNOSTIC
 android.car CarLibLog String TAG_INPUT
 android.car CarLibLog String TAG_NAV
 android.car CarLibLog String TAG_SENSOR
-android.car CarManagerBase Car mCar
 android.car CarManagerBase Context getContext()
 android.car CarManagerBase Handler getEventHandler()
+android.car CarManagerBase ICarBase mCar
 android.car CarManagerBase T addDumpable(Object container, Supplier<T> dumpableSupplier)
 android.car CarManagerBase T handleExceptionFromCarService(Exception e, T returnValue)
 android.car CarManagerBase T handleRemoteExceptionFromCarService(RemoteException e, T returnValue)
 android.car CarManagerBase void handleRemoteExceptionFromCarService(RemoteException e)
 android.car CarManagerBase void onCarDisconnected()
 android.car CarOccupantZoneManager boolean assignProfileUserToOccupantZone(OccupantZoneInfo occupantZone, int userId)
+android.car CarOccupantZoneManager int DISPLAY_TYPE_AUXILIARY_2
+android.car CarOccupantZoneManager int DISPLAY_TYPE_AUXILIARY_3
+android.car CarOccupantZoneManager int DISPLAY_TYPE_AUXILIARY_4
+android.car CarOccupantZoneManager int DISPLAY_TYPE_AUXILIARY_5
 android.car CarOccupantZoneManager int OCCUPANT_TYPE_INVALID
 android.car CarOccupantZoneManager void onCarDisconnected()
 android.car CarOccupantZoneManager.OccupantZoneInfo int INVALID_ZONE_ID
@@ -161,6 +163,7 @@ android.car.app CarActivityManager void onTaskAppeared(ActivityManager.RunningTa
 android.car.app CarActivityManager void onTaskInfoChanged(ActivityManager.RunningTaskInfo taskInfo)
 android.car.app CarActivityManager void onTaskVanished(ActivityManager.RunningTaskInfo taskInfo)
 android.car.app CarActivityManager void unregisterTaskMonitor()
+android.car.app CarDisplayCompatManager void onCarDisconnected()
 android.car.app CarSystemUIProxy CarTaskViewHost createCarTaskView(CarTaskViewClient carTaskViewClient)
 android.car.app CarTaskViewController void createRemoteCarDefaultRootTaskView(RemoteCarDefaultRootTaskViewConfig remoteCarDefaultRootTaskViewConfig, Executor callbackExecutor, RemoteCarDefaultRootTaskViewCallback remoteCarDefaultRootTaskViewCallback)
 android.car.app CarTaskViewController void createRemoteCarRootTaskView(RemoteCarRootTaskViewConfig remoteCarRootTaskViewConfig, Executor callbackExecutor, RemoteCarRootTaskViewCallback remoteCarRootTaskViewCallback)
@@ -173,6 +176,8 @@ android.car.app CarTaskViewControllerHostLifecycle void unregisterObserver(CarTa
 android.car.app CarTaskViewControllerHostLifecycleFactory CarTaskViewControllerHostLifecycle forActivity(Activity activity)
 android.car.app CarTaskViewHost void createLaunchRootTask(int displayId, boolean embedHomeTask, boolean embedRecentsTask, boolean embedAssistantTask)
 android.car.app CarTaskViewHost void createRootTask(int displayId)
+android.car.app CarTaskViewHost void reorderTask(boolean onTop)
+android.car.app CarTaskViewHost void setTaskVisibility(boolean visibility)
 android.car.app RemoteCarDefaultRootTaskView ActivityManager.RunningTaskInfo getTaskInfo()
 android.car.app RemoteCarDefaultRootTaskView ActivityManager.RunningTaskInfo getTopTaskInfo()
 android.car.app RemoteCarDefaultRootTaskView String toString()
@@ -206,13 +211,17 @@ android.car.app RemoteCarRootTaskViewConfig.Builder Builder setDisplayId(int dis
 android.car.app RemoteCarRootTaskViewConfig.Builder RemoteCarRootTaskViewConfig build()
 android.car.app RemoteCarTaskView ActivityManager.RunningTaskInfo getTaskInfo()
 android.car.app RemoteCarTaskView boolean isInitialized()
+android.car.app RemoteCarTaskView boolean isReleased()
 android.car.app RemoteCarTaskView void addInsets(int index, int type, Rect frame)
 android.car.app RemoteCarTaskView void onAttachedToWindow()
 android.car.app RemoteCarTaskView void onDetachedFromWindow()
 android.car.app RemoteCarTaskView void release()
 android.car.app RemoteCarTaskView void removeInsets(int index, int type)
+android.car.app RemoteCarTaskView void reorderTask(boolean onTop)
 android.car.app RemoteCarTaskView void setObscuredTouchRect(Rect obscuredRect)
 android.car.app RemoteCarTaskView void setObscuredTouchRegion(Region obscuredRegion)
+android.car.app RemoteCarTaskView void setTaskVisibility(boolean visibility)
+android.car.app RemoteCarTaskView void setWindowBounds(Rect bounds)
 android.car.app RemoteCarTaskView void showEmbeddedTask()
 android.car.app RemoteCarTaskView void updateWindowBounds()
 android.car.cluster CarInstrumentClusterManager void onCarDisconnected()
@@ -226,14 +235,11 @@ android.car.cluster ClusterHomeManager int CONFIG_UI_TYPE
 android.car.cluster ClusterHomeManager int UI_TYPE_CLUSTER_HOME
 android.car.cluster ClusterHomeManager int UI_TYPE_CLUSTER_NONE
 android.car.cluster ClusterHomeManager void onCarDisconnected()
-android.car.cluster ClusterHomeManager void registerClusterNavigationStateListener(Executor executor, ClusterNavigationStateListener callback)
 android.car.cluster ClusterHomeManager void registerClusterStateListener(Executor executor, ClusterStateListener callback)
 android.car.cluster ClusterHomeManager void reportState(int uiTypeMain, int uiTypeSub, byte[] uiAvailability)
 android.car.cluster ClusterHomeManager void requestDisplay(int uiType)
 android.car.cluster ClusterHomeManager void stopFixedActivityMode()
-android.car.cluster ClusterHomeManager void unregisterClusterNavigationStateListener(ClusterNavigationStateListener callback)
 android.car.cluster ClusterHomeManager void unregisterClusterStateListener(ClusterStateListener callback)
-android.car.cluster ClusterHomeManager.ClusterNavigationStateListener void onNavigationState(byte[] navigationState)
 android.car.cluster ClusterHomeManager.ClusterStateListener void onClusterStateChanged(ClusterState state, int changes)
 android.car.cluster.renderer InstrumentClusterRenderingService ComponentName getComponentFromPackage(String packageName)
 android.car.cluster.renderer InstrumentClusterRenderingService String EXTRA_BUNDLE_KEY_FOR_INSTRUMENT_CLUSTER_HELPER
@@ -298,8 +304,10 @@ android.car.diagnostic CarDiagnosticEvent.SparkIgnitionMonitors int SECONDARY_AI
 android.car.diagnostic CarDiagnosticManager int[] FRAME_TYPES
 android.car.drivingstate CarDrivingStateManager void injectDrivingState(int drivingState)
 android.car.drivingstate CarDrivingStateManager void onCarDisconnected()
+android.car.drivingstate CarUxRestrictions String getActiveRestrictionsString()
 android.car.drivingstate CarUxRestrictions long getTimeStamp()
 android.car.drivingstate CarUxRestrictionsConfiguration CarUxRestrictionsConfiguration readJson(JsonReader reader, int schemaVersion)
+android.car.drivingstate CarUxRestrictionsConfiguration Set<String> getSupportedRestrictionModes()
 android.car.drivingstate CarUxRestrictionsConfiguration boolean hasSameParameters(CarUxRestrictionsConfiguration other)
 android.car.drivingstate CarUxRestrictionsConfiguration void dump(PrintWriter writer)
 android.car.drivingstate CarUxRestrictionsConfiguration void writeJson(JsonWriter writer)
@@ -436,6 +444,7 @@ android.car.hardware.power CarPowerManager void notifyUserActivity(int displayId
 android.car.hardware.power CarPowerManager void onCarDisconnected()
 android.car.hardware.power CarPowerManager void requestShutdownOnNextSuspend()
 android.car.hardware.power CarPowerManager void scheduleNextWakeupTime(int seconds)
+android.car.hardware.power PowerComponentUtil Iterable<Integer> toPowerComponents(Iterable<String> components, boolean prefix)
 android.car.hardware.power PowerComponentUtil List<String> powerComponentsToStrings(Iterable<Integer> components)
 android.car.hardware.power PowerComponentUtil String powerComponentToString(int component)
 android.car.hardware.power PowerComponentUtil String powerComponentsToString(Iterable<Integer> components)
@@ -490,11 +499,13 @@ android.car.media CarAudioPatchHandle String getSourceAddress()
 android.car.media CarAudioPatchHandle int getHandleId()
 android.car.media CarAudioZoneConfigInfo.Builder Builder setConfigVolumeGroups(List<CarVolumeGroupInfo> configVolumeGroups)
 android.car.media CarAudioZoneConfigInfo.Builder Builder setIsActive(boolean isActive)
+android.car.media CarAudioZoneConfigInfo.Builder Builder setIsDefault(boolean isDefault)
 android.car.media CarAudioZoneConfigInfo.Builder Builder setIsSelected(boolean isSelected)
 android.car.media CarAudioZoneConfigInfo.Builder CarAudioZoneConfigInfo build()
 android.car.media CarMediaManager boolean isIndependentPlaybackConfig()
 android.car.media CarMediaManager void onCarDisconnected()
 android.car.media CarMediaManager void setIndependentPlaybackConfig(boolean independent)
+android.car.media CarVolumeGroupInfo.Builder Builder setMutedBySystem(boolean isMutedBySystem)
 android.car.navigation CarNavigationInstrumentCluster Bundle getExtra()
 android.car.navigation CarNavigationStatusManager void onCarDisconnected()
 android.car.occupantawareness DriverMonitoringDetection Parcelable.Creator<DriverMonitoringDetection> CREATOR
@@ -576,6 +587,9 @@ android.car.occupantawareness SystemStatusEvent int detectionType
 android.car.occupantawareness SystemStatusEvent int systemStatus
 android.car.occupantawareness SystemStatusEvent void writeToParcel(Parcel dest, int flags)
 android.car.occupantconnection CarOccupantConnectionManager void onCarDisconnected()
+android.car.oem CarAudioFeaturesInfo int AUDIO_FEATURE_NO_FEATURE
+android.car.oem CarAudioFeaturesInfo.Builder Builder addAudioFeature(int feature)
+android.car.oem CarAudioFeaturesInfo.Builder CarAudioFeaturesInfo build()
 android.car.os CarPerformanceManager void addCpuAvailabilityChangeListener(Executor executor, CpuAvailabilityMonitoringConfig config, CpuAvailabilityChangeListener listener)
 android.car.os CarPerformanceManager void onCarDisconnected()
 android.car.os CarPerformanceManager void removeCpuAvailabilityChangeListener(Executor executor, CpuAvailabilityChangeListener listener)
@@ -622,6 +636,7 @@ android.car.projection ProjectionOptions.Builder ProjectionOptions build()
 android.car.remoteaccess CarRemoteAccessManager void addServerlessRemoteTaskClient(String packageName, String clientId)
 android.car.remoteaccess CarRemoteAccessManager void onCarDisconnected()
 android.car.remoteaccess CarRemoteAccessManager void removeServerlessRemoteTaskClient(String packageName)
+android.car.remoteaccess CarRemoteAccessManager void setFeatureFlags(FeatureFlags fakeFeatureFlags)
 android.car.settings CarSettings int DEFAULT_GARAGE_MODE_MAINTENANCE_WINDOW
 android.car.settings CarSettings int[] DEFAULT_GARAGE_MODE_WAKE_UP_TIME
 android.car.settings CarSettings.Global String DEFAULT_USER_RESTRICTIONS_SET
@@ -798,3 +813,4 @@ android.car.watchdog ResourceOveruseStats.Builder Builder setIoOveruseStats(IoOv
 android.car.watchdog ResourceOveruseStats.Builder Builder setPackageName(String value)
 android.car.watchdog ResourceOveruseStats.Builder Builder setUserHandle(UserHandle value)
 android.car.watchdog ResourceOveruseStats.Builder ResourceOveruseStats build()
+android.car.wifi CarWifiManager void onCarDisconnected()

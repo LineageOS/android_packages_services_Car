@@ -16,6 +16,8 @@
 
 package com.android.car.hal.fakevhal;
 
+import static com.android.car.internal.property.CarPropertyErrorCodes.convertVhalStatusCodeToCarPropertyManagerErrorCodes;
+
 import android.annotation.Nullable;
 import android.car.builtin.util.Slogf;
 import android.car.hardware.property.CarPropertyManager;
@@ -48,6 +50,7 @@ import com.android.car.hal.HalPropConfig;
 import com.android.car.hal.HalPropValue;
 import com.android.car.hal.HalPropValueBuilder;
 import com.android.car.hal.VehicleHalCallback;
+import com.android.car.internal.property.CarPropertyErrorCodes;
 import com.android.car.internal.util.PairSparseArray;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
@@ -196,15 +199,22 @@ public final class FakeVehicleStub extends VehicleStub {
                     halPropValue);
                 if (halPropValue == null) {
                     result = new GetVehicleStubAsyncResult(request.getServiceRequestId(),
-                        CarPropertyManager.STATUS_ERROR_NOT_AVAILABLE, /* vendorErrorCode= */ 0);
+                            new CarPropertyErrorCodes(
+                                    CarPropertyManager.STATUS_ERROR_NOT_AVAILABLE,
+                                    /* vendorErrorCode= */ 0,
+                                    /* systemErrorCode */ 0));
                 }
             } catch (ServiceSpecificException e) {
-                int[] errorCodes = convertHalToCarPropertyManagerError(e.errorCode);
-                result = new GetVehicleStubAsyncResult(request.getServiceRequestId(), errorCodes[0],
-                        errorCodes[1]);
+                CarPropertyErrorCodes carPropertyErrorCodes =
+                        convertVhalStatusCodeToCarPropertyManagerErrorCodes(e.errorCode);
+                result = new GetVehicleStubAsyncResult(request.getServiceRequestId(),
+                        carPropertyErrorCodes);
             } catch (RemoteException e) {
                 result = new GetVehicleStubAsyncResult(request.getServiceRequestId(),
-                    CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR, /* vendorErrorCode= */ 0);
+                        new CarPropertyErrorCodes(
+                                CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR,
+                                /* vendorErrorCode= */ 0,
+                                /* systemErrorCode */ 0));
             }
             onGetAsyncResultList.add(result);
         }
@@ -232,11 +242,14 @@ public final class FakeVehicleStub extends VehicleStub {
                 result = new SetVehicleStubAsyncResult(serviceRequestId);
             } catch (RemoteException e) {
                 result = new SetVehicleStubAsyncResult(serviceRequestId,
-                        CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR, /* vendorErrorCode= */ 0);
+                        new CarPropertyErrorCodes(
+                                CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR,
+                                /* vendorErrorCode= */ 0,
+                                /* systemErrorCode */ 0));
             } catch (ServiceSpecificException e) {
-                int[] errorCodes = convertHalToCarPropertyManagerError(e.errorCode);
-                result = new SetVehicleStubAsyncResult(serviceRequestId, errorCodes[0],
-                        errorCodes[1]);
+                CarPropertyErrorCodes carPropertyErrorCodes =
+                        convertVhalStatusCodeToCarPropertyManagerErrorCodes(e.errorCode);
+                result = new SetVehicleStubAsyncResult(serviceRequestId, carPropertyErrorCodes);
             }
             onSetAsyncResultsList.add(result);
         }
@@ -312,6 +325,22 @@ public final class FakeVehicleStub extends VehicleStub {
                 mRealVehicle.newSubscriptionClient(callback));
     }
 
+    private int getAccess(int propId, int areaId) {
+        HalPropConfig halPropConfig = mPropConfigsByPropId.get(propId);
+        HalAreaConfig[] halAreaConfigs = halPropConfig.getAreaConfigs();
+        for (int i = 0; i < halAreaConfigs.length; i++) {
+            if (halAreaConfigs[i].getAreaId() != areaId) {
+                continue;
+            }
+            int areaAccess = halAreaConfigs[i].getAccess();
+            if (areaAccess != VehiclePropertyAccess.NONE) {
+                return areaAccess;
+            }
+            break;
+        }
+        return halPropConfig.getAccess();
+    }
+
     /**
      * Gets a property value.
      *
@@ -334,7 +363,7 @@ public final class FakeVehicleStub extends VehicleStub {
             checkPropAvailable(propId, areaId);
         }
         // Check access permission.
-        int access = mPropConfigsByPropId.get(propId).getAccess();
+        int access = getAccess(propId, areaId);
         if (access != VehiclePropertyAccess.READ && access != VehiclePropertyAccess.READ_WRITE) {
             throw new ServiceSpecificException(StatusCode.ACCESS_DENIED, "This property " + propId
                     + " doesn't have read permission.");
@@ -381,7 +410,7 @@ public final class FakeVehicleStub extends VehicleStub {
             checkPropAvailable(propId, areaId);
         }
         // Check access permission.
-        int access = mPropConfigsByPropId.get(propId).getAccess();
+        int access = getAccess(propId, areaId);
         if (access != VehiclePropertyAccess.WRITE && access != VehiclePropertyAccess.READ_WRITE) {
             throw new ServiceSpecificException(StatusCode.ACCESS_DENIED, "This property " + propId
                     + " doesn't have write permission.");

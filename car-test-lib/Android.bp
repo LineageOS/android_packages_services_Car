@@ -23,6 +23,7 @@ java_library {
         "src/android/car/testapi/*.java",
     ],
     static_libs: [
+        "android.car.test.utils",
         "car-service-test-static-lib",
     ],
     libs: [
@@ -32,7 +33,7 @@ java_library {
     installable: false,
     dist: {
         targets: ["dist_files"],
-    }
+    },
 }
 
 java_library {

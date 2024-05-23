@@ -16,6 +16,8 @@
 
 package com.android.car.remoteaccess;
 
+import static android.car.remoteaccess.CarRemoteAccessManager.TASK_TYPE_CUSTOM;
+import static android.car.remoteaccess.CarRemoteAccessManager.TASK_TYPE_ENTER_GARAGE_MODE;
 import static android.car.remoteaccess.ICarRemoteAccessService.SERVICE_ERROR_CODE_GENERAL;
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_UNLOCKED;
 
@@ -42,6 +44,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import android.car.Car;
+import android.car.feature.FakeFeatureFlagsImpl;
+import android.car.feature.Flags;
 import android.car.hardware.power.CarPowerManager;
 import android.car.hardware.power.ICarPowerStateListener;
 import android.car.remoteaccess.CarRemoteAccessManager;
@@ -63,6 +67,7 @@ import android.content.pm.ServiceInfo;
 import android.content.res.Resources;
 import android.content.res.XmlResourceParser;
 import android.hardware.automotive.remoteaccess.ScheduleInfo;
+import android.hardware.automotive.remoteaccess.TaskType;
 import android.net.Uri;
 import android.os.IBinder;
 import android.os.RemoteException;
@@ -182,6 +187,7 @@ public final class CarRemoteAccessServiceUnitTest extends AbstractExpectableTest
             + "    <PackageName>android.car.app2</PackageName>"
             + "  </ServerlessClient>"
             + "</ServerlessClientMap>";
+    private static final int TEST_TASK_TYPE = TASK_TYPE_CUSTOM;
     private static final String TEST_SCHEDULE_ID = "TEST_SCHEDULE_ID";
     private static final byte[] TEST_TASK_DATA = new byte[]{(byte) 0xDE, (byte) 0xAD, (byte) 0xBE,
             (byte) 0xEF};
@@ -291,6 +297,10 @@ public final class CarRemoteAccessServiceUnitTest extends AbstractExpectableTest
         mRemoteAccessStorage = new RemoteAccessStorage(mContext, mSystemInterface,
                 /* inMemoryStorage= */ true);
         mService = newServiceWithSystemUpTime(ALLOWED_SYSTEM_UP_TIME_FOR_TESTING_MS);
+
+        FakeFeatureFlagsImpl fakeFlagsImpl = new FakeFeatureFlagsImpl();
+        fakeFlagsImpl.setFlag(Flags.FLAG_SERVERLESS_REMOTE_ACCESS, true);
+        mService.setFeatureFlags(fakeFlagsImpl);
     }
 
     @After
@@ -546,6 +556,7 @@ public final class CarRemoteAccessServiceUnitTest extends AbstractExpectableTest
         String expectedClientId = PERSISTENT_CLIENTS.get(0).clientId;
         when(mDep.getCallingUid()).thenReturn(1234);
         when(mPackageManager.getNameForUid(1234)).thenReturn(packageName);
+        when(mPackageManager.getPackagesForUid(1234)).thenReturn(new String[]{packageName});
         setupDatabase();
         mService.init();
 
@@ -577,6 +588,40 @@ public final class CarRemoteAccessServiceUnitTest extends AbstractExpectableTest
                 mRemoteAccessCallback.getClientId()).isNull();
         expectWithMessage("Serverless remote task client ID must not be persisted in db").that(
                 mRemoteAccessStorage.getClientIdEntry(SERVERLESS_PACKAGE)).isNull();
+    }
+
+    @Test
+    public void testAddCarRemoteTaskClient_asignedDynamicClientId_thenBecomeServerlessClient()
+            throws Exception {
+        when(mDep.getCallingUid()).thenReturn(UID_SERVERLESS_PACKAGE);
+        String dynamicClientId = "dynamic client id";
+        // Store a dynamic client ID in the persistent storage for UID_NAME_SERVERLESS_PACKAGE.
+        // This ID was generated when the package was not a serverless client.
+        mRemoteAccessStorage.updateClientId(new ClientIdEntry(
+                dynamicClientId, System.currentTimeMillis(), UID_NAME_SERVERLESS_PACKAGE));
+        XmlResourceParser fakeXmlResourceParser = getFakeXmlResourceParser(
+                SERVERLESS_CLIENT_MAP_XML);
+        when(mResources.getXml(R.xml.remote_access_serverless_client_map)).thenReturn(
+                fakeXmlResourceParser);
+
+        mService.init();
+        runBootComplete();
+
+        mService.addCarRemoteTaskClient(mRemoteAccessCallback);
+
+        PollingCheck.check("onServerlessClientRegistered should be called", WAIT_TIMEOUT_MS,
+                () -> mRemoteAccessCallback.isServerlessClientRegistered());
+        expectWithMessage("onClientRegistrationUpdated must not be called").that(
+                mRemoteAccessCallback.getClientId()).isNull();
+        expectWithMessage("Serverless remote task client ID must not be persisted in db").that(
+                mRemoteAccessStorage.getClientIdEntry(SERVERLESS_PACKAGE)).isNull();
+
+        RemoteAccessHalCallback halCallback = mService.getRemoteAccessHalCallback();
+        // Starts an active task.
+        halCallback.onRemoteTaskRequested(TEST_SERVERLESS_CLIENT_ID, new byte[]{1, 2, 3, 4});
+
+        PollingCheck.check("onRemoteTaskRequested should be called", WAIT_TIMEOUT_MS,
+                () -> mRemoteAccessCallback.getTaskId() != null);
     }
 
     @Test
@@ -684,6 +729,7 @@ public final class CarRemoteAccessServiceUnitTest extends AbstractExpectableTest
         String clientId = PERSISTENT_CLIENTS.get(0).clientId;
         when(mDep.getCallingUid()).thenReturn(1234);
         when(mPackageManager.getNameForUid(1234)).thenReturn(packageName);
+        when(mPackageManager.getPackagesForUid(1234)).thenReturn(new String[]{packageName});
         RemoteAccessHalCallback halCallback = mService.getRemoteAccessHalCallback();
         setupDatabase();
         mService.init();
@@ -1339,6 +1385,7 @@ public final class CarRemoteAccessServiceUnitTest extends AbstractExpectableTest
 
     private TaskScheduleInfo getTestTaskScheduleInfo() {
         TaskScheduleInfo taskScheduleInfo = new TaskScheduleInfo();
+        taskScheduleInfo.taskType = TEST_TASK_TYPE;
         taskScheduleInfo.scheduleId = TEST_SCHEDULE_ID;
         taskScheduleInfo.taskData = TEST_TASK_DATA;
         taskScheduleInfo.count = TEST_TASK_COUNT;
@@ -1358,6 +1405,8 @@ public final class CarRemoteAccessServiceUnitTest extends AbstractExpectableTest
         ScheduleInfo halScheduleInfo = mHalScheduleInfoCaptor.getValue();
         expectWithMessage("ScheduleInfo.clientId").that(halScheduleInfo.clientId).isEqualTo(
                 CLIENT_ID_SERVERLESS);
+        expectWithMessage("ScheduleInfo.taskType").that(halScheduleInfo.taskType).isEqualTo(
+                TaskType.CUSTOM);
         expectWithMessage("ScheduleInfo.scheduleId").that(halScheduleInfo.scheduleId).isEqualTo(
                 TEST_SCHEDULE_ID);
         expectWithMessage("ScheduleInfo.taskData").that(halScheduleInfo.taskData).isEqualTo(
@@ -1368,6 +1417,43 @@ public final class CarRemoteAccessServiceUnitTest extends AbstractExpectableTest
                 halScheduleInfo.startTimeInEpochSeconds).isEqualTo(TEST_START_TIME);
         expectWithMessage("ScheduleInfo.periodicInSeconds").that(
                 halScheduleInfo.periodicInSeconds).isEqualTo(TEST_PERIODIC);
+    }
+
+    @Test
+    public void testScheduleTask_enterGarageMode() throws Exception {
+        prepareTaskSchedule();
+
+        TaskScheduleInfo testTaskScheduleInfo = getTestTaskScheduleInfo();
+        testTaskScheduleInfo.taskType = TASK_TYPE_ENTER_GARAGE_MODE;
+        testTaskScheduleInfo.taskData = new byte[0];
+        mService.scheduleTask(testTaskScheduleInfo);
+
+        verify(mRemoteAccessHalWrapper).scheduleTask(mHalScheduleInfoCaptor.capture());
+        ScheduleInfo halScheduleInfo = mHalScheduleInfoCaptor.getValue();
+        expectWithMessage("ScheduleInfo.clientId").that(halScheduleInfo.clientId).isEqualTo(
+                CLIENT_ID_SERVERLESS);
+        expectWithMessage("ScheduleInfo.taskType").that(halScheduleInfo.taskType).isEqualTo(
+                TaskType.ENTER_GARAGE_MODE);
+        expectWithMessage("ScheduleInfo.scheduleId").that(halScheduleInfo.scheduleId).isEqualTo(
+                TEST_SCHEDULE_ID);
+        expectWithMessage("ScheduleInfo.taskData").that(halScheduleInfo.taskData).isEmpty();
+        expectWithMessage("ScheduleInfo.count").that(halScheduleInfo.count).isEqualTo(
+                TEST_TASK_COUNT);
+        expectWithMessage("ScheduleInfo.startTimeInEpochSeconds").that(
+                halScheduleInfo.startTimeInEpochSeconds).isEqualTo(TEST_START_TIME);
+        expectWithMessage("ScheduleInfo.periodicInSeconds").that(
+                halScheduleInfo.periodicInSeconds).isEqualTo(TEST_PERIODIC);
+    }
+
+    @Test
+    public void testScheduleTask_unsupportedTaskType() throws Exception {
+        prepareTaskSchedule();
+
+        TaskScheduleInfo testTaskScheduleInfo = getTestTaskScheduleInfo();
+        testTaskScheduleInfo.taskType = -1234;
+
+        assertThrows(IllegalArgumentException.class,
+                () -> mService.scheduleTask(testTaskScheduleInfo));
     }
 
     @Test
@@ -1528,18 +1614,19 @@ public final class CarRemoteAccessServiceUnitTest extends AbstractExpectableTest
     }
 
     @Test
-    public void testGetAllScheduledTasks() throws Exception {
+    public void testGetAllPendingScheduledTasks() throws Exception {
         prepareTaskSchedule();
         ScheduleInfo scheduleInfo = new ScheduleInfo();
         scheduleInfo.scheduleId = TEST_SCHEDULE_ID;
+        scheduleInfo.taskType = TaskType.CUSTOM;
         scheduleInfo.taskData = TEST_TASK_DATA;
         scheduleInfo.count = TEST_TASK_COUNT;
         scheduleInfo.startTimeInEpochSeconds = TEST_START_TIME;
         scheduleInfo.periodicInSeconds = TEST_PERIODIC;
-        when(mRemoteAccessHalWrapper.getAllScheduledTasks(CLIENT_ID_SERVERLESS))
+        when(mRemoteAccessHalWrapper.getAllPendingScheduledTasks(CLIENT_ID_SERVERLESS))
                 .thenReturn(List.of(scheduleInfo));
 
-        List<TaskScheduleInfo> taskScheduleInfoList = mService.getAllScheduledTasks();
+        List<TaskScheduleInfo> taskScheduleInfoList = mService.getAllPendingScheduledTasks();
 
         assertWithMessage("TaskScheduleInfo list").that(taskScheduleInfoList).hasSize(1);
         assertWithMessage("TaskScheduleInfo").that(taskScheduleInfoList.get(0)).isEqualTo(
@@ -1547,32 +1634,78 @@ public final class CarRemoteAccessServiceUnitTest extends AbstractExpectableTest
     }
 
     @Test
-    public void testGetAllScheduledTasks_unsupported() throws Exception {
-        mService.init();
+    public void testGetAllPendingScheduledTasks_convertUnknownTaskType() throws Exception {
+        prepareTaskSchedule();
+        ScheduleInfo scheduleInfo = new ScheduleInfo();
+        scheduleInfo.scheduleId = TEST_SCHEDULE_ID;
+        // This task type is unknown and should be converted to CUSTOM.
+        scheduleInfo.taskType = -1234;
+        scheduleInfo.taskData = TEST_TASK_DATA;
+        when(mRemoteAccessHalWrapper.getAllPendingScheduledTasks(CLIENT_ID_SERVERLESS))
+                .thenReturn(List.of(scheduleInfo));
 
-        assertThrows(IllegalStateException.class, () -> mService.getAllScheduledTasks());
+        List<TaskScheduleInfo> taskScheduleInfoList = mService.getAllPendingScheduledTasks();
+
+        assertWithMessage("TaskScheduleInfo list").that(taskScheduleInfoList).hasSize(1);
+        assertWithMessage("TaskScheduleInfo.taskType").that(taskScheduleInfoList.get(0).taskType)
+                .isEqualTo(TASK_TYPE_CUSTOM);
     }
 
     @Test
-    public void testGetAllScheduledTasks_remoteException() throws Exception {
+    public void testGetAllPendingScheduledTasks_unsupported() throws Exception {
+        mService.init();
+
+        assertThrows(IllegalStateException.class, () -> mService.getAllPendingScheduledTasks());
+    }
+
+    @Test
+    public void testGetAllPendingScheduledTasks_remoteException() throws Exception {
         prepareTaskSchedule();
-        when(mRemoteAccessHalWrapper.getAllScheduledTasks(CLIENT_ID_SERVERLESS))
+        when(mRemoteAccessHalWrapper.getAllPendingScheduledTasks(CLIENT_ID_SERVERLESS))
                 .thenThrow(new RemoteException());
 
         ServiceSpecificException e = assertThrows(ServiceSpecificException.class, () ->
-                mService.getAllScheduledTasks());
+                mService.getAllPendingScheduledTasks());
         assertThat(e.errorCode).isEqualTo(SERVICE_ERROR_CODE_GENERAL);
     }
 
     @Test
-    public void testGetAllScheduledTasks_serviceSpecificException() throws Exception {
+    public void testGetAllPendingScheduledTasks_serviceSpecificException() throws Exception {
         prepareTaskSchedule();
-        when(mRemoteAccessHalWrapper.getAllScheduledTasks(CLIENT_ID_SERVERLESS))
+        when(mRemoteAccessHalWrapper.getAllPendingScheduledTasks(CLIENT_ID_SERVERLESS))
                 .thenThrow(new ServiceSpecificException(1234));
 
         ServiceSpecificException e = assertThrows(ServiceSpecificException.class, () ->
-                mService.getAllScheduledTasks());
+                mService.getAllPendingScheduledTasks());
         assertThat(e.errorCode).isEqualTo(SERVICE_ERROR_CODE_GENERAL);
+    }
+
+    @Test
+    public void testGetSupportedTaskTypesForScheduling() throws Exception {
+        prepareTaskSchedule();
+        when(mRemoteAccessHalWrapper.getSupportedTaskTypesForScheduling()).thenReturn(
+                new int[]{TaskType.CUSTOM, TaskType.ENTER_GARAGE_MODE});
+
+        assertThat(mService.getSupportedTaskTypesForScheduling()).isEqualTo(
+                new int[]{TASK_TYPE_CUSTOM, TASK_TYPE_ENTER_GARAGE_MODE});
+    }
+
+    @Test
+    public void testGetSupportedTaskTypesForScheduling_unsupportedTypeIgnored() throws Exception {
+        prepareTaskSchedule();
+        when(mRemoteAccessHalWrapper.getSupportedTaskTypesForScheduling()).thenReturn(
+                new int[]{TaskType.CUSTOM, -1234});
+
+        assertThat(mService.getSupportedTaskTypesForScheduling()).isEqualTo(
+                new int[]{TASK_TYPE_CUSTOM});
+    }
+
+    @Test
+    public void testGetSupportedTaskTypesForScheduling_taskScheduleNotSupported() throws Exception {
+        mService.init();
+
+        assertThat(mService.getSupportedTaskTypesForScheduling()).isEmpty();
+        verify(mRemoteAccessHalWrapper, never()).getSupportedTaskTypesForScheduling();
     }
 
     @Test

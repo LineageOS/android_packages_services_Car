@@ -21,15 +21,13 @@ import static com.android.car.internal.common.CommonConstants.EMPTY_BYTE_ARRAY;
 import static com.android.car.internal.property.VehiclePropertyIdDebugUtils.isDefined;
 import static com.android.car.internal.property.VehiclePropertyIdDebugUtils.toDebugString;
 
-import android.annotation.SuppressLint;
 import android.car.VehiclePropertyIds;
 import android.car.hardware.CarPropertyValue;
-import android.car.hardware.property.VehicleHalStatusCode;
-import android.car.hardware.property.VehicleHalStatusCode.VehicleHalStatusCodeInt;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 
 import java.util.Collection;
+import java.util.StringJoiner;
 
 /**
  * Helper class for CarPropertyService/CarPropertyManager.
@@ -37,14 +35,6 @@ import java.util.Collection;
  * @hide
  */
 public final class CarPropertyHelper {
-    /**
-     * Status indicating no error.
-     *
-     * <p>This is not exposed to the client as this will be used only for deciding
-     * {@link GetPropertyCallback#onSuccess} or {@link GetPropertyCallback#onFailure} is called.
-     */
-    public static final int STATUS_OK = 0;
-
     /**
      * Error indicating that too many sync operation is ongoing, caller should try again after
      * some time.
@@ -55,9 +45,6 @@ public final class CarPropertyHelper {
     private static final int VEHICLE_PROPERTY_GROUP_MASK = 0xf0000000;
     private static final int VEHICLE_PROPERTY_GROUP_VENDOR = 0x20000000;
     private static final int VEHICLE_PROPERTY_GROUP_BACKPORTED = 0x30000000;
-
-    private static final int SYSTEM_ERROR_CODE_MASK = 0xffff;
-    private static final int VENDOR_ERROR_CODE_SHIFT = 16;
 
     /**
      * CarPropertyHelper only contains static fields and methods and must never be instantiated.
@@ -78,32 +65,22 @@ public final class CarPropertyHelper {
      * Gets a user-friendly representation of a list of properties.
      */
     public static String propertyIdsToString(Collection<Integer> propertyIds) {
-        String names = "[";
-        boolean first = true;
+        var sj = new StringJoiner(", ", "[", "]");
         for (int propertyId : propertyIds) {
-            if (first) {
-                first = false;
-            } else {
-                names += ", ";
-            }
-            names += toDebugString(propertyId);
+            sj.add(toDebugString(propertyId));
         }
-        return names + "]";
+        return sj.toString();
     }
 
     /**
-     * Returns the system error code contained in the error code returned from VHAL.
+     * Gets a user-friendly representation of a list of properties.
      */
-    @SuppressLint("WrongConstant")
-    public static @VehicleHalStatusCodeInt int getVhalSystemErrorCode(int vhalErrorCode) {
-        return vhalErrorCode & SYSTEM_ERROR_CODE_MASK;
-    }
-
-    /**
-     * Returns the vendor error code contained in the error code returned from VHAL.
-     */
-    public static int getVhalVendorErrorCode(int vhalErrorCode) {
-        return vhalErrorCode >>> VENDOR_ERROR_CODE_SHIFT;
+    public static String propertyIdsToString(int[] propertyIds) {
+        var sj = new StringJoiner(", ", "[", "]");
+        for (int propertyId : propertyIds) {
+            sj.add(toDebugString(propertyId));
+        }
+        return sj.toString();
     }
 
     /**
@@ -111,25 +88,6 @@ public final class CarPropertyHelper {
      */
     public static boolean isSystemProperty(int propertyId) {
         return propertyId != VehiclePropertyIds.INVALID && isDefined(propertyId);
-    }
-
-    /**
-     * Returns {@code true} if {@code vehicleHalStatusCode} is one of the not available
-     * {@link VehicleHalStatusCode} values}. Otherwise returns {@code false}.
-     */
-    public static boolean isNotAvailableVehicleHalStatusCode(
-            @VehicleHalStatusCodeInt int vehicleHalStatusCode) {
-        switch (vehicleHalStatusCode) {
-            case VehicleHalStatusCode.STATUS_NOT_AVAILABLE:
-            case VehicleHalStatusCode.STATUS_NOT_AVAILABLE_DISABLED:
-            case VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SPEED_LOW:
-            case VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SPEED_HIGH:
-            case VehicleHalStatusCode.STATUS_NOT_AVAILABLE_POOR_VISIBILITY:
-            case VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SAFETY:
-                return true;
-            default:
-                return false;
-        }
     }
 
     /**

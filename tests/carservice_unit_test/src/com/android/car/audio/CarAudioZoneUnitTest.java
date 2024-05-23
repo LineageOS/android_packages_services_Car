@@ -623,6 +623,34 @@ public final class CarAudioZoneUnitTest extends AbstractExpectableTestCase {
     }
 
     @Test
+    public void getVolumeGroupForAudioAttributes() {
+        when(mMockZoneConfig0.getVolumeGroupForAudioAttributes(TEST_MEDIA_ATTRIBUTE))
+                .thenReturn(mMockMusicGroup0);
+        when(mMockZoneConfig1.getVolumeGroupForAudioAttributes(TEST_MEDIA_ATTRIBUTE))
+                .thenReturn(null);
+        mTestAudioZone.addZoneConfig(mMockZoneConfig0);
+        mTestAudioZone.addZoneConfig(mMockZoneConfig1);
+
+        expectWithMessage("Audio attributes in car audio zone")
+                .that(mTestAudioZone.getVolumeGroupForAudioAttributes(TEST_MEDIA_ATTRIBUTE))
+                .isEqualTo(mMockMusicGroup0);
+    }
+
+    @Test
+    public void getVolumeGroupForAudioAttributes_withAttributeNotFound() {
+        when(mMockZoneConfig0.getVolumeGroupForAudioAttributes(TEST_MEDIA_ATTRIBUTE))
+                .thenReturn(null);
+        when(mMockZoneConfig1.getVolumeGroupForAudioAttributes(TEST_MEDIA_ATTRIBUTE))
+                .thenReturn(mMockGroup1);
+        mTestAudioZone.addZoneConfig(mMockZoneConfig0);
+        mTestAudioZone.addZoneConfig(mMockZoneConfig1);
+
+        expectWithMessage("Audio attributes not in car audio zone")
+                .that(mTestAudioZone.getVolumeGroupForAudioAttributes(TEST_MEDIA_ATTRIBUTE))
+                .isNull();
+    }
+
+    @Test
     public void onAudioGainChanged_withDeviceAddressesInZone() {
         List<Integer> reasons = List.of(Reasons.REMOTE_MUTE, Reasons.NAV_DUCKING);
         AudioGainConfigInfo musicGainInfo = new AudioGainConfigInfo();

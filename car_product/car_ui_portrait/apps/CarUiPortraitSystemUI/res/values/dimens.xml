@@ -56,7 +56,6 @@
     <dimen name="hvac_panel_button_internal_margin">32dp</dimen>
     <dimen name="hvac_temperature_text_size">56sp</dimen>
     <dimen name="hvac_temperature_text_padding">12dp</dimen>
-    <dimen name="hvac_temperature_text_width">108dp</dimen>
     <dimen name="hvac_temperature_button_size">64dp</dimen>
 
     <item name="hvac_heat_or_cool_off_alpha" format="float" type="dimen">0.3</item>
@@ -108,4 +107,17 @@
     <dimen name="button_layout_height">88dp</dimen>
     <!-- Default dialog button margin -->
     <dimen name="car_alert_dialog_button_margin">16dp</dimen>
+
+    <!-- ****** Biometrics dimens ***** -->
+    <dimen name="biometric_dialog_elevation">1dp</dimen>
+    <dimen name="biometric_car_auth_pattern_view_size">420dp</dimen>
+    <dimen name="confirm_lock_message_vertical_spacing">80dp</dimen>
+    <dimen name="biometric_horizontal_margin">348dp</dimen>
+    <dimen name="credential_input_width">528dp</dimen>
+    <dimen name="credential_input_vertical_padding">160dp</dimen>
+    <dimen name="pin_pad_key_radius">44dp</dimen>
+    <dimen name="pin_pad_key_width">160dp</dimen>
+    <dimen name="pin_pad_key_height">108dp</dimen>
+    <dimen name="pin_pad_key_margin">10dp</dimen>
+    <dimen name="lock_pattern_dot_size">32dp</dimen>
 </resources>

@@ -16,7 +16,7 @@
 
 package com.android.car;
 
-import static com.android.car.internal.property.CarPropertyHelper.STATUS_OK;
+import static com.android.car.internal.property.CarPropertyErrorCodes.STATUS_OK;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -53,6 +53,7 @@ import com.android.car.hal.HalPropValue;
 import com.android.car.hal.HalPropValueBuilder;
 import com.android.car.hal.HidlHalPropConfig;
 import com.android.car.hal.VehicleHalCallback;
+import com.android.car.internal.property.CarPropertyErrorCodes;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -450,7 +451,7 @@ public final class HidlVehicleStubUnitTest {
 
         verify(mAsyncCallback, timeout(1000)).onGetAsyncResults(argumentCaptor.capture());
         assertThat(argumentCaptor.getValue().get(0).getErrorCode()).isEqualTo(
-                VehicleStub.STATUS_TRY_AGAIN);
+                CarPropertyErrorCodes.STATUS_TRY_AGAIN);
     }
 
     @Test
@@ -574,7 +575,7 @@ public final class HidlVehicleStubUnitTest {
         verify(mAsyncCallback, timeout(1000)).onSetAsyncResults(argumentCaptor.capture());
         assertThat(argumentCaptor.getValue()).hasSize(1);
         assertThat(argumentCaptor.getValue().get(0).getErrorCode()).isEqualTo(
-                VehicleStub.STATUS_TRY_AGAIN);
+                CarPropertyErrorCodes.STATUS_TRY_AGAIN);
     }
 
     @Test

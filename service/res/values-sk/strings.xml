@@ -34,6 +34,8 @@
     <string name="car_permission_desc_speed" msgid="2047965198165448241">"Získajte prístup k informáciám o rýchlosti auta."</string>
     <string name="car_permission_label_vehicle_dynamics_state" msgid="313779267420048367">"získať prístup k stavu dynamiky auta"</string>
     <string name="car_permission_desc_vehicle_dynamics_state" msgid="8891506193446375660">"Prístup k dynamickému stavu auta."</string>
+    <string name="car_permission_label_control_vehicle_dynamics_state" msgid="1912154069363074986">"ovládať stav dynamiky auta"</string>
+    <string name="car_permission_desc_control_vehicle_dynamics_state" msgid="5603436779163086928">"Ovládať stav dynamiky auta."</string>
     <string name="car_permission_label_vendor_extension" msgid="7141601811734127361">"získať prístup ku kanálu dodávateľa auta"</string>
     <string name="car_permission_desc_vendor_extension" msgid="2970718502334714035">"Získajte prístup ku kanálu dodávateľa auta s cieľom výmeny konkrétnych informácií o aute."</string>
     <string name="car_permission_label_radio" msgid="6009465291685935112">"spravovať rádio auta"</string>
@@ -84,6 +86,8 @@
     <string name="car_permission_desc_vms_publisher" msgid="5589489298597386828">"Zverejniť správy VMS"</string>
     <string name="car_permission_label_vms_subscriber" msgid="5648841182059222299">"Odberateľ VMS"</string>
     <string name="car_permission_desc_vms_subscriber" msgid="7551009457847673620">"Odoberať správy VMS"</string>
+    <string name="car_permission_label_read_ultrasonics_sensor_data" msgid="1097940233242534149">"Čítať dáta ultrazvukového senzora."</string>
+    <string name="car_permission_desc_read_ultrasonics_sensor_data" msgid="1717892304330623332">"Čítať dáta ultrazvukového senzora z auta."</string>
     <string name="car_permission_label_storage_monitoring" msgid="2327639346522530549">"Monitorovanie úložiska vo formáte Flash"</string>
     <string name="car_permission_desc_storage_monitoring" msgid="2075712271139671318">"Monitorovať používanie úložiska vo formáte Flash"</string>
     <string name="car_permission_label_driving_state" msgid="7754624599537393650">"počúvať stav jazdy"</string>
@@ -116,6 +120,20 @@
     <string name="car_permission_desc_control_car_mirrors" msgid="1224135684068855032">"Ovládanie zrkadiel auta."</string>
     <string name="car_permission_label_control_car_seats" msgid="1826934820585497135">"ovládať sedadlá auta"</string>
     <string name="car_permission_desc_control_car_seats" msgid="2407536601226470563">"Ovládanie sedadiel auta."</string>
+    <string name="car_permission_label_read_car_seat_belts" msgid="2051828795852087659">"čítať bezpečnostné pásy auta"</string>
+    <string name="car_permission_desc_read_car_seat_belts" msgid="7076977711613912339">"Čítať bezpečnostné pásy auta."</string>
+    <string name="car_permission_label_read_impact_sensors" msgid="9193288836326363975">"čítať senzory nárazu auta"</string>
+    <string name="car_permission_desc_read_impact_sensors" msgid="6479840965130272944">"Čítať senzory nárazu auta."</string>
+    <string name="car_permission_label_read_valet_mode" msgid="1807900160666761320">"čítať režim parkovania"</string>
+    <string name="car_permission_desc_read_valet_mode" msgid="8645550481045813299">"Čítať režim parkovania."</string>
+    <string name="car_permission_label_control_valet_mode" msgid="180432980177027905">"ovládať režim parkovania"</string>
+    <string name="car_permission_desc_control_valet_mode" msgid="8442573192492763994">"Ovládať režim parkovania."</string>
+    <string name="car_permission_label_read_head_up_display_status" msgid="8117112886452578905">"čítanie stavu priehľadového displeja"</string>
+    <string name="car_permission_desc_read_head_up_display_status" msgid="3255763055570462667">"Čítanie stavu priehľadového displeja."</string>
+    <string name="car_permission_label_control_head_up_display" msgid="2990483192001919370">"ovládanie priehľadového displeja"</string>
+    <string name="car_permission_desc_control_head_up_display" msgid="483313982751387504">"Ovládanie priehľadového displeja."</string>
+    <string name="car_permission_label_read_car_airbags" msgid="5495423499616379238">"čítať airbagy auta"</string>
+    <string name="car_permission_desc_read_car_airbags" msgid="7961580013929420722">"Čítať airbagy auta."</string>
     <string name="car_permission_label_control_car_airbags" msgid="6823727183218389617">"ovládanie airbagov auta"</string>
     <string name="car_permission_desc_control_car_airbags" msgid="6181671903761622348">"Ovládanie airbagov auta."</string>
     <string name="car_permission_label_car_info" msgid="4707513570676492315">"získať prístup k základným informáciám o aute"</string>
@@ -210,6 +228,8 @@
     <string name="car_permission_desc_register_car_system_ui_proxy" msgid="8863676956785764681">"Poskytovanie proxy servera používateľského rozhrania systému, pomocou ktorého môžu ďalšie aplikácie spravovať používateľské rozhranie systému a vytvárať zobrazenia úloh."</string>
     <string name="car_permission_label_manage_car_system_ui" msgid="1361615518679353414">"Komunikácia s používateľským rozhraním systému na účely vytvárania zobrazení úloh alebo poskytovania upozornení na zmeny používateľského rozhrania systému."</string>
     <string name="car_permission_desc_manage_car_system_ui" msgid="6201733970421818637">"Komunikácia s používateľským rozhraním systému na účely vytvárania zobrazení úloh alebo poskytovania upozornení na zmeny používateľského rozhrania systému."</string>
+    <string name="car_permission_label_read_persist_tethering_settings" msgid="6395145649477916950">"Čítanie nastavení trvalého tetheringu v aute"</string>
+    <string name="car_permission_desc_read_persist_tethering_settings" msgid="7373546466696896323">"Čítanie nastavení trvalého tetheringu v aute"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"Zbernica CAN zlyhala"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"Zbernica CAN nereaguje. Odpojte autorádio a znova ho pripojte. Potom auto znova naštartujte."</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"Moje zariadenie"</string>

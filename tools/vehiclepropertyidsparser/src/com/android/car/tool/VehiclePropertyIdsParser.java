@@ -106,6 +106,7 @@ public final class VehiclePropertyIdsParser {
         public int vhalPropertyId;
         public List<Integer> dataEnums;
         public List<Integer> dataFlag;
+        public String featureFlag;
 
         @Override
         public String toString() {
@@ -119,7 +120,8 @@ public final class VehiclePropertyIdsParser {
                     .append("\n    hide: ").append(hide)
                     .append("\n    systemApi: ").append(systemApi)
                     .append("\n    dataEnums: ").append(dataEnums)
-                    .append("\n    dataFlag: ").append(dataFlag);
+                    .append("\n    dataFlag: ").append(dataFlag)
+                    .append("\n    featureFlag: ").append(featureFlag);
 
             if (vhalPropertyId != 0) {
                 s.append("\n    vhalPropertyId: ").append(vhalPropertyId);
@@ -448,7 +450,8 @@ public final class VehiclePropertyIdsParser {
             List<Integer> dataFlag = new ArrayList<>();
             for (int j = 0; j < blockTags.size(); j++) {
                 String commentTagName = blockTags.get(j).getTagName();
-                if (commentTagName.equals("deprecated")) {
+                if (commentTagName.equals("deprecated")
+                        || commentTagName.equals("to_be_deprecated")) {
                     deprecated = true;
                 }
                 if (commentTagName.equals("hide")) {
@@ -476,6 +479,7 @@ public final class VehiclePropertyIdsParser {
                     dataFlag = getEnumValues(enumType);
                 }
             }
+
             String docText = doc.toText();
             propertyConfig.description = (docText.split("\n"))[0];
             propertyConfig.deprecated = deprecated;
@@ -518,6 +522,12 @@ public final class VehiclePropertyIdsParser {
                 }
                 if (annotationName.equals("SystemApi")) {
                     propertyConfig.systemApi = true;
+                }
+                if (annotationName.equals("FlaggedApi")) {
+                    SingleMemberAnnotationExpr single =
+                            annotation.asSingleMemberAnnotationExpr();
+                    Expression member = single.getMemberValue();
+                    propertyConfig.featureFlag = member.toString();
                 }
             }
             if (propertyConfig.systemApi || !propertyConfig.hide) {
@@ -578,6 +588,9 @@ public final class VehiclePropertyIdsParser {
             }
             if (config.dataFlag.size() != 0) {
                 jsonProp.put("dataFlag", new JSONArray(config.dataFlag));
+            }
+            if (config.featureFlag != null) {
+                jsonProp.put("featureFlag", config.featureFlag);
             }
             jsonProps.put(config.propertyName, jsonProp);
         }

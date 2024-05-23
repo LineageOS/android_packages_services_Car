@@ -21,8 +21,6 @@ import android.util.Log;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
 
-import junit.framework.TestCase;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -39,7 +37,7 @@ import java.util.Map;
  */
 @RunWith(AndroidJUnit4.class)
 @MediumTest
-public class CarDiagnosticConstantsTest extends TestCase {
+public class CarDiagnosticConstantsTest extends MockedCarTestBase {
     static final String TAG = CarDiagnosticConstantsTest.class.getSimpleName();
 
     static class MismatchException extends Exception {

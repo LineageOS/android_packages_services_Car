@@ -113,19 +113,35 @@ BufferDesc copyBufferDesc(const BufferDesc& src, bool doDup) {
 namespace aidl::android::automotive::evs::implementation {
 
 MockEvsHal::~MockEvsHal() {
-    std::lock_guard lock(mLock);
-    for (auto& [id, state] : mStreamState) {
-        auto it = mCameraFrameThread.find(id);
-        if (it == mCameraFrameThread.end() || !it->second.joinable()) {
+    std::unordered_map<std::string, std::thread> threads;
+    {
+        std::lock_guard lock(mLock);
+        for (auto& [id, t] : mCameraFrameThread) {
+            auto it = mStreamState.find(id);
+            if (it != mStreamState.end() && it->second == StreamState::kRunning) {
+                it->second = StreamState::kStopping;
+            }
+
+            threads.insert_or_assign(id, std::move(t));
+        }
+        mCameraFrameThread.clear();
+    }
+
+    // Join all frame-forwarding threads.
+    for (auto& [_, t] : threads) {
+        if (!t.joinable()) {
             continue;
         }
 
-        state = StreamState::kStopping;
-        it->second.join();
+        t.join();
     }
 
-    deinitializeBufferPoolLocked();
-    mCameraClient.clear();
+    {
+        std::lock_guard lock(mLock);
+        deinitializeBufferPoolLocked();
+        mStreamState.clear();
+        mCameraClient.clear();
+    }
 }
 
 std::shared_ptr<IEvsEnumerator> MockEvsHal::getEnumerator() {
@@ -208,13 +224,16 @@ void MockEvsHal::forwardFrames(size_t numberOfFramesToForward, const std::string
 
         // Mark a buffer in-use.
         mBuffersInUse.push_back(std::move(bufferToUse));
+
+        // Store a recipient before releasing a lock.
+        auto client = it->second;
         l.unlock();
 
         // Forward a duplicated buffer.  This must be done without a lock
         // because a shared data will be modified in doneWithFrame().
         std::vector<BufferDesc> packet;
         packet.push_back(std::move(bufferToForward));
-        it->second->deliverFrame(packet);
+        client->deliverFrame(packet);
 
         LOG(DEBUG) << deviceId << ": " << (count + 1) << "/" << numberOfFramesToForward
                    << " frames are sent";

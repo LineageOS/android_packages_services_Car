@@ -16,6 +16,8 @@
   -->
 <permissions>
     <privapp-permissions package="com.android.car.settings">
+        <permission name="android.car.permission.CAR_CONTROL_AUDIO_SETTINGS"/>
+        <permission name="android.car.permission.CAR_CONTROL_AUDIO_VOLUME"/>
         <permission name="android.permission.ACCESS_CHECKIN_PROPERTIES"/>
         <permission name="android.permission.ACCESS_NOTIFICATIONS"/>
         <permission name="android.permission.BACKUP"/>

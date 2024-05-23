@@ -43,25 +43,30 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
 import android.annotation.NonNull;
+import android.automotive.powerpolicy.internal.ICarPowerPolicyDelegate;
 import android.car.Car;
+import android.car.feature.Flags;
 import android.car.hardware.power.CarPowerManager;
 import android.car.hardware.power.CarPowerPolicy;
 import android.car.hardware.power.CarPowerPolicyFilter;
 import android.car.hardware.power.PowerComponent;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.car.test.mocks.JavaMockitoHelper;
+import android.car.test.util.TemporaryFile;
+import android.car.testapi.FakeRefactoredCarPowerPolicyDaemon;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.frameworks.automotive.powerpolicy.internal.ICarPowerPolicySystemNotification;
 import android.hardware.automotive.vehicle.VehicleApPowerStateReq;
 import android.hardware.automotive.vehicle.VehicleApPowerStateShutdownParam;
+import android.os.IInterface;
 import android.os.UserManager;
-import android.test.suitebuilder.annotation.SmallTest;
 import android.util.AtomicFile;
 import android.util.Log;
 import android.util.SparseBooleanArray;
 
+import androidx.test.filters.SmallTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import com.android.car.R;
@@ -73,7 +78,6 @@ import com.android.car.power.PowerComponentHandler;
 import com.android.car.systeminterface.DisplayInterface;
 import com.android.car.systeminterface.SystemInterface;
 import com.android.car.systeminterface.SystemStateInterface;
-import com.android.car.test.utils.TemporaryFile;
 import com.android.car.user.CarUserService;
 import com.android.compatibility.common.util.PollingCheck;
 import com.android.internal.annotations.GuardedBy;
@@ -102,6 +106,10 @@ public final class CarPowerManagerUnitTest extends AbstractExtendedMockitoTestCa
 
     private final MockDisplayInterface mDisplayInterface = new MockDisplayInterface();
     private final MockSystemStateInterface mSystemStateInterface = new MockSystemStateInterface();
+    private final ICarPowerPolicyDelegate mRefactoredPowerPolicyDaemon =
+            new FakeRefactoredCarPowerPolicyDaemon(
+                    /* fileKernelSilentMode= */ new TemporaryFile("KERNEL_SILENT_FILE"),
+                    /* customComponents= */ null);
 
     @Spy
     private final Context mContext =
@@ -125,6 +133,7 @@ public final class CarPowerManagerUnitTest extends AbstractExtendedMockitoTestCa
     private UserManager mUserManager;
     @Mock
     private CarUserService mCarUserService;
+    //TODO(286303350): replace this with refactored power policy daemon once refactor is complete
     @Mock
     private ICarPowerPolicySystemNotification mPowerPolicyDaemon;
 
@@ -448,11 +457,21 @@ public final class CarPowerManagerUnitTest extends AbstractExtendedMockitoTestCa
                 R.bool.config_enablePassengerDisplayPowerSaving);
         mPowerComponentHandler = new PowerComponentHandler(mContext, mSystemInterface,
                 new AtomicFile(mComponentStateFile.getFile()));
+        IInterface powerPolicyDaemon;
+        if (Flags.carPowerPolicyRefactoring()) {
+            powerPolicyDaemon = mRefactoredPowerPolicyDaemon;
+        } else {
+            powerPolicyDaemon = mPowerPolicyDaemon;
+        }
         mService = new CarPowerManagementService(mContext, mResources, mPowerHal, mSystemInterface,
-                mUserManager, mCarUserService, mPowerPolicyDaemon, mPowerComponentHandler,
-                /* screenOffHandler= */ null, /* silentModeHwStatePath= */ null,
-                /* silentModeKernelStatePath= */ null, /* bootReason= */ null);
+                mUserManager, mCarUserService, powerPolicyDaemon, mPowerComponentHandler,
+                /* featureFlags= */ null, /* screenOffHandler= */ null,
+                /* silentModeHwStatePath= */ null, /* silentModeKernelStatePath= */ null,
+                /* bootReason= */ null);
         mService.init();
+        if (Flags.carPowerPolicyRefactoring()) {
+            mService.initializePowerPolicy();
+        }
         mService.setShutdownTimersForTest(0, 0);
         assertStateReceived(PowerHalService.SET_WAIT_FOR_VHAL, 0);
     }

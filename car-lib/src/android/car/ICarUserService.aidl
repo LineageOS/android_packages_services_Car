@@ -34,7 +34,8 @@ import com.android.car.internal.ResultCallbackImpl;
 
 /** @hide */
 interface ICarUserService {
-    void switchUser(int targetUserId, int timeoutMs, in ResultCallbackImpl<UserSwitchResult> callback);
+    void switchUser(int targetUserId, int timeoutMs,
+      in ResultCallbackImpl<UserSwitchResult> callback, boolean ignoreUxRestriction);
     void logoutUser(int timeoutMs, in ResultCallbackImpl<UserSwitchResult> callback);
     void setUserSwitchUiCallback(in ICarResultReceiver callback);
     void createUser(in UserCreationRequest userCreationRequest, int timeoutMs,

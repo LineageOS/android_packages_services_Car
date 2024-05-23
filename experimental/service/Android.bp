@@ -47,9 +47,6 @@ android_app {
         "car-service-common-util-static-lib",
         "car-experimental-api-static-lib",
     ],
-    lint: {
-        baseline_filename: "lint-baseline.xml",
-    },
 }
 
 //####################################################################################

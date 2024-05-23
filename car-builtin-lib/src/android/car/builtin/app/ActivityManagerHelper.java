@@ -234,6 +234,12 @@ public final class ActivityManagerHelper {
             }
 
             @Override
+            public void onProcessStarted(int pid, int processUid, int packageUid,
+                    String packageName, String processName) {
+                // Not used
+            }
+
+            @Override
             public void onProcessDied(int pid, int uid) throws RemoteException {
                 ProcessObserverCallback.this.onProcessDied(pid, uid);
             }

@@ -16,14 +16,19 @@
 
 package android.car.evs;
 
+import static android.car.feature.Flags.FLAG_CAR_EVS_STREAM_MANAGEMENT;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
+import android.annotation.FlaggedApi;
 import android.annotation.NonNull;
 import android.annotation.SuppressLint;
 import android.annotation.SystemApi;
 import android.car.Car;
 import android.car.annotation.RequiredFeature;
+import android.car.evs.CarEvsManager;
+import android.car.evs.CarEvsManager.CarEvsServiceType;
+import android.car.feature.Flags;
 import android.hardware.HardwareBuffer;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -57,6 +62,8 @@ public final class CarEvsBufferDescriptor implements Parcelable, AutoCloseable {
             };
 
     private final int mId;
+    // This field shouldn't be accessed if CAR_EVS_STREAM_MANAGEMENT flag is not true.
+    private final @CarEvsServiceType int mType;
 
     @NonNull
     private final HardwareBuffer mHardwareBuffer;
@@ -69,15 +76,31 @@ public final class CarEvsBufferDescriptor implements Parcelable, AutoCloseable {
      * @param buffer Hardware buffer that contains the imagery data from EVS service.
      */
     public CarEvsBufferDescriptor(int id, @NonNull final HardwareBuffer buffer) {
+        this(id, Flags.carEvsStreamManagement() ?
+                CarEvsManager.SERVICE_TYPE_UNKNOWN : CarEvsManager.SERVICE_TYPE_REARVIEW, buffer);
+    }
+
+    /**
+     * Creates a {@link CarEvsBufferDescriptor} given an unique identifier and
+     * {@link android.hardware.HardwareBuffer}.
+     *
+     * @param id A 32-bit integer to uniquely identify associated hardware buffer.
+     * @param buffer Hardware buffer that contains the imagery data from EVS service.
+     */
+    @FlaggedApi(FLAG_CAR_EVS_STREAM_MANAGEMENT)
+    public CarEvsBufferDescriptor(int id, @CarEvsServiceType int type,
+            @NonNull HardwareBuffer buffer) {
         Objects.requireNonNull(buffer, "HardwardBuffer cannot be null.");
 
         mId = id;
         mHardwareBuffer = buffer;
+        mType = type;
     }
 
     /** Parcelable methods */
     private CarEvsBufferDescriptor(final Parcel in) {
         mId = in.readInt();
+        mType = in.readInt();
         mHardwareBuffer = Objects.requireNonNull(HardwareBuffer.CREATOR.createFromParcel(in));
     }
 
@@ -90,6 +113,7 @@ public final class CarEvsBufferDescriptor implements Parcelable, AutoCloseable {
     @Override
     public void writeToParcel(@NonNull final Parcel dest, final int flags) {
         dest.writeInt(mId);
+        dest.writeInt(mType);
         mHardwareBuffer.writeToParcel(dest, flags);
     }
 
@@ -134,5 +158,15 @@ public final class CarEvsBufferDescriptor implements Parcelable, AutoCloseable {
     @NonNull
     public HardwareBuffer getHardwareBuffer() {
         return mHardwareBuffer;
+    }
+
+    /**
+     * Returns a type of a camera this buffer is originated from.
+     *
+     * @return {@link CarEvsServiceType}.
+     */
+    @FlaggedApi(FLAG_CAR_EVS_STREAM_MANAGEMENT)
+    public @CarEvsServiceType int getType() {
+        return mType;
     }
 }

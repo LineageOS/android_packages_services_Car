@@ -44,7 +44,7 @@ public class VmsOperationRecorderTest {
     /**
      * Capture messages that VmsOperationRecorder.Writer would normally pass to Log.d(...).
      */
-    class TestWriter extends VmsOperationRecorder.Writer {
+    private static final class TestWriter extends VmsOperationRecorder.Writer {
         public String mMsg;
 
         @Override

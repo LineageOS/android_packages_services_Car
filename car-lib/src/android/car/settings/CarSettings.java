@@ -17,6 +17,7 @@
 package android.car.settings;
 
 import static android.car.feature.Flags.FLAG_CAR_NIGHT_GLOBAL_SETTING;
+import static android.car.feature.Flags.FLAG_PERSIST_AP_SETTINGS;
 
 import android.annotation.FlaggedApi;
 import android.annotation.SystemApi;
@@ -179,6 +180,23 @@ public class CarSettings {
         @FlaggedApi(FLAG_CAR_NIGHT_GLOBAL_SETTING)
         @SystemApi
         public static final String FORCED_DAY_NIGHT_MODE = "android.car.FORCED_DAY_NIGHT_MODE";
+
+        /**
+         * Enables persistent tethering when set to {@code "true"}.
+         *
+         * <p>When enabled, tethering is started when the car is started given that the hotspot
+         * was enabled at shutdown and all tethering sessions will remain on even if no devices are
+         * connected to it.
+         *
+         * <p>When disabled, hotspot will turn off automatically if no devices are connected and
+         * will no longer persist through drives.
+         *
+         * @hide
+         */
+        @FlaggedApi(FLAG_PERSIST_AP_SETTINGS)
+        @SystemApi
+        public static final String ENABLE_PERSISTENT_TETHERING =
+                "android.car.ENABLE_PERSISTENT_TETHERING";
     }
 
     /**

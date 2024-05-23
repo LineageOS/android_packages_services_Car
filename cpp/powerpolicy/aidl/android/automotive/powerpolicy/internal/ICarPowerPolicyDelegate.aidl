@@ -82,12 +82,28 @@ interface ICarPowerPolicyDelegate {
    * @param policyId The new policy ID.
    * @param enabledComponents List of components to be enabled.
    * @param disabledComponents List of components to be disabled.
-   * @throws IllegalArgumentException if the give policy ID or components are invalid.
+   * @throws IllegalArgumentException if the given policy ID or components are invalid.
    * @throws IllegalStateException if it fails to notify power policy definition.
    * @throws SecurityException if the caller doesn't have sufficient permissions.
    */
   void notifyPowerPolicyDefinition(in @utf8InCpp String policyId,
     in @utf8InCpp String[] enabledComponents, in @utf8InCpp String[] disabledComponents);
+
+  /**
+   * CarService uses this method to tell that there is a newly defined power policy group.
+   *
+   * <p>When a new power policy group is defined on the fly through "define-power-policy-group" in
+   * {@code CarShellCommand}, CarService makes sure that the car power policy daemon maintains the
+   * same power policy groups.
+   *
+   * @param policyGroupId The new policy group ID.
+   * @param policyPerState String Array of size 2. Index 0 for WaitForVHAL and index 1 for On. Empty
+   *        string means no power policy for the power state.
+   * @throws IllegalArgumentException if the given policy group ID or mapping is invalid.
+   * @throws SecurityException if the caller doesn't have sufficient permissions.
+   */
+  void notifyPowerPolicyGroupDefinition(in @utf8InCpp String policyGroupId,
+    in String[] powerPolicyPerState);
 
   /**
    * Enumeration of power states, matching those defined in CarPowerManager.
@@ -111,10 +127,17 @@ interface ICarPowerPolicyDelegate {
   }
 
   /**
-   * CarService uses this method to inform the power policy daemon of the system's current power
-   * state.
+   * CarService uses this method to request power policy application according to the power state
+   * change.
    *
+   * <p>This method should return immediately after queueing the request. When the car power policy
+   * daemon finishes applying the power policy for the new power state, it invokes
+   * {@code ICarPowerPolicyDelegateCallback.onApplyPowerPolicySucceeded}.
+   *
+   * @param requestId The request ID for power policy application. Must be unique.
    * @param state The power state.
+   * @throws IllegalArgumentException if {@code state} is not supported.
+   * @throws SecurityException if the caller doesn't have sufficient permissions.
    */
-  void notifyPowerStateChange(in PowerState state);
+  void applyPowerPolicyPerPowerStateChangeAsync(int requestId, in PowerState state);
 }

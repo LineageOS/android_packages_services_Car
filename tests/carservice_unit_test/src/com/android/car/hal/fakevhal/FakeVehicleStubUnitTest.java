@@ -63,7 +63,7 @@ import com.android.car.hal.HalPropConfig;
 import com.android.car.hal.HalPropValue;
 import com.android.car.hal.HalPropValueBuilder;
 import com.android.car.hal.VehicleHalCallback;
-import com.android.car.internal.property.CarPropertyHelper;
+import com.android.car.internal.property.CarPropertyErrorCodes;
 
 import com.google.common.truth.Expect;
 
@@ -1014,7 +1014,7 @@ public class FakeVehicleStubUnitTest {
         expect.that(setVehicleStubAsyncResult.getServiceRequestId())
                 .isEqualTo(newAsyncGetResult.getServiceRequestId());
         expect.that(setVehicleStubAsyncResult.getErrorCode())
-                .isEqualTo(CarPropertyHelper.STATUS_OK);
+                .isEqualTo(CarPropertyErrorCodes.STATUS_OK);
         expect.that(updatedPropValue.getFloatValue(0)).isEqualTo(10.0f);
         expect.that(updatedPropValue.getFloatValue(0)).isNotEqualTo(oldPropValue.getFloatValue(0));
         expect.that(updatedPropValue.getTimestamp()).isNotEqualTo(oldPropValue.getTimestamp());

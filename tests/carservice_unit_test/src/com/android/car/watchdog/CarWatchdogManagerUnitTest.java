@@ -21,9 +21,12 @@ import static android.car.watchdog.CarWatchdogManager.STATS_PERIOD_CURRENT_DAY;
 import static android.car.watchdog.CarWatchdogManager.TIMEOUT_CRITICAL;
 import static android.car.watchdog.ResourceOveruseConfiguration.COMPONENT_TYPE_SYSTEM;
 
+import static com.android.dx.mockito.inline.extended.ExtendedMockito.doAnswer;
+
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
+import static org.junit.Assume.assumeTrue;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.eq;
@@ -48,6 +51,8 @@ import android.car.watchdog.PerStateBytes;
 import android.car.watchdog.ResourceOveruseConfiguration;
 import android.car.watchdog.ResourceOveruseStats;
 import android.content.Context;
+import android.content.pm.ApplicationInfo;
+import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
@@ -58,6 +63,9 @@ import android.util.ArrayMap;
 
 import androidx.test.platform.app.InstrumentationRegistry;
 
+import com.google.common.util.concurrent.SettableFuture;
+
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -71,7 +79,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
+import java.util.concurrent.TimeUnit;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CarWatchdogManagerUnitTest {
@@ -85,6 +95,8 @@ public class CarWatchdogManagerUnitTest {
     private final Executor mExecutor = mContext.getMainExecutor();
 
     @Mock private Car mCar;
+    @Mock private Context mCarContext;
+    @Mock private ApplicationInfo mApplicationInfo;
     @Mock private IBinder mBinder;
     @Mock private ICarWatchdogService mService;
 
@@ -92,11 +104,19 @@ public class CarWatchdogManagerUnitTest {
 
     @Before
     public void setUp() {
+        when(mCar.getContext()).thenReturn(mCarContext);
+        mApplicationInfo.targetSdkVersion = Build.VERSION_CODES.CUR_DEVELOPMENT;
+        when(mCarContext.getApplicationInfo()).thenReturn(mApplicationInfo);
         when(mCar.getEventHandler()).thenReturn(mMainHandler);
         when(mCar.handleRemoteExceptionFromCarService(any(RemoteException.class), any()))
                 .thenCallRealMethod();
         when(mBinder.queryLocalInterface(anyString())).thenReturn(mService);
         mCarWatchdogManager = new CarWatchdogManager(mCar, mBinder);
+    }
+
+    @After
+    public void tearDown() {
+        mApplicationInfo.targetSdkVersion = Build.VERSION_CODES.CUR_DEVELOPMENT;
     }
 
     @Test
@@ -126,6 +146,102 @@ public class CarWatchdogManagerUnitTest {
         mCarWatchdogManager.registerClient(mExecutor, client1, TIMEOUT_CRITICAL);
         assertThrows(IllegalStateException.class,
                 () -> mCarWatchdogManager.registerClient(mExecutor, client2, TIMEOUT_CRITICAL));
+    }
+
+    @Test
+    public void testRegisterUnregisterClientRaceConditionPostUdc() throws Exception {
+        assumeTrue("Current development version is > UPSIDE_DOWN_CAKE",
+                Build.VERSION_CODES.CUR_DEVELOPMENT > Build.VERSION_CODES.UPSIDE_DOWN_CAKE);
+
+        TestClient client = new TestClient();
+        CountDownLatch registerClientLatch = new CountDownLatch(1);
+        CountDownLatch unregisterClientLatch = new CountDownLatch(1);
+        doAnswer((args) -> {
+            // Trigger CarWatchdogManager.unregisterClient call only after the registerClient call
+            // is blocked on the service side.
+            unregisterClientLatch.countDown();
+
+            // In order to ensure that the unregisterClient call is completed, wait unit
+            // the unregisterClient call is returned.
+            registerClientLatch.await(MAX_WAIT_TIME_MS, TimeUnit.MILLISECONDS);
+            return null;
+        }).when(mService).registerClient(any(), eq(TIMEOUT_CRITICAL));
+
+        final SettableFuture<ICarWatchdogServiceCallback> clientImplFuture =
+                SettableFuture.create();
+        mMainHandler.post(() -> {
+            try {
+                clientImplFuture.set(registerClient(client));
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        });
+
+        // In order to trigger `ClientInfo.isRegistrationInProgressLocked()` == `true`, wait until
+        // the registerClient call is blocked.
+        unregisterClientLatch.await(MAX_WAIT_TIME_MS, TimeUnit.MILLISECONDS);
+
+        // IllegalStateException thrown on target SDK post UPSIDE_DOWN_CAKE.
+        assertThrows(IllegalStateException.class,
+                () -> mCarWatchdogManager.unregisterClient(client));
+
+        // Unblock CarWatchdogManager.registerClient only after the unregisterClient has returned.
+        registerClientLatch.countDown();
+
+        ICarWatchdogServiceCallback clientImpl = clientImplFuture.get(MAX_WAIT_TIME_MS,
+                TimeUnit.MILLISECONDS);
+        verify(mService, never()).unregisterClient(clientImpl);
+
+        clientImpl.onCheckHealthStatus(123456, TIMEOUT_CRITICAL);
+
+        verify(mService, timeout(MAX_WAIT_TIME_MS)).tellClientAlive(clientImpl, 123456);
+    }
+
+    @Test
+    public void testRegisterUnregisterClientRaceConditionPreVic() throws Exception {
+        mApplicationInfo.targetSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE;
+
+        TestClient client = new TestClient();
+        CountDownLatch registerClientLatch = new CountDownLatch(1);
+        CountDownLatch unregisterClientLatch = new CountDownLatch(1);
+        doAnswer((args) -> {
+            // Trigger CarWatchdogManager.unregisterClient call only after the registerClient call
+            // is blocked on the service side.
+            unregisterClientLatch.countDown();
+
+            // In order to ensure that the unregisterClient call is completed, wait unit
+            // the unregisterClient call is returned.
+            registerClientLatch.await(MAX_WAIT_TIME_MS, TimeUnit.MILLISECONDS);
+            return null;
+        }).when(mService).registerClient(any(), eq(TIMEOUT_CRITICAL));
+
+        final SettableFuture<ICarWatchdogServiceCallback> clientImplFuture =
+                SettableFuture.create();
+        mMainHandler.post(() -> {
+            try {
+                clientImplFuture.set(registerClient(client));
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        });
+
+        // In order to trigger `ClientInfo.isRegistrationInProgressLocked()` == `true`, wait until
+        // the registerClient call is blocked.
+        unregisterClientLatch.await(MAX_WAIT_TIME_MS, TimeUnit.MILLISECONDS);
+
+        // No exception thrown on target SDK prior to VANILLA_ICE_CREAM.
+        mCarWatchdogManager.unregisterClient(client);
+
+        // Unblock CarWatchdogManager.registerClient only after the unregisterClient has returned.
+        registerClientLatch.countDown();
+
+        ICarWatchdogServiceCallback clientImpl = clientImplFuture.get(MAX_WAIT_TIME_MS,
+                TimeUnit.MILLISECONDS);
+        verify(mService, never()).unregisterClient(clientImpl);
+
+        clientImpl.onCheckHealthStatus(123456, TIMEOUT_CRITICAL);
+
+        verify(mService, timeout(MAX_WAIT_TIME_MS)).tellClientAlive(clientImpl, 123456);
     }
 
     @Test

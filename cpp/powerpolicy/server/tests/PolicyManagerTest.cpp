@@ -733,6 +733,42 @@ TEST_F(PolicyManagerTest, TestGetRegisteredPolicies) {
     ASSERT_TRUE(comparePolicies(powerPolicies, expectedPolicies));
 }
 
+TEST_F(PolicyManagerTest, TestDefinePowerPolicyGroup) {
+    PolicyManager policyManager;
+    internal::PolicyManagerPeer policyManagerPeer(&policyManager);
+    policyManagerPeer.expectValidPowerPolicyXML(kValidPowerPolicyXmlFile);
+
+    const auto ret = policyManager.definePowerPolicyGroup("new_policy_group",
+                                                          {"policy_id_other_off",
+                                                           "policy_id_other_untouched"});
+
+    ASSERT_TRUE(ret.ok()) << "New policy group should be defined";
+}
+
+TEST_F(PolicyManagerTest, TestDefinePowerPolicyGroup_doubleRegistration) {
+    PolicyManager policyManager;
+    internal::PolicyManagerPeer policyManagerPeer(&policyManager);
+    policyManagerPeer.expectValidPowerPolicyXML(kValidPowerPolicyXmlFile);
+
+    const auto ret = policyManager.definePowerPolicyGroup("basic_policy_group",
+                                                          {"policy_id_other_off",
+                                                           "policy_id_other_untouched"});
+
+    ASSERT_FALSE(ret.ok()) << "Policy group with the same ID cannot be defined";
+}
+
+TEST_F(PolicyManagerTest, TestDefinePowerPolicyGroup_unregisteredPowerPolicy) {
+    PolicyManager policyManager;
+    internal::PolicyManagerPeer policyManagerPeer(&policyManager);
+    policyManagerPeer.expectValidPowerPolicyXML(kValidPowerPolicyXmlFile);
+
+    const auto ret = policyManager.definePowerPolicyGroup("new_policy_group",
+                                                          {"policy_id_other_off",
+                                                           "unregistered_power_policy"});
+
+    ASSERT_FALSE(ret.ok()) << "Policy group having unregistered power policy cannot be defined";
+}
+
 }  // namespace test
 }  // namespace powerpolicy
 }  // namespace automotive

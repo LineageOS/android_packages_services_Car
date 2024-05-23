@@ -16,10 +16,11 @@
 
 package android.car.apitest;
 
-import android.car.PortLocationType;
-import android.test.suitebuilder.annotation.SmallTest;
-
 import static com.google.common.truth.Truth.assertThat;
+
+import android.car.PortLocationType;
+
+import androidx.test.filters.SmallTest;
 
 import com.android.compatibility.common.util.ApiTest;
 

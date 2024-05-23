@@ -87,19 +87,25 @@ public final class CarAudioGainMonitorTest extends AbstractExtendedMockitoTestCa
             new CarVolumeGroupInfo.Builder("group id " + TEST_GROUP_ID, PRIMARY_ZONE_ID,
                     TEST_GROUP_ID).setMinVolumeGainIndex(0)
                     .setMaxVolumeGainIndex(MAX_GAIN / STEP_SIZE)
-                    .setVolumeGainIndex(DEFAULT_GAIN / STEP_SIZE).build();
+                    .setVolumeGainIndex(DEFAULT_GAIN / STEP_SIZE)
+                    .setMinActivationVolumeGainIndex(0)
+                    .setMaxActivationVolumeGainIndex(MAX_GAIN / STEP_SIZE).build();
 
     private static final CarVolumeGroupInfo TEST_PASSENGER_VOLUME_INFO =
             new CarVolumeGroupInfo.Builder("group id " + TEST_GROUP_ID, PASSENGER_ZONE_ID,
                     TEST_GROUP_ID).setMinVolumeGainIndex(0)
                     .setMaxVolumeGainIndex(MAX_GAIN / STEP_SIZE)
-                    .setVolumeGainIndex(DEFAULT_GAIN / STEP_SIZE).build();
+                    .setVolumeGainIndex(DEFAULT_GAIN / STEP_SIZE)
+                    .setMinActivationVolumeGainIndex(0)
+                    .setMaxActivationVolumeGainIndex(MAX_GAIN / STEP_SIZE).build();
 
     private static final CarVolumeGroupInfo TEST_REAR_VOLUME_INFO =
             new CarVolumeGroupInfo.Builder("group id " + TEST_GROUP_ID, REAR_ZONE_ID,
                     TEST_GROUP_ID).setMinVolumeGainIndex(0)
                     .setMaxVolumeGainIndex(MAX_GAIN / STEP_SIZE)
-                    .setVolumeGainIndex(DEFAULT_GAIN / STEP_SIZE).build();
+                    .setVolumeGainIndex(DEFAULT_GAIN / STEP_SIZE)
+                    .setMinActivationVolumeGainIndex(0)
+                    .setMaxActivationVolumeGainIndex(MAX_GAIN / STEP_SIZE).build();
 
     private static final CarVolumeGroupEvent TEST_PRIMARY_VOLUME_GROUP_EVENT =
             new CarVolumeGroupEvent.Builder(List.of(TEST_PRIMARY_VOLUME_INFO),
@@ -142,26 +148,26 @@ public final class CarAudioGainMonitorTest extends AbstractExtendedMockitoTestCa
                 NullPointerException.class,
                 () ->
                         new CarAudioGainMonitor(
-                                /* AudioControlWrapper= */ null, mMockVolumeInfoWrapper,
-                                /* SparseArray<CarAudioZone>= */ null));
+                                /* audioControlWrapper= */ null, mMockVolumeInfoWrapper,
+                                /* carAudioZones= */ null));
 
         assertThrows(
                 NullPointerException.class,
                 () ->
                         new CarAudioGainMonitor(
                                 mAudioControlWrapperAidl, mMockVolumeInfoWrapper,
-                                /* SparseArray<CarAudioZone>= */ null));
+                                /* carAudioZones= */ null));
 
         assertThrows(
                 NullPointerException.class,
-                () -> new CarAudioGainMonitor(/* AudioControlWrapper= */ null,
+                () -> new CarAudioGainMonitor(/* audioControlWrapper= */ null,
                         mMockVolumeInfoWrapper, mCarAudioZones));
     }
 
     @Test
     public void constructor_nullCarVolumeInfoWrapper_fails() {
         Throwable thrown = assertThrows(NullPointerException.class, () -> new CarAudioGainMonitor(
-                mAudioControlWrapperAidl, /* CarVolumeInfoWrapper= */ null, mCarAudioZones));
+                mAudioControlWrapperAidl, /* carVolumeInfoWrapper= */ null, mCarAudioZones));
 
         expectWithMessage("Constructor exception")
                 .that(thrown).hasMessageThat().contains("Car volume info wrapper can not be null");

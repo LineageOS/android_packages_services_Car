@@ -1,6 +1,14 @@
 package: "android.car.feature"
 container: "system"
 
+# CarUserManager
+flag {
+  name: "switch_user_ignoring_uxr"
+  namespace: "car_framework"
+  description: "Allow user switching ignoring the Ux Restrictions."
+  bug: "320545306"
+}
+
 # CarPackageManager
 flag {
   name: "display_compatibility"
@@ -41,6 +49,27 @@ flag {
   bug: "305301155"
 }
 
+flag {
+    name: "car_audio_min_max_activation_volume"
+    namespace: "car_framework"
+    description: "Controls whether car audio can be configured with min/max activation volume"
+    bug: "310667172"
+}
+
+flag {
+    name: "car_audio_mute_ambiguity"
+    namespace: "car_framework"
+    description: "Controls whether mute ambiguity API works on car audio system"
+    bug: "321063661"
+}
+
+flag {
+    name: "car_audio_fade_manager_configuration"
+    namespace: "car_framework"
+    description: "Controls whether car audio can be configured with fade manager configurations"
+    bug: "315695829"
+}
+
 # CarPropertyManager
 flag {
   name: "batched_subscriptions"
@@ -54,6 +83,20 @@ flag {
   namespace: "car_framework"
   description: "Controls whether to enable variable update rate for subscription"
   bug: "300700719"
+}
+
+flag {
+  name: "area_id_config_access"
+  namespace: "car_framework"
+  description: "Controls whether apps can use the new access level APIs added to AreaIdConfig"
+  bug: "290801790"
+}
+
+flag {
+  name: "subscription_with_resolution"
+  namespace: "car_framework"
+  description: "Controls whether to round incoming property events to the resolution requested"
+  bug: "276124296"
 }
 
 # CarServiceBase
@@ -86,4 +129,51 @@ flag {
   namespace: "car_framework"
   description: "Controls whether to use global settings to control the day/night mode configuration"
   bug: "260762437"
+}
+
+# CarWifiService
+flag {
+  name: "persist_ap_settings"
+  namespace: "car_framework"
+  description: "Controls whether car persist ap settings can be configured"
+  bug: "301660611"
+}
+
+# CarWatchdogDaemon
+flag {
+  name: "car_watchdog_memory_profiling"
+  namespace: "car_framework"
+  description: "Controls the memory profiling feature in CarWatchdog daemon"
+  bug: "289113707"
+}
+
+# CarEvsService
+flag {
+  name: "car_evs_stream_management"
+  namespace: "car_framework"
+  description: "Allows clients to stop stream individually and identify the origin of delivered framebuffers from CarEvsBufferDescriptor"
+  bug: "293810167"
+}
+
+flag {
+  name: "car_evs_query_service_status"
+  namespace: "car_framework"
+  description: "Retrieves current status of each CarEvsService type individually"
+  bug: "320766863"
+}
+
+# CarPropertyErrorCodes
+flag {
+  name: "car_property_detailed_error_codes"
+  namespace: "car_framework"
+  description: "Enables use of detailed error codes for CarPropertyManager async APIs"
+  bug: "274165552"
+}
+
+# CarPropertyValue
+flag {
+  name: "car_property_value_property_status"
+  namespace: "car_framework"
+  description: "Enables use of new property status API"
+  bug: "326109669"
 }

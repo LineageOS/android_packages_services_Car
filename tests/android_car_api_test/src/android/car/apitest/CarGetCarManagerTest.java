@@ -25,6 +25,7 @@ import android.car.CarProjectionManager;
 import android.car.CarRemoteDeviceManager;
 import android.car.admin.CarDevicePolicyManager;
 import android.car.app.CarActivityManager;
+import android.car.app.CarDisplayCompatManager;
 import android.car.cluster.CarInstrumentClusterManager;
 import android.car.cluster.ClusterHomeManager;
 import android.car.content.pm.CarPackageManager;
@@ -32,6 +33,7 @@ import android.car.diagnostic.CarDiagnosticManager;
 import android.car.drivingstate.CarDrivingStateManager;
 import android.car.drivingstate.CarUxRestrictionsManager;
 import android.car.evs.CarEvsManager;
+import android.car.feature.Flags;
 import android.car.hardware.CarSensorManager;
 import android.car.hardware.CarVendorExtensionManager;
 import android.car.hardware.cabin.CarCabinManager;
@@ -53,6 +55,7 @@ import android.car.user.ExperimentalCarUserManager;
 import android.car.vms.VmsClientManager;
 import android.car.vms.VmsSubscriberManager;
 import android.car.watchdog.CarWatchdogManager;
+import android.car.wifi.CarWifiManager;
 
 import com.android.compatibility.common.util.ApiTest;
 
@@ -60,6 +63,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -76,7 +80,7 @@ public final class CarGetCarManagerTest extends CarLessApiTestBase {
 
     @Parameterized.Parameters
     public static List<Object[]> inputParameters() {
-        return Arrays.asList(new Object[][] {
+        List<Object[]> data = new ArrayList<>(Arrays.asList(new Object[][] {
             {CarSensorManager.class, Car.SENSOR_SERVICE},
             {CarInfoManager.class, Car.INFO_SERVICE},
             {CarAppFocusManager.class, Car.APP_FOCUS_SERVICE},
@@ -113,7 +117,21 @@ public final class CarGetCarManagerTest extends CarLessApiTestBase {
             {CarInstrumentClusterManager.class, Car.CAR_INSTRUMENT_CLUSTER_SERVICE},
             {OccupantAwarenessManager.class, Car.OCCUPANT_AWARENESS_SERVICE},
             {CarActivityManager.class, Car.CAR_ACTIVITY_SERVICE}
-        });
+        }));
+
+        if (Flags.persistApSettings()) {
+            data.add(new Object[]{
+                    CarWifiManager.class, Car.CAR_WIFI_SERVICE
+            });
+        }
+
+        if (Flags.displayCompatibility()) {
+            data.add(new Object[] {
+                    CarDisplayCompatManager.class, Car.CAR_DISPLAY_COMPAT_SERVICE
+            });
+        }
+
+        return data;
     }
 
     @Test

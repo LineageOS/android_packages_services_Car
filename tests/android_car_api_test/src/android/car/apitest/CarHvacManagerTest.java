@@ -22,8 +22,9 @@ import android.car.Car;
 import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.hvac.CarHvacManager;
 import android.hardware.automotive.vehicle.VehicleHvacFanDirection;
-import android.test.suitebuilder.annotation.MediumTest;
 import android.util.Log;
+
+import androidx.test.filters.MediumTest;
 
 import org.junit.Before;
 import org.junit.Test;

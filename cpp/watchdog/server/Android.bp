@@ -31,7 +31,10 @@ cc_defaults {
     include_dirs: [
         "system/libbase/include",
     ],
-    generated_headers: ["gen-native-dump-proto-headers", "gen-native-dump-cppstream-proto-headers"],
+    generated_headers: [
+        "gen-native-dump-proto-headers",
+        "gen-native-dump-cppstream-proto-headers",
+    ],
     shared_libs: [
         "libbase",
         "libbinder",
@@ -57,35 +60,35 @@ cc_defaults {
 }
 
 cc_library {
-  name: "libwatchdog_looper_wrapper",
-  srcs: [
-      "src/LooperWrapper.cpp",
-  ],
-  defaults: [
-      "carwatchdogd_defaults",
-  ],
-  export_include_dirs: [
-       "src",
-  ],
+    name: "libwatchdog_looper_wrapper",
+    srcs: [
+        "src/LooperWrapper.cpp",
+    ],
+    defaults: [
+        "carwatchdogd_defaults",
+    ],
+    export_include_dirs: [
+        "src",
+    ],
 }
 
 cc_library {
-  name: "libwatchdog_package_info_resolver",
-  srcs: [
-      "src/PackageInfoResolver.cpp",
-  ],
-  defaults: [
-      "carwatchdogd_defaults",
-  ],
-  whole_static_libs: [
-      "libwatchdog_looper_wrapper",
-  ],
-  shared_libs: [
-      "libprocessgroup",
-  ],
-  export_include_dirs: [
-       "src",
-  ],
+    name: "libwatchdog_package_info_resolver",
+    srcs: [
+        "src/PackageInfoResolver.cpp",
+    ],
+    defaults: [
+        "carwatchdogd_defaults",
+    ],
+    whole_static_libs: [
+        "libwatchdog_looper_wrapper",
+    ],
+    shared_libs: [
+        "libprocessgroup",
+    ],
+    export_include_dirs: [
+        "src",
+    ],
 }
 
 cc_defaults {

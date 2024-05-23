@@ -95,6 +95,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -649,6 +651,24 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
         synchronized (mLock) {
             return mRestrictionMode;
         }
+    }
+
+    /**
+     * Returns all supported restriction modes
+     */
+    @NonNull
+    public List<String> getSupportedRestrictionModes() {
+        Set<String> modes = new HashSet<>();
+        Collection<CarUxRestrictionsConfiguration> configs;
+        synchronized (mLock) {
+            configs = mCarUxRestrictionsConfigurations.values();
+        }
+
+        for (CarUxRestrictionsConfiguration config : configs) {
+            modes.addAll(config.getSupportedRestrictionModes());
+        }
+
+        return new ArrayList<>(modes);
     }
 
     /**

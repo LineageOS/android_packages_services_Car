@@ -68,10 +68,11 @@ android_app {
     ],
 
     libs: [
-        "android.car"
+        "android.car",
     ],
 
-    required: ["allowed_privapp_com.google.android.car.kitchensink",
-               "default-permissions-com.google.android.car.kitchensink.xml",
-              ],
+    required: [
+        "allowed_privapp_com.google.android.car.kitchensink",
+        "default-permissions-com.google.android.car.kitchensink.xml",
+    ],
 }

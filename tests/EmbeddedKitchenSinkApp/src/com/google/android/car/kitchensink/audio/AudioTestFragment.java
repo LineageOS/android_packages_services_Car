@@ -22,13 +22,16 @@ import static android.car.CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION;
 import static android.car.CarAppFocusManager.APP_FOCUS_TYPE_VOICE_COMMAND;
 import static android.car.media.CarAudioManager.AUDIOFOCUS_EXTRA_REQUEST_ZONE_ID;
 import static android.car.media.CarAudioManager.AUDIO_FEATURE_DYNAMIC_ROUTING;
-import static android.car.media.CarAudioManager.CONFIG_STATUS_AUTO_SWITCHED;
 import static android.car.media.CarAudioManager.PRIMARY_AUDIO_ZONE;
 import static android.media.AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE;
 import static android.media.AudioAttributes.USAGE_ASSISTANCE_SONIFICATION;
 import static android.media.AudioAttributes.USAGE_ASSISTANT;
 import static android.media.AudioAttributes.USAGE_MEDIA;
 import static android.media.AudioAttributes.USAGE_VOICE_COMMUNICATION;
+import static android.media.AudioDeviceInfo.TYPE_BLE_BROADCAST;
+import static android.media.AudioDeviceInfo.TYPE_BLE_HEADSET;
+import static android.media.AudioDeviceInfo.TYPE_BLE_SPEAKER;
+import static android.media.AudioDeviceInfo.TYPE_BLUETOOTH_A2DP;
 import static android.media.AudioManager.AUDIOFOCUS_GAIN;
 import static android.media.AudioManager.AUDIOFOCUS_GAIN_TRANSIENT;
 import static android.media.AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE;
@@ -47,23 +50,21 @@ import static com.google.android.car.kitchensink.R.raw.ring_classic_01;
 import static com.google.android.car.kitchensink.R.raw.turnright;
 import static com.google.android.car.kitchensink.R.raw.well_worth_the_wait;
 import static com.google.android.car.kitchensink.audio.AudioPlayer.PLAYER_STATE_COMPLETED;
+import static com.google.android.car.kitchensink.audio.AudioUtils.getCurrentZoneId;
 
-import android.annotation.Nullable;
+import android.Manifest;
 import android.car.Car;
 import android.car.CarAppFocusManager;
 import android.car.CarAppFocusManager.OnAppFocusChangedListener;
 import android.car.CarAppFocusManager.OnAppFocusOwnershipCallback;
 import android.car.CarOccupantZoneManager;
 import android.car.feature.Flags;
-import android.car.media.AudioZoneConfigurationsChangeCallback;
 import android.car.media.CarAudioManager;
 import android.car.media.CarAudioZoneConfigInfo;
-import android.car.media.SwitchAudioZoneConfigCallback;
+import android.car.media.CarVolumeGroupInfo;
 import android.content.Context;
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageManager;
-import android.graphics.Color;
 import android.media.AudioAttributes;
+import android.media.AudioDeviceAttributes;
 import android.media.AudioDeviceInfo;
 import android.media.AudioFocusRequest;
 import android.media.AudioManager;
@@ -87,16 +88,13 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
-import androidx.viewpager.widget.ViewPager;
 
 import com.android.internal.util.Preconditions;
 
 import com.google.android.car.kitchensink.R;
 import com.google.android.car.kitchensink.audio.AudioPlayer.PlayStateListener;
-import com.google.android.material.tabs.TabLayout;
+import com.google.android.car.kitchensink.bluetooth.BluetoothPermissionChecker;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -136,9 +134,6 @@ public class AudioTestFragment extends Fragment {
     @GuardedBy("mLock")
     private AudioTrackPlayer mAudioTrackPlayer;
 
-    @GuardedBy("mLock")
-    private CarAudioZoneConfigInfo mZoneConfigInfoSelected;
-
     private Handler mHandler;
     private Context mContext;
 
@@ -157,15 +152,7 @@ public class AudioTestFragment extends Fragment {
     private Spinner mDeviceAddressSpinner;
     private ArrayAdapter<CarAudioZoneDeviceInfo> mDeviceAddressAdapter;
     private LinearLayout mDeviceAddressLayout;
-    private Spinner mZoneConfigurationSpinner;
-    private LinearLayout mZoneConfigurationLayout;
-    private ArrayAdapter<CarAudioZoneConfigInfoWrapper> mZoneConfigurationAdapter;
-    @GuardedBy("mLock")
-    private TextView mCurrentZoneConfigurationView;
-
-    private TabLayout mPlayerTabLayout;
-    private ViewPager mViewPager;
-    private CarAudioZoneTabAdapter mAudioPlayerZoneAdapter;
+    private boolean mDeviceAddressAvailable = false;
 
     private final Object mLock = new Object();
 
@@ -195,20 +182,6 @@ public class AudioTestFragment extends Fragment {
                 }
     };
 
-    private final SwitchAudioZoneConfigCallback mSwitchAudioZoneConfigCallback =
-            new SwitchAudioZoneConfigCallback() {
-                @Override
-                public void onAudioZoneConfigSwitched(@NonNull CarAudioZoneConfigInfo zoneConfig,
-                        boolean isSuccessful) {
-                    Log.i(TAG, "Car audio zone switching to " + zoneConfig + " successful? "
-                            + isSuccessful);
-                    if (!isSuccessful) {
-                        return;
-                    }
-                    updateSelecedtAudioZoneConfig(zoneConfig);
-                }
-            };
-
     private final PlayStateListener mNavigationStateListener = (state) -> {
         if (state == PLAYER_STATE_COMPLETED) {
             mAppFocusManager.abandonAppFocus(mOwnershipCallbacks, APP_FOCUS_TYPE_NAVIGATION);
@@ -216,8 +189,9 @@ public class AudioTestFragment extends Fragment {
     };
 
     private VolumeKeyEventsButtonManager mVolumeKeyEventHandler;
+    private ZoneConfigSelectionController mZoneConfigController;
 
-    private void connectCar() {
+    private void connectCar(View view) {
         mContext = getContext();
         mHandler = new Handler(Looper.getMainLooper());
         mCar = Car.createCar(mContext, /* handler= */ null,
@@ -236,13 +210,76 @@ public class AudioTestFragment extends Fragment {
                     mAppFocusManager.addFocusListener(listener, APP_FOCUS_TYPE_VOICE_COMMAND);
 
                     mCarAudioManager = (CarAudioManager) car.getCarManager(Car.AUDIO_SERVICE);
-
+                    handleBluetoothPermissionIfNeeded();
                     handleSetUpZoneSelection();
 
-                    handleSetUpZoneConfigurationSelection();
-
-                    setUpDeviceAddressPlayer();
+                    handleSetUpZoneConfigurationSelection(view);
                 });
+    }
+
+    private void handleBluetoothPermissionIfNeeded() {
+        for (int zoneId : mCarAudioManager.getAudioZoneIds()) {
+            List<CarAudioZoneConfigInfo> infos = mCarAudioManager.getAudioZoneConfigInfos(zoneId);
+            if (!infos.stream().anyMatch(info-> configHasBluetoothDevice(info))) {
+                continue;
+            }
+            checkBluetoothPermissions();
+            return;
+        }
+        setBluetoothAvailable(true);
+    }
+
+    private boolean configHasBluetoothDevice(CarAudioZoneConfigInfo info) {
+        return Flags.carAudioDynamicDevices()
+                && info.getConfigVolumeGroups().stream()
+                .anyMatch(group -> groupHasBluetoothDevice(group));
+    }
+
+    private boolean groupHasBluetoothDevice(CarVolumeGroupInfo group) {
+        return group.getAudioDeviceAttributes().stream()
+                .anyMatch(device-> isBluetoothDevice(device));
+    }
+
+    private boolean isBluetoothDevice(AudioDeviceAttributes device) {
+        switch (device.getType()) {
+            case TYPE_BLUETOOTH_A2DP: // fall through
+            case TYPE_BLE_HEADSET: // fall through
+            case TYPE_BLE_SPEAKER: // fall through
+            case TYPE_BLE_BROADCAST:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    private void checkBluetoothPermissions() {
+        if (!BluetoothPermissionChecker.isPermissionGranted(getActivity(),
+                Manifest.permission.BLUETOOTH_CONNECT)) {
+            BluetoothPermissionChecker.requestPermission(Manifest.permission.BLUETOOTH_CONNECT,
+                    this, () -> setBluetoothAvailable(true),
+                    () -> setBluetoothAvailable(false));
+            return;
+        }
+        setBluetoothAvailable(true);
+    }
+
+    private void setBluetoothAvailable(boolean hasPermission) {
+        // Since there is an existing BT device available
+        // the fragment must rely on having BT permission to find it.
+        mDeviceAddressAvailable = hasPermission;
+        setUpDeviceAddressPlayer();
+    }
+
+    private void handleSetUpZoneConfigurationSelection(View view) {
+        Log.e(TAG, "Setup car audio zone config selection view");
+        try {
+            mZoneConfigController = new ZoneConfigSelectionController(view, mCarAudioManager,
+                    mContext, getCurrentZoneId(mContext, mCarAudioManager),
+                    (autoSelected) -> updateDeviceAddressPlayer(),
+                    /* configUpdatedListener= */ null);
+        } catch (Exception e) {
+            Log.e(TAG, "Failed to setup car audio zone config selection view", e);
+        }
     }
 
     @Override
@@ -252,11 +289,9 @@ public class AudioTestFragment extends Fragment {
         //Zone Spinner
         setUpZoneSpinnerView(view);
 
-        setUpZoneConfigurationSpinnerView(view);
-
         setUpDeviceAddressLayoutView(view);
 
-        connectCar();
+        connectCar(view);
         setUpTrackToneSpinnerView(view);
         setUpCarSoundsLayouts(view);
         initializePlayers();
@@ -264,8 +299,7 @@ public class AudioTestFragment extends Fragment {
         TextView currentZoneIdTextView = view.findViewById(R.id.activity_current_zone);
         setActivityCurrentZoneId(currentZoneIdTextView);
 
-        mAudioManager = (AudioManager) mContext.getSystemService(
-                Context.AUDIO_SERVICE);
+        mAudioManager = mContext.getSystemService(AudioManager.class);
         mAudioFocusHandler = new FocusHandler(
                 view.findViewById(R.id.button_focus_request_selection),
                 view.findViewById(R.id.button_audio_focus_request),
@@ -400,11 +434,6 @@ public class AudioTestFragment extends Fragment {
                 (v) -> mVolumeKeyEventHandler
                         .sendClickEvent(KeyEvent.KEYCODE_VOLUME_MUTE));
 
-        Button zoneConfigSwitchButton =
-                view.findViewById(R.id.switch_zone_configuration_key_event_button);
-        zoneConfigSwitchButton.setOnClickListener(
-                (v) -> switchToZoneConfigSelected());
-
         return view;
     }
 
@@ -442,9 +471,7 @@ public class AudioTestFragment extends Fragment {
         if (mAppFocusManager != null) {
             mAppFocusManager.abandonAppFocus(mOwnershipCallbacks);
         }
-        if (Flags.carAudioDynamicDevices()) {
-            mCarAudioManager.clearAudioZoneConfigsCallback();
-        }
+        mZoneConfigController.release();
         if (mCar != null && mCar.isConnected()) {
             mCar.disconnect();
             mCar = null;
@@ -524,9 +551,9 @@ public class AudioTestFragment extends Fragment {
     private void setActivityCurrentZoneId(TextView currentZoneIdTextView) {
         if (mCarAudioManager.isAudioFeatureEnabled(AUDIO_FEATURE_DYNAMIC_ROUTING)) {
             try {
-                int audioZoneId = getCurrentZoneId();
+                int audioZoneId = getCurrentZoneId(mContext, mCarAudioManager);
                 currentZoneIdTextView.setText(Integer.toString(audioZoneId));
-            } catch (PackageManager.NameNotFoundException e) {
+            } catch (Exception e) {
                 Log.e(TAG, "setActivityCurrentZoneId Failed to find name: " , e);
             }
         }
@@ -671,159 +698,6 @@ public class AudioTestFragment extends Fragment {
         mZoneSpinner.setEnabled(true);
     }
 
-    private void setUpZoneConfigurationSpinnerView(View view) {
-        mZoneConfigurationLayout = view.findViewById(R.id.audio_zone_configuration_layout);
-        synchronized (mLock) {
-            mCurrentZoneConfigurationView = view.findViewById(R.id.text_current_configuration);
-        }
-        mZoneConfigurationSpinner = view.findViewById(R.id.zone_configuration_spinner);
-        mZoneConfigurationSpinner.setEnabled(false);
-        mZoneConfigurationSpinner.setOnItemSelectedListener(
-                new AdapterView.OnItemSelectedListener() {
-                    @Override
-                    public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
-                        handleZoneConfigurationsSelection();
-                    }
-
-                    @Override
-                    public void onNothingSelected(AdapterView<?> parent) {
-                    }
-                });
-    }
-
-    private void handleZoneConfigurationsSelection() {
-        int position = mZoneConfigurationSpinner.getSelectedItemPosition();
-        synchronized (mLock) {
-            mZoneConfigInfoSelected =
-                    mZoneConfigurationAdapter.getItem(position).getZoneConfigInfo();
-            CarAudioZoneConfigInfo updatedInfo = getUpdatedConfigInfo(mZoneConfigInfoSelected);
-            if (Flags.carAudioDynamicDevices()) {
-                if (!updatedInfo.isActive()) {
-                    showToast(updatedInfo.getName() + ": not active");
-                    return;
-                }
-                if (updatedInfo.isSelected()) {
-                    showToast(updatedInfo.getName() + ": already selected");
-                }
-            }
-        }
-    }
-
-    private void switchToZoneConfigSelected() {
-        CarAudioZoneConfigInfo zoneConfigInfoSelected;
-        synchronized (mLock) {
-            zoneConfigInfoSelected = mZoneConfigInfoSelected;
-        }
-        if (DBG) {
-            Log.d(TAG, "Switch to zone configuration selected: " + zoneConfigInfoSelected);
-        }
-        CarAudioZoneConfigInfo info = getUpdatedConfigInfo(zoneConfigInfoSelected);
-        if (Flags.carAudioDynamicDevices()) {
-            if (!info.isActive()) {
-                showToast(info.getName() + ": not active");
-                return;
-            }
-            if (info.isSelected()) {
-                showToast(info.getName() + ": already selected");
-                return;
-            }
-        }
-        mCarAudioManager.switchAudioZoneToConfig(zoneConfigInfoSelected,
-                ContextCompat.getMainExecutor(getActivity().getApplicationContext()),
-                mSwitchAudioZoneConfigCallback);
-    }
-
-    private CarAudioZoneConfigInfo getUpdatedConfigInfo(CarAudioZoneConfigInfo zoneConfigInfo) {
-        List<CarAudioZoneConfigInfo> configs = mCarAudioManager.getAudioZoneConfigInfos(
-                zoneConfigInfo.getZoneId());
-        return configs.stream().filter(c -> c.getConfigId()
-                        == zoneConfigInfo.getConfigId()).findFirst().orElse(zoneConfigInfo);
-    }
-
-    private void handleSetUpZoneConfigurationSelection() {
-        if (!mCarAudioManager.isAudioFeatureEnabled(AUDIO_FEATURE_DYNAMIC_ROUTING)) {
-            mZoneConfigurationLayout.setVisibility(View.GONE);
-            return;
-        }
-        mZoneConfigurationLayout.setVisibility(View.VISIBLE);
-        int zoneId;
-        try {
-            zoneId = getCurrentZoneId();
-        } catch (PackageManager.NameNotFoundException e) {
-            Log.e(TAG, "handleSetUpZoneConfigurationSelection failed to find name", e);
-            return;
-        }
-        List<CarAudioZoneConfigInfo> zoneConfigInfos =
-                mCarAudioManager.getAudioZoneConfigInfos(zoneId);
-        CarAudioZoneConfigInfo currentZoneConfigInfo =
-                mCarAudioManager.getCurrentAudioZoneConfigInfo(zoneId);
-        synchronized (mLock) {
-            mCurrentZoneConfigurationView.setText(currentZoneConfigInfo.getName());
-            mZoneConfigInfoSelected = currentZoneConfigInfo;
-        }
-        CarAudioZoneConfigInfoWrapper[] zoneConfigArray =
-                new CarAudioZoneConfigInfoWrapper[zoneConfigInfos.size()];
-        for (int index = 0; index < zoneConfigArray.length; index++) {
-            zoneConfigArray[index] =
-                    new CarAudioZoneConfigInfoWrapper(zoneConfigInfos.get(index));
-        }
-        mZoneConfigurationAdapter = new ArrayAdapter<>(mContext, simple_spinner_item,
-                zoneConfigArray) {
-            @Override
-            public View getDropDownView(int position, @Nullable View convertView,
-                    ViewGroup parent) {
-                View v = super.getDropDownView(position, /* convertView= */ null, parent);
-                CarAudioZoneConfigInfo info = getItem(position).getZoneConfigInfo();
-                CarAudioZoneConfigInfo updatedInfo = getUpdatedConfigInfo(info);
-                if (Flags.carAudioDynamicDevices()) {
-                    if (!updatedInfo.isActive()) {
-                        v.setBackgroundColor(Color.LTGRAY);
-                    }
-                    if (updatedInfo.isSelected()) {
-                        v.setBackgroundColor(Color.CYAN);
-                    }
-                }
-                return v;
-            }
-        };
-        mZoneConfigurationAdapter.setDropDownViewResource(
-                simple_spinner_dropdown_item);
-        mZoneConfigurationSpinner.setAdapter(mZoneConfigurationAdapter);
-        mZoneConfigurationSpinner.setEnabled(true);
-
-        if (Flags.carAudioDynamicDevices()) {
-            mCarAudioManager.setAudioZoneConfigsChangeCallback(
-                    ContextCompat.getMainExecutor(getActivity().getApplicationContext()),
-                    new AudioZoneConfigurationsChangeCallback() {
-                    @Override
-                    public void onAudioZoneConfigurationsChanged(
-                            List<CarAudioZoneConfigInfo> configs, int status) {
-                        handleAudioZoneConfigsUpdated(configs, status);
-                    }
-                });
-        }
-    }
-
-    private void updateSelecedtAudioZoneConfig(CarAudioZoneConfigInfo zoneConfig) {
-        synchronized (mLock) {
-            mCurrentZoneConfigurationView.setText(zoneConfig.getName());
-        }
-        updateDeviceAddressPlayer();
-    }
-
-    private void handleAudioZoneConfigsUpdated(List<CarAudioZoneConfigInfo> configs, int status) {
-        showToast("Config status changed " + status);
-        if (status == CONFIG_STATUS_AUTO_SWITCHED) {
-            for (CarAudioZoneConfigInfo info : configs) {
-                if (!info.isSelected()) {
-                    continue;
-                }
-                updateSelecedtAudioZoneConfig(info);
-                showToast(info.getName() + ": auto selected");
-            }
-        }
-    }
-
     private void setUpTrackToneSpinnerView(View view) {
         Spinner toneSpinner = view.findViewById(R.id.tone_spinner);
         toneSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -875,17 +749,7 @@ public class AudioTestFragment extends Fragment {
     }
 
     private void setUpCarSoundsLayouts(View view) {
-        mPlayerTabLayout = view.findViewById(R.id.audio_player_tabs);
-        mViewPager = view.findViewById(R.id.zones_player_view_pager);
-        mAudioPlayerZoneAdapter = new CarAudioZoneTabAdapter(getChildFragmentManager());
-        mViewPager.setAdapter(mAudioPlayerZoneAdapter);
-        mAudioPlayerZoneAdapter.addFragment(
-                new AudioSystemPlayerFragment(mCarAudioManager, mAudioManager),
-                "System Players");
-        mAudioPlayerZoneAdapter.addFragment(new AudioTransientPlayersFragment(),
-                "Transient Sound Players");
-        mAudioPlayerZoneAdapter.notifyDataSetChanged();
-        mPlayerTabLayout.setupWithViewPager(mViewPager);
+        AudioPlayersTabControllers.setUpAudioPlayersTab(view, getChildFragmentManager());
     }
 
     private void handleNavStart() {
@@ -975,14 +839,9 @@ public class AudioTestFragment extends Fragment {
         mAudioManager.abandonAudioFocus(mRadioFocusListener, mRadioAudioAttrib);
     }
 
-    private int getCurrentZoneId() throws PackageManager.NameNotFoundException {
-        ApplicationInfo info = mContext.getPackageManager().getApplicationInfo(
-                mContext.getPackageName(), 0);
-        return mCarAudioManager.getZoneIdForUid(info.uid);
-    }
-
     private void setUpDeviceAddressPlayer() {
-        if (!mCarAudioManager.isAudioFeatureEnabled(AUDIO_FEATURE_DYNAMIC_ROUTING)) {
+        if (!mDeviceAddressAvailable
+                || !mCarAudioManager.isAudioFeatureEnabled(AUDIO_FEATURE_DYNAMIC_ROUTING)) {
             mDeviceAddressLayout.setVisibility(View.GONE);
             return;
         }
@@ -1195,27 +1054,6 @@ public class AudioTestFragment extends Fragment {
             builder.append(mDeviceInfo.getAddress());
             builder.append(", Audio Zone Id: ");
             builder.append(mAudioZoneId);
-            return builder.toString();
-        }
-    }
-
-    private static final class CarAudioZoneConfigInfoWrapper {
-        private final CarAudioZoneConfigInfo mZoneConfigInfo;
-
-        CarAudioZoneConfigInfoWrapper(CarAudioZoneConfigInfo configInfo) {
-            mZoneConfigInfo = configInfo;
-        }
-
-        CarAudioZoneConfigInfo getZoneConfigInfo() {
-            return mZoneConfigInfo;
-        }
-
-        @Override
-        public String toString() {
-            StringBuilder builder = new StringBuilder();
-            builder.append(mZoneConfigInfo.getName());
-            builder.append(", Id: ");
-            builder.append(mZoneConfigInfo.getConfigId());
             return builder.toString();
         }
     }

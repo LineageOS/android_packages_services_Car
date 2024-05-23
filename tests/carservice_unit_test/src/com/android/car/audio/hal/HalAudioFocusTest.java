@@ -32,7 +32,6 @@ import static com.android.car.audio.CarHalAudioUtils.usageToMetadata;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
 
 import static com.google.common.truth.Truth.assertThat;
-import static com.google.common.truth.Truth.assertWithMessage;
 
 import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -46,6 +45,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import android.car.media.CarAudioManager;
+import android.car.test.AbstractExpectableTestCase;
 import android.hardware.audio.common.PlaybackTrackMetadata;
 import android.media.AudioAttributes;
 import android.media.AudioFocusRequest;
@@ -56,6 +56,7 @@ import android.os.Bundle;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.android.car.audio.CarAudioContext;
+import com.android.car.audio.CarAudioPlaybackMonitor;
 import com.android.car.audio.CoreAudioRoutingUtils;
 
 import org.junit.Before;
@@ -63,6 +64,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
@@ -70,7 +72,7 @@ import org.mockito.junit.MockitoRule;
 import java.util.List;
 
 @RunWith(AndroidJUnit4.class)
-public final class HalAudioFocusTest {
+public final class HalAudioFocusTest extends AbstractExpectableTestCase {
     private static final int[] AUDIO_ZONE_IDS = {0, 1, 2, 3};
     private static final int ZONE_ID = 0;
     private static final int SECOND_ZONE_ID = 1;
@@ -96,6 +98,10 @@ public final class HalAudioFocusTest {
     private AudioManager mMockAudioManager;
     @Mock
     private AudioControlWrapper mAudioControlWrapper;
+    @Mock
+    private CarAudioPlaybackMonitor mCarAudioPlaybackMonitor;
+    @Captor
+    private ArgumentCaptor<List<AudioAttributes>> mAudioAttributesCaptor;
     private static final CarAudioContext TEST_CAR_AUDIO_CONTEXT =
             new CarAudioContext(CarAudioContext.getAllContextsInfo(),
                     /* useCoreAudioRouting= */ false);
@@ -105,7 +111,7 @@ public final class HalAudioFocusTest {
     @Before
     public void setUp() {
         mHalAudioFocus = new HalAudioFocus(mMockAudioManager, mAudioControlWrapper,
-                TEST_CAR_AUDIO_CONTEXT, AUDIO_ZONE_IDS);
+                mCarAudioPlaybackMonitor, TEST_CAR_AUDIO_CONTEXT, AUDIO_ZONE_IDS);
     }
 
     @Test
@@ -132,6 +138,8 @@ public final class HalAudioFocusTest {
 
         verify(mAudioControlWrapper).onAudioFocusChange(METADATA_MEDIA, ZONE_ID,
                 AUDIOFOCUS_REQUEST_GRANTED);
+        expectWithMessage("Playback audio attributes with audio focus requested")
+                .that(getCarAudioPlaybackMonitorAttributes(ZONE_ID)).containsExactly(ATTR_MEDIA);
     }
 
     @Test
@@ -177,6 +185,27 @@ public final class HalAudioFocusTest {
     }
 
     @Test
+    public void requestAudioFocus_withNullPlaybackMonitor() {
+        HalAudioFocus halAudioFocus = new HalAudioFocus(mMockAudioManager, mAudioControlWrapper,
+                /* carAudioPlaybackMonitor= */ null, TEST_CAR_AUDIO_CONTEXT, AUDIO_ZONE_IDS);
+        whenAnyFocusRequestGranted();
+
+        halAudioFocus.requestAudioFocus(METADATA_MEDIA, ZONE_ID, AUDIOFOCUS_GAIN);
+
+        verify(mAudioControlWrapper).onAudioFocusChange(METADATA_MEDIA, ZONE_ID,
+                AUDIOFOCUS_REQUEST_GRANTED);
+        AudioFocusRequest actualRequest = getLastRequest();
+        expectWithMessage("Audio focus request usage with null playback monitor")
+                .that(actualRequest.getAudioAttributes().getUsage()).isEqualTo(USAGE_MEDIA);
+        expectWithMessage("Audio focus request gain with null playback monitor")
+                .that(actualRequest.getFocusGain()).isEqualTo(AUDIOFOCUS_GAIN);
+        Bundle bundle = actualRequest.getAudioAttributes().getBundle();
+        expectWithMessage("Audio focus request zone Id with null playback monitor")
+                .that(bundle.getInt(CarAudioManager.AUDIOFOCUS_EXTRA_REQUEST_ZONE_ID))
+                .isEqualTo(ZONE_ID);
+    }
+
+    @Test
     public void requestAudioFocus_withInvalidZone_throws() {
         whenAnyFocusRequestGranted();
 
@@ -194,6 +223,8 @@ public final class HalAudioFocusTest {
         mHalAudioFocus.requestAudioFocus(METADATA_MEDIA, ZONE_ID, AUDIOFOCUS_GAIN);
 
         verify(mMockAudioManager, never()).abandonAudioFocusRequest(firstRequest);
+        expectWithMessage("Playback audio attributes with the same zone and usage focuses")
+                .that(getCarAudioPlaybackMonitorAttributes(ZONE_ID)).containsExactly(ATTR_MEDIA);
     }
 
     @Test
@@ -223,7 +254,7 @@ public final class HalAudioFocusTest {
         doReturn(CoreAudioRoutingUtils.MUSIC_STRATEGY_ID).when(carAudioContextUsingCoreRouting)
                 .getContextForAudioAttribute(CoreAudioRoutingUtils.MOVIE_ATTRIBUTES);
         HalAudioFocus halAudioFocus = new HalAudioFocus(mMockAudioManager, mAudioControlWrapper,
-                carAudioContextUsingCoreRouting, AUDIO_ZONE_IDS);
+                mCarAudioPlaybackMonitor, carAudioContextUsingCoreRouting, AUDIO_ZONE_IDS);
         whenAnyFocusRequestGranted();
         halAudioFocus.requestAudioFocus(METADATA_MEDIA, ZONE_ID, AUDIOFOCUS_GAIN);
         AudioFocusRequest firstRequest = getLastRequest();
@@ -432,7 +463,7 @@ public final class HalAudioFocusTest {
         List<AudioAttributes> audioAttributes =
                 mHalAudioFocus.getActiveAudioAttributesForZone(ZONE_ID);
 
-        assertWithMessage("Active audio attributes")
+        expectWithMessage("Active audio attributes")
                 .that(audioAttributes).isEmpty();
     }
 
@@ -445,7 +476,7 @@ public final class HalAudioFocusTest {
         List<AudioAttributes> audioAttributes =
                 mHalAudioFocus.getActiveAudioAttributesForZone(ZONE_ID);
 
-        assertWithMessage("Active audio attributes with active media")
+        expectWithMessage("Active audio attributes with active media")
                 .that(audioAttributes).containsExactly(ATTR_MEDIA);
     }
 
@@ -461,7 +492,7 @@ public final class HalAudioFocusTest {
         List<AudioAttributes> audioAttributes =
                 mHalAudioFocus.getActiveAudioAttributesForZone(ZONE_ID);
 
-        assertWithMessage("Active audio attributes with active media")
+        expectWithMessage("Active audio attributes with active media")
                 .that(audioAttributes).containsExactly(ATTR_MEDIA, ATTR_NOTIFICATION,
                         ATTR_ASSISTANCE_NAVIGATION_GUIDANCE);
     }
@@ -474,5 +505,11 @@ public final class HalAudioFocusTest {
         ArgumentCaptor<AudioFocusRequest> captor = ArgumentCaptor.forClass(AudioFocusRequest.class);
         verify(mMockAudioManager, atLeastOnce()).requestAudioFocus(captor.capture());
         return captor.getValue();
+    }
+
+    private List<AudioAttributes> getCarAudioPlaybackMonitorAttributes(int zoneId) {
+        verify(mCarAudioPlaybackMonitor).onActiveAudioPlaybackAttributesAdded(
+                mAudioAttributesCaptor.capture(), eq(zoneId));
+        return mAudioAttributesCaptor.getValue();
     }
 }

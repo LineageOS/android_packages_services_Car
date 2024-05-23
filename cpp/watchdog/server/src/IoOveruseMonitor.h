@@ -62,7 +62,7 @@ class IoOveruseMonitorPeer;
 }  // namespace internal
 
 // Used only in tests.
-std::tuple<int64_t, int64_t> calculateStartAndDuration(const time_t& currentTime);
+std::tuple<int64_t, int64_t> calculateStartAndDuration(const time_point_millis& currentTime);
 
 /**
  * IoOveruseMonitorInterface interface defines the methods that the I/O overuse monitoring module
@@ -135,7 +135,7 @@ public:
     }
 
     android::base::Result<void> onBoottimeCollection(
-            [[maybe_unused]] time_t time,
+            [[maybe_unused]] time_point_millis time,
             [[maybe_unused]] const android::wp<UidStatsCollectorInterface>& uidStatsCollector,
             [[maybe_unused]] const android::wp<ProcStatCollectorInterface>& procStatCollector,
             [[maybe_unused]] aidl::android::automotive::watchdog::internal::ResourceStats*
@@ -145,7 +145,7 @@ public:
     }
 
     android::base::Result<void> onWakeUpCollection(
-            [[maybe_unused]] time_t time,
+            [[maybe_unused]] time_point_millis time,
             [[maybe_unused]] const android::wp<UidStatsCollectorInterface>& uidStatsCollector,
             [[maybe_unused]] const android::wp<ProcStatCollectorInterface>& procStatCollector)
             override {
@@ -154,7 +154,7 @@ public:
     }
 
     android::base::Result<void> onUserSwitchCollection(
-            [[maybe_unused]] time_t time, [[maybe_unused]] userid_t from,
+            [[maybe_unused]] time_point_millis time, [[maybe_unused]] userid_t from,
             [[maybe_unused]] userid_t to,
             [[maybe_unused]] const android::wp<UidStatsCollectorInterface>& uidStatsCollector,
             [[maybe_unused]] const android::wp<ProcStatCollectorInterface>& procStatCollector)
@@ -164,13 +164,13 @@ public:
     }
 
     android::base::Result<void> onPeriodicCollection(
-            time_t time, SystemState systemState,
+            time_point_millis time, SystemState systemState,
             const android::wp<UidStatsCollectorInterface>& uidStatsCollector,
             const android::wp<ProcStatCollectorInterface>& procStatCollector,
             aidl::android::automotive::watchdog::internal::ResourceStats* resourceStats) override;
 
     android::base::Result<void> onCustomCollection(
-            time_t time, SystemState systemState,
+            time_point_millis time, SystemState systemState,
             const std::unordered_set<std::string>& filterPackages,
             const android::wp<UidStatsCollectorInterface>& uidStatsCollector,
             const android::wp<ProcStatCollectorInterface>& procStatCollector,
@@ -315,7 +315,7 @@ private:
     std::unordered_map<std::string, UserPackageIoUsage> mUserPackageDailyIoUsageById
             GUARDED_BY(mRwMutex);
     double mIoOveruseWarnPercentage GUARDED_BY(mRwMutex);
-    time_t mLastUserPackageIoMonitorTime GUARDED_BY(mRwMutex);
+    time_point_millis mLastUserPackageIoMonitorTime GUARDED_BY(mRwMutex);
     std::vector<aidl::android::automotive::watchdog::internal::PackageIoOveruseStats>
             mLatestIoOveruseStats;
 

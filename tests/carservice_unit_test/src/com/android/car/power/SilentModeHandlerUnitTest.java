@@ -21,9 +21,10 @@ import static com.google.common.truth.Truth.assertWithMessage;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 
+import android.car.feature.FakeFeatureFlagsImpl;
+import android.car.feature.Flags;
+import android.car.test.util.TemporaryFile;
 import android.os.SystemClock;
-
-import com.android.car.test.utils.TemporaryFile;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -52,6 +53,7 @@ public final class SilentModeHandlerUnitTest {
     private static final int MAX_POLLING_TRIES = 5;
     private static final int POLLING_DELAY_MS = 50;
 
+    private final FakeFeatureFlagsImpl mFeatureFlags = new FakeFeatureFlagsImpl();
     private final TemporaryFile mFileHwStateMonitoring;
     private final TemporaryFile mFileKernelSilentMode;
 
@@ -60,12 +62,14 @@ public final class SilentModeHandlerUnitTest {
     public SilentModeHandlerUnitTest() throws Exception {
         mFileHwStateMonitoring = new TemporaryFile("HW_STATE_MONITORING");
         mFileKernelSilentMode = new TemporaryFile("KERNEL_SILENT_MODE");
+        mFeatureFlags.setFlag(
+                Flags.FLAG_CAR_POWER_POLICY_REFACTORING, Flags.carPowerPolicyRefactoring());
     }
 
     @Test
     public void testSilentModeHwStateMonitoring() throws Exception {
         SilentModeHandler handler = new SilentModeHandler(mCarPowerManagementService,
-                mFileHwStateMonitoring.getFile().getPath(),
+                mFeatureFlags, mFileHwStateMonitoring.getFile().getPath(),
                 mFileKernelSilentMode.getFile().getPath(), BOOT_REASON_NORMAL);
         handler.init();
 
@@ -81,7 +85,7 @@ public final class SilentModeHandlerUnitTest {
     @Test
     public void testRebootForForcedSilentMode() throws Exception {
         SilentModeHandler handler = new SilentModeHandler(mCarPowerManagementService,
-                mFileHwStateMonitoring.getFile().getPath(),
+                mFeatureFlags, mFileHwStateMonitoring.getFile().getPath(),
                 mFileKernelSilentMode.getFile().getPath(), BOOT_REASON_FORCED_SILENT);
         handler.init();
 
@@ -95,7 +99,7 @@ public final class SilentModeHandlerUnitTest {
     @Test
     public void testRebootForForcedNonSilentMode() throws Exception {
         SilentModeHandler handler = new SilentModeHandler(mCarPowerManagementService,
-                mFileHwStateMonitoring.getFile().getPath(),
+                mFeatureFlags, mFileHwStateMonitoring.getFile().getPath(),
                 mFileKernelSilentMode.getFile().getPath(), BOOT_REASON_FORCED_NON_SILENT);
         handler.init();
 
@@ -109,7 +113,7 @@ public final class SilentModeHandlerUnitTest {
     @Test
     public void testUpdateKernelSilentMode() throws Exception {
         SilentModeHandler handler = new SilentModeHandler(mCarPowerManagementService,
-                mFileHwStateMonitoring.getFile().getPath(),
+                mFeatureFlags, mFileHwStateMonitoring.getFile().getPath(),
                 mFileKernelSilentMode.getFile().getPath(), BOOT_REASON_NORMAL);
         handler.init();
 
@@ -132,15 +136,19 @@ public final class SilentModeHandlerUnitTest {
     @Test
     public void testSetSilentMode_normalSilentToForcedNonSilent() throws Exception {
         testSetSilentMode_toForced(/* initSilentMode= */ true, /* expectedSilentMode= */ false);
-        verify(mCarPowerManagementService, timeout(BUFFER_TIME_TO_AVOID_RACE_CONDITION))
-                .notifySilentModeChange(false);
+        if (!mFeatureFlags.carPowerPolicyRefactoring()) {
+            verify(mCarPowerManagementService, timeout(BUFFER_TIME_TO_AVOID_RACE_CONDITION))
+                    .notifySilentModeChange(false);
+        }
     }
 
     @Test
     public void testSetSilentMode_normalNonSilentToForcedSilent() throws Exception {
         testSetSilentMode_toForced(/* initSilentMode= */ false, /* expectedSilentMode= */ true);
-        verify(mCarPowerManagementService, timeout(BUFFER_TIME_TO_AVOID_RACE_CONDITION))
-                .notifySilentModeChange(true);
+        if (!mFeatureFlags.carPowerPolicyRefactoring()) {
+            verify(mCarPowerManagementService, timeout(BUFFER_TIME_TO_AVOID_RACE_CONDITION))
+                    .notifySilentModeChange(true);
+        }
     }
 
     @Test
@@ -161,7 +169,7 @@ public final class SilentModeHandlerUnitTest {
     @Test
     public void testStopSilentModeHwStateMonitoring() throws Exception {
         SilentModeHandler handler = new SilentModeHandler(mCarPowerManagementService,
-                mFileHwStateMonitoring.getFile().getPath(),
+                mFeatureFlags, mFileHwStateMonitoring.getFile().getPath(),
                 mFileKernelSilentMode.getFile().getPath(), BOOT_REASON_NORMAL);
         handler.init();
         writeStringToFile(mFileHwStateMonitoring.getFile(), VALUE_SILENT_MODE);
@@ -179,7 +187,7 @@ public final class SilentModeHandlerUnitTest {
     private void testSetSilentMode_toForced(boolean initSilentMode, boolean expectedSilentMode)
             throws Exception {
         SilentModeHandler handler = new SilentModeHandler(mCarPowerManagementService,
-                mFileHwStateMonitoring.getFile().getPath(),
+                mFeatureFlags, mFileHwStateMonitoring.getFile().getPath(),
                 mFileKernelSilentMode.getFile().getPath(), BOOT_REASON_NORMAL);
         handler.init();
         handler.updateKernelSilentMode(initSilentMode);
@@ -199,7 +207,7 @@ public final class SilentModeHandlerUnitTest {
 
     private void testSetSilentMode_toNonForced(boolean initSilentMode) throws Exception {
         SilentModeHandler handler = new SilentModeHandler(mCarPowerManagementService,
-                mFileHwStateMonitoring.getFile().getPath(),
+                mFeatureFlags, mFileHwStateMonitoring.getFile().getPath(),
                 mFileKernelSilentMode.getFile().getPath(),
                 initSilentMode ? BOOT_REASON_FORCED_SILENT : BOOT_REASON_FORCED_NON_SILENT);
         handler.init();
@@ -210,8 +218,10 @@ public final class SilentModeHandlerUnitTest {
                 initSilentMode ? VALUE_NON_SILENT_MODE : VALUE_SILENT_MODE);
 
         assertSilentMode(handler, /* isForcedMode= */ false, !initSilentMode);
-        verify(mCarPowerManagementService, timeout(BUFFER_TIME_TO_AVOID_RACE_CONDITION))
-                .notifySilentModeChange(!initSilentMode);
+        if (!mFeatureFlags.carPowerPolicyRefactoring()) {
+            verify(mCarPowerManagementService, timeout(BUFFER_TIME_TO_AVOID_RACE_CONDITION))
+                    .notifySilentModeChange(!initSilentMode);
+        }
     }
 
     private String readFileAsString(Path path) throws Exception {

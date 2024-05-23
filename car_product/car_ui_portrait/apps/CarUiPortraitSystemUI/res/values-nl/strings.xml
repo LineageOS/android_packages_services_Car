@@ -23,4 +23,8 @@
     <string name="loading_welcome_message" msgid="2351582619179505398">"AAOS"</string>
     <string name="loading_action_button_text" msgid="1296096984805774507">"Doorgaan"</string>
     <string name="hvac_panel_header" msgid="1299061170810305529">"Comfortregeling"</string>
+    <string name="confirm_pin_title" msgid="8340408103287697843">"Voer je pincode in"</string>
+    <string name="confirm_pattern_title" msgid="601765683212039890">"Voer je patroon in"</string>
+    <string name="confirm_password_title" msgid="4719840258132492554">"Voer je wachtwoord in"</string>
+    <string name="cancel" msgid="8552804384519299161">"Annuleren"</string>
 </resources>

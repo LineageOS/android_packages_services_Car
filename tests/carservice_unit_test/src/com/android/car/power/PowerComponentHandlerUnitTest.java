@@ -39,13 +39,13 @@ import static com.android.car.test.power.CarPowerPolicyUtil.assertPolicyIdentica
 import static com.google.common.truth.Truth.assertWithMessage;
 
 import android.car.hardware.power.CarPowerPolicy;
+import android.car.test.util.TemporaryFile;
 import android.content.Context;
 import android.util.AtomicFile;
 
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import com.android.car.systeminterface.SystemInterface;
-import com.android.car.test.utils.TemporaryFile;
 
 import org.junit.Before;
 import org.junit.Test;

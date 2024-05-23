@@ -44,7 +44,7 @@ public final class OnChangeCarPropertyEventTrackerUnitTest {
 
     @Before
     public void setup() {
-        mTracker = new OnChangeCarPropertyEventTracker();
+        mTracker = new OnChangeCarPropertyEventTracker(/* useSystemLogger= */ false);
     }
 
     @Test

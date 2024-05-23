@@ -48,6 +48,6 @@ java_library {
     libs: [
         "android.car.builtin",
         "framework-annotations-lib",
-    ]
+    ],
 
 }

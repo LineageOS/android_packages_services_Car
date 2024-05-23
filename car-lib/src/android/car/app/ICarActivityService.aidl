@@ -20,6 +20,8 @@ import android.app.ActivityManager.RunningTaskInfo;
 import android.car.app.ICarSystemUIProxy;
 import android.car.app.ICarSystemUIProxyCallback;
 import android.content.ComponentName;
+import android.graphics.Rect;
+import android.view.SurfaceControl;
 import java.util.List;
 
 

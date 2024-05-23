@@ -24,8 +24,9 @@ import android.car.Car;
 import android.car.app.CarActivityManager;
 import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
-import android.test.suitebuilder.annotation.MediumTest;
 import android.view.Display;
+
+import androidx.test.filters.MediumTest;
 
 import org.junit.Before;
 import org.junit.Test;

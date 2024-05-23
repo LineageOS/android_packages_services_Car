@@ -28,6 +28,7 @@ java_sdk_library {
     ],
     srcs: [
         ":android.car-full-src",
+        ":com.android.car.internal.dep-src",
     ],
     aidl: {
         include_dirs: [
@@ -40,7 +41,7 @@ java_sdk_library {
     // TODO(b/288271411): enable it when car mainline module is supported
     // min_sdk_version: "33",
     apex_available: [
-        "com.android.car.framework"
+        "com.android.car.framework",
     ],
     shared_library: false, // added to bootclasspath
 

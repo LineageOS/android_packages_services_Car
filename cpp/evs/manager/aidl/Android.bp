@@ -94,13 +94,13 @@ filegroup {
 }
 
 cc_library_static {
-    name : "libevsmanagerd_static",
-    defaults : ["evsmanagerd_defaults"],
-    srcs : [":evsmanagerd_sources"],
-    export_include_dirs : [
+    name: "libevsmanagerd_static",
+    defaults: ["evsmanagerd_defaults"],
+    srcs: [":evsmanagerd_sources"],
+    export_include_dirs: [
         "./include",
         "./stats/include",
-        "./wrappers/include"
+        "./wrappers/include",
     ],
 }
 
@@ -122,7 +122,7 @@ cc_test {
     ],
     srcs: [
         ":evsmanagerd_sources",
-        "tests/unit/**/*.cpp"
+        "tests/unit/**/*.cpp",
     ],
     local_include_dirs: ["tests/unit/include"],
     shared_libs: [
@@ -142,7 +142,7 @@ cc_test_library {
     defaults: ["android.hardware.graphics.common-ndk_static"],
     local_include_dirs: [
         "include",
-        "tests/unit/include"
+        "tests/unit/include",
     ],
     export_include_dirs: ["tests/unit/include"],
     srcs: [

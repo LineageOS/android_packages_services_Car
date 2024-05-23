@@ -117,7 +117,8 @@
     <string name="hw_audio_source_not_found" translatable="false">Not found</string>
     <string name="media_with_delayed_focus" translatable="false">Media With Delayed Focus</string>
     <string name="player_not_started" translatable="false">Player Not Started</string>
-    <string name="audio_device_selected" translatable="false">Audio Device Selected: %1$s</string>
+    <string name="audio_device_selected" translatable="false">Device: %1$s</string>
+    <string name="long_device_name" translatable="false">VERY_LONG_NAME_DEVICE_THAT_FITS</string>
     <string name="player_paused" translatable="false">Player Paused</string>
     <string name="player_started" translatable="false">Player Started</string>
     <string name="player_delayed" translatable="false">Player Delayed</string>
@@ -177,6 +178,15 @@
     <string name="enable_audio_mirror" translatable="false">Enable Audio Mirror for Zones</string>
     <string name="disable_audio_mirror" translatable="false">Disable Audio Mirror for Zones</string>
     <string name="update_audio_zones" translatable="false">Updates Audio Zones</string>
+    <string name="do_not_auto_connect" translatable="false">Do not auto connect</string>
+    <string name="connect_to_last_selected" translatable="false">Auto connect to last selected</string>
+    <string name="connect_to_configuration" translatable="false">Auto connect to config</string>
+    <string name="config_name" translatable="false">Config: %1$s</string>
+    <string name="long_config_name" translatable="false">LongPlaceHolderConfigName</string>
+    <string name="generic_name_and_id" translatable="false">%1$s : %2$d</string>
+    <string name="generic_status_name_and_status" translatable="false">%1$s : %2$b</string>
+    <string name="audio_zone_configuration_title_on" translatable="false">Car zone configurations</string>
+    <string name="audio_zone_configuration_title_off" translatable="false">Dynamic routing required</string>
 
     <!-- Audio Input-->
     <string name="play_audio_input" translatable="false">Play</string>
@@ -506,6 +516,7 @@
     <string name="task_data">Task Data</string>
     <string name="remaining_time_sec">Remaining Time(s)</string>
     <string-array name="remote_task_types" translatable="false">
+          <item>Enter garage mode</item>
           <item>Set HVAC Temp</item>
           <item>Specify task data</item>
     </string-array>

@@ -20,11 +20,13 @@ import static com.google.common.truth.Truth.assertThat;
 
 import android.car.Car;
 import android.car.CarFeatures;
-import android.test.suitebuilder.annotation.SmallTest;
+import android.car.feature.Flags;
+import android.util.ArraySet;
+
+import androidx.test.filters.SmallTest;
 
 import org.junit.Test;
 
-import java.util.Arrays;
 import java.util.List;
 
 @SmallTest
@@ -35,15 +37,20 @@ public final class CarFeatureTest extends CarApiTestBase {
     private static final String BLUETOOTH_SERVICE = "car_bluetooth";
 
     // List in CarFeatureController should be inline with this.
-    private static final List<String> MANDATORY_FEATURES = Arrays.asList(
+    private static final List<String> NON_FLAGGED_MANDATORY_FEATURES = List.of(
             Car.APP_FOCUS_SERVICE,
             Car.AUDIO_SERVICE,
+            Car.CAR_ACTIVITY_SERVICE,
             Car.CAR_BUGREPORT_SERVICE,
+            Car.CAR_DEVICE_POLICY_SERVICE,
             Car.CAR_DRIVING_STATE_SERVICE,
+            Car.CAR_INPUT_SERVICE,
             Car.CAR_MEDIA_SERVICE,
             Car.CAR_OCCUPANT_ZONE_SERVICE,
+            Car.CAR_PERFORMANCE_SERVICE,
             Car.CAR_USER_SERVICE,
             Car.CAR_UX_RESTRICTION_SERVICE,
+            Car.CAR_WATCHDOG_SERVICE,
             Car.INFO_SERVICE,
             Car.PACKAGE_SERVICE,
             Car.POWER_SERVICE,
@@ -58,13 +65,53 @@ public final class CarFeatureTest extends CarApiTestBase {
             Car.VENDOR_EXTENSION_SERVICE
     );
 
-    private static final List<String> OPTIONAL_FEATURES = Arrays.asList(
+    private static final ArraySet<String> FLAGGED_MANDATORY_FEATURES = new ArraySet<>(1);
+
+    static {
+        if (Flags.persistApSettings()) {
+            FLAGGED_MANDATORY_FEATURES.add(Car.CAR_WIFI_SERVICE);
+        }
+
+        // Note: if a new entry is added here, the capacity of FLAGGED_MANDATORY_FEATURES
+        // should also be increased.
+    }
+
+    private static final ArraySet<String> MANDATORY_FEATURES = combineFeatures(
+            NON_FLAGGED_MANDATORY_FEATURES,
+            FLAGGED_MANDATORY_FEATURES);
+
+    private static final List<String> NON_FLAGGED_OPTIONAL_FEATURES = List.of(
             CarFeatures.FEATURE_CAR_USER_NOTICE_SERVICE,
+            Car.CLUSTER_HOME_SERVICE,
             Car.CAR_NAVIGATION_SERVICE,
+            Car.CAR_OCCUPANT_CONNECTION_SERVICE,
+            Car.CAR_REMOTE_DEVICE_SERVICE,
             Car.DIAGNOSTIC_SERVICE,
+            Car.EXPERIMENTAL_CAR_USER_SERVICE,
+            Car.OCCUPANT_AWARENESS_SERVICE,
             Car.STORAGE_MONITORING_SERVICE,
-            Car.VEHICLE_MAP_SERVICE
+            Car.VEHICLE_MAP_SERVICE,
+            Car.CAR_TELEMETRY_SERVICE,
+            Car.CAR_EVS_SERVICE,
+            Car.CAR_REMOTE_ACCESS_SERVICE,
+            Car.EXPERIMENTAL_CAR_KEYGUARD_SERVICE,
+            // All items below here are deprecated, but still could be supported
+            Car.CAR_INSTRUMENT_CLUSTER_SERVICE
     );
+
+    private static final ArraySet<String> FLAGGED_OPTIONAL_FEATURES = new ArraySet<>();
+
+    static {
+        if (Flags.displayCompatibility()) {
+            FLAGGED_OPTIONAL_FEATURES.add(Car.CAR_DISPLAY_COMPAT_SERVICE);
+        }
+
+        // Note: if a new entry is added here, the capacity of FLAGGED_OPTIONAL_FEATURES
+        // should also be increased.
+    }
+
+    private static final ArraySet<String> OPTIONAL_FEATURES = combineFeatures(
+            NON_FLAGGED_OPTIONAL_FEATURES, FLAGGED_OPTIONAL_FEATURES);
 
     private static final String NON_EXISTING_FEATURE = "ThisFeatureDoesNotExist";
 
@@ -72,8 +119,9 @@ public final class CarFeatureTest extends CarApiTestBase {
     public void checkMandatoryFeatures() {
         Car car = getCar();
         assertThat(car).isNotNull();
-        for (String feature : MANDATORY_FEATURES) {
-            assertThat(car.isFeatureEnabled(feature)).isTrue();
+        for (int i = 0; i < MANDATORY_FEATURES.size(); i++) {
+            String mandatoryFeature = MANDATORY_FEATURES.valueAt(i);
+            assertThat(car.isFeatureEnabled(mandatoryFeature)).isTrue();
         }
     }
 
@@ -81,10 +129,11 @@ public final class CarFeatureTest extends CarApiTestBase {
     public void toggleOptionalFeature() {
         Car car = getCar();
         assertThat(car).isNotNull();
-        for (String feature : OPTIONAL_FEATURES) {
-            boolean enabled = getCar().isFeatureEnabled(feature);
-            toggleOptionalFeature(feature, !enabled, enabled);
-            toggleOptionalFeature(feature, enabled, enabled);
+        for (int i = 0; i < OPTIONAL_FEATURES.size(); i++) {
+            String optionalFeature = OPTIONAL_FEATURES.valueAt(i);
+            boolean enabled = getCar().isFeatureEnabled(optionalFeature);
+            toggleOptionalFeature(optionalFeature, !enabled, enabled);
+            toggleOptionalFeature(optionalFeature, enabled, enabled);
         }
     }
 
@@ -94,16 +143,20 @@ public final class CarFeatureTest extends CarApiTestBase {
         assertThat(car).isNotNull();
         List<String> allEnabledFeatures = car.getAllEnabledFeatures();
         assertThat(allEnabledFeatures).isNotEmpty();
-        for (String feature : MANDATORY_FEATURES) {
-            assertThat(allEnabledFeatures).contains(feature);
+        for (int i = 0; i < MANDATORY_FEATURES.size(); i++) {
+            String mandatoryFeature = MANDATORY_FEATURES.valueAt(i);
+            assertThat(allEnabledFeatures).contains(mandatoryFeature);
         }
     }
 
     @Test
     public void testEnableDisableForMandatoryFeatures() {
-        for (String feature : MANDATORY_FEATURES) {
-            assertThat(getCar().enableFeature(feature)).isEqualTo(Car.FEATURE_REQUEST_MANDATORY);
-            assertThat(getCar().disableFeature(feature)).isEqualTo(Car.FEATURE_REQUEST_MANDATORY);
+        for (int i = 0; i < MANDATORY_FEATURES.size(); i++) {
+            String mandatoryFeature = MANDATORY_FEATURES.valueAt(i);
+            assertThat(getCar().enableFeature(mandatoryFeature)).isEqualTo(
+                    Car.FEATURE_REQUEST_MANDATORY);
+            assertThat(getCar().disableFeature(mandatoryFeature)).isEqualTo(
+                    Car.FEATURE_REQUEST_MANDATORY);
         }
     }
 
@@ -135,5 +188,12 @@ public final class CarFeatureTest extends CarApiTestBase {
             }
             assertThat(getCar().getAllPendingEnabledFeatures()).doesNotContain(feature);
         }
+    }
+
+    private static ArraySet<String> combineFeatures(List<String> features,
+            ArraySet<String> flaggedFeatures) {
+        ArraySet<String> combinedFeatures = new ArraySet<>(features);
+        combinedFeatures.addAll(flaggedFeatures);
+        return combinedFeatures;
     }
 }

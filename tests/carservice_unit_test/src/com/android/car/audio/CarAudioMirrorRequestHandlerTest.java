@@ -203,7 +203,7 @@ public final class CarAudioMirrorRequestHandlerTest extends AbstractExpectableTe
                 new CarAudioMirrorRequestHandler();
 
         NullPointerException thrown = assertThrows(NullPointerException.class, () -> {
-            carAudioMirrorRequestHandler.setMirrorDeviceInfos(/* deviceAddress= */ null);
+            carAudioMirrorRequestHandler.setMirrorDeviceInfos(/* mirroringDevices= */ null);
         });
 
         expectWithMessage("Null mirror device infos exception")
@@ -301,7 +301,7 @@ public final class CarAudioMirrorRequestHandlerTest extends AbstractExpectableTe
     public void enableMirrorForZones_withNullZoneIds_fails() {
         long requestId = mCarAudioMirrorRequestHandler.getUniqueRequestIdAndAssignMirrorDevice();
         NullPointerException thrown = assertThrows(NullPointerException.class, () -> {
-            mCarAudioMirrorRequestHandler.enableMirrorForZones(/* audioZones= */ requestId, null);
+            mCarAudioMirrorRequestHandler.enableMirrorForZones(requestId, /* audioZones= */ null);
         });
 
         expectWithMessage("Null audio zones enabled exception")
@@ -366,8 +366,8 @@ public final class CarAudioMirrorRequestHandlerTest extends AbstractExpectableTe
         long requestId = mCarAudioMirrorRequestHandler.getUniqueRequestIdAndAssignMirrorDevice();
 
         NullPointerException thrown = assertThrows(NullPointerException.class,
-                () -> mCarAudioMirrorRequestHandler.rejectMirrorForZones(/* audioZones = */
-                        requestId, null
+                () -> mCarAudioMirrorRequestHandler.rejectMirrorForZones(requestId,
+                        /* audioZones = */ null
                 ));
 
         expectWithMessage("Null zones to reject exception").that(thrown).hasMessageThat()
@@ -394,7 +394,7 @@ public final class CarAudioMirrorRequestHandlerTest extends AbstractExpectableTe
         mTestCallback.reset();
 
         mCarAudioMirrorRequestHandler.updateRemoveMirrorConfigurationForZones(
-                /* newConfig= */ requestId, new int[0]);
+                requestId, /* newConfig= */ new int[0]);
 
         mTestCallback.waitForCallback();
         expectWithMessage("Audio mirror status after removed").that(mTestCallback.mStatus)
@@ -455,7 +455,7 @@ public final class CarAudioMirrorRequestHandlerTest extends AbstractExpectableTe
         long requestId = mCarAudioMirrorRequestHandler.getUniqueRequestIdAndAssignMirrorDevice();
         mCarAudioMirrorRequestHandler.enableMirrorForZones(requestId, TEST_ZONE_IDS);
         mCarAudioMirrorRequestHandler.updateRemoveMirrorConfigurationForZones(
-                /* newConfig= */ requestId, new int[0]);
+                requestId, /* newConfig= */ new int[0]);
 
         IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> {
             mCarAudioMirrorRequestHandler.verifyValidRequestId(requestId);

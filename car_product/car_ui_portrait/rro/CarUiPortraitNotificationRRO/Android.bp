@@ -14,16 +14,17 @@
 package {
     default_applicable_licenses: ["Android-Apache-2.0"],
 }
+
 android_app {
     name: "CarUiPortraitNotificationRRO",
     resource_dirs: ["res"],
     platform_apis: true,
     aaptflags: [
         "--no-resource-deduping",
-        "--no-resource-removal"
+        "--no-resource-removal",
     ],
     static_libs: [
         "CarNotificationLib",
-        "car-portrait-ui-common"
+        "car-portrait-ui-common",
     ],
 }

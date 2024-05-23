@@ -34,6 +34,8 @@
     <string name="car_permission_desc_speed" msgid="2047965198165448241">"Piekļūt informācijai par automašīnas ātrumu."</string>
     <string name="car_permission_label_vehicle_dynamics_state" msgid="313779267420048367">"piekļūt automašīnas dinamikas stāvoklim"</string>
     <string name="car_permission_desc_vehicle_dynamics_state" msgid="8891506193446375660">"Piekļūt informācijai par automašīnas dinamikas stāvokli."</string>
+    <string name="car_permission_label_control_vehicle_dynamics_state" msgid="1912154069363074986">"pārvaldīt automašīnas dinamikas stāvokli"</string>
+    <string name="car_permission_desc_control_vehicle_dynamics_state" msgid="5603436779163086928">"Pārvaldīt automašīnas dinamikas stāvokli."</string>
     <string name="car_permission_label_vendor_extension" msgid="7141601811734127361">"piekļūt automašīnas ražotāja kanālam"</string>
     <string name="car_permission_desc_vendor_extension" msgid="2970718502334714035">"Piekļūt automašīnas ražotāja kanālam, lai veiktu ar automašīnu saistītas informācijas apmaiņu."</string>
     <string name="car_permission_label_radio" msgid="6009465291685935112">"pārvaldīt automašīnas radio"</string>
@@ -84,6 +86,8 @@
     <string name="car_permission_desc_vms_publisher" msgid="5589489298597386828">"Publicēt VMS ziņojumus"</string>
     <string name="car_permission_label_vms_subscriber" msgid="5648841182059222299">"VMS abonents"</string>
     <string name="car_permission_desc_vms_subscriber" msgid="7551009457847673620">"Abonēt VMS ziņojumus"</string>
+    <string name="car_permission_label_read_ultrasonics_sensor_data" msgid="1097940233242534149">"Lasīt ultraskaņas sensoru datus."</string>
+    <string name="car_permission_desc_read_ultrasonics_sensor_data" msgid="1717892304330623332">"Lasīt no automašīnas iegūtos ultraskaņas sensoru datus."</string>
     <string name="car_permission_label_storage_monitoring" msgid="2327639346522530549">"Zibatmiņas uzraudzība"</string>
     <string name="car_permission_desc_storage_monitoring" msgid="2075712271139671318">"Uzraudzīt zibatmiņas lietojumu."</string>
     <string name="car_permission_label_driving_state" msgid="7754624599537393650">"uztvert kustības stāvokli"</string>
@@ -116,6 +120,20 @@
     <string name="car_permission_desc_control_car_mirrors" msgid="1224135684068855032">"Kontrolēt automašīnas spoguļus."</string>
     <string name="car_permission_label_control_car_seats" msgid="1826934820585497135">"kontrolēt automašīnas sēdekļus"</string>
     <string name="car_permission_desc_control_car_seats" msgid="2407536601226470563">"Kontrolēt automašīnas sēdekļus."</string>
+    <string name="car_permission_label_read_car_seat_belts" msgid="2051828795852087659">"lasīt automašīnas drošības jostu informāciju"</string>
+    <string name="car_permission_desc_read_car_seat_belts" msgid="7076977711613912339">"Lasīt automašīnas drošības jostu informāciju."</string>
+    <string name="car_permission_label_read_impact_sensors" msgid="9193288836326363975">"lasīt automašīnas trieciena sensoru informāciju"</string>
+    <string name="car_permission_desc_read_impact_sensors" msgid="6479840965130272944">"Lasīt automašīnas trieciena sensoru informāciju."</string>
+    <string name="car_permission_label_read_valet_mode" msgid="1807900160666761320">"lasīt informāciju par režīmu automašīnas novietošanai ar pavadoni"</string>
+    <string name="car_permission_desc_read_valet_mode" msgid="8645550481045813299">"Lasīt informāciju par režīmu automašīnas novietošanai ar pavadoni."</string>
+    <string name="car_permission_label_control_valet_mode" msgid="180432980177027905">"pārvaldīt režīmu automašīnas novietošanai ar pavadoni"</string>
+    <string name="car_permission_desc_control_valet_mode" msgid="8442573192492763994">"Pārvaldīt režīmu automašīnas novietošanai ar pavadoni."</string>
+    <string name="car_permission_label_read_head_up_display_status" msgid="8117112886452578905">"lasīt brīdinājuma attēlojuma statusu"</string>
+    <string name="car_permission_desc_read_head_up_display_status" msgid="3255763055570462667">"Lasīt brīdinājuma attēlojuma statusu."</string>
+    <string name="car_permission_label_control_head_up_display" msgid="2990483192001919370">"pārvaldīt brīdinājuma attēlojumu"</string>
+    <string name="car_permission_desc_control_head_up_display" msgid="483313982751387504">"Pārvaldīt brīdinājuma attēlojumu."</string>
+    <string name="car_permission_label_read_car_airbags" msgid="5495423499616379238">"lasīt automašīnas gaisa spilvenu informāciju"</string>
+    <string name="car_permission_desc_read_car_airbags" msgid="7961580013929420722">"Lasīt automašīnas gaisa spilvenu informāciju."</string>
     <string name="car_permission_label_control_car_airbags" msgid="6823727183218389617">"pārvaldīt automašīnas drošības spilvenus"</string>
     <string name="car_permission_desc_control_car_airbags" msgid="6181671903761622348">"Pārvaldīt automašīnas drošības spilvenus."</string>
     <string name="car_permission_label_car_info" msgid="4707513570676492315">"piekļūt pamatinformācijai par automašīnu"</string>
@@ -210,6 +228,8 @@
     <string name="car_permission_desc_register_car_system_ui_proxy" msgid="8863676956785764681">"Nodrošināt piekļuvi sistēmas lietotāja saskarnes mitinātājam, ko var izmantot citas lietotnes, lai pārvaldītu sistēmas lietotāja saskarni un izveidotu uzdevumu skatus."</string>
     <string name="car_permission_label_manage_car_system_ui" msgid="1361615518679353414">"Piekļūt automašīnas sistēmas lietotāja saskarnei, lai izveidotu uzdevumu skatus vai saņemtu paziņojumus par sistēmas lietotāja saskarnes izmaiņām."</string>
     <string name="car_permission_desc_manage_car_system_ui" msgid="6201733970421818637">"Piekļūt automašīnas sistēmas lietotāja saskarnei, lai izveidotu uzdevumu skatus vai saņemtu paziņojumus par sistēmas lietotāja saskarnes izmaiņām."</string>
+    <string name="car_permission_label_read_persist_tethering_settings" msgid="6395145649477916950">"Nolasīt automašīnas nepārtrauktās piesaistes iestatījumus"</string>
+    <string name="car_permission_desc_read_persist_tethering_settings" msgid="7373546466696896323">"Nolasīt automašīnas nepārtrauktās piesaistes iestatījumus"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"Radās atteice datu maģistrālē"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"Datu maģistrāle nereaģē. Atvienojiet un atkal pievienojiet stereosistēmas paneļa kabeli un atkārtoti iedarbiniet automašīnu"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"Mana ierīce"</string>

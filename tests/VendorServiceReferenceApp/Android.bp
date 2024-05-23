@@ -21,10 +21,13 @@ package {
 
 android_app {
     name: "VendorServiceReferenceApp",
-    srcs: ["src/**/*.java", "src/**/*.aidl"],
+    srcs: [
+        "src/**/*.java",
+        "src/**/*.aidl",
+    ],
     sdk_version: "module_current",
     //platform_apis: true,     // Only if needs to access hidden APIs
     libs: [
         "android.car",
-        ],
+    ],
 }

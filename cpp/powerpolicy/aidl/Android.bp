@@ -19,6 +19,7 @@ package {
 
 aidl_interface {
     name: "android.automotive.powerpolicy.delegate",
+    owner: "google",
     vendor_available: false,
     srcs: [
         "android/automotive/powerpolicy/internal/ICarPowerPolicyDelegate.aidl",

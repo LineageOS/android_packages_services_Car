@@ -314,7 +314,7 @@ private:
     // mLastSessionId is accessed only within main thread. No need for mutual-exclusion.
     int32_t mLastSessionId;
     bool mServiceStarted;
-    std::chrono::milliseconds mVhalHealthCheckWindowMs;
+    std::chrono::milliseconds mVhalHealthCheckWindowMillis;
     std::optional<std::chrono::nanoseconds> mOverriddenClientHealthCheckWindowNs;
     std::shared_ptr<android::frameworks::automotive::vhal::IVhalClient::OnBinderDiedCallbackFunc>
             mVhalBinderDiedCallback;

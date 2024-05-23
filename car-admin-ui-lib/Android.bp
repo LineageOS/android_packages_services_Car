@@ -33,7 +33,7 @@ android_library {
         "modules-utils-preconditions",
     ],
     resource_dirs: [
-        "src/main/res"
+        "src/main/res",
     ],
     sdk_version: "module_current",
 }

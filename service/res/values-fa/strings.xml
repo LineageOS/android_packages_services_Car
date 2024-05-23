@@ -34,6 +34,8 @@
     <string name="car_permission_desc_speed" msgid="2047965198165448241">"دسترسی به سرعت خودرو."</string>
     <string name="car_permission_label_vehicle_dynamics_state" msgid="313779267420048367">"دسترسی به وضعیت دینامیک خودرو"</string>
     <string name="car_permission_desc_vehicle_dynamics_state" msgid="8891506193446375660">"به وضعیت دینامیک خودرو دسترسی پیدا کنید."</string>
+    <string name="car_permission_label_control_vehicle_dynamics_state" msgid="1912154069363074986">"کنترل وضعیت پویای خودرو"</string>
+    <string name="car_permission_desc_control_vehicle_dynamics_state" msgid="5603436779163086928">"کنترل وضعیت پویای خودرو."</string>
     <string name="car_permission_label_vendor_extension" msgid="7141601811734127361">"دسترسی به کانال فروشنده خودرو"</string>
     <string name="car_permission_desc_vendor_extension" msgid="2970718502334714035">"دسترسی به کانال فروشنده خودروی شما برای تبادل اطلاعات خاص خودرو."</string>
     <string name="car_permission_label_radio" msgid="6009465291685935112">"مدیریت رادیوی خودرو"</string>
@@ -84,6 +86,8 @@
     <string name="car_permission_desc_vms_publisher" msgid="5589489298597386828">"انتشار پیام‌های VMS"</string>
     <string name="car_permission_label_vms_subscriber" msgid="5648841182059222299">"مشترک VMS"</string>
     <string name="car_permission_desc_vms_subscriber" msgid="7551009457847673620">"مشترک شدن در پیام‌های VMS"</string>
+    <string name="car_permission_label_read_ultrasonics_sensor_data" msgid="1097940233242534149">"خواندن داده‌های حسگر فراصوت."</string>
+    <string name="car_permission_desc_read_ultrasonics_sensor_data" msgid="1717892304330623332">"خواندن داده‌های حسگر فراصوت خودرو."</string>
     <string name="car_permission_label_storage_monitoring" msgid="2327639346522530549">"پایش فضای ذخیره‌سازی فلاش"</string>
     <string name="car_permission_desc_storage_monitoring" msgid="2075712271139671318">"پایش مصرف فضای ذخیره‌سازی فلاش"</string>
     <string name="car_permission_label_driving_state" msgid="7754624599537393650">"گوش دادن به وضعیت رانندگی"</string>
@@ -116,6 +120,20 @@
     <string name="car_permission_desc_control_car_mirrors" msgid="1224135684068855032">"آینه‌های خودرو را کنترل کنید."</string>
     <string name="car_permission_label_control_car_seats" msgid="1826934820585497135">"کنترل صندلی‌های خودرو"</string>
     <string name="car_permission_desc_control_car_seats" msgid="2407536601226470563">"صندلی‌های خودرو را کنترل کنید."</string>
+    <string name="car_permission_label_read_car_seat_belts" msgid="2051828795852087659">"خواندن وضعیت کمربند صندلی خودرو"</string>
+    <string name="car_permission_desc_read_car_seat_belts" msgid="7076977711613912339">"خواندن وضعیت کمربند صندلی خودرو."</string>
+    <string name="car_permission_label_read_impact_sensors" msgid="9193288836326363975">"خواندن حسگرهای ضربه خودرو"</string>
+    <string name="car_permission_desc_read_impact_sensors" msgid="6479840965130272944">"خواندن حسگرهای ضربه خودرو."</string>
+    <string name="car_permission_label_read_valet_mode" msgid="1807900160666761320">"خواندن حالت خدمات"</string>
+    <string name="car_permission_desc_read_valet_mode" msgid="8645550481045813299">"خواندن حالت خدمات."</string>
+    <string name="car_permission_label_control_valet_mode" msgid="180432980177027905">"کنترل حالت خدمات"</string>
+    <string name="car_permission_desc_control_valet_mode" msgid="8442573192492763994">"کنترل حالت خدمات."</string>
+    <string name="car_permission_label_read_head_up_display_status" msgid="8117112886452578905">"خواندن وضعیت نمایشگر سربالا"</string>
+    <string name="car_permission_desc_read_head_up_display_status" msgid="3255763055570462667">"خواندن وضعیت نمایشگر سربالا."</string>
+    <string name="car_permission_label_control_head_up_display" msgid="2990483192001919370">"کنترل کردن نمایشگر سربالا"</string>
+    <string name="car_permission_desc_control_head_up_display" msgid="483313982751387504">"کنترل کردن نمایشگر سربالا."</string>
+    <string name="car_permission_label_read_car_airbags" msgid="5495423499616379238">"خواندن وضعیت کیسه‌های هوای خودرو"</string>
+    <string name="car_permission_desc_read_car_airbags" msgid="7961580013929420722">"خواندن وضعیت کیسه هوای خودرو."</string>
     <string name="car_permission_label_control_car_airbags" msgid="6823727183218389617">"کنترل کیسه هوای خودرو."</string>
     <string name="car_permission_desc_control_car_airbags" msgid="6181671903761622348">"کنترل کیسه هوای خودرو."</string>
     <string name="car_permission_label_car_info" msgid="4707513570676492315">"دسترسی به اطلاعات اصلی خودرو"</string>
@@ -202,14 +220,16 @@
     <string name="car_permission_desc_manage_remote_device" msgid="4802785901453919948">"نظارت بر وضعیت دیگر مناطق سرنشین در خودرو و برنامه‌های همتای نصب‌شده در این مناطق، و مدیریت انرژی این مناطق (برنامه‌های همتا یعنی برنامه‌هایی که نام بسته مشابه با تماس‌گیرنده دارند)."</string>
     <string name="car_permission_label_manage_occupant_connection" msgid="6007579379849984187">"برقراری اتصال و ارتباط با برنامه‌های همتای نصب‌شده در سایر مناطق سرنشین در خودرو (برنامه‌های همتا یعنی برنامه‌هایی که نام بسته مشابه با تماس‌گیرنده دارند)."</string>
     <string name="car_permission_desc_manage_occupant_connection" msgid="6525045077082552965">"برقراری اتصال و ارتباط با برنامه‌های همتای نصب‌شده در سایر مناطق سرنشین در خودرو (برنامه‌های همتا یعنی برنامه‌هایی که نام بسته مشابه با تماس‌گیرنده دارند)."</string>
-    <string name="car_permission_label_access_mirrored_surface" msgid="6235459468766618021">"بازتاب دادن صفحه «برنامه‌های» دیگر"</string>
-    <string name="car_permission_desc_access_mirrored_surface" msgid="7701151689600074639">"بازتاب دادن صفحه «برنامه‌های» دیگر."</string>
-    <string name="car_permission_label_mirror_display" msgid="7591958768912962529">"بازتاب دادن نمایشگر کاربران دیگر"</string>
-    <string name="car_permission_desc_mirror_display" msgid="2403249980834394896">"بازتاب دادن نمایشگر کاربران دیگر."</string>
+    <string name="car_permission_label_access_mirrored_surface" msgid="6235459468766618021">"قرینه‌سازی صفحه «برنامه‌های» دیگر"</string>
+    <string name="car_permission_desc_access_mirrored_surface" msgid="7701151689600074639">"قرینه‌سازی صفحه «برنامه‌های» دیگر."</string>
+    <string name="car_permission_label_mirror_display" msgid="7591958768912962529">"قرینه‌سازی صفحه کاربران دیگر"</string>
+    <string name="car_permission_desc_mirror_display" msgid="2403249980834394896">"قرینه‌سازی نمایشگر کاربران دیگر."</string>
     <string name="car_permission_label_register_car_system_ui_proxy" msgid="4211405049007842422">"پراکسی واسط کاربر سیستمی ارائه دهید که برنامه‌های دیگر بتوانند بااستفاده از آن واسط کاربر سیستم را مدیریت کنند و نمای وظیفه ایجاد کنند."</string>
     <string name="car_permission_desc_register_car_system_ui_proxy" msgid="8863676956785764681">"پراکسی واسط کاربر سیستمی ارائه دهید که برنامه‌های دیگر بتوانند بااستفاده از آن واسط کاربر سیستم را مدیریت کنند و نمای وظیفه ایجاد کنند."</string>
     <string name="car_permission_label_manage_car_system_ui" msgid="1361615518679353414">"برای ایجاد نمای وظیفه یا مطلع شدن از تغییرات واسط کاربر سیستم، با واسط کاربر سیستم خودرو ارتباط برقرار کنید."</string>
     <string name="car_permission_desc_manage_car_system_ui" msgid="6201733970421818637">"برای ایجاد نمای وظیفه یا مطلع شدن از تغییرات واسط کاربر سیستم، با واسط کاربر سیستم خودرو ارتباط برقرار کنید."</string>
+    <string name="car_permission_label_read_persist_tethering_settings" msgid="6395145649477916950">"خواندن تنظیمات اشتراک‌گذاری اینترنت دائمی خودرو"</string>
+    <string name="car_permission_desc_read_persist_tethering_settings" msgid="7373546466696896323">"خواندن تنظیمات اشتراک‌گذاری اینترنت دائمی خودرو"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"گذرگاه CAN ناموفق بود"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"گذرگاه CAN پاسخ نمی‌دهد. محفظه ضبط‌وپخش را جدا و سپس وصل کنید و خودرو را دوباره روشن کنید"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"دستگاه من"</string>

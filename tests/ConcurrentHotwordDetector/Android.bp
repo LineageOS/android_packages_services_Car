@@ -21,15 +21,15 @@ java_library {
     name: "concurrent.hotword.lib",
 
     static_libs: [
-            "androidx.annotation_annotation",
-            "androidx.appcompat_appcompat",
-            "androidx.coordinatorlayout_coordinatorlayout",
-            "androidx.core_core",
+        "androidx.annotation_annotation",
+        "androidx.appcompat_appcompat",
+        "androidx.coordinatorlayout_coordinatorlayout",
+        "androidx.core_core",
     ],
 
     srcs: [
-            "src/**/*.java",
+        "src/**/*.java",
     ],
 
-    min_sdk_version:  "33",
+    min_sdk_version: "33",
 }

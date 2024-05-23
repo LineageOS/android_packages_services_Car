@@ -21,6 +21,8 @@ import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DU
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.car.builtin.util.Slogf;
+import android.car.feature.FeatureFlags;
+import android.car.feature.FeatureFlagsImpl;
 import android.os.FileObserver;
 import android.os.SystemProperties;
 import android.util.proto.ProtoOutputStream;
@@ -92,12 +94,16 @@ final class SilentModeHandler {
     @GuardedBy("mLock")
     private boolean mForcedMode;
 
+    // Allows for injecting feature flag values during testing
+    private FeatureFlags mFeatureFlags = new FeatureFlagsImpl();
+
     @VisibleForTesting
-    SilentModeHandler(@NonNull CarPowerManagementService service,
+    SilentModeHandler(@NonNull CarPowerManagementService service, FeatureFlags featureFlags,
             @Nullable String hwStateMonitoringFileName, @Nullable String kernelSilentModeFileName,
             @Nullable String bootReason) {
         Objects.requireNonNull(service, "CarPowerManagementService must not be null");
         mService = service;
+        mFeatureFlags = featureFlags;
         String sysfsDir = searchForSysfsDir();
         mHwStateMonitoringFileName = hwStateMonitoringFileName == null
                 ? sysfsDir + SYSFS_FILENAME_HW_STATE_MONITORING : hwStateMonitoringFileName;
@@ -132,7 +138,9 @@ final class SilentModeHandler {
         }
         if (forcedMode) {
             updateKernelSilentMode(silentMode);
-            mService.notifySilentModeChange(silentMode);
+            if (!mFeatureFlags.carPowerPolicyRefactoring()) {
+                mService.notifySilentModeChange(silentMode);
+            }
             Slogf.i(TAG, "Now in forced mode: monitoring %s is disabled",
                     mHwStateMonitoringFileName);
         } else {
@@ -233,7 +241,9 @@ final class SilentModeHandler {
         }
         if (updated) {
             updateKernelSilentMode(silentMode);
-            mService.notifySilentModeChange(silentMode);
+            if (!mFeatureFlags.carPowerPolicyRefactoring()) {
+                mService.notifySilentModeChange(silentMode);
+            }
         }
         Slogf.i(TAG, "Now in forced %s mode: monitoring %s is disabled",
                 silentMode ? "silent" : "non-silent", mHwStateMonitoringFileName);
@@ -286,7 +296,9 @@ final class SilentModeHandler {
                 }
                 if (newSilentMode != oldSilentMode) {
                     updateKernelSilentMode(newSilentMode);
-                    mService.notifySilentModeChange(newSilentMode);
+                    if (!mFeatureFlags.carPowerPolicyRefactoring()) {
+                        mService.notifySilentModeChange(newSilentMode);
+                    }
                 }
             }
         };

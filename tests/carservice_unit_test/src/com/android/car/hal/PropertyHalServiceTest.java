@@ -26,7 +26,7 @@ import static android.car.hardware.property.VehicleVendorPermission.PERMISSION_G
 import static android.car.hardware.property.VehicleVendorPermission.PERMISSION_SET_CAR_VENDOR_CATEGORY_ENGINE;
 import static android.hardware.automotive.vehicle.VehicleProperty.SUPPORT_CUSTOMIZE_VENDOR_PERMISSION;
 
-import static com.android.car.internal.property.CarPropertyHelper.STATUS_OK;
+import static com.android.car.internal.property.CarPropertyErrorCodes.STATUS_OK;
 
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
@@ -65,7 +65,6 @@ import android.util.ArraySet;
 
 import androidx.test.runner.AndroidJUnit4;
 
-import com.android.car.VehicleStub;
 import com.android.car.VehicleStub.AsyncGetSetRequest;
 import com.android.car.VehicleStub.GetVehicleStubAsyncResult;
 import com.android.car.VehicleStub.SetVehicleStubAsyncResult;
@@ -74,6 +73,7 @@ import com.android.car.hal.VehicleHal.HalSubscribeOptions;
 import com.android.car.hal.property.PropertyHalServiceConfigs;
 import com.android.car.hal.test.AidlVehiclePropValueBuilder;
 import com.android.car.internal.property.AsyncPropertyServiceRequest;
+import com.android.car.internal.property.CarPropertyErrorCodes;
 import com.android.car.internal.property.CarSubscription;
 import com.android.car.internal.property.GetSetValueResult;
 import com.android.car.internal.property.GetSetValueResultList;
@@ -140,6 +140,7 @@ public class PropertyHalServiceTest {
     private static final int INT32_PROP = VehiclePropertyIds.INFO_FUEL_DOOR_LOCATION;
     private static final int PROPERTY_VALUE = 123;
     private static final int VENDOR_ERROR_CODE = 1234;
+    private static final int SYSTEM_ERROR_CODE = 4321;
     private static final int VENDOR_PROPERTY_1 = 0x21e01111;
     private static final int VENDOR_PROPERTY_2 = 0x21e01112;
     private static final int VENDOR_PROPERTY_3 = 0x21e01113;
@@ -242,12 +243,17 @@ public class PropertyHalServiceTest {
 
     private Object deliverResult(InvocationOnMock invocation, Integer expectedServiceRequestId,
             int errorCode, HalPropValue propValue, boolean get) {
-        return deliverResult(invocation, expectedServiceRequestId, errorCode,
-                /* vendorErrorCode= */ 0, propValue, get);
+        CarPropertyErrorCodes carPropertyErrorCodes =
+                new CarPropertyErrorCodes(
+                        errorCode,
+                        /* vendorErrorCode= */ 0,
+                        /* systemErrorCode= */ 0);
+        return deliverResult(
+                invocation, expectedServiceRequestId, carPropertyErrorCodes, propValue, get);
     }
 
     private Object deliverResult(InvocationOnMock invocation, Integer expectedServiceRequestId,
-            int errorCode, int vendorErrorCode, HalPropValue propValue, boolean get) {
+            CarPropertyErrorCodes carPropertyErrorCodes, HalPropValue propValue, boolean get) {
         Object[] args = invocation.getArguments();
         List getVehicleHalRequests = (List) args[0];
         Map<VehicleStubCallbackInterface, List<GetVehicleStubAsyncResult>> callbackToGetResults =
@@ -276,11 +282,11 @@ public class PropertyHalServiceTest {
                             serviceRequestId, propValue));
                 } else {
                     callbackToGetResults.get(callback).add(new GetVehicleStubAsyncResult(
-                            serviceRequestId, errorCode, vendorErrorCode));
+                            serviceRequestId, carPropertyErrorCodes));
                 }
             } else {
                 callbackToSetResults.get(callback).add(new SetVehicleStubAsyncResult(
-                        serviceRequestId, errorCode, vendorErrorCode));
+                        serviceRequestId, carPropertyErrorCodes));
             }
         }
 
@@ -325,8 +331,8 @@ public class PropertyHalServiceTest {
 
     private Object deliverTryAgainGetResult(InvocationOnMock invocation,
             Integer expectedServiceRequestId) {
-        return deliverResult(invocation, expectedServiceRequestId, VehicleStub.STATUS_TRY_AGAIN,
-                null, true);
+        return deliverResult(invocation, expectedServiceRequestId,
+                CarPropertyErrorCodes.STATUS_TRY_AGAIN, null, true);
     }
 
     private Object deliverTryAgainSetResult(InvocationOnMock invocation) {
@@ -335,8 +341,8 @@ public class PropertyHalServiceTest {
 
     private Object deliverTryAgainSetResult(InvocationOnMock invocation,
             Integer expectedServiceRequestId) {
-        return deliverResult(invocation, expectedServiceRequestId, VehicleStub.STATUS_TRY_AGAIN,
-                null, false);
+        return deliverResult(invocation, expectedServiceRequestId,
+                CarPropertyErrorCodes.STATUS_TRY_AGAIN, null, false);
     }
 
     private Object deliverErrorGetResult(InvocationOnMock invocation, int errorCode) {
@@ -576,7 +582,7 @@ public class PropertyHalServiceTest {
                 mAsyncResultCaptor.capture());
         GetSetValueResult result = mAsyncResultCaptor.getValue().getList().get(0);
         assertThat(result.getRequestId()).isEqualTo(REQUEST_ID_1);
-        assertThat(result.getErrorCode()).isEqualTo(
+        assertThat(result.getCarPropertyErrorCodes().getCarPropertyManagerErrorCode()).isEqualTo(
                 CarPropertyManager.STATUS_ERROR_TIMEOUT);
 
         verifyNoPendingRequest();
@@ -596,7 +602,7 @@ public class PropertyHalServiceTest {
                 mAsyncResultCaptor.capture());
         GetSetValueResult result = mAsyncResultCaptor.getValue().getList().get(0);
         assertThat(result.getRequestId()).isEqualTo(REQUEST_ID_1);
-        assertThat(result.getErrorCode()).isEqualTo(
+        assertThat(result.getCarPropertyErrorCodes().getCarPropertyManagerErrorCode()).isEqualTo(
                 CarPropertyManager.STATUS_ERROR_TIMEOUT);
 
         verifyNoPendingRequest();
@@ -627,7 +633,7 @@ public class PropertyHalServiceTest {
                 mAsyncResultCaptor.capture());
         GetSetValueResult result = mAsyncResultCaptor.getValue().getList().get(0);
         assertThat(result.getRequestId()).isEqualTo(REQUEST_ID_1);
-        assertThat(result.getErrorCode()).isEqualTo(
+        assertThat(result.getCarPropertyErrorCodes().getCarPropertyManagerErrorCode()).isEqualTo(
                 CarPropertyManager.STATUS_ERROR_TIMEOUT);
 
         verifyNoPendingRequest();
@@ -650,7 +656,7 @@ public class PropertyHalServiceTest {
                 mAsyncResultCaptor.capture());
         GetSetValueResult result = mAsyncResultCaptor.getValue().getList().get(0);
         assertThat(result.getRequestId()).isEqualTo(REQUEST_ID_1);
-        assertThat(result.getErrorCode()).isEqualTo(
+        assertThat(result.getCarPropertyErrorCodes().getCarPropertyManagerErrorCode()).isEqualTo(
                 CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR);
         assertThat(result.getCarPropertyValue()).isEqualTo(null);
 
@@ -660,8 +666,11 @@ public class PropertyHalServiceTest {
     @Test
     public void testGetCarPropertyValuesAsync_errorResultVendorErrorCode() throws RemoteException {
         doAnswer((invocation) -> {
-            return deliverResult(invocation, RECEIVED_REQUEST_ID_1,
-                    CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR,  VENDOR_ERROR_CODE,
+            CarPropertyErrorCodes errorCodes = new CarPropertyErrorCodes(
+                    CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR,
+                    VENDOR_ERROR_CODE,
+                    SYSTEM_ERROR_CODE);
+            return deliverResult(invocation, RECEIVED_REQUEST_ID_1, errorCodes,
                     /* propValue= */ null, /* get= */ true);
         }).when(mVehicleHal).getAsync(anyList(), any(VehicleStubCallbackInterface.class));
 
@@ -675,9 +684,12 @@ public class PropertyHalServiceTest {
                 mAsyncResultCaptor.capture());
         GetSetValueResult result = mAsyncResultCaptor.getValue().getList().get(0);
         assertThat(result.getRequestId()).isEqualTo(REQUEST_ID_1);
-        assertThat(result.getErrorCode()).isEqualTo(
+        assertThat(result.getCarPropertyErrorCodes().getCarPropertyManagerErrorCode()).isEqualTo(
                 CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR);
-        assertThat(result.getVendorErrorCode()).isEqualTo(VENDOR_ERROR_CODE);
+        assertThat(result.getCarPropertyErrorCodes().getVendorErrorCode())
+                .isEqualTo(VENDOR_ERROR_CODE);
+        assertThat(result.getCarPropertyErrorCodes().getSystemErrorCode()).isEqualTo(
+                SYSTEM_ERROR_CODE);
         assertThat(result.getCarPropertyValue()).isEqualTo(null);
 
         verifyNoPendingRequest();
@@ -702,9 +714,10 @@ public class PropertyHalServiceTest {
                 mAsyncResultCaptor.capture());
         GetSetValueResult result = mAsyncResultCaptor.getValue().getList().get(0);
         assertThat(result.getRequestId()).isEqualTo(REQUEST_ID_1);
-        assertThat(result.getErrorCode()).isEqualTo(
+        assertThat(result.getCarPropertyErrorCodes().getCarPropertyManagerErrorCode()).isEqualTo(
                 CarPropertyManager.STATUS_ERROR_NOT_AVAILABLE);
-        assertThat(result.getVendorErrorCode()).isEqualTo(0);
+        assertThat(result.getCarPropertyErrorCodes().getVendorErrorCode()).isEqualTo(0);
+        assertThat(result.getCarPropertyErrorCodes().getSystemErrorCode()).isEqualTo(0);
         assertThat(result.getCarPropertyValue()).isEqualTo(null);
 
         verifyNoPendingRequest();
@@ -729,9 +742,10 @@ public class PropertyHalServiceTest {
                 mAsyncResultCaptor.capture());
         GetSetValueResult result = mAsyncResultCaptor.getValue().getList().get(0);
         assertThat(result.getRequestId()).isEqualTo(REQUEST_ID_1);
-        assertThat(result.getErrorCode()).isEqualTo(
+        assertThat(result.getCarPropertyErrorCodes().getCarPropertyManagerErrorCode()).isEqualTo(
                 CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR);
-        assertThat(result.getVendorErrorCode()).isEqualTo(0);
+        assertThat(result.getCarPropertyErrorCodes().getVendorErrorCode()).isEqualTo(0);
+        assertThat(result.getCarPropertyErrorCodes().getSystemErrorCode()).isEqualTo(0);
         assertThat(result.getCarPropertyValue()).isEqualTo(null);
 
         verifyNoPendingRequest();
@@ -934,7 +948,8 @@ public class PropertyHalServiceTest {
         verify(mSetAsyncPropertyResultCallback).onSetValueResults(mAsyncResultCaptor.capture());
         GetSetValueResult result = mAsyncResultCaptor.getValue().getList().get(0);
         assertThat(result.getRequestId()).isEqualTo(REQUEST_ID_1);
-        assertThat(result.getErrorCode()).isEqualTo(STATUS_OK);
+        assertThat(result.getCarPropertyErrorCodes().getCarPropertyManagerErrorCode())
+                .isEqualTo(STATUS_OK);
         // This should be the time when the request is successfully sent.
         assertThat(result.getUpdateTimestampNanos()).isGreaterThan(0);
 
@@ -974,11 +989,13 @@ public class PropertyHalServiceTest {
         verify(mSetAsyncPropertyResultCallback).onSetValueResults(mAsyncResultCaptor.capture());
         GetSetValueResult result1 = mAsyncResultCaptor.getValue().getList().get(0);
         assertThat(result1.getRequestId()).isEqualTo(REQUEST_ID_4);
-        assertThat(result1.getErrorCode()).isEqualTo(STATUS_OK);
+        assertThat(result1.getCarPropertyErrorCodes().getCarPropertyManagerErrorCode())
+                .isEqualTo(STATUS_OK);
         verify(mSetAsyncPropertyResultCallback).onSetValueResults(mAsyncResultCaptor.capture());
         GetSetValueResult result2 = mAsyncResultCaptor.getValue().getList().get(1);
         assertThat(result2.getRequestId()).isEqualTo(REQUEST_ID_5);
-        assertThat(result2.getErrorCode()).isEqualTo(STATUS_OK);
+        assertThat(result2.getCarPropertyErrorCodes().getCarPropertyManagerErrorCode())
+                .isEqualTo(STATUS_OK);
 
         // This should be the time when the request is successfully sent.
         assertThat(result1.getUpdateTimestampNanos()).isGreaterThan(0);
@@ -1045,7 +1062,8 @@ public class PropertyHalServiceTest {
                 mAsyncResultCaptor.capture());
         for (GetSetValueResultList results: mAsyncResultCaptor.getAllValues()) {
             GetSetValueResult result = results.getList().get(0);
-            assertThat(result.getErrorCode()).isEqualTo(STATUS_OK);
+            assertThat(result.getCarPropertyErrorCodes().getCarPropertyManagerErrorCode())
+                    .isEqualTo(STATUS_OK);
             if (result.getRequestId() == REQUEST_ID_1) {
                 assertThat(result.getUpdateTimestampNanos()).isEqualTo(
                         TEST_UPDATE_TIMESTAMP_NANOS);
@@ -1102,7 +1120,8 @@ public class PropertyHalServiceTest {
         verify(mSetAsyncPropertyResultCallback).onSetValueResults(mAsyncResultCaptor.capture());
         GetSetValueResult result = mAsyncResultCaptor.getValue().getList().get(0);
         assertThat(result.getRequestId()).isEqualTo(REQUEST_ID_1);
-        assertThat(result.getErrorCode()).isEqualTo(STATUS_OK);
+        assertThat(result.getCarPropertyErrorCodes().getCarPropertyManagerErrorCode())
+                .isEqualTo(STATUS_OK);
         assertThat(result.getUpdateTimestampNanos()).isEqualTo(TEST_UPDATE_TIMESTAMP_NANOS);
         // After the result comes, we must unsubscribe the property.
         verify(mVehicleHal).unsubscribeProperty(any(), eq(HVAC_TEMPERATURE_SET));
@@ -1150,7 +1169,8 @@ public class PropertyHalServiceTest {
         verify(mSetAsyncPropertyResultCallback).onSetValueResults(mAsyncResultCaptor.capture());
         GetSetValueResult result = mAsyncResultCaptor.getValue().getList().get(0);
         assertThat(result.getRequestId()).isEqualTo(REQUEST_ID_1);
-        assertThat(result.getErrorCode()).isEqualTo(STATUS_OK);
+        assertThat(result.getCarPropertyErrorCodes().getCarPropertyManagerErrorCode())
+                .isEqualTo(STATUS_OK);
         assertThat(result.getUpdateTimestampNanos()).isEqualTo(TEST_UPDATE_TIMESTAMP_NANOS);
         // After the result comes, we must unsubscribe the property.
         verify(mVehicleHal).unsubscribeProperty(any(), eq(HVAC_TEMPERATURE_SET));
@@ -1203,7 +1223,8 @@ public class PropertyHalServiceTest {
         verify(mSetAsyncPropertyResultCallback).onSetValueResults(mAsyncResultCaptor.capture());
         GetSetValueResult result = mAsyncResultCaptor.getValue().getList().get(0);
         assertThat(result.getRequestId()).isEqualTo(REQUEST_ID_1);
-        assertThat(result.getErrorCode()).isEqualTo(STATUS_OK);
+        assertThat(result.getCarPropertyErrorCodes().getCarPropertyManagerErrorCode())
+                .isEqualTo(STATUS_OK);
         assertThat(result.getUpdateTimestampNanos()).isEqualTo(TEST_UPDATE_TIMESTAMP_NANOS);
         // After the result comes, we must unsubscribe the property.
         verify(mVehicleHal).unsubscribeProperty(any(), eq(HVAC_TEMPERATURE_SET));
@@ -1250,7 +1271,7 @@ public class PropertyHalServiceTest {
                 mAsyncResultCaptor.capture());
         GetSetValueResult result = mAsyncResultCaptor.getValue().getList().get(0);
         assertThat(result.getRequestId()).isEqualTo(REQUEST_ID_1);
-        assertThat(result.getErrorCode()).isEqualTo(
+        assertThat(result.getCarPropertyErrorCodes().getCarPropertyManagerErrorCode()).isEqualTo(
                 CarPropertyManager.STATUS_ERROR_TIMEOUT);
 
         verifyNoPendingRequest();
@@ -1293,7 +1314,8 @@ public class PropertyHalServiceTest {
         verify(mSetAsyncPropertyResultCallback).onSetValueResults(mAsyncResultCaptor.capture());
         GetSetValueResult result = mAsyncResultCaptor.getValue().getList().get(0);
         assertThat(result.getRequestId()).isEqualTo(REQUEST_ID_1);
-        assertThat(result.getErrorCode()).isEqualTo(CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR);
+        assertThat(result.getCarPropertyErrorCodes().getCarPropertyManagerErrorCode())
+                .isEqualTo(CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR);
         // After the result comes, we must unsubscribe the property.
         verify(mVehicleHal).unsubscribeProperty(any(), eq(HVAC_TEMPERATURE_SET));
 
@@ -1376,7 +1398,7 @@ public class PropertyHalServiceTest {
                 mAsyncResultCaptor.capture());
         GetSetValueResult result = mAsyncResultCaptor.getValue().getList().get(0);
         assertThat(result.getRequestId()).isEqualTo(REQUEST_ID_1);
-        assertThat(result.getErrorCode()).isEqualTo(
+        assertThat(result.getCarPropertyErrorCodes().getCarPropertyManagerErrorCode()).isEqualTo(
                 CarPropertyManager.STATUS_ERROR_TIMEOUT);
 
         verifyNoPendingRequest();
@@ -1434,7 +1456,8 @@ public class PropertyHalServiceTest {
                 mAsyncResultCaptor.capture());
         for (GetSetValueResultList results : mAsyncResultCaptor.getAllValues()) {
             GetSetValueResult result = results.getList().get(0);
-            assertThat(result.getErrorCode()).isEqualTo(STATUS_OK);
+            assertThat(result.getCarPropertyErrorCodes().getCarPropertyManagerErrorCode())
+                    .isEqualTo(STATUS_OK);
             assertThat(result.getUpdateTimestampNanos()).isEqualTo(TEST_UPDATE_TIMESTAMP_NANOS);
         }
         // After the result comes, we must unsubscribe the property.
@@ -1493,7 +1516,8 @@ public class PropertyHalServiceTest {
         verify(mSetAsyncPropertyResultCallback).onSetValueResults(mAsyncResultCaptor.capture());
         GetSetValueResult result = mAsyncResultCaptor.getValue().getList().get(0);
         assertThat(result.getRequestId()).isEqualTo(REQUEST_ID_1);
-        assertThat(result.getErrorCode()).isEqualTo(STATUS_OK);
+        assertThat(result.getCarPropertyErrorCodes().getCarPropertyManagerErrorCode())
+                .isEqualTo(STATUS_OK);
         assertThat(result.getUpdateTimestampNanos()).isEqualTo(TEST_UPDATE_TIMESTAMP_NANOS);
         // After the result comes, we must unsubscribe the property.
         verify(mVehicleHal).unsubscribeProperty(any(), eq(HVAC_TEMPERATURE_SET));
@@ -1564,8 +1588,10 @@ public class PropertyHalServiceTest {
         deliverOkayGetResult(getInvocationWrap.get(0), mPropValue2);
 
         verify(mSetAsyncPropertyResultCallback).onSetValueResults(mAsyncResultCaptor.capture());
-        assertThat(mAsyncResultCaptor.getValue().getList().get(0).getErrorCode()).isEqualTo(
-                STATUS_OK);
+        assertThat(
+                mAsyncResultCaptor.getValue().getList().get(0)
+                        .getCarPropertyErrorCodes().getCarPropertyManagerErrorCode())
+                .isEqualTo(STATUS_OK);
 
         // After the internal subscription is finished, the client subscription must be kept,
         // which causes no update to update rate.
@@ -1684,10 +1710,10 @@ public class PropertyHalServiceTest {
         verify(mVehicleHal, never()).subscribeProperty(any(), any());
 
         verify(mSetAsyncPropertyResultCallback).onSetValueResults(mAsyncResultCaptor.capture());
-        assertThat(mAsyncResultCaptor.getValue().getList().get(0).getErrorCode()).isEqualTo(
-                STATUS_OK);
-        assertThat(mAsyncResultCaptor.getValue().getList().get(1).getErrorCode()).isEqualTo(
-                STATUS_OK);
+        assertThat(mAsyncResultCaptor.getValue().getList().get(0).getCarPropertyErrorCodes()
+                .getCarPropertyManagerErrorCode()).isEqualTo(STATUS_OK);
+        assertThat(mAsyncResultCaptor.getValue().getList().get(1).getCarPropertyErrorCodes()
+                .getCarPropertyManagerErrorCode()).isEqualTo(STATUS_OK);
 
         mPropertyHalService.unsubscribeProperty(PERF_VEHICLE_SPEED);
 
@@ -1851,8 +1877,8 @@ public class PropertyHalServiceTest {
         deliverOkayGetResult(getInvocationWrap.get(0), mPropValue2);
 
         verify(mSetAsyncPropertyResultCallback).onSetValueResults(mAsyncResultCaptor.capture());
-        assertThat(mAsyncResultCaptor.getValue().getList().get(0).getErrorCode()).isEqualTo(
-                STATUS_OK);
+        assertThat(mAsyncResultCaptor.getValue().getList().get(0).getCarPropertyErrorCodes()
+                .getCarPropertyManagerErrorCode()).isEqualTo(STATUS_OK);
 
         // After the internal subscription is finished, the client is still subscribed at 50hz
         // and no update rate change is required.
@@ -1984,10 +2010,10 @@ public class PropertyHalServiceTest {
         verify(mSetAsyncPropertyResultCallback).onSetValueResults(mAsyncResultCaptor.capture());
         // Both request must succeed.
         assertThat(mAsyncResultCaptor.getValue().getList()).hasSize(2);
-        assertThat(mAsyncResultCaptor.getValue().getList().get(0).getErrorCode()).isEqualTo(
-                STATUS_OK);
-        assertThat(mAsyncResultCaptor.getValue().getList().get(1).getErrorCode()).isEqualTo(
-                STATUS_OK);
+        assertThat(mAsyncResultCaptor.getValue().getList().get(0).getCarPropertyErrorCodes()
+                .getCarPropertyManagerErrorCode()).isEqualTo(STATUS_OK);
+        assertThat(mAsyncResultCaptor.getValue().getList().get(1).getCarPropertyErrorCodes()
+                .getCarPropertyManagerErrorCode()).isEqualTo(STATUS_OK);
 
         // After internal subscription complete, the client subscription rate must be kept.
         verify(mVehicleHal).subscribeProperty(any(), mListArgumentCaptor.capture());
@@ -2088,8 +2114,10 @@ public class PropertyHalServiceTest {
 
         verify(mSetAsyncPropertyResultCallback).onSetValueResults(mAsyncResultCaptor.capture());
         assertThat(mAsyncResultCaptor.getValue().getList()).hasSize(1);
-        assertThat(mAsyncResultCaptor.getValue().getList().get(0).getErrorCode()).isEqualTo(
-                CarPropertyManager.STATUS_ERROR_TIMEOUT);
+        assertThat(
+                mAsyncResultCaptor.getValue().getList().get(0).getCarPropertyErrorCodes()
+                        .getCarPropertyManagerErrorCode())
+                .isEqualTo(CarPropertyManager.STATUS_ERROR_TIMEOUT);
         verify(mVehicleHal).unsubscribeProperty(any(), eq(HVAC_TEMPERATURE_SET));
 
         verifyNoPendingRequest();
@@ -2135,10 +2163,17 @@ public class PropertyHalServiceTest {
 
         verify(mSetAsyncPropertyResultCallback).onSetValueResults(mAsyncResultCaptor.capture());
         assertThat(mAsyncResultCaptor.getValue().getList()).hasSize(1);
-        assertThat(mAsyncResultCaptor.getValue().getList().get(0).getErrorCode()).isEqualTo(
-                CarPropertyManager.STATUS_ERROR_NOT_AVAILABLE);
-        assertThat(mAsyncResultCaptor.getValue().getList().get(0).getVendorErrorCode()).isEqualTo(
-                0x1234);
+        assertThat(
+                mAsyncResultCaptor.getValue().getList().get(0).getCarPropertyErrorCodes()
+                        .getCarPropertyManagerErrorCode())
+                .isEqualTo(CarPropertyManager.STATUS_ERROR_NOT_AVAILABLE);
+        assertThat(
+                mAsyncResultCaptor.getValue().getList().get(0).getCarPropertyErrorCodes()
+                        .getVendorErrorCode())
+                .isEqualTo(0x1234);
+        assertThat(mAsyncResultCaptor.getValue().getList().get(0).getCarPropertyErrorCodes()
+                        .getSystemErrorCode())
+                .isEqualTo(STATUS_NOT_AVAILABLE);
         verify(mVehicleHal).unsubscribeProperty(any(), eq(HVAC_TEMPERATURE_SET));
 
         verifyNoPendingRequest();
@@ -2160,8 +2195,10 @@ public class PropertyHalServiceTest {
                 mAsyncResultCaptor.capture());
         assertThat(mAsyncResultCaptor.getValue().getList().get(0).getRequestId())
                 .isEqualTo(REQUEST_ID_1);
-        assertThat(mAsyncResultCaptor.getValue().getList().get(0).getErrorCode()).isEqualTo(
-                CarPropertyManager.STATUS_ERROR_TIMEOUT);
+        assertThat(
+                mAsyncResultCaptor.getValue().getList().get(0).getCarPropertyErrorCodes()
+                        .getCarPropertyManagerErrorCode())
+                .isEqualTo(CarPropertyManager.STATUS_ERROR_TIMEOUT);
 
         verifyNoPendingRequest();
     }
@@ -2188,8 +2225,9 @@ public class PropertyHalServiceTest {
                 mAsyncResultCaptor.capture());
         assertThat(mAsyncResultCaptor.getValue().getList().get(0).getRequestId())
                 .isEqualTo(REQUEST_ID_1);
-        assertThat(mAsyncResultCaptor.getValue().getList().get(0).getErrorCode()).isEqualTo(
-                CarPropertyManager.STATUS_ERROR_TIMEOUT);
+        assertThat(mAsyncResultCaptor.getValue().getList().get(0).getCarPropertyErrorCodes()
+                        .getCarPropertyManagerErrorCode())
+                .isEqualTo(CarPropertyManager.STATUS_ERROR_TIMEOUT);
 
         verifyNoPendingRequest();
     }
@@ -2210,7 +2248,8 @@ public class PropertyHalServiceTest {
                 mAsyncResultCaptor.capture());
         GetSetValueResult result = mAsyncResultCaptor.getValue().getList().get(0);
         assertThat(result.getRequestId()).isEqualTo(REQUEST_ID_1);
-        assertThat(result.getErrorCode()).isEqualTo(CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR);
+        assertThat(result.getCarPropertyErrorCodes().getCarPropertyManagerErrorCode())
+                .isEqualTo(CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR);
         assertThat(result.getCarPropertyValue()).isEqualTo(null);
 
         verifyNoPendingRequest();
@@ -2685,6 +2724,21 @@ public class PropertyHalServiceTest {
     }
 
     @Test
+    public void testSubscribeProperty_withResolution() throws Exception {
+        mListArgumentCaptor = ArgumentCaptor.forClass(List.class);
+
+        mPropertyHalService.subscribeProperty(List.of(createCarSubscriptionOption(
+                PERF_VEHICLE_SPEED, new int[]{0}, /* updateRateHz= */ 40.0f,
+                /* enableVur= */ false, /* resolution */ 1.0f)));
+
+        // Subscription rate has to be updated according to client subscription.
+        verify(mVehicleHal).subscribeProperty(any(), mListArgumentCaptor.capture());
+        assertThat(mListArgumentCaptor.getValue()).containsExactly(new HalSubscribeOptions(
+                PERF_VEHICLE_SPEED, new int[]{0}, 40.0f, /* enableVariableUpdateRate= */ false,
+                /* resolution */ 1.0f));
+    }
+
+    @Test
     public void testSubscribeProperty_setAsync_clientDisablesVur() throws Exception {
         doReturn(mSetAsyncPropertyResultBinder).when(mSetAsyncPropertyResultCallback).asBinder();
         AsyncPropertyServiceRequest request = copyRequest(SET_SPEED_REQUEST_ID_2);
@@ -2755,18 +2809,27 @@ public class PropertyHalServiceTest {
     public static CarSubscription createCarSubscriptionOption(int propertyId,
             int[] areaId, float updateRateHz) {
         return createCarSubscriptionOption(propertyId, areaId, updateRateHz,
-                /* enableVur= */ false);
+                /* enableVur= */ false, /*resolution*/ 0.0f);
     }
 
     /** Creates a {@code CarSubscription}. */
     @VisibleForTesting
     public static CarSubscription createCarSubscriptionOption(int propertyId,
             int[] areaId, float updateRateHz, boolean enableVur) {
+        return createCarSubscriptionOption(propertyId, areaId, updateRateHz,
+                enableVur, /*resolution*/ 0.0f);
+    }
+
+    /** Creates a {@code CarSubscription}. */
+    @VisibleForTesting
+    public static CarSubscription createCarSubscriptionOption(int propertyId,
+            int[] areaId, float updateRateHz, boolean enableVur, float resolution) {
         CarSubscription options = new CarSubscription();
         options.propertyId = propertyId;
         options.areaIds = areaId;
         options.updateRateHz = updateRateHz;
         options.enableVariableUpdateRate = enableVur;
+        options.resolution = resolution;
         return options;
     }
 

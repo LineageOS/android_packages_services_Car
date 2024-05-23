@@ -28,6 +28,7 @@
 import argparse
 import filecmp
 import os
+import sys
 import subprocess
 import tempfile
 
@@ -55,13 +56,17 @@ def main():
             help='modified files')
     args = parser.parse_args()
 
-    vehiclePropertyIdsUpdated = False
+    needUpdate = False
     for preupload_file in args.preupload_files:
         if preupload_file.endswith('VehiclePropertyIds.java'):
-            vehiclePropertyIdsUpdated = True
+            needUpdate = True
             break
-    if not vehiclePropertyIdsUpdated:
-        # VehiclePropertyIds.java is not updated, do nothing.
+        if preupload_file.endswith('VehiclePropertyIdsParser.jar'):
+            # If parser is updated, the generated file needs to be updated.
+            needUpdate = True
+            break
+
+    if not needUpdate:
         return
 
     vehiclePropertyIdsParser = os.path.join(args.android_build_top,
@@ -69,8 +74,8 @@ def main():
     carLib = os.path.join(args.android_build_top, CAR_LIB)
     javaHomeDir = os.getenv("JAVA_HOME")
     if javaHomeDir is None or javaHomeDir == "":
-        if Path(rootDir + JDK_FOLDER).is_dir():
-            javaHomeDir = rootDir + JDK_FOLDER
+        if os.path.isdir(args.android_build_top + JDK_FOLDER):
+            javaHomeDir = args.android_build_top + JDK_FOLDER
         else:
             print('$JAVA_HOME is not set. Please use source build/envsetup.sh` in '
                     '$ANDROID_BUILD_TOP')
@@ -88,6 +93,7 @@ def main():
             cmd = ' '.join([javaBin, '-jar', vehiclePropertyIdsParser, carLib,
                     carSvcProps])
             print('Run \n\n' + cmd + '\n\nto update')
+            sys.exit(1)
     finally:
         os.remove(tempCarSvcProps)
 

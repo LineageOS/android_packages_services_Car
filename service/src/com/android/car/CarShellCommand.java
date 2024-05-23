@@ -35,7 +35,7 @@ import static android.hardware.automotive.vehicle.UserIdentificationAssociationT
 import static android.media.AudioManager.FLAG_SHOW_UI;
 
 import static com.android.car.CarServiceUtils.toIntArray;
-import static com.android.car.hal.property.HalAreaIdDebugUtils.toDebugString;
+import static com.android.car.hal.property.HalPropertyDebugUtils.toAreaIdString;
 import static com.android.car.hal.property.HalPropertyDebugUtils.toPropertyIdString;
 import static com.android.car.hal.property.HalPropertyDebugUtils.toPropertyId;
 import static com.android.car.power.PolicyReader.POWER_STATE_ON;
@@ -58,6 +58,7 @@ import android.car.builtin.os.UserManagerHelper;
 import android.car.builtin.util.Slogf;
 import android.car.builtin.widget.LockPatternHelper;
 import android.car.content.pm.CarPackageManager;
+import android.car.drivingstate.CarUxRestrictions;
 import android.car.feature.Flags;
 import android.car.input.CarInputManager;
 import android.car.input.CustomInputEvent;
@@ -148,6 +149,7 @@ import com.android.car.telemetry.util.IoUtils;
 import com.android.car.user.CarUserService;
 import com.android.car.user.UserHandleHelper;
 import com.android.car.watchdog.CarWatchdogService;
+import com.android.car.wifi.CarWifiService;
 import com.android.internal.util.Preconditions;
 import com.android.modules.utils.BasicShellCommandHandler;
 
@@ -305,6 +307,14 @@ final class CarShellCommand extends BasicShellCommandHandler {
     private static final String COMMAND_GET_USER_BY_DISPLAY = "get-user-by-display";
     private static final String COMMAND_GENERATE_TEST_VENDOR_CONFIGS = "gen-test-vendor-configs";
     private static final String COMMAND_RESTORE_TEST_VENDOR_CONFIGS = "restore-vendor-configs";
+
+    private static final String COMMAND_GET_TETHERING_CAPABILITY = "get-tethering-capability";
+
+    private static final String COMMAND_GET_CURRENT_UX_RESTRICTIONS = "get-current-ux-restrictions";
+    private static final String COMMAND_SET_CURRENT_UXR_MODE = "set-current-uxr-mode";
+    private static final String COMMAND_GET_CURRENT_UXR_MODE = "get-current-uxr-mode";
+    private static final String COMMAND_GET_SUPPORTED_UXR_MODES = "get-supported-uxr-modes";
+    private static final String COMMAND_GET_UXR_CONFIG = "get-uxr-config";
 
     private static final String[] CREATE_OR_MANAGE_USERS_PERMISSIONS = new String[] {
             android.Manifest.permission.CREATE_USERS,
@@ -534,6 +544,8 @@ final class CarShellCommand extends BasicShellCommandHandler {
     private final CarEvsService mCarEvsService;
     private final CarWatchdogService mCarWatchdogService;
     private final CarTelemetryService mCarTelemetryService;
+    private final CarUxRestrictionsManagerService mCarUxRestrictionsManagerService;
+    private final CarWifiService mCarWifiService;
     private final Map<Class, CarSystemService> mAllServicesByClazz;
     private long mKeyDownTime;
     private long mMotionDownTime;
@@ -566,6 +578,9 @@ final class CarShellCommand extends BasicShellCommandHandler {
         mCarWatchdogService = (CarWatchdogService) allServicesByClazz.get(CarWatchdogService.class);
         mCarTelemetryService = (CarTelemetryService)
                 allServicesByClazz.get(CarTelemetryService.class);
+        mCarUxRestrictionsManagerService = (CarUxRestrictionsManagerService)
+                allServicesByClazz.get(CarUxRestrictionsManagerService.class);
+        mCarWifiService = (CarWifiService) allServicesByClazz.get(CarWifiService.class);
         mAllServicesByClazz = allServicesByClazz;
     }
 
@@ -763,9 +778,11 @@ final class CarShellCommand extends BasicShellCommandHandler {
         pw.println("\t  it will use a  default value).");
         pw.println("\t  The --hal-only option only calls HAL, without using CarUserService.");
 
-        pw.printf("\t%s <USER_ID> [--hal-only] [--timeout TIMEOUT_MS]\n", COMMAND_SWITCH_USER);
+        pw.printf("\t%s <USER_ID> [--hal-only] [--ignore-uxr] [--timeout TIMEOUT_MS]\n",
+                COMMAND_SWITCH_USER);
         pw.println("\t  Switches to user USER_ID using the HAL integration.");
         pw.println("\t  The --hal-only option only calls HAL, without switching the user,");
+        pw.println("\t  The --ignore-uxr option ignores any Ux restriction regarding user switch,");
         pw.println("\t  while the --timeout defines how long to wait for the response.");
 
         pw.printf("\t%s [--timeout TIMEOUT_MS]\n", COMMAND_LOGOUT_USER);
@@ -942,6 +959,21 @@ final class CarShellCommand extends BasicShellCommandHandler {
         pw.println("\t Gets the display associated to the given user");
         pw.printf("\t%s <DISPLAY>", COMMAND_GET_USER_BY_DISPLAY);
         pw.println("\t Gets the user associated with the given display");
+
+        pw.printf("\t%s <DISPLAY>", COMMAND_GET_CURRENT_UX_RESTRICTIONS);
+        pw.println("\t Gets the current UX restriction on given display. If no display is "
+                + "provided, return current UX restrictions on default display.");
+        pw.printf("\t%s <mode>", COMMAND_SET_CURRENT_UXR_MODE);
+        pw.println("\t Sets current mode for UX restrictions.");
+        pw.printf("\t%s", COMMAND_GET_CURRENT_UXR_MODE);
+        pw.println("\t Gets current mode for UX restrictions.");
+        pw.printf("\t%s", COMMAND_GET_SUPPORTED_UXR_MODES);
+        pw.println("\t Gets all supported UX restrictions modes.");
+        pw.printf("\t%s", COMMAND_GET_UXR_CONFIG);
+        pw.println("\t Gets UX restrictions configuration.");
+
+        pw.printf("\t%s", COMMAND_GET_TETHERING_CAPABILITY);
+        pw.println("\t Gets the current tethering persistence capability.");
     }
 
     private static int showInvalidArguments(IndentingPrintWriter pw) {
@@ -1486,12 +1518,65 @@ final class CarShellCommand extends BasicShellCommandHandler {
             case COMMAND_GET_USER_BY_DISPLAY:
                 getUserByDisplay(args, writer);
                 break;
+            case COMMAND_GET_TETHERING_CAPABILITY:
+                getTetheringCapability(writer);
+                break;
+            case COMMAND_GET_CURRENT_UX_RESTRICTIONS:
+                getCurrentUxRestrictions(args, writer);
+                break;
+            case COMMAND_SET_CURRENT_UXR_MODE:
+                setCurrentUxrMode(args, writer);
+                break;
+            case COMMAND_GET_CURRENT_UXR_MODE:
+                getCurrentUxrMode(args, writer);
+                break;
+            case COMMAND_GET_SUPPORTED_UXR_MODES:
+                getSupportedUxRModes(writer);
+                break;
+            case COMMAND_GET_UXR_CONFIG:
+                getUxrConfig(writer);
+                break;
             default:
                 writer.println("Unknown command: \"" + cmd + "\"");
                 showHelp(writer);
                 return RESULT_ERROR;
         }
         return RESULT_OK;
+    }
+
+    private void getUxrConfig(IndentingPrintWriter writer) {
+        writer.println(mCarUxRestrictionsManagerService.getConfigs());
+    }
+
+    private void getSupportedUxRModes(IndentingPrintWriter writer) {
+        writer.println(mCarUxRestrictionsManagerService.getSupportedRestrictionModes());
+    }
+
+    private void getCurrentUxrMode(String[] args, IndentingPrintWriter writer) {
+        writer.printf("Current Uxr restrictions mode: %s\n",
+                mCarUxRestrictionsManagerService.getRestrictionMode());
+    }
+
+    private void setCurrentUxrMode(String[] args, IndentingPrintWriter writer) {
+        if (args.length < 2) {
+            writer.println("Insufficient number of args");
+            return;
+        }
+
+        String mode = args[1];
+        mCarUxRestrictionsManagerService.setRestrictionMode(mode);
+        writer.printf("Current Uxr restrictions mode set to: %s\n", mode);
+    }
+
+    private void getCurrentUxRestrictions(String[] args, IndentingPrintWriter writer) {
+        int displayId = Display.DEFAULT_DISPLAY;
+        if (args.length == 2) {
+            displayId = Integer.parseInt(args[1]);
+        }
+
+        CarUxRestrictions restrictions = mCarUxRestrictionsManagerService
+                .getCurrentUxRestrictions(displayId);
+        writer.printf("Current Restrictions:\n %s", restrictions.getActiveRestrictionsString());
     }
 
     private void setStartBackgroundUsersOnGarageMode(String[] args, IndentingPrintWriter writer) {
@@ -2126,6 +2211,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
         int targetUserId = Integer.parseInt(args[1]);
         int timeout = DEFAULT_HAL_TIMEOUT_MS + DEFAULT_CAR_USER_SERVICE_TIMEOUT_MS;
         boolean halOnly = false;
+        boolean ignoreUxr = false;
 
         for (int i = 2; i < args.length; i++) {
             String arg = args[i];
@@ -2135,6 +2221,9 @@ final class CarShellCommand extends BasicShellCommandHandler {
                     break;
                 case "--hal-only":
                     halOnly = true;
+                    break;
+                case "--ignore-uxr":
+                    ignoreUxr = true;
                     break;
                 default:
                     writer.println("Invalid option at index " + i + ": " + arg);
@@ -2190,9 +2279,16 @@ final class CarShellCommand extends BasicShellCommandHandler {
 
         SyncResultCallback<UserSwitchResult> syncResultCallback = new SyncResultCallback<>();
 
-        carUserManager.switchUser(
-                new UserSwitchRequest.Builder(UserHandle.of(targetUserId)).build(), Runnable::run,
-                syncResultCallback);
+        if (ignoreUxr) {
+            carUserManager.switchUserIgnoringUxRestriction(
+                    new UserSwitchRequest.Builder(UserHandle.of(targetUserId)).build(),
+                    Runnable::run, syncResultCallback);
+
+        } else {
+            carUserManager.switchUser(
+                    new UserSwitchRequest.Builder(UserHandle.of(targetUserId)).build(),
+                    Runnable::run, syncResultCallback);
+        }
 
         try {
             showUserSwitchResult(writer, syncResultCallback.get(timeout, TimeUnit.MILLISECONDS));
@@ -3130,7 +3226,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
             value = args[2];
         }
         String debugOutput = "Injecting VHAL event: property=" + toPropertyIdString(propertyId)
-                + ", areaId=" + toDebugString(propertyId, areaId) + ", value=" + value + (
+                + ", areaId=" + toAreaIdString(propertyId, areaId) + ", value=" + value + (
                 TextUtils.isEmpty(delayTimeSeconds) ? ""
                         : ", delayTimeSeconds=" + delayTimeSeconds);
         Slogf.i(TAG, debugOutput);
@@ -3154,7 +3250,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
         int errorCode = Integer.decode(args[3]);
         Slogf.i(TAG,
                 "Injecting VHAL error event: property=" + toPropertyIdString(
-                        propertyId) + ", areaId=" + toDebugString(propertyId, areaId)
+                        propertyId) + ", areaId=" + toAreaIdString(propertyId, areaId)
                         + ", errorCode=" + errorCode);
         VehiclePropError vehiclePropError = new VehiclePropError();
         vehiclePropError.propId = propertyId;
@@ -3220,16 +3316,16 @@ final class CarShellCommand extends BasicShellCommandHandler {
         int areaId = decodeAreaId(args[2]);
         String value = args[3];
         Slogf.i(TAG, "Setting vehicle property ID= %s, areaId= %s, value= %s",
-                toPropertyIdString(propertyId), toDebugString(propertyId, areaId), value);
+                toPropertyIdString(propertyId), toAreaIdString(propertyId, areaId), value);
         if (areaId == 0 && !isPropertyAreaTypeGlobal(propertyId)) {
             writer.printf("Property area type is inconsistent with given area ID: %s\n",
-                    toDebugString(propertyId, areaId));
+                    toAreaIdString(propertyId, areaId));
             return;
         }
         try {
             mHal.setPropertyFromCommand(propertyId, areaId, value, writer);
             writer.printf("Property %s area ID %s is set to %s successfully\n",
-                    toPropertyIdString(propertyId), toDebugString(propertyId, areaId), value);
+                    toPropertyIdString(propertyId), toAreaIdString(propertyId, areaId), value);
         } catch (Exception e) {
             writer.printf("Cannot set a property: %s\n", e);
         }
@@ -4192,6 +4288,11 @@ final class CarShellCommand extends BasicShellCommandHandler {
             return;
         }
         writer.println(userId);
+    }
+
+    private void getTetheringCapability(IndentingPrintWriter writer) {
+        writer.printf("Persist tethering capabilities enabled: %b\n",
+                mCarWifiService.canControlPersistTetheringSettings());
     }
 
     // Check if the given property is global

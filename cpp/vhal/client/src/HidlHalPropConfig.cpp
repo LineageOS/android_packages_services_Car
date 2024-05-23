@@ -31,7 +31,8 @@ using ::android::hardware::automotive::vehicle::toInt;
 HidlHalPropConfig::HidlHalPropConfig(VehiclePropConfig&& config) {
     mPropConfig = std::move(config);
     for (VehicleAreaConfig& areaConfig : mPropConfig.areaConfigs) {
-        mAreaConfigs.push_back(std::make_unique<HidlHalAreaConfig>(std::move(areaConfig)));
+        mAreaConfigs.push_back(std::make_unique<HidlHalAreaConfig>(std::move(areaConfig),
+                                                                   toInt(mPropConfig.access)));
     }
 }
 
@@ -67,12 +68,17 @@ float HidlHalPropConfig::getMaxSampleRate() const {
     return mPropConfig.maxSampleRate;
 }
 
-HidlHalAreaConfig::HidlHalAreaConfig(VehicleAreaConfig&& areaConfig) {
+HidlHalAreaConfig::HidlHalAreaConfig(VehicleAreaConfig&& areaConfig, int32_t access) {
     mAreaConfig = std::move(areaConfig);
+    mAccess = access;
 }
 
 int32_t HidlHalAreaConfig::getAreaId() const {
     return mAreaConfig.areaId;
+}
+
+int32_t HidlHalAreaConfig::getAccess() const {
+    return mAccess;
 }
 
 int32_t HidlHalAreaConfig::getMinInt32Value() const {
@@ -97,6 +103,11 @@ float HidlHalAreaConfig::getMinFloatValue() const {
 
 float HidlHalAreaConfig::getMaxFloatValue() const {
     return mAreaConfig.maxFloatValue;
+}
+
+// HIDL VHAL does not support VUR.
+bool HidlHalAreaConfig::isVariableUpdateRateSupported() const {
+    return false;
 }
 
 }  // namespace vhal

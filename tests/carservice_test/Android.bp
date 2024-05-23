@@ -45,6 +45,7 @@ android_test {
     static_libs: [
         "junit",
         "android.car.test.utils",
+        "android.car.testapi",
         "androidx.test.ext.junit",
         "androidx.test.rules",
         "android.frameworks.automotive.powerpolicy-V2-java",
@@ -77,4 +78,6 @@ android_test {
         "automotive-tests",
         "automotive-general-tests",
     ],
+    // TODO(b/319708040): re-enable use_resource_processor
+    use_resource_processor: false,
 }

@@ -76,7 +76,7 @@ public final class VolumeTestFragment extends Fragment {
         public boolean isMuted;
         public boolean isBlocked;
         public boolean isAttenuated;
-        public boolean isHalMuted;
+        public boolean isSystemMuted;
     }
 
     private final class CarVolumeChangeListener extends CarVolumeCallback {

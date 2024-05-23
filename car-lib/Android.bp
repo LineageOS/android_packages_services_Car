@@ -58,12 +58,12 @@ filegroup {
     visibility: [
         "//packages/services/Car/car-lib",
         "//packages/services/Car/car-lib-module",
+        "//packages/services/Car/tests/CarLibHostUnitTest",
     ],
 }
 
-java_library {
-    name: "android.car",
-
+java_defaults {
+    name: "android.car-defaults",
     defaults: [
         "car-framework-aconfig-libraries",
     ],
@@ -87,6 +87,16 @@ java_library {
     // TODO(b/288271411): enable it when car mainline module is supported
     // min_sdk_version: "33",
     sdk_version: "module_current",
+}
+
+java_library {
+    name: "android.car",
+    defaults: [
+        "android.car-defaults",
+    ],
+    static_libs: [
+        "com.android.car.internal.dep",
+    ],
 }
 
 // TODO(b/248635421): these annotations are part of android.car, but

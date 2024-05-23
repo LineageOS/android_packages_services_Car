@@ -70,7 +70,7 @@ final class CarTaskViewControllerSupervisor {
             mCarTaskViewControllerHostLifecycleObserver =
             new CarTaskViewControllerHostLifecycleObserver() {
                 public void onHostAppeared(CarTaskViewControllerHostLifecycle lifecycle) {
-                    mActivityHolders.get(lifecycle).maybeShowEmbeddedTasks();
+                    mActivityHolders.get(lifecycle).maybeShowControlledTasks();
                 }
 
                 @Override
@@ -228,12 +228,12 @@ final class CarTaskViewControllerSupervisor {
             mCarActivityService = carActivityService;
         }
 
-        private void maybeShowEmbeddedTasks() {
+        private void maybeShowControlledTasks() {
             synchronized (mLock) {
                 if (mCarTaskViewController == null || !mCarTaskViewController.isHostVisible()) {
                     return;
                 }
-                mCarTaskViewController.showEmbeddedTasks();
+                mCarTaskViewController.showEmbeddedControlledTasks();
             }
         }
 
@@ -245,12 +245,13 @@ final class CarTaskViewControllerSupervisor {
             }
             mCallbackExecutor.execute(() -> {
                 synchronized (mLock) {
-                    Slogf.w(TAG, "car task view controller not found when triggering callback, "
-                            + "not dispatching onConnected");
                     // Check for null because the mCarTaskViewController might have already been
                     // released but this code path is executed later because the executor was
                     // busy.
                     if (mCarTaskViewController == null) {
+                        Slogf.w(TAG,
+                                "car task view controller not found when triggering callback, not"
+                                        + " dispatching onConnected");
                         return;
                     }
                     mCarTaskViewControllerCallback.onConnected(mCarTaskViewController);
@@ -303,7 +304,7 @@ final class CarTaskViewControllerSupervisor {
             // Only called when USER_LIFECYCLE_EVENT_TYPE_UNLOCKED.
             for (int i = mActivityHolders.size() - 1; i >= 0; --i) {
                 ActivityHolder activityHolder = mActivityHolders.valueAt(i);
-                activityHolder.maybeShowEmbeddedTasks();
+                activityHolder.maybeShowControlledTasks();
             }
         }
     };

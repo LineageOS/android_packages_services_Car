@@ -14,19 +14,20 @@
 package {
     default_applicable_licenses: ["Android-Apache-2.0"],
 }
+
 android_app {
     name: "CarUiPortraitDialerRRO",
     resource_dirs: ["res"],
     sdk_version: "current",
     aaptflags: [
         "--no-resource-deduping",
-        "--no-resource-removal"
+        "--no-resource-removal",
     ],
     static_libs: [
         "androidx-constraintlayout_constraintlayout",
         "androidx-constraintlayout_constraintlayout-solver",
         "car-apps-common",
         "car-ui-lib",
-        "car-portrait-ui-common"
+        "car-portrait-ui-common",
     ],
 }

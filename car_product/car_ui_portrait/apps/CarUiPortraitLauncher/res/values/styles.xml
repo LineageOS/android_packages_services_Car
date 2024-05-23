@@ -19,4 +19,13 @@
         <item name="cardCornerRadius">@dimen/launcher_card_corner_radius</item>
         <item name="cardElevation">0dp</item>
     </style>
+    <style name="CalmModeClock" parent="TextAppearance.Car.Display">
+        <item name="android:textSize">500sp</item>
+        <item name="android:lineHeight">480sp</item>
+        <item name="android:format12Hour">hh\nmm</item>
+        <item name="android:format24Hour">HH\nmm</item>
+    </style>
+    <style name="CalmModeText.MediaTitle">
+        <item name="android:maxWidth">800dp</item>
+    </style>
 </resources>

@@ -27,6 +27,8 @@ import static org.mockito.Mockito.when;
 
 import android.car.Car;
 import android.car.VehiclePropertyIds;
+import android.car.feature.FakeFeatureFlagsImpl;
+import android.car.feature.Flags;
 import android.car.hardware.CarHvacFanDirection;
 import android.car.test.AbstractExpectableTestCase;
 import android.content.Context;
@@ -113,10 +115,29 @@ public class PropertyHalServiceConfigsTest extends AbstractExpectableTestCase {
             PROP_VALUE_BUILDER.build(VehicleProperty.HVAC_FAN_DIRECTION, /*areaId=*/0,
                     /*timestamp=*/SystemClock.elapsedRealtimeNanos(), /*status=*/0,
                     CarHvacFanDirection.FACE | 0x100);
+    private static final HalPropValue ULTRASONCIS_SENSOR_MEASURED_DISTANCE_WITH_ERROR_VALID =
+            PROP_VALUE_BUILDER.build(
+                    /*prop=*/ VehiclePropertyIds.ULTRASONICS_SENSOR_MEASURED_DISTANCE,
+                    /*areaId=*/ 1,
+                    /*timestamp=*/ SystemClock.elapsedRealtimeNanos(),
+                    /*status=*/ 0,
+                    /*values=*/ new int[]{300, 10});
+    private static final HalPropValue ULTRASONCIS_SENSOR_MEASURED_DISTANCE_EMPTY_ARRAY_VALID =
+            PROP_VALUE_BUILDER.build(
+                    /*prop=*/ VehiclePropertyIds.ULTRASONICS_SENSOR_MEASURED_DISTANCE,
+                    /*areaId=*/ 1,
+                    /*timestamp=*/ SystemClock.elapsedRealtimeNanos(),
+                    /*status=*/ 0,
+                    /*values=*/ new int[]{});
+
+    private FakeFeatureFlagsImpl mFakeFeatureFlags;
 
     @Before
     public void setUp() {
-        mPropertyHalServiceConfigs = new PropertyHalServiceConfigs();
+        mFakeFeatureFlags = new FakeFeatureFlagsImpl();
+        mFakeFeatureFlags.setFlag(Flags.FLAG_ANDROID_VIC_VEHICLE_PROPERTIES, true);
+
+        mPropertyHalServiceConfigs = new PropertyHalServiceConfigs(mFakeFeatureFlags);
 
         when(mContext.checkCallingOrSelfPermission(Car.PERMISSION_CAR_ENGINE_DETAILED))
                 .thenReturn(PackageManager.PERMISSION_GRANTED);
@@ -147,6 +168,12 @@ public class PropertyHalServiceConfigsTest extends AbstractExpectableTestCase {
         assertThat(mPropertyHalServiceConfigs.checkPayload(GEAR_WITH_INVALID_TYPE_VALUE)).isFalse();
         assertThat(mPropertyHalServiceConfigs.checkPayload(HVAC_FAN_DIRECTIONS_VALID)).isTrue();
         assertThat(mPropertyHalServiceConfigs.checkPayload(HVAC_FAN_DIRECTIONS_INVALID)).isFalse();
+        assertThat(mPropertyHalServiceConfigs
+                .checkPayload(ULTRASONCIS_SENSOR_MEASURED_DISTANCE_WITH_ERROR_VALID))
+                .isTrue();
+        assertThat(mPropertyHalServiceConfigs
+                .checkPayload(ULTRASONCIS_SENSOR_MEASURED_DISTANCE_EMPTY_ARRAY_VALID))
+                .isTrue();
     }
 
     /**
@@ -634,5 +661,17 @@ public class PropertyHalServiceConfigsTest extends AbstractExpectableTestCase {
         assertThat(mPropertyHalServiceConfigs.halToManagerPropId(
                 VehicleProperty.VEHICLE_SPEED_DISPLAY_UNITS)).isEqualTo(
                 VehiclePropertyIds.VEHICLE_SPEED_DISPLAY_UNITS);
+    }
+
+
+    @Test
+    public void testVicVehiclePropertiesFlagDisabled() throws Exception {
+        int vicProperty = VehiclePropertyIds.DRIVER_DROWSINESS_ATTENTION_SYSTEM_ENABLED;
+        mFakeFeatureFlags.setFlag(Flags.FLAG_ANDROID_VIC_VEHICLE_PROPERTIES, false);
+
+        mPropertyHalServiceConfigs = new PropertyHalServiceConfigs(mFakeFeatureFlags);
+
+        assertThat(mPropertyHalServiceConfigs.getAllSystemHalPropIds()).doesNotContain(vicProperty);
+        assertThat(mPropertyHalServiceConfigs.isSupportedProperty(vicProperty)).isFalse();
     }
 }

@@ -252,6 +252,7 @@ prebuilt_etc {
     sub_dir: "permissions",
     src: "com.android.car.multidisplay.xml",
     filename_from_src: true,
+    system_ext_specific: true,
 }
 
 prebuilt_etc {
@@ -273,6 +274,7 @@ prebuilt_etc {
     sub_dir: "permissions",
     src: "com.google.android.car.multidisplaytest.xml",
     filename_from_src: true,
+    system_ext_specific: true,
 }
 
 prebuilt_etc {

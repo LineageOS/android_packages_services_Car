@@ -89,6 +89,38 @@ public class CarOccupantZoneManager extends CarManagerBase {
      */
     public static final int DISPLAY_TYPE_AUXILIARY = 5;
 
+    /**
+     * Auxiliary display which can provide additional screen for {@link #DISPLAY_TYPE_MAIN}.
+     * Activities running in {@link #DISPLAY_TYPE_MAIN} or other auxiliary displays may be moved
+     * to this type of display.
+     * @hide
+     */
+    public static final int DISPLAY_TYPE_AUXILIARY_2 = 6;
+
+    /**
+     * Auxiliary display which can provide additional screen for {@link #DISPLAY_TYPE_MAIN}.
+     * Activities running in {@link #DISPLAY_TYPE_MAIN} or other auxiliary displays may be moved
+     * to this type of display.
+     * @hide
+     */
+    public static final int DISPLAY_TYPE_AUXILIARY_3 = 7;
+
+    /**
+     * Auxiliary display which can provide additional screen for {@link #DISPLAY_TYPE_MAIN}.
+     * Activities running in {@link #DISPLAY_TYPE_MAIN} or other auxiliary displays may be moved
+     * to this type of display.
+     * @hide
+     */
+    public static final int DISPLAY_TYPE_AUXILIARY_4 = 8;
+
+    /**
+     * Auxiliary display which can provide additional screen for {@link #DISPLAY_TYPE_MAIN}.
+     * Activities running in {@link #DISPLAY_TYPE_MAIN} or other auxiliary displays may be moved
+     * to this type of display.
+     * @hide
+     */
+    public static final int DISPLAY_TYPE_AUXILIARY_5 = 9;
+
     /** @hide */
     @Retention(RetentionPolicy.SOURCE)
     @IntDef(prefix = "DISPLAY_TYPE_", value = {
@@ -98,6 +130,10 @@ public class CarOccupantZoneManager extends CarManagerBase {
             DISPLAY_TYPE_HUD,
             DISPLAY_TYPE_INPUT,
             DISPLAY_TYPE_AUXILIARY,
+            DISPLAY_TYPE_AUXILIARY_2,
+            DISPLAY_TYPE_AUXILIARY_3,
+            DISPLAY_TYPE_AUXILIARY_4,
+            DISPLAY_TYPE_AUXILIARY_5,
     })
     @Target({ElementType.TYPE_USE})
     public @interface DisplayTypeEnum {}

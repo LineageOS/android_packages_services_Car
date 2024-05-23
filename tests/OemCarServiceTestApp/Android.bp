@@ -23,15 +23,15 @@ java_library {
     name: "com.android.car.oem",
     srcs: [
         "src/com/android/car/oem/**/*.java",
-        ],
+    ],
     static_libs: [
         "androidx.annotation_annotation",
-        ],
+    ],
     platform_apis: true,
     libs: [
         "android.car-system-stubs",
-        ],
-    min_sdk_version:  "33",
+    ],
+    min_sdk_version: "33",
 }
 
 android_app {
@@ -43,7 +43,7 @@ android_app {
     platform_apis: true,
     libs: [
         "android.car-system-stubs",
-        ],
+    ],
     static_libs: ["com.android.car.oem"],
     required: ["allowed_privapp_com.android.car.oemcarservice.testapp"],
 }

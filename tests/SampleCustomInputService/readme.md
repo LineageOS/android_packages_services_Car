@@ -101,3 +101,9 @@ To simulate pressing BACK HOME button, run:
 ```shell script
 adb shell cmd car_service inject-custom-input f8
 ```
+
+To notify driver UI to move navigation view, run:
+
+```shell script
+adb shell cmd car_service inject-custom-input 1011
+```

@@ -257,6 +257,14 @@ size_t AidlVhalClient::countOnBinderDiedCallbacks() {
     return mOnBinderDiedCallbacks.size();
 }
 
+int32_t AidlVhalClient::getRemoteInterfaceVersion() {
+    int32_t interfaceVersion = 0;
+    if (auto status = mHal->getInterfaceVersion(&interfaceVersion); !status.isOk()) {
+        ALOGE("failed to get VHAL interface version, assume 0");
+    }
+    return interfaceVersion;
+}
+
 std::unique_ptr<ISubscriptionClient> AidlVhalClient::getSubscriptionClient(
         std::shared_ptr<ISubscriptionCallback> callback) {
     return std::make_unique<AidlSubscriptionClient>(mHal, callback);

@@ -26,10 +26,10 @@ import android.car.evs.CarEvsManager;
 import android.car.evs.CarEvsManager.CarEvsStreamEvent;
 import android.car.evs.CarEvsStatus;
 import android.os.SystemClock;
-import android.test.suitebuilder.annotation.MediumTest;
 import android.util.Log;
 
 import androidx.test.core.app.ApplicationProvider;
+import androidx.test.filters.MediumTest;
 import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.After;
@@ -38,7 +38,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
@@ -62,8 +61,6 @@ public final class CarEvsManagerTest extends MockedCarTestBase {
     private static final int NUMBER_OF_FRAMES_TO_WAIT = 10;
     private static final int FRAME_TIMEOUT_MS = 1000;
     private static final int SMALL_NAP_MS = 500;
-    private static final int ACTIVITY_REQUEST_TIMEOUT_SEC = 3;
-    private static final int STREAM_REQUEST_TIMEOUT_SEC = 1;
     private static final int STREAM_EVENT_TIMEOUT_SEC = 2;
 
     // Will return frame buffers in the order they arrived.
@@ -164,7 +161,7 @@ public final class CarEvsManagerTest extends MockedCarTestBase {
      * Class that implements the listener interface and gets called back from
      * {@link android.car.evs.CarEvsManager.CarEvsStatusListener}.
      */
-    private final class EvsStatusListenerImpl implements CarEvsManager.CarEvsStatusListener {
+    private static final class EvsStatusListenerImpl implements CarEvsManager.CarEvsStatusListener {
         @Override
         public void onStatusChanged(CarEvsStatus status) {
             Log.i(TAG, "Received a notification of status changed to " + status.getState());
