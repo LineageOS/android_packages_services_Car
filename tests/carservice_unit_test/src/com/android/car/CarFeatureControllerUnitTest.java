@@ -25,6 +25,7 @@ import static org.mockito.Mockito.when;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.content.Context;
 import android.hardware.automotive.vehicle.VehicleProperty;
+import android.util.Log;
 
 import androidx.test.filters.SmallTest;
 import androidx.test.platform.app.InstrumentationRegistry;
@@ -59,7 +60,11 @@ public final class CarFeatureControllerUnitTest extends AbstractExtendedMockitoT
     @After
     public void tearDown() throws Exception {
         if (mTestDir != null) {
-            mTestDir.close();
+            try {
+                mTestDir.close();
+            } catch (Exception e) {
+                Log.w(TAG, "could not remove temporary directory", e);
+            }
         }
     }
 
