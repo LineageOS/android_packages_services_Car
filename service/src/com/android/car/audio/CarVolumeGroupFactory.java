@@ -15,7 +15,6 @@
  */
 package com.android.car.audio;
 
-import android.media.AudioManager;
 import android.util.SparseArray;
 
 import com.android.car.audio.CarAudioContext.AudioContext;
@@ -36,7 +35,7 @@ final class CarVolumeGroupFactory {
     private final CarAudioSettings mCarAudioSettings;
     private final SparseArray<CarAudioDeviceInfo> mContextToDeviceInfo = new SparseArray<>();
     private final CarAudioContext mCarAudioContext;
-    private final AudioManager mAudioManager;
+    private final AudioManagerWrapper mAudioManager;
     private final CarActivationVolumeConfig mCarActivationVolumeConfig;
 
     private int mStepSize = UNSET_STEP_SIZE;
@@ -44,7 +43,7 @@ final class CarVolumeGroupFactory {
     private int mMaxGain = Integer.MIN_VALUE;
     private int mMinGain = Integer.MAX_VALUE;
 
-    CarVolumeGroupFactory(AudioManager audioManager, CarAudioSettings carAudioSettings,
+    CarVolumeGroupFactory(AudioManagerWrapper audioManager, CarAudioSettings carAudioSettings,
             CarAudioContext carAudioContext, int zoneId, int configId, int volumeGroupId,
             String name, boolean useCarVolumeGroupMute,
             CarActivationVolumeConfig carActivationVolumeConfig) {

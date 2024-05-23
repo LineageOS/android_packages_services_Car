@@ -138,7 +138,7 @@ public final class CarAudioVolumeGroupTest extends AbstractExtendedMockitoTestCa
     private CarAudioDeviceInfo mNavigationDeviceInfo;
 
     @Mock
-    private AudioManager mAudioManager;
+    private AudioManagerWrapper mAudioManagerWrapper;
 
     @Mock
     CarAudioSettings mSettingsMock;
@@ -154,10 +154,10 @@ public final class CarAudioVolumeGroupTest extends AbstractExtendedMockitoTestCa
 
     @Before
     public void setUp() {
-        mMediaDeviceInfo = new CarAudioDeviceInfo(mAudioManager,
+        mMediaDeviceInfo = new CarAudioDeviceInfo(mAudioManagerWrapper,
                 getMockAudioDevice(MEDIA_DEVICE_ADDRESS));
         mMediaDeviceInfo.setAudioDeviceInfo(getMockAudioDeviceInfo(MEDIA_DEVICE_ADDRESS));
-        mNavigationDeviceInfo = new CarAudioDeviceInfo(mAudioManager,
+        mNavigationDeviceInfo = new CarAudioDeviceInfo(mAudioManagerWrapper,
                 getMockAudioDevice(NAVIGATION_DEVICE_ADDRESS));
         mNavigationDeviceInfo.setAudioDeviceInfo(getMockAudioDeviceInfo(NAVIGATION_DEVICE_ADDRESS));
     }

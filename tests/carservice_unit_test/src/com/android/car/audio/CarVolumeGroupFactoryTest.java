@@ -22,7 +22,6 @@ import static android.media.AudioAttributes.USAGE_MEDIA;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.when;
 
-import android.media.AudioManager;
 import android.os.UserHandle;
 
 import com.google.common.truth.Expect;
@@ -69,7 +68,7 @@ public final class CarVolumeGroupFactoryTest {
     @Mock
     CarAudioSettings mSettingsMock;
     @Mock
-    AudioManager mAudioManagerMock;
+    AudioManagerWrapper mAudioManagerMock;
 
     CarVolumeGroupFactory mFactory;
 
