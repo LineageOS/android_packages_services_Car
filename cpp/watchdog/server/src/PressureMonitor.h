@@ -54,10 +54,7 @@ constexpr std::chrono::microseconds kHighThresholdUs = 50ms;
 // Time between consecutive polling of pressure events.
 constexpr std::chrono::milliseconds kPollingIntervalMillis = 1s;
 
-// Monitors memory pressure and notifies registered callbacks when the pressure level changes.
-class PressureMonitor final :
-      virtual public android::RefBase,
-      virtual public android::MessageHandler {
+class PressureMonitorInterface : virtual public android::RefBase {
 public:
     enum PressureLevel {
         PRESSURE_LEVEL_NONE = 0,
@@ -76,6 +73,36 @@ public:
         virtual void onPressureChanged(PressureLevel pressureLevel) = 0;
     };
 
+    // Initializes the PSI monitors for pressure levels defined in PressureLevel enum.
+    virtual android::base::Result<void> init() = 0;
+
+    // Terminates the active PSI monitors and joins the pressure monitor thread.
+    virtual void terminate() = 0;
+
+    // Returns true when the pressure monitor is enabled.
+    virtual bool isEnabled() = 0;
+
+    // Starts the pressure monitor thread, which listens for PSI events and notifies clients on
+    // pressure changes.
+    virtual android::base::Result<void> start() = 0;
+
+    // Registers a callback for pressure change notifications.
+    virtual android::base::Result<void> registerPressureChangeCallback(
+            android::sp<PressureChangeCallbackInterface> callback) = 0;
+
+    // Unregisters a previously registered pressure change callback.
+    virtual void unregisterPressureChangeCallback(
+            android::sp<PressureChangeCallbackInterface> callback) = 0;
+
+    // Returns the string value for the given pressure level.
+    static std::string PressureLevelToString(PressureLevel pressureLevel);
+};
+
+// Monitors memory pressure and notifies registered callbacks when the pressure level changes.
+class PressureMonitor final :
+      public PressureMonitorInterface,
+      virtual public android::MessageHandler {
+public:
     PressureMonitor() :
           PressureMonitor(kDefaultProcPressureDirPath, kPollingIntervalMillis, &init_psi_monitor,
                           &register_psi_monitor, &unregister_psi_monitor, &destroy_psi_monitor,
@@ -105,28 +132,23 @@ public:
           mLastPollUptimeNs(0),
           mLatestPressureLevel(PRESSURE_LEVEL_NONE) {}
 
-    // Initializes the PSI monitors for pressure levels defined in PressureLevel enum.
-    android::base::Result<void> init();
+    // Overrides PressureMonitorInterface methods.
+    android::base::Result<void> init() override;
 
-    // Terminates the active PSI monitors and joins the pressure monitor thread.
-    void terminate();
+    void terminate() override;
 
-    // Returns true when the pressure monitor is enabled.
-    bool isEnabled() {
+    bool isEnabled() override {
         Mutex::Autolock lock(mMutex);
         return mIsEnabled;
     }
 
-    // Starts the pressure monitor thread, which listens for PSI events and notifies clients on
-    // pressure changes.
-    android::base::Result<void> start();
+    android::base::Result<void> start() override;
 
-    // Registers a callback for pressure change notifications.
     android::base::Result<void> registerPressureChangeCallback(
-            android::sp<PressureChangeCallbackInterface> callback);
+            android::sp<PressureChangeCallbackInterface> callback) override;
 
-    // Unregisters a previously registered pressure change callback.
-    void unregisterPressureChangeCallback(android::sp<PressureChangeCallbackInterface> callback);
+    void unregisterPressureChangeCallback(
+            android::sp<PressureChangeCallbackInterface> callback) override;
 
     // Returns true when the pressure monitor thread is active.
     bool isMonitorActive() { return mIsMonitorActive; }
@@ -149,9 +171,6 @@ private:
         const std::chrono::microseconds kThresholdUs = 0us;
         int psiMonitorFd = -1;
     };
-
-    // Returns the string value for the given pressure level.
-    std::string PressureLevelToString(PressureLevel pressureLevel);
 
     // Initializes the PSI monitors for different pressure levels.
     android::base::Result<void> initializePsiMonitorsLocked();

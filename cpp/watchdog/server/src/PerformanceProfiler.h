@@ -17,13 +17,13 @@
 #ifndef CPP_WATCHDOG_SERVER_SRC_PERFORMANCEPROFILER_H_
 #define CPP_WATCHDOG_SERVER_SRC_PERFORMANCEPROFILER_H_
 
+#include "PressureMonitor.h"
 #include "ProcDiskStatsCollector.h"
 #include "ProcStatCollector.h"
 #include "UidStatsCollector.h"
 #include "WatchdogPerfService.h"
 
 #include <android-base/chrono_utils.h>
-#include <android_car_feature.h>
 #include <android-base/result.h>
 #include <android/util/ProtoOutputStream.h>
 #include <cutils/multiuser.h>
@@ -33,6 +33,8 @@
 #include <utils/Mutex.h>
 #include <utils/RefBase.h>
 #include <utils/SystemClock.h>
+
+#include <android_car_feature.h>
 
 #include <ctime>
 #include <string>
@@ -200,6 +202,8 @@ struct PerfStatsRecord {
     time_point_millis collectionTimeMillis;
     SystemSummaryStats systemSummaryStats;
     UserPackageSummaryStats userPackageSummaryStats;
+    std::unordered_map<PressureMonitorInterface::PressureLevel, std::chrono::milliseconds>
+            memoryPressureLevelDurations;
     std::string toString() const;
 };
 
@@ -217,10 +221,14 @@ struct UserSwitchCollectionInfo : CollectionInfo {
 };
 
 // PerformanceProfiler implements the I/O performance data collection module.
-class PerformanceProfiler final : public DataProcessorInterface {
+class PerformanceProfiler final :
+      public DataProcessorInterface,
+      public PressureMonitorInterface::PressureChangeCallbackInterface {
 public:
     PerformanceProfiler(
+            const android::sp<PressureMonitorInterface>& pressureMonitor,
             const std::function<int64_t()>& getElapsedTimeSinceBootMillisFunc = &elapsedRealtime) :
+          kPressureMonitor(pressureMonitor),
           kGetElapsedTimeSinceBootMillisFunc(getElapsedTimeSinceBootMillisFunc),
           mTopNStatsPerCategory(0),
           mTopNStatsPerSubcategory(0),
@@ -238,7 +246,9 @@ public:
           mWakeUpCollection({}),
           mCustomCollection({}),
           mLastMajorFaults(0),
-          mDoSendResourceUsageStats(false) {}
+          mDoSendResourceUsageStats(false),
+          mMemoryPressureLevelDeltaInfo(PressureLevelDeltaInfo(getElapsedTimeSinceBootMillisFunc)) {
+    }
 
     ~PerformanceProfiler() { terminate(); }
 
@@ -295,6 +305,8 @@ public:
 
     android::base::Result<void> onCustomCollectionDump(int fd) override;
 
+    void onPressureChanged(PressureMonitorInterface::PressureLevel) override;
+
 protected:
     android::base::Result<void> init();
 
@@ -302,6 +314,38 @@ protected:
     void terminate();
 
 private:
+    class PressureLevelDeltaInfo {
+    public:
+        explicit PressureLevelDeltaInfo(
+                const std::function<int64_t()>& getElapsedTimeSinceBootMillisFunc) :
+              kGetElapsedTimeSinceBootMillisFunc(getElapsedTimeSinceBootMillisFunc),
+              mLatestPressureLevel(PressureMonitorInterface::PRESSURE_LEVEL_NONE),
+              mLatestPressureLevelElapsedRealtimeMillis(getElapsedTimeSinceBootMillisFunc()) {}
+
+        // Calculates the duration for the previously reported pressure level, updates it in
+        // mPressureLevelDurations, and sets the latest pressure level and its elapsed realtime.
+        void setLatestPressureLevelLocked(PressureMonitorInterface::PressureLevel pressureLevel);
+
+        // Returns the latest pressure stats and flushes stats to mPressureLevelDurations.
+        std::unordered_map<PressureMonitorInterface::PressureLevel, std::chrono::milliseconds>
+        onCollectionLocked();
+
+    private:
+        // Updated by test for mocking elapsed time.
+        const std::function<int64_t()> kGetElapsedTimeSinceBootMillisFunc;
+
+        // Latest pressure level reported by the PressureMonitor.
+        PressureMonitorInterface::PressureLevel mLatestPressureLevel;
+
+        // Time when the latest pressure level was recorded. Used to calculate
+        // pressureLevelDurations.
+        int64_t mLatestPressureLevelElapsedRealtimeMillis = 0;
+
+        // Duration spent in different pressure levels since the last poll.
+        std::unordered_map<PressureMonitorInterface::PressureLevel, std::chrono::milliseconds>
+                mPressureLevelDurations = {};
+    };
+
     // Processes the collected data.
     android::base::Result<void> processLocked(
             time_point_millis time, SystemState systemState,
@@ -345,6 +389,9 @@ private:
 
     void dumpPackageMajorPageFaultsProto(const std::vector<UserPackageStats>& userPackageStats,
                                          android::util::ProtoOutputStream& outProto) const;
+
+    // Pressure monitor instance.
+    const android::sp<PressureMonitorInterface> kPressureMonitor;
 
     // Updated by test for mocking elapsed time.
     const std::function<int64_t()> kGetElapsedTimeSinceBootMillisFunc;
@@ -394,6 +441,9 @@ private:
 
     // Enables the sending of resource usage stats to CarService.
     bool mDoSendResourceUsageStats GUARDED_BY(mMutex);
+
+    // Aggregated pressure level changes occurred since the last collection.
+    PressureLevelDeltaInfo mMemoryPressureLevelDeltaInfo GUARDED_BY(mMutex);
 
     friend class WatchdogPerfService;
 
