@@ -70,7 +70,7 @@ final class CarZonesAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
 
     private final SparseArray<CarAudioFocus> mFocusZones;
 
-    public static CarZonesAudioFocus createCarZonesAudioFocus(AudioManager audioManager,
+    public static CarZonesAudioFocus createCarZonesAudioFocus(AudioManagerWrapper audioManager,
             PackageManager packageManager, SparseArray<CarAudioZone> carAudioZones,
             CarAudioSettings carAudioSettings, CarFocusCallback carFocusCallback,
             CarVolumeInfoWrapper carVolumeInfoWrapper, @Nullable CarAudioFeaturesInfo features) {

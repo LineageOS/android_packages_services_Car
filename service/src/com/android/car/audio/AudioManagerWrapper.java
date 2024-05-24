@@ -18,10 +18,14 @@ package com.android.car.audio;
 import android.car.builtin.media.AudioManagerHelper;
 import android.media.AudioAttributes;
 import android.media.AudioDeviceAttributes;
+import android.media.AudioFocusInfo;
 import android.media.AudioFocusRequest;
 import android.media.AudioManager;
+import android.media.FadeManagerConfiguration;
+import android.media.audiopolicy.AudioPolicy;
 import android.media.audiopolicy.AudioProductStrategy;
 
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -89,5 +93,20 @@ public final class AudioManagerWrapper {
 
     boolean isMasterMuted() {
         return AudioManagerHelper.isMasterMute(mAudioManager);
+    }
+
+    int dispatchAudioFocusChange(AudioFocusInfo info, int focusChange, AudioPolicy policy) {
+        return mAudioManager.dispatchAudioFocusChange(info, focusChange, policy);
+    }
+
+    int dispatchAudioFocusChangeWithFade(AudioFocusInfo info, int changeType,
+            AudioPolicy policy, List<AudioFocusInfo> activeAfis,
+            FadeManagerConfiguration fadeConfig) {
+        return mAudioManager.dispatchAudioFocusChangeWithFade(info, changeType, policy, activeAfis,
+                fadeConfig);
+    }
+
+    void setFocusRequestResult(AudioFocusInfo info, int response, AudioPolicy policy) {
+        mAudioManager.setFocusRequestResult(info, response, policy);
     }
 }

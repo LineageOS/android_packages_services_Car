@@ -122,7 +122,7 @@ public class CarAudioFocusUnitTest extends AbstractExpectableTestCase {
     @Rule
     public MockitoRule rule = MockitoJUnit.rule();
     @Mock
-    private AudioManager mMockAudioManager;
+    private AudioManagerWrapper mMockAudioManager;
     @Mock
     private PackageManager mMockPackageManager;
     @Mock

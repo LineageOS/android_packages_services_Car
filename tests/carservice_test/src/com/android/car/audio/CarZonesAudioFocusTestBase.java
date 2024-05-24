@@ -49,7 +49,6 @@ import android.car.oem.OemCarAudioFocusResult;
 import android.content.ContentResolver;
 import android.content.pm.PackageManager;
 import android.media.AudioFocusInfo;
-import android.media.AudioManager;
 import android.media.audiopolicy.AudioPolicy;
 import android.util.SparseArray;
 
@@ -174,7 +173,7 @@ abstract class CarZonesAudioFocusTestBase {
             USAGE_ANNOUNCEMENT, ANNOUNCEMENT_CLIENT_UID_2, ANNOUNCEMENT_CLIENT_ID_2);
 
     @Mock
-    protected AudioManager mMockAudioManager;
+    protected AudioManagerWrapper mMockAudioManager;
     @Mock
     protected AudioPolicy mAudioPolicy;
     @Mock
