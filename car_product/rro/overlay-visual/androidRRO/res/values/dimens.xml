@@ -33,6 +33,9 @@
     <!-- System status icon size in the status bar. -->
     <dimen name="status_bar_system_icon_size">32dp</dimen>
 
+    <dimen name="system_gestures_start_threshold">52dp</dimen>
+    <dimen name="system_gestures_distance_threshold">24dp</dimen>
+
     <!-- The size of the right icon. This size is used to down-sample the bitmaps for "large icon". -->
     <dimen name="notification_right_icon_size">@*android:dimen/car_touch_target_size</dimen>
 
