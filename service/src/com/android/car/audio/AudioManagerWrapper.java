@@ -27,6 +27,7 @@ import android.media.audiopolicy.AudioProductStrategy;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.Executor;
 
 /**
  * Class to wrap audio manager. This makes it easier to call to audio manager without the need
@@ -108,5 +109,15 @@ public final class AudioManagerWrapper {
 
     void setFocusRequestResult(AudioFocusInfo info, int response, AudioPolicy policy) {
         mAudioManager.setFocusRequestResult(info, response, policy);
+    }
+
+    void registerVolumeGroupCallback(Executor executor,
+            AudioManager.VolumeGroupCallback coreAudioVolumeGroupCallback) {
+        mAudioManager.registerVolumeGroupCallback(executor, coreAudioVolumeGroupCallback);
+    }
+
+    void unregisterVolumeGroupCallback(
+            AudioManager.VolumeGroupCallback coreAudioVolumeGroupCallback) {
+        mAudioManager.unregisterVolumeGroupCallback(coreAudioVolumeGroupCallback);
     }
 }

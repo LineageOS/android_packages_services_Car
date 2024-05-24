@@ -19,6 +19,7 @@ package com.android.car.audio;
 import static android.car.media.CarAudioManager.PRIMARY_AUDIO_ZONE;
 
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
+import static com.android.dx.mockito.inline.extended.ExtendedMockito.mockitoSession;
 
 import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -28,27 +29,29 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
-import android.car.test.mocks.AbstractExtendedMockitoTestCase;
+import android.car.test.AbstractExpectableTestCase;
 import android.content.Context;
 import android.media.AudioManager;
 import android.media.AudioManager.VolumeGroupCallback;
 
 import androidx.test.core.app.ApplicationProvider;
 
-import com.google.common.truth.Expect;
+import com.android.dx.mockito.inline.extended.StaticMockitoSession;
+import com.android.dx.mockito.inline.extended.StaticMockitoSessionBuilder;
 
+import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.quality.Strictness;
 
 import java.util.concurrent.Executor;
 
 @RunWith(MockitoJUnitRunner.class)
-public final class CoreAudioVolumeGroupCallbackTest  extends AbstractExtendedMockitoTestCase {
+public final class CoreAudioVolumeGroupCallbackTest  extends AbstractExpectableTestCase {
     private static final String TAG = CoreAudioVolumeGroupCallbackTest.class.getSimpleName();
 
     private static final int VALID_VOLUME_GROUP_ID = 77;
@@ -61,7 +64,7 @@ public final class CoreAudioVolumeGroupCallbackTest  extends AbstractExtendedMoc
     private Context mContext;
 
     @Mock
-    AudioManager mMockAudioManager;
+    AudioManagerWrapper mMockAudioManager;
     @Mock
     CarVolumeInfoWrapper mMockVolumeInfoWrapper;
 
@@ -69,37 +72,37 @@ public final class CoreAudioVolumeGroupCallbackTest  extends AbstractExtendedMoc
             ArgumentCaptor.forClass(VolumeGroupCallback.class);
 
     private CoreAudioVolumeGroupCallback mCoreAudioVolumeGroupCallback;
-
-    public CoreAudioVolumeGroupCallbackTest() {
-        super(CoreAudioVolumeGroupCallback.TAG);
-    }
-
-    @Override
-    protected void onSessionBuilder(CustomMockitoSessionBuilder session) {
-        session.spyStatic(CoreAudioHelper.class);
-    }
-
-    @Rule
-    public final Expect expect = Expect.create();
+    private StaticMockitoSession mSession;
 
     @Before
     public void setUp() {
+        StaticMockitoSessionBuilder builder = mockitoSession()
+                .strictness(Strictness.LENIENT)
+                .spyStatic(CoreAudioHelper.class);
+
+        mSession = builder.initMocks(this).startMocking();
+
         mContext = ApplicationProvider.getApplicationContext();
 
         mCoreAudioVolumeGroupCallback =
                 new CoreAudioVolumeGroupCallback(mMockVolumeInfoWrapper, mMockAudioManager);
     }
 
+    @After
+    public void tearDown() {
+        mSession.finishMocking();
+    }
+
     @Test
     public void registerVolumeGroupCallbackToAudioManager_withNullExecutor_fails() {
         String npeMessage = "executor must not be null";
-        doThrow(new NullPointerException(npeMessage)).when(mMockAudioManager)
-                .registerVolumeGroupCallback(eq(null), any());
+        doThrow(new NullPointerException(npeMessage))
+                .when(mMockAudioManager).registerVolumeGroupCallback(eq(null), any());
 
         NullPointerException thrown = assertThrows(NullPointerException.class, () ->
                 mCoreAudioVolumeGroupCallback.init(/* executor= */ null));
 
-        expect.withMessage("register VolumeGroupCallback with null executor")
+        expectWithMessage("register VolumeGroupCallback with null executor")
                 .that(thrown).hasMessageThat().contains(npeMessage);
     }
 
@@ -126,7 +129,7 @@ public final class CoreAudioVolumeGroupCallbackTest  extends AbstractExtendedMoc
         NullPointerException thrown = assertThrows(NullPointerException.class, () ->
                  new CoreAudioVolumeGroupCallback(mMockVolumeInfoWrapper,
                          /* audioManager= */ null));
-        expect.withMessage("Car AudioVolumeGroup Callback Construction")
+        expectWithMessage("Car AudioVolumeGroup Callback Construction")
                 .that(thrown).hasMessageThat().contains("AudioManager cannot be null");
     }
 
@@ -135,7 +138,7 @@ public final class CoreAudioVolumeGroupCallbackTest  extends AbstractExtendedMoc
         NullPointerException thrown = assertThrows(NullPointerException.class, () ->
                 new CoreAudioVolumeGroupCallback(/* carVolumeInfoWrapper= */ null,
                         mMockAudioManager));
-        expect.withMessage("Car AudioVolumeGroup Callback Construction")
+        expectWithMessage("Car AudioVolumeGroup Callback Construction")
                 .that(thrown).hasMessageThat().contains("CarVolumeInfoWrapper cannot be null");
     }
 

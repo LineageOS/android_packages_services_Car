@@ -31,10 +31,10 @@ final class CoreAudioVolumeGroupCallback extends AudioManager.VolumeGroupCallbac
     static final String TAG = TAG_AUDIO + ".CoreAudioVolumeGroupCallback";
 
     private final CarVolumeInfoWrapper mCarVolumeInfoWrapper;
-    private final AudioManager mAudioManager;
+    private final AudioManagerWrapper mAudioManager;
 
     CoreAudioVolumeGroupCallback(CarVolumeInfoWrapper carVolumeInfoWrapper,
-            AudioManager audioManager) {
+            AudioManagerWrapper audioManager) {
         mCarVolumeInfoWrapper = Objects.requireNonNull(carVolumeInfoWrapper,
                 "CarVolumeInfoWrapper cannot be null");
         mAudioManager = Objects.requireNonNull(audioManager, "AudioManager cannot be null");

@@ -1964,7 +1964,7 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
             return;
         }
         mCoreAudioVolumeGroupCallback = new CoreAudioVolumeGroupCallback(
-                new CarVolumeInfoWrapper(this), mAudioManager);
+                new CarVolumeInfoWrapper(this), mAudioManagerWrapper);
         mCoreAudioVolumeGroupCallback.init(mContext.getMainExecutor());
     }
 

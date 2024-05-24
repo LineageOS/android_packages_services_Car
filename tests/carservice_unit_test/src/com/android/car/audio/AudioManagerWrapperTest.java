@@ -52,6 +52,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 
 import java.util.List;
+import java.util.concurrent.Executor;
 
 @RunWith(AndroidJUnit4.class)
 public final class AudioManagerWrapperTest extends AbstractExtendedMockitoTestCase {
@@ -239,5 +240,24 @@ public final class AudioManagerWrapperTest extends AbstractExtendedMockitoTestCa
                 .isEqualTo(AUDIOFOCUS_REQUEST_GRANTED);
         verify(mAudioManager).dispatchAudioFocusChangeWithFade(info, AUDIOFOCUS_GAIN, mAudioPolicy,
                 activeInfos, config);
+    }
+
+    @Test
+    public void registerVolumeGroupCallback() {
+        CoreAudioVolumeGroupCallback callback = Mockito.mock(CoreAudioVolumeGroupCallback.class);
+        Executor executor = Mockito.mock(Executor.class);
+
+        mAudioManagerWrapper.registerVolumeGroupCallback(executor, callback);
+
+        verify(mAudioManager).registerVolumeGroupCallback(executor, callback);
+    }
+
+    @Test
+    public void unregisterVolumeGroupCallback() {
+        CoreAudioVolumeGroupCallback callback = Mockito.mock(CoreAudioVolumeGroupCallback.class);
+
+        mAudioManagerWrapper.unregisterVolumeGroupCallback(callback);
+
+        verify(mAudioManager).unregisterVolumeGroupCallback(callback);
     }
 }
