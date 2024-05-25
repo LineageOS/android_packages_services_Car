@@ -49,7 +49,10 @@ import android.hardware.automotive.vehicle.VehiclePropertyAccess;
 import android.os.RemoteException;
 import android.os.ServiceSpecificException;
 import android.os.SystemClock;
+import android.platform.test.ravenwood.RavenwoodRule;
 import android.util.SparseArray;
+
+import androidx.test.filters.SmallTest;
 
 import com.android.car.IVehicleDeathRecipient;
 import com.android.car.VehicleStub;
@@ -83,6 +86,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+@SmallTest
 @RunWith(MockitoJUnitRunner.class)
 public class FakeVehicleStubUnitTest {
 
@@ -151,6 +155,10 @@ public class FakeVehicleStubUnitTest {
 
     @Rule
     public final Expect expect = Expect.create();
+    @Rule
+    public final RavenwoodRule mRavenwood = new RavenwoodRule.Builder()
+            .setProvideMainThread(true)
+            .build();
 
     @Before
     public void setup() throws Exception {
@@ -308,7 +316,6 @@ public class FakeVehicleStubUnitTest {
     public void testGetMethodPropIdNotSupported() throws Exception {
         // Mock config files parsing results to be empty.
         when(mParser.parseJsonConfig(any(InputStream.class))).thenReturn(new SparseArray<>());
-        when(mParser.parseJsonConfig(any(File.class))).thenReturn(new SparseArray<>());
         // Create a request prop value.
         HalPropValue requestPropValue = new HalPropValueBuilder(/* isAidl= */ true)
                 .build(/* prop= */ VehicleProperty.INFO_FUEL_TYPE, /* areaId= */ 0);

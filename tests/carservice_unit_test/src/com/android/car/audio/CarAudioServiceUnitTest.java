@@ -222,6 +222,7 @@ import org.mockito.Mock;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -920,6 +921,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
 
     @Test
     public void init_initializesAudioServiceCallbacks_withDynamicDevices() throws Exception {
+        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
         CarAudioService service = setUpAudioServiceWithDynamicDevices();
 
         service.init();
@@ -930,6 +932,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
 
     @Test
     public void init_withDynamicDevices() throws Exception {
+        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
         CarAudioService audioServiceWithDynamicDevices = setUpAudioServiceWithDynamicDevices();
 
         audioServiceWithDynamicDevices.init();
@@ -948,6 +951,18 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     }
 
     @Test
+    public void init_withAudioServerDown() throws Exception {
+        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
+        when(mAudioManager.isAudioServerRunning()).thenReturn(false);
+        CarAudioService service = setUpAudioServiceWithDynamicDevices();
+
+        service.init();
+
+        verify(mAudioManager).setAudioServerStateCallback(any(), any());
+        verify(mAudioManager, never()).registerAudioDeviceCallback(any(), any());
+    }
+
+    @Test
     public void release_releasesAudioServiceCallbacks() throws Exception {
         mSetFlagsRule.disableFlags(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
         CarAudioService service = setUpAudioService();
@@ -956,6 +971,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
 
         verify(mAudioManager, never()).unregisterAudioDeviceCallback(any());
         verify(mAudioManager).clearAudioServerStateCallback();
+        verify(mAudioControlWrapperAidl).clearModuleChangeCallback();
     }
 
     @Test
@@ -967,6 +983,18 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
 
         verify(mAudioManager).unregisterAudioDeviceCallback(any());
         verify(mAudioManager).clearAudioServerStateCallback();
+        verify(mAudioControlWrapperAidl).clearModuleChangeCallback();
+    }
+
+    @Test
+    public void release_withoutModuleChangeCallback() throws Exception {
+        when(mAudioControlWrapperAidl.supportsFeature(
+                AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_MODULE_CALLBACK)).thenReturn(false);
+        CarAudioService service = setUpAudioService();
+
+        service.release();
+
+        verify(mAudioControlWrapperAidl, never()).clearModuleChangeCallback();
     }
 
     @Test
@@ -2126,6 +2154,36 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     }
 
     @Test
+    public void init_withAudioModuleCallbackFeatureDisabled() throws Exception {
+        when(mAudioControlWrapperAidl.supportsFeature(
+                AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_MODULE_CALLBACK)).thenReturn(false);
+
+        setUpAudioService();
+
+        verify(mAudioControlWrapperAidl, never()).setModuleChangeCallback(any());
+    }
+
+    @Test
+    public void init_withAudioFocusFeatureDisabled() throws Exception {
+        when(mAudioControlWrapperAidl.supportsFeature(
+                AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_FOCUS)).thenReturn(false);
+
+        setUpAudioService();
+
+        verify(mAudioControlWrapperAidl, never()).registerFocusListener(any());
+    }
+
+    @Test
+    public void init_withAudioGainCallbackFeatureDisabled() throws Exception {
+        when(mAudioControlWrapperAidl.supportsFeature(
+                AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_GAIN_CALLBACK)).thenReturn(false);
+
+        setUpAudioService();
+
+        verify(mAudioControlWrapperAidl, never()).registerAudioGainCallback(any());
+    }
+
+    @Test
     public void serviceDied_registersAudioGainCallback() throws Exception {
         setUpAudioService();
         ArgumentCaptor<AudioControlDeathRecipient> captor =
@@ -2137,6 +2195,22 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         runnable.serviceDied();
 
         verify(mAudioControlWrapperAidl).registerAudioGainCallback(any());
+    }
+
+    @Test
+    public void serviceDied_withNullAudioGainCallback() throws Exception {
+        when(mAudioControlWrapperAidl.supportsFeature(
+                AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_GAIN_CALLBACK)).thenReturn(false);
+        setUpAudioService();
+        ArgumentCaptor<AudioControlDeathRecipient> captor =
+                ArgumentCaptor.forClass(AudioControlDeathRecipient.class);
+        verify(mAudioControlWrapperAidl).linkToDeath(captor.capture());
+        AudioControlDeathRecipient runnable = captor.getValue();
+        reset(mAudioControlWrapperAidl);
+
+        runnable.serviceDied();
+
+        verify(mAudioControlWrapperAidl, never()).registerAudioGainCallback(any());
     }
 
     @Test
@@ -2154,6 +2228,39 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     }
 
     @Test
+    public void serviceDied_withAudioServerNotRunning() throws Exception {
+        setUpAudioService();
+        ArgumentCaptor<AudioControlDeathRecipient> captor =
+                ArgumentCaptor.forClass(AudioControlDeathRecipient.class);
+        verify(mAudioControlWrapperAidl).linkToDeath(captor.capture());
+        AudioControlDeathRecipient runnable = captor.getValue();
+        reset(mAudioControlWrapperAidl);
+        when(mAudioManager.isAudioServerRunning()).thenReturn(false);
+
+        runnable.serviceDied();
+
+        verify(mAudioControlWrapperAidl, never()).registerAudioGainCallback(any());
+        verify(mAudioControlWrapperAidl, never()).registerFocusListener(any());
+    }
+
+    @Test
+    public void serviceDied_withAudioServerDown() throws Exception {
+        CarAudioService service = setUpAudioService();
+        ArgumentCaptor<AudioControlDeathRecipient> captor =
+                ArgumentCaptor.forClass(AudioControlDeathRecipient.class);
+        verify(mAudioControlWrapperAidl).linkToDeath(captor.capture());
+        AudioControlDeathRecipient runnable = captor.getValue();
+        reset(mAudioControlWrapperAidl);
+        service.releaseAudioCallbacks(/* isAudioServerDown= */ true);
+
+        runnable.serviceDied();
+
+        verify(mAudioControlWrapperAidl, never()).registerAudioGainCallback(any());
+        verify(mAudioControlWrapperAidl, never()).registerFocusListener(any());
+        verify(mAudioControlWrapperAidl, never()).setModuleChangeCallback(any());
+    }
+
+    @Test
     public void serviceDied_setsModuleChangeCallback() throws Exception {
         setUpAudioService();
         ArgumentCaptor<AudioControlDeathRecipient> captor =
@@ -2165,6 +2272,22 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         runnable.serviceDied();
 
         verify(mAudioControlWrapperAidl).setModuleChangeCallback(any());
+    }
+
+    @Test
+    public void serviceDied_withNullModuleChangeCallback() throws Exception {
+        when(mAudioControlWrapperAidl.supportsFeature(
+                AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_MODULE_CALLBACK)).thenReturn(false);
+        setUpAudioService();
+        ArgumentCaptor<AudioControlDeathRecipient> captor =
+                ArgumentCaptor.forClass(AudioControlDeathRecipient.class);
+        verify(mAudioControlWrapperAidl).linkToDeath(captor.capture());
+        AudioControlDeathRecipient runnable = captor.getValue();
+        reset(mAudioControlWrapperAidl);
+
+        runnable.serviceDied();
+
+        verify(mAudioControlWrapperAidl, never()).setModuleChangeCallback(any());
     }
 
     @Test
@@ -2709,6 +2832,15 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
 
         expectWithMessage("Exception for volume groups info size for out of range group")
                 .that(thrown).hasMessageThat().contains("audio zone Id");
+    }
+
+    @Test
+    public void getVolumeGroupInfo_withLegacyMode() throws Exception {
+        CarAudioService service = setUpAudioServiceWithoutDynamicRouting();
+
+        expectWithMessage("Volume group info in legacy mode")
+                .that(service.getVolumeGroupInfo(PRIMARY_OCCUPANT_ZONE, TEST_PRIMARY_ZONE_GROUP_0))
+                .isNull();
     }
 
     @Test
@@ -3828,6 +3960,9 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     public void onAudioPortsChanged_forMediaBus_changesVolumeRanges() throws Exception {
         CarAudioService service = setUpAudioService();
         HalAudioModuleChangeCallback callback = getHalModuleChangeCallback();
+        TestCarVolumeEventCallback volumeEventCallback =
+                new TestCarVolumeEventCallback(TEST_CALLBACK_TIMEOUT_MS);
+        service.registerCarVolumeEventCallback(volumeEventCallback);
         HalAudioDeviceInfo mediaBusDeviceInfo = createHalAudioDeviceInfo(
                 TEST_MEDIA_PORT_ID, TEST_MEDIA_PORT_NAME, TEST_GAIN_MIN_VALUE, TEST_GAIN_MAX_VALUE,
                 TEST_GAIN_DEFAULT_VALUE, TEST_GAIN_STEP_VALUE, OUT_DEVICE, MEDIA_TEST_DEVICE);
@@ -3836,9 +3971,17 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
 
         callback.onAudioPortsChanged(List.of(mediaBusDeviceInfo));
 
+        CarVolumeGroupInfo volumeGroupInfoAfter = service.getVolumeGroupInfo(PRIMARY_AUDIO_ZONE,
+                TEST_PRIMARY_ZONE_GROUP_0);
         expectWithMessage("update audio port for media device")
-                .that(service.getVolumeGroupInfo(PRIMARY_AUDIO_ZONE,
-                        TEST_PRIMARY_ZONE_GROUP_0)).isNotEqualTo(volumeGroupInfoBefore);
+                .that(volumeGroupInfoAfter).isNotEqualTo(volumeGroupInfoBefore);
+        volumeEventCallback.waitForCallback();
+        expectWithMessage("Volume events count after switching zone configuration")
+                .that(volumeEventCallback.getVolumeGroupEvents()).hasSize(1);
+        CarVolumeGroupEvent groupEvent = volumeEventCallback.getVolumeGroupEvents().get(0);
+        expectWithMessage("Volume group infos after switching zone configuration")
+                .that(groupEvent.getCarVolumeGroupInfos())
+                .containsExactly(volumeGroupInfoAfter);
     }
 
     @Test
@@ -3881,6 +4024,20 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         expectWithMessage("update audio port for nav device")
                 .that(service.getVolumeGroupInfo(PRIMARY_AUDIO_ZONE,
                         TEST_PRIMARY_ZONE_GROUP_1)).isNotEqualTo(navVolumeGroupInfoBefore);
+    }
+
+    @Test
+    public void onAudioPortsChanged_withEmptyDeviceInfoList() throws Exception {
+        CarAudioService service = setUpAudioService();
+        HalAudioModuleChangeCallback callback = getHalModuleChangeCallback();
+        TestCarVolumeEventCallback volumeEventCallback =
+                new TestCarVolumeEventCallback(TEST_CALLBACK_TIMEOUT_MS);
+        service.registerCarVolumeEventCallback(volumeEventCallback);
+
+        callback.onAudioPortsChanged(Collections.EMPTY_LIST);
+
+        expectWithMessage("No volume event callback invocation with empty device info list")
+                .that(volumeEventCallback.waitForCallback()).isFalse();
     }
 
     @Test
@@ -4716,6 +4873,28 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     }
 
     @Test
+    public void onAudioDevicesAdded_forDynamicDevicesEnabled_withAudioServerDown()
+            throws Exception {
+        CarAudioService audioServiceWithDynamicDevices = setUpAudioServiceWithDynamicDevices();
+        audioServiceWithDynamicDevices.init();
+        TestAudioZoneConfigurationsChangeCallback
+                configCallback = getRegisteredZoneConfigCallback(audioServiceWithDynamicDevices);
+        AudioDeviceCallback deviceCallback = captureAudioDeviceCallback();
+        audioServiceWithDynamicDevices.releaseAudioCallbacks(/* isAudioServerDown= */ true);
+
+        deviceCallback.onAudioDevicesAdded(new AudioDeviceInfo[]{mBTAudioDeviceInfo});
+
+        configCallback.waitForCallback();
+        List<CarAudioZoneConfigInfo> zoneConfigInfos =
+                audioServiceWithDynamicDevices.getAudioZoneConfigInfos(PRIMARY_AUDIO_ZONE);
+        CarAudioZoneConfigInfo btConfig = zoneConfigInfos.stream()
+                .filter(config -> config.getName().equals(PRIMARY_CONFIG_NAME_DYNAMIC_DEVICES))
+                .findFirst().orElseThrow();
+        expectWithMessage("Disabled bluetooth configuration with audio server down")
+                .that(btConfig.isActive()).isFalse();
+    }
+
+    @Test
     public void onAudioDevicesRemoved_forDynamicDevicesEnabled_triggersCallback()
             throws Exception {
         CarAudioService serviceWithDynamicDevices = setUpAudioServiceWithDynamicDevices();
@@ -4793,6 +4972,32 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
                 .that(configCallback.mStatus).isEqualTo(CONFIG_STATUS_AUTO_SWITCHED);
         expectWithMessage("Callback disabled selected bluetooth configuration")
                 .that(updatedBTConfig.isActive()).isFalse();
+    }
+
+    @Test
+    public void onAudioDevicesRemoved_forDynamicDevicesEnabled_afterAddedWithAudioServerDown()
+            throws Exception {
+        CarAudioService audioServiceWithDynamicDevices = setUpAudioServiceWithDynamicDevices();
+        audioServiceWithDynamicDevices.init();
+        TestAudioZoneConfigurationsChangeCallback
+                configCallback = getRegisteredZoneConfigCallback(audioServiceWithDynamicDevices);
+        AudioDeviceCallback deviceCallback = captureAudioDeviceCallback();
+        deviceCallback.onAudioDevicesAdded(new AudioDeviceInfo[]{mBTAudioDeviceInfo});
+        configCallback.waitForCallback();
+        configCallback.reset();
+        audioServiceWithDynamicDevices.releaseAudioCallbacks(/* isAudioServerDown= */ true);
+
+        deviceCallback.onAudioDevicesRemoved(new AudioDeviceInfo[]{mBTAudioDeviceInfo});
+
+        configCallback.waitForCallback();
+        List<CarAudioZoneConfigInfo> zoneConfigInfos =
+                audioServiceWithDynamicDevices.getAudioZoneConfigInfos(PRIMARY_AUDIO_ZONE);
+        CarAudioZoneConfigInfo btConfig = zoneConfigInfos.stream()
+                .filter(config -> config.getName().equals(PRIMARY_CONFIG_NAME_DYNAMIC_DEVICES))
+                .findFirst().orElseThrow();
+        expectWithMessage(
+                "Enabled bluetooth configuration after removed device with audio server down")
+                .that(btConfig.isActive()).isTrue();
     }
 
     @Test
@@ -5205,6 +5410,31 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
 
         verify(mCarVolumeCallbackHandler).onGroupMuteChange(PRIMARY_AUDIO_ZONE,
                 CoreAudioRoutingUtils.MUSIC_CAR_GROUP_ID, FLAG_SHOW_UI);
+    }
+
+    @Test
+    public void onAudioVolumeGroupChanged_withInvalidVolumeGroupName() throws Exception {
+        CarAudioService useCoreAudioCarAudioService =
+                setUpCarAudioServiceUsingCoreAudioRoutingAndVolume();
+
+        useCoreAudioCarAudioService.onAudioVolumeGroupChanged(PRIMARY_AUDIO_ZONE,
+                CoreAudioRoutingUtils.INVALID_GROUP_NAME, /* flags= */ 0);
+
+        verify(mCarVolumeCallbackHandler, never()).onVolumeGroupChange(eq(PRIMARY_AUDIO_ZONE),
+                anyInt(), anyInt());
+    }
+
+    @Test
+    public void callbackVolumeGroupEvent_withEmptyEventList() throws Exception {
+        CarAudioService service = setUpAudioService();
+        TestCarVolumeEventCallback volumeEventCallback =
+                new TestCarVolumeEventCallback(TEST_CALLBACK_TIMEOUT_MS);
+        service.registerCarVolumeEventCallback(volumeEventCallback);
+
+        service.callbackVolumeGroupEvent(Collections.EMPTY_LIST);
+
+        expectWithMessage("Volume group event callback reception status for empty event list")
+                .that(volumeEventCallback.waitForCallback()).isFalse();
     }
 
     @Test

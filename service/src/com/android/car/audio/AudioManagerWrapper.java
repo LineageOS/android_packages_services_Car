@@ -18,10 +18,16 @@ package com.android.car.audio;
 import android.car.builtin.media.AudioManagerHelper;
 import android.media.AudioAttributes;
 import android.media.AudioDeviceAttributes;
+import android.media.AudioFocusInfo;
+import android.media.AudioFocusRequest;
 import android.media.AudioManager;
+import android.media.FadeManagerConfiguration;
+import android.media.audiopolicy.AudioPolicy;
 import android.media.audiopolicy.AudioProductStrategy;
 
+import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.Executor;
 
 /**
  * Class to wrap audio manager. This makes it easier to call to audio manager without the need
@@ -70,5 +76,48 @@ public final class AudioManagerWrapper {
 
     boolean setAudioDeviceGain(String address, int gain, boolean isOutput) {
         return AudioManagerHelper.setAudioDeviceGain(mAudioManager, address, gain, isOutput);
+    }
+
+    /**
+     * {@link AudioManager#abandonAudioFocusRequest(AudioFocusRequest)}
+     */
+    public int abandonAudioFocusRequest(AudioFocusRequest audioFocusRequest) {
+        return mAudioManager.abandonAudioFocusRequest(audioFocusRequest);
+    }
+
+    /**
+     * {@link AudioManager#requestAudioFocus(AudioFocusRequest)}
+     */
+    public int requestAudioFocus(AudioFocusRequest audioFocusRequest) {
+        return mAudioManager.requestAudioFocus(audioFocusRequest);
+    }
+
+    boolean isMasterMuted() {
+        return AudioManagerHelper.isMasterMute(mAudioManager);
+    }
+
+    int dispatchAudioFocusChange(AudioFocusInfo info, int focusChange, AudioPolicy policy) {
+        return mAudioManager.dispatchAudioFocusChange(info, focusChange, policy);
+    }
+
+    int dispatchAudioFocusChangeWithFade(AudioFocusInfo info, int changeType,
+            AudioPolicy policy, List<AudioFocusInfo> activeAfis,
+            FadeManagerConfiguration fadeConfig) {
+        return mAudioManager.dispatchAudioFocusChangeWithFade(info, changeType, policy, activeAfis,
+                fadeConfig);
+    }
+
+    void setFocusRequestResult(AudioFocusInfo info, int response, AudioPolicy policy) {
+        mAudioManager.setFocusRequestResult(info, response, policy);
+    }
+
+    void registerVolumeGroupCallback(Executor executor,
+            AudioManager.VolumeGroupCallback coreAudioVolumeGroupCallback) {
+        mAudioManager.registerVolumeGroupCallback(executor, coreAudioVolumeGroupCallback);
+    }
+
+    void unregisterVolumeGroupCallback(
+            AudioManager.VolumeGroupCallback coreAudioVolumeGroupCallback) {
+        mAudioManager.unregisterVolumeGroupCallback(coreAudioVolumeGroupCallback);
     }
 }

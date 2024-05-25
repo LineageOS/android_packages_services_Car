@@ -56,6 +56,7 @@ android_test {
         "compatibility-device-util-axt",
         "platform-test-annotations",
         "truth",
+        "Harrier",
     ],
 
     libs: [

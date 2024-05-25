@@ -29,14 +29,12 @@ import static com.android.car.audio.CarHalAudioUtils.metadataToAudioAttribute;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
-import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.car.builtin.util.Slogf;
 import android.car.media.CarAudioManager;
 import android.hardware.audio.common.PlaybackTrackMetadata;
 import android.media.AudioAttributes;
 import android.media.AudioFocusRequest;
-import android.media.AudioManager;
 import android.os.Binder;
 import android.os.Bundle;
 import android.util.ArrayMap;
@@ -47,6 +45,7 @@ import android.util.SparseArray;
 import android.util.proto.ProtoOutputStream;
 
 import com.android.car.CarLog;
+import com.android.car.audio.AudioManagerWrapper;
 import com.android.car.audio.CarAudioContext;
 import com.android.car.audio.CarAudioContext.AudioAttributesWrapper;
 import com.android.car.audio.CarAudioDumpProto;
@@ -68,7 +67,7 @@ import java.util.Set;
 public final class HalAudioFocus implements HalFocusListener {
     private static final String TAG = CarLog.tagFor(HalAudioFocus.class);
 
-    private final AudioManager mAudioManager;
+    private final AudioManagerWrapper mAudioManager;
     private final AudioControlWrapper mAudioControlWrapper;
     private final CarAudioContext mCarAudioContext;
     @Nullable
@@ -82,10 +81,10 @@ public final class HalAudioFocus implements HalFocusListener {
     private final SparseArray<Map<AudioAttributesWrapper, HalAudioFocusRequest>>
             mHalFocusRequestsByZoneAndAttributes;
 
-    public HalAudioFocus(@NonNull AudioManager audioManager,
-                         @NonNull AudioControlWrapper audioControlWrapper,
+    public HalAudioFocus(AudioManagerWrapper audioManager,
+                         AudioControlWrapper audioControlWrapper,
                          @Nullable CarAudioPlaybackMonitor carAudioPlaybackMonitor,
-                         @NonNull CarAudioContext carAudioContext, @NonNull int[] audioZoneIds) {
+                         CarAudioContext carAudioContext, int[] audioZoneIds) {
         mAudioManager = Objects.requireNonNull(audioManager);
         mAudioControlWrapper = Objects.requireNonNull(audioControlWrapper);
         mCarAudioContext = Objects.requireNonNull(carAudioContext);

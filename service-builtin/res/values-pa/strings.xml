@@ -33,7 +33,7 @@
     <string name="importance_high" msgid="3393374688015554727">"ਉੱਚ ਮਹੱਤਤਾ"</string>
     <string name="android_system_label" msgid="9209428539477894959">"Android ਸਿਸਟਮ"</string>
     <string name="factory_reset_notification_title" msgid="6177770995437355965">"ਫੈਕਟਰੀ ਰੀਸੈੱਟ ਦੀ ਲੋੜ ਹੈ"</string>
-    <string name="factory_reset_notification_text" msgid="6051393302193696102">"ਵਾਹਨ ਆਡੀਓ ਸਿਸਟਮ ਦਾ ਸਾਰਾ ਡਾਟਾ ਮਿਟਾ ਦਿੱਤਾ ਜਾਵੇਗਾ। ਰੀਸੈੱਟ ਕਰਨ ਤੋਂ ਬਾਅਦ, ਤੁਸੀਂ ਨਵੇਂ ਪ੍ਰੋਫਾਈਲ ਦਾ ਸੈੱਟਅੱਪ ਕਰ ਸਕਦੇ ਹੋ।"</string>
+    <string name="factory_reset_notification_text" msgid="6051393302193696102">"ਇੰਫ਼ੋਟੇਨਮੈਂਟ ਸਿਸਟਮ ਦਾ ਸਾਰਾ ਡਾਟਾ ਮਿਟਾ ਦਿੱਤਾ ਜਾਵੇਗਾ। ਰੀਸੈੱਟ ਕਰਨ ਤੋਂ ਬਾਅਦ, ਤੁਸੀਂ ਨਵੇਂ ਪ੍ਰੋਫਾਈਲ ਦਾ ਸੈੱਟਅੱਪ ਕਰ ਸਕਦੇ ਹੋ।"</string>
     <string name="factory_reset_notification_button" msgid="6926734587145351076">"ਹੋਰ"</string>
     <string name="factory_reset_warning" msgid="8463356329619149262">"ਤੁਹਾਡਾ ਡੀਵਾਈਸ ਮਿਟਾਇਆ ਜਾਏਗਾ"</string>
     <string name="factory_reset_message" msgid="1972536809866779972">"ਪ੍ਰਸ਼ਾਸਕ ਐਪ ਵਰਤੀ ਨਹੀਂ ਜਾ ਸਕਦੀ। ਹੁਣ ਤੁਹਾਡੇ ਡੀਵਾਈਸ ਦਾ ਡਾਟਾ ਮਿਟਾਇਆ ਜਾਵੇਗਾ।\n\nਜੇ ਤੁਹਾਡੇ ਕੋਲ ਸਵਾਲ ਹਨ, ਤਾਂ ਆਪਣੀ ਸੰਸਥਾ ਦੇ ਪ੍ਰਸ਼ਾਸਕ ਨੂੰ ਸੰਪਰਕ ਕਰੋ।"</string>

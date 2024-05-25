@@ -100,7 +100,6 @@ public class EvsHalService extends HalServiceBase {
         }
 
         mHal.subscribePropertySafe(this, EVS_SERVICE_REQUEST);
-        mHal.subscribePropertySafe(this, CAMERA_SERVICE_CURRENT_STATE);
     }
 
     /** Returns whether {@code EVS_SERVICE_REQUEST} is supported */

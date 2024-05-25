@@ -18,10 +18,14 @@ package com.android.car.audio;
 
 import static android.media.AudioAttributes.USAGE_MEDIA;
 import static android.media.AudioManager.ADJUST_LOWER;
+import static android.media.AudioManager.AUDIOFOCUS_GAIN;
+import static android.media.AudioManager.AUDIOFOCUS_REQUEST_GRANTED;
 
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.verify;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
@@ -30,7 +34,11 @@ import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase.CustomMockitoSessionBuilder;
 import android.media.AudioAttributes;
 import android.media.AudioDeviceAttributes;
+import android.media.AudioFocusInfo;
+import android.media.AudioFocusRequest;
 import android.media.AudioManager;
+import android.media.FadeManagerConfiguration;
+import android.media.audiopolicy.AudioPolicy;
 import android.media.audiopolicy.AudioProductStrategy;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -41,6 +49,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.Mockito;
+
+import java.util.List;
+import java.util.concurrent.Executor;
 
 @RunWith(AndroidJUnit4.class)
 public final class AudioManagerWrapperTest extends AbstractExtendedMockitoTestCase {
@@ -64,6 +76,8 @@ public final class AudioManagerWrapperTest extends AbstractExtendedMockitoTestCa
     private AudioProductStrategy mTestStrategy;
     @Mock
     private AudioDeviceAttributes mTestDeviceAttributes;
+    @Mock
+    private AudioPolicy mAudioPolicy;
 
     private AudioManagerWrapper mAudioManagerWrapper;
     private AudioAttributes mTestAudioAttributes;
@@ -95,6 +109,8 @@ public final class AudioManagerWrapperTest extends AbstractExtendedMockitoTestCa
         doReturn(TEST_GAIN_SET_STATE).when(() -> AudioManagerHelper
                 .setAudioDeviceGain(eq(mAudioManager), eq(TEST_ADDRESS),
                         eq(TEST_GAIN), eq(TEST_IS_OUTPUT)));
+        doReturn(TEST_MUTED_STATE)
+                .when(() -> AudioManagerHelper.isMasterMute(eq(mAudioManager)));
 
         mAudioManagerWrapper = new AudioManagerWrapper(mAudioManager);
     }
@@ -160,5 +176,88 @@ public final class AudioManagerWrapperTest extends AbstractExtendedMockitoTestCa
         expectWithMessage("Volume gain set state")
                 .that(mAudioManagerWrapper
                         .setAudioDeviceGain(TEST_ADDRESS, TEST_GAIN, TEST_IS_OUTPUT));
+    }
+
+    @Test
+    public void requestAudioFocus() {
+        AudioFocusRequest request = Mockito.mock(AudioFocusRequest.class);
+
+        mAudioManagerWrapper.requestAudioFocus(request);
+
+        verify(mAudioManager).requestAudioFocus(request);
+    }
+
+    @Test
+    public void abandonAudioFocusRequest() {
+        AudioFocusRequest request = Mockito.mock(AudioFocusRequest.class);
+
+        mAudioManagerWrapper.abandonAudioFocusRequest(request);
+
+        verify(mAudioManager).abandonAudioFocusRequest(request);
+    }
+
+    @Test
+    public void isMasterMuted() {
+        expectWithMessage("Master mute state").that(mAudioManagerWrapper.isMasterMuted())
+                .isEqualTo(TEST_MUTED_STATE);
+    }
+
+    @Test
+    public void setFocusRequestResult() {
+        AudioFocusInfo info = Mockito.mock(AudioFocusInfo.class);
+
+        mAudioManagerWrapper.setFocusRequestResult(info, AUDIOFOCUS_GAIN, mAudioPolicy);
+
+        verify(mAudioManager).setFocusRequestResult(info, AUDIOFOCUS_GAIN, mAudioPolicy);
+    }
+
+    @Test
+    public void dispatchAudioFocusChange() {
+        AudioFocusInfo info = Mockito.mock(AudioFocusInfo.class);
+        when(mAudioManagerWrapper.dispatchAudioFocusChange(any(), anyInt(), any()))
+                .thenReturn(AUDIOFOCUS_REQUEST_GRANTED);
+
+        int results = mAudioManagerWrapper.dispatchAudioFocusChange(info, AUDIOFOCUS_GAIN,
+                mAudioPolicy);
+
+        expectWithMessage("Audio focus dispatch results").that(results)
+                .isEqualTo(AUDIOFOCUS_REQUEST_GRANTED);
+        verify(mAudioManager).dispatchAudioFocusChange(info, AUDIOFOCUS_GAIN, mAudioPolicy);
+    }
+
+    @Test
+    public void dispatchAudioFocusChangeWithFade() {
+        AudioFocusInfo info = Mockito.mock(AudioFocusInfo.class);
+        List<AudioFocusInfo> activeInfos = List.of();
+        FadeManagerConfiguration config = Mockito.mock(FadeManagerConfiguration.class);
+        when(mAudioManagerWrapper.dispatchAudioFocusChangeWithFade(any(),
+                anyInt(), any(), any(), any())).thenReturn(AUDIOFOCUS_REQUEST_GRANTED);
+
+        int results = mAudioManagerWrapper.dispatchAudioFocusChangeWithFade(info, AUDIOFOCUS_GAIN,
+                mAudioPolicy, activeInfos, config);
+
+        expectWithMessage("Audio focus with fade dispatch results").that(results)
+                .isEqualTo(AUDIOFOCUS_REQUEST_GRANTED);
+        verify(mAudioManager).dispatchAudioFocusChangeWithFade(info, AUDIOFOCUS_GAIN, mAudioPolicy,
+                activeInfos, config);
+    }
+
+    @Test
+    public void registerVolumeGroupCallback() {
+        CoreAudioVolumeGroupCallback callback = Mockito.mock(CoreAudioVolumeGroupCallback.class);
+        Executor executor = Mockito.mock(Executor.class);
+
+        mAudioManagerWrapper.registerVolumeGroupCallback(executor, callback);
+
+        verify(mAudioManager).registerVolumeGroupCallback(executor, callback);
+    }
+
+    @Test
+    public void unregisterVolumeGroupCallback() {
+        CoreAudioVolumeGroupCallback callback = Mockito.mock(CoreAudioVolumeGroupCallback.class);
+
+        mAudioManagerWrapper.unregisterVolumeGroupCallback(callback);
+
+        verify(mAudioManager).unregisterVolumeGroupCallback(callback);
     }
 }

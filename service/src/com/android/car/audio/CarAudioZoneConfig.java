@@ -391,6 +391,7 @@ final class CarAudioZoneConfig {
         proto.end(zoneConfigToken);
     }
 
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     private void dumpAttributeToCarAudioFadeConfigProto(ProtoOutputStream proto) {
         for (Map.Entry<AudioAttributes, CarAudioFadeConfiguration> entry :
                 mAudioAttributesToCarAudioFadeConfiguration.entrySet()) {

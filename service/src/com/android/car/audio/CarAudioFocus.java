@@ -78,7 +78,7 @@ class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
 
     private static final int FOCUS_EVENT_LOGGER_QUEUE_SIZE = 25;
 
-    private final AudioManager mAudioManager;
+    private final AudioManagerWrapper mAudioManager;
     private final PackageManager mPackageManager;
     private final CarVolumeInfoWrapper mCarVolumeInfoWrapper;
     @Nullable
@@ -117,7 +117,7 @@ class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
     @GuardedBy("mLock")
     private boolean mIsFocusRestricted;
 
-    CarAudioFocus(AudioManager audioManager, PackageManager packageManager,
+    CarAudioFocus(AudioManagerWrapper audioManager, PackageManager packageManager,
             FocusInteraction focusInteraction, CarAudioZone carAudioZone,
             CarVolumeInfoWrapper volumeInfoWrapper, @Nullable CarAudioFeaturesInfo features) {
         mAudioManager = Objects.requireNonNull(audioManager, "Audio manager can not be null");
@@ -550,7 +550,7 @@ class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
                         mCarAudioContext.getContextForAudioAttribute(
                                 audioFocusInfo.getAttributes()),
                         getVolumeGroupForAttribute(audioFocusInfo.getAttributes()),
-                        AudioManager.AUDIOFOCUS_GAIN).build();
+                        AUDIOFOCUS_GAIN).build();
 
         OemCarAudioFocusResult focusResult = new OemCarAudioFocusResult.Builder(
                 convertAudioFocusEntries(holdersEvaluation.mChangedEntries),

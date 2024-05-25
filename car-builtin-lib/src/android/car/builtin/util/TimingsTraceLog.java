@@ -26,10 +26,34 @@ import android.annotation.SystemApi;
 @SystemApi(client = SystemApi.Client.MODULE_LIBRARIES)
 public class TimingsTraceLog {
 
-    private final android.util.TimingsTraceLog mTimingsTraceLog;
+    private static final class TimingsTraceLogInternal extends android.util.TimingsTraceLog {
+        private final int mMinDurationMs;
+
+        /**
+         * Same as {@link TimingsTraceLog} except last argument {@code minDurationMs} which
+         * specifies the minimum duration to log the duration.
+         */
+        TimingsTraceLogInternal(String tag, long traceTag, int minDurationMs) {
+            super(tag, traceTag);
+            mMinDurationMs = minDurationMs;
+        }
+
+        @Override
+        public void logDuration(String name, long timeMs) {
+            if (timeMs >= mMinDurationMs) {
+                super.logDuration(name, timeMs);
+            }
+        }
+    }
+
+    private final TimingsTraceLogInternal mTimingsTraceLog;
 
     public TimingsTraceLog(@NonNull String tag, long traceTag) {
-        mTimingsTraceLog = new android.util.TimingsTraceLog(tag, traceTag);
+        mTimingsTraceLog = new TimingsTraceLogInternal(tag, traceTag, /* minDurationMs= */ 0);
+    }
+
+    public TimingsTraceLog(@NonNull String tag, long traceTag, int minDurationMs) {
+        mTimingsTraceLog = new TimingsTraceLogInternal(tag, traceTag, minDurationMs);
     }
 
     /** Check {@code android.util.Slog}. */

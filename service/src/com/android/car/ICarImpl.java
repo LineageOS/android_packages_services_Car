@@ -40,6 +40,7 @@ import android.car.builtin.os.TraceHelper;
 import android.car.builtin.os.UserManagerHelper;
 import android.car.builtin.util.EventLogHelper;
 import android.car.builtin.util.Slogf;
+import android.car.builtin.util.TimingsTraceLog;
 import android.car.feature.FeatureFlags;
 import android.car.feature.FeatureFlagsImpl;
 import android.car.user.CarUserManager;
@@ -93,7 +94,6 @@ import com.android.car.telemetry.CarTelemetryService;
 import com.android.car.user.CarUserNoticeService;
 import com.android.car.user.CarUserService;
 import com.android.car.user.ExperimentalCarUserService;
-import com.android.car.util.LimitedTimingsTraceLog;
 import com.android.car.vms.VmsBrokerService;
 import com.android.car.watchdog.CarWatchdogService;
 import com.android.car.wifi.CarWifiService;
@@ -210,7 +210,7 @@ public class ICarImpl extends ICar.Stub {
     private final StaticBinderInterface mStaticBinder;
 
     private ICarImpl(Builder builder) {
-        LimitedTimingsTraceLog t = new LimitedTimingsTraceLog(
+        TimingsTraceLog t = new TimingsTraceLog(
                 CAR_SERVICE_INIT_TIMING_TAG, TraceHelper.TRACE_TAG_CAR_SERVICE,
                 CAR_SERVICE_INIT_TIMING_MIN_DURATION_MS);
         t.traceBegin("ICarImpl.constructor");
@@ -505,7 +505,7 @@ public class ICarImpl extends ICar.Stub {
 
     @MainThread
     void init() {
-        LimitedTimingsTraceLog t = new LimitedTimingsTraceLog(CAR_SERVICE_INIT_TIMING_TAG,
+        TimingsTraceLog t = new TimingsTraceLog(CAR_SERVICE_INIT_TIMING_TAG,
                 TraceHelper.TRACE_TAG_CAR_SERVICE, CAR_SERVICE_INIT_TIMING_MIN_DURATION_MS);
 
         t.traceBegin("ICarImpl.init");
@@ -1076,7 +1076,7 @@ public class ICarImpl extends ICar.Stub {
         newCarShellCommand().exec(args, writer);
     }
 
-    private <T extends CarSystemService> T constructWithTrace(LimitedTimingsTraceLog t,
+    private <T extends CarSystemService> T constructWithTrace(TimingsTraceLog t,
             Class<T> cls, Callable<T> callable, List<CarSystemService> allServices) {
         t.traceBegin(cls.getSimpleName());
         T constructed;
