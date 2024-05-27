@@ -110,6 +110,8 @@ public class BugReportActivity extends Activity {
     /** Look up string length, e.g. [ABCDEF]. */
     static final int LOOKUP_STRING_LENGTH = 6;
 
+    private static boolean sIsOnActivityStartedWithBugReportServiceBoundCalled = false;
+
     private TextView mInProgressTitleText;
     private ProgressBar mProgressBar;
     private TextView mProgressText;
@@ -128,7 +130,6 @@ public class BugReportActivity extends Activity {
     /** Audio recording using MIC is running (permission given). */
     private boolean mAudioRecordingIsRunning;
     private boolean mIsNewBugReport;
-    private boolean mIsOnActivityStartedWithBugReportServiceBoundCalled;
     private boolean mIsSubmitButtonClicked;
     private BugReportService mService;
     private MediaRecorder mRecorder;
@@ -179,6 +180,10 @@ public class BugReportActivity extends Activity {
         return intent;
     }
 
+    static boolean isOnActivityStarted() {
+        return sIsOnActivityStartedWithBugReportServiceBoundCalled;
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         Preconditions.checkState(Config.isBugReportEnabled(), "BugReport is disabled.");
@@ -214,7 +219,7 @@ public class BugReportActivity extends Activity {
         mAudioRecordingStarted = false;
         mAudioRecordingIsRunning = false;
         mIsSubmitButtonClicked = false;
-        mIsOnActivityStartedWithBugReportServiceBoundCalled = false;
+        sIsOnActivityStartedWithBugReportServiceBoundCalled = false;
         mMetaBugReport = null;
         mTempAudioFile = null;
     }
@@ -355,10 +360,10 @@ public class BugReportActivity extends Activity {
      * <p>This method expected to be called when the activity is started and bound to the service.
      */
     private void onActivityStartedWithBugReportServiceBound() {
-        if (mIsOnActivityStartedWithBugReportServiceBoundCalled) {
+        if (sIsOnActivityStartedWithBugReportServiceBoundCalled) {
             return;
         }
-        mIsOnActivityStartedWithBugReportServiceBoundCalled = true;
+        sIsOnActivityStartedWithBugReportServiceBoundCalled = true;
 
         if (mService.isCollectingBugReport()) {
             Log.i(TAG, "Bug report is already being collected.");
