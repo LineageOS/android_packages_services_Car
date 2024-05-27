@@ -81,6 +81,11 @@ public class ChoiceDialogActivity extends Activity {
     protected void onStart() {
         super.onStart();
 
+        if (BugReportActivity.isOnActivityStarted()) {
+            setResult(Activity.RESULT_CANCELED);
+            finish();
+        }
+
         if (mBound) {
             startActivityWithService();
         }
