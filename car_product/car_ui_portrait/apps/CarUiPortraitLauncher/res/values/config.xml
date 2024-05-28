@@ -80,7 +80,7 @@
         <!-- Add activity to full screen since focus is lost when all the windows are removed. -->
         <item>android.server.wm.cts/android.server.wm.animations.LayoutTests$TestActivity</item>
         <!-- Add activity to full screen due to some issue with focus. -->
-        <item>android.server.wm.cts/android.server.wm.window.WindowUntrustedTouchTest$TestActivity</item>
+        <item>android.server.wm.cts/android.server.wm.input.WindowUntrustedTouchTest$TestActivity</item>
         <!-- Add activity to full screen due to slow animations  -->
         <item>android.server.wm.cts/android.server.wm.display.DisplayHashManagerTest$TestActivity</item>
         <!-- TODO(b/308859591): Remove activities from full screen config once proper solution
