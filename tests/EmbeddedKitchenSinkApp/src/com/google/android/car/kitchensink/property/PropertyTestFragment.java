@@ -38,6 +38,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.util.SparseArray;
+import android.util.SparseBooleanArray;
 import android.util.SparseIntArray;
 import android.util.SparseLongArray;
 import android.view.LayoutInflater;
@@ -52,6 +53,7 @@ import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import androidx.fragment.app.Fragment;
 
@@ -94,6 +96,7 @@ public class PropertyTestFragment extends Fragment implements OnItemSelectedList
     private Spinner mSubscriptionRateHz;
     private Spinner mResolution;
     private Spinner mVariableUpdateRate;
+    private ToggleButton mSubscribeButton;
     private Spinner mAreaId;
     private TextView mEventLog;
     private Spinner mPropertyId;
@@ -102,8 +105,8 @@ public class PropertyTestFragment extends Fragment implements OnItemSelectedList
     private PropertyListEventListener mListener;
     private final SparseIntArray mPropertySubscriptionRateHzSelection = new SparseIntArray();
     private final SparseIntArray mPropertyResolutionSelection = new SparseIntArray();
-    private final SparseIntArray mPropertyVariableUpdateRateSelection =
-            new SparseIntArray();
+    private final SparseIntArray mPropertyVariableUpdateRateSelection = new SparseIntArray();
+    private final SparseBooleanArray mPropertyIsSubscribedSelection = new SparseBooleanArray();
     private GetPropertyCallback mGetPropertyCallback = new GetPropertyCallback() {
         @Override
         public void onSuccess(@NonNull GetPropertyResult<?> getPropertyResult) {
@@ -186,6 +189,9 @@ public class PropertyTestFragment extends Fragment implements OnItemSelectedList
                     "context does not implement " + KitchenSinkHelper.class.getSimpleName());
         }
         mKitchenSinkHelper = (KitchenSinkHelper) mContext;
+
+        mSubscribeButton = view.findViewById(R.id.tbSubscribeButton);
+        mSubscribeButton.setEnabled(false);
 
         // Configure listeners for buttons
         Button b = view.findViewById(R.id.bGetProperty);
@@ -311,6 +317,12 @@ public class PropertyTestFragment extends Fragment implements OnItemSelectedList
         }
     }
 
+    private void setEnabledSubscriptionScrollViews(boolean setEnabled) {
+        mSubscriptionRateHz.setEnabled(setEnabled);
+        mResolution.setEnabled(setEnabled);
+        mVariableUpdateRate.setEnabled(setEnabled);
+    }
+
     // Spinner callbacks
     public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
         PropertyInfo info = (PropertyInfo) parent.getItemAtPosition(pos);
@@ -339,7 +351,16 @@ public class PropertyTestFragment extends Fragment implements OnItemSelectedList
         List<String> vurStrings = new ArrayList<String>();
         vurStrings.add("DISABLED");
 
-        if (changeMode == CarPropertyConfig.VEHICLE_PROPERTY_CHANGE_MODE_CONTINUOUS) {
+        if (changeMode == CarPropertyConfig.VEHICLE_PROPERTY_CHANGE_MODE_STATIC) {
+            setEnabledSubscriptionScrollViews(false);
+            mSubscribeButton.setEnabled(false);
+        } else if (changeMode == CarPropertyConfig.VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE) {
+            setEnabledSubscriptionScrollViews(false);
+            mSubscribeButton.setEnabled(true);
+        } else if (changeMode == CarPropertyConfig.VEHICLE_PROPERTY_CHANGE_MODE_CONTINUOUS) {
+            setEnabledSubscriptionScrollViews(true);
+            mSubscribeButton.setEnabled(true);
+
             float maxSubRate = info.mConfig.getMaxSampleRate();
             subscriptionRateHzStrings.add("1 Hz");
             if (maxSubRate >= 2.0) {
@@ -366,6 +387,7 @@ public class PropertyTestFragment extends Fragment implements OnItemSelectedList
             mPropertySubscriptionRateHzSelection.put(propertyId, 0);
             mPropertyResolutionSelection.put(propertyId, 0);
             mPropertyVariableUpdateRateSelection.put(propertyId, 0);
+            mPropertyIsSubscribedSelection.put(propertyId, false);
         }
 
         ArrayAdapter<String> subscriptionRateHzAdapter = new ArrayAdapter<String>(mContext,
@@ -377,33 +399,7 @@ public class PropertyTestFragment extends Fragment implements OnItemSelectedList
         mSubscriptionRateHz.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int pos, long id) {
-                CarPropertyConfig c = info.mConfig;
-                Integer propId = c.getPropertyId();
-                try {
-                    if (pos == 0) {
-                        mMgr.unsubscribePropertyEvents(propId, mListener);
-                    } else {
-                        Float subscriptionRateHz = SUBSCRIPTION_RATES_HZ[pos];
-                        mListener.addPropertySelectedSubscriptionRateHz(propId, subscriptionRateHz);
-                        mListener.updatePropertyStartTime(propId);
-                        mListener.resetEventCountForProperty(propId);
-
-                        mMgr.subscribePropertyEvents(List.of(
-                                new Subscription.Builder(propId)
-                                    .setUpdateRateHz(subscriptionRateHz)
-                                    .setResolution(
-                                            RESOLUTIONS[mPropertyResolutionSelection
-                                                    .get(propertyId)])
-                                    .setVariableUpdateRateEnabled(
-                                            mPropertyVariableUpdateRateSelection
-                                                    .get(propertyId) != 0)
-                                    .build()),
-                            /* callbackExecutor= */ null, mListener);
-                    }
-                    mPropertySubscriptionRateHzSelection.put(propertyId, pos);
-                } catch (Exception e) {
-                    Log.e(TAG, "Unhandled exception: ", e);
-                }
+                mPropertySubscriptionRateHzSelection.put(info.mConfig.getPropertyId(), pos);
             }
 
             @Override
@@ -420,27 +416,7 @@ public class PropertyTestFragment extends Fragment implements OnItemSelectedList
         mResolution.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int pos, long id) {
-                CarPropertyConfig c = info.mConfig;
-                Integer propId = c.getPropertyId();
-                try {
-                    if (mPropertySubscriptionRateHzSelection.get(propertyId) != 0) {
-                        Float resolution = RESOLUTIONS[pos];
-
-                        mMgr.subscribePropertyEvents(List.of(
-                                new Subscription.Builder(propId)
-                                    .setUpdateRateHz(SUBSCRIPTION_RATES_HZ[
-                                            mPropertySubscriptionRateHzSelection.get(propertyId)])
-                                    .setResolution(resolution)
-                                    .setVariableUpdateRateEnabled(
-                                            mPropertyVariableUpdateRateSelection
-                                                    .get(propertyId) != 0)
-                                    .build()),
-                            /* callbackExecutor= */ null, mListener);
-                    }
-                    mPropertyResolutionSelection.put(propertyId, pos);
-                } catch (Exception e) {
-                    Log.e(TAG, "Unhandled exception: ", e);
-                }
+                mPropertyResolutionSelection.put(info.mConfig.getPropertyId(), pos);
             }
 
             @Override
@@ -458,32 +434,54 @@ public class PropertyTestFragment extends Fragment implements OnItemSelectedList
         mVariableUpdateRate.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int pos, long id) {
-                CarPropertyConfig c = info.mConfig;
-                Integer propId = c.getPropertyId();
-                try {
-                    if (mPropertySubscriptionRateHzSelection.get(propertyId) != 0) {
-                        Boolean variableUpdateRate = (pos != 0);
-
-                        mMgr.subscribePropertyEvents(List.of(
-                                new Subscription.Builder(propId)
-                                    .setUpdateRateHz(SUBSCRIPTION_RATES_HZ[
-                                            mPropertySubscriptionRateHzSelection.get(propertyId)])
-                                    .setResolution(
-                                            RESOLUTIONS[mPropertyResolutionSelection
-                                                    .get(propertyId)])
-                                    .setVariableUpdateRateEnabled(variableUpdateRate)
-                                    .build()),
-                            /* callbackExecutor= */ null, mListener);
-                    }
-                    mPropertyVariableUpdateRateSelection.put(propertyId, pos);
-                } catch (Exception e) {
-                    Log.e(TAG, "Unhandled exception: ", e);
-                }
+                mPropertyVariableUpdateRateSelection.put(info.mConfig.getPropertyId(), pos);
             }
 
             @Override
             public void onNothingSelected(AdapterView<?> adapterView) {
                 // do nothing.
+            }
+        });
+
+        mSubscribeButton.setChecked(mPropertyIsSubscribedSelection.get(propertyId));
+        if (mSubscribeButton.isChecked()) {
+            setEnabledSubscriptionScrollViews(false);
+        }
+        mSubscribeButton.setOnClickListener(v -> {
+            Float subscriptionRateHz = SUBSCRIPTION_RATES_HZ[
+                    mPropertySubscriptionRateHzSelection.get(propertyId)];
+            if (mSubscribeButton.isChecked()
+                    && (changeMode != CarPropertyConfig.VEHICLE_PROPERTY_CHANGE_MODE_CONTINUOUS
+                            || subscriptionRateHz != 0.0)) {
+                mListener.addPropertySelectedSubscriptionRateHz(propertyId, subscriptionRateHz);
+                mListener.updatePropertyStartTime(propertyId);
+                mListener.resetEventCountForProperty(propertyId);
+
+                Float resolution = RESOLUTIONS[mPropertyResolutionSelection.get(propertyId)];
+                boolean variableUpdateRate =
+                        mPropertyVariableUpdateRateSelection.get(propertyId) != 0;
+
+                try {
+                    mMgr.subscribePropertyEvents(List.of(
+                            new Subscription.Builder(propertyId)
+                                    .setUpdateRateHz(subscriptionRateHz)
+                                    .setResolution(resolution)
+                                    .setVariableUpdateRateEnabled(variableUpdateRate)
+                                    .build()),
+                            /* callbackExecutor= */ null, mListener);
+                    mPropertyIsSubscribedSelection.put(propertyId, true);
+                    setEnabledSubscriptionScrollViews(false);
+                } catch (Exception e) {
+                    Log.e(TAG, "Unhandled exception: ", e);
+                }
+            } else {
+                try {
+                    mMgr.unsubscribePropertyEvents(propertyId, mListener);
+                    mPropertyIsSubscribedSelection.put(propertyId, false);
+                    setEnabledSubscriptionScrollViews(true);
+                } catch (Exception e) {
+                    Log.e(TAG, "Unhandled exception: ", e);
+                }
             }
         });
     }
