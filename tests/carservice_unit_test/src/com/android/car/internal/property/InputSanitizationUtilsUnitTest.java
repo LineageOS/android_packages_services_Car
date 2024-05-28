@@ -194,6 +194,8 @@ public final class InputSanitizationUtilsUnitTest {
         assertThat(InputSanitizationUtils.sanitizeResolution(featureFlags,
                 config, 0.0f)).isEqualTo(0.0f);
         assertThat(InputSanitizationUtils.sanitizeResolution(featureFlags,
+                config, 0.1f)).isEqualTo(0.1f);
+        assertThat(InputSanitizationUtils.sanitizeResolution(featureFlags,
                 config, 1.0f)).isEqualTo(1.0f);
         assertThrows(IllegalArgumentException.class,
                 () -> InputSanitizationUtils.sanitizeResolution(featureFlags,

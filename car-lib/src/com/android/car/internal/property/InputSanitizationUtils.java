@@ -90,7 +90,7 @@ public final class InputSanitizationUtils {
             return;
         }
         double log = Math.log10(resolution);
-        Preconditions.checkArgument(Math.abs(log - (int) log) < 0.0000001f,
+        Preconditions.checkArgument(Math.abs(log - Math.round(log)) < 0.0000001f,
                 "resolution must be an integer power of 10. Instead, got resolution: " + resolution
                         + ", whose log10 value is: " + log);
     }
