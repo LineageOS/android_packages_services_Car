@@ -22,6 +22,7 @@
 #include "PerformanceProfiler.h"
 
 #include <android/binder_interface_utils.h>
+#include <log/log.h>
 #include <utils/SystemClock.h>
 
 namespace android {
@@ -55,7 +56,7 @@ Result<void> ServiceManager::startServices(const sp<Looper>& mainLooper) {
     }
     if (car_watchdog_memory_profiling()) {
         if (auto result = startPressureMonitor(); !result.ok()) {
-            return result;
+            ALOGE("%s", result.error().message().c_str());
         }
     }
     if (auto result = startWatchdogPerfService(mWatchdogServiceHelper); !result.ok()) {
