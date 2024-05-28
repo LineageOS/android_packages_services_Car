@@ -32,6 +32,7 @@
         <item>com.android.car.driverui/com.android.car.driverui.MainActivity</item>
         <item>com.google.android.apps.maps/com.google.android.maps.LimitedMapsActivity</item>
         <item>com.android.car.mapsplaceholder/com.android.car.mapsplaceholder.MapsPlaceholderActivity</item>
+        <item>com.android.systemui/com.android.systemui.car.wm.activity.ActivityBlockingActivity</item>
     </string-array>
 
     <string-array name="config_distantDisplayGameControllerPackages" translatable="false">
