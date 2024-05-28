@@ -49,6 +49,11 @@ public final class RadioTunerTabAdapter extends FragmentStateAdapter {
         return mFragmentList.size();
     }
 
+    @Override
+    public long getItemId(int position) {
+        return mFragmentTitleList.get(position).hashCode();
+    }
+
     void addFragment(Fragment fragment, String title) {
         if (findTitleIdx(title) != INDEX_TITLE_NOT_FOUND) {
             Log.e(TAG, "Tuner title " + title + " already exists");
@@ -56,6 +61,7 @@ public final class RadioTunerTabAdapter extends FragmentStateAdapter {
         }
         mFragmentList.add(fragment);
         mFragmentTitleList.add(title);
+        notifyItemInserted(mFragmentList.size() - 1);
     }
 
     void removeFragment(String title) {
@@ -66,6 +72,7 @@ public final class RadioTunerTabAdapter extends FragmentStateAdapter {
         }
         mFragmentList.remove(titleIdx);
         mFragmentTitleList.remove(titleIdx);
+        notifyItemRemoved(titleIdx);
     }
 
     CharSequence getPageTitle(int position) {
