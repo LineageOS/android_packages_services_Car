@@ -20,3 +20,4 @@ PRODUCT_PACKAGES += \
     DesignComposeDriverUIPrebuilt \
     PaintBooth \
     displaycompat-service-sharedlibrary \
+    CarDistantDisplayPanoManager \
