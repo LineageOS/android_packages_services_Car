@@ -328,9 +328,6 @@
     <install-in-user-type package="com.android.stk">
         <install-in user-type="FULL" />
     </install-in-user-type>
-    <install-in-user-type package="com.android.dreams.phototable">
-        <install-in user-type="FULL" />
-    </install-in-user-type>
     <install-in-user-type package="com.android.carrierdefaultapp">
         <install-in user-type="FULL" />
     </install-in-user-type>
@@ -347,9 +344,6 @@
         <install-in user-type="FULL" />
     </install-in-user-type>
     <install-in-user-type package="com.android.simappdialog">
-        <install-in user-type="FULL" />
-    </install-in-user-type>
-    <install-in-user-type package="com.android.dreams.basic">
         <install-in user-type="FULL" />
     </install-in-user-type>
     <install-in-user-type package="com.android.companiondevicemanager">
