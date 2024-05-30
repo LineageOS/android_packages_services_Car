@@ -1109,15 +1109,6 @@
         </activity>
 
         <activity
-            android:name="com.android.settings.Settings$ColorContrastActivity"
-            android:enabled="false"
-            android:exported="false"
-            tools:node="merge"
-            tools:replace="android:exported">
-            <intent-filter tools:node="removeAll"/>
-        </activity>
-
-        <activity
             android:name="com.android.settings.SettingsTutorialDialogWrapperActivity"
             android:enabled="false"
             android:exported="false"
@@ -2863,15 +2854,6 @@
             <intent-filter tools:node="removeAll"/>
         </activity-alias>
 
-        <activity-alias
-            android:name="com.android.settings.BackupTasksActivity"
-            android:enabled="false"
-            android:exported="false"
-            tools:node="merge"
-            tools:replace="android:exported">
-            <intent-filter tools:node="removeAll"/>
-        </activity-alias>
-
         <activity
             android:name="com.android.settings.Settings$TextReadingSettingsActivity"
             android:enabled="false"
@@ -3245,6 +3227,15 @@
             android:exported="false"
             tools:node="merge"
             tools:replace="android:exported">
+            <intent-filter tools:node="removeAll"/>
+        </receiver>
+
+        <receiver
+            android:name="com.android.settings.development.Enable16KBootReceiver"
+            android:enabled="false"
+            android:exported="false"
+            tools:node="merge"
+            tools:replace="android:enabled,android:exported">
             <intent-filter tools:node="removeAll"/>
         </receiver>
 
