@@ -120,8 +120,8 @@ std::tuple<int64_t, int64_t> calculateStartAndDuration(struct tm currentTm) {
     startTm.tm_min = 0;
     startTm.tm_hour = 0;
 
-    int64_t startTime = static_cast<int64_t>(mktime(&startTm));
-    int64_t currentEpochSeconds = static_cast<int64_t>(mktime(&currentTm));
+    int64_t startTime = static_cast<int64_t>(timegm(&startTm));
+    int64_t currentEpochSeconds = static_cast<int64_t>(timegm(&currentTm));
     return std::make_tuple(startTime, currentEpochSeconds - startTime);
 }
 
