@@ -41,4 +41,12 @@ aidl_interface {
     imports: [
         "android.frameworks.automotive.powerpolicy-V3",
     ],
+    versions_with_info: [
+        {
+            version: "1",
+            imports: ["android.frameworks.automotive.powerpolicy-V3"],
+        },
+    ],
+    frozen: true,
+
 }
