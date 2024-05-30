@@ -672,7 +672,7 @@ Result<void> PerformanceProfiler::init() {
             .maxCacheSize = std::numeric_limits<std::size_t>::max(),
             .records = {},
     };
-    if (!mIsMemoryProfilingEnabled) {
+    if (!mIsMemoryProfilingEnabled || !kPressureMonitor->isEnabled()) {
         return {};
     }
     if (auto result = kPressureMonitor->registerPressureChangeCallback(
@@ -688,7 +688,7 @@ void PerformanceProfiler::terminate() {
     Mutex::Autolock lock(mMutex);
     ALOGW("Terminating %s", name().c_str());
 
-    if (mIsMemoryProfilingEnabled) {
+    if (mIsMemoryProfilingEnabled && kPressureMonitor->isEnabled()) {
         kPressureMonitor->unregisterPressureChangeCallback(
                 sp<PerformanceProfiler>::fromExisting(this));
     }

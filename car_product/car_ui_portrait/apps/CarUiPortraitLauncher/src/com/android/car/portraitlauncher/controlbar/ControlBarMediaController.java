@@ -22,9 +22,13 @@ import static com.android.car.media.common.ui.PlaybackCardControllerUtilities.up
 
 import android.content.Intent;
 import android.content.res.ColorStateList;
+import android.content.res.Resources;
+import android.graphics.drawable.Drawable;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+
+import androidx.constraintlayout.motion.widget.MotionLayout;
 
 import com.android.car.apps.common.util.ViewUtils;
 import com.android.car.carlauncher.homescreen.audio.media.MediaIntentRouter;
@@ -36,6 +40,7 @@ import com.android.car.media.common.playback.PlaybackViewModel.PlaybackControlle
 import com.android.car.media.common.source.MediaSource;
 import com.android.car.media.common.source.MediaSourceColors;
 import com.android.car.media.common.ui.PlaybackCardController;
+import com.android.car.media.common.ui.PlaybackQueueController;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,6 +53,20 @@ public class ControlBarMediaController extends PlaybackCardController {
     private ViewGroup mCustomActionLayout;
     private ViewGroup mCustomActionOverflowLayout;
     private ImageButton mActionOverflowExitButton;
+    private ViewGroup mQueueContainer;
+    private ViewGroup mHistoryContainer;
+
+    private PlaybackQueueController mPlaybackQueueController;
+    private MotionLayout mMotionLayout;
+
+    private int mSubtitleVisibility;
+    private int mDescriptionVisibility;
+    private int mLogoVisibility;
+    private int mCurrentTimeVisibility;
+    private int mTimeSeparatorVisibility;
+    private int mMaxTimeVisibility;
+    private int mCustomActionLayoutVisibility;
+    private int mCustomActionOverflowLayoutVisibility;
 
     /**
      * Builder for {@link ControlBarMediaController}. Overrides build() method to return
@@ -77,6 +96,59 @@ public class ControlBarMediaController extends PlaybackCardController {
         mActionOverflowExitButton = mView.findViewById(R.id.overflow_exit_button);
         mActionOverflowExitButton.setOnClickListener(view ->
                 handleCustomActionsOverflowButtonClicked(mActionOverflowButton));
+
+        mQueueContainer = mView.findViewById(R.id.queue_list_container);
+        mHistoryContainer = mView.findViewById(R.id.history_list_container);
+
+        mPlaybackQueueController = new PlaybackQueueController(
+                mView.findViewById(R.id.queue_list), Resources.ID_NULL,
+                R.layout.control_bar_media_queue_item, Resources.ID_NULL, getViewLifecycleOwner(),
+                mDataModel, mViewModel.getMediaItemsRepository(), null, 0);
+        mPlaybackQueueController.setShowTimeForActiveQueueItem(true);
+        mPlaybackQueueController.setShowIconForActiveQueueItem(false);
+        mPlaybackQueueController.setShowThumbnailForQueueItem(true);
+        mPlaybackQueueController.setShowSubtitleForQueueItem(true);
+
+        mMotionLayout = mView.findViewById(R.id.control_bar_media_card_motion_layout);
+        mMotionLayout.addTransitionListener(new MotionLayout.TransitionListener() {
+            @Override
+            public void onTransitionStarted(MotionLayout motionLayout, int i, int i1) {
+            }
+
+            @Override
+            public void onTransitionChange(MotionLayout motionLayout, int i, int i1, float v) {
+            }
+
+            @Override
+            public void onTransitionCompleted(MotionLayout motionLayout, int i) {
+                if (isPanelOpen()) {
+                    ViewUtils.setVisible(mCustomActionLayout, false);
+                    ViewUtils.setVisible(mCustomActionOverflowLayout, false);
+                } else {
+                    ViewUtils.setVisible(mQueueContainer, false);
+                    ViewUtils.setVisible(mHistoryContainer, false);
+                }
+            }
+
+            @Override
+            public void onTransitionTrigger(MotionLayout motionLayout, int i, boolean b, float v) {
+            }
+        });
+    }
+
+    @Override
+    protected void setupController() {
+        super.setupController();
+
+        mSubtitleVisibility = mSubtitle.getVisibility();
+        mDescriptionVisibility = mDescription.getVisibility();
+        mLogoVisibility = mLogo.getVisibility();
+        mCurrentTimeVisibility = mCurrentTime.getVisibility();
+        mTimeSeparatorVisibility = mTimeSeparator.getVisibility();
+        mMaxTimeVisibility = mMaxTime.getVisibility();
+
+        mCustomActionLayoutVisibility = mCustomActionLayout.getVisibility();
+        mCustomActionOverflowLayoutVisibility = mCustomActionOverflowLayout.getVisibility();
     }
 
     @Override
@@ -86,6 +158,29 @@ public class ControlBarMediaController extends PlaybackCardController {
             updateTextViewAndVisibility(mTitle,
                     mView.getContext().getResources().getString(R.string.default_media_song_title));
         }
+        if (isPanelOpen()) {
+            mSubtitleVisibility = mSubtitle.getVisibility();
+            mDescriptionVisibility = mDescription.getVisibility();
+            mSubtitle.setVisibility(View.GONE);
+            mDescription.setVisibility(View.GONE);
+        }
+    }
+
+    @Override
+    protected void updateLogoWithDrawable(Drawable drawable) {
+        super.updateLogoWithDrawable(drawable);
+        if (isPanelOpen()) {
+            mLogoVisibility = mLogo.getVisibility();
+            mLogo.setVisibility(View.GONE);
+        }
+    }
+
+    @Override
+    protected void updateMediaSource(MediaSource mediaSource) {
+        super.updateMediaSource(mediaSource);
+        if (isPanelOpen()) {
+            mAppIcon.setVisibility(View.GONE);
+        }
     }
 
     // TODO b/336857625: Possibly move SeekBar hide logic to parent class
@@ -94,6 +189,14 @@ public class ControlBarMediaController extends PlaybackCardController {
         super.updateProgress(progress);
         if (progress == null || !progress.hasTime()) {
             mSeekBar.setVisibility(View.GONE);
+        }
+        if (isPanelOpen()) {
+            mCurrentTimeVisibility = mCurrentTime.getVisibility();
+            mMaxTimeVisibility = mMaxTime.getVisibility();
+            mTimeSeparatorVisibility = mTimeSeparator.getVisibility();
+            mCurrentTime.setVisibility(View.GONE);
+            mMaxTime.setVisibility(View.GONE);
+            mTimeSeparator.setVisibility(View.GONE);
         }
     }
 
@@ -149,6 +252,10 @@ public class ControlBarMediaController extends PlaybackCardController {
             if (!hasOverflow && mViewModel.getOverflowExpanded()) {
                 handleCustomActionsOverflowButtonClicked(mActionOverflowButton);
             }
+            if (isPanelOpen()) {
+                mCustomActionLayout.setVisibility(View.GONE);
+                mCustomActionOverflowLayout.setVisibility(View.GONE);
+            }
         }
     }
 
@@ -168,5 +275,132 @@ public class ControlBarMediaController extends PlaybackCardController {
         ViewUtils.setVisible(mCustomActionLayout, !isExpanded);
         ViewUtils.setVisible(mCustomActionOverflowLayout, isExpanded);
         ViewUtils.setVisible(mActionOverflowExitButton, isExpanded);
+        mCustomActionLayoutVisibility = mCustomActionLayout.getVisibility();
+        mCustomActionOverflowLayoutVisibility = mCustomActionOverflowLayout.getVisibility();
+    }
+
+    @Override
+    protected void setUpQueueButton() {
+        super.setUpQueueButton();
+        setQueueState(mViewModel.getQueueVisible(), /* stateSetThroughClick */ false);
+    }
+
+    @Override
+    protected void updateQueueState(boolean hasQueue, boolean isQueueVisible) {
+        super.updateQueueState(hasQueue, isQueueVisible);
+        if (isPanelOpen() && mViewModel.getQueueVisible() && !hasQueue) {
+            unselectPanelButtons();
+
+            mViewModel.setQueueVisible(false);
+            mViewModel.setHistoryVisible(false);
+
+            showViewsAndTransitionPanelClosed();
+        }
+    }
+
+    @Override
+    protected void handleQueueButtonClicked(View queue) {
+        super.handleQueueButtonClicked(queue);
+        setQueueState(mViewModel.getQueueVisible(), /* stateSetThroughClick */ true);
+    }
+
+    @Override
+    protected void setUpHistoryButton() {
+        super.setUpHistoryButton();
+        setHistoryState(mViewModel.getHistoryVisible(), /* stateSetThroughClick */ false);
+    }
+
+    @Override
+    protected void handleHistoryButtonClicked(View history) {
+        super.handleHistoryButtonClicked(history);
+        setHistoryState(mViewModel.getHistoryVisible(), /* stateSetThroughClick */ true);
+    }
+
+    private void setQueueState(boolean isVisible, boolean stateSetThroughClick) {
+        if (isVisible) {
+            showQueue(true);
+            showHistory(false);
+            if (mViewModel.getHistoryVisible()) {
+                mViewModel.setHistoryVisible(false);
+            } else {
+                saveViewVisibilityAndTransitionPanelOpen();
+            }
+        } else if (stateSetThroughClick) {
+            unselectPanelButtons();
+
+            mViewModel.setHistoryVisible(false);
+
+            showViewsAndTransitionPanelClosed();
+        }
+    }
+
+    private void setHistoryState(boolean isVisible, boolean stateSetThroughClick) {
+        if (isVisible) {
+            showHistory(true);
+            showQueue(false);
+            if (mViewModel.getQueueVisible()) {
+                mViewModel.setQueueVisible(false);
+            } else {
+                saveViewVisibilityAndTransitionPanelOpen();
+            }
+        } else if (stateSetThroughClick) {
+            unselectPanelButtons();
+
+            mViewModel.setQueueVisible(false);
+
+            showViewsAndTransitionPanelClosed();
+        }
+    }
+
+    private boolean isPanelOpen() {
+        return mViewModel.getQueueVisible() || mViewModel.getHistoryVisible();
+    }
+
+    private void saveViewVisibilityAndTransitionPanelOpen() {
+        mSubtitleVisibility = mSubtitle.getVisibility();
+        mDescriptionVisibility = mDescription.getVisibility();
+        mLogoVisibility = mLogo.getVisibility();
+        mCurrentTimeVisibility = mCurrentTime.getVisibility();
+        mTimeSeparatorVisibility = mTimeSeparator.getVisibility();
+        mMaxTimeVisibility = mMaxTime.getVisibility();
+
+        mCustomActionLayoutVisibility = mCustomActionLayout.getVisibility();
+        mCustomActionOverflowLayoutVisibility = mCustomActionOverflowLayout.getVisibility();
+
+        mSeekBar.getThumb().mutate().setAlpha(0);
+
+        mMotionLayout.transitionToEnd();
+    }
+
+    private void showViewsAndTransitionPanelClosed() {
+        mAppIcon.setVisibility(View.VISIBLE);
+        mSubtitle.setVisibility(mSubtitleVisibility);
+        mDescription.setVisibility(mDescriptionVisibility);
+        mCurrentTime.setVisibility(mCurrentTimeVisibility);
+        mTimeSeparator.setVisibility(mTimeSeparatorVisibility);
+        mMaxTime.setVisibility(mMaxTimeVisibility);
+        mLogo.setVisibility(mLogoVisibility);
+
+        mCustomActionLayout.setVisibility(mCustomActionLayoutVisibility);
+        mCustomActionOverflowLayout.setVisibility(mCustomActionOverflowLayoutVisibility);
+
+        mSeekBar.getThumb().mutate().setAlpha(255);
+
+        mMotionLayout.transitionToStart();
+    }
+
+    private void showQueue(boolean shouldShow) {
+        ViewUtils.setVisible(mQueueContainer, shouldShow);
+        mQueueButton.setSelected(shouldShow);
+    }
+
+    private void showHistory(boolean shouldShow) {
+        ViewUtils.setVisible(mHistoryContainer, shouldShow);
+        mHistoryButton.setSelected(shouldShow);
+    }
+
+    private void unselectPanelButtons() {
+        mQueueButton.setSelected(false);
+        mHistoryButton.setSelected(false);
     }
 }
