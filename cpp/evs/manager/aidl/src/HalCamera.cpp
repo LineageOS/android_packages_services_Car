@@ -272,7 +272,9 @@ void HalCamera::clientStreamEnding(const VirtualCamera* client) {
 }
 
 ScopedAStatus HalCamera::doneWithFrame(BufferDesc buffer) {
-    std::lock_guard<std::mutex> lock(mFrameMutex);
+    std::unique_lock lock(mFrameMutex);
+    ::android::base::ScopedLockAssertion lock_assertion(mFrameMutex);
+    mFrameOpDone.wait(lock, [this]() REQUIRES(mFrameMutex) { return mFrameOpInProgress != true; });
 
     // Find this frame in our list of outstanding frames
     auto it = std::find_if(mFrames.begin(), mFrames.end(),
@@ -333,6 +335,7 @@ ScopedAStatus HalCamera::deliverFrame(const std::vector<BufferDesc>& buffers) {
                                std::make_move_iterator(mNextRequests.begin()),
                                std::make_move_iterator(mNextRequests.end()));
         mNextRequests.clear();
+        mFrameOpInProgress = true;
     }
 
     while (!currentRequests.empty()) {
@@ -378,6 +381,8 @@ ScopedAStatus HalCamera::deliverFrame(const std::vector<BufferDesc>& buffers) {
         mNextRequests.insert(mNextRequests.end(),
                              std::make_move_iterator(puntedRequests.begin()),
                              std::make_move_iterator(puntedRequests.end()));
+        mFrameOpInProgress = false;
+        mFrameOpDone.notify_all();
     } else {
         std::lock_guard lock(mFrameMutex);
 
@@ -400,6 +405,8 @@ ScopedAStatus HalCamera::deliverFrame(const std::vector<BufferDesc>& buffers) {
         mNextRequests.insert(mNextRequests.end(),
                              std::make_move_iterator(puntedRequests.begin()),
                              std::make_move_iterator(puntedRequests.end()));
+        mFrameOpInProgress = false;
+        mFrameOpDone.notify_all();
     }
 
     return ScopedAStatus::ok();
