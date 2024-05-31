@@ -28,8 +28,7 @@ import java.lang.annotation.Target;
 /**
  * Tells in which version of car API this method / type / field was added.
  * <p> For items marked with this, the client need to make sure to check car API version using
- * {@link android.car.Car#API_VERSION_MAJOR_INT} for major version and
- * {@link android.car.Car#API_VERSION_MINOR_INT} for minor version.
+ * {@link android.car.Car#getCarVersion}.
  *
  * @deprecated use {@link ApiRequirements} instead.
  *

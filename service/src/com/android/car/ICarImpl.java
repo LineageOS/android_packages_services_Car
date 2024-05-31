@@ -911,8 +911,8 @@ public class ICarImpl extends ICar.Stub {
         writer.println("CarBuiltin Platform minor: " + CarBuiltin.PLATFORM_VERSION_MINOR_INT);
         writer.println("Legacy versions (might differ from above as they can't be emulated)");
         writer.increaseIndent();
-        writer.println("Car API major: " + Car.API_VERSION_MAJOR_INT);
-        writer.println("Car API minor: " + Car.API_VERSION_MINOR_INT);
+        writer.println("Car API major: " + Car.getCarVersion().getMajorVersion());
+        writer.println("Car API minor: " + Car.getCarVersion().getMinorVersion());
         writer.println("Car Platform minor: " + Car.PLATFORM_VERSION_MINOR_INT);
         writer.println("VHAL and Car User Service Priority Init: " + mDoPriorityInitInConstruction);
         writer.decreaseIndent();

@@ -79,6 +79,7 @@ import android.content.ContextWrapper;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
@@ -124,13 +125,15 @@ public final class Car implements ICarBase {
             "ro.android.car.version.platform_minor";
 
     /**
-     * @deprecated - use {@code getCarApiVersion().getMajorVersion()} instead
+     * @deprecated - This does not return the correct version. Use
+     * {@code getCarVersion().getMajorVersion()} instead.
      */
     @Deprecated
     public static final int API_VERSION_MAJOR_INT = 34;
 
     /**
-     * @deprecated - use {@code getCarApiVersion().getMinorVersion()} instead
+     * @deprecated - This does not return the correct version. Use
+     * {@code getCarVersion().getMinorVersion()} instead
      */
     @Deprecated
     public static final int API_VERSION_MINOR_INT = 0;
@@ -143,8 +146,13 @@ public final class Car implements ICarBase {
     public static final int PLATFORM_VERSION_MINOR_INT = SystemProperties
             .getInt(PROPERTY_PLATFORM_MINOR_VERSION, /* def= */ 0);
 
+    // These are the actual car api versions. Due to legacy reasons, we cannot modfiy
+    // API_VERSION_MAJOR_INT and API_VERSION_MINOR_INT because they were exposed as public.
+    private static final int ACTUAL_API_VERSION_MAJOR_INT = Build.VERSION.SDK_INT;
+    private static final int ACTUAL_API_VERSION_MINOR_INT = 0;
+
     private static final CarVersion CAR_VERSION = CarVersion.newInstance("Car.CAR_VERSION",
-            API_VERSION_MAJOR_INT, API_VERSION_MINOR_INT);
+            ACTUAL_API_VERSION_MAJOR_INT, ACTUAL_API_VERSION_MINOR_INT);
 
     private static final PlatformVersion PLATFORM_VERSION;
 
