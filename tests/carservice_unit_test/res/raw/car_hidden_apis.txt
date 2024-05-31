@@ -30,6 +30,10 @@ android.car Car T handleRemoteExceptionFromCarService(RemoteException e, T retur
 android.car Car T handleRemoteExceptionFromCarService(Service service, RemoteException e, T returnValue)
 android.car Car void handleRemoteExceptionFromCarService(RemoteException e)
 android.car Car void handleRemoteExceptionFromCarService(Service service, RemoteException e)
+android.car Car.CarBuilder Car createCar(Context context)
+android.car Car.CarBuilder Car createCar(Context context, Handler handler)
+android.car Car.CarBuilder Car createCar(Context context, Handler handler, long waitTimeoutMs, CarServiceLifecycleListener statusChangeListener)
+android.car Car.CarBuilder CarBuilder setServiceManager(ServiceManager serviceManager)
 android.car CarAppFocusManager int APP_FOCUS_MAX
 android.car CarAppFocusManager int[] getActiveAppTypes()
 android.car CarAppFocusManager void onCarDisconnected()
