@@ -79,7 +79,7 @@ public abstract class CarApiTestBase extends AbstractExpectableTestCase {
      */
     private static final int SMALL_NAP_MS = 100;
 
-    protected static final ReceiverTrackingContext sContext = new ReceiverTrackingContext(
+    private final ReceiverTrackingContext mContext = new ReceiverTrackingContext(
             InstrumentationRegistry.getInstrumentation().getTargetContext());
 
     private Car mCar;
@@ -123,8 +123,10 @@ public abstract class CarApiTestBase extends AbstractExpectableTestCase {
 
     @After
     public final void checkReceiversUnregisters() {
-        Collection<String> receivers = sContext.getReceiversInfo();
         Log.d(TAG, "Checking if all receivers were unregistered.");
+        Collection<String> receivers = mContext.getReceiversInfo();
+        // Remove all registered receivers to prevent affecting future test cases.
+        mContext.clearReceivers();
 
         assertWithMessage("Broadcast receivers that are not unregistered: %s", receivers)
                 .that(receivers).isEmpty();
@@ -135,7 +137,7 @@ public abstract class CarApiTestBase extends AbstractExpectableTestCase {
     }
 
     protected final Context getContext() {
-        return sContext;
+        return mContext;
     }
 
     @SuppressWarnings("TypeParameterUnusedInFormals") // error prone complains about returning <T>
@@ -173,14 +175,13 @@ public abstract class CarApiTestBase extends AbstractExpectableTestCase {
         }
     }
 
-    protected static void suspendToRamAndResume()
-            throws Exception {
+    protected void suspendToRamAndResume() throws Exception {
         Log.d(TAG, "Emulate suspend to RAM and resume");
         try {
             Log.d(TAG, "Disabling background users starting on garage mode");
             runShellCommand("cmd car_service set-start-bg-users-on-garage-mode false");
 
-            PowerManager powerManager = sContext.getSystemService(PowerManager.class);
+            PowerManager powerManager = mContext.getSystemService(PowerManager.class);
             // clear log
             runShellCommand("logcat -b all -c");
             // We use a simulated suspend because physically suspended devices cannot be woken up by
