@@ -119,6 +119,7 @@ public final class CarPropertyManagerTest extends CarApiTestBase {
         for (int i = 0; i < carPropertyConfigsListBeforeGenerating.size(); i++) {
             resultSet.add(carPropertyConfigsListBeforeGenerating.get(i).getPropertyId());
         }
+        boolean isDebugCommandSupported = false;
         try {
             for (int i = STARTING_TEST_CODES; i < END_TEST_CODES; i++) {
                 assertThat(i).isNotIn(resultSet);
@@ -135,14 +136,15 @@ public final class CarPropertyManagerTest extends CarApiTestBase {
             for (int i = 0; i < carPropertyConfigsList.size(); i++) {
                 resultSet.add(carPropertyConfigsList.get(i).getPropertyId());
             }
+            isDebugCommandSupported = result.equals("successfully generated vendor configs\n");
             assumeTrue("successfully generated vendor configs, VHAL gen-test-vendor-configs "
                             + "debug command is supported",
-                    result.equals("successfully generated vendor configs\n"));
+                    isDebugCommandSupported);
             for (int i = STARTING_TEST_CODES; i < END_TEST_CODES; i++) {
                 assertThat(i).isIn(resultSet);
             }
         } finally {
-            restoreCarService();
+            restoreCarService(isDebugCommandSupported);
         }
     }
 
@@ -150,6 +152,7 @@ public final class CarPropertyManagerTest extends CarApiTestBase {
             + "(List, long, CancellationSignal, Executor, SetPropertyCallback)"})
     @Test
     public void testSetPropertiesAsyncWithLargeNumberRequests() throws Exception {
+        boolean isDebugCommandSupported = false;
         try {
             Log.d(TAG, "Stopping car service for test");
             mTestManager.stopCarService(mToken);
@@ -157,9 +160,10 @@ public final class CarPropertyManagerTest extends CarApiTestBase {
                     "dumpsys car_service gen-test-vendor-configs");
             Log.d(TAG, "Starting car service for test");
             mTestManager.startCarService(mToken);
+            isDebugCommandSupported = result.equals("successfully generated vendor configs\n");
             assumeTrue("successfully generated vendor configs, VHAL gen-test-vendor-configs "
                             + "debug command is supported",
-                    result.equals("successfully generated vendor configs\n"));
+                    isDebugCommandSupported);
             Executor callbackExecutor = new HandlerExecutor(mHandler);
             Set<Integer> setPropertyIds = new ArraySet<>();
             List<CarPropertyManager.SetPropertyRequest<?>> setPropertyRequests = new ArrayList<>();
@@ -184,7 +188,7 @@ public final class CarPropertyManagerTest extends CarApiTestBase {
             assertThat(callback.getErrorList().size()).isEqualTo(0);
         } finally {
             Log.d(TAG, "restoring car service");
-            restoreCarService();
+            restoreCarService(isDebugCommandSupported);
         }
     }
 
@@ -192,16 +196,18 @@ public final class CarPropertyManagerTest extends CarApiTestBase {
             + "(List, long, CancellationSignal, Executor, GetPropertyCallback)"})
     @Test
     public void testGetPropertiesAsyncWithLargeNumberRequests() throws Exception {
+        boolean isDebugCommandSupported = false;
         try {
             Log.d(TAG, "Stopping car service for test");
             mTestManager.stopCarService(mToken);
             String result = CarApiTestBase.executeShellCommand(
                     "dumpsys car_service gen-test-vendor-configs");
+            isDebugCommandSupported = result.equals("successfully generated vendor configs\n");
             Log.d(TAG, "Starting car service for test");
             mTestManager.startCarService(mToken);
             assumeTrue("successfully generated vendor configs, VHAL gen-test-vendor-configs "
                             + "debug command is supported",
-                    result.equals("successfully generated vendor configs\n"));
+                    isDebugCommandSupported);
 
             Executor callbackExecutor = new HandlerExecutor(mHandler);
             Set<Integer> getPropertyIds = new ArraySet<>();
@@ -226,17 +232,23 @@ public final class CarPropertyManagerTest extends CarApiTestBase {
             assertThat(callback.getErrorList()).isEmpty();
         } finally {
             Log.d(TAG, "restoring car service");
-            restoreCarService();
+            restoreCarService(isDebugCommandSupported);
         }
     }
 
-    private void restoreCarService() throws Exception {
-        Log.d(TAG, "Stopping car service for test");
-        mTestManager.stopCarService(mToken);
-        String result = CarApiTestBase.executeShellCommand(
-                "dumpsys car_service restore-vendor-configs");
-        assertThat(result.equals("successfully restored vendor configs\n")).isTrue();
-        Log.d(TAG, "Starting car service for test");
-        mTestManager.startCarService(mToken);
+    private void restoreCarService(boolean isDebugCommandSupported) throws Exception {
+        Binder restartCarService = new Binder("restart_car_service_after_test");
+        try {
+            Log.d(TAG, "Stopping car service for test");
+            mTestManager.stopCarService(restartCarService);
+            if (isDebugCommandSupported) {
+                String result = CarApiTestBase.executeShellCommand(
+                        "dumpsys car_service restore-vendor-configs");
+                assertThat(result.equals("successfully restored vendor configs\n")).isTrue();
+            }
+            Log.d(TAG, "Starting car service for test");
+        } finally {
+            mTestManager.startCarService(restartCarService);
+        }
     }
 }
