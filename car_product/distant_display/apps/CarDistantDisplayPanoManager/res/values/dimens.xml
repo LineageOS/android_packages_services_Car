@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2024 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License
+  -->
+<resources>
+    <dimen name="add_replace_button_bg_radius">80dp</dimen>
+    <dimen name="close_button_bg_radius">80dp</dimen>
+    <dimen name="app_card_bg_radius">24dp</dimen>
+    <dimen name="app_card_selected_bg_stroke_width">2dp</dimen>
+    <dimen name="app_card_image_radius">13dp</dimen>
+    <dimen name="root_top_margin">60dp</dimen>
+    <dimen name="root_padding">16dp</dimen>
+    <dimen name="close_button_size">53dp</dimen>
+    <dimen name="close_button_margin_start">29dp</dimen>
+    <dimen name="close_button_margin_top">39dp</dimen>
+    <dimen name="selected_app_cards_height">350dp</dimen>
+    <dimen name="selected_app_cards_margin_start">18dp</dimen>
+    <dimen name="selected_app_cards_margin_top">53dp</dimen>
+    <dimen name="touch_app_image_size">28dp</dimen>
+    <dimen name="touch_app_image_margin_start">18dp</dimen>
+    <dimen name="touch_app_image_margin_top">49dp</dimen>
+    <dimen name="reorder_text_width">210dp</dimen>
+    <dimen name="reorder_text_height">29dp</dimen>
+    <dimen name="reorder_text_margin_start">11dp</dimen>
+    <dimen name="add_replace_button_height">53dp</dimen>
+    <dimen name="add_replace_button_margin_top">33dp</dimen>
+    <dimen name="add_replace_button_margin_start">235dp</dimen>
+    <dimen name="add_replace_button_padding_start">16dp</dimen>
+    <dimen name="add_replace_button_padding_end">16dp</dimen>
+    <dimen name="add_replace_button_padding_vertical">13dp</dimen>
+    <dimen name="add_replace_button_padding_drawable">11dp</dimen>
+    <dimen name="app_card_width">280dp</dimen>
+    <dimen name="app_card_height">350dp</dimen>
+    <dimen name="app_card_padding">16dp</dimen>
+    <dimen name="app_card_margin_horizontal">9dp</dimen>
+    <dimen name="app_card_header_text_width">212dp</dimen>
+    <dimen name="app_card_header_text_height">24dp</dimen>
+    <dimen name="app_card_header_icon_size">21dp</dimen>
+    <dimen name="app_card_header_icon_margin_start">15dp</dimen>
+    <dimen name="app_card_image_size">176dp</dimen>
+    <dimen name="app_card_image_margin_start">37dp</dimen>
+    <dimen name="app_card_image_margin_top">32dp</dimen>
+    <dimen name="app_card_primary_text_width">248dp</dimen>
+    <dimen name="app_card_image_primary_text_height">33dp</dimen>
+    <dimen name="app_card_progress_primary_text_height">58dp</dimen>
+    <dimen name="app_card_image_primary_text_margin_top">19dp</dimen>
+    <dimen name="app_card_progress_primary_text_margin_top">74dp</dimen>
+    <dimen name="app_card_secondary_text_width">248dp</dimen>
+    <dimen name="app_card_secondary_text_height">22dp</dimen>
+    <dimen name="app_card_progress_bar_width">251dp</dimen>
+    <dimen name="app_card_progress_bar_height">3dp</dimen>
+    <dimen name="app_card_progress_bar_margin_top">89dp</dimen>
+</resources>

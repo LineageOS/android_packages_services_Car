@@ -40,6 +40,8 @@ java_defaults {
         "android.car.test.utils",
         "androidx.annotation_annotation",
         "androidx.test.rules",
+        "flag-junit",
+        "platform-test-annotations",
         "truth",
         "vehicle-hal-support-lib",
     ],
