@@ -405,13 +405,18 @@ public final class CarUnitTest {
     }
 
     @Test
-    public void testCreateCar_Context_CarServiceRegistered() {
+    public void testCreateCar_Context_CarServiceRegistered() throws Exception {
         setCarServiceRegistered();
 
         Car car = mCarBuilder.createCar(mContext);
 
         assertThat(car).isNotNull();
         assertThat(car.isConnected()).isTrue();
+
+        // In the legacy implementation, createCar will bind to car service and cause an
+        // onServiceConnected callback to be invoked later. We must make sure this callback is
+        // invoked before disconnect, otherwise, the callback will set isConnected to true again.
+        finishTasksOnMain();
 
         car.disconnect();
         assertThat(car.isConnected()).isFalse();
@@ -425,6 +430,11 @@ public final class CarUnitTest {
 
         assertThat(car).isNotNull();
         assertThat(car.isConnected()).isTrue();
+
+        // In the legacy implementation, createCar will bind to car service and cause an
+        // onServiceConnected callback to be invoked later. We must make sure this callback is
+        // invoked before disconnect, otherwise, the callback will set isConnected to true again.
+        finishTasksOnMain();
 
         car.disconnect();
         car.connect();
@@ -448,7 +458,7 @@ public final class CarUnitTest {
     }
 
     @Test
-    public void testCreateCar_Context_CarServiceRegisteredLater_BeforeTimeout() {
+    public void testCreateCar_Context_CarServiceRegisteredLater_BeforeTimeout() throws Exception {
         // Car service is registered after 200ms.
         mEventHandler.postDelayed(() -> setCarServiceRegistered(), 200);
 
@@ -458,6 +468,11 @@ public final class CarUnitTest {
         assertThat(car).isNotNull();
         assertThat(car.isConnected()).isTrue();
         verify(mContext).bindService(any(), any(), anyInt());
+
+        // In the legacy implementation, createCar will bind to car service and cause an
+        // onServiceConnected callback to be invoked later. We must make sure this callback is
+        // invoked before disconnect, otherwise, the callback will set isConnected to true again.
+        finishTasksOnMain();
 
         car.disconnect();
         assertThat(car.isConnected()).isFalse();
@@ -517,6 +532,9 @@ public final class CarUnitTest {
 
         assertThat(car).isNotNull();
         assertThat(car.isConnected()).isTrue();
+        // The callback will be called from the main thread, so it is not guaranteed to be called
+        // after createCar returns.
+        mLifecycleListener.waitForEvent(1, DEFAULT_TIMEOUT_MS);
         mLifecycleListener.assertOneListenerCallAndClear(car, true);
 
         // Fake crash.
@@ -758,5 +776,10 @@ public final class CarUnitTest {
             cdLatch.countDown();
         });
         cdLatch.await(DEFAULT_TIMEOUT_MS, MILLISECONDS);
+    }
+
+    private void finishTasksOnMain() throws InterruptedException {
+        // Do nothing on main just to make sure main finished handling the callbacks.
+        runOnMain(() -> {});
     }
 }
