@@ -195,12 +195,6 @@
         <item name="android:background">@drawable/car_button_background</item>
     </style>
 
-    <style name="Widget.DeviceDefault.CompoundButton.RadioButton"
-           parent="android:Widget.Material.CompoundButton.RadioButton">
-        <item name="android:textColor">?android:attr/textColorPrimary</item>
-        <item name="android:stateListAnimator">@null</item>
-    </style>
-
     <style name="Widget.DeviceDefault.ActionButton" parent="android:Widget.Material.ActionButton">
         <item name="android:textColor">@color/car_on_background</item>
     </style>
@@ -222,12 +216,6 @@
     <style name="DeviceDefault.ButtonBar.AlertDialog"
            parent="android:Widget.Material.ButtonBar.AlertDialog">
         <item name="android:textColor">@color/car_on_background</item>
-    </style>
-
-    <style name="Widget.DeviceDefault.CompoundButton.CheckBox"
-           parent="android:Widget.Material.CompoundButton.CheckBox">
-        <item name="android:button">@drawable/car_checkbox</item>
-        <item name="android:textColor">?android:attr/textColorPrimary</item>
     </style>
 
     <style name="Widget.DeviceDefault.CompoundButton.Switch"
