@@ -1254,7 +1254,10 @@ public final class CarRemoteAccessServiceUnitTest extends AbstractExpectableTest
 
     @Test
     public void testPendingRequestNotTimeout() throws Exception {
-        mService.setMaxTaskPendingMs(1000);
+        // Set unbind delay to be 10s so that we don't unbind before the test finishes.
+        mService.setTaskUnbindDelayMs(10000);
+        // A task will be stored in the queue for 10s.
+        mService.setMaxTaskPendingMs(10000);
         mService.init();
         runBootComplete();
         RemoteAccessHalCallback halCallback = prepareCarRemoteTaskClient();
