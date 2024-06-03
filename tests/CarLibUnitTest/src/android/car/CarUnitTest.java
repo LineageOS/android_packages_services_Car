@@ -22,8 +22,12 @@ import static android.car.feature.Flags.FLAG_PERSIST_AP_SETTINGS;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.after;
+import static org.mockito.Mockito.clearInvocations;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -33,15 +37,20 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 import android.car.Car.CarBuilder;
 import android.car.Car.CarBuilder.ServiceManager;
+import android.car.hardware.property.CarPropertyManager;
+import android.car.hardware.property.ICarProperty;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.ServiceConnection;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.RemoteException;
+import android.os.SystemClock;
 import android.platform.test.annotations.EnableFlags;
 import android.platform.test.flag.junit.SetFlagsRule;
 import android.platform.test.ravenwood.RavenwoodRule;
@@ -90,6 +99,10 @@ public final class CarUnitTest {
     private PackageManager mPackageManager;
     @Mock
     private ServiceManager mServiceManager;
+    @Mock
+    private ICarProperty.Stub mICarProperty;
+    @Mock
+    private ApplicationInfo mApplicationInfo;
 
     private HandlerThread mEventHandlerThread;
     private Handler mEventHandler;
@@ -103,7 +116,7 @@ public final class CarUnitTest {
     private boolean mCarServiceRegistered;
 
     // It is tricky to mock this. So create placeholder version instead.
-    private static final class FakeService extends ICar.Stub {
+    private final class FakeService extends ICar.Stub {
 
         @Override
         public void setSystemServerConnections(ICarServiceHelper helper,
@@ -147,6 +160,9 @@ public final class CarUnitTest {
 
         @Override
         public IBinder getCarService(java.lang.String serviceName) {
+            if (serviceName.equals(Car.PROPERTY_SERVICE)) {
+                return mICarProperty;
+            }
             return null;
         }
 
@@ -157,7 +173,6 @@ public final class CarUnitTest {
     };
 
     private final FakeService mService = new FakeService();
-
 
     private static final class LifecycleListener implements Car.CarServiceLifecycleListener {
         private final Object mLock = new Object();
@@ -187,6 +202,12 @@ public final class CarUnitTest {
                 mEvents.clear();
             }
         }
+
+        void assertNoEvent() {
+            synchronized (mLock) {
+                assertThat(mEvents).isEmpty();
+            }
+        }
     }
 
     private final LifecycleListener mLifecycleListener = new LifecycleListener();
@@ -204,6 +225,10 @@ public final class CarUnitTest {
         when(mContext.getPackageManager()).thenReturn(mPackageManager);
         when(mPackageManager.hasSystemFeature(PackageManager.FEATURE_AUTOMOTIVE)).thenReturn(true);
         setupFakeServiceManager();
+
+        // Setup context for CarPropertyManager
+        mApplicationInfo.targetSdkVersion = Build.VERSION_CODES.R;
+        when(mContext.getApplicationInfo()).thenReturn(mApplicationInfo);
     }
 
     @After
@@ -225,6 +250,14 @@ public final class CarUnitTest {
 
             return true;
         });
+        doAnswer((inv) -> {
+            ServiceConnection serviceConnection = inv.getArgument(0);
+
+            synchronized (mLock) {
+                mBindServiceConnections.remove(serviceConnection);
+            }
+            return null;
+        }).when(mContext).unbindService(any());
 
         when(mServiceManager.getService(CAR_SERVICE_BINDER_SERVICE_NAME))
                 .thenAnswer((inv) -> {
@@ -268,6 +301,28 @@ public final class CarUnitTest {
         car.connect();
 
         assertThat(car.isConnecting()).isTrue();
+        assertThat(car.isConnected()).isFalse();
+
+        setCarServiceRegistered();
+
+        verify(mServiceConnectionListener, timeout(DEFAULT_TIMEOUT_MS)).onServiceConnected(
+                mCarServiceComponentName, mService);
+        assertThat(car.isConnected()).isTrue();
+
+        car.disconnect();
+        assertThat(car.isConnected()).isFalse();
+    }
+
+    @Test
+    public void testCreateCar_Context_ServiceConnection_DefaultHandler() {
+        Car car = Car.createCar(mContext, mServiceConnectionListener);
+
+        assertThat(car).isNotNull();
+
+        car.connect();
+
+        assertThat(car.isConnecting()).isTrue();
+        assertThat(car.isConnected()).isFalse();
 
         setCarServiceRegistered();
 
@@ -298,6 +353,58 @@ public final class CarUnitTest {
     }
 
     @Test
+    public void testCreateCar_Context_ServiceConnection_Handler_Disconnect_Reconnect() {
+        setCarServiceRegistered();
+
+        Car car = Car.createCar(mContext, mServiceConnectionListener, mEventHandler);
+        car.connect();
+
+        verify(mServiceConnectionListener, timeout(DEFAULT_TIMEOUT_MS)).onServiceConnected(
+                mCarServiceComponentName, mService);
+        clearInvocations(mServiceConnectionListener);
+
+        car.disconnect();
+        car.connect();
+
+        verify(mServiceConnectionListener, timeout(DEFAULT_TIMEOUT_MS)).onServiceConnected(
+                mCarServiceComponentName, mService);
+    }
+
+    @Test
+    public void testCreateCar_Context_ServiceConnection_Handler_Disconnect_IgnoreCallback() {
+        Car car = Car.createCar(mContext, mServiceConnectionListener, mEventHandler);
+        car.connect();
+        car.disconnect();
+
+        setCarServiceRegistered();
+
+        // Callback must not be invoked while car is disconnected.
+        verify(mServiceConnectionListener, after(DEFAULT_TIMEOUT_MS).never()).onServiceConnected(
+                mCarServiceComponentName, mService);
+
+        car.connect();
+
+        // Callback should be invoked after connect again.
+        verify(mServiceConnectionListener, timeout(DEFAULT_TIMEOUT_MS)).onServiceConnected(
+                mCarServiceComponentName, mService);
+    }
+
+    @Test
+    public void testCreateCar_Context_ServiceConnection_Handler_ContextIsNull() {
+        assertThrows(NullPointerException.class, () -> Car.createCar(
+                /* context= */ null, mServiceConnectionListener, mEventHandler));
+    }
+
+    @Test
+    public void testCreateCar_Context_ServiceConnection_Handler_NoAutoFeature() {
+        when(mPackageManager.hasSystemFeature(PackageManager.FEATURE_AUTOMOTIVE)).thenReturn(false);
+
+        Car car = Car.createCar(mContext, mServiceConnectionListener, mEventHandler);
+
+        assertThat(car).isNull();
+    }
+
+    @Test
     public void testCreateCar_Context_CarServiceRegistered() {
         setCarServiceRegistered();
 
@@ -308,6 +415,28 @@ public final class CarUnitTest {
 
         car.disconnect();
         assertThat(car.isConnected()).isFalse();
+    }
+
+    @Test
+    public void testCreateCar_Context_CarServiceRegistered_DisconnectReconnect() throws Exception {
+        setCarServiceRegistered();
+
+        Car car = mCarBuilder.createCar(mContext);
+
+        assertThat(car).isNotNull();
+        assertThat(car.isConnected()).isTrue();
+
+        car.disconnect();
+        car.connect();
+
+        // It takes a while for the callback to set connection state to connected.
+        long currentTimeMs = SystemClock.elapsedRealtime();
+        long timeout = currentTimeMs + DEFAULT_TIMEOUT_MS;
+        while (!car.isConnected() && SystemClock.elapsedRealtime() < timeout) {
+            Thread.sleep(100);
+        }
+
+        assertThat(car.isConnected()).isTrue();
     }
 
     @Test
@@ -335,6 +464,24 @@ public final class CarUnitTest {
     }
 
     @Test
+    public void testCreateCar_Context_InvokeFromMain() throws Exception {
+        // Car service is registered after 200ms.
+        mEventHandler.postDelayed(() -> setCarServiceRegistered(), 200);
+
+        runOnMain(() -> {
+            // This should block until car service is registered.
+            Car car = mCarBuilder.createCar(mContext);
+
+            assertThat(car).isNotNull();
+            assertThat(car.isConnected()).isTrue();
+            verify(mContext).bindService(any(), any(), anyInt());
+
+            car.disconnect();
+            assertThat(car.isConnected()).isFalse();
+        });
+    }
+
+    @Test
     public void testCreateCar_Context_WaitForever_Lclistener_CarServiceRegisteredLater()
             throws Exception {
         // Car service is registered after 200ms.
@@ -353,13 +500,10 @@ public final class CarUnitTest {
         synchronized (mLock) {
             serviceConnection = mBindServiceConnections.get(0);
         }
-        var cdLatch = new CountDownLatch(1);
-        mMainHandler.post(() -> {
+        runOnMain(() -> {
             serviceConnection.onServiceConnected(new ComponentName("", ""), mService);
             serviceConnection.onServiceDisconnected(new ComponentName("", ""));
-            cdLatch.countDown();
         });
-        cdLatch.await(DEFAULT_TIMEOUT_MS, MILLISECONDS);
     }
 
     @Test
@@ -395,8 +539,7 @@ public final class CarUnitTest {
             throws Exception {
         setCarServiceRegistered();
 
-        var cdLatch = new CountDownLatch(1);
-        mMainHandler.post(() -> {
+        runOnMain(() -> {
             Car car = mCarBuilder.createCar(mContext, null,
                     Car.CAR_WAIT_TIMEOUT_WAIT_FOREVER, mLifecycleListener);
 
@@ -406,19 +549,196 @@ public final class CarUnitTest {
 
             // mLifecycleListener should have been called as this is main thread.
             mLifecycleListener.assertOneListenerCallAndClear(car, true);
-            cdLatch.countDown();
         });
-        cdLatch.await(DEFAULT_TIMEOUT_MS, MILLISECONDS);
     }
 
     @Test
-    public void testCreateCar_Context_CarServiceRegisteredLater_InvokeFromMain()
+    public void testCreateCar_Context_WaitForever_Lclistener_ManagerNotTheSameAfterReconnect()
+            throws Exception {
+        setCarServiceRegistered();
+
+        Car car = mCarBuilder.createCar(mContext, null,
+                Car.CAR_WAIT_TIMEOUT_WAIT_FOREVER, mLifecycleListener);
+
+        CarPropertyManager oldMgr = (CarPropertyManager) car.getCarManager(Car.PROPERTY_SERVICE);
+
+        mLifecycleListener.waitForEvent(1, DEFAULT_TIMEOUT_MS);
+        mLifecycleListener.assertOneListenerCallAndClear(car, true);
+
+        // Simulate car service crash.
+        setCarServiceDisconnected();
+
+        mLifecycleListener.waitForEvent(1, DEFAULT_TIMEOUT_MS);
+        mLifecycleListener.assertOneListenerCallAndClear(car, false);
+
+        // Simulate car service restore.
+        setCarServiceRegistered();
+
+        mLifecycleListener.waitForEvent(1, DEFAULT_TIMEOUT_MS);
+        mLifecycleListener.assertOneListenerCallAndClear(car, true);
+        CarPropertyManager newMgr = (CarPropertyManager) car.getCarManager(Car.PROPERTY_SERVICE);
+
+        assertThat(oldMgr).isNotEqualTo(newMgr);
+    }
+
+    @Test
+    public void testCreateCar_Context_DoNotWait_CarServiceRegistered()
+            throws Exception {
+        setCarServiceRegistered();
+
+        Car car = mCarBuilder.createCar(mContext, null,
+                Car.CAR_WAIT_TIMEOUT_DO_NOT_WAIT, mLifecycleListener);
+
+        assertThat(car).isNotNull();
+        assertThat(car.isConnected()).isTrue();
+        verify(mContext).bindService(any(), any(), anyInt());
+
+        mLifecycleListener.waitForEvent(1, DEFAULT_TIMEOUT_MS);
+        mLifecycleListener.assertOneListenerCallAndClear(car, true);
+    }
+
+    @Test
+    public void testCreateCar_Context_DoNotWait_CarServiceCrash_Restore()
+            throws Exception {
+        setCarServiceRegistered();
+
+        Car car = mCarBuilder.createCar(mContext, null,
+                Car.CAR_WAIT_TIMEOUT_DO_NOT_WAIT, mLifecycleListener);
+
+        mLifecycleListener.waitForEvent(1, DEFAULT_TIMEOUT_MS);
+        mLifecycleListener.assertOneListenerCallAndClear(car, true);
+
+        // Simulate car service crash.
+        setCarServiceDisconnected();
+
+        mLifecycleListener.waitForEvent(1, DEFAULT_TIMEOUT_MS);
+        mLifecycleListener.assertOneListenerCallAndClear(car, false);
+        assertThat(car.isConnected()).isFalse();
+
+        // Simulate car service restore.
+        setCarServiceRegistered();
+
+        mLifecycleListener.waitForEvent(1, DEFAULT_TIMEOUT_MS);
+        mLifecycleListener.assertOneListenerCallAndClear(car, true);
+        assertThat(car.isConnected()).isTrue();
+    }
+
+    @Test
+    public void testCreateCar_Context_DoNotWait_InvokeFromMain_CarServiceRegistered()
+            throws Exception {
+        setCarServiceRegistered();
+
+        runOnMain(() -> {
+            Car car = mCarBuilder.createCar(mContext, null,
+                    Car.CAR_WAIT_TIMEOUT_DO_NOT_WAIT, mLifecycleListener);
+
+            assertThat(car).isNotNull();
+            assertThat(car.isConnected()).isTrue();
+            verify(mContext).bindService(any(), any(), anyInt());
+            // createCar is called from main handler, so callback must have already been called.
+            mLifecycleListener.assertOneListenerCallAndClear(car, true);
+        });
+    }
+
+    @Test
+    public void testCreateCar_Context_DoNotWait_CarServiceRegisteredLater()
+            throws Exception {
+        Car car = mCarBuilder.createCar(mContext, null,
+                Car.CAR_WAIT_TIMEOUT_DO_NOT_WAIT, mLifecycleListener);
+
+        assertThat(car).isNotNull();
+        assertThat(car.isConnected()).isFalse();
+        verify(mContext).bindService(any(), any(), anyInt());
+
+        setCarServiceRegistered();
+
+        mLifecycleListener.waitForEvent(1, DEFAULT_TIMEOUT_MS);
+        mLifecycleListener.assertOneListenerCallAndClear(car, true);
+    }
+
+    @Test
+    public void testCreateCar_Context_DoNotWait_CarServiceRegisteredAfterDisconnect()
+            throws Exception {
+        Car car = mCarBuilder.createCar(mContext, null,
+                Car.CAR_WAIT_TIMEOUT_DO_NOT_WAIT, mLifecycleListener);
+
+        assertThat(car).isNotNull();
+        assertThat(car.isConnected()).isFalse();
+        verify(mContext).bindService(any(), any(), anyInt());
+
+        car.disconnect();
+
+        // Car service is registered after disconnect, must not invoke callback.
+        setCarServiceRegistered();
+
+        Thread.sleep(DEFAULT_TIMEOUT_MS);
+        mLifecycleListener.assertNoEvent();
+
+        // After connect, the callback must be invoked.
+        car.connect();
+
+        mLifecycleListener.waitForEvent(1, DEFAULT_TIMEOUT_MS);
+        mLifecycleListener.assertOneListenerCallAndClear(car, true);
+    }
+
+    @Test
+    public void testCreateCar_Context_DoNotWait_InvokeFromMain_CarServiceRegisteredLater()
+            throws Exception {
+        setCarServiceRegistered();
+
+        runOnMain(() -> {
+            Car car = mCarBuilder.createCar(mContext, null,
+                    Car.CAR_WAIT_TIMEOUT_DO_NOT_WAIT, mLifecycleListener);
+
+            assertThat(car).isNotNull();
+            assertThat(car.isConnected()).isTrue();
+            verify(mContext).bindService(any(), any(), anyInt());
+            // createCar is called from main handler, so callback must have already been called.
+            mLifecycleListener.assertOneListenerCallAndClear(car, true);
+        });
+    }
+
+    @Test
+    public void testCreateCar_Context_WithTimeout_InvokeFromMain_CarServiceRegisteredLater()
             throws Exception {
         // Car service is registered after 200ms.
         mEventHandler.postDelayed(() -> setCarServiceRegistered(), 200);
 
-        var cdLatch = new CountDownLatch(1);
-        mMainHandler.post(() -> {
+        runOnMain(() -> {
+            Car car = mCarBuilder.createCar(mContext, null, DEFAULT_TIMEOUT_MS, mLifecycleListener);
+
+            assertThat(car).isNotNull();
+            assertThat(car.isConnected()).isTrue();
+            verify(mContext).bindService(any(), any(), anyInt());
+            // createCar is called from main handler, so callback must have already been called.
+            mLifecycleListener.assertOneListenerCallAndClear(car, true);
+        });
+    }
+
+    @Test
+    public void testCreateCar_Context_WithTimeout_CarServiceRegisteredAfterTimeout()
+            throws Exception {
+        // Car service is registered after 200ms.
+        mEventHandler.postDelayed(() -> setCarServiceRegistered(), 200);
+
+        Car car = mCarBuilder.createCar(mContext, null, 50, mLifecycleListener);
+        assertThat(car).isNotNull();
+        assertThat(car.isConnected()).isFalse();
+        verify(mContext).bindService(any(), any(), anyInt());
+
+        // The callback should be invoked after 200ms.
+        mLifecycleListener.waitForEvent(1, DEFAULT_TIMEOUT_MS);
+        mLifecycleListener.assertOneListenerCallAndClear(car, true);
+        assertThat(car.isConnected()).isTrue();
+    }
+
+    @Test
+    public void testCreateCar_Context_WaitForever_InvokeFromMain_CarServiceRegisteredLater()
+            throws Exception {
+        // Car service is registered after 200ms.
+        mEventHandler.postDelayed(() -> setCarServiceRegistered(), 200);
+
+        runOnMain(() -> {
             Car car = mCarBuilder.createCar(mContext, null,
                     Car.CAR_WAIT_TIMEOUT_WAIT_FOREVER, mLifecycleListener);
 
@@ -428,6 +748,13 @@ public final class CarUnitTest {
 
             // mLifecycleListener should have been called as this is main thread.
             mLifecycleListener.assertOneListenerCallAndClear(car, true);
+        });
+    }
+
+    private void runOnMain(Runnable runnable) throws InterruptedException {
+        var cdLatch = new CountDownLatch(1);
+        mMainHandler.post(() -> {
+            runnable.run();
             cdLatch.countDown();
         });
         cdLatch.await(DEFAULT_TIMEOUT_MS, MILLISECONDS);
