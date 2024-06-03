@@ -80,8 +80,8 @@ public final class CarAudioDynamicRoutingTest extends AbstractExpectableTestCase
     @Test
     public void setupAudioDynamicRouting() {
         AudioPolicy.Builder mockBuilder = Mockito.mock(AudioPolicy.Builder.class);
-        SparseArray<CarAudioZone> zones = getTestCarAudioZones(/* withDefault= */ true,
-                /* withSelected= */ true);
+        SparseArray<CarAudioZone> zones = getTestCarAudioZones(/* defaultConfigSelected= */ false,
+                /* secondaryConfigSelected= */ true);
 
         CarAudioDynamicRouting.setupAudioDynamicRouting(TEST_CAR_AUDIO_CONTEXT, mAudioManager,
                 mockBuilder, zones);
@@ -156,10 +156,91 @@ public final class CarAudioDynamicRoutingTest extends AbstractExpectableTestCase
     }
 
     @Test
+    public void setupAudioDynamicRouting_withDefaultConfigSelected() {
+        AudioPolicy.Builder mockBuilder = Mockito.mock(AudioPolicy.Builder.class);
+        SparseArray<CarAudioZone> zones = getTestCarAudioZones(/* defaultConfigSelected= */ true,
+                /* secondaryConfigSelected= */ false);
+
+        CarAudioDynamicRouting.setupAudioDynamicRouting(TEST_CAR_AUDIO_CONTEXT, mAudioManager,
+                mockBuilder, zones);
+
+        ArgumentCaptor<AudioMix> audioMixCaptor = ArgumentCaptor.forClass(AudioMix.class);
+        verify(mockBuilder, times(1)).addMix(audioMixCaptor.capture());
+        AudioMix audioMix = audioMixCaptor.getValue();
+        expectWithMessage("Music address registered with default config selected")
+                .that(audioMix.getRegistration()).isEqualTo(MUSIC_ADDRESS);
+        expectWithMessage("Contains Music device with default config selected")
+                .that(audioMix.isRoutedToDevice(AudioSystem.DEVICE_OUT_BUS, MUSIC_ADDRESS))
+                .isTrue();
+        expectWithMessage("Does not contain Nav device with default config selected")
+                .that(audioMix.isRoutedToDevice(AudioSystem.DEVICE_OUT_BUS, NAV_ADDRESS))
+                .isFalse();
+        expectWithMessage("Affected media usage with default config selected")
+                .that(audioMix.isAffectingUsage(AudioAttributes.USAGE_MEDIA))
+                .isTrue();
+        expectWithMessage("Affected game usage with default config selected")
+                .that(audioMix.isAffectingUsage(AudioAttributes.USAGE_GAME))
+                .isTrue();
+        expectWithMessage("Affected unknown usage with default config selected")
+                .that(audioMix.isAffectingUsage(AudioAttributes.USAGE_UNKNOWN))
+                .isTrue();
+        expectWithMessage("Non-affected voice comm usage with default config selected")
+                .that(audioMix.isAffectingUsage(AudioAttributes.USAGE_VOICE_COMMUNICATION))
+                .isFalse();
+        expectWithMessage(
+                "Non-affected voice comm signalling usage with default config selected")
+                .that(audioMix.isAffectingUsage(
+                        AudioAttributes.USAGE_VOICE_COMMUNICATION_SIGNALLING))
+                .isFalse();
+        expectWithMessage("Non-affected alarm usage")
+                .that(audioMix.isAffectingUsage(AudioAttributes.USAGE_ALARM))
+                .isFalse();
+        expectWithMessage("Non-affected notification usage with default config selected")
+                .that(audioMix.isAffectingUsage(AudioAttributes.USAGE_NOTIFICATION))
+                .isFalse();
+        expectWithMessage(
+                "Non-affected notification ringtone usage with default config selected")
+                .that(audioMix.isAffectingUsage(AudioAttributes.USAGE_NOTIFICATION_RINGTONE))
+                .isFalse();
+        expectWithMessage("Non-affected notification event usage with default config selected")
+                .that(audioMix.isAffectingUsage(AudioAttributes.USAGE_NOTIFICATION_EVENT))
+                .isFalse();
+        expectWithMessage(
+                "Non-affected assistance accessibility usage with default config selected")
+                .that(audioMix.isAffectingUsage(AudioAttributes.USAGE_ASSISTANCE_ACCESSIBILITY))
+                .isFalse();
+        expectWithMessage("Non-affected nav guidance usage")
+                .that(audioMix.isAffectingUsage(
+                        AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE))
+                .isFalse();
+        expectWithMessage("Non-affected assistance sonification usage")
+                .that(audioMix.isAffectingUsage(AudioAttributes.USAGE_ASSISTANCE_SONIFICATION))
+                .isFalse();
+        expectWithMessage("Non-affected assistant usage with default config selected")
+                .that(audioMix.isAffectingUsage(AudioAttributes.USAGE_ASSISTANT))
+                .isFalse();
+        expectWithMessage("Non-affected call assistant usage with default config selected")
+                .that(audioMix.isAffectingUsage(AudioAttributes.USAGE_CALL_ASSISTANT))
+                .isFalse();
+        expectWithMessage("Non-affected emergency usage with default config selected")
+                .that(audioMix.isAffectingUsage(AudioAttributes.USAGE_EMERGENCY))
+                .isFalse();
+        expectWithMessage("Non-affected safety usage with default config selected")
+                .that(audioMix.isAffectingUsage(AudioAttributes.USAGE_SAFETY))
+                .isFalse();
+        expectWithMessage("Non-affected vehicle status usage")
+                .that(audioMix.isAffectingUsage(AudioAttributes.USAGE_VEHICLE_STATUS))
+                .isFalse();
+        expectWithMessage("Non-affected announcement usage with default config selected")
+                .that(audioMix.isAffectingUsage(AudioAttributes.USAGE_ANNOUNCEMENT))
+                .isFalse();
+    }
+
+    @Test
     public void setupAudioDynamicRouting_withoutSelectedConfig() {
         AudioPolicy.Builder mockBuilder = Mockito.mock(AudioPolicy.Builder.class);
-        SparseArray<CarAudioZone> zones = getTestCarAudioZones(/* withDefault= */ true,
-                /* withSelected= */ false);
+        SparseArray<CarAudioZone> zones = getTestCarAudioZones(/* defaultConfigSelected= */ false,
+                /* secondaryConfigSelected= */ false);
 
         IllegalStateException thrown = assertThrows(IllegalStateException.class,
                 () -> CarAudioDynamicRouting.setupAudioDynamicRouting(TEST_CAR_AUDIO_CONTEXT,
@@ -196,8 +277,8 @@ public final class CarAudioDynamicRoutingTest extends AbstractExpectableTestCase
                 .isTrue();
     }
 
-    private SparseArray<CarAudioZone> getTestCarAudioZones(boolean withDefault,
-            boolean withSelected) {
+    private SparseArray<CarAudioZone> getTestCarAudioZones(boolean defaultConfigSelected,
+            boolean secondaryConfigSelected) {
         AudioDeviceInfo musicDeviceInfo = Mockito.mock(AudioDeviceInfo.class);
         CarAudioDeviceInfo musicCarAudioDeviceInfo = getCarAudioDeviceInfo(MUSIC_ADDRESS,
                 /* canBeRoutedWithDynamicPolicyMix= */ true, musicDeviceInfo);
@@ -216,21 +297,22 @@ public final class CarAudioDynamicRoutingTest extends AbstractExpectableTestCase
                 .build();
         CarAudioZoneConfig defaultAudioZoneConfig =
                 new CarAudioZoneConfig.Builder("Default zone config 0",
-                        CarAudioManager.PRIMARY_AUDIO_ZONE, /* zoneConfigId= */ 0, withDefault)
-                        .addVolumeGroup(mockMusicGroup)
+                        CarAudioManager.PRIMARY_AUDIO_ZONE, /* zoneConfigId= */ 0,
+                        /* isDefault= */ true).addVolumeGroup(mockMusicGroup)
                         .addVolumeGroup(mockNavGroupRoutingOnMusic)
                         .build();
-        CarAudioZoneConfig selectedAudioZoneConfig =
+        defaultAudioZoneConfig.setIsSelected(defaultConfigSelected);
+        CarAudioZoneConfig secondaryAudioZoneConfig =
                 new CarAudioZoneConfig.Builder("Selected zone config 0",
                         CarAudioManager.PRIMARY_AUDIO_ZONE, /* zoneConfigId= */ 1,
                         /* isDefault= */ false).addVolumeGroup(mockMusicGroup)
                         .addVolumeGroup(mockNavGroupRoutingOnMusic)
                         .build();
-        selectedAudioZoneConfig.setIsSelected(withSelected);
+        secondaryAudioZoneConfig.setIsSelected(secondaryConfigSelected);
         CarAudioZone carAudioZone = new CarAudioZone(TEST_CAR_AUDIO_CONTEXT, "Primary zone",
                 CarAudioManager.PRIMARY_AUDIO_ZONE);
         carAudioZone.addZoneConfig(defaultAudioZoneConfig);
-        carAudioZone.addZoneConfig(selectedAudioZoneConfig);
+        carAudioZone.addZoneConfig(secondaryAudioZoneConfig);
         SparseArray<CarAudioZone> zones = new SparseArray<>();
         zones.put(CarAudioManager.PRIMARY_AUDIO_ZONE, carAudioZone);
         return zones;

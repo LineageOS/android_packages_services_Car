@@ -448,10 +448,10 @@ public class CarAudioDeviceInfoTest extends AbstractExpectableTestCase {
     }
 
     @Test
-    public void audioDevicesAdded_withBusDevices() {
-        AudioDeviceAttributes attributes = getMockAudioDeviceAttribute(TYPE_BLUETOOTH_A2DP);
+    public void audioDevicesAdded_withBluetoothDeviceForBusTypeDeviceInfo() {
+        AudioDeviceAttributes attributes = getMockAudioDeviceAttribute(TYPE_BUS);
         CarAudioDeviceInfo info = new CarAudioDeviceInfo(mAudioManagerWrapper, attributes);
-        AudioDeviceInfo audioDeviceInfo = getMockAudioDeviceInfo(TYPE_BUS);
+        AudioDeviceInfo audioDeviceInfo = getMockAudioDeviceInfo(TYPE_BLUETOOTH_A2DP);
 
         boolean updated = info.audioDevicesAdded(List.of(audioDeviceInfo));
 
@@ -505,10 +505,10 @@ public class CarAudioDeviceInfoTest extends AbstractExpectableTestCase {
     }
 
     @Test
-    public void audioDevicesRemoved_withBusDevices() {
-        AudioDeviceAttributes attributes = getMockAudioDeviceAttribute(TYPE_BLUETOOTH_A2DP);
+    public void audioDevicesRemoved_withBluetoothDeviceForBusTypeDeviceInfo() {
+        AudioDeviceAttributes attributes = getMockAudioDeviceAttribute(TYPE_BUS);
         CarAudioDeviceInfo info = new CarAudioDeviceInfo(mAudioManagerWrapper, attributes);
-        AudioDeviceInfo audioDeviceInfo = getMockAudioDeviceInfo(TYPE_BUS);
+        AudioDeviceInfo audioDeviceInfo = getMockAudioDeviceInfo(TYPE_BLUETOOTH_A2DP);
 
         boolean updated = info.audioDevicesRemoved(List.of(audioDeviceInfo));
 
