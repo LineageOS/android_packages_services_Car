@@ -447,8 +447,8 @@ public final class ApiCheckerRule implements TestRule {
         }
         if (!Car.isApiVersionAtLeast(Build.VERSION_CODES.TIRAMISU, /* minor= */ 1)) {
             Log.d(TAG, "Running " + description.getDisplayName() + " as-is on pre-TM-QPR1 Car build"
-                    + " (major=" + Car.API_VERSION_MAJOR_INT
-                    + ", minor=" + Car.API_VERSION_MINOR_INT + ")");
+                    + " (major=" + Car.getCarVersion().getMajorVersion()
+                    + ", minor=" + Car.getCarVersion().getMinorVersion() + ")");
             return false;
         }
         return true;

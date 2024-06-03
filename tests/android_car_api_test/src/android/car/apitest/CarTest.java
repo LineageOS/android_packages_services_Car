@@ -121,28 +121,28 @@ public final class CarTest extends CarLessApiTestBase {
     public void testApiVersion_deprecated() throws Exception {
         int ApiVersionTooHigh = 1000000;
         int MinorApiVersionTooHigh = 1000000;
-        expectThat(Car.isApiVersionAtLeast(Car.API_VERSION_MAJOR_INT)).isTrue();
+        int apiVersionMajorInt = Car.getCarVersion().getMajorVersion();
+        int apiVersionMinorInt = Car.getCarVersion().getMinorVersion();
+        expectThat(Car.isApiVersionAtLeast(apiVersionMajorInt)).isTrue();
         expectThat(Car.isApiVersionAtLeast(ApiVersionTooHigh)).isFalse();
 
-        expectThat(Car.isApiVersionAtLeast(Car.API_VERSION_MAJOR_INT - 1,
-                MinorApiVersionTooHigh)).isTrue();
-        expectThat(Car.isApiVersionAtLeast(Car.API_VERSION_MAJOR_INT,
-                Car.API_VERSION_MINOR_INT)).isTrue();
-        expectThat(Car.isApiVersionAtLeast(Car.API_VERSION_MAJOR_INT,
-                MinorApiVersionTooHigh)).isFalse();
+        expectThat(Car.isApiVersionAtLeast(apiVersionMajorInt - 1, MinorApiVersionTooHigh))
+                .isTrue();
+        expectThat(Car.isApiVersionAtLeast(apiVersionMajorInt, apiVersionMinorInt)).isTrue();
+        expectThat(Car.isApiVersionAtLeast(apiVersionMajorInt, MinorApiVersionTooHigh)).isFalse();
         expectThat(Car.isApiVersionAtLeast(ApiVersionTooHigh, 0)).isFalse();
 
-        expectThat(Car.isApiAndPlatformVersionAtLeast(Car.API_VERSION_MAJOR_INT,
-                Build.VERSION.SDK_INT)).isTrue();
-        expectThat(Car.isApiAndPlatformVersionAtLeast(Car.API_VERSION_MAJOR_INT,
-                Car.API_VERSION_MINOR_INT, Build.VERSION.SDK_INT)).isTrue();
+        expectThat(Car.isApiAndPlatformVersionAtLeast(apiVersionMajorInt, Build.VERSION.SDK_INT))
+                .isTrue();
+        expectThat(Car.isApiAndPlatformVersionAtLeast(apiVersionMajorInt,
+                apiVersionMinorInt, Build.VERSION.SDK_INT)).isTrue();
 
         // SDK + 1 only works for released platform.
         if (CODENAME_REL.equals(Build.VERSION.CODENAME)) {
-            expectThat(Car.isApiAndPlatformVersionAtLeast(Car.API_VERSION_MAJOR_INT,
+            expectThat(Car.isApiAndPlatformVersionAtLeast(apiVersionMajorInt,
                     Build.VERSION.SDK_INT + 1)).isFalse();
-            expectThat(Car.isApiAndPlatformVersionAtLeast(Car.API_VERSION_MAJOR_INT,
-                    Car.API_VERSION_MINOR_INT, Build.VERSION.SDK_INT + 1)).isFalse();
+            expectThat(Car.isApiAndPlatformVersionAtLeast(apiVersionMajorInt,
+                    apiVersionMinorInt, Build.VERSION.SDK_INT + 1)).isFalse();
         }
     }
 
