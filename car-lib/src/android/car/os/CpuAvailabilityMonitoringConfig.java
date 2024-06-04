@@ -16,10 +16,13 @@
 
 package android.car.os;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
+
 import android.annotation.SuppressLint;
 import android.car.annotation.ExperimentalFeature;
 import android.os.Parcelable;
 
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.DataClass;
 
 /**
@@ -29,6 +32,7 @@ import com.android.car.internal.util.DataClass;
  */
 @ExperimentalFeature
 @DataClass(genToString = true, genBuilder = true, genHiddenConstDefs = true)
+@ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
 public final class CpuAvailabilityMonitoringConfig implements Parcelable {
     /** Constant to monitor all cpusets. */
     @Cpuset
