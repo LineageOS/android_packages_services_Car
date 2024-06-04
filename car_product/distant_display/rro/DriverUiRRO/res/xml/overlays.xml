@@ -16,4 +16,5 @@
   -->
 <overlay>
     <item target="string/figma_doc" value="@string/figma_doc"/>
+    <item target="array/initial_app_cards" value="@array/initial_app_cards"/>
 </overlay>
