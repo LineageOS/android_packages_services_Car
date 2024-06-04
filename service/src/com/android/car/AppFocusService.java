@@ -24,7 +24,6 @@ import android.car.IAppFocusListener;
 import android.car.IAppFocusOwnershipCallback;
 import android.car.builtin.util.Slogf;
 import android.content.Context;
-import android.os.Binder;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
@@ -36,6 +35,8 @@ import android.util.SparseArray;
 import android.util.proto.ProtoOutputStream;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
+import com.android.car.internal.StaticBinderInterface;
+import com.android.car.internal.SystemStaticBinder;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
@@ -60,6 +61,7 @@ public class AppFocusService extends IAppFocus.Stub implements CarServiceBase,
     static final int PERMISSION_CHECKER_PERMISSION_GRANTED = 0;
 
     private final SystemActivityMonitoringService mSystemActivityMonitoringService;
+    private final StaticBinderInterface mBinderInterface;
 
     private final Object mLock = new Object();
 
@@ -92,7 +94,15 @@ public class AppFocusService extends IAppFocus.Stub implements CarServiceBase,
 
     public AppFocusService(Context context,
             SystemActivityMonitoringService systemActivityMonitoringService) {
+        this(context, systemActivityMonitoringService, new SystemStaticBinder());
+    }
+
+    @VisibleForTesting
+    AppFocusService(Context context,
+            SystemActivityMonitoringService systemActivityMonitoringService,
+            StaticBinderInterface binderInterface) {
         mContext = context;
+        mBinderInterface = binderInterface;
         mSystemActivityMonitoringService = systemActivityMonitoringService;
         mAllChangeClients = new ClientHolder(mAllBinderEventHandler);
         mAllOwnershipClients = new OwnershipClientHolder(this);
@@ -103,8 +113,8 @@ public class AppFocusService extends IAppFocus.Stub implements CarServiceBase,
         synchronized (mLock) {
             ClientInfo info = (ClientInfo) mAllChangeClients.getBinderInterface(listener);
             if (info == null) {
-                info = new ClientInfo(mAllChangeClients, listener, Binder.getCallingUid(),
-                        Binder.getCallingPid(), appType);
+                info = new ClientInfo(mAllChangeClients, listener, mBinderInterface.getCallingUid(),
+                        mBinderInterface.getCallingPid(), appType);
                 mAllChangeClients.addBinderInterface(info);
             } else {
                 info.addAppType(appType);
@@ -173,7 +183,7 @@ public class AppFocusService extends IAppFocus.Stub implements CarServiceBase,
                     (OwnershipClientInfo) mAllOwnershipClients.getBinderInterface(callback);
             if (info == null) {
                 info = new OwnershipClientInfo(mAllOwnershipClients, callback,
-                        Binder.getCallingUid(), Binder.getCallingPid());
+                        mBinderInterface.getCallingUid(), mBinderInterface.getCallingPid());
                 mAllOwnershipClients.addBinderInterface(info);
             }
             Set<Integer> alreadyOwnedAppTypes = info.getOwnedAppTypes();
@@ -281,7 +291,6 @@ public class AppFocusService extends IAppFocus.Stub implements CarServiceBase,
     @VisibleForTesting
     public Looper getLooper() {
         return mHandlerThread.getLooper();
-
     }
 
     @Override

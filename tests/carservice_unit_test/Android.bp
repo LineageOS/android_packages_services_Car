@@ -132,6 +132,7 @@ android_ravenwood_test {
 
     static_libs: [
         "android.car",
+        "android.car.testapi",
         "android.car.test.utils",
         "androidx.annotation_annotation",
         "androidx.test.rules",
