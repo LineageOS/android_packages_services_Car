@@ -17,6 +17,7 @@
 package com.android.car.pano.manager
 
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.widget.ImageButton
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -25,25 +26,47 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.LinearSnapHelper
 import androidx.recyclerview.widget.RecyclerView
+import com.android.car.appcard.AppCardContext
 import com.android.car.appcard.host.AppCardHost
 
 class MainActivity : AppCompatActivity() {
+  private lateinit var inflater: LayoutInflater
   private lateinit var listView: RecyclerView
   private lateinit var appCardViewModel: AppCardViewModel
   private lateinit var adapter: AppCardViewAdapter
   private lateinit var host: AppCardHost
+  private lateinit var appCardServiceManager: AppCardServiceManager
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     setContentView(R.layout.activity_main)
+
+    val owner = this
+    appCardViewModel = ViewModelProvider(owner)[AppCardViewModel::class.java]
+
+    appCardServiceManager = AppCardServiceManager(owner)
+    appCardServiceManager.bind()
+    appCardServiceManager.registerContextListener(object :
+      AppCardServiceManager.AppCardContextListener {
+      override fun update(appCardContext: AppCardContext) {
+        appCardViewModel.setAppCardContext(appCardContext)
+      }
+    })
+    appCardServiceManager.registerOrderListener(object :
+      AppCardServiceManager.AppCardOrderListener {
+      override fun update(order: List<String>) {
+        appCardViewModel.setInitialList(order)
+      }
+    })
+
     listView = requireViewById(R.id.selected_app_cards)
     requireViewById<ImageButton>(R.id.close_button).setOnClickListener {
       finish()
     }
+
     val snapHelper = LinearSnapHelper()
     snapHelper.attachToRecyclerView(listView)
-    val owner = this
-    appCardViewModel = ViewModelProvider(owner)[AppCardViewModel::class.java]
+
     host = AppCardHost(
       applicationContext,
       applicationContext.resources.getInteger(R.integer.app_card_update_rate_ms),
@@ -51,11 +74,14 @@ class MainActivity : AppCompatActivity() {
       ContextCompat.getMainExecutor(applicationContext)
     )
     appCardViewModel.setAppCardHost(host)
-    adapter = AppCardViewAdapter(applicationContext)
+
+    inflater = LayoutInflater.from(owner)
+    adapter = AppCardViewAdapter(applicationContext, inflater, appCardServiceManager)
     appCardViewModel.touchHelper = adapter
     appCardViewModel.allAppCards.observe(owner) {
       adapter.setAppCards(it, from = -1, to = -1)
     }
+
     val callback = AppCardTouchHelper(adapter, appCardViewModel)
     val touchHelper = ItemTouchHelper(callback)
     touchHelper.attachToRecyclerView(listView)
@@ -64,6 +90,9 @@ class MainActivity : AppCompatActivity() {
   override fun onDestroy() {
     super.onDestroy()
 
+    appCardServiceManager.unregisterContextListener()
+    appCardServiceManager.unregisterOrderListener()
+    appCardServiceManager.unbind()
     appCardViewModel.onDestroy()
   }
 
@@ -94,5 +123,9 @@ class MainActivity : AppCompatActivity() {
   override fun onDetachedFromWindow() {
     super.onDetachedFromWindow()
     listView.adapter = null
+  }
+
+  companion object {
+    private const val TAG = "MainActivity"
   }
 }

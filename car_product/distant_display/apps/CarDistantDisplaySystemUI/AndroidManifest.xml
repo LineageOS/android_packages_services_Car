@@ -110,5 +110,16 @@
                 <action android:name="com.android.systemui.car.intent.action.DISTANT_DISPLAY"/>
             </intent-filter>
         </receiver>
+        <service
+            android:name="com.android.systemui.car.appcard.AppCardService"
+            android:enabled="true"
+            android:singleUser="true"
+            android:permission="android.car.permission.BIND_APP_CARD_PROVIDER"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.android.systemui.car.appcard.AppCardService" />
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </service>
     </application>
 </manifest>

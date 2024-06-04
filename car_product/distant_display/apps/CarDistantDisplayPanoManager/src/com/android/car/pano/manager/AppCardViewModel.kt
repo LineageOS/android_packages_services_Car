@@ -18,7 +18,6 @@ package com.android.car.pano.manager
 
 import android.app.Application
 import android.util.Log
-import android.util.Size
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import com.android.car.appcard.AppCard
@@ -36,24 +35,10 @@ import java.util.Collections
 class AppCardViewModel(application: Application) : AndroidViewModel(application), AppCardListener,
   AppCardTouchHelper.AppCardMoveHelperContract {
   private lateinit var appCardHost: AppCardHost
+  private var appCardContext: AppCardContext? = null
   var touchHelper: AppCardTouchHelper.AppCardTouchHelperContract? = null
   private var inMoveState = false
-
-  private val imageSize = application.resources.getInteger(R.integer.app_card_image_size_px)
-  private val buttonImageSize =
-    application.resources.getInteger(R.integer.app_card_button_image_size_px)
-  private val headerImageSize =
-    application.resources.getInteger(R.integer.app_card_header_image_size_px)
-  private val appCardContext = AppCardContext(
-    application.resources.getInteger(R.integer.app_card_api_level),
-    application.resources.getInteger(R.integer.app_card_update_rate_ms),
-    application.resources.getInteger(R.integer.app_card_fast_update_rate_ms),
-    application.resources.getBoolean(R.bool.app_card_is_interactable),
-    Size(imageSize, imageSize),
-    Size(buttonImageSize, buttonImageSize),
-    Size(headerImageSize, headerImageSize),
-    application.resources.getInteger(R.integer.app_card_min_buttons)
-  )
+  private var initOrder: List<String>? = null
 
   val allAppCards = MutableLiveData<MutableList<AppCardContainer>>().apply {
     value = mutableListOf()
@@ -66,6 +51,32 @@ class AppCardViewModel(application: Application) : AndroidViewModel(application)
     appCardHost.registerListener(listener = this)
   }
 
+  fun setInitialList(initialOrder: List<String>) {
+    synchronized(lock = allAppCards) {
+      initOrder = initialOrder
+      initOrder?.forEach { key ->
+        // Add [EmptyAppCard] for initial list so that they are updated in place once actual app
+        // card is received
+        getAppCardIdentifier(key)?.let {
+          val emptyAppCard = EmptyAppCard(it.second)
+          allAppCards.value?.add(AppCardContainer(it.first, emptyAppCard))
+        }
+      }
+      appCardContext?.let {
+        refresh()
+      }
+    }
+  }
+
+  fun setAppCardContext(newAppCardContext: AppCardContext) {
+    synchronized(lock = allAppCards) {
+      appCardContext = newAppCardContext
+      initOrder?.let {
+        refresh()
+      }
+    }
+  }
+
   /**
    * A new [AppCardContainer] has been received, either update an existing view
    * or create a new view representing the [AppCardContainer]
@@ -75,9 +86,6 @@ class AppCardViewModel(application: Application) : AndroidViewModel(application)
       var updated = false
       allAppCards.value?.forEach {
         if (getKey(it) == getKey(appCard)) {
-          if (it.appCard == appCard.appCard) {
-            return
-          }
           it.appCard = appCard.appCard
           updated = true
         }
@@ -92,10 +100,18 @@ class AppCardViewModel(application: Application) : AndroidViewModel(application)
     }
   }
 
-  private fun getKey(appCard: AppCardContainer) = "${appCard.appId} + ${appCard.appCard.id}"
+  private fun getKey(appCard: AppCardContainer) = "${appCard.appId} : ${appCard.appCard.id}"
 
   private fun getKey(component: AppCardComponentContainer) =
-    "${component.appId} + ${component.appCardId}"
+    "${component.appId} : ${component.appCardId}"
+
+  private fun getAppCardIdentifier(key: String): Pair<ApplicationIdentifier, String>? {
+    val split = key.split(KEY_DELIMITER)
+    if (split.size != 3) {
+      return null
+    }
+    return Pair(ApplicationIdentifier(split[1], split[0]), split[2])
+  }
 
   /** A new [AppCardComponentContainer] has been received, update an existing view */
   override fun onComponentReceived(component: AppCardComponentContainer) {
@@ -162,20 +178,13 @@ class AppCardViewModel(application: Application) : AndroidViewModel(application)
   fun refresh() {
     appCardHost.refreshCompatibleApplication()
 
-    // TODO: b/342021516 - Get app cards from app card picker app
-    var appCardIdentifier = ApplicationIdentifier(
-      "com.example.appcard.sampleapplication",
-      "com.example.appcard.sampleapplication"
-    )
-    appCardHost.requestAppCard(appCardContext, appCardIdentifier, "clockAppCard")
-    appCardIdentifier =
-      ApplicationIdentifier("com.example.appcard.sample.media", "com.example.appcard.sample.media")
-    appCardHost.requestAppCard(appCardContext, appCardIdentifier, "mediaAppCard")
-    appCardIdentifier = ApplicationIdentifier(
-      "com.example.appcard.sampleapplication",
-      "com.example.appcard.sampleapplication"
-    )
-    appCardHost.requestAppCard(appCardContext, appCardIdentifier, "calendarAppCard")
+    appCardContext?.let { context ->
+      initOrder?.forEach { key ->
+        getAppCardIdentifier(key)?.let {
+          appCardHost.requestAppCard(context, it.first, it.second)
+        }
+      }
+    }
   }
 
   /** Remove all [AppCard]s */
@@ -225,5 +234,6 @@ class AppCardViewModel(application: Application) : AndroidViewModel(application)
 
   companion object {
     private const val TAG = "AppCardViewModel"
+    private const val KEY_DELIMITER = " : "
   }
 }

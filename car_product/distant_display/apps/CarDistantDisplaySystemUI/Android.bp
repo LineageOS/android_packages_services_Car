@@ -19,13 +19,20 @@ package {
 android_app {
     name: "CarDistantDisplaySystemUI",
 
-    srcs: ["src/**/*.java"],
+    srcs: [
+        "src/**/*.java",
+        "src/**/*.kt",
+    ],
 
     resource_dirs: ["res"],
 
     static_libs: [
         "CarSystemUI-core",
         "displaycompat-service",
+
+        // Kotlin
+        "kotlin-stdlib",
+        "kotlinx-coroutines-android",
     ],
 
     libs: [
