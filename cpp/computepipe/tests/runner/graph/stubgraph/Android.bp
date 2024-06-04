@@ -32,6 +32,7 @@ cc_prebuilt_library_shared {
             srcs: ["x86_64/libstubgraphimpl.so"],
         },
     },
+    ignore_max_page_size: true,
 
     shared_libs: [
         "libc",
