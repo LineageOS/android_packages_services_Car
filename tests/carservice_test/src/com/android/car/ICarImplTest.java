@@ -46,6 +46,7 @@ import androidx.test.platform.app.InstrumentationRegistry;
 
 import com.android.car.garagemode.GarageModeService;
 import com.android.car.hal.HalPropValueBuilder;
+import com.android.car.hal.PowerHalService;
 import com.android.car.internal.ICarServiceHelper;
 import com.android.car.internal.StaticBinderInterface;
 import com.android.car.os.CarPerformanceService;
@@ -206,7 +207,10 @@ public final class ICarImplTest {
                 .setCarWatchdogService(mMockCarWatchdogService)
                 .setCarPerformanceService(mMockCarPerformanceService)
                 .setCarTelemetryService(mMockCarTelemetryService)
-                .setCarRemoteAccessService(mMockCarRemoteAccessService)
+                .setCarRemoteAccessServiceConstructor((
+                        Context context, SystemInterface systemInterface,
+                        PowerHalService powerHalService
+                    ) -> mMockCarRemoteAccessService)
                 .setGarageModeService(mMockGarageModeService)
                 .setPowerPolicyDaemon(powerPolicyDaemon)
                 .setDoPriorityInitInConstruction(false)

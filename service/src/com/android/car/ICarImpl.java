@@ -73,6 +73,7 @@ import com.android.car.cluster.ClusterNavigationService;
 import com.android.car.cluster.InstrumentClusterService;
 import com.android.car.evs.CarEvsService;
 import com.android.car.garagemode.GarageModeService;
+import com.android.car.hal.PowerHalService;
 import com.android.car.hal.VehicleHal;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.ICarServiceHelper;
@@ -176,10 +177,8 @@ public class ICarImpl extends ICar.Stub {
     private final CarOccupantConnectionService mCarOccupantConnectionService;
     private final CarRemoteDeviceService mCarRemoteDeviceService;
     private final CarWifiService mCarWifiService;
-
-    // Only modified at setCarRemoteAccessService for testing.
     @Nullable
-    private CarRemoteAccessService mCarRemoteAccessService;
+    private final CarRemoteAccessService mCarRemoteAccessService;
 
     // Storing all the car services in the order of their init.
     private final CarSystemService[] mAllServicesInInitOrder;
@@ -453,13 +452,13 @@ public class ICarImpl extends ICar.Stub {
         }
 
         if (mFeatureController.isFeatureEnabled((Car.CAR_REMOTE_ACCESS_SERVICE))) {
-            if (builder.mCarRemoteAccessService == null) {
+            if (builder.mCarRemoteAccessServiceConstructor == null) {
                 mCarRemoteAccessService = constructWithTrace(t, CarRemoteAccessService.class,
                         () -> new CarRemoteAccessService(
                                 mContext, mSystemInterface, mHal.getPowerHal()), allServices);
             } else {
-                mCarRemoteAccessService = builder.mCarRemoteAccessService;
-                mCarRemoteAccessService.setPowerHal(mHal.getPowerHal());
+                mCarRemoteAccessService = builder.mCarRemoteAccessServiceConstructor.construct(
+                        mContext, mSystemInterface, mHal.getPowerHal());
                 allServices.add(mCarRemoteAccessService);
             }
         } else {
@@ -1155,7 +1154,7 @@ public class ICarImpl extends ICar.Stub {
         GarageModeService mGarageModeService;
         IInterface mPowerPolicyDaemon;
         CarTelemetryService mCarTelemetryService;
-        CarRemoteAccessService mCarRemoteAccessService;
+        CarRemoteAccessServiceConstructor mCarRemoteAccessServiceConstructor;
         boolean mDoPriorityInitInConstruction;
         StaticBinderInterface mStaticBinder;
         FeatureFlags mFeatureFlags;
@@ -1279,12 +1278,28 @@ public class ICarImpl extends ICar.Stub {
         }
 
         /**
-         * Set ICarImpl car remote access service
-         * @param carRemoteAccessService The car remote access service
+         * The constructor interface to create a CarRemoteAccessService.
+         *
+         * Used for creating a fake CarRemoteAccessService during car service test.
+         */
+        @VisibleForTesting
+        public interface CarRemoteAccessServiceConstructor {
+            /**
+             * Creates the {@link CarRemoteAccessService} object.
+             */
+            CarRemoteAccessService construct(Context context, SystemInterface systemInterface,
+                    PowerHalService powerHalService);
+        }
+
+        /**
+         * Set a fake car remote access service constructor to be used for ICarImpl.
+         * @param constructor The car remote access service constructor.
          * @return Current builder object
          */
-        public Builder setCarRemoteAccessService(CarRemoteAccessService carRemoteAccessService) {
-            mCarRemoteAccessService = carRemoteAccessService;
+        @VisibleForTesting
+        public Builder setCarRemoteAccessServiceConstructor(
+                CarRemoteAccessServiceConstructor constructor) {
+            mCarRemoteAccessServiceConstructor = constructor;
             return this;
         }
 

@@ -68,7 +68,9 @@ import androidx.test.filters.MediumTest;
 
 import com.android.car.ICarImpl;
 import com.android.car.MockedCarTestBase;
+import com.android.car.hal.PowerHalService;
 import com.android.car.hal.test.AidlMockedVehicleHal.VehicleHalPropertyHandler;
+import com.android.car.systeminterface.SystemInterface;
 import com.android.car.systeminterface.SystemStateInterface;
 import com.android.compatibility.common.util.PollingCheck;
 import com.android.internal.annotations.GuardedBy;
@@ -322,13 +324,17 @@ public class CarRemoteAccessManagerTest extends MockedCarTestBase {
     @Override
     protected void configureFakeSystemInterface() {
         // We need to do this before ICarImpl.init and after fake system interface is set.
-        CarRemoteAccessService service = new CarRemoteAccessService(getContext(),
-                getFakeSystemInterface(), /* powerHalService= */ null, /* dep= */ null,
-                /* remoteAccessHal= */ mRemoteAccessHal,
-                /* remoteAccessStorage= */ null, TEST_ALLOWED_SYSTEM_UPTIME_IN_MS,
-                /* inMemoryStorage= */ true);
-        service.setAllowedTimeForRemoteTaskClientInitMs(TEST_REMOTE_TASK_CLIENT_INIT_MS);
-        setCarRemoteAccessService(service);
+        setCarRemoteAccessServiceConstructor((Context context, SystemInterface systemInterface,
+                PowerHalService powerHalService) -> {
+                    CarRemoteAccessService service = new CarRemoteAccessService(context,
+                            systemInterface, powerHalService, /* dep= */ null,
+                            /* remoteAccessHal= */ mRemoteAccessHal,
+                            /* remoteAccessStorage= */ null, TEST_ALLOWED_SYSTEM_UPTIME_IN_MS,
+                            /* inMemoryStorage= */ true);
+                    service.setAllowedTimeForRemoteTaskClientInitMs(
+                            TEST_REMOTE_TASK_CLIENT_INIT_MS);
+                    return service;
+                });
     }
 
     @Override
