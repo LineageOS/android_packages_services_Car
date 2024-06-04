@@ -18,4 +18,10 @@
 <!-- Resources to configure based on each OEM's preference. -->
 <resources>
     <string name="figma_doc">a1f1PP0ZdKDWSDif9ZHLml</string>
+
+    <string-array name="initial_app_cards">
+        <item>com.example.appcard.sampleapplication : com.example.appcard.sampleapplication : clockAppCard</item>
+        <item>com.example.appcard.sample.media : com.example.appcard.sample.media : mediaAppCard</item>
+        <item>com.example.appcard.sampleapplication : com.example.appcard.sampleapplication : calendarAppCard</item>
+    </string-array>
 </resources>
