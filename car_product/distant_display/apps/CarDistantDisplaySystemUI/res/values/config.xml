@@ -37,5 +37,6 @@
 
     <string-array name="config_distantDisplayGameControllerPackages" translatable="false">
         <item>com.vectorunit.cobalt.googleplay</item>
+        <item>com.vectorunit.cobalt.googleauto</item>
     </string-array>
 </resources>
