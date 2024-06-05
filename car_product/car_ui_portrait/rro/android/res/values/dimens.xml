@@ -92,4 +92,9 @@
 
     <!-- Make the dots in lock pattern thicker in Car -->
     <dimen name="lock_pattern_dot_size">32dp</dimen>
+
+    <!-- Intent Resolver -->
+    <dimen name="car_activity_resolver_width">832dp</dimen>
+    <dimen name="car_activity_resolver_corner_radius">48dp</dimen>
+    <dimen name="car_activity_resolver_list_max_height">516dp</dimen>
 </resources>

@@ -469,6 +469,22 @@ public final class CarAudioZoneConfigUnitTest extends AbstractExpectableTestCase
     }
 
     @Test
+    public void validateVolumeGroups_withContextSharedAmongGroups() {
+        CarVolumeGroup mockMusicGroup = new VolumeGroupBuilder()
+                .addDeviceAddressAndContexts(TEST_MEDIA_CONTEXT, MUSIC_ADDRESS).build();
+        CarVolumeGroup mockNavGroupWithMusicContext = new VolumeGroupBuilder()
+                .addDeviceAddressAndContexts(TEST_MEDIA_CONTEXT, NAV_ADDRESS).build();
+        CarVolumeGroup mockAllOtherContextsGroup = mockContextsExceptMediaAndNavigation();
+
+        CarAudioZoneConfig zoneConfig = buildZoneConfig(
+                List.of(mockMusicGroup, mockNavGroupWithMusicContext, mockAllOtherContextsGroup));
+
+        expectWithMessage("Valid status for config with context shared among volume groups")
+                .that(zoneConfig.validateVolumeGroups(TEST_CAR_AUDIO_CONTEXT,
+                        /* useCoreAudioRouting= */ false)).isFalse();
+    }
+
+    @Test
     public void validateVolumeGroups_withInvalidDeviceTypesInGroup() {
         CarVolumeGroup mockMusicGroup = new VolumeGroupBuilder()
                 .addDeviceAddressAndContexts(TEST_MEDIA_CONTEXT, MUSIC_ADDRESS).build();

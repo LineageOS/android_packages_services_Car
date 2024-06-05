@@ -144,22 +144,32 @@ public class CarLocationService extends BroadcastReceiver implements CarServiceB
 
                     boolean isOn =
                             accumulatedPolicy.isComponentEnabled(PowerComponent.LOCATION);
-                    if (isOn) {
-                        logd("Resume GNSS requests.");
-                        locationManager.setAutomotiveGnssSuspended(false);
-                        if (locationManager.isAutomotiveGnssSuspended()) {
-                            Slogf.w(TAG,
-                                    "Failed - isAutomotiveGnssSuspended is true. "
-                                    + "GNSS should NOT be suspended.");
+                    try {
+                        if (isOn) {
+                            logd("Resume GNSS requests.");
+                            locationManager.setAutomotiveGnssSuspended(false);
+                            if (locationManager.isAutomotiveGnssSuspended()) {
+                                Slogf.w(
+                                        TAG,
+                                        "Failed - isAutomotiveGnssSuspended is true. "
+                                                + "GNSS should NOT be suspended.");
+                            }
+                        } else {
+                            logd("Suspend GNSS requests.");
+                            locationManager.setAutomotiveGnssSuspended(true);
+                            if (!locationManager.isAutomotiveGnssSuspended()) {
+                                Slogf.w(
+                                        TAG,
+                                        "Failed - isAutomotiveGnssSuspended is false. "
+                                                + "GNSS should be suspended.");
+                            }
                         }
-                    } else {
-                        logd("Suspend GNSS requests.");
-                        locationManager.setAutomotiveGnssSuspended(true);
-                        if (!locationManager.isAutomotiveGnssSuspended()) {
-                            Slogf.w(TAG,
-                                    "Failed - isAutomotiveGnssSuspended is false. "
-                                    + "GNSS should be suspended.");
-                        }
+                    } catch (NullPointerException e) {
+                        Slogf.w(
+                                TAG,
+                                "The device might not support GNSS thus GNSSManagerService may be"
+                                        + " null",
+                                e);
                     }
                 }
     };

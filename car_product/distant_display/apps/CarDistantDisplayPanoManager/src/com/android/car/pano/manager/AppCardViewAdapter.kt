@@ -28,8 +28,9 @@ import com.android.car.pano.manager.holder.ProgressAppCardViewHolder
 
 class AppCardViewAdapter(
   private val context: Context,
+  private val inflater: LayoutInflater,
+  private val appCardServiceManager: AppCardServiceManager,
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>(), AppCardTouchHelper.AppCardTouchHelperContract {
-  private val inflater = LayoutInflater.from(context)
   private val selectedBackground = context.resources.getDrawable(
     R.drawable.app_card_selected_bg,
     null
@@ -52,6 +53,7 @@ class AppCardViewAdapter(
         )
         ImageAppCardViewHolder(context, view)
       }
+
       AppCardType.PROGRESS -> {
         val view = inflater.inflate(
           R.layout.progress_buttons_app_card,
@@ -80,6 +82,7 @@ class AppCardViewAdapter(
       AppCardType.IMAGE -> {
         (holder as ImageAppCardViewHolder).bind(appCards[position])
       }
+
       AppCardType.PROGRESS -> {
         (holder as ProgressAppCardViewHolder).bind(appCards[position])
       }
@@ -88,11 +91,22 @@ class AppCardViewAdapter(
 
   override fun setAppCards(newList: MutableList<AppCardContainer>, from: Int, to: Int) {
     appCards.clear()
-    appCards.addAll(newList)
+    newList.forEach {
+      // Ignore [EmptyAppCard] for recyclerview
+      if (it.appCard is ImageAppCard) {
+        appCards.add(it)
+      }
+    }
     if (from == -1 && to == -1) {
       notifyDataSetChanged()
     } else {
       notifyItemMoved(from, to)
+
+      val keyList = mutableListOf<String>()
+      appCards.forEach { appCardContainer ->
+        keyList.add("${appCardContainer.appId} : ${appCardContainer.appCard.id}")
+      }
+      appCardServiceManager.sendAppCardOrder(keyList)
     }
   }
 

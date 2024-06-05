@@ -21,9 +21,15 @@ import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.ListView;
 
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsCompat;
+
 import com.android.internal.R;
 import com.android.internal.app.ResolverActivity;
 import com.android.internal.app.ResolverViewPager;
+import com.android.internal.widget.ResolverDrawerLayout;
 
 /**
  * An automotive variant of the resolver activity which does not use the safe forwarding mode and
@@ -42,6 +48,11 @@ public final class CarResolverActivity extends ResolverActivity
 
         mProfilePager = findViewById(R.id.profile_pager);
         mProfilePager.getViewTreeObserver().addOnGlobalLayoutListener(this);
+
+        ((ResolverDrawerLayout) findViewById(R.id.contentPanel)).setShowAtTop(true);
+        setupSystemBarInsets();
+        getWindow().setBackgroundBlurRadius(getResources().getDimensionPixelSize(
+                com.android.car.activityresolver.R.dimen.background_blur_radius));
     }
 
     /**
@@ -66,7 +77,6 @@ public final class CarResolverActivity extends ResolverActivity
     @Override
     protected void onDestroy() {
         mProfilePager.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-
         super.onDestroy();
     }
 
@@ -86,7 +96,27 @@ public final class CarResolverActivity extends ResolverActivity
                     listView.performItemClick(view, position, id);
                 });
             }
+
+            int resolverListMaxHeight = getResources().getDimensionPixelSize(
+                    com.android.car.activityresolver.R.dimen.resolver_list_max_height);
+            if (listView.getHeight() > resolverListMaxHeight) {
+                listView.getLayoutParams().height = resolverListMaxHeight;
+                listView.setLayoutParams(listView.getLayoutParams());
+            }
         }
     }
-}
 
+    private void setupSystemBarInsets() {
+        WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(android.R.id.content),
+                (v, windowInsets) -> {
+                    Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars());
+                    // Apply the insets paddings to the view.
+                    v.setPadding(insets.left, insets.top, insets.right, insets.bottom);
+
+                    // Return CONSUMED if you don't want the window insets to keep being
+                    // passed down to descendant views.
+                    return WindowInsetsCompat.CONSUMED;
+                });
+    }
+}

@@ -981,4 +981,14 @@ public class CarAudioContextTest extends AbstractExtendedMockitoTestCase {
         expectWithMessage("Context infos").that(carAudioContext.getContextsInfo())
                 .containsExactlyElementsIn(audioContextInfos);
     }
+
+    @Test
+    public void getCarAudioContextId_forAudioAttributesWrapper() {
+        int contextId = 1;
+        CarAudioContext.AudioAttributesWrapper wrapper =
+                new CarAudioContext.AudioAttributesWrapper(TEST_MEDIA_ATTRIBUTE, contextId);
+
+        expectWithMessage("Car audio context Id").that(wrapper.getCarAudioContextId())
+                .isEqualTo(contextId);
+    }
 }

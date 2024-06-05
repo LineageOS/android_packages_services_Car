@@ -52,3 +52,4 @@ bluetooth.gatt.check_encrypted_link.enabled=false
 
 # Enable art cover for a2dp source.
 persist.bluetooth.avrcpversion=avrcp16
+persist.bluetooth.avrcpcontrolversion=avrcp16
