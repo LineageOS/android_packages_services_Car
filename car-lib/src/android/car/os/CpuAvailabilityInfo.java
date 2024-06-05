@@ -16,9 +16,12 @@
 
 package android.car.os;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
+
 import android.car.annotation.ExperimentalFeature;
 import android.os.Parcelable;
 
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.DataClass;
 
 /**
@@ -28,6 +31,7 @@ import com.android.car.internal.util.DataClass;
  */
 @ExperimentalFeature
 @DataClass(genToString = true, genHiddenBuilder = true)
+@ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
 public final class CpuAvailabilityInfo implements Parcelable {
     /** Returns the CPUSET, whose availability info is recorded in this object.
      *
