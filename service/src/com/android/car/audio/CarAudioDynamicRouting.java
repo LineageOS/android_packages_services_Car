@@ -17,6 +17,7 @@ package com.android.car.audio;
 
 import static android.media.AudioAttributes.USAGE_MEDIA;
 
+import static com.android.car.audio.CarAudioUtils.getAudioDeviceInfo;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.PRIVATE_CONSTRUCTOR;
 
 import android.car.builtin.util.Slogf;
@@ -53,8 +54,9 @@ final class CarAudioDynamicRouting {
             AudioAttributes.USAGE_NOTIFICATION_RINGTONE
     };
 
-    static void setupAudioDynamicRouting(CarAudioContext carAudioContext, AudioManager audioManager,
-            AudioPolicy.Builder builder, SparseArray<CarAudioZone> carAudioZones) {
+    static void setupAudioDynamicRouting(CarAudioContext carAudioContext,
+            AudioManagerWrapper audioManager, AudioPolicy.Builder builder,
+            SparseArray<CarAudioZone> carAudioZones) {
         for (int i = 0; i < carAudioZones.size(); i++) {
             CarAudioZone zone = carAudioZones.valueAt(i);
             List<CarAudioZoneConfig> zoneConfigs = zone.getAllCarAudioZoneConfigs();
@@ -94,7 +96,7 @@ final class CarAudioDynamicRouting {
 
     private static void setupAudioDynamicRoutingForZoneConfig(AudioPolicy.Builder builder,
             CarAudioZoneConfig zoneConfig, CarAudioContext carAudioContext,
-            AudioManager audioManager) {
+            AudioManagerWrapper audioManager) {
         CarVolumeGroup[] volumeGroups = zoneConfig.getVolumeGroups();
         for (int index = 0; index < volumeGroups.length; index++) {
             setupAudioDynamicRoutingForGroup(builder, volumeGroups[index], carAudioContext,
@@ -111,7 +113,8 @@ final class CarAudioDynamicRouting {
      * @param audioManager audio manager to find audio configuration for the passed in info
      */
     private static void setupAudioDynamicRoutingForGroup(AudioPolicy.Builder builder,
-            CarVolumeGroup group, CarAudioContext carAudioContext, AudioManager audioManager) {
+            CarVolumeGroup group, CarAudioContext carAudioContext,
+            AudioManagerWrapper audioManager) {
         // Note that one can not register audio mix for same bus more than once.
         List<String> addresses = group.getAddresses();
         for (int index = 0; index < addresses.size(); index++) {
@@ -148,7 +151,7 @@ final class CarAudioDynamicRouting {
             }
             if (hasContext) {
                 AudioDeviceInfo audioDeviceInfo =
-                        CarAudioUtils.getAudioDeviceInfo(info.getAudioDevice(), audioManager);
+                        getAudioDeviceInfo(info.getAudioDevice(), audioManager);
                 // It's a valid case that an audio output address is defined in
                 // audio_policy_configuration and no context is assigned to it.
                 // In such case, do not build a policy mix with zero rules.
@@ -164,13 +167,13 @@ final class CarAudioDynamicRouting {
 
     public static void setupAudioDynamicRoutingForMirrorDevice(
             AudioPolicy.Builder mirrorPolicyBuilder, List<CarAudioDeviceInfo> audioDeviceInfos,
-            AudioManager audioManager) {
+            AudioManagerWrapper audioManager) {
         for (int index = 0; index < audioDeviceInfos.size(); index++) {
             AudioFormat mixFormat = createMixFormatFromDevice(audioDeviceInfos.get(index));
             AudioMixingRule.Builder mixingRuleBuilder = new AudioMixingRule.Builder();
             mixingRuleBuilder.addRule(CarAudioContext.getAudioAttributeFromUsage(USAGE_MEDIA),
                     AudioMixingRule.RULE_MATCH_ATTRIBUTE_USAGE);
-            AudioDeviceInfo info = CarAudioUtils.getAudioDeviceInfo(
+            AudioDeviceInfo info = getAudioDeviceInfo(
                     audioDeviceInfos.get(index).getAudioDevice(), audioManager);
 
             addMix(mirrorPolicyBuilder, info, mixFormat, mixingRuleBuilder);

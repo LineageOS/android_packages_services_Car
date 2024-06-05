@@ -15,15 +15,23 @@
  */
 package com.android.car.audio;
 
+import android.annotation.Nullable;
+import android.annotation.SuppressLint;
 import android.car.builtin.media.AudioManagerHelper;
 import android.media.AudioAttributes;
 import android.media.AudioDeviceAttributes;
+import android.media.AudioDeviceCallback;
+import android.media.AudioDeviceInfo;
 import android.media.AudioFocusInfo;
 import android.media.AudioFocusRequest;
 import android.media.AudioManager;
+import android.media.AudioManager.AudioPlaybackCallback;
+import android.media.AudioManager.AudioServerStateCallback;
+import android.media.AudioPlaybackConfiguration;
 import android.media.FadeManagerConfiguration;
 import android.media.audiopolicy.AudioPolicy;
 import android.media.audiopolicy.AudioProductStrategy;
+import android.os.Handler;
 
 import java.util.List;
 import java.util.Objects;
@@ -96,6 +104,10 @@ public final class AudioManagerWrapper {
         return AudioManagerHelper.isMasterMute(mAudioManager);
     }
 
+    void setMasterMute(boolean mute, int flags) {
+        AudioManagerHelper.setMasterMute(mAudioManager, mute, flags);
+    }
+
     int dispatchAudioFocusChange(AudioFocusInfo info, int focusChange, AudioPolicy policy) {
         return mAudioManager.dispatchAudioFocusChange(info, focusChange, policy);
     }
@@ -119,5 +131,82 @@ public final class AudioManagerWrapper {
     void unregisterVolumeGroupCallback(
             AudioManager.VolumeGroupCallback coreAudioVolumeGroupCallback) {
         mAudioManager.unregisterVolumeGroupCallback(coreAudioVolumeGroupCallback);
+    }
+
+    boolean isAudioServerRunning() {
+        return mAudioManager.isAudioServerRunning();
+    }
+
+    void setAudioServerStateCallback(Executor executor, AudioServerStateCallback callback) {
+        mAudioManager.setAudioServerStateCallback(executor, callback);
+    }
+
+    @SuppressLint("WrongConstant")
+    void setSupportedSystemUsages(int[] systemUsages) {
+        mAudioManager.setSupportedSystemUsages(systemUsages);
+    }
+
+    void registerAudioDeviceCallback(AudioDeviceCallback callback, Handler handler) {
+        mAudioManager.registerAudioDeviceCallback(callback, handler);
+    }
+
+    void unregisterAudioDeviceCallback(AudioDeviceCallback callback) {
+        mAudioManager.unregisterAudioDeviceCallback(callback);
+    }
+
+    void clearAudioServerStateCallback() {
+        mAudioManager.clearAudioServerStateCallback();
+    }
+
+    void unregisterAudioPolicy(AudioPolicy policy) {
+        mAudioManager.unregisterAudioPolicy(policy);
+    }
+
+    void unregisterAudioPolicyAsync(AudioPolicy policy) {
+        mAudioManager.unregisterAudioPolicyAsync(policy);
+    }
+
+    int registerAudioPolicy(AudioPolicy policy) {
+        return mAudioManager.registerAudioPolicy(policy);
+    }
+
+    void setStreamVolume(int stream, int index, int flags) {
+        mAudioManager.setStreamVolume(stream, index, flags);
+    }
+
+    int getStreamMaxVolume(int stream) {
+        return mAudioManager.getStreamMaxVolume(stream);
+    }
+
+    int getStreamMinVolume(int stream) {
+        return mAudioManager.getStreamMinVolume(stream);
+    }
+
+    int getStreamVolume(int stream) {
+        return mAudioManager.getStreamVolume(stream);
+    }
+
+    void setParameters(String parameters) {
+        mAudioManager.setParameters(parameters);
+    }
+
+    AudioDeviceInfo[] getDevices(int flags) {
+        return mAudioManager.getDevices(flags);
+    }
+
+    void registerAudioPlaybackCallback(AudioPlaybackCallback callback, @Nullable Handler handler) {
+        mAudioManager.registerAudioPlaybackCallback(callback, handler);
+    }
+
+    void unregisterAudioPlaybackCallback(AudioPlaybackCallback callback) {
+        mAudioManager.unregisterAudioPlaybackCallback(callback);
+    }
+
+    boolean releaseAudioPatch(AudioManagerHelper.AudioPatchInfo audioPatchInfo) {
+        return AudioManagerHelper.releaseAudioPatch(mAudioManager, audioPatchInfo);
+    }
+
+    List<AudioPlaybackConfiguration> getActivePlaybackConfigurations() {
+        return mAudioManager.getActivePlaybackConfigurations();
     }
 }

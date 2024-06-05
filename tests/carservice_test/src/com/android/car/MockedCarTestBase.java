@@ -55,6 +55,7 @@ import android.util.SparseArray;
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 
+import com.android.car.ICarImpl.Builder.CarRemoteAccessServiceConstructor;
 import com.android.car.garagemode.GarageModeService;
 import com.android.car.hal.test.AidlMockedVehicleHal;
 import com.android.car.hal.test.AidlVehiclePropConfigBuilder;
@@ -64,7 +65,6 @@ import com.android.car.internal.ICarServiceHelper;
 import com.android.car.internal.StaticBinderInterface;
 import com.android.car.os.CarPerformanceService;
 import com.android.car.power.CarPowerManagementService;
-import com.android.car.remoteaccess.CarRemoteAccessService;
 import com.android.car.systeminterface.ActivityManagerInterface;
 import com.android.car.systeminterface.DisplayInterface;
 import com.android.car.systeminterface.IOInterface;
@@ -119,7 +119,8 @@ public class MockedCarTestBase {
     private CarTelemetryService mCarTelemetryService;
     private CarWatchdogService mCarWatchdogService = mock(CarWatchdogService.class);
     private CarPerformanceService mCarPerformanceService;
-    private CarRemoteAccessService mCarRemoteAccessService;
+    private CarRemoteAccessServiceConstructor mCarRemoteAccessServiceConstructor;
+    private AppFocusService mAppFocusService;
 
     private final CarUserService mCarUserService = mock(CarUserService.class);
     private final MockIOInterface mMockIOInterface = new MockIOInterface();
@@ -218,12 +219,22 @@ public class MockedCarTestBase {
     }
 
     /**
-     * Set the CarRemoteAccessService to be used during the test.
+     * Set the consturctor to create a fake CarRemoteAccessService for the test.
      *
      * If not called, the real service would be used.
      */
-    protected void setCarRemoteAccessService(CarRemoteAccessService service) {
-        mCarRemoteAccessService = service;
+    protected void setCarRemoteAccessServiceConstructor(
+            CarRemoteAccessServiceConstructor constructor) {
+        mCarRemoteAccessServiceConstructor = constructor;
+    }
+
+    /**
+     * Set the AppFocusService to be used during the test.
+     *
+     * If not called, the real service would be used.
+     */
+    protected void setAppFocusService(AppFocusService service) {
+        mAppFocusService = service;
     }
 
     /**
@@ -372,7 +383,8 @@ public class MockedCarTestBase {
                 .setCarWatchdogService(mCarWatchdogService)
                 .setCarPerformanceService(mCarPerformanceService)
                 .setCarTelemetryService(mCarTelemetryService)
-                .setCarRemoteAccessService(mCarRemoteAccessService)
+                .setCarRemoteAccessServiceConstructor(mCarRemoteAccessServiceConstructor)
+                .setAppFocusService(mAppFocusService)
                 .setGarageModeService(mGarageModeService)
                 .setPowerPolicyDaemon(powerPolicyDaemon)
                 .setDoPriorityInitInConstruction(false)

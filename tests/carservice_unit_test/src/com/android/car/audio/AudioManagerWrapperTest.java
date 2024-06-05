@@ -16,10 +16,15 @@
 
 package com.android.car.audio;
 
+import static android.media.AudioAttributes.USAGE_EMERGENCY;
 import static android.media.AudioAttributes.USAGE_MEDIA;
+import static android.media.AudioAttributes.USAGE_SAFETY;
 import static android.media.AudioManager.ADJUST_LOWER;
 import static android.media.AudioManager.AUDIOFOCUS_GAIN;
 import static android.media.AudioManager.AUDIOFOCUS_REQUEST_GRANTED;
+import static android.media.AudioManager.FLAG_FROM_KEY;
+import static android.media.AudioManager.FLAG_SHOW_UI;
+import static android.media.AudioManager.GET_DEVICES_OUTPUTS;
 
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.verify;
@@ -31,19 +36,26 @@ import static org.mockito.Mockito.when;
 
 import android.car.builtin.media.AudioManagerHelper;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
-import android.car.test.mocks.AbstractExtendedMockitoTestCase.CustomMockitoSessionBuilder;
 import android.media.AudioAttributes;
 import android.media.AudioDeviceAttributes;
+import android.media.AudioDeviceCallback;
+import android.media.AudioDeviceInfo;
 import android.media.AudioFocusInfo;
 import android.media.AudioFocusRequest;
 import android.media.AudioManager;
+import android.media.AudioManager.AudioPlaybackCallback;
+import android.media.AudioManager.AudioServerStateCallback;
+import android.media.AudioPlaybackConfiguration;
 import android.media.FadeManagerConfiguration;
 import android.media.audiopolicy.AudioPolicy;
 import android.media.audiopolicy.AudioProductStrategy;
+import android.os.Handler;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.android.car.CarLog;
+
+import com.google.common.util.concurrent.MoreExecutors;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -203,6 +215,16 @@ public final class AudioManagerWrapperTest extends AbstractExtendedMockitoTestCa
     }
 
     @Test
+    public void setMasterMute() {
+        boolean mute = true;
+        int flags = FLAG_SHOW_UI;
+
+        mAudioManagerWrapper.setMasterMute(mute, flags);
+
+        verify(mAudioManager).setMasterMute(mute, flags);
+    }
+
+    @Test
     public void setFocusRequestResult() {
         AudioFocusInfo info = Mockito.mock(AudioFocusInfo.class);
 
@@ -259,5 +281,189 @@ public final class AudioManagerWrapperTest extends AbstractExtendedMockitoTestCa
         mAudioManagerWrapper.unregisterVolumeGroupCallback(callback);
 
         verify(mAudioManager).unregisterVolumeGroupCallback(callback);
+    }
+
+    @Test
+    public void isAudioServerRunning() {
+        when(mAudioManager.isAudioServerRunning()).thenReturn(true);
+
+        expectWithMessage("Audio server state").that(mAudioManagerWrapper.isAudioServerRunning())
+                .isTrue();
+    }
+
+    @Test
+    public void setSupportedSystemUsages() {
+        int[] systemUsages = new int[]{USAGE_EMERGENCY, USAGE_SAFETY};
+
+        mAudioManagerWrapper.setSupportedSystemUsages(systemUsages);
+
+        verify(mAudioManager).setSupportedSystemUsages(systemUsages);
+    }
+
+    @Test
+    public void registerAudioDeviceCallback() {
+        AudioDeviceCallback callback = Mockito.mock(AudioDeviceCallback.class);
+        Handler handler = Mockito.mock(Handler.class);
+
+        mAudioManagerWrapper.registerAudioDeviceCallback(callback, handler);
+
+        verify(mAudioManager).registerAudioDeviceCallback(callback, handler);
+    }
+
+    @Test
+    public void unregisterAudioDeviceCallback() {
+        AudioDeviceCallback callback = Mockito.mock(AudioDeviceCallback.class);
+
+        mAudioManagerWrapper.unregisterAudioDeviceCallback(callback);
+
+        verify(mAudioManager).unregisterAudioDeviceCallback(callback);
+    }
+
+    @Test
+    public void setAudioServerStateCallback() {
+        AudioServerStateCallback callback = Mockito.mock(AudioServerStateCallback.class);
+        Executor executor = MoreExecutors.directExecutor();
+
+        mAudioManagerWrapper.setAudioServerStateCallback(executor, callback);
+
+        verify(mAudioManager).setAudioServerStateCallback(executor, callback);
+    }
+
+    @Test
+    public void clearAudioServerStateCallback() {
+        mAudioManagerWrapper.clearAudioServerStateCallback();
+
+        verify(mAudioManager).clearAudioServerStateCallback();
+    }
+
+    @Test
+    public void registerAudioPolicy() {
+        AudioPolicy policy = Mockito.mock(AudioPolicy.class);
+
+        mAudioManagerWrapper.registerAudioPolicy(policy);
+
+        verify(mAudioManager).registerAudioPolicy(policy);
+    }
+
+    @Test
+    public void unregisterAudioPolicy() {
+        AudioPolicy policy = Mockito.mock(AudioPolicy.class);
+
+        mAudioManagerWrapper.unregisterAudioPolicy(policy);
+
+        verify(mAudioManager).unregisterAudioPolicy(policy);
+    }
+
+    @Test
+    public void unregisterAudioPolicyAsync() {
+        AudioPolicy policy = Mockito.mock(AudioPolicy.class);
+
+        mAudioManagerWrapper.unregisterAudioPolicyAsync(policy);
+
+        verify(mAudioManager).unregisterAudioPolicyAsync(policy);
+    }
+
+    @Test
+    public void setStreamVolume() {
+        int stream = AudioManager.STREAM_ALARM;
+        int index = 100;
+        int flags = FLAG_FROM_KEY;
+
+        mAudioManagerWrapper.setStreamVolume(stream, index, flags);
+
+        verify(mAudioManager).setStreamVolume(stream, index, flags);
+    }
+
+    @Test
+    public void getStreamMaxVolume() {
+        int stream = AudioManager.STREAM_RING;
+        int index = 9001;
+        when(mAudioManager.getStreamMaxVolume(stream)).thenReturn(index);
+
+        expectWithMessage("Max ring stream volume").that(
+                mAudioManagerWrapper.getStreamMaxVolume(stream)).isEqualTo(index);
+    }
+
+    @Test
+    public void getStreamMinVolume() {
+        int stream = AudioManager.STREAM_SYSTEM;
+        int index = 1;
+        when(mAudioManager.getStreamMinVolume(stream)).thenReturn(index);
+
+        expectWithMessage("Min system stream volume").that(
+                mAudioManagerWrapper.getStreamMinVolume(stream)).isEqualTo(index);
+    }
+
+    @Test
+    public void getStreamVolume() {
+        int stream = AudioManager.STREAM_MUSIC;
+        int index = 8675309;
+        when(mAudioManager.getStreamVolume(stream)).thenReturn(index);
+
+        expectWithMessage("Min music stream volume").that(
+                mAudioManagerWrapper.getStreamVolume(stream)).isEqualTo(index);
+    }
+
+    @Test
+    public void setParameter() {
+        String parameter = "test_parameter:key";
+        mAudioManagerWrapper.setParameters(parameter);
+
+        verify(mAudioManager).setParameters(parameter);
+    }
+
+    @Test
+    public void getDevices() {
+        AudioDeviceInfo info1 = Mockito.mock(AudioDeviceInfo.class);
+        AudioDeviceInfo info2 = Mockito.mock(AudioDeviceInfo.class);
+        AudioDeviceInfo[] infos = new AudioDeviceInfo[]{info1, info2};
+        when(mAudioManager.getDevices(GET_DEVICES_OUTPUTS)).thenReturn(infos);
+
+        expectWithMessage("Output audio devices").that(
+                mAudioManagerWrapper.getDevices(GET_DEVICES_OUTPUTS)).isEqualTo(infos);
+    }
+
+    @Test
+    public void registerAudioPlaybackCallback() {
+        AudioPlaybackCallback callback = Mockito.mock(AudioPlaybackCallback.class);
+        Handler handler = Mockito.mock(Handler.class);
+
+        mAudioManagerWrapper.registerAudioPlaybackCallback(callback, handler);
+
+        mAudioManager.registerAudioPlaybackCallback(callback, handler);
+    }
+
+    @Test
+    public void unregisterAudioPlaybackCallback() {
+        AudioPlaybackCallback callback = Mockito.mock(AudioPlaybackCallback.class);
+
+        mAudioManagerWrapper.unregisterAudioPlaybackCallback(callback);
+
+        mAudioManager.unregisterAudioPlaybackCallback(callback);
+    }
+
+    @Test
+    public void getActivePlaybackConfigurations() {
+        AudioPlaybackConfiguration config1 = Mockito.mock(AudioPlaybackConfiguration.class);
+        AudioPlaybackConfiguration config2 = Mockito.mock(AudioPlaybackConfiguration.class);
+        List<AudioPlaybackConfiguration> configs = List.of(config1, config2);
+        when(mAudioManager.getActivePlaybackConfigurations()).thenReturn(configs);
+
+        List<AudioPlaybackConfiguration> activeConfigs =
+                mAudioManagerWrapper.getActivePlaybackConfigurations();
+
+        expectWithMessage("Active playback configs").that(activeConfigs)
+                .containsExactlyElementsIn(configs);
+    }
+
+    @Test
+    public void releaseAudioPatch() {
+        AudioManagerHelper.AudioPatchInfo info =
+                new AudioManagerHelper.AudioPatchInfo(/* sourceAddress= */ "input",
+                /* sinkAddress= */ "output", /* handle= */ 10);
+        doReturn(true).when(() -> AudioManagerHelper.releaseAudioPatch(mAudioManager, info));
+
+        expectWithMessage("Release patch state").that(mAudioManagerWrapper.releaseAudioPatch(info))
+                .isTrue();
     }
 }

@@ -14,47 +14,45 @@
  * limitations under the License.
  */
 
-package android.car;
+package com.android.car;
+
+import static android.car.CarAppFocusManager.OnAppFocusChangedListener;
 
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.anyInt;
+import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
-import static org.robolectric.Shadows.shadowOf;
+import static org.mockito.Mockito.when;
 
-import android.app.Application;
+import android.car.Car;
+import android.car.CarAppFocusManager;
 import android.car.CarAppFocusManager.OnAppFocusChangedListener;
 import android.car.CarAppFocusManager.OnAppFocusOwnershipCallback;
-import android.car.testapi.CarAppFocusController;
-import android.car.testapi.FakeCar;
-import android.os.Looper;
+import android.content.Context;
 
-import androidx.test.core.app.ApplicationProvider;
+import androidx.test.filters.MediumTest;
+import androidx.test.runner.AndroidJUnit4;
 
-import org.junit.Before;
-import org.junit.Rule;
+import com.android.car.internal.StaticBinderInterface;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.internal.DoNotInstrument;
-import org.robolectric.shadows.ShadowBinder;
 
-@RunWith(RobolectricTestRunner.class)
-@DoNotInstrument
-public class CarAppFocusManagerTest {
-    @Rule
-    public MockitoRule rule = MockitoJUnit.rule();
+@RunWith(AndroidJUnit4.class)
+@MediumTest
+public class CarAppFocusManagerTest extends MockedCarTestBase {
 
-    private Application mContext;
-
-    private FakeCar mFakeCar;
     private CarAppFocusManager mCarAppFocusManager;
-    private CarAppFocusController mCarAppFocusController;
-    private Looper mAppFocusServiceLooper;
+    private AppFocusService mAppFocusService;
+
+    private static final int DEFAULT_FOREGROUND_ID = -1;
+
+    private int mForegroundPid = DEFAULT_FOREGROUND_ID;
+    private int mForegroundUid = DEFAULT_FOREGROUND_ID;
 
     private static final int APP1_UID = 1041;
     private static final int APP1_PID = 1043;
@@ -63,27 +61,41 @@ public class CarAppFocusManagerTest {
     private static final int APP3_UID = 1111;
     private static final int APP3_PID = 2222;
 
-    @Mock OnAppFocusOwnershipCallback mApp1Callback;
-    @Mock OnAppFocusChangedListener mApp1Listener;
-    @Mock OnAppFocusOwnershipCallback mApp2Callback;
-    @Mock OnAppFocusChangedListener mApp2Listener;
-    @Mock OnAppFocusOwnershipCallback mApp3Callback;
-    @Mock OnAppFocusChangedListener mApp3Listener;
+    private static final int DEFAULT_TIMEOUT_MS = 1000;
 
-    @Before
-    public void setUp() {
-        ShadowBinder.reset();
-        mContext = ApplicationProvider.getApplicationContext();
-        mFakeCar = FakeCar.createFakeCar(mContext);
-        mCarAppFocusManager =
-                (CarAppFocusManager) mFakeCar.getCar().getCarManager(Car.APP_FOCUS_SERVICE);
-        mCarAppFocusController = mFakeCar.getAppFocusController();
-        mAppFocusServiceLooper = mCarAppFocusController.getLooper();
+    @Mock private Context mContext;
+    @Mock private StaticBinderInterface mMockBinder;
+    @Mock private OnAppFocusOwnershipCallback mApp1Callback;
+    @Mock private OnAppFocusChangedListener mApp1Listener;
+    @Mock private OnAppFocusOwnershipCallback mApp2Callback;
+    @Mock private OnAppFocusChangedListener mApp2Listener;
+    @Mock private OnAppFocusOwnershipCallback mApp3Callback;
+    @Mock private OnAppFocusChangedListener mApp3Listener;
+    @Mock private SystemActivityMonitoringService mSystemActivityMonitoringService;
+
+    @Override
+    protected void configureFakeSystemInterface() {
+        mAppFocusService = new AppFocusService(
+                mContext, mSystemActivityMonitoringService, mMockBinder);
+        setAppFocusService(mAppFocusService);
     }
 
-    private void flushDispatchHandler() {
-        shadowOf(mAppFocusServiceLooper).runToEndOfTasks();
-        shadowOf(Looper.getMainLooper()).idle();
+    @Override
+    public void setUp() throws Exception {
+        super.setUp();
+
+        mCarAppFocusManager =
+                (CarAppFocusManager) getCar().getCarManager(Car.APP_FOCUS_SERVICE);
+        when(mSystemActivityMonitoringService.isInForeground(anyInt(), anyInt()))
+                .thenAnswer((inv) -> {
+                    int pid = inv.getArgument(0);
+                    int uid = inv.getArgument(1);
+                    return (mForegroundPid == DEFAULT_FOREGROUND_ID || mForegroundPid == pid)
+                            && (mForegroundUid == DEFAULT_FOREGROUND_ID || mForegroundUid == uid);
+                });
+        // Simulate an unprivileged app.
+        when(mContext.checkCallingOrSelfPermission(Car.PERMISSION_CAR_DISPLAY_IN_CLUSTER))
+                .thenReturn(1);
     }
 
     @Test
@@ -102,9 +114,8 @@ public class CarAppFocusManagerTest {
     public void requestNavFocus_noCurrentFocus_callbackIsRun() {
         mCarAppFocusManager.requestAppFocus(CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION,
                 mApp1Callback);
-        flushDispatchHandler();
 
-        verify(mApp1Callback)
+        verify(mApp1Callback, timeout(DEFAULT_TIMEOUT_MS))
                 .onAppFocusOwnershipGranted(CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION);
     }
 
@@ -129,16 +140,16 @@ public class CarAppFocusManagerTest {
     }
 
     private void setCallingApp(int uid, int pid) {
-        ShadowBinder.setCallingUid(uid);
-        ShadowBinder.setCallingPid(pid);
+        when(mMockBinder.getCallingUid()).thenReturn(uid);
+        when(mMockBinder.getCallingPid()).thenReturn(pid);
     }
 
     private void app2GainsFocus_app1BroughtToForeground() {
         setCallingApp(APP2_UID, APP2_PID);
         mCarAppFocusManager.requestAppFocus(CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION,
                 mApp2Callback);
-        mCarAppFocusController.setForegroundUid(APP1_UID);
-        mCarAppFocusController.setForegroundPid(APP1_PID);
+        mForegroundUid = APP1_UID;
+        mForegroundPid = APP1_PID;
         setCallingApp(APP2_UID, APP1_PID);
     }
 
@@ -158,9 +169,8 @@ public class CarAppFocusManagerTest {
         app2GainsFocus_app1BroughtToForeground();
         mCarAppFocusManager
                 .requestAppFocus(CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION, mApp1Callback);
-        flushDispatchHandler();
 
-        verify(mApp1Callback)
+        verify(mApp1Callback, timeout(DEFAULT_TIMEOUT_MS))
                 .onAppFocusOwnershipGranted(CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION);
     }
 
@@ -179,8 +189,8 @@ public class CarAppFocusManagerTest {
     @Test
     public void requestNavFocus_currentOwnerInForeground_requestFails() {
         setCallingApp(APP2_UID, APP2_PID);
-        mCarAppFocusController.setForegroundUid(APP2_UID);
-        mCarAppFocusController.setForegroundPid(APP2_PID);
+        mForegroundUid = APP2_UID;
+        mForegroundPid = APP2_PID;
         mCarAppFocusManager.requestAppFocus(CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION,
                 mApp2Callback);
         setCallingApp(APP1_UID, APP1_PID);
@@ -199,9 +209,8 @@ public class CarAppFocusManagerTest {
                 .addFocusListener(mApp1Listener, CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION);
         mCarAppFocusManager.requestAppFocus(CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION,
                 mApp1Callback);
-        flushDispatchHandler();
 
-        verify(mApp1Listener)
+        verify(mApp1Listener, timeout(DEFAULT_TIMEOUT_MS))
                 .onAppFocusChanged(eq(CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION), anyBoolean());
     }
 
@@ -213,9 +222,8 @@ public class CarAppFocusManagerTest {
         setCallingApp(APP1_UID, APP1_PID);
         mCarAppFocusManager.requestAppFocus(CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION,
                 mApp1Callback);
-        flushDispatchHandler();
 
-        verify(mApp2Listener)
+        verify(mApp2Listener, timeout(DEFAULT_TIMEOUT_MS))
                 .onAppFocusChanged(eq(CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION), eq(true));
     }
 
@@ -227,9 +235,8 @@ public class CarAppFocusManagerTest {
         setCallingApp(APP1_UID, APP1_PID);
         mCarAppFocusManager.requestAppFocus(CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION,
                 mApp1Callback);
-        flushDispatchHandler();
 
-        verify(mApp2Callback)
+        verify(mApp2Callback, timeout(DEFAULT_TIMEOUT_MS))
                 .onAppFocusOwnershipLost(eq(CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION));
     }
 
@@ -242,9 +249,8 @@ public class CarAppFocusManagerTest {
                 mApp1Callback);
         mCarAppFocusManager
                 .abandonAppFocus(mApp1Callback, CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION);
-        flushDispatchHandler();
 
-        verify(mApp1Listener)
+        verify(mApp1Listener, timeout(DEFAULT_TIMEOUT_MS))
                 .onAppFocusChanged(eq(CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION), eq(false));
     }
 
@@ -258,9 +264,8 @@ public class CarAppFocusManagerTest {
                 mApp1Callback);
         mCarAppFocusManager
                 .abandonAppFocus(mApp1Callback, CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION);
-        flushDispatchHandler();
 
-        verify(mApp2Listener)
+        verify(mApp2Listener, timeout(DEFAULT_TIMEOUT_MS))
                 .onAppFocusChanged(eq(CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION), eq(false));
     }
 
@@ -277,13 +282,12 @@ public class CarAppFocusManagerTest {
                 .addFocusListener(mApp3Listener, CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION);
         mCarAppFocusManager
                 .requestAppFocus(CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION, mApp3Callback);
-        flushDispatchHandler();
 
-        verify(mApp1Listener)
+        verify(mApp1Listener, timeout(DEFAULT_TIMEOUT_MS))
                 .onAppFocusChanged(eq(CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION), eq(true));
-        verify(mApp2Listener)
+        verify(mApp2Listener, timeout(DEFAULT_TIMEOUT_MS))
                 .onAppFocusChanged(eq(CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION), eq(true));
-        verify(mApp3Listener)
+        verify(mApp3Listener, timeout(DEFAULT_TIMEOUT_MS))
                 .onAppFocusChanged(eq(CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION), eq(true));
     }
 }

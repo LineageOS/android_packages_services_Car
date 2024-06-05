@@ -1,4 +1,5 @@
-// Copyright (C) 2020 The Android Open Source Project
+//
+// Copyright (C) 2024 The Android Open Source Project
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,36 +12,25 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
 
 package {
+    default_team: "trendy_team_aaos_framework",
     default_applicable_licenses: ["Android-Apache-2.0"],
 }
 
-cc_prebuilt_library_shared {
-    name: "libstubgraphimpl",
-    target: {
-        android_arm64: {
-            srcs: ["arm64/libstubgraphimpl.so"],
-        },
-        android_arm: {
-            srcs: ["arm/libstubgraphimpl.so"],
-        },
-        android_x86: {
-            srcs: ["x86/libstubgraphimpl.so"],
-        },
-        android_x86_64: {
-            srcs: ["x86_64/libstubgraphimpl.so"],
-        },
-    },
-    ignore_max_page_size: true,
+android_app {
+    name: "LaunchOnPrivateDisplayTestApp",
 
-    shared_libs: [
-        "libc",
-        "libdl",
-        "liblog",
-        "libm",
-    ],
-    strip: {
-        keep_symbols: true,
+    // Only compile source java files in this apk.
+    srcs: ["src/**/*.java"],
+
+    resource_dirs: ["res"],
+
+    sdk_version: "current",
+
+    enforce_uses_libs: false,
+    dex_preopt: {
+        enabled: false,
     },
 }

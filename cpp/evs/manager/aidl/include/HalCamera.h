@@ -121,6 +121,8 @@ private:
 
     // synchronization
     mutable std::mutex mFrameMutex;
+    std::condition_variable mFrameOpDone;
+    bool mFrameOpInProgress GUARDED_BY(mFrameMutex) = false;
     std::deque<FrameRequest> mNextRequests GUARDED_BY(mFrameMutex);
 
     // Time this object was created

@@ -35,7 +35,6 @@ import android.media.AudioAttributes;
 import android.media.AudioDeviceAttributes;
 import android.media.AudioDeviceInfo;
 import android.media.AudioFormat;
-import android.media.AudioManager;
 import android.media.AudioSystem;
 import android.media.audiopolicy.AudioMix;
 import android.media.audiopolicy.AudioPolicy;
@@ -75,7 +74,7 @@ public final class CarAudioDynamicRoutingTest extends AbstractExpectableTestCase
             TEST_CAR_AUDIO_CONTEXT.getContextForAudioAttribute(TEST_NAVIGATION_ATTRIBUTE);
 
     @Mock
-    private AudioManager mAudioManager;
+    private AudioManagerWrapper mAudioManager;
 
     @Test
     public void setupAudioDynamicRouting() {
