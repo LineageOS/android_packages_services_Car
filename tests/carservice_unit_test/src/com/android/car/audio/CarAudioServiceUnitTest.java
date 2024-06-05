@@ -536,7 +536,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         mMockSettings = new MockSettings(session);
         session
                 .spyStatic(SubscriptionManager.class)
-                .spyStatic(AudioManager.class)
+                .spyStatic(AudioManagerWrapper.class)
                 .spyStatic(AudioManagerHelper.class)
                 .spyStatic(AudioControlWrapperAidl.class)
                 .spyStatic(CoreAudioHelper.class)
@@ -6682,9 +6682,9 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
 
     private void mockCoreAudioRoutingAndVolume() {
         doReturn(CoreAudioRoutingUtils.getProductStrategies())
-                .when(() -> AudioManager.getAudioProductStrategies());
+                .when(AudioManagerWrapper::getAudioProductStrategies);
         doReturn(CoreAudioRoutingUtils.getVolumeGroups())
-                .when(() -> AudioManager.getAudioVolumeGroups());
+                .when(AudioManagerWrapper::getAudioVolumeGroups);
 
         when(mAudioManager.getMinVolumeIndexForAttributes(
                 eq(CoreAudioRoutingUtils.MUSIC_ATTRIBUTES)))

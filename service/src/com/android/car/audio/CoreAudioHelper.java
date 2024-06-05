@@ -22,7 +22,6 @@ import android.annotation.Nullable;
 import android.car.builtin.media.AudioManagerHelper;
 import android.car.builtin.util.Slogf;
 import android.media.AudioAttributes;
-import android.media.AudioManager;
 import android.media.audiopolicy.AudioProductStrategy;
 import android.media.audiopolicy.AudioVolumeGroup;
 import android.util.SparseArray;
@@ -78,12 +77,12 @@ final class CoreAudioHelper {
          * @see AudioProductStrategy
          */
         static final List<AudioProductStrategy> sAudioProductStrategies =
-                AudioManager.getAudioProductStrategies();
+                AudioManagerWrapper.getAudioProductStrategies();
         /**
          * @see AudioVolumeGroup
          */
         static final List<AudioVolumeGroup> sAudioVolumeGroups =
-                AudioManager.getAudioVolumeGroups();
+                AudioManagerWrapper.getAudioVolumeGroups();
         static final SparseArray<String> sGroupIdToNames = new SparseArray<>() {
             {
                 for (int index = 0; index < sAudioVolumeGroups.size(); index++) {
