@@ -60,6 +60,7 @@ cc_prebuilt_library_shared {
     strip: {
         keep_symbols: true,
     },
+    ignore_max_page_size: true,
     target: {
         android_arm64: {
             srcs: ["lib_arm64/libfacegraph.so"],
