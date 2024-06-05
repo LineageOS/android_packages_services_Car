@@ -31,6 +31,7 @@ import android.media.AudioPlaybackConfiguration;
 import android.media.FadeManagerConfiguration;
 import android.media.audiopolicy.AudioPolicy;
 import android.media.audiopolicy.AudioProductStrategy;
+import android.media.audiopolicy.AudioVolumeGroup;
 import android.os.Handler;
 
 import java.util.List;
@@ -208,5 +209,13 @@ public final class AudioManagerWrapper {
 
     List<AudioPlaybackConfiguration> getActivePlaybackConfigurations() {
         return mAudioManager.getActivePlaybackConfigurations();
+    }
+
+    static List<AudioProductStrategy> getAudioProductStrategies() {
+        return AudioManager.getAudioProductStrategies();
+    }
+
+    static List<AudioVolumeGroup> getAudioVolumeGroups() {
+        return AudioManager.getAudioVolumeGroups();
     }
 }

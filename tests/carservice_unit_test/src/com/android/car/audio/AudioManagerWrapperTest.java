@@ -49,6 +49,7 @@ import android.media.AudioPlaybackConfiguration;
 import android.media.FadeManagerConfiguration;
 import android.media.audiopolicy.AudioPolicy;
 import android.media.audiopolicy.AudioProductStrategy;
+import android.media.audiopolicy.AudioVolumeGroup;
 import android.os.Handler;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -430,7 +431,7 @@ public final class AudioManagerWrapperTest extends AbstractExtendedMockitoTestCa
 
         mAudioManagerWrapper.registerAudioPlaybackCallback(callback, handler);
 
-        mAudioManager.registerAudioPlaybackCallback(callback, handler);
+        verify(mAudioManager).registerAudioPlaybackCallback(callback, handler);
     }
 
     @Test
@@ -439,7 +440,7 @@ public final class AudioManagerWrapperTest extends AbstractExtendedMockitoTestCa
 
         mAudioManagerWrapper.unregisterAudioPlaybackCallback(callback);
 
-        mAudioManager.unregisterAudioPlaybackCallback(callback);
+        verify(mAudioManager).unregisterAudioPlaybackCallback(callback);
     }
 
     @Test
@@ -460,10 +461,29 @@ public final class AudioManagerWrapperTest extends AbstractExtendedMockitoTestCa
     public void releaseAudioPatch() {
         AudioManagerHelper.AudioPatchInfo info =
                 new AudioManagerHelper.AudioPatchInfo(/* sourceAddress= */ "input",
-                /* sinkAddress= */ "output", /* handle= */ 10);
+                /* sinkAddress= */ "output", /* handleId= */ 10);
         doReturn(true).when(() -> AudioManagerHelper.releaseAudioPatch(mAudioManager, info));
 
         expectWithMessage("Release patch state").that(mAudioManagerWrapper.releaseAudioPatch(info))
                 .isTrue();
+    }
+
+    @Test
+    public void getAudioVolumeGroups() {
+        List<AudioVolumeGroup> groups = CoreAudioRoutingUtils.getVolumeGroups();
+        doReturn(groups).when(AudioManager::getAudioVolumeGroups);
+
+        expectWithMessage("Core volume groups")
+                .that(AudioManagerWrapper.getAudioVolumeGroups()).containsExactlyElementsIn(groups);
+    }
+
+    @Test
+    public void getAudioProductStrategies() {
+        List<AudioProductStrategy> strategies = CoreAudioRoutingUtils.getProductStrategies();
+        doReturn(strategies).when(AudioManager::getAudioProductStrategies);
+
+        expectWithMessage("Audio product strategies")
+                .that(AudioManagerWrapper.getAudioProductStrategies())
+                .containsExactlyElementsIn(strategies);
     }
 }

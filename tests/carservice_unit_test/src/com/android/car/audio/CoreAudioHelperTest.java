@@ -48,7 +48,6 @@ import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
 import static org.junit.Assert.assertThrows;
 
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
-import android.media.AudioManager;
 import android.media.audiopolicy.AudioProductStrategy;
 import android.media.audiopolicy.AudioVolumeGroup;
 
@@ -70,15 +69,15 @@ public final class CoreAudioHelperTest extends AbstractExtendedMockitoTestCase {
 
     @Override
     protected void onSessionBuilder(CustomMockitoSessionBuilder session) {
-        session.spyStatic(AudioManager.class);
+        session.spyStatic(AudioManagerWrapper.class);
     }
 
     @Before
     public void setUp() throws Exception {
         List<AudioVolumeGroup> groups = CoreAudioRoutingUtils.getVolumeGroups();
         List<AudioProductStrategy> strategies = CoreAudioRoutingUtils.getProductStrategies();
-        doReturn(strategies).when(AudioManager::getAudioProductStrategies);
-        doReturn(groups).when(AudioManager::getAudioVolumeGroups);
+        doReturn(strategies).when(AudioManagerWrapper::getAudioProductStrategies);
+        doReturn(groups).when(AudioManagerWrapper::getAudioVolumeGroups);
     }
 
     @Test
