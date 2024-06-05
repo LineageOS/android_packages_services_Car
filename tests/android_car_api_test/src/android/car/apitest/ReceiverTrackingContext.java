@@ -27,6 +27,9 @@ import android.os.UserHandle;
 import android.util.ArrayMap;
 import android.util.Log;
 
+import com.android.internal.annotations.GuardedBy;
+
+import java.util.ArrayList;
 import java.util.Collection;
 
 /**
@@ -36,6 +39,8 @@ final class ReceiverTrackingContext extends ContextWrapper {
 
     private static final String TAG =  ReceiverTrackingContext.class.getSimpleName();
 
+    private final Object mLock = new Object();
+    @GuardedBy("mLock")
     private final ArrayMap<BroadcastReceiver, String> mReceivers = new ArrayMap<>();
 
     ReceiverTrackingContext(Context baseContext) {
@@ -126,7 +131,9 @@ final class ReceiverTrackingContext extends ContextWrapper {
     @Override
     public void unregisterReceiver(BroadcastReceiver receiver) {
         Log.d(TAG, "unregisterReceiver(" + receiver + ") called.");
-        mReceivers.remove(receiver);
+        synchronized (mLock) {
+            mReceivers.remove(receiver);
+        }
 
         super.unregisterReceiver(receiver);
     }
@@ -138,13 +145,26 @@ final class ReceiverTrackingContext extends ContextWrapper {
      * receivers have been unregistered.</p>
      */
     public Collection<String> getReceiversInfo() {
-        return mReceivers.values();
+        synchronized (mLock) {
+            return new ArrayList<String>(mReceivers.values());
+        }
+    }
+
+    /**
+     * Clear all receivers.
+     */
+    public void clearReceivers() {
+        synchronized (mLock) {
+            mReceivers.clear();
+        }
     }
 
     private void addReceiver(BroadcastReceiver receiver, String methodPattern, Object... args) {
         String info = String.format(methodPattern, args)
                 + String.format(" called by %s", new Throwable().getStackTrace()[2]);
         Log.d(TAG, info);
-        mReceivers.put(receiver, info);
+        synchronized (mLock) {
+            mReceivers.put(receiver, info);
+        }
     }
 }

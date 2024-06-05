@@ -73,7 +73,7 @@ public class CarPackageManagerTest extends CarApiTestBase {
 
     @Test
     public void testGetTargetCarMajorAndMinorVersion_set() throws Exception {
-        String pkg = sContext.getPackageName();
+        String pkg = getContext().getPackageName();
 
         CarVersion apiVersion = mCarPackageManager.getTargetCarVersion(pkg);
 
