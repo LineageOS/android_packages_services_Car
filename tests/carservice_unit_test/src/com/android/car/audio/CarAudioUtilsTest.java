@@ -173,7 +173,7 @@ public class CarAudioUtilsTest extends AbstractExpectableTestCase {
     public void getAudioDeviceInfo() {
         AudioDeviceInfo info1 = getTestAudioDeviceInfo(TEST_ADDRESS_1);
         AudioDeviceInfo info2 = getTestAudioDeviceInfo(TEST_ADDRESS_2);
-        AudioManager audioManager = Mockito.mock(AudioManager.class);
+        AudioManagerWrapper audioManager = Mockito.mock(AudioManagerWrapper.class);
         when(audioManager.getDevices(anyInt())).thenReturn(new AudioDeviceInfo[]{info2, info1});
         AudioDeviceAttributes attributes =
                 new AudioDeviceAttributes(TYPE_BLUETOOTH_A2DP, TEST_ADDRESS_1);
@@ -187,7 +187,7 @@ public class CarAudioUtilsTest extends AbstractExpectableTestCase {
     public void getAudioDeviceInfo_withDeviceNotAvailable() {
         AudioDeviceInfo info1 = getTestAudioDeviceInfo(TEST_ADDRESS_1);
         AudioDeviceInfo info2 = getTestAudioDeviceInfo(TEST_ADDRESS_2);
-        AudioManager audioManager = Mockito.mock(AudioManager.class);
+        AudioManagerWrapper audioManager = Mockito.mock(AudioManagerWrapper.class);
         when(audioManager.getDevices(anyInt())).thenReturn(new AudioDeviceInfo[]{info2, info1});
         AudioDeviceAttributes attributes =
                 new AudioDeviceAttributes(TYPE_BLUETOOTH_A2DP, TEST_NOT_AVAILABLE_ADDRESS);
@@ -261,7 +261,7 @@ public class CarAudioUtilsTest extends AbstractExpectableTestCase {
     @Test
     public void getDynamicDevicesInConfig_withDynamicDevices() {
         mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
-        AudioManager manager = setUpMockAudioManager();
+        AudioManagerWrapper manager = setUpMockAudioManager();
         CarAudioZoneConfigInfo testDynamicDevicesConfig = getTestDynamicDevicesConfig();
 
         expectWithMessage("Non-dynamic devices")
@@ -272,7 +272,7 @@ public class CarAudioUtilsTest extends AbstractExpectableTestCase {
     @Test
     public void getDynamicDevicesInConfig_withoutDynamicDevices() {
         mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
-        AudioManager manager = setUpMockAudioManager();
+        AudioManagerWrapper manager = setUpMockAudioManager();
         CarAudioZoneConfigInfo testDynamicDevicesConfig = getCarAudioZoneConfigInfo();
 
         expectWithMessage("Dynamic devices")
@@ -282,7 +282,7 @@ public class CarAudioUtilsTest extends AbstractExpectableTestCase {
     @Test
     public void getDynamicDevicesInConfig_withDynamicDevices_andFlagDisabled() {
         mSetFlagsRule.disableFlags(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
-        AudioManager manager = setUpMockAudioManager();
+        AudioManagerWrapper manager = setUpMockAudioManager();
         CarAudioZoneConfigInfo testDynamicDevicesConfig = getTestDynamicDevicesConfig();
 
         expectWithMessage("Dynamic devices with flags disabled")
@@ -292,7 +292,7 @@ public class CarAudioUtilsTest extends AbstractExpectableTestCase {
     @Test
     public void getDynamicDevicesInConfig_withoutDynamicDevices_andFlagDisabled() {
         mSetFlagsRule.disableFlags(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
-        AudioManager manager = setUpMockAudioManager();
+        AudioManagerWrapper manager = setUpMockAudioManager();
         CarAudioZoneConfigInfo testNonDynamicDevicesConfig = getCarAudioZoneConfigInfo();
 
         expectWithMessage("Non-dynamic devices with flags disabled")
@@ -351,8 +351,8 @@ public class CarAudioUtilsTest extends AbstractExpectableTestCase {
                 TEST_ACTIVE_STATUS, TEST_SELECTED_STATUS, TEST_DEFAULT_STATUS);
     }
 
-    private AudioManager setUpMockAudioManager() {
-        AudioManager manager = Mockito.mock(AudioManager.class);
+    private AudioManagerWrapper setUpMockAudioManager() {
+        AudioManagerWrapper manager = Mockito.mock(AudioManagerWrapper.class);
         when(manager.getDevices(AudioManager.GET_DEVICES_OUTPUTS))
                 .thenReturn(getMockOutputDevices());
         return manager;

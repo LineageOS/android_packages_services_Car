@@ -44,7 +44,6 @@ import android.car.media.CarVolumeGroupInfo;
 import android.media.AudioAttributes;
 import android.media.AudioDeviceAttributes;
 import android.media.AudioDeviceInfo;
-import android.media.AudioManager;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 
@@ -81,7 +80,7 @@ final class CarAudioUtils {
 
     @Nullable
     static AudioDeviceInfo getAudioDeviceInfo(AudioDeviceAttributes audioDeviceAttributes,
-            AudioManager audioManager) {
+            AudioManagerWrapper audioManager) {
         AudioDeviceInfo[] infos = audioManager.getDevices(GET_DEVICES_OUTPUTS);
         for (int c = 0; c < infos.length; c++) {
             if (!infos[c].getAddress().equals(audioDeviceAttributes.getAddress())) {
@@ -114,7 +113,7 @@ final class CarAudioUtils {
     }
 
     static List<AudioDeviceInfo> getDynamicDevicesInConfig(CarAudioZoneConfigInfo zoneConfig,
-            AudioManager manager) {
+            AudioManagerWrapper manager) {
         return Flags.carAudioDynamicDevices()
                 ? getDynamicAudioDevices(zoneConfig.getConfigVolumeGroups(), manager) : EMPTY_LIST;
     }
@@ -160,7 +159,7 @@ final class CarAudioUtils {
     }
 
     private static List<AudioDeviceInfo> getDynamicAudioDevices(
-            List<CarVolumeGroupInfo> volumeGroups, AudioManager manager) {
+            List<CarVolumeGroupInfo> volumeGroups, AudioManagerWrapper manager) {
         List<AudioDeviceInfo> dynamicDevices = new ArrayList<>();
         for (int c = 0; c < volumeGroups.size(); c++) {
             dynamicDevices.addAll(getDynamicDevices(volumeGroups.get(c), manager));
@@ -169,7 +168,7 @@ final class CarAudioUtils {
     }
 
     private static List<AudioDeviceInfo> getDynamicDevices(CarVolumeGroupInfo carVolumeGroupInfo,
-            AudioManager manager) {
+            AudioManagerWrapper manager) {
         List<AudioDeviceInfo> dynamicDevices = new ArrayList<>();
         List<AudioDeviceAttributes> devices = carVolumeGroupInfo.getAudioDeviceAttributes();
         for (int c = 0; c < devices.size(); c++) {
