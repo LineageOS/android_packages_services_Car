@@ -22,6 +22,7 @@ import android.graphics.PorterDuffColorFilter
 import android.view.View
 import android.widget.ImageView
 import android.widget.ProgressBar
+import android.widget.RelativeLayout
 import android.widget.TextView
 import androidx.core.graphics.drawable.toBitmap
 import androidx.recyclerview.widget.RecyclerView
@@ -29,10 +30,12 @@ import com.android.car.appcard.ImageAppCard
 import com.android.car.appcard.component.Image
 import com.android.car.appcard.host.AppCardContainer
 import com.android.car.pano.manager.R
+import com.android.car.pano.manager.picker.PickerAppCardViewAdapter
 
 class ProgressAppCardViewHolder(
   context: Context,
-  view: View
+  private val view: View,
+  selector: PickerAppCardViewAdapter.Selector?,
 ) : RecyclerView.ViewHolder(view) {
   private val packageManager = context.packageManager
   private val headerTextView = view.requireViewById<TextView>(R.id.header_text)
@@ -44,9 +47,34 @@ class ProgressAppCardViewHolder(
   private val secondaryTextView = view.requireViewById<TextView>(R.id.secondary_text)
   private val imageTintColor =
     context.resources.getColor(R.color.app_card_image_tint, null)
+  private var isSelected = false
+  private val selectedBackground = context.resources.getDrawable(
+    R.drawable.app_card_selected_bg,
+    null
+  )
+  private val clearedBackground = context.resources.getDrawable(
+    R.drawable.app_card_bg,
+    null
+  )
+  private lateinit var appCardContainer: AppCardContainer
 
-  fun bind(appCardContainer: AppCardContainer) {
+  init {
+    selector?.let {
+      view.setOnClickListener { _ ->
+        if (it.shouldToggleSelect(appCardContainer)) {
+          isSelected = !isSelected
+          updateSelectedBackground()
+        }
+      }
+    }
+  }
+
+  fun bind(container: AppCardContainer, selected: Boolean) {
+    isSelected = selected
+    appCardContainer = container
     val appCard = appCardContainer.appCard as ImageAppCard
+
+    updateSelectedBackground()
 
     headerTextView.apply {
       appCard.header?.title?.let {
@@ -97,6 +125,11 @@ class ProgressAppCardViewHolder(
         visibility = View.INVISIBLE
       }
     }
+  }
+
+  private fun updateSelectedBackground() {
+    view.findViewById<RelativeLayout>(R.id.card)?.background =
+      if (isSelected) selectedBackground else clearedBackground
   }
 
   companion object {

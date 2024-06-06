@@ -18,7 +18,7 @@
     <dimen name="add_replace_button_bg_radius">80dp</dimen>
     <dimen name="close_button_bg_radius">80dp</dimen>
     <dimen name="app_card_bg_radius">24dp</dimen>
-    <dimen name="app_card_selected_bg_stroke_width">2dp</dimen>
+    <dimen name="app_card_selected_bg_stroke_width">3dp</dimen>
     <dimen name="app_card_image_radius">13dp</dimen>
     <dimen name="root_padding">16dp</dimen>
     <dimen name="close_button_size">53dp</dimen>
@@ -33,6 +33,11 @@
     <dimen name="reorder_text_width">210dp</dimen>
     <dimen name="reorder_text_height">29dp</dimen>
     <dimen name="reorder_text_margin_start">11dp</dimen>
+    <dimen name="done_button_height">53dp</dimen>
+    <dimen name="done_button_margin_top">42dp</dimen>
+    <dimen name="done_button_margin_end">28dp</dimen>
+    <dimen name="done_button_padding_horizontal">18dp</dimen>
+    <dimen name="done_button_padding_vertical">15dp</dimen>
     <dimen name="add_replace_button_height">53dp</dimen>
     <dimen name="add_replace_button_margin_top">33dp</dimen>
     <dimen name="add_replace_button_margin_start">235dp</dimen>

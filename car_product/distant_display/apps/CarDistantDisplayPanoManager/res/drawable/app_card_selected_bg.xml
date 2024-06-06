@@ -18,5 +18,5 @@
     android:shape="rectangle">
     <corners android:radius="@dimen/app_card_bg_radius" />
     <solid android:color="@color/app_card_bg" />
-    <stroke android:width="@dimen/app_card_selected_bg_stroke_width" color="@color/app_card_selected_bg_stroke" />
+    <stroke android:width="@dimen/app_card_selected_bg_stroke_width" android:color="@color/app_card_selected_bg_stroke" />
 </shape>

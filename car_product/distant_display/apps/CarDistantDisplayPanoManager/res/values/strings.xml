@@ -18,4 +18,5 @@
   <string name="app_name">Pano Manager</string>
   <string name="reorder_text">Drag and drop to reorder</string>
   <string name="add_replace_button">Add or replace</string>
+  <string name="done_button">Done</string>
 </resources>
