@@ -1,6 +1,5 @@
 # TLs
 dnek@google.com
-igorr@google.com
 
 # Audio
 per-file src/com/google/android/car/kitchensink/AudioAutoStartActivity.java = oscarazu@google.com, ericjeong@google.com
