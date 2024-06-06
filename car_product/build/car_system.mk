@@ -14,6 +14,8 @@
 # limitations under the License.
 #
 
+PRODUCT_RELEASE_CONFIG_MAPS += $(wildcard build/release/automotive/release_config_map.textproto)
+
 # This makefile comprises the minimal system partition content for an
 # automotive device.
 $(call inherit-product, $(SRC_TARGET_DIR)/product/handheld_system.mk)
