@@ -141,8 +141,8 @@ size_t MockHidlEvsHal_1_0::initializeBufferPool(size_t requested) {
                 .width = 64,
                 .height = 32,
                 .layers = 1,
-                .usage = AHARDWAREBUFFER_USAGE_CPU_READ_OFTEN,
                 .format = HAL_PIXEL_FORMAT_RGBA_8888,
+                .usage = AHARDWAREBUFFER_USAGE_CPU_READ_OFTEN,
         };
         AHardwareBuffer* ahwb;
         if (AHardwareBuffer_allocate(&desc, &ahwb) != ::android::NO_ERROR) {

@@ -37,7 +37,7 @@ public:
     ::ndk::ScopedAStatus setDisplayState(aidlevs::DisplayState state) override;
 
     explicit AidlDisplay(const ::android::sp<hidlevs::V1_0::IEvsDisplay>& display) :
-          mHidlDisplay(display){};
+          mHidlDisplay(display) {};
     virtual ~AidlDisplay();
 
     const ::android::sp<hidlevs::V1_0::IEvsDisplay> getHidlDisplay() const { return mHidlDisplay; }

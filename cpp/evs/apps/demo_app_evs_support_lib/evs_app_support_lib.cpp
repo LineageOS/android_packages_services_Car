@@ -25,8 +25,8 @@
 #include <string>
 
 using ::android::automotive::evs::support::AnalyzeUseCase;
-using ::android::automotive::evs::support::BaseRenderCallback;
 using ::android::automotive::evs::support::BaseAnalyzeCallback;
+using ::android::automotive::evs::support::BaseRenderCallback;
 using ::android::automotive::evs::support::DisplayUseCase;
 using ::android::automotive::evs::support::Frame;
 using ::android::automotive::evs::support::Utils;

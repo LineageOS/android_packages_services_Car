@@ -30,12 +30,12 @@
 namespace {
 
 using aidl::android::automotive::evs::implementation::HalCamera;
+using aidl::android::automotive::evs::implementation::initializeMockEvsHal;
 using aidl::android::automotive::evs::implementation::MockEvsHal;
 using aidl::android::automotive::evs::implementation::NiceMockEvsCamera;
+using aidl::android::automotive::evs::implementation::openFirstCamera;
 using aidl::android::automotive::evs::implementation::Utils;
 using aidl::android::automotive::evs::implementation::VirtualCamera;
-using aidl::android::automotive::evs::implementation::initializeMockEvsHal;
-using aidl::android::automotive::evs::implementation::openFirstCamera;
 using aidl::android::hardware::automotive::evs::BufferDesc;
 using aidl::android::hardware::automotive::evs::CameraDesc;
 using aidl::android::hardware::automotive::evs::CameraParam;

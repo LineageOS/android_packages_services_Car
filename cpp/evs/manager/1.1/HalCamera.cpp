@@ -255,7 +255,6 @@ Return<EvsResult> HalCamera::clientStreamStarting() {
         }
         return EvsResult::UNDERLYING_SERVICE_ERROR;
     }
-
 }
 
 void HalCamera::cancelCaptureRequestFromClientLocked(std::deque<struct FrameRequest>* requests,

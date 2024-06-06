@@ -382,8 +382,7 @@ ScopedAStatus EvsV4lCamera::importExternalBuffers(const std::vector<BufferDesc>&
 
     // If we've been displaced by another owner of the camera, then we can't do anything else
     if (!mVideo.isOpen()) {
-        LOG(WARNING) << "Ignoring a request add external buffers "
-                     << "when camera has been lost.";
+        LOG(WARNING) << "Ignoring a request add external buffers " << "when camera has been lost.";
         *_aidl_return = 0;
         return ScopedAStatus::fromServiceSpecificError(static_cast<int>(EvsResult::OWNERSHIP_LOST));
     }

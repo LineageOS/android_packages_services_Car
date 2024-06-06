@@ -135,7 +135,7 @@ private:
     //        never accessed concurrently despite potentially having multiple instance objects
     //        using them.
     static std::unordered_map<std::string, CameraRecord> sCameraList;
-                                                           // Object destructs if client dies.
+    // Object destructs if client dies.
     static std::mutex sLock;                               // Mutex on shared camera device list.
     static std::condition_variable sCameraSignal;          // Signal on camera device addition.
     static std::unique_ptr<ConfigManager> sConfigManager;  // ConfigManager

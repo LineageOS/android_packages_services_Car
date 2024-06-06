@@ -42,7 +42,7 @@ public:
     ::android::hardware::Return<void> getDisplayInfo_1_1(getDisplayInfo_1_1_cb _hidl_cb) override;
 
     explicit HidlDisplay(const std::shared_ptr<aidlevs::IEvsDisplay>& display) :
-          mAidlDisplay(display){};
+          mAidlDisplay(display) {};
     virtual ~HidlDisplay();
 
     const std::shared_ptr<aidlevs::IEvsDisplay> getAidlDisplay() const { return mAidlDisplay; }

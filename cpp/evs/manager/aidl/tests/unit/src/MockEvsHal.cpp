@@ -253,8 +253,8 @@ size_t MockEvsHal::initializeBufferPool(size_t requested) {
                 .width = 64,
                 .height = 32,
                 .layers = 1,
-                .usage = AHARDWAREBUFFER_USAGE_CPU_READ_OFTEN,
                 .format = HAL_PIXEL_FORMAT_RGBA_8888,
+                .usage = AHARDWAREBUFFER_USAGE_CPU_READ_OFTEN,
         };
         AHardwareBuffer* ahwb;
         if (AHardwareBuffer_allocate(&desc, &ahwb) != ::android::NO_ERROR) {
@@ -270,8 +270,8 @@ size_t MockEvsHal::initializeBufferPool(size_t requested) {
                                                 .width = 64,
                                                 .height = 32,
                                                 .layers = 1,
-                                                .usage = BufferUsage::CPU_READ_OFTEN,
                                                 .format = PixelFormat::RGBA_8888,
+                                                .usage = BufferUsage::CPU_READ_OFTEN,
                                                 .stride = 64,
                                         },
                                 .handle = ::android::dupToAidl(memHandle),
@@ -612,8 +612,8 @@ bool MockEvsHal::addMockCameraDevice(const std::string& deviceId) {
 
         if (cb) {
             EvsEventDesc e = {
-                    .deviceId = id,
                     .aType = EvsEventType::STREAM_STOPPED,
+                    .deviceId = id,
             };
             cb->notify(e);
         }
@@ -681,9 +681,9 @@ bool MockEvsHal::addMockDisplayDevice(int id) {
     ON_CALL(*mockDisplay, getDisplayInfo).WillByDefault([id](DisplayDesc* out) {
         DisplayDesc desc = {
                 .width = 1920,
+                .id = "MockDisplay" + std::to_string(id),
                 .height = 1080,
                 .orientation = Rotation::ROTATION_0,
-                .id = "MockDisplay" + std::to_string(id),
                 .vendorFlags = id,  // For the testing purpose, we put a display id in the vendor
                                     // flag field.
         };
