@@ -21,8 +21,6 @@ runtime_resource_overlay {
     resource_dirs: ["res"],
     certificate: "platform",
     manifest: "AndroidManifest.xml",
-    system_ext_specific: true,
-
     static_libs: [
         "car-resource-common",
     ],
@@ -34,8 +32,6 @@ runtime_resource_overlay {
     resource_dirs: ["res"],
     certificate: "platform",
     manifest: "AndroidManifest-dynamic.xml",
-    system_ext_specific: true,
-
     static_libs: [
         "car-resource-theme-orange-common",
     ],
@@ -54,8 +50,6 @@ runtime_resource_overlay {
     resource_dirs: ["res"],
     certificate: "platform",
     manifest: "AndroidManifest-dynamic.xml",
-    system_ext_specific: true,
-
     static_libs: [
         "car-resource-theme-pink-common",
     ],
