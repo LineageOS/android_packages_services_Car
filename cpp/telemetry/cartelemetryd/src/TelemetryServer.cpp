@@ -237,9 +237,7 @@ void TelemetryServer::writeCarData(const std::vector<CarData>& dataList, uid_t p
             LOG(VERBOSE) << "Ignoring CarData with ID=" << data.id;
             continue;
         }
-        mRingBuffer.push({.mId = data.id,
-                          .mContent = std::move(data.content),
-                          .mPublisherUid = publisherUid});
+        mRingBuffer.push({data.id, data.content, publisherUid});
     }
     // If the mRingBuffer was not empty, the message is already scheduled. It prevents scheduling
     // too many unnecessary idendical messages in the looper.
