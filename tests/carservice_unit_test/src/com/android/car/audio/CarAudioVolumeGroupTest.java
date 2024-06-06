@@ -49,7 +49,6 @@ import android.hardware.automotive.audiocontrol.Reasons;
 import android.media.AudioDeviceAttributes;
 import android.media.AudioDeviceInfo;
 import android.media.AudioGain;
-import android.media.AudioManager;
 import android.media.audio.common.AudioDevice;
 import android.media.audio.common.AudioDeviceAddress;
 import android.media.audio.common.AudioDeviceDescription;
@@ -148,8 +147,7 @@ public final class CarAudioVolumeGroupTest extends AbstractExtendedMockitoTestCa
 
     @Override
     protected void onSessionBuilder(CustomMockitoSessionBuilder session) {
-        session.spyStatic(AudioManager.class)
-                .spyStatic(AudioManagerHelper.class);
+        session.spyStatic(AudioManagerHelper.class);
     }
 
     @Before

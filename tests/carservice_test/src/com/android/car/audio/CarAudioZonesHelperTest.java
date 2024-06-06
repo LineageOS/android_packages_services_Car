@@ -45,7 +45,6 @@ import android.content.Context;
 import android.media.AudioAttributes;
 import android.media.AudioDeviceAttributes;
 import android.media.AudioDeviceInfo;
-import android.media.AudioManager;
 import android.platform.test.flag.junit.SetFlagsRule;
 import android.util.SparseArray;
 import android.util.SparseIntArray;
@@ -219,7 +218,7 @@ public final class CarAudioZonesHelperTest extends AbstractExpectableTestCase {
     public void setUp() {
         StaticMockitoSessionBuilder builder = mockitoSession()
                 .strictness(Strictness.LENIENT)
-                .spyStatic(AudioManager.class)
+                .spyStatic(AudioManagerWrapper.class)
                 .spyStatic(Car.class)
                 .spyStatic(CoreAudioHelper.class);
 
@@ -2091,9 +2090,9 @@ public final class CarAudioZonesHelperTest extends AbstractExpectableTestCase {
 
     private void setupAudioManagerMock() {
         doReturn(CoreAudioRoutingUtils.getProductStrategies())
-                .when(() -> AudioManager.getAudioProductStrategies());
+                .when(AudioManagerWrapper::getAudioProductStrategies);
         doReturn(CoreAudioRoutingUtils.getVolumeGroups())
-                .when(() -> AudioManager.getAudioVolumeGroups());
+                .when(AudioManagerWrapper::getAudioVolumeGroups);
 
         doReturn(CoreAudioRoutingUtils.MUSIC_GROUP_ID)
                 .when(() -> CoreAudioHelper.getVolumeGroupIdForAudioAttributes(

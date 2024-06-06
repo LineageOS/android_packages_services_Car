@@ -50,7 +50,6 @@
     -->
     <string-array name="config_fullScreenActivities" translatable="false">
         <!-- CTS test activities that pass when fullscreen -->
-        <item>android.assist.cts/android.assist.cts.TestStartActivity</item>
         <item>android.widget.cts/android.widget.cts.ListViewCtsActivity</item>
         <item>android.widget.cts/android.widget.cts.TextViewCtsActivity</item>
         <item>android.widget.cts/android.widget.cts.RelativeLayoutCtsActivity</item>
