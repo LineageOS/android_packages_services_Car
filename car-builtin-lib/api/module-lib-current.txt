@@ -314,6 +314,7 @@ package android.car.builtin.os {
   }
 
   public final class TraceHelper {
+    field public static final long TRACE_TAG_CAR_EVS_SERVICE = 1024L; // 0x400L
     field public static final long TRACE_TAG_CAR_SERVICE = 524288L; // 0x80000L
   }
 

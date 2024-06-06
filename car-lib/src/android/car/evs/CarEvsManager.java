@@ -32,12 +32,14 @@ import android.annotation.SystemApi;
 import android.car.Car;
 import android.car.CarManagerBase;
 import android.car.annotation.RequiredFeature;
+import android.car.builtin.os.TraceHelper;
 import android.car.builtin.util.Slogf;
 import android.car.feature.FeatureFlags;
 import android.car.feature.FeatureFlagsImpl;
 import android.os.Binder;
 import android.os.IBinder;
 import android.os.RemoteException;
+import android.os.Trace;
 import android.util.Log;
 import android.util.SparseArray;
 import android.util.SparseIntArray;
@@ -487,6 +489,8 @@ public final class CarEvsManager extends CarManagerBase {
 
         @Override
         public void onStreamEvent(@CarEvsServiceType int origin, @CarEvsStreamEvent int event) {
+            Trace.asyncTraceBegin(TraceHelper.TRACE_TAG_CAR_EVS_SERVICE,
+                    "CarEvsManager#onStreamEvent", origin);
             if (DBG) {
                 Slogf.d(TAG, "Received an event %d from %d.", event, origin);
             }
@@ -499,6 +503,8 @@ public final class CarEvsManager extends CarManagerBase {
             if (manager != null) {
                 manager.handleStreamEvent(origin, event);
             }
+            Trace.asyncTraceEnd(TraceHelper.TRACE_TAG_CAR_EVS_SERVICE,
+                    "CarEvsManager#onStreamEvent", origin);
         }
 
         @Override
@@ -516,8 +522,10 @@ public final class CarEvsManager extends CarManagerBase {
 
         public boolean waitForStreamEvent(@CarEvsServiceType int from,
                 @CarEvsStreamEvent int expected, int timeoutInSeconds) {
-            while (true) {
-                try {
+            Trace.asyncTraceBegin(TraceHelper.TRACE_TAG_CAR_EVS_SERVICE,
+                    "CarEvsManager#waitForStreamEvent", from);
+            try {
+                while (true) {
                     if (!mStreamEventOccurred.tryAcquire(timeoutInSeconds, TimeUnit.SECONDS)) {
                         Slogf.w(TAG, "Timer for a new stream event expired.");
                         return false;
@@ -537,11 +545,14 @@ public final class CarEvsManager extends CarManagerBase {
                             return true;
                         }
                     }
-                } catch (InterruptedException e) {
-                    Slogf.w(TAG, "Interrupted while waiting for an event %d.\nException = %s",
-                            expected, Log.getStackTraceString(e));
-                    return false;
                 }
+            } catch (InterruptedException e) {
+                Slogf.w(TAG, "Interrupted while waiting for an event %d.\nException = %s",
+                        expected, Log.getStackTraceString(e));
+                return false;
+            } finally {
+                Trace.asyncTraceEnd(TraceHelper.TRACE_TAG_CAR_EVS_SERVICE,
+                        "CarEvsManager#waitForStreamEvent", from);
             }
         }
     }
@@ -595,6 +606,11 @@ public final class CarEvsManager extends CarManagerBase {
      * @param buffer {@link android.car.evs.CarEvsBufferDescriptor}
      */
     private void handleNewFrame(@NonNull CarEvsBufferDescriptor buffer) {
+        int type = mFeatureFlags.carEvsStreamManagement() ?
+                buffer.getType() : CarEvsUtils.getTag(buffer.getId());
+        Trace.asyncTraceBegin(TraceHelper.TRACE_TAG_CAR_EVS_SERVICE,
+                "CarEvsManager#handleNewFrame", type);
+
         Objects.requireNonNull(buffer);
         if (DBG) {
             Slogf.d(TAG, "Received a buffer: " + buffer);
@@ -604,18 +620,14 @@ public final class CarEvsManager extends CarManagerBase {
         final Executor executor;
 
         synchronized (mStreamLock) {
-            int type;
-            if (mFeatureFlags.carEvsStreamManagement()) {
-                type = buffer.getType();
-            } else {
-                type = CarEvsUtils.getTag(buffer.getId());
-            }
             callback = mStreamCallbacks.get(type);
             executor = mStreamCallbackExecutor;
         }
 
         if (callback != null) {
             executor.execute(() -> callback.onNewFrame(buffer));
+            Trace.asyncTraceEnd(TraceHelper.TRACE_TAG_CAR_EVS_SERVICE,
+                    "CarEvsManager#handleNewFrame", type);
             return;
         }
 
@@ -624,6 +636,8 @@ public final class CarEvsManager extends CarManagerBase {
                     + "clients exist.");
         }
         returnFrameBuffer(buffer);
+        Trace.asyncTraceEnd(TraceHelper.TRACE_TAG_CAR_EVS_SERVICE,
+                "CarEvsManager#handleNewFrame", type);
     }
 
 
@@ -701,6 +715,10 @@ public final class CarEvsManager extends CarManagerBase {
      */
     @RequiresPermission(Car.PERMISSION_USE_CAR_EVS_CAMERA)
     public void returnFrameBuffer(@NonNull CarEvsBufferDescriptor buffer) {
+        int type = mFeatureFlags.carEvsStreamManagement() ?
+                buffer.getType() : CarEvsUtils.getTag(buffer.getId());
+        Trace.asyncTraceBegin(TraceHelper.TRACE_TAG_CAR_EVS_SERVICE,
+                "CarEvsManager#returnFrameBuffer", type);
         Objects.requireNonNull(buffer);
         try {
             mService.returnFrameBuffer(buffer);
@@ -709,6 +727,8 @@ public final class CarEvsManager extends CarManagerBase {
         } finally {
             // We are done with this HardwareBuffer object.
             buffer.getHardwareBuffer().close();
+            Trace.asyncTraceEnd(TraceHelper.TRACE_TAG_CAR_EVS_SERVICE,
+                    "CarEvsManager#returnFrameBuffer", type);
         }
     }
 

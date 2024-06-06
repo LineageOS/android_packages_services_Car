@@ -17,6 +17,7 @@
 #include "HalCamera.h"
 
 #include "Enumerator.h"
+#include "ScopedTrace.h"
 #include "VirtualCamera.h"
 #include "utils/include/Utils.h"
 
@@ -201,6 +202,7 @@ bool HalCamera::changeFramesInFlight(const std::vector<BufferDesc>& buffers, int
 }
 
 void HalCamera::requestNewFrame(std::shared_ptr<VirtualCamera> client, int64_t lastTimestamp) {
+    ScopedTrace trace("Camera " + getId(), __PRETTY_FUNCTION__);
     FrameRequest req;
     req.client = client;
     req.timestamp = lastTimestamp;
@@ -272,6 +274,7 @@ void HalCamera::clientStreamEnding(const VirtualCamera* client) {
 }
 
 ScopedAStatus HalCamera::doneWithFrame(BufferDesc buffer) {
+    ScopedTrace trace("Camera " + getId(), __PRETTY_FUNCTION__, buffer.bufferId);
     std::unique_lock lock(mFrameMutex);
     ::android::base::ScopedLockAssertion lock_assertion(mFrameMutex);
     mFrameOpDone.wait(lock, [this]() REQUIRES(mFrameMutex) { return mFrameOpInProgress != true; });
@@ -317,6 +320,9 @@ ScopedAStatus HalCamera::doneWithFrame(BufferDesc buffer) {
 // Methods from ::aidl::android::hardware::automotive::evs::IEvsCameraStream follow.
 ScopedAStatus HalCamera::deliverFrame(const std::vector<BufferDesc>& buffers) {
     LOG(VERBOSE) << "Received a frame";
+
+    ScopedTrace trace("Camera " + getId(), __PRETTY_FUNCTION__,
+                      buffers.empty() ? std::numeric_limits<int>::min() : buffers[0].bufferId);
 
     // Reports the number of received buffers
     mUsageStats->framesReceived(buffers);
@@ -412,6 +418,7 @@ ScopedAStatus HalCamera::deliverFrame(const std::vector<BufferDesc>& buffers) {
 
 ScopedAStatus HalCamera::notify(const EvsEventDesc& event) {
     LOG(DEBUG) << "Received an event id: " << static_cast<int32_t>(event.aType);
+    ScopedTrace trace("Camera " + getId(), __PRETTY_FUNCTION__, static_cast<int>(event.aType));
     if (event.aType == EvsEventType::STREAM_STOPPED) {
         // This event happens only when there is no more active client.
         std::lock_guard lock(mFrameMutex);
