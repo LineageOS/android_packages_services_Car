@@ -18,6 +18,8 @@ package android.car.apitest;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.junit.Assume.assumeTrue;
+
 import android.car.Car;
 import android.car.app.CarDisplayCompatManager;
 import android.car.feature.Flags;
@@ -25,6 +27,7 @@ import android.platform.test.annotations.RequiresFlagsEnabled;
 import android.platform.test.flag.junit.CheckFlagsRule;
 import android.platform.test.flag.junit.DeviceFlagsValueProvider;
 
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -32,6 +35,12 @@ public class CarDisplayCompatManagerTest extends CarApiTestBase {
     @Rule
     public final CheckFlagsRule mCheckFlagsRule = DeviceFlagsValueProvider.createCheckFlagsRule();
     private CarDisplayCompatManager mCarDisplayCompatManager;
+
+    @Before
+    public void setUp() throws Exception {
+        Car car = getCar();
+        assumeTrue(car.isFeatureEnabled(Car.CAR_DISPLAY_COMPAT_SERVICE));
+    }
 
     @Test
     @RequiresFlagsEnabled(Flags.FLAG_DISPLAY_COMPATIBILITY)
