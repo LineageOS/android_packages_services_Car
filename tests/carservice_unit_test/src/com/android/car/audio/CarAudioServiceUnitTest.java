@@ -6032,6 +6032,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         int gainIndexAboveActivationVolume = maxActivationVolume + 1;
         service.setGroupVolume(PRIMARY_AUDIO_ZONE, TEST_PRIMARY_ZONE_GROUP_0,
                 gainIndexAboveActivationVolume, TEST_FLAGS);
+        resetVolumeCallbacks(volumeEventCallback);
         service.setVolumeGroupMute(PRIMARY_AUDIO_ZONE, TEST_PRIMARY_ZONE_GROUP_0,
                 /* mute= */ true, TEST_FLAGS);
         resetVolumeCallbacks(volumeEventCallback);
@@ -6051,6 +6052,10 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
                 .isEqualTo(maxActivationVolume);
         verify(mCarVolumeCallbackHandler, never()).onVolumeGroupChange(eq(PRIMARY_AUDIO_ZONE),
                 eq(TEST_PRIMARY_ZONE_GROUP_0), anyInt());
+        expectWithMessage("Volume event callback for activation volume adjustment and unmute")
+                .that(volumeEventCallback.waitForCallback()).isTrue();
+        expectWithMessage("Volume events count for activation volume adjustment and unmute")
+                .that(volumeEventCallback.getVolumeGroupEvents()).hasSize(1);
         CarVolumeGroupEvent groupEvent = volumeEventCallback.getVolumeGroupEvents().get(0);
         expectWithMessage("Volume event type after activation volume adjustment and unmute")
                 .that(groupEvent.getEventTypes())
