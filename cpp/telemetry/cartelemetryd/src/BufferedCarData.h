@@ -28,6 +28,8 @@ namespace telemetry {
 
 // Internally stored `CarData` with some extras.
 struct BufferedCarData {
+    BufferedCarData(int32_t id, const std::vector<uint8_t>& content, uid_t publisherUid)
+        : mId(id), mContent(std::move(content)), mPublisherUid(publisherUid) {}
     BufferedCarData(BufferedCarData&& other) = default;
     BufferedCarData(const BufferedCarData&) = default;
     BufferedCarData& operator=(BufferedCarData&& other) = delete;
