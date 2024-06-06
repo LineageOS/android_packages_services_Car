@@ -17,6 +17,7 @@ package com.android.systemui.car.distantdisplay.common;
 
 import static android.car.drivingstate.CarUxRestrictions.UX_RESTRICTIONS_NO_VIDEO;
 
+import static com.android.car.media.common.source.MediaSource.isMediaTemplate;
 import static com.android.systemui.car.distantdisplay.common.DistantDisplayForegroundTaskMap.TaskData;
 
 import android.app.ActivityManager;
@@ -37,6 +38,7 @@ import android.util.Log;
 
 import androidx.annotation.Nullable;
 
+import com.android.car.apps.common.util.IntentUtils;
 import com.android.car.ui.utils.CarUxRestrictionsUtil;
 import com.android.systemui.R;
 import com.android.systemui.broadcast.BroadcastDispatcher;
@@ -82,6 +84,7 @@ public class TaskViewController {
     private final InputManager mInputManager;
     private final DisplayManager mDisplayManager;
     private final MediaSessionManager mMediaSessionManager;
+    private final String mMediaBlockingComponentName;
     private final List<ComponentName> mRestrictedActivities;
     private List<String> mGameControllerPackages;
     private final List<Callback> mCallbacks = new ArrayList<>();
@@ -179,6 +182,8 @@ public class TaskViewController {
         mRestrictedActivities = new ArrayList<>();
         String[] ddRestrictedActivities = mContext.getResources().getStringArray(
                 R.array.config_restrictedActivities);
+        mMediaBlockingComponentName = mContext.getResources().getString(
+                R.string.config_mediaBlockingActivity);
         for (int i = 0; i < ddRestrictedActivities.length; i++) {
             mRestrictedActivities.add(
                     ComponentName.unflattenFromString(ddRestrictedActivities[i]));
@@ -332,13 +337,15 @@ public class TaskViewController {
         UserHandle launchUserHandle = UserHandle.SYSTEM;
         if (isGameApp(packageName)) {
             intent = DistantDisplayGameController.createIntent(mContext, packageName);
-        } else if (hasActiveMediaSession(packageName)) {
-            // TODO(b/333732969): replace with correct media activity once available
+        } else if (componentName != null && isMediaTemplate(mContext, componentName)) {
+            //TODO: b/344983836 Currently there is no reliable way to figure out if the current
+            // application supports video media
             ComponentName mediaComponent = ComponentName.unflattenFromString(
-                    "com.android.car.media/.MediaBlockingActivity");
+                    mMediaBlockingComponentName);
             intent = new Intent();
             intent.setComponent(mediaComponent);
             intent.putExtra(Intent.EXTRA_COMPONENT_NAME, componentName.flattenToShortString());
+            intent.putExtra(IntentUtils.EXTRA_MEDIA_BLOCKING_ACTIVITY_DISMISS_ON_PARK, false);
             launchUserHandle = mUserTracker.getUserHandle();
         } else {
             intent = DistantDisplayCompanionActivity.createIntent(mContext, packageName);
