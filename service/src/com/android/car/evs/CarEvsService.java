@@ -1000,31 +1000,6 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
         mStatusListeners.finishBroadcast();
     }
 
-    /** Stops a current service */
-    void stopService() {
-        stopService(/* callback= */ null);
-    }
-
-    private void stopService(ICarEvsStreamCallback callback) {
-        ArraySet<Integer> types = mCallbackToServiceType.get(callback.asBinder());
-        if (types == null || types.isEmpty()) {
-            Slogf.d(TAG_EVS, "Ignores a request to stop a service for unknown callback %s.",
-                    callback.asBinder());
-            return;
-        }
-
-        for (int i = 0; i < types.size(); i++) {
-            StateMachine instance = mServiceInstances.get(types.valueAt(i));
-            if (instance == null) {
-                Slogf.i(TAG_EVS, "Ignores a request to stop unsupported service %d.",
-                        types.valueAt(i));
-                return;
-            }
-
-            instance.requestStopVideoStream(callback);
-        }
-    }
-
     private void handlePropertyEvent(CarPropertyEvent event) {
         if (event.getEventType() != CarPropertyEvent.PROPERTY_EVENT_PROPERTY_CHANGE) {
             // CarEvsService is interested only in the property change event.

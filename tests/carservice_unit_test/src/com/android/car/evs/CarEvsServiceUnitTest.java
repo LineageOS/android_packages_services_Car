@@ -38,6 +38,8 @@ import static com.android.dx.mockito.inline.extended.ExtendedMockito.verify;
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
+import static junit.framework.Assert.assertEquals;
+
 import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyFloat;
@@ -99,6 +101,7 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
@@ -1445,15 +1448,16 @@ public final class CarEvsServiceUnitTest extends AbstractExtendedMockitoTestCase
                                       /* usage= */ HardwareBuffer.USAGE_CPU_READ_OFTEN);
         EvsStreamCallbackImpl spiedCallback = spy(new EvsStreamCallbackImpl());
 
-        int[] types = {SERVICE_TYPE_REARVIEW, SERVICE_TYPE_FRONTVIEW, SERVICE_TYPE_LEFTVIEW,
-                SERVICE_TYPE_RIGHTVIEW};
-        String[] typeStrings = {"REARVIEW", "FRONTVIEW", "LEFTVIEW", "RIGHTVIEW"};
-        String[] cameraIds = {DEFAULT_REARVIEW_CAMERA_ID, DEFAULT_FRONTVIEW_CAMERA_ID,
-                DEFAULT_LEFTVIEW_CAMERA_ID, DEFAULT_RIGHTVIEW_CAMERA_ID};
+        int[] types = {SERVICE_TYPE_FRONTVIEW, SERVICE_TYPE_LEFTVIEW, SERVICE_TYPE_RIGHTVIEW};
+        String[] typeStrings = {"FRONTVIEW", "LEFTVIEW", "RIGHTVIEW"};
+        String[] cameraIds = {DEFAULT_FRONTVIEW_CAMERA_ID, DEFAULT_LEFTVIEW_CAMERA_ID,
+                DEFAULT_RIGHTVIEW_CAMERA_ID};
 
         for (int i = 0; i < types.length; i++) {
             int bufferId = mRandom.nextInt();
-            mCarEvsService.enableServiceTypeFromCommand(typeStrings[i], cameraIds[i]);
+            assertThat(mCarEvsService.enableServiceTypeFromCommand(typeStrings[i], cameraIds[i]))
+                    .isTrue();
+            assertThat(mCarEvsService.isServiceTypeEnabledFromCommand(typeStrings[i])).isTrue();
             assertThat(mCarEvsService.startVideoStream(types[i], /* token= */ null, spiedCallback))
                     .isEqualTo(ERROR_NONE);
 
@@ -1464,6 +1468,76 @@ public final class CarEvsServiceUnitTest extends AbstractExtendedMockitoTestCase
                     .onNewFrame(argThat(received -> received.getId() == bufferId));
             mCarEvsService.stopVideoStream(spiedCallback);
         }
+    }
+
+    @Test
+    public void testTwoConcurrentStreamsOnSingleCallbackObject() throws Exception {
+        HardwareBuffer buffer =
+                HardwareBuffer.create(
+                        /* width= */ 64,
+                        /* height= */ 32,
+                        /* format= */ HardwareBuffer.RGBA_8888,
+                        /* layers= */ 1,
+                        /* usage= */ HardwareBuffer.USAGE_CPU_READ_OFTEN);
+        EvsStreamCallbackImpl spiedCallback = spy(new EvsStreamCallbackImpl(mCarEvsService));
+        EvsStatusListenerImpl spiedStatusListener = spy(new EvsStatusListenerImpl());
+
+        // Enable the frontview service.
+        mCarEvsService.enableServiceTypeFromCommand("FRONTVIEW", DEFAULT_FRONTVIEW_CAMERA_ID);
+
+        // Configure the services to be in the inactive state.
+        mCarEvsService.setServiceState(SERVICE_TYPE_REARVIEW, SERVICE_STATE_INACTIVE);
+        mCarEvsService.setServiceState(SERVICE_TYPE_FRONTVIEW, SERVICE_STATE_INACTIVE);
+
+        // Register a status listener and request starting video streams.
+        mCarEvsService.registerStatusListener(spiedStatusListener);
+        assertThat(mCarEvsService.startVideoStream(SERVICE_TYPE_REARVIEW,
+                  /* token= */ null, spiedCallback)).isEqualTo(ERROR_NONE);
+        assertThat(mCarEvsService.startVideoStream(SERVICE_TYPE_FRONTVIEW,
+                  /* token= */ null, spiedCallback)).isEqualTo(ERROR_NONE);
+
+        // Verify that the service entered the active state.
+        verify(spiedStatusListener, times(2)).onStatusChanged(argThat(
+                received -> received.getState() == CarEvsManager.SERVICE_STATE_ACTIVE &&
+                        (received.getServiceType() == SERVICE_TYPE_REARVIEW ||
+                                received.getServiceType() ==
+                                        SERVICE_TYPE_FRONTVIEW)));
+
+        // Send buffers in separate thread.
+        mHandler.post(() -> {
+            List<StateMachine.HalCallback> callbacks = mHalCallbackCaptor.getAllValues();
+            for (int i = 0; i < MINIMUM_NUMBER_OF_FRAMES_TO_VERIFY; i++) {
+                for (var cb : callbacks) {
+                    cb.onFrameEvent(i, buffer);
+                }
+            }
+        });
+
+        // Confirm that a buffer is forwarded to both clients.
+        int timeoutInMs = MINIMUM_NUMBER_OF_FRAMES_TO_VERIFY * MAXIMUM_FRAME_INTERVAL_IN_MS;
+        assertThat(spiedCallback.waitForFrames(
+                /* from= */ new int[] { SERVICE_TYPE_REARVIEW, SERVICE_TYPE_FRONTVIEW },
+                /* expected= */ new int[] { MINIMUM_NUMBER_OF_FRAMES_TO_VERIFY,
+                        MINIMUM_NUMBER_OF_FRAMES_TO_VERIFY }, timeoutInMs)).isTrue();
+
+        // Stop a video stream for the rearview client and verify that the service is stopped
+        // properly.
+        mCarEvsService.stopVideoStreamFrom(SERVICE_TYPE_REARVIEW, spiedCallback);
+        assertThat(spiedCallback.waitForEvent(SERVICE_TYPE_REARVIEW,
+                CarEvsManager.STREAM_EVENT_STREAM_STOPPED)).isTrue();
+        assertThat(spiedStatusListener.waitFor(SERVICE_STATE_INACTIVE)).isTrue();
+
+        // Stop a video stream for the frontview client and verify that the service is stopped
+        // properly.
+        mCarEvsService.stopVideoStreamFrom(SERVICE_TYPE_FRONTVIEW, spiedCallback);
+        assertThat(spiedStatusListener.waitFor(SERVICE_STATE_INACTIVE)).isTrue();
+        assertThat(spiedCallback.waitForEvent(SERVICE_TYPE_FRONTVIEW,
+                CarEvsManager.STREAM_EVENT_STREAM_STOPPED)).isTrue();
+        verify(spiedStatusListener, times(2)).onStatusChanged(argThat(
+                received -> received.getState() == CarEvsManager.SERVICE_STATE_INACTIVE &&
+                        (received.getServiceType() == SERVICE_TYPE_REARVIEW ||
+                                received.getServiceType() ==
+                                        SERVICE_TYPE_FRONTVIEW)));
     }
 
     private void mockEvsHalService() throws Exception {
@@ -1534,8 +1608,17 @@ public final class CarEvsServiceUnitTest extends AbstractExtendedMockitoTestCase
         private final Semaphore mEventSemaphore = new Semaphore(0);
         private final Object mLock = new Object();
 
+        private final CarEvsService mCarEvsService;
         private SparseIntArray mLastEvents = new SparseIntArray();
-        private SparseArray mLastFrames = new SparseArray<CarEvsBufferDescriptor>();
+        private SparseArray mLastFrames = new SparseArray<ArrayList<CarEvsBufferDescriptor>>();
+
+        public EvsStreamCallbackImpl() {
+            this(null);
+        }
+
+        public EvsStreamCallbackImpl(CarEvsService svc) {
+            mCarEvsService = svc;
+        }
 
         @Override
         public void onStreamEvent(@CarEvsServiceType int origin, @CarEvsStreamEvent int event) {
@@ -1552,7 +1635,13 @@ public final class CarEvsServiceUnitTest extends AbstractExtendedMockitoTestCase
             // Return a buffer immediately
             Log.i(TAG, "Received buffer 0x" + Integer.toHexString(buffer.getId()));
             synchronized (mLock) {
-                mLastFrames.append(buffer.getType(), buffer);
+                ArrayList<CarEvsBufferDescriptor> queue =
+                        (ArrayList<CarEvsBufferDescriptor>) mLastFrames.get(buffer.getType());
+                if (queue != null) {
+                    queue.add(buffer);
+                } else {
+                    mLastFrames.put(buffer.getType(), new ArrayList<>(Arrays.asList(buffer)));
+                }
             }
             mFrameSemaphore.release();
         }
@@ -1590,25 +1679,44 @@ public final class CarEvsServiceUnitTest extends AbstractExtendedMockitoTestCase
         }
 
         public boolean waitForFrames(int from, int expected) {
-            return waitForFrames(from, expected, DEFAULT_TIMEOUT_IN_MS);
+            return waitForFrames(new int[] { from }, new int[] { expected },
+                    DEFAULT_TIMEOUT_IN_MS);
         }
 
         public boolean waitForFrames(int from, int expected, int timeout) {
+            return waitForFrames(new int[] { from }, new int[] { expected }, timeout);
+        }
+
+        public boolean waitForFrames(int[] from, int[] expected, int timeout) {
+            assertEquals(from.length, expected.length);
             try {
-                while (expected > 0) {
+                boolean done = false;
+                do {
                     JavaMockitoHelper.await(mFrameSemaphore, timeout);
 
-                    CarEvsBufferDescriptor buffer;
+                    done = true;
                     synchronized (mLock) {
-                        buffer = (CarEvsBufferDescriptor) mLastFrames.get(from);
-                    }
+                        for (int i = 0; i < from.length; i++) {
+                            ArrayList<CarEvsBufferDescriptor> queue =
+                                    (ArrayList<CarEvsBufferDescriptor>) mLastFrames.get(from[i]);
+                            if (queue == null) {
+                                continue;
+                            }
 
-                    if (buffer != null) {
-                        expected -= 1;
+                            expected[i] -= queue.size();
+                            done = done && (expected[i] < 1);
+                            if (mCarEvsService == null) {
+                                continue;
+                            }
+
+                            while (!queue.isEmpty()) {
+                                mCarEvsService.returnFrameBuffer(queue.removeFirst());
+                            }
+                        }
                     }
-                }
+                } while (!done);
             } catch (IllegalStateException | InterruptedException e) {
-                Log.d(TAG, "Failure to wait for " + expected + " frames.");
+                Log.d(TAG, "Failure to wait for " + Arrays.toString(expected) + " frames.");
                 return false;
             }
 
