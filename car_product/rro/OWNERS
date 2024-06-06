@@ -1,7 +1,6 @@
 # Car UI Reference OWNERS
 babakbo@google.com
 stenning@google.com
-igorr@google.com
 
 # Drive Mode RROs OWNERS
 per-file DriveModeEcoRRO/*, DriveModeOnRRO/*, DriveModeSportRRO/*=arecchi@google.com
