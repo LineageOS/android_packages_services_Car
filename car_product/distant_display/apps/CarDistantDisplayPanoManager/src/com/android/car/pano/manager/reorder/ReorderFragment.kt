@@ -91,12 +91,6 @@ class ReorderFragment : Fragment(R.layout.reorder_fragment) {
     appCardViewModel.refreshSelected()
   }
 
-  override fun onStop() {
-    super.onStop()
-
-    appCardViewModel.removeSelectedAppCards()
-  }
-
   companion object {
     private const val TAG = "PickerFragment"
   }
