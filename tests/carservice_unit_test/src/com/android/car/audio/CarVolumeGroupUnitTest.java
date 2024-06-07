@@ -29,6 +29,7 @@ import static android.media.AudioAttributes.USAGE_MEDIA;
 import static android.media.AudioAttributes.USAGE_NOTIFICATION;
 import static android.media.AudioAttributes.USAGE_NOTIFICATION_EVENT;
 import static android.media.AudioAttributes.USAGE_NOTIFICATION_RINGTONE;
+import static android.media.AudioAttributes.USAGE_SAFETY;
 import static android.media.AudioAttributes.USAGE_UNKNOWN;
 import static android.media.AudioAttributes.USAGE_VOICE_COMMUNICATION;
 import static android.media.AudioAttributes.USAGE_VOICE_COMMUNICATION_SIGNALLING;
@@ -2163,6 +2164,16 @@ public class CarVolumeGroupUnitTest extends AbstractExpectableTestCase {
 
         expectWithMessage("Flags for audio volume group change")
                 .that(carVolumeGroup.onAudioVolumeGroupChanged(/* flags= */ 0)).isEqualTo(0);
+    }
+
+    @Test
+    public void getAddressForContext_withoutContextFound() {
+        CarVolumeGroup carVolumeGroup = testVolumeGroupSetup();
+        int safetyContextId = TEST_CAR_AUDIO_CONTEXT.getContextForAudioAttribute(
+                CarAudioContext.getAudioAttributeFromUsage(USAGE_SAFETY));
+
+        expectWithMessage("Device address for context not found in volume group")
+                .that(carVolumeGroup.getAddressForContext(safetyContextId)).isNull();
     }
 
     private CarVolumeGroup getCarVolumeGroupWithMusicBound() {

@@ -23,6 +23,7 @@ import static android.media.AudioAttributes.USAGE_NOTIFICATION;
 import static android.media.AudioManager.AUDIOFOCUS_GAIN;
 import static android.media.AudioManager.AUDIOFOCUS_LOSS;
 import static android.media.AudioManager.AUDIOFOCUS_LOSS_TRANSIENT;
+import static android.media.AudioManager.AUDIOFOCUS_REQUEST_DELAYED;
 import static android.media.AudioManager.AUDIOFOCUS_REQUEST_FAILED;
 import static android.media.AudioManager.AUDIOFOCUS_REQUEST_GRANTED;
 
@@ -186,6 +187,17 @@ public final class HalAudioFocusTest extends AbstractExpectableTestCase {
 
         AudioFocusRequest actualRequest = getLastRequest();
         assertThat(actualRequest.getOnAudioFocusChangeListener()).isNotNull();
+    }
+
+    @Test
+    public void requestAudioFocus_withFocusRequestDelayed() {
+        whenAnyFocusRequestGranted();
+        mHalAudioFocus.requestAudioFocus(METADATA_MEDIA, ZONE_ID, AUDIOFOCUS_GAIN);
+        when(mAudioManagerWrapper.requestAudioFocus(any())).thenReturn(AUDIOFOCUS_REQUEST_DELAYED);
+
+        mHalAudioFocus.requestAudioFocus(METADATA_ALARM, ZONE_ID, AUDIOFOCUS_GAIN);
+
+        verify(mAudioControlWrapper).onAudioFocusChange(METADATA_ALARM, ZONE_ID, AUDIOFOCUS_LOSS);
     }
 
     @Test

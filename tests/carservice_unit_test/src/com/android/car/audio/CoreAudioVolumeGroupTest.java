@@ -314,14 +314,21 @@ public final class CoreAudioVolumeGroupTest  extends AbstractExtendedMockitoTest
     public void setMute_whenNotMutable() {
         when(mMockAudioManager.getMinVolumeIndexForAttributes(MUSIC_ATTRIBUTES))
                 .thenReturn(MUSIC_MIN_INDEX + 1);
-        mMusicCoreAudioVolumeGroup.setCurrentGainIndex(MUSIC_MAX_INDEX);
+        SparseArray<CarAudioDeviceInfo> musicContextToDeviceInfo = new SparseArray<>();
+        musicContextToDeviceInfo.put(MUSIC_STRATEGY_ID, mOemInfoMock);
+        CoreAudioVolumeGroup unmutableMusicCoreAudioVolumeGroup = new CoreAudioVolumeGroup(
+                mMockAudioManager, mMusicContext, mSettingsMock, musicContextToDeviceInfo,
+                PRIMARY_AUDIO_ZONE, ZONE_CONFIG_ID, MUSIC_CAR_GROUP_ID, MUSIC_GROUP_NAME,
+                /* useCarVolumeGroupMute= */ false, CAR_ACTIVATION_VOLUME_CONFIG);
 
-        expectWithMessage("Mute status changed").that(mMusicCoreAudioVolumeGroup.setMute(true))
-                .isTrue();
+        unmutableMusicCoreAudioVolumeGroup.setCurrentGainIndex(MUSIC_MAX_INDEX);
+
+        expectWithMessage("Mute status changed").that(unmutableMusicCoreAudioVolumeGroup
+                .setMute(true)).isTrue();
         verify(mMockAudioManager, never()).setVolumeGroupVolumeIndex(
                 eq(MUSIC_GROUP_ID), eq(MUSIC_MIN_INDEX), anyInt());
         expectWithMessage("Car volume group mute state when not mutable")
-                .that(mMusicCoreAudioVolumeGroup.isMuted()).isTrue();
+                .that(unmutableMusicCoreAudioVolumeGroup.isMuted()).isTrue();
     }
 
     @Test
