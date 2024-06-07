@@ -39,6 +39,7 @@ cc_defaults {
         "libtinyxml2",
         "libutils",
         "server_configurable_flags",
+        "libaconfig_storage_read_api_cc",
     ],
     static_libs: [
         "android.car.feature-aconfig-cpp",
