@@ -85,13 +85,9 @@ public class CarUiPortraitService extends Service {
     public static final String INTENT_EXTRA_LAUNCHER_READY =
             "INTENT_EXTRA_LAUNCHER_READY";
 
-    // key name for the intent's extra that tells if notification panel should be collapsed.
-    public static final String INTENT_EXTRA_COLLAPSE_NOTIFICATION_PANEL =
-            "INTENT_EXTRA_COLLAPSE_NOTIFICATION_PANEL";
-
-    // key name for the intent's extra that tells if recents panel should be collapsed.
-    public static final String INTENT_EXTRA_COLLAPSE_RECENTS_PANEL =
-            "INTENT_EXTRA_COLLAPSE_RECENTS_PANEL";
+    // key name for the intent's extra that tells if application panel should be collapsed.
+    public static final String INTENT_EXTRA_COLLAPSE_APPLICATION_PANEL =
+            "INTENT_EXTRA_COLLAPSE_APPLICATION_PANEL";
 
     // Keeps track of all current registered clients.
     private final ArrayList<Messenger> mClients = new ArrayList<Messenger>();
@@ -160,12 +156,7 @@ public class CarUiPortraitService extends Service {
     /**
      * Command to service to collapse notification panel if open.
      */
-    public static final int MSG_COLLAPSE_NOTIFICATION = 12;
-
-    /**
-     * Command to service to collapse recents panel.
-     */
-    public static final int MSG_COLLAPSE_RECENTS = 13;
+    public static final int MSG_COLLAPSE_APPLICATION = 12;
 
     private boolean mIsSystemInImmersiveMode;
     private String mImmersiveModeSource;
@@ -265,12 +256,8 @@ public class CarUiPortraitService extends Service {
                     notifyClients(MSG_SUW_IN_PROGRESS, boolToInt(isSuwInProgress));
                 }
 
-                if (intent.hasExtra(INTENT_EXTRA_COLLAPSE_NOTIFICATION_PANEL)) {
-                    notifyClients(MSG_COLLAPSE_NOTIFICATION, 1);
-                }
-
-                if (intent.hasExtra(INTENT_EXTRA_COLLAPSE_RECENTS_PANEL)) {
-                    notifyClients(MSG_COLLAPSE_RECENTS, 1);
+                if (intent.hasExtra(INTENT_EXTRA_COLLAPSE_APPLICATION_PANEL)) {
+                    notifyClients(MSG_COLLAPSE_APPLICATION, 1);
                 }
             }
         };

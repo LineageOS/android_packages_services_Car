@@ -64,9 +64,17 @@ public class CarUiPortraitAppGridButton extends CarUiPortraitSystemBarButton {
 
     @Override
     protected OnClickListener getButtonClickListener(Intent toSend) {
-        return mRecentsButtonStateProvider.getButtonClickListener(toSend,
-                super::getButtonClickListener);
+        return v -> {
+            if (mIsAppGridActive) {
+                collapseApplicationPanel();
+                return;
+            }
+            mRecentsButtonStateProvider.getButtonClickListener(toSend,
+                    super::getButtonClickListener).onClick(v);
+        };
     }
+
+
 
     @Override
     protected void updateImage(AlphaOptimizedImageView icon) {
