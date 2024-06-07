@@ -143,7 +143,8 @@ class AppCardService : Service() {
     writer.println("AppCardService dump:")
     writer.println("- cached app card context: " + handler.latestContext)
     writer.println("- app card context listeners: " + handler.contextListeners)
-    writer.println("- cached app card order: " + handler.appCardListeners)
+    writer.println("- cached app card order: " + handler.latestOrder)
+    writer.println("- app card context listeners: " + handler.appCardListeners)
   }
 
   internal enum class MessageType(val type: Int) {

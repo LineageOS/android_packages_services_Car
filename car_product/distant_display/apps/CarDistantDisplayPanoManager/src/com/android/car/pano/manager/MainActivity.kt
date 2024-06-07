@@ -56,13 +56,6 @@ class MainActivity : AppCompatActivity() {
     appCardViewModel.refreshAll()
   }
 
-  override fun onStop() {
-    super.onStop()
-
-    appCardViewModel.removeSelectedAppCards()
-    appCardViewModel.removeUnselectedAppCards()
-  }
-
   companion object {
     private const val TAG = "MainActivity"
   }
