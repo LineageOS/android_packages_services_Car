@@ -16,6 +16,7 @@
 
 package com.android.car.pano.manager
 
+import android.app.Application
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -27,10 +28,12 @@ import android.os.Looper
 import android.os.Message
 import android.os.Messenger
 import android.util.Log
+import androidx.lifecycle.AndroidViewModel
 import com.android.car.appcard.AppCardContext
 
 /** Used to communicate with AppCardService */
-class AppCardServiceManager(private val context: Context) {
+class AppCardServiceManager(application: Application) : AndroidViewModel(application) {
+  private val applicationContext = application
   private val handler = IncomingHandler(Looper.getMainLooper())
   private var messenger = Messenger(handler)
   private var serviceMessenger: Messenger? = null
@@ -51,15 +54,26 @@ class AppCardServiceManager(private val context: Context) {
     }
   }
 
+  init {
+    bind()
+  }
+
+  override fun onCleared() {
+    super.onCleared()
+    unregisterOrderListener()
+    unregisterContextListener()
+    unbind()
+  }
+
   fun bind() {
     val launchIntent = Intent()
     launchIntent.action = SERVICE_ACTION
     launchIntent.setPackage(SERVICE_PKG)
-    context.bindService(launchIntent, serviceConnection, Context.BIND_AUTO_CREATE)
+    applicationContext.bindService(launchIntent, serviceConnection, Context.BIND_AUTO_CREATE)
   }
 
   fun unbind() {
-    context.unbindService(serviceConnection)
+    applicationContext.unbindService(serviceConnection)
   }
 
   fun registerContextListener(listener: AppCardContextListener) {
@@ -102,11 +116,11 @@ class AppCardServiceManager(private val context: Context) {
     serviceMessenger?.send(getMessageWithHostId(MessageType.MSG_REGISTER_APP_CARD_LISTENER))
   }
 
-  fun unregisterOrderListener() {
+  private fun unregisterOrderListener() {
     serviceMessenger?.send(getMessageWithHostId(MessageType.MSG_UNREGISTER_APP_CARD_LISTENER))
   }
 
-  fun unregisterContextListener() {
+  private fun unregisterContextListener() {
     serviceMessenger?.send(getMessageWithHostId(MessageType.MSG_UNREGISTER_CONTEXT_LISTENER))
   }
 
@@ -114,7 +128,7 @@ class AppCardServiceManager(private val context: Context) {
     val h = null
     val msg = Message.obtain(h, type.type)
     val bundle = Bundle()
-    bundle.putString(KEY_APP_CARD_HOST_ID, context.packageName)
+    bundle.putString(KEY_APP_CARD_HOST_ID, applicationContext.packageName)
     msg.obj = bundle
     msg.replyTo = messenger
     return msg
@@ -129,7 +143,7 @@ class AppCardServiceManager(private val context: Context) {
     override fun handleMessage(msg: Message) {
       super.handleMessage(msg)
       val msgType = MessageType.fromInt(msg.what)
-      Log.d(TAG, "handleMessage: ${msgType.type}")
+      logIfDebuggable("handleMessage: ${msgType.type}")
       when (msgType) {
         MessageType.MSG_SEND_CONTEXT_UPDATE -> {
           AppCardContext.fromBundle(msg.obj as Bundle)?.let {
@@ -181,5 +195,11 @@ class AppCardServiceManager(private val context: Context) {
     private const val TAG = "AppCardServiceManager"
     private const val SERVICE_ACTION = "com.android.systemui.car.appcard.AppCardService"
     private const val SERVICE_PKG = "com.android.systemui"
+
+    private fun logIfDebuggable(msg: String) {
+      if (Log.isLoggable(TAG, Log.DEBUG)) {
+        Log.d(TAG, msg)
+      }
+    }
   }
 }

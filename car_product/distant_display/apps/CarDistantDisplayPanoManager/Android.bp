@@ -24,8 +24,11 @@ android_app {
     resource_dirs: ["res"],
 
     static_libs: [
+        "androidx.activity_activity-ktx",
         "androidx.appcompat_appcompat",
         "androidx.core_core-ktx",
+        "androidx.lifecycle_lifecycle-livedata-ktx",
+        "androidx.lifecycle_lifecycle-viewmodel-ktx",
         "androidx.legacy_legacy-support-v4",
         "car-ui-lib",
 

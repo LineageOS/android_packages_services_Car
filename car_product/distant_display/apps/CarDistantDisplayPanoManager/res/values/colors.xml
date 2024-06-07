@@ -26,7 +26,7 @@
     <color name="add_replace_button_pressed_bg">#302e2e</color>
     <color name="close_button_pressed_bg">#302e2e</color>
     <color name="app_card_bg">#1D1B20</color>
-    <color name="app_card_selected_bg_stroke">#FFFFFF</color>
+    <color name="app_card_selected_bg_stroke">@android:color/white</color>
     <color name="app_card_progress_tint">#FFFFFF</color>
     <color name="app_card_progress_bg_tint">#625B71</color>
 </resources>

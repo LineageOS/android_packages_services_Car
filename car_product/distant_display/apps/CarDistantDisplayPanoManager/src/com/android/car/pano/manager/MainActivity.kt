@@ -17,35 +17,20 @@
 package com.android.car.pano.manager
 
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.widget.ImageButton
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
-import androidx.lifecycle.ViewModelProvider
-import androidx.recyclerview.widget.ItemTouchHelper
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.LinearSnapHelper
-import androidx.recyclerview.widget.RecyclerView
+import androidx.fragment.app.commit
 import com.android.car.appcard.AppCardContext
-import com.android.car.appcard.host.AppCardHost
+import com.android.car.pano.manager.reorder.ReorderFragment
 
 class MainActivity : AppCompatActivity() {
-  private lateinit var inflater: LayoutInflater
-  private lateinit var listView: RecyclerView
-  private lateinit var appCardViewModel: AppCardViewModel
-  private lateinit var adapter: AppCardViewAdapter
-  private lateinit var host: AppCardHost
-  private lateinit var appCardServiceManager: AppCardServiceManager
+  private val appCardViewModel: AppCardViewModel by viewModels()
+  private val appCardServiceManager: AppCardServiceManager by viewModels()
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     setContentView(R.layout.activity_main)
 
-    val owner = this
-    appCardViewModel = ViewModelProvider(owner)[AppCardViewModel::class.java]
-
-    appCardServiceManager = AppCardServiceManager(owner)
-    appCardServiceManager.bind()
     appCardServiceManager.registerContextListener(object :
       AppCardServiceManager.AppCardContextListener {
       override fun update(appCardContext: AppCardContext) {
@@ -59,70 +44,23 @@ class MainActivity : AppCompatActivity() {
       }
     })
 
-    listView = requireViewById(R.id.selected_app_cards)
-    requireViewById<ImageButton>(R.id.close_button).setOnClickListener {
-      finish()
+    supportFragmentManager.commit {
+      setReorderingAllowed(true)
+      add(R.id.fragment_container_view, ReorderFragment::class.java, savedInstanceState)
     }
-
-    val snapHelper = LinearSnapHelper()
-    snapHelper.attachToRecyclerView(listView)
-
-    host = AppCardHost(
-      applicationContext,
-      applicationContext.resources.getInteger(R.integer.app_card_update_rate_ms),
-      applicationContext.resources.getInteger(R.integer.app_card_fast_update_rate_ms),
-      ContextCompat.getMainExecutor(applicationContext)
-    )
-    appCardViewModel.setAppCardHost(host)
-
-    inflater = LayoutInflater.from(owner)
-    adapter = AppCardViewAdapter(applicationContext, inflater, appCardServiceManager)
-    appCardViewModel.touchHelper = adapter
-    appCardViewModel.allAppCards.observe(owner) {
-      adapter.setAppCards(it, from = -1, to = -1)
-    }
-
-    val callback = AppCardTouchHelper(adapter, appCardViewModel)
-    val touchHelper = ItemTouchHelper(callback)
-    touchHelper.attachToRecyclerView(listView)
-  }
-
-  override fun onDestroy() {
-    super.onDestroy()
-
-    appCardServiceManager.unregisterContextListener()
-    appCardServiceManager.unregisterOrderListener()
-    appCardServiceManager.unbind()
-    appCardViewModel.onDestroy()
   }
 
   override fun onStart() {
     super.onStart()
 
-    appCardViewModel.refresh()
+    appCardViewModel.refreshAll()
   }
 
   override fun onStop() {
     super.onStop()
 
-    appCardViewModel.onStop()
-  }
-
-  override fun onAttachedToWindow() {
-    super.onAttachedToWindow()
-    listView.adapter = adapter
-    val context = this
-    val reverseLayout = false
-    listView.layoutManager = LinearLayoutManager(
-      context,
-      LinearLayoutManager.HORIZONTAL,
-      reverseLayout
-    )
-  }
-
-  override fun onDetachedFromWindow() {
-    super.onDetachedFromWindow()
-    listView.adapter = null
+    appCardViewModel.removeSelectedAppCards()
+    appCardViewModel.removeUnselectedAppCards()
   }
 
   companion object {
