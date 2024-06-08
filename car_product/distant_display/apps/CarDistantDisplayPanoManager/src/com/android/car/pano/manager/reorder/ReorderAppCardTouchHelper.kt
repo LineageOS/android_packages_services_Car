@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
-package com.android.car.pano.manager
+package com.android.car.pano.manager.reorder
 
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.android.car.appcard.host.AppCardContainer
+import java.util.Optional
 
-class AppCardTouchHelper(
+class ReorderAppCardTouchHelper(
   private val touchHelper: AppCardTouchHelperContract,
   private val moveHelper: AppCardMoveHelperContract,
 ) : ItemTouchHelper.Callback() {
@@ -85,6 +86,6 @@ class AppCardTouchHelper(
   interface AppCardTouchHelperContract {
     fun onRowSelected(myViewHolder: RecyclerView.ViewHolder?)
     fun onRowClear(myViewHolder: RecyclerView.ViewHolder?)
-    fun setAppCards(newList: MutableList<AppCardContainer>, from: Int, to: Int)
+    fun setAppCards(newList: MutableList<AppCardContainer>, from: Optional<Int>, to: Optional<Int>)
   }
 }

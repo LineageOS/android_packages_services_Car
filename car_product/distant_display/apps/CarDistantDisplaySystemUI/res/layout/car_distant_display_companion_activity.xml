@@ -32,5 +32,6 @@
         android:text="@string/distant_display_companion_button_text"
         android:drawableEnd="@drawable/ic_sys_ui_bring_back"
         android:drawablePadding="16dp"
+        android:maxWidth="@null"
         style="@style/ButtonStyle"/>
 </LinearLayout>
