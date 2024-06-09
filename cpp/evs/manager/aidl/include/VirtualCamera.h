@@ -110,12 +110,15 @@ private:
         STOPPING,
     } mStreamState GUARDED_BY(mMutex) = STOPPED;
 
-    std::unordered_map<std::string, std::deque<aidlevs::BufferDesc>> mFramesHeld;
+    std::unordered_map<std::string, std::deque<aidlevs::BufferDesc>> mFramesHeld GUARDED_BY(mMutex);
+    std::unordered_map<std::string, std::deque<aidlevs::BufferDesc>> mFramesUsed GUARDED_BY(mMutex);
     std::thread mCaptureThread;
+    std::thread mReturnThread;
     aidlevs::CameraDesc* mDesc;
 
     mutable std::mutex mMutex;
     std::condition_variable mFramesReadySignal;
+    std::condition_variable mReturnFramesSignal;
     std::set<std::string> mSourceCameras;
 };
 
