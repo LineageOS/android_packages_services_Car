@@ -33,6 +33,9 @@
         <item>com.google.android.apps.maps/com.google.android.maps.LimitedMapsActivity</item>
         <item>com.android.car.mapsplaceholder/com.android.car.mapsplaceholder.MapsPlaceholderActivity</item>
         <item>com.android.systemui/com.android.systemui.car.wm.activity.ActivityBlockingActivity</item>
+        <item>com.android.car.media/com.android.car.media.MediaActivity</item>
+        <item>com.android.car.media/com.android.car.media.MediaDispatcherActivity</item>
+        <item>com.android.car.media/com.android.car.media.MediaBlockingActivity</item>
     </string-array>
 
     <string-array name="config_distantDisplayGameControllerPackages" translatable="false">
