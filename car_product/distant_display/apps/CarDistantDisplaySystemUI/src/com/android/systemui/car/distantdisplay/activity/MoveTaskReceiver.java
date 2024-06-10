@@ -45,7 +45,6 @@ public class MoveTaskReceiver extends BroadcastReceiver {
     public static final String TAG = "MoveTaskReceiver";
     public static final String MOVE_ACTION = "com.android.systemui.car.intent.action.MOVE_TASK";
     public static final String MOVE_TO_DISTANT_DISPLAY = "to_dd";
-    public static final String MOVE_TO_DISTANT_DISPLAY_PASSENGER = "to_dd_passenger";
     public static final String MOVE_FROM_DISTANT_DISPLAY = "from_dd";
 
     /**
@@ -70,8 +69,7 @@ public class MoveTaskReceiver extends BroadcastReceiver {
         }
         String data = intent.getStringExtra("move");
 
-        if (data.equals(MOVE_TO_DISTANT_DISPLAY) || data.equals(MOVE_FROM_DISTANT_DISPLAY)
-                || data.equals(MOVE_TO_DISTANT_DISPLAY_PASSENGER)) {
+        if (data.equals(MOVE_TO_DISTANT_DISPLAY) || data.equals(MOVE_FROM_DISTANT_DISPLAY)) {
             mOnChangeDisplayForTask.onTaskDisplayChangeRequest(data);
         }
     }

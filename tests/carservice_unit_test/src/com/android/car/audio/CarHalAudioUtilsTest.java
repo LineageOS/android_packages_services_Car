@@ -22,6 +22,7 @@ import static android.media.AudioAttributes.CONTENT_TYPE_UNKNOWN;
 import static android.media.AudioAttributes.USAGE_MEDIA;
 import static android.media.AudioAttributes.USAGE_NOTIFICATION;
 import static android.media.AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE;
+import static android.media.AudioAttributes.USAGE_SAFETY;
 
 import static com.android.car.audio.CoreAudioRoutingUtils.MUSIC_ATTRIBUTES;
 import static com.android.car.audio.CoreAudioRoutingUtils.OEM_ATTRIBUTES;
@@ -67,6 +68,9 @@ public class CarHalAudioUtilsTest {
     private static final AudioAttributes MEDIA_AUDIO_ATTRIBUTE = MUSIC_ATTRIBUTES;
     private static final AudioAttributes NOTIFICATION_AUDIO_ATTRIBUTE =
             CarAudioContext.getAudioAttributeFromUsage(USAGE_NOTIFICATION);
+    private static final AudioAttributes SAFETY_ATTRIBUTES = new AudioAttributes.Builder()
+            .setSystemUsage(USAGE_SAFETY).setContentType(CONTENT_TYPE_UNKNOWN)
+            .build();
     private static final List<AudioAttributes> AUDIO_ATTRIBUTES_HOLDING_FOCUS = List.of(
             MEDIA_AUDIO_ATTRIBUTE, NOTIFICATION_AUDIO_ATTRIBUTE);
     private static final String[] USAGES_LITERAL_HOLDING_FOCUS = {
@@ -235,6 +239,26 @@ public class CarHalAudioUtilsTest {
 
         assertWithMessage("AudioAttributes converted from meta data").that(audioAttributes)
                 .isEqualTo(MUSIC_ATTRIBUTES);
+    }
+
+    @Test
+    public void metadataToAudioAttribute_withSystemUsage_succeeds() {
+        PlaybackTrackMetadata metadata = new PlaybackTrackMetadata();
+        metadata.usage = USAGE_SAFETY;
+        metadata.contentType = CONTENT_TYPE_UNKNOWN;
+        metadata.tags = new String[0];
+        metadata.channelMask = AudioChannelLayout.none(0);
+        AudioDeviceDescription audioDeviceDescription = new AudioDeviceDescription();
+        audioDeviceDescription.connection = new String();
+        AudioDevice audioDevice = new AudioDevice();
+        audioDevice.type = audioDeviceDescription;
+        audioDevice.address = AudioDeviceAddress.id("");
+        metadata.sourceDevice = audioDevice;
+
+        AudioAttributes audioAttributes = CarHalAudioUtils.metadataToAudioAttribute(metadata);
+
+        assertWithMessage("Safety audioAttributes converted from meta data")
+                .that(audioAttributes).isEqualTo(SAFETY_ATTRIBUTES);
     }
 
     @Test

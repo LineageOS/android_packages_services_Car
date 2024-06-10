@@ -300,7 +300,6 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
         }
     };
 
-    // TODO(b/335532760): revisit the calm mode logic
     private void handleCalmMode(ActivityManager.RunningTaskInfo taskInfo,
             @NonNull TaskViewPanelStateChangeReason reason) {
         if (!ON_TASK_MOVED_TO_FRONT.equals(reason.getReason())) {
@@ -308,35 +307,39 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                     "Skip handling calm mode since the reason is not " + ON_TASK_MOVED_TO_FRONT);
             return;
         }
-
-        mIsNotificationCenterOnTop = mTaskCategoryManager.isNotificationActivity(taskInfo);
-        mIsRecentsOnTop = mTaskCategoryManager.isRecentsActivity(taskInfo);
-        mIsAppGridOnTop = mTaskCategoryManager.isAppGridActivity(taskInfo);
-        if (mIsCalmMode && (mIsNotificationCenterOnTop || mIsRecentsOnTop || mIsAppGridOnTop)) {
-            PortraitCalmModeActivity.dismissCalmMode(getApplicationContext());
-            setControlBarVisibility(/* isVisible = */ true, /* animate = */ true);
-            notifySystemUI(MSG_HIDE_SYSTEM_BAR_FOR_IMMERSIVE, WindowInsets.Type.systemBars());
-            mIsCalmMode = false;
+        if (mTaskCategoryManager.isFullScreenActivity(taskInfo)) {
+            logIfDebuggable(
+                    "Skip handling calm mode if new activity is full screen activity");
+            return;
         }
 
-        if (mTaskCategoryManager.isBackgroundApp(taskInfo)) {
-            mTaskCategoryManager.setCurrentBackgroundApp(taskInfo.baseActivity);
-            mIsCalmMode = mTaskCategoryManager.isCalmModeActivity(taskInfo);
-            int windowInsetsType = WindowInsets.Type.systemBars();
-            if (mIsCalmMode) {
+        boolean wasCalmMode = mIsCalmMode;
+        mIsCalmMode = mTaskCategoryManager.isCalmModeActivity(taskInfo);
 
-                if (mRootTaskViewPanel.isOpen()) {
-                    mRootTaskViewPanel.closePanel(
-                            createReason(ON_CALM_MODE_STARTED, taskInfo.taskId,
-                                    getVisibleActivity(taskInfo)));
-                }
-                setControlBarVisibility(/* isVisible = */ false, /* animate = */ true);
-                windowInsetsType = WindowInsets.Type.navigationBars();
-            } else {
-                setControlBarVisibility(/* isVisible = */ true, /* animate = */ true);
-            }
-            notifySystemUI(MSG_HIDE_SYSTEM_BAR_FOR_IMMERSIVE, windowInsetsType);
+        if (wasCalmMode && !mIsCalmMode) {
+            exitCalmMode();
+        } else if (!wasCalmMode && mIsCalmMode) {
+            enterCalmMode(taskInfo);
         }
+    }
+
+    private void exitCalmMode() {
+        logIfDebuggable("Exiting calm mode");
+        PortraitCalmModeActivity.dismissCalmMode(getApplicationContext());
+        setControlBarVisibility(/* isVisible = */ true, /* animate = */ true);
+        notifySystemUI(MSG_HIDE_SYSTEM_BAR_FOR_IMMERSIVE, WindowInsets.Type.systemBars());
+    }
+
+    private void enterCalmMode(ActivityManager.RunningTaskInfo taskInfo) {
+        logIfDebuggable("Entering calm mode");
+        if (mRootTaskViewPanel.isVisible()) {
+            mRootTaskViewPanel.closePanel(
+                    createReason(ON_CALM_MODE_STARTED, taskInfo.taskId,
+                            getVisibleActivity(taskInfo)));
+        }
+        setControlBarVisibility(/* isVisible = */ false, /* animate = */ true);
+        int windowInsetsType = WindowInsets.Type.navigationBars();
+        notifySystemUI(MSG_HIDE_SYSTEM_BAR_FOR_IMMERSIVE, windowInsetsType);
     }
 
     private void handleSystemBarButton(boolean isPanelVisible) {
@@ -357,6 +360,13 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
 
     private void handleTaskStackChange(ActivityManager.RunningTaskInfo taskInfo,
             TaskViewPanelStateChangeReason reason) {
+
+        mIsNotificationCenterOnTop = mTaskCategoryManager.isNotificationActivity(taskInfo);
+        mIsRecentsOnTop = mTaskCategoryManager.isRecentsActivity(taskInfo);
+        mIsAppGridOnTop = mTaskCategoryManager.isAppGridActivity(taskInfo);
+        if (mTaskCategoryManager.isBackgroundApp(taskInfo)) {
+            mTaskCategoryManager.setCurrentBackgroundApp(taskInfo.baseActivity);
+        }
 
         handleFullScreenPanel(taskInfo);
         handleCalmMode(taskInfo, reason);

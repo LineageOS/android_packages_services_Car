@@ -213,6 +213,4 @@
 
     <!-- Sets the Theme android:disabledAlpha value -->
     <dimen name="car_disabled_alpha">0.35</dimen>
-
-    <dimen name="resolver_max_collapsed_height">400dp</dimen>
 </resources>

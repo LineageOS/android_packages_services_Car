@@ -27,6 +27,8 @@ import static android.media.FadeManagerConfiguration.FADE_STATE_DISABLED;
 import static android.media.audiopolicy.Flags.FLAG_ENABLE_FADE_MANAGER_CONFIGURATION;
 
 import static com.android.car.audio.CarAudioContext.AudioContext;
+import static com.android.car.audio.CarAudioContext.MUSIC;
+import static com.android.car.audio.CarAudioContext.getAudioAttributeFromUsage;
 
 import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.any;
@@ -80,11 +82,11 @@ public final class CarAudioZoneConfigUnitTest extends AbstractExpectableTestCase
     private static final int TEST_VOICE_GROUP_ID = 2;
 
     private static final AudioAttributes TEST_MEDIA_ATTRIBUTE =
-            CarAudioContext.getAudioAttributeFromUsage(USAGE_MEDIA);
+            getAudioAttributeFromUsage(USAGE_MEDIA);
     private static final AudioAttributes TEST_ASSISTANT_ATTRIBUTE =
-            CarAudioContext.getAudioAttributeFromUsage(USAGE_ASSISTANT);
+            getAudioAttributeFromUsage(USAGE_ASSISTANT);
     private static final AudioAttributes TEST_NAVIGATION_ATTRIBUTE =
-            CarAudioContext.getAudioAttributeFromUsage(USAGE_ASSISTANCE_NAVIGATION_GUIDANCE);
+            getAudioAttributeFromUsage(USAGE_ASSISTANCE_NAVIGATION_GUIDANCE);
 
     private static final CarAudioContext TEST_CAR_AUDIO_CONTEXT = new CarAudioContext(
             CarAudioContext.getAllContextsInfo(), /* useCoreAudioRouting= */ false);
@@ -575,6 +577,22 @@ public final class CarAudioZoneConfigUnitTest extends AbstractExpectableTestCase
     }
 
     @Test
+    public void validateVolumeGroups_withUnsupportedAudioContext_fails() {
+        CarAudioContext carAudioContext = new CarAudioContext(List.of(new CarAudioContextInfo(
+                new AudioAttributes[] {getAudioAttributeFromUsage(AudioAttributes.USAGE_UNKNOWN),
+                        getAudioAttributeFromUsage(AudioAttributes.USAGE_GAME),
+                        getAudioAttributeFromUsage(AudioAttributes.USAGE_MEDIA)},
+                /* name= */ "MUSIC", MUSIC)), /* useCoreAudioRouting= */ false);
+        CarVolumeGroup mockMusicGroup = new VolumeGroupBuilder()
+                .addDeviceAddressAndContexts(TEST_MEDIA_CONTEXT, MUSIC_ADDRESS).build();
+        CarAudioZoneConfig zoneConfig = buildZoneConfig(List.of(mockMusicGroup));
+
+        expectWithMessage("Volume group with unsupported audio context")
+                .that(zoneConfig.validateVolumeGroups(carAudioContext,
+                        /* useCoreAudioRouting= */ false)).isFalse();
+    }
+
+    @Test
     public void getAudioDeviceInfos() {
         AudioDeviceInfo musicAudioDeviceInfo = Mockito.mock(AudioDeviceInfo.class);
         AudioDeviceAttributes musicDeviceAttributes =
@@ -726,6 +744,43 @@ public final class CarAudioZoneConfigUnitTest extends AbstractExpectableTestCase
         verify(mMockMusicGroup).onAudioGainChanged(reasons, carMusicGainInfo);
         verify(mMockNavGroup, never()).onAudioGainChanged(any(), any());
         verify(mMockVoiceGroup, never()).onAudioGainChanged(any(), any());
+    }
+
+    @Test
+    public void onAudioGainChanged_withMultipleGainInfosForOneVolumeGroup() {
+        CarVolumeGroup mockNavAndVoiceGroup = new VolumeGroupBuilder().setName(TEST_NAV_GROUP_NAME)
+                .addDeviceAddressAndContexts(TEST_NAVIGATION_CONTEXT, NAV_ADDRESS)
+                .addDeviceAddressAndContexts(TEST_ASSISTANT_CONTEXT, VOICE_ADDRESS)
+                .setZoneId(TEST_ZONE_ID).setGroupId(TEST_NAV_GROUP_ID)
+                .addDeviceAddressAndUsages(USAGE_ASSISTANCE_NAVIGATION_GUIDANCE, NAV_ADDRESS)
+                .addDeviceAddressAndUsages(USAGE_ASSISTANT, VOICE_ADDRESS)
+                .build();
+        CarAudioZoneConfig zoneConfig = mTestAudioZoneConfigBuilder.addVolumeGroup(mMockMusicGroup)
+                .addVolumeGroup(mockNavAndVoiceGroup).build();
+        List<Integer> reasons = List.of(Reasons.REMOTE_MUTE, Reasons.NAV_DUCKING);
+        AudioGainConfigInfo navGainInfo = new AudioGainConfigInfo();
+        navGainInfo.zoneId = PRIMARY_AUDIO_ZONE;
+        navGainInfo.devicePortAddress = NAV_ADDRESS;
+        navGainInfo.volumeIndex = 666;
+        AudioGainConfigInfo voiceGainInfo = new AudioGainConfigInfo();
+        voiceGainInfo.zoneId = PRIMARY_AUDIO_ZONE;
+        voiceGainInfo.devicePortAddress = VOICE_ADDRESS;
+        voiceGainInfo.volumeIndex = 666;
+        CarAudioGainConfigInfo carNavGainInfo = new CarAudioGainConfigInfo(navGainInfo);
+        CarAudioGainConfigInfo carVoiceGainInfo = new CarAudioGainConfigInfo(voiceGainInfo);
+        when(mockNavAndVoiceGroup.onAudioGainChanged(any(), any()))
+                .thenReturn(EVENT_TYPE_MUTE_CHANGED);
+        when(mMockMusicGroup.onAudioGainChanged(any(), any()))
+                .thenReturn(EVENT_TYPE_ATTENUATION_CHANGED, EVENT_TYPE_MUTE_CHANGED);
+
+        List<CarVolumeGroupEvent> events = zoneConfig.onAudioGainChanged(reasons,
+                List.of(carNavGainInfo, carVoiceGainInfo));
+
+        expectWithMessage("Changed audio gain in navigation and voice group")
+                .that(events.isEmpty()).isFalse();
+        verify(mMockMusicGroup, never()).onAudioGainChanged(any(), any());
+        verify(mockNavAndVoiceGroup).onAudioGainChanged(reasons, carNavGainInfo);
+        verify(mockNavAndVoiceGroup).onAudioGainChanged(reasons, carVoiceGainInfo);
     }
 
     @Test
