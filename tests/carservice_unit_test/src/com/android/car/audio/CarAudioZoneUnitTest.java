@@ -23,8 +23,10 @@ import static android.media.AudioAttributes.USAGE_ASSISTANT;
 import static android.media.AudioAttributes.USAGE_MEDIA;
 
 import static com.android.car.audio.CarAudioContext.AudioContext;
+import static com.android.car.audio.CarAudioContext.SAFETY;
 
 import static org.junit.Assert.assertThrows;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyBoolean;
@@ -283,6 +285,20 @@ public final class CarAudioZoneUnitTest extends AbstractExpectableTestCase {
         verify(mMockZoneConfig1).setIsSelected(true);
         verify(mMockZoneConfig1).updateVolumeDevices(/* useCoreAudioRouting= */ false);
         verify(mMockZoneConfig0).setIsSelected(false);
+    }
+
+    @Test
+    public void setCurrentCarZoneConfig_withCurrentZoneConfig() {
+        mTestAudioZone.addZoneConfig(mMockZoneConfig0);
+        mTestAudioZone.addZoneConfig(mMockZoneConfig1);
+        CarAudioZoneConfigInfo currentZoneConfigInfo = mTestAudioZone
+                .getCurrentCarAudioZoneConfig().getCarAudioZoneConfigInfo();
+
+        mTestAudioZone.setCurrentCarZoneConfig(currentZoneConfigInfo);
+
+        expectWithMessage("Current zone config info after setting to current zone config info")
+                .that(mTestAudioZone.getCurrentCarAudioZoneConfig().getCarAudioZoneConfigInfo())
+                .isEqualTo(currentZoneConfigInfo);
     }
 
     @Test
@@ -874,6 +890,22 @@ public final class CarAudioZoneUnitTest extends AbstractExpectableTestCase {
 
         verify(mMockZoneConfig0, never()).updateVolumeGroupsSettingsForUser(TEST_USER_ID);
         verify(mMockZoneConfig1).updateVolumeGroupsSettingsForUser(TEST_USER_ID);
+    }
+
+    @Test
+    public void getAudioDeviceForContext_withoutOutputDeviceFound() {
+        when(mMockMusicGroup0.getAudioDeviceForContext(anyInt())).thenReturn(null);
+        when(mMockNavGroup0.getAudioDeviceForContext(anyInt())).thenReturn(null);
+        CarAudioZoneConfig zoneConfig = new TestCarAudioZoneConfigBuilder(TEST_ZONE_ID,
+                TEST_ZONE_CONFIG_ID_0, TEST_ZONE_CONFIG_NAME_0).setIsDefault(true)
+                .addVolumeGroup(mMockMusicGroup0).addVolumeGroup(mMockNavGroup0).build();
+        mTestAudioZone.addZoneConfig(zoneConfig);
+
+        IllegalStateException exception = assertThrows(IllegalStateException.class,
+                () -> mTestAudioZone.getAudioDeviceForContext(SAFETY));
+
+        expectWithMessage("Null audio device exception").that(exception).hasMessageThat()
+                .contains("Could not find output device");
     }
 
     private CarAudioZoneConfigInfo getFirstNonCurrentZoneConfigInfo(CarAudioZone audioZone) {

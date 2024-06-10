@@ -567,6 +567,24 @@ public final class ZoneAudioPlaybackCallbackTest {
     }
 
     @Test
+    public void onPlaybackConfigChanged_withDeviceAddressNotFound() {
+        List<AudioPlaybackConfiguration> activeConfigurations = ImmutableList.of(
+                new AudioPlaybackConfigurationBuilder()
+                        .setUsage(USAGE_MEDIA)
+                        .setDeviceAddress("music_bus101")
+                        .setClientUid(PLAYBACK_UID_1)
+                        .build()
+        );
+        ZoneAudioPlaybackCallback callback = new ZoneAudioPlaybackCallback(mPrimaryZone,
+                mCarAudioPlaybackMonitor, mClock, KEY_EVENT_TIMEOUT_MS);
+
+        callback.onPlaybackConfigChanged(activeConfigurations);
+
+        verify(mCarAudioPlaybackMonitor, never()).onActiveAudioPlaybackAttributesAdded(any(),
+                anyInt());
+    }
+
+    @Test
     public void onPlaybackConfigChanged_withUpdatedPlaybacks() {
         List<AudioPlaybackConfiguration> activeConfigurations = ImmutableList.of(
                 new AudioPlaybackConfigurationBuilder()
