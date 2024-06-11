@@ -52,12 +52,20 @@
     <dimen name="control_bar_media_card_app_icon_size">26dp</dimen>
     <dimen name="control_bar_media_card_album_art_size">240dp</dimen>
     <dimen name="control_bar_media_card_custom_action_layout_horizontal_padding">38dp</dimen>
+    <dimen name="control_bar_media_card_item_card_radius">16dp</dimen>
     <dimen name="control_bar_media_card_queue_item_thumbnail_size">112dp</dimen>
     <dimen name="control_bar_media_card_queue_margin">24dp</dimen>
-    <dimen name="control_bar_media_card_queue_item_card_radius">16dp</dimen>
     <dimen name="control_bar_media_card_queue_item_card_width">320dp</dimen>
     <dimen name="control_bar_media_card_title_height">56dp</dimen>
     <dimen name="control_bar_media_card_title_default_text_size">44sp</dimen>
     <dimen name="control_bar_media_card_title_animation_height">40dp</dimen>
+    <dimen name="control_bar_media_card_history_main_icon_size">112dp</dimen>
+    <dimen name="control_bar_media_card_history_title_size">145dp</dimen>
+    <dimen name="control_bar_media_card_history_subtitle_size">128dp</dimen>
+    <dimen name="control_bar_media_card_history_thumbnail_size">30dp</dimen>
+    <dimen name="control_bar_media_card_history_item_margin_small">12dp</dimen>
+    <dimen name="control_bar_media_card_history_item_margin_large">24dp</dimen>
+    <dimen name="control_bar_media_card_history_item_width_active">316dp</dimen>
+    <dimen name="control_bar_media_card_history_item_width_inactive">160dp</dimen>
 
 </resources>

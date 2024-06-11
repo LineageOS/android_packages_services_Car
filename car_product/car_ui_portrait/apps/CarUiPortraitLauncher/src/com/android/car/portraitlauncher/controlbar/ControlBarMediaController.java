@@ -40,6 +40,7 @@ import com.android.car.media.common.playback.PlaybackViewModel.PlaybackControlle
 import com.android.car.media.common.source.MediaSource;
 import com.android.car.media.common.source.MediaSourceColors;
 import com.android.car.media.common.ui.PlaybackCardController;
+import com.android.car.media.common.ui.PlaybackHistoryController;
 import com.android.car.media.common.ui.PlaybackQueueController;
 
 import java.util.ArrayList;
@@ -57,6 +58,7 @@ public class ControlBarMediaController extends PlaybackCardController {
     private ViewGroup mHistoryContainer;
 
     private PlaybackQueueController mPlaybackQueueController;
+    private PlaybackHistoryController mPlaybackHistoryController;
     private MotionLayout mMotionLayout;
 
     private int mSubtitleVisibility;
@@ -103,11 +105,17 @@ public class ControlBarMediaController extends PlaybackCardController {
         mPlaybackQueueController = new PlaybackQueueController(
                 mView.findViewById(R.id.queue_list), Resources.ID_NULL,
                 R.layout.control_bar_media_queue_item, Resources.ID_NULL, getViewLifecycleOwner(),
-                mDataModel, mViewModel.getMediaItemsRepository(), null, 0);
+                mDataModel, mViewModel.getMediaItemsRepository(),
+                /* LifeCycleObserverUxrContentLimiter */ null, /* uxrConfigurationId */ 0);
         mPlaybackQueueController.setShowTimeForActiveQueueItem(true);
         mPlaybackQueueController.setShowIconForActiveQueueItem(false);
         mPlaybackQueueController.setShowThumbnailForQueueItem(true);
         mPlaybackQueueController.setShowSubtitleForQueueItem(true);
+
+        mPlaybackHistoryController = new PlaybackHistoryController(getViewLifecycleOwner(),
+                mViewModel, mHistoryContainer, R.layout.control_bar_media_history_item,
+                Resources.ID_NULL, /* uxrConfigurationId */ 0);
+        mPlaybackHistoryController.setupView();
 
         mMotionLayout = mView.findViewById(R.id.control_bar_media_card_motion_layout);
         mMotionLayout.addTransitionListener(new MotionLayout.TransitionListener() {

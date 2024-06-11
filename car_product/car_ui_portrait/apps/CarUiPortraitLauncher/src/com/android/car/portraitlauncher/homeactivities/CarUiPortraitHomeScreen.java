@@ -21,8 +21,7 @@ import static android.view.WindowManager.LayoutParams.PRIVATE_FLAG_TRUSTED_OVERL
 
 import static com.android.car.caruiportrait.common.service.CarUiPortraitService.INTENT_EXTRA_IMMERSIVE_MODE_REQUESTED_SOURCE;
 import static com.android.car.caruiportrait.common.service.CarUiPortraitService.MSG_APP_GRID_VISIBILITY_CHANGE;
-import static com.android.car.caruiportrait.common.service.CarUiPortraitService.MSG_COLLAPSE_NOTIFICATION;
-import static com.android.car.caruiportrait.common.service.CarUiPortraitService.MSG_COLLAPSE_RECENTS;
+import static com.android.car.caruiportrait.common.service.CarUiPortraitService.MSG_COLLAPSE_APPLICATION;
 import static com.android.car.caruiportrait.common.service.CarUiPortraitService.MSG_FG_TASK_VIEW_READY;
 import static com.android.car.caruiportrait.common.service.CarUiPortraitService.MSG_HIDE_SYSTEM_BAR_FOR_IMMERSIVE;
 import static com.android.car.caruiportrait.common.service.CarUiPortraitService.MSG_IMMERSIVE_MODE_CHANGE;
@@ -589,10 +588,9 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
         }
     }
 
-    private void collapseRecentsPanel() {
-        if (mIsRecentsOnTop) {
-            mRootTaskViewPanel.closePanel(createReason(ON_COLLAPSE_MSG));
-        }
+    private void collapseAppPanel() {
+        logIfDebuggable("On collapse app panel");
+        mRootTaskViewPanel.closePanel(createReason(ON_COLLAPSE_MSG));
     }
 
     @Override
@@ -1211,11 +1209,8 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                     boolean hideNavBar = intToBool(msg.arg1);
                     mRootTaskViewPanel.setToolBarViewVisibility(hideNavBar);
                     break;
-                case MSG_COLLAPSE_NOTIFICATION:
-                    collapseNotificationPanel();
-                    break;
-                case MSG_COLLAPSE_RECENTS:
-                    collapseRecentsPanel();
+                case MSG_COLLAPSE_APPLICATION:
+                    collapseAppPanel();
                     break;
                 default:
                     super.handleMessage(msg);

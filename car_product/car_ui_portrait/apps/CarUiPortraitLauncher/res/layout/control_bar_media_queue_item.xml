@@ -20,7 +20,7 @@
     android:layout_height="match_parent"
     android:layout_gravity="center_horizontal|bottom"
     app:cardBackgroundColor="@color/car_surface_variant"
-    app:cardCornerRadius="@dimen/control_bar_media_card_queue_item_card_radius"
+    app:cardCornerRadius="@dimen/control_bar_media_card_item_card_radius"
     app:cardElevation="0dp"
     android:layout_marginEnd="@dimen/media_card_view_separation_margin">
 
