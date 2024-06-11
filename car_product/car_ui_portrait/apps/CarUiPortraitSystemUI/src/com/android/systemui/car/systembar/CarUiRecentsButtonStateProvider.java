@@ -16,7 +16,7 @@
 
 package com.android.systemui.car.systembar;
 
-import static com.android.car.caruiportrait.common.service.CarUiPortraitService.INTENT_EXTRA_COLLAPSE_RECENTS_PANEL;
+import static com.android.car.caruiportrait.common.service.CarUiPortraitService.INTENT_EXTRA_COLLAPSE_APPLICATION_PANEL;
 import static com.android.car.caruiportrait.common.service.CarUiPortraitService.REQUEST_FROM_SYSTEM_UI;
 
 import android.app.ActivityManager;
@@ -45,7 +45,7 @@ public class CarUiRecentsButtonStateProvider extends RecentsButtonStateProvider 
     protected boolean toggleRecents() {
         if (getIsRecentsActive()) {
             Intent intent = new Intent(REQUEST_FROM_SYSTEM_UI);
-            intent.putExtra(INTENT_EXTRA_COLLAPSE_RECENTS_PANEL, true);
+            intent.putExtra(INTENT_EXTRA_COLLAPSE_APPLICATION_PANEL, true);
             mContext.getApplicationContext().sendBroadcastAsUser(intent,
                     new UserHandle(ActivityManager.getCurrentUser()));
             return true;
