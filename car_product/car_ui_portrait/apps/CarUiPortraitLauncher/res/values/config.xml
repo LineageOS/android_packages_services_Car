@@ -103,4 +103,7 @@
         TODO(b/310687870): Add RB to testing plan
     -->
     <bool name="config_enableMediaSessionAppsWhileDriving">false</bool>
+
+    <!-- Boolean value to indicate if the recents activity should open the most recent task on dismiss. -->
+    <bool name="config_launch_most_recent_task_on_recents_dismiss">false</bool>
 </resources>

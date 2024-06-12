@@ -41,14 +41,4 @@ public class PortraitCarRecentsActivity extends CarRecentsActivity {
         mRecentTasksViewModel.removeHiddenTaskProvider(mPortraitHiddenTaskProvider);
         super.onDestroy();
     }
-
-    @Override
-    protected void onResume() {
-        if (OPEN_RECENT_TASK_ACTION.equals(getIntent().getAction())) {
-            // no-op: This action results in collapsing the panel displaying Recents which is
-            // handled by SystemUI.
-            return;
-        }
-        super.onResume();
-    }
 }
