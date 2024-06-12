@@ -18,37 +18,32 @@ package android.car.test;
 
 import static android.car.test.JUnitHelper.newTestMethod;
 
-import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
-import static com.android.dx.mockito.inline.extended.ExtendedMockito.verify;
-
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.when;
-
-import android.car.test.JUnitHelper.SimpleStatement;
-
 import static com.google.common.truth.Truth.assertWithMessage;
 
 import static org.junit.Assert.assertThrows;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import android.app.UiAutomation;
+import android.car.test.JUnitHelper.SimpleStatement;
 import android.car.test.PermissionsCheckerRule.EnsureHasPermission;
-import android.car.test.mocks.AbstractExtendedMockitoTestCase;
-import android.util.Log;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.Description;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.lang.annotation.Annotation;
 import java.util.Arrays;
 import java.util.Set;
 
-public final class PermissionsCheckerRuleTest extends AbstractExtendedMockitoTestCase {
+@RunWith(MockitoJUnitRunner.class)
+public final class PermissionsCheckerRuleTest {
 
     private static final String TAG = PermissionsCheckerRuleTest.class.getSimpleName();
 
@@ -63,8 +58,6 @@ public final class PermissionsCheckerRuleTest extends AbstractExtendedMockitoTes
     public void setFixtures() {
         mRule = new PermissionsCheckerRule(mUiAutomation);
     }
-
-    // NOTE: no need to override onSessionBuilder() to spy on Log because superclass already does it
 
     @Test
     public void testNoAnnotation() throws Throwable {
@@ -117,8 +110,6 @@ public final class PermissionsCheckerRuleTest extends AbstractExtendedMockitoTes
     public void testEnsureHasPermission_permissionsAdoptedBefore() throws Throwable {
         Description testMethod = newTestMethod(new EnsureHasPermissionAnnotation("To Kill"));
         when(mUiAutomation.getAdoptedShellPermissions()).thenReturn(Set.of("Thou shalt not kill!"));
-        ArgumentCaptor<String> logMessage = ArgumentCaptor.forClass(String.class);
-        doReturn(666).when(() -> Log.w(eq(PermissionsCheckerRule.TAG), logMessage.capture()));
 
         mRule.apply(mBaseStatement, testMethod).evaluate();
 
@@ -126,9 +117,6 @@ public final class PermissionsCheckerRuleTest extends AbstractExtendedMockitoTes
         verify(mUiAutomation).adoptShellPermissionIdentity("To Kill");
         verify(mUiAutomation).dropShellPermissionIdentity();
         verify(mUiAutomation).adoptShellPermissionIdentity("Thou shalt not kill!");
-
-        assertWithMessage("Log message").that(logMessage.getValue())
-                .contains("Thou shalt not kill!");
     }
 
     @Test

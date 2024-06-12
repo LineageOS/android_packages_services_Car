@@ -119,6 +119,8 @@ android_ravenwood_test {
     name: "CarServiceHostUnitTest",
 
     srcs: [
+        "src/android/car/test/JUnitHelper.java",
+        "src/android/car/test/PermissionsCheckerRuleTest.java",
         "src/com/android/car/CarPropertyServiceUnitTest.java",
         "src/com/android/car/hal/VehicleHalTest.java",
         "src/com/android/car/hal/fakevhal/FakeVhalConfigParserUnitTest.java",
