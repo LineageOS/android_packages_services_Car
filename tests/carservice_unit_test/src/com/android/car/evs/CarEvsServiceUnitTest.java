@@ -246,7 +246,8 @@ public final class CarEvsServiceUnitTest extends AbstractExtendedMockitoTestCase
                         mGearSelectionListenerCaptor.capture())).thenReturn(true);
 
         mCarEvsService = new CarEvsService(mMockContext, mMockBuiltinPackageContext,
-                        mMockEvsHalService, mMockCarPropertyService);
+                        mMockEvsHalService, mMockCarPropertyService,
+                                /* checkDependencies= */ false);
         mCarEvsService.init();
     }
 
