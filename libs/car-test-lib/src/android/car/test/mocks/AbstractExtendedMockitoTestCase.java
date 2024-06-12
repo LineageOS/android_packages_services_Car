@@ -15,11 +15,7 @@
  */
 package android.car.test.mocks;
 
-import static com.android.dx.mockito.inline.extended.ExtendedMockito.doAnswer;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.mockitoSession;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 
 import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
@@ -37,6 +33,8 @@ import android.os.Trace;
 import android.os.UserManager;
 import android.util.ArraySet;
 import android.util.Log;
+import android.util.Log.TerribleFailure;
+import android.util.Log.TerribleFailureHandler;
 import android.util.Slog;
 import android.util.TimingsTraceLog;
 
@@ -51,7 +49,6 @@ import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 import org.mockito.Mockito;
 import org.mockito.MockitoSession;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.quality.Strictness;
 
 import java.lang.annotation.Retention;
@@ -127,6 +124,7 @@ public abstract class AbstractExtendedMockitoTestCase extends AbstractExpectable
 
     // Tracks (S)Log.wtf() calls made during code execution, then used on verifyWtfNeverLogged()
     private final List<RuntimeException> mWtfs = new ArrayList<>();
+    private TerribleFailureHandler mOldWtfHandler;
 
     private MockitoSession mSession;
 
@@ -179,6 +177,10 @@ public abstract class AbstractExtendedMockitoTestCase extends AbstractExpectable
             Log.v(TAG, "startSession() for " + getTestName() + " on thread "
                     + Thread.currentThread() + "; sHighlanderSession=" + sHighlanderSession);
         }
+        // Clear all stored mWtfs if any.
+        mWtfs.clear();
+        interceptWtfCalls();
+
         finishHighlanderSessionIfNeeded("startSession()");
 
         beginTrace("startSession()");
@@ -213,10 +215,6 @@ public abstract class AbstractExtendedMockitoTestCase extends AbstractExpectable
             customBuilder.mCallback.afterSessionStarted();
         }
 
-        beginTrace("interceptWtfCalls()");
-        interceptWtfCalls();
-        endTrace();
-
         endTrace(); // startSession
     }
 
@@ -238,8 +236,10 @@ public abstract class AbstractExtendedMockitoTestCase extends AbstractExpectable
         if (VERBOSE) {
             Log.v(TAG, "finishSession() for " + getTestName() + " on thread "
                     + Thread.currentThread() + "; sHighlanderSession=" + sHighlanderSession);
-
         }
+
+        resetWtfCalls();
+
         if (false) { // For obvious reasons, should NEVER be merged as true
             forceFailure(1, RuntimeException.class, "to simulate an unfinished session");
         }
@@ -508,42 +508,19 @@ public abstract class AbstractExtendedMockitoTestCase extends AbstractExpectable
     }
 
     private void interceptWtfCalls() {
-        try {
-            doAnswer((invocation) -> {
-                return addWtf(invocation);
-            }).when(() -> Log.wtf(anyString(), anyString()));
-            doAnswer((invocation) -> {
-                return addWtf(invocation);
-            }).when(() -> Log.wtf(anyString(), any(Throwable.class)));
-            doAnswer((invocation) -> {
-                return addWtf(invocation);
-            }).when(() -> Log.wtf(anyString(), anyString(), any(Throwable.class)));
-            doAnswer((invocation) -> {
-                return addWtf(invocation);
-            }).when(() -> Slog.wtf(anyString(), anyString()));
-            doAnswer((invocation) -> {
-                return addWtf(invocation);
-            }).when(() -> Slog.wtf(anyString(), any(Throwable.class)));
-            doAnswer((invocation) -> {
-                return addWtf(invocation);
-            }).when(() -> Slog.wtf(anyString(), anyString(), any(Throwable.class)));
-            // NOTE: android.car.builtin.util.Slogf calls android.util.Slog behind the scenes, so no
-            // need to check for calls of the former...
-        } catch (Throwable t) {
-            Log.e(TAG, "interceptWtfCalls(): failed for test " + getTestName(), t);
-        }
+        mOldWtfHandler = Log.setWtfHandler((String tag, TerribleFailure what, boolean system) -> {
+            String message = "Called " + what;
+            Log.d(TAG, message); // Log always, as some test expect it
+            if (mLogTags != null && mLogTags.contains(tag)) {
+                mWtfs.add(new IllegalStateException(message));
+            } else if (VERBOSE) {
+                Log.v(TAG, "ignoring WTF invocation on tag " + tag + ". mLogTags=" + mLogTags);
+            }
+        });
     }
 
-    private Object addWtf(InvocationOnMock invocation) {
-        String message = "Called " + invocation;
-        Log.d(TAG, message); // Log always, as some test expect it
-        String actualTag = (String) invocation.getArguments()[0];
-        if (mLogTags != null && mLogTags.contains(actualTag)) {
-            mWtfs.add(new IllegalStateException(message));
-        } else if (VERBOSE) {
-            Log.v(TAG, "ignoring WTF invocation on tag " + actualTag + ". mLogTags=" + mLogTags);
-        }
-        return null;
+    private void resetWtfCalls() {
+        Log.setWtfHandler(mOldWtfHandler);
     }
 
     private void verifyWtfLogged() {
