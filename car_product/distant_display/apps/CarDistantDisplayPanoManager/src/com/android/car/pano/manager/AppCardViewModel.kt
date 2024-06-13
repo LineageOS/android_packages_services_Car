@@ -187,7 +187,7 @@ class AppCardViewModel(application: Application) : AndroidViewModel(application)
     packageName: String,
     authority: String?,
   ) {
-    var removeIndex = -1
+    var removeIndex: Int? = null
     list.value?.forEachIndexed { index, it ->
       val identifier = it.appId
       val isSamePackage = identifier.containsPackage(packageName)
@@ -202,8 +202,8 @@ class AppCardViewModel(application: Application) : AndroidViewModel(application)
         return@forEachIndexed
       }
     }
-    if (removeIndex != -1) {
-      list.value?.removeAt(removeIndex)
+    removeIndex?.let {
+      list.value?.removeAt(it)
       if (!inMoveState) {
         list.value = list.value
       }
@@ -279,15 +279,7 @@ class AppCardViewModel(application: Application) : AndroidViewModel(application)
   override fun onRowMoved(from: Int, to: Int) {
     synchronized(lock = selectedAppCards) {
       selectedAppCards.value?.let {
-        if (from < to) {
-          for (i in from until to) {
-            Collections.swap(it, i, i + 1)
-          }
-        } else {
-          for (i in from downTo to + 1) {
-            Collections.swap(it, i, i - 1)
-          }
-        }
+        Collections.swap(it, from, to)
         touchHelper?.setAppCards(it, Optional.of(from), Optional.of(to))
       }
     }
