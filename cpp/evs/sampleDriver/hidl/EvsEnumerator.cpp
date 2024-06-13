@@ -63,8 +63,8 @@ constexpr size_t kEventBufferSize = 512;
 bool EvsEnumerator::checkPermission() {
     hardware::IPCThreadState* ipc = hardware::IPCThreadState::self();
     if (AID_AUTOMOTIVE_EVS != ipc->getCallingUid() && AID_ROOT != ipc->getCallingUid()) {
-        LOG(ERROR) << "EVS access denied: "
-                   << "pid = " << ipc->getCallingPid() << ", uid = " << ipc->getCallingUid();
+        LOG(ERROR) << "EVS access denied: " << "pid = " << ipc->getCallingPid()
+                   << ", uid = " << ipc->getCallingUid();
         return false;
     }
 
@@ -189,8 +189,8 @@ void EvsEnumerator::enumerateCameras() {
         }
     }
 
-    LOG(INFO) << "Found " << captureCount << " qualified video capture devices "
-              << "of " << videoCount << " checked.";
+    LOG(INFO) << "Found " << captureCount << " qualified video capture devices " << "of "
+              << videoCount << " checked.";
 }
 
 void EvsEnumerator::enumerateDisplays() {

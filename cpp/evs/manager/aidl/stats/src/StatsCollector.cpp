@@ -269,8 +269,8 @@ Result<void> StatsCollector::startCustomCollection(std::chrono::nanoseconds inte
         AutoMutex lock(mMutex);
         if (mCurrentCollectionEvent != CollectionEvent::PERIODIC) {
             return Error(::android::INVALID_OPERATION)
-                    << "Cannot start a custom collection when "
-                    << "the current collection event " << toString(mCurrentCollectionEvent)
+                    << "Cannot start a custom collection when " << "the current collection event "
+                    << toString(mCurrentCollectionEvent)
                     << " != " << toString(CollectionEvent::PERIODIC) << " collection event";
         }
 

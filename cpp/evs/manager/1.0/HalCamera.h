@@ -42,7 +42,7 @@ class VirtualCamera;  // From VirtualCamera.h
 // stream from the hardware camera and distribute it to the associated VirtualCamera objects.
 class HalCamera : public IEvsCameraStream {
 public:
-    HalCamera(sp<IEvsCamera> hwCamera) : mHwCamera(hwCamera){};
+    HalCamera(sp<IEvsCamera> hwCamera) : mHwCamera(hwCamera) {};
 
     // Factory methods for client VirtualCameras
     sp<VirtualCamera> makeVirtualCamera();
@@ -73,7 +73,7 @@ private:
     struct FrameRecord {
         uint32_t frameId;
         uint32_t refCount;
-        FrameRecord(uint32_t id) : frameId(id), refCount(0){};
+        FrameRecord(uint32_t id) : frameId(id), refCount(0) {};
     };
     std::vector<FrameRecord> mFrames;
 };

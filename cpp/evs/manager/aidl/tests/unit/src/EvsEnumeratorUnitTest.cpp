@@ -103,7 +103,8 @@ public:
     bool VerifyCameraStream(const CameraDesc& desc, size_t framesToReceive,
                             std::chrono::duration<long double> maxInterval,
                             std::chrono::duration<long double> eventTimeout,
-                            const std::string& name, StreamStartedCallbackFunc cb);
+                            const std::string& name, StreamStartedCallbackFunc cb,
+                            size_t numIterations);
 
 protected:
     // Class members declared here can be used by all tests in the test suite
@@ -306,13 +307,14 @@ TEST_F(EvsEnumeratorUnitTest, VerifyStartAndStopVideoStream) {
 
         std::packaged_task<bool()> task(std::bind(&EvsEnumeratorUnitTest::VerifyCameraStream, this,
                                                   desc, kFramesToReceive, kMaxFrameInterval,
-                                                  kEventTimeout, desc.id, doNothingFunc));
+                                                  kEventTimeout, desc.id, doNothingFunc,
+                                                  /* numIterations= */ 3));
         std::future<bool> result = task.get_future();
         std::thread t(std::move(task));
         t.detach();
 
         EXPECT_EQ(std::future_status::ready, result.wait_for(kResultTimeout));
-        EXPECT_TRUE(result.get());
+        ASSERT_TRUE(result.get());
 
         // TODO(b/250699038): This test will likely fail to request a video
         //                    stream on the next camera without this interval.
@@ -340,10 +342,12 @@ TEST_F(EvsEnumeratorUnitTest, VerifyMultipleClientsStreaming) {
 
         std::packaged_task<bool()> task0(std::bind(&EvsEnumeratorUnitTest::VerifyCameraStream, this,
                                                    desc, kFramesToReceive, kMaxFrameInterval,
-                                                   kEventTimeout, "client0", doNothingFunc));
+                                                   kEventTimeout, "client0", doNothingFunc,
+                                                   /* numIterations= */ 1));
         std::packaged_task<bool()> task1(std::bind(&EvsEnumeratorUnitTest::VerifyCameraStream, this,
                                                    desc, kFramesToReceive, kMaxFrameInterval,
-                                                   kEventTimeout, "client1", doNothingFunc));
+                                                   kEventTimeout, "client1", doNothingFunc,
+                                                   /* numIterations= */ 1));
 
         std::future<bool> result0 = task0.get_future();
         std::future<bool> result1 = task1.get_future();
@@ -355,8 +359,8 @@ TEST_F(EvsEnumeratorUnitTest, VerifyMultipleClientsStreaming) {
 
         EXPECT_EQ(std::future_status::ready, result0.wait_for(kResultTimeout));
         EXPECT_EQ(std::future_status::ready, result1.wait_for(kResultTimeout));
-        EXPECT_TRUE(result0.get());
-        EXPECT_TRUE(result1.get());
+        ASSERT_TRUE(result0.get());
+        ASSERT_TRUE(result1.get());
 
         // TODO(b/250699038): This test will likely fail to request a video
         //                    stream on the next camera without this interval.
@@ -380,10 +384,12 @@ TEST_F(EvsEnumeratorUnitTest, VerifyMultipleCamerasStreaming) {
 
         std::packaged_task<bool()> task0(std::bind(&EvsEnumeratorUnitTest::VerifyCameraStream, this,
                                                    desc0, kFramesToReceive, kMaxFrameInterval,
-                                                   kEventTimeout, desc0.id, doNothingFunc));
+                                                   kEventTimeout, desc0.id, doNothingFunc,
+                                                   /* numIterations= */ 1));
         std::packaged_task<bool()> task1(std::bind(&EvsEnumeratorUnitTest::VerifyCameraStream, this,
                                                    desc1, kFramesToReceive, kMaxFrameInterval,
-                                                   kEventTimeout, desc1.id, doNothingFunc));
+                                                   kEventTimeout, desc1.id, doNothingFunc,
+                                                   /* numIterations= */ 1));
 
         // Start sending a frame early.
         mMockEvsHal->setNumberOfFramesToSend(/* numFramesToSend = */ 100);
@@ -398,8 +404,8 @@ TEST_F(EvsEnumeratorUnitTest, VerifyMultipleCamerasStreaming) {
 
         EXPECT_EQ(std::future_status::ready, result0.wait_for(kResultTimeout));
         EXPECT_EQ(std::future_status::ready, result1.wait_for(kResultTimeout));
-        EXPECT_TRUE(result0.get());
-        EXPECT_TRUE(result1.get());
+        ASSERT_TRUE(result0.get());
+        ASSERT_TRUE(result1.get());
 
         // TODO(b/250699038): This test will likely fail to request a video
         //                    stream on the next camera without this interval.
@@ -674,7 +680,8 @@ TEST_F(EvsEnumeratorUnitTest, VerifyDumpDeviceCommand) {
 
     std::packaged_task<bool()> task(std::bind(&EvsEnumeratorUnitTest::VerifyCameraStream, this,
                                               cameras[0], kFramesToReceive, kMaxFrameInterval,
-                                              kEventTimeout, cameras[0].id, streamCb));
+                                              kEventTimeout, cameras[0].id, streamCb,
+                                              /* numIterations= */ 1));
     std::future<bool> result = task.get_future();
     std::thread t(std::move(task));
     t.detach();
@@ -706,7 +713,7 @@ TEST_F(EvsEnumeratorUnitTest, VerifyDumpDeviceCommand) {
     EXPECT_EQ(STATUS_OK, mEnumerator->dump(fileno(stdout), (const char**)&args[0], args.size()));
 
     EXPECT_EQ(std::future_status::ready, result.wait_for(kResultTimeout));
-    EXPECT_TRUE(result.get());
+    ASSERT_TRUE(result.get());
 
     args.pop_back();
     args.pop_back();
@@ -721,7 +728,8 @@ bool EvsEnumeratorUnitTest::VerifyCameraStream(const CameraDesc& desc, size_t fr
                                                std::chrono::duration<long double> maxInterval,
                                                std::chrono::duration<long double> eventTimeout,
                                                const std::string& name,
-                                               StreamStartedCallbackFunc callback) {
+                                               StreamStartedCallbackFunc callback,
+                                               size_t numIterations) {
     std::mutex m;
     std::condition_variable cv;
     std::vector<BufferDesc> receivedFrames;
@@ -759,43 +767,60 @@ bool EvsEnumeratorUnitTest::VerifyCameraStream(const CameraDesc& desc, size_t fr
     // Retrieve available stream configurations.
     std::vector<Stream> config;
     EXPECT_TRUE(mEnumerator->getStreamList(desc, &config).isOk());
-    EXPECT_FALSE(config.empty());
+    if (config.empty()) {
+        LOG(ERROR) << "No stream is available.";
+        return false;
+    }
 
     // Open a camera with the first configuration.
     std::shared_ptr<IEvsCamera> c;
     EXPECT_TRUE(mEnumerator->openCamera(desc.id, config[0], &c).isOk());
-    EXPECT_NE(nullptr, c);
+    if (!c) {
+        LOG(ERROR) << "Failed to open a camera " << desc.id;
+        return false;
+    }
 
-    // Request to start a video stream and wait for a given number of frames.
-    std::shared_ptr<StreamCallback> cb =
-            ::ndk::SharedRefBase::make<StreamCallback>(frameCb, eventCb);
-    EXPECT_TRUE(c->startVideoStream(cb).isOk());
-
-    std::unique_lock lk(m);
-    for (auto i = 0; i < framesToReceive; ++i) {
-        EXPECT_TRUE(cv.wait_for(lk, maxInterval, [&gotFrameCallback] { return gotFrameCallback; }));
-        EXPECT_TRUE(gotFrameCallback);
-        if (!gotFrameCallback) {
+    for (auto iter = 0; iter < numIterations; ++iter) {
+        // Request to start a video stream and wait for a given number of frames.
+        std::shared_ptr<StreamCallback> cb =
+                ::ndk::SharedRefBase::make<StreamCallback>(frameCb, eventCb);
+        if (!cb) {
+            LOG(ERROR) << "Failed to create a new StreamCallback object.";
             continue;
         }
 
-        EXPECT_TRUE(c->doneWithFrame(receivedFrames).isOk());
-        receivedFrames.clear();
-        gotFrameCallback = false;
+        if (!c->startVideoStream(cb).isOk()) {
+            LOG(ERROR) << "Failed to start a video stream on " << desc.id;
+            continue;
+        }
+
+        std::unique_lock lk(m);
+        for (auto i = 0; i < framesToReceive; ++i) {
+            EXPECT_TRUE(
+                    cv.wait_for(lk, maxInterval, [&gotFrameCallback] { return gotFrameCallback; }));
+            if (!gotFrameCallback) {
+                LOG(WARNING) << "Did not receive a frame " << i;
+                continue;
+            }
+
+            EXPECT_TRUE(c->doneWithFrame(receivedFrames).isOk());
+            receivedFrames.clear();
+            gotFrameCallback = false;
+        }
+        lk.unlock();
+
+        // Call two methods that are not implemented yet in a mock EVS HAL
+        // implementation.
+        EXPECT_TRUE(c->pauseVideoStream().isOk());
+        EXPECT_TRUE(c->resumeVideoStream().isOk());
+
+        // Request to stop a video stream and wait.
+        EXPECT_TRUE(c->stopVideoStream().isOk());
+
+        lk.lock();
+        cv.wait_for(lk, eventTimeout, [&gotEventCallback] { return gotEventCallback; });
+        EXPECT_EQ(EvsEventType::STREAM_STOPPED, receivedEvent.aType);
     }
-    lk.unlock();
-
-    // Call two methods that are not implemented yet in a mock EVS HAL
-    // implementation.
-    EXPECT_TRUE(c->pauseVideoStream().isOk());
-    EXPECT_TRUE(c->resumeVideoStream().isOk());
-
-    // Request to stop a video stream and wait.
-    EXPECT_TRUE(c->stopVideoStream().isOk());
-
-    lk.lock();
-    cv.wait_for(lk, eventTimeout, [&gotEventCallback] { return gotEventCallback; });
-    EXPECT_EQ(EvsEventType::STREAM_STOPPED, receivedEvent.aType);
 
     EXPECT_TRUE(mEnumerator->closeCamera(c).isOk());
 

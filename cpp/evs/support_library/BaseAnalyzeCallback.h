@@ -27,7 +27,7 @@ namespace support {
 class BaseAnalyzeCallback {
 public:
     virtual void analyze(const Frame&) = 0;
-    virtual ~BaseAnalyzeCallback(){};
+    virtual ~BaseAnalyzeCallback() {};
 };
 
 }  // namespace support

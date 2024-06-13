@@ -128,7 +128,7 @@ private:
         buffer_handle_t handle;
         bool inUse;
 
-        explicit BufferRecord(buffer_handle_t h) : handle(h), inUse(false){};
+        explicit BufferRecord(buffer_handle_t h) : handle(h), inUse(false) {};
     };
 
     std::vector<BufferRecord> mBuffers;  // Graphics buffers to transfer images

@@ -44,7 +44,7 @@ protected:
         const ConfigManager::CameraInfo& info;
         std::unique_ptr<VideoTex> tex;
 
-        ActiveCamera(const ConfigManager::CameraInfo& c) : info(c){};
+        ActiveCamera(const ConfigManager::CameraInfo& c) : info(c) {};
     };
 
     void renderCarTopView();

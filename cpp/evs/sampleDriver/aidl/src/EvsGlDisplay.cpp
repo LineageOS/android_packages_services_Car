@@ -335,9 +335,7 @@ ScopedAStatus EvsGlDisplay::getTargetBuffer(BufferDesc* _aidl_return) {
     // If we don't already have a buffer, allocate one now
     // mBuffer.memHandle is a type of buffer_handle_t, which is equal to
     // native_handle_t*.
-    mBufferReadyToUse.wait(lock, [this]() REQUIRES(mLock) {
-        return !mBufferBusy;
-    });
+    mBufferReadyToUse.wait(lock, [this]() REQUIRES(mLock) { return !mBufferBusy; });
 
     // Do we have a frame available?
     if (mBufferBusy) {
@@ -413,9 +411,7 @@ ScopedAStatus EvsGlDisplay::returnTargetBufferForDisplay(const BufferDesc& buffe
     mBufferReady = true;
     mBufferReadyToRender.notify_all();
 
-    if (!mBufferDone.wait_for(lock, kTimeout, [this]() REQUIRES(mLock) {
-            return !mBufferBusy;
-        })) {
+    if (!mBufferDone.wait_for(lock, kTimeout, [this]() REQUIRES(mLock) { return !mBufferBusy; })) {
         return ScopedAStatus::fromServiceSpecificError(
                 static_cast<int>(EvsResult::UNDERLYING_SERVICE_ERROR));
     }

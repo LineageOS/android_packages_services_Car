@@ -65,7 +65,7 @@ namespace implementation {
 
 class VideoCapture : public MessageHandler {
 public:
-    explicit VideoCapture(){};
+    explicit VideoCapture() {};
     virtual ~VideoCapture();
     bool open(const std::string& path, const std::chrono::nanoseconds interval);
     void close();

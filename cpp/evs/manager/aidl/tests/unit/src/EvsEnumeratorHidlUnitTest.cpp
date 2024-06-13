@@ -57,6 +57,7 @@ using StreamStartedCallbackFunc = std::function<void()>;
 
 constexpr size_t kNumMockEvsCameras = 4;
 constexpr size_t kNumMockEvsDisplays = 2;
+constexpr size_t kNumFramesToRequest = 3;
 
 const std::unordered_set<int32_t> gAllowedUid({AID_ROOT, AID_SYSTEM, AID_AUTOMOTIVE_EVS});
 
@@ -110,12 +111,14 @@ public:
     bool VerifyCameraStream(const hidlevs::V1_1::CameraDesc& desc, size_t framesToReceive,
                             std::chrono::duration<long double> maxInterval,
                             std::chrono::duration<long double> eventTimeout,
-                            const std::string& name, StreamStartedCallbackFunc cb);
+                            const std::string& name, StreamStartedCallbackFunc cb,
+                            size_t numIterations);
 
     bool VerifyCameraStream_1_0(const hidlevs::V1_0::CameraDesc& desc, size_t framesToReceive,
                                 std::chrono::duration<long double> maxInterval,
                                 std::chrono::duration<long double> stopTimeout,
-                                const std::string& name, StreamStartedCallbackFunc cb);
+                                const std::string& name, StreamStartedCallbackFunc cb,
+                                size_t numIterations);
 
 protected:
     // Class members declared here can be used by all tests in the test suite
@@ -352,13 +355,14 @@ TEST_F(EvsEnumeratorHidlUnitTest, VerifyStartAndStopVideoStream) {
 
         std::packaged_task<bool()> task(std::bind(&EvsEnumeratorHidlUnitTest::VerifyCameraStream,
                                                   this, desc, kFramesToReceive, kMaxFrameInterval,
-                                                  kEventTimeout, desc.v1.cameraId, doNothingFunc));
+                                                  kEventTimeout, desc.v1.cameraId, doNothingFunc,
+                                                  /* numIterations= */ 3));
         std::future<bool> result = task.get_future();
         std::thread t(std::move(task));
         t.detach();
 
         EXPECT_EQ(std::future_status::ready, result.wait_for(kResultTimeout));
-        EXPECT_TRUE(result.get());
+        ASSERT_TRUE(result.get());
 
         // TODO(b/250699038): This test will likely fail to request a video
         //                    stream on the next camera without this interval.
@@ -382,13 +386,13 @@ TEST_F(EvsEnumeratorHidlUnitTest, VerifyStartAndStopVideoStream_1_0) {
         std::packaged_task<bool()> task(
                 std::bind(&EvsEnumeratorHidlUnitTest::VerifyCameraStream_1_0, this, desc,
                           kFramesToReceive, kMaxFrameInterval, kStopTimeout, desc.cameraId,
-                          doNothingFunc));
+                          doNothingFunc, /* numIterations= */ 3));
         std::future<bool> result = task.get_future();
         std::thread t(std::move(task));
         t.detach();
 
         EXPECT_EQ(std::future_status::ready, result.wait_for(kResultTimeout));
-        EXPECT_TRUE(result.get());
+        ASSERT_TRUE(result.get());
 
         // TODO(b/250699038): This test will likely fail to request a video
         //                    stream on the next camera without this interval.
@@ -411,10 +415,12 @@ TEST_F(EvsEnumeratorHidlUnitTest, VerifyMultipleClientsStreaming) {
 
         std::packaged_task<bool()> task0(std::bind(&EvsEnumeratorHidlUnitTest::VerifyCameraStream,
                                                    this, desc, kFramesToReceive, kMaxFrameInterval,
-                                                   kEventTimeout, "client0", doNothingFunc));
+                                                   kEventTimeout, "client0", doNothingFunc,
+                                                   /* numIterations= */ 1));
         std::packaged_task<bool()> task1(std::bind(&EvsEnumeratorHidlUnitTest::VerifyCameraStream,
                                                    this, desc, kFramesToReceive, kMaxFrameInterval,
-                                                   kEventTimeout, "client1", doNothingFunc));
+                                                   kEventTimeout, "client1", doNothingFunc,
+                                                   /* numIterations= */ 1));
 
         std::future<bool> result0 = task0.get_future();
         std::future<bool> result1 = task1.get_future();
@@ -426,8 +432,8 @@ TEST_F(EvsEnumeratorHidlUnitTest, VerifyMultipleClientsStreaming) {
 
         EXPECT_EQ(std::future_status::ready, result0.wait_for(kResultTimeout));
         EXPECT_EQ(std::future_status::ready, result1.wait_for(kResultTimeout));
-        EXPECT_TRUE(result0.get());
-        EXPECT_TRUE(result1.get());
+        ASSERT_TRUE(result0.get());
+        ASSERT_TRUE(result1.get());
 
         // TODO(b/250699038): This test will likely fail to request a video
         //                    stream on the next camera without this interval.
@@ -450,12 +456,12 @@ TEST_F(EvsEnumeratorHidlUnitTest, VerifyMultipleCamerasStreaming) {
 
         std::packaged_task<bool()> task0(std::bind(&EvsEnumeratorHidlUnitTest::VerifyCameraStream,
                                                    this, desc0, kFramesToReceive, kMaxFrameInterval,
-                                                   kEventTimeout, desc0.v1.cameraId,
-                                                   doNothingFunc));
+                                                   kEventTimeout, desc0.v1.cameraId, doNothingFunc,
+                                                   /* numIterations= */ 1));
         std::packaged_task<bool()> task1(std::bind(&EvsEnumeratorHidlUnitTest::VerifyCameraStream,
                                                    this, desc1, kFramesToReceive, kMaxFrameInterval,
-                                                   kEventTimeout, desc1.v1.cameraId,
-                                                   doNothingFunc));
+                                                   kEventTimeout, desc1.v1.cameraId, doNothingFunc,
+                                                   /* numIterations= */ 1));
 
         // Start sending a frame early.
         mMockEvsHal->setNumberOfFramesToSend(/* numFramesToSend = */ 100);
@@ -470,8 +476,8 @@ TEST_F(EvsEnumeratorHidlUnitTest, VerifyMultipleCamerasStreaming) {
 
         EXPECT_EQ(std::future_status::ready, result0.wait_for(kResultTimeout));
         EXPECT_EQ(std::future_status::ready, result1.wait_for(kResultTimeout));
-        EXPECT_TRUE(result0.get());
-        EXPECT_TRUE(result1.get());
+        ASSERT_TRUE(result0.get());
+        ASSERT_TRUE(result1.get());
 
         // TODO(b/250699038): This test will likely fail to request a video
         //                    stream on the next camera without this interval.
@@ -901,7 +907,8 @@ bool EvsEnumeratorHidlUnitTest::VerifyCameraStream(const hidlevs::V1_1::CameraDe
                                                    std::chrono::duration<long double> maxInterval,
                                                    std::chrono::duration<long double> eventTimeout,
                                                    const std::string& name,
-                                                   StreamStartedCallbackFunc callback) {
+                                                   StreamStartedCallbackFunc callback,
+                                                   size_t numIterations) {
     std::mutex m;
     std::condition_variable cv;
     ::android::hardware::hidl_vec<hidlevs::V1_1::BufferDesc> receivedFrames;
@@ -935,48 +942,70 @@ bool EvsEnumeratorHidlUnitTest::VerifyCameraStream(const hidlevs::V1_1::CameraDe
 
     ::android::sp<hidlevs::V1_1::IEvsCamera> c =
             mEnumerator->openCamera_1_1(desc.v1.cameraId, /* streamCfg= */ {});
-    EXPECT_NE(nullptr, c);
-    EXPECT_EQ(hidlevs::V1_0::EvsResult::OK, c->setMaxFramesInFlight(/* bufferCount= */ 3));
+    if (!c) {
+        LOG(ERROR) << "Failed to open a camera " << desc.v1.cameraId;
+        return false;
+    }
 
-    // Request to start a video stream and wait for a given number of frames.
-    ::android::sp<StreamCallback> cb = new (std::nothrow) StreamCallback(frameCb, eventCb);
-    EXPECT_NE(nullptr, cb);
-    EXPECT_TRUE(c->startVideoStream(cb).isOk());
+    if (c->setMaxFramesInFlight(kNumFramesToRequest) != hidlevs::V1_0::EvsResult::OK) {
+        LOG(WARNING) << "Failed to adjust the size of the buffer pool.";
+        return false;
+    }
 
-    std::unique_lock lk(m);
-    for (auto i = 0; i < framesToReceive; ++i) {
-        EXPECT_TRUE(cv.wait_for(lk, maxInterval, [&gotFrameCallback] { return gotFrameCallback; }));
-        EXPECT_TRUE(gotFrameCallback);
-        if (!gotFrameCallback) {
+    for (auto iter = 0; iter < numIterations; ++iter) {
+        // Request to start a video stream and wait for a given number of frames.
+        ::android::sp<StreamCallback> cb = new (std::nothrow) StreamCallback(frameCb, eventCb);
+        if (!cb) {
+            LOG(ERROR) << "Failed to create a new StreamCallback object.";
             continue;
         }
 
-        EXPECT_TRUE(c->doneWithFrame_1_1(receivedFrames).isOk());
-        gotFrameCallback = false;
+        auto ret = c->startVideoStream(cb);
+        if (ret != hidlevs::V1_0::EvsResult::OK &&
+            ret != hidlevs::V1_0::EvsResult::STREAM_ALREADY_RUNNING) {
+            LOG(ERROR) << "Failed to start a video stream on " << desc.v1.cameraId;
+            continue;
+        }
+
+        std::unique_lock lk(m);
+        for (auto i = 0; i < framesToReceive; ++i) {
+            EXPECT_TRUE(
+                    cv.wait_for(lk, maxInterval, [&gotFrameCallback] { return gotFrameCallback; }));
+            if (!gotFrameCallback) {
+                LOG(WARNING) << "Did not receive a frame " << i;
+                continue;
+            }
+
+            EXPECT_TRUE(c->doneWithFrame_1_1(receivedFrames).isOk());
+            gotFrameCallback = false;
+        }
+        lk.unlock();
+
+        // Call two methods that are not implemented yet in a mock EVS HAL
+        // implementation.
+        EXPECT_TRUE(c->pauseVideoStream().isOk());
+        EXPECT_TRUE(c->resumeVideoStream().isOk());
+
+        // Create AidlCamera object and call pauseVideoStream() and
+        // resumeVideoStream().
+        std::shared_ptr<AidlCamera> aidlCamera = ndk::SharedRefBase::make<AidlCamera>(c);
+        if (!aidlCamera) {
+            LOG(ERROR) << "Failed to create a new AidlCamera object.";
+            return false;
+        }
+
+        // Mock HIDL EVS HAL implementation does not support pause/resume; hence
+        // below calls should fail.
+        EXPECT_FALSE(aidlCamera->pauseVideoStream().isOk());
+        EXPECT_FALSE(aidlCamera->resumeVideoStream().isOk());
+
+        // Request to stop a video stream and wait.
+        EXPECT_TRUE(c->stopVideoStream().isOk());
+
+        lk.lock();
+        cv.wait_for(lk, eventTimeout, [&gotEventCallback] { return gotEventCallback; });
+        EXPECT_EQ(hidlevs::V1_1::EvsEventType::STREAM_STOPPED, receivedEvent.aType);
     }
-    lk.unlock();
-
-    // Call two methods that are not implemented yet in a mock EVS HAL
-    // implementation.
-    EXPECT_TRUE(c->pauseVideoStream().isOk());
-    EXPECT_TRUE(c->resumeVideoStream().isOk());
-
-    // Create AidlCamera object and call pauseVideoStream() and
-    // resumeVideoStream().
-    std::shared_ptr<AidlCamera> aidlCamera = ndk::SharedRefBase::make<AidlCamera>(c);
-    EXPECT_NE(nullptr, aidlCamera);
-
-    // Mock HIDL EVS HAL implementation does not support pause/resume; hence
-    // below calls should fail.
-    EXPECT_FALSE(aidlCamera->pauseVideoStream().isOk());
-    EXPECT_FALSE(aidlCamera->resumeVideoStream().isOk());
-
-    // Request to stop a video stream and wait.
-    EXPECT_TRUE(c->stopVideoStream().isOk());
-
-    lk.lock();
-    cv.wait_for(lk, eventTimeout, [&gotEventCallback] { return gotEventCallback; });
-    EXPECT_EQ(hidlevs::V1_1::EvsEventType::STREAM_STOPPED, receivedEvent.aType);
 
     EXPECT_TRUE(mEnumerator->closeCamera(c).isOk());
 
@@ -987,7 +1016,7 @@ bool EvsEnumeratorHidlUnitTest::VerifyCameraStream_1_0(
         const hidlevs::V1_0::CameraDesc& desc, size_t framesToReceive,
         std::chrono::duration<long double> maxInterval,
         std::chrono::duration<long double> stopTimeout, const std::string& name,
-        StreamStartedCallbackFunc callback) {
+        StreamStartedCallbackFunc callback, size_t numIterations) {
     std::mutex m;
     std::condition_variable cv;
     hidlevs::V1_0::BufferDesc receivedFrame;
@@ -1013,43 +1042,65 @@ bool EvsEnumeratorHidlUnitTest::VerifyCameraStream_1_0(
     });
 
     ::android::sp<hidlevs::V1_0::IEvsCamera> c = mEnumerator->openCamera(desc.cameraId);
-    EXPECT_NE(nullptr, c);
-    EXPECT_EQ(hidlevs::V1_0::EvsResult::OK, c->setMaxFramesInFlight(/* bufferCount= */ 3));
+    if (!c) {
+        LOG(ERROR) << "Failed to open a camera " << desc.cameraId;
+        return false;
+    }
 
-    // Request to start a video stream and wait for a given number of frames.
-    ::android::sp<StreamCallback_1_0> cb = new (std::nothrow) StreamCallback_1_0(frameCb);
-    EXPECT_NE(nullptr, cb);
-    EXPECT_TRUE(c->startVideoStream(cb).isOk());
+    if (c->setMaxFramesInFlight(kNumFramesToRequest) != hidlevs::V1_0::EvsResult::OK) {
+        LOG(WARNING) << "Failed to adjust the size of the buffer pool.";
+        return false;
+    }
 
-    std::unique_lock lk(m);
-    for (auto i = 0; i < framesToReceive; ++i) {
-        EXPECT_TRUE(cv.wait_for(lk, maxInterval, [&gotFrameCallback] { return gotFrameCallback; }));
-        EXPECT_TRUE(gotFrameCallback);
-        if (!gotFrameCallback) {
+    for (auto iter = 0; iter < numIterations; ++iter) {
+        // Request to start a video stream and wait for a given number of frames.
+        ::android::sp<StreamCallback_1_0> cb = new (std::nothrow) StreamCallback_1_0(frameCb);
+        if (!cb) {
+            LOG(ERROR) << "Failed to create a new StreamCallback object.";
             continue;
         }
 
-        EXPECT_TRUE(c->doneWithFrame(receivedFrame).isOk());
-        gotFrameCallback = false;
+        auto ret = c->startVideoStream(cb);
+        if (ret != hidlevs::V1_0::EvsResult::OK) {
+            LOG(ERROR) << "Failed to start a video stream on " << desc.cameraId;
+            continue;
+        }
+
+        std::unique_lock lk(m);
+        for (auto i = 0; i < framesToReceive; ++i) {
+            EXPECT_TRUE(
+                    cv.wait_for(lk, maxInterval, [&gotFrameCallback] { return gotFrameCallback; }));
+            if (!gotFrameCallback) {
+                LOG(WARNING) << "Did not receive a frame " << i;
+                continue;
+            }
+
+            EXPECT_TRUE(c->doneWithFrame(receivedFrame).isOk());
+            gotFrameCallback = false;
+        }
+        lk.unlock();
+
+        // Create AidlCamera object and call pauseVideoStream() and
+        // resumeVideoStream().
+        std::shared_ptr<AidlCamera> aidlCamera =
+                ndk::SharedRefBase::make<AidlCamera>(c, /* forceV1_0= */ true);
+        if (!aidlCamera) {
+            LOG(ERROR) << "Failed to create a new AidlCamera object.";
+            return false;
+        }
+
+        // ::android::hardware::automotive::evs::V1_0::IEvsCamera does not support
+        // pause/resume; hence, below calls should fail.
+        EXPECT_FALSE(aidlCamera->pauseVideoStream().isOk());
+        EXPECT_FALSE(aidlCamera->resumeVideoStream().isOk());
+
+        // Request to stop a video stream and wait.
+        EXPECT_TRUE(c->stopVideoStream().isOk());
+
+        lk.lock();
+        EXPECT_TRUE(cv.wait_for(lk, stopTimeout, [&gotNullFrame] { return gotNullFrame; }));
     }
-    lk.unlock();
 
-    // Create AidlCamera object and call pauseVideoStream() and
-    // resumeVideoStream().
-    std::shared_ptr<AidlCamera> aidlCamera =
-            ndk::SharedRefBase::make<AidlCamera>(c, /* forceV1_0= */ true);
-    EXPECT_NE(nullptr, aidlCamera);
-
-    // ::android::hardware::automotive::evs::V1_0::IEvsCamera does not support
-    // pause/resume; hence, below calls should fail.
-    EXPECT_FALSE(aidlCamera->pauseVideoStream().isOk());
-    EXPECT_FALSE(aidlCamera->resumeVideoStream().isOk());
-
-    // Request to stop a video stream and wait.
-    EXPECT_TRUE(c->stopVideoStream().isOk());
-
-    lk.lock();
-    EXPECT_TRUE(cv.wait_for(lk, stopTimeout, [&gotNullFrame] { return gotNullFrame; }));
     EXPECT_TRUE(mEnumerator->closeCamera(c).isOk());
 
     return true;

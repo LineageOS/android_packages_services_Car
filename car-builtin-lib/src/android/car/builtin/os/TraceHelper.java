@@ -36,4 +36,11 @@ public final class TraceHelper {
      * trace tools to access these traces.
      */
     public static final long TRACE_TAG_CAR_SERVICE = Trace.TRACE_TAG_SYSTEM_SERVER;
+
+    /**
+     * {@code Trace tag} that should be used by car evs service. This is same with
+     * {@link Trace#TRACE_TAG_CAMERA}, so {@code Camera} tracing should be enabled from
+     * trace tools to access these traces.
+     */
+    public static final long TRACE_TAG_CAR_EVS_SERVICE = Trace.TRACE_TAG_CAMERA;
 }

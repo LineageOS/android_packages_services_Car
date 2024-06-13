@@ -132,6 +132,7 @@ Return<void> HidlCamera::stopVideoStream() {
     }
 
     mAidlCamera->stopVideoStream();
+    mAidlStream = nullptr;
     return {};
 }
 

@@ -31,7 +31,7 @@
  */
 class RenderBase {
 public:
-    virtual ~RenderBase(){};
+    virtual ~RenderBase() {};
 
     virtual bool activate() = 0;
     virtual void deactivate() = 0;

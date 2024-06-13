@@ -612,8 +612,7 @@ bool ConfigManager::readConfigDataFromBinary() {
                     p += count * sizeof(camera_metadata_rational_t);
                     break;
                 default:
-                    LOG(WARNING) << "Type " << type << " is unknown; "
-                                 << "data may be corrupted.";
+                    LOG(WARNING) << "Type " << type << " is unknown; " << "data may be corrupted.";
                     break;
             }
         }
@@ -715,8 +714,7 @@ bool ConfigManager::readConfigDataFromBinary() {
                     p += count * sizeof(camera_metadata_rational_t);
                     break;
                 default:
-                    LOG(WARNING) << "Type " << type << " is unknown; "
-                                 << "data may be corrupted.";
+                    LOG(WARNING) << "Type " << type << " is unknown; " << "data may be corrupted.";
                     break;
             }
         }
