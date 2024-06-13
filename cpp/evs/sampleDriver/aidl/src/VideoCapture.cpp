@@ -109,10 +109,9 @@ bool VideoCapture::open(const char* deviceName, const int32_t width, const int32
         mHeight = format.fmt.pix.height;
         mStride = format.fmt.pix.bytesperline;
 
-        LOG(INFO) << "Current output format:  "
-                  << "fmt=0x" << std::hex << format.fmt.pix.pixelformat << ", " << std::dec
-                  << format.fmt.pix.width << " x " << format.fmt.pix.height
-                  << ", pitch=" << format.fmt.pix.bytesperline;
+        LOG(INFO) << "Current output format:  " << "fmt=0x" << std::hex
+                  << format.fmt.pix.pixelformat << ", " << std::dec << format.fmt.pix.width << " x "
+                  << format.fmt.pix.height << ", pitch=" << format.fmt.pix.bytesperline;
     } else {
         PLOG(ERROR) << "VIDIOC_G_FMT failed";
         return false;
@@ -309,8 +308,7 @@ void VideoCapture::collectFrames() {
 int VideoCapture::setParameter(v4l2_control& control) {
     int status = ioctl(mDeviceFd, VIDIOC_S_CTRL, &control);
     if (status < 0) {
-        PLOG(ERROR) << "Failed to program a parameter value "
-                    << "id = " << std::hex << control.id;
+        PLOG(ERROR) << "Failed to program a parameter value " << "id = " << std::hex << control.id;
     }
 
     return status;
@@ -319,8 +317,8 @@ int VideoCapture::setParameter(v4l2_control& control) {
 int VideoCapture::getParameter(v4l2_control& control) {
     int status = ioctl(mDeviceFd, VIDIOC_G_CTRL, &control);
     if (status < 0) {
-        PLOG(ERROR) << "Failed to read a parameter value"
-                    << " fd = " << std::hex << mDeviceFd << " id = " << control.id;
+        PLOG(ERROR) << "Failed to read a parameter value" << " fd = " << std::hex << mDeviceFd
+                    << " id = " << control.id;
     }
 
     return status;

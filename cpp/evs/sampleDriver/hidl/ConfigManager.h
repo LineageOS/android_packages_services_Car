@@ -53,8 +53,7 @@ public:
     /* Camera device's capabilities and metadata */
     class CameraInfo {
     public:
-        CameraInfo() : characteristics(nullptr) { /* Nothing to do */
-        }
+        CameraInfo() : characteristics(nullptr) { /* Nothing to do */ }
 
         virtual ~CameraInfo();
 

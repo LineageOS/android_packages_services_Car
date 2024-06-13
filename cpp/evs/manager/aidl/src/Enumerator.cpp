@@ -194,8 +194,8 @@ bool Enumerator::init(const std::string_view& hardwareServiceName) {
 bool Enumerator::checkPermission() const {
     const auto uid = AIBinder_getCallingUid();
     if (!mDisablePermissionCheck && kAllowedUids.find(uid) == kAllowedUids.end()) {
-        LOG(ERROR) << "EVS access denied: "
-                   << "pid = " << AIBinder_getCallingPid() << ", uid = " << uid;
+        LOG(ERROR) << "EVS access denied: " << "pid = " << AIBinder_getCallingPid()
+                   << ", uid = " << uid;
         return false;
     }
 

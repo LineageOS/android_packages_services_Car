@@ -98,9 +98,8 @@ public:
         const auto userId = ipc->getCallingUid() / AID_USER_OFFSET;
         const auto appId = ipc->getCallingUid() % AID_USER_OFFSET;
         if (AID_AUTOMOTIVE_EVS != appId && AID_ROOT != appId && AID_SYSTEM != appId) {
-            LOG(ERROR) << "EVS access denied? "
-                       << "pid = " << ipc->getCallingPid() << ", userId = " << userId
-                       << ", appId = " << appId;
+            LOG(ERROR) << "EVS access denied? " << "pid = " << ipc->getCallingPid()
+                       << ", userId = " << userId << ", appId = " << appId;
             return false;
         }
 
@@ -258,7 +257,7 @@ Return<void> Enumerator::getCameraList(getCameraList_cb list_cb) {
         if (it != mCameraDevices.end()) {
             it->second.v1 = desc;
         } else {
-            CameraDesc desc_1_1 = { .v1 = desc };
+            CameraDesc desc_1_1 = {.v1 = desc};
             mCameraDevices.emplace(desc.cameraId, desc_1_1);
         }
     }

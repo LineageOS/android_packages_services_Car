@@ -153,8 +153,7 @@ bool DisplayUseCase::startVideoStream() {
             return;
         }
 
-        while (mIsReadyToRun && streamFrame())
-            ;
+        while (mIsReadyToRun && streamFrame());
 
         ALOGD("Worker thread stops.");
     });

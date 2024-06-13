@@ -71,7 +71,7 @@ void fillRGBAFromYUYV(const BufferDesc_1_1& dstBuff, uint8_t* dstData, void* src
             // Note:  we're walking two pixels at a time here (even/odd)
             uint32_t srcPixel = *src++;
 
-            uint8_t Y1 = (srcPixel)&0xFF;
+            uint8_t Y1 = (srcPixel) & 0xFF;
             uint8_t U = (srcPixel >> 8) & 0xFF;
             uint8_t Y2 = (srcPixel >> 16) & 0xFF;
             uint8_t V = (srcPixel >> 24) & 0xFF;
@@ -410,8 +410,7 @@ Return<void> EvsEmulatedCamera::importExternalBuffers(const hidl_vec<BufferDesc_
 
     // If we've been displaced by another owner of the camera, then we can't do anything else
     if (!mVideo->isOpen()) {
-        LOG(WARNING) << "Ignoring a request add external buffers "
-                     << "when camera has been lost.";
+        LOG(WARNING) << "Ignoring a request add external buffers " << "when camera has been lost.";
         _hidl_cb(EvsResult::UNDERLYING_SERVICE_ERROR, mFramesAllowed);
         return {};
     }

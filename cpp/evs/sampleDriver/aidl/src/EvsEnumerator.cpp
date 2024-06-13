@@ -154,8 +154,8 @@ EvsEnumerator::EvsEnumerator(const std::shared_ptr<ICarDisplayProxy>& proxyServi
 bool EvsEnumerator::checkPermission() {
     const auto uid = AIBinder_getCallingUid();
     if (kAllowedUids.find(uid) == kAllowedUids.end()) {
-        LOG(ERROR) << "EVS access denied: "
-                   << "pid = " << AIBinder_getCallingPid() << ", uid = " << uid;
+        LOG(ERROR) << "EVS access denied: " << "pid = " << AIBinder_getCallingPid()
+                   << ", uid = " << uid;
         return false;
     }
 
@@ -229,8 +229,8 @@ void EvsEnumerator::enumerateCameras() {
         }
     }
 
-    LOG(INFO) << "Found " << captureCount << " qualified video capture devices "
-              << "of " << videoCount << " checked.";
+    LOG(INFO) << "Found " << captureCount << " qualified video capture devices " << "of "
+              << videoCount << " checked.";
 }
 
 uint64_t EvsEnumerator::enumerateDisplays() {

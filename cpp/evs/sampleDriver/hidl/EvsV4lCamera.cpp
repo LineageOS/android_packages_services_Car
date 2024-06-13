@@ -439,8 +439,7 @@ Return<void> EvsV4lCamera::importExternalBuffers(const hidl_vec<BufferDesc_1_1>&
 
     // If we've been displaced by another owner of the camera, then we can't do anything else
     if (!mVideo.isOpen()) {
-        LOG(WARNING) << "Ignoring a request add external buffers "
-                     << "when camera has been lost.";
+        LOG(WARNING) << "Ignoring a request add external buffers " << "when camera has been lost.";
         _hidl_cb(EvsResult::UNDERLYING_SERVICE_ERROR, mFramesAllowed);
         return {};
     }

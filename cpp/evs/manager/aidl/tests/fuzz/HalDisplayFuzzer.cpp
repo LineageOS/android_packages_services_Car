@@ -62,10 +62,9 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
             }
             case EVS_FUZZ_SET_DISPLAY_STATE: {
                 LOG(DEBUG) << "EVS_FUZZ_SET_DISPLAY_STATE";
-                uint32_t state =
-                        fdp.ConsumeIntegralInRange<uint32_t>(0,
-                                                             static_cast<uint32_t>(
-                                                                     DisplayState::DEAD));
+                uint32_t state = fdp.ConsumeIntegralInRange<uint32_t>(0,
+                                                                      static_cast<uint32_t>(
+                                                                              DisplayState::DEAD));
                 halDisplay->setDisplayState(static_cast<DisplayState>(state));
                 break;
             }

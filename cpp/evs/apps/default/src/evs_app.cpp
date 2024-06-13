@@ -122,8 +122,7 @@ int main(int argc, char** argv) {
             useExternalMemory = true;
             if (i + 1 >= argc) {
                 // use RGBA8888 by default
-                LOG(INFO) << "External buffer format is not set.  "
-                          << "RGBA8888 will be used.";
+                LOG(INFO) << "External buffer format is not set.  " << "RGBA8888 will be used.";
             } else {
                 if (!convertStringToFormat(argv[i + 1], &extMemoryFormat)) {
                     LOG(WARNING) << "Color format string " << argv[i + 1]
@@ -136,8 +135,7 @@ int main(int argc, char** argv) {
         } else if (strcmp(argv[i], "--gear") == 0) {
             // Gear signal to simulate
             if (i + 1 >= argc) {
-                LOG(INFO) << "Gear signal is not set.  "
-                          << "Reverse signal will be used.";
+                LOG(INFO) << "Gear signal is not set.  " << "Reverse signal will be used.";
                 continue;
             }
             i += 1;  // increase an index to next argument

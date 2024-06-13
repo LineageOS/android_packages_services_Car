@@ -141,8 +141,8 @@ size_t MockHidlEvsHal_1_0::initializeBufferPool(size_t requested) {
                 .width = 64,
                 .height = 32,
                 .layers = 1,
-                .usage = AHARDWAREBUFFER_USAGE_CPU_READ_OFTEN,
                 .format = HAL_PIXEL_FORMAT_RGBA_8888,
+                .usage = AHARDWAREBUFFER_USAGE_CPU_READ_OFTEN,
         };
         AHardwareBuffer* ahwb;
         if (AHardwareBuffer_allocate(&desc, &ahwb) != ::android::NO_ERROR) {
@@ -270,22 +270,31 @@ bool MockHidlEvsHal_1_0::addMockCameraDevice(const std::string& deviceId) {
     ON_CALL(*mockCamera, setMaxFramesInFlight)
             .WillByDefault([this, id = mockCamera->getId()](uint32_t bufferCount) {
                 std::lock_guard l(mLock);
-                size_t totalSize = mBufferPoolSize + bufferCount;
-                if (totalSize < kMinimumNumBuffers) {
+                if (bufferCount < kMinimumNumBuffers) {
                     LOG(WARNING) << "Requested buffer pool size is too small to run a camera; "
                                     "adjusting the pool size to "
                                  << kMinimumNumBuffers;
-                    totalSize = kMinimumNumBuffers;
-                } else if (totalSize > kMaximumNumBuffers) {
+                    bufferCount = kMinimumNumBuffers;
+                }
+
+                int64_t delta = bufferCount;
+                auto it = mCameraBufferPoolSize.find(id);
+                if (it != mCameraBufferPoolSize.end()) {
+                    delta -= it->second;
+                }
+
+                if (delta == 0) {
+                    // No further action required.
+                    return EvsResult::OK;
+                }
+
+                size_t totalSize = mBufferPoolSize + delta;
+                if (totalSize > kMaximumNumBuffers) {
                     LOG(ERROR) << "Requested size, " << totalSize << ", exceeds the limitation.";
                     return EvsResult::INVALID_ARG;
                 }
 
                 mBufferPoolSize = totalSize;
-                auto it = mCameraBufferPoolSize.find(id);
-                if (it != mCameraBufferPoolSize.end()) {
-                    bufferCount += it->second;
-                }
                 mCameraBufferPoolSize.insert_or_assign(id, bufferCount);
                 return EvsResult::OK;
             });
@@ -343,7 +352,7 @@ bool MockHidlEvsHal_1_0::addMockCameraDevice(const std::string& deviceId) {
         }
 
         if (cb) {
-            // TODO(b/263438927): notify the end of a video stream by sending a null buffer.
+            cb->deliverFrame({});
         }
 
         // Join a frame-forward thread

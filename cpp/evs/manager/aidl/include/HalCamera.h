@@ -106,7 +106,7 @@ private:
     struct FrameRecord {
         uint32_t frameId;
         uint32_t refCount;
-        FrameRecord(uint32_t id) : frameId(id), refCount(0){};
+        FrameRecord(uint32_t id) : frameId(id), refCount(0) {};
         FrameRecord(uint32_t id, uint32_t count) : frameId(id), refCount(count) {};
     };
     std::vector<FrameRecord> mFrames GUARDED_BY(mFrameMutex);

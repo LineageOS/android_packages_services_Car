@@ -19,6 +19,7 @@
 #include "HidlCamera.h"
 #include "utils/include/Utils.h"
 
+#include <aidlcommonsupport/NativeHandle.h>
 #include <android-base/logging.h>
 #include <utils/SystemClock.h>
 
@@ -27,6 +28,8 @@ namespace aidl::android::automotive::evs::implementation {
 namespace hidlevs = ::android::hardware::automotive::evs;
 
 using ::aidl::android::hardware::automotive::evs::BufferDesc;
+using ::aidl::android::hardware::automotive::evs::EvsEventDesc;
+using ::aidl::android::hardware::automotive::evs::EvsEventType;
 using ::android::hardware::hidl_vec;
 using ::android::hardware::Return;
 using ::android::hardware::Status;
@@ -40,6 +43,16 @@ Return<void> HidlCameraStream::deliverFrame(const hidlevs::V1_0::BufferDesc& buf
 
     std::vector<BufferDesc> aidlBuffers(1);
     aidlBuffers[0] = std::move(Utils::makeFromHidl(buffer, /* doDup= */ true));
+
+    if (::android::isAidlNativeHandleEmpty(aidlBuffers[0].buffer.handle)) {
+        LOG(DEBUG) << "Received a null buffer, which is the mark of the end of the stream.";
+        EvsEventDesc event{
+                .aType = EvsEventType::STREAM_STOPPED,
+        };
+        if (!mAidlStream->notify(event).isOk()) {
+            LOG(ERROR) << "Error delivering the end of stream marker";
+        }
+    }
 
     // android::hardware::automotive::evs::V1_0::BufferDesc does not contain a
     // timestamp so we need to fill it here.
