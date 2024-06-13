@@ -28,6 +28,8 @@ import com.android.car.qc.provider.BaseLocalQCProvider;
 import com.android.systemui.car.distantdisplay.common.DistantDisplayController;
 import com.android.systemui.car.distantdisplay.common.DistantDisplayQcItem;
 
+import java.util.List;
+
 import javax.inject.Inject;
 
 /**
@@ -59,15 +61,17 @@ public class DisplaySwitcher extends BaseLocalQCProvider implements
             }
             listBuilder.addRow(builder.build());
         }
-        DistantDisplayQcItem controls = mDistantDisplayController.getControls();
+        List<DistantDisplayQcItem> controls = mDistantDisplayController.getControls();
         if (controls != null) {
-            Icon icon = Icon.createWithBitmap(drawableToBitmap(controls.getIcon()));
-            QCRow controlElement = new QCRow.Builder()
-                    .setTitle(controls.getTitle())
-                    .setIcon(icon)
-                    .build();
-            controlElement.setActionHandler(controls.getActionHandler());
-            listBuilder.addRow(controlElement);
+            for (DistantDisplayQcItem control : controls) {
+                Icon icon = Icon.createWithBitmap(drawableToBitmap(control.getIcon()));
+                QCRow controlElement = new QCRow.Builder()
+                        .setTitle(control.getTitle())
+                        .setIcon(icon)
+                        .build();
+                controlElement.setActionHandler(control.getActionHandler());
+                listBuilder.addRow(controlElement);
+            }
         }
         return listBuilder.build();
     }

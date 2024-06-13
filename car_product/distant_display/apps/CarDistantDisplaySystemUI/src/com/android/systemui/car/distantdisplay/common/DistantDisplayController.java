@@ -41,6 +41,8 @@ import com.android.systemui.car.qc.DistantDisplayControlsUpdateListener;
 import com.android.systemui.dagger.SysUISingleton;
 import com.android.systemui.settings.UserTracker;
 
+import com.google.android.car.distantdisplay.service.DistantDisplayService;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -209,33 +211,44 @@ public class DistantDisplayController {
      * @return Controls to move content between display
      * {@link com.android.systemui.car.distantdisplay.common.DistantDisplayQcItem}
      */
-    public DistantDisplayQcItem getControls() {
+    public List<DistantDisplayQcItem> getControls() {
+        List<DistantDisplayQcItem> items = new ArrayList<>();
         if (canMoveBetweenDisplays(mTopActivityOnDistantDisplay)) {
-            return new DistantDisplayQcItem.Builder()
+            DistantDisplayQcItem item1 = new DistantDisplayQcItem.Builder()
                     .setTitle(mContext.getString(R.string.qc_bring_back_to_default_display_title))
                     .setIcon(mDefaultDisplayDrawable)
-                    .setActionHandler(createActionHandler(/* moveToDistantDisplay= */ false))
+                    .setActionHandler(createActionHandler(DistantDisplayService.State.DEFAULT))
                     .build();
+            items.add(item1);
+            return items;
         } else if (canMoveBetweenDisplays(mTopActivityOnDefaultDisplay)) {
-            return new DistantDisplayQcItem.Builder()
-                    .setTitle(mContext.getString(R.string.qc_send_to_pano_title))
+            DistantDisplayQcItem item1 = new DistantDisplayQcItem.Builder()
+                    .setTitle(mContext.getString(R.string.qc_send_to_center_title))
                     .setIcon(mDistantDisplayDrawable)
-                    .setActionHandler(createActionHandler(/* moveToDistantDisplay= */ true))
+                    .setActionHandler(createActionHandler(DistantDisplayService.State.DRIVER_DD))
                     .build();
+            DistantDisplayQcItem item2 = new DistantDisplayQcItem.Builder()
+                    .setTitle(mContext.getString(R.string.qc_send_to_right_title))
+                    .setIcon(mDistantDisplayDrawable)
+                    .setActionHandler(createActionHandler(DistantDisplayService.State.PASSENGER_DD))
+                    .build();
+            items.add(item1);
+            items.add(item2);
+            return items;
         } else {
             return null;
         }
     }
 
-    private QCItem.ActionHandler createActionHandler(boolean moveToDistantDisplay) {
+    private QCItem.ActionHandler createActionHandler(DistantDisplayService.State state) {
         return new QCItem.ActionHandler() {
             @Override
             public void onAction(@NonNull QCItem item, @NonNull Context context,
                     @NonNull Intent intent) {
-                if (moveToDistantDisplay) {
-                    mTaskViewController.moveTaskToDistantDisplay();
-                } else {
-                    mTaskViewController.moveTaskFromDistantDisplay();
+                switch (state) {
+                    case DEFAULT -> mTaskViewController.moveTaskFromDistantDisplay();
+                    case DRIVER_DD -> mTaskViewController.moveTaskToDistantDisplay();
+                    case PASSENGER_DD -> mTaskViewController.moveTaskToRightDistantDisplay();
                 }
             }
 
