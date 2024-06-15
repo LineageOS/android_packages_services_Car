@@ -17,7 +17,6 @@ package com.android.systemui.car.distantdisplay.common;
 
 import static android.car.drivingstate.CarUxRestrictions.UX_RESTRICTIONS_NO_VIDEO;
 
-import static com.android.car.media.common.source.MediaSource.isMediaTemplate;
 import static com.android.systemui.car.distantdisplay.common.DistantDisplayForegroundTaskMap.TaskData;
 
 import android.app.ActivityManager;
@@ -259,6 +258,12 @@ public class TaskViewController {
         changeDisplayForTask(MoveTaskReceiver.MOVE_TO_DISTANT_DISPLAY);
     }
 
+    /** Move task from default display to distant display. */
+    public void moveTaskToRightDistantDisplay() {
+        if (!mInitialized) return;
+        changeDisplayForTask(MoveTaskReceiver.MOVE_TO_DISTANT_DISPLAY_PASSENGER);
+    }
+
     /** Move task from distant display to default display. */
     public void moveTaskFromDistantDisplay() {
         if (!mInitialized) return;
@@ -300,8 +305,9 @@ public class TaskViewController {
             TaskData data = mForegroundTasks.getTopTaskOnDisplay(mDistantDisplayId);
             if (data == null || data.mTaskId == mDistantDisplayRootWallpaperTaskId) return;
             moveTaskToDisplay(data.mTaskId, DEFAULT_DISPLAY_ID);
-            mDisplayCompatService.setVisibility(false);
-        } else if (movement.equals(MoveTaskReceiver.MOVE_TO_DISTANT_DISPLAY)
+            mDisplayCompatService.updateState(DistantDisplayService.State.DEFAULT);
+        } else if ((movement.equals(MoveTaskReceiver.MOVE_TO_DISTANT_DISPLAY) || movement.equals(
+                MoveTaskReceiver.MOVE_TO_DISTANT_DISPLAY_PASSENGER))
                 && !mForegroundTasks.isEmpty()) {
             int uxr = mCarUxRestrictionsUtil.getCurrentRestrictions().getActiveRestrictions();
             if (isVideoRestricted(uxr)) {
@@ -319,7 +325,11 @@ public class TaskViewController {
             }
             moveTaskToDisplay(data.mTaskId, mDistantDisplayId);
             launchCompanionUI(componentName);
-            mDisplayCompatService.setVisibility(true);
+            DistantDisplayService.State state = movement.equals(
+                    MoveTaskReceiver.MOVE_TO_DISTANT_DISPLAY)
+                    ? DistantDisplayService.State.DRIVER_DD
+                    : DistantDisplayService.State.PASSENGER_DD;
+            mDisplayCompatService.updateState(state);
         }
     }
 
@@ -337,7 +347,7 @@ public class TaskViewController {
         UserHandle launchUserHandle = UserHandle.SYSTEM;
         if (isGameApp(packageName)) {
             intent = DistantDisplayGameController.createIntent(mContext, packageName);
-        } else if (componentName != null && isMediaTemplate(mContext, componentName)) {
+        } else if (componentName != null && hasActiveMediaSession(componentName)) {
             //TODO: b/344983836 Currently there is no reliable way to figure out if the current
             // application supports video media
             ComponentName mediaComponent = ComponentName.unflattenFromString(
@@ -371,14 +381,10 @@ public class TaskViewController {
         return mGameControllerPackages.contains(packageName);
     }
 
-    private boolean hasActiveMediaSession(@Nullable String packageName) {
-        if (!isVideoApp(packageName)) {
-            return false;
-        }
-
-        return mMediaSessionManager.getActiveSessionsForUser(/* notificationListener= */ null,
+    private boolean hasActiveMediaSession(ComponentName componentName) {
+        return mMediaSessionManager.getActiveSessionsForUser(null,
                         mUserTracker.getUserHandle())
-                .stream().anyMatch(mediaController -> packageName
+                .stream().anyMatch(mediaController -> componentName.getPackageName()
                         .equals(mediaController.getPackageName()));
     }
 

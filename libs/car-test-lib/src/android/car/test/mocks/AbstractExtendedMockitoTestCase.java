@@ -191,9 +191,7 @@ public abstract class AbstractExtendedMockitoTestCase extends AbstractExpectable
                 .strictness(getSessionStrictness());
 
         CustomMockitoSessionBuilder customBuilder =
-                new CustomMockitoSessionBuilder(builder, mStaticSpiedClasses, mStaticMockedClasses)
-                    .spyStatic(Log.class)
-                    .spyStatic(Slog.class);
+                new CustomMockitoSessionBuilder(builder, mStaticSpiedClasses, mStaticMockedClasses);
 
         beginTrace("onSessionBuilder()");
         onSessionBuilder(customBuilder);
