@@ -159,6 +159,26 @@ public final class SubscriptionTest {
     }
 
     @Test
+    public void testSetResolution() {
+        int propertyId = 24;
+        float resolution = 0.01f;
+        Subscription.Builder builder = new Subscription.Builder(propertyId);
+        builder.setResolution(resolution);
+        Subscription option = builder.build();
+
+        assertWithMessage("Resolution is set correctly").that(option
+                .getResolution()).isEqualTo(resolution);
+    }
+
+    @Test
+    public void testSetResolutionInvalid() {
+        int propertyId = 24;
+        float resolution = 0.02f;
+        Subscription.Builder builder = new Subscription.Builder(propertyId);
+        assertThrows(IllegalArgumentException.class, () -> builder.setResolution(resolution));
+    }
+
+    @Test
     public void testSubscripTionOptionBuildTwice() {
         int propertyId = 24;
         Subscription.Builder builder = new Subscription.Builder(propertyId);

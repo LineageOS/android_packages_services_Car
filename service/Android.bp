@@ -17,14 +17,15 @@
 // Build the Car service.
 
 package {
+    default_team: "trendy_team_aaos_framework",
     default_applicable_licenses: ["Android-Apache-2.0"],
 }
 
 genrule {
     name: "statslog-Car-java-gen",
     tools: ["stats-log-api-gen"],
-    cmd: "$(location stats-log-api-gen) --java $(out) --module car --javaPackage com.android.car"
-        + " --javaClass CarStatsLog",
+    cmd: "$(location stats-log-api-gen) --java $(out) --module car --javaPackage com.android.car" +
+        " --javaClass CarStatsLog",
     out: ["com/android/car/CarStatsLog.java"],
 }
 
@@ -42,13 +43,13 @@ gensrcs {
     ],
 
     cmd: "mkdir -p $(genDir)/$(in) " +
-            "&& $(location aprotoc) " +
-            "  --plugin=$(location protoc-gen-javastream) " +
-            "  --javastream_out=$(genDir)/$(in) " +
-            "  -Iexternal/protobuf/src " +
-            "  -I . " +
-            "  $(in) " +
-            "&& $(location soong_zip) -jar -o $(out) -C $(genDir)/$(in) -D $(genDir)/$(in)",
+        "&& $(location aprotoc) " +
+        "  --plugin=$(location protoc-gen-javastream) " +
+        "  --javastream_out=$(genDir)/$(in) " +
+        "  -Iexternal/protobuf/src " +
+        "  -I . " +
+        "  $(in) " +
+        "&& $(location soong_zip) -jar -o $(out) -C $(genDir)/$(in) -D $(genDir)/$(in)",
 
     srcs: [
         ":car-service-dump-proto-srcs",
@@ -64,13 +65,13 @@ genrule {
         "protoc-gen-cppstream",
     ],
     cmd: "mkdir -p $(genDir) " +
-            "&& $(location aprotoc) " +
-            "  --plugin=$(location protoc-gen-cppstream) " +
-            "  --cppstream_out=$(genDir) " +
-            "  --cppstream_opt=experimental_allow_proto3_optional " +
-            "  -Iexternal/protobuf/src " +
-            "  -Ipackages/services/Car/service/proto/android/car/watchdog " +
-            "  $(in) ",
+        "&& $(location aprotoc) " +
+        "  --plugin=$(location protoc-gen-cppstream) " +
+        "  --cppstream_out=$(genDir) " +
+        "  --cppstream_opt=experimental_allow_proto3_optional " +
+        "  -Iexternal/protobuf/src " +
+        "  -Ipackages/services/Car/service/proto/android/car/watchdog " +
+        "  $(in) ",
     srcs: [
         ":native-dump-proto-srcs",
     ],
@@ -88,11 +89,11 @@ genrule {
         "aprotoc",
     ],
     cmd: "mkdir -p $(genDir) " +
-            "&& $(location aprotoc) " +
-            "  --cpp_out=$(genDir) " +
-            "  --proto_path=external/protobuf/src/google/protobuf " +
-            "  --proto_path=packages/services/Car/service/proto/android/car/watchdog " +
-            "  $(in) ",
+        "&& $(location aprotoc) " +
+        "  --cpp_out=$(genDir) " +
+        "  --proto_path=external/protobuf/src/google/protobuf " +
+        "  --proto_path=packages/services/Car/service/proto/android/car/watchdog " +
+        "  $(in) ",
     srcs: [
         ":native-dump-proto-srcs",
     ],
@@ -109,11 +110,11 @@ genrule {
         "aprotoc",
     ],
     cmd: "mkdir -p $(genDir) " +
-            "&& $(location aprotoc) " +
-            "  --cpp_out=$(genDir) " +
-            "  --proto_path=external/protobuf/src/google/protobuf " +
-            "  --proto_path=packages/services/Car/service/proto/android/car/watchdog " +
-            "  $(in) ",
+        "&& $(location aprotoc) " +
+        "  --cpp_out=$(genDir) " +
+        "  --proto_path=external/protobuf/src/google/protobuf " +
+        "  --proto_path=packages/services/Car/service/proto/android/car/watchdog " +
+        "  $(in) ",
     srcs: [
         ":native-dump-proto-srcs",
     ],
@@ -130,16 +131,16 @@ filegroup {
         "proto/android/car/**/*_dump.proto",
     ],
     exclude_srcs: [
-         ":native-dump-proto-srcs",
+        ":native-dump-proto-srcs",
     ],
 }
 
 filegroup {
     name: "native-dump-proto-srcs",
     srcs: [
-       "proto/android/car/watchdog/*_daemon_dump.proto",
-       "proto/android/car/watchdog/performance_stats.proto",
-       "proto/android/car/watchdog/health_check_client_info.proto",
+        "proto/android/car/watchdog/*_daemon_dump.proto",
+        "proto/android/car/watchdog/performance_stats.proto",
+        "proto/android/car/watchdog/health_check_client_info.proto",
     ],
 }
 
@@ -205,7 +206,7 @@ java_defaults {
 
     static_libs: [
         "android.automotive.powerpolicy.delegate-V1-java",
-        "android.automotive.telemetry.internal-V2-java",  // ICarTelemetryInternal
+        "android.automotive.telemetry.internal-V2-java", // ICarTelemetryInternal
         "android.automotive.watchdog.internal-V3-java",
         "android.frameworks.automotive.powerpolicy.internal-V1-java",
         "android.frameworks.automotive.powerpolicy-V2-java",
@@ -220,6 +221,7 @@ java_defaults {
         "android.hardware.health-V1.0-java",
         "android.hardware.health-V2.0-java",
         "android.hardware.automotive.occupant_awareness-V1-java",
+        "android.media.audiopolicy-aconfig-java",
         "libprotobuf-java-lite",
         "modules-utils-expresslog",
     ],
@@ -248,7 +250,7 @@ java_defaults {
         "//packages/services/Car:__subpackages__",
     ],
 
-    defaults: [ "carservice-updatable-min-java-defaults" ],
+    defaults: ["carservice-updatable-min-java-defaults"],
 
     // TODO(b/288271411): enable it when car mainline module is supported
     // min_sdk_version: "33",
@@ -308,7 +310,7 @@ java_library {
     ],
 
     libs: [
-            "android.car",
+        "android.car",
     ],
 }
 
@@ -321,7 +323,7 @@ android_library {
 
     defaults: ["carservice-updatable-min-java-defaults"],
 
-    manifest: "EmptyAndroidManifest.xml"
+    manifest: "EmptyAndroidManifest.xml",
 }
 
 filegroup {

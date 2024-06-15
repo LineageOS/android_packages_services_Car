@@ -16,10 +16,15 @@
 
 package android.car;
 
+import static android.car.feature.Flags.FLAG_CLUSTER_HEALTH_MONITORING;
+
 import static com.android.car.internal.common.CommonConstants.EMPTY_INT_ARRAY;
 
+import android.annotation.FlaggedApi;
 import android.annotation.IntDef;
-import android.annotation.Nullable;
+import android.annotation.NonNull;
+import android.annotation.RequiresPermission;
+import android.annotation.SystemApi;
 import android.annotation.TestApi;
 import android.os.IBinder;
 import android.os.RemoteException;
@@ -29,6 +34,7 @@ import com.android.internal.annotations.VisibleForTesting;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.ref.WeakReference;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -225,18 +231,25 @@ public final class CarAppFocusManager extends CarManagerBase {
     }
 
     /**
-     * Returns the package names of the current owner of a given application type, or {@code null}
+     * Returns the package names of the current owner of a given application type, or an empty list
      * if there is no owner. This method might return more than one package name if the current
      * owner uses the "android:sharedUserId" feature.
+     * @param appType the app type. For example, {@link #APP_FOCUS_TYPE_NAVIGATION}.
+     * @return the package names of the current focus owner of the given {@code appType}.
      *
      * @hide
      */
-    @Nullable
+    @FlaggedApi(FLAG_CLUSTER_HEALTH_MONITORING)
+    @SystemApi
+    @RequiresPermission(allOf = {android.Manifest.permission.QUERY_ALL_PACKAGES,
+            android.Manifest.permission.INTERACT_ACROSS_USERS},
+            conditional = true)
+    @NonNull
     public List<String> getAppTypeOwner(@AppFocusType int appType) {
         try {
             return mService.getAppTypeOwner(appType);
         } catch (RemoteException e) {
-            return handleRemoteExceptionFromCarService(e, null);
+            return handleRemoteExceptionFromCarService(e, Collections.EMPTY_LIST);
         }
     }
 
@@ -293,7 +306,7 @@ public final class CarAppFocusManager extends CarManagerBase {
     }
 
     /**
-     * Abandon the given focus, i.e. mark it as inactive. This also involves releasing ownership
+     * Abandons the given focus, marking it as inactive. This also involves releasing ownership
      * for the focus.
      * @param ownershipCallback
      * @param appType
@@ -325,7 +338,7 @@ public final class CarAppFocusManager extends CarManagerBase {
     }
 
     /**
-     * Abandon all focuses, i.e. mark them as inactive. This also involves releasing ownership
+     * Abandons all focuses, marking them as inactive. This also involves releasing ownership
      * for the focus.
      * @param ownershipCallback
      */

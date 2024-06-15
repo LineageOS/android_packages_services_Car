@@ -53,9 +53,7 @@ import android.media.AudioAttributes;
 import android.media.AudioDeviceAttributes;
 import android.media.AudioManager;
 import android.os.UserHandle;
-import android.platform.test.annotations.RequiresFlagsEnabled;
-import android.platform.test.flag.junit.CheckFlagsRule;
-import android.platform.test.flag.junit.DeviceFlagsValueProvider;
+import android.platform.test.flag.junit.SetFlagsRule;
 import android.util.ArraySet;
 import android.util.SparseBooleanArray;
 import android.util.SparseIntArray;
@@ -81,6 +79,12 @@ public class CarVolumeGroupUnitTest extends AbstractExpectableTestCase {
     private static final int MIN_GAIN_INDEX = 0;
     private static final int MAX_GAIN_INDEX = (TestCarAudioDeviceInfoBuilder.MAX_GAIN
             - TestCarAudioDeviceInfoBuilder.MIN_GAIN) / TestCarAudioDeviceInfoBuilder.STEP_VALUE;
+    private static final int MIN_ACTIVATION_GAIN_INDEX_PERCENTAGE = 20;
+    private static final int MAX_ACTIVATION_GAIN_INDEX_PERCENTAGE = 80;
+    private static final int MIN_ACTIVATION_GAIN_INDEX = MIN_GAIN_INDEX + (int) Math.round(
+            MIN_ACTIVATION_GAIN_INDEX_PERCENTAGE / 100.0 * (MAX_GAIN_INDEX - MIN_GAIN_INDEX));
+    private static final int MAX_ACTIVATION_GAIN_INDEX = MIN_GAIN_INDEX + (int) Math.round(
+            MAX_ACTIVATION_GAIN_INDEX_PERCENTAGE / 100.0 * (MAX_GAIN_INDEX - MIN_GAIN_INDEX));
     private static final int TEST_GAIN_INDEX = 2;
     private static final int TEST_USER_10 = 10;
     private static final int TEST_USER_11 = 11;
@@ -126,7 +130,7 @@ public class CarVolumeGroupUnitTest extends AbstractExpectableTestCase {
     AudioManager mAudioManagerMock;
 
     @Rule
-    public final CheckFlagsRule mCheckFlagsRule = DeviceFlagsValueProvider.createCheckFlagsRule();
+    public final SetFlagsRule mSetFlagsRule = new SetFlagsRule();
 
     @Before
     public void setUp() {
@@ -319,8 +323,8 @@ public class CarVolumeGroupUnitTest extends AbstractExpectableTestCase {
     }
 
     @Test
-    @RequiresFlagsEnabled(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES)
     public void getAudioDeviceAttribute_returnsExpectedDevice() {
+        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
         CarVolumeGroup carVolumeGroup = testVolumeGroupSetup();
         CarVolumeGroupInfo info = carVolumeGroup.getCarVolumeGroupInfo();
 
@@ -328,6 +332,79 @@ public class CarVolumeGroupUnitTest extends AbstractExpectableTestCase {
 
         expectWithMessage("Audio device attributes").that(devices).containsExactly(
                 mMediaDeviceInfo.getAudioDevice(), mNavigationDeviceInfo.getAudioDevice());
+    }
+
+    @Test
+    public void isHalMuted_withHalUnmuted() {
+        CarVolumeGroup carVolumeGroup = testVolumeGroupSetup();
+
+        expectWithMessage("Unmute status by HAL")
+                .that(carVolumeGroup.isHalMuted()).isFalse();
+    }
+
+    @Test
+    public void isHalMuted_withHalMuted() {
+        CarVolumeGroup carVolumeGroup = getCarVolumeGroupWithMusicBound();
+        carVolumeGroup.setCurrentGainIndex(DEFAULT_GAIN_INDEX);
+        List<Integer> muteReasons = List.of(Reasons.TCU_MUTE);
+        AudioGainConfigInfo musicGain = new AudioGainConfigInfo();
+        musicGain.zoneId = ZONE_ID;
+        musicGain.devicePortAddress = MEDIA_DEVICE_ADDRESS;
+        musicGain.volumeIndex = MIN_GAIN_INDEX;
+        CarAudioGainConfigInfo musicCarGain = new CarAudioGainConfigInfo(musicGain);
+        carVolumeGroup.onAudioGainChanged(muteReasons, musicCarGain);
+
+        expectWithMessage("Mute status by HAL")
+                .that(carVolumeGroup.isHalMuted()).isTrue();
+    }
+
+    @Test
+    public void getMutedBySystem_withHalUnmuted() {
+        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_MUTE_AMBIGUITY);
+        CarVolumeGroup carVolumeGroup = testVolumeGroupSetup();
+        CarVolumeGroupInfo info = carVolumeGroup.getCarVolumeGroupInfo();
+
+        expectWithMessage("Mute by system status with HAL unmuted")
+                .that(info.isMutedBySystem()).isFalse();
+    }
+
+    @Test
+    public void getMutedBySystem_withHalMuted() {
+        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_MUTE_AMBIGUITY);
+        CarVolumeGroup carVolumeGroup = getCarVolumeGroupWithMusicBound();
+        carVolumeGroup.setCurrentGainIndex(DEFAULT_GAIN_INDEX);
+        List<Integer> muteReasons = List.of(Reasons.TCU_MUTE);
+        AudioGainConfigInfo musicGain = new AudioGainConfigInfo();
+        musicGain.zoneId = ZONE_ID;
+        musicGain.devicePortAddress = MEDIA_DEVICE_ADDRESS;
+        musicGain.volumeIndex = MIN_GAIN_INDEX;
+        CarAudioGainConfigInfo musicCarGain = new CarAudioGainConfigInfo(musicGain);
+        carVolumeGroup.onAudioGainChanged(muteReasons, musicCarGain);
+
+        expectWithMessage("Mute by system status with HAL muted")
+                .that(carVolumeGroup.getCarVolumeGroupInfo().isMutedBySystem()).isTrue();
+    }
+
+    @Test
+    public void getMaxActivationGainIndex_returnsExpectedDevice() {
+        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_MIN_MAX_ACTIVATION_VOLUME);
+        CarVolumeGroup carVolumeGroup = testVolumeGroupSetup();
+
+        int maxActivationGainIndex = carVolumeGroup.getMaxActivationGainIndex();
+
+        expectWithMessage("Max activation gain index").that(maxActivationGainIndex)
+                .isEqualTo(MAX_ACTIVATION_GAIN_INDEX);
+    }
+
+    @Test
+    public void getMinActivationGainIndex_returnsExpectedDevice() {
+        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_MIN_MAX_ACTIVATION_VOLUME);
+        CarVolumeGroup carVolumeGroup = testVolumeGroupSetup();
+
+        int minActivationGainIndex = carVolumeGroup.getMinActivationGainIndex();
+
+        expectWithMessage("Min activation gain index").that(minActivationGainIndex)
+                .isEqualTo(MIN_ACTIVATION_GAIN_INDEX);
     }
 
     @Test
@@ -397,6 +474,216 @@ public class CarVolumeGroupUnitTest extends AbstractExpectableTestCase {
 
         verify(settings).storeVolumeGainIndexForUser(UserHandle.USER_CURRENT, ZONE_ID, CONFIG_ID,
                 GROUP_ID, TestCarAudioDeviceInfoBuilder.MIN_GAIN);
+    }
+
+    @Test
+    public void handleActivationVolume_withActivationVolumeDisabled() {
+        mSetFlagsRule.disableFlags(Flags.FLAG_CAR_AUDIO_MIN_MAX_ACTIVATION_VOLUME);
+        CarVolumeGroup carVolumeGroup = testVolumeGroupSetup();
+        carVolumeGroup.setCurrentGainIndex(MAX_GAIN_INDEX);
+
+        expectWithMessage("No adjustment to activation volume with activation volume disabled")
+                .that(carVolumeGroup.handleActivationVolume()).isFalse();
+        expectWithMessage("Unchanged gain index with activation volume disabled")
+                .that(carVolumeGroup.getCurrentGainIndex()).isEqualTo(MAX_GAIN_INDEX);
+    }
+
+    @Test
+    public void handleActivationVolume_withVolumeWithinActivationVolumeRange() {
+        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_MIN_MAX_ACTIVATION_VOLUME);
+        int currentGainIndex = MIN_ACTIVATION_GAIN_INDEX + 1;
+        CarVolumeGroup carVolumeGroup = testVolumeGroupSetup();
+        carVolumeGroup.setCurrentGainIndex(currentGainIndex);
+
+        expectWithMessage("No adjustment for activation volume")
+                .that(carVolumeGroup.handleActivationVolume()).isFalse();
+        expectWithMessage("Gain index without activation volume adjustment")
+                .that(carVolumeGroup.getCurrentGainIndex()).isEqualTo(currentGainIndex);
+    }
+
+    @Test
+    public void handleActivationVolume_withVolumeBelowMinActivationVolume() {
+        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_MIN_MAX_ACTIVATION_VOLUME);
+        CarVolumeGroup carVolumeGroup = testVolumeGroupSetup();
+        carVolumeGroup.setCurrentGainIndex(MIN_ACTIVATION_GAIN_INDEX - 1);
+
+        expectWithMessage("Success for adjusting to min activation volume")
+                .that(carVolumeGroup.handleActivationVolume()).isTrue();
+        expectWithMessage("Gain index for adjusting to min activation volume")
+                .that(carVolumeGroup.getCurrentGainIndex()).isEqualTo(MIN_ACTIVATION_GAIN_INDEX);
+    }
+
+    @Test
+    public void handleActivationVolume_withVolumeAboveMaxActivationVolume() {
+        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_MIN_MAX_ACTIVATION_VOLUME);
+        CarVolumeGroup carVolumeGroup = testVolumeGroupSetup();
+        carVolumeGroup.setCurrentGainIndex(MAX_ACTIVATION_GAIN_INDEX + 1);
+
+        expectWithMessage("Success for adjusting to max activation volume")
+                .that(carVolumeGroup.handleActivationVolume()).isTrue();
+        expectWithMessage("Gain index for adjusting to max activation volume")
+                .that(carVolumeGroup.getCurrentGainIndex()).isEqualTo(MAX_ACTIVATION_GAIN_INDEX);
+    }
+
+    @Test
+    public void handleActivationVolume_withMute() {
+        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_MIN_MAX_ACTIVATION_VOLUME);
+        CarVolumeGroup carVolumeGroup = testVolumeGroupSetup();
+        carVolumeGroup.setCurrentGainIndex(MAX_ACTIVATION_GAIN_INDEX + 1);
+        carVolumeGroup.setMute(true);
+
+        expectWithMessage("Failure for changing to activation volume with mute")
+                .that(carVolumeGroup.handleActivationVolume()).isFalse();
+        expectWithMessage("Gain index with activation volume and mute")
+                .that(carVolumeGroup.getCurrentGainIndex()).isEqualTo(MIN_GAIN_INDEX);
+    }
+
+    @Test
+    public void setMute_withFalseWhenMuteAndActivationVolume() {
+        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_MIN_MAX_ACTIVATION_VOLUME);
+        CarVolumeGroup carVolumeGroup = testVolumeGroupSetup();
+        carVolumeGroup.setCurrentGainIndex(MAX_ACTIVATION_GAIN_INDEX + 1);
+        carVolumeGroup.setMute(true);
+        carVolumeGroup.handleActivationVolume();
+
+        carVolumeGroup.setMute(false);
+
+        expectWithMessage("Gain index with activation volume after unmute")
+                .that(carVolumeGroup.getCurrentGainIndex()).isEqualTo(MAX_ACTIVATION_GAIN_INDEX);
+    }
+
+    @Test
+    public void handleActivationVolume_withBlock() {
+        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_MIN_MAX_ACTIVATION_VOLUME);
+        CarVolumeGroup carVolumeGroup = testVolumeGroupSetup();
+        carVolumeGroup.setCurrentGainIndex(MAX_GAIN_INDEX);
+        int blockedIndex = MAX_ACTIVATION_GAIN_INDEX + 1;
+        carVolumeGroup.setBlocked(blockedIndex);
+
+        expectWithMessage("Failure for changing to activation volume with block")
+                .that(carVolumeGroup.handleActivationVolume()).isFalse();
+        expectWithMessage("Gain index with activation volume and block")
+                .that(carVolumeGroup.getCurrentGainIndex()).isEqualTo(blockedIndex);
+    }
+
+    @Test
+    public void resetBlocked_withActivationVolume() {
+        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_MIN_MAX_ACTIVATION_VOLUME);
+        CarVolumeGroup carVolumeGroup = testVolumeGroupSetup();
+        carVolumeGroup.setCurrentGainIndex(MAX_GAIN_INDEX);
+        int blockedIndex = MAX_ACTIVATION_GAIN_INDEX + 1;
+        carVolumeGroup.setBlocked(blockedIndex);
+        carVolumeGroup.handleActivationVolume();
+
+        carVolumeGroup.resetBlocked();
+
+        expectWithMessage("Gain index with activation volume after block reset")
+                .that(carVolumeGroup.getCurrentGainIndex()).isEqualTo(MAX_ACTIVATION_GAIN_INDEX);
+    }
+
+    @Test
+    public void handleActivationVolume_withAttenuatedGain() {
+        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_MIN_MAX_ACTIVATION_VOLUME);
+        CarVolumeGroup carVolumeGroup = testVolumeGroupSetup();
+        carVolumeGroup.setCurrentGainIndex(TEST_GAIN_INDEX);
+        int attenuatedIndex = MAX_ACTIVATION_GAIN_INDEX + 1;
+        carVolumeGroup.setAttenuatedGain(attenuatedIndex);
+
+        expectWithMessage("Changing to activation volume with attenuated gain")
+                .that(carVolumeGroup.handleActivationVolume()).isFalse();
+        expectWithMessage("Gain index with activation volume and attenuated gain applied")
+                .that(carVolumeGroup.getCurrentGainIndex()).isEqualTo(attenuatedIndex);
+    }
+
+    @Test
+    public void resetAttenuation_withActivationVolume() {
+        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_MIN_MAX_ACTIVATION_VOLUME);
+        CarVolumeGroup carVolumeGroup = testVolumeGroupSetup();
+        carVolumeGroup.setCurrentGainIndex(MAX_GAIN_INDEX);
+        int attenuatedIndex = MAX_ACTIVATION_GAIN_INDEX + 1;
+        carVolumeGroup.setAttenuatedGain(attenuatedIndex);
+        carVolumeGroup.handleActivationVolume();
+
+        carVolumeGroup.resetAttenuation();
+
+        expectWithMessage("Gain index with activation volume and attenuated gain applied")
+                .that(carVolumeGroup.getCurrentGainIndex()).isEqualTo(MAX_ACTIVATION_GAIN_INDEX);
+    }
+
+    @Test
+    public void handleActivationVolume_withActivationVolumeOverLimitOverCurrentGain() {
+        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_MIN_MAX_ACTIVATION_VOLUME);
+        CarVolumeGroup carVolumeGroup = testVolumeGroupSetup();
+        carVolumeGroup.setCurrentGainIndex(MIN_GAIN_INDEX);
+        int limitedGainIndex = MIN_ACTIVATION_GAIN_INDEX - 1;
+        carVolumeGroup.setLimit(limitedGainIndex);
+
+        expectWithMessage("Volume changed due to activation volume over limit and limit "
+                + "over current gain").that(carVolumeGroup.handleActivationVolume()).isTrue();
+        expectWithMessage("Gain index with activation volume over limit and limit "
+                + "over current gain").that(carVolumeGroup.getCurrentGainIndex())
+                .isEqualTo(limitedGainIndex);
+    }
+
+    @Test
+    public void resetLimit_withActivationVolumeOverLimitOverCurrentGainAndResetLimit() {
+        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_MIN_MAX_ACTIVATION_VOLUME);
+        CarVolumeGroup carVolumeGroup = testVolumeGroupSetup();
+        carVolumeGroup.setCurrentGainIndex(MIN_ACTIVATION_GAIN_INDEX - 2);
+        int limitedGainIndex = MIN_ACTIVATION_GAIN_INDEX - 1;
+        carVolumeGroup.setLimit(limitedGainIndex);
+        carVolumeGroup.handleActivationVolume();
+
+        carVolumeGroup.resetLimit();
+
+        expectWithMessage("Gain index with activation volume over limit, limit over current "
+                + " gain and limit reset").that(carVolumeGroup.getCurrentGainIndex())
+                .isEqualTo(MIN_ACTIVATION_GAIN_INDEX);
+    }
+
+    @Test
+    public void handleActivationVolume_withActivationVolumeOverCurrentGainOverLimit() {
+        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_MIN_MAX_ACTIVATION_VOLUME);
+        CarVolumeGroup carVolumeGroup = testVolumeGroupSetup();
+        carVolumeGroup.setCurrentGainIndex(MIN_ACTIVATION_GAIN_INDEX - 1);
+        int limitedGainIndex = MIN_ACTIVATION_GAIN_INDEX - 2;
+        carVolumeGroup.setLimit(limitedGainIndex);
+
+        expectWithMessage("Volume changed due to activation volume over current gain and "
+                + "current gain over limit").that(carVolumeGroup.handleActivationVolume())
+                .isFalse();
+        expectWithMessage("Gain index with activation volume over current gain and "
+                + "current gain over limit").that(carVolumeGroup.getCurrentGainIndex())
+                .isEqualTo(limitedGainIndex);
+    }
+
+    @Test
+    public void resetLimit_withActivationVolumeOverCurrentGainOverLimit() {
+        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_MIN_MAX_ACTIVATION_VOLUME);
+        CarVolumeGroup carVolumeGroup = testVolumeGroupSetup();
+        carVolumeGroup.setCurrentGainIndex(MIN_ACTIVATION_GAIN_INDEX - 1);
+        int limitedGainIndex = MIN_ACTIVATION_GAIN_INDEX - 2;
+        carVolumeGroup.setLimit(limitedGainIndex);
+        carVolumeGroup.handleActivationVolume();
+
+        carVolumeGroup.resetLimit();
+        expectWithMessage("Gain index with activation volume over current gain, current gain "
+                + "over limit and limit reset").that(carVolumeGroup.getCurrentGainIndex())
+                .isEqualTo(MIN_ACTIVATION_GAIN_INDEX);
+    }
+
+    @Test
+    public void handleActivationVolume_withActivationVolumeBelowLimit() {
+        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_MIN_MAX_ACTIVATION_VOLUME);
+        CarVolumeGroup carVolumeGroup = testVolumeGroupSetup();
+        carVolumeGroup.setCurrentGainIndex(MIN_GAIN_INDEX);
+        int limitedGainIndex = MIN_ACTIVATION_GAIN_INDEX + 1;
+        carVolumeGroup.setLimit(limitedGainIndex);
+
+        expectWithMessage("Changing to activation volume below limit")
+                .that(carVolumeGroup.handleActivationVolume()).isTrue();
+        expectWithMessage("Gain index with activation volume below limit")
+                .that(carVolumeGroup.getCurrentGainIndex()).isEqualTo(MIN_ACTIVATION_GAIN_INDEX);
     }
 
     @Test
@@ -576,7 +863,7 @@ public class CarVolumeGroupUnitTest extends AbstractExpectableTestCase {
                 .isEqualTo(TEST_GAIN_INDEX);
         expectWithMessage("Default limit state").that(carVolumeGroup.isLimited()).isFalse();
 
-        int limitedGainIndex = carVolumeGroup.getMaxGainIndex() - 1;
+        int limitedGainIndex = carVolumeGroup.getMinGainIndex() + 1;
         carVolumeGroup.setLimit(limitedGainIndex);
 
         expectWithMessage("Limit state after set limit").that(carVolumeGroup.isLimited())
@@ -1676,6 +1963,23 @@ public class CarVolumeGroupUnitTest extends AbstractExpectableTestCase {
     }
 
     @Test
+    public void getCarVolumeGroupInfo_withMinMaxActivationVolumeEnabled() {
+        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_MIN_MAX_ACTIVATION_VOLUME);
+
+        CarVolumeGroup carVolumeGroup = testVolumeGroupSetup();
+        carVolumeGroup.setCurrentGainIndex(0);
+
+        CarVolumeGroupInfo info = carVolumeGroup.getCarVolumeGroupInfo();
+
+        expectWithMessage("Car volume group info min activation gain")
+                .that(info.getMinActivationVolumeGainIndex())
+                .isEqualTo(carVolumeGroup.getMinActivationGainIndex());
+        expectWithMessage("Car volume group info max activation gain")
+                .that(info.getMaxActivationVolumeGainIndex())
+                .isEqualTo(carVolumeGroup.getMaxActivationGainIndex());
+    }
+
+    @Test
     public void getAudioAttributes() {
         CarVolumeGroup carVolumeGroup = getCarVolumeGroupWithMusicBound();
 
@@ -1686,6 +1990,25 @@ public class CarVolumeGroupUnitTest extends AbstractExpectableTestCase {
                 CarAudioContext.getAudioAttributeFromUsage(USAGE_GAME),
                 CarAudioContext.getAudioAttributeFromUsage(USAGE_UNKNOWN));
     }
+
+    @Test
+    public void hasAudioAttributes_withAttributesInVolumeGroup() {
+        CarVolumeGroup carVolumeGroup = getCarVolumeGroupWithMusicBound();
+
+        expectWithMessage("Game attributes in volume group").that(carVolumeGroup
+                        .hasAudioAttributes(CarAudioContext.getAudioAttributeFromUsage(USAGE_GAME)))
+                .isTrue();
+    }
+
+    @Test
+    public void hasAudioAttributes_withAttributesNotInVolumeGroup() {
+        CarVolumeGroup carVolumeGroup = getCarVolumeGroupWithMusicBound();
+
+        expectWithMessage("Notification attributes not in volume group").that(carVolumeGroup
+                .hasAudioAttributes(CarAudioContext.getAudioAttributeFromUsage(
+                        USAGE_NOTIFICATION))).isFalse();
+    }
+
 
     @Test
     public void getAllSupportedUsagesForAddress() {
@@ -1793,7 +2116,8 @@ public class CarVolumeGroupUnitTest extends AbstractExpectableTestCase {
             boolean useCarVolumeGroupMute) {
         CarVolumeGroupFactory factory =  new CarVolumeGroupFactory(mAudioManagerMock, settings,
                 TEST_CAR_AUDIO_CONTEXT, ZONE_ID, CONFIG_ID, GROUP_ID, /* name= */ "0",
-                useCarVolumeGroupMute);
+                useCarVolumeGroupMute, MAX_ACTIVATION_GAIN_INDEX_PERCENTAGE,
+                MIN_ACTIVATION_GAIN_INDEX_PERCENTAGE);
         factory.setDeviceInfoForContext(TEST_NAVIGATION_CONTEXT_ID, mNavigationDeviceInfo);
         return factory.getCarVolumeGroup(/* useCoreAudioVolume= */ false);
     }
@@ -1851,7 +2175,8 @@ public class CarVolumeGroupUnitTest extends AbstractExpectableTestCase {
 
     CarVolumeGroupFactory getFactory(boolean useCarVolumeGroupMute) {
         return new CarVolumeGroupFactory(mAudioManagerMock, mSettingsMock, TEST_CAR_AUDIO_CONTEXT,
-                ZONE_ID, CONFIG_ID, GROUP_ID, GROUP_NAME, useCarVolumeGroupMute);
+                ZONE_ID, CONFIG_ID, GROUP_ID, GROUP_NAME, useCarVolumeGroupMute,
+                MAX_ACTIVATION_GAIN_INDEX_PERCENTAGE, MIN_ACTIVATION_GAIN_INDEX_PERCENTAGE);
     }
 
     private static final class SettingsBuilder {

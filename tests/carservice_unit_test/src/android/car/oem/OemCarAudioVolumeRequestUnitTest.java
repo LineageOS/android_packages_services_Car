@@ -40,16 +40,24 @@ public final class OemCarAudioVolumeRequestUnitTest extends AbstractExpectableTe
     private static final int TEST_PRIMARY_GROUP_ID = 7;
     private static final int TEST_SECONDARY_GROUP_ID = 9;
     private static final String TEST_GROUP_NAME = "3";
+    private static final int TEST_MAX_GAIN_INDEX = 9_000;
+    private static final int TEST_MIN_GAIN_INDEX = 0;
+    private static final int TEST_MAX_ACTIVATION_GAIN_INDEX = 8_000;
+    private static final int TEST_MIN_ACTIVATION_GAIN_INDEX = 1_000;
     private static final int TEST_PARCEL_FLAGS = 0;
 
     private static final CarVolumeGroupInfo TEST_VOLUME_INFO =
             new CarVolumeGroupInfo.Builder(TEST_GROUP_NAME, PRIMARY_AUDIO_ZONE,
-                    TEST_PRIMARY_GROUP_ID).setMaxVolumeGainIndex(9_000).setMinVolumeGainIndex(0)
-                    .build();
+                    TEST_PRIMARY_GROUP_ID).setMaxVolumeGainIndex(TEST_MAX_GAIN_INDEX)
+                    .setMinVolumeGainIndex(TEST_MIN_GAIN_INDEX)
+                    .setMaxActivationVolumeGainIndex(TEST_MAX_ACTIVATION_GAIN_INDEX)
+                    .setMinActivationVolumeGainIndex(TEST_MIN_ACTIVATION_GAIN_INDEX).build();
     private static final CarVolumeGroupInfo TEST_VOLUME_INFO_2 =
             new CarVolumeGroupInfo.Builder(TEST_GROUP_NAME, PRIMARY_AUDIO_ZONE,
-                    TEST_SECONDARY_GROUP_ID).setMaxVolumeGainIndex(9_000).setMinVolumeGainIndex(0)
-                    .build();
+                    TEST_SECONDARY_GROUP_ID).setMaxVolumeGainIndex(TEST_MAX_GAIN_INDEX)
+                    .setMinVolumeGainIndex(TEST_MIN_GAIN_INDEX)
+                    .setMaxActivationVolumeGainIndex(TEST_MAX_ACTIVATION_GAIN_INDEX)
+                    .setMinActivationVolumeGainIndex(TEST_MIN_ACTIVATION_GAIN_INDEX).build();
 
     private static final AudioAttributes TEST_MEDIA_ATTRIBUTE =
             CarAudioContext.getAudioAttributeFromUsage(USAGE_MEDIA);
@@ -158,7 +166,7 @@ public final class OemCarAudioVolumeRequestUnitTest extends AbstractExpectableTe
         Parcel parcel = Parcel.obtain();
 
         TEST_VOLUME_REQUEST.writeToParcel(parcel, TEST_PARCEL_FLAGS);
-        parcel.setDataPosition(/* position= */ 0);
+        parcel.setDataPosition(/* pos= */ 0);
 
         expectWithMessage("Car volume request from parcel")
                 .that(OemCarAudioVolumeRequest.CREATOR.createFromParcel(parcel))

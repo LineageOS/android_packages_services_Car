@@ -40,6 +40,8 @@ public:
 
     int64_t getTimestamp() const override;
 
+    aidl::android::hardware::automotive::vehicle::VehiclePropertyStatus getStatus() const override;
+
     void setInt32Values(const std::vector<int32_t>& values) override;
 
     std::vector<int32_t> getInt32Values() const override;
@@ -61,6 +63,8 @@ public:
     std::string getStringValue() const override;
 
     const void* toVehiclePropValue() const override;
+
+    std::unique_ptr<IHalPropValue> clone() const override;
 
 private:
     VehiclePropValue mPropValue;

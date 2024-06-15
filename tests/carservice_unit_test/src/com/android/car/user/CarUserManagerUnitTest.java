@@ -24,6 +24,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
@@ -792,11 +793,11 @@ public final class CarUserManagerUnitTest extends AbstractExtendedMockitoTestCas
                     (ResultCallbackImpl<UserSwitchResult>) invocation.getArguments()[2];
             resultCallbackImpl.complete(new UserSwitchResult(status, /* errorMessage= */ null));
             return null;
-        }).when(mService).switchUser(eq(userId), anyInt(), notNull());
+        }).when(mService).switchUser(eq(userId), anyInt(), notNull(), anyBoolean());
     }
 
     private void expectServiceSwitchUserFails(@UserIdInt int userId, Exception e) throws Exception {
-        doThrow(e).when(mService).switchUser(eq(userId), anyInt(), notNull());
+        doThrow(e).when(mService).switchUser(eq(userId), anyInt(), notNull(), anyBoolean());
     }
 
     private void expectServiceLogoutUserSucceeds(@UserSwitchResult.Status int status)

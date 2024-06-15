@@ -34,6 +34,8 @@
     <string name="car_permission_desc_speed" msgid="2047965198165448241">"আপনার গাড়ির স্পিড অ্যাক্সেস করা।"</string>
     <string name="car_permission_label_vehicle_dynamics_state" msgid="313779267420048367">"গাড়ির ডায়নামিক স্ট্যাটাস অ্যাক্সেস করা"</string>
     <string name="car_permission_desc_vehicle_dynamics_state" msgid="8891506193446375660">"আপনার গাড়ির ডায়নামিক স্ট্যাটাস অ্যাক্সেস করা।"</string>
+    <string name="car_permission_label_control_vehicle_dynamics_state" msgid="1912154069363074986">"গাড়ির ডায়নামিক অবস্থা কন্ট্রোল করতে পারে"</string>
+    <string name="car_permission_desc_control_vehicle_dynamics_state" msgid="5603436779163086928">"আপনার গাড়ির ডায়নামিক অবস্থা কন্ট্রোল করুন।"</string>
     <string name="car_permission_label_vendor_extension" msgid="7141601811734127361">"গাড়ির ভেন্ডর চ্যানেল অ্যাক্সেস করা"</string>
     <string name="car_permission_desc_vendor_extension" msgid="2970718502334714035">"গাড়ির নির্দিষ্ট তথ্য বিনিময় করতে আপনার গাড়ির ভেন্ডর চ্যানেল অ্যাক্সেস করা।"</string>
     <string name="car_permission_label_radio" msgid="6009465291685935112">"গাড়ির রেডিও ম্যানেজ করা"</string>
@@ -84,6 +86,8 @@
     <string name="car_permission_desc_vms_publisher" msgid="5589489298597386828">"vms মেসেজ প্রকাশ করুন"</string>
     <string name="car_permission_label_vms_subscriber" msgid="5648841182059222299">"VMS সাবস্ক্রাইবার"</string>
     <string name="car_permission_desc_vms_subscriber" msgid="7551009457847673620">"VMS মেসেজে সাবস্ক্রাইব করুন"</string>
+    <string name="car_permission_label_read_ultrasonics_sensor_data" msgid="1097940233242534149">"আল্ট্রাসনিক সেন্সর ডেটার অবস্থা বুঝতে পারে।"</string>
+    <string name="car_permission_desc_read_ultrasonics_sensor_data" msgid="1717892304330623332">"গাড়ি থেকে আল্ট্রাসনিক সেন্সর ডেটার অবস্থা বুঝতে পারে।"</string>
     <string name="car_permission_label_storage_monitoring" msgid="2327639346522530549">"ফ্ল্যাশ স্টোরেজ মনিটর করা"</string>
     <string name="car_permission_desc_storage_monitoring" msgid="2075712271139671318">"ফ্ল্যাশ স্টোরেজের ব্যবহার মনিটর করা"</string>
     <string name="car_permission_label_driving_state" msgid="7754624599537393650">"ড্রাইভিংয়ের স্ট্যাটাস পরিবর্তন করার বিষয়ে শোনা"</string>
@@ -116,6 +120,20 @@
     <string name="car_permission_desc_control_car_mirrors" msgid="1224135684068855032">"গাড়ির আয়না নিয়ন্ত্রণ করা।"</string>
     <string name="car_permission_label_control_car_seats" msgid="1826934820585497135">"গাড়ির সিট নিয়ন্ত্রণ করা"</string>
     <string name="car_permission_desc_control_car_seats" msgid="2407536601226470563">"গাড়ির সিট নিয়ন্ত্রণ করা।"</string>
+    <string name="car_permission_label_read_car_seat_belts" msgid="2051828795852087659">"গাড়ির সিট বেল্টগুলির অবস্থা বুঝতে পারে"</string>
+    <string name="car_permission_desc_read_car_seat_belts" msgid="7076977711613912339">"গাড়ির সিট বেল্টগুলির অবস্থা বুঝতে পারে।"</string>
+    <string name="car_permission_label_read_impact_sensors" msgid="9193288836326363975">"গাড়ির ইম্প্যাক্ট সেন্সরগুলির অবস্থা বুঝতে পারে"</string>
+    <string name="car_permission_desc_read_impact_sensors" msgid="6479840965130272944">"গাড়ির ইম্প্যাক্ট সেন্সরগুলির অবস্থা বুঝতে পারে।"</string>
+    <string name="car_permission_label_read_valet_mode" msgid="1807900160666761320">"\'ভ্যালেট\' মোডের অবস্থা বুঝতে পারে"</string>
+    <string name="car_permission_desc_read_valet_mode" msgid="8645550481045813299">"\'ভ্যালেট\' মোডের অবস্থা বুঝতে পারে।"</string>
+    <string name="car_permission_label_control_valet_mode" msgid="180432980177027905">"\'ভ্যালেট\' মোড কন্ট্রোল করতে পারে"</string>
+    <string name="car_permission_desc_control_valet_mode" msgid="8442573192492763994">"\'ভ্যালেট\' মোড কন্ট্রোল করুন।"</string>
+    <string name="car_permission_label_read_head_up_display_status" msgid="8117112886452578905">"চোখের সামনে ডিসপ্লের স্ট্যাটাস পড়ুন"</string>
+    <string name="car_permission_desc_read_head_up_display_status" msgid="3255763055570462667">"চোখের সামনে ডিসপ্লের স্ট্যাটাস পড়ুন।"</string>
+    <string name="car_permission_label_control_head_up_display" msgid="2990483192001919370">"\'চোখের সামনে ডিসপ্লে\' নিয়ন্ত্রণ করুন"</string>
+    <string name="car_permission_desc_control_head_up_display" msgid="483313982751387504">"\'চোখের সামনে ডিসপ্লে\' নিয়ন্ত্রণ করুন।"</string>
+    <string name="car_permission_label_read_car_airbags" msgid="5495423499616379238">"গাড়ির এয়ারব্যাগগুলির অবস্থা বুঝতে পারে"</string>
+    <string name="car_permission_desc_read_car_airbags" msgid="7961580013929420722">"গাড়ির এয়ারব্যাগগুলির অবস্থা বুঝতে পারে।"</string>
     <string name="car_permission_label_control_car_airbags" msgid="6823727183218389617">"গাড়ির এয়ারব্যাগ নিয়ন্ত্রণ করুন"</string>
     <string name="car_permission_desc_control_car_airbags" msgid="6181671903761622348">"গাড়ির এয়ারব্যাগ নিয়ন্ত্রণ করুন।"</string>
     <string name="car_permission_label_car_info" msgid="4707513570676492315">"গাড়ির সাধারণ তথ্য অ্যাক্সেস করা"</string>
@@ -210,6 +228,8 @@
     <string name="car_permission_desc_register_car_system_ui_proxy" msgid="8863676956785764681">"সিস্টেম UI প্রক্সি প্রদান করুন যা অন্যান্য অ্যাপ, সিস্টেম UI ম্যানেজ এবং টাস্ক ভিউ তৈরি করার জন্য ব্যবহার করতে পারে।"</string>
     <string name="car_permission_label_manage_car_system_ui" msgid="1361615518679353414">"টাস্কভিউ তৈরি করতে অথবা সিস্টেম UI সংক্রান্ত পরিবর্তন সম্পর্কে জানার জন্য গাড়ির সিস্টেম UI দেখুন।"</string>
     <string name="car_permission_desc_manage_car_system_ui" msgid="6201733970421818637">"টাস্কভিউ তৈরি করতে অথবা সিস্টেম UI সংক্রান্ত পরিবর্তন সম্পর্কে জানার জন্য গাড়ির সিস্টেম UI দেখুন।"</string>
+    <string name="car_permission_label_read_persist_tethering_settings" msgid="6395145649477916950">"গাড়িতে ফিক্সড টিথারিং সেটিংসের জন্য পড়ুন"</string>
+    <string name="car_permission_desc_read_persist_tethering_settings" msgid="7373546466696896323">"গাড়িতে ফিক্সড টিথারিং সেটিংসের জন্য পড়ুন"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN বাস কাজ করছে না"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN বাস কাজ করছে না। হেডইউনিট বক্স খুলে নিয়ে আবার লাগান ও গাড়ি রিস্টার্ট করুন"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"আমার ডিভাইস"</string>

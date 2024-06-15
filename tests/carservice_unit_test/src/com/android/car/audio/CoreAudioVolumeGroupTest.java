@@ -83,6 +83,8 @@ public final class CoreAudioVolumeGroupTest  extends AbstractExtendedMockitoTest
     private static final String TAG = CoreAudioVolumeGroupTest.class.getSimpleName();
 
     private static final int ZONE_CONFIG_ID = 0;
+    private static final int MIN_ACTIVATION_GAIN_INDEX_PERCENTAGE = 10;
+    private static final int MAX_ACTIVATION_GAIN_INDEX_PERCENTAGE = 90;
     private CarAudioContext mMusicContext;
     private CarAudioContext mNavContext;
     private CarAudioContext mOemContext;
@@ -173,14 +175,16 @@ public final class CoreAudioVolumeGroupTest  extends AbstractExtendedMockitoTest
         when(mOemInfoMock.getAudioDevice()).thenReturn(mMusicDeviceAttributes);
         mMusicCoreAudioVolumeGroup = new CoreAudioVolumeGroup(mMockAudioManager, mMusicContext,
                 mSettingsMock, musicContextToDeviceInfo, PRIMARY_AUDIO_ZONE, ZONE_CONFIG_ID,
-                MUSIC_CAR_GROUP_ID, MUSIC_GROUP_NAME, /* useCarVolumeGroupMute= */ false);
+                MUSIC_CAR_GROUP_ID, MUSIC_GROUP_NAME, /* useCarVolumeGroupMute= */ false,
+                MAX_ACTIVATION_GAIN_INDEX_PERCENTAGE, MIN_ACTIVATION_GAIN_INDEX_PERCENTAGE);
 
         SparseArray<CarAudioDeviceInfo> navContextToDeviceInfo = new SparseArray<>();
         navContextToDeviceInfo.put(NAV_STRATEGY_ID, mNavInfoMock);
         when(mNavInfoMock.getAddress()).thenReturn(NAV_DEVICE_ADDRESS);
         mNavCoreAudioVolumeGroup = new CoreAudioVolumeGroup(mMockAudioManager, mNavContext,
                 mSettingsMock, navContextToDeviceInfo, PRIMARY_AUDIO_ZONE, ZONE_CONFIG_ID,
-                NAV_CAR_GROUP_ID, NAV_GROUP_NAME, /* useCarVolumeGroupMute= */ false);
+                NAV_CAR_GROUP_ID, NAV_GROUP_NAME, /* useCarVolumeGroupMute= */ false,
+                MAX_ACTIVATION_GAIN_INDEX_PERCENTAGE, MIN_ACTIVATION_GAIN_INDEX_PERCENTAGE);
 
         SparseArray<CarAudioDeviceInfo> oemContextToDeviceInfo = new SparseArray<>();
         oemContextToDeviceInfo.put(OEM_STRATEGY_ID, mOemInfoMock);
@@ -188,7 +192,8 @@ public final class CoreAudioVolumeGroupTest  extends AbstractExtendedMockitoTest
         mOemCoreAudioVolumeGroup = new CoreAudioVolumeGroup(mMockAudioManager, mOemContext,
                 mSettingsMock, oemContextToDeviceInfo,
                 PRIMARY_AUDIO_ZONE, ZONE_CONFIG_ID, OEM_CAR_GROUP_ID, OEM_GROUP_NAME,
-                /* useCarVolumeGroupMute= */ false);
+                /* useCarVolumeGroupMute= */ false, MAX_ACTIVATION_GAIN_INDEX_PERCENTAGE,
+                MIN_ACTIVATION_GAIN_INDEX_PERCENTAGE);
     }
 
     @Test
@@ -433,7 +438,7 @@ public final class CoreAudioVolumeGroupTest  extends AbstractExtendedMockitoTest
                 .thenReturn(MUSIC_AM_INIT_INDEX);
         when(mMockAudioManager.isVolumeGroupMuted(MUSIC_GROUP_ID)).thenReturn(true);
         // Mute event reported by AudioManager
-        int flags = mMusicCoreAudioVolumeGroup.onAudioVolumeGroupChanged(/* flags= */ 0);
+        mMusicCoreAudioVolumeGroup.onAudioVolumeGroupChanged(/* flags= */ 0);
         when(mMockAudioManager.getVolumeIndexForAttributes(MUSIC_ATTRIBUTES))
                 .thenReturn(MUSIC_MIN_INDEX);
         when(mMockAudioManager.isVolumeGroupMuted(MUSIC_GROUP_ID)).thenReturn(false);
@@ -441,7 +446,7 @@ public final class CoreAudioVolumeGroupTest  extends AbstractExtendedMockitoTest
                 .thenReturn(MUSIC_MIN_INDEX);
 
         // Unmute (at volume zero) event reported by AudioManager
-        flags = mMusicCoreAudioVolumeGroup.onAudioVolumeGroupChanged(/* flags= */ 0);
+        int flags = mMusicCoreAudioVolumeGroup.onAudioVolumeGroupChanged(/* flags= */ 0);
 
         expectWithMessage("Car volume group muted state after am unmuted")
                 .that(mMusicCoreAudioVolumeGroup.isMuted()).isFalse();

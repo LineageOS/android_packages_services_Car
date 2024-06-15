@@ -777,9 +777,10 @@ public class CarStorageMonitoringTest extends MockedCarTestBase {
 
     /**
      * Special version of {@link MockedCarTestContext} that stores the last arguments used when
-     * invoking {@method sendBroadcast(Intent, String)} to be retrieved later by the test.
+     * invoking {@link  MockedCarTestContext#sendBroadcast(Intent, String)} to be retrieved later
+     * by the test.
      */
-    private class CarStorageMonitoringTestContext extends MockedCarTestContext {
+    private static final class CarStorageMonitoringTestContext extends MockedCarTestContext {
         private Intent mLastBroadcastedIntent;
         private String mLastBroadcastedString;
 

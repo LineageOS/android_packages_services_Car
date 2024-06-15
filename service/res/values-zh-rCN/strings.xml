@@ -34,6 +34,8 @@
     <string name="car_permission_desc_speed" msgid="2047965198165448241">"访问车速信息。"</string>
     <string name="car_permission_label_vehicle_dynamics_state" msgid="313779267420048367">"访问汽车的动力状态信息"</string>
     <string name="car_permission_desc_vehicle_dynamics_state" msgid="8891506193446375660">"访问汽车的动力状态信息。"</string>
+    <string name="car_permission_label_control_vehicle_dynamics_state" msgid="1912154069363074986">"控制汽车的动力状态"</string>
+    <string name="car_permission_desc_control_vehicle_dynamics_state" msgid="5603436779163086928">"控制您汽车的动力状态。"</string>
     <string name="car_permission_label_vendor_extension" msgid="7141601811734127361">"访问汽车的供应商渠道"</string>
     <string name="car_permission_desc_vendor_extension" msgid="2970718502334714035">"访问汽车的供应商渠道信息，以交换汽车专属信息。"</string>
     <string name="car_permission_label_radio" msgid="6009465291685935112">"管理汽车的收音机"</string>
@@ -84,6 +86,8 @@
     <string name="car_permission_desc_vms_publisher" msgid="5589489298597386828">"发布 VMS 消息"</string>
     <string name="car_permission_label_vms_subscriber" msgid="5648841182059222299">"VMS 订阅者"</string>
     <string name="car_permission_desc_vms_subscriber" msgid="7551009457847673620">"订阅 VMS 消息"</string>
+    <string name="car_permission_label_read_ultrasonics_sensor_data" msgid="1097940233242534149">"读取超声波传感器数据。"</string>
+    <string name="car_permission_desc_read_ultrasonics_sensor_data" msgid="1717892304330623332">"读取汽车的超声波传感器数据。"</string>
     <string name="car_permission_label_storage_monitoring" msgid="2327639346522530549">"闪存监控"</string>
     <string name="car_permission_desc_storage_monitoring" msgid="2075712271139671318">"监控闪存使用情况"</string>
     <string name="car_permission_label_driving_state" msgid="7754624599537393650">"监听驾车状态"</string>
@@ -116,6 +120,20 @@
     <string name="car_permission_desc_control_car_mirrors" msgid="1224135684068855032">"控制车镜。"</string>
     <string name="car_permission_label_control_car_seats" msgid="1826934820585497135">"控制车座"</string>
     <string name="car_permission_desc_control_car_seats" msgid="2407536601226470563">"控制车座。"</string>
+    <string name="car_permission_label_read_car_seat_belts" msgid="2051828795852087659">"读取汽车的座椅安全带信息"</string>
+    <string name="car_permission_desc_read_car_seat_belts" msgid="7076977711613912339">"读取汽车的座椅安全带信息。"</string>
+    <string name="car_permission_label_read_impact_sensors" msgid="9193288836326363975">"读取汽车的碰撞传感器信息"</string>
+    <string name="car_permission_desc_read_impact_sensors" msgid="6479840965130272944">"读取汽车的碰撞传感器信息。"</string>
+    <string name="car_permission_label_read_valet_mode" msgid="1807900160666761320">"读取代客泊车模式信息"</string>
+    <string name="car_permission_desc_read_valet_mode" msgid="8645550481045813299">"读取代客泊车模式信息。"</string>
+    <string name="car_permission_label_control_valet_mode" msgid="180432980177027905">"控制代客泊车模式"</string>
+    <string name="car_permission_desc_control_valet_mode" msgid="8442573192492763994">"控制代客泊车模式。"</string>
+    <string name="car_permission_label_read_head_up_display_status" msgid="8117112886452578905">"读取平视显示状态"</string>
+    <string name="car_permission_desc_read_head_up_display_status" msgid="3255763055570462667">"读取平视显示状态。"</string>
+    <string name="car_permission_label_control_head_up_display" msgid="2990483192001919370">"控制平视显示"</string>
+    <string name="car_permission_desc_control_head_up_display" msgid="483313982751387504">"控制平视显示。"</string>
+    <string name="car_permission_label_read_car_airbags" msgid="5495423499616379238">"读取汽车的安全气囊状态"</string>
+    <string name="car_permission_desc_read_car_airbags" msgid="7961580013929420722">"读取汽车的安全气囊状态。"</string>
     <string name="car_permission_label_control_car_airbags" msgid="6823727183218389617">"控制汽车的安全气囊"</string>
     <string name="car_permission_desc_control_car_airbags" msgid="6181671903761622348">"控制汽车的安全气囊。"</string>
     <string name="car_permission_label_car_info" msgid="4707513570676492315">"访问汽车的基本信息"</string>
@@ -174,8 +192,8 @@
     <string name="car_permission_desc_template_renderer" msgid="6047233999260920122">"渲染模板。"</string>
     <string name="car_permission_label_control_car_app_launch" msgid="214632389637409226">"控制应用启动"</string>
     <string name="car_permission_desc_control_car_app_launch" msgid="4245527461733374198">"控制应用启动。"</string>
-    <string name="car_permission_label_manage_thread_priority" msgid="6775846409863509575">"管理会话优先级"</string>
-    <string name="car_permission_desc_manage_thread_priority" msgid="3833845502119615929">"管理会话优先级。"</string>
+    <string name="car_permission_label_manage_thread_priority" msgid="6775846409863509575">"管理线程优先级"</string>
+    <string name="car_permission_desc_manage_thread_priority" msgid="3833845502119615929">"管理线程优先级。"</string>
     <string name="car_permission_label_manage_occupant_zone" msgid="1390420387640478679">"管理乘员区"</string>
     <string name="car_permission_desc_manage_occupant_zone" msgid="1641484205694436465">"管理乘员区。"</string>
     <string name="car_permission_label_use_remote_access" msgid="4192095854784769805">"使用远程访问权限"</string>
@@ -210,6 +228,8 @@
     <string name="car_permission_desc_register_car_system_ui_proxy" msgid="8863676956785764681">"提供其他应用可使用的系统界面代理，以便管理系统界面及创建任务视图。"</string>
     <string name="car_permission_label_manage_car_system_ui" msgid="1361615518679353414">"与汽车系统界面进行通信，以便创建任务视图或接收与系统界面变更相关的通知。"</string>
     <string name="car_permission_desc_manage_car_system_ui" msgid="6201733970421818637">"与汽车系统界面进行通信，以便创建任务视图或接收与系统界面变更相关的通知。"</string>
+    <string name="car_permission_label_read_persist_tethering_settings" msgid="6395145649477916950">"读取汽车的持久网络共享设置"</string>
+    <string name="car_permission_desc_read_persist_tethering_settings" msgid="7373546466696896323">"读取汽车的持久网络共享设置"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN 总线故障"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN 总线没有响应。请将主机盒插头拔下并插回，然后重新启动汽车"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"我的设备"</string>

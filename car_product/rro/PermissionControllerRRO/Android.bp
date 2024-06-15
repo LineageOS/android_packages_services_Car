@@ -8,6 +8,6 @@ android_app {
     platform_apis: true,
     aaptflags: [
         "--no-resource-deduping",
-        "--no-resource-removal"
+        "--no-resource-removal",
     ],
 }

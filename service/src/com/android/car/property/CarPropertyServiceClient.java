@@ -17,6 +17,7 @@
 package com.android.car.property;
 
 import android.car.builtin.util.Slogf;
+import android.car.hardware.CarPropertyValue;
 import android.car.hardware.property.CarPropertyEvent;
 import android.car.hardware.property.ICarPropertyEventListener;
 import android.os.IBinder;
@@ -47,6 +48,7 @@ public final class CarPropertyServiceClient extends CarPropertyEventController
 
     public CarPropertyServiceClient(ICarPropertyEventListener listener,
             UnregisterCallback unregisterCallback) {
+        super(/* useSystemLogger= */ true);
         mListener = listener;
         mListenerBinder = listener.asBinder();
         mUnregisterCallback = unregisterCallback;
@@ -78,14 +80,14 @@ public final class CarPropertyServiceClient extends CarPropertyEventController
      */
     @Override
     public void addContinuousProperty(int propertyId, int[] areaIds, float updateRateHz,
-            boolean enableVur) {
+            boolean enableVur, float resolution) {
         synchronized (mLock) {
             if (mIsDead) {
                 Slogf.w(TAG, "addContinuousProperty: The client is already dead, ignore");
                 return;
             }
 
-            super.addContinuousProperty(propertyId, areaIds, updateRateHz, enableVur);
+            super.addContinuousProperty(propertyId, areaIds, updateRateHz, enableVur, resolution);
         }
     }
 
@@ -168,7 +170,16 @@ public final class CarPropertyServiceClient extends CarPropertyEventController
             }
             for (int i = 0; i < events.size(); i++) {
                 CarPropertyEvent event = events.get(i);
-                if (shouldCallbackBeInvoked(event)) {
+                CarPropertyValue<?> carPropertyValue = getCarPropertyValueIfCallbackRequired(event);
+                if (carPropertyValue == null) {
+                    continue;
+                }
+                if (!carPropertyValue.equals(event.getCarPropertyValue())) {
+                    CarPropertyEvent updatedEvent =
+                            new CarPropertyEvent(event.getEventType(), carPropertyValue,
+                                    event.getErrorCode());
+                    filteredEvents.add(updatedEvent);
+                } else {
                     filteredEvents.add(event);
                 }
             }

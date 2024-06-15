@@ -18,6 +18,8 @@ package com.android.systemui;
 
 import com.android.systemui.car.distantdisplay.activity.window.ActivityWindowModule;
 import com.android.systemui.car.distantdisplay.activity.window.DistantDisplayActivityWindowManager;
+import com.android.systemui.car.qc.DistantDisplayQuickControlsModule;
+import com.android.systemui.car.systembar.DistantDisplaySystemBarModule;
 
 import dagger.Binds;
 import dagger.Module;
@@ -25,9 +27,9 @@ import dagger.multibindings.ClassKey;
 import dagger.multibindings.IntoMap;
 
 /** Binder for AAECarSystemUI specific {@link CoreStartable} modules and components. */
-@Module(includes = {ActivityWindowModule.class})
+@Module(includes = {ActivityWindowModule.class, DistantDisplaySystemBarModule.class,
+        DistantDisplayQuickControlsModule.class})
 abstract class SystemUIBinder extends CarSystemUIBinder {
-
 
     @Binds
     @IntoMap

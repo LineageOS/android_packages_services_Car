@@ -596,7 +596,8 @@ package android.car.hardware {
     method public int describeContents();
     method public int getAreaId();
     method public int getPropertyId();
-    method public int getStatus();
+    method @FlaggedApi("android.car.feature.car_property_value_property_status") public int getPropertyStatus();
+    method @Deprecated public int getStatus();
     method public long getTimestamp();
     method @NonNull public T getValue();
     method public void writeToParcel(android.os.Parcel, int);
@@ -748,6 +749,7 @@ package android.car.hardware.property {
 
   public final class AreaIdConfig<T> implements android.os.Parcelable {
     method public int describeContents();
+    method @FlaggedApi("android.car.feature.area_id_config_access") public int getAccess();
     method public int getAreaId();
     method @Nullable public T getMaxValue();
     method @Nullable public T getMinValue();
@@ -791,7 +793,7 @@ package android.car.hardware.property {
     method public void unregisterCallback(@NonNull android.car.hardware.property.CarPropertyManager.CarPropertyEventCallback);
     method public void unregisterCallback(@NonNull android.car.hardware.property.CarPropertyManager.CarPropertyEventCallback, int);
     method @FlaggedApi("android.car.feature.batched_subscriptions") public void unsubscribePropertyEvents(@NonNull android.car.hardware.property.CarPropertyManager.CarPropertyEventCallback);
-    method @FlaggedApi("android.car.feature.batched_subscriptions") public void unsubscribePropertyEvents(@NonNull android.car.hardware.property.CarPropertyManager.CarPropertyEventCallback, int);
+    method @FlaggedApi("android.car.feature.batched_subscriptions") public void unsubscribePropertyEvents(int, @NonNull android.car.hardware.property.CarPropertyManager.CarPropertyEventCallback);
     field public static final long ASYNC_GET_DEFAULT_TIMEOUT_MS = 10000L; // 0x2710L
     field public static final int CAR_SET_PROPERTY_ERROR_CODE_ACCESS_DENIED = 4; // 0x4
     field public static final int CAR_SET_PROPERTY_ERROR_CODE_INVALID_ARG = 2; // 0x2
@@ -841,6 +843,7 @@ package android.car.hardware.property {
 
   public static final class CarPropertyManager.PropertyAsyncError {
     method public int getAreaId();
+    method @FlaggedApi("android.car.feature.car_property_detailed_error_codes") public int getDetailedErrorCode();
     method public int getErrorCode();
     method public int getPropertyId();
     method public int getRequestId();
@@ -867,6 +870,16 @@ package android.car.hardware.property {
     method public int getPropertyId();
     method public int getRequestId();
     method public long getUpdateTimestampNanos();
+  }
+
+  @FlaggedApi("android.car.feature.car_property_detailed_error_codes") public final class DetailedErrorCode {
+    method @FlaggedApi("android.car.feature.car_property_detailed_error_codes") @NonNull public static String toString(int);
+    field @FlaggedApi("android.car.feature.car_property_detailed_error_codes") public static final int NOT_AVAILABLE_DISABLED = 1; // 0x1
+    field @FlaggedApi("android.car.feature.car_property_detailed_error_codes") public static final int NOT_AVAILABLE_POOR_VISIBILITY = 4; // 0x4
+    field @FlaggedApi("android.car.feature.car_property_detailed_error_codes") public static final int NOT_AVAILABLE_SAFETY = 5; // 0x5
+    field @FlaggedApi("android.car.feature.car_property_detailed_error_codes") public static final int NOT_AVAILABLE_SPEED_HIGH = 3; // 0x3
+    field @FlaggedApi("android.car.feature.car_property_detailed_error_codes") public static final int NOT_AVAILABLE_SPEED_LOW = 2; // 0x2
+    field @FlaggedApi("android.car.feature.car_property_detailed_error_codes") public static final int NO_DETAILED_ERROR_CODE = 0; // 0x0
   }
 
   public final class EvChargeState {
@@ -937,8 +950,9 @@ package android.car.hardware.property {
   }
 
   @FlaggedApi("android.car.feature.batched_subscriptions") public final class Subscription {
-    method @Nullable public int[] getAreaIds();
+    method @NonNull public int[] getAreaIds();
     method public int getPropertyId();
+    method @FlaggedApi("android.car.feature.subscription_with_resolution") public float getResolution();
     method public float getUpdateRateFast();
     method public float getUpdateRateFastest();
     method public float getUpdateRateHz();
@@ -947,10 +961,11 @@ package android.car.hardware.property {
     method @FlaggedApi("android.car.feature.variable_update_rate") public boolean isVariableUpdateRateEnabled();
   }
 
-  public static final class Subscription.Builder {
+  @FlaggedApi("android.car.feature.batched_subscriptions") public static final class Subscription.Builder {
     ctor public Subscription.Builder(int);
     method @NonNull public android.car.hardware.property.Subscription.Builder addAreaId(int);
     method @NonNull public android.car.hardware.property.Subscription build();
+    method @FlaggedApi("android.car.feature.subscription_with_resolution") @NonNull public android.car.hardware.property.Subscription.Builder setResolution(float);
     method @NonNull public android.car.hardware.property.Subscription.Builder setUpdateRateFast();
     method @NonNull public android.car.hardware.property.Subscription.Builder setUpdateRateFastest();
     method @NonNull public android.car.hardware.property.Subscription.Builder setUpdateRateHz(@FloatRange(from=0.0, to=100.0) float);
@@ -997,6 +1012,7 @@ package android.car.media {
     method public void unregisterCarVolumeCallback(@NonNull android.car.media.CarAudioManager.CarVolumeCallback);
     field public static final int AUDIO_FEATURE_AUDIO_MIRRORING = 5; // 0x5
     field public static final int AUDIO_FEATURE_DYNAMIC_ROUTING = 1; // 0x1
+    field @FlaggedApi("android.car.feature.car_audio_min_max_activation_volume") public static final int AUDIO_FEATURE_MIN_MAX_ACTIVATION_VOLUME = 6; // 0x6
     field public static final int AUDIO_FEATURE_OEM_AUDIO_SERVICE = 3; // 0x3
     field public static final int AUDIO_FEATURE_VOLUME_GROUP_EVENTS = 4; // 0x4
     field public static final int AUDIO_FEATURE_VOLUME_GROUP_MUTING = 2; // 0x2
@@ -1033,7 +1049,7 @@ package android.car.remoteaccess {
     method public void onRegistrationFailed();
     method public void onRegistrationUpdated(@NonNull android.car.remoteaccess.RemoteTaskClientRegistrationInfo);
     method public void onRemoteTaskRequested(@NonNull String, @Nullable byte[], int);
-    method public default void onServerlessClientRegistered();
+    method @FlaggedApi("android.car.feature.serverless_remote_access") public default void onServerlessClientRegistered();
     method public void onShutdownStarting(@NonNull android.car.remoteaccess.CarRemoteAccessManager.CompletableRemoteTaskFuture);
   }
 

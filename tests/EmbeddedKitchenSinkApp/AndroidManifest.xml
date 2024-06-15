@@ -77,6 +77,8 @@
     <uses-permission android:name="android.car.permission.READ_IMPACT_SENSORS" />
     <uses-permission android:name="android.car.permission.READ_VALET_MODE" />
     <uses-permission android:name="android.car.permission.CONTROL_VALET_MODE" />
+    <uses-permission android:name="android.car.permission.READ_HEAD_UP_DISPLAY_STATUS" />
+    <uses-permission android:name="android.car.permission.CONTROL_HEAD_UP_DISPLAY" />
     <uses-permission android:name="android.car.permission.CONTROL_CAR_WINDOWS" />
     <uses-permission android:name="android.car.permission.READ_CAR_AIRBAGS"/>
     <uses-permission android:name="android.car.permission.CONTROL_CAR_AIRBAGS"/>
@@ -244,6 +246,7 @@
     <!-- To access Camera2 -->
     <uses-permission android:name="android.permission.CAMERA"/>
     <uses-permission android:name="android.permission.CAMERA_HEADLESS_SYSTEM_USER"/>
+    <uses-permission android:name="android.permission.CAMERA_PRIVACY_ALLOWLIST"/>
 
     <!-- Use for RadioTestFragment -->
     <uses-permission android:name="android.permission.ACCESS_BROADCAST_RADIO"/>

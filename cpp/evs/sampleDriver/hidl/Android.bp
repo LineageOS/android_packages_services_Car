@@ -14,7 +14,6 @@
 //
 //
 
-
 //#################################
 package {
     default_applicable_licenses: ["Android-Apache-2.0"],
@@ -89,8 +88,8 @@ cc_binary {
         debuggable: {
             cflags: [
                 "-DEVS_DEBUG",
-            ]
-        }
+            ],
+        },
     },
 
     vintf_fragments: [
@@ -98,14 +97,14 @@ cc_binary {
     ],
 }
 
-cc_library{
-    name : "libevsconfigmanager",
-    vendor : true,
-    srcs : [
+cc_library {
+    name: "libevsconfigmanager",
+    vendor: true,
+    srcs: [
         "ConfigManager.cpp",
         "ConfigManagerUtil.cpp",
     ],
-    shared_libs : [
+    shared_libs: [
         "android.hardware.automotive.evs@1.0",
         "android.hardware.automotive.evs@1.1",
         "android.hardware.camera.device@3.2",

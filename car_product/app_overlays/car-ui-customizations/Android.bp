@@ -22,7 +22,7 @@ runtime_resource_overlay {
     resource_dirs: ["res"],
 
     static_libs: [
-        "car-resource-common"
+        "car-resource-common",
     ],
 }
 
@@ -152,7 +152,7 @@ runtime_resource_overlay {
     resource_dirs: ["res"],
 
     static_libs: [
-        "car-resource-theme-orange-common"
+        "car-resource-theme-orange-common",
     ],
 }
 
@@ -282,7 +282,7 @@ runtime_resource_overlay {
     resource_dirs: ["res"],
 
     static_libs: [
-        "car-resource-theme-pink-common"
+        "car-resource-theme-pink-common",
     ],
 }
 

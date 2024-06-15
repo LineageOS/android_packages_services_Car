@@ -34,6 +34,8 @@
     <string name="car_permission_desc_speed" msgid="2047965198165448241">"Доступ к данным о скорости автомобиля"</string>
     <string name="car_permission_label_vehicle_dynamics_state" msgid="313779267420048367">"доступ к данным о динамике автомобиля"</string>
     <string name="car_permission_desc_vehicle_dynamics_state" msgid="8891506193446375660">"Доступ к данным о динамике автомобиля."</string>
+    <string name="car_permission_label_control_vehicle_dynamics_state" msgid="1912154069363074986">"управление данными о динамике автомобиля"</string>
+    <string name="car_permission_desc_control_vehicle_dynamics_state" msgid="5603436779163086928">"Управление данными о динамике автомобиля."</string>
     <string name="car_permission_label_vendor_extension" msgid="7141601811734127361">"доступ к фирменному каналу связи"</string>
     <string name="car_permission_desc_vendor_extension" msgid="2970718502334714035">"Доступ к фирменному каналу связи для обмена информацией"</string>
     <string name="car_permission_label_radio" msgid="6009465291685935112">"управление радио в автомобиле"</string>
@@ -84,6 +86,8 @@
     <string name="car_permission_desc_vms_publisher" msgid="5589489298597386828">"Возможность публиковать VMS-сообщения"</string>
     <string name="car_permission_label_vms_subscriber" msgid="5648841182059222299">"Подписка на VMS-сообщения"</string>
     <string name="car_permission_desc_vms_subscriber" msgid="7551009457847673620">"Возможность получать VMS-сообщения"</string>
+    <string name="car_permission_label_read_ultrasonics_sensor_data" msgid="1097940233242534149">"чтение данных с ультразвуковых датчиков автомобиля"</string>
+    <string name="car_permission_desc_read_ultrasonics_sensor_data" msgid="1717892304330623332">"Чтение данных с ультразвуковых датчиков автомобиля."</string>
     <string name="car_permission_label_storage_monitoring" msgid="2327639346522530549">"Мониторинг флеш-хранилища"</string>
     <string name="car_permission_desc_storage_monitoring" msgid="2075712271139671318">"Возможность отслеживать использование флеш-хранилища"</string>
     <string name="car_permission_label_driving_state" msgid="7754624599537393650">"отслеживание изменений режима \"За рулем\""</string>
@@ -116,6 +120,20 @@
     <string name="car_permission_desc_control_car_mirrors" msgid="1224135684068855032">"Управление зеркалами."</string>
     <string name="car_permission_label_control_car_seats" msgid="1826934820585497135">"управление сиденьями"</string>
     <string name="car_permission_desc_control_car_seats" msgid="2407536601226470563">"Управление сиденьями."</string>
+    <string name="car_permission_label_read_car_seat_belts" msgid="2051828795852087659">"чтение данных о ремнях безопасности автомобиля"</string>
+    <string name="car_permission_desc_read_car_seat_belts" msgid="7076977711613912339">"Чтение данных о ремнях безопасности автомобиля."</string>
+    <string name="car_permission_label_read_impact_sensors" msgid="9193288836326363975">"чтение данных с датчиков удара автомобиля"</string>
+    <string name="car_permission_desc_read_impact_sensors" msgid="6479840965130272944">"Чтение данных с датчиков удара автомобиля."</string>
+    <string name="car_permission_label_read_valet_mode" msgid="1807900160666761320">"чтение данных о сервисном режиме"</string>
+    <string name="car_permission_desc_read_valet_mode" msgid="8645550481045813299">"Чтение данных о сервисном режиме."</string>
+    <string name="car_permission_label_control_valet_mode" msgid="180432980177027905">"управление сервисным режимом"</string>
+    <string name="car_permission_desc_control_valet_mode" msgid="8442573192492763994">"Управление сервисным режимом."</string>
+    <string name="car_permission_label_read_head_up_display_status" msgid="8117112886452578905">"Чтение статуса проекционного дисплея автомобиля"</string>
+    <string name="car_permission_desc_read_head_up_display_status" msgid="3255763055570462667">"Чтение статуса проекционного дисплея автомобиля"</string>
+    <string name="car_permission_label_control_head_up_display" msgid="2990483192001919370">"управление проекционным дисплеем автомобиля"</string>
+    <string name="car_permission_desc_control_head_up_display" msgid="483313982751387504">"Управление проекционным дисплеем автомобиля."</string>
+    <string name="car_permission_label_read_car_airbags" msgid="5495423499616379238">"чтение данных о подушках безопасности автомобиля"</string>
+    <string name="car_permission_desc_read_car_airbags" msgid="7961580013929420722">"Чтение данных о подушках безопасности автомобиля."</string>
     <string name="car_permission_label_control_car_airbags" msgid="6823727183218389617">"управлять подушками безопасности автомобиля"</string>
     <string name="car_permission_desc_control_car_airbags" msgid="6181671903761622348">"Управлять подушками безопасности автомобиля."</string>
     <string name="car_permission_label_car_info" msgid="4707513570676492315">"Доступ к общим данным об автомобиле"</string>
@@ -210,6 +228,8 @@
     <string name="car_permission_desc_register_car_system_ui_proxy" msgid="8863676956785764681">"Предоставить доступ к промежуточному решению, которое могут использовать другие приложения, чтобы управлять системным интерфейсом и создавать представления задач."</string>
     <string name="car_permission_label_manage_car_system_ui" msgid="1361615518679353414">"Подключаться к интерфейсу системы автомобиля, чтобы создавать представления задач или получать уведомления об изменениях."</string>
     <string name="car_permission_desc_manage_car_system_ui" msgid="6201733970421818637">"Подключаться к интерфейсу системы автомобиля, чтобы создавать представления задач или получать уведомления об изменениях."</string>
+    <string name="car_permission_label_read_persist_tethering_settings" msgid="6395145649477916950">"Чтение постоянных настроек режима модема в автомобиле"</string>
+    <string name="car_permission_desc_read_persist_tethering_settings" msgid="7373546466696896323">"Чтение постоянных настроек режима модема в автомобиле"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"Произошла ошибка шины CAN."</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"Шина CAN не отвечает. Переподключите коннектор, а затем выключите зажигание и заведите машину снова."</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"Мое устройство"</string>

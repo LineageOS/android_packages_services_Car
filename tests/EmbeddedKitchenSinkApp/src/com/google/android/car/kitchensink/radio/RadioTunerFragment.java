@@ -110,6 +110,7 @@ public class RadioTunerFragment extends Fragment {
         programListView.setAdapter(mProgramInfoAdapter);
 
         mViewCreated = true;
+        Log.i(TAG, "onCreateView done");
         return view;
     }
 
@@ -120,8 +121,9 @@ public class RadioTunerFragment extends Fragment {
 
     @Override
     public void onDestroyView() {
-        super.onDestroyView();
         Log.i(TAG, "onDestroyView");
+        handleClose();
+        super.onDestroyView();
     }
 
     private void registerProgramListListener() {

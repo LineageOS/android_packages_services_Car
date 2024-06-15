@@ -211,4 +211,7 @@
     <!-- Disable the "Share" action item shown in the context menu that appears upon long-pressing
         on selected text. -->
     <bool name="config_textShareSupported">false</bool>
+
+     <!-- Uses customized system bar controls -->
+    <bool name="config_remoteInsetsControllerControlsSystemBars">true</bool>
 </resources>

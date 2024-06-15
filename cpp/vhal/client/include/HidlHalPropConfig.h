@@ -32,9 +32,12 @@ namespace vhal {
 class HidlHalAreaConfig : public IHalAreaConfig {
 public:
     explicit HidlHalAreaConfig(
-            ::android::hardware::automotive::vehicle::V2_0::VehicleAreaConfig&& areaConfig);
+            ::android::hardware::automotive::vehicle::V2_0::VehicleAreaConfig&& areaConfig,
+            int32_t access);
 
     int32_t getAreaId() const override;
+
+    int32_t getAccess() const override;
 
     int32_t getMinInt32Value() const override;
 
@@ -48,8 +51,11 @@ public:
 
     float getMaxFloatValue() const override;
 
+    bool isVariableUpdateRateSupported() const override;
+
 private:
     ::android::hardware::automotive::vehicle::V2_0::VehicleAreaConfig mAreaConfig;
+    int32_t mAccess;
 };
 
 class HidlHalPropConfig : public IHalPropConfig {

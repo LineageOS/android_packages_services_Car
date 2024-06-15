@@ -22,7 +22,7 @@ package android.automotive.watchdog;
 message PerformanceStats {
   optional StatsCollection boot_time_stats = 1;
   optional StatsCollection wake_up_stats = 2;
-  repeated StatsCollection user_switch_stats = 3;
+  repeated UserSwitchStatsCollection user_switch_stats = 3;
   optional StatsCollection last_n_minutes_stats = 4;
   optional StatsCollection custom_collection_stats = 5;
 }
@@ -31,6 +31,13 @@ message PerformanceStats {
 message StatsCollection {
   optional int64 collection_interval_millis = 1;
   repeated StatsRecord records = 2;
+}
+
+// Represents user switch performance stats captured during a single event.
+message UserSwitchStatsCollection {
+  optional int32 to_user_id = 1;
+  optional int32 from_user_id = 2;
+  optional StatsCollection user_switch_collection = 3;
 }
 
 // Represents the performance stats captured during a single poll.
@@ -98,7 +105,7 @@ message PackageTaskStateStats {
   optional UserPackageInfo user_package_info = 1;
   optional int32 io_blocked_task_count = 2;
   optional int32 total_task_count = 3;
-  optional ProcessTaskStateStats process_task_state_stats = 4;
+  repeated ProcessTaskStateStats process_task_state_stats = 4;
 }
 
 // Represents the major page fault stats for a user package.
@@ -162,6 +169,7 @@ message TimeOfDay {
   // allow the value 60 if it allows leap-seconds.
   optional int32 seconds = 3;
 
-  // Fractions of seconds in nanoseconds. Must be from 0 to 999,999,999.
-  optional int32 nanos = 4;
+  // Modified from nanoseconds.
+  // Fractions of seconds in milliseconds. Must be from 0 to 999.
+  optional int32 millis = 4;
 }

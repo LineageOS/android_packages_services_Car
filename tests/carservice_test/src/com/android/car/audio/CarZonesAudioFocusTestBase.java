@@ -16,6 +16,7 @@
 
 package com.android.car.audio;
 
+import static android.car.oem.CarAudioFeaturesInfo.AUDIO_FEATURE_NO_FEATURE;
 import static android.media.AudioAttributes.USAGE_ALARM;
 import static android.media.AudioAttributes.USAGE_ANNOUNCEMENT;
 import static android.media.AudioAttributes.USAGE_ASSISTANCE_ACCESSIBILITY;
@@ -41,6 +42,7 @@ import static org.mockito.Mockito.when;
 
 import android.car.media.CarAudioManager;
 import android.car.oem.AudioFocusEntry;
+import android.car.oem.CarAudioFeaturesInfo;
 import android.car.oem.OemCarAudioFocusResult;
 import android.content.ContentResolver;
 import android.content.pm.PackageManager;
@@ -265,8 +267,9 @@ abstract class CarZonesAudioFocusTestBase {
             carFocusCallback) {
         CarZonesAudioFocus carZonesAudioFocus =
                 CarZonesAudioFocus.createCarZonesAudioFocus(mMockAudioManager,
-                        mMockPackageManager, mCarAudioZones, mCarAudioSettings,
-                        carFocusCallback, mMockCarVolumeInfoWrapper);
+                        mMockPackageManager, mCarAudioZones, mCarAudioSettings, carFocusCallback,
+                        mMockCarVolumeInfoWrapper, new CarAudioFeaturesInfo.Builder(
+                                AUDIO_FEATURE_NO_FEATURE).build());
         carZonesAudioFocus.setOwningPolicy(mCarAudioService, mAudioPolicy);
 
         return carZonesAudioFocus;

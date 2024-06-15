@@ -264,6 +264,16 @@
     <!-- Permission text: apps can control valet mode. [CHAR LIMIT=NONE] -->
     <string name="car_permission_desc_control_valet_mode">Control valet mode.</string>
 
+    <!-- Permission text: apps can read head up display status. [CHAR LIMIT=NONE] -->
+    <string name="car_permission_label_read_head_up_display_status">read head up display status</string>
+    <!-- Permission text: apps can read head up display status. [CHAR LIMIT=NONE] -->
+    <string name="car_permission_desc_read_head_up_display_status">Read head up display status.</string>
+
+    <!-- Permission text: apps can control head up display. [CHAR LIMIT=NONE] -->
+    <string name="car_permission_label_control_head_up_display">control head up display</string>
+    <!-- Permission text: apps can control head up display. [CHAR LIMIT=NONE] -->
+    <string name="car_permission_desc_control_head_up_display">Control head up display.</string>
+
     <!-- Permission text: apps can read state of car airbags. [CHAR LIMIT=NONE] -->
     <string name="car_permission_label_read_car_airbags">read car\u2019s airbags</string>
     <!-- Permission text: apps can read state of car airbags. [CHAR LIMIT=NONE] -->
@@ -716,6 +726,13 @@
         [CHAR LIMIT=NONE] -->
     <string name="car_permission_desc_manage_car_system_ui">Communicate with the car system ui
         for creating taskviews or getting notified about system ui changes.</string>
+
+    <!-- Permission text: apps can read car persist tethering settings [CHAR LIMIT=NONE] -->
+    <string name="car_permission_label_read_persist_tethering_settings">Read car\u2019s persist
+        tethering settings</string>
+    <!-- Permission text: apps can read car persist tethering settings [CHAR LIMIT=NONE] -->
+    <string name="car_permission_desc_read_persist_tethering_settings">Read car\u2019s persist
+        tethering settings</string>
 
     <!-- Notification messages -->
     <!-- Notification text: Notification shown to the user when vehicle CAN bus fails -->

@@ -56,5 +56,8 @@ android_app {
 
     plugins: ["dagger2-compiler"],
 
-    required: ["privapp_whitelist_com.android.systemui", "allowed_privapp_com.android.carsystemui"],
+    required: [
+        "privapp_whitelist_com.android.systemui",
+        "allowed_privapp_com.android.carsystemui",
+    ],
 }

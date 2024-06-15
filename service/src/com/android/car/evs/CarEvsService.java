@@ -444,6 +444,8 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
             Slogf.d(TAG_EVS, "Finalizing the service");
         }
 
+        mDisplayManager.unregisterDisplayListener(mDisplayListener);
+
         if (mUseGearSelection && mPropertyService != null) {
             if (DBG) {
                 Slogf.d(TAG_EVS, "Unregister a property listener in release()");
@@ -634,6 +636,41 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
     }
 
     /**
+     * Requests to stop a video stream from a given service type.
+     *
+     * <p>Requires {@link android.car.Car.PERMISSION_USE_CAR_EVS_CAMERA} permissions to access.
+     *
+     * @param type {@link CarEvsServiceType} to stop listening.
+     * @param callback {@link ICarEvsStreamCallback} listener to unregister.
+     */
+    @Override
+    public void stopVideoStreamFrom(@CarEvsServiceType int type,
+            @NonNull ICarEvsStreamCallback callback) {
+        CarServiceUtils.assertPermission(mContext, Car.PERMISSION_USE_CAR_EVS_CAMERA);
+        Objects.requireNonNull(callback);
+
+        ArraySet<Integer> types = mCallbackToServiceType.get(callback.asBinder());
+        int idx = types.indexOf(type);
+        if (idx < 0) {
+            Slogf.i(TAG_EVS, "Ignores a request to stop a video stream that is not active.");
+            return;
+        }
+
+        StateMachine instance = mServiceInstances.get(type);
+        if (instance == null) {
+            Slogf.w(TAG_EVS, "CarEvsService is not configured for a service type %d.", type);
+            return;
+        }
+
+        instance.requestStopVideoStream(callback);
+        types.remove(type);
+        if (types.isEmpty()) {
+            // No more active stream for this callback object.
+            mCallbackToServiceType.remove(callback.asBinder());
+        }
+    }
+
+    /**
      * Returns an used buffer to EVS service.
      *
      * <p>Requires {@link android.car.Car.PERMISSION_USE_CAR_EVS_CAMERA} permissions to access.
@@ -662,13 +699,13 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
      */
     @Override
     @Nullable
-    public CarEvsStatus getCurrentStatus() {
+    public CarEvsStatus getCurrentStatus(@CarEvsServiceType int type) {
         CarServiceUtils.assertPermission(mContext, Car.PERMISSION_MONITOR_CAR_EVS_STATUS);
 
         // This public API only returns current status of SERVICE_TYPE_REARVIEW. To get other
         // services' status, please register a status listener via
         // CarEvsService.registerStatusListener() API.
-        StateMachine instance = mServiceInstances.get(CarEvsManager.SERVICE_TYPE_REARVIEW);
+        StateMachine instance = mServiceInstances.get(type);
         if (instance == null) {
             return null;
         }
@@ -852,6 +889,11 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
 
         StateMachine s = new StateMachine(mContext, mBuiltinContext, this, null,
                 serviceType, cameraId);
+        if (!s.init()) {
+            Slogf.e(TAG_EVS, "Failed to initialize a requested service type.");
+            return false;
+        }
+        s.connectToHalServiceIfNecessary();
         mServiceInstances.put(serviceType, s);
         return true;
     }

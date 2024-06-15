@@ -23,4 +23,8 @@
     <string name="loading_welcome_message" msgid="2351582619179505398">"AAOS"</string>
     <string name="loading_action_button_text" msgid="1296096984805774507">"Continuer"</string>
     <string name="hvac_panel_header" msgid="1299061170810305529">"Commandes de confort"</string>
+    <string name="confirm_pin_title" msgid="8340408103287697843">"Saisir votre code"</string>
+    <string name="confirm_pattern_title" msgid="601765683212039890">"Tracer votre schéma"</string>
+    <string name="confirm_password_title" msgid="4719840258132492554">"Saisir votre mot de passe"</string>
+    <string name="cancel" msgid="8552804384519299161">"Annuler"</string>
 </resources>

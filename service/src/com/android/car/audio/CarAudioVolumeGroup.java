@@ -51,9 +51,11 @@ final class CarAudioVolumeGroup extends CarVolumeGroup {
             CarAudioSettings settingsManager,
             SparseArray<CarAudioDeviceInfo> contextToDeviceInfo, int zoneId, int configId,
             int volumeGroupId, String name, int stepSize, int defaultGain, int minGain, int maxGain,
-            boolean useCarVolumeGroupMute) {
+            boolean useCarVolumeGroupMute, int maxActivationVolumePercentage,
+            int minActivationVolumePercentage) {
         super(carAudioContext, settingsManager, contextToDeviceInfo, zoneId, configId,
-                volumeGroupId, name, useCarVolumeGroupMute);
+                volumeGroupId, name, useCarVolumeGroupMute, maxActivationVolumePercentage,
+                minActivationVolumePercentage);
         Preconditions.checkArgument(stepSize != 0, "Step Size must not be zero");
         mStepSize = stepSize;
         mDefaultGain = defaultGain;
@@ -128,33 +130,33 @@ final class CarAudioVolumeGroup extends CarVolumeGroup {
         int defaultGain = Integer.MAX_VALUE;
         int stepSize = UNSET_STEP_SIZE;
 
-        // compute the new volume group gain stage from scratch
-        for (int index = 0; index < mAddressToCarAudioDeviceInfo.size(); index++) {
-            CarAudioDeviceInfo info = mAddressToCarAudioDeviceInfo.valueAt(index);
-            if (stepSize == UNSET_STEP_SIZE) {
-                stepSize = info.getStepValue();
-            } else {
-                Preconditions.checkArgument(
-                        info.getStepValue() == stepSize,
-                        "Gain stages within one group must have same step value");
-            }
-            if (info.getDefaultGain() < defaultGain) {
-                // We're arbitrarily selecting the lowest
-                // device default gain as the group's default.
-                defaultGain = info.getDefaultGain();
-            }
-            if (info.getMaxGain() > maxGain) {
-                maxGain = info.getMaxGain();
-            }
-            if (info.getMinGain() < minGain) {
-                minGain = info.getMinGain();
-            }
-        }
-
-        // update the new gain stage and return event types so that callback can be triggered.
         int eventType = EVENT_TYPE_NONE;
         synchronized (mLock) {
-            // get the curret and restricted gains in mb before updating the volume bounds. These
+            // compute the new volume group gain stage from scratch
+            for (int index = 0; index < mAddressToCarAudioDeviceInfo.size(); index++) {
+                CarAudioDeviceInfo info = mAddressToCarAudioDeviceInfo.valueAt(index);
+                if (stepSize == UNSET_STEP_SIZE) {
+                    stepSize = info.getStepValue();
+                } else {
+                    Preconditions.checkArgument(
+                            info.getStepValue() == stepSize,
+                            "Gain stages within one group must have same step value");
+                }
+                if (info.getDefaultGain() < defaultGain) {
+                    // We're arbitrarily selecting the lowest
+                    // device default gain as the group's default.
+                    defaultGain = info.getDefaultGain();
+                }
+                if (info.getMaxGain() > maxGain) {
+                    maxGain = info.getMaxGain();
+                }
+                if (info.getMinGain() < minGain) {
+                    minGain = info.getMinGain();
+                }
+            }
+
+            // update the new gain stage and return event types so that callback can be triggered.
+            // get the current and restricted gains in mb before updating the volume bounds. These
             // will be used for extrapolating to new volume ranges
             int epCurrentGainInMb = getGainForIndexLocked(getCurrentGainIndexLocked());
             int epLimitedGainInMb = getGainForIndexLocked(mLimitedGainIndex);

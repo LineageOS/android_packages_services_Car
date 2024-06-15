@@ -20,9 +20,11 @@ import static com.android.car.audio.FocusInteraction.AUDIO_FOCUS_NAVIGATION_REJE
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
 import android.annotation.NonNull;
+import android.annotation.Nullable;
 import android.annotation.UserIdInt;
 import android.car.builtin.util.Slogf;
 import android.car.media.CarAudioManager;
+import android.car.oem.CarAudioFeaturesInfo;
 import android.content.pm.PackageManager;
 import android.media.AudioAttributes;
 import android.media.AudioFocusInfo;
@@ -61,11 +63,9 @@ final class CarZonesAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
     private final SparseArray<CarAudioFocus> mFocusZones;
 
     public static CarZonesAudioFocus createCarZonesAudioFocus(AudioManager audioManager,
-            PackageManager packageManager,
-            SparseArray<CarAudioZone> carAudioZones,
-            CarAudioSettings carAudioSettings,
-            CarFocusCallback carFocusCallback,
-            CarVolumeInfoWrapper carVolumeInfoWrapper) {
+            PackageManager packageManager, SparseArray<CarAudioZone> carAudioZones,
+            CarAudioSettings carAudioSettings, CarFocusCallback carFocusCallback,
+            CarVolumeInfoWrapper carVolumeInfoWrapper, @Nullable CarAudioFeaturesInfo features) {
         Objects.requireNonNull(audioManager, "Audio manager cannot be null");
         Objects.requireNonNull(packageManager, "Package manager cannot be null");
         Objects.requireNonNull(carAudioZones, "Car audio zones cannot be null");
@@ -76,17 +76,16 @@ final class CarZonesAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
 
         SparseArray<CarAudioFocus> audioFocusPerZone = new SparseArray<>();
 
+        ContentObserverFactory observerFactory = new ContentObserverFactory(
+                AUDIO_FOCUS_NAVIGATION_REJECTED_DURING_CALL_URI);
         //Create focus for all the zones
         for (int i = 0; i < carAudioZones.size(); i++) {
             CarAudioZone audioZone = carAudioZones.valueAt(i);
             int audioZoneId = audioZone.getId();
             Slogf.d(TAG, "Adding new zone %d", audioZoneId);
-
-            CarAudioFocus zoneFocusListener = new CarAudioFocus(audioManager,
-                    packageManager, new FocusInteraction(carAudioSettings,
-                    new ContentObserverFactory(AUDIO_FOCUS_NAVIGATION_REJECTED_DURING_CALL_URI),
-                    audioZone.getCarAudioContext()),
-                    audioZone.getCarAudioContext(), carVolumeInfoWrapper, audioZoneId);
+            FocusInteraction interaction = new FocusInteraction(carAudioSettings, observerFactory);
+            CarAudioFocus zoneFocusListener = new CarAudioFocus(audioManager, packageManager,
+                    interaction, audioZone, carVolumeInfoWrapper, features);
             audioFocusPerZone.put(audioZoneId, zoneFocusListener);
         }
         return new CarZonesAudioFocus(audioFocusPerZone, carFocusCallback);

@@ -183,8 +183,7 @@ public class CarDuckingUtilsTest {
                 .containsExactlyElementsIn(playbackTrackMetadataHoldingFocus);
 
         // back to none holding focus
-        playbackTrackMetadataHoldingFocus =
-                CarHalAudioUtils.audioAttributesToMetadatas(audioAttributesWithOnlyMedia, mockZone);
+        CarHalAudioUtils.audioAttributesToMetadatas(audioAttributesWithOnlyMedia, mockZone);
 
         CarDuckingInfo duckingInfo3 =
                 CarDuckingUtils.generateDuckingInfo(duckingInfo2, Collections.EMPTY_LIST,

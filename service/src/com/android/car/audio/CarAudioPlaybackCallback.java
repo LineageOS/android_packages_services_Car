@@ -19,6 +19,7 @@ package com.android.car.audio;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
 import android.annotation.NonNull;
+import android.annotation.Nullable;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.media.AudioPlaybackConfiguration;
@@ -37,22 +38,25 @@ final class CarAudioPlaybackCallback extends AudioManager.AudioPlaybackCallback 
     private final SparseArray<ZoneAudioPlaybackCallback> mCarAudioZonesToZonePlaybackCallback;
 
     CarAudioPlaybackCallback(@NonNull SparseArray<CarAudioZone> carAudioZones,
+            @Nullable CarAudioPlaybackMonitor carAudioPlaybackMonitor,
             SystemClockWrapper clock, int volumeKeyEventTimeoutMs) {
         Objects.requireNonNull(carAudioZones, "Car audio zone cannot be null");
         Preconditions.checkArgument(carAudioZones.size() > 0,
                 "Car audio zones must not be empty");
-        mCarAudioZonesToZonePlaybackCallback = createCallbackMapping(carAudioZones, clock,
-                volumeKeyEventTimeoutMs);
+        mCarAudioZonesToZonePlaybackCallback = createCallbackMapping(carAudioZones,
+                carAudioPlaybackMonitor, clock, volumeKeyEventTimeoutMs);
     }
 
     private static SparseArray createCallbackMapping(SparseArray<CarAudioZone> carAudioZones,
+            @Nullable CarAudioPlaybackMonitor carAudioPlaybackMonitor,
             SystemClockWrapper clock, int volumeKeyEventTimeoutMs) {
         SparseArray<ZoneAudioPlaybackCallback> carAudioZonesToZonePlaybackCallback =
                 new SparseArray<>();
         for (int i = 0; i < carAudioZones.size(); i++) {
             CarAudioZone zone = carAudioZones.get(i);
             carAudioZonesToZonePlaybackCallback.put(zone.getId(),
-                    new ZoneAudioPlaybackCallback(zone, clock, volumeKeyEventTimeoutMs));
+                    new ZoneAudioPlaybackCallback(zone, carAudioPlaybackMonitor, clock,
+                            volumeKeyEventTimeoutMs));
         }
         return carAudioZonesToZonePlaybackCallback;
     }

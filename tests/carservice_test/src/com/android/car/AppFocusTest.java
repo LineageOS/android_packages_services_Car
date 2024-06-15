@@ -18,7 +18,6 @@ package com.android.car;
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 
 import android.car.Car;
 import android.car.CarAppFocusManager;
@@ -57,11 +56,12 @@ public class AppFocusTest extends MockedCarTestBase {
         manager.abandonAppFocus(ownershipListener, CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION);
         listener.waitForFocusChangeAndAssert(DEFAULT_WAIT_TIMEOUT_MS,
                 CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION, false);
-        assertNull(manager.getAppTypeOwner(CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION));
+        assertThat(manager.getAppTypeOwner(CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION)).isEmpty();
         manager.removeFocusListener(listener);
     }
 
-    private class FocusChangedListener implements CarAppFocusManager.OnAppFocusChangedListener {
+    private static final class FocusChangedListener
+            implements CarAppFocusManager.OnAppFocusChangedListener {
         private int mLastChangeAppType;
         private boolean mLastChangeAppActive;
         private final Semaphore mChangeWait = new Semaphore(0);
@@ -89,43 +89,21 @@ public class AppFocusTest extends MockedCarTestBase {
         }
     }
 
-    private class FocusOwnershipCallback
+    private static final class FocusOwnershipCallback
             implements CarAppFocusManager.OnAppFocusOwnershipCallback {
-        private int mLastLossEvent;
         private final Semaphore mLossEventWait = new Semaphore(0);
 
-        private int mLastGrantEvent;
         private final Semaphore mGrantEventWait = new Semaphore(0);
-
-        public boolean waitForOwnershipLossAndAssert(long timeoutMs, int expectedLossAppType)
-                throws Exception {
-            if (!mLossEventWait.tryAcquire(timeoutMs, TimeUnit.MILLISECONDS)) {
-                return false;
-            }
-            assertEquals(expectedLossAppType, mLastLossEvent);
-            return true;
-        }
-
-        public boolean waitForOwnershipGrantAndAssert(long timeoutMs, int expectedGrantAppType)
-                throws Exception {
-            if (!mGrantEventWait.tryAcquire(timeoutMs, TimeUnit.MILLISECONDS)) {
-                return false;
-            }
-            assertEquals(expectedGrantAppType, mLastGrantEvent);
-            return true;
-        }
 
         @Override
         public void onAppFocusOwnershipLost(int appType) {
             Log.i(TAG, "onAppFocusOwnershipLost " + appType);
-            mLastLossEvent = appType;
             mLossEventWait.release();
         }
 
         @Override
         public void onAppFocusOwnershipGranted(int appType) {
             Log.i(TAG, "onAppFocusOwnershipGranted " + appType);
-            mLastGrantEvent = appType;
             mGrantEventWait.release();
         }
     }

@@ -315,6 +315,16 @@ ScopedAStatus Enumerator::closeCamera(const std::shared_ptr<IEvsCamera>& cameraO
         // All our client cameras are actually VirtualCamera objects
         VirtualCamera* virtualCamera = reinterpret_cast<VirtualCamera*>(cameraObj.get());
 
+        auto it = std::find_if(mActiveCameraClients.begin(), mActiveCameraClients.end(),
+                               [virtualCamera](std::weak_ptr<VirtualCamera>& client) {
+                                   auto current = client.lock();
+                                   return current.get() == virtualCamera;
+                               });
+        if (it == mActiveCameraClients.end()) {
+            LOG(ERROR) << "Ignore a request to close unknown client, " << virtualCamera;
+            return Utils::buildScopedAStatusFromEvsResult(EvsResult::INVALID_ARG);
+        }
+
         // Find the parent camera that backs this virtual camera
         for (auto&& halCamera : virtualCamera->getHalCameras()) {
             // Tell the virtual camera's parent to clean it up and drop it
@@ -341,6 +351,9 @@ ScopedAStatus Enumerator::closeCamera(const std::shared_ptr<IEvsCamera>& cameraO
 
         // Make sure the virtual camera's stream is stopped
         virtualCamera->stopVideoStream();
+
+        // Remove a closed client.
+        mActiveCameraClients.erase(it);
 
         return ScopedAStatus::ok();
     }
@@ -431,6 +444,9 @@ ScopedAStatus Enumerator::openCamera(const std::string& id, const Stream& cfg,
                 LOG(ERROR) << hwCamera->getId() << " failed to own a created proxy camera object.";
             }
         }
+
+        // Record a newly created object.
+        mActiveCameraClients.push_back(clientCamera);
 
         // Send the virtual camera object back to the client by strong pointer which will keep it
         // alive

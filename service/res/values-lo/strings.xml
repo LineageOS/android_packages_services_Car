@@ -34,6 +34,8 @@
     <string name="car_permission_desc_speed" msgid="2047965198165448241">"ເຂົ້າເຖິງຂໍ້ມູນຄວາມໄວຂອງລົດທ່ານ."</string>
     <string name="car_permission_label_vehicle_dynamics_state" msgid="313779267420048367">"ເຂົ້າເຖິງສະຖານະໄດນາມິກຂອງລົດ"</string>
     <string name="car_permission_desc_vehicle_dynamics_state" msgid="8891506193446375660">"ເຂົ້າເຖິງສະຖານະໄດນາມິກຂອງລົດທ່ານ."</string>
+    <string name="car_permission_label_control_vehicle_dynamics_state" msgid="1912154069363074986">"ຄວບຄຸມສະຖານະໄດນາມິກຂອງລົດ"</string>
+    <string name="car_permission_desc_control_vehicle_dynamics_state" msgid="5603436779163086928">"ຄວບຄຸມສະຖານະໄດນາມິກຂອງລົດທ່ານ."</string>
     <string name="car_permission_label_vendor_extension" msgid="7141601811734127361">"ເຂົ້າເຖິງຊ່ອງຜູ້ຂາຍລົດ"</string>
     <string name="car_permission_desc_vendor_extension" msgid="2970718502334714035">"ເຂົ້າເຖິງຊ່ອງທາງຜູ້ຂາຍລົດຂອງທ່ານເພື່ອແລກປ່ຽນຂໍ້ມູນສະເພາະຂອງລົດ."</string>
     <string name="car_permission_label_radio" msgid="6009465291685935112">"ຈັດການວິທະຍຸຂອງລົດ"</string>
@@ -84,6 +86,8 @@
     <string name="car_permission_desc_vms_publisher" msgid="5589489298597386828">"ເຜີຍແຜ່ຂໍ້ຄວາມ VMS"</string>
     <string name="car_permission_label_vms_subscriber" msgid="5648841182059222299">"ຜູ້ສະໝັກໃຊ້ VMS"</string>
     <string name="car_permission_desc_vms_subscriber" msgid="7551009457847673620">"ສະໝັກໃຊ້ຂໍ້ຄວາມ VMS"</string>
+    <string name="car_permission_label_read_ultrasonics_sensor_data" msgid="1097940233242534149">"ອ່ານຂໍ້ມູນເຊັນເຊີອັລຕຣາໂຊນິກ."</string>
+    <string name="car_permission_desc_read_ultrasonics_sensor_data" msgid="1717892304330623332">"ອ່ານຂໍ້ມູນເຊັນເຊີອັລຕຣາໂຊນິກຈາກລົດ."</string>
     <string name="car_permission_label_storage_monitoring" msgid="2327639346522530549">"ການຕິດຕາມພື້ນທີ່ຈັດເກັບຂໍ້ມູນຂອງແຟລດ"</string>
     <string name="car_permission_desc_storage_monitoring" msgid="2075712271139671318">"ຕິດຕາມການໃຊ້ພື້ນທີ່ເກັບຂໍ້ມູນແຟລດ"</string>
     <string name="car_permission_label_driving_state" msgid="7754624599537393650">"ຟັງສະຖານະການຂັບຂີ່"</string>
@@ -116,6 +120,20 @@
     <string name="car_permission_desc_control_car_mirrors" msgid="1224135684068855032">"ຄວບຄຸມແວ່ນລົດ."</string>
     <string name="car_permission_label_control_car_seats" msgid="1826934820585497135">"ຄວບຄຸມບ່ອນນັ່ງໃນລົດ"</string>
     <string name="car_permission_desc_control_car_seats" msgid="2407536601226470563">"ຄວບຄຸມບ່ອນນັ່ງໃນລົດ."</string>
+    <string name="car_permission_label_read_car_seat_belts" msgid="2051828795852087659">"ອ່ານສາຍເຂັມຂັດຂອງລົດ"</string>
+    <string name="car_permission_desc_read_car_seat_belts" msgid="7076977711613912339">"ອ່ານສາຍເຂັມຂັດຂອງລົດ."</string>
+    <string name="car_permission_label_read_impact_sensors" msgid="9193288836326363975">"ອ່ານເຊັນເຊີກະທົບຂອງລົດ"</string>
+    <string name="car_permission_desc_read_impact_sensors" msgid="6479840965130272944">"ອ່ານເຊັນເຊີກະທົບຂອງລົດ."</string>
+    <string name="car_permission_label_read_valet_mode" msgid="1807900160666761320">"ອ່ານໂໝດ valet"</string>
+    <string name="car_permission_desc_read_valet_mode" msgid="8645550481045813299">"ອ່ານໂໝດ valet."</string>
+    <string name="car_permission_label_control_valet_mode" msgid="180432980177027905">"ຄວບຄຸມໂໝດ valet"</string>
+    <string name="car_permission_desc_control_valet_mode" msgid="8442573192492763994">"ຄວບຄຸມໂໝດ valet."</string>
+    <string name="car_permission_label_read_head_up_display_status" msgid="8117112886452578905">"ອ່ານສະຖານະໜ້າຈໍສະແດງຂໍ້ມູນ"</string>
+    <string name="car_permission_desc_read_head_up_display_status" msgid="3255763055570462667">"ອ່ານສະຖານະໜ້າຈໍສະແດງຂໍ້ມູນ."</string>
+    <string name="car_permission_label_control_head_up_display" msgid="2990483192001919370">"ຄວບຄຸມໜ້າຈໍສະແດງຂໍ້ມູນ"</string>
+    <string name="car_permission_desc_control_head_up_display" msgid="483313982751387504">"ຄວບຄຸມໜ້າຈໍສະແດງຂໍ້ມູນ."</string>
+    <string name="car_permission_label_read_car_airbags" msgid="5495423499616379238">"ອ່ານແອແບັກຂອງລົດ"</string>
+    <string name="car_permission_desc_read_car_airbags" msgid="7961580013929420722">"ອ່ານແອແບັກຂອງລົດ."</string>
     <string name="car_permission_label_control_car_airbags" msgid="6823727183218389617">"ຄວບຄຸມຖົງລົມນິລະໄພຂອງລົດ"</string>
     <string name="car_permission_desc_control_car_airbags" msgid="6181671903761622348">"ຄວບຄຸມຖົງລົມນິລະໄພຂອງລົດ"</string>
     <string name="car_permission_label_car_info" msgid="4707513570676492315">"ເຂົ້າເຖິງຂໍ້ມູນພື້ນຖານຂອງລົດ"</string>
@@ -210,6 +228,8 @@
     <string name="car_permission_desc_register_car_system_ui_proxy" msgid="8863676956785764681">"ສະໜອງພຣັອກຊີສ່ວນຕິດຕໍ່ຜູ້ໃຊ້ຂອງລະບົບທີ່ສາມາດໃຊ້ໂດຍແອັບອື່ນເພື່ອຈັດການສ່ວນຕິດຕໍ່ຜູ້ໃຊ້ຂອງລະບົບ ແລະ ສ້າງມຸມມອງໜ້າວຽກ."</string>
     <string name="car_permission_label_manage_car_system_ui" msgid="1361615518679353414">"ສື່ສານກັບສ່ວນຕິດຕໍ່ຜູ້ໃຊ້ຂອງລະບົບລົດເພື່ອສ້າງ Taskviews ຫຼື ໄດ້ຮັບການແຈ້ງເຕືອນກ່ຽວກັບການປ່ຽນແປງສ່ວນຕິດຕໍ່ຜູ້ໃຊ້ຂອງລະບົບ."</string>
     <string name="car_permission_desc_manage_car_system_ui" msgid="6201733970421818637">"ສື່ສານກັບສ່ວນຕິດຕໍ່ຜູ້ໃຊ້ຂອງລະບົບລົດເພື່ອສ້າງ Taskviews ຫຼື ໄດ້ຮັບການແຈ້ງເຕືອນກ່ຽວກັບການປ່ຽນແປງສ່ວນຕິດຕໍ່ຜູ້ໃຊ້ຂອງລະບົບ."</string>
+    <string name="car_permission_label_read_persist_tethering_settings" msgid="6395145649477916950">"ອ່ານການຕັ້ງຄ່າການປ່ອຍສັນຍານຢ່າງຕໍ່ເນື່ອງຂອງລົດ"</string>
+    <string name="car_permission_desc_read_persist_tethering_settings" msgid="7373546466696896323">"ອ່ານການຕັ້ງຄ່າການປ່ອຍສັນຍານຢ່າງຕໍ່ເນື່ອງຂອງລົດ"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN bus ບໍ່ສຳເລັດ"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN bus ບໍ່ຕອບສະໜອງ. ຖອດປລັກກ່ອງເຄື່ອງຫຼິ້ນວິທະຍຸ (Headunit) ແລ້ວສຽບເຂົ້າຄືນໃໝ່ ແລະ ຣິສະຕາດລົດ"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"ອຸປະກອນຂອງຂ້ອຍ"</string>

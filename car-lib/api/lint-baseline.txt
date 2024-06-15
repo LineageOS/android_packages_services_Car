@@ -1943,8 +1943,6 @@ UnflaggedApi: android.car.watchdog.ResourceOveruseStats#writeToParcel(android.os
     New API must be flagged with @FlaggedApi: method android.car.watchdog.ResourceOveruseStats.writeToParcel(android.os.Parcel,int)
 
 
-VisiblySynchronized: PsiThisExpression:
-    Internal locks must not be exposed (synchronizing on this or class is still externally observable): method android.car.CarAppFocusManager.addFocusListener(android.car.CarAppFocusManager.OnAppFocusChangedListener,int)
 VisiblySynchronized: android.car.CarAppFocusManager#abandonAppFocus(android.car.CarAppFocusManager.OnAppFocusOwnershipCallback):
     Internal locks must not be exposed (synchronizing on this or class is still externally observable): method android.car.CarAppFocusManager.abandonAppFocus(android.car.CarAppFocusManager.OnAppFocusOwnershipCallback)
 VisiblySynchronized: android.car.CarAppFocusManager#abandonAppFocus(android.car.CarAppFocusManager.OnAppFocusOwnershipCallback, int):

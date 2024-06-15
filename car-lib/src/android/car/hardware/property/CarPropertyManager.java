@@ -17,7 +17,8 @@
 package android.car.hardware.property;
 
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
-import static com.android.car.internal.property.CarPropertyHelper.STATUS_OK;
+import static com.android.car.internal.property.CarPropertyErrorCodes.STATUS_OK;
+import static com.android.car.internal.property.CarPropertyErrorCodes.STATUS_TRY_AGAIN;
 import static com.android.car.internal.property.CarPropertyHelper.SYNC_OP_LIMIT_TRY_AGAIN;
 
 import static java.lang.Integer.toHexString;
@@ -47,25 +48,29 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.ServiceSpecificException;
 import android.os.SystemClock;
-import android.os.Trace;
 import android.util.ArrayMap;
 import android.util.ArraySet;
 import android.util.Log;
 import android.util.SparseArray;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
+import com.android.car.internal.ICarBase;
 import com.android.car.internal.SingleMessageHandler;
+import com.android.car.internal.dep.Trace;
 import com.android.car.internal.os.HandlerExecutor;
 import com.android.car.internal.property.AsyncPropertyServiceRequest;
 import com.android.car.internal.property.AsyncPropertyServiceRequestList;
+import com.android.car.internal.property.CarPropertyErrorCodes;
 import com.android.car.internal.property.CarPropertyEventCallbackController;
 import com.android.car.internal.property.CarPropertyHelper;
 import com.android.car.internal.property.CarSubscription;
+import com.android.car.internal.property.GetPropertyConfigListResult;
 import com.android.car.internal.property.GetSetValueResult;
 import com.android.car.internal.property.GetSetValueResultList;
 import com.android.car.internal.property.IAsyncPropertyResultCallback;
 import com.android.car.internal.property.InputSanitizationUtils;
 import com.android.car.internal.property.SubscriptionManager;
+import com.android.car.internal.util.IntArray;
 import com.android.car.internal.util.PairSparseArray;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
@@ -462,7 +467,7 @@ public class CarPropertyManager extends CarManagerBase {
         }
 
         /**
-         * Get the property value to set.
+         * Gets the property value to set.
          */
         public T getValue() {
             return mValue;
@@ -523,8 +528,7 @@ public class CarPropertyManager extends CarManagerBase {
         private final int mRequestId;
         private final int mPropertyId;
         private final int mAreaId;
-        private final @CarPropertyAsyncErrorCode int mErrorCode;
-        private final int mVendorErrorCode;
+        private final CarPropertyErrorCodes mCarPropertyErrorCodes;
 
         public int getRequestId() {
             return mRequestId;
@@ -539,7 +543,8 @@ public class CarPropertyManager extends CarManagerBase {
         }
 
         public @CarPropertyAsyncErrorCode int getErrorCode() {
-            return mErrorCode;
+            return getCarPropertyAsyncErrorCodeFromCarPropertyManagerErrorCode(
+                    mCarPropertyErrorCodes.getCarPropertyManagerErrorCode());
         }
 
         /**
@@ -552,7 +557,22 @@ public class CarPropertyManager extends CarManagerBase {
          */
         @SystemApi
         public int getVendorErrorCode() {
-            return mVendorErrorCode;
+            return mCarPropertyErrorCodes.getVendorErrorCode();
+        }
+
+        /**
+         * Gets the detailed system error code.
+         *
+         * These must be a value defined in
+         * {@link DetailedErrorCode}. The values in {@link DetailedErrorCode}
+         * may be extended in the future to include additional error codes.
+         *
+         * @return the detailed error code if it is set, otherwise set to 0.
+         */
+        @FlaggedApi(Flags.FLAG_CAR_PROPERTY_DETAILED_ERROR_CODES)
+        public int getDetailedErrorCode() {
+            return getDetailedErrorCodeFromSystemErrorCode(
+                    mCarPropertyErrorCodes.getSystemErrorCode());
         }
 
         /**
@@ -561,16 +581,14 @@ public class CarPropertyManager extends CarManagerBase {
          * @param requestId the request ID
          * @param propertyId the property ID in the request
          * @param areaId the area ID for the property in the request
-         * @param errorCode the code indicating the error
+         * @param carPropertyErrorCodes the codes indicating the error
          */
         PropertyAsyncError(int requestId, int propertyId, int areaId,
-                @CarPropertyAsyncErrorCode int errorCode,
-                int vendorErrorCode) {
+                CarPropertyErrorCodes carPropertyErrorCodes) {
             mRequestId = requestId;
             mPropertyId = propertyId;
             mAreaId = areaId;
-            mErrorCode = errorCode;
-            mVendorErrorCode = vendorErrorCode;
+            mCarPropertyErrorCodes = carPropertyErrorCodes;
         }
 
         /**
@@ -586,10 +604,8 @@ public class CarPropertyManager extends CarManagerBase {
                     .append(VehiclePropertyIds.toString(mPropertyId))
                     .append(", areaId: ")
                     .append(mAreaId)
-                    .append(", error code: ")
-                    .append(mErrorCode)
-                    .append(", vendor error code: ")
-                    .append(mVendorErrorCode)
+                    .append(", error codes: ")
+                    .append(mCarPropertyErrorCodes)
                     .append("}").toString();
         }
     }
@@ -607,18 +623,30 @@ public class CarPropertyManager extends CarManagerBase {
         private final long mTimestampNanos;
         private final T mValue;
 
+        /**
+         * Returns the unique ID for the {@link GetPropertyRequest} this result is for.
+         */
         public int getRequestId() {
             return mRequestId;
         }
 
+        /**
+         * Returns the property ID for this result.
+         */
         public int getPropertyId() {
             return mPropertyId;
         }
 
+        /**
+         * Returns the area ID for this result.
+         */
         public int getAreaId() {
             return mAreaId;
         }
 
+        /**
+         * Returns the property's value.
+         */
         @NonNull
         public T getValue() {
             return mValue;
@@ -857,7 +885,8 @@ public class CarPropertyManager extends CarManagerBase {
                 }
                 Executor callbackExecutor = requestInfo.getCallbackExecutor();
                 CallbackType clientCallback = requestInfo.getCallback();
-                @CarPropertyAsyncErrorCode int errorCode = result.getErrorCode();
+                @CarPropertyAsyncErrorCode int errorCode =
+                        result.getCarPropertyErrorCodes().getCarPropertyManagerErrorCode();
                 int propertyId = requestInfo.getRequest().getPropertyId();
                 String propertyName = VehiclePropertyIds.toString(propertyId);
                 int areaId = requestInfo.getRequest().getAreaId();
@@ -895,8 +924,8 @@ public class CarPropertyManager extends CarManagerBase {
                 } else {
                     Binder.clearCallingIdentity();
                     callbackExecutor.execute(() -> propertyResultCallback.onFailure(clientCallback,
-                            new PropertyAsyncError(requestId, propertyId, areaId, errorCode,
-                                    result.getVendorErrorCode())));
+                            new PropertyAsyncError(requestId, propertyId, areaId,
+                                    result.getCarPropertyErrorCodes())));
                 }
             }
         }
@@ -1011,7 +1040,7 @@ public class CarPropertyManager extends CarManagerBase {
      * @param service the ICarProperty instance
      * @hide
      */
-    public CarPropertyManager(Car car, @NonNull ICarProperty service) {
+    public CarPropertyManager(ICarBase car, @NonNull ICarProperty service) {
         super(car);
         mService = service;
         mAppTargetSdk = getContext().getApplicationInfo().targetSdkVersion;
@@ -1100,11 +1129,30 @@ public class CarPropertyManager extends CarManagerBase {
      * {@link VehiclePropertyIds#HVAC_POWER_ON} for hvac power dependent properties) to decide this
      * property's availability.
      *
+     * <p>
+     * If the registration failed, this will return {@code false}. Caller must check the return
+     * value to make sure the registration succeeded.
+     *
+     * <p>
+     * If the property is not supported, this will return {@code false}.
+     *
+     * <p>
+     * If the property is supported and the caller does not have read or write permission to it,
+     * this will return {@code false}.
+     *
+     * <p>
+     * If the caller has write permission but does not have read permission, this will throw
+     * {@code SecurityException}.
+     *
+     * <p>Note that the callback will be executed on the event handler provided to the
+     * {@link android.car.Car} or the main thread if none was provided.
+     *
      * @param carPropertyEventCallback the CarPropertyEventCallback to be registered
      * @param propertyId               the property ID to subscribe
      * @param updateRateHz             how fast the property events are delivered in Hz
-     * @return {@code true} if the listener is successfully registered
-     * @throws SecurityException if missing the appropriate property access permission.
+     * @return {@code true} if the listener is successfully registered.
+     * @throws SecurityException if the property is supported and the caller has write permission,
+     *                           but does not have read permission.
      */
     @SuppressWarnings("FormatString")
     public boolean registerCallback(@NonNull CarPropertyEventCallback carPropertyEventCallback,
@@ -1114,6 +1162,21 @@ public class CarPropertyManager extends CarManagerBase {
                             + "updateRateHz: %f", carPropertyEventCallback,
                     VehiclePropertyIds.toString(propertyId), updateRateHz));
         }
+
+        boolean hasWritePermissionOnly = false;
+        try {
+            hasWritePermissionOnly = mService.isSupportedAndHasWritePermissionOnly(propertyId);
+        } catch (RemoteException e) {
+            handleRemoteExceptionFromCarService(e);
+            return false;
+        }
+
+        if (hasWritePermissionOnly) {
+            throw new SecurityException(
+                    "Only has write permission, missing read permission for property: "
+                    + CarPropertyHelper.propertyIdsToString(List.of(propertyId)));
+        }
+
         // We require updateRateHz to be within 0 and 100, however, in the previous implementation,
         // we did not actually check this range. In order to prevent the existing behavior, and
         // to prevent Subscription.Builder.setUpdateRateHz to throw exception, we fit the
@@ -1124,13 +1187,15 @@ public class CarPropertyManager extends CarManagerBase {
         if (updateRateHz < 0.0f) {
             updateRateHz = 0.0f;
         }
-        // Disable VUR for backward compatibility.
-        Subscription subscription = new Subscription.Builder(propertyId)
-                .setUpdateRateHz(updateRateHz).setVariableUpdateRateEnabled(false).build();
+        CarSubscription subscribeOption = new CarSubscription();
+        subscribeOption.propertyId = propertyId;
+        subscribeOption.updateRateHz = updateRateHz;
+        // Make sure areaIds is not null.
+        subscribeOption.areaIds = new int[0];
         try {
-            return subscribePropertyEvents(List.of(subscription), /* callbackExecutor= */ null,
-                    carPropertyEventCallback);
-        } catch (IllegalArgumentException e) {
+            return subscribePropertyEventsInternal(List.of(subscribeOption),
+                    /* callbackExecutor= */ null, carPropertyEventCallback);
+        } catch (IllegalArgumentException | SecurityException e) {
             Log.w(TAG, "register: PropertyId=" + propertyId + ", exception=", e);
             return false;
         }
@@ -1142,8 +1207,17 @@ public class CarPropertyManager extends CarManagerBase {
      * <p>For continuous property, variable update rate is enabled. The update rate is 1Hz or
      * the max supported rate (if lower than 1hz).
      *
+     * <p>Note that the callback will be executed on the event handler provided to the
+     * {@link android.car.Car} or the main thread if none was provided.
+     *
      * @param propertyId The ID for the property to subscribe to.
      * @param carPropertyEventCallback The callback to deliver property update/error events.
+     * @return {@code true} if the listener is successfully registered
+     * @throws SecurityException if the caller does not have read permission to one of the supported
+     *                           properties.
+     * @throws IllegalArgumentException if there are over-lapping areaIds or the executor is
+     *                                  registered to another callback or one of the properties are
+     *                                  not supported.
      *
      * @see #subscribePropertyEvents(int, int, float, boolean, CarPropertyEventCallback) for more
      * options.
@@ -1161,10 +1235,19 @@ public class CarPropertyManager extends CarManagerBase {
      *
      * <p>For continuous property, variable update rate is enabled.
      *
+     * <p>Note that the callback will be executed on the event handler provided to the
+     * {@link android.car.Car} or the main thread if none was provided.
+     *
      * @param propertyId The ID for the property to subscribe to.
      * @param updateRateHz Only meaningful for continuous property. The update rate in Hz. A common
      *      value is 1Hz. See {@link Subscription.Builder#setUpdateRateHz} for detail.
      * @param carPropertyEventCallback The callback to deliver property update/error events.
+     * @return {@code true} if the listener is successfully registered
+     * @throws SecurityException if the caller does not have read permission to one of the supported
+     *                           properties.
+     * @throws IllegalArgumentException if there are over-lapping areaIds or the executor is
+     *                                  registered to another callback or one of the properties are
+     *                                  not supported.
      *
      * @see #subscribePropertyEvents(int, int, float, boolean, CarPropertyEventCallback) for more
      * options.
@@ -1185,9 +1268,18 @@ public class CarPropertyManager extends CarManagerBase {
      * <p>For continuous property, variable update rate is enabled. The update rate is 1Hz or
      * the max supported rate (if lower than 1hz).
      *
+     * <p>Note that the callback will be executed on the event handler provided to the
+     * {@link android.car.Car} or the main thread if none was provided.
+     *
      * @param propertyId The ID for the property to subscribe to.
      * @param areaId The ID for the area to subscribe to.
      * @param carPropertyEventCallback The callback to deliver property update/error events.
+     * @return {@code true} if the listener is successfully registered
+     * @throws SecurityException if the caller does not have read permission to one of the supported
+     *                           properties.
+     * @throws IllegalArgumentException if there are over-lapping areaIds or the executor is
+     *                                  registered to another callback or one of the properties are
+     *                                  not supported.
      *
      * @see #subscribePropertyEvents(int, int, float, boolean, CarPropertyEventCallback) for more
      * options.
@@ -1229,11 +1321,20 @@ public class CarPropertyManager extends CarManagerBase {
      * currently okay for reading. If they are not available for reading or in error state,
      * property change events with a unavailable or error status will be generated.
      *
+     * <p>Note that the callback will be executed on the event handler provided to the
+     * {@link android.car.Car} or the main thread if none was provided.
+     *
      * @param propertyId The ID for the property to subscribe to.
      * @param areaId The ID for the area to subscribe to.
      * @param updateRateHz Only meaningful for continuous property. The update rate in Hz. A common
      *      value is 1Hz. See {@link Subscription.Builder#setUpdateRateHz} for detail.
      * @param carPropertyEventCallback The callback to deliver property update/error events.
+     * @return {@code true} if the listener is successfully registered
+     * @throws SecurityException if the caller does not have read permission to one of the supported
+     *                           properties.
+     * @throws IllegalArgumentException if there are over-lapping areaIds or the executor is
+     *                                  registered to another callback or one of the properties are
+     *                                  not supported.
      *
      * @see #subscribePropertyEvents(List, Executor, CarPropertyEventCallback) for
      * more detailed explanation on property subscription and batched subscription usage.
@@ -1349,32 +1450,84 @@ public class CarPropertyManager extends CarManagerBase {
      * @param subscriptions A list of subscriptions to add, which specifies PropertyId, AreaId, and
      *                      updateRateHz. Caller should typically use one Subscription for one
      *                      property ID.
-     * @param callbackExecutor The executor in which the callback is done on.
+     * @param callbackExecutor The executor in which the callback is done on. If this is null, the
+     *                         callback will be executed on the event handler provided to the
+     *                         {@link android.car.Car} or the main thread if none was provided.
      * @param carPropertyEventCallback The callback to deliver property update/error events.
      * @return {@code true} if the listener is successfully registered
-     * @throws SecurityException if missing the appropriate property access permission.
+     * @throws SecurityException if the caller does not have read permission to one of the supported
+     *                           properties.
      * @throws IllegalArgumentException if there are over-lapping areaIds or the executor is
-     *                                  registered to another callback or one of the properties does
-     *                                  not have a corresponding CarPropertyConfig.
+     *                                  registered to another callback or one of the properties are
+     *                                  not supported.
      */
     @FlaggedApi(Flags.FLAG_BATCHED_SUBSCRIPTIONS)
     public boolean subscribePropertyEvents(@NonNull List<Subscription> subscriptions,
             @Nullable @CallbackExecutor Executor callbackExecutor,
             @NonNull CarPropertyEventCallback carPropertyEventCallback) {
-        // TODO(b/301169322): Create an unsubscribePropertyEvents
         requireNonNull(subscriptions);
-        requireNonNull(carPropertyEventCallback);
-        validateAreaDisjointness(subscriptions);
-        if (DBG) {
-            Log.d(TAG, String.format("subscribePropertyEvents, callback: %s subscriptions: %s",
-                             carPropertyEventCallback, subscriptions));
+        List<CarSubscription> subscribeOptions = convertToCarSubscribeOptions(subscriptions);
+        return subscribePropertyEventsInternal(subscribeOptions, callbackExecutor,
+                carPropertyEventCallback);
+    }
+
+    /**
+     * Converts the {@link Subscription} from client to internal {@link CarSubscription}.
+     *
+     * This is only called by APIs with FLAG_BATCHED_SUBSCRIPTIONS.
+     */
+    private List<CarSubscription> convertToCarSubscribeOptions(List<Subscription> subscriptions) {
+        List<CarSubscription> carSubscribeOptions = new ArrayList<>();
+        for (int i = 0; i < subscriptions.size(); i++) {
+            Subscription clientOption = subscriptions.get(i);
+            CarSubscription internalOption = new CarSubscription();
+            internalOption.propertyId = clientOption.getPropertyId();
+            internalOption.areaIds = clientOption.getAreaIds();
+            internalOption.updateRateHz = clientOption.getUpdateRateHz();
+            internalOption.enableVariableUpdateRate = clientOption.isVariableUpdateRateEnabled();
+            internalOption.resolution = clientOption.getResolution();
+            carSubscribeOptions.add(internalOption);
         }
+        return carSubscribeOptions;
+    }
+
+    private boolean subscribePropertyEventsInternal(List<CarSubscription> subscribeOptions,
+            @Nullable @CallbackExecutor Executor callbackExecutor,
+            CarPropertyEventCallback carPropertyEventCallback) {
+        requireNonNull(carPropertyEventCallback);
+        validateAreaDisjointness(subscribeOptions);
+        if (DBG) {
+            Log.d(TAG, String.format("subscribePropertyEvents, callback: %s subscribeOptions: %s",
+                             carPropertyEventCallback, subscribeOptions));
+        }
+        int[] noReadPermPropertyIds;
+        try {
+            noReadPermPropertyIds = getSupportedNoReadPermPropIds(subscribeOptions);
+        } catch (RemoteException e) {
+            handleRemoteExceptionFromCarService(e);
+            return false;
+        }
+        if (noReadPermPropertyIds.length != 0) {
+            // propertyIdsToString does not work primitive array.
+            List<Integer> noReadPermPropertyIdsCopy = new ArrayList<>();
+            for (int i = 0; i < noReadPermPropertyIds.length; i++) {
+                noReadPermPropertyIdsCopy.add(noReadPermPropertyIds[i]);
+            }
+            throw new SecurityException("Do not have read permissions for properties: "
+                    + CarPropertyHelper.propertyIdsToString(noReadPermPropertyIdsCopy));
+        }
+
         if (callbackExecutor == null) {
             callbackExecutor = mExecutor;
         }
 
-        List<CarSubscription> carSubscriptions =
-                sanitizeUpdateRateConvertToCarSubscriptions(subscriptions);
+        List<CarSubscription> sanitizedSubscribeOptions;
+        try {
+            sanitizedSubscribeOptions = sanitizeSubscribeOptions(subscribeOptions);
+        } catch (IllegalStateException e) {
+            Log.e(TAG, "failed to sanitize update rate", e);
+            return false;
+        }
 
         synchronized (mLock) {
             CarPropertyEventCallbackController cpeCallbackController =
@@ -1385,16 +1538,18 @@ public class CarPropertyManager extends CarManagerBase {
                         + " this callback, please use the same executor.");
             }
 
-            mSubscriptionManager.stageNewOptions(carPropertyEventCallback, carSubscriptions);
+            mSubscriptionManager.stageNewOptions(carPropertyEventCallback,
+                    sanitizedSubscribeOptions);
 
             if (!applySubscriptionChangesLocked()) {
+                Log.e(TAG, "Subscription failed: failed to apply subscription changes");
                 return false;
             }
 
-            // Must use carSubscriptions instead of Subscriptions here since we need to use
-            // sanitized update rate.
-            for (int i = 0; i < carSubscriptions.size(); i++) {
-                CarSubscription option = carSubscriptions.get(i);
+            // Must use sanitizedSubscribeOptions instead of subscribeOptions here since we need to
+            // use sanitized update rate.
+            for (int i = 0; i < sanitizedSubscribeOptions.size(); i++) {
+                CarSubscription option = sanitizedSubscribeOptions.get(i);
                 int propertyId = option.propertyId;
                 float sanitizedUpdateRateHz = option.updateRateHz;
                 int[] areaIds = option.areaIds;
@@ -1406,7 +1561,7 @@ public class CarPropertyManager extends CarManagerBase {
                     mCpeCallbackToCpeCallbackController.put(carPropertyEventCallback,
                             cpeCallbackController);
                 }
-                // After {@code sanitizeUpdateRateConvertToCarSubscriptions}, update rate must be 0
+                // After {@code sanitizeSubscribeOptions}, update rate must be 0
                 // for on-change property and non-0 for continuous property.
                 // There is an edge case where minSampleRate is 0 and client uses 0 as sample rate
                 // for continuous property. In this case, it is really impossible to do VUR so treat
@@ -1415,7 +1570,8 @@ public class CarPropertyManager extends CarManagerBase {
                     cpeCallbackController.addOnChangeProperty(propertyId, areaIds);
                 } else {
                     cpeCallbackController.addContinuousProperty(propertyId, areaIds,
-                            sanitizedUpdateRateHz, option.enableVariableUpdateRate);
+                            sanitizedUpdateRateHz, option.enableVariableUpdateRate,
+                            option.resolution);
                 }
 
                 ArraySet<CarPropertyEventCallbackController> cpeCallbackControllerSet =
@@ -1433,15 +1589,15 @@ public class CarPropertyManager extends CarManagerBase {
     /**
      * Checks if any subscription have overlapping [propertyId, areaId] pairs.
      *
-     * @param subscriptions The list of subscriptions to check.
+     * @param subscribeOptions The list of subscribe options to check.
      */
-    private void validateAreaDisjointness(List<Subscription> subscriptions) {
+    private void validateAreaDisjointness(List<CarSubscription> subscribeOptions) {
         PairSparseArray<Object> propertyToAreaId = new PairSparseArray<>();
         Object placeHolder = new Object();
-        for (int i = 0; i < subscriptions.size(); i++) {
-            Subscription option = subscriptions.get(i);
-            int propertyId = option.getPropertyId();
-            int[] areaIds = option.getAreaIds();
+        for (int i = 0; i < subscribeOptions.size(); i++) {
+            CarSubscription option = subscribeOptions.get(i);
+            int propertyId = option.propertyId;
+            int[] areaIds = option.areaIds;
             for (int areaId : areaIds) {
                 if (propertyToAreaId.contains(propertyId, areaId)) {
                     throw new IllegalArgumentException("Subscribe options contain overlapping "
@@ -1580,7 +1736,9 @@ public class CarPropertyManager extends CarManagerBase {
      * multiple registrations for this {@link CarPropertyEventCallback}, all listening will be
      * stopped.
      *
-     * @throws SecurityException if missing the appropriate property access permission.
+     * @param carPropertyEventCallback A previously subscribed callback to unsubscribe.
+     * @throws SecurityException if the caller does not have read permission to the properties
+     *                           registered for this callback.
      */
     @FlaggedApi(Flags.FLAG_BATCHED_SUBSCRIPTIONS)
     public void unsubscribePropertyEvents(
@@ -1599,9 +1757,11 @@ public class CarPropertyManager extends CarManagerBase {
             }
             propertyIds = cpeCallbackController.getSubscribedProperties();
         }
+        ArrayList<Integer> propertyIdsList = new ArrayList<>(propertyIds.length);
         for (int i = 0; i < propertyIds.length; i++) {
-            unsubscribePropertyEvents(carPropertyEventCallback, propertyIds[i]);
+            propertyIdsList.add(propertyIds[i]);
         }
+        unsubscribePropertyEventsInternal(propertyIdsList, carPropertyEventCallback);
     }
 
     /**
@@ -1609,7 +1769,9 @@ public class CarPropertyManager extends CarManagerBase {
      * multiple registrations for this {@link CarPropertyEventCallback}, all listening will be
      * stopped.
      *
-     * @throws SecurityException if missing the appropriate property access permission.
+     * @param carPropertyEventCallback A previously subscribed callback to unsubscribe.
+     * @throws SecurityException if the caller does not have read permission to the properties
+     *                           registered for this callback.
      */
     public void unregisterCallback(@NonNull CarPropertyEventCallback carPropertyEventCallback) {
         if (DBG) {
@@ -1630,7 +1792,7 @@ public class CarPropertyManager extends CarManagerBase {
         for (int i = 0; i < propertyIds.length; i++) {
             propertyIdsList.add(propertyIds[i]);
         }
-        unsubscribePropertyEvents(carPropertyEventCallback, propertyIdsList);
+        unsubscribePropertyEventsInternal(propertyIdsList, carPropertyEventCallback);
     }
 
     /**
@@ -1638,36 +1800,70 @@ public class CarPropertyManager extends CarManagerBase {
      * the same {@link CarPropertyEventCallback} is used for other properties, those subscriptions
      * will not be affected.
      *
-     * @throws SecurityException if missing the appropriate property access permission.
+     * @param propertyId The property ID to unsubscribe.
+     * @param carPropertyEventCallback A previously subscribed callback to unsubscribe.
+     * @throws SecurityException if the caller does not have read permission to the property.
      */
     @FlaggedApi(Flags.FLAG_BATCHED_SUBSCRIPTIONS)
-    public void unsubscribePropertyEvents(
-            @NonNull CarPropertyEventCallback carPropertyEventCallback, int propertyId) {
+    public void unsubscribePropertyEvents(int propertyId,
+            @NonNull CarPropertyEventCallback carPropertyEventCallback) {
         requireNonNull(carPropertyEventCallback);
-        unsubscribePropertyEvents(carPropertyEventCallback, List.of(propertyId));
+        unsubscribePropertyEventsInternal(List.of(propertyId), carPropertyEventCallback);
     }
 
-    private void unsubscribePropertyEvents(CarPropertyEventCallback carPropertyEventCallback,
-            List<Integer> propertyIds) {
+    /**
+     * Stop getting update for {@code propertyId} to the given {@link CarPropertyEventCallback}. If
+     * the same {@link CarPropertyEventCallback} is used for other properties, those subscriptions
+     * will not be affected.
+     *
+     * @param carPropertyEventCallback A previously subscribed callback to unsubscribe.
+     * @param propertyId The property ID to unsubscribe.
+     * @throws SecurityException if the caller does not have read permission to the property.
+     */
+    @SuppressWarnings("FormatString")
+    public void unregisterCallback(@NonNull CarPropertyEventCallback carPropertyEventCallback,
+            int propertyId) {
+        if (DBG) {
+            Log.d(TAG, String.format("unregisterCallback, callback: %s, property Id: %s",
+                    carPropertyEventCallback, VehiclePropertyIds.toString(propertyId)));
+        }
+        requireNonNull(carPropertyEventCallback);
+        unsubscribePropertyEventsInternal(List.of(propertyId), carPropertyEventCallback);
+    }
+
+    private void unsubscribePropertyEventsInternal(
+            List<Integer> propertyIds, CarPropertyEventCallback carPropertyEventCallback) {
         synchronized (mLock) {
             CarPropertyEventCallbackController cpeCallbackController =
                     mCpeCallbackToCpeCallbackController.get(carPropertyEventCallback);
             if (cpeCallbackController == null) {
                 return;
             }
-            for (int i = 0; i < propertyIds.size(); i++) {
-                int propertyId = propertyIds.get(i);
+            // Filter out User HAL property IDs so that getPropertyConfigsFromService will not
+            // throw IllegalArgumentException.
+            List<Integer> filteredPropertyIds = filterOutUserHalProperty(propertyIds);
+            CarPropertyConfigs configs = getPropertyConfigsFromService(filteredPropertyIds);
+
+            if (configs == null) {
+                Log.e(TAG, "failed to get property config list from car service, do nothing");
+                return;
+            }
+            for (int i = 0; i < filteredPropertyIds.size(); i++) {
+                int propertyId = filteredPropertyIds.get(i);
                 if (DBG) {
                     Log.d(TAG, String.format(
                             "unsubscribePropertyEvents, callback: %s, property Id: %s",
                             carPropertyEventCallback, VehiclePropertyIds.toString(propertyId)));
                 }
-                CarPropertyConfig<?> carPropertyConfig = getCarPropertyConfig(propertyId);
-                if (carPropertyConfig == null) {
-                    Log.e(TAG, "unsubscribePropertyEvents: propertyId="
-                            + VehiclePropertyIds.toString(propertyId)
-                            + " is not in carPropertyConfig list."
-                    );
+
+                if (configs.isNotSupported(propertyId)) {
+                    Log.e(TAG, "unsubscribePropertyEvents: not supported property: "
+                            + VehiclePropertyIds.toString(propertyId));
+                    continue;
+                }
+                if (configs.missingPermission(propertyId)) {
+                    Log.e(TAG, "unsubscribePropertyEvents: missing read/write permission for "
+                            + "property: " + VehiclePropertyIds.toString(propertyId));
                     continue;
                 }
                 ArraySet<CarPropertyEventCallbackController> cpeCallbackControllerSet =
@@ -1700,62 +1896,6 @@ public class CarPropertyManager extends CarManagerBase {
                 if (cpeCallbackControllerSet.isEmpty()) {
                     mPropIdToCpeCallbackControllerList.remove(propertyId);
                 }
-            }
-        }
-    }
-
-    /**
-     * Stop getting update for {@code propertyId} to the given {@link CarPropertyEventCallback}. If
-     * the same {@link CarPropertyEventCallback} is used for other properties, those subscriptions
-     * will not be affected.
-     *
-     * @throws SecurityException if missing the appropriate property access permission.
-     */
-    @SuppressWarnings("FormatString")
-    public void unregisterCallback(@NonNull CarPropertyEventCallback carPropertyEventCallback,
-            int propertyId) {
-        if (DBG) {
-            Log.d(TAG, String.format("unregisterCallback, callback: %s, property Id: %s",
-                    carPropertyEventCallback, VehiclePropertyIds.toString(propertyId)));
-        }
-        requireNonNull(carPropertyEventCallback);
-        CarPropertyConfig<?> carPropertyConfig = getCarPropertyConfig(propertyId);
-        if (carPropertyConfig == null) {
-            Log.e(TAG, "unregisterCallback: propertyId="
-                    + VehiclePropertyIds.toString(propertyId) + " is not in carPropertyConfig list."
-            );
-            return;
-        }
-        synchronized (mLock) {
-            CarPropertyEventCallbackController cpeCallbackController =
-                    mCpeCallbackToCpeCallbackController.get(carPropertyEventCallback);
-            ArraySet<CarPropertyEventCallbackController> cpeCallbackControllerSet =
-                    mPropIdToCpeCallbackControllerList.get(propertyId);
-
-            if (cpeCallbackController == null || cpeCallbackControllerSet == null) {
-                Log.e(TAG, "unregisterCallback: callback was not previously registered.");
-                return;
-            } else if (!cpeCallbackControllerSet.contains(cpeCallbackController)) {
-                Log.e(TAG, "unregisterCallback: callback was not previously registered for"
-                        + " propertyId=" + VehiclePropertyIds.toString(propertyId));
-                return;
-            }
-
-            mSubscriptionManager.stageUnregister(carPropertyEventCallback,
-                    new ArraySet<>(Set.of(propertyId)));
-
-            if (!applySubscriptionChangesLocked()) {
-                return;
-            }
-
-            boolean allPropertiesRemoved = cpeCallbackController.remove(propertyId);
-            if (allPropertiesRemoved) {
-                mCpeCallbackToCpeCallbackController.remove(carPropertyEventCallback);
-            }
-
-            cpeCallbackControllerSet.remove(cpeCallbackController);
-            if (cpeCallbackControllerSet.isEmpty()) {
-                mPropIdToCpeCallbackControllerList.remove(propertyId);
             }
         }
     }
@@ -1798,41 +1938,35 @@ public class CarPropertyManager extends CarManagerBase {
             Log.d(TAG, "getPropertyList(" + CarPropertyHelper.propertyIdsToString(propertyIds)
                     + ")");
         }
-        List<Integer> filteredPropertyIds = new ArrayList<>();
-        for (int propertyId : propertyIds) {
-            assertNotUserHalProperty(propertyId);
-            if (!CarPropertyHelper.isSupported(propertyId)) {
-                continue;
+        CarPropertyConfigs configs = getPropertyConfigsFromService(propertyIds);
+        if (configs == null) {
+            return new ArrayList<>();
+        }
+        if (configs.getMissingPermissionPropIds().length != 0) {
+            Log.w(TAG, "Missing required permissions to access properties: "
+                    + CarPropertyHelper.propertyIdsToString(configs.getMissingPermissionPropIds()));
+        }
+        if (configs.getUnsupportedPropIds().length != 0) {
+            Log.w(TAG, "The following properties are not supported: "
+                    + CarPropertyHelper.propertyIdsToString(configs.getUnsupportedPropIds()));
+        }
+        List<CarPropertyConfig> configList = configs.getConfigs();
+        if (DBG) {
+            Log.d(TAG, "getPropertyList(" + CarPropertyHelper.propertyIdsToString(propertyIds)
+                    + ") returns " + configList.size() + " configs");
+            for (int i = 0; i < configList.size(); i++) {
+                Log.v(TAG, i + ": " + configList.get(i));
             }
-            filteredPropertyIds.add(propertyId);
         }
-        int[] filteredPropertyIdsArray = new int[filteredPropertyIds.size()];
-        for (int i = 0; i < filteredPropertyIds.size(); i++) {
-            filteredPropertyIdsArray[i] = filteredPropertyIds.get(i);
-        }
-        try {
-            List<CarPropertyConfig> configs = mService.getPropertyConfigList(
-                    filteredPropertyIdsArray).getConfigs();
-            if (DBG) {
-                Log.d(TAG, "getPropertyList(" + CarPropertyHelper.propertyIdsToString(propertyIds)
-                        + ") returns " + configs.size() + " configs");
-                for (int i = 0; i < configs.size(); i++) {
-                    Log.v(TAG, i + ": " + configs.get(i));
-                }
-            }
-            return configs;
-        } catch (RemoteException e) {
-            Log.e(TAG, "getPropertyList exception ", e);
-            return handleRemoteExceptionFromCarService(e, new ArrayList<>());
-        }
+        return configList;
     }
 
     /**
      * Get {@link CarPropertyConfig} by property ID.
      *
      * @param propertyId the property ID
-     * @return the {@link CarPropertyConfig} for the selected property, {@code null} if the property
-     * is not available
+     * @return the {@link CarPropertyConfig} for the selected property, {@code null} if missing
+     * the required permission to read/write the property or the property is not supported.
      */
     @Nullable
     public CarPropertyConfig<?> getCarPropertyConfig(int propertyId) {
@@ -1845,14 +1979,25 @@ public class CarPropertyManager extends CarManagerBase {
                     + " is not supported");
             return null;
         }
-        List<CarPropertyConfig> configs;
-        try {
-            configs = mService.getPropertyConfigList(new int[] {propertyId}).getConfigs();
-        } catch (RemoteException e) {
-            Log.e(TAG, "getPropertyList exception ", e);
-            return handleRemoteExceptionFromCarService(e, null);
+
+        CarPropertyConfigs configs = getPropertyConfigsFromService(
+                new ArraySet(Set.of(propertyId)));
+        if (configs == null) {
+            return null;
         }
-        CarPropertyConfig<?> config = configs.size() == 0 ? null : configs.get(0);
+
+        if (configs.missingPermission(propertyId)) {
+            Log.w(TAG, "Missing required permissions to access property: "
+                    + VehiclePropertyIds.toString(propertyId));
+            return null;
+        }
+        if (configs.isNotSupported(propertyId)) {
+            Log.w(TAG, "The property is not supported: "
+                    + VehiclePropertyIds.toString(propertyId));
+            return null;
+        }
+
+        CarPropertyConfig<?> config = configs.getConfigs().get(0);
         if (DBG) {
             Log.d(TAG, "getCarPropertyConfig(" + VehiclePropertyIds.toString(propertyId)
                     + ") returns " + config);
@@ -1865,8 +2010,8 @@ public class CarPropertyManager extends CarManagerBase {
      *
      * @param propertyId the property ID
      * @param area the area enum such as Enums in {@link android.car.VehicleAreaSeat}
-     * @throws IllegalArgumentException if the property is not available in the vehicle for
-     * the selected area
+     * @throws IllegalArgumentException if the property is not supported in the vehicle for
+     * the selected area or the caller does not have read or write permission to the property.
      * @return the {@code AreaId} containing the selected area for the property
      */
     public int getAreaId(int propertyId, int area) {
@@ -1875,11 +2020,19 @@ public class CarPropertyManager extends CarManagerBase {
         if (DBG) {
             Log.d(TAG, "getAreaId(propertyId = " + propertyIdStr + ", area = " + area + ")");
         }
-        CarPropertyConfig<?> propConfig = getCarPropertyConfig(propertyId);
-        if (propConfig == null) {
-            throw new IllegalArgumentException("The propertyId: " + propertyIdStr
-                    + " is not available");
+        CarPropertyConfigs configs = getPropertyConfigsFromService(
+                new ArraySet<>(Set.of(propertyId)));
+        if (configs == null) {
+            throw new IllegalArgumentException("Failed to getPropertyConfigList from car service");
         }
+        if (configs.missingPermission(propertyId)) {
+            throw new IllegalArgumentException("Missing required permissions to access property: "
+                    + propertyIdStr);
+        }
+        if (configs.isNotSupported(propertyId)) {
+            throw new IllegalArgumentException("The property is not supported: " + propertyIdStr);
+        }
+        CarPropertyConfig<?> propConfig = configs.getConfigs().get(0);
         // For the global property, areaId is 0
         if (propConfig.isGlobalProperty()) {
             if (DBG) {
@@ -2008,8 +2161,8 @@ public class CarPropertyManager extends CarManagerBase {
      * </ul>
      *
      * <p>Clients that declare a {@link android.content.pm.ApplicationInfo#targetSdkVersion} equal
-     * or later than {@link Build.VERSION_CODES#U} will receive the following exceptions when
-     * request failed.
+     * or later than {@link Build.VERSION_CODES#UPSIDE_DOWN_CAKE} will receive the following
+     * exceptions when request failed.
      * <ul>
      *     <li>{@link CarInternalErrorException} when there is an unexpected error detected in cars
      *     <li>{@link PropertyAccessDeniedSecurityException} when cars denied the access of the
@@ -2023,7 +2176,8 @@ public class CarPropertyManager extends CarManagerBase {
      * </ul>
      *
      * <p>Clients that declare a {@link android.content.pm.ApplicationInfo#targetSdkVersion} equal
-     * or later than {@link Build.VERSION_CODES#R}, before {@link Build.VERSION_CODES#U} will
+     * or later than {@link Build.VERSION_CODES#R}, before
+     * {@link Build.VERSION_CODES#UPSIDE_DOWN_CAKE} will
      * receive the following exceptions or {@code false} when request failed.
      * <ul>
      *     <li>{@link CarInternalErrorException} when there is an unexpected error detected in cars
@@ -2099,7 +2253,7 @@ public class CarPropertyManager extends CarManagerBase {
      * @throws IllegalArgumentException when the [propertyId, areaId] is not supported for U and
      * later client, or when the property is of wrong type.
      *
-     * @return the value of a float property or 0.
+     * @return the value of a float property or {@code 0}.
      */
     public float getFloatProperty(int propertyId, int areaId) {
         CarPropertyValue<Float> carProp = getProperty(Float.class, propertyId, areaId);
@@ -2127,7 +2281,7 @@ public class CarPropertyManager extends CarManagerBase {
      * @throws IllegalArgumentException when the [propertyId, areaId] is not supported for U and
      * later client, or when the property is of wrong type.
      *
-     * @return the value of aa integer property or 0.
+     * @return the value of aa integer property or {@code 0}.
      */
     public int getIntProperty(int propertyId, int areaId) {
         CarPropertyValue<Integer> carProp = getProperty(Integer.class, propertyId, areaId);
@@ -2245,8 +2399,8 @@ public class CarPropertyManager extends CarManagerBase {
      * </ul>
      *
      * <p>Clients that declare a {@link android.content.pm.ApplicationInfo#targetSdkVersion} equal
-     * or later than {@link Build.VERSION_CODES#U} will receive the following exceptions when
-     * request failed.
+     * or later than {@link Build.VERSION_CODES#UPSIDE_DOWN_CAKE} will receive the following
+     * exceptions when request failed.
      * <ul>
      *     <li>{@link CarInternalErrorException} when there is an unexpected error detected in cars
      *     <li>{@link PropertyAccessDeniedSecurityException} when cars denied the access of the
@@ -2260,7 +2414,8 @@ public class CarPropertyManager extends CarManagerBase {
      * </ul>
      *
      * <p>Clients that declare a {@link android.content.pm.ApplicationInfo#targetSdkVersion} equal
-     * or later than {@link Build.VERSION_CODES#R}, before {@link Build.VERSION_CODES#U} will
+     * or later than {@link Build.VERSION_CODES#R}, before
+     * {@link Build.VERSION_CODES#UPSIDE_DOWN_CAKE} will
      * receive the following exceptions or {@code null} when request failed.
      * <ul>
      *     <li>{@link CarInternalErrorException} when there is an unexpected error detected in cars
@@ -2361,8 +2516,8 @@ public class CarPropertyManager extends CarManagerBase {
      * </ul>
      *
      * <p>Clients that declare a {@link android.content.pm.ApplicationInfo#targetSdkVersion} equal
-     * or later than {@link Build.VERSION_CODES#U} will receive the following exceptions when
-     * request failed.
+     * or later than {@link Build.VERSION_CODES#UPSIDE_DOWN_CAKE} will receive the following
+     * exceptions when request failed.
      * <ul>
      *     <li>{@link CarInternalErrorException} when there is an unexpected error detected in cars
      *     <li>{@link PropertyAccessDeniedSecurityException} when cars denied the access of the
@@ -2375,7 +2530,8 @@ public class CarPropertyManager extends CarManagerBase {
      * </ul>
      *
      * <p>Clients that declare a {@link android.content.pm.ApplicationInfo#targetSdkVersion} equal
-     * or later than {@link Build.VERSION_CODES#R}, before {@link Build.VERSION_CODES#U} will
+     * or later than {@link Build.VERSION_CODES#R}, before
+     * {@link Build.VERSION_CODES#UPSIDE_DOWN_CAKE} will
      * receive the following exceptions or {@code null} when request failed.
      * <ul>
      *     <li>{@link CarInternalErrorException} when there is an unexpected error detected in cars
@@ -2661,8 +2817,8 @@ public class CarPropertyManager extends CarManagerBase {
             ServiceSpecificException e, int propertyId, int areaId) {
         // We are not passing the error message down, so log it here.
         Log.w(TAG, "received ServiceSpecificException: " + e);
-        int errorCode = CarPropertyHelper.getVhalSystemErrorCode(e.errorCode);
-        int vendorErrorCode = CarPropertyHelper.getVhalVendorErrorCode(e.errorCode);
+        int errorCode = CarPropertyErrorCodes.getVhalSystemErrorCode(e.errorCode);
+        int vendorErrorCode = CarPropertyErrorCodes.getVhalVendorErrorCode(e.errorCode);
 
         switch (errorCode) {
             case VehicleHalStatusCode.STATUS_NOT_AVAILABLE:
@@ -2711,6 +2867,61 @@ public class CarPropertyManager extends CarManagerBase {
                 return PropertyNotAvailableErrorCode.NOT_AVAILABLE_SAFETY;
             default:
                 throw new IllegalArgumentException("Invalid status code: " + statusCode);
+        }
+    }
+
+    /**
+     * Convert {@link VehicleHalStatusCode} system error code into its public
+     * {@link DetailedErrorCode} equivalent.
+     *
+     * @return the detailed error code if available, otherwise set to 0.
+     * @throws IllegalArgumentException if an invalid error code is passed in.
+     */
+    private static int getDetailedErrorCodeFromSystemErrorCode(int systemErrorCode) {
+        if (Flags.carPropertyDetailedErrorCodes()) {
+            switch (systemErrorCode) {
+                case VehicleHalStatusCode.STATUS_OK: // Fallthrough
+                case VehicleHalStatusCode.STATUS_TRY_AGAIN: // Fallthrough
+                case VehicleHalStatusCode.STATUS_INVALID_ARG: // Fallthrough
+                case VehicleHalStatusCode.STATUS_NOT_AVAILABLE: // Fallthrough
+                case VehicleHalStatusCode.STATUS_ACCESS_DENIED: // Fallthrough
+                case VehicleHalStatusCode.STATUS_INTERNAL_ERROR: // Fallthrough
+                    return DetailedErrorCode.NO_DETAILED_ERROR_CODE;
+                case VehicleHalStatusCode.STATUS_NOT_AVAILABLE_DISABLED:
+                    return DetailedErrorCode.NOT_AVAILABLE_DISABLED;
+                case VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SPEED_LOW:
+                    return DetailedErrorCode.NOT_AVAILABLE_SPEED_LOW;
+                case VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SPEED_HIGH:
+                    return DetailedErrorCode.NOT_AVAILABLE_SPEED_HIGH;
+                case VehicleHalStatusCode.STATUS_NOT_AVAILABLE_POOR_VISIBILITY:
+                    return DetailedErrorCode.NOT_AVAILABLE_POOR_VISIBILITY;
+                case VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SAFETY:
+                    return DetailedErrorCode.NOT_AVAILABLE_SAFETY;
+                default:
+                    throw new IllegalArgumentException("Invalid error code: " + systemErrorCode);
+            }
+        }
+
+        return 0;
+    }
+
+    /**
+     * Convert {@link CarPropMgrErrorCode} error code in {@link CarPropertyErrorCodes} into the
+     * {@link CarPropertyAsyncErrorCode} equivalent.
+     *
+     * @return the async error code
+     * @throws IllegalArgumentException if an invalid error code is passed in.
+     */
+    private static int getCarPropertyAsyncErrorCodeFromCarPropertyManagerErrorCode(int errorCode) {
+        switch (errorCode) {
+            case STATUS_OK: // Fallthrough
+            case STATUS_ERROR_INTERNAL_ERROR: // Fallthrough
+            case STATUS_ERROR_NOT_AVAILABLE: // Fallthrough
+            case STATUS_ERROR_TIMEOUT: // Fallthrough
+                return errorCode;
+            case STATUS_TRY_AGAIN: // Fallthrough
+            default:
+                throw new IllegalArgumentException("Invalid error code: " + errorCode);
         }
     }
 
@@ -3063,31 +3274,54 @@ public class CarPropertyManager extends CarManagerBase {
         return requestIds;
     }
 
-    private List<CarSubscription> sanitizeUpdateRateConvertToCarSubscriptions(
-            List<Subscription> subscriptions) throws IllegalArgumentException {
+    private List<CarSubscription> sanitizeSubscribeOptions(List<CarSubscription> subscribeOptions)
+            throws IllegalArgumentException, IllegalStateException {
+        ArraySet<Integer> propertyIds = new ArraySet<>();
+        for (int i = 0; i < subscribeOptions.size(); i++) {
+            propertyIds.add(subscribeOptions.get(i).propertyId);
+        }
+        CarPropertyConfigs configs = getPropertyConfigsFromService(propertyIds);
+        if (configs == null) {
+            throw new IllegalStateException("Failed to get property config list from car service");
+        }
+
         List<CarSubscription> output = new ArrayList<>();
-        for (int i = 0; i < subscriptions.size(); i++) {
-            Subscription subscription = subscriptions.get(i);
-            int propertyId = subscription.getPropertyId();
-            CarPropertyConfig<?> carPropertyConfig = getCarPropertyConfig(propertyId);
-            if (carPropertyConfig == null) {
+        for (int i = 0; i < subscribeOptions.size(); i++) {
+            CarSubscription subscribeOption = subscribeOptions.get(i);
+            int propertyId = subscribeOption.propertyId;
+
+            if (configs.isNotSupported(propertyId)) {
                 String errorMessage = "propertyId is not in carPropertyConfig list: "
                         + VehiclePropertyIds.toString(propertyId);
                 Log.e(TAG, "sanitizeUpdateRate: " + errorMessage);
                 throw new IllegalArgumentException(errorMessage);
             }
-            float sanitizedUpdateRateHz = InputSanitizationUtils.sanitizeUpdateRateHz(
-                    carPropertyConfig, subscription.getUpdateRateHz());
+            if (configs.missingPermission(propertyId)) {
+                // This should not happen since we already checked whether the caller has read
+                // permission via getSupportedNoReadPermPropIds. If the caller does not have
+                // read or write permission, {@code SecurityException} should be thrown before this.
+                String errorMessage = "missing required read/write permission for: "
+                        + VehiclePropertyIds.toString(propertyId);
+                Log.wtf(TAG, "sanitizeUpdateRate: " + errorMessage);
+                throw new SecurityException(errorMessage);
+            }
+
+            CarPropertyConfig<?> carPropertyConfig = configs.getConfig(propertyId);
             CarSubscription carSubscription = new CarSubscription();
             carSubscription.propertyId = propertyId;
-            carSubscription.areaIds = subscription.getAreaIds();
+            carSubscription.areaIds = subscribeOption.areaIds;
             if (carSubscription.areaIds.length == 0) {
                 // Subscribe to all areaIds if not specified.
                 carSubscription.areaIds = carPropertyConfig.getAreaIds();
             }
             carSubscription.enableVariableUpdateRate =
-                    subscription.isVariableUpdateRateEnabled();
-            carSubscription.updateRateHz = sanitizedUpdateRateHz;
+                    subscribeOption.enableVariableUpdateRate;
+            carSubscription.updateRateHz = InputSanitizationUtils.sanitizeUpdateRateHz(
+                    carPropertyConfig, subscribeOption.updateRateHz);
+            float resolution = mFeatureFlags.subscriptionWithResolution()
+                    ? subscribeOption.resolution : 0.0f;
+            carSubscription.resolution = InputSanitizationUtils.sanitizeResolution(mFeatureFlags,
+                    carPropertyConfig, resolution);
             output.addAll(InputSanitizationUtils.sanitizeEnableVariableUpdateRate(
                     mFeatureFlags, carPropertyConfig, carSubscription));
         }
@@ -3122,6 +3356,121 @@ public class CarPropertyManager extends CarManagerBase {
                 throw new IllegalArgumentException("Unsupported property: "
                         + VehiclePropertyIds.toString(propId) + " (" + propId + ")");
         }
+    }
+
+    private List<Integer> filterOutUserHalProperty(List<Integer> propertyIds) {
+        if (mAppTargetSdk >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            // After Android U, we treat this the same as other unsupported property IDs and this
+            // special logic is no longer required.
+            return propertyIds;
+        }
+        List<Integer> filteredPropertyIds = new ArrayList<>();
+        for (int i = 0; i < propertyIds.size(); i++) {
+            switch (propertyIds.get(i)) {
+                case VehiclePropertyIds.INITIAL_USER_INFO:
+                case VehiclePropertyIds.SWITCH_USER:
+                case VehiclePropertyIds.CREATE_USER:
+                case VehiclePropertyIds.REMOVE_USER:
+                case VehiclePropertyIds.USER_IDENTIFICATION_ASSOCIATION:
+                    continue;
+            }
+            filteredPropertyIds.add(propertyIds.get(i));
+        }
+        return filteredPropertyIds;
+    }
+
+    private int[] getSupportedNoReadPermPropIds(List<CarSubscription> subscribeOptions)
+            throws RemoteException {
+        ArraySet<Integer> propertyIds = new ArraySet<>();
+        for (int i = 0; i < subscribeOptions.size(); i++) {
+            propertyIds.add(subscribeOptions.get(i).propertyId);
+        }
+        int[] propertyIdsArray = new int[propertyIds.size()];
+        for (int i = 0; i < propertyIds.size(); i++) {
+            propertyIdsArray[i] = propertyIds.valueAt(i);
+        }
+
+        return mService.getSupportedNoReadPermPropIds(propertyIdsArray);
+    }
+
+    // Wraps the result returned from {@code ICarProperty.getPropertyConfigList}.
+    private static final class CarPropertyConfigs {
+        private final SparseArray<CarPropertyConfig<?>> mCarPropertyConfigById =
+                new SparseArray<>();
+        private final ArraySet<Integer> mMissingPermissionPropIds = new ArraySet<>();
+        private final ArraySet<Integer> mUnsupportedPropIds = new ArraySet<>();
+        private final GetPropertyConfigListResult mResult;
+
+        // The unsupportedPropIds are the property Ids we filtered out before we send out
+        // the request to car service to get the configs.
+        CarPropertyConfigs(GetPropertyConfigListResult result, IntArray unsupportedPropIds) {
+            mResult = result;
+            List<CarPropertyConfig> configs = result.carPropertyConfigList.getConfigs();
+            for (int i = 0; i < configs.size(); i++) {
+                mCarPropertyConfigById.put(configs.get(i).getPropertyId(), configs.get(i));
+            }
+            for (int i = 0; i < result.missingPermissionPropIds.length; i++) {
+                mMissingPermissionPropIds.add(result.missingPermissionPropIds[i]);
+            }
+            for (int i = 0; i < result.unsupportedPropIds.length; i++) {
+                mUnsupportedPropIds.add(result.unsupportedPropIds[i]);
+            }
+            for (int i = 0; i < unsupportedPropIds.size(); i++) {
+                mUnsupportedPropIds.add(unsupportedPropIds.get(i));
+            }
+        }
+
+        // For the propertyIds provided to {@code getPropertyConfigsFromService}, this must not
+        // return null if both {@code isNotSupported} and {@code missingPermission} is false.
+        @Nullable
+        CarPropertyConfig<?> getConfig(int propertyId) {
+            return mCarPropertyConfigById.get(propertyId);
+        }
+
+        // Returns whether the property is not supported.
+        boolean isNotSupported(int propertyId) {
+            return mUnsupportedPropIds.contains(propertyId);
+        }
+
+        // Returns whether the caller does not have read and does not have write access to this
+        // property, hence the caller cannot get the property's config.
+        boolean missingPermission(int propertyId) {
+            return mMissingPermissionPropIds.contains(propertyId);
+        }
+
+        List<CarPropertyConfig> getConfigs() {
+            return mResult.carPropertyConfigList.getConfigs();
+        }
+
+        int[] getMissingPermissionPropIds() {
+            return mResult.missingPermissionPropIds;
+        }
+
+        int[] getUnsupportedPropIds() {
+            return mResult.unsupportedPropIds;
+        }
+    }
+
+    @Nullable
+    private CarPropertyConfigs getPropertyConfigsFromService(Iterable<Integer> propertyIds) {
+        IntArray filteredPropertyIds = new IntArray();
+        IntArray unsupportedPropertyIds = new IntArray();
+        for (int propertyId : propertyIds) {
+            assertNotUserHalProperty(propertyId);
+            if (!CarPropertyHelper.isSupported(propertyId)) {
+                unsupportedPropertyIds.add(propertyId);
+                continue;
+            }
+            filteredPropertyIds.add(propertyId);
+        }
+        GetPropertyConfigListResult result;
+        try {
+            result = mService.getPropertyConfigList(filteredPropertyIds.toArray());
+        } catch (RemoteException e) {
+            Log.e(TAG, "CarPropertyService.getPropertyConfigList exception ", e);
+            return handleRemoteExceptionFromCarService(e, null);
+        }
+        return new CarPropertyConfigs(result, unsupportedPropertyIds);
     }
 
 }

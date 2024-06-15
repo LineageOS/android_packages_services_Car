@@ -33,6 +33,7 @@ namespace automotive {
 namespace vhal {
 namespace hidl_test {
 
+using ::aidl::android::hardware::automotive::vehicle::VehiclePropertyStatus;
 using ::android::sp;
 using ::android::hardware::hidl_vec;
 using ::android::hardware::Return;
@@ -193,7 +194,37 @@ TEST_F(HidlVhalClientTest, testGetValue) {
     auto gotValue = std::move(result.value());
     ASSERT_EQ(gotValue->getPropId(), TEST_PROP_ID);
     ASSERT_EQ(gotValue->getAreaId(), TEST_AREA_ID);
+    ASSERT_EQ(gotValue->getStatus(), VehiclePropertyStatus::AVAILABLE);
     ASSERT_EQ(gotValue->getInt32Values(), std::vector<int32_t>({1}));
+}
+
+TEST_F(HidlVhalClientTest, testGetValueUnavailableStatus) {
+    VhalClientResult<std::unique_ptr<IHalPropValue>> result;
+    VhalClientResult<std::unique_ptr<IHalPropValue>>* resultPtr = &result;
+    bool gotResult = false;
+    bool* gotResultPtr = &gotResult;
+    auto callback = std::make_shared<HidlVhalClient::GetValueCallbackFunc>(
+            [resultPtr, gotResultPtr](VhalClientResult<std::unique_ptr<IHalPropValue>> r) {
+                *resultPtr = std::move(r);
+                *gotResultPtr = true;
+            });
+    getVhal()->setVehiclePropValue(VehiclePropValue{
+            .prop = TEST_PROP_ID,
+            .areaId = TEST_AREA_ID,
+            .status = android::hardware::automotive::vehicle::V2_0::VehiclePropertyStatus::
+                    UNAVAILABLE,
+    });
+
+    getClient()->getValue(HidlHalPropValue(TEST_PROP_ID, TEST_AREA_ID), callback);
+
+    ASSERT_TRUE(gotResult);
+    ASSERT_EQ(getVhal()->getRequestPropValue().prop, TEST_PROP_ID);
+    ASSERT_EQ(getVhal()->getRequestPropValue().areaId, TEST_AREA_ID);
+    ASSERT_TRUE(result.ok());
+    auto gotValue = std::move(result.value());
+    ASSERT_EQ(gotValue->getPropId(), TEST_PROP_ID);
+    ASSERT_EQ(gotValue->getAreaId(), TEST_AREA_ID);
+    ASSERT_EQ(gotValue->getStatus(), VehiclePropertyStatus::UNAVAILABLE);
 }
 
 TEST_F(HidlVhalClientTest, testGetValueError) {
@@ -365,11 +396,13 @@ TEST_F(HidlVhalClientTest, testGetPropConfigs) {
     ASSERT_EQ(areaConfig0->getAreaId(), TEST_AREA_ID);
     ASSERT_EQ(areaConfig0->getMinInt32Value(), 0);
     ASSERT_EQ(areaConfig0->getMaxInt32Value(), 1);
+    ASSERT_FALSE(areaConfig0->isVariableUpdateRateSupported());
 
     const std::unique_ptr<IHalAreaConfig>& areaConfig1 = configs[0]->getAreaConfigs()[1];
     ASSERT_EQ(areaConfig1->getAreaId(), TEST_AREA_ID_2);
     ASSERT_EQ(areaConfig1->getMinInt32Value(), 2);
     ASSERT_EQ(areaConfig1->getMaxInt32Value(), 3);
+    ASSERT_FALSE(areaConfig1->isVariableUpdateRateSupported());
 
     ASSERT_EQ(configs[1]->getPropId(), TEST_PROP_ID_2);
     ASSERT_EQ(configs[1]->getAreaConfigSize(), static_cast<size_t>(0));
@@ -473,6 +506,55 @@ TEST_F(HidlVhalClientTest, testUnubscribeError) {
     auto result = subscriptionClient->unsubscribe({TEST_PROP_ID});
 
     ASSERT_FALSE(result.ok());
+}
+
+TEST_F(HidlVhalClientTest, testGetRemoteInterfaceVersion) {
+    // getRemoteInterfaceVersion will always return 0 for HIDL client.
+    ASSERT_EQ(getClient()->getRemoteInterfaceVersion(), 0);
+}
+
+TEST_F(HidlVhalClientTest, testHidlHalPropValueClone_valueIsTheSame) {
+    VehiclePropValue testProp{.prop = TEST_PROP_ID,
+                              .areaId = TEST_AREA_ID,
+                              .value = {
+                                      .int32Values = {1, 2},
+                                      .floatValues = {1.1, 2.2},
+                              }};
+    auto testPropCopy = testProp;
+    std::unique_ptr<IHalPropValue> halPropValue =
+            std::make_unique<HidlHalPropValue>(std::move(testPropCopy));
+    auto halPropValueClone = halPropValue->clone();
+
+    EXPECT_EQ(halPropValueClone->getPropId(), TEST_PROP_ID);
+    EXPECT_EQ(halPropValueClone->getAreaId(), TEST_AREA_ID);
+    EXPECT_EQ(halPropValueClone->getInt32Values(), std::vector<int32_t>({1, 2}));
+    EXPECT_EQ(halPropValueClone->getFloatValues(), std::vector<float>({1.1, 2.2}));
+}
+
+TEST_F(HidlVhalClientTest, testHidlHalPropValueClone_modifyCloneDoesNotAffectOrig) {
+    std::vector<int32_t> int32Values1 = {1, 2};
+    std::vector<float> floatValues1 = {1.1, 2.2};
+    std::vector<int32_t> int32Values2 = {5, 4, 3, 2, 1};
+    std::vector<float> floatValues2 = {3.3, 2.2, 1.1};
+
+    VehiclePropValue testProp{.prop = TEST_PROP_ID,
+                              .areaId = TEST_AREA_ID,
+                              .value = {
+                                      .int32Values = int32Values1,
+                                      .floatValues = floatValues1,
+                              }};
+    auto testPropCopy = testProp;
+    std::unique_ptr<IHalPropValue> halPropValue =
+            std::make_unique<HidlHalPropValue>(std::move(testPropCopy));
+    auto halPropValueClone = halPropValue->clone();
+
+    halPropValueClone->setInt32Values(int32Values2);
+    halPropValueClone->setFloatValues(floatValues2);
+
+    EXPECT_EQ(halPropValue->getInt32Values(), int32Values1);
+    EXPECT_EQ(halPropValue->getFloatValues(), floatValues1);
+    EXPECT_EQ(halPropValueClone->getInt32Values(), int32Values2);
+    EXPECT_EQ(halPropValueClone->getFloatValues(), floatValues2);
 }
 
 }  // namespace hidl_test

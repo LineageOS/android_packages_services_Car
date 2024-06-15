@@ -23,4 +23,8 @@
     <string name="loading_welcome_message" msgid="2351582619179505398">"AAOS"</string>
     <string name="loading_action_button_text" msgid="1296096984805774507">"ಮುಂದುವರಿಸಿ"</string>
     <string name="hvac_panel_header" msgid="1299061170810305529">"ಆರಾಮದಾಯಕ ನಿಯಂತ್ರಕಗಳು"</string>
+    <string name="confirm_pin_title" msgid="8340408103287697843">"ನಿಮ್ಮ ಪಿನ್ ನಮೂದಿಸಿ"</string>
+    <string name="confirm_pattern_title" msgid="601765683212039890">"ನಿಮ್ಮ ಪ್ಯಾಟರ್ನ್ ನಮೂದಿಸಿ"</string>
+    <string name="confirm_password_title" msgid="4719840258132492554">"ನಿಮ್ಮ ಪಾಸ್‌ವರ್ಡ್ ನಮೂದಿಸಿ"</string>
+    <string name="cancel" msgid="8552804384519299161">"ರದ್ದುಮಾಡಿ"</string>
 </resources>

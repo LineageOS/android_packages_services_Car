@@ -17,6 +17,7 @@
 package com.google.android.car.kitchensink;
 
 import android.annotation.Nullable;
+import android.app.NotificationManager;
 import android.car.Car;
 import android.car.CarOccupantZoneManager;
 import android.car.CarProjectionManager;
@@ -53,6 +54,7 @@ import com.google.android.car.kitchensink.activityresolver.ActivityResolverFragm
 import com.google.android.car.kitchensink.admin.DevicePolicyFragment;
 import com.google.android.car.kitchensink.alertdialog.AlertDialogTestFragment;
 import com.google.android.car.kitchensink.assistant.CarAssistantFragment;
+import com.google.android.car.kitchensink.audio.AudioConfigurationTestFragment;
 import com.google.android.car.kitchensink.audio.AudioMirrorTestFragment;
 import com.google.android.car.kitchensink.audio.AudioTestFragment;
 import com.google.android.car.kitchensink.audio.AudioUserAssignmentFragment;
@@ -243,6 +245,8 @@ public class KitchenSinkActivity extends FragmentActivity implements KitchenSink
             new Pair<>(AudioTestFragment.FRAGMENT_NAME, AudioTestFragment.class),
             new Pair<>(AudioUserAssignmentFragment.FRAGMENT_NAME,
                     AudioUserAssignmentFragment.class),
+            new Pair<>(AudioConfigurationTestFragment.FRAGMENT_NAME,
+                    AudioConfigurationTestFragment.class),
             new Pair<>(AudioRecorderTestFragment.FRAGMENT_NAME,
                     AudioRecorderTestFragment.class),
             new Pair<>(CarAudioInputTestFragment.FRAGMENT_NAME,
@@ -387,6 +391,10 @@ public class KitchenSinkActivity extends FragmentActivity implements KitchenSink
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         Log.i(TAG, "onNewIntent");
+        if (intent.getCategories().contains(NotificationFragment.INTENT_CATEGORY_SELF_DISMISS)) {
+            NotificationManager nm = this.getSystemService(NotificationManager.class);
+            nm.cancel(NotificationFragment.SELF_DISMISS_NOTIFICATION_ID);
+        }
         Bundle extras = intent.getExtras();
         if (extras == null) {
             return;

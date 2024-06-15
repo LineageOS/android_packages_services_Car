@@ -16,7 +16,7 @@
 
 #include "Common.h"
 #include "Enumerator.h"
-#include "MockEvsCamera.h"
+#include "MockEvsHal.h"
 #include "VirtualCamera.h"
 #include "utils/include/Utils.h"
 
@@ -27,15 +27,19 @@
 namespace {
 
 using aidl::android::automotive::evs::implementation::HalCamera;
+using aidl::android::automotive::evs::implementation::MockEvsHal;
 using aidl::android::automotive::evs::implementation::NiceMockEvsCamera;
 using aidl::android::automotive::evs::implementation::Utils;
 using aidl::android::automotive::evs::implementation::VirtualCamera;
+using aidl::android::automotive::evs::implementation::initializeMockEvsHal;
+using aidl::android::automotive::evs::implementation::openFirstCamera;
 using aidl::android::hardware::automotive::evs::BufferDesc;
 using aidl::android::hardware::automotive::evs::CameraDesc;
 using aidl::android::hardware::automotive::evs::CameraParam;
 using aidl::android::hardware::automotive::evs::EvsEventDesc;
 using aidl::android::hardware::automotive::evs::EvsEventType;
 using aidl::android::hardware::automotive::evs::IEvsCamera;
+using aidl::android::hardware::automotive::evs::IEvsEnumerator;
 using aidl::android::hardware::automotive::evs::ParameterRange;
 
 enum EvsFuzzFuncs {
@@ -61,9 +65,17 @@ const int kMaxFuzzerConsumedBytes = 12;
 
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
     FuzzedDataProvider fdp(data, size);
-    std::shared_ptr<IEvsCamera> mockHwCamera = ndk::SharedRefBase::make<NiceMockEvsCamera>("mock");
+
+    std::shared_ptr<MockEvsHal> mockEvsHal = initializeMockEvsHal();
+    EXPECT_NE(mockEvsHal, nullptr);
+
+    std::shared_ptr<IEvsCamera> mockHwCamera = openFirstCamera(mockEvsHal);
+    EXPECT_NE(mockHwCamera, nullptr);
+
     std::shared_ptr<HalCamera> halCamera = ndk::SharedRefBase::make<HalCamera>(mockHwCamera);
+    EXPECT_NE(halCamera, nullptr);
     std::shared_ptr<VirtualCamera> virtualCamera = halCamera->makeVirtualCamera();
+    EXPECT_NE(virtualCamera, nullptr);
     std::vector<BufferDesc> buffers;
 
     bool videoStarted = false;

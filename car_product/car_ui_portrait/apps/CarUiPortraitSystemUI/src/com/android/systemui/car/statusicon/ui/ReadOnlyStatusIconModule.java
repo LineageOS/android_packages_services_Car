@@ -16,7 +16,7 @@
 
 package com.android.systemui.car.statusicon.ui;
 
-import com.android.systemui.car.statusicon.StatusIconController;
+import com.android.systemui.car.systembar.element.CarSystemBarElementController;
 
 import dagger.Binds;
 import dagger.Module;
@@ -32,6 +32,6 @@ public abstract class ReadOnlyStatusIconModule {
     @Binds
     @IntoMap
     @ClassKey(StatusBarSensorInfoController.class)
-    public abstract StatusIconController bindSensorStatusController(
-            StatusBarSensorInfoController statusBarSensorInfoController);
+    public abstract CarSystemBarElementController.Factory bindSensorStatusViewController(
+            StatusBarSensorInfoController.Factory statusBarSensorInfoController);
 }

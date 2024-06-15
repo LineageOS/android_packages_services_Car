@@ -23,4 +23,12 @@
     <string name="loading_welcome_message" msgid="2351582619179505398">"AAOS"</string>
     <string name="loading_action_button_text" msgid="1296096984805774507">"המשך"</string>
     <string name="hvac_panel_header" msgid="1299061170810305529">"אמצעי בקרת נוחות"</string>
+    <!-- no translation found for confirm_pin_title (8340408103287697843) -->
+    <skip />
+    <!-- no translation found for confirm_pattern_title (601765683212039890) -->
+    <skip />
+    <!-- no translation found for confirm_password_title (4719840258132492554) -->
+    <skip />
+    <!-- no translation found for cancel (8552804384519299161) -->
+    <skip />
 </resources>

@@ -98,6 +98,8 @@
         <permission name="android.car.permission.READ_IMPACT_SENSORS"/>
         <permission name="android.car.permission.READ_VALET_MODE"/>
         <permission name="android.car.permission.CONTROL_VALET_MODE"/>
+        <permission name="android.car.permission.READ_HEAD_UP_DISPLAY_STATUS"/>
+        <permission name="android.car.permission.CONTROL_HEAD_UP_DISPLAY"/>
         <permission name="android.car.permission.READ_CAR_AIRBAGS"/>
         <permission name="android.car.permission.CONTROL_CAR_AIRBAGS"/>
         <permission name="android.car.permission.CONTROL_CAR_WINDOWS"/>
@@ -168,5 +170,7 @@
         <permission name="android.car.permission.CONTROL_REMOTE_ACCESS"/>
         <!-- use for TunerTestFragment -->
         <permission name="android.permission.ACCESS_BROADCAST_RADIO" />
+        <!-- use for allowlisting automotive driver assistance packages from camera privacy -->
+        <permission name="android.permission.CAMERA_PRIVACY_ALLOWLIST" />
     </privapp-permissions>
 </permissions>

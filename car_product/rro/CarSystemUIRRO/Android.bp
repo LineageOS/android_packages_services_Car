@@ -14,12 +14,19 @@
 package {
     default_applicable_licenses: ["Android-Apache-2.0"],
 }
+
 android_app {
     name: "CarSystemUIRRO",
     resource_dirs: ["res"],
     sdk_version: "current",
     aaptflags: [
         "--no-resource-deduping",
-        "--no-resource-removal"
+        "--no-resource-removal",
+    ],
+    dex_preopt: {
+        enabled: false,
+    },
+    static_libs: [
+        "car-resource-common",
     ],
 }

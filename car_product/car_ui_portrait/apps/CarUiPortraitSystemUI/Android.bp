@@ -25,7 +25,7 @@ android_app {
 
     static_libs: [
         "CarSystemUI-core",
-        "car-portrait-ui-common"
+        "car-portrait-ui-common",
     ],
 
     libs: [
@@ -57,7 +57,10 @@ android_app {
 
     plugins: ["dagger2-compiler"],
 
-    required: ["privapp_whitelist_com.android.systemui", "allowed_privapp_com.android.carsystemui"],
+    required: [
+        "privapp_whitelist_com.android.systemui",
+        "allowed_privapp_com.android.carsystemui",
+    ],
 }
 
 //####################################################################################
@@ -82,4 +85,11 @@ android_library {
     ],
 
     plugins: ["dagger2-compiler"],
+    // TODO(b/319708040): re-enable use_resource_processor
+    use_resource_processor: false,
+
+    // TODO(b/301283770): Compiling CarSystemUI should not require -J-Xmx8192M
+    javacflags: [
+        "-J-Xmx8192M",
+    ],
 }

@@ -21,6 +21,7 @@ import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_STOPPED;
 import static com.android.car.CarServiceUtils.isEventOfType;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
+import android.annotation.Nullable;
 import android.app.job.JobInfo;
 import android.car.builtin.job.JobSchedulerHelper;
 import android.car.builtin.util.EventLogHelper;
@@ -31,8 +32,10 @@ import android.car.user.UserLifecycleEventFilter;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
+import android.os.SystemClock;
 import android.os.UserHandle;
 import android.util.ArraySet;
+import android.util.SparseIntArray;
 
 import com.android.car.CarLocalServices;
 import com.android.car.CarLog;
@@ -74,6 +77,9 @@ class GarageMode {
     @VisibleForTesting
     static final long JOB_SNAPSHOT_INITIAL_UPDATE_MS = 10_000; // 10 seconds
 
+    private static final long STOP_BACKGROUND_USER_TIMEOUT_MS = 60_000; // 60 seconds
+    private static final long WAIT_FOR_USER_STOPPED_EVENT_TIMEOUT = 10_000; // 10 seconds
+
     private static final long JOB_SNAPSHOT_UPDATE_FREQUENCY_MS = 1_000; // 1 second
     private static final long USER_STOP_CHECK_INTERVAL_MS = 100; // 100 milliseconds
     private static final int ADDITIONAL_CHECKS_TO_DO = 1;
@@ -82,8 +88,15 @@ class GarageMode {
     private static final int GARAGE_MODE_EVENT_LOG_FINISH = 1;
     private static final int GARAGE_MODE_EVENT_LOG_CANCELLED = 2;
 
+    // The background user is started.
+    private static final int USER_STARTED = 0;
+    // The background user is being stopped.
+    private static final int USER_STOPPING = 1;
+    // The background user has stopped.
+    private static final int USER_STOPPED = 2;
+
     private final Context mContext;
-    private final Controller mController;
+    private final GarageModeController mController;
     private final Object mLock = new Object();
     private final Handler mHandler;
 
@@ -143,72 +156,88 @@ class GarageMode {
         }
     };
 
-    private final Runnable mStartBackgroundUsers = new Runnable() {
-        @Override
-        public void run() {
-            ArrayList<Integer> startedUsers = CarLocalServices.getService(CarUserService.class)
-                    .startAllBackgroundUsersInGarageMode();
-            Slogf.i(TAG, "Started background user during garage mode: %s", startedUsers);
-            synchronized (mLock) {
-                // Stop stopping background users if there is any users left from last Garage mode,
-                // they would be stopped later.
-                mBackgroundUserStopInProcess = false;
-                mStartedBackgroundUsers.addAll(startedUsers);
-            }
-        }
-    };
-
     private final Runnable mStopUserCheckRunnable = new Runnable() {
 
         @Override
         public void run() {
-            int userToStop = UserHandle.SYSTEM.getIdentifier(); // BG user never becomes system user
+            boolean emptyStartedBackgroundUsers;
             synchronized (mLock) {
-                if (mStartedBackgroundUsers.isEmpty() || !mBackgroundUserStopInProcess) return;
-                userToStop = mStartedBackgroundUsers.valueAt(0);
+                emptyStartedBackgroundUsers = (mStartedBackgroundUsers.size() == 0);
+            }
+            if (emptyStartedBackgroundUsers) {
+                runBackgroundUserStopCompletor();
+                return;
             }
             // All jobs done or stopped.
             if (JobSchedulerHelper.getRunningJobsAtIdle(mContext).size() == 0) {
-                // Keep user until job scheduling is stopped. Otherwise, it can crash jobs.
-                if (userToStop != UserHandle.SYSTEM.getIdentifier()) {
-                    CarLocalServices.getService(CarUserService.class)
-                            .stopBackgroundUserInGagageMode(userToStop);
-                    synchronized (mLock) {
-                        Slogf.i(TAG, "Stopping background user:%d remaining users:%d", userToStop,
-                                mStartedBackgroundUsers.size() - 1);
-                    }
-                }
                 synchronized (mLock) {
-                    mStartedBackgroundUsers.remove(userToStop);
-                    if (mStartedBackgroundUsers.isEmpty()) {
-                        Slogf.i(TAG, "All background users have stopped");
-                        mBackgroundUserStopInProcess = false;
-                        return;
+                    List<Integer> stoppedUsers = new ArrayList<>();
+                    for (int i = 0; i < mStartedBackgroundUsers.size(); i++) {
+                        int userId = mStartedBackgroundUsers.keyAt(i);
+                        if (userId == UserHandle.SYSTEM.getIdentifier()) {
+                            // This should not happen since we should not add systme user to the
+                            // background users list.
+                            Slogf.wtf(TAG, "System user: " + userId
+                                    + "should not be added to background users list");
+                            stoppedUsers.add(userId);
+                            continue;
+                        }
+                        if (mStartedBackgroundUsers.valueAt(i) != USER_STARTED) {
+                            Slogf.i(TAG, "user: " + userId + " is not in USER_STARTED mode, "
+                                    + "skip stopping it");
+                            continue;
+                        }
+
+                        Slogf.i(TAG, "Stopping background user:%d remaining users:%d",
+                                userId, mStartedBackgroundUsers.size() - i - 1);
+                        mStartedBackgroundUsers.put(userId, USER_STOPPING);
+                        boolean result = CarLocalServices.getService(CarUserService.class)
+                                .stopBackgroundUserInGagageMode(userId);
+                        if (result) {
+                            // If the user is stopped successfully, we should receive a user
+                            // lifecycle event.
+                            Slogf.i(TAG, "Waiting for user:%d to be stopped", userId);
+                            waitForBackgroundUserStoppedLocked(userId);
+                            Slogf.i(TAG, "Received user stopped event for user: " + userId);
+                            stoppedUsers.add(userId);
+                        } else {
+                            Slogf.e(TAG, "Failed to stop started background user: " + userId);
+                        }
+                    }
+                    for (int i = 0; i < stoppedUsers.size(); i++) {
+                        mStartedBackgroundUsers.removeAt(mStartedBackgroundUsers.indexOfKey(
+                                stoppedUsers.get(i)));
                     }
                 }
+                runBackgroundUserStopCompletor();
             } else {
+                // Keep user until job scheduling is stopped. Otherwise, it can crash jobs.
                 // Poll again later
                 mHandler.postDelayed(mStopUserCheckRunnable, USER_STOP_CHECK_INTERVAL_MS);
             }
         }
     };
 
-    @GuardedBy("mLock")
-    private Runnable mCompletor;
-    @GuardedBy("mLock")
-    private ArraySet<Integer> mStartedBackgroundUsers = new ArraySet<>();
+    // The callback to run when the operation to stop all started background users timeout.
+    // This must be removed when the operation succeeded.
+    private final Runnable mBackgroundUserStopTimeout = new Runnable() {
 
-    /**
-     * True when stopping of the background users is in process.
-     *
-     * <p> When garage mode exits, all background users started during GarageMode would be stopped
-     * one by one. mBackgroundUserStopInProcess would be true when stopping of the background users
-     * is in process.
-     */
-    @GuardedBy("mLock")
-    private boolean mBackgroundUserStopInProcess;
+        @Override
+        public void run() {
+            Slogf.e(TAG, "Timeout while waiting for background users to stop");
+            runBackgroundUserStopCompletor();
+        }
+    };
 
-    GarageMode(Context context, Controller controller) {
+    @GuardedBy("mLock")
+    private Runnable mFinishCompletor;
+    @GuardedBy("mLock")
+    private SparseIntArray mStartedBackgroundUsers = new SparseIntArray();
+
+    @GuardedBy("mLock")
+    private Runnable mBackgroundUserStopCompletor;
+
+    GarageMode(Context context, GarageModeController controller) {
         mContext = context;
         mController = controller;
         mGarageModeActive = false;
@@ -239,12 +268,20 @@ class GarageMode {
                 return;
             }
 
+            int userId = event.getUserId();
+
+            // This is using the CarUserService's internal handler and is different from mHandler,
+            // so this can obtain the mLock which should be released from mLock.wait().
             synchronized (mLock) {
-                if (mBackgroundUserStopInProcess) {
-                    mHandler.removeCallbacks(mStopUserCheckRunnable);
-                    Slogf.i(TAG, "Background user stopped event received. User Id: %d. Queueing to "
-                            + "stop next background user.", event.getUserId());
-                    mHandler.post(mStopUserCheckRunnable);
+                if (mStartedBackgroundUsers.indexOfKey(userId) >= 0
+                        && mStartedBackgroundUsers.get(userId) == USER_STOPPING) {
+                    Slogf.i(TAG, "Background user stopped event received. User Id: %d", userId);
+
+                    mStartedBackgroundUsers.put(userId, USER_STOPPED);
+                    mLock.notifyAll();
+                } else {
+                    Slogf.i(TAG, "User Id: %d stopped, not in mStartedBackgroundUsers, ignore",
+                            userId);
                 }
             }
         }
@@ -258,9 +295,15 @@ class GarageMode {
 
     @VisibleForTesting
     ArraySet<Integer> getStartedBackgroundUsers() {
+        ArraySet<Integer> users;
         synchronized (mLock) {
-            return mStartedBackgroundUsers;
+            int size = mStartedBackgroundUsers.size();
+            users = new ArraySet<>(size);
+            for (int i = 0; i < size; i++) {
+                users.add(mStartedBackgroundUsers.keyAt(i));
+            }
         }
+        return users;
     }
 
     @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
@@ -292,6 +335,7 @@ class GarageMode {
         }
     }
 
+    // Must be scheduled in mHandler.
     void enterGarageMode(Runnable completor) {
         Slogf.i(TAG, "Entering GarageMode");
         CarPowerManagementService carPowerService = CarLocalServices.getService(
@@ -304,36 +348,54 @@ class GarageMode {
             synchronized (mLock) {
                 mGarageModeActive = false;
             }
+            Slogf.i(TAG, "GarageMode exits immediately");
             return;
         }
         synchronized (mLock) {
             mGarageModeActive = true;
-            mCompletor = completor;
+            mFinishCompletor = completor;
         }
         broadcastSignalToJobScheduler(true);
         mGarageModeRecorder.startSession();
         CarStatsLogHelper.logGarageModeStart();
         EventLogHelper.writeGarageModeEvent(GARAGE_MODE_EVENT_LOG_START);
         startMonitoringThread();
-        mHandler.post(mStartBackgroundUsers);
-    }
+        // If there is a previously scheduled stop bg user, don't do it.
+        mHandler.removeCallbacks(mStopUserCheckRunnable);
+        mHandler.removeCallbacks(mBackgroundUserStopTimeout);
 
-    void cancel() {
-        broadcastSignalToJobScheduler(false);
+        // Start all background users.
+        ArrayList<Integer> startedUsers = CarLocalServices.getService(CarUserService.class)
+                .startAllBackgroundUsersInGarageMode();
+        Slogf.i(TAG, "Started background user during garage mode: %s", startedUsers);
         synchronized (mLock) {
-            if (mCompletor != null) {
-                mCompletor.run();
-                mCompletor = null;
-            }
-            if (mGarageModeActive) {
-                cleanupGarageModeLocked();
-                Slogf.i(TAG, "GarageMode is cancelled");
-                EventLogHelper.writeGarageModeEvent(GARAGE_MODE_EVENT_LOG_CANCELLED);
-                mGarageModeRecorder.cancelSession();
+            for (int user : startedUsers) {
+                mStartedBackgroundUsers.put(user, USER_STARTED);
             }
         }
     }
 
+    // Must be scheduled in mHandler.
+    void cancel(@Nullable Runnable completor) {
+        broadcastSignalToJobScheduler(false);
+        cleanupGarageMode(() -> {
+            Slogf.i(TAG, "GarageMode is cancelled");
+            EventLogHelper.writeGarageModeEvent(GARAGE_MODE_EVENT_LOG_CANCELLED);
+            mGarageModeRecorder.cancelSession();
+            if (completor != null) {
+                completor.run();
+            }
+            Runnable finishCompletor;
+            synchronized (mLock) {
+                finishCompletor = mFinishCompletor;
+            }
+            if (finishCompletor != null) {
+                finishCompletor.run();
+            }
+        });
+    }
+
+    // Must be scheduled in mHandler.
     void finish() {
         synchronized (mLock) {
             if (!mIdleCheckerIsRunning) {
@@ -344,39 +406,77 @@ class GarageMode {
         }
         broadcastSignalToJobScheduler(false);
         EventLogHelper.writeGarageModeEvent(GARAGE_MODE_EVENT_LOG_FINISH);
-        CarStatsLogHelper.logGarageModeStop();
         mGarageModeRecorder.finishSession();
-        synchronized (mLock) {
-            if (mCompletor != null) {
-                mCompletor.run();
-                mCompletor = null;
-            }
-            cleanupGarageModeLocked();
+        cleanupGarageMode(() -> {
             Slogf.i(TAG, "GarageMode is completed normally");
+            Runnable finishCompletor;
+            synchronized (mLock) {
+                finishCompletor = mFinishCompletor;
+            }
+            if (finishCompletor != null) {
+                finishCompletor.run();
+            }
+        });
+    }
+
+    private void runBackgroundUserStopCompletor() {
+        mHandler.removeCallbacks(mBackgroundUserStopTimeout);
+        Runnable completor;
+        synchronized (mLock) {
+            completor = mBackgroundUserStopCompletor;
+            mBackgroundUserStopCompletor = null;
+        }
+        // Avoid running the completor inside the lock.
+        if (completor != null) {
+            completor.run();
         }
     }
 
     @GuardedBy("mLock")
-    private void cleanupGarageModeLocked() {
-        Slogf.i(TAG, "Cleaning up GarageMode");
-        mGarageModeActive = false;
+    private void waitForBackgroundUserStoppedLocked(int userId) {
+        // Use uptimeMillis to not count the time in sleep.
+        long waitStartTime = SystemClock.uptimeMillis();
+        while (mStartedBackgroundUsers.get(userId) != USER_STOPPED) {
+            try {
+                mLock.wait(WAIT_FOR_USER_STOPPED_EVENT_TIMEOUT);
+                if (SystemClock.uptimeMillis() - waitStartTime
+                        >= WAIT_FOR_USER_STOPPED_EVENT_TIMEOUT) {
+                    Slogf.e(TAG, "Timeout waiting for all started background users to stop");
+                    break;
+                }
+
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                Slogf.e(TAG, "Interrupted while waiting for background user:" + userId + " to stop",
+                        e);
+                break;
+            }
+        }
+    }
+
+    private void cleanupGarageMode(Runnable completor) {
+        synchronized (mLock) {
+            if (!mGarageModeActive) {
+                if (completor != null) {
+                    completor.run();
+                }
+                Slogf.e(TAG, "Trying to cleanup garage mode when it is inactive. Request ignored");
+                return;
+            }
+            Slogf.i(TAG, "Cleaning up GarageMode");
+            mGarageModeActive = false;
+            // Always update the completor with the latest completor.
+            mBackgroundUserStopCompletor = completor;
+        }
         stopMonitoringThread();
-        if (mIdleCheckerIsRunning) {
-            // The idle checker has not completed.
-            // Schedule it now so it completes promptly.
-            mHandler.post(mRunnable);
-        }
-        startBackgroundUserStoppingLocked();
-    }
-
-    @GuardedBy("mLock")
-    private void startBackgroundUserStoppingLocked() {
-        if (!mStartedBackgroundUsers.isEmpty() && !mBackgroundUserStopInProcess) {
-            Slogf.i(TAG, "Stopping of background user queued. Total background users to stop: "
+        CarStatsLogHelper.logGarageModeStop();
+        Slogf.i(TAG, "Stopping of background user queued. Total background users to stop: "
                     + "%d", mStartedBackgroundUsers.size());
-            mHandler.post(mStopUserCheckRunnable);
-            mBackgroundUserStopInProcess = true;
-        }
+        mHandler.removeCallbacks(mStopUserCheckRunnable);
+        mHandler.removeCallbacks(mBackgroundUserStopTimeout);
+        mHandler.postDelayed(mBackgroundUserStopTimeout, STOP_BACKGROUND_USER_TIMEOUT_MS);
+        // This function is already in mHandler, so we can directly run.
+        mStopUserCheckRunnable.run();
     }
 
     private void broadcastSignalToJobScheduler(boolean enableGarageMode) {

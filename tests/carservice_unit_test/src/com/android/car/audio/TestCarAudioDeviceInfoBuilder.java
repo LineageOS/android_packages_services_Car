@@ -27,8 +27,8 @@ import org.mockito.Mockito;
 public final class TestCarAudioDeviceInfoBuilder {
     public static final int STEP_VALUE = 2;
     public static final int MIN_GAIN = 3;
-    public static final int MAX_GAIN = 10;
-    public static final int DEFAULT_GAIN = 5;
+    public static final int MAX_GAIN = 20;
+    public static final int DEFAULT_GAIN = 9;
 
     private final String mAddress;
 

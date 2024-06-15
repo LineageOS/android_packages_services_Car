@@ -51,7 +51,6 @@ import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
-import com.android.internal.util.Preconditions;
 
 import java.util.List;
 import java.util.Objects;
@@ -332,43 +331,18 @@ final class FocusInteraction {
     private final CarAudioSettings mCarAudioFocusSettings;
 
     private final ContentObserverFactory mContentObserverFactory;
-    private final CarAudioContext mCarAudioContext;
-
     private int mUserId;
 
     /**
      * Constructs a focus interaction instance.
      */
     FocusInteraction(CarAudioSettings carAudioSettings,
-            ContentObserverFactory contentObserverFactory,
-            CarAudioContext carAudioContext) {
+            ContentObserverFactory contentObserverFactory) {
         mCarAudioFocusSettings = Objects.requireNonNull(carAudioSettings,
                 "Car Audio Settings can not be null.");
         mContentObserverFactory = Objects.requireNonNull(contentObserverFactory,
                 "Content Observer Factory can not be null.");
-        mCarAudioContext = carAudioContext;
-        if (!carAudioContext.useCoreAudioRouting()) {
-            mInteractionMatrix = INTERACTION_MATRIX.clone();
-            return;
-        }
-        List<CarAudioContextInfo> infos = carAudioContext.getContextsInfo();
-        mInteractionMatrix = new SparseArray<>(infos.size());
-        for (int rowIndex = 0; rowIndex < infos.size(); rowIndex++) {
-            CarAudioContextInfo rowInfo = infos.get(rowIndex);
-            int rowLegacyContext = CarAudioContext.getLegacyContextFromInfo(rowInfo);
-            SparseArray<Integer> rowDecisions = new SparseArray<>(infos.size());
-            for (int columnIndex = 0; columnIndex < infos.size(); columnIndex++) {
-                CarAudioContextInfo columnInfo = infos.get(columnIndex);
-                int columnLegacyContext = CarAudioContext.getLegacyContextFromInfo(columnInfo);
-                int focusDecision = CarAudioContext.isInvalidContextId(columnLegacyContext)
-                        ? INTERACTION_REJECT
-                        : CarAudioContext.isInvalidContextId(rowLegacyContext)
-                        ? INTERACTION_EXCLUSIVE
-                        : INTERACTION_MATRIX.get(rowLegacyContext).get(columnLegacyContext);
-                rowDecisions.append(columnInfo.getId(), focusDecision);
-            }
-            mInteractionMatrix.append(rowInfo.getId(), rowDecisions);
-        }
+        mInteractionMatrix = INTERACTION_MATRIX.clone();
     }
 
     private void navigationOnCallSettingChanged() {
@@ -381,55 +355,48 @@ final class FocusInteraction {
 
     @GuardedBy("mLock")
     public void setRejectNavigationOnCallLocked(boolean navigationRejectedWithCall) {
-        int callContext =
-                mCarAudioContext.getContextForAttributes(CarAudioContext.getAudioAttributeFromUsage(
-                        AudioAttributes.USAGE_VOICE_COMMUNICATION));
-        int navContext =
-                mCarAudioContext.getContextForAttributes(CarAudioContext.getAudioAttributeFromUsage(
-                        AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE));
+        int callContext = CarAudioContext.getLegacyContextForUsage(
+                        AudioAttributes.USAGE_VOICE_COMMUNICATION);
+        int navContext = CarAudioContext.getLegacyContextForUsage(
+                        AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE);
         mInteractionMatrix.get(callContext).put(navContext,
                 navigationRejectedWithCall ? INTERACTION_REJECT : INTERACTION_CONCURRENT);
     }
 
     public boolean isRejectNavigationOnCallEnabled() {
-        int callContext =
-                mCarAudioContext.getContextForAttributes(CarAudioContext.getAudioAttributeFromUsage(
-                        AudioAttributes.USAGE_VOICE_COMMUNICATION));
-        int navContext =
-                mCarAudioContext.getContextForAttributes(CarAudioContext.getAudioAttributeFromUsage(
-                        AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE));
+        int callContext = CarAudioContext.getLegacyContextForUsage(
+                AudioAttributes.USAGE_VOICE_COMMUNICATION);
+        int navContext = CarAudioContext.getLegacyContextForUsage(
+                AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE);
         synchronized (mLock) {
-            return mInteractionMatrix.get(callContext).get(navContext)
-                    == INTERACTION_REJECT;
+            return mInteractionMatrix.get(callContext).get(navContext) == INTERACTION_REJECT;
         }
     }
 
     /**
-     * Evaluates interaction between incoming focus {@link AudioContext} and the current focus
+     * Evaluates interaction between incoming focus audio attribute usage and the current focus
      * request based on interaction matrix.
      *
-     * <p>Note: In addition to returning the request results
+     * <p><b>Note</b> In addition to returning the request results
      * for the incoming request based on this interaction, this method also adds the current {@code
      * focusHolder} to the {@code focusLosers} list when appropriate.
      *
-     * @param requestedContext CarAudioContextType of incoming focus request
-     * @param focusHolder      {@link FocusEntry} for current focus holder
-     * @param allowDucking     Whether ducking is allowed
-     * @param allowsDelayedFocus Whether delayed focus is allowed
-     * @param focusLosers      Mutable array to add focusHolder to if it should lose focus
-     * @return result of focus interaction, can be any of {@code AUDIOFOCUS_REQUEST_DELAYED},
-     *      {@code AUDIOFOCUS_REQUEST_FAILED}, or {@code AUDIOFOCUS_REQUEST_GRANTED}
+     * @param requestedUsage        Audio attribute usage of the incoming request
+     * @param focusHolder           {@link FocusEntry} for current focus holder
+     * @param allowDucking          Whether ducking is allowed
+     * @param allowsDelayedFocus    Whether delayed focus is allowed
+     * @param focusLosers           Mutable array to add focusHolder to if it should lose focus
+     * @return result of focus interaction, can be any of
+     *      {@link android.media.AudioManager#AUDIOFOCUS_REQUEST_DELAYED},
+     *      {@link android.media.AudioManager#AUDIOFOCUS_REQUEST_FAILED}, or
+     *      {@link android.media.AudioManager#AUDIOFOCUS_REQUEST_GRANTED}
      */
-    public int evaluateRequest(@AudioContext int requestedContext,
-            FocusEntry focusHolder, boolean allowDucking, boolean allowsDelayedFocus,
-            List<FocusEntry> focusLosers) {
-        @AudioContext int holderContext = focusHolder.getAudioContext();
+    int evaluateRequest(int requestedUsage, FocusEntry focusHolder, boolean allowDucking,
+            boolean allowsDelayedFocus, List<FocusEntry> focusLosers) {
+        int holderUsage = focusHolder.getAudioFocusInfo().getAttributes().getSystemUsage();
 
         synchronized (mLock) {
-            Preconditions.checkNotNull(mInteractionMatrix.get(holderContext), "holderContext");
-            SparseArray<Integer> holderRow = mInteractionMatrix.get(holderContext);
-            Preconditions.checkNotNull(holderRow.get(requestedContext), "requestedContext");
-            int focusDecision = holderRow.get(requestedContext);
+            int focusDecision = getFocusInteractionLocked(requestedUsage, holderUsage);
 
             switch (focusDecision) {
                 case INTERACTION_REJECT:
@@ -459,6 +426,14 @@ final class FocusInteraction {
                     return AUDIOFOCUS_REQUEST_FAILED;
             }
         }
+    }
+
+    @GuardedBy("mLock")
+    private int getFocusInteractionLocked(int requestedUsage, int holderUsage) {
+        int requestedContext = CarAudioContext.getLegacyContextForUsage(requestedUsage);
+        int holderContext = CarAudioContext.getLegacyContextForUsage(holderUsage);
+        SparseArray<Integer> holderRow = mInteractionMatrix.get(holderContext);
+        return holderRow.get(requestedContext);
     }
 
     /**
@@ -498,29 +473,16 @@ final class FocusInteraction {
 
     @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     public void dump(IndentingPrintWriter writer) {
-        boolean rejectNavigationOnCall = getRejectNavigationOnCall();
+        boolean rejectNavigationOnCall = isRejectNavigationOnCallEnabled();
         writer.printf("Reject Navigation on Call: %b\n", rejectNavigationOnCall);
     }
 
     @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     public void dumpProto(ProtoOutputStream proto) {
         long focusInteractionToken = proto.start(CarAudioFocusProto.FOCUS_INTERACTION);
-        boolean rejectNavigationOnCall = getRejectNavigationOnCall();
+        boolean rejectNavigationOnCall = isRejectNavigationOnCallEnabled();
         proto.write(CarAudioFocusProto.FocusInteractionProto.REJECT_NAVIGATION_ON_CALL,
                 rejectNavigationOnCall);
         proto.end(focusInteractionToken);
-    }
-
-    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
-    private boolean getRejectNavigationOnCall() {
-        int callContext =
-                mCarAudioContext.getContextForAttributes(CarAudioContext.getAudioAttributeFromUsage(
-                        AudioAttributes.USAGE_VOICE_COMMUNICATION));
-        int navContext =
-                mCarAudioContext.getContextForAttributes(CarAudioContext.getAudioAttributeFromUsage(
-                        AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE));
-        synchronized (mLock) {
-            return mInteractionMatrix.get(callContext).get(navContext) == INTERACTION_REJECT;
-        }
     }
 }

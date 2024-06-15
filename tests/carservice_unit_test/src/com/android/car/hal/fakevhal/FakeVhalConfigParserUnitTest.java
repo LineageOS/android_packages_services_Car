@@ -586,7 +586,7 @@ public class FakeVhalConfigParserUnitTest {
     }
 
     @Test
-    public void testParseAreaConfigValue() throws Exception {
+    public void testParseAreaConfigValueHasNoAccessLevel() throws Exception {
         String jsonString = "{\"properties\": [{\"property\": 286261504, \"areas\": "
                 + "[{\"areaId\": 1, \"minInt32Value\": 0, \"maxInt32Value\": 10, "
                 + "\"defaultValue\": {\"int32Values\": [0]}}]}]}";
@@ -595,6 +595,91 @@ public class FakeVhalConfigParserUnitTest {
         vehiclePropConfig.prop = 286261504;
         vehiclePropConfig.access = AccessForVehicleProperty.values.get(286261504);
         VehicleAreaConfig vehicleAreaConfig = new VehicleAreaConfig();
+        vehicleAreaConfig.access = AccessForVehicleProperty.values.get(286261504);
+        vehicleAreaConfig.areaId = 1;
+        vehicleAreaConfig.minInt32Value = 0;
+        vehicleAreaConfig.maxInt32Value = 10;
+        vehiclePropConfig.areaConfigs = new VehicleAreaConfig[]{vehicleAreaConfig};
+        RawPropValues areaRawPropValues = new RawPropValues();
+        areaRawPropValues.int32Values = new int[]{0};
+        SparseArray<RawPropValues> areaValuesByAreaId = new SparseArray<>();
+        areaValuesByAreaId.put(vehicleAreaConfig.areaId, areaRawPropValues);
+        ConfigDeclaration expectConfigDeclaration = new ConfigDeclaration(vehiclePropConfig,
+                null, areaValuesByAreaId);
+
+        ConfigDeclaration configDeclaration = mFakeVhalConfigParser.parseJsonConfig(tempFile)
+                .get(286261504);
+
+        assertThat(configDeclaration).isEqualTo(expectConfigDeclaration);
+    }
+
+    @Test
+    public void testParseAreaConfigValueHasAccessLevel() throws Exception {
+        String jsonString = "{\"properties\": [{\"property\": 286261504, \"areas\": "
+                + "[{\"access\": 2, \"areaId\": 1, \"minInt32Value\": 0, \"maxInt32Value\": 10, "
+                + "\"defaultValue\": {\"int32Values\": [0]}}]}]}";
+        File tempFile = createTempFileWithContent(jsonString);
+        VehiclePropConfig vehiclePropConfig = new VehiclePropConfig();
+        vehiclePropConfig.prop = 286261504;
+        vehiclePropConfig.access = AccessForVehicleProperty.values.get(286261504);
+        VehicleAreaConfig vehicleAreaConfig = new VehicleAreaConfig();
+        vehicleAreaConfig.access = 2;
+        vehicleAreaConfig.areaId = 1;
+        vehicleAreaConfig.minInt32Value = 0;
+        vehicleAreaConfig.maxInt32Value = 10;
+        vehiclePropConfig.areaConfigs = new VehicleAreaConfig[]{vehicleAreaConfig};
+        RawPropValues areaRawPropValues = new RawPropValues();
+        areaRawPropValues.int32Values = new int[]{0};
+        SparseArray<RawPropValues> areaValuesByAreaId = new SparseArray<>();
+        areaValuesByAreaId.put(vehicleAreaConfig.areaId, areaRawPropValues);
+        ConfigDeclaration expectConfigDeclaration = new ConfigDeclaration(vehiclePropConfig,
+                null, areaValuesByAreaId);
+
+        ConfigDeclaration configDeclaration = mFakeVhalConfigParser.parseJsonConfig(tempFile)
+                .get(286261504);
+
+        assertThat(configDeclaration).isEqualTo(expectConfigDeclaration);
+    }
+
+    @Test
+    public void testParseAreaConfig_PropertyConfigHasAccessLevel() throws Exception {
+        String jsonString = "{\"properties\": [{\"property\": 286261504, \"areas\": "
+                + "[{\"areaId\": 1, \"minInt32Value\": 0, \"maxInt32Value\": 10, "
+                + "\"defaultValue\": {\"int32Values\": [0]}}], \"access\": 2}]}";
+        File tempFile = createTempFileWithContent(jsonString);
+        VehiclePropConfig vehiclePropConfig = new VehiclePropConfig();
+        vehiclePropConfig.prop = 286261504;
+        vehiclePropConfig.access = 2;
+        VehicleAreaConfig vehicleAreaConfig = new VehicleAreaConfig();
+        vehicleAreaConfig.access = 2;
+        vehicleAreaConfig.areaId = 1;
+        vehicleAreaConfig.minInt32Value = 0;
+        vehicleAreaConfig.maxInt32Value = 10;
+        vehiclePropConfig.areaConfigs = new VehicleAreaConfig[]{vehicleAreaConfig};
+        RawPropValues areaRawPropValues = new RawPropValues();
+        areaRawPropValues.int32Values = new int[]{0};
+        SparseArray<RawPropValues> areaValuesByAreaId = new SparseArray<>();
+        areaValuesByAreaId.put(vehicleAreaConfig.areaId, areaRawPropValues);
+        ConfigDeclaration expectConfigDeclaration = new ConfigDeclaration(vehiclePropConfig,
+                null, areaValuesByAreaId);
+
+        ConfigDeclaration configDeclaration = mFakeVhalConfigParser.parseJsonConfig(tempFile)
+                .get(286261504);
+
+        assertThat(configDeclaration).isEqualTo(expectConfigDeclaration);
+    }
+
+    @Test
+    public void testParseAreaConfig_PropertyAndAreaConfigHasAccessLevel() throws Exception {
+        String jsonString = "{\"properties\": [{\"property\": 286261504, \"areas\": "
+                + "[{\"access\": 3, \"areaId\": 1, \"minInt32Value\": 0, \"maxInt32Value\": 10, "
+                + "\"defaultValue\": {\"int32Values\": [0]}}], \"access\": 2}]}";
+        File tempFile = createTempFileWithContent(jsonString);
+        VehiclePropConfig vehiclePropConfig = new VehiclePropConfig();
+        vehiclePropConfig.prop = 286261504;
+        vehiclePropConfig.access = 2;
+        VehicleAreaConfig vehicleAreaConfig = new VehicleAreaConfig();
+        vehicleAreaConfig.access = 3;
         vehicleAreaConfig.areaId = 1;
         vehicleAreaConfig.minInt32Value = 0;
         vehicleAreaConfig.maxInt32Value = 10;
@@ -644,6 +729,7 @@ public class FakeVhalConfigParserUnitTest {
                 + "                 },"
                 + "                 \"minInt32Value\": 0,"
                 + "                 \"maxInt32Value\": 10,"
+                + "                 \"access\": \"VehiclePropertyAccess::READ_WRITE\","
                 + "                 \"areaId\": \"Constants::SEAT_1_LEFT\""
                 + "               },{"
                 + "                 \"defaultValue\": {"
@@ -662,20 +748,22 @@ public class FakeVhalConfigParserUnitTest {
         // Create prop config object
         VehiclePropConfig vehiclePropConfig = new VehiclePropConfig();
         vehiclePropConfig.prop = VehicleProperty.WHEEL_TICK;
+        vehiclePropConfig.access = VehiclePropertyAccess.READ;
         // Create area config object
         VehicleAreaConfig vehicleAreaConfig1 = new VehicleAreaConfig();
         vehicleAreaConfig1.areaId = VehicleAreaSeat.ROW_1_LEFT;
         vehicleAreaConfig1.minInt32Value = 0;
         vehicleAreaConfig1.maxInt32Value = 10;
+        vehicleAreaConfig1.access = VehiclePropertyAccess.READ_WRITE;
         VehicleAreaConfig vehicleAreaConfig2 = new VehicleAreaConfig();
         vehicleAreaConfig2.areaId = VehicleAreaSeat.ROW_1_RIGHT;
+        vehicleAreaConfig2.access = VehiclePropertyAccess.READ;
         vehiclePropConfig.areaConfigs = new VehicleAreaConfig[]{vehicleAreaConfig1,
                 vehicleAreaConfig2};
         vehiclePropConfig.configString = "configString";
         vehiclePropConfig.configArray = new int[]{15, 50000, 50000, 50000, 50000};
         vehiclePropConfig.minSampleRate = 1.0f;
         vehiclePropConfig.maxSampleRate = 10.0f;
-        vehiclePropConfig.access = VehiclePropertyAccess.READ;
         vehiclePropConfig.changeMode = VehiclePropertyChangeMode.STATIC;
         // Create default prop value object.
         RawPropValues defaultRawPropValues = new RawPropValues();
@@ -742,10 +830,14 @@ public class FakeVhalConfigParserUnitTest {
         IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () ->
                 mFakeVhalConfigParser.parseJsonConfig(tempFile));
 
+        assertThat(thrown).hasMessageThat().contains("Access field is not set for this property:");
+        assertThat(thrown).hasMessageThat().contains("ChangeMode field is not set for this "
+                + "property:");
+        assertThat(thrown).hasMessageThat().contains("Unable to parse JSON object:");
+        assertThat(thrown).hasMessageThat().contains("at index 0");
         assertThat(thrown).hasMessageThat().contains("properties array has an invalid JSON element "
                 + "at index 1");
         assertThat(thrown).hasMessageThat().contains("The JSONObject {} is empty.");
-        assertThat(thrown).hasMessageThat().contains("Unable to parse JSON object:");
         assertThat(thrown).hasMessageThat().contains("at index 2");
         assertThat(thrown).hasMessageThat().contains("doesn't have propId. PropId is required.");
         assertThat(thrown).hasMessageThat().contains("at index 3");
@@ -757,7 +849,6 @@ public class FakeVhalConfigParserUnitTest {
         assertThat(thrown).hasMessageThat().contains("at index 6");
         assertThat(thrown).hasMessageThat().contains("doesn't have areaId. AreaId is required.");
         assertThat(thrown).hasMessageThat().contains("at index 7");
-        assertThat(thrown).hasMessageThat().contains("Last successfully parsed property Id: 1234");
     }
 
     @Test

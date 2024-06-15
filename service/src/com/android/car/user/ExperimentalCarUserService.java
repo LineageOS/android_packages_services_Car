@@ -296,7 +296,8 @@ public final class ExperimentalCarUserService extends IExperimentalCarUserServic
                     UserSwitchResult.STATUS_INVALID_REQUEST);
             return;
         }
-        mCarUserService.switchUser(driverId, mHalTimeoutMs, resultCallbackImpl);
+        mCarUserService.switchUser(driverId, mHalTimeoutMs, resultCallbackImpl,
+                /* ignoreUxRestriction= */ false);
     }
 
     /**

@@ -29,7 +29,7 @@ aidl_interface {
         {
             version: "1",
             imports: ["android.hardware.graphics.common-V1"],
-        }
+        },
     ],
 }
 
@@ -58,6 +58,6 @@ aidl_interface {
         {
             version: "1",
             imports: ["android.automotive.computepipe.runner-V1"],
-        }
+        },
     ],
 }

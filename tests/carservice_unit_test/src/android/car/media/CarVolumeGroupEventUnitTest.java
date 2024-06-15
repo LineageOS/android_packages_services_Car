@@ -38,6 +38,8 @@ public final class CarVolumeGroupEventUnitTest extends AbstractExpectableTestCas
     private static final int TEST_ID = 1;
     private static final int TEST_MIN_GAIN_INDEX = 0;
     private static final int TEST_MAX_GAIN_INDEX = 9_005;
+    private static final int TEST_MAX_ACTIVATION_GAIN_INDEX = 8_005;
+    private static final int TEST_MIN_ACTIVATION_GAIN_INDEX = 1_000;
     private static final int TEST_CURRENT_GAIN_INDEX = 5_000;
     private static final boolean TEST_DEFAULT_BLOCKED_STATE = false;
     private static final boolean TEST_DEFAULT_ATTENUATED_STATE = false;
@@ -54,7 +56,9 @@ public final class CarVolumeGroupEventUnitTest extends AbstractExpectableTestCas
                     .setVolumeGainIndex(TEST_CURRENT_GAIN_INDEX)
                     .setBlocked(TEST_DEFAULT_BLOCKED_STATE)
                     .setMuted(TEST_DEFAULT_MUTE_STATE)
-                    .setAudioAttributes(List.of(TEST_MEDIA_AUDIO_ATTRIBUTE)).build();
+                    .setAudioAttributes(List.of(TEST_MEDIA_AUDIO_ATTRIBUTE))
+                    .setMaxActivationVolumeGainIndex(TEST_MAX_ACTIVATION_GAIN_INDEX)
+                    .setMinActivationVolumeGainIndex(TEST_MIN_ACTIVATION_GAIN_INDEX).build();
 
     private static final CarVolumeGroupEvent TEST_CAR_VOLUME_GROUP_EVENT =
             new CarVolumeGroupEvent.Builder(List.of(TEST_CAR_VOLUME_GROUP_INFO),

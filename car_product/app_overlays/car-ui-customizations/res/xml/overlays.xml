@@ -57,6 +57,7 @@
     <item target="dimen/car_ui_toolbar_menu_item_icon_size" value="@dimen/car_ui_toolbar_menu_item_icon_size"/>
     <item target="dimen/car_ui_button_disabled_alpha" value="@dimen/car_ui_button_disabled_alpha"/>
     <item target="dimen/car_ui_scrollbar_separator_margin" value="@dimen/car_ui_scrollbar_separator_margin"/>
+    <item target="dimen/car_ui_dialog_edittext_height" value="@dimen/car_ui_dialog_edittext_height"/>
 
     <item target="drawable/car_ui_icon_arrow_back" value="@drawable/car_ui_icon_arrow_back"/>
     <item target="drawable/car_ui_list_item_divider" value="@drawable/car_ui_list_item_divider"/>
@@ -64,7 +65,6 @@
     <item target="drawable/car_ui_list_item_avatar_icon_outline" value="@drawable/car_ui_list_item_avatar_icon_outline"/>
     <item target="drawable/car_ui_toolbar_background" value="@drawable/car_ui_toolbar_background" />
     <item target="drawable/car_ui_toolbar_menu_item_icon_background" value="@drawable/car_ui_toolbar_menu_item_icon_background"/>
-    <item target="drawable/car_ui_toolbar_menu_item_icon_ripple" value="@drawable/car_ui_toolbar_menu_item_icon_ripple"/>
 
     <item target="id/car_ui_base_layout_content_container" value="@id/car_ui_base_layout_content_container" />
     <item target="id/car_ui_first_action_container" value="@id/car_ui_first_action_container" />

@@ -154,7 +154,7 @@ public class CarDrivingStateService extends ICarDrivingState.Stub implements Car
      */
     private boolean checkPropertySupport() {
         List<CarPropertyConfig> configs = mPropertyService
-                .getPropertyConfigList(REQUIRED_PROPERTIES).getConfigs();
+                .getPropertyConfigList(REQUIRED_PROPERTIES).carPropertyConfigList.getConfigs();
         for (int propertyId : REQUIRED_PROPERTIES) {
             boolean found = false;
             for (CarPropertyConfig config : configs) {
@@ -388,7 +388,7 @@ public class CarDrivingStateService extends ICarDrivingState.Stub implements Car
 
     private List<Integer> getSupportedGears() {
         List<CarPropertyConfig> propertyList = mPropertyService
-                .getPropertyConfigList(REQUIRED_PROPERTIES).getConfigs();
+                .getPropertyConfigList(REQUIRED_PROPERTIES).carPropertyConfigList.getConfigs();
         for (CarPropertyConfig p : propertyList) {
             if (p.getPropertyId() == VehicleProperty.GEAR_SELECTION) {
                 return p.getConfigArray();

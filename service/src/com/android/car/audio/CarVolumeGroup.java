@@ -15,6 +15,9 @@
  */
 package com.android.car.audio;
 
+import static android.car.feature.Flags.carAudioDynamicDevices;
+import static android.car.feature.Flags.carAudioMinMaxActivationVolume;
+import static android.car.feature.Flags.carAudioMuteAmbiguity;
 import static android.car.media.CarVolumeGroupEvent.EVENT_TYPE_ATTENUATION_CHANGED;
 import static android.car.media.CarVolumeGroupEvent.EVENT_TYPE_MUTE_CHANGED;
 import static android.car.media.CarVolumeGroupEvent.EVENT_TYPE_VOLUME_BLOCKED_CHANGED;
@@ -41,7 +44,6 @@ import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.UserIdInt;
 import android.car.builtin.util.Slogf;
-import android.car.feature.Flags;
 import android.car.media.CarVolumeGroupInfo;
 import android.media.AudioAttributes;
 import android.media.AudioDeviceAttributes;
@@ -104,6 +106,9 @@ import java.util.Set;
 
     protected final Object mLock = new Object();
     private final CarAudioContext mCarAudioContext;
+
+    private final int mMinActivationVolumePercentage;
+    private final int mMaxActivationVolumePercentage;
 
     @GuardedBy("mLock")
     protected final SparseArray<String> mContextToAddress;
@@ -168,7 +173,8 @@ import java.util.Set;
 
     protected CarVolumeGroup(CarAudioContext carAudioContext, CarAudioSettings settingsManager,
             SparseArray<CarAudioDeviceInfo> contextToDevices, int zoneId, int configId,
-            int volumeGroupId, String name, boolean useCarVolumeGroupMute) {
+            int volumeGroupId, String name, boolean useCarVolumeGroupMute,
+            int maxActivationVolumePercentage, int minActivationVolumePercentage) {
         mSettingsManager = settingsManager;
         mCarAudioContext = carAudioContext;
         mContextToDevices = contextToDevices;
@@ -191,6 +197,8 @@ import java.util.Set;
         }
 
         mHasCriticalAudioContexts = containsCriticalAttributes(volumeAttributes);
+        mMaxActivationVolumePercentage = maxActivationVolumePercentage;
+        mMinActivationVolumePercentage = minActivationVolumePercentage;
     }
 
     void init() {
@@ -223,6 +231,11 @@ import java.util.Set;
 
     @GuardedBy("mLock")
     protected void setLimitLocked(int limitIndex) {
+        int minActivationGainIndex = getMinActivationGainIndex();
+        if (limitIndex < minActivationGainIndex) {
+            Slogf.w(CarLog.TAG_AUDIO, "Limit cannot be set lower than min activation volume index",
+                    minActivationGainIndex);
+        }
         mLimitedGainIndex = limitIndex;
     }
 
@@ -269,6 +282,12 @@ import java.util.Set;
     @GuardedBy("mLock")
     protected boolean isHalMutedLocked() {
         return mIsHalMuted;
+    }
+
+    boolean isHalMuted() {
+        synchronized (mLock) {
+            return isHalMutedLocked();
+        }
     }
 
     void setBlocked(int blockedIndex) {
@@ -438,6 +457,20 @@ import java.util.Set;
 
     abstract int getMinGainIndex();
 
+    int getMaxActivationGainIndex() {
+        int maxGainIndex = getMaxGainIndex();
+        int minGainIndex = getMinGainIndex();
+        return minGainIndex + (int) Math.round(mMaxActivationVolumePercentage / 100.0
+                * (maxGainIndex - minGainIndex));
+    }
+
+    int getMinActivationGainIndex() {
+        int maxGainIndex = getMaxGainIndex();
+        int minGainIndex = getMinGainIndex();
+        return minGainIndex + (int) Math.round(mMinActivationVolumePercentage / 100.0
+                * (maxGainIndex - minGainIndex));
+    }
+
     int getCurrentGainIndex() {
         synchronized (mLock) {
             if (isMutedLocked()) {
@@ -506,6 +539,42 @@ import java.util.Set;
         storeGainIndexForUserLocked(gainIndex, mUserId);
     }
 
+    boolean handleActivationVolume() {
+        if (!carAudioMinMaxActivationVolume()) {
+            return false;
+        }
+        boolean invokeVolumeGainIndexChanged = true;
+        synchronized (mLock) {
+            int minActivationGainIndex = getMinActivationGainIndex();
+            int maxActivationGainIndex = getMaxActivationGainIndex();
+            int curGainIndex = getCurrentGainIndexLocked();
+            int activationVolume;
+            if (curGainIndex > maxActivationGainIndex) {
+                activationVolume = maxActivationGainIndex;
+            } else if (curGainIndex < minActivationGainIndex) {
+                activationVolume = minActivationGainIndex;
+            } else {
+                return false;
+            }
+            if (isMutedLocked() || isBlockedLocked()) {
+                invokeVolumeGainIndexChanged = false;
+            } else {
+                if (isOverLimitLocked(activationVolume)) {
+                    // Limit index is used as min activation gain index if limit is lower than min
+                    // activation gain index.
+                    invokeVolumeGainIndexChanged = !isOverLimitLocked(curGainIndex);
+                }
+                if (isAttenuatedLocked()) {
+                    // Attenuation state should be maintained and not reset for min/max activation.
+                    invokeVolumeGainIndexChanged = false;
+                }
+            }
+            mCurrentGainIndex = activationVolume;
+            setCurrentGainIndexLocked(mCurrentGainIndex);
+        }
+        return invokeVolumeGainIndexChanged;
+    }
+
     boolean hasCriticalAudioContexts() {
         return mHasCriticalAudioContexts;
     }
@@ -540,6 +609,8 @@ import java.util.Set;
             writer.printf("Gain indexes (min / max / default / current): %d %d %d %d\n",
                     getMinGainIndex(), getMaxGainIndex(), getDefaultGainIndex(),
                     mCurrentGainIndex);
+            writer.printf("Activation gain indexes (min / max): %d %d\n",
+                    getMinActivationGainIndex(), getMaxActivationGainIndex());
             for (int i = 0; i < mContextToAddress.size(); i++) {
                 writer.printf("Context: %s -> Address: %s\n",
                         mCarAudioContext.toString(mContextToAddress.keyAt(i)),
@@ -596,6 +667,10 @@ import java.util.Set;
             proto.write(CarAudioDumpProto.CarVolumeGain.MAX_GAIN_INDEX, getMaxGainIndex());
             proto.write(CarAudioDumpProto.CarVolumeGain.DEFAULT_GAIN_INDEX, getDefaultGainIndex());
             proto.write(CarAudioDumpProto.CarVolumeGain.CURRENT_GAIN_INDEX, mCurrentGainIndex);
+            proto.write(CarAudioDumpProto.CarVolumeGain.MIN_ACTIVATION_GAIN_INDEX,
+                    getMinActivationGainIndex());
+            proto.write(CarAudioDumpProto.CarVolumeGain.MAX_ACTIVATION_GAIN_INDEX,
+                    getMaxActivationGainIndex());
             proto.end(volumeGainToken);
 
             for (int i = 0; i < mContextToAddress.size(); i++) {
@@ -776,7 +851,8 @@ import java.util.Set;
      * <p>If gain config info carries duplicate info, do not generate events (i.e. eventType = 0)
      * @param halReasons reasons for change to gain config info
      * @param gain updated gain config info
-     * @return one or more of {@link EventTypeEnum}. Or 0 for duplicate gain config info
+     * @return one or more of {@link android.car.media.CarVolumeGroupEvent.EventTypeEnum} or 0 for
+     * duplicate gain config info
      */
     int onAudioGainChanged(List<Integer> halReasons, CarAudioGainConfigInfo gain) {
         int eventType = 0;
@@ -848,11 +924,13 @@ import java.util.Set;
     CarVolumeGroupInfo getCarVolumeGroupInfo() {
         int gainIndex;
         boolean isMuted;
+        boolean isHalMuted;
         boolean isBlocked;
         boolean isAttenuated;
         synchronized (mLock) {
             gainIndex = getRestrictedGainForIndexLocked(mCurrentGainIndex);
             isMuted = isMutedLocked();
+            isHalMuted = isHalMutedLocked();
             isBlocked = isBlockedLocked();
             isAttenuated = isAttenuatedLocked() || isLimitedLocked();
         }
@@ -864,8 +942,17 @@ import java.util.Set;
                 .setMinVolumeGainIndex(getMinGainIndex()).setMuted(isMuted).setBlocked(isBlocked)
                 .setAttenuated(isAttenuated).setAudioAttributes(getAudioAttributes());
 
-        if (Flags.carAudioDynamicDevices()) {
+        if (carAudioDynamicDevices()) {
             builder.setAudioDeviceAttributes(getAudioDeviceAttributes());
+        }
+
+        if (carAudioMinMaxActivationVolume()) {
+            builder.setMaxActivationVolumeGainIndex(getMaxActivationGainIndex())
+                    .setMinActivationVolumeGainIndex(getMinActivationGainIndex());
+        }
+
+        if (carAudioMuteAmbiguity()) {
+            builder.setMutedBySystem(isHalMuted);
         }
 
         return builder.build();
@@ -887,6 +974,22 @@ import java.util.Set;
         return new ArrayList<>(set);
     }
 
+    boolean hasAudioAttributes(AudioAttributes audioAttributes) {
+        synchronized (mLock) {
+            for (int index = 0; index < mContextToAddress.size(); index++) {
+                int context = mContextToAddress.keyAt(index);
+                AudioAttributes[] contextAttributes =
+                        mCarAudioContext.getAudioAttributesForContext(context);
+                for (int attrIndex = 0; attrIndex < contextAttributes.length; attrIndex++) {
+                    if (Objects.equals(contextAttributes[attrIndex], audioAttributes)) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
     List<AudioAttributes> getAudioAttributes() {
         List<AudioAttributes> audioAttributes = new ArrayList<>();
         synchronized (mLock) {
@@ -903,7 +1006,7 @@ import java.util.Set;
     }
 
     /**
-     * @return one or more {@link CarVolumeGroupEvent#EventTypeEnum}
+     * @return one or more {@link android.car.media.CarVolumeGroupEvent.EventTypeEnum}
      */
     public int onAudioVolumeGroupChanged(int flags) {
         return 0;
@@ -932,7 +1035,8 @@ import java.util.Set;
      *
      * <p>Used to update audio device gain stages dynamically.
      *
-     * @return  one or more of {@link EventTypeEnum}. Or 0 if dynamic updates are not supported
+     * @return  one or more of {@link android.car.media.CarVolumeGroupEvent.EventTypeEnum}, or 0 if
+     * dynamic updates are not supported
      */
     int calculateNewGainStageFromDeviceInfos() {
         return 0;

@@ -105,7 +105,7 @@ public class TtlPointsDecrementalTest {
     private MetaBugReport createBugReport(String timestamp, Status status, int ttlPoints) {
         ContentValues values = new ContentValues();
         values.put(BugStorageProvider.COLUMN_USERNAME, "driver");
-        values.put(BugStorageProvider.COLUMN_TITLE, "sample title");
+        values.put(BugStorageProvider.COLUMN_TITLE, "[ABCDEF] sample title");
         values.put(BugStorageProvider.COLUMN_TIMESTAMP, timestamp);
         values.put(BugStorageProvider.COLUMN_STATUS, status.getValue());
         values.put(BugStorageProvider.COLUMN_STATUS_MESSAGE, "");

@@ -43,7 +43,7 @@ cc_test {
     defaults: ["vehicle_binding_util_defaults"],
     tidy: false,
     srcs: [
-        "VehicleBindingIntegrationTest.cpp"
+        "VehicleBindingIntegrationTest.cpp",
     ],
     shared_libs: [
         "android.hardware.automotive.vehicle@2.0",
@@ -63,6 +63,6 @@ cc_test {
     },
     sanitize: {
         address: false,
-        recover: [ "all" ],
+        recover: ["all"],
     },
 }

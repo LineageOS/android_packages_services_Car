@@ -20,6 +20,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ServiceInfo;
 import android.content.pm.UserInfo;
+import android.multiuser.Flags;
 import android.os.Bundle;
 import android.os.UserManager;
 import android.util.Log;
@@ -133,16 +134,17 @@ public final class PackageInfoFragment extends Fragment{
                         info -> IMPORTANT_PERMISSIONS.contains(info)));
             }
             // check services, w/o service or service not exported and w/o single user flag
+            // or services is system user only
             if (mFilterServices && packageInfo.services != null) {
                 if (DEBUG) {
                     for (ServiceInfo info : Arrays.asList(packageInfo.services)) {
-                        Log.d(TAG, info + " flagged: " + (!info.exported
-                                && (info.flags & ServiceInfo.FLAG_SINGLE_USER) == 0));
+                        Log.d(TAG, info + " flagged as systemUserOnlyOrSingleUserService: "
+                                + systemUserOnlyOrSingleUserService(info));
                     }
                 }
 
                 toDenyList &= Arrays.asList(packageInfo.services).stream().anyMatch(info ->
-                    !info.exported && (info.flags & ServiceInfo.FLAG_SINGLE_USER) == 0);
+                        systemUserOnlyOrSingleUserService(info));
             }
             // check activities
             if (mFilterActivities) {
@@ -160,6 +162,13 @@ public final class PackageInfoFragment extends Fragment{
                 mPackagesToDisableForSystemUser.add(packageInfo);
             }
         }
+    }
+
+    private boolean systemUserOnlyOrSingleUserService(ServiceInfo info) {
+        return (Flags.enableSystemUserOnlyForServicesAndProviders()
+                && (info.flags & ServiceInfo.FLAG_SYSTEM_USER_ONLY) == 0)
+                || ((!info.exported
+                && (info.flags & ServiceInfo.FLAG_SINGLE_USER) == 0));
     }
 
     private void showPackagesOnView(TextView tv) {

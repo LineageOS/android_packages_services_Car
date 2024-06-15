@@ -43,6 +43,8 @@ import android.util.Log;
 
 import androidx.annotation.Nullable;
 
+import com.android.internal.annotations.GuardedBy;
+
 import java.io.IOException;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -53,7 +55,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
  *
  * This is not thread safe and all public calls should be made from main thread.
  *
- * MP3 used is from http://freemusicarchive.org/music/John_Harrison_with_the_Wichita_State_University_Chamber_Players/The_Four_Seasons_Vivaldi/05_-_Vivaldi_Summer_mvt_2_Adagio_-_John_Harrison_violin
+ * MP3 used is from
+ * http://freemusicarchive
+ * .org/music/John_Harrison_with_the_Wichita_State_University_Chamber_Players
+ * /The_Four_Seasons_Vivaldi/05_-_Vivaldi_Summer_mvt_2_Adagio_-_John_Harrison_violin
  * from John Harrison with the Wichita State University Chamber Players
  * Copyright under Create Commons license.
  */
@@ -69,7 +74,9 @@ public class AudioPlayer {
             PLAYER_STATE_PAUSED,
     })
     @Retention(RetentionPolicy.SOURCE)
-    public @interface AudioPlayerState {}
+    public @interface AudioPlayerState {
+    }
+
     public static final int PLAYER_STATE_COMPLETED = 0;
     public static final int PLAYER_STATE_STARTED = 1;
     public static final int PLAYER_STATE_STOPPED = 2;
@@ -83,55 +90,58 @@ public class AudioPlayer {
     private final AudioManager.OnAudioFocusChangeListener mFocusListener =
             new AudioManager.OnAudioFocusChangeListener() {
 
-        @Override
-        public void onAudioFocusChange(int focusChange) {
-            if (mPlayer == null) {
-                Log.e(TAG, "mPlayer is null");
-                return;
-            }
-            switch (focusChange) {
-                case AUDIOFOCUS_GAIN:
-                case AUDIOFOCUS_GAIN_TRANSIENT:
-                case AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE:
-                case AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK:
-                    Log.i(TAG, "Audio focus change AUDIOFOCUS_GAIN for usage "
-                            + mAttrib.getUsage());
-                    mPlayer.setVolume(1.0f, 1.0f);
-                    if (mRepeat && isPlaying()) {
-                        // Resume
-                        Log.i(TAG, "resuming player");
-                        mPlayer.start();
-                        sendPlayerStateChanged(PLAYER_STATE_STARTED);
+                @Override
+                public void onAudioFocusChange(int focusChange) {
+                    if (mPlayer == null) {
+                        Log.e(TAG, "mPlayer is null");
+                        return;
                     }
-                    return;
-                case AUDIOFOCUS_LOSS_TRANSIENT:
-                    Log.i(TAG, "Audio focus change AUDIOFOCUS_LOSS_TRANSIENT for usage "
-                            + mAttrib.getUsage());
-                    if (mRepeat && isPlaying()) {
-                        Log.i(TAG, "pausing repeating player");
-                        mPlayer.pause();
-                        sendPlayerStateChanged(PLAYER_STATE_PAUSED);
-                    } else {
-                        Log.i(TAG, "stopping one shot player");
-                        stop();
-                    }
-                    return;
-                case AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK:
-                    // While we used to setVolume on the player to 20%, we don't do this anymore
-                    // because we expect the car's audio hal do handle ducking as it sees fit.
-                    Log.i(TAG, "Audio focus change AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK "
+                    switch (focusChange) {
+                        case AUDIOFOCUS_GAIN:
+                        case AUDIOFOCUS_GAIN_TRANSIENT:
+                        case AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE:
+                        case AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK:
+                            Log.i(TAG, "Audio focus change AUDIOFOCUS_GAIN for usage "
+                                    + mAttrib.getUsage());
+                            mPlayer.setVolume(1.0f, 1.0f);
+                            if (mRepeat && isPlaying()) {
+                                // Resume
+                                Log.i(TAG, "resuming player");
+                                mPlayer.start();
+                                sendPlayerStateChanged(PLAYER_STATE_STARTED);
+                            }
+                            return;
+                        case AUDIOFOCUS_LOSS_TRANSIENT:
+                            Log.i(TAG, "Audio focus change AUDIOFOCUS_LOSS_TRANSIENT for usage "
+                                    + mAttrib.getUsage());
+                            if (mRepeat && isPlaying()) {
+                                Log.i(TAG, "pausing repeating player");
+                                mPlayer.pause();
+                                sendPlayerStateChanged(PLAYER_STATE_PAUSED);
+                            } else {
+                                Log.i(TAG, "stopping one shot player");
+                                stop();
+                            }
+                            return;
+                        case AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK:
+                            // While we used to setVolume on the player to 20%, we don't do this
+                            // anymore
+                            // because we expect the car's audio hal do handle ducking as it sees
+                            // fit.
+                            Log.i(TAG, "Audio focus change AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK "
                                     + "-> do nothing");
-                    return;
-                case AUDIOFOCUS_LOSS:
-                default:
-                    if (isPlaying()) {
-                        Log.i(TAG, "stopping player");
-                        stop();
+                            return;
+                        case AUDIOFOCUS_LOSS:
+                        default:
+                            if (isPlaying()) {
+                                Log.i(TAG, "stopping player");
+                                stop();
+                            }
                     }
-            }
-        }
-    };
+                }
+            };
 
+    private final Object mLock = new Object();
     private AudioManager mAudioManager;
     private MediaPlayer mPlayer;
 
@@ -141,8 +151,10 @@ public class AudioPlayer {
     private final AudioDeviceInfo mPreferredDeviceInfo;
 
     private final AtomicBoolean mPlaying = new AtomicBoolean(false);
+
+    @GuardedBy("mLock")
     @Nullable
-    private final OnRoutingChangedListener mAudioRoutingListener;
+    private OnRoutingChangedListener mAudioRoutingListener;
 
     private volatile boolean mHandleFocus;
     private volatile boolean mRepeat;
@@ -171,8 +183,9 @@ public class AudioPlayer {
 
     /**
      * Starts player
-     * @param handleFocus true to handle focus
-     * @param repeat true to repeat track
+     *
+     * @param handleFocus  {@code true} to handle focus
+     * @param repeat       {@code true} to repeat track
      * @param focusRequest type of focus to request
      */
     public void start(boolean handleFocus, boolean repeat, int focusRequest) {
@@ -214,6 +227,16 @@ public class AudioPlayer {
             PlayStateListener listener) {
         mListener = listener;
         start(handleFocus, repeat, focusRequest);
+    }
+
+    /**
+     * Sets the audio routing listener, runs in main handler
+     */
+    void setAudioRoutingListener(
+            @Nullable OnRoutingChangedListener audioRoutingListener) {
+        synchronized (mLock) {
+            mAudioRoutingListener = audioRoutingListener;
+        }
     }
 
     private void doStart() {
@@ -277,9 +300,13 @@ public class AudioPlayer {
         }
 
         mPlayer.start();
-        if (mAudioRoutingListener != null) {
-            Log.i(TAG, "doStart addOnRoutingChangedListener " + mAudioRoutingListener);
-            mPlayer.addOnRoutingChangedListener(mAudioRoutingListener, Handler.getMain());
+        OnRoutingChangedListener routingChangedListener;
+        synchronized (mLock) {
+            routingChangedListener = mAudioRoutingListener;
+        }
+        if (routingChangedListener != null) {
+            Log.i(TAG, "doStart addOnRoutingChangedListener " + routingChangedListener);
+            mPlayer.addOnRoutingChangedListener(routingChangedListener, Handler.getMain());
         }
         sendPlayerStateChanged(PLAYER_STATE_STARTED);
     }

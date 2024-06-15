@@ -301,9 +301,9 @@ public final class FakeVhalConfigParser {
         vehiclePropConfig.prop = VehicleProperty.INVALID;
         boolean isAccessSet = false;
         boolean isChangeModeSet = false;
-        List<VehicleAreaConfig> areaConfigs = new ArrayList<>();
+        boolean isAreasSet = false;
         RawPropValues rawPropValues = null;
-        SparseArray<RawPropValues> defaultValuesByAreaId = new SparseArray<>();
+        JSONArray areas = null;
 
         for (int i = 0; i < fieldNames.size(); i++) {
             String fieldName = fieldNames.get(i);
@@ -348,29 +348,8 @@ public final class FakeVhalConfigParser {
                     rawPropValues = parseDefaultValue(defaultValueObject, errors);
                     break;
                 case JSON_FIELD_NAME_AREAS:
-                    JSONArray areas = propertyObject.optJSONArray(fieldName);
-                    if (areas == null) {
-                        errors.add(fieldName + " doesn't have a mapped array value.");
-                        continue;
-                    }
-                    for (int j = 0; j < areas.length(); j++) {
-                        JSONObject areaObject = areas.optJSONObject(j);
-                        if (areaObject == null) {
-                            errors.add("Unable to get a JSONObject element for " + fieldName
-                                    + " at index " + j);
-                            continue;
-                        }
-                        Pair<VehicleAreaConfig, RawPropValues> result =
-                                parseAreaConfig(areaObject, errors);
-                        if (result != null) {
-                            areaConfigs.add(result.first);
-                            if (result.second != null) {
-                                defaultValuesByAreaId.put(result.first.areaId, result.second);
-                            }
-                        }
-                    }
-                    vehiclePropConfig.areaConfigs = areaConfigs.toArray(
-                            new VehicleAreaConfig[areaConfigs.size()]);
+                    areas = propertyObject.optJSONArray(fieldName);
+                    isAreasSet = true;
                     break;
                 case JSON_FIELD_NAME_COMMENT:
                     // The "comment" field is used for comment in the config files and is ignored
@@ -386,14 +365,10 @@ public final class FakeVhalConfigParser {
             return null;
         }
 
-        if (errors.size() > initialErrorCount) {
-            return null;
-        }
-
         if (!isAccessSet) {
             if (AccessForVehicleProperty.values.containsKey(vehiclePropConfig.prop)) {
-                vehiclePropConfig.access =
-                        AccessForVehicleProperty.values.get(vehiclePropConfig.prop);
+                vehiclePropConfig.access = AccessForVehicleProperty.values
+                        .get(vehiclePropConfig.prop);
             } else {
                 errors.add("Access field is not set for this property: " + propertyObject);
             }
@@ -408,6 +383,46 @@ public final class FakeVhalConfigParser {
             }
         }
 
+        List<VehicleAreaConfig> areaConfigs = new ArrayList<>();
+        SparseArray<RawPropValues> defaultValuesByAreaId = new SparseArray<>();
+
+        if (isAreasSet) {
+            if (areas == null) {
+                errors.add(JSON_FIELD_NAME_AREAS + " doesn't have a mapped array value.");
+            } else {
+                for (int j = 0; j < areas.length(); j++) {
+                    JSONObject areaObject = areas.optJSONObject(j);
+                    if (areaObject == null) {
+                        errors.add("Unable to get a JSONObject element for "
+                                + JSON_FIELD_NAME_AREAS + " at index " + j);
+                        continue;
+                    }
+                    Pair<VehicleAreaConfig, RawPropValues> result =
+                            parseAreaConfig(areaObject, vehiclePropConfig.access, errors);
+                    if (result != null) {
+                        areaConfigs.add(result.first);
+                        if (result.second != null) {
+                            defaultValuesByAreaId.put(result.first.areaId, result.second);
+                        }
+                    }
+                }
+                vehiclePropConfig.areaConfigs = areaConfigs.toArray(
+                        new VehicleAreaConfig[areaConfigs.size()]);
+            }
+        }
+
+        if (vehiclePropConfig.areaConfigs == null || vehiclePropConfig.areaConfigs.length == 0) {
+            VehicleAreaConfig areaConfig = new VehicleAreaConfig();
+            areaConfig.areaId = 0;
+            areaConfig.access = vehiclePropConfig.access;
+            areaConfig.supportVariableUpdateRate = true;
+            vehiclePropConfig.areaConfigs = new VehicleAreaConfig[]{areaConfig};
+        }
+
+        if (errors.size() > initialErrorCount) {
+            return null;
+        }
+
         return new ConfigDeclaration(vehiclePropConfig, rawPropValues, defaultValuesByAreaId);
     }
 
@@ -420,7 +435,7 @@ public final class FakeVhalConfigParser {
      */
     @Nullable
     private Pair<VehicleAreaConfig, RawPropValues> parseAreaConfig(JSONObject areaObject,
-            List<String> errors) {
+            int defaultAccessMode, List<String> errors) {
         int initialErrorCount = errors.size();
         List<String> fieldNames = getFieldNames(areaObject);
 
@@ -432,10 +447,15 @@ public final class FakeVhalConfigParser {
         VehicleAreaConfig areaConfig = new VehicleAreaConfig();
         RawPropValues defaultValue = null;
         boolean hasAreaId = false;
+        boolean isAccessSet = false;
 
         for (int i = 0; i < fieldNames.size(); i++) {
             String fieldName = fieldNames.get(i);
             switch (fieldName) {
+                case JSON_FIELD_NAME_ACCESS:
+                    areaConfig.access = parseIntValue(areaObject, fieldName, errors);
+                    isAccessSet = true;
+                    break;
                 case JSON_FIELD_NAME_AREA_ID:
                     areaConfig.areaId = parseIntValue(areaObject, fieldName, errors);
                     hasAreaId = true;
@@ -467,6 +487,10 @@ public final class FakeVhalConfigParser {
 
         if (errors.size() > initialErrorCount) {
             return null;
+        }
+
+        if (!isAccessSet) {
+            areaConfig.access = defaultAccessMode;
         }
 
         return Pair.create(areaConfig, defaultValue);

@@ -23,6 +23,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -32,6 +33,7 @@ import android.car.user.CarUserManager.UserLifecycleEvent;
 import android.car.user.CarUserManager.UserLifecycleListener;
 import android.content.Context;
 import android.os.Handler;
+import android.os.HandlerThread;
 import android.os.Looper;
 import android.util.Log;
 
@@ -74,18 +76,24 @@ public final class GarageModeTest {
     @Mock
     private Context mContext;
     @Mock
-    private Controller mController;
+    private GarageModeController mController;
     @Mock
     private JobScheduler mJobScheduler;
     @Mock
     private CarUserService mCarUserService;
     private final Handler mHandler = new Handler(Looper.getMainLooper());
+    private final HandlerThread mBgHandlerThread = new HandlerThread("GarageModeTest");
+    private Handler mBgHandler;
+
     @Mock
     private SystemInterface mSystemInterface;
     private File mTempTestDir;
 
     @Before
     public void setUp() throws IOException {
+        mBgHandlerThread.start();
+        mBgHandler = new Handler(mBgHandlerThread.getLooper());
+
         when(mController.getHandler()).thenReturn(mHandler);
         when(mContext.getSystemService(JobScheduler.class)).thenReturn(mJobScheduler);
 
@@ -105,7 +113,10 @@ public final class GarageModeTest {
     }
 
     @After
-    public void teardown() {
+    public void teardown() throws Exception {
+        mBgHandlerThread.quitSafely();
+        mBgHandlerThread.join();
+
         CarLocalServices.removeServiceForTest(CarUserService.class);
     }
 
@@ -121,19 +132,68 @@ public final class GarageModeTest {
         ArrayList<Integer> userToStartInBackground = new ArrayList<>(Arrays.asList(101, 102, 103));
         when(mCarUserService.startAllBackgroundUsersInGarageMode())
                 .thenReturn(userToStartInBackground);
+        mockCarUserServiceStopUserCall(getEventListener());
 
-        CountDownLatch latch = new CountDownLatch(3); // 3 for three users
-        mockCarUserServiceStopUserCall(getEventListener(), latch);
+        mHandler.post(() -> {
+            mGarageMode.enterGarageMode(/* completor= */ null);
+        });
 
-        mGarageMode.enterGarageMode(/* completor= */ null);
+        verify(mCarUserService, timeout(DEFAULT_TIMEOUT_MS)).startAllBackgroundUsersInGarageMode();
 
-        mGarageMode.cancel();
+        CountDownLatch latch = new CountDownLatch(1);
+        mHandler.post(() -> {
+            mGarageMode.cancel(() -> latch.countDown());
+        });
 
         waitForHandlerThreadToFinish(latch);
         verify(mCarUserService).startAllBackgroundUsersInGarageMode();
-        verify(mCarUserService).stopBackgroundUserInGagageMode(101);
-        verify(mCarUserService).stopBackgroundUserInGagageMode(102);
-        verify(mCarUserService).stopBackgroundUserInGagageMode(103);
+        assertThat(mGarageMode.getStartedBackgroundUsers()).isEmpty();
+    }
+
+    @Test
+    public void test_backgroundUsersStopedOnGarageModeCancel_beforeStartingBgUsers()
+            throws Exception {
+        ArrayList<Integer> userToStartInBackground = new ArrayList<>(Arrays.asList(101, 102, 103));
+        when(mCarUserService.startAllBackgroundUsersInGarageMode())
+                .thenReturn(userToStartInBackground);
+        mockCarUserServiceStopUserCall(getEventListener());
+
+        mHandler.post(() -> {
+            mGarageMode.enterGarageMode(/* completor= */ null);
+        });
+
+        CountDownLatch latch = new CountDownLatch(1);
+        // It is possible that cancel is called before the background users are started, in this
+        // case the completor must still be called.
+        mHandler.post(() -> {
+            mGarageMode.cancel(() -> latch.countDown());
+        });
+
+        waitForHandlerThreadToFinish(latch);
+        assertThat(mGarageMode.getStartedBackgroundUsers()).isEmpty();
+    }
+
+
+    @Test
+    public void test_backgroundUsersStoppedOnGarageModeFinish() throws Exception {
+        ArrayList<Integer> userToStartInBackground = new ArrayList<>(Arrays.asList(101, 102, 103));
+        when(mCarUserService.startAllBackgroundUsersInGarageMode())
+                .thenReturn(userToStartInBackground);
+        mockCarUserServiceStopUserCall(getEventListener());
+
+        CountDownLatch latch = new CountDownLatch(1);
+        mHandler.post(() -> {
+            mGarageMode.enterGarageMode(() -> latch.countDown());
+        });
+
+        verify(mCarUserService, timeout(DEFAULT_TIMEOUT_MS)).startAllBackgroundUsersInGarageMode();
+
+        mHandler.post(() -> {
+            mGarageMode.finish();
+        });
+
+        waitForHandlerThreadToFinish(latch);
+        assertThat(mGarageMode.getStartedBackgroundUsers()).isEmpty();
     }
 
     @Test
@@ -150,8 +210,8 @@ public final class GarageModeTest {
         mGarageMode.enterGarageMode(/* completor= */ null);
 
         waitForHandlerThreadToFinish(latch);
-        assertThat(mGarageMode.getStartedBackgroundUsers()).containsExactly(101, 102, 103, 104,
-                105);
+        assertThat(mGarageMode.getStartedBackgroundUsers())
+                .containsExactly(101, 102, 103, 104, 105);
     }
 
     @Test
@@ -207,14 +267,12 @@ public final class GarageModeTest {
         return listener;
     }
 
-    private void mockCarUserServiceStopUserCall(UserLifecycleListener listener,
-            CountDownLatch latch) {
+    private void mockCarUserServiceStopUserCall(UserLifecycleListener listener) {
         doAnswer(inv -> {
             int userId = (int) inv.getArguments()[0];
-            latch.countDown();
-            listener.onEvent(new UserLifecycleEvent(
-                    CarUserManager.USER_LIFECYCLE_EVENT_TYPE_STOPPED, userId));
-            return null;
+            mBgHandler.post(() -> listener.onEvent(new UserLifecycleEvent(
+                    CarUserManager.USER_LIFECYCLE_EVENT_TYPE_STOPPED, userId)));
+            return true;
         }).when(mCarUserService).stopBackgroundUserInGagageMode(anyInt());
     }
 

@@ -41,13 +41,13 @@ std::string getDiskStatsLine(const DiskStats& stats) {
     std::string buffer;
     StringAppendF(&buffer, "   %d       %d %s", stats.major, stats.minor, stats.deviceName.c_str());
     StringAppendF(&buffer, " %" PRIu64 " %" PRIu64 " %" PRIu64 " %" PRIu64, stats.numReadsCompleted,
-                  stats.numReadsMerged, stats.numKibRead * 2, stats.readTimeInMs);
+                  stats.numReadsMerged, stats.numKibRead * 2, stats.readTimeInMillis);
     StringAppendF(&buffer, " %" PRIu64 " %" PRIu64 " %" PRIu64 " %" PRIu64,
                   stats.numWritesCompleted, stats.numWritesMerged, stats.numKibWritten * 2,
-                  stats.writeTimeInMs);
+                  stats.writeTimeInMillis);
     StringAppendF(&buffer, " 0 %" PRIu64 " %" PRIu64 " 0 0 0 0 %" PRIu64 " %" PRIu64 "\n",
-                  stats.totalIoTimeInMs, stats.weightedTotalIoTimeInMs, stats.numFlushCompleted,
-                  stats.flushTimeInMs);
+                  stats.totalIoTimeInMillis, stats.weightedTotalIoTimeInMillis,
+                  stats.numFlushCompleted, stats.flushTimeInMillis);
     return buffer;
 }
 
@@ -74,10 +74,11 @@ DiskStats aggregateSystemWideDiskStats(
 bool isEquals(const DiskStats& lhs, const DiskStats& rhs) {
     auto tieStats = [](const DiskStats& stats) {
         return std::tie(stats.major, stats.minor, stats.deviceName, stats.numReadsCompleted,
-                        stats.numReadsMerged, stats.numKibRead, stats.readTimeInMs,
+                        stats.numReadsMerged, stats.numKibRead, stats.readTimeInMillis,
                         stats.numWritesCompleted, stats.numWritesMerged, stats.numKibWritten,
-                        stats.writeTimeInMs, stats.totalIoTimeInMs, stats.weightedTotalIoTimeInMs,
-                        stats.numFlushCompleted, stats.flushTimeInMs);
+                        stats.writeTimeInMillis, stats.totalIoTimeInMillis,
+                        stats.weightedTotalIoTimeInMillis, stats.numFlushCompleted,
+                        stats.flushTimeInMillis);
     };
     return tieStats(lhs) == tieStats(rhs);
 }

@@ -39,6 +39,8 @@ import android.view.SurfaceControl;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 /**
  * A {@link SurfaceView} that can embed a Task inside of it. The task management is done remotely
  * in a process that has registered a TaskOrganizer with the system server.
@@ -52,6 +54,7 @@ public abstract class RemoteCarTaskView extends SurfaceView {
     private final TouchableInsetsProvider mTouchableInsetsProvider;
     private final SurfaceCallbackHandler mSurfaceCallbackHandler = new SurfaceCallbackHandler();
     private final Rect mTmpRect = new Rect();
+    private final AtomicBoolean mReleased = new AtomicBoolean(false);
     private boolean mInitialized = false;
     boolean mSurfaceCreated = false;
     private Region mObscuredTouchRegion;
@@ -75,6 +78,36 @@ public abstract class RemoteCarTaskView extends SurfaceView {
     }
 
     /**
+     * Sets the visibility of the embedded task.
+     *
+     * @hide
+     */
+    @RequiresPermission(Car.PERMISSION_REGISTER_CAR_SYSTEM_UI_PROXY)
+    @MainThread
+    public void setTaskVisibility(boolean visibility) {
+        try {
+            mICarTaskViewHost.setTaskVisibility(visibility);
+        } catch (RemoteException e) {
+            Slogf.e(TAG, "exception in setTaskVisibility", e);
+        }
+    }
+
+    /**
+     * Reorders the embedded task.
+     *
+     * @hide
+     */
+    @RequiresPermission(Car.PERMISSION_REGISTER_CAR_SYSTEM_UI_PROXY)
+    @MainThread
+    public void reorderTask(boolean onTop) {
+        try {
+            mICarTaskViewHost.reorderTask(onTop);
+        } catch (RemoteException e) {
+            Slogf.e(TAG, "exception in reorderTask for task", e);
+        }
+    }
+
+    /**
      * Updates the WM bounds for the underlying task as per the current view bounds. Does nothing
      * if there is no task.
      */
@@ -84,6 +117,21 @@ public abstract class RemoteCarTaskView extends SurfaceView {
         ViewHelper.getBoundsOnScreen(RemoteCarTaskView.this, mTmpRect);
         try {
             mICarTaskViewHost.setWindowBounds(mTmpRect);
+        } catch (RemoteException e) {
+            Slogf.e(TAG, "exception in setWindowBounds", e);
+        }
+    }
+
+    /**
+     * Sets the bounds of the window for the underlying Task.
+     *
+     * @param bounds the new bounds in screen coordinates.
+     *
+     * @hide
+     */
+    public void setWindowBounds(Rect bounds) {
+        try {
+            mICarTaskViewHost.setWindowBounds(bounds);
         } catch (RemoteException e) {
             Slogf.e(TAG, "exception in setWindowBounds", e);
         }
@@ -124,6 +172,16 @@ public abstract class RemoteCarTaskView extends SurfaceView {
     @MainThread
     public boolean isInitialized() {
         return mInitialized;
+    }
+
+    /**
+     * @return true, if the task view is released.
+     *
+     * @hide
+     */
+    @MainThread
+    public boolean isReleased() {
+        return mReleased.get();
     }
 
     /**
@@ -227,6 +285,7 @@ public abstract class RemoteCarTaskView extends SurfaceView {
     public void release() {
         getHolder().removeCallback(mSurfaceCallbackHandler);
         try {
+            mReleased.set(true);
             mICarTaskViewHost.release();
         } catch (DeadObjectException e) {
             Slogf.w(TAG, "TaskView's host has already died", e);

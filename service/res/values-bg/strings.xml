@@ -34,6 +34,8 @@
     <string name="car_permission_desc_speed" msgid="2047965198165448241">"Достъп до данните за скоростта на автомобила ви."</string>
     <string name="car_permission_label_vehicle_dynamics_state" msgid="313779267420048367">"достъп до състоянието на динамичните компоненти на автомобила"</string>
     <string name="car_permission_desc_vehicle_dynamics_state" msgid="8891506193446375660">"Достъп до състоянието на динамичните компоненти на автомобила."</string>
+    <string name="car_permission_label_control_vehicle_dynamics_state" msgid="1912154069363074986">"управление на състоянието на динамичните компоненти на автомобила"</string>
+    <string name="car_permission_desc_control_vehicle_dynamics_state" msgid="5603436779163086928">"Управление на състоянието на динамичните компоненти на автомобила ви."</string>
     <string name="car_permission_label_vendor_extension" msgid="7141601811734127361">"достъп до канала на автомобилния производител"</string>
     <string name="car_permission_desc_vendor_extension" msgid="2970718502334714035">"Достъп до канала на производителя с цел обмен на конкретна информация за автомобила ви."</string>
     <string name="car_permission_label_radio" msgid="6009465291685935112">"управление на радиото на автомобила"</string>
@@ -84,6 +86,8 @@
     <string name="car_permission_desc_vms_publisher" msgid="5589489298597386828">"Публикуване на VMS съобщения"</string>
     <string name="car_permission_label_vms_subscriber" msgid="5648841182059222299">"Абониране за VMS"</string>
     <string name="car_permission_desc_vms_subscriber" msgid="7551009457847673620">"Абониране за VMS съобщения"</string>
+    <string name="car_permission_label_read_ultrasonics_sensor_data" msgid="1097940233242534149">"Четене на данните от ултразвуковите сензори."</string>
+    <string name="car_permission_desc_read_ultrasonics_sensor_data" msgid="1717892304330623332">"Четене на данните от ултразвуковите сензори на автомобила."</string>
     <string name="car_permission_label_storage_monitoring" msgid="2327639346522530549">"Наблюдение на флаш хранилището"</string>
     <string name="car_permission_desc_storage_monitoring" msgid="2075712271139671318">"Наблюдение на използването на флаш хранилището"</string>
     <string name="car_permission_label_driving_state" msgid="7754624599537393650">"слушане за състоянието на шофиране"</string>
@@ -116,6 +120,20 @@
     <string name="car_permission_desc_control_car_mirrors" msgid="1224135684068855032">"Контролиране на огледалата на автомобила."</string>
     <string name="car_permission_label_control_car_seats" msgid="1826934820585497135">"контролиране на седалките на автомобила"</string>
     <string name="car_permission_desc_control_car_seats" msgid="2407536601226470563">"Контролиране на седалките на автомобила."</string>
+    <string name="car_permission_label_read_car_seat_belts" msgid="2051828795852087659">"управление на коланите на седалките на автомобила"</string>
+    <string name="car_permission_desc_read_car_seat_belts" msgid="7076977711613912339">"Четене на коланите на седалките на автомобила."</string>
+    <string name="car_permission_label_read_impact_sensors" msgid="9193288836326363975">"управление на сензорите на автомобила за сблъсък"</string>
+    <string name="car_permission_desc_read_impact_sensors" msgid="6479840965130272944">"Четене на сензорите на автомобила за сблъсък."</string>
+    <string name="car_permission_label_read_valet_mode" msgid="1807900160666761320">"четене на режима за обслужване"</string>
+    <string name="car_permission_desc_read_valet_mode" msgid="8645550481045813299">"Четене на режима за обслужване."</string>
+    <string name="car_permission_label_control_valet_mode" msgid="180432980177027905">"управление на режима за обслужване"</string>
+    <string name="car_permission_desc_control_valet_mode" msgid="8442573192492763994">"Управление на режима за обслужване."</string>
+    <string name="car_permission_label_read_head_up_display_status" msgid="8117112886452578905">"четене на състоянието на прозрачния дисплей"</string>
+    <string name="car_permission_desc_read_head_up_display_status" msgid="3255763055570462667">"Четене на състоянието на прозрачния дисплей."</string>
+    <string name="car_permission_label_control_head_up_display" msgid="2990483192001919370">"управление на прозрачния дисплей"</string>
+    <string name="car_permission_desc_control_head_up_display" msgid="483313982751387504">"Управление на прозрачния дисплей."</string>
+    <string name="car_permission_label_read_car_airbags" msgid="5495423499616379238">"управление на въздушните възглавници на автомобила"</string>
+    <string name="car_permission_desc_read_car_airbags" msgid="7961580013929420722">"Четене на въздушните възглавници на автомобила."</string>
     <string name="car_permission_label_control_car_airbags" msgid="6823727183218389617">"управление на въздушните възглавници на автомобила"</string>
     <string name="car_permission_desc_control_car_airbags" msgid="6181671903761622348">"Управление на въздушните възглавници на автомобила."</string>
     <string name="car_permission_label_car_info" msgid="4707513570676492315">"достъп до основна информация за автомобила"</string>
@@ -210,6 +228,8 @@
     <string name="car_permission_desc_register_car_system_ui_proxy" msgid="8863676956785764681">"Предоставяне на прокси сървър за системния потребителски интерфейс, който може да се използва от други приложения за управление на този интерфейс и създаване на изгледи на задачи."</string>
     <string name="car_permission_label_manage_car_system_ui" msgid="1361615518679353414">"Комуникиране със системния потребителски интерфейс на автомобила с цел създаване на изгледи на задачи или получаване на известия за промени в този интерфейс."</string>
     <string name="car_permission_desc_manage_car_system_ui" msgid="6201733970421818637">"Комуникиране със системния потребителски интерфейс на автомобила с цел създаване на изгледи на задачи или получаване на известия за промени в този интерфейс."</string>
+    <string name="car_permission_label_read_persist_tethering_settings" msgid="6395145649477916950">"Четене на настройките на автомобила ви за постоянен тетъринг"</string>
+    <string name="car_permission_desc_read_persist_tethering_settings" msgid="7373546466696896323">"Четене на настройките на автомобила ви за постоянен тетъринг"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"Грешка в CAN шината"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN шината не реагира. Изключете и включете отново захранването на основното устройство и рестартирайте автомобила"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"Моето устройство"</string>

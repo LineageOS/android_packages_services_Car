@@ -37,6 +37,9 @@
           <item type="bool" name="audioPersistMasterMuteState"/>
           <item type="integer" name="audioVolumeKeyEventTimeoutMs"/>
           <item type="bool" name="audioUseCarVolumeGroupEvent"/>
+          <item type="bool" name="audioUseFadeManagerConfiguration"/>
+          <item type="bool" name="audioUseMinMaxActivationVolume"/>
+          <item type="bool" name="audioUseIsolatedAudioFocusForDynamicDevices"/>
           <item type="bool" name="displayOffMuteLockAllAudio"/>
           <item type="bool" name="useDefaultBluetoothConnectionPolicy"/>
           <item type="bool" name="useDefaultBluetoothPowerPolicy"/>
@@ -127,6 +130,7 @@
           <item type="fraction" name="config_clusterHomeVisibility_minAlpha"/>
           <item type="fraction" name="config_clusterHomeVisibility_minRendered"/>
           <item type="integer" name="config_clusterHomeVisibility_stabilityMs"/>
+          <item type="bool" name="config_enablePersistTetheringCapabilities" />
           <!-- Params from config.xml that can be overlaid -->
 
           <!-- XML files that can be overlaid -->

@@ -28,15 +28,13 @@ import android.hardware.automotive.occupant_awareness.OccupantDetection;
 import android.hardware.automotive.occupant_awareness.OccupantDetections;
 import android.hardware.automotive.occupant_awareness.Role;
 import android.os.RemoteException;
-import android.test.suitebuilder.annotation.MediumTest;
 
 import androidx.test.core.app.ApplicationProvider;
+import androidx.test.filters.MediumTest;
 import androidx.test.runner.AndroidJUnit4;
-
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 

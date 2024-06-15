@@ -170,9 +170,10 @@ void onBinderDied(void* cookie) {
 
 }  // namespace
 
-std::tuple<int64_t, int64_t> calculateStartAndDuration(const time_t& currentTime) {
+std::tuple<int64_t, int64_t> calculateStartAndDuration(const time_point_millis& currentTime) {
+    auto timeInSeconds = std::chrono::system_clock::to_time_t(currentTime);
     struct tm currentGmt;
-    gmtime_r(&currentTime, &currentGmt);
+    gmtime_r(&timeInSeconds, &currentGmt);
     return calculateStartAndDuration(currentGmt);
 }
 
@@ -187,7 +188,7 @@ IoOveruseMonitor::IoOveruseMonitor(
       mLastSystemWideIoMonitorTime(0),
       mUserPackageDailyIoUsageById({}),
       mIoOveruseWarnPercentage(0),
-      mLastUserPackageIoMonitorTime(0),
+      mLastUserPackageIoMonitorTime(time_point_millis::min()),
       mOveruseListenersByUid({}),
       mBinderDeathRecipient(
               ScopedAIBinder_DeathRecipient(AIBinder_DeathRecipient_new(onBinderDied))) {}
@@ -245,7 +246,7 @@ void IoOveruseMonitor::onCarWatchdogServiceRegistered() {
 }
 
 Result<void> IoOveruseMonitor::onPeriodicCollection(
-        time_t time, SystemState systemState,
+        time_point_millis time, SystemState systemState,
         const android::wp<UidStatsCollectorInterface>& uidStatsCollector,
         [[maybe_unused]] const android::wp<ProcStatCollectorInterface>& procStatCollector,
         ResourceStats* resourceStats) {
@@ -254,13 +255,17 @@ Result<void> IoOveruseMonitor::onPeriodicCollection(
         return Error() << "Per-UID I/O stats collector must not be null";
     }
 
+    auto timeInSeconds = std::chrono::system_clock::to_time_t(time);
+
     std::unique_lock writeLock(mRwMutex);
     if (!mDidReadTodayPrevBootStats) {
         requestTodayIoUsageStatsLocked();
     }
     struct tm prevGmt, curGmt;
-    gmtime_r(&mLastUserPackageIoMonitorTime, &prevGmt);
-    gmtime_r(&time, &curGmt);
+    auto mLastUserPackageIoMonitorTimeInSeconds =
+            std::chrono::system_clock::to_time_t(mLastUserPackageIoMonitorTime);
+    gmtime_r(&mLastUserPackageIoMonitorTimeInSeconds, &prevGmt);
+    gmtime_r(&timeInSeconds, &curGmt);
     if (prevGmt.tm_yday != curGmt.tm_yday || prevGmt.tm_year != curGmt.tm_year) {
         /*
          * Date changed so reset the daily I/O usage cache. CarWatchdogService automatically handles
@@ -390,7 +395,7 @@ Result<void> IoOveruseMonitor::onPeriodicCollection(
 }
 
 Result<void> IoOveruseMonitor::onCustomCollection(
-        time_t time, SystemState systemState,
+        time_point_millis time, SystemState systemState,
         [[maybe_unused]] const std::unordered_set<std::string>& filterPackages,
         const android::wp<UidStatsCollectorInterface>& uidStatsCollector,
         const android::wp<ProcStatCollectorInterface>& procStatCollector,

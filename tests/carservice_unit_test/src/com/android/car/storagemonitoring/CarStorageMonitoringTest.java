@@ -32,18 +32,19 @@ import android.car.storagemonitoring.LifetimeWriteInfo;
 import android.car.storagemonitoring.UidIoRecord;
 import android.car.storagemonitoring.WearEstimate;
 import android.car.storagemonitoring.WearEstimateChange;
+import android.car.test.util.TemporaryFile;
 import android.hardware.health.V2_0.IHealth;
 import android.hardware.health.V2_0.IHealth.getStorageInfoCallback;
 import android.hardware.health.V2_0.Result;
 import android.hardware.health.V2_0.StorageInfo;
 import android.os.Parcel;
-import android.test.suitebuilder.annotation.MediumTest;
 import android.util.JsonReader;
 import android.util.JsonWriter;
 import android.util.SparseArray;
 
+import androidx.test.filters.MediumTest;
+
 import com.android.car.test.utils.TemporaryDirectory;
-import com.android.car.test.utils.TemporaryFile;
 
 import org.json.JSONObject;
 import org.junit.Test;

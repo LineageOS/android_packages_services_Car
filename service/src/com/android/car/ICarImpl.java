@@ -16,6 +16,7 @@
 
 package com.android.car;
 
+import static android.car.Car.CAR_DISPLAY_COMPAT_SERVICE;
 import static android.car.builtin.content.pm.PackageManagerHelper.PROPERTY_CAR_SERVICE_PACKAGE_NAME;
 
 import static com.android.car.CarServiceImpl.CAR_SERVICE_INIT_TIMING_MIN_DURATION_MS;
@@ -46,12 +47,12 @@ import android.content.om.OverlayInfo;
 import android.content.om.OverlayManager;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
-import android.frameworks.automotive.powerpolicy.internal.ICarPowerPolicySystemNotification;
 import android.hardware.automotive.vehicle.VehicleProperty;
 import android.os.Binder;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.os.IInterface;
 import android.os.Parcel;
 import android.os.ParcelFileDescriptor;
 import android.os.Process;
@@ -96,6 +97,7 @@ import com.android.car.user.ExperimentalCarUserService;
 import com.android.car.util.LimitedTimingsTraceLog;
 import com.android.car.vms.VmsBrokerService;
 import com.android.car.watchdog.CarWatchdogService;
+import com.android.car.wifi.CarWifiService;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 
@@ -174,6 +176,8 @@ public class ICarImpl extends ICar.Stub {
     private final CarActivityService mCarActivityService;
     private final CarOccupantConnectionService mCarOccupantConnectionService;
     private final CarRemoteDeviceService mCarRemoteDeviceService;
+    private final CarWifiService mCarWifiService;
+
     // Only modified at setCarRemoteAccessService for testing.
     @Nullable
     private CarRemoteAccessService mCarRemoteAccessService;
@@ -203,38 +207,19 @@ public class ICarImpl extends ICar.Stub {
             (FileDescriptor in, FileDescriptor out, FileDescriptor err, String[] args) ->
                     newCarShellCommand().exec(ICarImpl.this, in, out, err, args);
 
-    public ICarImpl(Context serviceContext, Context builtinContext, VehicleStub vehicle,
-            SystemInterface systemInterface, String vehicleInterfaceName) {
-        this(serviceContext, builtinContext, vehicle, systemInterface, vehicleInterfaceName,
-                /* carUserService= */ null, /* carWatchdogService= */ null,
-                /* carPerformanceService= */ null, /* garageModeService= */ null,
-                /* powerPolicyDaemon= */ null, /* carTelemetryService= */ null,
-                /* carRemoteAccessService= */ null, /* doPriorityInitInConstruction= */ true);
-    }
-
-    @VisibleForTesting
-    ICarImpl(Context serviceContext, @Nullable Context builtinContext, VehicleStub vehicle,
-            SystemInterface systemInterface, String vehicleInterfaceName,
-            @Nullable CarUserService carUserService,
-            @Nullable CarWatchdogService carWatchdogService,
-            @Nullable CarPerformanceService carPerformanceService,
-            @Nullable GarageModeService garageModeService,
-            @Nullable ICarPowerPolicySystemNotification powerPolicyDaemon,
-            @Nullable CarTelemetryService carTelemetryService,
-            @Nullable CarRemoteAccessService carRemoteAccessService,
-            boolean doPriorityInitInConstruction) {
+    private ICarImpl(Builder builder) {
         LimitedTimingsTraceLog t = new LimitedTimingsTraceLog(
                 CAR_SERVICE_INIT_TIMING_TAG, TraceHelper.TRACE_TAG_CAR_SERVICE,
                 CAR_SERVICE_INIT_TIMING_MIN_DURATION_MS);
         t.traceBegin("ICarImpl.constructor");
 
-        mDoPriorityInitInConstruction = doPriorityInitInConstruction;
+        mDoPriorityInitInConstruction = builder.mDoPriorityInitInConstruction;
 
-        mContext = serviceContext;
-        if (builtinContext == null) {
-            mCarServiceBuiltinPackageContext = serviceContext;
+        mContext = builder.mContext;
+        if (builder.mCarServiceBuiltinPackageContext == null) {
+            mCarServiceBuiltinPackageContext = mContext;
         } else {
-            mCarServiceBuiltinPackageContext = builtinContext;
+            mCarServiceBuiltinPackageContext = builder.mCarServiceBuiltinPackageContext;
         }
 
         mCarServiceHelperWrapper = CarServiceHelperWrapper.create();
@@ -242,13 +227,13 @@ public class ICarImpl extends ICar.Stub {
         // Currently there are ~36 services, hence using 40 as the initial capacity.
         List<CarSystemService> allServices = new ArrayList<>(40);
         mCarOemService = constructWithTrace(t, CarOemProxyService.class,
-                () -> new CarOemProxyService(serviceContext), allServices);
+                () -> new CarOemProxyService(mContext), allServices);
 
-        mSystemInterface = systemInterface;
+        mSystemInterface = builder.mSystemInterface;
         CarLocalServices.addService(SystemInterface.class, mSystemInterface);
 
         mHal = constructWithTrace(t, VehicleHal.class,
-                () -> new VehicleHal(serviceContext, vehicle), allServices);
+                () -> new VehicleHal(mContext, builder.mVehicle), allServices);
 
         HalPropValue disabledOptionalFeatureValue = mHal.getIfSupportedOrFailForEarlyStage(
                 VehicleProperty.DISABLED_OPTIONAL_FEATURES, INITIAL_VHAL_GET_RETRY);
@@ -268,34 +253,34 @@ public class ICarImpl extends ICar.Stub {
                 R.array.config_allowed_optional_car_features);
         final String[] disabledFromVhal = disabledFeaturesFromVhal;
         mFeatureController = constructWithTrace(t, CarFeatureController.class,
-                () -> new CarFeatureController(serviceContext, defaultEnabledFeatures,
+                () -> new CarFeatureController(mContext, defaultEnabledFeatures,
                         disabledFromVhal, mSystemInterface.getSystemCarDir()), allServices);
-        mVehicleInterfaceName = vehicleInterfaceName;
+        mVehicleInterfaceName = builder.mVehicleInterfaceName;
         mCarPropertyService = constructWithTrace(
                 t, CarPropertyService.class,
-                () -> new CarPropertyService(serviceContext, mHal.getPropertyHal()), allServices);
+                () -> new CarPropertyService(mContext, mHal.getPropertyHal()), allServices);
         mCarDrivingStateService = constructWithTrace(
                 t, CarDrivingStateService.class,
-                () -> new CarDrivingStateService(serviceContext, mCarPropertyService), allServices);
+                () -> new CarDrivingStateService(mContext, mCarPropertyService), allServices);
         mCarOccupantZoneService = constructWithTrace(t, CarOccupantZoneService.class,
-                () -> new CarOccupantZoneService(serviceContext), allServices);
+                () -> new CarOccupantZoneService(mContext), allServices);
         mCarUXRestrictionsService = constructWithTrace(t, CarUxRestrictionsManagerService.class,
-                () -> new CarUxRestrictionsManagerService(serviceContext, mCarDrivingStateService,
+                () -> new CarUxRestrictionsManagerService(mContext, mCarDrivingStateService,
                         mCarPropertyService, mCarOccupantZoneService), allServices);
         mCarActivityService = constructWithTrace(t, CarActivityService.class,
-                () -> new CarActivityService(serviceContext), allServices);
+                () -> new CarActivityService(mContext), allServices);
         mCarPackageManagerService = constructWithTrace(t, CarPackageManagerService.class,
-                () -> new CarPackageManagerService(serviceContext, mCarUXRestrictionsService,
+                () -> new CarPackageManagerService(mContext, mCarUXRestrictionsService,
                         mCarActivityService, mCarOccupantZoneService), allServices);
-        UserManager userManager = serviceContext.getSystemService(UserManager.class);
-        if (carUserService != null) {
-            mCarUserService = carUserService;
-            CarLocalServices.addService(CarUserService.class, carUserService);
+        UserManager userManager = mContext.getSystemService(UserManager.class);
+        if (builder.mCarUserService != null) {
+            mCarUserService = builder.mCarUserService;
+            CarLocalServices.addService(CarUserService.class, mCarUserService);
             allServices.add(mCarUserService);
         } else {
-            int maxRunningUsers = UserManagerHelper.getMaxRunningUsers(serviceContext);
+            int maxRunningUsers = UserManagerHelper.getMaxRunningUsers(mContext);
             mCarUserService = constructWithTrace(t, CarUserService.class,
-                    () -> new CarUserService(serviceContext, mHal.getUserHal(), userManager,
+                    () -> new CarUserService(mContext, mHal.getUserHal(), userManager,
                             maxRunningUsers, mCarUXRestrictionsService, mCarPackageManagerService,
                             mCarOccupantZoneService),
                     allServices);
@@ -308,7 +293,7 @@ public class ICarImpl extends ICar.Stub {
 
         if (mFeatureController.isFeatureEnabled(Car.EXPERIMENTAL_CAR_USER_SERVICE)) {
             mExperimentalCarUserService = constructWithTrace(t, ExperimentalCarUserService.class,
-                    () -> new ExperimentalCarUserService(serviceContext, mCarUserService,
+                    () -> new ExperimentalCarUserService(mContext, mCarUserService,
                             userManager), allServices);
         } else {
             mExperimentalCarUserService = null;
@@ -316,73 +301,73 @@ public class ICarImpl extends ICar.Stub {
         if (mFeatureController.isFeatureEnabled(Car.EXPERIMENTAL_CAR_KEYGUARD_SERVICE)) {
             mExperimentalCarKeyguardService = constructWithTrace(t,
                         ExperimentalCarKeyguardService.class,
-                    () -> new ExperimentalCarKeyguardService(serviceContext, mCarUserService,
+                    () -> new ExperimentalCarKeyguardService(mContext, mCarUserService,
                             mCarOccupantZoneService), allServices);
         } else {
             mExperimentalCarKeyguardService = null;
         }
         mSystemActivityMonitoringService = constructWithTrace(
                 t, SystemActivityMonitoringService.class,
-                () -> new SystemActivityMonitoringService(serviceContext), allServices);
+                () -> new SystemActivityMonitoringService(mContext), allServices);
         mCarPowerManagementService = constructWithTrace(
                 t, CarPowerManagementService.class,
-                () -> new CarPowerManagementService(mContext, mHal.getPowerHal(),
-                        systemInterface, mCarUserService, powerPolicyDaemon), allServices);
+                () -> new CarPowerManagementService(mContext, mHal.getPowerHal(), mSystemInterface,
+                        mCarUserService, builder.mPowerPolicyDaemon), allServices);
         if (mFeatureController.isFeatureEnabled(CarFeatures.FEATURE_CAR_USER_NOTICE_SERVICE)) {
             mCarUserNoticeService = constructWithTrace(
-                    t, CarUserNoticeService.class, () -> new CarUserNoticeService(serviceContext),
+                    t, CarUserNoticeService.class, () -> new CarUserNoticeService(mContext),
                     allServices);
         } else {
             mCarUserNoticeService = null;
         }
         if (mFeatureController.isFeatureEnabled(Car.OCCUPANT_AWARENESS_SERVICE)) {
             mOccupantAwarenessService = constructWithTrace(t, OccupantAwarenessService.class,
-                    () -> new OccupantAwarenessService(serviceContext), allServices);
+                    () -> new OccupantAwarenessService(mContext), allServices);
         } else {
             mOccupantAwarenessService = null;
         }
         mCarPerUserServiceHelper = constructWithTrace(
                 t, CarPerUserServiceHelper.class,
-                () -> new CarPerUserServiceHelper(serviceContext, mCarUserService), allServices);
+                () -> new CarPerUserServiceHelper(mContext, mCarUserService), allServices);
         mCarBluetoothService = constructWithTrace(t, CarBluetoothService.class,
-                () -> new CarBluetoothService(serviceContext, mCarPerUserServiceHelper),
+                () -> new CarBluetoothService(mContext, mCarPerUserServiceHelper),
                 allServices);
         mCarInputService = constructWithTrace(t, CarInputService.class,
-                () -> new CarInputService(serviceContext, mHal.getInputHal(), mCarUserService,
+                () -> new CarInputService(mContext, mHal.getInputHal(), mCarUserService,
                         mCarOccupantZoneService, mCarBluetoothService, mCarPowerManagementService,
                         mSystemInterface), allServices);
         mCarProjectionService = constructWithTrace(t, CarProjectionService.class,
-                () -> new CarProjectionService(serviceContext, null /* handler */, mCarInputService,
+                () -> new CarProjectionService(mContext, null /* handler */, mCarInputService,
                         mCarBluetoothService), allServices);
-        if (garageModeService == null) {
+        if (builder.mGarageModeService == null) {
             mGarageModeService = constructWithTrace(t, GarageModeService.class,
-                    () -> new GarageModeService(serviceContext), allServices);
+                    () -> new GarageModeService(mContext), allServices);
         } else {
-            mGarageModeService = garageModeService;
+            mGarageModeService = builder.mGarageModeService;
             allServices.add(mGarageModeService);
         }
         mAppFocusService = constructWithTrace(t, AppFocusService.class,
-                () -> new AppFocusService(serviceContext, mSystemActivityMonitoringService),
+                () -> new AppFocusService(mContext, mSystemActivityMonitoringService),
                 allServices);
         mCarAudioService = constructWithTrace(t, CarAudioService.class,
-                () -> new CarAudioService(serviceContext), allServices);
+                () -> new CarAudioService(mContext), allServices);
         mCarNightService = constructWithTrace(t, CarNightService.class,
-                () -> new CarNightService(serviceContext, mCarPropertyService), allServices);
+                () -> new CarNightService(mContext, mCarPropertyService), allServices);
         mFixedActivityService = constructWithTrace(t, FixedActivityService.class,
-                () -> new FixedActivityService(serviceContext, mCarActivityService), allServices);
+                () -> new FixedActivityService(mContext, mCarActivityService), allServices);
         mClusterNavigationService = constructWithTrace(
                 t, ClusterNavigationService.class,
-                () -> new ClusterNavigationService(serviceContext, mAppFocusService), allServices);
+                () -> new ClusterNavigationService(mContext, mAppFocusService), allServices);
         if (mFeatureController.isFeatureEnabled(Car.CAR_INSTRUMENT_CLUSTER_SERVICE)) {
             mInstrumentClusterService = constructWithTrace(t, InstrumentClusterService.class,
-                    () -> new InstrumentClusterService(serviceContext,
-                            mClusterNavigationService, mCarInputService), allServices);
+                    () -> new InstrumentClusterService(mContext, mClusterNavigationService,
+                            mCarInputService), allServices);
         } else {
             mInstrumentClusterService = null;
         }
 
         mCarStatsService = constructWithTrace(t, CarStatsService.class,
-                () -> new CarStatsService(serviceContext), allServices);
+                () -> new CarStatsService(mContext), allServices);
 
         if (mFeatureController.isFeatureEnabled(Car.VEHICLE_MAP_SERVICE)) {
             mVmsBrokerService = constructWithTrace(t, VmsBrokerService.class,
@@ -392,41 +377,39 @@ public class ICarImpl extends ICar.Stub {
         }
         if (mFeatureController.isFeatureEnabled(Car.DIAGNOSTIC_SERVICE)) {
             mCarDiagnosticService = constructWithTrace(t, CarDiagnosticService.class,
-                    () -> new CarDiagnosticService(serviceContext,
-                            mHal.getDiagnosticHal()), allServices);
+                    () -> new CarDiagnosticService(mContext, mHal.getDiagnosticHal()), allServices);
         } else {
             mCarDiagnosticService = null;
         }
         if (mFeatureController.isFeatureEnabled(Car.STORAGE_MONITORING_SERVICE)) {
             mCarStorageMonitoringService = constructWithTrace(
                     t, CarStorageMonitoringService.class,
-                    () -> new CarStorageMonitoringService(serviceContext,
-                            systemInterface), allServices);
+                    () -> new CarStorageMonitoringService(mContext, mSystemInterface), allServices);
         } else {
             mCarStorageMonitoringService = null;
         }
         mCarLocationService = constructWithTrace(t, CarLocationService.class,
-                () -> new CarLocationService(serviceContext), allServices);
+                () -> new CarLocationService(mContext), allServices);
         mCarMediaService = constructWithTrace(t, CarMediaService.class,
-                () -> new CarMediaService(serviceContext, mCarOccupantZoneService, mCarUserService,
+                () -> new CarMediaService(mContext, mCarOccupantZoneService, mCarUserService,
                         mCarPowerManagementService),
                 allServices);
         mCarBugreportManagerService = constructWithTrace(t, CarBugreportManagerService.class,
-                () -> new CarBugreportManagerService(serviceContext), allServices);
-        if (carWatchdogService == null) {
+                () -> new CarBugreportManagerService(mContext), allServices);
+        if (builder.mCarWatchdogService == null) {
             mCarWatchdogService = constructWithTrace(t, CarWatchdogService.class,
-                    () -> new CarWatchdogService(serviceContext, mCarServiceBuiltinPackageContext),
+                    () -> new CarWatchdogService(mContext, mCarServiceBuiltinPackageContext),
                     allServices);
         } else {
-            mCarWatchdogService = carWatchdogService;
+            mCarWatchdogService = builder.mCarWatchdogService;
             allServices.add(mCarWatchdogService);
             CarLocalServices.addService(CarWatchdogService.class, mCarWatchdogService);
         }
-        if (carPerformanceService == null) {
+        if (builder.mCarPerformanceService == null) {
             mCarPerformanceService = constructWithTrace(t, CarPerformanceService.class,
-                    () -> new CarPerformanceService(serviceContext), allServices);
+                    () -> new CarPerformanceService(mContext), allServices);
         } else {
-            mCarPerformanceService = carPerformanceService;
+            mCarPerformanceService = builder.mCarPerformanceService;
             allServices.add(mCarPerformanceService);
             CarLocalServices.addService(CarPerformanceService.class, mCarPerformanceService);
         }
@@ -437,7 +420,7 @@ public class ICarImpl extends ICar.Stub {
             if (!mFeatureController.isFeatureEnabled(Car.CAR_INSTRUMENT_CLUSTER_SERVICE)) {
                 mClusterHomeService = constructWithTrace(
                         t, ClusterHomeService.class,
-                        () -> new ClusterHomeService(serviceContext, mHal.getClusterHal(),
+                        () -> new ClusterHomeService(mContext, mHal.getClusterHal(),
                                 mClusterNavigationService, mCarOccupantZoneService,
                                 mFixedActivityService), allServices);
             } else {
@@ -450,20 +433,19 @@ public class ICarImpl extends ICar.Stub {
 
         if (mFeatureController.isFeatureEnabled(Car.CAR_EVS_SERVICE)) {
             mCarEvsService = constructWithTrace(t, CarEvsService.class,
-                    () -> new CarEvsService(serviceContext, mCarServiceBuiltinPackageContext,
+                    () -> new CarEvsService(mContext, mCarServiceBuiltinPackageContext,
                             mHal.getEvsHal(), mCarPropertyService), allServices);
         } else {
             mCarEvsService = null;
         }
 
         if (mFeatureController.isFeatureEnabled(Car.CAR_TELEMETRY_SERVICE)) {
-            if (carTelemetryService == null) {
+            if (builder.mCarTelemetryService == null) {
                 mCarTelemetryService = constructWithTrace(t, CarTelemetryService.class,
-                        () -> new CarTelemetryService(
-                                serviceContext, mCarPowerManagementService, mCarPropertyService),
-                        allServices);
+                        () -> new CarTelemetryService(mContext, mCarPowerManagementService,
+                                mCarPropertyService), allServices);
             } else {
-                mCarTelemetryService = carTelemetryService;
+                mCarTelemetryService = builder.mCarTelemetryService;
                 allServices.add(mCarTelemetryService);
             }
         } else {
@@ -471,12 +453,12 @@ public class ICarImpl extends ICar.Stub {
         }
 
         if (mFeatureController.isFeatureEnabled((Car.CAR_REMOTE_ACCESS_SERVICE))) {
-            if (carRemoteAccessService == null) {
+            if (builder.mCarRemoteAccessService == null) {
                 mCarRemoteAccessService = constructWithTrace(t, CarRemoteAccessService.class,
                         () -> new CarRemoteAccessService(
-                                serviceContext, systemInterface, mHal.getPowerHal()), allServices);
+                                mContext, mSystemInterface, mHal.getPowerHal()), allServices);
             } else {
-                mCarRemoteAccessService = carRemoteAccessService;
+                mCarRemoteAccessService = builder.mCarRemoteAccessService;
                 mCarRemoteAccessService.setPowerHal(mHal.getPowerHal());
                 allServices.add(mCarRemoteAccessService);
             }
@@ -484,11 +466,15 @@ public class ICarImpl extends ICar.Stub {
             mCarRemoteAccessService = null;
         }
 
+        mCarWifiService = constructWithTrace(t, CarWifiService.class,
+                () -> new CarWifiService(mContext, mCarPowerManagementService,
+                        mCarUserService), allServices);
+
         // Always put mCarExperimentalFeatureServiceController in last.
         if (!BuildHelper.isUserBuild()) {
             mCarExperimentalFeatureServiceController = constructWithTrace(
                     t, CarExperimentalFeatureServiceController.class,
-                    () -> new CarExperimentalFeatureServiceController(serviceContext),
+                    () -> new CarExperimentalFeatureServiceController(mContext),
                     allServices);
         } else {
             mCarExperimentalFeatureServiceController = null;
@@ -498,12 +484,12 @@ public class ICarImpl extends ICar.Stub {
                 || mFeatureController.isFeatureEnabled(Car.CAR_REMOTE_DEVICE_SERVICE)) {
             mCarRemoteDeviceService = constructWithTrace(
                     t, CarRemoteDeviceService.class,
-                    () -> new CarRemoteDeviceService(serviceContext, mCarOccupantZoneService,
+                    () -> new CarRemoteDeviceService(mContext, mCarOccupantZoneService,
                             mCarPowerManagementService, mSystemActivityMonitoringService),
                     allServices);
             mCarOccupantConnectionService = constructWithTrace(
                     t, CarOccupantConnectionService.class,
-                    () -> new CarOccupantConnectionService(serviceContext, mCarOccupantZoneService,
+                    () -> new CarOccupantConnectionService(mContext, mCarOccupantZoneService,
                             mCarRemoteDeviceService),
                     allServices);
 
@@ -534,10 +520,22 @@ public class ICarImpl extends ICar.Stub {
             service.init();
             t.traceEnd();
         }
-        t.traceBegin("CarOemService.initComplete");
-        mCarOemService.onInitComplete();
-        t.traceEnd();
         t.traceEnd(); // "CarService.initAllServices"
+
+        t.traceBegin("CarService.onInitComplete");
+        for (CarSystemService service : mAllServicesInInitOrder) {
+            if (service == mCarPowerManagementService) {
+                // Must make sure mCarPowerManagementService.onInitComplete runs at last since
+                // it might shutdown the device.
+                continue;
+            }
+            t.traceBegin("onInitComplete:" + service.getClass().getSimpleName());
+            service.onInitComplete();
+            t.traceEnd();
+        }
+        mCarPowerManagementService.onInitComplete();
+        t.traceEnd(); // "CarService.onInitComplete"
+
         t.traceEnd(); // "ICarImpl.init"
     }
 
@@ -718,6 +716,18 @@ public class ICarImpl extends ICar.Stub {
             case Car.CAR_REMOTE_ACCESS_SERVICE:
                 return mCarRemoteAccessService;
             default:
+                // CarDisplayCompatManager does not need a new service but the Car class
+                // doesn't allow a new Manager class without a service.
+                if (Flags.displayCompatibility()) {
+                    if (serviceName.equals(CAR_DISPLAY_COMPAT_SERVICE)) {
+                        return mCarActivityService;
+                    }
+                }
+                if (Flags.persistApSettings()) {
+                    if (serviceName.equals(Car.CAR_WIFI_SERVICE)) {
+                        return mCarWifiService;
+                    }
+                }
                 IBinder service = null;
                 if (mCarExperimentalFeatureServiceController != null) {
                     service = mCarExperimentalFeatureServiceController.getCarService(serviceName);
@@ -1136,5 +1146,161 @@ public class ICarImpl extends ICar.Stub {
     /* package */ void priorityInit() {
         mHal.priorityInit();
         mCarUserService.priorityInit();
+    }
+
+    public static final class Builder {
+        Context mContext;
+        Context mCarServiceBuiltinPackageContext;
+        VehicleStub mVehicle;
+        SystemInterface mSystemInterface;
+        String mVehicleInterfaceName;
+        CarUserService mCarUserService;
+        CarWatchdogService mCarWatchdogService;
+        CarPerformanceService mCarPerformanceService;
+        GarageModeService mGarageModeService;
+        IInterface mPowerPolicyDaemon;
+        CarTelemetryService mCarTelemetryService;
+        CarRemoteAccessService mCarRemoteAccessService;
+        boolean mDoPriorityInitInConstruction;
+
+        /**
+         * Builds the ICarImpl object represented by this builder object
+         * @return ICarImpl object
+         */
+        public ICarImpl build() {
+            return new ICarImpl(this);
+        }
+
+        /**
+         * Sets ICarImpl builder service context
+         * @param serviceContext The service context
+         * @return Current builder object
+         */
+        public Builder setServiceContext(Context serviceContext) {
+            mContext = serviceContext;
+            return this;
+        }
+
+        /**
+         * Sets ICarImpl builder built in context
+         * @param builtInContext The car service built in package context
+         * @return Current builder object
+         */
+        public Builder setBuiltInContext(Context builtInContext) {
+            mCarServiceBuiltinPackageContext = builtInContext;
+            return this;
+        }
+
+        /**
+         * Sets ICarImpl builder vehicle
+         * @param vehicle The vehicle stub object to use
+         * @return Current builder object
+         */
+        public Builder setVehicle(VehicleStub vehicle) {
+            mVehicle = vehicle;
+            return this;
+        }
+
+        /**
+         * Sets ICarImpl builder system interface
+         * @param systemInterface The system interface object
+         * @return Current builder object
+         */
+        public Builder setSystemInterface(SystemInterface systemInterface) {
+            mSystemInterface = systemInterface;
+            return this;
+        }
+
+        /**
+         * Sets ICarImpl builder vehicle interface name
+         * @param vehicleInterfaceName The vehicle interface name
+         * @return Current builder object
+         */
+        public Builder setVehicleInterfaceName(String vehicleInterfaceName) {
+            mVehicleInterfaceName = vehicleInterfaceName;
+            return this;
+        }
+
+        /**
+         * Sets ICarImpl builder car user service
+         * @param carUserService The car user service
+         * @return Current builder object
+         */
+        public Builder setCarUserService(CarUserService carUserService) {
+            mCarUserService = carUserService;
+            return this;
+        }
+
+        /**
+         * Sets ICarImpl builder car watchdog service
+         * @param carWatchdogService The car watchdog service
+         * @return Current builder object
+         */
+        public Builder setCarWatchdogService(CarWatchdogService carWatchdogService) {
+            mCarWatchdogService = carWatchdogService;
+            return this;
+        }
+
+        /**
+         * Sets ICarImpl builder car performance service
+         * @param carPerformanceService The car performance service
+         * @return Current builder object
+         */
+        public Builder setCarPerformanceService(CarPerformanceService carPerformanceService) {
+            mCarPerformanceService = carPerformanceService;
+            return this;
+        }
+
+        /**
+         * Sets ICarImpl builder garage mode service
+         * @param garageModeService The garage mode service
+         * @return Current builder object
+         */
+        public Builder setGarageModeService(GarageModeService garageModeService) {
+            mGarageModeService = garageModeService;
+            return this;
+        }
+
+        /**
+         * Sets ICarImpl power policy daemon
+         * @param powerPolicyDaemon The power policy daemon interface
+         * @return Current builder object
+         */
+        public Builder setPowerPolicyDaemon(IInterface powerPolicyDaemon) {
+            mPowerPolicyDaemon = powerPolicyDaemon;
+            return this;
+        }
+
+        /**
+         * Sets ICarImpl car telemetry service
+         * @param carTelemetryService The car telemetry service
+         * @return Current builder object
+         */
+        public Builder setCarTelemetryService(CarTelemetryService carTelemetryService) {
+            mCarTelemetryService = carTelemetryService;
+            return this;
+        }
+
+        /**
+         * Set ICarImpl car remote access service
+         * @param carRemoteAccessService The car remote access service
+         * @return Current builder object
+         */
+        public Builder setCarRemoteAccessService(CarRemoteAccessService carRemoteAccessService) {
+            mCarRemoteAccessService = carRemoteAccessService;
+            return this;
+        }
+
+        /**
+         * Sets whether ICarImpl builder will make an ICarImpl object that does priority
+         * initialization in construction
+         * @param doPriorityInitInConstruction Whether to do priority initialization in construction
+         *                                     of the ICarImpl object this builder represents
+         * @return Current builder object
+         */
+        public Builder setDoPriorityInitInConstruction(boolean doPriorityInitInConstruction) {
+            mDoPriorityInitInConstruction = doPriorityInitInConstruction;
+            return this;
+        }
     }
 }

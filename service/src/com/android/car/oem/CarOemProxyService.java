@@ -609,6 +609,7 @@ public final class CarOemProxyService implements CarServiceBase {
      */
     // This would set mInitComplete, which is an additional check so that no car service component
     // calls CarOemService during or before ICarImpl's init.
+    @Override
     public void onInitComplete() {
         if (!mIsFeatureEnabled) {
             if (DBG) {

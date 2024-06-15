@@ -33,14 +33,14 @@ cc_defaults {
         "libutils",
     ],
     header_libs: [
-        "libgtest_prod_headers",  // for FRIEND_TEST
+        "libgtest_prod_headers", // for FRIEND_TEST
     ],
     product_variables: {
         debuggable: {
             cflags: [
                 "-DCARTELEMETRYD_DEBUG=true",
-            ]
-        }
+            ],
+        },
     },
 }
 
@@ -87,11 +87,11 @@ cc_binary {
         "cartelemetryd_defaults",
     ],
     srcs: [
-        "src/main.cpp"
+        "src/main.cpp",
     ],
     init_rc: ["android.automotive.telemetryd@1.0.rc"],
     vintf_fragments: ["android.automotive.telemetryd@1.0.xml"],
     shared_libs: [
-        "android.automotive.telemetryd@1.0-impl"
+        "android.automotive.telemetryd@1.0-impl",
     ],
 }

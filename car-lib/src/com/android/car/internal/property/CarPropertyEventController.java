@@ -19,11 +19,9 @@ package com.android.car.internal.property;
 import static java.util.Objects.requireNonNull;
 
 import android.car.VehiclePropertyIds;
-import android.car.builtin.util.Slogf;
 import android.car.hardware.CarPropertyValue;
 import android.car.hardware.property.CarPropertyEvent;
 import android.util.ArraySet;
-import android.util.Log;
 
 import com.android.car.internal.util.PairSparseArray;
 import com.android.internal.annotations.GuardedBy;
@@ -44,12 +42,18 @@ import com.android.internal.annotations.VisibleForTesting;
 public class CarPropertyEventController {
     // Abbreviating TAG because class name is longer than the 23 character Log tag limit.
     private static final String TAG = "CPEController";
-    private static final boolean DBG = Log.isLoggable(TAG, Log.DEBUG);
+    private final Logger mLogger;
+    private final boolean mUseSystemLogger;
     private final Object mLock = new Object();
     // For each property ID and area ID, track the property event information.
     @GuardedBy("mLock")
     private final PairSparseArray<CarPropertyEventTracker> mPropIdToAreaIdToCpeTracker =
             new PairSparseArray<>();
+
+    public CarPropertyEventController(boolean useSystemLogger) {
+        mUseSystemLogger = useSystemLogger;
+        mLogger = new Logger(useSystemLogger, TAG);
+    }
 
     /** Gets the update rate in Hz for the property ID, area ID. */
     @VisibleForTesting
@@ -65,18 +69,20 @@ public class CarPropertyEventController {
 
     /** Tracks the continuous property ID and area IDs at the given update rate. */
     public void addContinuousProperty(int propertyId, int[] areaIds, float updateRateHz,
-            boolean enableVur) {
+            boolean enableVur, float resolution) {
         requireNonNull(areaIds);
         synchronized (mLock) {
             for (int areaId : areaIds) {
-                if (DBG) {
-                    Slogf.d(TAG, "Add new continuous property event tracker, property: %s, "
-                            + "areaId: %d, updateRate: %f Hz, enableVur: %b",
+                if (mLogger.dbg()) {
+                    mLogger.logD(String.format(
+                            "Add new continuous property event tracker, property: %s, "
+                            + "areaId: %d, updateRate: %f Hz, enableVur: %b, resolution: %f",
                             VehiclePropertyIds.toString(propertyId), areaId, updateRateHz,
-                            enableVur);
+                            enableVur, resolution));
                 }
                 mPropIdToAreaIdToCpeTracker.put(propertyId, areaId,
-                        new ContCarPropertyEventTracker(updateRateHz, enableVur));
+                        new ContCarPropertyEventTracker(mUseSystemLogger, updateRateHz, enableVur,
+                                resolution));
             }
         }
     }
@@ -86,12 +92,13 @@ public class CarPropertyEventController {
         requireNonNull(areaIds);
         synchronized (mLock) {
             for (int areaId : areaIds) {
-                if (DBG) {
-                    Slogf.d(TAG, "Add new on-change property event tracker, property: %s, "
-                            + "areaId: %d", VehiclePropertyIds.toString(propertyId), areaId);
+                if (mLogger.dbg()) {
+                    mLogger.logD(String.format(
+                            "Add new on-change property event tracker, property: %s, "
+                            + "areaId: %d", VehiclePropertyIds.toString(propertyId), areaId));
                 }
                 mPropIdToAreaIdToCpeTracker.put(propertyId, areaId,
-                        new OnChangeCarPropertyEventTracker());
+                        new OnChangeCarPropertyEventTracker(mUseSystemLogger));
             }
         }
     }
@@ -144,8 +151,12 @@ public class CarPropertyEventController {
         }
     }
 
-    /** Returns whether the client callback should be invoked for the event. */
-    protected boolean shouldCallbackBeInvoked(CarPropertyEvent carPropertyEvent) {
+    /**
+     * Returns a new sanitized CarPropertyValue if the client callback should be invoked for the
+     * event.
+     */
+    protected CarPropertyValue<?> getCarPropertyValueIfCallbackRequired(
+            CarPropertyEvent carPropertyEvent) {
         CarPropertyValue<?> carPropertyValue = carPropertyEvent.getCarPropertyValue();
         int propertyId = carPropertyValue.getPropertyId();
         int areaId = carPropertyValue.getAreaId();
@@ -153,14 +164,18 @@ public class CarPropertyEventController {
         synchronized (mLock) {
             CarPropertyEventTracker tracker = mPropIdToAreaIdToCpeTracker.get(propertyId, areaId);
             if (tracker == null) {
-                Slogf.w(TAG, "shouldCallbackBeInvoked: callback not registered for event: "
+                mLogger.logW(
+                        "getCarPropertyValueIfCallbackRequired: callback not registered for event: "
                         + carPropertyEvent);
-                return false;
+                return null;
             }
             if (carPropertyEvent.getEventType() == CarPropertyEvent.PROPERTY_EVENT_ERROR) {
-                return true;
+                return carPropertyValue;
             }
-            return tracker.hasUpdate(carPropertyValue);
+            if (tracker.hasUpdate(carPropertyValue)) {
+                return tracker.getCurrentCarPropertyValue();
+            }
+            return null;
         }
     }
 

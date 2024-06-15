@@ -75,13 +75,13 @@ Result<DiskStats> parseDiskStatsLine(const std::string& line) {
         !ParseInt(fields[1], &diskStats.minor) ||
         !ParseUint(fields[3], &diskStats.numReadsCompleted) ||
         !ParseUint(fields[4], &diskStats.numReadsMerged) || !ParseUint(fields[5], &sectorsRead) ||
-        !ParseUint(fields[6], &diskStats.readTimeInMs) ||
+        !ParseUint(fields[6], &diskStats.readTimeInMillis) ||
         !ParseUint(fields[7], &diskStats.numWritesCompleted) ||
         !ParseUint(fields[8], &diskStats.numWritesMerged) ||
         !ParseUint(fields[9], &sectorsWritten) ||
-        !ParseUint(fields[10], &diskStats.writeTimeInMs) ||
-        !ParseUint(fields[12], &diskStats.totalIoTimeInMs) ||
-        !ParseUint(fields[13], &diskStats.weightedTotalIoTimeInMs)) {
+        !ParseUint(fields[10], &diskStats.writeTimeInMillis) ||
+        !ParseUint(fields[12], &diskStats.totalIoTimeInMillis) ||
+        !ParseUint(fields[13], &diskStats.weightedTotalIoTimeInMillis)) {
         return Error() << "Failed to parse from line fields: '" << Join(fields, "', '") << "'";
     }
     diskStats.deviceName = fields[2];
@@ -90,7 +90,7 @@ Result<DiskStats> parseDiskStatsLine(const std::string& line) {
     diskStats.numKibWritten = sectorsWritten / 2;
     if (fields.size() >= 20 &&
         (!ParseUint(fields[18], &diskStats.numFlushCompleted) ||
-         !ParseUint(fields[19], &diskStats.flushTimeInMs))) {
+         !ParseUint(fields[19], &diskStats.flushTimeInMillis))) {
         return Error() << "Failed to parse flush stats from line fields: '" << Join(fields, "', '")
                        << "'";
     }
@@ -159,15 +159,16 @@ DiskStats& DiskStats::operator-=(const DiskStats& rhs) {
     numReadsCompleted = diff(numReadsCompleted, rhs.numReadsCompleted);
     numReadsMerged = diff(numReadsMerged, rhs.numReadsMerged);
     numKibRead = diff(numKibRead, rhs.numKibRead);
-    readTimeInMs = diff(readTimeInMs, rhs.readTimeInMs);
+    readTimeInMillis = diff(readTimeInMillis, rhs.readTimeInMillis);
     numWritesCompleted = diff(numWritesCompleted, rhs.numWritesCompleted);
     numWritesMerged = diff(numWritesMerged, rhs.numWritesMerged);
     numKibWritten = diff(numKibWritten, rhs.numKibWritten);
-    writeTimeInMs = diff(writeTimeInMs, rhs.writeTimeInMs);
-    totalIoTimeInMs = diff(totalIoTimeInMs, rhs.totalIoTimeInMs);
-    weightedTotalIoTimeInMs = diff(weightedTotalIoTimeInMs, rhs.weightedTotalIoTimeInMs);
+    writeTimeInMillis = diff(writeTimeInMillis, rhs.writeTimeInMillis);
+    totalIoTimeInMillis = diff(totalIoTimeInMillis, rhs.totalIoTimeInMillis);
+    weightedTotalIoTimeInMillis =
+            diff(weightedTotalIoTimeInMillis, rhs.weightedTotalIoTimeInMillis);
     numFlushCompleted = diff(numFlushCompleted, rhs.numFlushCompleted);
-    flushTimeInMs = diff(flushTimeInMs, rhs.flushTimeInMs);
+    flushTimeInMillis = diff(flushTimeInMillis, rhs.flushTimeInMillis);
     return *this;
 }
 
@@ -180,15 +181,15 @@ DiskStats& DiskStats::operator+=(const DiskStats& rhs) {
     numReadsCompleted = sum(numReadsCompleted, rhs.numReadsCompleted);
     numReadsMerged = sum(numReadsMerged, rhs.numReadsMerged);
     numKibRead = sum(numKibRead, rhs.numKibRead);
-    readTimeInMs = sum(readTimeInMs, rhs.readTimeInMs);
+    readTimeInMillis = sum(readTimeInMillis, rhs.readTimeInMillis);
     numWritesCompleted = sum(numWritesCompleted, rhs.numWritesCompleted);
     numWritesMerged = sum(numWritesMerged, rhs.numWritesMerged);
     numKibWritten = sum(numKibWritten, rhs.numKibWritten);
-    writeTimeInMs = sum(writeTimeInMs, rhs.writeTimeInMs);
-    totalIoTimeInMs = sum(totalIoTimeInMs, rhs.totalIoTimeInMs);
-    weightedTotalIoTimeInMs = sum(weightedTotalIoTimeInMs, rhs.weightedTotalIoTimeInMs);
+    writeTimeInMillis = sum(writeTimeInMillis, rhs.writeTimeInMillis);
+    totalIoTimeInMillis = sum(totalIoTimeInMillis, rhs.totalIoTimeInMillis);
+    weightedTotalIoTimeInMillis = sum(weightedTotalIoTimeInMillis, rhs.weightedTotalIoTimeInMillis);
     numFlushCompleted = sum(numFlushCompleted, rhs.numFlushCompleted);
-    flushTimeInMs = sum(flushTimeInMs, rhs.flushTimeInMs);
+    flushTimeInMillis = sum(flushTimeInMillis, rhs.flushTimeInMillis);
     return *this;
 }
 

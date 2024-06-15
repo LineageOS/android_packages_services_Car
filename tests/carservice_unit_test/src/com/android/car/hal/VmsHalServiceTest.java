@@ -29,6 +29,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import android.car.hardware.property.VehicleHalStatusCode;
+import android.car.test.util.TemporaryFile;
 import android.car.vms.VmsAssociatedLayer;
 import android.car.vms.VmsAvailableLayers;
 import android.car.vms.VmsClient;
@@ -46,7 +47,6 @@ import android.os.Handler;
 import android.os.ServiceSpecificException;
 
 import com.android.car.R;
-import com.android.car.test.utils.TemporaryFile;
 
 import org.junit.Before;
 import org.junit.Test;

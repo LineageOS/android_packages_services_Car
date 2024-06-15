@@ -27,11 +27,10 @@ import android.car.CarAppFocusManager;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
-import android.os.Process;
-import android.test.suitebuilder.annotation.MediumTest;
 import android.util.Log;
 
 import androidx.test.filters.FlakyTest;
+import androidx.test.filters.MediumTest;
 import androidx.test.filters.RequiresDevice;
 
 import org.junit.After;
@@ -116,7 +115,7 @@ public final class CarAppFocusManagerTest extends CarApiTestBase {
         assertThat(manager.requestAppFocus(APP_FOCUS_TYPE_NAVIGATION, new FocusOwnershipCallback()))
                 .isEqualTo(CarAppFocusManager.APP_FOCUS_REQUEST_SUCCEEDED);
 
-        // Unregistred from nav app, no events expected.
+        // Unregistered from nav app, no events expected.
         assertThat(listener1.waitForFocusChangeAndAssert(
                 NEGATIVE_CASE_WAIT_TIMEOUT_MS, APP_FOCUS_TYPE_NAVIGATION,
                 true)).isFalse();
@@ -261,25 +260,6 @@ public final class CarAppFocusManagerTest extends CarApiTestBase {
         APP_FOCUS_TYPE_NAVIGATION, false)).isTrue();
         assertThat(listener2.waitForFocusChangeAndAssert(DEFAULT_WAIT_TIMEOUT_MS,
         APP_FOCUS_TYPE_NAVIGATION, false)).isTrue();
-    }
-
-    @Test
-    public void testGetAppTypeOwner() throws Exception {
-        CarAppFocusManager manager = createManager(getContext(), mEventThread);
-
-        assertThat(manager.getAppTypeOwner(APP_FOCUS_TYPE_NAVIGATION)).isNull();
-
-        FocusOwnershipCallback owner = new FocusOwnershipCallback();
-        assertThat(manager.requestAppFocus(APP_FOCUS_TYPE_NAVIGATION, owner))
-                .isEqualTo(APP_FOCUS_REQUEST_SUCCEEDED);
-
-        String[] myPackages = getContext().getPackageManager().getPackagesForUid(Process.myUid());
-        assertThat(manager.getAppTypeOwner(APP_FOCUS_TYPE_NAVIGATION))
-                .containsExactlyElementsIn(myPackages);
-
-        manager.abandonAppFocus(owner, APP_FOCUS_TYPE_NAVIGATION);
-
-        assertThat(manager.getAppTypeOwner(APP_FOCUS_TYPE_NAVIGATION)).isNull();
     }
 
     private CarAppFocusManager createManager() throws InterruptedException {

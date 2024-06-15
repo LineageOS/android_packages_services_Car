@@ -45,6 +45,8 @@ public final class CarAudioZoneConfigInfoUnitTest extends AbstractExpectableTest
     private static final String TEST_GROUP_NAME = "3";
     private static final int TEST_MAX_GAIN_INDEX = 9_005;
     private static final int TEST_MIN_GAIN_INDEX = 0;
+    private static final int TEST_MAX_ACTIVATION_GAIN_INDEX = 8_005;
+    private static final int TEST_MIN_ACTIVATION_GAIN_INDEX = 1_000;
 
     private static final AudioAttributes TEST_MEDIA_AUDIO_ATTRIBUTE =
             new AudioAttributes.Builder().setUsage(USAGE_MEDIA).build();
@@ -59,12 +61,16 @@ public final class CarAudioZoneConfigInfoUnitTest extends AbstractExpectableTest
             new CarVolumeGroupInfo.Builder(TEST_GROUP_NAME, TEST_ZONE_ID, TEST_PRIMARY_GROUP_ID)
                     .setMaxVolumeGainIndex(TEST_MAX_GAIN_INDEX)
                     .setMinVolumeGainIndex(TEST_MIN_GAIN_INDEX)
+                    .setMaxActivationVolumeGainIndex(TEST_MAX_ACTIVATION_GAIN_INDEX)
+                    .setMinActivationVolumeGainIndex(TEST_MIN_ACTIVATION_GAIN_INDEX)
                     .setAudioAttributes(TEST_AUDIO_ATTRIBUTES).build();
     private static final boolean TEST_ACTIVE_STATUS = true;
     private static final boolean TEST_SELECTED_STATUS = false;
+    private static final boolean TEST_DEFAULT_STATUS = true;
     private static final CarAudioZoneConfigInfo TEST_ZONE_CONFIG_INFO =
             new CarAudioZoneConfigInfo(TEST_CONFIG_NAME, List.of(TEST_VOLUME_INFO),
-                    TEST_ZONE_ID, TEST_CONFIG_ID, TEST_ACTIVE_STATUS, TEST_SELECTED_STATUS);
+                    TEST_ZONE_ID, TEST_CONFIG_ID, TEST_ACTIVE_STATUS, TEST_SELECTED_STATUS,
+                    TEST_DEFAULT_STATUS);
 
     @Rule
     public final SetFlagsRule mSetFlagsRule = new SetFlagsRule();
@@ -83,7 +89,8 @@ public final class CarAudioZoneConfigInfoUnitTest extends AbstractExpectableTest
     public void constructor_withNullVolumeGroups_fails() {
         NullPointerException thrown = assertThrows(NullPointerException.class, () ->
                 new CarAudioZoneConfigInfo(TEST_CONFIG_NAME, /* groups= */ null , TEST_ZONE_ID,
-                        TEST_CONFIG_ID, /* isActive= */ true, /* isSelected= */ false)
+                        TEST_CONFIG_ID, /* isActive= */ true, /* isSelected= */ false,
+                        /* isDefault= */ false)
         );
 
         expectWithMessage("Null zone configuration info volumes exception")
@@ -125,6 +132,14 @@ public final class CarAudioZoneConfigInfoUnitTest extends AbstractExpectableTest
     }
 
     @Test
+    public void isDefault() {
+        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
+
+        expectWithMessage("Config default indicator").that(TEST_ZONE_CONFIG_INFO.isDefault())
+                .isEqualTo(TEST_DEFAULT_STATUS);
+    }
+
+    @Test
     public void getConfigVolumeGroups() {
         mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
 
@@ -137,7 +152,7 @@ public final class CarAudioZoneConfigInfoUnitTest extends AbstractExpectableTest
         Parcel parcel = Parcel.obtain();
 
         TEST_ZONE_CONFIG_INFO.writeToParcel(parcel, TEST_PARCEL_FLAGS);
-        parcel.setDataPosition(/* position= */ 0);
+        parcel.setDataPosition(/* pos= */ 0);
 
         expectWithMessage("Zone configuration info created from parcel")
                 .that(CarAudioZoneConfigInfo.CREATOR.createFromParcel(parcel))
@@ -166,7 +181,7 @@ public final class CarAudioZoneConfigInfoUnitTest extends AbstractExpectableTest
         mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
         CarAudioZoneConfigInfo infoWithSameContent = new CarAudioZoneConfigInfo(TEST_CONFIG_NAME,
                 List.of(TEST_VOLUME_INFO), TEST_ZONE_ID, TEST_CONFIG_ID, TEST_ACTIVE_STATUS,
-                TEST_SELECTED_STATUS);
+                TEST_SELECTED_STATUS, TEST_DEFAULT_STATUS);
 
         expectWithMessage("Zone config info with same content and dynamic flags enabled")
                 .that(infoWithSameContent).isEqualTo(TEST_ZONE_CONFIG_INFO);
@@ -177,7 +192,7 @@ public final class CarAudioZoneConfigInfoUnitTest extends AbstractExpectableTest
         mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
         CarAudioZoneConfigInfo infoWithSameContent = new CarAudioZoneConfigInfo(TEST_CONFIG_NAME,
                 List.of(TEST_VOLUME_INFO), TEST_ZONE_ID, TEST_CONFIG_ID_2, TEST_ACTIVE_STATUS,
-                TEST_SELECTED_STATUS);
+                TEST_SELECTED_STATUS, TEST_DEFAULT_STATUS);
 
         expectWithMessage("Zone config info with same content and dynamic flags enabled")
                 .that(infoWithSameContent).isNotEqualTo(TEST_ZONE_CONFIG_INFO);

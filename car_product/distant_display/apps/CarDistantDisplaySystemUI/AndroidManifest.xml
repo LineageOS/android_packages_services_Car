@@ -31,12 +31,16 @@
 
     <!-- This permission is required to create a CarTaskViewController -->
     <uses-permission android:name="android.car.permission.MANAGE_CAR_SYSTEM_UI"/>
+    <uses-permission android:name="android.permission.CAPTURE_VIDEO_OUTPUT" />
+    <uses-permission android:name="android.permission.CAPTURE_SECURE_VIDEO_OUTPUT" />
 
     <!-- Permission to get car driving state -->
     <uses-permission android:name="android.car.permission.CAR_DRIVING_STATE"/>
+    <uses-permission android:name="android.permission.INTERACT_ACROSS_USERS_FULL"/>
 
     <!-- Permission to get outside temperature -->
     <uses-permission android:name="android.car.permission.CAR_EXTERIOR_ENVIRONMENT"/>
+    <uses-permission android:name="android.permission.MEDIA_CONTENT_CONTROL"/>
 
     <protected-broadcast android:name="REQUEST_FROM_SYSTEM_UI" />
     <application
@@ -64,23 +68,20 @@
                 <action android:name="android.intent.action.MAIN"/>
             </intent-filter>
         </activity>
-        <activity
-            android:name=".car.distantdisplay.activity.DistantDisplayActivity"
-            android:exported="true"
-            android:theme="@android:style/Theme.DeviceDefault.NoActionBar"
-            android:documentLaunchMode="never"
-            android:excludeFromRecents="true">
-            <meta-data android:name="distractionOptimized" android:value="true"/>
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-            </intent-filter>
-        </activity>
         <receiver
             android:name=".car.distantdisplay.activity.MoveTaskReceiver"
             android:enabled="true"
             android:exported="true">
             <intent-filter>
                 <action android:name="com.android.systemui.car.intent.action.MOVE_TASK"/>
+            </intent-filter>
+        </receiver>
+        <receiver
+            android:name=".car.distantdisplay.common.DistantDisplayReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.android.systemui.car.intent.action.DISTANT_DISPLAY"/>
             </intent-filter>
         </receiver>
     </application>

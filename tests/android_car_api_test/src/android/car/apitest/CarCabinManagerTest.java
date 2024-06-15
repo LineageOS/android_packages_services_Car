@@ -22,8 +22,9 @@ import static org.junit.Assert.fail;
 import android.car.Car;
 import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.cabin.CarCabinManager;
-import android.test.suitebuilder.annotation.MediumTest;
 import android.util.Log;
+
+import androidx.test.filters.MediumTest;
 
 import org.junit.Before;
 import org.junit.Ignore;

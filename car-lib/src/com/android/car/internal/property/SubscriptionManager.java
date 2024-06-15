@@ -76,17 +76,19 @@ public final class SubscriptionManager<ClientType> {
     private static final class RateInfo {
         public final float updateRateHz;
         public final boolean enableVariableUpdateRate;
+        public final float resolution;
 
-        RateInfo(float updateRateHz, boolean enableVariableUpdateRate) {
+        RateInfo(float updateRateHz, boolean enableVariableUpdateRate, float resolution) {
             this.updateRateHz = updateRateHz;
             this.enableVariableUpdateRate = enableVariableUpdateRate;
+            this.resolution = resolution;
         }
 
         @Override
         public String toString() {
             return String.format(
-                    "RateInfo{updateRateHz: %f, enableVur: %b}", updateRateHz,
-                    enableVariableUpdateRate);
+                    "RateInfo{updateRateHz: %f, enableVur: %b, resolution: %f}", updateRateHz,
+                    enableVariableUpdateRate, resolution);
         }
 
         @Override
@@ -99,12 +101,13 @@ public final class SubscriptionManager<ClientType> {
             }
             RateInfo that = (RateInfo) other;
             return updateRateHz == that.updateRateHz
-                    && enableVariableUpdateRate == that.enableVariableUpdateRate;
+                    && enableVariableUpdateRate == that.enableVariableUpdateRate
+                    && resolution == that.resolution;
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(updateRateHz, enableVariableUpdateRate);
+            return Objects.hash(updateRateHz, enableVariableUpdateRate, resolution);
         }
     }
 
@@ -118,6 +121,8 @@ public final class SubscriptionManager<ClientType> {
         // rate.
         private final TreeSet<Float> mUpdateRatesHz;
         private final ArrayMap<Float, Integer> mClientCountByUpdateRateHz;
+        private final TreeSet<Float> mResolutions;
+        private final ArrayMap<Float, Integer> mClientCountByResolution;
         // How many clients has enabled variable update rate. We can only enable variable update
         // rate in the underlying layer if all clients enable VUR.
         private int mEnableVariableUpdateRateCount;
@@ -126,12 +131,16 @@ public final class SubscriptionManager<ClientType> {
             mRateInfoByClient = new ArrayMap<>();
             mUpdateRatesHz = new TreeSet<>();
             mClientCountByUpdateRateHz = new ArrayMap<>();
+            mResolutions = new TreeSet<>();
+            mClientCountByResolution = new ArrayMap<>();
         }
 
         RateInfoForClients(RateInfoForClients other) {
             mRateInfoByClient = new ArrayMap<>(other.mRateInfoByClient);
             mUpdateRatesHz = new TreeSet<>(other.mUpdateRatesHz);
             mClientCountByUpdateRateHz = new ArrayMap<>(other.mClientCountByUpdateRateHz);
+            mResolutions = new TreeSet<>(other.mResolutions);
+            mClientCountByResolution = new ArrayMap<>(other.mClientCountByResolution);
             mEnableVariableUpdateRateCount = other.mEnableVariableUpdateRateCount;
         }
 
@@ -142,6 +151,13 @@ public final class SubscriptionManager<ClientType> {
             return mUpdateRatesHz.last();
         }
 
+        /**
+         * Gets the min required resolution for this {propertyId, areaId}.
+         */
+        private float getMinRequiredResolution() {
+            return mResolutions.first();
+        }
+
         private boolean isVariableUpdateRateEnabledForAllClients() {
             return mEnableVariableUpdateRateCount == mRateInfoByClient.size();
         }
@@ -149,10 +165,12 @@ public final class SubscriptionManager<ClientType> {
         /**
          * Gets the combined rate info for all clients.
          *
-         * We use the max update rate and only enable VUR if all clients enable.
+         * We use the max update rate, min required resolution, and only enable VUR if all clients
+         * enable.
          */
         RateInfo getCombinedRateInfo() {
-            return new RateInfo(getMaxUpdateRateHz(), isVariableUpdateRateEnabledForAllClients());
+            return new RateInfo(getMaxUpdateRateHz(), isVariableUpdateRateEnabledForAllClients(),
+                    getMinRequiredResolution());
         }
 
         Set<ClientType> getClients() {
@@ -167,24 +185,40 @@ public final class SubscriptionManager<ClientType> {
             return mRateInfoByClient.get(client).enableVariableUpdateRate;
         }
 
+        float getResolution(ClientType client) {
+            return mRateInfoByClient.get(client).resolution;
+        }
+
         /**
          * Adds a new client for this {propertyId, areaId}.
          */
-        void add(ClientType client, float updateRateHz, boolean enableVariableUpdateRate) {
+        void add(ClientType client, float updateRateHz, boolean enableVariableUpdateRate,
+                 float resolution) {
             // Clear the existing updateRateHz for the client if exists.
             remove(client);
             // Store the new rate info.
-            mRateInfoByClient.put(client, new RateInfo(updateRateHz, enableVariableUpdateRate));
+            mRateInfoByClient.put(client,
+                    new RateInfo(updateRateHz, enableVariableUpdateRate, resolution));
+
             if (enableVariableUpdateRate) {
                 mEnableVariableUpdateRateCount++;
             }
+
             if (!mClientCountByUpdateRateHz.containsKey(updateRateHz)) {
                 mUpdateRatesHz.add(updateRateHz);
                 mClientCountByUpdateRateHz.put(updateRateHz, 1);
-                return;
+            } else {
+                mClientCountByUpdateRateHz.put(updateRateHz,
+                        mClientCountByUpdateRateHz.get(updateRateHz) + 1);
             }
-            mClientCountByUpdateRateHz.put(updateRateHz,
-                    mClientCountByUpdateRateHz.get(updateRateHz) + 1);
+
+            if (!mClientCountByResolution.containsKey(resolution)) {
+                mResolutions.add(resolution);
+                mClientCountByResolution.put(resolution, 1);
+            } else {
+                mClientCountByResolution.put(resolution,
+                        mClientCountByResolution.get(resolution) + 1);
+            }
         }
 
         void remove(ClientType client) {
@@ -205,6 +239,17 @@ public final class SubscriptionManager<ClientType> {
                     mClientCountByUpdateRateHz.put(updateRateHz, newCount);
                 }
             }
+            float resolution = rateInfo.resolution;
+            if (mClientCountByResolution.containsKey(resolution)) {
+                int newCount = mClientCountByResolution.get(resolution) - 1;
+                if (newCount == 0) {
+                    mClientCountByResolution.remove(resolution);
+                    mResolutions.remove(resolution);
+                } else {
+                    mClientCountByResolution.put(resolution, newCount);
+                }
+            }
+
             mRateInfoByClient.remove(client);
         }
 
@@ -213,9 +258,9 @@ public final class SubscriptionManager<ClientType> {
         }
     }
 
-    PairSparseArray<RateInfoForClients<ClientType>> mCurrentUpdateRateHzByClientByPropIdAreaId =
+    PairSparseArray<RateInfoForClients<ClientType>> mCurrentRateInfoByClientByPropIdAreaId =
             new PairSparseArray<>();
-    PairSparseArray<RateInfoForClients<ClientType>> mStagedUpdateRateHzByClientByPropIdAreaId =
+    PairSparseArray<RateInfoForClients<ClientType>> mStagedRateInfoByClientByPropIdAreaId =
             new PairSparseArray<>();
     ArraySet<int[]> mStagedAffectedPropIdAreaIds = new ArraySet<>();
 
@@ -239,12 +284,13 @@ public final class SubscriptionManager<ClientType> {
             int propertyId = option.propertyId;
             for (int areaId : option.areaIds) {
                 mStagedAffectedPropIdAreaIds.add(new int[]{propertyId, areaId});
-                if (mStagedUpdateRateHzByClientByPropIdAreaId.get(propertyId, areaId) == null) {
-                    mStagedUpdateRateHzByClientByPropIdAreaId.put(propertyId, areaId,
+                if (mStagedRateInfoByClientByPropIdAreaId.get(propertyId, areaId) == null) {
+                    mStagedRateInfoByClientByPropIdAreaId.put(propertyId, areaId,
                             new RateInfoForClients<>());
                 }
-                mStagedUpdateRateHzByClientByPropIdAreaId.get(propertyId, areaId).add(
-                        client, option.updateRateHz, option.enableVariableUpdateRate);
+                mStagedRateInfoByClientByPropIdAreaId.get(propertyId, areaId).add(
+                        client, option.updateRateHz, option.enableVariableUpdateRate,
+                        option.resolution);
             }
         }
     }
@@ -265,12 +311,12 @@ public final class SubscriptionManager<ClientType> {
         for (int i = 0; i < propertyIdsToUnregister.size(); i++) {
             int propertyId = propertyIdsToUnregister.valueAt(i);
             ArraySet<Integer> areaIds =
-                    mStagedUpdateRateHzByClientByPropIdAreaId.getSecondKeysForFirstKey(propertyId);
+                    mStagedRateInfoByClientByPropIdAreaId.getSecondKeysForFirstKey(propertyId);
             for (int j = 0; j < areaIds.size(); j++) {
                 int areaId = areaIds.valueAt(j);
                 mStagedAffectedPropIdAreaIds.add(new int[]{propertyId, areaId});
                 RateInfoForClients<ClientType> rateInfoForClients =
-                        mStagedUpdateRateHzByClientByPropIdAreaId.get(propertyId, areaId);
+                        mStagedRateInfoByClientByPropIdAreaId.get(propertyId, areaId);
                 if (rateInfoForClients == null) {
                     Log.e(TAG, "The property: " + VehiclePropertyIds.toString(propertyId)
                             + ", area ID: " + areaId + " was not registered, do nothing");
@@ -278,7 +324,7 @@ public final class SubscriptionManager<ClientType> {
                 }
                 rateInfoForClients.remove(client);
                 if (rateInfoForClients.isEmpty()) {
-                    mStagedUpdateRateHzByClientByPropIdAreaId.remove(propertyId, areaId);
+                    mStagedRateInfoByClientByPropIdAreaId.remove(propertyId, areaId);
                 }
             }
         }
@@ -298,7 +344,7 @@ public final class SubscriptionManager<ClientType> {
             return;
         }
         // Drop the current state.
-        mCurrentUpdateRateHzByClientByPropIdAreaId = mStagedUpdateRateHzByClientByPropIdAreaId;
+        mCurrentRateInfoByClientByPropIdAreaId = mStagedRateInfoByClientByPropIdAreaId;
         mStagedAffectedPropIdAreaIds.clear();
     }
 
@@ -315,20 +361,20 @@ public final class SubscriptionManager<ClientType> {
             return;
         }
         // Drop the staged state.
-        mStagedUpdateRateHzByClientByPropIdAreaId = mCurrentUpdateRateHzByClientByPropIdAreaId;
+        mStagedRateInfoByClientByPropIdAreaId = mCurrentRateInfoByClientByPropIdAreaId;
         mStagedAffectedPropIdAreaIds.clear();
     }
 
     public ArraySet<Integer> getCurrentSubscribedPropIds() {
-        return new ArraySet<Integer>(mCurrentUpdateRateHzByClientByPropIdAreaId.getFirstKeys());
+        return new ArraySet<Integer>(mCurrentRateInfoByClientByPropIdAreaId.getFirstKeys());
     }
 
     /**
      * Clear both the current state and staged state.
      */
     public void clear() {
-        mStagedUpdateRateHzByClientByPropIdAreaId.clear();
-        mCurrentUpdateRateHzByClientByPropIdAreaId.clear();
+        mStagedRateInfoByClientByPropIdAreaId.clear();
+        mCurrentRateInfoByClientByPropIdAreaId.clear();
         mStagedAffectedPropIdAreaIds.clear();
     }
 
@@ -338,10 +384,10 @@ public final class SubscriptionManager<ClientType> {
      * This uses the current state.
      */
     public @Nullable Set<ClientType> getClients(int propertyId, int areaId) {
-        if (!mCurrentUpdateRateHzByClientByPropIdAreaId.contains(propertyId, areaId)) {
+        if (!mCurrentRateInfoByClientByPropIdAreaId.contains(propertyId, areaId)) {
             return null;
         }
-        return mCurrentUpdateRateHzByClientByPropIdAreaId.get(propertyId, areaId).getClients();
+        return mCurrentRateInfoByClientByPropIdAreaId.get(propertyId, areaId).getClients();
     }
 
     /**
@@ -350,9 +396,9 @@ public final class SubscriptionManager<ClientType> {
     @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     public void dump(IndentingPrintWriter writer) {
         writer.println("Current subscription states:");
-        dumpStates(writer, mCurrentUpdateRateHzByClientByPropIdAreaId);
+        dumpStates(writer, mCurrentRateInfoByClientByPropIdAreaId);
         writer.println("Staged subscription states:");
-        dumpStates(writer, mStagedUpdateRateHzByClientByPropIdAreaId);
+        dumpStates(writer, mStagedRateInfoByClientByPropIdAreaId);
     }
 
     /**
@@ -377,7 +423,7 @@ public final class SubscriptionManager<ClientType> {
             int propertyId = propIdAreaId[0];
             int areaId = propIdAreaId[1];
 
-            if (!mStagedUpdateRateHzByClientByPropIdAreaId.contains(propertyId, areaId)) {
+            if (!mStagedRateInfoByClientByPropIdAreaId.contains(propertyId, areaId)) {
                 // The [PropertyId, areaId] is no longer subscribed.
                 if (DBG) {
                     Log.d(TAG, String.format("The property: %s, areaId: %d is no longer subscribed",
@@ -387,11 +433,11 @@ public final class SubscriptionManager<ClientType> {
                 continue;
             }
 
-            RateInfo newCombinedRateInfo = mStagedUpdateRateHzByClientByPropIdAreaId
+            RateInfo newCombinedRateInfo = mStagedRateInfoByClientByPropIdAreaId
                     .get(propertyId, areaId).getCombinedRateInfo();
 
-            if (!mCurrentUpdateRateHzByClientByPropIdAreaId.contains(propertyId, areaId)
-                    || !(mCurrentUpdateRateHzByClientByPropIdAreaId
+            if (!mCurrentRateInfoByClientByPropIdAreaId.contains(propertyId, areaId)
+                    || !(mCurrentRateInfoByClientByPropIdAreaId
                             .get(propertyId, areaId).getCombinedRateInfo()
                             .equals(newCombinedRateInfo))) {
                 if (DBG) {
@@ -406,7 +452,7 @@ public final class SubscriptionManager<ClientType> {
         outDiffSubscriptions.addAll(getCarSubscription(diffRateInfoByPropIdAreaId));
         for (int i = 0; i < possiblePropIdsToUnsubscribe.size(); i++) {
             int possiblePropIdToUnsubscribe = possiblePropIdsToUnsubscribe.valueAt(i);
-            if (mStagedUpdateRateHzByClientByPropIdAreaId.getSecondKeysForFirstKey(
+            if (mStagedRateInfoByClientByPropIdAreaId.getSecondKeysForFirstKey(
                     possiblePropIdToUnsubscribe).isEmpty()) {
                 // We should only unsubscribe the property if all area IDs are unsubscribed.
                 if (DBG) {
@@ -457,6 +503,7 @@ public final class SubscriptionManager<ClientType> {
                 option.updateRateHz = areaIdsByRateInfo.keyAt(i).updateRateHz;
                 option.enableVariableUpdateRate =
                         areaIdsByRateInfo.keyAt(i).enableVariableUpdateRate;
+                option.resolution = areaIdsByRateInfo.keyAt(i).resolution;
                 carSubscriptions.add(option);
             }
         }
@@ -471,12 +518,12 @@ public final class SubscriptionManager<ClientType> {
             return;
         }
 
-        mStagedUpdateRateHzByClientByPropIdAreaId = new PairSparseArray<>();
-        for (int i = 0; i < mCurrentUpdateRateHzByClientByPropIdAreaId.size(); i++) {
-            int[] keyPair = mCurrentUpdateRateHzByClientByPropIdAreaId.keyPairAt(i);
-            mStagedUpdateRateHzByClientByPropIdAreaId.put(keyPair[0], keyPair[1],
+        mStagedRateInfoByClientByPropIdAreaId = new PairSparseArray<>();
+        for (int i = 0; i < mCurrentRateInfoByClientByPropIdAreaId.size(); i++) {
+            int[] keyPair = mCurrentRateInfoByClientByPropIdAreaId.keyPairAt(i);
+            mStagedRateInfoByClientByPropIdAreaId.put(keyPair[0], keyPair[1],
                     new RateInfoForClients<>(
-                            mCurrentUpdateRateHzByClientByPropIdAreaId.valueAt(i)));
+                            mCurrentRateInfoByClientByPropIdAreaId.valueAt(i)));
         }
     }
 
@@ -496,7 +543,8 @@ public final class SubscriptionManager<ClientType> {
                 writer.println("Client " + client + ": Subscribed at "
                         + rateInfoForClients.getUpdateRateHz(client) + " hz"
                         + ", enableVur: "
-                        + rateInfoForClients.isVariableUpdateRateEnabled(client));
+                        + rateInfoForClients.isVariableUpdateRateEnabled(client)
+                        + ", resoliution: " + rateInfoForClients.getResolution(client));
             }
             writer.decreaseIndent();
         }

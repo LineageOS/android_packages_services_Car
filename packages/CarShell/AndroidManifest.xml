@@ -88,6 +88,8 @@
     <uses-permission android:name="android.car.permission.READ_IMPACT_SENSORS"/>
     <uses-permission android:name="android.car.permission.READ_VALET_MODE"/>
     <uses-permission android:name="android.car.permission.CONTROL_VALET_MODE"/>
+    <uses-permission android:name="android.car.permission.READ_HEAD_UP_DISPLAY_STATUS"/>
+    <uses-permission android:name="android.car.permission.CONTROL_HEAD_UP_DISPLAY"/>
     <uses-permission android:name="android.car.permission.CONTROL_CAR_WINDOWS" />
     <uses-permission android:name="android.car.permission.CONTROL_GLOVE_BOX" />
     <uses-permission android:name="android.car.permission.CAR_IDENTIFICATION" />
@@ -169,4 +171,8 @@
     <uses-permission android:name="android.car.permission.CONTROL_REMOTE_ACCESS" />
     <!-- permissions required for ClusterHomeManagerTest -->
     <uses-permission android:name="android.car.permission.CAR_INSTRUMENT_CLUSTER_CONTROL" />
+    <uses-permission android:name="android.car.permission.CAR_MONITOR_CLUSTER_NAVIGATION_STATE" />
+    <uses-permission android:name="android.car.permission.CAR_NAVIGATION_MANAGER" />
+    <!-- permissions required for CarProjectionManagerTest -->
+    <uses-permission android:name="android.car.permission.CAR_PROJECTION" />
 </manifest>

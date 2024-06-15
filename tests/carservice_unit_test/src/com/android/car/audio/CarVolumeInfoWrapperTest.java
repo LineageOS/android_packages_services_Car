@@ -53,17 +53,23 @@ public final class CarVolumeInfoWrapperTest {
     private static final int TEST_GROUP_VOLUME = 5;
     private static final int TEST_MIN_GROUP_VOLUME = 0;
     private static final int TEST_MAX_GROUP_VOLUME = 9000;
+    private static final int TEST_MIN_ACTIVATION_GAIN_INDEX = 1_000;
+    private static final int TEST_MAX_ACTIVATION_GAIN_INDEX = 8_000;
     private static final boolean TEST_VOLUME_GROUP_MUTE = true;
     private static final CarVolumeGroupInfo TEST_PRIMARY_GROUP_INFO =
             new CarVolumeGroupInfo.Builder("group id " + TEST_GROUP_ID, PRIMARY_AUDIO_ZONE,
                     TEST_GROUP_ID).setMaxVolumeGainIndex(TEST_MAX_GROUP_VOLUME)
-                    .setMinVolumeGainIndex(TEST_MIN_GROUP_VOLUME).build();
+                    .setMinVolumeGainIndex(TEST_MIN_GROUP_VOLUME)
+                    .setMaxActivationVolumeGainIndex(TEST_MAX_ACTIVATION_GAIN_INDEX)
+                    .setMinActivationVolumeGainIndex(TEST_MIN_ACTIVATION_GAIN_INDEX).build();
 
     private static final CarVolumeGroupInfo TEST_SECONDARY_VOLUME_INFO =
             new CarVolumeGroupInfo.Builder("group id " + TEST_SECONDARY_GROUP,
                     PRIMARY_AUDIO_ZONE, TEST_SECONDARY_GROUP)
                     .setMaxVolumeGainIndex(TEST_MAX_GROUP_VOLUME)
-                    .setMinVolumeGainIndex(TEST_MIN_GROUP_VOLUME).build();
+                    .setMinVolumeGainIndex(TEST_MIN_GROUP_VOLUME)
+                    .setMaxActivationVolumeGainIndex(TEST_MAX_ACTIVATION_GAIN_INDEX)
+                    .setMinActivationVolumeGainIndex(TEST_MIN_ACTIVATION_GAIN_INDEX).build();
     private static final AudioAttributes TEST_MEDIA_AUDIO_ATTRIBUTE =
             new AudioAttributes.Builder().setUsage(USAGE_MEDIA).build();
     private static final AudioAttributes TEST_ALARM_AUDIO_ATTRIBUTE =

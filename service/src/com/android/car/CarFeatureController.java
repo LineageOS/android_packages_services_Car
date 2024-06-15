@@ -25,9 +25,11 @@ import android.car.CarFeatures;
 import android.car.builtin.os.BuildHelper;
 import android.car.builtin.util.AtomicFileHelper;
 import android.car.builtin.util.Slogf;
+import android.car.feature.Flags;
 import android.content.Context;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.util.ArraySet;
 import android.util.AtomicFile;
 import android.util.Pair;
 import android.util.proto.ProtoOutputStream;
@@ -51,7 +53,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 
 /**
@@ -64,10 +65,7 @@ public final class CarFeatureController implements CarServiceBase {
     // We define this here for compatibility with older feature lists only
     private static final String BLUETOOTH_SERVICE = "car_bluetooth";
 
-    // Use HaseSet for better search performance. Memory consumption is fixed and it not an issue.
-    // Should keep alphabetical order under each bucket.
-    // Update CarFeatureTest as well when this is updated.
-    private static final HashSet<String> MANDATORY_FEATURES = new HashSet<>(Arrays.asList(
+    private static final List<String> NON_FLAGGED_MANDATORY_FEATURES = List.of(
             Car.APP_FOCUS_SERVICE,
             Car.AUDIO_SERVICE,
             Car.CAR_ACTIVITY_SERVICE,
@@ -93,9 +91,27 @@ public final class CarFeatureController implements CarServiceBase {
             Car.HVAC_SERVICE,
             Car.SENSOR_SERVICE,
             Car.VENDOR_EXTENSION_SERVICE
-    ));
+    );
 
-    private static final HashSet<String> OPTIONAL_FEATURES = new HashSet<>(Arrays.asList(
+    private static final ArraySet<String> FLAGGED_MANDATORY_FEATURES = new ArraySet<>(1);
+
+    static {
+        if (Flags.persistApSettings()) {
+            FLAGGED_MANDATORY_FEATURES.add(Car.CAR_WIFI_SERVICE);
+        }
+
+        // Note: if a new entry is added here, the capacity of FLAGGED_MANDATORY_FEATURES
+        // should also be increased.
+    }
+
+    // Use ArraySet for better search performance. Memory consumption is fixed and it not an issue.
+    // Should keep alphabetical order under each bucket.
+    // Update CarFeatureTest as well when this is updated.
+    private static final ArraySet<String> MANDATORY_FEATURES = combineFeatures(
+            NON_FLAGGED_MANDATORY_FEATURES,
+            FLAGGED_MANDATORY_FEATURES);
+
+    private static final List<String> NON_FLAGGED_OPTIONAL_FEATURES = List.of(
             CarFeatures.FEATURE_CAR_USER_NOTICE_SERVICE,
             Car.CLUSTER_HOME_SERVICE,
             Car.CAR_NAVIGATION_SERVICE,
@@ -112,15 +128,29 @@ public final class CarFeatureController implements CarServiceBase {
             Car.EXPERIMENTAL_CAR_KEYGUARD_SERVICE,
             // All items below here are deprecated, but still could be supported
             Car.CAR_INSTRUMENT_CLUSTER_SERVICE
-    ));
+    );
+
+    private static final ArraySet<String> FLAGGED_OPTIONAL_FEATURES = new ArraySet<>();
+
+    static {
+        if (Flags.displayCompatibility()) {
+            FLAGGED_OPTIONAL_FEATURES.add(Car.CAR_DISPLAY_COMPAT_SERVICE);
+        }
+
+        // Note: if a new entry is added here, the capacity of FLAGGED_OPTIONAL_FEATURES
+        // should also be increased.
+    }
+
+    private static final ArraySet<String> OPTIONAL_FEATURES = combineFeatures(
+            NON_FLAGGED_OPTIONAL_FEATURES, FLAGGED_OPTIONAL_FEATURES);
 
     // This is a feature still under development and cannot be enabled in user build.
-    private static final HashSet<String> NON_USER_ONLY_FEATURES = new HashSet<>();
+    private static final ArraySet<String> NON_USER_ONLY_FEATURES = new ArraySet<>();
 
     // Features that depend on another feature being enabled (i.e. legacy API support).
     // For example, VMS_SUBSCRIBER_SERVICE will be enabled if VEHICLE_MAP_SERVICE is enabled
     // and disabled if VEHICLE_MAP_SERVICE is disabled.
-    private static final List<Pair<String, String>> SUPPORT_FEATURES = Arrays.asList(
+    private static final List<Pair<String, String>> SUPPORT_FEATURES = List.of(
             Pair.create(Car.VEHICLE_MAP_SERVICE, Car.VMS_SUBSCRIBER_SERVICE)
     );
 
@@ -135,7 +165,7 @@ public final class CarFeatureController implements CarServiceBase {
 
     // Set once in constructor and not updated. Access it without lock so that it can be accessed
     // quickly.
-    private final HashSet<String> mEnabledFeatures;
+    private final ArraySet<String> mEnabledFeatures;
 
     private final Context mContext;
 
@@ -157,7 +187,7 @@ public final class CarFeatureController implements CarServiceBase {
     private final List<String> mPendingDisabledFeatures = new ArrayList<>();
 
     @GuardedBy("mLock")
-    private HashSet<String> mAvailableExperimentalFeatures = new HashSet<>();
+    private ArraySet<String> mAvailableExperimentalFeatures = new ArraySet<>();
 
     public CarFeatureController(@NonNull Context context,
             @NonNull String[] defaultEnabledFeaturesFromConfig,
@@ -171,7 +201,7 @@ public final class CarFeatureController implements CarServiceBase {
         mDisabledFeaturesFromVhal = Arrays.asList(disabledFeaturesFromVhal);
         Slogf.i(TAG, "mDefaultEnabledFeaturesFromConfig:" + mDefaultEnabledFeaturesFromConfig
                 + ",mDisabledFeaturesFromVhal:" + mDisabledFeaturesFromVhal);
-        mEnabledFeatures = new HashSet<>(MANDATORY_FEATURES);
+        mEnabledFeatures = new ArraySet<>(MANDATORY_FEATURES);
         mFeatureConfigFile = new AtomicFile(new File(dataDir, FEATURE_CONFIG_FILE_NAME));
         boolean shouldLoadDefaultConfig = !AtomicFileHelper.exists(mFeatureConfigFile);
         if (!shouldLoadDefaultConfig) {
@@ -259,27 +289,33 @@ public final class CarFeatureController implements CarServiceBase {
     @Override
     @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     public void dumpProto(ProtoOutputStream proto) {
-        for (String enabledFeature : mEnabledFeatures) {
+        for (int i = 0; i < mEnabledFeatures.size(); i++) {
+            String enabledFeature = mEnabledFeatures.valueAt(i);
             proto.write(CarFeatureControlDumpProto.ENABLED_FEATURES, enabledFeature);
         }
-        for (String defaultEnabledFeature : mDefaultEnabledFeaturesFromConfig) {
+        for (int i = 0; i < mDefaultEnabledFeaturesFromConfig.size(); i++) {
+            String defaultEnabledFeature = mDefaultEnabledFeaturesFromConfig.get(i);
             proto.write(CarFeatureControlDumpProto.DEFAULT_ENABLED_FEATURES_FROM_CONFIG,
                     defaultEnabledFeature);
         }
-        for (String disabledFeature : mDisabledFeaturesFromVhal) {
+        for (int i = 0; i < mDisabledFeaturesFromVhal.size(); i++) {
+            String disabledFeature = mDisabledFeaturesFromVhal.get(i);
             proto.write(CarFeatureControlDumpProto.DISABLED_FEATURES_FROM_VHAL,
                     disabledFeature);
         }
         synchronized (mLock) {
-            for (String experimentalFeature : mAvailableExperimentalFeatures) {
+            for (int i = 0; i < mAvailableExperimentalFeatures.size(); i++) {
+                String experimentalFeature = mAvailableExperimentalFeatures.valueAt(i);
                 proto.write(CarFeatureControlDumpProto.AVAILABLE_EXPERIMENTAL_FEATURES,
                         experimentalFeature);
             }
-            for (String pendingEnabledFeature : mPendingEnabledFeatures) {
+            for (int i = 0; i < mPendingEnabledFeatures.size(); i++) {
+                String pendingEnabledFeature = mPendingEnabledFeatures.get(i);
                 proto.write(CarFeatureControlDumpProto.PENDING_ENABLED_FEATURES,
                         pendingEnabledFeature);
             }
-            for (String pendingDisabledFeature : mPendingDisabledFeatures) {
+            for (int i = 0; i < mPendingDisabledFeatures.size(); i++) {
+                String pendingDisabledFeature = mPendingDisabledFeatures.get(i);
                 proto.write(CarFeatureControlDumpProto.PENDING_DISABLED_FEATURES,
                         pendingDisabledFeature);
             }
@@ -293,9 +329,10 @@ public final class CarFeatureController implements CarServiceBase {
 
     private boolean checkMandatoryFeaturesLocked() {
         // Ensure that mandatory features are always there
-        for (String feature: MANDATORY_FEATURES) {
-            if (!mEnabledFeatures.contains(feature)) {
-                Slogf.e(TAG, "Mandatory feature missing in mEnabledFeatures:" + feature);
+        for (int i = 0; i < MANDATORY_FEATURES.size(); i++) {
+            String mandatoryFeature = MANDATORY_FEATURES.valueAt(i);
+            if (!mEnabledFeatures.contains(mandatoryFeature)) {
+                Slogf.e(TAG, "Mandatory feature missing in mEnabledFeatures:" + mandatoryFeature);
                 return false;
             }
         }
@@ -428,14 +465,15 @@ public final class CarFeatureController implements CarServiceBase {
             return Collections.emptyList();
         }
         ArrayList<String> experimentalFeature = new ArrayList<>();
-        for (String feature: mEnabledFeatures) {
-            if (MANDATORY_FEATURES.contains(feature)) {
+        for (int i = 0; i < mEnabledFeatures.size(); i++) {
+            String enabledFeature = mEnabledFeatures.valueAt(i);
+            if (MANDATORY_FEATURES.contains(enabledFeature)) {
                 continue;
             }
-            if (OPTIONAL_FEATURES.contains(feature)) {
+            if (OPTIONAL_FEATURES.contains(enabledFeature)) {
                 continue;
             }
-            experimentalFeature.add(feature);
+            experimentalFeature.add(enabledFeature);
         }
         return experimentalFeature;
     }
@@ -457,7 +495,7 @@ public final class CarFeatureController implements CarServiceBase {
             return false;
         }
         try (BufferedReader reader =
-                new BufferedReader(new InputStreamReader(fis, StandardCharsets.UTF_8))) {
+                     new BufferedReader(new InputStreamReader(fis, StandardCharsets.UTF_8))) {
             boolean lastLinePassed = false;
             boolean hashChecked = false;
             while (true) {
@@ -524,7 +562,7 @@ public final class CarFeatureController implements CarServiceBase {
         return true;
     }
 
-    private void persistToFeatureConfigFile(HashSet<String> features) {
+    private void persistToFeatureConfigFile(ArraySet<String> features) {
         removeSupportFeatures(features);
         synchronized (mLock) {
             features.removeAll(mPendingDisabledFeatures);
@@ -542,7 +580,8 @@ public final class CarFeatureController implements CarServiceBase {
                 writer.write(CONFIG_FILE_HASH_MARKER
                         + mDefaultEnabledFeaturesFromConfig.hashCode());
                 writer.newLine();
-                for (String feature : features) {
+                for (int i = 0; i < features.size(); i++) {
+                    String feature = features.valueAt(i);
                     writer.write(feature);
                     writer.newLine();
                 }
@@ -562,24 +601,25 @@ public final class CarFeatureController implements CarServiceBase {
 
     private void dispatchDefaultConfigUpdate() {
         mHandler.removeCallbacksAndMessages(null);
-        HashSet<String> featuresToPersist = new HashSet<>(mEnabledFeatures);
+        ArraySet<String> featuresToPersist = new ArraySet<>(mEnabledFeatures);
         mHandler.post(() -> persistToFeatureConfigFile(featuresToPersist));
     }
 
     private void parseDefaultConfig() {
-        for (String feature : mDefaultEnabledFeaturesFromConfig) {
-            if (mDisabledFeaturesFromVhal.contains(feature)) {
+        for (int i = 0; i < mDefaultEnabledFeaturesFromConfig.size(); i++) {
+            String defaultEnabledFeature = mDefaultEnabledFeaturesFromConfig.get(i);
+            if (mDisabledFeaturesFromVhal.contains(defaultEnabledFeature)) {
                 continue;
             }
-            if (OPTIONAL_FEATURES.contains(feature)) {
-                mEnabledFeatures.add(feature);
-            } else if (NON_USER_ONLY_FEATURES.contains(feature)) {
+            if (OPTIONAL_FEATURES.contains(defaultEnabledFeature)) {
+                mEnabledFeatures.add(defaultEnabledFeature);
+            } else if (NON_USER_ONLY_FEATURES.contains(defaultEnabledFeature)) {
                 Slogf.e(TAG, "config_default_enabled_optional_car_features including "
-                        + "user build only feature, will be ignored:" + feature);
+                        + "user build only feature, will be ignored:" + defaultEnabledFeature);
             } else {
                 throw new IllegalArgumentException(
                         "config_default_enabled_optional_car_features include non-optional "
-                                + "features:" + feature);
+                                + "features:" + defaultEnabledFeature);
             }
         }
         Slogf.i(TAG, "Loaded default features:" + mEnabledFeatures);
@@ -595,5 +635,12 @@ public final class CarFeatureController implements CarServiceBase {
         SUPPORT_FEATURES.stream()
                 .filter(entry -> features.contains(entry.first))
                 .forEach(entry -> features.remove(entry.second));
+    }
+
+    private static ArraySet<String> combineFeatures(List<String> features,
+            ArraySet<String> flaggedFeatures) {
+        ArraySet<String> combinedFeatures = new ArraySet<>(features);
+        combinedFeatures.addAll(flaggedFeatures);
+        return combinedFeatures;
     }
 }

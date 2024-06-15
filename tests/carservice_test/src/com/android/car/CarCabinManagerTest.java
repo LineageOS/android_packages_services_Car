@@ -34,7 +34,6 @@ import android.util.Log;
 import android.util.MutableInt;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.FlakyTest;
 import androidx.test.filters.MediumTest;
 
 import com.android.car.hal.test.AidlMockedVehicleHal.VehicleHalPropertyHandler;
@@ -142,7 +141,6 @@ public class CarCabinManagerTest extends MockedCarTestBase {
 
     // Test an event
     @Test
-    @FlakyTest
     public void testEvent() throws Exception {
         mCarCabinManager.registerCallback(new EventListener());
         // Wait for two events generated on registration
@@ -177,7 +175,7 @@ public class CarCabinManagerTest extends MockedCarTestBase {
     }
 
 
-    private class CabinPropertyHandler implements VehicleHalPropertyHandler {
+    private static final class CabinPropertyHandler implements VehicleHalPropertyHandler {
         HashMap<Integer, VehiclePropValue> mMap = new HashMap<>();
 
         @Override
@@ -187,23 +185,21 @@ public class CarCabinManagerTest extends MockedCarTestBase {
 
         @Override
         public synchronized VehiclePropValue onPropertyGet(VehiclePropValue value) {
-            VehiclePropValue currentValue = mMap.get(value.prop);
-            // VNS will call get method when subscribe is called, just return empty value.
-            return currentValue != null ? currentValue : value;
+            Log.d(TAG, "onPropertyGet property " + value.prop);
+            if (mMap.get(value.prop) == null) {
+                return AidlVehiclePropValueBuilder.newBuilder(value.prop)
+                            .setAreaId(value.areaId)
+                            .setTimestamp(SystemClock.elapsedRealtimeNanos())
+                            .addIntValues(1)
+                            .build();
+            } else {
+                return mMap.get(value.prop);
+            }
         }
 
         @Override
         public synchronized void onPropertySubscribe(int property, float sampleRate) {
             Log.d(TAG, "onPropertySubscribe property " + property + " sampleRate " + sampleRate);
-            if (mMap.get(property) == null) {
-                Log.d(TAG, "onPropertySubscribe add placeholder property: " + property);
-                VehiclePropValue placeholderValue = AidlVehiclePropValueBuilder.newBuilder(property)
-                        .setAreaId(VehicleAreaDoor.ROW_1_LEFT)
-                        .setTimestamp(SystemClock.elapsedRealtimeNanos())
-                        .addIntValues(1)
-                        .build();
-                mMap.put(property, placeholderValue);
-            }
         }
 
         @Override

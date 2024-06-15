@@ -29,6 +29,8 @@ class IHalAreaConfig {
 public:
     virtual int32_t getAreaId() const = 0;
 
+    virtual int32_t getAccess() const = 0;
+
     virtual int32_t getMinInt32Value() const = 0;
 
     virtual int32_t getMaxInt32Value() const = 0;
@@ -42,6 +44,8 @@ public:
     virtual float getMaxFloatValue() const = 0;
 
     virtual ~IHalAreaConfig() = default;
+
+    virtual bool isVariableUpdateRateSupported() const = 0;
 };
 
 class IHalPropConfig {

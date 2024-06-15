@@ -29,7 +29,8 @@ import android.content.ComponentName;
 import android.content.ServiceConnection;
 import android.os.Build;
 import android.os.IBinder;
-import android.test.suitebuilder.annotation.SmallTest;
+
+import androidx.test.filters.SmallTest;
 
 import org.junit.Test;
 

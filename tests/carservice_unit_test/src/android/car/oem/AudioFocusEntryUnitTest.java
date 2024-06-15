@@ -192,7 +192,7 @@ public final class AudioFocusEntryUnitTest extends AbstractExpectableTestCase {
         AudioFocusEntry entry = new AudioFocusEntry.Builder(TEST_AUDIO_FOCUS_INFO,
                 TEST_AUDIO_CONTEXT, TEST_VOLUME_GROUP_ID, AudioManager.AUDIOFOCUS_GAIN).build();
         entry.writeToParcel(parcel, TEST_PARCEL_FLAGS);
-        parcel.setDataPosition(/* position= */ 0);
+        parcel.setDataPosition(/* pos= */ 0);
         return entry;
     }
 }

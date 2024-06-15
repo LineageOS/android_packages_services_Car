@@ -18,7 +18,6 @@ package com.android.car.internal.property;
 
 import static java.util.Objects.requireNonNull;
 
-import android.car.builtin.util.Slogf;
 import android.car.hardware.CarPropertyValue;
 import android.car.hardware.property.CarPropertyEvent;
 import android.car.hardware.property.CarPropertyManager.CarPropertyEventCallback;
@@ -35,12 +34,13 @@ import java.util.concurrent.Executor;
 public final class CarPropertyEventCallbackController extends CarPropertyEventController {
     // Abbreviating TAG because class name is longer than the 23 character Log tag limit.
     private static final String TAG = "CPECallbackController";
-    private static final boolean DBG = Slogf.isLoggable(TAG, Log.DEBUG);
+    private static final boolean DBG = Log.isLoggable(TAG, Log.DEBUG);
     private final CarPropertyEventCallback mCarPropertyEventCallback;
     private final Executor mExecutor;
 
     public CarPropertyEventCallbackController(CarPropertyEventCallback carPropertyEventCallback,
             Executor executor) {
+        super(/* useSystemLogger= */ false);
         requireNonNull(carPropertyEventCallback);
         mCarPropertyEventCallback = carPropertyEventCallback;
         mExecutor = executor;
@@ -52,28 +52,36 @@ public final class CarPropertyEventCallbackController extends CarPropertyEventCo
      */
     public void onEvent(CarPropertyEvent carPropertyEvent) {
         requireNonNull(carPropertyEvent);
-        if (!shouldCallbackBeInvoked(carPropertyEvent)) {
+        CarPropertyValue<?> carPropertyValue =
+                getCarPropertyValueIfCallbackRequired(carPropertyEvent);
+        if (carPropertyValue == null) {
             if (DBG) {
-                Slogf.d(TAG, "onEvent should not be invoked, event: " + carPropertyEvent);
+                Log.d(TAG, "onEvent should not be invoked, event: " + carPropertyEvent);
             }
             return;
         }
-        CarPropertyValue<?> carPropertyValue = carPropertyEvent.getCarPropertyValue();
-        switch (carPropertyEvent.getEventType()) {
+        CarPropertyEvent updatedCarPropertyEvent;
+        if (!carPropertyValue.equals(carPropertyEvent.getCarPropertyValue())) {
+            updatedCarPropertyEvent = new CarPropertyEvent(carPropertyEvent.getEventType(),
+                    carPropertyValue, carPropertyEvent.getErrorCode());
+        } else {
+            updatedCarPropertyEvent = carPropertyEvent;
+        }
+        switch (updatedCarPropertyEvent.getEventType()) {
             case CarPropertyEvent.PROPERTY_EVENT_PROPERTY_CHANGE:
                 mExecutor.execute(() -> mCarPropertyEventCallback.onChangeEvent(carPropertyValue));
                 break;
             case CarPropertyEvent.PROPERTY_EVENT_ERROR:
                 if (DBG) {
-                    Slogf.d(TAG, "onErrorEvent for event: " + carPropertyEvent);
+                    Log.d(TAG, "onErrorEvent for event: " + updatedCarPropertyEvent);
                 }
                 mExecutor.execute(() -> mCarPropertyEventCallback.onErrorEvent(
                         carPropertyValue.getPropertyId(), carPropertyValue.getAreaId(),
-                        carPropertyEvent.getErrorCode()));
+                        updatedCarPropertyEvent.getErrorCode()));
                 break;
             default:
-                Slogf.e(TAG, "onEvent: unknown errorCode=" + carPropertyEvent.getErrorCode()
-                        + ", for event: " + carPropertyEvent);
+                Log.e(TAG, "onEvent: unknown errorCode=" + updatedCarPropertyEvent.getErrorCode()
+                        + ", for event: " + updatedCarPropertyEvent);
                 break;
         }
     }

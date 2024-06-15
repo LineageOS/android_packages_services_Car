@@ -30,12 +30,14 @@ import android.view.SurfaceView;
 
 import androidx.annotation.NonNull;
 
-import com.android.car.carlauncher.CarTaskView;
-
 import java.util.List;
 import java.util.concurrent.Executor;
 
-/** An abstract class for organizing the Taskviews used in {@link CarUiPortraitHomeScreen}. */
+/**
+ * An abstract class for organizing the Taskviews used in {@link CarUiPortraitHomeScreen}.
+ * TODO(b/321807191) Remove this abstract class as only
+ *  {@link RemoteCarTaskViewControllerWrapperImpl} implements it now.
+ */
 abstract class TaskViewControllerWrapper {
     protected static final boolean DBG = Build.IS_DEBUGGABLE;
     private static final String TAG = TaskViewControllerWrapper.class.getSimpleName();
@@ -66,8 +68,10 @@ abstract class TaskViewControllerWrapper {
     /**
      * Brings the embedded task to the front for all the taskviews. Does nothing if there is no
      * task.
+     *
+     * @param taskViewIds the Ids of the task views which the embedded tasks should be shown for.
      */
-    abstract void showEmbeddedTasks();
+    abstract void showEmbeddedTasks(int[] taskViewIds);
 
     /**
      * Updates the WM bounds for the underlying task as per the current view bounds for all the
@@ -106,8 +110,8 @@ abstract class TaskViewControllerWrapper {
     /** Returns the task info of the top task running in the default taskview with root task. */
     abstract ActivityManager.RunningTaskInfo getRootTaskInfo();
 
-    /** Moves the taskview with given {@code taskViewId} to the front. */
-    abstract void moveToFront(int taskViewId);
+    /** Moves the taskview with given {@code taskViewId} to the back. */
+    abstract void moveToBack(int taskViewId);
 
     /**
      * Triggers the change in the WM bounds as per the {@code newBounds} received on the taskview
@@ -116,13 +120,17 @@ abstract class TaskViewControllerWrapper {
     abstract void setWindowBounds(Rect taskViewBounds, int taskViewId);
 
     /**
-     * Updates the window visibility associated with the default taskview with root task.
-     * @param visibility {true} if window needs to be displayed {false} otherwise
+     * Updates the visibility of the task in the taskview with given {@code taskViewId}.
+     * @param visibility {true} if window needs to be displayed {false} otherwise.
+     * @param taskViewId Identifier associate with the taskview.
      */
-    abstract void updateCarDefaultTaskViewVisibility(boolean visibility);
+    abstract void updateTaskVisibility(boolean visibility, int taskViewId);
 
     /** Returns the taskview with given {@code taskViewId}. */
     abstract SurfaceView getTaskView(int taskViewId);
+
+    /** Returns the task id of the top child task in with given {@code taskViewId}. */
+    abstract int getTaskId(int taskViewId);
 
     /**
      * A callback interface for {@link TaskViewControllerWrapper}.
@@ -136,29 +144,42 @@ abstract class TaskViewControllerWrapper {
     }
 
     /**
-     * A callback interface for the host activity that uses {@link CarTaskView} or
-     * {@link RemoteCarTaskView} and their derivatives.
+     * A callback interface for the host activity that uses {@link RemoteCarTaskView}
+     * and their derivatives.
      */
     interface TaskViewCallback {
 
         /**
-         * Called when the underlying {@link CarTaskView} or {@link RemoteCarTaskView} instance is
-         * created.
+         * Called when the underlying {@link RemoteCarTaskView} instance is created.
          *
-         * @param surfaceView the new newly created {@link CarTaskView} or {@link RemoteCarTaskView}
+         * @param surfaceView the new newly created {@link RemoteCarTaskView}
          *                    instance.
          */
         void onTaskViewCreated(@NonNull SurfaceView surfaceView);
 
         /**
-         * Called when the underlying {@link CarTaskView} or {@link RemoteCarTaskView} is
-         * initialized.
+         * Called when a task with this {@code taskInfo} appears in the task view.
+         */
+        default void onTaskAppeared(ActivityManager.RunningTaskInfo taskInfo) {
+
+        }
+
+        /**
+         * Called when a task's information has changed in this task view.
+         *
+         * @param taskInfo the new task info for the task
+         */
+        default void onTaskInfoChanged(ActivityManager.RunningTaskInfo taskInfo) {
+
+        }
+        /**
+         * Called when the underlying {@link RemoteCarTaskView} is initialized.
          */
         void onTaskViewInitialized();
 
         /**
-         * Called when the underlying {@link CarTaskView} or {@link RemoteCarTaskView} is
-         * released.
-         */default void onTaskViewReleased() {};
+         * Called when the underlying {@link RemoteCarTaskView} is released.
+         */
+        default void onTaskViewReleased() {};
     }
 }

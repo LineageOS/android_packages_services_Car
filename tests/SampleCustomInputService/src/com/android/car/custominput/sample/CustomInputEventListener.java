@@ -41,7 +41,13 @@ import java.lang.annotation.RetentionPolicy;
  */
 public final class CustomInputEventListener {
 
-    private static final String TAG = CustomInputEventListener.class.getSimpleName();
+    private static final String TAG = "CustomInputEventSample";
+    private static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
+
+    private static final String NOTIFY_DRIVER_UI_ACTION =
+            "com.android.car.custominput.sample.driverui.action";
+    private static final String NOTIFY_DRIVER_UI_EXTRA_KEY = "NOTIFY_DRIVER_UI_EXTRA_KEY";
+    private static final String NOTIFY_DRIVER_UI_MOVE_NAV_VIEW = "MOVE_NAV_VIEW";
 
     private final SampleCustomInputService mService;
     private final Context mContext;
@@ -81,6 +87,9 @@ public final class CustomInputEventListener {
 
         /** Injects KEYCODE_VOICE_ASSIST (action up) key event */
         int INJECT_VOICE_ASSIST_ACTION_UP = 1010;
+
+        /** Notify DriverUi to move the navigation view */
+        int DRIVER_UI_MOVE_NAVIGATION_VIEW = 1011;
     }
 
     public CustomInputEventListener(
@@ -133,6 +142,9 @@ public final class CustomInputEventListener {
                 injectKeyEvent(targetDisplayType,
                         newKeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_VOICE_ASSIST));
                 break;
+            case EventAction.DRIVER_UI_MOVE_NAVIGATION_VIEW:
+                notifyDriverUi(NOTIFY_DRIVER_UI_MOVE_NAV_VIEW);
+                break;
             default:
                 Log.e(TAG, "Ignoring event [" + action + "]");
         }
@@ -140,7 +152,7 @@ public final class CustomInputEventListener {
 
     private int getDisplayIdForDisplayType(int targetDisplayType) {
         int displayId = mCarOccupantZoneManager.getDisplayIdForDriver(targetDisplayType);
-        if (Log.isLoggable(TAG, Log.DEBUG)) {
+        if (DEBUG) {
             Log.d(TAG, "Resolved display id {" + displayId + "} for display type {"
                     + targetDisplayType + "}");
         }
@@ -165,8 +177,18 @@ public final class CustomInputEventListener {
         return false;
     }
 
+    private void notifyDriverUi(String action) {
+        if (DEBUG) {
+            Log.d(TAG, "Notify DriverUi w/ action =" + action);
+        }
+        Intent driveUiIntent = new Intent(NOTIFY_DRIVER_UI_ACTION);
+        driveUiIntent.putExtra(NOTIFY_DRIVER_UI_EXTRA_KEY, action);
+        driveUiIntent.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
+        mService.sendBroadcast(driveUiIntent);
+    }
+
     private void launchMap(int targetDisplayId) {
-        if (Log.isLoggable(TAG, Log.DEBUG)) {
+        if (DEBUG) {
             Log.d(TAG, "Launching Maps on display id {" + targetDisplayId + "}");
         }
         ActivityOptions options = ActivityOptions.makeBasic();
@@ -180,14 +202,14 @@ public final class CustomInputEventListener {
 
     private void acceptIncomingCall(int targetDisplayType) {
         Log.i(TAG, "Entering acceptIncomingCall");
-        if (Log.isLoggable(TAG, Log.DEBUG)) {
+        if (DEBUG) {
             Log.d(TAG, "Accepting incoming call on display id {" + targetDisplayType + "}");
         }
         injectKeyEvent(targetDisplayType, KeyEvent.KEYCODE_CALL);
     }
 
     private void rejectIncomingCall(int targetDisplayType) {
-        if (Log.isLoggable(TAG, Log.DEBUG)) {
+        if (DEBUG) {
             Log.d(TAG, "Rejecting incoming call on display id {" + targetDisplayType + "}");
         }
         injectKeyEvent(targetDisplayType, KeyEvent.KEYCODE_ENDCALL);
@@ -204,14 +226,14 @@ public final class CustomInputEventListener {
                     + volumeGroupId + ")");
         }
         if (volume == maxVolume) {
-            if (Log.isLoggable(TAG, Log.DEBUG)) {
+            if (DEBUG) {
                 Log.d(TAG, "Volume for stream type (" + usage + ") is already max (" + maxVolume
                         + ")");
             }
             return;
         }
         volume++;
-        if (Log.isLoggable(TAG, Log.DEBUG)) {
+        if (DEBUG) {
             Log.d(TAG, "Increasing volume for stream type (" + usage + ") to: " + volume
                     + " (max volume is "
                     + maxVolume + ")");
@@ -230,14 +252,14 @@ public final class CustomInputEventListener {
                     + volumeGroupId + ")");
         }
         if (volume == minVolume) {
-            if (Log.isLoggable(TAG, Log.DEBUG)) {
+            if (DEBUG) {
                 Log.d(TAG, "Volume for stream type (" + usage + ") is already min (" + minVolume
                         + ")");
             }
             return;
         }
         volume--;
-        if (Log.isLoggable(TAG, Log.DEBUG)) {
+        if (DEBUG) {
             Log.d(TAG, "Decreasing volume for stream type (" + usage + ") to: " + volume
                     + " (min volume is "
                     + minVolume + ")");
@@ -246,7 +268,7 @@ public final class CustomInputEventListener {
     }
 
     private void launchHome(int targetDisplayType) {
-        if (Log.isLoggable(TAG, Log.DEBUG)) {
+        if (DEBUG) {
             Log.d(TAG, "Injecting HOME KeyEvent on display type {" + targetDisplayType + "}");
         }
         injectKeyEvent(targetDisplayType, KeyEvent.KEYCODE_HOME);

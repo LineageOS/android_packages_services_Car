@@ -21,20 +21,21 @@ namespace frameworks {
 namespace automotive {
 namespace vhal {
 
+using ::aidl::android::hardware::automotive::vehicle::VehiclePropertyStatus;
 using ::aidl::android::hardware::automotive::vehicle::VehiclePropValue;
 
-AidlHalPropValue::AidlHalPropValue(int32_t propId) {
+AidlHalPropValue::AidlHalPropValue(int32_t propId) : IHalPropValue() {
     mPropValue = {};
     mPropValue.prop = propId;
 }
 
-AidlHalPropValue::AidlHalPropValue(int32_t propId, int32_t areaId) {
+AidlHalPropValue::AidlHalPropValue(int32_t propId, int32_t areaId) : IHalPropValue() {
     mPropValue = {};
     mPropValue.prop = propId;
     mPropValue.areaId = areaId;
 }
 
-AidlHalPropValue::AidlHalPropValue(VehiclePropValue&& value) {
+AidlHalPropValue::AidlHalPropValue(VehiclePropValue&& value) : IHalPropValue() {
     mPropValue = std::move(value);
 }
 
@@ -48,6 +49,10 @@ int32_t AidlHalPropValue::getAreaId() const {
 
 int64_t AidlHalPropValue::getTimestamp() const {
     return mPropValue.timestamp;
+}
+
+VehiclePropertyStatus AidlHalPropValue::getStatus() const {
+    return mPropValue.status;
 }
 
 void AidlHalPropValue::setInt32Values(const std::vector<int32_t>& values) {
@@ -92,6 +97,11 @@ std::string AidlHalPropValue::getStringValue() const {
 
 const void* AidlHalPropValue::toVehiclePropValue() const {
     return &mPropValue;
+}
+
+std::unique_ptr<IHalPropValue> AidlHalPropValue::clone() const {
+    auto propValueCopy = mPropValue;
+    return std::make_unique<AidlHalPropValue>(std::move(propValueCopy));
 }
 
 }  // namespace vhal

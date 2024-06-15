@@ -175,6 +175,23 @@
         android:label="@string/car_permission_label_control_valet_mode"
         android:description="@string/car_permission_desc_control_valet_mode"/>
 
+    <!-- Allows an application to read head up display status (e.g. whether the head up display is
+         enabled).
+         <p>Protection level: signature|privileged
+    -->
+    <permission android:name="android.car.permission.READ_HEAD_UP_DISPLAY_STATUS"
+        android:protectionLevel="signature|privileged"
+        android:label="@string/car_permission_label_read_head_up_display_status"
+        android:description="@string/car_permission_desc_read_head_up_display_status"/>
+
+    <!-- Allows an application to control head up display.
+         <p>Protection level: signature|privileged
+    -->
+    <permission android:name="android.car.permission.CONTROL_HEAD_UP_DISPLAY"
+        android:protectionLevel="signature|privileged"
+        android:label="@string/car_permission_label_control_head_up_display"
+        android:description="@string/car_permission_desc_control_head_up_display"/>
+
     <!-- Allows an application to read state of car airbags.
          <p>Protection level: signature|privileged
     -->
@@ -1158,6 +1175,15 @@
         android:protectionLevel="signature|privileged"
         android:label="@string/car_permission_label_query_display_compatibility"
         android:description="@string/car_permission_desc_query_display_compatibility"/>
+
+    <!-- Allows an application to read the vehicle's persist tethering settings.
+         <p>Protection level: signature|privileged
+    -->
+    <permission
+        android:name="android.car.permission.READ_PERSIST_TETHERING_SETTINGS"
+        android:protectionLevel="signature|privileged"
+        android:label="@string/car_permission_label_read_persist_tethering_settings"
+        android:description="@string/car_permission_desc_read_persist_tethering_settings" />
 
 
     <!-- NOTE: when you're adding a new permission, you should edit

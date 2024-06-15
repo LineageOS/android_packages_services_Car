@@ -26,6 +26,8 @@ import android.car.feature.Flags;
 import android.car.media.CarAudioZoneConfigInfo;
 import android.car.media.CarVolumeGroupEvent;
 import android.car.media.CarVolumeGroupInfo;
+import android.car.oem.CarAudioFadeConfiguration;
+import android.media.AudioAttributes;
 import android.media.AudioDeviceAttributes;
 import android.media.AudioDeviceInfo;
 import android.util.ArrayMap;
@@ -67,6 +69,10 @@ final class CarAudioZoneConfig {
     private final List<CarVolumeGroup> mVolumeGroups;
     private final List<String> mGroupIdToNames;
     private final Map<String, Integer> mDeviceAddressToGroupId;
+    private final CarAudioFadeConfiguration mDefaultCarAudioFadeConfiguration;
+    private final Map<AudioAttributes,
+            CarAudioFadeConfiguration> mAudioAttributesToCarAudioFadeConfiguration;
+    private final boolean mIsFadeManagerConfigurationEnabled;
 
     private final Object mLock = new Object();
 
@@ -75,7 +81,9 @@ final class CarAudioZoneConfig {
 
     private CarAudioZoneConfig(String name, int zoneId, int zoneConfigId, boolean isDefault,
             List<CarVolumeGroup> volumeGroups, Map<String, Integer> deviceAddressToGroupId,
-            List<String> groupIdToNames) {
+            List<String> groupIdToNames, boolean isFadeManagerConfigEnabled,
+            CarAudioFadeConfiguration defaultCarAudioFadeConfiguration,
+            Map<AudioAttributes, CarAudioFadeConfiguration> attrToCarAudioFadeConfiguration) {
         mName = name;
         mZoneId = zoneId;
         mZoneConfigId = zoneConfigId;
@@ -84,6 +92,9 @@ final class CarAudioZoneConfig {
         mDeviceAddressToGroupId = deviceAddressToGroupId;
         mGroupIdToNames = groupIdToNames;
         mIsSelected = false;
+        mIsFadeManagerConfigurationEnabled = isFadeManagerConfigEnabled;
+        mDefaultCarAudioFadeConfiguration = defaultCarAudioFadeConfiguration;
+        mAudioAttributesToCarAudioFadeConfiguration = attrToCarAudioFadeConfiguration;
     }
 
     int getZoneId() {
@@ -309,6 +320,26 @@ final class CarAudioZoneConfig {
         }
     }
 
+    boolean isFadeManagerConfigurationEnabled() {
+        return mIsFadeManagerConfigurationEnabled;
+    }
+
+    @Nullable
+    CarAudioFadeConfiguration getDefaultCarAudioFadeConfiguration() {
+        return mDefaultCarAudioFadeConfiguration;
+    }
+
+    @Nullable
+    CarAudioFadeConfiguration getCarAudioFadeConfigurationForAudioAttributes(
+            AudioAttributes audioAttributes) {
+        Objects.requireNonNull(audioAttributes, "Audio attributes cannot be null");
+        return mAudioAttributesToCarAudioFadeConfiguration.get(audioAttributes);
+    }
+
+    Map<AudioAttributes, CarAudioFadeConfiguration> getAllTransientCarAudioFadeConfigurations() {
+        return mAudioAttributesToCarAudioFadeConfiguration;
+    }
+
     @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     void dump(IndentingPrintWriter writer) {
         writer.printf("CarAudioZoneConfig(%s:%d) of zone %d isDefault? %b\n", mName, mZoneConfigId,
@@ -318,6 +349,21 @@ final class CarAudioZoneConfig {
         writer.printf("Is selected (%b)\n", isSelected());
         for (int index = 0; index < mVolumeGroups.size(); index++) {
             mVolumeGroups.get(index).dump(writer);
+        }
+        writer.printf("Is fade manager configuration enabled: %b\n",
+                isFadeManagerConfigurationEnabled());
+        if (isFadeManagerConfigurationEnabled()) {
+            writer.printf("Default car audio fade manager config name: %s\n",
+                    mDefaultCarAudioFadeConfiguration.getName());
+            writer.printf("Transient car audio fade manager configurations: %d\n",
+                    mAudioAttributesToCarAudioFadeConfiguration.size());
+            writer.increaseIndent();
+            for (Map.Entry<AudioAttributes, CarAudioFadeConfiguration> entry :
+                    mAudioAttributesToCarAudioFadeConfiguration.entrySet()) {
+                writer.printf("Name: " + entry.getValue().getName()
+                        + ", Audio attribute: " + entry.getKey() + "\n");
+            }
+            writer.decreaseIndent();
         }
         writer.decreaseIndent();
     }
@@ -334,7 +380,27 @@ final class CarAudioZoneConfig {
         }
         proto.write(CarAudioZoneConfigProto.IS_ACTIVE, isActive());
         proto.write(CarAudioZoneConfigProto.IS_SELECTED, isSelected());
+        proto.write(CarAudioZoneConfigProto.IS_FADE_MANAGER_CONFIG_ENABLED,
+                isFadeManagerConfigurationEnabled());
+        if (isFadeManagerConfigurationEnabled()) {
+            CarAudioProtoUtils.dumpCarAudioFadeConfigurationProto(mDefaultCarAudioFadeConfiguration,
+                    CarAudioZoneConfigProto.DEFAULT_CAR_AUDIO_FADE_CONFIGURATION, proto);
+            dumpAttributeToCarAudioFadeConfigProto(proto);
+        }
         proto.end(zoneConfigToken);
+    }
+
+    private void dumpAttributeToCarAudioFadeConfigProto(ProtoOutputStream proto) {
+        for (Map.Entry<AudioAttributes, CarAudioFadeConfiguration> entry :
+                mAudioAttributesToCarAudioFadeConfiguration.entrySet()) {
+            long token = proto.start(CarAudioZoneConfigProto.ATTR_TO_CAR_AUDIO_FADE_CONFIGURATION);
+            CarAudioProtoUtils.dumpCarAudioAttributesProto(entry.getKey(), CarAudioZoneConfigProto
+                    .AttrToCarAudioFadeConfiguration.ATTRIBUTES, proto);
+            CarAudioProtoUtils.dumpCarAudioFadeConfigurationProto(entry.getValue(),
+                    CarAudioZoneConfigProto.AttrToCarAudioFadeConfiguration
+                            .CAR_AUDIO_FADE_CONFIGURATION, proto);
+            proto.end(token);
+        }
     }
 
     /**
@@ -352,6 +418,16 @@ final class CarAudioZoneConfig {
                 && info.getAddress() != null
                 && !info.getAddress().isEmpty()
                 && containsDeviceAddress(info.getAddress());
+    }
+
+    @Nullable
+    CarVolumeGroup getVolumeGroupForAudioAttributes(AudioAttributes audioAttributes) {
+        for (int i = 0; i < mVolumeGroups.size(); i++) {
+            if (mVolumeGroups.get(i).hasAudioAttributes(audioAttributes)) {
+                return mVolumeGroups.get(i);
+            }
+        }
+        return null;
     }
 
     private boolean containsDeviceAddress(String deviceAddress) {
@@ -417,7 +493,7 @@ final class CarAudioZoneConfig {
         if (Flags.carAudioDynamicDevices()) {
             return new CarAudioZoneConfigInfo.Builder(mName, mZoneId, mZoneConfigId)
                     .setConfigVolumeGroups(getVolumeGroupInfos()).setIsActive(isActive())
-                    .setIsSelected(isSelected()).build();
+                    .setIsSelected(isSelected()).setIsDefault(isDefault()).build();
         }
         // Keep legacy code till the flags becomes permanent
         return new CarAudioZoneConfigInfo(mName, mZoneId, mZoneConfigId);
@@ -513,6 +589,11 @@ final class CarAudioZoneConfig {
         private final List<CarVolumeGroup> mVolumeGroups = new ArrayList<>();
         private final Map<String, Integer> mDeviceAddressToGroupId = new ArrayMap<>();
         private final List<String> mGroupIdToNames = new ArrayList<>();
+        private final Map<AudioAttributes,
+                CarAudioFadeConfiguration> mAudioAttributesToCarAudioFadeConfiguration =
+                new ArrayMap<>();
+        private CarAudioFadeConfiguration mDefaultCarAudioFadeConfiguration;
+        private boolean mIsFadeManagerConfigurationEnabled;
 
         Builder(String name, int zoneId, int zoneConfigId, boolean isDefault) {
             mName = Objects.requireNonNull(name, "Car audio zone config name cannot be null");
@@ -528,6 +609,28 @@ final class CarAudioZoneConfig {
             return this;
         }
 
+        Builder setFadeManagerConfigurationEnabled(boolean enabled) {
+            mIsFadeManagerConfigurationEnabled = enabled;
+            return this;
+        }
+
+        Builder setDefaultCarAudioFadeConfiguration(
+                CarAudioFadeConfiguration carAudioFadeConfiguration) {
+            mDefaultCarAudioFadeConfiguration = Objects.requireNonNull(carAudioFadeConfiguration,
+                    "Car audio fade configuration for default cannot be null");
+            return this;
+        }
+
+        Builder setCarAudioFadeConfigurationForAudioAttributes(AudioAttributes audioAttributes,
+                CarAudioFadeConfiguration carAudioFadeConfiguration) {
+            Objects.requireNonNull(audioAttributes, "Audio attributes cannot be null");
+            Objects.requireNonNull(carAudioFadeConfiguration,
+                    "Car audio fade configuration for audio attributes cannot be null");
+            mAudioAttributesToCarAudioFadeConfiguration.put(audioAttributes,
+                    carAudioFadeConfiguration);
+            return this;
+        }
+
         int getZoneId() {
             return mZoneId;
         }
@@ -537,8 +640,13 @@ final class CarAudioZoneConfig {
         }
 
         CarAudioZoneConfig build() {
+            if (!mIsFadeManagerConfigurationEnabled) {
+                mDefaultCarAudioFadeConfiguration = null;
+                mAudioAttributesToCarAudioFadeConfiguration.clear();
+            }
             return new CarAudioZoneConfig(mName, mZoneId, mZoneConfigId, mIsDefault, mVolumeGroups,
-                    mDeviceAddressToGroupId, mGroupIdToNames);
+                    mDeviceAddressToGroupId, mGroupIdToNames, mIsFadeManagerConfigurationEnabled,
+                    mDefaultCarAudioFadeConfiguration, mAudioAttributesToCarAudioFadeConfiguration);
         }
 
         private void addGroupAddressesToMap(List<String> addresses, int groupId) {

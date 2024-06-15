@@ -16,7 +16,6 @@
 
 package com.android.car.power;
 
-import static android.car.feature.Flags.carPowerPolicyRefactoring;
 import static android.car.hardware.power.PowerComponentUtil.FIRST_POWER_COMPONENT;
 import static android.car.hardware.power.PowerComponentUtil.INVALID_POWER_COMPONENT;
 import static android.car.hardware.power.PowerComponentUtil.LAST_POWER_COMPONENT;
@@ -35,6 +34,7 @@ import static org.xmlpull.v1.XmlPullParser.TEXT;
 
 import android.annotation.Nullable;
 import android.car.builtin.util.Slogf;
+import android.car.feature.FeatureFlags;
 import android.car.hardware.power.CarPowerPolicy;
 import android.car.hardware.power.PowerComponent;
 import android.hardware.automotive.vehicle.VehicleApPowerStateReport;
@@ -50,6 +50,7 @@ import com.android.car.CarLog;
 import com.android.car.CarServiceUtils;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
+import com.android.car.internal.util.Lists;
 import com.android.car.power.CarPowerDumpProto.PolicyReaderProto;
 import com.android.car.power.CarPowerDumpProto.PolicyReaderProto.ComponentNameToValue;
 import com.android.car.power.CarPowerDumpProto.PolicyReaderProto.IdToPolicyGroup;
@@ -81,6 +82,7 @@ public final class PolicyReader {
     public static final String POWER_STATE_WAIT_FOR_VHAL = "WaitForVHAL";
     public static final String POWER_STATE_ON = "On";
 
+    // TODO(b/286303350): Remove all system power policy definitions after refactor is complete
     static final String SYSTEM_POWER_POLICY_PREFIX = "system_power_policy_";
     // Preemptive system power policy used for disabling user interaction in Silent Mode or Garage
     // Mode.
@@ -167,9 +169,10 @@ public final class PolicyReader {
         POWER_POLICY_SUSPEND_PREP = new CarPowerPolicy(POWER_POLICY_ID_SUSPEND_PREP,
                 NO_COMPONENTS.clone(), SUSPEND_PREP_DISABLED_COMPONENTS.clone());
     }
+    // Allows for injecting mock feature flag values during testing
+    private FeatureFlags mFeatureFlags;
 
     private ArrayMap<String, CarPowerPolicy> mRegisteredPowerPolicies;
-    // TODO(b/286303350): remove once power policy refactor complete
     private ArrayMap<String, SparseArray<String>> mPolicyGroups;
     // TODO(b/286303350): remove once power policy refactor complete
     private ArrayMap<String, CarPowerPolicy> mPreemptivePowerPolicies;
@@ -232,9 +235,12 @@ public final class PolicyReader {
         return mDefaultPolicyGroupId;
     }
 
-    void init() {
+    void init(FeatureFlags fakeFeatureFlags) {
+        mFeatureFlags = fakeFeatureFlags;
+        Slogf.d(TAG, "PolicyReader is initializing, carPowerPolicyRefactoring = "
+                + mFeatureFlags.carPowerPolicyRefactoring());
         initPolicies();
-        if (!carPowerPolicyRefactoring()) {
+        if (!mFeatureFlags.carPowerPolicyRefactoring()) {
             readPowerPolicyConfiguration();
         }
     }
@@ -254,11 +260,13 @@ public final class PolicyReader {
                     PolicyOperationStatus.errorCodeToString(error, "policyId cannot be empty"));
             return error;
         }
-        if (isSystemPowerPolicy(policyId)) {
-            int error = PolicyOperationStatus.ERROR_INVALID_POWER_POLICY_ID;
-            Slogf.w(TAG, PolicyOperationStatus.errorCodeToString(error,
-                    "policyId should not start with " + SYSTEM_POWER_POLICY_PREFIX));
-            return error;
+        if (!mFeatureFlags.carPowerPolicyRefactoring()) {
+            if (isSystemPowerPolicy(policyId)) {
+                int error = PolicyOperationStatus.ERROR_INVALID_POWER_POLICY_ID;
+                Slogf.w(TAG, PolicyOperationStatus.errorCodeToString(error,
+                        "policyId should not start with " + SYSTEM_POWER_POLICY_PREFIX));
+                return error;
+            }
         }
         if (mRegisteredPowerPolicies.containsKey(policyId)) {
             int error = PolicyOperationStatus.ERROR_DOUBLE_REGISTERED_POWER_POLICY_ID;
@@ -358,11 +366,15 @@ public final class PolicyReader {
             }
             writer.decreaseIndent();
         }
-
         writer.println("Preemptive power policy:");
         writer.increaseIndent();
-        for (int i = 0; i < mPreemptivePowerPolicies.size(); i++) {
-            writer.println(mPreemptivePowerPolicies.valueAt(i).toString());
+
+        if (mFeatureFlags.carPowerPolicyRefactoring()) {
+            writer.println("Preemptive power policies not supported w/refactored power policy");
+        } else {
+            for (int i = 0; i < mPreemptivePowerPolicies.size(); i++) {
+                writer.println(mPreemptivePowerPolicies.valueAt(i).toString());
+            }
         }
         writer.decreaseIndent();
     }
@@ -422,8 +434,10 @@ public final class PolicyReader {
             proto.end(powerPolicyGroupMappingsToken);
         }
 
-        dumpProtoPowerPolicies(
-                proto, PolicyReaderProto.PREEMPTIVE_POWER_POLICIES, mPreemptivePowerPolicies);
+        if (!mFeatureFlags.carPowerPolicyRefactoring()) {
+            dumpProtoPowerPolicies(
+                    proto, PolicyReaderProto.PREEMPTIVE_POWER_POLICIES, mPreemptivePowerPolicies);
+        }
 
         proto.end(policyReaderToken);
     }
@@ -431,16 +445,17 @@ public final class PolicyReader {
     @VisibleForTesting
     void initPolicies() {
         mRegisteredPowerPolicies = new ArrayMap<>();
-        registerBasicPowerPolicies();
-
         mPolicyGroups = new ArrayMap<>();
 
-        mPreemptivePowerPolicies = new ArrayMap<>();
-        mPreemptivePowerPolicies.put(POWER_POLICY_ID_NO_USER_INTERACTION,
-                new CarPowerPolicy(POWER_POLICY_ID_NO_USER_INTERACTION,
-                        NO_USER_INTERACTION_ENABLED_COMPONENTS.clone(),
-                        NO_USER_INTERACTION_DISABLED_COMPONENTS.clone()));
-        mPreemptivePowerPolicies.put(POWER_POLICY_ID_SUSPEND_PREP, POWER_POLICY_SUSPEND_PREP);
+        if (!mFeatureFlags.carPowerPolicyRefactoring()) {
+            registerBasicPowerPolicies();
+            mPreemptivePowerPolicies = new ArrayMap<>();
+            mPreemptivePowerPolicies.put(POWER_POLICY_ID_NO_USER_INTERACTION,
+                    new CarPowerPolicy(POWER_POLICY_ID_NO_USER_INTERACTION,
+                            NO_USER_INTERACTION_ENABLED_COMPONENTS.clone(),
+                            NO_USER_INTERACTION_DISABLED_COMPONENTS.clone()));
+            mPreemptivePowerPolicies.put(POWER_POLICY_ID_SUSPEND_PREP, POWER_POLICY_SUSPEND_PREP);
+        }
     }
 
     private void readPowerPolicyConfiguration() {
@@ -1015,6 +1030,13 @@ public final class PolicyReader {
 
     ArrayMap<String, Integer> getCustomComponents() {
         return mCustomComponents;
+    }
+
+    @VisibleForTesting
+    Set<Integer> getAllComponents() {
+        Set<Integer> allComponents = new ArraySet<>(Lists.asImmutableList(ALL_COMPONENTS));
+        allComponents.addAll(mCustomComponents.values());
+        return allComponents;
     }
 
     @VisibleForTesting

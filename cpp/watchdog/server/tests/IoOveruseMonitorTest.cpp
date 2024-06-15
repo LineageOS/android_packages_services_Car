@@ -364,7 +364,8 @@ TEST_F(IoOveruseMonitorTest, TestOnPeriodicCollection) {
 
     ResourceStats actualResourceStats = {};
 
-    time_t currentTime = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+    auto currentTime = std::chrono::time_point_cast<std::chrono::milliseconds>(
+            std::chrono::system_clock::now());
     const auto [startTime, durationInSeconds] = calculateStartAndDuration(currentTime);
 
     ASSERT_RESULT_OK(mIoOveruseMonitor->onPeriodicCollection(currentTime, SystemState::NORMAL_MODE,
@@ -468,7 +469,7 @@ TEST_F(IoOveruseMonitorTest, TestOnPeriodicCollection) {
                                        {1212345, {/*fgWrBytes=*/55'000, /*bgWrBytes=*/23'000}}})));
     actualResourceStats.resourceOveruseStats->packageIoOveruseStats.clear();
 
-    currentTime += (24 * 60 * 60);  // Change collection time to next day.
+    currentTime += std::chrono::hours(24);  // Change collection time to next day.
     ASSERT_RESULT_OK(mIoOveruseMonitor->onPeriodicCollection(currentTime, SystemState::NORMAL_MODE,
                                                              mMockUidStatsCollector, nullptr,
                                                              &actualResourceStats));
@@ -528,7 +529,8 @@ TEST_F(IoOveruseMonitorTest, TestOnPeriodicCollectionWithGarageMode) {
 
     ResourceStats actualResourceStats = {};
 
-    time_t currentTime = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+    auto currentTime = std::chrono::time_point_cast<std::chrono::milliseconds>(
+            std::chrono::system_clock::now());
     const auto [startTime, durationInSeconds] = calculateStartAndDuration(currentTime);
 
     ASSERT_RESULT_OK(mIoOveruseMonitor->onPeriodicCollection(currentTime, SystemState::GARAGE_MODE,
@@ -587,11 +589,11 @@ TEST_F(IoOveruseMonitorTest, TestOnPeriodicCollectionWithZeroWriteBytes) {
     ResourceStats actualResourceStats = {};
 
     ASSERT_RESULT_OK(
-            mIoOveruseMonitor->onPeriodicCollection(std::chrono::system_clock::to_time_t(
-                                                            std::chrono::system_clock::now()),
-                                                    SystemState::NORMAL_MODE,
-                                                    mMockUidStatsCollector, nullptr,
-                                                    &actualResourceStats));
+            mIoOveruseMonitor
+                    ->onPeriodicCollection(std::chrono::time_point_cast<std::chrono::milliseconds>(
+                                                   std::chrono::system_clock::now()),
+                                           SystemState::NORMAL_MODE, mMockUidStatsCollector,
+                                           nullptr, &actualResourceStats));
 
     EXPECT_TRUE(actualResourceStats.resourceOveruseStats->packageIoOveruseStats.empty())
             << "I/O overuse stats list is not empty";
@@ -606,7 +608,8 @@ TEST_F(IoOveruseMonitorTest, TestOnPeriodicCollectionWithExtremeOveruse) {
                     constructUidStats({{1001000, {/*fgWrBytes=*/190'000, /*bgWrBytes=*/42'000}},
                                        {1212345, {/*fgWrBytes=*/90'000, /*bgWrBytes=*/90'000}}})));
 
-    time_t currentTime = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+    auto currentTime = std::chrono::time_point_cast<std::chrono::milliseconds>(
+            std::chrono::system_clock::now());
     const auto [startTime, durationInSeconds] = calculateStartAndDuration(currentTime);
 
     ResourceStats actualResourceStats = {};
@@ -643,7 +646,8 @@ TEST_F(IoOveruseMonitorTest, TestOnPeriodicCollectionWithExtremeOveruseInGarageM
                     constructUidStats({{1001000, {/*fgWrBytes=*/190'000, /*bgWrBytes=*/42'000}},
                                        {1212345, {/*fgWrBytes=*/90'000, /*bgWrBytes=*/90'000}}})));
 
-    time_t currentTime = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+    auto currentTime = std::chrono::time_point_cast<std::chrono::milliseconds>(
+            std::chrono::system_clock::now());
     const auto [startTime, durationInSeconds] = calculateStartAndDuration(currentTime);
 
     ResourceStats actualResourceStats = {};
@@ -688,7 +692,8 @@ TEST_F(IoOveruseMonitorTest, TestOnPeriodicCollectionWithSmallWrittenBytes) {
 
     ResourceStats actualResourceStats = {};
 
-    time_t currentTime = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+    auto currentTime = std::chrono::time_point_cast<std::chrono::milliseconds>(
+            std::chrono::system_clock::now());
     const auto [startTime, durationInSeconds] = calculateStartAndDuration(currentTime);
 
     ASSERT_RESULT_OK(mIoOveruseMonitor->onPeriodicCollection(currentTime, SystemState::NORMAL_MODE,
@@ -786,11 +791,11 @@ TEST_F(IoOveruseMonitorTest, TestOnPeriodicCollectionWithNoPackageInfo) {
     ResourceStats actualResourceStats = {};
 
     ASSERT_RESULT_OK(
-            mIoOveruseMonitor->onPeriodicCollection(std::chrono::system_clock::to_time_t(
-                                                            std::chrono::system_clock::now()),
-                                                    SystemState::NORMAL_MODE,
-                                                    mMockUidStatsCollector, nullptr,
-                                                    &actualResourceStats));
+            mIoOveruseMonitor
+                    ->onPeriodicCollection(std::chrono::time_point_cast<std::chrono::milliseconds>(
+                                                   std::chrono::system_clock::now()),
+                                           SystemState::NORMAL_MODE, mMockUidStatsCollector,
+                                           nullptr, &actualResourceStats));
 
     EXPECT_TRUE(actualResourceStats.resourceOveruseStats->packageIoOveruseStats.empty())
             << "I/O overuse stats list is not empty";
@@ -810,7 +815,8 @@ TEST_F(IoOveruseMonitorTest, TestOnPeriodicCollectionWithPrevBootStats) {
 
     ResourceStats actualResourceStats = {};
 
-    time_t currentTime = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+    auto currentTime = std::chrono::time_point_cast<std::chrono::milliseconds>(
+            std::chrono::system_clock::now());
     const auto [startTime, durationInSeconds] = calculateStartAndDuration(currentTime);
 
     ASSERT_RESULT_OK(mIoOveruseMonitor->onPeriodicCollection(currentTime, SystemState::NORMAL_MODE,
@@ -888,7 +894,8 @@ TEST_F(IoOveruseMonitorTest, TestOnPeriodicCollectionWithErrorFetchingPrevBootSt
             .WillOnce(Return(
                     constructUidStats({{1112345, {/*fgWrBytes=*/15'000, /*bgWrBytes=*/15'000}}})));
 
-    time_t currentTime = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+    auto currentTime = std::chrono::time_point_cast<std::chrono::milliseconds>(
+            std::chrono::system_clock::now());
     const auto [startTime, durationInSeconds] = calculateStartAndDuration(currentTime);
     ResourceStats actualResourceStats = {};
 
@@ -1074,7 +1081,8 @@ TEST_F(IoOveruseMonitorTest, TestGetIoOveruseStats) {
             .WillOnce(Return(
                     constructUidStats({{1001000, {/*fgWrBytes=*/90'000, /*bgWrBytes=*/20'000}}})));
 
-    time_t currentTime = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+    auto currentTime = std::chrono::time_point_cast<std::chrono::milliseconds>(
+            std::chrono::system_clock::now());
     const auto [startTime, durationInSeconds] = calculateStartAndDuration(currentTime);
     ResourceStats resourceStats = {};
 
@@ -1107,11 +1115,11 @@ TEST_F(IoOveruseMonitorTest, TestResetIoOveruseStats) {
     ResourceStats resourceStats = {};
 
     ASSERT_RESULT_OK(
-            mIoOveruseMonitor->onPeriodicCollection(std::chrono::system_clock::to_time_t(
-                                                            std::chrono::system_clock::now()),
-                                                    SystemState::NORMAL_MODE,
-                                                    mMockUidStatsCollector, nullptr,
-                                                    &resourceStats));
+            mIoOveruseMonitor
+                    ->onPeriodicCollection(std::chrono::time_point_cast<std::chrono::milliseconds>(
+                                                   std::chrono::system_clock::now()),
+                                           SystemState::NORMAL_MODE, mMockUidStatsCollector,
+                                           nullptr, &resourceStats));
 
     IoOveruseStats actual;
     ASSERT_NO_FATAL_FAILURE(executeAsUid(1001000, [&]() {
@@ -1201,7 +1209,8 @@ TEST_F(IoOveruseMonitorTest, TestRemoveUser) {
 
     ResourceStats actualResourceStats = {};
 
-    time_t currentTime = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+    auto currentTime = std::chrono::time_point_cast<std::chrono::milliseconds>(
+            std::chrono::system_clock::now());
     const auto [startTime, durationInSeconds] = calculateStartAndDuration(currentTime);
 
     ASSERT_RESULT_OK(mIoOveruseMonitor->onPeriodicCollection(currentTime, SystemState::NORMAL_MODE,

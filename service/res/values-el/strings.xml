@@ -34,6 +34,8 @@
     <string name="car_permission_desc_speed" msgid="2047965198165448241">"Πρόσβαση στην ταχύτητα του αυτοκινήτου σας."</string>
     <string name="car_permission_label_vehicle_dynamics_state" msgid="313779267420048367">"πρόσβαση στην κατάσταση δυναμικής του αυτοκινήτου"</string>
     <string name="car_permission_desc_vehicle_dynamics_state" msgid="8891506193446375660">"Πρόσβαση στην κατάσταση δυναμικής του αυτοκινήτου."</string>
+    <string name="car_permission_label_control_vehicle_dynamics_state" msgid="1912154069363074986">"έλεγχος της κατάστασης της δυναμικής του αυτοκινήτου"</string>
+    <string name="car_permission_desc_control_vehicle_dynamics_state" msgid="5603436779163086928">"Έλεγχος της κατάστασης της δυναμικής του αυτοκινήτου."</string>
     <string name="car_permission_label_vendor_extension" msgid="7141601811734127361">"πρόσβαση στο κανάλι παρόχου υπηρεσιών του αυτοκινήτου"</string>
     <string name="car_permission_desc_vendor_extension" msgid="2970718502334714035">"Πρόσβαση στο κανάλι παρόχου υπηρεσιών του αυτοκινήτου σας, για ανταλλαγή πληροφοριών σχετικά με το αυτοκίνητο."</string>
     <string name="car_permission_label_radio" msgid="6009465291685935112">"διαχείριση ραδιοφώνου αυτοκινήτου"</string>
@@ -84,6 +86,8 @@
     <string name="car_permission_desc_vms_publisher" msgid="5589489298597386828">"Δημοσίευση μηνυμάτων VMS"</string>
     <string name="car_permission_label_vms_subscriber" msgid="5648841182059222299">"Εγγεγραμμένη εφαρμογή VMS"</string>
     <string name="car_permission_desc_vms_subscriber" msgid="7551009457847673620">"Εγγραφή σε μηνύματα VMS"</string>
+    <string name="car_permission_label_read_ultrasonics_sensor_data" msgid="1097940233242534149">"Ανάγνωση των δεδομένων του αισθητήρα υπερήχων."</string>
+    <string name="car_permission_desc_read_ultrasonics_sensor_data" msgid="1717892304330623332">"Ανάγνωση των δεδομένων του αισθητήρα υπερήχων από το αυτοκίνητο."</string>
     <string name="car_permission_label_storage_monitoring" msgid="2327639346522530549">"Παρακολούθηση αποθηκευτικού χώρου flash"</string>
     <string name="car_permission_desc_storage_monitoring" msgid="2075712271139671318">"Παρακολούθηση χρήσης αποθηκευτικού χώρου flash"</string>
     <string name="car_permission_label_driving_state" msgid="7754624599537393650">"ακρόαση κατάστασης οδήγησης"</string>
@@ -116,6 +120,20 @@
     <string name="car_permission_desc_control_car_mirrors" msgid="1224135684068855032">"Έλεγχος καθρεπτών αυτοκινήτου."</string>
     <string name="car_permission_label_control_car_seats" msgid="1826934820585497135">"έλεγχος καθισμάτων αυτοκινήτου"</string>
     <string name="car_permission_desc_control_car_seats" msgid="2407536601226470563">"Έλεγχος καθισμάτων αυτοκινήτου."</string>
+    <string name="car_permission_label_read_car_seat_belts" msgid="2051828795852087659">"ανάγνωση των ζωνών ασφαλείας του αυτοκινήτου"</string>
+    <string name="car_permission_desc_read_car_seat_belts" msgid="7076977711613912339">"Ανάγνωση των ζωνών ασφαλείας του αυτοκινήτου."</string>
+    <string name="car_permission_label_read_impact_sensors" msgid="9193288836326363975">"ανάγνωση των αισθητήρων σύγκρουσης του αυτοκινήτου"</string>
+    <string name="car_permission_desc_read_impact_sensors" msgid="6479840965130272944">"Ανάγνωση των αισθητήρων σύγκρουσης του αυτοκινήτου."</string>
+    <string name="car_permission_label_read_valet_mode" msgid="1807900160666761320">"ανάγνωση της λειτουργίας παρκαδόρου"</string>
+    <string name="car_permission_desc_read_valet_mode" msgid="8645550481045813299">"Ανάγνωση της λειτουργίας παρκαδόρου."</string>
+    <string name="car_permission_label_control_valet_mode" msgid="180432980177027905">"έλεγχος της λειτουργίας παρκαδόρου"</string>
+    <string name="car_permission_desc_control_valet_mode" msgid="8442573192492763994">"Έλεγχος λειτουργίας παρκαδόρου."</string>
+    <string name="car_permission_label_read_head_up_display_status" msgid="8117112886452578905">"ανάγνωση κατάστασης οθόνης ορθής διόπτευσης"</string>
+    <string name="car_permission_desc_read_head_up_display_status" msgid="3255763055570462667">"Ανάγνωση κατάστασης οθόνης ορθής διόπτευσης."</string>
+    <string name="car_permission_label_control_head_up_display" msgid="2990483192001919370">"έλεγχος οθόνης ορθής διόπτευσης"</string>
+    <string name="car_permission_desc_control_head_up_display" msgid="483313982751387504">"Έλεγχος οθόνης ορθής διόπτευσης."</string>
+    <string name="car_permission_label_read_car_airbags" msgid="5495423499616379238">"ανάγνωση των αερόσακων του αυτοκινήτου"</string>
+    <string name="car_permission_desc_read_car_airbags" msgid="7961580013929420722">"Ανάγνωση των αερόσακων του αυτοκινήτου."</string>
     <string name="car_permission_label_control_car_airbags" msgid="6823727183218389617">"έλεγχος των αερόσακων του αυτοκινήτου"</string>
     <string name="car_permission_desc_control_car_airbags" msgid="6181671903761622348">"Έλεγχος των αερόσακων του αυτοκινήτου."</string>
     <string name="car_permission_label_car_info" msgid="4707513570676492315">"πρόσβαση στις βασικές πληροφορίες του αυτοκινήτου"</string>
@@ -210,6 +228,8 @@
     <string name="car_permission_desc_register_car_system_ui_proxy" msgid="8863676956785764681">"Καταχωρήστε έναν διακομιστή μεσολάβησης διεπαφής χρήστη συστήματος που μπορεί να χρησιμοποιηθεί από άλλες εφαρμογές για τη διαχείριση της διεπαφής χρήστη συστήματος και τη δημιουργία προβολών εργασιών."</string>
     <string name="car_permission_label_manage_car_system_ui" msgid="1361615518679353414">"Επικοινωνήστε με τη διεπαφή χρήστη συστήματος για να δημιουργήσετε προβολές εργασιών ή για να λαμβάνετε ειδοποιήσεις σχετικά με αλλαγές στη διεπαφή χρήστη συστήματος."</string>
     <string name="car_permission_desc_manage_car_system_ui" msgid="6201733970421818637">"Επικοινωνήστε με τη διεπαφή χρήστη συστήματος για να δημιουργήσετε προβολές εργασιών ή για να λαμβάνετε ειδοποιήσεις σχετικά με αλλαγές στη διεπαφή χρήστη συστήματος."</string>
+    <string name="car_permission_label_read_persist_tethering_settings" msgid="6395145649477916950">"Διαβάστε τις σταθερές ρυθμίσεις σύνδεσης του αυτοκινήτου"</string>
+    <string name="car_permission_desc_read_persist_tethering_settings" msgid="7373546466696896323">"Διαβάστε τις σταθερές ρυθμίσεις σύνδεσης του αυτοκινήτου"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"Αποτυχία διαύλου CAN"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"Ο δίαυλος CAN δεν αποκρίνεται. Αποσυνδέστε και συνδέστε ξανά το πλαίσιο μονάδας κεφαλής και έπειτα επανεκκινήστε το αυτοκίνητο"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"Η συσκευή μου"</string>

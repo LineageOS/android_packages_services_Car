@@ -20,7 +20,8 @@ import static com.google.common.truth.Truth.assertThat;
 
 import android.car.Car;
 import android.car.CarInfoManager;
-import android.test.suitebuilder.annotation.SmallTest;
+
+import androidx.test.filters.SmallTest;
 
 import org.junit.Before;
 import org.junit.Test;

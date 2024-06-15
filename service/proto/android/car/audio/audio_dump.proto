@@ -32,6 +32,9 @@ message CarAudioDumpProto {
     optional string car_audio_configuration_path = 8;
     optional bool use_car_volume_group_muting = 9;
     optional bool use_car_volume_group_events = 10;
+    optional bool use_fade_manager_configuration = 11;
+    optional bool use_min_max_activation_volume = 12;
+    optional bool use_isolated_focus_for_dynamic_devices = 13;
   }
 
   message CarAudioState {
@@ -74,6 +77,8 @@ message CarAudioDumpProto {
     optional int32 max_gain_index = 2;
     optional int32 default_gain_index = 3;
     optional int32 current_gain_index = 4;
+    optional int32 min_activation_gain_index = 5;
+    optional int32 max_activation_gain_index = 6;
   }
   message CarAudioDeviceInfoProto {
     optional string address = 1;
@@ -122,6 +127,13 @@ message CarAudioDumpProto {
     repeated CarVolumeGroupProto volume_groups = 5;
     optional bool is_active = 6;
     optional bool is_selected = 7;
+    optional bool is_fade_manager_config_enabled = 8;
+    optional CarAudioFadeConfigurationProto default_car_audio_fade_configuration = 9;
+    repeated AttrToCarAudioFadeConfiguration attr_to_car_audio_fade_configuration = 10;
+    message AttrToCarAudioFadeConfiguration {
+      optional CarAudioAttributesProto attributes = 1;
+      optional CarAudioFadeConfigurationProto car_audio_fade_configuration = 2;
+    }
   }
 
   message CarAudioZoneProto {
@@ -271,4 +283,32 @@ message CarAudioDumpProto {
     repeated MediaRequestIdToApprover request_id_to_approver_mappings = 5;
   }
   optional MediaRequestHandlerProto media_request_handler = 15;
+  repeated CarAudioFadeConfigurationProto available_car_fade_configurations = 16;
+
+  message CarAudioFadeConfigurationProto {
+    message FadeManagerConfigurationProto {
+      message VolumeShaperConfiguration {
+        optional int32 duration = 1;
+      }
+      message UsagesToVolumeShaperConfiguration {
+        optional int32 usage = 1;
+        optional VolumeShaperConfiguration fade_out_vol_shaper_config = 2;
+        optional VolumeShaperConfiguration fade_in_vol_shaper_config = 3;
+      }
+      message AttributeToVolumeShaperConfiguration {
+        optional CarAudioAttributesProto attributes = 1;
+        optional VolumeShaperConfiguration fade_out_vol_shaper_config = 2;
+        optional VolumeShaperConfiguration fade_in_vol_shaper_config = 3;
+      }
+      optional int32 state = 1;
+      repeated int32 fadeable_usages = 2;
+      repeated int32 unfadeable_content_types = 3;
+      repeated int32 unfadeable_uids = 4;
+      repeated CarAudioAttributesProto unfadeable_attributes = 5;
+      repeated UsagesToVolumeShaperConfiguration usages_to_volume_shaper_config = 6;
+      repeated AttributeToVolumeShaperConfiguration attr_to_volume_shaper_config = 7;
+    }
+    optional string name = 1;
+    optional FadeManagerConfigurationProto fade_manager_configuration = 2;
+  }
 }
