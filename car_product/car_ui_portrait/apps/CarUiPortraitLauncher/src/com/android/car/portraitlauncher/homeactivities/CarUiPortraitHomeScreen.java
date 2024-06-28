@@ -160,6 +160,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
             "SAVED_BACKGROUND_APP_COMPONENT_NAME";
     private static final IActivityTaskManager sActivityTaskManager =
             ActivityTaskManager.getService();
+    private static final int INVALID_TASK_ID = -1;
     private final UserEventReceiver mUserEventReceiver = new UserEventReceiver();
     private final Configuration mConfiguration = new Configuration();
 
@@ -183,7 +184,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
     private TaskInfoCache mTaskInfoCache;
     private TaskViewPanel mRootTaskViewPanel;
     private boolean mSkipAppGridOnRestartAttempt;
-    private int mAppGridTaskId;
+    private int mAppGridTaskId = INVALID_TASK_ID;
     private final IntentHandler mMediaIntentHandler = new IntentHandler() {
         @Override
         public void handleIntent(Intent intent) {
@@ -280,6 +281,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
             logIfDebuggable("onTaskRemoved taskId=" + taskId);
             if (mAppGridTaskId == taskId) {
                 Log.e(TAG, "onTaskRemoved, App Grid task is removed.");
+                mAppGridTaskId = INVALID_TASK_ID;
             }
         }
 
