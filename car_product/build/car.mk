@@ -35,7 +35,6 @@ PRODUCT_PACKAGES += CarProvision
 endif
 
 PRODUCT_PACKAGES += \
-    pppd \
     screenrecord
 
 ifneq ($(PRODUCT_IS_AUTOMOTIVE_SDK),true)
