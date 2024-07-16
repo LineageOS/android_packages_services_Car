@@ -110,7 +110,6 @@ PRODUCT_PACKAGES += \
     CarManagedProvisioning \
     StatementService \
     SystemUpdater \
-    pppd \
     screenrecord
 
 # Set default Bluetooth profiles
