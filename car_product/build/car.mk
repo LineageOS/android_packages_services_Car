@@ -32,7 +32,6 @@ PRODUCT_PACKAGES += \
     SystemUpdater
 
 PRODUCT_PACKAGES += \
-    pppd \
     screenrecord
 
 # This is for testing
