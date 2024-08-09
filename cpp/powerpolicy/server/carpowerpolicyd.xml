@@ -22,15 +22,6 @@
             <instance>default</instance>
         </interface>
     </hal>
-    <!-- TODO(b/301025020): Deprecate ICarPowerPolicySystemNotification -->
-    <hal format="aidl">
-        <name>android.frameworks.automotive.powerpolicy.internal</name>
-        <version>2</version>
-        <interface>
-            <name>ICarPowerPolicySystemNotification</name>
-            <instance>default</instance>
-        </interface>
-    </hal>
     <hal format="aidl">
         <name>android.automotive.powerpolicy.internal</name>
         <version>1</version>
