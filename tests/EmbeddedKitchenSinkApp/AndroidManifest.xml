@@ -457,9 +457,11 @@
 
         <activity
             android:name=".cluster.ResponsiveClusterActivity"
+            android:excludeFromRecents="true"
             android:launchMode="singleInstance"
             android:theme="@style/KSDayNightTheme"
-            android:documentLaunchMode="always"
+            android:showForAllUsers="true"
+            android:documentLaunchMode="intoExisting"
             android:exported="true"
             android:label="ResponsiveClusterActivity">
             <intent-filter>
