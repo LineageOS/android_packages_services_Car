@@ -32,3 +32,24 @@ android_app {
         enabled: false,
     },
 }
+
+android_app {
+    name: "NorthStarRRO",
+    resource_dirs: ["src/main/res"],
+    manifest: "src/main/AndroidManifest.xml",
+    sdk_version: "current",
+    aaptflags: [
+        "--no-resource-deduping",
+        "--no-resource-removal",
+    ],
+    libs: [
+        "token-shared-lib-prebuilt",
+    ],
+    enforce_uses_libs: false,
+    static_libs: [
+        "NorthStarBase",
+    ],
+    dex_preopt: {
+        enabled: false,
+    },
+}

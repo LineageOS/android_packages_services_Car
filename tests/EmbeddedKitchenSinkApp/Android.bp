@@ -57,6 +57,7 @@ android_app {
         "com.google.android.material_material",
         "androidx.appcompat_appcompat",
         "car-admin-ui-lib",
+        "car-data-subscription-lib",
         "car-ui-lib",
         "car-qc-lib",
         "android.hidl.base-V1.0-java",

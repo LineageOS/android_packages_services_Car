@@ -53,11 +53,12 @@ public final class UsbSettingsStorage {
         String serial = device.getSerialNumber();
         String selection;
         List<String> selectionArgs = new ArrayList<>();
-        if (AoapInterface.isDeviceInAoapMode(device)) {
+        if (serial == null) {
+            selection = COLUMN_SERIAL + " IS NULL";
+        }
+        else if (AoapInterface.isDeviceInAoapMode(device)) {
             selection = COLUMN_SERIAL + " = ? AND " + COLUMN_AOAP + " = 1";
             selectionArgs.add(serial);
-        } else if (serial == null) {
-            selection = COLUMN_SERIAL + " IS NULL";
         } else {
             selection = COLUMN_SERIAL + " = ?";
             selectionArgs.add(serial);

@@ -1658,6 +1658,15 @@
         </activity>
 
         <activity
+            android:name="com.android.settings.bluetooth.BluetoothKeyMissingDialog"
+            android:enabled="false"
+            android:exported="false"
+            tools:node="merge"
+            tools:replace="android:exported">
+            <intent-filter tools:node="removeAll"/>
+        </activity>
+
+        <activity
             android:name="com.android.settings.bluetooth.BluetoothPairingDialog"
             android:enabled="false"
             android:exported="false"
@@ -3116,6 +3125,15 @@
 
         <receiver
             android:name="com.android.settings.bluetooth.BluetoothPairingRequest"
+            android:enabled="false"
+            android:exported="false"
+            tools:node="merge"
+            tools:replace="android:exported">
+            <intent-filter tools:node="removeAll"/>
+        </receiver>
+
+        <receiver
+            android:name="com.android.settings.bluetooth.BluetoothKeyMissingReceiver"
             android:enabled="false"
             android:exported="false"
             tools:node="merge"

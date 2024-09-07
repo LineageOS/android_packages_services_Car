@@ -126,7 +126,7 @@ abstract class CarMultiUserTestBase extends CarApiTestBase {
                 break;
             }
         }
-        assertWithMessage("user for currentId %s").that(mInitialUser).isNotNull();
+        assertWithMessage("user for currentId %s", currentUserId).that(mInitialUser).isNotNull();
 
         // Make sure current user is not a left-over from previous test
         if (isUserCreatedByTheseTests(mInitialUser)) {

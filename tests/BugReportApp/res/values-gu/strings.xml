@@ -30,7 +30,7 @@
     <string name="bugreport_dialog_show_bugreports" msgid="6964385141627170297">"ખામીની જાણકારી બતાવો"</string>
     <string name="bugreport_dialog_close" msgid="289925437277364266">"બંધ કરો"</string>
     <string name="bugreport_dialog_title" msgid="3315160684205929910">"સમસ્યા જણાવો અને વર્ણન કરો"</string>
-    <string name="bugreport_dialog_add_audio_to_existing" msgid="4958460267276935700">"%s વાગ્યે ખામીની જાણકારી માટેનો ઑડિયો સંદેશ"</string>
+    <string name="bugreport_dialog_add_audio_to_existing" msgid="4958460267276935700">"%s વાગ્યે ખામીની જાણકારી માટેનો ઑડિયો મેસેજ ઉપલબ્ધ છે"</string>
     <string name="bugreport_dialog_recording_finished" msgid="3982335902169398758">"રેકૉર્ડ કરવાનું સમાપ્ત થયું"</string>
     <string name="bugreport_dialog_in_progress_title" msgid="1663500052146177338">"બગ રિપોર્ટની પ્રક્રિયા ચાલુ છે"</string>
     <string name="bugreport_dialog_in_progress_title_finished" msgid="1610236990020413471">"ખામીની જાણકારી એકત્રિત કરવામાં આવી છે"</string>

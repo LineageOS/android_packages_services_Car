@@ -493,7 +493,7 @@ public class PowerHalService extends HalServiceBase {
             }
         }
 
-        setGlobalBrightness(brightnessToSet);
+        setGlobalBrightness(Display.DEFAULT_DISPLAY, brightnessToSet);
     }
 
     /**
@@ -519,7 +519,7 @@ public class PowerHalService extends HalServiceBase {
             }
             Slogf.w(CarLog.TAG_POWER, "PER_DISPLAY_BRIGHTNESS is not supported, always set the"
                     + " default display brightness");
-            setGlobalBrightness(brightnessToSet);
+            setGlobalBrightness(displayId, brightnessToSet);
             return;
         }
 
@@ -555,15 +555,22 @@ public class PowerHalService extends HalServiceBase {
     }
 
     // The brightness is in 0-100 scale.
-    private void setGlobalBrightness(int brightness) {
+    // fromDisplayId represents which display this request is sent from, even though in reality,
+    // because VHAL only supports global brightness.
+    private void setGlobalBrightness(int fromDisplayId, int brightness) {
         // Adjust brightness back from 0-100 back to 0-maxDisplayBrightness scale.
         synchronized (mLock) {
             brightness = brightness * mMaxDisplayBrightness / MAX_BRIGHTNESS;
         }
 
+        int displayPort = getDisplayPort(fromDisplayId);
+        if (displayPort == DisplayHelper.INVALID_PORT) {
+            return;
+        }
+
         Slogf.i(CarLog.TAG_POWER, "brightness to VHAL: " + brightness);
         synchronized (mLock) {
-            addRecentlySetBrightnessChangeLocked(brightness, GLOBAL_PORT);
+            addRecentlySetBrightnessChangeLocked(brightness, displayPort);
         }
 
         try {
@@ -904,14 +911,6 @@ public class PowerHalService extends HalServiceBase {
                     }
                     Slogf.i(CarLog.TAG_POWER, "Received DISPLAY_BRIGHTNESS=" + brightness);
 
-                    // If we have recently sent the same brightness to VHAL. This request is likely
-                    // caused by that change and is duplicate. Ignore to prevent loop.
-                    synchronized (mLock) {
-                        if (hasRecentlySetBrightnessChangeLocked(brightness, GLOBAL_PORT)) {
-                            return;
-                        }
-                    }
-
                     brightness = adjustBrightness(brightness, /* minBrightness= */ 0,
                             MAX_BRIGHTNESS);
                     Slogf.i(CarLog.TAG_POWER, "brightness to system: " + brightness);
@@ -919,6 +918,15 @@ public class PowerHalService extends HalServiceBase {
                         // DISPLAY_BRIGHNTESS represents the brightness for all displays.
                         onDisplayBrightnessChangeForAllDisplays(listener, brightness);
                     } else {
+                        // If we have recently sent the same brightness to VHAL. This request is
+                        // likely caused by that change and is duplicate. Ignore to prevent loop.
+                        synchronized (mLock) {
+                            if (hasRecentlySetBrightnessChangeLocked(brightness,
+                                    getDisplayPort(Display.DEFAULT_DISPLAY))) {
+                                return;
+                            }
+                        }
+
                         // In legacy mode without per display brightness control, DISPLAY_BRIGHTNESS
                         // is assumed to control the default display's brightness.
                         listener.onDisplayBrightnessChange(brightness);
@@ -1023,6 +1031,14 @@ public class PowerHalService extends HalServiceBase {
             if (displayType == DisplayHelper.TYPE_VIRTUAL
                     || displayType == DisplayHelper.TYPE_OVERLAY) {
                 continue;
+            }
+            // If we have recently sent the same brightness to VHAL. This request is likely
+            // caused by that change and is duplicate. Ignore to prevent loop.
+            synchronized (mLock) {
+                if (hasRecentlySetBrightnessChangeLocked(brightness,
+                        mDisplayHelper.getPhysicalPort(display))) {
+                    continue;
+                }
             }
             listener.onDisplayBrightnessChange(displayId, brightness);
         }

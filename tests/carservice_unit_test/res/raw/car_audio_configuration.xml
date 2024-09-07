@@ -104,7 +104,6 @@
                                 <context context="emergency"/>
                                 <context context="safety"/>
                                 <context context="vehicle_status"/>
-
                             </device>
                         </group>
                     </volumeGroups>

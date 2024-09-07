@@ -28,6 +28,7 @@ import com.android.car.hal.property.PropertyPermissionInfo.AllOfPermissions;
 import com.android.car.hal.property.PropertyPermissionInfo.AnyOfPermissions;
 import com.android.car.hal.property.PropertyPermissionInfo.PermissionCondition;
 import com.android.car.hal.property.PropertyPermissionInfo.PropertyPermissions;
+import com.android.car.hal.property.PropertyPermissionInfo.PropertyPermissionsBuilder;
 import com.android.car.hal.property.PropertyPermissionInfo.SinglePermission;
 // import com.google.common.testing.EqualsTester;
 
@@ -146,18 +147,18 @@ public class PropertyPermissionInfoTest {
 
     @Test
     public void tesPropertyPermissionsHash() {
-        PropertyPermissions p1 = new PropertyPermissions.Builder()
+        PropertyPermissions p1 = new PropertyPermissionsBuilder()
                 .setReadPermission(new SinglePermission("abc"))
                 .setWritePermission(new SinglePermission("bcd"))
                 .build();
-        PropertyPermissions p2 = new PropertyPermissions.Builder()
+        PropertyPermissions p2 = new PropertyPermissionsBuilder()
                 .setReadPermission(new SinglePermission("abc"))
                 .setWritePermission(new SinglePermission("bcd"))
                 .build();
-        PropertyPermissions p3 = new PropertyPermissions.Builder()
+        PropertyPermissions p3 = new PropertyPermissionsBuilder()
                 .setReadPermission(new SinglePermission("abc"))
                 .build();
-        PropertyPermissions p4 = new PropertyPermissions.Builder()
+        PropertyPermissions p4 = new PropertyPermissionsBuilder()
                 .setWritePermission(new SinglePermission("bcd"))
                 .build();
 
@@ -217,18 +218,18 @@ public class PropertyPermissionInfoTest {
 
     @Test
     public void testPropertyPermissionsEqual() {
-        PropertyPermissions p1 = new PropertyPermissions.Builder()
+        PropertyPermissions p1 = new PropertyPermissionsBuilder()
                 .setReadPermission(new SinglePermission("abc"))
                 .setWritePermission(new SinglePermission("bcd"))
                 .build();
-        PropertyPermissions p2 = new PropertyPermissions.Builder()
+        PropertyPermissions p2 = new PropertyPermissionsBuilder()
                 .setReadPermission(new SinglePermission("abc"))
                 .setWritePermission(new SinglePermission("bcd"))
                 .build();
-        PropertyPermissions p3 = new PropertyPermissions.Builder()
+        PropertyPermissions p3 = new PropertyPermissionsBuilder()
                 .setReadPermission(new SinglePermission("abc"))
                 .build();
-        PropertyPermissions p4 = new PropertyPermissions.Builder()
+        PropertyPermissions p4 = new PropertyPermissionsBuilder()
                 .setWritePermission(new SinglePermission("bcd"))
                 .build();
 

@@ -19,14 +19,14 @@
         <shape android:shape="rectangle">
             <solid android:color="@color/focus_pressed_fill_color" />
             <stroke android:width="4dp" android:color="@color/focus_stroke_color" />
-            <corners android:radius="10dp"/>
+            <corners android:radius="@dimen/car_checkbox_focus_radius"/>
         </shape>
     </item>
     <item android:state_focused="true">
         <shape android:shape="rectangle">
             <solid android:alpha="@color/focus_fill_color" />
             <stroke android:width="8dp" android:color="@color/focus_stroke_color" />
-            <corners android:radius="10dp"/>
+            <corners android:radius="@dimen/car_checkbox_focus_radius"/>
         </shape>
     </item>
 </selector>

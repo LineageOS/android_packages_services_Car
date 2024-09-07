@@ -67,7 +67,8 @@
     <dimen name="control_bar_media_card_history_item_margin_small">12dp</dimen>
     <dimen name="control_bar_media_card_history_item_margin_large">24dp</dimen>
     <dimen name="control_bar_media_card_history_item_width_active">316dp</dimen>
-    <dimen name="control_bar_media_card_history_item_width_inactive">160dp</dimen>
+    <dimen name="control_bar_media_card_history_item_width_inactive">220dp</dimen>
     <dimen name="control_bar_media_card_subtitle_top_margin">8dp</dimen>
+    <dimen name="control_bar_media_card_playback_button_icon_padding">20dp</dimen>
 
 </resources>

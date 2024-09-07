@@ -546,4 +546,9 @@
     <!-- Customization Switch -->
     <string name="customization_tool_switch" translatable="false">Enable the Customization Tool</string>
 
+    <!-- Data Subscription -->
+    <string name="data_subscription_inactive" translatable="false">Inactive</string>
+    <string name="data_subscription_trial" translatable="false">Trial</string>
+    <string name="data_subscription_paid" translatable="false">Paid</string>
+    <string name="data_subscription_message" translatable="false">"Data subscription status is %s</string>
 </resources>

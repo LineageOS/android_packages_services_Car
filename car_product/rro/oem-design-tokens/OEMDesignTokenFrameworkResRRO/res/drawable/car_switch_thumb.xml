@@ -23,11 +23,12 @@
         android:left="@dimen/car_switch_thumb_stroke_width"
         android:right="@dimen/car_switch_thumb_stroke_width"
         android:top="@dimen/car_switch_thumb_stroke_width">
-        <shape android:shape="oval">
+        <shape android:shape="rectangle">
             <size
                 android:width="@dimen/car_switch_thumb_size"
                 android:height="@dimen/car_switch_thumb_size" />
             <solid android:color="@color/car_switch_thumb_selector"/>
+            <corners android:radius="@dimen/car_switch_thumb_radius" />
         </shape>
     </item>
 </layer-list>

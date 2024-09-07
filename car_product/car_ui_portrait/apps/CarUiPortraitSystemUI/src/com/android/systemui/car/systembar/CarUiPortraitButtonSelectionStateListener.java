@@ -26,6 +26,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 
+import com.android.systemui.car.displayarea.CarDisplayAreaController;
+
 class CarUiPortraitButtonSelectionStateListener extends ButtonSelectionStateListener {
 
     private CarUiPortraitButtonSelectionStateController mPortraitButtonStateController;
@@ -34,7 +36,8 @@ class CarUiPortraitButtonSelectionStateListener extends ButtonSelectionStateList
     private boolean mIsRecentsVisible;
 
     CarUiPortraitButtonSelectionStateListener(Context context,
-            ButtonSelectionStateController carSystemButtonController) {
+            ButtonSelectionStateController carSystemButtonController,
+            CarDisplayAreaController displayAreaController) {
         super(carSystemButtonController);
         if (mButtonSelectionStateController
                 instanceof CarUiPortraitButtonSelectionStateController) {
@@ -57,6 +60,7 @@ class CarUiPortraitButtonSelectionStateListener extends ButtonSelectionStateList
                             INTENT_EXTRA_NOTIFICATION_VISIBILITY_CHANGE, false);
                     mPortraitButtonStateController.setNotificationButtonSelected(
                             mIsNotificationVisible);
+                    displayAreaController.setNotificationCenterOnTop(mIsNotificationVisible);
                 } else if (intent.hasExtra(INTENT_EXTRA_RECENTS_VISIBILITY_CHANGE)) {
                     mIsRecentsVisible = intent.getBooleanExtra(
                             INTENT_EXTRA_RECENTS_VISIBILITY_CHANGE, false);

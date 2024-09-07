@@ -14,28 +14,15 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 -->
-<vector xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:aapt="http://schemas.android.com/aapt"
-    android:width="52dp"
-    android:height="52dp"
-    android:viewportWidth="52"
-    android:viewportHeight="52">
-    <path
-        android:pathData="M52,26A26,26 0,0 1,26 52,26 26,0 0,1 0,26 26,26 0,0 1,26 0,26 26,0 0,1 52,26Z"
-        android:fillAlpha="0.56">
-        <aapt:attr name="android:fillColor">
-            <gradient
-                android:gradientRadius="26"
-                android:centerX="26"
-                android:centerY="26"
-                android:type="radial">
-                <item android:offset="0" android:color="@color/car_seekbar_thumb_shadow"/>
-                <item android:offset="0.92307687" android:color="@color/car_seekbar_thumb_shadow"/>
-                <item android:offset="1" android:color="@android:color/transparent"/>
-            </gradient>
-        </aapt:attr>
-    </path>
-    <path
-        android:pathData="M26,26m-24,0a24,24 0,1 1,48 0a24,24 0,1 1,-48 0"
-        android:fillColor="@color/car_seekbar_thumb_selector"/>
-</vector>
+
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="rectangle">
+            <size
+                android:width="@dimen/car_seekbar_thumb_size"
+                android:height="@dimen/car_seekbar_thumb_size"/>
+            <corners android:radius="@dimen/car_seekbar_thumb_radius" />
+            <solid android:color="@color/car_seekbar_thumb_selector"/>
+        </shape>
+    </item>
+</layer-list>

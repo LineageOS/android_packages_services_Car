@@ -21,5 +21,6 @@
     <dimen name="shape_corner_medium">24dp</dimen>
     <dimen name="shape_corner_large">32dp</dimen>
     <dimen name="shape_corner_extra_large">48dp</dimen>
-    <dimen name="shape_corner_full">128dp</dimen>
+    <!-- Set to arbitrarily large value ensure full corner radius for shapes of all sizes-->
+    <dimen name="shape_corner_full">1000dp</dimen>
 </resources>

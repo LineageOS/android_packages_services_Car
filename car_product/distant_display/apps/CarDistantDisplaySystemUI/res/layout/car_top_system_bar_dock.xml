@@ -64,24 +64,13 @@
         <com.android.systemui.car.systembar.CarSystemBarButton
             android:id="@+id/notifications"
             android:contentDescription="@string/system_bar_notifications_label"
-            android:layout_width="@dimen/car_quick_controls_entry_points_button_width"
+            android:layout_width="wrap_content"
             android:layout_height="match_parent"
             style="@style/TopBarButton"
             android:layout_toLeftOf="@id/distant_display_nav_container"
-            systemui:longIntent="intent:#Intent;action=com.android.car.bugreport.action.START_BUG_REPORT;end">
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="horizontal"
-                android:gravity="center">
-                <ImageView
-                    android:id="@+id/notification_icon"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:src="@drawable/car_ic_notification_dock"
-                    android:tint="@color/system_bar_icon_color_with_selection" />
-            </LinearLayout>
-        </com.android.systemui.car.systembar.CarSystemBarButton>
+            systemui:highlightWhenSelected="true"
+            systemui:icon="@drawable/car_ic_notification_dock"
+            systemui:longIntent="intent:#Intent;action=com.android.car.bugreport.action.START_BUG_REPORT;end"/>
 
         <com.android.systemui.car.systembar.CarSystemBarPanelButtonView
             android:id="@+id/distant_display_nav_container"

@@ -186,9 +186,9 @@ public final class AudioManagerWrapperTest extends AbstractExtendedMockitoTestCa
 
     @Test
     public void setAudioDeviceGain() {
-        expectWithMessage("Volume gain set state")
-                .that(mAudioManagerWrapper
-                        .setAudioDeviceGain(TEST_ADDRESS, TEST_GAIN, TEST_IS_OUTPUT));
+        expectWithMessage("Volume gain set state").that(mAudioManagerWrapper
+                        .setAudioDeviceGain(TEST_ADDRESS, TEST_GAIN, TEST_IS_OUTPUT))
+                .isEqualTo(TEST_GAIN_SET_STATE);
     }
 
     @Test

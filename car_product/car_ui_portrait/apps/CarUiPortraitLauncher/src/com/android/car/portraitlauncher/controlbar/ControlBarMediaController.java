@@ -16,6 +16,9 @@
 
 package com.android.car.portraitlauncher.controlbar;
 
+import static com.android.car.media.common.ui.PlaybackCardControllerUtilities.getFirstCustomActionInSet;
+import static com.android.car.media.common.ui.PlaybackCardControllerUtilities.skipForwardStandardActions;
+import static com.android.car.media.common.ui.PlaybackCardControllerUtilities.skipBackStandardActions;
 import static com.android.car.media.common.ui.PlaybackCardControllerUtilities.updateActionsWithPlaybackState;
 import static com.android.car.media.common.ui.PlaybackCardControllerUtilities.updatePlayButtonWithPlaybackState;
 import static com.android.car.media.common.ui.PlaybackCardControllerUtilities.updateTextViewAndVisibility;
@@ -234,10 +237,17 @@ public class ControlBarMediaController extends PlaybackCardController {
         if (playbackState != null) {
             updatePlayButtonWithPlaybackState(mPlayPauseButton, playbackState, playbackController);
             int count = 0;
-            if (playbackState.isSkipNextEnabled() || playbackState.isSkipNextReserved()) {
+            if ((playbackState.isSkipNextEnabled() || playbackState.isSkipNextReserved())
+                    || (!playbackState.isSkipNextEnabled() && !playbackState.isSkipNextReserved()
+                    && getFirstCustomActionInSet(playbackState.getCustomActions(),
+                    skipForwardStandardActions) != null)) {
                 count++;
             }
-            if (playbackState.isSkipPreviousEnabled() || playbackState.iSkipPreviousReserved()) {
+            if (playbackState.isSkipPreviousEnabled() || playbackState.iSkipPreviousReserved()
+                    || (!playbackState.isSkipPreviousEnabled()
+                    && !playbackState.iSkipPreviousReserved()
+                    && getFirstCustomActionInSet(playbackState.getCustomActions(),
+                    skipBackStandardActions) != null)) {
                 count++;
             }
             Drawable skipNextDrawableBackground = count == 1 ? mView.getContext()

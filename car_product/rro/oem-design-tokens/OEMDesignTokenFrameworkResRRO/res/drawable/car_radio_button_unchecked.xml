@@ -21,13 +21,14 @@
         android:left="@dimen/car_radio_button_focus_ring_padding"
         android:right="@dimen/car_radio_button_focus_ring_padding"
         android:top="@dimen/car_radio_button_focus_ring_padding">
-        <shape android:shape="oval">
+        <shape android:shape="rectangle">
             <size
                 android:width="@dimen/car_radio_button_outer_ring_size"
                 android:height="@dimen/car_radio_button_outer_ring_size" />
             <stroke
                 android:width="@dimen/car_radio_button_outer_ring_stroke_width"
                 android:color="@color/car_radio_button_unchecked_color" />
+            <corners android:radius="@dimen/car_radio_button_outer_ring_radius" />
         </shape>
     </item>
     <item

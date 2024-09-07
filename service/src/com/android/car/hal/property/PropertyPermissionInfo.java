@@ -72,94 +72,48 @@ import java.util.Objects;
  */
 public class PropertyPermissionInfo {
     /**
-     * Class to hold {@code readPermission} and {@code writePermission} in a single object.
+     * The builder for {@link PropertyPermissions}.
      */
-    public static final class PropertyPermissions {
+    public static final class PropertyPermissionsBuilder {
         @Nullable
-        private final PermissionCondition mReadPermission;
+        private PermissionCondition mReadPermission;
         @Nullable
-        private final PermissionCondition mWritePermission;
+        private PermissionCondition mWritePermission;
 
-        private PropertyPermissions(@Nullable PermissionCondition readPermission,
-                @Nullable PermissionCondition writePermission) {
+        /**
+         * Sets the read permission.
+         */
+        public PropertyPermissionsBuilder setReadPermission(PermissionCondition readPermission) {
             mReadPermission = readPermission;
-            mWritePermission = writePermission;
-        }
-
-        @Nullable
-        public PermissionCondition getReadPermission() {
-            return mReadPermission;
-        }
-
-        @Nullable
-        public PermissionCondition getWritePermission() {
-            return mWritePermission;
+            return this;
         }
 
         /**
-         * The builder for {@link PropertyPermissions}.
+         * Sets the write permission.
          */
-        public static final class Builder {
-            @Nullable
-            private PermissionCondition mReadPermission;
-            @Nullable
-            private PermissionCondition mWritePermission;
-
-            /**
-             * Sets the read permission.
-             */
-            public Builder setReadPermission(PermissionCondition readPermission) {
-                mReadPermission = readPermission;
-                return this;
-            }
-
-            /**
-             * Sets the write permission.
-             */
-            public Builder setWritePermission(PermissionCondition writePermission) {
-                mWritePermission = writePermission;
-                return this;
-            }
-
-            /**
-             * Builds the permission.
-             */
-            public PropertyPermissions build() {
-                if (mReadPermission == null && mWritePermission == null) {
-                    throw new IllegalStateException("Both read and write permissions have not been "
-                        + "set");
-                }
-                return new PropertyPermissions(mReadPermission, mWritePermission);
-            }
+        public PropertyPermissionsBuilder setWritePermission(PermissionCondition writePermission) {
+            mWritePermission = writePermission;
+            return this;
         }
 
-        @Override
-        public boolean equals(Object object) {
-            if (this == object) {
-                return true;
+        /**
+         * Builds the permission.
+         */
+        public PropertyPermissions build() {
+            if (mReadPermission == null && mWritePermission == null) {
+                throw new IllegalStateException("Both read and write permissions have not been "
+                    + "set");
             }
-            // instanceof will return false if object is null.
-            if (!(object instanceof PropertyPermissions)) {
-                return false;
-            }
-            PropertyPermissions other = (PropertyPermissions) object;
-            return Objects.equals(mReadPermission, other.getReadPermission())
-                    && Objects.equals(mWritePermission, other.getWritePermission());
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hashCode(mReadPermission) + Objects.hashCode(mWritePermission);
-        }
-
-        @Override
-        public String toString() {
-            return new StringBuilder().append("{")
-                    .append("readPermission: ").append(mReadPermission)
-                    .append("writePermission: ").append(mWritePermission)
-                    .append("}").toString();
+            return new PropertyPermissions(mReadPermission, mWritePermission);
         }
     }
+
+    /**
+     * Class to hold {@code readPermission} and {@code writePermission} in a single object.
+     */
+    /* package */ record PropertyPermissions(
+            @Nullable PermissionCondition readPermission,
+            @Nullable PermissionCondition writePermission) {}
 
     /**
      * An interface for representing the read and write permissions required for each property.

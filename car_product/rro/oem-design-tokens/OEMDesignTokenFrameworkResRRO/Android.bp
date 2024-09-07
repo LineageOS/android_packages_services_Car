@@ -26,3 +26,14 @@ runtime_resource_overlay {
         "OEMDesignTokenShim",
     ],
 }
+
+runtime_resource_overlay {
+    name: "OEMNorthStarFrameworkResRRO",
+    resource_dirs: ["res"],
+    certificate: "platform",
+    manifest: "AndroidManifest.xml",
+    static_libs: [
+        "NorthStarBase",
+        "NorthStarShim",
+    ],
+}

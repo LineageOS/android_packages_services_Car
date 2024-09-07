@@ -152,22 +152,24 @@
     <!-- Increases the vertical touch target size. -->
     <dimen name="car_switch_track_margin_vertical">14dp</dimen>
     <!-- Switch focus ring height. -->
-    <dimen name="car_switch_track_focus_ring_height">72dp</dimen>
+    <dimen name="car_switch_track_focus_ring_height">64dp</dimen>
     <!-- Switch focus ring width. -->
     <dimen name="car_switch_track_focus_ring_width">112dp</dimen>
     <!-- Switch focus ring padding. -->
     <dimen name="car_switch_track_focus_ring_padding">12dp</dimen>
     <!-- Should be the half of car_switch_track_focus_ring_height. -->
-    <dimen name="car_switch_track_focus_ring_outer_radius">36dp</dimen>
+    <dimen name="car_switch_track_focus_ring_outer_radius">@dimen/shape_corner_full</dimen>
     <!-- Should be the half of car_switch_track_height. -->
-    <dimen name="car_switch_thumb_outer_radius">24dp</dimen>
+    <dimen name="car_switch_thumb_outer_radius">@dimen/shape_corner_full</dimen>
     <!--  The difference between the track size and the thumb size. -->
     <dimen name="car_switch_thumb_stroke_width">4dp</dimen>
     <!-- car_switch_thumb_size + car_switch_thumb_stroke_width == car_switch_track_height -->
     <dimen name="car_switch_thumb_size">40dp</dimen>
+    <!-- Switch thumb radius -->
+    <dimen name="car_switch_thumb_radius">@dimen/shape_corner_full</dimen>
 
     <!-- Toast Dimensions -->
-    <dimen name="toast_corner_radius">48dp</dimen>
+    <dimen name="toast_corner_radius">@dimen/shape_corner_large</dimen>
     <dimen name="toast_elevation">0dp</dimen>
     <dimen name="toast_width">1050dp</dimen>
     <dimen name="toast_y_offset">268dp</dimen>
@@ -178,8 +180,8 @@
     <dimen name="car_button_height_small">64dp</dimen>
     <dimen name="car_button_min_height_small">64dp</dimen>
     <dimen name="car_button_min_width">158dp</dimen>
-    <dimen name="car_button_radius">44dp</dimen>
-    <dimen name="car_button_small_radius">32dp</dimen>
+    <dimen name="car_button_radius">@dimen/shape_corner_full</dimen>
+    <dimen name="car_button_small_radius">@dimen/shape_corner_full</dimen>
 
     <!-- Radio button dimensions -->
     <dimen name="car_radio_button_outer_ring_size">45dp</dimen>
@@ -187,12 +189,16 @@
     <dimen name="car_radio_button_inner_circle_size">32dp</dimen>
     <dimen name="car_radio_button_focus_ring_size">69dp</dimen>
     <dimen name="car_radio_button_focus_ring_padding">12dp</dimen>
-
+    <dimen name="car_radio_button_outer_ring_radius">@dimen/shape_corner_full</dimen>
+    <dimen name="car_radio_button_inner_ring_radius">@dimen/shape_corner_full</dimen>
+    <dimen name="car_radio_button_focus_ring_radius">@dimen/shape_corner_full</dimen>
     <!-- Checkbox dimensions. -->
     <!-- 77dp scales the material checkbox to provide a 44dp x 44dp checkbox rectangle. -->
     <dimen name="car_checkbox_size">77dp</dimen>
     <!-- The checkbox focus ring size -->
     <dimen name="car_checkbox_focus_ring_size">66dp</dimen>
+    <!-- The checkbox focus radius -->
+    <dimen name="car_checkbox_focus_radius">@dimen/shape_corner_extra_small</dimen>
 
     <!-- SeekBar dimensions. -->
     <!-- Allows thumb to extend out of the range of the track. -->
@@ -207,10 +213,13 @@
     <!-- The stroke with of the ring around the SeekBar thumb when selected. -->
     <dimen name="car_seekbar_thumb_selected_stroke_width">8dp</dimen>
     <!-- The size of the SeekBar thumb. -->
-    <dimen name="car_seekbar_thumb_size">68dp</dimen>
+    <dimen name="car_seekbar_thumb_size">48dp</dimen>
+    <!-- The size of the selectable SeekBar thumb. -->
+    <dimen name="car_seekbar_thumb_selectable_size">68dp</dimen>
     <!-- The radius of the end of the SeekbarTrack. -->
-    <dimen name="car_seekbar_thumb_outer_radius">24dp</dimen>
-
+    <dimen name="car_seekbar_thumb_outer_radius">@dimen/shape_corner_full</dimen>
+    <!-- The radius of the SeekBar thumb. -->
+    <dimen name="car_seekbar_thumb_radius">@dimen/shape_corner_full</dimen>
     <!-- Sets the Theme android:disabledAlpha value -->
     <dimen name="car_disabled_alpha">0.35</dimen>
 

@@ -29,23 +29,8 @@
         android:text="@string/base_layer_failure_recovery_title_string"
         android:textAppearance="@style/TextAppearance.Car.Display"
         android:textColor="@color/car_on_surface"
-        app:layout_constraintVertical_chainStyle="packed"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/base_layer_failure_recovery_message"/>
-
-    <TextView
-        android:id="@+id/base_layer_failure_recovery_message"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:text="@string/base_layer_failure_recovery_message_string"
-        android:textAppearance="@style/TextAppearance.Car.Body.Medium"
-        android:textColor="@color/car_on_surface"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/base_layer_failure_recovery_title"
         app:layout_constraintBottom_toBottomOf="parent"/>
-
 </androidx.constraintlayout.widget.ConstraintLayout>

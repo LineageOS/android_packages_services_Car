@@ -21,3 +21,13 @@ android_library {
         "OEMDesignTokenBase",
     ],
 }
+
+android_library {
+    name: "NorthStarShim",
+    resource_dirs: ["src/main/res"],
+    manifest: "src/main/AndroidManifest.xml",
+    sdk_version: "current",
+    static_libs: [
+        "NorthStarBase",
+    ],
+}

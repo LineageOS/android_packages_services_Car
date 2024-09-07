@@ -61,7 +61,8 @@ class PowerPolicyClientBase :
 public:
     static void onBinderDied(void* cookie);
 
-    // When initialization fails, this callback is invoked from a thread other than the main thread.
+    // When initialization fails, this callback is invoked from a (connection) thread other than the
+    // main thread.
     virtual void onInitFailed() {}
 
     // Implement this method to specify components of interest.
@@ -74,6 +75,10 @@ public:
     // init makes connection to power policy daemon and registers to policy change in the
     // background. Call this method one time when you want to listen to power policy changes.
     void init();
+    // release unregisters client callback from power policy daemon.
+    // Call this method one time when you do not want to listen to power policy changes.
+    // It blocks caller's thread by awaiting for connection thread join.
+    void release();
 
     void handleBinderDeath();
 
@@ -84,11 +89,14 @@ protected:
 private:
     android::base::Result<void> connectToDaemon();
 
-    std::thread mConnectionThread;
-    mutable std::shared_mutex mRWMutex;
+    std::mutex mConnectionThreadLock;
+    std::thread mConnectionThread;  // GUARDED_BY(mConnectionThreadLock)
     std::shared_ptr<::aidl::android::frameworks::automotive::powerpolicy::ICarPowerPolicyServer>
-            mPolicyServer = nullptr;  // GUARDED_BY(mRWMutext)
+            mPolicyServer;
+    std::shared_ptr<ICarPowerPolicyChangeCallback> mPolicyChangeCallback;
     ::ndk::ScopedAIBinder_DeathRecipient mDeathRecipient;
+    std::atomic<bool> mConnecting;
+    bool mDisconnecting; // GUARDED_BY(mConnectionThreadLock)
 };
 
 }  // namespace powerpolicy
