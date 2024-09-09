@@ -310,6 +310,9 @@ public final class CarDevicePolicyManager extends CarManagerBase {
     }
 
     /** @hide */
+    @RequiresPermission(anyOf = {
+        android.Manifest.permission.MANAGE_USERS,
+        android.Manifest.permission.INTERACT_ACROSS_USERS})
     @AddedInOrBefore(majorVersion = 33)
     public void setUserDisclaimerAcknowledged(@NonNull UserHandle user) {
         Objects.requireNonNull(user, "user cannot be null");
