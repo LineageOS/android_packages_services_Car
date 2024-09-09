@@ -231,6 +231,7 @@ public final class CarDevicePolicyService extends ICarDevicePolicyService.Stub
      */
     @Override
     public void setUserDisclaimerAcknowledged(int userId) {
+        enforcePermission();
         setUserDisclaimerStatus(userId, NEW_USER_DISCLAIMER_STATUS_ACKED);
         UserHandle user = UserHandle.of(userId);
         BuiltinPackageDependency.createNotificationHelper(mCarServiceBuiltinPackageContext)
@@ -275,5 +276,17 @@ public final class CarDevicePolicyService extends ICarDevicePolicyService.Stub
     static String newUserDisclaimerStatusToString(@NewUserDisclaimerStatus int status) {
         return DebugUtils.constantToString(CarDevicePolicyService.class,
                 PREFIX_NEW_USER_DISCLAIMER_STATUS, status);
+    }
+
+    private void enforcePermission() {
+        if (mContext.checkCallingOrSelfPermission(android.Manifest.permission.MANAGE_USERS)
+                != PackageManager.PERMISSION_GRANTED
+                &&
+                mContext.checkCallingOrSelfPermission(
+                    android.Manifest.permission.INTERACT_ACROSS_USERS)
+                != PackageManager.PERMISSION_GRANTED) {
+            throw new SecurityException(
+                "Requires MANAGE_USERS or INTERACT_ACROSS_USERS permissions");
+        }
     }
 }
