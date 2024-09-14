@@ -18,6 +18,7 @@ package com.android.systemui.car.distantdisplay.common;
 import static android.car.drivingstate.CarUxRestrictions.UX_RESTRICTIONS_NO_VIDEO;
 
 import static com.android.systemui.car.distantdisplay.common.DistantDisplayForegroundTaskMap.TaskData;
+import static com.android.systemui.car.distantdisplay.util.Logging.logIfDebuggable;
 
 import android.app.ActivityManager;
 import android.app.ActivityOptions;
@@ -34,6 +35,7 @@ import android.os.Build;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.util.Log;
+import android.view.View;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
@@ -122,8 +124,9 @@ public class DistantDisplayTaskManager {
     private final TaskStackChangeListener mTaskStackChangeLister = new TaskStackChangeListener() {
         @Override
         public void onTaskMovedToFront(ActivityManager.RunningTaskInfo taskInfo) {
-            logIfDebuggable("onTaskMovedToFront: displayId: " + taskInfo.displayId + ", " + taskInfo
-                    + " token: " + taskInfo.token);
+            logIfDebuggable(TAG,
+                    "onTaskMovedToFront: displayId: " + taskInfo.displayId + ", " + taskInfo
+                            + " token: " + taskInfo.token);
             mForegroundTasks.put(taskInfo.taskId, taskInfo.displayId, taskInfo.baseIntent,
                     taskInfo.token);
             if (taskInfo.displayId == DEFAULT_DISPLAY_ID) {
@@ -144,6 +147,9 @@ public class DistantDisplayTaskManager {
 
         @Override
         public void onTaskDisplayChanged(int taskId, int newDisplayId) {
+            logIfDebuggable(TAG,
+                    "onTaskDisplayChanged: taskId: " + taskId + " newDisplayId: "
+                            + newDisplayId);
             TaskData oldData = mForegroundTasks.get(taskId);
             if (oldData != null) {
                 // If a task has not changed displays, do nothing. If it has truly been moved to
@@ -160,18 +166,12 @@ public class DistantDisplayTaskManager {
                 // Task on the default display has changed (by either a new task being added or an
                 // old task being moved away) - notify listeners
                 notifyListeners(DEFAULT_DISPLAY_ID);
-                logIfDebuggable(
-                        "onTaskDisplayChanged: taskId: " + taskId + " newDisplayId: "
-                                + newDisplayId);
             }
             if (newDisplayId == mDistantDisplayId || (oldData != null
                     && oldData.mDisplayId == mDistantDisplayId)) {
                 // Task on the distant display has changed  (by either a new task being added or an
                 // old task being moved away) - notify listeners
                 notifyListeners(mDistantDisplayId);
-                logIfDebuggable(
-                        "onTaskDisplayChanged: taskId: " + taskId + " newDisplayId: "
-                                + newDisplayId);
             }
         }
     };
@@ -378,7 +378,8 @@ public class DistantDisplayTaskManager {
             intent = new Intent();
             intent.setComponent(mediaComponent);
             intent.putExtra(Intent.EXTRA_COMPONENT_NAME, componentName.flattenToShortString());
-            intent.putExtra(IntentUtils.EXTRA_MEDIA_BLOCKING_ACTIVITY_DISMISS_ON_PARK, false);
+            intent.putExtra(IntentUtils.EXTRA_MEDIA_BLOCKING_ACTIVITY_EXIT_BUTTON_VISIBILITY,
+                    View.GONE);
             launchUserHandle = mUserTracker.getUserHandle();
         } else {
             intent = DistantDisplayCompanionActivity.createIntent(mContext, packageName);
@@ -440,12 +441,6 @@ public class DistantDisplayTaskManager {
             return null;
         }
         return componentName.getPackageName();
-    }
-
-    private static void logIfDebuggable(String message) {
-        if (DEBUG) {
-            Log.d(TAG, message);
-        }
     }
 
     /**

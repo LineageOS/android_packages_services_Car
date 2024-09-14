@@ -46,18 +46,14 @@ java_sdk_library {
     shared_library: false, // added to bootclasspath
 
     libs: [
-        "android.car.builtin",
+        "android.car.builtin.stubs.module_lib",
         "framework-annotations-lib",
         "modules-utils-preconditions",
-        "framework-location",
-        "framework-wifi",
-        "framework-bluetooth",
     ],
-    // Stub build drops module api and breaks build. Add it here.
-    stub_only_libs: [
-        "framework-location",
-        "framework-wifi",
-        "framework-bluetooth",
+    impl_only_libs: [
+        "framework-location.stubs.module_lib",
+        "framework-wifi.stubs.module_lib",
+        "framework-bluetooth.stubs.module_lib",
     ],
 
     api_lint: {
@@ -72,18 +68,38 @@ java_sdk_library {
     public: {
         enabled: true,
         sdk_version: "current",
+        libs: [
+            "framework-location.stubs",
+            "framework-wifi.stubs",
+            "framework-bluetooth.stubs",
+        ],
     },
     test: {
         enabled: true,
         sdk_version: "test_current",
+        libs: [
+            "framework-location.stubs.test",
+            "framework-wifi.stubs.system",
+            "framework-bluetooth.stubs.system",
+        ],
     },
     system: {
         enabled: true,
         sdk_version: "system_current",
+        libs: [
+            "framework-location.stubs.system",
+            "framework-wifi.stubs.system",
+            "framework-bluetooth.stubs.system",
+        ],
     },
     module_lib: {
         enabled: true,
         sdk_version: "module_current",
+        libs: [
+            "framework-location.stubs.module_lib",
+            "framework-wifi.stubs.module_lib",
+            "framework-bluetooth.stubs.module_lib",
+        ],
     },
 
     // stubs to everyone

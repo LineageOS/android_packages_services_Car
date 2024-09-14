@@ -15,6 +15,8 @@
  */
 package com.android.car.hal;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DEBUGGING_CODE;
+
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -28,6 +30,7 @@ import android.view.Display;
 
 import com.android.car.CarServiceUtils;
 import com.android.car.VehicleStub;
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.systeminterface.DisplayHelperInterface;
 import com.android.internal.annotations.GuardedBy;
 
@@ -35,6 +38,7 @@ import java.util.LinkedList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeoutException;
 
+@ExcludeFromCodeCoverageGeneratedReport(reason = DEBUGGING_CODE)
 public class MockedPowerHalService extends PowerHalService {
     private static final String TAG = MockedPowerHalService.class.getSimpleName();
 

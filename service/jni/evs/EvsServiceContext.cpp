@@ -271,8 +271,20 @@ bool EvsServiceContext::openCamera(const char* id) {
                                    return target == desc.id;
                                });
         if (it == mCameraList.end()) {
-            LOG(ERROR) << id << " is not available";
-            return false;
+            // Refresh a list of available cameras and try again.
+            if (!mServiceFactory->getService()->getCameraList(&mCameraList).isOk()) {
+                LOG(ERROR) << "Failed to update a camera list.";
+                return false;
+            }
+
+            it = std::find_if(mCameraList.begin(), mCameraList.end(),
+                              [target = std::string(id)](const CameraDesc& desc) {
+                                  return target == desc.id;
+                              });
+            if (it == mCameraList.end()) {
+                LOG(ERROR) << id << " is not available";
+                return false;
+            }
         }
 
         cameraToClose = mCamera;

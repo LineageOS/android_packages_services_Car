@@ -45,6 +45,7 @@
         <permission name="com.android.car.docklib.permission.BROADCAST_RECEIVER"/>
         <!-- used for interacting with the CarActivityService -->
         <permission name="android.car.permission.CONTROL_CAR_APP_LAUNCH"/>
-
+        <!-- used for checking media notifications -->
+        <permission name="android.permission.ACCESS_NOTIFICATIONS"/>
     </privapp-permissions>
 </permissions>

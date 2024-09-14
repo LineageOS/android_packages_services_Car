@@ -62,8 +62,8 @@ java_defaults {
     libs: [
         "android.car",
         "android.car.watchdoglib",
-        "android.test.runner",
-        "android.test.base",
+        "android.test.runner.stubs.system",
+        "android.test.base.stubs.system",
     ],
 
     // mockito-target-inline dependency

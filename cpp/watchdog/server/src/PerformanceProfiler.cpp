@@ -108,6 +108,7 @@ constexpr const char kMemStatsHeader[] =
         "\n\tCommand, RSS (kb), PSS (kb), USS (kb), Swap PSS (kb)\n";
 constexpr const char kMemStatsSummary[] = "Total RSS (kb): %" PRIu64 "\n"
                                           "Total PSS (kb): %" PRIu64 "\n";
+constexpr const char kKernelStartTimeTitle[] = "Kernel start: <%s>\n";
 
 double percentage(uint64_t numer, uint64_t denom) {
     return denom == 0 ? 0.0 : (static_cast<double>(numer) / static_cast<double>(denom)) * 100.0;
@@ -180,29 +181,31 @@ int64_t calculateUidUptimeMillis(int64_t elapsedTimeSinceBootMillis,
 
 UidResourceUsageStats constructUidResourceUsageStats(
         PackageIdentifier packageIdentifier, int64_t uidUptimeMillis, int64_t totalCpuTimeMillis,
-        bool isGarageModeActive, const UserPackageStats::ProcCpuStatsView& procCpuStatsView,
-        const UserPackageStats::IoStatsView& ioReadsStatsView,
-        const UserPackageStats::IoStatsView& ioWritesStatsView) {
+        bool isGarageModeActive, const UserPackageStats::UidCpuStats& uidCpuStats,
+        const UserPackageStats::UidIoSingleOpStats& uidIoReadsStats,
+        const UserPackageStats::UidIoSingleOpStats& uidIoWritesStats) {
     std::vector<ProcessCpuUsageStats> processCpuUsageStats;
-    processCpuUsageStats.reserve(procCpuStatsView.topNProcesses.size());
-    for (const auto& processCpuValue : procCpuStatsView.topNProcesses) {
+    processCpuUsageStats.reserve(uidCpuStats.topNProcesses.size());
+    for (const auto& processCpuStats : uidCpuStats.topNProcesses) {
         processCpuUsageStats.push_back({
-                .pid = processCpuValue.pid,
-                .name = processCpuValue.comm,
-                .cpuTimeMillis = processCpuValue.cpuTimeMillis,
-                .cpuCycles = processCpuValue.cpuCycles,
+                .pid = processCpuStats.pid,
+                .name = processCpuStats.comm,
+                .cpuTimeMillis = processCpuStats.cpuTimeMillis,
+                .cpuCycles = processCpuStats.cpuCycles,
         });
     }
 
     UidIoUsageStats ioUsageStats = {};
     if (isGarageModeActive) {
-        ioUsageStats.readBytes.garageModeBytes = ioReadsStatsView.totalBytes();
-        ioUsageStats.writtenBytes.garageModeBytes = ioWritesStatsView.totalBytes();
+        ioUsageStats.readBytes.garageModeBytes = uidIoReadsStats.totalBytes();
+        ioUsageStats.writtenBytes.garageModeBytes = uidIoWritesStats.totalBytes();
     } else {
-        ioUsageStats.readBytes.foregroundBytes = ioReadsStatsView.bytes[UidState::FOREGROUND];
-        ioUsageStats.readBytes.backgroundBytes = ioReadsStatsView.bytes[UidState::BACKGROUND];
-        ioUsageStats.writtenBytes.foregroundBytes = ioWritesStatsView.bytes[UidState::FOREGROUND];
-        ioUsageStats.writtenBytes.backgroundBytes = ioWritesStatsView.bytes[UidState::BACKGROUND];
+        ioUsageStats.readBytes.foregroundBytes = uidIoReadsStats.bytes[UidState::FOREGROUND];
+        ioUsageStats.readBytes.backgroundBytes = uidIoReadsStats.bytes[UidState::BACKGROUND];
+        ioUsageStats.writtenBytes.foregroundBytes =
+            uidIoWritesStats.bytes[UidState::FOREGROUND];
+        ioUsageStats.writtenBytes.backgroundBytes =
+            uidIoWritesStats.bytes[UidState::BACKGROUND];
     }
 
     // clang-format off
@@ -210,10 +213,10 @@ UidResourceUsageStats constructUidResourceUsageStats(
             .packageIdentifier = std::move(packageIdentifier),
             .uidUptimeMillis = uidUptimeMillis,
             .cpuUsageStats = {
-                    .cpuTimeMillis = procCpuStatsView.cpuTimeMillis,
-                    .cpuCycles = procCpuStatsView.cpuCycles,
+                    .cpuTimeMillis = uidCpuStats.cpuTimeMillis,
+                    .cpuCycles = uidCpuStats.cpuCycles,
                     .cpuTimePercentage
-                            = percentage(procCpuStatsView.cpuTimeMillis, totalCpuTimeMillis),
+                            = percentage(uidCpuStats.cpuTimeMillis, totalCpuTimeMillis),
             },
             .processCpuUsageStats = std::move(processCpuUsageStats),
             .ioUsageStats = ioUsageStats,
@@ -292,9 +295,9 @@ UserPackageStats::UserPackageStats(MetricType metricType, const UidStats& uidSta
     const UidIoStats& ioStats = uidStats.ioStats;
     uid = uidStats.uid();
     genericPackageName = uidStats.genericPackageName();
-    statsView = UserPackageStats::
-            IoStatsView{.bytes = {ioStats.metrics[metricType][UidState::FOREGROUND],
-                                  ioStats.metrics[metricType][UidState::BACKGROUND]},
+    statsVariant = UserPackageStats::
+            UidIoSingleOpStats{.bytes = {ioStats.metrics[metricType][UidState::FOREGROUND],
+                                     ioStats.metrics[metricType][UidState::BACKGROUND]},
                         .fsync = {ioStats.metrics[MetricType::FSYNC_COUNT][UidState::FOREGROUND],
                                   ioStats.metrics[MetricType::FSYNC_COUNT][UidState::BACKGROUND]}};
 }
@@ -305,13 +308,15 @@ UserPackageStats::UserPackageStats(ProcStatType procStatType, const UidStats& ui
     genericPackageName = uidStats.genericPackageName();
     switch (procStatType) {
         case CPU_TIME: {
-            statsView = UserPackageStats::ProcCpuStatsView{.cpuTimeMillis = static_cast<int64_t>(
+            statsVariant = UserPackageStats::UidCpuStats{.cpuTimeMillis = static_cast<int64_t>(
                                                                    uidStats.cpuTimeMillis),
                                                            .cpuCycles = static_cast<int64_t>(
                                                                    uidStats.procStats.cpuCycles)};
-            auto& procCpuStatsView = std::get<UserPackageStats::ProcCpuStatsView>(statsView);
-            procCpuStatsView.topNProcesses.resize(topNProcessCount);
-            cacheTopNProcessCpuStats(uidStats, topNProcessCount, &procCpuStatsView.topNProcesses);
+            auto& uidCpuStats = std::get<UserPackageStats::UidCpuStats>(statsVariant);
+            uidCpuStats.topNProcesses.resize(topNProcessCount);
+            cacheTopNProcessCpuStats(uidStats,
+                                     topNProcessCount,
+                                     &uidCpuStats.topNProcesses);
             break;
         }
         case MEMORY_STATS: {
@@ -323,7 +328,7 @@ UserPackageStats::UserPackageStats(ProcStatType procStatType, const UidStats& ui
                 totalUssKb += processStats.ussKb;
                 totalSwapPssKb += processStats.swapPssKb;
             }
-            statsView = UserPackageStats::UidMemoryStats{.memoryStats.rssKb =
+            statsVariant = UserPackageStats::UidMemoryStats{.memoryStats.rssKb =
                                                                  uidStats.procStats.totalRssKb,
                                                          .memoryStats.pssKb =
                                                                  uidStats.procStats.totalPssKb,
@@ -331,7 +336,7 @@ UserPackageStats::UserPackageStats(ProcStatType procStatType, const UidStats& ui
                                                          .memoryStats.swapPssKb = totalSwapPssKb,
                                                          .isSmapsRollupSupported =
                                                                  isSmapsRollupSupported};
-            auto& uidMemoryStats = std::get<UserPackageStats::UidMemoryStats>(statsView);
+            auto& uidMemoryStats = std::get<UserPackageStats::UidMemoryStats>(statsVariant);
             uidMemoryStats.topNProcesses.resize(topNProcessCount);
             cacheTopNProcessMemStats(uidStats, topNProcessCount,
                                      uidMemoryStats.isSmapsRollupSupported,
@@ -343,11 +348,11 @@ UserPackageStats::UserPackageStats(ProcStatType procStatType, const UidStats& ui
             uint64_t value = procStatType == IO_BLOCKED_TASKS_COUNT
                     ? uidStats.procStats.ioBlockedTasksCount
                     : uidStats.procStats.totalMajorFaults;
-            statsView = UserPackageStats::ProcSingleStatsView{.value = value};
-            auto& procStatsView = std::get<UserPackageStats::ProcSingleStatsView>(statsView);
-            procStatsView.topNProcesses.resize(topNProcessCount);
+            statsVariant = UserPackageStats::UidSingleStats{.value = value};
+            auto& uidSingleStats = std::get<UserPackageStats::UidSingleStats>(statsVariant);
+            uidSingleStats.topNProcesses.resize(topNProcessCount);
             cacheTopNProcessSingleStats(procStatType, uidStats, topNProcessCount,
-                                        &procStatsView.topNProcesses);
+                                        &uidSingleStats.topNProcesses);
             break;
         }
         default: {
@@ -361,23 +366,23 @@ uint64_t UserPackageStats::getValue() const {
     return std::visit(
             [](auto&& arg) -> uint64_t {
                 using T = std::decay_t<decltype(arg)>;
-                if constexpr (std::is_same_v<T, UserPackageStats::IoStatsView>) {
+                if constexpr (std::is_same_v<T, UserPackageStats::UidIoSingleOpStats>) {
                     return arg.totalBytes();
                 }
-                if constexpr (std::is_same_v<T, UserPackageStats::ProcSingleStatsView>) {
+                if constexpr (std::is_same_v<T, UserPackageStats::UidSingleStats>) {
                     return arg.value;
                 }
-                if constexpr (std::is_same_v<T, UserPackageStats::ProcCpuStatsView>) {
+                if constexpr (std::is_same_v<T, UserPackageStats::UidCpuStats>) {
                     return arg.cpuTimeMillis;
                 }
                 if constexpr (std::is_same_v<T, UserPackageStats::UidMemoryStats>) {
                     return arg.isSmapsRollupSupported ? arg.memoryStats.pssKb
                                                       : arg.memoryStats.rssKb;
                 }
-                // Unknown stats view
+                // Unknown uid stats
                 return 0;
             },
-            statsView);
+            statsVariant);
 }
 
 std::string UserPackageStats::toString(MetricType metricsType,
@@ -385,12 +390,15 @@ std::string UserPackageStats::toString(MetricType metricsType,
     std::string buffer;
     StringAppendF(&buffer, "%" PRIu32 ", %s", multiuser_get_user_id(uid),
                   genericPackageName.c_str());
-    const auto& ioStatsView = std::get<UserPackageStats::IoStatsView>(statsView);
+    const auto& uidIoSingleOpStats = std::get<UserPackageStats::UidIoSingleOpStats>(statsVariant);
     for (int i = 0; i < UID_STATES; ++i) {
-        StringAppendF(&buffer, ", %" PRIi64 ", %.2f%%, %" PRIi64 ", %.2f%%", ioStatsView.bytes[i],
-                      percentage(ioStatsView.bytes[i], totalIoStats[metricsType][i]),
-                      ioStatsView.fsync[i],
-                      percentage(ioStatsView.fsync[i], totalIoStats[FSYNC_COUNT][i]));
+        StringAppendF(&buffer, ", %" PRIi64 ", %.2f%%, %" PRIi64 ", %.2f%%",
+                      uidIoSingleOpStats.bytes[i],
+                      percentage(uidIoSingleOpStats.bytes[i],
+                                 totalIoStats[metricsType][i]),
+                      uidIoSingleOpStats.fsync[i],
+                      percentage(uidIoSingleOpStats.fsync[i],
+                                 totalIoStats[FSYNC_COUNT][i]));
     }
     StringAppendF(&buffer, "\n");
     return buffer;
@@ -399,46 +407,49 @@ std::string UserPackageStats::toString(MetricType metricsType,
 std::string UserPackageStats::toString(int64_t totalValue) const {
     std::string buffer;
     int64_t totalProcessTimeMillis = 0;
-    auto procCpuStatsView = std::get_if<UserPackageStats::ProcCpuStatsView>(&statsView);
-    if (procCpuStatsView != nullptr) {
+    auto uidCpuStats = std::get_if<UserPackageStats::UidCpuStats>(&statsVariant);
+    if (uidCpuStats != nullptr) {
         // Sometimes, the CPU time used by a specific process (reported in /proc/<pid>/stat) is
         // higher than the total CPU time used by all processes belonging to the same UID (reported
         // in /proc/uid_cputime/show_uid_stat). This can happen if the UID only has one process
         // running. The reason is likely a difference in how the kernel calculates and reports CPU
         // usage in these two places. To ensure accuracy, use the higher of the two reported total
         // CPU times when calculating percentage.
-        for (const auto& processCpuValue : procCpuStatsView->topNProcesses) {
-            totalProcessTimeMillis += processCpuValue.cpuTimeMillis;
+        for (const auto& processCpuStats : uidCpuStats->topNProcesses) {
+            totalProcessTimeMillis += processCpuStats.cpuTimeMillis;
         }
-        totalProcessTimeMillis = std::max(totalProcessTimeMillis, procCpuStatsView->cpuTimeMillis);
+        totalProcessTimeMillis = std::max(totalProcessTimeMillis,
+                                          uidCpuStats->cpuTimeMillis);
         StringAppendF(&buffer, "%" PRIu32 ", %s, %" PRIu64 ", %.2f%%, %" PRIu64 "\n",
                       multiuser_get_user_id(uid), genericPackageName.c_str(),
                       totalProcessTimeMillis,
                       percentage(totalProcessTimeMillis, totalValue),
-                      procCpuStatsView->cpuCycles);
-        for (const auto& processCpuValue : procCpuStatsView->topNProcesses) {
+                      uidCpuStats->cpuCycles);
+        for (const auto& processCpuStats : uidCpuStats->topNProcesses) {
             StringAppendF(&buffer, "\t%s, %" PRIu64 ", %.2f%%, %" PRIu64 "\n",
-                          processCpuValue.comm.c_str(), processCpuValue.cpuTimeMillis,
-                          percentage(processCpuValue.cpuTimeMillis,
+                          processCpuStats.comm.c_str(), processCpuStats.cpuTimeMillis,
+                          percentage(processCpuStats.cpuTimeMillis,
                                      totalProcessTimeMillis),
-                          processCpuValue.cpuCycles);
+                          processCpuStats.cpuCycles);
         }
         return buffer;
     }
-    const auto& procStatsView = std::get<UserPackageStats::ProcSingleStatsView>(statsView);
+    const auto& uidSingleStats = std::get<UserPackageStats::UidSingleStats>(statsVariant);
     StringAppendF(&buffer, "%" PRIu32 ", %s, %" PRIu64 ", %.2f%%\n", multiuser_get_user_id(uid),
-                  genericPackageName.c_str(), procStatsView.value,
-                  percentage(procStatsView.value, totalValue));
-    for (const auto& processValue : procStatsView.topNProcesses) {
-        StringAppendF(&buffer, "\t%s, %" PRIu64 ", %.2f%%\n", processValue.comm.c_str(),
-                      processValue.value, percentage(processValue.value, procStatsView.value));
+                  genericPackageName.c_str(), uidSingleStats.value,
+                  percentage(uidSingleStats.value, totalValue));
+    for (const auto& processSingleStats : uidSingleStats.topNProcesses) {
+        StringAppendF(&buffer, "\t%s, %" PRIu64 ", %.2f%%\n", processSingleStats.comm.c_str(),
+                      processSingleStats.value,
+                      percentage(processSingleStats.value,
+                                 uidSingleStats.value));
     }
     return buffer;
 }
 
 std::string UserPackageStats::toString(int64_t totalRssKb, int64_t totalPssKb) const {
     std::string buffer;
-    const auto* uidMemoryStats = std::get_if<UserPackageStats::UidMemoryStats>(&statsView);
+    const auto* uidMemoryStats = std::get_if<UserPackageStats::UidMemoryStats>(&statsVariant);
     if (uidMemoryStats == nullptr) {
         return buffer;
     }
@@ -462,7 +473,7 @@ std::string UserPackageStats::toString(int64_t totalRssKb, int64_t totalPssKb) c
 
 void UserPackageStats::cacheTopNProcessSingleStats(
         ProcStatType procStatType, const UidStats& uidStats, int topNProcessCount,
-        std::vector<UserPackageStats::ProcSingleStatsView::ProcessValue>* topNProcesses) {
+        std::vector<UserPackageStats::UidSingleStats::ProcessSingleStats>* topNProcesses) {
     int cachedProcessCount = 0;
     for (const auto& [_, processStats] : uidStats.procStats.processStatsByPid) {
         uint64_t value = procStatType == IO_BLOCKED_TASKS_COUNT ? processStats.ioBlockedTasksCount
@@ -473,7 +484,7 @@ void UserPackageStats::cacheTopNProcessSingleStats(
         for (auto it = topNProcesses->begin(); it != topNProcesses->end(); ++it) {
             if (value > it->value) {
                 topNProcesses->insert(it,
-                                      UserPackageStats::ProcSingleStatsView::ProcessValue{
+                                      UserPackageStats::UidSingleStats::ProcessSingleStats{
                                               .comm = processStats.comm,
                                               .value = value,
                                       });
@@ -490,7 +501,7 @@ void UserPackageStats::cacheTopNProcessSingleStats(
 
 void UserPackageStats::cacheTopNProcessCpuStats(
         const UidStats& uidStats, int topNProcessCount,
-        std::vector<UserPackageStats::ProcCpuStatsView::ProcessCpuValue>* topNProcesses) {
+        std::vector<UserPackageStats::UidCpuStats::ProcessCpuStats>* topNProcesses) {
     int cachedProcessCount = 0;
     for (const auto& [pid, processStats] : uidStats.procStats.processStatsByPid) {
         int64_t cpuTimeMillis = processStats.cpuTimeMillis;
@@ -500,7 +511,7 @@ void UserPackageStats::cacheTopNProcessCpuStats(
         for (auto it = topNProcesses->begin(); it != topNProcesses->end(); ++it) {
             if (cpuTimeMillis > it->cpuTimeMillis) {
                 topNProcesses->insert(it,
-                                      UserPackageStats::ProcCpuStatsView::ProcessCpuValue{
+                                      UserPackageStats::UidCpuStats::ProcessCpuStats{
                                               .pid = pid,
                                               .comm = processStats.comm,
                                               .cpuTimeMillis = cpuTimeMillis,
@@ -683,6 +694,7 @@ Result<void> PerformanceProfiler::init() {
             .maxCacheSize = std::numeric_limits<std::size_t>::max(),
             .records = {},
     };
+    mKernelStartTimeEpochSeconds = 0;
     if (!mIsMemoryProfilingEnabled || !kPressureMonitor->isEnabled()) {
         return {};
     }
@@ -718,6 +730,13 @@ void PerformanceProfiler::terminate() {
 
 Result<void> PerformanceProfiler::onDump(int fd) const {
     Mutex::Autolock lock(mMutex);
+    std::stringstream kernelStartTimestamp;
+    if (mKernelStartTimeEpochSeconds != 0) {
+        kernelStartTimestamp << std::put_time(std::localtime(&mKernelStartTimeEpochSeconds),
+                                            "%c %Z");
+    } else {
+        kernelStartTimestamp << "Missing";
+    }
     if (!WriteStringToFd(StringPrintf("/proc/<pid>/smaps_rollup is %s\n",
                                       mIsSmapsRollupSupported
                                               ? "supported. So, using PSS to rank top memory "
@@ -727,6 +746,9 @@ Result<void> PerformanceProfiler::onDump(int fd) const {
                          fd) ||
         !WriteStringToFd(StringPrintf(kBootTimeCollectionTitle, std::string(75, '-').c_str(),
                                       std::string(33, '=').c_str()),
+                         fd) ||
+        !WriteStringToFd(StringPrintf(kKernelStartTimeTitle,
+                                      kernelStartTimestamp.str().c_str()),
                          fd) ||
         !WriteStringToFd(mBoottimeCollection.toString(), fd)) {
         return Error(FAILED_TRANSACTION) << "Failed to dump the boot-time collection report.";
@@ -754,6 +776,7 @@ Result<void> PerformanceProfiler::onDumpProto(const CollectionIntervals& collect
     Mutex::Autolock lock(mMutex);
 
     uint64_t performanceStatsToken = outProto.start(PerformanceProfilerDump::PERFORMANCE_STATS);
+    outProto.write(PerformanceStats::KERNEL_START_TIME_EPOCH_SECONDS, mKernelStartTimeEpochSeconds);
 
     uint64_t bootTimeStatsToken = outProto.start(PerformanceStats::BOOT_TIME_STATS);
     outProto.write(StatsCollection::COLLECTION_INTERVAL_MILLIS,
@@ -880,8 +903,8 @@ void PerformanceProfiler::dumpPackageCpuStatsProto(
         const std::vector<UserPackageStats>& topNCpuTimes, ProtoOutputStream& outProto) const {
     for (const auto& userPackageStats : topNCpuTimes) {
         uint64_t packageCpuStatsToken = outProto.start(StatsRecord::PACKAGE_CPU_STATS);
-        const auto& procCpuStatsView =
-                std::get_if<UserPackageStats::ProcCpuStatsView>(&userPackageStats.statsView);
+        const auto& uidCpuStats =
+                std::get_if<UserPackageStats::UidCpuStats>(&userPackageStats.statsVariant);
 
         uint64_t userPackageInfoToken = outProto.start(PackageCpuStats::USER_PACKAGE_INFO);
         outProto.write(UserPackageInfo::USER_ID,
@@ -891,12 +914,12 @@ void PerformanceProfiler::dumpPackageCpuStatsProto(
 
         uint64_t cpuStatsToken = outProto.start(PackageCpuStats::CPU_STATS);
         outProto.write(PackageCpuStats::CpuStats::CPU_TIME_MILLIS,
-                       static_cast<int>(procCpuStatsView->cpuTimeMillis));
+                       static_cast<int>(uidCpuStats->cpuTimeMillis));
         outProto.write(PackageCpuStats::CpuStats::CPU_CYCLES,
-                       static_cast<int>(procCpuStatsView->cpuCycles));
+                       static_cast<int>(uidCpuStats->cpuCycles));
         outProto.end(cpuStatsToken);
 
-        for (const auto& processCpuStat : procCpuStatsView->topNProcesses) {
+        for (const auto& processCpuStat : uidCpuStats->topNProcesses) {
             uint64_t processCpuStatToken = outProto.start(PackageCpuStats::PROCESS_CPU_STATS);
             outProto.write(PackageCpuStats::ProcessCpuStats::COMMAND, processCpuStat.comm);
 
@@ -919,8 +942,8 @@ void PerformanceProfiler::dumpPackageStorageIoStatsProto(
         ProtoOutputStream& outProto) const {
     for (const auto& userPackageStats : userPackageStats) {
         uint64_t token = outProto.start(storageStatsFieldId);
-        const auto& ioStatsView =
-                std::get_if<UserPackageStats::IoStatsView>(&userPackageStats.statsView);
+        const auto& uidIoSingleOpStats =
+                std::get_if<UserPackageStats::UidIoSingleOpStats>(&userPackageStats.statsVariant);
 
         uint64_t userPackageInfoToken = outProto.start(PackageStorageIoStats::USER_PACKAGE_INFO);
         outProto.write(UserPackageInfo::USER_ID,
@@ -929,10 +952,14 @@ void PerformanceProfiler::dumpPackageStorageIoStatsProto(
         outProto.end(userPackageInfoToken);
 
         uint64_t storageIoStatsToken = outProto.start(PackageStorageIoStats::STORAGE_IO_STATS);
-        outProto.write(StorageIoStats::FG_BYTES, static_cast<int>(ioStatsView->bytes[FOREGROUND]));
-        outProto.write(StorageIoStats::FG_FSYNC, static_cast<int>(ioStatsView->fsync[FOREGROUND]));
-        outProto.write(StorageIoStats::BG_BYTES, static_cast<int>(ioStatsView->bytes[BACKGROUND]));
-        outProto.write(StorageIoStats::BG_FSYNC, static_cast<int>(ioStatsView->fsync[BACKGROUND]));
+        outProto.write(StorageIoStats::FG_BYTES,
+                       static_cast<int>(uidIoSingleOpStats->bytes[FOREGROUND]));
+        outProto.write(StorageIoStats::FG_FSYNC,
+                       static_cast<int>(uidIoSingleOpStats->fsync[FOREGROUND]));
+        outProto.write(StorageIoStats::BG_BYTES,
+                       static_cast<int>(uidIoSingleOpStats->bytes[BACKGROUND]));
+        outProto.write(StorageIoStats::BG_FSYNC,
+                       static_cast<int>(uidIoSingleOpStats->fsync[BACKGROUND]));
         outProto.end(storageIoStatsToken);
 
         outProto.end(token);
@@ -950,8 +977,8 @@ void PerformanceProfiler::dumpPackageTaskStateStatsProto(
         }
 
         uint64_t packageTaskStateStatsToken = outProto.start(StatsRecord::PACKAGE_TASK_STATE_STATS);
-        const auto& procSingleStatsView =
-                std::get_if<UserPackageStats::ProcSingleStatsView>(&userPackageStats.statsView);
+        const auto& uidSingleStats =
+                std::get_if<UserPackageStats::UidSingleStats>(&userPackageStats.statsVariant);
 
         uint64_t userPackageInfoToken = outProto.start(PackageTaskStateStats::USER_PACKAGE_INFO);
         outProto.write(UserPackageInfo::USER_ID,
@@ -960,17 +987,17 @@ void PerformanceProfiler::dumpPackageTaskStateStatsProto(
         outProto.end(userPackageInfoToken);
 
         outProto.write(PackageTaskStateStats::IO_BLOCKED_TASK_COUNT,
-                       static_cast<int>(procSingleStatsView->value));
+                       static_cast<int>(uidSingleStats->value));
         outProto.write(PackageTaskStateStats::TOTAL_TASK_COUNT,
                        static_cast<int>(taskCount->second));
 
-        for (const auto& processValue : procSingleStatsView->topNProcesses) {
+        for (const auto& processSingleStats : uidSingleStats->topNProcesses) {
             uint64_t processTaskStateStatsToken =
                     outProto.start(PackageTaskStateStats::PROCESS_TASK_STATE_STATS);
             outProto.write(PackageTaskStateStats::ProcessTaskStateStats::COMMAND,
-                           processValue.comm);
+                           processSingleStats.comm);
             outProto.write(PackageTaskStateStats::ProcessTaskStateStats::IO_BLOCKED_TASK_COUNT,
-                           static_cast<int>(processValue.value));
+                           static_cast<int>(processSingleStats.value));
             outProto.end(processTaskStateStatsToken);
         }
 
@@ -983,8 +1010,8 @@ void PerformanceProfiler::dumpPackageMajorPageFaultsProto(
     for (const auto& userPackageStats : topNMajorFaults) {
         uint64_t packageMajorPageFaultsToken =
                 outProto.start(StatsRecord::PACKAGE_MAJOR_PAGE_FAULTS);
-        const auto& procSingleStatsView =
-                std::get_if<UserPackageStats::ProcSingleStatsView>(&userPackageStats.statsView);
+        const auto& uidSingleStats =
+                std::get_if<UserPackageStats::UidSingleStats>(&userPackageStats.statsVariant);
 
         uint64_t userPackageInfoToken = outProto.start(PackageMajorPageFaults::USER_PACKAGE_INFO);
         outProto.write(UserPackageInfo::USER_ID,
@@ -993,7 +1020,7 @@ void PerformanceProfiler::dumpPackageMajorPageFaultsProto(
         outProto.end(userPackageInfoToken);
 
         outProto.write(PackageMajorPageFaults::MAJOR_PAGE_FAULTS_COUNT,
-                       static_cast<int>(procSingleStatsView->value));
+                       static_cast<int>(uidSingleStats->value));
 
         outProto.end(packageMajorPageFaultsToken);
     }
@@ -1146,6 +1173,9 @@ Result<void> PerformanceProfiler::processLocked(
     std::vector<UidResourceUsageStats>* uidResourceUsageStats =
             shouldSendResourceUsageStats ? new std::vector<UidResourceUsageStats>() : nullptr;
     processProcStatLocked(procStatCollector, &record.systemSummaryStats);
+    if (mKernelStartTimeEpochSeconds <= 0) {
+        mKernelStartTimeEpochSeconds = procStatCollector->getKernelStartTimeEpochSeconds();
+    }
     // The system-wide CPU time should be the same as CPU time aggregated here across all UID, so
     // reuse the total CPU time from SystemSummaryStat
     int64_t totalCpuTimeMillis = record.systemSummaryStats.totalCpuTimeMillis;
@@ -1209,7 +1239,7 @@ void PerformanceProfiler::processUidStatsLocked(
             userPackageSummaryStats->totalPssKb += curUidStats.procStats.totalPssKb;
         }
 
-        // Transform |UidStats| to |UserPackageStats| for each stats view.
+        // Transform |UidStats| to |UserPackageStats| for each stats variant.
         auto ioReadsPackageStats = UserPackageStats(MetricType::READ_BYTES, curUidStats);
         auto ioWritesPackageStats = UserPackageStats(MetricType::WRITE_BYTES, curUidStats);
         auto cpuTimePackageStats =
@@ -1263,18 +1293,18 @@ void PerformanceProfiler::processUidStatsLocked(
         int64_t uidUptimeMillis =
                 calculateUidUptimeMillis(elapsedTimeSinceBootMs, curUidStats.procStats);
 
-        const auto& procCpuStatsView =
-                std::get<UserPackageStats::ProcCpuStatsView>(cpuTimePackageStats.statsView);
-        const auto& ioReadsStatsView =
-                std::get<UserPackageStats::IoStatsView>(ioReadsPackageStats.statsView);
-        const auto& ioWritesStatsView =
-                std::get<UserPackageStats::IoStatsView>(ioWritesPackageStats.statsView);
+        const auto& uidCpuStats =
+                std::get<UserPackageStats::UidCpuStats>(cpuTimePackageStats.statsVariant);
+        const auto& uidIoReadsStats =
+                std::get<UserPackageStats::UidIoSingleOpStats>(ioReadsPackageStats.statsVariant);
+        const auto& uidIoWritesStats =
+                std::get<UserPackageStats::UidIoSingleOpStats>(ioWritesPackageStats.statsVariant);
 
         UidResourceUsageStats usageStats =
                 constructUidResourceUsageStats(std::move(packageIdentifier), uidUptimeMillis,
                                                totalCpuTimeMillis, isGarageModeActive,
-                                               procCpuStatsView, ioReadsStatsView,
-                                               ioWritesStatsView);
+                                               uidCpuStats, uidIoReadsStats,
+                                               uidIoWritesStats);
         uidResourceUsageStats->push_back(std::move(usageStats));
     }
     if (mLastMajorFaults != 0) {
@@ -1289,7 +1319,7 @@ void PerformanceProfiler::processUidStatsLocked(
             /* std::monostate is the first alternative in the variant. When the variant is
              * uninitialized, the index points to this alternative.
              */
-            if (it->statsView.index() == 0) {
+            if (it->statsVariant.index() == 0) {
                 userPackageStats.erase(it, userPackageStats.end());
                 break;
             }

@@ -185,6 +185,9 @@ ScopedAStatus EvsV4lCamera::startVideoStream(const std::shared_ptr<IEvsCameraStr
                 case V4L2_PIX_FMT_YUYV:
                     mFillBufferFromVideo = fillRGBAFromYUYV;
                     break;
+                case V4L2_PIX_FMT_BGRX32:
+                    mFillBufferFromVideo = fillRGBAFromBGRA;
+                    break;
                 default:
                     LOG(ERROR) << "Unhandled camera source format " << (char*)&videoSrcFormat;
             }

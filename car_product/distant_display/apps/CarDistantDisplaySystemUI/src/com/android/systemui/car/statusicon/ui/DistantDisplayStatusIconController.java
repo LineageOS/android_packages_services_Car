@@ -16,6 +16,8 @@
 
 package com.android.systemui.car.statusicon.ui;
 
+import static com.android.systemui.car.distantdisplay.util.Logging.logIfDebuggable;
+
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 
@@ -64,12 +66,14 @@ public class DistantDisplayStatusIconController extends StatusIconViewController
     @Override
     protected void onViewAttached() {
         super.onViewAttached();
+        logIfDebuggable(TAG, "onViewAttached");
         mDistantDisplayController.addDistantDisplayControlStatusInfoListener(this);
     }
 
     @Override
     protected void onViewDetached() {
         super.onViewDetached();
+        logIfDebuggable(TAG, "onViewDetached");
         mDistantDisplayController.removeDistantDisplayControlStatusInfoListener(this);
     }
 
@@ -85,6 +89,7 @@ public class DistantDisplayStatusIconController extends StatusIconViewController
 
     @Override
     public void onDisplayChanged(int displayId) {
+        logIfDebuggable(TAG, "onDisplayChanged " + displayId);
         mCurrentDisplayId = displayId;
         updateStatus();
     }

@@ -36,6 +36,7 @@ public:
     MOCK_METHOD(const ProcStatInfo, latestStats, (), (const, override));
     MOCK_METHOD(const ProcStatInfo, deltaStats, (), (const, override));
     MOCK_METHOD(std::string, filePath, (), (override));
+    MOCK_METHOD(time_t, getKernelStartTimeEpochSeconds, (), (override));
 };
 
 }  // namespace watchdog

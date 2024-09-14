@@ -34,5 +34,7 @@
         <permission name="android.car.permission.BROADCAST_CLOSE_SYSTEM_DIALOGS"/>
         <!-- used for broadcasting dock events -->
         <permission name="com.android.car.docklib.permission.BROADCAST_SENDER"/>
+        <!-- Used for checking media notifications -->
+        <permission name="android.permission.ACCESS_NOTIFICATIONS"/>
     </privapp-permissions>
 </permissions>

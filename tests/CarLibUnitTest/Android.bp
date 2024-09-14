@@ -51,7 +51,7 @@ java_defaults {
         "vehicle-hal-support-lib",
     ],
     libs: [
-        "android.test.base",
+        "android.test.base.stubs.system",
         "framework-annotations-lib",
     ],
 }
@@ -63,7 +63,7 @@ java_defaults {
         "ravenwood-junit",
     ],
     libs: [
-        "android.car.builtin",
+        "android.car.builtin.stubs.module_lib",
     ],
     defaults: [
         "CarLibUnitTestDefault",

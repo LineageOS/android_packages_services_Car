@@ -32,6 +32,7 @@ import static android.hardware.automotive.vehicle.VehicleProperty.AP_POWER_STATE
 import static android.hardware.automotive.vehicle.VehicleProperty.AP_POWER_STATE_REQ;
 import static android.hardware.automotive.vehicle.VehicleProperty.DISPLAY_BRIGHTNESS;
 import static android.hardware.automotive.vehicle.VehicleProperty.PER_DISPLAY_BRIGHTNESS;
+import static android.hardware.automotive.vehicle.VehicleProperty.SHUTDOWN_REQUEST;
 import static android.hardware.automotive.vehicle.VehicleProperty.VEHICLE_IN_USE;
 
 import static com.android.car.hal.PowerHalService.PowerState.SHUTDOWN_TYPE_DEEP_SLEEP;
@@ -58,6 +59,7 @@ import android.car.feature.Flags;
 import android.car.test.util.FakeContext;
 import android.hardware.automotive.vehicle.StatusCode;
 import android.hardware.automotive.vehicle.VehicleApPowerBootupReason;
+import android.hardware.automotive.vehicle.VehicleApPowerStateReport;
 import android.hardware.automotive.vehicle.VehicleApPowerStateShutdownParam;
 import android.hardware.automotive.vehicle.VehicleProperty;
 import android.hardware.display.DisplayManager;
@@ -71,6 +73,7 @@ import android.view.Display;
 import android.view.DisplayAddress;
 
 import com.android.car.hal.PowerHalService.PowerState;
+import com.android.car.hal.VehicleHal.HalPropValueSetter;
 import com.android.car.hal.test.AidlVehiclePropConfigBuilder;
 import com.android.car.systeminterface.DisplayHelperInterface;
 
@@ -285,7 +288,7 @@ public final class PowerHalServiceUnitTest {
     @Test
     public void testHalEventListenerDisplayBrightnessChange_ignoreRecentlySet() {
         addDefaultDisplay();
-        VehicleHal.HalPropValueSetter propValueSetter = mock(VehicleHal.HalPropValueSetter.class);
+        HalPropValueSetter propValueSetter = mock(HalPropValueSetter.class);
         when(mHal.set(VehicleProperty.DISPLAY_BRIGHTNESS, /* areaId= */ 0))
                 .thenReturn(propValueSetter);
         setupVhalSupportGlobalBrightnessOnly();
@@ -320,7 +323,7 @@ public final class PowerHalServiceUnitTest {
         when(mDisplayManager.getDisplay(displayId1)).thenReturn(display1);
         when(mDisplayManager.getDisplay(displayId2)).thenReturn(display2);
 
-        VehicleHal.HalPropValueSetter propValueSetter = mock(VehicleHal.HalPropValueSetter.class);
+        HalPropValueSetter propValueSetter = mock(HalPropValueSetter.class);
         when(mHal.set(VehicleProperty.DISPLAY_BRIGHTNESS, /* areaId= */ 0))
                 .thenReturn(propValueSetter);
         setupVhalSupportGlobalBrightnessOnly();
@@ -560,7 +563,7 @@ public final class PowerHalServiceUnitTest {
 
     @Test
     public void testSendDisplayBrightnessLegacy() {
-        VehicleHal.HalPropValueSetter propValueSetter = mock(VehicleHal.HalPropValueSetter.class);
+        HalPropValueSetter propValueSetter = mock(HalPropValueSetter.class);
         when(mHal.set(VehicleProperty.DISPLAY_BRIGHTNESS, /* areaId= */ 0))
                 .thenReturn(propValueSetter);
 
@@ -575,7 +578,7 @@ public final class PowerHalServiceUnitTest {
 
     @Test
     public void testSendDisplayBrightnessLegacy_non100MaxBrightness() {
-        VehicleHal.HalPropValueSetter propValueSetter = mock(VehicleHal.HalPropValueSetter.class);
+        HalPropValueSetter propValueSetter = mock(HalPropValueSetter.class);
         when(mHal.set(VehicleProperty.DISPLAY_BRIGHTNESS, /* areaId= */ 0))
                 .thenReturn(propValueSetter);
         int maxBrightness = 255;
@@ -595,7 +598,7 @@ public final class PowerHalServiceUnitTest {
 
     @Test
     public void testSendDisplayBrightnessLegacy_perDisplayBrightnessSupported() {
-        VehicleHal.HalPropValueSetter propValueSetter = mock(VehicleHal.HalPropValueSetter.class);
+        HalPropValueSetter propValueSetter = mock(HalPropValueSetter.class);
         when(mHal.set(VehicleProperty.DISPLAY_BRIGHTNESS, /* areaId= */ 0))
                 .thenReturn(propValueSetter);
         addDefaultDisplay();
@@ -661,7 +664,7 @@ public final class PowerHalServiceUnitTest {
     public void testSendDisplayBrightnessPerDisplay_non100MaxBrightness() {
         mFakeFeatureFlags.setFlag(Flags.FLAG_PER_DISPLAY_MAX_BRIGHTNESS, true);
 
-        VehicleHal.HalPropValueSetter propValueSetter = mock(VehicleHal.HalPropValueSetter.class);
+        HalPropValueSetter propValueSetter = mock(HalPropValueSetter.class);
         when(mHal.set(VehicleProperty.PER_DISPLAY_BRIGHTNESS, /* areaId= */ 0))
                 .thenReturn(propValueSetter);
 
@@ -707,7 +710,7 @@ public final class PowerHalServiceUnitTest {
         int displayPort = 2;
         addDisplay(displayId, displayPort);
 
-        VehicleHal.HalPropValueSetter propValueSetter = mock(VehicleHal.HalPropValueSetter.class);
+        HalPropValueSetter propValueSetter = mock(HalPropValueSetter.class);
         when(mHal.set(VehicleProperty.DISPLAY_BRIGHTNESS, /* areaId= */ 0))
                 .thenReturn(propValueSetter);
         int brightnessToSet = 41;
@@ -726,7 +729,7 @@ public final class PowerHalServiceUnitTest {
         int displayPort = 2;
         addDisplay(displayId, displayPort);
 
-        VehicleHal.HalPropValueSetter propValueSetter = mock(VehicleHal.HalPropValueSetter.class);
+        HalPropValueSetter propValueSetter = mock(HalPropValueSetter.class);
         when(mHal.set(VehicleProperty.DISPLAY_BRIGHTNESS, /* areaId= */ 0))
                 .thenReturn(propValueSetter);
         int brightnessToSet = 41;
@@ -745,7 +748,7 @@ public final class PowerHalServiceUnitTest {
         int displayPort = 2;
         addDisplay(displayId, displayPort);
 
-        VehicleHal.HalPropValueSetter propValueSetter = mock(VehicleHal.HalPropValueSetter.class);
+        HalPropValueSetter propValueSetter = mock(HalPropValueSetter.class);
         when(mHal.set(VehicleProperty.DISPLAY_BRIGHTNESS, /* areaId= */ 0))
                 .thenReturn(propValueSetter);
         int brightnessToSet = 101;
@@ -809,8 +812,8 @@ public final class PowerHalServiceUnitTest {
 
     @Test
     public void testRequestShutdownAp() {
-        VehicleHal.HalPropValueSetter propValueSetter = mock(VehicleHal.HalPropValueSetter.class);
-        when(mHal.set(VehicleProperty.SHUTDOWN_REQUEST, /* areaId= */ 0))
+        HalPropValueSetter propValueSetter = mock(HalPropValueSetter.class);
+        when(mHal.set(SHUTDOWN_REQUEST, /* areaId= */ 0))
                 .thenReturn(propValueSetter);
         ArrayMap<Pair<Integer, Boolean>, Integer> testCases = new ArrayMap<>();
         testCases.put(new Pair<>(PowerState.SHUTDOWN_TYPE_POWER_OFF, true),
@@ -839,8 +842,8 @@ public final class PowerHalServiceUnitTest {
 
     @Test
     public void testRequestShutdownAp_invalidInput() {
-        VehicleHal.HalPropValueSetter propValueSetter = mock(VehicleHal.HalPropValueSetter.class);
-        when(mHal.set(VehicleProperty.SHUTDOWN_REQUEST, /* areaId= */ 0))
+        HalPropValueSetter propValueSetter = mock(HalPropValueSetter.class);
+        when(mHal.set(SHUTDOWN_REQUEST, /* areaId= */ 0))
                 .thenReturn(propValueSetter);
 
         mPowerHalService.requestShutdownAp(/* powerState= */ 99999, /* runGarageMode= */ true);
@@ -943,6 +946,87 @@ public final class PowerHalServiceUnitTest {
 
         assertThat(mPowerHalService.getVehicleApBootupReason()).isEqualTo(
                 PowerHalService.BOOTUP_REASON_UNKNOWN);
+    }
+
+    @Test
+    public void testIsShutdownRequestSupported_true() {
+        when(mHal.getPropConfig(SHUTDOWN_REQUEST)).thenReturn(new AidlHalPropConfig(
+                AidlVehiclePropConfigBuilder.newBuilder(SHUTDOWN_REQUEST)
+                .build()));
+
+        assertThat(mPowerHalService.isShutdownRequestSupported()).isTrue();
+    }
+
+    @Test
+    public void testIsShutdownRequestSupported_false() {
+        when(mHal.getPropConfig(SHUTDOWN_REQUEST)).thenReturn(null);
+
+        assertThat(mPowerHalService.isShutdownRequestSupported()).isFalse();
+    }
+
+    @Test
+    public void testIsVehicleInUse_true() {
+        when(mHal.get(VEHICLE_IN_USE)).thenReturn(mPropValueBuilder.build(VEHICLE_IN_USE,
+                /* areaId= */ 0, new int[]{1}));
+
+        assertThat(mPowerHalService.isVehicleInUse()).isTrue();
+    }
+
+    @Test
+    public void testIsVehicleInUse_false() {
+        when(mHal.get(VEHICLE_IN_USE)).thenReturn(mPropValueBuilder.build(VEHICLE_IN_USE,
+                /* areaId= */ 0, new int[]{0}));
+
+        assertThat(mPowerHalService.isVehicleInUse()).isFalse();
+    }
+
+    @Test
+    public void testIsVehicleInUse_exception() {
+        when(mHal.get(VEHICLE_IN_USE)).thenThrow(new IllegalArgumentException());
+
+        // In error cases, we assume vehicle is in use.
+        assertThat(mPowerHalService.isVehicleInUse()).isTrue();
+    }
+
+    @Test
+    public void testSendHibernationExit() {
+        initPowerHal();
+
+        HalPropValueSetter mockSetter = mock(HalPropValueSetter.class);
+        when(mHal.set(AP_POWER_STATE_REPORT, 0)).thenReturn(mockSetter);
+
+        mPowerHalService.sendHibernationExit();
+
+        verify(mockSetter).to(new int[]{VehicleApPowerStateReport.HIBERNATION_EXIT, 0});
+    }
+
+    @Test
+    public void testPowerState_equal() {
+        assertThat(new PowerHalService.PowerState(1, 1))
+                .isEqualTo(new PowerHalService.PowerState(1, 1));
+        assertThat(new PowerHalService.PowerState(1, 1))
+                .isNotEqualTo(new PowerHalService.PowerState(1, 0));
+        assertThat(new PowerHalService.PowerState(1, 1))
+                .isNotEqualTo(new PowerHalService.PowerState(0, 1));
+    }
+
+    @Test
+    public void testPowerState_hashCode() {
+        var state1 = new PowerHalService.PowerState(1, 1);
+        var state2 = new PowerHalService.PowerState(1, 1);
+        var state3 = new PowerHalService.PowerState(1, 0);
+        var state4 = new PowerHalService.PowerState(0, 1);
+
+        assertThat(state1.hashCode()).isEqualTo(state2.hashCode());
+        assertThat(state3.hashCode()).isNotEqualTo(state4.hashCode());
+    }
+
+    @Test
+    public void testPowerState_toString() {
+        var powerStateStr = new PowerHalService.PowerState(1, 2).toString();
+
+        assertThat(powerStateStr).contains("1");
+        assertThat(powerStateStr).contains("2");
     }
 
     private void addDisplay(int displayId, int displayPort) {

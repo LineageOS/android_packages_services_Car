@@ -191,15 +191,15 @@ java_defaults {
 
     libs: [
         "android.car-module.impl",
-        "android.car.builtin",
+        "android.car.builtin.stubs.module_lib",
         "framework-annotations-lib",
-        "framework-bluetooth",
-        "framework-connectivity",
+        "framework-bluetooth.stubs.module_lib",
+        "framework-connectivity.stubs.module_lib",
         "framework-connectivity-t.stubs.module_lib",
-        "framework-location",
-        "framework-statsd",
-        "framework-tethering",
-        "framework-wifi",
+        "framework-location.stubs.module_lib",
+        "framework-statsd.stubs.module_lib",
+        "framework-tethering.stubs.module_lib",
+        "framework-wifi.stubs.module_lib",
         "modules-utils-os",
         "modules-utils-preconditions",
         "modules-utils-shell-command-handler",
@@ -289,7 +289,7 @@ java_library {
     ],
 
     libs: [
-        "android.car.builtin",
+        "android.car.builtin.stubs.module_lib",
         "android.car",
     ],
 

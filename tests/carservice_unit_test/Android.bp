@@ -58,9 +58,9 @@ android_test {
         "android.car",
         "android.car.builtin.impl",
         "android.car.watchdoglib",
-        "android.test.runner",
-        "android.test.base",
-        "android.test.mock",
+        "android.test.runner.stubs",
+        "android.test.base.stubs",
+        "android.test.mock.stubs",
         "framework",
         "framework-res",
     ],
@@ -140,7 +140,7 @@ android_ravenwood_test {
     ],
 
     libs: [
-        "android.test.base",
+        "android.test.base.stubs.system",
         "framework-annotations-lib",
     ],
 

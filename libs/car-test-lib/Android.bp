@@ -43,12 +43,12 @@ java_library {
     ],
     libs: [
         "android.car",
-        "android.car.builtin",
+        "android.car.builtin.stubs.module_lib",
         "android.hardware.automotive.vehicle-V2.0-java",
         "android.hardware.automotive.vehicle-V3-java",
         "android.hardware.automotive.vehicle.property-V3-java",
         "mockito-target-extended",
         "compatibility-device-util-axt",
-        "android.test.mock",
+        "android.test.mock.stubs.system",
     ],
 }

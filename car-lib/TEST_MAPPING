@@ -6,8 +6,12 @@
   ],
   "ravenwood-presubmit": [
     {
-      "name": "CarLibHostUnitTest",
-      "keywords": ["code_coverage", "automotive"]
+      "name": "CarLibHostUnitTest"
+    }
+  ],
+  "automotive-ravenwood-presubmit": [
+    {
+      "name": "CarLibHostUnitTest"
     }
   ]
 }

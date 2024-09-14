@@ -70,6 +70,10 @@ public:
     // Methods from ndk::ICInterface
     binder_status_t dump(int fd, const char** args, uint32_t numArgs) override;
 
+    // Handle a shell command.
+    binder_status_t handleShellCommand(int in, int out, int err, const char** args,
+                                       uint32_t numArgs) override;
+
     // Implementation details
     EvsEnumerator(const std::shared_ptr<
                   ::aidl::android::frameworks::automotive::display::ICarDisplayProxy>&

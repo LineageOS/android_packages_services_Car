@@ -290,6 +290,7 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         setCurrentUser(CURRENT_USER_ID, /* isGuest= */ false);
         setService();
         setCarPowerCancelShellCommand(true);
+        mService.changeShouldChangeSwap(false);
     }
 
     @After
@@ -297,6 +298,7 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         if (mService != null) {
             mService.release();
         }
+        mService.changeShouldChangeSwap(true);
         CarServiceUtils.quitHandlerThreads();
         CarLocalServices.removeServiceForTest(CarPowerManagementService.class);
         mIOInterface.tearDown();
@@ -337,6 +339,7 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
     @Test
     public void testCanHibernate() throws Exception {
         setStopProcessBeforeSuspendToDisk(false);
+        setChangeSwapDuringSuspendToDiskToFalse();
         mPowerSignalListener.addEventListener(PowerHalService.SET_ON);
         mPowerSignalListener.addEventListener(PowerHalService.SET_HIBERNATION_ENTRY);
         mPowerSignalListener.addEventListener(PowerHalService.SET_HIBERNATION_EXIT);
@@ -361,6 +364,7 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
     @Test
     public void testHibernateImmediately() throws Exception {
         setStopProcessBeforeSuspendToDisk(true);
+        setChangeSwapDuringSuspendToDiskToFalse();
         when(mResources.getString(R.string.config_suspend_to_disk_memory_savings))
                 .thenReturn("none");
         hibernateImmediately();
@@ -373,6 +377,7 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         doReturn(List.of(mRunningProcess1)).when(
                 () -> ActivityManagerHelper.getRunningAppProcesses());
         setStopProcessBeforeSuspendToDisk(true);
+        setChangeSwapDuringSuspendToDiskToFalse();
         mRunningProcess1.pkgList = new String[]{PROCESS_TEST_NAME_1};
         mRunningProcess1.importance = ActivityManager.RunningAppProcessInfo
                 .IMPORTANCE_FOREGROUND_SERVICE;
@@ -390,6 +395,7 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         doReturn(List.of(mRunningProcess1, mRunningProcess2)).when(
                 () -> ActivityManagerHelper.getRunningAppProcesses());
         setStopProcessBeforeSuspendToDisk(true);
+        setChangeSwapDuringSuspendToDiskToFalse();
         mRunningProcess1.pkgList = new String[]{PROCESS_TEST_NAME_1};
         mRunningProcess1.importance = ActivityManager.RunningAppProcessInfo
                 .IMPORTANCE_FOREGROUND_SERVICE;
@@ -415,6 +421,7 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         doReturn(List.of(mRunningProcess1, mRunningProcess2)).when(
                 () -> ActivityManagerHelper.getRunningAppProcesses());
         setStopProcessBeforeSuspendToDisk(true);
+        setChangeSwapDuringSuspendToDiskToFalse();
         mRunningProcess1.pkgList = new String[]{PROCESS_TEST_NAME_1};
         mRunningProcess1.importance = ActivityManager.RunningAppProcessInfo
                 .IMPORTANCE_FOREGROUND_SERVICE;
@@ -442,6 +449,7 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         doReturn(List.of(mRunningProcess1, mRunningProcess2)).when(
                 () -> ActivityManagerHelper.getRunningAppProcesses());
         setStopProcessBeforeSuspendToDisk(true);
+        setChangeSwapDuringSuspendToDiskToFalse();
         mRunningProcess1.pkgList = new String[]{PROCESS_TEST_NAME_1};
         mRunningProcess1.importance = ActivityManager.RunningAppProcessInfo
                 .IMPORTANCE_FOREGROUND_SERVICE;
@@ -471,6 +479,7 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         doReturn(List.of(mRunningProcess1, mRunningProcess2)).when(
                 () -> ActivityManagerHelper.getRunningAppProcesses());
         setStopProcessBeforeSuspendToDisk(true);
+        setChangeSwapDuringSuspendToDiskToFalse();
         mRunningProcess1.pkgList = new String[]{PROCESS_TEST_NAME_1};
         mRunningProcess1.importance = ActivityManager.RunningAppProcessInfo
                 .IMPORTANCE_FOREGROUND_SERVICE;
@@ -498,6 +507,7 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         doReturn(List.of(mRunningProcess1, mRunningProcess2)).when(
                 () -> ActivityManagerHelper.getRunningAppProcesses());
         setStopProcessBeforeSuspendToDisk(true);
+        setChangeSwapDuringSuspendToDiskToFalse();
         mRunningProcess1.pkgList = new String[]{PROCESS_TEST_NAME_1};
         mRunningProcess1.importance = ActivityManager.RunningAppProcessInfo
                 .IMPORTANCE_FOREGROUND_SERVICE;
@@ -2598,6 +2608,10 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
 
     private void setStopProcessBeforeSuspendToDisk(boolean flagValue) {
         mFeatureFlags.setFlag(Flags.FLAG_STOP_PROCESS_BEFORE_SUSPEND_TO_DISK, flagValue);
+    }
+
+    private void setChangeSwapDuringSuspendToDiskToFalse() {
+        mFeatureFlags.setFlag(Flags.FLAG_CHANGE_SWAPS_DURING_SUSPEND_TO_DISK, false);
     }
 
     /**

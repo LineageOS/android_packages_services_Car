@@ -26,7 +26,7 @@ java_defaults {
         "aconfig_storage_reader_java",
         // TODO(b/303773055): Remove the annotation after access issue is resolved.
         "unsupportedappusage",
-        "framework-configinfrastructure",
+        "framework-configinfrastructure.stubs.module_lib",
     ],
 }
 

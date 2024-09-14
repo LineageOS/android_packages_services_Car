@@ -49,7 +49,7 @@ android_app {
 
     libs: [
         "android.car",
-        "android.car.builtin",
+        "android.car.builtin.stubs.module_lib",
     ],
 
     static_libs: [
@@ -71,7 +71,7 @@ android_library {
 
     libs: [
         "android.car",
-        "android.car.builtin",
+        "android.car.builtin.stubs.module_lib",
     ],
 
     static_libs: [

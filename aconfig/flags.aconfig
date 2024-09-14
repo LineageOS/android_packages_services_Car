@@ -98,6 +98,13 @@ flag {
   bug: "324593655"
 }
 
+flag {
+  name: "change_swaps_during_suspend_to_disk"
+  namespace: "car_framework"
+  description: "Controls whether car service allows for changing space before suspend to disk"
+  bug: "339688542"
+}
+
 # CarAudioManager
 flag {
   name: "car_audio_dynamic_devices"

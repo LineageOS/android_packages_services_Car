@@ -118,20 +118,26 @@
                 android:layout_width="wrap_content"
                 android:layout_height="@dimen/top_system_bar_icon_size"
                 android:gravity="center">
-                <com.android.systemui.car.systembar.CarSystemBarButton
+                <com.android.systemui.car.systembar.CarSystemBarPanelButtonView
                     android:id="@+id/user_name"
                     style="@style/CarTopSystemBarButton"
-                    android:background="@drawable/status_icon_background">
-                    <ImageView
+                    android:background="@drawable/status_icon_background"
+                    systemui:controller="com.android.systemui.car.systembar.UserNamePanelButtonViewController"
+                    systemui:panelLayoutRes="@layout/qc_profile_switcher"
+                    systemui:panelWidthRes="@dimen/car_profile_quick_controls_panel_width"
+                    systemui:gravity="top|end"
+                    systemui:disabledWhileUnprovisioned="true"
+                    systemui:disabledWhileDriving="@bool/config_profile_panel_disabled_while_driving"
+                    systemui:systemBarDisable2Flags="quickSettings">
+                    <com.android.systemui.car.systembar.element.layout.CarSystemBarImageView
                         android:id="@+id/user_avatar"
                         android:layout_gravity="center"
-                        android:layout_width="@dimen/top_system_bar_icon_drawing_size"
-                        android:layout_height="@dimen/top_system_bar_icon_drawing_size"
-                        android:src="@drawable/car_ic_user_icon"
-                        android:tint="@color/system_bar_icon_color_with_selection"/>
-
-                </com.android.systemui.car.systembar.CarSystemBarButton>
-
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_margin="@dimen/car_padding_0"
+                        systemui:controller="com.android.systemui.car.systembar.UserNameImageViewController"
+                        />
+                </com.android.systemui.car.systembar.CarSystemBarPanelButtonView>
             </FrameLayout>
         </LinearLayout>
 

@@ -34,7 +34,10 @@
 #include <dirent.h>
 #include <sys/inotify.h>
 
+#include <optional>
+#include <regex>
 #include <string_view>
+#include <variant>
 
 namespace {
 
@@ -55,7 +58,72 @@ constexpr std::string_view kDevicePath = "/dev/";
 constexpr std::string_view kPrefix = "video";
 constexpr size_t kEventBufferSize = 512;
 constexpr uint64_t kInvalidDisplayId = std::numeric_limits<uint64_t>::max();
+constexpr char kAddCameraCmd[] = "add_camera";
+constexpr char kEnumerateCamerasCmd[] = "enumerate_cameras";
+constexpr char kHelp[] = "help";
+constexpr char kShellCmdHelp[] = R"(
+Usage:
+    cmd android.hardware.automotive.evs.IEvsEnumerator/<instance name> command [--option=value]
+
+Available commands:
+  * add_camera
+  * enumerate_cameras
+  * help
+)";
 const std::set<uid_t> kAllowedUids = {AID_AUTOMOTIVE_EVS, AID_SYSTEM, AID_ROOT};
+
+enum class Command {
+    ADD_CAMERA,
+    ENUMERATE_CAMERAS,
+    HELP,
+};
+
+struct CommandWithOptions {
+    Command command;
+    std::map<std::string, std::string> optionToValueMap;
+};
+
+std::variant<CommandWithOptions, std::string> parseShellCommand(const char** args,
+                                                                const uint32_t numArgs) {
+    static const std::regex optionRegex("^--(\\w+)(?:=(.+))?$");
+    static const std::map<std::string, Command> strToCommand{{kHelp, Command::HELP},
+                                                             {kAddCameraCmd, Command::ADD_CAMERA},
+                                                             {kEnumerateCamerasCmd,
+                                                              Command::ENUMERATE_CAMERAS}};
+
+    if (numArgs < 1) {
+        return CommandWithOptions{.command = Command::HELP};
+    }
+
+    auto it = strToCommand.find(args[0]);
+    if (it == strToCommand.end()) {
+        return "Unknown command: " + std::string(args[0]);
+    }
+
+    CommandWithOptions cmd{.command = it->second};
+
+    for (auto i = 1u; i < numArgs; ++i) {
+        std::cmatch cm;
+        if (!std::regex_match(args[i], cm, optionRegex)) {
+            return "Invalid option: " + std::string(args[i]);
+        }
+
+        cmd.optionToValueMap[cm[1]] = cm[2];
+    }
+
+    return cmd;
+}
+
+std::string convertToFourccString(uint32_t fourcc) {
+    std::string result = "";
+
+    while (fourcc != 0) {
+        result += static_cast<uint8_t>(fourcc & 0xFF);
+        fourcc >>= 8;
+    }
+
+    return result;
+}
 
 }  // namespace
 
@@ -652,13 +720,18 @@ bool EvsEnumerator::qualifyCaptureDevice(const char* deviceName) {
                 case V4L2_PIX_FMT_XRGB32:
                     found = true;
                     break;
+                case V4L2_PIX_FMT_BGRX32:
+                    found = true;
+                    break;
 #endif  // V4L2_PIX_FMT_ARGB32
                 default:
-                    LOG(WARNING) << "Unsupported, " << std::hex << formatDescription.pixelformat;
+                    LOG(WARNING) << "Unsupported, "
+                                 << convertToFourccString(formatDescription.pixelformat);
                     break;
             }
         } else {
             // No more formats available.
+            LOG(ERROR) << "No format info is available; " << strerror(errno);
             break;
         }
     }
@@ -842,6 +915,64 @@ binder_status_t EvsEnumerator::cmdDump(int fd, const std::vector<std::string>& o
     }
 
     return STATUS_OK;
+}
+
+binder_status_t EvsEnumerator::handleShellCommand([[maybe_unused]] int in, int out, int err,
+                                                  const char** args, uint32_t numArgs) {
+    if (numArgs < 1) {
+        dprintf(out, kShellCmdHelp);
+        fsync(out);
+        return STATUS_OK;
+    }
+
+    std::variant<CommandWithOptions, std::string> cmdOrErrorMsg = parseShellCommand(args, numArgs);
+
+    if (std::holds_alternative<std::string>(cmdOrErrorMsg)) {
+        dprintf(err, "Error: %s\n", std::get<std::string>(cmdOrErrorMsg).c_str());
+        return STATUS_BAD_VALUE;
+    }
+
+    const CommandWithOptions& cmd = std::get<CommandWithOptions>(cmdOrErrorMsg);
+    binder_status_t status = STATUS_OK;
+    switch (cmd.command) {
+        case Command::ADD_CAMERA: {
+            std::optional<std::string> cameraId;
+            auto it = cmd.optionToValueMap.find("camera_id");
+            if (it == cmd.optionToValueMap.end()) {
+                dprintf(err, "Required argument, \"camera_id\", is not given.");
+                return STATUS_BAD_VALUE;
+            }
+
+            cameraId = it->second;
+            if (!cameraId.has_value()) {
+                dprintf(err, "Invalid value,\"camera_id\": %s", it->second.c_str());
+                return STATUS_BAD_VALUE;
+            }
+
+            // TODO: add an option to skip a device validation.
+
+            if (addCaptureDevice(cameraId.value())) {
+                notifyDeviceStatusChange(cameraId.value(), DeviceStatusType::CAMERA_AVAILABLE);
+            }
+        } break;
+
+        case Command::ENUMERATE_CAMERAS: {
+            enumerateCameras();
+
+            std::lock_guard lock(sLock);
+            for (const auto& [key, value] : sCameraList) {
+                dprintf(out, "%s is added.\n", key.c_str());
+            }
+        } break;
+
+        case Command::HELP:
+            dprintf(out, kShellCmdHelp);
+            break;
+    }
+
+    fsync(err);
+    fsync(out);
+    return status;
 }
 
 }  // namespace aidl::android::hardware::automotive::evs::implementation

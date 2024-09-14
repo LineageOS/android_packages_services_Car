@@ -40,6 +40,7 @@ import android.car.builtin.content.pm.PackageManagerHelper;
 import android.car.builtin.os.BuildHelper;
 import android.car.builtin.os.HandlerHelper;
 import android.car.builtin.os.ServiceManagerHelper;
+import android.car.builtin.os.SystemPropertiesHelper;
 import android.car.builtin.os.TraceHelper;
 import android.car.builtin.os.UserManagerHelper;
 import android.car.builtin.util.EventLogHelper;
@@ -245,6 +246,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     private final AtomicFile mWifiStateFile;
     private final AtomicFile mTetheringStateFile;
     private final boolean mWifiAdjustmentForSuspend;
+    private boolean mShouldChangeSwap = true;
 
     // This is a temp work-around to reduce user switching delay after wake-up.
     private final boolean mSwitchGuestUserBeforeSleep;
@@ -3145,11 +3147,18 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             Slogf.i(TAG, "Entering %s", suspendTarget);
             if (isSuspendToDisk) {
                 freeMemory();
+                if (mFeatureFlags.changeSwapsDuringSuspendToDisk() && mShouldChangeSwap) {
+                    SystemPropertiesHelper.set("sys.hibernate", "1");
+                }
             }
             boolean suspendSucceeded = isSuspendToDisk ? mSystemInterface.enterHibernation()
                     : mSystemInterface.enterDeepSleep();
 
             if (suspendSucceeded) {
+                if (isSuspendToDisk && mFeatureFlags.changeSwapsDuringSuspendToDisk()
+                        && mShouldChangeSwap) {
+                    SystemPropertiesHelper.set("sys.hibernate", "0");
+                }
                 return true;
             }
             if (totalWaitDurationMs >= mMaxSuspendWaitDurationMs) {
@@ -3962,8 +3971,8 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     private void freeMemory() {
         try {
             Trace.traceBegin(TraceHelper.TRACE_TAG_CAR_SERVICE, "freeMemory");
-            ActivityManagerHelper.killAllBackgroundProcesses();
             if (!mFeatureFlags.stopProcessBeforeSuspendToDisk()) {
+                ActivityManagerHelper.killAllBackgroundProcesses();
                 Trace.traceEnd(TraceHelper.TRACE_TAG_CAR_SERVICE);
                 return;
             }
@@ -4032,5 +4041,10 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             // none will fallthrough
             default -> ActivityManager.RunningAppProcessInfo.IMPORTANCE_GONE;
         };
+    }
+
+    @VisibleForTesting
+    void changeShouldChangeSwap(boolean value) {
+        mShouldChangeSwap = value;
     }
 }
