@@ -22,7 +22,6 @@
 
 #include "PackageInfoResolver.h"
 #include "ServiceManager.h"
-#include "UidProcStatsCollector.h"
 #include "WatchdogServiceHelper.h"
 
 #include <aidl/android/hardware/automotive/vehicle/BnVehicle.h>
@@ -54,6 +53,8 @@ namespace watchdog {
 
 using ::aidl::android::automotive::watchdog::ICarWatchdogClient;
 using ::aidl::android::automotive::watchdog::TimeoutLength;
+using ::aidl::android::automotive::watchdog::internal::ClientsNotRespondingInfo;
+using ::aidl::android::automotive::watchdog::internal::GarageMode;
 using ::aidl::android::automotive::watchdog::internal::ICarWatchdogMonitor;
 using ::aidl::android::automotive::watchdog::internal::ICarWatchdogServiceForSystem;
 using ::aidl::android::automotive::watchdog::internal::ProcessIdentifier;
@@ -77,6 +78,7 @@ using ::android::base::StringPrintf;
 using ::android::base::Trim;
 using ::android::base::WriteStringToFd;
 using ::android::binder::Status;
+using ::android::car::feature::car_watchdog_anr_metrics;
 using ::android::frameworks::automotive::vhal::HalPropError;
 using ::android::frameworks::automotive::vhal::IHalPropValue;
 using ::android::frameworks::automotive::vhal::ISubscriptionClient;
@@ -114,6 +116,11 @@ constexpr std::chrono::nanoseconds kDefaultVhalPidCachingRetryDelayNs = 30s;
 constexpr TimeoutLength kCarWatchdogServiceTimeoutDelay = TimeoutLength::TIMEOUT_CRITICAL;
 constexpr int32_t kMissingIntPropertyValue = -1;
 
+// NOTE: -1 is used as the INVALID_UID because it represents the max value of
+// an unsigned 32-bit int. Android has an underlying assumption that no UID will
+// reach such value.
+constexpr uid_t INVALID_UID = static_cast<uid_t>(-1);
+
 constexpr const char kPropertyVhalCheckInterval[] = "ro.carwatchdog.vhal_healthcheck.interval";
 constexpr const char kPropertyClientCheckInterval[] = "ro.carwatchdog.client_healthcheck.interval";
 constexpr const char kServiceName[] = "WatchdogProcessService";
@@ -126,6 +133,17 @@ enum RegistrationError {
     ERR_ILLEGAL_STATE = 0,
     ERR_DUPLICATE_REGISTRATION,
 };
+
+constexpr const char* garageModeToString(GarageMode garageMode) {
+    switch (garageMode) {
+        case GarageMode::GARAGE_MODE_OFF:
+            return "GARAGE_MODE_OFF";
+        case GarageMode::GARAGE_MODE_ON:
+            return "GARAGE_MODE_ON";
+        default:
+            return "UNKNOWN_MODE";
+    }
+}
 
 ScopedAStatus toScopedAStatus(Result<void> resultWithRegistrationError) {
     if (resultWithRegistrationError.ok()) {
@@ -161,12 +179,23 @@ bool isSystemShuttingDown() {
     return sysPowerCtl == "reboot" || sysPowerCtl == "shutdown";
 }
 
-int64_t getStartTimeForPid(pid_t pid) {
+PidStat getPidStatForPid(pid_t pid) {
     auto pidStat = UidProcStatsCollector::readStatFileForPid(pid);
     if (!pidStat.ok()) {
-        return elapsedRealtime();
+        return PidStat{
+                .comm = "",
+                .startTimeMillis = elapsedRealtime(),
+        };
     }
-    return pidStat->startTimeMillis;
+    return pidStat.value();
+}
+
+uid_t getUidForPid(pid_t pid) {
+    auto pidStatus = UidProcStatsCollector::readPidStatusFileForPid(pid);
+    if (!pidStatus.ok()) {
+        return INVALID_UID;
+    }
+    return std::get<uid_t>(pidStatus.value());
 }
 
 void onBinderDied(void* cookie) {
@@ -229,19 +258,21 @@ std::string timeoutToString(TimeoutLength timeout) {
 
 WatchdogProcessService::WatchdogProcessService(const sp<Looper>& handlerLooper) :
       WatchdogProcessService((std::shared_ptr<IVhalClient> (*)())IVhalClient::tryCreate,
-                             kDefaultTryGetHidlServiceManager, getStartTimeForPid,
+                             kDefaultTryGetHidlServiceManager, getPidStatForPid, getUidForPid,
                              kDefaultVhalPidCachingRetryDelayNs, handlerLooper,
                              sp<AIBinderDeathRegistrationWrapper>::make()) {}
 
 WatchdogProcessService::WatchdogProcessService(
         const std::function<std::shared_ptr<IVhalClient>()>& tryCreateVhalClientFunc,
         const std::function<sp<IServiceManager>()>& tryGetHidlServiceManagerFunc,
-        const std::function<int64_t(pid_t)>& getStartTimeForPidFunc,
+        const std::function<PidStat(pid_t)>& getPidStatForPidFunc,
+        const std::function<uid_t(pid_t)>& getUidForPidFunc,
         const std::chrono::nanoseconds& vhalPidCachingRetryDelayNs, const sp<Looper>& handlerLooper,
         const sp<AIBinderDeathRegistrationWrapperInterface>& deathRegistrationWrapper) :
       kTryCreateVhalClientFunc(tryCreateVhalClientFunc),
       kTryGetHidlServiceManagerFunc(tryGetHidlServiceManagerFunc),
-      kGetStartTimeForPidFunc(getStartTimeForPidFunc),
+      kGetPidStatForPidFunc(getPidStatForPidFunc),
+      kGetUidForPidFunc(getUidForPidFunc),
       kVhalPidCachingRetryDelayNs(vhalPidCachingRetryDelayNs),
       mHandlerLooper(handlerLooper),
       mClientBinderDeathRecipient(
@@ -251,7 +282,8 @@ WatchdogProcessService::WatchdogProcessService(
       mDeathRegistrationWrapper(deathRegistrationWrapper),
       mIsEnabled(true),
       mVhalService(nullptr),
-      mTotalVhalPidCachingAttempts(0) {
+      mTotalVhalPidCachingAttempts(0),
+      mCurrentGarageModeState(GarageMode::GARAGE_MODE_OFF) {
     mVhalBinderDiedCallback =
             std::make_shared<IVhalClient::OnBinderDiedCallbackFunc>([this] { handleVhalDeath(); });
     for (const auto& timeout : kTimeouts) {
@@ -290,9 +322,10 @@ ScopedAStatus WatchdogProcessService::registerClient(
     }
     pid_t callingPid = IPCThreadState::self()->getCallingPid();
     uid_t callingUid = IPCThreadState::self()->getCallingUid();
-    userid_t callingUserId = multiuser_get_user_id(callingUid);
 
-    ClientInfo clientInfo(client, callingPid, callingUserId, kGetStartTimeForPidFunc(callingPid),
+    PidStat pidStat = kGetPidStatForPidFunc(callingPid);
+
+    ClientInfo clientInfo(client, callingPid, callingUid, pidStat.comm, pidStat.startTimeMillis,
                           *this);
     return toScopedAStatus(registerClient(clientInfo, timeout));
 }
@@ -319,8 +352,11 @@ ScopedAStatus WatchdogProcessService::registerCarWatchdogService(
                 fromExceptionCodeWithMessage(EX_ILLEGAL_ARGUMENT,
                                              "Watchdog service helper instance is null");
     }
-    ClientInfo clientInfo(helper, binder, callingPid, callingUserId,
-                          kGetStartTimeForPidFunc(callingPid), *this);
+
+    PidStat pidStat = kGetPidStatForPidFunc(callingPid);
+
+    ClientInfo clientInfo(helper, binder, callingPid, callingUid, pidStat.comm,
+                          pidStat.startTimeMillis, *this);
     if (auto result = registerClient(clientInfo, kCarWatchdogServiceTimeoutDelay); !result.ok()) {
         return toScopedAStatus(result);
     }
@@ -455,6 +491,15 @@ ScopedAStatus WatchdogProcessService::tellDumpFinished(
     }
     ALOGI("Process(pid: %d) has been dumped and killed", processIdentifier.pid);
     return ScopedAStatus::ok();
+}
+
+void WatchdogProcessService::setGarageMode(GarageMode garageMode) {
+    Mutex::Autolock lock(mMutex);
+    if (mCurrentGarageModeState != garageMode) {
+        ALOGI("%s switching from %s to %s", kServiceName,
+              garageModeToString(mCurrentGarageModeState), garageModeToString(garageMode));
+    }
+    mCurrentGarageModeState = garageMode;
 }
 
 void WatchdogProcessService::setEnabled(bool isEnabled) {
@@ -632,7 +677,7 @@ void WatchdogProcessService::onDumpProto(ProtoOutputStream& outProto) {
 
             uint64_t userPackageInfoToken =
                     outProto.start(HealthCheckClientInfo::USER_PACKAGE_INFO);
-            outProto.write(UserPackageInfo::USER_ID, static_cast<int>(clientInfo.kUserId));
+            outProto.write(UserPackageInfo::USER_ID, static_cast<int>(clientInfo.getUserId()));
             outProto.write(UserPackageInfo::PACKAGE_NAME, clientInfo.packageName);
             outProto.end(userPackageInfoToken);
 
@@ -666,7 +711,7 @@ void WatchdogProcessService::doHealthCheck(int what) {
         pingedClients = &mPingedClients[timeout];
         pingedClients->clear();
         for (auto& [_, clientInfo] : mClientsByTimeout[timeout]) {
-            if (mStoppedUserIds.count(clientInfo.kUserId) > 0) {
+            if (mStoppedUserIds.count(clientInfo.getUserId()) > 0) {
                 continue;
             }
             int sessionId = getNewSessionId();
@@ -887,6 +932,8 @@ Result<void> WatchdogProcessService::dumpAndKillClientsIfNotResponding(TimeoutLe
         for (PingedClientMap::const_iterator it = clients.cbegin(); it != clients.cend(); it++) {
             pid_t pid = -1;
             userid_t userId = -1;
+            uid_t uid = INVALID_UID;
+            std::string processName = "";
             uint64_t startTimeMillis = 0;
             std::vector<TimeoutLength> timeouts = {timeout};
             findClientAndProcessLocked(timeouts, it->second.getAIBinder(),
@@ -895,7 +942,9 @@ Result<void> WatchdogProcessService::dumpAndKillClientsIfNotResponding(TimeoutLe
                                            auto clientInfo = cachedClientsIt->second;
                                            pid = clientInfo.kPid;
                                            startTimeMillis = clientInfo.kStartTimeMillis;
-                                           userId = clientInfo.kUserId;
+                                           userId = clientInfo.getUserId();
+                                           uid = clientInfo.kUid;
+                                           processName = clientInfo.kProcessName;
                                            clientInfo.unlinkToDeath(
                                                    mClientBinderDeathRecipient.get());
                                            cachedClients.erase(cachedClientsIt);
@@ -904,6 +953,8 @@ Result<void> WatchdogProcessService::dumpAndKillClientsIfNotResponding(TimeoutLe
                 clientsToNotify.emplace_back(&it->second);
                 ProcessIdentifier processIdentifier;
                 processIdentifier.pid = pid;
+                processIdentifier.uid = static_cast<int32_t>(uid);
+                processIdentifier.processName = processName;
                 processIdentifier.startTimeMillis = startTimeMillis;
                 processIdentifiers.push_back(processIdentifier);
             }
@@ -942,7 +993,15 @@ Result<void> WatchdogProcessService::dumpAndKillAllProcesses(
     if (reportToVhal) {
         reportTerminatedProcessToVhal(processesNotResponding);
     }
-    monitor->onClientsNotResponding(processesNotResponding);
+    if (car_watchdog_anr_metrics()) {
+        ClientsNotRespondingInfo clientsNotRespondingInfo = {
+                .processIdentifiers = processesNotResponding,
+                .garageMode = mCurrentGarageModeState,
+        };
+        monitor->onClientsNotRespondingWithSystemState(clientsNotRespondingInfo);
+    } else {
+        monitor->onClientsNotResponding(processesNotResponding);
+    }
     if (DEBUG) {
         ALOGD("Dumping and killing processes is requested: %s", pidString.c_str());
     }
@@ -1237,14 +1296,17 @@ void WatchdogProcessService::onAidlVhalPidFetched(pid_t pid) {
     cacheVhalProcessIdentifierForPid(pid);
 }
 
-void WatchdogProcessService::cacheVhalProcessIdentifierForPid(int32_t pid) {
+void WatchdogProcessService::cacheVhalProcessIdentifierForPid(pid_t pid) {
     if (pid < 0) {
         ALOGE("Ignoring request to cache invalid VHAL pid (%d)", pid);
         return;
     }
+    PidStat pidStat = kGetPidStatForPidFunc(pid);
     ProcessIdentifier processIdentifier;
     processIdentifier.pid = pid;
-    processIdentifier.startTimeMillis = kGetStartTimeForPidFunc(pid);
+    processIdentifier.startTimeMillis = pidStat.startTimeMillis;
+    processIdentifier.processName = pidStat.comm;
+    processIdentifier.uid = kGetUidForPidFunc(pid);
 
     Mutex::Autolock lock(mMutex);
     mVhalProcessIdentifier = processIdentifier;
@@ -1342,9 +1404,13 @@ std::chrono::nanoseconds WatchdogProcessService::getTimeoutDurationNs(
 
 std::string WatchdogProcessService::ClientInfo::toString() const {
     std::string buffer;
-    StringAppendF(&buffer, "pid = %d, userId = %d, type = %s", kPid, kUserId,
+    StringAppendF(&buffer, "pid = %d, uid = %d, type = %s", kPid, kUid,
                   kType == ClientType::Regular ? "regular" : "watchdog service");
     return buffer;
+}
+
+userid_t WatchdogProcessService::ClientInfo::getUserId() const {
+    return multiuser_get_user_id(kUid);
 }
 
 AIBinder* WatchdogProcessService::ClientInfo::getAIBinder() const {

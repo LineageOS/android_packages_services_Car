@@ -80,11 +80,14 @@ public class WatchdogProcessHandlerUnitTest extends AbstractExtendedMockitoTestC
     private ICarServiceHelper.Stub mMockCarServiceHelper;
     @Mock
     private PackageManager mMockPackageManager;
+    @Mock private UserHandle mMockUserHandle;
     @Captor
     private ArgumentCaptor<List<ProcessIdentifier>> mProcessIdentifiersCaptor;
     private WatchdogProcessHandler mWatchdogProcessHandler;
     private ICarWatchdogServiceForSystem mWatchdogServiceForSystemImpl;
     private final SparseArray<String> mGenericPackageNameByUid = new SparseArray<>();
+    private static final int TEST_CLIENT_UID = Binder.getCallingUid();
+    private static final int TEST_CLIENT_USER_ID = 100;
 
     public WatchdogProcessHandlerUnitTest() {
         super(CarWatchdogService.TAG);
@@ -94,7 +97,8 @@ public class WatchdogProcessHandlerUnitTest extends AbstractExtendedMockitoTestC
     protected void onSessionBuilder(CustomMockitoSessionBuilder builder) {
         builder
                 .spyStatic(Binder.class)
-                .spyStatic(CarLocalServices.class);
+                .spyStatic(CarLocalServices.class)
+                .spyStatic(UserHandle.class);
     }
 
     @Before
@@ -106,6 +110,9 @@ public class WatchdogProcessHandlerUnitTest extends AbstractExtendedMockitoTestC
         mWatchdogProcessHandler.init();
         CarServiceHelperWrapper wrapper = CarServiceHelperWrapper.create();
         wrapper.setCarServiceHelper(mMockCarServiceHelper);
+        mGenericPackageNameByUid.put(TEST_CLIENT_UID, CANONICAL_PACKAGE_NAME);
+        doReturn(mMockUserHandle).when(() -> UserHandle.of(TEST_CLIENT_UID));
+        doReturn(TEST_CLIENT_USER_ID).when(mMockUserHandle).getIdentifier();
     }
 
     /**
@@ -309,11 +316,6 @@ public class WatchdogProcessHandlerUnitTest extends AbstractExtendedMockitoTestC
 
     @Test
     public void testDumpProto() throws Exception {
-        int uid = Binder.getCallingUid();
-        UserHandle userHandle = UserHandle.of(101);
-
-        doReturn(UserHandle.of(101)).when(Binder::getCallingUserHandle);
-        mGenericPackageNameByUid.put(uid, CANONICAL_PACKAGE_NAME);
         TestClient client = new TestClient();
         mWatchdogProcessHandler.registerClient(client, TIMEOUT_NORMAL);
 
@@ -341,7 +343,7 @@ public class WatchdogProcessHandlerUnitTest extends AbstractExtendedMockitoTestC
 
         UserPackageInfo userPackageInfo = registeredClient.getUserPackageInfo();
         expectWithMessage("User Id").that(userPackageInfo.getUserId()).isEqualTo(
-                userHandle.getIdentifier());
+                TEST_CLIENT_USER_ID);
         expectWithMessage("Package Name").that(userPackageInfo.getPackageName()).isEqualTo(
                 CANONICAL_PACKAGE_NAME);
 
@@ -368,6 +370,11 @@ public class WatchdogProcessHandlerUnitTest extends AbstractExtendedMockitoTestC
                 eq(mWatchdogServiceForSystemImpl), mProcessIdentifiersCaptor.capture(), eq(987654));
 
         assertThat(mProcessIdentifiersCaptor.getValue().size()).isEqualTo(badClientCount);
+        if (badClientCount > 0) {
+            assertThat(mProcessIdentifiersCaptor.getValue().get(0).processName).isEqualTo(
+                    CANONICAL_PACKAGE_NAME);
+            assertThat(mProcessIdentifiersCaptor.getValue().get(0).uid).isEqualTo(TEST_CLIENT_UID);
+        }
     }
 
     private void mockPackageManager() {

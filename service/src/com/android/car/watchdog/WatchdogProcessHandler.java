@@ -38,6 +38,7 @@ import android.os.Looper;
 import android.os.RemoteException;
 import android.os.SystemClock;
 import android.os.SystemProperties;
+import android.os.UserHandle;
 import android.util.SparseArray;
 import android.util.SparseBooleanArray;
 import android.util.proto.ProtoOutputStream;
@@ -175,7 +176,7 @@ public final class WatchdogProcessHandler {
                     proto.write(CarWatchdogDumpProto.RegisteredClient.PID, clientInfo.pid);
                     long userPackageInfoToken = proto.start(
                             CarWatchdogDumpProto.RegisteredClient.USER_PACKAGE_INFO);
-                    proto.write(UserPackageInfo.USER_ID, clientInfo.userId);
+                    proto.write(UserPackageInfo.USER_ID, clientInfo.getUserId());
                     proto.write(UserPackageInfo.PACKAGE_NAME, clientInfo.packageName);
                     proto.end(userPackageInfoToken);
                     proto.write(CarWatchdogDumpProto.RegisteredClient.HEALTH_CHECK_TIMEOUT,
@@ -209,9 +210,8 @@ public final class WatchdogProcessHandler {
                 }
             }
             int pid = Binder.getCallingPid();
-            int userId = Binder.getCallingUserHandle().getIdentifier();
             int callingUid = Binder.getCallingUid();
-            ClientInfo clientInfo = new ClientInfo(client, pid, userId, timeout);
+            ClientInfo clientInfo = new ClientInfo(client, pid, callingUid, timeout);
             // PackageInfoHandler may need to retrieve the packageName from system server
             // using a binder call. Thus, retrieving the packageName from PackageInfoHandler is
             // posted on the looper and is resolved asynchronously.
@@ -397,7 +397,7 @@ public final class WatchdogProcessHandler {
             SparseArray<ClientInfo> pingedClients = mPingedClientMap.get(timeout);
             for (int i = 0; i < pingedClients.size(); i++) {
                 ClientInfo clientInfo = pingedClients.valueAt(i);
-                if (mStoppedUser.get(clientInfo.userId)) {
+                if (mStoppedUser.get(clientInfo.getUserId())) {
                     continue;
                 }
                 mClientsNotResponding.add(clientInfo);
@@ -417,7 +417,7 @@ public final class WatchdogProcessHandler {
             clientsToCheck = new ArrayList<>(mClientMap.get(timeout));
             for (int i = 0; i < clientsToCheck.size(); i++) {
                 ClientInfo clientInfo = clientsToCheck.get(i);
-                if (mStoppedUser.get(clientInfo.userId)) {
+                if (mStoppedUser.get(clientInfo.getUserId())) {
                     continue;
                 }
                 int sessionId = getNewSessionId();
@@ -513,6 +513,8 @@ public final class WatchdogProcessHandler {
             ClientInfo clientInfo = clientInfos.get(i);
             ProcessIdentifier processIdentifier = new ProcessIdentifier();
             processIdentifier.pid = clientInfo.pid;
+            processIdentifier.uid = clientInfo.uid;
+            processIdentifier.processName = clientInfo.packageName;
             processIdentifier.startTimeMillis = clientInfo.startTimeMillis;
             processIdentifiers.add(processIdentifier);
         }
@@ -554,12 +556,12 @@ public final class WatchdogProcessHandler {
         public final ICarWatchdogServiceCallback client;
         public final int pid;
         public final long startTimeMillis;
-        @UserIdInt public final int userId;
+        public final int uid;
         @TimeoutLengthEnum public final int timeout;
         public volatile int sessionId;
         public String packageName;
 
-        ClientInfo(ICarWatchdogServiceCallback client, int pid, @UserIdInt int userId,
+        ClientInfo(ICarWatchdogServiceCallback client, int pid, int uid,
                 @TimeoutLengthEnum int timeout) {
             this.client = client;
             this.pid = pid;
@@ -569,8 +571,8 @@ public final class WatchdogProcessHandler {
             // elapsed real time and the consumer (CarServiceHelperService) of this data should
             // verify that the actual start time is less than the reported start time.
             this.startTimeMillis = SystemClock.elapsedRealtime();
-            this.userId = userId;
             this.timeout = timeout;
+            this.uid = uid;
         }
 
         @Override
@@ -584,15 +586,19 @@ public final class WatchdogProcessHandler {
             client.asBinder().linkToDeath(this, 0);
         }
 
+        private int getUserId() {
+            return UserHandle.of(uid).getIdentifier();
+        }
+
         private void unlinkToDeath() {
             client.asBinder().unlinkToDeath(this, 0);
         }
 
         @Override
         public String toString() {
-            return "ClientInfo{client=" + client + ", pid=" + pid + ", startTimeMillis="
-                    + startTimeMillis + ", userId=" + userId + ", timeout=" + timeout
-                    + ", sessionId=" + sessionId + '}';
+            return "ClientInfo{client=" + client + ", pid=" + pid
+                    + ", startTimeMillis=" + startTimeMillis + ", uid=" + uid + ", timeout="
+                    + timeout + ", sessionId=" + sessionId + '}';
         }
     }
 }

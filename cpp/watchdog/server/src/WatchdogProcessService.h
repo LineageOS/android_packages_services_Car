@@ -17,9 +17,11 @@
 #pragma once
 
 #include "AIBinderDeathRegistrationWrapper.h"
+#include "UidProcStatsCollector.h"
 
 #include <aidl/android/automotive/watchdog/ICarWatchdogClient.h>
 #include <aidl/android/automotive/watchdog/TimeoutLength.h>
+#include <aidl/android/automotive/watchdog/internal/GarageMode.h>
 #include <aidl/android/automotive/watchdog/internal/ICarWatchdogMonitor.h>
 #include <aidl/android/automotive/watchdog/internal/ICarWatchdogServiceForSystem.h>
 #include <aidl/android/automotive/watchdog/internal/ProcessIdentifier.h>
@@ -80,6 +82,8 @@ public:
             const std::shared_ptr<
                     aidl::android::automotive::watchdog::internal::ICarWatchdogMonitor>&
                     monitor) = 0;
+    virtual void setGarageMode(
+            aidl::android::automotive::watchdog::internal::GarageMode garageMode) = 0;
     virtual ndk::ScopedAStatus unregisterMonitor(
             const std::shared_ptr<
                     aidl::android::automotive::watchdog::internal::ICarWatchdogMonitor>&
@@ -112,7 +116,8 @@ public:
                     android::frameworks::automotive::vhal::IVhalClient>()>& tryCreateVhalClientFunc,
             const std::function<android::sp<android::hidl::manager::V1_0::IServiceManager>()>&
                     tryGetHidlServiceManagerFunc,
-            const std::function<int64_t(pid_t)>& getStartTimeForPidFunc,
+            const std::function<PidStat(pid_t)>& getPidStatForPidFunc,
+            const std::function<uid_t(pid_t)>& getUidForPidFunc,
             const std::chrono::nanoseconds& vhalPidCachingRetryDelayNs,
             const sp<Looper>& handlerLooper,
             const sp<AIBinderDeathRegistrationWrapperInterface>& deathRegistrationWrapper);
@@ -124,6 +129,8 @@ public:
     void onDumpProto(util::ProtoOutputStream& outProto) override;
     void doHealthCheck(int what) override;
     void handleBinderDeath(void* cookie) override;
+    void setGarageMode(
+            aidl::android::automotive::watchdog::internal::GarageMode garageMode) override;
     ndk::ScopedAStatus registerClient(
             const std::shared_ptr<aidl::android::automotive::watchdog::ICarWatchdogClient>& client,
             aidl::android::automotive::watchdog::TimeoutLength timeout) override;
@@ -171,19 +178,22 @@ private:
     public:
         ClientInfo(const std::shared_ptr<aidl::android::automotive::watchdog::ICarWatchdogClient>&
                            client,
-                   pid_t pid, userid_t userId, uint64_t startTimeMillis,
+                   pid_t pid, uid_t uid, const std::string& processName, uint64_t startTimeMillis,
                    const WatchdogProcessService& service) :
               kPid(pid),
-              kUserId(userId),
+              kUid(uid),
+              kProcessName(processName),
               kStartTimeMillis(startTimeMillis),
               kType(ClientType::Regular),
               kService(service),
               kClient(client) {}
         ClientInfo(const android::sp<WatchdogServiceHelperInterface>& helper,
-                   const ndk::SpAIBinder& binder, pid_t pid, userid_t userId,
-                   uint64_t startTimeMillis, const WatchdogProcessService& service) :
+                   const ndk::SpAIBinder& binder, pid_t pid, uid_t uid,
+                   const std::string& processName, uint64_t startTimeMillis,
+                   const WatchdogProcessService& service) :
               kPid(pid),
-              kUserId(userId),
+              kUid(uid),
+              kProcessName(processName),
               kStartTimeMillis(startTimeMillis),
               kType(ClientType::Service),
               kService(service),
@@ -191,6 +201,7 @@ private:
               kWatchdogServiceBinder(binder) {}
 
         std::string toString() const;
+        userid_t getUserId() const;
         AIBinder* getAIBinder() const;
         ndk::ScopedAStatus linkToDeath(AIBinder_DeathRecipient* recipient) const;
         ndk::ScopedAStatus unlinkToDeath(AIBinder_DeathRecipient* recipient) const;
@@ -199,7 +210,8 @@ private:
         ndk::ScopedAStatus prepareProcessTermination() const;
 
         const pid_t kPid;
-        const userid_t kUserId;
+        const uid_t kUid;
+        const std::string kProcessName;
         const int64_t kStartTimeMillis;
         const ClientType kType;
         const WatchdogProcessService& kService;
@@ -301,7 +313,10 @@ private:
             kTryCreateVhalClientFunc;
     const std::function<android::sp<android::hidl::manager::V1_0::IServiceManager>()>
             kTryGetHidlServiceManagerFunc;
-    const std::function<int64_t(pid_t)> kGetStartTimeForPidFunc;
+    const std::function<PidStat(pid_t)> kGetPidStatForPidFunc;
+    // Function to fetch UID from the /proc/<pid>/status file of the given PID.
+    // This field is used in tests to stub the function.
+    const std::function<uid_t(pid_t)> kGetUidForPidFunc;
     const std::chrono::nanoseconds kVhalPidCachingRetryDelayNs;
 
     android::sp<Looper> mHandlerLooper;
@@ -338,6 +353,8 @@ private:
             mVhalProcessIdentifier GUARDED_BY(mMutex);
     int32_t mTotalVhalPidCachingAttempts GUARDED_BY(mMutex);
     HeartBeat mVhalHeartBeat GUARDED_BY(mMutex);
+    aidl::android::automotive::watchdog::internal::GarageMode mCurrentGarageModeState
+            GUARDED_BY(mMutex);
 
     // For unit tests.
     friend class internal::WatchdogProcessServicePeer;

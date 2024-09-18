@@ -52,6 +52,7 @@ using ::android::base::Result;
 using ::android::base::Split;
 using ::android::base::StringPrintf;
 using ::android::base::WriteStringToFd;
+using ::android::car::feature::car_watchdog_anr_metrics;
 using ::ndk::ScopedAStatus;
 
 namespace {
@@ -300,6 +301,9 @@ ScopedAStatus WatchdogInternalHandler::notifySystemStateChange(StateType type, i
             mWatchdogPerfService->setSystemState(garageMode == GarageMode::GARAGE_MODE_OFF
                                                          ? SystemState::NORMAL_MODE
                                                          : SystemState::GARAGE_MODE);
+            if (car_watchdog_anr_metrics()) {
+                mWatchdogProcessService->setGarageMode(garageMode);
+            }
             return ScopedAStatus::ok();
         }
         case StateType::USER_STATE: {

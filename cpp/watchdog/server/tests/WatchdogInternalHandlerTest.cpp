@@ -59,6 +59,7 @@ using ::aidl::android::automotive::watchdog::internal::UserState;
 using ::android::sp;
 using ::android::String16;
 using ::android::base::Result;
+using ::android::car::feature::car_watchdog_anr_metrics;
 using ::ndk::ScopedAStatus;
 using ::ndk::SharedRefBase;
 using ::ndk::SpAIBinder;
@@ -436,6 +437,7 @@ TEST_F(WatchdogInternalHandlerTest, TestNotifyPowerCycleChangeToSuspendExit) {
 TEST_F(WatchdogInternalHandlerTest, TestErrorOnNotifyPowerCycleChangeWithInvalidArgs) {
     EXPECT_CALL(*mMockWatchdogProcessService, setEnabled(_)).Times(0);
     EXPECT_CALL(*mMockWatchdogPerfService, setSystemState(_)).Times(0);
+    EXPECT_CALL(*mMockWatchdogProcessService, setGarageMode(_)).Times(0);
 
     StateType type = StateType::POWER_CYCLE;
 
@@ -447,9 +449,31 @@ TEST_F(WatchdogInternalHandlerTest, TestErrorOnNotifyPowerCycleChangeWithInvalid
 }
 
 TEST_F(WatchdogInternalHandlerTest, TestNotifyGarageModeOn) {
+    if (!car_watchdog_anr_metrics()) {
+        GTEST_SKIP() << "car_watchdog_anr_metrics feature flag is not enabled";
+    }
     setSystemCallingUid();
 
     EXPECT_CALL(*mMockWatchdogPerfService, setSystemState(SystemState::GARAGE_MODE)).Times(1);
+    EXPECT_CALL(*mMockWatchdogProcessService, setGarageMode(GarageMode::GARAGE_MODE_ON)).Times(1);
+
+    auto status =
+            mWatchdogInternalHandler->notifySystemStateChange(StateType::GARAGE_MODE,
+                                                              static_cast<int32_t>(
+                                                                      GarageMode::GARAGE_MODE_ON),
+                                                              -1);
+
+    ASSERT_TRUE(status.isOk()) << status.getMessage();
+}
+
+TEST_F(WatchdogInternalHandlerTest, TestNotifyGarageModeOnWithAnrMetricsFeatureDisabled) {
+    if (car_watchdog_anr_metrics()) {
+        GTEST_SKIP() << "car_watchdog_anr_metrics feature flag is not disabled";
+    }
+    setSystemCallingUid();
+
+    EXPECT_CALL(*mMockWatchdogPerfService, setSystemState(SystemState::GARAGE_MODE)).Times(1);
+    EXPECT_CALL(*mMockWatchdogProcessService, setGarageMode(_)).Times(0);
 
     auto status =
             mWatchdogInternalHandler->notifySystemStateChange(StateType::GARAGE_MODE,
@@ -461,9 +485,31 @@ TEST_F(WatchdogInternalHandlerTest, TestNotifyGarageModeOn) {
 }
 
 TEST_F(WatchdogInternalHandlerTest, TestNotifyGarageModeOff) {
+    if (!car_watchdog_anr_metrics()) {
+        GTEST_SKIP() << "car_watchdog_anr_metrics feature flag is not enabled";
+    }
     setSystemCallingUid();
 
     EXPECT_CALL(*mMockWatchdogPerfService, setSystemState(SystemState::NORMAL_MODE)).Times(1);
+    EXPECT_CALL(*mMockWatchdogProcessService, setGarageMode(GarageMode::GARAGE_MODE_OFF)).Times(1);
+
+    auto status =
+            mWatchdogInternalHandler->notifySystemStateChange(StateType::GARAGE_MODE,
+                                                              static_cast<int32_t>(
+                                                                      GarageMode::GARAGE_MODE_OFF),
+                                                              -1);
+
+    ASSERT_TRUE(status.isOk()) << status.getMessage();
+}
+
+TEST_F(WatchdogInternalHandlerTest, TestNotifyGarageModeOffWithAnrMetricsFeatureDisabled) {
+    if (car_watchdog_anr_metrics()) {
+        GTEST_SKIP() << "car_watchdog_anr_metrics feature flag is not disabled";
+    }
+    setSystemCallingUid();
+
+    EXPECT_CALL(*mMockWatchdogPerfService, setSystemState(SystemState::NORMAL_MODE)).Times(1);
+    EXPECT_CALL(*mMockWatchdogProcessService, setGarageMode(_)).Times(0);
 
     auto status =
             mWatchdogInternalHandler->notifySystemStateChange(StateType::GARAGE_MODE,
@@ -602,6 +648,7 @@ TEST_F(WatchdogInternalHandlerTest, TestNotifyBootPhaseChangeWithNonBootComplete
 TEST_F(WatchdogInternalHandlerTest, TestErrorOnNotifySystemStateChangeWithNonSystemCallingUid) {
     EXPECT_CALL(*mMockWatchdogProcessService, setEnabled(_)).Times(0);
     EXPECT_CALL(*mMockWatchdogPerfService, setSystemState(_)).Times(0);
+    EXPECT_CALL(*mMockWatchdogProcessService, setGarageMode(_)).Times(0);
 
     StateType type = StateType::POWER_CYCLE;
     auto status =

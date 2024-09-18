@@ -114,6 +114,7 @@ public class CarWatchdogServiceTest extends AbstractExtendedMockitoTestCase {
     @Mock private ICarWatchdog mMockCarWatchdogDaemon;
     @Mock private WatchdogStorage mMockWatchdogStorage;
     @Mock private PackageManager mMockPackageManager;
+    @Mock private UserHandle mUserHandle;
 
     @Captor private ArgumentCaptor<List<ProcessIdentifier>> mProcessIdentifiersCaptor;
 
@@ -288,11 +289,13 @@ public class CarWatchdogServiceTest extends AbstractExtendedMockitoTestCase {
     }
 
     private void expectRunningUser() {
-        doReturn(100).when(() -> UserHandle.getUserId(Binder.getCallingUid()));
+        doReturn(mUserHandle).when(() -> UserHandle.of(Binder.getCallingUid()));
+        doReturn(100).when(mUserHandle).getIdentifier();
     }
 
     private void expectStoppedUser() {
-        doReturn(101).when(() -> UserHandle.getUserId(Binder.getCallingUid()));
+        doReturn(mUserHandle).when(() -> UserHandle.of(Binder.getCallingUid()));
+        doReturn(101).when(mUserHandle).getIdentifier();
     }
 
     private void mockPackageManager() {
