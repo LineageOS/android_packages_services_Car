@@ -33,10 +33,17 @@
 #include <memory>
 #include <vector>
 
+namespace {
+
 using ::aidl::android::frameworks::automotive::telemetry::CallbackConfig;
 using ::aidl::android::frameworks::automotive::telemetry::CarData;
 using ::aidl::android::frameworks::automotive::telemetry::ICarTelemetry;
 using ::android::base::StringPrintf;
+
+constexpr int32_t GET_SERVICE_TIMEOUT_S = 5;
+constexpr int32_t GET_SERVICE_SLEEP_INTERVAL_MS = 100;
+
+}  // namespace
 
 class CarTelemetryCallbackImpl :
       public aidl::android::frameworks::automotive::telemetry::BnCarTelemetryCallback {
@@ -116,8 +123,17 @@ int main(int argc, char* argv[]) {
     // https://source.android.com/devices/architecture/aidl/aidl-hals#instance-names
     const std::string instance = StringPrintf("%s/default", ICarTelemetry::descriptor);
     std::cout << "Obtaining: " << instance << std::endl;
-    std::shared_ptr<ICarTelemetry> service = ICarTelemetry::fromBinder(
-            ndk::SpAIBinder(AServiceManager_getService(instance.c_str())));
+    std::shared_ptr<ICarTelemetry> service = nullptr;
+    const auto startTime = std::chrono::steady_clock::now();
+    while (std::chrono::steady_clock::now() - startTime <
+           std::chrono::seconds(GET_SERVICE_TIMEOUT_S)) {
+        service = ICarTelemetry::fromBinder(
+                ndk::SpAIBinder(AServiceManager_checkService(instance.c_str())));
+        if (!service) {
+            break;
+        }
+        usleep(GET_SERVICE_SLEEP_INTERVAL_MS * 1000);
+    }
     if (!service) {
         std::cerr << "ICarTelemetry service not found, may be still initializing?" << std::endl;
         return EX_UNAVAILABLE;

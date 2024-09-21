@@ -21,7 +21,9 @@
 #include <aidl/android/frameworks/automotive/powerpolicy/BnCarPowerPolicyServer.h>
 #include <aidl/android/frameworks/automotive/powerpolicy/CarPowerPolicyFilter.h>
 #include <android-base/result.h>
+#include <android-base/thread_annotations.h>
 
+#include <condition_variable>  // NOLINT
 #include <shared_mutex>
 #include <thread>  // NOLINT(build/c++11)
 #include <vector>
@@ -89,14 +91,20 @@ protected:
 private:
     android::base::Result<void> connectToDaemon();
 
-    std::mutex mConnectionThreadLock;
-    std::thread mConnectionThread;  // GUARDED_BY(mConnectionThreadLock)
+    std::mutex mLock;
+    std::thread mConnectionThread GUARDED_BY(mLock);
     std::shared_ptr<::aidl::android::frameworks::automotive::powerpolicy::ICarPowerPolicyServer>
             mPolicyServer;
     std::shared_ptr<ICarPowerPolicyChangeCallback> mPolicyChangeCallback;
     ::ndk::ScopedAIBinder_DeathRecipient mDeathRecipient;
     std::atomic<bool> mConnecting;
-    bool mDisconnecting; // GUARDED_BY(mConnectionThreadLock)
+    bool mDisconnecting GUARDED_BY(mLock);
+    std::condition_variable mDeathRecipientLinkedCv;
+    bool mDeathRecipientLinked GUARDED_BY(mLock) = false;
+
+    static void onDeathRecipientUnlinked(void* cookie);
+
+    void handleDeathRecipientUnlinked();
 };
 
 }  // namespace powerpolicy

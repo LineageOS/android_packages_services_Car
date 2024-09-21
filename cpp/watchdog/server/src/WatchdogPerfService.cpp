@@ -355,6 +355,10 @@ Result<void> WatchdogPerfService::onBootFinished() {
               toString(expected));
         return {};
     }
+
+    mBootCompletedTimeEpochSeconds = std::chrono::system_clock::to_time_t(
+          std::chrono::system_clock::now());
+
     mHandlerLooper->sendMessageAtTime(mHandlerLooper->now() + mPostSystemEventDurationNs.count(),
                                       sp<WatchdogPerfService>::fromExisting(this),
                                       SwitchMessage::END_BOOTTIME_COLLECTION);
@@ -579,9 +583,23 @@ Result<void> WatchdogPerfService::onDump(int fd) const {
         return Error(FAILED_TRANSACTION) << result.error();
     }
 
-    if (!WriteStringToFd(StringPrintf("\n%s%s report:\n%sBoot-time collection information:\n%s\n",
+    std::stringstream bootCompletedTimestamp;
+    if (mBootCompletedTimeEpochSeconds != 0) {
+        bootCompletedTimestamp << std::put_time(std::localtime(&mBootCompletedTimeEpochSeconds),
+                                              "%c %Z");
+    } else {
+        bootCompletedTimestamp << "Missing";
+    }
+    if (!WriteStringToFd(StringPrintf("\n%s%s report:\n%sSystem information:\n%s\n"
+                                      "Boot completed time: <%s>\n",
                                       kDumpMajorDelimiter.c_str(), kServiceName,
-                                      kDumpMajorDelimiter.c_str(), std::string(33, '=').c_str()),
+                                      kDumpMajorDelimiter.c_str(),
+                                      std::string(33, '=').c_str(),
+                                      bootCompletedTimestamp.str().c_str()),
+                         fd) ||
+        !WriteStringToFd(StringPrintf("\nBoot-time collection "
+                      "information:\n%s\n",
+                      std::string(33, '=').c_str()),
                          fd) ||
         !WriteStringToFd(mBoottimeCollection.toString(), fd) ||
         !WriteStringToFd(StringPrintf("\nWake-up collection information:\n%s\n",
@@ -620,6 +638,8 @@ Result<void> WatchdogPerfService::onDumpProto(ProtoOutputStream& outProto) const
             outProto.start(CarWatchdogDaemonDump::PERFORMANCE_PROFILER_DUMP);
 
     outProto.write(PerformanceProfilerDump::CURRENT_EVENT, toProtoEventType(mCurrCollectionEvent));
+    outProto.write(PerformanceProfilerDump::BOOT_COMPLETED_TIME_EPOCH_SECONDS,
+                   mBootCompletedTimeEpochSeconds);
 
     DataProcessorInterface::CollectionIntervals collectionIntervals =
             {.mBoottimeIntervalMillis = std::chrono::duration_cast<std::chrono::milliseconds>(

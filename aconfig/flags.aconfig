@@ -21,6 +21,14 @@ flag {
   }
 }
 
+flag {
+  name: "supports_secure_passenger_users"
+  is_exported: true
+  namespace: "car_framework"
+  description: "Support secure users to run as passengers"
+  bug: "367787957"
+}
+
 # CarPackageManager
 flag {
   name: "display_compatibility"
@@ -152,6 +160,14 @@ flag {
     namespace: "car_framework"
     description: "Enables navigation audio usage in legacy volume mode."
     bug: "353872512"
+}
+
+flag {
+    name: "audio_control_hal_configuration"
+    is_exported: true
+    namespace: "car_framework"
+    description: "Controls whether car audio service can be configured using audio control hal configuration."
+    bug: "359686069"
 }
 
 # CarPropertyManager

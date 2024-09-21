@@ -276,6 +276,7 @@ public:
           mPeriodicMonitor({}),
           mUnsentResourceStats({}),
           mLastCollectionTimeMillis(0),
+          mBootCompletedTimeEpochSeconds(0),
           mCurrCollectionEvent(EventType::INIT),
           mUidStatsCollector(android::sp<UidStatsCollector>::make()),
           mProcStatCollector(android::sp<ProcStatCollector>::make()),
@@ -443,6 +444,9 @@ private:
 
     // Tracks the latest collection time since boot in millis.
     int64_t mLastCollectionTimeMillis GUARDED_BY(mMutex);
+
+    // Time of receiving boot complete signal.
+    time_t mBootCompletedTimeEpochSeconds GUARDED_BY(mMutex);
 
     // Tracks either the WatchdogPerfService's state or current collection event. Updated on
     // |start|, |onBootFinished|, |onUserStateChange|, |startCustomCollection|,

@@ -25,7 +25,6 @@ import com.android.systemui.car.wm.CarFullscreenTaskMonitorListener;
 import com.android.systemui.dagger.qualifiers.Main;
 import com.android.systemui.wm.CarUiPortraitDisplaySystemBarsController;
 import com.android.systemui.wm.DisplaySystemBarsController;
-import com.android.systemui.wm.MDSystemBarsController;
 import com.android.wm.shell.ShellTaskOrganizer;
 import com.android.wm.shell.common.DisplayController;
 import com.android.wm.shell.common.DisplayInsetsController;
@@ -69,9 +68,6 @@ public abstract class CarUiPortraitWMShellModule {
 
     @BindsOptionalOf
     abstract Pip optionalPip();
-
-    @BindsOptionalOf
-    abstract  MDSystemBarsController optionalMDSystemBarsController();
 
     @WMSingleton
     @Provides

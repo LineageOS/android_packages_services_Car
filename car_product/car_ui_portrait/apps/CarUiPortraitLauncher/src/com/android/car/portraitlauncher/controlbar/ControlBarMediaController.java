@@ -17,8 +17,8 @@
 package com.android.car.portraitlauncher.controlbar;
 
 import static com.android.car.media.common.ui.PlaybackCardControllerUtilities.getFirstCustomActionInSet;
-import static com.android.car.media.common.ui.PlaybackCardControllerUtilities.skipForwardStandardActions;
 import static com.android.car.media.common.ui.PlaybackCardControllerUtilities.skipBackStandardActions;
+import static com.android.car.media.common.ui.PlaybackCardControllerUtilities.skipForwardStandardActions;
 import static com.android.car.media.common.ui.PlaybackCardControllerUtilities.updateActionsWithPlaybackState;
 import static com.android.car.media.common.ui.PlaybackCardControllerUtilities.updatePlayButtonWithPlaybackState;
 import static com.android.car.media.common.ui.PlaybackCardControllerUtilities.updateTextViewAndVisibility;
@@ -26,6 +26,8 @@ import static com.android.car.media.common.ui.PlaybackCardControllerUtilities.up
 import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
@@ -95,11 +97,49 @@ public class ControlBarMediaController extends PlaybackCardController {
     public ControlBarMediaController(ControlBarMediaController.Builder builder) {
         super(builder);
 
-        mView.setOnClickListener(view -> {
-            MediaSource mediaSource = mDataModel.getMediaSource().getValue();
-            Intent intent = mediaSource != null ? mediaSource.getIntent() : null;
-            mMediaIntentRouter.handleMediaIntent(intent);
-        });
+        GestureDetector gestureDetector =
+                new GestureDetector(
+                        mView.getContext(),
+                        new GestureDetector.SimpleOnGestureListener() {
+                            private void sendMediaIntent() {
+                                MediaSource mediaSource = mDataModel.getMediaSource().getValue();
+                                Intent intent =
+                                        mediaSource != null ? mediaSource.getIntent() : null;
+                                mMediaIntentRouter.handleMediaIntent(intent);
+                            }
+
+                            @Override
+                            public boolean onDown(MotionEvent event) {
+                                return true;
+                            }
+
+                            @Override
+                            public boolean onSingleTapUp(MotionEvent e) {
+                                sendMediaIntent();
+                                return true;
+                            }
+
+                            @Override
+                            public boolean onFling(
+                                    MotionEvent e1,
+                                    MotionEvent e2,
+                                    float velocityX,
+                                    float velocityY) {
+                                if (velocityY < 0) {
+                                    sendMediaIntent();
+                                }
+                                return true;
+                            }
+                        });
+
+        mView.setOnTouchListener(
+                (v, event) -> {
+                    if (gestureDetector.onTouchEvent(event)) {
+                        return true;
+                    }
+
+                    return v.onTouchEvent(event);
+                });
 
         mCustomActionLayout = mView.findViewById(R.id.custom_action_container);
         mCustomActionOverflowLayout = mView.findViewById(R.id.custom_action_overflow_container);

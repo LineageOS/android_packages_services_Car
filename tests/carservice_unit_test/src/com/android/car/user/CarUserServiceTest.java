@@ -16,6 +16,7 @@
 
 package com.android.car.user;
 
+import static android.car.feature.Flags.FLAG_SUPPORTS_SECURE_PASSENGER_USERS;
 import static android.car.test.mocks.AndroidMockitoHelper.mockAmStartUserInBackground;
 import static android.car.test.mocks.AndroidMockitoHelper.mockAmStartUserInBackgroundVisibleOnDisplay;
 import static android.car.test.mocks.AndroidMockitoHelper.mockAmSwitchUser;
@@ -105,6 +106,7 @@ import android.os.Process;
 import android.os.RemoteException;
 import android.os.UserHandle;
 import android.os.UserManager;
+import android.platform.test.flag.junit.SetFlagsRule;
 import android.util.Log;
 import android.view.Display;
 
@@ -113,6 +115,7 @@ import com.android.car.internal.ResultCallbackImpl;
 import com.android.car.internal.util.DebugUtils;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
@@ -144,6 +147,8 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
     private ICarResultReceiver mAnotherLifecycleEventReceiver;
     @Mock
     private Context mMockUserContext;
+    @Rule
+    public final SetFlagsRule mSetFlagsRule = new SetFlagsRule();
 
     private MockSettings mMockSettings;
 
@@ -2438,12 +2443,10 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         doReturn(true).when(() -> LockPatternHelper.isSecure(any(), anyInt()));
         initUserAndDisplay(TEST_USER_ID, TEST_DISPLAY_ID);
 
-        CarUserService service = new TestCarUserServiceBuilder().setSupportsSecurePassengerUsers(
-                false).build();
+        mSetFlagsRule.disableFlags(FLAG_SUPPORTS_SECURE_PASSENGER_USERS);
         UserStartRequest request = new UserStartRequest.Builder(UserHandle.of(TEST_USER_ID))
                 .setDisplayId(TEST_DISPLAY_ID).build();
-        service.startUser(request, mUserStartResultCallbackImpl);
-        waitForHandlerThreadToFinish();
+        startUser(request, mUserStartResultCallbackImpl);
 
         assertThat(getUserStartResponse().getStatus())
                 .isEqualTo(UserStartResponse.STATUS_UNSUPPORTED_PLATFORM_FAILURE);
@@ -2455,12 +2458,10 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         doReturn(true).when(() -> LockPatternHelper.isSecure(any(), anyInt()));
         initUserAndDisplay(TEST_USER_ID, TEST_DISPLAY_ID);
 
-        CarUserService service = new TestCarUserServiceBuilder().setSupportsSecurePassengerUsers(
-                true).build();
+        mSetFlagsRule.enableFlags(FLAG_SUPPORTS_SECURE_PASSENGER_USERS);
         UserStartRequest request = new UserStartRequest.Builder(UserHandle.of(TEST_USER_ID))
                 .setDisplayId(TEST_DISPLAY_ID).build();
-        service.startUser(request, mUserStartResultCallbackImpl);
-        waitForHandlerThreadToFinish();
+        startUser(request, mUserStartResultCallbackImpl);
 
         assertThat(getUserStartResponse().getStatus())
                 .isEqualTo(UserStartResponse.STATUS_SUCCESSFUL);

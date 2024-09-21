@@ -233,8 +233,7 @@ public class CarUiPortraitService extends Service {
                 Log.d(TAG, "Immersive request: source = " + source + ", request=" + isImmersive);
                 if (intent.hasExtra(INTENT_EXTRA_IS_IMMERSIVE_MODE_REQUESTED)
                         && isImmersive != mIsSystemInImmersiveMode
-                        && source != null
-                        && !source.equals(mImmersiveModeSource)) {
+                        && source != null) {
                     mIsSystemInImmersiveMode = isImmersive;
                     mImmersiveModeSource = source;
                     Bundle bundle = new Bundle();

@@ -48,7 +48,6 @@ constexpr const char* kPowerPolicyServerInterface =
         "android.frameworks.automotive.powerpolicy.ICarPowerPolicyServer/default";
 
 constexpr std::chrono::milliseconds kPowerPolicyDaemomFindMarginalTimeMs = 500ms;
-constexpr int32_t kMaxConnectionAttempt = 5;
 
 }  // namespace
 
@@ -63,10 +62,18 @@ PowerPolicyClientBase::PowerPolicyClientBase() :
       mPolicyChangeCallback(nullptr),
       mDeathRecipient(AIBinder_DeathRecipient_new(PowerPolicyClientBase::onBinderDied)),
       mConnecting(false),
-      mDisconnecting(false) {}
+      mDisconnecting(false) {
+    AIBinder_DeathRecipient_setOnUnlinked(mDeathRecipient.get(),
+                                          &PowerPolicyClientBase::onDeathRecipientUnlinked);
+}
 
 PowerPolicyClientBase::~PowerPolicyClientBase() {
     release();
+}
+
+void PowerPolicyClientBase::onDeathRecipientUnlinked(void* cookie) {
+    PowerPolicyClientBase* client = static_cast<PowerPolicyClientBase*>(cookie);
+    client->handleDeathRecipientUnlinked();
 }
 
 void PowerPolicyClientBase::onBinderDied(void* cookie) {
@@ -79,7 +86,7 @@ void PowerPolicyClientBase::release() {
     std::shared_ptr<ICarPowerPolicyServer> policyServer;
     std::shared_ptr<ICarPowerPolicyChangeCallback> policyChangeCallback;
     {
-        std::lock_guard<std::mutex> lk(mConnectionThreadLock);
+        std::lock_guard<std::mutex> lk(mLock);
 
         if (std::this_thread::get_id() == mConnectionThread.get_id()) {
             LOG(ERROR) << "Cannot release from callback, deadlock would happen";
@@ -113,10 +120,16 @@ void PowerPolicyClientBase::release() {
         if (!status.isOk()) {
             LOG(WARNING) << "Unlinking from death recipient failed";
         }
+
+        // Need to wait until onUnlinked to be called.
+        {
+            std::unique_lock lk(mLock);
+            mDeathRecipientLinkedCv.wait(lk, [this] { return !mDeathRecipientLinked; });
+        }
     }
 
     {
-        std::lock_guard<std::mutex> lk(mConnectionThreadLock);
+        std::lock_guard<std::mutex> lk(mLock);
         mPolicyServer = nullptr;
         mPolicyChangeCallback = nullptr;
         mDisconnecting = false;
@@ -124,7 +137,7 @@ void PowerPolicyClientBase::release() {
 }
 
 void PowerPolicyClientBase::init() {
-    std::lock_guard<std::mutex> lk(mConnectionThreadLock);
+    std::lock_guard<std::mutex> lk(mLock);
 
     if (mConnecting) {
         LOG(WARNING) << "Connecting in progress";
@@ -142,23 +155,12 @@ void PowerPolicyClientBase::init() {
         mConnectionThread.join();
     }
     mConnectionThread = std::thread([this]() {
-        Result<void> ret;
-        int attemptCount = 1;
-        while (attemptCount <= kMaxConnectionAttempt) {
-            if (!mConnecting) {
-                return;
-            }
-
-            ret = connectToDaemon();
-            if (ret.ok()) {
-                mConnecting = false;
-                return;
-            }
-            LOG(WARNING) << "Connection attempt #" << attemptCount << " failed: " << ret.error();
-            attemptCount++;
-        }
-        onInitFailed();
+        Result<void> ret = connectToDaemon();
         mConnecting = false;
+        if (!ret.ok()) {
+            LOG(WARNING) << "Connecting to car power policy daemon failed: " << ret.error();
+            onInitFailed();
+        }
     });
 }
 
@@ -168,9 +170,18 @@ void PowerPolicyClientBase::handleBinderDeath() {
     init();
 }
 
+void PowerPolicyClientBase::handleDeathRecipientUnlinked() {
+    LOG(INFO) << "Power policy death recipient unlinked";
+    {
+        std::lock_guard<std::mutex> lk(mLock);
+        mDeathRecipientLinked = false;
+    }
+    mDeathRecipientLinkedCv.notify_all();
+}
+
 Result<void> PowerPolicyClientBase::connectToDaemon() {
     int64_t currentUptime = uptimeMillis();
-    SpAIBinder binder(AServiceManager_getService(kPowerPolicyServerInterface));
+    SpAIBinder binder(AServiceManager_waitForService(kPowerPolicyServerInterface));
     if (binder.get() == nullptr) {
         return Error() << "Failed to get car power policy daemon";
     }
@@ -186,6 +197,7 @@ Result<void> PowerPolicyClientBase::connectToDaemon() {
     if (binder.get() == nullptr) {
         return Error() << "Failed to get car power policy client binder object";
     }
+    mDeathRecipientLinked = true;
     auto status = ScopedAStatus::fromStatus(
             AIBinder_linkToDeath(server->asBinder().get(), mDeathRecipient.get(), this));
     if (!status.isOk()) {

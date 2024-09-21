@@ -104,7 +104,7 @@ std::shared_ptr<IVhalClient> AidlVhalClient::tryCreate(const char* descriptor) {
         return nullptr;
     }
     std::shared_ptr<IVehicle> aidlVhal =
-            IVehicle::fromBinder(SpAIBinder(AServiceManager_getService(descriptor)));
+            IVehicle::fromBinder(SpAIBinder(AServiceManager_checkService(descriptor)));
     if (aidlVhal == nullptr) {
         ALOGW("AIDL VHAL service, descriptor: %s is not available", descriptor);
         return nullptr;

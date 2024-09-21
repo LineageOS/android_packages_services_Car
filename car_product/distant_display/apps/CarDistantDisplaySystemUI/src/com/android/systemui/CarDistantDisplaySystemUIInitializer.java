@@ -54,8 +54,7 @@ public class CarDistantDisplaySystemUIInitializer extends CarSystemUIInitializer
         return ((CarDistantDisplaySysUIComponent.Builder) sysUIBuilder)
                 .setRootTaskDisplayAreaOrganizer(
                         isSystemUser ? Optional.of(carWm.getRootTaskDisplayAreaOrganizer())
-                                : Optional.empty()).setMDSystemBarsController(
-                        carWm.getMDSystemBarController());
+                                : Optional.empty());
     }
 
 }

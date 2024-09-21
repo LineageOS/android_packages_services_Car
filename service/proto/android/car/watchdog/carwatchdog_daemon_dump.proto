@@ -42,6 +42,7 @@ message PerformanceProfilerDump {
   }
   optional EventType current_event = 1;
   optional PerformanceStats performance_stats = 2;
+  optional int64 boot_completed_time_epoch_seconds = 3;
 }
 
 message HealthCheckServiceDump {

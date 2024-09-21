@@ -613,15 +613,9 @@ abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCas
 
     protected class TestCarUserServiceBuilder {
         private boolean mSwitchGuestUserBeforeGoingSleep = false;
-        private boolean mSupportsSecurePassengerUsers = false;
 
         protected TestCarUserServiceBuilder setSwitchGuestUserBeforeGoingSleep(boolean enabled) {
             mSwitchGuestUserBeforeGoingSleep = enabled;
-            return this;
-        }
-
-        protected TestCarUserServiceBuilder setSupportsSecurePassengerUsers(boolean enabled) {
-            mSupportsSecurePassengerUsers = enabled;
             return this;
         }
 
@@ -629,10 +623,6 @@ abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCas
             when(mMockedResources
                     .getBoolean(com.android.car.R.bool.config_switchGuestUserBeforeGoingSleep))
                     .thenReturn(mSwitchGuestUserBeforeGoingSleep);
-
-            when(mMockedResources
-                    .getBoolean(com.android.car.R.bool.config_supportsSecurePassengerUsers))
-                    .thenReturn(mSupportsSecurePassengerUsers);
 
             when(mMockedResources
                     .getString(com.android.car.R.string.config_userPickerActivity))

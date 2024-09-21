@@ -68,6 +68,8 @@
         <item>android.view.surfacecontrol.cts/android.view.cts.surfacevalidator.CapturedActivity</item>
         <item>android.view.surfacecontrol.cts/.TrustedPresentationCallbackTest$TestActivity</item>
         <item>android.view.surfacecontrol.cts/android.view.cts.surfacevalidator.CapturedActivityWithResource</item>
+        <!-- TODO(b/368426111): Remove once immersive mode doesn't cause extra lifecycle to the activity.-->
+        <item>android.view.surfacecontrol.cts/android.view.surfacecontrol.cts.TestActivity</item>
         <item>android.uirendering.cts/android.uirendering.cts.testinfrastructure.DrawActivity</item>
         <item>android.display.cts/android.display.cts.DisplayManagerTest$TestActivity</item>
         <!-- TODO(b/297060765): Remove AssistantActivity & AnimationTestActivity once find a proper

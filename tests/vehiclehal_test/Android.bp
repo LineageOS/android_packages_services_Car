@@ -25,6 +25,8 @@ package {
 android_test {
     name: "VehicleHalE2eTest",
 
+    defaults: ["vhal-interface-defaults"],
+
     srcs: ["src/**/*.java"],
 
     platform_apis: true,
@@ -38,8 +40,6 @@ android_test {
     static_libs: [
         "vehicle-hal-support-lib",
         "androidx.test.rules",
-        "android.hardware.automotive.vehicle-V3-java",
-        "android.hardware.automotive.vehicle.property-V3-java",
         "compatibility-device-util-axt",
         "truth",
     ],
