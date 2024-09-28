@@ -85,6 +85,14 @@
     <!-- Blocking activity feature flag -->
     <bool name="config_enableAppBlockingActivities">false</bool>
 
+
+    <!--
+        Config for allowing NDO apps to be opened while driving if they contain an active media
+        session and media notification. These NDO apps will still be blocked by blocking UI, but may
+        be provided playback controls.
+    -->
+    <bool name="config_enableMediaSessionAppsWhileDriving">false</bool>
+
     <string-array name="config_backgroundActivities" translatable="false">
         <item>com.google.android.apps.maps/com.google.android.maps.MapsActivity</item>
         <item>com.android.car.portraitlauncher/com.android.car.portraitlauncher.homeactivities.BackgroundPanelBaseActivity</item>

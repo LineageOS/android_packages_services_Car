@@ -552,7 +552,13 @@ final class VendorServiceController implements UserLifecycleListener {
                         /* executor= */ this, /* conn= */ this);
                 if (!canBind) {
                     // Still need to unbind when an attempt to bind fails.
-                    unbindService();
+                    try {
+                        unbindService();
+                    } catch (Exception e) {
+                        // When binding already failed, log and ignore an exception from unbind.
+                        Slogf.w(TAG, "After bindService() failed, unbindService() threw "
+                                + "an exception:", e);
+                    }
                 }
                 return canBind;
             } else if (mVendorServiceInfo.shouldBeStartedInForeground()) {

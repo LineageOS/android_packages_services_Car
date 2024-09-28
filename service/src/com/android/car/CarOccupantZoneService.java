@@ -19,6 +19,7 @@ package com.android.car;
 import static android.car.builtin.view.DisplayHelper.INVALID_PORT;
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_STOPPING;
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING;
+import static android.view.Display.INVALID_DISPLAY;
 import static android.view.Display.STATE_ON;
 
 import static com.android.car.CarServiceUtils.getHandlerThread;
@@ -227,12 +228,12 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
             new DisplayManager.DisplayListener() {
                 @Override
                 public void onDisplayAdded(int displayId) {
-                    handleDisplayChange();
+                    handleDisplayChange(displayId);
                 }
 
                 @Override
                 public void onDisplayRemoved(int displayId) {
-                    handleDisplayChange();
+                    handleDisplayChange(displayId);
                 }
 
                 @Override
@@ -740,7 +741,7 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
             //If there are any active displays for the zone send change event
             handleAudioZoneChangesLocked();
         }
-        sendConfigChangeEvent(CarOccupantZoneManager.ZONE_CONFIG_CHANGE_FLAG_AUDIO);
+        syncStateAndSendConfigChangeEvent(CarOccupantZoneManager.ZONE_CONFIG_CHANGE_FLAG_AUDIO);
     }
 
     @GuardedBy("mLock")
@@ -861,7 +862,7 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
             config.userId = userId;
         }
 
-        sendConfigChangeEvent(CarOccupantZoneManager.ZONE_CONFIG_CHANGE_FLAG_USER);
+        syncStateAndSendConfigChangeEvent(CarOccupantZoneManager.ZONE_CONFIG_CHANGE_FLAG_USER);
         return CarOccupantZoneManager.USER_ASSIGNMENT_RESULT_OK;
     }
 
@@ -913,7 +914,7 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
             if (DBG) Slogf.d(TAG, "Unassigned zone:%d", occupantZoneId);
             config.userId = CarOccupantZoneManager.INVALID_USER_ID;
         }
-        sendConfigChangeEvent(CarOccupantZoneManager.ZONE_CONFIG_CHANGE_FLAG_USER);
+        syncStateAndSendConfigChangeEvent(CarOccupantZoneManager.ZONE_CONFIG_CHANGE_FLAG_USER);
 
         return CarOccupantZoneManager.USER_ASSIGNMENT_RESULT_OK;
     }
@@ -1556,7 +1557,13 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
         }
     }
 
-    private void sendConfigChangeEvent(int changeFlags) {
+    private void syncStateAndSendConfigChangeEvent(int changeFlags) {
+        // INVALID_DISPLAY is used to indicate that the displayId is not relevant to the change
+        // event.
+        syncStateAndSendConfigChangeEvent(changeFlags, INVALID_DISPLAY);
+    }
+
+    private void syncStateAndSendConfigChangeEvent(int changeFlags, int displayId) {
         boolean updateDisplay = false;
         boolean updateUser = false;
         if ((changeFlags & CarOccupantZoneManager.ZONE_CONFIG_CHANGE_FLAG_DISPLAY) != 0) {
@@ -1574,7 +1581,10 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
             for (int i = 0; i < n; i++) {
                 ICarOccupantZoneCallback callback = mClientCallbacks.getBroadcastItem(i);
                 try {
-                    callback.onOccupantZoneConfigChanged(changeFlags);
+                    if (displayId == INVALID_DISPLAY
+                            || getOccupantZoneForDisplayId(displayId) != null) {
+                        callback.onOccupantZoneConfigChanged(changeFlags);
+                    }
                 } catch (RemoteException ignores) {
                     // ignore
                 }
@@ -1589,11 +1599,11 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
             changed = handleUserChangesLocked();
         }
         if (changed) {
-            sendConfigChangeEvent(CarOccupantZoneManager.ZONE_CONFIG_CHANGE_FLAG_USER);
+            syncStateAndSendConfigChangeEvent(CarOccupantZoneManager.ZONE_CONFIG_CHANGE_FLAG_USER);
         }
     }
 
-    private void handleDisplayChange() {
+    private void handleDisplayChange(int displayId) {
         synchronized (mLock) {
             handleActiveDisplaysLocked();
             // Audio zones should be re-checked for changed display
@@ -1601,7 +1611,8 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
             // User should be re-checked for changed displays
             handleUserChangesLocked();
         }
-        sendConfigChangeEvent(CarOccupantZoneManager.ZONE_CONFIG_CHANGE_FLAG_DISPLAY);
+        syncStateAndSendConfigChangeEvent(CarOccupantZoneManager.ZONE_CONFIG_CHANGE_FLAG_DISPLAY,
+                displayId);
     }
 
     private void enforcePermission(String permissionName) {

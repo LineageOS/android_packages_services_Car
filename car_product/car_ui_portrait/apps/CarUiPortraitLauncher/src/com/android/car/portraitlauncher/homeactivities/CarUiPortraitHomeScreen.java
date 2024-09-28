@@ -488,9 +488,11 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        logIfDebuggable("onCreate");
 
         if (getApplicationContext().getResources().getConfiguration().orientation
                 == Configuration.ORIENTATION_LANDSCAPE) {
+            logIfDebuggable("On landscape device, use landscape launcher");
             Intent launcherIntent = new Intent(this, CarLauncher.class);
             launcherIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(launcherIntent);
@@ -519,7 +521,6 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
         // Activity is running fullscreen to allow background task to bleed behind status bar
         mNavBarHeight = getResources().getDimensionPixelSize(
                 com.android.internal.R.dimen.navigation_bar_height);
-        logIfDebuggable("Navbar height: " + mNavBarHeight);
         mContainer = findViewById(R.id.container);
         setHomeScreenBottomPadding(mNavBarHeight);
         mContainer.addOnLayoutChangeListener(mHomeScreenLayoutChangeListener);
@@ -564,10 +565,8 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                 getApplicationContext());
         MediaIntentRouter.getInstance().registerMediaIntentHandler(mMediaIntentHandler);
 
-        if (mTaskViewControllerWrapper == null) {
-            mTaskViewControllerWrapper = new RemoteCarTaskViewControllerWrapperImpl(
-                    /* activity= */ this, this::onTaskViewControllerReady);
-        }
+        mTaskViewControllerWrapper = new RemoteCarTaskViewControllerWrapperImpl(
+                /* activity= */ this, this::onTaskViewControllerReady);
     }
 
     private void onTaskViewControllerReady() {
@@ -662,12 +661,20 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
 
     @Override
     protected void onDestroy() {
-        mTaskViewControllerWrapper.onDestroy();
-        mRootTaskViewPanel.onDestroy();
-        mTaskCategoryManager.onDestroy();
+        if (mTaskViewControllerWrapper != null) {
+            mTaskViewControllerWrapper.onDestroy();
+        }
+        if (mRootTaskViewPanel != null) {
+            mRootTaskViewPanel.onDestroy();
+        }
+        if (mTaskCategoryManager != null) {
+            mTaskCategoryManager.onDestroy();
+        }
+        if (mCarUiPortraitServiceManager != null) {
+            mCarUiPortraitServiceManager.onDestroy();
+        }
         mUserEventReceiver.unregister();
         TaskStackChangeListeners.getInstance().unregisterTaskStackListener(mTaskStackListener);
-        mCarUiPortraitServiceManager.onDestroy();
         super.onDestroy();
     }
 

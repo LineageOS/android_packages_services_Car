@@ -123,7 +123,7 @@ public abstract class AbstractExtendedMockitoTestCase extends AbstractExpectable
     private final List<Class<?>> mStaticMockedClasses = new ArrayList<>();
 
     // Tracks (S)Log.wtf() calls made during code execution, then used on verifyWtfNeverLogged()
-    private final List<RuntimeException> mWtfs = new ArrayList<>();
+    private final List<String> mWtfs = new ArrayList<>();
     private TerribleFailureHandler mOldWtfHandler;
 
     private MockitoSession mSession;
@@ -510,7 +510,7 @@ public abstract class AbstractExtendedMockitoTestCase extends AbstractExpectable
             String message = "Called " + what;
             Log.d(TAG, message); // Log always, as some test expect it
             if (mLogTags != null && mLogTags.contains(tag)) {
-                mWtfs.add(new IllegalStateException(message));
+                mWtfs.add(message);
             } else if (VERBOSE) {
                 Log.v(TAG, "ignoring WTF invocation on tag " + tag + ". mLogTags=" + mLogTags);
             }
@@ -535,7 +535,7 @@ public abstract class AbstractExtendedMockitoTestCase extends AbstractExpectable
             case 0:
                 return;
             case 1:
-                throw mWtfs.get(0);
+                throw new IllegalStateException(mWtfs.get(0));
             default:
                 StringBuilder msg = new StringBuilder("wtf called ").append(size).append(" times")
                         .append(": ").append(mWtfs);

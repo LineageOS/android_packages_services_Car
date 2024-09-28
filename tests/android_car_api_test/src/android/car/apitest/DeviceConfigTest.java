@@ -28,9 +28,9 @@ import android.provider.DeviceConfig;
 import android.provider.Settings;
 
 import com.android.bedstead.harrier.DeviceState;
-import com.android.bedstead.harrier.annotations.RequireRunNotOnVisibleBackgroundNonProfileUser;
-import com.android.bedstead.harrier.annotations.RequireRunOnVisibleBackgroundNonProfileUser;
-import com.android.bedstead.harrier.annotations.RequireVisibleBackgroundUsers;
+import com.android.bedstead.multiuser.annotations.RequireRunNotOnVisibleBackgroundNonProfileUser;
+import com.android.bedstead.multiuser.annotations.RequireRunOnVisibleBackgroundNonProfileUser;
+import com.android.bedstead.multiuser.annotations.RequireVisibleBackgroundUsers;
 import com.android.compatibility.common.util.ApiTest;
 
 import org.junit.After;

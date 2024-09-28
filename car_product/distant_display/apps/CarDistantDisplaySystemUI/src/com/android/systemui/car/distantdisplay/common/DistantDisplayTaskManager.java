@@ -173,6 +173,13 @@ public class DistantDisplayTaskManager {
                 // old task being moved away) - notify listeners
                 notifyListeners(mDistantDisplayId);
             }
+            if (newDisplayId == mDistantDisplayId && oldData != null) {
+                // Task changed on DistantDisplay, launch relevant companion app on DefaultDisplay
+                ComponentName componentName = getComponentNameFromBaseIntent(oldData.mBaseIntent);
+                Log.d(TAG, "onTaskDisplayChanged: for displayId-" + newDisplayId
+                        + ", launchCompanionUI on DefaultDisplay for " + componentName);
+                launchCompanionUI(componentName);
+            }
         }
     };
 
@@ -346,7 +353,6 @@ public class DistantDisplayTaskManager {
                 return;
             }
             moveTaskToDisplay(data.mTaskId, mDistantDisplayId);
-            launchCompanionUI(componentName);
             DistantDisplayService.State state = movement.equals(
                     MoveTaskReceiver.MOVE_TO_DISTANT_DISPLAY)
                     ? DistantDisplayService.State.DRIVER_DD

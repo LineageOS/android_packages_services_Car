@@ -104,8 +104,8 @@
 
     <!--
         Config for allowing NDO apps to be opened while driving if they contain an active media
-        session
-        TODO(b/310687870): Add RB to testing plan
+        session and media notification. These NDO apps will still be blocked by blocking UI, but may
+        be provided playback controls.
     -->
     <bool name="config_enableMediaSessionAppsWhileDriving">false</bool>
 
