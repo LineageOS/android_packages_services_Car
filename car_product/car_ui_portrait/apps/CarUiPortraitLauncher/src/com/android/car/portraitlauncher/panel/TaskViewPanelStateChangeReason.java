@@ -48,12 +48,14 @@ public final class TaskViewPanelStateChangeReason {
     private final String mReason;
     private final int mTaskId;
     private final ComponentName mComponentName;
+    private final String mPackageName;
 
     private TaskViewPanelStateChangeReason(@Reason String reason, int taskId,
-            ComponentName componentName) {
+            ComponentName componentName, String packageName) {
         mReason = reason;
         mTaskId = taskId;
         mComponentName = componentName;
+        mPackageName = packageName;
     }
 
     /**
@@ -62,14 +64,25 @@ public final class TaskViewPanelStateChangeReason {
      */
     public static TaskViewPanelStateChangeReason createReason(@Reason String reason, int taskId,
             ComponentName componentName) {
-        return new TaskViewPanelStateChangeReason(reason, taskId, componentName);
+        return new TaskViewPanelStateChangeReason(reason, taskId, componentName,
+                /* packageName= */ null);
     }
 
     /**
      * Creates a {@link TaskViewPanelStateChangeReason} with {@link Reason} and taskId.
      */
     public static TaskViewPanelStateChangeReason createReason(@Reason String reason, int taskId) {
-        return new TaskViewPanelStateChangeReason(reason, taskId, /* componentName= */ null);
+        return new TaskViewPanelStateChangeReason(reason, taskId, /* componentName= */ null,
+                /* packageName= */ null);
+    }
+
+    /**
+     * Creates a {@link TaskViewPanelStateChangeReason} with {@link Reason} and ComponentName.
+     */
+    public static TaskViewPanelStateChangeReason createReason(@Reason String reason,
+            String packageName) {
+        return new TaskViewPanelStateChangeReason(reason, EMPTY_TASK_ID, /* componentName= */ null,
+                packageName);
     }
 
     /**
@@ -90,7 +103,7 @@ public final class TaskViewPanelStateChangeReason {
     @Override
     public String toString() {
         return "{ reason=" + mReason + ", taskId=" + mTaskId + ", componentName=" + mComponentName
-                + "}";
+                + ", mPackageName=" + mPackageName + "}";
     }
 
     /**
