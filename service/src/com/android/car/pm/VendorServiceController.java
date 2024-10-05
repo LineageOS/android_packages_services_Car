@@ -317,7 +317,7 @@ final class VendorServiceController implements UserLifecycleListener {
         boolean isCurrentUser = userId == currentUserId;
 
         return (isSystemUser && serviceInfo.isSystemUserService())
-            || (isCurrentUser && serviceInfo.isForegroundUserService())
+            || (!isSystemUser && isCurrentUser && serviceInfo.isForegroundUserService())
             || ((serviceInfo.isVisibleUserService()
                     || (!isCurrentUser && serviceInfo.isBackgroundVisibleUserService()))
                 && carUserService.isUserVisible(userId));

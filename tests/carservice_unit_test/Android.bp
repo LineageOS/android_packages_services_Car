@@ -114,6 +114,7 @@ android_ravenwood_test {
     name: "CarServiceHostUnitTest",
 
     srcs: [
+        "src/com/android/car/AidlVehicleStubUnitTest.java",
         "src/com/android/car/CarPropertyServiceUnitTest.java",
         "src/com/android/car/internal/PendingRequestPoolUnitTest.java",
         "src/com/android/car/hal/VehicleHalTest.java",
@@ -137,6 +138,7 @@ android_ravenwood_test {
         "androidx.annotation_annotation",
         "androidx.test.rules",
         "car-service-test-static-lib",
+        "compatibility-device-util-axt-ravenwood",
     ],
 
     libs: [

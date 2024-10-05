@@ -577,24 +577,6 @@
         </activity>
 
         <activity
-            android:name="com.android.settings.notification.zen.ZenSuggestionActivity"
-            android:enabled="false"
-            android:exported="false"
-            tools:node="merge"
-            tools:replace="android:exported">
-            <intent-filter tools:node="removeAll"/>
-        </activity>
-
-        <activity
-            android:name="com.android.settings.notification.zen.ZenOnboardingActivity"
-            android:enabled="false"
-            android:exported="false"
-            tools:node="merge"
-            tools:replace="android:exported">
-            <intent-filter tools:node="removeAll"/>
-        </activity>
-
-        <activity
             android:name="com.android.settings.Settings$ZenModeAutomationSettingsActivity"
             android:enabled="false"
             android:exported="false"

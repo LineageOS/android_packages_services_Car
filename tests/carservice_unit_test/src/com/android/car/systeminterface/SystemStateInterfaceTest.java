@@ -82,37 +82,32 @@ public final class SystemStateInterfaceTest extends AbstractExtendedMockitoTestC
     public void testSleepWhenHelperSucceeds() throws Exception {
         mockGetSysFsPowerControlFile();
 
-        assertThat(mSystemStateInterface.enterDeepSleep()).isTrue();
+        assertThat(mSystemStateInterface.enterDeepSleep())
+                .isEqualTo(SystemStateInterface.SUSPEND_RESULT_SUCCESS);
     }
 
     @Test
     public void testSleepWhenHelperFails() {
         ExtendedMockito.when(SystemPowerControlHelper.getSysFsPowerControlFile()).thenReturn("");
 
-        assertThat(mSystemStateInterface.enterDeepSleep()).isFalse();
+        assertThat(mSystemStateInterface.enterDeepSleep())
+                .isEqualTo(SystemStateInterface.SUSPEND_RESULT_RETRY);
     }
 
     @Test
     public void testHibernateWhenHelperSucceeds() throws Exception {
         mockGetSysFsPowerControlFile();
 
-        assertThat(mSystemStateInterface.enterHibernation()).isTrue();
-    }
-
-    private void mockGetSysFsPowerControlFile() throws Exception {
-        assertSpied(SystemPowerControlHelper.class);
-
-        try (TemporaryFile powerStateControlFile = new TemporaryFile(TAG)) {
-            ExtendedMockito.when(SystemPowerControlHelper.getSysFsPowerControlFile()).thenReturn(
-                    powerStateControlFile.getFile().getAbsolutePath());
-        }
+        assertThat(mSystemStateInterface.enterHibernation())
+                .isEqualTo(SystemStateInterface.SUSPEND_RESULT_SUCCESS);
     }
 
     @Test
     public void testHibernateWhenHelperFails() {
         ExtendedMockito.when(SystemPowerControlHelper.getSysFsPowerControlFile()).thenReturn("");
 
-        assertThat(mSystemStateInterface.enterHibernation()).isFalse();
+        assertThat(mSystemStateInterface.enterHibernation())
+                .isEqualTo(SystemStateInterface.SUSPEND_RESULT_RETRY);
     }
 
     @Test
@@ -189,4 +184,71 @@ public final class SystemStateInterfaceTest extends AbstractExtendedMockitoTestC
         assertWithMessage("Maximum delay duration").that(randomizedDelay)
                 .isLessThan(Duration.ofSeconds(3));
     }
+
+    @Test
+    public void testIsWakeupCausedByErrorWithNone() throws Exception {
+        assertSpied(SystemPowerControlHelper.class);
+        ExtendedMockito.when(SystemPowerControlHelper.readLastResumeReason()).thenReturn("");
+
+        assertWithMessage("Wake up by error").that(mSystemStateInterface.isWakeupCausedByError())
+                .isFalse();
+    }
+
+    @Test
+    public void testIsWakeupCausedByErrorWithBootup() throws Exception {
+        assertSpied(SystemPowerControlHelper.class);
+        ExtendedMockito.when(SystemPowerControlHelper.readLastResumeReason()).thenReturn("Bootup:");
+
+        assertWithMessage("Wake up by error").that(mSystemStateInterface.isWakeupCausedByError())
+                .isFalse();
+    }
+
+    @Test
+    public void testIsWakeupCausedByErrorWithBootupMessage() throws Exception {
+        assertSpied(SystemPowerControlHelper.class);
+        ExtendedMockito.when(SystemPowerControlHelper.readLastResumeReason())
+                .thenReturn("Bootup: regular boot up");
+
+        assertWithMessage("Wake up by error").that(mSystemStateInterface.isWakeupCausedByError())
+                .isFalse();
+    }
+
+    @Test
+    public void testIsWakeupCausedByErrorWithAbort() throws Exception {
+        assertSpied(SystemPowerControlHelper.class);
+        ExtendedMockito.when(SystemPowerControlHelper.readLastResumeReason()).thenReturn("Abort:");
+
+        assertWithMessage("Wake up by error").that(mSystemStateInterface.isWakeupCausedByError())
+                .isTrue();
+    }
+
+    @Test
+    public void testIsWakeupCausedByErrorWithAbortMessage() throws Exception {
+        assertSpied(SystemPowerControlHelper.class);
+        ExtendedMockito.when(SystemPowerControlHelper.readLastResumeReason())
+                .thenReturn("Abort: kernel failed to create hibernation");
+
+        assertWithMessage("Wake up by error").that(mSystemStateInterface.isWakeupCausedByError())
+                .isTrue();
+    }
+
+    @Test
+    public void testIsWakeupCausedByErrorWithRandomMessage() throws Exception {
+        assertSpied(SystemPowerControlHelper.class);
+        ExtendedMockito.when(SystemPowerControlHelper.readLastResumeReason())
+                .thenReturn("some random contents");
+
+        assertWithMessage("Wake up by error").that(mSystemStateInterface.isWakeupCausedByError())
+                .isFalse();
+    }
+
+    private void mockGetSysFsPowerControlFile() throws Exception {
+        assertSpied(SystemPowerControlHelper.class);
+
+        try (TemporaryFile powerStateControlFile = new TemporaryFile(TAG)) {
+            ExtendedMockito.when(SystemPowerControlHelper.getSysFsPowerControlFile()).thenReturn(
+                    powerStateControlFile.getFile().getAbsolutePath());
+        }
+    }
+
 }

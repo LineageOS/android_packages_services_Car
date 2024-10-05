@@ -60,13 +60,17 @@
 
     <style name="TextAppearance.Title.Medium">
         <item name="android:textSize">28sp</item>
+        <item name="android:textFontWeight">500</item>
     </style>
 
     <style name="TextAppearance.Title.Small">
         <item name="android:textSize">24sp</item>
+        <item name="android:textFontWeight">500</item>
     </style>
 
-    <style name="TextAppearance.Label" parent="BaseTextAppearance" />
+    <style name="TextAppearance.Label" parent="BaseTextAppearance">
+        <item name="android:textFontWeight">500</item>
+    </style>
 
     <style name="TextAppearance.Label.Large">
         <item name="android:textSize">24sp</item>

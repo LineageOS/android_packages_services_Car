@@ -35,4 +35,6 @@ package android.automotive.watchdog.internal;
 parcelable ProcessIdentifier {
   int pid;
   long startTimeMillis;
+  int uid;
+  @utf8InCpp String processName = "";
 }

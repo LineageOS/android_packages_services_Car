@@ -1378,11 +1378,6 @@ public class CarPropertyManager extends CarManagerBase {
      * handler thread. If no AreaIds are specified, then it will subscribe to all AreaIds for that
      * PropertyId.
      *
-     * <p>
-     * Only one executor can be registered to a callback. The callback must be unregistered before
-     * trying to register another executor for the same callback. (A callback cannot have
-     * multiple executors)
-     *
      * <p>Only one executor can be registered to a callback. The callback must be unregistered
      * before trying to register another executor for the same callback. (E.G. A callback cannot
      * have multiple executors)

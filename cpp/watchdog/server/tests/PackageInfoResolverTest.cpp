@@ -137,7 +137,7 @@ private:
         mNativeUidToPackageNameMapping.clear();
     }
 
-    sp<PackageInfoResolver> mPackageInfoResolver;
+    std::shared_ptr<PackageInfoResolver> mPackageInfoResolver;
     std::unordered_map<uid_t, struct passwd> mNativeUidToPackageNameMapping;
 };
 
@@ -159,7 +159,7 @@ protected:
         mMockWatchdogServiceHelper.clear();
     }
 
-    sp<PackageInfoResolverInterface> mPackageInfoResolver;
+    std::shared_ptr<PackageInfoResolverInterface> mPackageInfoResolver;
     std::unique_ptr<internal::PackageInfoResolverPeer> mPackageInfoResolverPeer;
     sp<MockWatchdogServiceHelper> mMockWatchdogServiceHelper;
 };

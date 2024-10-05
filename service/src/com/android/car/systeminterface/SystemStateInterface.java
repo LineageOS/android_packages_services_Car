@@ -16,7 +16,7 @@
 
 package com.android.car.systeminterface;
 
-import static com.android.car.systeminterface.SystemPowerControlHelper.SUSPEND_RESULT_SUCCESS;
+import static com.android.car.systeminterface.SystemPowerControlHelper.SUSPEND_SUCCESS;
 
 import android.car.builtin.power.PowerManagerHelper;
 import android.car.builtin.util.Slogf;
@@ -44,20 +44,29 @@ import java.util.concurrent.TimeUnit;
  * Interface that abstracts system status (booted, sleeping, ...) operations
  */
 public interface SystemStateInterface {
+    /** Suspend is successful. */
+    int SUSPEND_RESULT_SUCCESS = 1;
+    /** Suspend attempt fails, and could be successful with retry. */
+    int SUSPEND_RESULT_RETRY = 2;
+    /** Suspend fails due to kernel abort. */
+    int SUSPEND_RESULT_ABORT = 3;
+
     static final String TAG = SystemStateInterface.class.getSimpleName();
+
     void shutdown();
     /**
      * Put the device into Suspend to RAM mode
-     * @return boolean true if suspend succeeded
+     *
+     * @return suspend result
      */
-    boolean enterDeepSleep();
+    int enterDeepSleep();
 
     /**
      * Puts the device into Suspend-to-disk (hibernation)
      *
-     * @return boolean {@code true} if hibernation succeeded
+     * @return suspend result
      */
-    boolean enterHibernation();
+    int enterHibernation();
 
     /**
      * Schedules an action to run after delay after boot completed for car service user.
@@ -85,6 +94,10 @@ public interface SystemStateInterface {
      *   the range.
      */
     void scheduleActionForBootCompleted(Runnable action, Duration delay, Duration delayRange);
+
+    default boolean isWakeupCausedByError() {
+        return false;
+    }
 
     default boolean isWakeupCausedByTimer() {
         //TODO bug: 32061842, check wake up reason and do necessary operation information should
@@ -122,6 +135,7 @@ public interface SystemStateInterface {
     @VisibleForTesting
     class DefaultImpl implements SystemStateInterface {
         private static final boolean DEBUG = Slogf.isLoggable(TAG, Log.DEBUG);
+        private static final String RESUME_REASON_ABORT = "Abort";
 
         private final Object mLock = new Object();
         @GuardedBy("mLock")
@@ -194,29 +208,34 @@ public interface SystemStateInterface {
         }
 
         @Override
-        public boolean enterDeepSleep() {
+        public int enterDeepSleep() {
             // TODO(b/32061842) Set wake up time via VHAL
 
-            boolean deviceEnteredSleep = false;
+            int suspendResult = SUSPEND_RESULT_RETRY;
             try {
                 int retVal = SystemPowerControlHelper.forceDeepSleep();
-                deviceEnteredSleep = retVal == SUSPEND_RESULT_SUCCESS;
+                if (retVal == SUSPEND_SUCCESS) {
+                    suspendResult = SUSPEND_RESULT_SUCCESS;
+                }
             } catch (Exception e) {
                 Slogf.e(TAG, "Unable to enter deep sleep", e);
             }
-            return deviceEnteredSleep;
+            return suspendResult;
         }
 
         @Override
-        public boolean enterHibernation() {
-            boolean deviceHibernated = false;
+        public int enterHibernation() {
+            int suspendResult = SUSPEND_RESULT_RETRY;
             try {
                 int retVal = SystemPowerControlHelper.forceHibernate();
-                deviceHibernated = retVal == SUSPEND_RESULT_SUCCESS;
+                if (retVal == SUSPEND_SUCCESS) {
+                    suspendResult = isWakeupCausedByError() ? SUSPEND_RESULT_ABORT
+                            : SUSPEND_RESULT_SUCCESS;
+                }
             } catch (Exception e) {
                 Slogf.e(TAG, "Unable to enter hibernation", e);
             }
-            return deviceHibernated;
+            return suspendResult;
         }
 
         @VisibleForTesting
@@ -266,6 +285,19 @@ public interface SystemStateInterface {
                 mContext.registerReceiver(mBroadcastReceiver, intentFilter,
                         Context.RECEIVER_NOT_EXPORTED);
             }
+        }
+
+        @Override
+        public boolean isWakeupCausedByError() {
+            String[] tokens = SystemPowerControlHelper.readLastResumeReason().split(":");
+            if (tokens.length == 0) {
+                return false;
+            }
+            boolean wakeupByError = tokens[0].compareToIgnoreCase(RESUME_REASON_ABORT) == 0;
+            if (wakeupByError && tokens.length == 2) {
+                Slogf.i(TAG, "Wake up due to kernel abort: %s", tokens[1]);
+            }
+            return wakeupByError;
         }
 
         @Override

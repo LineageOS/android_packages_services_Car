@@ -96,12 +96,12 @@ Result<PackageInfo> getPackageInfoForNativeUid(
 
 }  // namespace
 
-sp<PackageInfoResolver> PackageInfoResolver::sInstance = nullptr;
+std::shared_ptr<PackageInfoResolver> PackageInfoResolver::sInstance = nullptr;
 GetpwuidFunction PackageInfoResolver::sGetpwuidHandler = &getpwuid;
 
-sp<PackageInfoResolverInterface> PackageInfoResolver::getInstance() {
+std::shared_ptr<PackageInfoResolverInterface> PackageInfoResolver::getInstance() {
     if (sInstance == nullptr) {
-        sInstance = sp<PackageInfoResolver>::make();
+        sInstance = std::shared_ptr<PackageInfoResolver>(new PackageInfoResolver());
     }
     return sInstance;
 }
@@ -113,7 +113,7 @@ void PackageInfoResolver::terminate() {
     if (sInstance->mHandlerThread.joinable()) {
         sInstance->mHandlerThread.join();
     }
-    sInstance.clear();
+    sInstance.reset();
 }
 
 Result<void> PackageInfoResolver::initWatchdogServiceHelper(

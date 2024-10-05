@@ -310,13 +310,13 @@ public class IoStatsTrackerTest extends TestCase {
         }
 
         @Override
-        public boolean enterDeepSleep() {
-            return true;
+        public int enterDeepSleep() {
+            return SystemStateInterface.SUSPEND_RESULT_SUCCESS;
         }
 
         @Override
-        public boolean enterHibernation() {
-            return true;
+        public int enterHibernation() {
+            return SystemStateInterface.SUSPEND_RESULT_SUCCESS;
         }
 
         @Override

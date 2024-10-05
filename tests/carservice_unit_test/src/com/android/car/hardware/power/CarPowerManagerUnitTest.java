@@ -686,22 +686,22 @@ public final class CarPowerManagerUnitTest extends AbstractExtendedMockitoTestCa
         }
 
         @Override
-        public boolean enterDeepSleep() {
+        public int enterDeepSleep() {
             return simulateSleep();
         }
 
         @Override
-        public boolean enterHibernation() {
+        public int enterHibernation() {
             return simulateSleep();
         }
 
-        private boolean simulateSleep() {
+        private int simulateSleep() {
             mSleepWait.release();
             try {
                 mSleepExitWait.acquire();
             } catch (InterruptedException e) {
             }
-            return true;
+            return SystemStateInterface.SUSPEND_RESULT_SUCCESS;
         }
 
         @Override

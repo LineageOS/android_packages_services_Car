@@ -65,29 +65,26 @@ public class AidlMockedVehicleHal extends IVehicle.Stub {
     /**
      * Interface for handler of each property.
      */
-    public interface VehicleHalPropertyHandler {
-        default void onPropertySet(VehiclePropValue value) {}
-
-        // Same as onPropertySet, except that it returns whether to generate property change event
-        // for the new value. By default, this will return true.
-        // Caller can override this to control whether to generate property change event.
+    public interface VehicleHalPropertyHandler
+            extends GenericVehicleHalPropertyHandler<VehiclePropValue> {
+        /**
+         * Same as onPropertySet, except that it returns whether to generate property change event
+         * for the new value. By default, this will return true.
+         * Caller can override this to control whether to generate property change event.
+         */
         default boolean onPropertySet2(VehiclePropValue value) {
             onPropertySet(value);
             return true;
         }
 
-        default VehiclePropValue onPropertyGet(VehiclePropValue value) {
-            return null;
-        }
-
-        default void onPropertySubscribe(int property, float sampleRate) {}
-
         /**
          * Called when a property is subscribed.
+         *
+         * This is the same as onPropertySubscribe, except that it provides areaIds as arg.
          */
-        default void onPropertySubscribe(int property, int[] areaIds, float sampleRate) {}
-
-        default void onPropertyUnsubscribe(int property) {}
+        default void onPropertySubscribe(int property, int[] areaIds, float sampleRate) {
+            onPropertySubscribe(property, sampleRate);
+        }
 
         VehicleHalPropertyHandler NOP = new VehicleHalPropertyHandler() {};
     }
@@ -142,7 +139,7 @@ public class AidlMockedVehicleHal extends IVehicle.Stub {
 
             if (setProperty) {
                 // Update property if requested
-                VehicleHalPropertyHandler handler = mPropertyHandlerMap.get(value.prop);
+                var handler = mPropertyHandlerMap.get(value.prop);
                 if (handler != null) {
                     handler.onPropertySet2(value);
                 }
@@ -245,8 +242,7 @@ public class AidlMockedVehicleHal extends IVehicle.Stub {
                 GetValueResult result = new GetValueResult();
                 result.requestId = request.requestId;
                 VehiclePropValue requestedPropValue = request.prop;
-                VehicleHalPropertyHandler handler = mPropertyHandlerMap.get(
-                        requestedPropValue.prop);
+                var handler = mPropertyHandlerMap.get(requestedPropValue.prop);
                 if (handler == null) {
                     result.status = StatusCode.INVALID_ARG;
                 } else {
@@ -284,8 +280,7 @@ public class AidlMockedVehicleHal extends IVehicle.Stub {
                 SetValueResult result = new SetValueResult();
                 result.requestId = request.requestId;
                 VehiclePropValue requestedPropValue = request.value;
-                VehicleHalPropertyHandler handler = mPropertyHandlerMap.get(
-                        requestedPropValue.prop);
+                var handler = mPropertyHandlerMap.get(requestedPropValue.prop);
                 if (handler == null) {
                     result.status = StatusCode.INVALID_ARG;
                 } else {
@@ -334,13 +329,12 @@ public class AidlMockedVehicleHal extends IVehicle.Stub {
             int maxSharedMemoryFileCount) throws RemoteException {
         synchronized (mLock) {
             for (SubscribeOptions opt : options) {
-                VehicleHalPropertyHandler handler = mPropertyHandlerMap.get(opt.propId);
+                var handler = mPropertyHandlerMap.get(opt.propId);
                 if (handler == null) {
                     throw new ServiceSpecificException(StatusCode.INVALID_ARG,
                             "no registered handler");
                 }
 
-                handler.onPropertySubscribe(opt.propId, opt.sampleRate);
                 handler.onPropertySubscribe(opt.propId, opt.areaIds, opt.sampleRate);
                 List<IVehicleCallback> subscribers = mSubscribers.get(opt.propId);
                 if (subscribers == null) {
@@ -367,7 +361,7 @@ public class AidlMockedVehicleHal extends IVehicle.Stub {
             throws RemoteException {
         synchronized (mLock) {
             for (int propId : propIds) {
-                VehicleHalPropertyHandler handler = mPropertyHandlerMap.get(propId);
+                var handler = mPropertyHandlerMap.get(propId);
                 if (handler == null) {
                     throw new ServiceSpecificException(StatusCode.INVALID_ARG,
                             "no registered handler");
@@ -401,76 +395,24 @@ public class AidlMockedVehicleHal extends IVehicle.Stub {
         return IVehicle.VERSION;
     }
 
-    public static class FailingPropertyHandler implements VehicleHalPropertyHandler {
-        @Override
-        public void onPropertySet(VehiclePropValue value) {
-            fail("Unexpected onPropertySet call");
-        }
-
-        @Override
-        public VehiclePropValue onPropertyGet(VehiclePropValue value) {
-            fail("Unexpected onPropertyGet call");
-            return null;
-        }
-
-        @Override
-        public void onPropertySubscribe(int property, float sampleRate) {
-            fail("Unexpected onPropertySubscribe call");
-        }
-
-        @Override
-        public void onPropertySubscribe(int property, int[] areaIds, float sampleRate) {
-            fail("Unexpected onPropertySubscribe call");
-        }
-
-        @Override
-        public void onPropertyUnsubscribe(int property) {
-            fail("Unexpected onPropertyUnsubscribe call");
-        }
-    }
+    @ThreadSafe
+    public static final class FailingPropertyHandler
+            extends GenericFailingPropertyHandler<VehiclePropValue>
+            implements VehicleHalPropertyHandler {}
 
     @NotThreadSafe
-    public static final class StaticPropertyHandler extends FailingPropertyHandler {
-
-        private final VehiclePropValue mValue;
-
+    public static final class StaticPropertyHandler
+            extends GenericStaticPropertyHandler<VehiclePropValue>
+            implements VehicleHalPropertyHandler {
         public StaticPropertyHandler(VehiclePropValue value) {
-            mValue = value;
-        }
-
-        @Override
-        public VehiclePropValue onPropertyGet(VehiclePropValue value) {
-            return mValue;
+            super(value);
         }
     }
 
     @ThreadSafe
-    public static final class ErrorCodeHandler extends FailingPropertyHandler {
-        private final Object mLock = new Object();
-
-        @GuardedBy("mLock")
-        private int mStatus;
-
-        public void setStatus(int status) {
-            synchronized (mLock) {
-                mStatus = status;
-            }
-        }
-
-        @Override
-        public VehiclePropValue onPropertyGet(VehiclePropValue value) {
-            synchronized (mLock) {
-                throw new ServiceSpecificException(mStatus);
-            }
-        }
-
-        @Override
-        public void onPropertySet(VehiclePropValue value) {
-            synchronized (mLock) {
-                throw new ServiceSpecificException(mStatus);
-            }
-        }
-    }
+    public static final class ErrorCodeHandler
+            extends GenericErrorCodeHandler<VehiclePropValue>
+            implements VehicleHalPropertyHandler {}
 
     @NotThreadSafe
     public static final class DefaultPropertyHandler implements VehicleHalPropertyHandler {
@@ -503,12 +445,6 @@ public class AidlMockedVehicleHal extends IVehicle.Stub {
 
         @Override
         public void onPropertySubscribe(int property, float sampleRate) {
-            assertThat(mConfig.prop).isEqualTo(property);
-            mSubscribed = true;
-        }
-
-        @Override
-        public void onPropertySubscribe(int property, int[] areaIds, float sampleRate) {
             assertThat(mConfig.prop).isEqualTo(property);
             mSubscribed = true;
         }

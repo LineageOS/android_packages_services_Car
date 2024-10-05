@@ -108,7 +108,6 @@ constexpr const char kMemStatsHeader[] =
         "\n\tCommand, RSS (kb), PSS (kb), USS (kb), Swap PSS (kb)\n";
 constexpr const char kMemStatsSummary[] = "Total RSS (kb): %" PRIu64 "\n"
                                           "Total PSS (kb): %" PRIu64 "\n";
-constexpr const char kKernelStartTimeTitle[] = "Kernel start: <%s>\n";
 
 double percentage(uint64_t numer, uint64_t denom) {
     return denom == 0 ? 0.0 : (static_cast<double>(numer) / static_cast<double>(denom)) * 100.0;
@@ -694,7 +693,6 @@ Result<void> PerformanceProfiler::init() {
             .maxCacheSize = std::numeric_limits<std::size_t>::max(),
             .records = {},
     };
-    mKernelStartTimeEpochSeconds = 0;
     if (!mIsMemoryProfilingEnabled || !kPressureMonitor->isEnabled()) {
         return {};
     }
@@ -730,13 +728,6 @@ void PerformanceProfiler::terminate() {
 
 Result<void> PerformanceProfiler::onDump(int fd) const {
     Mutex::Autolock lock(mMutex);
-    std::stringstream kernelStartTimestamp;
-    if (mKernelStartTimeEpochSeconds != 0) {
-        kernelStartTimestamp << std::put_time(std::localtime(&mKernelStartTimeEpochSeconds),
-                                            "%c %Z");
-    } else {
-        kernelStartTimestamp << "Missing";
-    }
     if (!WriteStringToFd(StringPrintf("/proc/<pid>/smaps_rollup is %s\n",
                                       mIsSmapsRollupSupported
                                               ? "supported. So, using PSS to rank top memory "
@@ -746,9 +737,6 @@ Result<void> PerformanceProfiler::onDump(int fd) const {
                          fd) ||
         !WriteStringToFd(StringPrintf(kBootTimeCollectionTitle, std::string(75, '-').c_str(),
                                       std::string(33, '=').c_str()),
-                         fd) ||
-        !WriteStringToFd(StringPrintf(kKernelStartTimeTitle,
-                                      kernelStartTimestamp.str().c_str()),
                          fd) ||
         !WriteStringToFd(mBoottimeCollection.toString(), fd)) {
         return Error(FAILED_TRANSACTION) << "Failed to dump the boot-time collection report.";
@@ -776,7 +764,6 @@ Result<void> PerformanceProfiler::onDumpProto(const CollectionIntervals& collect
     Mutex::Autolock lock(mMutex);
 
     uint64_t performanceStatsToken = outProto.start(PerformanceProfilerDump::PERFORMANCE_STATS);
-    outProto.write(PerformanceStats::KERNEL_START_TIME_EPOCH_SECONDS, mKernelStartTimeEpochSeconds);
 
     uint64_t bootTimeStatsToken = outProto.start(PerformanceStats::BOOT_TIME_STATS);
     outProto.write(StatsCollection::COLLECTION_INTERVAL_MILLIS,
@@ -1173,9 +1160,6 @@ Result<void> PerformanceProfiler::processLocked(
     std::vector<UidResourceUsageStats>* uidResourceUsageStats =
             shouldSendResourceUsageStats ? new std::vector<UidResourceUsageStats>() : nullptr;
     processProcStatLocked(procStatCollector, &record.systemSummaryStats);
-    if (mKernelStartTimeEpochSeconds <= 0) {
-        mKernelStartTimeEpochSeconds = procStatCollector->getKernelStartTimeEpochSeconds();
-    }
     // The system-wide CPU time should be the same as CPU time aggregated here across all UID, so
     // reuse the total CPU time from SystemSummaryStat
     int64_t totalCpuTimeMillis = record.systemSummaryStats.totalCpuTimeMillis;

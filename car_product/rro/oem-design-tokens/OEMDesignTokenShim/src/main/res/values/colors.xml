@@ -105,9 +105,6 @@
     <color name="car_yellow_on_color_container">@color/car_yellow_90</color>
     <color name="car_yellow_tint">#fbbc04</color>
 
-    <!-- control highlight colors -->
-    <color name="car_control_highlight">#99d9e2ff</color>
-
     <!-- indicator colors -->
     <color name = "car_icon_indicator_color">@color/car_red_tint</color>
 

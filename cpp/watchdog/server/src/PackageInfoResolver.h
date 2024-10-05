@@ -97,7 +97,7 @@ public:
      * Initializes the PackageInfoResolver's singleton instance only on the first call. Main thread
      * should make the first call as this method doesn't offer multi-threading protection.
      */
-    static android::sp<PackageInfoResolverInterface> getInstance();
+    static std::shared_ptr<PackageInfoResolverInterface> getInstance();
 
     android::base::Result<void> initWatchdogServiceHelper(
             const android::sp<WatchdogServiceHelperInterface>& watchdogServiceHelper);
@@ -156,7 +156,7 @@ private:
     void startLooper();
 
     // Singleton instance.
-    static android::sp<PackageInfoResolver> sInstance;
+    static std::shared_ptr<PackageInfoResolver> sInstance;
 
     mutable std::shared_mutex mRWMutex;
 
@@ -181,9 +181,6 @@ private:
     std::vector<std::pair<std::vector<uid_t>,
                           std::function<void(std::unordered_map<uid_t, std::string>)>>>
             mPendingPackageNames GUARDED_BY(mRWMutex);
-
-    // Required to instantiate the class in |getInstance|.
-    friend class android::sp<PackageInfoResolver>;
 
     // For unit tests.
     static std::function<struct passwd*(uid_t)> sGetpwuidHandler;

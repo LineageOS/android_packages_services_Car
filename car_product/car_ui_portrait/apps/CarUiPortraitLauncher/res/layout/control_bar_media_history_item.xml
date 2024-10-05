@@ -35,7 +35,7 @@
             android:id="@+id/history_card_album_art"
             android:layout_width="@dimen/control_bar_media_card_history_main_icon_size"
             android:layout_height="@dimen/control_bar_media_card_history_main_icon_size"
-            android:background="@drawable/radius_24_background"
+            android:background="@drawable/radius_8_background"
             android:clipToOutline="true"
             android:scaleType="centerCrop"
             android:layout_marginTop="@dimen/control_bar_media_card_history_item_margin_small"

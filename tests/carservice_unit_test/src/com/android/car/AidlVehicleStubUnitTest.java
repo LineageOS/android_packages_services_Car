@@ -25,6 +25,8 @@ import static com.google.common.truth.Truth.assertWithMessage;
 
 import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyFloat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.after;
 import static org.mockito.Mockito.doAnswer;
@@ -63,6 +65,8 @@ import android.os.IBinder.DeathRecipient;
 import android.os.RemoteException;
 import android.os.ServiceSpecificException;
 import android.os.SystemClock;
+import android.platform.test.annotations.DisabledOnRavenwood;
+import android.platform.test.ravenwood.RavenwoodRule;
 
 import com.android.car.VehicleStub.AsyncGetSetRequest;
 import com.android.car.hal.HalPropConfig;
@@ -71,10 +75,13 @@ import com.android.car.hal.HalPropValueBuilder;
 import com.android.car.hal.VehicleHalCallback;
 import com.android.car.internal.LargeParcelable;
 import com.android.car.internal.property.CarPropertyErrorCodes;
+import com.android.car.logging.HistogramFactoryInterface;
 import com.android.compatibility.common.util.PollingCheck;
+import com.android.modules.expresslog.Histogram;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -112,6 +119,12 @@ public final class AidlVehicleStubUnitTest {
     private IBinder mAidlBinder;
     @Mock
     private VehicleStub.VehicleStubCallbackInterface mAsyncCallback;
+    @Mock
+    private HistogramFactoryInterface mHistogramFactory;
+
+    @Rule
+    public final RavenwoodRule mRavenwood = new RavenwoodRule.Builder().setProvideMainThread(true)
+            .build();
 
     private AidlVehicleStub mAidlVehicleStub;
 
@@ -138,8 +151,10 @@ public final class AidlVehicleStubUnitTest {
         mHandler = new Handler(mHandlerThread.getLooper());
 
         when(mAidlVehicle.asBinder()).thenReturn(mAidlBinder);
+        when(mHistogramFactory.newScaledRangeHistogram(any(), anyInt(), anyInt(), anyFloat(),
+                anyFloat())).thenReturn(mock(Histogram.class));
 
-        mAidlVehicleStub = new AidlVehicleStub(mAidlVehicle, mHandlerThread);
+        mAidlVehicleStub = new AidlVehicleStub(mAidlVehicle, mHandlerThread, mHistogramFactory);
 
         assertThat(mAidlVehicleStub.isValid()).isTrue();
     }
@@ -208,6 +223,7 @@ public final class AidlVehicleStubUnitTest {
         assertThat(configs[0].getAccess()).isEqualTo(TEST_ACCESS);
     }
 
+    @DisabledOnRavenwood(reason = "serialize to shared memory not supported on host")
     @Test
     public void testGetAllPropConfigsAidlLargeData() throws Exception {
         int configSize = 1000;
@@ -290,6 +306,7 @@ public final class AidlVehicleStubUnitTest {
         assertThat(mAidlVehicleStub.countPendingRequests()).isEqualTo(0);
     }
 
+    @DisabledOnRavenwood(reason = "serialize to shared memory not supported on host")
     @Test
     public void testGetAidlLargeData() throws Exception {
         int dataSize = 2000;
@@ -908,6 +925,7 @@ public final class AidlVehicleStubUnitTest {
         assertThat(mAidlVehicleStub.countPendingRequests()).isEqualTo(0);
     }
 
+    @DisabledOnRavenwood(reason = "serialize to shared memory not supported on host")
     @Test
     public void testSetSyncAidlLargeData() throws Exception {
         int dataSize = 2000;
@@ -1270,6 +1288,7 @@ public final class AidlVehicleStubUnitTest {
                 TEST_PROP_VALUE)));
     }
 
+    @DisabledOnRavenwood(reason = "serialize to shared memory not supported on host")
     @Test
     public void testAidlVehicleCallbackOnPropertyEventLargeData() throws Exception {
         VehicleHalCallback callback = mock(VehicleHalCallback.class);
@@ -1315,6 +1334,7 @@ public final class AidlVehicleStubUnitTest {
         verify(callback).onPropertySetError(new ArrayList<VehiclePropError>(Arrays.asList(error)));
     }
 
+    @DisabledOnRavenwood(reason = "serialize to shared memory not supported on host")
     @Test
     public void testAidlVehicleCallbackOnPropertySetErrorLargeData() throws Exception {
         VehicleHalCallback callback = mock(VehicleHalCallback.class);

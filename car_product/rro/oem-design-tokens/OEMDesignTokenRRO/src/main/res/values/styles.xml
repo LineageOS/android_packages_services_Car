@@ -44,6 +44,29 @@
         <item name="com.android.oem.tokens:colorSurfaceTint">@color/color_surface_tint</item>
         <item name="com.android.oem.tokens:colorOutlineVariant">@color/color_outline_variant</item>
         <item name="com.android.oem.tokens:colorScrim">@color/color_scrim</item>
+        <item name="com.android.oem.tokens:colorSurfaceDim">@color/color_surface_dim</item>
+        <item name="com.android.oem.tokens:colorSurfaceBright">@color/color_surface_bright</item>
+        <item name="com.android.oem.tokens:colorSurfaceContainer">@color/color_surface_container</item>
+        <item name="com.android.oem.tokens:colorSurfaceContainerLow">@color/color_surface_container_low</item>
+        <item name="com.android.oem.tokens:colorSurfaceContainerLowest">@color/color_surface_container_lowest</item>
+        <item name="com.android.oem.tokens:colorSurfaceContainerHigh">@color/color_surface_container_high</item>
+        <item name="com.android.oem.tokens:colorSurfaceContainerHighest">@color/color_surface_container_highest</item>
+        <item name="com.android.oem.tokens:colorShadow">@color/color_shadow</item>
+
+        <item name="com.android.oem.tokens:colorBlue">@color/color_blue</item>
+        <item name="com.android.oem.tokens:colorOnBlue">@color/color_on_blue</item>
+        <item name="com.android.oem.tokens:colorBlueContainer">@color/color_blue_container</item>
+        <item name="com.android.oem.tokens:colorOnBlueContainer">@color/color_on_blue_container</item>
+
+        <item name="com.android.oem.tokens:colorGreen">@color/color_green</item>
+        <item name="com.android.oem.tokens:colorOnGreen">@color/color_on_green</item>
+        <item name="com.android.oem.tokens:colorGreenContainer">@color/color_green_container</item>
+        <item name="com.android.oem.tokens:colorOnGreenContainer">@color/color_on_green_container</item>
+
+        <item name="com.android.oem.tokens:colorYellow">@color/color_yellow</item>
+        <item name="com.android.oem.tokens:colorOnYellow">@color/color_on_yellow</item>
+        <item name="com.android.oem.tokens:colorYellowContainer">@color/color_yellow_container</item>
+        <item name="com.android.oem.tokens:colorOnYellowContainer">@color/color_on_yellow_container</item>
 
         <item name="com.android.oem.tokens:colorPrimaryPalette0">@color/color_primary_palette_0</item>
         <item name="com.android.oem.tokens:colorPrimaryPalette10">@color/color_primary_palette_10</item>

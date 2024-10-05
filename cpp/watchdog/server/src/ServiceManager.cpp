@@ -46,7 +46,8 @@ Result<void> ServiceManager::startServices(const sp<Looper>& mainLooper) {
      * PackageInfoResolver by calling the PackageInfoResolver::getInstance method before starting
      * other services as they may access PackageInfoResolver's instance during initialization.
      */
-    sp<PackageInfoResolverInterface> packageInfoResolver = PackageInfoResolver::getInstance();
+    std::shared_ptr<PackageInfoResolverInterface> packageInfoResolver =
+        PackageInfoResolver::getInstance();
     if (auto result = startWatchdogProcessService(mainLooper); !result.ok()) {
         return result;
     }

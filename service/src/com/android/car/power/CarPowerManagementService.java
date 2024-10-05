@@ -24,6 +24,9 @@ import static android.net.ConnectivityManager.TETHERING_WIFI;
 
 import static com.android.car.hal.PowerHalService.BOOTUP_REASON_SYSTEM_ENTER_GARAGE_MODE;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
+import static com.android.car.systeminterface.SystemInterface.SUSPEND_RESULT_ABORT;
+import static com.android.car.systeminterface.SystemInterface.SUSPEND_RESULT_RETRY;
+import static com.android.car.systeminterface.SystemInterface.SUSPEND_RESULT_SUCCESS;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
@@ -3163,15 +3166,23 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                     SystemPropertiesHelper.set("sys.hibernate", "1");
                 }
             }
-            boolean suspendSucceeded = isSuspendToDisk ? mSystemInterface.enterHibernation()
+            int suspendResult = isSuspendToDisk ? mSystemInterface.enterHibernation()
                     : mSystemInterface.enterDeepSleep();
 
-            if (suspendSucceeded) {
-                if (isSuspendToDisk && mFeatureFlags.changeSwapsDuringSuspendToDisk()
-                        && mShouldChangeSwap) {
-                    SystemPropertiesHelper.set("sys.hibernate", "0");
-                }
-                return true;
+            switch (suspendResult) {
+                case SUSPEND_RESULT_SUCCESS:
+                    if (isSuspendToDisk && mFeatureFlags.changeSwapsDuringSuspendToDisk()
+                            && mShouldChangeSwap) {
+                        SystemPropertiesHelper.set("sys.hibernate", "0");
+                    }
+                    return true;
+                case SUSPEND_RESULT_RETRY:
+                    break;
+                case SUSPEND_RESULT_ABORT:
+                    Slogf.e(TAG, "Creating hibernation image failed. Shuttind down");
+                    mSystemInterface.shutdown();
+                    Slogf.wtf(TAG, "The system must be turned off");
+                    return false;
             }
             if (totalWaitDurationMs >= mMaxSuspendWaitDurationMs) {
                 break;
@@ -3204,6 +3215,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         Slogf.w(TAG, "Could not %s after %dms long trial. Shutting down.", suspendTarget,
                 totalWaitDurationMs);
         mSystemInterface.shutdown();
+        Slogf.wtf(TAG, "The system must be turned off");
         return false;
     }
 
@@ -4056,7 +4068,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     }
 
     @VisibleForTesting
-    void changeShouldChangeSwap(boolean value) {
-        mShouldChangeSwap = value;
+    void setSwapChangeEnabled(boolean enable) {
+        mShouldChangeSwap = enable;
     }
 }

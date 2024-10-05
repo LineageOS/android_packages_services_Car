@@ -936,12 +936,11 @@ public class ToolbarControllerImpl implements ToolbarController {
                 !hasTabs && navButtonMode != NavButtonMode.DISABLED ? VISIBLE : GONE);
         mLogo.setVisibility(hasLogo ? VISIBLE : GONE);
 
-        mTitleSpacer.setVisibility(
-                hasTabs && navButtonMode != NavButtonMode.DISABLED ? VISIBLE : GONE);
+        mTitleSpacer.setVisibility(hasTabs ? VISIBLE : GONE);
         mTitleLogoContainer.setOnClickListener(
                 hasLogo && mOnLogoClickListener != null && navButtonMode != NavButtonMode.DISABLED
                         ? v -> mOnLogoClickListener.run() : null);
-        mTitleLogoContainer.setVisibility(isSearching ? GONE : VISIBLE);
+        mTitleLogoContainer.setVisibility(!hasTabs && isSearching ? GONE : VISIBLE);
 
         // Show the nav icon container if we're not in the home space or the logo fills the nav icon
         // container. If car_ui_toolbar_nav_icon_reserve_space is true, hiding it will still reserve
@@ -953,14 +952,14 @@ public class ToolbarControllerImpl implements ToolbarController {
         mNavIconContainer.setContentDescription(navButtonMode != NavButtonMode.DISABLED
                 ? getContext().getString(R.string.car_ui_toolbar_nav_icon_content_description)
                 : null);
-        mNavIconSpacer.setVisibility(hasTabs && !isSearching ? VISIBLE : GONE);
+        mNavIconSpacer.setVisibility(hasTabs ? VISIBLE : GONE);
 
         // Show the title if we're in the subpage state, or in the home state with no tabs or tabs
         // on the second row
         mSubtitle.setVisibility(
                 TextUtils.isEmpty(getSubtitle()) ? GONE : VISIBLE);
 
-        mTabLayout.setVisibility(hasTabs && !isSearching ? VISIBLE : GONE);
+        mTabLayout.setVisibility(hasTabs ? VISIBLE : GONE);
 
         if (mSearchView != null) {
             if (isSearching) {

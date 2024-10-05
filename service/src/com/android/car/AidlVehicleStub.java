@@ -62,6 +62,8 @@ import com.android.car.internal.LongPendingRequestPool;
 import com.android.car.internal.LongPendingRequestPool.TimeoutCallback;
 import com.android.car.internal.LongRequestIdWithTimeout;
 import com.android.car.internal.property.CarPropertyErrorCodes;
+import com.android.car.logging.HistogramFactoryInterface;
+import com.android.car.logging.SystemHistogramFactory;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.modules.expresslog.Histogram;
@@ -78,15 +80,8 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
 
 final class AidlVehicleStub extends VehicleStub {
-    private static final Histogram sVehicleHalGetSyncLatencyHistogram = new Histogram(
-            "automotive_os.value_sync_hal_get_property_latency",
-            new Histogram.ScaledRangeOptions(/* binCount= */ 20, /* minValue= */ 0,
-                    /* firstBinWidth= */ 2, /* scaleFactor= */ 1.5f));
-
-    private static final Histogram sVehicleHalSetSyncLatencyHistogram = new Histogram(
-            "automotive_os.value_sync_hal_set_property_latency",
-            new Histogram.ScaledRangeOptions(/* binCount= */ 20, /* minValue= */ 0,
-                    /* firstBinWidth= */ 2, /* scaleFactor= */ 1.5f));
+    private final Histogram mVehicleHalGetSyncLatencyHistogram;
+    private final Histogram mVehicleHalSetSyncLatencyHistogram;
 
     private static final String AIDL_VHAL_SERVICE =
             "android.hardware.automotive.vehicle.IVehicle/default";
@@ -157,17 +152,25 @@ final class AidlVehicleStub extends VehicleStub {
     @VisibleForTesting
     AidlVehicleStub(IVehicle aidlVehicle) {
         this(aidlVehicle,
-                CarServiceUtils.getHandlerThread(AidlVehicleStub.class.getSimpleName()));
+                CarServiceUtils.getHandlerThread(AidlVehicleStub.class.getSimpleName()),
+                new SystemHistogramFactory());
     }
 
     @VisibleForTesting
-    AidlVehicleStub(IVehicle aidlVehicle, HandlerThread handlerThread) {
+    AidlVehicleStub(IVehicle aidlVehicle, HandlerThread handlerThread,
+            HistogramFactoryInterface histogramFactory) {
         mAidlVehicle = aidlVehicle;
         mPropValueBuilder = new HalPropValueBuilder(/*isAidl=*/true);
         mHandlerThread = handlerThread;
         mHandler = new Handler(mHandlerThread.getLooper());
         mGetSetValuesCallback = new GetSetValuesCallback();
         mPendingAsyncRequestPool = new PendingAsyncRequestPool(mHandler.getLooper());
+        mVehicleHalGetSyncLatencyHistogram = histogramFactory.newScaledRangeHistogram(
+                "automotive_os.value_sync_hal_get_property_latency", /* binCount= */ 20,
+                /* minValue= */ 0, /* firstBinWidth= */ 2, /* scaleFactor= */ 1.5f);
+        mVehicleHalSetSyncLatencyHistogram = histogramFactory.newScaledRangeHistogram(
+                "automotive_os.value_sync_hal_set_property_latency", /* binCount= */ 20,
+                /* minValue= */ 0, /* firstBinWidth= */ 2, /* scaleFactor= */ 1.5f);
     }
 
     /**
@@ -313,7 +316,7 @@ final class AidlVehicleStub extends VehicleStub {
                     }
                     return mPropValueBuilder.build(result.prop);
                 });
-        sVehicleHalGetSyncLatencyHistogram.logSample((float)
+        mVehicleHalGetSyncLatencyHistogram.logSample((float)
                 (System.currentTimeMillis() - currentTime));
         return halPropValue;
     }
@@ -338,7 +341,7 @@ final class AidlVehicleStub extends VehicleStub {
                     }
                     return null;
                 });
-        sVehicleHalSetSyncLatencyHistogram.logSample((float)
+        mVehicleHalSetSyncLatencyHistogram.logSample((float)
                 (System.currentTimeMillis() - currentTime));
     }
 

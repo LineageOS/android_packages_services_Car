@@ -406,7 +406,8 @@ public class CarPowerManagementTest extends MockedCarTestBase {
                 VehicleApPowerStateReport.ON);
         mMockDisplayInterface.waitForAllDisplayState(true);
         // Makes the suspend unsuccessful.
-        mMockSystemStateInterface.setExpectedSuspendStatus(/* expectedStatus= */ false);
+        mMockSystemStateInterface.setExpectedSuspendStatus(
+                SystemStateInterface.SUSPEND_RESULT_RETRY);
         mPowerStateHandler.sendPowerState(
                 VehicleApPowerStateReq.SHUTDOWN_PREPARE,
                 VehicleApPowerStateShutdownParam.SLEEP_IMMEDIATELY);
@@ -423,7 +424,8 @@ public class CarPowerManagementTest extends MockedCarTestBase {
                 VehicleApPowerStateShutdownParam.SLEEP_IMMEDIATELY);
 
         // Makes the suspend successful.
-        mMockSystemStateInterface.setExpectedSuspendStatus(/* expectedStatus= */ true);
+        mMockSystemStateInterface.setExpectedSuspendStatus(
+                SystemStateInterface.SUSPEND_RESULT_SUCCESS);
 
         assertResponseTransient(VehicleApPowerStateReport.DEEP_SLEEP_EXIT, /* expectedParam= */ 0,
                 /* checkParam= */ true);
@@ -992,20 +994,20 @@ public class CarPowerManagementTest extends MockedCarTestBase {
         private final Object mLock = new Object();
 
         @GuardedBy("mLock")
-        private boolean mExpectedSuspendStatus = true;
+        private int mExpectedSuspendStatus = SUSPEND_RESULT_SUCCESS;
 
         @Override
         public void shutdown() {}
 
         @Override
-        public boolean enterDeepSleep() {
+        public int enterDeepSleep() {
             synchronized (mLock) {
                 return mExpectedSuspendStatus;
             }
         }
 
         @Override
-        public boolean enterHibernation() {
+        public int enterHibernation() {
             synchronized (mLock) {
                 return mExpectedSuspendStatus;
             }
@@ -1015,7 +1017,7 @@ public class CarPowerManagementTest extends MockedCarTestBase {
         public void scheduleActionForBootCompleted(Runnable action, Duration delay,
                 Duration delayRange) {}
 
-        public void setExpectedSuspendStatus(boolean expectedStatus) {
+        public void setExpectedSuspendStatus(int expectedStatus) {
             synchronized (mLock) {
                 mExpectedSuspendStatus = expectedStatus;
             }

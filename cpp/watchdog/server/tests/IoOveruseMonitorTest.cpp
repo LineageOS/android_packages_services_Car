@@ -191,7 +191,7 @@ public:
 
     Result<void> init(const sp<AIBinderDeathRegistrationWrapperInterface>& deathRegistrationWrapper,
                       const sp<IoOveruseConfigsInterface>& ioOveruseConfigs,
-                      const sp<PackageInfoResolverInterface>& packageInfoResolver) {
+                      const std::shared_ptr<PackageInfoResolverInterface>& packageInfoResolver) {
         if (const auto result = mIoOveruseMonitor->init(); !result.ok()) {
             return result;
         }
@@ -216,7 +216,7 @@ protected:
         mMockWatchdogServiceHelper = sp<MockWatchdogServiceHelper>::make();
         mMockDeathRegistrationWrapper = sp<MockAIBinderDeathRegistrationWrapper>::make();
         mMockIoOveruseConfigs = sp<MockIoOveruseConfigs>::make();
-        mMockPackageInfoResolver = sp<MockPackageInfoResolver>::make();
+        mMockPackageInfoResolver = std::make_shared<MockPackageInfoResolver>();
         mMockUidStatsCollector = sp<MockUidStatsCollector>::make();
         mIoOveruseMonitor = sp<IoOveruseMonitor>::make(mMockWatchdogServiceHelper);
         mIoOveruseMonitorPeer = sp<internal::IoOveruseMonitorPeer>::make(mIoOveruseMonitor);
@@ -228,7 +228,7 @@ protected:
     virtual void TearDown() {
         mMockWatchdogServiceHelper.clear();
         mMockIoOveruseConfigs.clear();
-        mMockPackageInfoResolver.clear();
+        mMockPackageInfoResolver.reset();
         mMockUidStatsCollector.clear();
         mIoOveruseMonitor.clear();
         mIoOveruseMonitorPeer.clear();
@@ -300,7 +300,7 @@ protected:
     sp<MockWatchdogServiceHelper> mMockWatchdogServiceHelper;
     sp<MockAIBinderDeathRegistrationWrapper> mMockDeathRegistrationWrapper;
     sp<MockIoOveruseConfigs> mMockIoOveruseConfigs;
-    sp<MockPackageInfoResolver> mMockPackageInfoResolver;
+    std::shared_ptr<MockPackageInfoResolver> mMockPackageInfoResolver;
     sp<MockUidStatsCollector> mMockUidStatsCollector;
     sp<IoOveruseMonitor> mIoOveruseMonitor;
     sp<internal::IoOveruseMonitorPeer> mIoOveruseMonitorPeer;

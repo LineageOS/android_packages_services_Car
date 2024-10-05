@@ -107,7 +107,7 @@ private:
             const std::unordered_map<uid_t, int64_t>& cpuTimeMillisByUid) const;
 
     // Local PackageInfoResolverInterface instance. Useful to mock in tests.
-    sp<PackageInfoResolverInterface> mPackageInfoResolver;
+    std::shared_ptr<PackageInfoResolverInterface> mPackageInfoResolver;
 
     mutable Mutex mMutex;
 

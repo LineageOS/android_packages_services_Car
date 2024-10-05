@@ -17,6 +17,7 @@
 package com.android.car.power;
 
 import static android.car.feature.Flags.FLAG_MULTI_DISPLAY_BRIGHTNESS_CONTROL;
+import static android.hardware.automotive.vehicle.VehicleProperty.PER_DISPLAY_MAX_BRIGHTNESS;
 
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
@@ -88,8 +89,6 @@ public class DisplayBrightnessTest extends MockedCarTestBase {
     private static final int VHAL_BRIGHTNESS_2 = 56;
     private static final int POWER_MGR_MAX_SCREEN_BRIGHTNESS = 255;
     private static final int POWER_MGR_MIN_SCREEN_BRIGHTNESS = 1;
-
-    private static final int PER_DISPLAY_MAX_BRIGHTNESS = 0x11410F4E;
 
     private static final int DEFAULT_TIMEOUT_MS = 5_000;
 
