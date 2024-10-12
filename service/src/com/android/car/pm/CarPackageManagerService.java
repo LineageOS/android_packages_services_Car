@@ -1976,9 +1976,6 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
                                     + "display id %d.", taskInfo.taskId, lastKnownDisplayId);
                 }
                 mHandler.post(() -> finishBlockingUi(taskInfo));
-                synchronized (mLock) {
-                    mBlockingUiTaskInfoPerDisplay.delete(lastKnownDisplayId);
-                }
                 cleanUpBlockingUiInformation(lastKnownDisplayId);
             } else if (isBlockingUiTask(taskInfo)) {
                 if (DBG) {
@@ -1992,12 +1989,16 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
     /**
      * Cleans up blocking ui information since either the blocking ui itself finished or the task
      * that was being blocked by the blocking ui finished. In both the cases, the blocking ui will
-     * be finishing itself, so clean up the information.
+     * be finishing itself, so clean up the information. Since blocking ui is finished, also clean
+     * up the {@code mBlockingUiTaskInfoPerDisplay}.
      */
     private void cleanUpBlockingUiInformation(int lastKnownDisplayId) {
         if (mBlockingActivityTargets.contains(lastKnownDisplayId)) {
             mBlockingActivityLaunchTimes.put(lastKnownDisplayId, 0);
             mBlockingActivityTargets.delete(lastKnownDisplayId);
+        }
+        synchronized (mLock) {
+            mBlockingUiTaskInfoPerDisplay.delete(lastKnownDisplayId);
         }
     }
 
@@ -2029,13 +2030,18 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
      * {@code mBlockingActivityTargets} for {@code displayId}. Ignore other activities since they
      * cannot can cause a visibility change for the blocked activity target.
      *
+     * <p>Note that {@code mBlockingActivityTargets} for the display id can be null due to a race
+     * condition when an NDO activity and the blocking ui is finishing at the same time since
+     * {@link #cleanUpBlockingUiInformation} is called from various places.
+     *
      * @param displayId the display id of the {@link TaskInfo}.
      * @param taskInfo  {@link TaskInfo} due to which the task stack changed.
      * @return {@code true} if this stack change came from blocked {@code taskInfo} for
      * {@code displayId}, {@code false} otherwise.
      */
     private boolean isBlockedActivityTarget(int displayId, TaskInfo taskInfo) {
-        return mBlockingActivityTargets.get(displayId).taskId == taskInfo.taskId;
+        return mBlockingActivityTargets.get(displayId) != null
+                && mBlockingActivityTargets.get(displayId).taskId == taskInfo.taskId;
     }
 
     /**

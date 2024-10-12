@@ -28,7 +28,7 @@ readonly PSI_AVG10_POSITION=2
 PSI_AVG10_THRESHOLD=80
 # Baseline should determined only when the PSI is below 50.
 MAX_BASELINE_PSI=50
-TOTAL_PSI_ENTRIES_TO_MONITOR_BASELINE=5
+TOTAL_PSI_ENTRIES_TO_MONITOR_BASELINE=10
 MAX_PSI_BASE_POINT_DIFF=5
 
 SHOULD_DYNAMICALLY_DETECT_BASELINE=true
@@ -134,7 +134,7 @@ function check_arguments() {
     exit 1
   fi
 
-  readonly DUMP_FILE=${OUTPUT_DIR}/dump.txt
+  readonly DUMP_FILE=${OUTPUT_DIR}/psi_dump.txt
   readonly LOG_FILE=${OUTPUT_DIR}/log.txt
   rm -f ${DUMP_FILE}; touch ${DUMP_FILE}
   rm -f ${LOG_FILE}; touch ${LOG_FILE}
@@ -192,7 +192,8 @@ latest_psi_avg_10=0
 latest_psi_line=""
 function read_psi_avg() {
   latest_psi_line=$(grep . /proc/pressure/* | tr '\n' ' ' | sed 's|/proc/pressure/||g')
-  local cpu_some_line=$(echo ${latest_psi_line} | sed 's/\(total=[0-9]*\) /\1\n/g' | grep cpu:some)
+  local cpu_some_line=$(echo ${latest_psi_line} | sed 's/\(total=[0-9]*\) /\1\n/g' \
+                        | grep "cpu:some")
   latest_psi_avg_10=$(echo ${cpu_some_line} | cut -f${PSI_AVG10_POSITION} -d' ' \
     | cut -f2 -d'=' | cut -f1 -d'.')
   if [[ ${latest_psi_avg_10} != +([[:digit:]]) ]]; then
@@ -203,16 +204,21 @@ function read_psi_avg() {
 
 EXCEEDED_THRESHOLD_UPTIME_MILLIS=-1
 DROPPED_BELOW_THRESHOLD_UPTIME_MILLIS=-1
+readonly PSI_TYPE_CPU_SOME="cpu:some avg10"
 function populate_exceeded_and_dropped_below_threshold() {
   local psi_avg10=${1}
   if [[ ${EXCEEDED_THRESHOLD_UPTIME_MILLIS} -lt 0 && ${psi_avg10} -ge ${PSI_AVG10_THRESHOLD} ]]
   then
     EXCEEDED_THRESHOLD_UPTIME_MILLIS=$(uptime_millis)
+    echo -n " \"PSI exceeded threshold: ${PSI_AVG10_THRESHOLD}% ${PSI_TYPE_CPU_SOME}\"" \
+      >> ${DUMP_FILE}
     return
   fi
   if [[ ${EXCEEDED_THRESHOLD_UPTIME_MILLIS} -gt 0 && ${psi_avg10} -lt ${PSI_AVG10_THRESHOLD} ]]
   then
     DROPPED_BELOW_THRESHOLD_UPTIME_MILLIS=$(uptime_millis)
+    echo -n " \"PSI dropped below threshold: ${PSI_AVG10_THRESHOLD}% ${PSI_TYPE_CPU_SOME}\"" \
+      >> ${DUMP_FILE}
   fi
 }
 
@@ -257,6 +263,8 @@ function monitor_baseline_psi() {
   BASELINE_UPTIME_MILLIS=$(uptime_millis)
   print_log "PSI baseline is stable across ${TOTAL_PSI_ENTRIES_TO_MONITOR_BASELINE} entries. "\
             "Min / Max / Latest PSI: [${psi_min}, ${psi_max}, ${1}]"
+  echo -n " \"PSI reached baseline across latest ${TOTAL_PSI_ENTRIES_TO_MONITOR_BASELINE}" \
+          "entries\"" >> ${DUMP_FILE}
   set_baseline_met
   return
 }
@@ -281,11 +289,12 @@ function main() {
   while [[ $(uptime_millis) -lt ${max_uptime_millis} ]]; do
     read_psi_avg
 
-    echo "$(uptime_millis) $(date '+%Y-%m-%d_%H:%M:%S') ${latest_psi_line}" >> ${DUMP_FILE}
+    echo -n "$(uptime_millis) $(date '+%Y-%m-%d %H:%M:%S.%N') ${latest_psi_line}" >> ${DUMP_FILE}
 
     if [[ ${cuj_completion_uptime_millis} -gt 0 || $(did_cuj_complete) == true ]]; then
       if [[ ${cuj_completion_uptime_millis} == -1 ]]; then
         cuj_completion_uptime_millis=$(uptime_millis)
+        echo -n " \"CUJ completed\"" >> ${DUMP_FILE}
       fi
       check_exceed_and_drop_below_threshold ${latest_psi_avg_10}
       monitor_baseline_psi ${latest_psi_avg_10}
@@ -297,6 +306,7 @@ function main() {
           && ${EXIT_ON_PSI_STABILIZED} == true ]]; then
           break
     fi
+    echo "" >> ${DUMP_FILE}
     sleep 1
   done
 

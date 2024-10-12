@@ -13,10 +13,16 @@ function trap_error() {
     local return_value=$?
     local line_no=$1
     echo "Error at line ${line_no}: \"${BASH_COMMAND}\""
+    pkill -P $$
     exit ${return_value}
 }
 trap 'trap_error $LINENO' ERR
 
+readonly PSI_MONITOR_REPO_DIR="packages/services/Car/tools/psi_monitor"
+readonly PSI_MONITOR_SCRIPT="psi_monitor.sh"
+readonly PARSE_SCRIPT="parse_psi_events.py"
+readonly PLOT_SCRIPT="psi_plot.py"
+readonly GENERATE_KPIS_SCRIPT="generate_kpis.py"
 readonly DEVICE_OUT_DIR="/data/local/tmp/psi_monitor"
 readonly DEVICE_SCRIPT="/data/local/tmp/psi_monitor.sh"
 readonly MIN_BOOTUP_DURATION_SECONDS=60
@@ -25,7 +31,7 @@ readonly POST_APP_STARTUP_MONITOR_DURATION_SECONDS=30
 readonly POST_BOOT_APPS_LAUNCH_TIMES=5
 readonly MIN_BOOT_WITH_APP_LAUNCH_DURATION_SECONDS=90
 
-OUTPUT_DIR=${PWD}
+OUTPUT_DIR=${PWD}/out
 PSI_AVG10_THRESHOLD=80
 MAX_PSI_MONITOR_DURATION_SECONDS=120
 PSI_MONITOR_GRACE_DURATION_SECONDS=20
@@ -34,6 +40,7 @@ USER_SWITCH_ARGS=""
 APP_STARTUP_PACKAGE=""
 APP_STARTUP_TIMES=1
 POST_BOOT_APP_LAUNCH_STATE="threshold_met"
+MAX_WAIT_FOR_FIRST_CAR_LAUNCHER_DISPLAYED_LOG_MILLISECONDS=1500
 
 function err() {
   echo -e "$@" >&2
@@ -59,7 +66,11 @@ function usage() {
   echo "-a|--app_startup: Run app startup CUJ"
   echo "--app_startup_times: Number of times to launch the app during app startup CUJ"
   echo "--bootup_with_app_launch: Run bootup with app launch CUJ. Must provide post boot app"\
-       "launch state, which is the post boot state to launch apps"
+       "launch state, which is the post boot state to launch apps. Following states are supported:"
+  echo "\t- threshold_met: Launch apps when PSI threshold is met"
+  echo "\t- baseline_met: Launch apps when PSI baseline is met"
+  echo "\t- immediate: Launch apps immediately after launcher is displayed"
+  echo "-h|--help: Show this help message"
 
   echo "Example commands:"
   echo -e "\t1. ./run_cuj.sh -d 90 -g 20 -t 20 --bootup_with_app_launch threshold_met"
@@ -128,6 +139,7 @@ function parse_arguments() {
 
 function check_arguments() {
   readonly OUTPUT_DIR
+  mkdir -p ${OUTPUT_DIR}
   if [[ ! -d ${OUTPUT_DIR} ]]; then
     err "Out dir ${OUTPUT_DIR} does not exist"
     exit 1
@@ -153,7 +165,7 @@ function check_arguments() {
   if [[ ${PSI_MONITOR_GRACE_DURATION_SECONDS} != +([[:digit:]]) \
         || ${PSI_MONITOR_GRACE_DURATION_SECONDS} -lt 10 \
         || ${PSI_MONITOR_GRACE_DURATION_SECONDS} -gt 3600 ]]; then
-    err "Psi monitor grace duration seconds ${PSI_MONITOR_GRACE_DURATION_SECONDS} is not "
+    err "Psi monitor grace duration seconds ${PSI_MONITOR_GRACE_DURATION_SECONDS} is not "\
         "a valid number. The value should be between 10 and 3600"
     exit 1
   fi
@@ -255,8 +267,9 @@ function check_cuj_args() {
       ;;
     bootup-with-app-launch)
       if [[ ${POST_BOOT_APP_LAUNCH_STATE} != "threshold_met" && \
-            ${POST_BOOT_APP_LAUNCH_STATE} != "baseline_met" ]]; then
-        err "Post boot app launch state should be either threshold_met or baseline_met"
+            ${POST_BOOT_APP_LAUNCH_STATE} != "baseline_met" && \
+            ${POST_BOOT_APP_LAUNCH_STATE} != "immediate" ]]; then
+        err "Post boot app launch state should be either threshold_met, baseline_met or immediate"
         exit 1
       fi
       if [[ ${MAX_PSI_MONITOR_DURATION_SECONDS} -lt ${MIN_BOOT_WITH_APP_LAUNCH_DURATION_SECONDS} ]]
@@ -268,22 +281,24 @@ function check_cuj_args() {
   esac
 }
 
-function run_psi_monitor() {
-  adb root
-  adb shell setenforce 0
-  timeout -k ${SECOND_KILL_TIMEOUT} ${FIRST_KILL_TIMEOUT} \
-    adb shell ${DEVICE_SCRIPT} --out_dir ${DEVICE_OUT_DIR} \
-      --psi_avg10_threshold ${PSI_AVG10_THRESHOLD} \
-      --max_duration_seconds ${MAX_PSI_MONITOR_DURATION_SECONDS} \
-        > ${OUTPUT_DIR}/psi_monitor_log.txt
-}
-
 function setup() {
+  if [[ -z ${ANDROID_BUILD_TOP} ]]; then
+    readonly LOCAL_SCRIPT_DIR=$(dirname ${0})
+  else
+    readonly LOCAL_SCRIPT_DIR=${ANDROID_BUILD_TOP}/${PSI_MONITOR_REPO_DIR}
+  fi
+  if [[ ! -f ${LOCAL_SCRIPT_DIR}/${PSI_MONITOR_SCRIPT}
+       || ! -f ${LOCAL_SCRIPT_DIR}/${PARSE_SCRIPT} ]]; then
+    err "PSI monitor script ${PSI_MONITOR_SCRIPT} or parse script ${PARSE_SCRIPT}"\
+        "is not found in ${LOCAL_SCRIPT_DIR}"
+    exit 1
+  fi
   adb shell rm -rf ${DEVICE_SCRIPT} ${DEVICE_OUT_DIR}
-  adb push psi_monitor.sh ${DEVICE_SCRIPT}
+  adb push ${LOCAL_SCRIPT_DIR}/${PSI_MONITOR_SCRIPT} ${DEVICE_SCRIPT}
   adb shell chmod 755 ${DEVICE_SCRIPT}
   adb shell mkdir -p ${DEVICE_OUT_DIR}
   adb shell setprop persist.debug.psi_monitor.cuj_completed false
+  adb logcat -G 16M -c
 }
 
 FROM_USER_STOPPED_COUNT=0
@@ -297,7 +312,7 @@ function pre_start_cuj() {
   case ${CUJ} in
     bootup | bootup-with-app-launch)
       echo "Rebooting adb device"; adb reboot
-      echo "Waiting for device connection"; adb wait-for-device
+      echo "Waiting for device connection"; adb wait-for-device; adb logcat -G 16M
       ;;
     user-switch)
       current_user_id=$(adb shell am get-current-user)
@@ -340,9 +355,55 @@ function pre_start_cuj() {
   esac
 }
 
+function fetch_logs() {
+  rm -f ${OUTPUT_DIR}/filtered_logcat.txt
+  while true; do
+    adb wait-for-device
+    adb logcat -v year -s ActivityTaskManager,SystemServerTimingAsync \
+      >> ${OUTPUT_DIR}/filtered_logcat.txt
+  done
+}
+
+function run_psi_monitor() {
+  timeout -k ${SECOND_KILL_TIMEOUT} ${FIRST_KILL_TIMEOUT} \
+    adb shell ${DEVICE_SCRIPT} --out_dir ${DEVICE_OUT_DIR} \
+      --psi_avg10_threshold ${PSI_AVG10_THRESHOLD} \
+      --max_duration_seconds ${MAX_PSI_MONITOR_DURATION_SECONDS} \
+        > ${OUTPUT_DIR}/psi_monitor_log.txt
+}
+
+function start_activity() {
+  if [ $# -eq 1 ]; then
+    package=$1
+  elif [ $# -eq 2 ]; then
+    action=$1
+    component=$2
+  else
+    action=$1
+    category=$2
+    flag=$3
+    component=$4
+  fi
+
+  if [ $# -eq 1 ]; then
+    echo "Starting activity for ${package}"
+    adb shell am start -W --user current ${package}
+    sleep 1 # Wait to allow the package to perform some init tasks.
+    return
+  fi
+
+  echo "Starting activity ${component}"
+  if [ $# -eq 2 ]; then
+    adb shell am start -W --user current -a ${action} -n ${component}
+  else
+    adb shell am start -W --user current -a ${action} -c ${category} -f ${flag} -n ${component}
+  fi
+  sleep 1 # Wait to allow the package to perform some init tasks.
+}
+
 function start_cuj() {
   case ${CUJ} in
-    bootup| bootup-with-app-launch)
+    bootup | bootup-with-app-launch)
       # Boot doesn't need to be started by the script as it is already done by the bootloader
       # as part of the reboot.
       ;;
@@ -357,12 +418,9 @@ function start_cuj() {
     app-startup)
       echo "Starting app startup CUJ for ${APP_STARTUP_PACKAGE}"
       for i in $(seq 1 ${APP_STARTUP_TIMES}); do
-        sleep 1
-        echo "Starting app startup CUJ for ${APP_STARTUP_PACKAGE} for the ${i}th time"
-        adb shell am start ${APP_STARTUP_PACKAGE}
-        if [[ ${i} -lt ${APP_STARTUP_TIMES} ]]; then
-          adb shell am force-stop --user current ${APP_STARTUP_PACKAGE}
-        fi
+        adb shell am force-stop --user current ${APP_STARTUP_PACKAGE}
+        echo "Starting app startup CUJ for ${APP_STARTUP_PACKAGE} for the ${i} time"
+        start_activity ${APP_STARTUP_PACKAGE}
       done
       ;;
   esac
@@ -374,6 +432,9 @@ function wait_for_cuj_to_complete() {
     bootup | bootup-with-app-launch)
       while [[ $(adb shell getprop sys.boot_completed) != 1 ]]; do
         sleep 0.5
+        # Device connection will be lost intermittently during bootup. So, wait for the device
+        # connection after every 0.5 seconds.
+        adb wait-for-device
       done
       # PSI monitor script will detect threshold and baseline changes only after the CUJ is
       # completed. So, for boot-with-app-launch CUJ, mark the CUJ as completed on boot completed.
@@ -417,30 +478,49 @@ function wait_for_baseline_met() {
 }
 
 function start_launcher_activity() {
-  echo "Starting launcher activity"
-  adb shell am start -a android.intent.action.MAIN -c android.intent.category.HOME -f 0x14000000 \
-    -n com.android.car.carlauncher/.CarLauncher
+  start_activity android.intent.action.MAIN android.intent.category.HOME 0x14000000 \
+    com.android.car.carlauncher/.CarLauncher
+  adb shell am force-stop --user current com.android.car.carlauncher
 }
 
 function start_app_grid_activity() {
-  echo "Starting GAS app grid activity"
-  adb shell am start -a com.android.car.carlauncher.ACTION_APP_GRID \
-    -c android.intent.category.HOME -f 0x24000000 \
-    -n com.android.car.carlauncher/.GASAppGridActivity
+  start_activity com.android.car.carlauncher.ACTION_APP_GRID android.intent.category.HOME \
+    0x24000000 com.android.car.carlauncher/.GASAppGridActivity
+  adb shell am force-stop --user current com.android.car.carlauncher
 }
 
 function start_maps_activity() {
-  echo "Starting maps activity"
-  adb shell am start -a android.intent.action.VIEW \
-    -n com.google.android.apps.maps/com.google.android.maps.MapsActivity
+  start_activity android.intent.action.VIEW \
+    com.google.android.apps.maps/com.google.android.maps.MapsActivity
+  adb shell am force-stop --user current com.google.android.apps.maps
+}
+
+function get_component_displayed_count() {
+  echo $(grep "ActivityTaskManager: Displayed " ${OUTPUT_DIR}/filtered_logcat.txt | grep ${1} \
+         | wc -l)
+}
+
+function wait_for_activity_displayed() {
+  max_wait_millis=$2
+  echo "Waiting for activity ${1} to be displayed"
+  slept_millis=0
+  while [[ $(get_component_displayed_count ${1}) -eq 0
+           && ${slept_millis} -lt ${max_wait_millis} ]]; do
+    sleep 0.1
+    slept_millis=$(($slept_millis + 100))
+  done
+  echo "Activity ${1} completed"
 }
 
 function launch_app_on_post_boot() {
+  # Wait for the launcher to be displayed before launching the apps.
+  wait_for_activity_displayed com.android.car.carlauncher/.CarLauncher \
+    ${MAX_WAIT_FOR_FIRST_CAR_LAUNCHER_DISPLAYED_LOG_MILLISECONDS}
   for i in $(seq 1 ${POST_BOOT_APPS_LAUNCH_TIMES}); do
     echo "Launching 3 apps on post boot for the ${i}th time"
-    start_launcher_activity && sleep 1
-    start_app_grid_activity && sleep 1
-    start_maps_activity && sleep 1
+    start_app_grid_activity
+    start_maps_activity
+    start_launcher_activity
   done
 }
 
@@ -449,14 +529,45 @@ function post_cuj_events() {
     bootup-with-app-launch)
       if [[ ${POST_BOOT_APP_LAUNCH_STATE} == "threshold_met" ]]; then
         wait_for_threshold_met
-      else
+      elif [[ ${POST_BOOT_APP_LAUNCH_STATE} == "baseline_met" ]]; then
         wait_for_baseline_met
       fi
+      # Do nothing for immediate case.
       launch_app_on_post_boot
       ;;
     *)
       ;;
   esac
+}
+
+function get_cuj_desc() {
+  desc=${CUJ}
+  case ${CUJ} in
+    bootup)
+      desc="Post boot"
+      ;;
+    bootup-with-app-launch)
+      desc="Post boot with app launch after"
+      case ${POST_BOOT_APP_LAUNCH_STATE} in
+        threshold_met)
+          desc="${desc} (threshold met)"
+          ;;
+        baseline_met)
+          desc="${desc} (baseline met)"
+          ;;
+        esac
+      ;;
+    user-switch)
+      desc="Post user switch from ${FROM_USER_ID} to ${TO_USER_ID}"
+      ;;
+    app-startup)
+      desc="App startup for ${APP_STARTUP_PACKAGE}"
+      ;;
+    resume)
+      desc="Post resume"
+      ;;
+  esac
+  echo ${desc}
 }
 
 function main() {
@@ -466,6 +577,13 @@ function main() {
   setup
 
   pre_start_cuj
+  # Disable SELinux enforcement to allow the PSI monitor script to read the interfaces at
+  # /proc/pressure. During pre_start_cuj the device may reboot, so perform these actions only after
+  # the device is up.
+  adb root; adb shell setenforce 0
+
+  fetch_logs &
+  fetch_logs_pid=$!
 
   echo "Starting PSI monitoring"
   run_psi_monitor &
@@ -482,11 +600,27 @@ function main() {
   echo "Waiting for PSI monitoring to complete at pid ${psi_monitor_pid}"
   wait ${psi_monitor_pid}
 
-  # If the post CUJ events are still running, kill them because the PSI monitor has completed.
-  echo "Killing post CUJ events at pid ${post_cuj_events_pid}"
-  kill ${post_cuj_events_pid}
+  if [[ $(ps -p ${post_cuj_events_pid} > /dev/null) ]]; then
+    # If the post CUJ events are still running, kill them because the PSI monitor has completed.
+    echo "Killing post CUJ events at pid ${post_cuj_events_pid}"
+    kill ${post_cuj_events_pid}
+  fi
+
+  echo "Killing logcat at pid ${fetch_logs_pid}"
+  kill ${fetch_logs_pid}
 
   adb pull ${DEVICE_OUT_DIR} ${OUTPUT_DIR}
+  psi_monitor_out=${OUTPUT_DIR}/$(basename ${DEVICE_OUT_DIR})
+  processed_out=${OUTPUT_DIR}/processed; mkdir -p ${processed_out}
+
+  ${LOCAL_SCRIPT_DIR}/${PARSE_SCRIPT} --psi_dump ${psi_monitor_out}/psi_dump.txt \
+    --psi_csv ${processed_out}/psi.csv --logcat ${OUTPUT_DIR}/filtered_logcat.txt \
+    --events_csv ${processed_out}/events.csv
+  ${LOCAL_SCRIPT_DIR}/${PLOT_SCRIPT} --psi_csv ${processed_out}/psi.csv \
+    --events_csv ${processed_out}/events.csv --cuj_name "$(get_cuj_desc)" \
+    --out_file ${processed_out}/psi_plot.html --show_plot
+  ${LOCAL_SCRIPT_DIR}/${GENERATE_KPIS_SCRIPT} --psi_csv ${processed_out}/psi.csv \
+    --events_csv ${processed_out}/events.csv --out_kpi_csv ${processed_out}/kpis.csv
 }
 
 main "$@"

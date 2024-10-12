@@ -60,9 +60,13 @@
         <item name="android:gravity">center</item>
     </style>
 
-    <style name="CarDialogActionButton" parent="Widget.DeviceDefault.Button" />
+    <style name="CarDialogActionButton" parent="Widget.DeviceDefault.Button" >
+        <item name="android:minWidth">237dp</item>
+    </style>
 
-    <style name="CarDialogActionButton1" parent="Widget.DeviceDefault.Button.Colored" />
+    <style name="CarDialogActionButton1" parent="Widget.DeviceDefault.Button.Colored" >
+        <item name="android:minWidth">237dp</item>
+    </style>
 
     <style name="CarDialogMessageText" parent="TextAppearance.DeviceDefault.Medium">
         <item name="android:textStyle">normal</item>

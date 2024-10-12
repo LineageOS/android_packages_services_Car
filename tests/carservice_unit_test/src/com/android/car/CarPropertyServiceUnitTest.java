@@ -62,6 +62,7 @@ import com.android.car.internal.property.AsyncPropertyServiceRequest;
 import com.android.car.internal.property.AsyncPropertyServiceRequestList;
 import com.android.car.internal.property.CarSubscription;
 import com.android.car.internal.property.IAsyncPropertyResultCallback;
+import com.android.car.internal.property.PropIdAreaId;
 import com.android.car.logging.HistogramFactoryInterface;
 import com.android.modules.expresslog.Histogram;
 
@@ -74,6 +75,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
@@ -82,6 +84,7 @@ import java.util.concurrent.TimeUnit;
 
 public final class CarPropertyServiceUnitTest {
     private static final String TAG = CarLog.tagFor(CarPropertyServiceUnitTest.class);
+    private static final int DEFAULT_CALLBACK_TIMEOUT = 5000;
 
     @Rule
     public final RavenwoodRule mRavenwood = new RavenwoodRule.Builder()
@@ -291,6 +294,7 @@ public final class CarPropertyServiceUnitTest {
 
         when(mFeatureFlags.variableUpdateRate()).thenReturn(true);
         when(mFeatureFlags.subscriptionWithResolution()).thenReturn(true);
+        when(mFeatureFlags.alwaysSendInitialValueEvent()).thenReturn(true);
 
         when(mHistogramFactory.newUniformHistogram(any(), anyInt(), anyFloat(), anyFloat()))
                 .thenReturn(mock(Histogram.class));
@@ -785,10 +789,12 @@ public final class CarPropertyServiceUnitTest {
         verify(mockHandler, timeout(5000)).onEvent(mPropertyEventCaptor.capture());
         List<CarPropertyEvent> eventList = mPropertyEventCaptor.getValue();
         assertWithMessage("Must receive two initial value events").that(eventList).hasSize(2);
-        assertWithMessage("Received expected speed initial value event").that(
-                eventList.get(0).getCarPropertyValue()).isEqualTo(speedValue);
-        assertWithMessage("Received expected hvac initial value event").that(
-                eventList.get(1).getCarPropertyValue()).isEqualTo(hvacValue);
+        List<CarPropertyValue> eventValues = new ArrayList<>();
+        for (int i = 0; i < eventList.size(); i++) {
+            eventValues.add(eventList.get(i).getCarPropertyValue());
+        }
+        assertWithMessage("Received expected value events").that(
+                eventValues).containsExactly(speedValue, hvacValue);
         verify(mHalService).subscribeProperty(subscribeOptions);
         // Verify the initial get value requests are sent.
         verify(mHalService).getProperty(SPEED_ID, 0);
@@ -1700,6 +1706,62 @@ public final class CarPropertyServiceUnitTest {
     public void isSupportedAndHasWritePermissionOnly_readOnly() throws Exception {
         assertThat(mService.isSupportedAndHasWritePermissionOnly(CONTINUOUS_READ_ONLY_PROPERTY_ID))
                 .isFalse();
+    }
+
+    @Test
+    public void testGetAndDispatchInitialValue() throws Exception {
+        ICarPropertyEventListener mockHandler = mock(ICarPropertyEventListener.class);
+        IBinder mockBinder = mock(IBinder.class);
+        when(mockHandler.asBinder()).thenReturn(mockBinder);
+        long timestampNanos = Duration.ofSeconds(1).toNanos();
+        CarPropertyValue<Float> speedValue = new CarPropertyValue<>(
+                SPEED_ID, 0, timestampNanos, 0f);
+        when(mHalService.getProperty(SPEED_ID, 0)).thenReturn(speedValue);
+        CarPropertyValue<Float> hvacValue = new CarPropertyValue<>(
+                HVAC_TEMP, 0, timestampNanos, 0f);
+        when(mHalService.getProperty(HVAC_TEMP, 0)).thenReturn(hvacValue);
+
+        PropIdAreaId propIdAreaId1 = newPropIdAreaId(SPEED_ID, 0);
+        PropIdAreaId propIdAreaId2 = newPropIdAreaId(HVAC_TEMP, 0);
+        mService.getAndDispatchInitialValue(List.of(propIdAreaId1, propIdAreaId2), mockHandler);
+
+        // Verify the two initial value responses arrive.
+        verify(mockHandler, timeout(DEFAULT_CALLBACK_TIMEOUT)).onEvent(
+                mPropertyEventCaptor.capture());
+        List<CarPropertyEvent> eventList = mPropertyEventCaptor.getValue();
+        assertWithMessage("Must receive two initial value events").that(eventList).hasSize(2);
+        List<CarPropertyValue> eventValues = new ArrayList<>();
+        for (int i = 0; i < eventList.size(); i++) {
+            eventValues.add(eventList.get(i).getCarPropertyValue());
+        }
+        assertWithMessage("Received expected value events").that(
+                eventValues).containsExactly(speedValue, hvacValue);
+    }
+
+    @Test
+    public void testGetAndDispatchInitialValue_mustNotFilterEvents() throws Exception {
+        ICarPropertyEventListener mockHandler = mock(ICarPropertyEventListener.class);
+        IBinder mockBinder = mock(IBinder.class);
+        when(mockHandler.asBinder()).thenReturn(mockBinder);
+        long timestampNanos = Duration.ofSeconds(1).toNanos();
+        CarPropertyValue<Float> speedValue = new CarPropertyValue<>(
+                SPEED_ID, 0, timestampNanos, 0f);
+        when(mHalService.getProperty(SPEED_ID, 0)).thenReturn(speedValue);
+
+        PropIdAreaId propIdAreaId = newPropIdAreaId(SPEED_ID, 0);
+        // Two initial value requests must cause two callbacks. The events must not be filtered.
+        mService.getAndDispatchInitialValue(List.of(propIdAreaId), mockHandler);
+        mService.getAndDispatchInitialValue(List.of(propIdAreaId), mockHandler);
+
+        // Verify the two initial value responses arrive.
+        verify(mockHandler, timeout(DEFAULT_CALLBACK_TIMEOUT).times(2)).onEvent(any());
+    }
+
+    private static PropIdAreaId newPropIdAreaId(int propId, int areaId) {
+        PropIdAreaId propIdAreaId = new PropIdAreaId();
+        propIdAreaId.propId = propId;
+        propIdAreaId.areaId = areaId;
+        return propIdAreaId;
     }
 
     /** Creates a {@code CarSubscription} with Vur off. */

@@ -20,6 +20,7 @@ import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DU
 import static com.android.car.internal.property.CarPropertyErrorCodes.STATUS_OK;
 import static com.android.car.internal.property.CarPropertyErrorCodes.STATUS_TRY_AGAIN;
 import static com.android.car.internal.property.CarPropertyHelper.SYNC_OP_LIMIT_TRY_AGAIN;
+import static com.android.car.internal.property.CarPropertyHelper.getPropIdAreaIdsFromCarSubscriptions;
 
 import static java.lang.Integer.toHexString;
 import static java.util.Objects.requireNonNull;
@@ -70,6 +71,7 @@ import com.android.car.internal.property.GetSetValueResult;
 import com.android.car.internal.property.GetSetValueResultList;
 import com.android.car.internal.property.IAsyncPropertyResultCallback;
 import com.android.car.internal.property.InputSanitizationUtils;
+import com.android.car.internal.property.PropIdAreaId;
 import com.android.car.internal.property.SubscriptionManager;
 import com.android.car.internal.util.IntArray;
 import com.android.car.internal.util.PairSparseArray;
@@ -82,6 +84,7 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -1092,10 +1095,19 @@ public class CarPropertyManager extends CarManagerBase {
      * </ul>
      *
      * <p>
-     * <b>Note:</b> When this function is called, the callback will receive the current
+     * <b>Note:</b> When this function is called, if for the {@code CarPropertyManager} instance,
+     * this is the first callback registered for the property, it will receive the current
      * values for all the areaIds for the property through property change events if they are
      * currently okay for reading. If they are not available for reading or in error state,
      * property change events with a unavailable or error status will be generated.
+     *
+     * <p>
+     * <b>Note:</b> If the client has {@link android.content.pm.ApplicationInfo#targetSdkVersion} <
+     * 16, if the client calls this function after the property is already registered
+     * (aka, this is not the first callback registered for the property),
+     * it is not guaranteed that the initial current-value event will be generated. If the client
+     * has {@link android.content.pm.ApplicationInfo#targetSdkVersion} > 16, it is guaranteed that
+     * the initial current-value event will always be generated for every call.
      *
      * <p>For properties that might be unavailable for reading because their power state
      * is off, property change events containing the property's initial value will be generated
@@ -1314,10 +1326,19 @@ public class CarPropertyManager extends CarManagerBase {
      * <p>The {@code carPropertyEventCallback} is executed on a single default event handler thread.
      *
      * <p>
-     * <b>Note:</b> When this function is called, the callback will receive the current
-     * values of the subscribed [propertyId, areaId]s through property change events if they are
-     * currently okay for reading. If they are not available for reading or in error state,
+     * <b>Note:</b> When this function is called, if for the {@code CarPropertyManager} instance,
+     * this is the first callback registered for the [propertyId, areaId], it will receive the
+     * current values of the subscribed [propertyId, areaId]s through property change events if they
+     * are currently okay for reading. If they are not available for reading or in error state,
      * property change events with a unavailable or error status will be generated.
+     *
+     * <p>
+     * <b>Note:</b> If the client has {@link android.content.pm.ApplicationInfo#targetSdkVersion} <
+     * 16, if the client calls this function after the [propertyId, areaId] is already registered
+     * (aka, this is not the first callback registered for the [propertyId, areaId]),
+     * it is not guaranteed that the initial current-value event will be generated. If the client
+     * has {@link android.content.pm.ApplicationInfo#targetSdkVersion} > 16, it is guaranteed that
+     * the initial current-value event will always be generated for every call.
      *
      * <p>Note that the callback will be executed on the event handler provided to the
      * {@link android.car.Car} or the main thread if none was provided.
@@ -1521,6 +1542,7 @@ public class CarPropertyManager extends CarManagerBase {
             Slog.e(TAG, "failed to sanitize update rate", e);
             return false;
         }
+        List<CarSubscription> updatedSubscribeOptions;
 
         synchronized (mLock) {
             CarPropertyEventCallbackController cpeCallbackController =
@@ -1534,10 +1556,12 @@ public class CarPropertyManager extends CarManagerBase {
             mSubscriptionManager.stageNewOptions(carPropertyEventCallback,
                     sanitizedSubscribeOptions);
 
-            if (!applySubscriptionChangesLocked()) {
+            var maybeUpdatedCarSubscriptions = applySubscriptionChangesLocked();
+            if (maybeUpdatedCarSubscriptions.isEmpty()) {
                 Slog.e(TAG, "Subscription failed: failed to apply subscription changes");
                 return false;
             }
+            updatedSubscribeOptions = maybeUpdatedCarSubscriptions.get();
 
             if (cpeCallbackController == null) {
                 cpeCallbackController =
@@ -1576,6 +1600,40 @@ public class CarPropertyManager extends CarManagerBase {
                 cpeCallbackControllerSet.add(cpeCallbackController);
             }
         }
+
+        if (!mFeatureFlags.alwaysSendInitialValueEvent() || mAppTargetSdk < 36) {
+            return true;
+        }
+
+        Set<PropIdAreaId> propIdAreaIdsToSubscribe = getPropIdAreaIdsFromCarSubscriptions(
+                sanitizedSubscribeOptions);
+        Set<PropIdAreaId> updatedPropIdAreaIds = getPropIdAreaIdsFromCarSubscriptions(
+                updatedSubscribeOptions);
+
+        List<PropIdAreaId> getInitialValuePropIdAreaIds = new ArrayList<>();
+        for (var propIdAreaId : propIdAreaIdsToSubscribe) {
+            if (updatedPropIdAreaIds.contains(propIdAreaId)) {
+                // If this [propId, areaId] is updated, then car service will generate an initial
+                // value event, so we don't have to do anything here.
+                continue;
+            }
+            // Otherwise, the request for this [propId, areaId] will not reach car service, hence
+            // we have to generate the initial value event.
+            getInitialValuePropIdAreaIds.add(propIdAreaId);
+        }
+
+        if (getInitialValuePropIdAreaIds.isEmpty()) {
+            return true;
+        }
+
+        try {
+            mService.getAndDispatchInitialValue(getInitialValuePropIdAreaIds,
+                    mCarPropertyEventToService);
+        } catch (Exception e) {
+            Slog.w(TAG, "getAndDispatchInitialValue failed for PropIdAreaIds: "
+                    + getInitialValuePropIdAreaIds, e);
+        }
+
         return true;
     }
 
@@ -1634,11 +1692,12 @@ public class CarPropertyManager extends CarManagerBase {
     /**
      * Update the property ID and area IDs subscription in {@link #mService}.
      *
-     * @return {@code true} if the property has been successfully registered with the service.
+     * @return list of updated {@code CarSubscription} if the property has been successfully
+     *      registered with the service or an empty option if failed to register.
      * @throws SecurityException if missing the appropriate property access permission.
      */
     @GuardedBy("mLock")
-    private boolean applySubscriptionChangesLocked() {
+    private Optional<List<CarSubscription>> applySubscriptionChangesLocked() {
         List<CarSubscription> updatedCarSubscriptions = new ArrayList<>();
         List<Integer> propertiesToUnsubscribe = new ArrayList<>();
 
@@ -1646,9 +1705,13 @@ public class CarPropertyManager extends CarManagerBase {
                 propertiesToUnsubscribe);
 
         if (propertiesToUnsubscribe.isEmpty() && updatedCarSubscriptions.isEmpty()) {
-            Slog.d(TAG, "There is nothing to subscribe or unsubscribe to CarPropertyService");
+            if (DBG) {
+                Slog.d(TAG, "There is nothing to subscribe or unsubscribe to CarPropertyService");
+            }
             mSubscriptionManager.commit();
-            return true;
+            // Returns an empty updated subscriptions here. We must not return empty option
+            // here because the operation does not fail.
+            return Optional.of(updatedCarSubscriptions);
         }
 
         if (DBG) {
@@ -1660,8 +1723,9 @@ public class CarPropertyManager extends CarManagerBase {
         try {
             if (!updatedCarSubscriptions.isEmpty()) {
                 if (!registerLocked(updatedCarSubscriptions)) {
+                    Slog.e(TAG, "failed to register subscriptions: " + updatedCarSubscriptions);
                     mSubscriptionManager.dropCommit();
-                    return false;
+                    return Optional.empty();
                 }
             }
 
@@ -1671,17 +1735,18 @@ public class CarPropertyManager extends CarManagerBase {
                         Slog.w(TAG, "Failed to unsubscribe to: " + VehiclePropertyIds.toString(
                                 propertiesToUnsubscribe.get(i)));
                         mSubscriptionManager.dropCommit();
-                        return false;
+                        return Optional.empty();
                     }
                 }
             }
         } catch (SecurityException e) {
+            Slog.e(TAG, "Received security exception when updating subscription, drop commit", e);
             mSubscriptionManager.dropCommit();
             throw e;
         }
 
         mSubscriptionManager.commit();
-        return true;
+        return Optional.of(updatedCarSubscriptions);
     }
 
     /**
@@ -1891,7 +1956,7 @@ public class CarPropertyManager extends CarManagerBase {
                 mSubscriptionManager.stageUnregister(carPropertyEventCallback,
                         new ArraySet<>(Set.of(propertyId)));
 
-                if (!applySubscriptionChangesLocked()) {
+                if (applySubscriptionChangesLocked().isEmpty()) {
                     continue;
                 }
 

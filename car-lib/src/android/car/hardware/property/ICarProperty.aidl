@@ -26,6 +26,7 @@ import com.android.car.internal.property.CarPropertyConfigList;
 import com.android.car.internal.property.AsyncPropertyServiceRequestList;
 import com.android.car.internal.property.CarSubscription;
 import com.android.car.internal.property.GetPropertyConfigListResult;
+import com.android.car.internal.property.PropIdAreaId;
 
 /**
  * @hide
@@ -80,4 +81,11 @@ interface ICarProperty {
      * no read permission for the property.
      */
     boolean isSupportedAndHasWritePermissionOnly(int propId);
+
+    /**
+     * Gets the current values for [propId, areaId]s and deliver them to the client as
+     * initial value events.
+     */
+    void getAndDispatchInitialValue(in List<PropIdAreaId> propIdAreaIds,
+            in ICarPropertyEventListener callback);
 }

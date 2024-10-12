@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-package android.car.apitest;
+package android.car.hardware;
+
+import static android.car.feature.Flags.FLAG_AREA_ID_CONFIG_ACCESS;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -22,11 +24,11 @@ import static org.junit.Assert.assertThrows;
 
 import android.car.VehicleAreaType;
 import android.car.VehicleAreaWindow;
-import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.property.AreaIdConfig;
+import android.platform.test.annotations.EnableFlags;
+import android.platform.test.flag.junit.SetFlagsRule;
 
-import androidx.test.filters.MediumTest;
-
+import org.junit.Rule;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -36,8 +38,11 @@ import java.util.List;
 /**
  * Unit tests for {@link CarPropertyConfig}
  */
-@MediumTest
+@EnableFlags(FLAG_AREA_ID_CONFIG_ACCESS)
 public final class CarPropertyConfigTest extends CarPropertyTestBase {
+
+    @Rule
+    public final SetFlagsRule mSetFlagsRule = new SetFlagsRule();
 
     @Test
     public void testCarPropertyConfigBuilder() {

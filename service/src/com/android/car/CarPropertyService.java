@@ -21,6 +21,7 @@ import static android.car.hardware.CarPropertyConfig.VEHICLE_PROPERTY_CHANGE_MOD
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 import static com.android.car.internal.common.CommonConstants.EMPTY_INT_ARRAY;
 import static com.android.car.internal.property.CarPropertyHelper.SYNC_OP_LIMIT_TRY_AGAIN;
+import static com.android.car.internal.property.CarPropertyHelper.getPropIdAreaIdsFromCarSubscriptions;
 import static com.android.car.internal.property.CarPropertyHelper.propertyIdsToString;
 
 import static java.lang.Integer.toHexString;
@@ -69,6 +70,7 @@ import com.android.car.internal.property.CarSubscription;
 import com.android.car.internal.property.GetPropertyConfigListResult;
 import com.android.car.internal.property.IAsyncPropertyResultCallback;
 import com.android.car.internal.property.InputSanitizationUtils;
+import com.android.car.internal.property.PropIdAreaId;
 import com.android.car.internal.property.SubscriptionManager;
 import com.android.car.internal.util.ArrayUtils;
 import com.android.car.internal.util.IndentingPrintWriter;
@@ -479,8 +481,9 @@ public class CarPropertyService extends ICarProperty.Stub
             finalClient = client;
         }
 
+        var propIdAreaIds = getPropIdAreaIdsFromCarSubscriptions(sanitizedOptions);
         mHandler.post(() ->
-                getAndDispatchPropertyInitValue(sanitizedOptions, finalClient));
+                getAndDispatchPropertyInitValue(propIdAreaIds, finalClient));
     }
 
     /**
@@ -553,46 +556,63 @@ public class CarPropertyService extends ICarProperty.Stub
         }
     }
 
-    private void getAndDispatchPropertyInitValue(List<CarSubscription> carSubscriptions,
+    @Override
+    public void getAndDispatchInitialValue(List<PropIdAreaId> propIdAreaIds,
+            ICarPropertyEventListener carPropertyEventListener) {
+        requireNonNull(propIdAreaIds);
+        requireNonNull(carPropertyEventListener);
+        CarPropertyServiceClient client;
+        synchronized (mLock) {
+            // We create the client first so that we will not subscribe if the binder is already
+            // dead.
+            client = getOrCreateClientForBinderLocked(carPropertyEventListener);
+            if (client == null) {
+                // The client is already dead.
+                return;
+            }
+        }
+        mHandler.post(() ->
+                getAndDispatchPropertyInitValue(new ArraySet<PropIdAreaId>(propIdAreaIds),
+                        client));
+    }
+
+    private void getAndDispatchPropertyInitValue(Set<PropIdAreaId> propIdAreaIds,
             CarPropertyServiceClient client) {
         List<CarPropertyEvent> events = new ArrayList<>();
-        for (int i = 0; i < carSubscriptions.size(); i++) {
-            CarSubscription option = carSubscriptions.get(i);
-            int propertyId = option.propertyId;
-            int[] areaIds = option.areaIds;
-            for (int areaId : areaIds) {
-                CarPropertyValue carPropertyValue = null;
-                try {
-                    carPropertyValue = getProperty(propertyId, areaId);
-                } catch (ServiceSpecificException e) {
-                    Slogf.w(TAG, "Get initial carPropertyValue for registerCallback failed -"
-                                    + " property ID: %s, area ID %s, exception: %s",
-                            VehiclePropertyIds.toString(propertyId), Integer.toHexString(areaId),
-                            e);
-                    int errorCode = CarPropertyErrorCodes.getVhalSystemErrorCode(e.errorCode);
-                    long timestampNanos = SystemClock.elapsedRealtimeNanos();
-                    CarPropertyConfig<?> carPropertyConfig = getCarPropertyConfig(propertyId);
-                    Object defaultValue = CarPropertyHelper.getDefaultValue(
-                            carPropertyConfig.getPropertyType());
-                    if (CarPropertyErrorCodes.isNotAvailableVehicleHalStatusCode(errorCode)) {
-                        carPropertyValue = new CarPropertyValue<>(propertyId, areaId,
-                                CarPropertyValue.STATUS_UNAVAILABLE, timestampNanos, defaultValue);
-                    } else {
-                        carPropertyValue = new CarPropertyValue<>(propertyId, areaId,
-                                CarPropertyValue.STATUS_ERROR, timestampNanos, defaultValue);
-                    }
-                } catch (Exception e) {
-                    // Do nothing.
-                    Slogf.e(TAG, "Get initial carPropertyValue for registerCallback failed -"
-                                    + " property ID: %s, area ID %s, exception: %s",
-                            VehiclePropertyIds.toString(propertyId), Integer.toHexString(areaId),
-                            e);
+        for (var propIdAreaId : propIdAreaIds) {
+            int propertyId = propIdAreaId.propId;
+            int areaId = propIdAreaId.areaId;
+            CarPropertyValue carPropertyValue = null;
+            try {
+                carPropertyValue = getProperty(propertyId, areaId);
+            } catch (ServiceSpecificException e) {
+                Slogf.w(TAG, "Get initial carPropertyValue for registerCallback failed -"
+                                + " property ID: %s, area ID %s, exception: %s",
+                        VehiclePropertyIds.toString(propertyId), Integer.toHexString(areaId),
+                        e);
+                int errorCode = CarPropertyErrorCodes.getVhalSystemErrorCode(e.errorCode);
+                long timestampNanos = SystemClock.elapsedRealtimeNanos();
+                CarPropertyConfig<?> carPropertyConfig = getCarPropertyConfig(propertyId);
+                Object defaultValue = CarPropertyHelper.getDefaultValue(
+                        carPropertyConfig.getPropertyType());
+                if (CarPropertyErrorCodes.isNotAvailableVehicleHalStatusCode(errorCode)) {
+                    carPropertyValue = new CarPropertyValue<>(propertyId, areaId,
+                            CarPropertyValue.STATUS_UNAVAILABLE, timestampNanos, defaultValue);
+                } else {
+                    carPropertyValue = new CarPropertyValue<>(propertyId, areaId,
+                            CarPropertyValue.STATUS_ERROR, timestampNanos, defaultValue);
                 }
-                if (carPropertyValue != null) {
-                    CarPropertyEvent event = new CarPropertyEvent(
-                            CarPropertyEvent.PROPERTY_EVENT_PROPERTY_CHANGE, carPropertyValue);
-                    events.add(event);
-                }
+            } catch (Exception e) {
+                // Do nothing.
+                Slogf.e(TAG, "Get initial carPropertyValue for registerCallback failed -"
+                                + " property ID: %s, area ID %s, exception: %s",
+                        VehiclePropertyIds.toString(propertyId), Integer.toHexString(areaId),
+                        e);
+            }
+            if (carPropertyValue != null) {
+                CarPropertyEvent event = new CarPropertyEvent(
+                        CarPropertyEvent.PROPERTY_EVENT_PROPERTY_CHANGE, carPropertyValue);
+                events.add(event);
             }
         }
 
@@ -600,7 +620,13 @@ public class CarPropertyService extends ICarProperty.Stub
             return;
         }
         try {
-            client.onEvent(events);
+            if (mFeatureFlags.alwaysSendInitialValueEvent()) {
+                // Do not filter the initial value events. We always want the initial value events
+                // to reach the clients.
+                client.onFilteredEvents(events);
+            } else {
+                client.onEvent(events);
+            }
         } catch (RemoteException ex) {
             // If we cannot send a record, it's likely the connection snapped. Let the binder
             // death handle the situation.

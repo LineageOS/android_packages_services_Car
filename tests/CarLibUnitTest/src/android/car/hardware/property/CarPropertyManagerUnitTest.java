@@ -82,6 +82,7 @@ import com.android.car.internal.property.GetPropertyConfigListResult;
 import com.android.car.internal.property.GetSetValueResult;
 import com.android.car.internal.property.GetSetValueResultList;
 import com.android.car.internal.property.IAsyncPropertyResultCallback;
+import com.android.car.internal.property.PropIdAreaId;
 import com.android.car.internal.util.IntArray;
 
 import org.junit.Before;
@@ -242,7 +243,7 @@ public final class CarPropertyManagerUnitTest {
                     return inv.getArgument(1);
                 });
 
-        mApplicationInfo.targetSdkVersion = Build.VERSION_CODES.R;
+        mApplicationInfo.targetSdkVersion = Build.VERSION_CODES.CUR_DEVELOPMENT;
         when(mContext.getApplicationInfo()).thenReturn(mApplicationInfo);
 
         mContinuousCarPropertyConfig = CarPropertyConfig.newBuilder(Integer.class,
@@ -302,6 +303,7 @@ public final class CarPropertyManagerUnitTest {
         // Enable the features.
         when(mFeatureFlags.variableUpdateRate()).thenReturn(true);
         when(mFeatureFlags.handlePropertyEventsInBinderThread()).thenReturn(true);
+        when(mFeatureFlags.alwaysSendInitialValueEvent()).thenReturn(true);
 
         mCarPropertyManager.setFeatureFlags(mFeatureFlags);
     }
@@ -376,6 +378,7 @@ public final class CarPropertyManagerUnitTest {
     private void setAppTargetSdk(int appTargetSdk) {
         mApplicationInfo.targetSdkVersion = appTargetSdk;
         mCarPropertyManager = new CarPropertyManager(mCar, mICarProperty);
+        mCarPropertyManager.setFeatureFlags(mFeatureFlags);
     }
 
     @Test
@@ -2131,6 +2134,78 @@ public final class CarPropertyManagerUnitTest {
         verify(mICarProperty).registerListener(eq(List.of(
                         createCarSubscriptionOption(VENDOR_CONTINUOUS_PROPERTY, new int[]{0},
                                 CarPropertyManager.SENSOR_RATE_FAST, /* enableVur= */ false))),
+                any(ICarPropertyEventListener.class));
+    }
+
+    // TODO(b/372530534): remove this once we remove the flag.
+    @Test
+    public void testSubscribePropertyEvents_doNotSendGetInitialValueRequest_flagDisabled()
+            throws Exception {
+        when(mFeatureFlags.alwaysSendInitialValueEvent()).thenReturn(false);
+
+        mCarPropertyManager.subscribePropertyEvents(
+                VENDOR_ON_CHANGE_PROPERTY, /* areaId= */ 0,
+                mCarPropertyEventCallback);
+        mCarPropertyManager.subscribePropertyEvents(
+                VENDOR_ON_CHANGE_PROPERTY, /* areaId= */ 0,
+                mCarPropertyEventCallback);
+
+        verify(mICarProperty, never()).getAndDispatchInitialValue(any(), any());
+    }
+
+    @Test
+    public void testSubscribePropertyEvents_doNotSendGetInitialValueRequest_legacyClient()
+            throws Exception {
+        setAppTargetSdk(Build.VERSION_CODES.VANILLA_ICE_CREAM);
+
+        mCarPropertyManager.subscribePropertyEvents(
+                VENDOR_ON_CHANGE_PROPERTY, /* areaId= */ 0,
+                mCarPropertyEventCallback);
+        mCarPropertyManager.subscribePropertyEvents(
+                VENDOR_ON_CHANGE_PROPERTY, /* areaId= */ 0,
+                mCarPropertyEventCallback);
+
+        verify(mICarProperty, never()).getAndDispatchInitialValue(any(), any());
+    }
+
+    // Make sure that if a the subscription request does not need to be sent to car service, we will
+    // send the getAndDispatchInitialValue request to make sure initial values are generated.
+    @Test
+    public void testSubscribePropertyEvents_sendGetInitialValueRequest_sameCallback()
+            throws Exception {
+        mCarPropertyManager.subscribePropertyEvents(
+                VENDOR_ON_CHANGE_PROPERTY, /* areaId= */ 0,
+                mCarPropertyEventCallback);
+        mCarPropertyManager.subscribePropertyEvents(
+                VENDOR_ON_CHANGE_PROPERTY, /* areaId= */ 0,
+                mCarPropertyEventCallback);
+
+        PropIdAreaId propIdAreaId = new PropIdAreaId();
+        propIdAreaId.propId = VENDOR_ON_CHANGE_PROPERTY;
+        propIdAreaId.areaId = 0;
+        verify(mICarProperty).getAndDispatchInitialValue(eq(List.of(propIdAreaId)),
+                any(ICarPropertyEventListener.class));
+    }
+
+    // Make sure that if a the subscription request does not need to be sent to car service, we will
+    // send the getAndDispatchInitialValue request to make sure initial values are generated.
+    @Test
+    public void testSubscribePropertyEvents_sendGetInitialValueRequest_differentCallback()
+            throws Exception {
+        mCarPropertyManager.subscribePropertyEvents(
+                VENDOR_ON_CHANGE_PROPERTY, /* areaId= */ 0,
+                mCarPropertyEventCallback);
+        mCarPropertyManager.subscribePropertyEvents(List.of(
+                new Subscription.Builder(VENDOR_CONTINUOUS_PROPERTY).addAreaId(0)
+                        .setUpdateRateFast().build(),
+                new Subscription.Builder(VENDOR_ON_CHANGE_PROPERTY).addAreaId(0)
+                        .build()), /* callbackExecutor= */ null, mCarPropertyEventCallback2);
+
+        // VENDOR_ON_CHANGE_PROPERTY is already subscribed, so we need initial value event for it.
+        PropIdAreaId propIdAreaId = new PropIdAreaId();
+        propIdAreaId.propId = VENDOR_ON_CHANGE_PROPERTY;
+        propIdAreaId.areaId = 0;
+        verify(mICarProperty).getAndDispatchInitialValue(eq(List.of(propIdAreaId)),
                 any(ICarPropertyEventListener.class));
     }
 

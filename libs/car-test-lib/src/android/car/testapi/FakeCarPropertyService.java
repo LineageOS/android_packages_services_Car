@@ -41,6 +41,7 @@ import com.android.car.internal.property.GetPropertyConfigListResult;
 import com.android.car.internal.property.GetSetValueResult;
 import com.android.car.internal.property.GetSetValueResultList;
 import com.android.car.internal.property.IAsyncPropertyResultCallback;
+import com.android.car.internal.property.PropIdAreaId;
 import com.android.car.internal.util.PairSparseArray;
 import com.android.internal.annotations.GuardedBy;
 
@@ -162,8 +163,22 @@ class FakeCarPropertyService extends ICarProperty.Stub implements CarPropertyCon
     }
 
     @Override
-    public CarPropertyValue getProperty(int prop, int zone) throws RemoteException {
-        return mValues.get(PropKey.of(prop, zone));
+    public CarPropertyValue getProperty(int prop, int areaId) throws RemoteException {
+        return mValues.get(PropKey.of(prop, areaId));
+    }
+
+    @Override
+    public void getAndDispatchInitialValue(List<PropIdAreaId> propIdAreaIds,
+            ICarPropertyEventListener carPropertyEventListener) throws RemoteException {
+        List<CarPropertyEvent> events = new ArrayList<>();
+        for (var propIdAreaId : propIdAreaIds) {
+            CarPropertyEvent event = new CarPropertyEvent(
+                    CarPropertyEvent.PROPERTY_EVENT_PROPERTY_CHANGE,
+                    getProperty(propIdAreaId.propId, propIdAreaId.areaId));
+            events.add(event);
+        }
+
+        carPropertyEventListener.onEvent(events);
     }
 
     @Override

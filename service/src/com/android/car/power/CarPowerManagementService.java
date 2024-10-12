@@ -166,6 +166,8 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     private static final String TETHERING_STATE_FILENAME = "tethering_state";
     private static final String COMPONENT_STATE_MODIFIED = "forcibly_disabled";
     private static final String COMPONENT_STATE_ORIGINAL = "original";
+    private static final String KERNEL_BOOT_TIME_PROPERTY = "boot.car_kernel_boot_time";
+    private static final String DEVICE_START_TIME_PROPERTY = "boot.car_device_start_time";
     // If Suspend to RAM fails, we retry with an exponential back-off:
     // The wait interval will be 10 msec, 20 msec, 40 msec, ...
     // Once the wait interval goes beyond 100 msec, it is fixed at 100 msec.
@@ -250,6 +252,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     private final AtomicFile mTetheringStateFile;
     private final boolean mWifiAdjustmentForSuspend;
     private boolean mShouldChangeSwap = true;
+    private long mCarServiceStartTimeAfterSuspend = 0;
 
     // This is a temp work-around to reduce user switching delay after wake-up.
     private final boolean mSwitchGuestUserBeforeSleep;
@@ -697,6 +700,10 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                     mResumeDelayFromSimulatedSuspendSec);
             writer.printf("mFreeMemoryBeforeSuspend: %b\n", mFreeMemoryBeforeSuspend);
         }
+        writer.printf("Kernel boot time property: %d", SystemPropertiesHelper.getLong(
+                KERNEL_BOOT_TIME_PROPERTY, /* defaultVal= */0L));
+        writer.printf("Device start time property: %d", SystemPropertiesHelper.getLong(
+                DEVICE_START_TIME_PROPERTY, /* defaultVal= */0L));
 
         mPolicyReader.dump(writer);
         mPowerComponentHandler.dump(writer);
@@ -1797,6 +1804,19 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         }
         Slogf.i(TAG, "Resuming after suspending");
         forEachDisplay(mContext, mSystemInterface::refreshDisplayBrightness);
+        // TODO(b/311063174): Verify boot.car_kernel_boot_time and boot.car_device_start time
+        //                    format when LA.3.7.0 lands.
+        if (!simulatedMode) {
+            long userPerceivedStartTimeAfterSuspend = SystemClock.uptimeMillis();
+            String suspendTarget = getSuspendType();
+            long kernelStartTimeMillis = SystemPropertiesHelper.getLong(
+                    KERNEL_BOOT_TIME_PROPERTY, /* defaultVal= */ 0L);
+            long deviceStartTimeMillis = SystemPropertiesHelper.getLong(
+                    DEVICE_START_TIME_PROPERTY, /* defaultVal= */ 0L);
+            CarStatsLogHelper.logResumeFromSuspend(suspendTarget, kernelStartTimeMillis,
+                    mCarServiceStartTimeAfterSuspend, userPerceivedStartTimeAfterSuspend,
+                    deviceStartTimeMillis);
+        }
         onApPowerStateChange(CpmsState.WAIT_FOR_VHAL, nextListenerState);
     }
 
@@ -3143,18 +3163,21 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         }
     }
 
+    private String getSuspendType() {
+        synchronized (mLock) {
+            return mActionOnFinish == ACTION_ON_FINISH_HIBERNATION ? "Suspend-to-Disk"
+                    : "Suspend-to-RAM";
+        }
+    }
+
     // Send the command to enter Suspend to RAM.
     // If the command is not successful, try again with an exponential back-off.
     // If it fails repeatedly, send the command to shut down.
     // If we decide to go to a different power state, abort this retry mechanism.
     // Returns true if we successfully suspended.
     private boolean suspendWithRetries() {
-        boolean isSuspendToDisk;
-        synchronized (mLock) {
-            isSuspendToDisk = mActionOnFinish == ACTION_ON_FINISH_HIBERNATION;
-        }
-
-        String suspendTarget = isSuspendToDisk ? "Suspend-to-Disk" : "Suspend-to-RAM";
+        String suspendTarget = getSuspendType();
+        boolean isSuspendToDisk = suspendTarget.equals("Suspend-to-Disk");
         long retryIntervalMs = INITIAL_SUSPEND_RETRY_INTERVAL_MS;
         long totalWaitDurationMs = 0;
         while (true) {
@@ -3171,6 +3194,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
 
             switch (suspendResult) {
                 case SUSPEND_RESULT_SUCCESS:
+                    mCarServiceStartTimeAfterSuspend = SystemClock.uptimeMillis();
                     if (isSuspendToDisk && mFeatureFlags.changeSwapsDuringSuspendToDisk()
                             && mShouldChangeSwap) {
                         SystemPropertiesHelper.set("sys.hibernate", "0");

@@ -36,4 +36,9 @@ public final class SystemPropertiesHelper {
     public static void set(@NonNull String key, @Nullable String val) {
         SystemProperties.set(key, val);
     }
+
+    /** Check {@link SystemProperties#getLong(String, long)} */
+    public static long getLong(@NonNull String key, long defaultVal) {
+        return SystemProperties.getLong(key, defaultVal);
+    }
 }

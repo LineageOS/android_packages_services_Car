@@ -85,4 +85,7 @@
 
     <!-- Height of edit text in dialogs -->
     <dimen name="car_ui_dialog_edittext_height">64dp</dimen>
+
+    <!-- Size of the alert dialog icon -->
+    <dimen name="car_ui_dialog_icon_size">56dp</dimen>
 </resources>

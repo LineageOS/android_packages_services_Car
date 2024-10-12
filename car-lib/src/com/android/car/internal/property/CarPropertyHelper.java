@@ -23,10 +23,13 @@ import static com.android.car.internal.property.VehiclePropertyIdDebugUtils.toDe
 
 import android.car.VehiclePropertyIds;
 import android.car.hardware.CarPropertyValue;
+import android.util.ArraySet;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 
 import java.util.Collection;
+import java.util.List;
+import java.util.Set;
 import java.util.StringJoiner;
 
 /**
@@ -144,5 +147,23 @@ public final class CarPropertyHelper {
             return (T) "";
         }
         throw new IllegalArgumentException("Unexpected class: " + clazz);
+    }
+
+    /**
+     * Gets the list of [propId, areaId]s included in the subscriptions.
+     */
+    public static Set<PropIdAreaId> getPropIdAreaIdsFromCarSubscriptions(
+            List<CarSubscription> carSubscriptions) {
+        Set<PropIdAreaId> propIdAreaIds = new ArraySet<>();
+        for (int i = 0; i < carSubscriptions.size(); i++) {
+            var option = carSubscriptions.get(i);
+            for (int areaId : option.areaIds) {
+                PropIdAreaId propIdAreaId = new PropIdAreaId();
+                propIdAreaId.propId = option.propertyId;
+                propIdAreaId.areaId = areaId;
+                propIdAreaIds.add(propIdAreaId);
+            }
+        }
+        return propIdAreaIds;
     }
 }

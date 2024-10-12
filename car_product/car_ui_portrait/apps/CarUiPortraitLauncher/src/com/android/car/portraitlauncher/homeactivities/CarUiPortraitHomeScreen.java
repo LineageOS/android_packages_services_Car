@@ -379,6 +379,12 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
         }
 
         handleFullScreenPanel(taskInfo);
+
+        if (mIsAppGridOnTop && !shouldOpenPanelForAppGrid(reason)) {
+            logIfDebuggable("Panel should not open for app grid, check previous log for details");
+            mCurrentTaskInRootTaskView = taskInfo;
+            return;
+        }
         handleCalmMode(taskInfo, reason);
 
         if (!shouldUpdateApplicationPanelState(taskInfo)) {
@@ -386,11 +392,6 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
         }
 
         mCurrentTaskInRootTaskView = taskInfo;
-
-        if (mIsAppGridOnTop && !shouldOpenPanelForAppGrid(reason)) {
-            logIfDebuggable("Panel should not open for app grid, check previous log for details");
-            return;
-        }
 
         if (shouldOpenFullScreenPanel(taskInfo)) {
             mRootTaskViewPanel.openFullScreenPanel(/* animated= */ true, /* showToolBar= */ true,

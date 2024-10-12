@@ -324,6 +324,7 @@ package android.car.builtin.os {
   }
 
   public final class SystemPropertiesHelper {
+    method public static long getLong(@NonNull String, long);
     method public static void set(@NonNull String, @Nullable String);
   }
 

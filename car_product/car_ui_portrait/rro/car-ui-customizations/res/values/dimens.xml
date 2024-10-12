@@ -49,4 +49,9 @@
     <dimen name="car_ui_preference_content_margin_bottom">16dp</dimen>
     <dimen name="car_ui_preference_icon_size">56dp</dimen>
     <dimen name="car_ui_preference_icon_margin_end">16dp</dimen>
+
+    <dimen name="car_ui_app_styled_dialog_width">960dp</dimen>
+    <dimen name="car_ui_app_styled_dialog_height">672dp</dimen>
+    <dimen name="car_ui_app_styled_dialog_position_x">132dp</dimen>
+    <dimen name="car_ui_app_styled_dialog_position_y">104dp</dimen>
 </resources>

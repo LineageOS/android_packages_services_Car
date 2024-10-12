@@ -85,7 +85,7 @@ public final class CarPropertyEventCallbackControllerUnitTest {
             new CarPropertyValue<>(FIRST_PROPERTY_ID, AREA_ID_2,  STALE_TIMESTAMP_NANOS,
                     INTEGER_VALUE_1);
     private static final CarPropertyValue<Integer> ERROR_CAR_PROPERTY_VALUE =
-            new CarPropertyValue<>(FIRST_PROPERTY_ID, AREA_ID_1, TIMESTAMP_NANOS, null);
+            new CarPropertyValue<>(FIRST_PROPERTY_ID, AREA_ID_1, TIMESTAMP_NANOS, -1);
     @Rule
     public final MockitoRule mockito = MockitoJUnit.rule();
     @Captor

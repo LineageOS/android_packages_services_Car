@@ -160,6 +160,14 @@ flag {
     namespace: "car_framework"
     description: "Enables navigation audio usage in legacy volume mode."
     bug: "353872512"
+  }
+
+flag {
+    name: "async_audio_service_init"
+    is_exported: true
+    namespace: "car_framework"
+    description: "Controls whether to run CarAudioService init asynchronously to improve performance"
+    bug: "368619416"
 }
 
 flag {
@@ -209,6 +217,14 @@ flag {
   namespace: "car_framework"
   description: "Controls whether to directly handle property evnets in binder thread in CarPropertyManager"
   bug: "355703549"
+}
+
+flag {
+  name: "always_send_initial_value_event"
+  is_exported: true
+  namespace: "car_framework"
+  description: "Controls whether to always send initial value event for new subscription, this is used to fix a previous undefined behavior where for the same client, a second callback registered for the same [propId, areaId] may/may not get initial value event"
+  bug: "372530534"
 }
 
 # CarServiceBase

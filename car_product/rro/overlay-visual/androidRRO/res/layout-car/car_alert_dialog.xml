@@ -23,10 +23,10 @@
     android:gravity="start|top"
     android:background="@drawable/car_alert_dialog_bg"
     android:padding="@dimen/car_alert_dialog_padding"
-    android:orientation="vertical">
+    android:orientation="horizontal">
     <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
         android:layout_weight="1"
         android:fadeScrollbars="false"
         android:clipToPadding="false">
@@ -84,8 +84,8 @@
     </ScrollView>
     <include
         android:id="@*android:id/buttonPanel"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
         android:layout_marginTop="@dimen/car_alert_dialog_padding"
         android:layout_marginHorizontal="@dimen/car_alert_dialog_padding"
         layout="@layout/car_alert_dialog_button_bar"/>

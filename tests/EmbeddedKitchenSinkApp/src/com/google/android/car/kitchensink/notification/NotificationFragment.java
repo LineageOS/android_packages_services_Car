@@ -16,7 +16,10 @@ import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
 import android.widget.NumberPicker;
+import android.widget.Spinner;
 
 import androidx.annotation.DrawableRes;
 import androidx.core.app.NotificationCompat;
@@ -117,6 +120,8 @@ public class NotificationFragment extends Fragment {
         initButtonWithCustomActionIcon(view);
         initSelfRemovingNotification(view);
 
+        initCustomNotification(view);
+
         return view;
     }
 
@@ -187,6 +192,126 @@ public class NotificationFragment extends Fragment {
             mManager.notify(mCurrentNotificationId++, notification);
         });
 
+    }
+
+    private void initCustomNotification(View view) {
+        Intent intent = new Intent(mContext, KitchenSinkActivity.class);
+        PendingIntent pendingIntent = PendingIntent.getActivity(mContext, 0, intent,
+                PendingIntent.FLAG_IMMUTABLE);
+
+        Spinner importance = view.requireViewById(R.id.spinner_importance);
+        String[] importanceItems =
+                new String[]{IMPORTANCE_HIGH_ID, IMPORTANCE_HIGH_NO_SOUND_ID, IMPORTANCE_DEFAULT_ID,
+                        IMPORTANCE_NONE_ID, IMPORTANCE_LOW_ID, IMPORTANCE_MIN_ID};
+        ArrayAdapter<String> importanceAdapter = new ArrayAdapter<>(getContext(),
+                android.R.layout.simple_spinner_item, importanceItems);
+        importance.setAdapter(importanceAdapter);
+
+        Spinner category = view.requireViewById(R.id.spinner_category);
+        String[] categoryItems =
+                new String[]{"None", Notification.CATEGORY_ALARM, Notification.CATEGORY_CALL,
+                        Notification.CATEGORY_CAR_INFORMATION, Notification.CATEGORY_CAR_WARNING,
+                        Notification.CATEGORY_CAR_EMERGENCY, Notification.CATEGORY_EMAIL,
+                        Notification.CATEGORY_ERROR, Notification.CATEGORY_EVENT,
+                        Notification.CATEGORY_LOCATION_SHARING, Notification.CATEGORY_MESSAGE,
+                        Notification.CATEGORY_MISSED_CALL, Notification.CATEGORY_NAVIGATION,
+                        Notification.CATEGORY_PROGRESS, Notification.CATEGORY_PROMO,
+                        Notification.CATEGORY_RECOMMENDATION, Notification.CATEGORY_REMINDER,
+                        Notification.CATEGORY_SERVICE, Notification.CATEGORY_SOCIAL,
+                        Notification.CATEGORY_STATUS, Notification.CATEGORY_STOPWATCH,
+                        Notification.CATEGORY_SYSTEM, Notification.CATEGORY_TRANSPORT,
+                        Notification.CATEGORY_VOICEMAIL, Notification.CATEGORY_WORKOUT};
+        ArrayAdapter<String> categoryAdapter = new ArrayAdapter<>(getContext(),
+                android.R.layout.simple_spinner_item, categoryItems);
+        category.setAdapter(categoryAdapter);
+
+        CheckBox title = view.requireViewById(R.id.checkbox_title);
+        CheckBox content = view.requireViewById(R.id.checkbox_content);
+        CheckBox colorized = view.requireViewById(R.id.checkbox_colorized);
+
+        Spinner colors = view.requireViewById(R.id.spinner_colors);
+        String[] colorItems =
+                new String[]{"None", "Blue Bright", "Blue Dark", "Blue Light", "Green Dark",
+                        "Green Light", "Orange Dark", "Orange Light", "Purple", "Red Dark",
+                        "Red Light"};
+        ArrayAdapter<String> colorAdapter = new ArrayAdapter<>(getContext(),
+                android.R.layout.simple_spinner_item, colorItems);
+        colors.setAdapter(colorAdapter);
+
+        Spinner actions = view.requireViewById(R.id.spinner_actions);
+        String[] actionItems = new String[]{"0", "1", "2", "3"};
+        ArrayAdapter<String> actionAdapter = new ArrayAdapter<>(getContext(),
+                android.R.layout.simple_spinner_item, actionItems);
+        actions.setAdapter(actionAdapter);
+
+        view.requireViewById(R.id.custom_button).setOnClickListener(
+                v -> {
+                    Notification.Builder builder = new Notification
+                            .Builder(mContext, importance.getSelectedItem().toString())
+                            .setSmallIcon(R.drawable.car_ic_mode);
+
+                    if (!category.getSelectedItem().toString().equals("None")) {
+                        builder.setCategory(category.getSelectedItem().toString());
+                    }
+
+                    if (title.isChecked()) {
+                        builder.setContentTitle("Title!");
+                    }
+
+                    if (content.isChecked()) {
+                        builder.setContentText("Content is put here!!!");
+                    }
+
+                    builder.setColorized(colorized.isChecked());
+
+                    String color = colors.getSelectedItem().toString();
+                    int colorRes = -1;
+                    switch (color) {
+                        case "Blue Bright":
+                            colorRes = android.R.color.holo_blue_bright;
+                            break;
+                        case "Blue Dark":
+                            colorRes = android.R.color.holo_blue_dark;
+                            break;
+                        case "Blue Light":
+                            colorRes = android.R.color.holo_blue_light;
+                            break;
+                        case "Green Dark":
+                            colorRes = android.R.color.holo_green_dark;
+                            break;
+                        case "Green Light":
+                            colorRes = android.R.color.holo_green_light;
+                            break;
+                        case "Orange Dark":
+                            colorRes = android.R.color.holo_orange_dark;
+                            break;
+                        case "Orange Light":
+                            colorRes = android.R.color.holo_orange_light;
+                            break;
+                        case "Purple":
+                            colorRes = android.R.color.holo_purple;
+                            break;
+                        case "Red Light":
+                            colorRes = android.R.color.holo_red_light;
+                            break;
+                        case "Red Dark":
+                            colorRes = android.R.color.holo_red_dark;
+                            break;
+                    }
+                    if (colorRes != -1) {
+                        builder.setColor(mContext.getColor(colorRes));
+                    }
+
+                    String actionCountStr = actions.getSelectedItem().toString();
+                    int actionCount = Integer.parseInt(actionCountStr);
+                    for (int i = 0; i < actionCount; i++) {
+                        builder.addAction(
+                                new Notification.Action.Builder(
+                                        null, "Action " + (i + 1), pendingIntent).build());
+                    }
+
+                    mManager.notify(mCurrentNotificationId++, builder.build());
+                });
     }
 
     private void initImportanceHighBotton(View view) {

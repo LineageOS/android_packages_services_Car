@@ -40,6 +40,11 @@
     <item target="dimen/car_ui_dialog_edittext_margin_top" value="@dimen/car_ui_dialog_edittext_margin_top"/>
     <item target="dimen/car_ui_list_item_text_no_icon_start_margin" value="@dimen/car_ui_list_item_text_no_icon_start_margin"/>
 
+    <item target="dimen/car_ui_app_styled_dialog_width" value="@dimen/car_ui_app_styled_dialog_width"/>
+    <item target="dimen/car_ui_app_styled_dialog_height" value="@dimen/car_ui_app_styled_dialog_height"/>
+    <item target="dimen/car_ui_app_styled_dialog_position_x" value="@dimen/car_ui_app_styled_dialog_position_x"/>
+    <item target="dimen/car_ui_app_styled_dialog_position_y" value="@dimen/car_ui_app_styled_dialog_position_y"/>
+
     <item target="drawable/car_ui_app_styled_view_background" value="@drawable/car_ui_app_styled_view_background" />
     <item target="drawable/car_ui_recyclerview_ic_up" value="@drawable/car_ui_recyclerview_ic_up" />
     <item target="drawable/car_ui_recyclerview_ic_down" value="@drawable/car_ui_recyclerview_ic_down" />

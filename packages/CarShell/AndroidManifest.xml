@@ -182,6 +182,4 @@
     <uses-permission android:name="android.permission.MANAGE_TIME_AND_ZONE_DETECTION" />
     <!-- permissions required for ATS aareceiverts test - AccessPointTests -->
     <uses-permission android:name="android.permissions.NETWORK_SETTINGS" />
-    <!-- permissions required for AtsBlockinguiDeviceTest -->
-    <uses-permission android:name="android.permission.MANAGE_ACTIVITY_TASKS" />
 </manifest>

@@ -2643,6 +2643,9 @@ public final class Car implements ICarBase {
      * CarSensorManager carSensorManager = (CarSensorManager) car.getCarManager(Car.SENSOR_SERVICE);
      * </code>
      *
+     * <p>For getting {@link Car#AUDIO_SERVICE}, this call might be blocked on car audio service
+     * initialization if the client calls this early during the boot process.
+     *
      * @param serviceName Name of service that should be created like {@link #SENSOR_SERVICE}.
      * @return Matching service manager or null if there is no such service.
      */
@@ -2684,6 +2687,9 @@ public final class Car implements ICarBase {
      *
      * <p>For example, to get the manager for sensor service,
      * <code>CarSensorManager carSensorManager = car.getCarManager(CarSensorManager.class);</code>
+     *
+     * <p>For getting {@link CarAudioManager}, this call might be blocked on car audio service
+     * initialization if the client calls this early during the boot process.
      *
      * @param serviceClass The class of the desired service.
      * @return Matching service manager or {@code null} if there is no such service.

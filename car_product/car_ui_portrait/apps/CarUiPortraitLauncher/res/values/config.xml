@@ -65,6 +65,8 @@
         <item>android.server.wm.app/android.server.wm.app.MinAspectRatioLandscapeActivity</item>
         <item>android.server.wm.app/android.server.wm.app.MinAspectRatioPortraitActivity</item>
         <item>android.server.wm.app/android.server.wm.app.MinAspectRatioUnsetActivity</item>
+        <!-- TODO(b/372517324): Remove once ag/28710677 is in AOSP.-->
+        <item>android.view.surfacecontrol.cts/android.view.surfacecontrol.cts.SurfaceControlViewHostTests$TestActivity</item>
         <item>android.view.surfacecontrol.cts/android.view.cts.surfacevalidator.CapturedActivity</item>
         <item>android.view.surfacecontrol.cts/.TrustedPresentationCallbackTest$TestActivity</item>
         <item>android.view.surfacecontrol.cts/android.view.cts.surfacevalidator.CapturedActivityWithResource</item>

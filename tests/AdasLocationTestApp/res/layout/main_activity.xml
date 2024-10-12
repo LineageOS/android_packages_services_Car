@@ -24,7 +24,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="100dp"
+        android:layout_marginTop="300dp"
         android:textStyle="bold"
         android:text="main location enabled: "/>
     <TextView
@@ -32,7 +32,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_toRightOf="@id/main_location_enabled"
-        android:layout_marginTop="100dp"
+        android:layout_marginTop="300dp"
         android:textStyle="bold"/>
     <TextView
         android:id="@+id/adas_location_enabled"
@@ -56,7 +56,7 @@
         android:text="@string/current_location"
         android:layout_alignParentLeft="true"
         android:layout_marginLeft="350dp"
-        android:layout_marginTop= "200dp"
+        android:layout_marginTop= "400dp"
         android:textStyle="bold"/>
     <TextView
         android:id="@+id/current_location_result"
@@ -81,7 +81,7 @@
         android:text="@string/last_location"
         android:layout_alignParentRight="true"
         android:layout_marginRight="350dp"
-        android:layout_marginTop= "200dp"
+        android:layout_marginTop= "400dp"
         android:textStyle="bold"/>
     <TextView
         android:id="@+id/last_location_result"

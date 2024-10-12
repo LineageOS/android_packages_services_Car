@@ -16,6 +16,8 @@
 
 package com.android.car;
 
+import static com.google.common.truth.Truth.assertThat;
+
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -24,6 +26,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import android.automotive.powerpolicy.internal.ICarPowerPolicyDelegate;
@@ -44,6 +47,7 @@ import android.util.Log;
 
 import androidx.test.platform.app.InstrumentationRegistry;
 
+import com.android.car.audio.CarAudioService;
 import com.android.car.garagemode.GarageModeService;
 import com.android.car.hal.HalPropValueBuilder;
 import com.android.car.hal.PowerHalService;
@@ -62,6 +66,7 @@ import com.android.car.systeminterface.TimeInterface;
 import com.android.car.systeminterface.WakeLockInterface;
 import com.android.car.telemetry.CarTelemetryService;
 import com.android.car.test.utils.TemporaryDirectory;
+import com.android.car.user.CarUserService;
 import com.android.car.watchdog.CarWatchdogService;
 
 import org.junit.After;
@@ -82,11 +87,22 @@ import java.io.IOException;
  * <ol>
  * <li>{@link ActivityManagerInterface} broadcasts intent for a user.</li>
  * <li>{@link DisplayInterface} provides access to display operations.</li>
- * <li>{@link IVehicle} provides access to vehicle properties.</li>
+ * <li>{@link VehicleStub} provides access to vehicle properties.</li>
  * <li>{@link StorageMonitoringInterface} provides access to storage monitoring operations.</li>
  * <li>{@link SystemStateInterface} provides system statuses (booting, sleeping, ...).</li>
  * <li>{@link TimeInterface} provides access to time operations.</li>
- * <li>{@link TimeInterface} provides access to wake lock operations.</li>
+ * <li>{@link WakeLockInterface} provides access to wake lock operations.</li>
+ * <li>{@link CarWatchdogService}</li>
+ * <li>{@link CarPerformanceService}</li>
+ * <li>{@link GarageModeService}</li>
+ * <li>{@link CarTelemetryService}</li>
+ * <li>{@link CarRemoteAccessService}</li>
+ * <li>{@link CarAudioService}</li>
+ * <li>{@link CarUserService}</li>
+ * <li>{@link ICarPowerPolicySystemNotification.Stub} car power policy daemon before
+ * refactoring</li>
+ * <li>{@link ICarPowerPolicyDelegate.Stub} car power policy daemon after refactoring.</li>
+ * <li>{@link ICarServiceHelper}</li>
  * </ol>
  */
 @RunWith(MockitoJUnitRunner.class)
@@ -103,10 +119,12 @@ public final class ICarImplTest {
     @Mock private CarWatchdogService mMockCarWatchdogService;
     @Mock private CarPerformanceService mMockCarPerformanceService;
     @Mock private GarageModeService mMockGarageModeService;
-    @Mock private ICarPowerPolicySystemNotification.Stub mMockCarPowerPolicyDaemon;
-    @Mock private ICarPowerPolicyDelegate.Stub mMockRefactoredCarPowerPolicyDaemon;
     @Mock private CarTelemetryService mMockCarTelemetryService;
     @Mock private CarRemoteAccessService mMockCarRemoteAccessService;
+    @Mock private CarAudioService mMockCarAudioService;
+    @Mock private CarUserService mMockCarUserService;
+    @Mock private ICarPowerPolicySystemNotification.Stub mMockCarPowerPolicyDaemon;
+    @Mock private ICarPowerPolicyDelegate.Stub mMockRefactoredCarPowerPolicyDaemon;
     @Mock private ICarServiceHelper mICarServiceHelper;
 
     private Context mContext;
@@ -114,6 +132,17 @@ public final class ICarImplTest {
     private UserManager mUserManager;
 
     private final MockIOInterface mMockIOInterface = new MockIOInterface();
+    private final StaticBinderInterface mFakeStaticBinderInterface = new StaticBinderInterface() {
+        @Override
+        public int getCallingUid() {
+            return Process.SYSTEM_UID;
+        }
+
+        @Override
+        public int getCallingPid() {
+            return 0;
+        }
+    };
 
     static final class CarServiceConnectedCallback extends ICarResultReceiver.Stub {
         @Override
@@ -161,6 +190,9 @@ public final class ICarImplTest {
         // This prevents one test failure in tearDown from triggering assertion failure for single
         // CarLocalServices service.
         CarLocalServices.removeAllServices();
+
+        when(mMockVehicle.getHalPropValueBuilder()).thenReturn(
+                new HalPropValueBuilder(/* isAidl= */ true));
     }
 
     /**
@@ -174,6 +206,14 @@ public final class ICarImplTest {
             }
         } finally {
             CarLocalServices.removeAllServices();
+        }
+    }
+
+    private IInterface getMockPowerPolicyDaemon() {
+        if (Flags.carPowerPolicyRefactoring()) {
+            return mMockRefactoredCarPowerPolicyDaemon;
+        } else {
+            return mMockCarPowerPolicyDaemon;
         }
     }
 
@@ -193,14 +233,9 @@ public final class ICarImplTest {
         doThrow(new NullPointerException()).when(mContext).getSharedPreferences(
                 any(File.class), anyInt());
         doThrow(new NullPointerException()).when(mContext).getDataDir();
-        IInterface powerPolicyDaemon;
-        if (Flags.carPowerPolicyRefactoring()) {
-            powerPolicyDaemon = mMockRefactoredCarPowerPolicyDaemon;
-        } else {
-            powerPolicyDaemon = mMockCarPowerPolicyDaemon;
-        }
-        when(mMockVehicle.getHalPropValueBuilder()).thenReturn(
-                new HalPropValueBuilder(/*isAidl=*/true));
+
+        IInterface powerPolicyDaemon = getMockPowerPolicyDaemon();
+        // We use real CarUserService in this test.
         ICarImpl carImpl = new ICarImpl.Builder()
                 .setServiceContext(mContext)
                 .setVehicle(mMockVehicle)
@@ -209,6 +244,7 @@ public final class ICarImplTest {
                 .setCarWatchdogService(mMockCarWatchdogService)
                 .setCarPerformanceService(mMockCarPerformanceService)
                 .setCarTelemetryService(mMockCarTelemetryService)
+                .setCarAudioService(mMockCarAudioService)
                 .setCarRemoteAccessServiceConstructor((
                         Context context, SystemInterface systemInterface,
                         PowerHalService powerHalService
@@ -216,17 +252,7 @@ public final class ICarImplTest {
                 .setGarageModeService(mMockGarageModeService)
                 .setPowerPolicyDaemon(powerPolicyDaemon)
                 .setDoPriorityInitInConstruction(false)
-                .setTestStaticBinder(new StaticBinderInterface() {
-                    @Override
-                    public int getCallingUid() {
-                        return Process.SYSTEM_UID;
-                    }
-
-                    @Override
-                    public int getCallingPid() {
-                        return 0;
-                    }
-                })
+                .setTestStaticBinder(mFakeStaticBinderInterface)
                 .build();
 
         carImpl.setSystemServerConnections(mICarServiceHelper, new CarServiceConnectedCallback());
@@ -247,6 +273,76 @@ public final class ICarImplTest {
 
         mCar.disconnect();
         carImpl.release();
+    }
+
+    @Test
+    public void testGetCarService_CarAudioService_CallsWaitForInitComplete_true() throws Exception {
+        IInterface powerPolicyDaemon = getMockPowerPolicyDaemon();
+        ICarImpl carImpl = new ICarImpl.Builder()
+                .setServiceContext(mContext)
+                .setVehicle(mMockVehicle)
+                .setVehicleInterfaceName("MockedCar")
+                .setSystemInterface(mFakeSystemInterface)
+                .setCarWatchdogService(mMockCarWatchdogService)
+                .setCarPerformanceService(mMockCarPerformanceService)
+                .setCarTelemetryService(mMockCarTelemetryService)
+                .setCarRemoteAccessServiceConstructor((
+                        Context context, SystemInterface systemInterface,
+                        PowerHalService powerHalService
+                    ) -> mMockCarRemoteAccessService)
+                .setGarageModeService(mMockGarageModeService)
+                .setCarAudioService(mMockCarAudioService)
+                .setCarUserService(mMockCarUserService)
+                .setPowerPolicyDaemon(powerPolicyDaemon)
+                .setDoPriorityInitInConstruction(false)
+                .setTestStaticBinder(mFakeStaticBinderInterface)
+                .build();
+        when(mMockCarAudioService.waitForInitComplete(anyInt())).thenReturn(true);
+
+        carImpl.init();
+
+        try {
+            verify(mMockCarAudioService).init();
+
+            assertThat(carImpl.getCarService(Car.AUDIO_SERVICE)).isEqualTo(mMockCarAudioService);
+        } finally {
+            carImpl.release();
+        }
+    }
+
+    @Test
+    public void testGetCarService_CarAudioService_CallsWaitForInitComplete_false()
+            throws Exception {
+        IInterface powerPolicyDaemon = getMockPowerPolicyDaemon();
+        ICarImpl carImpl = new ICarImpl.Builder()
+                .setServiceContext(mContext)
+                .setVehicle(mMockVehicle)
+                .setVehicleInterfaceName("MockedCar")
+                .setSystemInterface(mFakeSystemInterface)
+                .setCarWatchdogService(mMockCarWatchdogService)
+                .setCarPerformanceService(mMockCarPerformanceService)
+                .setCarTelemetryService(mMockCarTelemetryService)
+                .setCarRemoteAccessServiceConstructor((
+                        Context context, SystemInterface systemInterface,
+                        PowerHalService powerHalService
+                    ) -> mMockCarRemoteAccessService)
+                .setGarageModeService(mMockGarageModeService)
+                .setCarAudioService(mMockCarAudioService)
+                .setCarUserService(mMockCarUserService)
+                .setPowerPolicyDaemon(powerPolicyDaemon)
+                .setDoPriorityInitInConstruction(false)
+                .setTestStaticBinder(mFakeStaticBinderInterface)
+                .build();
+
+        when(mMockCarAudioService.waitForInitComplete(anyInt())).thenReturn(false);
+
+        carImpl.init();
+
+        try {
+            assertThat(carImpl.getCarService(Car.AUDIO_SERVICE)).isNull();
+        } finally {
+            carImpl.release();
+        }
     }
 
     static final class MockIOInterface implements IOInterface {

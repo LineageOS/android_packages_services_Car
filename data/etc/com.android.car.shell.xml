@@ -26,7 +26,6 @@
         <permission name="android.permission.MODIFY_AUDIO_ROUTING"/>
         <permission name="android.permission.MANAGE_TIME_AND_ZONE_DETECTION"/>
         <permission name="android.permission.NETWORK_SETTINGS"/>
-        <permission name="android.permission.MANAGE_ACTIVITY_TASKS" />
         <permission name="android.car.permission.ACCESS_PRIVATE_DISPLAY_ID"/>
         <permission name="android.car.permission.READ_DRIVER_MONITORING_SETTINGS"/>
         <permission name="android.car.permission.CONTROL_DRIVER_MONITORING_SETTINGS"/>
