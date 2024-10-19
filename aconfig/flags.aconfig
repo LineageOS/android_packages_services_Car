@@ -353,3 +353,11 @@ flag {
     description: "Enables SDV to access packages manager functions"
     bug: "344832846"
 }
+
+# Feature for task view task reordering
+flag {
+    name: "task_view_task_reordering"
+    namespace: "car_framework"
+    description: "Enables task view task reordering"
+    bug: "369186876"
+}

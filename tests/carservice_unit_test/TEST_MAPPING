@@ -1,0 +1,52 @@
+{
+  "auto-presubmit": [
+    {
+      "name": "CarServiceUnitTest"
+    },
+    {
+      "name": "CarServiceWifiUnitTest"
+    },
+    {
+      "name": "CarServiceWatchdogUnitTest"
+    },
+    {
+      "name": "CarServiceVmsUnitTest"
+    },
+    {
+      "name": "CarServiceUtilUnitTest"
+    },
+    {
+      "name": "CarServiceUserUnitTest"
+    },
+    {
+      "name": "CarServiceTelemetryUnitTest"
+    },
+    {
+      "name": "CarServiceSystemUiUnitTest"
+    },
+    {
+      "name": "CarServiceSystemInterfaceUnitTest"
+    },
+    {
+      "name": "CarServiceStorageMonitoringUnitTest"
+    },
+    {
+      "name": "CarServiceStatsUnitTest"
+    },
+    {
+      "name": "CarServiceRemoteAccessUnitTest"
+    },
+    {
+      "name": "CarServicePropertyUnitTest"
+    },
+    {
+      "name": "CarServicePowerUnitTest"
+    },
+    {
+      "name": "CarServicePmUnitTest"
+    },
+    {
+      "name": "CarServiceOsUnitTest"
+    }
+  ]
+}

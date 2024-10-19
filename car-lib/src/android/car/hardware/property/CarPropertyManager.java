@@ -1363,7 +1363,7 @@ public class CarPropertyManager extends CarManagerBase {
             @FloatRange(from = 0.0, to = 100.0) float updateRateHz,
             @NonNull CarPropertyEventCallback carPropertyEventCallback) {
         Subscription subscription = new Subscription.Builder(propertyId).addAreaId(areaId)
-                .setUpdateRateHz(updateRateHz).setVariableUpdateRateEnabled(false).build();
+                .setUpdateRateHz(updateRateHz).build();
         return subscribePropertyEvents(List.of(subscription), /* callbackExecutor= */ null,
                 carPropertyEventCallback);
     }

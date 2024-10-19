@@ -2133,7 +2133,7 @@ public final class CarPropertyManagerUnitTest {
 
         verify(mICarProperty).registerListener(eq(List.of(
                         createCarSubscriptionOption(VENDOR_CONTINUOUS_PROPERTY, new int[]{0},
-                                CarPropertyManager.SENSOR_RATE_FAST, /* enableVur= */ false))),
+                                CarPropertyManager.SENSOR_RATE_FAST, /* enableVur= */ true))),
                 any(ICarPropertyEventListener.class));
     }
 

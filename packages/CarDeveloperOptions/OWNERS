@@ -7,3 +7,7 @@ cassieyw@google.com
 # Secondary (only if people in Primary are unreachable)
 dnek@google.com
 alexstetson@google.com
+
+# Settings Core team (only for Settings team to sync dependent changes due to merged manifest)
+per-file AndroidManifest.xml=file:platform/packages/apps/Settings:/OWNERS
+

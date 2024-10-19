@@ -31,9 +31,9 @@
 
 #include <thread>  // NOLINT(build/c++11)
 
-#include <carwatchdog_daemon_dump.pb.h>
-#include <health_check_client_info.pb.h>
-#include <performance_stats.pb.h>
+#include <packages/services/Car/service/proto/android/car/watchdog/carwatchdog_daemon_dump.pb.h>
+#include <packages/services/Car/service/proto/android/car/watchdog/health_check_client_info.pb.h>
+#include <packages/services/Car/service/proto/android/car/watchdog/performance_stats.pb.h>
 
 namespace android {
 namespace automotive {

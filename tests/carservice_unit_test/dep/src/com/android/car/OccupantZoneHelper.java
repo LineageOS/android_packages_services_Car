@@ -64,6 +64,14 @@ public final class OccupantZoneHelper {
     // Default driver user ID is 10.
     private int mDriverUserId = 10;
 
+    /**
+     * Sets up occupant zones.
+     *
+     * @param service The mocked service
+     * @param hasDriver Does it have a driver
+     * @param hasFrontPassenger Does the front passenger exist
+     * @param numRearPassengers number of rear passengers
+     */
     public void setUpOccupantZones(@Mock CarOccupantZoneService service, boolean hasDriver,
             boolean hasFrontPassenger, int numRearPassengers) {
         if (hasDriver) {
@@ -192,6 +200,11 @@ public final class OccupantZoneHelper {
         );
     }
 
+    /**
+     * Gets the display Id
+     * @param zone The OccupantZoneInfo
+     * @return DisplayId
+     */
     public int getDisplayId(OccupantZoneInfo zone) {
         return zone.zoneId; // For simplicity, use the same id with zone.
     }

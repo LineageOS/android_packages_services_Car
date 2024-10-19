@@ -137,6 +137,9 @@ public final class CarPropertyValue<T> implements Parcelable {
      */
     @Deprecated
     public CarPropertyValue(int propertyId, int areaId, int status, long timestampNanos, T value) {
+        Objects.requireNonNull(value, "value for propertyId: "
+                + VehiclePropertyIds.toString(propertyId) + ", areaId: 0x" + toHexString(areaId)
+                + ", status: " + status + " must not be null");
         mPropertyId = propertyId;
         mAreaId = areaId;
         mStatus = status;

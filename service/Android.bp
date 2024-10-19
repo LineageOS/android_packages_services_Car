@@ -38,15 +38,10 @@ gensrcs {
         "soong_zip",
     ],
 
-    tool_files: [
-        ":libprotobuf-internal-protos",
-    ],
-
     cmd: "mkdir -p $(genDir)/$(in) " +
         "&& $(location aprotoc) " +
         "  --plugin=$(location protoc-gen-javastream) " +
         "  --javastream_out=$(genDir)/$(in) " +
-        "  -Iexternal/protobuf/src " +
         "  -I . " +
         "  $(in) " +
         "&& $(location soong_zip) -jar -o $(out) -C $(genDir)/$(in) -D $(genDir)/$(in)",
@@ -64,22 +59,22 @@ genrule {
         "aprotoc",
         "protoc-gen-cppstream",
     ],
+
     cmd: "mkdir -p $(genDir) " +
         "&& $(location aprotoc) " +
         "  --plugin=$(location protoc-gen-cppstream) " +
         "  --cppstream_out=$(genDir) " +
         "  --cppstream_opt=experimental_allow_proto3_optional " +
-        "  -Iexternal/protobuf/src " +
-        "  -Ipackages/services/Car/service/proto/android/car/watchdog " +
+        "  -I . " +
         "  $(in) ",
     srcs: [
         ":native-dump-proto-srcs",
     ],
 
     out: [
-        "carwatchdog_daemon_dump.proto.h",
-        "performance_stats.proto.h",
-        "health_check_client_info.proto.h",
+        "packages/services/Car/service/proto/android/car/watchdog/carwatchdog_daemon_dump.proto.h",
+        "packages/services/Car/service/proto/android/car/watchdog/performance_stats.proto.h",
+        "packages/services/Car/service/proto/android/car/watchdog/health_check_client_info.proto.h",
     ],
 }
 
@@ -88,19 +83,20 @@ genrule {
     tools: [
         "aprotoc",
     ],
+
     cmd: "mkdir -p $(genDir) " +
         "&& $(location aprotoc) " +
         "  --cpp_out=$(genDir) " +
         "  --proto_path=external/protobuf/src/google/protobuf " +
-        "  --proto_path=packages/services/Car/service/proto/android/car/watchdog " +
+        "  -I . " +
         "  $(in) ",
     srcs: [
         ":native-dump-proto-srcs",
     ],
     out: [
-        "carwatchdog_daemon_dump.pb.h",
-        "performance_stats.pb.h",
-        "health_check_client_info.pb.h",
+        "packages/services/Car/service/proto/android/car/watchdog/carwatchdog_daemon_dump.pb.h",
+        "packages/services/Car/service/proto/android/car/watchdog/performance_stats.pb.h",
+        "packages/services/Car/service/proto/android/car/watchdog/health_check_client_info.pb.h",
     ],
 }
 
@@ -109,19 +105,20 @@ genrule {
     tools: [
         "aprotoc",
     ],
+
     cmd: "mkdir -p $(genDir) " +
         "&& $(location aprotoc) " +
         "  --cpp_out=$(genDir) " +
         "  --proto_path=external/protobuf/src/google/protobuf " +
-        "  --proto_path=packages/services/Car/service/proto/android/car/watchdog " +
+        "  -I . " +
         "  $(in) ",
     srcs: [
         ":native-dump-proto-srcs",
     ],
     out: [
-        "carwatchdog_daemon_dump.pb.cc",
-        "performance_stats.pb.cc",
-        "health_check_client_info.pb.cc",
+        "packages/services/Car/service/proto/android/car/watchdog/carwatchdog_daemon_dump.pb.cc",
+        "packages/services/Car/service/proto/android/car/watchdog/performance_stats.pb.cc",
+        "packages/services/Car/service/proto/android/car/watchdog/health_check_client_info.pb.cc",
     ],
 }
 

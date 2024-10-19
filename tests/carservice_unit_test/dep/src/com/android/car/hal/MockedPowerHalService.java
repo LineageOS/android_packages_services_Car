@@ -69,6 +69,10 @@ public class MockedPowerHalService extends PowerHalService {
     private int mRequestedShutdownPowerState = PowerState.SHUTDOWN_TYPE_UNDEFINED;
 
     public interface SignalListener {
+        /**
+         * Sends signals
+         * @param signal The signal to send
+         */
         void sendingSignal(int signal);
     }
 
@@ -109,7 +113,10 @@ public class MockedPowerHalService extends PowerHalService {
         }
     }
 
-    // For testing purposes only
+    /**
+     * Sets the signalListener
+     * @param listener The listener to set
+     */
     public void setSignalListener(SignalListener listener) {
         synchronized (mLock) {
             mSignalListener = listener;
@@ -189,12 +196,26 @@ public class MockedPowerHalService extends PowerHalService {
         mBrightnessSendLatch.countDown();
     }
 
+    /**
+     * Gets the display brightness
+     *
+     * @param displayId DisplayId to check brightness
+     * @return brightness of the displayId
+     */
     public int getDisplayBrightness(int displayId) {
         synchronized (mLock) {
             return mDisplayBrightnessSet.get(displayId, -1);
         }
     }
 
+    /**
+     * Waits for the brightness to be sent
+     *
+     * @param displayId The displayId of the brightness
+     * @param brightness the brightness to set
+     * @param timeoutMs Amount of ms to wait before timeout.
+     * @throws Exception If the brightness is not sent by timeout.
+     */
     public void waitForBrightnessSent(int displayId, int brightness, long timeoutMs)
             throws Exception {
         if (getDisplayBrightness(displayId) == brightness) {
@@ -212,6 +233,13 @@ public class MockedPowerHalService extends PowerHalService {
         return mRequestedShutdownPowerState;
     }
 
+    /**
+     * Wait for sent events to be finished
+     *
+     * @param timeoutMs Timeout when events are not all sent by this time
+     * @return All the events that were sent
+     * @throws TimeoutException SentState is empty
+     */
     public int[] waitForSend(long timeoutMs) throws Exception {
         long now = System.currentTimeMillis();
         long deadline = now + timeoutMs;
@@ -276,10 +304,19 @@ public class MockedPowerHalService extends PowerHalService {
         mIsHibernationAllowed = enabled;
     }
 
+    /**
+     * Sets the current power state to the state that is given.
+     * @param state The power state to set
+     */
     public void setCurrentPowerState(PowerState state) {
         setCurrentPowerState(state, true);
     }
 
+    /**
+     * Sets the current power state
+     * @param state The state to set
+     * @param notify If to notify listeners
+     */
     public void setCurrentPowerState(PowerState state, boolean notify) {
         PowerEventListener listener;
         synchronized (mLock) {

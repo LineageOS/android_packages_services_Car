@@ -18,6 +18,9 @@ syntax = "proto3";
 
 package android.automotive.watchdog;
 
+option java_multiple_files = true;
+option java_package = "android.automotive.watchdog";
+
 // Represents the performance stats captured by the CarWatchdog daemon.
 message PerformanceStats {
   optional StatsCollection boot_time_stats = 1;

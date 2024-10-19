@@ -18,6 +18,8 @@ package android.car.hardware;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.junit.Assert.assertThrows;
+
 import android.car.VehicleAreaType;
 
 import org.junit.Test;
@@ -65,7 +67,7 @@ public final class CarPropertyValueTest extends CarPropertyTestBase {
     @Test
     public void hashCode_returnsDifferentValueForDifferentCarPropertyValue() {
         assertThat(CAR_PROPERTY_VALUE.hashCode()).isNotEqualTo(
-                new CarPropertyValue<>(PROPERTY_ID, AREA_ID, TIMESTAMP_NANOS, null).hashCode());
+                new CarPropertyValue<>(PROPERTY_ID, AREA_ID, TIMESTAMP_NANOS, 1.23F).hashCode());
     }
 
     @Test
@@ -124,24 +126,9 @@ public final class CarPropertyValueTest extends CarPropertyTestBase {
     }
 
     @Test
-    public void equals_returnsFalseForDifferentValueWithNull() {
-        assertThat(CAR_PROPERTY_VALUE.equals(
-                new CarPropertyValue<>(PROPERTY_ID, AREA_ID, TIMESTAMP_NANOS, null)))
-                .isFalse();
-    }
-
-    @Test
     public void equals_returnsTrueWhenEqual() {
         assertThat(CAR_PROPERTY_VALUE.equals(
                 new CarPropertyValue<>(PROPERTY_ID, AREA_ID, TIMESTAMP_NANOS, VALUE)))
-                .isTrue();
-    }
-
-    @Test
-    public void equals_returnsTrueWhenEqualWithNullValues() {
-        assertThat(
-                new CarPropertyValue<>(PROPERTY_ID, AREA_ID, TIMESTAMP_NANOS, null).equals(
-                        new CarPropertyValue<>(PROPERTY_ID, AREA_ID, TIMESTAMP_NANOS, null)))
                 .isTrue();
     }
 
@@ -228,5 +215,11 @@ public final class CarPropertyValueTest extends CarPropertyTestBase {
     public void getStatus_returnsError() {
         assertThat(new CarPropertyValue<>(PROPERTY_ID, AREA_ID, CarPropertyValue.STATUS_ERROR,
                 TIMESTAMP_NANOS, VALUE).getStatus()).isEqualTo(CarPropertyValue.STATUS_ERROR);
+    }
+
+    @Test
+    public void nullValThrowException() {
+        assertThrows(NullPointerException.class, () -> new CarPropertyValue<Integer>(PROPERTY_ID,
+                AREA_ID, CarPropertyValue.STATUS_AVAILABLE, TIMESTAMP_NANOS, null));
     }
 }

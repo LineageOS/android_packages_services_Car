@@ -3463,5 +3463,14 @@
             <intent-filter tools:node="removeAll"/>
         </service>
 
+        <service
+          android:name="com.android.settings.SettingsService"
+          android:enabled="false"
+          android:exported="false"
+          tools:node="merge"
+          tools:replace="android:exported,android:enabled">
+          <intent-filter tools:node="removeAll" />
+        </service>
+
     </application>
 </manifest>

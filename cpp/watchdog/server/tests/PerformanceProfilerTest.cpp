@@ -35,8 +35,8 @@
 #include <type_traits>
 #include <vector>
 
-#include <carwatchdog_daemon_dump.pb.h>
-#include <performance_stats.pb.h>
+#include <packages/services/Car/service/proto/android/car/watchdog/carwatchdog_daemon_dump.pb.h>
+#include <packages/services/Car/service/proto/android/car/watchdog/performance_stats.pb.h>
 
 namespace android {
 namespace automotive {

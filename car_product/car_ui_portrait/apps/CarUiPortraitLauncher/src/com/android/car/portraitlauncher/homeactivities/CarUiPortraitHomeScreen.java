@@ -62,6 +62,7 @@ import android.hardware.input.InputManagerGlobal;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
 import android.os.RemoteException;
 import android.os.SystemClock;
@@ -149,6 +150,7 @@ import java.util.Set;
  */
 public final class CarUiPortraitHomeScreen extends FragmentActivity {
     public static final String TAG = CarUiPortraitHomeScreen.class.getSimpleName();
+    private static final int DEFAULT_TASKVIEW_INIT_TIMEOUT_MS = 5000;
 
     private static final boolean DBG = Build.IS_DEBUGGABLE;
     /** Identifiers for panels. */
@@ -163,6 +165,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
     private static final int INVALID_TASK_ID = -1;
     private final UserEventReceiver mUserEventReceiver = new UserEventReceiver();
     private final Configuration mConfiguration = new Configuration();
+    private final Handler mHandler = new Handler(Looper.getMainLooper());
 
     private int mStatusBarHeight;
     private FrameLayout mContainer;
@@ -230,6 +233,14 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                 updateBackgroundTaskViewInsets();
                 updateObscuredTouchRegion();
             };
+
+    private final Runnable mDefaultTaskViewInitTimeoutRunnable = new Runnable() {
+        @Override
+        public void run() {
+            Log.e(TAG, "TaskView initialization timeout - finishing activity");
+            finish();
+        }
+    };
 
     private ComponentName mUnhandledImmersiveModeRequestComponent;
     private long mUnhandledImmersiveModeRequestTimestamp;
@@ -662,6 +673,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
 
     @Override
     protected void onDestroy() {
+        logIfDebuggable("onDestroy");
         if (mTaskViewControllerWrapper != null) {
             mTaskViewControllerWrapper.onDestroy();
         }
@@ -1122,6 +1134,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                     @Override
                     public void onTaskViewInitialized() {
                         logIfDebuggable("Root Task View is ready");
+                        mHandler.removeCallbacks(mDefaultTaskViewInitTimeoutRunnable);
                         mRootTaskViewPanel.setReady(true);
                         onTaskViewReadinessUpdated();
                         initTaskViews();
@@ -1135,6 +1148,8 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                     }
                 };
 
+        mHandler.removeCallbacks(mDefaultTaskViewInitTimeoutRunnable);
+        mHandler.postDelayed(mDefaultTaskViewInitTimeoutRunnable, DEFAULT_TASKVIEW_INIT_TIMEOUT_MS);
         mTaskViewControllerWrapper.createCarDefaultRootTaskView(callback, getDisplayId(),
                 getMainExecutor());
     }
