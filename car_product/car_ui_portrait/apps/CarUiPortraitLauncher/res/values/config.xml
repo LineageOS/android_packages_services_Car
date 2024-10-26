@@ -19,6 +19,7 @@
     <string-array name="config_backgroundActivities" translatable="false">
         <item>com.google.android.apps.maps/com.google.android.maps.MapsActivity</item>
         <item>com.android.car.portraitlauncher/com.android.car.portraitlauncher.homeactivities.BackgroundPanelBaseActivity</item>
+        <item>com.android.car.portraitlauncher/com.android.car.carlauncher.homescreen.MapTosActivity</item>
     </string-array>
 
     <string name="config_notificationActivity" translatable="false">
@@ -113,4 +114,10 @@
 
     <!-- Boolean value to indicate if the recents activity should open the most recent task on dismiss. -->
     <bool name="config_launch_most_recent_task_on_recents_dismiss">false</bool>
+
+    <!-- An intent to start tos map activity when user has not accepted terms of service
+         URI, for example:
+         "intent:#Intent;component=com.android.car.carlauncher/com.android.car.carlauncher.homescreen.MapActivityTos;action=android.intent.action.MAIN;end"
+    -->
+    <string name="config_tosMapIntent" translatable="false">intent:#Intent;component=com.android.car.portraitlauncher/com.android.car.carlauncher.homescreen.MapTosActivity;action=android.intent.action.MAIN;end</string>
 </resources>

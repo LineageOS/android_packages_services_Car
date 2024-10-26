@@ -46,6 +46,16 @@
         </activity>
 
         <activity
+            android:name="com.android.car.carlauncher.ControlBarActivity"
+            android:exported="false"
+            tools:node="merge"
+            tools:replace="android:exported">
+            <!-- Disable the CarLauncher activity as we don't want that in the
+                 reference launcher. -->
+            <intent-filter tools:node="removeAll"/>
+        </activity>
+
+        <activity
             android:name=".homeactivities.BackgroundPanelBaseActivity"
             android:exported="true"
             android:launchMode="singleTask"
@@ -83,6 +93,21 @@
             <meta-data android:name="distractionOptimized" android:value="true"/>
             <intent-filter>
                 <action android:name="com.android.car.carlauncher.recents.OPEN_RECENT_TASK_ACTION"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".controlbar.ControlBarActivity"
+            android:launchMode="singleInstance"
+            android:clearTaskOnLaunch="true"
+            android:stateNotNeeded="true"
+            android:resumeWhilePausing="true"
+            android:exported="true"
+            android:windowSoftInputMode="adjustPan"
+            android:excludeFromRecents="true">
+            <meta-data android:name="distractionOptimized" android:value="true"/>
+            <intent-filter>
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </activity>

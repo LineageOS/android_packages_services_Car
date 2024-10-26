@@ -22,36 +22,47 @@ import android.os.UserHandle
 import com.android.car.customization.tool.domain.panel.Panel
 import com.android.car.customization.tool.domain.panel.PanelAction
 import com.android.car.customization.tool.domain.panel.PanelActionReducer
+import com.android.car.customization.tool.domain.panel.PanelHeaderItem
 import com.android.car.customization.tool.domain.panel.PanelItem
 import com.android.car.customization.tool.features.common.isValid
 
-data class UnbundledAppsRroToggleAction(
+data class AppRroToggleAction(
     val rroPackage: String,
     val newState: Boolean,
 ) : PanelAction
 
-internal class UnbundledRroPanelReducer(
+internal class AppRroPanelReducer(
     private val overlayManager: OverlayManager,
 ) : PanelActionReducer {
 
     override lateinit var bundle: Map<String, Any>
+    private lateinit var header: List<PanelHeaderItem>
 
     override fun build(): Panel {
-        val appPackage: String = (bundle[BUNDLE_UNBUNDLED_PACKAGE]
-            ?: throw IllegalArgumentException(
-                "The unbundled package has not been added to the action"
-            )) as String
+        if (!this::header.isInitialized) {
+            val title = bundle[BUNDLE_PANEL_TITLE]
+            require(title is String) { "The app name has not been added to the action" }
+            header = listOf(
+                PanelHeaderItem.CloseButton,
+                PanelHeaderItem.Title(
+                    text = title,
+                )
+            )
+        }
 
-        val items = listOf(PanelItem.SectionTitle(appPackage))
-            .plus(
-                overlayManager.getOverlayInfosForTarget(
+        val appPackage = bundle[BUNDLE_APP_PACKAGE]
+        require(appPackage is String) { "The app package has not been added to the action" }
+
+        val items =
+            overlayManager
+                .getOverlayInfosForTarget(
                     appPackage,
                     UserHandle.CURRENT
                 ).filter {
                     it.isValid()
                 }.map { overlayInfo ->
                     PanelItem.Switch(
-                        text = overlayInfo.packageName,
+                        text = overlayInfo.packageName.removePrefix("$appPackage."),
                         errorText = if (!overlayInfo.isValid()) {
                             OverlayInfo.stateToString(overlayInfo.state)
                         } else {
@@ -59,28 +70,28 @@ internal class UnbundledRroPanelReducer(
                         },
                         isChecked = overlayInfo.isEnabled,
                         isEnabled = overlayInfo.isMutable && overlayInfo.isValid(),
-                        action = UnbundledAppsRroToggleAction(
+                        action = AppRroToggleAction(
                             overlayInfo.packageName,
                             !overlayInfo.isEnabled
                         )
                     )
                 }
-            )
 
-        return Panel(items = items)
+        return Panel(headerItems = header, items = items)
     }
 
     override fun reduce(
         panel: Panel,
         action: PanelAction,
-    ): Panel = when (action) {
-        is UnbundledAppsRroToggleAction -> toggleRRO(panel, action)
-        else -> throw NotImplementedError("Action $action not implemented for this Panel")
+    ): Panel = if (action is AppRroToggleAction) {
+        toggleRRO(panel, action)
+    } else {
+        throw NotImplementedError("Action $action not implemented for this Panel")
     }
 
     private fun toggleRRO(
         panel: Panel,
-        action: UnbundledAppsRroToggleAction,
+        action: AppRroToggleAction,
     ): Panel {
         overlayManager.setEnabled(action.rroPackage, action.newState, UserHandle.CURRENT)
 
@@ -99,6 +110,7 @@ internal class UnbundledRroPanelReducer(
     }
 
     companion object {
-        const val BUNDLE_UNBUNDLED_PACKAGE = "unbundled_package"
+        const val BUNDLE_APP_PACKAGE = "app_package"
+        const val BUNDLE_PANEL_TITLE = "app_name"
     }
 }

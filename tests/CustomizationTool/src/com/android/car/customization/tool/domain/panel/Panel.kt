@@ -28,14 +28,18 @@ internal data class Panel(
 
 internal sealed class PanelHeaderItem {
 
+    data object CloseButton : PanelHeaderItem() {
+        val action: PanelAction = ClosePanelAction
+    }
+
+    data class Title(
+        val text: String
+    ) : PanelHeaderItem()
+
     data class SearchBox(
         val searchHint: String,
         val searchAction: (String) -> PanelAction,
     ) : PanelHeaderItem()
-
-    object CloseButton : PanelHeaderItem() {
-        val action: PanelAction = ClosePanelAction
-    }
 
     data class DropDown(
         val text: String,

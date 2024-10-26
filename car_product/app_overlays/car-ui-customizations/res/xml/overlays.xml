@@ -52,6 +52,7 @@
     <item target="color/car_ui_toolbar_tab_selected_color" value="@color/car_ui_toolbar_tab_selected_color"/>
     <item target="color/car_ui_toolbar_tab_unselected_color" value="@color/car_ui_toolbar_tab_unselected_color"/>
     <item target="color/car_ui_scrollbar_thumb" value="@color/car_ui_scrollbar_thumb"/>
+    <item target="color/car_ui_activity_background_color" value="@color/car_ui_activity_background_color"/>
 
     <item target="dimen/car_ui_toolbar_margin" value="@dimen/car_ui_toolbar_margin"/>
     <item target="dimen/car_ui_toolbar_menu_item_icon_size" value="@dimen/car_ui_toolbar_menu_item_icon_size"/>

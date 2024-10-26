@@ -16,6 +16,7 @@
 
 package com.android.car.portraitlauncher.homeactivities;
 
+import static android.car.settings.CarSettings.Secure.KEY_UNACCEPTED_TOS_DISABLED_APPS;
 import static android.content.pm.ActivityInfo.CONFIG_UI_MODE;
 import static android.view.WindowManager.LayoutParams.PRIVATE_FLAG_TRUSTED_OVERLAY;
 
@@ -53,6 +54,7 @@ import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.database.ContentObserver;
 import android.graphics.Insets;
 import android.graphics.Rect;
 import android.graphics.Region;
@@ -66,6 +68,7 @@ import android.os.Looper;
 import android.os.Message;
 import android.os.RemoteException;
 import android.os.SystemClock;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.KeyCharacterMap;
 import android.view.KeyEvent;
@@ -83,8 +86,10 @@ import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.android.car.carlauncher.AppLauncherUtils;
 import com.android.car.carlauncher.CarLauncher;
 import com.android.car.carlauncher.CarLauncherUtils;
+import com.android.car.carlauncher.Flags;
 import com.android.car.carlauncher.homescreen.HomeCardModule;
 import com.android.car.carlauncher.homescreen.audio.IntentHandler;
 import com.android.car.carlauncher.homescreen.audio.media.MediaIntentRouter;
@@ -95,6 +100,8 @@ import com.android.car.portraitlauncher.common.CarUiPortraitServiceManager;
 import com.android.car.portraitlauncher.common.UserEventReceiver;
 import com.android.car.portraitlauncher.panel.TaskViewPanel;
 import com.android.car.portraitlauncher.panel.TaskViewPanelStateChangeReason;
+
+import com.google.common.annotations.VisibleForTesting;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
@@ -188,6 +195,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
     private TaskViewPanel mRootTaskViewPanel;
     private boolean mSkipAppGridOnRestartAttempt;
     private int mAppGridTaskId = INVALID_TASK_ID;
+    @VisibleForTesting ContentObserver mTosContentObserver;
     private final IntentHandler mMediaIntentHandler = new IntentHandler() {
         @Override
         public void handleIntent(Intent intent) {
@@ -450,6 +458,12 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
         }
     }
 
+    private static void logInfo(String message) {
+        if (Log.isLoggable(TAG, Log.INFO)) {
+            Log.i(TAG, message);
+        }
+    }
+
     /**
      * Send both action down and up to be qualified as a back press. Set time for key events, so
      * they are not staled.
@@ -579,6 +593,10 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
 
         mTaskViewControllerWrapper = new RemoteCarTaskViewControllerWrapperImpl(
                 /* activity= */ this, this::onTaskViewControllerReady);
+
+        if (Flags.tosRestrictionsEnabled()) {
+            setupContentObserversForTos();
+        }
     }
 
     private void onTaskViewControllerReady() {
@@ -688,6 +706,10 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
         }
         mUserEventReceiver.unregister();
         TaskStackChangeListeners.getInstance().unregisterTaskStackListener(mTaskStackListener);
+
+        if (Flags.tosRestrictionsEnabled()) {
+            unregisterTosContentObserver();
+        }
         super.onDestroy();
     }
 
@@ -963,6 +985,44 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
         // Set the background app here to avoid recreating
         // CarUiPortraitHomeScreen in onTaskCreated
         mTaskCategoryManager.setCurrentBackgroundApp(backgroundIntent.getComponent());
+    }
+
+    private void setupContentObserversForTos() {
+        if (AppLauncherUtils.tosStatusUninitialized(getBaseContext())
+                || !AppLauncherUtils.tosAccepted(getBaseContext())) {
+            logInfo("TOS not accepted, setting up content observers for TOS state");
+        } else {
+            logInfo("TOS accepted, state will remain accepted, don't need to observe this value");
+            return;
+        }
+        mTosContentObserver = new ContentObserver(new Handler()) {
+            @Override
+            public void onChange(boolean selfChange) {
+                if (mIsBackgroundTaskViewReady) {
+                    AppLauncherUtils.launchApp(
+                            getBaseContext(),
+                            CarLauncherUtils.getMapsIntent(getBaseContext())
+                    );
+                }
+                if (AppLauncherUtils.tosAccepted(getBaseContext())) {
+                    logInfo("TOS accepted, unregister content observers");
+                    unregisterTosContentObserver();
+                }
+            }
+        };
+
+        getContentResolver().registerContentObserver(
+                Settings.Secure.getUriFor(KEY_UNACCEPTED_TOS_DISABLED_APPS),
+                /* notifyForDescendants*/ false,
+                mTosContentObserver);
+    }
+
+    private void unregisterTosContentObserver() {
+        if (mTosContentObserver != null) {
+            logIfDebuggable("Unregister content observer for tos state");
+            getContentResolver().unregisterContentObserver(mTosContentObserver);
+            mTosContentObserver = null;
+        }
     }
 
     /** Starts given {@code intents} in order. */

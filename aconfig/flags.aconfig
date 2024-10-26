@@ -54,6 +54,13 @@ flag {
   bug: "325395533"
 }
 
+flag {
+  name: "set_bssid_on_ap_started"
+  namespace: "car_framework"
+  description: "This flag controls if BSSID is set in SoftApConfiguration."
+  bug: "256112021"
+}
+
 # CarRemoteAccessManager
 flag {
   name: "serverless_remote_access"

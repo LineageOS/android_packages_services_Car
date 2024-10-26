@@ -153,6 +153,7 @@ public class CarProjectionServiceTest {
         when(mResources.getBoolean(com.android.car.R.bool.config_projectionAccessPointTethering))
                 .thenReturn(false);
         when(mFeatureFlags.useWifiManagerForAvailableChannels()).thenReturn(false);
+        when(mFeatureFlags.setBssidOnApStarted()).thenReturn(false);
 
         mService = new CarProjectionService(mContext, mHandler, mCarInputService,
                 mCarBluetoothService);
@@ -433,6 +434,18 @@ public class CarProjectionServiceTest {
     }
 
     @Test
+    public void getWifiChannels_wifiManagerFeatureOn_wifiManagerFails_returnsEmptyArray() {
+        when(mFeatureFlags.useWifiManagerForAvailableChannels()).thenReturn(true);
+        when(mWifiManager.getUsableChannels(anyInt(), anyInt()))
+            .thenThrow(new UnsupportedOperationException());
+        when(mContext.getSystemService(WifiManager.class)).thenReturn(mWifiManager);
+
+        int[] wifiChannels = mService.getAvailableWifiChannels(WifiScanner.WIFI_BAND_BOTH_WITH_DFS);
+        assertThat(wifiChannels).isNotNull();
+        assertThat(wifiChannels).isEmpty();
+    }
+
+    @Test
     public void addedKeyEventHandler_getsDispatchedEvents() throws RemoteException {
         ICarProjectionKeyEventHandler eventHandler = createMockKeyEventHandler();
 
@@ -681,6 +694,64 @@ public class CarProjectionServiceTest {
 
         // Since we don't support concurrency, only 5GHz should be enabled.
         verify(mWifiManager, never()).setSoftApConfiguration(eq(softApConfig_5g));
+
+        Mockito.reset(mWifiManager);  // reset for other interactions
+    }
+
+    @Test
+    public void
+        startProjectionTetheredAccessPoint_setBssidOnApStartedDisabled_bssidIsNotSet()
+        throws RemoteException {
+        when(mFeatureFlags.setBssidOnApStarted()).thenReturn(false);
+
+        when(mWifiManager.startTetheredHotspot(any())).thenReturn(false);
+        when(mWifiManager.is5GHzBandSupported()).thenReturn(true);
+        when(mWifiManager.isBridgedApConcurrencySupported()).thenReturn(true);
+        when(mWifiManager.getWifiApState()).thenReturn(WifiManager.WIFI_AP_STATE_ENABLED);
+
+        int[] singleBand = {SoftApConfiguration.BAND_5GHZ};
+        SoftApConfiguration softApConfig_null_bssid = new SoftApConfiguration.Builder()
+                .setSsid("SSID")
+                .setPassphrase("Password", SoftApConfiguration.SECURITY_TYPE_WPA2_PSK)
+                .setMacRandomizationSetting(SoftApConfiguration.RANDOMIZATION_NONE)
+                .setBands(singleBand)
+                .build();
+
+        when(mWifiManager.getSoftApConfiguration()).thenReturn(softApConfig_null_bssid);
+
+        startProjectionTethering();
+        assertMessageSent(PROJECTION_AP_STARTED, softApConfig_null_bssid);
+
+        Mockito.reset(mWifiManager);  // reset for other interactions
+    }
+
+    @Test
+    public void
+        startProjectionTetheredAccessPoint_setBssidOnApStartedEnabled_bssidIsSet()
+        throws RemoteException {
+        when(mFeatureFlags.setBssidOnApStarted()).thenReturn(true);
+
+        when(mWifiManager.startTetheredHotspot(any())).thenReturn(false);
+        when(mWifiManager.is5GHzBandSupported()).thenReturn(true);
+        when(mWifiManager.isBridgedApConcurrencySupported()).thenReturn(true);
+        when(mWifiManager.getWifiApState()).thenReturn(WifiManager.WIFI_AP_STATE_ENABLED);
+
+        int[] singleBand = {SoftApConfiguration.BAND_5GHZ};
+        SoftApConfiguration softApConfig_null_bssid = new SoftApConfiguration.Builder()
+                .setSsid("SSID")
+                .setPassphrase("Password", SoftApConfiguration.SECURITY_TYPE_WPA2_PSK)
+                .setMacRandomizationSetting(SoftApConfiguration.RANDOMIZATION_NONE)
+                .setBands(singleBand)
+                .build();
+        SoftApConfiguration softApConfig_with_bssid =
+            new SoftApConfiguration.Builder(softApConfig_null_bssid)
+                .setBssid(MacAddress.fromString("de:ad:be:ef:77:77"))
+                .build();
+
+        when(mWifiManager.getSoftApConfiguration()).thenReturn(softApConfig_null_bssid);
+
+        startProjectionTethering();
+        assertMessageSent(PROJECTION_AP_STARTED, softApConfig_with_bssid);
 
         Mockito.reset(mWifiManager);  // reset for other interactions
     }

@@ -26,7 +26,7 @@ import com.android.car.customization.tool.features.rro.systemui.cutouts.DisplayC
 import com.android.car.customization.tool.features.rro.systemui.submenu.SystemUiMenuModule
 import com.android.car.customization.tool.features.rro.systemui.systembarpresets.SystemBarPresetsModule
 import com.android.car.customization.tool.features.rro.systemui.themepresets.ThemePresetsModule
-import com.android.car.customization.tool.features.rro.unbundled.apprro.UnbundledRroModule
+import com.android.car.customization.tool.features.rro.unbundled.apprro.AppRroModule
 import com.android.car.customization.tool.features.rro.unbundled.submenu.UnbundledMenuModule
 import dagger.Module
 
@@ -44,7 +44,7 @@ import dagger.Module
         RroMenuModule::class,
         RroListPanelModule::class,
         UnbundledMenuModule::class,
-        UnbundledRroModule::class,
+        AppRroModule::class,
         SystemUiMenuModule::class,
         ThemePresetsModule::class,
         SystemBarPresetsModule::class,

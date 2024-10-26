@@ -39,7 +39,7 @@ import dagger.multibindings.IntoSet
  * The Module provides also the [PanelActionReducer] for this feature.
  */
 @Module
-internal class UnbundledRroModule {
+internal class AppRroModule {
 
     @Provides
     @RroUnbundledMenu
@@ -48,7 +48,8 @@ internal class UnbundledRroModule {
         packageManager: PackageManager,
     ): MenuItem = createUnbundledPanelLauncher(
         displayTextRes = R.string.menu_rro_unbundled_dialer,
-        unbundledPackage = "com.android.car.dialer",
+        appPackage = "com.android.car.dialer",
+        panelTitle = "Dialer",
         packageManager,
     )
 
@@ -59,7 +60,8 @@ internal class UnbundledRroModule {
         packageManager: PackageManager,
     ): MenuItem = createUnbundledPanelLauncher(
         displayTextRes = R.string.menu_rro_unbundled_media,
-        unbundledPackage = "com.android.car.media",
+        appPackage = "com.android.car.media",
+        panelTitle = "Media",
         packageManager,
     )
 
@@ -70,7 +72,8 @@ internal class UnbundledRroModule {
         packageManager: PackageManager,
     ): MenuItem = createUnbundledPanelLauncher(
         displayTextRes = R.string.menu_rro_unbundled_messenger,
-        unbundledPackage = "com.android.car.messenger",
+        appPackage = "com.android.car.messenger",
+        panelTitle = "Messenger",
         packageManager,
     )
 
@@ -81,25 +84,27 @@ internal class UnbundledRroModule {
         packageManager: PackageManager,
     ): MenuItem = createUnbundledPanelLauncher(
         displayTextRes = R.string.menu_rro_unbundled_calendar,
-        unbundledPackage = "com.android.car.calendar",
+        appPackage = "com.android.car.calendar",
+        panelTitle = "Calendar",
         packageManager,
     )
 
     @Provides
     @IntoMap
-    @PanelReducerKey(UnbundledRroPanelReducer::class)
+    @PanelReducerKey(AppRroPanelReducer::class)
     fun provideUnbundledRroPanel(
         overlayManager: OverlayManager,
-    ): PanelActionReducer = UnbundledRroPanelReducer(overlayManager)
+    ): PanelActionReducer = AppRroPanelReducer(overlayManager)
 }
 
 private fun createUnbundledPanelLauncher(
     @StringRes displayTextRes: Int,
-    unbundledPackage: String,
+    appPackage: String,
+    panelTitle: String,
     packageManager: PackageManager,
 ): MenuItem {
     val isEnabled = try {
-        packageManager.getPackageInfo(unbundledPackage, /*flags=*/0)
+        packageManager.getPackageInfo(appPackage, 0)
         true
     } catch (e: PackageManager.NameNotFoundException) {
         false
@@ -108,8 +113,11 @@ private fun createUnbundledPanelLauncher(
         displayTextRes = displayTextRes,
         isEnabled = isEnabled,
         action = OpenPanelAction(
-            UnbundledRroPanelReducer::class,
-            mapOf(UnbundledRroPanelReducer.BUNDLE_UNBUNDLED_PACKAGE to unbundledPackage)
+            AppRroPanelReducer::class,
+            mapOf(
+                AppRroPanelReducer.BUNDLE_APP_PACKAGE to appPackage,
+                AppRroPanelReducer.BUNDLE_PANEL_TITLE to panelTitle
+            )
         )
     )
 }

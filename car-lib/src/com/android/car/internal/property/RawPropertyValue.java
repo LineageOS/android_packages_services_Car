@@ -48,6 +48,9 @@ import java.util.Objects;
 @DataClass(genConstructor = false)
 public final class RawPropertyValue<T> implements Parcelable {
     private static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
+    private static final int TYPE_OTHER = 0;
+    private static final int TYPE_STRING = 1;
+    private static final int TYPE_BYTE_ARRAY = 2;
 
     private final @NonNull T mTypedValue;
 
@@ -62,21 +65,17 @@ public final class RawPropertyValue<T> implements Parcelable {
      */
     @SuppressWarnings("unchecked")
     public RawPropertyValue(Parcel in) {
-        String valueClassName = in.readString();
-        Class<?> valueClass;
-        try {
-            valueClass = Class.forName(valueClassName);
-        } catch (ClassNotFoundException e) {
-            throw new IllegalArgumentException("Class not found: " + valueClassName, e);
-        }
-
-        if (valueClass == String.class) {
-            byte[] bytes = ParcelHelper.readBlob(in);
-            mTypedValue = (T) new String(bytes, DEFAULT_CHARSET);
-        } else if (valueClass == byte[].class) {
-            mTypedValue = (T) ParcelHelper.readBlob(in);
-        } else {
-            mTypedValue = (T) in.readValue(valueClass.getClassLoader());
+        int type = in.readInt();
+        switch (type) {
+            case TYPE_STRING:
+                byte[] bytes = ParcelHelper.readBlob(in);
+                mTypedValue = (T) new String(bytes, DEFAULT_CHARSET);
+                break;
+            case TYPE_BYTE_ARRAY:
+                mTypedValue = (T) ParcelHelper.readBlob(in);
+                break;
+            default:
+                mTypedValue = (T) in.readValue(getClass().getClassLoader());
         }
     }
 
@@ -87,14 +86,16 @@ public final class RawPropertyValue<T> implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         Class<?> valueClass =  mTypedValue.getClass();
-        dest.writeString(valueClass.getName());
 
         // Special handling for String and byte[] to mitigate transaction buffer limitations.
         if (valueClass == String.class) {
+            dest.writeInt(TYPE_STRING);
             ParcelHelper.writeBlob(dest, ((String) mTypedValue).getBytes(DEFAULT_CHARSET));
         } else if (valueClass == byte[].class) {
+            dest.writeInt(TYPE_BYTE_ARRAY);
             ParcelHelper.writeBlob(dest, (byte[]) mTypedValue);
         } else {
+            dest.writeInt(TYPE_OTHER);
             dest.writeValue(mTypedValue);
         }
     }
