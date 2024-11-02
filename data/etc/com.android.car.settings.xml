@@ -18,6 +18,7 @@
     <privapp-permissions package="com.android.car.settings">
         <permission name="android.car.permission.CAR_CONTROL_AUDIO_SETTINGS"/>
         <permission name="android.car.permission.CAR_CONTROL_AUDIO_VOLUME"/>
+        <permission name="android.car.permission.CAR_IDENTIFICATION"/>
         <permission name="android.car.permission.CONTROL_APP_BLOCKING"/>
         <permission name="android.car.permission.READ_PERSIST_TETHERING_SETTINGS"/>
         <permission name="android.permission.ACCESS_CHECKIN_PROPERTIES"/>

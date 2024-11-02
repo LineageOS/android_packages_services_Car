@@ -298,6 +298,11 @@
     <string name="radio_na" translatable="false">N/A</string>
     <string name="radio_program_list" translatable="false">Program List</string>
     <string name="radio_program_station_title" translatable="false">Station</string>
+    <string name="radio_alert_title_text" translatable="false">Emergency Alert on %1$s</string>
+    <string name="radio_alert_detail_text" translatable="false">Status: %1$s, Message Type: %2$s, Scope: PUBLIC</string>
+    <string name="alert_snooze" translatable="false">Snooze</string>
+    <string name="alert_ignore" translatable="false">Ignore</string>
+    <string name="alert_decision" translatable="false">%1$s alert message</string>
 
     <!-- sensors test -->
     <string name="location_title" translatable="false">Location Data:</string>

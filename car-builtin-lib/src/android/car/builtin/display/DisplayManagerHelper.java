@@ -23,7 +23,7 @@ import android.annotation.SystemApi;
 import android.content.Context;
 import android.hardware.display.DisplayManager;
 import android.hardware.display.DisplayManager.DisplayListener;
-import android.hardware.display.DisplayManager.EventsMask;
+import android.hardware.display.DisplayManager.EventFlag;
 import android.os.Handler;
 import android.view.Display;
 
@@ -87,9 +87,9 @@ public final class DisplayManagerHelper {
      * @see DisplayManager#unregisterDisplayListener
      */
     public static void registerDisplayListener(Context context, DisplayListener listener,
-            Handler handler, @EventsMask long eventsMask) {
+            Handler handler, @EventFlag long eventFlagsMask) {
         DisplayManager displayManager = context.getSystemService(DisplayManager.class);
-        displayManager.registerDisplayListener(listener, handler, eventsMask);
+        displayManager.registerDisplayListener(listener, handler, eventFlagsMask);
     }
 
     /**

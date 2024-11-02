@@ -16,6 +16,8 @@
 
 package android.car.hardware.property;
 
+import static android.car.feature.Flags.FLAG_CAR_PROPERTY_SUPPORTED_VALUE;
+
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 import static com.android.car.internal.property.CarPropertyErrorCodes.STATUS_OK;
 import static com.android.car.internal.property.CarPropertyErrorCodes.STATUS_TRY_AGAIN;
@@ -3311,6 +3313,258 @@ public class CarPropertyManager extends CarManagerBase {
             @NonNull SetPropertyCallback setPropertyCallback) {
         setPropertiesAsync(setPropertyRequests, ASYNC_GET_DEFAULT_TIMEOUT_MS, cancellationSignal,
                 callbackExecutor, setPropertyCallback);
+    }
+
+    /**
+     * A structure contains min/max supported value.
+     *
+     * @param <T> the type for the property value, must be one of Object, Boolean, Float, Integer,
+     *      Long, Float[], Integer[], Long[], String, byte[], Object[]
+     */
+    @FlaggedApi(FLAG_CAR_PROPERTY_SUPPORTED_VALUE)
+    public static class MinMaxSupportedValue<T> {
+        MinMaxSupportedValue(@Nullable T minValue, @Nullable T maxValue) {}
+
+        /**
+         * Gets the currently supported min value.
+         *
+         * @return The currently supported min value, or {@ocde null} if not specified.
+         */
+        @FlaggedApi(FLAG_CAR_PROPERTY_SUPPORTED_VALUE)
+        public @Nullable T getMinValue() {
+            return null;
+        }
+         /**
+         * Gets the currently supported max value.
+         *
+         * @return The currently supported max value, or {@ocde null} if not specified.
+         */
+        @FlaggedApi(FLAG_CAR_PROPERTY_SUPPORTED_VALUE)
+        public @Nullable T getMaxValue() {
+            return null;
+        }
+    }
+
+    /**
+     * Gets the currently supported min/max value for [propertyId, areaId].
+     *
+     * This is only meaningful if {@link AreaIdConfig#hasMinSupportedValue} or
+     * {@link AreaIdConfig#hasMaxSupportedValue} returns {@code true}.
+     *
+     * <p>Unless mentioned otherwise in property definition, this function is only meaningful
+     * for int32, int64, float property types.
+     *
+     * <p>For certain properties, {@link AreaIdConfig#hasMinSupportedValue} and
+     * {@link AreaIdConfig#hasMaxSupportedValue} always returns
+     * {@code true} and you could always use this function to get min/max value in normal cases,
+     * e.g. {@code EV_BRAKE_REGENERATION_LEVEL}. Check {@link VehiclePropertyIds} documentation for
+     * more detail.
+     *
+     * <p>Note that the returned value range is a super-set applies for both values
+     * set to vehicle hardware and values read from vehicle hardware. The value
+     * range may change dynamically so it is still possible to get
+     * {@link IllegalArgumentException} for
+     * {@link CarPropertyManager#setProperty} even though the value to set is
+     * within the value range.
+     *
+     * <p>Caller should use {@link CarPropertyManager#registerSupportedValuesChangeCallback} to
+     * register for supported value change.
+     *
+     * @return The currently supported min/max value.
+     * @throws IllegalArgumentException if [propertyId, areaId] is not supported.
+     * @throws SecurityException if the caller does not have read and does not have write access
+     *      for the property.
+     */
+    @FlaggedApi(FLAG_CAR_PROPERTY_SUPPORTED_VALUE)
+    public <T> @NonNull MinMaxSupportedValue<T> getMinMaxSupportedValue(
+            int propertyId, int areaId) {
+        return null;
+    }
+
+    /**
+     * Gets the currently supported values list for [propertyId, areaId].
+     *
+     * <p>This is only meaningful if {@link AreaIdConfig#hasSupportedValuesList} returns
+     * {@code true}.
+     *
+     * <p>For certain properties, {@link AreaIdConfig#hasSupportedValuesList} always returns
+     * {@code true} and you could always use this function to get supported values in normal cases,
+     * e.g. {@code GEAR_SELECTION}. Check {@link VehiclePropertyIds} documentation for
+     * more detail.
+     *
+     * <p>Note that the returned value range is a super-set applies for both values
+     * set to vehicle hardware and values read from vehicle hardware. The value
+     * range may change dynamically so it is still possible to get
+     * {@link IllegalArgumentException} for
+     * {@link CarPropertyManager#setProperty} even though the value to set is
+     * within the value range.
+     *
+     * <p>Caller should use {@link CarPropertyManager#registerSupportedValuesChangeCallback} to
+     * register for supported value list change.
+     *
+     * <p>The returned supported value list is in sorted ascending order if the property is of
+     * type int32, int64 or float.
+     *
+     * @return The immutable supported values. {@code null} if no supported values are currently
+     *      specified. If this returns an empty set, it means no values are supported now
+     *      (the property is probably in an error state).
+     * @throws IllegalArgumentException if [propertyId, areaId] is not supported.
+     * @throws SecurityException if the caller does not have read and does not have write access
+     *      for the property.
+     */
+    @FlaggedApi(FLAG_CAR_PROPERTY_SUPPORTED_VALUE)
+    public <T> @Nullable List<T> getSupportedValuesList(int propertyId, int areaId) {
+        return null;
+    }
+
+    /**
+     * A callback interface to deliver value range change callbacks.
+     */
+    @FlaggedApi(FLAG_CAR_PROPERTY_SUPPORTED_VALUE)
+    public interface SupportedValuesChangeCallback {
+        /**
+         * Called when the result for {@link CarPropertyManager#getMinMaxSupportedValue} or
+         * {@link CarPropertyManager#getSupportedValuesList} change for the [propertyId, areaId].
+         *
+         * <p>Caller should call the listed APIs to refresh.
+         *
+         * @param propertyId The property ID.
+         * @param areaId The area ID.
+         */
+        void onSupportedValuesChange(int propertyId, int areaId);
+    }
+
+    /**
+     * Registers a callback that will be called when min or max or supported value list for any
+     * areaIds for the propertyId changes.
+     *
+     * <p>If a different callback was previously registered for this property, this adds a new
+     * callback.
+     *
+     * <p>The callback will be executed on the event handler provided to the
+     * {@link android.car.Car} or the main thread if none was provided.
+     *
+     * @param propertyId The property ID.
+     * @param cb The callback to deliver value range change events.
+     * @return {@code true} if registered successfully.
+     * @throws IllegalArgumentException if the property ID is not supported.
+     */
+    @FlaggedApi(FLAG_CAR_PROPERTY_SUPPORTED_VALUE)
+    public boolean registerSupportedValuesChangeCallback(int propertyId,
+            @NonNull SupportedValuesChangeCallback cb) {
+        return false;
+    }
+
+    /**
+     * Registers a callback that will be called when min or max or supported value list for any
+     * areaIds for the propertyId changes.
+     *
+     * <p>One callback must only be associated with one executor.
+     *
+     * <p>If a different callback was previously registered for this property, this adds a new
+     * callback.
+     *
+     * @param propertyId The property ID.
+     * @param callbackExecutor The executor in which the callback is done on.
+     * @param cb The callback to deliver value range change events.
+     * @return {@code true} if registered successfully.
+     * @throws IllegalArgumentException if the property ID is not supported.
+     * @throws IllegalArgumentException if the callback was previously associated with a different
+     *                                  executor.
+     */
+    @FlaggedApi(FLAG_CAR_PROPERTY_SUPPORTED_VALUE)
+    public boolean registerSupportedValuesChangeCallback(int propertyId,
+            @NonNull @CallbackExecutor Executor callbackExecutor,
+            @NonNull SupportedValuesChangeCallback cb) {
+        return false;
+    }
+
+    /**
+     * Registers a callback that will be called when min or max or supported value list for
+     * [propertyId, areaId] changes.
+     *
+     * <p>If a different callback was previously registered for [propertyId, areaId], this adds a
+     * new callback.
+     *
+     * <p>The callback will be executed on the event handler provided to the
+     * {@link android.car.Car} or the main thread if none was provided.
+     *
+     * @param propertyId The property ID.
+     * @param areaId The area ID.
+     * @param cb The callback to deliver value range change events.
+     * @return {@code true} if registers successfully.
+     * @throws IllegalArgumentException if [propertyId, areaId] is not supported.
+     */
+    @FlaggedApi(FLAG_CAR_PROPERTY_SUPPORTED_VALUE)
+    public boolean registerSupportedValuesChangeCallback(int propertyId, int areaId,
+            @NonNull SupportedValuesChangeCallback cb) {
+        return false;
+    }
+
+    /**
+     * Registers a callback that will be called when min or max or supported value list for
+     * [propertyId, areaId] changes.
+     *
+     * <p>One callback must only be associated with one executor.
+     *
+     * <p>If a different callback was previously registered for [propertyId, areaId], this adds a
+     * new callback.
+     *
+     * @param propertyId The property ID.
+     * @param areaId The area ID.
+     * @param callbackExecutor The executor in which the callback is done on.
+     * @param cb The callback to deliver value range change events.
+     * @return {@code true} if registers successfully.
+     * @throws IllegalArgumentException if [propertyId, areaId] is not supported.
+     * @throws IllegalArgumentException if the callback was previously associated with a different
+     *                                  executor.
+     */
+    @FlaggedApi(FLAG_CAR_PROPERTY_SUPPORTED_VALUE)
+    public boolean registerSupportedValuesChangeCallback(int propertyId, int areaId,
+            @NonNull @CallbackExecutor Executor callbackExecutor,
+            @NonNull SupportedValuesChangeCallback cb) {
+        return false;
+    }
+
+    /**
+     * Unregisters all value range change callbacks for the property ID
+     *
+     * <p>Do nothing if no callbacks was registered before.
+     *
+     * @param propertyId The property ID.
+     * @throws IllegalArgumentException if the propertyId is not supported.
+     */
+    @FlaggedApi(FLAG_CAR_PROPERTY_SUPPORTED_VALUE)
+    public void unregisterSupportedValuesChangeCallback(int propertyId) {
+    }
+
+    /**
+     * Unregisters the specific callback for the property ID.
+     *
+     * <p>Do nothing if the callback was not registered before.
+     *
+     * @param propertyId The property ID.
+     * @param cb The callback to unregister.
+     * @throws IllegalArgumentException if the propertyId is not supported.
+     */
+    @FlaggedApi(FLAG_CAR_PROPERTY_SUPPORTED_VALUE)
+    public void unregisterSupportedValuesChangeCallback(int propertyId,
+            @NonNull SupportedValuesChangeCallback cb) {
+    }
+
+    /**
+     * Unregisters the specific callback for the [propertyId, areaId].
+     *
+     * <p>Do nothing if the callback was not registered before.
+     *
+     * @param propertyId The property ID.
+     * @param areaId The area ID.
+     * @param cb The callback to unregister.
+     * @throws IllegalArgumentException if the [propertyId, areaId] is not supported.
+     */
+    @FlaggedApi(FLAG_CAR_PROPERTY_SUPPORTED_VALUE)
+    public void unregisterSupportedValuesChangeCallback(int propertyId, int areaId,
+            @NonNull SupportedValuesChangeCallback cb) {
     }
 
     private void handleCarPropertyEvents(List<CarPropertyEvent> carPropertyEvents) {

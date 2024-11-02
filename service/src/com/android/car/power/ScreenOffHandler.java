@@ -316,7 +316,7 @@ class ScreenOffHandler {
     }
 
     private void handleSetDisplayState(int displayId, boolean on) {
-        Slogf.i(TAG, "Setting display state for displaId: " + displayId + " to " + on);
+        Slogf.i(TAG, "Setting display state for displayId: " + displayId + " to " + on);
         mSystemInterface.setDisplayState(displayId, on);
     }
 

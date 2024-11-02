@@ -47,6 +47,36 @@
     },
     {
       "name": "CarServiceOsUnitTest"
+    },
+    {
+      "name": "CarServiceOemUnitTest"
+    },
+    {
+      "name": "CarServiceOccupantConnectionUnitTest"
+    },
+    {
+      "name": "CarServiceHalUnitTest"
+    },
+    {
+      "name": "CarServiceGarageModeUnitTest"
+    },
+    {
+      "name": "CarServiceEvsUnitTest"
+    },
+    {
+      "name": "CarServiceClusterUnitTest"
+    },
+    {
+      "name": "CarServiceBluetoothUnitTest"
+    },
+    {
+      "name": "CarServiceAudioUnitTest"
+    },
+    {
+      "name": "CarServiceAmUnitTest"
+    },
+    {
+      "name": "CarServiceAdminUnitTest"
     }
   ]
 }

@@ -106,6 +106,8 @@ android_ravenwood_test {
         "src/android/car/app/**/*.java",
         // TODO(b/354796364): Enable cluster renderer test on host.
         "src/android/car/cluster/renderer/*.java",
+        // TODO(b/374729716): Enable internal BinderKeyValueContainerTest on host.
+        "src/com/android/car/internal/util/BinderKeyValueContainerTest.java",
         // The following cannot be enabled because AudioAttributes is
         // not supported on host.
         "src/android/car/media/CarAudioZoneConfigInfoUnitTest.java",

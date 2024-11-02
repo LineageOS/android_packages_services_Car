@@ -16,6 +16,8 @@
 
 package com.android.car;
 
+import static com.android.car.CarServiceHelperWrapperTimeout.createWithImmediateTimeout;
+
 import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -31,7 +33,6 @@ import org.junit.Test;
 import org.mockito.Mock;
 
 public final class CarServiceHelperWrapperUnitTest extends AbstractExtendedMockitoTestCase {
-    private static final long CAR_SERVICE_WAIT_SHORT_TIMEOUT_MS = 1;
 
     @Mock
     private ICarServiceHelper mICarServiceHelper;
@@ -40,14 +41,6 @@ public final class CarServiceHelperWrapperUnitTest extends AbstractExtendedMocki
 
     private CarServiceHelperWrapper mDefaultWrapper;
 
-    /**
-     * Creates {@link CarServiceHelperWrapper} with very short connection time out.
-     */
-    public static CarServiceHelperWrapper createWithImmediateTimeout() {
-        CarLocalServices.removeServiceForTest(CarServiceHelperWrapper.class);
-
-        return CarServiceHelperWrapper.create(CAR_SERVICE_WAIT_SHORT_TIMEOUT_MS);
-    }
 
     @Before
     public void setUp() throws Exception {

@@ -337,13 +337,156 @@ android_test {
     test_config: "AndroidTest_OsTest.xml",
 }
 
+android_test {
+    name: "CarServiceOemUnitTest",
+
+    srcs: [
+        "src/com/android/car/oem/*.java",
+    ],
+
+    defaults: [
+        "CarServiceUnitTestDefaults",
+    ],
+
+    test_config: "AndroidTest_OemTest.xml",
+}
+
+android_test {
+    name: "CarServiceOccupantConnectionUnitTest",
+
+    srcs: [
+        "src/com/android/car/occupantconnection/*.java",
+    ],
+
+    defaults: [
+        "CarServiceUnitTestDefaults",
+    ],
+
+    test_config: "AndroidTest_OccupantConnectionTest.xml",
+}
+
+android_test {
+    name: "CarServiceHalUnitTest",
+
+    srcs: [
+        "src/com/android/car/hal/*.java",
+    ],
+
+    defaults: [
+        "CarServiceUnitTestDefaults",
+    ],
+
+    test_config: "AndroidTest_HalTest.xml",
+}
+
+android_test {
+    name: "CarServiceGarageModeUnitTest",
+
+    srcs: [
+        "src/com/android/car/garagemode/*.java",
+    ],
+
+    defaults: [
+        "CarServiceUnitTestDefaults",
+    ],
+
+    test_config: "AndroidTest_GarageModeTest.xml",
+}
+
+android_test {
+    name: "CarServiceEvsUnitTest",
+
+    srcs: [
+        "src/com/android/car/evs/*.java",
+    ],
+
+    defaults: [
+        "CarServiceUnitTestDefaults",
+    ],
+
+    test_config: "AndroidTest_EvsTest.xml",
+}
+
+android_test {
+    name: "CarServiceClusterUnitTest",
+
+    srcs: [
+        "src/com/android/car/cluster/*.java",
+    ],
+
+    defaults: [
+        "CarServiceUnitTestDefaults",
+    ],
+
+    test_config: "AndroidTest_ClusterTest.xml",
+}
+
+android_test {
+    name: "CarServiceBluetoothUnitTest",
+
+    srcs: [
+        "src/com/android/car/bluetooth/*.java",
+    ],
+
+    defaults: [
+        "CarServiceUnitTestDefaults",
+    ],
+
+    test_config: "AndroidTest_BluetoothTest.xml",
+}
+
+android_test {
+    name: "CarServiceAudioUnitTest",
+
+    srcs: [
+        "src/com/android/car/audio/*.java",
+    ],
+
+    defaults: [
+        "CarServiceUnitTestDefaults",
+    ],
+
+    test_config: "AndroidTest_AudioTest.xml",
+}
+
+android_test {
+    name: "CarServiceAmUnitTest",
+
+    srcs: [
+        "src/com/android/car/am/*.java",
+    ],
+
+    static_libs: [
+        "WindowManager-Shell", // for CarActivityServiceTaskMonitorUnitTest
+    ],
+
+    defaults: [
+        "CarServiceUnitTestDefaults",
+    ],
+
+    test_config: "AndroidTest_AmTest.xml",
+}
+
+android_test {
+    name: "CarServiceAdminUnitTest",
+
+    srcs: [
+        "src/com/android/car/admin/*.java",
+    ],
+
+    defaults: [
+        "CarServiceUnitTestDefaults",
+    ],
+
+    test_config: "AndroidTest_AdminTest.xml",
+}
+
 android_ravenwood_test {
     name: "CarServiceHostUnitTest",
 
     srcs: [
         "src/com/android/car/AidlVehicleStubUnitTest.java",
         "src/com/android/car/CarPropertyServiceUnitTest.java",
-        "src/com/android/car/internal/PendingRequestPoolUnitTest.java",
         "src/com/android/car/hal/VehicleHalTest.java",
         "src/com/android/car/hal/fakevhal/FakeVhalConfigParserUnitTest.java",
         "src/com/android/car/hal/fakevhal/FakeVehicleStubUnitTest.java",
@@ -351,7 +494,7 @@ android_ravenwood_test {
         "src/com/android/car/hal/property/PropertyPermissionInfoTest.java",
         "src/com/android/car/systeminterface/DisplayInterfaceTest.java",
         "src/com/android/car/user/InitialUserSetterTest.java",
-        "src/com/android/car/user/MockedUserHandleBuilder.java",
+        "dep/src/com/android/car/user/MockedUserHandleBuilder.java",
         // Don't depends on "com.android.car.test" because it uses
         // "mockito-target-extended" which might not be the same mockito
         // library used on host.

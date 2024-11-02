@@ -20,12 +20,14 @@ import android.annotation.Nullable;
 import android.hardware.radio.Flags;
 import android.hardware.radio.ProgramList;
 import android.hardware.radio.ProgramSelector;
+import android.hardware.radio.RadioAlert;
 import android.hardware.radio.RadioManager;
 import android.hardware.radio.RadioMetadata;
 import android.hardware.radio.RadioTuner;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
+import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -55,6 +57,7 @@ public class RadioTunerFragment extends Fragment {
     protected final RadioTestFragment.TunerListener mListener;
     private final ProgramList mProgramList;
     protected boolean mViewCreated = false;
+    private int mAlertDialogId = 0;
 
     protected ProgramInfoAdapter mProgramInfoAdapter;
 
@@ -64,6 +67,7 @@ public class RadioTunerFragment extends Fragment {
     protected TextView mCurrentChannelTextView;
     private TextView mCurrentSongTitleTextView;
     private TextView mCurrentArtistTextView;
+    private final SparseArray<RadioAlertDialog> mRadioAlertDialogs = new SparseArray<>();
 
     RadioTunerFragment(RadioManager radioManager, int moduleId, Handler handler,
                        RadioTestFragment.TunerListener tunerListener) {
@@ -255,11 +259,35 @@ public class RadioTunerFragment extends Fragment {
     void updateConfigFlag(int flag, boolean value) {
     }
 
+    private void handleRadioAlert(RadioManager.ProgramInfo info) {
+        RadioAlert alert = info.getAlert();
+        if (alert == null) {
+            return;
+        }
+        RadioAlertDialog alertDialog = RadioAlertDialog.newInstance(getContext(),
+                (id, snoozed) -> handleRadioAlertOption(id, snoozed), getChannelName(info), alert,
+                mAlertDialogId);
+        mRadioAlertDialogs.append(mAlertDialogId, alertDialog);
+        alertDialog.show(getActivity().getSupportFragmentManager(), "fragment_snooze_radio_alert");
+        mAlertDialogId++;
+    }
+
+    private void handleRadioAlertOption(int alertDialogId, boolean snooze) {
+        // TODO(b/361348719): Implement snooze
+        Log.v(TAG, "handleRadioAlertOption " + snooze);
+        String alertDecision = snooze ? "snooze" : "ignore";
+        mTuningTextView.setText(getString(R.string.alert_decision, alertDecision));
+        mRadioAlertDialogs.delete(alertDialogId);
+    }
+
     private final class RadioTunerCallbackImpl extends RadioTuner.Callback {
         @Override
         public void onProgramInfoChanged(RadioManager.ProgramInfo info) {
             setProgramInfo(info);
             setTuningStatus(info);
+            if (Flags.hdRadioEmergencyAlertSystem()) {
+                handleRadioAlert(info);
+            }
         }
 
         @Override
@@ -294,6 +322,12 @@ public class RadioTunerFragment extends Fragment {
                     new ProgramInfoExt.ProgramInfoComparator();
             list.sort(selectorComparator);
             mProgramInfoAdapter.updateProgramInfos(list.toArray(new RadioManager.ProgramInfo[0]));
+            if (!Flags.hdRadioEmergencyAlertSystem()) {
+                return;
+            }
+            for (int i = 0; i < list.size(); i++) {
+                handleRadioAlert(list.get(i));
+            }
         }
     }
 }

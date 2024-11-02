@@ -231,6 +231,16 @@ public final class CarZonesAudioFocusUnitTest {
     }
 
     @Test
+    public void onAudioFocusRequest_withEmptyBundledZoneId_passesRequestBasedOnUid() {
+        AudioFocusInfo audioFocusInfo = generateAudioFocusInfoWithBundle(new Bundle());
+
+        mCarZonesAudioFocus.onAudioFocusRequest(audioFocusInfo, AUDIOFOCUS_REQUEST_GRANTED);
+
+        verify(mFocusMocks.get(PRIMARY_ZONE_ID))
+                .onAudioFocusRequest(audioFocusInfo, AUDIOFOCUS_REQUEST_GRANTED);
+    }
+
+    @Test
     public void onAudioFocusRequest_withFocusCallback_callsOnFocusChange() {
         List<AudioFocusInfo> focusHolders = List.of(generateAudioFocusRequest());
         when(mFocusMocks.get(PRIMARY_ZONE_ID).getAudioFocusHolders()).thenReturn(focusHolders);
@@ -529,7 +539,10 @@ public final class CarZonesAudioFocusUnitTest {
     private static AudioFocusInfo generateAudioFocusInfoWithBundledZoneId(int zoneId) {
         Bundle bundle = new Bundle();
         bundle.putInt(CarAudioManager.AUDIOFOCUS_EXTRA_REQUEST_ZONE_ID, zoneId);
+        return generateAudioFocusInfoWithBundle(bundle);
+    }
 
+    private static AudioFocusInfo generateAudioFocusInfoWithBundle(Bundle bundle) {
         AudioAttributes attributes = new AudioAttributes.Builder()
                 .setUsage(USAGE_MEDIA)
                 .addBundle(bundle)

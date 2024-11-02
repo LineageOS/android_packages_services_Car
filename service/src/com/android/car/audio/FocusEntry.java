@@ -15,17 +15,20 @@
  */
 package com.android.car.audio;
 
+import static android.car.media.CarAudioManager.AUDIOFOCUS_EXTRA_RECEIVE_DUCKING_EVENTS;
+
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
 import android.annotation.NonNull;
 import android.car.Car;
-import android.car.media.CarAudioManager;
+import android.car.builtin.util.Slogf;
 import android.content.pm.PackageManager;
 import android.media.AudioFocusInfo;
 import android.media.AudioManager;
 import android.os.Bundle;
 import android.util.proto.ProtoOutputStream;
 
+import com.android.car.CarLog;
 import com.android.car.audio.CarAudioContext.AudioContext;
 import com.android.car.audio.CarAudioDumpProto.CarAudioZoneFocusProto.CarAudioFocusProto;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
@@ -36,6 +39,8 @@ import java.util.List;
 import java.util.Objects;
 
 final class FocusEntry {
+    private static final String TAG = CarLog.tagFor(FocusEntry.class);
+
     private final AudioFocusInfo mAudioFocusInfo;
     private final int mAudioContext;
 
@@ -94,18 +99,21 @@ final class FocusEntry {
     boolean receivesDuckEvents() {
         Bundle bundle = mAudioFocusInfo.getAttributes().getBundle();
 
-        if (bundle == null) {
+        if (bundle == null || !bundle.containsKey(AUDIOFOCUS_EXTRA_RECEIVE_DUCKING_EVENTS)) {
             return false;
         }
 
-        if (!bundle.getBoolean(CarAudioManager.AUDIOFOCUS_EXTRA_RECEIVE_DUCKING_EVENTS)) {
+        if (!bundle.getBoolean(AUDIOFOCUS_EXTRA_RECEIVE_DUCKING_EVENTS)) {
             return false;
         }
 
-        return (mPackageManager.checkPermission(
-                Car.PERMISSION_RECEIVE_CAR_AUDIO_DUCKING_EVENTS,
-                mAudioFocusInfo.getPackageName())
-                == PackageManager.PERMISSION_GRANTED);
+        try {
+            return (mPackageManager.checkPermission(Car.PERMISSION_RECEIVE_CAR_AUDIO_DUCKING_EVENTS,
+                    mAudioFocusInfo.getPackageName()) == PackageManager.PERMISSION_GRANTED);
+        } catch (Exception e) {
+            Slogf.e(TAG, "receivesDuckEvents check permission error:", e);
+            return false;
+        }
     }
 
     @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)

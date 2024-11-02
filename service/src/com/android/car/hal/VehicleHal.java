@@ -256,7 +256,7 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
      * This method must be used by tests only.
      */
     @VisibleForTesting
-    VehicleHal(Context context,
+    public VehicleHal(Context context,
             PowerHalService powerHal,
             PropertyHalService propertyHal,
             InputHalService inputHal,

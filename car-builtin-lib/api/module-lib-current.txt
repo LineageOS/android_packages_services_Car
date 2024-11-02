@@ -323,6 +323,11 @@ package android.car.builtin.os {
     method @NonNull public static android.os.ParcelFileDescriptor createParcelFileDescriptor(@NonNull android.os.SharedMemory) throws java.io.IOException;
   }
 
+  public class StorageManagerHelper {
+    method public static boolean isUserStorageUnlocked(int);
+    method public static boolean lockUserStorage(@NonNull android.content.Context, int);
+  }
+
   public final class SystemPropertiesHelper {
     method public static long getLong(@NonNull String, long);
     method public static void set(@NonNull String, @Nullable String);

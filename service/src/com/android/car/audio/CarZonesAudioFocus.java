@@ -16,6 +16,7 @@
 
 package com.android.car.audio;
 
+import static android.car.media.CarAudioManager.AUDIOFOCUS_EXTRA_REQUEST_ZONE_ID;
 import static android.media.AudioManager.AUDIOFOCUS_REQUEST_FAILED;
 
 import static com.android.car.audio.FocusInteraction.AUDIO_FOCUS_NAVIGATION_REJECTED_DURING_CALL_URI;
@@ -27,7 +28,6 @@ import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.UserIdInt;
 import android.car.builtin.util.Slogf;
-import android.car.media.CarAudioManager;
 import android.car.oem.CarAudioFeaturesInfo;
 import android.content.pm.PackageManager;
 import android.media.AudioAttributes;
@@ -281,18 +281,16 @@ final class CarZonesAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
         // Use zone id from that instead.
         Bundle bundle = afi.getAttributes().getBundle();
 
-        if (bundle != null) {
-            int bundleZoneId =
-                    bundle.getInt(CarAudioManager.AUDIOFOCUS_EXTRA_REQUEST_ZONE_ID,
-                            -1);
+        if (bundle != null && bundle.containsKey(AUDIOFOCUS_EXTRA_REQUEST_ZONE_ID)) {
+            int requestId = bundle.getInt(AUDIOFOCUS_EXTRA_REQUEST_ZONE_ID, /* defaultValue= */-1);
             // check if the zone id is within current zones bounds
-            if (service.isAudioZoneIdValid(bundleZoneId)) {
+            if (service.isAudioZoneIdValid(requestId)) {
                 Slogf.d(TAG, "getFocusForAudioFocusInfo valid zoneId %d with bundle request for"
-                        + " client %s", bundleZoneId, afi.getClientId());
-                zoneId = bundleZoneId;
+                        + " client %s", requestId, afi.getClientId());
+                zoneId = requestId;
             } else {
                 Slogf.w(TAG, "getFocusForAudioFocusInfo invalid zoneId %d with bundle request for "
-                                + "client %s, dispatching focus request to zoneId %d", bundleZoneId,
+                                + "client %s, dispatching focus request to zoneId %d", requestId,
                         afi.getClientId(), zoneId);
             }
         }

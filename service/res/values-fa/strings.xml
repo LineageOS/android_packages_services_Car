@@ -17,13 +17,13 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="car_permission_label" msgid="2215078736675564541">"اطلاعات خودرو"</string>
-    <string name="car_permission_desc" msgid="3584369074931334964">"دسترسی به اطلاعات خودروی شما"</string>
+    <string name="car_permission_desc" msgid="3584369074931334964">"دسترسی به اطلاعات خودرو شما"</string>
     <string name="car_permission_label_camera" msgid="3725702064841827180">"دسترسی به دوربین خودرو"</string>
     <string name="car_permission_desc_camera" msgid="917024932164501426">"دسترسی به دوربین(های) خودرو."</string>
     <string name="car_permission_label_energy" msgid="7409144323527821558">"دسترسی به اطلاعات انرژی خودرو"</string>
     <string name="car_permission_desc_energy" msgid="3392963810053235407">"دسترسی اطلاعات انرژی خودرو."</string>
-    <string name="car_permission_label_control_car_energy" msgid="2788215385574313796">"کنترل تنظیمات شارژ خودروی برقی"</string>
-    <string name="car_permission_desc_control_car_energy" msgid="8765015897869031807">"تنظیمات شارژ خودروی برقی را کنترل می‌کند."</string>
+    <string name="car_permission_label_control_car_energy" msgid="2788215385574313796">"کنترل تنظیمات شارژ خودرو برقی"</string>
+    <string name="car_permission_desc_control_car_energy" msgid="8765015897869031807">"تنظیمات شارژ خودرو برقی را کنترل می‌کند."</string>
     <string name="car_permission_label_adjust_range_remaining" msgid="839033553999920138">"تنظیم مقدار مسافت باقی‌مانده که می‌توان با خودرو سفر کرد"</string>
     <string name="car_permission_desc_adjust_range_remaining" msgid="2369321650437370673">"تنظیم مقدار مسافت باقی‌مانده که می‌توان با خودرو سفر کرد."</string>
     <string name="car_permission_label_hvac" msgid="1499454192558727843">"دسترسی به اچ‌وی‌ای‌سی خودرو"</string>
@@ -37,7 +37,7 @@
     <string name="car_permission_label_control_vehicle_dynamics_state" msgid="1912154069363074986">"کنترل وضعیت پویای خودرو"</string>
     <string name="car_permission_desc_control_vehicle_dynamics_state" msgid="5603436779163086928">"کنترل وضعیت پویای خودرو."</string>
     <string name="car_permission_label_vendor_extension" msgid="7141601811734127361">"دسترسی به کانال فروشنده خودرو"</string>
-    <string name="car_permission_desc_vendor_extension" msgid="2970718502334714035">"دسترسی به کانال فروشنده خودروی شما برای تبادل اطلاعات خاص خودرو."</string>
+    <string name="car_permission_desc_vendor_extension" msgid="2970718502334714035">"دسترسی به کانال فروشنده خودرو شما برای تبادل اطلاعات خاص خودرو."</string>
     <string name="car_permission_label_radio" msgid="6009465291685935112">"مدیریت رادیوی خودرو"</string>
     <string name="car_permission_desc_radio" msgid="3385999027478186964">"دسترسی به رادیو خودرو."</string>
     <string name="car_permission_label_projection" msgid="9107156380287576787">"انتقال داده‌های واسطی از تلفن به نمایشگر خودرو"</string>

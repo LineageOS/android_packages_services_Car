@@ -16,18 +16,17 @@
 
 package com.android.car.customization.tool.features
 
-import com.android.car.customization.tool.features.oemtokens.oemtokenstoggle.OemTokensToggleModule
-import com.android.car.customization.tool.features.oemtokens.submenu.OemDesignTokensMenuModule
-import com.android.car.customization.tool.features.plugins.plugintoggle.PluginToggleModule
-import com.android.car.customization.tool.features.plugins.submenu.PluginMenuModule
-import com.android.car.customization.tool.features.rro.list.RroListPanelModule
-import com.android.car.customization.tool.features.rro.submenu.RroMenuModule
-import com.android.car.customization.tool.features.rro.systemui.cutouts.DisplayCutoutsModule
-import com.android.car.customization.tool.features.rro.systemui.submenu.SystemUiMenuModule
-import com.android.car.customization.tool.features.rro.systemui.systembarpresets.SystemBarPresetsModule
-import com.android.car.customization.tool.features.rro.systemui.themepresets.ThemePresetsModule
-import com.android.car.customization.tool.features.rro.unbundled.apprro.AppRroModule
-import com.android.car.customization.tool.features.rro.unbundled.submenu.UnbundledMenuModule
+import com.android.car.customization.tool.features.applications.apprro.AppRroModule
+import com.android.car.customization.tool.features.applications.submenu.ApplicationsMenuModule
+import com.android.car.customization.tool.features.system.advanced.rrolist.RroListPanelModule
+import com.android.car.customization.tool.features.system.advanced.submenu.AdvancedMenuModule
+import com.android.car.customization.tool.features.system.cutouts.DisplayCutoutsModule
+import com.android.car.customization.tool.features.system.submenu.SystemMenuModule
+import com.android.car.customization.tool.features.system.systembarpresets.SystemBarPresetsModule
+import com.android.car.customization.tool.features.system.theme.oemtokenstoggle.OemTokensToggleModule
+import com.android.car.customization.tool.features.system.theme.plugintoggle.PluginToggleModule
+import com.android.car.customization.tool.features.system.theme.submenu.ThemeMenuModule
+import com.android.car.customization.tool.features.system.theme.themepresets.ThemePresetsModule
 import dagger.Module
 
 /**
@@ -37,18 +36,17 @@ import dagger.Module
  */
 @Module(
     includes = [
-        PluginMenuModule::class,
-        PluginToggleModule::class,
-        OemDesignTokensMenuModule::class,
-        OemTokensToggleModule::class,
-        RroMenuModule::class,
-        RroListPanelModule::class,
-        UnbundledMenuModule::class,
+        AdvancedMenuModule::class,
+        ApplicationsMenuModule::class,
         AppRroModule::class,
-        SystemUiMenuModule::class,
-        ThemePresetsModule::class,
-        SystemBarPresetsModule::class,
         DisplayCutoutsModule::class,
+        OemTokensToggleModule::class,
+        PluginToggleModule::class,
+        RroListPanelModule::class,
+        SystemMenuModule::class,
+        SystemBarPresetsModule::class,
+        ThemeMenuModule::class,
+        ThemePresetsModule::class,
     ]
 )
 class FeaturesModule

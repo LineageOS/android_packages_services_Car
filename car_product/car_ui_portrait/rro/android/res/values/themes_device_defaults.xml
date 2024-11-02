@@ -127,6 +127,9 @@
         <item name="android:listPreferredItemHeightSmall">@*android:dimen/car_single_line_list_item_height</item>
         <item name="android:colorControlNormal">@color/btn_device_default</item>
         <item name="android:colorControlActivated">@color/car_control_highlight</item>
+
+        <!-- Width of 832dp -->
+        <item name="android:windowMinWidthMajor">68%</item>
     </style>
 
     <style name="Theme.DeviceDefault.Settings.Dialog" parent="android:Theme.DeviceDefault.Dialog.Alert">

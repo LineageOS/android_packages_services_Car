@@ -163,6 +163,11 @@
             <PropertySet
                 motion:visibilityMode="ignore"/>
         </ConstraintOverride>
+        <ConstraintOverride
+            android:id="@id/queue_button">
+            <PropertySet
+                motion:visibilityMode="ignore"/>
+        </ConstraintOverride>
     </ConstraintSet>
 
     <ConstraintSet
@@ -311,6 +316,11 @@
         </ConstraintOverride>
         <ConstraintOverride
             android:id="@id/playback_action_id2">
+            <PropertySet
+                motion:visibilityMode="ignore"/>
+        </ConstraintOverride>
+        <ConstraintOverride
+            android:id="@id/queue_button">
             <PropertySet
                 motion:visibilityMode="ignore"/>
         </ConstraintOverride>

@@ -234,6 +234,14 @@ flag {
   bug: "372530534"
 }
 
+flag {
+  name: "car_property_supported_value"
+  is_exported: true
+  namespace: "car_framework"
+  description: "Controls whether to enable supported values related APIs in carPropertyManager"
+  bug: "371636116"
+}
+
 # CarServiceBase
 flag {
   name: "car_dump_to_proto"

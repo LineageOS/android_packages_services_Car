@@ -387,6 +387,7 @@ public class ControlBarMediaController extends PlaybackCardController {
     @Override
     protected void updateQueueState(boolean hasQueue, boolean isQueueVisible) {
         super.updateQueueState(hasQueue, isQueueVisible);
+        ViewUtils.setVisible(mQueueButton, hasQueue);
         if (isPanelOpen() && mViewModel.getQueueVisible() && !hasQueue) {
             unselectPanelButtons();
 

@@ -751,9 +751,12 @@ package android.car.hardware.property {
     method public int describeContents();
     method @FlaggedApi("android.car.feature.area_id_config_access") public int getAccess();
     method public int getAreaId();
-    method @Nullable public T getMaxValue();
-    method @Nullable public T getMinValue();
-    method @NonNull public java.util.List<T> getSupportedEnumValues();
+    method @Deprecated @Nullable public T getMaxValue();
+    method @Deprecated @Nullable public T getMinValue();
+    method @Deprecated @NonNull public java.util.List<T> getSupportedEnumValues();
+    method @FlaggedApi("android.car.feature.car_property_supported_value") public boolean hasMaxSupportedValue();
+    method @FlaggedApi("android.car.feature.car_property_supported_value") public boolean hasMinSupportedValue();
+    method @FlaggedApi("android.car.feature.car_property_supported_value") public boolean hasSupportedValuesList();
     method @FlaggedApi("android.car.feature.variable_update_rate") public boolean isVariableUpdateRateSupported();
     method public void writeToParcel(@NonNull android.os.Parcel, int);
     field @NonNull public static final android.os.Parcelable.Creator<android.car.hardware.property.AreaIdConfig<java.lang.Object>> CREATOR;
@@ -771,14 +774,20 @@ package android.car.hardware.property {
     method public float getFloatProperty(int, int);
     method @NonNull public int[] getIntArrayProperty(int, int);
     method public int getIntProperty(int, int);
+    method @FlaggedApi("android.car.feature.car_property_supported_value") public <T> android.car.hardware.property.CarPropertyManager.MinMaxSupportedValue<T> getMinMaxSupportedValue(int, int);
     method public void getPropertiesAsync(@NonNull java.util.List<android.car.hardware.property.CarPropertyManager.GetPropertyRequest>, long, @Nullable android.os.CancellationSignal, @Nullable java.util.concurrent.Executor, @NonNull android.car.hardware.property.CarPropertyManager.GetPropertyCallback);
     method public void getPropertiesAsync(@NonNull java.util.List<android.car.hardware.property.CarPropertyManager.GetPropertyRequest>, @Nullable android.os.CancellationSignal, @Nullable java.util.concurrent.Executor, @NonNull android.car.hardware.property.CarPropertyManager.GetPropertyCallback);
     method @Nullable public <E> android.car.hardware.CarPropertyValue<E> getProperty(@NonNull Class<E>, int, int);
     method @Nullable public <E> android.car.hardware.CarPropertyValue<E> getProperty(int, int);
     method @NonNull public java.util.List<android.car.hardware.CarPropertyConfig> getPropertyList();
     method @NonNull public java.util.List<android.car.hardware.CarPropertyConfig> getPropertyList(@NonNull android.util.ArraySet<java.lang.Integer>);
+    method @FlaggedApi("android.car.feature.car_property_supported_value") public <T> java.util.List<T> getSupportedValuesList(int, int);
     method public boolean isPropertyAvailable(int, int);
     method @Deprecated public boolean registerCallback(@NonNull android.car.hardware.property.CarPropertyManager.CarPropertyEventCallback, int, @FloatRange(from=0.0, to=100.0) float);
+    method @FlaggedApi("android.car.feature.car_property_supported_value") public boolean registerSupportedValuesChangeCallback(int, @NonNull android.car.hardware.property.CarPropertyManager.SupportedValuesChangeCallback);
+    method @FlaggedApi("android.car.feature.car_property_supported_value") public boolean registerSupportedValuesChangeCallback(int, @NonNull java.util.concurrent.Executor, @NonNull android.car.hardware.property.CarPropertyManager.SupportedValuesChangeCallback);
+    method @FlaggedApi("android.car.feature.car_property_supported_value") public boolean registerSupportedValuesChangeCallback(int, int, @NonNull android.car.hardware.property.CarPropertyManager.SupportedValuesChangeCallback);
+    method @FlaggedApi("android.car.feature.car_property_supported_value") public boolean registerSupportedValuesChangeCallback(int, int, @NonNull java.util.concurrent.Executor, @NonNull android.car.hardware.property.CarPropertyManager.SupportedValuesChangeCallback);
     method public void setBooleanProperty(int, int, boolean);
     method public void setFloatProperty(int, int, float);
     method public void setIntProperty(int, int, int);
@@ -792,6 +801,9 @@ package android.car.hardware.property {
     method @FlaggedApi("android.car.feature.batched_subscriptions") public boolean subscribePropertyEvents(@NonNull java.util.List<android.car.hardware.property.Subscription>, @Nullable java.util.concurrent.Executor, @NonNull android.car.hardware.property.CarPropertyManager.CarPropertyEventCallback);
     method @Deprecated public void unregisterCallback(@NonNull android.car.hardware.property.CarPropertyManager.CarPropertyEventCallback);
     method @Deprecated public void unregisterCallback(@NonNull android.car.hardware.property.CarPropertyManager.CarPropertyEventCallback, int);
+    method @FlaggedApi("android.car.feature.car_property_supported_value") public void unregisterSupportedValuesChangeCallback(int);
+    method @FlaggedApi("android.car.feature.car_property_supported_value") public void unregisterSupportedValuesChangeCallback(int, @NonNull android.car.hardware.property.CarPropertyManager.SupportedValuesChangeCallback);
+    method @FlaggedApi("android.car.feature.car_property_supported_value") public void unregisterSupportedValuesChangeCallback(int, int, @NonNull android.car.hardware.property.CarPropertyManager.SupportedValuesChangeCallback);
     method @FlaggedApi("android.car.feature.batched_subscriptions") public void unsubscribePropertyEvents(@NonNull android.car.hardware.property.CarPropertyManager.CarPropertyEventCallback);
     method @FlaggedApi("android.car.feature.batched_subscriptions") public void unsubscribePropertyEvents(int, @NonNull android.car.hardware.property.CarPropertyManager.CarPropertyEventCallback);
     field public static final long ASYNC_GET_DEFAULT_TIMEOUT_MS = 10000L; // 0x2710L
@@ -841,6 +853,11 @@ package android.car.hardware.property {
     method @NonNull public T getValue();
   }
 
+  @FlaggedApi("android.car.feature.car_property_supported_value") public static class CarPropertyManager.MinMaxSupportedValue<T> {
+    method @FlaggedApi("android.car.feature.car_property_supported_value") @Nullable public T getMaxValue();
+    method @FlaggedApi("android.car.feature.car_property_supported_value") @Nullable public T getMinValue();
+  }
+
   public static final class CarPropertyManager.PropertyAsyncError {
     method public int getAreaId();
     method @FlaggedApi("android.car.feature.car_property_detailed_error_codes") public int getDetailedErrorCode();
@@ -870,6 +887,10 @@ package android.car.hardware.property {
     method public int getPropertyId();
     method public int getRequestId();
     method public long getUpdateTimestampNanos();
+  }
+
+  @FlaggedApi("android.car.feature.car_property_supported_value") public static interface CarPropertyManager.SupportedValuesChangeCallback {
+    method public void onSupportedValuesChange(int, int);
   }
 
   @FlaggedApi("android.car.feature.car_property_detailed_error_codes") public final class DetailedErrorCode {

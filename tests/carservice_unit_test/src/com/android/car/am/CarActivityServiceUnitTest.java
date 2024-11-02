@@ -38,7 +38,7 @@ import android.os.UserHandle;
 
 import com.android.car.CarLocalServices;
 import com.android.car.CarServiceHelperWrapper;
-import com.android.car.CarServiceHelperWrapperUnitTest;
+import com.android.car.CarServiceHelperWrapperTimeout;
 import com.android.car.internal.ICarServiceHelper;
 
 import org.junit.After;
@@ -91,7 +91,7 @@ public class CarActivityServiceUnitTest {
     @Test
     public void setPersistentActivityThrowsException_ifICarServiceHelperIsNotSet() {
         // Remove already create one and reset to not set state.
-        CarServiceHelperWrapperUnitTest.createWithImmediateTimeout();
+        CarServiceHelperWrapperTimeout.createWithImmediateTimeout();
 
         assertThrows(IllegalStateException.class,
                 () -> mCarActivityService.setPersistentActivity(

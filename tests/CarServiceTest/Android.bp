@@ -215,6 +215,7 @@ android_test {
 
     srcs: [
         "src/com/android/car/power/*.java",
+        "src/com/android/car/hardware/power/*.java",
     ],
 
     test_config: "AndroidTest_PowerTest.xml",
