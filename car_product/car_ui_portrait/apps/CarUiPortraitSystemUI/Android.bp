@@ -31,7 +31,10 @@ android_app {
 
     libs: [
         "android.car",
+        "token-shared-lib-prebuilt",
     ],
+
+    enforce_uses_libs: false,
 
     manifest: "AndroidManifest.xml",
 
@@ -76,6 +79,7 @@ android_library {
 
     libs: [
         "android.car",
+        "token-shared-lib-prebuilt",
     ],
 
     static_libs: [
@@ -83,6 +87,8 @@ android_library {
         "car-portrait-ui-common",
         "androidx.car.app_app",
     ],
+
+    enforce_uses_libs: false,
 
     plugins: ["dagger2-compiler"],
     // TODO(b/319708040): re-enable use_resource_processor
