@@ -20,6 +20,7 @@
           package="com.android.car.portraitlauncher.homeactivities.test">
     <application
         android:debuggable="true">
+        <uses-library android:name="com.android.oem.tokens" android:required="false"/>
         <activity android:name="com.android.car.portraitlauncher.homeactivities.test.TestActivity"/>
         <activity android:name="com.android.car.portraitlauncher.homeactivities.test.TestBackgroundActivity"
                   android:exported="true">
