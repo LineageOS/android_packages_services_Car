@@ -22,7 +22,10 @@ import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.hardware.audio.common.PlaybackTrackMetadata;
+import android.hardware.automotive.audiocontrol.AudioDeviceConfiguration;
+import android.hardware.automotive.audiocontrol.AudioZone;
 import android.hardware.automotive.audiocontrol.MutingInfo;
+import android.hardware.automotive.audiocontrol.RoutingDeviceConfiguration;
 
 import com.android.car.audio.CarDuckingInfo;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
@@ -43,6 +46,7 @@ public interface AudioControlWrapper {
     int AUDIOCONTROL_FEATURE_AUDIO_FOCUS_WITH_METADATA = 3;
     int AUDIOCONTROL_FEATURE_AUDIO_GAIN_CALLBACK = 4;
     int AUDIOCONTROL_FEATURE_AUDIO_MODULE_CALLBACK = 5;
+    int AUDIOCONTROL_FEATURE_AUDIO_CONFIGURATION = 6;
 
     @IntDef({
             AUDIOCONTROL_FEATURE_AUDIO_FOCUS,
@@ -51,6 +55,7 @@ public interface AudioControlWrapper {
             AUDIOCONTROL_FEATURE_AUDIO_FOCUS_WITH_METADATA,
             AUDIOCONTROL_FEATURE_AUDIO_GAIN_CALLBACK,
             AUDIOCONTROL_FEATURE_AUDIO_MODULE_CALLBACK,
+            AUDIOCONTROL_FEATURE_AUDIO_CONFIGURATION,
     })
     @Retention(RetentionPolicy.SOURCE)
     @interface AudioControlFeature {
@@ -145,6 +150,33 @@ public interface AudioControlWrapper {
      * @param moduleChangeCallback the callback to register on the IAudioControl HAL.
      */
     void setModuleChangeCallback(HalAudioModuleChangeCallback moduleChangeCallback);
+
+    /**
+     * Returns the audio device configurations that should be used to configure
+     * the car audio service audio management.
+     *
+     * <p>If this method is not supported, car audio service will attempt to configure the car audio
+     * service properties based on previously supported mechanisms.
+     *
+     * <p>If the returned value contains the
+     * {@link RoutingDeviceConfiguration#DEFAULT_AUDIO_ROUTING} value, the car audio service will
+     * attempt to configure audio routing based on the mechanism previously supported by car audio
+     * service (e.g. car audio configuration file). Otherwise, the {@link #getCarAudioZones()}
+     * API must return valid audio zone(s) configuration(s) for the device.
+     *
+     */
+    AudioDeviceConfiguration getAudioDeviceConfiguration();
+
+    /**
+     * Returns the list of audio devices that can be used for mirroring between different audio
+     * zones.
+     */
+    List<HalAudioDeviceInfo> getOutputMirroringDevices();
+
+    /**
+     * List of audio zones used to configure car audio service at bootup.
+     */
+    List<AudioZone> getCarAudioZones();
 
     /**
      * Clears all module change callbacks that's registered on the AudioControl HAL

@@ -266,7 +266,7 @@ public class DisplayBrightnessTest extends MockedCarTestBase {
         var listenerCaptor = ArgumentCaptor.forClass(DisplayListener.class);
         var handlerCaptor = ArgumentCaptor.forClass(Handler.class);
         verify(mDisplayManager).registerDisplayListener(listenerCaptor.capture(),
-                handlerCaptor.capture(), anyLong());
+                handlerCaptor.capture(), anyLong(), anyLong());
 
         mBrightnessPropertyHandler.resetPropertySet();
 

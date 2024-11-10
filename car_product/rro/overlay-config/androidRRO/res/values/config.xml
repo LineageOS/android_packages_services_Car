@@ -224,4 +224,10 @@
     <string-array name="config_defaultAllowlistLaunchOnPrivateDisplayPackages">
         <item>com.example.android.launchonprivatedisplay</item>
     </string-array>
+
+    <!-- The number of the max cached processes in the system.
+         This change reverts the new default MCP value (ag/29980127, b/373735578#comment23) to
+         the old value.
+         TODO(b/375265023): Remove this config once the new default value is tested on AAOS. -->
+    <integer name="config_customizedMaxCachedProcesses">32</integer>
 </resources>

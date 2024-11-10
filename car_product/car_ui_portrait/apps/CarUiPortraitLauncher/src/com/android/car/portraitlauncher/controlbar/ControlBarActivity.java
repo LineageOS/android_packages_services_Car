@@ -19,6 +19,9 @@ package com.android.car.portraitlauncher.controlbar;
 import static android.content.pm.ActivityInfo.CONFIG_UI_MODE;
 import static android.window.DisplayAreaOrganizer.FEATURE_DEFAULT_TASK_CONTAINER;
 
+import static com.android.car.caruiportrait.common.service.CarUiPortraitService.INTENT_EXTRA_CONTROL_BAR_HEIGHT_CHANGE;
+import static com.android.car.caruiportrait.common.service.CarUiPortraitService.REQUEST_FROM_LAUNCHER;
+
 import android.app.ActivityOptions;
 import android.content.Intent;
 import android.content.res.Configuration;
@@ -26,6 +29,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.LinearLayout;
 
 import androidx.fragment.app.FragmentActivity;
@@ -58,6 +62,16 @@ public class ControlBarActivity extends FragmentActivity {
         }
     };
     private LinearLayout mControlBarArea;
+    private int mHeight = 0;
+    private final View.OnLayoutChangeListener mControlBarAreaSizeChangeListener =
+            (v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) -> {
+                int newHeight = bottom - top;
+                if (newHeight == mHeight) {
+                    return;
+                }
+                mHeight = newHeight;
+                notifyControlBarHeightChange();
+            };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,6 +82,7 @@ public class ControlBarActivity extends FragmentActivity {
 
         initializeCards();
         MediaIntentRouter.getInstance().registerMediaIntentHandler(mMediaIntentHandler);
+        mControlBarArea.addOnLayoutChangeListener(mControlBarAreaSizeChangeListener);
     }
 
     @Override
@@ -107,5 +122,11 @@ public class ControlBarActivity extends FragmentActivity {
             transaction.replace(cardModule.getCardResId(), cardModule.getCardView().getFragment());
         }
         transaction.commitNow();
+    }
+
+    private void notifyControlBarHeightChange() {
+        Intent intent = new Intent(REQUEST_FROM_LAUNCHER);
+        intent.putExtra(INTENT_EXTRA_CONTROL_BAR_HEIGHT_CHANGE, mHeight);
+        sendBroadcast(intent);
     }
 }

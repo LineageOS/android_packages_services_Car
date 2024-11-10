@@ -19,7 +19,6 @@ package com.android.car.customization.tool.features.system.theme.oemtokenstoggle
 import android.content.Context
 import android.content.om.OverlayInfo
 import android.content.om.OverlayManager
-import android.content.pm.PackageManager
 import android.os.UserHandle
 import com.android.car.customization.tool.R
 import com.android.car.customization.tool.di.MenuActionKey
@@ -46,29 +45,33 @@ internal class OemTokensToggleModule {
     @SystemThemeMenu
     @IntoSet
     fun provideOemTokenSwitch(
-        packageManager: PackageManager,
         overlayManager: OverlayManager,
     ): MenuItem {
         val displayText = R.string.menu_system_theme_design_tokens_switch
-        val sharedLib: String? = getTokenSharedLibPackageName(packageManager)
-        var isEnabled = false
-        var isChecked = false
-        var rroPackage = ""
-        if (sharedLib != null) {
-            val overlayInfo: List<OverlayInfo> =
-                overlayManager.getOverlayInfosForTarget(sharedLib, UserHandle.CURRENT)
-            if (overlayInfo.isNotEmpty() && overlayInfo[0].isValid()) {
-                isEnabled = true
-                isChecked = overlayInfo[0].isEnabled
-                rroPackage = overlayInfo[0].packageName
-            }
-        }
+        val overlaysInfo: List<OverlayInfo> =
+            TOKENS_RROS
+                .mapNotNull { (rroPackage, userHandle) ->
+                    overlayManager.getOverlayInfo(rroPackage, userHandle)
+                }.filter { overlayInfo ->
+                    overlayInfo.isValid()
+                }
+        val isEnabled = overlaysInfo.isNotEmpty()
+        val isChecked = isEnabled && overlaysInfo.all { it.isEnabled() }
 
         return MenuItem.Switch(
             displayTextRes = displayText,
             isEnabled = isEnabled,
             isChecked = isChecked,
-            action = ToggleOemTokensAction(displayText, rroPackage, !isChecked)
+            action = ToggleOemTokensAction(
+                displayText,
+                overlaysInfo.map {
+                    TokenRro(
+                        rroPackage = it.packageName,
+                        userHandle = requireNotNull(TOKENS_RROS[it.packageName])
+                    )
+                },
+                !isChecked
+            )
         )
     }
 
@@ -79,11 +82,12 @@ internal class OemTokensToggleModule {
         @UIContext context: Context,
         overlayManager: OverlayManager,
     ): MenuActionReducer = OemTokensToggleReducer(context, overlayManager)
-}
 
-private fun getTokenSharedLibPackageName(packageManager: PackageManager): String? {
-    return packageManager.getSharedLibraries(/*flags=*/0)
-        .find { info -> info.name == "com.android.oem.tokens" }
-        ?.declaringPackage
-        ?.packageName
+    private companion object {
+        val TOKENS_RROS: Map<String, UserHandle> = mapOf(
+            "oem.brand.model.android.rro" to UserHandle.CURRENT,
+            "oem.brand.model.plugin.rro" to UserHandle.CURRENT,
+            "oem.brand.model.rro" to UserHandle.CURRENT
+        )
+    }
 }

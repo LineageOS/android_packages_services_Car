@@ -22,6 +22,7 @@ import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BO
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
+import android.car.builtin.os.SharedMemoryHelper;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.os.SharedMemory;
@@ -32,6 +33,7 @@ import android.util.Slog;
 import com.android.internal.annotations.GuardedBy;
 
 import java.io.Closeable;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 
 /**
@@ -46,6 +48,14 @@ import java.nio.ByteBuffer;
  * <li>@Nullable SharedMemory which include serialized Parcelable if non-null. This will be set
  * only when the previous Parcelable is null or this also can be null for no data case.
  * </ul>
+ *
+ * <p>If the caller sends this class through binder, the caller must close this class after writing
+ * to parcel, unless this class is used as the return value for a binder call. If this is used as
+ * return value, the stored shared memory will be lost unless caller make a copy of the shared
+ * memory file descriptor.
+ *
+ * <p>If the caller receives this class through binder, the caller must close this after reading the
+ * data.
  */
 public abstract class LargeParcelableBase implements Parcelable, Closeable {
     /** Payload size bigger than this value will be passed over shared memory. */
@@ -102,8 +112,9 @@ public abstract class LargeParcelableBase implements Parcelable, Closeable {
                 throw new IllegalArgumentException(
                         "Invalid data, wrong fdHeader, expected 0 while got " + fdHeader);
             }
-            SharedMemory memory = SharedMemory.CREATOR.createFromParcel(in);
-            deserializeSharedMemoryAndClose(memory);
+            try (SharedMemory memory = SharedMemory.CREATOR.createFromParcel(in)) {
+                deserializeSharedMemory(memory);
+            }
         }
         in.setDataPosition(startPosition + totalPayloadSize);
         if (DBG_PAYLOAD) {
@@ -116,18 +127,23 @@ public abstract class LargeParcelableBase implements Parcelable, Closeable {
     @Override
     public void writeToParcel(@NonNull Parcel dest, int flags) {
         int startPosition = dest.dataPosition();
-        SharedMemory sharedMemory;
+        SharedMemory storedSharedMemory;
         synchronized (mLock) {
-            sharedMemory = mSharedMemory;
+            storedSharedMemory = mSharedMemory;
         }
         int totalPayloadSize = 0;
-        if (sharedMemory != null) {
+        if (storedSharedMemory != null) {
             // optimized path for resending the same Parcelable multiple times with already
             // created shared memory
-            totalPayloadSize = serializeMemoryFdOrPayloadToParcel(dest, flags, sharedMemory);
+            totalPayloadSize = serializeMemoryFdOrPayloadToParcel(dest, flags, storedSharedMemory);
             if (DBG_PAYLOAD) {
                 Slog.d(TAG, "Write, reusing shared memory, start:" + startPosition
                         + " totalPayloadSize:" + totalPayloadSize);
+            }
+            if ((flags & Parcelable.PARCELABLE_WRITE_RETURN_VALUE) != 0) {
+                // If we are writing this as return value, we must clear the stored shared memory
+                // file otherwise the client does not know when to close it.
+                storedSharedMemory.close();
             }
             return;
         }
@@ -148,17 +164,27 @@ public abstract class LargeParcelableBase implements Parcelable, Closeable {
             if (DBG_PAYLOAD) {
                 Slog.d(TAG, "using shared memory");
             }
-            sharedMemory = serializeParcelToSharedMemory(dataParcel);
-            dataParcel.recycle();
-            synchronized (mLock) {
-                // If it is already set, let sharedMemory go and GV will close it later.
-                // This is ok as this kind of race should not happen often.
-                if (mSharedMemory != null) {
-                    mSharedMemory = sharedMemory;
-                }
-            }
+            try (SharedMemory sharedMemory = serializeParcelToSharedMemory(dataParcel)) {
+                totalPayloadSize = serializeMemoryFdOrPayloadToParcel(dest, flags, sharedMemory);
 
-            totalPayloadSize = serializeMemoryFdOrPayloadToParcel(dest, flags, sharedMemory);
+                if ((flags & Parcelable.PARCELABLE_WRITE_RETURN_VALUE) == 0) {
+                    // Duplicate the file descriptor to store it.
+                    SharedMemory sharedMemoryCopy = SharedMemory.fromFileDescriptor(
+                            SharedMemoryHelper.createParcelFileDescriptor(sharedMemory));
+                    synchronized (mLock) {
+                        // If it is already set, replace the existing stored copy which should be
+                        // the same.
+                        if (mSharedMemory != null) {
+                            mSharedMemory.close();
+                        }
+                        mSharedMemory = sharedMemoryCopy;
+                    }
+                }
+            } catch (IOException e) {
+                Slog.e(TAG, "Failed to duplicate shared memory fd", e);
+            } finally {
+                dataParcel.recycle();
+            }
         }
         if (DBG_PAYLOAD) {
             Slog.d(TAG, "Write, start:" + startPosition + " totalPayloadSize:" + totalPayloadSize
@@ -187,6 +213,7 @@ public abstract class LargeParcelableBase implements Parcelable, Closeable {
         // non-null case
         dest.writeInt(NONNULL_PAYLOAD);
         dest.writeInt(FD_HEADER); // additional header for ParcelFileDescriptor
+        // The file descriptor will be duped, so it is free to close the memory after this.
         memory.writeToParcel(dest, flags);
     }
 
@@ -194,6 +221,16 @@ public abstract class LargeParcelableBase implements Parcelable, Closeable {
     @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
     public int describeContents() {
         return 0;
+    }
+
+    @Override
+    protected void finalize() {
+        synchronized (mLock) {
+            if (mSharedMemory != null) {
+                Slog.e(TAG, "LargeParcelableBase.close is not called before it is GCed");
+            }
+        }
+        close();
     }
 
     /**
@@ -252,8 +289,10 @@ public abstract class LargeParcelableBase implements Parcelable, Closeable {
                 throw new SecurityException("Failed to set read-only protection on shared memory");
             }
         } catch (ErrnoException e) {
+            memory.close();
             throw new IllegalArgumentException("Failed to use shared memory", e);
         } catch (Exception e) {
+            memory.close();
             throw new IllegalArgumentException("failed to serialize", e);
         } finally {
             if (buffer != null) {
@@ -311,7 +350,7 @@ public abstract class LargeParcelableBase implements Parcelable, Closeable {
         return in;
     }
 
-    private void deserializeSharedMemoryAndClose(SharedMemory memory) {
+    private void deserializeSharedMemory(SharedMemory memory) {
         // The shared memory file contains a serialized largeParcelable.
         // size + payload + 0 (no shared memory).
         Parcel in = null;
@@ -326,7 +365,6 @@ public abstract class LargeParcelableBase implements Parcelable, Closeable {
             deserialize(in);
             // There is an additional 0 in the parcel, but we ignore that.
         } finally {
-            memory.close();
             if (in != null) {
                 in.recycle();
             }

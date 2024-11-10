@@ -808,7 +808,6 @@ final class AidlVehicleStub extends VehicleStub {
             Trace.traceBegin(TRACE_TAG, "Prepare LargeParcelable");
             GetValueRequests largeParcelableRequest = new GetValueRequests();
             largeParcelableRequest.payloads = mVhalRequestItems;
-
             // TODO(b/269669729): Don't try to use large parcelable if the request size is too
             // small.
             largeParcelableRequest = (GetValueRequests) LargeParcelable.toLargeParcelable(
@@ -818,9 +817,14 @@ final class AidlVehicleStub extends VehicleStub {
                         return newRequests;
             });
             Trace.traceEnd(TRACE_TAG);
-            Trace.traceBegin(TRACE_TAG, "IVehicle#getValues");
-            iVehicle.getValues(callbackForVhal, largeParcelableRequest);
-            Trace.traceEnd(TRACE_TAG);
+
+            try {
+                Trace.traceBegin(TRACE_TAG, "IVehicle#getValues");
+                iVehicle.getValues(callbackForVhal, largeParcelableRequest);
+            } finally {
+                LargeParcelable.closeFd(largeParcelableRequest.sharedMemoryFd);
+                Trace.traceEnd(TRACE_TAG);
+            }
         }
 
         @Override
@@ -863,7 +867,11 @@ final class AidlVehicleStub extends VehicleStub {
                         newRequests.payloads = new SetValueRequest[0];
                         return newRequests;
             });
-            iVehicle.setValues(callbackForVhal, largeParcelableRequest);
+            try {
+                iVehicle.setValues(callbackForVhal, largeParcelableRequest);
+            } finally {
+                LargeParcelable.closeFd(largeParcelableRequest.sharedMemoryFd);
+            }
         }
 
         @Override

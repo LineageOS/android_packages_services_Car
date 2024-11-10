@@ -303,4 +303,31 @@ public final class AudioControlWrapperV2Test {
                 .that(thrown).hasMessageThat()
                 .contains("Call to IAudioControl@2.0#unlinkToDeath failed");
     }
+
+    @Test
+    public void getAudioDeviceConfiguration_throws() {
+        Exception thrown = assertThrows(UnsupportedOperationException.class,
+                () -> mAudioControlWrapperV2.getAudioDeviceConfiguration());
+
+        assertWithMessage("Audio device configuration exception for audio control V2")
+                .that(thrown).hasMessageThat().contains("Audio device configs");
+    }
+
+    @Test
+    public void getOutputMirroringDevices_throws() {
+        Exception thrown = assertThrows(UnsupportedOperationException.class,
+                () -> mAudioControlWrapperV2.getOutputMirroringDevices());
+
+        assertWithMessage("Audio mirroring devices exception for audio control V2")
+                .that(thrown).hasMessageThat().contains("Output mirror devices");
+    }
+
+    @Test
+    public void getCarAudioZones_throws() {
+        Exception thrown = assertThrows(UnsupportedOperationException.class,
+                () -> mAudioControlWrapperV2.getCarAudioZones());
+
+        assertWithMessage("Audio zones exception for audio control V2")
+                .that(thrown).hasMessageThat().contains("Audio zones");
+    }
 }

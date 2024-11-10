@@ -24,18 +24,24 @@ import static com.android.car.audio.CarHalAudioUtils.usageToMetadata;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
+import static java.util.Collections.EMPTY_LIST;
+
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.car.builtin.os.ServiceManagerHelper;
 import android.car.builtin.util.Slogf;
+import android.car.feature.Flags;
 import android.hardware.audio.common.PlaybackTrackMetadata;
+import android.hardware.automotive.audiocontrol.AudioDeviceConfiguration;
 import android.hardware.automotive.audiocontrol.AudioGainConfigInfo;
+import android.hardware.automotive.audiocontrol.AudioZone;
 import android.hardware.automotive.audiocontrol.DuckingInfo;
 import android.hardware.automotive.audiocontrol.IAudioControl;
 import android.hardware.automotive.audiocontrol.IAudioGainCallback;
 import android.hardware.automotive.audiocontrol.IFocusListener;
 import android.hardware.automotive.audiocontrol.IModuleChangeCallback;
 import android.hardware.automotive.audiocontrol.MutingInfo;
+import android.hardware.automotive.audiocontrol.RoutingDeviceConfiguration;
 import android.media.audio.common.AudioPort;
 import android.os.IBinder;
 import android.os.RemoteException;
@@ -66,6 +72,8 @@ public final class AudioControlWrapperAidl implements AudioControlWrapper, IBind
     private static final int AIDL_AUDIO_CONTROL_VERSION_1 = 1;
     private static final int AIDL_AUDIO_CONTROL_VERSION_2 = 2;
     private static final int AIDL_AUDIO_CONTROL_VERSION_3 = 3;
+    private static final int AIDL_AUDIO_CONTROL_VERSION_4 = 4;
+    private static final int AIDL_AUDIO_CONTROL_VERSION_5 = 5;
 
     private IBinder mBinder;
     private IAudioControl mAudioControl;
@@ -113,6 +121,20 @@ public final class AudioControlWrapperAidl implements AudioControlWrapper, IBind
                 } catch (RemoteException e) {
                     Slogf.w("supportsFeature Failed to get version for feature: " + feature, e);
                 }
+                return false;
+            case AUDIOCONTROL_FEATURE_AUDIO_CONFIGURATION:
+                if (!Flags.audioControlHalConfiguration()) {
+                    Slogf.i(TAG, "supportsFeature AUDIOCONTROL_FEATURE_AUDIO_CONFIGURATION"
+                            + " not supported since audio control HAL config is disabled");
+                    return false;
+                }
+                try {
+                    return mAudioControl.getInterfaceVersion() > AIDL_AUDIO_CONTROL_VERSION_4;
+                } catch (RemoteException e) {
+                    Slogf.w("supportsFeature Failed to get version for feature: " + feature, e);
+                }
+                Slogf.i(TAG, "supportsFeature requires audio control version "
+                        + AIDL_AUDIO_CONTROL_VERSION_5);
                 return false;
             default:
                 return false;
@@ -212,6 +234,9 @@ public final class AudioControlWrapperAidl implements AudioControlWrapper, IBind
         }
         if (supportsFeature(AUDIOCONTROL_FEATURE_AUDIO_MODULE_CALLBACK)) {
             writer.println("- AUDIOCONTROL_FEATURE_AUDIO_MODULE_CALLBACK");
+        }
+        if (supportsFeature(AUDIOCONTROL_FEATURE_AUDIO_CONFIGURATION)) {
+            writer.println("- AUDIOCONTROL_FEATURE_AUDIO_CONFIGURATION");
         }
         writer.decreaseIndent();
 
@@ -330,6 +355,57 @@ public final class AudioControlWrapperAidl implements AudioControlWrapper, IBind
     }
 
     @Override
+    public AudioDeviceConfiguration getAudioDeviceConfiguration() {
+        if (!supportsFeature(AUDIOCONTROL_FEATURE_AUDIO_CONFIGURATION)) {
+            return getDefaultAudioConfiguration();
+        }
+        try {
+            return mAudioControl.getAudioDeviceConfiguration();
+        } catch (RemoteException e) {
+            Slogf.w(TAG, "Failed to get audio device configuration", e);
+            return getDefaultAudioConfiguration();
+        } catch (UnsupportedOperationException e) {
+            Slogf.w(TAG, "Failed to get audio device configuration, feature not supported",
+                    e);
+            return getDefaultAudioConfiguration();
+        }
+    }
+
+    @Override
+    public List<HalAudioDeviceInfo> getOutputMirroringDevices() {
+        if (!supportsFeature(AUDIOCONTROL_FEATURE_AUDIO_CONFIGURATION)) {
+            return EMPTY_LIST;
+        }
+        try {
+            List<AudioPort> ports = mAudioControl.getOutputMirroringDevices();
+            return convertAudioPortToHalAudioDevice(ports.toArray(new AudioPort[0]));
+        } catch (RemoteException e) {
+            Slogf.w(TAG, "Failed to get audio mirroring devices", e);
+            return EMPTY_LIST;
+        } catch (UnsupportedOperationException e) {
+            Slogf.w(TAG, "Failed to get audio mirroring devices, feature not supported",
+                    e);
+            return EMPTY_LIST;
+        }
+    }
+
+    @Override
+    public List<AudioZone> getCarAudioZones() {
+        if (!supportsFeature(AUDIOCONTROL_FEATURE_AUDIO_CONFIGURATION)) {
+            return EMPTY_LIST;
+        }
+        try {
+            return mAudioControl.getCarAudioZones();
+        } catch (RemoteException e) {
+            Slogf.w(TAG, "Failed to get audio zones", e);
+            return EMPTY_LIST;
+        } catch (UnsupportedOperationException e) {
+            Slogf.w(TAG, "Failed to get audio zones, feature not supported", e);
+            return EMPTY_LIST;
+        }
+    }
+
+    @Override
     public void linkToDeath(@Nullable AudioControlDeathRecipient deathRecipient) {
         try {
             mBinder.linkToDeath(this, 0);
@@ -364,6 +440,12 @@ public final class AudioControlWrapperAidl implements AudioControlWrapper, IBind
         if (mDeathRecipient != null) {
             mDeathRecipient.serviceDied();
         }
+    }
+
+    private AudioDeviceConfiguration getDefaultAudioConfiguration() {
+        AudioDeviceConfiguration configuration = new AudioDeviceConfiguration();
+        configuration.routingConfig = RoutingDeviceConfiguration.DEFAULT_AUDIO_ROUTING;
+        return configuration;
     }
 
     private static final class FocusListenerWrapper extends IFocusListener.Stub {
@@ -507,12 +589,15 @@ public final class AudioControlWrapperAidl implements AudioControlWrapper, IBind
 
         @Override
         public void onAudioPortsChanged(AudioPort[] audioPorts) {
-            List<HalAudioDeviceInfo> halAudioDeviceInfos = new ArrayList<>();
-            for (int index = 0; index < audioPorts.length; index++) {
-                AudioPort port = audioPorts[index];
-                halAudioDeviceInfos.add(new HalAudioDeviceInfo(port));
-            }
-            mCallback.onAudioPortsChanged(halAudioDeviceInfos);
+            mCallback.onAudioPortsChanged(convertAudioPortToHalAudioDevice(audioPorts));
         }
+    }
+
+    private static List<HalAudioDeviceInfo> convertAudioPortToHalAudioDevice(AudioPort[] ports) {
+        List<HalAudioDeviceInfo> halAudioDeviceInfos = new ArrayList<>();
+        for (AudioPort port : ports) {
+            halAudioDeviceInfos.add(new HalAudioDeviceInfo(port));
+        }
+        return halAudioDeviceInfos;
     }
 }

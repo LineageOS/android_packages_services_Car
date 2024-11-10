@@ -242,6 +242,13 @@ flag {
   bug: "371636116"
 }
 
+flag {
+  name: "car_property_simulation"
+  namespace: "car_framework"
+  description: "Controls whether recording and replaying is available in CarPropertyManager"
+  bug: "377378043"
+}
+
 # CarServiceBase
 flag {
   name: "car_dump_to_proto"
@@ -375,4 +382,12 @@ flag {
     namespace: "car_framework"
     description: "Enables task view task reordering"
     bug: "369186876"
+}
+
+# 3P VHAL Property Strategy
+flag {
+    name: "vehicle_property_remove_system_api_tags"
+    namespace: "car_perception"
+    description: "Expose vehicle property constants as public APIs instead of system APIs"
+    bug: "357910317"
 }

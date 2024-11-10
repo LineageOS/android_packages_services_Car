@@ -37,7 +37,8 @@
             android:layout_weight="1"
             android:layout_gravity="start"
             android:gravity="start|center_vertical"
-            systemui:hvacAreaId="49">
+            systemui:hvacAreaId="49"
+            systemui:controller="com.android.systemui.car.hvac.CarUiPortraitTemperatureControlViewController">
             <include layout="@layout/adjustable_temperature_view"/>
         </com.android.systemui.car.hvac.CarUiPortraitTemperatureControlView>
 
@@ -91,7 +92,8 @@
             android:layout_gravity="end"
             android:layout_weight="1"
             android:gravity="end|center_vertical"
-            systemui:hvacAreaId="68">
+            systemui:hvacAreaId="68"
+            systemui:controller="com.android.systemui.car.hvac.CarUiPortraitTemperatureControlViewController">
             <include layout="@layout/adjustable_temperature_view"/>
         </com.android.systemui.car.hvac.CarUiPortraitTemperatureControlView>
 
@@ -112,7 +114,8 @@
             android:layout_weight="1"
             android:layout_gravity="start"
             android:gravity="start|center_vertical"
-            systemui:hvacAreaId="49">
+            systemui:hvacAreaId="49"
+            systemui:controller="com.android.systemui.car.hvac.CarUiPortraitTemperatureControlViewController">
             <include layout="@layout/adjustable_temperature_view"/>
         </com.android.systemui.car.hvac.CarUiPortraitTemperatureControlView>
 
@@ -123,7 +126,8 @@
             android:layout_gravity="end"
             android:layout_weight="1"
             android:gravity="end|center_vertical"
-            systemui:hvacAreaId="68">
+            systemui:hvacAreaId="68"
+            systemui:controller="com.android.systemui.car.hvac.CarUiPortraitTemperatureControlViewController">
             <include layout="@layout/adjustable_temperature_view"/>
         </com.android.systemui.car.hvac.CarUiPortraitTemperatureControlView>
     </LinearLayout>

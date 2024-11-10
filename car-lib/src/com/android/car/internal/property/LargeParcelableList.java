@@ -45,6 +45,14 @@ import java.util.List;
  * }
  * }
  *
+ * <p>If the caller sends this class through binder, the caller must close this class after writing
+ * to parcel, unless this class is used as the return value for a binder call. If this is used as
+ * return value, the stored shared memory will be lost unless caller make a copy of the shared
+ * memory file descriptor.
+ *
+ * <p>If the caller receives this class through binder, the caller must close this after reading the
+ * data.
+ *
  * @param <T> The type for the element stored in this list
  */
 public abstract class LargeParcelableList<T extends Parcelable> extends LargeParcelableBase {

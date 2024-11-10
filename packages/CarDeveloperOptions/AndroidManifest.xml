@@ -1785,6 +1785,15 @@
         </activity>
 
         <activity
+            android:name="com.android.settings.Settings$PowerUsageAdvancedActivity"
+            android:enabled="false"
+            android:exported="false"
+            tools:node="merge"
+            tools:replace="android:exported">
+            <intent-filter tools:node="removeAll"/>
+        </activity>
+
+        <activity
             android:name="com.android.settings.Settings$BatterySaverSettingsActivity"
             android:enabled="false"
             android:exported="false"

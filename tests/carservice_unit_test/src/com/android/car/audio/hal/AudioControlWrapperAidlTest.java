@@ -24,6 +24,7 @@ import static android.media.audio.common.AudioGainMode.JOINT;
 import static android.os.IBinder.DeathRecipient;
 
 import static com.android.car.audio.CarHalAudioUtils.usageToMetadata;
+import static com.android.car.audio.hal.AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_CONFIGURATION;
 import static com.android.car.audio.hal.AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_DUCKING;
 import static com.android.car.audio.hal.AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_FOCUS;
 import static com.android.car.audio.hal.AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_FOCUS_WITH_METADATA;
@@ -50,9 +51,12 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import android.audio.policy.configuration.V7_0.AudioUsage;
+import android.car.feature.Flags;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.hardware.audio.common.PlaybackTrackMetadata;
+import android.hardware.automotive.audiocontrol.AudioDeviceConfiguration;
 import android.hardware.automotive.audiocontrol.AudioGainConfigInfo;
+import android.hardware.automotive.audiocontrol.AudioZone;
 import android.hardware.automotive.audiocontrol.DuckingInfo;
 import android.hardware.automotive.audiocontrol.IAudioControl;
 import android.hardware.automotive.audiocontrol.IAudioGainCallback;
@@ -60,6 +64,7 @@ import android.hardware.automotive.audiocontrol.IFocusListener;
 import android.hardware.automotive.audiocontrol.IModuleChangeCallback;
 import android.hardware.automotive.audiocontrol.MutingInfo;
 import android.hardware.automotive.audiocontrol.Reasons;
+import android.hardware.automotive.audiocontrol.RoutingDeviceConfiguration;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.media.audio.common.AudioGain;
@@ -67,6 +72,9 @@ import android.media.audio.common.AudioPort;
 import android.media.audio.common.AudioPortDeviceExt;
 import android.os.IBinder;
 import android.os.RemoteException;
+import android.platform.test.annotations.DisableFlags;
+import android.platform.test.annotations.EnableFlags;
+import android.platform.test.flag.junit.SetFlagsRule;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
@@ -81,6 +89,7 @@ import com.android.dx.mockito.inline.extended.ExtendedMockito;
 import com.google.common.collect.ImmutableList;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -131,6 +140,7 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
     private static final int AIDL_AUDIO_CONTROL_VERSION_1 = 1;
     private static final int AIDL_AUDIO_CONTROL_VERSION_2 = 2;
     private static final int AIDL_AUDIO_CONTROL_VERSION_3 = 3;
+    private static final int AIDL_AUDIO_CONTROL_VERSION_5 = 5;
     private static final CarAudioContext TEST_CAR_AUDIO_CONTEXT =
             new CarAudioContext(CarAudioContext.getAllContextsInfo(),
                     /* useCoreAudioRouting= */ false);
@@ -163,6 +173,9 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
     private MutingInfo mPrimaryZoneMutingInfo;
     private MutingInfo mSecondaryZoneMutingInfo;
 
+    @Rule
+    public final SetFlagsRule mSetFlagsRule = new SetFlagsRule();
+
     public AudioControlWrapperAidlTest() {
         super(AudioControlWrapperAidl.TAG);
     }
@@ -174,10 +187,7 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
 
     @Before
     public void setUp() throws RemoteException {
-        when(mAudioControl.getInterfaceVersion()).thenReturn(AIDL_AUDIO_CONTROL_VERSION_3);
-        when(mBinder.queryLocalInterface(anyString())).thenReturn(mAudioControl);
-        doReturn(mBinder).when(AudioControlWrapperAidl::getService);
-        mAudioControlWrapperAidl = new AudioControlWrapperAidl(mBinder);
+        mAudioControlWrapperAidl = createAudioControlWrapperAidl();
         mPrimaryZoneMutingInfo = new MutingInfoBuilder(PRIMARY_ZONE_ID)
                 .setMutedAddresses(PRIMARY_MUSIC_ADDRESS, PRIMARY_NAVIGATION_ADDRESS)
                 .setUnMutedAddresses(PRIMARY_CALL_ADDRESS, PRIMARY_NOTIFICATION_ADDRESS)
@@ -187,6 +197,13 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
                 .setMutedAddresses(SECONDARY_MUSIC_ADDRESS, SECONDARY_NAVIGATION_ADDRESS)
                 .setUnMutedAddresses(SECONDARY_CALL_ADDRESS, SECONDARY_NOTIFICATION_ADDRESS)
                 .build();
+    }
+
+    private AudioControlWrapperAidl createAudioControlWrapperAidl() throws RemoteException {
+        when(mAudioControl.getInterfaceVersion()).thenReturn(AIDL_AUDIO_CONTROL_VERSION_3);
+        when(mBinder.queryLocalInterface(anyString())).thenReturn(mAudioControl);
+        doReturn(mBinder).when(AudioControlWrapperAidl::getService);
+        return new AudioControlWrapperAidl(mBinder);
     }
 
     @Test
@@ -243,6 +260,45 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
         assertWithMessage("Module callback support with failure for getting version")
                 .that(mAudioControlWrapperAidl.supportsFeature(
                         AUDIOCONTROL_FEATURE_AUDIO_MODULE_CALLBACK)).isFalse();
+    }
+
+    @Test
+    @DisableFlags(Flags.FLAG_AUDIO_CONTROL_HAL_CONFIGURATION)
+    public void supportsFeature_forAudioConfiguration_withFlagDisabled() throws Exception {
+        assertWithMessage("Audio device configuration with flag disabled")
+                .that(mAudioControlWrapperAidl.supportsFeature(
+                        AUDIOCONTROL_FEATURE_AUDIO_CONFIGURATION)).isFalse();
+    }
+
+    @Test
+    @EnableFlags(Flags.FLAG_AUDIO_CONTROL_HAL_CONFIGURATION)
+    public void supportsFeature_forAudioConfiguration_withUnsupportedVersion() throws Exception {
+        when(mAudioControl.getInterfaceVersion()).thenReturn(AIDL_AUDIO_CONTROL_VERSION_3);
+
+        assertWithMessage("Audio device configuration with unsupported version")
+                .that(mAudioControlWrapperAidl.supportsFeature(
+                        AUDIOCONTROL_FEATURE_AUDIO_CONFIGURATION)).isFalse();
+    }
+
+    @Test
+    @EnableFlags(Flags.FLAG_AUDIO_CONTROL_HAL_CONFIGURATION)
+    public void supportsFeature_forAudioConfiguration_withRemoteException() throws Exception {
+        when(mAudioControl.getInterfaceVersion())
+                .thenThrow(new RemoteException("Remote exception"));
+
+        assertWithMessage("Audio device configuration with remote exception")
+                .that(mAudioControlWrapperAidl.supportsFeature(
+                        AUDIOCONTROL_FEATURE_AUDIO_CONFIGURATION)).isFalse();
+    }
+
+    @Test
+    @EnableFlags(Flags.FLAG_AUDIO_CONTROL_HAL_CONFIGURATION)
+    public void supportsFeature_forAudioConfiguration_withSupportedVersion() throws Exception {
+        when(mAudioControl.getInterfaceVersion()).thenReturn(AIDL_AUDIO_CONTROL_VERSION_5);
+
+        assertWithMessage("Audio device configuration with supported version")
+                .that(mAudioControlWrapperAidl.supportsFeature(
+                        AUDIOCONTROL_FEATURE_AUDIO_CONFIGURATION)).isTrue();
     }
 
     @Test
@@ -929,6 +985,204 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
 
         verify(mAudioControl, after(TEST_CALLBACK_TIMEOUT_MS).never())
                 .clearModuleChangeCallback();
+    }
+
+    @Test
+    @DisableFlags(Flags.FLAG_AUDIO_CONTROL_HAL_CONFIGURATION)
+    public void getAudioDeviceConfiguration_withFlagDisabled() throws Exception {
+        when(mAudioControl.getInterfaceVersion()).thenReturn(AIDL_AUDIO_CONTROL_VERSION_5);
+
+        AudioDeviceConfiguration configuration =
+                mAudioControlWrapperAidl.getAudioDeviceConfiguration();
+
+        assertWithMessage("Audio device configuration with flag disabled")
+                .that(configuration.routingConfig)
+                .isEqualTo(RoutingDeviceConfiguration.DEFAULT_AUDIO_ROUTING);
+    }
+
+    @Test
+    @EnableFlags(Flags.FLAG_AUDIO_CONTROL_HAL_CONFIGURATION)
+    public void getAudioDeviceConfiguration_withUnsupportedVersion() throws Exception {
+        when(mAudioControl.getInterfaceVersion()).thenReturn(AIDL_AUDIO_CONTROL_VERSION_3);
+
+        AudioDeviceConfiguration configuration =
+                mAudioControlWrapperAidl.getAudioDeviceConfiguration();
+
+        assertWithMessage("Audio device configuration with unsupported version")
+                .that(configuration.routingConfig)
+                .isEqualTo(RoutingDeviceConfiguration.DEFAULT_AUDIO_ROUTING);
+    }
+
+    @Test
+    @EnableFlags(Flags.FLAG_AUDIO_CONTROL_HAL_CONFIGURATION)
+    public void getAudioDeviceConfiguration() throws Exception {
+        AudioDeviceConfiguration testConfiguration =
+                setUpAudioDeviceConfiguration(RoutingDeviceConfiguration.DYNAMIC_AUDIO_ROUTING);
+
+        AudioDeviceConfiguration configuration =
+                mAudioControlWrapperAidl.getAudioDeviceConfiguration();
+
+        assertWithMessage("Audio device configuration with valid configuration")
+                .that(configuration).isEqualTo(testConfiguration);
+    }
+
+    @Test
+    @EnableFlags(Flags.FLAG_AUDIO_CONTROL_HAL_CONFIGURATION)
+    public void getAudioDeviceConfiguration_withUnsupportedException_throws() throws Exception {
+        setUpAudioDeviceConfiguration(RoutingDeviceConfiguration.DYNAMIC_AUDIO_ROUTING);
+        when(mAudioControl.getAudioDeviceConfiguration())
+                .thenThrow(new UnsupportedOperationException("Unsupported exception"));
+
+        AudioDeviceConfiguration configuration =
+                mAudioControlWrapperAidl.getAudioDeviceConfiguration();
+
+        assertWithMessage("Audio device config with unsupported exception")
+                .that(configuration.routingConfig)
+                .isEqualTo(RoutingDeviceConfiguration.DEFAULT_AUDIO_ROUTING);
+    }
+
+    @Test
+    @EnableFlags(Flags.FLAG_AUDIO_CONTROL_HAL_CONFIGURATION)
+    public void getAudioDeviceConfiguration_withRemoteException_throws() throws Exception {
+        setUpAudioDeviceConfiguration(RoutingDeviceConfiguration.DYNAMIC_AUDIO_ROUTING);
+        when(mAudioControl.getAudioDeviceConfiguration())
+                .thenThrow(new RemoteException("Remote exception"));
+
+        AudioDeviceConfiguration configuration =
+                mAudioControlWrapperAidl.getAudioDeviceConfiguration();
+
+        assertWithMessage("Audio device config with remote exception")
+                .that(configuration.routingConfig)
+                .isEqualTo(RoutingDeviceConfiguration.DEFAULT_AUDIO_ROUTING);
+    }
+
+    @Test
+    @DisableFlags(Flags.FLAG_AUDIO_CONTROL_HAL_CONFIGURATION)
+    public void getOutputMirroringDevices_withFlagDisabled() throws Exception {
+        when(mAudioControl.getInterfaceVersion()).thenReturn(AIDL_AUDIO_CONTROL_VERSION_5);
+
+        assertWithMessage("Audio mirroring devices with flag disabled")
+                .that(mAudioControlWrapperAidl.getOutputMirroringDevices()).isEmpty();
+    }
+
+    @Test
+    @EnableFlags(Flags.FLAG_AUDIO_CONTROL_HAL_CONFIGURATION)
+    public void getOutputMirroringDevices_withUnsupportedVersion() throws Exception {
+        when(mAudioControl.getInterfaceVersion()).thenReturn(AIDL_AUDIO_CONTROL_VERSION_3);
+
+        assertWithMessage("Audio mirroring devices with unsupported version")
+                .that(mAudioControlWrapperAidl.getOutputMirroringDevices()).isEmpty();
+    }
+
+    @Test
+    @EnableFlags(Flags.FLAG_AUDIO_CONTROL_HAL_CONFIGURATION)
+    public void getOutputMirroringDevices_withRemoteException_throws() throws Exception {
+        setUpAudioDeviceConfiguration(RoutingDeviceConfiguration.DYNAMIC_AUDIO_ROUTING);
+        when(mAudioControl.getOutputMirroringDevices())
+                .thenThrow(new RemoteException("Remote exception"));
+
+        assertWithMessage("Audio mirroring devices with remote exception")
+                .that(mAudioControlWrapperAidl.getOutputMirroringDevices()).isEmpty();
+    }
+
+    @Test
+    @EnableFlags(Flags.FLAG_AUDIO_CONTROL_HAL_CONFIGURATION)
+    public void getOutputMirroringDevices_withUnsupportedException_throws() throws Exception {
+        setUpAudioDeviceConfiguration(RoutingDeviceConfiguration.DYNAMIC_AUDIO_ROUTING);
+        when(mAudioControl.getOutputMirroringDevices())
+                .thenThrow(new UnsupportedOperationException("Unsupported exception"));
+
+        assertWithMessage("Audio mirroring devices with unsupported exception")
+                .that(mAudioControlWrapperAidl.getOutputMirroringDevices()).isEmpty();
+    }
+
+    @Test
+    @EnableFlags(Flags.FLAG_AUDIO_CONTROL_HAL_CONFIGURATION)
+    public void getOutputMirroringDevices() throws Exception {
+        setUpAudioDeviceConfiguration(RoutingDeviceConfiguration.DYNAMIC_AUDIO_ROUTING);
+        AudioPortDeviceExt mediaDeviceExt = CarAudioHalTestUtils.createAudioPortDeviceExt(
+                OUT_DEVICE, CONNECTION_BUS, ADDRESS_BUS_MEDIA);
+        AudioPort mediaAudioPort = CarAudioHalTestUtils.createAudioPort(PORT_ID_MEDIA,
+                PORT_NAME_MEDIA, GAINS, mediaDeviceExt);
+        AudioPortDeviceExt navDeviceExt = CarAudioHalTestUtils.createAudioPortDeviceExt(
+                OUT_DEVICE, CONNECTION_BUS, ADDRESS_BUS_NAV);
+        AudioPort navAudioPort = CarAudioHalTestUtils.createAudioPort(PORT_ID_NAV,
+                PORT_NAME_NAV, GAINS, navDeviceExt);
+        when(mAudioControl.getOutputMirroringDevices())
+                .thenReturn(List.of(mediaAudioPort, navAudioPort));
+
+        List<HalAudioDeviceInfo> infos = mAudioControlWrapperAidl.getOutputMirroringDevices();
+
+        List<String> addresses = infos.stream().map(HalAudioDeviceInfo::getAddress).toList();
+        assertWithMessage("Audio mirroring addresses with valid devices")
+                .that(addresses)
+                .containsExactly(ADDRESS_BUS_MEDIA, ADDRESS_BUS_NAV);
+    }
+
+    @Test
+    @DisableFlags(Flags.FLAG_AUDIO_CONTROL_HAL_CONFIGURATION)
+    public void getCarAudioZones_withFlagDisabled() throws Exception {
+        setUpAudioDeviceConfiguration(RoutingDeviceConfiguration.DYNAMIC_AUDIO_ROUTING);
+
+        assertWithMessage("Audio zones with flag disabled")
+                .that(mAudioControlWrapperAidl.getCarAudioZones()).isEmpty();
+    }
+
+    @Test
+    @EnableFlags(Flags.FLAG_AUDIO_CONTROL_HAL_CONFIGURATION)
+    public void getCarAudioZones_withUnsupportedVersion() throws Exception {
+        when(mAudioControl.getInterfaceVersion()).thenReturn(AIDL_AUDIO_CONTROL_VERSION_3);
+
+        assertWithMessage("Audio zones exception with unsupported version")
+                .that(mAudioControlWrapperAidl.getCarAudioZones()).isEmpty();
+    }
+
+    @Test
+    @EnableFlags(Flags.FLAG_AUDIO_CONTROL_HAL_CONFIGURATION)
+    public void getCarAudioZones_withRemoteException() throws Exception {
+        setUpAudioDeviceConfiguration(RoutingDeviceConfiguration.DYNAMIC_AUDIO_ROUTING);
+        when(mAudioControl.getOutputMirroringDevices())
+                .thenThrow(new RemoteException("Remote exception"));
+
+        assertWithMessage("Audio zones with remote exception")
+                .that(mAudioControlWrapperAidl.getCarAudioZones()).isEmpty();
+    }
+
+    @Test
+    @EnableFlags(Flags.FLAG_AUDIO_CONTROL_HAL_CONFIGURATION)
+    public void getCarAudioZones_withUnsupportedException() throws Exception {
+        setUpAudioDeviceConfiguration(RoutingDeviceConfiguration.DYNAMIC_AUDIO_ROUTING);
+        when(mAudioControl.getOutputMirroringDevices())
+                .thenThrow(new UnsupportedOperationException("Unsupported exception"));
+
+        assertWithMessage("Audio zones with unsupported exception")
+                .that(mAudioControlWrapperAidl.getCarAudioZones()).isEmpty();
+    }
+
+    @Test
+    @EnableFlags(Flags.FLAG_AUDIO_CONTROL_HAL_CONFIGURATION)
+    public void getCarAudioZones() throws Exception {
+        setUpAudioDeviceConfiguration(RoutingDeviceConfiguration.DYNAMIC_AUDIO_ROUTING);
+        AudioZone primaryZone = new AudioZone();
+        primaryZone.id = PRIMARY_ZONE_ID;
+        primaryZone.name = "Primary zone";
+        AudioZone secondaryZone = new AudioZone();
+        primaryZone.id = SECONDARY_ZONE_ID;
+        primaryZone.name = "Secondary zone";
+        when(mAudioControl.getCarAudioZones()).thenReturn(List.of(primaryZone, secondaryZone));
+
+        assertWithMessage("Audio zones with valid zones")
+                .that(mAudioControlWrapperAidl.getCarAudioZones())
+                .containsExactly(primaryZone, secondaryZone);
+    }
+
+    private AudioDeviceConfiguration setUpAudioDeviceConfiguration(
+            @RoutingDeviceConfiguration byte routingConfig) throws Exception {
+        when(mAudioControl.getInterfaceVersion()).thenReturn(AIDL_AUDIO_CONTROL_VERSION_5);
+        AudioDeviceConfiguration testConfiguration = new AudioDeviceConfiguration();
+        testConfiguration.routingConfig = routingConfig;
+        when(mAudioControl.getAudioDeviceConfiguration()).thenReturn(testConfiguration);
+        return testConfiguration;
     }
 
     private static CarAudioZone generateAudioZoneMock() {

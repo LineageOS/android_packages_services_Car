@@ -181,7 +181,7 @@ public final class DisplayInterfaceTest {
 
         mDisplayInterface.startDisplayStateMonitoring();
 
-        verify(mDisplayManager).registerDisplayListener(any(), isNull(), anyLong());
+        verify(mDisplayManager).registerDisplayListener(any(), isNull(), anyLong(), anyLong());
         verify(mCarUserService).addUserLifecycleListener(any(), any());
         var intCaptor = ArgumentCaptor.forClass(Integer.class);
         verify(mCarPowerManagementService, times(2)).sendDisplayBrightness(
@@ -220,7 +220,7 @@ public final class DisplayInterfaceTest {
 
         mDisplayInterface.startDisplayStateMonitoring();
 
-        verify(mDisplayManager).registerDisplayListener(any(), isNull(), anyLong());
+        verify(mDisplayManager).registerDisplayListener(any(), isNull(), anyLong(), anyLong());
         verify(mCarUserService).addUserLifecycleListener(any(), any());
         // If multi display brightness is supported, even if MUMD is not enabled, we must refresh
         // all display's brightness.
@@ -414,7 +414,7 @@ public final class DisplayInterfaceTest {
 
         var displayListenerCaptor = ArgumentCaptor.forClass(DisplayListener.class);
         verify(mDisplayManager).registerDisplayListener(displayListenerCaptor.capture(), isNull(),
-                anyLong());
+                anyLong(), anyLong());
         clearInvocations(mCarPowerManagementService);
 
         // Simulate user changes the global brightness setting to GLOBAL_BRIGHTNESS_2.
@@ -438,7 +438,7 @@ public final class DisplayInterfaceTest {
 
         var displayListenerCaptor = ArgumentCaptor.forClass(DisplayListener.class);
         verify(mDisplayManager).registerDisplayListener(displayListenerCaptor.capture(), isNull(),
-                anyLong());
+                anyLong(), anyLong());
         clearInvocations(mCarPowerManagementService);
 
         // This variable stores the brightness settings. Need to use a list to be

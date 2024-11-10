@@ -275,3 +275,11 @@ prebuilt_etc {
     src: "com.android.car.appgrid.test.xml",
     filename_from_src: true,
 }
+
+prebuilt_etc {
+    name: "allowed_privapp_com.android.car.driverui",
+    sub_dir: "permissions",
+    src: "com.android.car.driverui.xml",
+    filename_from_src: true,
+    product_specific: true,
+}

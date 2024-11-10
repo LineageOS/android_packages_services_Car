@@ -15,7 +15,7 @@
   ~ limitations under the License.
   -->
 
-<com.android.systemui.car.systembar.CarUiPortraitSystemBarView
+<com.android.systemui.car.systembar.CarSystemBarView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:systemui="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
@@ -34,7 +34,8 @@
         <com.android.systemui.car.hvac.CarUiPortraitTemperatureControlView
             android:id="@+id/driver_hvac"
             style="@style/TemperatureControlView"
-            systemui:hvacAreaId="49">
+            systemui:hvacAreaId="49"
+            systemui:controller="com.android.systemui.car.hvac.CarUiPortraitTemperatureControlViewController">
             <include layout="@layout/adjustable_temperature_view"/>
         </com.android.systemui.car.hvac.CarUiPortraitTemperatureControlView>
 
@@ -78,7 +79,8 @@
         <com.android.systemui.car.hvac.CarUiPortraitTemperatureControlView
             android:id="@+id/passenger_hvac"
             style="@style/TemperatureControlView"
-            systemui:hvacAreaId="68">
+            systemui:hvacAreaId="68"
+            systemui:controller="com.android.systemui.car.hvac.CarUiPortraitTemperatureControlViewController">
             <include layout="@layout/adjustable_temperature_view"/>
         </com.android.systemui.car.hvac.CarUiPortraitTemperatureControlView>
 
@@ -99,7 +101,8 @@
             android:layout_weight="1"
             android:layout_gravity="start"
             android:gravity="start|center_vertical"
-            systemui:hvacAreaId="49">
+            systemui:hvacAreaId="49"
+            systemui:controller="com.android.systemui.car.hvac.CarUiPortraitTemperatureControlViewController">
             <include layout="@layout/adjustable_temperature_view"/>
         </com.android.systemui.car.hvac.CarUiPortraitTemperatureControlView>
 
@@ -110,8 +113,9 @@
             android:layout_gravity="end"
             android:layout_weight="1"
             android:gravity="end|center_vertical"
-            systemui:hvacAreaId="68">
+            systemui:hvacAreaId="68"
+            systemui:controller="com.android.systemui.car.hvac.CarUiPortraitTemperatureControlViewController">
             <include layout="@layout/adjustable_temperature_view"/>
         </com.android.systemui.car.hvac.CarUiPortraitTemperatureControlView>
     </LinearLayout>
-</com.android.systemui.car.systembar.CarUiPortraitSystemBarView>
+</com.android.systemui.car.systembar.CarSystemBarView>

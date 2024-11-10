@@ -38,10 +38,19 @@ import java.util.concurrent.Callable;
  * <p> This class can work by itself but child class can be useful to use a custom class to
  * interface with C++ world. For such usage, child class will only add its own {@code CREATOR} impl
  * and a constructor taking {@code Parcel in}.
+ *
  * <p>For stable AIDL, this class also provides two methods for serialization {@link
  * #toLargeParcelable(Parcelable)} and deserialization
  * {@link #reconstructStableAIDLParcelable(Parcelable, boolean)}. Plz check included test for the
  * usage.
+ *
+ * <p>If the caller sends this class through binder, the caller must close this class after writing
+ * to parcel, unless this class is used as the return value for a binder call. If this is used as
+ * return value, the stored shared memory will be lost unless caller make a copy of the shared
+ * memory file descriptor.
+ *
+ * <p>If the caller receives this class through binder, the caller must close this after reading the
+ * data.
  */
 public class LargeParcelable extends LargeParcelableBase {
     /**
@@ -146,7 +155,42 @@ public class LargeParcelable extends LargeParcelableBase {
             };
 
     /**
+     * A helper method to close a nullable {@link ParcelFileDescriptor}.
+     *
+     * Caller can use this method to close the {@link #STABLE_AIDL_SHARED_MEMORY_MEMBER} field
+     * returned from {@link #toLargeParcelable}.
+     *
+     * For example:
+     *
+     * ```
+     * var largeParcelable = toLargeParcelable(origParcelable);
+     * try {
+     *   sendData(largeParcelable);
+     * } finally {
+     *   closeFd(largeParcelable.sharedMemoryFd);
+     * }
+     * ```
+     */
+    public static void closeFd(@Nullable ParcelFileDescriptor fd) {
+        if (fd == null) {
+            return;
+        }
+        try {
+            fd.close();
+        } catch (IOException e) {
+            Slog.e(TAG, "Failed to close shared memory fd from large parcelable", e);
+        }
+    }
+
+    /**
      * @see #toLargeParcelable(Parcelable, Callable<Parcelable>)
+     *
+     * <p>The returned Parcelable may contain a {@link #STABLE_AIDL_SHARED_MEMORY_MEMBER} field that
+     * must be closed after send over binder thread.
+     *
+     * <p>If the returned Parcelable is the return value for a binder call, then binder library will
+     * close the sharedMemoryFd field when writing to Parcel and the caller does not need (and does
+     * not have a way) to close it.
      */
     @Nullable
     public static Parcelable toLargeParcelable(@Nullable Parcelable p) {
@@ -163,6 +207,13 @@ public class LargeParcelable extends LargeParcelableBase {
      * an empty {@code Parcelable} with only the file descriptor set would be returned. If the
      * payload size is small enough to be sent across binder or the input already contains a shared
      * memory file, the original input would be returned.
+     *
+     * <p>The returned Parcelable may contain a {@link #STABLE_AIDL_SHARED_MEMORY_MEMBER} field that
+     * must be closed after send over binder thread.
+     *
+     * <p>If the returned Parcelable is the return value for a binder call, then binder library will
+     * close the sharedMemoryFd field when writing to Parcel and the caller does not need (and does
+     * not have a way) to close it.
      *
      * @param p {@code Parcelable} the input to convert that might contain large data.
      * @param constructEmptyParcelable a callable to create an empty Parcelable with the same type
@@ -202,10 +253,9 @@ public class LargeParcelable extends LargeParcelableBase {
             }
             return p;
         }
-        SharedMemory memory = LargeParcelableBase.serializeParcelToSharedMemory(dataParcel);
-        dataParcel.recycle();
 
-        try {
+        try (SharedMemory memory = LargeParcelableBase.serializeParcelToSharedMemory(dataParcel)) {
+            dataParcel.recycle();
             sharedMemoryFd = SharedMemoryHelper.createParcelFileDescriptor(memory);
         } catch (IOException e) {
             throw new IllegalArgumentException("unable to duplicate shared memory fd", e);
@@ -240,6 +290,11 @@ public class LargeParcelable extends LargeParcelableBase {
      * ParcelFileDescriptor} member named {@link #STABLE_AIDL_SHARED_MEMORY_MEMBER} and will create
      * a new {@code Parcelable} if the shared memory portion is not null. If there is no shared
      * memory, it will return the original {@code Parcelable p} as it is.
+     *
+     * <p>The {@link #STABLE_AIDL_SHARED_MEMORY_MEMBER} field, if exists, will be closed inside
+     * this function.
+     *
+     * <p>If keepSharedMemory is true, the caller must close the returned shared memory after using.
      *
      * @param p                Original {@code Parcelable} containing the payload.
      * @param keepSharedMemory Whether to keep created shared memory in the returned {@code
@@ -278,38 +333,29 @@ public class LargeParcelable extends LargeParcelableBase {
         try {
             // SharedMemory.fromFileDescriptor take ownership, so we need to dupe to keep
             // sharedMemoryFd the Parcelable valid.
-            SharedMemory memory = SharedMemory.fromFileDescriptor(sharedMemoryFd.dup());
-            in = LargeParcelableBase.copyFromSharedMemory(memory);
+            try (SharedMemory memory = SharedMemory.fromFileDescriptor(sharedMemoryFd.dup())) {
+                in = LargeParcelableBase.copyFromSharedMemory(memory);
+            }
             retParcelable = (Parcelable) parcelableClass.newInstance();
             // runs retParcelable.readFromParcel(in)
             Method readMethod = parcelableClass.getMethod(STABLE_AIDL_PARCELABLE_READ_FROM_PARCEL,
                     new Class[]{Parcel.class});
             readMethod.invoke(retParcelable, in);
             if (keepSharedMemory) {
-                fieldSharedMemory.set(retParcelable, sharedMemoryFd);
-            } else {
-                closeFd(sharedMemoryFd);
+                fieldSharedMemory.set(retParcelable, sharedMemoryFd.dup());
             }
             if (DBG_PAYLOAD) {
                 Slog.d(TAG, "reconstructStableAIDLParcelable read shared memory, data size:"
                         + in.dataPosition());
             }
         } catch (Exception e) {
-            closeFd(sharedMemoryFd);
             throw new IllegalArgumentException("Cannot access Parcelable constructor/method", e);
         } finally {
+            closeFd(sharedMemoryFd);
             if (in != null) {
                 in.recycle();
             }
         }
         return retParcelable;
-    }
-
-    private static void closeFd(ParcelFileDescriptor fd) {
-        try {
-            fd.close();
-        } catch (IOException e) {
-            Slog.w(TAG, "Failed to close ParceFileDescriptor", e);
-        }
     }
 }

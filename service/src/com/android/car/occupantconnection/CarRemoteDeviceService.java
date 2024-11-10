@@ -519,7 +519,7 @@ public class CarRemoteDeviceService extends ICarRemoteDevice.Stub implements
                             /* callbackToNotify= */null);
                 }
             }
-        }, /* handler= */null, EVENT_FLAG_DISPLAY_CHANGED);
+        }, /* handler= */null, EVENT_FLAG_DISPLAY_CHANGED, /* privateEventFlags= */ 0);
     }
 
     private void handleProcessRunningStateChange(int uid, @ProcessRunningState int newState) {

@@ -586,6 +586,8 @@ public final class CarOccupantConnectionManager extends CarManagerBase {
      * Different sender endpoints in the same client app are treated as the same sender. If the
      * sender endpoints need to differentiate themselves, they can put the identity info into the
      * payload.
+     * <p>
+     * The payload is always closed after this call.
      *
      * @throws IllegalStateException    if it was not connected to the peer client in
      *                                  {@code receiverZone}
@@ -596,16 +598,20 @@ public final class CarOccupantConnectionManager extends CarManagerBase {
     @RequiresPermission(Car.PERMISSION_MANAGE_OCCUPANT_CONNECTION)
     public void sendPayload(@NonNull OccupantZoneInfo receiverZone, @NonNull Payload payload)
             throws PayloadTransferException {
-        Objects.requireNonNull(receiverZone, "receiverZone cannot be null");
-        Objects.requireNonNull(payload, "payload cannot be null");
         try {
-            mService.sendPayload(mPackageName, receiverZone, payload);
-        } catch (IllegalStateException e) {
-            Slog.e(TAG, "Failed to send Payload to " + receiverZone);
-            throw new PayloadTransferException();
-        } catch (RemoteException e) {
-            Slog.e(TAG, "Failed to send Payload to " + receiverZone);
-            handleRemoteExceptionFromCarService(e);
+            Objects.requireNonNull(receiverZone, "receiverZone cannot be null");
+            Objects.requireNonNull(payload, "payload cannot be null");
+            try {
+                mService.sendPayload(mPackageName, receiverZone, payload);
+            } catch (IllegalStateException e) {
+                Slog.e(TAG, "Failed to send Payload to " + receiverZone);
+                throw new PayloadTransferException();
+            } catch (RemoteException e) {
+                Slog.e(TAG, "Failed to send Payload to " + receiverZone);
+                handleRemoteExceptionFromCarService(e);
+            }
+        } finally {
+            payload.close();
         }
     }
 

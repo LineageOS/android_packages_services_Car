@@ -26,9 +26,14 @@ import com.android.car.customization.tool.domain.menu.MenuActionReducer
 import com.android.car.customization.tool.domain.menu.ToggleMenuAction
 import com.android.car.customization.tool.domain.menu.modifySwitch
 
+internal data class TokenRro(
+    val rroPackage: String,
+    val userHandle: UserHandle
+)
+
 internal data class ToggleOemTokensAction(
     @StringRes override val itemId: Int,
-    val rroPackage: String,
+    val rroList: List<TokenRro>,
     override val newValue: Boolean,
 ) : ToggleMenuAction {
 
@@ -42,7 +47,10 @@ internal class OemTokensToggleReducer(
 
     override fun reduce(menu: Menu, action: MenuAction): Menu {
         action as ToggleOemTokensAction
-        overlayManager.setEnabled(action.rroPackage, action.newValue, UserHandle.CURRENT)
+
+        for (rro in action.rroList) {
+            overlayManager.setEnabled(rro.rroPackage, action.newValue, rro.userHandle)
+        }
 
         return menu.modifySwitch(context, action.itemId, action.newValue)
     }

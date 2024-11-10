@@ -94,7 +94,7 @@ namespace {
 const int32_t MSG_CONNECT_TO_VHAL = 1;  // Message to request of connecting to VHAL.
 
 const nsecs_t kConnectionRetryIntervalNs = 200000000;  // 200 milliseconds.
-const int32_t kMaxConnectionRetry = 25;                // Retry up to 5 seconds.
+const int32_t kMaxConnectionRetry = 5 * 60;                // Retry up to 60 seconds.
 
 constexpr const char kCarServiceInterface[] = "car_service";
 constexpr const char kCarPowerPolicyServerInterface[] =

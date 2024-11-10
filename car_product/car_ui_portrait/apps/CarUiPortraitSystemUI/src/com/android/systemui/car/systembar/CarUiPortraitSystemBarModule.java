@@ -21,6 +21,7 @@ import android.content.res.Configuration;
 
 import com.android.systemui.car.dagger.CarSysUIDynamicOverride;
 import com.android.systemui.car.displayarea.CarDisplayAreaController;
+import com.android.systemui.car.hvac.CarUiPortraitTemperatureControlViewController;
 import com.android.systemui.car.systembar.element.CarSystemBarElementController;
 import com.android.systemui.dagger.SysUISingleton;
 
@@ -68,4 +69,12 @@ public abstract class CarUiPortraitSystemBarModule {
     @ClassKey(CarUiPortraitDockViewControllerWrapper.class)
     public abstract CarSystemBarElementController.Factory bindPortraitDockViewControllerWrapper(
             CarUiPortraitDockViewControllerWrapper.Factory factory);
+
+    /** Injects CarUiPortraitTemperatureControlViewController. */
+    @Binds
+    @IntoMap
+    @ClassKey(CarUiPortraitTemperatureControlViewController.class)
+    public abstract CarSystemBarElementController.Factory
+            bindCarUiPortraitTemperatureControlViewController(
+                    CarUiPortraitTemperatureControlViewController.Factory factory);
 }

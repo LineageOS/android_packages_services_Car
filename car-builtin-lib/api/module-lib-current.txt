@@ -169,10 +169,10 @@ package android.car.builtin.display {
   public final class DisplayManagerHelper {
     method public static float getBrightness(android.content.Context, int);
     method @Nullable public static String getUniqueId(@NonNull android.view.Display);
-    method public static void registerDisplayListener(android.content.Context, android.hardware.display.DisplayManager.DisplayListener, android.os.Handler, long);
+    method public static void registerDisplayListener(android.content.Context, android.hardware.display.DisplayManager.DisplayListener, android.os.Handler, long, long);
     method public static void setBrightness(android.content.Context, int, @FloatRange(from=0.0f, to=1.0f) float);
     field public static final long EVENT_FLAG_DISPLAY_ADDED = 1L; // 0x1L
-    field public static final long EVENT_FLAG_DISPLAY_BRIGHTNESS = 8L; // 0x8L
+    field public static final long EVENT_FLAG_DISPLAY_BRIGHTNESS = 1L; // 0x1L
     field public static final long EVENT_FLAG_DISPLAY_CHANGED = 4L; // 0x4L
     field public static final long EVENT_FLAG_DISPLAY_REMOVED = 2L; // 0x2L
   }

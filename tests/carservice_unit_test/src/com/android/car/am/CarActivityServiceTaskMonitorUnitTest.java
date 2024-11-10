@@ -18,6 +18,7 @@ package com.android.car.am;
 import static androidx.test.platform.app.InstrumentationRegistry.getInstrumentation;
 
 import static com.android.wm.shell.ShellTaskOrganizer.TASK_LISTENER_TYPE_FULLSCREEN;
+import static com.android.wm.shell.ShellTaskOrganizer.TASK_LISTENER_TYPE_MULTI_WINDOW;
 
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
@@ -58,7 +59,6 @@ import com.android.internal.protolog.ProtoLog;
 import com.android.wm.shell.ShellTaskOrganizer;
 import com.android.wm.shell.common.HandlerExecutor;
 import com.android.wm.shell.common.SyncTransactionQueue;
-import com.android.wm.shell.fullscreen.FullscreenTaskListener;
 import com.android.wm.shell.shared.TransactionPool;
 
 import com.google.common.truth.Expect;
@@ -100,7 +100,8 @@ public class CarActivityServiceTaskMonitorUnitTest {
     ArgumentCaptor<IBinder.DeathRecipient> mDeathRecipientCaptor;
 
     private ShellTaskOrganizer mTaskOrganizer;
-    private FullscreenTaskListener mFullscreenTaskListener;
+    private ShellTaskOrganizer.TaskListener mFullscreenTaskListener;
+    private ShellTaskOrganizer.TaskListener mMultiWindowTaskListener;
 
     private final ComponentName mActivityA = new ComponentName(getTestContext(), ActivityA.class);
     private final ComponentName mActivityB = new ComponentName(getTestContext(), ActivityB.class);
@@ -148,36 +149,33 @@ public class CarActivityServiceTaskMonitorUnitTest {
         mTaskOrganizer = new ShellTaskOrganizer(mExecutor);
         TransactionPool transactionPool = new TransactionPool();
         SyncTransactionQueue syncQueue = new SyncTransactionQueue(transactionPool, mExecutor);
-        mFullscreenTaskListener = new TestTaskListener(syncQueue);
+        mFullscreenTaskListener = new TestTaskListener();
+        mMultiWindowTaskListener = new TestTaskListener();
         mTaskOrganizer.addListenerForType(mFullscreenTaskListener, TASK_LISTENER_TYPE_FULLSCREEN);
+        mTaskOrganizer.addListenerForType(mMultiWindowTaskListener,
+                TASK_LISTENER_TYPE_MULTI_WINDOW);
         mTaskOrganizer.registerOrganizer();
     }
 
     private void tearDownTaskOrganizer() {
         mTaskOrganizer.removeListener(mFullscreenTaskListener);
+        mTaskOrganizer.removeListener(mMultiWindowTaskListener);
         mTaskOrganizer.unregisterOrganizer();
     }
 
-    private class TestTaskListener extends FullscreenTaskListener {
-        TestTaskListener(SyncTransactionQueue syncQueue) {
-            super(syncQueue);
-        }
-
+    private class TestTaskListener implements ShellTaskOrganizer.TaskListener {
         @Override
         public void onTaskAppeared(ActivityManager.RunningTaskInfo taskInfo, SurfaceControl leash) {
-            super.onTaskAppeared(taskInfo, leash);
             mService.onTaskAppeared(mToken, taskInfo, leash);
         }
 
         @Override
         public void onTaskInfoChanged(ActivityManager.RunningTaskInfo taskInfo) {
-            super.onTaskInfoChanged(taskInfo);
             mService.onTaskInfoChanged(mToken, taskInfo);
         }
 
         @Override
         public void onTaskVanished(ActivityManager.RunningTaskInfo taskInfo) {
-            super.onTaskVanished(taskInfo);
             mService.onTaskVanished(mToken, taskInfo);
         }
     }

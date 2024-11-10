@@ -584,26 +584,30 @@ public class CarOccupantConnectionService extends ICarOccupantConnection.Stub im
 
     @Override
     public void sendPayload(String packageName, OccupantZoneInfo receiverZone, Payload payload) {
-        assertPermission(mContext, Car.PERMISSION_MANAGE_OCCUPANT_CONNECTION);
-        checkCalledByPackage(mContext, packageName);
-
-        ClientId senderClient = getCallingClientId(packageName);
-        ClientId receiverClient = getClientIdInOccupantZone(receiverZone, packageName);
-        IBackendReceiver receiverService;
-        synchronized (mLock) {
-            assertConnectedLocked(packageName, senderClient.occupantZone, receiverZone);
-            // receiverClient can't be null because the sender is connected to it now.
-            receiverService = mConnectedReceiverServiceMap.get(receiverClient);
-        }
-        if (receiverService == null) {
-            // receiverService can't be null since it is connected, but let's be cautious.
-            throw new IllegalStateException("The receiver service in " + receiverClient
-                    + "is not bound yet");
-        }
         try {
-            receiverService.onPayloadReceived(senderClient.occupantZone, payload);
-        } catch (RemoteException e) {
-            throw new IllegalStateException("The receiver client is dead " + receiverClient, e);
+            assertPermission(mContext, Car.PERMISSION_MANAGE_OCCUPANT_CONNECTION);
+            checkCalledByPackage(mContext, packageName);
+
+            ClientId senderClient = getCallingClientId(packageName);
+            ClientId receiverClient = getClientIdInOccupantZone(receiverZone, packageName);
+            IBackendReceiver receiverService;
+            synchronized (mLock) {
+                assertConnectedLocked(packageName, senderClient.occupantZone, receiverZone);
+                // receiverClient can't be null because the sender is connected to it now.
+                receiverService = mConnectedReceiverServiceMap.get(receiverClient);
+            }
+            if (receiverService == null) {
+                // receiverService can't be null since it is connected, but let's be cautious.
+                throw new IllegalStateException("The receiver service in " + receiverClient
+                        + "is not bound yet");
+            }
+            try {
+                receiverService.onPayloadReceived(senderClient.occupantZone, payload);
+            } catch (RemoteException e) {
+                throw new IllegalStateException("The receiver client is dead " + receiverClient, e);
+            }
+        } finally {
+            payload.close();
         }
     }
 

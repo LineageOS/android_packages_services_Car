@@ -1976,7 +1976,7 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
 
         try (InputStream fileStream = new FileInputStream(mCarAudioConfigurationPath);
                  InputStream inputStream = new BufferedInputStream(fileStream)) {
-            CarAudioZonesHelper zonesHelper = new CarAudioZonesHelper(mAudioManagerWrapper,
+            CarAudioZonesHelperImpl zonesHelper = new CarAudioZonesHelperImpl(mAudioManagerWrapper,
                     mCarAudioSettings, inputStream, carAudioDeviceInfos, inputDevices,
                     mServiceEventLogger, mUseCarVolumeGroupMuting, mUseCoreAudioVolume,
                     mUseCoreAudioRouting, mUseFadeManagerConfiguration,
@@ -2019,7 +2019,7 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
     }
 
     @GuardedBy("mImplLock")
-    private void updateConfigValueFromZoneHelperLocked(CarAudioZonesHelper zonesHelper) {
+    private void updateConfigValueFromZoneHelperLocked(CarAudioZonesHelperImpl zonesHelper) {
         mCarAudioContext = zonesHelper.getCarAudioContext();
         mUseCoreAudioRouting = zonesHelper.useCoreAudioRouting();
         mUseCoreAudioVolume = zonesHelper.useCoreAudioVolume();
