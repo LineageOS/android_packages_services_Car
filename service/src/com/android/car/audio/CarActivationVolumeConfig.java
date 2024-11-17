@@ -16,9 +16,14 @@
 
 package com.android.car.audio;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
+
 import android.annotation.IntDef;
 
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.internal.util.Preconditions;
+
+import java.util.Objects;
 
 final class CarActivationVolumeConfig {
 
@@ -68,5 +73,34 @@ final class CarActivationVolumeConfig {
 
     int getMaxActivationVolumePercentage() {
         return mMaxActivationVolumePercentage;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        if (!(o instanceof CarActivationVolumeConfig rhs)) {
+            return false;
+        }
+
+        return rhs.mInvocationType == mInvocationType
+                && rhs.mMaxActivationVolumePercentage == mMaxActivationVolumePercentage
+                && rhs.mMinActivationVolumePercentage == mMinActivationVolumePercentage;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(mInvocationType, mMinActivationVolumePercentage,
+                mMaxActivationVolumePercentage);
+    }
+
+    @Override
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    public String toString() {
+        return "CarActivationVolumeConfig {invocationType: " + mInvocationType
+                + ", minActivation: " + mMinActivationVolumePercentage
+                + ", maxActivation: " + mMaxActivationVolumePercentage + "}";
     }
 }

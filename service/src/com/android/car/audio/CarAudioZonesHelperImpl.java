@@ -32,6 +32,10 @@ import static android.media.AudioDeviceInfo.TYPE_WIRED_HEADSET;
 
 import static com.android.car.audio.CarAudioService.CAR_DEFAULT_AUDIO_ATTRIBUTE;
 import static com.android.car.audio.CarAudioService.TAG;
+import static com.android.car.audio.CarAudioUtils.ACTIVATION_VOLUME_INVOCATION_TYPE;
+import static com.android.car.audio.CarAudioUtils.ACTIVATION_VOLUME_PERCENTAGE_MAX;
+import static com.android.car.audio.CarAudioUtils.ACTIVATION_VOLUME_PERCENTAGE_MIN;
+import static com.android.car.audio.CarAudioUtils.DEFAULT_ACTIVATION_VOLUME;
 import static com.android.car.audio.CarAudioUtils.isMicrophoneInputDevice;
 
 import static java.util.Locale.ROOT;
@@ -146,13 +150,6 @@ import java.util.Set;
         SUPPORTED_VERSIONS.put(SUPPORTED_VERSION_3, SUPPORTED_VERSION_3);
         SUPPORTED_VERSIONS.put(SUPPORTED_VERSION_4, SUPPORTED_VERSION_4);
     }
-
-    private static final int ACTIVATION_VOLUME_PERCENTAGE_MIN = 0;
-    private static final int ACTIVATION_VOLUME_PERCENTAGE_MAX = 100;
-    private static final int ACTIVATION_VOLUME_INVOCATION_TYPE =
-            CarActivationVolumeConfig.ACTIVATION_VOLUME_ON_BOOT
-                    | CarActivationVolumeConfig.ACTIVATION_VOLUME_ON_SOURCE_CHANGED
-                    | CarActivationVolumeConfig.ACTIVATION_VOLUME_ON_PLAYBACK_CHANGED;
 
     private final AudioManagerWrapper mAudioManager;
     private final CarAudioSettings mCarAudioSettings;
@@ -879,8 +876,7 @@ import java.util.Set;
                     + ATTR_ACTIVATION_VOLUME_CONFIG
                     + " attribute while min/max activation volume is disabled");
         }
-        return new CarActivationVolumeConfig(ACTIVATION_VOLUME_INVOCATION_TYPE,
-                ACTIVATION_VOLUME_PERCENTAGE_MIN, ACTIVATION_VOLUME_PERCENTAGE_MAX);
+        return DEFAULT_ACTIVATION_VOLUME;
     }
 
     private void parseActivationVolumeConfigs(XmlPullParser parser)

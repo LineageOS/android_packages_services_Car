@@ -44,6 +44,10 @@
         value="@dimen/app_item_highlight_edge_width" />
     <item target="dimen/app_grid_width" value="@dimen/app_grid_width" />
     <item target="dimen/app_grid_height" value="@dimen/app_grid_height" />
+    <item target="dimen/car_app_selector_column_min_width"
+            value="@dimen/car_app_selector_column_min_width" />
+    <item target="dimen/car_app_selector_column_min_height"
+             value="@dimen/car_app_selector_column_min_height" />
     <item target="dimen/app_grid_row_margin" value="@dimen/app_grid_row_margin_vertical" />
     <item target="dimen/app_grid_touch_target_size" value="@dimen/app_grid_touch_target_size" />
     <item target="dimen/app_touch_target_padding" value="@dimen/app_touch_target_padding" />
@@ -59,10 +63,6 @@
     <item target="bool/use_defined_app_grid_dimensions"
           value="@bool/use_defined_app_grid_dimensions" />
     <item target="bool/use_vertical_app_grid" value="@bool/use_vertical_app_grid" />
-    <item target="integer/car_app_selector_column_number"
-          value="@integer/car_app_selector_column_number" />
-    <item target="integer/car_app_selector_row_number"
-          value="@integer/car_app_selector_row_number" />
 
     <item target="style/AppDisplayNameStyle" value="@style/AppDisplayNameStyle" />
 

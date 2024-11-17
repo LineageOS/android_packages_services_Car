@@ -52,6 +52,17 @@ import java.util.List;
 
 final class CarAudioUtils {
 
+    static final int ACTIVATION_VOLUME_PERCENTAGE_MIN = 0;
+    static final int ACTIVATION_VOLUME_PERCENTAGE_MAX = 100;
+    static final int ACTIVATION_VOLUME_INVOCATION_TYPE =
+            CarActivationVolumeConfig.ACTIVATION_VOLUME_ON_BOOT
+                    | CarActivationVolumeConfig.ACTIVATION_VOLUME_ON_SOURCE_CHANGED
+                    | CarActivationVolumeConfig.ACTIVATION_VOLUME_ON_PLAYBACK_CHANGED;
+
+    static final CarActivationVolumeConfig DEFAULT_ACTIVATION_VOLUME =
+            new CarActivationVolumeConfig(ACTIVATION_VOLUME_INVOCATION_TYPE,
+                    ACTIVATION_VOLUME_PERCENTAGE_MIN, ACTIVATION_VOLUME_PERCENTAGE_MAX);
+
     @ExcludeFromCodeCoverageGeneratedReport(reason = PRIVATE_CONSTRUCTOR)
     private CarAudioUtils() {
         throw new UnsupportedOperationException();
@@ -130,6 +141,11 @@ final class CarAudioUtils {
             return false;
         }
         return true;
+    }
+
+    static boolean isInvalidActivationPercentage(int activationValue) {
+        return activationValue < ACTIVATION_VOLUME_PERCENTAGE_MIN
+                || activationValue > ACTIVATION_VOLUME_PERCENTAGE_MAX;
     }
 
     private static boolean excludesDynamicDevices(List<AudioDeviceAttributes> devices) {

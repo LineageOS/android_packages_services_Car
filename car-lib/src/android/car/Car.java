@@ -19,6 +19,7 @@ package android.car;
 import static android.car.CarLibLog.TAG_CAR;
 import static android.car.feature.Flags.FLAG_ANDROID_VIC_VEHICLE_PROPERTIES;
 import static android.car.feature.Flags.FLAG_CLUSTER_HEALTH_MONITORING;
+import static android.car.feature.Flags.FLAG_VEHICLE_PROPERTY_REMOVE_SYSTEM_API_TAGS;
 
 import android.annotation.FlaggedApi;
 import android.annotation.IntDef;
@@ -598,18 +599,17 @@ public final class Car implements ICarBase {
     /** Permission necessary to access car's speed. */
     public static final String PERMISSION_SPEED = "android.car.permission.CAR_SPEED";
 
-    /** Permission necessary to access car's dynamics state.
-     *  @hide
+    /**
+     * Permission necessary to access car's dynamics state.
      */
-    @SystemApi
+    @FlaggedApi(FLAG_VEHICLE_PROPERTY_REMOVE_SYSTEM_API_TAGS)
     public static final String PERMISSION_CAR_DYNAMICS_STATE =
             "android.car.permission.CAR_DYNAMICS_STATE";
 
-    /** Permission necessary to control car's dynamics state.
-     *  @hide
+    /**
+     * Permission necessary to control car's dynamics state.
      */
-    @FlaggedApi(Flags.FLAG_ANDROID_VIC_VEHICLE_PROPERTIES)
-    @SystemApi
+    @FlaggedApi(FLAG_VEHICLE_PROPERTY_REMOVE_SYSTEM_API_TAGS)
     public static final String PERMISSION_CONTROL_CAR_DYNAMICS_STATE =
             "android.car.permission.CONTROL_CAR_DYNAMICS_STATE";
 
@@ -755,9 +755,8 @@ public final class Car implements ICarBase {
 
     /**
      * Permission necessary to access car's engine information.
-     * @hide
      */
-    @SystemApi
+    @FlaggedApi(FLAG_VEHICLE_PROPERTY_REMOVE_SYSTEM_API_TAGS)
     public static final String PERMISSION_CAR_ENGINE_DETAILED =
             "android.car.permission.CAR_ENGINE_DETAILED";
 
@@ -799,9 +798,8 @@ public final class Car implements ICarBase {
 
     /**
      * Permission necessary to control car's door.
-     * @hide
      */
-    @SystemApi
+    @FlaggedApi(FLAG_VEHICLE_PROPERTY_REMOVE_SYSTEM_API_TAGS)
     public static final String PERMISSION_CONTROL_CAR_DOORS =
             "android.car.permission.CONTROL_CAR_DOORS";
 
@@ -838,9 +836,8 @@ public final class Car implements ICarBase {
 
     /**
      * Permission necessary to access Car HVAC APIs.
-     * @hide
      */
-    @SystemApi
+    @FlaggedApi(FLAG_VEHICLE_PROPERTY_REMOVE_SYSTEM_API_TAGS)
     public static final String PERMISSION_CONTROL_CAR_CLIMATE =
             "android.car.permission.CONTROL_CAR_CLIMATE";
 
@@ -1339,48 +1336,37 @@ public final class Car implements ICarBase {
 
     /**
      * Permission necessary to read impact sensors information.
-     * @hide
      */
-    @FlaggedApi(Flags.FLAG_ANDROID_VIC_VEHICLE_PROPERTIES)
-    @SystemApi
+    @FlaggedApi(FLAG_VEHICLE_PROPERTY_REMOVE_SYSTEM_API_TAGS)
     public static final String PERMISSION_READ_IMPACT_SENSORS =
             "android.car.permission.READ_IMPACT_SENSORS";
 
     /**
      * Permission necessary to read valet mode
-     * @hide
      */
-    @FlaggedApi(Flags.FLAG_ANDROID_VIC_VEHICLE_PROPERTIES)
-    @SystemApi
+    @FlaggedApi(FLAG_VEHICLE_PROPERTY_REMOVE_SYSTEM_API_TAGS)
     public static final String PERMISSION_READ_VALET_MODE =
             "android.car.permission.READ_VALET_MODE";
 
     /**
      * Permission necessary to control valet mode
-     * @hide
      */
-    @FlaggedApi(Flags.FLAG_ANDROID_VIC_VEHICLE_PROPERTIES)
-    @SystemApi
+    @FlaggedApi(FLAG_VEHICLE_PROPERTY_REMOVE_SYSTEM_API_TAGS)
     public static final String PERMISSION_CONTROL_VALET_MODE =
             "android.car.permission.CONTROL_VALET_MODE";
 
     /**
      * Permission necessary to read head up display status (e.g. whether the head up display is
      * enabled)
-     *
-     * @hide
      */
-    @FlaggedApi(Flags.FLAG_ANDROID_VIC_VEHICLE_PROPERTIES)
-    @SystemApi
+    @FlaggedApi(FLAG_VEHICLE_PROPERTY_REMOVE_SYSTEM_API_TAGS)
     public static final String PERMISSION_READ_HEAD_UP_DISPLAY_STATUS =
             "android.car.permission.READ_HEAD_UP_DISPLAY_STATUS";
 
     /**
      * Permission necessary to control head up display
-     * @hide
      */
-    @FlaggedApi(Flags.FLAG_ANDROID_VIC_VEHICLE_PROPERTIES)
-    @SystemApi
+    @FlaggedApi(FLAG_VEHICLE_PROPERTY_REMOVE_SYSTEM_API_TAGS)
     public static final String PERMISSION_CONTROL_HEAD_UP_DISPLAY =
             "android.car.permission.CONTROL_HEAD_UP_DISPLAY";
 

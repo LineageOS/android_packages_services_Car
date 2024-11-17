@@ -677,13 +677,26 @@ public final class PropertyHalServiceConfigsUnitTest extends AbstractExpectableT
 
 
     @Test
-    public void testVicVehiclePropertiesFlagDisabled() throws Exception {
+    public void testVicVehiclePropertiesFlagNoOp() throws Exception {
         int vicProperty = VehiclePropertyIds.DRIVER_DROWSINESS_ATTENTION_SYSTEM_ENABLED;
         mFakeFeatureFlags.setFlag(Flags.FLAG_ANDROID_VIC_VEHICLE_PROPERTIES, false);
 
         mPropertyHalServiceConfigs = new PropertyHalServiceConfigs(mFakeFeatureFlags);
 
-        assertThat(mPropertyHalServiceConfigs.getAllSystemHalPropIds()).doesNotContain(vicProperty);
-        assertThat(mPropertyHalServiceConfigs.isSupportedProperty(vicProperty)).isFalse();
+        assertThat(mPropertyHalServiceConfigs.getAllSystemHalPropIds()).contains(vicProperty);
+        assertThat(mPropertyHalServiceConfigs.isSupportedProperty(vicProperty)).isTrue();
+    }
+
+    @Test
+    public void testVehiclePropertyRemoveSystemApiTagFlagNoOp() throws Exception {
+        int previouslySystemApiProperty = VehiclePropertyIds.HEAD_UP_DISPLAY_ENABLED;
+        mFakeFeatureFlags.setFlag(Flags.FLAG_VEHICLE_PROPERTY_REMOVE_SYSTEM_API_TAGS, false);
+
+        mPropertyHalServiceConfigs = new PropertyHalServiceConfigs(mFakeFeatureFlags);
+
+        assertThat(mPropertyHalServiceConfigs.getAllSystemHalPropIds())
+                .contains(previouslySystemApiProperty);
+        assertThat(mPropertyHalServiceConfigs.isSupportedProperty(previouslySystemApiProperty))
+                .isTrue();
     }
 }

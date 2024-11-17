@@ -117,6 +117,7 @@ public class ClusterHalServiceTest {
                 newSubscribableConfig(CLUSTER_DISPLAY_STATE),
                 newSubscribableConfig(CLUSTER_REPORT_STATE),
                 newSubscribableConfig(CLUSTER_REQUEST_DISPLAY),
+                newSubscribableConfig(CLUSTER_HEARTBEAT),
                 newSubscribableConfig(CLUSTER_NAVIGATION_STATE));
     }
 
@@ -536,7 +537,19 @@ public class ClusterHalServiceTest {
     }
 
     @Test
+    public void testSendHeartbeat_noProperties() {
+        mClusterHalService.takeProperties(Arrays.asList());
+
+        mClusterHalService.sendHeartbeat(/* epochTimeNs= */ 0, /* visibility= */ 0,
+                /* appMetadata= */ null);
+
+        verify(mVehicleHal, times(0)).set(mPropCaptor.capture());
+    }
+
+    @Test
     public void testSendHeartbeat() {
+        mClusterHalService.takeProperties(getFullProperties());
+
         long epochTimeNs = 123456789;
         long visibility = 1;
         byte[] appMetadata = new byte[]{3, 2, 0, 1};

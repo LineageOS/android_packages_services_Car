@@ -35,10 +35,13 @@ import static android.media.AudioDeviceInfo.TYPE_USB_HEADSET;
 import static android.media.AudioDeviceInfo.TYPE_WIRED_HEADPHONES;
 import static android.media.AudioDeviceInfo.TYPE_WIRED_HEADSET;
 
+import static com.android.car.audio.CarAudioUtils.ACTIVATION_VOLUME_PERCENTAGE_MAX;
+import static com.android.car.audio.CarAudioUtils.ACTIVATION_VOLUME_PERCENTAGE_MIN;
 import static com.android.car.audio.CarAudioUtils.excludesDynamicDevices;
 import static com.android.car.audio.CarAudioUtils.getAudioAttributesForDynamicDevices;
 import static com.android.car.audio.CarAudioUtils.getDynamicDevicesInConfig;
 import static com.android.car.audio.CarAudioUtils.hasExpired;
+import static com.android.car.audio.CarAudioUtils.isInvalidActivationPercentage;
 import static com.android.car.audio.CarAudioUtils.isMicrophoneInputDevice;
 
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -336,6 +339,26 @@ public class CarAudioUtilsTest extends AbstractExpectableTestCase {
         expectWithMessage("Audio attributes for volume group with no dynamic devices and "
                 + "flags enabled")
                 .that(getAudioAttributesForDynamicDevices(testDynamicDevicesConfig)).isEmpty();
+    }
+
+    @Test
+    public void isInvalidActivationPercentage_withInvalidLowerRange() {
+        expectWithMessage("Activation percentage status with value under lower invalid range")
+                .that(isInvalidActivationPercentage(ACTIVATION_VOLUME_PERCENTAGE_MIN - 1))
+                .isTrue();
+    }
+
+    @Test
+    public void isInvalidActivationPercentage_withInvalidUpperRange() {
+        expectWithMessage("Activation percentage status with value over upper invalid range")
+                .that(isInvalidActivationPercentage(ACTIVATION_VOLUME_PERCENTAGE_MAX + 1))
+                .isTrue();
+    }
+
+    @Test
+    public void isInvalidActivationPercentage_withValidValue() {
+        expectWithMessage("Activation percentage status with valid value")
+                .that(isInvalidActivationPercentage(TEST_MAX_ACTIVATION_GAIN_INDEX)).isFalse();
     }
 
     private static CarAudioZoneConfigInfo getTestDynamicDevicesConfig() {

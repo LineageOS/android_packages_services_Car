@@ -80,6 +80,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.android.car.audio.CarAudioContext;
 import com.android.car.audio.CarAudioGainConfigInfo;
+import com.android.car.audio.CarAudioTestUtils;
 import com.android.car.audio.CarAudioZone;
 import com.android.car.audio.CarDuckingInfo;
 import com.android.car.audio.CarHalAudioUtils;
@@ -944,13 +945,13 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
 
     @Test
     public void onAudioPortsChanged() throws Exception {
-        AudioPortDeviceExt mediaDeviceExt = CarAudioHalTestUtils.createAudioPortDeviceExt(
+        AudioPortDeviceExt mediaDeviceExt = CarAudioTestUtils.createAudioPortDeviceExt(
                 OUT_DEVICE, CONNECTION_BUS, ADDRESS_BUS_MEDIA);
-        AudioPort mediaAudioPort = CarAudioHalTestUtils.createAudioPort(PORT_ID_MEDIA,
+        AudioPort mediaAudioPort = CarAudioTestUtils.createAudioPort(PORT_ID_MEDIA,
                 PORT_NAME_MEDIA, GAINS, mediaDeviceExt);
-        AudioPortDeviceExt navDeviceExt = CarAudioHalTestUtils.createAudioPortDeviceExt(
+        AudioPortDeviceExt navDeviceExt = CarAudioTestUtils.createAudioPortDeviceExt(
                 OUT_DEVICE, CONNECTION_BUS, ADDRESS_BUS_NAV);
-        AudioPort navAudioPort = CarAudioHalTestUtils.createAudioPort(PORT_ID_NAV,
+        AudioPort navAudioPort = CarAudioTestUtils.createAudioPort(PORT_ID_NAV,
                 PORT_NAME_NAV, GAINS, navDeviceExt);
         HalAudioDeviceInfo mediaDeviceInfo = new HalAudioDeviceInfo(mediaAudioPort);
         HalAudioDeviceInfo navDeviceInfo = new HalAudioDeviceInfo(navAudioPort);
@@ -1100,13 +1101,13 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
     @EnableFlags(Flags.FLAG_AUDIO_CONTROL_HAL_CONFIGURATION)
     public void getOutputMirroringDevices() throws Exception {
         setUpAudioDeviceConfiguration(RoutingDeviceConfiguration.DYNAMIC_AUDIO_ROUTING);
-        AudioPortDeviceExt mediaDeviceExt = CarAudioHalTestUtils.createAudioPortDeviceExt(
+        AudioPortDeviceExt mediaDeviceExt = CarAudioTestUtils.createAudioPortDeviceExt(
                 OUT_DEVICE, CONNECTION_BUS, ADDRESS_BUS_MEDIA);
-        AudioPort mediaAudioPort = CarAudioHalTestUtils.createAudioPort(PORT_ID_MEDIA,
+        AudioPort mediaAudioPort = CarAudioTestUtils.createAudioPort(PORT_ID_MEDIA,
                 PORT_NAME_MEDIA, GAINS, mediaDeviceExt);
-        AudioPortDeviceExt navDeviceExt = CarAudioHalTestUtils.createAudioPortDeviceExt(
+        AudioPortDeviceExt navDeviceExt = CarAudioTestUtils.createAudioPortDeviceExt(
                 OUT_DEVICE, CONNECTION_BUS, ADDRESS_BUS_NAV);
-        AudioPort navAudioPort = CarAudioHalTestUtils.createAudioPort(PORT_ID_NAV,
+        AudioPort navAudioPort = CarAudioTestUtils.createAudioPort(PORT_ID_NAV,
                 PORT_NAME_NAV, GAINS, navDeviceExt);
         when(mAudioControl.getOutputMirroringDevices())
                 .thenReturn(List.of(mediaAudioPort, navAudioPort));

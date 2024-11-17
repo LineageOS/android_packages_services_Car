@@ -26,7 +26,7 @@
     <target_preparer class="com.android.tradefed.targetprep.suite.SuiteApkInstaller">
         <option name="cleanup-apks" value="true" />
         <option name="install-arg" value="-t" />
-        <option name="test-file-name" value="CarServiceUnitTest.apk" />
+        <option name="test-file-name" value="CarServiceCarUnitTest.apk" />
     </target_preparer>
     <target_preparer class="com.android.tradefed.targetprep.RunCommandTargetPreparer">
         <option name="run-command" value="setprop log.tag.CAR.TEST VERBOSE" />

@@ -37,7 +37,8 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:gravity="center_vertical"
-            systemui:hvacAreaId="68">
+            systemui:hvacAreaId="68"
+            systemui:controller="com.android.systemui.car.hvac.TemperatureControlViewController">
             <include layout="@layout/adjustable_temperature_view"/>
         </com.android.systemui.car.hvac.TemperatureControlView>
 
@@ -81,7 +82,9 @@
                 style="@style/SystemBarButton"
                 android:layout_marginEnd="0dp"
                 systemui:highlightWhenSelected="true"
-                systemui:icon="@drawable/car_ic_notification"/>
+                systemui:icon="@drawable/car_ic_notification"
+                systemui:systemBarDisableFlags="notificationIcons"
+                systemui:controller="com.android.systemui.car.notification.NotificationButtonController"/>
 
             <Space
                 android:layout_width="0dp"

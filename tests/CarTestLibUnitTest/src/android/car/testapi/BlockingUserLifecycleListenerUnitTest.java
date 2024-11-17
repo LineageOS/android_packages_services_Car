@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.car.testapi;
+package android.car.testapi;
 
 import static android.car.test.mocks.JavaMockitoHelper.await;
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_STARTING;
@@ -31,7 +31,6 @@ import static org.junit.Assert.assertThrows;
 
 import android.annotation.NonNull;
 import android.annotation.UserIdInt;
-import android.car.testapi.BlockingUserLifecycleListener;
 import android.car.user.CarUserManager;
 import android.car.user.CarUserManager.UserLifecycleEvent;
 import android.os.UserHandle;
@@ -46,9 +45,9 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.stream.Collectors;
 
-public final class BlockingUserLifecycleListenerTest {
+public final class BlockingUserLifecycleListenerUnitTest {
 
-    private static final String TAG = BlockingUserLifecycleListenerTest.class.getSimpleName();
+    private static final String TAG = BlockingUserLifecycleListenerUnitTest.class.getSimpleName();
     private static final long TIMEOUT_MS = 500;
 
     @Test

@@ -59,11 +59,11 @@ import org.mockito.quality.Strictness;
 /**
  * Unit tests for {@link CarBugreportManagerService}.
  *
- * <p>Run {@code atest CarServiceUnitTest:CarBugreportManagerServiceTest}.
+ * <p>Run {@code atest CarServiceCarUnitTest:CarBugreportManagerServiceTest}.
  */
 @SmallTest
 @RunWith(JUnit4.class)
-public class CarBugreportManagerServiceTest {
+public class CarBugreportManagerServiceUnitTest {
     private static final boolean DUMPSTATE_DRY_RUN = true;
 
     private CarBugreportManagerService mService;

@@ -37,6 +37,23 @@ import static android.media.AudioAttributes.USAGE_VOICE_COMMUNICATION;
 import static com.android.car.audio.CarAudioContext.isCriticalAudioAudioAttribute;
 import static com.android.car.audio.CarAudioContext.isNotificationAudioAttribute;
 import static com.android.car.audio.CarAudioContext.isRingerOrCallAudioAttribute;
+import static com.android.car.audio.CarAudioTestUtils.TEST_GAME_USAGE_ATTRIBUTE;
+import static com.android.car.audio.CarAudioTestUtils.TEST_ALARM_ATTRIBUTE;
+import static com.android.car.audio.CarAudioTestUtils.TEST_ANNOUNCEMENT_ATTRIBUTE;
+import static com.android.car.audio.CarAudioTestUtils.TEST_ASSISTANT_ATTRIBUTE;
+import static com.android.car.audio.CarAudioTestUtils.TEST_CALL_ATTRIBUTE;
+import static com.android.car.audio.CarAudioTestUtils.TEST_CAR_AUDIO_CONTEXT;
+import static com.android.car.audio.CarAudioTestUtils.TEST_EMERGENCY_ATTRIBUTE;
+import static com.android.car.audio.CarAudioTestUtils.TEST_INVALID_ATTRIBUTE;
+import static com.android.car.audio.CarAudioTestUtils.TEST_MEDIA_ATTRIBUTE;
+import static com.android.car.audio.CarAudioTestUtils.TEST_NAVIGATION_ATTRIBUTE;
+import static com.android.car.audio.CarAudioTestUtils.TEST_NOTIFICATION_ATTRIBUTE;
+import static com.android.car.audio.CarAudioTestUtils.TEST_NOTIFICATION_EVENT_ATTRIBUTE;
+import static com.android.car.audio.CarAudioTestUtils.TEST_RINGER_ATTRIBUTE;
+import static com.android.car.audio.CarAudioTestUtils.TEST_SAFETY_ATTRIBUTE;
+import static com.android.car.audio.CarAudioTestUtils.TEST_SYSTEM_ATTRIBUTE;
+import static com.android.car.audio.CarAudioTestUtils.TEST_VEHICLE_ATTRIBUTE;
+import static com.android.car.audio.CarAudioTestUtils.TEST_UNKNOWN_USAGE_ATTRIBUTE;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
 
 import static org.junit.Assert.assertThrows;
@@ -70,45 +87,6 @@ public class CarAudioContextTest extends AbstractExtendedMockitoTestCase {
 
     private static final int INVALID_CONTEXT_ID = 0;
     private static final int INVALID_CONTEXT = -5;
-
-    private static final AudioAttributes UNKNOWN_USAGE_ATTRIBUTE =
-            CarAudioContext.getAudioAttributeFromUsage(USAGE_UNKNOWN);
-    private static final AudioAttributes GAME_USAGE_ATTRIBUTE =
-            CarAudioContext.getAudioAttributeFromUsage(USAGE_GAME);
-    public static final AudioAttributes TEST_CALL_ATTRIBUTE =
-            CarAudioContext.getAudioAttributeFromUsage(USAGE_VOICE_COMMUNICATION);
-    public static final AudioAttributes TEST_RINGER_ATTRIBUTE =
-            CarAudioContext.getAudioAttributeFromUsage(USAGE_NOTIFICATION_RINGTONE);
-    public static final AudioAttributes TEST_MEDIA_ATTRIBUTE =
-            CarAudioContext.getAudioAttributeFromUsage(USAGE_MEDIA);
-    public static final AudioAttributes TEST_EMERGENCY_ATTRIBUTE =
-            CarAudioContext.getAudioAttributeFromUsage(USAGE_EMERGENCY);
-    public static final AudioAttributes TEST_INVALID_ATTRIBUTE =
-            CarAudioContext.getAudioAttributeFromUsage(AudioManagerHelper
-                    .getUsageVirtualSource());
-    public static final AudioAttributes TEST_NAVIGATION_ATTRIBUTE =
-            CarAudioContext.getAudioAttributeFromUsage(
-                            USAGE_ASSISTANCE_NAVIGATION_GUIDANCE);
-    public static final AudioAttributes TEST_ASSISTANT_ATTRIBUTE =
-            CarAudioContext.getAudioAttributeFromUsage(USAGE_ASSISTANT);
-    public static final AudioAttributes TEST_ALARM_ATTRIBUTE =
-            CarAudioContext.getAudioAttributeFromUsage(USAGE_ALARM);
-    public static final AudioAttributes TEST_NOTIFICATION_ATTRIBUTE =
-            CarAudioContext.getAudioAttributeFromUsage(USAGE_NOTIFICATION);
-    public static final AudioAttributes TEST_SYSTEM_ATTRIBUTE = CarAudioContext
-            .getAudioAttributeFromUsage(USAGE_ASSISTANCE_SONIFICATION);
-    public static final AudioAttributes TEST_VEHICLE_ATTRIBUTE =
-            CarAudioContext.getAudioAttributeFromUsage(USAGE_VEHICLE_STATUS);
-    public static final AudioAttributes TEST_ANNOUNCEMENT_ATTRIBUTE =
-            CarAudioContext.getAudioAttributeFromUsage(USAGE_ANNOUNCEMENT);
-    public static final AudioAttributes TEST_SAFETY_ATTRIBUTE = CarAudioContext
-            .getAudioAttributeFromUsage(USAGE_SAFETY);
-    public static final AudioAttributes TEST_NOTIFICATION_EVENT_ATTRIBUTE =
-            CarAudioContext.getAudioAttributeFromUsage(USAGE_NOTIFICATION_EVENT);
-
-    public static final CarAudioContext TEST_CAR_AUDIO_CONTEXT =
-            new CarAudioContext(CarAudioContext.getAllContextsInfo(),
-                    /* useCoreAudioRouting= */ false);
 
     public static final @CarAudioContext.AudioContext int TEST_MEDIA_CONTEXT =
             TEST_CAR_AUDIO_CONTEXT.getContextForAudioAttribute(TEST_MEDIA_ATTRIBUTE);
@@ -226,8 +204,8 @@ public class CarAudioContextTest extends AbstractExtendedMockitoTestCase {
         AudioAttributes[] attributes =
                 TEST_CAR_AUDIO_CONTEXT.getAudioAttributesForContext(TEST_MEDIA_CONTEXT);
         expectWithMessage("Music context's audio attributes")
-                .that(attributes).asList().containsExactly(UNKNOWN_USAGE_ATTRIBUTE,
-                        TEST_MEDIA_ATTRIBUTE, GAME_USAGE_ATTRIBUTE);
+                .that(attributes).asList().containsExactly(TEST_UNKNOWN_USAGE_ATTRIBUTE,
+                        TEST_MEDIA_ATTRIBUTE, TEST_GAME_USAGE_ATTRIBUTE);
     }
 
     @Test

@@ -111,7 +111,7 @@ if error != "":
     print("cd $ANDROID_BUILD_TOP && m -j GenericCarApiBuilder && GenericCarApiBuilder "
           "--update-classes")
     print("\nThen run following test to make sure classes are properly annotated")
-    print("atest CarServiceUnitTest:android.car.AnnotationTest")
+    print("atest CarServiceCarUnitTest:android.car.AnnotationTest")
     sys.exit(1)
 
 # read existing hidden APIs

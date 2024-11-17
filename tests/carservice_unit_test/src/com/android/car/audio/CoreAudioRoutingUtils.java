@@ -20,8 +20,12 @@ import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BO
 
 import static com.google.common.collect.Sets.newHashSet;
 
+import android.hardware.automotive.audiocontrol.AudioZoneContext;
+import android.hardware.automotive.audiocontrol.AudioZoneContextInfo;
 import android.media.AudioAttributes;
 import android.media.MediaRecorder;
+import android.media.audio.common.AudioContentType;
+import android.media.audio.common.AudioUsage;
 import android.media.audiopolicy.AudioProductStrategy;
 import android.media.audiopolicy.AudioVolumeGroup;
 import android.os.Parcel;
@@ -325,5 +329,45 @@ public final class CoreAudioRoutingUtils {
         carAudioContextInfos.add(OEM_CONTEXT_INFO);
 
         return carAudioContextInfos;
+    }
+
+    /**
+     * Returns an audio control HAL context built using core routing management
+     */
+    public static AudioZoneContext createCoreAudioContext() {
+        android.media.audio.common.AudioAttributes oemAttributes =
+                new android.media.audio.common.AudioAttributes();
+        oemAttributes.usage = AudioUsage.ASSISTANCE_NAVIGATION_GUIDANCE;
+        oemAttributes.contentType = AudioContentType.SPEECH;
+        oemAttributes.tags = new String[]{OEM_FORMATTED_TAGS};
+        AudioZoneContextInfo oemInfo = new AudioZoneContextInfo();
+        oemInfo.id = OEM_STRATEGY_ID;
+        oemInfo.name = OEM_CONTEXT_NAME;
+        oemInfo.audioAttributes = List.of(oemAttributes);
+
+        android.media.audio.common.AudioAttributes navAttributes =
+                new android.media.audio.common.AudioAttributes();
+        navAttributes.usage = AudioUsage.ASSISTANCE_NAVIGATION_GUIDANCE;
+        navAttributes.contentType = AudioContentType.SPEECH;
+        AudioZoneContextInfo navInfo = new AudioZoneContextInfo();
+        navInfo.id = NAV_STRATEGY_ID;
+        navInfo.name = NAV_CONTEXT_NAME;
+        navInfo.audioAttributes = List.of(navAttributes);
+
+        android.media.audio.common.AudioAttributes musicAttributes =
+                new android.media.audio.common.AudioAttributes();
+        musicAttributes.usage = AudioUsage.MEDIA;
+        musicAttributes.contentType = AudioContentType.MUSIC;
+        android.media.audio.common.AudioAttributes movieAttributes =
+                new android.media.audio.common.AudioAttributes();
+        movieAttributes.contentType = AudioContentType.MOVIE;
+        AudioZoneContextInfo musicInfo = new AudioZoneContextInfo();
+        musicInfo.id = MUSIC_STRATEGY_ID;
+        musicInfo.name = MUSIC_CONTEXT_NAME;
+        musicInfo.audioAttributes = List.of(musicAttributes, movieAttributes);
+
+        AudioZoneContext context = new AudioZoneContext();
+        context.audioContextInfos = List.of(musicInfo, navInfo, oemInfo);
+        return context;
     }
 }

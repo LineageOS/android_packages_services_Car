@@ -1144,9 +1144,9 @@ public class ICarImpl extends ICar.Stub {
         String mVehicleInterfaceName;
         IInterface mPowerPolicyDaemon;
         CarRemoteAccessServiceConstructor mCarRemoteAccessServiceConstructor;
-        boolean mDoPriorityInitInConstruction;
         StaticBinderInterface mStaticBinder;
         FeatureFlags mFeatureFlags;
+        boolean mDoPriorityInitInConstruction = true;
 
         // Services injected to replace the real service.
         final Map<Class<?>, Object> mInjectedServices = new ArrayMap<>();

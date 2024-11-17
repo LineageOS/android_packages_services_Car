@@ -67,6 +67,7 @@
         <item name="android:textAppearanceListItemSmall">@*android:style/TextAppearance.DeviceDefault.Large</item>
         <item name="android:textAppearanceListItemSecondary">@*android:style/TextAppearance.DeviceDefault.Small</item>
         <item name="android:textAppearanceButton">@*android:style/TextAppearance.DeviceDefault.Widget.Button</item>
+        <item name="android:alertDialogStyle">@*android:style/AlertDialog.DeviceDefault</item>
         <item name="android:borderlessButtonStyle">@*android:style/Widget.DeviceDefault.Button.Borderless.Colored</item>
         <item name="android:buttonBarButtonStyle">@*android:style/Widget.DeviceDefault.Button.ButtonBar.AlertDialog</item>
         <item name="android:buttonStyle">@*android:style/Widget.DeviceDefault.Button</item>
@@ -74,7 +75,7 @@
         <item name="android:buttonBarNegativeButtonStyle">@*android:style/Widget.DeviceDefault.Button</item>
         <item name="android:buttonBarNeutralButtonStyle">@*android:style/Widget.DeviceDefault.Button</item>
         <item name="android:colorAccent">@color/car_primary</item>
-        <item name="android:colorBackground">@color/car_background</item>
+        <item name="android:colorBackground">@android:color/transparent</item>
         <item name="android:colorBackgroundFloating">@color/car_background</item>
         <item name="android:colorButtonNormal">@color/btn_device_default</item>
         <item name="android:colorControlHighlight">@color/car_control_highlight</item>

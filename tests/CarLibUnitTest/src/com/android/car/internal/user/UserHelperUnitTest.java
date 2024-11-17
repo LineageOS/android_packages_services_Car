@@ -37,7 +37,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
-public final class UserHelperTest extends AbstractExtendedMockitoTestCase {
+public final class UserHelperUnitTest extends AbstractExtendedMockitoTestCase {
 
     @Mock private Context mContext;
     @Mock private UserManager mUserManager;
@@ -45,7 +45,7 @@ public final class UserHelperTest extends AbstractExtendedMockitoTestCase {
     // Not worth to mock because it would need to mock a Drawable used by UserIcons.
     private final Resources mResources = InstrumentationRegistry.getTargetContext().getResources();
 
-    public UserHelperTest() {
+    public UserHelperUnitTest() {
         super(UserHelper.TAG);
     }
 

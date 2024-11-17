@@ -1,7 +1,7 @@
 {
   "auto-presubmit": [
     {
-      "name": "CarServiceUnitTest"
+      "name": "CarServiceCarUnitTest"
     },
     {
       "name": "CarServiceWifiUnitTest"

@@ -19,6 +19,8 @@
     <dimen name="recent_apps_row_height">2dp</dimen>
     <dimen name="app_grid_width">1224dp</dimen>
     <dimen name="app_grid_height">1154dp</dimen>
+    <dimen name="car_app_selector_column_min_width">250dp</dimen>
+    <dimen name="car_app_selector_column_min_height">165dp</dimen>
     <dimen name="app_grid_row_margin">57dp</dimen>
     <dimen name="app_grid_row_margin_vertical">46dp</dimen>
     <dimen name="app_grid_touch_target_size">104dp</dimen>

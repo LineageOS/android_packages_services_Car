@@ -19,7 +19,6 @@
     android:id="@*android:id/parentPanel"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:maxHeight="916dp"
     android:gravity="start|top"
     android:background="@drawable/alert_dialog_bg"
     android:padding="@dimen/car_alert_dialog_padding"

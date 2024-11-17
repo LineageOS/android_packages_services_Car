@@ -104,14 +104,10 @@ java_defaults {
 }
 
 android_test {
-    name: "CarServiceUnitTest",
-    static_libs: [
-        "WindowManager-Shell", // for CarActivityServiceTaskMonitorUnitTest
-    ],
+    name: "CarServiceCarUnitTest",
 
     srcs: [
-        "src/**/*.java",
-        "src/**/*.aidl",
+        "src/com/android/car/*.java",
         ":car-service-dump-proto-srcs",
     ],
 
@@ -122,6 +118,7 @@ android_test {
 
     // TODO(b/319708040): re-enable use_resource_processor
     use_resource_processor: false,
+    test_config: "AndroidTest_CarTest.xml",
 }
 
 android_test {

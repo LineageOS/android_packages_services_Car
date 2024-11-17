@@ -357,6 +357,11 @@ public final class ClusterHalService extends HalServiceBase {
      *                    the heartbeat.
      */
     public void sendHeartbeat(long epochTimeNs, long visibility, byte[] appMetadata) {
+        if (!isHeartbeatSupported()) {
+            Slogf.w(TAG, "Cannot send a heartbeat, because CLUSTER_HEARTBEAT property is "
+                    + " not supported by VHAL");
+            return;
+        }
         long[] longValues = new long[]{
                 epochTimeNs,
                 visibility

@@ -626,6 +626,43 @@ public final class CarAudioContext {
         writer.decreaseIndent();
     }
 
+    @Override
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("CarAudioContext { useCoreRouting: ");
+        builder.append(mUseCoreAudioRouting).append(", contextInfos: { ");
+        for (int index = 0; index < mCarAudioContextInfos.size(); index++) {
+            builder.append(mCarAudioContextInfos.get(index).toString());
+            if (index < (mCarAudioContextInfos.size() - 1)) {
+                builder.append(", ");
+            }
+        }
+        builder.append("}}");
+        return builder.toString();
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        if (this == object) return true;
+        if (!(object instanceof CarAudioContext that)) {
+            return false;
+        }
+
+        return mUseCoreAudioRouting == that.mUseCoreAudioRouting
+                && hasSameContextInfo(that.mCarAudioContextInfos);
+    }
+
+    private boolean hasSameContextInfo(List<CarAudioContextInfo> infos) {
+        return mCarAudioContextInfos.size() == infos.size()
+                && new ArraySet<>(mCarAudioContextInfos).containsAll(infos);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(mUseCoreAudioRouting, mCarAudioContextInfos.hashCode());
+    }
+
     @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     void dumpProto(ProtoOutputStream proto) {
         long carAudioContextInfosToken = proto.start(CarAudioDumpProto.CAR_AUDIO_CONTEXT);

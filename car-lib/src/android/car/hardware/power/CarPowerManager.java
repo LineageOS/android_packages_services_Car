@@ -310,6 +310,7 @@ public class CarPowerManager extends CarManagerBase {
          * completion of handling the power state change. Those states include:
          * <ul>
          * <li>{@link STATE_PRE_SHUTDOWN_PREPARE}</li>
+         * <li>{@link STATE_SHUTDOWN_PREPARE}</li>
          * <li>{@link STATE_SHUTDOWN_ENTER}</li>
          * <li>{@link STATE_SUSPEND_ENTER}</li>
          * <li>{@link STATE_HIBERNATION_ENTER}</li>
