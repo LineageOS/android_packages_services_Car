@@ -48,7 +48,7 @@ import java.util.Set;
  * Manages the task categories for {@link CarUiPortraitHomeScreen}, check which category a task
  * belongs to.
  */
-class TaskCategoryManager {
+public class TaskCategoryManager {
     public static final String TAG = TaskCategoryManager.class.getSimpleName();
     private static final boolean DBG = Build.IS_DEBUGGABLE;
     /** Stub geo data to help query navigation intent. */
@@ -56,6 +56,8 @@ class TaskCategoryManager {
 
     private final ComponentName mAppGridActivityComponent;
     private final ComponentName mNotificationActivityComponent;
+    private final ComponentName mInCallActivityComponent;
+    private final ComponentName mMediaActivityComponent;
     private final ComponentName mRecentsActivityComponent;
     private final ComponentName mCalmModeComponent;
     private final ArraySet<ComponentName> mIgnoreOpeningRootTaskViewComponentsSet;
@@ -67,7 +69,7 @@ class TaskCategoryManager {
             mOnApplicationInstallUninstallListeners;
     private ComponentName mCurrentBackgroundApp;
 
-    TaskCategoryManager(Context context) {
+    public TaskCategoryManager(Context context) {
         mContext = context;
 
         mFullScreenActivities = new HashSet<>();
@@ -77,6 +79,10 @@ class TaskCategoryManager {
         mAppGridActivityComponent = new ComponentName(context, AppGridActivity.class);
         mNotificationActivityComponent = ComponentName.unflattenFromString(
                 mContext.getResources().getString(R.string.config_notificationActivity));
+        mInCallActivityComponent = ComponentName.unflattenFromString(
+                mContext.getResources().getString(R.string.config_inCallActivity));
+        mMediaActivityComponent = ComponentName.unflattenFromString(
+                mContext.getResources().getString(R.string.config_mediaActivity));
         mRecentsActivityComponent = ComponentName.unflattenFromString(mContext.getResources()
                 .getString(com.android.internal.R.string.config_recentsComponentName));
         mCalmModeComponent = ComponentName.unflattenFromString(mContext.getResources()
@@ -113,9 +119,11 @@ class TaskCategoryManager {
     /**
      * @return {@code true} if current task in panel was launched using media intent.
      */
-    public static boolean isMediaApp(TaskInfo taskInfo) {
-        return taskInfo != null && taskInfo.baseIntent != null
+    public boolean isMediaApp(TaskInfo taskInfo) {
+        boolean hasMediaAction = taskInfo != null && taskInfo.baseIntent != null
                 && CarMediaIntents.ACTION_MEDIA_TEMPLATE.equals(taskInfo.baseIntent.getAction());
+        boolean isMediaCenter = mMediaActivityComponent.equals(getVisibleActivity(taskInfo));
+        return isMediaCenter || hasMediaAction;
     }
 
     private static ArraySet<ComponentName> convertToComponentNames(String[] componentStrings) {
@@ -247,12 +255,19 @@ class TaskCategoryManager {
         return mNotificationActivityComponent.equals(getVisibleActivity(taskInfo));
     }
 
+    /**
+     * @return {@code true} if current task in panel is InCall activity.
+     */
+    public boolean isInCallActivity(TaskInfo taskInfo) {
+        return mInCallActivityComponent.equals(getVisibleActivity(taskInfo));
+    }
+
     boolean isRecentsActivity(TaskInfo taskInfo) {
-        return mRecentsActivityComponent.equals(taskInfo.baseActivity);
+        return mRecentsActivityComponent.equals(getVisibleActivity(taskInfo));
     }
 
     boolean isCalmModeActivity(TaskInfo taskInfo) {
-        return mCalmModeComponent.equals(taskInfo.baseActivity);
+        return mCalmModeComponent.equals(getVisibleActivity(taskInfo));
     }
 
     boolean shouldIgnoreForApplicationPanel(TaskInfo taskInfo) {

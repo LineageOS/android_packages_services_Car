@@ -202,12 +202,15 @@ public class SystemActivityMonitoringService implements CarServiceBase {
     }
 
     private void handleProcessDied(int pid, int uid) {
+        List<ProcessObserverCallback> customProcessObservers;
         synchronized (mLock) {
-            for (int i = 0; i < mCustomProcessObservers.size(); i++) {
-                ProcessObserverCallback callback = mCustomProcessObservers.get(i);
-                callback.onProcessDied(pid, uid);
-            }
+            customProcessObservers = new ArrayList<>(mCustomProcessObservers);
             doHandlePidGoneLocked(pid, uid);
+        }
+        // The callbacks must not be called within mLock. See b/380343303.
+        for (int i = 0; i < customProcessObservers.size(); i++) {
+            ProcessObserverCallback callback = customProcessObservers.get(i);
+            callback.onProcessDied(pid, uid);
         }
     }
 

@@ -94,6 +94,14 @@ public abstract class HalPropConfig {
     public abstract Object toVehiclePropConfig();
 
     /**
+     * Gets the {@code hasSupportedValueInfo} field.
+     */
+    // TODO: Change this to HasSupportedValueInfo type.
+    public @Nullable Object getHasSupportedValueInfo() {
+        return null;
+    }
+
+    /**
      * Converts {@link HalPropConfig} to {@link CarPropertyConfig}.
      *
      * @param mgrPropertyId The Property ID used by Car Property Manager, different from the
@@ -198,6 +206,10 @@ public abstract class HalPropConfig {
             areaIdConfigBuilder.setMinValue(minInt64Value).setMaxValue(maxInt64Value);
         }
         areaIdConfigBuilder.setSupportVariableUpdateRate(supportVariableUpdateRate);
+        var hasSupportedValueInfo = getHasSupportedValueInfo();
+        if (hasSupportedValueInfo != null) {
+            // TODO
+        }
         return areaIdConfigBuilder.build();
     }
 

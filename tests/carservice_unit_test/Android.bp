@@ -116,6 +116,8 @@ android_test {
         "CarServiceUnitTestDefaults",
     ],
 
+    manifest: "AndroidCarServiceManifest.xml",
+
     // TODO(b/319708040): re-enable use_resource_processor
     use_resource_processor: false,
     test_config: "AndroidTest_CarTest.xml",
@@ -462,6 +464,8 @@ android_test {
     ],
 
     test_config: "AndroidTest_AmTest.xml",
+
+    manifest: "AndroidAmManifest.xml",
 }
 
 android_test {
@@ -484,6 +488,7 @@ android_ravenwood_test {
     srcs: [
         "src/com/android/car/AidlVehicleStubUnitTest.java",
         "src/com/android/car/CarPropertyServiceUnitTest.java",
+        "src/com/android/car/hal/HalPropConfigTest.java",
         "src/com/android/car/hal/VehicleHalTest.java",
         "src/com/android/car/hal/fakevhal/FakeVhalConfigParserUnitTest.java",
         "src/com/android/car/hal/fakevhal/FakeVehicleStubUnitTest.java",

@@ -37,8 +37,40 @@ ExecutorRegistration: android.car.hardware.CarSensorManager#registerListener(and
     Registration methods should have overload that accepts delivery Executor: `registerListener`
 ExecutorRegistration: android.car.hardware.property.CarPropertyManager#registerCallback(android.car.hardware.property.CarPropertyManager.CarPropertyEventCallback, int, float):
     Registration methods should have overload that accepts delivery Executor: `registerCallback`
+ExecutorRegistration: android.car.hardware.property.CarPropertyManager#unsubscribePropertyEvents(int, android.car.hardware.property.CarPropertyManager.CarPropertyEventCallback):
+    Registration methods should have overload that accepts delivery Executor: `unsubscribePropertyEvents`
 ExecutorRegistration: android.car.media.CarAudioManager#registerCarVolumeCallback(android.car.media.CarAudioManager.CarVolumeCallback):
     Registration methods should have overload that accepts delivery Executor: `registerCarVolumeCallback`
+
+
+HiddenSuperclass: android.car.Car:
+    Public class android.car.Car stripped of unavailable superclass com.android.car.internal.ICarBase
+HiddenSuperclass: android.car.CarAppFocusManager:
+    Public class android.car.CarAppFocusManager stripped of unavailable superclass android.car.CarManagerBase
+HiddenSuperclass: android.car.CarInfoManager:
+    Public class android.car.CarInfoManager stripped of unavailable superclass android.car.CarManagerBase
+HiddenSuperclass: android.car.CarOccupantZoneManager:
+    Public class android.car.CarOccupantZoneManager stripped of unavailable superclass android.car.CarManagerBase
+HiddenSuperclass: android.car.content.pm.CarPackageManager:
+    Public class android.car.content.pm.CarPackageManager stripped of unavailable superclass android.car.CarManagerBase
+HiddenSuperclass: android.car.drivingstate.CarUxRestrictionsManager:
+    Public class android.car.drivingstate.CarUxRestrictionsManager stripped of unavailable superclass android.car.CarManagerBase
+HiddenSuperclass: android.car.hardware.CarSensorManager:
+    Public class android.car.hardware.CarSensorManager stripped of unavailable superclass android.car.CarManagerBase
+HiddenSuperclass: android.car.hardware.power.CarPowerManager:
+    Public class android.car.hardware.power.CarPowerManager stripped of unavailable superclass android.car.CarManagerBase
+HiddenSuperclass: android.car.hardware.property.CarPropertyManager:
+    Public class android.car.hardware.property.CarPropertyManager stripped of unavailable superclass android.car.CarManagerBase
+HiddenSuperclass: android.car.hardware.property.CarPropertySimulationManager:
+    Public class android.car.hardware.property.CarPropertySimulationManager stripped of unavailable superclass android.car.CarManagerBase
+HiddenSuperclass: android.car.input.CarInputManager:
+    Public class android.car.input.CarInputManager stripped of unavailable superclass android.car.CarManagerBase
+HiddenSuperclass: android.car.media.CarAudioManager:
+    Public class android.car.media.CarAudioManager stripped of unavailable superclass android.car.CarManagerBase
+HiddenSuperclass: android.car.remoteaccess.CarRemoteAccessManager:
+    Public class android.car.remoteaccess.CarRemoteAccessManager stripped of unavailable superclass android.car.CarManagerBase
+HiddenSuperclass: android.car.watchdog.CarWatchdogManager:
+    Public class android.car.watchdog.CarWatchdogManager stripped of unavailable superclass android.car.CarManagerBase
 
 
 IntentName: android.car.Car#CAR_EXTRA_BROWSE_SERVICE_FOR_SESSION:
@@ -51,6 +83,10 @@ ListenerLast: android.car.CarAppFocusManager#abandonAppFocus(android.car.CarAppF
     Listeners should always be at end of argument list (method `abandonAppFocus`)
 ListenerLast: android.car.CarAppFocusManager#isOwningFocus(android.car.CarAppFocusManager.OnAppFocusOwnershipCallback, int) parameter #1:
     Listeners should always be at end of argument list (method `isOwningFocus`)
+
+
+ManagerConstructor: android.car.hardware.property.CarPropertySimulationManager#CarPropertySimulationManager():
+    Managers must always be obtained from Context; no direct constructors
 
 
 MissingGetterMatchingBuilder: android.car.drivingstate.CarUxRestrictions.Builder#setMaxStringLength(int):
@@ -153,6 +189,14 @@ MutableBareField: android.car.hardware.CarSensorEvent.EnvironmentData#timestamp:
 
 NotCloseable: android.car.Car:
     Classes that release resources (disconnect()) should implement AutoClosable and CloseGuard: class android.car.Car
+
+
+NullableCollection: android.car.hardware.property.CarPropertyManager#getSupportedValuesList(int, int):
+    Return type of method android.car.hardware.property.CarPropertyManager.getSupportedValuesList(int,int) uses a nullable collection (`java.util.List`); must be non-null
+
+
+ProtectedMember: android.car.hardware.property.CarPropertySimulationManager#onCarDisconnected():
+    Protected methods not allowed; must be public: method android.car.hardware.property.CarPropertySimulationManager.onCarDisconnected()}
 
 
 PublicTypedef: android.car.drivingstate.CarUxRestrictions.CarUxRestrictionsInfo:
@@ -1605,6 +1649,12 @@ UnflaggedApi: android.car.hardware.property.CarPropertyManager.SetPropertyResult
     New API must be flagged with @FlaggedApi: method android.car.hardware.property.CarPropertyManager.SetPropertyResult.getRequestId()
 UnflaggedApi: android.car.hardware.property.CarPropertyManager.SetPropertyResult#getUpdateTimestampNanos():
     New API must be flagged with @FlaggedApi: method android.car.hardware.property.CarPropertyManager.SetPropertyResult.getUpdateTimestampNanos()
+UnflaggedApi: android.car.hardware.property.CarPropertySimulationManager:
+    New API must be flagged with @FlaggedApi: class android.car.hardware.property.CarPropertySimulationManager
+UnflaggedApi: android.car.hardware.property.CarPropertySimulationManager#onCarDisconnected():
+    New API must be flagged with @FlaggedApi: method android.car.hardware.property.CarPropertySimulationManager.onCarDisconnected()
+UnflaggedApi: android.car.hardware.property.CarPropertySimulationManager.CarRecorderListener:
+    New API must be flagged with @FlaggedApi: class android.car.hardware.property.CarPropertySimulationManager.CarRecorderListener
 UnflaggedApi: android.car.hardware.property.EvChargeState:
     New API must be flagged with @FlaggedApi: class android.car.hardware.property.EvChargeState
 UnflaggedApi: android.car.hardware.property.EvChargeState#STATE_CHARGING:

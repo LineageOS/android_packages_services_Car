@@ -130,8 +130,12 @@ stubs_defaults {
 droidstubs {
     name: "android.car-stubs-docs",
     defaults: ["android.car-docs-default"],
-    args: "--hide UnavailableSymbol --hide HiddenSuperclass --stub-packages android.car* " +
+    flags: [
+        "--hide UnavailableSymbol",
+        "--hide HiddenSuperclass",
+        "--stub-packages android.car*",
         "--error UnflaggedApi",
+    ],
     installable: false,
     check_api: {
         last_released: {
@@ -154,10 +158,14 @@ droidstubs {
     name: "android.car-system-stubs-docs",
     defaults: ["android.car-docs-default"],
     // TODO(b/174572385): Remove CallbackInterface once this b/174572385 is fixed
-    args: "--hide CallbackInterface --hide UnavailableSymbol --hide HiddenSuperclass " +
-        "--stub-packages android.car* " +
-        "--show-annotation android.annotation.SystemApi " +
+    flags: [
+        "--hide CallbackInterface",
+        "--hide UnavailableSymbol",
+        "--hide HiddenSuperclass",
+        "--stub-packages android.car*",
+        "--show-annotation android.annotation.SystemApi",
         "--error UnflaggedApi",
+    ],
     installable: false,
     check_api: {
         last_released: {
@@ -179,9 +187,13 @@ droidstubs {
 droidstubs {
     name: "android.car-test-stubs-docs",
     defaults: ["android.car-docs-default"],
-    args: "--hide HiddenSuperclass --hide UnavailableSymbol --stub-packages android.car* " +
-        "--show-annotation android.annotation.TestApi " +
+    flags: [
+        "--hide HiddenSuperclass",
+        "--hide UnavailableSymbol",
+        "--stub-packages android.car*",
+        "--show-annotation android.annotation.TestApi",
         "--show-annotation android.annotation.SystemApi",
+    ],
     installable: false,
     check_api: {
         current: {
@@ -200,7 +212,11 @@ droidstubs {
         "android.car",
     ],
     api_filename: "api.txt",
-    args: "--hide HiddenSuperclass --hide UnavailableSymbol --stub-packages android.car* ",
+    flags: [
+        "--hide HiddenSuperclass",
+        "--hide UnavailableSymbol",
+        "--stub-packages android.car*",
+    ],
     installable: false,
 }
 
@@ -220,14 +236,19 @@ droidstubs {
         "AndroidManifest.xml",
     ],
     // Add --verbose to print metalava details.
-    args: "--manifest $(location AndroidManifest.xml) " +
-        "--error UnhiddenSystemApi " +
-        "--hide RequiresPermission " +
-        "--hide CallbackInterface " +
-        "--hide MissingPermission " +
-        "--hide HiddenSuperclass --hide DeprecationMismatch --hide UnavailableSymbol " +
-        "--hide SdkConstant --hide HiddenTypeParameter " +
+    flags: [
+        "--manifest $(location AndroidManifest.xml)",
+        "--error UnhiddenSystemApi",
+        "--hide RequiresPermission",
+        "--hide CallbackInterface",
+        "--hide MissingPermission",
+        "--hide HiddenSuperclass",
+        "--hide DeprecationMismatch",
+        "--hide UnavailableSymbol ",
+        "--hide SdkConstant",
+        "--hide HiddenTypeParameter",
         "--hide Todo ",
+    ],
     write_sdk_values: true,
 }
 
@@ -264,9 +285,11 @@ droiddoc {
     // See doclava docs in https://github.com/tinks/doclava.
     // See error numbers in external/doclava/src/com/google/doclava/Errors.java.
     // TODO(b/163831343): Add -werror -lerror to catch bad javadocs
-    args: "-android -manifest $(location AndroidManifest.xml) -toroot / -devsite -yamlV2 -metalavaApiSince " +
-        "-hide 111 -hide 113 -hide 125 -hide 126 -hide 127 -hide 128 " +
-        "-stubpackages android.car -dac_libraryroot android/car ",
+    flags: [
+        "-android -manifest $(location AndroidManifest.xml) -toroot / -devsite -yamlV2 " +
+            "-metalavaApiSince -hide 111 -hide 113 -hide 125 -hide 126 -hide 127 -hide 128 " +
+            "-stubpackages android.car -dac_libraryroot android/car ",
+    ],
 }
 
 java_defaults {

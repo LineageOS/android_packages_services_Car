@@ -26,6 +26,14 @@
         com.android.car.notification/com.android.car.notification.CarNotificationCenterActivity
     </string>
 
+    <string name="config_inCallActivity" translatable="false">
+        com.android.car.dialer/com.android.car.dialer.ui.activecall.InCallActivity
+    </string>
+
+    <string name="config_mediaActivity" translatable="false">
+        com.android.car.media/.MediaActivity
+    </string>
+
     <string-array name="config_ignoreOpeningForegroundDA" translatable="false">
         <item>android.car.usb.handler/android.car.usb.handler.UsbHostManagementActivity</item>
         <item>com.android.car.portraitlauncher/.homeactivities.CarUiPortraitHomeScreen</item>

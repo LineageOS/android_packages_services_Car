@@ -305,6 +305,11 @@ cc_library {
     ],
 }
 
+vintf_fragment {
+    name: "carwatchdogd.xml",
+    src: "carwatchdogd.xml",
+}
+
 cc_binary {
     name: "carwatchdogd",
     defaults: [
@@ -322,7 +327,7 @@ cc_binary {
         "libwatchdog_binder_utils",
         "libwatchdog_service_manager",
     ],
-    vintf_fragments: ["carwatchdogd.xml"],
+    vintf_fragment_modules: ["carwatchdogd.xml"],
     required: [
         "system_resource_overuse_configuration.xml",
         "third_party_resource_overuse_configuration.xml",

@@ -19,6 +19,7 @@ package com.android.car.hal;
 import static android.car.Car.PERMISSION_VENDOR_EXTENSION;
 import static android.car.VehiclePropertyIds.HVAC_TEMPERATURE_SET;
 import static android.car.VehiclePropertyIds.PERF_VEHICLE_SPEED;
+import static android.car.hardware.CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ;
 import static android.car.hardware.property.VehicleHalStatusCode.STATUS_INTERNAL_ERROR;
 import static android.car.hardware.property.VehicleHalStatusCode.STATUS_NOT_AVAILABLE;
 import static android.car.hardware.property.VehicleVendorPermission.PERMISSION_GET_CAR_VENDOR_CATEGORY_ENGINE;
@@ -52,7 +53,10 @@ import static org.mockito.Mockito.when;
 import android.car.VehiclePropertyIds;
 import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.CarPropertyValue;
+import android.car.hardware.property.AreaIdConfig;
 import android.car.hardware.property.CarPropertyManager;
+import android.car.test.AbstractExpectableTestCase;
+import android.hardware.automotive.vehicle.RawPropValues;
 import android.hardware.automotive.vehicle.VehiclePropError;
 import android.hardware.automotive.vehicle.VehicleProperty;
 import android.hardware.automotive.vehicle.VehiclePropertyChangeMode;
@@ -67,6 +71,7 @@ import androidx.test.runner.AndroidJUnit4;
 
 import com.android.car.VehicleStub.AsyncGetSetRequest;
 import com.android.car.VehicleStub.GetVehicleStubAsyncResult;
+import com.android.car.VehicleStub.MinMaxSupportedRawPropValues;
 import com.android.car.VehicleStub.SetVehicleStubAsyncResult;
 import com.android.car.VehicleStub.VehicleStubCallbackInterface;
 import com.android.car.hal.VehicleHal.HalSubscribeOptions;
@@ -78,6 +83,7 @@ import com.android.car.internal.property.CarSubscription;
 import com.android.car.internal.property.GetSetValueResult;
 import com.android.car.internal.property.GetSetValueResultList;
 import com.android.car.internal.property.IAsyncPropertyResultCallback;
+import com.android.car.internal.property.RawPropertyValue;
 import com.android.internal.annotations.VisibleForTesting;
 
 import org.junit.After;
@@ -94,13 +100,14 @@ import org.mockito.junit.MockitoRule;
 import org.mockito.stubbing.Answer;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 @RunWith(AndroidJUnit4.class)
-public class PropertyHalServiceTest {
+public class PropertyHalServiceTest extends AbstractExpectableTestCase{
     @Rule
     public MockitoRule mMockitoRule = MockitoJUnit.rule();
 
@@ -2795,6 +2802,230 @@ public class PropertyHalServiceTest {
 
         // The retry request must go to VehicleHal.
         verify(mVehicleHal).unsubscribeProperty(any(), eq(PERF_VEHICLE_SPEED));
+    }
+
+    @Test
+    public void testGetMinMaxSupportedValue_dynamicSupportedValuesNotSupported() {
+        when(mVehicleHal.isSupportedValuesImplemented()).thenReturn(false);
+        int areaId = 0;
+        float minValue = 1.23f;
+        float maxValue = 3.21f;
+        var areaIdConfig = new AreaIdConfig.Builder(VEHICLE_PROPERTY_ACCESS_READ, areaId)
+                .setMinValue(minValue).setMaxValue(maxValue).build();
+
+        var minMaxSupportedPropertyValue = mPropertyHalService.getMinMaxSupportedValue(
+                PERF_VEHICLE_SPEED, 0, areaIdConfig);
+
+        expectThat(minMaxSupportedPropertyValue.minValue.getParcelable(RawPropertyValue.class)
+                .getTypedValue()).isEqualTo(minValue);
+        expectThat(minMaxSupportedPropertyValue.maxValue.getParcelable(RawPropertyValue.class)
+                .getTypedValue()).isEqualTo(maxValue);
+    }
+
+    @Test
+    public void testGetMinMaxSupportedValue_dynamicSupportedValuesNotSupported_nullMinValue() {
+        when(mVehicleHal.isSupportedValuesImplemented()).thenReturn(false);
+        int areaId = 0;
+        float maxValue = 3.21f;
+        var areaIdConfig = new AreaIdConfig.Builder(VEHICLE_PROPERTY_ACCESS_READ, areaId)
+                .setMaxValue(maxValue).build();
+
+        var minMaxSupportedPropertyValue = mPropertyHalService.getMinMaxSupportedValue(
+                PERF_VEHICLE_SPEED, 0, areaIdConfig);
+
+        expectThat(minMaxSupportedPropertyValue.minValue.getParcelable(RawPropertyValue.class))
+                .isNull();
+        expectThat(minMaxSupportedPropertyValue.maxValue.getParcelable(RawPropertyValue.class)
+                .getTypedValue()).isEqualTo(maxValue);
+    }
+
+    @Test
+    public void testGetMinMaxSupportedValue_dynamicSupportedValuesNotSupported_nullMaxValue() {
+        when(mVehicleHal.isSupportedValuesImplemented()).thenReturn(false);
+        int areaId = 0;
+        float minValue = 1.23f;
+        var areaIdConfig = new AreaIdConfig.Builder(VEHICLE_PROPERTY_ACCESS_READ, areaId)
+                .setMinValue(minValue).build();
+
+        var minMaxSupportedPropertyValue = mPropertyHalService.getMinMaxSupportedValue(
+                PERF_VEHICLE_SPEED, 0, areaIdConfig);
+
+        expectThat(minMaxSupportedPropertyValue.minValue.getParcelable(RawPropertyValue.class)
+                .getTypedValue()).isEqualTo(minValue);
+        expectThat(minMaxSupportedPropertyValue.maxValue.getParcelable(RawPropertyValue.class))
+                .isNull();
+    }
+
+    @Test
+    public void testGetMinMaxSupportedValue() {
+        when(mVehicleHal.isSupportedValuesImplemented()).thenReturn(true);
+        int areaId = 0;
+        float minValue = 1.23f;
+        float maxValue = 3.21f;
+        var minRawPropValues = new RawPropValues();
+        minRawPropValues.floatValues = new float[]{minValue};
+        var maxRawPropValues = new RawPropValues();
+        maxRawPropValues.floatValues = new float[]{maxValue};
+        var minMaxSupportedRawPropValues = new MinMaxSupportedRawPropValues(minRawPropValues,
+                maxRawPropValues);
+
+        when(mVehicleHal.getMinMaxSupportedValue(PERF_VEHICLE_SPEED, areaId)).thenReturn(
+                minMaxSupportedRawPropValues);
+
+        var areaIdConfig = new AreaIdConfig.Builder(PERF_VEHICLE_SPEED, areaId).build();
+
+        var minMaxSupportedPropertyValue = mPropertyHalService.getMinMaxSupportedValue(
+                PERF_VEHICLE_SPEED, areaId, areaIdConfig);
+
+        expectThat(minMaxSupportedPropertyValue.minValue.getParcelable(RawPropertyValue.class)
+                .getTypedValue()).isEqualTo(minValue);
+        expectThat(minMaxSupportedPropertyValue.maxValue.getParcelable(RawPropertyValue.class)
+                .getTypedValue()).isEqualTo(maxValue);
+    }
+
+    @Test
+    public void testGetMinMaxSupportedValue_halPropConfigNotFound() {
+        when(mVehicleHal.isSupportedValuesImplemented()).thenReturn(true);
+        int areaId = 0;
+        int mgrPropId = -1;
+        var areaIdConfig = new AreaIdConfig.Builder(mgrPropId, areaId).build();
+
+        // In fact, CarPropertyService verifies the property ID before calling
+        // PropertyHalService.getMinMaxSupportedValue, so this should never happen.
+        assertThrows(IllegalArgumentException.class, () -> {
+            mPropertyHalService.getMinMaxSupportedValue(mgrPropId, areaId, areaIdConfig);
+        });
+    }
+
+    @Test
+    public void testGetMinMaxSupportedValue_maxValueNull() {
+        when(mVehicleHal.isSupportedValuesImplemented()).thenReturn(true);
+        int areaId = 0;
+        float minValue = 1.23f;
+        var minRawPropValues = new RawPropValues();
+        minRawPropValues.floatValues = new float[]{minValue};
+        var minMaxSupportedRawPropValues = new MinMaxSupportedRawPropValues(minRawPropValues,
+                /* maxValue= */ null);
+
+        when(mVehicleHal.getMinMaxSupportedValue(PERF_VEHICLE_SPEED, areaId)).thenReturn(
+                minMaxSupportedRawPropValues);
+
+        var areaIdConfig = new AreaIdConfig.Builder(PERF_VEHICLE_SPEED, areaId).build();
+
+        var minMaxSupportedPropertyValue = mPropertyHalService.getMinMaxSupportedValue(
+                PERF_VEHICLE_SPEED, areaId, areaIdConfig);
+
+        expectThat(minMaxSupportedPropertyValue.minValue.getParcelable(RawPropertyValue.class)
+                .getTypedValue()).isEqualTo(minValue);
+        expectThat(minMaxSupportedPropertyValue.maxValue.getParcelable(RawPropertyValue.class))
+                .isNull();
+    }
+
+    @Test
+    public void testGetMinMaxSupportedValue_minValueNull() {
+        when(mVehicleHal.isSupportedValuesImplemented()).thenReturn(true);
+        int areaId = 0;
+        float maxValue = 3.21f;
+        var maxRawPropValues = new RawPropValues();
+        maxRawPropValues.floatValues = new float[]{maxValue};
+        var minMaxSupportedRawPropValues = new MinMaxSupportedRawPropValues(/* minValue= */ null,
+                maxRawPropValues);
+
+        when(mVehicleHal.getMinMaxSupportedValue(PERF_VEHICLE_SPEED, areaId)).thenReturn(
+                minMaxSupportedRawPropValues);
+
+        var areaIdConfig = new AreaIdConfig.Builder(PERF_VEHICLE_SPEED, areaId).build();
+
+        var minMaxSupportedPropertyValue = mPropertyHalService.getMinMaxSupportedValue(
+                PERF_VEHICLE_SPEED, areaId, areaIdConfig);
+
+        expectThat(minMaxSupportedPropertyValue.minValue.getParcelable(RawPropertyValue.class))
+                .isNull();
+        expectThat(minMaxSupportedPropertyValue.maxValue.getParcelable(RawPropertyValue.class)
+                .getTypedValue()).isEqualTo(maxValue);
+    }
+
+    @Test
+    public void testGetSupportedValuesList_dynamicSupportedValuesNotSupported() {
+        when(mVehicleHal.isSupportedValuesImplemented()).thenReturn(false);
+        int areaId = 0;
+        var testSupportedValues = new ArrayList<Float>(Arrays.asList(1.1f, 2.2f));
+        var areaIdConfig = new AreaIdConfig.Builder(VEHICLE_PROPERTY_ACCESS_READ, areaId)
+                .setSupportedEnumValues(testSupportedValues).build();
+
+        var supportedValuesList = mPropertyHalService.getSupportedValuesList(
+                PERF_VEHICLE_SPEED, 0, areaIdConfig);
+
+        assertThat(supportedValuesList).hasSize(2);
+        expectThat(supportedValuesList.get(0).getTypedValue()).isEqualTo(1.1f);
+        expectThat(supportedValuesList.get(1).getTypedValue()).isEqualTo(2.2f);
+    }
+
+    @Test
+    public void testGetSupportedValuesList_dynamicSupportedValuesNotSupported_notSpecified() {
+        when(mVehicleHal.isSupportedValuesImplemented()).thenReturn(false);
+        int areaId = 0;
+        var testSupportedValues = new ArrayList<Float>(Arrays.asList(1.1f, 2.2f));
+        var areaIdConfig = new AreaIdConfig.Builder(VEHICLE_PROPERTY_ACCESS_READ, areaId)
+                .setHasSupportedValuesList(false).build();
+
+        var supportedValuesList = mPropertyHalService.getSupportedValuesList(
+                PERF_VEHICLE_SPEED, 0, areaIdConfig);
+
+        assertThat(supportedValuesList).isNull();
+    }
+
+    @Test
+    public void testGetSupportedValuesList() {
+        when(mVehicleHal.isSupportedValuesImplemented()).thenReturn(true);
+        int areaId = 0;
+        float value1 = 1.23f;
+        float value2 = 3.21f;
+        var rawPropValues1 = new RawPropValues();
+        rawPropValues1.floatValues = new float[]{value1};
+        var rawPropValues2 = new RawPropValues();
+        rawPropValues2.floatValues = new float[]{value2};
+
+        when(mVehicleHal.getSupportedValuesList(PERF_VEHICLE_SPEED, areaId)).thenReturn(
+                List.of(rawPropValues1, rawPropValues2));
+
+        var areaIdConfig = new AreaIdConfig.Builder(PERF_VEHICLE_SPEED, areaId).build();
+
+        var supportedValuesList = mPropertyHalService.getSupportedValuesList(
+                PERF_VEHICLE_SPEED, areaId, areaIdConfig);
+
+        assertThat(supportedValuesList).hasSize(2);
+        expectThat(supportedValuesList.get(0).getTypedValue()).isEqualTo(value1);
+        expectThat(supportedValuesList.get(1).getTypedValue()).isEqualTo(value2);
+    }
+
+    @Test
+    public void testGetSupportedValuesList_returnNull() {
+        when(mVehicleHal.isSupportedValuesImplemented()).thenReturn(true);
+        int areaId = 0;
+
+        when(mVehicleHal.getSupportedValuesList(PERF_VEHICLE_SPEED, areaId)).thenReturn(null);
+
+        var areaIdConfig = new AreaIdConfig.Builder(PERF_VEHICLE_SPEED, areaId).build();
+
+        var supportedValuesList = mPropertyHalService.getSupportedValuesList(
+                PERF_VEHICLE_SPEED, areaId, areaIdConfig);
+
+        assertThat(supportedValuesList).isNull();
+    }
+
+    @Test
+    public void testGetSupportedValuesList_halPropConfigNotFound() {
+        when(mVehicleHal.isSupportedValuesImplemented()).thenReturn(true);
+        int areaId = 0;
+        int mgrPropId = -1;
+        var areaIdConfig = new AreaIdConfig.Builder(mgrPropId, areaId).build();
+
+        // In fact, CarPropertyService verifies the property ID before calling
+        // PropertyHalService.GetSupportedValuesList, so this should never happen.
+        assertThrows(IllegalArgumentException.class, () -> {
+            mPropertyHalService.getSupportedValuesList(mgrPropId, areaId, areaIdConfig);
+        });
     }
 
     /** Creates a {@code CarSubscription} with Vur off. */

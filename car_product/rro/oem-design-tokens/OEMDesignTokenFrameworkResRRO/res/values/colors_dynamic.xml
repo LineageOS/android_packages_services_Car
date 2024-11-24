@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2024 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+
+<!-- Colors specific to Material themes. -->
+<resources>
+    <color name="materialColorBackground">@*android:color/system_background_light</color>
+    <color name="materialColorControlActivated">@*android:color/system_control_activated_light</color>
+    <color name="materialColorControlHighlight">@*android:color/system_control_highlight_light</color>
+    <color name="materialColorControlNormal">@*android:color/system_control_normal_light</color>
+    <color name="materialColorError">@*android:color/system_error_light</color>
+    <color name="materialColorErrorContainer">@*android:color/system_error_container_light</color>
+    <color name="materialColorInverseOnSurface">@*android:color/system_inverse_on_surface_light</color>
+    <color name="materialColorInversePrimary">@*android:color/system_inverse_primary_light</color>
+    <color name="materialColorInverseSurface">@*android:color/system_inverse_surface_light</color>
+    <color name="materialColorOnBackground">@*android:color/system_on_background_light</color>
+    <color name="materialColorOnError">@*android:color/system_on_error_light</color>
+    <color name="materialColorOnErrorContainer">@*android:color/system_on_error_container_light</color>
+    <color name="materialColorOnPrimary">@*android:color/system_on_primary_light</color>
+    <color name="materialColorOnPrimaryContainer">@*android:color/system_on_primary_container_light</color>
+    <color name="materialColorOnSecondary">@*android:color/system_on_secondary_light</color>
+    <color name="materialColorOnSecondaryContainer">@*android:color/system_on_secondary_container_light</color>
+    <color name="materialColorOnSurface">@*android:color/system_on_surface_light</color>
+    <color name="materialColorOnSurfaceVariant">@*android:color/system_on_surface_variant_light</color>
+    <color name="materialColorOnTertiary">@*android:color/system_on_tertiary_light</color>
+    <color name="materialColorOnTertiaryContainer">@*android:color/system_on_tertiary_container_light</color>
+    <color name="materialColorOutline">@*android:color/system_outline_light</color>
+    <color name="materialColorOutlineVariant">@*android:color/system_outline_variant_light</color>
+    <color name="materialColorPaletteKeyColorNeutral">@*android:color/system_palette_key_color_neutral_light</color>
+    <color name="materialColorPaletteKeyColorNeutralVariant">@*android:color/system_palette_key_color_neutral_variant_light</color>
+    <color name="materialColorPaletteKeyColorPrimary">@*android:color/system_palette_key_color_primary_light</color>
+    <color name="materialColorPaletteKeyColorSecondary">@*android:color/system_palette_key_color_secondary_light</color>
+    <color name="materialColorPaletteKeyColorTertiary">@*android:color/system_palette_key_color_tertiary_light</color>
+    <color name="materialColorPrimary">@*android:color/system_primary_light</color>
+    <color name="materialColorPrimaryContainer">@*android:color/system_primary_container_light</color>
+    <color name="materialColorScrim">@*android:color/system_scrim_light</color>
+    <color name="materialColorSecondary">@*android:color/system_secondary_light</color>
+    <color name="materialColorSecondaryContainer">@*android:color/system_secondary_container_light</color>
+    <color name="materialColorShadow">@*android:color/system_shadow_light</color>
+    <color name="materialColorSurface">@*android:color/system_surface_light</color>
+    <color name="materialColorSurfaceBright">@*android:color/system_surface_bright_light</color>
+    <color name="materialColorSurfaceContainer">@android:color/system_surface_container_light</color>
+    <color name="materialColorSurfaceContainerHigh">@*android:color/system_surface_container_high_light</color>
+    <color name="materialColorSurfaceContainerHighest">@*android:color/system_surface_container_highest_light</color>
+    <color name="materialColorSurfaceContainerLow">@*android:color/system_surface_container_low_light</color>
+    <color name="materialColorSurfaceContainerLowest">@*android:color/system_surface_container_lowest_light</color>
+    <color name="materialColorSurfaceDim">@*android:color/system_surface_dim_light</color>
+    <color name="materialColorSurfaceTint">@*android:color/system_surface_tint_light</color>
+    <color name="materialColorSurfaceVariant">@*android:color/system_surface_variant_light</color>
+    <color name="materialColorTertiary">@*android:color/system_tertiary_light</color>
+    <color name="materialColorTertiaryContainer">@*android:color/system_tertiary_container_light</color>
+    <color name="materialColorTextHintInverse">@*android:color/system_text_hint_inverse_light</color>
+    <color name="materialColorTextPrimaryInverse">@*android:color/system_text_primary_inverse_light</color>
+    <color name="materialColorTextPrimaryInverseDisableOnly">@*android:color/system_text_primary_inverse_disable_only_light</color>
+    <color name="materialColorTextSecondaryAndTertiaryInverse">@*android:color/system_text_secondary_and_tertiary_inverse_light</color>
+    <color name="materialColorTextSecondaryAndTertiaryInverseDisabled">@*android:color/system_text_secondary_and_tertiary_inverse_disabled_light</color>
+    <color name="materialColorOnPrimaryFixed">@*android:color/system_on_primary_fixed</color>
+    <color name="materialColorOnPrimaryFixedVariant">@*android:color/system_on_primary_fixed_variant</color>
+    <color name="materialColorOnSecondaryFixed">@*android:color/system_on_secondary_fixed</color>
+    <color name="materialColorOnSecondaryFixedVariant">@*android:color/system_on_secondary_fixed_variant</color>
+    <color name="materialColorOnTertiaryFixed">@*android:color/system_on_tertiary_fixed</color>
+    <color name="materialColorOnTertiaryFixedVariant">@*android:color/system_on_tertiary_fixed_variant</color>
+    <color name="materialColorPrimaryFixed">@*android:color/system_primary_fixed</color>
+    <color name="materialColorPrimaryFixedDim">@*android:color/system_primary_fixed_dim</color>
+    <color name="materialColorSecondaryFixed">@*android:color/system_secondary_fixed</color>
+    <color name="materialColorSecondaryFixedDim">@*android:color/system_secondary_fixed_dim</color>
+    <color name="materialColorTertiaryFixed">@*android:color/system_tertiary_fixed</color>
+    <color name="materialColorTertiaryFixedDim">@*android:color/system_tertiary_fixed_dim</color>
+    <color name="customColorBrandA">@*android:color/system_brand_a_light</color>
+    <color name="customColorBrandB">@*android:color/system_brand_b_light</color>
+    <color name="customColorBrandC">@*android:color/system_brand_c_light</color>
+    <color name="customColorBrandD">@*android:color/system_brand_d_light</color>
+    <color name="customColorClockHour">@*android:color/system_clock_hour_light</color>
+    <color name="customColorClockMinute">@*android:color/system_clock_minute_light</color>
+    <color name="customColorClockSecond">@*android:color/system_clock_second_light</color>
+    <color name="customColorOnShadeActive">@*android:color/system_on_shade_active_light</color>
+    <color name="customColorOnShadeActiveVariant">@*android:color/system_on_shade_active_variant_light</color>
+    <color name="customColorOnShadeInactive">@*android:color/system_on_shade_inactive_light</color>
+    <color name="customColorOnShadeInactiveVariant">@*android:color/system_on_shade_inactive_variant_light</color>
+    <color name="customColorOnThemeApp">@*android:color/system_on_theme_app_light</color>
+    <color name="customColorOverviewBackground">@*android:color/system_overview_background_light</color>
+    <color name="customColorShadeActive">@*android:color/system_shade_active_light</color>
+    <color name="customColorShadeDisabled">@*android:color/system_shade_disabled_light</color>
+    <color name="customColorShadeInactive">@*android:color/system_shade_inactive_light</color>
+    <color name="customColorThemeApp">@*android:color/system_theme_app_light</color>
+    <color name="customColorThemeAppRing">@*android:color/system_theme_app_ring_light</color>
+    <color name="customColorThemeNotif">@*android:color/system_theme_notif_light</color>
+    <color name="customColorUnderSurface">@*android:color/system_under_surface_light</color>
+    <color name="customColorWeatherTemp">@*android:color/system_weather_temp_light</color>
+    <color name="customColorWidgetBackground">@*android:color/system_widget_background_light</color>
+</resources>

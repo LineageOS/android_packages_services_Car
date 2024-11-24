@@ -60,7 +60,7 @@ MEMORY_FULL_PATTERN = (r'memory:full\s+avg10=(?P<memory_full_avg10>\d+\.?\d+)\s+
                        r'avg60=(?P<memory_full_avg60>\d+\.?\d+)\s+'
                        r'avg300=(?P<memory_full_avg300>\d+\.?\d+)\s+'
                        r'total=(?P<memory_full_total>\d+)')
-EVENT_DESCRIPTION_PATTERN = (r'(?:\s+\"(?P<event_description>.*)\")?')
+EVENT_DESCRIPTION_PATTERN = (r'(?:\s+\"(?P<event_descriptions>.*)\")?')
 PSI_LINE_RE = re.compile(r'^' + TIMESTAMP_PATTERN + r'\s+' + CPU_SOME_PATTERN
                          # CPU full is optional because it is not always reported by the Kernel.
                          + r'(?:\s+' + CPU_FULL_PATTERN + r')?\s+'
@@ -78,7 +78,7 @@ PSI_OUT_FIELDS = ['uptime_millis', 'local_datetime', 'epoch_millis',
                   'irq_full_avg300', 'irq_full_total', 'memory_some_avg10', 'memory_some_avg60',
                   'memory_some_avg300', 'memory_some_total', 'memory_full_avg10',
                   'memory_full_avg60', 'memory_full_avg300', 'memory_full_total',
-                  'event_description']
+                  'event_descriptions']
 
 # Supported logcat lines:
 # 1. 2024-09-26 09:19:56.140  1627  1805 I ActivityTaskManager: START u0
@@ -91,14 +91,19 @@ PSI_OUT_FIELDS = ['uptime_millis', 'local_datetime', 'epoch_millis',
 #    complete: 47ms
 LOGCAT_TIMESTAMP_PATTERN = r'(?P<local_datetime>\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}.\d{3})'
 PID_TID_LOGLEVEL_PATTERN = r'(?P<pid>\d+)\s+(?P<tid>\d+)\s+(?P<loglevel>[VDIWEFS])'
-ACTIVITY_TASK_MANAGER_START_PATTERN = (r'ActivityTaskManager:\s+START\s+u(?P<user_id>\d+)\s+'
-                                       r'\{.*cmp=(?P<activity_name>[0-9A-Za-z\.\/]+)(:?\s+|\}).*')
-ACTIVITY_TASK_MANAGER_DISPLAYED_PATTERN = (r'ActivityTaskManager:\s+Displayed\s+'
+ACTIVITY_TASK_MANAGER_TAG = 'ActivityTaskManager'
+ACTIVITY_TASK_MANAGER_START_PATTERN = (ACTIVITY_TASK_MANAGER_TAG + r':\s+START\s+u(?P<user_id>\d+)'
+                                       r'\s+\{.*cmp=(?P<activity_name>[0-9A-Za-z\.\/]+)(:?\s+|\})'
+                                       r'.*')
+ACTIVITY_TASK_MANAGER_DISPLAYED_PATTERN = (ACTIVITY_TASK_MANAGER_TAG + r':\s+Displayed\s+'
                                            r'(?P<activity_name>.*)\s+for\s+user\s+'
                                            r'(?P<user_id>\d+):\s+\+(:?(?P<duration_secs>\d+)s)?'
                                            r'(?P<duration_millis>\d+)ms')
-SYSTEM_SERVER_TIMING_ASYNC_PATTERN = (r'SystemServerTimingAsync: (?P<event_description>.*)')
-SYSTEM_SERVER_TIMING_ASYNC_COMPLETE_PATTERN = (r'SystemServerTimingAsync: (?P<event_description>.*)'
+SYSTEM_SERVER_TIMING_ASYNC_TAG = 'SystemServerTimingAsync'
+SYSTEM_SERVER_TIMING_ASYNC_PATTERN = (SYSTEM_SERVER_TIMING_ASYNC_TAG
+                                      + r': (?P<event_description>.*)')
+SYSTEM_SERVER_TIMING_ASYNC_COMPLETE_PATTERN = (SYSTEM_SERVER_TIMING_ASYNC_TAG
+                                               + r': (?P<event_description>.*)'
                                                r'\s+took to complete:\s+(?P<duration_millis>\d+)ms')
 
 ACTIVITY_TASK_MANAGER_START_LINE_RE = re.compile(r'^' + LOGCAT_TIMESTAMP_PATTERN + r'\s+'
@@ -120,9 +125,16 @@ SYSTEM_SERVER_TIMING_ASYNC_COMPLETE_LINE_RE = re.compile(r'^' + LOGCAT_TIMESTAMP
 ACTIVITY_DISPLAYED_DURATION_THRESHOLD_MILLIS = 1000
 SS_EVENT_MIN_DURATION_TO_PLOT_MILLIS = 50
 SS_EVENT_DURATION_THRESHOLD_MILLIS = 250
-EVENTS_OUT_FIELDS = ['epoch_millis', 'monitor_start_relative_millis', 'event_description',
-                     'event_key', 'duration_value', 'is_high_latency_event', 'color',
-                     'should_plot']
+EVENTS_OUT_FIELDS = ['epoch_millis', 'monitor_start_relative_millis',
+                     # event_tag is the logcat tag reported in the logcat. This can be used to
+                     # filter events with the same tag.
+                     # event_description contains the timing information for the event, which
+                     # can be used when plotting the events in charts.
+                     # event_key contains a unique key for the event, which can be used to
+                     # gather statistics of events across multiple runs of a CUJ.
+                     'event_tag', 'event_description', 'event_key', 'duration_value',
+                     'is_high_latency_event', 'color', 'should_plot']
+MIN_DURATION_MILLIS_DELTA_BEFORE_MONITOR_START = -600000 # 10 minutes
 
 
 def parse_psi_line(line) -> Dict[str, str]:
@@ -136,8 +148,8 @@ def on_psi_field_missing(field, line) -> str:
     return str(0.0)
   elif field.endswith('_total'):
     return str(0)
-  elif field == 'event_description':
-    return ''
+  elif field == 'event_descriptions':
+    return list()
   else:
     raise ValueError('Unknown field: {} in line: {}'.format(field, line))
 
@@ -169,64 +181,93 @@ def parse_psi_dump(psi_dump_file) -> Tuple[pd.DataFrame, int]:
       else:
         psi_dict['monitor_start_relative_millis'] = str(
             int(psi_dict['uptime_millis']) - monitor_start_uptime_millis)
-      out_line = [psi_dict[field].strip() if field in psi_dict and psi_dict[field]
+      if psi_dict['event_descriptions']:
+        # Handle the case where multiple events are reported on the same line
+        if '" "' in psi_dict['event_descriptions']:
+          psi_dict['event_descriptions'] = psi_dict['event_descriptions'].replace(
+            "\" \"", ",").split(",")
+        else:
+          psi_dict['event_descriptions'] = [psi_dict['event_descriptions']]
+      out_line = [psi_dict[field] if field in psi_dict and psi_dict[field]
                   else on_psi_field_missing(field, line) for field in PSI_OUT_FIELDS]
       psi_df.loc[len(psi_df)] = out_line
   return psi_df, monitor_start_epoch_millis
 
 
-def parse_logcat_line(line, monitor_start_epoch_millis) -> List[Any]:
-  def _get_list(epoch_millis, event_description, color, event_key=None, duration_millis=None,
-               is_high_latency_event=False, should_plot=True):
-    return [int(epoch_millis), int(epoch_millis - monitor_start_epoch_millis), event_description,
-            event_key, duration_millis, is_high_latency_event, color, should_plot]
-  m = ACTIVITY_TASK_MANAGER_START_LINE_RE.match(line)
-  if m:
-    matched = m.groupdict()
-    return _get_list(get_epoch_milliseconds(matched['local_datetime']),
-                     ('Started ' + matched['activity_name'] + ' for user ' + matched['user_id']),
-                     'lime')
-  m = ACTIVITY_TASK_MANAGER_DISPLAYED_LINE_RE.match(line)
-  if m:
-    matched = m.groupdict()
-    if 'duration_secs' in matched and matched['duration_secs']:
-      duration_millis = (int(matched['duration_secs']) * 1000) + int(matched['duration_millis'])
-    else:
-      duration_millis = int(matched['duration_millis'])
-    event_key = 'Displayed ' + matched['activity_name'] + ' for user ' + matched['user_id']
-    return _get_list(get_epoch_milliseconds(matched['local_datetime']),
-                    (event_key + ' took ' + str(duration_millis) + 'ms'),
-                    'orangered' if duration_millis >= ACTIVITY_DISPLAYED_DURATION_THRESHOLD_MILLIS
-                    else 'green', event_key, duration_millis,
-                    is_high_latency_event=(
-                        duration_millis >= ACTIVITY_DISPLAYED_DURATION_THRESHOLD_MILLIS))
-  m = SYSTEM_SERVER_TIMING_ASYNC_COMPLETE_LINE_RE.match(line)
-  if m:
-    matched = m.groupdict()
-    duration_millis = int(matched['duration_millis'])
-    event_key = 'SystemServer event ' + matched['event_description']
-    return _get_list(get_epoch_milliseconds(matched['local_datetime']),
-                    (event_key + ' took ' + str(duration_millis) + 'ms'),
-                    'red' if duration_millis >= SS_EVENT_DURATION_THRESHOLD_MILLIS
-                    else 'saddlebrown', event_key, duration_millis,
-                    is_high_latency_event=duration_millis >= SS_EVENT_DURATION_THRESHOLD_MILLIS,
-                    should_plot=duration_millis >= SS_EVENT_MIN_DURATION_TO_PLOT_MILLIS)
-  m = SYSTEM_SERVER_TIMING_ASYNC_LINE_RE.match(line)
-  if m:
-    matched = m.groupdict()
-    return _get_list(get_epoch_milliseconds(matched['local_datetime']),
-                    ('SystemServer event ' + matched['event_description']), 'yellow')
-  return None
+class LogcatParser:
+  def __init__(self, logcat_file, monitor_start_epoch_millis):
+    self._event_counts_dict = {}
+    self._logcat_file = logcat_file
+    self._monitor_start_epoch_millis = monitor_start_epoch_millis
 
-def get_events_df(logcat_file, monitor_start_epoch_millis) -> pd.DataFrame:
-  events_df = pd.DataFrame(columns=EVENTS_OUT_FIELDS)
-  with open(logcat_file, 'r') as f:
-    logcat = f.readlines()
-    for line in logcat:
-      row = parse_logcat_line(line.strip(), monitor_start_epoch_millis)
-      if row:
-        events_df.loc[len(events_df)] = row
-    return events_df
+
+  def _get_list(self, epoch_millis, event_tag, event_description, color, event_key=None,
+                duration_millis=None, is_high_latency_event=False, should_plot=True):
+    if event_key:
+      if event_key in self._event_counts_dict:
+        self._event_counts_dict[event_key] += 1
+        event_key += ': Occurrence {}'.format(self._event_counts_dict[event_key])
+      else:
+        self._event_counts_dict[event_key] = 1
+    monitor_start_relative_millis = int(epoch_millis - self._monitor_start_epoch_millis)
+    # Some logcat entries will have incorrect timestamps. Discard such entries to avoid downstream
+    # issues.
+    if monitor_start_relative_millis < MIN_DURATION_MILLIS_DELTA_BEFORE_MONITOR_START:
+      return None
+    return [int(epoch_millis), monitor_start_relative_millis, event_tag,
+            event_description, event_key, duration_millis, is_high_latency_event, color,
+            should_plot]
+
+
+  def _parse_line(self, line) -> List[Any]:
+    m = ACTIVITY_TASK_MANAGER_START_LINE_RE.match(line)
+    if m:
+      matched = m.groupdict()
+      return self._get_list(get_epoch_milliseconds(matched['local_datetime']),
+        ACTIVITY_TASK_MANAGER_TAG,
+        ('Started ' + matched['activity_name'] + ' for user ' + matched['user_id']), 'lime')
+    m = ACTIVITY_TASK_MANAGER_DISPLAYED_LINE_RE.match(line)
+    if m:
+      matched = m.groupdict()
+      if 'duration_secs' in matched and matched['duration_secs']:
+        duration_millis = (int(matched['duration_secs']) * 1000) + int(matched['duration_millis'])
+      else:
+        duration_millis = int(matched['duration_millis'])
+      event_key = 'Displayed ' + matched['activity_name'] + ' for user ' + matched['user_id']
+      return self._get_list(get_epoch_milliseconds(matched['local_datetime']),
+        ACTIVITY_TASK_MANAGER_TAG, (event_key + ' took ' + str(duration_millis) + 'ms'),
+        'orangered' if duration_millis >= ACTIVITY_DISPLAYED_DURATION_THRESHOLD_MILLIS else 'green',
+        event_key, duration_millis,
+        is_high_latency_event=(duration_millis >= ACTIVITY_DISPLAYED_DURATION_THRESHOLD_MILLIS))
+    m = SYSTEM_SERVER_TIMING_ASYNC_COMPLETE_LINE_RE.match(line)
+    if m:
+      matched = m.groupdict()
+      duration_millis = int(matched['duration_millis'])
+      event_key = 'SystemServer event ' + matched['event_description']
+      return self._get_list(get_epoch_milliseconds(matched['local_datetime']),
+        SYSTEM_SERVER_TIMING_ASYNC_TAG, (event_key + ' took ' + str(duration_millis) + 'ms'),
+        'red' if duration_millis >= SS_EVENT_DURATION_THRESHOLD_MILLIS else 'saddlebrown',
+        event_key, duration_millis,
+        is_high_latency_event=duration_millis >= SS_EVENT_DURATION_THRESHOLD_MILLIS,
+        should_plot=duration_millis >= SS_EVENT_MIN_DURATION_TO_PLOT_MILLIS)
+    m = SYSTEM_SERVER_TIMING_ASYNC_LINE_RE.match(line)
+    if m:
+      matched = m.groupdict()
+      return self._get_list(get_epoch_milliseconds(matched['local_datetime']),
+        SYSTEM_SERVER_TIMING_ASYNC_TAG, ('SystemServer event ' + matched['event_description']),
+        'yellow')
+    return None
+
+
+  def get_events_df(self) -> pd.DataFrame:
+    events_df = pd.DataFrame(columns=EVENTS_OUT_FIELDS)
+    with open(self._logcat_file, 'r') as f:
+      logcat = f.readlines()
+      for line in logcat:
+        row = self._parse_line(line.strip())
+        if row:
+          events_df.loc[len(events_df)] = row
+      return events_df
 
 
 def main():
@@ -248,7 +289,8 @@ def main():
     events_csv = args.events_csv if args.events_csv else (os.path.dirname(args.psi_csv)
                                                           + '/events.csv')
     print('Parsing events from logcat {} to CSV {}'.format(args.logcat, events_csv))
-    events_df = get_events_df(args.logcat, monitor_start_epoch_millis)
+    logcat_parser = LogcatParser(args.logcat, monitor_start_epoch_millis)
+    events_df = logcat_parser.get_events_df()
     events_df.to_csv(events_csv, index=False)
 
 if __name__ == '__main__':

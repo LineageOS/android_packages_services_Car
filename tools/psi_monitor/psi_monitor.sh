@@ -48,7 +48,8 @@ set -e
 function trap_error() {
     local return_value=$?
     local line_no=$1
-    echo "Error at line ${line_no}: \"${BASH_COMMAND}\""
+    echo "Error at line ${line_no}: \"${BASH_COMMAND}\"" > ${LOG_FILE}
+    echo "Return value ${return_value}" > ${LOG_FILE}
     exit ${return_value}
 }
 trap 'trap_error $LINENO' ERR
@@ -60,22 +61,22 @@ function uptime_millis() {
 }
 
 function err() {
-  echo -e "[$(date +'%Y-%m-%dT%H:%M:%S%z')] [$(uptime_millis)]: $*" | tee -a ${LOG_FILE} >&2
+  echo -e "[$(date +'%Y-%m-%d %H:%M:%S%z')] [$(uptime_millis)]: $*" | tee -a ${LOG_FILE} >&2
   logcat_log -t "$0" -p e "$@"
 }
 
 function print_log() {
-  echo -e "[$(date +'%Y-%m-%dT%H:%M:%S%z')] [$(uptime_millis)]: $*" | tee -a ${LOG_FILE}
+  echo -e "[$(date +'%Y-%m-%d %H:%M:%S%z')] [$(uptime_millis)]: $*" | tee -a ${LOG_FILE}
   logcat_log -t "$0" -p i "$@"
 }
 
 function usage() {
   echo "Monitors PSI and detects system readiness post CUJ completion."
-  echo "Usage: psi_monitor.sh [--no_detect_baseline] [--out_dir=<output_dir>] "\
-       "[--max_duration_seconds=<max_duration_seconds>] "\
-       "[--psi_avg10_threshold=<psi_avg10_threshold>] "\
-       "[--last_n_psi_entries_to_monitor_baseline=<last_n_psi_entries_to_monitor_baseline>] "\
-       "[--max_psi_base_point_diff=<max_psi_base_point_diff>] --exit_on_psi_stabilized"
+  echo "Usage: psi_monitor.sh [--no_detect_baseline] [--out_dir <output_dir>] "\
+       "[--max_duration_seconds <max_duration_seconds>] "\
+       "[--psi_avg10_threshold <psi_avg10_threshold>] "\
+       "[--last_n_psi_entries_to_monitor_baseline <last_n_psi_entries_to_monitor_baseline>] "\
+       "[--max_psi_base_point_diff <max_psi_base_point_diff>] --exit_on_psi_stabilized"
   echo "--no_detect_baseline: Instruct the monitor to not wait for the PSI to reach "\
        "a baseline value"
   echo "-o|--out_dir: Location to output the psi dump and logs"
@@ -125,6 +126,17 @@ function parse_arguments() {
     esac
     shift # past argument or value
   done
+}
+
+function print_arguments() {
+  print_log "Command line args:"
+  print_log "\t SHOULD_DYNAMICALLY_DETECT_BASELINE=${SHOULD_DYNAMICALLY_DETECT_BASELINE}"
+  print_log "\t OUTPUT_DIR=${OUTPUT_DIR}"
+  print_log "\t MAX_DURATION_SECONDS=${MAX_DURATION_SECONDS}"
+  print_log "\t PSI_AVG10_THRESHOLD=${PSI_AVG10_THRESHOLD}"
+  print_log "\t TOTAL_PSI_ENTRIES_TO_MONITOR_BASELINE=${TOTAL_PSI_ENTRIES_TO_MONITOR_BASELINE}"
+  print_log "\t MAX_PSI_BASE_POINT_DIFF=${MAX_PSI_BASE_POINT_DIFF}"
+  print_log "\t EXIT_ON_PSI_STABILIZED=${EXIT_ON_PSI_STABILIZED}"
 }
 
 function check_arguments() {
@@ -271,6 +283,7 @@ function monitor_baseline_psi() {
 
 function main() {
   parse_arguments "$@"
+  print_arguments
   check_arguments
   reset_threshold_met
   reset_baseline_met
@@ -301,9 +314,9 @@ function main() {
     fi
     if [[ ${EXCEEDED_THRESHOLD_UPTIME_MILLIS} -gt 0
           && ${DROPPED_BELOW_THRESHOLD_UPTIME_MILLIS} -gt 0
-          && ( ${SHOULD_DYNAMICALLY_DETECT_BASELINE} == false
-              || ${BASELINE_UPTIME_MILLIS} -gt 0 )
+          && ( ${SHOULD_DYNAMICALLY_DETECT_BASELINE} == false || ${BASELINE_UPTIME_MILLIS} -gt 0 )
           && ${EXIT_ON_PSI_STABILIZED} == true ]]; then
+          print_log "Stopping on psi stabilized"
           break
     fi
     echo "" >> ${DUMP_FILE}

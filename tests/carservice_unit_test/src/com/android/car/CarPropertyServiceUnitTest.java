@@ -49,6 +49,7 @@ import android.car.hardware.property.AreaIdConfig;
 import android.car.hardware.property.CarPropertyEvent;
 import android.car.hardware.property.CarPropertyManager;
 import android.car.hardware.property.ICarPropertyEventListener;
+import android.car.test.AbstractExpectableTestCase;
 import android.content.Context;
 import android.os.IBinder;
 import android.os.RemoteException;
@@ -62,7 +63,9 @@ import com.android.car.internal.property.AsyncPropertyServiceRequest;
 import com.android.car.internal.property.AsyncPropertyServiceRequestList;
 import com.android.car.internal.property.CarSubscription;
 import com.android.car.internal.property.IAsyncPropertyResultCallback;
+import com.android.car.internal.property.MinMaxSupportedPropertyValue;
 import com.android.car.internal.property.PropIdAreaId;
+import com.android.car.internal.property.RawPropertyValue;
 import com.android.car.logging.HistogramFactoryInterface;
 import com.android.modules.expresslog.Histogram;
 
@@ -82,7 +85,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-public final class CarPropertyServiceUnitTest {
+public final class CarPropertyServiceUnitTest extends AbstractExpectableTestCase {
     private static final String TAG = CarLog.tagFor(CarPropertyServiceUnitTest.class);
     private static final int DEFAULT_CALLBACK_TIMEOUT = 5000;
 
@@ -144,6 +147,7 @@ public final class CarPropertyServiceUnitTest {
     private static final Integer SUPPORTED_ERROR_STATE_ENUM_VALUE = -1;
     private static final Integer SUPPORTED_OTHER_STATE_ENUM_VALUE = 0;
     private static final int TEST_VALUE = 18;
+    private static final float TEST_SPEED_MIN_VALUE = 1.23f;
     private static final CarPropertyValue TEST_PROPERTY_VALUE = new CarPropertyValue(
             READ_WRITE_INT_PROPERTY_ID, /* areaId= */ 0, TEST_VALUE);
 
@@ -157,7 +161,8 @@ public final class CarPropertyServiceUnitTest {
                 VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL, 1).addAreaIdConfig(
                         new AreaIdConfig.Builder<Float>(
                                 CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ, GLOBAL_AREA_ID)
-                        .setSupportVariableUpdateRate(true).build())
+                        .setSupportVariableUpdateRate(true).setMinValue(TEST_SPEED_MIN_VALUE)
+                        .build())
                 .setAccess(CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ).setChangeMode(
                 CarPropertyConfig.VEHICLE_PROPERTY_CHANGE_MODE_CONTINUOUS).setMaxSampleRate(
                 100).setMinSampleRate(1).build());
@@ -1737,6 +1742,80 @@ public final class CarPropertyServiceUnitTest {
 
         // Verify the two initial value responses arrive.
         verify(mockHandler, timeout(DEFAULT_CALLBACK_TIMEOUT).times(2)).onEvent(any());
+    }
+
+    @Test
+    public void testGetMinMaxSupportedValue() throws Exception {
+        MinMaxSupportedPropertyValue minMaxSupportedPropertyValue = mock(
+                MinMaxSupportedPropertyValue.class);
+        ArgumentCaptor<AreaIdConfig> areaIdConfigCaptor = ArgumentCaptor.forClass(
+                AreaIdConfig.class);
+        when(mHalService.getMinMaxSupportedValue(eq(SPEED_ID), eq(0),
+                areaIdConfigCaptor.capture())).thenReturn(minMaxSupportedPropertyValue);
+
+        expectThat(mService.getMinMaxSupportedValue(SPEED_ID, 0)).isEqualTo(
+                minMaxSupportedPropertyValue);
+        expectThat(areaIdConfigCaptor.getValue().getMinValue()).isEqualTo(TEST_SPEED_MIN_VALUE);
+        expectThat(areaIdConfigCaptor.getValue().getMaxValue()).isNull();
+    }
+
+    @Test
+    public void testGetMinMaxSupportedValue_propertyIdNotSupported() throws Exception {
+        int invalidPropertyID = -1;
+
+        assertThrows(IllegalArgumentException.class, () ->
+                mService.getMinMaxSupportedValue(invalidPropertyID, 0));
+    }
+
+    @Test
+    public void testGetMinMaxSupportedValue_areaIdNotSupported() throws Exception {
+        assertThrows(IllegalArgumentException.class, () ->
+                mService.getMinMaxSupportedValue(SPEED_ID, 1));
+    }
+
+    @Test
+    public void testGetMinMaxSupportedValue_noPermission() throws Exception {
+        when(mHalService.isReadable(mContext, SPEED_ID)).thenReturn(false);
+        when(mHalService.isWritable(mContext, SPEED_ID)).thenReturn(false);
+
+        assertThrows(SecurityException.class, () ->
+                mService.getMinMaxSupportedValue(SPEED_ID, 0));
+    }
+
+    @Test
+    public void testGetSupportedValuesList() throws Exception {
+        List<RawPropertyValue> supportedValuesList = mock(List.class);
+        ArgumentCaptor<AreaIdConfig> areaIdConfigCaptor = ArgumentCaptor.forClass(
+                AreaIdConfig.class);
+        when(mHalService.getSupportedValuesList(eq(SPEED_ID), eq(0),
+                areaIdConfigCaptor.capture())).thenReturn(supportedValuesList);
+
+        expectThat(mService.getSupportedValuesList(SPEED_ID, 0)).isEqualTo(supportedValuesList);
+        expectThat(areaIdConfigCaptor.getValue().getMinValue()).isEqualTo(TEST_SPEED_MIN_VALUE);
+        expectThat(areaIdConfigCaptor.getValue().getMaxValue()).isNull();
+    }
+
+    @Test
+    public void testGetSupportedValuesList_propertyIdNotSupported() throws Exception {
+        int invalidPropertyID = -1;
+
+        assertThrows(IllegalArgumentException.class, () ->
+                mService.getSupportedValuesList(invalidPropertyID, 0));
+    }
+
+    @Test
+    public void testGetSupportedValuesList_areaIdNotSupported() throws Exception {
+        assertThrows(IllegalArgumentException.class, () ->
+                mService.getSupportedValuesList(SPEED_ID, 1));
+    }
+
+    @Test
+    public void testGetSupportedValuesList_noPermission() throws Exception {
+        when(mHalService.isReadable(mContext, SPEED_ID)).thenReturn(false);
+        when(mHalService.isWritable(mContext, SPEED_ID)).thenReturn(false);
+
+        assertThrows(SecurityException.class, () ->
+                mService.getSupportedValuesList(SPEED_ID, 0));
     }
 
     private static PropIdAreaId newPropIdAreaId(int propId, int areaId) {

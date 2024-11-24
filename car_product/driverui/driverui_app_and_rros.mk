@@ -22,3 +22,4 @@ PRODUCT_PACKAGES += \
     CarServiceDriverUIRRO \
     CarFrameworkDriverUIRRO \
     DriverUIPrebuilt \
+    DriverUIDesignRRO \

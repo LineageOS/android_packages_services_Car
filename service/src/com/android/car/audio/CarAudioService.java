@@ -16,8 +16,8 @@
 package com.android.car.audio;
 
 import static android.car.builtin.media.AudioManagerHelper.UNDEFINED_STREAM_TYPE;
-import static android.car.feature.Flags.carAudioFadeManagerConfiguration;
 import static android.car.feature.Flags.asyncAudioServiceInit;
+import static android.car.feature.Flags.carAudioFadeManagerConfiguration;
 import static android.car.media.CarAudioManager.AUDIO_FEATURE_AUDIO_MIRRORING;
 import static android.car.media.CarAudioManager.AUDIO_FEATURE_DYNAMIC_ROUTING;
 import static android.car.media.CarAudioManager.AUDIO_FEATURE_MIN_MAX_ACTIVATION_VOLUME;
@@ -50,6 +50,7 @@ import static android.view.KeyEvent.KEYCODE_VOLUME_UP;
 import static com.android.car.audio.CarAudioUtils.convertVolumeChangeToEvent;
 import static com.android.car.audio.CarAudioUtils.convertVolumeChangesToEvents;
 import static com.android.car.audio.CarAudioUtils.excludesDynamicDevices;
+import static com.android.car.audio.CarAudioUtils.generateCarAudioDeviceInfos;
 import static com.android.car.audio.CarAudioUtils.getDynamicDevicesInConfig;
 import static com.android.car.audio.hal.AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_DUCKING;
 import static com.android.car.audio.hal.AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_FOCUS;
@@ -1942,29 +1943,6 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
         AudioManagerHelper.registerVolumeAndMuteReceiver(mContext, mLegacyVolumeChangedHelper);
     }
 
-    private List<CarAudioDeviceInfo> generateCarAudioDeviceInfos() {
-        AudioDeviceInfo[] deviceInfos = mAudioManagerWrapper.getDevices(
-                AudioManager.GET_DEVICES_OUTPUTS);
-
-        List<CarAudioDeviceInfo> carInfos = new ArrayList<>();
-
-        for (int index = 0; index < deviceInfos.length; index++) {
-            if (!isValidDeviceType(deviceInfos[index].getType())) {
-                continue;
-            }
-
-            AudioDeviceInfo info = deviceInfos[index];
-            AudioDeviceAttributes attributes = new AudioDeviceAttributes(info);
-            CarAudioDeviceInfo carInfo = new CarAudioDeviceInfo(mAudioManagerWrapper, attributes);
-            // TODO(b/305301155): Move set audio device info closer to where it is used.
-            //  On dynamic configuration change for example
-            carInfo.setAudioDeviceInfo(info);
-
-            carInfos.add(carInfo);
-        }
-        return carInfos;
-    }
-
     private AudioDeviceInfo[] getAllInputDevices() {
         return mAudioManagerWrapper.getDevices(
                 AudioManager.GET_DEVICES_INPUTS);
@@ -2070,7 +2048,8 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
             mCarAudioFadeConfigurationHelper = loadCarAudioFadeConfigurationLocked();
         }
 
-        List<CarAudioDeviceInfo> carAudioDeviceInfos = generateCarAudioDeviceInfos();
+        List<CarAudioDeviceInfo> carAudioDeviceInfos =
+                generateCarAudioDeviceInfos(mAudioManagerWrapper);
         AudioDeviceInfo[] inputDevices = getAllInputDevices();
 
         if (mCarAudioConfigurationPath != null) {
@@ -2427,13 +2406,6 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
             Slogf.w(TAG, "Failed to clear audio control wrapper module change callback", e);
         }
         mCarAudioModuleChangeMonitor = null;
-    }
-
-    /*
-     * Currently only BUS and BUILT_SPEAKER devices are valid static devices.
-     */
-    private static boolean isValidDeviceType(int type) {
-        return type == AudioDeviceInfo.TYPE_BUS || type == AudioDeviceInfo.TYPE_BUILTIN_SPEAKER;
     }
 
     /**

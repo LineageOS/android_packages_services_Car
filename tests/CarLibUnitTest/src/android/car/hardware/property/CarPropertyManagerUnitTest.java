@@ -57,6 +57,7 @@ import android.car.feature.FeatureFlags;
 import android.car.feature.Flags;
 import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.CarPropertyValue;
+import android.car.test.AbstractExpectableTestCase;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.os.Build;
@@ -82,7 +83,9 @@ import com.android.car.internal.property.GetPropertyConfigListResult;
 import com.android.car.internal.property.GetSetValueResult;
 import com.android.car.internal.property.GetSetValueResultList;
 import com.android.car.internal.property.IAsyncPropertyResultCallback;
+import com.android.car.internal.property.MinMaxSupportedPropertyValue;
 import com.android.car.internal.property.PropIdAreaId;
+import com.android.car.internal.property.RawPropertyValue;
 import com.android.car.internal.util.IntArray;
 
 import org.junit.Before;
@@ -104,7 +107,7 @@ import java.util.concurrent.Executor;
  * <p>This class contains unit tests for the {@link CarPropertyManager}.
  */
 @RunWith(MockitoJUnitRunner.class)
-public final class CarPropertyManagerUnitTest {
+public final class CarPropertyManagerUnitTest extends AbstractExpectableTestCase {
     // Required to set the process ID and set the "main" thread for this test, otherwise
     // getMainLooper will return null.
     @Rule
@@ -3124,5 +3127,172 @@ public final class CarPropertyManagerUnitTest {
         assertThrows(IllegalArgumentException.class,
                 () -> mCarPropertyManager.setBooleanProperty(INITIAL_USER_INFO, /* areaId= */ 0,
                         true));
+    }
+
+    @Test
+    @IgnoreUnderRavenwood(blockedBy = android.os.ParcelableHolder.class)
+    public void testGetMinMaxSupportedValue() throws Exception {
+        int minValue = 123;
+        int maxValue = 321;
+        var minMaxSupportedPropertyValue = new MinMaxSupportedPropertyValue();
+        minMaxSupportedPropertyValue.minValue.setParcelable(new RawPropertyValue(minValue));
+        minMaxSupportedPropertyValue.maxValue.setParcelable(new RawPropertyValue(maxValue));
+
+        when(mICarProperty.getMinMaxSupportedValue(INT32_PROP, 0)).thenReturn(
+                minMaxSupportedPropertyValue);
+
+        MinMaxSupportedValue<Integer> result = mCarPropertyManager.getMinMaxSupportedValue(
+                INT32_PROP, 0);
+
+        expectThat(result.getMinValue()).isEqualTo(minValue);
+        expectThat(result.getMaxValue()).isEqualTo(maxValue);
+    }
+
+    @Test
+    @IgnoreUnderRavenwood(blockedBy = android.os.ParcelableHolder.class)
+    public void testGetMinMaxSupportedValue_nullMinValue() throws Exception {
+        int maxValue = 321;
+        var minMaxSupportedPropertyValue = new MinMaxSupportedPropertyValue();
+        minMaxSupportedPropertyValue.maxValue.setParcelable(new RawPropertyValue(maxValue));
+
+        when(mICarProperty.getMinMaxSupportedValue(INT32_PROP, 0)).thenReturn(
+                minMaxSupportedPropertyValue);
+
+        MinMaxSupportedValue<Integer> result = mCarPropertyManager.getMinMaxSupportedValue(
+                INT32_PROP, 0);
+
+        expectThat(result.getMinValue()).isNull();
+        expectThat(result.getMaxValue()).isEqualTo(maxValue);
+    }
+
+    @Test
+    @IgnoreUnderRavenwood(blockedBy = android.os.ParcelableHolder.class)
+    public void testGetMinMaxSupportedValue_nullMaxValue() throws Exception {
+        int minValue = 123;
+        var minMaxSupportedPropertyValue = new MinMaxSupportedPropertyValue();
+        minMaxSupportedPropertyValue.minValue.setParcelable(new RawPropertyValue(minValue));
+
+        when(mICarProperty.getMinMaxSupportedValue(INT32_PROP, 0)).thenReturn(
+                minMaxSupportedPropertyValue);
+
+        MinMaxSupportedValue<Integer> result = mCarPropertyManager.getMinMaxSupportedValue(
+                INT32_PROP, 0);
+
+        expectThat(result.getMinValue()).isEqualTo(minValue);
+        expectThat(result.getMaxValue()).isNull();
+    }
+
+    @Test
+    public void testGetMinMaxSupportedValue_notSupportedPropertyId() throws Exception {
+        assertThrows(IllegalArgumentException.class,
+                () -> mCarPropertyManager.getMinMaxSupportedValue(INVALID, 0));
+    }
+
+    @Test
+    public void testGetMinMaxSupportedValue_remoteExceptionFromCarService() throws Exception {
+        when(mICarProperty.getMinMaxSupportedValue(anyInt(), anyInt())).thenThrow(
+                new RemoteException());
+
+        var minMaxSupportedValue = mCarPropertyManager.getMinMaxSupportedValue(INT32_PROP, 0);
+
+        assertThat(minMaxSupportedValue).isNotNull();
+        expectThat(minMaxSupportedValue.getMaxValue()).isNull();
+        expectThat(minMaxSupportedValue.getMinValue()).isNull();
+    }
+
+    @Test
+    public void testGetMinMaxSupportedValue_IllegalArgumentExceptionFromCarService()
+            throws Exception {
+        when(mICarProperty.getMinMaxSupportedValue(anyInt(), anyInt())).thenThrow(
+                new IllegalArgumentException());
+
+        assertThrows(IllegalArgumentException.class, () ->
+                mCarPropertyManager.getMinMaxSupportedValue(INT32_PROP, 0));
+    }
+
+    @Test
+    public void testGetMinMaxSupportedValue_SecurityExceptionFromCarService()
+            throws Exception {
+        when(mICarProperty.getMinMaxSupportedValue(anyInt(), anyInt())).thenThrow(
+                new SecurityException());
+
+        assertThrows(SecurityException.class, () ->
+                mCarPropertyManager.getMinMaxSupportedValue(INT32_PROP, 0));
+    }
+
+    @Test
+    public void testGetMinMaxSupportedValue_ServiceSpecificExceptionFromCarService()
+            throws Exception {
+        when(mICarProperty.getMinMaxSupportedValue(anyInt(), anyInt())).thenThrow(
+                new ServiceSpecificException(1));
+
+        assertThrows(CarInternalErrorException.class, () ->
+                mCarPropertyManager.getMinMaxSupportedValue(INT32_PROP, 0));
+    }
+
+    @Test
+    public void testGetSupportedValuesList() throws Exception {
+        List<RawPropertyValue> resultsFromCarService = new ArrayList<>();
+        resultsFromCarService.add(new RawPropertyValue(0));
+        resultsFromCarService.add(new RawPropertyValue(1));
+
+        when(mICarProperty.getSupportedValuesList(INT32_PROP, 0)).thenReturn(resultsFromCarService);
+
+        List<Integer> result = mCarPropertyManager.getSupportedValuesList(INT32_PROP, 0);
+
+        assertThat(result).containsExactly(0, 1);
+    }
+
+    @Test
+    public void testGetSupportedValuesList_notSupportedPropertyId() throws Exception {
+        assertThrows(IllegalArgumentException.class,
+                () -> mCarPropertyManager.getSupportedValuesList(INVALID, 0));
+    }
+
+    @Test
+    public void testGetSupportedValuesList_nullFromCarService() throws Exception {
+        when(mICarProperty.getSupportedValuesList(INT32_PROP, 0)).thenReturn(null);
+
+        List<Integer> result = mCarPropertyManager.getSupportedValuesList(INT32_PROP, 0);
+
+        assertThat(result).isNull();
+    }
+
+    @Test
+    public void testGetSupportedValuesList_RemoteExceptionFromCarService() throws Exception {
+        when(mICarProperty.getSupportedValuesList(INT32_PROP, 0)).thenThrow(new RemoteException());
+
+        List<Integer> result = mCarPropertyManager.getSupportedValuesList(INT32_PROP, 0);
+
+        assertThat(result).isNull();
+    }
+
+    @Test
+    public void testGetSupportedValuesList_SecurityExceptionFromCarService() throws Exception {
+        when(mICarProperty.getSupportedValuesList(INT32_PROP, 0)).thenThrow(
+                new SecurityException());
+
+        assertThrows(SecurityException.class,
+                () -> mCarPropertyManager.getSupportedValuesList(INT32_PROP, 0));
+    }
+
+    @Test
+    public void testGetSupportedValuesList_ServiceSpecificExceptionFromCarService()
+            throws Exception {
+        when(mICarProperty.getSupportedValuesList(INT32_PROP, 0)).thenThrow(
+                new ServiceSpecificException(1));
+
+        assertThrows(CarInternalErrorException.class,
+                () -> mCarPropertyManager.getSupportedValuesList(INT32_PROP, 0));
+    }
+
+    @Test
+    public void testGetSupportedValuesList_IllegalArgumentExceptionFromCarService()
+            throws Exception {
+        when(mICarProperty.getSupportedValuesList(INT32_PROP, 0)).thenThrow(
+                new IllegalArgumentException());
+
+        assertThrows(IllegalArgumentException.class,
+                () -> mCarPropertyManager.getSupportedValuesList(INT32_PROP, 0));
     }
 }

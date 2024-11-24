@@ -48,6 +48,7 @@ import android.os.Build;
 import android.os.CancellationSignal;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.ParcelableHolder;
 import android.os.RemoteException;
 import android.os.ServiceSpecificException;
 import android.os.SystemClock;
@@ -73,7 +74,9 @@ import com.android.car.internal.property.GetSetValueResult;
 import com.android.car.internal.property.GetSetValueResultList;
 import com.android.car.internal.property.IAsyncPropertyResultCallback;
 import com.android.car.internal.property.InputSanitizationUtils;
+import com.android.car.internal.property.MinMaxSupportedPropertyValue;
 import com.android.car.internal.property.PropIdAreaId;
+import com.android.car.internal.property.RawPropertyValue;
 import com.android.car.internal.property.SubscriptionManager;
 import com.android.car.internal.util.IntArray;
 import com.android.car.internal.util.PairSparseArray;
@@ -3316,36 +3319,6 @@ public class CarPropertyManager extends CarManagerBase {
     }
 
     /**
-     * A structure contains min/max supported value.
-     *
-     * @param <T> the type for the property value, must be one of Object, Boolean, Float, Integer,
-     *      Long, Float[], Integer[], Long[], String, byte[], Object[]
-     */
-    @FlaggedApi(FLAG_CAR_PROPERTY_SUPPORTED_VALUE)
-    public static class MinMaxSupportedValue<T> {
-        MinMaxSupportedValue(@Nullable T minValue, @Nullable T maxValue) {}
-
-        /**
-         * Gets the currently supported min value.
-         *
-         * @return The currently supported min value, or {@ocde null} if not specified.
-         */
-        @FlaggedApi(FLAG_CAR_PROPERTY_SUPPORTED_VALUE)
-        public @Nullable T getMinValue() {
-            return null;
-        }
-         /**
-         * Gets the currently supported max value.
-         *
-         * @return The currently supported max value, or {@ocde null} if not specified.
-         */
-        @FlaggedApi(FLAG_CAR_PROPERTY_SUPPORTED_VALUE)
-        public @Nullable T getMaxValue() {
-            return null;
-        }
-    }
-
-    /**
      * Gets the currently supported min/max value for [propertyId, areaId].
      *
      * This is only meaningful if {@link AreaIdConfig#hasMinSupportedValue} or
@@ -3372,13 +3345,40 @@ public class CarPropertyManager extends CarManagerBase {
      *
      * @return The currently supported min/max value.
      * @throws IllegalArgumentException if [propertyId, areaId] is not supported.
-     * @throws SecurityException if the caller does not have read and does not have write access
-     *      for the property.
+     * @throws SecurityException if the caller does not have either read or write access to the
+     *      property.
+     * @throws CarInternalErrorException if failed to get the information from the hardware.
      */
     @FlaggedApi(FLAG_CAR_PROPERTY_SUPPORTED_VALUE)
     public <T> @NonNull MinMaxSupportedValue<T> getMinMaxSupportedValue(
             int propertyId, int areaId) {
-        return null;
+        assertPropertyIdIsSupported(propertyId);
+
+        MinMaxSupportedPropertyValue supportedPropertyValue;
+        try {
+            // This throws IllegalArgumentException or SecurityException, we just rethrow.
+            supportedPropertyValue = mService.getMinMaxSupportedValue(propertyId, areaId);
+        } catch (RemoteException e) {
+            return handleRemoteExceptionFromCarService(e, new MinMaxSupportedValue(
+                    /* minValue= */ null, /* maxValue= */ null));
+        } catch (ServiceSpecificException e) {
+            Slog.e(TAG, "Failed to get min max supported value", e);
+            throw new CarInternalErrorException(propertyId, areaId);
+        }
+
+        T minValue = null;
+        T maxValue = null;
+        RawPropertyValue minRawPropertyValue = extractRawPropertyValue(
+                supportedPropertyValue.minValue);
+        if (minRawPropertyValue != null) {
+            minValue = (T) minRawPropertyValue.getTypedValue();
+        }
+        RawPropertyValue maxRawPropertyValue = extractRawPropertyValue(
+                supportedPropertyValue.maxValue);
+        if (maxRawPropertyValue != null) {
+            maxValue = (T) maxRawPropertyValue.getTypedValue();
+        }
+        return new MinMaxSupportedValue(minValue, maxValue);
     }
 
     /**
@@ -3409,12 +3409,35 @@ public class CarPropertyManager extends CarManagerBase {
      *      specified. If this returns an empty set, it means no values are supported now
      *      (the property is probably in an error state).
      * @throws IllegalArgumentException if [propertyId, areaId] is not supported.
-     * @throws SecurityException if the caller does not have read and does not have write access
-     *      for the property.
+     * @throws SecurityException if the caller does not have either read or write access to the
+     *      property.
+     * @throws CarInternalErrorException if failed to get the information from the hardware.
      */
     @FlaggedApi(FLAG_CAR_PROPERTY_SUPPORTED_VALUE)
     public <T> @Nullable List<T> getSupportedValuesList(int propertyId, int areaId) {
-        return null;
+        assertPropertyIdIsSupported(propertyId);
+
+        List<RawPropertyValue> supportedRawPropertyValues;
+        try {
+            // This throws IllegalArgumentException or SecurityException, we just rethrow.
+            supportedRawPropertyValues = mService.getSupportedValuesList(propertyId, areaId);
+        } catch (RemoteException e) {
+            return handleRemoteExceptionFromCarService(e, null);
+        } catch (ServiceSpecificException e) {
+            Slog.e(TAG, "Failed to get supported values list", e);
+            throw new CarInternalErrorException(propertyId, areaId);
+        }
+
+        if (supportedRawPropertyValues == null) {
+            return null;
+        }
+
+        List<T> mutableReturnValues = new ArrayList<T>();
+        for (int i = 0; i < supportedRawPropertyValues.size(); i++) {
+            mutableReturnValues.add((T) supportedRawPropertyValues.get(i).getTypedValue());
+        }
+        // Returns an immutable list.
+        return List.copyOf(mutableReturnValues);
     }
 
     /**
@@ -3849,6 +3872,12 @@ public class CarPropertyManager extends CarManagerBase {
             return handleRemoteExceptionFromCarService(e, null);
         }
         return new CarPropertyConfigs(result, unsupportedPropertyIds);
+    }
+
+    @Nullable
+    private static RawPropertyValue<?> extractRawPropertyValue(
+            ParcelableHolder holder) {
+        return holder.getParcelable(RawPropertyValue.class);
     }
 
 }

@@ -16,6 +16,6 @@ limitations under the License.
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="car_admin_ui_managed_device_message_generic" msgid="2432263900803667538">"इस वाहन को एक संगठन मैनेज करता है"</string>
-    <string name="car_admin_ui_managed_device_message_by_org" msgid="6717022763136116277">"इस वाहन को <xliff:g id="ORGANIZATION_NAME">%1$s</xliff:g> मैनेज करता है"</string>
+    <string name="car_admin_ui_managed_device_message_generic" msgid="2437093451521267321">"इस वाहन को एक संगठन मैनेज करता है"</string>
+    <string name="car_admin_ui_managed_device_message_by_org" msgid="2788777911316572064">"इस वाहन को <xliff:g id="ORGANIZATION_NAME">%1$s</xliff:g> मैनेज करता है"</string>
 </resources>

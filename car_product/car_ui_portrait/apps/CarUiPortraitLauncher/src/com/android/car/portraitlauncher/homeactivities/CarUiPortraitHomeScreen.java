@@ -36,6 +36,7 @@ import static com.android.car.portraitlauncher.panel.TaskViewPanelStateChangeRea
 import static com.android.car.portraitlauncher.panel.TaskViewPanelStateChangeReason.ON_DRIVE_STATE_CHANGED;
 import static com.android.car.portraitlauncher.panel.TaskViewPanelStateChangeReason.ON_HOME_SCREEN_LAYOUT_CHANGED;
 import static com.android.car.portraitlauncher.panel.TaskViewPanelStateChangeReason.ON_IMMERSIVE_REQUEST;
+import static com.android.car.portraitlauncher.panel.TaskViewPanelStateChangeReason.ON_INCALL_INTENT;
 import static com.android.car.portraitlauncher.panel.TaskViewPanelStateChangeReason.ON_MEDIA_INTENT;
 import static com.android.car.portraitlauncher.panel.TaskViewPanelStateChangeReason.ON_PANEL_READY;
 import static com.android.car.portraitlauncher.panel.TaskViewPanelStateChangeReason.ON_SUW_STATE_CHANGED;
@@ -92,12 +93,14 @@ import com.android.car.carlauncher.CarLauncherUtils;
 import com.android.car.carlauncher.Flags;
 import com.android.car.carlauncher.homescreen.HomeCardModule;
 import com.android.car.carlauncher.homescreen.audio.IntentHandler;
+import com.android.car.carlauncher.homescreen.audio.dialer.InCallIntentRouter;
 import com.android.car.carlauncher.homescreen.audio.media.MediaIntentRouter;
 import com.android.car.carlauncher.taskstack.TaskStackChangeListeners;
 import com.android.car.portraitlauncher.R;
 import com.android.car.portraitlauncher.calmmode.PortraitCalmModeActivity;
 import com.android.car.portraitlauncher.common.CarUiPortraitServiceManager;
 import com.android.car.portraitlauncher.common.UserEventReceiver;
+import com.android.car.portraitlauncher.controlbar.InCallTaskStateRouter;
 import com.android.car.portraitlauncher.panel.TaskViewPanel;
 import com.android.car.portraitlauncher.panel.TaskViewPanelStateChangeReason;
 
@@ -106,6 +109,7 @@ import com.google.common.annotations.VisibleForTesting;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Function;
 
 /**
  * This home screen has maps running in the background hosted in a TaskView. At the bottom, there
@@ -195,23 +199,10 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
     private TaskViewPanel mRootTaskViewPanel;
     private boolean mSkipAppGridOnRestartAttempt;
     private int mAppGridTaskId = INVALID_TASK_ID;
-    @VisibleForTesting ContentObserver mTosContentObserver;
-    private final IntentHandler mMediaIntentHandler = new IntentHandler() {
-        @Override
-        public void handleIntent(Intent intent) {
-            logIfDebuggable("handleIntent mCurrentTaskInRootTaskView: " + mCurrentTaskInRootTaskView
-                    + ", incoming intent =" + intent);
-            if (TaskCategoryManager.isMediaApp(mCurrentTaskInRootTaskView)
-                    && mRootTaskViewPanel.isOpen()) {
-                mRootTaskViewPanel.closePanel(createReason(ON_MEDIA_INTENT, intent.getComponent()));
-                return;
-            }
-            if (intent != null) {
-                ActivityOptions options = ActivityOptions.makeBasic();
-                startActivity(intent, options.toBundle());
-            }
-        }
-    };
+    public final InCallTaskStateRouter mInCallTaskStateRouter = InCallTaskStateRouter.getInstance();
+    @VisibleForTesting
+    ContentObserver mTosContentObserver;
+
     /**
      * Only resize the size of rootTaskView when SUW is in progress. This is to resize the height of
      * rootTaskView after status bar hide on SUW start.
@@ -392,6 +383,8 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
         mIsNotificationCenterOnTop = mTaskCategoryManager.isNotificationActivity(taskInfo);
         mIsRecentsOnTop = mTaskCategoryManager.isRecentsActivity(taskInfo);
         mIsAppGridOnTop = mTaskCategoryManager.isAppGridActivity(taskInfo);
+        mInCallTaskStateRouter.handleInCallTaskState(
+                mTaskCategoryManager.isInCallActivity(taskInfo));
 
         if (mTaskCategoryManager.isBackgroundApp(taskInfo)) {
             mTaskCategoryManager.setCurrentBackgroundApp(taskInfo.baseActivity);
@@ -589,7 +582,12 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
         TaskStackChangeListeners.getInstance().registerTaskStackListener(mTaskStackListener);
         mCarUiPortraitDriveStateController = new CarUiPortraitDriveStateController(
                 getApplicationContext());
-        MediaIntentRouter.getInstance().registerMediaIntentHandler(mMediaIntentHandler);
+        IntentHandler mediaIntentHandler = new ControlBarIntentHandler(
+                mTaskCategoryManager::isMediaApp, ON_MEDIA_INTENT);
+        IntentHandler inCallIntentHandler = new ControlBarIntentHandler(
+                mTaskCategoryManager::isInCallActivity, ON_INCALL_INTENT);
+        MediaIntentRouter.getInstance().registerMediaIntentHandler(mediaIntentHandler);
+        InCallIntentRouter.getInstance().registerInCallIntentHandler(inCallIntentHandler);
 
         mTaskViewControllerWrapper = new RemoteCarTaskViewControllerWrapperImpl(
                 /* activity= */ this, this::onTaskViewControllerReady);
@@ -1350,6 +1348,31 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                     break;
                 default:
                     super.handleMessage(msg);
+            }
+        }
+    }
+
+    private class ControlBarIntentHandler implements IntentHandler {
+        private final Function<ActivityManager.RunningTaskInfo, Boolean> mTaskChecker;
+        private final String mReason;
+
+        ControlBarIntentHandler(Function<ActivityManager.RunningTaskInfo, Boolean> taskChecker,
+                String reason) {
+            mTaskChecker = taskChecker;
+            mReason = reason;
+        }
+
+        @Override
+        public void handleIntent(@Nullable Intent intent) {
+            logIfDebuggable("handleIntent mCurrentTaskInRootTaskView: " + mCurrentTaskInRootTaskView
+                    + ", incoming intent =" + intent);
+            if (mTaskChecker.apply(mCurrentTaskInRootTaskView) && mRootTaskViewPanel.isOpen()) {
+                mRootTaskViewPanel.closePanel(createReason(mReason, intent.getComponent()));
+                return;
+            }
+            if (intent != null) {
+                ActivityOptions options = ActivityOptions.makeBasic();
+                startActivity(intent, options.toBundle());
             }
         }
     }

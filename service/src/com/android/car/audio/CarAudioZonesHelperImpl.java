@@ -36,11 +36,12 @@ import static com.android.car.audio.CarAudioUtils.ACTIVATION_VOLUME_INVOCATION_T
 import static com.android.car.audio.CarAudioUtils.ACTIVATION_VOLUME_PERCENTAGE_MAX;
 import static com.android.car.audio.CarAudioUtils.ACTIVATION_VOLUME_PERCENTAGE_MIN;
 import static com.android.car.audio.CarAudioUtils.DEFAULT_ACTIVATION_VOLUME;
+import static com.android.car.audio.CarAudioUtils.generateAddressToCarAudioDeviceInfoMap;
+import static com.android.car.audio.CarAudioUtils.generateAddressToInputAudioDeviceInfoMap;
 import static com.android.car.audio.CarAudioUtils.isMicrophoneInputDevice;
 
 import static java.util.Locale.ROOT;
 
-import android.annotation.NonNull;
 import android.car.builtin.util.Slogf;
 import android.car.feature.Flags;
 import android.car.oem.CarAudioFadeConfiguration;
@@ -194,12 +195,11 @@ import java.util.Set;
         mInputStream = Objects.requireNonNull(inputStream);
         Objects.requireNonNull(carAudioDeviceInfos);
         Objects.requireNonNull(inputDeviceInfo);
-        mAddressToCarAudioDeviceInfo = CarAudioZonesHelperImpl.generateAddressToInfoMap(
-                carAudioDeviceInfos);
+        mAddressToCarAudioDeviceInfo = generateAddressToCarAudioDeviceInfoMap(carAudioDeviceInfos);
         mCarServiceLocalLog = Objects.requireNonNull(serviceLog,
                 "Car audio service local log cannot be null");
         mAddressToInputAudioDeviceInfoForAllInputDevices =
-                CarAudioZonesHelperImpl.generateAddressToInputAudioDeviceInfoMap(inputDeviceInfo);
+                generateAddressToInputAudioDeviceInfoMap(inputDeviceInfo);
         mNextSecondaryZoneId = PRIMARY_AUDIO_ZONE + 1;
         mZoneIdToOccupantZoneIdMapping = new SparseIntArray();
         mAudioZoneIds = new ArraySet<>();
@@ -289,31 +289,6 @@ import java.util.Set;
     @Override
     public boolean useHalDuckingSignalOrDefault(boolean defaultUseHalDuckingSignal) {
         return mUseHalDuckingSignals.orElse(defaultUseHalDuckingSignal);
-    }
-
-    private static Map<String, CarAudioDeviceInfo> generateAddressToInfoMap(
-            List<CarAudioDeviceInfo> carAudioDeviceInfos) {
-        Map<String, CarAudioDeviceInfo> addressToInfoMap = new ArrayMap<>();
-        for (int i = 0; i < carAudioDeviceInfos.size(); i++) {
-            CarAudioDeviceInfo info = carAudioDeviceInfos.get(i);
-            if (!TextUtils.isEmpty(info.getAddress())) {
-                addressToInfoMap.put(info.getAddress(), info);
-            }
-        }
-        return addressToInfoMap;
-    }
-
-    private static Map<String, AudioDeviceInfo> generateAddressToInputAudioDeviceInfoMap(
-            @NonNull AudioDeviceInfo[] inputAudioDeviceInfos) {
-        Map<String, AudioDeviceInfo> deviceAddressToInputDeviceMap =
-                new ArrayMap<>(inputAudioDeviceInfos.length);
-        for (int i = 0; i < inputAudioDeviceInfos.length; ++i) {
-            AudioDeviceInfo device = inputAudioDeviceInfos[i];
-            if (device.isSource()) {
-                deviceAddressToInputDeviceMap.put(device.getAddress(), device);
-            }
-        }
-        return deviceAddressToInputDeviceMap;
     }
 
     private SparseArray<CarAudioZone> parseCarAudioZones(InputStream stream)

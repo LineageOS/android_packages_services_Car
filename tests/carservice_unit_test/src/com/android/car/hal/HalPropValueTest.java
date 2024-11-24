@@ -24,6 +24,8 @@ import android.hardware.automotive.vehicle.VehiclePropConfig;
 import android.hardware.automotive.vehicle.VehiclePropertyStatus;
 import android.hardware.automotive.vehicle.VehiclePropertyType;
 
+import com.android.car.internal.property.RawPropertyValue;
+
 import org.junit.Test;
 
 public final class HalPropValueTest {
@@ -1579,5 +1581,55 @@ public final class HalPropValueTest {
         aidlValue11.value.stringValue = "blahblah";
 
         assertThat(value1.hashCode()).isNotEqualTo(builder.build(aidlValue11).hashCode());
+    }
+
+    @Test
+    public void testToRawPropertyValue() {
+        var rawPropValues = new RawPropValues();
+        rawPropValues.int32Values = new int[] {TEST_INT32_VALUE};
+
+        RawPropertyValue rawPropertyValue = HalPropValue.toRawPropertyValue(
+                TEST_INT32_PROP, TEST_AREA_ID, TEST_MGR_PROP, rawPropValues,
+                new AidlHalPropConfig(new VehiclePropConfig()));
+
+        assertThat(rawPropertyValue.getTypedValue()).isEqualTo(TEST_INT32_VALUE);
+    }
+
+    @Test
+    public void testToRawPropertyValue_mixed() {
+        var rawPropValues = new RawPropValues();
+        rawPropValues.int32Values = new int[] {1, TEST_INT32_VALUE};
+        rawPropValues.floatValues = new float[] {TEST_FLOAT_VALUE};
+        rawPropValues.int64Values = new long[] {TEST_INT64_VALUE};
+        rawPropValues.byteValues = new byte[] {TEST_BYTE_VALUE};
+        rawPropValues.stringValue = TEST_STRING_VALUE;
+        VehiclePropConfig config = new VehiclePropConfig();
+        config.configArray = new int[] {1, 1, 1, 0, 1, 0, 1, 0, 1};
+
+        RawPropertyValue rawPropertyValue = HalPropValue.toRawPropertyValue(
+                TEST_MIXED_PROP, TEST_AREA_ID, TEST_MGR_PROP, rawPropValues,
+                new AidlHalPropConfig(config));
+
+        Object[] content = (Object[]) rawPropertyValue.getTypedValue();
+
+        assertThat((String) content[0]).isEqualTo(TEST_STRING_VALUE);
+        assertThat((Boolean) content[1]).isTrue();
+        assertThat((Integer) content[2]).isEqualTo(TEST_INT32_VALUE);
+        assertThat((Long) content[3]).isEqualTo(TEST_INT64_VALUE);
+        assertThat((Float) content[4]).isEqualTo(TEST_FLOAT_VALUE);
+        assertThat((Byte) content[5]).isEqualTo(TEST_BYTE_VALUE);
+    }
+
+    @Test
+    public void testToRawPropertyValue_invalidValue() {
+        var rawPropValues = new RawPropValues();
+        // No int32 values.
+        rawPropValues.floatValues = new float[] {TEST_FLOAT_VALUE};
+
+        RawPropertyValue rawPropertyValue = HalPropValue.toRawPropertyValue(
+                TEST_INT32_PROP, TEST_AREA_ID, TEST_MGR_PROP, rawPropValues,
+                new AidlHalPropConfig(new VehiclePropConfig()));
+
+        assertThat(rawPropertyValue).isNull();
     }
 }

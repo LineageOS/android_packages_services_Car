@@ -19,7 +19,7 @@
     android:background="@drawable/control_bar_background"
     android:gravity="top"
     android:id="@+id/control_bar_area"
-    android:layout_gravity="top"
+    android:layout_gravity="bottom"
     android:layout_height="wrap_content"
     android:layout_width="match_parent"
     android:orientation="vertical"

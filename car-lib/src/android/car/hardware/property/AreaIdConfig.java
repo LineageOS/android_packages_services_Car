@@ -28,6 +28,9 @@ import android.car.hardware.CarPropertyConfig;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.android.car.internal.property.RawPropertyValue;
+
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -46,27 +49,55 @@ public final class AreaIdConfig<T> implements Parcelable {
     @Nullable private final T mMaxValue;
     private final List<T> mSupportedEnumValues;
     private final boolean mSupportVariableUpdateRate;
+    private final boolean mHasMinSupportedValue;
+    private final boolean mHasMaxSupportedValue;
+    private final boolean mHasSupportedValuesList;
 
     private AreaIdConfig(
             int areaId, @Nullable T minValue, @Nullable T maxValue, List<T> supportedEnumValues,
             @CarPropertyConfig.VehiclePropertyAccessType int access,
-            boolean supportVariableUpdateRate) {
+            boolean supportVariableUpdateRate, boolean hasMinSupportedValue,
+            boolean hasMaxSupportedValue, boolean hasSupportedValuesList) {
         mAccess = access;
         mAreaId = areaId;
         mMinValue = minValue;
         mMaxValue = maxValue;
         mSupportedEnumValues = supportedEnumValues;
         mSupportVariableUpdateRate = supportVariableUpdateRate;
+        mHasMinSupportedValue = hasMinSupportedValue;
+        mHasMaxSupportedValue = hasMaxSupportedValue;
+        mHasSupportedValuesList = hasSupportedValuesList;
     }
 
     @SuppressWarnings("unchecked")
     private AreaIdConfig(Parcel in) {
         mAccess = in.readInt();
         mAreaId = in.readInt();
-        mMinValue = (T) in.readValue(getClass().getClassLoader());
-        mMaxValue = (T) in.readValue(getClass().getClassLoader());
-        mSupportedEnumValues = in.readArrayList(getClass().getClassLoader());
+        var minPropertyValue = (RawPropertyValue<T>) in.readParcelable(
+                RawPropertyValue.class.getClassLoader(), RawPropertyValue.class);
+        if (minPropertyValue != null) {
+            mMinValue = minPropertyValue.getTypedValue();
+        } else {
+            mMinValue = null;
+        }
+        var maxPropertyValue = (RawPropertyValue<T>) in.readParcelable(
+                RawPropertyValue.class.getClassLoader(), RawPropertyValue.class);
+        if (maxPropertyValue != null) {
+            mMaxValue = maxPropertyValue.getTypedValue();
+        } else {
+            mMaxValue = null;
+        }
+        List<RawPropertyValue> supportedEnumPropertyValues = new ArrayList<>();
+        in.readParcelableList(supportedEnumPropertyValues,
+                RawPropertyValue.class.getClassLoader(), RawPropertyValue.class);
+        mSupportedEnumValues = new ArrayList<T>();
+        for (int i = 0; i < supportedEnumPropertyValues.size(); i++) {
+            mSupportedEnumValues.add((T) supportedEnumPropertyValues.get(i).getTypedValue());
+        }
         mSupportVariableUpdateRate = in.readBoolean();
+        mHasMinSupportedValue = in.readBoolean();
+        mHasMaxSupportedValue = in.readBoolean();
+        mHasSupportedValuesList = in.readBoolean();
     }
 
     private static <E> Parcelable.Creator<AreaIdConfig<E>> getCreator() {
@@ -206,7 +237,7 @@ public final class AreaIdConfig<T> implements Parcelable {
      */
     @FlaggedApi(FLAG_CAR_PROPERTY_SUPPORTED_VALUE)
     public boolean hasMinSupportedValue() {
-        return false;
+        return mHasMinSupportedValue;
     }
 
     /**
@@ -232,7 +263,7 @@ public final class AreaIdConfig<T> implements Parcelable {
      */
     @FlaggedApi(FLAG_CAR_PROPERTY_SUPPORTED_VALUE)
     public boolean hasMaxSupportedValue() {
-        return false;
+        return mHasMaxSupportedValue;
     }
 
     /**
@@ -253,7 +284,7 @@ public final class AreaIdConfig<T> implements Parcelable {
      */
     @FlaggedApi(FLAG_CAR_PROPERTY_SUPPORTED_VALUE)
     public boolean hasSupportedValuesList() {
-        return false;
+        return mHasSupportedValuesList;
     }
 
     @Override
@@ -265,10 +296,25 @@ public final class AreaIdConfig<T> implements Parcelable {
     public void writeToParcel(@NonNull Parcel dest, int flags) {
         dest.writeInt(mAccess);
         dest.writeInt(mAreaId);
-        dest.writeValue(mMinValue);
-        dest.writeValue(mMaxValue);
-        dest.writeList(mSupportedEnumValues);
+        RawPropertyValue minPropertyValue = null;
+        if (mMinValue != null) {
+            minPropertyValue = new RawPropertyValue(mMinValue);
+        }
+        dest.writeParcelable(minPropertyValue, /* parcelableFlags= */ 0);
+        RawPropertyValue maxPropertyValue = null;
+        if (mMaxValue != null) {
+            maxPropertyValue = new RawPropertyValue(mMaxValue);
+        }
+        dest.writeParcelable(maxPropertyValue, /* parcelableFlags= */ 0);
+        List<RawPropertyValue> supportedEnumPropertyValues = new ArrayList<>();
+        for (int i = 0; i < mSupportedEnumValues.size(); i++) {
+            supportedEnumPropertyValues.add(new RawPropertyValue(mSupportedEnumValues.get(i)));
+        }
+        dest.writeParcelableList(supportedEnumPropertyValues, /* parcelableFlags= */ 0);
         dest.writeBoolean(mSupportVariableUpdateRate);
+        dest.writeBoolean(mHasMinSupportedValue);
+        dest.writeBoolean(mHasMaxSupportedValue);
+        dest.writeBoolean(mHasSupportedValuesList);
     }
 
     @Override
@@ -286,6 +332,9 @@ public final class AreaIdConfig<T> implements Parcelable {
         if (!mSupportedEnumValues.isEmpty()) {
             sb.append(", mSupportedEnumValues=").append(mSupportedEnumValues);
         }
+        sb.append(", mHasMinSupportedValue=").append(mHasMinSupportedValue);
+        sb.append(", mHasMaxSupportedValue=").append(mHasMaxSupportedValue);
+        sb.append(", mHasSupportedValuesList=").append(mHasSupportedValuesList);
         return sb.append("}").toString();
     }
 
@@ -309,6 +358,9 @@ public final class AreaIdConfig<T> implements Parcelable {
         private T mMaxValue = null;
         private List<T> mSupportedEnumValues = Collections.EMPTY_LIST;
         private boolean mSupportVariableUpdateRate = false;
+        private boolean mHasMaxSupportedValue = false;
+        private boolean mHasMinSupportedValue = false;
+        private boolean mHasSupportedValuesList = false;
 
         public Builder(int areaId) {
             mAccess = CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_NONE;
@@ -325,6 +377,7 @@ public final class AreaIdConfig<T> implements Parcelable {
         @NonNull
         public Builder<T> setMinValue(T minValue) {
             mMinValue = minValue;
+            mHasMinSupportedValue = true;
             return this;
         }
 
@@ -332,6 +385,7 @@ public final class AreaIdConfig<T> implements Parcelable {
         @NonNull
         public Builder<T> setMaxValue(T maxValue) {
             mMaxValue = maxValue;
+            mHasMaxSupportedValue = true;
             return this;
         }
 
@@ -339,6 +393,7 @@ public final class AreaIdConfig<T> implements Parcelable {
         @NonNull
         public Builder<T> setSupportedEnumValues(@NonNull List<T> supportedEnumValues) {
             mSupportedEnumValues = supportedEnumValues;
+            mHasSupportedValuesList = true;
             return this;
         }
 
@@ -355,11 +410,45 @@ public final class AreaIdConfig<T> implements Parcelable {
             return this;
         }
 
+        /**
+         * Sets whether this area has a specified min supported value.
+         *
+         * @hide
+         */
+        @NonNull
+        public Builder<T> setHasMinSupportedValue(boolean hasMinSupportedValue) {
+            mHasMinSupportedValue = hasMinSupportedValue;
+            return this;
+        }
+
+        /**
+         * Sets whether this area has a specified max supported value.
+         *
+         * @hide
+         */
+        @NonNull
+        public Builder<T> setHasMaxSupportedValue(boolean hasMaxSupportedValue) {
+            mHasMaxSupportedValue = hasMaxSupportedValue;
+            return this;
+        }
+
+        /**
+         * Sets whether this area has a specified supported value list.
+         *
+         * @hide
+         */
+        @NonNull
+        public Builder<T> setHasSupportedValuesList(boolean hasSupportedValuesList) {
+            mHasSupportedValuesList = hasSupportedValuesList;
+            return this;
+        }
+
         /** Builds a new {@link android.car.hardware.property.AreaIdConfig}. */
         @NonNull
         public AreaIdConfig<T> build() {
             return new AreaIdConfig<>(mAreaId, mMinValue, mMaxValue, mSupportedEnumValues, mAccess,
-                    mSupportVariableUpdateRate);
+                    mSupportVariableUpdateRate, mHasMinSupportedValue, mHasMaxSupportedValue,
+                    mHasSupportedValuesList);
         }
     }
 }

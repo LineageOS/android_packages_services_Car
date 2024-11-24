@@ -29,12 +29,15 @@ import android.hardware.automotive.vehicle.GetValueResult;
 import android.hardware.automotive.vehicle.GetValueResults;
 import android.hardware.automotive.vehicle.IVehicle;
 import android.hardware.automotive.vehicle.IVehicleCallback;
+import android.hardware.automotive.vehicle.MinMaxSupportedValueResults;
+import android.hardware.automotive.vehicle.PropIdAreaId;
 import android.hardware.automotive.vehicle.SetValueRequest;
 import android.hardware.automotive.vehicle.SetValueRequests;
 import android.hardware.automotive.vehicle.SetValueResult;
 import android.hardware.automotive.vehicle.SetValueResults;
 import android.hardware.automotive.vehicle.StatusCode;
 import android.hardware.automotive.vehicle.SubscribeOptions;
+import android.hardware.automotive.vehicle.SupportedValuesListResults;
 import android.hardware.automotive.vehicle.VehiclePropConfig;
 import android.hardware.automotive.vehicle.VehiclePropConfigs;
 import android.hardware.automotive.vehicle.VehiclePropError;
@@ -377,6 +380,32 @@ public class AidlMockedVehicleHal extends IVehicle.Stub {
                 }
             }
         }
+    }
+
+    @Override
+    public SupportedValuesListResults getSupportedValuesLists(List<PropIdAreaId> propIdAreaIds) {
+        // Not used now.
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public MinMaxSupportedValueResults getMinMaxSupportedValue(List<PropIdAreaId> propIdAreaIds) {
+        // Not used now.
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void registerSupportedValueChangeCallback(IVehicleCallback callback,
+            List<PropIdAreaId> propIdAreaIds) {
+        // Not used now.
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void unregisterSupportedValueChangeCallback(IVehicleCallback callback,
+            List<PropIdAreaId> propIdAreaIds) {
+        // Not used now.
+        throw new UnsupportedOperationException();
     }
 
     @Override

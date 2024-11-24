@@ -29,7 +29,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:gravity="center">
+        android:gravity="center"
+        android:layoutDirection="ltr">
 
         <com.android.systemui.car.hvac.CarUiPortraitTemperatureControlView
             android:id="@+id/driver_hvac"

@@ -114,7 +114,7 @@ public class PropertyHalServiceConfigs {
      * Should only be used in unit tests. Use {@link getInsance} instead.
      */
     @VisibleForTesting
-    /* package */ PropertyHalServiceConfigs(@Nullable FeatureFlags featureFlags) {
+    public PropertyHalServiceConfigs(@Nullable FeatureFlags featureFlags) {
         Trace.traceBegin(TRACE_TAG, "initialize PropertyHalServiceConfigs");
         if (featureFlags == null) {
             mFeatureFlags = new FeatureFlagsImpl();

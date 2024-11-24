@@ -220,6 +220,6 @@ public final class CarPropertyValueTest extends CarPropertyTestBase {
     @Test
     public void nullValThrowException() {
         assertThrows(NullPointerException.class, () -> new CarPropertyValue<Integer>(PROPERTY_ID,
-                AREA_ID, CarPropertyValue.STATUS_AVAILABLE, TIMESTAMP_NANOS, null));
+                AREA_ID, CarPropertyValue.STATUS_AVAILABLE, TIMESTAMP_NANOS, (Integer) null));
     }
 }

@@ -131,20 +131,52 @@ public final class CarPropertyValue<T> implements Parcelable {
     }
 
     /**
+     * Creates an instance of {@code CarPropertyValue}. The {@code timestampNanos} is the time in
+     * nanoseconds at which the event happened. For a given car property, each new {@code
+     * CarPropertyValue} should be monotonically increasing using the same time base as
+     * {@link android.os.SystemClock#elapsedRealtimeNanos()}.
+     *
+     * @param propertyId The property identifier, see constants in
+     *                   {@link android.car.VehiclePropertyIds} for system defined property IDs.
+     * @param areaId     The area identifier. Must be {@code 0} if property is
+     *                   {@link android.car.VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}. Otherwise, it
+     *                   must be one or more OR'd together constants of this property's
+     *                   {@link android.car.VehicleAreaType}:
+     *                     <ul>
+     *                       <li>{@code VehicleAreaWindow}</li>
+     *                       <li>{@code VehicleAreaDoor}</li>
+     *                       <li>{@link android.car.VehicleAreaSeat}</li>
+     *                       <li>{@code VehicleAreaMirror}</li>
+     *                       <li>{@link android.car.VehicleAreaWheel}</li>
+     *                     </ul>
+     * @param status           The status of the property.
+     * @param timestampNanos   Elapsed time in nanoseconds since boot
+     * @param rawPropertyValue Value of the property.
+     *
+     * @hide
+     */
+    public CarPropertyValue(int propertyId, int areaId, int status, long timestampNanos,
+            RawPropertyValue<T> rawPropertyValue) {
+        mPropertyId = propertyId;
+        mAreaId = areaId;
+        mStatus = status;
+        mTimestampNanos = timestampNanos;
+        mValue = rawPropertyValue;
+    }
+
+    /**
      * @hide
      *
      * @deprecated use {@link CarPropertyValue#CarPropertyValue(int, int, long, T)} instead
      */
     @Deprecated
     public CarPropertyValue(int propertyId, int areaId, int status, long timestampNanos, T value) {
-        Objects.requireNonNull(value, "value for propertyId: "
-                + VehiclePropertyIds.toString(propertyId) + ", areaId: 0x" + toHexString(areaId)
-                + ", status: " + status + " must not be null");
-        mPropertyId = propertyId;
-        mAreaId = areaId;
-        mStatus = status;
-        mTimestampNanos = timestampNanos;
-        mValue = new RawPropertyValue(value);
+
+        this(propertyId, areaId, status, timestampNanos, new RawPropertyValue(
+                Objects.requireNonNull(value, "value for propertyId: "
+                        + VehiclePropertyIds.toString(propertyId) + ", areaId: 0x"
+                        + toHexString(areaId) + ", status: " + status + " must not be null")
+                ));
     }
 
     /**
@@ -262,6 +294,15 @@ public final class CarPropertyValue<T> implements Parcelable {
     @NonNull
     public T getValue() {
         return mValue.getTypedValue();
+    }
+
+    /**
+     * Gets the internal raw property value.
+     *
+     * @hide
+     */
+    public RawPropertyValue getRawPropertyValue() {
+        return mValue;
     }
 
     /** @hide */

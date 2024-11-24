@@ -105,6 +105,7 @@
             android:resumeWhilePausing="true"
             android:exported="true"
             android:windowSoftInputMode="adjustPan"
+            android:theme="@style/ControlBarActivityTheme"
             android:excludeFromRecents="true">
             <meta-data android:name="distractionOptimized" android:value="true"/>
             <intent-filter>

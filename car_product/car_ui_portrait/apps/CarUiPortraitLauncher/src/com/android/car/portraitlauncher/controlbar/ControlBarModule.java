@@ -16,12 +16,15 @@
 
 package com.android.car.portraitlauncher.controlbar;
 
+import android.os.SystemClock;
+
 import androidx.lifecycle.ViewModelProvider;
 
 import com.android.car.carlauncher.Flags;
 import com.android.car.carlauncher.homescreen.audio.AudioCardModel;
 import com.android.car.carlauncher.homescreen.audio.AudioCardModule;
 import com.android.car.carlauncher.homescreen.audio.AudioCardPresenter;
+import com.android.car.carlauncher.homescreen.audio.MediaViewModel;
 import com.android.car.carlauncher.homescreen.audio.dialer.DialerCardPresenter;
 import com.android.car.carlauncher.homescreen.audio.media.MediaCardPresenter;
 
@@ -36,7 +39,10 @@ public class ControlBarModule extends AudioCardModule {
 
             mAudioCardPresenter = new AudioCardPresenter(
                     new DialerCardPresenter(), new MediaCardPresenter());
-            mAudioCardPresenter.setModel(new AudioCardModel(mViewModelProvider));
+            AudioCardModel audioCardModel = new AudioCardModel(
+                    viewModelProvider.get(MediaViewModel.class),
+                    new DialerCardModel(SystemClock.elapsedRealtimeClock()));
+            mAudioCardPresenter.setModel(audioCardModel);
             mAudioCardView = new ControlBarAudioFragment();
             mAudioCardPresenter.setView(mAudioCardView);
         } else {

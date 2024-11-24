@@ -1196,10 +1196,27 @@
         android:label="@string/car_permission_label_bind_app_card_provider"
         android:description="@string/car_permission_desc_bind_app_card_provider" />
 
+    <!-- Allows an application to record vehicle properties.
+         <p>Protection level: signature
+    -->
+    <permission
+        android:name="android.car.permission.RECORD_VEHICLE_PROPERTIES"
+        android:protectionLevel="signature"
+        android:label="@string/car_permission_label_record_vehicle_properties"
+        android:description="@string/car_permission_desc_record_vehicle_properties" />
+
+    <!-- Allows an application to inject vehicle properties.
+         <p>Protection level: signature
+    -->
+    <permission
+        android:name="android.car.permission.INJECT_VEHICLE_PROPERTIES"
+        android:protectionLevel="signature"
+        android:label="@string/car_permission_label_inject_vehicle_properties"
+        android:description="@string/car_permission_desc_inject_vehicle_properties" />
 
     <!-- NOTE: when you're adding a new permission, you should edit
          packages/modules/Permission/tests/cts/permissionpolicy/res/raw/automotive_android_manifest.xml
-         accordingly and run the test with 'atest android.permission2.cts.PermissionPolicyTest'
+         accordingly and run the test with 'atest android.permissionpolicy.cts.PermissionPolicyTest'
          to verify it.
     -->
 

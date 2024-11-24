@@ -21,12 +21,14 @@ import android.car.hardware.CarPropertyValue;
 import android.car.hardware.property.ICarPropertyEventListener;
 
 import com.android.car.internal.property.AsyncPropertyServiceRequest;
-import com.android.car.internal.property.IAsyncPropertyResultCallback;
-import com.android.car.internal.property.CarPropertyConfigList;
 import com.android.car.internal.property.AsyncPropertyServiceRequestList;
+import com.android.car.internal.property.CarPropertyConfigList;
 import com.android.car.internal.property.CarSubscription;
 import com.android.car.internal.property.GetPropertyConfigListResult;
+import com.android.car.internal.property.IAsyncPropertyResultCallback;
+import com.android.car.internal.property.MinMaxSupportedPropertyValue;
 import com.android.car.internal.property.PropIdAreaId;
+import com.android.car.internal.property.RawPropertyValue;
 
 /**
  * @hide
@@ -88,4 +90,29 @@ interface ICarProperty {
      */
     void getAndDispatchInitialValue(in List<PropIdAreaId> propIdAreaIds,
             in ICarPropertyEventListener callback);
+
+    /**
+     * Gets the currently min/max supported value.
+     *
+     * @return The currently supported min/max value.
+     * @throws IllegalArgumentException if [propertyId, areaId] is not supported.
+     * @throws SecurityException if the caller does not have read and does not have write access
+     *      for the property.
+     * @throws ServiceSpecificException If VHAL returns error.
+     */
+    MinMaxSupportedPropertyValue getMinMaxSupportedValue(int propertyId, int areaId);
+
+    /**
+     * Gets the currently supported values list.
+     *
+     * <p>The returned supported value list is in sorted ascending order if the property is of
+     * type int32, int64 or float.
+     *
+     * @return The currently supported values list.
+     * @throws IllegalArgumentException if [propertyId, areaId] is not supported.
+     * @throws SecurityException if the caller does not have read and does not have write access
+     *      for the property.
+     * @throws ServiceSpecificException If VHAL returns error.
+     */
+    @nullable List<RawPropertyValue> getSupportedValuesList(int propertyId, int areaId);
 }

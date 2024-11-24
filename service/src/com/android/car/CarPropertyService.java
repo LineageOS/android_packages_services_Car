@@ -70,7 +70,9 @@ import com.android.car.internal.property.CarSubscription;
 import com.android.car.internal.property.GetPropertyConfigListResult;
 import com.android.car.internal.property.IAsyncPropertyResultCallback;
 import com.android.car.internal.property.InputSanitizationUtils;
+import com.android.car.internal.property.MinMaxSupportedPropertyValue;
 import com.android.car.internal.property.PropIdAreaId;
+import com.android.car.internal.property.RawPropertyValue;
 import com.android.car.internal.property.SubscriptionManager;
 import com.android.car.internal.util.ArrayUtils;
 import com.android.car.internal.util.IndentingPrintWriter;
@@ -1136,6 +1138,62 @@ public class CarPropertyService extends ICarProperty.Stub
     @Override
     public void cancelRequests(int[] serviceRequestIds) {
         mPropertyHalService.cancelRequests(serviceRequestIds);
+    }
+
+    /**
+     * Gets the currently min/max supported value.
+     *
+     * @return The currently supported min/max value.
+     * @throws IllegalArgumentException if [propertyId, areaId] is not supported.
+     * @throws SecurityException if the caller does not have read and does not have write access
+     *      for the property.
+     * @throws ServiceSpecificException If VHAL returns error.
+     */
+    @Override
+    public MinMaxSupportedPropertyValue getMinMaxSupportedValue(int propertyId, int areaId) {
+        var areaIdConfig = verifyGetSupportedValueRequestAndGetAreaIdConfig(propertyId, areaId);
+        return mPropertyHalService.getMinMaxSupportedValue(propertyId, areaId, areaIdConfig);
+    }
+
+    /**
+     * Gets the currently supported values list.
+     *
+     * <p>The returned supported value list is in sorted ascending order if the property is of
+     * type int32, int64 or float.
+     *
+     * @return The currently supported values list.
+     * @throws IllegalArgumentException if [propertyId, areaId] is not supported.
+     * @throws SecurityException if the caller does not have read and does not have write access
+     *      for the property.
+     * @throws ServiceSpecificException If VHAL returns error.
+     */
+    @Override
+    public @Nullable List<RawPropertyValue> getSupportedValuesList(int propertyId, int areaId) {
+        var areaIdConfig = verifyGetSupportedValueRequestAndGetAreaIdConfig(propertyId, areaId);
+        return mPropertyHalService.getSupportedValuesList(propertyId, areaId, areaIdConfig);
+    }
+
+    /**
+     * @throws IllegalArgumentException If the propertyId or areaId is not supported.
+     * @throws SecurityException If caller does not have read and does not have write permission.
+     */
+    private AreaIdConfig<?> verifyGetSupportedValueRequestAndGetAreaIdConfig(
+            int propertyId, int areaId) {
+        var config = getCarPropertyConfig(propertyId);
+        var propertyIdStr = VehiclePropertyIds.toString(propertyId);
+        if (config == null) {
+            throw new IllegalArgumentException("The property: " + propertyIdStr
+                    + " is not supported");
+        }
+        // This will throw IllegalArgumentException if areaId is not supported.
+        AreaIdConfig<?> areaIdConfig = config.getAreaIdConfig(areaId);
+
+        if (!mPropertyHalService.isReadable(mContext, propertyId)
+                && !mPropertyHalService.isWritable(mContext, propertyId)) {
+            throw new SecurityException("Caller missing read or write permission to access"
+                    + " property: " + propertyIdStr);
+        }
+        return areaIdConfig;
     }
 
     private void assertPropertyIsReadable(CarPropertyConfig<?> carPropertyConfig,

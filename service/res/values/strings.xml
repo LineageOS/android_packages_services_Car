@@ -739,6 +739,16 @@
     <string name="car_permission_desc_read_persist_tethering_settings">Read car\u2019s persist
         tethering settings</string>
 
+    <!-- Permission text: apps can record vehicle properties [CHAR LIMIT=NONE] -->
+    <string name="car_permission_label_record_vehicle_properties">record vehicle properties</string>
+    <!-- Permission text: apps can record vehicle properties [CHAR LIMIT=NONE] -->
+    <string name="car_permission_desc_record_vehicle_properties">record vehicle properties</string>
+
+    <!-- Permission text: apps can inject vehicle properties [CHAR LIMIT=NONE] -->
+    <string name="car_permission_label_inject_vehicle_properties">inject vehicle properties</string>
+    <!-- Permission text: apps can inject vehicle properties [CHAR LIMIT=NONE] -->
+    <string name="car_permission_desc_inject_vehicle_properties">inject vehicle properties</string>
+
     <!-- Notification messages -->
     <!-- Notification text: Notification shown to the user when vehicle CAN bus fails -->
     <string name="car_can_bus_failure">CAN bus failed</string>
