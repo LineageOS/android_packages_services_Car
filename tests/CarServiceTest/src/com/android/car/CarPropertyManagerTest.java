@@ -24,6 +24,10 @@ import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
 import static org.junit.Assert.assertThrows;
+import static org.mockito.Mockito.after;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.timeout;
+import static org.mockito.Mockito.verify;
 
 import android.annotation.Nullable;
 import android.car.Car;
@@ -39,6 +43,7 @@ import android.car.hardware.property.CarPropertyManager.GetPropertyResult;
 import android.car.hardware.property.CarPropertyManager.PropertyAsyncError;
 import android.car.hardware.property.CarPropertyManager.SetPropertyRequest;
 import android.car.hardware.property.CarPropertyManager.SetPropertyResult;
+import android.car.hardware.property.CarPropertyManager.SupportedValuesChangeCallback;
 import android.car.hardware.property.MinMaxSupportedValue;
 import android.car.hardware.property.PropertyAccessDeniedSecurityException;
 import android.car.hardware.property.PropertyNotAvailableAndRetryException;
@@ -114,6 +119,7 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
     private static final String TEST_VIN = "test_vin";
     private static final int TEST_MIN_INT32_VALUE = 123;
     private static final int TEST_MAX_INT32_VALUE = 321;
+    private static final int DEFAULT_TIMEOUT_MS = 1000;
 
     /**
      * configArray[0], 1 indicates the property has a String value
@@ -1607,6 +1613,53 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
                 VehicleOilLevel.NORMAL);
     }
 
+    private android.hardware.automotive.vehicle.PropIdAreaId newVhalPropIdAreaId(int propId,
+            int areaId) {
+        var vhalPropIdAreaId = new android.hardware.automotive.vehicle.PropIdAreaId();
+        vhalPropIdAreaId.propId = propId;
+        vhalPropIdAreaId.areaId = areaId;
+        return vhalPropIdAreaId;
+    }
+
+    @Test
+    public void testRegisterSupportedValuesChangeCallback() {
+        int propId = PROP_WITH_SUPPORTED_VALUE;
+        // Both areas support registerSupportedValuesChangeCallback.
+        int areaId1 = DRIVER_SIDE_AREA_ID;
+        int areaId2 = VehicleAreaSeat.ROW_3_CENTER;
+        SupportedValuesChangeCallback callback = mock(SupportedValuesChangeCallback.class);
+
+        mManager.registerSupportedValuesChangeCallback(propId, callback);
+
+        getAidlMockedVehicleHal().notifySupportedValueChange(List.of(
+                newVhalPropIdAreaId(propId, areaId1),
+                newVhalPropIdAreaId(propId, areaId2)));
+
+        verify(callback, timeout(DEFAULT_TIMEOUT_MS)).onSupportedValuesChange(propId, areaId1);
+        verify(callback, timeout(DEFAULT_TIMEOUT_MS)).onSupportedValuesChange(propId, areaId2);
+    }
+
+    @Test
+    public void testUnregisterSupportedValuesChangeCallback() {
+        int propId = PROP_WITH_SUPPORTED_VALUE;
+        // Both areas support registerSupportedValuesChangeCallback.
+        int areaId1 = DRIVER_SIDE_AREA_ID;
+        int areaId2 = VehicleAreaSeat.ROW_3_CENTER;
+        SupportedValuesChangeCallback callback = mock(SupportedValuesChangeCallback.class);
+
+        mManager.registerSupportedValuesChangeCallback(propId, callback);
+
+        mManager.unregisterSupportedValuesChangeCallback(propId, areaId1, callback);
+
+        getAidlMockedVehicleHal().notifySupportedValueChange(List.of(
+                newVhalPropIdAreaId(propId, areaId1),
+                newVhalPropIdAreaId(propId, areaId2)));
+
+        verify(callback, after(DEFAULT_TIMEOUT_MS).never()).onSupportedValuesChange(propId,
+                areaId1);
+        verify(callback, timeout(DEFAULT_TIMEOUT_MS)).onSupportedValuesChange(propId, areaId2);
+    }
+
     @Override
     protected void configureMockedHal() {
         PropertyHandler handler = new PropertyHandler();
@@ -1679,6 +1732,9 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
         addAidlProperty(VehicleProperty.DISTANCE_DISPLAY_UNITS);
 
         // Add properties for supported value testing.
+
+        // DRIVER_SIDE_AREA_ID and ROW_3_CENTER has supportedValueInfo
+        // PASSENGER_SIDE_AREA_ID does not.
         VehicleAreaConfig areaConfig = new VehicleAreaConfig();
         areaConfig.areaId = DRIVER_SIDE_AREA_ID;
         areaConfig.minInt32Value = TEST_MIN_INT32_VALUE;
@@ -1688,9 +1744,19 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
         areaConfig.hasSupportedValueInfo.hasMinSupportedValue = true;
         areaConfig.hasSupportedValueInfo.hasMaxSupportedValue = true;
         areaConfig.hasSupportedValueInfo.hasSupportedValuesList = true;
+        VehicleAreaConfig areaConfig2 = new VehicleAreaConfig();
+        areaConfig2.areaId = VehicleAreaSeat.ROW_3_CENTER;
+        areaConfig2.minInt32Value = TEST_MIN_INT32_VALUE;
+        areaConfig2.maxInt32Value = TEST_MAX_INT32_VALUE;
+        areaConfig2.access = VehiclePropertyAccess.READ_WRITE;
+        areaConfig2.hasSupportedValueInfo = new HasSupportedValueInfo();
+        areaConfig2.hasSupportedValueInfo.hasMinSupportedValue = true;
+        areaConfig2.hasSupportedValueInfo.hasMaxSupportedValue = true;
+        areaConfig2.hasSupportedValueInfo.hasSupportedValuesList = true;
         // Passenger side does not have any supported values specified.
         addAidlProperty(PROP_WITH_SUPPORTED_VALUE, mSupportedValueHandler)
-                .addAreaConfig(areaConfig).addAreaConfig(PASSENGER_SIDE_AREA_ID)
+                .addAreaConfig(areaConfig).addAreaConfig(areaConfig2)
+                .addAreaConfig(PASSENGER_SIDE_AREA_ID)
                 .setChangeMode(CarPropertyConfig.VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE);
 
         areaConfig = new VehicleAreaConfig();
