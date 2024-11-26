@@ -25,6 +25,7 @@ import static com.google.common.truth.Truth.assertWithMessage;
 
 import static org.junit.Assert.assertThrows;
 
+import android.annotation.Nullable;
 import android.car.Car;
 import android.car.VehicleAreaType;
 import android.car.VehicleAreaWheel;
@@ -38,15 +39,20 @@ import android.car.hardware.property.CarPropertyManager.GetPropertyResult;
 import android.car.hardware.property.CarPropertyManager.PropertyAsyncError;
 import android.car.hardware.property.CarPropertyManager.SetPropertyRequest;
 import android.car.hardware.property.CarPropertyManager.SetPropertyResult;
+import android.car.hardware.property.MinMaxSupportedValue;
 import android.car.hardware.property.PropertyAccessDeniedSecurityException;
 import android.car.hardware.property.PropertyNotAvailableAndRetryException;
 import android.car.hardware.property.PropertyNotAvailableException;
 import android.car.hardware.property.VehicleHalStatusCode;
+import android.hardware.automotive.vehicle.HasSupportedValueInfo;
 import android.hardware.automotive.vehicle.RawPropValues;
 import android.hardware.automotive.vehicle.VehicleArea;
+import android.hardware.automotive.vehicle.VehicleAreaConfig;
 import android.hardware.automotive.vehicle.VehicleAreaSeat;
+import android.hardware.automotive.vehicle.VehicleOilLevel;
 import android.hardware.automotive.vehicle.VehiclePropValue;
 import android.hardware.automotive.vehicle.VehicleProperty;
+import android.hardware.automotive.vehicle.VehiclePropertyAccess;
 import android.hardware.automotive.vehicle.VehiclePropertyGroup;
 import android.hardware.automotive.vehicle.VehiclePropertyStatus;
 import android.hardware.automotive.vehicle.VehiclePropertyType;
@@ -65,6 +71,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
 
 import com.android.car.hal.test.AidlMockedVehicleHal.VehicleHalPropertyHandler;
+import com.android.car.internal.util.PairSparseArray;
 import com.android.car.test.TestPropertyAsyncCallback;
 
 import com.google.common.truth.Truth;
@@ -105,6 +112,8 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
     private static final String TAG = CarPropertyManagerTest.class.getSimpleName();
 
     private static final String TEST_VIN = "test_vin";
+    private static final int TEST_MIN_INT32_VALUE = 123;
+    private static final int TEST_MAX_INT32_VALUE = 321;
 
     /**
      * configArray[0], 1 indicates the property has a String value
@@ -202,8 +211,15 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
                             VehicleVendorPermission.PERMISSION_SET_VENDOR_CATEGORY_1));
 
     private static final int PROP_ERROR_EVENT_NOT_AVAILABLE_DISABLED =
-            0x1401 | VehiclePropertyGroup.VENDOR | VehiclePropertyType.INT32 |  VehicleArea.GLOBAL;
+            0x1401 | VehiclePropertyGroup.VENDOR | VehiclePropertyType.INT32 | VehicleArea.GLOBAL;
 
+    // A vendor property to test getMinSupportedValue/getMaxSupportedValue/getSupportedValuesList.
+    private static final int PROP_WITH_SUPPORTED_VALUE =
+            0x1501 | VehiclePropertyGroup.VENDOR | VehiclePropertyType.INT32 | VehicleArea.SEAT;
+    // A system property that has defined enum types. This is used to test backward compatible
+    // behavior for getMinSupportedValue/getMaxSupportedValue/getSupportedValuesList.
+    private static final int LEGACY_PROP_WITH_SUPPORTED_VALUE =
+            VehicleProperty.ENGINE_OIL_LEVEL;
 
     // Use FAKE_PROPERTY_ID to test api return null or throw exception.
     private static final int FAKE_PROPERTY_ID = 0x111;
@@ -234,6 +250,8 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
 
     private final HandlerThread mHandlerThread = new HandlerThread(getClass().getSimpleName());
     private Handler mHandler;
+    private SupportedValuePropertyHandler mSupportedValueHandler =
+            new SupportedValuePropertyHandler();
 
     @Rule
     public TestName mTestName = new TestName();
@@ -286,37 +304,6 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
                     assertThat(cfg.getConfigArray()).containsExactlyElementsIn(CONFIG_ARRAY_3)
                             .inOrder();
                     break;
-                case VehiclePropertyIds.HVAC_TEMPERATURE_SET:
-                case PROP_CAUSE_STATUS_CODE_ACCESS_DENIED:
-                case PROP_CAUSE_STATUS_CODE_INTERNAL_ERROR:
-                case PROP_CAUSE_STATUS_CODE_INTERNAL_ERROR_WITH_VENDOR_CODE:
-                case PROP_CAUSE_STATUS_CODE_TRY_AGAIN:
-                case PROP_CAUSE_STATUS_CODE_NOT_AVAILABLE:
-                case PROP_CAUSE_STATUS_CODE_NOT_AVAILABLE_WITH_VENDOR_CODE:
-                case PROP_CAUSE_STATUS_CODE_INVALID_ARG:
-                case PROP_CAUSE_STATUS_CODE_UNKNOWN:
-                case CUSTOM_SEAT_INT_PROP_1:
-                case CUSTOM_SEAT_INT_PROP_2:
-                case CUSTOM_GLOBAL_INT_ARRAY_PROP:
-                case PROP_VALUE_STATUS_ERROR_INT_ARRAY:
-                case PROP_VALUE_STATUS_UNKNOWN_INT_ARRAY:
-                case PROP_VALUE_STATUS_ERROR_BOOLEAN:
-                case PROP_VALUE_STATUS_UNAVAILABLE_INT:
-                case PROP_VALUE_STATUS_UNAVAILABLE_FLOAT:
-                case PROP_VALUE_STATUS_UNAVAILABLE_SEAT:
-                case NULL_VALUE_PROP:
-                case SUPPORT_CUSTOM_PERMISSION:
-                case PROP_WITH_READ_ONLY_PERMISSION:
-                case PROP_WITH_WRITE_ONLY_PERMISSION:
-                case VehiclePropertyIds.INFO_VIN:
-                case VehiclePropertyIds.TIRE_PRESSURE:
-                case VehiclePropertyIds.FUEL_DOOR_OPEN:
-                case VehiclePropertyIds.EPOCH_TIME:
-                case PROP_ERROR_EVENT_NOT_AVAILABLE_DISABLED:
-                case VehiclePropertyIds.DISTANCE_DISPLAY_UNITS:
-                    break;
-                default:
-                    Assert.fail("Unexpected CarPropertyConfig: " + cfg);
             }
         }
     }
@@ -1461,6 +1448,165 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
         assertThat(thrown.getVendorErrorCode()).isEqualTo(VENDOR_CODE_FOR_INTERNAL_ERROR);
     }
 
+    @Test
+    public void testSupportedValuesInfoInAreaConfig() {
+        var config = mManager.getCarPropertyConfig(PROP_WITH_SUPPORTED_VALUE);
+
+        var areaConfig1 = config.getAreaIdConfig(DRIVER_SIDE_AREA_ID);
+        assertThat(areaConfig1.hasMinSupportedValue()).isTrue();
+        assertThat(areaConfig1.hasMaxSupportedValue()).isTrue();
+        assertThat(areaConfig1.hasSupportedValuesList()).isTrue();
+
+        var areaConfig2 = config.getAreaIdConfig(PASSENGER_SIDE_AREA_ID);
+        assertThat(areaConfig2.hasMinSupportedValue()).isFalse();
+        assertThat(areaConfig2.hasMaxSupportedValue()).isFalse();
+        assertThat(areaConfig2.hasSupportedValuesList()).isFalse();
+    }
+
+    @Test
+    public void testSupportedValuesInfoInAreaConfig_isSupportedValuesNotImplemented() {
+        // isSupportedValues APIs are not implemented in VHAL v3.
+        getAidlMockedVehicleHal().setInterfaceVersion(3);
+
+        var config = mManager.getCarPropertyConfig(LEGACY_PROP_WITH_SUPPORTED_VALUE);
+
+        var areaConfig1 = config.getAreaIdConfig(0);
+        assertThat(areaConfig1.hasMinSupportedValue()).isTrue();
+        assertThat(areaConfig1.hasMaxSupportedValue()).isTrue();
+        assertThat(areaConfig1.hasSupportedValuesList()).isTrue();
+    }
+
+    @Test
+    public void testGetMinMaxSupportedValue() {
+        int propId = PROP_WITH_SUPPORTED_VALUE;
+        int areaId = DRIVER_SIDE_AREA_ID;
+        mSupportedValueHandler.setMinSupportedValue(propId, areaId, TEST_MIN_INT32_VALUE);
+        mSupportedValueHandler.setMaxSupportedValue(propId, areaId, TEST_MAX_INT32_VALUE);
+
+        MinMaxSupportedValue<Integer> minMaxSupportedValue =
+                mManager.getMinMaxSupportedValue(propId, areaId);
+
+        assertThat(minMaxSupportedValue.getMinValue()).isEqualTo(TEST_MIN_INT32_VALUE);
+        assertThat(minMaxSupportedValue.getMaxValue()).isEqualTo(TEST_MAX_INT32_VALUE);
+    }
+
+    @Test
+    public void testGetMinMaxSupportedValue_noMinValueSpecified() {
+        int propId = PROP_WITH_SUPPORTED_VALUE;
+        int areaId = DRIVER_SIDE_AREA_ID;
+        mSupportedValueHandler.setMinSupportedValue(propId, areaId, null);
+        mSupportedValueHandler.setMaxSupportedValue(propId, areaId, TEST_MAX_INT32_VALUE);
+
+        MinMaxSupportedValue<Integer> minMaxSupportedValue =
+                mManager.getMinMaxSupportedValue(propId, areaId);
+
+        assertThat(minMaxSupportedValue.getMinValue()).isNull();
+        assertThat(minMaxSupportedValue.getMaxValue()).isEqualTo(TEST_MAX_INT32_VALUE);
+    }
+
+    @Test
+    public void testGetMinMaxSupportedValue_noMaxValueSpecified() {
+        int propId = PROP_WITH_SUPPORTED_VALUE;
+        int areaId = DRIVER_SIDE_AREA_ID;
+        mSupportedValueHandler.setMinSupportedValue(propId, areaId, TEST_MIN_INT32_VALUE);
+        mSupportedValueHandler.setMaxSupportedValue(propId, areaId, null);
+
+        MinMaxSupportedValue<Integer> minMaxSupportedValue =
+                mManager.getMinMaxSupportedValue(propId, areaId);
+
+        assertThat(minMaxSupportedValue.getMinValue()).isEqualTo(TEST_MIN_INT32_VALUE);
+        assertThat(minMaxSupportedValue.getMaxValue()).isNull();
+    }
+
+    @Test
+    public void testGetMinMaxSupportedValue_supportedValueChange() {
+        int propId = PROP_WITH_SUPPORTED_VALUE;
+        int areaId = DRIVER_SIDE_AREA_ID;
+        mSupportedValueHandler.setMinSupportedValue(propId, areaId, TEST_MIN_INT32_VALUE);
+        mSupportedValueHandler.setMaxSupportedValue(propId, areaId, TEST_MAX_INT32_VALUE);
+
+        MinMaxSupportedValue<Integer> minMaxSupportedValue =
+                mManager.getMinMaxSupportedValue(propId, areaId);
+
+        assertThat(minMaxSupportedValue.getMinValue()).isEqualTo(TEST_MIN_INT32_VALUE);
+        assertThat(minMaxSupportedValue.getMaxValue()).isEqualTo(TEST_MAX_INT32_VALUE);
+
+        mSupportedValueHandler.setMinSupportedValue(propId, areaId, 1);
+        mSupportedValueHandler.setMaxSupportedValue(propId, areaId, 10);
+
+        minMaxSupportedValue = mManager.getMinMaxSupportedValue(propId, areaId);
+
+        assertThat(minMaxSupportedValue.getMinValue()).isEqualTo(1);
+        assertThat(minMaxSupportedValue.getMaxValue()).isEqualTo(10);
+    }
+
+    // If VHAL does not implement getMinMaxSupportedValues, then we always get the value from static
+    // areaId config.
+    @Test
+    public void testGetMinMaxSupportedValue_isSupportedValuesNotImplemented() {
+        getAidlMockedVehicleHal().setInterfaceVersion(3);
+        int propId = LEGACY_PROP_WITH_SUPPORTED_VALUE;
+        int areaId = 0;
+
+        MinMaxSupportedValue<Integer> minMaxSupportedValue =
+                mManager.getMinMaxSupportedValue(propId, areaId);
+
+        assertThat(minMaxSupportedValue.getMinValue()).isEqualTo(TEST_MIN_INT32_VALUE);
+        assertThat(minMaxSupportedValue.getMaxValue()).isEqualTo(TEST_MAX_INT32_VALUE);
+    }
+
+    @Test
+    public void testGetSupportedValuesList() {
+        int propId = PROP_WITH_SUPPORTED_VALUE;
+        int areaId = DRIVER_SIDE_AREA_ID;
+        mSupportedValueHandler.setSupportedValuesList(propId, areaId, List.of(1, 2, 3));
+
+        List<Integer> supportedValues = mManager.getSupportedValuesList(propId, areaId);
+
+        assertThat(supportedValues).containsExactly(1, 2, 3);
+    }
+
+    @Test
+    public void testGetSupportedValuesList_notSpecified() {
+        int propId = PROP_WITH_SUPPORTED_VALUE;
+        int areaId = DRIVER_SIDE_AREA_ID;
+
+        List<Integer> supportedValues = mManager.getSupportedValuesList(propId, areaId);
+
+        assertThat(supportedValues).isNull();
+    }
+
+    @Test
+    public void testGetSupportedValuesList_supportedValuesChange() {
+        int propId = PROP_WITH_SUPPORTED_VALUE;
+        int areaId = DRIVER_SIDE_AREA_ID;
+        mSupportedValueHandler.setSupportedValuesList(propId, areaId, List.of(1, 2, 3));
+
+        List<Integer> supportedValues = mManager.getSupportedValuesList(propId, areaId);
+
+        assertThat(supportedValues).containsExactly(1, 2, 3);
+
+        mSupportedValueHandler.setSupportedValuesList(propId, areaId, List.of(2, 3, 4));
+
+        supportedValues = mManager.getSupportedValuesList(propId, areaId);
+
+        assertThat(supportedValues).containsExactly(2, 3, 4);
+    }
+
+    // If VHAL does not implement getMinMaxSupportedValues, then we always get the value from static
+    // areaId config supportedEnumValues field.
+    @Test
+    public void testGetSupportedValuesList_isSupportedValuesNotImplemented() {
+        getAidlMockedVehicleHal().setInterfaceVersion(3);
+        int propId = LEGACY_PROP_WITH_SUPPORTED_VALUE;
+        int areaId = 0;
+
+        List<Integer> supportedValues = mManager.getSupportedValuesList(propId, areaId);
+
+        assertThat(supportedValues).containsExactly(VehicleOilLevel.LOW,
+                VehicleOilLevel.NORMAL);
+    }
+
     @Override
     protected void configureMockedHal() {
         PropertyHandler handler = new PropertyHandler();
@@ -1531,6 +1677,32 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
 
         addAidlProperty(PROP_UNSUPPORTED, handler);
         addAidlProperty(VehicleProperty.DISTANCE_DISPLAY_UNITS);
+
+        // Add properties for supported value testing.
+        VehicleAreaConfig areaConfig = new VehicleAreaConfig();
+        areaConfig.areaId = DRIVER_SIDE_AREA_ID;
+        areaConfig.minInt32Value = TEST_MIN_INT32_VALUE;
+        areaConfig.maxInt32Value = TEST_MAX_INT32_VALUE;
+        areaConfig.access = VehiclePropertyAccess.READ_WRITE;
+        areaConfig.hasSupportedValueInfo = new HasSupportedValueInfo();
+        areaConfig.hasSupportedValueInfo.hasMinSupportedValue = true;
+        areaConfig.hasSupportedValueInfo.hasMaxSupportedValue = true;
+        areaConfig.hasSupportedValueInfo.hasSupportedValuesList = true;
+        // Passenger side does not have any supported values specified.
+        addAidlProperty(PROP_WITH_SUPPORTED_VALUE, mSupportedValueHandler)
+                .addAreaConfig(areaConfig).addAreaConfig(PASSENGER_SIDE_AREA_ID)
+                .setChangeMode(CarPropertyConfig.VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE);
+
+        areaConfig = new VehicleAreaConfig();
+        areaConfig.areaId = 0;
+        areaConfig.minInt32Value = TEST_MIN_INT32_VALUE;
+        areaConfig.maxInt32Value = TEST_MAX_INT32_VALUE;
+        areaConfig.supportedEnumValues = new long[] {(long) VehicleOilLevel.LOW,
+                (long) VehicleOilLevel.NORMAL};
+        // Legacy property does not support hasSupportedValueInfo.
+        addAidlProperty(LEGACY_PROP_WITH_SUPPORTED_VALUE, mSupportedValueHandler)
+                .addAreaConfig(areaConfig)
+                .setChangeMode(CarPropertyConfig.VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE);
     }
 
     private class PropertyHandler implements VehicleHalPropertyHandler {
@@ -1603,6 +1775,71 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
         @Override
         public synchronized void onPropertyUnsubscribe(int property) {
             Log.d(TAG, "onPropertyUnSubscribe property " + property);
+        }
+    }
+
+    private class SupportedValuePropertyHandler implements VehicleHalPropertyHandler {
+        private PairSparseArray<Integer> mMinValueByPropIdAreaId = new PairSparseArray<>();
+        private PairSparseArray<Integer> mMaxValueByPropIdAreaId = new PairSparseArray<>();
+        private PairSparseArray<List<Integer>> mSupportedValuesListByPropIdAreaId =
+                new PairSparseArray<>();
+
+        void setMinSupportedValue(int propertyId, int areaId, @Nullable Integer value) {
+            if (value == null) {
+                mMinValueByPropIdAreaId.remove(propertyId, areaId);
+                return;
+            }
+            mMinValueByPropIdAreaId.put(propertyId, areaId, value);
+        }
+
+        void setMaxSupportedValue(int propertyId, int areaId, @Nullable Integer value) {
+            if (value == null) {
+                mMaxValueByPropIdAreaId.remove(propertyId, areaId);
+                return;
+            }
+            mMaxValueByPropIdAreaId.put(propertyId, areaId, value);
+        }
+
+        void setSupportedValuesList(int propertyId, int areaId, List<Integer> values) {
+            mSupportedValuesListByPropIdAreaId.put(propertyId, areaId, values);
+        }
+
+        @Override
+        public VehiclePropValue[] onGetMinMaxSupportedValue(int propertyId, int areaId) {
+            var returnValue = new VehiclePropValue[2];
+            var minValue = mMinValueByPropIdAreaId.get(propertyId, areaId);
+            var maxValue = mMaxValueByPropIdAreaId.get(propertyId, areaId);
+            if (minValue != null) {
+                VehiclePropValue minPropValue = new VehiclePropValue();
+                minPropValue.value = new RawPropValues();
+                minPropValue.value.int32Values = new int[]{minValue};
+                returnValue[0] = minPropValue;
+            }
+            if (maxValue != null) {
+                VehiclePropValue maxPropValue = new VehiclePropValue();
+                maxPropValue.value = new RawPropValues();
+                maxPropValue.value.int32Values = new int[]{maxValue};
+                returnValue[1] = maxPropValue;
+            }
+            return returnValue;
+        }
+
+        @Override
+        public @Nullable List<VehiclePropValue> onGetSupportedValuesList(
+                int propertyId, int areaId) {
+            var supportedValues = mSupportedValuesListByPropIdAreaId.get(propertyId, areaId);
+            if (supportedValues == null) {
+                return null;
+            }
+            List<VehiclePropValue> results = new ArrayList<>();
+            for (int i = 0; i < supportedValues.size(); i++) {
+                int supportedValue = supportedValues.get(i);
+                VehiclePropValue propValue = new VehiclePropValue();
+                propValue.value = new RawPropValues();
+                propValue.value.int32Values = new int[]{supportedValue};
+                results.add(propValue);
+            }
+            return results;
         }
     }
 
