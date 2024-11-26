@@ -25,6 +25,7 @@ import android.os.IBinder.DeathRecipient;
 import android.os.RemoteException;
 import android.os.ServiceSpecificException;
 
+import com.android.car.hal.HalAreaConfig;
 import com.android.car.hal.HalPropConfig;
 import com.android.car.hal.HalPropValue;
 import com.android.car.hal.HalPropValueBuilder;
@@ -407,11 +408,12 @@ public abstract class VehicleStub {
     public void cancelRequests(List<Integer> requestIds) {}
 
     /**
-     * Whether this VehicleStub supports dynamic supported values API.
+     * Whether the area config supports dynamic supported values API.
      *
-     * This is only supported on AIDL VHAL >= V4.
+     * This is only supported if area config has non-null
+     * {@code hasSupportedValuesInfo}.
      */
-    public boolean isSupportedValuesImplemented() {
+    public boolean isSupportedValuesImplemented(HalAreaConfig halAreaConfig) {
         return false;
     }
 

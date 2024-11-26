@@ -33,6 +33,7 @@ import static android.car.hardware.property.VehicleHalStatusCode.STATUS_NOT_AVAI
 import static android.car.hardware.property.VehicleHalStatusCode.STATUS_TRY_AGAIN;
 
 import static com.android.car.hal.property.HalPropertyDebugUtils.toAreaIdString;
+import static com.android.car.hal.property.HalPropertyDebugUtils.toHalPropIdAreaIdString;
 import static com.android.car.hal.property.HalPropertyDebugUtils.toHalPropIdAreaIdsString;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DEBUGGING_CODE;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
@@ -1409,7 +1410,7 @@ public class PropertyHalService extends HalServiceBase {
         }
 
         var returnValue = new MinMaxSupportedPropertyValue();
-        if (mVehicleHal.isSupportedValuesImplemented()) {
+        if (mVehicleHal.isSupportedValuesImplemented(newPropIdAreaId(halPropId, areaId))) {
             MinMaxSupportedRawPropValues minMaxRawPropValues =
                     mVehicleHal.getMinMaxSupportedValue(halPropId, areaId);
             if (areaIdConfig.hasMinSupportedValue() && minMaxRawPropValues.minValue() != null) {
@@ -1483,7 +1484,7 @@ public class PropertyHalService extends HalServiceBase {
             return null;
         }
 
-        if (mVehicleHal.isSupportedValuesImplemented()) {
+        if (mVehicleHal.isSupportedValuesImplemented(newPropIdAreaId(halPropId, areaId))) {
             List<RawPropValues> supportedRawPropValues = mVehicleHal.getSupportedValuesList(
                     halPropId, areaId);
             if (supportedRawPropValues == null) {
@@ -1522,13 +1523,6 @@ public class PropertyHalService extends HalServiceBase {
      */
     public void registerSupportedValuesChangeCallback(List<PropIdAreaId> mgrPropIdAreaIds,
             ISupportedValuesChangeCallback callback) {
-        if (!mVehicleHal.isSupportedValuesImplemented()) {
-            Slogf.i(TAG, "Supported Values APIs are not implemented, do nothing for "
-                    + "registerSupportedValuesChangeCallback for %s because supported values are "
-                    + "static.", toDebugString(mgrPropIdAreaIds));
-            return;
-        }
-
         List<PropIdAreaId> halPropIdAreaIds = new ArrayList<>();
         synchronized (mLock) {
             // This must be called within the lock so that unregisterSupportedValuesChangeCallback
@@ -1545,11 +1539,19 @@ public class PropertyHalService extends HalServiceBase {
             }
 
             for (int i = 0; i < mgrPropIdAreaIds.size(); i++) {
+                var halPropIdAreaId = managerToHalPropIdAreaId(mgrPropIdAreaIds.get(i));
+                if (!mVehicleHal.isSupportedValuesImplemented(halPropIdAreaId)) {
+                    Slogf.i(TAG, "Do nothing for registerSupportedValuesChangeCallback for %s "
+                            + "because VHAL does not implement dynamic supported values API for it",
+                            toHalPropIdAreaIdString(halPropIdAreaId));
+                    continue;
+                }
+
                 var registeredCallbacks = mSupportedValuesChangeCallbackByPropIdAreaId.get(
                         mgrPropIdAreaIds.get(i));
                 if (registeredCallbacks == null) {
                     // [propId, areaId] was never registered before. Need to register to VHAL.
-                    halPropIdAreaIds.add(managerToHalPropIdAreaId(mgrPropIdAreaIds.get(i)));
+                    halPropIdAreaIds.add(halPropIdAreaId);
                 }
             }
 
@@ -1579,17 +1581,18 @@ public class PropertyHalService extends HalServiceBase {
      */
     public void unregisterSupportedValuesChangeCallback(List<PropIdAreaId> propIdAreaIds,
             ISupportedValuesChangeCallback callback) {
-        if (!mVehicleHal.isSupportedValuesImplemented()) {
-            Slogf.i(TAG, "Supported Values APIs are not implemented, do nothing for "
-                    + "unregisterSupportedValuesChangeCallback for %s because supported values are "
-                    + "static.", toDebugString(propIdAreaIds));
-            return;
-        }
-
         List<PropIdAreaId> halPropIdAreaIdsToUnregister = new ArrayList<>();
         synchronized (mLock) {
             for (int i = 0; i < propIdAreaIds.size(); i++) {
                 var propIdAreaId = propIdAreaIds.get(i);
+                var halPropIdAreaId = managerToHalPropIdAreaId(propIdAreaId);
+                if (!mVehicleHal.isSupportedValuesImplemented(halPropIdAreaId)) {
+                    Slogf.i(TAG, "Do nothing for unregisterSupportedValuesChangeCallback for %s "
+                            + "because VHAL does not implement dynamic supported values API for it",
+                            toHalPropIdAreaIdString(halPropIdAreaId));
+                    continue;
+                }
+
                 var registeredCallbacks = mSupportedValuesChangeCallbackByPropIdAreaId.get(
                         propIdAreaId);
                 if (registeredCallbacks == null) {

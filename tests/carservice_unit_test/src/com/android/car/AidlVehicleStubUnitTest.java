@@ -44,6 +44,7 @@ import android.hardware.automotive.vehicle.GetValueRequest;
 import android.hardware.automotive.vehicle.GetValueRequests;
 import android.hardware.automotive.vehicle.GetValueResult;
 import android.hardware.automotive.vehicle.GetValueResults;
+import android.hardware.automotive.vehicle.HasSupportedValueInfo;
 import android.hardware.automotive.vehicle.IVehicle;
 import android.hardware.automotive.vehicle.IVehicleCallback;
 import android.hardware.automotive.vehicle.MinMaxSupportedValueResult;
@@ -58,6 +59,7 @@ import android.hardware.automotive.vehicle.StatusCode;
 import android.hardware.automotive.vehicle.SubscribeOptions;
 import android.hardware.automotive.vehicle.SupportedValuesListResult;
 import android.hardware.automotive.vehicle.SupportedValuesListResults;
+import android.hardware.automotive.vehicle.VehicleAreaConfig;
 import android.hardware.automotive.vehicle.VehiclePropConfig;
 import android.hardware.automotive.vehicle.VehiclePropConfigs;
 import android.hardware.automotive.vehicle.VehiclePropError;
@@ -76,6 +78,7 @@ import android.platform.test.ravenwood.RavenwoodRule;
 
 import com.android.car.VehicleStub.AsyncGetSetRequest;
 import com.android.car.VehicleStub.MinMaxSupportedRawPropValues;
+import com.android.car.hal.AidlHalAreaConfig;
 import com.android.car.hal.HalPropConfig;
 import com.android.car.hal.HalPropValue;
 import com.android.car.hal.HalPropValueBuilder;
@@ -1389,24 +1392,43 @@ public final class AidlVehicleStubUnitTest {
     }
 
     @Test
-    public void testisSupportedValuesImplemented_true() throws Exception {
+    public void testIsSupportedValuesImplemented_true() throws Exception {
         when(mAidlVehicle.getInterfaceVersion()).thenReturn(4);
+        var vehicleAreaConfig = new VehicleAreaConfig();
+        vehicleAreaConfig.hasSupportedValueInfo = new HasSupportedValueInfo();
+        var halAreaConfig = new AidlHalAreaConfig(vehicleAreaConfig);
 
-        assertThat(mAidlVehicleStub.isSupportedValuesImplemented()).isTrue();
+        assertThat(mAidlVehicleStub.isSupportedValuesImplemented(halAreaConfig)).isTrue();
     }
 
     @Test
-    public void testisSupportedValuesImplemented_false() throws Exception {
+    public void testIsSupportedValuesImplemented_false() throws Exception {
+        when(mAidlVehicle.getInterfaceVersion()).thenReturn(4);
+        // VechielAreaConfig has null hasSupportedValueInfo
+        var vehicleAreaConfig = new VehicleAreaConfig();
+        var halAreaConfig = new AidlHalAreaConfig(vehicleAreaConfig);
+
+        assertThat(mAidlVehicleStub.isSupportedValuesImplemented(halAreaConfig)).isFalse();
+    }
+
+    @Test
+    public void testIsSupportedValuesImplemented_vhalInterfaceVersionTooLow() throws Exception {
         when(mAidlVehicle.getInterfaceVersion()).thenReturn(3);
+        var vehicleAreaConfig = new VehicleAreaConfig();
+        vehicleAreaConfig.hasSupportedValueInfo = new HasSupportedValueInfo();
+        var halAreaConfig = new AidlHalAreaConfig(vehicleAreaConfig);
 
-        assertThat(mAidlVehicleStub.isSupportedValuesImplemented()).isFalse();
+        assertThat(mAidlVehicleStub.isSupportedValuesImplemented(halAreaConfig)).isFalse();
     }
 
     @Test
-    public void testisSupportedValuesImplemented_RemoteException() throws Exception {
+    public void testIsSupportedValuesImplemented_RemoteException() throws Exception {
         when(mAidlVehicle.getInterfaceVersion()).thenThrow(new RemoteException());
+        var vehicleAreaConfig = new VehicleAreaConfig();
+        vehicleAreaConfig.hasSupportedValueInfo = new HasSupportedValueInfo();
+        var halAreaConfig = new AidlHalAreaConfig(vehicleAreaConfig);
 
-        assertThat(mAidlVehicleStub.isSupportedValuesImplemented()).isFalse();
+        assertThat(mAidlVehicleStub.isSupportedValuesImplemented(halAreaConfig)).isFalse();
     }
 
     @Test

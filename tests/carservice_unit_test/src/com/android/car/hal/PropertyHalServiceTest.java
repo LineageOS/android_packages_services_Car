@@ -2849,7 +2849,8 @@ public class PropertyHalServiceTest extends AbstractExpectableTestCase{
 
     @Test
     public void testGetMinMaxSupportedValue_dynamicSupportedValuesNotSupported() {
-        when(mVehicleHal.isSupportedValuesImplemented()).thenReturn(false);
+        when(mVehicleHal.isSupportedValuesImplemented(
+                newPropIdAreaId(PERF_VEHICLE_SPEED, 0))).thenReturn(false);
         int areaId = 0;
         float minValue = 1.23f;
         float maxValue = 3.21f;
@@ -2867,7 +2868,8 @@ public class PropertyHalServiceTest extends AbstractExpectableTestCase{
 
     @Test
     public void testGetMinMaxSupportedValue_dynamicSupportedValuesNotSupported_nullMinValue() {
-        when(mVehicleHal.isSupportedValuesImplemented()).thenReturn(false);
+        when(mVehicleHal.isSupportedValuesImplemented(
+                newPropIdAreaId(PERF_VEHICLE_SPEED, 0))).thenReturn(false);
         int areaId = 0;
         float maxValue = 3.21f;
         var areaIdConfig = new AreaIdConfig.Builder(VEHICLE_PROPERTY_ACCESS_READ, areaId)
@@ -2884,7 +2886,8 @@ public class PropertyHalServiceTest extends AbstractExpectableTestCase{
 
     @Test
     public void testGetMinMaxSupportedValue_dynamicSupportedValuesNotSupported_nullMaxValue() {
-        when(mVehicleHal.isSupportedValuesImplemented()).thenReturn(false);
+        when(mVehicleHal.isSupportedValuesImplemented(
+                newPropIdAreaId(PERF_VEHICLE_SPEED, 0))).thenReturn(false);
         int areaId = 0;
         float minValue = 1.23f;
         var areaIdConfig = new AreaIdConfig.Builder(VEHICLE_PROPERTY_ACCESS_READ, areaId)
@@ -2901,7 +2904,8 @@ public class PropertyHalServiceTest extends AbstractExpectableTestCase{
 
     @Test
     public void testGetMinMaxSupportedValue() {
-        when(mVehicleHal.isSupportedValuesImplemented()).thenReturn(true);
+        when(mVehicleHal.isSupportedValuesImplemented(
+                newPropIdAreaId(PERF_VEHICLE_SPEED, 0))).thenReturn(true);
         int areaId = 0;
         float minValue = 1.23f;
         float maxValue = 3.21f;
@@ -2929,7 +2933,7 @@ public class PropertyHalServiceTest extends AbstractExpectableTestCase{
 
     @Test
     public void testGetMinMaxSupportedValue_halPropConfigNotFound() {
-        when(mVehicleHal.isSupportedValuesImplemented()).thenReturn(true);
+        when(mVehicleHal.isSupportedValuesImplemented(any())).thenReturn(true);
         int areaId = 0;
         int mgrPropId = -1;
         var areaIdConfig = new AreaIdConfig.Builder(mgrPropId, areaId).build();
@@ -2943,7 +2947,8 @@ public class PropertyHalServiceTest extends AbstractExpectableTestCase{
 
     @Test
     public void testGetMinMaxSupportedValue_maxValueNull() {
-        when(mVehicleHal.isSupportedValuesImplemented()).thenReturn(true);
+        when(mVehicleHal.isSupportedValuesImplemented(
+                newPropIdAreaId(PERF_VEHICLE_SPEED, 0))).thenReturn(true);
         int areaId = 0;
         float minValue = 1.23f;
         var minRawPropValues = new RawPropValues();
@@ -2968,7 +2973,8 @@ public class PropertyHalServiceTest extends AbstractExpectableTestCase{
 
     @Test
     public void testGetMinMaxSupportedValue_minValueNull() {
-        when(mVehicleHal.isSupportedValuesImplemented()).thenReturn(true);
+        when(mVehicleHal.isSupportedValuesImplemented(
+                newPropIdAreaId(PERF_VEHICLE_SPEED, 0))).thenReturn(true);
         int areaId = 0;
         float maxValue = 3.21f;
         var maxRawPropValues = new RawPropValues();
@@ -2993,7 +2999,8 @@ public class PropertyHalServiceTest extends AbstractExpectableTestCase{
 
     @Test
     public void testGetMinMaxSupportedValue_notSpecified() {
-        when(mVehicleHal.isSupportedValuesImplemented()).thenReturn(true);
+        when(mVehicleHal.isSupportedValuesImplemented(
+                newPropIdAreaId(PERF_VEHICLE_SPEED, 0))).thenReturn(true);
         int areaId = 0;
 
         var areaIdConfig = new AreaIdConfig.Builder(PERF_VEHICLE_SPEED, areaId).build();
@@ -3009,7 +3016,8 @@ public class PropertyHalServiceTest extends AbstractExpectableTestCase{
 
     @Test
     public void testGetSupportedValuesList_dynamicSupportedValuesNotSupported() {
-        when(mVehicleHal.isSupportedValuesImplemented()).thenReturn(false);
+        when(mVehicleHal.isSupportedValuesImplemented(
+                newPropIdAreaId(PERF_VEHICLE_SPEED, 0))).thenReturn(false);
         int areaId = 0;
         var testSupportedValues = new ArrayList<Float>(Arrays.asList(1.1f, 2.2f));
         var areaIdConfig = new AreaIdConfig.Builder(VEHICLE_PROPERTY_ACCESS_READ, areaId)
@@ -3025,7 +3033,8 @@ public class PropertyHalServiceTest extends AbstractExpectableTestCase{
 
     @Test
     public void testGetSupportedValuesList_dynamicSupportedValuesNotSupported_notSpecified() {
-        when(mVehicleHal.isSupportedValuesImplemented()).thenReturn(false);
+        when(mVehicleHal.isSupportedValuesImplemented(
+                newPropIdAreaId(PERF_VEHICLE_SPEED, 0))).thenReturn(false);
         int areaId = 0;
         var testSupportedValues = new ArrayList<Float>(Arrays.asList(1.1f, 2.2f));
         var areaIdConfig = new AreaIdConfig.Builder(VEHICLE_PROPERTY_ACCESS_READ, areaId)
@@ -3039,7 +3048,8 @@ public class PropertyHalServiceTest extends AbstractExpectableTestCase{
 
     @Test
     public void testGetSupportedValuesList() {
-        when(mVehicleHal.isSupportedValuesImplemented()).thenReturn(true);
+        when(mVehicleHal.isSupportedValuesImplemented(
+                newPropIdAreaId(PERF_VEHICLE_SPEED, 0))).thenReturn(true);
         int areaId = 0;
         float value1 = 1.23f;
         float value2 = 3.21f;
@@ -3064,7 +3074,8 @@ public class PropertyHalServiceTest extends AbstractExpectableTestCase{
 
     @Test
     public void testGetSupportedValuesList_returnNull() {
-        when(mVehicleHal.isSupportedValuesImplemented()).thenReturn(true);
+        when(mVehicleHal.isSupportedValuesImplemented(
+                newPropIdAreaId(PERF_VEHICLE_SPEED, 0))).thenReturn(true);
         int areaId = 0;
 
         when(mVehicleHal.getSupportedValuesList(PERF_VEHICLE_SPEED, areaId)).thenReturn(null);
@@ -3079,7 +3090,7 @@ public class PropertyHalServiceTest extends AbstractExpectableTestCase{
 
     @Test
     public void testGetSupportedValuesList_halPropConfigNotFound() {
-        when(mVehicleHal.isSupportedValuesImplemented()).thenReturn(true);
+        when(mVehicleHal.isSupportedValuesImplemented(any())).thenReturn(true);
         int areaId = 0;
         int mgrPropId = -1;
         var areaIdConfig = new AreaIdConfig.Builder(mgrPropId, areaId).build();
@@ -3093,7 +3104,7 @@ public class PropertyHalServiceTest extends AbstractExpectableTestCase{
 
     @Test
     public void testRegisterSupportedValuesChangeCallback() throws Exception {
-        when(mVehicleHal.isSupportedValuesImplemented()).thenReturn(true);
+        when(mVehicleHal.isSupportedValuesImplemented(any())).thenReturn(true);
         var propIdAreaId1 = newPropIdAreaId(HVAC_FAN_SPEED,
                 android.car.VehicleAreaSeat.SEAT_ROW_1_LEFT);
         var propIdAreaId2 = newPropIdAreaId(PERF_VEHICLE_SPEED, 0);
@@ -3120,9 +3131,41 @@ public class PropertyHalServiceTest extends AbstractExpectableTestCase{
     }
 
     @Test
+    public void testRegisterSupportedValuesChangeCallback_ignoreLegacyPropIdAreaIds()
+            throws Exception {
+        var propIdAreaId1 = newPropIdAreaId(HVAC_FAN_SPEED,
+                android.car.VehicleAreaSeat.SEAT_ROW_1_LEFT);
+        var propIdAreaId2 = newPropIdAreaId(PERF_VEHICLE_SPEED, 0);
+        var propIdAreaId3 = newPropIdAreaId(VEHICLE_SPEED_DISPLAY_UNITS, 0);
+        var halPropIdAreaId1 = newPropIdAreaId(VehicleProperty.HVAC_FAN_SPEED,
+                android.car.VehicleAreaSeat.SEAT_ROW_1_LEFT);
+        var halPropIdAreaId2 = newPropIdAreaId(VehicleProperty.PERF_VEHICLE_SPEED, 0);
+        var halPropIdAreaId3 = newPropIdAreaId(VehicleProperty.VEHICLE_SPEED_DISPLAY_UNITS, 0);
+        when(mVehicleHal.isSupportedValuesImplemented(halPropIdAreaId1)).thenReturn(true);
+        when(mVehicleHal.isSupportedValuesImplemented(halPropIdAreaId2)).thenReturn(false);
+        when(mVehicleHal.isSupportedValuesImplemented(halPropIdAreaId3)).thenReturn(true);
+
+        mPropertyHalService.registerSupportedValuesChangeCallback(
+                List.of(propIdAreaId1, propIdAreaId2, propIdAreaId3),
+                mSupportedValuesChangeCallback);
+
+        ArgumentCaptor<List> propIdAreaIdsCaptor = ArgumentCaptor.forClass(List.class);
+        verify(mVehicleHal).registerSupportedValuesChange(any(), propIdAreaIdsCaptor.capture());
+
+        var requestedPropIdAreaIds = (List<PropIdAreaId>) propIdAreaIdsCaptor.getValue();
+        assertThat(requestedPropIdAreaIds).hasSize(2);
+        expectThat(requestedPropIdAreaIds.get(0).propId).isEqualTo(VehicleProperty.HVAC_FAN_SPEED);
+        expectThat(requestedPropIdAreaIds.get(0).areaId).isEqualTo(
+                android.car.VehicleAreaSeat.SEAT_ROW_1_LEFT);
+        expectThat(requestedPropIdAreaIds.get(1).propId).isEqualTo(
+                VehicleProperty.VEHICLE_SPEED_DISPLAY_UNITS);
+        expectThat(requestedPropIdAreaIds.get(1).areaId).isEqualTo(0);
+    }
+
+    @Test
     public void testRegisterSupportedValuesChangeCallback_ignoreRegisteredPropIdAreaId()
             throws Exception {
-        when(mVehicleHal.isSupportedValuesImplemented()).thenReturn(true);
+        when(mVehicleHal.isSupportedValuesImplemented(any())).thenReturn(true);
         var propIdAreaId1 = newPropIdAreaId(HVAC_FAN_SPEED,
                 android.car.VehicleAreaSeat.SEAT_ROW_1_LEFT);
         var propIdAreaId2 = newPropIdAreaId(PERF_VEHICLE_SPEED, 0);
@@ -3152,7 +3195,7 @@ public class PropertyHalServiceTest extends AbstractExpectableTestCase{
     @Test
     public void testRegisterSupportedValuesChangeCallback_binderAlreadyDead()
             throws Exception {
-        when(mVehicleHal.isSupportedValuesImplemented()).thenReturn(true);
+        when(mVehicleHal.isSupportedValuesImplemented(any())).thenReturn(true);
         var propIdAreaId = newPropIdAreaId(HVAC_FAN_SPEED,
                 android.car.VehicleAreaSeat.SEAT_ROW_1_LEFT);
         doThrow(new RemoteException()).when(mSupportedValuesChangeCallbackBinder)
@@ -3165,7 +3208,7 @@ public class PropertyHalServiceTest extends AbstractExpectableTestCase{
 
     @Test
     public void testRegisterSupportedValuesChangeCallback_errorFromVhal() throws Exception {
-        when(mVehicleHal.isSupportedValuesImplemented()).thenReturn(true);
+        when(mVehicleHal.isSupportedValuesImplemented(any())).thenReturn(true);
         var propIdAreaId = newPropIdAreaId(HVAC_FAN_SPEED,
                 android.car.VehicleAreaSeat.SEAT_ROW_1_LEFT);
         doThrow(new ServiceSpecificException(0)).when(mVehicleHal)
@@ -3186,7 +3229,7 @@ public class PropertyHalServiceTest extends AbstractExpectableTestCase{
 
     @Test
     public void testRegisterSupportedValuesChangeCallback_binderDeath() throws Exception {
-        when(mVehicleHal.isSupportedValuesImplemented()).thenReturn(true);
+        when(mVehicleHal.isSupportedValuesImplemented(any())).thenReturn(true);
         var propIdAreaId = newPropIdAreaId(VEHICLE_SPEED_DISPLAY_UNITS, 0);
 
         mPropertyHalService.registerSupportedValuesChangeCallback(
@@ -3212,7 +3255,7 @@ public class PropertyHalServiceTest extends AbstractExpectableTestCase{
     @Test
     public void testRegisterSupportedValuesChangeCallback_supportedValuesNotImplemented()
             throws Exception {
-        when(mVehicleHal.isSupportedValuesImplemented()).thenReturn(false);
+        when(mVehicleHal.isSupportedValuesImplemented(any())).thenReturn(false);
         var propIdAreaId = newPropIdAreaId(HVAC_FAN_SPEED,
                 android.car.VehicleAreaSeat.SEAT_ROW_1_LEFT);
 
@@ -3224,7 +3267,7 @@ public class PropertyHalServiceTest extends AbstractExpectableTestCase{
 
     @Test
     public void testOnSupportedValuesChange() throws Exception {
-        when(mVehicleHal.isSupportedValuesImplemented()).thenReturn(true);
+        when(mVehicleHal.isSupportedValuesImplemented(any())).thenReturn(true);
         var propIdAreaId1 = newPropIdAreaId(HVAC_FAN_SPEED,
                 android.car.VehicleAreaSeat.SEAT_ROW_1_LEFT);
         var propIdAreaId2 = newPropIdAreaId(PERF_VEHICLE_SPEED, 0);
@@ -3252,7 +3295,7 @@ public class PropertyHalServiceTest extends AbstractExpectableTestCase{
 
     @Test
     public void testOnSupportedValuesChange_noRegisteredClients() throws Exception {
-        when(mVehicleHal.isSupportedValuesImplemented()).thenReturn(true);
+        when(mVehicleHal.isSupportedValuesImplemented(any())).thenReturn(true);
         var halPropIdAreaId = newPropIdAreaId(VehicleProperty.VEHICLE_SPEED_DISPLAY_UNITS, 0);
 
         mPropertyHalService.onSupportedValuesChange(List.of(halPropIdAreaId));
@@ -3262,7 +3305,7 @@ public class PropertyHalServiceTest extends AbstractExpectableTestCase{
 
     @Test
     public void testUnregisterSupportedValuesChangeCallback() throws Exception {
-        when(mVehicleHal.isSupportedValuesImplemented()).thenReturn(true);
+        when(mVehicleHal.isSupportedValuesImplemented(any())).thenReturn(true);
         var propIdAreaId1 = newPropIdAreaId(HVAC_FAN_SPEED,
                 android.car.VehicleAreaSeat.SEAT_ROW_1_LEFT);
         var propIdAreaId2 = newPropIdAreaId(PERF_VEHICLE_SPEED, 0);
@@ -3301,7 +3344,7 @@ public class PropertyHalServiceTest extends AbstractExpectableTestCase{
 
     @Test
     public void testUnregisterSupportedValuesChangeCallback_ignoreUnregistered() throws Exception {
-        when(mVehicleHal.isSupportedValuesImplemented()).thenReturn(true);
+        when(mVehicleHal.isSupportedValuesImplemented(any())).thenReturn(true);
         var propIdAreaId1 = newPropIdAreaId(HVAC_FAN_SPEED,
                 android.car.VehicleAreaSeat.SEAT_ROW_1_LEFT);
 
@@ -3315,7 +3358,7 @@ public class PropertyHalServiceTest extends AbstractExpectableTestCase{
     @Test
     public void testUnregisterSupportedValuesChangeCallback_supportedValuesNotImplemented()
             throws Exception {
-        when(mVehicleHal.isSupportedValuesImplemented()).thenReturn(false);
+        when(mVehicleHal.isSupportedValuesImplemented(any())).thenReturn(false);
         var propIdAreaId1 = newPropIdAreaId(HVAC_FAN_SPEED,
                 android.car.VehicleAreaSeat.SEAT_ROW_1_LEFT);
 
