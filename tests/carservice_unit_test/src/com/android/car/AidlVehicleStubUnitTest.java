@@ -503,7 +503,8 @@ public final class AidlVehicleStubUnitTest {
 
         verify(mAsyncCallback, timeout(1000)).onGetAsyncResults(
                 argumentCaptor.capture());
-        assertThat(argumentCaptor.getValue().get(0).getErrorCode()).isEqualTo(
+        assertThat(argumentCaptor.getValue().get(0).getCarPropertyErrorCodes()
+                .getCarPropertyManagerErrorCode()).isEqualTo(
                 CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR);
     }
 
@@ -525,7 +526,8 @@ public final class AidlVehicleStubUnitTest {
 
         verify(mAsyncCallback, timeout(1000)).onGetAsyncResults(
                 argumentCaptor.capture());
-        assertThat(argumentCaptor.getValue().get(0).getErrorCode()).isEqualTo(
+        assertThat(argumentCaptor.getValue().get(0).getCarPropertyErrorCodes()
+                .getCarPropertyManagerErrorCode()).isEqualTo(
                 CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR);
     }
 
@@ -538,7 +540,8 @@ public final class AidlVehicleStubUnitTest {
 
         verify(mAsyncCallback, timeout(1000)).onGetAsyncResults(
                 argumentCaptor.capture());
-        assertThat(argumentCaptor.getValue().get(0).getErrorCode()).isEqualTo(
+        assertThat(argumentCaptor.getValue().get(0).getCarPropertyErrorCodes()
+                .getCarPropertyManagerErrorCode()).isEqualTo(
                 CarPropertyErrorCodes.STATUS_TRY_AGAIN);
     }
 
@@ -551,7 +554,8 @@ public final class AidlVehicleStubUnitTest {
 
         verify(mAsyncCallback, timeout(1000)).onGetAsyncResults(
                 argumentCaptor.capture());
-        assertThat(argumentCaptor.getValue().get(0).getErrorCode()).isEqualTo(
+        assertThat(argumentCaptor.getValue().get(0).getCarPropertyErrorCodes()
+                .getCarPropertyManagerErrorCode()).isEqualTo(
                 CarPropertyManager.STATUS_ERROR_NOT_AVAILABLE);
     }
 
@@ -564,7 +568,8 @@ public final class AidlVehicleStubUnitTest {
 
         verify(mAsyncCallback, timeout(1000)).onGetAsyncResults(
                 argumentCaptor.capture());
-        assertThat(argumentCaptor.getValue().get(0).getErrorCode()).isEqualTo(
+        assertThat(argumentCaptor.getValue().get(0).getCarPropertyErrorCodes()
+                .getCarPropertyManagerErrorCode()).isEqualTo(
                 CarPropertyManager.STATUS_ERROR_NOT_AVAILABLE);
     }
 
@@ -577,7 +582,8 @@ public final class AidlVehicleStubUnitTest {
 
         verify(mAsyncCallback, timeout(1000)).onGetAsyncResults(
                 argumentCaptor.capture());
-        assertThat(argumentCaptor.getValue().get(0).getErrorCode()).isEqualTo(
+        assertThat(argumentCaptor.getValue().get(0).getCarPropertyErrorCodes()
+                .getCarPropertyManagerErrorCode()).isEqualTo(
                 CarPropertyManager.STATUS_ERROR_NOT_AVAILABLE);
     }
 
@@ -590,7 +596,8 @@ public final class AidlVehicleStubUnitTest {
 
         verify(mAsyncCallback, timeout(1000)).onGetAsyncResults(
                 argumentCaptor.capture());
-        assertThat(argumentCaptor.getValue().get(0).getErrorCode()).isEqualTo(
+        assertThat(argumentCaptor.getValue().get(0).getCarPropertyErrorCodes()
+                .getCarPropertyManagerErrorCode()).isEqualTo(
                 CarPropertyManager.STATUS_ERROR_NOT_AVAILABLE);
     }
 
@@ -604,7 +611,8 @@ public final class AidlVehicleStubUnitTest {
 
         verify(mAsyncCallback, timeout(1000)).onGetAsyncResults(
                 argumentCaptor.capture());
-        assertThat(argumentCaptor.getValue().get(0).getErrorCode()).isEqualTo(
+        assertThat(argumentCaptor.getValue().get(0).getCarPropertyErrorCodes()
+                .getCarPropertyManagerErrorCode()).isEqualTo(
                 CarPropertyManager.STATUS_ERROR_NOT_AVAILABLE);
     }
 
@@ -617,7 +625,8 @@ public final class AidlVehicleStubUnitTest {
 
         verify(mAsyncCallback, timeout(1000)).onGetAsyncResults(
                 argumentCaptor.capture());
-        assertThat(argumentCaptor.getValue().get(0).getErrorCode()).isEqualTo(
+        assertThat(argumentCaptor.getValue().get(0).getCarPropertyErrorCodes()
+                .getCarPropertyManagerErrorCode()).isEqualTo(
                 CarPropertyManager.STATUS_ERROR_NOT_AVAILABLE);
     }
 
@@ -1125,7 +1134,8 @@ public final class AidlVehicleStubUnitTest {
         verify(mAsyncCallback, timeout(1000)).onSetAsyncResults(argumentCaptor.capture());
         assertThat(argumentCaptor.getValue()).hasSize(1);
         assertThat(argumentCaptor.getValue().get(0).getServiceRequestId()).isEqualTo(0);
-        assertThat(argumentCaptor.getValue().get(0).getErrorCode()).isEqualTo(STATUS_OK);
+        assertThat(argumentCaptor.getValue().get(0).getCarPropertyErrorCodes()
+                .getCarPropertyManagerErrorCode()).isEqualTo(STATUS_OK);
     }
 
     @Test
@@ -1140,7 +1150,8 @@ public final class AidlVehicleStubUnitTest {
         verify(mAsyncCallback, timeout(1000)).onSetAsyncResults(argumentCaptor.capture());
         assertThat(argumentCaptor.getValue()).hasSize(1);
         assertThat(argumentCaptor.getValue().get(0).getServiceRequestId()).isEqualTo(0);
-        assertThat(argumentCaptor.getValue().get(0).getErrorCode()).isEqualTo(
+        assertThat(argumentCaptor.getValue().get(0).getCarPropertyErrorCodes()
+                .getCarPropertyManagerErrorCode()).isEqualTo(
                 CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR);
     }
 
@@ -1157,7 +1168,8 @@ public final class AidlVehicleStubUnitTest {
         verify(mAsyncCallback, timeout(1000)).onSetAsyncResults(argumentCaptor.capture());
         assertThat(argumentCaptor.getValue()).hasSize(1);
         assertThat(argumentCaptor.getValue().get(0).getServiceRequestId()).isEqualTo(0);
-        assertThat(argumentCaptor.getValue().get(0).getErrorCode()).isEqualTo(
+        assertThat(argumentCaptor.getValue().get(0).getCarPropertyErrorCodes()
+                .getCarPropertyManagerErrorCode()).isEqualTo(
                 CarPropertyErrorCodes.STATUS_TRY_AGAIN);
     }
 
@@ -1174,7 +1186,8 @@ public final class AidlVehicleStubUnitTest {
         verify(mAsyncCallback, timeout(1000)).onSetAsyncResults(argumentCaptor.capture());
         assertThat(argumentCaptor.getValue()).hasSize(1);
         assertThat(argumentCaptor.getValue().get(0).getServiceRequestId()).isEqualTo(0);
-        assertThat(argumentCaptor.getValue().get(0).getErrorCode()).isEqualTo(
+        assertThat(argumentCaptor.getValue().get(0).getCarPropertyErrorCodes()
+                .getCarPropertyManagerErrorCode()).isEqualTo(
                 CarPropertyManager.STATUS_ERROR_NOT_AVAILABLE);
     }
 
@@ -1191,7 +1204,8 @@ public final class AidlVehicleStubUnitTest {
         verify(mAsyncCallback, timeout(1000)).onSetAsyncResults(argumentCaptor.capture());
         assertThat(argumentCaptor.getValue()).hasSize(1);
         assertThat(argumentCaptor.getValue().get(0).getServiceRequestId()).isEqualTo(0);
-        assertThat(argumentCaptor.getValue().get(0).getErrorCode()).isEqualTo(
+        assertThat(argumentCaptor.getValue().get(0).getCarPropertyErrorCodes()
+                .getCarPropertyManagerErrorCode()).isEqualTo(
                 CarPropertyManager.STATUS_ERROR_NOT_AVAILABLE);
     }
 
@@ -1208,7 +1222,8 @@ public final class AidlVehicleStubUnitTest {
         verify(mAsyncCallback, timeout(1000)).onSetAsyncResults(argumentCaptor.capture());
         assertThat(argumentCaptor.getValue()).hasSize(1);
         assertThat(argumentCaptor.getValue().get(0).getServiceRequestId()).isEqualTo(0);
-        assertThat(argumentCaptor.getValue().get(0).getErrorCode()).isEqualTo(
+        assertThat(argumentCaptor.getValue().get(0).getCarPropertyErrorCodes()
+                .getCarPropertyManagerErrorCode()).isEqualTo(
                 CarPropertyManager.STATUS_ERROR_NOT_AVAILABLE);
     }
 
@@ -1226,7 +1241,8 @@ public final class AidlVehicleStubUnitTest {
         verify(mAsyncCallback, timeout(1000)).onSetAsyncResults(argumentCaptor.capture());
         assertThat(argumentCaptor.getValue()).hasSize(1);
         assertThat(argumentCaptor.getValue().get(0).getServiceRequestId()).isEqualTo(0);
-        assertThat(argumentCaptor.getValue().get(0).getErrorCode()).isEqualTo(
+        assertThat(argumentCaptor.getValue().get(0).getCarPropertyErrorCodes()
+                .getCarPropertyManagerErrorCode()).isEqualTo(
                 CarPropertyManager.STATUS_ERROR_NOT_AVAILABLE);
     }
 
@@ -1244,7 +1260,8 @@ public final class AidlVehicleStubUnitTest {
         verify(mAsyncCallback, timeout(1000)).onSetAsyncResults(argumentCaptor.capture());
         assertThat(argumentCaptor.getValue()).hasSize(1);
         assertThat(argumentCaptor.getValue().get(0).getServiceRequestId()).isEqualTo(0);
-        assertThat(argumentCaptor.getValue().get(0).getErrorCode()).isEqualTo(
+        assertThat(argumentCaptor.getValue().get(0).getCarPropertyErrorCodes()
+                .getCarPropertyManagerErrorCode()).isEqualTo(
                 CarPropertyManager.STATUS_ERROR_NOT_AVAILABLE);
     }
 
@@ -1261,7 +1278,8 @@ public final class AidlVehicleStubUnitTest {
         verify(mAsyncCallback, timeout(1000)).onSetAsyncResults(argumentCaptor.capture());
         assertThat(argumentCaptor.getValue()).hasSize(1);
         assertThat(argumentCaptor.getValue().get(0).getServiceRequestId()).isEqualTo(0);
-        assertThat(argumentCaptor.getValue().get(0).getErrorCode()).isEqualTo(
+        assertThat(argumentCaptor.getValue().get(0).getCarPropertyErrorCodes()
+                .getCarPropertyManagerErrorCode()).isEqualTo(
                 CarPropertyManager.STATUS_ERROR_NOT_AVAILABLE);
     }
 
@@ -1279,9 +1297,11 @@ public final class AidlVehicleStubUnitTest {
         verify(mAsyncCallback, timeout(1000)).onSetAsyncResults(argumentCaptor.capture());
         assertThat(argumentCaptor.getValue()).hasSize(1);
         assertThat(argumentCaptor.getValue().get(0).getServiceRequestId()).isEqualTo(0);
-        assertThat(argumentCaptor.getValue().get(0).getErrorCode()).isEqualTo(
+        assertThat(argumentCaptor.getValue().get(0).getCarPropertyErrorCodes()
+                .getCarPropertyManagerErrorCode()).isEqualTo(
                 CarPropertyManager.STATUS_ERROR_NOT_AVAILABLE);
-        assertThat(argumentCaptor.getValue().get(0).getVendorErrorCode()).isEqualTo(0x1234);
+        assertThat(argumentCaptor.getValue().get(0)
+                .getCarPropertyErrorCodes().getVendorErrorCode()).isEqualTo(0x1234);
     }
 
     @Test

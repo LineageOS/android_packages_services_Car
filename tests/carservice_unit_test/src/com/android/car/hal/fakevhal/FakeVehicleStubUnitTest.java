@@ -678,7 +678,7 @@ public class FakeVehicleStubUnitTest {
         HalPropValue propValue = asyncResult.getHalPropValue();
         expect.that(propValue).isNull();
         expect.that(asyncResult.getServiceRequestId()).isEqualTo(0);
-        expect.that(asyncResult.getErrorCode())
+        expect.that(asyncResult.getCarPropertyErrorCodes().getCarPropertyManagerErrorCode())
             .isEqualTo(CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR);
     }
 
@@ -699,7 +699,7 @@ public class FakeVehicleStubUnitTest {
         GetVehicleStubAsyncResult asyncResult = getAsyncResult.get(0);
         expect.that(asyncResult.getHalPropValue()).isNull();
         expect.that(asyncResult.getServiceRequestId()).isEqualTo(0);
-        expect.that(asyncResult.getErrorCode())
+        expect.that(asyncResult.getCarPropertyErrorCodes().getCarPropertyManagerErrorCode())
                 .isEqualTo(CarPropertyManager.STATUS_ERROR_NOT_AVAILABLE);
     }
 
@@ -719,7 +719,7 @@ public class FakeVehicleStubUnitTest {
         GetVehicleStubAsyncResult asyncResult = getAsyncResult.get(0);
         expect.that(asyncResult.getHalPropValue()).isNull();
         expect.that(asyncResult.getServiceRequestId()).isEqualTo(0);
-        expect.that(asyncResult.getErrorCode())
+        expect.that(asyncResult.getCarPropertyErrorCodes().getCarPropertyManagerErrorCode())
                 .isEqualTo(CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR);
     }
 
@@ -749,7 +749,7 @@ public class FakeVehicleStubUnitTest {
         HalPropValue propValue1 = asyncResult1.getHalPropValue();
         expect.that(asyncResult1.getServiceRequestId()).isEqualTo(0);
         expect.that(propValue1).isNull();
-        expect.that(asyncResult1.getErrorCode())
+        expect.that(asyncResult1.getCarPropertyErrorCodes().getCarPropertyManagerErrorCode())
                 .isEqualTo(CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR);
         GetVehicleStubAsyncResult asyncResult2 = getAsyncResult.get(1);
         HalPropValue propValue2 = asyncResult2.getHalPropValue();
@@ -1027,7 +1027,8 @@ public class FakeVehicleStubUnitTest {
         expect.that(setVehicleStubAsyncResult.getServiceRequestId()).isEqualTo(0);
         expect.that(setVehicleStubAsyncResult.getServiceRequestId())
                 .isEqualTo(newAsyncGetResult.getServiceRequestId());
-        expect.that(setVehicleStubAsyncResult.getErrorCode())
+        expect.that(setVehicleStubAsyncResult.getCarPropertyErrorCodes()
+                .getCarPropertyManagerErrorCode())
                 .isEqualTo(CarPropertyErrorCodes.STATUS_OK);
         expect.that(updatedPropValue.getFloatValue(0)).isEqualTo(10.0f);
         expect.that(updatedPropValue.getFloatValue(0)).isNotEqualTo(oldPropValue.getFloatValue(0));
@@ -1057,7 +1058,8 @@ public class FakeVehicleStubUnitTest {
         List<SetVehicleStubAsyncResult> setAsyncResult = captureOnSetAsyncResults();
         SetVehicleStubAsyncResult setVehicleStubAsyncResult = setAsyncResult.get(0);
         expect.that(setVehicleStubAsyncResult.getServiceRequestId()).isEqualTo(0);
-        expect.that(setVehicleStubAsyncResult.getErrorCode())
+        expect.that(setVehicleStubAsyncResult.getCarPropertyErrorCodes()
+                .getCarPropertyManagerErrorCode())
                 .isEqualTo(CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR);
     }
 
@@ -1080,7 +1082,8 @@ public class FakeVehicleStubUnitTest {
         List<SetVehicleStubAsyncResult> setAsyncResult = captureOnSetAsyncResults();
         SetVehicleStubAsyncResult setVehicleStubAsyncResult = setAsyncResult.get(0);
         expect.that(setVehicleStubAsyncResult.getServiceRequestId()).isEqualTo(0);
-        expect.that(setVehicleStubAsyncResult.getErrorCode())
+        expect.that(setVehicleStubAsyncResult.getCarPropertyErrorCodes()
+                .getCarPropertyManagerErrorCode())
                 .isEqualTo(CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR);
         verify(mMockRealVehicleStub).set(requestPropValue);
     }
@@ -1114,12 +1117,14 @@ public class FakeVehicleStubUnitTest {
         List<SetVehicleStubAsyncResult> setAsyncResult = captureOnSetAsyncResults();
         SetVehicleStubAsyncResult setVehicleStubAsyncResult1 = setAsyncResult.get(0);
         expect.that(setVehicleStubAsyncResult1.getServiceRequestId()).isEqualTo(0);
-        expect.that(setVehicleStubAsyncResult1.getErrorCode())
+        expect.that(setVehicleStubAsyncResult1.getCarPropertyErrorCodes()
+                .getCarPropertyManagerErrorCode())
                 .isEqualTo(CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR);
         verify(mMockRealVehicleStub).set(requestPropValue1);
         SetVehicleStubAsyncResult setVehicleStubAsyncResult2 = setAsyncResult.get(1);
         expect.that(setVehicleStubAsyncResult2.getServiceRequestId()).isEqualTo(1);
-        expect.that(setVehicleStubAsyncResult2.getErrorCode())
+        expect.that(setVehicleStubAsyncResult2.getCarPropertyErrorCodes()
+                .getCarPropertyManagerErrorCode())
                 .isEqualTo(CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR);
     }
 

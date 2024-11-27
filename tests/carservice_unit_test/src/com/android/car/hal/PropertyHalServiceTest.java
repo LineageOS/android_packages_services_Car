@@ -32,6 +32,9 @@ import static android.car.hardware.property.VehicleVendorPermission.PERMISSION_S
 import static android.hardware.automotive.vehicle.VehicleProperty.SUPPORT_CUSTOMIZE_VENDOR_PERMISSION;
 
 import static com.android.car.internal.property.CarPropertyErrorCodes.STATUS_OK;
+import static com.android.car.internal.property.CarPropertyErrorCodes.STATUS_OK_NO_ERROR;
+import static com.android.car.internal.property.CarPropertyErrorCodes.ERROR_CODES_TRY_AGAIN;
+import static com.android.car.internal.property.CarPropertyErrorCodes.ERROR_CODES_INTERNAL;
 import static com.android.car.internal.property.CarPropertyHelper.newPropIdAreaId;
 
 import static com.google.common.truth.Truth.assertThat;
@@ -299,17 +302,6 @@ public class PropertyHalServiceTest extends AbstractExpectableTestCase{
     }
 
     private Object deliverResult(InvocationOnMock invocation, Integer expectedServiceRequestId,
-            int errorCode, HalPropValue propValue, boolean get) {
-        CarPropertyErrorCodes carPropertyErrorCodes =
-                new CarPropertyErrorCodes(
-                        errorCode,
-                        /* vendorErrorCode= */ 0,
-                        /* systemErrorCode= */ 0);
-        return deliverResult(
-                invocation, expectedServiceRequestId, carPropertyErrorCodes, propValue, get);
-    }
-
-    private Object deliverResult(InvocationOnMock invocation, Integer expectedServiceRequestId,
             CarPropertyErrorCodes carPropertyErrorCodes, HalPropValue propValue, boolean get) {
         Object[] args = invocation.getArguments();
         List getVehicleHalRequests = (List) args[0];
@@ -363,12 +355,12 @@ public class PropertyHalServiceTest extends AbstractExpectableTestCase{
 
     private Object deliverOkayGetResult(InvocationOnMock invocation, HalPropValue propValue) {
         return deliverResult(invocation, /* expectedServiceRequestId= */ null,
-                STATUS_OK, propValue, true);
+                STATUS_OK_NO_ERROR, propValue, true);
     }
 
     private Object deliverOkayGetResult(InvocationOnMock invocation,
             Integer expectedServiceRequestId) {
-        return deliverResult(invocation, expectedServiceRequestId, STATUS_OK,
+        return deliverResult(invocation, expectedServiceRequestId, STATUS_OK_NO_ERROR,
                 mPropValue, true);
     }
 
@@ -378,7 +370,7 @@ public class PropertyHalServiceTest extends AbstractExpectableTestCase{
 
     private Object deliverOkaySetResult(InvocationOnMock invocation,
             Integer expectedServiceRequestId) {
-        return deliverResult(invocation, expectedServiceRequestId, STATUS_OK,
+        return deliverResult(invocation, expectedServiceRequestId, STATUS_OK_NO_ERROR,
                 null, false);
     }
 
@@ -389,7 +381,7 @@ public class PropertyHalServiceTest extends AbstractExpectableTestCase{
     private Object deliverTryAgainGetResult(InvocationOnMock invocation,
             Integer expectedServiceRequestId) {
         return deliverResult(invocation, expectedServiceRequestId,
-                CarPropertyErrorCodes.STATUS_TRY_AGAIN, null, true);
+                ERROR_CODES_TRY_AGAIN, null, true);
     }
 
     private Object deliverTryAgainSetResult(InvocationOnMock invocation) {
@@ -399,24 +391,26 @@ public class PropertyHalServiceTest extends AbstractExpectableTestCase{
     private Object deliverTryAgainSetResult(InvocationOnMock invocation,
             Integer expectedServiceRequestId) {
         return deliverResult(invocation, expectedServiceRequestId,
-                CarPropertyErrorCodes.STATUS_TRY_AGAIN, null, false);
+                ERROR_CODES_TRY_AGAIN, null, false);
     }
 
-    private Object deliverErrorGetResult(InvocationOnMock invocation, int errorCode) {
+    private Object deliverErrorGetResult(InvocationOnMock invocation,
+            CarPropertyErrorCodes errorCode) {
         return deliverErrorGetResult(invocation, /* expectedServiceRequestId= */ null, errorCode);
     }
 
     private Object deliverErrorGetResult(InvocationOnMock invocation,
-            Integer expectedServiceRequestId, int errorCode) {
+            Integer expectedServiceRequestId, CarPropertyErrorCodes errorCode) {
         return deliverResult(invocation, expectedServiceRequestId, errorCode, null, true);
     }
 
-    private Object deliverErrorSetResult(InvocationOnMock invocation, int errorCode) {
+    private Object deliverErrorSetResult(InvocationOnMock invocation,
+            CarPropertyErrorCodes errorCode) {
         return deliverErrorSetResult(invocation, /* expectedServiceRequestId= */ null, errorCode);
     }
 
     private Object deliverErrorSetResult(InvocationOnMock invocation,
-            Integer expectedServiceRequestId, int errorCode) {
+            Integer expectedServiceRequestId, CarPropertyErrorCodes errorCode) {
         return deliverResult(invocation, expectedServiceRequestId, errorCode, null, false);
     }
 
@@ -700,7 +694,7 @@ public class PropertyHalServiceTest extends AbstractExpectableTestCase{
     public void testGetCarPropertyValuesAsync_errorResult() throws RemoteException {
         doAnswer((invocation) -> {
             return deliverErrorGetResult(invocation, RECEIVED_REQUEST_ID_1,
-                    CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR);
+                    ERROR_CODES_INTERNAL);
         }).when(mVehicleHal).getAsync(anyList(), any(VehicleStubCallbackInterface.class));
 
         doReturn(mGetAsyncPropertyResultBinder).when(mGetAsyncPropertyResultCallback).asBinder();
@@ -723,10 +717,8 @@ public class PropertyHalServiceTest extends AbstractExpectableTestCase{
     @Test
     public void testGetCarPropertyValuesAsync_errorResultVendorErrorCode() throws RemoteException {
         doAnswer((invocation) -> {
-            CarPropertyErrorCodes errorCodes = new CarPropertyErrorCodes(
-                    CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR,
-                    VENDOR_ERROR_CODE,
-                    SYSTEM_ERROR_CODE);
+            CarPropertyErrorCodes errorCodes = CarPropertyErrorCodes.createFromVhalStatusCode(
+                    SYSTEM_ERROR_CODE | (VENDOR_ERROR_CODE << 16));
             return deliverResult(invocation, RECEIVED_REQUEST_ID_1, errorCodes,
                     /* propValue= */ null, /* get= */ true);
         }).when(mVehicleHal).getAsync(anyList(), any(VehicleStubCallbackInterface.class));
@@ -1095,8 +1087,7 @@ public class PropertyHalServiceTest extends AbstractExpectableTestCase{
         assertThat(getInvocationWrap).hasSize(1);
 
         // Returns the get initial value result, assume we failed to get initial values.
-        deliverErrorGetResult(getInvocationWrap.get(0),
-                CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR);
+        deliverErrorGetResult(getInvocationWrap.get(0), ERROR_CODES_INTERNAL);
 
         verify(mSetAsyncPropertyResultCallback, never()).onSetValueResults(any());
 
@@ -1363,8 +1354,7 @@ public class PropertyHalServiceTest extends AbstractExpectableTestCase{
         // Returns the get initial value result.
         deliverOkayGetResult(getInvocationWrap.get(0));
         // Returns the set value result.
-        deliverErrorSetResult(setInvocationWrap.get(0),
-                CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR);
+        deliverErrorSetResult(setInvocationWrap.get(0), ERROR_CODES_INTERNAL);
 
         // Get init value result must not be passed to the client.
         verify(mSetAsyncPropertyResultCallback, never()).onGetValueResults(any());
@@ -1401,12 +1391,10 @@ public class PropertyHalServiceTest extends AbstractExpectableTestCase{
 
         verify(mVehicleHal).subscribeProperty(any(), mListArgumentCaptor.capture());
         assertThat(mListArgumentCaptor.getValue()).containsExactly(hvacHalSubscribeOption());
-        deliverErrorSetResult(setInvocationWrap.get(0),
-                CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR);
+        deliverErrorSetResult(setInvocationWrap.get(0), ERROR_CODES_INTERNAL);
 
         // The same result is returned again.
-        deliverErrorSetResult(setInvocationWrap.get(0),
-                CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR);
+        deliverErrorSetResult(setInvocationWrap.get(0), ERROR_CODES_INTERNAL);
 
         // We must only call callback once.
         verify(mSetAsyncPropertyResultCallback, times(1)).onSetValueResults(any());
@@ -1443,8 +1431,7 @@ public class PropertyHalServiceTest extends AbstractExpectableTestCase{
         assertThat(getInvocationWrap).hasSize(1);
 
         // Returns the get initial value result, assume we failed to get initial values.
-        deliverErrorGetResult(getInvocationWrap.get(0),
-                CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR);
+        deliverErrorGetResult(getInvocationWrap.get(0), ERROR_CODES_INTERNAL);
         // Returns the set value result.
         deliverOkaySetResult(setInvocationWrap.get(0));
 
@@ -1495,8 +1482,7 @@ public class PropertyHalServiceTest extends AbstractExpectableTestCase{
         assertThat(getInvocationWrap).hasSize(1);
 
         // Returns the get initial value result.
-        deliverErrorGetResult(getInvocationWrap.get(0),
-                CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR);
+        deliverErrorGetResult(getInvocationWrap.get(0), ERROR_CODES_INTERNAL);
         // Returns the set value result.
         deliverOkaySetResult(setInvocationWrap.get(0));
 
@@ -2293,7 +2279,7 @@ public class PropertyHalServiceTest extends AbstractExpectableTestCase{
     public void testOnSetAsyncResults_errorResult() throws RemoteException {
         doAnswer((invocation) -> {
             return deliverErrorSetResult(invocation, RECEIVED_REQUEST_ID_1,
-                    CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR);
+                    ERROR_CODES_INTERNAL);
         }).when(mVehicleHal).setAsync(anyList(), any(VehicleStubCallbackInterface.class));
         doReturn(mSetAsyncPropertyResultBinder).when(mSetAsyncPropertyResultCallback).asBinder();
 

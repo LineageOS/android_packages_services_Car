@@ -16,13 +16,12 @@
 
 package com.android.car;
 
-import static com.android.car.internal.property.CarPropertyErrorCodes.convertVhalStatusCodeToCarPropertyManagerErrorCodes;
+import static com.android.car.internal.property.CarPropertyErrorCodes.createFromVhalStatusCode;
 
 import android.annotation.Nullable;
 import android.car.builtin.os.ServiceManagerHelper;
 import android.car.builtin.os.TraceHelper;
 import android.car.builtin.util.Slogf;
-import android.car.hardware.property.CarPropertyManager;
 import android.car.util.concurrent.AndroidFuture;
 import android.hardware.automotive.vehicle.GetValueRequest;
 import android.hardware.automotive.vehicle.GetValueRequests;
@@ -1101,15 +1100,12 @@ final class AidlVehicleStub extends VehicleStub {
                 GetValueResult vhalResult) {
             if (vhalResult.status != StatusCode.OK) {
                 CarPropertyErrorCodes carPropertyErrorCodes =
-                        convertVhalStatusCodeToCarPropertyManagerErrorCodes(vhalResult.status);
+                        createFromVhalStatusCode(vhalResult.status);
                 return new GetVehicleStubAsyncResult(serviceRequestId, carPropertyErrorCodes);
             } else if (vhalResult.prop == null) {
                 // If status is OKAY but no property is returned, treat it as not_available.
                 return new GetVehicleStubAsyncResult(serviceRequestId,
-                        new CarPropertyErrorCodes(
-                                CarPropertyManager.STATUS_ERROR_NOT_AVAILABLE,
-                                /* vendorErrorCode= */ 0,
-                                /* systemErrorCode= */ 0));
+                        CarPropertyErrorCodes.ERROR_CODES_NOT_AVAILABLE);
             }
             return new GetVehicleStubAsyncResult(serviceRequestId,
                     mPropValueBuilder.build(vhalResult.prop));
@@ -1154,7 +1150,7 @@ final class AidlVehicleStub extends VehicleStub {
                 SetValueResult vhalResult) {
             if (vhalResult.status != StatusCode.OK) {
                 CarPropertyErrorCodes carPropertyErrorCodes =
-                        convertVhalStatusCodeToCarPropertyManagerErrorCodes(vhalResult.status);
+                        createFromVhalStatusCode(vhalResult.status);
                 return new SetVehicleStubAsyncResult(serviceRequestId, carPropertyErrorCodes);
             }
             return new SetVehicleStubAsyncResult(serviceRequestId);
@@ -1226,15 +1222,12 @@ final class AidlVehicleStub extends VehicleStub {
             handleAsyncExceptionFromVhal(
                     asyncRequestsHandler,
                     vehicleStubCallback,
-                    new CarPropertyErrorCodes(
-                            CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR,
-                            /* vendorErrorCode= */ 0,
-                            /* systemErrorCode= */ 0),
+                    CarPropertyErrorCodes.ERROR_CODES_INTERNAL,
                     asyncResultsHandler);
             return;
         } catch (ServiceSpecificException e) {
             CarPropertyErrorCodes carPropertyErrorCodes =
-                    convertVhalStatusCodeToCarPropertyManagerErrorCodes(e.errorCode);
+                    createFromVhalStatusCode(e.errorCode);
             handleAsyncExceptionFromVhal(asyncRequestsHandler, vehicleStubCallback,
                     carPropertyErrorCodes, asyncResultsHandler);
             return;

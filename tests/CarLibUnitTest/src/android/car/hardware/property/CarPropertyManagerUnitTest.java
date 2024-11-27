@@ -1119,11 +1119,7 @@ public final class CarPropertyManagerUnitTest extends AbstractExpectableTestCase
 
         // Call the manager callback after the request is already cancelled.
         GetSetValueResult getValueResult = GetSetValueResult.newErrorResult(
-                0,
-                new CarPropertyErrorCodes(
-                        CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR,
-                        /* vendorErrorCode= */ 0,
-                        /* systemErrorCode= */ 0));
+                0, CarPropertyErrorCodes.ERROR_CODES_INTERNAL);
         assertThat(callbackWrapper.size()).isEqualTo(1);
         callbackWrapper.get(0).onGetValueResults(
                 new GetSetValueResultList(List.of(getValueResult)));
@@ -1234,9 +1230,9 @@ public final class CarPropertyManagerUnitTest extends AbstractExpectableTestCase
             assertThat(getPropertyServiceRequest.getPropertyId()).isEqualTo(HVAC_TEMPERATURE_SET);
 
             GetSetValueResult getValueResult = GetSetValueResult.newErrorResult(
-                     /* requestId= */ 0,
-                    new CarPropertyErrorCodes(
-                            CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR, VENDOR_ERROR_CODE, 0));
+                     /* requestId= */ 0, CarPropertyErrorCodes.createFromVhalStatusCode(
+                            VehicleHalStatusCode.STATUS_INTERNAL_ERROR
+                                    | (VENDOR_ERROR_CODE << 16)));
 
             getAsyncPropertyResultCallback.onGetValueResults(
                     new GetSetValueResultList(List.of(getValueResult)));
@@ -1266,10 +1262,7 @@ public final class CarPropertyManagerUnitTest extends AbstractExpectableTestCase
                     (IAsyncPropertyResultCallback) args[1];
 
             GetSetValueResult getValueResult = GetSetValueResult.newErrorResult(
-                    /* requestId= */ 0,
-                    new CarPropertyErrorCodes(
-                            CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR,
-                            /* vendorErrorCode= */ 0,
+                    /* requestId= */ 0, CarPropertyErrorCodes.createFromVhalStatusCode(
                             VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SPEED_HIGH));
 
             getAsyncPropertyResultCallback.onGetValueResults(
@@ -1757,9 +1750,9 @@ public final class CarPropertyManagerUnitTest extends AbstractExpectableTestCase
             assertThat(setPropertyServiceRequest.getPropertyId()).isEqualTo(HVAC_TEMPERATURE_SET);
 
             GetSetValueResult setValueResult = GetSetValueResult.newErrorSetValueResult(
-                    0,
-                    new CarPropertyErrorCodes(
-                            CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR, VENDOR_ERROR_CODE, 0));
+                    0, CarPropertyErrorCodes.createFromVhalStatusCode(
+                            VehicleHalStatusCode.STATUS_INTERNAL_ERROR
+                                    | (VENDOR_ERROR_CODE << 16)));
 
             setAsyncPropertyResultCallback.onSetValueResults(
                     new GetSetValueResultList(List.of(setValueResult)));

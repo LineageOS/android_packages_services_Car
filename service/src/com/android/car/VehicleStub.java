@@ -135,19 +135,6 @@ public abstract class VehicleStub {
             return mHalPropValue;
         }
 
-        @CarPropMgrErrorCode
-        public int getErrorCode() {
-            return mCarPropertyErrorCodes.getCarPropertyManagerErrorCode();
-        }
-
-        public int getVendorErrorCode() {
-            return mCarPropertyErrorCodes.getVendorErrorCode();
-        }
-
-        public int getSystemErrorCode() {
-            return mCarPropertyErrorCodes.getSystemErrorCode();
-        }
-
         public CarPropertyErrorCodes getCarPropertyErrorCodes() {
             return mCarPropertyErrorCodes;
         }
@@ -181,19 +168,6 @@ public abstract class VehicleStub {
 
         public int getServiceRequestId() {
             return mServiceRequestId;
-        }
-
-        @CarPropMgrErrorCode
-        public int getErrorCode() {
-            return mCarPropertyErrorCodes.getCarPropertyManagerErrorCode();
-        }
-
-        public int getVendorErrorCode() {
-            return mCarPropertyErrorCodes.getVendorErrorCode();
-        }
-
-        public int getSystemErrorCode() {
-            return mCarPropertyErrorCodes.getSystemErrorCode();
         }
 
         public CarPropertyErrorCodes getCarPropertyErrorCodes() {
