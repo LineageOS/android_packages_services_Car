@@ -18,7 +18,6 @@ package com.android.car;
 
 import static android.car.VehiclePropertyIds.HVAC_TEMPERATURE_SET;
 
-import static com.android.car.internal.property.CarPropertyErrorCodes.STATUS_OK;
 import static com.android.car.internal.property.CarPropertyHelper.newPropIdAreaId;
 
 import static com.google.common.truth.Truth.assertThat;
@@ -84,7 +83,6 @@ import com.android.car.hal.HalPropValue;
 import com.android.car.hal.HalPropValueBuilder;
 import com.android.car.hal.VehicleHalCallback;
 import com.android.car.internal.LargeParcelable;
-import com.android.car.internal.property.CarPropertyErrorCodes;
 import com.android.car.logging.HistogramFactoryInterface;
 import com.android.compatibility.common.util.PollingCheck;
 import com.android.modules.expresslog.Histogram;
@@ -504,7 +502,7 @@ public final class AidlVehicleStubUnitTest {
         verify(mAsyncCallback, timeout(1000)).onGetAsyncResults(
                 argumentCaptor.capture());
         assertThat(argumentCaptor.getValue().get(0).getCarPropertyErrorCodes()
-                .getCarPropertyManagerErrorCode()).isEqualTo(
+                .toCarPropertyAsyncErrorCode()).isEqualTo(
                 CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR);
     }
 
@@ -527,7 +525,7 @@ public final class AidlVehicleStubUnitTest {
         verify(mAsyncCallback, timeout(1000)).onGetAsyncResults(
                 argumentCaptor.capture());
         assertThat(argumentCaptor.getValue().get(0).getCarPropertyErrorCodes()
-                .getCarPropertyManagerErrorCode()).isEqualTo(
+                .toCarPropertyAsyncErrorCode()).isEqualTo(
                 CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR);
     }
 
@@ -540,9 +538,8 @@ public final class AidlVehicleStubUnitTest {
 
         verify(mAsyncCallback, timeout(1000)).onGetAsyncResults(
                 argumentCaptor.capture());
-        assertThat(argumentCaptor.getValue().get(0).getCarPropertyErrorCodes()
-                .getCarPropertyManagerErrorCode()).isEqualTo(
-                CarPropertyErrorCodes.STATUS_TRY_AGAIN);
+        assertThat(argumentCaptor.getValue().get(0).getCarPropertyErrorCodes().isTryAgain())
+                .isTrue();
     }
 
     @Test
@@ -555,7 +552,7 @@ public final class AidlVehicleStubUnitTest {
         verify(mAsyncCallback, timeout(1000)).onGetAsyncResults(
                 argumentCaptor.capture());
         assertThat(argumentCaptor.getValue().get(0).getCarPropertyErrorCodes()
-                .getCarPropertyManagerErrorCode()).isEqualTo(
+                .toCarPropertyAsyncErrorCode()).isEqualTo(
                 CarPropertyManager.STATUS_ERROR_NOT_AVAILABLE);
     }
 
@@ -569,7 +566,7 @@ public final class AidlVehicleStubUnitTest {
         verify(mAsyncCallback, timeout(1000)).onGetAsyncResults(
                 argumentCaptor.capture());
         assertThat(argumentCaptor.getValue().get(0).getCarPropertyErrorCodes()
-                .getCarPropertyManagerErrorCode()).isEqualTo(
+                .toCarPropertyAsyncErrorCode()).isEqualTo(
                 CarPropertyManager.STATUS_ERROR_NOT_AVAILABLE);
     }
 
@@ -583,7 +580,7 @@ public final class AidlVehicleStubUnitTest {
         verify(mAsyncCallback, timeout(1000)).onGetAsyncResults(
                 argumentCaptor.capture());
         assertThat(argumentCaptor.getValue().get(0).getCarPropertyErrorCodes()
-                .getCarPropertyManagerErrorCode()).isEqualTo(
+                .toCarPropertyAsyncErrorCode()).isEqualTo(
                 CarPropertyManager.STATUS_ERROR_NOT_AVAILABLE);
     }
 
@@ -597,7 +594,7 @@ public final class AidlVehicleStubUnitTest {
         verify(mAsyncCallback, timeout(1000)).onGetAsyncResults(
                 argumentCaptor.capture());
         assertThat(argumentCaptor.getValue().get(0).getCarPropertyErrorCodes()
-                .getCarPropertyManagerErrorCode()).isEqualTo(
+                .toCarPropertyAsyncErrorCode()).isEqualTo(
                 CarPropertyManager.STATUS_ERROR_NOT_AVAILABLE);
     }
 
@@ -612,7 +609,7 @@ public final class AidlVehicleStubUnitTest {
         verify(mAsyncCallback, timeout(1000)).onGetAsyncResults(
                 argumentCaptor.capture());
         assertThat(argumentCaptor.getValue().get(0).getCarPropertyErrorCodes()
-                .getCarPropertyManagerErrorCode()).isEqualTo(
+                .toCarPropertyAsyncErrorCode()).isEqualTo(
                 CarPropertyManager.STATUS_ERROR_NOT_AVAILABLE);
     }
 
@@ -626,7 +623,7 @@ public final class AidlVehicleStubUnitTest {
         verify(mAsyncCallback, timeout(1000)).onGetAsyncResults(
                 argumentCaptor.capture());
         assertThat(argumentCaptor.getValue().get(0).getCarPropertyErrorCodes()
-                .getCarPropertyManagerErrorCode()).isEqualTo(
+                .toCarPropertyAsyncErrorCode()).isEqualTo(
                 CarPropertyManager.STATUS_ERROR_NOT_AVAILABLE);
     }
 
@@ -1134,8 +1131,8 @@ public final class AidlVehicleStubUnitTest {
         verify(mAsyncCallback, timeout(1000)).onSetAsyncResults(argumentCaptor.capture());
         assertThat(argumentCaptor.getValue()).hasSize(1);
         assertThat(argumentCaptor.getValue().get(0).getServiceRequestId()).isEqualTo(0);
-        assertThat(argumentCaptor.getValue().get(0).getCarPropertyErrorCodes()
-                .getCarPropertyManagerErrorCode()).isEqualTo(STATUS_OK);
+        assertThat(argumentCaptor.getValue().get(0).getCarPropertyErrorCodes().isOkay())
+                .isTrue();
     }
 
     @Test
@@ -1151,7 +1148,7 @@ public final class AidlVehicleStubUnitTest {
         assertThat(argumentCaptor.getValue()).hasSize(1);
         assertThat(argumentCaptor.getValue().get(0).getServiceRequestId()).isEqualTo(0);
         assertThat(argumentCaptor.getValue().get(0).getCarPropertyErrorCodes()
-                .getCarPropertyManagerErrorCode()).isEqualTo(
+                .toCarPropertyAsyncErrorCode()).isEqualTo(
                 CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR);
     }
 
@@ -1168,9 +1165,8 @@ public final class AidlVehicleStubUnitTest {
         verify(mAsyncCallback, timeout(1000)).onSetAsyncResults(argumentCaptor.capture());
         assertThat(argumentCaptor.getValue()).hasSize(1);
         assertThat(argumentCaptor.getValue().get(0).getServiceRequestId()).isEqualTo(0);
-        assertThat(argumentCaptor.getValue().get(0).getCarPropertyErrorCodes()
-                .getCarPropertyManagerErrorCode()).isEqualTo(
-                CarPropertyErrorCodes.STATUS_TRY_AGAIN);
+        assertThat(argumentCaptor.getValue().get(0).getCarPropertyErrorCodes().isTryAgain())
+                .isTrue();
     }
 
     @Test
@@ -1187,7 +1183,7 @@ public final class AidlVehicleStubUnitTest {
         assertThat(argumentCaptor.getValue()).hasSize(1);
         assertThat(argumentCaptor.getValue().get(0).getServiceRequestId()).isEqualTo(0);
         assertThat(argumentCaptor.getValue().get(0).getCarPropertyErrorCodes()
-                .getCarPropertyManagerErrorCode()).isEqualTo(
+                .toCarPropertyAsyncErrorCode()).isEqualTo(
                 CarPropertyManager.STATUS_ERROR_NOT_AVAILABLE);
     }
 
@@ -1205,7 +1201,7 @@ public final class AidlVehicleStubUnitTest {
         assertThat(argumentCaptor.getValue()).hasSize(1);
         assertThat(argumentCaptor.getValue().get(0).getServiceRequestId()).isEqualTo(0);
         assertThat(argumentCaptor.getValue().get(0).getCarPropertyErrorCodes()
-                .getCarPropertyManagerErrorCode()).isEqualTo(
+                .toCarPropertyAsyncErrorCode()).isEqualTo(
                 CarPropertyManager.STATUS_ERROR_NOT_AVAILABLE);
     }
 
@@ -1223,7 +1219,7 @@ public final class AidlVehicleStubUnitTest {
         assertThat(argumentCaptor.getValue()).hasSize(1);
         assertThat(argumentCaptor.getValue().get(0).getServiceRequestId()).isEqualTo(0);
         assertThat(argumentCaptor.getValue().get(0).getCarPropertyErrorCodes()
-                .getCarPropertyManagerErrorCode()).isEqualTo(
+                .toCarPropertyAsyncErrorCode()).isEqualTo(
                 CarPropertyManager.STATUS_ERROR_NOT_AVAILABLE);
     }
 
@@ -1242,7 +1238,7 @@ public final class AidlVehicleStubUnitTest {
         assertThat(argumentCaptor.getValue()).hasSize(1);
         assertThat(argumentCaptor.getValue().get(0).getServiceRequestId()).isEqualTo(0);
         assertThat(argumentCaptor.getValue().get(0).getCarPropertyErrorCodes()
-                .getCarPropertyManagerErrorCode()).isEqualTo(
+                .toCarPropertyAsyncErrorCode()).isEqualTo(
                 CarPropertyManager.STATUS_ERROR_NOT_AVAILABLE);
     }
 
@@ -1261,7 +1257,7 @@ public final class AidlVehicleStubUnitTest {
         assertThat(argumentCaptor.getValue()).hasSize(1);
         assertThat(argumentCaptor.getValue().get(0).getServiceRequestId()).isEqualTo(0);
         assertThat(argumentCaptor.getValue().get(0).getCarPropertyErrorCodes()
-                .getCarPropertyManagerErrorCode()).isEqualTo(
+                .toCarPropertyAsyncErrorCode()).isEqualTo(
                 CarPropertyManager.STATUS_ERROR_NOT_AVAILABLE);
     }
 
@@ -1279,7 +1275,7 @@ public final class AidlVehicleStubUnitTest {
         assertThat(argumentCaptor.getValue()).hasSize(1);
         assertThat(argumentCaptor.getValue().get(0).getServiceRequestId()).isEqualTo(0);
         assertThat(argumentCaptor.getValue().get(0).getCarPropertyErrorCodes()
-                .getCarPropertyManagerErrorCode()).isEqualTo(
+                .toCarPropertyAsyncErrorCode()).isEqualTo(
                 CarPropertyManager.STATUS_ERROR_NOT_AVAILABLE);
     }
 
@@ -1298,7 +1294,7 @@ public final class AidlVehicleStubUnitTest {
         assertThat(argumentCaptor.getValue()).hasSize(1);
         assertThat(argumentCaptor.getValue().get(0).getServiceRequestId()).isEqualTo(0);
         assertThat(argumentCaptor.getValue().get(0).getCarPropertyErrorCodes()
-                .getCarPropertyManagerErrorCode()).isEqualTo(
+                .toCarPropertyAsyncErrorCode()).isEqualTo(
                 CarPropertyManager.STATUS_ERROR_NOT_AVAILABLE);
         assertThat(argumentCaptor.getValue().get(0)
                 .getCarPropertyErrorCodes().getVendorErrorCode()).isEqualTo(0x1234);

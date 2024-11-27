@@ -38,7 +38,6 @@ import static com.android.car.hal.property.HalPropertyDebugUtils.toHalPropIdArea
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DEBUGGING_CODE;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 import static com.android.car.internal.common.CommonConstants.EMPTY_INT_ARRAY;
-import static com.android.car.internal.property.CarPropertyErrorCodes.STATUS_OK;
 import static com.android.car.internal.property.CarPropertyErrorCodes.createFromVhalStatusCode;
 import static com.android.car.internal.property.CarPropertyHelper.isSystemProperty;
 import static com.android.car.internal.property.CarPropertyHelper.newPropIdAreaId;
@@ -622,12 +621,10 @@ public class PropertyHalService extends HalServiceBase {
         private GetSetValueResult parseGetAsyncResults(
                 GetVehicleStubAsyncResult getVehicleStubAsyncResult,
                 AsyncPropRequestInfo clientRequestInfo) {
-            int carPropMgrErrorCode = getVehicleStubAsyncResult
-                    .getCarPropertyErrorCodes().getCarPropertyManagerErrorCode();
-            if (carPropMgrErrorCode != STATUS_OK) {
+            var errorCodes = getVehicleStubAsyncResult.getCarPropertyErrorCodes();
+            if (!errorCodes.isOkay()) {
                 // All other error results will be delivered back through callback.
-                return clientRequestInfo.toErrorResult(
-                        getVehicleStubAsyncResult.getCarPropertyErrorCodes());
+                return clientRequestInfo.toErrorResult(errorCodes);
             }
 
             // For okay status, convert the property value to the type the client expects.
@@ -687,9 +684,8 @@ public class PropertyHalService extends HalServiceBase {
                         continue;
                     }
 
-                    int carPropMgrErrorCode = getVehicleStubAsyncResult
-                            .getCarPropertyErrorCodes().getCarPropertyManagerErrorCode();
-                    if (carPropMgrErrorCode == CarPropertyErrorCodes.STATUS_TRY_AGAIN) {
+                    var errorCodes = getVehicleStubAsyncResult.getCarPropertyErrorCodes();
+                    if (errorCodes.isTryAgain()) {
                         // The request might need to be retried.
                         if (DBG) {
                             Slogf.d(TAG, "request: %s try again", clientRequestInfo);
@@ -721,11 +717,10 @@ public class PropertyHalService extends HalServiceBase {
                                 clientRequestInfo);
                     }
                     // Handle GET_INITIAL_VALUE_FOR_SET result.
-                    int errorCode = result.getCarPropertyErrorCodes()
-                            .getCarPropertyManagerErrorCode();
-                    if (errorCode != STATUS_OK) {
+                    errorCodes = result.getCarPropertyErrorCodes();
+                    if (!errorCodes.isOkay()) {
                         Slogf.w(TAG, "the init value get request: %s failed, ignore the result, "
-                                + "error: %d", clientRequestInfo, errorCode);
+                                + "error: %s", clientRequestInfo, errorCodes);
                         continue;
                     }
                     // If the initial value result is the target value and the async set
@@ -781,21 +776,19 @@ public class PropertyHalService extends HalServiceBase {
                                 serviceRequestId);
                         continue;
                     }
-                    int carPropMgrErrorCode = setVehicleStubAsyncResult.getCarPropertyErrorCodes()
-                            .getCarPropertyManagerErrorCode();
 
-                    if (carPropMgrErrorCode == CarPropertyErrorCodes.STATUS_TRY_AGAIN) {
+                    var errorCodes = setVehicleStubAsyncResult.getCarPropertyErrorCodes();
+                    if (errorCodes.isTryAgain()) {
                         // The request might need to be retried.
                         retryRequests.add(clientRequestInfo);
                         removePendingAsyncPropRequestInfoLocked(clientRequestInfo);
                         continue;
                     }
 
-                    if (carPropMgrErrorCode != STATUS_OK) {
+                    if (!errorCodes.isOkay()) {
                         // All other error results will be delivered back through callback.
                         setValueResults.add(new GetSetValueResultWrapper(clientRequestInfo
-                                .toErrorResult(
-                                        setVehicleStubAsyncResult.getCarPropertyErrorCodes()),
+                                .toErrorResult(errorCodes),
                                 clientRequestInfo.getAsyncRequestStartTime(),
                                 clientRequestInfo.getRetryCount()));
                         removePendingAsyncPropRequestInfoLocked(clientRequestInfo);
@@ -2050,10 +2043,8 @@ public class PropertyHalService extends HalServiceBase {
                     GetSetValueResult errorResult = pendingRequest.toErrorResult(
                             carPropertyErrorCodes);
                     Slogf.w(TAG, "Pending async set request received property set error with "
-                            + "error: %d, vendor error code: %d, fail the pending request: %s",
-                            carPropertyErrorCodes.getCarPropertyManagerErrorCode(),
-                            carPropertyErrorCodes.getVendorErrorCode(),
-                            pendingRequest);
+                            + "error: %s, fail the pending request: %s",
+                            carPropertyErrorCodes, pendingRequest);
                     storeResultForRequest(errorResult, pendingRequest, callbackToSetValueResults);
                 }
             }

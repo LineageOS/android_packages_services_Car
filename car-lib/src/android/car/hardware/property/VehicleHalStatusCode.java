@@ -21,6 +21,7 @@ import android.annotation.NonNull;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.Set;
 
 /**
  * Error codes used in vehicle HAL interface.
@@ -86,6 +87,23 @@ public final class VehicleHalStatusCode {
      * error will be mapped to {@link #STATUS_NOT_AVAILABLE}.
      */
     public static final int STATUS_NOT_AVAILABLE_SAFETY = 10;
+
+    /**
+     * All possible enums.
+     */
+    public static final Set<Integer> VEHICLE_HAL_STATUS_CODES = Set.of(
+            STATUS_OK,
+            STATUS_TRY_AGAIN,
+            STATUS_INVALID_ARG,
+            STATUS_NOT_AVAILABLE,
+            STATUS_ACCESS_DENIED,
+            STATUS_INTERNAL_ERROR,
+            STATUS_NOT_AVAILABLE_DISABLED,
+            STATUS_NOT_AVAILABLE_SPEED_LOW,
+            STATUS_NOT_AVAILABLE_SPEED_HIGH,
+            STATUS_NOT_AVAILABLE_POOR_VISIBILITY,
+            STATUS_NOT_AVAILABLE_SAFETY
+    );
 
     /**
      * Returns a user-friendly representation of a {@code VehicleHalStatusCode}.
