@@ -503,6 +503,7 @@ android.car.hardware.property VehicleHalStatusCode int STATUS_NOT_AVAILABLE_POOR
 android.car.hardware.property VehicleHalStatusCode int STATUS_NOT_AVAILABLE_SAFETY
 android.car.hardware.property VehicleHalStatusCode int STATUS_NOT_AVAILABLE_SPEED_HIGH
 android.car.hardware.property VehicleHalStatusCode int STATUS_NOT_AVAILABLE_SPEED_LOW
+android.car.hardware.property VehicleHalStatusCode int STATUS_NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED
 android.car.hardware.property VehicleHalStatusCode int STATUS_OK
 android.car.hardware.property VehicleHalStatusCode int STATUS_TRY_AGAIN
 android.car.input CarInputManager void onCarDisconnected()

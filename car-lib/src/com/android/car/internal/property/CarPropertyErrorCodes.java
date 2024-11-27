@@ -75,6 +75,8 @@ public final class CarPropertyErrorCodes implements Parcelable {
                     VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SAFETY,
                     DetailedErrorCode.NOT_AVAILABLE_SAFETY);
         }
+        // TODO(b/381298607): Add STATUS_NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED once
+        // NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED is added to DetailedErrorCode.
     }
 
     private static final SparseIntArray PROP_NOT_AVAILABLE_ERROR_CODE_BY_STATUS =
@@ -98,6 +100,11 @@ public final class CarPropertyErrorCodes implements Parcelable {
         PROP_NOT_AVAILABLE_ERROR_CODE_BY_STATUS.put(
                 VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SAFETY,
                 PropertyNotAvailableErrorCode.NOT_AVAILABLE_SAFETY);
+        // TODO(b/381298607): Change the mapping once
+        // NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED is added to PropertyNotAvailableErrorCode.
+        PROP_NOT_AVAILABLE_ERROR_CODE_BY_STATUS.put(
+                VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED,
+                PropertyNotAvailableErrorCode.NOT_AVAILABLE);
     }
 
     /**

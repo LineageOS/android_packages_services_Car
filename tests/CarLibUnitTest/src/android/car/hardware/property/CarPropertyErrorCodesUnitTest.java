@@ -198,4 +198,35 @@ public final class CarPropertyErrorCodesUnitTest extends AbstractExpectableTestC
         assertThat(CarPropertyErrorCodes.getVhalVendorErrorCode(COMBINED_ERROR_CODE)).isEqualTo(
                 VENDOR_ERROR_CODE);
     }
+
+    @Test
+    public void testToDetailedErrorCode_SubsystemNotConnected() {
+        var errorCodes = createFromVhalStatusCode(
+                VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED);
+
+        assertThat(errorCodes.toDetailedErrorCode()).isEqualTo(
+                DetailedErrorCode.NO_DETAILED_ERROR_CODE);
+    }
+
+    // TODO(b/381298607): Update this test once we expose SUBSYSTEM_NOT_CONNECTED to
+    // CarPropertyManager.
+    @Test
+    public void testSubsystemNotConnected() {
+        var errorCodes = createFromVhalStatusCode(
+                VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED);
+
+        assertThat(errorCodes.getVendorErrorCode()).isEqualTo(0);
+        assertThat(errorCodes.getSystemErrorCode()).isEqualTo(
+                VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED);
+        assertThat(errorCodes.toCarPropertyAsyncErrorCode()).isEqualTo(
+                CarPropertyManager.STATUS_ERROR_NOT_AVAILABLE);
+        assertThat(errorCodes.toDetailedErrorCode()).isEqualTo(
+                DetailedErrorCode.NO_DETAILED_ERROR_CODE);
+        PropertyNotAvailableException exception = assertThrows(
+                PropertyNotAvailableException.class, () -> errorCodes.checkAndMaybeThrowException(
+                        /* propertyId= */ 0, /* areaId= */ 0));
+        assertThat(exception.getDetailedErrorCode()).isEqualTo(
+                PropertyNotAvailableErrorCode.NOT_AVAILABLE);
+        assertThat(exception.getVendorErrorCode()).isEqualTo(0);
+    }
 }
