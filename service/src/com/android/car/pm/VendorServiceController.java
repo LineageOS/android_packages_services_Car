@@ -383,9 +383,14 @@ final class VendorServiceController implements UserLifecycleListener {
     }
 
     private void startOrBindServicesForUser(UserHandle user, @Nullable Boolean forPostUnlock) {
+        int userId = user.getIdentifier();
+        if (!mUserManager.isUserRunning(user)) {
+            Slogf.w(TAG, "User %d is not running, skip startOrBindServicesForUser", userId);
+            return;
+        }
+
         boolean unlocked = mUserManager.isUserUnlockingOrUnlocked(user);
         int currentUserId = mCurrentUserFetcher.getCurrentUser();
-        int userId = user.getIdentifier();
         for (VendorServiceInfo service: mVendorServiceInfos) {
             if (forPostUnlock != null
                     && service.shouldStartOnPostUnlock() != forPostUnlock.booleanValue()) {

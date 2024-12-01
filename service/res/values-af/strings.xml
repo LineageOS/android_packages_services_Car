@@ -232,6 +232,10 @@
     <string name="car_permission_desc_manage_car_system_ui" msgid="6201733970421818637">"Kommunikeer met die motorstelsel-UI om taakaansigte te skep of oor stelsel-UI-veranderinge in kennis gestel te word."</string>
     <string name="car_permission_label_read_persist_tethering_settings" msgid="6395145649477916950">"Lees motor se instellings vir volgehoue verbinding"</string>
     <string name="car_permission_desc_read_persist_tethering_settings" msgid="7373546466696896323">"Lees motor se instellings vir volgehoue verbinding"</string>
+    <string name="car_permission_label_record_vehicle_properties" msgid="958971344399611906">"hou rekord van voertuigeienskappe"</string>
+    <string name="car_permission_desc_record_vehicle_properties" msgid="2560365700851584569">"hou rekord van voertuigeienskappe"</string>
+    <string name="car_permission_label_inject_vehicle_properties" msgid="2943134725643169428">"voer voertuigeienskappe in"</string>
+    <string name="car_permission_desc_inject_vehicle_properties" msgid="2616112105084870775">"voer voertuigeienskappe in"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN-bus het misluk"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN-bus reageer nie. Ontprop hoofeenheidkas, prop dit weer in, en herbegin die motor"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"My Toestel"</string>

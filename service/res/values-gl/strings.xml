@@ -232,6 +232,10 @@
     <string name="car_permission_desc_manage_car_system_ui" msgid="6201733970421818637">"Comunicarse coa interface do sistema do coche para crear vistas de tarefas ou recibir notificacións sobre cambios na interface do sistema."</string>
     <string name="car_permission_label_read_persist_tethering_settings" msgid="6395145649477916950">"Ler a configuración de conexión compartida continua do vehículo"</string>
     <string name="car_permission_desc_read_persist_tethering_settings" msgid="7373546466696896323">"Ler a configuración de conexión compartida continua do vehículo"</string>
+    <string name="car_permission_label_record_vehicle_properties" msgid="958971344399611906">"rexistrar propiedades do vehículo"</string>
+    <string name="car_permission_desc_record_vehicle_properties" msgid="2560365700851584569">"rexistrar propiedades do vehículo"</string>
+    <string name="car_permission_label_inject_vehicle_properties" msgid="2943134725643169428">"inserir propiedades do vehículo"</string>
+    <string name="car_permission_desc_inject_vehicle_properties" msgid="2616112105084870775">"inserir propiedades do vehículo"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"Produciuse un erro no bus CAN"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"O bus CAN non responde. Desconecta a caixa da unidade principal, conéctaa de novo e reinicia o coche"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"Dispositivo"</string>

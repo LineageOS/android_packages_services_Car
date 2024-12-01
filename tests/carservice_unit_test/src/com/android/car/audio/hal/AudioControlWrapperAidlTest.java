@@ -1112,12 +1112,11 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
         when(mAudioControl.getOutputMirroringDevices())
                 .thenReturn(List.of(mediaAudioPort, navAudioPort));
 
-        List<HalAudioDeviceInfo> infos = mAudioControlWrapperAidl.getOutputMirroringDevices();
+        var infos = mAudioControlWrapperAidl.getOutputMirroringDevices();
 
-        List<String> addresses = infos.stream().map(HalAudioDeviceInfo::getAddress).toList();
         assertWithMessage("Audio mirroring addresses with valid devices")
-                .that(addresses)
-                .containsExactly(ADDRESS_BUS_MEDIA, ADDRESS_BUS_NAV);
+                .that(infos)
+                .containsExactly(mediaAudioPort, navAudioPort);
     }
 
     @Test

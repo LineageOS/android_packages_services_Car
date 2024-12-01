@@ -232,6 +232,10 @@
     <string name="car_permission_desc_manage_car_system_ui" msgid="6201733970421818637">"與車輛系統 UI 進行通訊，藉此建立工作檢視畫面或接收系統 UI 變更相關通知。"</string>
     <string name="car_permission_label_read_persist_tethering_settings" msgid="6395145649477916950">"讀取車輛的永久性網路共用設定"</string>
     <string name="car_permission_desc_read_persist_tethering_settings" msgid="7373546466696896323">"讀取車輛的永久性網路共用設定"</string>
+    <string name="car_permission_label_record_vehicle_properties" msgid="958971344399611906">"記錄車輛屬性"</string>
+    <string name="car_permission_desc_record_vehicle_properties" msgid="2560365700851584569">"記錄車輛屬性"</string>
+    <string name="car_permission_label_inject_vehicle_properties" msgid="2943134725643169428">"插入車輛屬性"</string>
+    <string name="car_permission_desc_inject_vehicle_properties" msgid="2616112105084870775">"插入車輛屬性"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"控制器區域網路發生問題"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"控制器區域網路無回應。請將主機盒插頭拔下並插回，然後重新啟動車輛"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"我的裝置"</string>

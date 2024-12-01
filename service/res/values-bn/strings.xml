@@ -232,6 +232,10 @@
     <string name="car_permission_desc_manage_car_system_ui" msgid="6201733970421818637">"টাস্কভিউ তৈরি করতে অথবা সিস্টেম UI সংক্রান্ত পরিবর্তন সম্পর্কে জানার জন্য গাড়ির সিস্টেম UI দেখুন।"</string>
     <string name="car_permission_label_read_persist_tethering_settings" msgid="6395145649477916950">"গাড়িতে ফিক্সড টিথারিং সেটিংসের জন্য পড়ুন"</string>
     <string name="car_permission_desc_read_persist_tethering_settings" msgid="7373546466696896323">"গাড়িতে ফিক্সড টিথারিং সেটিংসের জন্য পড়ুন"</string>
+    <string name="car_permission_label_record_vehicle_properties" msgid="958971344399611906">"গাড়ির প্রপার্টি সংক্রান্ত তথ্য রেকর্ড করার অনুমতি দিন"</string>
+    <string name="car_permission_desc_record_vehicle_properties" msgid="2560365700851584569">"গাড়ির প্রপার্টি সংক্রান্ত তথ্য রেকর্ড করার অনুমতি দিন"</string>
+    <string name="car_permission_label_inject_vehicle_properties" msgid="2943134725643169428">"গাড়ির প্রপার্টি সংক্রান্ত তথ্য যোগ করার অনুমতি দিন"</string>
+    <string name="car_permission_desc_inject_vehicle_properties" msgid="2616112105084870775">"গাড়ির প্রপার্টি সংক্রান্ত তথ্য যোগ করার অনুমতি দিন"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN বাস কাজ করছে না"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN বাস কাজ করছে না। হেডইউনিট বক্স খুলে নিয়ে আবার লাগান ও গাড়ি রিস্টার্ট করুন"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"আমার ডিভাইস"</string>

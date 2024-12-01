@@ -26,6 +26,7 @@ import android.hardware.automotive.audiocontrol.AudioDeviceConfiguration;
 import android.hardware.automotive.audiocontrol.AudioZone;
 import android.hardware.automotive.audiocontrol.MutingInfo;
 import android.hardware.automotive.audiocontrol.RoutingDeviceConfiguration;
+import android.media.audio.common.AudioPort;
 
 import com.android.car.audio.CarDuckingInfo;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
@@ -171,7 +172,7 @@ public interface AudioControlWrapper {
      * Returns the list of audio devices that can be used for mirroring between different audio
      * zones.
      */
-    List<HalAudioDeviceInfo> getOutputMirroringDevices();
+    List<AudioPort> getOutputMirroringDevices();
 
     /**
      * List of audio zones used to configure car audio service at bootup.

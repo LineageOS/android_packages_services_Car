@@ -41,6 +41,7 @@ import com.android.car.internal.property.GetPropertyConfigListResult;
 import com.android.car.internal.property.GetSetValueResult;
 import com.android.car.internal.property.GetSetValueResultList;
 import com.android.car.internal.property.IAsyncPropertyResultCallback;
+import com.android.car.internal.property.ISupportedValuesChangeCallback;
 import com.android.car.internal.property.MinMaxSupportedPropertyValue;
 import com.android.car.internal.property.PropIdAreaId;
 import com.android.car.internal.property.RawPropertyValue;
@@ -263,6 +264,12 @@ class FakeCarPropertyService extends ICarProperty.Stub implements CarPropertyCon
         // This is currently unused, so just return null indicating the hardware does not specify
         // supported values list.
         return null;
+    }
+
+    @Override
+    public void registerSupportedValuesChangeCallback(List<PropIdAreaId> propIdAreaIds,
+            ISupportedValuesChangeCallback callback) {
+        // This is currently unused, do nothing.
     }
 
     private void sendEvent(CarPropertyValue v) {

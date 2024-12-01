@@ -87,6 +87,7 @@
         <item name="android:selectableItemBackground">@*android:drawable/item_background</item>
         <item name="android:textColorHint">@*android:color/car_body2</item>
         <item name="android:textColorPrimary">@color/car_on_background</item>
+        <item name="android:textColorAlertDialogListItem">@color/car_on_background</item>
         <item name="android:textColorPrimaryInverse">@color/car_background</item>
         <item name="android:textColorSecondary">@color/car_secondary</item>
         <item name="android:textColorSecondaryInverse">@color/car_on_secondary</item>
@@ -124,6 +125,7 @@
         <item name="android:textColorHint">@*android:color/car_body2</item>
         <item name="android:textColorPrimary">@color/car_on_background</item>
         <item name="android:textColorSecondary">@color/car_secondary</item>
+        <item name="android:textColorAlertDialogListItem">@color/car_on_background</item>
         <item name="android:textAppearanceListItem">@*android:style/TextAppearance.DeviceDefault.Large</item>
         <item name="android:textAppearanceListItemSmall">@*android:style/TextAppearance.DeviceDefault.Large</item>
         <item name="android:textAppearanceListItemSecondary">@*android:style/TextAppearance.DeviceDefault.Small</item>

@@ -16,34 +16,72 @@
 
 package com.android.systemui.car.systembar;
 
-import static com.android.car.caruiportrait.common.service.CarUiPortraitService.INTENT_EXTRA_APP_GRID_VISIBILITY_CHANGE;
-import static com.android.car.caruiportrait.common.service.CarUiPortraitService.INTENT_EXTRA_NOTIFICATION_VISIBILITY_CHANGE;
-import static com.android.car.caruiportrait.common.service.CarUiPortraitService.INTENT_EXTRA_RECENTS_VISIBILITY_CHANGE;
-import static com.android.car.caruiportrait.common.service.CarUiPortraitService.REQUEST_FROM_LAUNCHER;
+import static com.android.systemui.car.displayarea.DisplayAreaComponent.DISPLAY_AREA_VISIBILITY_CHANGED;
+import static com.android.systemui.car.displayarea.DisplayAreaComponent.INTENT_EXTRA_IS_DISPLAY_AREA_VISIBLE;
 
+import android.app.ActivityManager;
+import android.app.ActivityTaskManager;
+import android.app.TaskStackListener;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.RemoteException;
 
-import com.android.systemui.car.displayarea.CarDisplayAreaController;
+import androidx.annotation.GuardedBy;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+
+import com.android.systemui.car.displayarea.TaskCategoryManager;
 
 class CarUiPortraitButtonSelectionStateListener extends ButtonSelectionStateListener {
 
     private CarUiPortraitButtonSelectionStateController mPortraitButtonStateController;
-    private boolean mIsAppGridVisible;
-    private boolean mIsNotificationVisible;
-    private boolean mIsRecentsVisible;
+    private final TaskCategoryManager mTaskCategoryManager;
+    private final Object mLock = new Object();
+
+    @GuardedBy("mLock")
+    private boolean mIsAppGridOnTop;
+    @GuardedBy("mLock")
+    private boolean mIsNotificationOnTop;
+    @GuardedBy("mLock")
+    private boolean mIsRecentOnTop;
+    @GuardedBy("mLock")
+    private boolean mIsPanelVisible;
+
+    private final TaskStackListener mTaskStackListener = new TaskStackListener() {
+        @Override
+        public void onTaskMovedToFront(ActivityManager.RunningTaskInfo taskInfo)
+                throws RemoteException {
+            super.onTaskMovedToFront(taskInfo);
+            updateTaskStates(taskInfo);
+            setButtonsSelected();
+        }
+
+        @Override
+        public void onActivityRestartAttempt(ActivityManager.RunningTaskInfo taskInfo,
+                boolean homeTaskVisible, boolean clearedTask, boolean wasVisible)
+                throws RemoteException {
+            super.onActivityRestartAttempt(taskInfo, homeTaskVisible, clearedTask, wasVisible);
+            updateTaskStates(taskInfo);
+            setButtonsSelected();
+        }
+    };
 
     CarUiPortraitButtonSelectionStateListener(Context context,
             ButtonSelectionStateController carSystemButtonController,
-            CarDisplayAreaController displayAreaController) {
+            TaskCategoryManager taskCategoryManager) {
         super(carSystemButtonController);
         if (mButtonSelectionStateController
                 instanceof CarUiPortraitButtonSelectionStateController) {
             mPortraitButtonStateController =
                     (CarUiPortraitButtonSelectionStateController) carSystemButtonController;
         }
+        mTaskCategoryManager = taskCategoryManager;
+
+        ActivityTaskManager.getInstance().registerTaskStackListener(
+                mTaskStackListener);
 
         BroadcastReceiver displayAreaVisibilityReceiver = new BroadcastReceiver() {
             @Override
@@ -51,27 +89,38 @@ class CarUiPortraitButtonSelectionStateListener extends ButtonSelectionStateList
                 if (mPortraitButtonStateController == null) {
                     return;
                 }
-                if (intent.hasExtra(INTENT_EXTRA_APP_GRID_VISIBILITY_CHANGE)) {
-                    mIsAppGridVisible = intent.getBooleanExtra(
-                            INTENT_EXTRA_APP_GRID_VISIBILITY_CHANGE, false);
-                    mPortraitButtonStateController.setAppGridButtonSelected(mIsAppGridVisible);
-                } else if (intent.hasExtra(INTENT_EXTRA_NOTIFICATION_VISIBILITY_CHANGE)) {
-                    mIsNotificationVisible = intent.getBooleanExtra(
-                            INTENT_EXTRA_NOTIFICATION_VISIBILITY_CHANGE, false);
-                    mPortraitButtonStateController.setNotificationButtonSelected(
-                            mIsNotificationVisible);
-                    displayAreaController.setNotificationCenterOnTop(mIsNotificationVisible);
-                } else if (intent.hasExtra(INTENT_EXTRA_RECENTS_VISIBILITY_CHANGE)) {
-                    mIsRecentsVisible = intent.getBooleanExtra(
-                            INTENT_EXTRA_RECENTS_VISIBILITY_CHANGE, false);
-                    mPortraitButtonStateController.setRecentsButtonSelected(mIsRecentsVisible);
+                synchronized (mLock) {
+                    mIsPanelVisible = intent.getBooleanExtra(INTENT_EXTRA_IS_DISPLAY_AREA_VISIBLE,
+                            false);
+                    setButtonsSelected();
                 }
+
             }
         };
 
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(REQUEST_FROM_LAUNCHER);
-        context.registerReceiverForAllUsers(displayAreaVisibilityReceiver,
-                filter, null, null, Context.RECEIVER_EXPORTED);
+        LocalBroadcastManager.getInstance(context.getApplicationContext()).registerReceiver(
+                displayAreaVisibilityReceiver,
+                new IntentFilter(DISPLAY_AREA_VISIBILITY_CHANGED));
+    }
+
+    private void setButtonsSelected() {
+        new Handler(Looper.getMainLooper()).post(() -> {
+            synchronized (mLock) {
+                mPortraitButtonStateController.setAppGridButtonSelected(
+                        mIsAppGridOnTop && mIsPanelVisible);
+                mPortraitButtonStateController.setNotificationButtonSelected(
+                        mIsNotificationOnTop && mIsPanelVisible);
+                mPortraitButtonStateController.setRecentsButtonSelected(
+                        mIsRecentOnTop && mIsPanelVisible);
+            }
+        });
+    }
+
+    private void updateTaskStates(ActivityManager.RunningTaskInfo taskInfo) {
+        synchronized (mLock) {
+            mIsAppGridOnTop = mTaskCategoryManager.isAppGridActivity(taskInfo);
+            mIsRecentOnTop = mTaskCategoryManager.isRecentsActivity(taskInfo);
+            mIsNotificationOnTop = mTaskCategoryManager.isNotificationActivity(taskInfo);
+        }
     }
 }

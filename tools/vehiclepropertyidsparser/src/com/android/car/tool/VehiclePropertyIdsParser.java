@@ -58,6 +58,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * A parser for VehiclePropertyIds.java.
@@ -104,8 +106,8 @@ public final class VehiclePropertyIdsParser {
         public boolean systemApi;
         public boolean hide;
         public int vhalPropertyId;
-        public List<Integer> dataEnums;
-        public List<Integer> dataFlag;
+        public Set<Integer> dataEnums;
+        public Set<Integer> dataFlag;
         public String featureFlag;
 
         @Override
@@ -240,8 +242,8 @@ public final class VehiclePropertyIdsParser {
     /**
      * Gets all the int enum values for this enum type.
      */
-    private static List<Integer> getEnumValues(ResolvedReferenceTypeDeclaration typeDecl) {
-        List<Integer> enumValues = new ArrayList<>();
+    private static Set<Integer> getEnumValues(ResolvedReferenceTypeDeclaration typeDecl) {
+        Set<Integer> enumValues = new TreeSet<>();
         for (ResolvedFieldDeclaration resolvedFieldDecl : typeDecl.getAllFields()) {
             if (!resolvedFieldDecl.isField()) {
                 continue;
@@ -446,8 +448,8 @@ public final class VehiclePropertyIdsParser {
             List<JavadocBlockTag> blockTags = doc.getBlockTags();
             boolean deprecated = false;
             boolean hide = false;
-            List<Integer> dataEnums = new ArrayList<>();
-            List<Integer> dataFlag = new ArrayList<>();
+            Set<Integer> dataEnums = new TreeSet<>();
+            Set<Integer> dataFlag = new TreeSet<>();
             for (int j = 0; j < blockTags.size(); j++) {
                 String commentTagName = blockTags.get(j).getTagName();
                 if (commentTagName.equals("deprecated")

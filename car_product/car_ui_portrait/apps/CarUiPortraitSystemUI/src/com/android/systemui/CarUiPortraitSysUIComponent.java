@@ -22,6 +22,8 @@ import com.android.systemui.dagger.SystemUIModule;
 import com.android.systemui.scene.ShadelessSceneContainerFrameworkModule;
 import com.android.systemui.wm.CarUiPortraitDisplaySystemBarsController;
 import com.android.wm.shell.RootTaskDisplayAreaOrganizer;
+import com.android.wm.shell.fullscreen.FullscreenTaskListener;
+import com.android.wm.shell.transition.Transitions;
 
 import dagger.BindsInstance;
 import dagger.Subcomponent;
@@ -53,6 +55,20 @@ public interface CarUiPortraitSysUIComponent extends CarSysUIComponent {
         @BindsInstance
         CarUiPortraitSysUIComponent.Builder setCarUiPortraitDisplaySystemBarsController(
                 CarUiPortraitDisplaySystemBarsController c);
+
+        /**
+         * Set FullscreenTaskListener.
+         */
+        @BindsInstance
+        CarUiPortraitSysUIComponent.Builder setFullscreenTaskListener(
+                FullscreenTaskListener s);
+
+        /**
+         * Set Transitions.
+         */
+        @BindsInstance
+        CarUiPortraitSysUIComponent.Builder setTransitions(
+                Transitions t);
 
         CarUiPortraitSysUIComponent build();
     }

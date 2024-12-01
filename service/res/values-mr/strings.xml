@@ -232,6 +232,10 @@
     <string name="car_permission_desc_manage_car_system_ui" msgid="6201733970421818637">"टास्कव्ह्यू तयार करण्यासाठी किंवा सिस्टीम UI बदलांबद्दल सूचना मिळवण्यासाठी कार सिस्टीम UI शी संवाद साधा."</string>
     <string name="car_permission_label_read_persist_tethering_settings" msgid="6395145649477916950">"कारची कायम सुरू राहणारी टेदरिंग सेटिंग्ज रीड करा"</string>
     <string name="car_permission_desc_read_persist_tethering_settings" msgid="7373546466696896323">"कारची कायम सुरू राहणारी टेदरिंग सेटिंग्ज रीड करा"</string>
+    <string name="car_permission_label_record_vehicle_properties" msgid="958971344399611906">"वाहनाच्या प्रॉपर्टी रेकॉर्ड करा"</string>
+    <string name="car_permission_desc_record_vehicle_properties" msgid="2560365700851584569">"वाहनाच्या प्रॉपर्टी रेकॉर्ड करा"</string>
+    <string name="car_permission_label_inject_vehicle_properties" msgid="2943134725643169428">"वाहनाच्या प्रॉपर्टी इंजेक्ट करा"</string>
+    <string name="car_permission_desc_inject_vehicle_properties" msgid="2616112105084870775">"वाहनाच्या प्रॉपर्टी इंजेक्ट करा"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN बस अयशस्वी"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN बस प्रतिसाद देत नाही. हेडयुनिट बॉक्स अनप्लग करून पुन्हा प्लग करा आणि कार रीस्टार्ट करा"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"माझे डिव्हाइस"</string>

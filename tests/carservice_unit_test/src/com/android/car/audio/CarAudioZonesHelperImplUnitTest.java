@@ -23,8 +23,6 @@ import static android.media.AudioAttributes.USAGE_EMERGENCY;
 import static android.media.AudioAttributes.USAGE_SAFETY;
 import static android.media.AudioAttributes.USAGE_VEHICLE_STATUS;
 import static android.media.AudioDeviceInfo.TYPE_BUILTIN_MIC;
-import static android.media.AudioDeviceInfo.TYPE_BUS;
-import static android.media.AudioDeviceInfo.TYPE_FM_TUNER;
 import static android.media.audiopolicy.Flags.FLAG_ENABLE_FADE_MANAGER_CONFIGURATION;
 
 import static com.android.car.audio.CarAudioDeviceInfoTestUtils.ADDRESS_DOES_NOT_EXIST_DEVICE;
@@ -50,7 +48,6 @@ import static com.android.car.audio.CarAudioDeviceInfoTestUtils.TERTIARY_TEST_DE
 import static com.android.car.audio.CarAudioDeviceInfoTestUtils.TEST_REAR_ROW_3_DEVICE;
 import static com.android.car.audio.CarAudioDeviceInfoTestUtils.VOICE_TEST_DEVICE;
 import static com.android.car.audio.CarAudioDeviceInfoTestUtils.generateCarAudioDeviceInfo;
-import static com.android.car.audio.CarAudioDeviceInfoTestUtils.generateInputAudioDeviceInfo;
 import static com.android.car.audio.CarAudioService.CAR_DEFAULT_AUDIO_ATTRIBUTE;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.mockitoSession;
@@ -225,6 +222,9 @@ public final class CarAudioZonesHelperImplUnitTest extends AbstractExpectableTes
     public final SetFlagsRule mSetFlagsRule = new SetFlagsRule();
     private StaticMockitoSession mSession;
 
+    private CarAudioDeviceInfoTestUtils mAudioDeviceInfoTestUtils =
+            new CarAudioDeviceInfoTestUtils();
+
     @Before
     public void setUp() {
         StaticMockitoSessionBuilder builder = mockitoSession()
@@ -238,7 +238,7 @@ public final class CarAudioZonesHelperImplUnitTest extends AbstractExpectableTes
         setupAudioManagerMock();
 
         mCarAudioOutputDeviceInfos = generateCarDeviceInfos();
-        mInputAudioDeviceInfos = generateInputDeviceInfos();
+        mInputAudioDeviceInfos = mAudioDeviceInfoTestUtils.generateInputDeviceInfos();
         mContext = ApplicationProvider.getApplicationContext();
         mInputStream = mContext.getResources().openRawResource(
                 R.raw.car_audio_configuration_with_two_zones);
@@ -279,16 +279,6 @@ public final class CarAudioZonesHelperImplUnitTest extends AbstractExpectableTes
                 generateCarAudioDeviceInfo(null),
                 mTestCarMirrorDevice
         );
-    }
-
-    private AudioDeviceInfo[] generateInputDeviceInfos() {
-        return new AudioDeviceInfo[]{
-                generateInputAudioDeviceInfo(PRIMARY_ZONE_MICROPHONE_DEVICE, TYPE_BUILTIN_MIC),
-                generateInputAudioDeviceInfo(PRIMARY_ZONE_FM_TUNER_DEVICE, TYPE_FM_TUNER),
-                generateInputAudioDeviceInfo(SECONDARY_ZONE_BACK_MICROPHONE_DEVICE, TYPE_BUS),
-                generateInputAudioDeviceInfo(SECONDARY_ZONE_BUS_1000_INPUT_DEVICE,
-                        TYPE_BUILTIN_MIC)
-        };
     }
 
     @Test

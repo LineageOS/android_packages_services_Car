@@ -105,6 +105,12 @@ import static com.android.car.audio.CarAudioDeviceInfoTestUtils.SECONDARY_TEST_D
 import static com.android.car.audio.CarAudioDeviceInfoTestUtils.TERTIARY_TEST_DEVICE_1;
 import static com.android.car.audio.CarAudioDeviceInfoTestUtils.VOICE_TEST_DEVICE;
 import static com.android.car.audio.CarAudioService.CAR_DEFAULT_AUDIO_ATTRIBUTE;
+import static com.android.car.audio.CarAudioTestUtils.SECONDARY_ZONE_CONFIG_NAME_1;
+import static com.android.car.audio.CarAudioTestUtils.SECONDARY_ZONE_CONFIG_NAME_2;
+import static com.android.car.audio.CarAudioTestUtils.SECONDARY_ZONE_VOLUME_GROUP_COUNT;
+import static com.android.car.audio.CarAudioTestUtils.SECONDARY_ZONE_VOLUME_GROUP_ID;
+import static com.android.car.audio.CarAudioTestUtils.TEST_SECONDARY_ZONE_GROUP_0;
+import static com.android.car.audio.CarAudioTestUtils.TEST_SECONDARY_ZONE_GROUP_1;
 import static com.android.car.audio.CarHalAudioUtils.usageToMetadata;
 import static com.android.car.audio.GainBuilder.DEFAULT_GAIN;
 import static com.android.car.audio.GainBuilder.MAX_GAIN;
@@ -250,8 +256,6 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     private static final int AUDIO_CONTEXT_PRIORITY_LIST_VERSION_TWO = 2;
     private static final String PRIMARY_ZONE_MICROPHONE_ADDRESS = "Built-In Mic";
     private static final String PRIMARY_ZONE_FM_TUNER_ADDRESS = "FM Tuner";
-    private static final String SECONDARY_ZONE_CONFIG_NAME_1 = "secondary zone config 1";
-    private static final String SECONDARY_ZONE_CONFIG_NAME_2 = "secondary zone config 2";
     public static final String SECONDARY_ZONE_BT_CONFIG_NAME = "secondary BT zone config 0";
     private static final String DEFAULT_CONFIG_NAME_DYNAMIC_DEVICES = "primary zone config 0";
     private static final String PRIMARY_CONFIG_NAME_DYNAMIC_DEVICES = "primary zone BT media";
@@ -267,13 +271,9 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
             TEST_REAR_RIGHT_ZONE_ID};
     private static final int OUT_OF_RANGE_ZONE = TEST_REAR_ROW_3_ZONE_ID + 1;
     private static final int PRIMARY_ZONE_VOLUME_GROUP_COUNT = 4;
-    private static final int SECONDARY_ZONE_VOLUME_GROUP_COUNT = 1;
-    private static final int SECONDARY_ZONE_VOLUME_GROUP_ID = SECONDARY_ZONE_VOLUME_GROUP_COUNT - 1;
     private static final int TEST_PRIMARY_ZONE_GROUP_0 = 0;
     private static final int TEST_PRIMARY_ZONE_GROUP_1 = 1;
     private static final int TEST_PRIMARY_ZONE_GROUP_2 = 2;
-    private static final int TEST_SECONDARY_ZONE_GROUP_0 = 0;
-    private static final int TEST_SECONDARY_ZONE_GROUP_1 = 1;
     private static final int TEST_FLAGS = 0;
     private static final float TEST_VALUE = -.75f;
     private static final float INVALID_TEST_VALUE = -1.5f;

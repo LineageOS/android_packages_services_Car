@@ -232,6 +232,10 @@
     <string name="car_permission_desc_manage_car_system_ui" msgid="6201733970421818637">"කාර්ය දසුන් තැනීම හෝ පද්ධති ui වෙනස්කම් පිළිබඳව දැනුවත් වීම සඳහා මෝටර් රථ පද්ධති ui සමග සන්නිවේදනය කරන්න."</string>
     <string name="car_permission_label_read_persist_tethering_settings" msgid="6395145649477916950">"මෝටර් රථයේ අඛණ්ඩ ටෙදරින් සැකසීම් කියවන්න"</string>
     <string name="car_permission_desc_read_persist_tethering_settings" msgid="7373546466696896323">"මෝටර් රථයේ අඛණ්ඩ ටෙදරින් සැකසීම් කියවන්න"</string>
+    <string name="car_permission_label_record_vehicle_properties" msgid="958971344399611906">"වාහන ගුණාංග පටිගත කරන්න"</string>
+    <string name="car_permission_desc_record_vehicle_properties" msgid="2560365700851584569">"වාහන ගුණාංග පටිගත කරන්න"</string>
+    <string name="car_permission_label_inject_vehicle_properties" msgid="2943134725643169428">"වාහන ගුණාංග එන්නත් කරන්න"</string>
+    <string name="car_permission_desc_inject_vehicle_properties" msgid="2616112105084870775">"වාහන ගුණාංග එන්නත් කරන්න"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN බස් අසාර්ථකයි"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN බස් ප්‍රතිචාර නොදක්වයි. හෙඩ්යුනිට් පෙට්ටිය පේනු ඉවත් කර ආපසු පේනුගත කර, මෝටර් රථය යළි අරඹන්න"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"මගේ උපාංගය"</string>

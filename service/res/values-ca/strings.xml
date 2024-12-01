@@ -232,6 +232,10 @@
     <string name="car_permission_desc_manage_car_system_ui" msgid="6201733970421818637">"Comunicar-se amb la IU del sistema del cotxe per crear visualitzacions de tasques o per rebre notificacions sobre els canvis en la IU del sistema."</string>
     <string name="car_permission_label_read_persist_tethering_settings" msgid="6395145649477916950">"Llegir la configuració de compartició de xarxa persistent del cotxe"</string>
     <string name="car_permission_desc_read_persist_tethering_settings" msgid="7373546466696896323">"Llegir la configuració de compartició de xarxa persistent del cotxe"</string>
+    <string name="car_permission_label_record_vehicle_properties" msgid="958971344399611906">"registrar les propietats del vehicle"</string>
+    <string name="car_permission_desc_record_vehicle_properties" msgid="2560365700851584569">"registrar les propietats del vehicle"</string>
+    <string name="car_permission_label_inject_vehicle_properties" msgid="2943134725643169428">"injectar les propietats del vehicle"</string>
+    <string name="car_permission_desc_inject_vehicle_properties" msgid="2616112105084870775">"injectar les propietats del vehicle"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"Ha fallat el bus CAN"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"El bus CAN no respon. Desendolla i torna a endollar el capçal i torna a engegar el cotxe."</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"El meu dispositiu"</string>

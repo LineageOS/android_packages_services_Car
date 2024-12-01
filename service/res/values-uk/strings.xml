@@ -232,6 +232,10 @@
     <string name="car_permission_desc_manage_car_system_ui" msgid="6201733970421818637">"Обмін даними з інтерфейсом системи автомобіля для відображення завдань або отримання сповіщень про зміни в інтерфейсі системи."</string>
     <string name="car_permission_label_read_persist_tethering_settings" msgid="6395145649477916950">"Переглядати налаштування постійного режиму модема в автомобілі"</string>
     <string name="car_permission_desc_read_persist_tethering_settings" msgid="7373546466696896323">"Переглядати налаштування постійного режиму модема в автомобілі"</string>
+    <string name="car_permission_label_record_vehicle_properties" msgid="958971344399611906">"записувати властивості автомобіля"</string>
+    <string name="car_permission_desc_record_vehicle_properties" msgid="2560365700851584569">"записувати властивості автомобіля"</string>
+    <string name="car_permission_label_inject_vehicle_properties" msgid="2943134725643169428">"включати властивості автомобіля"</string>
+    <string name="car_permission_desc_inject_vehicle_properties" msgid="2616112105084870775">"включати властивості автомобіля"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"Помилка CAN-шини"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN-шина не відповідає. Від’єднайте та знову під’єднайте головний пристрій аудіосистеми й заведіть автомобіль ще раз"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"Мій пристрій"</string>

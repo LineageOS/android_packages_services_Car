@@ -372,13 +372,12 @@ public final class AudioControlWrapperAidl implements AudioControlWrapper, IBind
     }
 
     @Override
-    public List<HalAudioDeviceInfo> getOutputMirroringDevices() {
+    public List<AudioPort> getOutputMirroringDevices() {
         if (!supportsFeature(AUDIOCONTROL_FEATURE_AUDIO_CONFIGURATION)) {
             return EMPTY_LIST;
         }
         try {
-            List<AudioPort> ports = mAudioControl.getOutputMirroringDevices();
-            return convertAudioPortToHalAudioDevice(ports.toArray(new AudioPort[0]));
+            return mAudioControl.getOutputMirroringDevices();
         } catch (RemoteException e) {
             Slogf.w(TAG, "Failed to get audio mirroring devices", e);
             return EMPTY_LIST;

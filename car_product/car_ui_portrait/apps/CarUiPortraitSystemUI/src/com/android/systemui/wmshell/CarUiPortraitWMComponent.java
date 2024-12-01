@@ -19,6 +19,8 @@ package com.android.systemui.wmshell;
 import com.android.systemui.wm.CarUiPortraitDisplaySystemBarsController;
 import com.android.wm.shell.RootTaskDisplayAreaOrganizer;
 import com.android.wm.shell.dagger.WMSingleton;
+import com.android.wm.shell.fullscreen.FullscreenTaskListener;
+import com.android.wm.shell.transition.Transitions;
 
 import dagger.Subcomponent;
 
@@ -47,4 +49,16 @@ public interface CarUiPortraitWMComponent extends CarWMComponent {
      */
     @WMSingleton
     CarUiPortraitDisplaySystemBarsController getCarUiPortraitDisplaySystemBarsController();
+
+    /**
+     * Get FullscreenTaskListener.
+     */
+    @WMSingleton
+    FullscreenTaskListener getFullscreenTaskListener();
+
+    /**
+     * Get Transitions.
+     */
+    @WMSingleton
+    Transitions getTransitions();
 }

@@ -18,7 +18,7 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="data_subscription_title" msgid="4896299571993400309">"Een Premium Connectivity-abonnement kopen"</string>
-    <string name="data_subscription_description" msgid="5007971442417755397">"Open de camera-app van je telefoon en richt de camera op deze code. De code wordt automatisch gescand. Je krijgt bovenaan het camerascherm een melding om door te gaan."</string>
+    <string name="data_subscription_description" msgid="5007971442417755397">"Open de camera-app van je telefoon en richt de camera op deze code om die automatisch te scannen. Je krijgt bovenaan het camerascherm een melding om door te gaan."</string>
     <string name="data_subscription_button_text" msgid="8402418977157554019">"Herinnering niet meer weergeven"</string>
     <string name="data_subscription_qr_code_content_description" msgid="6964602870750966660">"QR-code voor aanmelding voor data-abonnement"</string>
 </resources>

@@ -799,6 +799,23 @@ public class AudioControlZoneConverterUtilsUnitTest extends AbstractExtendedMock
     }
 
     @Test
+    public void convertAudioFadeConfiguration_withEmptyFadeableConfigs() {
+        AudioFadeConfiguration configuration = new AudioFadeConfiguration();
+        configuration.fadeableUsages = new int[0];
+        configuration.fadeState = FadeState.FADE_STATE_ENABLED_DEFAULT;
+
+        var carFadeConfiguration = convertAudioFadeConfiguration(configuration);
+
+        expectWithMessage("Name for converted fade configuration with empty fadeable usages")
+                .that(carFadeConfiguration.getName()).contains("FADE_STATE_ENABLED_DEFAULT");
+        var fadeManagerConfiguration = new FadeManagerConfiguration.Builder().setFadeState(
+                FadeManagerConfiguration.FADE_STATE_ENABLED_DEFAULT).build();
+        expectWithMessage("Converted disabled fade manager configuration")
+                .that(carFadeConfiguration.getFadeManagerConfiguration())
+                .isEqualTo(fadeManagerConfiguration);
+    }
+
+    @Test
     public void convertTransientFadeConfiguration_withNullTransientEntry() {
         TransientFadeConfigurationEntry entry = null;
 

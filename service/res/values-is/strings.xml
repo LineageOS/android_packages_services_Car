@@ -232,6 +232,10 @@
     <string name="car_permission_desc_manage_car_system_ui" msgid="6201733970421818637">"Nota kerfisviðmót bílsins til að búa til yfirlit verkefna eða fá tilkynningar um breytingar á kerfisviðmóti."</string>
     <string name="car_permission_label_read_persist_tethering_settings" msgid="6395145649477916950">"Lesa stillingar bíls fyrir viðvarandi tjóðrun"</string>
     <string name="car_permission_desc_read_persist_tethering_settings" msgid="7373546466696896323">"Lesa stillingar bíls fyrir viðvarandi tjóðrun"</string>
+    <string name="car_permission_label_record_vehicle_properties" msgid="958971344399611906">"skrá eiginleika ökutækis"</string>
+    <string name="car_permission_desc_record_vehicle_properties" msgid="2560365700851584569">"skrá eiginleika ökutækis"</string>
+    <string name="car_permission_label_inject_vehicle_properties" msgid="2943134725643169428">"setja inn eiginleika ökutækis"</string>
+    <string name="car_permission_desc_inject_vehicle_properties" msgid="2616112105084870775">"setja inn eiginleika ökutækis"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"Bilun í CAN-gagnabraut"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN-gagnabraut svarar ekki. Taktu stjórneiningarboxið úr sambandi, settu það aftur í samband og gangsettu bílinn aftur."</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"Tækið mitt"</string>

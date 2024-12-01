@@ -26,6 +26,7 @@ import com.android.car.internal.property.CarPropertyConfigList;
 import com.android.car.internal.property.CarSubscription;
 import com.android.car.internal.property.GetPropertyConfigListResult;
 import com.android.car.internal.property.IAsyncPropertyResultCallback;
+import com.android.car.internal.property.ISupportedValuesChangeCallback;
 import com.android.car.internal.property.MinMaxSupportedPropertyValue;
 import com.android.car.internal.property.PropIdAreaId;
 import com.android.car.internal.property.RawPropertyValue;
@@ -115,4 +116,16 @@ interface ICarProperty {
      * @throws ServiceSpecificException If VHAL returns error.
      */
     @nullable List<RawPropertyValue> getSupportedValuesList(int propertyId, int areaId);
+
+    /**
+     * Registers the callback to be called when the min/max supported value or supported values
+     * list change.
+     *
+     * @throws IllegalArgumentException if one of the [propertyId, areaId]s are not supported.
+     * @throws SecurityException if the caller does not have read and does not have write access
+     *      for any of the requested property.
+     * @throws ServiceSpecificException If VHAL returns error.
+     */
+    void registerSupportedValuesChangeCallback(in List<PropIdAreaId> propIdAreaIds,
+                in ISupportedValuesChangeCallback callback);
 }

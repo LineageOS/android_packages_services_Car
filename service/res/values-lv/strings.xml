@@ -232,6 +232,10 @@
     <string name="car_permission_desc_manage_car_system_ui" msgid="6201733970421818637">"Piekļūt automašīnas sistēmas lietotāja saskarnei, lai izveidotu uzdevumu skatus vai saņemtu paziņojumus par sistēmas lietotāja saskarnes izmaiņām."</string>
     <string name="car_permission_label_read_persist_tethering_settings" msgid="6395145649477916950">"Nolasīt automašīnas nepārtrauktās piesaistes iestatījumus"</string>
     <string name="car_permission_desc_read_persist_tethering_settings" msgid="7373546466696896323">"Nolasīt automašīnas nepārtrauktās piesaistes iestatījumus"</string>
+    <string name="car_permission_label_record_vehicle_properties" msgid="958971344399611906">"ierakstīt transportlīdzekļa parametrus"</string>
+    <string name="car_permission_desc_record_vehicle_properties" msgid="2560365700851584569">"ierakstīt transportlīdzekļa parametrus"</string>
+    <string name="car_permission_label_inject_vehicle_properties" msgid="2943134725643169428">"iepludināt transportlīdzekļa parametrus"</string>
+    <string name="car_permission_desc_inject_vehicle_properties" msgid="2616112105084870775">"iepludināt transportlīdzekļa parametrus"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"Radās atteice datu maģistrālē"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"Datu maģistrāle nereaģē. Atvienojiet un atkal pievienojiet stereosistēmas paneļa kabeli un atkārtoti iedarbiniet automašīnu"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"Mana ierīce"</string>

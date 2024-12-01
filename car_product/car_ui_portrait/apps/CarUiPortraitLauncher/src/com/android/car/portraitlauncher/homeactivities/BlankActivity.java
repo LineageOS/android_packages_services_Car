@@ -18,14 +18,24 @@ package com.android.car.portraitlauncher.homeactivities;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.android.car.portraitlauncher.R;
 
 /**
  * Used as a blank activity to be placed on top of the stack to make sure the other apps go to the
  * background state.
  */
 public class BlankActivity extends AppCompatActivity {
+
+    @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.empty_home);
+    }
 
     /** Creates an intent that can be used to launch this activity. */
     public static Intent createIntent(Context context) {

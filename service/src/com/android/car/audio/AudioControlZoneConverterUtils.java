@@ -322,9 +322,9 @@ final class AudioControlZoneConverterUtils {
         } else {
             fadeManagerBuilder = new FadeManagerConfiguration.Builder();
         }
-        // If the fade configuration is not set then the default configurations will be set
-        // internally.
-        if (configuration.fadeableUsages != null) {
+        // If the fade configuration is not set or empty then the default configurations will be
+        // set internally.
+        if (isFadeableUsagesNotEmpty(configuration)) {
             fadeManagerBuilder.setFadeableUsages(convertAudioUsages(configuration.fadeableUsages));
         }
         fadeManagerBuilder.setFadeState(convertFadeState(configuration.fadeState));
@@ -346,6 +346,10 @@ final class AudioControlZoneConverterUtils {
             fadeConfigBuilder.setName(configuration.name);
         }
         return fadeConfigBuilder.build();
+    }
+
+    private static boolean isFadeableUsagesNotEmpty(AudioFadeConfiguration configuration) {
+        return configuration.fadeableUsages != null && configuration.fadeableUsages.length != 0;
     }
 
     static TransientFadeConfig convertTransientFadeConfiguration(

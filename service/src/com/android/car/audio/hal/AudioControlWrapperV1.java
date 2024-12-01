@@ -26,6 +26,7 @@ import android.hardware.automotive.audiocontrol.AudioDeviceConfiguration;
 import android.hardware.automotive.audiocontrol.AudioZone;
 import android.hardware.automotive.audiocontrol.MutingInfo;
 import android.hardware.automotive.audiocontrol.V1_0.IAudioControl;
+import android.media.audio.common.AudioPort;
 import android.os.RemoteException;
 
 import com.android.car.CarLog;
@@ -147,7 +148,7 @@ public final class AudioControlWrapperV1 implements AudioControlWrapper {
     }
 
     @Override
-    public List<HalAudioDeviceInfo> getOutputMirroringDevices() {
+    public List<AudioPort> getOutputMirroringDevices() {
         throw new UnsupportedOperationException(getUnsupportedMessage("Output mirror devices"));
     }
 

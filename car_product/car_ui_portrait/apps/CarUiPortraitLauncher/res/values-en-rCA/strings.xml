@@ -25,4 +25,5 @@
     <string name="audio_route_handset" msgid="8283803824498570957">"Phone"</string>
     <string name="back" msgid="2360066808525519279">"Back"</string>
     <string name="fullscreen" msgid="4312009981831027701">"Full Screen"</string>
+    <string name="blank_home_message" msgid="1931676618245482098">"Please open an app"</string>
 </resources>

@@ -25,9 +25,9 @@
     <string name="answer_call" msgid="5688982198411188640"></string>
     <string name="no_hfp" msgid="2403350988312998712">"Lai veiktu zvanu, vispirms savienojiet tālruni ar automašīnu, izmantojot Bluetooth."</string>
     <string name="call_history_title" msgid="2665386600747022608">"Nesenie"</string>
-    <string name="contacts_title" msgid="1240631807791315855">"Kontaktpersonas"</string>
+    <string name="contacts_title" msgid="1240631807791315855">"Kontakti"</string>
     <string name="favorites_title" msgid="8714933097892306747">"Izlase"</string>
-    <string name="dialpad_title" msgid="8608224919862313238">"Numura sastādīšanas tastatūra"</string>
+    <string name="dialpad_title" msgid="8608224919862313238">"Numurs"</string>
     <string name="search_title" msgid="148494519593103958">"Meklēšana"</string>
     <string name="setting_title" msgid="3060304451826880116">"Iestatījumi"</string>
 </resources>

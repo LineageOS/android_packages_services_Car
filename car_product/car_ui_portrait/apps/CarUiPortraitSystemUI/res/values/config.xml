@@ -97,4 +97,64 @@
         <item>com.google.android.apps.maps/com.google.android.maps.MapsActivity</item>
         <item>com.android.car.portraitlauncher/com.android.car.portraitlauncher.homeactivities.BackgroundPanelBaseActivity</item>
     </string-array>
+
+
+    <!-- Display area-->
+    <string name="config_controlBarActivity" translatable="false">
+        com.android.car.portraitlauncher/com.android.car.portraitlauncher.controlbar.ControlBarActivity
+    </string>
+    <string name="config_defaultMapsActivity" translatable="false">
+        com.google.android.apps.maps/com.google.android.maps.MapsActivity
+    </string>
+    <string name="config_homeActivity" translatable="false">
+        com.android.car.portraitlauncher/.homeactivities.BlankActivity
+    </string>
+
+    <string name="config_appgridActivity" translatable="false">
+        com.android.car.portraitlauncher/com.android.car.carlauncher.AppGridActivity
+    </string>
+
+    <string name="config_notificationActivity" translatable="false">
+        com.android.car.notification/com.android.car.notification.CarNotificationCenterActivity
+    </string>
+
+    <string-array name="config_ignoreOpeningForegroundDA" translatable="false">
+        <item>android.car.usb.handler/.UsbHostManagementActivity</item>
+        <item>android.car.usb.handler/android.car.usb.handler.UsbHostManagementActivity</item>
+        <item>com.android.car.portraitlauncher/.homeactivities.BlankActivity</item>
+        <item>com.android.car.settings/com.android.car.settings.FallbackHome</item>
+        <item>com.android.mtp/com.android.mtp.ReceiverActivity</item>
+        <item>com.android.sdksetup/.DefaultActivity</item>
+        <item>com.google.android.apps.maps/com.google.android.apps.gmm.car.embedded.auxiliarymap.EmbeddedClusterActivity</item>
+        <item>com.google.android.car.setupwizard/.CarSetupWizardActivity</item>
+        <item>com.google.android.car.setupwizard/.CarSetupWizardMiniFlowActivity</item>
+        <item>com.google.android.car.setupwizard/.deferred.DeferredCarSetupWizardActivity</item>
+        <item>com.google.android.car.setupwizard/.libs.uicommon.PlaceholderActivity</item>
+        <item>com.google.android.car.setupwizard/.libs.uicommon.TrampolineActivity</item>
+        <item>com.google.android.car.setupwizard/.welcome.WelcomeActivity</item>
+        <item>com.google.android.car.setupwizard/com.google.android.car.setupwizard.summary.SummaryScreenActivity</item>
+    </string-array>
+
+    <!-- A list of package names that provide the cards to display on the home screen -->
+    <string-array name="config_homeCardModuleClasses" translatable="false">
+        <item>com.android.car.portraitlauncher.controlbar.ControlBarModule</item>
+    </string-array>
+
+    <!--
+     A list of all the apps that are meant to stay in full-screen.
+    -->
+    <string-array name="config_fullScreenActivities" translatable="false">
+        <!-- TODO(b/308859591): Remove activities from full screen config once proper solution
+            found. This is only a temporary solution for showing this activity in full screen. -->
+        <item>com.android.car.settings/com.android.car.settings.sound.AudioRouteSelectionActivity</item>
+    </string-array>
+
+    <!-- Calm mode overrides -->
+    <string name="config_calmMode_componentName">com.android.car.portraitlauncher/com.android.car.portraitlauncher.calmmode.PortraitCalmModeActivity</string>
+
+    <string-array name="config_foregroundDAComponents" translatable="false">
+        <item>com.android.car.carlauncher/.AppGridActivity</item>
+        <item>com.android.car.notification/.CarNotificationCenterActivity</item>
+    </string-array>
+
 </resources>

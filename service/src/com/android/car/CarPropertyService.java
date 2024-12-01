@@ -69,6 +69,7 @@ import com.android.car.internal.property.CarPropertyHelper;
 import com.android.car.internal.property.CarSubscription;
 import com.android.car.internal.property.GetPropertyConfigListResult;
 import com.android.car.internal.property.IAsyncPropertyResultCallback;
+import com.android.car.internal.property.ISupportedValuesChangeCallback;
 import com.android.car.internal.property.InputSanitizationUtils;
 import com.android.car.internal.property.MinMaxSupportedPropertyValue;
 import com.android.car.internal.property.PropIdAreaId;
@@ -1171,6 +1172,11 @@ public class CarPropertyService extends ICarProperty.Stub
     public @Nullable List<RawPropertyValue> getSupportedValuesList(int propertyId, int areaId) {
         var areaIdConfig = verifyGetSupportedValueRequestAndGetAreaIdConfig(propertyId, areaId);
         return mPropertyHalService.getSupportedValuesList(propertyId, areaId, areaIdConfig);
+    }
+
+    @Override
+    public void registerSupportedValuesChangeCallback(List<PropIdAreaId> propIdAreaIds,
+            ISupportedValuesChangeCallback callback) {
     }
 
     /**

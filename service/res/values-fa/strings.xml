@@ -232,6 +232,10 @@
     <string name="car_permission_desc_manage_car_system_ui" msgid="6201733970421818637">"برای ایجاد نمای وظیفه یا مطلع شدن از تغییرات واسط کاربر سیستم، با واسط کاربر سیستم خودرو ارتباط برقرار کنید."</string>
     <string name="car_permission_label_read_persist_tethering_settings" msgid="6395145649477916950">"خواندن تنظیمات اشتراک‌گذاری اینترنت دائمی خودرو"</string>
     <string name="car_permission_desc_read_persist_tethering_settings" msgid="7373546466696896323">"خواندن تنظیمات اشتراک‌گذاری اینترنت دائمی خودرو"</string>
+    <string name="car_permission_label_record_vehicle_properties" msgid="958971344399611906">"ضبط خصوصیت‌های خودرو"</string>
+    <string name="car_permission_desc_record_vehicle_properties" msgid="2560365700851584569">"ضبط خصوصیت‌های خودرو"</string>
+    <string name="car_permission_label_inject_vehicle_properties" msgid="2943134725643169428">"تزریق خصوصیت‌های خودرو"</string>
+    <string name="car_permission_desc_inject_vehicle_properties" msgid="2616112105084870775">"تزریق خصوصیت‌های خودرو"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"گذرگاه CAN ناموفق بود"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"گذرگاه CAN پاسخ نمی‌دهد. محفظه ضبط‌وپخش را جدا و سپس وصل کنید و خودرو را دوباره روشن کنید"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"دستگاه من"</string>

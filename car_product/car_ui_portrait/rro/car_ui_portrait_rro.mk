@@ -97,6 +97,3 @@ PORTRAIT_RRO_PACKAGES := com.android.car.calendar.googlecaruiportrait.rro; \
 
 PRODUCT_PROPERTY_OVERRIDES += \
     ro.boot.vendor.overlay.theme=$(subst $(space),,$(PORTRAIT_RRO_PACKAGES))
-
-PRODUCT_PRODUCT_PROPERTIES += \
-    persist.wm.debug.shell_transit?=0

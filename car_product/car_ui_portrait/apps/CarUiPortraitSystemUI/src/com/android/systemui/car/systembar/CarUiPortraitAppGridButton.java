@@ -74,8 +74,6 @@ public class CarUiPortraitAppGridButton extends CarUiPortraitSystemBarButton {
         };
     }
 
-
-
     @Override
     protected void updateImage(AlphaOptimizedImageView icon) {
         mRecentsButtonStateProvider.updateImage(icon, super::updateImage);

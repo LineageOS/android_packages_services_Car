@@ -166,4 +166,14 @@ public final class CarPropertyHelper {
         }
         return propIdAreaIds;
     }
+
+    /**
+     * Creates a new {@link #PropIdAreaId} class.
+     */
+    public static PropIdAreaId newPropIdAreaId(int propId, int areaId) {
+        var propIdAreaId = new PropIdAreaId();
+        propIdAreaId.propId = propId;
+        propIdAreaId.areaId = areaId;
+        return propIdAreaId;
+    }
 }

@@ -673,15 +673,15 @@
         "value": "android.car.permission.CAR_DYNAMICS_STATE"
       },
       "dataEnums": [
+        -6,
+        -5,
+        -4,
+        -3,
+        -2,
+        -1,
         0,
         1,
-        2,
-        -1,
-        -2,
-        -3,
-        -4,
-        -5,
-        -6
+        2
       ],
       "featureFlag": "FLAG_VEHICLE_PROPERTY_REMOVE_SYSTEM_API_TAGS"
     },
@@ -909,17 +909,10 @@
       },
       "dataEnums": [
         0,
+        1,
         2,
         3,
         16,
-        80,
-        81,
-        83,
-        89,
-        97,
-        98,
-        99,
-        128,
         32,
         33,
         35,
@@ -931,13 +924,20 @@
         65,
         66,
         67,
+        80,
+        81,
+        83,
+        89,
         96,
+        97,
+        98,
+        99,
         100,
         101,
         112,
         113,
         114,
-        1,
+        128,
         144,
         145
       ]
@@ -1046,17 +1046,10 @@
       },
       "dataEnums": [
         0,
+        1,
         2,
         3,
         16,
-        80,
-        81,
-        83,
-        89,
-        97,
-        98,
-        99,
-        128,
         32,
         33,
         35,
@@ -1068,13 +1061,20 @@
         65,
         66,
         67,
+        80,
+        81,
+        83,
+        89,
         96,
+        97,
+        98,
+        99,
         100,
         101,
         112,
         113,
         114,
-        1,
+        128,
         144,
         145
       ]
@@ -1102,17 +1102,10 @@
       },
       "dataEnums": [
         0,
+        1,
         2,
         3,
         16,
-        80,
-        81,
-        83,
-        89,
-        97,
-        98,
-        99,
-        128,
         32,
         33,
         35,
@@ -1124,13 +1117,20 @@
         65,
         66,
         67,
+        80,
+        81,
+        83,
+        89,
         96,
+        97,
+        98,
+        99,
         100,
         101,
         112,
         113,
         114,
-        1,
+        128,
         144,
         145
       ]
@@ -1158,17 +1158,10 @@
       },
       "dataEnums": [
         0,
+        1,
         2,
         3,
         16,
-        80,
-        81,
-        83,
-        89,
-        97,
-        98,
-        99,
-        128,
         32,
         33,
         35,
@@ -1180,13 +1173,20 @@
         65,
         66,
         67,
+        80,
+        81,
+        83,
+        89,
         96,
+        97,
+        98,
+        99,
         100,
         101,
         112,
         113,
         114,
-        1,
+        128,
         144,
         145
       ]
@@ -1214,17 +1214,10 @@
       },
       "dataEnums": [
         0,
+        1,
         2,
         3,
         16,
-        80,
-        81,
-        83,
-        89,
-        97,
-        98,
-        99,
-        128,
         32,
         33,
         35,
@@ -1236,13 +1229,20 @@
         65,
         66,
         67,
+        80,
+        81,
+        83,
+        89,
         96,
+        97,
+        98,
+        99,
         100,
         101,
         112,
         113,
         114,
-        1,
+        128,
         144,
         145
       ]
@@ -1271,17 +1271,10 @@
       "vhalPropertyId": 289408517,
       "dataEnums": [
         0,
+        1,
         2,
         3,
         16,
-        80,
-        81,
-        83,
-        89,
-        97,
-        98,
-        99,
-        128,
         32,
         33,
         35,
@@ -1293,13 +1286,20 @@
         65,
         66,
         67,
+        80,
+        81,
+        83,
+        89,
         96,
+        97,
+        98,
+        99,
         100,
         101,
         112,
         113,
         114,
-        1,
+        128,
         144,
         145
       ]
@@ -2967,16 +2967,16 @@
         "value": "android.car.permission.READ_ADAS_STATES"
       },
       "dataEnums": [
+        -6,
+        -5,
+        -4,
+        -3,
+        -2,
+        -1,
         0,
         1,
         2,
-        3,
-        -1,
-        -2,
-        -3,
-        -4,
-        -5,
-        -6
+        3
       ],
       "featureFlag": "FLAG_VEHICLE_PROPERTY_REMOVE_SYSTEM_API_TAGS"
     },
@@ -3012,15 +3012,15 @@
         "value": "android.car.permission.READ_ADAS_STATES"
       },
       "dataEnums": [
+        -6,
+        -5,
+        -4,
+        -3,
+        -2,
+        -1,
         0,
         1,
-        2,
-        -1,
-        -2,
-        -3,
-        -4,
-        -5,
-        -6
+        2
       ],
       "featureFlag": "FLAG_VEHICLE_PROPERTY_REMOVE_SYSTEM_API_TAGS"
     },
@@ -3056,15 +3056,15 @@
         "value": "android.car.permission.READ_ADAS_STATES"
       },
       "dataEnums": [
+        -6,
+        -5,
+        -4,
+        -3,
+        -2,
+        -1,
         0,
         1,
-        2,
-        -1,
-        -2,
-        -3,
-        -4,
-        -5,
-        -6
+        2
       ],
       "featureFlag": "FLAG_VEHICLE_PROPERTY_REMOVE_SYSTEM_API_TAGS"
     },
@@ -3100,16 +3100,16 @@
         "value": "android.car.permission.READ_ADAS_STATES"
       },
       "dataEnums": [
+        -6,
+        -5,
+        -4,
+        -3,
+        -2,
+        -1,
         0,
         1,
         2,
-        3,
-        -1,
-        -2,
-        -3,
-        -4,
-        -5,
-        -6
+        3
       ],
       "featureFlag": "FLAG_VEHICLE_PROPERTY_REMOVE_SYSTEM_API_TAGS"
     },
@@ -3145,17 +3145,17 @@
         "value": "android.car.permission.READ_ADAS_STATES"
       },
       "dataEnums": [
+        -6,
+        -5,
+        -4,
+        -3,
+        -2,
+        -1,
         0,
         1,
         2,
         3,
-        4,
-        -1,
-        -2,
-        -3,
-        -4,
-        -5,
-        -6
+        4
       ],
       "featureFlag": "FLAG_VEHICLE_PROPERTY_REMOVE_SYSTEM_API_TAGS"
     },
@@ -3205,18 +3205,18 @@
         "value": "android.car.permission.READ_ADAS_STATES"
       },
       "dataEnums": [
+        -6,
+        -5,
+        -4,
+        -3,
+        -2,
+        -1,
         0,
         1,
         2,
         3,
         4,
-        5,
-        -1,
-        -2,
-        -3,
-        -4,
-        -5,
-        -6
+        5
       ],
       "featureFlag": "FLAG_VEHICLE_PROPERTY_REMOVE_SYSTEM_API_TAGS"
     },
@@ -3252,19 +3252,19 @@
         "value": "android.car.permission.READ_ADAS_STATES"
       },
       "dataEnums": [
+        -6,
+        -5,
+        -4,
+        -3,
+        -2,
+        -1,
         0,
         1,
         2,
         3,
         4,
         5,
-        6,
-        -1,
-        -2,
-        -3,
-        -4,
-        -5,
-        -6
+        6
       ],
       "featureFlag": "FLAG_VEHICLE_PROPERTY_REMOVE_SYSTEM_API_TAGS"
     },
@@ -3313,16 +3313,16 @@
         "value": "android.car.permission.CONTROL_ADAS_STATES"
       },
       "dataEnums": [
+        -6,
+        -5,
+        -4,
+        -3,
+        -2,
+        -1,
         0,
         1,
         2,
-        3,
-        -1,
-        -2,
-        -3,
-        -4,
-        -5,
-        -6
+        3
       ],
       "featureFlag": "FLAG_VEHICLE_PROPERTY_REMOVE_SYSTEM_API_TAGS"
     },
@@ -3335,18 +3335,18 @@
         "value": "android.car.permission.READ_ADAS_STATES"
       },
       "dataEnums": [
+        -6,
+        -5,
+        -4,
+        -3,
+        -2,
+        -1,
         0,
         1,
         2,
         3,
         4,
-        5,
-        -1,
-        -2,
-        -3,
-        -4,
-        -5,
-        -6
+        5
       ],
       "featureFlag": "FLAG_VEHICLE_PROPERTY_REMOVE_SYSTEM_API_TAGS"
     },
@@ -3443,15 +3443,15 @@
         "value": "android.car.permission.READ_DRIVER_MONITORING_STATES"
       },
       "dataEnums": [
+        -6,
+        -5,
+        -4,
+        -3,
+        -2,
+        -1,
         0,
         1,
-        2,
-        -1,
-        -2,
-        -3,
-        -4,
-        -5,
-        -6
+        2
       ],
       "featureFlag": "FLAG_VEHICLE_PROPERTY_REMOVE_SYSTEM_API_TAGS"
     },
@@ -3464,15 +3464,15 @@
         "value": "android.car.permission.READ_DRIVER_MONITORING_STATES"
       },
       "dataEnums": [
+        -6,
+        -5,
+        -4,
+        -3,
+        -2,
+        -1,
         0,
         1,
-        2,
-        -1,
-        -2,
-        -3,
-        -4,
-        -5,
-        -6
+        2
       ],
       "featureFlag": "FLAG_VEHICLE_PROPERTY_REMOVE_SYSTEM_API_TAGS"
     },
@@ -3508,6 +3508,12 @@
         "value": "android.car.permission.READ_DRIVER_MONITORING_STATES"
       },
       "dataEnums": [
+        -6,
+        -5,
+        -4,
+        -3,
+        -2,
+        -1,
         0,
         1,
         2,
@@ -3517,13 +3523,7 @@
         6,
         7,
         8,
-        9,
-        -1,
-        -2,
-        -3,
-        -4,
-        -5,
-        -6
+        9
       ],
       "featureFlag": "FLAG_VEHICLE_PROPERTY_REMOVE_SYSTEM_API_TAGS"
     },
@@ -3559,15 +3559,15 @@
         "value": "android.car.permission.READ_DRIVER_MONITORING_STATES"
       },
       "dataEnums": [
+        -6,
+        -5,
+        -4,
+        -3,
+        -2,
+        -1,
         0,
         1,
-        2,
-        -1,
-        -2,
-        -3,
-        -4,
-        -5,
-        -6
+        2
       ],
       "featureFlag": "FLAG_VEHICLE_PROPERTY_REMOVE_SYSTEM_API_TAGS"
     },
@@ -3603,15 +3603,15 @@
         "value": "android.car.permission.READ_DRIVER_MONITORING_STATES"
       },
       "dataEnums": [
+        -6,
+        -5,
+        -4,
+        -3,
+        -2,
+        -1,
         0,
         1,
-        2,
-        -1,
-        -2,
-        -3,
-        -4,
-        -5,
-        -6
+        2
       ],
       "featureFlag": "FLAG_VEHICLE_PROPERTY_REMOVE_SYSTEM_API_TAGS"
     },
@@ -3647,15 +3647,15 @@
         "value": "android.car.permission.READ_DRIVER_MONITORING_STATES"
       },
       "dataEnums": [
+        -6,
+        -5,
+        -4,
+        -3,
+        -2,
+        -1,
         0,
         1,
-        2,
-        -1,
-        -2,
-        -3,
-        -4,
-        -5,
-        -6
+        2
       ],
       "featureFlag": "FLAG_VEHICLE_PROPERTY_REMOVE_SYSTEM_API_TAGS"
     },
@@ -3691,15 +3691,15 @@
         "value": "android.car.permission.READ_ADAS_STATES"
       },
       "dataEnums": [
+        -6,
+        -5,
+        -4,
+        -3,
+        -2,
+        -1,
         0,
         1,
-        2,
-        -1,
-        -2,
-        -3,
-        -4,
-        -5,
-        -6
+        2
       ],
       "featureFlag": "FLAG_VEHICLE_PROPERTY_REMOVE_SYSTEM_API_TAGS"
     },
@@ -3735,6 +3735,12 @@
         "value": "android.car.permission.READ_ADAS_STATES"
       },
       "dataEnums": [
+        -6,
+        -5,
+        -4,
+        -3,
+        -2,
+        -1,
         0,
         1,
         2,
@@ -3742,13 +3748,7 @@
         4,
         5,
         6,
-        7,
-        -1,
-        -2,
-        -3,
-        -4,
-        -5,
-        -6
+        7
       ],
       "featureFlag": "FLAG_VEHICLE_PROPERTY_REMOVE_SYSTEM_API_TAGS"
     },
@@ -3784,16 +3784,16 @@
         "value": "android.car.permission.READ_ADAS_STATES"
       },
       "dataEnums": [
+        -6,
+        -5,
+        -4,
+        -3,
+        -2,
+        -1,
         0,
         1,
         2,
-        3,
-        -1,
-        -2,
-        -3,
-        -4,
-        -5,
-        -6
+        3
       ],
       "featureFlag": "FLAG_VEHICLE_PROPERTY_REMOVE_SYSTEM_API_TAGS"
     }

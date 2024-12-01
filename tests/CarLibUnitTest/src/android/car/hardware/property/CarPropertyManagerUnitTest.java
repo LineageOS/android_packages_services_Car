@@ -30,6 +30,7 @@ import static android.car.hardware.property.CarPropertyManager.SetPropertyReques
 import static android.car.hardware.property.CarPropertyManager.SetPropertyResult;
 
 import static com.android.car.internal.property.CarPropertyHelper.SYNC_OP_LIMIT_TRY_AGAIN;
+import static com.android.car.internal.util.ConcurrentUtils.DIRECT_EXECUTOR;
 
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
@@ -83,6 +84,7 @@ import com.android.car.internal.property.GetPropertyConfigListResult;
 import com.android.car.internal.property.GetSetValueResult;
 import com.android.car.internal.property.GetSetValueResultList;
 import com.android.car.internal.property.IAsyncPropertyResultCallback;
+import com.android.car.internal.property.ISupportedValuesChangeCallback;
 import com.android.car.internal.property.MinMaxSupportedPropertyValue;
 import com.android.car.internal.property.PropIdAreaId;
 import com.android.car.internal.property.RawPropertyValue;
@@ -171,6 +173,8 @@ public final class CarPropertyManagerUnitTest extends AbstractExpectableTestCase
     private Executor mMockExecutor2;
     @Mock
     private FeatureFlags mFeatureFlags;
+    @Mock
+    private CarPropertyManager.SupportedValuesChangeCallback mSupportedValuesChangeCallback;
 
     @Captor
     private ArgumentCaptor<Integer> mPropertyIdCaptor;
@@ -3294,5 +3298,283 @@ public final class CarPropertyManagerUnitTest extends AbstractExpectableTestCase
 
         assertThrows(IllegalArgumentException.class,
                 () -> mCarPropertyManager.getSupportedValuesList(INT32_PROP, 0));
+    }
+
+    @Test
+    public void testRegisterSupportedValuesChangeCallback_propertyId_cb() throws Exception {
+        int propertyId = INT32_PROP;
+        int areaId1 = 1;
+        int areaId2 = 2;
+        addCarPropertyConfig(CarPropertyConfig.newBuilder(Integer.class,
+                INT32_PROP, VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL)
+                .addAreaIdConfig(new AreaIdConfig.Builder<Integer>(areaId1).build())
+                .addAreaIdConfig(new AreaIdConfig.Builder<Integer>(areaId2).build())
+                .build());
+
+        assertThat(mCarPropertyManager.registerSupportedValuesChangeCallback(propertyId,
+                mSupportedValuesChangeCallback)).isTrue();
+
+        ArgumentCaptor<List> propIdAreaIdsCaptor = ArgumentCaptor.forClass(List.class);
+        ArgumentCaptor<ISupportedValuesChangeCallback> callbackCaptor =
+                ArgumentCaptor.forClass(ISupportedValuesChangeCallback.class);
+
+        verify(mICarProperty).registerSupportedValuesChangeCallback(
+                propIdAreaIdsCaptor.capture(), callbackCaptor.capture());
+
+        List<PropIdAreaId> propIdAreaIds = (List<PropIdAreaId>) propIdAreaIdsCaptor.getValue();
+        assertThat(propIdAreaIds).hasSize(2);
+        expectThat(propIdAreaIds.get(0).propId).isEqualTo(propertyId);
+        expectThat(propIdAreaIds.get(1).propId).isEqualTo(propertyId);
+        expectThat(propIdAreaIds.get(0).areaId).isEqualTo(areaId1);
+        expectThat(propIdAreaIds.get(1).areaId).isEqualTo(areaId2);
+
+        ISupportedValuesChangeCallback callback = callbackCaptor.getValue();
+
+        PropIdAreaId propIdAreaId1 = new PropIdAreaId();
+        propIdAreaId1.propId = propertyId;
+        propIdAreaId1.areaId = areaId1;
+        PropIdAreaId propIdAreaId2 = new PropIdAreaId();
+        propIdAreaId2.propId = propertyId;
+        propIdAreaId2.areaId = areaId2;
+        callback.onSupportedValuesChange(List.of(propIdAreaId1, propIdAreaId2));
+
+        verify(mSupportedValuesChangeCallback, timeout(1000)).onSupportedValuesChange(propertyId,
+                areaId1);
+        verify(mSupportedValuesChangeCallback, timeout(1000)).onSupportedValuesChange(propertyId,
+                areaId2);
+    }
+
+    @Test
+    public void testRegisterSupportedValuesChangeCallback_propertyId_areaId_cb()
+            throws Exception {
+        int propertyId = INT32_PROP;
+        int areaId1 = 1;
+        int areaId2 = 2;
+        addCarPropertyConfig(CarPropertyConfig.newBuilder(Integer.class,
+                INT32_PROP, VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL)
+                .addAreaIdConfig(new AreaIdConfig.Builder<Integer>(areaId1).build())
+                .addAreaIdConfig(new AreaIdConfig.Builder<Integer>(areaId2).build())
+                .build());
+
+        // Only register to areaId2.
+        assertThat(mCarPropertyManager.registerSupportedValuesChangeCallback(propertyId, areaId2,
+                mSupportedValuesChangeCallback)).isTrue();
+
+        ArgumentCaptor<List> propIdAreaIdsCaptor = ArgumentCaptor.forClass(List.class);
+        ArgumentCaptor<ISupportedValuesChangeCallback> callbackCaptor =
+                ArgumentCaptor.forClass(ISupportedValuesChangeCallback.class);
+
+        verify(mICarProperty).registerSupportedValuesChangeCallback(
+                propIdAreaIdsCaptor.capture(), callbackCaptor.capture());
+
+        List<PropIdAreaId> propIdAreaIds = (List<PropIdAreaId>) propIdAreaIdsCaptor.getValue();
+        assertThat(propIdAreaIds).hasSize(1);
+        expectThat(propIdAreaIds.get(0).propId).isEqualTo(propertyId);
+        expectThat(propIdAreaIds.get(0).areaId).isEqualTo(areaId2);
+
+        ISupportedValuesChangeCallback callback = callbackCaptor.getValue();
+
+        PropIdAreaId propIdAreaId1 = new PropIdAreaId();
+        propIdAreaId1.propId = propertyId;
+        propIdAreaId1.areaId = areaId1;
+        PropIdAreaId propIdAreaId2 = new PropIdAreaId();
+        propIdAreaId2.propId = propertyId;
+        propIdAreaId2.areaId = areaId2;
+        // The update for areaId1 must be ignored.
+        callback.onSupportedValuesChange(List.of(propIdAreaId1, propIdAreaId2));
+
+        verify(mSupportedValuesChangeCallback, timeout(1000).times(1)).onSupportedValuesChange(
+                propertyId, areaId2);
+    }
+
+    @Test
+    public void testRegisterSupportedValuesChangeCallback_propertyId_executor_cb()
+            throws Exception {
+        int propertyId = INT32_PROP;
+        int areaId1 = 1;
+        int areaId2 = 2;
+        addCarPropertyConfig(CarPropertyConfig.newBuilder(Integer.class,
+                INT32_PROP, VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL)
+                .addAreaIdConfig(new AreaIdConfig.Builder<Integer>(areaId1).build())
+                .addAreaIdConfig(new AreaIdConfig.Builder<Integer>(areaId2).build())
+                .build());
+
+        assertThat(mCarPropertyManager.registerSupportedValuesChangeCallback(propertyId,
+                DIRECT_EXECUTOR, mSupportedValuesChangeCallback)).isTrue();
+
+        ArgumentCaptor<List> propIdAreaIdsCaptor = ArgumentCaptor.forClass(List.class);
+        ArgumentCaptor<ISupportedValuesChangeCallback> callbackCaptor =
+                ArgumentCaptor.forClass(ISupportedValuesChangeCallback.class);
+
+        verify(mICarProperty).registerSupportedValuesChangeCallback(
+                propIdAreaIdsCaptor.capture(), callbackCaptor.capture());
+
+        List<PropIdAreaId> propIdAreaIds = (List<PropIdAreaId>) propIdAreaIdsCaptor.getValue();
+        assertThat(propIdAreaIds).hasSize(2);
+        expectThat(propIdAreaIds.get(0).propId).isEqualTo(propertyId);
+        expectThat(propIdAreaIds.get(1).propId).isEqualTo(propertyId);
+        expectThat(propIdAreaIds.get(0).areaId).isEqualTo(areaId1);
+        expectThat(propIdAreaIds.get(1).areaId).isEqualTo(areaId2);
+
+        ISupportedValuesChangeCallback callback = callbackCaptor.getValue();
+
+        PropIdAreaId propIdAreaId1 = new PropIdAreaId();
+        propIdAreaId1.propId = propertyId;
+        propIdAreaId1.areaId = areaId1;
+        PropIdAreaId propIdAreaId2 = new PropIdAreaId();
+        propIdAreaId2.propId = propertyId;
+        propIdAreaId2.areaId = areaId2;
+        callback.onSupportedValuesChange(List.of(propIdAreaId1, propIdAreaId2));
+
+        // Because we use a DirectExecutor, the callback is invoked synchronously.
+        verify(mSupportedValuesChangeCallback).onSupportedValuesChange(propertyId, areaId1);
+        verify(mSupportedValuesChangeCallback).onSupportedValuesChange(propertyId, areaId2);
+    }
+
+    @Test
+    public void testRegisterSupportedValuesChangeCallback_propertyId_areaId_executor_cb()
+            throws Exception {
+        int propertyId = INT32_PROP;
+        int areaId1 = 1;
+        int areaId2 = 2;
+        addCarPropertyConfig(CarPropertyConfig.newBuilder(Integer.class,
+                INT32_PROP, VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL)
+                .addAreaIdConfig(new AreaIdConfig.Builder<Integer>(areaId1).build())
+                .addAreaIdConfig(new AreaIdConfig.Builder<Integer>(areaId2).build())
+                .build());
+
+        // Only register to areaId2.
+        assertThat(mCarPropertyManager.registerSupportedValuesChangeCallback(propertyId, areaId2,
+                DIRECT_EXECUTOR, mSupportedValuesChangeCallback)).isTrue();
+
+        ArgumentCaptor<List> propIdAreaIdsCaptor = ArgumentCaptor.forClass(List.class);
+        ArgumentCaptor<ISupportedValuesChangeCallback> callbackCaptor =
+                ArgumentCaptor.forClass(ISupportedValuesChangeCallback.class);
+
+        verify(mICarProperty).registerSupportedValuesChangeCallback(
+                propIdAreaIdsCaptor.capture(), callbackCaptor.capture());
+
+        List<PropIdAreaId> propIdAreaIds = (List<PropIdAreaId>) propIdAreaIdsCaptor.getValue();
+        assertThat(propIdAreaIds).hasSize(1);
+        expectThat(propIdAreaIds.get(0).propId).isEqualTo(propertyId);
+        expectThat(propIdAreaIds.get(0).areaId).isEqualTo(areaId2);
+
+        ISupportedValuesChangeCallback callback = callbackCaptor.getValue();
+
+        PropIdAreaId propIdAreaId1 = new PropIdAreaId();
+        propIdAreaId1.propId = propertyId;
+        propIdAreaId1.areaId = areaId1;
+        PropIdAreaId propIdAreaId2 = new PropIdAreaId();
+        propIdAreaId2.propId = propertyId;
+        propIdAreaId2.areaId = areaId2;
+        // The update for areaId1 must be ignored.
+        callback.onSupportedValuesChange(List.of(propIdAreaId1, propIdAreaId2));
+
+        // Because we use a DirectExecutor, the callback is invoked synchronously.
+        verify(mSupportedValuesChangeCallback, times(1)).onSupportedValuesChange(
+                propertyId, areaId2);
+    }
+
+    @Test
+    public void testRegisterSupportedValuesChangeCallback_nullCallback() throws Exception {
+        assertThrows(NullPointerException.class, () -> {
+            mCarPropertyManager.registerSupportedValuesChangeCallback(INT32_PROP, /* cb= */ null);
+        });
+    }
+
+    @Test
+    public void testRegisterSupportedValuesChangeCallback_nullExecutor() throws Exception {
+        assertThrows(NullPointerException.class, () -> {
+            mCarPropertyManager.registerSupportedValuesChangeCallback(INT32_PROP,
+                    /* executor= */ null, mSupportedValuesChangeCallback);
+        });
+    }
+
+    @Test
+    public void testRegisterSupportedValuesChangeCallback_withAreaId_nullExecutor()
+            throws Exception {
+        assertThrows(NullPointerException.class, () -> {
+            mCarPropertyManager.registerSupportedValuesChangeCallback(INT32_PROP,
+                    /* areaId= */ 0, /* executor= */ null, mSupportedValuesChangeCallback);
+        });
+    }
+
+    @Test
+    public void testRegisterSupportedValuesChangeCallback_propertyIdNotSupported()
+            throws Exception {
+        assertThrows(IllegalArgumentException.class, () -> {
+            mCarPropertyManager.registerSupportedValuesChangeCallback(INVALID,
+                    mSupportedValuesChangeCallback);
+        });
+    }
+
+    @Test
+    public void testRegisterSupportedValuesChangeCallback_noPermission() throws Exception {
+        setPropIdWithoutPermission(INT32_PROP);
+
+        assertThrows(SecurityException.class, () -> {
+            mCarPropertyManager.registerSupportedValuesChangeCallback(INT32_PROP,
+                    mSupportedValuesChangeCallback);
+        });
+    }
+
+    @Test
+    public void testRegisterSupportedValuesChangeCallback_wrongExecutor() throws Exception {
+        int propertyId = INT32_PROP;
+        int areaId1 = 1;
+        int areaId2 = 2;
+        addCarPropertyConfig(CarPropertyConfig.newBuilder(Integer.class,
+                INT32_PROP, VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL)
+                .addAreaIdConfig(new AreaIdConfig.Builder<Integer>(areaId1).build())
+                .addAreaIdConfig(new AreaIdConfig.Builder<Integer>(areaId2).build())
+                .build());
+
+        // Associate the callback with the default executor.
+        assertThat(mCarPropertyManager.registerSupportedValuesChangeCallback(propertyId,
+                mSupportedValuesChangeCallback)).isTrue();
+
+        // Associating the same callback with a different executor is not allowed.
+        assertThrows(IllegalArgumentException.class, () -> {
+            mCarPropertyManager.registerSupportedValuesChangeCallback(propertyId,
+                    DIRECT_EXECUTOR, mSupportedValuesChangeCallback);
+        });
+    }
+
+    @Test
+    public void testRegisterSupportedValuesChangeCallback_RemoteExceptionFromCarService()
+            throws Exception {
+        int propertyId = INT32_PROP;
+        int areaId1 = 1;
+        int areaId2 = 2;
+        addCarPropertyConfig(CarPropertyConfig.newBuilder(Integer.class,
+                INT32_PROP, VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL)
+                .addAreaIdConfig(new AreaIdConfig.Builder<Integer>(areaId1).build())
+                .addAreaIdConfig(new AreaIdConfig.Builder<Integer>(areaId2).build())
+                .build());
+
+        doThrow(new RemoteException()).when(mICarProperty)
+                .registerSupportedValuesChangeCallback(any(), any());
+
+        assertThat(mCarPropertyManager.registerSupportedValuesChangeCallback(propertyId,
+                mSupportedValuesChangeCallback)).isFalse();
+    }
+
+    @Test
+    public void testRegisterSupportedValuesChangeCallback_ServiceSpecificExceptionFromCarService()
+            throws Exception {
+        int propertyId = INT32_PROP;
+        int areaId1 = 1;
+        int areaId2 = 2;
+        addCarPropertyConfig(CarPropertyConfig.newBuilder(Integer.class,
+                INT32_PROP, VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL)
+                .addAreaIdConfig(new AreaIdConfig.Builder<Integer>(areaId1).build())
+                .addAreaIdConfig(new AreaIdConfig.Builder<Integer>(areaId2).build())
+                .build());
+
+        doThrow(new ServiceSpecificException(0)).when(mICarProperty)
+                .registerSupportedValuesChangeCallback(any(), any());
+
+        assertThat(mCarPropertyManager.registerSupportedValuesChangeCallback(propertyId,
+                mSupportedValuesChangeCallback)).isFalse();
     }
 }

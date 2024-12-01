@@ -45,11 +45,9 @@ package android.car {
     field @Deprecated public static final String HVAC_SERVICE = "hvac";
     field public static final String OCCUPANT_AWARENESS_SERVICE = "occupant_awareness";
     field public static final String PERMISSION_ACCESS_MIRRORRED_SURFACE = "android.car.permission.ACCESS_MIRRORED_SURFACE";
-    field public static final String PERMISSION_ADJUST_RANGE_REMAINING = "android.car.permission.ADJUST_RANGE_REMAINING";
     field @FlaggedApi("android.car.feature.car_app_card") public static final String PERMISSION_BIND_APP_CARD_PROVIDER = "android.car.permission.BIND_APP_CARD_PROVIDER";
     field public static final String PERMISSION_CAR_DIAGNOSTIC_CLEAR = "android.car.permission.CLEAR_CAR_DIAGNOSTICS";
     field public static final String PERMISSION_CAR_DIAGNOSTIC_READ_ALL = "android.car.permission.CAR_DIAGNOSTICS";
-    field public static final String PERMISSION_CAR_EPOCH_TIME = "android.car.permission.CAR_EPOCH_TIME";
     field public static final String PERMISSION_CAR_INSTRUMENT_CLUSTER_CONTROL = "android.car.permission.CAR_INSTRUMENT_CLUSTER_CONTROL";
     field @FlaggedApi("android.car.feature.cluster_health_monitoring") public static final String PERMISSION_CAR_MONITOR_CLUSTER_NAVIGATION_STATE = "android.car.permission.CAR_MONITOR_CLUSTER_NAVIGATION_STATE";
     field public static final String PERMISSION_CAR_MONITOR_INPUT = "android.car.permission.CAR_MONITOR_INPUT";
@@ -66,13 +64,8 @@ package android.car {
     field @Deprecated public static final String PERMISSION_CONTROL_CAR_OCCUPANT_AWARENESS_SYSTEM = "android.car.permission.CONTROL_CAR_OCCUPANT_AWARENESS_SYSTEM";
     field public static final String PERMISSION_CONTROL_CAR_POWER_POLICY = "android.car.permission.CONTROL_CAR_POWER_POLICY";
     field public static final String PERMISSION_CONTROL_CAR_WATCHDOG_CONFIG = "android.car.permission.CONTROL_CAR_WATCHDOG_CONFIG";
-    field public static final String PERMISSION_CONTROL_CAR_WINDOWS = "android.car.permission.CONTROL_CAR_WINDOWS";
-    field public static final String PERMISSION_CONTROL_ENERGY_PORTS = "android.car.permission.CONTROL_CAR_ENERGY_PORTS";
-    field public static final String PERMISSION_CONTROL_EXTERIOR_LIGHTS = "android.car.permission.CONTROL_CAR_EXTERIOR_LIGHTS";
-    field public static final String PERMISSION_CONTROL_POWERTRAIN = "android.car.permission.CONTROL_CAR_POWERTRAIN";
     field public static final String PERMISSION_CONTROL_REMOTE_ACCESS = "android.car.permission.CONTROL_REMOTE_ACCESS";
     field public static final String PERMISSION_CONTROL_SHUTDOWN_PROCESS = "android.car.permission.CONTROL_SHUTDOWN_PROCESS";
-    field public static final String PERMISSION_EXTERIOR_LIGHTS = "android.car.permission.CAR_EXTERIOR_LIGHTS";
     field @FlaggedApi("android.car.feature.car_property_simulation") public static final String PERMISSION_INJECT_VEHICLE_PROPERTIES = "android.car.permission.INJECT_VEHICLE_PROPERTIES";
     field public static final String PERMISSION_MANAGE_CAR_SYSTEM_UI = "android.car.permission.MANAGE_CAR_SYSTEM_UI";
     field @FlaggedApi("android.car.feature.display_compatibility") public static final String PERMISSION_MANAGE_DISPLAY_COMPATIBILITY = "android.car.permission.MANAGE_DISPLAY_COMPATIBILITY";
@@ -80,7 +73,6 @@ package android.car {
     field public static final String PERMISSION_MANAGE_OCCUPANT_ZONE = "android.car.permission.MANAGE_OCCUPANT_ZONE";
     field public static final String PERMISSION_MANAGE_REMOTE_DEVICE = "android.car.permission.MANAGE_REMOTE_DEVICE";
     field public static final String PERMISSION_MANAGE_THREAD_PRIORITY = "android.car.permission.MANAGE_THREAD_PRIORITY";
-    field public static final String PERMISSION_MILEAGE = "android.car.permission.CAR_MILEAGE";
     field public static final String PERMISSION_MIRROR_DISPLAY = "android.car.permission.MIRROR_DISPLAY";
     field @Deprecated public static final String PERMISSION_MOCK_VEHICLE_HAL = "android.car.permission.CAR_MOCK_VEHICLE_HAL";
     field public static final String PERMISSION_MONITOR_CAR_EVS_STATUS = "android.car.permission.MONITOR_CAR_EVS_STATUS";
@@ -93,7 +85,6 @@ package android.car {
     field public static final String PERMISSION_REQUEST_CAR_EVS_ACTIVITY = "android.car.permission.REQUEST_CAR_EVS_ACTIVITY";
     field public static final String PERMISSION_STORAGE_MONITORING = "android.car.permission.STORAGE_MONITORING";
     field public static final String PERMISSION_TEMPLATE_RENDERER = "android.car.permission.TEMPLATE_RENDERER";
-    field public static final String PERMISSION_TIRES = "android.car.permission.CAR_TIRES";
     field public static final String PERMISSION_USE_CAR_EVS_CAMERA = "android.car.permission.USE_CAR_EVS_CAMERA";
     field public static final String PERMISSION_USE_CAR_TELEMETRY_SERVICE = "android.car.permission.USE_CAR_TELEMETRY_SERVICE";
     field public static final String PERMISSION_USE_CAR_WATCHDOG = "android.car.permission.USE_CAR_WATCHDOG";

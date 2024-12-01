@@ -25,9 +25,9 @@
     <string name="answer_call" msgid="5688982198411188640"></string>
     <string name="no_hfp" msgid="2403350988312998712">"ଆପଣଙ୍କ କଲ ସମାପ୍ତ କରିବାକୁ, ପ୍ରଥମେ ଆପଣଙ୍କ ଫୋନକୁ ବ୍ଲୁଟୁଥ ମାଧ୍ୟମରେ ଆପଣଙ୍କର କାର ସହ ସଂଯୋଗ କରନ୍ତୁ।"</string>
     <string name="call_history_title" msgid="2665386600747022608">"ବର୍ତ୍ତମାନର"</string>
-    <string name="contacts_title" msgid="1240631807791315855">"ଯୋଗାଯୋଗଗୁଡ଼ିକ"</string>
-    <string name="favorites_title" msgid="8714933097892306747">"ପସନ୍ଦଗୁଡ଼ିକ"</string>
-    <string name="dialpad_title" msgid="8608224919862313238">"ଡାଏଲପ୍ୟାଡ"</string>
+    <string name="contacts_title" msgid="1240631807791315855">"କଣ୍ଟାକ୍ଟ"</string>
+    <string name="favorites_title" msgid="8714933097892306747">"ପସନ୍ଦ"</string>
+    <string name="dialpad_title" msgid="8608224919862313238">"ଡାଏଲପେଡ"</string>
     <string name="search_title" msgid="148494519593103958">"ସର୍ଚ୍ଚ କରନ୍ତୁ"</string>
     <string name="setting_title" msgid="3060304451826880116">"ସେଟିଂସ"</string>
 </resources>

@@ -232,6 +232,10 @@
     <string name="car_permission_desc_manage_car_system_ui" msgid="6201733970421818637">"လုပ်ဆောင်စရာမြင်ကွင်းများ ပြုလုပ်ခြင်း (သို့) စနစ် UI အပြောင်းအလဲများဆိုင်ရာ အကြောင်းချက်ရယူခြင်းအတွက် ကားစနစ် UI နှင့် ချိတ်ဆက်ပါ။"</string>
     <string name="car_permission_label_read_persist_tethering_settings" msgid="6395145649477916950">"ကား၏ မိုဘိုင်းသုံး၍ ချိတ်ဆက်ခြင်း ရှိမြဲဆက်တင်များကို ဖတ်ပါ"</string>
     <string name="car_permission_desc_read_persist_tethering_settings" msgid="7373546466696896323">"ကား၏ မိုဘိုင်းသုံး၍ ချိတ်ဆက်ခြင်း ရှိမြဲဆက်တင်များကို ဖတ်ပါ"</string>
+    <string name="car_permission_label_record_vehicle_properties" msgid="958971344399611906">"မော်တော်ယာဉ် သတ်မှတ်ချက်များ မှတ်တမ်းတင်ရန်"</string>
+    <string name="car_permission_desc_record_vehicle_properties" msgid="2560365700851584569">"မော်တော်ယာဉ် သတ်မှတ်ချက်များ မှတ်တမ်းတင်ရန်"</string>
+    <string name="car_permission_label_inject_vehicle_properties" msgid="2943134725643169428">"မော်တော်ယာဉ် သတ်မှတ်ချက်များ ထည့်ရန်"</string>
+    <string name="car_permission_desc_inject_vehicle_properties" msgid="2616112105084870775">"မော်တော်ယာဉ် သတ်မှတ်ချက်များ ထည့်ရန်"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"\"CAN bus\" စနစ် အသုံးပြုမှု မအောင်မြင်ပါ"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN bus စနစ်က တုန့်ပြန်မှုမရှိပါ။ စက်အထိုင်ဘောက်စ်ကို ပလတ်ဖြုတ်ပြီး ပြန်တပ်ကာ ကားကို ပြန်လည်စတင်ပါ"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"ကျွန်ုပ်၏စက်"</string>

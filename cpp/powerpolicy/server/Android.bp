@@ -92,6 +92,11 @@ cc_test {
     data: [":powerpolicyxmlfiles"],
 }
 
+vintf_fragment {
+    name: "carpowerpolicyd.xml",
+    src: "carpowerpolicyd.xml",
+}
+
 cc_binary {
     name: "carpowerpolicyd",
     defaults: [
@@ -104,7 +109,7 @@ cc_binary {
         "lib_carpowerpolicyserver",
     ],
     init_rc: ["carpowerpolicyd.rc"],
-    vintf_fragments: ["carpowerpolicyd.xml"],
+    vintf_fragment_modules: ["carpowerpolicyd.xml"],
 }
 
 cc_fuzz {

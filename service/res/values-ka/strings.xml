@@ -232,6 +232,10 @@
     <string name="car_permission_desc_manage_car_system_ui" msgid="6201733970421818637">"დაუკავშირდით მანქანის სისტემის UI-ს, რათა შექმნათ დავალების ხედები ან მიიღოთ შეტყობინება სისტემის UI-ს ცვლილებების შესახებ."</string>
     <string name="car_permission_label_read_persist_tethering_settings" msgid="6395145649477916950">"მანქანის ტეტერინგის პარამეტრების წაკითხვის დაშვება"</string>
     <string name="car_permission_desc_read_persist_tethering_settings" msgid="7373546466696896323">"მანქანის ტეტერინგის პარამეტრების წაკითხვის დაშვება"</string>
+    <string name="car_permission_label_record_vehicle_properties" msgid="958971344399611906">"ავტომობილის მახასიათებლების ჩაწერა"</string>
+    <string name="car_permission_desc_record_vehicle_properties" msgid="2560365700851584569">"ავტომობილის მახასიათებლების ჩაწერა"</string>
+    <string name="car_permission_label_inject_vehicle_properties" msgid="2943134725643169428">"ავტომობილის მახასიათებლების ჩასმა"</string>
+    <string name="car_permission_desc_inject_vehicle_properties" msgid="2616112105084870775">"ავტომობილის მახასიათებლების ჩასმა"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"წარმოიშვა CAN-სალტის შეცდომა"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN-სალტე არ რეაგირებს. გამოაერთეთ და ხელახლა მიაერთეთ საინფორმაციო-გასართობი მოწყობილობა, შემდეგ კი ხელახლა დაქოქეთ მანქანა"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"ჩემი მოწყობილობა"</string>

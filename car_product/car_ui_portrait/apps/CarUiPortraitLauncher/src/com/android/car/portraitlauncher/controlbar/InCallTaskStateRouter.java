@@ -53,6 +53,8 @@ public class InCallTaskStateRouter {
      * Dispatches InCall Task state to {@link InCallTaskStateListener}
      */
     public void handleInCallTaskState(boolean isInCallTaskOnTop) {
-        mInCallTaskStateHandler.onTaskStateChanged(isInCallTaskOnTop);
+        if (mInCallTaskStateHandler != null) {
+            mInCallTaskStateHandler.onTaskStateChanged(isInCallTaskOnTop);
+        }
     }
 }

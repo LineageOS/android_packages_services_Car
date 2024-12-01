@@ -32,4 +32,7 @@
     <string name="back">Back</string>
     <!-- DisplayCompat fullscreen button [CHAR LIMIT=30] -->
     <string name="fullscreen">Full Screen</string>
+
+    <!-- Blank home message [CHAR LIMIT=20] -->
+    <string name="blank_home_message">Please open an app</string>
 </resources>

@@ -232,6 +232,10 @@
     <string name="car_permission_desc_manage_car_system_ui" msgid="6201733970421818637">"Communiceren met de systeem-UI van de auto om taakweergaven te maken of meldingen over wijzigingen in de systeem-UI te krijgen."</string>
     <string name="car_permission_label_read_persist_tethering_settings" msgid="6395145649477916950">"Instellingen voor persistente tethering van de auto lezen"</string>
     <string name="car_permission_desc_read_persist_tethering_settings" msgid="7373546466696896323">"Instellingen voor persistente tethering van de auto lezen"</string>
+    <string name="car_permission_label_record_vehicle_properties" msgid="958971344399611906">"voertuigeigenschappen opnemen"</string>
+    <string name="car_permission_desc_record_vehicle_properties" msgid="2560365700851584569">"voertuigeigenschappen opnemen"</string>
+    <string name="car_permission_label_inject_vehicle_properties" msgid="2943134725643169428">"voertuigeigenschappen injecteren"</string>
+    <string name="car_permission_desc_inject_vehicle_properties" msgid="2616112105084870775">"voertuigeigenschappen injecteren"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN-bus is mislukt"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN-bus reageert niet. Koppel de hoofdeenheid los en sluit deze vervolgens weer aan. Start de auto daarna opnieuw."</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"Mijn apparaat"</string>

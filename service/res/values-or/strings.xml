@@ -232,6 +232,10 @@
     <string name="car_permission_desc_manage_car_system_ui" msgid="6201733970421818637">"ଟାସ୍କ ଭ୍ୟୁ ତିଆରି କରିବା କିମ୍ବା ସିଷ୍ଟମ UI ପରିବର୍ତ୍ତନଗୁଡ଼ିକ ବିଷୟରେ ସୂଚନା ପାଇବା ପାଇଁ କାର ସିଷ୍ଟମ UI ସହ କମ୍ୟୁନିକେଟ କରନ୍ତୁ।"</string>
     <string name="car_permission_label_read_persist_tethering_settings" msgid="6395145649477916950">"କାରର ପର୍ସିଷ୍ଟ ଟିଥରିଂ ସେଟିଂସ ପଢ଼ିପାରିବ"</string>
     <string name="car_permission_desc_read_persist_tethering_settings" msgid="7373546466696896323">"କାରର ପର୍ସିଷ୍ଟ ଟିଥରିଂ ସେଟିଂସ ପଢ଼ିପାରିବ"</string>
+    <string name="car_permission_label_record_vehicle_properties" msgid="958971344399611906">"ଗାଡ଼ିର ପ୍ରପର୍ଟିକୁ ରେକର୍ଡ କରନ୍ତୁ"</string>
+    <string name="car_permission_desc_record_vehicle_properties" msgid="2560365700851584569">"ଗାଡ଼ିର ପ୍ରପର୍ଟିକୁ ରେକର୍ଡ କରନ୍ତୁ"</string>
+    <string name="car_permission_label_inject_vehicle_properties" msgid="2943134725643169428">"ଗାଡ଼ିର ପ୍ରପର୍ଟିକୁ ଇନଜେକ୍ଟ କରନ୍ତୁ"</string>
+    <string name="car_permission_desc_inject_vehicle_properties" msgid="2616112105084870775">"ଗାଡ଼ିର ପ୍ରପର୍ଟିକୁ ଇନଜେକ୍ଟ କରନ୍ତୁ"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN ବସ୍ ବିଫଳ ହେଲା"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN ବସ୍ ପ୍ରତିକ୍ରିୟା ଦେଉନାହିଁ। ହେଡୟୁନିଟ୍ ବାକ୍ସର ପ୍ଲଗ୍ କାଢ଼ି ପୁଣି ଲଗାନ୍ତୁ ଏବଂ କାର୍‍କୁ ରିଷ୍ଟାର୍ଟ କରନ୍ତୁ"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"ମୋ ଡିଭାଇସ୍"</string>

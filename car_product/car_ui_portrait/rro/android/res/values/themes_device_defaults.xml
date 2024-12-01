@@ -69,6 +69,7 @@
         <item name="android:textColorSecondaryInverse">@color/car_on_secondary</item>
         <item name="android:textColorTertiary">@color/car_secondary</item>
         <item name="android:textColorTertiaryInverse">@color/car_on_secondary</item>
+        <item name="android:textColorAlertDialogListItem">@color/car_on_background</item>
         <item name="android:textAppearanceLarge">@*android:style/TextAppearance.DeviceDefault.Large</item>
         <item name="android:textAppearanceMedium">@*android:style/TextAppearance.DeviceDefault.Medium</item>
         <item name="android:textAppearanceSmall">@*android:style/TextAppearance.DeviceDefault.Small</item>
@@ -122,6 +123,7 @@
         <item name="android:textColorPrimaryDisableOnly">@color/car_on_background</item>
         <item name="android:textColorSecondary">@color/car_alert_dialog_message_text_color</item>
         <item name="android:textColorTertiary">@color/car_alert_dialog_message_text_color</item>
+        <item name="android:textColorAlertDialogListItem">@color/car_alert_dialog_message_text_color</item>
 
         <item name="android:windowBackground">@android:color/transparent</item>
 

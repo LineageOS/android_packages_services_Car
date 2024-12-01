@@ -103,13 +103,18 @@ cc_library_static {
     ],
 }
 
+vintf_fragment {
+    name: "manifest_evsmanagerd.xml",
+    src: "manifest_evsmanagerd.xml",
+}
+
 cc_binary {
     name: "evsmanagerd",
     defaults: ["evsmanagerd_defaults"],
     static_libs: ["libevsmanagerd_static"],
     srcs: ["src/service.cpp"],
     init_rc: ["evsmanagerd.rc"],
-    vintf_fragments: ["manifest_evsmanagerd.xml"],
+    vintf_fragment_modules: ["manifest_evsmanagerd.xml"],
 }
 
 cc_test {

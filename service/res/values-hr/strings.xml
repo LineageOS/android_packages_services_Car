@@ -232,6 +232,10 @@
     <string name="car_permission_desc_manage_car_system_ui" msgid="6201733970421818637">"Komunicirajte s korisničkim sučeljem sustava automobila za izradu prikaza zadataka ili dobivanje obavijesti o promjenama korisničkog sučelja sustava."</string>
     <string name="car_permission_label_read_persist_tethering_settings" msgid="6395145649477916950">"Čitanje uvijek uključenih postavki modemskog povezivanja automobila"</string>
     <string name="car_permission_desc_read_persist_tethering_settings" msgid="7373546466696896323">"Čitanje uvijek uključenih postavki modemskog povezivanja automobila"</string>
+    <string name="car_permission_label_record_vehicle_properties" msgid="958971344399611906">"bilježiti svojstva vozila"</string>
+    <string name="car_permission_desc_record_vehicle_properties" msgid="2560365700851584569">"bilježiti svojstva vozila"</string>
+    <string name="car_permission_label_inject_vehicle_properties" msgid="2943134725643169428">"unijeti svojstva vozila"</string>
+    <string name="car_permission_desc_inject_vehicle_properties" msgid="2616112105084870775">"unijeti svojstva vozila"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"Pogreška CAN busa"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN bus ne odgovara. Iskopčajte i ponovo ukopčajte glavnu jedinicu i ponovo pokrenite automobil"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"Moj uređaj"</string>
