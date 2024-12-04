@@ -36,9 +36,9 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 public final class ConstantDebugUtils {
     private static final String TAG = ConstantDebugUtils.class.getSimpleName();
-    private static final AtomicReference<Map<Class<?>, ConstantDebugUtils>>
-            CLAZZ_TO_CONSTANT_DEBUG_UTILS_HOLDER = new AtomicReference<>();
-    private final Field[] mClazzDeclaredFields;
+    private static final AtomicReference<Map<ConstantKey, ConstantDebugUtils>>
+            CONSTANT_KEY_TO_CONSTANT_DEBUG_UTILS_HOLDER = new AtomicReference<>();
+    private final ConstantKey mConstantKey;
     /*
      * Used to cache the mapping of property names to IDs. This
      * will be initialized during the first usage.
@@ -52,8 +52,8 @@ public final class ConstantDebugUtils {
     private final AtomicReference<SparseArray<String>> mValueToNameHolder = new AtomicReference<>();
 
     @ExcludeFromCodeCoverageGeneratedReport(reason = PRIVATE_CONSTRUCTOR)
-    private ConstantDebugUtils(Class<?> clazz) {
-        mClazzDeclaredFields = clazz.getDeclaredFields();
+    private ConstantDebugUtils(ConstantKey constantKey) {
+        mConstantKey = constantKey;
     }
 
     /**
@@ -62,7 +62,7 @@ public final class ConstantDebugUtils {
      */
     @Nullable
     public static String toName(Class<?> clazz, int value) {
-        return cacheClazzToConstantDebugUtilsMapping(clazz).toName(value);
+        return getConstantDebugUtils(clazz).toName(value);
     }
 
     /**
@@ -71,71 +71,75 @@ public final class ConstantDebugUtils {
      */
     @Nullable
     public static Integer toValue(Class<?> clazz, String name) {
-        return cacheClazzToConstantDebugUtilsMapping(clazz).toValue(name);
+        return getConstantDebugUtils(clazz).toValue(name);
     }
 
     /**
      * Gets the all the constant values for the specified {@code clazz}.
      */
     public static Collection<Integer> getValues(Class<?> clazz) {
-        return cacheClazzToConstantDebugUtilsMapping(
-                clazz).cacheConstantNameToValueMapping().values();
+        return getConstantDebugUtils(clazz).getConstantNameToValueMapping().values();
     }
 
-    private static ConstantDebugUtils cacheClazzToConstantDebugUtilsMapping(Class<?> clazz) {
+    private static ConstantDebugUtils getConstantDebugUtils(Class<?> clazz) {
+        return getConstantDebugUtils(new ConstantKey(clazz));
+    }
 
-        Map<Class<?>, ConstantDebugUtils> clazzToConstantDebugUtils =
-                CLAZZ_TO_CONSTANT_DEBUG_UTILS_HOLDER.get();
-        if (clazzToConstantDebugUtils == null || clazzToConstantDebugUtils.get(clazz) == null) {
-            clazzToConstantDebugUtils = getClazzToConstantDebugUtilsMapping(
-                    clazzToConstantDebugUtils, clazz);
-            CLAZZ_TO_CONSTANT_DEBUG_UTILS_HOLDER.set(clazzToConstantDebugUtils);
+    private static ConstantDebugUtils getConstantDebugUtils(ConstantKey constantKey) {
+        Map<ConstantKey, ConstantDebugUtils> clazzToConstantDebugUtils =
+                CONSTANT_KEY_TO_CONSTANT_DEBUG_UTILS_HOLDER.get();
+        if (clazzToConstantDebugUtils == null || clazzToConstantDebugUtils.get(constantKey)
+                == null) {
+            clazzToConstantDebugUtils = getConstantKeyToConstantDebugUtils(
+                    clazzToConstantDebugUtils, constantKey);
+            CONSTANT_KEY_TO_CONSTANT_DEBUG_UTILS_HOLDER.set(clazzToConstantDebugUtils);
         }
-        return clazzToConstantDebugUtils.get(clazz);
+        return clazzToConstantDebugUtils.get(constantKey);
     }
 
-    private static Map<Class<?>, ConstantDebugUtils> getClazzToConstantDebugUtilsMapping(
-            @Nullable Map<Class<?>, ConstantDebugUtils> clazzToConstantDebugUtils, Class<?> clazz) {
-        Map<Class<?>, ConstantDebugUtils> outputClazzToConstantDebugsUtils;
-        if (clazzToConstantDebugUtils == null) {
-            outputClazzToConstantDebugsUtils = new ArrayMap<>();
+    private static Map<ConstantKey, ConstantDebugUtils> getConstantKeyToConstantDebugUtils(
+            @Nullable Map<ConstantKey, ConstantDebugUtils> constantKeyToConstantDebugUtils,
+            ConstantKey constantKey) {
+        Map<ConstantKey, ConstantDebugUtils> outputConstantKeyToConstantDebugsUtils;
+        if (constantKeyToConstantDebugUtils == null) {
+            outputConstantKeyToConstantDebugsUtils = new ArrayMap<>();
         } else {
-            outputClazzToConstantDebugsUtils = new ArrayMap<>(clazzToConstantDebugUtils.size());
-            outputClazzToConstantDebugsUtils.putAll(clazzToConstantDebugUtils);
+            outputConstantKeyToConstantDebugsUtils = new ArrayMap<>(
+                    constantKeyToConstantDebugUtils.size());
+            outputConstantKeyToConstantDebugsUtils.putAll(constantKeyToConstantDebugUtils);
         }
-        outputClazzToConstantDebugsUtils.put(clazz, new ConstantDebugUtils(clazz));
-        return outputClazzToConstantDebugsUtils;
-    }
-
-    private static boolean isIntConstant(Field field) {
-        // We only want public static final int values
-        return field.getType() == int.class && field.getModifiers() == (Modifier.STATIC
-                | Modifier.FINAL | Modifier.PUBLIC);
+        outputConstantKeyToConstantDebugsUtils.put(constantKey,
+                new ConstantDebugUtils(constantKey));
+        return outputConstantKeyToConstantDebugsUtils;
     }
 
     @Nullable
     private String toName(int value) {
-        return cacheConstantValueToNameMapping().get(value);
+        return getConstantValueToNameMapping().get(value);
     }
 
     @Nullable
     private Integer toValue(String name) {
-        return cacheConstantNameToValueMapping().get(name);
+        if (!mConstantKey.prefix().isEmpty() && name.startsWith(mConstantKey.prefix())) {
+            return getConstantNameToValueMapping().get(
+                    name.substring(mConstantKey.prefix().length()));
+        }
+        return getConstantNameToValueMapping().get(name);
     }
 
-    private ArrayMap<String, Integer> cacheConstantNameToValueMapping() {
+    private ArrayMap<String, Integer> getConstantNameToValueMapping() {
         ArrayMap<String, Integer> nameToValue = mNameToValueHolder.get();
         if (nameToValue == null) {
-            nameToValue = getConstantNameToValueMapping();
+            nameToValue = createConstantNameToValueMapping();
             mNameToValueHolder.compareAndSet(null, nameToValue);
         }
         return nameToValue;
     }
 
-    private SparseArray<String> cacheConstantValueToNameMapping() {
+    private SparseArray<String> getConstantValueToNameMapping() {
         SparseArray<String> valueToName = mValueToNameHolder.get();
         if (valueToName == null) {
-            valueToName = getConstantValueToNameMapping();
+            valueToName = createConstantValueToNameMapping();
             mValueToNameHolder.compareAndSet(null, valueToName);
         }
         return valueToName;
@@ -144,13 +148,14 @@ public final class ConstantDebugUtils {
     /**
      * Creates a mapping property names to their IDs.
      */
-    private ArrayMap<String, Integer> getConstantNameToValueMapping() {
+    private ArrayMap<String, Integer> createConstantNameToValueMapping() {
         ArrayMap<String, Integer> constantNameToValue = new ArrayMap<>();
-        for (int i = 0; i < mClazzDeclaredFields.length; i++) {
-            Field candidateField = mClazzDeclaredFields[i];
+        for (int i = 0; i < mConstantKey.clazz().getDeclaredFields().length; i++) {
+            Field candidateField = mConstantKey.clazz().getDeclaredFields()[i];
             try {
-                if (isIntConstant(candidateField)) {
-                    constantNameToValue.put(candidateField.getName(), candidateField.getInt(null));
+                if (isMatchingConstant(candidateField)) {
+                    constantNameToValue.put(getConstantName(candidateField),
+                            candidateField.getInt(null));
                 }
             } catch (IllegalAccessException e) {
                 Slog.wtf(TAG, "Failed trying to find value for " + candidateField.getName(), e);
@@ -163,18 +168,40 @@ public final class ConstantDebugUtils {
      * Creates a SparseArray mapping constant values to their String representations
      * directly from this class.
      */
-    private SparseArray<String> getConstantValueToNameMapping() {
+    private SparseArray<String> createConstantValueToNameMapping() {
         SparseArray<String> constantValueToName = new SparseArray<>();
-        for (int i = 0; i < mClazzDeclaredFields.length; i++) {
-            Field candidateField = mClazzDeclaredFields[i];
+        for (int i = 0; i < mConstantKey.clazz().getDeclaredFields().length; i++) {
+            Field candidateField = mConstantKey.clazz().getDeclaredFields()[i];
             try {
-                if (isIntConstant(candidateField)) {
-                    constantValueToName.put(candidateField.getInt(null), candidateField.getName());
+                if (isMatchingConstant(candidateField)) {
+                    constantValueToName.put(candidateField.getInt(null),
+                            getConstantName(candidateField));
                 }
             } catch (IllegalAccessException e) {
                 Slog.wtf(TAG, "Failed trying to find value for " + candidateField.getName(), e);
             }
         }
         return constantValueToName;
+    }
+
+    private boolean isMatchingConstant(Field field) {
+        int modifiers = field.getModifiers();
+        // Checks for "public static final int PREFIX_".
+        return !(!Modifier.isPublic(modifiers)
+                || !Modifier.isStatic(modifiers)
+                || !Modifier.isFinal(modifiers)
+                || !field.getType().equals(int.class)
+                || (!mConstantKey.prefix().isEmpty()
+                && !field.getName().startsWith(mConstantKey.prefix())));
+    }
+
+    private String getConstantName(Field field) {
+        return field.getName().substring(mConstantKey.prefix().length());
+    }
+
+    private record ConstantKey(Class<?> clazz, String prefix) {
+        ConstantKey(Class<?> clazz) {
+            this(clazz, "");
+        }
     }
 }
