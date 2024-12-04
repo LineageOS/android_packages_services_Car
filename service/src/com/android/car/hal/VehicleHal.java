@@ -32,10 +32,14 @@ import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DU
 import android.annotation.CheckResult;
 import android.annotation.Nullable;
 import android.car.VehiclePropertyIds;
+import android.car.builtin.os.BuildHelper;
 import android.car.builtin.os.TraceHelper;
 import android.car.builtin.util.Slogf;
 import android.car.feature.FeatureFlags;
 import android.car.feature.FeatureFlagsImpl;
+import android.car.hardware.CarPropertyValue;
+import android.car.hardware.property.CarPropertyEvent;
+import android.car.hardware.property.ICarPropertyEventListener;
 import android.content.Context;
 import android.hardware.automotive.vehicle.RawPropValues;
 import android.hardware.automotive.vehicle.StatusCode;
@@ -48,6 +52,7 @@ import android.hardware.automotive.vehicle.VehiclePropertyStatus;
 import android.hardware.automotive.vehicle.VehiclePropertyType;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.os.IBinder;
 import android.os.ParcelFileDescriptor;
 import android.os.RemoteException;
 import android.os.ServiceSpecificException;
@@ -152,6 +157,8 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
 
     // Used by injectVHALEvent for testing purposes.  Delimiter for an array of data
     private static final String DATA_DELIMITER = ",";
+    @GuardedBy("mLock")
+    private RecordingListenerHandler mListenerHandler;
 
     /** A structure to store update rate in hz and whether to enable VUR. */
     private static final class RateInfo {
@@ -364,6 +371,7 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
     }
 
     private void handleOnPropertyEvent(List<HalPropValue> propValues) {
+        maybeHandleRecording(propValues);
         synchronized (mLock) {
             for (int i = 0; i < propValues.size(); i++) {
                 HalPropValue v = propValues.get(i);
@@ -1252,9 +1260,130 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
         }
     }
 
-     /**
-     * Dumps or debug VHAL.
+    private final class RecordingListenerHandler implements IBinder.DeathRecipient {
+
+        private ICarPropertyEventListener mCallback;
+
+        private RecordingListenerHandler(ICarPropertyEventListener callback) {
+            mCallback = callback;
+        }
+
+        private void onEvent(List<CarPropertyEvent> events) {
+            try {
+                mCallback.onEvent(events);
+            } catch (RemoteException e) {
+                Slogf.e(CarLog.TAG_HAL, "onEvent failed", e);
+            }
+        }
+
+        private boolean linkToDeath() {
+            IBinder binder = mCallback.asBinder();
+            try {
+                binder.linkToDeath(this, 0);
+                return true;
+            } catch (RemoteException e) {
+                mCallback = null;
+                Slogf.w(CarLog.TAG_HAL, e, "Linking to binder death recipient failed");
+            }
+            return false;
+        }
+
+        private void unlinkToDeath() {
+            if (mCallback == null) {
+                return;
+            }
+            IBinder binder = mCallback.asBinder();
+            binder.unlinkToDeath(this, 0);
+        }
+
+        @Override
+        public void binderDied() {
+            Slogf.w(CarLog.TAG_HAL, "Recording listener died");
+            stopRecordingVehicleProperties(mCallback);
+        }
+    }
+
+    private void maybeHandleRecording(List<HalPropValue> halPropValues) {
+        RecordingListenerHandler recordingListenerHandler;
+        List<CarPropertyEvent> events = new ArrayList<>();
+        synchronized (mLock) {
+            if (mListenerHandler == null || !BuildHelper.isDebuggableBuild()) {
+                return;
+            }
+            for (int i = 0; i < halPropValues.size(); i++) {
+                HalPropValue halPropValue = halPropValues.get(i);
+                HalPropConfig halPropConfig = mAllProperties.get(halPropValue.getPropId());
+                if (halPropConfig == null) {
+                    Slogf.w(CarLog.TAG_HAL, "No HalPropConfig associated with property %d",
+                            halPropValue.getPropId());
+                    continue;
+                }
+                CarPropertyValue<?> carPropertyvalue = halPropValues.get(i).toCarPropertyValue(
+                        halPropValue.getPropId(), halPropConfig, /* isVhalPropId= */ true);
+                events.add(new CarPropertyEvent(
+                        CarPropertyEvent.PROPERTY_EVENT_PROPERTY_CHANGE, carPropertyvalue));
+            }
+            recordingListenerHandler = mListenerHandler;
+        }
+        if (events.isEmpty()) {
+            return;
+        }
+        recordingListenerHandler.onEvent(events);
+    }
+
+    /**
+     * Registers a recording listener.
+     *
+     * @param callback The callback to register
+     * @return A list of CarPropertyConfigs that are being recorded
      */
+    public List<HalPropConfig> registerRecordingListener(ICarPropertyEventListener callback) {
+        synchronized (mLock) {
+            if (mListenerHandler != null) {
+                throw new IllegalStateException("Recording already in progress");
+            }
+            mListenerHandler = new RecordingListenerHandler(callback);
+            if (!mListenerHandler.linkToDeath()) {
+                throw new IllegalStateException("Failed to link to death, the client is probably"
+                        + " already dead.");
+            }
+
+            List<HalPropConfig> allHalPropConfigs = new ArrayList<>();
+            for (int i = 0; i < mAllProperties.size(); i++) {
+                allHalPropConfigs.add(mAllProperties.valueAt(i));
+            }
+            return allHalPropConfigs;
+        }
+    }
+
+    /**
+     * @return {@code true} If currently recording vehicle properties
+     */
+    public boolean isRecordingVehicleProperties() {
+        synchronized (mLock) {
+            return mListenerHandler != null;
+        }
+    }
+
+    /**
+     * Stops the recording. If no recording is present, treat as no-op.
+     *
+     * @param callback The callback to stop recording.
+     */
+    public void stopRecordingVehicleProperties(ICarPropertyEventListener callback) {
+        synchronized (mLock) {
+            if (mListenerHandler == null || mListenerHandler.mCallback != callback) {
+                Slogf.w(CarLog.TAG_HAL, "ICarPropertyEventListener are not the same");
+                return;
+            }
+            mListenerHandler.unlinkToDeath();
+            mListenerHandler = null;
+        }
+    }
+
+    /**
+    * Dumps or debug VHAL.
+    */
     @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     public void dumpVhal(ParcelFileDescriptor fd, List<String> options) throws RemoteException {
         mVehicleStub.dump(fd.getFileDescriptor(), options);

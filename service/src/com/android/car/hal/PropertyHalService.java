@@ -1931,14 +1931,21 @@ public class PropertyHalService extends HalServiceBase {
      * @return A list of CarPropertyConfigs that are being recorded
      */
     public List<CarPropertyConfig> registerRecordingListener(ICarPropertyEventListener callback) {
-        return new ArrayList<>();
+        List<HalPropConfig> allHalPropConfigs = mVehicleHal.registerRecordingListener(callback);
+        List<CarPropertyConfig> allCarPropertyConfigs = new ArrayList<>();
+        for (int i = 0; i < allHalPropConfigs.size(); i++) {
+            HalPropConfig halPropConfig = allHalPropConfigs.get(i);
+            allCarPropertyConfigs.add(halPropConfig.toCarPropertyConfig(halPropConfig.getPropId(),
+                    mPropertyHalServiceConfigs, /* isVhalPropId= */ true));
+        }
+        return allCarPropertyConfigs;
     }
 
     /**
      * @return True If currently recording vehicle properties
      */
     public boolean isRecordingVehicleProperties() {
-        return false;
+        return mVehicleHal.isRecordingVehicleProperties();
     }
 
     /**
@@ -1946,7 +1953,7 @@ public class PropertyHalService extends HalServiceBase {
      * @param callback The callback to stop recording.
      */
     public void stopRecordingVehicleProperties(ICarPropertyEventListener callback) {
-
+        mVehicleHal.stopRecordingVehicleProperties(callback);
     }
 
     /**

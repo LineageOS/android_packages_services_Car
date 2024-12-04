@@ -102,6 +102,18 @@ public abstract class HalPropConfig {
      */
     public CarPropertyConfig<?> toCarPropertyConfig(int mgrPropertyId,
             PropertyHalServiceConfigs propertyHalServiceConfigs) {
+        return toCarPropertyConfig(mgrPropertyId, propertyHalServiceConfigs,
+                /* isVhalPropId= */ false);
+    }
+
+    /**
+     * Converts {@link HalPropConfig} to {@link CarPropertyConfig}.
+     *
+     * @param mgrPropertyId The Property ID used by Car Property Manager, different from the
+     *                      property ID used by VHAL.
+     */
+    public CarPropertyConfig<?> toCarPropertyConfig(int mgrPropertyId,
+            PropertyHalServiceConfigs propertyHalServiceConfigs, boolean isVhalPropId) {
         int propId = getPropId();
         int areaType = getVehicleAreaType(propId & VehicleArea.MASK);
         Class<?> clazz = CarPropertyUtils.getJavaClass(propId & VehiclePropertyType.MASK);
@@ -163,6 +175,7 @@ public abstract class HalPropConfig {
                                 areaAccess, halAreaConfig.getHasSupportedValueInfo()));
             }
         }
+        carPropertyConfigBuilder.setPropertyIdIsSimulationPropId(isVhalPropId);
         return carPropertyConfigBuilder.build();
     }
 
