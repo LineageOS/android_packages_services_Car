@@ -23,8 +23,12 @@
 #include <aidl/android/hardware/automotive/vehicle/StatusCode.h>
 #include <aidl/android/hardware/automotive/vehicle/SubscribeOptions.h>
 #include <android-base/result.h>
+#include <android-base/strings.h>
+#include <android-base/thread_annotations.h>
 
 #include <VehicleUtils.h>
+
+#include <unordered_set>
 
 namespace android {
 namespace frameworks {
@@ -131,6 +135,10 @@ using VhalClientResult = android::base::Result<T, VhalClientError>;
 using ClientStatusError = android::base::Error<VhalClientError>;
 
 // ISubscriptionCallback is a client that could be used to subscribe/unsubscribe.
+//
+// Before destroying this client instance, client must call unsubscribeAll, otherwise, the
+// subscribed properties will still be subscribed and the callback will be kept alive until
+// the process ends.
 class ISubscriptionClient {
 public:
     virtual ~ISubscriptionClient() = default;
@@ -142,6 +150,8 @@ public:
                     options) = 0;
 
     virtual VhalClientResult<void> unsubscribe(const std::vector<int32_t>& propIds) = 0;
+
+    virtual void unsubscribeAll() = 0;
 };
 
 class SubscribeOptionsBuilder {
@@ -350,6 +360,59 @@ public:
      */
     virtual int32_t getRemoteInterfaceVersion() { return 0; }
 };
+
+namespace internal {
+
+inline std::string toString(const std::vector<int32_t>& values) {
+    std::vector<std::string> strings;
+    for (int32_t value : values) {
+        strings.push_back(std::to_string(value));
+    }
+    return "[" + android::base::Join(strings, ",") + "]";
+}
+
+// SubscriptionClient is the common base class for Aidl and Hidl Subscription Client.
+class SubscriptionClient : public ISubscriptionClient {
+public:
+    void unsubscribeAll() override {
+        std::vector<int32_t> propIds;
+        {
+            std::lock_guard<std::mutex> lk(mLock);
+            propIds = std::vector<int32_t>(mSubscribedPropIds.begin(), mSubscribedPropIds.end());
+        }
+        auto result = unsubscribe(propIds);
+        if (!result.ok()) {
+            ALOGE("Failed to unsubscribe all subscribed properties: %s, error: %s",
+                  toString(propIds).c_str(), result.error().message().c_str());
+        }
+    }
+
+    ~SubscriptionClient() {
+        std::lock_guard<std::mutex> lk(mLock);
+        if (!mSubscribedPropIds.empty()) {
+            ALOGW("Properties: %s are still subscribed when the SubscriptionClient is destroyed, "
+                  "they will always be subscribed until the client process ends, do you forget"
+                  " to call unsubscribeAll?",
+                  toString(std::vector<int32_t>(mSubscribedPropIds.begin(),
+                                                mSubscribedPropIds.end()))
+                          .c_str());
+        }
+    }
+
+protected:
+    void addSubscribedPropIds(const std::vector<int32_t>& propIds) {
+        std::lock_guard<std::mutex> lk(mLock);
+        for (int32_t propId : propIds) {
+            mSubscribedPropIds.insert(propId);
+        }
+    }
+
+private:
+    std::mutex mLock;
+    std::unordered_set<int32_t> mSubscribedPropIds GUARDED_BY(mLock);
+};
+
+}  // namespace internal
 
 }  // namespace vhal
 }  // namespace automotive

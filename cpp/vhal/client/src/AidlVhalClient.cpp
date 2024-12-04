@@ -37,7 +37,6 @@ namespace vhal {
 
 namespace {
 
-using ::android::base::Join;
 using ::android::base::StringPrintf;
 using ::android::hardware::automotive::vehicle::fromStableLargeParcelable;
 using ::android::hardware::automotive::vehicle::PendingRequestPool;
@@ -68,14 +67,6 @@ using ::ndk::ScopedAIBinder_DeathRecipient;
 using ::ndk::ScopedAStatus;
 using ::ndk::SharedRefBase;
 using ::ndk::SpAIBinder;
-
-std::string toString(const std::vector<int32_t>& values) {
-    std::vector<std::string> strings;
-    for (int32_t value : values) {
-        strings.push_back(std::to_string(value));
-    }
-    return "[" + Join(strings, ",") + "]";
-}
 
 }  // namespace
 
@@ -223,7 +214,7 @@ VhalClientResult<std::vector<std::unique_ptr<IHalPropConfig>>> AidlVhalClient::g
         return statusToError<std::vector<std::unique_ptr<
                 IHalPropConfig>>>(status,
                                   StringPrintf("failed to get prop configs for prop IDs: %s",
-                                               toString(propIds).c_str()));
+                                               internal::toString(propIds).c_str()));
     }
     return parseVehiclePropConfigs(configs);
 }
@@ -601,8 +592,9 @@ VhalClientResult<void> AidlSubscriptionClient::subscribe(
         return AidlVhalClient::statusToError<
                 void>(status,
                       StringPrintf("failed to subscribe to prop IDs: %s",
-                                   toString(propIds).c_str()));
+                                   internal::toString(propIds).c_str()));
     }
+    addSubscribedPropIds(propIds);
     return {};
 }
 
@@ -611,7 +603,7 @@ VhalClientResult<void> AidlSubscriptionClient::unsubscribe(const std::vector<int
         return AidlVhalClient::statusToError<
                 void>(status,
                       StringPrintf("failed to unsubscribe to prop IDs: %s",
-                                   toString(propIds).c_str()));
+                                   internal::toString(propIds).c_str()));
     }
     return {};
 }
