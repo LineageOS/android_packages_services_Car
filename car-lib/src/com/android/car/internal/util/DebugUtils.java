@@ -32,10 +32,19 @@ public final class DebugUtils {
     private DebugUtils() {}
 
     /**
+     * Gets human-readable representation of constants (static final values).
+     *
+     * @see #constantToString(Class, String, int)
+     */
+    public static String constantToString(Class<?> clazz, int value) {
+        return constantToString(clazz, "", value);
+    }
+
+    /**
      * Use prefixed constants (static final values) on given class to turn value
      * into human-readable string.
      */
-    public static String valueToString(Class<?> clazz, String prefix, int value) {
+    public static String constantToString(Class<?> clazz, String prefix, int value) {
         for (Field field : clazz.getDeclaredFields()) {
             final int modifiers = field.getModifiers();
             if (Modifier.isStatic(modifiers) && Modifier.isFinal(modifiers)
@@ -48,7 +57,7 @@ public final class DebugUtils {
                 }
             }
         }
-        return Integer.toString(value);
+        return prefix + value;
     }
 
     /**
@@ -83,33 +92,6 @@ public final class DebugUtils {
             res.deleteCharAt(res.length() - 1);
         }
         return res.toString();
-    }
-
-    /**
-     * Gets human-readable representation of constants (static final values).
-     *
-     * @see #constantToString(Class, String, int)
-     */
-    public static String constantToString(Class<?> clazz, int value) {
-        return constantToString(clazz, "", value);
-    }
-
-    /**
-     * Gets human-readable representation of constants (static final values).
-     */
-    public static String constantToString(Class<?> clazz, String prefix, int value) {
-        for (Field field : clazz.getDeclaredFields()) {
-            final int modifiers = field.getModifiers();
-            try {
-                if (Modifier.isStatic(modifiers) && Modifier.isFinal(modifiers)
-                        && field.getType().equals(int.class) && field.getName().startsWith(prefix)
-                        && field.getInt(null) == value) {
-                    return constNameWithoutPrefix(prefix, field);
-                }
-            } catch (IllegalAccessException ignored) {
-            }
-        }
-        return prefix + Integer.toString(value);
     }
 
     /**
