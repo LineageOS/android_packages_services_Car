@@ -86,7 +86,7 @@ public final class DebugUtils {
                 }
             }
         }
-        if (flags != 0 || res.length() == 0) {
+        if (flags != 0 || res.isEmpty()) {
             res.append(Integer.toHexString(flags));
         } else {
             res.deleteCharAt(res.length() - 1);
