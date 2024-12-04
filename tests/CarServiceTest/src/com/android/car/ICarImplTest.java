@@ -29,7 +29,7 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import android.automotive.powerpolicy.internal.ICarPowerPolicyDelegate;
+import android.automotive.power.internal.ICarPowerManagementDelegate;
 import android.car.Car;
 import android.car.ICarResultReceiver;
 import android.car.feature.Flags;
@@ -101,7 +101,7 @@ import java.io.IOException;
  * <li>{@link CarUserService}</li>
  * <li>{@link ICarPowerPolicySystemNotification.Stub} car power policy daemon before
  * refactoring</li>
- * <li>{@link ICarPowerPolicyDelegate.Stub} car power policy daemon after refactoring.</li>
+ * <li>{@link ICarPowerManagementDelegate.Stub} car power management daemon after refactoring.</li>
  * <li>{@link ICarServiceHelper}</li>
  * </ol>
  */
@@ -124,7 +124,7 @@ public final class ICarImplTest {
     @Mock private CarAudioService mMockCarAudioService;
     @Mock private CarUserService mMockCarUserService;
     @Mock private ICarPowerPolicySystemNotification.Stub mMockCarPowerPolicyDaemon;
-    @Mock private ICarPowerPolicyDelegate.Stub mMockRefactoredCarPowerPolicyDaemon;
+    @Mock private ICarPowerManagementDelegate.Stub mMockRefactoredCarPowerManagementDaemon;
     @Mock private ICarServiceHelper mICarServiceHelper;
 
     private Context mContext;
@@ -211,7 +211,7 @@ public final class ICarImplTest {
 
     private IInterface getMockPowerPolicyDaemon() {
         if (Flags.carPowerPolicyRefactoring()) {
-            return mMockRefactoredCarPowerPolicyDaemon;
+            return mMockRefactoredCarPowerManagementDaemon;
         } else {
             return mMockCarPowerPolicyDaemon;
         }
@@ -250,7 +250,7 @@ public final class ICarImplTest {
                         PowerHalService powerHalService
                     ) -> mMockCarRemoteAccessService)
                 .setGarageModeService(mMockGarageModeService)
-                .setPowerPolicyDaemon(powerPolicyDaemon)
+                .setPowerManagementDaemon(powerPolicyDaemon)
                 .setDoPriorityInitInConstruction(false)
                 .setTestStaticBinder(mFakeStaticBinderInterface)
                 .build();
@@ -293,7 +293,7 @@ public final class ICarImplTest {
                 .setGarageModeService(mMockGarageModeService)
                 .setCarAudioService(mMockCarAudioService)
                 .setCarUserService(mMockCarUserService)
-                .setPowerPolicyDaemon(powerPolicyDaemon)
+                .setPowerManagementDaemon(powerPolicyDaemon)
                 .setDoPriorityInitInConstruction(false)
                 .setTestStaticBinder(mFakeStaticBinderInterface)
                 .build();
@@ -329,7 +329,7 @@ public final class ICarImplTest {
                 .setGarageModeService(mMockGarageModeService)
                 .setCarAudioService(mMockCarAudioService)
                 .setCarUserService(mMockCarUserService)
-                .setPowerPolicyDaemon(powerPolicyDaemon)
+                .setPowerManagementDaemon(powerPolicyDaemon)
                 .setDoPriorityInitInConstruction(false)
                 .setTestStaticBinder(mFakeStaticBinderInterface)
                 .build();

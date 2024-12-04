@@ -296,7 +296,7 @@ public class ICarImpl extends ICar.Stub {
                         .setPowerHalService(mHal.getPowerHal())
                         .setSystemInterface(mSystemInterface)
                         .setCarUserService(mCarUserService)
-                        .setPowerPolicyDaemon(builder.mPowerPolicyDaemon)
+                        .setPowerManagementDaemon(builder.mPowerManagementDaemon)
                         .setFeatureFlags(mFeatureFlags)
                         .build(),
                 allServices);
@@ -1142,7 +1142,7 @@ public class ICarImpl extends ICar.Stub {
         VehicleStub mVehicle;
         SystemInterface mSystemInterface;
         String mVehicleInterfaceName;
-        IInterface mPowerPolicyDaemon;
+        IInterface mPowerManagementDaemon;
         CarRemoteAccessServiceConstructor mCarRemoteAccessServiceConstructor;
         StaticBinderInterface mStaticBinder;
         FeatureFlags mFeatureFlags;
@@ -1271,12 +1271,12 @@ public class ICarImpl extends ICar.Stub {
         }
 
         /**
-         * Sets ICarImpl power policy daemon
-         * @param powerPolicyDaemon The power policy daemon interface
+         * Sets ICarImpl power management daemon
+         * @param powerManagementDaemon The power management daemon interface
          * @return Current builder object
          */
-        public Builder setPowerPolicyDaemon(IInterface powerPolicyDaemon) {
-            mPowerPolicyDaemon = powerPolicyDaemon;
+        public Builder setPowerManagementDaemon(IInterface powerManagementDaemon) {
+            mPowerManagementDaemon = powerManagementDaemon;
             return this;
         }
 
