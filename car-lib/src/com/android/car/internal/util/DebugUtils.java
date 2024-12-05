@@ -20,8 +20,6 @@ import android.car.VehiclePropertyIds;
 
 import com.android.car.internal.property.PropIdAreaId;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 import java.util.List;
 
 // Copied from frameworks/base and kept only used codes
@@ -29,7 +27,8 @@ import java.util.List;
  * <p>Various utilities for debugging and logging.</p>
  */
 public final class DebugUtils {
-    private DebugUtils() {}
+    private DebugUtils() {
+    }
 
     /**
      * Gets human-readable representation of constants (static final values).
@@ -45,19 +44,8 @@ public final class DebugUtils {
      * into human-readable string.
      */
     public static String constantToString(Class<?> clazz, String prefix, int value) {
-        for (Field field : clazz.getDeclaredFields()) {
-            final int modifiers = field.getModifiers();
-            if (Modifier.isStatic(modifiers) && Modifier.isFinal(modifiers)
-                    && field.getType().equals(int.class) && field.getName().startsWith(prefix)) {
-                try {
-                    if (value == field.getInt(null)) {
-                        return constNameWithoutPrefix(prefix, field);
-                    }
-                } catch (IllegalAccessException ignored) {
-                }
-            }
-        }
-        return prefix + value;
+        String constantString = ConstantDebugUtils.toName(clazz, prefix, value);
+        return constantString != null ? constantString : prefix + value;
     }
 
     /**
@@ -69,23 +57,17 @@ public final class DebugUtils {
         final StringBuilder res = new StringBuilder();
         boolean flagsWasZero = flags == 0;
 
-        for (Field field : clazz.getDeclaredFields()) {
-            final int modifiers = field.getModifiers();
-            if (Modifier.isStatic(modifiers) && Modifier.isFinal(modifiers)
-                    && field.getType().equals(int.class) && field.getName().startsWith(prefix)) {
-                try {
-                    final int value = field.getInt(null);
-                    if (value == 0 && flagsWasZero) {
-                        return constNameWithoutPrefix(prefix, field);
-                    }
-                    if (value != 0 && (flags & value) == value) {
-                        flags &= ~value;
-                        res.append(constNameWithoutPrefix(prefix, field)).append('|');
-                    }
-                } catch (IllegalAccessException ignored) {
-                }
+        for (Integer bitFlag : ConstantDebugUtils.getValues(clazz, prefix)) {
+
+            if (bitFlag == 0 && flagsWasZero) {
+                return ConstantDebugUtils.toName(clazz, prefix, bitFlag);
+            }
+            if (bitFlag != 0 && (flags & bitFlag) == bitFlag) {
+                flags &= ~bitFlag;
+                res.append(ConstantDebugUtils.toName(clazz, prefix, bitFlag)).append('|');
             }
         }
+
         if (flags != 0 || res.isEmpty()) {
             res.append(Integer.toHexString(flags));
         } else {
@@ -119,9 +101,5 @@ public final class DebugUtils {
             sb.append(toDebugString(propIdAreaId));
         }
         return sb.append("]").toString();
-    }
-
-    private static String constNameWithoutPrefix(String prefix, Field field) {
-        return field.getName().substring(prefix.length());
     }
 }

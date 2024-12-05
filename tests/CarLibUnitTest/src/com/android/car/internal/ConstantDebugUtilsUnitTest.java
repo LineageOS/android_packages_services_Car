@@ -21,6 +21,7 @@ import static com.google.common.truth.Truth.assertThat;
 import android.car.VehicleAreaMirror;
 import android.car.VehicleGear;
 import android.car.VehicleSeatOccupancyState;
+import android.car.VehicleUnit;
 
 import com.android.car.internal.util.ConstantDebugUtils;
 
@@ -39,6 +40,20 @@ public class ConstantDebugUtilsUnitTest {
     }
 
     @Test
+    public void testToName_removesPrefix() {
+        assertThat(ConstantDebugUtils.toName(VehicleGear.class, "GEAR_",
+                VehicleGear.GEAR_DRIVE)).isEqualTo("DRIVE");
+    }
+
+    @Test
+    public void testToName_hidesNamesThatDoNotMatchPrefix() {
+        assertThat(ConstantDebugUtils.toName(VehicleUnit.class, "MILLI",
+                VehicleUnit.MILLIAMPERE)).isEqualTo("AMPERE");
+        assertThat(ConstantDebugUtils.toName(VehicleUnit.class, "MILLI",
+                VehicleUnit.FAHRENHEIT)).isNull();
+    }
+
+    @Test
     public void testToValue() {
         assertThat(ConstantDebugUtils.toValue(VehicleGear.class, "GEAR_DRIVE")).isEqualTo(
                 VehicleGear.GEAR_DRIVE);
@@ -53,5 +68,12 @@ public class ConstantDebugUtilsUnitTest {
         assertThat(ConstantDebugUtils.getValues(VehicleAreaMirror.class)).containsExactlyElementsIn(
                 List.of(VehicleAreaMirror.MIRROR_DRIVER_LEFT, VehicleAreaMirror.MIRROR_DRIVER_RIGHT,
                         VehicleAreaMirror.MIRROR_DRIVER_CENTER));
+    }
+
+    @Test
+    public void testGetValues_hidesNamesThatDoNotMatchPrefix() {
+        assertThat(ConstantDebugUtils.getValues(VehicleUnit.class, "MILLI")).containsExactly(
+                VehicleUnit.MILLILITER, VehicleUnit.MILLIAMPERE, VehicleUnit.MILLIMETER,
+                VehicleUnit.MILLI_SECS, VehicleUnit.MILLIVOLT, VehicleUnit.MILLIWATTS);
     }
 }
