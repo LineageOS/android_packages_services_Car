@@ -281,6 +281,53 @@ public final class ScreenOffHandlerUnitTest extends AbstractExtendedMockitoTestC
     }
 
     @Test
+    public void testAssignDefaultPowerMode_ifStoredPowerModeNotValid() {
+        OccupantZoneInfo zoneInfo1 = mCarOccupantZoneService.getOccupantZone(
+                CarOccupantZoneManager.OCCUPANT_TYPE_DRIVER,
+                VehicleAreaSeat.SEAT_ROW_1_LEFT);
+        // Create mock displays for each main display for each occupant zone.
+        int displayId1 = mCarOccupantZoneService.getDisplayForOccupant(
+                zoneInfo1.zoneId, CarOccupantZoneManager.DISPLAY_TYPE_MAIN);
+        var mockDisplay1 = createMockDisplay(displayId1);
+        OccupantZoneInfo zoneInfo2 = mCarOccupantZoneService.getOccupantZone(
+                CarOccupantZoneManager.OCCUPANT_TYPE_REAR_PASSENGER,
+                VehicleAreaSeat.SEAT_ROW_2_LEFT);
+        int displayId2 = mCarOccupantZoneService.getDisplayForOccupant(
+                zoneInfo2.zoneId, CarOccupantZoneManager.DISPLAY_TYPE_MAIN);
+        var mockDisplay2 = createMockDisplay(displayId2);
+        OccupantZoneInfo zoneInfo3 = mCarOccupantZoneService.getOccupantZone(
+                CarOccupantZoneManager.OCCUPANT_TYPE_REAR_PASSENGER,
+                VehicleAreaSeat.SEAT_ROW_2_RIGHT);
+        int displayId3 = mCarOccupantZoneService.getDisplayForOccupant(
+                zoneInfo3.zoneId, CarOccupantZoneManager.DISPLAY_TYPE_MAIN);
+        var mockDisplay3 = createMockDisplay(displayId3);
+        new MockDisplays(mDisplayManager).addDisplay(mockDisplay1)
+                .addDisplay(mockDisplay2).addDisplay(mockDisplay3).create();
+
+        Settings.Global.putString(mContentResolver, CarSettings.Global.DISPLAY_POWER_MODE,
+                "invalidpowermode::::");
+
+        bootComplete();
+
+        mTestLooper.dispatchAll();
+
+        // Default power mode for each display is ALWAYS_ON.
+        verify(mSystemInterface).setDisplayState(displayId1, true);
+        verify(mSystemInterface).setDisplayState(displayId2, true);
+        verify(mSystemInterface).setDisplayState(displayId3, true);
+
+        DisplayPowerModeBuilder builder = new DisplayPowerModeBuilder(mDisplayManager);
+        builder.setDisplayMode(mockDisplay1, ScreenOffHandler.DISPLAY_POWER_MODE_ALWAYS_ON);
+        // TODO(b/274050716): Change the default mode to on for passenger display.
+        builder.setDisplayMode(mockDisplay2, ScreenOffHandler.DISPLAY_POWER_MODE_ALWAYS_ON);
+        // TODO(b/274050716): Change the default mode to on for passenger display.
+        builder.setDisplayMode(mockDisplay3, ScreenOffHandler.DISPLAY_POWER_MODE_ALWAYS_ON);
+        assertThat(Settings.Global.getString(
+                mContentResolver, CarSettings.Global.DISPLAY_POWER_MODE)).isEqualTo(
+                builder.build());
+    }
+
+    @Test
     public void testSetDisplayStateAfterBoot_powerModeOn()
             throws Exception {
         OccupantZoneInfo zoneInfo = mCarOccupantZoneService.getOccupantZone(
