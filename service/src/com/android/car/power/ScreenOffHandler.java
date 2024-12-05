@@ -485,8 +485,8 @@ class ScreenOffHandler {
                 int displayPort = Integer.parseInt(pair[0], /* radix= */ 10);
                 int displayId = getDisplayId(displayPort);
                 if (displayId == Display.INVALID_DISPLAY) {
-                    Slogf.w(TAG, "Invalid display port: %d", displayPort);
-                    return null;
+                    Slogf.w(TAG, "Invalid display port: %d, ignore its setting", displayPort);
+                    continue;
                 }
                 @DisplayPowerMode int mode = Integer.parseInt(pair[1], /* radix= */ 10);
                 if (mapping.indexOfKey(displayId) >= 0) {
