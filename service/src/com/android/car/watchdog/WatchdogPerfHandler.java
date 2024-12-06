@@ -135,6 +135,7 @@ import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.Preconditions;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -1300,8 +1301,11 @@ public final class WatchdogPerfHandler {
         FileOutputStream fos = null;
         try {
             fos = atomicFile.startWrite();
-            try (JsonWriter jsonWriter =
-                         new JsonWriter(new OutputStreamWriter(fos, StandardCharsets.UTF_8))) {
+            // Use ByteArrayOutputStream as a place holder of JsonWriter output that is
+            // maintained even after try-with-resources exits.
+            try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                    JsonWriter jsonWriter = new JsonWriter(new OutputStreamWriter(baos,
+                            StandardCharsets.UTF_8))) {
                 jsonWriter.beginObject();
                 if (systemIoUsageSummaryReportDate != null) {
                     jsonWriter.name(SYSTEM_IO_USAGE_SUMMARY_REPORTED_DATE)
@@ -1314,6 +1318,8 @@ public final class WatchdogPerfHandler {
                                     .format(DateTimeFormatter.ISO_DATE_TIME));
                 }
                 jsonWriter.endObject();
+                jsonWriter.flush();
+                baos.writeTo(fos);
             }
             atomicFile.finishWrite(fos);
             if (DEBUG) {
