@@ -263,12 +263,29 @@ public abstract class HalPropValue {
      */
     @Override
     public boolean equals(Object argument) {
-        if (!(argument instanceof HalPropValue)) {
+        if (!(argument instanceof HalPropValue other)) {
             return false;
         }
 
-        HalPropValue other = (HalPropValue) argument;
+        if (!equalsExceptTimestamp(other)) {
+            return false;
+        }
 
+        if (other.getTimestamp() != getTimestamp()) {
+            Slogf.i(TAG, "Timestamp mismatch, got " + other.getTimestamp() + " want "
+                    + getTimestamp());
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Check whether this property is equal to another property except timestamps.
+     *
+     * @param other The property to compare.
+     * @return true if equal, false if not.
+     */
+    public boolean equalsExceptTimestamp(HalPropValue other) {
         if (other.getPropId() != getPropId()) {
             Slogf.i(TAG, "Property ID mismatch, got " + other.getPropId() + " want "
                     + getPropId());
@@ -280,11 +297,6 @@ public abstract class HalPropValue {
         }
         if (other.getStatus() != getStatus()) {
             Slogf.i(TAG, "Status mismatch, got " + other.getStatus() + " want " + getStatus());
-            return false;
-        }
-        if (other.getTimestamp() != getTimestamp()) {
-            Slogf.i(TAG, "Timestamp mismatch, got " + other.getTimestamp() + " want "
-                    + getTimestamp());
             return false;
         }
         if (!equalInt32Values(other)) {
