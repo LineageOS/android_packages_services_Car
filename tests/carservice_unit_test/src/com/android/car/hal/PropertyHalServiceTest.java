@@ -17,8 +17,10 @@
 package com.android.car.hal;
 
 import static android.car.Car.PERMISSION_VENDOR_EXTENSION;
+import static android.car.VehiclePropertyIds.EPOCH_TIME;
 import static android.car.VehiclePropertyIds.HVAC_FAN_SPEED;
 import static android.car.VehiclePropertyIds.HVAC_TEMPERATURE_SET;
+import static android.car.VehiclePropertyIds.INFO_FUEL_DOOR_LOCATION;
 import static android.car.VehiclePropertyIds.PERF_VEHICLE_SPEED;
 import static android.car.VehiclePropertyIds.VEHICLE_SPEED_DISPLAY_UNITS;
 import static android.car.hardware.CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ;
@@ -268,8 +270,15 @@ public class PropertyHalServiceTest extends AbstractExpectableTestCase{
         vehiclePropConfig5.areaConfigs[0].access = VehiclePropertyAccess.READ;
         HalPropConfig propConfig5 = new AidlHalPropConfig(vehiclePropConfig5);
 
+        // EPOCH_TIME
+        var vehiclePropConfig6 = new VehiclePropConfig();
+        vehiclePropConfig6.prop = VehicleProperty.ANDROID_EPOCH_TIME;
+        vehiclePropConfig6.access = VehiclePropertyAccess.READ;
+        vehiclePropConfig6.changeMode = VehiclePropertyChangeMode.ON_CHANGE;
+        HalPropConfig propConfig6 = new AidlHalPropConfig(vehiclePropConfig6);
+
         mPropertyHalService.takeProperties(List.of(mockPropConfig1, mockPropConfig2,
-                mockPropConfig3, propConfig4, propConfig5));
+                mockPropConfig3, propConfig4, propConfig5, propConfig6));
         mPropertyHalService.getPropertyList();
 
         when(mSupportedValuesChangeCallback.asBinder()).thenReturn(
@@ -3070,6 +3079,144 @@ public class PropertyHalServiceTest extends AbstractExpectableTestCase{
         assertThat(supportedValuesList).hasSize(2);
         expectThat(supportedValuesList.get(0).getTypedValue()).isEqualTo(value1);
         expectThat(supportedValuesList.get(1).getTypedValue()).isEqualTo(value2);
+    }
+
+    @Test
+    public void testGetSupportedValuesList_floatSorted() {
+        when(mVehicleHal.isSupportedValuesImplemented(
+                newPropIdAreaId(PERF_VEHICLE_SPEED, 0))).thenReturn(true);
+        int areaId = 0;
+        float value1 = 1f;
+        float value2 = 2f;
+        float value3 = 3f;
+        float value4 = 4f;
+        var rawPropValues1 = new RawPropValues();
+        rawPropValues1.floatValues = new float[]{value1};
+        var rawPropValues2 = new RawPropValues();
+        rawPropValues2.floatValues = new float[]{value2};
+        var rawPropValues3 = new RawPropValues();
+        rawPropValues3.floatValues = new float[]{value3};
+        var rawPropValues4 = new RawPropValues();
+        rawPropValues4.floatValues = new float[]{value4};
+
+        // Randomize the order.
+        when(mVehicleHal.getSupportedValuesList(PERF_VEHICLE_SPEED, areaId)).thenReturn(
+                List.of(rawPropValues1, rawPropValues3, rawPropValues2, rawPropValues4));
+
+        var areaIdConfig = new AreaIdConfig.Builder(PERF_VEHICLE_SPEED, areaId)
+                .setHasSupportedValuesList(true).build();
+
+        var supportedValuesList = mPropertyHalService.getSupportedValuesList(
+                PERF_VEHICLE_SPEED, areaId, areaIdConfig);
+
+        assertThat(supportedValuesList).hasSize(4);
+        expectThat(supportedValuesList.get(0).getTypedValue()).isEqualTo(value1);
+        expectThat(supportedValuesList.get(1).getTypedValue()).isEqualTo(value2);
+        expectThat(supportedValuesList.get(2).getTypedValue()).isEqualTo(value3);
+        expectThat(supportedValuesList.get(3).getTypedValue()).isEqualTo(value4);
+    }
+
+    @Test
+    public void testGetSupportedValuesList_int32Sorted() {
+        when(mVehicleHal.isSupportedValuesImplemented(
+                newPropIdAreaId(INFO_FUEL_DOOR_LOCATION, 0))).thenReturn(true);
+        int areaId = 0;
+        int value1 = 1;
+        int value2 = 2;
+        int value3 = 3;
+        int value4 = 4;
+        var rawPropValues1 = new RawPropValues();
+        rawPropValues1.int32Values = new int[]{value1};
+        var rawPropValues2 = new RawPropValues();
+        rawPropValues2.int32Values = new int[]{value2};
+        var rawPropValues3 = new RawPropValues();
+        rawPropValues3.int32Values = new int[]{value3};
+        var rawPropValues4 = new RawPropValues();
+        rawPropValues4.int32Values = new int[]{value4};
+
+        // Randomize the order.
+        when(mVehicleHal.getSupportedValuesList(INFO_FUEL_DOOR_LOCATION, areaId)).thenReturn(
+                List.of(rawPropValues1, rawPropValues3, rawPropValues2, rawPropValues4));
+
+        var areaIdConfig = new AreaIdConfig.Builder(INFO_FUEL_DOOR_LOCATION, areaId)
+                .setHasSupportedValuesList(true).build();
+
+        var supportedValuesList = mPropertyHalService.getSupportedValuesList(
+                INFO_FUEL_DOOR_LOCATION, areaId, areaIdConfig);
+
+        assertThat(supportedValuesList).hasSize(4);
+        expectThat(supportedValuesList.get(0).getTypedValue()).isEqualTo(value1);
+        expectThat(supportedValuesList.get(1).getTypedValue()).isEqualTo(value2);
+        expectThat(supportedValuesList.get(2).getTypedValue()).isEqualTo(value3);
+        expectThat(supportedValuesList.get(3).getTypedValue()).isEqualTo(value4);
+    }
+
+    @Test
+    public void testGetSupportedValuesList_int64Sorted() {
+        when(mVehicleHal.isSupportedValuesImplemented(
+                newPropIdAreaId(EPOCH_TIME, 0))).thenReturn(true);
+        int areaId = 0;
+        long value1 = 1L;
+        long value2 = 2L;
+        long value3 = 3L;
+        long value4 = 4L;
+        var rawPropValues1 = new RawPropValues();
+        rawPropValues1.int64Values = new long[]{value1};
+        var rawPropValues2 = new RawPropValues();
+        rawPropValues2.int64Values = new long[]{value2};
+        var rawPropValues3 = new RawPropValues();
+        rawPropValues3.int64Values = new long[]{value3};
+        var rawPropValues4 = new RawPropValues();
+        rawPropValues4.int64Values = new long[]{value4};
+
+        // Randomize the order.
+        when(mVehicleHal.getSupportedValuesList(EPOCH_TIME, areaId)).thenReturn(
+                List.of(rawPropValues1, rawPropValues3, rawPropValues2, rawPropValues4));
+
+        var areaIdConfig = new AreaIdConfig.Builder(EPOCH_TIME, areaId)
+                .setHasSupportedValuesList(true).build();
+
+        var supportedValuesList = mPropertyHalService.getSupportedValuesList(
+                EPOCH_TIME, areaId, areaIdConfig);
+
+        assertThat(supportedValuesList).hasSize(4);
+        expectThat(supportedValuesList.get(0).getTypedValue()).isEqualTo(value1);
+        expectThat(supportedValuesList.get(1).getTypedValue()).isEqualTo(value2);
+        expectThat(supportedValuesList.get(2).getTypedValue()).isEqualTo(value3);
+        expectThat(supportedValuesList.get(3).getTypedValue()).isEqualTo(value4);
+    }
+
+    @Test
+    public void testGetSupportedValuesList_ignoreInvalidProp() {
+        when(mVehicleHal.isSupportedValuesImplemented(
+                newPropIdAreaId(PERF_VEHICLE_SPEED, 0))).thenReturn(true);
+        int areaId = 0;
+        float value2 = 2f;
+        float value3 = 3f;
+        float value4 = 4f;
+        // rawPropValues1 does not contain a value.
+        var rawPropValues1 = new RawPropValues();
+        var rawPropValues2 = new RawPropValues();
+        rawPropValues2.floatValues = new float[]{value2};
+        var rawPropValues3 = new RawPropValues();
+        rawPropValues3.floatValues = new float[]{value3};
+        var rawPropValues4 = new RawPropValues();
+        rawPropValues4.floatValues = new float[]{value4};
+
+        // Randomize the order.
+        when(mVehicleHal.getSupportedValuesList(PERF_VEHICLE_SPEED, areaId)).thenReturn(
+                List.of(rawPropValues1, rawPropValues3, rawPropValues2, rawPropValues4));
+
+        var areaIdConfig = new AreaIdConfig.Builder(PERF_VEHICLE_SPEED, areaId)
+                .setHasSupportedValuesList(true).build();
+
+        var supportedValuesList = mPropertyHalService.getSupportedValuesList(
+                PERF_VEHICLE_SPEED, areaId, areaIdConfig);
+
+        assertThat(supportedValuesList).hasSize(3);
+        expectThat(supportedValuesList.get(0).getTypedValue()).isEqualTo(value2);
+        expectThat(supportedValuesList.get(1).getTypedValue()).isEqualTo(value3);
+        expectThat(supportedValuesList.get(2).getTypedValue()).isEqualTo(value4);
     }
 
     @Test

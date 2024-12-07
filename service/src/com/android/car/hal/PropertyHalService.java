@@ -64,6 +64,7 @@ import android.hardware.automotive.vehicle.RawPropValues;
 import android.hardware.automotive.vehicle.VehiclePropError;
 import android.hardware.automotive.vehicle.VehicleProperty;
 import android.hardware.automotive.vehicle.VehiclePropertyStatus;
+import android.hardware.automotive.vehicle.VehiclePropertyType;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.IBinder;
@@ -115,6 +116,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -1503,7 +1505,7 @@ public class PropertyHalService extends HalServiceBase {
                     supportedValuesList.add(rawPropertyValue);
                 }
             }
-            return supportedValuesList;
+            return sortRawPropertyValueList(halPropId, supportedValuesList);
         } else {
             // If VHAL does not support value range, we use areaIdConfig.
             List<RawPropertyValue> returnValues = new ArrayList<>();
@@ -1511,8 +1513,48 @@ public class PropertyHalService extends HalServiceBase {
             for (int i = 0; i < supportedEnumValues.size(); i++) {
                 returnValues.add(new RawPropertyValue(supportedEnumValues.get(i)));
             }
-            return returnValues;
+            return sortRawPropertyValueList(halPropId, returnValues);
         }
+    }
+
+    /**
+     * Sorts the list of RawPropertyValue for int32/int64/float type in ascending order.
+     */
+    private static List<RawPropertyValue> sortRawPropertyValueList(int halPropId,
+            List<RawPropertyValue> input) {
+        int propertyType = halPropId & VehiclePropertyType.MASK;
+        if (propertyType != VehiclePropertyType.INT32
+                && propertyType != VehiclePropertyType.INT64
+                && propertyType != VehiclePropertyType.FLOAT) {
+            return input;
+        }
+        List<RawPropertyValue> output = new ArrayList<RawPropertyValue>(input);
+        Collections.sort(output, (RawPropertyValue x, RawPropertyValue y) -> {
+            if (x.getTypedValue() == null) {
+                Slogf.e(TAG, "Invalid RawPropertyValue: " + x + ", no value");
+                return -1;
+            }
+            if (y.getTypedValue() == null) {
+                Slogf.e(TAG, "Invalid RawPropertyValue: " + y + ", no value");
+                return 1;
+            }
+
+            switch (propertyType) {
+                case VehiclePropertyType.INT32:
+                    // Convert from int to float should not change whether it is positive.
+                    return Integer.compare((Integer) x.getTypedValue(),
+                            (Integer) y.getTypedValue());
+                case VehiclePropertyType.INT64:
+                    // Convert from int64 to float should not change whether it is positive.
+                    return Long.compare((Long) x.getTypedValue(),
+                            (Long) y.getTypedValue());
+                case VehiclePropertyType.FLOAT:
+                    return Float.compare((Float) x.getTypedValue(),
+                            (Float) y.getTypedValue());
+            }
+            return 0;
+        });
+        return output;
     }
 
     /**

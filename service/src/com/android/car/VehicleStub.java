@@ -439,6 +439,8 @@ public abstract class VehicleStub {
      *
      * Caller should only call this if {@link #isSupportedValuesImplemented} is {@code true}.
      *
+     * The returned list is not sorted.
+     *
      * If no supported values list is specified, return {@code null}.
      *
      * @throws ServiceSpecificException if the operation fails.
