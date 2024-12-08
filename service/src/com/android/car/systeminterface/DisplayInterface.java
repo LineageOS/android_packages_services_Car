@@ -395,10 +395,10 @@ public interface DisplayInterface {
                     || UserManagerHelper.isVisibleBackgroundUsersSupported(mUserManager)) {
                 DisplayManagerHelper.registerDisplayListener(mContext, mDisplayListener,
                         carPowerManagementService.getHandler(),
-                        DisplayManagerHelper.EVENT_FLAG_DISPLAY_ADDED
-                                | DisplayManagerHelper.EVENT_FLAG_DISPLAY_REMOVED
-                                | DisplayManagerHelper.EVENT_FLAG_DISPLAY_CHANGED,
-                        DisplayManagerHelper.EVENT_FLAG_DISPLAY_BRIGHTNESS);
+                        DisplayManagerHelper.EVENT_TYPE_DISPLAY_ADDED
+                                | DisplayManagerHelper.EVENT_TYPE_DISPLAY_REMOVED
+                                | DisplayManagerHelper.EVENT_TYPE_DISPLAY_CHANGED,
+                        DisplayManagerHelper.EVENT_TYPE_DISPLAY_BRIGHTNESS);
             } else {
                 getContentResolverForUser(mContext, UserHandle.ALL.getIdentifier())
                         .registerContentObserver(mSettings.getUriForSystem(
