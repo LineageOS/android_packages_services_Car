@@ -24,6 +24,7 @@
 #include <aidl/android/hardware/automotive/vehicle/VehicleApPowerStateReport.h>
 #include <aidl/android/hardware/automotive/vehicle/VehicleProperty.h>
 #include <android-base/file.h>
+#include <android-base/properties.h>
 #include <android-base/stringprintf.h>
 #include <android/binder_ibinder.h>
 #include <android/binder_manager.h>
@@ -68,6 +69,7 @@ using ::android::uptimeMillis;
 using ::android::Vector;
 using ::android::wp;
 using ::android::base::Error;
+using ::android::base::GetUintProperty;
 using ::android::base::Result;
 using ::android::base::StringAppendF;
 using ::android::base::StringPrintf;
@@ -94,7 +96,9 @@ namespace {
 const int32_t MSG_CONNECT_TO_VHAL = 1;  // Message to request of connecting to VHAL.
 
 const nsecs_t kConnectionRetryIntervalNs = 200000000;  // 200 milliseconds.
-const int32_t kMaxConnectionRetry = 5 * 60;                // Retry up to 60 seconds.
+// TODO(b/377348572): Change this to 5s.
+const nsecs_t kDefaultConnectToVhalTimeoutMillis = 60000;
+constexpr const char kConnectToVhalTimeoutMillisProp[] = "cppd.connectvhal.Timeoutmillis";
 
 constexpr const char kCarServiceInterface[] = "car_service";
 constexpr const char kCarPowerPolicyServerInterface[] =
@@ -355,6 +359,12 @@ void CarPowerPolicyServer::terminateService() {
 }
 
 CarPowerPolicyServer::CarPowerPolicyServer() :
+      CarPowerPolicyServer(
+              GetUintProperty<uint64_t>(std::string(kConnectToVhalTimeoutMillisProp),
+                                        /*default_value=*/kDefaultConnectToVhalTimeoutMillis)) {}
+
+CarPowerPolicyServer::CarPowerPolicyServer(uint64_t connectToVhalTimeoutMillis) :
+      mConnectToVhalTimeoutMillis(connectToVhalTimeoutMillis),
       mSilentModeHandler(this),
       mIsPowerPolicyLocked(false),
       mIsCarServiceInOperation(false),
@@ -367,6 +377,8 @@ CarPowerPolicyServer::CarPowerPolicyServer() :
             AIBinder_DeathRecipient_new(&CarPowerPolicyServer::onCarServiceBinderDied));
     mPropertyChangeListener = std::make_unique<PropertyChangeListener>(this);
     mLinkUnlinkImpl = std::make_unique<AIBinderLinkUnlinkImpl>();
+    mMaxConnectToVhalRetryCount = static_cast<size_t>(ceil(
+            static_cast<float>(connectToVhalTimeoutMillis) / (ns2ms(kConnectionRetryIntervalNs))));
 
     setOnUnlinked();
 }
@@ -797,6 +809,9 @@ status_t CarPowerPolicyServer::dump(int fd, const char** args, uint32_t numArgs)
         const char* indent = "  ";
         const char* doubleIndent = "    ";
         WriteStringToFd("CAR POWER POLICY DAEMON\n", fd);
+        WriteStringToFd(StringPrintf("%sConnect to VHAL timeout: %" PRIu64 " ms\n", indent,
+                                     mConnectToVhalTimeoutMillis),
+                        fd);
         WriteStringToFd(StringPrintf("%sCarService is in operation: %s\n", indent,
                                      mIsCarServiceInOperation ? "true" : "false"),
                         fd);
@@ -1196,7 +1211,7 @@ bool CarPowerPolicyServer::isRegisteredLocked(const AIBinder* binder) {
 
 // This method ensures that the attempt to connect to VHAL occurs in the main thread.
 void CarPowerPolicyServer::connectToVhal() {
-    mRemainingConnectionRetryCount = kMaxConnectionRetry;
+    mRemainingConnectionRetryCount = mMaxConnectToVhalRetryCount;
     mHandlerLooper->sendMessage(mEventHandler, MSG_CONNECT_TO_VHAL);
 }
 
@@ -1212,10 +1227,12 @@ void CarPowerPolicyServer::connectToVhalHelper() {
     if (vhalService == nullptr) {
         ALOGW("Failed to connect to VHAL. Retrying in %" PRId64 " ms.",
               nanoseconds_to_milliseconds(kConnectionRetryIntervalNs));
-        mRemainingConnectionRetryCount--;
-        if (mRemainingConnectionRetryCount <= 0) {
-            ALOGE("Failed to connect to VHAL after %d attempt%s. Gave up.", kMaxConnectionRetry,
-                  kMaxConnectionRetry > 1 ? "s" : "");
+        if (mRemainingConnectionRetryCount > 0) {
+            mRemainingConnectionRetryCount--;
+        }
+        if (mRemainingConnectionRetryCount == 0) {
+            ALOGE("Failed to connect to VHAL after %zu attempt%s. Gave up.",
+                  mMaxConnectToVhalRetryCount, mMaxConnectToVhalRetryCount > 1 ? "s" : "");
             return;
         }
         mHandlerLooper->sendMessageDelayed(kConnectionRetryIntervalNs, mEventHandler,
@@ -1426,6 +1443,10 @@ void CarPowerPolicyServer::AIBinderLinkUnlinkImpl::setOnUnlinked(
 void CarPowerPolicyServer::AIBinderLinkUnlinkImpl::deleteDeathRecipient(
         AIBinder_DeathRecipient* recipient) {
     AIBinder_DeathRecipient_delete(recipient);
+}
+
+size_t CarPowerPolicyServer::getMaxConnectToVhalRetryCount() {
+    return mMaxConnectToVhalRetryCount;
 }
 
 }  // namespace powerpolicy

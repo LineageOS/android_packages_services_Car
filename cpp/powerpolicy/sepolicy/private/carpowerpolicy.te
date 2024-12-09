@@ -23,3 +23,6 @@ allow carpowerpolicyd sysfs_power:file rw_file_perms;
 # Allow updating properties to control boot animation
 set_prop(carpowerpolicyd, debug_prop)
 set_prop(carpowerpolicyd, bootanim_system_prop)
+
+# Allow reading configuration properties
+get_prop(carpowerpolicyd, cppd_config_prop)

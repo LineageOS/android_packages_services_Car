@@ -147,6 +147,10 @@ public:
         mServerProxy = ICarPowerPolicyServer::fromBinder(mBinder);
     }
 
+    explicit CarPowerPolicyServerPeer(uint64_t connectToVhalTimeoutMillis) {
+        mServer = ndk::SharedRefBase::make<CarPowerPolicyServer>(connectToVhalTimeoutMillis);
+    }
+
     ~CarPowerPolicyServerPeer() {
         if (mServer->mHandlerLooper != nullptr) {
             release();
@@ -218,6 +222,8 @@ public:
     void expectLinkToDeathStatus(AIBinder* binder, status_t linkToDeathResult) {
         mLinkUnlinkImpl->expectLinkToDeathStatus(binder, linkToDeathResult);
     }
+
+    size_t getMaxConnectToVhalRetryCount() { return mServer->getMaxConnectToVhalRetryCount(); }
 
 private:
     void initializeLooper() {
@@ -783,6 +789,21 @@ TEST_F(CarPowerPolicyServerTest, TestApplyPowerPolicyPerPowerStateChangeAsync_wi
 
     testApplyPowerPolicyPerPowerStateChangeAsyncInternal("basic_policy_group",
                                                          "policy_id_other_untouched");
+}
+
+TEST_F(CarPowerPolicyServerTest, TestSetMaxConnectToVhalRetryCount) {
+    sp<internal::CarPowerPolicyServerPeer> server = new internal::CarPowerPolicyServerPeer(
+            /*connectToVhalTimeoutMillis=*/5000);
+
+    EXPECT_EQ(server->getMaxConnectToVhalRetryCount(), 25u);
+}
+
+TEST_F(CarPowerPolicyServerTest, TestSetMaxConnectToVhalRetryCount_roundUp) {
+    sp<internal::CarPowerPolicyServerPeer> server = new internal::CarPowerPolicyServerPeer(
+            /*connectToVhalTimeoutMillis=*/1);
+
+    EXPECT_EQ(server->getMaxConnectToVhalRetryCount(), 1u)
+            << "The max connectToVhal retry count must be rounded up";
 }
 
 }  // namespace powerpolicy

@@ -341,12 +341,18 @@ private:
     static void onClientDeathRecipientUnlinked(void* cookie);
 
     // For test-only.
+    explicit CarPowerPolicyServer(uint64_t connectToVhalTimeoutMillis);
     void setLinkUnlinkImpl(std::unique_ptr<LinkUnlinkImpl> impl);
     std::vector<CallbackInfo> getPolicyChangeCallbacks() EXCLUDES(mMutex);
     size_t countOnClientBinderDiedContexts() EXCLUDES(mMutex);
+    size_t getMaxConnectToVhalRetryCount();
 
 private:
     static std::shared_ptr<CarPowerPolicyServer> sCarPowerPolicyServer;
+
+    // Only initialized during init.
+    size_t mMaxConnectToVhalRetryCount;
+    uint64_t mConnectToVhalTimeoutMillis;
 
     ndk::ScopedAIBinder_DeathRecipient mClientDeathRecipient;
     ndk::ScopedAIBinder_DeathRecipient mCarServiceDeathRecipient;
@@ -375,7 +381,7 @@ private:
     std::unique_ptr<android::frameworks::automotive::vhal::ISubscriptionClient> mSubscriptionClient;
     std::shared_ptr<CarServiceNotificationHandler> mCarServiceNotificationHandler
             GUARDED_BY(mMutex);
-    int32_t mRemainingConnectionRetryCount;
+    size_t mRemainingConnectionRetryCount;
     // A stub for link/unlink operation. Can be replaced with mock implementation for testing.
     // Thread-safe because only initialized once or modified in test.
     std::unique_ptr<LinkUnlinkImpl> mLinkUnlinkImpl;
