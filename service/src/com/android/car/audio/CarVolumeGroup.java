@@ -742,14 +742,6 @@ import java.util.Set;
      */
     boolean setMute(boolean mute) {
         synchronized (mLock) {
-            // if hal muted the audio devices, then do not allow other incoming requests
-            // to perform unmute.
-            if (!mute && isHalMutedLocked()) {
-                Slogf.e(CarLog.TAG_AUDIO, "Un-mute request cannot be processed due to active "
-                        + "hal mute restriction!");
-                return false;
-            }
-            applyMuteLocked(mute);
             return setMuteLocked(mute);
         }
     }
@@ -760,7 +752,19 @@ import java.util.Set;
     }
 
     @GuardedBy("mLock")
-    protected boolean setMuteLocked(boolean mute) {
+    boolean setMuteLocked(boolean mute) {
+        // If hal mutes the audio devices, then do not allow other incoming requests to unmute.
+        if (!mute && isHalMutedLocked()) {
+            Slogf.e(CarLog.TAG_AUDIO, "Un-mute request cannot be processed due to active "
+                    + "hal mute restriction!");
+            return false;
+        }
+        applyMuteLocked(mute);
+        return saveMuteStateToSettingsLocked(mute);
+    }
+
+    @GuardedBy("mLock")
+    protected boolean saveMuteStateToSettingsLocked(boolean mute) {
         boolean hasChanged = mIsMuted != mute;
         mIsMuted = mute;
         if (mSettingsManager.isPersistVolumeGroupMuteEnabled(mUserId)) {
