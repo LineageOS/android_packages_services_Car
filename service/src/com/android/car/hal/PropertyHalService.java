@@ -33,6 +33,7 @@ import static android.car.hardware.property.VehicleHalStatusCode.STATUS_NOT_AVAI
 import static android.car.hardware.property.VehicleHalStatusCode.STATUS_TRY_AGAIN;
 
 import static com.android.car.hal.property.HalPropertyDebugUtils.toAreaIdString;
+import static com.android.car.hal.property.HalPropertyDebugUtils.toHalPropIdAreaIdString;
 import static com.android.car.hal.property.HalPropertyDebugUtils.toHalPropIdAreaIdsString;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DEBUGGING_CODE;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
@@ -63,6 +64,7 @@ import android.hardware.automotive.vehicle.RawPropValues;
 import android.hardware.automotive.vehicle.VehiclePropError;
 import android.hardware.automotive.vehicle.VehicleProperty;
 import android.hardware.automotive.vehicle.VehiclePropertyStatus;
+import android.hardware.automotive.vehicle.VehiclePropertyType;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.IBinder;
@@ -114,6 +116,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -1409,7 +1412,7 @@ public class PropertyHalService extends HalServiceBase {
         }
 
         var returnValue = new MinMaxSupportedPropertyValue();
-        if (mVehicleHal.isSupportedValuesImplemented()) {
+        if (mVehicleHal.isSupportedValuesImplemented(newPropIdAreaId(halPropId, areaId))) {
             MinMaxSupportedRawPropValues minMaxRawPropValues =
                     mVehicleHal.getMinMaxSupportedValue(halPropId, areaId);
             if (areaIdConfig.hasMinSupportedValue() && minMaxRawPropValues.minValue() != null) {
@@ -1483,7 +1486,7 @@ public class PropertyHalService extends HalServiceBase {
             return null;
         }
 
-        if (mVehicleHal.isSupportedValuesImplemented()) {
+        if (mVehicleHal.isSupportedValuesImplemented(newPropIdAreaId(halPropId, areaId))) {
             List<RawPropValues> supportedRawPropValues = mVehicleHal.getSupportedValuesList(
                     halPropId, areaId);
             if (supportedRawPropValues == null) {
@@ -1502,7 +1505,7 @@ public class PropertyHalService extends HalServiceBase {
                     supportedValuesList.add(rawPropertyValue);
                 }
             }
-            return supportedValuesList;
+            return sortRawPropertyValueList(halPropId, supportedValuesList);
         } else {
             // If VHAL does not support value range, we use areaIdConfig.
             List<RawPropertyValue> returnValues = new ArrayList<>();
@@ -1510,8 +1513,48 @@ public class PropertyHalService extends HalServiceBase {
             for (int i = 0; i < supportedEnumValues.size(); i++) {
                 returnValues.add(new RawPropertyValue(supportedEnumValues.get(i)));
             }
-            return returnValues;
+            return sortRawPropertyValueList(halPropId, returnValues);
         }
+    }
+
+    /**
+     * Sorts the list of RawPropertyValue for int32/int64/float type in ascending order.
+     */
+    private static List<RawPropertyValue> sortRawPropertyValueList(int halPropId,
+            List<RawPropertyValue> input) {
+        int propertyType = halPropId & VehiclePropertyType.MASK;
+        if (propertyType != VehiclePropertyType.INT32
+                && propertyType != VehiclePropertyType.INT64
+                && propertyType != VehiclePropertyType.FLOAT) {
+            return input;
+        }
+        List<RawPropertyValue> output = new ArrayList<RawPropertyValue>(input);
+        Collections.sort(output, (RawPropertyValue x, RawPropertyValue y) -> {
+            if (x.getTypedValue() == null) {
+                Slogf.e(TAG, "Invalid RawPropertyValue: " + x + ", no value");
+                return -1;
+            }
+            if (y.getTypedValue() == null) {
+                Slogf.e(TAG, "Invalid RawPropertyValue: " + y + ", no value");
+                return 1;
+            }
+
+            switch (propertyType) {
+                case VehiclePropertyType.INT32:
+                    // Convert from int to float should not change whether it is positive.
+                    return Integer.compare((Integer) x.getTypedValue(),
+                            (Integer) y.getTypedValue());
+                case VehiclePropertyType.INT64:
+                    // Convert from int64 to float should not change whether it is positive.
+                    return Long.compare((Long) x.getTypedValue(),
+                            (Long) y.getTypedValue());
+                case VehiclePropertyType.FLOAT:
+                    return Float.compare((Float) x.getTypedValue(),
+                            (Float) y.getTypedValue());
+            }
+            return 0;
+        });
+        return output;
     }
 
     /**
@@ -1522,13 +1565,6 @@ public class PropertyHalService extends HalServiceBase {
      */
     public void registerSupportedValuesChangeCallback(List<PropIdAreaId> mgrPropIdAreaIds,
             ISupportedValuesChangeCallback callback) {
-        if (!mVehicleHal.isSupportedValuesImplemented()) {
-            Slogf.i(TAG, "Supported Values APIs are not implemented, do nothing for "
-                    + "registerSupportedValuesChangeCallback for %s because supported values are "
-                    + "static.", toDebugString(mgrPropIdAreaIds));
-            return;
-        }
-
         List<PropIdAreaId> halPropIdAreaIds = new ArrayList<>();
         synchronized (mLock) {
             // This must be called within the lock so that unregisterSupportedValuesChangeCallback
@@ -1545,11 +1581,19 @@ public class PropertyHalService extends HalServiceBase {
             }
 
             for (int i = 0; i < mgrPropIdAreaIds.size(); i++) {
+                var halPropIdAreaId = managerToHalPropIdAreaId(mgrPropIdAreaIds.get(i));
+                if (!mVehicleHal.isSupportedValuesImplemented(halPropIdAreaId)) {
+                    Slogf.i(TAG, "Do nothing for registerSupportedValuesChangeCallback for %s "
+                            + "because VHAL does not implement dynamic supported values API for it",
+                            toHalPropIdAreaIdString(halPropIdAreaId));
+                    continue;
+                }
+
                 var registeredCallbacks = mSupportedValuesChangeCallbackByPropIdAreaId.get(
                         mgrPropIdAreaIds.get(i));
                 if (registeredCallbacks == null) {
                     // [propId, areaId] was never registered before. Need to register to VHAL.
-                    halPropIdAreaIds.add(managerToHalPropIdAreaId(mgrPropIdAreaIds.get(i)));
+                    halPropIdAreaIds.add(halPropIdAreaId);
                 }
             }
 
@@ -1579,17 +1623,18 @@ public class PropertyHalService extends HalServiceBase {
      */
     public void unregisterSupportedValuesChangeCallback(List<PropIdAreaId> propIdAreaIds,
             ISupportedValuesChangeCallback callback) {
-        if (!mVehicleHal.isSupportedValuesImplemented()) {
-            Slogf.i(TAG, "Supported Values APIs are not implemented, do nothing for "
-                    + "unregisterSupportedValuesChangeCallback for %s because supported values are "
-                    + "static.", toDebugString(propIdAreaIds));
-            return;
-        }
-
         List<PropIdAreaId> halPropIdAreaIdsToUnregister = new ArrayList<>();
         synchronized (mLock) {
             for (int i = 0; i < propIdAreaIds.size(); i++) {
                 var propIdAreaId = propIdAreaIds.get(i);
+                var halPropIdAreaId = managerToHalPropIdAreaId(propIdAreaId);
+                if (!mVehicleHal.isSupportedValuesImplemented(halPropIdAreaId)) {
+                    Slogf.i(TAG, "Do nothing for unregisterSupportedValuesChangeCallback for %s "
+                            + "because VHAL does not implement dynamic supported values API for it",
+                            toHalPropIdAreaIdString(halPropIdAreaId));
+                    continue;
+                }
+
                 var registeredCallbacks = mSupportedValuesChangeCallbackByPropIdAreaId.get(
                         propIdAreaId);
                 if (registeredCallbacks == null) {
