@@ -51,6 +51,7 @@ import com.android.car.hal.HalPropValue;
 import com.android.car.hal.HalPropValueBuilder;
 import com.android.car.hal.VehicleHalCallback;
 import com.android.car.internal.property.CarPropertyErrorCodes;
+import com.android.car.internal.property.PropIdAreaId;
 import com.android.car.internal.util.PairSparseArray;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
@@ -492,6 +493,18 @@ public final class FakeVehicleStub extends VehicleStub {
                 return;
             }
             FakeVehicleStub.this.unsubscribe(this, propId);
+        }
+
+        @Override
+        public void registerSupportedValuesChange(List<PropIdAreaId> propIdAreaIds) {
+            // TODO(371636116): Implement this.
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void unregisterSupportedValuesChange(List<PropIdAreaId> propIdAreaIds) {
+            // TODO(371636116): Implement this.
+            throw new UnsupportedOperationException();
         }
     }
 

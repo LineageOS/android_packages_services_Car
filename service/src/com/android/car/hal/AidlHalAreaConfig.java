@@ -16,6 +16,8 @@
 
 package com.android.car.hal;
 
+import android.annotation.Nullable;
+import android.hardware.automotive.vehicle.HasSupportedValueInfo;
 import android.hardware.automotive.vehicle.VehicleAreaConfig;
 
 /**
@@ -106,5 +108,10 @@ public final class AidlHalAreaConfig extends HalAreaConfig {
     @Override
     public boolean isVariableUpdateRateSupported() {
         return mConfig.supportVariableUpdateRate;
+    }
+
+    @Override
+    public @Nullable HasSupportedValueInfo getHasSupportedValueInfo() {
+        return mConfig.hasSupportedValueInfo;
     }
 }

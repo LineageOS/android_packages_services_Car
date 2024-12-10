@@ -49,7 +49,7 @@ cc_defaults {
         "server_configurable_flags",
     ],
     static_libs: [
-        "android.automotive.watchdog.internal-V3-ndk",
+        "android.automotive.watchdog.internal-ndk",
         "android.automotive.watchdog-V3-ndk",
         "android.car.feature-aconfig-cpp",
         "libvhalclient",

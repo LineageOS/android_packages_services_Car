@@ -18,6 +18,8 @@ package com.android.car.hal;
 
 import static android.car.VehiclePropertyIds.HVAC_TEMPERATURE_SET;
 
+import static com.android.car.internal.property.CarPropertyHelper.newPropIdAreaId;
+
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
@@ -62,7 +64,9 @@ import android.platform.test.ravenwood.RavenwoodRule;
 import com.android.car.CarServiceUtils;
 import com.android.car.VehicleStub;
 import com.android.car.VehicleStub.AsyncGetSetRequest;
+import com.android.car.VehicleStub.MinMaxSupportedRawPropValues;
 import com.android.car.hal.VehicleHal.HalSubscribeOptions;
+import com.android.car.internal.property.PropIdAreaId;
 import com.android.car.internal.util.ArrayUtils;
 import com.android.car.internal.util.IndentingPrintWriter;
 
@@ -73,6 +77,7 @@ import org.junit.Test;
 import org.junit.rules.TestName;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.junit.MockitoJUnitRunner;
@@ -123,6 +128,7 @@ public class VehicleHalTest extends AbstractExpectableTestCase {
     @Mock private VehicleStub.VehicleStubCallbackInterface mSetVehicleStubAsyncCallback;
     @Mock private VehicleStub.SubscriptionClient mSubscriptionClient;
     @Mock private FeatureFlags mFeatureFlags;
+    @Captor private ArgumentCaptor<List> mListCaptor;
 
     private final HalPropValueBuilder mPropValueBuilder = new HalPropValueBuilder(
             /* isAidl= */ true);
@@ -2344,6 +2350,176 @@ public class VehicleHalTest extends AbstractExpectableTestCase {
 
         assertWithMessage("Multiple property types").that(thrown).hasMessageThat()
                 .contains("Unsupported property type: property");
+    }
+
+    @Test
+    public void testIsSupportedValuesImplemented() {
+        when(mVehicle.isSupportedValuesImplemented()).thenReturn(true);
+
+        assertThat(mVehicleHal.isSupportedValuesImplemented()).isTrue();
+    }
+
+    @Test
+    public void testGetMinMaxSupportedValue() {
+        MinMaxSupportedRawPropValues rawPropValues = mock(MinMaxSupportedRawPropValues.class);
+        int propertyId = 123;
+        int areaId = 234;
+
+        when(mVehicle.getMinMaxSupportedValue(propertyId, areaId)).thenReturn(rawPropValues);
+
+        assertThat(mVehicleHal.getMinMaxSupportedValue(propertyId, areaId)).isEqualTo(
+                rawPropValues);
+    }
+
+    @Test
+    public void testGetSupportedValuesList() {
+        List supportedValuesList = mock(List.class);
+        int propertyId = 123;
+        int areaId = 234;
+
+        when(mVehicle.getSupportedValuesList(propertyId, areaId)).thenReturn(supportedValuesList);
+
+        assertThat(mVehicleHal.getSupportedValuesList(propertyId, areaId)).isEqualTo(
+                supportedValuesList);
+    }
+
+    @Test
+    public void testRegisterSupportedValuesChange() {
+        var propIdAreaIds = List.of(
+                newPropIdAreaId(SOME_READ_WRITE_STATIC_PROPERTY, 0),
+                newPropIdAreaId(CONTINUOUS_PROPERTY, 0)
+        );
+
+        mVehicleHal.registerSupportedValuesChange(mPropertyHalService, propIdAreaIds);
+
+        verify(mSubscriptionClient).registerSupportedValuesChange(propIdAreaIds);
+    }
+
+    @Test
+    public void testRegisterSupportedValuesChange_serviceNotOwnProperty() throws Exception {
+        var propIdAreaIds = List.of(
+                newPropIdAreaId(SOME_INT32_PROPERTY, 0)
+        );
+
+        assertThrows(IllegalArgumentException.class, () -> {
+            mVehicleHal.registerSupportedValuesChange(mPropertyHalService, propIdAreaIds);
+        });
+    }
+
+    @Test
+    public void testRegisterSupportedValuesChange_errorFromVhal() {
+        var propIdAreaIds = List.of(
+                newPropIdAreaId(SOME_READ_WRITE_STATIC_PROPERTY, 0),
+                newPropIdAreaId(CONTINUOUS_PROPERTY, 0)
+        );
+        doThrow(new ServiceSpecificException(0)).when(mSubscriptionClient)
+                .registerSupportedValuesChange(any());
+
+        assertThrows(ServiceSpecificException.class, () -> {
+            mVehicleHal.registerSupportedValuesChange(mPropertyHalService, propIdAreaIds);
+        });
+    }
+
+    @Test
+    public void testOnSupportedValuesChange() {
+        var propIdAreaId1 = newPropIdAreaId(SOME_READ_WRITE_STATIC_PROPERTY, 0);
+        var propIdAreaId2 = newPropIdAreaId(CONTINUOUS_PROPERTY, 0);
+        var propIdAreaIds = List.of(propIdAreaId1, propIdAreaId2);
+
+        mVehicleHal.registerSupportedValuesChange(mPropertyHalService, propIdAreaIds);
+        mVehicleHal.onSupportedValuesChange(propIdAreaIds);
+
+        ArgumentCaptor<List> listCaptor = ArgumentCaptor.forClass(List.class);
+
+        verify(mPropertyHalService).onSupportedValuesChange(listCaptor.capture());
+        clearInvocations(mPropertyHalService);
+
+        var notifiedPropIdAreaIds = (List<PropIdAreaId>) listCaptor.getValue();
+        assertThat(notifiedPropIdAreaIds).containsExactly(propIdAreaId1, propIdAreaId2);
+
+        mVehicleHal.onSupportedValuesChange(List.of(propIdAreaId1));
+
+        verify(mPropertyHalService).onSupportedValuesChange(listCaptor.capture());
+
+        notifiedPropIdAreaIds = (List<PropIdAreaId>) listCaptor.getValue();
+        assertThat(notifiedPropIdAreaIds).containsExactly(propIdAreaId1);
+    }
+
+    @Test
+    public void testOnSupportedValuesChange_ignoreUnregisteredProperty() {
+        var propIdAreaId1 = newPropIdAreaId(SOME_READ_WRITE_STATIC_PROPERTY, 0);
+        var propIdAreaId2 = newPropIdAreaId(CONTINUOUS_PROPERTY, 0);
+        var propIdAreaIds = List.of(propIdAreaId1, propIdAreaId2);
+
+        mVehicleHal.registerSupportedValuesChange(mPropertyHalService, List.of(propIdAreaId1));
+        // Updates for propIdAreaId2 must be ignored.
+        mVehicleHal.onSupportedValuesChange(propIdAreaIds);
+
+        ArgumentCaptor<List> listCaptor = ArgumentCaptor.forClass(List.class);
+
+        verify(mPropertyHalService).onSupportedValuesChange(listCaptor.capture());
+
+        var notifiedPropIdAreaIds = (List<PropIdAreaId>) listCaptor.getValue();
+        assertThat(notifiedPropIdAreaIds).containsExactly(propIdAreaId1);
+    }
+
+    @Test
+    public void testOnSupportedValuesChange_noServiceRegistered() {
+        var propIdAreaId1 = newPropIdAreaId(SOME_READ_WRITE_STATIC_PROPERTY, 0);
+        // No service registered for this property.
+        var propIdAreaId2 = newPropIdAreaId(SOME_INT32_PROPERTY, 0);
+
+        mVehicleHal.registerSupportedValuesChange(mPropertyHalService, List.of(propIdAreaId1));
+        mVehicleHal.onSupportedValuesChange(List.of(propIdAreaId2));
+
+        verify(mPropertyHalService, never()).onSupportedValuesChange(any());
+    }
+
+    @Test
+    public void testUnregisterSupportedValuesChange() {
+        var propIdAreaId1 = newPropIdAreaId(SOME_READ_WRITE_STATIC_PROPERTY, 0);
+        var propIdAreaId2 = newPropIdAreaId(CONTINUOUS_PROPERTY, 0);
+        var propIdAreaIds = List.of(propIdAreaId1, propIdAreaId2);
+
+        mVehicleHal.registerSupportedValuesChange(mPropertyHalService, propIdAreaIds);
+        mVehicleHal.unregisterSupportedValuesChange(mPropertyHalService,
+                List.of(propIdAreaId1));
+
+        verify(mSubscriptionClient).unregisterSupportedValuesChange(mListCaptor.capture());
+        var unregisteredPropIdAreaIds = (List<PropIdAreaId>) mListCaptor.getValue();
+        assertThat(unregisteredPropIdAreaIds).containsExactly(propIdAreaId1);
+
+        mVehicleHal.onSupportedValuesChange(propIdAreaIds);
+
+        verify(mPropertyHalService).onSupportedValuesChange(mListCaptor.capture());
+        var notifiedPropIdAreaIds = (List<PropIdAreaId>) mListCaptor.getValue();
+        assertThat(notifiedPropIdAreaIds).containsExactly(propIdAreaId2);
+    }
+
+    @Test
+    public void testUnregisterSupportedValuesChange_ignoreUnregistered() {
+        var propIdAreaId1 = newPropIdAreaId(SOME_READ_WRITE_STATIC_PROPERTY, 0);
+        var propIdAreaId2 = newPropIdAreaId(CONTINUOUS_PROPERTY, 0);
+
+        mVehicleHal.registerSupportedValuesChange(mPropertyHalService,
+                List.of(propIdAreaId1));
+
+        // Do nothing.
+        mVehicleHal.unregisterSupportedValuesChange(mPropertyHalService,
+                List.of(propIdAreaId2));
+
+        verify(mSubscriptionClient, never()).unregisterSupportedValuesChange(any());
+    }
+
+    @Test
+    public void testUnregisterSupportedValuesChange_serviceNotOwnProperty() {
+        var propIdAreaIds = List.of(
+                newPropIdAreaId(SOME_INT32_PROPERTY, 0)
+        );
+
+        assertThrows(IllegalArgumentException.class, () -> {
+            mVehicleHal.unregisterSupportedValuesChange(mPropertyHalService, propIdAreaIds);
+        });
     }
 
     private SubscribeOptions createSubscribeOptions(int propId, float sampleRateHz, int[] areaIds) {

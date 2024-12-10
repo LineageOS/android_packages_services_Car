@@ -1,1 +1,2 @@
 user=system seinfo=platform name=com.android.experimentalcar domain=experimentalcarservice_app type=system_app_data_file
+user=_app isIsolatedComputeApp=true seinfo=platform name=com.android.car.test.one.hotworddetectionservice:trusted domain=isolated_compute_app type=app_data_file

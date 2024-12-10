@@ -16,7 +16,6 @@
   -->
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
     <dimen name="icon_size">@*android:dimen/car_primary_icon_size</dimen>
-    <dimen name="top_level_menu_width">362dp</dimen>
     <dimen name="car_portrait_ui_tab_margin_vertical">1dp</dimen>
     <dimen name="toggle_button_size">72dp</dimen>
     <dimen name="toggle_button_radius">16dp</dimen>
@@ -24,8 +23,10 @@
     <dimen name="toggle_button_icon_size">44dp</dimen>
 
     <!-- Top-level menu -->
+    <dimen name="top_level_menu_width">361dp</dimen>
     <dimen name="top_level_recyclerview_margin_right">@*android:dimen/car_padding_2</dimen>
     <dimen name="top_level_foreground_icon_inset">8dp</dimen>
+    <dimen name="top_level_preference_title_margin_horizontal">2dp</dimen>
 
     <!-- Alert Dialog dimensions for preference_dialog_password_edittext -->
     <dimen name="alert_dialog_margin_top">@*android:dimen/car_padding_4</dimen>

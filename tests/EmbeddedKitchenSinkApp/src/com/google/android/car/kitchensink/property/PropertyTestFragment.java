@@ -71,8 +71,19 @@ public class PropertyTestFragment extends Fragment implements OnItemSelectedList
 
     // The dangerous permissions that need to be granted at run-time.
     private static final String[] REQUIRED_DANGEROUS_PERMISSIONS = new String[]{
+        Car.PERMISSION_CAR_DRIVING_STATE_3P,
+        Car.PERMISSION_CAR_ENGINE_DETAILED_3P,
+        Car.PERMISSION_MILEAGE_3P,
         Car.PERMISSION_ENERGY,
-        Car.PERMISSION_SPEED
+        Car.PERMISSION_READ_CAR_SEATS,
+        Car.PERMISSION_READ_EXTERIOR_LIGHTS,
+        Car.PERMISSION_READ_STEERING_STATE_3P,
+        Car.PERMISSION_SPEED,
+        Car.PERMISSION_TIRES_3P,
+        Car.PERMISSION_READ_WINDSHIELD_WIPERS_3P,
+        Car.PERMISSION_READ_CAR_HORN,
+        Car.PERMISSION_READ_CAR_PEDALS,
+        Car.PERMISSION_READ_BRAKE_INFO
     };
     private static final Float[] SUBSCRIPTION_RATES_HZ = new Float[]{
         0.0f,

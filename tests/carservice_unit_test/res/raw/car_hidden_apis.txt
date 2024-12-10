@@ -488,6 +488,8 @@ android.car.hardware.property CarPropertyManager String getReadPermission(int pr
 android.car.hardware.property CarPropertyManager String getWritePermission(int propId)
 android.car.hardware.property CarPropertyManager void onCarDisconnected()
 android.car.hardware.property CarPropertyManager void setFeatureFlags(FeatureFlags fakeFeatureFlags)
+android.car.hardware.property CarPropertySimulationManager CarRecorderListener getCarRecorderListener()
+android.car.hardware.property CarPropertySimulationManager Executor getCallbackExecutor()
 android.car.hardware.property CarPropertySimulationManager void onCarDisconnected()
 android.car.hardware.property VehicleHalStatusCode String toString(int vehicleHalStatusCode)
 android.car.hardware.property VehicleHalStatusCode int STATUS_ACCESS_DENIED

@@ -187,14 +187,81 @@
         "value": "android.car.permission.CAR_INFO"
       }
     },
+    "INFO_MODEL_TRIM": {
+      "propertyName": "INFO_MODEL_TRIM",
+      "propertyId": 286261517,
+      "description": "Public trim name of the vehicle.",
+      "readPermission": {
+        "type": "single",
+        "value": "android.car.permission.CAR_INFO"
+      },
+      "featureFlag": "FLAG_ANDROID_B_VEHICLE_PROPERTIES"
+    },
+    "INFO_VEHICLE_SIZE_CLASS": {
+      "propertyName": "INFO_VEHICLE_SIZE_CLASS",
+      "propertyId": 289472782,
+      "description": "Vehicle Size Class.",
+      "readPermission": {
+        "type": "single",
+        "value": "android.car.permission.CAR_INFO"
+      },
+      "dataEnums": [
+        256,
+        257,
+        258,
+        259,
+        260,
+        261,
+        262,
+        263,
+        264,
+        265,
+        266,
+        267,
+        268,
+        269,
+        270,
+        512,
+        513,
+        514,
+        515,
+        516,
+        517,
+        518,
+        519,
+        520,
+        768,
+        769,
+        770,
+        1024,
+        1025,
+        1026,
+        1027,
+        1028,
+        1029,
+        1030,
+        1031
+      ],
+      "featureFlag": "FLAG_ANDROID_B_VEHICLE_PROPERTIES"
+    },
     "PERF_ODOMETER": {
       "propertyName": "PERF_ODOMETER",
       "propertyId": 291504644,
       "description": "Current odometer value of the vehicle in kilometers.",
       "readPermission": {
-        "type": "single",
-        "value": "android.car.permission.CAR_MILEAGE"
-      }
+        "type": "anyOf",
+        "value": [
+          {
+            "type": "single",
+            "value": "android.car.permission.CAR_MILEAGE_3P"
+          },
+          {
+            "type": "single",
+            "value": "android.car.permission.CAR_MILEAGE"
+          }
+        ]
+      },
+      "featureFlag": "FLAG_ANDROID_B_VEHICLE_PROPERTIES"
     },
     "PERF_VEHICLE_SPEED": {
       "propertyName": "PERF_VEHICLE_SPEED",
@@ -219,9 +286,19 @@
       "propertyId": 291504649,
       "description": "Front bicycle model steering angle for vehicle in degrees.",
       "readPermission": {
-        "type": "single",
-        "value": "android.car.permission.READ_CAR_STEERING"
-      }
+        "type": "anyOf",
+        "value": [
+          {
+            "type": "single",
+            "value": "android.car.permission.READ_CAR_STEERING_3P"
+          },
+          {
+            "type": "single",
+            "value": "android.car.permission.READ_CAR_STEERING"
+          }
+        ]
+      },
+      "featureFlag": "FLAG_VEHICLE_PROPERTY_25Q2_3P_PERMISSIONS"
     },
     "PERF_REAR_STEERING_ANGLE": {
       "propertyName": "PERF_REAR_STEERING_ANGLE",
@@ -231,6 +308,26 @@
         "type": "single",
         "value": "android.car.permission.READ_CAR_STEERING"
       }
+    },
+    "INSTANTANEOUS_FUEL_ECONOMY": {
+      "propertyName": "INSTANTANEOUS_FUEL_ECONOMY",
+      "propertyId": 291504657,
+      "description": "Instantaneous Fuel Economy in L\/100km.",
+      "readPermission": {
+        "type": "single",
+        "value": "android.car.permission.CAR_MILEAGE_3P"
+      },
+      "featureFlag": "FLAG_ANDROID_B_VEHICLE_PROPERTIES"
+    },
+    "INSTANTANEOUS_EV_EFFICIENCY": {
+      "propertyName": "INSTANTANEOUS_EV_EFFICIENCY",
+      "propertyId": 291504658,
+      "description": "Instantaneous EV efficiency in km\/kWh.",
+      "readPermission": {
+        "type": "single",
+        "value": "android.car.permission.CAR_MILEAGE_3P"
+      },
+      "featureFlag": "FLAG_ANDROID_B_VEHICLE_PROPERTIES"
     },
     "ENGINE_COOLANT_TEMP": {
       "propertyName": "ENGINE_COOLANT_TEMP",
@@ -271,9 +368,19 @@
       "propertyId": 291504901,
       "description": "Engine rpm.",
       "readPermission": {
-        "type": "single",
-        "value": "android.car.permission.CAR_ENGINE_DETAILED"
-      }
+        "type": "anyOf",
+        "value": [
+          {
+            "type": "single",
+            "value": "android.car.permission.CAR_ENGINE_DETAILED_3P"
+          },
+          {
+            "type": "single",
+            "value": "android.car.permission.CAR_ENGINE_DETAILED"
+          }
+        ]
+      },
+      "featureFlag": "FLAG_VEHICLE_PROPERTY_25Q2_3P_PERMISSIONS"
     },
     "ENGINE_IDLE_AUTO_STOP_ENABLED": {
       "propertyName": "ENGINE_IDLE_AUTO_STOP_ENABLED",
@@ -307,6 +414,29 @@
         64
       ],
       "featureFlag": "FLAG_VEHICLE_PROPERTY_REMOVE_SYSTEM_API_TAGS"
+    },
+    "VEHICLE_HORN_ENGAGED": {
+      "propertyName": "VEHICLE_HORN_ENGAGED",
+      "propertyId": 287310656,
+      "description": "Vehicle horn engaged.",
+      "readPermission": {
+        "type": "anyOf",
+        "value": [
+          {
+            "type": "single",
+            "value": "android.car.permission.READ_CAR_HORN"
+          },
+          {
+            "type": "single",
+            "value": "android.car.permission.CONTROL_CAR_HORN"
+          }
+        ]
+      },
+      "writePermission": {
+        "type": "single",
+        "value": "android.car.permission.CONTROL_CAR_HORN"
+      },
+      "featureFlag": "FLAG_ANDROID_B_VEHICLE_PROPERTIES"
     },
     "WHEEL_TICK": {
       "propertyName": "WHEEL_TICK",
@@ -443,9 +573,19 @@
       "propertyId": 392168201,
       "description": "Tire pressure in kilopascals.",
       "readPermission": {
-        "type": "single",
-        "value": "android.car.permission.CAR_TIRES"
-      }
+        "type": "anyOf",
+        "value": [
+          {
+            "type": "single",
+            "value": "android.car.permission.CAR_TIRES_3P"
+          },
+          {
+            "type": "single",
+            "value": "android.car.permission.CAR_TIRES"
+          }
+        ]
+      },
+      "featureFlag": "FLAG_VEHICLE_PROPERTY_25Q2_3P_PERMISSIONS"
     },
     "CRITICALLY_LOW_TIRE_PRESSURE": {
       "propertyName": "CRITICALLY_LOW_TIRE_PRESSURE",
@@ -455,6 +595,56 @@
         "type": "single",
         "value": "android.car.permission.CAR_TIRES"
       }
+    },
+    "ACCELERATOR_PEDAL_COMPRESSION_PERCENTAGE": {
+      "propertyName": "ACCELERATOR_PEDAL_COMPRESSION_PERCENTAGE",
+      "propertyId": 291504911,
+      "description": "Accelerator pedal compression percentage.",
+      "readPermission": {
+        "type": "single",
+        "value": "android.car.permission.READ_CAR_PEDALS"
+      },
+      "featureFlag": "FLAG_ANDROID_B_VEHICLE_PROPERTIES"
+    },
+    "BRAKE_PEDAL_COMPRESSION_PERCENTAGE": {
+      "propertyName": "BRAKE_PEDAL_COMPRESSION_PERCENTAGE",
+      "propertyId": 291504912,
+      "description": "Brake pedal compression percentage.",
+      "readPermission": {
+        "type": "single",
+        "value": "android.car.permission.READ_CAR_PEDALS"
+      },
+      "featureFlag": "FLAG_ANDROID_B_VEHICLE_PROPERTIES"
+    },
+    "BRAKE_PAD_WEAR_PERCENTAGE": {
+      "propertyName": "BRAKE_PAD_WEAR_PERCENTAGE",
+      "propertyId": 392168209,
+      "description": "Brake pad wear percentage.",
+      "readPermission": {
+        "type": "single",
+        "value": "android.car.permission.READ_BRAKE_INFO"
+      },
+      "featureFlag": "FLAG_ANDROID_B_VEHICLE_PROPERTIES"
+    },
+    "BRAKE_FLUID_LEVEL_LOW": {
+      "propertyName": "BRAKE_FLUID_LEVEL_LOW",
+      "propertyId": 287310610,
+      "description": "Brake fluid level low.",
+      "readPermission": {
+        "type": "single",
+        "value": "android.car.permission.READ_BRAKE_INFO"
+      },
+      "featureFlag": "FLAG_ANDROID_B_VEHICLE_PROPERTIES"
+    },
+    "VEHICLE_PASSIVE_SUSPENSION_HEIGHT": {
+      "propertyName": "VEHICLE_PASSIVE_SUSPENSION_HEIGHT",
+      "propertyId": 390071059,
+      "description": "Vehicle Passive Suspension Height in mm.",
+      "readPermission": {
+        "type": "single",
+        "value": "android.car.permission.CAR_DYNAMICS_STATE"
+      },
+      "featureFlag": "FLAG_ANDROID_B_VEHICLE_PROPERTIES"
     },
     "GEAR_SELECTION": {
       "propertyName": "GEAR_SELECTION",
@@ -600,6 +790,7 @@
         "type": "single",
         "value": "android.car.permission.CAR_EXTERIOR_LIGHTS"
       },
+      "deprecated": true,
       "dataEnums": [
         0,
         1,
@@ -684,6 +875,58 @@
         2
       ],
       "featureFlag": "FLAG_VEHICLE_PROPERTY_REMOVE_SYSTEM_API_TAGS"
+    },
+    "TURN_SIGNAL_LIGHT_STATE": {
+      "propertyName": "TURN_SIGNAL_LIGHT_STATE",
+      "propertyId": 289408016,
+      "description": "Turn signal light state.",
+      "readPermission": {
+        "type": "anyOf",
+        "value": [
+          {
+            "type": "single",
+            "value": "android.car.permission.READ_CAR_EXTERIOR_LIGHTS"
+          },
+          {
+            "type": "single",
+            "value": "android.car.permission.CONTROL_CAR_EXTERIOR_LIGHTS"
+          }
+        ]
+      },
+      "dataEnums": [
+        0,
+        1,
+        2
+      ],
+      "featureFlag": "FLAG_ANDROID_B_VEHICLE_PROPERTIES"
+    },
+    "TURN_SIGNAL_SWITCH": {
+      "propertyName": "TURN_SIGNAL_SWITCH",
+      "propertyId": 289408017,
+      "description": "Turn signal switch.",
+      "readPermission": {
+        "type": "anyOf",
+        "value": [
+          {
+            "type": "single",
+            "value": "android.car.permission.READ_CAR_EXTERIOR_LIGHTS"
+          },
+          {
+            "type": "single",
+            "value": "android.car.permission.CONTROL_CAR_EXTERIOR_LIGHTS"
+          }
+        ]
+      },
+      "writePermission": {
+        "type": "single",
+        "value": "android.car.permission.CONTROL_CAR_EXTERIOR_LIGHTS"
+      },
+      "dataEnums": [
+        0,
+        1,
+        2
+      ],
+      "featureFlag": "FLAG_ANDROID_B_VEHICLE_PROPERTIES"
     },
     "HVAC_FAN_SPEED": {
       "propertyName": "HVAC_FAN_SPEED",
@@ -2117,14 +2360,24 @@
       "propertyId": 356518832,
       "description": "Seat Occupancy.",
       "readPermission": {
-        "type": "single",
-        "value": "android.car.permission.CONTROL_CAR_SEATS"
+        "type": "anyOf",
+        "value": [
+          {
+            "type": "single",
+            "value": "android.car.permission.READ_CAR_SEATS"
+          },
+          {
+            "type": "single",
+            "value": "android.car.permission.CONTROL_CAR_SEATS"
+          }
+        ]
       },
       "dataEnums": [
         0,
         1,
         2
-      ]
+      ],
+      "featureFlag": "FLAG_VEHICLE_PROPERTY_25Q2_3P_PERMISSIONS"
     },
     "WINDOW_POS": {
       "propertyName": "WINDOW_POS",
@@ -2180,8 +2433,17 @@
       "propertyId": 322964422,
       "description": "Windshield wipers state.",
       "readPermission": {
-        "type": "single",
-        "value": "android.car.permission.READ_WINDSHIELD_WIPERS"
+        "type": "anyOf",
+        "value": [
+          {
+            "type": "single",
+            "value": "android.car.permission.READ_WINDSHIELD_WIPERS_3P"
+          },
+          {
+            "type": "single",
+            "value": "android.car.permission.READ_WINDSHIELD_WIPERS"
+          }
+        ]
       },
       "dataEnums": [
         0,
@@ -2189,7 +2451,7 @@
         2,
         3
       ],
-      "featureFlag": "FLAG_VEHICLE_PROPERTY_REMOVE_SYSTEM_API_TAGS"
+      "featureFlag": "FLAG_VEHICLE_PROPERTY_25Q2_3P_PERMISSIONS"
     },
     "WINDSHIELD_WIPERS_SWITCH": {
       "propertyName": "WINDSHIELD_WIPERS_SWITCH",
@@ -2922,6 +3184,33 @@
       "propertyId": 289410892,
       "description": "Current state of vehicle autonomy.",
       "readPermission": {
+        "type": "anyOf",
+        "value": [
+          {
+            "type": "single",
+            "value": "android.car.permission.CAR_DRIVING_STATE_3P"
+          },
+          {
+            "type": "single",
+            "value": "android.car.permission.CAR_DRIVING_STATE"
+          }
+        ]
+      },
+      "dataEnums": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "featureFlag": "FLAG_VEHICLE_PROPERTY_25Q2_3P_PERMISSIONS"
+    },
+    "VEHICLE_DRIVING_AUTOMATION_TARGET_LEVEL": {
+      "propertyName": "VEHICLE_DRIVING_AUTOMATION_TARGET_LEVEL",
+      "propertyId": 289410895,
+      "description": "Target state of vehicle autonomy.",
+      "readPermission": {
         "type": "single",
         "value": "android.car.permission.CAR_DRIVING_STATE"
       },
@@ -2933,7 +3222,7 @@
         4,
         5
       ],
-      "featureFlag": "FLAG_VEHICLE_PROPERTY_REMOVE_SYSTEM_API_TAGS"
+      "featureFlag": "FLAG_ANDROID_B_VEHICLE_PROPERTIES"
     },
     "AUTOMATIC_EMERGENCY_BRAKING_ENABLED": {
       "propertyName": "AUTOMATIC_EMERGENCY_BRAKING_ENABLED",

@@ -105,12 +105,20 @@ import static com.android.car.audio.CarAudioDeviceInfoTestUtils.SECONDARY_TEST_D
 import static com.android.car.audio.CarAudioDeviceInfoTestUtils.TERTIARY_TEST_DEVICE_1;
 import static com.android.car.audio.CarAudioDeviceInfoTestUtils.VOICE_TEST_DEVICE;
 import static com.android.car.audio.CarAudioService.CAR_DEFAULT_AUDIO_ATTRIBUTE;
+import static com.android.car.audio.CarAudioTestUtils.PRIMARY_OCCUPANT_ID;
+import static com.android.car.audio.CarAudioTestUtils.QUATERNARY_OCCUPANT_ID;
+import static com.android.car.audio.CarAudioTestUtils.QUATERNARY_ZONE_ID;
+import static com.android.car.audio.CarAudioTestUtils.SECONDARY_OCCUPANT_ID;
 import static com.android.car.audio.CarAudioTestUtils.SECONDARY_ZONE_CONFIG_NAME_1;
 import static com.android.car.audio.CarAudioTestUtils.SECONDARY_ZONE_CONFIG_NAME_2;
+import static com.android.car.audio.CarAudioTestUtils.SECONDARY_ZONE_ID;
 import static com.android.car.audio.CarAudioTestUtils.SECONDARY_ZONE_VOLUME_GROUP_COUNT;
 import static com.android.car.audio.CarAudioTestUtils.SECONDARY_ZONE_VOLUME_GROUP_ID;
+import static com.android.car.audio.CarAudioTestUtils.TERTIARY_OCCUPANT_ID;
+import static com.android.car.audio.CarAudioTestUtils.TERTIARY_ZONE_ID;
 import static com.android.car.audio.CarAudioTestUtils.TEST_SECONDARY_ZONE_GROUP_0;
 import static com.android.car.audio.CarAudioTestUtils.TEST_SECONDARY_ZONE_GROUP_1;
+import static com.android.car.audio.CarAudioTestUtils.createAudioServiceAudioZones;
 import static com.android.car.audio.CarHalAudioUtils.usageToMetadata;
 import static com.android.car.audio.GainBuilder.DEFAULT_GAIN;
 import static com.android.car.audio.GainBuilder.MAX_GAIN;
@@ -165,9 +173,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
+import android.hardware.automotive.audiocontrol.AudioDeviceConfiguration;
 import android.hardware.automotive.audiocontrol.AudioGainConfigInfo;
 import android.hardware.automotive.audiocontrol.IAudioControl;
 import android.hardware.automotive.audiocontrol.Reasons;
+import android.hardware.automotive.audiocontrol.RoutingDeviceConfiguration;
 import android.media.AudioAttributes;
 import android.media.AudioDeviceAttributes;
 import android.media.AudioDeviceCallback;
@@ -1138,6 +1148,55 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         int[] audioZoneZones = captor.getValue().copyKeys();
         expectWithMessage("Configured audio zones with missing occupant zones")
                 .that(audioZoneZones).asList().containsExactly(PRIMARY_AUDIO_ZONE);
+    }
+
+    @Test
+    @EnableFlags({Flags.FLAG_AUDIO_CONTROL_HAL_CONFIGURATION})
+    public void init_withCarAudioControlHAL_initsHALZones() throws Exception {
+        CarAudioService service = setupAudioServiceUsingAudioControlWithoutInit();
+
+        initServiceAndWaitForComplete(service);
+
+        expectWithMessage("Audio control HAL configured status")
+                .that(service.isConfiguredUsingAudioControlHAL()).isTrue();
+        expectWithMessage("Audio control HAL configured zones")
+                .that(service.getAudioZoneIds()).asList().containsExactly(PRIMARY_AUDIO_ZONE,
+                        SECONDARY_ZONE_ID, TERTIARY_ZONE_ID, QUATERNARY_ZONE_ID);
+        ArgumentCaptor<SparseIntArray> captor = ArgumentCaptor.forClass(SparseIntArray.class);
+        verify(mMockOccupantZoneService).setAudioZoneIdsForOccupantZoneIds(captor.capture());
+        var map = new SparseIntArray(4);
+        map.put(PRIMARY_AUDIO_ZONE, PRIMARY_OCCUPANT_ID);
+        map.put(SECONDARY_ZONE_ID, SECONDARY_OCCUPANT_ID);
+        map.put(TERTIARY_ZONE_ID, TERTIARY_OCCUPANT_ID);
+        map.put(QUATERNARY_ZONE_ID, QUATERNARY_OCCUPANT_ID);
+        var zoneIdOccupantZoneId = captor.getValue();
+        expectWithMessage("Audio control HAL configured size of mapped occupants")
+                .that(zoneIdOccupantZoneId.size()).isEqualTo(map.size());
+        for (int c = 0; c < map.size(); c++) {
+            int zoneId = map.keyAt(c);
+            int occupantZoneId = map.get(zoneId);
+            expectWithMessage("Occupant zone audio control HAL for zone id %s", zoneId)
+                    .that(zoneIdOccupantZoneId.get(zoneId)).isEqualTo(occupantZoneId);
+        }
+    }
+
+    @Test
+    @DisableFlags({Flags.FLAG_AUDIO_CONTROL_HAL_CONFIGURATION})
+    public void init_withCarAudioControlHALDisabled_initsFileConfigZones() throws Exception {
+        CarAudioService service = setupAudioServiceUsingAudioControlWithoutInit();
+
+        initServiceAndWaitForComplete(service);
+
+        expectWithMessage("Car audio files configured status")
+                .that(service.isConfiguredUsingAudioControlHAL()).isFalse();
+        expectWithMessage("Car audio zones configure using car audio configuration file")
+                .that(service.getAudioZoneIds()).asList().containsExactly(PRIMARY_AUDIO_ZONE,
+                        SECONDARY_ZONE_ID);
+        ArgumentCaptor<SparseIntArray> captor = ArgumentCaptor.forClass(SparseIntArray.class);
+        verify(mMockOccupantZoneService).setAudioZoneIdsForOccupantZoneIds(captor.capture());
+        var zoneIdOccupantZoneId = captor.getValue();
+        expectWithMessage("Car audio file configured size of mapped occupants")
+                .that(zoneIdOccupantZoneId.size()).isEqualTo(0);
     }
 
     @Test
@@ -2765,8 +2824,8 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         callback.onAudioServerDown();
 
         callback.onAudioServerUp();
-        service.waitForInitComplete(INIT_TIMEOUT_MS);
 
+        service.waitForInitComplete(INIT_TIMEOUT_MS);
         expectWithMessage("Re-initialized Car Audio Service Zones")
                 .that(service.getAudioZoneIds()).asList()
                 .containsExactly(PRIMARY_AUDIO_ZONE, TEST_REAR_LEFT_ZONE_ID,
@@ -2802,8 +2861,8 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         callback.onAudioServerDown();
 
         callback.onAudioServerUp();
-        service.waitForInitComplete(INIT_TIMEOUT_MS);
 
+        service.waitForInitComplete(INIT_TIMEOUT_MS);
         expectWithMessage("Re-initialized Car Audio Service Zones")
                 .that(service.getAudioZoneIds()).asList()
                 .containsExactly(PRIMARY_AUDIO_ZONE);
@@ -2841,6 +2900,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
 
         callback.onAudioServerUp();
 
+        service.waitForInitComplete(INIT_TIMEOUT_MS);
         waitForInternalCallback();
         expectWithMessage("Re-initialized Car Audio Service Zones")
                 .that(service.getAudioZoneIds()).asList()
@@ -6725,6 +6785,22 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         service.init();
         assertWithMessage("waitForInitComplete succeeded").that(
                 service.waitForInitComplete(INIT_TIMEOUT_MS)).isTrue();
+    }
+
+    private CarAudioService setupAudioServiceUsingAudioControlWithoutInit() throws Exception {
+        when(mAudioControlWrapperAidl.supportsFeature(
+                AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_CONFIGURATION)).thenReturn(true);
+        var deviceConfig = new AudioDeviceConfiguration();
+        deviceConfig.routingConfig = RoutingDeviceConfiguration.DYNAMIC_AUDIO_ROUTING;
+        when(mAudioControlWrapperAidl.getAudioDeviceConfiguration()).thenReturn(deviceConfig);
+        when(mAudioControlWrapperAidl.getCarAudioZones())
+                .thenReturn(createAudioServiceAudioZones());
+        // File not use for configuration for to differentiate between HAL config and file config
+        setUpTempFileForAudioConfiguration(R.raw.car_audio_configuration_without_zone_mapping);
+        setUpTempFileForAudioFadeConfiguration(R.raw.car_audio_fade_configuration);
+        return new CarAudioService(mMockContext, mAudioManager,
+                mTempCarAudioConfigFile.getFile().getAbsolutePath(), mCarVolumeCallbackHandler,
+                mTempCarAudioFadeConfigFile.getFile().getAbsolutePath());
     }
 
     private CarAudioService setUpCarAudioServiceWithoutZoneMapping() throws Exception {

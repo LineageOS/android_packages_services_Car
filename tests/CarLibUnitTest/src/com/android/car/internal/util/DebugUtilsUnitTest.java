@@ -16,13 +16,18 @@
 
 package com.android.car.internal.util;
 
+import static com.android.car.internal.property.CarPropertyHelper.newPropIdAreaId;
+
 import static com.google.common.truth.Truth.assertThat;
 
+import android.car.VehiclePropertyIds;
 import android.hardware.automotive.vehicle.StatusCode;
 import android.hardware.automotive.vehicle.UserInfo;
 import android.hardware.automotive.vehicle.V2_0.UserFlags;
 
 import org.junit.Test;
+
+import java.util.List;
 
 public final class DebugUtilsUnitTest {
 
@@ -92,5 +97,23 @@ public final class DebugUtilsUnitTest {
                         UserFlags.class, "",
                         UserFlags.SYSTEM | UserFlags.ADMIN))
                 .isAnyOf("ADMIN|SYSTEM", "SYSTEM|ADMIN");
+    }
+
+    @Test
+    public void testPropIdAreaIdToDebugString() {
+        var propIdAreaId = newPropIdAreaId(VehiclePropertyIds.PERF_VEHICLE_SPEED, /*areaId=*/1);
+
+        assertThat(DebugUtils.toDebugString(propIdAreaId)).isEqualTo(
+                "PropIdAreaId{propId=PERF_VEHICLE_SPEED, areaId=1}");
+    }
+
+    @Test
+    public void testPropIdAreaIdListToDebugString() {
+        var propIdAreaId1 = newPropIdAreaId(VehiclePropertyIds.PERF_VEHICLE_SPEED, /*areaId=*/1);
+        var propIdAreaId2 = newPropIdAreaId(VehiclePropertyIds.HVAC_FAN_SPEED, /*areaId=*/2);
+
+        assertThat(DebugUtils.toDebugString(List.of(propIdAreaId1, propIdAreaId2))).isEqualTo(
+                "propIdAreaIds: [PropIdAreaId{propId=PERF_VEHICLE_SPEED, areaId=1}, "
+                + "PropIdAreaId{propId=HVAC_FAN_SPEED, areaId=2}]");
     }
 }

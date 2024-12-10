@@ -43,6 +43,7 @@ import android.util.Slog;
 import com.android.car.hal.HalPropValue;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.property.CarPropertyHelper;
+import com.android.car.internal.property.PropIdAreaId;
 import com.android.car.internal.util.ConstantDebugUtils;
 
 import java.util.ArrayList;
@@ -353,6 +354,37 @@ public final class HalPropertyDebugUtils {
             return invalidConstantValue;
         }
         return toName(clazz, constantValue) + hexSuffix;
+    }
+
+    /**
+     * Gets human-readable representation of a {@code PropIdAreaId} structure.
+     *
+     * Note that the property ID is the VHAL property ID, not the CarPropertyManager property ID.
+     */
+    public static String toHalPropIdAreaIdString(PropIdAreaId propIdAreaId) {
+        return "PropIdAreaId{propId=" + toPropertyIdString(propIdAreaId.propId)
+            + ", areaId=" + toAreaIdString(propIdAreaId.propId, propIdAreaId.areaId) + "}";
+    }
+
+    /**
+     * Gets human-readable representation of a list of {@code PropIdAreaId}.
+     *
+     * Note that the property ID is the VHAL property ID, not the CarPropertyManager property ID.
+     */
+    public static String toHalPropIdAreaIdsString(Iterable<PropIdAreaId> propIdAreaIds) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("[");
+        boolean first = true;
+        for (PropIdAreaId propIdAreaId : propIdAreaIds) {
+            if (first) {
+                first = false;
+            } else {
+                sb.append(", ");
+            }
+            sb.append(toHalPropIdAreaIdString(propIdAreaId));
+        }
+        sb.append("]");
+        return sb.toString();
     }
 
     /**

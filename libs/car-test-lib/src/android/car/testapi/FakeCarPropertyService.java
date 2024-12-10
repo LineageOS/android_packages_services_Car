@@ -198,6 +198,46 @@ class FakeCarPropertyService extends ICarProperty.Stub implements CarPropertyCon
     }
 
     @Override
+    public CarPropertyConfigList registerRecordingListener(ICarPropertyEventListener callback) {
+        return new CarPropertyConfigList(new ArrayList<>());
+    }
+
+    @Override
+    public boolean isRecordingVehicleProperties() {
+        return false;
+    }
+
+    @Override
+    public void stopRecordingVehicleProperties(ICarPropertyEventListener callback) {
+        // no-op
+    }
+
+    @Override
+    public void enableInjectionMode(int[] propertyIdsFromRealHardware) {
+        // no-op
+    }
+
+    @Override
+    public void disableInjectionMode() {
+        // no-op
+    }
+
+    @Override
+    public boolean isVehiclePropertyInjectionModeEnabled() {
+        return false;
+    }
+
+    @Override
+    public CarPropertyValue getLastInjectedVehicleProperty(int propertyId) {
+        return null;
+    }
+
+    @Override
+    public void injectVehicleProperties(List<CarPropertyValue> carPropertyValues) {
+        // no-op
+    }
+
+    @Override
     public String getReadPermission(int propId) throws RemoteException {
         return mConfigs.containsKey(propId) ? mPermissions.getReadPermission(propId) : null;
     }
@@ -268,6 +308,12 @@ class FakeCarPropertyService extends ICarProperty.Stub implements CarPropertyCon
 
     @Override
     public void registerSupportedValuesChangeCallback(List<PropIdAreaId> propIdAreaIds,
+            ISupportedValuesChangeCallback callback) {
+        // This is currently unused, do nothing.
+    }
+
+    @Override
+    public void unregisterSupportedValuesChangeCallback(List<PropIdAreaId> propIdAreaIds,
             ISupportedValuesChangeCallback callback) {
         // This is currently unused, do nothing.
     }

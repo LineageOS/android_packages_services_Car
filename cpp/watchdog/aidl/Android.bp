@@ -62,20 +62,6 @@ aidl_interface {
     imports: [
         "android.automotive.watchdog-V3",
     ],
-    versions_with_info: [
-        {
-            version: "1",
-            imports: ["android.automotive.watchdog-V3"],
-        },
-        {
-            version: "2",
-            imports: ["android.automotive.watchdog-V3"],
-        },
-        {
-            version: "3",
-            imports: ["android.automotive.watchdog-V3"],
-        },
-
-    ],
+    unstable: true,
     frozen: false,
 }

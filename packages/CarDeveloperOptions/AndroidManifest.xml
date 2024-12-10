@@ -361,6 +361,15 @@
         </activity>
 
         <activity
+            android:name="com.android.settings.network.SimOnboardingActivity"
+            android:enabled="false"
+            android:exported="false"
+            tools:node="merge"
+            tools:replace="android:exported">
+            <intent-filter tools:node="removeAll"/>
+        </activity>
+
+        <activity
             android:name="com.android.settings.Settings$TetherSettingsActivity"
             android:enabled="false"
             android:exported="false"
@@ -535,6 +544,16 @@
             android:name="com.android.settings.Settings$PhysicalKeyboardActivity"
             android:enabled="false"
             android:exported="false"
+            tools:node="merge"
+            tools:replace="android:exported">
+            <intent-filter tools:node="removeAll"/>
+        </activity>
+
+        <activity
+            android:name="com.android.settings.Settings$PhysicalKeyboardLayoutPickerActivity"
+            android:enabled="false"
+            android:exported="false"
+            android:featureFlag="com.android.settings.keyboard.keyboard_and_touchpad_a11y_new_page_enabled"
             tools:node="merge"
             tools:replace="android:exported">
             <intent-filter tools:node="removeAll"/>
@@ -3515,6 +3534,16 @@
           android:exported="false"
           tools:node="merge"
           tools:replace="android:exported,android:enabled">
+          <intent-filter tools:node="removeAll" />
+        </service>
+
+        <service
+          android:name="com.android.settings.service.PreferenceService"
+          android:enabled="false"
+          android:exported="false"
+          android:featureFlag="com.android.settingslib.flags.settings_catalyst"
+          tools:node="merge"
+          tools:replace="android:exported,android:enabled,android:featureFlag">
           <intent-filter tools:node="removeAll" />
         </service>
 

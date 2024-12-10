@@ -121,7 +121,6 @@
     <string-array name="config_ignoreOpeningForegroundDA" translatable="false">
         <item>android.car.usb.handler/.UsbHostManagementActivity</item>
         <item>android.car.usb.handler/android.car.usb.handler.UsbHostManagementActivity</item>
-        <item>com.android.car.portraitlauncher/.homeactivities.BlankActivity</item>
         <item>com.android.car.settings/com.android.car.settings.FallbackHome</item>
         <item>com.android.mtp/com.android.mtp.ReceiverActivity</item>
         <item>com.android.sdksetup/.DefaultActivity</item>

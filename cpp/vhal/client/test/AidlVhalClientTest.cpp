@@ -44,6 +44,8 @@ using ::aidl::android::hardware::automotive::vehicle::GetValueResult;
 using ::aidl::android::hardware::automotive::vehicle::GetValueResults;
 using ::aidl::android::hardware::automotive::vehicle::IVehicle;
 using ::aidl::android::hardware::automotive::vehicle::IVehicleCallback;
+using ::aidl::android::hardware::automotive::vehicle::MinMaxSupportedValueResults;
+using ::aidl::android::hardware::automotive::vehicle::PropIdAreaId;
 using ::aidl::android::hardware::automotive::vehicle::RawPropValues;
 using ::aidl::android::hardware::automotive::vehicle::SetValueRequest;
 using ::aidl::android::hardware::automotive::vehicle::SetValueRequests;
@@ -51,6 +53,7 @@ using ::aidl::android::hardware::automotive::vehicle::SetValueResult;
 using ::aidl::android::hardware::automotive::vehicle::SetValueResults;
 using ::aidl::android::hardware::automotive::vehicle::StatusCode;
 using ::aidl::android::hardware::automotive::vehicle::SubscribeOptions;
+using ::aidl::android::hardware::automotive::vehicle::SupportedValuesListResults;
 using ::aidl::android::hardware::automotive::vehicle::VehiclePropConfig;
 using ::aidl::android::hardware::automotive::vehicle::VehiclePropConfigs;
 using ::aidl::android::hardware::automotive::vehicle::VehiclePropError;
@@ -167,6 +170,26 @@ public:
 
     ScopedAStatus returnSharedMemory([[maybe_unused]] const CallbackType& callback,
                                      [[maybe_unused]] int64_t sharedMemoryId) override {
+        return ScopedAStatus::ok();
+    }
+
+    ScopedAStatus getSupportedValuesLists(const std::vector<PropIdAreaId>&,
+                                          SupportedValuesListResults*) {
+        return ScopedAStatus::ok();
+    }
+
+    ScopedAStatus getMinMaxSupportedValue(const std::vector<PropIdAreaId>&,
+                                          MinMaxSupportedValueResults*) {
+        return ScopedAStatus::ok();
+    }
+
+    ScopedAStatus registerSupportedValueChangeCallback(const std::shared_ptr<IVehicleCallback>&,
+                                                       const std::vector<PropIdAreaId>&) {
+        return ScopedAStatus::ok();
+    }
+
+    ScopedAStatus unregisterSupportedValueChangeCallback(const std::shared_ptr<IVehicleCallback>&,
+                                                         const std::vector<PropIdAreaId>&) {
         return ScopedAStatus::ok();
     }
 
@@ -299,6 +322,8 @@ protected:
     }
 
     AidlVhalClient* getClient() { return mVhalClient.get(); }
+
+    void resetClient() { mVhalClient.reset(); }
 
     MockVhal* getVhal() { return mVhal.get(); }
 
@@ -794,6 +819,17 @@ TEST_F(AidlVhalClientTest, testAddOnBinderDiedCallback) {
     ASSERT_TRUE(result.callbackTwoCalled);
 
     ASSERT_EQ(countOnBinderDiedCallbacks(), static_cast<size_t>(0));
+}
+
+TEST_F(AidlVhalClientTest, testOnBinderDied_noDeadLock) {
+    getClient()->addOnBinderDiedCallback(
+            std::make_shared<AidlVhalClient::OnBinderDiedCallbackFunc>([this] {
+                // This will trigger the destructor for AidlVhalClient. This must not cause dead
+                // lock.
+                resetClient();
+            }));
+
+    triggerBinderDied();
 }
 
 TEST_F(AidlVhalClientTest, testRemoveOnBinderDiedCallback) {

@@ -16,4 +16,6 @@
   -->
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
     <color name="qc_default_icon_color">@color/car_on_surface_variant</color>
+    <color name="aspect_ratio_icon_outline_color">@color/car_on_background</color>
+    <color name="aspect_ratio_icon_background_color">@color/car_background</color>
 </resources>

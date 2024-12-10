@@ -30,6 +30,10 @@
     <string name="car_permission_desc_hvac" msgid="3754229695589774195">"Mengakses hvac mobil Anda."</string>
     <string name="car_permission_label_mileage" msgid="4661317074631150551">"mengakses informasi jarak tempuh mobil"</string>
     <string name="car_permission_desc_mileage" msgid="7179735693278681090">"Mengakses informasi jarak tempuh mobil."</string>
+    <!-- no translation found for car_permission_label_mileage_3p (7542459195663034759) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_mileage_3p (9109350882748664570) -->
+    <skip />
     <string name="car_permission_label_speed" msgid="1149027717860529745">"membaca kecepatan mobil"</string>
     <string name="car_permission_desc_speed" msgid="2047965198165448241">"Mengakses kecepatan mobil Anda."</string>
     <string name="car_permission_label_vehicle_dynamics_state" msgid="313779267420048367">"mengakses status dinamika mobil"</string>
@@ -92,6 +96,10 @@
     <string name="car_permission_desc_storage_monitoring" msgid="2075712271139671318">"Memantau penggunaan penyimpanan flash"</string>
     <string name="car_permission_label_driving_state" msgid="7754624599537393650">"memproses status mengemudi"</string>
     <string name="car_permission_desc_driving_state" msgid="2684025262811635737">"Memproses perubahan status Mengemudi."</string>
+    <!-- no translation found for car_permission_label_driving_state_3p (1395905103166125030) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_driving_state_3p (5491522450897843003) -->
+    <skip />
     <string name="car_permission_label_use_telemetry_service" msgid="948005838683758846">"Menggunakan Layanan Telemetri Mobil"</string>
     <string name="car_permission_desc_use_telemetry_service" msgid="3633214312435700766">"Mengumpulkan data kesehatan sistem mobil."</string>
     <string name="car_permission_label_use_evs_service" msgid="1729276125209310607">"Menggunakan CarEvsService"</string>
@@ -106,6 +114,10 @@
     <string name="car_permission_desc_monitor_evs_status" msgid="2764278897143573535">"Mendengarkan perubahan status layanan EVS"</string>
     <string name="car_permission_label_car_engine_detailed" msgid="8911992719173587337">"mengakses detail mesin mobil"</string>
     <string name="car_permission_desc_car_engine_detailed" msgid="1746863362811347700">"Mengakses informasi mendetail tentang mesin mobil Anda."</string>
+    <!-- no translation found for car_permission_label_car_engine_detailed_3p (2695036212735960169) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_car_engine_detailed_3p (7536940094077391015) -->
+    <skip />
     <string name="car_permission_label_car_energy_ports" msgid="8548990315169219454">"mengakses tutup tangki bahan bakar dan lubang colokan pengisi daya mobil"</string>
     <string name="car_permission_desc_car_energy_ports" msgid="7771185999828794949">"Mengakses tutup tangki bahan bakar dan lubang colokan pengisi daya mobil."</string>
     <string name="car_permission_label_control_car_energy_ports" msgid="4375137311026313475">"mengontrol tutup tangki bahan bakar dan port pengisian daya di mobil"</string>
@@ -120,6 +132,10 @@
     <string name="car_permission_desc_control_car_mirrors" msgid="1224135684068855032">"Mengontrol kaca spion mobil."</string>
     <string name="car_permission_label_control_car_seats" msgid="1826934820585497135">"mengontrol tempat duduk mobil"</string>
     <string name="car_permission_desc_control_car_seats" msgid="2407536601226470563">"Mengontrol tempat duduk mobil."</string>
+    <!-- no translation found for car_permission_label_read_car_seats (2996918480980128872) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_read_car_seats (5894145845932493046) -->
+    <skip />
     <string name="car_permission_label_read_car_seat_belts" msgid="2051828795852087659">"membaca sabuk pengaman mobil"</string>
     <string name="car_permission_desc_read_car_seat_belts" msgid="7076977711613912339">"Membaca sabuk pengaman mobil."</string>
     <string name="car_permission_label_read_impact_sensors" msgid="9193288836326363975">"membaca sensor benturan mobil"</string>
@@ -158,8 +174,16 @@
     <string name="car_permission_desc_car_exterior_environment" msgid="1716656004731603379">"Mengakses suhu eksterior mobil."</string>
     <string name="car_permission_label_car_tires" msgid="4379255261197836840">"mengakses informasi ban mobil"</string>
     <string name="car_permission_desc_car_tires" msgid="8134496466769810134">"Mengakses informasi ban mobil."</string>
+    <!-- no translation found for car_permission_label_car_tires_3p (1360632319908226570) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_car_tires_3p (820574543667371274) -->
+    <skip />
     <string name="car_permission_label_car_steering" msgid="7779530447441232479">"membaca informasi sudut setir mobil"</string>
     <string name="car_permission_desc_car_steering" msgid="1357331844530708138">"Mengakses informasi sudut setir mobil."</string>
+    <!-- no translation found for car_permission_label_read_car_steering_3p (1598866058085489462) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_read_car_steering_3p (576361609663755171) -->
+    <skip />
     <string name="car_permission_label_read_car_display_units" msgid="7617008314862097183">"membaca display unit mobil"</string>
     <string name="car_permission_desc_read_car_display_units" msgid="6891898275208542385">"Membaca display unit."</string>
     <string name="car_permission_label_control_car_display_units" msgid="4975303668183173076">"mengontrol display unit mobil"</string>
@@ -212,6 +236,10 @@
     <string name="car_permission_desc_control_adas_states" msgid="1893171217779342348">"Mengontrol informasi status ADAS mobil."</string>
     <string name="car_permission_label_read_windshield_wipers" msgid="896867772546890348">"membaca penyeka kaca mobil"</string>
     <string name="car_permission_desc_read_windshield_wipers" msgid="597300271560195986">"Membaca penyeka kaca mobil."</string>
+    <!-- no translation found for car_permission_label_read_windshield_wipers_3p (4784843702416325970) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_read_windshield_wipers_3p (604163171596913379) -->
+    <skip />
     <string name="car_permission_label_control_windshield_wipers" msgid="7971852482734087493">"mengontrol penyeka kaca mobil"</string>
     <string name="car_permission_desc_control_windshield_wipers" msgid="3803429825323199728">"Mengontrol penyeka kaca mobil."</string>
     <string name="car_permission_label_manage_display_compatibility" msgid="52642673039197383">"mengelola paket kompatibilitas layar"</string>

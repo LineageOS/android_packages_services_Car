@@ -16,6 +16,25 @@
 
 package com.android.car.customization.tool.features.common
 
+import android.content.om.OverlayIdentifier
 import android.content.om.OverlayInfo
+import android.content.om.OverlayManager
+import android.content.om.OverlayManagerTransaction
+import android.os.UserHandle
 
 fun OverlayInfo.isValid(): Boolean = state == 2 /*STATE_DISABLED*/ || state == 3 /*STATE_ENABLED*/
+
+/**
+ * Alternative to the standard [OverlayManager.setEnabled] that also works for fabricated RROs.
+ */
+fun OverlayManager.setEnableOverlay(
+    identifier: OverlayIdentifier,
+    newState: Boolean,
+    userHandle: UserHandle
+) {
+    commit(
+        OverlayManagerTransaction.Builder()
+            .setEnabled(identifier, newState, userHandle.identifier)
+            .build()
+    )
+}

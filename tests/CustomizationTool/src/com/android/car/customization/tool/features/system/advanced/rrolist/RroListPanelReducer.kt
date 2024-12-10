@@ -16,6 +16,7 @@
 
 package com.android.car.customization.tool.features.system.advanced.rrolist
 
+import android.content.om.OverlayIdentifier
 import android.content.om.OverlayInfo
 import android.content.om.OverlayManager
 import android.content.pm.PackageManager
@@ -26,9 +27,10 @@ import com.android.car.customization.tool.domain.panel.PanelActionReducer
 import com.android.car.customization.tool.domain.panel.PanelHeaderItem
 import com.android.car.customization.tool.domain.panel.PanelItem
 import com.android.car.customization.tool.features.common.isValid
+import com.android.car.customization.tool.features.common.setEnableOverlay
 
 internal data class PanelToggleRroAction(
-    val rroPackage: String,
+    val rroIdentifier: OverlayIdentifier,
     val newState: Boolean,
 ) : PanelAction
 
@@ -58,7 +60,7 @@ internal class RroListPanelReducer(
     private var currentUserHandle: UserHandle = UserHandle.CURRENT
 
     data class RroInfo(
-        val packageName: String,
+        val identifier: OverlayIdentifier,
         val targetPackage: String,
         val isChecked: Boolean,
         val isEnabled: Boolean,
@@ -110,12 +112,12 @@ internal class RroListPanelReducer(
     }
 
     private fun toggleRro(action: PanelToggleRroAction): Panel {
-        overlayManager.setEnabled(action.rroPackage, action.newState, currentUserHandle)
+        overlayManager.setEnableOverlay(action.rroIdentifier, action.newState, currentUserHandle)
         rroState = rroState.map { (targetPackage, overlays) ->
             Pair(
                 targetPackage,
                 overlays.map { rroInfo ->
-                    if (rroInfo.packageName == action.rroPackage) {
+                    if (rroInfo.identifier == action.rroIdentifier) {
                         rroInfo.copy(isChecked = action.newState)
                     } else {
                         rroInfo
@@ -160,7 +162,7 @@ internal class RroListPanelReducer(
                     currentUserHandle
                 ).map { overlayInfo ->
                     RroInfo(
-                        packageName = overlayInfo.packageName,
+                        identifier = overlayInfo.overlayIdentifier,
                         targetPackage = overlayInfo.targetPackageName,
                         isChecked = overlayInfo.isEnabled,
                         isEnabled = overlayInfo.isMutable && overlayInfo.isValid(),
@@ -183,7 +185,7 @@ internal class RroListPanelReducer(
             Pair(
                 targetPackage,
                 overlays.filter { rroInfo ->
-                    rroInfo.packageName.contains(currentRroPackageFilter)
+                    rroInfo.identifier.toString().contains(currentRroPackageFilter)
                 }
             )
         }
@@ -194,11 +196,11 @@ internal class RroListPanelReducer(
             listOf(PanelItem.SectionTitle(packageName)).plus(
                 overlays.map { rroInfo ->
                     PanelItem.Switch(
-                        text = rroInfo.packageName,
+                        text = rroInfo.identifier.toString(),
                         errorText = rroInfo.errorText,
                         isChecked = rroInfo.isChecked,
                         isEnabled = rroInfo.isEnabled,
-                        PanelToggleRroAction(rroInfo.packageName, !rroInfo.isChecked)
+                        PanelToggleRroAction(rroInfo.identifier, !rroInfo.isChecked)
                     )
                 }
             )

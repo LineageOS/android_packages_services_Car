@@ -25,6 +25,5 @@
     <string name="audio_route_handset" msgid="8283803824498570957">"फोन"</string>
     <string name="back" msgid="2360066808525519279">"मागे जा"</string>
     <string name="fullscreen" msgid="4312009981831027701">"फुल स्क्रीन"</string>
-    <!-- no translation found for blank_home_message (1931676618245482098) -->
-    <skip />
+    <string name="blank_home_message" msgid="1931676618245482098">"कृपया अ‍ॅप उघडा"</string>
 </resources>

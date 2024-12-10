@@ -160,7 +160,7 @@ java_defaults {
 
     srcs: [
         // add full source for all codes under p/s/Car to reduce unnecessary library allow listing.
-        ":IVehicleGeneratedJavaFiles-V3",
+        ":IVehicleGeneratedJavaFiles-V4",
         ":android.car.cluster.navigation-src",
         ":android.car.watchdoglib-src",
         ":cartelemetry-cardata-proto-srcs",
@@ -206,7 +206,7 @@ java_defaults {
     static_libs: [
         "android.automotive.powerpolicy.delegate-V1-java",
         "android.automotive.telemetry.internal-V2-java", // ICarTelemetryInternal
-        "android.automotive.watchdog.internal-V3-java",
+        "android.automotive.watchdog.internal-java",
         "android.frameworks.automotive.powerpolicy.internal-V1-java",
         "android.frameworks.automotive.powerpolicy-V3-java",
         "android.hidl.base-V1.0-java",
@@ -243,6 +243,10 @@ java_defaults {
 
     visibility: [
         "//packages/services/Car:__subpackages__",
+    ],
+
+    flags_packages: [
+        "android.car.feature-aconfig",
     ],
 
     defaults: ["carservice-updatable-min-java-defaults"],

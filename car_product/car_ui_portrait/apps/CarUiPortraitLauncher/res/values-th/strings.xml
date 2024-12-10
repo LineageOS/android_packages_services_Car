@@ -25,6 +25,5 @@
     <string name="audio_route_handset" msgid="8283803824498570957">"โทรศัพท์"</string>
     <string name="back" msgid="2360066808525519279">"กลับ"</string>
     <string name="fullscreen" msgid="4312009981831027701">"เต็มหน้าจอ"</string>
-    <!-- no translation found for blank_home_message (1931676618245482098) -->
-    <skip />
+    <string name="blank_home_message" msgid="1931676618245482098">"โปรดเปิดแอป"</string>
 </resources>

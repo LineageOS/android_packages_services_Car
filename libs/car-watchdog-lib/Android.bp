@@ -41,7 +41,7 @@ java_library {
         "com.android.car.framework",
     ],
     static_libs: [
-        "android.automotive.watchdog.internal-V3-java",
+        "android.automotive.watchdog.internal-java",
     ],
 
     libs: [

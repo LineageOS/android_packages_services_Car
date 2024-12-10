@@ -19,6 +19,7 @@ package com.android.car;
 import static android.car.hardware.property.CarPropertyManager.SENSOR_RATE_ONCHANGE;
 
 import static com.android.car.internal.property.CarPropertyHelper.SYNC_OP_LIMIT_TRY_AGAIN;
+import static com.android.car.internal.property.CarPropertyHelper.newPropIdAreaId;
 
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
@@ -32,6 +33,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -39,6 +41,7 @@ import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import android.car.Car;
 import android.car.VehicleAreaType;
 import android.car.VehicleAreaWindow;
 import android.car.VehiclePropertyIds;
@@ -51,6 +54,7 @@ import android.car.hardware.property.CarPropertyManager;
 import android.car.hardware.property.ICarPropertyEventListener;
 import android.car.test.AbstractExpectableTestCase;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.ServiceSpecificException;
@@ -61,11 +65,14 @@ import android.util.SparseArray;
 import com.android.car.hal.PropertyHalService;
 import com.android.car.internal.property.AsyncPropertyServiceRequest;
 import com.android.car.internal.property.AsyncPropertyServiceRequestList;
+import com.android.car.internal.property.CarPropertyConfigList;
 import com.android.car.internal.property.CarSubscription;
 import com.android.car.internal.property.IAsyncPropertyResultCallback;
+import com.android.car.internal.property.ISupportedValuesChangeCallback;
 import com.android.car.internal.property.MinMaxSupportedPropertyValue;
 import com.android.car.internal.property.PropIdAreaId;
 import com.android.car.internal.property.RawPropertyValue;
+import com.android.car.internal.util.Lists;
 import com.android.car.logging.HistogramFactoryInterface;
 import com.android.modules.expresslog.Histogram;
 
@@ -111,6 +118,8 @@ public final class CarPropertyServiceUnitTest extends AbstractExpectableTestCase
     private HistogramFactoryInterface mHistogramFactory;
     @Captor
     private ArgumentCaptor<List<CarPropertyEvent>> mPropertyEventCaptor;
+    @Mock
+    private ISupportedValuesChangeCallback mSupportedValuesChangeCallback;
 
     private CarPropertyService mService;
 
@@ -1818,6 +1827,58 @@ public final class CarPropertyServiceUnitTest extends AbstractExpectableTestCase
                 mService.getSupportedValuesList(SPEED_ID, 0));
     }
 
+    @Test
+    public void testRegisterSupportedValuesChangeCallback() throws Exception {
+        var propIdAreaIds = List.of(newPropIdAreaId(SPEED_ID, 0));
+
+        mService.registerSupportedValuesChangeCallback(propIdAreaIds,
+                mSupportedValuesChangeCallback);
+
+        verify(mHalService).registerSupportedValuesChangeCallback(propIdAreaIds,
+                mSupportedValuesChangeCallback);
+    }
+
+    @Test
+    public void testRegisterSupportedValuesChangeCallback_propertyIdNotSupported()
+            throws Exception {
+        assertThrows(IllegalArgumentException.class, () -> {
+            mService.registerSupportedValuesChangeCallback(List.of(newPropIdAreaId(-1, 0)),
+                    mSupportedValuesChangeCallback);
+        });
+    }
+
+    @Test
+    public void testRegisterSupportedValuesChangeCallback_areaIdNotSupported()
+            throws Exception {
+        assertThrows(IllegalArgumentException.class, () -> {
+            mService.registerSupportedValuesChangeCallback(List.of(newPropIdAreaId(SPEED_ID, -1)),
+                    mSupportedValuesChangeCallback);
+        });
+    }
+
+    @Test
+    public void testRegisterSupportedValuesChangeCallback_noPermission()
+            throws Exception {
+        when(mHalService.isReadable(mContext, SPEED_ID)).thenReturn(false);
+        when(mHalService.isWritable(mContext, SPEED_ID)).thenReturn(false);
+
+        assertThrows(SecurityException.class, () -> {
+            mService.registerSupportedValuesChangeCallback(List.of(newPropIdAreaId(SPEED_ID, 0)),
+                    mSupportedValuesChangeCallback);
+        });
+    }
+
+    @Test
+    public void testUnregisterSupportedValuesChangeCallback() {
+        var propIdAreaIds = List.of(newPropIdAreaId(SPEED_ID, 0));
+
+        mService.unregisterSupportedValuesChangeCallback(propIdAreaIds,
+                mSupportedValuesChangeCallback);
+
+        verify(mHalService).unregisterSupportedValuesChangeCallback(propIdAreaIds,
+                mSupportedValuesChangeCallback);
+    }
+
     private static PropIdAreaId newPropIdAreaId(int propId, int areaId) {
         PropIdAreaId propIdAreaId = new PropIdAreaId();
         propIdAreaId.propId = propId;
@@ -1849,5 +1910,138 @@ public final class CarPropertyServiceUnitTest extends AbstractExpectableTestCase
         options.enableVariableUpdateRate = enableVur;
         options.resolution = resolution;
         return options;
+    }
+
+    @Test
+    public void testIsRecordingVehiclePropertiesTrue() {
+        when(mFeatureFlags.carPropertySimulation()).thenReturn(true);
+        doReturn(PackageManager.PERMISSION_GRANTED).when(mContext)
+                .checkCallingOrSelfPermission(Car.PERMISSION_RECORD_VEHICLE_PROPERTIES);
+        when(mHalService.isRecordingVehicleProperties()).thenReturn(true);
+
+        assertWithMessage("Is recording vehicle properties")
+                .that(mService.isRecordingVehicleProperties()).isTrue();
+    }
+
+    @Test
+    public void testIsRecordingVehiclePropertiesFalse() {
+        when(mFeatureFlags.carPropertySimulation()).thenReturn(true);
+        doReturn(PackageManager.PERMISSION_GRANTED).when(mContext)
+                .checkCallingOrSelfPermission(Car.PERMISSION_RECORD_VEHICLE_PROPERTIES);
+        when(mHalService.isRecordingVehicleProperties()).thenReturn(false);
+
+        assertWithMessage("Is recording vehicle properties")
+                .that(mService.isRecordingVehicleProperties()).isFalse();
+    }
+
+    @Test
+    public void testStopRecordingVehicleProperties() {
+        when(mFeatureFlags.carPropertySimulation()).thenReturn(true);
+        doReturn(PackageManager.PERMISSION_GRANTED).when(mContext)
+                .checkCallingOrSelfPermission(Car.PERMISSION_RECORD_VEHICLE_PROPERTIES);
+
+        mService.stopRecordingVehicleProperties(mICarPropertyEventListener);
+
+        verify(mHalService).stopRecordingVehicleProperties(mICarPropertyEventListener);
+    }
+
+    @Test
+    public void testRegisterRecordingListener() {
+        when(mFeatureFlags.carPropertySimulation()).thenReturn(true);
+        doReturn(PackageManager.PERMISSION_GRANTED).when(mContext)
+                .checkCallingOrSelfPermission(Car.PERMISSION_RECORD_VEHICLE_PROPERTIES);
+        List<CarPropertyConfig> carPropertyConfigList = new ArrayList<>();
+        carPropertyConfigList.add(CarPropertyConfig.newBuilder(Integer.class,
+                        VehiclePropertyIds.GEAR_SELECTION, VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL)
+                .addAreaIdConfig(new AreaIdConfig.Builder(
+                        CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ, GLOBAL_AREA_ID)
+                        .build())
+                .setAccess(CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ).build());
+        when(mHalService.registerRecordingListener(mICarPropertyEventListener))
+                .thenReturn(carPropertyConfigList);
+
+        CarPropertyConfigList result = mService.registerRecordingListener(
+                mICarPropertyEventListener);
+
+        assertWithMessage("Register recording listener")
+                .that(result.getConfigs()).isEqualTo(carPropertyConfigList);
+    }
+
+    @Test
+    public void testEnableInjectionMode() {
+        when(mFeatureFlags.carPropertySimulation()).thenReturn(true);
+        doReturn(PackageManager.PERMISSION_GRANTED).when(mContext)
+                .checkCallingOrSelfPermission(Car.PERMISSION_INJECT_VEHICLE_PROPERTIES);
+        int[] propertyIds = {1, 2, 3};
+
+        mService.enableInjectionMode(propertyIds);
+
+        verify(mHalService).enableInjectionMode(eq(Lists.asImmutableList(propertyIds)));
+    }
+
+    @Test
+    public void testDisableInjectionMode() {
+        when(mFeatureFlags.carPropertySimulation()).thenReturn(true);
+        doReturn(PackageManager.PERMISSION_GRANTED).when(mContext)
+                .checkCallingOrSelfPermission(Car.PERMISSION_INJECT_VEHICLE_PROPERTIES);
+
+        mService.disableInjectionMode();
+
+        verify(mHalService).disableInjectionMode();
+    }
+
+    @Test
+    public void testIsVehiclePropertyInjectionModeEnabledTrue() {
+        when(mFeatureFlags.carPropertySimulation()).thenReturn(true);
+        doReturn(PackageManager.PERMISSION_GRANTED).when(mContext)
+                .checkCallingOrSelfPermission(Car.PERMISSION_INJECT_VEHICLE_PROPERTIES);
+        when(mHalService.isVehiclePropertyInjectionModeEnabled()).thenReturn(true);
+
+        boolean result = mService.isVehiclePropertyInjectionModeEnabled();
+
+        assertWithMessage("Is vehicle property injection mode enabled")
+                .that(result).isTrue();
+    }
+
+    @Test
+    public void testIsVehiclePropertyInjectionModeEnabledFalse() {
+        when(mFeatureFlags.carPropertySimulation()).thenReturn(true);
+        doReturn(PackageManager.PERMISSION_GRANTED).when(mContext)
+                .checkCallingOrSelfPermission(Car.PERMISSION_INJECT_VEHICLE_PROPERTIES);
+        when(mHalService.isVehiclePropertyInjectionModeEnabled()).thenReturn(false);
+
+        boolean result = mService.isVehiclePropertyInjectionModeEnabled();
+
+        assertWithMessage("Is vehicle property injection mode enabled")
+                .that(result).isFalse();
+    }
+
+    @Test
+    public void testGetLastInjectedVehicleProperty() {
+        when(mFeatureFlags.carPropertySimulation()).thenReturn(true);
+        doReturn(PackageManager.PERMISSION_GRANTED).when(mContext)
+                .checkCallingOrSelfPermission(Car.PERMISSION_INJECT_VEHICLE_PROPERTIES);
+        int propertyId = 123;
+        CarPropertyValue expectedValue = new CarPropertyValue(SPEED_ID, 0, 66f);
+        when(mHalService.getLastInjectedVehicleProperty(propertyId)).thenReturn(expectedValue);
+
+        CarPropertyValue result = mService.getLastInjectedVehicleProperty(propertyId);
+
+        assertWithMessage("Get last injected vehicle property")
+                .that(result).isEqualTo(expectedValue);
+    }
+
+    @Test
+    public void testInjectVehicleProperties() {
+        when(mFeatureFlags.carPropertySimulation()).thenReturn(true);
+        doReturn(PackageManager.PERMISSION_GRANTED).when(mContext)
+                .checkCallingOrSelfPermission(Car.PERMISSION_INJECT_VEHICLE_PROPERTIES);
+        List<CarPropertyValue> valuesToInject = new ArrayList<>();
+        valuesToInject.add(new CarPropertyValue(SPEED_ID, 0, 100f));
+        valuesToInject.add(new CarPropertyValue(READ_WRITE_INT_PROPERTY_ID, 0, 0.5f));
+
+        mService.injectVehicleProperties(valuesToInject);
+
+        verify(mHalService).injectVehicleProperties(valuesToInject);
     }
 }

@@ -27,6 +27,7 @@
     <uses-permission android:name="android.permission.READ_FRAME_BUFFER" />
     <!-- use for CarServiceTest -->
     <uses-permission android:name="android.car.permission.CAR_DRIVING_STATE"/>
+    <uses-permission android:name="android.car.permission.CAR_DRIVING_STATE_3P"/>
     <uses-permission android:name="android.car.permission.CAR_ENERGY"/>
     <uses-permission android:name="android.car.permission.CAR_MONITOR_CLUSTER_NAVIGATION_STATE"/>
     <!-- use for AndroidCarApiTest -->
@@ -35,6 +36,11 @@
     <uses-permission android:name="android.car.permission.CAR_PROJECTION"/>
     <uses-permission android:name="android.car.permission.CAR_INSTRUMENT_CLUSTER_CONTROL"/>
     <uses-permission android:name="android.car.permission.CAR_MILEAGE"/>
+    <uses-permission android:name="android.car.permission.CAR_MILEAGE_3P"/>
+    <uses-permission android:name="android.car.permission.READ_CAR_HORN"/>
+    <uses-permission android:name="android.car.permission.CONTROL_CAR_HORN"/>
+    <uses-permission android:name="android.car.permission.READ_CAR_PEDALS"/>
+    <uses-permission android:name="android.car.permission.READ_BRAKE_INFO" />
     <uses-permission android:name="android.car.permission.CAR_MOCK_VEHICLE_HAL"/>
     <uses-permission android:name="android.car.permission.CAR_NAVIGATION_MANAGER"/>
     <!-- use for CarServiceTest -->
@@ -52,6 +58,7 @@
     <uses-permission android:name="android.car.permission.CONTROL_CAR_APP_LAUNCH"/>
     <uses-permission android:name="android.car.permission.CONTROL_CAR_CLIMATE"/>
     <uses-permission android:name="android.car.permission.READ_CAR_STEERING"/>
+    <uses-permission android:name="android.car.permission.READ_CAR_STEERING_3P"/>
     <uses-permission android:name="android.car.permission.STORAGE_MONITORING"/>
     <uses-permission android:name="android.car.permission.CAR_DYNAMICS_STATE"/>
     <uses-permission android:name="android.car.permission.CONTROL_CAR_DYNAMICS_STATE"/>
@@ -69,12 +76,15 @@
     <uses-permission android:name="android.car.permission.READ_CAR_INTERIOR_LIGHTS" />
     <uses-permission android:name="android.car.permission.CONTROL_CAR_INTERIOR_LIGHTS" />
     <uses-permission android:name="android.car.permission.CAR_EXTERIOR_LIGHTS" />
+    <uses-permission android:name="android.car.permission.READ_CAR_EXTERIOR_LIGHTS" />
     <uses-permission android:name="android.car.permission.CAR_TIRES" />
+    <uses-permission android:name="android.car.permission.CAR_TIRES_3P" />
     <uses-permission android:name="android.car.permission.CONTROL_CAR_DOORS" />
     <uses-permission android:name="android.car.permission.CONTROL_CAR_EXTERIOR_LIGHTS" />
     <uses-permission android:name="android.car.permission.CONTROL_CAR_MIRRORS" />
     <uses-permission android:name="android.car.permission.CONTROL_GLOVE_BOX" />
     <uses-permission android:name="android.car.permission.CONTROL_CAR_SEATS" />
+    <uses-permission android:name="android.car.permission.READ_CAR_SEATS" />
     <uses-permission android:name="android.car.permission.READ_CAR_SEAT_BELTS" />
     <uses-permission android:name="android.car.permission.READ_IMPACT_SENSORS" />
     <uses-permission android:name="android.car.permission.READ_VALET_MODE" />
@@ -89,12 +99,14 @@
     <uses-permission android:name="android.car.permission.CAR_IDENTIFICATION" />
     <uses-permission android:name="android.car.permission.ADJUST_RANGE_REMAINING" />
     <uses-permission android:name="android.car.permission.CAR_ENGINE_DETAILED" />
+    <uses-permission android:name="android.car.permission.CAR_ENGINE_DETAILED_3P" />
     <uses-permission android:name="android.car.permission.CONTROL_STEERING_WHEEL" />
     <uses-permission android:name="android.car.permission.READ_ADAS_SETTINGS" />
     <uses-permission android:name="android.car.permission.CONTROL_ADAS_SETTINGS" />
     <uses-permission android:name="android.car.permission.READ_ADAS_STATES" />
     <uses-permission android:name="android.car.permission.CONTROL_ADAS_STATES" />
     <uses-permission android:name="android.car.permission.READ_WINDSHIELD_WIPERS" />
+    <uses-permission android:name="android.car.permission.READ_WINDSHIELD_WIPERS_3P" />
     <uses-permission android:name="android.car.permission.CONTROL_WINDSHIELD_WIPERS" />
     <uses-permission android:name="android.car.permission.CAR_EPOCH_TIME" />
     <uses-permission android:name="android.car.permission.READ_ULTRASONICS_SENSOR_DATA" />
@@ -253,6 +265,7 @@
 
     <!-- Use for RadioTestFragment -->
     <uses-permission android:name="android.permission.ACCESS_BROADCAST_RADIO"/>
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM"/>
 
     <!-- Allow backup is set to false for KitchenSinkApp to avoid infinite loop during backup -->
     <application
@@ -498,5 +511,13 @@
                 <action android:name="android.car.remoteaccess.RemoteTaskClientService" />
             </intent-filter>
         </service>
+        <receiver
+            android:name=".radio.AlertNotificationReceiver"
+            android:exported="false">
+        </receiver>
+        <receiver
+            android:name=".radio.AlertSnoozeReceiver"
+            android:exported="false">
+        </receiver>
     </application>
 </manifest>

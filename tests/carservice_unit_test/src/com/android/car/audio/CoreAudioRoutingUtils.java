@@ -73,6 +73,7 @@ import android.hardware.automotive.audiocontrol.VolumeGroupConfig;
 import android.media.AudioAttributes;
 import android.media.MediaRecorder;
 import android.media.audio.common.AudioContentType;
+import android.media.audio.common.AudioHalProductStrategy;
 import android.media.audio.common.AudioUsage;
 import android.media.audiopolicy.AudioProductStrategy;
 import android.media.audiopolicy.AudioVolumeGroup;
@@ -454,7 +455,7 @@ public final class CoreAudioRoutingUtils {
     public static AudioZone getCoreAudioZone() {
         var coreZone = new AudioZone();
         coreZone.name = CORE_PRIMARY_ZONE;
-        coreZone.id = AudioZone.PRIMARY_AUDIO_ZONE;
+        coreZone.id = AudioHalProductStrategy.ZoneId.DEFAULT;
         coreZone.audioZoneContext = createCoreHALAudioContext();
         coreZone.audioZoneConfigs = createCoreAudioZoneConfigs();
         return coreZone;

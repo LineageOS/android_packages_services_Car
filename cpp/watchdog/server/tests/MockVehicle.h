@@ -63,6 +63,24 @@ public:
             (const std::shared_ptr<aidl::android::hardware::automotive::vehicle::IVehicleCallback>&,
              int64_t),
             (override));
+    MOCK_METHOD(ndk::ScopedAStatus, getSupportedValuesLists,
+                (const std::vector<aidl::android::hardware::automotive::vehicle::PropIdAreaId>&,
+                 aidl::android::hardware::automotive::vehicle::SupportedValuesListResults*),
+                (override));
+    MOCK_METHOD(ndk::ScopedAStatus, getMinMaxSupportedValue,
+                (const std::vector<aidl::android::hardware::automotive::vehicle::PropIdAreaId>&,
+                 aidl::android::hardware::automotive::vehicle::MinMaxSupportedValueResults*),
+                (override));
+    MOCK_METHOD(
+            ndk::ScopedAStatus, registerSupportedValueChangeCallback,
+            (const std::shared_ptr<aidl::android::hardware::automotive::vehicle::IVehicleCallback>&,
+             const std::vector<aidl::android::hardware::automotive::vehicle::PropIdAreaId>&),
+            (override));
+    MOCK_METHOD(
+            ndk::ScopedAStatus, unregisterSupportedValueChangeCallback,
+            (const std::shared_ptr<aidl::android::hardware::automotive::vehicle::IVehicleCallback>&,
+             const std::vector<aidl::android::hardware::automotive::vehicle::PropIdAreaId>&),
+            (override));
 };
 
 }  // namespace watchdog

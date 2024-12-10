@@ -150,6 +150,10 @@ PRODUCT_SYSTEM_PROPERTIES += \
 # Update with PLATFORM_VERSION_MINOR_INT update
 PRODUCT_SYSTEM_PROPERTIES += ro.android.car.version.platform_minor=0
 
+# Enable dual pane activity embedding by default on automotive
+PRODUCT_SYSTEM_PROPERTIES += \
+    persist.settings.large_screen_opt.enabled=true
+
 PRODUCT_PACKAGES += \
     com.android.wifi \
     Home \

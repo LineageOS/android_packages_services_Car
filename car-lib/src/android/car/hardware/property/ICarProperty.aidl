@@ -128,4 +128,96 @@ interface ICarProperty {
      */
     void registerSupportedValuesChangeCallback(in List<PropIdAreaId> propIdAreaIds,
                 in ISupportedValuesChangeCallback callback);
+
+    /**
+     * Unregisters the callback previously registered with registerSupportedValuesChangeCallback.
+     *
+     * Do nothing if the [propertyId, areaId]s were not previously registered.
+     */
+    void unregisterSupportedValuesChangeCallback(in List<PropIdAreaId> propIdAreaIds,
+            in ISupportedValuesChangeCallback callback);
+
+    /**
+     * Registers a listener to get all car property changes from the VHAL.
+     *
+     * @throws IllegalStateException If the build is not userdebug or eng.
+     * @throws IllegalStateException If there is a recording already in progress this includes one
+     *                               started by this process and started by other processes, only
+     *                               one system-wide recording is allowed at a single time.
+     * @throws IllegalStateException If fake vehicle injection mode is enabled.
+     * @throws SecurityException If missing permission.
+     *
+     * @return A list of {@link CarPropertyConfig} that are being recorded.
+     */
+    CarPropertyConfigList registerRecordingListener(in ICarPropertyEventListener callback);
+
+    /**
+     * Returns whether an ICarPropertyEventListener is registed through registerRecordingListener.
+     *
+     * @throws IllegalStateException If the build is not userdebug or eng.
+     * @throws SecurityException If the caller is missing required permissions.
+     *
+     * @return true if a recording is in progress, false otherwise.
+     */
+    boolean isRecordingVehicleProperties();
+
+    /**
+     * Stops the recording based on the event listener that was given.
+     *
+     * @throws IllegalStateException If the build is not userdebug or eng.
+     * @throws IllegalStateException If the recording that was started was not started by this
+     *                               process.
+     * @throws SecurityException If the caller is missing required permissions.
+     */
+    void stopRecordingVehicleProperties(in ICarPropertyEventListener callback);
+
+    /**
+     * Enables injection mode with properties to allow from the real hardware.
+     *
+     * @throws IllegalStateException If the build is not userdebug or eng.
+     * @throws IllegalStateException If recording vehicle property state is enabled.
+     * @throws SecurityException If missing permission.
+     */
+    void enableInjectionMode(in int[] propertyIdsFromRealHardware);
+
+    /**
+     * Disables injection mode.
+     *
+     * @throws IllegalStateException if the build is not userdebug or eng.
+     * @throws SecurityException If missing permission.
+     */
+    void disableInjectionMode();
+
+    /**
+     * Returns whether fake vehciel property injection mode is enabled.
+     *
+     * @throws IllegalStateException if the build is not userdebug or eng.
+     * @throws SecurityException If missing permission.
+     *
+     * @return True if propertyInjectionMode is enabled False otherwise.
+     */
+    boolean isVehiclePropertyInjectionModeEnabled();
+
+    /**
+     * Returns the latest CarPropertyValue that has been injected for the given propertyId
+     *
+     * This method returns null if no previous vehicle property injection has occurred for the
+     * specified propertyId.
+     *
+     * @throws IllegalStateException if the build is not userdebug or eng.
+     * @throws IllegalStateException if fakeVehiclePropertyInjection mode is not enabled.
+     * @throws SecurityException If missing permission.
+     *
+     * @return The latest CarPropertyValue that has been injected for the given PropertyId.
+     */
+    CarPropertyValue getLastInjectedVehicleProperty(in int propertyId);
+
+    /**
+     * Injects fake VHAL data into car service. An empty list will be treated as a no-op.
+     *
+     * @throws IllegalStateException if the build is not userdebug or eng.
+     * @throws IllegalStateException if FakeVehiclePropertyInjectionMode is not enabled.
+     * @throws SecurityException If missing permission.
+     */
+    void injectVehicleProperties(in List<CarPropertyValue> carPropertyValues);
 }

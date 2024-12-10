@@ -4068,6 +4068,13 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
     }
 
     @VisibleForTesting
+    boolean isConfiguredUsingAudioControlHAL() {
+        synchronized (mImplLock) {
+            return mCarAudioControlHalConfig;
+        }
+    }
+
+    @VisibleForTesting
     void requestAudioFocusForTest(AudioFocusInfo audioFocusInfo, int audioFocusResult) {
         mFocusHandler.onAudioFocusRequest(audioFocusInfo, audioFocusResult);
     }

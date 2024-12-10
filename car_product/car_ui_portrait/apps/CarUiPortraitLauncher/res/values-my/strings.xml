@@ -25,6 +25,5 @@
     <string name="audio_route_handset" msgid="8283803824498570957">"ဖုန်း"</string>
     <string name="back" msgid="2360066808525519279">"နောက်သို့"</string>
     <string name="fullscreen" msgid="4312009981831027701">"ဖန်သားပြင်အပြည့်"</string>
-    <!-- no translation found for blank_home_message (1931676618245482098) -->
-    <skip />
+    <string name="blank_home_message" msgid="1931676618245482098">"အက်ပ်တစ်ခု ဖွင့်ပါ"</string>
 </resources>

@@ -32,6 +32,7 @@ import com.android.car.hal.VehicleHalCallback;
 import com.android.car.hal.fakevhal.FakeVehicleStub;
 import com.android.car.internal.property.CarPropertyErrorCodes;
 import com.android.car.internal.property.CarPropertyErrorCodes.CarPropMgrErrorCode;
+import com.android.car.internal.property.PropIdAreaId;
 
 import java.io.FileDescriptor;
 import java.util.List;
@@ -64,6 +65,24 @@ public abstract class VehicleStub {
          * @throws ServiceSpecificException if VHAL returns service specific error.
          */
         void unsubscribe(int prop) throws RemoteException, ServiceSpecificException;
+
+        /**
+         * Registers the callback to be called when the min/max supported value or supportd values
+         * list change for the [propId, areaId]s.
+         *
+         * @throws ServiceSpecificException If VHAL returns error or VHAL connection fails.
+         */
+        void registerSupportedValuesChange(List<PropIdAreaId> propIdAreaIds);
+
+        /**
+         * Unregisters the [propId, areaId]s previously registered with
+         * registerSupportedValuesChange.
+         *
+         * Do nothing if the [propId, areaId]s were not previously registered.
+         *
+         * This operation is always assumed succeeded.
+         */
+        void unregisterSupportedValuesChange(List<PropIdAreaId> propIdAreaIds);
     }
 
     /**

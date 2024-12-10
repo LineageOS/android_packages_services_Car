@@ -19,14 +19,15 @@ package com.android.car;
 import static android.car.VehiclePropertyIds.HVAC_TEMPERATURE_SET;
 
 import static com.android.car.internal.property.CarPropertyErrorCodes.STATUS_OK;
+import static com.android.car.internal.property.CarPropertyHelper.newPropIdAreaId;
 
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
 import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyFloat;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.after;
 import static org.mockito.Mockito.doAnswer;
@@ -91,6 +92,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
@@ -127,6 +129,9 @@ public final class AidlVehicleStubUnitTest {
     private VehicleStub.VehicleStubCallbackInterface mAsyncCallback;
     @Mock
     private HistogramFactoryInterface mHistogramFactory;
+
+    @Captor
+    private ArgumentCaptor<List> mListCaptor;
 
     @Rule
     public final RavenwoodRule mRavenwood = new RavenwoodRule.Builder().setProvideMainThread(true)
@@ -1573,6 +1578,152 @@ public final class AidlVehicleStubUnitTest {
         assertThrows(ServiceSpecificException.class, () -> {
             mAidlVehicleStub.getSupportedValuesList(testPropId, testAreaId);
         });
+    }
+
+    private android.hardware.automotive.vehicle.PropIdAreaId newVhalPropIdAreaId(
+            int propId, int areaId) {
+        var propIdAreaId = new android.hardware.automotive.vehicle.PropIdAreaId();
+        propIdAreaId.propId = propId;
+        propIdAreaId.areaId = areaId;
+        return propIdAreaId;
+    }
+
+    @Test
+    public void testRegisterSupportedValuesChange() throws Exception {
+        int testPropId1 = 123;
+        int testAreaId1 = 321;
+        int testPropId2 = 1234;
+        int testAreaId2 = 4321;
+
+        VehicleHalCallback callback = mock(VehicleHalCallback.class);
+
+        VehicleStub.SubscriptionClient client = mAidlVehicleStub.newSubscriptionClient(callback);
+        client.registerSupportedValuesChange(List.of(
+                newPropIdAreaId(testPropId1, testAreaId1),
+                newPropIdAreaId(testPropId2, testAreaId2)));
+
+        verify(mAidlVehicle).registerSupportedValueChangeCallback(any(), mListCaptor.capture());
+        var vhalPropIdAreaIds = (List<android.hardware.automotive.vehicle.PropIdAreaId>)
+                mListCaptor.getValue();
+        assertThat(vhalPropIdAreaIds).hasSize(2);
+        assertThat(vhalPropIdAreaIds.get(0)).isEqualTo(
+                newVhalPropIdAreaId(testPropId1, testAreaId1));
+        assertThat(vhalPropIdAreaIds.get(1)).isEqualTo(
+                newVhalPropIdAreaId(testPropId2, testAreaId2));
+    }
+
+    @Test
+    public void testRegisterSupportedValuesChange_RemoteException() throws Exception {
+        int testPropId1 = 123;
+        int testAreaId1 = 321;
+        doThrow(new RemoteException()).when(mAidlVehicle).registerSupportedValueChangeCallback(
+                any(), any());
+        VehicleHalCallback callback = mock(VehicleHalCallback.class);
+        VehicleStub.SubscriptionClient client = mAidlVehicleStub.newSubscriptionClient(callback);
+
+        assertThrows(ServiceSpecificException.class, () -> {
+            client.registerSupportedValuesChange(List.of(
+                    newPropIdAreaId(testPropId1, testAreaId1)));
+        });
+    }
+
+    @Test
+    public void testRegisterSupportedValuesChange_ServiceSpecificException() throws Exception {
+        int testPropId1 = 123;
+        int testAreaId1 = 321;
+        doThrow(new ServiceSpecificException(0)).when(mAidlVehicle)
+                .registerSupportedValueChangeCallback(any(), any());
+        VehicleHalCallback callback = mock(VehicleHalCallback.class);
+        VehicleStub.SubscriptionClient client = mAidlVehicleStub.newSubscriptionClient(callback);
+
+        assertThrows(ServiceSpecificException.class, () -> {
+            client.registerSupportedValuesChange(List.of(
+                    newPropIdAreaId(testPropId1, testAreaId1)));
+        });
+    }
+
+    @Test
+    public void testUnregisterSupportedValuesChange() throws Exception {
+        int testPropId1 = 123;
+        int testAreaId1 = 321;
+        int testPropId2 = 1234;
+        int testAreaId2 = 4321;
+
+        VehicleHalCallback callback = mock(VehicleHalCallback.class);
+
+        VehicleStub.SubscriptionClient client = mAidlVehicleStub.newSubscriptionClient(callback);
+        client.unregisterSupportedValuesChange(List.of(
+                newPropIdAreaId(testPropId1, testAreaId1),
+                newPropIdAreaId(testPropId2, testAreaId2)));
+
+        verify(mAidlVehicle).unregisterSupportedValueChangeCallback(any(), mListCaptor.capture());
+        var vhalPropIdAreaIds = (List<android.hardware.automotive.vehicle.PropIdAreaId>)
+                mListCaptor.getValue();
+        assertThat(vhalPropIdAreaIds).hasSize(2);
+        assertThat(vhalPropIdAreaIds.get(0)).isEqualTo(
+                newVhalPropIdAreaId(testPropId1, testAreaId1));
+        assertThat(vhalPropIdAreaIds.get(1)).isEqualTo(
+                newVhalPropIdAreaId(testPropId2, testAreaId2));
+    }
+
+    @Test
+    public void testUnregisterSupportedValuesChange_RemoteException() throws Exception {
+        int testPropId1 = 123;
+        int testAreaId1 = 321;
+        doThrow(new RemoteException()).when(mAidlVehicle).unregisterSupportedValueChangeCallback(
+                any(), any());
+        VehicleHalCallback callback = mock(VehicleHalCallback.class);
+        VehicleStub.SubscriptionClient client = mAidlVehicleStub.newSubscriptionClient(callback);
+
+        // A warning is logged, no exception.
+        client.unregisterSupportedValuesChange(List.of(
+                newPropIdAreaId(testPropId1, testAreaId1)));
+    }
+
+    @Test
+    public void testUnregisterSupportedValuesChange_ServiceSpecificException() throws Exception {
+        int testPropId1 = 123;
+        int testAreaId1 = 321;
+        doThrow(new ServiceSpecificException(0)).when(mAidlVehicle)
+                .unregisterSupportedValueChangeCallback(any(), any());
+        VehicleHalCallback callback = mock(VehicleHalCallback.class);
+        VehicleStub.SubscriptionClient client = mAidlVehicleStub.newSubscriptionClient(callback);
+
+        // A warning is logged, no exception.
+        client.unregisterSupportedValuesChange(List.of(
+                newPropIdAreaId(testPropId1, testAreaId1)));
+    }
+
+    @Test
+    public void testOnSupportedValuesChange() throws Exception {
+        int testPropId1 = 123;
+        int testAreaId1 = 321;
+        int testPropId2 = 1234;
+        int testAreaId2 = 4321;
+
+        VehicleHalCallback callback = mock(VehicleHalCallback.class);
+
+        VehicleStub.SubscriptionClient client = mAidlVehicleStub.newSubscriptionClient(callback);
+        client.registerSupportedValuesChange(List.of(
+                newPropIdAreaId(testPropId1, testAreaId1),
+                newPropIdAreaId(testPropId2, testAreaId2)));
+
+        ArgumentCaptor<IVehicleCallback.Stub> callbackCaptor = ArgumentCaptor.forClass(
+                IVehicleCallback.Stub.class);
+        verify(mAidlVehicle).registerSupportedValueChangeCallback(callbackCaptor.capture(), any());
+        var vhalCallback = callbackCaptor.getValue();
+
+        vhalCallback.onSupportedValueChange(List.of(
+                newVhalPropIdAreaId(testPropId1, testAreaId1),
+                newVhalPropIdAreaId(testPropId2, testAreaId2)
+        ));
+
+        verify(callback).onSupportedValuesChange(mListCaptor.capture());
+
+        var propIdAreaIds = (List<PropIdAreaId>) mListCaptor.getValue();
+        assertThat(propIdAreaIds).hasSize(2);
+        assertThat(propIdAreaIds.get(0)).isEqualTo(newPropIdAreaId(testPropId1, testAreaId1));
+        assertThat(propIdAreaIds.get(1)).isEqualTo(newPropIdAreaId(testPropId2, testAreaId2));
     }
 
 }

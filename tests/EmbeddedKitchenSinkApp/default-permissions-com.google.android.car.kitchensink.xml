@@ -20,7 +20,7 @@
     This file contains permissions to be granted by default. Default
     permissions are granted to special platform components and to apps
     that are approved to get default grants. The special components
-    are apps that are expected tto work out-of-the-box as they provide
+    are apps that are expected to work out-of-the-box as they provide
     core use cases such as default dialer, default email, etc. These
     grants are managed by the platform. The apps that are additionally
     approved for default grants are ones that provide carrier specific

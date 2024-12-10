@@ -30,6 +30,10 @@
     <string name="car_permission_desc_hvac" msgid="3754229695589774195">"आपकी कार का एचवीएसी ऐक्सेस कर सकता है."</string>
     <string name="car_permission_label_mileage" msgid="4661317074631150551">"कार के माइलेज की जानकारी ऐक्सेस कर सकता है"</string>
     <string name="car_permission_desc_mileage" msgid="7179735693278681090">"आपकी कार की माइलेज से जुड़ी जानकारी ऐक्सेस कर सकता है."</string>
+    <!-- no translation found for car_permission_label_mileage_3p (7542459195663034759) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_mileage_3p (9109350882748664570) -->
+    <skip />
     <string name="car_permission_label_speed" msgid="1149027717860529745">"कार की रफ़्तार की जानकारी देख सकता है"</string>
     <string name="car_permission_desc_speed" msgid="2047965198165448241">"आपकी कार की रफ़्तार की जानकारी ऐक्सेस कर सकता है."</string>
     <string name="car_permission_label_vehicle_dynamics_state" msgid="313779267420048367">"कार के चलने की स्थिति ऐक्सेस कर सकता है"</string>
@@ -92,6 +96,10 @@
     <string name="car_permission_desc_storage_monitoring" msgid="2075712271139671318">"फ़्लैश डिवाइस की मेमोरी के इस्तेमाल की निगरानी कर सकता है"</string>
     <string name="car_permission_label_driving_state" msgid="7754624599537393650">"गाड़ी चलाते समय होने वाले बदलावों की स्थिति को सुन सकता है"</string>
     <string name="car_permission_desc_driving_state" msgid="2684025262811635737">"गाड़ी चलाते समय होने वाले बदलावों को सुन सकता है."</string>
+    <!-- no translation found for car_permission_label_driving_state_3p (1395905103166125030) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_driving_state_3p (5491522450897843003) -->
+    <skip />
     <string name="car_permission_label_use_telemetry_service" msgid="948005838683758846">"कार टेलीमेट्री सेवा इस्तेमाल करें"</string>
     <string name="car_permission_desc_use_telemetry_service" msgid="3633214312435700766">"कार के सिस्टम की परफ़ॉर्मेंस का डेटा इकट्ठा करें."</string>
     <string name="car_permission_label_use_evs_service" msgid="1729276125209310607">"कार की ईवीएस सेवा का इस्तेमाल करें"</string>
@@ -106,6 +114,10 @@
     <string name="car_permission_desc_monitor_evs_status" msgid="2764278897143573535">"ईवीएस सेवा के स्टेटस में हुए बदलावों पर नज़र रखें"</string>
     <string name="car_permission_label_car_engine_detailed" msgid="8911992719173587337">"कार के इंजन की जानकारी ऐक्सेस कर सकता है"</string>
     <string name="car_permission_desc_car_engine_detailed" msgid="1746863362811347700">"आपकी कार के इंजन की पूरी जानकारी ऐक्सेस कर सकता है."</string>
+    <!-- no translation found for car_permission_label_car_engine_detailed_3p (2695036212735960169) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_car_engine_detailed_3p (7536940094077391015) -->
+    <skip />
     <string name="car_permission_label_car_energy_ports" msgid="8548990315169219454">"कार की ईंधन टंकी का ढक्कन और चार्जिंग पोर्ट ऐक्सेस कर सकता है"</string>
     <string name="car_permission_desc_car_energy_ports" msgid="7771185999828794949">"कार की ईंधन टंकी का ढक्कन और चार्जिंग पोर्ट ऐक्सेस कर सकता है."</string>
     <string name="car_permission_label_control_car_energy_ports" msgid="4375137311026313475">"इससे ऐप्लिकेशन को कार की ईंधन टंकी का ढक्कन और चार्जिंग पोर्ट कंट्रोल करने की अनुमति मिलती है"</string>
@@ -120,6 +132,10 @@
     <string name="car_permission_desc_control_car_mirrors" msgid="1224135684068855032">"कार के शीशे नियंत्रित कर सकता है."</string>
     <string name="car_permission_label_control_car_seats" msgid="1826934820585497135">"कार की सीटें नियंत्रित कर सकता है"</string>
     <string name="car_permission_desc_control_car_seats" msgid="2407536601226470563">"कार की सीटें नियंत्रित कर सकता है."</string>
+    <!-- no translation found for car_permission_label_read_car_seats (2996918480980128872) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_read_car_seats (5894145845932493046) -->
+    <skip />
     <string name="car_permission_label_read_car_seat_belts" msgid="2051828795852087659">"कार की सीट बेल्ट देखें"</string>
     <string name="car_permission_desc_read_car_seat_belts" msgid="7076977711613912339">"कार की सीट बेल्ट देखें."</string>
     <string name="car_permission_label_read_impact_sensors" msgid="9193288836326363975">"कार के इंपेक्ट सेंसर देखें"</string>
@@ -158,8 +174,16 @@
     <string name="car_permission_desc_car_exterior_environment" msgid="1716656004731603379">"कार के बाहर के तापमान की जानकारी ऐक्सेस कर सकता है."</string>
     <string name="car_permission_label_car_tires" msgid="4379255261197836840">"कार के टायरों की जानकारी ऐक्सेस कर सकता है"</string>
     <string name="car_permission_desc_car_tires" msgid="8134496466769810134">"कार के टायर की जानकारी ऐक्सेस कर सकता है."</string>
+    <!-- no translation found for car_permission_label_car_tires_3p (1360632319908226570) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_car_tires_3p (820574543667371274) -->
+    <skip />
     <string name="car_permission_label_car_steering" msgid="7779530447441232479">"कार के स्टीयरिंग एंगल की जानकारी देख सकता है"</string>
     <string name="car_permission_desc_car_steering" msgid="1357331844530708138">"कार के स्टीयरिंग एंगल की जानकारी ऐक्सेस कर सकता है."</string>
+    <!-- no translation found for car_permission_label_read_car_steering_3p (1598866058085489462) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_read_car_steering_3p (576361609663755171) -->
+    <skip />
     <string name="car_permission_label_read_car_display_units" msgid="7617008314862097183">"कार के डिसप्ले यूनिट की जानकारी देख सकता है"</string>
     <string name="car_permission_desc_read_car_display_units" msgid="6891898275208542385">"डिसप्ले यूनिट देख सकता है."</string>
     <string name="car_permission_label_control_car_display_units" msgid="4975303668183173076">"कार के डिसप्ले यूनिट नियंत्रित कर सकता है"</string>
@@ -212,6 +236,10 @@
     <string name="car_permission_desc_control_adas_states" msgid="1893171217779342348">"कार के ADAS की स्थितियों की जानकारी कंट्रोल करने की अनुमति दें."</string>
     <string name="car_permission_label_read_windshield_wipers" msgid="896867772546890348">"कार के विंडशील्ड वाइपर को चालू या बंद करने की अनुमति दें"</string>
     <string name="car_permission_desc_read_windshield_wipers" msgid="597300271560195986">"कार के विंडशील्ड वाइपर को चालू या बंद करने की अनुमति दें."</string>
+    <!-- no translation found for car_permission_label_read_windshield_wipers_3p (4784843702416325970) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_read_windshield_wipers_3p (604163171596913379) -->
+    <skip />
     <string name="car_permission_label_control_windshield_wipers" msgid="7971852482734087493">"कार के विंडशील्ड वाइपर कंट्रोल करने की अनुमति दें"</string>
     <string name="car_permission_desc_control_windshield_wipers" msgid="3803429825323199728">"कार के विंडशील्ड वाइपर कंट्रोल करने की अनुमति दें."</string>
     <string name="car_permission_label_manage_display_compatibility" msgid="52642673039197383">"इस एपीआई की मदद से, ऐसे पैकेज मैनेज किए जा सकेंगे जिनके लिए, डिसप्ले के साथ काम करने से जुड़ा ट्रीटमेंट ज़रूरी है"</string>

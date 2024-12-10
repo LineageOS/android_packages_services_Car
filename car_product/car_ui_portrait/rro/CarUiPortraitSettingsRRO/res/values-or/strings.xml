@@ -17,5 +17,5 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="show_password" msgid="8752191817064591736">"ପାସ୍‍ୱାର୍ଡ ଦେଖାନ୍ତୁ"</string>
+    <string name="show_password" msgid="8752191817064591736">"ପାସୱାର୍ଡ ଦେଖାନ୍ତୁ"</string>
 </resources>

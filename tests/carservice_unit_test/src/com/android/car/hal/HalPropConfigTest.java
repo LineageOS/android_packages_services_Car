@@ -26,6 +26,7 @@ import android.car.feature.Flags;
 import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.property.AreaIdConfig;
 import android.car.hardware.property.VehicleOilLevel;
+import android.hardware.automotive.vehicle.HasSupportedValueInfo;
 import android.hardware.automotive.vehicle.VehicleArea;
 import android.hardware.automotive.vehicle.VehicleAreaConfig;
 import android.hardware.automotive.vehicle.VehiclePropConfig;
@@ -715,5 +716,28 @@ public final class HalPropConfigTest {
             assertThat(halPropConfig.toCarPropertyConfig(propId, mPropertyHalServiceConfigs)
                     .getAreaIdConfig(TEST_AREA_ID).hasSupportedValuesList()).isTrue();
         }
+    }
+
+    @Test
+    public void testToCarPropertyConfig_parseHasSupportedValueInfo() {
+        var vehiclePropConfig = getTestAidlPropConfig();
+        vehiclePropConfig.prop = GLOBAL_LONG_PROP_ID;
+        VehicleAreaConfig areaConfig = new VehicleAreaConfig();
+        areaConfig.access = TEST_ACCESS;
+        areaConfig.areaId = TEST_AREA_ID;
+        areaConfig.hasSupportedValueInfo = new HasSupportedValueInfo();
+        areaConfig.hasSupportedValueInfo.hasMinSupportedValue = true;
+        areaConfig.hasSupportedValueInfo.hasMaxSupportedValue = true;
+        areaConfig.hasSupportedValueInfo.hasSupportedValuesList = true;
+        vehiclePropConfig.areaConfigs = new VehicleAreaConfig[] {areaConfig};
+
+        var carPropertyConfig = new AidlHalPropConfig(vehiclePropConfig)
+                .toCarPropertyConfig(GLOBAL_LONG_PROP_ID,
+                        mPropertyHalServiceConfigs);
+
+        var areaIdConfig = carPropertyConfig.getAreaIdConfig(TEST_AREA_ID);
+        assertThat(areaIdConfig.hasMinSupportedValue()).isTrue();
+        assertThat(areaIdConfig.hasMaxSupportedValue()).isTrue();
+        assertThat(areaIdConfig.hasSupportedValuesList()).isTrue();
     }
 }

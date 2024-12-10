@@ -16,6 +16,7 @@
 
 package com.android.car.customization.tool.features.applications.apprro
 
+import android.content.om.OverlayIdentifier
 import android.content.om.OverlayInfo
 import android.content.om.OverlayManager
 import android.os.UserHandle
@@ -25,9 +26,10 @@ import com.android.car.customization.tool.domain.panel.PanelActionReducer
 import com.android.car.customization.tool.domain.panel.PanelHeaderItem
 import com.android.car.customization.tool.domain.panel.PanelItem
 import com.android.car.customization.tool.features.common.isValid
+import com.android.car.customization.tool.features.common.setEnableOverlay
 
 data class AppRroToggleAction(
-    val rroPackage: String,
+    val rroIdentifier: OverlayIdentifier,
     val newState: Boolean,
 ) : PanelAction
 
@@ -62,7 +64,10 @@ internal class AppRroPanelReducer(
                     it.isValid()
                 }.map { overlayInfo ->
                     PanelItem.Switch(
-                        text = overlayInfo.packageName.removePrefix("$appPackage."),
+                        text = overlayInfo
+                            .overlayIdentifier
+                            .toString()
+                            .removePrefix("$appPackage."),
                         errorText = if (!overlayInfo.isValid()) {
                             OverlayInfo.stateToString(overlayInfo.state)
                         } else {
@@ -71,7 +76,7 @@ internal class AppRroPanelReducer(
                         isChecked = overlayInfo.isEnabled,
                         isEnabled = overlayInfo.isMutable && overlayInfo.isValid(),
                         action = AppRroToggleAction(
-                            overlayInfo.packageName,
+                            overlayInfo.overlayIdentifier,
                             !overlayInfo.isEnabled
                         )
                     )
@@ -93,11 +98,12 @@ internal class AppRroPanelReducer(
         panel: Panel,
         action: AppRroToggleAction,
     ): Panel {
-        overlayManager.setEnabled(action.rroPackage, action.newState, UserHandle.CURRENT)
+
+        overlayManager.setEnableOverlay(action.rroIdentifier, action.newState, UserHandle.CURRENT)
 
         return Panel(
             items = panel.items.map { item ->
-                if (item is PanelItem.Switch && item.text == action.rroPackage) {
+                if (item is PanelItem.Switch && item.text == action.rroIdentifier.toString()) {
                     item.copy(
                         isChecked = action.newState,
                         action = action.copy(newState = !action.newState)

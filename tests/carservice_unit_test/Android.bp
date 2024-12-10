@@ -368,7 +368,7 @@ android_test {
     name: "CarServiceHalUnitTest",
 
     srcs: [
-        "src/com/android/car/hal/*.java",
+        "src/com/android/car/hal/**/*.java",
     ],
 
     defaults: [
@@ -492,8 +492,7 @@ android_ravenwood_test {
         "src/com/android/car/hal/VehicleHalTest.java",
         "src/com/android/car/hal/fakevhal/FakeVhalConfigParserUnitTest.java",
         "src/com/android/car/hal/fakevhal/FakeVehicleStubUnitTest.java",
-        "src/com/android/car/hal/property/PropertyHalServiceConfigsUnitTest.java",
-        "src/com/android/car/hal/property/PropertyPermissionInfoTest.java",
+        "src/com/android/car/hal/property/*.java",
         "src/com/android/car/systeminterface/DisplayInterfaceTest.java",
         "src/com/android/car/user/InitialUserSetterTest.java",
         "dep/src/com/android/car/user/MockedUserHandleBuilder.java",

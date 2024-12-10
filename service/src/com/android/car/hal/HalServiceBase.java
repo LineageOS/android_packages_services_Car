@@ -23,6 +23,7 @@ import android.car.builtin.util.Slogf;
 import android.hardware.automotive.vehicle.VehiclePropError;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
+import com.android.car.internal.property.PropIdAreaId;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -93,6 +94,13 @@ public abstract class HalServiceBase {
      */
     @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
     public void onHalEvents(List<HalPropValue> values) {
+    }
+
+    /**
+     * Handles property min/max supported values change or supported values list change from HAL.
+     */
+    @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
+    public void onSupportedValuesChange(List<PropIdAreaId> propIdAreaIds) {
     }
 
     /**

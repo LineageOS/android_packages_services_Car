@@ -25,6 +25,5 @@
     <string name="audio_route_handset" msgid="8283803824498570957">"手機聽筒"</string>
     <string name="back" msgid="2360066808525519279">"返回"</string>
     <string name="fullscreen" msgid="4312009981831027701">"全螢幕"</string>
-    <!-- no translation found for blank_home_message (1931676618245482098) -->
-    <skip />
+    <string name="blank_home_message" msgid="1931676618245482098">"請開啟應用程式"</string>
 </resources>

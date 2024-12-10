@@ -96,6 +96,9 @@ public class PropertyHalServiceConfigs {
     private static final String VIC_FLAG_NAME = "FLAG_ANDROID_VIC_VEHICLE_PROPERTIES";
     private static final String REMOVE_SYSTEM_API_TAGS_FLAG_NAME =
             "FLAG_VEHICLE_PROPERTY_REMOVE_SYSTEM_API_TAGS";
+    private static final String FLAG_25Q2_3P_PERMISSIONS =
+            "FLAG_VEHICLE_PROPERTY_25Q2_3P_PERMISSIONS";
+    private static final String B_FLAG_NAME = "FLAG_ANDROID_B_VEHICLE_PROPERTIES";
 
     private final FeatureFlags mFeatureFlags;
 
@@ -554,6 +557,16 @@ public class PropertyHalServiceConfigs {
                     break;
                 case REMOVE_SYSTEM_API_TAGS_FLAG_NAME:
                     // do nothing as no behavior change
+                    break;
+                case FLAG_25Q2_3P_PERMISSIONS:
+                    // do nothing as no behavior change
+                    break;
+                case B_FLAG_NAME:
+                    if (!mFeatureFlags.androidBVehicleProperties()) {
+                        Slogf.w(TAG, "The required feature flag for property: %s is not enabled, "
+                                + "so its config is ignored", propertyName);
+                        return null;
+                    }
                     break;
                 default:
                     throw new IllegalArgumentException("Unknown feature flag: "

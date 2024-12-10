@@ -1159,7 +1159,7 @@ package android.car.hardware.property {
   }
 
   @FlaggedApi("android.car.feature.car_property_simulation") public final class CarPropertySimulationManager {
-    method @FlaggedApi("android.car.feature.car_property_simulation") @NonNull @RequiresPermission(android.car.Car.PERMISSION_INJECT_VEHICLE_PROPERTIES) public <T> android.car.hardware.CarPropertyValue<T> createCarPropertyValue(int, int, long, T);
+    method @FlaggedApi("android.car.feature.car_property_simulation") @NonNull @RequiresPermission(android.car.Car.PERMISSION_INJECT_VEHICLE_PROPERTIES) public <T> android.car.hardware.CarPropertyValue<T> createCarPropertyValue(int, int, int, long, @NonNull T);
     method @FlaggedApi("android.car.feature.car_property_simulation") @RequiresPermission(android.car.Car.PERMISSION_INJECT_VEHICLE_PROPERTIES) public void disableInjectionMode();
     method @FlaggedApi("android.car.feature.car_property_simulation") @RequiresPermission(android.car.Car.PERMISSION_INJECT_VEHICLE_PROPERTIES) public void enableInjectionMode(@NonNull java.util.List<java.lang.Integer>);
     method @FlaggedApi("android.car.feature.car_property_simulation") @Nullable @RequiresPermission(android.car.Car.PERMISSION_INJECT_VEHICLE_PROPERTIES) public android.car.hardware.CarPropertyValue getLastInjectedVehicleProperty(int);

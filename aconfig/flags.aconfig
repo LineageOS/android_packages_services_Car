@@ -407,3 +407,11 @@ flag {
     description: "Introduce new 3p accessible permisisons for previously defined vehicle properties"
     bug: "357910697"
 }
+
+# DisplayCompat density feature
+flag {
+    name: "display_compatibility_density"
+    namespace: "car_framework"
+    description: "Density dpi scaling of display compat apps"
+    bug: "379954641"
+}

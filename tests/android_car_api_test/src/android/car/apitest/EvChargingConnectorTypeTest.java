@@ -18,6 +18,7 @@ package android.car.apitest;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import android.car.feature.Flags;
 import android.car.hardware.property.EvChargingConnectorType;
 import android.hardware.automotive.vehicle.EvConnectorType;
 
@@ -64,6 +65,12 @@ public final class EvChargingConnectorTypeTest extends CarLessApiTestBase {
                 .isEqualTo(EvConnectorType.TESLA_SUPERCHARGER);
         assertThat(EvChargingConnectorType.GBT_AC).isEqualTo(EvConnectorType.GBT_AC);
         assertThat(EvChargingConnectorType.GBT_DC).isEqualTo(EvConnectorType.GBT_DC);
+        if (Flags.androidBVehicleProperties()) {
+            assertThat(EvChargingConnectorType.SAE_J3400_AC).isEqualTo(
+                    EvConnectorType.SAE_J3400_AC);
+            assertThat(EvChargingConnectorType.SAE_J3400_DC).isEqualTo(
+                    EvConnectorType.SAE_J3400_DC);
+        }
         assertThat(EvChargingConnectorType.OTHER).isEqualTo(EvConnectorType.OTHER);
     }
 }

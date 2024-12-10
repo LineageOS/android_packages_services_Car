@@ -73,6 +73,7 @@
         <permission name="android.car.permission.CAR_INSTRUMENT_CLUSTER_CONTROL"/>
         <permission name="android.car.permission.CAR_MONITOR_CLUSTER_NAVIGATION_STATE"/>
         <permission name="android.car.permission.CAR_MILEAGE"/>
+        <permission name="android.car.permission.CONTROL_CAR_HORN"/>
         <permission name="android.car.permission.CAR_MOCK_VEHICLE_HAL"/>
         <permission name="android.car.permission.CAR_NAVIGATION_MANAGER"/>
         <permission name="android.car.permission.CAR_POWER"/>
@@ -178,6 +179,7 @@
         <permission name="android.car.permission.CONTROL_REMOTE_ACCESS"/>
         <!-- use for TunerTestFragment -->
         <permission name="android.permission.ACCESS_BROADCAST_RADIO" />
+        <permission name="android.permission.SCHEDULE_EXACT_ALARM" />
         <!-- use for allowlisting automotive driver assistance packages from camera privacy -->
         <permission name="android.permission.CAMERA_PRIVACY_ALLOWLIST" />
 	<!-- use for Camera2 TestFragment -->

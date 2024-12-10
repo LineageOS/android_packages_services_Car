@@ -266,20 +266,6 @@ public class CarWatchdogDaemonHelperTest {
     }
 
     @Test
-    public void testSetThreadPriority_DaemonVersionTooLow() throws Exception {
-        int testPid = 1;
-        int testTid = 2;
-        int testUid = 3;
-        int testPolicy = 4;
-        int testPriority = 5;
-        when(mFakeCarWatchdog.getInterfaceVersion()).thenReturn(1);
-
-        assertThrows(UnsupportedOperationException.class,
-                () -> mCarWatchdogDaemonHelper.setThreadPriority(
-                        testPid, testTid, testUid, testPolicy, testPriority));
-    }
-
-    @Test
     public void testGetThreadPriority() throws Exception {
         int testPid = 1;
         int testTid = 2;
@@ -299,31 +285,12 @@ public class CarWatchdogDaemonHelperTest {
     }
 
     @Test
-    public void testGetThreadPriority_DaemonVersionTooLow() throws Exception {
-        int testPid = 1;
-        int testTid = 2;
-        int testUid = 3;
-        when(mFakeCarWatchdog.getInterfaceVersion()).thenReturn(1);
-
-        assertThrows(UnsupportedOperationException.class,
-                () -> mCarWatchdogDaemonHelper.getThreadPriority(testPid, testTid, testUid));
-    }
-
-    @Test
     public void testOnAidlVhalPidFetched() throws Exception {
         int vhalPid = 12846;
 
         mCarWatchdogDaemonHelper.onAidlVhalPidFetched(vhalPid);
 
         verify(mFakeCarWatchdog).onAidlVhalPidFetched(vhalPid);
-    }
-
-    @Test
-    public void testOnAidlVhalPidFetched_DaemonVersionTooLow() throws Exception {
-        when(mFakeCarWatchdog.getInterfaceVersion()).thenReturn(1);
-
-        assertThrows(UnsupportedOperationException.class,
-                () -> mCarWatchdogDaemonHelper.onAidlVhalPidFetched(12846));
     }
 
 
@@ -334,14 +301,6 @@ public class CarWatchdogDaemonHelperTest {
         mCarWatchdogDaemonHelper.onTodayIoUsageStatsFetched(testUserPackageIoUsageStats);
 
         verify(mFakeCarWatchdog).onTodayIoUsageStatsFetched(testUserPackageIoUsageStats);
-    }
-
-    @Test
-    public void testOnTodayIoUsageStatsFetched_DaemonVersionTooLow() throws Exception {
-        when(mFakeCarWatchdog.getInterfaceVersion()).thenReturn(2);
-
-        assertThrows(UnsupportedOperationException.class,
-                () -> mCarWatchdogDaemonHelper.onTodayIoUsageStatsFetched(Collections.emptyList()));
     }
 
     @Test
@@ -372,8 +331,6 @@ public class CarWatchdogDaemonHelperTest {
 
     // FakeCarWatchdog mimics ICarWatchdog daemon in local process.
     private static final class FakeCarWatchdog extends ICarWatchdog.Default {
-        private static final int UDC_INTERFACE_VERSION = 3;
-
         private final ArrayList<ICarWatchdogServiceForSystem> mServices = new ArrayList<>();
 
         @Override
@@ -397,11 +354,6 @@ public class CarWatchdogDaemonHelperTest {
                 }
             }
             throw new IllegalArgumentException("Not registered service");
-        }
-
-        @Override
-        public int getInterfaceVersion() {
-            return UDC_INTERFACE_VERSION;
         }
     }
 
@@ -438,15 +390,5 @@ public class CarWatchdogDaemonHelperTest {
 
         @Override
         public void requestTodayIoUsageStats() {}
-
-        @Override
-        public String getInterfaceHash() {
-            return ICarWatchdogServiceForSystem.HASH;
-        }
-
-        @Override
-        public int getInterfaceVersion() {
-            return ICarWatchdogServiceForSystem.VERSION;
-        }
     }
 }

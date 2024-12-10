@@ -63,6 +63,7 @@ import android.util.SparseArray;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.ICarBase;
 import com.android.car.internal.SingleMessageHandler;
+import com.android.car.internal.common.DispatchList;
 import com.android.car.internal.dep.Trace;
 import com.android.car.internal.os.HandlerExecutor;
 import com.android.car.internal.property.AsyncPropertyServiceRequest;
@@ -150,12 +151,20 @@ public class CarPropertyManager extends CarManagerBase {
     @GuardedBy("mLock")
     private final SubscriptionManager<CarPropertyEventCallback> mSubscriptionManager =
             new SubscriptionManager<>();
+    // Map from [propId, areaId] to set of registered SupportedValuesChangeCallbacks.
     @GuardedBy("mLock")
     private final PairSparseArray<ArraySet<SupportedValuesChangeCallback>>
             mSupportedValuesChangeCallbackByPropIdAreaId = new PairSparseArray<>();
+    // Map from SupportedValuesChangeCallback to its associated executor. Only one executor is
+    // associated with one callback.
     @GuardedBy("mLock")
     private final Map<SupportedValuesChangeCallback, Executor>
             mExecutorBySupportedValuesChangeCallback = new ArrayMap<>();
+    // Map from SupportedValuesChangeCallback to its registered set of [propId, areaIds]. This is
+    // the reverse map for mSupportedValuesChangeCallbackByPropIdAreaId.
+    @GuardedBy("mLock")
+    private final Map<SupportedValuesChangeCallback, ArraySet<PropIdAreaId>>
+            mPropIdAreaIdsBySupportedValuesChangeCallback = new ArrayMap<>();
 
     private FeatureFlags mFeatureFlags = new FeatureFlagsImpl();
 
@@ -3121,6 +3130,7 @@ public class CarPropertyManager extends CarManagerBase {
             mSubscriptionManager.clear();
             mSupportedValuesChangeCallbackByPropIdAreaId.clear();
             mExecutorBySupportedValuesChangeCallback.clear();
+            mPropIdAreaIdsBySupportedValuesChangeCallback.clear();
         }
     }
 
@@ -3638,6 +3648,49 @@ public class CarPropertyManager extends CarManagerBase {
      */
     @FlaggedApi(FLAG_CAR_PROPERTY_SUPPORTED_VALUE)
     public void unregisterSupportedValuesChangeCallback(int propertyId) {
+        synchronized (mLock) {
+            var areaIds = mSupportedValuesChangeCallbackByPropIdAreaId.getSecondKeysForFirstKey(
+                    propertyId);
+            if (areaIds.isEmpty()) {
+                Slog.d(TAG, "No SupportedValuesChangeCallback was registered for property: "
+                        + VehiclePropertyIds.toString(propertyId) + ", do nothing");
+                return;
+            }
+            List<PropIdAreaId> propIdAreaIds = new ArrayList<>();
+            for (int i = 0; i < areaIds.size(); i++) {
+                var areaId = areaIds.valueAt(i);
+                propIdAreaIds.add(newPropIdAreaId(propertyId, areaId));
+                var registeredCallbacks = mSupportedValuesChangeCallbackByPropIdAreaId.get(
+                        propertyId, areaId);
+                for (int j = 0; j < registeredCallbacks.size(); j++) {
+                    var registeredCallback = registeredCallbacks.valueAt(j);
+                    var registeredPropIdAreaIdsForCallback =
+                            mPropIdAreaIdsBySupportedValuesChangeCallback.get(registeredCallback);
+                    if (registeredPropIdAreaIdsForCallback == null) {
+                        Slog.e(TAG, "No registered propIdAreaId for "
+                                + "supportedValuesChangeCallback: " + registeredCallback
+                                + ", must not happen should at least contain property: "
+                                + VehiclePropertyIds.toString(propertyId) + ", areaId: "
+                                + areaId);
+                        continue;
+                    }
+                    registeredPropIdAreaIdsForCallback.remove(newPropIdAreaId(propertyId, areaId));
+                    if (registeredPropIdAreaIdsForCallback.isEmpty()) {
+                        // There is no more [propId, areaId]s registered for the callback, we can
+                        // now unlink the executor.
+                        mExecutorBySupportedValuesChangeCallback.remove(registeredCallback);
+                        mPropIdAreaIdsBySupportedValuesChangeCallback.remove(registeredCallback);
+                    }
+                }
+            }
+            for (int i = 0; i < areaIds.size(); i++) {
+                mSupportedValuesChangeCallbackByPropIdAreaId.remove(propertyId, areaIds.valueAt(i));
+            }
+
+            // Even though this involves a binder call, we call this inside the lock so that this
+            // whole block does not overlap with another unregister or register operation.
+            unregisterSupportedValuesChangeCbToCarService(propIdAreaIds);
+        }
     }
 
     /**
@@ -3652,6 +3705,16 @@ public class CarPropertyManager extends CarManagerBase {
     @FlaggedApi(FLAG_CAR_PROPERTY_SUPPORTED_VALUE)
     public void unregisterSupportedValuesChangeCallback(int propertyId,
             @NonNull SupportedValuesChangeCallback cb) {
+        synchronized (mLock) {
+            var areaIds = mSupportedValuesChangeCallbackByPropIdAreaId.getSecondKeysForFirstKey(
+                    propertyId);
+            if (areaIds.isEmpty()) {
+                Slog.d(TAG, "No SupportedValuesChangeCallback was registered for property: "
+                        + VehiclePropertyIds.toString(propertyId) + ", do nothing");
+                return;
+            }
+            unregisterSupportedValuesChangeCallbackWithAreaIdsLocked(propertyId, areaIds, cb);
+        }
     }
 
     /**
@@ -3667,6 +3730,65 @@ public class CarPropertyManager extends CarManagerBase {
     @FlaggedApi(FLAG_CAR_PROPERTY_SUPPORTED_VALUE)
     public void unregisterSupportedValuesChangeCallback(int propertyId, int areaId,
             @NonNull SupportedValuesChangeCallback cb) {
+        synchronized (mLock) {
+            unregisterSupportedValuesChangeCallbackWithAreaIdsLocked(propertyId,
+                    new ArraySet<>(Set.of(areaId)), cb);
+        }
+    }
+
+    @GuardedBy("mLock")
+    private void unregisterSupportedValuesChangeCallbackWithAreaIdsLocked(int propertyId,
+            ArraySet<Integer> areaIds, SupportedValuesChangeCallback cb) {
+        List<PropIdAreaId> propIdAreaIds = new ArrayList<>();
+        boolean found = false;
+        var propIdAreaIdsForCallback = mPropIdAreaIdsBySupportedValuesChangeCallback.get(cb);
+        for (int i = 0; i < areaIds.size(); i++) {
+            var areaId = areaIds.valueAt(i);
+            var callbacks = mSupportedValuesChangeCallbackByPropIdAreaId.get(propertyId,
+                    areaId);
+            if (callbacks == null || !callbacks.contains(cb)) {
+                continue;
+            }
+            found = true;
+            callbacks.remove(cb);
+            if (callbacks.isEmpty()) {
+                mSupportedValuesChangeCallbackByPropIdAreaId.remove(propertyId, areaId);
+                propIdAreaIds.add(newPropIdAreaId(propertyId, areaId));
+            }
+            if (propIdAreaIdsForCallback != null) {
+                propIdAreaIdsForCallback.remove(newPropIdAreaId(propertyId, areaId));
+            }
+        }
+        if (propIdAreaIdsForCallback != null && propIdAreaIdsForCallback.isEmpty()) {
+            // There is no more [propId, areaId]s registered for the callback, we can now unlink
+            // the executor.
+            mPropIdAreaIdsBySupportedValuesChangeCallback.remove(cb);
+            mExecutorBySupportedValuesChangeCallback.remove(cb);
+        }
+        if (!found) {
+            Slog.d(TAG, "No SupportedValuesChangeCallback was registered for the callback "
+                    + "for property: " + VehiclePropertyIds.toString(propertyId)
+                    + ", do nothing");
+            return;
+        }
+        if (propIdAreaIds.isEmpty()) {
+            return;
+        }
+
+        // Even though this involves a binder call, we call this inside the lock so that this
+        // whole block does not overlap with another unregister or register operation.
+        unregisterSupportedValuesChangeCbToCarService(propIdAreaIds);
+    }
+
+    private static class EventDispatchList extends
+            DispatchList<CarPropertyEventCallbackController, CarPropertyEvent> {
+        @Override
+        protected void dispatchToClient(CarPropertyEventCallbackController client,
+                List<CarPropertyEvent> events) {
+            for (int j = 0; j < events.size(); j++) {
+                client.onEvent(events.get(j));
+            }
+        }
     }
 
     private void handleCarPropertyEvents(List<CarPropertyEvent> carPropertyEvents) {
@@ -3680,8 +3802,7 @@ public class CarPropertyManager extends CarManagerBase {
             carPropertyEventsByPropertyId.get(propertyId).add(carPropertyEvent);
         }
 
-        ArrayMap<CarPropertyEventCallbackController, List<CarPropertyEvent>> eventsByCallback =
-                new ArrayMap<>();
+        var eventsDispatchList = new EventDispatchList();
 
         synchronized (mLock) {
             for (int i = 0; i < carPropertyEventsByPropertyId.size(); i++) {
@@ -3697,10 +3818,7 @@ public class CarPropertyManager extends CarManagerBase {
                 }
                 for (int j = 0; j < cpeCallbackControllerSet.size(); j++) {
                     var callback = cpeCallbackControllerSet.valueAt(j);
-                    if (eventsByCallback.get(callback) == null) {
-                        eventsByCallback.put(callback, new ArrayList<>());
-                    }
-                    eventsByCallback.get(callback).addAll(eventsForPropertyId);
+                    eventsDispatchList.addEvents(callback, eventsForPropertyId);
                 }
             }
         }
@@ -3708,13 +3826,7 @@ public class CarPropertyManager extends CarManagerBase {
         // This might be invoked from a binder thread (CarPropertyEventListenerToService.onEvent),
         // so we must clear calling identity before calling client executor.
         Binder.clearCallingIdentity();
-        for (int i = 0; i < eventsByCallback.size(); i++) {
-            var callback = eventsByCallback.keyAt(i);
-            var events = eventsByCallback.valueAt(i);
-            for (int j = 0; j < events.size(); j++) {
-                callback.onEvent(events.get(j));
-            }
-        }
+        eventsDispatchList.dispatchToClients();
     }
 
     private boolean registerSupportedValuesChangeCallbackInternal(int propertyId,
@@ -3773,12 +3885,21 @@ public class CarPropertyManager extends CarManagerBase {
             }
 
             mExecutorBySupportedValuesChangeCallback.put(cb, callbackExecutor);
+            var propIdAreaIdsForCallback = mPropIdAreaIdsBySupportedValuesChangeCallback.get(cb);
+            if (propIdAreaIdsForCallback == null) {
+                propIdAreaIdsForCallback = new ArraySet<PropIdAreaId>();
+            }
+            propIdAreaIdsForCallback.addAll(propIdAreaIds);
+            mPropIdAreaIdsBySupportedValuesChangeCallback.put(cb, propIdAreaIdsForCallback);
             for (int areaId : areaIds) {
-                if (mSupportedValuesChangeCallbackByPropIdAreaId.get(propertyId, areaId) == null) {
-                    mSupportedValuesChangeCallbackByPropIdAreaId.append(propertyId, areaId,
-                            new ArraySet<>());
+                var registeredCallbacks = mSupportedValuesChangeCallbackByPropIdAreaId.get(
+                        propertyId, areaId);
+                if (registeredCallbacks == null) {
+                    registeredCallbacks = new ArraySet<>();
                 }
-                mSupportedValuesChangeCallbackByPropIdAreaId.get(propertyId, areaId).add(cb);
+                registeredCallbacks.add(cb);
+                mSupportedValuesChangeCallbackByPropIdAreaId.put(propertyId, areaId,
+                        registeredCallbacks);
             }
         }
         return true;
@@ -3797,6 +3918,16 @@ public class CarPropertyManager extends CarManagerBase {
         }
 
         return true;
+    }
+
+    private void unregisterSupportedValuesChangeCbToCarService(List<PropIdAreaId> propIdAreaIds) {
+        try {
+            mService.unregisterSupportedValuesChangeCallback(propIdAreaIds,
+                    mCarServiceSupportedValuesChangeCallback);
+        } catch (RemoteException e) {
+            Slog.e(TAG, "Failed to unregister SupportedValuesChangeCallback", e);
+            handleRemoteExceptionFromCarService(e);
+        }
     }
 
     private void assertPropertyIdIsSupported(int propertyId) {

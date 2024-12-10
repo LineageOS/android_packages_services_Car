@@ -162,6 +162,8 @@ protected:
 
     HidlVhalClient* getClient() { return mVhalClient.get(); }
 
+    void resetClient() { mVhalClient.reset(); }
+
     void triggerBinderDied() { mVhalClient->onBinderDied(); }
 
 private:
@@ -297,6 +299,17 @@ TEST_F(HidlVhalClientTest, testAddOnBinderDiedCallback) {
 
     ASSERT_TRUE(result.callbackOneCalled);
     ASSERT_TRUE(result.callbackTwoCalled);
+}
+
+TEST_F(HidlVhalClientTest, testOnBinderDied_noDeadLock) {
+    getClient()->addOnBinderDiedCallback(
+            std::make_shared<HidlVhalClient::OnBinderDiedCallbackFunc>([this] {
+                // This will trigger the destructor for HidlVhalClient. This must not cause dead
+                // lock.
+                resetClient();
+            }));
+
+    triggerBinderDied();
 }
 
 TEST_F(HidlVhalClientTest, testRemoveOnBinderDiedCallback) {
