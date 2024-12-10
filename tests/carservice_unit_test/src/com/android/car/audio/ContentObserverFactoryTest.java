@@ -16,7 +16,7 @@
 
 package com.android.car.audio;
 
-import static com.android.car.audio.FocusInteraction.AUDIO_FOCUS_NAVIGATION_REJECTED_DURING_CALL_URI;
+import static android.car.settings.CarSettings.Secure.KEY_AUDIO_FOCUS_NAVIGATION_REJECTED_DURING_CALL;
 
 import static com.google.common.truth.Truth.assertWithMessage;
 
@@ -43,9 +43,6 @@ public final class ContentObserverFactoryTest {
     private static final Uri TEST_URI = Settings.Secure.getUriFor(
             CarSettings.Secure.KEY_AUDIO_PERSIST_VOLUME_GROUP_MUTE_STATES);
 
-    private ContentObserverFactory mFactory =
-            new ContentObserverFactory(AUDIO_FOCUS_NAVIGATION_REJECTED_DURING_CALL_URI);
-
     @Test
     public void constructor_withNullUri_fails() {
         NullPointerException thrown =
@@ -59,7 +56,7 @@ public final class ContentObserverFactoryTest {
     @Test
     public void createObserver_withNullCallback_fails() {
         ContentObserverFactory factory =
-                new ContentObserverFactory(AUDIO_FOCUS_NAVIGATION_REJECTED_DURING_CALL_URI);
+                new ContentObserverFactory(getNavigationRejectedUri());
         NullPointerException thrown =
                 assertThrows(NullPointerException.class,
                         () -> factory.createObserver(null));
@@ -71,7 +68,7 @@ public final class ContentObserverFactoryTest {
     @Test
     public void createObserver_withCallback_createsContentObserver() {
         ContentChangeCallback callback = Mockito.mock(ContentChangeCallback.class);
-        ContentObserver observer = mFactory.createObserver(callback);
+        ContentObserver observer = getTestContentObserverFactory().createObserver(callback);
 
         assertWithMessage("Created Content Observer").that(observer).isNotNull();
     }
@@ -79,9 +76,9 @@ public final class ContentObserverFactoryTest {
     @Test
     public void onChange_calledWithCreatedUri_callsCallback() {
         ContentChangeCallback callback = Mockito.mock(ContentChangeCallback.class);
-        ContentObserver observer = mFactory.createObserver(callback);
+        ContentObserver observer = getTestContentObserverFactory().createObserver(callback);
 
-        observer.onChange(true, AUDIO_FOCUS_NAVIGATION_REJECTED_DURING_CALL_URI);
+        observer.onChange(true, getNavigationRejectedUri());
 
         verify(callback).onChange();
     }
@@ -89,10 +86,18 @@ public final class ContentObserverFactoryTest {
     @Test
     public void onChange_calledWithDifferentUri_doesNotCallCallback() {
         ContentChangeCallback callback = Mockito.mock(ContentChangeCallback.class);
-        ContentObserver observer = mFactory.createObserver(callback);
+        ContentObserver observer = getTestContentObserverFactory().createObserver(callback);
 
         observer.onChange(true, TEST_URI);
 
         verify(callback, never()).onChange();
+    }
+
+    private static ContentObserverFactory getTestContentObserverFactory() {
+        return new ContentObserverFactory(getNavigationRejectedUri());
+    }
+
+    private static Uri getNavigationRejectedUri() {
+        return Settings.Secure.getUriFor(KEY_AUDIO_FOCUS_NAVIGATION_REJECTED_DURING_CALL);
     }
 }

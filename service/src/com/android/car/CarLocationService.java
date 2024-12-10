@@ -55,6 +55,7 @@ import com.android.car.systeminterface.SystemInterface;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -62,6 +63,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
 
 /**
  * This service stores the last known location from {@link LocationManager} when a car is parked
@@ -454,7 +456,11 @@ public class CarLocationService extends BroadcastReceiver implements CarServiceB
             FileOutputStream fos = null;
             try {
                 fos = atomicFile.startWrite();
-                try (JsonWriter jsonWriter = new JsonWriter(new OutputStreamWriter(fos, "UTF-8"))) {
+                // Use ByteArrayOutputStream as a place holder of JsonWriter output that is
+                // maintained even after try-with-resources exits.
+                try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                        JsonWriter jsonWriter = new JsonWriter(new OutputStreamWriter(baos,
+                                StandardCharsets.UTF_8))) {
                     jsonWriter.beginObject();
                     jsonWriter.name(PROVIDER).value(location.getProvider());
                     jsonWriter.name(LATITUDE).value(location.getLatitude());
@@ -491,6 +497,8 @@ public class CarLocationService extends BroadcastReceiver implements CarServiceB
                     jsonWriter.name(CAPTURE_TIME).value(
                             currentTime - currentTime % GRANULARITY_ONE_DAY_MS);
                     jsonWriter.endObject();
+                    jsonWriter.flush();
+                    baos.writeTo(fos);
                 }
                 atomicFile.finishWrite(fos);
             } catch (IOException e) {
