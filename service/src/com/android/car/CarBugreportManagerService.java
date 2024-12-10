@@ -32,6 +32,7 @@ import android.car.builtin.os.SystemPropertiesHelper;
 import android.car.builtin.util.Slogf;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.net.LocalSocket;
 import android.net.LocalSocketAddress;
 import android.os.Binder;
@@ -40,6 +41,7 @@ import android.os.HandlerThread;
 import android.os.ParcelFileDescriptor;
 import android.os.RemoteException;
 import android.os.SystemClock;
+import android.util.ArraySet;
 import android.util.proto.ProtoOutputStream;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
@@ -54,6 +56,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -194,19 +197,21 @@ public class CarBugreportManagerService extends ICarBugreportService.Stub implem
         if (!mIsUserBuild) {
             return;
         }
-        String defaultAppPkgName = mContext.getString(R.string.config_car_bugreport_application);
+        Resources res = mContext.getResources();
+        Set<String> designatedPackageNames = new ArraySet<>(
+                res.getStringArray(R.array.config_car_bugreport_applications));
         int callingUid = Binder.getCallingUid();
         PackageManager pm = mContext.getPackageManager();
         String[] packageNamesForCallerUid = pm.getPackagesForUid(callingUid);
         if (packageNamesForCallerUid != null) {
             for (String packageName : packageNamesForCallerUid) {
-                if (defaultAppPkgName.equals(packageName)) {
+                if (designatedPackageNames.contains(packageName)) {
                     return;
                 }
             }
         }
-        throw new SecurityException("Caller " + pm.getNameForUid(callingUid)
-                + " is not a designated bugreport app");
+        throw new SecurityException(
+                "Caller " + pm.getNameForUid(callingUid) + " is not a designated bugreport app");
     }
 
     @GuardedBy("mLock")

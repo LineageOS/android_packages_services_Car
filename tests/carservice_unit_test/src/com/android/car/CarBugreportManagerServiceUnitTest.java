@@ -110,8 +110,8 @@ public class CarBugreportManagerServiceUnitTest {
         when(mMockPackageManager.getNameForUid(anyInt())).thenReturn("current_app_name");
         when(mMockPackageManager.getPackagesForUid(anyInt())).thenReturn(
                 new String[]{"random_app_name"});
-        when(mMockContext.getString(
-                R.string.config_car_bugreport_application)).thenReturn("current_app_name");
+        when(mMockResources.getStringArray(R.array.config_car_bugreport_applications)).thenReturn(
+                new String[]{"current_app_name", "another_app_name"});
 
         SecurityException expected =
                 assertThrows(SecurityException.class,
@@ -242,7 +242,7 @@ public class CarBugreportManagerServiceUnitTest {
         when(mMockPackageManager.getNameForUid(anyInt())).thenReturn("current_app_name");
         when(mMockPackageManager.getPackagesForUid(anyInt())).thenReturn(
                 new String[]{"current_app_name"});
-        when(mMockContext.getString(R.string.config_car_bugreport_application))
-                .thenReturn("current_app_name");
+        when(mMockResources.getStringArray(R.array.config_car_bugreport_applications)).thenReturn(
+                new String[]{"current_app_name"});
     }
 }
