@@ -91,6 +91,7 @@ public class PropertyHalServiceConfigs {
     }
 
     private static final String CONFIG_RESOURCE_NAME = "CarSvcProps.json";
+    private static final String RELEASED_CONFIG_RESOURCE_NAME = "CarSvcProps-Released.json";
     private static final String JSON_FIELD_NAME_PROPERTIES = "properties";
 
     private static final String VIC_FLAG_NAME = "FLAG_ANDROID_VIC_VEHICLE_PROPERTIES";
@@ -106,6 +107,7 @@ public class PropertyHalServiceConfigs {
 
     private final SparseArray<Set<Integer>> mHalPropIdToEnumSet = new SparseArray<>();
     private final SparseArray<CarSvcPropertyConfig> mHalPropIdToCarSvcConfig;
+    private final SparseArray<CarSvcPropertyConfig> mHalPropIdToReleasedCarSvcConfig;
     private final BidirectionalSparseIntArray mMgrPropIdToHalPropId;
 
     private final Object mLock = new Object();
@@ -124,16 +126,31 @@ public class PropertyHalServiceConfigs {
         } else {
             mFeatureFlags = featureFlags;
         }
+
+        // Read config from previous release.
+        try (InputStream defaultConfigInputStream = this.getClass().getClassLoader()
+                    .getResourceAsStream(RELEASED_CONFIG_RESOURCE_NAME)) {
+            mHalPropIdToReleasedCarSvcConfig = parseJsonConfig(defaultConfigInputStream,
+                    "defaultResource");
+        } catch (IOException e) {
+            String errorMsg = "failed to open/close resource input stream for: "
+                    + RELEASED_CONFIG_RESOURCE_NAME;
+            Slogf.e(TAG, errorMsg, e);
+            throw new IllegalStateException(errorMsg, e);
+        }
+
+        // Read latest generated config.
         try (InputStream defaultConfigInputStream = this.getClass().getClassLoader()
                     .getResourceAsStream(CONFIG_RESOURCE_NAME)) {
             mHalPropIdToCarSvcConfig = parseJsonConfig(defaultConfigInputStream,
-                    "defaultResource");
+                    "defaultResource", mHalPropIdToReleasedCarSvcConfig);
         } catch (IOException e) {
             String errorMsg = "failed to open/close resource input stream for: "
                     + CONFIG_RESOURCE_NAME;
             Slogf.e(TAG, errorMsg, e);
             throw new IllegalStateException(errorMsg, e);
         }
+
         List<Integer> halPropIdMgrIds = new ArrayList<>();
         for (int i = 0; i < mHalPropIdToCarSvcConfig.size(); i++) {
             CarSvcPropertyConfig config = mHalPropIdToCarSvcConfig.valueAt(i);
@@ -442,8 +459,20 @@ public class PropertyHalServiceConfigs {
      * Parses a car service JSON config file. Only exposed for testing.
      */
     @VisibleForTesting
-    /* package */ SparseArray<CarSvcPropertyConfig> parseJsonConfig(InputStream configFile,
-            String path) {
+    /* package */ SparseArray<CarSvcPropertyConfig> parseJsonConfig(
+            InputStream configFile, String path) {
+        return parseJsonConfig(configFile, path, null);
+    }
+
+    /**
+     * Parses the latest car service JSON config file with an already parsed released-version
+     * of the car service JSON config file. Only exposed for testing.
+     */
+    @VisibleForTesting
+    /* package */ SparseArray<CarSvcPropertyConfig> parseJsonConfig(
+            InputStream configFile,
+            String path,
+            @Nullable SparseArray<CarSvcPropertyConfig> halPropIdToReleasedCarSvcConfig) {
         try {
             SparseArray<CarSvcPropertyConfig> configs = new SparseArray<>();
             try (var reader = new JsonReader(new InputStreamReader(configFile, "UTF-8"))) {
@@ -457,7 +486,8 @@ public class PropertyHalServiceConfigs {
                         String propertyName = reader.nextName();
                         CarSvcPropertyConfig config;
                         try {
-                            config = readPropertyObject(propertyName, reader);
+                            config = readPropertyObject(
+                                propertyName, reader, halPropIdToReleasedCarSvcConfig);
                         } catch (IllegalArgumentException e) {
                             throw new IllegalArgumentException("Invalid json config for property: "
                                      + propertyName + ", error: " + e);
@@ -477,7 +507,9 @@ public class PropertyHalServiceConfigs {
     }
 
     private @Nullable CarSvcPropertyConfig readPropertyObject(
-            String propertyName, JsonReader reader) throws IOException {
+            String propertyName, JsonReader reader,
+            @Nullable SparseArray<CarSvcPropertyConfig> halPropIdToReleasedCarSvcConfig)
+                    throws IOException {
         String featureFlag = null;
         boolean deprecated = false;
         int propertyId = 0;
@@ -559,9 +591,29 @@ public class PropertyHalServiceConfigs {
                     // do nothing as no behavior change
                     break;
                 case FLAG_25Q2_3P_PERMISSIONS:
-                    // do nothing as no behavior change
+                    // Parsing the older released config. Skip the flag specific logic and continue.
+                    if (halPropIdToReleasedCarSvcConfig == null) {
+                        break;
+                    }
+                    // If flag is disabled, use vehicle property entry from old json file.
+                    if (!mFeatureFlags.vehicleProperty25q23pPermissions()) {
+                        return getReleasedCarSvcPropertyConfig(propertyId, featureFlag,
+                                propertyName, halPropIdToReleasedCarSvcConfig);
+                    }
                     break;
                 case B_FLAG_NAME:
+                    // Parsing the older released config. Skip the flag specific logic and continue.
+                    if (halPropIdToReleasedCarSvcConfig == null) {
+                        break;
+                    }
+                    if (!mFeatureFlags.androidBVehicleProperties()
+                            && propertyId == VehiclePropertyIds.PERF_ODOMETER) {
+                        return getReleasedCarSvcPropertyConfig(
+                                propertyId,
+                                featureFlag,
+                                propertyName,
+                                halPropIdToReleasedCarSvcConfig);
+                    }
                     if (!mFeatureFlags.androidBVehicleProperties()) {
                         Slogf.w(TAG, "The required feature flag for property: %s is not enabled, "
                                 + "so its config is ignored", propertyName);
@@ -608,6 +660,25 @@ public class PropertyHalServiceConfigs {
         PropertyPermissions permissions = builder.build();
         return new CarSvcPropertyConfig(propertyId, halPropId, propertyName, description,
                 permissions, dataEnums, validBitFlag);
+    }
+
+    private CarSvcPropertyConfig getReleasedCarSvcPropertyConfig(
+            int propertyId,
+            String featureFlag,
+            String propertyName,
+            @Nullable SparseArray<CarSvcPropertyConfig> halPropIdToReleasedCarSvcConfig) {
+        for (int i = 0; i < halPropIdToReleasedCarSvcConfig.size(); i++) {
+            CarSvcPropertyConfig config =
+                    halPropIdToReleasedCarSvcConfig.valueAt(i);
+            if (config.propertyId() == propertyId) {
+                return config;
+            }
+        }
+        // If no matching property id, then something is wrong. Every
+        // property changed in this feature flag should have been in the
+        // previous release.
+        throw new IllegalArgumentException("Unknown flag config: "
+                + featureFlag + " for property: " + propertyName);
     }
 
     private interface RunanbleWithException {

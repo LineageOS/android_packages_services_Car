@@ -3147,9 +3147,19 @@
       "propertyId": 289410886,
       "description": "Vehicle’s curb weight in kilograms.",
       "readPermission": {
-        "type": "single",
-        "value": "android.car.permission.PRIVILEGED_CAR_INFO"
-      }
+        "type": "anyOf",
+        "value": [
+          {
+            "type": "single",
+            "value": "android.car.permission.CAR_INFO"
+          },
+          {
+            "type": "single",
+            "value": "android.car.permission.PRIVILEGED_CAR_INFO"
+          }
+        ]
+      },
+      "featureFlag": "FLAG_VEHICLE_PROPERTY_25Q2_3P_PERMISSIONS"
     },
     "TRAILER_PRESENT": {
       "propertyName": "TRAILER_PRESENT",
