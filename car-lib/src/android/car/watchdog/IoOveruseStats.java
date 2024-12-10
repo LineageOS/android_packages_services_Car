@@ -31,12 +31,12 @@ import com.android.car.internal.util.DataClass;
 @DataClass(genToString = true, genHiddenBuilder = true)
 public final class IoOveruseStats implements Parcelable {
     /**
-     * Start time, in epoch seconds, for the below stats.
+     * Start time of the time period, in epoch seconds.
      */
     private long mStartTime;
 
     /**
-     * Duration, in seconds, for the below stats.
+     * Duration of the time period, in seconds.
      */
     private long mDurationInSeconds;
 
@@ -69,7 +69,7 @@ public final class IoOveruseStats implements Parcelable {
      * <p>On exceeding these limit in at least one system or application state, the package may be
      * killed if {@link #mKillableOnOveruse} is {@code true}.
      *
-     * <p>The above period does not apply to this field.
+     * <p>The {@link #mDurationInSeconds} does not apply to this field.
      */
     private @NonNull PerStateBytes mRemainingWriteBytes = new PerStateBytes(0L, 0L, 0L);
 
@@ -82,7 +82,6 @@ public final class IoOveruseStats implements Parcelable {
     //
     // To regenerate run:
     // $ codegen $ANDROID_BUILD_TOP/packages/services/Car/car-lib/src/android/car/watchdog/IoOveruseStats.java
-    // Added AddedInOrBefore or ApiRequirement Annotation manually
     //
     // To exclude the generated code from IntelliJ auto-formatting enable (one-time):
     //   Settings > Editor > Code Style > Formatter Control
@@ -112,7 +111,7 @@ public final class IoOveruseStats implements Parcelable {
     }
 
     /**
-     * Start time, in epoch seconds, for the below stats.
+     * Start time of the time period, in epoch seconds.
      */
     @DataClass.Generated.Member
     public long getStartTime() {
@@ -120,7 +119,7 @@ public final class IoOveruseStats implements Parcelable {
     }
 
     /**
-     * Duration, in seconds, for the below stats.
+     * Duration of the time period, in seconds.
      */
     @DataClass.Generated.Member
     public long getDurationInSeconds() {
@@ -155,7 +154,7 @@ public final class IoOveruseStats implements Parcelable {
     /**
      * Package may be killed on disk I/O overuse.
      *
-     * <p>Disk I/O overuse is triggered on exceeding {@link #getRemainingWriteBytes()}.
+     * <p>Disk I/O overuse is triggered on exceeding {@link #mRemainingWriteBytes}.
      */
     @DataClass.Generated.Member
     public boolean isKillableOnOveruse() {
@@ -166,9 +165,9 @@ public final class IoOveruseStats implements Parcelable {
      * Number of write bytes remaining in each application or system state.
      *
      * <p>On exceeding these limit in at least one system or application state, the package may be
-     * killed if {@link #isKillableOnOveruse()} is {@code true}.
+     * killed if {@link #mKillableOnOveruse} is {@code true}.
      *
-     * <p>The above period does not apply to this field.
+     * <p>The {@link #mDurationInSeconds} does not apply to this field.
      */
     @DataClass.Generated.Member
     public @NonNull PerStateBytes getRemainingWriteBytes() {
@@ -279,9 +278,9 @@ public final class IoOveruseStats implements Parcelable {
          * Creates a new Builder.
          *
          * @param startTime
-         *   Start time, in epoch seconds, for the below stats.
+         *   Start time of the time period, in epoch seconds.
          * @param durationInSeconds
-         *   Duration, in seconds, for the below stats.
+         *   Duration of the time period, in seconds.
          */
         public Builder(
                 long startTime,
@@ -291,7 +290,7 @@ public final class IoOveruseStats implements Parcelable {
         }
 
         /**
-         * Start time, in epoch seconds, for the below stats.
+         * Start time of the time period, in epoch seconds.
          */
         @DataClass.Generated.Member
         public @NonNull Builder setStartTime(long value) {
@@ -302,7 +301,7 @@ public final class IoOveruseStats implements Parcelable {
         }
 
         /**
-         * Duration, in seconds, for the below stats.
+         * Duration of the time period, in seconds.
          */
         @DataClass.Generated.Member
         public @NonNull Builder setDurationInSeconds(long value) {
@@ -365,7 +364,7 @@ public final class IoOveruseStats implements Parcelable {
          * <p>On exceeding these limit in at least one system or application state, the package may be
          * killed if {@link #mKillableOnOveruse} is {@code true}.
          *
-         * <p>The above period does not apply to this field.
+         * <p>The {@link #mDurationInSeconds} does not apply to this field.
          */
         @DataClass.Generated.Member
         public @NonNull Builder setRemainingWriteBytes(@NonNull PerStateBytes value) {
@@ -415,7 +414,7 @@ public final class IoOveruseStats implements Parcelable {
     }
 
     @DataClass.Generated(
-            time = 1628099298965L,
+            time = 1721770855487L,
             codegenVersion = "1.0.23",
             sourceFile = "packages/services/Car/car-lib/src/android/car/watchdog/IoOveruseStats.java",
             inputSignatures = "private  long mStartTime\nprivate  long mDurationInSeconds\nprivate  long mTotalOveruses\nprivate  long mTotalTimesKilled\nprivate  long mTotalBytesWritten\nprivate  boolean mKillableOnOveruse\nprivate @android.annotation.NonNull android.car.watchdog.PerStateBytes mRemainingWriteBytes\nclass IoOveruseStats extends java.lang.Object implements [android.os.Parcelable]\n@com.android.car.internal.util.DataClass(genToString=true, genHiddenBuilder=true)")

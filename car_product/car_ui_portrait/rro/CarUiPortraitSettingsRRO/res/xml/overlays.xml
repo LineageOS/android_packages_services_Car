@@ -23,6 +23,8 @@
     <item target="attr/state_ux_restricted" value="@attr/state_ux_restricted"/>
 
     <item target="bool/config_top_level_injection_background_always_use_default" value="true" />
+    <item target="bool/config_global_force_single_pane" value="@bool/config_global_force_single_pane" />
+    <item target="bool/config_top_level_enable_chevrons" value="@bool/config_top_level_enable_chevrons" />
 
     <item target="color/icon_color_default" value="@color/top_level_icon_default"/>
     <item target="color/qc_default_icon_color" value="@color/qc_default_icon_color"/>
@@ -48,6 +50,8 @@
     <item target="dimen/bluetooth_device_icon_size" value="@dimen/toggle_button_icon_size"/>
     <item target="dimen/icon_size" value="@dimen/icon_size"/>
     <item target="dimen/top_level_menu_width" value="@dimen/top_level_menu_width"/>
+    <item target="dimen/top_level_recyclerview_margin_right" value="@dimen/top_level_recyclerview_margin_right"/>
+    <item target="dimen/top_level_foreground_icon_inset" value="@dimen/top_level_foreground_icon_inset"/>
 
     <item target="drawable/ic_bluetooth_button" value="@drawable/bluetooth_button"/>
     <item target="drawable/ic_bluetooth_button_unavailable" value="@drawable/bluetooth_button_unavailable"/>
@@ -58,9 +62,19 @@
     <item target="drawable/top_level_preference_background" value="@drawable/top_level_preference_background"/>
     <item target="drawable/top_level_preference_highlight" value="@drawable/top_level_preference_highlight"/>
 
+    <item target="id/checkbox" value="@id/checkbox"/>
+    <item target="id/settings_recycler_view" value="@id/settings_recycler_view"/>
+    <item target="id/settings_car_ui_focus_area" value="@id/settings_car_ui_focus_area"/>
+    <item target="id/top_level_recycler_view" value="@id/top_level_recycler_view"/>
+
+    <item target="layout/preference_dialog_password_edittext" value="@layout/preference_dialog_password_edittext"/>
+    <item target="layout/settings_recyclerview_default" value="@layout/settings_recyclerview_default"/>
     <item target="layout/top_level_preference" value="@layout/top_level_preference"/>
+    <item target="layout/top_level_recyclerview" value="@layout/top_level_recyclerview"/>
 
     <item target="style/CarSettingsActivityDividerStyle" value="@style/CarSettingsActivityDividerStyle" />
     <item target="style/CarSettingsFragmentContainerStyle" value="@style/CarSettingsFragmentContainerStyle" />
     <item target="style/LockPattern" value="@style/LockPattern"/>
+
+    <item target="string/config_homepage_fragment_class" value="@string/config_homepage_fragment_class" />
 </overlay>

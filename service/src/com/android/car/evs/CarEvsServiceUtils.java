@@ -24,6 +24,7 @@ import static android.car.evs.CarEvsManager.SERVICE_TYPE_DRIVERVIEW;
 import static android.car.evs.CarEvsManager.SERVICE_TYPE_FRONT_PASSENGERSVIEW;
 import static android.car.evs.CarEvsManager.SERVICE_TYPE_REAR_PASSENGERSVIEW;
 import static android.car.evs.CarEvsManager.SERVICE_TYPE_USER_DEFINED;
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
 import android.annotation.SystemApi;
 import android.content.ComponentName;
@@ -32,6 +33,7 @@ import android.car.evs.CarEvsManager;
 import android.car.evs.CarEvsManager.CarEvsServiceType;
 import android.car.evs.CarEvsManager.CarEvsStreamEvent;
 
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.evs.CarEvsUtils;
 
 /**
@@ -108,10 +110,10 @@ public final class CarEvsServiceUtils {
 
         @CarEvsServiceType int getType() { return mServiceType; }
         String getCameraId() { return mCameraId; }
-        void setCameraId(String cameraId) { mCameraId = cameraId; }
         ComponentName getActivityComponentName() { return mActivityName; }
 
         @Override
+        @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
         public String toString() {
             return "Parameter serviceType=" + CarEvsUtils.convertToString(mServiceType) +
                    ", cameraId=" + mCameraId + ", activityName=" + mActivityName;

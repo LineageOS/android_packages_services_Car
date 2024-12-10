@@ -159,9 +159,6 @@
     <string name="reset_user" translatable="false">Reset User</string>
     <string name="assign_user" translatable="false">Assign User</string>
     <string name="unassign_user" translatable="false">Unassign User</string>
-    <string name="user_focus_unknown" translatable="false">Audio Focus Unknown</string>
-    <string name="user_has_focus" translatable="false">User Has Audio Focus</string>
-    <string name="user_does_not_have_focus" translatable="false">User Does Not Have Audio Focus</string>
     <string name="allow_passenger_playback_confirmation" translatable="false">Allow Passenger %1$s To Play Audio In Main Cabin?</string>
     <string name="request_result_message" translatable="false">Passenger %1$s %2$s To Play Audio In Main Cabin.</string>
     <string name="accept" translatable="false">Accept</string>
@@ -549,4 +546,9 @@
     <!-- Customization Switch -->
     <string name="customization_tool_switch" translatable="false">Enable the Customization Tool</string>
 
+    <!-- Data Subscription -->
+    <string name="data_subscription_inactive" translatable="false">Inactive</string>
+    <string name="data_subscription_trial" translatable="false">Trial</string>
+    <string name="data_subscription_paid" translatable="false">Paid</string>
+    <string name="data_subscription_message" translatable="false">"Data subscription status is %s</string>
 </resources>

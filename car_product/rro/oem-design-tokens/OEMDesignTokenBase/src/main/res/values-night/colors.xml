@@ -1,0 +1,46 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Copyright (C) 2024 The Android Open Source Project
+
+ Licensed under the Apache License, Version 2.0 (the "license");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "as_is" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+<resources>
+    <color name="color_primary">#Df8C93</color>
+    <color name="color_on_primary">#35040E</color>
+    <color name="color_primary_container">#72333A</color>
+    <color name="color_on_primary_container">#Ffdadb</color>
+    <color name="color_secondary">#C0999C</color>
+    <color name="color_on_secondary">#271113</color>
+    <color name="color_secondary_container">#5C3F41</color>
+    <color name="color_on_secondary_container">#Ffdadb</color>
+    <color name="color_tertiary">#C19D6D</color>
+    <color name="color_on_tertiary">#241400</color>
+    <color name="color_tertiary_container">#5D421B</color>
+    <color name="color_on_tertiary_container">#Ffddb5</color>
+    <color name="color_error">#Ffb4Ab</color>
+    <color name="color_on_error">#690005</color>
+    <color name="color_error_container">#93000A</color>
+    <color name="color_on_error_container">#Ffdad6</color>
+    <color name="color_outline">#9F8C8D</color>
+    <color name="color_background">#1A1112</color>
+    <color name="color_on_background">#F0Dedf</color>
+    <color name="color_surface">#1A1112</color>
+    <color name="color_on_surface">#F0Dedf</color>
+    <color name="color_surface_variant">#524344</color>
+    <color name="color_on_surface_variant">#D7C1C2</color>
+    <color name="color_surface_inverse">#F0Dedf</color>
+    <color name="color_on_surface_inverse">#382E2E</color>
+    <color name="color_primary_inverse">#8F4A51</color>
+    <color name="color_surface_tint">#Ffb2B8</color>
+    <color name="color_outline_variant">#524344</color>
+    <color name="color_scrim">#000000</color>
+</resources>

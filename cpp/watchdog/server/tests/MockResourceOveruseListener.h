@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 
-#ifndef CPP_WATCHDOG_SERVER_TESTS_MOCKRESOURCEOVERUSELISTENER_H_
-#define CPP_WATCHDOG_SERVER_TESTS_MOCKRESOURCEOVERUSELISTENER_H_
+#pragma once
 
 #include <aidl/android/automotive/watchdog/IResourceOveruseListener.h>
 #include <aidl/android/automotive/watchdog/ResourceOveruseStats.h>
@@ -40,5 +39,3 @@ public:
 }  // namespace watchdog
 }  // namespace automotive
 }  // namespace android
-
-#endif  //  CPP_WATCHDOG_SERVER_TESTS_MOCKRESOURCEOVERUSELISTENER_H_

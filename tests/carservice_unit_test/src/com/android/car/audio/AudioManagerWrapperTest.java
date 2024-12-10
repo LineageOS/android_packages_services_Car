@@ -186,9 +186,9 @@ public final class AudioManagerWrapperTest extends AbstractExtendedMockitoTestCa
 
     @Test
     public void setAudioDeviceGain() {
-        expectWithMessage("Volume gain set state")
-                .that(mAudioManagerWrapper
-                        .setAudioDeviceGain(TEST_ADDRESS, TEST_GAIN, TEST_IS_OUTPUT));
+        expectWithMessage("Volume gain set state").that(mAudioManagerWrapper
+                        .setAudioDeviceGain(TEST_ADDRESS, TEST_GAIN, TEST_IS_OUTPUT))
+                .isEqualTo(TEST_GAIN_SET_STATE);
     }
 
     @Test
@@ -406,6 +406,15 @@ public final class AudioManagerWrapperTest extends AbstractExtendedMockitoTestCa
     }
 
     @Test
+    public void isStreamMute() {
+        int stream = AudioManager.STREAM_MUSIC;
+        when(mAudioManager.isStreamMute(stream)).thenReturn(true);
+
+        expectWithMessage("Music stream mute state").that(
+                mAudioManagerWrapper.isStreamMute(stream)).isEqualTo(true);
+    }
+
+    @Test
     public void setParameter() {
         String parameter = "test_parameter:key";
         mAudioManagerWrapper.setParameters(parameter);
@@ -422,6 +431,18 @@ public final class AudioManagerWrapperTest extends AbstractExtendedMockitoTestCa
 
         expectWithMessage("Output audio devices").that(
                 mAudioManagerWrapper.getDevices(GET_DEVICES_OUTPUTS)).isEqualTo(infos);
+    }
+
+    @Test
+    public void getAudioDevicesForAttributes() {
+        AudioDeviceInfo info1 = Mockito.mock(AudioDeviceInfo.class);
+        AudioDeviceInfo info2 = Mockito.mock(AudioDeviceInfo.class);
+        List<AudioDeviceInfo> infos = List.of(info1, info2);
+        when(mAudioManager.getAudioDevicesForAttributes(mTestAudioAttributes)).thenReturn(infos);
+
+        expectWithMessage("Audio devices for attributes").that(
+                mAudioManagerWrapper.getAudioDevicesForAttributes(mTestAudioAttributes))
+                .isEqualTo(infos);
     }
 
     @Test

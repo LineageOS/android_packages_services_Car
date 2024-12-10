@@ -20,8 +20,6 @@ import android.car.hardware.CarPropertyValue;
 
 /**
  * A {@link CarPropertyEventTracker} implementation for on-change property
- *
- * @hide
  */
 public final class OnChangeCarPropertyEventTracker implements CarPropertyEventTracker {
     private static final String TAG = "OnChangeCarPropertyEventTracker";

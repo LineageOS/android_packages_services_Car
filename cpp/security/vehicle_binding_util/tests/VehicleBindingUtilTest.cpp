@@ -128,7 +128,7 @@ protected:
                     std::vector<std::unique_ptr<IHalPropConfig>> configs;
                     VehiclePropConfig config;
                     configs.push_back(std::make_unique<AidlHalPropConfig>(std::move(config)));
-                    return std::move(configs);
+                    return configs;
                 });
     }
 
@@ -175,7 +175,7 @@ TEST_F(VehicleBindingUtilTests, VhalPropertyUnsupported) {
     EXPECT_CALL(*mMockVehicle, getPropConfigs(expectedProps))
             .WillOnce([](const std::vector<int32_t>&) {
                 std::vector<std::unique_ptr<IHalPropConfig>> configs;
-                return std::move(configs);
+                return configs;
             });
 
     EXPECT_EQ(BindingStatus::NOT_SUPPORTED,

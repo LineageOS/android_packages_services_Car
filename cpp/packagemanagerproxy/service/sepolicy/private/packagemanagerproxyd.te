@@ -1,0 +1,34 @@
+# Define the packagemanagerpoxyd type
+type packagemanagerproxyd, domain;
+
+# Add to the coredomain since it lives in /system_ext
+typeattribute packagemanagerproxyd coredomain;
+
+typeattribute packagemanagerproxyd mlstrustedsubject;
+
+# Use the attribytes of packagemanagerproxy_server
+typeattribute packagemanagerproxyd packagemanagerproxy_server;
+
+# Declare the exec type
+type packagemanagerproxyd_exec, exec_type, system_file_type, file_type;
+
+# Allow packagemanagerproxyd to be launced by init
+init_daemon_domain(packagemanagerproxyd)
+
+# Allow use of Binder IPCs
+binder_use(packagemanagerproxyd)
+
+# The packagemanagerproxy server can call the system_server
+binder_call(packagemanagerproxy_server, system_server)
+
+# Allow the packagemanagerproxy server to find the package_native_service
+allow packagemanagerproxy_server package_native_service:service_manager find;
+
+# The packagemanagerproxy server can register the IPackageMangerProxy Binder IPC service.
+add_service(packagemanagerproxy_server, packagemanagerproxyd_service)
+
+# The packagemanagerproxy client can call the server via Binder IPC.
+binder_call(packagemanagerproxy_client, packagemanagerproxy_server)
+
+# The packagemanagerproxy client has access to the IPackageMangerProxy Binder IPC service.
+allow packagemanagerproxy_client packagemanagerproxyd_service:service_manager find;

@@ -47,7 +47,6 @@ java_defaults {
     ],
 
     stub_only_libs: [
-        "framework-bluetooth",
         "framework-annotations-lib",
     ],
 }
@@ -58,16 +57,27 @@ java_sdk_library {
 
     defaults: ["android.car.builtin-defaults"],
 
+    public: {
+        libs: [
+            "framework-bluetooth.stubs",
+        ],
+    },
     test: {
         enabled: false,
     },
     system: {
         enabled: true,
         sdk_version: "module_current",
+        libs: [
+            "framework-bluetooth.stubs.module_lib",
+        ],
     },
     module_lib: {
         enabled: true,
         sdk_version: "module_current",
+        libs: [
+            "framework-bluetooth.stubs.module_lib",
+        ],
     },
 
     // Only allowed car modules only. Allowed to add tests here.
@@ -79,10 +89,11 @@ java_sdk_library {
         "//packages/services/Car/libs/procfs-inspector/client",
         "//packages/services/Car/service-builtin",
         "//packages/services/Car/service",
+        "//packages/services/Car/tests/CarBuiltinLibUnitTest",
         "//packages/services/Car/tests/CarLibUnitTest:__subpackages__",
-        "//packages/services/Car/tests/carservice_test",
+        "//packages/services/Car/tests/CarServiceTest:__subpackages__",
         "//packages/services/Car/tests/carservice_unit_test",
-        "//packages/services/Car/cpp/watchdog/car-watchdog-lib",
+        "//packages/services/Car/libs/car-watchdog-lib",
         "//cts/tests/tests/car_builtin",
         "//frameworks/opt/car/services/builtInServices",
         "//frameworks/opt/car/services/builtInServices/tests",

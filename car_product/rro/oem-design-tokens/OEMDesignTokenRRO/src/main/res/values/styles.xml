@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2024 The Android Open Source Project
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+<resources>
+    <style name="OemStyle">
+        <item name="com.android.oem.tokens:colorPrimary">@color/color_primary</item>
+        <item name="com.android.oem.tokens:colorOnPrimary">@color/color_on_primary</item>
+        <item name="com.android.oem.tokens:colorPrimaryContainer">@color/color_primary_container</item>
+        <item name="com.android.oem.tokens:colorOnPrimaryContainer">@color/color_on_primary_container</item>
+        <item name="com.android.oem.tokens:colorSecondary">@color/color_secondary</item>
+        <item name="com.android.oem.tokens:colorOnSecondary">@color/color_on_secondary</item>
+        <item name="com.android.oem.tokens:colorSecondaryContainer">@color/color_secondary_container</item>
+        <item name="com.android.oem.tokens:colorOnSecondaryContainer">@color/color_on_secondary_container</item>
+        <item name="com.android.oem.tokens:colorTertiary">@color/color_tertiary</item>
+        <item name="com.android.oem.tokens:colorOnTertiary">@color/color_on_tertiary</item>
+        <item name="com.android.oem.tokens:colorTertiaryContainer">@color/color_tertiary_container</item>
+        <item name="com.android.oem.tokens:colorOnTertiaryContainer">@color/color_on_tertiary_container</item>
+        <item name="com.android.oem.tokens:colorError">@color/color_error</item>
+        <item name="com.android.oem.tokens:colorOnError">@color/color_on_error</item>
+        <item name="com.android.oem.tokens:colorErrorContainer">@color/color_error_container</item>
+        <item name="com.android.oem.tokens:colorOnErrorContainer">@color/color_on_error_container</item>
+        <item name="com.android.oem.tokens:colorOutline">@color/color_outline</item>
+        <item name="com.android.oem.tokens:colorBackground">@color/color_background</item>
+        <item name="com.android.oem.tokens:colorOnBackground">@color/color_on_background</item>
+        <item name="com.android.oem.tokens:colorSurface">@color/color_surface</item>
+        <item name="com.android.oem.tokens:colorOnSurface">@color/color_on_surface</item>
+        <item name="com.android.oem.tokens:colorSurfaceVariant">@color/color_surface_variant</item>
+        <item name="com.android.oem.tokens:colorOnSurfaceVariant">@color/color_on_surface_variant</item>
+        <item name="com.android.oem.tokens:colorSurfaceInverse">@color/color_surface_inverse</item>
+        <item name="com.android.oem.tokens:colorOnSurfaceInverse">@color/color_on_surface_inverse</item>
+        <item name="com.android.oem.tokens:colorPrimaryInverse">@color/color_primary_inverse</item>
+        <item name="com.android.oem.tokens:colorSurfaceTint">@color/color_surface_tint</item>
+        <item name="com.android.oem.tokens:colorOutlineVariant">@color/color_outline_variant</item>
+        <item name="com.android.oem.tokens:colorScrim">@color/color_scrim</item>
+
+        <item name="com.android.oem.tokens:colorPrimaryPalette0">@color/color_primary_palette_0</item>
+        <item name="com.android.oem.tokens:colorPrimaryPalette10">@color/color_primary_palette_10</item>
+        <item name="com.android.oem.tokens:colorPrimaryPalette20">@color/color_primary_palette_20</item>
+        <item name="com.android.oem.tokens:colorPrimaryPalette30">@color/color_primary_palette_30</item>
+        <item name="com.android.oem.tokens:colorPrimaryPalette40">@color/color_primary_palette_40</item>
+        <item name="com.android.oem.tokens:colorPrimaryPalette50">@color/color_primary_palette_50</item>
+        <item name="com.android.oem.tokens:colorPrimaryPalette60">@color/color_primary_palette_60</item>
+        <item name="com.android.oem.tokens:colorPrimaryPalette70">@color/color_primary_palette_70</item>
+        <item name="com.android.oem.tokens:colorPrimaryPalette80">@color/color_primary_palette_80</item>
+        <item name="com.android.oem.tokens:colorPrimaryPalette90">@color/color_primary_palette_90</item>
+        <item name="com.android.oem.tokens:colorPrimaryPalette95">@color/color_primary_palette_95</item>
+        <item name="com.android.oem.tokens:colorPrimaryPalette99">@color/color_primary_palette_99</item>
+        <item name="com.android.oem.tokens:colorPrimaryPalette100">@color/color_primary_palette_100</item>
+
+        <item name="com.android.oem.tokens:colorSecondaryPalette0">@color/color_secondary_palette_0</item>
+        <item name="com.android.oem.tokens:colorSecondaryPalette10">@color/color_secondary_palette_10</item>
+        <item name="com.android.oem.tokens:colorSecondaryPalette20">@color/color_secondary_palette_20</item>
+        <item name="com.android.oem.tokens:colorSecondaryPalette30">@color/color_secondary_palette_30</item>
+        <item name="com.android.oem.tokens:colorSecondaryPalette40">@color/color_secondary_palette_40</item>
+        <item name="com.android.oem.tokens:colorSecondaryPalette50">@color/color_secondary_palette_50</item>
+        <item name="com.android.oem.tokens:colorSecondaryPalette60">@color/color_secondary_palette_60</item>
+        <item name="com.android.oem.tokens:colorSecondaryPalette70">@color/color_secondary_palette_70</item>
+        <item name="com.android.oem.tokens:colorSecondaryPalette80">@color/color_secondary_palette_80</item>
+        <item name="com.android.oem.tokens:colorSecondaryPalette90">@color/color_secondary_palette_90</item>
+        <item name="com.android.oem.tokens:colorSecondaryPalette95">@color/color_secondary_palette_95</item>
+        <item name="com.android.oem.tokens:colorSecondaryPalette99">@color/color_secondary_palette_99</item>
+        <item name="com.android.oem.tokens:colorSecondaryPalette100">@color/color_secondary_palette_100</item>
+
+        <item name="com.android.oem.tokens:colorTertiaryPalette0">@color/color_tertiary_palette_0</item>
+        <item name="com.android.oem.tokens:colorTertiaryPalette10">@color/color_tertiary_palette_10</item>
+        <item name="com.android.oem.tokens:colorTertiaryPalette20">@color/color_tertiary_palette_20</item>
+        <item name="com.android.oem.tokens:colorTertiaryPalette30">@color/color_tertiary_palette_30</item>
+        <item name="com.android.oem.tokens:colorTertiaryPalette40">@color/color_tertiary_palette_40</item>
+        <item name="com.android.oem.tokens:colorTertiaryPalette50">@color/color_tertiary_palette_50</item>
+        <item name="com.android.oem.tokens:colorTertiaryPalette60">@color/color_tertiary_palette_60</item>
+        <item name="com.android.oem.tokens:colorTertiaryPalette70">@color/color_tertiary_palette_70</item>
+        <item name="com.android.oem.tokens:colorTertiaryPalette80">@color/color_tertiary_palette_80</item>
+        <item name="com.android.oem.tokens:colorTertiaryPalette90">@color/color_tertiary_palette_90</item>
+        <item name="com.android.oem.tokens:colorTertiaryPalette95">@color/color_tertiary_palette_95</item>
+        <item name="com.android.oem.tokens:colorTertiaryPalette99">@color/color_tertiary_palette_99</item>
+        <item name="com.android.oem.tokens:colorTertiaryPalette100">@color/color_tertiary_palette_100</item>
+
+        <item name="com.android.oem.tokens:colorNeutralPalette0">@color/color_neutral_palette_0</item>
+        <item name="com.android.oem.tokens:colorNeutralPalette10">@color/color_neutral_palette_10</item>
+        <item name="com.android.oem.tokens:colorNeutralPalette20">@color/color_neutral_palette_20</item>
+        <item name="com.android.oem.tokens:colorNeutralPalette30">@color/color_neutral_palette_30</item>
+        <item name="com.android.oem.tokens:colorNeutralPalette40">@color/color_neutral_palette_40</item>
+        <item name="com.android.oem.tokens:colorNeutralPalette50">@color/color_neutral_palette_50</item>
+        <item name="com.android.oem.tokens:colorNeutralPalette60">@color/color_neutral_palette_60</item>
+        <item name="com.android.oem.tokens:colorNeutralPalette70">@color/color_neutral_palette_70</item>
+        <item name="com.android.oem.tokens:colorNeutralPalette80">@color/color_neutral_palette_80</item>
+        <item name="com.android.oem.tokens:colorNeutralPalette90">@color/color_neutral_palette_90</item>
+        <item name="com.android.oem.tokens:colorNeutralPalette95">@color/color_neutral_palette_95</item>
+        <item name="com.android.oem.tokens:colorNeutralPalette99">@color/color_neutral_palette_99</item>
+        <item name="com.android.oem.tokens:colorNeutralPalette100">@color/color_neutral_palette_100</item>
+
+        <item name="com.android.oem.tokens:colorNeutralVariantPalette0">@color/color_neutral_variant_palette_0</item>
+        <item name="com.android.oem.tokens:colorNeutralVariantPalette10">@color/color_neutral_variant_palette_10</item>
+        <item name="com.android.oem.tokens:colorNeutralVariantPalette20">@color/color_neutral_variant_palette_20</item>
+        <item name="com.android.oem.tokens:colorNeutralVariantPalette30">@color/color_neutral_variant_palette_30</item>
+        <item name="com.android.oem.tokens:colorNeutralVariantPalette40">@color/color_neutral_variant_palette_40</item>
+        <item name="com.android.oem.tokens:colorNeutralVariantPalette50">@color/color_neutral_variant_palette_50</item>
+        <item name="com.android.oem.tokens:colorNeutralVariantPalette60">@color/color_neutral_variant_palette_60</item>
+        <item name="com.android.oem.tokens:colorNeutralVariantPalette70">@color/color_neutral_variant_palette_70</item>
+        <item name="com.android.oem.tokens:colorNeutralVariantPalette80">@color/color_neutral_variant_palette_80</item>
+        <item name="com.android.oem.tokens:colorNeutralVariantPalette90">@color/color_neutral_variant_palette_90</item>
+        <item name="com.android.oem.tokens:colorNeutralVariantPalette95">@color/color_neutral_variant_palette_95</item>
+        <item name="com.android.oem.tokens:colorNeutralVariantPalette99">@color/color_neutral_variant_palette_99</item>
+        <item name="com.android.oem.tokens:colorNeutralVariantPalette100">@color/color_neutral_variant_palette_100</item>
+
+        <item name="com.android.oem.tokens:textAppearanceDisplayLarge">@style/TextAppearance.Display.Large</item>
+        <item name="com.android.oem.tokens:textAppearanceDisplayMedium">@style/TextAppearance.Display.Medium</item>
+        <item name="com.android.oem.tokens:textAppearanceDisplaySmall">@style/TextAppearance.Display.Small</item>
+        <item name="com.android.oem.tokens:textAppearanceHeadlineLarge">@style/TextAppearance.Headline.Large</item>
+        <item name="com.android.oem.tokens:textAppearanceHeadlineMedium">@style/TextAppearance.Headline.Medium</item>
+        <item name="com.android.oem.tokens:textAppearanceHeadlineSmall">@style/TextAppearance.Headline.Small</item>
+        <item name="com.android.oem.tokens:textAppearanceTitleLarge">@style/TextAppearance.Title.Large</item>
+        <item name="com.android.oem.tokens:textAppearanceTitleMedium">@style/TextAppearance.Title.Medium</item>
+        <item name="com.android.oem.tokens:textAppearanceTitleSmall">@style/TextAppearance.Title.Small</item>
+        <item name="com.android.oem.tokens:textAppearanceLabelLarge">@style/TextAppearance.Label.Large</item>
+        <item name="com.android.oem.tokens:textAppearanceLabelMedium">@style/TextAppearance.Label.Medium</item>
+        <item name="com.android.oem.tokens:textAppearanceLabelSmall">@style/TextAppearance.Label.Small</item>
+        <item name="com.android.oem.tokens:textAppearanceBodyLarge">@style/TextAppearance.Body.Large</item>
+        <item name="com.android.oem.tokens:textAppearanceBodyMedium">@style/TextAppearance.Body.Medium</item>
+        <item name="com.android.oem.tokens:textAppearanceBodySmall">@style/TextAppearance.Body.Small</item>
+
+        <item name="com.android.oem.tokens:shapeCornerNone">@dimen/shape_corner_none</item>
+        <item name="com.android.oem.tokens:shapeCornerExtraSmall">@dimen/shape_corner_extra_small</item>
+        <item name="com.android.oem.tokens:shapeCornerSmall">@dimen/shape_corner_small</item>
+        <item name="com.android.oem.tokens:shapeCornerMedium">@dimen/shape_corner_medium</item>
+        <item name="com.android.oem.tokens:shapeCornerLarge">@dimen/shape_corner_large</item>
+        <item name="com.android.oem.tokens:shapeCornerExtraLarge">@dimen/shape_corner_extra_large</item>
+        <item name="com.android.oem.tokens:shapeCornerFull">@dimen/shape_corner_full</item>
+    </style>
+</resources>

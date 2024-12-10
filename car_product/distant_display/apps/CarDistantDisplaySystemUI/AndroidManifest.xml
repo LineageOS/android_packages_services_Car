@@ -47,7 +47,7 @@
     <protected-broadcast android:name="REQUEST_FROM_SYSTEM_UI" />
     <application
         tools:replace="android:appComponentFactory"
-        android:appComponentFactory="com.android.systemui.SystemUIAppComponentFactory">
+        android:appComponentFactory="com.android.systemui.CarDistantDisplaySystemUIAppComponentFactory">
         <activity
             android:name=".car.distantdisplay.activity.DistantDisplayCompanionActivity"
             android:documentLaunchMode="always"

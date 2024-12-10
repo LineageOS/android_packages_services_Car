@@ -20,8 +20,6 @@ import android.os.Binder;
 
 /**
  * A real implementation for {@link com.android.car.internal.StaticBinderInterface}.
- *
- * @hide
  */
 public final class SystemStaticBinder implements StaticBinderInterface {
     @Override

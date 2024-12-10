@@ -23,20 +23,16 @@ import android.os.Process;
 
 /**
  * Represent an Android permission.
- *
- * @hide
  */
 public class CarPermission {
     private final Context mContext;
     private final String mName;
 
-    /** @hide */
     public CarPermission(Context context, String name) {
         mContext = context;
         mName = name;
     }
 
-    /** @hide */
     public boolean checkGranted() {
         if (mName != null) {
             if (Binder.getCallingUid() != Process.myUid()) {
@@ -47,7 +43,6 @@ public class CarPermission {
         return true;
     }
 
-    /** @hide */
     public void assertGranted() {
         if (checkGranted()) return;
         throw new SecurityException(
@@ -59,7 +54,6 @@ public class CarPermission {
                         + Binder.getCallingUid());
     }
 
-    /** @hide */
     @Override
     public String toString() {
         return mName;

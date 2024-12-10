@@ -48,6 +48,7 @@ public final class CustomInputEventListener {
             "com.android.car.custominput.sample.driverui.action";
     private static final String NOTIFY_DRIVER_UI_EXTRA_KEY = "NOTIFY_DRIVER_UI_EXTRA_KEY";
     private static final String NOTIFY_DRIVER_UI_MOVE_NAV_VIEW = "MOVE_NAV_VIEW";
+    private static final String NOTIFY_DRIVER_UI_WIDGET_MODE = "WIDGET_MODE";
 
     private final SampleCustomInputService mService;
     private final Context mContext;
@@ -90,6 +91,9 @@ public final class CustomInputEventListener {
 
         /** Notify DriverUi to move the navigation view */
         int DRIVER_UI_MOVE_NAVIGATION_VIEW = 1011;
+
+        /** Notify DriverUi to update widget mode */
+        int DRIVER_UI_UPDATE_WIDGET_MODE = 1012;
     }
 
     public CustomInputEventListener(
@@ -145,6 +149,8 @@ public final class CustomInputEventListener {
             case EventAction.DRIVER_UI_MOVE_NAVIGATION_VIEW:
                 notifyDriverUi(NOTIFY_DRIVER_UI_MOVE_NAV_VIEW);
                 break;
+            case EventAction.DRIVER_UI_UPDATE_WIDGET_MODE:
+                notifyDriverUi(NOTIFY_DRIVER_UI_WIDGET_MODE);
             default:
                 Log.e(TAG, "Ignoring event [" + action + "]");
         }
@@ -183,7 +189,6 @@ public final class CustomInputEventListener {
         }
         Intent driveUiIntent = new Intent(NOTIFY_DRIVER_UI_ACTION);
         driveUiIntent.putExtra(NOTIFY_DRIVER_UI_EXTRA_KEY, action);
-        driveUiIntent.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
         mService.sendBroadcast(driveUiIntent);
     }
 

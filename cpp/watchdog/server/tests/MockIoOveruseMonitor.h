@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 
-#ifndef CPP_WATCHDOG_SERVER_TESTS_MOCKIOOVERUSEMONITOR_H_
-#define CPP_WATCHDOG_SERVER_TESTS_MOCKIOOVERUSEMONITOR_H_
+#pragma once
 
 #include "IoOveruseMonitor.h"
 #include "MockDataProcessor.h"
@@ -69,5 +68,3 @@ public:
 }  // namespace watchdog
 }  // namespace automotive
 }  // namespace android
-
-#endif  //  CPP_WATCHDOG_SERVER_TESTS_MOCKIOOVERUSEMONITOR_H_

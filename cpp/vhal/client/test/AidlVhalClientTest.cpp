@@ -249,18 +249,36 @@ protected:
                                     [[maybe_unused]] AIBinder_DeathRecipient* recipient,
                                     void* cookie) override {
             mCookie = cookie;
+            mDeathRecipient = recipient;
             return STATUS_OK;
         }
 
-        binder_status_t unlinkToDeath(AIBinder*, AIBinder_DeathRecipient*, void*) override {
-            // DO nothing.
-            return STATUS_OK;
+        void deleteDeathRecipient(AIBinder_DeathRecipient* recipient) override {
+            if (mDeathRecipient == recipient) {
+                triggerBinderUnlinked();
+            }
+        }
+
+        void setOnUnlinked([[maybe_unused]] AIBinder_DeathRecipient* recipient,
+                           AIBinder_DeathRecipient_onBinderUnlinked onUnlinked) override {
+            mOnUnlinked = onUnlinked;
         }
 
         void* getCookie() { return mCookie; }
 
+        void triggerBinderUnlinked() {
+            if (mDeathRecipient == nullptr) {
+                // Already unlinked, do nothing.
+                return;
+            }
+            (*mOnUnlinked)(mCookie);
+            mDeathRecipient = nullptr;
+        }
+
     private:
         void* mCookie;
+        AIBinder_DeathRecipient_onBinderUnlinked mOnUnlinked;
+        AIBinder_DeathRecipient* mDeathRecipient;
     };
 
     constexpr static int32_t TEST_PROP_ID = 1;
@@ -284,9 +302,10 @@ protected:
 
     MockVhal* getVhal() { return mVhal.get(); }
 
-    void triggerBinderDied() { AidlVhalClient::onBinderDied(mLinkUnlinkImpl->getCookie()); }
-
-    void triggerBinderUnlinked() { AidlVhalClient::onBinderUnlinked(mLinkUnlinkImpl->getCookie()); }
+    void triggerBinderDied() {
+        AidlVhalClient::onBinderDied(mLinkUnlinkImpl->getCookie());
+        mLinkUnlinkImpl->triggerBinderUnlinked();
+    }
 
     size_t countOnBinderDiedCallbacks() { return mVhalClient->countOnBinderDiedCallbacks(); }
 
@@ -774,8 +793,6 @@ TEST_F(AidlVhalClientTest, testAddOnBinderDiedCallback) {
     ASSERT_TRUE(result.callbackOneCalled);
     ASSERT_TRUE(result.callbackTwoCalled);
 
-    triggerBinderUnlinked();
-
     ASSERT_EQ(countOnBinderDiedCallbacks(), static_cast<size_t>(0));
 }
 
@@ -796,9 +813,6 @@ TEST_F(AidlVhalClientTest, testRemoveOnBinderDiedCallback) {
 
     ASSERT_FALSE(result.callbackOneCalled);
     ASSERT_TRUE(result.callbackTwoCalled);
-
-    triggerBinderUnlinked();
-
     ASSERT_EQ(countOnBinderDiedCallbacks(), static_cast<size_t>(0));
 }
 

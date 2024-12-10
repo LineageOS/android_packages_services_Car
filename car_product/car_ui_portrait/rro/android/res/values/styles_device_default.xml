@@ -244,6 +244,12 @@
         <item name="android:textColor">@color/car_on_background</item>
     </style>
 
+    <style name="Widget.DeviceDefault.CompoundButton.RadioButton"
+        parent="android:Widget.Material.CompoundButton.RadioButton">
+        <item name="android:button">@drawable/car_radio_button</item>
+        <item name="android:textColor">@color/car_on_surface</item>
+    </style>
+
     <!-- Preference Styles -->
     <style name="Preference.DeviceDefault" parent="*android:Preference.Material">
         <item name="android:layout">@*android:layout/car_preference</item>

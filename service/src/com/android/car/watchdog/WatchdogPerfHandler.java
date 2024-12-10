@@ -128,6 +128,7 @@ import com.android.car.CarUxRestrictionsManagerService;
 import com.android.car.R;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.NotificationHelperBase;
+import com.android.car.internal.dep.Trace;
 import com.android.car.internal.util.ConcurrentUtils;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;
@@ -349,11 +350,13 @@ public final class WatchdogPerfHandler {
             // Set atom pull callbacks only after the internal datastructures are updated. When the
             // pull happens, the service is already initialized and ready to populate the pulled
             // atoms.
+            Trace.beginSection("WatchdogPerfHandler-setting-atoms");
             StatsManager statsManager = mContext.getSystemService(StatsManager.class);
             statsManager.setPullAtomCallback(CAR_WATCHDOG_SYSTEM_IO_USAGE_SUMMARY,
                     PULL_ATOM_METADATA, ConcurrentUtils.DIRECT_EXECUTOR, this::onPullAtom);
             statsManager.setPullAtomCallback(CAR_WATCHDOG_UID_IO_USAGE_SUMMARY,
                     PULL_ATOM_METADATA, ConcurrentUtils.DIRECT_EXECUTOR, this::onPullAtom);
+            Trace.endSection();
         });
 
         CarUxRestrictionsManagerService carUxRestrictionsManagerService =
@@ -487,37 +490,43 @@ public final class WatchdogPerfHandler {
         }
     }
 
-
     /** Retries any pending requests on re-connecting to the daemon */
     public void onDaemonConnectionChange(boolean isConnected) {
+        Trace.beginSection("WatchdogPerfHandler-daemonConnectionChanged-" + isConnected);
         boolean hasPendingRequest;
         synchronized (mLock) {
             mIsConnectedToDaemon = isConnected;
             hasPendingRequest = mPendingSetResourceOveruseConfigurationsRequest != null;
-        }
-        if (isConnected) {
-            if (hasPendingRequest) {
-                /*
-                 * Retry pending set resource overuse configuration request before processing any
-                 * new set/get requests. Thus notify the waiting requests only after the retry
-                 * completes.
-                 */
-                retryPendingSetResourceOveruseConfigurations();
-            } else {
-                /* Start fetch/sync configs only when there are no pending set requests because the
-                 * above retry starts fetch/sync configs on success. If the retry fails, the daemon
-                 * has crashed and shouldn't start fetchAndSyncResourceOveruseConfigurations.
-                 */
-                mMainHandler.post(this::fetchAndSyncResourceOveruseConfigurations);
+            if (isConnected) {
+                if (hasPendingRequest) {
+                    /*
+                     * Retry pending set resource overuse configuration request before processing
+                     * any new set/get requests. Thus notify the waiting requests only after the
+                     * retry completes.
+                     *
+                     * Note: Binder call to CarWatchdog daemon being made while holding the lock.
+                     * It is necessary to avoid isConnectedToDaemon() method from early exiting
+                     * because of interrupts or spurious wakeups.
+                     */
+                    retryPendingSetResourceOveruseConfigurations();
+                } else {
+                    /*
+                     * Start fetch/sync configs only when there are no pending set requests because
+                     * the above retry starts fetch/sync configs on success. If the retry fails,
+                     * the daemon has crashed and shouldn't start
+                     * fetchAndSyncResourceOveruseConfigurations.
+                     */
+                    mMainHandler.post(this::fetchAndSyncResourceOveruseConfigurations);
+                }
             }
-        }
-        synchronized (mLock) {
             mLock.notifyAll();
         }
+        Trace.endSection();
     }
 
     /** Updates the current UX state based on the display state. */
     public void onDisplayStateChanged(boolean isEnabled) {
+        Trace.beginSection("WatchdogPerfHandler-displayStateChanged-" + isEnabled);
         synchronized (mLock) {
             if (isEnabled) {
                 mCurrentUxState = UX_STATE_NO_DISTRACTION;
@@ -527,10 +536,12 @@ public final class WatchdogPerfHandler {
                 performOveruseHandlingLocked();
             }
         }
+        Trace.endSection();
     }
 
     /** Handles garage mode change. */
     public void onGarageModeChange(@GarageMode int garageMode) {
+        Trace.beginSection("WatchdogPerfHandler-garageModeChanged-" + garageMode);
         synchronized (mLock) {
             mCurrentGarageMode = garageMode;
             if (mCurrentGarageMode == GarageMode.GARAGE_MODE_ON) {
@@ -538,6 +549,7 @@ public final class WatchdogPerfHandler {
                 performOveruseHandlingLocked();
             }
         }
+        Trace.endSection();
     }
 
     /** Returns resource overuse stats for the calling package. */
@@ -694,7 +706,10 @@ public final class WatchdogPerfHandler {
         }
         int userId = userHandle.getIdentifier();
         String genericPackageName = mPackageInfoHandler.getNameForUserPackage(packageName, userId);
+        Trace.beginSection("WatchdogPerfHandler-setKillable: " + packageName + ":" + userId + " : "
+                + isKillable);
         if (genericPackageName == null) {
+            Trace.endSection();
             throw new IllegalArgumentException("Package '" + packageName + "' not found");
         }
         String key = getUserPackageUniqueId(userId, genericPackageName);
@@ -716,6 +731,7 @@ public final class WatchdogPerfHandler {
             if (!usage.verifyAndSetKillableState(isKillable, mTimeSource.getCurrentDate())) {
                 Slogf.e(TAG, "User %d cannot set killable state for package '%s'",
                         userHandle.getIdentifier(), genericPackageName);
+                Trace.endSection();
                 throw new IllegalArgumentException("Package killable state is not updatable");
             }
             mUsageByUserPackage.put(key, usage);
@@ -728,9 +744,12 @@ public final class WatchdogPerfHandler {
         if (DEBUG) {
             Slogf.d(TAG, "Successfully set killable package state for user %d", userId);
         }
+        Trace.endSection();
     }
 
     private void setPackageKillableStateForAllUsers(String packageName, boolean isKillable) {
+        Trace.beginSection(
+                "WatchdogPerfHandler-setKillableForAllUsers: " + packageName + " : " + isKillable);
         int[] userIds = getAliveUserIds();
         String genericPackageName = null;
         List<PackageResourceUsage> updatedUsages = new ArrayList<>(userIds.length);
@@ -749,6 +768,7 @@ public final class WatchdogPerfHandler {
                 }
                 if (!usage.verifyAndSetKillableState(isKillable, mTimeSource.getCurrentDate())) {
                     Slogf.e(TAG, "Cannot set killable state for package '%s'", packageName);
+                    Trace.endSection();
                     throw new IllegalArgumentException(
                             "Package killable state is not updatable");
                 }
@@ -776,6 +796,7 @@ public final class WatchdogPerfHandler {
         if (DEBUG) {
             Slogf.d(TAG, "Successfully set killable package state for all users");
         }
+        Trace.endSection();
     }
 
     /** Returns the list of package killable states on resource overuse for the user. */
@@ -928,6 +949,7 @@ public final class WatchdogPerfHandler {
     }
 
     private void latestIoOveruseStatsInternal(List<PackageIoOveruseStats> packageIoOveruseStats) {
+        Trace.beginSection("WatchdogPerfHandler.latestIoOveruseStatsInternal");
         int[] uids = new int[packageIoOveruseStats.size()];
         for (int i = 0; i < packageIoOveruseStats.size(); ++i) {
             uids[i] = packageIoOveruseStats.get(i).uid;
@@ -990,11 +1012,13 @@ public final class WatchdogPerfHandler {
         if (DEBUG) {
             Slogf.d(TAG, "Processed latest I/O overuse stats");
         }
+        Trace.endSection();
     }
 
     /** Resets the resource overuse settings and stats for the given generic package names. */
     public void resetResourceOveruseStats(Set<String> genericPackageNames) {
         mServiceHandler.post(() -> {
+            Trace.beginSection("WatchdogPerfHandler.resetResourceOveruseStats");
             synchronized (mLock) {
                 mIsHeadsUpNotificationSent = false;
                 for (int i = 0; i < mUsageByUserPackage.size(); ++i) {
@@ -1022,6 +1046,7 @@ public final class WatchdogPerfHandler {
                     enablePackageForUser(usage.getUid(), usage.genericPackageName);
                 }
             }
+            Trace.endSection();
         });
     }
 
@@ -1031,17 +1056,20 @@ public final class WatchdogPerfHandler {
      */
     public void asyncFetchTodayIoUsageStats() {
         mServiceHandler.post(() -> {
+            Trace.beginSection("WatchdogPerfHandler.asyncFetchTodayIoUsageStats");
             List<UserPackageIoUsageStats> todayIoUsageStats = getTodayIoUsageStats();
             try {
                 mCarWatchdogDaemonHelper.onTodayIoUsageStatsFetched(todayIoUsageStats);
             } catch (RemoteException e) {
                 Slogf.w(TAG, e, "Failed to send today's I/O usage stats to daemon.");
             }
+            Trace.endSection();
         });
     }
 
     /** Returns today's I/O usage stats for all packages collected during the previous boot. */
     public List<UserPackageIoUsageStats> getTodayIoUsageStats() {
+        Trace.beginSection("WatchdogPerfHandler.getTodayIoUsageStats");
         List<UserPackageIoUsageStats> userPackageIoUsageStats = new ArrayList<>();
         List<WatchdogStorage.IoUsageStatsEntry> entries = mWatchdogStorage.getTodayIoUsageStats();
         for (int i = 0; i < entries.size(); ++i) {
@@ -1057,6 +1085,7 @@ public final class WatchdogPerfHandler {
             stats.ioUsageStats.totalOveruses = internalIoUsage.totalOveruses;
             userPackageIoUsageStats.add(stats);
         }
+        Trace.endSection();
         return userPackageIoUsageStats;
     }
 
@@ -1087,6 +1116,7 @@ public final class WatchdogPerfHandler {
                     packageName, userHandle);
             return;
         }
+        Trace.beginSection("WatchdogPerfHandler-userNotification-" + action);
         switch (action) {
             case CAR_WATCHDOG_ACTION_RESOURCE_OVERUSE_DISABLE_APP:
                 disablePackageForUser(packageName, userHandle.getIdentifier());
@@ -1110,11 +1140,13 @@ public final class WatchdogPerfHandler {
                 break;
             default:
                 Slogf.e(TAG, "Skipping invalid user notification intent action: %s", action);
+                Trace.endSection();
                 return;
         }
 
         if (notificationId == -1) {
             Slogf.e(TAG, "Didn't received user notification id in action %s", action);
+            Trace.endSection();
             return;
         }
 
@@ -1124,6 +1156,7 @@ public final class WatchdogPerfHandler {
                 || notificationId > maxNotificationId) {
             Slogf.e(TAG, "Notification id (%d) outside of reserved IDs (%d - %d) for car watchdog.",
                     notificationId, mResourceOveruseNotificationBaseId, maxNotificationId);
+            Trace.endSection();
             return;
         }
 
@@ -1143,6 +1176,7 @@ public final class WatchdogPerfHandler {
             Slogf.d(TAG, "Successfully canceled notification id %d for user %s and package %s",
                     notificationId, userHandle, packageName);
         }
+        Trace.endSection();
     }
 
     /** Handles when system broadcast package changed action */
@@ -1153,9 +1187,11 @@ public final class WatchdogPerfHandler {
             return;
         }
         String packageName = intent.getData().getSchemeSpecificPart();
+        Trace.beginSection("WatchdogPerfHandler-packageChanged: " + packageName);
         try {
             if (PackageManagerHelper.getApplicationEnabledSettingForUser(packageName, userId)
                     != COMPONENT_ENABLED_STATE_ENABLED) {
+                Trace.endSection();
                 return;
             }
         } catch (Exception e) {
@@ -1166,11 +1202,13 @@ public final class WatchdogPerfHandler {
             Slogf.e(TAG, e,
                     "Failed to verify enabled setting for user %d, package '%s'",
                     userId, packageName);
+            Trace.endSection();
             return;
         }
         synchronized (mLock) {
             ArraySet<String> disabledPackages = mDisabledUserPackagesByUserId.get(userId);
             if (disabledPackages == null || !disabledPackages.contains(packageName)) {
+                Trace.endSection();
                 return;
             }
             removeFromDisabledPackagesSettingsStringLocked(packageName, userId);
@@ -1182,13 +1220,16 @@ public final class WatchdogPerfHandler {
         if (DEBUG) {
             Slogf.d(TAG, "Successfully enabled package due to package changed action");
         }
+        Trace.endSection();
     }
 
     /** Disables a package for specific user until used. */
     public boolean disablePackageForUser(String packageName, @UserIdInt int userId) {
+        Trace.beginSection("WatchdogPerfHandler-disablePackage: " + packageName);
         synchronized (mLock) {
             ArraySet<String> disabledPackages = mDisabledUserPackagesByUserId.get(userId);
             if (disabledPackages != null && disabledPackages.contains(packageName)) {
+                Trace.endSection();
                 return true;
             }
         }
@@ -1202,6 +1243,7 @@ public final class WatchdogPerfHandler {
                     Slogf.w(TAG, "Unable to disable application for user %d, package '%s' as the "
                             + "current enabled state is %s", userId, packageName,
                             toEnabledStateString(currentEnabledState));
+                    Trace.endSection();
                     return false;
                 default:
                     // COMPONENT_ENABLED_STATE_DEFAULT or other non-disabled states.
@@ -1224,8 +1266,10 @@ public final class WatchdogPerfHandler {
         } catch (Exception e) {
             Slogf.e(TAG, e, "Failed to disable application for user %d, package '%s'", userId,
                     packageName);
+            Trace.endSection();
             return false;
         }
+        Trace.endSection();
         return true;
     }
 
@@ -1250,6 +1294,7 @@ public final class WatchdogPerfHandler {
             systemIoUsageSummaryReportDate = mLastSystemIoUsageSummaryReportedDate;
             uidIoUsageSummaryReportDate = mLastUidIoUsageSummaryReportedDate;
         }
+        Trace.beginSection("WatchdogPerfHandler.writeMetadataFile");
         File file = getWatchdogMetadataFile();
         AtomicFile atomicFile = new AtomicFile(file);
         FileOutputStream fos = null;
@@ -1278,20 +1323,25 @@ public final class WatchdogPerfHandler {
         } catch (IOException e) {
             Slogf.e(TAG, e, "Failed to write watchdog metadata file '%s'", file.getAbsoluteFile());
             atomicFile.failWrite(fos);
+        } finally {
+            Trace.endSection();
         }
     }
 
     /** Fetches and syncs the resource overuse configurations from watchdog daemon. */
     private void fetchAndSyncResourceOveruseConfigurations() {
+        Trace.beginSection("WatchdogPerfHandler.fetchAndSyncResourceOveruseConfigurations");
         List<android.automotive.watchdog.internal.ResourceOveruseConfiguration> internalConfigs;
         try {
             internalConfigs = mCarWatchdogDaemonHelper.getResourceOveruseConfigurations();
         } catch (RemoteException | RuntimeException e) {
             Slogf.w(TAG, e, "Failed to fetch resource overuse configurations");
+            Trace.endSection();
             return;
         }
         if (internalConfigs.isEmpty()) {
             Slogf.e(TAG, "Fetched resource overuse configurations are empty");
+            Trace.endSection();
             return;
         }
         mOveruseConfigurationCache.set(internalConfigs);
@@ -1300,9 +1350,11 @@ public final class WatchdogPerfHandler {
         if (DEBUG) {
             Slogf.d(TAG, "Fetched and synced resource overuse configs.");
         }
+        Trace.endSection();
     }
 
     private void readFromDatabase() {
+        Trace.beginSection("WatchdogPerfHandler.readFromDatabase");
         mWatchdogStorage.syncUsers(getAliveUserIds());
         List<WatchdogStorage.UserPackageSettingsEntry> settingsEntries =
                 mWatchdogStorage.getUserPackageSettings();
@@ -1364,6 +1416,7 @@ public final class WatchdogPerfHandler {
             mLatestStatsReportDate = curReportDate;
         }
         syncHistoricalNotForgivenOveruses();
+        Trace.endSection();
     }
 
     /** Fetches all historical not forgiven overuses and syncs them with package I/O usages. */
@@ -1395,6 +1448,7 @@ public final class WatchdogPerfHandler {
         if (!mWatchdogStorage.startWrite()) {
             return;
         }
+        Trace.beginSection("WatchdogPerfHandler.writeToDatabase");
         try {
             List<WatchdogStorage.UserPackageSettingsEntry> userPackageSettingsEntries =
                     new ArrayList<>();
@@ -1444,6 +1498,7 @@ public final class WatchdogPerfHandler {
             }
         } finally {
             mWatchdogStorage.endWrite();
+            Trace.endSection();
         }
     }
 
@@ -1455,6 +1510,7 @@ public final class WatchdogPerfHandler {
 
     private boolean writeStats(List<WatchdogStorage.IoUsageStatsEntry> ioUsageStatsEntries,
             SparseArray<List<String>> forgivePackagesByUserId) {
+        Trace.beginSection("WatchdogPerfHandler.writeStats");
         // Forgive historical overuses before writing the latest stats to disk to avoid forgiving
         // the latest stats when the write is triggered after date change.
         if (forgivePackagesByUserId.size() != 0) {
@@ -1464,6 +1520,7 @@ public final class WatchdogPerfHandler {
                     forgivePackagesByUserId.size());
         }
         if (ioUsageStatsEntries.isEmpty()) {
+            Trace.endSection();
             return true;
         }
         int result = mWatchdogStorage.saveIoUsageStats(ioUsageStatsEntries);
@@ -1474,6 +1531,7 @@ public final class WatchdogPerfHandler {
             Slogf.i(TAG, "Successfully saved %d/%d I/O overuse stats to database",
                     result, ioUsageStatsEntries.size());
         }
+        Trace.endSection();
         return result != WatchdogStorage.FAILED_TRANSACTION;
     }
 
@@ -1748,6 +1806,7 @@ public final class WatchdogPerfHandler {
     private int setResourceOveruseConfigurationsInternal(
             List<android.automotive.watchdog.internal.ResourceOveruseConfiguration> configs,
             boolean isPendingRequest) throws RemoteException {
+        Trace.beginSection("WatchdogPerfHandler.setResourceOveruseConfigurationsInternal");
         boolean doClearPendingRequest = isPendingRequest;
         try {
             mCarWatchdogDaemonHelper.updateResourceOveruseConfigurations(configs);
@@ -1761,6 +1820,7 @@ public final class WatchdogPerfHandler {
                 setPendingSetResourceOveruseConfigurationsRequestLocked(configs);
             }
             doClearPendingRequest = false;
+            Trace.endSection();
             return CarWatchdogManager.RETURN_CODE_SUCCESS;
         } finally {
             if (doClearPendingRequest) {
@@ -1772,6 +1832,7 @@ public final class WatchdogPerfHandler {
         if (DEBUG) {
             Slogf.d(TAG, "Set the resource overuse configuration successfully");
         }
+        Trace.endSection();
         return CarWatchdogManager.RETURN_CODE_SUCCESS;
     }
 
@@ -1784,17 +1845,16 @@ public final class WatchdogPerfHandler {
                     mLock.wait(MAX_WAIT_TIME_MILLS - sleptDurationMillis);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
-                    continue;
                 } finally {
                     sleptDurationMillis = SystemClock.uptimeMillis() - startTimeMillis;
                 }
-                break;
             }
             return mIsConnectedToDaemon;
         }
     }
 
     private int[] getAliveUserIds() {
+        Trace.beginSection("WatchdogPerfHandler.getAliveUserIds");
         UserManager userManager = mContext.getSystemService(UserManager.class);
         List<UserHandle> aliveUsers = userManager.getUserHandles(/* excludeDying= */ true);
         int userSize = aliveUsers.size();
@@ -1802,6 +1862,7 @@ public final class WatchdogPerfHandler {
         for (int i = 0; i < userSize; ++i) {
             userIds[i] = aliveUsers.get(i).getIdentifier();
         }
+        Trace.endSection();
         return userIds;
     }
 
@@ -1818,6 +1879,7 @@ public final class WatchdogPerfHandler {
         if (mActionableUserPackages.isEmpty() || mCurrentUxState != UX_STATE_NO_INTERACTION) {
             return;
         }
+        Trace.beginSection("WatchdogPerfHandler.performOveruseHandlingLocked");
         ArraySet<String> killedUserPackageKeys = new ArraySet<>();
         for (int i = 0; i < mActionableUserPackages.size(); ++i) {
             PackageResourceUsage usage =
@@ -1851,9 +1913,11 @@ public final class WatchdogPerfHandler {
         }
         pushIoOveruseKillMetrics(killedUserPackageKeys);
         mActionableUserPackages.clear();
+        Trace.endSection();
     }
 
     private void notifyUserOnOveruse() {
+        Trace.beginSection("WatchdogPerfHandler.notifyUserOnOveruse");
         SparseArray<String> headsUpNotificationPackagesByNotificationId = new SparseArray<>();
         SparseArray<String> notificationCenterPackagesByNotificationId = new SparseArray<>();
         int currentUserId = ActivityManager.getCurrentUser();
@@ -1917,6 +1981,7 @@ public final class WatchdogPerfHandler {
                     headsUpNotificationPackagesByNotificationId.size()
                             + notificationCenterPackagesByNotificationId.size());
         }
+        Trace.endSection();
     }
 
     private void enablePackageForUser(int uid, String genericPackageName) {
@@ -1927,6 +1992,8 @@ public final class WatchdogPerfHandler {
                 return;
             }
         }
+        Trace.beginSection(
+                "WatchdogPerfHandler-enablePackage: " + genericPackageName + " : " + userId);
         List<String> packages;
         if (isSharedPackage(genericPackageName)) {
             packages = mPackageInfoHandler.getPackagesForUid(uid, genericPackageName);
@@ -1960,6 +2027,7 @@ public final class WatchdogPerfHandler {
                         packageName);
             }
         }
+        Trace.endSection();
     }
 
     private void sendResourceOveruseNotificationsAsUser(@UserIdInt int userId,

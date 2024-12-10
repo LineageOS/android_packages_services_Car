@@ -61,6 +61,8 @@ public final class OccupantZoneHelper {
 
     private final List<CarOccupantZoneManager.OccupantZoneInfo> mZones = new ArrayList<>();
     private final SparseIntArray mZoneToUser = new SparseIntArray(); // key: zone, value: user id
+    // Default driver user ID is 10.
+    private int mDriverUserId = 10;
 
     public void setUpOccupantZones(@Mock CarOccupantZoneService service, boolean hasDriver,
             boolean hasFrontPassenger, int numRearPassengers) {
@@ -178,6 +180,9 @@ public final class OccupantZoneHelper {
         when(service.getUserForOccupant(anyInt())).thenAnswer(
                 inv -> {
                     int zoneId = (int) inv.getArgument(0);
+                    if (mZones.contains(zoneDriverLHD) && zoneDriverLHD.zoneId == zoneId) {
+                        return mDriverUserId;
+                    }
                     int existingIndex = mZoneToUser.indexOfKey(zoneId);
                     if (existingIndex >= 0) {
                         return mZoneToUser.valueAt(existingIndex);
@@ -189,6 +194,10 @@ public final class OccupantZoneHelper {
 
     public int getDisplayId(OccupantZoneInfo zone) {
         return zone.zoneId; // For simplicity, use the same id with zone.
+    }
+
+    public void setDriverUserId(int userId) {
+        mDriverUserId = userId;
     }
 
     private boolean hasZone(int zoneId) {

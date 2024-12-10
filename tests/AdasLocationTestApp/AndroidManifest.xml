@@ -36,5 +36,19 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+
+        <!-- the activity is for provding a fake policy url for Geo GSR-ISA app. -->
+        <activity
+            android:name=".PrivacyPolicyActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="gsr" />
+                <data android:host="privacy_policy" />
+            </intent-filter>
+        </activity>
     </application>
 </manifest>

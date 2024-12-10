@@ -18,6 +18,7 @@ package com.android.car;
 import static android.car.CarProjectionManager.ProjectionAccessPointCallback.ERROR_GENERIC;
 import static android.car.projection.ProjectionStatus.PROJECTION_STATE_INACTIVE;
 import static android.car.projection.ProjectionStatus.PROJECTION_STATE_READY_TO_PROJECT;
+import static android.net.wifi.WifiAvailableChannel.OP_MODE_SAP;
 import static android.net.wifi.WifiManager.EXTRA_PREVIOUS_WIFI_AP_STATE;
 import static android.net.wifi.WifiManager.EXTRA_WIFI_AP_FAILURE_REASON;
 import static android.net.wifi.WifiManager.EXTRA_WIFI_AP_INTERFACE_NAME;
@@ -40,6 +41,8 @@ import android.car.ICarProjectionKeyEventHandler;
 import android.car.ICarProjectionStatusListener;
 import android.car.builtin.content.pm.PackageManagerHelper;
 import android.car.builtin.util.Slogf;
+import android.car.feature.FeatureFlags;
+import android.car.feature.FeatureFlagsImpl;
 import android.car.projection.ProjectionOptions;
 import android.car.projection.ProjectionStatus;
 import android.car.projection.ProjectionStatus.ProjectionState;
@@ -71,6 +74,7 @@ import android.os.UserHandle;
 import android.text.TextUtils;
 import android.util.SparseIntArray;
 import android.util.proto.ProtoOutputStream;
+import android.net.wifi.WifiAvailableChannel;
 
 import com.android.car.BinderInterfaceContainer.BinderInterface;
 import com.android.car.bluetooth.CarBluetoothService;
@@ -144,6 +148,8 @@ class CarProjectionService extends ICarProjection.Stub implements CarServiceBase
 
     @GuardedBy("mLock")
     private @Nullable SoftApConfiguration mApConfiguration;
+
+    private FeatureFlags mFeatureFlags = new FeatureFlagsImpl();
 
     private static final String SHARED_PREF_NAME = "com.android.car.car_projection_service";
     private static final String KEY_AP_CONFIG_SSID = "ap_config_ssid";
@@ -323,22 +329,37 @@ class CarProjectionService extends ICarProjection.Stub implements CarServiceBase
     @Override
     public int[] getAvailableWifiChannels(int band) {
         CarServiceUtils.assertProjectionPermission(mContext);
-        WifiScanner scanner;
-        synchronized (mLock) {
-            // Lazy initialization
-            if (mWifiScanner == null) {
-                mWifiScanner = mContext.getSystemService(WifiScanner.class);
+        List<Integer> channels;
+
+        // Use {@link WifiManager} to get channels as {@link WifiScanner} fails to retrieve
+        // channels when wifi is off.
+        if (mFeatureFlags.useWifiManagerForAvailableChannels()) {
+            channels = new ArrayList<>();
+            List<WifiAvailableChannel> availableChannels =
+                    mWifiManager.getUsableChannels(band, OP_MODE_SAP);
+            for (int i = 0; i < availableChannels.size(); i++) {
+                WifiAvailableChannel channel = availableChannels.get(i);
+                channels.add(channel.getFrequencyMhz());
             }
-            scanner = mWifiScanner;
-        }
-        if (scanner == null) {
-            Slogf.w(TAG, "Unable to get WifiScanner");
-            return EMPTY_INT_ARRAY;
+        } else {
+            WifiScanner scanner;
+            synchronized (mLock) {
+                // Lazy initialization
+                if (mWifiScanner == null) {
+                    mWifiScanner = mContext.getSystemService(WifiScanner.class);
+                }
+                scanner = mWifiScanner;
+            }
+            if (scanner == null) {
+                Slogf.w(TAG, "Unable to get WifiScanner");
+                return EMPTY_INT_ARRAY;
+            }
+
+            channels = scanner.getAvailableChannels(band);
         }
 
-        List<Integer> channels = scanner.getAvailableChannels(band);
         if (channels == null || channels.isEmpty()) {
-            Slogf.w(TAG, "WifiScanner reported no available channels");
+            Slogf.w(TAG, "No available channels reported");
             return EMPTY_INT_ARRAY;
         }
 
@@ -1080,6 +1101,14 @@ class CarProjectionService extends ICarProjection.Stub implements CarServiceBase
             mWifiManager.setSoftApConfiguration(new SoftApConfiguration.Builder(apConfig)
                     .setBands(new int[] {SoftApConfiguration.BAND_5GHZ}).build());
         }
+    }
+
+    /**
+     * Sets fake feature flag for unit testing.
+     */
+    @VisibleForTesting
+    public void setFeatureFlags(FeatureFlags fakeFeatureFlags) {
+        mFeatureFlags = fakeFeatureFlags;
     }
 
     private class ProjectionSoftApCallback implements WifiManager.SoftApCallback {

@@ -30,7 +30,6 @@ import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DU
 import android.annotation.Nullable;
 import android.annotation.SuppressLint;
 import android.annotation.UserIdInt;
-import android.app.ActivityManager;
 import android.car.builtin.util.Slogf;
 import android.car.hardware.power.CarPowerManager;
 import android.car.hardware.power.ICarPowerStateListener;
@@ -60,7 +59,9 @@ import com.android.car.R;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.car.power.CarPowerManagementService;
+import com.android.car.user.ActivityManagerCurrentUserFetcher;
 import com.android.car.user.CarUserService;
+import com.android.car.user.CurrentUserFetcher;
 import com.android.internal.annotations.VisibleForTesting;
 
 import java.io.PrintWriter;
@@ -97,6 +98,7 @@ final class VendorServiceController implements UserLifecycleListener {
     private final Handler mHandler;
     private CarUserService mCarUserService;
     private CarPowerManagementService mPowerManagementService;
+    private CurrentUserFetcher mCurrentUserFetcher;
 
     private final BroadcastReceiver mPackageChangeReceiver = new BroadcastReceiver() {
         @Override
@@ -152,9 +154,16 @@ final class VendorServiceController implements UserLifecycleListener {
             };
 
     VendorServiceController(Context context, Looper looper) {
+        this(context, looper, new ActivityManagerCurrentUserFetcher());
+    }
+
+    @VisibleForTesting
+    VendorServiceController(Context context, Looper looper,
+            CurrentUserFetcher currentUserFetcher) {
         mContext = context;
         mUserManager = context.getSystemService(UserManager.class);
         mHandler = new Handler(looper);
+        mCurrentUserFetcher = currentUserFetcher;
     }
 
     void init() {
@@ -289,7 +298,7 @@ final class VendorServiceController implements UserLifecycleListener {
                     packageName, userId);
         }
 
-        int currentUserId = ActivityManager.getCurrentUser();
+        int currentUserId = mCurrentUserFetcher.getCurrentUser();
         int size = mVendorServiceInfos.size();
         for (int i = 0; i < size; i++) {
             VendorServiceInfo serviceInfo = mVendorServiceInfos.get(i);
@@ -317,7 +326,7 @@ final class VendorServiceController implements UserLifecycleListener {
     private void handleOnUserSwitching(@UserIdInt int userId) {
         // The user switch notification is obsolete if userId is different from the current
         // foreground user. Ignore it.
-        int currentUserId = ActivityManager.getCurrentUser();
+        int currentUserId = mCurrentUserFetcher.getCurrentUser();
         if (currentUserId != userId) {
             Slogf.w(TAG, "Received userSwitch event for user " + userId
                     + " while current foreground user is " + currentUserId + "."
@@ -375,7 +384,7 @@ final class VendorServiceController implements UserLifecycleListener {
 
     private void startOrBindServicesForUser(UserHandle user, @Nullable Boolean forPostUnlock) {
         boolean unlocked = mUserManager.isUserUnlockingOrUnlocked(user);
-        int currentUserId = ActivityManager.getCurrentUser();
+        int currentUserId = mCurrentUserFetcher.getCurrentUser();
         int userId = user.getIdentifier();
         for (VendorServiceInfo service: mVendorServiceInfos) {
             if (forPostUnlock != null
@@ -443,7 +452,7 @@ final class VendorServiceController implements UserLifecycleListener {
         VendorServiceConnection connection = mConnections.get(key);
         if (connection == null) {
             connection = new VendorServiceConnection(mContext, mHandler, key.mVendorServiceInfo,
-                    key.mUserHandle);
+                    key.mUserHandle, mCurrentUserFetcher);
             mConnections.put(key, connection);
         }
 
@@ -489,14 +498,17 @@ final class VendorServiceController implements UserLifecycleListener {
         private final Context mUserContext;
         private final Handler mHandler;
         private final Handler mFailureHandler;
+        private final CurrentUserFetcher mCurrentUserFetcher;
 
         VendorServiceConnection(Context context, Handler handler,
-                VendorServiceInfo vendorServiceInfo, UserHandle user) {
+                VendorServiceInfo vendorServiceInfo, UserHandle user,
+                CurrentUserFetcher currentUserFetcher) {
             mHandler = handler;
             mVendorServiceInfo = vendorServiceInfo;
             mUser = user;
             mUserContext = context.createContextAsUser(mUser, /* flags= */ 0);
             mCarUserService = CarLocalServices.getService(CarUserService.class);
+            mCurrentUserFetcher = currentUserFetcher;
 
             mFailureHandler = new Handler(handler.getLooper()) {
                 @Override
@@ -540,7 +552,13 @@ final class VendorServiceController implements UserLifecycleListener {
                         /* executor= */ this, /* conn= */ this);
                 if (!canBind) {
                     // Still need to unbind when an attempt to bind fails.
-                    unbindService();
+                    try {
+                        unbindService();
+                    } catch (Exception e) {
+                        // When binding already failed, log and ignore an exception from unbind.
+                        Slogf.w(TAG, "After bindService() failed, unbindService() threw "
+                                + "an exception:", e);
+                    }
                 }
                 return canBind;
             } else if (mVendorServiceInfo.shouldBeStartedInForeground()) {
@@ -628,7 +646,7 @@ final class VendorServiceController implements UserLifecycleListener {
                 return;
             }
 
-            int currentUserId = ActivityManager.getCurrentUser();
+            int currentUserId = mCurrentUserFetcher.getCurrentUser();
             if (isUserInScope(mUser.getIdentifier(), mVendorServiceInfo, mCarUserService,
                     currentUserId)) {
                 // Double the delay after each failure.

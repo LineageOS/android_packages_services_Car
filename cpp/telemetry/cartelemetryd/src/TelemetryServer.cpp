@@ -260,7 +260,7 @@ void TelemetryServer::pushCarDataToListeners() {
         // Push elements to pendingCarDataInternals in reverse order so we can send data
         // from the back of the pendingCarDataInternals vector.
         while (mRingBuffer.size() > 0) {
-            auto carData = std::move(mRingBuffer.popBack());
+            auto carData = mRingBuffer.popBack();
             CarDataInternal data;
             data.id = carData.mId;
             data.content = std::move(carData.mContent);

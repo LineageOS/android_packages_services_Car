@@ -54,6 +54,7 @@ import android.car.VehicleAreaSeat;
 import android.car.VehicleAreaType;
 import android.car.VehiclePropertyIds;
 import android.car.feature.FeatureFlags;
+import android.car.feature.Flags;
 import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.CarPropertyValue;
 import android.content.Context;
@@ -64,7 +65,9 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.RemoteException;
 import android.os.ServiceSpecificException;
+import android.platform.test.annotations.EnableFlags;
 import android.platform.test.annotations.IgnoreUnderRavenwood;
+import android.platform.test.flag.junit.SetFlagsRule;
 import android.platform.test.ravenwood.RavenwoodRule;
 import android.util.ArraySet;
 import android.util.SparseArray;
@@ -108,6 +111,8 @@ public final class CarPropertyManagerUnitTest {
             .setProcessApp()
             .setProvideMainThread(true)
             .build();
+
+    @Rule public final SetFlagsRule mSetFlagsRule = new SetFlagsRule();
 
     // Defined as vendor property.
     private static final int VENDOR_CONTINUOUS_PROPERTY = 0x21100111;
@@ -296,6 +301,8 @@ public final class CarPropertyManagerUnitTest {
         mCarPropertyManager = new CarPropertyManager(mCar, mICarProperty);
         // Enable the features.
         when(mFeatureFlags.variableUpdateRate()).thenReturn(true);
+        when(mFeatureFlags.handlePropertyEventsInBinderThread()).thenReturn(true);
+
         mCarPropertyManager.setFeatureFlags(mFeatureFlags);
     }
 
@@ -1203,9 +1210,9 @@ public final class CarPropertyManagerUnitTest {
     public void testOnGetValueResult_onFailure() throws RemoteException {
         doAnswer((invocation) -> {
             Object[] args = invocation.getArguments();
-            AsyncPropertyServiceRequestList asyncPropertyServiceREquestList =
+            AsyncPropertyServiceRequestList asyncPropertyServiceRequestList =
                     (AsyncPropertyServiceRequestList) args[0];
-            List getPropertyServiceList = asyncPropertyServiceREquestList.getList();
+            List getPropertyServiceList = asyncPropertyServiceRequestList.getList();
             AsyncPropertyServiceRequest getPropertyServiceRequest =
                     (AsyncPropertyServiceRequest) getPropertyServiceList.get(0);
             IAsyncPropertyResultCallback getAsyncPropertyResultCallback =
@@ -1215,7 +1222,7 @@ public final class CarPropertyManagerUnitTest {
             assertThat(getPropertyServiceRequest.getPropertyId()).isEqualTo(HVAC_TEMPERATURE_SET);
 
             GetSetValueResult getValueResult = GetSetValueResult.newErrorResult(
-                    0,
+                     /* requestId= */ 0,
                     new CarPropertyErrorCodes(
                             CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR, VENDOR_ERROR_CODE, 0));
 
@@ -1236,6 +1243,35 @@ public final class CarPropertyManagerUnitTest {
         assertThat(error.getErrorCode()).isEqualTo(
                 CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR);
         assertThat(error.getVendorErrorCode()).isEqualTo(VENDOR_ERROR_CODE);
+    }
+
+    @Test
+    @EnableFlags(Flags.FLAG_CAR_PROPERTY_DETAILED_ERROR_CODES)
+    public void testPropertyAsyncError_GetDetailedErrorCode() throws RemoteException {
+        doAnswer((invocation) -> {
+            Object[] args = invocation.getArguments();
+            IAsyncPropertyResultCallback getAsyncPropertyResultCallback =
+                    (IAsyncPropertyResultCallback) args[1];
+
+            GetSetValueResult getValueResult = GetSetValueResult.newErrorResult(
+                    /* requestId= */ 0,
+                    new CarPropertyErrorCodes(
+                            CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR,
+                            /* vendorErrorCode= */ 0,
+                            VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SPEED_HIGH));
+
+            getAsyncPropertyResultCallback.onGetValueResults(
+                    new GetSetValueResultList(List.of(getValueResult)));
+            return null;
+        }).when(mICarProperty).getPropertiesAsync(any(), any(), anyLong());
+
+        mCarPropertyManager.getPropertiesAsync(List.of(createGetPropertyRequest()), null, null,
+                mGetPropertyCallback);
+
+        verify(mGetPropertyCallback, timeout(1000)).onFailure(mPropertyAsyncErrorCaptor.capture());
+        PropertyAsyncError error = mPropertyAsyncErrorCaptor.getValue();
+        assertThat(error.getDetailedErrorCode()).isEqualTo(
+                DetailedErrorCode.NOT_AVAILABLE_SPEED_HIGH);
     }
 
     @Test
@@ -2094,7 +2130,7 @@ public final class CarPropertyManagerUnitTest {
 
         verify(mICarProperty).registerListener(eq(List.of(
                         createCarSubscriptionOption(VENDOR_CONTINUOUS_PROPERTY, new int[]{0},
-                                CarPropertyManager.SENSOR_RATE_FAST, /* enableVur= */ false))),
+                                CarPropertyManager.SENSOR_RATE_FAST, /* enableVur= */ true))),
                 any(ICarPropertyEventListener.class));
     }
 

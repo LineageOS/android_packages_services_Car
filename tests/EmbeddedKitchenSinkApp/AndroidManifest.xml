@@ -455,6 +455,18 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".cluster.ResponsiveClusterActivity"
+            android:launchMode="singleInstance"
+            android:theme="@style/KSDayNightTheme"
+            android:documentLaunchMode="always"
+            android:exported="true"
+            android:label="ResponsiveClusterActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+            </intent-filter>
+        </activity>
+
         <service android:name=".bluetooth.InCallServiceImpl"
                  android:exported="false"
                  android:permission="android.permission.BIND_INCALL_SERVICE">

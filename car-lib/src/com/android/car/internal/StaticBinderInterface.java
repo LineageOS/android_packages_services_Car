@@ -21,8 +21,6 @@ package com.android.car.internal;
  * internally by car service or car manager.
  *
  * This interface allows faking the implementation in unit tests.
- *
- * @hide
  */
 public interface StaticBinderInterface {
     /**

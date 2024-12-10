@@ -16,6 +16,7 @@
 
 package com.android.car.hal.property;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.PRIVATE_CONSTRUCTOR;
 import static com.android.car.internal.util.ConstantDebugUtils.toName;
 
 import static java.lang.Integer.toHexString;
@@ -40,6 +41,7 @@ import android.util.ArrayMap;
 import android.util.Slog;
 
 import com.android.car.hal.HalPropValue;
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.property.CarPropertyHelper;
 import com.android.car.internal.util.ConstantDebugUtils;
 
@@ -66,6 +68,7 @@ public final class HalPropertyDebugUtils {
      * HalPropertyDebugUtils only contains static fields and methods and must never be
      * instantiated.
      */
+    @ExcludeFromCodeCoverageGeneratedReport(reason = PRIVATE_CONSTRUCTOR)
     private HalPropertyDebugUtils() {
         throw new UnsupportedOperationException("Must never be called");
     }

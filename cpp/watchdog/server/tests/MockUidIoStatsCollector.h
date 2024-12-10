@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 
-#ifndef CPP_WATCHDOG_SERVER_TESTS_MOCKUIDIOSTATSCOLLECTOR_H_
-#define CPP_WATCHDOG_SERVER_TESTS_MOCKUIDIOSTATSCOLLECTOR_H_
+#pragma once
 
 #include "UidIoStatsCollector.h"
 
@@ -43,5 +42,3 @@ public:
 }  // namespace watchdog
 }  // namespace automotive
 }  // namespace android
-
-#endif  //  CPP_WATCHDOG_SERVER_TESTS_MOCKUIDIOSTATSCOLLECTOR_H_

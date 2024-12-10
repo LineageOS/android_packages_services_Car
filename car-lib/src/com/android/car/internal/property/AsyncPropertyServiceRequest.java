@@ -30,8 +30,6 @@ import com.android.car.internal.util.DataClass;
 /**
  * A request for {@link CarPropertyService.getPropertiesAsync} or
  * {@link CarPropertyService.setPropertiesAsync}
- *
- * @hide
  */
 @DataClass(genConstructor = false)
 @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
@@ -171,7 +169,6 @@ public final class AsyncPropertyServiceRequest implements Parcelable {
     @DataClass.Generated.Member
     public int describeContents() { return 0; }
 
-    /** @hide */
     @SuppressWarnings({"unchecked", "RedundantCast"})
     @DataClass.Generated.Member
     /* package-private */ AsyncPropertyServiceRequest(@android.annotation.NonNull android.os.Parcel in) {

@@ -46,8 +46,6 @@ import java.util.List;
  * }
  *
  * @param <T> The type for the element stored in this list
- *
- * @hide
  */
 public abstract class LargeParcelableList<T extends Parcelable> extends LargeParcelableBase {
     private List<T> mList;

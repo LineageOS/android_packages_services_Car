@@ -143,7 +143,7 @@
                     app:layout_constraintHorizontal_weight="9"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toStartOf="@+id/settings_button">
-                    <ImageView
+                    <com.android.systemui.car.systembar.element.layout.CarSystemBarImageView
                         android:id="@+id/user_icon"
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
@@ -151,8 +151,9 @@
                         android:layout_marginStart="@dimen/car_padding_1"
                         app:layout_constraintDimensionRatio="1:1"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintEnd_toStartOf="@+id/user_name_text"/>
-                    <TextView
+                        app:layout_constraintEnd_toStartOf="@+id/user_name_text"
+                        app:controller="com.android.systemui.car.systembar.UserNameImageViewController"/>
+                    <com.android.systemui.car.systembar.element.layout.CarSystemBarTextView
                         android:id="@+id/user_name_text"
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
@@ -163,7 +164,8 @@
                         android:layout_marginEnd="@dimen/car_padding_2"
                         app:layout_constraintHorizontal_weight="1"
                         app:layout_constraintStart_toEndOf="@id/user_icon"
-                        app:layout_constraintEnd_toStartOf="@+id/chevron_right"/>
+                        app:layout_constraintEnd_toStartOf="@+id/chevron_right"
+                        app:controller="com.android.systemui.car.systembar.UserNameTextViewController"/>
                     <ImageView
                         android:id="@+id/chevron_right"
                         android:layout_width="0dp"

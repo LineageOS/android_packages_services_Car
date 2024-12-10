@@ -15,7 +15,7 @@
   ~ limitations under the License.
   -->
 
-<RelativeLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@*android:id/parentPanel"
     android:layout_width="match_parent"
@@ -23,25 +23,22 @@
     android:gravity="start|top"
     android:background="@drawable/car_alert_dialog_bg"
     android:padding="@dimen/car_alert_dialog_padding"
-    android:orientation="vertical">
+    android:orientation="horizontal">
     <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_above="@*android:id/buttonPanel"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
         android:fadeScrollbars="false"
         android:clipToPadding="false">
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
-            <include layout="@layout/car_alert_dialog_title"
-                    android:layout_weight="0"/>
+            <include layout="@layout/car_alert_dialog_title" />
             <FrameLayout
                 android:id="@*android:id/contentPanel"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
                 android:padding="@dimen/car_alert_dialog_padding"
                 android:minHeight="@dimen/car_alert_dialog_content_min_height">
                 <ScrollView
@@ -77,7 +74,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="@dimen/car_alert_dialog_padding"
-                android:layout_weight="1"
                 android:minHeight="@dimen/car_alert_dialog_content_min_height">
                 <FrameLayout
                     android:id="@android:id/custom"
@@ -88,10 +84,9 @@
     </ScrollView>
     <include
         android:id="@*android:id/buttonPanel"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
         android:layout_marginTop="@dimen/car_alert_dialog_padding"
         android:layout_marginHorizontal="@dimen/car_alert_dialog_padding"
         layout="@layout/car_alert_dialog_button_bar"/>
-</RelativeLayout>
+</LinearLayout>

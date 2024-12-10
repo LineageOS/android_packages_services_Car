@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 
-#ifndef CPP_WATCHDOG_SERVER_SRC_SERVICEMANAGER_H_
-#define CPP_WATCHDOG_SERVER_SRC_SERVICEMANAGER_H_
+#pragma once
 
 #include "IoOveruseMonitor.h"
 #include "PressureMonitor.h"
@@ -45,9 +44,9 @@ public:
           mPressureMonitor(nullptr) {}
 
     // Returns the singleton ServiceManager instance.
-    static android::sp<ServiceManager> getInstance() {
+    static std::shared_ptr<ServiceManager> getInstance() {
         if (sServiceManager == nullptr) {
-            sServiceManager = android::sp<ServiceManager>::make();
+            sServiceManager = std::make_shared<ServiceManager>();
         }
         return sServiceManager;
     }
@@ -58,7 +57,7 @@ public:
             return;
         }
         sServiceManager->terminateServices();
-        sServiceManager.clear();
+        sServiceManager.reset();
     }
 
     // Starts early-init services.
@@ -80,7 +79,7 @@ public:
     }
 
 private:
-    inline static android::sp<ServiceManager> sServiceManager = nullptr;
+    inline static std::shared_ptr<ServiceManager> sServiceManager = nullptr;
 
     void terminateServices();
     android::base::Result<void> startWatchdogProcessService(const android::sp<Looper>& mainLooper);
@@ -99,5 +98,3 @@ private:
 }  // namespace watchdog
 }  // namespace automotive
 }  // namespace android
-
-#endif  // CPP_WATCHDOG_SERVER_SRC_SERVICEMANAGER_H_

@@ -722,7 +722,6 @@ public final class CarUserManager extends CarManagerBase {
             EventLogHelper.writeCarUserManagerCreateUserReq(uid,
                     UserHelperLite.safeName(name), userType, flags);
             mService.createUser(userCreationRequest, HAL_TIMEOUT_MS, resultCallbackImpl);
-            System.out.println("manager test API replied");
         } catch (SecurityException e) {
             throw e;
         } catch (RemoteException | RuntimeException e) {

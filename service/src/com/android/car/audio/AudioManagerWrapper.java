@@ -187,12 +187,20 @@ public final class AudioManagerWrapper {
         return mAudioManager.getStreamVolume(stream);
     }
 
+    boolean isStreamMute(int stream) {
+        return mAudioManager.isStreamMute(stream);
+    }
+
     void setParameters(String parameters) {
         mAudioManager.setParameters(parameters);
     }
 
     AudioDeviceInfo[] getDevices(int flags) {
         return mAudioManager.getDevices(flags);
+    }
+
+    List<AudioDeviceInfo> getAudioDevicesForAttributes(AudioAttributes attributes) {
+        return mAudioManager.getAudioDevicesForAttributes(attributes);
     }
 
     void registerAudioPlaybackCallback(AudioPlaybackCallback callback, @Nullable Handler handler) {

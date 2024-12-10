@@ -26,8 +26,6 @@ import java.util.Objects;
 
 /**
  * A {@link CarPropertyEventTracker} implementation for continuous property
- *
- * @hide
  */
 public final class ContCarPropertyEventTracker implements CarPropertyEventTracker{
     private static final String TAG = "ContCarPropertyEventTracker";
@@ -128,7 +126,7 @@ public final class ContCarPropertyEventTracker implements CarPropertyEventTracke
     public boolean hasUpdate(CarPropertyValue<?> carPropertyValue) {
         if (carPropertyValue.getTimestamp() < mNextUpdateTimeNanos) {
             if (mLogger.dbg()) {
-                mLogger.logD(String.format("hasUpdate: Dropping carPropertyValue: %s, "
+                mLogger.logV(String.format("hasUpdate: Dropping carPropertyValue: %s, "
                         + "because getTimestamp()=%d < nextUpdateTimeNanos=%d",
                         carPropertyValue, carPropertyValue.getTimestamp(), mNextUpdateTimeNanos));
             }
@@ -142,7 +140,7 @@ public final class ContCarPropertyEventTracker implements CarPropertyEventTracke
         if (mEnableVur && status == mCurrentStatus && mCurrentCarPropertyValue != null
                     && Objects.deepEquals(value, mCurrentCarPropertyValue.getValue())) {
             if (mLogger.dbg()) {
-                mLogger.logD(String.format("hasUpdate: Dropping carPropertyValue: %s, "
+                mLogger.logV(String.format("hasUpdate: Dropping carPropertyValue: %s, "
                                 + "because VUR is enabled and value is the same",
                         sanitizedCarPropertyValue));
             }

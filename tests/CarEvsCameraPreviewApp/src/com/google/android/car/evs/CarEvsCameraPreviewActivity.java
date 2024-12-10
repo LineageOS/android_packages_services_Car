@@ -486,6 +486,14 @@ public class CarEvsCameraPreviewActivity extends Activity
         }
     }
 
+    @Override
+    public void onTopResumedActivityChanged(boolean topResumed) {
+        // Log here for easier debugging in split screen mode. We will receive this instead of
+        // onResume because in split screen both activities are always in the resumed state.
+        Log.i(TAG, "onTopResumedActivityChanged(" + topResumed + ")");
+        super.onTopResumedActivityChanged(topResumed);
+    }
+
     @GuardedBy("mLock")
     private void doneWithBufferLocked(CarEvsBufferDescriptor buffer) {
         try {

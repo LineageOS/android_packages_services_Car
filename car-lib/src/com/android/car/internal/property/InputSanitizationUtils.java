@@ -35,8 +35,6 @@ import java.util.List;
 
 /**
  * Common utility functions used by {@link CarPropertyManager} stack to sanitize input arguments.
- *
- * @hide
  */
 public final class InputSanitizationUtils {
 

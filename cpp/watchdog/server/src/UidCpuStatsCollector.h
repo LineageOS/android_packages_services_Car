@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 
-#ifndef CPP_WATCHDOG_SERVER_SRC_UIDCPUSTATSCOLLECTOR_H_
-#define CPP_WATCHDOG_SERVER_SRC_UIDCPUSTATSCOLLECTOR_H_
+#pragma once
 
 #include <android-base/result.h>
 #include <android-base/stringprintf.h>
@@ -103,5 +102,3 @@ private:
 }  // namespace watchdog
 }  // namespace automotive
 }  // namespace android
-
-#endif  // CPP_WATCHDOG_SERVER_SRC_UIDCPUSTATSCOLLECTOR_H_

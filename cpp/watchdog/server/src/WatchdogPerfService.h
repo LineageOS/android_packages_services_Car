@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 
-#ifndef CPP_WATCHDOG_SERVER_SRC_WATCHDOGPERFSERVICE_H_
-#define CPP_WATCHDOG_SERVER_SRC_WATCHDOGPERFSERVICE_H_
+#pragma once
 
 #include "LooperWrapper.h"
 #include "ProcDiskStatsCollector.h"
@@ -277,6 +276,7 @@ public:
           mPeriodicMonitor({}),
           mUnsentResourceStats({}),
           mLastCollectionTimeMillis(0),
+          mBootCompletedTimeEpochSeconds(0),
           mCurrCollectionEvent(EventType::INIT),
           mUidStatsCollector(android::sp<UidStatsCollector>::make()),
           mProcStatCollector(android::sp<ProcStatCollector>::make()),
@@ -321,7 +321,7 @@ private:
         // Interval between subsequent events.
         std::chrono::nanoseconds pollingIntervalNs = 0ns;
         // Used to calculate the uptime for next event.
-        nsecs_t lastPollUptimeNs = 0;
+        nsecs_t lastPollElapsedRealTimeNs = 0;
         // Filter the results only to the specified packages.
         std::unordered_set<std::string> filterPackages;
 
@@ -445,6 +445,9 @@ private:
     // Tracks the latest collection time since boot in millis.
     int64_t mLastCollectionTimeMillis GUARDED_BY(mMutex);
 
+    // Time of receiving boot complete signal.
+    time_t mBootCompletedTimeEpochSeconds GUARDED_BY(mMutex);
+
     // Tracks either the WatchdogPerfService's state or current collection event. Updated on
     // |start|, |onBootFinished|, |onUserStateChange|, |startCustomCollection|,
     // |endCustomCollection|, and |terminate|.
@@ -473,5 +476,3 @@ private:
 }  // namespace watchdog
 }  // namespace automotive
 }  // namespace android
-
-#endif  //  CPP_WATCHDOG_SERVER_SRC_WATCHDOGPERFSERVICE_H_

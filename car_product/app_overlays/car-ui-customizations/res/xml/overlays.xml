@@ -111,7 +111,11 @@
     <item target="id/list" value="@id/list"/>
     <item target="id/seekbar" value="@id/seekbar"/>
     <item target="id/seekbar_value" value="@id/seekbar_value"/>
+    <item target="id/car_ui_alert_icon" value="@id/car_ui_alert_icon"/>
+    <item target="id/car_ui_alert_title" value="@id/car_ui_alert_title"/>
+    <item target="id/car_ui_alert_subtitle" value="@id/car_ui_alert_subtitle"/>
 
+    <item target="layout/car_ui_alert_dialog_title_with_subtitle" value="@layout/car_ui_alert_dialog_title_with_subtitle"/>
     <item target="layout/car_ui_alert_dialog_list" value="@layout/car_ui_alert_dialog_list"/>
     <item target="layout/car_ui_base_layout_toolbar" value="@layout/car_ui_base_layout_toolbar"/>
     <item target="layout/car_ui_list_item_2" value="@layout/car_ui_list_item_2"/>

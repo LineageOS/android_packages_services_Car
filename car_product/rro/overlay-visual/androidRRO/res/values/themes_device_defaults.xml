@@ -127,6 +127,7 @@
         <item name="android:textAppearanceListItemSmall">@*android:style/TextAppearance.DeviceDefault.Large</item>
         <item name="android:textAppearanceListItemSecondary">@*android:style/TextAppearance.DeviceDefault.Small</item>
         <item name="android:windowTitleStyle">?android:attr/textAppearanceLarge</item>
+        <item name="android:windowMinWidthMajor">@dimen/car_dialog_min_width_major</item>
     </style>
 
     <style name="Theme.DeviceDefault.Settings.Dialog" parent="android:Theme.DeviceDefault.Dialog.Alert">

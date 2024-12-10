@@ -59,7 +59,11 @@ internal fun rroThemePresetsDropDownItem(overlayManager: OverlayManager): MenuIt
             systemPackages = getSystemRroPackages(theme = "orange"),
             userPackages = getUserRroPackages(theme = "orange")
         )
-    ).mapValues { (_, themeRros) -> themeRros.filterInstalled(overlayManager) }
+    )
+    .mapValues { (_, themeRros) -> themeRros.filterInstalled(overlayManager) }
+    .filter { (_, themeRros) ->
+      themeRros.systemPackages.isNotEmpty() || themeRros.userPackages.isNotEmpty()
+    }
 
     themes
         .forEach { (title, theme) ->

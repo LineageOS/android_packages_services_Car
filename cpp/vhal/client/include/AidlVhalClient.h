@@ -29,6 +29,7 @@
 #include <VehicleUtils.h>
 
 #include <atomic>
+#include <condition_variable>  // NOLINT
 #include <memory>
 #include <mutex>  // NOLINT
 #include <unordered_map>
@@ -119,16 +120,18 @@ private:
         virtual ~ILinkUnlinkToDeath() = default;
         virtual binder_status_t linkToDeath(AIBinder* binder, AIBinder_DeathRecipient* recipient,
                                             void* cookie) = 0;
-        virtual binder_status_t unlinkToDeath(AIBinder* binder, AIBinder_DeathRecipient* recipient,
-                                              void* cookie) = 0;
+        virtual void deleteDeathRecipient(AIBinder_DeathRecipient* recipient) = 0;
+        virtual void setOnUnlinked(AIBinder_DeathRecipient* recipient,
+                                   AIBinder_DeathRecipient_onBinderUnlinked onUnlinked) = 0;
     };
 
     class DefaultLinkUnlinkImpl final : public ILinkUnlinkToDeath {
     public:
         binder_status_t linkToDeath(AIBinder* binder, AIBinder_DeathRecipient* recipient,
                                     void* cookie) override;
-        binder_status_t unlinkToDeath(AIBinder* binder, AIBinder_DeathRecipient* recipient,
-                                      void* cookie) override;
+        void deleteDeathRecipient(AIBinder_DeathRecipient* recipient) override;
+        void setOnUnlinked(AIBinder_DeathRecipient* recipient,
+                           AIBinder_DeathRecipient_onBinderUnlinked onUnlinked) override;
     };
 
     std::atomic<int64_t> mRequestId = 0;
@@ -140,6 +143,8 @@ private:
     std::mutex mLock;
     std::unordered_set<std::shared_ptr<OnBinderDiedCallbackFunc>> mOnBinderDiedCallbacks
             GUARDED_BY(mLock);
+    std::condition_variable mDeathRecipientUnlinkedCv;
+    bool mDeathRecipientUnlinked GUARDED_BY(mLock) = false;
 
     static void onBinderDied(void* cookie);
     static void onBinderUnlinked(void* cookie);

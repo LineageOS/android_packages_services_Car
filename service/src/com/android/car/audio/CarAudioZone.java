@@ -218,24 +218,28 @@ public class CarAudioZone {
             mCurrentConfigId = configInfoSwitchedTo.getConfigId();
             CarAudioZoneConfig current = mCarAudioZoneConfigs.get(mCurrentConfigId);
             current.setIsSelected(true);
+            current.synchronizeCurrentGainIndex();
             current.updateVolumeDevices(mCarAudioContext.useCoreAudioRouting());
         }
     }
 
     void init() {
+        int defaultConfig = -1;
         for (int index = 0; index < mCarAudioZoneConfigs.size(); index++) {
             CarAudioZoneConfig config = mCarAudioZoneConfigs.valueAt(index);
-            config.synchronizeCurrentGainIndex();
             // mCurrentConfigId should be the default config, but this may change in the future
             // The configuration could be loaded from audio settings instead
             if (!config.isDefault()) {
                 continue;
             }
-            synchronized (mLock) {
-                mCurrentConfigId = config.getZoneConfigId();
-            }
+            defaultConfig = config.getZoneConfigId();
             config.setIsSelected(true);
+            config.synchronizeCurrentGainIndex();
             config.updateVolumeDevices(mCarAudioContext.useCoreAudioRouting());
+            break;
+        }
+        synchronized (mLock) {
+            mCurrentConfigId = defaultConfig;
         }
     }
 

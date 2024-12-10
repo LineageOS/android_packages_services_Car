@@ -423,7 +423,8 @@ final class AidlVehicleStub extends VehicleStub {
                         new ArrayMap<>();
                 for (int i = 0; i < vhalRequestIds.size(); i++) {
                     long vhalRequestId = vhalRequestIds.get(i);
-                    AsyncRequestInfo requestInfo = finishRequestIfFound(vhalRequestId);
+                    AsyncRequestInfo requestInfo = finishRequestIfFound(vhalRequestId,
+                            /* alreadyTimedOut= */ true);
                     if (requestInfo == null) {
                         // We already finished the request or the callback is already dead, ignore.
                         Slogf.w(TAG, "onRequestsTimeout: the request for VHAL request ID: %d is "
@@ -453,10 +454,11 @@ final class AidlVehicleStub extends VehicleStub {
             }
         }
 
-        @Nullable AsyncRequestInfo finishRequestIfFound(long vhalRequestId) {
+        @Nullable AsyncRequestInfo finishRequestIfFound(long vhalRequestId,
+                boolean alreadyTimedOut) {
             synchronized (mAsyncRequestPoolLock) {
                 AsyncRequestInfo requestInfo = mPendingRequestPool.getRequestIfFound(vhalRequestId);
-                mPendingRequestPool.removeRequest(vhalRequestId);
+                mPendingRequestPool.removeRequest(vhalRequestId, alreadyTimedOut);
                 return requestInfo;
             }
         }
@@ -695,7 +697,7 @@ final class AidlVehicleStub extends VehicleStub {
                 }
 
                 AsyncRequestInfo requestInfo = mPendingAsyncRequestPool.finishRequestIfFound(
-                        vhalRequestId);
+                        vhalRequestId, /* alreadyTimedOut= */ false);
                 if (requestInfo == null) {
                     Slogf.w(TAG,
                             "No pending request for ID: %s, possibly already timed out, "
@@ -1121,7 +1123,7 @@ final class AidlVehicleStub extends VehicleStub {
             for (int i = 0; i < requests.length; i++) {
                 long vhalRequestId = asyncRequestsHandler.getVhalRequestId(requests[i]);
                 AsyncRequestInfo requestInfo = mPendingAsyncRequestPool.finishRequestIfFound(
-                        vhalRequestId);
+                        vhalRequestId, /* alreadyTimedOut= */ false);
                 if (requestInfo == null) {
                     Slogf.w(TAG,
                             "No pending request for ID: %s, possibly already timed out or "

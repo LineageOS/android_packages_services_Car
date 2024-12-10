@@ -27,6 +27,7 @@ import android.car.hardware.property.CarPropertyManager;
 import android.content.res.Resources;
 import android.util.Log;
 
+import androidx.annotation.Nullable;
 import androidx.lifecycle.MutableLiveData;
 
 import com.android.systemui.R;
@@ -52,7 +53,7 @@ public class StatusBarSensorInfoManager {
     private final MutableLiveData<String> mSensorStringLiveData;
     private final CarServiceProvider mCarServiceProvider;
     private Executor mExecutor;
-    private CarPropertyManager mCarPropertyManager;
+    private @Nullable CarPropertyManager mCarPropertyManager;
     private MutableLiveData<Boolean> mSensorAvailabilityData;
     private float mTemperatureValueInCelsius;
     private int mTemperatureUnit;
@@ -114,6 +115,10 @@ public class StatusBarSensorInfoManager {
     }
 
     private void initializeHvacProperties() {
+        if (mCarPropertyManager == null) {
+            Log.e(TAG, "Missing car property service, skip initializing the hvac properties.");
+            return;
+        }
         int temperatureAreaId =
                 mCarPropertyManager.getAreaId(ENV_OUTSIDE_TEMPERATURE, SEAT_UNKNOWN);
         mTemperatureValueInCelsius =
@@ -126,6 +131,10 @@ public class StatusBarSensorInfoManager {
     }
 
     private void registerHvacPropertyEventListeners() {
+        if (mCarPropertyManager == null) {
+            Log.e(TAG, "Missing car property service, skip registering event listeners.");
+            return;
+        }
         for (Integer propertyId : SENSOR_PROPERTIES) {
             mCarPropertyManager.registerCallback(mPropertyEventCallback, propertyId,
                     CarPropertyManager.SENSOR_RATE_ONCHANGE);
@@ -133,6 +142,10 @@ public class StatusBarSensorInfoManager {
     }
 
     private void unregisterHvacPropertyEventListeners() {
+        if (mCarPropertyManager == null) {
+            Log.e(TAG, "Missing car property service, skip unregistering event listeners.");
+            return;
+        }
         for (Integer propertyId : SENSOR_PROPERTIES) {
             mCarPropertyManager.unregisterCallback(mPropertyEventCallback, propertyId);
         }

@@ -34,9 +34,9 @@ android_test {
 
     libs: [
         "android.car",
-        "android.test.base",
-        "android.test.mock",
-        "android.test.runner",
+        "android.test.base.stubs.system",
+        "android.test.mock.stubs.system",
+        "android.test.runner.stubs.system",
         // After here
         "android.car-test-stubs",
         "android.car.testapi",

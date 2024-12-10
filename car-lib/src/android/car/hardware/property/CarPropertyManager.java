@@ -400,7 +400,7 @@ public class CarPropertyManager extends CarManagerBase {
          * and the success callback will be called.
          *
          * <p>If this is set to {@code true} (by default), the success callback will be called when
-         * both of the following coniditions are met:
+         * both of the following conditions are met:
          *
          * <ul>
          * <li>the set operation is successfully delivered to vehicle bus.
@@ -1056,24 +1056,7 @@ public class CarPropertyManager extends CarManagerBase {
         mHandler = new SingleMessageHandler<>(eventHandler.getLooper(), MSG_GENERIC_EVENT) {
             @Override
             protected void handleEvent(CarPropertyEvent carPropertyEvent) {
-                int propertyId = carPropertyEvent.getCarPropertyValue().getPropertyId();
-                List<CarPropertyEventCallbackController> cpeCallbacks = new ArrayList<>();
-                synchronized (mLock) {
-                    ArraySet<CarPropertyEventCallbackController> cpeCallbackControllerSet =
-                            mPropIdToCpeCallbackControllerList.get(propertyId);
-                    if (cpeCallbackControllerSet == null) {
-                        Slog.w(TAG, "handleEvent: could not find any callbacks for propertyId="
-                                + VehiclePropertyIds.toString(propertyId));
-                        return;
-                    }
-                    for (int i = 0; i < cpeCallbackControllerSet.size(); i++) {
-                        cpeCallbacks.add(cpeCallbackControllerSet.valueAt(i));
-                    }
-                }
-
-                for (int i = 0; i < cpeCallbacks.size(); i++) {
-                    cpeCallbacks.get(i).onEvent(carPropertyEvent);
-                }
+                handleCarPropertyEvents(List.of(carPropertyEvent));
             }
         };
     }
@@ -1359,7 +1342,7 @@ public class CarPropertyManager extends CarManagerBase {
             @FloatRange(from = 0.0, to = 100.0) float updateRateHz,
             @NonNull CarPropertyEventCallback carPropertyEventCallback) {
         Subscription subscription = new Subscription.Builder(propertyId).addAreaId(areaId)
-                .setUpdateRateHz(updateRateHz).setVariableUpdateRateEnabled(false).build();
+                .setUpdateRateHz(updateRateHz).build();
         return subscribePropertyEvents(List.of(subscription), /* callbackExecutor= */ null,
                 carPropertyEventCallback);
     }
@@ -1641,7 +1624,14 @@ public class CarPropertyManager extends CarManagerBase {
     }
 
     private void handleEvents(List<CarPropertyEvent> carPropertyEvents) {
-        if (mHandler != null) {
+        if (mHandler == null) {
+            Slog.wtf(TAG,
+                    "Event handler was not created successfully, ignore all property events");
+            return;
+        }
+        if (mFeatureFlags.handlePropertyEventsInBinderThread()) {
+            handleCarPropertyEvents(carPropertyEvents);
+        } else {
             mHandler.sendEvents(carPropertyEvents);
         }
     }
@@ -2748,7 +2738,7 @@ public class CarPropertyManager extends CarManagerBase {
      * unavailable for a while.
      * @throws PropertyNotAvailableAndRetryException when [propertyId, areaId] is temporarily not
      * available and likely that retrying will be successful.
-     * @throws IllegalArgumentException when the [propertyId, areaId] is not supported.
+     * @throws IllegalArgumentException when the [propertyId, areaId] or value is not supported.
      */
     public <E> void setProperty(@NonNull Class<E> clazz, int propertyId, int areaId,
             @NonNull E val) {
@@ -3188,6 +3178,8 @@ public class CarPropertyManager extends CarManagerBase {
      * @param setPropertyCallback the callback function to deliver the result
      * @throws SecurityException if missing permission to write one of the specific properties.
      * @throws IllegalArgumentException if one of the properties to set is not supported.
+     * @throws IllegalArgumentException if one of the values to set is not supported by the
+     *   property.
      * @throws IllegalArgumentException if one of the properties is not readable and does not set
      *   {@code waitForPropertyUpdate} to {@code false}.
      * @throws IllegalArgumentException if one of the properties is
@@ -3259,6 +3251,54 @@ public class CarPropertyManager extends CarManagerBase {
             @NonNull SetPropertyCallback setPropertyCallback) {
         setPropertiesAsync(setPropertyRequests, ASYNC_GET_DEFAULT_TIMEOUT_MS, cancellationSignal,
                 callbackExecutor, setPropertyCallback);
+    }
+
+    private void handleCarPropertyEvents(List<CarPropertyEvent> carPropertyEvents) {
+        SparseArray<List<CarPropertyEvent>> carPropertyEventsByPropertyId = new SparseArray<>();
+        for (int i = 0; i < carPropertyEvents.size(); i++) {
+            CarPropertyEvent carPropertyEvent = carPropertyEvents.get(i);
+            int propertyId = carPropertyEvent.getCarPropertyValue().getPropertyId();
+            if (carPropertyEventsByPropertyId.get(propertyId) == null) {
+                carPropertyEventsByPropertyId.put(propertyId, new ArrayList<>());
+            }
+            carPropertyEventsByPropertyId.get(propertyId).add(carPropertyEvent);
+        }
+
+        ArrayMap<CarPropertyEventCallbackController, List<CarPropertyEvent>> eventsByCallback =
+                new ArrayMap<>();
+
+        synchronized (mLock) {
+            for (int i = 0; i < carPropertyEventsByPropertyId.size(); i++) {
+                int propertyId = carPropertyEventsByPropertyId.keyAt(i);
+                List<CarPropertyEvent> eventsForPropertyId =
+                        carPropertyEventsByPropertyId.valueAt(i);
+                ArraySet<CarPropertyEventCallbackController> cpeCallbackControllerSet =
+                        mPropIdToCpeCallbackControllerList.get(propertyId);
+                if (cpeCallbackControllerSet == null) {
+                    Slog.w(TAG, "handleEvent: could not find any callbacks for propertyId="
+                            + VehiclePropertyIds.toString(propertyId));
+                    return;
+                }
+                for (int j = 0; j < cpeCallbackControllerSet.size(); j++) {
+                    var callback = cpeCallbackControllerSet.valueAt(j);
+                    if (eventsByCallback.get(callback) == null) {
+                        eventsByCallback.put(callback, new ArrayList<>());
+                    }
+                    eventsByCallback.get(callback).addAll(eventsForPropertyId);
+                }
+            }
+        }
+
+        // This might be invoked from a binder thread (CarPropertyEventListenerToService.onEvent),
+        // so we must clear calling identity before calling client executor.
+        Binder.clearCallingIdentity();
+        for (int i = 0; i < eventsByCallback.size(); i++) {
+            var callback = eventsByCallback.keyAt(i);
+            var events = eventsByCallback.valueAt(i);
+            for (int j = 0; j < events.size(); j++) {
+                callback.onEvent(events.get(j));
+            }
+        }
     }
 
     private void assertPropertyIdIsSupported(int propertyId) {

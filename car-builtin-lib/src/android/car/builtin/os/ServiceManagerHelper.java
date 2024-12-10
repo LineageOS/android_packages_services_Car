@@ -20,6 +20,8 @@ import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.SystemApi;
 import android.os.IBinder;
+import android.os.IServiceCallback;
+import android.os.RemoteException;
 import android.os.ServiceManager;
 
 /**
@@ -61,5 +63,42 @@ public final class ServiceManagerHelper {
     @Nullable
     public static String[] getDeclaredInstances(@NonNull String iface) {
         return ServiceManager.getDeclaredInstances(iface);
+    }
+
+    /**
+     * The callback interface for {@link registerForNotifications}.
+     */
+    public interface IServiceRegistrationCallback {
+        /**
+         * Called when a service is registered.
+         *
+         * @param name the service name that has been registered with
+         * @param binder the binder that is registered
+         */
+        void onRegistration(@NonNull String name, IBinder binder);
+    }
+
+    private static final class ServiceCallbackImpl extends IServiceCallback.Stub {
+        private final IServiceRegistrationCallback mClientCallback;
+
+        ServiceCallbackImpl(IServiceRegistrationCallback clientCallback) {
+            mClientCallback = clientCallback;
+        }
+
+        @Override
+        public void onRegistration(String name, IBinder binder) {
+            mClientCallback.onRegistration(name, binder);
+        }
+    }
+
+    /**
+     * Register callback for service registration notifications.
+     *
+     * @throws RemoteException for underlying error.
+     */
+    public static void registerForNotifications(
+            @NonNull String name, @NonNull IServiceRegistrationCallback callback)
+            throws RemoteException {
+        ServiceManager.registerForNotifications(name, new ServiceCallbackImpl(callback));
     }
 }

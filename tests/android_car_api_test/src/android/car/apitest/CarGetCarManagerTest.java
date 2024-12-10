@@ -51,7 +51,6 @@ import android.car.storagemonitoring.CarStorageMonitoringManager;
 import android.car.telemetry.CarTelemetryManager;
 import android.car.test.CarTestManager;
 import android.car.user.CarUserManager;
-import android.car.user.ExperimentalCarUserManager;
 import android.car.vms.VmsClientManager;
 import android.car.vms.VmsSubscriberManager;
 import android.car.watchdog.CarWatchdogManager;
@@ -113,7 +112,6 @@ public final class CarGetCarManagerTest extends CarLessApiTestBase {
             {CarTestManager.class, Car.TEST_SERVICE},
             {CarEvsManager.class, Car.CAR_EVS_SERVICE},
             {CarTelemetryManager.class, Car.CAR_TELEMETRY_SERVICE},
-            {ExperimentalCarUserManager.class, Car.EXPERIMENTAL_CAR_USER_SERVICE},
             {CarInstrumentClusterManager.class, Car.CAR_INSTRUMENT_CLUSTER_SERVICE},
             {OccupantAwarenessManager.class, Car.OCCUPANT_AWARENESS_SERVICE},
             {CarActivityManager.class, Car.CAR_ACTIVITY_SERVICE}

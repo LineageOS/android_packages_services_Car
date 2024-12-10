@@ -22,7 +22,7 @@ import android.os.Build;
 import android.os.UserHandle;
 
 import com.android.systemui.car.distantdisplay.common.DistantDisplayReceiver;
-import com.android.systemui.car.distantdisplay.common.TaskViewController;
+import com.android.systemui.car.distantdisplay.common.DistantDisplayTaskManager;
 import com.android.systemui.dagger.SysUISingleton;
 
 import javax.inject.Inject;
@@ -38,13 +38,13 @@ public class ActivityWindowController {
     public static final String TAG = ActivityWindowController.class.getSimpleName();
     private static final boolean DEBUG = Build.IS_ENG || Build.IS_USERDEBUG;
     private final Context mContext;
-    private final TaskViewController mTaskViewController;
+    private final DistantDisplayTaskManager mDistantDisplayTaskManager;
 
     @Inject
     public ActivityWindowController(Context context,
-            TaskViewController taskViewController) {
+            DistantDisplayTaskManager distantDisplayTaskManager) {
         mContext = context;
-        mTaskViewController = taskViewController;
+        mDistantDisplayTaskManager = distantDisplayTaskManager;
     }
 
     /**
@@ -62,8 +62,8 @@ public class ActivityWindowController {
         IntentFilter filter = new IntentFilter(DistantDisplayReceiver.DISTANT_DISPLAY);
         DistantDisplayReceiver receiver = new DistantDisplayReceiver();
         receiver.register(displayId -> {
-            mTaskViewController.unregister();
-            mTaskViewController.initialize(displayId);
+            mDistantDisplayTaskManager.unregister();
+            mDistantDisplayTaskManager.initialize(displayId);
         });
         mContext.registerReceiverAsUser(receiver,
                 UserHandle.of(ActivityManager.getCurrentUser()),

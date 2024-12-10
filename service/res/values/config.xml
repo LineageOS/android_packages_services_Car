@@ -665,4 +665,7 @@
               will be stopped.
     -->
     <string name="config_suspend_to_disk_memory_savings" translatable="false">low</string>
+
+    <!-- Controls the use of bluetooth pairing when long pressing the voice assist button in CarInputService. -->
+    <bool name="config_enableLongPressBluetoothPairing">true</bool>
 </resources>

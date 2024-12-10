@@ -20,8 +20,6 @@ import android.annotation.Nullable;
 
 /**
  * TextUtils for car lib
- *
- * @hide
  */
 public final class TextUtils {
 

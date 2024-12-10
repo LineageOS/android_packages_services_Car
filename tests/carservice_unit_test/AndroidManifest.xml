@@ -36,7 +36,6 @@
     <application android:label="@string/app_title"
             android:debuggable="true" android:testOnly="true">
         <uses-library android:name="android.test.runner" />
-        <activity android:name="android.car.app.CarTaskViewControllerHostLifecycleFactoryTest$TestActivity"/>
         <activity android:name="com.android.car.SystemActivityMonitoringServiceTest$ActivityA"/>
         <activity android:name="com.android.car.SystemActivityMonitoringServiceTest$ActivityB"/>
         <activity android:name="com.android.car.SystemActivityMonitoringServiceTest$ActivityC"/>
@@ -52,9 +51,6 @@
         <activity android:name="com.android.car.admin.ui.CarAdminUiTestActivity"/>
 
         <service android:name="android.car.cluster.renderer.InstrumentClusterRenderingServiceTest$TestableInstrumentClusterRenderingService"/>
-
-        <service android:name="android.car.occupantconnection.PayloadTestBinderService"
-                 android:exported="true"/>
 
     </application>
 </manifest>

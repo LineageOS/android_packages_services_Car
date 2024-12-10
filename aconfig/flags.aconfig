@@ -10,6 +10,25 @@ flag {
   bug: "320545306"
 }
 
+flag {
+  name: "visible_background_user_restrictions"
+  is_exported: true
+  namespace: "car_framework"
+  description: "Apply user restrictions on visible background users"
+  bug: "356522177"
+  metadata {
+      purpose: PURPOSE_BUGFIX
+  }
+}
+
+flag {
+  name: "supports_secure_passenger_users"
+  is_exported: true
+  namespace: "car_framework"
+  description: "Support secure users to run as passengers"
+  bug: "367787957"
+}
+
 # CarPackageManager
 flag {
   name: "display_compatibility"
@@ -26,6 +45,13 @@ flag {
   namespace: "car_framework"
   description: "This flag controls if apps can query the inhibit state or bluetooth profiles."
   bug: "281791498"
+}
+
+flag {
+  name: "use_wifi_manager_for_available_channels"
+  namespace: "car_framework"
+  description: "This flag controls if apps can query available WiFi channels using the WifiManager."
+  bug: "325395533"
 }
 
 # CarRemoteAccessManager
@@ -56,6 +82,16 @@ flag {
 }
 
 flag {
+  name: "multi_display_brightness_control"
+  namespace: "car_framework"
+  description: "Support multi display brightness control"
+  bug: "356419293"
+  metadata {
+    purpose: PURPOSE_BUGFIX
+  }
+}
+
+flag {
   name: "car_power_cancel_shell_command"
   is_exported: true
   namespace: "car_framework"
@@ -68,6 +104,13 @@ flag {
   namespace: "car_framework"
   description: "Controls whether processes need to be stopped before suspend to disk"
   bug: "324593655"
+}
+
+flag {
+  name: "change_swaps_during_suspend_to_disk"
+  namespace: "car_framework"
+  description: "Controls whether car service allows for changing space before suspend to disk"
+  bug: "339688542"
 }
 
 # CarAudioManager
@@ -103,6 +146,30 @@ flag {
     bug: "315695829"
 }
 
+flag {
+    name: "audio_vendor_freeze_improvements"
+    is_exported: true
+    namespace: "car_framework"
+    description: "Controls whether car audio vendor freeze improvements are enabled"
+    bug: "344678175"
+}
+
+flag {
+    name: "audio_legacy_mode_navigation_volume"
+    is_exported: true
+    namespace: "car_framework"
+    description: "Enables navigation audio usage in legacy volume mode."
+    bug: "353872512"
+}
+
+flag {
+    name: "audio_control_hal_configuration"
+    is_exported: true
+    namespace: "car_framework"
+    description: "Controls whether car audio service can be configured using audio control hal configuration."
+    bug: "359686069"
+}
+
 # CarPropertyManager
 flag {
   name: "batched_subscriptions"
@@ -136,12 +203,27 @@ flag {
   bug: "276124296"
 }
 
+flag {
+  name: "handle_property_events_in_binder_thread"
+  is_exported: true
+  namespace: "car_framework"
+  description: "Controls whether to directly handle property evnets in binder thread in CarPropertyManager"
+  bug: "355703549"
+}
+
 # CarServiceBase
 flag {
   name: "car_dump_to_proto"
   namespace: "car_framework"
   description: "Controls whether dump to proto is an option for car services"
   bug: "302596493"
+}
+
+flag {
+  name: "create_car_use_notifications"
+  namespace: "car_framework"
+  description: "Optimized Car.createCar implementation using ServiceManagerHelper.registerForNotifications and binder death recipient"
+  bug: "343489611"
 }
 
 # ClusterHomeManager
@@ -230,4 +312,28 @@ flag {
   namespace: "car_framework"
   description: "Enables use of Car App Card APIs"
   bug: "331282711"
+}
+
+# CarInputService
+flag {
+  name: "car_input_start_btpairing_lptt"
+  namespace: "car_framework"
+  description: "Start BT pairing form long press PTT"
+  bug: "352562350"
+}
+
+# DistantDisplayTransitions
+flag {
+    name: "distant_display_transitions"
+    namespace: "car_framework"
+    description: "Enables shell transitions handler in distant display"
+    bug: "316069815"
+}
+
+# Features that Support SDV on IVI
+flag {
+    name: "package_manager_extensions_for_sdv"
+    namespace: "car_framework"
+    description: "Enables SDV to access packages manager functions"
+    bug: "344832846"
 }

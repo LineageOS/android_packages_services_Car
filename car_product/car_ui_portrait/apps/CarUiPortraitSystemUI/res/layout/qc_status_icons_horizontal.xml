@@ -45,14 +45,28 @@
         systemui:panelLayoutRes="@layout/qc_connectivity_panel"
         systemui:disabledWhileUnprovisioned="true"
         systemui:systemBarDisable2Flags="quickSettings">
-        <com.android.systemui.car.statusicon.StatusIconView
-            android:id="@+id/connectivity_status_icon"
-            android:layout_width="@dimen/top_system_bar_qc_icon_drawing_size"
-            android:layout_height="@dimen/top_system_bar_qc_icon_drawing_size"
-            android:layout_gravity="center"
-            android:tint="@color/car_status_icon_color"
-            android:duplicateParentState="true"
-            systemui:controller="com.android.systemui.car.statusicon.ui.SignalStatusIconController"/>
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <com.android.systemui.car.statusicon.StatusIconView
+                android:id="@+id/connectivity_status_icon"
+                android:layout_width="@dimen/top_system_bar_qc_icon_drawing_size"
+                android:layout_height="@dimen/top_system_bar_qc_icon_drawing_size"
+                android:layout_gravity="center"
+                android:tint="@color/car_status_icon_color"
+                android:duplicateParentState="true"
+                systemui:controller="com.android.systemui.car.statusicon.ui.SignalStatusIconController"/>
+            <com.android.systemui.car.systembar.element.layout.CarSystemBarImageView
+                android:id="@+id/qc_icon_button_unseen_icon"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:src="@drawable/car_qc_icon_button_unseen_indicator"
+                android:scaleType="fitCenter"
+                android:clickable="false"
+                android:visibility="gone"
+                systemui:controller="com.android.systemui.car.systembar.DataSubscriptionUnseenIconController"/>
+        </FrameLayout>
     </com.android.systemui.car.systembar.CarSystemBarPanelButtonView>
     <com.android.systemui.car.systembar.CarSystemBarPanelButtonView
         android:id="@+id/display_panel_button"
@@ -62,13 +76,31 @@
         systemui:panelLayoutRes="@layout/qc_display_panel"
         systemui:disabledWhileUnprovisioned="true"
         systemui:systemBarDisable2Flags="quickSettings">
-        <com.android.systemui.car.statusicon.StatusIconView
+        <ImageView
             android:id="@+id/display_status_icon"
             android:layout_width="@dimen/top_system_bar_qc_icon_drawing_size"
             android:layout_height="@dimen/top_system_bar_qc_icon_drawing_size"
             android:layout_gravity="center"
             android:tint="@color/car_status_icon_color"
             android:duplicateParentState="true"
-            systemui:controller="com.android.systemui.car.statusicon.ui.DisplayStatusIconController"/>
+            android:src="@drawable/car_ic_brightness"
+            android:contentDescription="@string/status_icon_display_status"/>
+    </com.android.systemui.car.systembar.CarSystemBarPanelButtonView>
+    <com.android.systemui.car.systembar.CarSystemBarPanelButtonView
+        android:id="@+id/volume_panel_button"
+        android:orientation="horizontal"
+        android:gravity="center"
+        style="@style/TopBarButton"
+        systemui:panelLayoutRes="@layout/qc_volume_panel"
+        systemui:disabledWhileUnprovisioned="true"
+        systemui:systemBarDisable2Flags="quickSettings">
+        <com.android.systemui.car.statusicon.StatusIconView
+            android:id="@+id/volume_status_icon"
+            android:layout_width="@dimen/top_system_bar_qc_icon_drawing_size"
+            android:layout_height="@dimen/top_system_bar_qc_icon_drawing_size"
+            android:layout_gravity="center"
+            android:tint="@color/car_status_icon_color"
+            android:duplicateParentState="true"
+            systemui:controller="com.android.systemui.car.statusicon.ui.MediaVolumeStatusIconController"/>
     </com.android.systemui.car.systembar.CarSystemBarPanelButtonView>
 </LinearLayout>

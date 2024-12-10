@@ -69,7 +69,7 @@ constexpr int64_t kSleepTimeMilliseconds = 1000;
 constexpr int64_t kTimeoutMilliseconds = 30000;
 
 // UIDs allowed to use this service
-const std::set<uid_t> kAllowedUids = {AID_AUTOMOTIVE_EVS, AID_SYSTEM, AID_ROOT};
+const std::set<uid_t> kAllowedUids = {AID_AUTOMOTIVE_EVS, AID_SYSTEM, AID_ROOT, AID_GRAPHICS};
 
 }  // namespace
 
@@ -110,7 +110,7 @@ std::shared_ptr<IEvsEnumerator> Enumerator::connectToAidlHal(
         LOG(WARNING) << "Failed to register a device status callback";
     }
 
-    return std::move(service);
+    return service;
 }
 
 std::shared_ptr<IEvsEnumerator> Enumerator::connectToHidlHal(
@@ -122,7 +122,7 @@ std::shared_ptr<IEvsEnumerator> Enumerator::connectToHidlHal(
         return nullptr;
     }
 
-    return std::move(::ndk::SharedRefBase::make<AidlEnumerator>(service));
+    return ::ndk::SharedRefBase::make<AidlEnumerator>(service);
 }
 
 bool Enumerator::init(const std::string_view& hardwareServiceName) {
@@ -682,8 +682,8 @@ void Enumerator::cmdList(int fd, const char** args, uint32_t numArgs) {
         if (mCameraDevices.size() < 1) {
             // Camera devices may not be enumerated yet.  This may fail if the
             // user is not permitted to use EVS service.
-            std::vector<CameraDesc> temp;
-            (void)getCameraList(&temp);
+            std::vector<CameraDesc> unused;
+            (void)getCameraList(&unused);
         }
 
         for (auto& [id, desc] : mCameraDevices) {
@@ -892,6 +892,11 @@ void Enumerator::broadcastDeviceStatusChange(const std::vector<aidlevs::DeviceSt
 
 ScopedAStatus Enumerator::EvsDeviceStatusCallbackImpl::deviceStatusChanged(
         const std::vector<aidlevs::DeviceStatus>& list) {
+    {
+        // Refresh the list.
+        std::vector<CameraDesc> unused;
+        (void)mEnumerator->getCameraList(&unused);
+    }
     mEnumerator->broadcastDeviceStatusChange(list);
     return ScopedAStatus::ok();
 }

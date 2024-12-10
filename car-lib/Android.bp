@@ -76,17 +76,20 @@ java_defaults {
         ],
     },
     libs: [
-        "android.car.builtin",
+        "android.car.builtin.stubs.module_lib",
         "framework-annotations-lib",
-        "framework-wifi",
-        "framework-bluetooth",
-        "framework-location",
+        "framework-wifi.stubs.module_lib",
+        "framework-bluetooth.stubs.module_lib",
+        "framework-location.stubs.module_lib",
         "modules-utils-preconditions",
     ],
     installable: true,
     // TODO(b/288271411): enable it when car mainline module is supported
     // min_sdk_version: "33",
     sdk_version: "module_current",
+    dist: {
+        targets: ["dist_files"],
+    },
 }
 
 java_library {
@@ -97,6 +100,9 @@ java_library {
     static_libs: [
         "com.android.car.internal.dep",
     ],
+    lint: {
+        baseline_filename: "lint-baseline.xml",
+    },
 }
 
 // TODO(b/248635421): these annotations are part of android.car, but
@@ -125,7 +131,6 @@ droidstubs {
     name: "android.car-stubs-docs",
     defaults: ["android.car-docs-default"],
     args: "--hide UnavailableSymbol --hide HiddenSuperclass --stub-packages android.car* " +
-        "--hide-package com.android.internal --hide-package com.android.car.internal " +
         "--error UnflaggedApi",
     installable: false,
     check_api: {
@@ -151,8 +156,8 @@ droidstubs {
     // TODO(b/174572385): Remove CallbackInterface once this b/174572385 is fixed
     args: "--hide CallbackInterface --hide UnavailableSymbol --hide HiddenSuperclass " +
         "--stub-packages android.car* " +
-        "--show-annotation android.annotation.SystemApi --hide-package com.android.internal " +
-        "--hide-package com.android.car.internal --error UnflaggedApi",
+        "--show-annotation android.annotation.SystemApi " +
+        "--error UnflaggedApi",
     installable: false,
     check_api: {
         last_released: {
@@ -291,6 +296,7 @@ java_library {
     dist: {
         targets: ["dist_files"],
     },
+    is_stubs_module: true,
 }
 
 java_library {
@@ -358,4 +364,34 @@ filegroup {
     srcs: [
         "api/system-removed.txt",
     ],
+}
+
+genrule_defaults {
+    name: "car_signature_to_jdiff_defaults",
+    tools: ["metalava"],
+    cmd: "$(location metalava) signature-to-jdiff --strip $(in) $(out)",
+    dist: {
+        targets: ["dist_files"],
+    },
+}
+
+genrule {
+    name: "android.car-test-stubs-jdiff",
+    defaults: ["car_signature_to_jdiff_defaults"],
+    srcs: ["api/test-current.txt"],
+    out: ["car-test-api.xml"],
+}
+
+genrule {
+    name: "android.car-system-stubs-jdiff",
+    defaults: ["car_signature_to_jdiff_defaults"],
+    srcs: ["api/system-current.txt"],
+    out: ["car-system-api.xml"],
+}
+
+genrule {
+    name: "android.car-stubs-jdiff",
+    defaults: ["car_signature_to_jdiff_defaults"],
+    srcs: ["api/current.txt"],
+    out: ["car-api.xml"],
 }

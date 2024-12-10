@@ -34,8 +34,6 @@ import java.util.Set;
  *
  * @param <K> type of the key of the item
  * @param <V> type wrapped in the value of the item
- *
- * @hide
  */
 public final class BinderKeyValueContainer<K, V extends IInterface> {
 

@@ -37,7 +37,7 @@ VEHICLE_PROPERTY_IDS_PARSER = ('packages/services/Car/tools/'
 CAR_LIB = 'packages/services/Car/car-lib/src'
 CAR_SVC_PROPS = ('packages/services/Car/car-lib/generated-prop-config'
         '/CarSvcProps.json')
-JDK_FOLDER = '/prebuilts/jdk/jdk17/linux-x86'
+JDK_FOLDER = '/prebuilts/jdk/jdk21/linux-x86'
 
 
 def createTempFile():

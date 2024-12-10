@@ -35,8 +35,6 @@ import java.util.List;
  * Note that this pool is not thread-safe. Caller must use lock to guard this object.
  *
  * @param <T> The request info type.
- *
- * @hide
  */
 public final class LongPendingRequestPool<T extends LongRequestIdWithTimeout> {
     private static final String TAG = LongPendingRequestPool.class.getSimpleName();
@@ -162,6 +160,16 @@ public final class LongPendingRequestPool<T extends LongRequestIdWithTimeout> {
      * Remove the pending request and the timeout handler for it.
      */
     public void removeRequest(long requestId) {
+        removeRequest(requestId, /* alreadyTimedOut= */ false);
+    }
+
+    /**
+     * Remove the pending request and the timeout handler for it.
+     *
+     * @param requestId The request ID.
+     * @param alreadyTimedOut Whether this request is already timed out.
+     */
+    public void removeRequest(long requestId, boolean alreadyTimedOut) {
         synchronized (mRequestIdsLock) {
             T requestInfo = mRequestIdToRequestInfo.get(requestId);
             if (requestInfo == null) {
@@ -169,6 +177,13 @@ public final class LongPendingRequestPool<T extends LongRequestIdWithTimeout> {
                 return;
             }
             mRequestIdToRequestInfo.remove(requestId);
+
+            if (alreadyTimedOut) {
+                // If the request is already timed out, then it has already been removed from
+                // mTimeoutUptimeMsToRequestIds.
+                return;
+            }
+
             long timeoutUptimeMs = requestInfo.getTimeoutUptimeMs();
             List<Long> requestIds = mTimeoutUptimeMsToRequestIds.get(timeoutUptimeMs);
             if (requestIds == null) {

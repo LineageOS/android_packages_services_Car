@@ -282,8 +282,7 @@ ScopedAStatus AidlEnumerator::ImplV0::openCamera(const std::string& id, const St
         return Utils::buildScopedAStatusFromEvsResult(EvsResult::INVALID_ARG);
     }
 
-    *_aidl_return =
-            std::move(::ndk::SharedRefBase::make<AidlCamera>(hidlCamera, /* forceV1_0= */ true));
+    *_aidl_return = ::ndk::SharedRefBase::make<AidlCamera>(hidlCamera, /* forceV1_0= */ true);
 
     return ScopedAStatus::ok();
 }
@@ -367,7 +366,7 @@ ScopedAStatus AidlEnumerator::ImplV1::openCamera(const std::string& id, const St
         return Utils::buildScopedAStatusFromEvsResult(EvsResult::RESOURCE_NOT_AVAILABLE);
     }
 
-    auto hidlStreamConfig = std::move(Utils::makeToHidl(cfg));
+    auto hidlStreamConfig = Utils::makeToHidl(cfg);
     ::android::sp<hidlevs::V1_1::IEvsCamera> hidlCamera =
             mHidlEnumerator->openCamera_1_1(id, hidlStreamConfig);
     if (!hidlCamera) {
@@ -375,7 +374,7 @@ ScopedAStatus AidlEnumerator::ImplV1::openCamera(const std::string& id, const St
         return Utils::buildScopedAStatusFromEvsResult(EvsResult::INVALID_ARG);
     }
 
-    *_aidl_return = std::move(::ndk::SharedRefBase::make<AidlCamera>(hidlCamera));
+    *_aidl_return = ::ndk::SharedRefBase::make<AidlCamera>(hidlCamera);
 
     return ScopedAStatus::ok();
 }

@@ -45,6 +45,6 @@ android_test {
 
     libs: [
         "android.car-system-stubs",
-        "android.test.runner",
+        "android.test.runner.stubs.system",
     ],
 }

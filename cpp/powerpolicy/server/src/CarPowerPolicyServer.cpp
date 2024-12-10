@@ -710,9 +710,9 @@ ScopedAStatus CarPowerPolicyServer::notifyCarServiceReadyInternal(
         return ScopedAStatus::fromServiceSpecificErrorWithMessage(EX_ILLEGAL_STATE, errorCause);
     }
 
-    aidlReturn->registeredCustomComponents = std::move(mPolicyManager.getCustomComponents());
+    aidlReturn->registeredCustomComponents = mPolicyManager.getCustomComponents();
     aidlReturn->currentPowerPolicy = *mCurrentPowerPolicyMeta.powerPolicy;
-    aidlReturn->registeredPolicies = std::move(mPolicyManager.getRegisteredPolicies());
+    aidlReturn->registeredPolicies = mPolicyManager.getRegisteredPolicies();
     ALOGI("CarService registers ICarPowerPolicyDelegateCallback");
     return ScopedAStatus::ok();
 }

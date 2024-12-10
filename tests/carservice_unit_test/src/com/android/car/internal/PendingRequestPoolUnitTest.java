@@ -21,11 +21,13 @@ import static com.google.common.truth.Truth.assertWithMessage;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.SystemClock;
+import android.platform.test.ravenwood.RavenwoodRule;
 
 import com.android.internal.annotations.GuardedBy;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -35,6 +37,10 @@ import java.util.List;
  * Unit tests for {@link LongPendingRequestPool}.
  */
 public final class PendingRequestPoolUnitTest {
+
+    @Rule
+    public final RavenwoodRule mRavenwood = new RavenwoodRule.Builder()
+            .setProvideMainThread(true).build();
 
     private static final class LongTestRequest implements LongRequestIdWithTimeout {
         private final long mRequestId;
@@ -161,14 +167,14 @@ public final class PendingRequestPoolUnitTest {
                 new Long[]{testRequestId1, testRequestId2});
 
         // Must remove the timeout request explicitly.
-        mLongPendingRequestPool.removeRequest(testRequestId1);
-        mLongPendingRequestPool.removeRequest(testRequestId2);
+        mLongPendingRequestPool.removeRequest(testRequestId1, /* alreadyTimedOut= */ true);
+        mLongPendingRequestPool.removeRequest(testRequestId2, /* alreadyTimedOut= */ true);
         assertWithMessage("Expect request pool to be empty after the test").that(
                 mLongPendingRequestPool.isEmpty()).isTrue();
     }
 
     @Test
-    public void testRequestsAlreadyTimeoutNoDuplicateCallbacksCalled() throws Exception {
+    public void testRequestsAlreadyTimedOutNoDuplicateCallbacksCalled() throws Exception {
         long testRequestId1 = 123;
         long testRequestId2 = 234;
         long testRequestId3 = 345;
@@ -199,9 +205,9 @@ public final class PendingRequestPoolUnitTest {
                 new Long[]{testRequestId1, testRequestId2, testRequestId3});
 
         // Clean up the requests.
-        mLongPendingRequestPool.removeRequest(testRequestId1);
-        mLongPendingRequestPool.removeRequest(testRequestId2);
-        mLongPendingRequestPool.removeRequest(testRequestId3);
+        mLongPendingRequestPool.removeRequest(testRequestId1, /* alreadyTimedOut= */ true);
+        mLongPendingRequestPool.removeRequest(testRequestId2, /* alreadyTimedOut= */ true);
+        mLongPendingRequestPool.removeRequest(testRequestId3, /* alreadyTimedOut= */ true);
         assertWithMessage("Expect request pool to be empty after the test").that(
                 mLongPendingRequestPool.isEmpty()).isTrue();
     }

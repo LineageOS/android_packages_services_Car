@@ -54,11 +54,12 @@ import android.view.SurfaceControl;
 import androidx.test.filters.MediumTest;
 
 import com.android.compatibility.common.util.PollingCheck;
+import com.android.internal.protolog.ProtoLog;
 import com.android.wm.shell.ShellTaskOrganizer;
 import com.android.wm.shell.common.HandlerExecutor;
 import com.android.wm.shell.common.SyncTransactionQueue;
-import com.android.wm.shell.common.TransactionPool;
 import com.android.wm.shell.fullscreen.FullscreenTaskListener;
+import com.android.wm.shell.shared.TransactionPool;
 
 import com.google.common.truth.Expect;
 
@@ -114,6 +115,9 @@ public class CarActivityServiceTaskMonitorUnitTest {
 
     @Before
     public void setUp() throws Exception {
+        // The test doesn't have access to the ProtoLog viewer config files
+        ProtoLog.REQUIRE_PROTOLOGTOOL = false;
+
         long timeOutMs = DEFAULT_TIMEOUT_MS;
         if (mTestName.getMethodName().contains("ExpiredToken")) {
             timeOutMs = SHORT_MIRRORING_TOKEN_TIMEOUT_MS;
@@ -183,26 +187,6 @@ public class CarActivityServiceTaskMonitorUnitTest {
         startActivityAndAssertCameOnTop(mActivityA);
 
         startActivityAndAssertCameOnTop(mActivityB);
-    }
-
-    @Test
-    public void testActivityChangedInBackstackOnTaskInfoChanged() throws Exception {
-        FilteredListener listener = startActivityAndAssertCameOnTop(mActivityA);
-
-        // When some activity is launched from another, the baseIntent of the activity becomes
-        // the launching activity due to which an onActivityLaunched callback is received. The
-        // purpose of launching home here is that the baseIntent is not set and the correct
-        // onActivityChanged callback is received.
-        launchHomeScreenUsingIntent();
-
-        listener.assertTopTaskActivityChangedInBackstack();
-    }
-
-    private void launchHomeScreenUsingIntent() {
-        Intent intent = new Intent(Intent.ACTION_MAIN)
-                .addCategory(Intent.CATEGORY_HOME)
-                .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        getTestContext().startActivity(intent);
     }
 
     @Test
@@ -281,7 +265,7 @@ public class CarActivityServiceTaskMonitorUnitTest {
         assertTrue(topTasksHasComponent(mActivityA));
 
         getInstrumentation().runOnMainSync(launchedActivity::finish);
-        listenerA.assertTopTaskActivityChangedInBackstack();
+        listenerA.assertTopTaskVanished();
     }
 
     @Test
@@ -511,7 +495,7 @@ public class CarActivityServiceTaskMonitorUnitTest {
     private static final class FilteredListener implements CarActivityService.ActivityListener {
         private final ComponentName mDesiredComponent;
         private final CountDownLatch mActivityCameOnTop = new CountDownLatch(1);
-        private final CountDownLatch mActivityChangedInBackstack = new CountDownLatch(1);
+        private final CountDownLatch mTaskVanished = new CountDownLatch(1);
         private TaskInfo mTopTask;
 
         /**
@@ -540,17 +524,17 @@ public class CarActivityServiceTaskMonitorUnitTest {
         }
 
         @Override
-        public void onActivityChangedInBackstack(TaskInfo taskInfo) {
+        public void onTaskVanished(TaskInfo taskInfo) {
             if (isActivityOutsideTestPackage(taskInfo)) {
                 return;
             }
             if (!taskInfo.baseIntent.getComponent().equals(mDesiredComponent)) {
                 Log.d(TAG, String.format(
-                        "onActivityChangedInBackstack#Unexpected component: %s. Expected: %s",
+                        "onTaskVanished#Unexpected component: %s. Expected: %s",
                         taskInfo.baseIntent.getComponent(), mDesiredComponent));
                 return;
             }
-            mActivityChangedInBackstack.countDown();
+            mTaskVanished.countDown();
         }
 
         private boolean isActivityOutsideTestPackage(TaskInfo taskInfo) {
@@ -572,13 +556,13 @@ public class CarActivityServiceTaskMonitorUnitTest {
             return mActivityCameOnTop.await(timeoutMs, TimeUnit.MILLISECONDS);
         }
 
-        private void assertTopTaskActivityChangedInBackstack() throws InterruptedException {
-            assertThat(waitForTopTaskActivityChangedInBackstack(DEFAULT_TIMEOUT_MS)).isTrue();
+        private void assertTopTaskVanished() throws InterruptedException {
+            assertThat(waitForTopTaskVanished(DEFAULT_TIMEOUT_MS)).isTrue();
         }
 
-        private boolean waitForTopTaskActivityChangedInBackstack(long timeoutMs)
+        private boolean waitForTopTaskVanished(long timeoutMs)
                 throws InterruptedException {
-            return mActivityChangedInBackstack.await(timeoutMs, TimeUnit.MILLISECONDS);
+            return mTaskVanished.await(timeoutMs, TimeUnit.MILLISECONDS);
         }
     }
 }

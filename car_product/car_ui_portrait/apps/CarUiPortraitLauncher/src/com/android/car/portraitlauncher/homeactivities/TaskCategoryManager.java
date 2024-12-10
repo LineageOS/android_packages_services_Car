@@ -171,7 +171,8 @@ class TaskCategoryManager {
      * the {@code TaskCategoryManager} is ready.
      */
     public boolean isReady() {
-        Intent intent = CarLauncherUtils.getMapsIntent(mContext);
+        // TODO(b/356668072): Change to check map intent once gTOS story is confirmed
+        Intent intent = CarLauncherUtils.getAppsGridIntent();
         return intent.resolveActivity(mContext.getPackageManager()) != null;
     }
 

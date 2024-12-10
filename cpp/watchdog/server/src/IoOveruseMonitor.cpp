@@ -73,10 +73,10 @@ using ::ndk::SpAIBinder;
 constexpr int64_t kMaxInt32 = std::numeric_limits<int32_t>::max();
 constexpr int64_t kMaxInt64 = std::numeric_limits<int64_t>::max();
 // Minimum written bytes to sync the stats with the Watchdog service.
-constexpr int64_t kMinSyncWrittenBytes = 100 * 1024;
+constexpr int64_t kMinSyncWrittenBytes = 10 * 1024;
 // Minimum percentage of threshold to warn killable applications.
 constexpr double kDefaultIoOveruseWarnPercentage = 80;
-// Maximum numer of system-wide stats (from periodic monitoring) to cache.
+// Maximum number of system-wide stats (from periodic monitoring) to cache.
 constexpr size_t kMaxPeriodicMonitorBufferSize = 1000;
 constexpr const char* kHelpText =
         "\n%s dump options:\n"

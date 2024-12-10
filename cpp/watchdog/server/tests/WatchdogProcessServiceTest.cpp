@@ -394,7 +394,7 @@ TEST_F(WatchdogProcessServiceTest, TestTerminate) {
     std::vector<int32_t> propIds = {static_cast<int32_t>(VehicleProperty::VHAL_HEARTBEAT)};
     EXPECT_CALL(*mMockVhalClient, removeOnBinderDiedCallback(_)).Times(1);
     EXPECT_CALL(*mMockVehicle, unsubscribe(_, propIds))
-            .WillOnce(Return(ByMove(std::move(ScopedAStatus::ok()))));
+            .WillOnce(Return(ByMove(ScopedAStatus::ok())));
     mWatchdogProcessService->terminate();
     // TODO(b/217405065): Verify looper removes all MSG_VHAL_HEALTH_CHECK messages.
 }
@@ -403,7 +403,7 @@ TEST_F(WatchdogProcessServiceTest, TestTerminate) {
 
 TEST_F(WatchdogProcessServiceTest, TestRegisterClient) {
     std::shared_ptr<ICarWatchdogClient> client = SharedRefBase::make<ICarWatchdogClientDefault>();
-    expectLinkToDeath(client->asBinder().get(), std::move(ScopedAStatus::ok()));
+    expectLinkToDeath(client->asBinder().get(), ScopedAStatus::ok());
 
     auto status = mWatchdogProcessService->registerClient(client, TimeoutLength::TIMEOUT_CRITICAL);
 
@@ -417,13 +417,13 @@ TEST_F(WatchdogProcessServiceTest, TestRegisterClient) {
 TEST_F(WatchdogProcessServiceTest, TestUnregisterClient) {
     std::shared_ptr<ICarWatchdogClient> client = SharedRefBase::make<ICarWatchdogClientDefault>();
     AIBinder* aiBinder = client->asBinder().get();
-    expectLinkToDeath(aiBinder, std::move(ScopedAStatus::ok()));
+    expectLinkToDeath(aiBinder, ScopedAStatus::ok());
 
     auto status = mWatchdogProcessService->registerClient(client, TimeoutLength::TIMEOUT_CRITICAL);
 
     ASSERT_TRUE(status.isOk()) << status.getMessage();
 
-    expectUnlinkToDeath(aiBinder, std::move(ScopedAStatus::ok()));
+    expectUnlinkToDeath(aiBinder, ScopedAStatus::ok());
 
     status = mWatchdogProcessService->unregisterClient(client);
 
@@ -435,7 +435,7 @@ TEST_F(WatchdogProcessServiceTest, TestUnregisterClient) {
 TEST_F(WatchdogProcessServiceTest, TestErrorOnRegisterClientWithDeadBinder) {
     std::shared_ptr<ICarWatchdogClient> client = SharedRefBase::make<ICarWatchdogClientDefault>();
     expectLinkToDeath(client->asBinder().get(),
-                      std::move(ScopedAStatus::fromExceptionCode(EX_TRANSACTION_FAILED)));
+                      ScopedAStatus::fromExceptionCode(EX_TRANSACTION_FAILED));
 
     ASSERT_FALSE(
             mWatchdogProcessService->registerClient(client, TimeoutLength::TIMEOUT_CRITICAL).isOk())
@@ -445,7 +445,7 @@ TEST_F(WatchdogProcessServiceTest, TestErrorOnRegisterClientWithDeadBinder) {
 TEST_F(WatchdogProcessServiceTest, TestHandleClientBinderDeath) {
     std::shared_ptr<ICarWatchdogClient> client = SharedRefBase::make<ICarWatchdogClientDefault>();
     AIBinder* aiBinder = client->asBinder().get();
-    expectLinkToDeath(aiBinder, std::move(ScopedAStatus::ok()));
+    expectLinkToDeath(aiBinder, ScopedAStatus::ok());
 
     auto status = mWatchdogProcessService->registerClient(client, TimeoutLength::TIMEOUT_CRITICAL);
 
@@ -467,7 +467,7 @@ TEST_F(WatchdogProcessServiceTest, TestRegisterCarWatchdogService) {
     const auto binder = mockService->asBinder();
 
     EXPECT_CALL(*mockServiceHelper, requestAidlVhalPid())
-            .WillOnce(Return(ByMove(std::move(ScopedAStatus::ok()))));
+            .WillOnce(Return(ByMove(ScopedAStatus::ok())));
 
     auto status = mWatchdogProcessService->registerCarWatchdogService(binder, mockServiceHelper);
     ASSERT_TRUE(status.isOk()) << status.getMessage();
@@ -497,7 +497,7 @@ TEST_F(WatchdogProcessServiceTest,
 TEST_F(WatchdogProcessServiceTest, TestRegisterMonitor) {
     std::shared_ptr<ICarWatchdogMonitor> monitorOne =
             SharedRefBase::make<ICarWatchdogMonitorDefault>();
-    expectLinkToDeath(monitorOne->asBinder().get(), std::move(ScopedAStatus::ok()));
+    expectLinkToDeath(monitorOne->asBinder().get(), ScopedAStatus::ok());
 
     auto status = mWatchdogProcessService->registerMonitor(monitorOne);
 
@@ -518,7 +518,7 @@ TEST_F(WatchdogProcessServiceTest, TestErrorOnRegisterMonitorWithDeadBinder) {
     std::shared_ptr<ICarWatchdogMonitor> monitor =
             SharedRefBase::make<ICarWatchdogMonitorDefault>();
     expectLinkToDeath(monitor->asBinder().get(),
-                      std::move(ScopedAStatus::fromExceptionCode(EX_TRANSACTION_FAILED)));
+                      ScopedAStatus::fromExceptionCode(EX_TRANSACTION_FAILED));
 
     ASSERT_FALSE(mWatchdogProcessService->registerMonitor(monitor).isOk())
             << "When linkToDeath fails, registerMonitor should return an error";
@@ -528,13 +528,13 @@ TEST_F(WatchdogProcessServiceTest, TestUnregisterMonitor) {
     std::shared_ptr<ICarWatchdogMonitor> monitor =
             SharedRefBase::make<ICarWatchdogMonitorDefault>();
     AIBinder* aiBinder = monitor->asBinder().get();
-    expectLinkToDeath(aiBinder, std::move(ScopedAStatus::ok()));
+    expectLinkToDeath(aiBinder, ScopedAStatus::ok());
 
     auto status = mWatchdogProcessService->registerMonitor(monitor);
 
     ASSERT_TRUE(status.isOk()) << status.getMessage();
 
-    expectUnlinkToDeath(aiBinder, std::move(ScopedAStatus::ok()));
+    expectUnlinkToDeath(aiBinder, ScopedAStatus::ok());
 
     status = mWatchdogProcessService->unregisterMonitor(monitor);
 
@@ -547,7 +547,7 @@ TEST_F(WatchdogProcessServiceTest, TestHandleMonitorBinderDeath) {
     std::shared_ptr<ICarWatchdogMonitor> monitor =
             SharedRefBase::make<ICarWatchdogMonitorDefault>();
     AIBinder* aiBinder = monitor->asBinder().get();
-    expectLinkToDeath(aiBinder, std::move(ScopedAStatus::ok()));
+    expectLinkToDeath(aiBinder, ScopedAStatus::ok());
 
     auto status = mWatchdogProcessService->registerMonitor(monitor);
 
@@ -563,7 +563,7 @@ TEST_F(WatchdogProcessServiceTest, TestHandleMonitorBinderDeath) {
 
 TEST_F(WatchdogProcessServiceTest, TestTellClientAlive) {
     std::shared_ptr<ICarWatchdogClient> client = SharedRefBase::make<ICarWatchdogClientDefault>();
-    expectLinkToDeath(client->asBinder().get(), std::move(ScopedAStatus::ok()));
+    expectLinkToDeath(client->asBinder().get(), ScopedAStatus::ok());
 
     mWatchdogProcessService->registerClient(client, TimeoutLength::TIMEOUT_CRITICAL);
 
@@ -596,7 +596,7 @@ TEST_F(WatchdogProcessServiceTest, TestTellDumpFinished) {
                          .isOk())
             << "Unregistered monitor cannot call tellDumpFinished";
 
-    expectLinkToDeath(monitor->asBinder().get(), std::move(ScopedAStatus::ok()));
+    expectLinkToDeath(monitor->asBinder().get(), ScopedAStatus::ok());
 
     mWatchdogProcessService->registerMonitor(monitor);
     auto status = mWatchdogProcessService

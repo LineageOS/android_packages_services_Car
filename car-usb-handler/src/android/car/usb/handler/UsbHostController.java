@@ -229,6 +229,10 @@ public final class UsbHostController
 
         UsbManager usbManager = mContext.getSystemService(UsbManager.class);
         UsbDeviceConnection connection = UsbUtil.openConnection(usbManager, device);
+        // USB Manager can return null connection if the device is failed to open one.
+        if (connection == null) {
+            return false;
+        }
         boolean aoapSupported = AoapInterface.isSupported(mContext, device, connection);
         connection.close();
 

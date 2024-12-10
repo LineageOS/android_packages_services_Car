@@ -1,3 +1,6 @@
-boot.car_service_created   u:object_r:system_prop:s0
-boot.car_kernel_boot_time  u:object_r:car_boot_prop:s0 exact string
-boot.car_device_start_time u:object_r:car_boot_prop:s0 exact string
+boot.car_service_created          u:object_r:system_prop:s0
+boot.car_kernel_boot_time         u:object_r:car_boot_prop:s0 exact string
+boot.car_device_start_time        u:object_r:car_boot_prop:s0 exact string
+sys.hibernate                     u:object_r:hibernation_prop:s0
+ro.sys.hibernate_enabled          u:object_r:hibernation_config_prop:s0
+ro.sys.swap_storage_device        u:object_r:hibernation_config_prop:s0

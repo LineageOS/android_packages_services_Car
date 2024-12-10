@@ -17,5 +17,8 @@
 -->
 <resources>
     <dimen name="background_blur_radius">14dp</dimen>
+
+    <!-- These values are copied from the framework so they may be referenced in this app -->
+    <dimen name="resolver_list_item_height">@*android:dimen/car_activity_resolver_list_item_height</dimen>
     <dimen name="resolver_list_max_height">@*android:dimen/car_activity_resolver_list_max_height</dimen>
 </resources>

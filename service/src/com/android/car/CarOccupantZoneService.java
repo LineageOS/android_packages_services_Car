@@ -19,6 +19,7 @@ package com.android.car;
 import static android.car.builtin.view.DisplayHelper.INVALID_PORT;
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_STOPPING;
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING;
+import static android.view.Display.INVALID_DISPLAY;
 import static android.view.Display.STATE_ON;
 
 import static com.android.car.CarServiceUtils.getHandlerThread;
@@ -73,8 +74,6 @@ import com.android.car.occupantzone.CarOccupantZoneDumpProto.DisplayPortConfigsP
 import com.android.car.occupantzone.CarOccupantZoneDumpProto.DisplayUniqueIdConfigsProto;
 import com.android.car.occupantzone.CarOccupantZoneDumpProto.DisplayUniqueIdConfigsProto.DisplayConfigUniqueIdProto;
 import com.android.car.user.CarUserService;
-import com.android.car.user.ExperimentalCarUserService;
-import com.android.car.user.ExperimentalCarUserService.ZoneUserBindingHelper;
 import com.android.car.user.UserHandleHelper;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
@@ -224,30 +223,17 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
         handleUserChange();
     };
 
-    final ExperimentalCarUserService.PassengerCallback mPassengerCallback =
-            new ExperimentalCarUserService.PassengerCallback() {
-                @Override
-                public void onPassengerStarted(@UserIdInt int passengerId, int zoneId) {
-                    handlePassengerStarted();
-                }
-
-                @Override
-                public void onPassengerStopped(@UserIdInt int passengerId) {
-                    handlePassengerStopped();
-                }
-            };
-
     @VisibleForTesting
     final DisplayManager.DisplayListener mDisplayListener =
             new DisplayManager.DisplayListener() {
                 @Override
                 public void onDisplayAdded(int displayId) {
-                    handleDisplayChange();
+                    handleDisplayChange(displayId);
                 }
 
                 @Override
                 public void onDisplayRemoved(int displayId) {
-                    handleDisplayChange();
+                    handleDisplayChange(displayId);
                 }
 
                 @Override
@@ -306,80 +292,8 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
                 .addEventType(USER_LIFECYCLE_EVENT_TYPE_SWITCHING).addEventType(
                         USER_LIFECYCLE_EVENT_TYPE_STOPPING).build();
         mCarUserService.addUserLifecycleListener(userEventFilter, mUserLifecycleListener);
-        ExperimentalCarUserService experimentalUserService =
-                CarLocalServices.getService(ExperimentalCarUserService.class);
-        if (experimentalUserService != null) {
-            experimentalUserService.addPassengerCallback(mPassengerCallback);
-        }
         mDisplayManager.registerDisplayListener(mDisplayListener,
                 new Handler(Looper.getMainLooper()));
-        ZoneUserBindingHelper helper = new ZoneUserBindingHelper() {
-            @Override
-            @NonNull
-            public List<OccupantZoneInfo> getOccupantZones(@OccupantTypeEnum int occupantType) {
-                List<OccupantZoneInfo> zones = new ArrayList<OccupantZoneInfo>();
-                for (OccupantZoneInfo ozi : getAllOccupantZones()) {
-                    if (ozi.occupantType == occupantType) {
-                        zones.add(ozi);
-                    }
-                }
-                return zones;
-            }
-
-            @Override
-            public boolean assignUserToOccupantZone(@UserIdInt int userId, int zoneId) {
-                // Check if the user is already assigned to the other zone.
-                synchronized (mLock) {
-                    int userZoneId = getZoneIdForUserIdLocked(userId);
-                    if (userZoneId != OccupantZoneInfo.INVALID_ZONE_ID
-                            && mActiveOccupantConfigs.keyAt(userZoneId) != zoneId) {
-                        Slogf.w(TAG, "Cannot assign user to two different zones simultaneously");
-                        return false;
-                    }
-                    OccupantConfig zoneConfig = mActiveOccupantConfigs.get(zoneId);
-                    if (zoneConfig == null) {
-                        Slogf.w(TAG, "cannot find the zone(%d)", zoneId);
-                        return false;
-                    }
-                    if (zoneConfig.userId != CarOccupantZoneManager.INVALID_USER_ID
-                            && zoneConfig.userId != userId) {
-                        Slogf.w(TAG, "other user already occupies the zone(%d)", zoneId);
-                        return false;
-                    }
-                    zoneConfig.userId = userId;
-                    return true;
-                }
-            }
-
-            @Override
-            public boolean unassignUserFromOccupantZone(@UserIdInt int userId) {
-                synchronized (mLock) {
-                    for (int i = 0; i < mActiveOccupantConfigs.size(); ++i) {
-                        OccupantConfig config = mActiveOccupantConfigs.valueAt(i);
-                        if (config.userId == userId) {
-                            config.userId = CarOccupantZoneManager.INVALID_USER_ID;
-                            break;
-                        }
-                    }
-                    return true;
-                }
-            }
-
-            @Override
-            public boolean isPassengerDisplayAvailable() {
-                for (OccupantZoneInfo ozi : getAllOccupantZones()) {
-                    if (getDisplayForOccupant(ozi.zoneId,
-                            CarOccupantZoneManager.DISPLAY_TYPE_MAIN) != Display.INVALID_DISPLAY
-                            && ozi.occupantType != CarOccupantZoneManager.OCCUPANT_TYPE_DRIVER) {
-                        return true;
-                    }
-                }
-                return false;
-            }
-        };
-        if (experimentalUserService != null) {
-            experimentalUserService.setZoneUserBindingHelper(helper);
-        }
 
         CarServiceHelperWrapper.getInstance().runOnConnection(() -> doSyncWithCarServiceHelper(
                 /* updateDisplay= */ true, /* updateUser= */ true));
@@ -389,11 +303,6 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
     public void release() {
         mDisplayManager.unregisterDisplayListener(mDisplayListener);
         mCarUserService.removeUserLifecycleListener(mUserLifecycleListener);
-        ExperimentalCarUserService experimentalUserService =
-                CarLocalServices.getService(ExperimentalCarUserService.class);
-        if (experimentalUserService != null) {
-            experimentalUserService.removePassengerCallback(mPassengerCallback);
-        }
         synchronized (mLock) {
             mOccupantsConfig.clear();
             mDisplayPortConfigs.clear();
@@ -403,8 +312,15 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
         }
     }
 
-    /** Return cloned mOccupantsConfig for testing */
-    @VisibleForTesting
+    /**
+     * Returns the cloned occupant zone configs as read from the config_occupant_zones RRO config.
+     *
+     * <p><b>Note:</b> If the config_occupant_zones string value is empty, an occupant zone info
+     * will be automatically created for the driver and added to the occupant zone configs as the
+     * sole occupant zone info.
+     *
+     * @return cloned occupant zone configs mapped from occupant zone id to occupant zone info
+     */
     @NonNull
     public SparseArray<OccupantZoneInfo> getOccupantsConfig() {
         synchronized (mLock) {
@@ -825,7 +741,7 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
             //If there are any active displays for the zone send change event
             handleAudioZoneChangesLocked();
         }
-        sendConfigChangeEvent(CarOccupantZoneManager.ZONE_CONFIG_CHANGE_FLAG_AUDIO);
+        syncStateAndSendConfigChangeEvent(CarOccupantZoneManager.ZONE_CONFIG_CHANGE_FLAG_AUDIO);
     }
 
     @GuardedBy("mLock")
@@ -946,7 +862,7 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
             config.userId = userId;
         }
 
-        sendConfigChangeEvent(CarOccupantZoneManager.ZONE_CONFIG_CHANGE_FLAG_USER);
+        syncStateAndSendConfigChangeEvent(CarOccupantZoneManager.ZONE_CONFIG_CHANGE_FLAG_USER);
         return CarOccupantZoneManager.USER_ASSIGNMENT_RESULT_OK;
     }
 
@@ -998,7 +914,7 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
             if (DBG) Slogf.d(TAG, "Unassigned zone:%d", occupantZoneId);
             config.userId = CarOccupantZoneManager.INVALID_USER_ID;
         }
-        sendConfigChangeEvent(CarOccupantZoneManager.ZONE_CONFIG_CHANGE_FLAG_USER);
+        syncStateAndSendConfigChangeEvent(CarOccupantZoneManager.ZONE_CONFIG_CHANGE_FLAG_USER);
 
         return CarOccupantZoneManager.USER_ASSIGNMENT_RESULT_OK;
     }
@@ -1641,7 +1557,13 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
         }
     }
 
-    private void sendConfigChangeEvent(int changeFlags) {
+    private void syncStateAndSendConfigChangeEvent(int changeFlags) {
+        // INVALID_DISPLAY is used to indicate that the displayId is not relevant to the change
+        // event.
+        syncStateAndSendConfigChangeEvent(changeFlags, INVALID_DISPLAY);
+    }
+
+    private void syncStateAndSendConfigChangeEvent(int changeFlags, int displayId) {
         boolean updateDisplay = false;
         boolean updateUser = false;
         if ((changeFlags & CarOccupantZoneManager.ZONE_CONFIG_CHANGE_FLAG_DISPLAY) != 0) {
@@ -1659,7 +1581,10 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
             for (int i = 0; i < n; i++) {
                 ICarOccupantZoneCallback callback = mClientCallbacks.getBroadcastItem(i);
                 try {
-                    callback.onOccupantZoneConfigChanged(changeFlags);
+                    if (displayId == INVALID_DISPLAY
+                            || getOccupantZoneForDisplayId(displayId) != null) {
+                        callback.onOccupantZoneConfigChanged(changeFlags);
+                    }
                 } catch (RemoteException ignores) {
                     // ignore
                 }
@@ -1674,19 +1599,11 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
             changed = handleUserChangesLocked();
         }
         if (changed) {
-            sendConfigChangeEvent(CarOccupantZoneManager.ZONE_CONFIG_CHANGE_FLAG_USER);
+            syncStateAndSendConfigChangeEvent(CarOccupantZoneManager.ZONE_CONFIG_CHANGE_FLAG_USER);
         }
     }
 
-    private void handlePassengerStarted() {
-        sendConfigChangeEvent(CarOccupantZoneManager.ZONE_CONFIG_CHANGE_FLAG_USER);
-    }
-
-    private void handlePassengerStopped() {
-        sendConfigChangeEvent(CarOccupantZoneManager.ZONE_CONFIG_CHANGE_FLAG_USER);
-    }
-
-    private void handleDisplayChange() {
+    private void handleDisplayChange(int displayId) {
         synchronized (mLock) {
             handleActiveDisplaysLocked();
             // Audio zones should be re-checked for changed display
@@ -1694,7 +1611,8 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
             // User should be re-checked for changed displays
             handleUserChangesLocked();
         }
-        sendConfigChangeEvent(CarOccupantZoneManager.ZONE_CONFIG_CHANGE_FLAG_DISPLAY);
+        syncStateAndSendConfigChangeEvent(CarOccupantZoneManager.ZONE_CONFIG_CHANGE_FLAG_DISPLAY,
+                displayId);
     }
 
     private void enforcePermission(String permissionName) {

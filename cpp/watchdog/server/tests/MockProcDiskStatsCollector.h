@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 
-#ifndef CPP_WATCHDOG_SERVER_TESTS_MOCKPROCDISKSTATSCOLLECTOR_H_
-#define CPP_WATCHDOG_SERVER_TESTS_MOCKPROCDISKSTATSCOLLECTOR_H_
+#pragma once
 
 #include "ProcDiskStatsCollector.h"
 
@@ -44,5 +43,3 @@ public:
 }  // namespace watchdog
 }  // namespace automotive
 }  // namespace android
-
-#endif  //  CPP_WATCHDOG_SERVER_TESTS_MOCKPROCDISKSTATSCOLLECTOR_H_

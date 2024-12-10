@@ -39,6 +39,7 @@ import android.car.app.CarActivityManager;
 import android.car.app.CarDisplayCompatManager;
 import android.car.builtin.os.BuildHelper;
 import android.car.builtin.os.ServiceManagerHelper;
+import android.car.builtin.util.Slogf;
 import android.car.cluster.CarInstrumentClusterManager;
 import android.car.cluster.ClusterActivityState;
 import android.car.cluster.ClusterHomeManager;
@@ -68,7 +69,6 @@ import android.car.storagemonitoring.CarStorageMonitoringManager;
 import android.car.telemetry.CarTelemetryManager;
 import android.car.test.CarTestManager;
 import android.car.user.CarUserManager;
-import android.car.user.ExperimentalCarUserManager;
 import android.car.vms.VmsClientManager;
 import android.car.vms.VmsSubscriberManager;
 import android.car.watchdog.CarWatchdogManager;
@@ -83,8 +83,8 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
-import android.os.Process;
 import android.os.RemoteException;
+import android.os.SystemClock;
 import android.os.TransactionTooLargeException;
 import android.util.ArrayMap;
 import android.util.Slog;
@@ -93,6 +93,10 @@ import com.android.car.internal.ICarBase;
 import com.android.car.internal.VisibleForHiddenApiCheck;
 import com.android.car.internal.common.CommonConstants;
 import com.android.car.internal.dep.SystemProperties;
+import com.android.car.internal.os.Process;
+import com.android.car.internal.os.ServiceManager;
+import com.android.car.internal.os.SystemProcess;
+import com.android.car.internal.os.SystemServiceManager;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 
@@ -290,18 +294,6 @@ public final class Car implements ICarBase {
     @MandatoryFeature
     @SystemApi
     public static final String CAR_USER_SERVICE = "car_user_service";
-
-    /**
-     * Service name for {@link ExperimentalCarUserManager}
-     *
-     * @hide
-     * @deprecated {@link ExperimentalCarUserManager} was an experimental feature and is no longer
-     * supported. It will be marked {@code @removed} in the next major release and hard removed in
-     * the release after that.
-     */
-    @Deprecated
-    @OptionalFeature
-    public static final String EXPERIMENTAL_CAR_USER_SERVICE = "experimental_car_user_service";
 
     /**
      * Service name for ExperimentalCarKeyguardService
@@ -1561,6 +1553,8 @@ public final class Car implements ICarBase {
 
     private static final long CAR_SERVICE_BINDER_POLLING_INTERVAL_MS = 50;
     private static final long CAR_SERVICE_BINDER_POLLING_MAX_RETRY = 100;
+    private static final long CAR_SERVICE_REGISTRATION_TIMEOUT_MS =
+            CAR_SERVICE_BINDER_POLLING_INTERVAL_MS * CAR_SERVICE_BINDER_POLLING_MAX_RETRY;
 
     private static final int STATE_DISCONNECTED = 0;
     private static final int STATE_CONNECTING = 1;
@@ -1614,9 +1608,8 @@ public final class Car implements ICarBase {
     public @interface FeaturerRequestEnum {}
 
     private final Context mContext;
-
     private final Exception mConstructionStack;
-
+    private final long mCreateUptimeMillis;
     private final Object mLock = new Object();
 
     @GuardedBy("mLock")
@@ -1629,6 +1622,19 @@ public final class Car implements ICarBase {
     private int mConnectionState;
     @GuardedBy("mLock")
     private int mConnectionRetryCount;
+
+    // Whether we have registered the service listener. It should only be registered once.
+    @GuardedBy("mLock")
+    private boolean mServiceListenerRegistered;
+    // The car service binder object we get from ServiceManager.
+    @GuardedBy("mLock")
+    private IBinder mCarServiceBinder;
+    // Whether the client is currently waiting (blocked) for a car service connection.
+    @GuardedBy("mLock")
+    private boolean mWaiting;
+    // Whether client explicitly called disconnect.
+    @GuardedBy("mLock")
+    private boolean mClientRequestDisconnect;
 
     private final Runnable mConnectionRetryRunnable = new Runnable() {
         @Override
@@ -1645,8 +1651,35 @@ public final class Car implements ICarBase {
         }
     };
 
-    private final ServiceConnection mServiceConnectionListener =
-            new ServiceConnection() {
+    private final ServiceRegistrationCallbackForCar mServiceRegistrationCallback =
+             new ServiceRegistrationCallbackForCar();
+
+    private final class ServiceRegistrationCallbackForCar implements
+            ServiceManagerHelper.IServiceRegistrationCallback  {
+        @Override
+        public void onRegistration(@NonNull String name, IBinder binder) {
+            Slog.i(TAG_CAR, "car_service registered");
+            if (!name.equals(CAR_SERVICE_BINDER_SERVICE_NAME)) {
+                Slog.wtf(TAG_CAR, "Unexpected service name called for onRegistration: " + name);
+                return;
+            }
+            synchronized (mLock) {
+                mCarServiceBinder = binder;
+                if (mWaiting) {
+                    mLock.notifyAll();
+                    return;
+                }
+                if (mClientRequestDisconnect) {
+                    // Client explicitly called disconnect, do not invoke the callbacks.
+                    return;
+                }
+            }
+
+            mMainThreadEventHandler.post(() -> setBinderAndNotifyReady(binder));
+        }
+    }
+
+    private final ServiceConnection mServiceConnectionListener = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             synchronized (mLock) {
@@ -1662,8 +1695,10 @@ public final class Car implements ICarBase {
                 mConnectionState = STATE_CONNECTED;
                 mService = newService;
             }
+            Slog.i(TAG_CAR, "car_service ready on main thread, Time between Car object creation "
+                    + "and car_service connected (ms): " + timeSinceCreateMillis());
             if (mStatusChangeCallback != null) {
-                mStatusChangeCallback.onLifecycleChanged(Car.this, true);
+                mStatusChangeCallback.onLifecycleChanged(Car.this, /* ready= */ true);
             } else if (mServiceConnectionListenerClient != null) {
                 mServiceConnectionListenerClient.onServiceConnected(name, service);
             }
@@ -1672,22 +1707,43 @@ public final class Car implements ICarBase {
         @Override
         public void onServiceDisconnected(ComponentName name) {
             // Car service can pick up feature changes after restart.
+            Slog.w(TAG_CAR, "Car service disconnected, probably crashed");
             mFeatures.resetCache();
             synchronized (mLock) {
-                if (mConnectionState  == STATE_DISCONNECTED) {
+                if (mConnectionState == STATE_DISCONNECTED) {
                     // can happen when client calls disconnect before onServiceDisconnected call.
                     return;
                 }
                 handleCarDisconnectLocked();
             }
             if (mStatusChangeCallback != null) {
-                mStatusChangeCallback.onLifecycleChanged(Car.this, false);
+                mStatusChangeCallback.onLifecycleChanged(Car.this, /* ready= */ false);
             } else if (mServiceConnectionListenerClient != null) {
                 mServiceConnectionListenerClient.onServiceDisconnected(name);
             } else {
                 // This client does not handle car service restart, so should be terminated.
                 finishClient();
             }
+        }
+    };
+
+    private final IBinder.DeathRecipient mDeathRecipient = new IBinder.DeathRecipient() {
+        @Override
+        public void binderDied() {
+            Slog.w(TAG_CAR, "Car service disconnected, probably crashed");
+            // Car service can pick up feature changes after restart.
+            mFeatures.resetCache();
+            synchronized (mLock) {
+                if (mConnectionState == STATE_DISCONNECTED) {
+                    Slog.i(TAG_CAR, "State is already disconnected, ignore");
+                    // can happen when client calls disconnect before onServiceDisconnected call.
+                    return;
+                }
+                mCarServiceBinder = null;
+                handleCarDisconnectLocked();
+            }
+            dispatchToMainThread(isMainThread(), () -> notifyCarDisconnected());
+            registerServiceListenerIfNotRegistered();
         }
     };
 
@@ -1708,6 +1764,22 @@ public final class Car implements ICarBase {
 
     private final CarFeatures mFeatures = new CarFeatures();
 
+    /**
+     * The dependencies used by this class.
+     *
+     * @hide
+     */
+    @VisibleForTesting
+    public record Deps(ServiceManager serviceManager, Process process,
+            long carServiceBindRetryIntervalMs, long carServiceBindMaxRetry) {}
+
+    // Real system dependencies.
+    private static final Deps SYSTEM_DEPS = new Deps(
+            new SystemServiceManager(), new SystemProcess(),
+            CAR_SERVICE_BIND_RETRY_INTERVAL_MS, CAR_SERVICE_BIND_MAX_RETRY);
+
+    private final Deps mDeps;
+
     static {
         CAR_SERVICE_NAMES.put(CarSensorManager.class, SENSOR_SERVICE);
         CAR_SERVICE_NAMES.put(CarInfoManager.class, INFO_SERVICE);
@@ -1717,7 +1789,6 @@ public final class Car implements ICarBase {
         CAR_SERVICE_NAMES.put(CarNavigationStatusManager.class, CAR_NAVIGATION_SERVICE);
         CAR_SERVICE_NAMES.put(CarOccupantZoneManager.class, CAR_OCCUPANT_ZONE_SERVICE);
         CAR_SERVICE_NAMES.put(CarUserManager.class, CAR_USER_SERVICE);
-        CAR_SERVICE_NAMES.put(ExperimentalCarUserManager.class, EXPERIMENTAL_CAR_USER_SERVICE);
         CAR_SERVICE_NAMES.put(CarDevicePolicyManager.class, CAR_DEVICE_POLICY_SERVICE);
         CAR_SERVICE_NAMES.put(CarInstrumentClusterManager.class, CAR_INSTRUMENT_CLUSTER_SERVICE);
         CAR_SERVICE_NAMES.put(CarCabinManager.class, CABIN_SERVICE);
@@ -1847,7 +1918,9 @@ public final class Car implements ICarBase {
      *                make sure that its {@link ContextWrapper#getBaseContext() base context} is not
      *                {@code null} as well.
      *                Otherwise it will throw {@link java.lang.NullPointerException}.
-     * @param serviceConnectionListener listener for monitoring service connection.
+     * @param serviceConnectionListener listener for monitoring service connection. It is allowed
+     * but not recommended to pass {@code null}. If this is {@code null}, client has to periodically
+     * check {@link #isConnected()} to know when car service is connected.
      * @param handler the handler on which the callback should execute, or null to execute on the
      * service's main thread. Note: the service connection listener will be always on the main
      * thread regardless of the handler given.
@@ -1858,18 +1931,7 @@ public final class Car implements ICarBase {
     @Deprecated
     public static Car createCar(Context context, ServiceConnection serviceConnectionListener,
             @Nullable Handler handler) {
-        assertNonNullContext(context);
-        if (!context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_AUTOMOTIVE)) {
-            Slog.e(TAG_CAR, "FEATURE_AUTOMOTIVE not declared while android.car is used");
-            return null;
-        }
-        try {
-            return new Car(context, /* service= */ null , serviceConnectionListener,
-                    /* statusChangeListener= */ null, handler);
-        } catch (IllegalArgumentException e) {
-            // Expected when car service loader is not available.
-        }
-        return null;
+        return new CarBuilder().createCar(context, serviceConnectionListener, handler);
     }
 
     /**
@@ -1885,7 +1947,7 @@ public final class Car implements ICarBase {
      */
     @Deprecated
     public static Car createCar(Context context, ServiceConnection serviceConnectionListener) {
-        return createCar(context, serviceConnectionListener, null);
+        return new CarBuilder().createCar(context, serviceConnectionListener);
     }
 
     /**
@@ -1965,9 +2027,8 @@ public final class Car implements ICarBase {
      *                      interpreted as timeout value.
      */
     @NonNull
-    public static Car createCar(@NonNull Context context,
-            @Nullable Handler handler, long waitTimeoutMs,
-            @NonNull CarServiceLifecycleListener statusChangeListener) {
+    public static Car createCar(@NonNull Context context, @Nullable Handler handler,
+            long waitTimeoutMs, @NonNull CarServiceLifecycleListener statusChangeListener) {
         return new CarBuilder().createCar(context, handler, waitTimeoutMs, statusChangeListener);
     }
 
@@ -1978,32 +2039,52 @@ public final class Car implements ICarBase {
      */
     @VisibleForTesting
     public static final class CarBuilder {
-        /**
-         * The service manager functions we access in this class.
-         */
-        public interface ServiceManager {
-            /** Check {@link ServiceManager#getService(String)} */
-            IBinder getService(String name);
-        }
-
-        private ServiceManager mServiceManager = new ServiceManager() {
-            @Override
-            public IBinder getService(String name) {
-                return ServiceManagerHelper.getService(name);
-            }
-        };
+        private Deps mDeps = SYSTEM_DEPS;
 
         /**
-         * Sets the fake service manager for testing.
+         * Sets the fake dependencies for testing.
          */
-        public CarBuilder setServiceManager(ServiceManager serviceManager) {
-            mServiceManager = serviceManager;
+        public CarBuilder setFakeDeps(Deps deps) {
+            mDeps = deps;
             return this;
         }
 
         /**
          * See {@link Car#createCar}.
+         *
+         * Even though serviceConnectionListener is not marked as Nullable, existing client may
+         * pass null.
          */
+        @Nullable
+        public Car createCar(Context context,
+                @Nullable ServiceConnection serviceConnectionListener) {
+            return createCar(context, serviceConnectionListener, /* handler= */ null);
+        }
+
+        /**
+         * See {@link Car#createCar}.
+         */
+        @Nullable
+        public Car createCar(Context context, @Nullable ServiceConnection serviceConnectionListener,
+                @Nullable Handler handler) {
+            assertNonNullContext(context);
+            if (!context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_AUTOMOTIVE)) {
+                Slog.e(TAG_CAR, "FEATURE_AUTOMOTIVE not declared while android.car is used");
+                return null;
+            }
+            try {
+                return new Car(context, /* service= */ null , serviceConnectionListener,
+                        /* statusChangeListener= */ null, handler, mDeps);
+            } catch (IllegalArgumentException e) {
+                // Expected when car service loader is not available.
+            }
+            return null;
+        }
+
+        /**
+         * See {@link Car#createCar}.
+         */
+        @Nullable
         public Car createCar(Context context) {
             return createCar(context, (Handler) null);
         }
@@ -2011,19 +2092,88 @@ public final class Car implements ICarBase {
         /**
          * See {@link Car#createCar}.
          */
+        @Nullable
         public Car createCar(Context context, @Nullable Handler handler) {
             assertNonNullContext(context);
+
+            if (Flags.createCarUseNotifications()) {
+                // New optimized logic.
+                return createCarInternal(context, handler, CAR_SERVICE_REGISTRATION_TIMEOUT_MS,
+                        /* statusChangeListener= */ null);
+            }
+
+            return createCarInternalLegacy(context, handler);
+        }
+
+        /**
+         * See {@link Car#createCar}.
+         */
+        @NonNull
+        public Car createCar(@NonNull Context context, @Nullable Handler handler,
+                long waitTimeoutMs, @NonNull CarServiceLifecycleListener statusChangeListener) {
+            assertNonNullContext(context);
+            Objects.requireNonNull(statusChangeListener);
+
+            if (Flags.createCarUseNotifications()) {
+                // New optimized logic.
+                // statusChangeListener is not null, so this must not return null.
+                return createCarInternal(context, handler, waitTimeoutMs, statusChangeListener);
+            }
+
+            return createCarInternalLegacy(context, handler, waitTimeoutMs, statusChangeListener);
+        }
+
+        private @Nullable Car createCarInternal(Context context,
+                @Nullable Handler handler, long waitTimeoutMs,
+                @Nullable CarServiceLifecycleListener statusChangeListener) {
+            Car car = new Car(context, /* service= */ null, /* serviceConnectionListener= */ null,
+                    statusChangeListener, handler, mDeps);
+            IBinder binderService = mDeps.serviceManager().getService(
+                    CAR_SERVICE_BINDER_SERVICE_NAME);
+            if (binderService != null) {
+                // Most common case when car service is already ready.
+                car.setCarService(binderService);
+                Slogf.i(TAG_CAR, "createCar car_service is already ready, took (ms): %d",
+                        car.timeSinceCreateMillis());
+                car.notifyCarReadyOnMainThread(binderService);
+                return car;
+            }
+
+            car.registerServiceListenerIfNotRegistered();
+            IBinder serviceBinder = car.waitForCarServiceReady(waitTimeoutMs);
+
+            if (serviceBinder == null) {
+                Slog.w(TAG_CAR,
+                        "createCar (waitTimeoutMs=" + waitTimeoutMs
+                        + ") car_service not ready, took (ms):"
+                        + car.timeSinceCreateMillis());
+                if (statusChangeListener == null) {
+                    return null;
+                }
+                // Return a car instance that is not connected to the car service.
+                return car;
+            }
+
+            Slog.i(TAG_CAR, "createCar (waitTimeoutMs=" + waitTimeoutMs
+                    + ") connected to car_service, took (ms): "
+                    + car.timeSinceCreateMillis());
+            car.notifyCarReadyOnMainThread(serviceBinder);
+            return car;
+        }
+
+        // Legacy createCar implementation.
+        private @Nullable Car createCarInternalLegacy(Context context, @Nullable Handler handler) {
             Car car = null;
             IBinder service = null;
             boolean started = false;
             int retryCount = 0;
             while (true) {
-                service = mServiceManager.getService(CAR_SERVICE_BINDER_SERVICE_NAME);
+                service = mDeps.serviceManager().getService(CAR_SERVICE_BINDER_SERVICE_NAME);
                 if (car == null) {
                     // service can be still null. The constructor is safe for null service.
                     car = new Car(context, ICar.Stub.asInterface(service),
                             null /*serviceConnectionListener*/, null /*statusChangeListener*/,
-                            handler);
+                            handler, mDeps);
                 }
                 if (service != null) {
                     if (!started) {  // specialization for most common case.
@@ -2067,15 +2217,10 @@ public final class Car implements ICarBase {
             return car;
         }
 
-        /**
-         * See {@link Car#createCar}.
-         */
-        @NonNull
-        public Car createCar(@NonNull Context context,
+        // Legacy createCar implementation.
+        private Car createCarInternalLegacy(@NonNull Context context,
                 @Nullable Handler handler, long waitTimeoutMs,
                 @NonNull CarServiceLifecycleListener statusChangeListener) {
-            assertNonNullContext(context);
-            Objects.requireNonNull(statusChangeListener);
             Car car = null;
             IBinder service = null;
             boolean started = false;
@@ -2090,11 +2235,11 @@ public final class Car implements ICarBase {
             }
             boolean isMainThread = Looper.myLooper() == Looper.getMainLooper();
             while (true) {
-                service = mServiceManager.getService(CAR_SERVICE_BINDER_SERVICE_NAME);
+                service = mDeps.serviceManager().getService(CAR_SERVICE_BINDER_SERVICE_NAME);
                 if (car == null) {
                     // service can be still null. The constructor is safe for null service.
                     car = new Car(context, ICar.Stub.asInterface(service), null,
-                            statusChangeListener, handler);
+                            statusChangeListener, handler, mDeps);
                 }
                 if (service != null) {
                     // specialization for most common case : car service already ready
@@ -2152,9 +2297,145 @@ public final class Car implements ICarBase {
                 car.mService = ICar.Stub.asInterface(service);
                 car.mConnectionState = STATE_CONNECTED;
             }
+            Slog.i(TAG_CAR, "createCar car_service is ready, took (ms): "
+                    + car.timeSinceCreateMillis());
             car.dispatchCarReadyToMainThread(isMainThread);
             return car;
         }
+    }
+
+    private long timeSinceCreateMillis() {
+        return SystemClock.uptimeMillis() - mCreateUptimeMillis;
+    }
+
+    private void registerServiceListenerIfNotRegistered() {
+        synchronized (mLock) {
+            if (mServiceListenerRegistered) {
+                return;
+            }
+            try {
+                mDeps.serviceManager().registerForNotifications(CAR_SERVICE_BINDER_SERVICE_NAME,
+                        mServiceRegistrationCallback);
+            } catch (RemoteException e) {
+                Slog.e(TAG_CAR, "failed to call ServiceManager.registerForNotifications", e);
+                return;
+            }
+            mServiceListenerRegistered = true;
+            return;
+        }
+    }
+
+    @GuardedBy("mLock")
+    private void waitForCarServiceBinderNoTimeoutLocked() throws InterruptedException {
+        // First wait for 5s.
+        waitForCarServiceBinderLocked(CAR_SERVICE_REGISTRATION_TIMEOUT_MS);
+        if (mCarServiceBinder != null) {
+            return;
+        }
+        // Log warning if car service is not alive even for waiting forever case.
+        Slog.w(TAG_CAR,
+                "createCar (wait indefinitely) still cannot get car_service after "
+                + CAR_SERVICE_REGISTRATION_TIMEOUT_MS + "ms");
+        // If we still cannot get car service, then wait forever.
+        while (mCarServiceBinder == null) {
+            // await in a loop to prevent spurious wakeup.
+            mLock.wait();
+        }
+    }
+
+    @GuardedBy("mLock")
+    private void waitForCarServiceBinderLocked(long waitTimeoutMs) throws InterruptedException {
+        long deadlineMillis = SystemClock.uptimeMillis() + waitTimeoutMs;
+        boolean stillWaiting = true;
+        while (mCarServiceBinder == null) {
+            long uptimeMillis = SystemClock.uptimeMillis();
+            if (uptimeMillis >= deadlineMillis) {
+                break;
+            }
+            Slog.w(TAG_CAR, "wait: " + (deadlineMillis - uptimeMillis));
+            mLock.wait(deadlineMillis - uptimeMillis);
+            Slog.w(TAG_CAR, "after wait");
+        }
+    }
+
+    private @Nullable IBinder waitForCarServiceReady(long waitTimeoutMs) {
+        if (waitTimeoutMs == 0) {
+            return null;
+        }
+
+        IBinder serviceBinder;
+        synchronized (mLock) {
+            mWaiting = true;
+            try {
+                if (waitTimeoutMs < 0) {
+                    waitForCarServiceBinderNoTimeoutLocked();
+                } else {
+                    waitForCarServiceBinderLocked(waitTimeoutMs);
+                }
+                serviceBinder = mCarServiceBinder;
+            } catch (InterruptedException e) {
+                Slog.e(TAG_CAR, "Interrupted while waiting for car_service");
+                Thread.currentThread().interrupt();
+                return null;
+            } finally {
+                mWaiting = false;
+            }
+            if (serviceBinder == null) {
+                // Cannot get car service binder before timeout.
+                return null;
+            }
+            setCarServiceLocked(serviceBinder);
+        }
+        return serviceBinder;
+    }
+
+    private void setCarService(IBinder carServiceBinder) {
+        synchronized (mLock) {
+            setCarServiceLocked(carServiceBinder);
+        }
+    }
+
+    @GuardedBy("mLock")
+    private void setCarServiceLocked(IBinder carServiceBinder) {
+        ICar newService = ICar.Stub.asInterface(carServiceBinder);
+        if (newService == null) {
+            Slogf.wtf(TAG_CAR, "null binder service", new RuntimeException());
+            return;  // should not happen.
+        }
+        mConnectionState = STATE_CONNECTED;
+        mService = newService;
+        try {
+            carServiceBinder.linkToDeath(mDeathRecipient, /* flags= */ 0);
+        } catch (RemoteException e) {
+            Slog.e(TAG_CAR, "Failed to call linkToDeath on car service binder, will not receive "
+                    + "callback if car service crashes", e);
+        }
+    }
+
+    private void notifyCarReady(IBinder serviceBinder) {
+        if (mStatusChangeCallback != null) {
+            mStatusChangeCallback.onLifecycleChanged(/* car= */ this, /* ready= */ true);
+        } else if (mServiceConnectionListenerClient != null) {
+            mServiceConnectionListenerClient.onServiceConnected(
+                    new ComponentName(CAR_SERVICE_PACKAGE, CAR_SERVICE_CLASS), serviceBinder);
+        }
+    }
+
+    private void notifyCarDisconnected() {
+        Slog.i(TAG_CAR, "notify car service disconnected");
+        if (mStatusChangeCallback != null) {
+            mStatusChangeCallback.onLifecycleChanged(Car.this, /* ready= */ false);
+        } else if (mServiceConnectionListenerClient != null) {
+            mServiceConnectionListenerClient.onServiceDisconnected(
+                    new ComponentName(CAR_SERVICE_PACKAGE, CAR_SERVICE_CLASS));
+        } else {
+            // This client does not handle car service restart, so should be terminated.
+            finishClient();
+        }
+    }
+
+    private static boolean isMainThread() {
+        return Looper.myLooper() == Looper.getMainLooper();
     }
 
     private static void assertNonNullContext(Context context) {
@@ -2166,20 +2447,37 @@ public final class Car implements ICarBase {
         }
     }
 
-    private void dispatchCarReadyToMainThread(boolean isMainThread) {
+    private void dispatchToMainThread(boolean isMainThread, Runnable runnable) {
         if (isMainThread) {
-            mStatusChangeCallback.onLifecycleChanged(this, true);
+            runnable.run();
         } else {
             // should dispatch to main thread.
-            mMainThreadEventHandler.post(
-                    () -> mStatusChangeCallback.onLifecycleChanged(this, true));
+            mMainThreadEventHandler.post(runnable);
         }
+    }
+
+    private void notifyCarReadyOnMainThread(IBinder serviceBinder) {
+        dispatchToMainThread(isMainThread(), () -> notifyCarReady(serviceBinder));
+    }
+
+    private void dispatchCarReadyToMainThread(boolean isMainThread) {
+        dispatchToMainThread(isMainThread,
+                () -> mStatusChangeCallback.onLifecycleChanged(/* car= */ this, /* ready= */ true));
+    }
+
+    private void setBinderAndNotifyReady(IBinder binder) {
+        setCarService(binder);
+        Slog.i(TAG_CAR, "car_service ready on main thread, Time between Car object creation"
+                + " and car_service connected (ms): " + timeSinceCreateMillis());
+        notifyCarReady(binder);
     }
 
     private Car(Context context, @Nullable ICar service,
             @Nullable ServiceConnection serviceConnectionListener,
             @Nullable CarServiceLifecycleListener statusChangeListener,
-            @Nullable Handler handler) {
+            @Nullable Handler handler, Deps deps) {
+        mDeps = deps;
+        mCreateUptimeMillis = SystemClock.uptimeMillis();
         mContext = context;
         mEventHandler = determineEventHandler(handler);
         mMainThreadEventHandler = determineMainThreadEventHandler(mEventHandler);
@@ -2207,7 +2505,7 @@ public final class Car implements ICarBase {
      */
     public Car(Context context, @Nullable ICar service, @Nullable Handler handler) {
         this(context, service, null /*serviceConnectionListener*/, null /*statusChangeListener*/,
-                handler);
+                handler, SYSTEM_DEPS);
     }
 
     private static Handler determineMainThreadEventHandler(Handler eventHandler) {
@@ -2226,22 +2524,38 @@ public final class Car implements ICarBase {
     }
 
     /**
-     * Connect to car service. This can be called while it is disconnected.
-     * @throws IllegalStateException If connection is still on-going from previous
-     *         connect call or it is already connected
-     *
      * @deprecated this method is not need if this object is created via
      * {@link #createCar(Context, Handler)}.
      */
     @Deprecated
     public void connect() throws IllegalStateException {
+        IBinder carServiceBinder = null;
         synchronized (mLock) {
             if (mConnectionState != STATE_DISCONNECTED) {
                 throw new IllegalStateException("already connected or connecting");
             }
+            mClientRequestDisconnect = false;
             mConnectionState = STATE_CONNECTING;
-            startCarService();
+            if (!Flags.createCarUseNotifications()) {
+                // Ideally this should not be inside the lock, but legacy logic run this inside
+                // the lock.
+                startCarService();
+                return;
+            }
+
+            carServiceBinder = mCarServiceBinder;
         }
+
+        if (carServiceBinder != null) {
+            // If we already have a car service binder ready. This means this is a reconnect
+            // after disconnect or car service crash. And car service is already ready
+            // before connecting.
+
+            // Need this to make carServiceBinder final.
+            IBinder binder = carServiceBinder;
+            dispatchToMainThread(isMainThread(), () -> setBinderAndNotifyReady(binder));
+        }
+        registerServiceListenerIfNotRegistered();
     }
 
     @GuardedBy("mLock")
@@ -2267,6 +2581,7 @@ public final class Car implements ICarBase {
      */
     public void disconnect() {
         synchronized (mLock) {
+            mClientRequestDisconnect = true;
             handleCarDisconnectLocked();
             if (mServiceBound) {
                 mContext.unbindService(mServiceConnectionListener);
@@ -2587,7 +2902,7 @@ public final class Car implements ICarBase {
                         + ".) to handle it properly. Check printed callstack to check where other "
                         + "version of Car.createCar() was called. Killing the client process**",
                 mConstructionStack);
-        Process.killProcess(Process.myPid());
+        mDeps.process().killProcess(mDeps.process().myPid());
     }
 
     /** @hide */
@@ -2697,9 +3012,6 @@ public final class Car implements ICarBase {
             case CAR_USER_SERVICE:
                 manager = new CarUserManager(this, binder);
                 break;
-            case EXPERIMENTAL_CAR_USER_SERVICE:
-                manager = new ExperimentalCarUserManager(this, binder);
-                break;
             case CAR_WATCHDOG_SERVICE:
                 manager = new CarWatchdogManager(this, binder);
                 break;
@@ -2792,12 +3104,12 @@ public final class Car implements ICarBase {
         synchronized (mLock) {
             if (!bound) {
                 mConnectionRetryCount++;
-                if (mConnectionRetryCount > CAR_SERVICE_BIND_MAX_RETRY) {
+                if (mConnectionRetryCount > mDeps.carServiceBindMaxRetry()) {
                     Slog.w(TAG_CAR, "cannot bind to car service after max retry");
                     mMainThreadEventHandler.post(mConnectionRetryFailedRunnable);
                 } else {
                     mEventHandler.postDelayed(mConnectionRetryRunnable,
-                            CAR_SERVICE_BIND_RETRY_INTERVAL_MS);
+                            mDeps.carServiceBindRetryIntervalMs());
                 }
             } else {
                 mEventHandler.removeCallbacks(mConnectionRetryRunnable);

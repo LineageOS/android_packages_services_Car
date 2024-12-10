@@ -16,6 +16,8 @@
 
 package com.android.systemui.car.statusicon.ui;
 
+import static com.android.systemui.car.distantdisplay.util.Logging.logIfDebuggable;
+
 import android.view.View;
 
 import com.android.systemui.car.distantdisplay.common.DistantDisplayController;
@@ -35,6 +37,7 @@ import javax.inject.Provider;
 /** Controller for the distant display panel entry point */
 public class DistantDisplayStatusIconPanelController extends CarSystemBarPanelButtonViewController
         implements DistantDisplayController.StatusChangeListener {
+    public static final String TAG = DistantDisplayStatusIconPanelController.class.getSimpleName();
     private final DistantDisplayController mDistantDisplayController;
 
     @AssistedInject
@@ -57,17 +60,20 @@ public class DistantDisplayStatusIconPanelController extends CarSystemBarPanelBu
     @Override
     protected void onViewAttached() {
         super.onViewAttached();
+        logIfDebuggable(TAG, "onViewAttached");
         mDistantDisplayController.addDistantDisplayControlStatusInfoListener(this);
     }
 
     @Override
     protected void onViewDetached() {
         super.onViewDetached();
+        logIfDebuggable(TAG, "onViewDetached");
         mDistantDisplayController.removeDistantDisplayControlStatusInfoListener(this);
     }
 
     @Override
     public void onVisibilityChanged(boolean visible) {
+        logIfDebuggable(TAG, "onVisibilityChanged " + visible);
         mView.setVisibility(visible ? View.VISIBLE : View.GONE);
     }
 }

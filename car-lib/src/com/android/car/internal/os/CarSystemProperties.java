@@ -23,8 +23,6 @@ import java.util.Optional;
 
 /**
  * Replacement for {@code android.sysprop.CarProperties}. This should be manually updated.
- *
- * @hide
  */
 public final class CarSystemProperties {
     private static final String PROP_BOOT_USER_OVERRIDE_ID =

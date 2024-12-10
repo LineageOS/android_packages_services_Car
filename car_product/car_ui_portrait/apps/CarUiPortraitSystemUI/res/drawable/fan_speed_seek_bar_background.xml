@@ -22,7 +22,7 @@
         </shape>
     </item>
     <item
-        android:gravity="left"
+        android:gravity="start"
         android:width="@dimen/hvac_panel_button_dimen">
         <selector>
             <item android:state_selected="true">

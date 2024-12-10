@@ -71,14 +71,15 @@
         systemui:panelLayoutRes="@layout/qc_display_panel"
         systemui:disabledWhileUnprovisioned="true"
         systemui:systemBarDisable2Flags="quickSettings">
-        <com.android.systemui.car.statusicon.StatusIconView
+        <ImageView
             android:id="@+id/display_status_icon"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_gravity="center"
             android:tint="@color/car_status_icon_color"
             android:duplicateParentState="true"
-            systemui:controller="com.android.systemui.car.statusicon.ui.DisplayStatusIconController"/>
+            android:src="@drawable/car_ic_brightness"
+            android:contentDescription="@string/status_icon_display_status"/>
     </com.android.systemui.car.systembar.CarSystemBarPanelButtonView>
     <com.android.systemui.car.systembar.CarSystemBarPanelButtonView
         android:id="@+id/drive_mode_panel_button"

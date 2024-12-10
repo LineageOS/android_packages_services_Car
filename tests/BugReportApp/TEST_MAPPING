@@ -1,7 +1,0 @@
-{
-  "auto-presubmit": [
-    {
-      "name": "BugReportAppTest"
-    }
-  ]
-}

@@ -65,9 +65,13 @@
         <item>android.server.wm.app/android.server.wm.app.MinAspectRatioLandscapeActivity</item>
         <item>android.server.wm.app/android.server.wm.app.MinAspectRatioPortraitActivity</item>
         <item>android.server.wm.app/android.server.wm.app.MinAspectRatioUnsetActivity</item>
+        <!-- TODO(b/372517324): Remove once ag/28710677 is in AOSP.-->
+        <item>android.view.surfacecontrol.cts/android.view.surfacecontrol.cts.SurfaceControlViewHostTests$TestActivity</item>
         <item>android.view.surfacecontrol.cts/android.view.cts.surfacevalidator.CapturedActivity</item>
         <item>android.view.surfacecontrol.cts/.TrustedPresentationCallbackTest$TestActivity</item>
         <item>android.view.surfacecontrol.cts/android.view.cts.surfacevalidator.CapturedActivityWithResource</item>
+        <!-- TODO(b/368426111): Remove once immersive mode doesn't cause extra lifecycle to the activity.-->
+        <item>android.view.surfacecontrol.cts/android.view.surfacecontrol.cts.TestActivity</item>
         <item>android.uirendering.cts/android.uirendering.cts.testinfrastructure.DrawActivity</item>
         <item>android.display.cts/android.display.cts.DisplayManagerTest$TestActivity</item>
         <!-- TODO(b/297060765): Remove AssistantActivity & AnimationTestActivity once find a proper
@@ -91,6 +95,9 @@
         <item>android.server.wm.cts/android.server.wm.animations.ActivityTransitionTests$EdgeExtensionActivity</item>
         <item>android.server.wm.cts/android.server.wm.animations.ActivityTransitionTests$CustomWindowAnimationActivity</item>
         <item>android.server.wm.cts/android.server.wm.animations.ActivityTransitionTests$TransitionActivity</item>
+        <!-- TODO(b/308859591): Remove activities from full screen config once proper solution
+            found. This is only a temporary solution for showing this activity in full screen. -->
+        <item>com.android.car.settings/com.android.car.settings.sound.AudioRouteSelectionActivity</item>
         <!-- END -->
     </string-array>
 

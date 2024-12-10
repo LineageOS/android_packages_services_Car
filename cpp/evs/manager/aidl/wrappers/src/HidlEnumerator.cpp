@@ -207,7 +207,7 @@ Return<::android::sp<hidlevs::V1_1::IEvsCamera>> HidlEnumerator::openCamera_1_1(
         return nullptr;
     }
 
-    Stream cfg = std::move(Utils::makeFromHidl(hidlCfg));
+    Stream cfg = Utils::makeFromHidl(hidlCfg);
     std::shared_ptr<IEvsCamera> aidlCamera;
     if (auto status = mEnumerator->openCamera(cameraId, cfg, &aidlCamera); !status.isOk()) {
         LOG(ERROR) << "Failed to open a camera " << cameraId

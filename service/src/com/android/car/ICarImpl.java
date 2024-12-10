@@ -94,7 +94,6 @@ import com.android.car.systemui.keyguard.ExperimentalCarKeyguardService;
 import com.android.car.telemetry.CarTelemetryService;
 import com.android.car.user.CarUserNoticeService;
 import com.android.car.user.CarUserService;
-import com.android.car.user.ExperimentalCarUserService;
 import com.android.car.vms.VmsBrokerService;
 import com.android.car.watchdog.CarWatchdogService;
 import com.android.car.wifi.CarWifiService;
@@ -157,8 +156,6 @@ public class ICarImpl extends ICar.Stub {
     private final CarStorageMonitoringService mCarStorageMonitoringService;
     private final CarMediaService mCarMediaService;
     private final CarUserService mCarUserService;
-    @Nullable
-    private final ExperimentalCarUserService mExperimentalCarUserService;
     @Nullable
     private final ExperimentalCarKeyguardService mExperimentalCarKeyguardService;
     private final CarOccupantZoneService mCarOccupantZoneService;
@@ -279,13 +276,6 @@ public class ICarImpl extends ICar.Stub {
             priorityInit();
         }
 
-        if (mFeatureController.isFeatureEnabled(Car.EXPERIMENTAL_CAR_USER_SERVICE)) {
-            mExperimentalCarUserService = constructWithTrace(t, ExperimentalCarUserService.class,
-                    () -> new ExperimentalCarUserService(mContext, mCarUserService,
-                            userManager), allServices);
-        } else {
-            mExperimentalCarUserService = null;
-        }
         if (mFeatureController.isFeatureEnabled(Car.EXPERIMENTAL_CAR_KEYGUARD_SERVICE)) {
             mExperimentalCarKeyguardService = constructWithTrace(t,
                         ExperimentalCarKeyguardService.class,
@@ -669,8 +659,6 @@ public class ICarImpl extends ICar.Stub {
                 return mCarBugreportManagerService;
             case Car.CAR_USER_SERVICE:
                 return mCarUserService;
-            case Car.EXPERIMENTAL_CAR_USER_SERVICE:
-                return mExperimentalCarUserService;
             case Car.EXPERIMENTAL_CAR_KEYGUARD_SERVICE:
                 return mExperimentalCarKeyguardService;
             case Car.CAR_WATCHDOG_SERVICE:

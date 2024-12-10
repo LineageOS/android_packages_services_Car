@@ -590,7 +590,7 @@ public class TaskViewPanel extends RelativeLayout {
     private void updateBounds(Rect bounds) {
         final FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) getLayoutParams();
         layoutParams.topMargin = bounds.top;
-        layoutParams.rightMargin = bounds.right;
+        layoutParams.leftMargin = bounds.left;
         layoutParams.width = bounds.width();
         layoutParams.height = bounds.height();
         setLayoutParams(layoutParams);

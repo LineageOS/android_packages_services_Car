@@ -22,9 +22,11 @@ java_defaults {
     libs: [
         // Add aconfig-annotations-lib as a dependency for the optimization
         "aconfig-annotations-lib",
+        // Add aconfig new storage reader library for flag reading in flag codegen.
+        "aconfig_storage_reader_java",
         // TODO(b/303773055): Remove the annotation after access issue is resolved.
         "unsupportedappusage",
-        "framework-configinfrastructure",
+        "framework-configinfrastructure.stubs.module_lib",
     ],
 }
 

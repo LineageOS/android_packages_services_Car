@@ -30,6 +30,10 @@
     <!-- Default for UI touch sounds disabled -->
     <bool name="def_sound_effects_enabled">false</bool>
 
+    <!-- Allow users to use both the on-screen keyboard, as well as a real
+         keyboard -->
+    <bool name="def_show_ime_with_hard_keyboard">true</bool>
+
     <!-- Initial value for the Settings.Secure.IMMERSIVE_MODE_CONFIRMATIONS setting,
          which is a comma separated list of packages that no longer need confirmation
          for immersive mode.

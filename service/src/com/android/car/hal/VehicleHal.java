@@ -64,6 +64,7 @@ import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.car.internal.util.Lists;
 import com.android.car.internal.util.PairSparseArray;
+import com.android.car.systeminterface.DisplayHelperInterface;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 
@@ -270,7 +271,8 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
         mPropValueBuilder = vehicle.getHalPropValueBuilder();
         mHandlerThread = handlerThread;
         mHandler = new Handler(mHandlerThread.getLooper());
-        mPowerHal = powerHal != null ? powerHal : new PowerHalService(context, mFeatureFlags, this);
+        mPowerHal = powerHal != null ? powerHal : new PowerHalService(context, mFeatureFlags, this,
+                new DisplayHelperInterface.DefaultImpl());
         mPropertyHal = propertyHal != null ? propertyHal : new PropertyHalService(this);
         mInputHal = inputHal != null ? inputHal : new InputHalService(this);
         mVmsHal = vmsHal != null ? vmsHal : new VmsHalService(context, this);

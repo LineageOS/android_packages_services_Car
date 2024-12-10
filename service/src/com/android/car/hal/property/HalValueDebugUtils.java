@@ -16,8 +16,11 @@
 
 package com.android.car.hal.property;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.PRIVATE_CONSTRUCTOR;
+
 import android.hardware.automotive.vehicle.EnumForVehicleProperty;
 
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.ConstantDebugUtils;
 
 /**
@@ -28,6 +31,7 @@ public final class HalValueDebugUtils {
      * HalValueDebugUtils only contains static fields and methods and must never be
      * instantiated.
      */
+    @ExcludeFromCodeCoverageGeneratedReport(reason = PRIVATE_CONSTRUCTOR)
     private HalValueDebugUtils() {
         throw new UnsupportedOperationException("Must never be called");
     }

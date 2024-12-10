@@ -1,0 +1,15 @@
+type packagemanagerproxyd_testclient, domain, packagemanagerproxy_client;
+
+type packagemanagerproxyd_testclient_exec, vendor_file_type, exec_type, file_type;
+
+# Allow use of Binder IPCs
+binder_use(packagemanagerproxyd_testclient)
+
+# Allow the sample to be launched from the vendor_shell, and make it transition to the
+# `packagemanagerproxyd_testclient` domain when launched.
+domain_auto_trans(vendor_shell, packagemanagerproxyd_testclient_exec, packagemanagerproxyd_testclient)
+allow packagemanagerproxyd_testclient vendor_shell:fd use;
+
+# Allow the use of socket file descriptors
+allow packagemanagerproxyd_testclient adbd:fd use;
+allow packagemanagerproxyd_testclient adbd:unix_stream_socket { getattr read write };

@@ -26,8 +26,6 @@ import java.io.IOException;
 // Copied from frameworks/base
 /**
  * Utility methods for proxying richer exceptions across Binder calls.
- *
- * @hide
  */
 public class ExceptionUtils {
     /** TODO add javadoc */

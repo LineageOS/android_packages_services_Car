@@ -59,6 +59,6 @@ per-file src/com/android/car/hal/VehicleHal.java = ericjeong@google.com
 per-file src/com/android/car/hal/fakevhal/*.java = ericjeong@google.com
 
 # Watchdog
-per-file proto/android/car/watchdog/* = lakshmana@google.com
-per-file src/com/android/car/os/* = lakshmana@google.com
-per-file src/com/android/car/watchdog/* = lakshmana@google.com
+per-file proto/android/car/watchdog/* = lakshmana@google.com, jahdiel@google.com
+per-file src/com/android/car/os/* = lakshmana@google.com, jahdiel@google.com
+per-file src/com/android/car/watchdog/* = lakshmana@google.com, jahdiel@google.com

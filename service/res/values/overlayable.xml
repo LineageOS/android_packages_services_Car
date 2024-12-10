@@ -134,6 +134,7 @@
           <item type="bool" name="config_enablePersistTetheringCapabilities" />
           <item type="array" name="config_packages_not_to_stop_during_suspend" translatable="false"/>
           <item type="string" name="config_suspend_to_disk_memory_savings" translatable="false"/>
+          <item type="bool" name="config_enableLongPressBluetoothPairing" />
           <!-- Params from config.xml that can be overlaid -->
 
           <!-- XML files that can be overlaid -->

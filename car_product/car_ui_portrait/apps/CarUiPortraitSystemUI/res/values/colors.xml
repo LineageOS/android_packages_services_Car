@@ -95,4 +95,7 @@
 
     <!-- Biometrics -->
     <color name="biometric_background_color">@color/car_surface</color>
+
+    <color name="divider_color">@color/car_outline</color>
+    <color name="qc_chevron_color">@color/car_status_icon_color</color>
 </resources>

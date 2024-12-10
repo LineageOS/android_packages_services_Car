@@ -44,8 +44,8 @@ if rootDir is None or rootDir == "":
 
 javaHomeDir = os.getenv("JAVA_HOME")
 if javaHomeDir is None or javaHomeDir == "":
-    if Path(rootDir + '/prebuilts/jdk/jdk17/linux-x86').is_dir():
-        javaHomeDir = rootDir + "/prebuilts/jdk/jdk17/linux-x86"
+    if Path(rootDir + '/prebuilts/jdk/jdk21/linux-x86').is_dir():
+        javaHomeDir = rootDir + "/prebuilts/jdk/jdk21/linux-x86"
     else:
         print("$JAVA_HOME is not set. Please use source build/envsetup.sh` in $ANDROID_BUILD_TOP")
         sys.exit(1)

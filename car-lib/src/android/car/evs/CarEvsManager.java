@@ -798,22 +798,24 @@ public final class CarEvsManager extends CarManagerBase {
         Objects.requireNonNull(executor);
         Objects.requireNonNull(callback);
 
-        synchronized (mStreamLock) {
-            mStreamCallbacks.put(type, callback);
-            // TODO(b/321913871): Check whether we want to allow the clients to use more than a
-            //                    single executor or not.
-            mStreamCallbackExecutor = executor;
-        }
-
-        int status = ERROR_UNAVAILABLE;
         try {
-            // Requests the service to start a video stream
-            status = mService.startVideoStream(type, token, mStreamListenerToService);
+            int status = mService.startVideoStream(type, token, mStreamListenerToService);
+            if (status != ERROR_NONE) {
+                return status;
+            }
+
+            synchronized (mStreamLock) {
+                mStreamCallbacks.put(type, callback);
+                // TODO(b/321913871): Check whether we want to allow the clients to use more than a
+                //                    single executor or not.
+                mStreamCallbackExecutor = executor;
+            }
         } catch (RemoteException err) {
             handleRemoteExceptionFromCarService(err);
-        } finally {
-            return status;
+            return ERROR_UNAVAILABLE;
         }
+
+        return ERROR_NONE;
     }
 
     /**

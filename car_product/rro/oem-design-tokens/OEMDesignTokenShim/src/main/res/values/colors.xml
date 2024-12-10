@@ -1,0 +1,395 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2024 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<resources>
+    <!-- primary colors -->
+    <color name="car_primary">@color/color_primary</color>
+    <color name="car_on_primary">@color/color_on_primary</color>
+    <color name="car_primary_container">@color/color_primary_container</color>
+    <color name="car_on_primary_container">@color/color_on_primary_container</color>
+
+    <!-- secondary colors -->
+    <color name="car_secondary">@color/color_secondary</color>
+    <color name="car_on_secondary">@color/color_on_secondary</color>
+    <color name="car_secondary_container">@color/color_secondary_container</color>
+    <color name="car_on_secondary_container">@color/color_on_secondary_container</color>
+
+    <!-- tertiary colors -->
+    <color name="car_tertiary">@color/color_tertiary</color>
+    <color name="car_on_tertiary">@color/color_on_tertiary</color>
+    <color name="car_tertiary_container">@color/color_tertiary_container</color>
+    <color name="car_on_tertiary_container">@color/color_on_tertiary_container</color>
+
+    <!-- text colors, auto specific -->
+    <color name="car_text_primary">@color/car_neutral_95</color>
+    <color name="car_text_secondary">@color/car_neutral_variant_70</color>
+
+    <!-- error colors -->
+    <color name="car_error">@color/color_error</color>
+    <color name="car_on_error">@color/color_on_error</color>
+    <color name="car_error_container">@color/color_error_container</color>
+    <color name="car_on_error_container">@color/color_on_error_container</color>
+
+    <!-- background colors -->
+    <color name="car_background">@color/color_background</color>
+    <color name="car_on_background">@color/color_on_background</color>
+
+    <!-- surface colors -->
+    <color name="car_surface">@color/color_surface</color>
+    <color name="car_on_surface">@color/color_on_surface</color>
+    <color name="car_surface_dim">@color/car_neutral_6</color>
+    <color name="car_surface_bright">@color/car_neutral_24</color>
+    <color name="car_inverse_surface">@color/color_surface_inverse</color>
+    <color name="car_inverse_on_surface">@color/color_on_surface_inverse</color>
+    <color name="car_surface_container">@color/car_neutral_12</color>
+    <color name="car_surface_container_low">@color/car_neutral_10</color>
+    <color name="car_surface_container_lowest">@color/car_neutral_4</color>
+    <color name="car_surface_container_high">@color/car_neutral_17</color>
+    <color name="car_surface_container_highest">@color/car_neutral_22</color>
+    <color name="car_surface_variant">@color/color_surface_variant</color>
+    <color name="car_on_surface_variant">@color/color_on_surface_variant</color>
+    <color name="car_outline">@color/car_neutral_variant_60</color>
+    <color name="car_outline_variant">@color/car_neutral_variant_30</color>
+    <color name="car_scrim">@color/car_neutral_0</color>
+    <color name="car_shadow">@color/car_neutral_0</color>
+    <color name="car_inverse_primary">@color/car_primary_40</color>
+    <color name="car_surface_1">#222429</color>
+    <color name="car_surface_2">#272930</color>
+    <color name="car_surface_3">#2b2e37</color>
+    <color name="car_surface_4">#2d2f39</color>
+    <color name="car_surface_5">#30333e</color>
+
+    <!-- red colors -->
+    <color name="car_red_color">@color/car_red_70</color>
+    <color name="car_red_on_color">@color/car_red_10</color>
+    <color name="car_red_color_container">@color/car_red_30</color>
+    <color name="car_red_on_color_container">@color/car_red_90</color>
+    <color name="car_red_tint">#dc362e</color>
+    <color name="car_decline_red">#d77163</color>
+    <color name="car_on_decline_red">#1c0f0d</color>
+
+    <!-- blue colors -->
+    <color name="car_blue_color">@color/car_blue_70</color>
+    <color name="car_blue_on_color">@color/car_blue_10</color>
+    <color name="car_blue_color_container">@color/car_blue_30</color>
+    <color name="car_blue_on_color_container">@color/car_blue_90</color>
+    <color name="car_blue_tint">#4285f4</color>
+
+    <!-- green colors -->
+    <color name="car_green_color">@color/car_green_70</color>
+    <color name="car_green_on_color">@color/car_green_10</color>
+    <color name="car_green_color_container">@color/car_green_30</color>
+    <color name="car_green_on_color_container">@color/car_green_90</color>
+    <color name="car_green_tint">#37be5f</color>
+    <color name="car_confirm_green">#75b885</color>
+    <color name="car_on_confirm_green">#0f1811</color>
+
+    <!-- yellow colors -->
+    <color name="car_yellow_color">@color/car_yellow_70</color>
+    <color name="car_yellow_on_color">@color/car_yellow_10</color>
+    <color name="car_yellow_color_container">@color/car_yellow_30</color>
+    <color name="car_yellow_on_color_container">@color/car_yellow_90</color>
+    <color name="car_yellow_tint">#fbbc04</color>
+
+    <!-- control highlight colors -->
+    <color name="car_control_highlight">#99d9e2ff</color>
+
+    <!-- indicator colors -->
+    <color name = "car_icon_indicator_color">@color/car_red_tint</color>
+
+    <!-- control focus colors -->
+    <color name="car_focus_ring">@color/car_primary</color>
+    <color name="car_focus_background">#99b0c5ff</color>
+
+    <!-- TODO(b/302163073) - update rotary specs -->
+    <!-- Rotary Colors -->
+    <color name="car_rotary_focus_stroke_color">#94CBFF</color>
+    <color name="car_rotary_focus_fill_color">#3D94CBFF</color>
+    <color name="car_rotary_focus_pressed_fill_color">#8A94CBFF</color>
+
+    <!-- primary colors -->
+    <color name="car_primary_0">@color/color_primary_palette_0</color>
+    <color name="car_primary_10">@color/color_primary_palette_10</color>
+    <color name="car_primary_20">@color/color_primary_palette_20</color>
+    <color name="car_primary_30">@color/color_primary_palette_30</color>
+    <color name="car_primary_40">@color/color_primary_palette_40</color>
+    <color name="car_primary_50">@color/color_primary_palette_50</color>
+    <color name="car_primary_60">@color/color_primary_palette_60</color>
+    <color name="car_primary_70">@color/color_primary_palette_70</color>
+    <color name="car_primary_80">@color/color_primary_palette_80</color>
+    <color name="car_primary_90">@color/color_primary_palette_90</color>
+    <color name="car_primary_95">@color/color_primary_palette_95</color>
+    <color name="car_primary_98">@color/color_primary_palette_99</color>
+    <color name="car_primary_100">@color/color_primary_palette_100</color>
+
+    <color name="car_primary_2">@color/color_primary_palette_0</color>
+    <color name="car_primary_4">@color/color_primary_palette_0</color>
+    <color name="car_primary_5">@color/color_primary_palette_10</color>
+    <color name="car_primary_6">@color/color_primary_palette_10</color>
+    <color name="car_primary_12">@color/color_primary_palette_10</color>
+    <color name="car_primary_17">@color/color_primary_palette_20</color>
+    <color name="car_primary_22">@color/color_primary_palette_20</color>
+    <color name="car_primary_24">@color/color_primary_palette_20</color>
+    <color name="car_primary_85">@color/color_primary_palette_90</color>
+    <color name="car_primary_87">@color/color_primary_palette_90</color>
+    <color name="car_primary_88">@color/color_primary_palette_90</color>
+    <color name="car_primary_92">@color/color_primary_palette_90</color>
+    <color name="car_primary_94">@color/color_primary_palette_90</color>
+
+    <!-- secondary colors -->
+    <color name="car_secondary_0">@color/color_secondary_palette_0</color>
+    <color name="car_secondary_10">@color/color_secondary_palette_10</color>
+    <color name="car_secondary_20">@color/color_secondary_palette_20</color>
+    <color name="car_secondary_30">@color/color_secondary_palette_30</color>
+    <color name="car_secondary_40">@color/color_secondary_palette_40</color>
+    <color name="car_secondary_50">@color/color_secondary_palette_50</color>
+    <color name="car_secondary_60">@color/color_secondary_palette_60</color>
+    <color name="car_secondary_70">@color/color_secondary_palette_70</color>
+    <color name="car_secondary_80">@color/color_secondary_palette_80</color>
+    <color name="car_secondary_90">@color/color_secondary_palette_90</color>
+    <color name="car_secondary_95">@color/color_secondary_palette_95</color>
+    <color name="car_secondary_98">@color/color_secondary_palette_99</color>
+    <color name="car_secondary_100">@color/color_secondary_palette_100</color>
+
+    <color name="car_secondary_2">@color/color_secondary_palette_0</color>
+    <color name="car_secondary_4">@color/color_secondary_palette_0</color>
+    <color name="car_secondary_5">@color/color_secondary_palette_10</color>
+    <color name="car_secondary_6">@color/color_secondary_palette_10</color>
+    <color name="car_secondary_12">@color/color_secondary_palette_10</color>
+    <color name="car_secondary_17">@color/color_secondary_palette_20</color>
+    <color name="car_secondary_22">@color/color_secondary_palette_20</color>
+    <color name="car_secondary_24">@color/color_secondary_palette_20</color>
+    <color name="car_secondary_85">@color/color_secondary_palette_90</color>
+    <color name="car_secondary_87">@color/color_secondary_palette_90</color>
+    <color name="car_secondary_88">@color/color_secondary_palette_90</color>
+    <color name="car_secondary_92">@color/color_secondary_palette_90</color>
+    <color name="car_secondary_94">@color/color_secondary_palette_90</color>
+
+    <!-- tertiary colors -->
+    <color name="car_tertiary_0">@color/color_tertiary_palette_0</color>
+    <color name="car_tertiary_10">@color/color_tertiary_palette_10</color>
+    <color name="car_tertiary_20">@color/color_tertiary_palette_20</color>
+    <color name="car_tertiary_30">@color/color_tertiary_palette_30</color>
+    <color name="car_tertiary_40">@color/color_tertiary_palette_40</color>
+    <color name="car_tertiary_50">@color/color_tertiary_palette_50</color>
+    <color name="car_tertiary_60">@color/color_tertiary_palette_60</color>
+    <color name="car_tertiary_70">@color/color_tertiary_palette_70</color>
+    <color name="car_tertiary_80">@color/color_tertiary_palette_80</color>
+    <color name="car_tertiary_90">@color/color_tertiary_palette_90</color>
+    <color name="car_tertiary_95">@color/color_tertiary_palette_95</color>
+    <color name="car_tertiary_98">@color/color_tertiary_palette_99</color>
+    <color name="car_tertiary_100">@color/color_tertiary_palette_100</color>
+
+    <color name="car_tertiary_2">@color/color_tertiary_palette_0</color>
+    <color name="car_tertiary_4">@color/color_tertiary_palette_0</color>
+    <color name="car_tertiary_5">@color/color_tertiary_palette_10</color>
+    <color name="car_tertiary_6">@color/color_tertiary_palette_10</color>
+    <color name="car_tertiary_12">@color/color_tertiary_palette_10</color>
+    <color name="car_tertiary_17">@color/color_tertiary_palette_20</color>
+    <color name="car_tertiary_22">@color/color_tertiary_palette_20</color>
+    <color name="car_tertiary_24">@color/color_tertiary_palette_20</color>
+    <color name="car_tertiary_85">@color/color_tertiary_palette_90</color>
+    <color name="car_tertiary_87">@color/color_tertiary_palette_90</color>
+    <color name="car_tertiary_88">@color/color_tertiary_palette_90</color>
+    <color name="car_tertiary_92">@color/color_tertiary_palette_90</color>
+    <color name="car_tertiary_94">@color/color_tertiary_palette_90</color>
+
+    <!-- neutral colors -->
+    <color name="car_neutral_0">@color/color_neutral_palette_0</color>
+    <color name="car_neutral_10">@color/color_neutral_palette_10</color>
+    <color name="car_neutral_20">@color/color_neutral_palette_20</color>
+    <color name="car_neutral_30">@color/color_neutral_palette_30</color>
+    <color name="car_neutral_40">@color/color_neutral_palette_40</color>
+    <color name="car_neutral_50">@color/color_neutral_palette_50</color>
+    <color name="car_neutral_60">@color/color_neutral_palette_60</color>
+    <color name="car_neutral_70">@color/color_neutral_palette_70</color>
+    <color name="car_neutral_80">@color/color_neutral_palette_80</color>
+    <color name="car_neutral_90">@color/color_neutral_palette_90</color>
+    <color name="car_neutral_95">@color/color_neutral_palette_95</color>
+    <color name="car_neutral_98">@color/color_neutral_palette_99</color>
+    <color name="car_neutral_100">@color/color_neutral_palette_100</color>
+
+    <color name="car_neutral_2">@color/color_neutral_palette_0</color>
+    <color name="car_neutral_4">@color/color_neutral_palette_0</color>
+    <color name="car_neutral_5">@color/color_neutral_palette_10</color>
+    <color name="car_neutral_6">@color/color_neutral_palette_10</color>
+    <color name="car_neutral_12">@color/color_neutral_palette_10</color>
+    <color name="car_neutral_17">@color/color_neutral_palette_20</color>
+    <color name="car_neutral_22">@color/color_neutral_palette_20</color>
+    <color name="car_neutral_24">@color/color_neutral_palette_20</color>
+    <color name="car_neutral_85">@color/color_neutral_palette_90</color>
+    <color name="car_neutral_87">@color/color_neutral_palette_90</color>
+    <color name="car_neutral_88">@color/color_neutral_palette_90</color>
+    <color name="car_neutral_92">@color/color_neutral_palette_90</color>
+    <color name="car_neutral_94">@color/color_neutral_palette_90</color>
+
+    <!-- neutral_variant colors -->
+    <color name="car_neutral_variant_0">@color/color_neutral_variant_palette_0</color>
+    <color name="car_neutral_variant_10">@color/color_neutral_variant_palette_10</color>
+    <color name="car_neutral_variant_20">@color/color_neutral_variant_palette_20</color>
+    <color name="car_neutral_variant_30">@color/color_neutral_variant_palette_30</color>
+    <color name="car_neutral_variant_40">@color/color_neutral_variant_palette_40</color>
+    <color name="car_neutral_variant_50">@color/color_neutral_variant_palette_50</color>
+    <color name="car_neutral_variant_60">@color/color_neutral_variant_palette_60</color>
+    <color name="car_neutral_variant_70">@color/color_neutral_variant_palette_70</color>
+    <color name="car_neutral_variant_80">@color/color_neutral_variant_palette_80</color>
+    <color name="car_neutral_variant_90">@color/color_neutral_variant_palette_90</color>
+    <color name="car_neutral_variant_95">@color/color_neutral_variant_palette_95</color>
+    <color name="car_neutral_variant_98">@color/color_neutral_variant_palette_99</color>
+    <color name="car_neutral_variant_100">@color/color_neutral_variant_palette_100</color>
+
+    <color name="car_neutral_variant_2">@color/color_neutral_variant_palette_0</color>
+    <color name="car_neutral_variant_4">@color/color_neutral_variant_palette_0</color>
+    <color name="car_neutral_variant_5">@color/color_neutral_variant_palette_10</color>
+    <color name="car_neutral_variant_6">@color/color_neutral_variant_palette_10</color>
+    <color name="car_neutral_variant_12">@color/color_neutral_variant_palette_10</color>
+    <color name="car_neutral_variant_17">@color/color_neutral_variant_palette_20</color>
+    <color name="car_neutral_variant_22">@color/color_neutral_variant_palette_20</color>
+    <color name="car_neutral_variant_24">@color/color_neutral_variant_palette_20</color>
+    <color name="car_neutral_variant_85">@color/color_neutral_variant_palette_90</color>
+    <color name="car_neutral_variant_87">@color/color_neutral_variant_palette_90</color>
+    <color name="car_neutral_variant_88">@color/color_neutral_variant_palette_90</color>
+    <color name="car_neutral_variant_92">@color/color_neutral_variant_palette_90</color>
+    <color name="car_neutral_variant_94">@color/color_neutral_variant_palette_90</color>
+
+    <!-- error colors -->
+    <color name="car_error_0">@color/color_error_palette_0</color>
+    <color name="car_error_10">@color/color_error_palette_10</color>
+    <color name="car_error_20">@color/color_error_palette_20</color>
+    <color name="car_error_30">@color/color_error_palette_30</color>
+    <color name="car_error_40">@color/color_error_palette_40</color>
+    <color name="car_error_50">@color/color_error_palette_50</color>
+    <color name="car_error_60">@color/color_error_palette_60</color>
+    <color name="car_error_70">@color/color_error_palette_70</color>
+    <color name="car_error_80">@color/color_error_palette_80</color>
+    <color name="car_error_90">@color/color_error_palette_90</color>
+    <color name="car_error_95">@color/color_error_palette_95</color>
+    <color name="car_error_98">@color/color_error_palette_99</color>
+    <color name="car_error_100">@color/color_error_palette_100</color>
+
+    <!-- red colors -->
+    <color name="car_red_0">#000000</color>
+    <color name="car_red_2">#1a0000</color>
+    <color name="car_red_4">#280001</color>
+    <color name="car_red_5">#2d0001</color>
+    <color name="car_red_6">#310001</color>
+    <color name="car_red_10">#410001</color>
+    <color name="car_red_12">#490002</color>
+    <color name="car_red_17">#5c0003</color>
+    <color name="car_red_20">#690004</color>
+    <color name="car_red_22">#710005</color>
+    <color name="car_red_24">#790005</color>
+    <color name="car_red_30">#930008</color>
+    <color name="car_red_40">#ba1b19</color>
+    <color name="car_red_50">#de372f</color>
+    <color name="car_red_60">#ff5448</color>
+    <color name="car_red_70">#ff897c</color>
+    <color name="car_red_80">#ffb4aa</color>
+    <color name="car_red_85">#ffc7c0</color>
+    <color name="car_red_87">#ffcfc9</color>
+    <color name="car_red_88">#ffd3cd</color>
+    <color name="car_red_90">#ffdad5</color>
+    <color name="car_red_92">#ffe2de</color>
+    <color name="car_red_94">#ffe9e6</color>
+    <color name="car_red_95">#ffedea</color>
+    <color name="car_red_98">#fff8f7</color>
+    <color name="car_red_100">#ffffff</color>
+
+    <!-- green colors -->
+    <color name="car_green_0">#000000</color>
+    <color name="car_green_2">#000a01</color>
+    <color name="car_green_4">#001203</color>
+    <color name="car_green_5">#001504</color>
+    <color name="car_green_6">#001804</color>
+    <color name="car_green_10">#002107</color>
+    <color name="car_green_12">#002609</color>
+    <color name="car_green_17">#00320f</color>
+    <color name="car_green_20">#003912</color>
+    <color name="car_green_22">#003e14</color>
+    <color name="car_green_24">#004316</color>
+    <color name="car_green_30">#00531d</color>
+    <color name="car_green_40">#006e29</color>
+    <color name="car_green_50">#1d893b</color>
+    <color name="car_green_60">#3ea453</color>
+    <color name="car_green_70">#5bbf6b</color>
+    <color name="car_green_80">#77dc83</color>
+    <color name="car_green_85">#84ea90</color>
+    <color name="car_green_87">#8af095</color>
+    <color name="car_green_88">#8df398</color>
+    <color name="car_green_90">#92f99d</color>
+    <color name="car_green_92">#98ffa2</color>
+    <color name="car_green_94">#b8ffba</color>
+    <color name="car_green_95">#c6ffc6</color>
+    <color name="car_green_98">#ebffe7</color>
+    <color name="car_green_100">#ffffff</color>
+
+    <!-- yellow colors -->
+    <color name="car_yellow_0">#000000</color>
+    <color name="car_yellow_2">#0e0600</color>
+    <color name="car_yellow_4">#180c00</color>
+    <color name="car_yellow_5">#1b0e00</color>
+    <color name="car_yellow_6">#1f1000</color>
+    <color name="car_yellow_10">#2a1800</color>
+    <color name="car_yellow_12">#2f1b00</color>
+    <color name="car_yellow_17">#3d2500</color>
+    <color name="car_yellow_20">#462b00</color>
+    <color name="car_yellow_22">#4c2e00</color>
+    <color name="car_yellow_24">#523200</color>
+    <color name="car_yellow_30">#643f00</color>
+    <color name="car_yellow_40">#845400</color>
+    <color name="car_yellow_50">#a56b00</color>
+    <color name="car_yellow_60">#c78200</color>
+    <color name="car_yellow_70">#eb9a00</color>
+    <color name="car_yellow_80">#ffb958</color>
+    <color name="car_yellow_85">#ffcb8a</color>
+    <color name="car_yellow_87">#ffd29c</color>
+    <color name="car_yellow_88">#ffd6a5</color>
+    <color name="car_yellow_90">#ffddb6</color>
+    <color name="car_yellow_92">#ffe4c6</color>
+    <color name="car_yellow_94">#ffebd5</color>
+    <color name="car_yellow_95">#ffeedd</color>
+    <color name="car_yellow_98">#fff8f4</color>
+    <color name="car_yellow_100">#ffffff</color>
+
+    <!-- blue colors -->
+    <color name="car_blue_0">#000000</color>
+    <color name="car_blue_2">#00061c</color>
+    <color name="car_blue_4">#000c2a</color>
+    <color name="car_blue_5">#000f30</color>
+    <color name="car_blue_6">#001135</color>
+    <color name="car_blue_10">#001945</color>
+    <color name="car_blue_12">#001d4d</color>
+    <color name="car_blue_17">#002662</color>
+    <color name="car_blue_20">#002c6f</color>
+    <color name="car_blue_22">#003178</color>
+    <color name="car_blue_24">#003581</color>
+    <color name="car_blue_30">#00419c</color>
+    <color name="car_blue_40">#0057cc</color>
+    <color name="car_blue_50">#1f70f5</color>
+    <color name="car_blue_60">#578cff</color>
+    <color name="car_blue_70">#86a9ff</color>
+    <color name="car_blue_80">#b0c6ff</color>
+    <color name="car_blue_85">#c5d4ff</color>
+    <color name="car_blue_87">#cdd9ff</color>
+    <color name="car_blue_88">#d1dcff</color>
+    <color name="car_blue_90">#d9e2ff</color>
+    <color name="car_blue_92">#e1e7ff</color>
+    <color name="car_blue_94">#eaedff</color>
+    <color name="car_blue_95">#eef0ff</color>
+    <color name="car_blue_98">#faf8ff</color>
+    <color name="car_blue_100">#ffffff</color>
+</resources>

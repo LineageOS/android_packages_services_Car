@@ -77,7 +77,7 @@ ScopedAStatus AidlCameraStream::ImplV0::deliverFrame(const std::vector<BufferDes
     }
 
     auto hidlBuffer = Utils::makeToHidlV1_0(buffers[0], /* doDup= */ false);
-    mBuffers.push_back(std::move(Utils::dupBufferDesc(buffers[0], /* doDup= */ true)));
+    mBuffers.push_back(Utils::dupBufferDesc(buffers[0], /* doDup= */ true));
     if (auto status = mStream->deliverFrame(std::move(hidlBuffer)); !status.isOk()) {
         LOG(ERROR) << "Failed to forward a frame to HIDL v1.0 client";
         return ScopedAStatus::fromStatus(STATUS_FAILED_TRANSACTION);
@@ -117,8 +117,8 @@ ScopedAStatus AidlCameraStream::ImplV1::deliverFrame(const std::vector<BufferDes
     const auto n = buffers.size();
     ::android::hardware::hidl_vec<hidlevs::V1_1::BufferDesc> hidlBuffers(n);
     for (auto i = 0; i < n; ++i) {
-        BufferDesc buffer = std::move(Utils::dupBufferDesc(buffers[i], /* doDup= */ true));
-        hidlBuffers[i] = std::move(Utils::makeToHidlV1_1(buffer, /* doDup= */ false));
+        BufferDesc buffer = Utils::dupBufferDesc(buffers[i], /* doDup= */ true);
+        hidlBuffers[i] = Utils::makeToHidlV1_1(buffer, /* doDup= */ false);
         mBuffers.push_back(std::move(buffer));
     }
 

@@ -95,76 +95,80 @@ void applyFeatureFilter(UserPackageSummaryStats* userPackageSummaryStatsOut) {
     userPackageSummaryStatsOut->topNMemStats = {};
 }
 
-MATCHER_P(IoStatsViewEq, expected, "") {
-    return ExplainMatchResult(AllOf(Field("bytes", &UserPackageStats::IoStatsView::bytes,
+MATCHER_P(UidIoSingleOpStatsEq, expected, "") {
+    return ExplainMatchResult(AllOf(Field("bytes", &UserPackageStats::UidIoSingleOpStats::bytes,
                                           ElementsAreArray(expected.bytes)),
-                                    Field("fsync", &UserPackageStats::IoStatsView::fsync,
+                                    Field("fsync", &UserPackageStats::UidIoSingleOpStats::fsync,
                                           ElementsAreArray(expected.fsync))),
                               arg, result_listener);
 }
 
-MATCHER_P(ProcessValueEq, expected, "") {
-    return ExplainMatchResult(AllOf(Field("comm",
-                                          &UserPackageStats::ProcSingleStatsView::ProcessValue::
-                                                  comm,
-                                          Eq(expected.comm)),
-                                    Field("value",
-                                          &UserPackageStats::ProcSingleStatsView::ProcessValue::
-                                                  value,
-                                          Eq(expected.value))),
-                              arg, result_listener);
+MATCHER_P(ProcessSingleStatsEq, expected, "") {
+    return ExplainMatchResult(AllOf(
+              Field(
+                    "comm",
+                    &UserPackageStats::UidSingleStats::ProcessSingleStats::
+                            comm,
+                    Eq(expected.comm)),
+              Field("value",
+                    &UserPackageStats::UidSingleStats::ProcessSingleStats::
+                            value,
+                    Eq(expected.value))),
+        arg, result_listener);
 }
 
-MATCHER_P(ProcSingleStatsViewEq, expected, "") {
-    std::vector<Matcher<const UserPackageStats::ProcSingleStatsView::ProcessValue&>>
-            processValueMatchers;
-    processValueMatchers.reserve(expected.topNProcesses.size());
-    for (const auto& processValue : expected.topNProcesses) {
-        processValueMatchers.push_back(ProcessValueEq(processValue));
+MATCHER_P(UidSingleStatsEq, expected, "") {
+    std::vector<Matcher<const UserPackageStats::UidSingleStats::ProcessSingleStats&>>
+            processSingleStatsMatchers;
+    processSingleStatsMatchers.reserve(expected.topNProcesses.size());
+    for (const auto& processSingleStats : expected.topNProcesses) {
+        processSingleStatsMatchers.push_back(ProcessSingleStatsEq(processSingleStats));
     }
-    return ExplainMatchResult(AllOf(Field("value", &UserPackageStats::ProcSingleStatsView::value,
+    return ExplainMatchResult(AllOf(
+              Field("value", &UserPackageStats::UidSingleStats::value,
                                           Eq(expected.value)),
-                                    Field("topNProcesses",
-                                          &UserPackageStats::ProcSingleStatsView::topNProcesses,
-                                          ElementsAreArray(processValueMatchers))),
-                              arg, result_listener);
+              Field("topNProcesses",
+                    &UserPackageStats::UidSingleStats::topNProcesses,
+                    ElementsAreArray(processSingleStatsMatchers))),
+        arg, result_listener);
 }
 
-MATCHER_P(ProcessCpuValueEq, expected, "") {
-    return ExplainMatchResult(AllOf(Field("pid",
-                                          &UserPackageStats::ProcCpuStatsView::ProcessCpuValue::pid,
-                                          Eq(expected.pid)),
-                                    Field("comm",
-                                          &UserPackageStats::ProcCpuStatsView::ProcessCpuValue::
-                                                  comm,
-                                          Eq(expected.comm)),
-                                    Field("cpuTimeMillis",
-                                          &UserPackageStats::ProcCpuStatsView::ProcessCpuValue::
-                                                  cpuTimeMillis,
-                                          Eq(expected.cpuTimeMillis)),
-                                    Field("cpuCycles",
-                                          &UserPackageStats::ProcCpuStatsView::ProcessCpuValue::
-                                                  cpuCycles,
-                                          Eq(expected.cpuCycles))),
-                              arg, result_listener);
+MATCHER_P(ProcessCpuStatsEq, expected, "") {
+    return ExplainMatchResult(AllOf(
+              Field("pid",
+                    &UserPackageStats::UidCpuStats::ProcessCpuStats::pid,
+                    Eq(expected.pid)),
+              Field("comm",
+                    &UserPackageStats::UidCpuStats::ProcessCpuStats::
+                            comm,
+                    Eq(expected.comm)),
+              Field("cpuTimeMillis",
+                    &UserPackageStats::UidCpuStats::ProcessCpuStats::
+                            cpuTimeMillis,
+                    Eq(expected.cpuTimeMillis)),
+              Field("cpuCycles",
+                    &UserPackageStats::UidCpuStats::ProcessCpuStats::
+                            cpuCycles,
+                    Eq(expected.cpuCycles))),
+        arg, result_listener);
 }
 
-MATCHER_P(ProcCpuStatsViewEq, expected, "") {
-    std::vector<Matcher<const UserPackageStats::ProcCpuStatsView::ProcessCpuValue&>>
-            processValueMatchers;
-    processValueMatchers.reserve(expected.topNProcesses.size());
-    for (const auto& processValue : expected.topNProcesses) {
-        processValueMatchers.push_back(ProcessCpuValueEq(processValue));
+MATCHER_P(UidCpuStatsEq, expected, "") {
+    std::vector<Matcher<const UserPackageStats::UidCpuStats::ProcessCpuStats&>>
+            processSingleStatsMatchers;
+    processSingleStatsMatchers.reserve(expected.topNProcesses.size());
+    for (const auto& processSingleStats : expected.topNProcesses) {
+        processSingleStatsMatchers.push_back(ProcessCpuStatsEq(processSingleStats));
     }
     return ExplainMatchResult(AllOf(Field("cpuTimeMillis",
-                                          &UserPackageStats::ProcCpuStatsView::cpuTimeMillis,
+                                          &UserPackageStats::UidCpuStats::cpuTimeMillis,
                                           Eq(expected.cpuTimeMillis)),
                                     Field("cpuCycles",
-                                          &UserPackageStats::ProcCpuStatsView::cpuCycles,
+                                          &UserPackageStats::UidCpuStats::cpuCycles,
                                           Eq(expected.cpuCycles)),
                                     Field("topNProcesses",
-                                          &UserPackageStats::ProcCpuStatsView::topNProcesses,
-                                          ElementsAreArray(processValueMatchers))),
+                                          &UserPackageStats::UidCpuStats::topNProcesses,
+                                          ElementsAreArray(processSingleStatsMatchers))),
                               arg, result_listener);
 }
 
@@ -194,10 +198,10 @@ MATCHER_P(ProcessMemoryStatsEq, expected, "") {
 
 MATCHER_P(UidMemoryStatsEq, expected, "") {
     std::vector<Matcher<const UserPackageStats::UidMemoryStats::ProcessMemoryStats&>>
-            processValueMatchers;
-    processValueMatchers.reserve(expected.topNProcesses.size());
-    for (const auto& processValue : expected.topNProcesses) {
-        processValueMatchers.push_back(ProcessMemoryStatsEq(processValue));
+            processSingleStatsMatchers;
+    processSingleStatsMatchers.reserve(expected.topNProcesses.size());
+    for (const auto& processSingleStats : expected.topNProcesses) {
+        processSingleStatsMatchers.push_back(ProcessMemoryStatsEq(processSingleStats));
     }
     return ExplainMatchResult(AllOf(Field("memoryStats",
                                           &UserPackageStats::UidMemoryStats::memoryStats,
@@ -207,7 +211,7 @@ MATCHER_P(UidMemoryStatsEq, expected, "") {
                                           Eq(expected.isSmapsRollupSupported)),
                                     Field("topNProcesses",
                                           &UserPackageStats::UidMemoryStats::topNProcesses,
-                                          ElementsAreArray(processValueMatchers))),
+                                          ElementsAreArray(processSingleStatsMatchers))),
                               arg, result_listener);
 }
 
@@ -217,46 +221,51 @@ MATCHER_P(UserPackageStatsEq, expected, "") {
             Field("genericPackageName", &UserPackageStats::genericPackageName,
                   Eq(expected.genericPackageName));
     return std::visit(
-            [&](const auto& statsView) -> bool {
-                using T = std::decay_t<decltype(statsView)>;
-                if constexpr (std::is_same_v<T, UserPackageStats::IoStatsView>) {
-                    return ExplainMatchResult(AllOf(uidMatcher, packageNameMatcher,
-                                                    Field("statsView:IoStatsView",
-                                                          &UserPackageStats::statsView,
-                                                          VariantWith<
-                                                                  UserPackageStats::IoStatsView>(
-                                                                  IoStatsViewEq(statsView)))),
-                                              arg, result_listener);
-                } else if constexpr (std::is_same_v<T, UserPackageStats::ProcSingleStatsView>) {
-                    return ExplainMatchResult(AllOf(uidMatcher, packageNameMatcher,
-                                                    Field("statsView:ProcSingleStatsView",
-                                                          &UserPackageStats::statsView,
-                                                          VariantWith<UserPackageStats::
-                                                                              ProcSingleStatsView>(
-                                                                  ProcSingleStatsViewEq(
-                                                                          statsView)))),
-                                              arg, result_listener);
-                } else if constexpr (std::is_same_v<T, UserPackageStats::ProcCpuStatsView>) {
-                    return ExplainMatchResult(AllOf(uidMatcher, packageNameMatcher,
-                                                    Field("statsView:ProcCpuStatsView",
-                                                          &UserPackageStats::statsView,
-                                                          VariantWith<UserPackageStats::
-                                                                              ProcCpuStatsView>(
-                                                                  ProcCpuStatsViewEq(statsView)))),
-                                              arg, result_listener);
+            [&](const auto& statsVariant) -> bool {
+                using T = std::decay_t<decltype(statsVariant)>;
+                if constexpr (std::is_same_v<T, UserPackageStats::UidIoSingleOpStats>) {
+                    return ExplainMatchResult(
+                      AllOf(uidMatcher, packageNameMatcher,
+                            Field("statsVariant:UidIoSingleOpStats",
+                                  &UserPackageStats::statsVariant,
+                                  VariantWith<
+                                          UserPackageStats::UidIoSingleOpStats>(
+                                          UidIoSingleOpStatsEq(statsVariant)))),
+                      arg, result_listener);
+                } else if constexpr (std::is_same_v<T, UserPackageStats::UidSingleStats>) {
+                    return ExplainMatchResult(AllOf(
+                                  uidMatcher,
+                                  packageNameMatcher,
+                                  Field("statsVariant:UidSingleStats",
+                                        &UserPackageStats::statsVariant,
+                                        VariantWith<UserPackageStats::
+                                                            UidSingleStats>(
+                                                UidSingleStatsEq(
+                                                        statsVariant)))),
+                            arg, result_listener);
+                } else if constexpr (std::is_same_v<T, UserPackageStats::UidCpuStats>) {
+                    return ExplainMatchResult(AllOf(
+                                  uidMatcher,
+                                  packageNameMatcher,
+                                  Field("statsVariant:UidCpuStats",
+                                        &UserPackageStats::statsVariant,
+                                        VariantWith<UserPackageStats::
+                                                            UidCpuStats>(
+                                                UidCpuStatsEq(statsVariant)))),
+                            arg, result_listener);
                 } else if constexpr (std::is_same_v<T, UserPackageStats::UidMemoryStats>) {
                     return ExplainMatchResult(AllOf(uidMatcher, packageNameMatcher,
-                                                    Field("statsView:UidMemoryStats",
-                                                          &UserPackageStats::statsView,
+                                                    Field("statsVariant:UidMemoryStats",
+                                                          &UserPackageStats::statsVariant,
                                                           VariantWith<
                                                                   UserPackageStats::UidMemoryStats>(
-                                                                  UidMemoryStatsEq(statsView)))),
+                                                                  UidMemoryStatsEq(statsVariant)))),
                                               arg, result_listener);
                 }
                 *result_listener << "Unexpected variant in UserPackageStats::stats";
                 return false;
             },
-            expected.statsView);
+            expected.statsVariant);
 }
 
 MATCHER_P(UserPackageSummaryStatsEq, expected, "") {
@@ -566,62 +575,67 @@ std::tuple<std::vector<UidStats>, UserPackageSummaryStats> sampleUidStats(
                                                   /*ussKb=*/656, /*swapPssKb=*/200}}}}}};
     UserPackageSummaryStats userPackageSummaryStats{
             .topNCpuTimes = {{1012345, "1012345",
-                              UserPackageStats::ProcCpuStatsView{int64Multiplier(100),
+                              UserPackageStats::UidCpuStats{int64Multiplier(100),
                                                                  50'000,
                                                                  {{2345, "MapsApp",
                                                                    int64Multiplier(100), 50'000}}}},
                              {1002001, "com.google.android.car.kitchensink",
-                              UserPackageStats::ProcCpuStatsView{int64Multiplier(60),
+                              UserPackageStats::UidCpuStats{int64Multiplier(60),
                                                                  10'000,
                                                                  {{1001, "CTS", int64Multiplier(30),
                                                                    5000},
                                                                   {1000, "KitchenSinkApp",
                                                                    int64Multiplier(25), 4000}}}},
                              {1009, "mount",
-                              UserPackageStats::ProcCpuStatsView{int64Multiplier(50),
+                              UserPackageStats::UidCpuStats{int64Multiplier(50),
                                                                  4000,
                                                                  {{100, "disk I/O",
                                                                    int64Multiplier(50), 4000}}}}},
             .topNIoReads = {{1009, "mount",
-                             UserPackageStats::IoStatsView{{0, int64Multiplier(14'000)},
+                             UserPackageStats::UidIoSingleOpStats{{0, int64Multiplier(14'000)},
                                                            {0, int64Multiplier(100)}}},
                             {1012345, "1012345",
-                             UserPackageStats::IoStatsView{{int64Multiplier(1'000),
+                             UserPackageStats::UidIoSingleOpStats{{int64Multiplier(1'000),
                                                             int64Multiplier(4'200)},
                                                            {int64Multiplier(600),
                                                             int64Multiplier(300)}}},
                             {1002001, "com.google.android.car.kitchensink",
-                             UserPackageStats::IoStatsView{{0, int64Multiplier(3'400)},
+                             UserPackageStats::UidIoSingleOpStats{{0, int64Multiplier(3'400)},
                                                            {0, int64Multiplier(200)}}}},
             .topNIoWrites =
                     {{1009, "mount",
-                      UserPackageStats::IoStatsView{{0, int64Multiplier(16'000)},
+                      UserPackageStats::UidIoSingleOpStats{{0, int64Multiplier(16'000)},
                                                     {0, int64Multiplier(100)}}},
                      {1002001, "com.google.android.car.kitchensink",
-                      UserPackageStats::IoStatsView{{0, int64Multiplier(6'700)},
+                      UserPackageStats::UidIoSingleOpStats{{0, int64Multiplier(6'700)},
                                                     {0, int64Multiplier(200)}}},
                      {1012345, "1012345",
-                      UserPackageStats::IoStatsView{{int64Multiplier(300), int64Multiplier(5'600)},
-                                                    {int64Multiplier(600), int64Multiplier(300)}}}},
+                      UserPackageStats::UidIoSingleOpStats{{int64Multiplier(300),
+                                                        int64Multiplier(5'600)},
+                                                    {int64Multiplier(600),
+                                                     int64Multiplier(300)}}}},
             .topNIoBlocked =
                     {{1002001, "com.google.android.car.kitchensink",
-                      UserPackageStats::ProcSingleStatsView{3,
+                      UserPackageStats::UidSingleStats{3,
                                                             {{"CTS", 2}, {"KitchenSinkApp", 1}}}},
                      {1012345, "1012345",
-                      UserPackageStats::ProcSingleStatsView{2, {{"MapsApp", 2}}}},
-                     {1009, "mount", UserPackageStats::ProcSingleStatsView{1, {{"disk I/O", 1}}}}},
+                      UserPackageStats::UidSingleStats{2, {{"MapsApp", 2}}}},
+                     {1009,
+                      "mount",
+                      UserPackageStats::UidSingleStats{1, {{"disk I/O",
+                                                                1}}}}},
             .topNMajorFaults =
                     {{1012345, "1012345",
-                      UserPackageStats::ProcSingleStatsView{uint64Multiplier(50'900),
+                      UserPackageStats::UidSingleStats{uint64Multiplier(50'900),
                                                             {{"MapsApp",
                                                               uint64Multiplier(50'900)}}}},
                      {1002001, "com.google.android.car.kitchensink",
-                      UserPackageStats::ProcSingleStatsView{uint64Multiplier(22'445),
+                      UserPackageStats::UidSingleStats{uint64Multiplier(22'445),
                                                             {{"KitchenSinkApp",
                                                               uint64Multiplier(12'345)},
                                                              {"CTS", uint64Multiplier(10'100)}}}},
                      {1009, "mount",
-                      UserPackageStats::ProcSingleStatsView{uint64Multiplier(11'000),
+                      UserPackageStats::UidSingleStats{uint64Multiplier(11'000),
                                                             {{"disk I/O",
                                                               uint64Multiplier(11'000)}}}}},
             .topNMemStats =
@@ -651,7 +665,8 @@ std::tuple<ProcStatInfo, SystemSummaryStats> sampleProcStat(auto int64Multiplier
                                          int64Multiplier(2'930)},
                               /*ctxtSwitches=*/uint64Multiplier(500),
                               /*runnableCnt=*/uint32Multiplier(100),
-                              /*ioBlockedCnt=*/uint32Multiplier(57)};
+                              /*ioBlockedCnt=*/uint32Multiplier(57),
+                              /*kernelStartTimeEpochSeconds=*/0};
     SystemSummaryStats systemSummaryStats{/*cpuIoWaitTimeMillis=*/int64Multiplier(5'900),
                                           /*cpuIdleTimeMillis=*/int64Multiplier(8'900),
                                           /*totalCpuTimeMillis=*/int64Multiplier(48'376),
@@ -880,17 +895,17 @@ MATCHER_P(ProcessCpuStatsProtoEq, expected, "") {
 }
 
 MATCHER_P(PackageCpuStatsProtoEq, expected, "") {
-    const auto& procCpuStatsView =
-            std::get_if<UserPackageStats::ProcCpuStatsView>(&expected.statsView);
+    const auto& uidCpustatsVariant =
+            std::get_if<UserPackageStats::UidCpuStats>(&expected.statsVariant);
     std::vector<Matcher<const PackageCpuStats_ProcessCpuStats&>> processCpuStatsMatchers;
-    for (const auto& expectedProcessCpuValue : procCpuStatsView->topNProcesses) {
-        processCpuStatsMatchers.push_back(ProcessCpuStatsProtoEq(expectedProcessCpuValue));
+    for (const auto& expectedProcessCpuStats : uidCpustatsVariant->topNProcesses) {
+        processCpuStatsMatchers.push_back(ProcessCpuStatsProtoEq(expectedProcessCpuStats));
     }
     return ExplainMatchResult(AllOf(Property("user_package_info",
                                              &PackageCpuStats::user_package_info,
                                              UserPackageInfoProtoEq(expected)),
                                     Property("cpu_stats", &PackageCpuStats::cpu_stats,
-                                             CpuStatsProtoEq(*procCpuStatsView)),
+                                             CpuStatsProtoEq(*uidCpustatsVariant)),
                                     Property("process_cpu_stats",
                                              &PackageCpuStats::process_cpu_stats,
                                              ElementsAreArray(processCpuStatsMatchers))),
@@ -906,18 +921,20 @@ MATCHER_P4(StorageIoStatsProtoEq, fgBytes, fgFsync, bgBytes, byFsync, "") {
 }
 
 MATCHER_P(PackageStorageIoStatsProtoEq, expected, "") {
-    const auto& ioStatsView = std::get_if<UserPackageStats::IoStatsView>(&expected.statsView);
-    return ExplainMatchResult(AllOf(Property("user_package_info",
-                                             &PackageStorageIoStats::user_package_info,
-                                             UserPackageInfoProtoEq(expected)),
-                                    Property("storage_io_stats",
-                                             &PackageStorageIoStats::storage_io_stats,
-                                             StorageIoStatsProtoEq(ioStatsView->bytes[FOREGROUND],
-                                                                   ioStatsView->fsync[FOREGROUND],
-                                                                   ioStatsView->bytes[BACKGROUND],
-                                                                   ioStatsView
-                                                                           ->fsync[BACKGROUND]))),
-                              arg, result_listener);
+    const auto& uidIoSingleOpStats =
+        std::get_if<UserPackageStats::UidIoSingleOpStats>(&expected.statsVariant);
+    return ExplainMatchResult(AllOf(
+              Property("user_package_info",
+                       &PackageStorageIoStats::user_package_info,
+                       UserPackageInfoProtoEq(expected)),
+              Property("storage_io_stats",
+                       &PackageStorageIoStats::storage_io_stats,
+                       StorageIoStatsProtoEq(uidIoSingleOpStats->bytes[FOREGROUND],
+                                             uidIoSingleOpStats->fsync[FOREGROUND],
+                                             uidIoSingleOpStats->bytes[BACKGROUND],
+                                             uidIoSingleOpStats
+                                                     ->fsync[BACKGROUND]))),
+        arg, result_listener);
 }
 
 MATCHER_P(ProcessTaskStateStatsProtoEq, expected, "") {
@@ -932,19 +949,20 @@ MATCHER_P(ProcessTaskStateStatsProtoEq, expected, "") {
 }
 
 MATCHER_P2(PackageTaskStateStatsProtoEq, expected, taskCountByUid, "") {
-    const auto& procSingleStatsView =
-            std::get_if<UserPackageStats::ProcSingleStatsView>(&expected.statsView);
+    const auto& uidSingleStats =
+            std::get_if<UserPackageStats::UidSingleStats>(&expected.statsVariant);
     std::vector<Matcher<const PackageTaskStateStats_ProcessTaskStateStats&>>
             processTaskStateStatsMatchers;
-    for (const auto& expectedProcessValue : procSingleStatsView->topNProcesses) {
-        processTaskStateStatsMatchers.push_back(ProcessTaskStateStatsProtoEq(expectedProcessValue));
+    for (const auto& expectedProcessSingleStats : uidSingleStats->topNProcesses) {
+        processTaskStateStatsMatchers.push_back(
+            ProcessTaskStateStatsProtoEq(expectedProcessSingleStats));
     }
     return ExplainMatchResult(AllOf(Property("user_package_info",
                                              &PackageTaskStateStats::user_package_info,
                                              UserPackageInfoProtoEq(expected)),
                                     Property("io_blocked_task_count",
                                              &PackageTaskStateStats::io_blocked_task_count,
-                                             procSingleStatsView->value),
+                                             uidSingleStats->value),
                                     Property("total_task_count",
                                              &PackageTaskStateStats::total_task_count,
                                              taskCountByUid.at(expected.uid)),
@@ -955,14 +973,14 @@ MATCHER_P2(PackageTaskStateStatsProtoEq, expected, taskCountByUid, "") {
 }
 
 MATCHER_P(PackageMajorPageFaultsProtoEq, expected, "") {
-    const auto& procSingleStatsView =
-            std::get_if<UserPackageStats::ProcSingleStatsView>(&expected.statsView);
+    const auto& uidSingleStats =
+            std::get_if<UserPackageStats::UidSingleStats>(&expected.statsVariant);
     return ExplainMatchResult(AllOf(Property("user_package_info",
                                              &PackageMajorPageFaults::user_package_info,
                                              UserPackageInfoProtoEq(expected)),
                                     Property("major_page_faults_count",
                                              &PackageMajorPageFaults::major_page_faults_count,
-                                             procSingleStatsView->value)),
+                                             uidSingleStats->value)),
                               arg, result_listener);
 }
 
@@ -1032,8 +1050,8 @@ MATCHER_P3(StatsRecordProtoEq, userPackageSummaryStats, systemSummaryStats, nowM
     localtime_r(&dateTime, &timeinfo);
 
     std::vector<Matcher<const PackageCpuStats&>> packageCpuStatsMatchers;
-    for (const auto& expectedProcCpuStatsView : userPackageSummaryStats.topNCpuTimes) {
-        packageCpuStatsMatchers.push_back(PackageCpuStatsProtoEq(expectedProcCpuStatsView));
+    for (const auto& expectedUidCpuStats : userPackageSummaryStats.topNCpuTimes) {
+        packageCpuStatsMatchers.push_back(PackageCpuStatsProtoEq(expectedUidCpuStats));
     }
     std::vector<Matcher<const PackageStorageIoStats&>> packageStorageReadIoStatsMatchers;
     for (const auto& expectedPackageStorageReadIoStat : userPackageSummaryStats.topNIoReads) {
@@ -1115,21 +1133,28 @@ public:
         mCollector.clear();
     }
 
-    Result<void> init() { return mCollector->init(); }
+    Result<void> init(int topNStatsPerCategory, int topNStatsPerSubcategory,
+                      int maxUserSwitchEvents, std::chrono::seconds systemEventDataCacheDuration,
+                      size_t bufferSize, bool doSendResourceUsageStatsEnabled,
+                      bool isSmapsRollupSupported) {
+        if (auto result = mCollector->init(); !result.ok()) {
+            return result;
+        }
+
+        mCollector->mTopNStatsPerCategory = topNStatsPerCategory;
+        mCollector->mTopNStatsPerSubcategory = topNStatsPerSubcategory;
+        mCollector->mMaxUserSwitchEvents = maxUserSwitchEvents;
+        mCollector->mSystemEventDataCacheDurationSec = systemEventDataCacheDuration;
+        mCollector->mPeriodicCollection.maxCacheSize = bufferSize;
+        mCollector->mDoSendResourceUsageStats = doSendResourceUsageStatsEnabled;
+        mCollector->mIsSmapsRollupSupported = isSmapsRollupSupported;
+
+        return {};
+    }
 
     void setTopNStatsPerCategory(int value) { mCollector->mTopNStatsPerCategory = value; }
 
     void setTopNStatsPerSubcategory(int value) { mCollector->mTopNStatsPerSubcategory = value; }
-
-    void setMaxUserSwitchEvents(int value) { mCollector->mMaxUserSwitchEvents = value; }
-
-    void setSystemEventDataCacheDuration(std::chrono::seconds value) {
-        mCollector->mSystemEventDataCacheDurationSec = value;
-    }
-
-    void setPeriodicCollectionBufferSize(size_t bufferSize) {
-        mCollector->mPeriodicCollection.maxCacheSize = bufferSize;
-    }
 
     void setSendResourceUsageStatsEnabled(bool enable) {
         mCollector->mDoSendResourceUsageStats = enable;
@@ -1189,15 +1214,12 @@ protected:
         EXPECT_CALL(*mMockPressureMonitor, registerPressureChangeCallback(Eq(mCollector)))
                 .Times(car_watchdog_memory_profiling() ? 1 : 0);
 
-        ASSERT_RESULT_OK(mCollectorPeer->init());
-
-        mCollectorPeer->setTopNStatsPerCategory(kTestTopNStatsPerCategory);
-        mCollectorPeer->setTopNStatsPerSubcategory(kTestTopNStatsPerSubcategory);
-        mCollectorPeer->setMaxUserSwitchEvents(kTestMaxUserSwitchEvents);
-        mCollectorPeer->setSystemEventDataCacheDuration(kTestSystemEventDataCacheDurationSec);
-        mCollectorPeer->setSendResourceUsageStatsEnabled(true);
-        mCollectorPeer->setSmapsRollupSupportedEnabled(true);
-        mCollectorPeer->setPeriodicCollectionBufferSize(kTestPeriodicCollectionBufferSize);
+        ASSERT_RESULT_OK(
+                mCollectorPeer->init(kTestTopNStatsPerCategory, kTestTopNStatsPerSubcategory,
+                                     kTestMaxUserSwitchEvents, kTestSystemEventDataCacheDurationSec,
+                                     kTestPeriodicCollectionBufferSize,
+                                     /*doSendResourceUsageStatsEnabled=*/true,
+                                     /*isSmapsRollupSupported=*/true));
     }
 
     void TearDown() override {
@@ -1487,12 +1509,16 @@ TEST_F(PerformanceProfilerTest, TestOnUserSwitchCollection) {
                                                    /*cpuCyclesByTid=*/{{100, 3'500}}}}}}}};
 
     UserPackageSummaryStats nextUserPackageSummaryStats = {
-            .topNIoReads = {{1009, "mount", UserPackageStats::IoStatsView{{0, 5'000}, {0, 50}}}},
-            .topNIoWrites = {{1009, "mount", UserPackageStats::IoStatsView{{0, 3'000}, {0, 50}}}},
+            .topNIoReads = {{1009, "mount",
+                             UserPackageStats::UidIoSingleOpStats{{0, 5'000},
+                                                              {0, 50}}}},
+            .topNIoWrites = {{1009, "mount",
+                              UserPackageStats::UidIoSingleOpStats{{0, 3'000},
+                                                               {0, 50}}}},
             .topNIoBlocked = {{1009, "mount",
-                               UserPackageStats::ProcSingleStatsView{2, {{"disk I/O", 2}}}}},
+                               UserPackageStats::UidSingleStats{2, {{"disk I/O", 2}}}}},
             .topNMajorFaults = {{1009, "mount",
-                                 UserPackageStats::ProcSingleStatsView{6'000,
+                                 UserPackageStats::UidSingleStats{6'000,
                                                                        {{"disk I/O", 6'000}}}}},
             .totalIoStats = {{0, 5'000}, {0, 3'000}, {0, 50}},
             .taskCountByUid = {{1009, 1}},
@@ -1680,31 +1706,35 @@ TEST_F(PerformanceProfilerTest, TestOnCustomCollectionWithPackageFilter) {
 
     UserPackageSummaryStats userPackageSummaryStats{
             .topNCpuTimes = {{1009, "mount",
-                              UserPackageStats::ProcCpuStatsView{50,
+                              UserPackageStats::UidCpuStats{50,
                                                                  4'000,
                                                                  {{100, "disk I/O", 50, 4'000}}}},
                              {1002001, "com.google.android.car.kitchensink",
-                              UserPackageStats::ProcCpuStatsView{60,
+                              UserPackageStats::UidCpuStats{60,
                                                                  10'000,
                                                                  {{1001, "CTS", 30, 5'000},
                                                                   {1000, "KitchenSinkApp", 25,
                                                                    4'000}}}}},
-            .topNIoReads = {{1009, "mount", UserPackageStats::IoStatsView{{0, 14'000}, {0, 100}}},
+            .topNIoReads = {{1009, "mount",
+                             UserPackageStats::UidIoSingleOpStats{{0, 14'000},
+                                                              {0, 100}}},
                             {1002001, "com.google.android.car.kitchensink",
-                             UserPackageStats::IoStatsView{{0, 3'400}, {0, 200}}}},
-            .topNIoWrites = {{1009, "mount", UserPackageStats::IoStatsView{{0, 16'000}, {0, 100}}},
+                             UserPackageStats::UidIoSingleOpStats{{0, 3'400}, {0, 200}}}},
+            .topNIoWrites = {{1009, "mount",
+                              UserPackageStats::UidIoSingleOpStats{{0, 16'000},
+                                                               {0, 100}}},
                              {1002001, "com.google.android.car.kitchensink",
-                              UserPackageStats::IoStatsView{{0, 6'700}, {0, 200}}}},
+                              UserPackageStats::UidIoSingleOpStats{{0, 6'700}, {0, 200}}}},
             .topNIoBlocked =
-                    {{1009, "mount", UserPackageStats::ProcSingleStatsView{1, {{"disk I/O", 1}}}},
+                    {{1009, "mount", UserPackageStats::UidSingleStats{1, {{"disk I/O", 1}}}},
                      {1002001, "com.google.android.car.kitchensink",
-                      UserPackageStats::ProcSingleStatsView{3,
+                      UserPackageStats::UidSingleStats{3,
                                                             {{"CTS", 2}, {"KitchenSinkApp", 1}}}}},
             .topNMajorFaults = {{1009, "mount",
-                                 UserPackageStats::ProcSingleStatsView{11'000,
+                                 UserPackageStats::UidSingleStats{11'000,
                                                                        {{"disk I/O", 11'000}}}},
                                 {1002001, "com.google.android.car.kitchensink",
-                                 UserPackageStats::ProcSingleStatsView{22'445,
+                                 UserPackageStats::UidSingleStats{22'445,
                                                                        {{"KitchenSinkApp", 12'345},
                                                                         {"CTS", 10'100}}}}},
             .topNMemStats =
@@ -1785,16 +1815,20 @@ TEST_F(PerformanceProfilerTest, TestOnPeriodicCollectionWithTrimmingStatsAfterTo
 
     UserPackageSummaryStats userPackageSummaryStats{
             .topNCpuTimes = {{1012345, "1012345",
-                              UserPackageStats::ProcCpuStatsView{100,
+                              UserPackageStats::UidCpuStats{100,
                                                                  50'000,
                                                                  {{2345, "MapsApp", 100,
                                                                    50'000}}}}},
-            .topNIoReads = {{1009, "mount", UserPackageStats::IoStatsView{{0, 14'000}, {0, 100}}}},
-            .topNIoWrites = {{1009, "mount", UserPackageStats::IoStatsView{{0, 16'000}, {0, 100}}}},
+            .topNIoReads = {{1009, "mount",
+                             UserPackageStats::UidIoSingleOpStats{{0, 14'000},
+                                                              {0, 100}}}},
+            .topNIoWrites = {{1009, "mount",
+                              UserPackageStats::UidIoSingleOpStats{{0, 16'000},
+                                                               {0, 100}}}},
             .topNIoBlocked = {{1002001, "com.google.android.car.kitchensink",
-                               UserPackageStats::ProcSingleStatsView{3, {{"CTS", 2}}}}},
+                               UserPackageStats::UidSingleStats{3, {{"CTS", 2}}}}},
             .topNMajorFaults = {{1012345, "1012345",
-                                 UserPackageStats::ProcSingleStatsView{50'900,
+                                 UserPackageStats::UidSingleStats{50'900,
                                                                        {{"MapsApp", 50'900}}}}},
             .topNMemStats = {{1002001, "com.google.android.car.kitchensink",
                               UserPackageStats::UidMemoryStats{{/*rssKb=*/2000, /*pssKb=*/1645,

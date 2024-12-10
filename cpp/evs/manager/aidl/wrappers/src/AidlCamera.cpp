@@ -412,7 +412,7 @@ ScopedAStatus AidlCamera::ImplV1::importExternalBuffers(const std::vector<Buffer
     hidl_vec<hidlevs::V1_1::BufferDesc> hidlBuffers;
     hidlBuffers.resize(buffers.size());
     for (auto i = 0; i < buffers.size(); ++i) {
-        hidlBuffers[i] = std::move(Utils::makeToHidlV1_1(buffers[i]));
+        hidlBuffers[i] = Utils::makeToHidlV1_1(buffers[i]);
     }
     hidlevs::V1_0::EvsResult hidlStatus = hidlevs::V1_0::EvsResult::OK;
     (void)mHidlCamera->importExternalBuffers(hidlBuffers,

@@ -37,8 +37,6 @@ import java.lang.annotation.Annotation;
  * }
  * The ignored {@link Annotation} parameter is used to differentiate between overloads that would
  * otherwise have the same jvm signature. It's usually null at runtime.
- *
- * @hide
  */
 public final class AnnotationValidations {
     private AnnotationValidations() {

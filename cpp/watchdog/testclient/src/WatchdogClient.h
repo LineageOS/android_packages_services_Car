@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 
-#ifndef WATCHDOG_TESTCLIENT_SRC_WATCHDOGCLIENT_H_
-#define WATCHDOG_TESTCLIENT_SRC_WATCHDOGCLIENT_H_
+#pragma once
 
 #include <aidl/android/automotive/watchdog/BnCarWatchdog.h>
 #include <aidl/android/automotive/watchdog/BnCarWatchdogClient.h>
@@ -89,5 +88,3 @@ private:
 }  // namespace automotive
 }  // namespace android
 }  // namespace aidl
-
-#endif  // WATCHDOG_TESTCLIENT_SRC_WATCHDOGCLIENT_H_

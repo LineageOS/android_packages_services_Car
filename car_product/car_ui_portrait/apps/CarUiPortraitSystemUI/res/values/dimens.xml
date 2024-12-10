@@ -20,7 +20,7 @@
 
     <dimen name="car_quick_controls_footer_button_vertical_margin">10dp</dimen>
     <dimen name="car_quick_controls_footer_button_horizontal_margin">24dp</dimen>
-    <dimen name="car_quick_controls_footer_button_min_height">56dp</dimen>
+    <dimen name="car_quick_controls_footer_button_min_height">88dp</dimen>
     <dimen name="car_quick_controls_footer_button_radius">@dimen/car_portrait_ui_button_radius</dimen>
     <dimen name="car_quick_controls_entry_points_start_margin">24dp</dimen>
     <dimen name="car_profile_switcher_padding_top">16dp</dimen>
@@ -122,4 +122,12 @@
 
     <dimen name="dock_container_margin">@*android:dimen/car_padding_3</dimen>
     <dimen name="dock_item_size">80dp</dimen>
+
+    <dimen name="data_subscription_pop_up_horizontal_offset">120dp</dimen>
+    <dimen name="data_subscription_pop_up_vertical_offset">24dp</dimen>
+    <dimen name="data_subscription_pop_up_button_width">240dp</dimen>
+    <dimen name="data_subscription_pop_up_radius">48dp</dimen>
+    <dimen name="data_subscription_pop_up_arrow_offset">116dp</dimen>
+
+    <dimen name="qc_row_bottom_divider_margin_top">0dp</dimen>
 </resources>

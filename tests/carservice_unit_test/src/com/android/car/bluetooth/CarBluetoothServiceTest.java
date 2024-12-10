@@ -44,6 +44,7 @@ import com.android.car.CarLocalServices;
 import com.android.car.CarPerUserServiceHelper;
 import com.android.car.R;
 import com.android.car.power.CarPowerManagementService;
+import com.android.car.user.CarUserService;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -83,6 +84,7 @@ public class CarBluetoothServiceTest {
     @Mock private ICarPerUserService mMockCarPerUserService;
     @Mock private CarBluetoothUserService mMockBluetoothUserService;
     @Mock private CarPowerManagementService mMockCarPowerManagementService;
+    @Mock private CarUserService mMockCarUserService;
     private CarPerUserServiceHelper.ServiceCallback mUserSwitchCallback;
 
     private IBinder mToken = new Binder();
@@ -132,6 +134,8 @@ public class CarBluetoothServiceTest {
         }
         CarLocalServices.addService(CarPowerManagementService.class,
                 mMockCarPowerManagementService);
+        CarLocalServices.addService(CarUserService.class,
+                mMockCarUserService);
     }
 
     @After
@@ -141,6 +145,7 @@ public class CarBluetoothServiceTest {
             mCarBluetoothService = null;
         }
         CarLocalServices.removeServiceForTest(CarPowerManagementService.class);
+        CarLocalServices.removeServiceForTest(CarUserService.class);
     }
 
     //--------------------------------------------------------------------------------------------//

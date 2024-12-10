@@ -83,7 +83,7 @@
     <string name="car_permission_label_diag_clear" msgid="4783070510879698157">"નિદાનનો ડેટા સાફ કરો"</string>
     <string name="car_permission_desc_diag_clear" msgid="7453222114866042786">"કારમાંથી નિદાનનો ડેટા સાફ કરો."</string>
     <string name="car_permission_label_vms_publisher" msgid="3049934078926106641">"VMS પ્રકાશકની મંજૂરી"</string>
-    <string name="car_permission_desc_vms_publisher" msgid="5589489298597386828">"VMS સંદેશા પ્રકાશિત કરો"</string>
+    <string name="car_permission_desc_vms_publisher" msgid="5589489298597386828">"VMS મેસેજ પબ્લિશ કરો"</string>
     <string name="car_permission_label_vms_subscriber" msgid="5648841182059222299">"VMS સબ્સ્ક્રાઇબર"</string>
     <string name="car_permission_desc_vms_subscriber" msgid="7551009457847673620">"VMS સંદેશાને સબ્સ્ક્રાઇબ કરો"</string>
     <string name="car_permission_label_read_ultrasonics_sensor_data" msgid="1097940233242534149">"અલ્ટ્રાસોનિક સેન્સરના ડેટા વિશે વાંચો."</string>

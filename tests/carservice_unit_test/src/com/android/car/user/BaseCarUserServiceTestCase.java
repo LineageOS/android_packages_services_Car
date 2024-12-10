@@ -115,6 +115,7 @@ import com.android.car.internal.common.UserHelperLite;
 import com.android.car.internal.os.CarSystemProperties;
 import com.android.car.internal.user.UserHelper;
 import com.android.car.pm.CarPackageManagerService;
+import com.android.car.provider.Settings;
 import com.android.internal.R;
 import com.android.internal.util.Preconditions;
 
@@ -291,7 +292,7 @@ abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCas
                 () -> CarSystemProperties.getUserHalTimeout());
         CarLocalServices.addService(CarOccupantZoneService.class, mCarOccupantZoneService);
 
-        mCarUserService = newCarUserService(/* switchGuestUserBeforeGoingSleep= */ false);
+        mCarUserService = new TestCarUserServiceBuilder().build();
 
         CarServiceHelperWrapper wrapper = CarServiceHelperWrapper.create();
         wrapper.setCarServiceHelper(mICarServiceHelper);
@@ -610,32 +611,40 @@ abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCas
         return getResult(mUserAssociationRespFuture, "result of getting user association");
     }
 
-    protected CarUserService newCarUserService(boolean switchGuestUserBeforeGoingSleep) {
-        when(mMockedResources
-                .getBoolean(com.android.car.R.bool.config_switchGuestUserBeforeGoingSleep))
-                .thenReturn(switchGuestUserBeforeGoingSleep);
+    protected class TestCarUserServiceBuilder {
+        private boolean mSwitchGuestUserBeforeGoingSleep = false;
 
-        when(mMockedResources
-                .getString(com.android.car.R.string.config_userPickerActivity))
-                .thenReturn(FAKE_USER_PICKER_PACKAGE);
+        protected TestCarUserServiceBuilder setSwitchGuestUserBeforeGoingSleep(boolean enabled) {
+            mSwitchGuestUserBeforeGoingSleep = enabled;
+            return this;
+        }
 
-        when(mMockedResources
-                .getString(com.android.internal.R.string.config_systemUIServiceComponent))
-                .thenReturn(FAKE_SYSTEM_UI_SERVICE_PACKAGE);
+        protected CarUserService build() {
+            when(mMockedResources
+                    .getBoolean(com.android.car.R.bool.config_switchGuestUserBeforeGoingSleep))
+                    .thenReturn(mSwitchGuestUserBeforeGoingSleep);
 
-        return new CarUserService(
-                mMockContext,
-                mUserHal,
-                mMockedUserManager,
-                mMockedUserHandleHelper,
-                mMockedDevicePolicyManager,
-                mMockedActivityManager,
-                /* maxRunningUsers= */ 3,
-                mInitialUserSetter,
-                mCarUxRestrictionService,
-                mHandler,
-                mCarPackageManagerService,
-                mCarOccupantZoneService);
+            when(mMockedResources
+                    .getString(com.android.car.R.string.config_userPickerActivity))
+                    .thenReturn(FAKE_USER_PICKER_PACKAGE);
+
+            when(mMockedResources
+                    .getString(com.android.internal.R.string.config_systemUIServiceComponent))
+                    .thenReturn(FAKE_SYSTEM_UI_SERVICE_PACKAGE);
+
+            return new CarUserService(
+                    mMockContext,
+                    mUserHal,
+                    mMockedUserManager,
+                    /* maxRunningUsers= */ 3,
+                    mCarUxRestrictionService,
+                    mCarPackageManagerService,
+                    mCarOccupantZoneService,
+                    new CarUserService.Deps(mMockedUserHandleHelper, mMockedDevicePolicyManager,
+                            mMockedActivityManager, mInitialUserSetter, mHandler,
+                            new ActivityManagerCurrentUserFetcher(),
+                            new Settings.DefaultImpl()));
+        }
     }
 
     /**

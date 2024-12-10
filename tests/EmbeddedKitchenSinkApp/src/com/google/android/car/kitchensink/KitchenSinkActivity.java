@@ -68,6 +68,7 @@ import com.google.android.car.kitchensink.camera2.Camera2TestFragment;
 import com.google.android.car.kitchensink.carboard.KeyboardTestFragment;
 import com.google.android.car.kitchensink.cluster.InstrumentClusterFragment;
 import com.google.android.car.kitchensink.connectivity.ConnectivityFragment;
+import com.google.android.car.kitchensink.connectivity.datasubscription.DataSubscriptionTestFragment;
 import com.google.android.car.kitchensink.cube.CubesTestFragment;
 import com.google.android.car.kitchensink.customizationtool.CustomizationToolFragment;
 import com.google.android.car.kitchensink.diagnostic.DiagnosticTestFragment;
@@ -321,6 +322,7 @@ public class KitchenSinkActivity extends FragmentActivity implements KitchenSink
             new Pair<>("connectivity", ConnectivityFragment.class),
             new Pair<>("cubes test", CubesTestFragment.class),
             new Pair<>("customization tool", CustomizationToolFragment.class),
+            new Pair<>("data subscription", DataSubscriptionTestFragment.class),
             new Pair<>("device policy", DevicePolicyFragment.class),
             new Pair<>("diagnostic", DiagnosticTestFragment.class),
             new Pair<>("display info", DisplayInfoFragment.class),

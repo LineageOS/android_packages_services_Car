@@ -28,8 +28,6 @@ import java.util.TreeSet;
 /**
  * Provides static methods for creating mutable {@code Set} instances easily and
  * other static methods for working with Sets.
- *
- * @hide
  */
 public class Sets {
     /**

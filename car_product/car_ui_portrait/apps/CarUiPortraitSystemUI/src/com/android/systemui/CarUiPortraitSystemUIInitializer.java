@@ -56,7 +56,6 @@ public class CarUiPortraitSystemUIInitializer extends CarSystemUIInitializer {
                 isSystemUser ? Optional.of(carWm.getRootTaskDisplayAreaOrganizer())
                         : Optional.empty())
                 .setCarUiPortraitDisplaySystemBarsController(
-                        carWm.getCarUiPortraitDisplaySystemBarsController())
-                        .setMDSystemBarsController(carWm.getMDSystemBarController());
+                        carWm.getCarUiPortraitDisplaySystemBarsController());
     }
 }

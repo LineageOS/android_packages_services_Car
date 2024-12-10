@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 
-#ifndef CPP_WATCHDOG_SERVER_SRC_WATCHDOGSERVICEHELPER_H_
-#define CPP_WATCHDOG_SERVER_SRC_WATCHDOGSERVICEHELPER_H_
+#pragma once
 
 #include "AIBinderDeathRegistrationWrapper.h"
 #include "WatchdogProcessService.h"
@@ -154,5 +153,3 @@ private:
 }  // namespace watchdog
 }  // namespace automotive
 }  // namespace android
-
-#endif  // CPP_WATCHDOG_SERVER_SRC_WATCHDOGSERVICEHELPER_H_

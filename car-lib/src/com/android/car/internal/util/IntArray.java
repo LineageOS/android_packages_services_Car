@@ -25,8 +25,6 @@ import java.util.Arrays;
 // Copy of frameworks/base/core/java/android/util/IntArray.java
 /**
  * Implements a growing array of int primitives.
- *
- * @hide
  */
 public class IntArray implements Cloneable {
     private static final int MIN_CAPACITY_INCREMENT = 12;

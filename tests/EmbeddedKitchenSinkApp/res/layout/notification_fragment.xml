@@ -346,5 +346,18 @@
                 android:text="Car Information"
                 android:textSize="30sp"/>
         </LinearLayout>
+
+        <LinearLayout
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:background="#663333">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Some space added to the bottom to allow buttons to be touchable
+                while heads up notification(s) are active."
+                android:layout_marginTop="100dp"
+                android:layout_marginBottom="100dp"/>
+        </LinearLayout>
     </LinearLayout>
 </ScrollView>

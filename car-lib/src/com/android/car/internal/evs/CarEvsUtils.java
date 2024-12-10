@@ -26,13 +26,16 @@ import static android.car.evs.CarEvsManager.SERVICE_TYPE_FRONT_PASSENGERSVIEW;
 import static android.car.evs.CarEvsManager.SERVICE_TYPE_REAR_PASSENGERSVIEW;
 import static android.car.evs.CarEvsManager.SERVICE_TYPE_USER_DEFINED;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DEPRECATED_CODE;
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.PRIVATE_CONSTRUCTOR;
+
 import android.car.builtin.util.Slogf;
 import android.car.evs.CarEvsManager.CarEvsServiceType;
 
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
+
 /**
  * This class provide utility methods for CarEvsService clients.
- *
- * @hide
  */
 public final class CarEvsUtils {
     private static final String TAG = CarEvsUtils.class.getSimpleName();
@@ -43,6 +46,7 @@ public final class CarEvsUtils {
     private static final int TAG_BIT_LEFT_SHIFT = 24;
     private static final int DATA_BIT_MASK = ~(0xFF << TAG_BIT_LEFT_SHIFT);
 
+    @ExcludeFromCodeCoverageGeneratedReport(reason = PRIVATE_CONSTRUCTOR)
     private CarEvsUtils() {}
 
     public static @CarEvsServiceType int convertToServiceType(String type) {
@@ -103,7 +107,11 @@ public final class CarEvsUtils {
      *              ICarEvsStreamCallback.onStreamEvent() and ICarEvsStreamCallback.onNewFrame()
      *              callbacks respectively.
      * @return A service type embedded in 8-MSB of a given value.
+     *
+     * @deprecated Please use {@link android.car.evs.CarEvsBufferDescriptor#getType()} instead.
      */
+    @Deprecated
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DEPRECATED_CODE)
     public static @CarEvsServiceType int getTag(int value) {
         return value >> TAG_BIT_LEFT_SHIFT;
     }
@@ -115,7 +123,11 @@ public final class CarEvsUtils {
      *              ICarEvsStreamCallback.onStreamEvent() and ICarEvsStreamCallback.onNewFrame()
      *              callbacks respectively.
      * @return A buffer id or an event.
+     *
+     * @deprecated Please use {@link android.car.evs.CarEvsBufferDescriptor#getId()} instead.
      */
+    @Deprecated
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DEPRECATED_CODE)
     public static int getValue(int value) {
         return value &= DATA_BIT_MASK;
     }
@@ -129,7 +141,12 @@ public final class CarEvsUtils {
      *              ICarEvsStreamCallback.onStreamEvent() and ICarEvsStreamCallback.onNewFrame()
      *              callbacks respectively.
      * @return 32-bit integer that contains a tag in 8-MSB and a value in the rest.
+     *
+     * @deprecated Please construct {@link android.car.evs.CarEvsBufferDescriptor} with a type
+     *             instead.
      */
+    @Deprecated
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DEPRECATED_CODE)
     public static int putTag(int tag, int value) {
         if (tag > 0xFF) {
             Slogf.w(TAG, "A given tag %d is greater than 0xFF. Only 8-LSB will be effective.", tag);

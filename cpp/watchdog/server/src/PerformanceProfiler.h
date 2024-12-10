@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 
-#ifndef CPP_WATCHDOG_SERVER_SRC_PERFORMANCEPROFILER_H_
-#define CPP_WATCHDOG_SERVER_SRC_PERFORMANCEPROFILER_H_
+#pragma once
 
 #include "PressureMonitor.h"
 #include "ProcDiskStatsCollector.h"
@@ -69,10 +68,7 @@ enum ProcStatType {
 // UserPackageStats represents the user package performance stats.
 class UserPackageStats {
 public:
-    // TODO(b/332773702): Rename nested structs
-    //  first-level IoStatsView, ProcSingleStatsView, and ProcCpuStatsView renames to Uid*Stats
-    //  second-level ProcessValue and ProcessCpuValue renames to Process*Stats
-    struct IoStatsView {
+    struct UidIoSingleOpStats {
         int64_t bytes[UID_STATES] = {0};
         int64_t fsync[UID_STATES] = {0};
 
@@ -83,24 +79,24 @@ public:
                     : std::numeric_limits<int64_t>::max();
         }
     };
-    struct ProcSingleStatsView {
+    struct UidSingleStats {
         uint64_t value = 0;
-        struct ProcessValue {
+        struct ProcessSingleStats {
             std::string comm = "";
             uint64_t value = 0;
         };
-        std::vector<ProcessValue> topNProcesses = {};
+        std::vector<ProcessSingleStats> topNProcesses = {};
     };
-    struct ProcCpuStatsView {
+    struct UidCpuStats {
         int64_t cpuTimeMillis = 0;
         int64_t cpuCycles = 0;
-        struct ProcessCpuValue {
+        struct ProcessCpuStats {
             int32_t pid = -1;
             std::string comm = "";
             int64_t cpuTimeMillis = 0;
             int64_t cpuCycles = 0;
         };
-        std::vector<ProcessCpuValue> topNProcesses = {};
+        std::vector<ProcessCpuStats> topNProcesses = {};
     };
     struct MemoryStats {
         uint64_t rssKb = 0;
@@ -126,17 +122,17 @@ public:
     UserPackageStats() : uid(0), genericPackageName("") {}
     // For unit test case only
     UserPackageStats(uid_t uid, std::string genericPackageName,
-                     std::variant<std::monostate, IoStatsView, ProcSingleStatsView,
-                                  ProcCpuStatsView, UidMemoryStats>
-                             statsView) :
+                     std::variant<std::monostate, UidIoSingleOpStats, UidSingleStats,
+                                  UidCpuStats, UidMemoryStats>
+                             statsVariant) :
           uid(uid),
           genericPackageName(std::move(genericPackageName)),
-          statsView(std::move(statsView)) {}
+          statsVariant(std::move(statsVariant)) {}
 
-    // Returns the primary value of the current StatsView. If the variant has value
+    // Returns the primary value of the current UidStats. If the variant has value
     // |std::monostate|, returns 0.
     //
-    // This value should be used to sort the StatsViews.
+    // This value should be used to sort the UidStats.
     uint64_t getValue() const;
     std::string toString(MetricType metricsType, const int64_t totalIoStats[][UID_STATES]) const;
     std::string toString(int64_t totalValue) const;
@@ -144,16 +140,22 @@ public:
 
     uid_t uid;
     std::string genericPackageName;
-    std::variant<std::monostate, IoStatsView, ProcSingleStatsView, ProcCpuStatsView, UidMemoryStats>
-            statsView;
+    std::variant<std::monostate,
+                UidIoSingleOpStats,
+                UidSingleStats,
+                UidCpuStats,
+                UidMemoryStats>
+            statsVariant;
 
 private:
     void cacheTopNProcessSingleStats(
-            ProcStatType procStatType, const UidStats& uidStats, int topNProcessCount,
-            std::vector<UserPackageStats::ProcSingleStatsView::ProcessValue>* topNProcesses);
+          ProcStatType procStatType, const UidStats& uidStats, int topNProcessCount,
+          std::vector<UserPackageStats::UidSingleStats::ProcessSingleStats>*
+              topNProcesses);
     void cacheTopNProcessCpuStats(
             const UidStats& uidStats, int topNProcessCount,
-            std::vector<UserPackageStats::ProcCpuStatsView::ProcessCpuValue>* topNProcesses);
+            std::vector<UserPackageStats::UidCpuStats::ProcessCpuStats>*
+                topNProcesses);
     void cacheTopNProcessMemStats(
             const UidStats& uidStats, int topNProcessCount, bool isSmapsRollupSupported,
             std::vector<UserPackageStats::UidMemoryStats::ProcessMemoryStats>* topNProcesses);
@@ -185,7 +187,7 @@ struct UserPackageSummaryStats {
 };
 
 // TODO(b/268402964): Calculate the total CPU cycles using the per-UID BPF tool.
-// System performance stats collected from the `/proc/stats` file.
+// System performance stats collected from the `/proc/stat` file.
 struct SystemSummaryStats {
     int64_t cpuIoWaitTimeMillis = 0;
     int64_t cpuIdleTimeMillis = 0;
@@ -246,6 +248,7 @@ public:
           mWakeUpCollection({}),
           mCustomCollection({}),
           mLastMajorFaults(0),
+          mKernelStartTimeEpochSeconds(0),
           mDoSendResourceUsageStats(false),
           mMemoryPressureLevelDeltaInfo(PressureLevelDeltaInfo(getElapsedTimeSinceBootMillisFunc)) {
     }
@@ -364,7 +367,7 @@ private:
                     uidResourceUsageStats,
             UserPackageSummaryStats* userPackageSummaryStats);
 
-    // Processes system performance data from the `/proc/stats` file.
+    // Processes system performance data from the `/proc/stat` file.
     void processProcStatLocked(const android::sp<ProcStatCollectorInterface>& procStatCollector,
                                SystemSummaryStats* systemSummaryStats) const;
 
@@ -439,6 +442,9 @@ private:
     // major faults since last collection.
     uint64_t mLastMajorFaults GUARDED_BY(mMutex);
 
+    // Boot start time collected from /proc/stat.
+    time_t mKernelStartTimeEpochSeconds GUARDED_BY(mMutex);
+
     // Enables the sending of resource usage stats to CarService.
     bool mDoSendResourceUsageStats GUARDED_BY(mMutex);
 
@@ -454,5 +460,3 @@ private:
 }  // namespace watchdog
 }  // namespace automotive
 }  // namespace android
-
-#endif  //  CPP_WATCHDOG_SERVER_SRC_PERFORMANCEPROFILER_H_

@@ -47,7 +47,7 @@ public abstract class CarUiPortraitSystemBarModule {
         }
 
         return new CarUiPortraitButtonSelectionStateListener(context,
-                buttonSelectionStateController);
+                buttonSelectionStateController, displayAreaController);
     }
 
     @SysUISingleton

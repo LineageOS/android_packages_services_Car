@@ -46,8 +46,6 @@ import java.nio.ByteBuffer;
  * <li>@Nullable SharedMemory which include serialized Parcelable if non-null. This will be set
  * only when the previous Parcelable is null or this also can be null for no data case.
  * </ul>
- *
- * @hide
  */
 public abstract class LargeParcelableBase implements Parcelable, Closeable {
     /** Payload size bigger than this value will be passed over shared memory. */

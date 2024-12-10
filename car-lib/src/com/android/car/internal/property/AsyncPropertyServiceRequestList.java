@@ -27,9 +27,6 @@ import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * @hide
- */
 public final class AsyncPropertyServiceRequestList extends
         LargeParcelableList<AsyncPropertyServiceRequest> {
 

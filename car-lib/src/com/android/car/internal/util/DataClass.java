@@ -35,8 +35,6 @@ import java.lang.annotation.Target;
 
 /**
  * {@code com.android.internal.util.DataClass} replacement for car-lib.
- *
- * @hide
  */
 @Retention(RetentionPolicy.SOURCE)
 @Target(ElementType.TYPE)
@@ -54,8 +52,6 @@ public @interface DataClass {
      * Alternatively, for one-off customizations you can declare methods like:
      * {@code void parcelFieldName(Parcel dest, int flags)}
      * {@code static FieldType unparcelFieldName(Parcel in)}
-     *
-     * @hide
      */
     boolean genParcelable() default false;
 
@@ -77,7 +73,7 @@ public @interface DataClass {
     boolean genGetters() default true;
 
     /**
-     * {@link #genGetters} with @hide
+     * Hidden {@link #genGetters}.
      */
     boolean genHiddenGetters() default false;
 
@@ -87,7 +83,7 @@ public @interface DataClass {
     boolean genSetters() default false;
 
     /**
-     * {@link #genSetters} with @hide
+     * Hidden {@link #genSetters}.
      */
     boolean genHiddenSetters() default false;
 
@@ -107,7 +103,7 @@ public @interface DataClass {
     boolean genConstructor() default true;
 
     /**
-     * {@link #genConstructor} with @hide
+     * Hidden {@link #genConstructor}.
      */
     boolean genHiddenConstructor() default false;
 
@@ -120,7 +116,7 @@ public @interface DataClass {
     boolean genBuilder() default false;
 
     /**
-     * {@link #genBuilder} with @hide
+     * Hidden {@link #genBuilder}.
      */
     boolean genHiddenBuilder() default false;
 
@@ -158,7 +154,7 @@ public @interface DataClass {
     boolean genCopyConstructor() default false;
 
     /**
-     * {@link #genCopyConstructor} with @hide
+     * Hidden {@link #genCopyConstructor}.
      */
     boolean genHiddenCopyConstructor() default false;
 
@@ -184,7 +180,7 @@ public @interface DataClass {
     boolean genConstDefs() default true;
 
     /**
-     * {@link #genConstDefs} with @hide
+     * Hidden {@link #genConstDefs}.
      */
     boolean genHiddenConstDefs() default false;
 

@@ -36,8 +36,6 @@ cc_defaults {
         "libutils",
     ],
 
-    static_libs: ["libc++fs"],
-
     cflags: [
         "-DLOG_TAG=\"EvsManagerV1_1\"",
         "-DGL_GLEXT_PROTOTYPES",

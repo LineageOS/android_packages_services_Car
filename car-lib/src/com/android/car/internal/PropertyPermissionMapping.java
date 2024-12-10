@@ -21,7 +21,6 @@ import android.car.Car;
 import android.car.VehiclePropertyIds;
 import android.util.SparseArray;
 
-/** @hide */
 // TODO(pavelm): use this class in Car Service instead of PropertyHalServiceIds
 public final class PropertyPermissionMapping {
 

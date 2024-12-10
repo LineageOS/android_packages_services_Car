@@ -28,8 +28,6 @@ import java.util.function.Supplier;
 // Copied from frameworks/base
 /**
  * Utilities specific to functional programming
- *
- * @hide
  */
 public final class FunctionalUtils {
     private FunctionalUtils() {}

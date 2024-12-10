@@ -26,8 +26,6 @@ import android.util.SparseArray;
  *
  * <p> This is used as an interface between builtin and updatable car service. Do not change it
  * without compatibility check. Adding a new method is ok.
- *
- * @hide
  */
 public abstract class NotificationHelperBase {
 

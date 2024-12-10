@@ -526,8 +526,11 @@ public class CarPowerManager extends CarManagerBase {
      * If the given power policy doesn't exist, this method throws
      * {@link java.lang.IllegalArgumentException}.
      *
+     * <p>When this API returns, it doesn't mean the given power policy is applied. The application
+     * of a power policy can be checked with {@link CarPowerPolicyListener}.
+     *
      * @param policyId ID of power policy.
-     * @throws IllegalArgumentException if {@code policyId} is null.
+     * @throws IllegalArgumentException if {@code policyId} is {@code null}.
      *
      * @hide
      */

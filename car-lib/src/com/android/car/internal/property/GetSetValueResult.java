@@ -27,8 +27,6 @@ import com.android.car.internal.util.DataClass;
 
 /**
  * A request for {@link com.android.car.CarPropertyService#getPropertiesAsync}
- *
- * @hide
  */
 @DataClass(genConstructor = false)
 public final class GetSetValueResult implements Parcelable {
@@ -141,7 +139,6 @@ public final class GetSetValueResult implements Parcelable {
     @DataClass.Generated.Member
     public int describeContents() { return 0; }
 
-    /** @hide */
     @SuppressWarnings({"unchecked", "RedundantCast"})
     @DataClass.Generated.Member
     /* package-private */ GetSetValueResult(@NonNull Parcel in) {

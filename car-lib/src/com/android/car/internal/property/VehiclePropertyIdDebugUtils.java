@@ -26,8 +26,6 @@ import com.android.car.internal.util.ConstantDebugUtils;
 
 /**
  * Utility class to convert {@link VehiclePropertyIds} to and from their name and ID.
- *
- * @hide
  */
 public final class VehiclePropertyIdDebugUtils {
     /**

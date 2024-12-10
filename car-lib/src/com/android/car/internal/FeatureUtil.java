@@ -17,7 +17,6 @@ package com.android.car.internal;
 
 /**
  * Internal utility for checking feature
- * @hide
  */
 public class FeatureUtil {
 

@@ -16,21 +16,18 @@
 
 package com.android.car.pm;
 
-import static android.car.test.mocks.CarArgumentMatchers.isUserHandle;
-
-import static com.android.dx.mockito.inline.extended.ExtendedMockito.spyOn;
-
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import android.annotation.UserIdInt;
 import android.app.ActivityManager;
+import android.app.admin.DevicePolicyManager;
 import android.car.hardware.power.CarPowerManager;
 import android.car.hardware.power.ICarPowerStateListener;
-import android.car.test.mocks.AbstractExtendedMockitoTestCase;
+import android.car.test.AbstractExpectableTestCase;
 import android.car.testapi.BlockingUserLifecycleListener;
 import android.car.user.CarUserManager;
 import android.content.BroadcastReceiver;
@@ -42,15 +39,16 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.pm.UserInfo;
 import android.content.res.Resources;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.UserHandle;
 import android.os.UserManager;
+import android.util.ArraySet;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
-import androidx.test.core.app.ApplicationProvider;
 
 import com.android.car.CarLocalServices;
 import com.android.car.CarOccupantZoneService;
@@ -58,28 +56,37 @@ import com.android.car.CarUxRestrictionsManagerService;
 import com.android.car.hal.UserHalService;
 import com.android.car.internal.common.CommonConstants.UserLifecycleEventType;
 import com.android.car.power.CarPowerManagementService;
+import com.android.car.provider.Settings;
 import com.android.car.user.CarUserService;
+import com.android.car.user.CurrentUserFetcher;
+import com.android.car.user.UserHandleHelper;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.util.Preconditions;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
-public final class VendorServiceControllerTest extends AbstractExtendedMockitoTestCase {
+// TODO(b/348680063): Enable this on host once we can mock LocationManager on host. Currently it
+// throws ClassNotFound error possibly due to some static methods using unsupported APIs.
+@RunWith(MockitoJUnitRunner.class)
+public final class VendorServiceControllerTest extends AbstractExpectableTestCase {
     private static final String TAG = VendorServiceControllerTest.class.getSimpleName();
 
     // TODO(b/152069895): decrease value once refactored. In fact, it should not even use
@@ -118,54 +125,93 @@ public final class VendorServiceControllerTest extends AbstractExtendedMockitoTe
 
     @Mock
     private Resources mResources;
-
     @Mock
     private UserManager mUserManager;
-
     @Mock
     private UserHalService mUserHal;
-
     @Mock
     private CarUxRestrictionsManagerService mUxRestrictionService;
-
     @Mock
     private CarPackageManagerService mCarPackageManagerService;
-
     @Mock
     private CarPowerManagementService mCarPowerManagementService;
-
     @Mock
     private CarOccupantZoneService mCarOccupantZoneService;
+    @Mock
+    private CurrentUserFetcher mCurrentUserFetcher;
+    @Mock
+    private DevicePolicyManager mDevicePolicyManager;
+    @Mock
+    private ActivityManager mActivityManager;
+    @Mock
+    private LocationManager mLocationManager;
+    @Mock
+    private Context mBaseContext;
+    @Mock
+    private Settings mSettings;
 
     private ServiceLauncherContext mContext;
     private CarUserService mCarUserService;
     private VendorServiceController mController;
 
-    public VendorServiceControllerTest() {
-        super(VendorServiceController.TAG);
-    }
-
-    @Override
-    protected void onSessionBuilder(CustomMockitoSessionBuilder session) {
-        session.spyStatic(ActivityManager.class);
-    }
+    private final Object mLock = new Object();
+    @GuardedBy("mLock")
+    private int mUnlockingOrUnlockedUserId;
+    @GuardedBy("mLock")
+    private Set<UserHandle> mVisibleUsers = new ArraySet<UserHandle>();
 
     @Before
     public void setUp() throws Exception {
-        mContext = new ServiceLauncherContext(ApplicationProvider.getApplicationContext());
+        mContext = new ServiceLauncherContext(mBaseContext);
+
+        // Required for getting/setting user ID in InitialUserSetter.
+        when(mSettings.getIntGlobal(any(), any(), anyInt())).thenAnswer((inv) -> {
+            // Return the default value.
+            return inv.getArgument(2);
+        });
+
+        // No visible users by default.
+        synchronized (mLock) {
+            mVisibleUsers.clear();
+        }
+        when(mUserManager.getVisibleUsers()).thenAnswer((inv) -> {
+            synchronized (mLock) {
+                return new ArraySet<UserHandle>(mVisibleUsers);
+            }
+        });
+
+        synchronized (mLock) {
+            // Reset unlocking or unlocked user Id for each test case.
+            mUnlockingOrUnlockedUserId = 123456;
+        }
+        when(mUserManager.isUserUnlockingOrUnlocked(anyInt())).thenAnswer((inv) -> {
+            int userId = inv.getArgument(0);
+            synchronized (mLock) {
+                return userId == mUnlockingOrUnlockedUserId;
+            }
+        });
+        when(mUserManager.isUserUnlockingOrUnlocked(any(UserHandle.class))).thenAnswer((inv) -> {
+            UserHandle userHandle = inv.getArgument(0);
+            synchronized (mLock) {
+                return userHandle.getIdentifier() == mUnlockingOrUnlockedUserId;
+            }
+        });
 
         mCarUserService = new CarUserService(mContext, mUserHal, mUserManager,
                 /* maxRunningUsers= */ 2, mUxRestrictionService, mCarPackageManagerService,
-                mCarOccupantZoneService);
-        spyOn(mCarUserService);
+                mCarOccupantZoneService,
+                new CarUserService.Deps(new UserHandleHelper(mContext, mUserManager),
+                        mDevicePolicyManager, mActivityManager,
+                        /* initialUserSetter= */ null, /* handler= */ null,
+                        mCurrentUserFetcher, mSettings));
+
         CarLocalServices.removeServiceForTest(CarUserService.class);
         CarLocalServices.addService(CarUserService.class, mCarUserService);
         CarLocalServices.removeServiceForTest(CarPowerManagementService.class);
         CarLocalServices.addService(CarPowerManagementService.class, mCarPowerManagementService);
-        // No visible users by default.
-        doReturn(false).when(mCarUserService).isUserVisible(anyInt());
 
-        mController = new VendorServiceController(mContext, Looper.getMainLooper());
+        mController = new VendorServiceController(mContext, Looper.getMainLooper(),
+                mCurrentUserFetcher);
 
         UserInfo persistentFgUser = new UserInfo(FG_USER_ID, "persistent user", /* flags= */ 0);
         when(mUserManager.getUserInfo(FG_USER_ID)).thenReturn(persistentFgUser);
@@ -178,6 +224,10 @@ public final class VendorServiceControllerTest extends AbstractExtendedMockitoTe
     public void tearDown() {
         CarLocalServices.removeServiceForTest(CarUserService.class);
         CarLocalServices.removeServiceForTest(CarPowerManagementService.class);
+    }
+
+    private void mockGetCurrentUser(int userHandle) {
+        when(mCurrentUserFetcher.getCurrentUser()).thenReturn(userHandle);
     }
 
     @Test
@@ -235,6 +285,8 @@ public final class VendorServiceControllerTest extends AbstractExtendedMockitoTe
         mContext.reset();
         mContext.expectServices(SERVICE_START_SYSTEM_UNLOCKED, SERVICE_BIND_SYSTEM_USER_RESUME);
 
+        // Current user is a regular user.
+        mockGetCurrentUser(10);
         // Unlock system user
         mockUserUnlock(UserHandle.USER_SYSTEM);
         sendUserLifecycleEvent(CarUserManager.USER_LIFECYCLE_EVENT_TYPE_UNLOCKED,
@@ -277,6 +329,16 @@ public final class VendorServiceControllerTest extends AbstractExtendedMockitoTe
         mContext.expectNoMoreServiceLaunches();
     }
 
+    private void setVisibleUsers(Set<Integer> visibleUserIds) {
+        Set<UserHandle> userHandles = new ArraySet<>();
+        for (int userId : visibleUserIds) {
+            userHandles.add(UserHandle.of(userId));
+        }
+        synchronized (mLock) {
+            mVisibleUsers = userHandles;
+        }
+    }
+
     @Test
     public void testVisibleUsers() throws Exception {
         // No visible users yet.
@@ -287,7 +349,7 @@ public final class VendorServiceControllerTest extends AbstractExtendedMockitoTe
         // A background user becomes visible.
         mContext.expectServices(SERVICE_BIND_ALL_USERS_ASAP, SERVICE_BIND_BG_VISIBLE_USER_ASAP,
                 SERVICE_START_VISIBLE_USER_ASAP);
-        mockIsUserVisible(VISIBLE_BG_USER1_ID, true);
+        setVisibleUsers(Set.of(VISIBLE_BG_USER1_ID));
         sendUserLifecycleEvent(CarUserManager.USER_LIFECYCLE_EVENT_TYPE_VISIBLE,
                 VISIBLE_BG_USER1_ID);
 
@@ -299,7 +361,7 @@ public final class VendorServiceControllerTest extends AbstractExtendedMockitoTe
         // Unlock another visible background user.
         mContext.expectServices(SERVICE_BIND_ALL_USERS_ASAP, SERVICE_BIND_BG_VISIBLE_USER_ASAP,
                 SERVICE_START_VISIBLE_USER_ASAP, SERVICE_START_VISIBLE_USER_UNLOCKED);
-        mockIsUserVisible(VISIBLE_BG_USER2_ID, true);
+        setVisibleUsers(Set.of(VISIBLE_BG_USER1_ID, VISIBLE_BG_USER2_ID));
         mockUserUnlock(VISIBLE_BG_USER2_ID);
         sendUserLifecycleEvent(CarUserManager.USER_LIFECYCLE_EVENT_TYPE_UNLOCKED,
                 VISIBLE_BG_USER2_ID);
@@ -323,7 +385,7 @@ public final class VendorServiceControllerTest extends AbstractExtendedMockitoTe
         // Unlock foreground user. This triggers "visible", but not "backgroundVisible".
         mContext.expectServices(SERVICE_BIND_FG_USER_UNLOCKED, SERVICE_START_VISIBLE_USER_ASAP,
                 SERVICE_START_VISIBLE_USER_UNLOCKED);
-        mockIsUserVisible(FG_USER_ID, true);
+        setVisibleUsers(Set.of(VISIBLE_BG_USER1_ID, VISIBLE_BG_USER2_ID, FG_USER_ID));
         mockUserUnlock(FG_USER_ID);
         sendUserLifecycleEvent(CarUserManager.USER_LIFECYCLE_EVENT_TYPE_UNLOCKED, FG_USER_ID);
 
@@ -336,7 +398,7 @@ public final class VendorServiceControllerTest extends AbstractExtendedMockitoTe
         // A background user becomes invisible.
         mContext.expectServicesToUnbindOrStop(SERVICE_BIND_BG_VISIBLE_USER_ASAP,
                 SERVICE_START_VISIBLE_USER_ASAP, SERVICE_START_VISIBLE_USER_UNLOCKED);
-        mockIsUserVisible(VISIBLE_BG_USER2_ID, false);
+        setVisibleUsers(Set.of(VISIBLE_BG_USER1_ID, FG_USER_ID));
         sendUserLifecycleEvent(CarUserManager.USER_LIFECYCLE_EVENT_TYPE_INVISIBLE,
                 VISIBLE_BG_USER2_ID);
 
@@ -440,15 +502,10 @@ public final class VendorServiceControllerTest extends AbstractExtendedMockitoTe
         listener.onStateChanged(state, /* expirationTimeMs= */ 3000L);
     }
 
-    // TODO: Replace this with AndroidMockitoHelper#mockUmIsUserUnlockingOrUnlocked
-    // We need to figure out why we get WrongTypeOfReturnValue error with when()..thenReturn().
     private void mockUserUnlock(@UserIdInt int userId) {
-        doReturn(true).when(mUserManager).isUserUnlockingOrUnlocked(isUserHandle(userId));
-        doReturn(true).when(mUserManager).isUserUnlockingOrUnlocked(userId);
-    }
-
-    private void mockIsUserVisible(@UserIdInt int userId, boolean visible) throws Exception {
-        doReturn(visible).when(mCarUserService).isUserVisible(userId);
+        synchronized (mLock) {
+            mUnlockingOrUnlockedUserId = userId;
+        }
     }
 
     private static void runOnMainThreadAndWaitForIdle(Runnable r) {
@@ -680,7 +737,22 @@ public final class VendorServiceControllerTest extends AbstractExtendedMockitoTe
             if (Context.USER_SERVICE.equals(name)) {
                 return mUserManager;
             }
-            return super.getSystemService(name);
+            // Used in CarUserService.setSystemUserRestrictions
+            if (Context.LOCATION_SERVICE.equals(name)) {
+                return mLocationManager;
+            }
+            return null;
+        }
+
+        @Override
+        public String getSystemServiceName(Class<?> clazz) {
+            if (clazz.equals(UserManager.class)) {
+                return Context.USER_SERVICE;
+            }
+            if (clazz.equals(LocationManager.class)) {
+                return Context.LOCATION_SERVICE;
+            }
+            return "";
         }
 
         @Nullable

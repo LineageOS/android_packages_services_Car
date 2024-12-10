@@ -63,8 +63,7 @@
                 android:layout_height="wrap_content" />
         </com.android.systemui.car.systembar.element.layout.CarSystemBarFrameLayout>
 
-        <!-- TODO(b/255887799): Use AssistantButton instead of CarUiAssistantButton once is fixed.     -->
-        <com.android.systemui.car.systembar.CarUiAssistantButton
+        <com.android.systemui.car.systembar.AssistantButton
             android:id="@+id/assist"
             style="@style/SystemBarButtonWithDock"
             systemui:icon="@drawable/car_ic_mic"

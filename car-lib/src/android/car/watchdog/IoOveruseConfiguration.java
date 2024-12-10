@@ -87,7 +87,6 @@ public final class IoOveruseConfiguration implements Parcelable {
     //
     // To regenerate run:
     // $ codegen $ANDROID_BUILD_TOP/packages/services/Car/car-lib/src/android/car/watchdog/IoOveruseConfiguration.java
-    // Added AddedInOrBefore or ApiRequirement Annotation manually
     //
     // To exclude the generated code from IntelliJ auto-formatting enable (one-time):
     //   Settings > Editor > Code Style > Formatter Control
@@ -431,7 +430,7 @@ public final class IoOveruseConfiguration implements Parcelable {
     }
 
     @DataClass.Generated(
-            time = 1628099281770L,
+            time = 1721754505645L,
             codegenVersion = "1.0.23",
             sourceFile = "packages/services/Car/car-lib/src/android/car/watchdog/IoOveruseConfiguration.java",
             inputSignatures = "private @android.annotation.NonNull android.car.watchdog.PerStateBytes mComponentLevelThresholds\nprivate @android.annotation.NonNull java.util.Map<java.lang.String,android.car.watchdog.PerStateBytes> mPackageSpecificThresholds\nprivate @android.annotation.NonNull java.util.Map<java.lang.String,android.car.watchdog.PerStateBytes> mAppCategorySpecificThresholds\nprivate @android.annotation.NonNull java.util.List<android.car.watchdog.IoOveruseAlertThreshold> mSystemWideThresholds\nclass IoOveruseConfiguration extends java.lang.Object implements [android.os.Parcelable]\n@com.android.car.internal.util.DataClass(genToString=true, genBuilder=true, genHiddenConstDefs=true)")

@@ -47,8 +47,10 @@ import java.util.Objects;
 import java.util.concurrent.Executor;
 
 /**
- * CarWatchdogManager allows applications to collect latest system resource overuse statistics, add
- * listener for resource overuse notifications, and update resource overuse configurations.
+ * CarWatchdogManager enables applications to track and manage system resource usage.
+ *
+ * <p>It allows applications to collect latest system resource overuse statistics, add listener for
+ * resource overuse notifications, and update resource overuse configurations.
  */
 public final class CarWatchdogManager extends CarManagerBase {
 
@@ -61,7 +63,7 @@ public final class CarWatchdogManager extends CarManagerBase {
     private final Runnable mMainThreadCheck = () -> checkMainThread();
 
     /**
-     * Timeout for services which should be responsive. The length is 3,000 milliseconds.
+     * Timeout for critical services that need to be responsive in 3000 milliseconds.
      *
      * @hide
      */
@@ -69,7 +71,7 @@ public final class CarWatchdogManager extends CarManagerBase {
     public static final int TIMEOUT_CRITICAL = 0;
 
     /**
-     * Timeout for services which are relatively responsive. The length is 5,000 milliseconds.
+     * Timeout for moderate services that need to be responsive in 5000 milliseconds.
      *
      * @hide
      */
@@ -77,7 +79,7 @@ public final class CarWatchdogManager extends CarManagerBase {
     public static final int TIMEOUT_MODERATE = 1;
 
     /**
-     * Timeout for all other services. The length is 10,000 milliseconds.
+     * Timeout for normal services that need to be responsive in 10000 milliseconds.
      *
      * @hide
      */
@@ -113,13 +115,16 @@ public final class CarWatchdogManager extends CarManagerBase {
     private int mRemainingConditions;
 
     /**
-     * CarWatchdogClientCallback is implemented by the clients which want to be health-checked by
-     * car watchdog server. Every time onCheckHealthStatus is called, they are expected to
-     * respond by calling {@link #tellClientAlive} within timeout. If they don't
-     * respond, car watchdog server reports the current state and kills them.
+     * A callback class for handling the CarWatchdog daemon's health check pings.
      *
-     * <p>Before car watchdog server kills the client, it calls onPrepareProcessTermination to allow
-     * them to prepare the termination. They will be killed in 1 second.
+     * <p>CarWatchdogClientCallback is implemented by the clients who want to be health-checked by
+     * the CarWatchdog daemon. On each onCheckHealthStatus call, clients are expected to respond by
+     * calling {@link CarWatchdogManager#tellClientAlive} within the timeout. If they fail to
+     * respond, the CarWatchdog daemon reports the current state and kills them.
+     *
+     * <p>Before termination, the CarWatchdog daemon calls {@link
+     * CarWatchdogClientCallback#onPrepareProcessTermination} to allow clients to prepare for the
+     * termination, which will occur after 1 second.
      *
      * @hide
      */
@@ -167,9 +172,8 @@ public final class CarWatchdogManager extends CarManagerBase {
     /**
      * Registers the car watchdog clients to {@link CarWatchdogManager}.
      *
-     * <p>It is allowed to register a client from any thread, but only one client can be
-     * registered. If two or more clients are needed, create a new {@link Car} and register a client
-     * to it.
+     * <p>It is allowed to register a client from any thread, but only one client can be registered.
+     * If two or more clients are needed, create a new {@link Car} and register a client to it.
      *
      * @param client Watchdog client implementing {@link CarWatchdogClientCallback} interface.
      * @param timeout The time duration within which the client desires to respond. The actual
@@ -321,39 +325,73 @@ public final class CarWatchdogManager extends CarManagerBase {
 
     /**
      * Constants that define the stats period in days.
+     *
+     * <p>The following constants represent the stats period for the past N days, It is used to
+     * specify that the stats should be gathered for the last N days, including today and the N-1
+     * previous days.
+     *
+     * <p>The stats period for the current day.
      */
     public static final int STATS_PERIOD_CURRENT_DAY = 1;
+
+    /** The stats period for the past 3 days. */
     public static final int STATS_PERIOD_PAST_3_DAYS = 2;
+
+    /** The stats period for the past 7 days */
     public static final int STATS_PERIOD_PAST_7_DAYS = 3;
+
+    /** The stats period for the past 15 days */
     public static final int STATS_PERIOD_PAST_15_DAYS = 4;
+
+    /** The stats period for the past 30 days */
     public static final int STATS_PERIOD_PAST_30_DAYS = 5;
 
-    /**
-     * Constants that define the type of resource overuse.
-     */
+    /** Constants that define the type of resource overuse. */
     public static final int FLAG_RESOURCE_OVERUSE_IO = 1 << 0;
 
     /**
      * Constants that define the minimum stats for each resource type.
      *
-     * Below constants specify the minimum amount of data written to disk.
+     * <p>The following constants represent the minimum amount of data written to disk.
+     *
+     * <p>The minimum amount of data that should be written to disk is 1 MB.
      *
      * @hide
      */
     @SystemApi
     public static final int FLAG_MINIMUM_STATS_IO_1_MB = 1 << 0;
-    /** @hide */
+
+    /**
+     * The minimum amount of data that should be written to disk is 100 MB.
+     *
+     * @hide
+     */
     @SystemApi
     public static final int FLAG_MINIMUM_STATS_IO_100_MB = 1 << 1;
-    /** @hide */
+
+    /**
+     * The minimum amount of data that should be written to disk is 1 GB.
+     *
+     * @hide
+     */
     @SystemApi
     public static final int FLAG_MINIMUM_STATS_IO_1_GB = 1 << 2;
 
-    // Return codes used to indicate the result of a request.
-    /** @hide */
+    /**
+     * Returns codes used to indicate the result of a request.
+     *
+     * <p>The return code indicating a successful request.
+     *
+     * @hide
+     */
     @SystemApi
     public static final int RETURN_CODE_SUCCESS = 0;
-    /** @hide */
+
+    /**
+     * The return code indicating an error in the request.
+     *
+     * @hide
+     */
     @SystemApi
     public static final int RETURN_CODE_ERROR = -1;
 
@@ -387,18 +425,15 @@ public final class CarWatchdogManager extends CarManagerBase {
      *
      * @param resourceOveruseFlag Flag to indicate the types of resource overuse stats to return.
      * @param minimumStatsFlag Flag to specify the minimum stats for each resource overuse type.
-     *                         Only stats above the specified minimum stats for a resource overuse
-     *                         type will be returned. May provide only one minimum stats flag for
-     *                         each resource overuse type. When no minimum stats flag is specified,
-     *                         all stats are returned.
+     *     Only stats greater than the specified minimum stats for a resource overuse type will be
+     *     returned. May provide only one minimum stats flag for each resource overuse type. When no
+     *     minimum stats flag is specified, all stats are returned.
      * @param maxStatsPeriod Maximum period to aggregate the resource overuse stats.
-     *
      * @return Resource overuse stats for all monitored packages. If any package doesn't have stats
-     *         for a specified resource type, null value is returned for the corresponding resource
-     *         overuse stats. If any package doesn't have sufficient stats for
-     *         {@code maxStatsPeriod} for a specified resource overuse type, the stats are returned
-     *         only for the period returned in the individual resource stats.
-     *
+     *     for a specified resource type, null value is returned for the corresponding resource
+     *     overuse stats. If any package doesn't have sufficient stats for {@code maxStatsPeriod}
+     *     for a specified resource overuse type, the stats are returned only for the period
+     *     returned in the individual resource stats.
      * @hide
      */
     @SystemApi
@@ -460,11 +495,11 @@ public final class CarWatchdogManager extends CarManagerBase {
          *
          * <p>The listener is called at the executor which is specified in {@link
          * CarWatchdogManager#addResourceOveruseListener} or
-         * {@code addResourceOveruseListenerForSystem}.
+         * {@link CarWatchdogManager#addResourceOveruseListenerForSystem}.
          *
          * <p>The listener is called only on overusing one of the resources specified at the
          * {@code resourceOveruseFlag} in {@link CarWatchdogManager#addResourceOveruseListener} or
-         * {@code addResourceOveruseListenerForSystem}.
+         * {@link CarWatchdogManager#addResourceOveruseListenerForSystem}.
          *
          * @param resourceOveruseStats Resource overuse stats containing stats only for resources
          *                             overuse types that are either overused or about to be

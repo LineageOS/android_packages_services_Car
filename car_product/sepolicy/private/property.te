@@ -1,2 +1,11 @@
+system_internal_prop(hibernation_config_prop);
+system_internal_prop(hibernation_prop)
+
 # Only kernel, init, and vendor init can write to car_boot_prop properties
 neverallow { domain -kernel -init -vendor_init } car_boot_prop:property_service set;
+
+# Only allow init and carservice to set hibernation_prop
+neverallow { domain -init -carservice_app } hibernation_prop:property_service set;
+
+# never allow hibernation_config_prop to be set, should be set at build time
+neverallow { domain -init } hibernation_config_prop:property_service set;

@@ -23,7 +23,6 @@ import android.content.ComponentName;
 
 /**
  * API to communicate from CarServiceHelperService to car service.
- * @hide
  */
 oneway interface ICarSystemServerClient {
     /**

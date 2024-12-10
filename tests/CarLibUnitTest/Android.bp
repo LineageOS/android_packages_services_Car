@@ -31,6 +31,9 @@ java_library {
         "fake.com.android.car.internal.dep",
     ],
     sdk_version: "module_current",
+    lint: {
+        baseline_filename: "lint-baseline.xml",
+    },
 }
 
 java_defaults {
@@ -39,37 +42,28 @@ java_defaults {
         "android.car-no-dep",
         "android.car.test.utils",
         "androidx.annotation_annotation",
+        "androidx.test.core",
+        "androidx.test.ext.junit",
         "androidx.test.rules",
         "flag-junit",
         "platform-test-annotations",
         "truth",
         "vehicle-hal-support-lib",
     ],
-    srcs: [
-        "src/**/*.java",
-    ],
     libs: [
-        "android.test.base",
+        "android.test.base.stubs.system",
         "framework-annotations-lib",
     ],
 }
 
-android_ravenwood_test {
-    name: "CarLibHostUnitTest",
-    static_libs: [
-        "android.car.builtin.testonly",
-    ],
-    defaults: [
-        "CarLibUnitTestDefault",
-    ],
-    auto_gen_config: true,
-}
-
-android_test {
-    name: "CarLibDeviceUnitTest",
+java_defaults {
+    name: "CarLibDeviceUnitTestDefault",
     static_libs: [
         "mockito-target-extended",
         "ravenwood-junit",
+    ],
+    libs: [
+        "android.car.builtin.stubs.module_lib",
     ],
     defaults: [
         "CarLibUnitTestDefault",
@@ -85,4 +79,230 @@ android_test {
         "libstaticjvmtiagent",
     ],
     platform_apis: true,
+}
+
+android_ravenwood_test {
+    name: "CarLibHostUnitTest",
+    static_libs: [
+        "android.car.builtin.testonly",
+    ],
+    defaults: [
+        "CarLibUnitTestDefault",
+    ],
+    auto_gen_config: true,
+    srcs: [
+        "src/**/*.java",
+        "src/**/*.aidl",
+    ],
+    aidl: {
+        include_dirs: [
+            "packages/services/Car/car-lib/src",
+        ],
+    },
+    exclude_srcs: [
+        // TODO(b/354795535): Enable CarLibAdminUnitTest on host.
+        "src/android/car/admin/**/*.java",
+        // TODO(b/354785409): Enable CarLibAppUnitTest on host.
+        "src/android/car/app/**/*.java",
+        // TODO(b/354796364): Enable cluster renderer test on host.
+        "src/android/car/cluster/renderer/*.java",
+        // The following cannot be enabled because AudioAttributes is
+        // not supported on host.
+        "src/android/car/media/CarAudioZoneConfigInfoUnitTest.java",
+        "src/android/car/media/CarVolumeGroupEventUnitTest.java",
+        "src/android/car/media/CarVolumeGroupInfoUnitTest.java",
+        "src/android/car/oem/AudioFocusEntryUnitTest.java",
+        "src/android/car/oem/OemCarAudio*.java",
+        // The following cannot be enabled because FadeManagerConfiguration
+        // is not supported on host.
+        "src/android/car/oem/CarAudioFadeConfigurationUnitTest.java",
+    ],
+}
+
+android_test {
+    name: "CarLibAdminUnitTest",
+    defaults: [
+        "CarLibDeviceUnitTestDefault",
+    ],
+    srcs: [
+        "src/android/car/admin/*.java",
+    ],
+}
+
+android_test {
+    name: "CarLibAppUnitTest",
+    defaults: [
+        "CarLibDeviceUnitTestDefault",
+    ],
+    srcs: [
+        "src/android/car/app/*.java",
+    ],
+    manifest: "AndroidManifest_AppUnitTest.xml",
+}
+
+android_test {
+    name: "CarLibCarUnitTest",
+    defaults: [
+        "CarLibDeviceUnitTestDefault",
+    ],
+    srcs: [
+        "src/android/car/CarUnitTest.java",
+    ],
+}
+
+android_test {
+    name: "CarLibClusterUnitTest",
+    defaults: [
+        "CarLibDeviceUnitTestDefault",
+    ],
+    srcs: [
+        "src/android/car/cluster/*.java",
+    ],
+}
+
+android_test {
+    name: "CarLibPmUnitTest",
+    defaults: [
+        "CarLibDeviceUnitTestDefault",
+    ],
+    srcs: [
+        "src/android/car/content/pm/*.java",
+    ],
+}
+
+android_test {
+    name: "CarLibEvsUnitTest",
+    defaults: [
+        "CarLibDeviceUnitTestDefault",
+    ],
+    srcs: [
+        "src/android/car/evs/*.java",
+    ],
+}
+
+android_test {
+    name: "CarLibPropertyUnitTest",
+    defaults: [
+        "CarLibDeviceUnitTestDefault",
+    ],
+    srcs: [
+        "src/android/car/hardware/property/*.java",
+    ],
+}
+
+android_test {
+    name: "CarLibMediaUnitTest",
+    defaults: [
+        "CarLibDeviceUnitTestDefault",
+    ],
+    srcs: [
+        "src/android/car/media/*.java",
+        "src/com/android/car/audio/*.java",
+    ],
+}
+
+android_test {
+    name: "CarLibNavigationUnitTest",
+    defaults: [
+        "CarLibDeviceUnitTestDefault",
+    ],
+    srcs: [
+        "src/android/car/navigation/*.java",
+    ],
+}
+
+android_test {
+    name: "CarLibOccupantConnectionUnitTest",
+    defaults: [
+        "CarLibDeviceUnitTestDefault",
+    ],
+    srcs: [
+        "src/android/car/occupantconnection/*",
+    ],
+    aidl: {
+        include_dirs: [
+            "packages/services/Car/car-lib/src",
+        ],
+    },
+    manifest: "AndroidManifest_OccupantConnectionUnitTest.xml",
+}
+
+android_test {
+    name: "CarLibOemUnitTest",
+    defaults: [
+        "CarLibDeviceUnitTestDefault",
+    ],
+    srcs: [
+        "src/android/car/oem/*.java",
+    ],
+}
+
+android_test {
+    name: "CarLibOsUnitTest",
+    defaults: [
+        "CarLibDeviceUnitTestDefault",
+    ],
+    srcs: [
+        "src/android/car/os/*.java",
+    ],
+}
+
+android_test {
+    name: "CarLibRemoteAccessUnitTest",
+    defaults: [
+        "CarLibDeviceUnitTestDefault",
+    ],
+    srcs: [
+        "src/android/car/remoteaccess/*.java",
+    ],
+}
+
+android_test {
+    name: "CarLibUserUnitTest",
+    defaults: [
+        "CarLibDeviceUnitTestDefault",
+    ],
+    srcs: [
+        "src/android/car/user/*.java",
+    ],
+}
+
+android_test {
+    name: "CarLibUtilConcurrentUnitTest",
+    defaults: [
+        "CarLibDeviceUnitTestDefault",
+    ],
+    srcs: [
+        "src/android/car/util/concurrent/*.java",
+    ],
+}
+
+android_test {
+    name: "CarLibVmsUnitTest",
+    defaults: [
+        "CarLibDeviceUnitTestDefault",
+    ],
+    srcs: [
+        "src/android/car/vms/*.java",
+    ],
+}
+
+android_test {
+    name: "CarLibWifiUnitTest",
+    defaults: [
+        "CarLibDeviceUnitTestDefault",
+    ],
+    srcs: [
+        "src/android/car/wifi/*.java",
+    ],
+}
+
+android_test {
+    name: "CarLibInternalUnitTest",
+    defaults: [
+        "CarLibDeviceUnitTestDefault",
+    ],
+    srcs: [
+        "src/com/android/car/internal/**/*.java",
+    ],
 }

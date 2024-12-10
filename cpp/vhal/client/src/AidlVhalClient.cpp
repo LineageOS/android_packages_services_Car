@@ -104,7 +104,7 @@ std::shared_ptr<IVhalClient> AidlVhalClient::tryCreate(const char* descriptor) {
         return nullptr;
     }
     std::shared_ptr<IVehicle> aidlVhal =
-            IVehicle::fromBinder(SpAIBinder(AServiceManager_getService(descriptor)));
+            IVehicle::fromBinder(SpAIBinder(AServiceManager_checkService(descriptor)));
     if (aidlVhal == nullptr) {
         ALOGW("AIDL VHAL service, descriptor: %s is not available", descriptor);
         return nullptr;
@@ -127,6 +127,8 @@ AidlVhalClient::AidlVhalClient(std::shared_ptr<IVehicle> hal, int64_t timeoutInM
     mDeathRecipient = ScopedAIBinder_DeathRecipient(
             AIBinder_DeathRecipient_new(&AidlVhalClient::onBinderDied));
     mLinkUnlinkImpl = std::move(linkUnlinkImpl);
+    // setOnUnlinked must be called before linkToDeath.
+    mLinkUnlinkImpl->setOnUnlinked(mDeathRecipient.get(), &AidlVhalClient::onBinderUnlinked);
     binder_status_t status =
             mLinkUnlinkImpl->linkToDeath(hal->asBinder().get(), mDeathRecipient.get(),
                                          static_cast<void*>(this));
@@ -136,8 +138,14 @@ AidlVhalClient::AidlVhalClient(std::shared_ptr<IVehicle> hal, int64_t timeoutInM
 }
 
 AidlVhalClient::~AidlVhalClient() {
-    mLinkUnlinkImpl->unlinkToDeath(mHal->asBinder().get(), mDeathRecipient.get(),
-                                   static_cast<void*>(this));
+    mLinkUnlinkImpl->deleteDeathRecipient(mDeathRecipient.release());
+
+    // Wait until onUnlinked is call. Now we are safe to cleanup cookie, which is the pointer to
+    // 'this'.
+    {
+        std::unique_lock lk(mLock);
+        mDeathRecipientUnlinkedCv.wait(lk, [this] { return mDeathRecipientUnlinked; });
+    }
 }
 
 bool AidlVhalClient::isAidlVhal() {
@@ -157,9 +165,14 @@ binder_status_t AidlVhalClient::DefaultLinkUnlinkImpl::linkToDeath(
     return AIBinder_linkToDeath(binder, recipient, cookie);
 }
 
-binder_status_t AidlVhalClient::DefaultLinkUnlinkImpl::unlinkToDeath(
-        AIBinder* binder, AIBinder_DeathRecipient* recipient, void* cookie) {
-    return AIBinder_unlinkToDeath(binder, recipient, cookie);
+void AidlVhalClient::DefaultLinkUnlinkImpl::setOnUnlinked(
+        AIBinder_DeathRecipient* recipient, AIBinder_DeathRecipient_onBinderUnlinked onUnlinked) {
+    AIBinder_DeathRecipient_setOnUnlinked(recipient, onUnlinked);
+}
+
+void AidlVhalClient::DefaultLinkUnlinkImpl::deleteDeathRecipient(
+        AIBinder_DeathRecipient* recipient) {
+    AIBinder_DeathRecipient_delete(recipient);
 }
 
 void AidlVhalClient::getValue(const IHalPropValue& requestValue,
@@ -248,8 +261,12 @@ void AidlVhalClient::onBinderDiedWithContext() {
 }
 
 void AidlVhalClient::onBinderUnlinkedWithContext() {
-    std::lock_guard<std::mutex> lk(mLock);
-    mOnBinderDiedCallbacks.clear();
+    {
+        std::lock_guard<std::mutex> lk(mLock);
+        mOnBinderDiedCallbacks.clear();
+        mDeathRecipientUnlinked = true;
+    }
+    mDeathRecipientUnlinkedCv.notify_all();
 }
 
 size_t AidlVhalClient::countOnBinderDiedCallbacks() {

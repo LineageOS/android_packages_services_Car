@@ -26,8 +26,6 @@ import java.util.concurrent.RejectedExecutionException;
 
 /**
  * {@code Executor} to run on an {@code Handler}.
- *
- * @hide
  */
 public class HandlerExecutor implements Executor {
     private final Handler mHandler;

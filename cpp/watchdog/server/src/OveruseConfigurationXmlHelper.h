@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 
-#ifndef CPP_WATCHDOG_SERVER_SRC_OVERUSECONFIGURATIONXMLHELPER_H_
-#define CPP_WATCHDOG_SERVER_SRC_OVERUSECONFIGURATIONXMLHELPER_H_
+#pragma once
 
 #include <aidl/android/automotive/watchdog/internal/ResourceOveruseConfiguration.h>
 #include <android-base/result.h>
@@ -42,5 +41,3 @@ public:
 }  // namespace watchdog
 }  // namespace automotive
 }  // namespace android
-
-#endif  //  CPP_WATCHDOG_SERVER_SRC_OVERUSECONFIGURATIONXMLHELPER_H_

@@ -17,6 +17,7 @@
 package com.android.car.bluetooth;
 
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
+import static com.android.car.internal.common.CommonConstants.USER_LIFECYCLE_EVENT_TYPE_UNLOCKED;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothManager;
@@ -25,7 +26,10 @@ import android.car.hardware.power.CarPowerPolicy;
 import android.car.hardware.power.CarPowerPolicyFilter;
 import android.car.hardware.power.ICarPowerPolicyListener;
 import android.car.hardware.power.PowerComponent;
+import android.car.user.CarUserManager;
+import android.car.user.UserLifecycleEventFilter;
 import android.content.Context;
+import android.os.RemoteException;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.provider.Settings;
@@ -36,6 +40,7 @@ import com.android.car.CarLog;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.car.power.CarPowerManagementService;
+import com.android.car.user.CarUserService;
 import com.android.internal.annotations.VisibleForTesting;
 
 import java.util.Objects;
@@ -52,10 +57,12 @@ public final class BluetoothPowerPolicy {
     private static final int BLUETOOTH_OFF = 0;
     private static final int BLUETOOTH_ON = 1;
 
-    private final int mUserId;
+    private int mUserId;
     private final Context mContext;
     private final BluetoothAdapter mBluetoothAdapter;
+    private CarUserService mCarUserService;
     private final UserManager mUserManager;
+    private CarPowerManagementService mCarPowerManagementService;
 
     private final ICarPowerPolicyListener mPowerPolicyListener =
             new ICarPowerPolicyListener.Stub() {
@@ -84,6 +91,15 @@ public final class BluetoothPowerPolicy {
                         disableBluetooth();
                     }
                 }
+    };
+
+    private final CarUserManager.UserLifecycleListener mUserLifecycleListener = event -> {
+        try {
+            mPowerPolicyListener.onPolicyChanged(/* appliedPolicy= */ null,
+                    mCarPowerManagementService.getCurrentPowerPolicy());
+        } catch (RemoteException e) {
+            Slogf.e(TAG, "Could not apply current power policy", e);
+        }
     };
 
     @VisibleForTesting
@@ -133,12 +149,18 @@ public final class BluetoothPowerPolicy {
         if (DBG) {
             Slogf.d(TAG, "init()");
         }
-        CarPowerManagementService cpms = CarLocalServices.getService(
+        mCarPowerManagementService = CarLocalServices.getService(
                 CarPowerManagementService.class);
-        if (cpms != null) {
+        mCarUserService = CarLocalServices.getService(CarUserService.class);
+        UserLifecycleEventFilter userSwitchingEventFilter = new UserLifecycleEventFilter.Builder()
+                .addEventType(USER_LIFECYCLE_EVENT_TYPE_UNLOCKED)
+                .addUser(UserHandle.of(mUserId))
+                .build();
+        mCarUserService.addUserLifecycleListener(userSwitchingEventFilter, mUserLifecycleListener);
+        if (mCarPowerManagementService != null) {
             CarPowerPolicyFilter filter = new CarPowerPolicyFilter.Builder()
                     .setComponents(PowerComponent.BLUETOOTH).build();
-            cpms.addPowerPolicyListener(filter, mPowerPolicyListener);
+            mCarPowerManagementService.addPowerPolicyListener(filter, mPowerPolicyListener);
         } else {
             Slogf.w(TAG, "Cannot find CarPowerManagementService");
         }
@@ -157,6 +179,7 @@ public final class BluetoothPowerPolicy {
         if (cpms != null) {
             cpms.removePowerPolicyListener(mPowerPolicyListener);
         }
+        mCarUserService.removeUserLifecycleListener(mUserLifecycleListener);
     }
 
     /**

@@ -192,7 +192,7 @@ Result<void> PressureMonitor::start() {
         {
             Mutex::Autolock lock(mMutex);
             mHandlerLooper->setLooper(Looper::prepare(/*opts=*/0));
-            mLastPollUptimeNs = mHandlerLooper->now();
+            mLastPollElapsedRealTimeNs = mHandlerLooper->now();
             mHandlerLooper->sendMessage(sp<PressureMonitor>::fromExisting(this),
                                         LooperMessage::MONITOR_PRESSURE);
             isMonitorActive = mIsMonitorActive;
@@ -275,13 +275,15 @@ Result<void> PressureMonitor::monitorPressure() {
                                     LooperMessage::NOTIFY_PRESSURE_CHANGE);
     }
 
-    mLastPollUptimeNs +=
+    mLastPollElapsedRealTimeNs +=
             std::chrono::duration_cast<std::chrono::nanoseconds>(mPollingIntervalMillis).count();
     // The NOTIFY_PRESSURE_CHANGE message must be handled before MONITOR_PRESSURE message.
     // Otherwise, the callbacks won't be notified of the recent pressure level change. To avoid
-    // inserting MONITOR_PRESSURE message before NOTIFY_PRESSURE_CHANGE message, check the uptime.
+    // inserting MONITOR_PRESSURE message before NOTIFY_PRESSURE_CHANGE message,
+    // check the elapsed real time.
     nsecs_t now = mHandlerLooper->now();
-    mHandlerLooper->sendMessageAtTime(mLastPollUptimeNs > now ? mLastPollUptimeNs : now,
+    mHandlerLooper->sendMessageAtTime(mLastPollElapsedRealTimeNs > now ? mLastPollElapsedRealTimeNs
+                                                                       : now,
                                       sp<PressureMonitor>::fromExisting(this),
                                       LooperMessage::MONITOR_PRESSURE);
     return {};

@@ -21,8 +21,6 @@ import android.view.accessibility.AccessibilityEvent;
 /**
  * Base class for CarSafetyAccessibilityServiceImpl. This is used as an interface between builtin
  * and updatable car service. Do not change it without compatibility check.
- *
- * @hide
  */
 public abstract class CarSafetyAccessibilityServiceImplBase {
     /**

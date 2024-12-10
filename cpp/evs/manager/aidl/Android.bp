@@ -39,7 +39,6 @@ cc_defaults {
         "android.hardware.automotive.evs-V2-ndk",
         "android.hardware.common-V2-ndk",
         "libaidlcommonsupport",
-        "libc++fs",
         "libcutils",
     ],
     header_libs: [

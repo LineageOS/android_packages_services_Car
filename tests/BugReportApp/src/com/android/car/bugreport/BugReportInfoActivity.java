@@ -34,6 +34,9 @@ import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -83,6 +86,13 @@ public class BugReportInfoActivity extends Activity {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.bug_report_info_activity);
+
+        View infoRootView = findViewById(R.id.info_root);
+        ViewCompat.setOnApplyWindowInsetsListener(infoRootView, (view, windowInsets) -> {
+            final Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars());
+            view.setPadding(insets.left, insets.top, insets.right, insets.bottom);
+            return WindowInsetsCompat.CONSUMED;
+        });
 
         mNotificationManager = getSystemService(NotificationManager.class);
 

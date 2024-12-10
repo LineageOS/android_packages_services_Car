@@ -31,7 +31,7 @@
     <string name="fully_managed_device_provisioning_step_1_header" msgid="8704166635032524345">"Отримайте доступ до додатків організації"</string>
     <string name="fully_managed_device_provisioning_step_1_description" msgid="5960961281295355254">"Налаштування інформаційно-розважальної системи…"</string>
     <string name="fully_managed_device_provisioning_step_2_header" msgid="5888602026900289468">"Дані інформаційно-розважальної системи не приватні"</string>
-    <string name="fully_managed_device_provisioning_step_2_subheader_title" msgid="1421575203782743214">"Ваші дії та дані"</string>
+    <string name="fully_managed_device_provisioning_step_2_subheader_title" msgid="1421575203782743214">"Ваші дії і дані"</string>
     <string name="fully_managed_device_provisioning_step_2_subheader" msgid="4881961368653838979">"Адміністратор організації може бачити ваші дії та дані в системі цього транспортного засобу."</string>
     <string name="fully_managed_device_provisioning_permissions_secondary_subheader" msgid="8955791361423166123">"Адміністратор організації може надавати додаткам у системі цього транспортного засобу дозволи (наприклад, на доступ до мікрофона й геоданих)."</string>
     <string name="fully_managed_device_with_permission_control_provisioning_summary" msgid="2503568673345133100">"Легко керуйте своїми робочими додатками за допомогою інформаційно-розважальної системи цього транспортного засобу. Цей автомобіль не приватний, тому адміністратор організації може бачити ваші дії та дані. Адміністратор організації може також надавати додаткам у системі цього транспортного засобу дозволи (наприклад, на доступ до мікрофона й геоданих)."</string>

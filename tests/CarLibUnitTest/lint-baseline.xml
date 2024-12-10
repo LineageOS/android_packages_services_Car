@@ -1,0 +1,367 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.4.0-alpha08" type="baseline" client="" dependencies="true" name="" variant="all" version="8.4.0-alpha08">
+
+    <issue
+        id="FlaggedApi"
+        message="Class `ClusterHomeManager` is a flagged API and should be inside an `if (Flags.clusterHealthMonitoring())` check (or annotate the surrounding method `?` with `@FlaggedApi(Flags.FLAG_CLUSTER_HEALTH_MONITORING) to transfer requirement to caller`)"
+        errorLine1="        CAR_SERVICE_NAMES.put(ClusterHomeManager.class, CLUSTER_HOME_SERVICE);"
+        errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/services/Car/car-lib/src/android/car/Car.java"
+            line="1741"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="FlaggedApi"
+        message="Method `ClusterHomeManager()` is a flagged API and should be inside an `if (Flags.clusterHealthMonitoring())` check (or annotate the surrounding method `createCarManagerLocked` with `@FlaggedApi(Flags.FLAG_CLUSTER_HEALTH_MONITORING) to transfer requirement to caller`)"
+        errorLine1="                manager = new ClusterHomeManager(this, binder);"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/services/Car/car-lib/src/android/car/Car.java"
+            line="2713"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="FlaggedApi"
+        message="Method `onAudioZoneConfigurationsChanged()` is a flagged API and should be inside an `if (Flags.carAudioDynamicDevices())` check (or annotate the surrounding method `onAudioZoneConfigurationsChanged` with `@FlaggedApi(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES) to transfer requirement to caller`)"
+        errorLine1="                mExecutor.execute(() -> mCallback.onAudioZoneConfigurationsChanged(configs,"
+        errorLine2="                                        ^">
+        <location
+            file="packages/services/Car/car-lib/src/android/car/media/CarAudioManager.java"
+            line="2252"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="FlaggedApi"
+        message="Method `CarEvsBufferDescriptor()` is a flagged API and should be inside an `if (Flags.carEvsStreamManagement())` check (or annotate the surrounding method `CarEvsBufferDescriptor` with `@FlaggedApi(Flags.FLAG_CAR_EVS_STREAM_MANAGEMENT) to transfer requirement to caller`)"
+        errorLine1="        this(id, Flags.carEvsStreamManagement() ?"
+        errorLine2="        ^">
+        <location
+            file="packages/services/Car/car-lib/src/android/car/evs/CarEvsBufferDescriptor.java"
+            line="79"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="FlaggedApi"
+        message="Method `onStreamEvent()` is a flagged API and should be inside an `if (Flags.carEvsStreamManagement())` check (or annotate the surrounding method `handleStreamEventLocked` with `@FlaggedApi(Flags.FLAG_CAR_EVS_STREAM_MANAGEMENT) to transfer requirement to caller`)"
+        errorLine1="            executor.execute(() -> cb.onStreamEvent(origin, event));"
+        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/services/Car/car-lib/src/android/car/evs/CarEvsManager.java"
+            line="595"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="FlaggedApi"
+        message="Method `getType()` is a flagged API and should be inside an `if (Flags.carEvsStreamManagement())` check (or annotate the surrounding method `handleNewFrame` with `@FlaggedApi(Flags.FLAG_CAR_EVS_STREAM_MANAGEMENT) to transfer requirement to caller`)"
+        errorLine1="                buffer.getType() : CarEvsUtils.getTag(buffer.getId());"
+        errorLine2="                ~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/services/Car/car-lib/src/android/car/evs/CarEvsManager.java"
+            line="610"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="FlaggedApi"
+        message="Method `getType()` is a flagged API and should be inside an `if (Flags.carEvsStreamManagement())` check (or annotate the surrounding method `returnFrameBuffer` with `@FlaggedApi(Flags.FLAG_CAR_EVS_STREAM_MANAGEMENT) to transfer requirement to caller`)"
+        errorLine1="                buffer.getType() : CarEvsUtils.getTag(buffer.getId());"
+        errorLine2="                ~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/services/Car/car-lib/src/android/car/evs/CarEvsManager.java"
+            line="719"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="FlaggedApi"
+        message="Method `subscribePropertyEvents()` is a flagged API and should be inside an `if (Flags.batchedSubscriptions())` check (or annotate the surrounding method `subscribePropertyEvents` with `@FlaggedApi(Flags.FLAG_BATCHED_SUBSCRIPTIONS) to transfer requirement to caller`)"
+        errorLine1="        return subscribePropertyEvents(List.of("
+        errorLine2="               ^">
+        <location
+            file="packages/services/Car/car-lib/src/android/car/hardware/property/CarPropertyManager.java"
+            line="1243"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="FlaggedApi"
+        message="Method `Builder()` is a flagged API and should be inside an `if (Flags.batchedSubscriptions())` check (or annotate the surrounding method `subscribePropertyEvents` with `@FlaggedApi(Flags.FLAG_BATCHED_SUBSCRIPTIONS) to transfer requirement to caller`)"
+        errorLine1="                new Subscription.Builder(propertyId).setUpdateRateHz(DEFAULT_UPDATE_RATE_HZ)"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/services/Car/car-lib/src/android/car/hardware/property/CarPropertyManager.java"
+            line="1244"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="FlaggedApi"
+        message="Method `build()` is a flagged API and should be inside an `if (Flags.batchedSubscriptions())` check (or annotate the surrounding method `subscribePropertyEvents` with `@FlaggedApi(Flags.FLAG_BATCHED_SUBSCRIPTIONS) to transfer requirement to caller`)"
+        errorLine1="                new Subscription.Builder(propertyId).setUpdateRateHz(DEFAULT_UPDATE_RATE_HZ)"
+        errorLine2="                ^">
+        <location
+            file="packages/services/Car/car-lib/src/android/car/hardware/property/CarPropertyManager.java"
+            line="1244"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="FlaggedApi"
+        message="Method `setUpdateRateHz()` is a flagged API and should be inside an `if (Flags.batchedSubscriptions())` check (or annotate the surrounding method `subscribePropertyEvents` with `@FlaggedApi(Flags.FLAG_BATCHED_SUBSCRIPTIONS) to transfer requirement to caller`)"
+        errorLine1="                new Subscription.Builder(propertyId).setUpdateRateHz(DEFAULT_UPDATE_RATE_HZ)"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/services/Car/car-lib/src/android/car/hardware/property/CarPropertyManager.java"
+            line="1244"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="FlaggedApi"
+        message="Method `subscribePropertyEvents()` is a flagged API and should be inside an `if (Flags.batchedSubscriptions())` check (or annotate the surrounding method `subscribePropertyEvents` with `@FlaggedApi(Flags.FLAG_BATCHED_SUBSCRIPTIONS) to transfer requirement to caller`)"
+        errorLine1="        return subscribePropertyEvents(List.of("
+        errorLine2="               ^">
+        <location
+            file="packages/services/Car/car-lib/src/android/car/hardware/property/CarPropertyManager.java"
+            line="1274"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="FlaggedApi"
+        message="Method `Builder()` is a flagged API and should be inside an `if (Flags.batchedSubscriptions())` check (or annotate the surrounding method `subscribePropertyEvents` with `@FlaggedApi(Flags.FLAG_BATCHED_SUBSCRIPTIONS) to transfer requirement to caller`)"
+        errorLine1="                new Subscription.Builder(propertyId).setUpdateRateHz(updateRateHz).build()),"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/services/Car/car-lib/src/android/car/hardware/property/CarPropertyManager.java"
+            line="1275"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="FlaggedApi"
+        message="Method `build()` is a flagged API and should be inside an `if (Flags.batchedSubscriptions())` check (or annotate the surrounding method `subscribePropertyEvents` with `@FlaggedApi(Flags.FLAG_BATCHED_SUBSCRIPTIONS) to transfer requirement to caller`)"
+        errorLine1="                new Subscription.Builder(propertyId).setUpdateRateHz(updateRateHz).build()),"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/services/Car/car-lib/src/android/car/hardware/property/CarPropertyManager.java"
+            line="1275"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="FlaggedApi"
+        message="Method `setUpdateRateHz()` is a flagged API and should be inside an `if (Flags.batchedSubscriptions())` check (or annotate the surrounding method `subscribePropertyEvents` with `@FlaggedApi(Flags.FLAG_BATCHED_SUBSCRIPTIONS) to transfer requirement to caller`)"
+        errorLine1="                new Subscription.Builder(propertyId).setUpdateRateHz(updateRateHz).build()),"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/services/Car/car-lib/src/android/car/hardware/property/CarPropertyManager.java"
+            line="1275"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="FlaggedApi"
+        message="Method `subscribePropertyEvents()` is a flagged API and should be inside an `if (Flags.batchedSubscriptions())` check (or annotate the surrounding method `subscribePropertyEvents` with `@FlaggedApi(Flags.FLAG_BATCHED_SUBSCRIPTIONS) to transfer requirement to caller`)"
+        errorLine1="        return subscribePropertyEvents(List.of("
+        errorLine2="               ^">
+        <location
+            file="packages/services/Car/car-lib/src/android/car/hardware/property/CarPropertyManager.java"
+            line="1305"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="FlaggedApi"
+        message="Method `Builder()` is a flagged API and should be inside an `if (Flags.batchedSubscriptions())` check (or annotate the surrounding method `subscribePropertyEvents` with `@FlaggedApi(Flags.FLAG_BATCHED_SUBSCRIPTIONS) to transfer requirement to caller`)"
+        errorLine1="                new Subscription.Builder(propertyId).addAreaId(areaId).setUpdateRateHz(1f)"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/services/Car/car-lib/src/android/car/hardware/property/CarPropertyManager.java"
+            line="1306"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="FlaggedApi"
+        message="Method `addAreaId()` is a flagged API and should be inside an `if (Flags.batchedSubscriptions())` check (or annotate the surrounding method `subscribePropertyEvents` with `@FlaggedApi(Flags.FLAG_BATCHED_SUBSCRIPTIONS) to transfer requirement to caller`)"
+        errorLine1="                new Subscription.Builder(propertyId).addAreaId(areaId).setUpdateRateHz(1f)"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/services/Car/car-lib/src/android/car/hardware/property/CarPropertyManager.java"
+            line="1306"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="FlaggedApi"
+        message="Method `build()` is a flagged API and should be inside an `if (Flags.batchedSubscriptions())` check (or annotate the surrounding method `subscribePropertyEvents` with `@FlaggedApi(Flags.FLAG_BATCHED_SUBSCRIPTIONS) to transfer requirement to caller`)"
+        errorLine1="                new Subscription.Builder(propertyId).addAreaId(areaId).setUpdateRateHz(1f)"
+        errorLine2="                ^">
+        <location
+            file="packages/services/Car/car-lib/src/android/car/hardware/property/CarPropertyManager.java"
+            line="1306"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="FlaggedApi"
+        message="Method `setUpdateRateHz()` is a flagged API and should be inside an `if (Flags.batchedSubscriptions())` check (or annotate the surrounding method `subscribePropertyEvents` with `@FlaggedApi(Flags.FLAG_BATCHED_SUBSCRIPTIONS) to transfer requirement to caller`)"
+        errorLine1="                new Subscription.Builder(propertyId).addAreaId(areaId).setUpdateRateHz(1f)"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/services/Car/car-lib/src/android/car/hardware/property/CarPropertyManager.java"
+            line="1306"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="FlaggedApi"
+        message="Method `Builder()` is a flagged API and should be inside an `if (Flags.batchedSubscriptions())` check (or annotate the surrounding method `subscribePropertyEvents` with `@FlaggedApi(Flags.FLAG_BATCHED_SUBSCRIPTIONS) to transfer requirement to caller`)"
+        errorLine1="        Subscription subscription = new Subscription.Builder(propertyId).addAreaId(areaId)"
+        errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/services/Car/car-lib/src/android/car/hardware/property/CarPropertyManager.java"
+            line="1361"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="FlaggedApi"
+        message="Method `addAreaId()` is a flagged API and should be inside an `if (Flags.batchedSubscriptions())` check (or annotate the surrounding method `subscribePropertyEvents` with `@FlaggedApi(Flags.FLAG_BATCHED_SUBSCRIPTIONS) to transfer requirement to caller`)"
+        errorLine1="        Subscription subscription = new Subscription.Builder(propertyId).addAreaId(areaId)"
+        errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/services/Car/car-lib/src/android/car/hardware/property/CarPropertyManager.java"
+            line="1361"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="FlaggedApi"
+        message="Method `build()` is a flagged API and should be inside an `if (Flags.batchedSubscriptions())` check (or annotate the surrounding method `subscribePropertyEvents` with `@FlaggedApi(Flags.FLAG_BATCHED_SUBSCRIPTIONS) to transfer requirement to caller`)"
+        errorLine1="        Subscription subscription = new Subscription.Builder(propertyId).addAreaId(areaId)"
+        errorLine2="                                    ^">
+        <location
+            file="packages/services/Car/car-lib/src/android/car/hardware/property/CarPropertyManager.java"
+            line="1361"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="FlaggedApi"
+        message="Method `setUpdateRateHz()` is a flagged API and should be inside an `if (Flags.batchedSubscriptions())` check (or annotate the surrounding method `subscribePropertyEvents` with `@FlaggedApi(Flags.FLAG_BATCHED_SUBSCRIPTIONS) to transfer requirement to caller`)"
+        errorLine1="        Subscription subscription = new Subscription.Builder(propertyId).addAreaId(areaId)"
+        errorLine2="                                    ^">
+        <location
+            file="packages/services/Car/car-lib/src/android/car/hardware/property/CarPropertyManager.java"
+            line="1361"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="FlaggedApi"
+        message="Method `subscribePropertyEvents()` is a flagged API and should be inside an `if (Flags.batchedSubscriptions())` check (or annotate the surrounding method `subscribePropertyEvents` with `@FlaggedApi(Flags.FLAG_BATCHED_SUBSCRIPTIONS) to transfer requirement to caller`)"
+        errorLine1="        return subscribePropertyEvents(List.of(subscription), /* callbackExecutor= */ null,"
+        errorLine2="               ^">
+        <location
+            file="packages/services/Car/car-lib/src/android/car/hardware/property/CarPropertyManager.java"
+            line="1363"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="FlaggedApi"
+        message="Method `getPropertyId()` is a flagged API and should be inside an `if (Flags.batchedSubscriptions())` check (or annotate the surrounding method `convertToCarSubscribeOptions` with `@FlaggedApi(Flags.FLAG_BATCHED_SUBSCRIPTIONS) to transfer requirement to caller`)"
+        errorLine1="            internalOption.propertyId = clientOption.getPropertyId();"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/services/Car/car-lib/src/android/car/hardware/property/CarPropertyManager.java"
+            line="1499"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="FlaggedApi"
+        message="Method `getAreaIds()` is a flagged API and should be inside an `if (Flags.batchedSubscriptions())` check (or annotate the surrounding method `convertToCarSubscribeOptions` with `@FlaggedApi(Flags.FLAG_BATCHED_SUBSCRIPTIONS) to transfer requirement to caller`)"
+        errorLine1="            internalOption.areaIds = clientOption.getAreaIds();"
+        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/services/Car/car-lib/src/android/car/hardware/property/CarPropertyManager.java"
+            line="1500"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="FlaggedApi"
+        message="Method `getUpdateRateHz()` is a flagged API and should be inside an `if (Flags.batchedSubscriptions())` check (or annotate the surrounding method `convertToCarSubscribeOptions` with `@FlaggedApi(Flags.FLAG_BATCHED_SUBSCRIPTIONS) to transfer requirement to caller`)"
+        errorLine1="            internalOption.updateRateHz = clientOption.getUpdateRateHz();"
+        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/services/Car/car-lib/src/android/car/hardware/property/CarPropertyManager.java"
+            line="1501"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="FlaggedApi"
+        message="Method `isVariableUpdateRateEnabled()` is a flagged API and should be inside an `if (Flags.variableUpdateRate())` check (or annotate the surrounding method `convertToCarSubscribeOptions` with `@FlaggedApi(Flags.FLAG_VARIABLE_UPDATE_RATE) to transfer requirement to caller`)"
+        errorLine1="            internalOption.enableVariableUpdateRate = clientOption.isVariableUpdateRateEnabled();"
+        errorLine2="                                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/services/Car/car-lib/src/android/car/hardware/property/CarPropertyManager.java"
+            line="1502"
+            column="55"/>
+    </issue>
+
+    <issue
+        id="FlaggedApi"
+        message="Method `getResolution()` is a flagged API and should be inside an `if (Flags.subscriptionWithResolution())` check (or annotate the surrounding method `convertToCarSubscribeOptions` with `@FlaggedApi(Flags.FLAG_SUBSCRIPTION_WITH_RESOLUTION) to transfer requirement to caller`)"
+        errorLine1="            internalOption.resolution = clientOption.getResolution();"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/services/Car/car-lib/src/android/car/hardware/property/CarPropertyManager.java"
+            line="1503"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="FlaggedApi"
+        message="Method `InVehicleTaskScheduler()` is a flagged API and should be inside an `if (Flags.serverlessRemoteAccess())` check (or annotate the surrounding method `?` with `@FlaggedApi(Flags.FLAG_SERVERLESS_REMOTE_ACCESS) to transfer requirement to caller`)"
+        errorLine1="    private final InVehicleTaskScheduler mInVehicleTaskScheduler = new InVehicleTaskScheduler();"
+        errorLine2="                                                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/services/Car/car-lib/src/android/car/remoteaccess/CarRemoteAccessManager.java"
+            line="102"
+            column="68"/>
+    </issue>
+
+    <issue
+        id="FlaggedApi"
+        message="Method `onServerlessClientRegistered()` is a flagged API and should be inside an `if (Flags.serverlessRemoteAccess())` check (or annotate the surrounding method `onServerlessClientRegistered` with `@FlaggedApi(Flags.FLAG_SERVERLESS_REMOTE_ACCESS) to transfer requirement to caller`)"
+        errorLine1="                executor.execute(() -> callback.onServerlessClientRegistered());"
+        errorLine2="                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="packages/services/Car/car-lib/src/android/car/remoteaccess/CarRemoteAccessManager.java"
+            line="224"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="FlaggedApi"
+        message="Method `isVariableUpdateRateSupported()` is a flagged API and should be inside an `if (Flags.variableUpdateRate())` check (or annotate the surrounding method `sanitizeEnableVariableUpdateRate` with `@FlaggedApi(Flags.FLAG_VARIABLE_UPDATE_RATE) to transfer requirement to caller`)"
+        errorLine1="                if (carPropertyConfig.getAreaIdConfig(areaId)"
+        errorLine2="                    ^">
+        <location
+            file="packages/services/Car/car-lib/src/com/android/car/internal/property/InputSanitizationUtils.java"
+            line="160"
+            column="21"/>
+    </issue>
+
+</issues>

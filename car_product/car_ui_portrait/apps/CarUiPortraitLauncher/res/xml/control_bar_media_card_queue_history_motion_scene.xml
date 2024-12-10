@@ -24,6 +24,14 @@
         motion:duration="@integer/control_bar_side_panel_animation_duration"
         motion:motionInterpolator="standard">
         <KeyFrameSet>
+            <KeyAttribute
+                android:alpha="0"
+                motion:framePosition="50"
+                motion:motionTarget="@id/title" />
+            <KeyAttribute
+                android:alpha="0"
+                motion:framePosition="50"
+                motion:motionTarget="@id/playback_seek_bar" />
         </KeyFrameSet>
     </Transition>
 
@@ -54,6 +62,11 @@
         </ConstraintOverride>
         <ConstraintOverride
             android:id="@id/custom_action_overflow_container">
+            <PropertySet
+                motion:visibilityMode="ignore"/>
+        </ConstraintOverride>
+        <ConstraintOverride
+            android:id="@id/custom_action_overflow_conceal_container">
             <PropertySet
                 motion:visibilityMode="ignore"/>
         </ConstraintOverride>
@@ -115,7 +128,7 @@
             android:layout_marginEnd="@dimen/control_bar_media_card_view_end_margin"
             motion:layout_goneMarginBottom="@dimen/media_card_view_separation_margin"
             android:gravity="center_vertical"
-            android:textColor="@color/car_on_surface"
+            android:textColor="@color/car_text_primary"
             android:maxLines="1"
             android:ellipsize="end"
             motion:layout_constraintStart_toEndOf="@id/playback_action_id2"
@@ -141,9 +154,9 @@
             android:clickable="false"
             android:paddingEnd="0dp"
             android:paddingStart="0dp"
-            android:progressBackgroundTint="@color/car_on_surface_variant"
+            android:progressBackgroundTint="@color/car_surface_container_highest"
             android:progressDrawable="@drawable/media_card_seekbar_progress"
-            android:progressTint="@color/car_on_surface"
+            android:progressTint="@color/car_primary"
             android:splitTrack="true"
             android:thumb="@drawable/media_card_seekbar_thumb"
             android:thumbTint="@color/car_on_surface"
@@ -183,17 +196,36 @@
                 motion:visibilityMode="ignore"/>
         </ConstraintOverride>
         <ConstraintOverride
+            android:id="@id/custom_action_overflow_conceal_container"
+            android:alpha="0">
+            <PropertySet
+                motion:visibilityMode="ignore"/>
+        </ConstraintOverride>
+        <ConstraintOverride
             android:id="@id/media_widget_app_icon"
             android:alpha="0">
         <PropertySet
             motion:visibilityMode="ignore"/>
         </ConstraintOverride>
-        <ConstraintOverride
-            android:id="@id/subtitle"
-            android:alpha="0">
+        <Constraint
+            android:id="@+id/subtitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/control_bar_media_card_subtitle_top_margin"
+            android:layout_marginEnd="@dimen/control_bar_media_card_view_end_margin"
+            android:gravity="center_vertical"
+            android:includeFontPadding="false"
+            android:textColor="@color/car_on_surface_variant"
+            android:textAppearance="@style/TextAppearance.Car.Body.Medium"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:alpha="0"
+            motion:layout_constraintStart_toStartOf="parent"
+            motion:layout_constraintTop_toTopOf="parent"
+            motion:layout_constraintBottom_toBottomOf="parent">
             <PropertySet
                 motion:visibilityMode="ignore"/>
-        </ConstraintOverride>
+        </Constraint>
         <ConstraintOverride
             android:id="@id/album_title"
             android:alpha="0">

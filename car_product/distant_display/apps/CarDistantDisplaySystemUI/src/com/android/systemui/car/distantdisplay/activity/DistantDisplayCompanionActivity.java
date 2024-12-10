@@ -28,7 +28,7 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.android.systemui.R;
-import com.android.systemui.car.distantdisplay.common.TaskViewController;
+import com.android.systemui.car.distantdisplay.common.DistantDisplayTaskManager;
 
 import javax.inject.Inject;
 
@@ -37,7 +37,7 @@ public class DistantDisplayCompanionActivity extends Activity {
             "key_companion_moved_package_name";
 
     private final Context mContext;
-    private final TaskViewController mTaskViewController;
+    private final DistantDisplayTaskManager mDistantDisplayTaskManager;
 
     /**
      * Create new intent for the DistantDisplayCompanionActivity with the moved package name
@@ -54,9 +54,10 @@ public class DistantDisplayCompanionActivity extends Activity {
     }
 
     @Inject
-    public DistantDisplayCompanionActivity(Context context, TaskViewController taskViewController) {
+    public DistantDisplayCompanionActivity(Context context,
+            DistantDisplayTaskManager distantDisplayTaskManager) {
         mContext = context;
-        mTaskViewController = taskViewController;
+        mDistantDisplayTaskManager = distantDisplayTaskManager;
     }
 
     @Override
@@ -73,7 +74,7 @@ public class DistantDisplayCompanionActivity extends Activity {
         Button moveBackButton = findViewById(R.id.move_back_button);
         if (moveBackButton != null) {
             moveBackButton.setOnClickListener((v) -> {
-                mTaskViewController.moveTaskFromDistantDisplay();
+                mDistantDisplayTaskManager.moveTaskFromDistantDisplay();
             });
         }
     }

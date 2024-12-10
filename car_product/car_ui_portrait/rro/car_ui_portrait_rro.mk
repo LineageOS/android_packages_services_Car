@@ -25,6 +25,7 @@ PRODUCT_PACKAGES += \
     CarUiPortraitAppGridReferenceRRO \
     CarUiPortraitCarServiceRRO \
     CarUiPortraitCommon \
+    CarUiPortraitDataSubscriptionReferenceRRO \
     CarUiPortraitDialerRRO \
     CarUiPortraitFrameworkResRRO \
     CarUiPortraitLauncherAppsRRO \

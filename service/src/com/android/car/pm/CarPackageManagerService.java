@@ -210,7 +210,7 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
 
     private final ComponentName mActivityBlockingActivity;
     // Memorize the target of ABA to defend bypassing it with launching two Activities continuously.
-    private final SparseArray<ComponentName> mBlockingActivityTargets = new SparseArray<>();
+    private final SparseArray<TaskInfo> mBlockingActivityTargets = new SparseArray<>();
     private final SparseLongArray mBlockingActivityLaunchTimes = new SparseLongArray();
     private final boolean mPreventTemplatedAppsFromShowingDialog;
     private final String mTemplateActivityClassName;
@@ -1497,12 +1497,7 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
      * @return {@code true} if the {@code topTask} was blocked, {@code false} otherwise.
      */
     private boolean doBlockTopActivityIfNotAllowed(int displayId, TaskInfo topTask) {
-        if (topTask.topActivity == null) {
-            return false;
-        }
-        if (topTask.topActivity.equals(mActivityBlockingActivity)) {
-            mBlockingActivityLaunchTimes.put(displayId, 0);
-            mBlockingActivityTargets.put(displayId, null);
+        if (isBlockingUiTask(topTask)) {
             // If topTask is already ActivityBlockingActivity, treat it as already blocked.
             return true;
         }
@@ -1526,8 +1521,8 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
         // (TaskStackChangeListener reflects the internal state of ActivityTaskManagerService)
         // So it takes some time to recognize the ActivityBlockingActivity is shown.
         // This guard is to prevent from launching ABA repeatedly until it is shown.
-        ComponentName blockingActivityTarget = mBlockingActivityTargets.get(displayId);
-        if (topTask.topActivity.equals(blockingActivityTarget)) {
+        TaskInfo blockingActivityTarget = mBlockingActivityTargets.get(displayId);
+        if (blockingActivityTarget != null && topTask.taskId == blockingActivityTarget.taskId) {
             long blockingActivityLaunchTime = mBlockingActivityLaunchTimes.get(displayId);
             if (SystemClock.uptimeMillis() - blockingActivityLaunchTime < ABA_LAUNCH_TIMEOUT_MS) {
                 Slogf.d(TAG, "Waiting for BlockingActivity to be shown: displayId=%d", displayId);
@@ -1556,7 +1551,7 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
         }
         mBlockedActivityLogs.log(log);
         mBlockingActivityLaunchTimes.put(displayId, SystemClock.uptimeMillis());
-        mBlockingActivityTargets.put(displayId, topTask.topActivity);
+        mBlockingActivityTargets.put(displayId, topTask);
         mActivityService.blockActivity(topTask, newActivityIntent);
         return true;
     }
@@ -1952,8 +1947,10 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
             blockTopActivityIfNecessary(topTask);
         }
 
+        // TODO(b/358905871): Verify if onTaskInfoChanged required to trigger finishing of
+        //  blocking ui.
         @Override
-        public void onActivityChangedInBackstack(TaskInfo taskInfo) {
+        public void onTaskVanished(TaskInfo taskInfo) {
             if (taskInfo == null) {
                 Slogf.e(TAG, "Received callback with null task info.");
                 return;
@@ -1968,21 +1965,50 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
                 }
                 lastKnownDisplayId = mLastKnownDisplayIdForTask.get(taskInfo.taskId);
             }
-            if (DBG) {
-                Slogf.i(TAG, "Callback for task %s on display id %d.", taskInfo.taskId,
-                        lastKnownDisplayId);
-            }
-            // Only finish the blocking ui if it is visible and there is some change in the
-            // backstack for the activity that is being blocked. This is because the blocked
-            // activity could have crashed due to which there is a need for blocking ui to finish.
+            // Only finish the blocking ui if it is visible and the activity that is being
+            // blocked has vanished which could have crashed due to which there is a need for
+            // blocking ui to finish.
             if (isBlockingUiVisible(lastKnownDisplayId) && isBlockedActivityTarget(
                     lastKnownDisplayId, taskInfo)) {
+                if (DBG) {
+                    Slogf.d(TAG,
+                            "Finish blocking ui callback due to task %s which was blocked on "
+                                    + "display id %d.", taskInfo.taskId, lastKnownDisplayId);
+                }
                 mHandler.post(() -> finishBlockingUi(taskInfo));
                 synchronized (mLock) {
                     mBlockingUiTaskInfoPerDisplay.delete(lastKnownDisplayId);
                 }
+                cleanUpBlockingUiInformation(lastKnownDisplayId);
+            } else if (isBlockingUiTask(taskInfo)) {
+                if (DBG) {
+                    Slogf.d(TAG, "Blocking ui has vanished on display id %d.", lastKnownDisplayId);
+                }
+                cleanUpBlockingUiInformation(lastKnownDisplayId);
             }
         }
+    }
+
+    /**
+     * Cleans up blocking ui information since either the blocking ui itself finished or the task
+     * that was being blocked by the blocking ui finished. In both the cases, the blocking ui will
+     * be finishing itself, so clean up the information.
+     */
+    private void cleanUpBlockingUiInformation(int lastKnownDisplayId) {
+        if (mBlockingActivityTargets.contains(lastKnownDisplayId)) {
+            mBlockingActivityLaunchTimes.put(lastKnownDisplayId, 0);
+            mBlockingActivityTargets.delete(lastKnownDisplayId);
+        }
+    }
+
+    /**
+     * Checks if the {@link TaskInfo} is the blocking ui.
+     *
+     * @return {@code true} if blocking ui is the {@link TaskInfo}, {@code false} otherwise.
+     */
+    private boolean isBlockingUiTask(TaskInfo taskInfo) {
+        return taskInfo.topActivity != null && taskInfo.topActivity.equals(
+                mActivityBlockingActivity);
     }
 
     /**
@@ -2009,7 +2035,7 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
      * {@code displayId}, {@code false} otherwise.
      */
     private boolean isBlockedActivityTarget(int displayId, TaskInfo taskInfo) {
-        return mBlockingActivityTargets.get(displayId) == taskInfo.topActivity;
+        return mBlockingActivityTargets.get(displayId).taskId == taskInfo.taskId;
     }
 
     /**

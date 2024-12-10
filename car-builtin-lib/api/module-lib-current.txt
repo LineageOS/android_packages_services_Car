@@ -155,6 +155,15 @@ package android.car.builtin.content.pm {
 
 }
 
+package android.car.builtin.devicepolicy {
+
+  public final class DevicePolicyManagerHelper {
+    method public static void addUserRestriction(@NonNull android.app.admin.DevicePolicyManager, @NonNull String, @NonNull String, @NonNull android.os.UserHandle);
+    method public static void clearUserRestriction(@NonNull android.app.admin.DevicePolicyManager, @NonNull String, @NonNull String, @NonNull android.os.UserHandle);
+  }
+
+}
+
 package android.car.builtin.display {
 
   public final class DisplayManagerHelper {
@@ -302,7 +311,12 @@ package android.car.builtin.os {
     method @Nullable public static android.os.IBinder checkService(@NonNull String);
     method @Nullable public static String[] getDeclaredInstances(@NonNull String);
     method @Nullable public static android.os.IBinder getService(@NonNull String);
+    method public static void registerForNotifications(@NonNull String, @NonNull android.car.builtin.os.ServiceManagerHelper.IServiceRegistrationCallback) throws android.os.RemoteException;
     method @Nullable public static android.os.IBinder waitForDeclaredService(@NonNull String);
+  }
+
+  public static interface ServiceManagerHelper.IServiceRegistrationCallback {
+    method public void onRegistration(@NonNull String, android.os.IBinder);
   }
 
   public final class SharedMemoryHelper {
@@ -577,6 +591,7 @@ package android.car.builtin.view {
     field public static final int INVALID_PORT = -1; // 0xffffffff
     field public static final int TYPE_EXTERNAL = 2; // 0x2
     field public static final int TYPE_INTERNAL = 1; // 0x1
+    field public static final int TYPE_OVERLAY = 4; // 0x4
     field public static final int TYPE_VIRTUAL = 5; // 0x5
   }
 

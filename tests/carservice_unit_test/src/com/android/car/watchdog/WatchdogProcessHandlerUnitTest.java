@@ -116,7 +116,67 @@ public class WatchdogProcessHandlerUnitTest extends AbstractExtendedMockitoTestC
         CarLocalServices.removeServiceForTest(CarServiceHelperWrapper.class);
     }
 
-    // TODO(b/288468494): Look into adding tests for prepareHealthCheck and updateUserState.
+    @Test
+    public void testPrepareHealthCheck() throws Exception {
+        // Register bad client; bad clients do not respond to CarWatchdogService when pinged
+        TestClient badClient = new BadTestClient();
+        mWatchdogProcessHandler.registerClient(badClient, TIMEOUT_CRITICAL);
+
+        // Start a health check, which will ping registered clients.
+        mWatchdogProcessHandler.postHealthCheckMessage(123456);
+
+        CarServiceUtils.runOnMainSync(() -> {});
+
+        // Clears all pending clients
+        mWatchdogProcessHandler.prepareHealthCheck();
+
+        // Since the pending clients cache was cleared, CarWatchdogService won't
+        // call onPrepareProcessTermination on our bad client even if it did not
+        // respond to the initial ping.
+        mWatchdogProcessHandler.postHealthCheckMessage(123456);
+
+        CarServiceUtils.runOnMainSync(() -> {});
+
+        // Check if bad client received onPrepareProcessTermination
+        assertWithMessage("Pinged clients not resetting").that(
+            badClient.getReceivedOnPrepareProcessTermination()).isEqualTo(false);
+    }
+
+    @Test
+    public void testUpdateUserState() throws Exception {
+        TestClient client = new TestClient();
+        mWatchdogProcessHandler.registerClient(client, TIMEOUT_CRITICAL);
+
+        // Setting the ClientInfo packageName in registerClient is done on the CarWatchdogService
+        // service handler thread. Wait until the below message is processed before
+        // returning, to the packageName is resolved in ClientInfo.
+        CarServiceUtils.runEmptyRunnableOnLooperSync(CAR_WATCHDOG_SERVICE_NAME);
+
+        mWatchdogProcessHandler.updateUserState(100, true);
+
+        ProtoOutputStream proto = new ProtoOutputStream();
+        mWatchdogProcessHandler.dumpProto(proto);
+
+        CarWatchdogDumpProto carWatchdogDumpProto = CarWatchdogDumpProto.parseFrom(
+                proto.getBytes());
+        CarWatchdogDumpProto.SystemHealthDump systemHealthDump =
+                carWatchdogDumpProto.getSystemHealthDump();
+
+        expectWithMessage("Stopped Users Count").that(
+            systemHealthDump.getStoppedUsersCount()).isEqualTo(1);
+        expectWithMessage("Stopped User").that(systemHealthDump.getStoppedUsers(0)).isEqualTo(100);
+
+        mWatchdogProcessHandler.updateUserState(100, false);
+
+        proto = new ProtoOutputStream();
+        mWatchdogProcessHandler.dumpProto(proto);
+
+        carWatchdogDumpProto = CarWatchdogDumpProto.parseFrom(proto.getBytes());
+        systemHealthDump = carWatchdogDumpProto.getSystemHealthDump();
+
+        expectWithMessage("Stopped Users Count").that(
+            systemHealthDump.getStoppedUsersCount()).isEqualTo(0);
+    }
 
     @Test
     public void testPostHealthCheckMessage() throws Exception {
@@ -323,6 +383,7 @@ public class WatchdogProcessHandlerUnitTest extends AbstractExtendedMockitoTestC
 
     private class TestClient extends ICarWatchdogServiceCallback.Stub {
         protected int mLastSessionId = INVALID_SESSION_ID;
+        protected boolean mReceivedOnPrepareProcessTermination = false;
 
         @Override
         public void onCheckHealthStatus(int sessionId, int timeout) {
@@ -332,10 +393,15 @@ public class WatchdogProcessHandlerUnitTest extends AbstractExtendedMockitoTestC
 
         @Override
         public void onPrepareProcessTermination() {
+            mReceivedOnPrepareProcessTermination = true;
         }
 
         public int getLastSessionId() {
             return mLastSessionId;
+        }
+
+        public boolean getReceivedOnPrepareProcessTermination() {
+            return mReceivedOnPrepareProcessTermination;
         }
     }
 

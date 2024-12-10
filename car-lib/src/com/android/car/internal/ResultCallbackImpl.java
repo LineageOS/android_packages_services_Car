@@ -39,8 +39,6 @@ import java.util.concurrent.Executor;
  * {@link #complete(Object)} should be called with the result.
  *
  * @param <V> refer to a Parcelable object.
- *
- * @hide
  */
 public class ResultCallbackImpl<V> implements Parcelable {
 

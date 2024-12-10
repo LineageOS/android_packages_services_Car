@@ -28,8 +28,6 @@ import java.io.PrintWriter;
  * <p> This is used as an interface between builtin and updatable car service. Do not change it
  * without compatibility check. Adding a new method is ok but should have no-op default
  * implementation.
- *
- * @hide
  */
 public abstract class ProxiedService extends Service {
 

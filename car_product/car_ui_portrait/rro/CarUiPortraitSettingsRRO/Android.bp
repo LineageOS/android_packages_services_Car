@@ -15,7 +15,7 @@ package {
     default_applicable_licenses: ["Android-Apache-2.0"],
 }
 
-android_app {
+runtime_resource_overlay {
     name: "CarUiPortraitSettingsRRO",
     resource_dirs: ["res"],
     sdk_version: "current",

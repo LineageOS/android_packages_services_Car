@@ -39,7 +39,7 @@
     inputTypes: supported input types for the corresponding display.
 -->
     <string-array translatable="false" name="config_occupant_display_mapping">
-        <item>displayPort=136,displayType=MAIN,occupantZoneId=0,inputTypes=TOUCH_SCREEN|DPAD_KEYS|NAVIGATE_KEYS|ROTARY_NAVIGATION</item>
+        <item>displayPort=135,displayType=MAIN,occupantZoneId=0,inputTypes=TOUCH_SCREEN|DPAD_KEYS|NAVIGATE_KEYS|ROTARY_NAVIGATION</item>
     </string-array>
     <!--
         Specifies optional features that can be enabled by this image. Note that vhal can disable

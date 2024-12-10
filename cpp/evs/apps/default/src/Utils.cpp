@@ -32,11 +32,11 @@ NativeHandle dupNativeHandle(const NativeHandle& handle) {
     dup.fds = std::vector<::ndk::ScopedFileDescriptor>(handle.fds.size());
     const size_t n = handle.fds.size();
     for (size_t i = 0; i < n; ++i) {
-        dup.fds[i] = std::move(handle.fds[i].dup());
+        dup.fds[i] = handle.fds[i].dup();
     }
     dup.ints = handle.ints;
 
-    return std::move(dup);
+    return dup;
 }
 
 HardwareBuffer dupHardwareBuffer(const HardwareBuffer& buffer) {
@@ -45,7 +45,7 @@ HardwareBuffer dupHardwareBuffer(const HardwareBuffer& buffer) {
             .handle = dupNativeHandle(buffer.handle),
     };
 
-    return std::move(dup);
+    return dup;
 }
 
 }  // namespace
@@ -60,7 +60,7 @@ BufferDesc dupBufferDesc(const BufferDesc& src) {
             .metadata = src.metadata,
     };
 
-    return std::move(dup);
+    return dup;
 }
 
 native_handle_t* getNativeHandle(const BufferDesc& buffer) {

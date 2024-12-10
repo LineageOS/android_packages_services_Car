@@ -67,8 +67,6 @@ import java.util.TreeSet;
  * This class is not thread-safe.
  *
  * @param <ClientType> A class representing a client.
- *
- * @hide
  */
 public final class SubscriptionManager<ClientType> {
     private static final String TAG = SubscriptionManager.class.getSimpleName();

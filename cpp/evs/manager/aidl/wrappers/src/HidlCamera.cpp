@@ -414,7 +414,7 @@ Return<void> HidlCamera::importExternalBuffers(const hidl_vec<hidlevs::V1_1::Buf
 
     std::vector<BufferDesc> aidlBuffers(buffers.size());
     for (auto i = 0; i < buffers.size(); ++i) {
-        aidlBuffers[i] = std::move(Utils::makeFromHidl(buffers[i]));
+        aidlBuffers[i] = Utils::makeFromHidl(buffers[i]);
     }
 
     int32_t delta = 0;

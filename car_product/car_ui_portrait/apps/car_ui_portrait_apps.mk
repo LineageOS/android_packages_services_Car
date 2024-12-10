@@ -21,7 +21,6 @@ PRODUCT_PACKAGES += \
     CarNotification \
     CarUiPortraitCommon \
     CarUiPortraitLauncher \
-    CarUiPortraitSettings \
     CarUiPortraitSystemUI \
     PaintBooth
 

@@ -107,15 +107,15 @@ else ifeq ($(ENABLE_SAMPLE_EVS_APP), true)
 PRODUCT_PACKAGES += evs_app
 endif
 
-ifeq ($(USE_AIDL_DISPLAY_SERVICE), true)
-PRODUCT_PACKAGES += cardisplayproxyd
-else
+ifeq ($(USE_HIDL_DISPLAY_SERVICE), true)
 # TODO(b/276340636): Remove HIDL Automotive Display Service implementation when we stop supporting
 # HIDL EVS interface implementations.
 $(warning HIDL version of the Automotive Display Service is deprecated \
           and will be replaced with cardisplayproxyd.)
 PRODUCT_PACKAGES += android.frameworks.automotive.display@1.0-service
-endif  # USE_AIDL_DISPLAY_SERVICE
+else
+PRODUCT_PACKAGES += cardisplayproxyd
+endif  # USE_HIDL_DISPLAY_SERVICE
 
 PRODUCT_NAME := car_generic_system
 PRODUCT_BRAND := generic

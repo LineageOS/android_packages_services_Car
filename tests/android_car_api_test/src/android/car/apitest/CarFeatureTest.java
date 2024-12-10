@@ -87,7 +87,6 @@ public final class CarFeatureTest extends CarApiTestBase {
             Car.CAR_OCCUPANT_CONNECTION_SERVICE,
             Car.CAR_REMOTE_DEVICE_SERVICE,
             Car.DIAGNOSTIC_SERVICE,
-            Car.EXPERIMENTAL_CAR_USER_SERVICE,
             Car.OCCUPANT_AWARENESS_SERVICE,
             Car.STORAGE_MONITORING_SERVICE,
             Car.VEHICLE_MAP_SERVICE,

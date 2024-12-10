@@ -24,7 +24,7 @@ import com.android.systemui.dagger.SysUISingleton;
 import com.android.wm.shell.common.HandlerExecutor;
 import com.android.wm.shell.common.ShellExecutor;
 import com.android.wm.shell.common.SyncTransactionQueue;
-import com.android.wm.shell.common.TransactionPool;
+import com.android.wm.shell.shared.TransactionPool;
 
 import dagger.Binds;
 import dagger.Module;

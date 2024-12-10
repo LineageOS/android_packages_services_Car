@@ -134,7 +134,7 @@ ScopedAStatus CarDisplayProxy::getDisplayInfo(int64_t id, DisplayDesc* _aidl_ret
         LOG(WARNING) << "Failed to read current state of the display " << id;
     }
 
-    return std::move(displayToken);
+    return displayToken;
 }
 
 ScopedAStatus CarDisplayProxy::getHGraphicBufferProducer(int64_t id, NativeHandle* _aidl_return) {
@@ -168,7 +168,7 @@ ScopedAStatus CarDisplayProxy::getHGraphicBufferProducer(int64_t id, NativeHandl
         return ScopedAStatus::fromStatus(STATUS_BAD_VALUE);
     }
 
-    *_aidl_return = std::move(::android::dupToAidl(handle));
+    *_aidl_return = ::android::dupToAidl(handle);
     return ScopedAStatus::ok();
 }
 

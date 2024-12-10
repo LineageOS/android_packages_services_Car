@@ -35,6 +35,8 @@ public final class DisplayHelper {
     public static final int TYPE_EXTERNAL = Display.TYPE_EXTERNAL;
     /** Display type: Virtual display. */
     public static final int TYPE_VIRTUAL = Display.TYPE_VIRTUAL;
+    /** Display type: Overlay display. */
+    public static final int TYPE_OVERLAY = Display.TYPE_OVERLAY;
 
     private DisplayHelper() {
         throw new UnsupportedOperationException();

@@ -16,6 +16,9 @@
 
 package android.car.os;
 
+
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DEPRECATED_CODE;
+
 import android.annotation.CallbackExecutor;
 import android.annotation.NonNull;
 import android.annotation.RequiresPermission;
@@ -26,6 +29,8 @@ import android.os.IBinder;
 import android.os.Process;
 import android.os.RemoteException;
 import android.os.ServiceSpecificException;
+
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 
 import java.util.Objects;
 import java.util.concurrent.Executor;
@@ -114,6 +119,7 @@ public final class CarPerformanceManager extends CarManagerBase {
      * @removed API not used since Android U. Must be removed in Android W (release 35).
      */
     @RequiresPermission(Car.PERMISSION_COLLECT_CAR_CPU_INFO)
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DEPRECATED_CODE)
     public void addCpuAvailabilityChangeListener(
             @NonNull @CallbackExecutor Executor executor,
             @NonNull CpuAvailabilityMonitoringConfig config,
@@ -136,6 +142,7 @@ public final class CarPerformanceManager extends CarManagerBase {
      * @removed API not used since Android U. Must be removed in Android W (release 35).
      */
     @RequiresPermission(Car.PERMISSION_COLLECT_CAR_CPU_INFO)
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DEPRECATED_CODE)
     public void removeCpuAvailabilityChangeListener(
             @NonNull @CallbackExecutor Executor executor,
             @NonNull CpuAvailabilityChangeListener listener) {

@@ -60,7 +60,7 @@
                 android:id="@+id/home"
                 android:contentDescription="@string/system_bar_passenger_home_label"
                 style="@style/SystemBarButton"
-                systemui:componentNames="com.android.car.multidisplay.passenger/.LauncherActivity"
+                systemui:componentNames="com.android.car.carlauncher/.CarLauncher"
                 systemui:highlightWhenSelected="true"
                 systemui:icon="@drawable/car_ic_home"
                 systemui:intent="intent:#Intent;action=android.intent.action.MAIN;category=android.intent.category.HOME;launchFlags=0x14000000;end"/>
@@ -106,19 +106,15 @@
             app:systemBarDisable2Flags="quickSettings"
             app:showAsDropDown="false"
             app:gravity="bottom|end">
-            <ImageView
+            <com.android.systemui.car.systembar.element.layout.CarSystemBarImageView
                 android:id="@+id/user_icon"
                 android:layout_width="@dimen/car_quick_controls_entry_points_icon_width"
                 android:layout_height="match_parent"
                 android:adjustViewBounds="true"
                 android:src="@drawable/car_user_icon_circle_background"
                 android:scaleType="fitCenter"
-                android:layout_marginEnd="@dimen/car_quick_controls_entry_points_icon_space"/>
-            <TextView
-                android:id="@+id/user_name_text"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:visibility="gone"/>
+                android:layout_marginEnd="@dimen/car_quick_controls_entry_points_icon_space"
+                systemui:controller="com.android.systemui.car.systembar.UserNameImageViewController"/>
             <com.android.systemui.car.statusicon.StatusIconView
                 android:id="@+id/media_volume_status_icon"
                 android:layout_width="wrap_content"

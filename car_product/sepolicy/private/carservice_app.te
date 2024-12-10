@@ -143,3 +143,5 @@ allow carservice_app evsmanagerd_service:service_manager find;
 
 # Allow reading car boot information
 get_prop(carservice_app, car_boot_prop);
+
+set_prop(carservice_app, hibernation_prop);

@@ -97,4 +97,13 @@
     <dimen name="car_activity_resolver_width">832dp</dimen>
     <dimen name="car_activity_resolver_corner_radius">48dp</dimen>
     <dimen name="car_activity_resolver_list_max_height">516dp</dimen>
+
+    <!-- Radio buttons -->
+    <dimen name="car_radio_button_outer_ring_size">48dp</dimen>
+    <dimen name="car_radio_button_outer_ring_stroke_width">4dp</dimen>
+    <dimen name="car_radio_button_inner_circle_size">32dp</dimen>
+    <dimen name="car_radio_button_focus_ring_size">69dp</dimen>
+    <dimen name="car_radio_button_focus_ring_padding">24dp</dimen>
+    <dimen name="car_radio_button_focus_stroke_width">8dp</dimen>
+    <dimen name="car_radio_button_focus_pressed_stroke_width">4dp</dimen>
 </resources>

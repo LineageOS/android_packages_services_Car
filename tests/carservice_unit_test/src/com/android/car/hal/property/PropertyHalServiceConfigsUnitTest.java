@@ -49,6 +49,7 @@ import com.android.car.hal.property.PropertyPermissionInfo.AllOfPermissions;
 import com.android.car.hal.property.PropertyPermissionInfo.AnyOfPermissions;
 import com.android.car.hal.property.PropertyPermissionInfo.PermissionCondition;
 import com.android.car.hal.property.PropertyPermissionInfo.PropertyPermissions;
+import com.android.car.hal.property.PropertyPermissionInfo.PropertyPermissionsBuilder;
 import com.android.car.hal.property.PropertyPermissionInfo.SinglePermission;
 
 import org.junit.Before;
@@ -462,12 +463,11 @@ public final class PropertyHalServiceConfigsUnitTest extends AbstractExpectableT
             }
         }
                 """);
-        CarSvcPropertyConfig expectedConfig = new CarSvcPropertyConfig();
-        expectedConfig.propertyId = 1234;
-        expectedConfig.halPropId = 2345;
-        expectedConfig.propertyName = "PROP_NAME";
-        expectedConfig.description = "DESCRIPTION";
-        expectedConfig.permissions =  new PropertyPermissions.Builder()
+        int propertyId = 1234;
+        int halPropId = 2345;
+        String propertyName = "PROP_NAME";
+        String description = "DESCRIPTION";
+        var permissions =  new PropertyPermissionsBuilder()
                 .setReadPermission(new AnyOfPermissions(
                         new SinglePermission("PERM1"),
                         new SinglePermission("PERM2")
@@ -477,7 +477,10 @@ public final class PropertyHalServiceConfigsUnitTest extends AbstractExpectableT
                         new SinglePermission("PERM2")
                 ))
                 .build();
-        expectedConfig.dataEnums = new ArraySet<>(Set.of(0, 1, 2));
+        var dataEnums = new ArraySet<>(Set.of(0, 1, 2));
+
+        CarSvcPropertyConfig expectedConfig = new CarSvcPropertyConfig(propertyId, halPropId,
+                propertyName, description, permissions, dataEnums, /* validBitFlag= */ null);
 
         SparseArray<CarSvcPropertyConfig> configs = mPropertyHalServiceConfigs.parseJsonConfig(
                 is, /* path= */ "test");
@@ -506,14 +509,17 @@ public final class PropertyHalServiceConfigsUnitTest extends AbstractExpectableT
             }
         }
                 """);
-        CarSvcPropertyConfig expectedConfig = new CarSvcPropertyConfig();
-        expectedConfig.propertyId = 1234;
-        expectedConfig.halPropId = 1234;
-        expectedConfig.propertyName = "PROP_NAME";
-        expectedConfig.description = "DESCRIPTION";
-        expectedConfig.permissions =  new PropertyPermissions.Builder()
+        int propertyId = 1234;
+        int halPropId = 1234;
+        String propertyName = "PROP_NAME";
+        String description = "DESCRIPTION";
+        PropertyPermissions permissions =  new PropertyPermissionsBuilder()
                 .setReadPermission(new SinglePermission("PERM1"))
                 .build();
+
+        var expectedConfig = new CarSvcPropertyConfig(propertyId, halPropId,
+                propertyName, description, permissions, /* dataEnums= */ null,
+                /* validBitFlag= */ null);
 
         SparseArray<CarSvcPropertyConfig> configs = mPropertyHalServiceConfigs.parseJsonConfig(
                 is, /* path= */ "test");
@@ -541,16 +547,19 @@ public final class PropertyHalServiceConfigsUnitTest extends AbstractExpectableT
             }
         }
                 """);
-        CarSvcPropertyConfig expectedConfig = new CarSvcPropertyConfig();
-        expectedConfig.propertyId = 1234;
-        expectedConfig.halPropId = 1234;
-        expectedConfig.propertyName = "PROP_NAME";
-        expectedConfig.description = "DESCRIPTION";
-        expectedConfig.permissions =  new PropertyPermissions.Builder()
+        int propertyId = 1234;
+        int halPropId = 1234;
+        String propertyName = "PROP_NAME";
+        String description = "DESCRIPTION";
+        PropertyPermissions permissions =  new PropertyPermissionsBuilder()
                 .setReadPermission(new SinglePermission("PERM1"))
                 .build();
         // Bit: 1111
-        expectedConfig.validBitFlag = 15;
+        int validBitFlag = 15;
+
+        var expectedConfig = new CarSvcPropertyConfig(propertyId, halPropId,
+                propertyName, description, permissions, /* dataEnums= */ null,
+                validBitFlag);
 
         SparseArray<CarSvcPropertyConfig> configs = mPropertyHalServiceConfigs.parseJsonConfig(
                 is, /* path= */ "test");

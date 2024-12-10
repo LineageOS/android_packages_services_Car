@@ -22,8 +22,6 @@ import android.util.Log;
 /**
  * A logger that would use {@link Slogf} or {@link Log} depending on whether
  * to use system logger.
- *
- * @hide
  */
 public final class Logger {
 
@@ -60,6 +58,17 @@ public final class Logger {
             Slogf.w(mTag, msg);
         } else {
             Log.w(mTag, msg);
+        }
+    }
+
+    /**
+     * Logs a verbose message.
+     */
+    public void logV(String msg) {
+        if (mUseSystemLogger) {
+            Slogf.v(mTag, msg);
+        } else {
+            Log.v(mTag, msg);
         }
     }
 

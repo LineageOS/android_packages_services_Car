@@ -22,8 +22,6 @@ import android.car.hardware.CarPropertyValue;
 /**
  * Records the previous property event information and tracks whether the new property event
  * contains update.
- *
- * @hide
  */
 public interface CarPropertyEventTracker {
 

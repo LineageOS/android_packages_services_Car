@@ -29,8 +29,6 @@ import java.util.concurrent.Executor;
 /**
  * Manages a group of property IDs and area IDs registered for the same {@link
  * CarPropertyEventCallback} at possibly different update rates.
- *
- * @hide
  */
 public final class CarPropertyEventCallbackController extends CarPropertyEventController {
     // Abbreviating TAG because class name is longer than the 23 character Log tag limit.

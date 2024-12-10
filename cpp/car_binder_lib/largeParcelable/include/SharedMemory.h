@@ -72,7 +72,7 @@ public:
 
     inline unique_fd getDupFd() const {
         unique_fd fd(dup(getFd()));
-        return std::move(fd);
+        return fd;
     }
 
     inline std::unique_ptr<MappedFile> mapReadWrite() const {

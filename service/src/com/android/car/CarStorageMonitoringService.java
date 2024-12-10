@@ -55,6 +55,7 @@ import com.android.car.systeminterface.SystemInterface;
 import com.android.car.util.SlidingWindow;
 import com.android.car.util.SparseArrayStream;
 import com.android.internal.annotations.GuardedBy;
+import com.android.internal.annotations.VisibleForTesting;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -96,9 +97,15 @@ public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
 
     private static final int MIN_WEAR_ESTIMATE_OF_CONCERN = 80;
 
-    static final String UPTIME_TRACKER_FILENAME = "service_uptime";
-    static final String WEAR_INFO_FILENAME = "wear_info";
-    static final String LIFETIME_WRITES_FILENAME = "lifetime_write";
+    // uptime tracker filename.
+    @VisibleForTesting
+    public static final String UPTIME_TRACKER_FILENAME = "service_uptime";
+    // wear info filename.
+    @VisibleForTesting
+    public static final String WEAR_INFO_FILENAME = "wear_info";
+    // lifetime writes filename.
+    @VisibleForTesting
+    public static final String LIFETIME_WRITES_FILENAME = "lifetime_write";
 
     private final WearInformationProvider[] mWearInformationProviders;
     private final Context mContext;

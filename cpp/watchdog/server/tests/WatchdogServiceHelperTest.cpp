@@ -106,7 +106,7 @@ protected:
     virtual void TearDown() {
         if (mWatchdogServiceHelper->isServiceConnected()) {
             expectUnlinkToDeath(mMockCarWatchdogServiceForSystem->asBinder().get(),
-                                std::move(ScopedAStatus::ok()));
+                                ScopedAStatus::ok());
             EXPECT_CALL(*mMockWatchdogProcessService, unregisterCarWatchdogService(_)).Times(1);
         }
         mWatchdogServiceHelperPeer->terminate();
@@ -120,8 +120,7 @@ protected:
     }
 
     void registerCarWatchdogService() {
-        expectLinkToDeath(mMockCarWatchdogServiceForSystem->asBinder().get(),
-                          std::move(ScopedAStatus::ok()));
+        expectLinkToDeath(mMockCarWatchdogServiceForSystem->asBinder().get(), ScopedAStatus::ok());
         EXPECT_CALL(*mMockWatchdogProcessService, registerCarWatchdogService(_, _))
                 .WillOnce(Return(ByMove(ScopedAStatus::ok())));
 
@@ -185,8 +184,7 @@ TEST_F(WatchdogServiceHelperTest, TestErrorOnInitWithNullWatchdogProcessServiceI
 
 TEST_F(WatchdogServiceHelperTest, TestTerminate) {
     ASSERT_NO_FATAL_FAILURE(registerCarWatchdogService());
-    expectUnlinkToDeath(mMockCarWatchdogServiceForSystem->asBinder().get(),
-                        std::move(ScopedAStatus::ok()));
+    expectUnlinkToDeath(mMockCarWatchdogServiceForSystem->asBinder().get(), ScopedAStatus::ok());
 
     mWatchdogServiceHelper->terminate();
 
@@ -197,7 +195,7 @@ TEST_F(WatchdogServiceHelperTest, TestRegisterService) {
     auto binder = mMockCarWatchdogServiceForSystem->asBinder();
     auto serviceHelperInterface = sp<WatchdogServiceHelperInterface>(mWatchdogServiceHelper);
 
-    expectLinkToDeath(binder.get(), std::move(ScopedAStatus::ok()));
+    expectLinkToDeath(binder.get(), ScopedAStatus::ok());
     EXPECT_CALL(*mMockWatchdogProcessService,
                 registerCarWatchdogService(binder, serviceHelperInterface))
             .WillOnce(Return(ByMove(ScopedAStatus::ok())));
@@ -217,8 +215,7 @@ TEST_F(WatchdogServiceHelperTest, TestRegisterService) {
 TEST_F(WatchdogServiceHelperTest, TestErrorOnRegisterServiceWithBinderDied) {
     auto binder = mMockCarWatchdogServiceForSystem->asBinder();
     auto serviceHelperInterface = sp<WatchdogServiceHelperInterface>(mWatchdogServiceHelper);
-    expectLinkToDeath(binder.get(),
-                      std::move(ScopedAStatus::fromExceptionCode(EX_TRANSACTION_FAILED)));
+    expectLinkToDeath(binder.get(), ScopedAStatus::fromExceptionCode(EX_TRANSACTION_FAILED));
     EXPECT_CALL(*mMockWatchdogProcessService,
                 registerCarWatchdogService(binder, serviceHelperInterface))
             .WillOnce(Return(ByMove(ScopedAStatus::ok())));
@@ -246,8 +243,7 @@ TEST_F(WatchdogServiceHelperTest, TestErrorOnRegisterServiceWithWatchdogProcessS
 TEST_F(WatchdogServiceHelperTest, TestErrorOnRegisterServiceWithDeadBinder) {
     auto binder = mMockCarWatchdogServiceForSystem->asBinder();
     auto serviceHelperInterface = sp<WatchdogServiceHelperInterface>(mWatchdogServiceHelper);
-    expectLinkToDeath(binder.get(),
-                      std::move(ScopedAStatus::fromExceptionCode(EX_TRANSACTION_FAILED)));
+    expectLinkToDeath(binder.get(), ScopedAStatus::fromExceptionCode(EX_TRANSACTION_FAILED));
     EXPECT_CALL(*mMockWatchdogProcessService,
                 registerCarWatchdogService(binder, serviceHelperInterface))
             .WillOnce(Return(ByMove(ScopedAStatus::ok())));
@@ -262,7 +258,7 @@ TEST_F(WatchdogServiceHelperTest, TestUnregisterService) {
     ASSERT_NO_FATAL_FAILURE(registerCarWatchdogService());
 
     auto binder = mMockCarWatchdogServiceForSystem->asBinder();
-    expectUnlinkToDeath(binder.get(), std::move(ScopedAStatus::ok()));
+    expectUnlinkToDeath(binder.get(), ScopedAStatus::ok());
     EXPECT_CALL(*mMockWatchdogProcessService, unregisterCarWatchdogService(binder)).Times(1);
 
     auto status = mWatchdogServiceHelper->unregisterService(mMockCarWatchdogServiceForSystem);

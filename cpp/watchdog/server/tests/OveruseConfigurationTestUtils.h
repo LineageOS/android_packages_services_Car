@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 
-#ifndef CPP_WATCHDOG_SERVER_TESTS_OVERUSECONFIGURATIONTESTUTILS_H_
-#define CPP_WATCHDOG_SERVER_TESTS_OVERUSECONFIGURATIONTESTUTILS_H_
+#pragma once
 
 #include <aidl/android/automotive/watchdog/PerStateBytes.h>
 #include <aidl/android/automotive/watchdog/internal/ApplicationCategoryType.h>
@@ -92,5 +91,3 @@ ResourceOveruseConfigurationMatcher(
 }  // namespace watchdog
 }  // namespace automotive
 }  // namespace android
-
-#endif  //  CPP_WATCHDOG_SERVER_TESTS_OVERUSECONFIGURATIONTESTUTILS_H_

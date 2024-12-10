@@ -48,7 +48,7 @@ public final class PackageKillableState implements Parcelable {
     public static final int KILLABLE_STATE_NO = 2;
 
     /**
-     * A package is never killable i.e., it's setting cannot be updated.
+     * A package is never killable i.e. its setting cannot be updated.
      */
     @KillableState
     public static final int KILLABLE_STATE_NEVER = 3;
@@ -77,7 +77,6 @@ public final class PackageKillableState implements Parcelable {
     //
     // To regenerate run:
     // $ codegen $ANDROID_BUILD_TOP/packages/services/Car/car-lib/src/android/car/watchdog/PackageKillableState.java
-    // Added AddedInOrBefore or ApiRequirement Annotation manually
     //
     // To exclude the generated code from IntelliJ auto-formatting enable (one-time):
     //   Settings > Editor > Code Style > Formatter Control
@@ -247,10 +246,10 @@ public final class PackageKillableState implements Parcelable {
     };
 
     @DataClass.Generated(
-            time = 1673057615349L,
+            time = 1721755741237L,
             codegenVersion = "1.0.23",
             sourceFile = "packages/services/Car/car-lib/src/android/car/watchdog/PackageKillableState.java",
-            inputSignatures = "public static final @android.car.watchdog.PackageKillableState.KillableState @android.car.annotation.AddedInOrBefore int KILLABLE_STATE_YES\npublic static final @android.car.watchdog.PackageKillableState.KillableState @android.car.annotation.AddedInOrBefore int KILLABLE_STATE_NO\npublic static final @android.car.watchdog.PackageKillableState.KillableState @android.car.annotation.AddedInOrBefore int KILLABLE_STATE_NEVER\nprivate @android.annotation.NonNull java.lang.String mPackageName\nprivate @android.annotation.UserIdInt int mUserId\nprivate @android.car.watchdog.PackageKillableState.KillableState int mKillableState\nclass PackageKillableState extends java.lang.Object implements [android.os.Parcelable]\n@com.android.car.internal.util.DataClass(genToString=true, genHiddenConstructor=true, genHiddenConstDefs=true)")
+            inputSignatures = "public static final @android.car.watchdog.PackageKillableState.KillableState int KILLABLE_STATE_YES\npublic static final @android.car.watchdog.PackageKillableState.KillableState int KILLABLE_STATE_NO\npublic static final @android.car.watchdog.PackageKillableState.KillableState int KILLABLE_STATE_NEVER\nprivate @android.annotation.NonNull java.lang.String mPackageName\nprivate @android.annotation.UserIdInt int mUserId\nprivate @android.car.watchdog.PackageKillableState.KillableState int mKillableState\nclass PackageKillableState extends java.lang.Object implements [android.os.Parcelable]\n@com.android.car.internal.util.DataClass(genToString=true, genHiddenConstructor=true, genHiddenConstDefs=true)")
     @Deprecated
     @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
     private void __metadata() {}

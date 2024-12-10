@@ -105,7 +105,7 @@ HardwareBuffer Utils::makeHwBufferFromHidlBuffer(const hidlevs::V1_0::BufferDesc
             .handle = doDup ? ::android::dupToAidl(h) : ::android::makeToAidl(h),
     };
 
-    return std::move(hwBuffer);
+    return hwBuffer;
 }
 
 HardwareBufferDescription Utils::makeFromHidl(const HIDLHardwareBuffer& hidlBuffer) {
@@ -120,7 +120,7 @@ HardwareBufferDescription Utils::makeFromHidl(const HIDLHardwareBuffer& hidlBuff
             .stride = static_cast<int>(pSrc->stride),
     };
 
-    return std::move(desc);
+    return desc;
 }
 
 HardwareBuffer Utils::makeHwBufferFromHidlBuffer(const hidlevs::V1_1::BufferDesc& hidlBuffer,
@@ -137,7 +137,7 @@ HardwareBuffer Utils::makeHwBufferFromHidlBuffer(const hidlevs::V1_1::BufferDesc
                             : std::move(::android::makeToAidl(h)),
     };
 
-    return std::move(hwBuffer);
+    return hwBuffer;
 }
 
 BufferDesc Utils::makeFromHidl(const hidlevs::V1_0::BufferDesc& hidlBuffer, bool doDup) {
@@ -149,7 +149,7 @@ BufferDesc Utils::makeFromHidl(const hidlevs::V1_0::BufferDesc& hidlBuffer, bool
             // metadata.
     };
 
-    return std::move(aidlBuffer);
+    return aidlBuffer;
 }
 
 BufferDesc Utils::makeFromHidl(const hidlevs::V1_1::BufferDesc& hidlBuffer, bool doDup) {
@@ -162,7 +162,7 @@ BufferDesc Utils::makeFromHidl(const hidlevs::V1_1::BufferDesc& hidlBuffer, bool
             .metadata = hidlBuffer.metadata,
     };
 
-    return std::move(aidlBuffer);
+    return aidlBuffer;
 }
 
 HIDLHardwareBufferDescription Utils::makeToHidl(const HardwareBufferDescription& aidlDesc) {
@@ -175,7 +175,7 @@ HIDLHardwareBufferDescription Utils::makeToHidl(const HardwareBufferDescription&
     pDesc->usage = static_cast<uint64_t>(aidlDesc.usage);
     pDesc->stride = aidlDesc.stride;
 
-    return std::move(hidlDesc);
+    return hidlDesc;
 }
 
 HIDLHardwareBuffer Utils::makeToHidl(const HardwareBuffer& aidlBuffer, bool doDup) {
@@ -185,7 +185,7 @@ HIDLHardwareBuffer Utils::makeToHidl(const HardwareBuffer& aidlBuffer, bool doDu
                                   : ::android::makeFromAidl(aidlBuffer.handle),
     };
 
-    return std::move(hidlBuffer);
+    return hidlBuffer;
 }
 
 hidlevs::V1_0::BufferDesc Utils::makeToHidlV1_0(const BufferDesc& aidlBuffer, bool doDup) {
@@ -201,7 +201,7 @@ hidlevs::V1_0::BufferDesc Utils::makeToHidlV1_0(const BufferDesc& aidlBuffer, bo
                                : ::android::makeFromAidl(aidlBuffer.buffer.handle),
     };
 
-    return std::move(hidlBuffer);
+    return hidlBuffer;
 }
 
 hidlevs::V1_1::BufferDesc Utils::makeToHidlV1_1(const BufferDesc& aidlBuffer, bool doDup) {
@@ -214,7 +214,7 @@ hidlevs::V1_1::BufferDesc Utils::makeToHidlV1_1(const BufferDesc& aidlBuffer, bo
             .metadata = aidlBuffer.metadata,
     };
 
-    return std::move(hidlBuffer);
+    return hidlBuffer;
 }
 
 EvsResult Utils::makeFromHidl(hidlevs::V1_0::EvsResult result) {
@@ -261,7 +261,7 @@ CameraDesc Utils::makeFromHidl(const hidlevs::V1_0::CameraDesc& hidlDesc) {
             .vendorFlags = static_cast<int32_t>(hidlDesc.vendorFlags),
     };
 
-    return std::move(aidlDesc);
+    return aidlDesc;
 }
 
 CameraDesc Utils::makeFromHidl(const hidlevs::V1_1::CameraDesc& hidlDesc) {
@@ -271,7 +271,7 @@ CameraDesc Utils::makeFromHidl(const hidlevs::V1_1::CameraDesc& hidlDesc) {
             .metadata = hidlDesc.metadata,
     };
 
-    return std::move(aidlDesc);
+    return aidlDesc;
 }
 
 hidlevs::V1_0::CameraDesc Utils::makeToHidlV1_0(const CameraDesc& aidlDesc) {
@@ -280,7 +280,7 @@ hidlevs::V1_0::CameraDesc Utils::makeToHidlV1_0(const CameraDesc& aidlDesc) {
             .vendorFlags = static_cast<uint32_t>(aidlDesc.vendorFlags),
     };
 
-    return std::move(hidlDesc);
+    return hidlDesc;
 }
 
 hidlevs::V1_1::CameraDesc Utils::makeToHidlV1_1(const CameraDesc& aidlDesc) {
@@ -298,7 +298,7 @@ hidlevs::V1_1::CameraDesc Utils::makeToHidlV1_1(const CameraDesc& aidlDesc) {
         memcpy(hidlDesc.metadata.data(), aidlDesc.metadata.data(), n);
     }
 
-    return std::move(hidlDesc);
+    return hidlDesc;
 }
 
 hidlevs::V1_1::CameraParam Utils::makeToHidl(CameraParam id) {
@@ -365,7 +365,7 @@ DisplayDesc Utils::makeFromHidl(const hidlevs::V1_0::DisplayDesc& hidlDesc) {
             .vendorFlags = static_cast<int>(hidlDesc.vendorFlags),
     };
 
-    return std::move(aidlDesc);
+    return aidlDesc;
 }
 
 Stream Utils::makeFromHidl(const HIDLStream& config) {
@@ -379,7 +379,7 @@ Stream Utils::makeFromHidl(const HIDLStream& config) {
             .rotation = makeFromHidl(config.rotation),
     };
 
-    return std::move(aidlStreamConfig);
+    return aidlStreamConfig;
 }
 
 StreamType Utils::makeFromHidl(HIDLStreamType hidlType) {
@@ -439,7 +439,7 @@ HIDLStreamRotation Utils::makeToHidl(Rotation aidlRotation) {
             .rotation = makeToHidl(config.rotation),
     };
 
-    return std::move(hidlStreamConfig);
+    return hidlStreamConfig;
 }
 
 EvsEventType Utils::makeFromHidl(const hidlevs::V1_1::EvsEventType& hidlType) {
@@ -490,7 +490,7 @@ EvsEventDesc Utils::makeFromHidl(const hidlevs::V1_1::EvsEventDesc& hidlDesc) {
         aidlDesc.payload.push_back(hidlDesc.payload[i]);
     }
 
-    return std::move(aidlDesc);
+    return aidlDesc;
 }
 
 bool Utils::makeToHidl(const EvsEventDesc& in, hidlevs::V1_1::EvsEventDesc* out) {
@@ -527,12 +527,12 @@ NativeHandle Utils::dupNativeHandle(const NativeHandle& handle, bool doDup) {
         }
     } else {
         for (auto i = 0; i < handle.fds.size(); ++i) {
-            dup.fds[i] = std::move(handle.fds[i].dup());
+            dup.fds[i] = handle.fds[i].dup();
         }
     }
     dup.ints = handle.ints;
 
-    return std::move(dup);
+    return dup;
 }
 
 HardwareBuffer Utils::dupHardwareBuffer(const HardwareBuffer& buffer, bool doDup) {
@@ -541,7 +541,7 @@ HardwareBuffer Utils::dupHardwareBuffer(const HardwareBuffer& buffer, bool doDup
             .handle = dupNativeHandle(buffer.handle, doDup),
     };
 
-    return std::move(dup);
+    return dup;
 }
 
 BufferDesc Utils::dupBufferDesc(const BufferDesc& src, bool doDup) {
@@ -554,7 +554,7 @@ BufferDesc Utils::dupBufferDesc(const BufferDesc& src, bool doDup) {
             .metadata = src.metadata,
     };
 
-    return std::move(dup);
+    return dup;
 }
 
 ScopedAStatus Utils::buildScopedAStatusFromEvsResult(EvsResult result) {

@@ -26,9 +26,6 @@ import com.android.internal.annotations.VisibleForTesting;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * @hide
- */
 public final class CarPropertyConfigList extends LargeParcelableList<CarPropertyConfig> {
 
     private CarPropertyConfigList(Parcel in) {

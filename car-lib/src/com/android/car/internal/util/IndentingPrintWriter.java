@@ -31,8 +31,6 @@ import java.util.Arrays;
  * <p>
  * Delays writing indent until first actual write on a newline, enabling indent
  * modification after newline.
- *
- * @hide
  */
 public class IndentingPrintWriter extends PrintWriter {
     private final String mSingleIndent;

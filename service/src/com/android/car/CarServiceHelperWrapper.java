@@ -257,6 +257,30 @@ public final class CarServiceHelperWrapper {
     /**
      * See {@code ICarServiceHelper}.
      */
+    public boolean assignUserToExtraDisplay(int userId, int displayId) {
+        try {
+            return waitForCarServiceHelper().assignUserToExtraDisplay(userId, displayId);
+        } catch (RemoteException e) {
+            Slogf.e(TAG, REMOTE_EXCEPTION_STR, e);
+        }
+        return false;
+    }
+
+    /**
+     * See {@code ICarServiceHelper}.
+     */
+    public boolean unassignUserFromExtraDisplay(int userId, int displayId) {
+        try {
+            return waitForCarServiceHelper().unassignUserFromExtraDisplay(userId, displayId);
+        } catch (RemoteException e) {
+            Slogf.e(TAG, REMOTE_EXCEPTION_STR, e);
+        }
+        return false;
+    }
+
+    /**
+     * See {@code ICarServiceHelper}.
+     */
     public boolean startUserInBackgroundVisibleOnDisplay(int userId, int displayId) {
         try {
             return waitForCarServiceHelper().startUserInBackgroundVisibleOnDisplay(userId,

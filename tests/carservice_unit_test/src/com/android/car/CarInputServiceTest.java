@@ -42,12 +42,16 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
 
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothManager;
 import android.car.CarOccupantZoneManager;
 import android.car.CarOccupantZoneManager.OccupantZoneInfo;
 import android.car.CarProjectionManager;
 import android.car.VehicleAreaSeat;
 import android.car.builtin.util.AssistUtilsHelper;
 import android.car.builtin.util.AssistUtilsHelper.VoiceInteractionSessionShowCallbackHelper;
+import android.car.drivingstate.CarDrivingStateEvent;
+import android.car.feature.Flags;
 import android.car.input.CarInputManager;
 import android.car.input.CustomInputEvent;
 import android.car.input.ICarInputCallback;
@@ -63,6 +67,9 @@ import android.os.Looper;
 import android.os.Message;
 import android.os.SystemClock;
 import android.os.UserHandle;
+import android.platform.test.annotations.RequiresFlagsEnabled;
+import android.platform.test.flag.junit.CheckFlagsRule;
+import android.platform.test.flag.junit.DeviceFlagsValueProvider;
 import android.provider.Settings;
 import android.telecom.TelecomManager;
 import android.view.KeyEvent;
@@ -82,6 +89,7 @@ import com.google.common.collect.Range;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
@@ -107,10 +115,13 @@ public final class CarInputServiceTest extends AbstractExtendedMockitoTestCase {
     @Mock InputCaptureClientController mCaptureController;
     @Mock CarOccupantZoneService mCarOccupantZoneService;
     @Mock CarBluetoothService mCarBluetoothService;
+    @Mock CarDrivingStateService mMockCarDrivingStateService;
     @Mock CarPowerManagementService mCarPowerManagementService;
     @Mock SystemInterface mSystemInterface;
     @Mock CarAudioService mCarAudioService;
     @Mock CarMediaService mCarMediaService;
+    @Mock BluetoothManager mMockBluetoothManager;
+    @Mock BluetoothAdapter mMockBluetoothAdapter;
 
     @Spy Context mContext = ApplicationProvider.getApplicationContext();
     @Mock private Resources mMockResources;
@@ -131,6 +142,9 @@ public final class CarInputServiceTest extends AbstractExtendedMockitoTestCase {
     private static final int UNKNOWN_SEAT = VehicleAreaSeat.SEAT_UNKNOWN;
     private static final int DRIVER_SEAT = VehicleAreaSeat.SEAT_ROW_1_LEFT;
     private static final int PASSENGER_SEAT = VehicleAreaSeat.SEAT_ROW_1_RIGHT;
+
+    @Rule
+    public final CheckFlagsRule mCheckFlagsRule = DeviceFlagsValueProvider.createCheckFlagsRule();
 
     // CarInputService#sDefaultShowCallback() prints out some Slog message which can be conflicted
     // with AbstractExtendedMockitoTestCase#interceptWtfCalls (b/294138315).
@@ -168,6 +182,8 @@ public final class CarInputServiceTest extends AbstractExtendedMockitoTestCase {
 
         when(mContext.getResources()).thenReturn(mMockResources);
 
+        mockEnableLongPressBluetoothPairingProperty(false);
+
         setUpCarOccupantZoneService();
         setUpService();
         mCarInputService.init();
@@ -203,6 +219,9 @@ public final class CarInputServiceTest extends AbstractExtendedMockitoTestCase {
         CarLocalServices.addService(CarAudioService.class, mCarAudioService);
         CarLocalServices.removeServiceForTest(CarMediaService.class);
         CarLocalServices.addService(CarMediaService.class, mCarMediaService);
+        CarLocalServices.removeServiceForTest(CarDrivingStateService.class);
+        CarLocalServices.addService(CarDrivingStateService.class, mMockCarDrivingStateService);
+
     }
 
     @After
@@ -213,6 +232,7 @@ public final class CarInputServiceTest extends AbstractExtendedMockitoTestCase {
 
         CarLocalServices.removeServiceForTest(CarAudioService.class);
         CarLocalServices.removeServiceForTest(CarMediaService.class);
+        CarLocalServices.removeServiceForTest(CarDrivingStateService.class);
     }
 
     @Test
@@ -628,6 +648,96 @@ public final class CarInputServiceTest extends AbstractExtendedMockitoTestCase {
 
         verify(mCarBluetoothService, times(1)).startBluetoothVoiceRecognition();
     }
+
+    /**
+     * Testing long press triggers Bluetooth pairing flow.
+     *
+     * Based on current implementation of {@link CarInputService#handleVoiceAssistLongPress},
+     * long press of the button should trigger Bluetooth pairing flow if:
+     *   (a) {@link CarProjectionManager.ProjectionKeyEventHandler} did not subscribe for the
+     *       event, or if the key event handler does not exit; and
+     *   (b) Bluetooth voice recognition is disabled.
+     *   (c) enableLongPressBluetoothPairing is enabled.
+     *   (d) No Bluetooth devices are connected.
+     *
+     * Preconditions:
+     *     - enableLongPressBluetoothPairing is enabled.
+     *     - No {@link CarProjectionManager.ProjectionKeyEventHandler} registered for the key event.
+     *     - Bluetooth voice recognition is disabled.
+     *     - No Bluetooth devices are connected.
+     * Action:
+     *     - Long press the voice assistant key.
+     * Results:
+     *     - A intent with ACTION_BLUETOOTH_SETTINGS is sent.
+     */
+    @Test
+    @RequiresFlagsEnabled(Flags.FLAG_CAR_INPUT_START_BTPAIRING_LPTT)
+    public void voiceKey_longPress_bluetoothPairingIsEnabled_triggersBluetoothPairing() {
+
+        ArgumentCaptor<Intent> intentCaptor = ArgumentCaptor.forClass(Intent.class);
+
+        mockEnableLongPressBluetoothVoiceRecognitionProperty(false);
+        mockEnableLongPressBluetoothPairingProperty(true);
+
+        when(mContext.getSystemService(BluetoothManager.class)).thenReturn(mMockBluetoothManager);
+        when(mMockBluetoothManager.getAdapter()).thenReturn(mMockBluetoothAdapter);
+        when(mMockBluetoothAdapter.getConnectionState()).thenReturn(
+                BluetoothAdapter.STATE_DISCONNECTED);
+
+        doNothing().when(mContext).startActivityAsUser(any(), any());
+
+        send(Key.DOWN, KeyEvent.KEYCODE_VOICE_ASSIST, Display.MAIN);
+        flushHandler();
+        send(Key.UP, KeyEvent.KEYCODE_VOICE_ASSIST, Display.MAIN);
+
+        verify(mContext).startActivityAsUser(
+                intentCaptor.capture(), eq(UserHandle.CURRENT));
+        assertThat(intentCaptor.getValue().getAction())
+                .isEqualTo(Settings.ACTION_BLUETOOTH_SETTINGS);
+    }
+
+    /**
+     * Testing long press not triggers pairing flow if there are Bluetooth device connected.
+     *
+     * Based on current implementation of {@link CarInputService#handleVoiceAssistLongPress},
+     * long press of the button should not trigger Bluetooth pairing flow if:
+     *   (a) {@link CarProjectionManager.ProjectionKeyEventHandler} did not subscribe for the
+     *       event, or if the key event handler does not exit; and
+     *   (b) Bluetooth voice recognition is disabled.
+     *   (c) enableLongPressBluetoothPairing is enabled.
+     *   (d) If there are Bluetooth device connected
+     *
+     * Preconditions:
+     *     - enableLongPressBluetoothPairing is enabled.
+     *     - No {@link CarProjectionManager.ProjectionKeyEventHandler} registered for the key event.
+     *     - Bluetooth voice recognition is disabled.
+     *     - Bluetooth devices are connected.
+     * Action:
+     *     - Long press the voice assistant key.
+     * Results:
+     *     - No intent sent.
+     */
+    @Test
+    @RequiresFlagsEnabled(Flags.FLAG_CAR_INPUT_START_BTPAIRING_LPTT)
+    public void voiceKey_longPress_bluetoothPairingIsEnabled_not_triggersBluetoothPairing() {
+
+        mockEnableLongPressBluetoothVoiceRecognitionProperty(false);
+        mockEnableLongPressBluetoothPairingProperty(true);
+
+        when(mContext.getSystemService(BluetoothManager.class)).thenReturn(mMockBluetoothManager);
+        when(mMockBluetoothManager.getAdapter()).thenReturn(mMockBluetoothAdapter);
+        when(mMockBluetoothAdapter.getConnectionState()).thenReturn(
+                BluetoothAdapter.STATE_CONNECTED);
+
+        doNothing().when(mContext).startActivityAsUser(any(), any());
+
+        send(Key.DOWN, KeyEvent.KEYCODE_VOICE_ASSIST, Display.MAIN);
+        flushHandler();
+        send(Key.UP, KeyEvent.KEYCODE_VOICE_ASSIST, Display.MAIN);
+
+        verify(mContext, never()).startActivityAsUser(any(), any());
+    }
+
 
     /**
      * Testing short press does not trigger Bluetooth voice recognition.
@@ -1364,6 +1474,11 @@ public final class CarInputServiceTest extends AbstractExtendedMockitoTestCase {
 
     private void mockEnableLongPressBluetoothVoiceRecognitionProperty(boolean enabledOrNot) {
         when(mMockResources.getBoolean(R.bool.enableLongPressBluetoothVoiceRecognition))
+                .thenReturn(enabledOrNot);
+    }
+
+    private void mockEnableLongPressBluetoothPairingProperty(boolean enabledOrNot) {
+        when(mMockResources.getBoolean(R.bool.config_enableLongPressBluetoothPairing))
                 .thenReturn(enabledOrNot);
     }
 }

@@ -40,8 +40,6 @@ import java.io.IOException;
  * <li>The receiver side must catch any thrown {@link ParcelableException} and
  * call {@link #maybeRethrow(Class)} for all expected exception types.
  * </ul>
- *
- * @hide
  */
 public final class ParcelableException extends RuntimeException implements Parcelable {
     public ParcelableException(Throwable t) {

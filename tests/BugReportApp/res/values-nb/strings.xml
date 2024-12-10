@@ -46,12 +46,12 @@
     <string name="toast_status_failed" msgid="6365384202315043395">"Feilrapporten mislyktes"</string>
     <string name="toast_status_screencap_failed" msgid="2187083897594745149">"Skjermdumpen mislyktes"</string>
     <string name="toast_status_dump_state_failed" msgid="3496460783060512078">"Dumptilstand mislyktes"</string>
-    <string name="toast_screenshot_finished" msgid="539313383958984557">"Lagrede skjermdumper"</string>
+    <string name="toast_screenshot_finished" msgid="539313383958984557">"Lagrede skjermbilder"</string>
     <string name="notification_bugreport_in_progress" msgid="8486454116357963238">"En feilrapport pågår"</string>
     <string name="notification_bugreport_finished_title" msgid="1188447311929693472">"En feilrapport er samlet inn"</string>
     <string name="notification_bugreport_channel_name" msgid="776902295433824255">"Statuskanal for feilrapport"</string>
-    <string name="notification_screenshot_message" msgid="4334354123333893911">"Ta skjermdumper"</string>
-    <string name="notification_screenshot_channel_name" msgid="147055389545365419">"Kanal for skjermdump av feilrapport"</string>
+    <string name="notification_screenshot_message" msgid="4334354123333893911">"Ta skjermbilder"</string>
+    <string name="notification_screenshot_channel_name" msgid="147055389545365419">"Kanal for skjermbilde av feilrapport"</string>
     <string name="choice_dialog_title" msgid="2105355715733829907">"Beskrivelse av feil knyttet til klarhet for å snakke"</string>
     <string name="choice_dialog_begin_now" msgid="7326462054665389346">"Begynn nå"</string>
     <string name="choice_dialog_speak_later" msgid="1297471567273228307">"Snakk senere"</string>

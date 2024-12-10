@@ -16,9 +16,6 @@
 
 package com.android.car.internal.property;
 
-/**
- * @hide
- */
 @JavaDerive(equals = true, toString = true)
 parcelable CarSubscription {
     int propertyId;

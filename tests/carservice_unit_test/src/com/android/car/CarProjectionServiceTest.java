@@ -22,6 +22,7 @@ import static android.car.projection.ProjectionStatus.PROJECTION_STATE_ACTIVE_FO
 import static android.car.projection.ProjectionStatus.PROJECTION_STATE_INACTIVE;
 import static android.car.projection.ProjectionStatus.PROJECTION_TRANSPORT_USB;
 import static android.car.projection.ProjectionStatus.PROJECTION_TRANSPORT_WIFI;
+import static android.net.wifi.WifiAvailableChannel.OP_MODE_SAP;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -38,6 +39,7 @@ import android.bluetooth.BluetoothDevice;
 import android.car.CarProjectionManager;
 import android.car.ICarProjectionKeyEventHandler;
 import android.car.ICarProjectionStatusListener;
+import android.car.feature.FeatureFlags;
 import android.car.projection.ProjectionOptions;
 import android.car.projection.ProjectionStatus;
 import android.car.projection.ProjectionStatus.MobileDevice;
@@ -47,6 +49,7 @@ import android.content.res.Resources;
 import android.graphics.Rect;
 import android.net.MacAddress;
 import android.net.wifi.SoftApConfiguration;
+import android.net.wifi.WifiAvailableChannel;
 import android.net.wifi.WifiManager;
 import android.net.wifi.WifiScanner;
 import android.os.Binder;
@@ -72,6 +75,7 @@ import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
 import java.util.List;
@@ -126,6 +130,9 @@ public class CarProjectionServiceTest {
     @Mock
     private Messenger mMessenger;
 
+    @Mock
+    private FeatureFlags mFeatureFlags;
+
     @Before
     public void setUp() {
         when(mContext.getSystemService(eq(WifiManager.class)))
@@ -145,9 +152,11 @@ public class CarProjectionServiceTest {
                 .thenReturn(false);
         when(mResources.getBoolean(com.android.car.R.bool.config_projectionAccessPointTethering))
                 .thenReturn(false);
+        when(mFeatureFlags.useWifiManagerForAvailableChannels()).thenReturn(false);
 
         mService = new CarProjectionService(mContext, mHandler, mCarInputService,
                 mCarBluetoothService);
+        mService.setFeatureFlags(mFeatureFlags);
 
         when(mLohsReservation.getSoftApConfiguration()).thenReturn(AP_CONFIG);
         mService.setAccessPointBssid(AP_CONFIG.getBssid());
@@ -399,6 +408,24 @@ public class CarProjectionServiceTest {
         List<Integer> expectedWifiChannels = Arrays.asList(2400, 5600);
         when(mWifiScanner.getAvailableChannels(anyInt())).thenReturn(expectedWifiChannels);
         when(mContext.getSystemService(WifiScanner.class)).thenReturn(mWifiScanner);
+
+        int[] wifiChannels = mService.getAvailableWifiChannels(WifiScanner.WIFI_BAND_BOTH_WITH_DFS);
+        assertThat(wifiChannels).isNotNull();
+        assertThat(wifiChannels).asList().containsExactlyElementsIn(expectedWifiChannels);
+    }
+
+    @Test
+    public void getWifiChannels_wifiManagerFeatureOn_useWifiManager() {
+        when(mFeatureFlags.useWifiManagerForAvailableChannels()).thenReturn(true);
+
+        List<Integer> expectedWifiChannels = Arrays.asList(2400, 5600);
+        List<WifiAvailableChannel> wifiAvailableChannels = new ArrayList<>();
+        for (int i = 0; i < expectedWifiChannels.size(); i++) {
+            int freq = expectedWifiChannels.get(i);
+            wifiAvailableChannels.add(new WifiAvailableChannel(freq, OP_MODE_SAP));
+        }
+        when(mWifiManager.getUsableChannels(anyInt(), anyInt())).thenReturn(wifiAvailableChannels);
+        when(mContext.getSystemService(WifiManager.class)).thenReturn(mWifiManager);
 
         int[] wifiChannels = mService.getAvailableWifiChannels(WifiScanner.WIFI_BAND_BOTH_WITH_DFS);
         assertThat(wifiChannels).isNotNull();

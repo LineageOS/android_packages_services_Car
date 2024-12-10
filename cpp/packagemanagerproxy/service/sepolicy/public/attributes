@@ -1,0 +1,6 @@
+attribute packagemanagerproxy_client;
+attribute packagemanagerproxy_server;
+
+# Following the setup used for expansion options in the `hal_attribute()`.
+expandattribute packagemanagerproxy_client true;
+expandattribute packagemanagerproxy_server false;

@@ -15,12 +15,9 @@ package {
     default_applicable_licenses: ["Android-Apache-2.0"],
 }
 
-android_app {
+runtime_resource_overlay {
     name: "CarUiPortraitCarServiceRRO",
     resource_dirs: ["res"],
     sdk_version: "current",
-    aaptflags: [
-        "--no-resource-deduping",
-        "--no-resource-removal",
-    ],
+    manifest: "AndroidManifest.xml",
 }

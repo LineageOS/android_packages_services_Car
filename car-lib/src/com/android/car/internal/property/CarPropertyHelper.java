@@ -31,8 +31,6 @@ import java.util.StringJoiner;
 
 /**
  * Helper class for CarPropertyService/CarPropertyManager.
- *
- * @hide
  */
 public final class CarPropertyHelper {
     /**

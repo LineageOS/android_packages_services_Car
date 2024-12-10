@@ -22,10 +22,13 @@ import android.os.UserHandle;
 
 import com.android.car.power.CarPowerManagementService;
 import com.android.car.procfsinspector.ProcessInfo;
+import com.android.car.provider.Settings;
 import com.android.car.storagemonitoring.LifetimeWriteInfoProvider;
 import com.android.car.storagemonitoring.UidIoStatsProvider;
 import com.android.car.storagemonitoring.WearInformationProvider;
+import com.android.car.user.ActivityManagerCurrentUserFetcher;
 import com.android.car.user.CarUserService;
+import com.android.internal.annotations.VisibleForTesting;
 
 import java.io.File;
 import java.time.Duration;
@@ -54,7 +57,8 @@ public class SystemInterface implements ActivityManagerInterface,
             StorageMonitoringInterface storageMonitoringInterface,
             SystemStateInterface systemStateInterface,
             TimeInterface timeInterface,
-            WakeLockInterface wakeLockInterface) {
+            WakeLockInterface wakeLockInterface,
+            Settings settings) {
         mActivityManagerInterface = activityManagerInterface;
         mDisplayInterface = displayInterface;
         mIOInterface = ioInterface;
@@ -128,13 +132,8 @@ public class SystemInterface implements ActivityManagerInterface,
     }
 
     @Override
-    public void setDisplayBrightness(int brightness) {
-        mDisplayInterface.setDisplayBrightness(brightness);
-    }
-
-    @Override
-    public void setDisplayBrightness(int displayId, int brightness) {
-        mDisplayInterface.setDisplayBrightness(displayId, brightness);
+    public void onDisplayBrightnessChangeFromVhal(int displayId, int brightness) {
+        mDisplayInterface.onDisplayBrightnessChangeFromVhal(displayId, brightness);
     }
 
     @Override
@@ -232,8 +231,8 @@ public class SystemInterface implements ActivityManagerInterface,
     }
 
     @Override
-    public void refreshDisplayBrightness() {
-        mDisplayInterface.refreshDisplayBrightness();
+    public void refreshDefaultDisplayBrightness() {
+        mDisplayInterface.refreshDefaultDisplayBrightness();
     }
 
     @Override
@@ -249,6 +248,7 @@ public class SystemInterface implements ActivityManagerInterface,
         private SystemStateInterface mSystemStateInterface;
         private TimeInterface mTimeInterface;
         private WakeLockInterface mWakeLockInterface;
+        private Settings mSettings;
 
         private Builder() {}
 
@@ -257,12 +257,26 @@ public class SystemInterface implements ActivityManagerInterface,
         }
 
         public static Builder defaultSystemInterface(Context context) {
+            return defaultSystemInterface(context, new WakeLockInterface.DefaultImpl(context));
+        }
+
+        /**
+         * Creates a system interface with injected WakeLockInterface.
+         *
+         * WakeLockInterface will be used during DisplayInterface constructor.
+         */
+        @VisibleForTesting
+        public static Builder defaultSystemInterface(Context context,
+                WakeLockInterface wakeLockInterface) {
             Objects.requireNonNull(context);
             Builder builder = newSystemInterface();
             builder.withActivityManagerInterface(new ActivityManagerInterface.DefaultImpl(context));
-            builder.withWakeLockInterface(new WakeLockInterface.DefaultImpl(context));
+            builder.withWakeLockInterface(wakeLockInterface);
+            builder.withSettings(new Settings.DefaultImpl());
             builder.withDisplayInterface(new DisplayInterface.DefaultImpl(context,
-                    builder.mWakeLockInterface));
+                    wakeLockInterface, builder.mSettings,
+                    new DisplayHelperInterface.DefaultImpl(),
+                    new ActivityManagerCurrentUserFetcher()));
             builder.withIOInterface(new IOInterface.DefaultImpl());
             builder.withStorageMonitoringInterface(new StorageMonitoringInterface.DefaultImpl());
             builder.withSystemStateInterface(new SystemStateInterface.DefaultImpl(context));
@@ -277,7 +291,8 @@ public class SystemInterface implements ActivityManagerInterface,
                     .withStorageMonitoringInterface(otherBuilder.mStorageMonitoringInterface)
                     .withSystemStateInterface(otherBuilder.mSystemStateInterface)
                     .withTimeInterface(otherBuilder.mTimeInterface)
-                    .withWakeLockInterface(otherBuilder.mWakeLockInterface);
+                    .withWakeLockInterface(otherBuilder.mWakeLockInterface)
+                    .withSettings(otherBuilder.mSettings);
         }
 
         public Builder withActivityManagerInterface(ActivityManagerInterface
@@ -317,6 +332,14 @@ public class SystemInterface implements ActivityManagerInterface,
             return this;
         }
 
+        /**
+         * Sets the {@link Settings}.
+         */
+        public Builder withSettings(Settings settings) {
+            mSettings = settings;
+            return this;
+        }
+
         public SystemInterface build() {
             return new SystemInterface(Objects.requireNonNull(mActivityManagerInterface),
                     Objects.requireNonNull(mDisplayInterface),
@@ -324,7 +347,8 @@ public class SystemInterface implements ActivityManagerInterface,
                     Objects.requireNonNull(mStorageMonitoringInterface),
                     Objects.requireNonNull(mSystemStateInterface),
                     Objects.requireNonNull(mTimeInterface),
-                    Objects.requireNonNull(mWakeLockInterface));
+                    Objects.requireNonNull(mWakeLockInterface),
+                    Objects.requireNonNull(mSettings));
         }
     }
 }

@@ -33,8 +33,6 @@ import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Utility class to convert integer constants to and from their value or name.
- *
- * @hide
  */
 public final class ConstantDebugUtils {
     private static final String TAG = ConstantDebugUtils.class.getSimpleName();

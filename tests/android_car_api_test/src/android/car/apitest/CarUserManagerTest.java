@@ -44,6 +44,8 @@ import android.os.UserHandle;
 import android.os.UserManager;
 import android.util.Log;
 
+import androidx.test.filters.FlakyTest;
+
 import com.android.compatibility.common.util.ApiTest;
 
 import org.junit.AfterClass;
@@ -276,6 +278,7 @@ public final class CarUserManagerTest extends CarMultiUserTestBase {
      * Tests resume behavior when current user is guest but with secured lock screen,
      * resume to same guest user.
      */
+    @FlakyTest(bugId = 357135725)
     @Test
     @ApiTest(apis = {
             "android.car.user.CarUserManager#USER_LIFECYCLE_EVENT_TYPE_UNLOCKED",
@@ -320,6 +323,7 @@ public final class CarUserManagerTest extends CarMultiUserTestBase {
     /**
      * Tests resume behavior when current user is persistent user.
      */
+    @FlakyTest(bugId = 357135725)
     @Test
     @ApiTest(apis = {
             "android.car.user.CarUserManager#USER_LIFECYCLE_EVENT_TYPE_UNLOCKED",

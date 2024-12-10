@@ -215,4 +215,6 @@
     <dimen name="car_disabled_alpha">0.35</dimen>
 
     <dimen name="resolver_max_collapsed_height">400dp</dimen>
+
+    <dimen name="car_dialog_min_width_major">75%</dimen>
 </resources>

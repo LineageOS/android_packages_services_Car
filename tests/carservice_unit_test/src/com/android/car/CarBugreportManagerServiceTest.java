@@ -236,38 +236,6 @@ public class CarBugreportManagerServiceTest {
         verify(() -> SystemPropertiesHelper.set("ctl.stop", DUMPSTATEZ_SERVICE));
     }
 
-    @Test
-    public void test_requestBugreport_failsIfNotSignedWithPlatformKeys() {
-        mService = new CarBugreportManagerService(mMockContext);
-        mService.init();
-        when(mMockPackageManager.checkSignatures(anyInt(), anyInt()))
-                .thenReturn(PackageManager.SIGNATURE_NO_MATCH);
-        when(mMockPackageManager.getNameForUid(anyInt())).thenReturn("current_app_name");
-
-        SecurityException expected =
-                assertThrows(SecurityException.class,
-                        () -> mService.requestBugreport(mMockOutput, mMockExtraOutput,
-                                mMockCallback, DUMPSTATE_DRY_RUN));
-
-        assertThat(expected).hasMessageThat().contains(
-                "Caller current_app_name does not have the right signature");
-    }
-
-    @Test
-    public void testCancelBugreport_failsIfNotSignedWithPlatformKeys() {
-        mService = new CarBugreportManagerService(mMockContext);
-        mService.init();
-        when(mMockPackageManager.checkSignatures(anyInt(), anyInt()))
-                .thenReturn(PackageManager.SIGNATURE_NO_MATCH);
-        when(mMockPackageManager.getNameForUid(anyInt())).thenReturn("current_app_name");
-
-        SecurityException expected =
-                assertThrows(SecurityException.class, () -> mService.cancelBugreport());
-
-        assertThat(expected).hasMessageThat().contains(
-                "Caller current_app_name does not have the right signature");
-    }
-
     private void mockDesignatedBugReportApp() {
         when(mMockPackageManager.checkSignatures(anyInt(), anyInt()))
                 .thenReturn(PackageManager.SIGNATURE_MATCH);

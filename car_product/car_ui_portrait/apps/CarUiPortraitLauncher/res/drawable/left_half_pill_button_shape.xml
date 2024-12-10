@@ -14,9 +14,14 @@
   ~ limitations under the License.
   -->
 
-<shape xmlns:android="http://schemas.android.com/apk/res/android"
-    android:shape="rectangle">
-    <corners android:bottomLeftRadius="@dimen/control_bar_media_card_half_pill_button_radius"
-        android:topLeftRadius="@dimen/control_bar_media_card_half_pill_button_radius" />
-    <solid android:color="@color/car_surface_variant" />
-</shape>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape
+            android:shape="rectangle">
+            <corners android:bottomLeftRadius="@dimen/control_bar_media_card_half_pill_button_radius"
+                android:topLeftRadius="@dimen/control_bar_media_card_half_pill_button_radius" />
+            <solid android:color="@color/car_surface_container_highest" />
+        </shape>
+    </item>
+    <item android:drawable="@drawable/button_ripple"/>
+</layer-list>

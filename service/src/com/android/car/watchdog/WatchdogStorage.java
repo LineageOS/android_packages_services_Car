@@ -40,6 +40,7 @@ import android.util.ArraySet;
 import android.util.SparseArray;
 
 import com.android.car.CarLog;
+import com.android.car.internal.dep.Trace;
 import com.android.car.internal.util.IntArray;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
@@ -200,6 +201,7 @@ public final class WatchdogStorage {
 
     /** Saves the given user package settings entries and returns whether the change succeeded. */
     public boolean saveUserPackageSettings(List<UserPackageSettingsEntry> entries) {
+        Trace.beginSection("WatchdogStorage.saveUserPackageSettings");
         ArraySet<Integer> usersWithMissingIds = new ArraySet<>();
         boolean isWriteSuccessful = false;
         SQLiteDatabase db = getDatabase(/* isWritable= */ true);
@@ -217,6 +219,7 @@ public final class WatchdogStorage {
                 }
                 usersWithMissingIds.add(entry.userId);
                 if (!UserPackageSettingsTable.replaceEntry(db, entry)) {
+                    Trace.endSection();
                     return false;
                 }
             }
@@ -226,6 +229,7 @@ public final class WatchdogStorage {
             db.endTransaction();
         }
         populateUserPackages(db, usersWithMissingIds);
+        Trace.endSection();
         return isWriteSuccessful;
     }
 
@@ -424,6 +428,7 @@ public final class WatchdogStorage {
             Slogf.w(TAG, "No I/O usage stats provided to forgive historical overuses.");
             return;
         }
+        Trace.beginSection("WatchdogStorage.forgiveHistoricalOveruses");
         ZonedDateTime currentDate =
                 mTimeSource.now().atZone(ZONE_OFFSET).truncatedTo(STATS_TEMPORAL_UNIT);
         long includingStartEpochSeconds = currentDate.minusDays(numDaysAgo).toEpochSecond();
@@ -444,6 +449,7 @@ public final class WatchdogStorage {
         }
         IoUsageStatsTable.forgiveHistoricalOverusesForPackage(getDatabase(/* isWritable= */ true),
                 userPackageIds, includingStartEpochSeconds, excludingEndEpochSeconds);
+        Trace.endSection();
     }
 
     /**
@@ -452,6 +458,7 @@ public final class WatchdogStorage {
      * @param aliveUserIds Array of alive user ids.
      */
     public void syncUsers(int[] aliveUserIds) {
+        Trace.beginSection("WatchdogStorage.syncUsers");
         IntArray aliveUsers = IntArray.wrap(aliveUserIds);
         for (int i = mUserPackagesByKey.size() - 1; i >= 0; --i) {
             UserPackage userPackage = mUserPackagesByKey.valueAt(i);
@@ -462,35 +469,41 @@ public final class WatchdogStorage {
         }
         UserPackageSettingsTable.syncUserPackagesWithAliveUsers(getDatabase(/* isWritable= */ true),
                     aliveUsers);
+        Trace.endSection();
     }
 
     @VisibleForTesting
     int saveIoUsageStats(List<IoUsageStatsEntry> entries, boolean shouldCheckRetention) {
         ZonedDateTime currentDate = mTimeSource.getCurrentDate();
         List<ContentValues> rows = new ArrayList<>(entries.size());
-        for (int i = 0; i < entries.size(); ++i) {
-            IoUsageStatsEntry entry = entries.get(i);
-            UserPackage userPackage = mUserPackagesByKey.get(
-                    UserPackage.getKey(entry.userId, entry.packageName));
-            if (userPackage == null) {
-                Slogf.e(TAG, "Failed to find user package id for user id '%d' and package '%s",
-                        entry.userId, entry.packageName);
-                continue;
+        try {
+            Trace.beginSection("WatchdogStorage.saveIoUsageStats");
+            for (int i = 0; i < entries.size(); ++i) {
+                IoUsageStatsEntry entry = entries.get(i);
+                UserPackage userPackage = mUserPackagesByKey.get(
+                        UserPackage.getKey(entry.userId, entry.packageName));
+                if (userPackage == null) {
+                    Slogf.e(TAG, "Failed to find user package id for user id '%d' and package '%s",
+                            entry.userId, entry.packageName);
+                    continue;
+                }
+                android.automotive.watchdog.IoOveruseStats ioOveruseStats =
+                        entry.ioUsage.getInternalIoOveruseStats();
+                ZonedDateTime statsDate = Instant.ofEpochSecond(ioOveruseStats.startTime)
+                        .atZone(ZONE_OFFSET).truncatedTo(STATS_TEMPORAL_UNIT);
+                if (shouldCheckRetention && STATS_TEMPORAL_UNIT.between(statsDate, currentDate)
+                        >= RETENTION_PERIOD.get(STATS_TEMPORAL_UNIT)) {
+                    continue;
+                }
+                long statsDateEpochSeconds = statsDate.toEpochSecond();
+                rows.add(IoUsageStatsTable.getContentValues(
+                        userPackage.userPackageId, entry, statsDateEpochSeconds));
             }
-            android.automotive.watchdog.IoOveruseStats ioOveruseStats =
-                    entry.ioUsage.getInternalIoOveruseStats();
-            ZonedDateTime statsDate = Instant.ofEpochSecond(ioOveruseStats.startTime)
-                    .atZone(ZONE_OFFSET).truncatedTo(STATS_TEMPORAL_UNIT);
-            if (shouldCheckRetention && STATS_TEMPORAL_UNIT.between(statsDate, currentDate)
-                    >= RETENTION_PERIOD.get(STATS_TEMPORAL_UNIT)) {
-                continue;
-            }
-            long statsDateEpochSeconds = statsDate.toEpochSecond();
-            rows.add(IoUsageStatsTable.getContentValues(
-                    userPackage.userPackageId, entry, statsDateEpochSeconds));
-        }
-        return atomicReplaceEntries(getDatabase(/*isWritable=*/ true),
+            return atomicReplaceEntries(getDatabase(/*isWritable=*/ true),
                     IoUsageStatsTable.TABLE_NAME, rows);
+        } finally {
+            Trace.endSection();
+        }
     }
 
     @VisibleForTesting
@@ -796,11 +809,13 @@ public final class WatchdogStorage {
 
         public static void deleteUserPackage(SQLiteDatabase db, @UserIdInt int userId,
                 String packageName) {
+            Trace.beginSection("WatchdogStorage-deletePackage: " + packageName + " : " + userId);
             String whereClause = COLUMN_USER_ID + "= ? and " + COLUMN_PACKAGE_NAME + "= ?";
             String[] whereArgs = new String[]{String.valueOf(userId), packageName};
             int deletedRows = db.delete(TABLE_NAME, whereClause, whereArgs);
             Slogf.i(TAG, "Deleted %d user package settings db rows for user %d and package %s",
                     deletedRows, userId, packageName);
+            Trace.endSection();
         }
 
         public static void syncUserPackagesWithAliveUsers(SQLiteDatabase db, IntArray aliveUsers) {

@@ -16,7 +16,6 @@
 
 package com.android.systemui.car.window;
 
-import com.android.systemui.car.hvac.AutoDismissHvacPanelOverlayViewMediator;
 import com.android.systemui.car.loading.LoadingViewMediator;
 
 import dagger.Binds;
@@ -27,13 +26,6 @@ import dagger.multibindings.IntoMap;
 /** Lists additional {@link OverlayViewMediator} that apply to the CarUiPortraitSystemUI. */
 @Module
 public abstract class ExtendedOverlayWindowModule {
-
-    /** Injects RearViewCameraViewMediator. */
-    @Binds
-    @IntoMap
-    @ClassKey(AutoDismissHvacPanelOverlayViewMediator.class)
-    public abstract OverlayViewMediator bindAutoDismissHvacPanelViewMediator(
-            AutoDismissHvacPanelOverlayViewMediator overlayViewsMediator);
 
     /** Injects LoadingViewMediator. */
     @Binds

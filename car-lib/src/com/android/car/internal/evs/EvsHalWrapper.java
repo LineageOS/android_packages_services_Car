@@ -20,8 +20,6 @@ import android.hardware.HardwareBuffer;
 
 /**
  * Abstracts EVS HAL. This is used as an interface between updatable and builtin.
- *
- * @hide
  */
 public abstract class EvsHalWrapper {
     /** Callback for events from HAL */

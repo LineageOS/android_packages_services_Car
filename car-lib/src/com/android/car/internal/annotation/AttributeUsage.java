@@ -47,8 +47,6 @@ import java.lang.annotation.RetentionPolicy;
  * Tells the audio attribute usage (i.e. what type of audio source to use for playback)
  *
  * Copied from frameworks/base/media/java/android/media/AudioAttributes.java
- *
- * @hide
  */
 @IntDef({
         USAGE_UNKNOWN,

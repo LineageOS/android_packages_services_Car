@@ -20,8 +20,6 @@ import com.android.car.internal.property.GetSetValueResultList;
 
 /**
  * Callback interface for async {@link CarPropertyService#getPropertiesAsync} when successful.
- *
- * @hide
  */
 oneway interface IAsyncPropertyResultCallback {
     /**

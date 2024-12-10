@@ -28,8 +28,6 @@ import java.util.List;
 /**
  * Provides static methods for creating {@code List} instances easily, and other
  * utility methods for working with lists.
- *
- * @hide
  */
 public class Lists {
 

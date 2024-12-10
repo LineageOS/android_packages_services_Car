@@ -27,8 +27,6 @@ import java.util.Arrays;
 // Copy of frameworks/base/core/java/android/util/LongArray.java
 /**
  * Implements a growing array of long primitives.
- *
- * @hide
  */
 public class LongArray implements Cloneable {
     private static final int MIN_CAPACITY_INCREMENT = 12;

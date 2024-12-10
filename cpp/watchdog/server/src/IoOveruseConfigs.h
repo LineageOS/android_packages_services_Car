@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 
-#ifndef CPP_WATCHDOG_SERVER_SRC_IOOVERUSECONFIGS_H_
-#define CPP_WATCHDOG_SERVER_SRC_IOOVERUSECONFIGS_H_
+#pragma once
 
 #include <aidl/android/automotive/watchdog/PerStateBytes.h>
 #include <aidl/android/automotive/watchdog/internal/ApplicationCategoryType.h>
@@ -296,5 +295,3 @@ private:
 }  // namespace watchdog
 }  // namespace automotive
 }  // namespace android
-
-#endif  //  CPP_WATCHDOG_SERVER_SRC_IOOVERUSECONFIGS_H_

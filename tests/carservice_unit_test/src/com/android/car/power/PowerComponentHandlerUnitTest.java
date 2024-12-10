@@ -38,12 +38,14 @@ import static com.android.car.test.power.CarPowerPolicyUtil.assertPolicyIdentica
 
 import static com.google.common.truth.Truth.assertWithMessage;
 
+import static org.mockito.Mockito.when;
+
+import android.app.AppOpsManager;
 import android.car.hardware.power.CarPowerPolicy;
 import android.car.test.util.TemporaryFile;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.util.AtomicFile;
-
-import androidx.test.platform.app.InstrumentationRegistry;
 
 import com.android.car.systeminterface.SystemInterface;
 
@@ -58,16 +60,22 @@ import org.mockito.junit.MockitoJUnitRunner;
  */
 @RunWith(MockitoJUnitRunner.class)
 public final class PowerComponentHandlerUnitTest {
-    private final Context mContext = InstrumentationRegistry.getInstrumentation().getContext();
-
     @Mock
     private SystemInterface mSystemInterface;
+    @Mock
+    private Context mContext;
+    @Mock
+    private AppOpsManager mAppOpsManager;
+    @Mock
+    private PackageManager mPackageManager;
     private PowerComponentHandler mHandler;
     private TemporaryFile mComponentStateFile;
 
     @Before
     public void setUp() throws Exception {
         mComponentStateFile = new TemporaryFile("COMPONENT_STATE_FILE");
+        when(mContext.getSystemService(AppOpsManager.class)).thenReturn(mAppOpsManager);
+        when(mContext.getPackageManager()).thenReturn(mPackageManager);
         mHandler = new PowerComponentHandler(mContext, mSystemInterface,
                 new AtomicFile(mComponentStateFile.getFile()));
         mHandler.init(/* customComponents = */ null);
@@ -76,10 +84,10 @@ public final class PowerComponentHandlerUnitTest {
     @Test
     public void testGetAccumulatedPolicy_firstTime() throws Exception {
         CarPowerPolicy policy = mHandler.getAccumulatedPolicy();
-        CarPowerPolicy expected = new CarPowerPolicy("", new int[]{},
+        CarPowerPolicy expected = new CarPowerPolicy("", new int[]{VOICE_INTERACTION},
                 new int[]{AUDIO, BLUETOOTH, CELLULAR, CPU, DISPLAY, ETHERNET, INPUT, LOCATION,
                         MEDIA, MICROPHONE, NFC, PROJECTION, TRUSTED_DEVICE_DETECTION,
-                        VISUAL_INTERACTION, VOICE_INTERACTION, WIFI});
+                        VISUAL_INTERACTION, WIFI});
 
         assertPolicyIdentical(expected, policy);
     }
@@ -106,9 +114,9 @@ public final class PowerComponentHandlerUnitTest {
                 new CarPowerPolicy("test_policy3", new int[]{CPU, INPUT}, new int[]{WIFI}),
                 new CarPowerPolicy("test_policy4", new int[]{MEDIA, AUDIO}, new int[]{})};
         CarPowerPolicy expected = new CarPowerPolicy("test_policy4",
-                new int[]{AUDIO, MEDIA, DISPLAY, INPUT, CPU},
+                new int[]{AUDIO, MEDIA, DISPLAY, INPUT, CPU, VOICE_INTERACTION},
                 new int[]{BLUETOOTH, CELLULAR, ETHERNET, LOCATION, MICROPHONE, NFC, PROJECTION,
-                        TRUSTED_DEVICE_DETECTION, VISUAL_INTERACTION, VOICE_INTERACTION, WIFI});
+                        TRUSTED_DEVICE_DETECTION, VISUAL_INTERACTION, WIFI});
 
         for (CarPowerPolicy policy : policies) {
             mHandler.applyPowerPolicy(policy);
@@ -130,10 +138,10 @@ public final class PowerComponentHandlerUnitTest {
         mHandler.applyPowerPolicy(policy2);
 
         CarPowerPolicy expected = new CarPowerPolicy("test_policy2",
-                new int[]{DISPLAY, WIFI, customComponentId},
+                new int[]{DISPLAY, WIFI, VOICE_INTERACTION, customComponentId},
                 new int[]{INPUT, MEDIA, AUDIO, BLUETOOTH, CELLULAR, ETHERNET, LOCATION, MICROPHONE,
                         NFC, PROJECTION,
-                        TRUSTED_DEVICE_DETECTION, VISUAL_INTERACTION, VOICE_INTERACTION, CPU});
+                        TRUSTED_DEVICE_DETECTION, VISUAL_INTERACTION, CPU});
         assertPolicyIdentical(expected, mHandler.getAccumulatedPolicy());
 
         CarPowerPolicy policy3 = new CarPowerPolicy("test_policy3", new int[]{WIFI, AUDIO},
@@ -145,11 +153,10 @@ public final class PowerComponentHandlerUnitTest {
         mHandler.applyPowerPolicy(policy4);
 
         expected = new CarPowerPolicy("test_policy4",
-                new int[]{WIFI, AUDIO},
+                new int[]{WIFI, AUDIO, VOICE_INTERACTION},
                 new int[]{DISPLAY, INPUT, MEDIA, BLUETOOTH, CELLULAR, ETHERNET, LOCATION,
-                        MICROPHONE, NFC, PROJECTION,
-                        TRUSTED_DEVICE_DETECTION, VISUAL_INTERACTION, VOICE_INTERACTION, CPU,
-                        customComponentId});
+                        MICROPHONE, NFC, PROJECTION, TRUSTED_DEVICE_DETECTION, VISUAL_INTERACTION,
+                        CPU, customComponentId});
         assertPolicyIdentical(expected, mHandler.getAccumulatedPolicy());
     }
 

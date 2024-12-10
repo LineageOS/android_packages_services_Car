@@ -33,8 +33,6 @@ import java.util.StringJoiner;
 /**
  * Stores the various error codes for vehicle properties as they get passed up
  * the stack.
- *
- * @hide
  */
 @DataClass(genConstructor = false)
 public final class CarPropertyErrorCodes implements Parcelable {
@@ -260,7 +258,6 @@ public final class CarPropertyErrorCodes implements Parcelable {
     @DataClass.Generated.Member
     public int describeContents() { return 0; }
 
-    /** @hide */
     @SuppressWarnings({"unchecked", "RedundantCast"})
     @DataClass.Generated.Member
     /* package-private */ CarPropertyErrorCodes(@NonNull Parcel in) {

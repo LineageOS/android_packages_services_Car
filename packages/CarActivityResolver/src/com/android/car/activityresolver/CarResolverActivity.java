@@ -19,6 +19,7 @@ package com.android.car.activityresolver;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewTreeObserver;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 
 import androidx.core.graphics.Insets;
@@ -82,6 +83,12 @@ public final class CarResolverActivity extends ResolverActivity
 
     @Override
     public void onGlobalLayout() {
+        setupRotary();
+        setupAppListHeight();
+        setupTopSpacerHeight();
+    }
+
+    private void setupRotary() {
         ListView listView = findViewById(R.id.resolver_list);
         if (listView != null) {
             // Items must be focusable for rotary.
@@ -96,13 +103,37 @@ public final class CarResolverActivity extends ResolverActivity
                     listView.performItemClick(view, position, id);
                 });
             }
+        }
+    }
 
-            int resolverListMaxHeight = getResources().getDimensionPixelSize(
-                    com.android.car.activityresolver.R.dimen.resolver_list_max_height);
-            if (listView.getHeight() > resolverListMaxHeight) {
-                listView.getLayoutParams().height = resolverListMaxHeight;
-                listView.setLayoutParams(listView.getLayoutParams());
-            }
+    private void setupTopSpacerHeight() {
+        ResolverDrawerLayout resolverDrawerLayout =
+                ((ResolverDrawerLayout) findViewById(R.id.contentPanel));
+        LinearLayout activityResolverContent =
+                findViewById(com.android.car.activityresolver.R.id.activity_resolver_content);
+        View emptyTop = findViewById(com.android.car.activityresolver.R.id.top_spacer);
+
+        // Setup top spacer to be half the difference in the resolver drawer/content height
+        emptyTop.getLayoutParams().height =
+                (resolverDrawerLayout.getHeight() - activityResolverContent.getHeight()) / 2;
+        emptyTop.setLayoutParams(emptyTop.getLayoutParams());
+    }
+
+    private void setupAppListHeight() {
+        ListView listView = findViewById(R.id.resolver_list);
+        // Set a max height on the list of apps so that the list does not cut off the "Just
+        // Once"/"Always" buttons of the activity
+        int resolverListMaxHeight = getResources().getDimensionPixelSize(
+                com.android.car.activityresolver.R.dimen.resolver_list_max_height);
+        // The activity has a preselected default app option, so subract that height from max
+        // height which is applied to the list of app choices
+        if (useLayoutWithDefault()) {
+            resolverListMaxHeight -= getResources().getDimensionPixelSize(
+                    com.android.car.activityresolver.R.dimen.resolver_list_item_height);
+        }
+        if (listView.getHeight() > resolverListMaxHeight) {
+            listView.getLayoutParams().height = resolverListMaxHeight;
+            listView.setLayoutParams(listView.getLayoutParams());
         }
     }
 

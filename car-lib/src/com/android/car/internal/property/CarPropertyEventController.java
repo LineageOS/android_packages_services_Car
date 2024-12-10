@@ -36,8 +36,6 @@ import com.android.internal.annotations.VisibleForTesting;
  * not passed to the client.
  *
  * This class is thread-safe.
- *
- * @hide
  */
 public class CarPropertyEventController {
     // Abbreviating TAG because class name is longer than the 23 character Log tag limit.

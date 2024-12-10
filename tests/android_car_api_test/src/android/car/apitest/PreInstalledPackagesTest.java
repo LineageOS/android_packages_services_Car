@@ -22,6 +22,8 @@ import static org.junit.Assert.fail;
 import android.platform.test.annotations.Presubmit;
 import android.text.TextUtils;
 
+import androidx.test.filters.FlakyTest;
+
 import com.android.compatibility.common.util.NonApiTest;
 
 import org.junit.Test;
@@ -37,6 +39,7 @@ public final class PreInstalledPackagesTest extends CarLessApiTestBase {
         assertNoCriticalErrors(/* enforceMode= */ false);
     }
 
+    @FlakyTest(bugId = 330923013)
     @Test
     @NonApiTest(exemptionReasons = {}, justification = "Testing package allowlist, which is not "
             + "an API or CDD requirement")

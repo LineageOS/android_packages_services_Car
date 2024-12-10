@@ -104,11 +104,12 @@ import com.android.car.hal.PowerHalService;
 import com.android.car.hal.PowerHalService.PowerState;
 import com.android.car.hal.VehicleHal;
 import com.android.car.internal.util.IndentingPrintWriter;
-import com.android.car.systeminterface.DisplayInterface;
+import com.android.car.systeminterface.DisplayHelperInterface;
 import com.android.car.systeminterface.IOInterface;
 import com.android.car.systeminterface.SystemInterface;
 import com.android.car.systeminterface.SystemStateInterface;
 import com.android.car.systeminterface.WakeLockInterface;
+import com.android.car.systeminterface.test.DisplayInterfaceEmptyImpl;
 import com.android.car.test.utils.TemporaryDirectory;
 import com.android.car.user.CarUserService;
 import com.android.compatibility.common.util.PollingCheck;
@@ -255,6 +256,8 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
     private ActivityManager.RunningAppProcessInfo mRunningProcess1;
     @Mock
     private ActivityManager.RunningAppProcessInfo mRunningProcess2;
+    @Mock
+    private DisplayHelperInterface mDisplayHelper;
 
     public CarPowerManagementServiceUnitTest() throws Exception {
         super(CarPowerManagementService.TAG);
@@ -275,10 +278,10 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
                 /*isDeepSleepAllowed=*/true,
                 /*isHibernationAllowed=*/true,
                 /*isTimedWakeupAllowed=*/true);
-        mSystemInterface = SystemInterface.Builder.defaultSystemInterface(mContext)
+        mSystemInterface = SystemInterface.Builder.defaultSystemInterface(mContext,
+                mWakeLockInterface)
             .withDisplayInterface(mDisplayInterface)
             .withSystemStateInterface(mSystemStateInterface)
-            .withWakeLockInterface(mWakeLockInterface)
             .withIOInterface(mIOInterface).build();
         HandlerThread handlerThread = CarServiceUtils.getHandlerThread(TAG);
         mScreenOffHandler = new FakeScreenOffHandler(
@@ -287,6 +290,7 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         setCurrentUser(CURRENT_USER_ID, /* isGuest= */ false);
         setService();
         setCarPowerCancelShellCommand(true);
+        mService.changeShouldChangeSwap(false);
     }
 
     @After
@@ -294,6 +298,7 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         if (mService != null) {
             mService.release();
         }
+        mService.changeShouldChangeSwap(true);
         CarServiceUtils.quitHandlerThreads();
         CarLocalServices.removeServiceForTest(CarPowerManagementService.class);
         mIOInterface.tearDown();
@@ -334,6 +339,7 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
     @Test
     public void testCanHibernate() throws Exception {
         setStopProcessBeforeSuspendToDisk(false);
+        setChangeSwapDuringSuspendToDiskToFalse();
         mPowerSignalListener.addEventListener(PowerHalService.SET_ON);
         mPowerSignalListener.addEventListener(PowerHalService.SET_HIBERNATION_ENTRY);
         mPowerSignalListener.addEventListener(PowerHalService.SET_HIBERNATION_EXIT);
@@ -358,6 +364,7 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
     @Test
     public void testHibernateImmediately() throws Exception {
         setStopProcessBeforeSuspendToDisk(true);
+        setChangeSwapDuringSuspendToDiskToFalse();
         when(mResources.getString(R.string.config_suspend_to_disk_memory_savings))
                 .thenReturn("none");
         hibernateImmediately();
@@ -370,6 +377,7 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         doReturn(List.of(mRunningProcess1)).when(
                 () -> ActivityManagerHelper.getRunningAppProcesses());
         setStopProcessBeforeSuspendToDisk(true);
+        setChangeSwapDuringSuspendToDiskToFalse();
         mRunningProcess1.pkgList = new String[]{PROCESS_TEST_NAME_1};
         mRunningProcess1.importance = ActivityManager.RunningAppProcessInfo
                 .IMPORTANCE_FOREGROUND_SERVICE;
@@ -387,6 +395,7 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         doReturn(List.of(mRunningProcess1, mRunningProcess2)).when(
                 () -> ActivityManagerHelper.getRunningAppProcesses());
         setStopProcessBeforeSuspendToDisk(true);
+        setChangeSwapDuringSuspendToDiskToFalse();
         mRunningProcess1.pkgList = new String[]{PROCESS_TEST_NAME_1};
         mRunningProcess1.importance = ActivityManager.RunningAppProcessInfo
                 .IMPORTANCE_FOREGROUND_SERVICE;
@@ -412,6 +421,7 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         doReturn(List.of(mRunningProcess1, mRunningProcess2)).when(
                 () -> ActivityManagerHelper.getRunningAppProcesses());
         setStopProcessBeforeSuspendToDisk(true);
+        setChangeSwapDuringSuspendToDiskToFalse();
         mRunningProcess1.pkgList = new String[]{PROCESS_TEST_NAME_1};
         mRunningProcess1.importance = ActivityManager.RunningAppProcessInfo
                 .IMPORTANCE_FOREGROUND_SERVICE;
@@ -439,6 +449,7 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         doReturn(List.of(mRunningProcess1, mRunningProcess2)).when(
                 () -> ActivityManagerHelper.getRunningAppProcesses());
         setStopProcessBeforeSuspendToDisk(true);
+        setChangeSwapDuringSuspendToDiskToFalse();
         mRunningProcess1.pkgList = new String[]{PROCESS_TEST_NAME_1};
         mRunningProcess1.importance = ActivityManager.RunningAppProcessInfo
                 .IMPORTANCE_FOREGROUND_SERVICE;
@@ -468,6 +479,7 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         doReturn(List.of(mRunningProcess1, mRunningProcess2)).when(
                 () -> ActivityManagerHelper.getRunningAppProcesses());
         setStopProcessBeforeSuspendToDisk(true);
+        setChangeSwapDuringSuspendToDiskToFalse();
         mRunningProcess1.pkgList = new String[]{PROCESS_TEST_NAME_1};
         mRunningProcess1.importance = ActivityManager.RunningAppProcessInfo
                 .IMPORTANCE_FOREGROUND_SERVICE;
@@ -495,6 +507,7 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         doReturn(List.of(mRunningProcess1, mRunningProcess2)).when(
                 () -> ActivityManagerHelper.getRunningAppProcesses());
         setStopProcessBeforeSuspendToDisk(true);
+        setChangeSwapDuringSuspendToDiskToFalse();
         mRunningProcess1.pkgList = new String[]{PROCESS_TEST_NAME_1};
         mRunningProcess1.importance = ActivityManager.RunningAppProcessInfo
                 .IMPORTANCE_FOREGROUND_SERVICE;
@@ -1772,6 +1785,26 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
     }
 
     @Test
+    public void testSuspendImmediately() throws Exception {
+        mPowerSignalListener.addEventListener(PowerHalService.SET_ON);
+        mPowerSignalListener.addEventListener(PowerHalService.SET_DEEP_SLEEP_ENTRY);
+        // Start in the ON state
+        mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.ON, 0));
+        mPowerSignalListener.waitFor(PowerHalService.SET_ON, WAIT_TIMEOUT_MS);
+        // Request suspend
+        mPowerHal.setCurrentPowerState(
+                new PowerState(
+                        VehicleApPowerStateReq.SHUTDOWN_PREPARE,
+                        VehicleApPowerStateShutdownParam.CAN_SLEEP));
+        mPowerHal.setCurrentPowerState(
+                new PowerState(
+                        VehicleApPowerStateReq.SHUTDOWN_PREPARE,
+                        VehicleApPowerStateShutdownParam.SLEEP_IMMEDIATELY));
+        // Verify suspend
+        mPowerSignalListener.waitFor(PowerHalService.SET_DEEP_SLEEP_ENTRY, WAIT_TIMEOUT_LONG_MS);
+    }
+
+    @Test
     public void testPowerPolicyAfterShutdownCancel_powerPolicyRefactorFlagEnabled()
             throws Exception {
         setRefactoredService();
@@ -2064,7 +2097,7 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         int brightness = 25;
         int displayId = Display.DEFAULT_DISPLAY;
 
-        mService.sendDisplayBrightness(brightness);
+        mService.sendDisplayBrightnessLegacy(brightness);
 
         mPowerHal.waitForBrightnessSent(displayId, brightness, WAIT_TIMEOUT_MS);
         assertWithMessage("Display " + displayId + " brightness sent with no display ID").that(
@@ -2394,7 +2427,8 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         var vehicleHal = new VehicleHal(mContext, mockVehicleStub);
         var service = new CarPowerManagementService.Builder()
                 .setContext(mContext).setResources(mResources)
-                .setPowerHalService(new PowerHalService(mContext, mFeatureFlags, vehicleHal))
+                .setPowerHalService(new PowerHalService(mContext, mFeatureFlags, vehicleHal,
+                        mDisplayHelper))
                 .setSystemInterface(mSystemInterface).setUserManager(mUserManager)
                 .setCarUserService(mUserService).setPowerPolicyDaemon(mRefactoredPowerPolicyDaemon)
                 .setPowerComponentHandler(mPowerComponentHandler).setFeatureFlags(mFeatureFlags)
@@ -2434,7 +2468,8 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         var vehicleHal = new VehicleHal(mContext, mockVehicleStub);
         var service = new CarPowerManagementService.Builder()
                 .setContext(mContext).setResources(mResources)
-                .setPowerHalService(new PowerHalService(mContext, mFeatureFlags, vehicleHal))
+                .setPowerHalService(new PowerHalService(mContext, mFeatureFlags, vehicleHal,
+                        mDisplayHelper))
                 .setSystemInterface(mSystemInterface).setUserManager(mUserManager)
                 .setCarUserService(mUserService).setPowerPolicyDaemon(mRefactoredPowerPolicyDaemon)
                 .setPowerComponentHandler(mPowerComponentHandler).setFeatureFlags(mFeatureFlags)
@@ -2458,7 +2493,8 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         var vehicleHal = new VehicleHal(mContext, mockVehicleStub);
         var service = new CarPowerManagementService.Builder()
                 .setContext(mContext).setResources(mResources)
-                .setPowerHalService(new PowerHalService(mContext, mFeatureFlags, vehicleHal))
+                .setPowerHalService(new PowerHalService(mContext, mFeatureFlags, vehicleHal,
+                        mDisplayHelper))
                 .setSystemInterface(mSystemInterface).setUserManager(mUserManager)
                 .setCarUserService(mUserService).setPowerPolicyDaemon(mRefactoredPowerPolicyDaemon)
                 .setPowerComponentHandler(mPowerComponentHandler).setFeatureFlags(mFeatureFlags)
@@ -2491,7 +2527,8 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         var vehicleHal = new VehicleHal(mContext, mockVehicleStub);
         var service = new CarPowerManagementService.Builder()
                 .setContext(mContext).setResources(mResources)
-                .setPowerHalService(new PowerHalService(mContext, mFeatureFlags, vehicleHal))
+                .setPowerHalService(new PowerHalService(mContext, mFeatureFlags, vehicleHal,
+                        mDisplayHelper))
                 .setSystemInterface(mSystemInterface).setUserManager(mUserManager)
                 .setCarUserService(mUserService).setPowerPolicyDaemon(mRefactoredPowerPolicyDaemon)
                 .setPowerComponentHandler(mPowerComponentHandler).setFeatureFlags(mFeatureFlags)
@@ -2531,7 +2568,8 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         var vehicleHal = new VehicleHal(mContext, mockVehicleStub);
         var service = new CarPowerManagementService.Builder()
                 .setContext(mContext).setResources(mResources)
-                .setPowerHalService(new PowerHalService(mContext, mFeatureFlags, vehicleHal))
+                .setPowerHalService(new PowerHalService(mContext, mFeatureFlags, vehicleHal,
+                        mDisplayHelper))
                 .setSystemInterface(mSystemInterface).setUserManager(mUserManager)
                 .setCarUserService(mUserService).setPowerPolicyDaemon(mRefactoredPowerPolicyDaemon)
                 .setPowerComponentHandler(mPowerComponentHandler).setFeatureFlags(mFeatureFlags)
@@ -2590,6 +2628,10 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
 
     private void setStopProcessBeforeSuspendToDisk(boolean flagValue) {
         mFeatureFlags.setFlag(Flags.FLAG_STOP_PROCESS_BEFORE_SUSPEND_TO_DISK, flagValue);
+    }
+
+    private void setChangeSwapDuringSuspendToDiskToFalse() {
+        mFeatureFlags.setFlag(Flags.FLAG_CHANGE_SWAPS_DURING_SUSPEND_TO_DISK, false);
     }
 
     /**
@@ -3097,7 +3139,7 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
                 .checkCallingOrSelfPermission(Car.PERMISSION_CONTROL_SHUTDOWN_PROCESS);
     }
 
-    private static final class MockDisplayInterface implements DisplayInterface {
+    private static final class MockDisplayInterface extends DisplayInterfaceEmptyImpl {
         private static final int WAIT_FOR_DISPLAY_BRIGHTNESS_RETRIES = 5;
         @GuardedBy("sLock")
         private final SparseBooleanArray mDisplayOn = new SparseBooleanArray();
@@ -3115,12 +3157,7 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         }
 
         @Override
-        public void setDisplayBrightness(int brightness) {
-            setDisplayBrightness(Display.DEFAULT_DISPLAY, brightness);
-        }
-
-        @Override
-        public void setDisplayBrightness(int displayId, int percentBright) {
+        public void onDisplayBrightnessChangeFromVhal(int displayId, int percentBright) {
             synchronized (sLock) {
                 if (percentBright == mDisplayBrightnessSet.get(displayId)) {
                     return;
@@ -3225,7 +3262,7 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         public void stopDisplayStateMonitoring() {}
 
         @Override
-        public void refreshDisplayBrightness() {}
+        public void refreshDefaultDisplayBrightness() {}
 
         @Override
         public void refreshDisplayBrightness(int displayId) {}

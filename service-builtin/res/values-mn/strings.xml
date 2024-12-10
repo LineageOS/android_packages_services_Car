@@ -31,7 +31,7 @@
     <string name="exit_button_go_back" msgid="6921595432375141935">"Буцах"</string>
     <string name="importance_default" msgid="8017186728206153704">"Өгөгдмөл ач холбогдол"</string>
     <string name="importance_high" msgid="3393374688015554727">"Өндөр ач холбогдолтой"</string>
-    <string name="android_system_label" msgid="9209428539477894959">"Андройд систем"</string>
+    <string name="android_system_label" msgid="9209428539477894959">"Android систем"</string>
     <string name="factory_reset_notification_title" msgid="6177770995437355965">"Үйлдвэрийн тохиргоонд шинэчлэх шаардлагатай"</string>
     <string name="factory_reset_notification_text" msgid="6051393302193696102">"Инфотэйнмент систем дэх бүх өгөгдлийг устгана. Шинэчилсний дараа та шинэ профайл тохируулах боломжтой."</string>
     <string name="factory_reset_notification_button" msgid="6926734587145351076">"Бусад"</string>

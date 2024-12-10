@@ -22,6 +22,8 @@ import static android.media.AudioAttributes.AttributeUsage;
 
 import static com.android.car.custominput.sample.CustomInputEventListener.EventAction.INJECT_VOICE_ASSIST_ACTION_DOWN;
 import static com.android.car.custominput.sample.CustomInputEventListener.EventAction.INJECT_VOICE_ASSIST_ACTION_UP;
+import static com.android.car.custominput.sample.CustomInputEventListener.EventAction.DRIVER_UI_MOVE_NAVIGATION_VIEW;
+import static com.android.car.custominput.sample.CustomInputEventListener.EventAction.DRIVER_UI_UPDATE_WIDGET_MODE;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -75,6 +77,12 @@ public class CustomInputEventListenerTest {
 
     // Minimum volume for alert and media
     private static final int MIN_VOLUME = 0;
+
+    private static final String NOTIFY_DRIVER_UI_ACTION =
+            "com.android.car.custominput.sample.driverui.action";
+    private static final String NOTIFY_DRIVER_UI_EXTRA_KEY = "NOTIFY_DRIVER_UI_EXTRA_KEY";
+    private static final String NOTIFY_DRIVER_UI_MOVE_NAV_VIEW = "MOVE_NAV_VIEW";
+    private static final String NOTIFY_DRIVER_UI_WIDGET_MODE = "WIDGET_MODE";
 
     private CustomInputEventListener mEventHandler;
 
@@ -361,6 +369,50 @@ public class CustomInputEventListenerTest {
         // Assert
         assertKeyEvents(DISPLAY_TYPE_MAIN,
                 new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_VOICE_ASSIST));
+    }
+
+    @Test
+    public void testHandleEvent_injectDriverUINavigationViewAction() {
+        // Arrange
+        CustomInputEvent event = new CustomInputEvent(
+                /* inputCode= */ DRIVER_UI_MOVE_NAVIGATION_VIEW,
+                /* targetDisplayType= */ SOME_DISPLAY_TYPE,
+                /* repeatCounter= */ 1);
+
+        // Act
+        mEventHandler.handle(SOME_DISPLAY_TYPE, event);
+
+        // Assert
+        ArgumentCaptor<Intent> intentCaptor = ArgumentCaptor.forClass(Intent.class);
+        verify(mService).sendBroadcast(intentCaptor.capture());
+
+        // Assert intent parameter
+        Intent actualIntent = intentCaptor.getValue();
+        assertThat(actualIntent.getAction()).isEqualTo(NOTIFY_DRIVER_UI_ACTION);
+        assertThat(actualIntent.getStringExtra(NOTIFY_DRIVER_UI_EXTRA_KEY)).isEqualTo(
+                NOTIFY_DRIVER_UI_MOVE_NAV_VIEW);
+    }
+
+    @Test
+    public void testHandleEvent_injectDriverUIWidgetModeAction() {
+        // Arrange
+        CustomInputEvent event = new CustomInputEvent(
+                /* inputCode= */ DRIVER_UI_UPDATE_WIDGET_MODE,
+                /* targetDisplayType= */ SOME_DISPLAY_TYPE,
+                /* repeatCounter= */ 1);
+
+        // Act
+        mEventHandler.handle(SOME_DISPLAY_TYPE, event);
+
+        // Assert
+        ArgumentCaptor<Intent> intentCaptor = ArgumentCaptor.forClass(Intent.class);
+        verify(mService).sendBroadcast(intentCaptor.capture());
+
+        // Assert intent parameter
+        Intent actualIntent = intentCaptor.getValue();
+        assertThat(actualIntent.getAction()).isEqualTo(NOTIFY_DRIVER_UI_ACTION);
+        assertThat(actualIntent.getStringExtra(NOTIFY_DRIVER_UI_EXTRA_KEY)).isEqualTo(
+                NOTIFY_DRIVER_UI_WIDGET_MODE);
     }
 
     private void assertKeyEvents(int expectedDisplayType, KeyEvent... events) {

@@ -78,12 +78,12 @@ NativeHandle copyNativeHandle(const NativeHandle& handle, bool doDup) {
         }
     } else {
         for (auto i = 0; i < handle.fds.size(); ++i) {
-            dup.fds[i] = std::move(handle.fds[i].dup());
+            dup.fds[i] = handle.fds[i].dup();
         }
     }
     dup.ints = handle.ints;
 
-    return std::move(dup);
+    return dup;
 }
 
 HardwareBuffer copyHardwareBuffer(const HardwareBuffer& buffer, bool doDup) {
@@ -92,7 +92,7 @@ HardwareBuffer copyHardwareBuffer(const HardwareBuffer& buffer, bool doDup) {
             .handle = copyNativeHandle(buffer.handle, doDup),
     };
 
-    return std::move(copied);
+    return copied;
 }
 
 BufferDesc copyBufferDesc(const BufferDesc& src, bool doDup) {
@@ -105,7 +105,7 @@ BufferDesc copyBufferDesc(const BufferDesc& src, bool doDup) {
             .metadata = src.metadata,
     };
 
-    return std::move(copied);
+    return copied;
 }
 
 }  // namespace

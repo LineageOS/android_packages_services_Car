@@ -59,4 +59,12 @@
         <item name="android:checkboxStyle">@style/CheckBoxStyle</item>
         <item name="android:spinnerStyle">@style/SpinnerStyle</item>
     </style>
+
+    <style name="KSDayNightTheme" parent="Theme.AppCompat.DayNight.NoActionBar">
+        <item name="android:textSize">24sp</item>
+        <item name="android:buttonStyle">@style/ButtonStyle</item>
+        <item name="android:radioButtonStyle">@style/RadioButtonStyle</item>
+        <item name="android:checkboxStyle">@style/CheckBoxStyle</item>
+        <item name="android:spinnerStyle">@style/SpinnerStyle</item>
+    </style>
 </resources>

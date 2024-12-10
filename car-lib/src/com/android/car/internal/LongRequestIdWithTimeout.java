@@ -17,8 +17,6 @@ package com.android.car.internal;
 
 /**
  * An async request with a unique {@code long} ID and a timeout (system uptime in ms).
- *
- * @hide
  */
 public interface LongRequestIdWithTimeout {
     /**

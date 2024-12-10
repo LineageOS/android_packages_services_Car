@@ -37,8 +37,6 @@ import java.util.regex.Pattern;
  * Implementations should be stateless.
  *
  * @param <T> the type being [un]parcelled
- *
- * @hide
  */
 public interface Parcelling<T> {
 

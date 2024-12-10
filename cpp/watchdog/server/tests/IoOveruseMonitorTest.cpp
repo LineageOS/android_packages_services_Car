@@ -1013,8 +1013,7 @@ TEST_F(IoOveruseMonitorTest, TestRegisterResourceOveruseListener) {
     std::shared_ptr<MockResourceOveruseListener> mockResourceOveruseListener =
             SharedRefBase::make<MockResourceOveruseListener>();
 
-    expectLinkToDeath(mockResourceOveruseListener->asBinder().get(),
-                      std::move(ScopedAStatus::ok()));
+    expectLinkToDeath(mockResourceOveruseListener->asBinder().get(), ScopedAStatus::ok());
 
     ASSERT_RESULT_OK(mIoOveruseMonitor->addIoOveruseListener(mockResourceOveruseListener));
 
@@ -1027,7 +1026,7 @@ TEST_F(IoOveruseMonitorTest, TestErrorsRegisterResourceOveruseListenerOnLinkToDe
 
     ASSERT_NO_FATAL_FAILURE(
             expectLinkToDeath(mockResourceOveruseListener->asBinder().get(),
-                              std::move(ScopedAStatus::fromExceptionCode(EX_TRANSACTION_FAILED))));
+                              ScopedAStatus::fromExceptionCode(EX_TRANSACTION_FAILED)));
 
     ASSERT_FALSE(mIoOveruseMonitor->addIoOveruseListener(mockResourceOveruseListener).ok());
 }
@@ -1038,8 +1037,7 @@ TEST_F(IoOveruseMonitorTest, TestDuplicateRemoveIoOveruseListener) {
 
     ASSERT_RESULT_OK(mIoOveruseMonitor->addIoOveruseListener(mockResourceOveruseListener));
 
-    expectUnlinkToDeath(mockResourceOveruseListener->asBinder().get(),
-                        std::move(ScopedAStatus::ok()));
+    expectUnlinkToDeath(mockResourceOveruseListener->asBinder().get(), ScopedAStatus::ok());
 
     ASSERT_RESULT_OK(mIoOveruseMonitor->removeIoOveruseListener(mockResourceOveruseListener));
 
@@ -1054,7 +1052,7 @@ TEST_F(IoOveruseMonitorTest, TestRemoveIoOveruseListenerOnUnlinkToDeathError) {
     ASSERT_RESULT_OK(mIoOveruseMonitor->addIoOveruseListener(mockResourceOveruseListener));
 
     expectUnlinkToDeath(mockResourceOveruseListener->asBinder().get(),
-                        std::move(ScopedAStatus::fromExceptionCode(EX_TRANSACTION_FAILED)));
+                        ScopedAStatus::fromExceptionCode(EX_TRANSACTION_FAILED));
 
     ASSERT_RESULT_OK(mIoOveruseMonitor->removeIoOveruseListener(mockResourceOveruseListener));
 }

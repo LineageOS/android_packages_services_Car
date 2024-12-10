@@ -43,7 +43,6 @@ cc_defaults {
     ],
     static_libs: [
         "android.car.feature-aconfig-cpp",
-        "libc++fs",
         "libsysfsmonitor",
         "libvhalclient",
     ],

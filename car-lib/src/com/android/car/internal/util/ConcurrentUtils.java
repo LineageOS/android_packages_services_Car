@@ -36,8 +36,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 // Copied from frameworks/base
 /**
  * Utility methods for common functionality using java.util.concurrent package
- *
- * @hide
  */
 public final class ConcurrentUtils {
 

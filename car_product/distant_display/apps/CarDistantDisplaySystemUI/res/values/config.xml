@@ -31,6 +31,7 @@
         <item>com.android.car.settings/com.android.car.settings.FallbackHome</item>
         <item>com.android.car.driverui/com.android.car.driverui.MainActivity</item>
         <item>com.google.android.apps.maps/com.google.android.maps.LimitedMapsActivity</item>
+        <item>com.google.android.apps.maps/com.google.android.apps.gmm.car.embedded.activity.LimitedMapsActivity</item>
         <item>com.android.car.mapsplaceholder/com.android.car.mapsplaceholder.MapsPlaceholderActivity</item>
         <item>com.android.systemui/com.android.systemui.car.wm.activity.ActivityBlockingActivity</item>
         <item>com.android.car.media/com.android.car.media.MediaActivity</item>

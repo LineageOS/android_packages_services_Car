@@ -17,6 +17,7 @@
 package com.android.systemui.car.distantdisplay.common;
 
 import android.content.Intent;
+import android.window.WindowContainerToken;
 
 import java.util.LinkedHashMap;
 
@@ -25,7 +26,7 @@ import java.util.LinkedHashMap;
  * element stays towards the end of the list. The elements are mapped with key taskId and value
  * that contain information about a particular task.
  */
-class DistantDisplayForegroundTaskMap {
+public class DistantDisplayForegroundTaskMap {
 
     private final LinkedHashMap<Integer, TaskData> mData;
 
@@ -33,9 +34,9 @@ class DistantDisplayForegroundTaskMap {
         mData = new LinkedHashMap<>();
     }
 
-    void put(int taskId, int displayId, Intent baseIntent) {
+    void put(int taskId, int displayId, Intent baseIntent, WindowContainerToken token) {
         mData.remove(taskId);
-        mData.put(taskId, new TaskData(taskId, displayId, baseIntent));
+        mData.put(taskId, new TaskData(taskId, displayId, baseIntent, token));
     }
 
     TaskData getTopTaskOnDisplay(int displayId) {
@@ -58,15 +59,17 @@ class DistantDisplayForegroundTaskMap {
         return mData.isEmpty();
     }
 
-    static class TaskData {
-        int mTaskId;
-        int mDisplayId;
-        Intent mBaseIntent;
+    public static class TaskData {
+        public int mTaskId;
+        public int mDisplayId;
+        public Intent mBaseIntent;
+        public WindowContainerToken mToken;
 
-        TaskData(int taskId, int displayId, Intent baseIntent) {
+        TaskData(int taskId, int displayId, Intent baseIntent, WindowContainerToken token) {
             mTaskId = taskId;
             mDisplayId = displayId;
             mBaseIntent = baseIntent;
+            mToken = token;
         }
     }
 }

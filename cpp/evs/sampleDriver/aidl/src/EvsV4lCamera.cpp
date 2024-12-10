@@ -185,6 +185,9 @@ ScopedAStatus EvsV4lCamera::startVideoStream(const std::shared_ptr<IEvsCameraStr
                 case V4L2_PIX_FMT_YUYV:
                     mFillBufferFromVideo = fillRGBAFromYUYV;
                     break;
+                case V4L2_PIX_FMT_BGRX32:
+                    mFillBufferFromVideo = fillRGBAFromBGRA;
+                    break;
                 default:
                     LOG(ERROR) << "Unhandled camera source format " << (char*)&videoSrcFormat;
             }
@@ -436,7 +439,7 @@ ScopedAStatus EvsV4lCamera::importExternalBuffers(const std::vector<BufferDesc>&
 
             if (!stored) {
                 // Add a BufferRecord wrapping this handle to our set of available buffers
-                mBuffers.push_back(std::move(BufferRecord(memHandle)));
+                mBuffers.push_back(BufferRecord(memHandle));
             }
 
             ++mFramesAllowed;
@@ -614,7 +617,7 @@ unsigned EvsV4lCamera::increaseAvailableFrames_Locked(unsigned numToAdd) {
         }
         if (!stored) {
             // Add a BufferRecord wrapping this handle to our set of available buffers
-            mBuffers.push_back(std::move(BufferRecord(memHandle)));
+            mBuffers.push_back(BufferRecord(memHandle));
         }
 
         ++mFramesAllowed;

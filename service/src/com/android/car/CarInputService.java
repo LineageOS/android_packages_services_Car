@@ -30,6 +30,8 @@ import static java.util.Objects.requireNonNull;
 
 import android.annotation.Nullable;
 import android.annotation.UserIdInt;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothManager;
 import android.car.CarOccupantZoneManager;
 import android.car.CarOccupantZoneManager.OccupantZoneInfo;
 import android.car.CarProjectionManager;
@@ -40,11 +42,13 @@ import android.car.builtin.util.AssistUtilsHelper.VoiceInteractionSessionShowCal
 import android.car.builtin.util.Slogf;
 import android.car.builtin.view.InputEventHelper;
 import android.car.builtin.view.KeyEventHelper;
+import android.car.feature.Flags;
 import android.car.input.CarInputManager;
 import android.car.input.CustomInputEvent;
 import android.car.input.ICarInput;
 import android.car.input.ICarInputCallback;
 import android.car.input.RotaryEvent;
+import android.car.settings.CarSettings;
 import android.car.user.CarUserManager.UserLifecycleListener;
 import android.car.user.UserLifecycleEventFilter;
 import android.content.ContentResolver;
@@ -800,6 +804,10 @@ public class CarInputService extends ICarInput.Stub
         if (launchBluetoothVoiceRecognition()) {
             return;
         }
+        // TODO(b/352528459): - Add metric capture once refactored out of CarInputService.
+        if (launchBluetoothPairing()) {
+            return;
+        }
         // Finally, fallback to the default voice assist handling.
         launchDefaultVoiceAssistantHandler();
     }
@@ -972,6 +980,51 @@ public class CarInputService extends ICarInput.Stub
         }
         Slogf.d(TAG, "Unable to start Bluetooth Voice Recognition, it is not enabled.");
         return false;
+    }
+
+    private boolean launchBluetoothPairing() {
+       //Check feature flag
+        if (!Flags.carInputStartBtpairingLptt()) {
+            Slogf.d(TAG, "Feature flags not enabled");
+            return false;
+        }
+
+        //Check configuration
+        if (!mContext.getResources().getBoolean(R.bool.config_enableLongPressBluetoothPairing)) {
+            Slogf.d(TAG, "config not enabled");
+            return false;
+        }
+
+        //Check setup wizard in session
+        if (Settings.Secure.getInt(getContentResolverForUser(mContext,
+                UserHandle.CURRENT.getIdentifier()),
+                CarSettings.Secure.KEY_SETUP_WIZARD_IN_PROGRESS, 0) == 1) {
+            Slogf.d(TAG, "Setup wizard in progress. Do not launch BT pairing");
+            return false;
+        }
+
+        //Check BT Connection
+        BluetoothAdapter btAdapter = mContext.
+            getSystemService(BluetoothManager.class).getAdapter();
+        if (btAdapter == null) {
+            Slogf.w(TAG, "Could not get BT adapter. Do not launch BT pairing");
+            return false;
+        }
+        if (btAdapter.getConnectionState() != BluetoothAdapter.STATE_DISCONNECTED) {
+            Slogf.d(TAG, "BT device connected. Do not launch BT pairing");
+            return false;
+        }
+        /*
+         * Do not checking driving state here. If the OEM allows Bluetooth pairing
+         * while driving, their BluetoothSettingsActivity should be optimized for
+         * distraction. If they do not allow it, the BluetoothSettingsActivity should
+         * display a notification informing the driver that Bluetooth pairing
+         * is not allowed while driving.
+         */
+        Slogf.d(TAG, "Voice Assist key long press. Attempting to start Bluetooth Pairing.");
+        Intent intent = new Intent(Settings.ACTION_BLUETOOTH_SETTINGS);
+        mContext.startActivityAsUser(intent, UserHandle.CURRENT);
+        return true;
     }
 
     private void launchDefaultVoiceAssistantHandler() {

@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 
-#ifndef CPP_WATCHDOG_SERVER_SRC_PROCSTATCOLLECTOR_H_
-#define CPP_WATCHDOG_SERVER_SRC_PROCSTATCOLLECTOR_H_
+#pragma once
 
 #include <android-base/result.h>
 #include <utils/Mutex.h>
@@ -60,16 +59,19 @@ class ProcStatInfo {
 public:
     ProcStatInfo() :
           cpuStats({}),
+          kernelStartTimeEpochSeconds(0),
           contextSwitchesCount(0),
           runnableProcessCount(0),
           ioBlockedProcessCount(0) {}
     ProcStatInfo(CpuStats stats, uint64_t ctxtSwitches, uint32_t runnableCnt,
-                 uint32_t ioBlockedCnt) :
+                 uint32_t ioBlockedCnt, time_t kernelStartTimeEpochSeconds) :
           cpuStats(stats),
+          kernelStartTimeEpochSeconds(kernelStartTimeEpochSeconds),
           contextSwitchesCount(ctxtSwitches),
           runnableProcessCount(runnableCnt),
           ioBlockedProcessCount(ioBlockedCnt) {}
     CpuStats cpuStats;
+    time_t kernelStartTimeEpochSeconds;
     uint64_t contextSwitchesCount;
     uint32_t runnableProcessCount;
     uint32_t ioBlockedProcessCount;
@@ -84,12 +86,16 @@ public:
     bool operator==(const ProcStatInfo& info) const {
         return memcmp(&cpuStats, &info.cpuStats, sizeof(cpuStats)) == 0 &&
                 runnableProcessCount == info.runnableProcessCount &&
-                ioBlockedProcessCount == info.ioBlockedProcessCount;
+                ioBlockedProcessCount == info.ioBlockedProcessCount &&
+                contextSwitchesCount == info.contextSwitchesCount &&
+                kernelStartTimeEpochSeconds == info.kernelStartTimeEpochSeconds;
     }
     ProcStatInfo& operator-=(const ProcStatInfo& rhs) {
         cpuStats -= rhs.cpuStats;
-        /* Don't diff *ProcessCount as they are real-time values unlike |cpuStats|, which are
-         * aggregated values since system startup.
+        contextSwitchesCount -= rhs.contextSwitchesCount;
+        /* Don't diff kernelStartTimeEpochSeconds, runnableProcessCount, and
+         * ioBlockedProcessCount because they are real-time values unlike other
+         * stats, which are aggregated values since system startup.
          */
         return *this;
     }
@@ -115,6 +121,9 @@ public:
 
     // Returns the delta of stats from the latest collection.
     virtual const ProcStatInfo deltaStats() const = 0;
+
+    // Returns the Kernel start time.
+    virtual time_t getKernelStartTimeEpochSeconds() = 0;
 };
 
 // Collector/parser for `/proc/stat` file.
@@ -152,6 +161,10 @@ public:
         return mDeltaStats;
     }
 
+    time_t getKernelStartTimeEpochSeconds() {
+        return mLatestStats.kernelStartTimeEpochSeconds;
+    }
+
 private:
     // Reads the contents of |kPath|.
     android::base::Result<ProcStatInfo> getProcStatLocked() const;
@@ -178,5 +191,3 @@ private:
 }  // namespace watchdog
 }  // namespace automotive
 }  // namespace android
-
-#endif  //  CPP_WATCHDOG_SERVER_SRC_PROCSTATCOLLECTOR_H_

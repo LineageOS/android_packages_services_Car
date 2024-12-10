@@ -1,15 +1,7 @@
 {
   "auto-postsubmit": [
     {
-      "name": "CarServiceTest",
-      "options" : [
-        {
-          "include-filter": "com.android.car.pm.CarPackageManagerServiceTest"
-        },
-        {
-          "include-filter": "com.android.car.CarPackageManagerTest"
-        }
-      ]
+      "name": "CarServicePmTest"
     },
     {
       "name": "CarServiceUnitTest",

@@ -18,9 +18,6 @@ package com.android.car.internal.property;
 
 import com.android.car.internal.property.CarPropertyConfigList;
 
-/**
- * @hide
- */
 parcelable GetPropertyConfigListResult {
     CarPropertyConfigList carPropertyConfigList;
     int[] missingPermissionPropIds;

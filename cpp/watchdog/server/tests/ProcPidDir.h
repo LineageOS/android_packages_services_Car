@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 
-#ifndef CPP_WATCHDOG_SERVER_TESTS_PROCPIDDIR_H_
-#define CPP_WATCHDOG_SERVER_TESTS_PROCPIDDIR_H_
+#pragma once
 
 #include <android-base/result.h>
 #include <stdint.h>
@@ -43,5 +42,3 @@ android::base::Result<void> populateProcPidDir(
 }  // namespace watchdog
 }  // namespace automotive
 }  // namespace android
-
-#endif  //  CPP_WATCHDOG_SERVER_TESTS_PROCPIDDIR_H_

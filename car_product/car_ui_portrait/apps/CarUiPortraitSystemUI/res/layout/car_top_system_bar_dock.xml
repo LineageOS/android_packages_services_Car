@@ -34,7 +34,7 @@
             android:layout_marginStart="@dimen/car_quick_controls_entry_points_start_margin"
             android:layout_centerVertical="true"
             android:layout_toStartOf="@+id/clock"
-            android:layout_alignParentStart="true" />
+            android:layout_alignParentStart="true"/>
 
         <com.android.systemui.statusbar.policy.Clock
             android:id="@+id/clock"
@@ -49,7 +49,7 @@
             android:elevation="@dimen/clock_elevation"
             android:singleLine="true"
             style="@style/TextAppearance.TopSystemBar.Text"
-            systemui:amPmStyle="normal" />
+            systemui:amPmStyle="normal"/>
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -65,14 +65,14 @@
                 android:layout_width="@dimen/top_system_bar_icon_size"
                 android:layout_height="@dimen/top_system_bar_icon_size"
                 android:layout_marginStart="@dimen/top_system_bar_icon_horizontal_margin"
-                android:layout_marginEnd="@dimen/top_system_bar_icon_horizontal_margin" />
+                android:layout_marginEnd="@dimen/top_system_bar_icon_horizontal_margin"/>
 
             <include
                 layout="@layout/mic_privacy_chip"
                 android:layout_width="@dimen/top_system_bar_icon_size"
                 android:layout_height="@dimen/top_system_bar_icon_size"
                 android:layout_marginStart="@dimen/top_system_bar_icon_horizontal_margin"
-                android:layout_marginEnd="@dimen/top_system_bar_icon_horizontal_margin" />
+                android:layout_marginEnd="@dimen/top_system_bar_icon_horizontal_margin"/>
 
             <com.android.systemui.car.statusicon.StatusIconView
                 android:id="@+id/read_only_sensor_text"
@@ -80,7 +80,7 @@
                 android:layout_height="match_parent"
                 android:layout_marginHorizontal="@dimen/top_system_bar_icon_horizontal_margin"
                 android:layout_gravity="center"
-                systemui:controller="com.android.systemui.car.statusicon.ui.StatusBarSensorInfoController" />
+                systemui:controller="com.android.systemui.car.statusicon.ui.StatusBarSensorInfoController"/>
 
             <com.android.systemui.car.systembar.CarUiPortraitNotificationButton
                 android:id="@+id/standalone_notifications"
@@ -93,7 +93,7 @@
                 systemui:highlightWhenSelected="true"
                 systemui:clearBackStack="false"
                 systemui:intent="intent:#Intent;component=com.android.car.notification/.CarNotificationCenterActivity;launchFlags=0x24000000;end"
-                systemui:longIntent="intent:#Intent;action=com.android.car.bugreport.action.START_AUDIO_FIRST;component=com.android.car.bugreport/.BugReportActivity;end">
+                systemui:longIntent="intent:#Intent;action=com.android.car.bugreport.action.START_BUG_REPORT;end">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -107,28 +107,38 @@
                         android:layout_height="@dimen/top_system_bar_icon_drawing_size"
                         android:layout_gravity="center"
                         android:src="@drawable/car_ic_notification"
-                        android:tint="@color/system_bar_icon_color_with_selection" />
+                        android:tint="@color/system_bar_icon_color_with_selection"/>
 
                 </LinearLayout>
 
             </com.android.systemui.car.systembar.CarUiPortraitNotificationButton>
 
-            <com.android.systemui.car.systembar.CarTopSystemBarButton
-                android:id="@+id/user_name"
-                style="@style/CarTopSystemBarButton"
-                android:background="@drawable/status_icon_background"
-                systemui:intent="intent:#Intent;component=com.android.car.settings/.profiles.ProfileSwitcherActivity;launchFlags=0x24000000;end">
-
-                <ImageView
-                    android:id="@+id/user_avatar"
-                    android:layout_gravity="center"
-                    android:layout_width="@dimen/top_system_bar_icon_drawing_size"
-                    android:layout_height="@dimen/top_system_bar_icon_drawing_size"
-                    android:src="@drawable/car_ic_user_icon"
-                    android:tint="@color/system_bar_icon_color_with_selection" />
-
-            </com.android.systemui.car.systembar.CarTopSystemBarButton>
-
+            <FrameLayout
+                android:id="@+id/user_name_container"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/top_system_bar_icon_size"
+                android:gravity="center">
+                <com.android.systemui.car.systembar.CarSystemBarPanelButtonView
+                    android:id="@+id/user_name"
+                    style="@style/CarTopSystemBarButton"
+                    android:background="@drawable/status_icon_background"
+                    systemui:controller="com.android.systemui.car.systembar.UserNamePanelButtonViewController"
+                    systemui:panelLayoutRes="@layout/qc_profile_switcher"
+                    systemui:panelWidthRes="@dimen/car_profile_quick_controls_panel_width"
+                    systemui:gravity="top|end"
+                    systemui:disabledWhileUnprovisioned="true"
+                    systemui:disabledWhileDriving="@bool/config_profile_panel_disabled_while_driving"
+                    systemui:systemBarDisable2Flags="quickSettings">
+                    <com.android.systemui.car.systembar.element.layout.CarSystemBarImageView
+                        android:id="@+id/user_avatar"
+                        android:layout_gravity="center"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_margin="@dimen/car_padding_0"
+                        systemui:controller="com.android.systemui.car.systembar.UserNameImageViewController"
+                        />
+                </com.android.systemui.car.systembar.CarSystemBarPanelButtonView>
+            </FrameLayout>
         </LinearLayout>
 
     </RelativeLayout>

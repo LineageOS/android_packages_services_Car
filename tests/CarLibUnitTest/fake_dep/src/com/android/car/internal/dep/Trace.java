@@ -44,4 +44,40 @@ public final class Trace {
     public static void endSection() {
         // Do nothing.
     }
+
+    /**
+     * Begins async trace.
+     *
+     * Do nothing in the fake implementation.
+     */
+    public static void asyncTraceBegin(long traceTag, String methodName, int cookie) {
+        // Do nothing.
+    }
+
+    /**
+     * Ends async trace.
+     *
+     * Do nothing in the fake implementation.
+     */
+    public static void asyncTraceEnd(long traceTag, String methodName, int cookie) {
+        // Do nothing.
+    }
+
+    /**
+     * Begins trace.
+     *
+     * Do nothing in the fake implementation.
+     */
+    public static void traceBegin(long traceTag, String methodName) {
+        // Do nothing.
+    }
+
+    /**
+     * Ends trace.
+     *
+     * Do nothing in the fake implementation.
+     */
+    public static void traceEnd(long traceTag) {
+        // Do nothing.
+    }
 }

@@ -43,8 +43,6 @@ import java.util.function.IntFunction;
 /**
  * ArrayUtils contains some methods that you can call to find out
  * the most efficient increments by which to grow arrays.
- *
- * @hide
  */
 public final class ArrayUtils {
     private static final int CACHE_SIZE = 73;

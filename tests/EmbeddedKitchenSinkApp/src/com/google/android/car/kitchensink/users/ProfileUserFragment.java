@@ -494,7 +494,6 @@ public class ProfileUserFragment extends Fragment {
     private ArrayList<String> getApps() {
         ArrayList<String> apps = new ArrayList<>();
         apps.add("com.google.android.car.kitchensink/.KitchenSinkActivity");
-        apps.add("com.android.car.multidisplay/.launcher.LauncherActivity");
         apps.add("com.google.android.car.multidisplaytest/.MDTest");
         return apps;
     }

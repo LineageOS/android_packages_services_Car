@@ -493,7 +493,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
                 new Intent().setAction(Intent.ACTION_REBOOT)
                         .setFlags(Intent.FLAG_RECEIVER_FOREGROUND));
         verify(mMockCarWatchdogDaemonHelper).notifySystemStateChange(StateType.POWER_CYCLE,
-                PowerCycle.POWER_CYCLE_SHUTDOWN_ENTER, /* arg2= */ 0);
+                PowerCycle.POWER_CYCLE_SHUTDOWN_ENTER, /* arg2= */ MISSING_ARG_VALUE);
     }
 
     @Test
@@ -502,15 +502,15 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
                 new Intent().setAction(Intent.ACTION_SHUTDOWN)
                         .setFlags(Intent.FLAG_RECEIVER_FOREGROUND));
         verify(mMockCarWatchdogDaemonHelper).notifySystemStateChange(StateType.POWER_CYCLE,
-                PowerCycle.POWER_CYCLE_SHUTDOWN_ENTER, /* arg2= */ 0);
+                PowerCycle.POWER_CYCLE_SHUTDOWN_ENTER, /* arg2= */ MISSING_ARG_VALUE);
     }
 
     @Test
     public void testDeviceShutdownBroadcastWithoutFlagReceiverForeground() throws Exception {
         mBroadcastReceiver.onReceive(mMockContext,
-                new Intent().setAction(Intent.ACTION_SHUTDOWN));
+            new Intent().setAction(Intent.ACTION_SHUTDOWN));
         verify(mMockCarWatchdogDaemonHelper, never()).notifySystemStateChange(StateType.POWER_CYCLE,
-                PowerCycle.POWER_CYCLE_SHUTDOWN_ENTER, /* arg2= */ 0);
+                PowerCycle.POWER_CYCLE_SHUTDOWN_ENTER, /* arg2= */ MISSING_ARG_VALUE);
     }
 
     @Test

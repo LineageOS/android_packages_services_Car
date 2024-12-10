@@ -135,6 +135,8 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
 
     private CarWatchdogDaemonHelper mCarWatchdogDaemonHelper;
 
+    private boolean mIsPowerShutdownHandled;
+
     /*
      * TODO(b/192481350): Listen for GarageMode change notification rather than depending on the
      *  system_server broadcast when the CarService internal API for listening GarageMode change is
@@ -172,17 +174,7 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
                     if ((intent.getFlags() & Intent.FLAG_RECEIVER_FOREGROUND) == 0) {
                         break;
                     }
-                    int powerCycle = PowerCycle.POWER_CYCLE_SHUTDOWN_ENTER;
-                    try {
-                        mCarWatchdogDaemonHelper.notifySystemStateChange(StateType.POWER_CYCLE,
-                                powerCycle, /* arg2= */ 0);
-                        if (DEBUG) {
-                            Slogf.d(TAG, "Notified car watchdog daemon of power cycle(%d)",
-                                    powerCycle);
-                        }
-                    } catch (Exception e) {
-                        Slogf.w(TAG, e, "Notifying power cycle state change failed");
-                    }
+                    notifyPowerCycleChange(PowerCycle.POWER_CYCLE_SHUTDOWN_ENTER);
                     break;
                 case ACTION_USER_REMOVED: {
                     UserHandle userHandle = intent.getParcelableExtra(Intent.EXTRA_USER);
@@ -218,7 +210,10 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
         public void onStateChanged(int state, long expirationTimeMs) {
             CarPowerManagementService powerService =
                     CarLocalServices.getService(CarPowerManagementService.class);
-            if (powerService == null) {
+            if (powerService == null
+                || state == CarPowerManager.STATE_POST_SHUTDOWN_ENTER
+                || state == CarPowerManager.STATE_POST_SUSPEND_ENTER
+                || state == CarPowerManager.STATE_POST_HIBERNATION_ENTER) {
                 return;
             }
             int powerState = powerService.getPowerState();
@@ -346,6 +341,9 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
         subscribeBroadcastReceiver();
         mCarWatchdogDaemonHelper.addOnConnectionChangeListener(mConnectionListener);
         mCarWatchdogDaemonHelper.connect();
+        synchronized (mLock) {
+            mIsPowerShutdownHandled = false;
+        }
         // To make sure the main handler is ready for responding to car watchdog daemon, registering
         // to the daemon is done through the main handler. Once the registration is completed, we
         // can assume that the main handler is not too busy handling other stuffs.
@@ -375,6 +373,7 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
         writer.increaseIndent();
         synchronized (mLock) {
             writer.println("Current garage mode: " + toGarageModeString(mCurrentGarageMode));
+            writer.println("Is power shutdown handled: " + mIsPowerShutdownHandled);
         }
         mWatchdogProcessHandler.dump(writer);
         mWatchdogPerfHandler.dump(writer);
@@ -557,6 +556,25 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
      */
     public boolean performResourceOveruseKill(String packageName, @UserIdInt int userId) {
         assertPermission(mContext, Car.PERMISSION_USE_CAR_WATCHDOG);
+
+        UserHandle userHandle = UserHandle.of(userId);
+        List<PackageKillableState> packageKillableStates =
+                getPackageKillableStatesAsUser(userHandle);
+
+        for (int i = 0; i < packageKillableStates.size(); i++) {
+            PackageKillableState state = packageKillableStates.get(i);
+            if (packageName.equals(state.getPackageName())) {
+                int killableState = state.getKillableState();
+                if (killableState != PackageKillableState.KILLABLE_STATE_YES) {
+                    String stateName = PackageKillableState.killableStateToString(killableState);
+                    Slogf.d(TAG, "Failed to kill package '%s' for user %d because the "
+                            + "package has state '%s'\n", packageName, userId, stateName);
+                    return false;
+                }
+                break;
+            }
+        }
+
         return mWatchdogPerfHandler.disablePackageForUser(packageName, userId);
     }
 
@@ -641,6 +659,17 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
 
     private void notifyPowerCycleChange(@PowerCycle int powerCycle) {
         try {
+            // There are two signals sent during power off, ACTION_SHUTDOWN (from the broadcast
+            // receiver) and SHUTDOWN_ENTER (from the ICarPowerStateListener). This checks
+            // if one signal has already been sent and avoids doing shutdown twice.
+            synchronized (mLock) {
+                if (powerCycle == PowerCycle.POWER_CYCLE_SHUTDOWN_ENTER) {
+                    if (mIsPowerShutdownHandled) {
+                        return;
+                    }
+                    mIsPowerShutdownHandled = true;
+                }
+            }
             mCarWatchdogDaemonHelper.notifySystemStateChange(
                     StateType.POWER_CYCLE, powerCycle, MISSING_ARG_VALUE);
             if (DEBUG) {

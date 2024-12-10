@@ -30,8 +30,6 @@ import com.android.internal.util.Preconditions;
  *
  * @see LongSparseArray
  * @param <E> value to be stored
- *
- * @hide
  */
 public class PairSparseArray<E> implements Cloneable {
     /** Bitmask for casting an {@code int} into a {@code long} without sign extension. */

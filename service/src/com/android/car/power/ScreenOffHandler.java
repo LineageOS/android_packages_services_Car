@@ -123,6 +123,8 @@ class ScreenOffHandler {
     private final Object mLock = new Object();
     @GuardedBy("mLock")
     private final SparseArray<DisplayPowerInfo> mDisplayPowerInfos = new SparseArray<>();
+    @GuardedBy("mLock")
+    private SparseIntArray mPowerModeForDisplayPort = new SparseIntArray();
 
     @GuardedBy("mLock")
     private boolean mBootCompleted;
@@ -149,15 +151,16 @@ class ScreenOffHandler {
         if (!mIsAutoPowerSaving) {
             return;
         }
-        initializeDisplayPowerInfos();
-        initializeDefaultSettings();
         mOccupantZoneService.registerCallback(mOccupantZoneCallback);
         mContext.getContentResolver().registerContentObserver(
                 DISPLAY_POWER_MODE_URI, /* notifyForDescendants= */ false, mSettingsObserver);
         mSystemInterface.scheduleActionForBootCompleted(() -> {
+            List<OccupantZoneInfo> occupantZoneInfos = mOccupantZoneService.getAllOccupantZones();
+            initializePowerModeSettings(occupantZoneInfos);
+            refreshDisplayPowerInfos(occupantZoneInfos);
+
             synchronized (mLock) {
                 mBootCompleted = true;
-                updateSettingsLocked();
                 long eventTime = mClock.uptimeMillis();
                 for (int i = 0; i < mDisplayPowerInfos.size(); i++) {
                     int displayId = mDisplayPowerInfos.keyAt(i);
@@ -186,6 +189,7 @@ class ScreenOffHandler {
 
     @GuardedBy("mLock")
     private void updateUserActivityLocked(int displayId, long eventTime) {
+        Slogf.d(TAG, "updateUserActivity, displayId=" + displayId + ", eventTime=" + eventTime);
         if (!mIsAutoPowerSaving) {
             return;
         }
@@ -199,12 +203,6 @@ class ScreenOffHandler {
         }
         info.setLastUserActivityTime(eventTime);
         updateDisplayPowerStateLocked(info);
-    }
-
-    @GuardedBy("mLock")
-    private void handleSettingsChangedLocked() {
-        updateSettingsLocked();
-        updateAllDisplayPowerStateLocked();
     }
 
     boolean canTurnOnDisplay(int displayId) {
@@ -229,24 +227,36 @@ class ScreenOffHandler {
         return true;
     }
 
-    private void initializeDefaultSettings() {
+    // Fetch power mode settings. If empty, populate the default power mode settings and store it.
+    private void initializePowerModeSettings(List<OccupantZoneInfo> occupantZoneInfos) {
         String setting = Settings.Global.getString(mContext.getContentResolver(),
                 DISPLAY_POWER_MODE_SETTING);
         if (!TextUtils.isEmpty(setting)) {
             Slogf.d(TAG, "stored value of %s: %s", DISPLAY_POWER_MODE_SETTING, setting);
-            return;
+            synchronized (mLock) {
+                mPowerModeForDisplayPort = parseModeAssignmentSettingValue(setting);
+                if (mPowerModeForDisplayPort != null) {
+                    return;
+                }
+            }
+            Slogf.w(TAG, "Failed to parse [%s], overwrite with default settings", setting);
         }
+        Slogf.d(TAG, "No power mode settings, use default settings");
         // At first boot, initialize default setting value
         StringBuilder sb = new StringBuilder();
         synchronized (mLock) {
-            for (int i = 0; i < mDisplayPowerInfos.size(); i++) {
-                int displayId = mDisplayPowerInfos.keyAt(i);
-                DisplayPowerInfo info = mDisplayPowerInfos.valueAt(i);
-                if (info == null) {
+            for (int i = 0; i < occupantZoneInfos.size(); i++) {
+                OccupantZoneInfo zoneInfo = occupantZoneInfos.get(i);
+                int zoneId = zoneInfo.zoneId;
+                // TODO(b/359326993): Support non-main display.
+                int displayId = getMainTypeDisplayId(zoneId);
+                if (displayId == Display.INVALID_DISPLAY) {
+                    Slogf.w(TAG, "No main display associated with occupant zone(id: %d)", zoneId);
                     continue;
                 }
                 int displayPort = getDisplayPort(displayId);
                 if (displayPort == DisplayHelper.INVALID_PORT) {
+                    Slogf.w(TAG, "Invalid display port for displayId: " + displayId);
                     continue;
                 }
                 if (i > 0) {
@@ -254,52 +264,22 @@ class ScreenOffHandler {
                 }
                 sb.append(displayPort);
                 sb.append(':');
-                if (info.isDriverDisplay()) {
+                @DisplayPowerMode int mode;
+                if (zoneInfo.occupantType == CarOccupantZoneManager.OCCUPANT_TYPE_DRIVER) {
                     // for driver display
-                    info.setMode(DISPLAY_POWER_MODE_ALWAYS_ON);
-                    sb.append(DISPLAY_POWER_MODE_ALWAYS_ON);
+                    mode = DISPLAY_POWER_MODE_ALWAYS_ON;
+                    sb.append(mode);
                 } else {
                     // TODO(b/274050716): Restore passenger displays to ON.
                     // for passenger display
-                    info.setMode(DISPLAY_POWER_MODE_ALWAYS_ON);
-                    sb.append(DISPLAY_POWER_MODE_ALWAYS_ON);
+                    mode = DISPLAY_POWER_MODE_ALWAYS_ON;
+                    sb.append(mode);
                 }
+                mPowerModeForDisplayPort.put(displayPort, mode);
             }
         }
         Settings.Global.putString(
                 mContext.getContentResolver(), DISPLAY_POWER_MODE_SETTING, sb.toString());
-    }
-
-    @GuardedBy("mLock")
-    private void updateSettingsLocked() {
-        String setting = Settings.Global.getString(mContext.getContentResolver(),
-                DISPLAY_POWER_MODE_SETTING);
-        SparseIntArray mapping = parseModeAssignmentSettingValue(setting);
-        if (mapping == null) {
-            Slogf.d(TAG, "Failed to parse [%s]", setting);
-            initializeDefaultSettings();
-            return;
-        }
-        for (int i = 0; i < mapping.size(); i++) {
-            int displayId = mapping.keyAt(i);
-            @DisplayPowerMode int mode = mapping.valueAt(i);
-            DisplayPowerInfo info = mDisplayPowerInfos.get(displayId);
-            if (info != null) {
-                // Check if the mode in the corresponding display power info is the same as current
-                // setting value.
-                if (info.getMode() != mode) {
-                    info.setMode(mode);
-                    boolean on = mode != DISPLAY_POWER_MODE_OFF;
-                    // Update last user activity time due to mode change by driver
-                    info.setLastUserActivityTime(mClock.uptimeMillis());
-                    mEventHandler.post(() -> {
-                        handleSetDisplayState(displayId, on);
-                    });
-                }
-            } else {
-                Slogf.d(TAG, "No matching DisplayPowerInfo(display=%d)", displayId);
-            }
-        }
     }
 
     @GuardedBy("mLock")
@@ -327,6 +307,7 @@ class ScreenOffHandler {
     }
 
     private void checkUserActivityTimeout(DisplayPowerInfo info) {
+        Slogf.w(TAG, "checkUserActivityTimeout");
         long now = mClock.uptimeMillis();
         long nextTimeout = info.getLastUserActivityTime() + mNoUserScreenOffTimeoutMs;
         if (now < nextTimeout) {
@@ -335,9 +316,8 @@ class ScreenOffHandler {
     }
 
     private void handleSetDisplayState(int displayId, boolean on) {
-        if (on != mSystemInterface.isDisplayEnabled(displayId)) {
-            mSystemInterface.setDisplayState(displayId, on);
-        }
+        Slogf.i(TAG, "Setting display state for displaId: " + displayId + " to " + on);
+        mSystemInterface.setDisplayState(displayId, on);
     }
 
     private final ICarOccupantZoneCallback mOccupantZoneCallback =
@@ -361,9 +341,9 @@ class ScreenOffHandler {
 
         @Override
         public void onChange(boolean selfChange, Uri uri) {
-            synchronized (mLock) {
-                handleSettingsChangedLocked();
-            }
+            List<OccupantZoneInfo> occupantZoneInfos = mOccupantZoneService.getAllOccupantZones();
+            initializePowerModeSettings(occupantZoneInfos);
+            refreshDisplayPowerInfos(occupantZoneInfos);
         }
     }
 
@@ -376,6 +356,7 @@ class ScreenOffHandler {
         for (int i = 0; i < occupantZoneInfos.size(); i++) {
             OccupantZoneInfo zoneInfo = occupantZoneInfos.get(i);
             int zoneId = zoneInfo.zoneId;
+            // TODO(b/359326993): Support non-main display.
             int displayId = getMainTypeDisplayId(zoneId);
             if (displayId == Display.INVALID_DISPLAY) {
                 Slogf.w(TAG, "No main display associated with occupant zone(id: %d)", zoneId);
@@ -403,6 +384,13 @@ class ScreenOffHandler {
                     // Display added
                     int userId = mOccupantZoneService.getUserForOccupant(zoneId);
                     info.setUserId(userId);
+                    int displayPort = getDisplayPort(displayId);
+                    if (displayPort == DisplayHelper.INVALID_PORT) {
+                        Slogf.w(TAG, "Invalid display port for displayId: " + displayId);
+                        continue;
+                    }
+                    info.setLastUserActivityTime(mClock.uptimeMillis());
+                    setPowerModeLocked(info, displayPort, displayId);
                 }
             }
         }
@@ -419,14 +407,38 @@ class ScreenOffHandler {
         }
     }
 
-    private void initializeDisplayPowerInfos() {
-        List<OccupantZoneInfo> occupantZoneInfos = mOccupantZoneService.getAllOccupantZones();
+    @GuardedBy("mLock")
+    private void setPowerModeLocked(DisplayPowerInfo info, int displayPort, int displayId) {
+        @DisplayPowerMode int powerMode = mPowerModeForDisplayPort.get(displayPort,
+                DISPLAY_POWER_MODE_NONE);
+        if (powerMode == DISPLAY_POWER_MODE_NONE) {
+            Slogf.w(TAG, "No power mode specified for display port: " + displayPort
+                    + ", default to POWER_MODE_ON");
+            powerMode = DISPLAY_POWER_MODE_ON;
+        }
+        info.setMode(powerMode);
+        Slogf.i(TAG, "Set displayPort=" + displayPort + ", powerMode=" + powerMode);
+
+        boolean on = (info.getMode() != DISPLAY_POWER_MODE_OFF);
+        mEventHandler.post(() -> {
+            handleSetDisplayState(displayId, on);
+        });
+    }
+
+    private void refreshDisplayPowerInfos(List<OccupantZoneInfo> occupantZoneInfos) {
         synchronized (mLock) {
             for (int i = 0; i < occupantZoneInfos.size(); i++) {
                 OccupantZoneInfo zoneInfo = occupantZoneInfos.get(i);
                 int zoneId = zoneInfo.zoneId;
+                // TODO(b/359326993): Support non-main display.
                 int displayId = getMainTypeDisplayId(zoneId);
                 if (displayId == Display.INVALID_DISPLAY) {
+                    Slogf.w(TAG, "No main display associated with occupant zone(id: %d)", zoneId);
+                    continue;
+                }
+                int displayPort = getDisplayPort(displayId);
+                if (displayPort == DisplayHelper.INVALID_PORT) {
+                    Slogf.w(TAG, "Invalid display port for displayId: " + displayId);
                     continue;
                 }
                 DisplayPowerInfo info = createDisplayPowerInfoLocked(displayId);
@@ -435,7 +447,11 @@ class ScreenOffHandler {
                 if (zoneInfo.occupantType == CarOccupantZoneManager.OCCUPANT_TYPE_DRIVER) {
                     info.setDriverDisplay(true);
                 }
+                info.setLastUserActivityTime(mClock.uptimeMillis());
+                setPowerModeLocked(info, displayPort, displayId);
             }
+            // Check for user activity timeout.
+            updateAllDisplayPowerStateLocked();
         }
     }
 
@@ -479,7 +495,7 @@ class ScreenOffHandler {
                             mode, DisplayPowerInfo.displayPowerModeToString(mode));
                     return null;
                 }
-                mapping.append(displayId, mode);
+                mapping.append(displayPort, mode);
             }
         } catch (Exception e) {
             Slogf.w(TAG, e, "Setting %s has invalid value: ", value);

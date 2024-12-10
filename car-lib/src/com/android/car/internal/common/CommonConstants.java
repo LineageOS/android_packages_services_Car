@@ -28,8 +28,6 @@ import java.lang.annotation.RetentionPolicy;
 
 /**
  * Provides common constants for Car library, Car Service, and System Server.
- *
- * @hide
  */
 public final class CommonConstants {
 

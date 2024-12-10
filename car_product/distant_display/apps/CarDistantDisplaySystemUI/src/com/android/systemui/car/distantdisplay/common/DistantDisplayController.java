@@ -16,6 +16,8 @@
 
 package com.android.systemui.car.distantdisplay.common;
 
+import static com.android.systemui.car.distantdisplay.util.Logging.logIfDebuggable;
+
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -27,7 +29,6 @@ import android.media.session.MediaController;
 import android.media.session.MediaSessionManager;
 import android.media.session.MediaSessionManager.OnActiveSessionsChangedListener;
 import android.util.ArraySet;
-import android.util.Log;
 import android.view.Display;
 
 import androidx.annotation.GuardedBy;
@@ -56,14 +57,14 @@ import javax.inject.Inject;
  **/
 @SysUISingleton
 public class DistantDisplayController {
-    public static final String TAG = DistantDisplayController.class.getSimpleName();
+    private static final String TAG = DistantDisplayController.class.getSimpleName();
 
     private final int mDistantDisplayId;
     private final PackageManager mPackageManager;
     private final MediaSessionManager mMediaSessionManager;
     private final Context mContext;
     private final UserTracker mUserTracker;
-    private final TaskViewController mTaskViewController;
+    private final DistantDisplayTaskManager mDistantDisplayTaskManager;
     private final List<ComponentName> mRestrictedActivities;
     private final Drawable mDistantDisplayDrawable;
     private final Drawable mDefaultDisplayDrawable;
@@ -83,22 +84,26 @@ public class DistantDisplayController {
         /**
          * Callback triggered for display changes of the task.
          */
-        default void onDisplayChanged(int displayId) {}
+        default void onDisplayChanged(int displayId) {
+        }
 
         /**
          * Callback triggered for visibility changes.
          */
-        default void onVisibilityChanged(boolean visible) {}
+        default void onVisibilityChanged(boolean visible) {
+        }
     }
 
-    private final TaskViewController.Callback mTaskViewControllerCallback =
-            new TaskViewController.Callback() {
+    private final DistantDisplayTaskManager.Callback mTaskViewControllerCallback =
+            new DistantDisplayTaskManager.Callback() {
                 @Override
                 public void topAppOnDisplayChanged(int displayId, ComponentName componentName) {
+                    logIfDebuggable(TAG,
+                            "topAppOnDisplayChanged displayId " + displayId + " componentName: "
+                                    + componentName);
                     if (displayId == Display.DEFAULT_DISPLAY) {
                         mTopActivityOnDefaultDisplay = componentName;
                         updateButtonState();
-
                     } else if (displayId == mDistantDisplayId) {
                         mTopActivityOnDistantDisplay = componentName;
                         updateButtonState();
@@ -128,10 +133,10 @@ public class DistantDisplayController {
 
     @Inject
     public DistantDisplayController(Context context, UserTracker userTracker,
-            TaskViewController taskViewController) {
+            DistantDisplayTaskManager distantDisplayTaskManager) {
         mContext = context;
         mUserTracker = userTracker;
-        mTaskViewController = taskViewController;
+        mDistantDisplayTaskManager = distantDisplayTaskManager;
         mPackageManager = context.getPackageManager();
         mDistantDisplayId = mContext.getResources().getInteger(R.integer.config_distantDisplayId);
         mDistantDisplayDrawable = mContext.getResources().getDrawable(
@@ -150,7 +155,7 @@ public class DistantDisplayController {
                 userTracker.getUserHandle(),
                 mContext.getMainExecutor(), mOnActiveSessionsChangedListener);
         mUserTracker.addCallback(mUserChangedCallback, context.getMainExecutor());
-        mTaskViewController.addCallback(mTaskViewControllerCallback);
+        mDistantDisplayTaskManager.addCallback(mTaskViewControllerCallback);
     }
 
     /**
@@ -196,7 +201,7 @@ public class DistantDisplayController {
             mediaAppName = (String) applicationInfo.loadLabel(mPackageManager);
             mediaAppIcon = applicationInfo.loadIcon(mPackageManager);
         } catch (PackageManager.NameNotFoundException e) {
-            logIfDebuggable("Error retrieving application info");
+            logIfDebuggable(TAG, "Error retrieving application info");
         }
         MediaDescription mediaDescription = mediaController.getMetadata().getDescription();
         String mediaTitle = (String) mediaDescription.getTitle();
@@ -246,9 +251,9 @@ public class DistantDisplayController {
             public void onAction(@NonNull QCItem item, @NonNull Context context,
                     @NonNull Intent intent) {
                 switch (state) {
-                    case DEFAULT -> mTaskViewController.moveTaskFromDistantDisplay();
-                    case DRIVER_DD -> mTaskViewController.moveTaskToDistantDisplay();
-                    case PASSENGER_DD -> mTaskViewController.moveTaskToRightDistantDisplay();
+                    case DEFAULT -> mDistantDisplayTaskManager.moveTaskFromDistantDisplay();
+                    case DRIVER_DD -> mDistantDisplayTaskManager.moveTaskToDistantDisplay();
+                    case PASSENGER_DD -> mDistantDisplayTaskManager.moveTaskToRightDistantDisplay();
                 }
             }
 
@@ -294,6 +299,7 @@ public class DistantDisplayController {
     }
 
     private void updateButtonState() {
+        logIfDebuggable(TAG, "updateButtonState");
         synchronized (mStatusChangeListeners) {
             mStatusChangeListeners.forEach(this::notifyStatusChangeListener);
         }
@@ -307,17 +313,20 @@ public class DistantDisplayController {
         if (listener == null) return;
 
         if (canMoveBetweenDisplays(mTopActivityOnDistantDisplay)) {
+            logIfDebuggable(TAG, " Task: " + mTopActivityOnDistantDisplay + " changing display to "
+                    + mDistantDisplayId);
             listener.onDisplayChanged(mDistantDisplayId);
             listener.onVisibilityChanged(true);
         } else if (canMoveBetweenDisplays(mTopActivityOnDefaultDisplay)) {
+            logIfDebuggable(TAG, " Task: " + mTopActivityOnDefaultDisplay + " changing display to "
+                    + Display.DEFAULT_DISPLAY);
             listener.onDisplayChanged(Display.DEFAULT_DISPLAY);
             listener.onVisibilityChanged(true);
         } else {
+            logIfDebuggable(TAG,
+                    "cannot move task in b/w displays, changing the visibility for qc to"
+                            + " false");
             listener.onVisibilityChanged(false);
         }
-    }
-
-    private static void logIfDebuggable(String message) {
-        Log.d(TAG, message);
     }
 }

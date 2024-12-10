@@ -198,10 +198,6 @@ final class StateMachine {
             return mCallbacks.getRegisteredCallbackCount() == 0;
         }
 
-        RemoteCallbackList get() {
-            return mCallbacks;
-        }
-
         int size() {
             return mCallbacks.getRegisteredCallbackCount();
         }
@@ -651,7 +647,7 @@ final class StateMachine {
         if (result == ERROR_NONE) {
             if (previousState != newState) {
                 Slogf.i(mLogTag, "Transition completed: %s", stateToString(destination));
-                mService.broadcastStateTransition(CarEvsManager.SERVICE_TYPE_REARVIEW, newState);
+                mService.broadcastStateTransition(mServiceType, newState);
 
                 // Log a successful state transition.
                 synchronized (mLock) {
@@ -1008,7 +1004,6 @@ final class StateMachine {
                 .setComponent(mActivityName)
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT)
-                .addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
                 .addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
 
         // Stores a token and arms the timer for the high-priority request.
@@ -1027,6 +1022,33 @@ final class StateMachine {
 
         mContext.startActivity(evsIntent);
         return ERROR_NONE;
+    }
+
+    /**
+     * Attempt to bring a registered activity to the foreground by sending the Intent with existing
+     * session token.
+     *
+     * {@link CarEvsService} uses this method to bring the activity to the top when the active user
+     * is switched.
+     */
+    public void bringActivityToForeground() {
+        synchronized (mLock) {
+            Intent evsIntent = new Intent(Intent.ACTION_MAIN)
+                    .setComponent(mActivityName)
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT)
+                    .addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+
+            Bundle bundle = new Bundle();
+            bundle.putBinder(CarEvsManager.EXTRA_SESSION_TOKEN, mSessionToken);
+
+            // Temporary, we use CarEvsManager.SERVICE_TYPE_REARVIEW as the key for a service type
+            // value.
+            bundle.putShort(Integer.toString(CarEvsManager.SERVICE_TYPE_REARVIEW),
+                    (short) mServiceType);
+            evsIntent.replaceExtras(bundle);
+            mContext.startActivity(evsIntent);
+        }
     }
 
     /**

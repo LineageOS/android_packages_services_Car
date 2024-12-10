@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 
-#ifndef CPP_WATCHDOG_SERVER_SRC_THREADPRIORITYCONTROLLER_H_
-#define CPP_WATCHDOG_SERVER_SRC_THREADPRIORITYCONTROLLER_H_
+#pragma once
 
 #include <aidl/android/automotive/watchdog/internal/ThreadPolicyWithPriority.h>
 #include <android-base/result.h>
@@ -78,5 +77,3 @@ private:
 }  // namespace watchdog
 }  // namespace automotive
 }  // namespace android
-
-#endif  // CPP_WATCHDOG_SERVER_SRC_THREADPRIORITYCONTROLLER_H_

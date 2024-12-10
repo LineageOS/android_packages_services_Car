@@ -173,6 +173,8 @@ public final class ClusterHomeService extends IClusterHomeService.Stub
                 .setLaunchDisplayId(clusterDisplayId);
         mFixedActivityService.startFixedActivityModeForDisplayAndUser(
                 mLastIntent, activityOptions, clusterDisplayId, mLastIntentUserId);
+
+        Slogf.i(TAG, "Initialized cluster display %d", clusterDisplayId);
     }
 
     private final ICarOccupantZoneCallback mOccupantZoneCallback =

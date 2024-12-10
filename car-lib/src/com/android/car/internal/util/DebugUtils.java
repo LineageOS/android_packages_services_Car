@@ -22,8 +22,6 @@ import java.lang.reflect.Modifier;
 // Copied from frameworks/base and kept only used codes
 /**
  * <p>Various utilities for debugging and logging.</p>
- *
- * @hide
  */
 public final class DebugUtils {
     private DebugUtils() {}
@@ -31,8 +29,6 @@ public final class DebugUtils {
     /**
      * Use prefixed constants (static final values) on given class to turn value
      * into human-readable string.
-     *
-     * @hide
      */
     public static String valueToString(Class<?> clazz, String prefix, int value) {
         for (Field field : clazz.getDeclaredFields()) {
@@ -53,8 +49,6 @@ public final class DebugUtils {
     /**
      * Use prefixed constants (static final values) on given class to turn flags
      * into human-readable string.
-     *
-     * @hide
      */
     public static String flagsToString(Class<?> clazz, String prefix, int flagsToConvert) {
         int flags = flagsToConvert;
@@ -90,8 +84,6 @@ public final class DebugUtils {
      * Gets human-readable representation of constants (static final values).
      *
      * @see #constantToString(Class, String, int)
-     *
-     * @hide
      */
     public static String constantToString(Class<?> clazz, int value) {
         return constantToString(clazz, "", value);
@@ -99,8 +91,6 @@ public final class DebugUtils {
 
     /**
      * Gets human-readable representation of constants (static final values).
-     *
-     * @hide
      */
     public static String constantToString(Class<?> clazz, String prefix, int value) {
         for (Field field : clazz.getDeclaredFields()) {

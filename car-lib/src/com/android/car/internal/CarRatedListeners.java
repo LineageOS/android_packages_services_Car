@@ -25,7 +25,6 @@ import java.util.Map;
  * Represent listeners for a sensor grouped by their rate.
  *
  * @param <EventListenerType> type of event listener
- * @hide
  */
 public class CarRatedListeners<EventListenerType> {
     private final Map<EventListenerType, Integer> mListenersToRate = new HashMap<>(4);

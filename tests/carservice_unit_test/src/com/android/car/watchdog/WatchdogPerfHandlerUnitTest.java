@@ -1115,7 +1115,7 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
     private void crashAndDelayReconnectDaemon() {
         mWatchdogPerfHandler.onDaemonConnectionChange(/* isConnected= */ false);
 
-        mMainHandler.postAtTime(
+        mMainHandler.postDelayed(
                 () -> mWatchdogPerfHandler.onDaemonConnectionChange(/* isConnected= */ true),
                 MAX_WAIT_TIME_MILLS - 1000);
     }
@@ -4165,7 +4165,9 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
         verifyDatabaseInit(wantedInvocations);
         captureStatsPullAtomCallback(wantedInvocations);
         mWatchdogPerfHandler.onDaemonConnectionChange(/* isConnected= */ true);
-
+        // Initialization of CarService fetches and syncs resource overuse configuration on the main
+        // thread. Wait until this completes.
+        CarServiceUtils.runOnMainSync(() -> {});
     }
 
     private void restartService(int totalRestarts, int wantedDbWrites) throws Exception {

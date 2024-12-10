@@ -22,4 +22,20 @@
     <dimen name="toggle_button_radius">16dp</dimen>
     <dimen name="toggle_button_icon_inset">14dp</dimen>
     <dimen name="toggle_button_icon_size">44dp</dimen>
+
+    <!-- Top-level menu -->
+    <dimen name="top_level_recyclerview_margin_right">@*android:dimen/car_padding_2</dimen>
+    <dimen name="top_level_foreground_icon_inset">8dp</dimen>
+
+    <!-- Alert Dialog dimensions for preference_dialog_password_edittext -->
+    <dimen name="alert_dialog_margin_top">@*android:dimen/car_padding_4</dimen>
+    <dimen name="alert_dialog_margin_bottom">@*android:dimen/car_padding_4</dimen>
+    <dimen name="alert_dialog_title_margin_bottom">@*android:dimen/car_padding_4</dimen>
+    <dimen name="alert_dialog_title_margin_start">@*android:dimen/car_padding_3</dimen>
+    <dimen name="alert_dialog_title_margin_end">@*android:dimen/car_padding_3</dimen>
+    <dimen name="alert_dialog_edit_text_margin_start">@*android:dimen/car_padding_3</dimen>
+    <dimen name="alert_dialog_edit_text_margin_end">@*android:dimen/car_padding_3</dimen>
+    <dimen name="alert_dialog_password_checkbox_margin_end">@*android:dimen/car_padding_3</dimen>
+    <dimen name="alert_dialog_password_checkbox_margin_start">@*android:dimen/car_padding_3</dimen>
+    <dimen name="alert_dialog_password_checkbox_margin_top">@*android:dimen/car_padding_1</dimen>
 </resources>

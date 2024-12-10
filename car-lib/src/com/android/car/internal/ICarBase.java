@@ -27,8 +27,6 @@ import android.os.RemoteException;
  * or car manager.
  *
  * This interface allows faking the implementation in unit tests.
- *
- * @hide
  */
 public interface ICarBase {
     /**

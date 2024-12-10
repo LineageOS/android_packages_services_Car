@@ -42,4 +42,32 @@ public final class Trace {
     public static void endSection() {
         android.os.Trace.endSection();
     }
+
+    /**
+     * Begins async trace.
+     */
+    public static void asyncTraceBegin(long traceTag, String methodName, int cookie) {
+        android.os.Trace.asyncTraceBegin(traceTag, methodName, cookie);
+    }
+
+    /**
+     * Ends async trace.
+     */
+    public static void asyncTraceEnd(long traceTag, String methodName, int cookie) {
+        android.os.Trace.asyncTraceEnd(traceTag, methodName, cookie);
+    }
+
+    /**
+     * Begins trace.
+     */
+    public static void traceBegin(long traceTag, String methodName) {
+        android.os.Trace.traceBegin(traceTag, methodName);
+    }
+
+    /**
+     * Ends trace.
+     */
+    public static void traceEnd(long traceTag) {
+        android.os.Trace.traceEnd(traceTag);
+    }
 }

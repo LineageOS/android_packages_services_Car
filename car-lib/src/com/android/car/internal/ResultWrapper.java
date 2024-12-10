@@ -24,7 +24,6 @@ import android.os.Parcelable;
  * Wrapper for a parcelable object <V>
  *
  * @param <V> refer to a Parcelable object.
- * @hide
  */
 public final class ResultWrapper<V> implements Parcelable {
 

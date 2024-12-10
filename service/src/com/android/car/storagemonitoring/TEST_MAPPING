@@ -1,14 +1,6 @@
 {
   "auto-postsubmit": [
     {
-      "name": "CarServiceTest",
-      "options" : [
-        {
-          "include-filter": "com.android.car.CarStorageMonitoringTest"
-        }
-      ]
-    },
-    {
       "name": "CarServiceUnitTest",
       "options" : [
         {

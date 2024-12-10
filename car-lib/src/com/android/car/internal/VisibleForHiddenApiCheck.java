@@ -27,8 +27,6 @@ import java.lang.annotation.Target;
 
 /**
  * Annotation for making hidden APIs visible in droiddoc
- *
- * @hide
  */
 @Retention(RetentionPolicy.SOURCE)
 @Target({CONSTRUCTOR, FIELD, TYPE, METHOD})
