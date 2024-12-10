@@ -45,7 +45,10 @@ public final class AlertSnoozeReceiver extends BroadcastReceiver {
                 NotificationManagerCompat.from(context);
         String title = intent.getStringExtra(AlertNotificationHelper.EXTRA_KEY_TITLE);
         String text = intent.getStringExtra(AlertNotificationHelper.EXTRA_KEY_TEXT);
+        long alertTimeMs = intent.getLongExtra(AlertNotificationHelper.EXTRA_KEY_ALERT_TIME_MS,
+                System.currentTimeMillis());
         notificationManagerCompat.cancel(notificationId);
-        AlertNotificationHelper.createRadioAlertNotification(context, title, text, notificationId);
+        AlertNotificationHelper.createRadioAlertNotification(context, title, text, alertTimeMs,
+                notificationId);
     }
 }
