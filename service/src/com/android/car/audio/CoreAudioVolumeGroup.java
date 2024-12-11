@@ -217,7 +217,7 @@ final class CoreAudioVolumeGroup extends CarVolumeGroup {
             if (isUserMutedLocked() != mAmGroupMuted && !isAmMutedByVolumeZero) {
                 Slogf.i(TAG, "syncMuteState group(%s) muted(%b) synced from AudioService",
                         getName(), mAmGroupMuted);
-                super.setMuteLocked(mAmGroupMuted);
+                super.saveMuteStateToSettingsLocked(mAmGroupMuted);
                 returnedFlags |= EVENT_TYPE_MUTE_CHANGED;
                 // When unmuting, ensure not breaking restrictions
                 if (!mAmGroupMuted) {

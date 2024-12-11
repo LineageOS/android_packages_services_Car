@@ -690,12 +690,14 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
         try (JsonWriter jsonWriter = new JsonWriter(
                 new OutputStreamWriter(fos, StandardCharsets.UTF_8))) {
             writeJson(jsonWriter, configs);
+
+            jsonWriter.flush();
+            stagedFile.finishWrite(fos);
         } catch (IOException e) {
             Slogf.e(TAG, "Could not persist config", e);
             stagedFile.failWrite(fos);
             return false;
         }
-        stagedFile.finishWrite(fos);
         return true;
     }
 

@@ -58,6 +58,7 @@ import android.util.ArraySet;
 import android.util.LongSparseArray;
 
 import com.android.car.hal.AidlHalPropConfig;
+import com.android.car.hal.HalAreaConfig;
 import com.android.car.hal.HalPropConfig;
 import com.android.car.hal.HalPropValue;
 import com.android.car.hal.HalPropValueBuilder;
@@ -93,6 +94,8 @@ final class AidlVehicleStub extends VehicleStub {
             "android.hardware.automotive.vehicle.IVehicle/default";
     // default timeout: 10s
     private static final long DEFAULT_TIMEOUT_MS = 10_000;
+
+    private static final int MIN_SUPPORTED_VALUES_IMPLEMENTED_VHAL_VERSION = 4;
 
     private static final String TAG = CarLog.tagFor(AidlVehicleStub.class);
     private static final long TRACE_TAG = TraceHelper.TRACE_TAG_CAR_SERVICE;
@@ -378,15 +381,20 @@ final class AidlVehicleStub extends VehicleStub {
     }
 
     @Override
-    public boolean isSupportedValuesImplemented() {
+    public boolean isSupportedValuesImplemented(HalAreaConfig halAreaConfig) {
         // We start supporting dynamic supported values API from V4.
+        int vhalInterfaceVersion;
         try {
-            return mAidlVehicle.getInterfaceVersion() >= 4;
+            vhalInterfaceVersion = mAidlVehicle.getInterfaceVersion();
         } catch (RemoteException e) {
             Slogf.e(TAG, "Failed to get VHAL interface version, default "
                     + "isSupportedValuesImplemented to false", e);
             return false;
         }
+        if (vhalInterfaceVersion < MIN_SUPPORTED_VALUES_IMPLEMENTED_VHAL_VERSION) {
+            return false;
+        }
+        return halAreaConfig.getHasSupportedValueInfo() != null;
     }
 
     /**

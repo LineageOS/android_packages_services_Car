@@ -1783,12 +1783,31 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
     }
 
     /**
-     * Whether this VehicleStub supports dynamic supported values API.
+     * Whether the [propId, areaId] supports dynamic supported values API.
      *
-     * This is only supported on AIDL VHAL >= V4.
+     * This is only supported if VHAL AreaIdConfig for it has non-null
+     * {@code hasSupportedValuesInfo}.
      */
-    public boolean isSupportedValuesImplemented() {
-        return mVehicleStub.isSupportedValuesImplemented();
+    public boolean isSupportedValuesImplemented(PropIdAreaId halPropIdAreaId) {
+        HalPropConfig halPropConfig = getPropConfig(halPropIdAreaId.propId);
+        if (halPropConfig == null) {
+            Slogf.e(CarLog.TAG_HAL,
+                    "No property config found for: %s, assume isSupportedValuesImplemented to be "
+                    + "false", toHalPropIdAreaIdString(halPropIdAreaId));
+            return false;
+        }
+        var areaConfigs = halPropConfig.getAreaConfigs();
+        for (int i = 0; i < areaConfigs.length; i++) {
+            var areaConfig = areaConfigs[i];
+            if (areaConfig.getAreaId() == halPropIdAreaId.areaId) {
+                return mVehicleStub.isSupportedValuesImplemented(areaConfig);
+            }
+        }
+        Slogf.i(CarLog.TAG_HAL,
+                "No area config found for: %s, assume isSupportedValuesImplemented to be "
+                + "false", toHalPropIdAreaIdString(halPropIdAreaId));
+        return false;
+
     }
 
     /**
