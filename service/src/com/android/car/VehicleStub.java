@@ -430,4 +430,20 @@ public abstract class VehicleStub {
             throws ServiceSpecificException {
         throw new UnsupportedOperationException();
     }
+
+    /**
+     * Returns the real vehicle stub if the vehicle stub is fake.
+     *
+     * @return The real vehicle stub other wise this.
+     */
+    public VehicleStub getRealVehicleStub() {
+        return this;
+    }
+
+    /**
+     * Returns the start time of the simulation in nanos.
+     */
+    public long getSimulationStartTimestampNanos() {
+        throw new UnsupportedOperationException("Not in simulated mode");
+    }
 }
