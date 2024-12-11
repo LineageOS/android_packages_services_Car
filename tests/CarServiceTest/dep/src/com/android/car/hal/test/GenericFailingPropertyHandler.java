@@ -18,6 +18,10 @@ package com.android.car.hal.test;
 
 import static com.google.common.truth.Truth.assertWithMessage;
 
+import android.annotation.Nullable;
+
+import java.util.List;
+
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
@@ -45,5 +49,17 @@ public class GenericFailingPropertyHandler<ValueType>
     @Override
     public void onPropertyUnsubscribe(int property) {
         assertWithMessage("Unexpected onPropertyUnsubscribe call").fail();
+    }
+
+    @Override
+    public ValueType[] onGetMinMaxSupportedValue(int propertyId, int areaId) {
+        assertWithMessage("Unexpected onGetMinMaxSupportedValue call").fail();
+        return null;
+    }
+
+    @Override
+    public @Nullable List<ValueType> onGetSupportedValuesList(int propertyId, int areaId) {
+        assertWithMessage("Unexpected onGetSupportedValuesList call").fail();
+        return null;
     }
 }

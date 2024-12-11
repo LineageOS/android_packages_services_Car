@@ -57,6 +57,11 @@ public class HidlMockedVehicleHal extends IVehicle.Stub {
      */
     public interface VehicleHalPropertyHandler
             extends GenericVehicleHalPropertyHandler<VehiclePropValue> {
+        @Override
+        default VehiclePropValue[] onGetMinMaxSupportedValue(int propertyId, int areaId) {
+            throw new UnsupportedOperationException();
+        }
+
         VehicleHalPropertyHandler NOP = new VehicleHalPropertyHandler() {};
     }
 
