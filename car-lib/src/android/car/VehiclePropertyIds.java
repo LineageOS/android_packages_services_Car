@@ -806,9 +806,10 @@ public final class VehiclePropertyIds {
      *
      * <p>Required Permissions:
      * <ul>
-     *  <li>Dangerous permission {@link Car#PERMISSION_READ_CAR_HORN} or dangerous permission {@link
-     *  Car#PERMISSION_CONTROL_CAR_HORN} to read property.
-     *  <li>Dangerous permission {@link Car#PERMISSION_CONTROL_CAR_HORN} to write property.
+     *  <li>Dangerous permission {@link Car#PERMISSION_READ_CAR_HORN} or Signature|Privileged
+     *  permission {@link Car#PERMISSION_CONTROL_CAR_HORN} to read property.
+     *  <li>Signature|Privileged permission {@link Car#PERMISSION_CONTROL_CAR_HORN} to write
+     *  property.
      * </ul>
      */
     @FlaggedApi(FLAG_ANDROID_B_VEHICLE_PROPERTIES)
