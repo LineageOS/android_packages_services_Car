@@ -134,9 +134,8 @@ public:
 
     binder_status_t dump(int fd, const char** args, uint32_t numArgs) override EXCLUDES(mMutex);
     ndk::ScopedAStatus notifyCarServiceReady(
-            const std::shared_ptr<
-                    aidl::android::automotive::power::internal::ICarPowerPolicyDelegateCallback>&
-                    callback,
+            const std::shared_ptr<aidl::android::automotive::power::internal::
+                                          ICarPowerManagementDelegateCallback>& callback,
             aidl::android::automotive::power::internal::PowerPolicyInitData* aidlReturn) override;
     ndk::ScopedAStatus applyPowerPolicyAsync(int32_t requestId, const std::string& policyId,
                                              bool force) override EXCLUDES(mMutex);
@@ -226,9 +225,8 @@ public:
 
     // Internal implementation of ICarPowerManagementDelegate.aidl.
     ndk::ScopedAStatus notifyCarServiceReadyInternal(
-            const std::shared_ptr<
-                    aidl::android::automotive::power::internal::ICarPowerPolicyDelegateCallback>&
-                    callback,
+            const std::shared_ptr<aidl::android::automotive::power::internal::
+                                          ICarPowerManagementDelegateCallback>& callback,
             aidl::android::automotive::power::internal::PowerPolicyInitData* aidlReturn);
     ndk::ScopedAStatus applyPowerPolicyAsync(int32_t requestId, const std::string& policyId,
                                              bool force);
@@ -394,7 +392,7 @@ private:
     std::unique_ptr<LinkUnlinkImpl> mLinkUnlinkImpl;
 
     std::shared_ptr<CarPowerManagementDelegate> mCarPowerManagementDelegate GUARDED_BY(mMutex);
-    ndk::SpAIBinder mPowerPolicyDelegateCallback GUARDED_BY(mMutex);
+    ndk::SpAIBinder mPowerManagementDelegateCallback GUARDED_BY(mMutex);
 
     // A map of callback ptr to context that is required for handleClientBinderDeath.
     std::unordered_map<const AIBinder*, std::unique_ptr<OnClientBinderDiedContext>>

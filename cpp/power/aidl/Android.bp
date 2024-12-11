@@ -22,10 +22,7 @@ aidl_interface {
     owner: "google",
     vendor_available: false,
     srcs: [
-        "android/automotive/power/internal/ICarPowerManagementDelegate.aidl",
-        "android/automotive/power/internal/ICarPowerPolicyDelegateCallback.aidl",
-        "android/automotive/power/internal/PowerPolicyFailureReason.aidl",
-        "android/automotive/power/internal/PowerPolicyInitData.aidl",
+        "android/automotive/power/internal/*.aidl",
     ],
     backend: {
         java: {

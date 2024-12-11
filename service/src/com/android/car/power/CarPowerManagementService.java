@@ -32,7 +32,7 @@ import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.app.ActivityManager;
 import android.automotive.power.internal.ICarPowerManagementDelegate;
-import android.automotive.power.internal.ICarPowerPolicyDelegateCallback;
+import android.automotive.power.internal.ICarPowerManagementDelegateCallback;
 import android.automotive.power.internal.PowerPolicyFailureReason;
 import android.automotive.power.internal.PowerPolicyInitData;
 import android.car.Car;
@@ -306,7 +306,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     private ICarPowerManagementDelegate mRefactoredCarPowerManagementDaemon;
     @GuardedBy("mLock")
     private boolean mConnectionInProgress;
-    // After ICarPowerPolicyDelegateCallback is set, mReadyForCallback is set to true;
+    // After ICarPowerManagementDelegateCallback is set, mReadyForCallback is set to true;
     private AtomicBoolean mReadyForCallback = new AtomicBoolean(false);
     private BinderHandler mBinderHandler;
     private boolean mPowerPoliciesInitialized;
@@ -2297,7 +2297,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                 policy.disabledComponents);
     }
 
-    private final class PowerPolicyCallback extends ICarPowerPolicyDelegateCallback.Stub {
+    private final class PowerPolicyCallback extends ICarPowerManagementDelegateCallback.Stub {
         @Override
         public void updatePowerComponents(
                 android.frameworks.automotive.powerpolicy.CarPowerPolicy policy) {
@@ -2348,6 +2348,12 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             mHandler.handlePowerPolicyNotification(new PowerPolicyChangeNotification(
                     mPowerComponentHandler.getLastModifiedComponents(),
                     currentAccumulatedPolicy, /* legacyNotification= */ false));
+        }
+
+        @Override
+        public void onAllPowerStateChangeListenersComplete(int changeId) {
+            // TODO(b/382331302): Implement
+            throw new UnsupportedOperationException("Not yet implemented");
         }
     }
 
