@@ -849,9 +849,6 @@ public class CarDisplayAreaController implements ConfigurationController.Configu
             createTitleBar();
             mIsUiModeNight = false;
         }
-        //TODO(b/373464094): Should not need to reset bounds here.
-        setDefaultBounds();
-        moveToState(mCurrentForegroundDaState, /* animate= */ false);
     }
 
     /**

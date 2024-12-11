@@ -84,8 +84,6 @@ public class CarDisplayAreaOrganizer extends DisplayAreaOrganizer {
     private final List<ComponentName> mBackGroundActivities;
     private final int mTitleBarViewHeight;
     private final Context mContext;
-    private final int mTotalScreenHeightWithoutNavBar;
-    private final int mTotalScreenWidth;
     private final SyncTransactionQueue mTransactionQueue;
     private final Rect mForegroundApplicationDisplayBounds = new Rect();
     private final Rect mBackgroundApplicationDisplayBounds = new Rect();
@@ -97,6 +95,8 @@ public class CarDisplayAreaOrganizer extends DisplayAreaOrganizer {
     private DisplayAreaAnimationRunnable mDisplayAreaAnimationRunnable = null;
     private WindowContainerToken mBackgroundDisplayToken;
     private WindowContainerToken mForegroundDisplayToken;
+    private int mTotalScreenHeightWithoutNavBar;
+    private int mTotalScreenWidth;
     private int mDpiDensity = -1;
     private DisplayAreaAppearedInfo mBackgroundApplicationDisplay;
     private DisplayAreaAppearedInfo mForegroundApplicationDisplay;
@@ -439,6 +439,8 @@ public class CarDisplayAreaOrganizer extends DisplayAreaOrganizer {
             if (mTotalScreenHeightWithoutNavBar == height && mTotalScreenWidth == width) {
                 return;
             }
+            mTotalScreenHeightWithoutNavBar = height;
+            mTotalScreenWidth = width;
 
             WindowContainerTransaction wct = new WindowContainerTransaction();
             updateForegroundDisplayBounds(wct, appBounds);
