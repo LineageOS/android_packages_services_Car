@@ -54,6 +54,15 @@ final class CoreAudioVolumeGroupCallback extends AudioManager.VolumeGroupCallbac
         mAudioManager.unregisterVolumeGroupCallback(this);
     }
 
+    /**
+     * The volume group changed callback is initiated by AudioPolicyManager whenever a volume group
+     * index is changed from {@link AudioManager#setVolumeGroupVolumeIndex}, meaning the volume
+     * change is initiated by a client. It is not invoked when the AudioPolicyManager really sets
+     * the port gain (e.g. when group is currently active or when a playback following this volume
+     * group is started).
+     * @param groupId to change
+     * @param flags describing the volume change event.
+     */
     @Override
     public void onAudioVolumeGroupChanged(int groupId, int flags) {
         int zoneId = PRIMARY_AUDIO_ZONE;
@@ -65,6 +74,8 @@ final class CoreAudioVolumeGroupCallback extends AudioManager.VolumeGroupCallbac
             Slogf.w(TAG, "onAudioVolumeGroupChanged no group for id(%d)", groupId);
             return;
         }
-        mCarVolumeInfoWrapper.onAudioVolumeGroupChanged(zoneId, groupName, flags);
+        // Note: FLAG_SHOW_UI is added as not managed by AudioPolicyManager.
+        mCarVolumeInfoWrapper.onAudioVolumeGroupChanged(zoneId, groupName,
+                flags | AudioManager.FLAG_SHOW_UI);
     }
 }
