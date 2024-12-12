@@ -110,6 +110,6 @@ public final class StartUserInBackgroundResult {
     }
 
     private static String statusToString(int status) {
-        return DebugUtils.valueToString(StartUserInBackgroundResult.class, "STATUS_", status);
+        return DebugUtils.constantToString(StartUserInBackgroundResult.class, "STATUS_", status);
     }
 }

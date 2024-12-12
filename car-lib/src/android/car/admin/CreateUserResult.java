@@ -148,6 +148,6 @@ public final class CreateUserResult {
     }
 
     private static String statusToString(int status) {
-        return DebugUtils.valueToString(CreateUserResult.class, "STATUS_", status);
+        return DebugUtils.constantToString(CreateUserResult.class, "STATUS_", status);
     }
 }
