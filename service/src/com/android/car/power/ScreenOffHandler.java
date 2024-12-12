@@ -20,6 +20,7 @@ import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DE
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
 import android.annotation.IntDef;
+import android.annotation.Nullable;
 import android.car.CarOccupantZoneManager;
 import android.car.CarOccupantZoneManager.OccupantZoneInfo;
 import android.car.ICarOccupantZoneCallback;
@@ -238,6 +239,7 @@ class ScreenOffHandler {
                 if (mPowerModeForDisplayPort != null) {
                     return;
                 }
+                mPowerModeForDisplayPort = new SparseIntArray();
             }
             Slogf.w(TAG, "Failed to parse [%s], overwrite with default settings", setting);
         }
@@ -469,6 +471,7 @@ class ScreenOffHandler {
 
     // value format: comma-separated displayPort:mode
     @VisibleForTesting
+    @Nullable
     SparseIntArray parseModeAssignmentSettingValue(String value) {
         SparseIntArray mapping = new SparseIntArray();
         try {
