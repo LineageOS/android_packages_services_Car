@@ -1,0 +1,2 @@
+# Car power management property contexts
+cppd.connectvhal.Timeoutmillis    u:object_r:cppd_config_prop:s0 exact uint
