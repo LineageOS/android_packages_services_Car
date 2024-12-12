@@ -150,7 +150,8 @@
          android:permissionGroup="android.car.permission-group.CAR_MONITORING"
          android:protectionLevel="dangerous"
          android:label="@string/car_permission_label_read_car_seats"
-         android:description="@string/car_permission_desc_read_car_seats"/>
+         android:description="@string/car_permission_desc_read_car_seats"
+         android:featureFlag="android.car.feature.vehicle_property_25q2_3p_permissions"/>
 
     <!-- Allows an application to read state of seat belts.
          <p>Protection level: signature|privileged
@@ -233,7 +234,8 @@
          android:permissionGroup="android.permission-group.LOCATION"
          android:protectionLevel="dangerous"
          android:label="@string/car_permission_label_mileage_3p"
-         android:description="@string/car_permission_desc_mileage_3p"/>
+         android:description="@string/car_permission_desc_mileage_3p"
+         android:featureFlag="android.car.feature.android_b_vehicle_properties"/>
 
     <!-- Allows an application to read vehicle horn.
          <p>Protection level: dangerous
@@ -242,7 +244,8 @@
         android:permissionGroup="android.car.permission-group.CAR_MONITORING"
         android:protectionLevel="dangerous"
         android:label="@string/car_permission_label_read_car_horn"
-        android:description="@string/car_permission_desc_read_car_horn"/>
+        android:description="@string/car_permission_desc_read_car_horn"
+        android:featureFlag="android.car.feature.android_b_vehicle_properties"/>
 
     <!-- Allows an application to control vehicle horn.
          <p>Protection level: signature|privileged
@@ -250,7 +253,8 @@
     <permission android:name="android.car.permission.CONTROL_CAR_HORN"
         android:protectionLevel="signature|privileged"
         android:label="@string/car_permission_label_control_car_horn"
-        android:description="@string/car_permission_desc_control_car_horn"/>
+        android:description="@string/car_permission_desc_control_car_horn"
+        android:featureFlag="android.car.feature.android_b_vehicle_properties"/>
 
     <!-- Allows an application to read car pedal information.
          <p>Protection level: dangerous
@@ -259,7 +263,8 @@
         android:permissionGroup="android.car.permission-group.CAR_MONITORING"
         android:protectionLevel="dangerous"
         android:label="@string/car_permission_label_read_car_pedals"
-        android:description="@string/car_permission_desc_read_car_pedals"/>
+        android:description="@string/car_permission_desc_read_car_pedals"
+        android:featureFlag="android.car.feature.android_b_vehicle_properties"/>
 
     <!-- Allows an application to read brake information.
          <p>Protection level: dangerous
@@ -268,7 +273,8 @@
         android:permissionGroup="android.car.permission-group.CAR_MONITORING"
         android:protectionLevel="dangerous"
         android:label="@string/car_permission_label_read_brake_info"
-        android:description="@string/car_permission_desc_read_brake_info"/>
+        android:description="@string/car_permission_desc_read_brake_info"
+        android:featureFlag="android.car.feature.android_b_vehicle_properties"/>
 
     <!-- Allows an application to read the vehicle tire pressure information.
          <p>Protection level: signature|privileged
@@ -285,7 +291,8 @@
          android:permissionGroup="android.car.permission-group.CAR_MONITORING"
          android:protectionLevel="dangerous"
          android:label="@string/car_permission_label_car_tires_3p"
-         android:description="@string/car_permission_desc_car_tires_3p"/>
+         android:description="@string/car_permission_desc_car_tires_3p"
+         android:featureFlag="android.car.feature.vehicle_property_25q2_3p_permissions"/>
 
     <!-- Allows an application to read the vehicle steering angle information.
          <p>Protection level: signature|privileged
@@ -302,7 +309,8 @@
          android:permissionGroup="android.permission-group.LOCATION"
          android:protectionLevel="dangerous"
          android:label="@string/car_permission_label_read_car_steering_3p"
-         android:description="@string/car_permission_desc_read_car_steering_3p"/>
+         android:description="@string/car_permission_desc_read_car_steering_3p"
+         android:featureFlag="android.car.feature.vehicle_property_25q2_3p_permissions"/>
 
     <!-- Allows an application to read the display units for distance, fuel, tire pressure,
          EV battery and fuel consumption.
@@ -363,7 +371,8 @@
          android:permissionGroup="android.car.permission-group.CAR_MONITORING"
          android:protectionLevel="dangerous"
          android:label="@string/car_permission_label_car_engine_detailed_3p"
-         android:description="@string/car_permission_desc_car_engine_detailed_3p"/>
+         android:description="@string/car_permission_desc_car_engine_detailed_3p"
+         android:featureFlag="android.car.feature.vehicle_property_25q2_3p_permissions"/>
 
     <!-- Allows an application to read the vehicle dynamic state information. For example, it
          allows an application to read the ABS and traction control status.
@@ -476,7 +485,8 @@
         android:permissionGroup="android.car.permission-group.CAR_MONITORING"
         android:protectionLevel="dangerous"
         android:label="@string/car_permission_label_read_car_exterior_lights"
-        android:description="@string/car_permission_desc_read_car_exterior_lights"/>
+        android:description="@string/car_permission_desc_read_car_exterior_lights"
+        android:featureFlag="android.car.feature.android_b_vehicle_properties"/>
 
     <!-- Allows an application to control the vehicle exterior lights.
          <p>Protection level: signature|privileged
@@ -593,7 +603,8 @@
          android:permissionGroup="android.car.permission-group.CAR_MONITORING"
          android:protectionLevel="dangerous"
          android:label="@string/car_permission_label_driving_state_3p"
-         android:description="@string/car_permission_desc_driving_state_3p"/>
+         android:description="@string/car_permission_desc_driving_state_3p"
+         android:featureFlag="android.car.feature.vehicle_property_25q2_3p_permissions"/>
 
     <!-- Allows an application to use car's telemetry service.
          <p>Protection level: signature|privileged
@@ -1264,7 +1275,8 @@
         android:permissionGroup="android.car.permission-group.CAR_MONITORING"
         android:protectionLevel="dangerous"
         android:label="@string/car_permission_label_read_windshield_wipers_3p"
-        android:description="@string/car_permission_desc_read_windshield_wipers_3p"/>
+        android:description="@string/car_permission_desc_read_windshield_wipers_3p"
+        android:featureFlag="android.car.feature.vehicle_property_25q2_3p_permissions"/>
 
      <!-- Allows an application to control the vehicle's windshield wipers.
          <p>Protection level: signature|privileged

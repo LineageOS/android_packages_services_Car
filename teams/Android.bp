@@ -1,0 +1,88 @@
+//
+// Copyright (C) 2024 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+// This file defines trendy teams for components of AAOS to specify finer test owners.
+//
+// FYI, the following trendy team is defined at build/teams/Android.bp.
+// - trendy_team_aaos_framework
+// - trendy_team_perception_virtualization
+// - trendy_team_connectivity_telemetry
+
+team {
+    name: "trendy_team_aaos_audio_triage",
+
+    // go/trendy/manage/engineers/5975525923586048
+    trendy_team_id: "5975525923586048",
+}
+
+team {
+    name: "trendy_team_aaos_carframework_triage",
+
+    // go/trendy/manage/engineers/6733512354398208
+    trendy_team_id: "6733512354398208",
+}
+
+team {
+    name: "trendy_team_aaos_power_triage",
+
+    // go/trendy/manage/engineers/5074705254285312
+    trendy_team_id: "5074705254285312",
+}
+
+team {
+    name: "trendy_team_aaos_performance_triage",
+
+    // go/trendy/manage/engineers/5437379674734592
+    trendy_team_id: "5437379674734592",
+}
+
+team {
+    name: "trendy_team_aaos_storage_triage",
+
+    // go/trendy/manage/engineers/6212485040668672
+    trendy_team_id: "6212485040668672",
+}
+
+team {
+    name: "trendy_team_aaos_window_triage",
+
+    // go/trendy/manage/engineers/6079196098560000
+    trendy_team_id: "6079196098560000",
+}
+
+team {
+    name: "trendy_team_aaos_user_triage",
+
+    // go/trendy/manage/engineers/5348353591836672
+    trendy_team_id: "5348353591836672",
+}
+
+team {
+    name: "trendy_team_aaos_input_triage",
+
+    // go/trendy/manage/engineers/4635898947403776
+    trendy_team_id: "4635898947403776",
+}
+
+team {
+    name: "trendy_team_aaos_vac_triage",
+
+    // go/trendy/manage/engineers/4860994675638272
+    trendy_team_id: "4860994675638272",
+}
