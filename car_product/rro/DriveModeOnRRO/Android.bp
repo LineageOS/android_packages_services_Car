@@ -21,5 +21,10 @@ runtime_resource_overlay {
     manifest: "AndroidManifest.xml",
     sdk_version: "current",
     product_specific: true,
-    static_libs: ["CarSystemUI-res"],
+
+    static_libs: [
+        "car-resource-common",
+        "car-ui-lib-no-overlayable",
+        "androidx-constraintlayout_constraintlayout",
+    ],
 }

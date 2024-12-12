@@ -21,6 +21,7 @@
     <item target="layout/qc_status_icons_vertical"
         value="@layout/qc_status_icons_vertical"/>
 
+    <item target="attr/intent" value="@attr/intent"/>
     <item target="attr/controller" value="@attr/controller"/>
     <item target="attr/systemBarDisableFlags" value="@attr/systemBarDisableFlags"/>
     <item target="attr/systemBarDisable2Flags" value="@attr/systemBarDisable2Flags"/>
@@ -53,10 +54,6 @@
 
     <item target="id/bluetooth_panel_button" value="@id/bluetooth_panel_button"/>
     <item target="id/bluetooth_status_icon" value="@id/bluetooth_status_icon"/>
-    <item target="id/connectivity_panel_button" value="@id/connectivity_panel_button"/>
-    <item target="id/connectivity_status_icon" value="@id/connectivity_status_icon"/>
-    <item target="id/display_panel_button" value="@id/display_panel_button"/>
-    <item target="id/display_status_icon" value="@id/display_status_icon"/>
     <item target="id/connectivity_panel_button" value="@id/connectivity_panel_button"/>
     <item target="id/connectivity_status_icon" value="@id/connectivity_status_icon"/>
     <item target="id/display_panel_button" value="@id/display_panel_button"/>
