@@ -89,6 +89,7 @@
         android:textColor="@null"
         android:layout_margin="@dimen/margin_size"
         android:background="@android:color/white"
+        android:hint="@string/ip_configuration_hint"
         app:layout_constraintEnd_toStartOf="@id/guideline25"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/ipConfigurationTitle" />
@@ -101,6 +102,7 @@
         android:textColor="@null"
         android:layout_margin="@dimen/margin_size"
         android:background="@android:color/white"
+        android:hint="@string/interface_name_hint"
         app:layout_constraintEnd_toStartOf="@id/guideline25"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/interfaceNameTitle" />
@@ -112,6 +114,7 @@
         android:textColor="@null"
         android:layout_margin="@dimen/margin_size"
         android:background="@android:color/white"
+        android:hint="@string/network_capabilities_hint"
         app:layout_constraintEnd_toStartOf="@id/guideline50"
         app:layout_constraintStart_toStartOf="@id/guideline25"
         app:layout_constraintTop_toBottomOf="@id/networkCapabilitiesTitle" />
@@ -124,6 +127,7 @@
         android:textColor="@null"
         android:layout_margin="@dimen/margin_size"
         android:background="@android:color/white"
+        android:hint="@string/interface_name_hint"
         app:layout_constraintEnd_toStartOf="@id/guideline25"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/interfaceNameTitle2" />
