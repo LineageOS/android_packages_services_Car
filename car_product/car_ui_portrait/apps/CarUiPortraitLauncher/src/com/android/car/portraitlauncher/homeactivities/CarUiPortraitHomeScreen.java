@@ -93,9 +93,11 @@ import com.android.car.carlauncher.CarLauncherUtils;
 import com.android.car.carlauncher.Flags;
 import com.android.car.carlauncher.homescreen.HomeCardModule;
 import com.android.car.carlauncher.homescreen.audio.IntentHandler;
+import com.android.car.carlauncher.homescreen.audio.MediaLaunchHandler;
 import com.android.car.carlauncher.homescreen.audio.dialer.InCallIntentRouter;
-import com.android.car.carlauncher.homescreen.audio.media.MediaIntentRouter;
+import com.android.car.carlauncher.homescreen.audio.media.MediaLaunchRouter;
 import com.android.car.carlauncher.taskstack.TaskStackChangeListeners;
+import com.android.car.media.common.source.MediaSource;
 import com.android.car.portraitlauncher.R;
 import com.android.car.portraitlauncher.calmmode.PortraitCalmModeActivity;
 import com.android.car.portraitlauncher.common.CarUiPortraitServiceManager;
@@ -582,11 +584,11 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
         TaskStackChangeListeners.getInstance().registerTaskStackListener(mTaskStackListener);
         mCarUiPortraitDriveStateController = new CarUiPortraitDriveStateController(
                 getApplicationContext());
-        IntentHandler mediaIntentHandler = new ControlBarIntentHandler(
+        MediaLaunchHandler mediaLaunchHandler = new ControlBarIntentHandler(
                 mTaskCategoryManager::isMediaApp, ON_MEDIA_INTENT);
         IntentHandler inCallIntentHandler = new ControlBarIntentHandler(
                 mTaskCategoryManager::isInCallActivity, ON_INCALL_INTENT);
-        MediaIntentRouter.getInstance().registerMediaIntentHandler(mediaIntentHandler);
+        MediaLaunchRouter.getInstance().registerMediaLaunchHandler(mediaLaunchHandler);
         InCallIntentRouter.getInstance().registerInCallIntentHandler(inCallIntentHandler);
 
         mTaskViewControllerWrapper = new RemoteCarTaskViewControllerWrapperImpl(
@@ -1352,7 +1354,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
         }
     }
 
-    private class ControlBarIntentHandler implements IntentHandler {
+    private class ControlBarIntentHandler implements IntentHandler, MediaLaunchHandler {
         private final Function<ActivityManager.RunningTaskInfo, Boolean> mTaskChecker;
         private final String mReason;
 
@@ -1374,6 +1376,18 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                 ActivityOptions options = ActivityOptions.makeBasic();
                 startActivity(intent, options.toBundle());
             }
+        }
+
+        @Override
+        public void handleLaunchMedia(@NonNull MediaSource mediaSource) {
+            logIfDebuggable("handleLaunchMedia mCurrentTaskInRootTaskView: "
+                    + mCurrentTaskInRootTaskView + ", incoming mediaSource =" + mediaSource);
+            if (mTaskChecker.apply(mCurrentTaskInRootTaskView) && mRootTaskViewPanel.isOpen()) {
+                mRootTaskViewPanel.closePanel(createReason(mReason, mediaSource.getPackageName()));
+                return;
+            }
+
+            mediaSource.launchActivity(CarUiPortraitHomeScreen.this, ActivityOptions.makeBasic());
         }
     }
 }

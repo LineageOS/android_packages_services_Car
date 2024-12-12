@@ -43,14 +43,17 @@ import android.util.Log;
 import android.view.View;
 import android.widget.LinearLayout;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.android.car.carlauncher.homescreen.HomeCardModule;
 import com.android.car.carlauncher.homescreen.audio.IntentHandler;
+import com.android.car.carlauncher.homescreen.audio.MediaLaunchHandler;
 import com.android.car.carlauncher.homescreen.audio.dialer.InCallIntentRouter;
-import com.android.car.carlauncher.homescreen.audio.media.MediaIntentRouter;
+import com.android.car.carlauncher.homescreen.audio.media.MediaLaunchRouter;
+import com.android.car.media.common.source.MediaSource;
 import com.android.car.portraitlauncher.R;
 import com.android.car.portraitlauncher.homeactivities.TaskCategoryManager;
 
@@ -112,12 +115,12 @@ public class ControlBarActivity extends FragmentActivity {
 
         initializeCards();
 
-        IntentHandler mediaIntentHandler = new ControlBarActivityIntentHandler(
+        MediaLaunchHandler mediaLaunchHandler = new ControlBarActivityIntentHandler(
                 mTaskCategoryManager::isMediaApp, ON_MEDIA_INTENT);
         IntentHandler inCallIntentHandler = new ControlBarActivityIntentHandler(
                 mTaskCategoryManager::isInCallActivity, ON_INCALL_INTENT);
 
-        MediaIntentRouter.getInstance().registerMediaIntentHandler(mediaIntentHandler);
+        MediaLaunchRouter.getInstance().registerMediaLaunchHandler(mediaLaunchHandler);
         InCallIntentRouter.getInstance().registerInCallIntentHandler(inCallIntentHandler);
 
         registerSystemUIListener();
@@ -188,7 +191,7 @@ public class ControlBarActivity extends FragmentActivity {
         sendBroadcast(intent);
     }
 
-    private class ControlBarActivityIntentHandler implements IntentHandler {
+    private class ControlBarActivityIntentHandler implements IntentHandler, MediaLaunchHandler {
         private final Function<ActivityManager.RunningTaskInfo, Boolean> mTaskChecker;
         private final String mReason;
 
@@ -220,6 +223,25 @@ public class ControlBarActivity extends FragmentActivity {
                 options.setLaunchTaskDisplayAreaFeatureId(FEATURE_DEFAULT_TASK_CONTAINER);
                 startActivity(intent, options.toBundle());
             }
+        }
+
+        @Override
+        public void handleLaunchMedia(@NonNull MediaSource mediaSource) {
+            if (DBG) {
+                Log.d(TAG, "handleLaunchMedia mCurrentTaskInApplicationPanel: "
+                        + mCurrentTaskInApplicationPanel
+                        + ", incoming mediaSource = "
+                        + mediaSource);
+            }
+
+            if (mTaskChecker.apply(mCurrentTaskInApplicationPanel) && mIsApplicationPanelOpen) {
+                requestPanelCollapse(mReason);
+                return;
+            }
+
+            ActivityOptions options = ActivityOptions.makeBasic();
+            options.setLaunchTaskDisplayAreaFeatureId(FEATURE_DEFAULT_TASK_CONTAINER);
+            mediaSource.launchActivity(ControlBarActivity.this, options);
         }
     }
 }
