@@ -76,4 +76,9 @@ public class ConstantDebugUtilsUnitTest {
                 VehicleUnit.MILLILITER, VehicleUnit.MILLIAMPERE, VehicleUnit.MILLIMETER,
                 VehicleUnit.MILLI_SECS, VehicleUnit.MILLIVOLT, VehicleUnit.MILLIWATTS);
     }
+
+    @Test
+    public void testGetValues_handlesNoMatch() {
+        assertThat(ConstantDebugUtils.getValues(VehicleAreaMirror.class, "DRIVER")).isEmpty();
+    }
 }
