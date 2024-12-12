@@ -79,6 +79,13 @@ flag {
 }
 
 flag {
+  name: "native_power_notifications"
+  namespace: "car_framework"
+  description: "Enables notifications to be sent to native listeners for power state changes"
+  bug: "377528743"
+}
+
+flag {
   name: "per_display_max_brightness"
   namespace: "car_framework"
   description: "Use per display max brightness defined by VHAL"

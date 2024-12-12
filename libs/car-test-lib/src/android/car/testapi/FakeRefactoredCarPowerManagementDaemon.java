@@ -90,6 +90,10 @@ public final class FakeRefactoredCarPowerManagementDaemon extends
     private ICarPowerManagementDelegateCallback mCallback;
     private File mFileKernelSilentMode;
 
+    private boolean mNotifyPowerStateChangeThrowsIllegalArgumentException;
+    private boolean mNotifyPowerStateChangeThrowsSecurityException;
+    private boolean mNotifyPowerStateChangeThrowsRemoteException;
+
     public FakeRefactoredCarPowerManagementDaemon(@Nullable File fileKernelSilentMode,
             @Nullable int[] customComponents) throws Exception {
         mHandlerThread.start();
@@ -237,6 +241,44 @@ public final class FakeRefactoredCarPowerManagementDaemon extends
                 Log.w(TAG, "Cannot call onApplyPowerPolicySucceeded", e);
             }
         });
+    }
+
+    /**
+     * Set if notifyPowerStateChange throws an IllegalArgumentException
+     * @param throwsException True if should throw IllegalArgumentException
+     */
+    public void notifyPowerStateChangeThrowsIllegalArgumentException(boolean throwsException) {
+        mNotifyPowerStateChangeThrowsIllegalArgumentException = throwsException;
+    }
+
+    /**
+     * Set if notifyPowerStateChange throws an SecurityException
+     * @param throwsException True if should throw SecurityException
+     */
+    public void notifyPowerStateChangeThrowsSecurityException(boolean throwsException) {
+        mNotifyPowerStateChangeThrowsSecurityException = throwsException;
+    }
+
+    /**
+     * Set if notifyPowerStateChange throws an RemoteException
+     * @param throwsException True if should throw RemoteException
+     */
+    public void notifyPowerStateChangeThrowsRemoteException(boolean throwsException) {
+        mNotifyPowerStateChangeThrowsRemoteException = throwsException;
+    }
+
+    @Override
+    public void notifyPowerStateChange(int changeId, int newState, long expirationTimeMs)
+            throws RemoteException {
+        if (mNotifyPowerStateChangeThrowsIllegalArgumentException) {
+            throw new IllegalArgumentException();
+        } else if (mNotifyPowerStateChangeThrowsSecurityException) {
+            throw new SecurityException();
+        } else if (mNotifyPowerStateChangeThrowsRemoteException) {
+            throw new RemoteException();
+        } else {
+            mLastNotifiedPowerState = newState;
+        }
     }
 
     private void applyPowerPolicyInternal(String policyId, String errMsg) {
