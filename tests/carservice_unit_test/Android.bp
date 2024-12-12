@@ -217,7 +217,7 @@ android_test {
 
 android_test {
     name: "CarServiceSystemUiUnitTest",
-    // TODO(b/383397607): Create a triage groupo for system UI unit test.
+    team: "trendy_team_system_experience",
 
     srcs: [
         "src/com/android/car/systemui/keyguard/*.java",
