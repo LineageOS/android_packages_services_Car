@@ -32,8 +32,8 @@ import com.android.internal.util.Preconditions;
  * A class encapsulates a volume group in car.
  *
  * Volume in a car is controlled by group. A group holds one or more car audio contexts.
- * Call {@link CarAudioManager#getVolumeGroupCount()} to get the count of {@link CarVolumeGroup}
- * supported in a car.
+ * Call {@link android.car.media.CarAudioManager#getVolumeGroupCount()} to get the count of
+ * {@link CarVolumeGroup} supported in a car.
  */
 final class CarAudioVolumeGroup extends CarVolumeGroup {
     private static final int UNSET_STEP_SIZE = -1;
