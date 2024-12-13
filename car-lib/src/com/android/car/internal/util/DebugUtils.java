@@ -16,6 +16,7 @@
 
 package com.android.car.internal.util;
 
+import android.annotation.Nullable;
 import android.car.VehiclePropertyIds;
 
 import com.android.car.internal.property.PropIdAreaId;
@@ -49,10 +50,29 @@ public final class DebugUtils {
     }
 
     /**
-     * Use prefixed constants (static final values) on given class to turn flags
-     * into human-readable string.
+     * Use prefixed constants (public static final int values) on a given class to turn flags into
+     * human-readable string.
      */
     public static String flagsToString(Class<?> bitFlagClazz, String prefix, int flagsToConvert) {
+        String flagsString = flagsToOptionalString(bitFlagClazz, prefix, flagsToConvert);
+        return flagsString != null ? flagsString : "0x" + Integer.toHexString(flagsToConvert);
+    }
+
+    /**
+     * Use constants (public static final int values) on given class to turn flags into
+     * human-readable string if possible. If no conversion found, returns {@code null}.
+     */
+    public static @Nullable String flagsToOptionalString(Class<?> bitFlagClazz,
+            int flagsToConvert) {
+        return flagsToOptionalString(bitFlagClazz, "", flagsToConvert);
+    }
+
+    /**
+     * Use prefixed constants (public static final int values) on a given class to turn flags into
+     * human-readable string if possible. If no conversion found, returns {@code null}.
+     */
+    public static @Nullable String flagsToOptionalString(Class<?> bitFlagClazz, String prefix,
+            int flagsToConvert) {
         boolean inputFlagsWasZero = flagsToConvert == 0;
         int flagsToConvertCopy = flagsToConvert;
         final StringBuilder result = new StringBuilder();
@@ -70,11 +90,14 @@ public final class DebugUtils {
             }
         }
 
-        if (flagsToConvertCopy != 0 || result.isEmpty()) {
+        if (result.isEmpty()) {
+            return null;
+        } else if (flagsToConvertCopy != 0) {
             result.append("0x").append(Integer.toHexString(flagsToConvertCopy));
         } else {
             result.deleteCharAt(result.length() - 1);
         }
+
         return result.toString();
     }
 
