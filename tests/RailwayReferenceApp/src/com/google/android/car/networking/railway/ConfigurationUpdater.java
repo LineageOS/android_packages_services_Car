@@ -66,10 +66,22 @@ public final class ConfigurationUpdater {
 
     @Nullable
     private IpConfiguration getIpConfiguration(String ipConfigurationText) {
-        return Strings.isNullOrEmpty(ipConfigurationText) ? null :
-                new IpConfiguration.Builder()
+        if (Strings.isNullOrEmpty(ipConfigurationText)) {
+            return null;
+        }
+
+        LinkAddress ipAddress;
+        try {
+            ipAddress = new LinkAddress(ipConfigurationText);
+        } catch (IllegalArgumentException e) {
+            // Throw a more descriptive error message back to the user.
+            throw new IllegalArgumentException(
+                    "Please add IP address and Mask in format XXX.XX.XX.XX/32.");
+        }
+
+        return new IpConfiguration.Builder()
                 .setStaticIpConfiguration(new StaticIpConfiguration.Builder()
-                        .setIpAddress(new LinkAddress(ipConfigurationText)).build())
+                        .setIpAddress(ipAddress).build())
                 .build();
     }
 
