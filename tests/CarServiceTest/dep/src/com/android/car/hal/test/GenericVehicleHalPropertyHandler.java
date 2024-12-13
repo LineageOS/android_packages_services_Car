@@ -16,6 +16,10 @@
 
 package com.android.car.hal.test;
 
+import android.annotation.Nullable;
+
+import java.util.List;
+
 /**
  * An interface used to control fake VHAL behavior in tests.
  */
@@ -41,4 +45,21 @@ public interface GenericVehicleHalPropertyHandler<ValueType> {
      * Called when unsubscribing to a property.
      */
     default void onPropertyUnsubscribe(int property) {}
+
+    /**
+     * Called for getMinMaxSupportedValue.
+     *
+     * Must return an array that contains two elements, one for min, one for max. If not specified,
+     * the element can be null.
+     */
+    ValueType[] onGetMinMaxSupportedValue(int propertyId, int areaId);
+
+    /**
+     * Called for getSupportedValuesLists.
+     *
+     * If no supported values list is specified, return null.
+     */
+    default @Nullable List<ValueType> onGetSupportedValuesList(int propertyId, int areaId) {
+        return null;
+    }
 }

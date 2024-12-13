@@ -151,6 +151,6 @@ public final class RemoveUserResult {
 
     /** @hide */
     public static String statusToString(@Status int status) {
-        return DebugUtils.valueToString(RemoveUserResult.class, "STATUS_", status);
+        return DebugUtils.constantToString(RemoveUserResult.class, "STATUS_", status);
     }
 }

@@ -4329,18 +4329,19 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
                         groupName);
                 return;
             }
-            int eventTypes = group.onAudioVolumeGroupChanged(flags);
+            int eventTypes = group.onAudioVolumeGroupChanged(callbackFlags);
             if (eventTypes == 0) {
                 return;
             }
             if ((eventTypes & EVENT_TYPE_VOLUME_GAIN_INDEX_CHANGED) != 0) {
-                callbackGroupVolumeChange(zoneId, group.getId(), FLAG_SHOW_UI);
+                callbackGroupVolumeChange(zoneId, group.getId(), callbackFlags);
                 if (!runInLegacyMode() && !isPlaybackOnVolumeGroupActive(zoneId, group.getId())) {
                     callbackFlags |= FLAG_PLAY_SOUND;
                 }
             }
             if ((eventTypes & EVENT_TYPE_MUTE_CHANGED) != 0) {
-                handleMuteChanged(zoneId, group.getId(), FLAG_SHOW_UI);
+                // Mute event shall not play any sound, use policy flags only.
+                handleMuteChanged(zoneId, group.getId(), flags);
             }
             callbackVolumeGroupEvent(List.of(convertVolumeChangeToEvent(
                     getVolumeGroupInfo(zoneId, group.getId()), callbackFlags, eventTypes)));

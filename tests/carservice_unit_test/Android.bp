@@ -105,6 +105,7 @@ java_defaults {
 
 android_test {
     name: "CarServiceCarUnitTest",
+    team: "trendy_team_aaos_framework",
 
     srcs: [
         "src/com/android/car/*.java",
@@ -125,6 +126,7 @@ android_test {
 
 android_test {
     name: "CarServiceWifiUnitTest",
+    team: "trendy_team_connectivity_telemetry",
 
     srcs: [
         "src/com/android/car/wifi/*.java",
@@ -139,6 +141,7 @@ android_test {
 
 android_test {
     name: "CarServiceWatchdogUnitTest",
+    team: "trendy_team_aaos_performance_triage",
 
     srcs: [
         "src/com/android/car/watchdog/*.java",
@@ -154,6 +157,7 @@ android_test {
 
 android_test {
     name: "CarServiceVmsUnitTest",
+    team: "trendy_team_aaos_vac_triage",
 
     srcs: [
         "src/com/android/car/vms/*.java",
@@ -168,6 +172,7 @@ android_test {
 
 android_test {
     name: "CarServiceUtilUnitTest",
+    team: "trendy_team_aaos_framework",
 
     srcs: [
         "src/com/android/car/util/*.java",
@@ -182,6 +187,7 @@ android_test {
 
 android_test {
     name: "CarServiceUserUnitTest",
+    team: "trendy_team_aaos_user_triage",
 
     srcs: [
         "src/com/android/car/user/*.java",
@@ -196,6 +202,7 @@ android_test {
 
 android_test {
     name: "CarServiceTelemetryUnitTest",
+    team: "trendy_team_connectivity_telemetry",
 
     srcs: [
         "src/com/android/car/telemetry/*.java",
@@ -210,6 +217,7 @@ android_test {
 
 android_test {
     name: "CarServiceSystemUiUnitTest",
+    // TODO(b/383397607): Create a triage groupo for system UI unit test.
 
     srcs: [
         "src/com/android/car/systemui/keyguard/*.java",
@@ -224,6 +232,7 @@ android_test {
 
 android_test {
     name: "CarServiceSystemInterfaceUnitTest",
+    team: "trendy_team_aaos_carframework_triage",
 
     srcs: [
         "src/com/android/car/systeminterface/*.java",
@@ -238,6 +247,7 @@ android_test {
 
 android_test {
     name: "CarServiceStorageMonitoringUnitTest",
+    team: "trendy_team_aaos_storage_triage",
 
     srcs: [
         "src/com/android/car/storagemonitoring/*.java",
@@ -252,6 +262,7 @@ android_test {
 
 android_test {
     name: "CarServiceStatsUnitTest",
+    team: "trendy_team_aaos_vac_triage",
 
     srcs: [
         "src/com/android/car/stats/*.java",
@@ -266,6 +277,7 @@ android_test {
 
 android_test {
     name: "CarServiceRemoteAccessUnitTest",
+    team: "trendy_team_aaos_power_triage",
 
     srcs: [
         "src/com/android/car/remoteaccess/*.java",
@@ -280,6 +292,7 @@ android_test {
 
 android_test {
     name: "CarServicePropertyUnitTest",
+    team: "trendy_team_aaos_vac_triage",
 
     srcs: [
         "src/com/android/car/property/*.java",
@@ -294,6 +307,7 @@ android_test {
 
 android_test {
     name: "CarServicePowerUnitTest",
+    team: "trendy_team_aaos_power_triage",
 
     srcs: [
         "src/com/android/car/power/*.java",
@@ -310,6 +324,7 @@ android_test {
 
 android_test {
     name: "CarServicePmUnitTest",
+    team: "trendy_team_aaos_user_triage",
 
     srcs: [
         "src/com/android/car/pm/*.java",
@@ -324,6 +339,7 @@ android_test {
 
 android_test {
     name: "CarServiceOsUnitTest",
+    team: "trendy_team_aaos_carframework_triage",
 
     srcs: [
         "src/com/android/car/os/*.java",
@@ -338,6 +354,7 @@ android_test {
 
 android_test {
     name: "CarServiceOemUnitTest",
+    team: "trendy_team_aaos_audio_triage",
 
     srcs: [
         "src/com/android/car/oem/*.java",
@@ -352,6 +369,7 @@ android_test {
 
 android_test {
     name: "CarServiceOccupantConnectionUnitTest",
+    team: "trendy_team_aaos_user_triage",
 
     srcs: [
         "src/com/android/car/occupantconnection/*.java",
@@ -366,6 +384,7 @@ android_test {
 
 android_test {
     name: "CarServiceHalUnitTest",
+    team: "trendy_team_aaos_carframework_triage",
 
     srcs: [
         "src/com/android/car/hal/**/*.java",
@@ -380,6 +399,7 @@ android_test {
 
 android_test {
     name: "CarServiceGarageModeUnitTest",
+    team: "trendy_team_aaos_power_triage",
 
     srcs: [
         "src/com/android/car/garagemode/*.java",
@@ -394,6 +414,7 @@ android_test {
 
 android_test {
     name: "CarServiceEvsUnitTest",
+    team: "trendy_team_perception_virtualization",
 
     srcs: [
         "src/com/android/car/evs/*.java",
@@ -408,6 +429,7 @@ android_test {
 
 android_test {
     name: "CarServiceClusterUnitTest",
+    team: "trendy_team_aaos_window_triage",
 
     srcs: [
         "src/com/android/car/cluster/*.java",
@@ -422,6 +444,7 @@ android_test {
 
 android_test {
     name: "CarServiceBluetoothUnitTest",
+    team: "trendy_team_connectivity_telemetry",
 
     srcs: [
         "src/com/android/car/bluetooth/*.java",
@@ -436,6 +459,7 @@ android_test {
 
 android_test {
     name: "CarServiceAudioUnitTest",
+    team: "trendy_team_aaos_audio_triage",
 
     srcs: [
         "src/com/android/car/audio/*.java",
@@ -450,6 +474,7 @@ android_test {
 
 android_test {
     name: "CarServiceAmUnitTest",
+    team: "trendy_team_aaos_user_triage",
 
     srcs: [
         "src/com/android/car/am/*.java",
@@ -470,6 +495,7 @@ android_test {
 
 android_test {
     name: "CarServiceAdminUnitTest",
+    team: "trendy_team_aaos_user_triage",
 
     srcs: [
         "src/com/android/car/admin/*.java",
@@ -484,6 +510,7 @@ android_test {
 
 android_ravenwood_test {
     name: "CarServiceHostUnitTest",
+    team: "trendy_team_aaos_framework",
 
     srcs: [
         "src/com/android/car/AidlVehicleStubUnitTest.java",

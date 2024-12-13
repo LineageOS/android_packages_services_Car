@@ -5835,9 +5835,10 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     }
 
     @Test
-    public void onAudioVolumeGroupChanged_dispatchCallbackEvent() throws Exception {
+    public void onAudioVolumeGroupChanged_whenNoPlayback_dispatchCallbackEvent() throws Exception {
         CarAudioService useCoreAudioCarAudioService =
                 setUpCarAudioServiceUsingCoreAudioRoutingAndVolume();
+        int expectedFlags = FLAG_SHOW_UI | FLAG_PLAY_SOUND;
         int musicIndex = useCoreAudioCarAudioService.getGroupVolume(
                 PRIMARY_AUDIO_ZONE, CoreAudioRoutingUtils.MUSIC_CAR_GROUP_ID);
         // Report a volume change
@@ -5849,11 +5850,11 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
                 .thenReturn(false);
 
         useCoreAudioCarAudioService.onAudioVolumeGroupChanged(PRIMARY_AUDIO_ZONE,
-                CoreAudioRoutingUtils.MUSIC_GROUP_NAME, /* flags= */ 0);
+                CoreAudioRoutingUtils.MUSIC_GROUP_NAME, FLAG_SHOW_UI);
 
         verify(mCarVolumeCallbackHandler)
                 .onVolumeGroupChange(PRIMARY_AUDIO_ZONE, CoreAudioRoutingUtils.MUSIC_CAR_GROUP_ID,
-                        FLAG_SHOW_UI | FLAG_PLAY_SOUND);
+                        expectedFlags);
     }
 
     @Test
@@ -5877,6 +5878,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     public void onAudioVolumeGroupChanged_dispatchCallbackEvent_whenMuted() throws Exception {
         CarAudioService useCoreAudioCarAudioService =
                 setUpCarAudioServiceUsingCoreAudioRoutingAndVolume();
+        int expectedFlags = FLAG_SHOW_UI;
         // Report a mute change
         when(mAudioManager.getVolumeIndexForAttributes(eq(CoreAudioRoutingUtils.MUSIC_ATTRIBUTES)))
                 .thenReturn(CoreAudioRoutingUtils.MUSIC_MIN_INDEX);
@@ -5884,10 +5886,10 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
                 .thenReturn(true);
 
         useCoreAudioCarAudioService.onAudioVolumeGroupChanged(PRIMARY_AUDIO_ZONE,
-                CoreAudioRoutingUtils.MUSIC_GROUP_NAME, /* flags= */ 0);
+                CoreAudioRoutingUtils.MUSIC_GROUP_NAME, expectedFlags);
 
         verify(mCarVolumeCallbackHandler).onGroupMuteChange(PRIMARY_AUDIO_ZONE,
-                CoreAudioRoutingUtils.MUSIC_CAR_GROUP_ID, FLAG_SHOW_UI);
+                CoreAudioRoutingUtils.MUSIC_CAR_GROUP_ID, expectedFlags);
     }
 
     @Test
@@ -5900,6 +5902,44 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
 
         verify(mCarVolumeCallbackHandler, never()).onVolumeGroupChange(eq(PRIMARY_AUDIO_ZONE),
                 anyInt(), anyInt());
+    }
+
+    @Test
+    public void onAudioVolumeGroupChanged_withIndexChange_reportsGroupEvent() throws Exception {
+        CarAudioService service =
+                setUpCarAudioServiceUsingCoreAudioRoutingAndVolume();
+        TestCarVolumeEventCallback volumeEventCallback =
+                new TestCarVolumeEventCallback(TEST_CALLBACK_TIMEOUT_MS);
+        service.registerCarVolumeEventCallback(volumeEventCallback);
+        int musicIndex = service.getGroupVolume(PRIMARY_AUDIO_ZONE,
+                CoreAudioRoutingUtils.MUSIC_CAR_GROUP_ID);
+        when(mAudioManager.getVolumeIndexForAttributes(eq(CoreAudioRoutingUtils.MUSIC_ATTRIBUTES)))
+                .thenReturn(musicIndex + 1);
+        when(mAudioManager.getLastAudibleVolumeForVolumeGroup(CoreAudioRoutingUtils.MUSIC_GROUP_ID))
+                .thenReturn(musicIndex + 1);
+        when(mAudioManager.isVolumeGroupMuted(CoreAudioRoutingUtils.MUSIC_GROUP_ID))
+                .thenReturn(false);
+
+        // Report a volume change
+        service.onAudioVolumeGroupChanged(PRIMARY_AUDIO_ZONE,
+                CoreAudioRoutingUtils.MUSIC_GROUP_NAME, FLAG_SHOW_UI);
+
+        expectWithMessage("Volume event callback for volume change from AudioManager callback")
+                .that(volumeEventCallback.waitForCallback()).isTrue();
+        expectWithMessage("Volume events count for volume change from AudioManager callback")
+                .that(volumeEventCallback.getVolumeGroupEvents()).hasSize(1);
+        CarVolumeGroupEvent groupEvent = volumeEventCallback.getVolumeGroupEvents().get(0);
+        expectWithMessage("Volume event type after volume change from AudioManager callback")
+                .that(groupEvent.getEventTypes())
+                .isEqualTo(CarVolumeGroupEvent.EVENT_TYPE_VOLUME_GAIN_INDEX_CHANGED);
+        expectWithMessage("Volume group info after volume change from AudioManager callback")
+                .that(groupEvent.getCarVolumeGroupInfos()).containsExactly(
+                        service.getVolumeGroupInfo(PRIMARY_AUDIO_ZONE,
+                                CoreAudioRoutingUtils.MUSIC_CAR_GROUP_ID));
+        expectWithMessage("Volume group extra info after volume change from AudioManager callback")
+                .that(groupEvent.getExtraInfos()).containsExactly(
+                        CarVolumeGroupEvent.EXTRA_INFO_SHOW_UI,
+                        CarVolumeGroupEvent.EXTRA_INFO_PLAY_SOUND);
     }
 
     @Test

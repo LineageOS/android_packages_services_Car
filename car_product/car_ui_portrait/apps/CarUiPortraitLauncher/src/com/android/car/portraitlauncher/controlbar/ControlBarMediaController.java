@@ -23,7 +23,6 @@ import static com.android.car.media.common.ui.PlaybackCardControllerUtilities.up
 import static com.android.car.media.common.ui.PlaybackCardControllerUtilities.updatePlayButtonWithPlaybackState;
 import static com.android.car.media.common.ui.PlaybackCardControllerUtilities.updateTextViewAndVisibility;
 
-import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.view.GestureDetector;
@@ -38,7 +37,7 @@ import androidx.constraintlayout.motion.widget.MotionLayout;
 
 import com.android.car.apps.common.RoundedDrawable;
 import com.android.car.apps.common.util.ViewUtils;
-import com.android.car.carlauncher.homescreen.audio.media.MediaIntentRouter;
+import com.android.car.carlauncher.homescreen.audio.media.MediaLaunchRouter;
 import com.android.car.media.common.MediaItemMetadata;
 import com.android.car.media.common.playback.PlaybackProgress;
 import com.android.car.media.common.playback.PlaybackViewModel;
@@ -55,7 +54,7 @@ import java.util.List;
 public class ControlBarMediaController extends PlaybackCardController {
 
     private static final int MAX_ACTIONS_IN_DEFAULT_LAYOUT = 6;
-    private final MediaIntentRouter mMediaIntentRouter = MediaIntentRouter.getInstance();
+    private final MediaLaunchRouter mMediaLaunchRouter = MediaLaunchRouter.getInstance();
 
     private ViewGroup mCustomActionLayout;
     private ViewGroup mCustomActionOverflowLayout;
@@ -102,10 +101,8 @@ public class ControlBarMediaController extends PlaybackCardController {
                         mView.getContext(),
                         new GestureDetector.SimpleOnGestureListener() {
                             private void sendMediaIntent() {
-                                MediaSource mediaSource = mDataModel.getMediaSource().getValue();
-                                Intent intent =
-                                        mediaSource != null ? mediaSource.getIntent() : null;
-                                mMediaIntentRouter.handleMediaIntent(intent);
+                                mMediaLaunchRouter
+                                        .handleLaunchMedia(mDataModel.getMediaSource().getValue());
                             }
 
                             @Override

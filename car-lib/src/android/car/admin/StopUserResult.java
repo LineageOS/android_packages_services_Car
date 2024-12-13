@@ -120,6 +120,6 @@ public final class StopUserResult {
     }
 
     private static String statusToString(int status) {
-        return DebugUtils.valueToString(StopUserResult.class, "STATUS_", status);
+        return DebugUtils.constantToString(StopUserResult.class, "STATUS_", status);
     }
 }

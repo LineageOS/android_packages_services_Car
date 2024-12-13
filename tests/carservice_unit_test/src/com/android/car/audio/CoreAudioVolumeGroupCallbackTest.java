@@ -161,6 +161,25 @@ public final class CoreAudioVolumeGroupCallbackTest  extends AbstractExpectableT
     }
 
     @Test
+    public void onAudioVolumeGroupChanged_withValidGroupId_appendsShowUiFlag() {
+        Executor executor = mContext.getMainExecutor();
+        mCoreAudioVolumeGroupCallback.init(mContext.getMainExecutor());
+        verify(mMockAudioManager).registerVolumeGroupCallback(
+                eq(executor), mVolumeGroupCallbackObserver.capture());
+        int flagsFromAudioManager = AudioManager.FLAG_FROM_KEY;
+
+        doReturn(VALID_VOLUME_GROUP_NAME)
+                .when(() -> CoreAudioHelper.getVolumeGroupNameFromCoreId(
+                        eq(VALID_VOLUME_GROUP_ID)));
+
+        mVolumeGroupCallbackObserver.getValue().onAudioVolumeGroupChanged(
+                VALID_VOLUME_GROUP_ID, flagsFromAudioManager);
+
+        verify(mMockVolumeInfoWrapper).onAudioVolumeGroupChanged(PRIMARY_AUDIO_ZONE,
+                VALID_VOLUME_GROUP_NAME, flagsFromAudioManager | AudioManager.FLAG_SHOW_UI);
+    }
+
+    @Test
     public void onAudioVolumeGroupChanged_withValidGroupId_bailsOut() {
         Executor executor = mContext.getMainExecutor();
         mCoreAudioVolumeGroupCallback.init(mContext.getMainExecutor());

@@ -284,7 +284,7 @@ public class RadioTunerFragment extends Fragment {
         String alertText = getAlertInfoDisplayText(alert.getInfoList().getFirst());
 
         AlertNotificationHelper.createRadioAlertNotification(mActivityContext, alertTitle,
-                alertText, notificationId);
+                alertText, System.currentTimeMillis(), notificationId);
     }
 
     private static String getAlertInfoDisplayText(RadioAlert.AlertInfo alertInfo) {

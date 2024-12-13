@@ -3858,7 +3858,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
      * Returns a corresponding string of the given power state.
      */
     public static String powerStateToString(int state) {
-        return DebugUtils.valueToString(CarPowerManager.class, "STATE_", state);
+        return DebugUtils.constantToString(CarPowerManager.class, "STATE_", state);
     }
 
     /**

@@ -20,7 +20,6 @@ import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
 
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationCompat.Action;
@@ -35,45 +34,53 @@ final class AlertNotificationHelper {
     }
 
     static final int INVALID_NOTIFICATION_ID = -1;
+    static final String TEXT_DISMISS = "Dismiss";
+    static final String TEXT_SNOOZE = "Snooze";
+    static final String ACTION_DISMISS = "DISMISS";
     static final String ACTION_SNOOZE = "SNOOZE";
     static final String ACTION_NOTIFICATION = "NOTIFICATION";
     static final String EXTRA_KEY_NOTIFICATION_ID = "EXTRA_NOTIFICATION_ID";
     static final String EXTRA_KEY_TITLE = "TITLE_TEXT";
     static final String EXTRA_KEY_TEXT = "EXTRA_TEXT";
+    static final String EXTRA_KEY_ALERT_TIME_MS = "EXTRA_ALERT_TIME_MS";
 
     static final String IMPORTANCE_ALERT_ID = "importance_high";
 
     static void createRadioAlertNotification(Context activityContext, String title, String text,
-            int notificationId) {
-        Log.e("wowow", "createRadioAlertNotification 1");
+            long alertTimeMs, int notificationId) {
         NotificationManagerCompat notificationManager =
                 NotificationManagerCompat.from(activityContext);
 
+        PendingIntent dismissPendingIntent = createPendingIntent(activityContext, ACTION_DISMISS,
+                notificationId, title, text, alertTimeMs);
         PendingIntent snoozePendingIntent = createPendingIntent(activityContext, ACTION_SNOOZE,
-                notificationId, title, text);
+                notificationId, title, text, alertTimeMs);
 
         NotificationCompat.Builder builder = new NotificationCompat
                 .Builder(activityContext, IMPORTANCE_ALERT_ID)
                 .setContentTitle(title)
                 .setContentText(text)
                 .setShowWhen(true)
+                .setWhen(alertTimeMs)
                 .setCategory(Notification.CATEGORY_MESSAGE)
                 .setSmallIcon(R.drawable.ic_warning)
                 .setColor(activityContext.getColor(android.R.color.holo_green_light))
-                .addAction(new Action.Builder(R.drawable.skip_next, "Snooze", snoozePendingIntent)
+                .addAction(new Action.Builder(/* icon= */ null, TEXT_SNOOZE, snoozePendingIntent)
+                        .setShowsUserInterface(false).build())
+                .addAction(new Action.Builder(/* icon= */ null, TEXT_DISMISS, dismissPendingIntent)
                         .setShowsUserInterface(false).build());
 
         notificationManager.notify(notificationId, builder.build());
-        Log.e("wowow", "createRadioAlertNotification 2");
     }
 
     private static PendingIntent createPendingIntent(Context activityContext, String action,
-            int notificationId, String title, String text) {
+            int notificationId, String title, String text, long alertTimeMs) {
         Intent intent = new Intent(activityContext, AlertNotificationReceiver.class);
         intent.setAction(action);
         intent.putExtra(EXTRA_KEY_NOTIFICATION_ID, notificationId);
         intent.putExtra(EXTRA_KEY_TITLE, title);
         intent.putExtra(EXTRA_KEY_TEXT, text);
+        intent.putExtra(EXTRA_KEY_ALERT_TIME_MS, alertTimeMs);
         return PendingIntent.getBroadcast(activityContext, notificationId, intent,
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE);
     }
