@@ -172,7 +172,7 @@ cc_test {
     generated_sources: ["gen-native-dump-proto-srcs"],
     test_suites: [
         "general-tests",
-        "automotive-tests",
+        "automotive-general-tests",
     ],
     tidy_disabled_srcs: [
         // b/207508335
