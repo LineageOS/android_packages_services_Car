@@ -27,7 +27,9 @@ import android.car.VehicleAreaWheel;
 import android.car.VehicleAreaWindow;
 import android.car.VehiclePropertyIds;
 import android.car.feature.Flags;
+import android.util.Slog;
 
+import com.android.car.internal.property.CarPropertyHelper;
 import com.android.car.internal.property.PropIdAreaId;
 
 import java.util.List;
@@ -37,6 +39,8 @@ import java.util.List;
  * <p>Various utilities for debugging and logging.</p>
  */
 public final class DebugUtils {
+    public static final String TAG = DebugUtils.class.getSimpleName();
+
     private DebugUtils() {
     }
 
@@ -112,10 +116,18 @@ public final class DebugUtils {
 
     /**
      * Gets a user-friendly string representation of an {@code areaId} for the given
-     * {@link VehicleAreaType}.
+     * {@code propertyId}.
      */
-    public static String toAreaIdString(@VehicleAreaType.VehicleAreaTypeValue int areaType,
-            int areaId) {
+    public static String toAreaIdString(int propertyId, int areaId) {
+        int areaType;
+        try {
+            areaType = CarPropertyHelper.getAreaType(propertyId);
+        } catch (IllegalArgumentException e) {
+            Slog.w(TAG, "Property ID: " + VehiclePropertyIds.toString(propertyId)
+                    + " has invalid area type for area ID: " + areaId, e);
+            areaType = -1;
+        }
+
         if (Flags.androidVicVehicleProperties()
                 && areaType == VehicleAreaType.VEHICLE_AREA_TYPE_VENDOR) {
             return "VENDOR_AREA_ID(0x" + toHexString(areaId) + ")";
@@ -124,7 +136,7 @@ public final class DebugUtils {
         switch (areaType) {
             case VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL -> {
                 if (areaId == 0) {
-                    return "GLOBAL(0x0)";
+                    return "GLOBAL";
                 }
                 return "INVALID_GLOBAL_AREA_ID(0x" + toHexString(areaId) + ")";
             }
@@ -154,7 +166,7 @@ public final class DebugUtils {
      */
     public static String toDebugString(PropIdAreaId propIdAreaId) {
         return "PropIdAreaId{propId=" + VehiclePropertyIds.toString(propIdAreaId.propId)
-            + ", areaId=" + propIdAreaId.areaId + "}";
+            + ", areaId=" + toAreaIdString(propIdAreaId.propId, propIdAreaId.areaId) + "}";
     }
 
     /**

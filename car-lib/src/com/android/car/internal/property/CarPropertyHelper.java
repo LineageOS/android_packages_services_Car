@@ -21,7 +21,9 @@ import static com.android.car.internal.common.CommonConstants.EMPTY_BYTE_ARRAY;
 import static com.android.car.internal.property.VehiclePropertyIdDebugUtils.isDefined;
 import static com.android.car.internal.property.VehiclePropertyIdDebugUtils.toDebugString;
 
+import android.car.VehicleAreaType;
 import android.car.VehiclePropertyIds;
+import android.car.feature.Flags;
 import android.car.hardware.CarPropertyValue;
 import android.util.ArraySet;
 
@@ -46,6 +48,16 @@ public final class CarPropertyHelper {
     private static final int VEHICLE_PROPERTY_GROUP_MASK = 0xf0000000;
     private static final int VEHICLE_PROPERTY_GROUP_VENDOR = 0x20000000;
     private static final int VEHICLE_PROPERTY_GROUP_BACKPORTED = 0x30000000;
+
+    // These are the same values as defined in VHAL interface.
+    private static final int VEHICLE_PROPERTY_AREA_TYPE_MASK = 0x0f000000;
+    private static final int VEHICLE_PROPERTY_AREA_TYPE_DOOR = 0x06000000;
+    private static final int VEHICLE_PROPERTY_AREA_TYPE_GLOBAL = 0x01000000;
+    private static final int VEHICLE_PROPERTY_AREA_TYPE_MIRROR = 0x04000000;
+    private static final int VEHICLE_PROPERTY_AREA_TYPE_SEAT = 0x05000000;
+    private static final int VEHICLE_PROPERTY_AREA_TYPE_WHEEL = 0x07000000;
+    private static final int VEHICLE_PROPERTY_AREA_TYPE_WINDOW = 0x03000000;
+    private static final int VEHICLE_PROPERTY_AREA_TYPE_VENDOR = 0x08000000;
 
     /**
      * CarPropertyHelper only contains static fields and methods and must never be instantiated.
@@ -175,5 +187,43 @@ public final class CarPropertyHelper {
         propIdAreaId.propId = propId;
         propIdAreaId.areaId = areaId;
         return propIdAreaId;
+    }
+
+    /**
+     * Gets the {@link VehicleAreaType} for the {@link VehiclePropertyIds}.
+     */
+    public static @VehicleAreaType.VehicleAreaTypeValue int getAreaType(int propertyId) {
+        int halAreaType = propertyId & VEHICLE_PROPERTY_AREA_TYPE_MASK;
+
+        if (Flags.androidVicVehicleProperties()
+                && halAreaType == VEHICLE_PROPERTY_AREA_TYPE_VENDOR) {
+            return VehicleAreaType.VEHICLE_AREA_TYPE_VENDOR;
+        }
+
+        switch (halAreaType) {
+            case VEHICLE_PROPERTY_AREA_TYPE_DOOR -> {
+                return VehicleAreaType.VEHICLE_AREA_TYPE_DOOR;
+            }
+            case VEHICLE_PROPERTY_AREA_TYPE_GLOBAL -> {
+                return VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL;
+            }
+            case VEHICLE_PROPERTY_AREA_TYPE_MIRROR -> {
+                return VehicleAreaType.VEHICLE_AREA_TYPE_MIRROR;
+            }
+            case VEHICLE_PROPERTY_AREA_TYPE_SEAT -> {
+                return VehicleAreaType.VEHICLE_AREA_TYPE_SEAT;
+            }
+            case VEHICLE_PROPERTY_AREA_TYPE_WHEEL -> {
+                return VehicleAreaType.VEHICLE_AREA_TYPE_WHEEL;
+            }
+            case VEHICLE_PROPERTY_AREA_TYPE_WINDOW -> {
+                return VehicleAreaType.VEHICLE_AREA_TYPE_WINDOW;
+            }
+            default -> {
+                throw new IllegalArgumentException(
+                        "No defined area type for property ID: " + VehiclePropertyIds.toString(
+                                propertyId));
+            }
+        }
     }
 }
