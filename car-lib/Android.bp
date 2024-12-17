@@ -361,11 +361,24 @@ java_library {
     },
 }
 
+// Export the api/current.txt file.
+filegroup {
+    name: "car-api-current.txt",
+    visibility: [
+        "//cts/tests/signature/api",
+        "//vendor:__subpackages__",
+    ],
+    srcs: [
+        "api/current.txt",
+    ],
+}
+
 // Export the api/system-current.txt file.
 filegroup {
     name: "car-api-system-current.txt",
     visibility: [
         "//cts/tests/signature/api",
+        "//vendor:__subpackages__",
     ],
     srcs: [
         "api/system-current.txt",
