@@ -23,6 +23,8 @@
 
 #include <aidl/android/automotive/power/internal/BnCarPowerManagementDelegate.h>
 #include <aidl/android/automotive/power/internal/PowerPolicyInitData.h>
+#include <aidl/android/frameworks/automotive/power/ICarPowerStateChangeListener.h>
+#include <aidl/android/frameworks/automotive/power/ICarPowerStateChangeListenerWithCompletion.h>
 #include <aidl/android/frameworks/automotive/powerpolicy/BnCarPowerPolicyServer.h>
 #include <aidl/android/frameworks/automotive/powerpolicy/internal/BnCarPowerPolicySystemNotification.h>
 #include <android-base/result.h>
@@ -339,6 +341,9 @@ private:
     void handleClientDeathRecipientUnlinked(const AIBinder* clientId);
     void handleCarServiceDeathRecipientUnlinked();
 
+    std::shared_ptr<aidl::android::automotive::power::internal::ICarPowerManagementDelegateCallback>
+    getPowerManagementDelegateCallback();
+
     static void onClientBinderDied(void* cookie);
     static void onCarServiceBinderDied(void* cookie);
     static std::string callbackToString(const CallbackInfo& callback);
@@ -393,6 +398,10 @@ private:
 
     std::shared_ptr<CarPowerManagementDelegate> mCarPowerManagementDelegate GUARDED_BY(mMutex);
     ndk::SpAIBinder mPowerManagementDelegateCallback GUARDED_BY(mMutex);
+    std::vector<std::shared_ptr<
+            aidl::android::frameworks::automotive::power::ICarPowerStateChangeListener>>
+            mPowerStateChangeListeners GUARDED_BY(mMutex);
+    // TODO(b/384096831): add listeners with completion
 
     // A map of callback ptr to context that is required for handleClientBinderDeath.
     std::unordered_map<const AIBinder*, std::unique_ptr<OnClientBinderDiedContext>>

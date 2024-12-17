@@ -50,6 +50,7 @@ using ::aidl::android::automotive::power::internal::ICarPowerManagementDelegateC
 using ::aidl::android::automotive::power::internal::PowerPolicyFailureReason;
 using ::aidl::android::automotive::power::internal::PowerPolicyInitData;
 using ::aidl::android::frameworks::automotive::power::CarPowerState;
+using ::aidl::android::frameworks::automotive::power::ICarPowerStateChangeListener;
 using ::aidl::android::frameworks::automotive::powerpolicy::CarPowerPolicy;
 using ::aidl::android::frameworks::automotive::powerpolicy::CarPowerPolicyFilter;
 using ::aidl::android::frameworks::automotive::powerpolicy::ICarPowerPolicyChangeCallback;
@@ -319,10 +320,12 @@ ScopedAStatus CarPowerManagementDelegate::applyPowerPolicyPerPowerStateChangeAsy
 }
 
 ScopedAStatus CarPowerManagementDelegate::notifyPowerStateChange(
-        [[maybe_unused]] int32_t changeId, [[maybe_unused]] CarPowerState newState,
-        [[maybe_unused]] int64_t expirationTimeMs) {
-    // TODO(b/382256300): implement
-    return ScopedAStatus::ok();
+        int32_t changeId, CarPowerState newState, [[maybe_unused]] int64_t expirationTimeMs) {
+    return runWithService(
+            [changeId, newState, expirationTimeMs](CarPowerPolicyServer* service) -> ScopedAStatus {
+                return service->notifyPowerStateChange(changeId, newState, expirationTimeMs);
+            },
+            "notifyPowerStateChange");
 }
 
 ScopedAStatus CarPowerManagementDelegate::setSilentMode(const std::string& silentMode) {
@@ -708,10 +711,41 @@ ScopedAStatus CarPowerPolicyServer::applyPowerPolicyPerPowerStateChangeAsync(
     return ScopedAStatus::ok();
 }
 
+std::shared_ptr<ICarPowerManagementDelegateCallback>
+CarPowerPolicyServer::getPowerManagementDelegateCallback() {
+    std::lock_guard<std::mutex> lock(mMutex);
+    std::shared_ptr<ICarPowerManagementDelegateCallback> callback =
+            ICarPowerManagementDelegateCallback::fromBinder(mPowerManagementDelegateCallback);
+    if (callback == nullptr) {
+        ALOGW("ICarPowerManagementDelegateCallback is not set");
+    }
+    return callback;
+}
+
 ScopedAStatus CarPowerPolicyServer::notifyPowerStateChange(
-        [[maybe_unused]] int32_t changeId, [[maybe_unused]] CarPowerState newState,
-        [[maybe_unused]] int64_t expirationTimeMs) {
-    // TODO(b/382256300): implement
+        int32_t changeId, CarPowerState newState, [[maybe_unused]] int64_t expirationTimeMs) {
+    ScopedAStatus status = checkSystemPermission();
+    if (!status.isOk()) {
+        ALOGW("Failed to notify power state change (newState: %d), lacking permissions",
+              static_cast<int>(newState));
+        return status;
+    }
+    std::vector<std::shared_ptr<ICarPowerStateChangeListener>> listeners;
+    {
+        std::lock_guard<std::mutex> lock(mMutex);
+        listeners = mPowerStateChangeListeners;
+    }
+    for (auto& listener : listeners) {
+        listener->onStateChanged(newState);
+    }
+    // TODO(b/384531836): check if completion allowed, notify listeners w/completion, and add
+    //                     their futures to ones we are waiting for
+    // TODO(b/384531836): await all futures complete (or timeout)
+    std::shared_ptr<ICarPowerManagementDelegateCallback> callback =
+            getPowerManagementDelegateCallback();
+    if (callback != nullptr) {
+        callback->onAllPowerStateChangeListenersComplete(changeId);
+    }
     return ScopedAStatus::ok();
 }
 
@@ -1013,7 +1047,6 @@ void CarPowerPolicyServer::handleVhalDeath() {
 void CarPowerPolicyServer::handleApplyPowerPolicyRequest(const int32_t requestId) {
     ALOGI("Handling request ID(%d) to apply power policy", requestId);
     PolicyRequest policyRequest;
-    std::shared_ptr<ICarPowerManagementDelegateCallback> callback;
     {
         std::lock_guard<std::mutex> lock(mMutex);
         if (mPolicyRequestById.count(requestId) == 0) {
@@ -1022,12 +1055,9 @@ void CarPowerPolicyServer::handleApplyPowerPolicyRequest(const int32_t requestId
         }
         policyRequest = mPolicyRequestById[requestId];
         mPolicyRequestById.erase(requestId);
-        callback =
-                ICarPowerManagementDelegateCallback::fromBinder(mPowerManagementDelegateCallback);
-        if (callback == nullptr) {
-            ALOGW("ICarPowerManagementDelegateCallback is not set");
-        }
     }
+    std::shared_ptr<ICarPowerManagementDelegateCallback> callback =
+            getPowerManagementDelegateCallback();
     if (const auto& ret = applyPowerPolicyInternal(policyRequest.policyId, policyRequest.force,
                                                    /*notifyCarService=*/false);
         !ret.ok()) {
