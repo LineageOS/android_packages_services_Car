@@ -485,7 +485,7 @@ public final class PropertyHalServiceConfigsUnitTest extends AbstractExpectableT
                 propertyName, description, permissions, dataEnums, /* validBitFlag= */ null);
 
         SparseArray<CarSvcPropertyConfig> configs = mPropertyHalServiceConfigs.parseJsonConfig(
-                is, /* path= */ "test");
+                is, /* path= */ "test", null);
 
         assertWithMessage("expect one config parsed").that(configs.size()).isEqualTo(1);
         CarSvcPropertyConfig config = configs.get(2345);
@@ -524,7 +524,7 @@ public final class PropertyHalServiceConfigsUnitTest extends AbstractExpectableT
                 /* validBitFlag= */ null);
 
         SparseArray<CarSvcPropertyConfig> configs = mPropertyHalServiceConfigs.parseJsonConfig(
-                is, /* path= */ "test");
+                is, /* path= */ "test", null);
         CarSvcPropertyConfig config = configs.get(1234);
         assertThat(config).isNotNull();
         assertThat(config).isEqualTo(expectedConfig);
@@ -564,7 +564,7 @@ public final class PropertyHalServiceConfigsUnitTest extends AbstractExpectableT
                 validBitFlag);
 
         SparseArray<CarSvcPropertyConfig> configs = mPropertyHalServiceConfigs.parseJsonConfig(
-                is, /* path= */ "test");
+                is, /* path= */ "test", null);
         CarSvcPropertyConfig config = configs.get(1234);
         assertThat(config).isNotNull();
         assertThat(config).isEqualTo(expectedConfig);
@@ -596,7 +596,7 @@ public final class PropertyHalServiceConfigsUnitTest extends AbstractExpectableT
                 """);
 
         SparseArray<CarSvcPropertyConfig> configs = mPropertyHalServiceConfigs.parseJsonConfig(
-                is, /* path= */ "test");
+                is, /* path= */ "test", null);
 
         assertWithMessage("deprecated property must be ignored").that(configs.get(12345)).isNull();
         assertWithMessage("must continue parsing non deprecated property").that(configs.get(2345))
@@ -609,7 +609,7 @@ public final class PropertyHalServiceConfigsUnitTest extends AbstractExpectableT
         when(is.readAllBytes()).thenThrow(new IOException());
 
         assertThrows(IllegalArgumentException.class, () ->
-                mPropertyHalServiceConfigs.parseJsonConfig(is, /* path= */ "test"));
+                mPropertyHalServiceConfigs.parseJsonConfig(is, /* path= */ "test", null));
     }
 
     @Test
@@ -617,7 +617,7 @@ public final class PropertyHalServiceConfigsUnitTest extends AbstractExpectableT
         InputStream is = strToInputStream("{");
 
         assertThrows(IllegalArgumentException.class, () ->
-                mPropertyHalServiceConfigs.parseJsonConfig(is, /* path= */ "test"));
+                mPropertyHalServiceConfigs.parseJsonConfig(is, /* path= */ "test", null));
     }
 
     @Test
@@ -640,7 +640,7 @@ public final class PropertyHalServiceConfigsUnitTest extends AbstractExpectableT
                 """);
 
         assertThrows(IllegalArgumentException.class, () ->
-                mPropertyHalServiceConfigs.parseJsonConfig(is, /* path= */ "test"));
+                mPropertyHalServiceConfigs.parseJsonConfig(is, /* path= */ "test", null));
     }
 
     @Test
@@ -660,7 +660,7 @@ public final class PropertyHalServiceConfigsUnitTest extends AbstractExpectableT
                 """);
 
         assertThrows(IllegalArgumentException.class, () ->
-                mPropertyHalServiceConfigs.parseJsonConfig(is, /* path= */ "test"));
+                mPropertyHalServiceConfigs.parseJsonConfig(is, /* path= */ "test", null));
     }
 
     @Test
@@ -734,7 +734,8 @@ public final class PropertyHalServiceConfigsUnitTest extends AbstractExpectableT
         mFakeFeatureFlags.setFlag(Flags.FLAG_VEHICLE_PROPERTY_25Q2_3P_PERMISSIONS, false);
 
         SparseArray<CarSvcPropertyConfig> releasedConfigs =
-                mPropertyHalServiceConfigs.parseJsonConfig(releasedInputStream, /* path= */ "test");
+                mPropertyHalServiceConfigs.parseJsonConfig(
+                        releasedInputStream, /* path= */ "test", null);
         SparseArray<CarSvcPropertyConfig> generatedConfigs =
                 mPropertyHalServiceConfigs.parseJsonConfig(
                         generatedInputStream, /* path= */ "test", releasedConfigs);
@@ -823,7 +824,8 @@ public final class PropertyHalServiceConfigsUnitTest extends AbstractExpectableT
         mFakeFeatureFlags.setFlag(Flags.FLAG_VEHICLE_PROPERTY_25Q2_3P_PERMISSIONS, true);
 
         SparseArray<CarSvcPropertyConfig> releasedConfigs =
-                mPropertyHalServiceConfigs.parseJsonConfig(releasedInputStream, /* path= */ "test");
+                mPropertyHalServiceConfigs.parseJsonConfig(
+                        releasedInputStream, /* path= */ "test", null);
         SparseArray<CarSvcPropertyConfig> generatedConfigs =
                 mPropertyHalServiceConfigs.parseJsonConfig(
                         generatedInputStream, /* path= */ "test", releasedConfigs);
