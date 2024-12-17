@@ -945,6 +945,7 @@ package android.car.hardware {
   }
 
   public final class CarPropertyConfig<T> implements android.os.Parcelable {
+    method @FlaggedApi("android.car.feature.car_property_simulation") public boolean isPropertyIdSimulationPropId();
     method @Deprecated public static <T> android.car.hardware.CarPropertyConfig.Builder<T> newBuilder(Class<T>, int, int, int);
   }
 
@@ -957,6 +958,11 @@ package android.car.hardware {
     method @Deprecated public android.car.hardware.CarPropertyConfig.Builder<T> setConfigString(String);
     method @Deprecated public android.car.hardware.CarPropertyConfig.Builder<T> setMaxSampleRate(float);
     method @Deprecated public android.car.hardware.CarPropertyConfig.Builder<T> setMinSampleRate(float);
+    method @Deprecated public android.car.hardware.CarPropertyConfig.Builder<T> setPropertyIdIsSimulationPropId(boolean);
+  }
+
+  public final class CarPropertyValue<T> implements android.os.Parcelable {
+    method @FlaggedApi("android.car.feature.car_property_simulation") public boolean isPropertyIdSimulationPropId();
   }
 
   @Deprecated public final class CarVendorExtensionManager {

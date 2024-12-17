@@ -60,6 +60,7 @@ import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.CarPropertyValue;
 import android.car.hardware.property.AreaIdConfig;
 import android.car.hardware.property.CarPropertyManager;
+import android.car.hardware.property.ICarPropertyEventListener;
 import android.car.test.AbstractExpectableTestCase;
 import android.hardware.automotive.vehicle.RawPropValues;
 import android.hardware.automotive.vehicle.VehicleAreaConfig;
@@ -149,6 +150,12 @@ public class PropertyHalServiceTest extends AbstractExpectableTestCase{
     private ISupportedValuesChangeCallback mSupportedValuesChangeCallback;
     @Mock
     private IBinder mSupportedValuesChangeCallbackBinder;
+    @Mock
+    private HalPropConfig mMockPropConfig1;
+    @Mock
+    private HalPropConfig mMockPropConfig2;
+    @Mock
+    private ICarPropertyEventListener mCallback;
 
     private PropertyHalService mPropertyHalService;
     private static final int REQUEST_ID_1 = 1;
@@ -218,22 +225,20 @@ public class PropertyHalServiceTest extends AbstractExpectableTestCase{
         mPropertyHalService.init();
 
         // HVAC_TEMPERATURE_SET, ON_CHANGE, global
-        HalPropConfig mockPropConfig1 = mock(HalPropConfig.class);
-        when(mockPropConfig1.getPropId()).thenReturn(VehicleProperty.HVAC_TEMPERATURE_SET);
-        when(mockPropConfig1.getChangeMode()).thenReturn(VehiclePropertyChangeMode.ON_CHANGE);
-        when(mockPropConfig1.toCarPropertyConfig(eq(VehicleProperty.HVAC_TEMPERATURE_SET), any()))
+        when(mMockPropConfig1.getPropId()).thenReturn(VehicleProperty.HVAC_TEMPERATURE_SET);
+        when(mMockPropConfig1.getChangeMode()).thenReturn(VehiclePropertyChangeMode.ON_CHANGE);
+        when(mMockPropConfig1.toCarPropertyConfig(eq(VehicleProperty.HVAC_TEMPERATURE_SET), any()))
                 .thenReturn(mMockCarPropertyConfig1);
         when(mMockCarPropertyConfig1.getChangeMode())
                 .thenReturn(VehiclePropertyChangeMode.ON_CHANGE);
         when(mMockCarPropertyConfig1.getAreaIds()).thenReturn(new int[]{0});
 
         // PERF_VEHICLE_SPEED, CONTINUOUS, global
-        HalPropConfig mockPropConfig2 = mock(HalPropConfig.class);
-        when(mockPropConfig2.getPropId()).thenReturn(VehicleProperty.PERF_VEHICLE_SPEED);
-        when(mockPropConfig2.getChangeMode()).thenReturn(VehiclePropertyChangeMode.CONTINUOUS);
-        when(mockPropConfig2.getMinSampleRate()).thenReturn(20.0f);
-        when(mockPropConfig2.getMaxSampleRate()).thenReturn(100.0f);
-        when(mockPropConfig2.toCarPropertyConfig(eq(VehicleProperty.PERF_VEHICLE_SPEED), any()))
+        when(mMockPropConfig2.getPropId()).thenReturn(VehicleProperty.PERF_VEHICLE_SPEED);
+        when(mMockPropConfig2.getChangeMode()).thenReturn(VehiclePropertyChangeMode.CONTINUOUS);
+        when(mMockPropConfig2.getMinSampleRate()).thenReturn(20.0f);
+        when(mMockPropConfig2.getMaxSampleRate()).thenReturn(100.0f);
+        when(mMockPropConfig2.toCarPropertyConfig(eq(VehicleProperty.PERF_VEHICLE_SPEED), any()))
                 .thenReturn(mMockCarPropertyConfig2);
         when(mMockCarPropertyConfig2.getChangeMode())
                 .thenReturn(VehiclePropertyChangeMode.CONTINUOUS);
@@ -277,7 +282,7 @@ public class PropertyHalServiceTest extends AbstractExpectableTestCase{
         vehiclePropConfig6.changeMode = VehiclePropertyChangeMode.ON_CHANGE;
         HalPropConfig propConfig6 = new AidlHalPropConfig(vehiclePropConfig6);
 
-        mPropertyHalService.takeProperties(List.of(mockPropConfig1, mockPropConfig2,
+        mPropertyHalService.takeProperties(List.of(mMockPropConfig1, mMockPropConfig2,
                 mockPropConfig3, propConfig4, propConfig5, propConfig6));
         mPropertyHalService.getPropertyList();
 
@@ -3514,6 +3519,46 @@ public class PropertyHalServiceTest extends AbstractExpectableTestCase{
                 List.of(propIdAreaId1), mSupportedValuesChangeCallback);
 
         verify(mVehicleHal, never()).unregisterSupportedValuesChange(any(), any());
+    }
+
+    @Test
+    public void testRegisterRecordingListener() {
+        when(mVehicleHal.registerRecordingListener(mCallback)).thenReturn(List.of(mMockPropConfig1,
+                mMockPropConfig2));
+        when(mMockPropConfig1.toCarPropertyConfig(eq(VehicleProperty.HVAC_TEMPERATURE_SET),
+                any(PropertyHalServiceConfigs.class), eq(true)))
+                .thenReturn(mMockCarPropertyConfig1);
+        when(mMockPropConfig2.toCarPropertyConfig(eq(VehicleProperty.PERF_VEHICLE_SPEED),
+                any(PropertyHalServiceConfigs.class), eq(true)))
+                .thenReturn(mMockCarPropertyConfig2);
+        List<CarPropertyConfig> configs = mPropertyHalService.registerRecordingListener(mCallback);
+
+        assertWithMessage("Successful register recording listener").that(configs)
+                .containsExactlyElementsIn(List.of(mMockCarPropertyConfig1,
+                        mMockCarPropertyConfig2));
+    }
+
+    @Test
+    public void testIsRecordingVehicleProperties() {
+        when(mVehicleHal.isRecordingVehicleProperties()).thenReturn(true);
+
+        assertWithMessage("Vehicle hal recording").that(
+                mPropertyHalService.isRecordingVehicleProperties()).isTrue();
+    }
+
+    @Test
+    public void testIsRecordingVehicleProperties_false() {
+        when(mVehicleHal.isRecordingVehicleProperties()).thenReturn(false);
+
+        assertWithMessage("Vehicle hal recording").that(
+                mPropertyHalService.isRecordingVehicleProperties()).isFalse();
+    }
+
+    @Test
+    public void testStopRecordingVehicleProperties() {
+        mPropertyHalService.stopRecordingVehicleProperties(mCallback);
+
+        verify(mVehicleHal).stopRecordingVehicleProperties(eq(mCallback));
     }
 
     /** Creates a {@code CarSubscription} with Vur off. */

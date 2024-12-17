@@ -18,6 +18,7 @@ package android.car.hardware;
 
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
 
+import android.annotation.FlaggedApi;
 import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
@@ -25,8 +26,10 @@ import android.annotation.SystemApi;
 import android.car.VehicleAreaType;
 import android.car.VehicleAreaType.VehicleAreaTypeValue;
 import android.car.VehiclePropertyIds;
+import android.car.builtin.os.BuildHelper;
 import android.car.feature.Flags;
 import android.car.hardware.property.AreaIdConfig;
+import android.car.hardware.property.CarPropertySimulationManager;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.SparseArray;
@@ -61,11 +64,13 @@ public final class CarPropertyConfig<T> implements Parcelable {
     private final List<AreaIdConfig<T>> mAreaIdConfigs;
     private final SparseArray<AreaIdConfig<T>> mAreaIdToAreaIdConfig;
     private final Class<T> mType;
+    private boolean mIsPropertyIdSimulationPropId;
 
     private CarPropertyConfig(int access, int areaType, int changeMode,
             ArrayList<Integer> configArray, String configString,
             float maxSampleRate, float minSampleRate, int propertyId,
-            List<AreaIdConfig<T>> areaIdConfigs, Class<T> type) {
+            List<AreaIdConfig<T>> areaIdConfigs, Class<T> type,
+            boolean isPropertyIdSimulationPropId) {
         mAccess = access;
         mAreaType = areaType;
         mChangeMode = changeMode;
@@ -77,6 +82,7 @@ public final class CarPropertyConfig<T> implements Parcelable {
         mAreaIdConfigs = areaIdConfigs;
         mAreaIdToAreaIdConfig = generateAreaIdToAreaIdConfig(areaIdConfigs);
         mType = type;
+        mIsPropertyIdSimulationPropId = isPropertyIdSimulationPropId;
     }
 
     /** @hide */
@@ -260,8 +266,7 @@ public final class CarPropertyConfig<T> implements Parcelable {
     public AreaIdConfig<T> getAreaIdConfig(int areaId) {
         if (!mAreaIdToAreaIdConfig.contains(areaId)) {
             throw new IllegalArgumentException("Area ID: " + Integer.toHexString(areaId)
-                    + " is not supported for property ID: " + VehiclePropertyIds.toString(
-                    mPropertyId));
+                    + " is not supported for property ID: " + propertyIdToString());
         }
         return mAreaIdToAreaIdConfig.get(areaId);
     }
@@ -323,6 +328,26 @@ public final class CarPropertyConfig<T> implements Parcelable {
     }
 
     /**
+     * Returns whether the propertyId is Simulation Property Id.
+     *
+     * <p>Simulation property is a property which is used by car service and vehicle hardware but
+     * is not defined in {@link android.car.VehiclePropertyIds}
+     *
+     * @return {@code true} when returned from
+     * {@link CarPropertySimulationManager#startRecordingVehicleProperties} {@code false} otherwise.
+     *
+     * @hide
+     */
+    @SystemApi
+    @FlaggedApi(Flags.FLAG_CAR_PROPERTY_SIMULATION)
+    public boolean isPropertyIdSimulationPropId() {
+        if (!BuildHelper.isDebuggableBuild()) {
+            throw new IllegalStateException("Build is not eng or user-debug");
+        }
+        return mIsPropertyIdSimulationPropId;
+    }
+
+    /**
      * @return  the first areaId.
      * Throws {@link java.lang.IllegalStateException} if supported area count not equals to one.
      * @hide
@@ -330,9 +355,18 @@ public final class CarPropertyConfig<T> implements Parcelable {
     public int getFirstAndOnlyAreaId() {
         if (mAreaIdConfigs.size() != 1) {
             throw new IllegalStateException("Expected one and only area in this property. PropId: "
-                    + VehiclePropertyIds.toString(mPropertyId));
+                    + propertyIdToString());
         }
         return mAreaIdConfigs.get(0).getAreaId();
+    }
+
+    private String propertyIdToString() {
+        if (Flags.carPropertySimulation()) {
+            if (isPropertyIdSimulationPropId()) {
+                return "0x" + Integer.toHexString(mPropertyId);
+            }
+        }
+        return VehiclePropertyIds.toString(mPropertyId);
     }
 
     /**
@@ -455,8 +489,8 @@ public final class CarPropertyConfig<T> implements Parcelable {
     /** @hide */
     @Override
     public String toString() {
-        return "CarPropertyConfig{"
-                + "mPropertyId=" + VehiclePropertyIds.toString(mPropertyId)
+        String configString = "CarPropertyConfig{"
+                + "mPropertyId=" + propertyIdToString()
                 + ", mAccess=" + mAccess
                 + ", mAreaType=" + mAreaType
                 + ", mChangeMode=" + mChangeMode
@@ -465,8 +499,15 @@ public final class CarPropertyConfig<T> implements Parcelable {
                 + ", mMaxSampleRate=" + mMaxSampleRate
                 + ", mMinSampleRate=" + mMinSampleRate
                 + ", mAreaIdConfigs =" + mAreaIdConfigs
-                + ", mType=" + mType
-                + '}';
+                + ", mType=" + mType;
+        if (Flags.carPropertySimulation()) {
+            if (isPropertyIdSimulationPropId()) {
+                return configString
+                        + ", mIsPropertyIdSimulationPropId=" + mIsPropertyIdSimulationPropId
+                        + '}';
+            }
+        }
+        return configString + '}';
     }
 
     /**
@@ -589,6 +630,7 @@ public final class CarPropertyConfig<T> implements Parcelable {
         private final int mPropertyId;
         private final List<AreaIdConfig<T>> mAreaIdConfigs = new ArrayList<>();
         private final Class<T> mType;
+        private boolean mIsPropertyIdSimulationPropId;
 
         private Builder(int areaType, int propertyId, Class<T> type) {
             mAreaType = areaType;
@@ -729,12 +771,23 @@ public final class CarPropertyConfig<T> implements Parcelable {
         }
 
         /**
+         * Set whether property Id is Simulation.
+         *
+         * @return Builder
+         */
+        public Builder<T> setPropertyIdIsSimulationPropId(boolean isSimulationPropId) {
+            mIsPropertyIdSimulationPropId = isSimulationPropId;
+            return this;
+        }
+
+        /**
          * Builds a new {@link CarPropertyConfig}.
          */
         public CarPropertyConfig<T> build() {
             return new CarPropertyConfig<>(mAccess, mAreaType, mChangeMode, mConfigArray,
                                            mConfigString, mMaxSampleRate, mMinSampleRate,
-                                           mPropertyId, mAreaIdConfigs, mType);
+                                           mPropertyId, mAreaIdConfigs, mType,
+                                           mIsPropertyIdSimulationPropId);
         }
     }
 
