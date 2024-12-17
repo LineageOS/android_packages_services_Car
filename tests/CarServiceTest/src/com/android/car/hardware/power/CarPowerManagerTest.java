@@ -43,7 +43,7 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
 import android.annotation.NonNull;
-import android.automotive.powerpolicy.internal.ICarPowerPolicyDelegate;
+import android.automotive.power.internal.ICarPowerManagementDelegate;
 import android.car.Car;
 import android.car.feature.Flags;
 import android.car.hardware.power.CarPowerManager;
@@ -52,7 +52,7 @@ import android.car.hardware.power.CarPowerPolicyFilter;
 import android.car.hardware.power.PowerComponent;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.car.test.mocks.JavaMockitoHelper;
-import android.car.testapi.FakeRefactoredCarPowerPolicyDaemon;
+import android.car.testapi.FakeRefactoredCarPowerManagementDaemon;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
@@ -112,8 +112,8 @@ public final class CarPowerManagerTest extends AbstractExtendedMockitoTestCase {
 
     private final MockDisplayInterface mDisplayInterface = new MockDisplayInterface();
     private final MockSystemStateInterface mSystemStateInterface = new MockSystemStateInterface();
-    private final ICarPowerPolicyDelegate mRefactoredPowerPolicyDaemon =
-            new FakeRefactoredCarPowerPolicyDaemon(
+    private final ICarPowerManagementDelegate mRefactoredCarPowerManagementDaemon =
+            new FakeRefactoredCarPowerManagementDaemon(
                     /* fileKernelSilentMode= */ new File("KERNEL_SILENT_FILE"),
                     /* customComponents= */ null);
 
@@ -466,16 +466,16 @@ public final class CarPowerManagerTest extends AbstractExtendedMockitoTestCase {
                 R.bool.config_enablePassengerDisplayPowerSaving);
         mPowerComponentHandler = new PowerComponentHandler(mContext, mSystemInterface,
                 new AtomicFile(mComponentStateFile));
-        IInterface powerPolicyDaemon;
+        IInterface powerManagementDaemon;
         if (Flags.carPowerPolicyRefactoring()) {
-            powerPolicyDaemon = mRefactoredPowerPolicyDaemon;
+            powerManagementDaemon = mRefactoredCarPowerManagementDaemon;
         } else {
-            powerPolicyDaemon = mPowerPolicyDaemon;
+            powerManagementDaemon = mPowerPolicyDaemon;
         }
         mService = new CarPowerManagementService.Builder().setContext(mContext)
                 .setResources(mResources).setPowerHalService(mPowerHal)
                 .setSystemInterface(mSystemInterface).setUserManager(mUserManager)
-                .setCarUserService(mCarUserService).setPowerPolicyDaemon(powerPolicyDaemon)
+                .setCarUserService(mCarUserService).setPowerManagementDaemon(powerManagementDaemon)
                 .setPowerComponentHandler(mPowerComponentHandler).build();
         mService.init();
         if (Flags.carPowerPolicyRefactoring()) {

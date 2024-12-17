@@ -49,8 +49,8 @@ PRODUCT_PACKAGES_DEBUG += \
 
 PRODUCT_PUBLIC_SEPOLICY_DIRS += packages/services/Car/car_product/sepolicy/public
 PRODUCT_PRIVATE_SEPOLICY_DIRS += packages/services/Car/car_product/sepolicy/private
-PRODUCT_PUBLIC_SEPOLICY_DIRS += packages/services/Car/cpp/powerpolicy/sepolicy/public
-PRODUCT_PRIVATE_SEPOLICY_DIRS += packages/services/Car/cpp/powerpolicy/sepolicy/private
+PRODUCT_PUBLIC_SEPOLICY_DIRS += packages/services/Car/cpp/power/sepolicy/public
+PRODUCT_PRIVATE_SEPOLICY_DIRS += packages/services/Car/cpp/power/sepolicy/private
 PRODUCT_PUBLIC_SEPOLICY_DIRS += packages/services/Car/cpp/watchdog/sepolicy/public
 PRODUCT_PRIVATE_SEPOLICY_DIRS += packages/services/Car/cpp/watchdog/sepolicy/private
 
