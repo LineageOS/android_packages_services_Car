@@ -1235,6 +1235,7 @@ public class CarPropertyService extends ICarProperty.Stub
     @Override
     public CarPropertyConfigList registerRecordingListener(ICarPropertyEventListener callback) {
         CarServiceUtils.assertPermission(mContext, Car.PERMISSION_RECORD_VEHICLE_PROPERTIES);
+        CarServiceUtils.assertBuildIsDebuggable();
         List<CarPropertyConfig> carPropertyConfigList = mPropertyHalService
                 .registerRecordingListener(callback);
         return new CarPropertyConfigList(carPropertyConfigList);
@@ -1243,11 +1244,13 @@ public class CarPropertyService extends ICarProperty.Stub
     @Override
     public boolean isRecordingVehicleProperties() {
         CarServiceUtils.assertPermission(mContext, Car.PERMISSION_RECORD_VEHICLE_PROPERTIES);
+        CarServiceUtils.assertBuildIsDebuggable();
         return mPropertyHalService.isRecordingVehicleProperties();
     }
 
     @Override
     public void stopRecordingVehicleProperties(ICarPropertyEventListener callback) {
+        CarServiceUtils.assertBuildIsDebuggable();
         CarServiceUtils.assertPermission(mContext, Car.PERMISSION_RECORD_VEHICLE_PROPERTIES);
         mPropertyHalService.stopRecordingVehicleProperties(callback);
     }
@@ -1255,6 +1258,7 @@ public class CarPropertyService extends ICarProperty.Stub
     @Override
     public void enableInjectionMode(int[] propertyIdsFromRealHardware) {
         CarServiceUtils.assertPermission(mContext, Car.PERMISSION_INJECT_VEHICLE_PROPERTIES);
+        CarServiceUtils.assertBuildIsDebuggable();
         mPropertyHalService.enableInjectionMode(Lists.asImmutableList(
                 propertyIdsFromRealHardware));
     }
@@ -1262,24 +1266,28 @@ public class CarPropertyService extends ICarProperty.Stub
     @Override
     public void disableInjectionMode() {
         CarServiceUtils.assertPermission(mContext, Car.PERMISSION_INJECT_VEHICLE_PROPERTIES);
+        CarServiceUtils.assertBuildIsDebuggable();
         mPropertyHalService.disableInjectionMode();
     }
 
     @Override
     public boolean isVehiclePropertyInjectionModeEnabled() {
         CarServiceUtils.assertPermission(mContext, Car.PERMISSION_INJECT_VEHICLE_PROPERTIES);
+        CarServiceUtils.assertBuildIsDebuggable();
         return mPropertyHalService.isVehiclePropertyInjectionModeEnabled();
     }
 
     @Override
     public CarPropertyValue getLastInjectedVehicleProperty(int propertyId) {
         CarServiceUtils.assertPermission(mContext, Car.PERMISSION_INJECT_VEHICLE_PROPERTIES);
+        CarServiceUtils.assertBuildIsDebuggable();
         return mPropertyHalService.getLastInjectedVehicleProperty(propertyId);
     }
 
     @Override
     public void injectVehicleProperties(List<CarPropertyValue> carPropertyValues) {
         CarServiceUtils.assertPermission(mContext, Car.PERMISSION_INJECT_VEHICLE_PROPERTIES);
+        CarServiceUtils.assertBuildIsDebuggable();
         mPropertyHalService.injectVehicleProperties(carPropertyValues);
     }
 

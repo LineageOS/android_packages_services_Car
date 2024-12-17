@@ -25,7 +25,10 @@ import static java.lang.Integer.toHexString;
 import android.annotation.FlaggedApi;
 import android.annotation.IntDef;
 import android.annotation.NonNull;
+import android.annotation.SystemApi;
 import android.car.VehiclePropertyIds;
+import android.car.builtin.os.BuildHelper;
+import android.car.feature.Flags;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -54,6 +57,7 @@ public final class CarPropertyValue<T> implements Parcelable {
     private final int mStatus;
     private final long mTimestampNanos;
     private final RawPropertyValue<T> mValue;
+    private final boolean mIsSimulationPropId;
 
     /** @removed accidentally exposed previously */
     @IntDef({
@@ -157,12 +161,46 @@ public final class CarPropertyValue<T> implements Parcelable {
      */
     public CarPropertyValue(int propertyId, int areaId, int status, long timestampNanos,
             RawPropertyValue<T> rawPropertyValue) {
+        this(propertyId, areaId, status, timestampNanos, rawPropertyValue,
+                /* isSimulationPropId= */ false);
+    }
+
+    /**
+     * Creates an instance of {@code CarPropertyValue}. The {@code timestampNanos} is the time in
+     * nanoseconds at which the event happened. For a given car property, each new {@code
+     * CarPropertyValue} should be monotonically increasing using the same time base as
+     * {@link android.os.SystemClock#elapsedRealtimeNanos()}.
+     *
+     * @param propertyId The property identifier, see constants in
+     *                   {@link android.car.VehiclePropertyIds} for system defined property IDs.
+     * @param areaId     The area identifier. Must be {@code 0} if property is
+     *                   {@link android.car.VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}. Otherwise, it
+     *                   must be one or more OR'd together constants of this property's
+     *                   {@link android.car.VehicleAreaType}:
+     *                     <ul>
+     *                       <li>{@code VehicleAreaWindow}</li>
+     *                       <li>{@code VehicleAreaDoor}</li>
+     *                       <li>{@link android.car.VehicleAreaSeat}</li>
+     *                       <li>{@code VehicleAreaMirror}</li>
+     *                       <li>{@link android.car.VehicleAreaWheel}</li>
+     *                     </ul>
+     * @param status           The status of the property.
+     * @param timestampNanos   Elapsed time in nanoseconds since boot
+     * @param rawPropertyValue Value of the property.
+     * @param isSimulationPropId     If the property is a Simulation property.
+     *
+     * @hide
+     */
+    public CarPropertyValue(int propertyId, int areaId, int status, long timestampNanos,
+            RawPropertyValue<T> rawPropertyValue, boolean isSimulationPropId) {
         mPropertyId = propertyId;
         mAreaId = areaId;
         mStatus = status;
         mTimestampNanos = timestampNanos;
         mValue = rawPropertyValue;
+        mIsSimulationPropId = isSimulationPropId;
     }
+
 
     /**
      * @hide
@@ -193,6 +231,7 @@ public final class CarPropertyValue<T> implements Parcelable {
         mTimestampNanos = in.readLong();
         mValue = (RawPropertyValue<T>) in.readParcelable(RawPropertyValue.class.getClassLoader(),
                 RawPropertyValue.class);
+        mIsSimulationPropId = in.readBoolean();
     }
 
     public static final Creator<CarPropertyValue> CREATOR = new Creator<CarPropertyValue>() {
@@ -220,6 +259,7 @@ public final class CarPropertyValue<T> implements Parcelable {
         dest.writeInt(mStatus);
         dest.writeLong(mTimestampNanos);
         dest.writeParcelable(mValue, /* parcelableFlags= */ 0);
+        dest.writeBoolean(mIsSimulationPropId);
     }
 
     /**
@@ -305,17 +345,49 @@ public final class CarPropertyValue<T> implements Parcelable {
         return mValue;
     }
 
+    /**
+     * Returns weather the propertyId is Simulation Property Id.
+     *
+     * <p>Simulation property is a property which is used by car service and vehicle hardware but
+     * is not defined in {@link android.car.VehiclePropertyIds}
+     *
+     * @return This will only be {@code true} if returned from CarSimulationManager.
+     *
+     * @hide
+     */
+    @SystemApi
+    @FlaggedApi(Flags.FLAG_CAR_PROPERTY_SIMULATION)
+    public boolean isPropertyIdSimulationPropId() {
+        if (!BuildHelper.isDebuggableBuild()) {
+            throw new IllegalStateException("Build is not eng or user-debug");
+        }
+        return mIsSimulationPropId;
+    }
+
     /** @hide */
     @Override
     public String toString() {
-        return "CarPropertyValue{"
+        String propertyIdToString = VehiclePropertyIds.toString(mPropertyId);
+        if (Flags.carPropertySimulation()) {
+            if (isPropertyIdSimulationPropId()) {
+                propertyIdToString = Integer.toHexString(mPropertyId);
+            }
+        }
+        String propertyValueString = "CarPropertyValue{"
                 + "mPropertyId=0x" + toHexString(mPropertyId)
-                + ", propertyName=" + VehiclePropertyIds.toString(mPropertyId)
+                + ", propertyName=" + propertyIdToString
                 + ", mAreaId=0x" + toHexString(mAreaId)
                 + ", mStatus=" + mStatus
                 + ", mTimestampNanos=" + mTimestampNanos
-                + ", mValue=" + mValue
-                + '}';
+                + ", mValue=" + mValue;
+        if (Flags.carPropertySimulation()) {
+            if (isPropertyIdSimulationPropId()) {
+                return propertyValueString
+                        + ", mIsSimulationPropId=" + mIsSimulationPropId
+                        + '}';
+            }
+        }
+        return propertyValueString + '}';
     }
 
     /** Generates hash code for this instance. */

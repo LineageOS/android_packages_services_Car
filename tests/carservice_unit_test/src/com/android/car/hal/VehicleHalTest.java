@@ -43,6 +43,7 @@ import static org.mockito.Mockito.when;
 
 import android.car.feature.FeatureFlags;
 import android.car.hardware.property.CarPropertyManager;
+import android.car.hardware.property.ICarPropertyEventListener;
 import android.car.test.AbstractExpectableTestCase;
 import android.content.Context;
 import android.hardware.automotive.vehicle.StatusCode;
@@ -56,6 +57,7 @@ import android.hardware.automotive.vehicle.VehiclePropertyChangeMode;
 import android.hardware.automotive.vehicle.VehiclePropertyType;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.ServiceSpecificException;
 import android.os.SystemClock;
@@ -129,6 +131,9 @@ public class VehicleHalTest extends AbstractExpectableTestCase {
     @Mock private VehicleStub.SubscriptionClient mSubscriptionClient;
     @Mock private FeatureFlags mFeatureFlags;
     @Captor private ArgumentCaptor<List> mListCaptor;
+    @Mock private ICarPropertyEventListener mCallback;
+    @Mock private ICarPropertyEventListener mCallback2;
+    @Mock private IBinder mListenerBinder;
 
     private final HalPropValueBuilder mPropValueBuilder = new HalPropValueBuilder(
             /* isAidl= */ true);
@@ -2544,6 +2549,95 @@ public class VehicleHalTest extends AbstractExpectableTestCase {
         assertThrows(IllegalArgumentException.class, () -> {
             mVehicleHal.unregisterSupportedValuesChange(mPropertyHalService, propIdAreaIds);
         });
+    }
+
+    @Test
+    public void testRegisterRecordingListener() throws Exception {
+        when(mCallback.asBinder()).thenReturn(mListenerBinder);
+
+        List<HalPropConfig> configs = mVehicleHal.registerRecordingListener(mCallback);
+
+        List<Integer> configPropIds = new ArrayList<>();
+        for (HalPropConfig config : configs) {
+            configPropIds.add(config.getPropId());
+        }
+        List<Integer> expectedConfigPropIds = new ArrayList<>();
+        for (VehiclePropConfig propConfig : mConfigs) {
+            expectedConfigPropIds.add(propConfig.prop);
+        }
+        verify(mListenerBinder).linkToDeath(any(), eq(0));
+        assertWithMessage("Register recording listener returned values").that(configPropIds)
+                .containsExactlyElementsIn(expectedConfigPropIds);
+    }
+
+    @Test
+    public void testRegisterRecordingListenerTwice() throws Exception {
+        when(mCallback.asBinder()).thenReturn(mListenerBinder);
+
+        mVehicleHal.registerRecordingListener(mCallback);
+        IllegalStateException thrown = assertThrows(IllegalStateException.class, () -> mVehicleHal
+                .registerRecordingListener(mCallback));
+
+        assertWithMessage("Register Recording Listener called twice").that(thrown).hasMessageThat()
+                .contains("Recording already in progress");
+    }
+
+    @Test
+    public void testIsRecordingVehicleProperties_registered() throws Exception {
+        when(mCallback.asBinder()).thenReturn(mListenerBinder);
+        mVehicleHal.registerRecordingListener(mCallback);
+
+        assertWithMessage("Is recording vehicle properties when registered").that(mVehicleHal
+                .isRecordingVehicleProperties()).isTrue();
+    }
+
+    @Test
+    public void testIsRecordingVehicleProperties_noneRegistered() {
+        assertWithMessage("Is recording vehicle properties when none registered").that(mVehicleHal
+                .isRecordingVehicleProperties()).isFalse();
+    }
+
+    @Test
+    public void testStopRecordingVehicleProperties() throws Exception {
+        when(mCallback.asBinder()).thenReturn(mListenerBinder);
+        mVehicleHal.registerRecordingListener(mCallback);
+
+        mVehicleHal.stopRecordingVehicleProperties(mCallback);
+
+        assertWithMessage("Stop recording vehicle properties").that(mVehicleHal
+                .isRecordingVehicleProperties()).isFalse();
+    }
+
+    @Test
+    public void testStopRecordingVehicleProperties_noneRegistered() throws Exception {
+        when(mCallback.asBinder()).thenReturn(mListenerBinder);
+
+        mVehicleHal.stopRecordingVehicleProperties(mCallback);
+
+        verify(mListenerBinder, never()).linkToDeath(any(), eq(0));
+    }
+
+    @Test
+    public void testStopRecordingVehicleProperties_notMatchingCallback() throws Exception {
+        when(mCallback.asBinder()).thenReturn(mListenerBinder);
+        mVehicleHal.registerRecordingListener(mCallback);
+
+        mVehicleHal.stopRecordingVehicleProperties(mCallback2);
+
+        verify(mListenerBinder, never()).unlinkToDeath(any(), eq(0));
+    }
+
+    @Test
+    public void testStartRecording_unlinkToDeath_onBinderDied() throws Exception {
+        when(mCallback.asBinder()).thenReturn(mListenerBinder);
+        mVehicleHal.registerRecordingListener(mCallback);
+        ArgumentCaptor<IBinder.DeathRecipient> recipientCaptor = ArgumentCaptor.forClass(
+                IBinder.DeathRecipient.class);
+        verify(mListenerBinder).linkToDeath(recipientCaptor.capture(), eq(0));
+
+        recipientCaptor.getValue().binderDied();
+
+        verify(mListenerBinder).unlinkToDeath(recipientCaptor.getValue(), 0);
     }
 
     private SubscribeOptions createSubscribeOptions(int propId, float sampleRateHz, int[] areaIds) {

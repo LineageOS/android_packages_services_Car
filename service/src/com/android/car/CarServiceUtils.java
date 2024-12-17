@@ -31,6 +31,7 @@ import android.app.ActivityOptions;
 import android.car.Car;
 import android.car.builtin.content.ContextHelper;
 import android.car.builtin.content.pm.PackageManagerHelper;
+import android.car.builtin.os.BuildHelper;
 import android.car.builtin.os.UserManagerHelper;
 import android.car.builtin.util.Slogf;
 import android.car.user.CarUserManager.UserLifecycleEvent;
@@ -662,6 +663,13 @@ public final class CarServiceUtils {
     public static void assertPermission(Context context, String permission) {
         if (context.checkCallingOrSelfPermission(permission) != PackageManager.PERMISSION_GRANTED) {
             throw new SecurityException("requires " + permission);
+        }
+    }
+
+    /** utility for checking if build is userdebug or eng */
+    public static void assertBuildIsDebuggable() {
+        if (!BuildHelper.isDebuggableBuild()) {
+            throw new IllegalStateException("Build is not eng or user-debug");
         }
     }
 

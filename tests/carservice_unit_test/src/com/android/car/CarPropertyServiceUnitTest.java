@@ -45,6 +45,7 @@ import android.car.Car;
 import android.car.VehicleAreaType;
 import android.car.VehicleAreaWindow;
 import android.car.VehiclePropertyIds;
+import android.car.builtin.os.BuildHelper;
 import android.car.feature.FeatureFlags;
 import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.CarPropertyValue;
@@ -76,6 +77,7 @@ import com.android.car.internal.util.Lists;
 import com.android.car.logging.HistogramFactoryInterface;
 import com.android.modules.expresslog.Histogram;
 
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -1914,6 +1916,7 @@ public final class CarPropertyServiceUnitTest extends AbstractExpectableTestCase
 
     @Test
     public void testIsRecordingVehiclePropertiesTrue() {
+        Assume.assumeTrue(BuildHelper.isDebuggableBuild());
         when(mFeatureFlags.carPropertySimulation()).thenReturn(true);
         doReturn(PackageManager.PERMISSION_GRANTED).when(mContext)
                 .checkCallingOrSelfPermission(Car.PERMISSION_RECORD_VEHICLE_PROPERTIES);
@@ -1925,6 +1928,7 @@ public final class CarPropertyServiceUnitTest extends AbstractExpectableTestCase
 
     @Test
     public void testIsRecordingVehiclePropertiesFalse() {
+        Assume.assumeTrue(BuildHelper.isDebuggableBuild());
         when(mFeatureFlags.carPropertySimulation()).thenReturn(true);
         doReturn(PackageManager.PERMISSION_GRANTED).when(mContext)
                 .checkCallingOrSelfPermission(Car.PERMISSION_RECORD_VEHICLE_PROPERTIES);
@@ -1936,6 +1940,7 @@ public final class CarPropertyServiceUnitTest extends AbstractExpectableTestCase
 
     @Test
     public void testStopRecordingVehicleProperties() {
+        Assume.assumeTrue(BuildHelper.isDebuggableBuild());
         when(mFeatureFlags.carPropertySimulation()).thenReturn(true);
         doReturn(PackageManager.PERMISSION_GRANTED).when(mContext)
                 .checkCallingOrSelfPermission(Car.PERMISSION_RECORD_VEHICLE_PROPERTIES);
@@ -1947,6 +1952,7 @@ public final class CarPropertyServiceUnitTest extends AbstractExpectableTestCase
 
     @Test
     public void testRegisterRecordingListener() {
+        Assume.assumeTrue(BuildHelper.isDebuggableBuild());
         when(mFeatureFlags.carPropertySimulation()).thenReturn(true);
         doReturn(PackageManager.PERMISSION_GRANTED).when(mContext)
                 .checkCallingOrSelfPermission(Car.PERMISSION_RECORD_VEHICLE_PROPERTIES);
@@ -1969,6 +1975,7 @@ public final class CarPropertyServiceUnitTest extends AbstractExpectableTestCase
 
     @Test
     public void testEnableInjectionMode() {
+        Assume.assumeTrue(BuildHelper.isDebuggableBuild());
         when(mFeatureFlags.carPropertySimulation()).thenReturn(true);
         doReturn(PackageManager.PERMISSION_GRANTED).when(mContext)
                 .checkCallingOrSelfPermission(Car.PERMISSION_INJECT_VEHICLE_PROPERTIES);
@@ -1981,6 +1988,7 @@ public final class CarPropertyServiceUnitTest extends AbstractExpectableTestCase
 
     @Test
     public void testDisableInjectionMode() {
+        Assume.assumeTrue(BuildHelper.isDebuggableBuild());
         when(mFeatureFlags.carPropertySimulation()).thenReturn(true);
         doReturn(PackageManager.PERMISSION_GRANTED).when(mContext)
                 .checkCallingOrSelfPermission(Car.PERMISSION_INJECT_VEHICLE_PROPERTIES);
@@ -1992,6 +2000,7 @@ public final class CarPropertyServiceUnitTest extends AbstractExpectableTestCase
 
     @Test
     public void testIsVehiclePropertyInjectionModeEnabledTrue() {
+        Assume.assumeTrue(BuildHelper.isDebuggableBuild());
         when(mFeatureFlags.carPropertySimulation()).thenReturn(true);
         doReturn(PackageManager.PERMISSION_GRANTED).when(mContext)
                 .checkCallingOrSelfPermission(Car.PERMISSION_INJECT_VEHICLE_PROPERTIES);
@@ -2005,6 +2014,7 @@ public final class CarPropertyServiceUnitTest extends AbstractExpectableTestCase
 
     @Test
     public void testIsVehiclePropertyInjectionModeEnabledFalse() {
+        Assume.assumeTrue(BuildHelper.isDebuggableBuild());
         when(mFeatureFlags.carPropertySimulation()).thenReturn(true);
         doReturn(PackageManager.PERMISSION_GRANTED).when(mContext)
                 .checkCallingOrSelfPermission(Car.PERMISSION_INJECT_VEHICLE_PROPERTIES);
@@ -2018,6 +2028,7 @@ public final class CarPropertyServiceUnitTest extends AbstractExpectableTestCase
 
     @Test
     public void testGetLastInjectedVehicleProperty() {
+        Assume.assumeTrue(BuildHelper.isDebuggableBuild());
         when(mFeatureFlags.carPropertySimulation()).thenReturn(true);
         doReturn(PackageManager.PERMISSION_GRANTED).when(mContext)
                 .checkCallingOrSelfPermission(Car.PERMISSION_INJECT_VEHICLE_PROPERTIES);
@@ -2033,6 +2044,7 @@ public final class CarPropertyServiceUnitTest extends AbstractExpectableTestCase
 
     @Test
     public void testInjectVehicleProperties() {
+        Assume.assumeTrue(BuildHelper.isDebuggableBuild());
         when(mFeatureFlags.carPropertySimulation()).thenReturn(true);
         doReturn(PackageManager.PERMISSION_GRANTED).when(mContext)
                 .checkCallingOrSelfPermission(Car.PERMISSION_INJECT_VEHICLE_PROPERTIES);
@@ -2043,5 +2055,93 @@ public final class CarPropertyServiceUnitTest extends AbstractExpectableTestCase
         mService.injectVehicleProperties(valuesToInject);
 
         verify(mHalService).injectVehicleProperties(valuesToInject);
+    }
+
+    @Test
+    public void testRegisterRecordingListener_nonDebuggableBuild() {
+        Assume.assumeFalse(BuildHelper.isDebuggableBuild());
+
+        IllegalStateException thrown = assertThrows(IllegalStateException.class, () ->
+                mService.registerRecordingListener(mICarPropertyEventListener));
+
+        assertWithMessage("Recording listener non-debuggable build")
+                .that(thrown).hasMessageThat().contains("Build is not eng or user-debug");
+    }
+
+    @Test
+    public void testIsRecordingVehicleProperties_nonDebuggableBuild() {
+        Assume.assumeFalse(BuildHelper.isDebuggableBuild());
+
+        IllegalStateException thrown = assertThrows(IllegalStateException.class, () ->
+                mService.isRecordingVehicleProperties());
+
+        assertWithMessage("IsRecordingVehicleProperties non-debuggable build")
+                .that(thrown).hasMessageThat().contains("Build is not eng or user-debug");
+    }
+
+    @Test
+    public void testStopRecordingVehicleProperties_nonDebuggableBuild() {
+        Assume.assumeFalse(BuildHelper.isDebuggableBuild());
+
+        IllegalStateException thrown = assertThrows(IllegalStateException.class, () ->
+                mService.stopRecordingVehicleProperties(mICarPropertyEventListener));
+
+        assertWithMessage("StopRecordingVehicleProperties non-debuggable build")
+                .that(thrown).hasMessageThat().contains("Build is not eng or user-debug");
+    }
+
+    @Test
+    public void testEnableInjectionMode_nonDebuggableBuild() {
+        Assume.assumeFalse(BuildHelper.isDebuggableBuild());
+
+        IllegalStateException thrown = assertThrows(IllegalStateException.class, () ->
+                mService.enableInjectionMode(new int[]{}));
+
+        assertWithMessage("EnableInjectionMode non-debuggable build").that(thrown)
+                .hasMessageThat().contains("Build is not eng or user-debug");
+    }
+
+    @Test
+    public void testDisableInjectionMode_nonDebuggableBuild() {
+        Assume.assumeFalse(BuildHelper.isDebuggableBuild());
+
+        IllegalStateException thrown = assertThrows(IllegalStateException.class, () ->
+                mService.disableInjectionMode());
+
+        assertWithMessage("DisableInjectionMode non-debuggable build").that(thrown)
+                .hasMessageThat().contains("Build is not eng or user-debug");
+    }
+
+    @Test
+    public void testIsVehiclePropertyInjectionModeEnabled_nonDebuggableBuild() {
+        Assume.assumeFalse(BuildHelper.isDebuggableBuild());
+
+        IllegalStateException thrown = assertThrows(IllegalStateException.class, () ->
+                mService.isVehiclePropertyInjectionModeEnabled());
+
+        assertWithMessage("IsVehiclePropertyInjectionModeEnabled non-debuggable build")
+                .that(thrown).hasMessageThat().contains("Build is not eng or user-debug");
+    }
+
+    @Test
+    public void testGetLastInjectedVehicleProperty_nonDebuggableBuild() {
+        Assume.assumeFalse(BuildHelper.isDebuggableBuild());
+
+        IllegalStateException thrown = assertThrows(IllegalStateException.class, () ->
+                mService.getLastInjectedVehicleProperty(1));
+
+        assertWithMessage("GetLastInjectedVehicleProperty non-debuggable build")
+                .that(thrown).hasMessageThat().contains("Build is not eng or user-debug");
+    }
+
+    @Test
+    public void testInjectVehicleProperties_nonDebuggableBuild() {
+        Assume.assumeFalse(BuildHelper.isDebuggableBuild());
+
+        IllegalStateException thrown = assertThrows(IllegalStateException.class, () ->
+                mService.injectVehicleProperties(List.of()));
+
+        assertWithMessage("InjectVehicleProperties non-debuggable build").that(thrown)
+                .hasMessageThat().contains("Build is not eng or user-debug");
     }
 }

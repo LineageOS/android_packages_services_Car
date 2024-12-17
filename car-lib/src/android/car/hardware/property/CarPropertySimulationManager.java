@@ -127,7 +127,7 @@ public final class CarPropertySimulationManager extends CarManagerBase {
      * <p>If the listener can no longer be reached (binder goes away) then the recording will be
      * stopped.
      *
-     * @param listener A listener to receive callbacks for VHAL events.
+     * @param listener A listener to receive callbacks for hardware events.
      * @param callbackExecutor The executor in which the callback is done on. If this is
      *                         {@code null}, the callback will be executed on the event handler
      *                         provided to the {@link android.car.Car} or the main thread if none
@@ -140,7 +140,8 @@ public final class CarPropertySimulationManager extends CarManagerBase {
      * @throws IllegalStateException If vehicle injection mode is enabled.
      * @throws SecurityException If missing permission.
      *
-     * @return A list of {@link CarPropertyConfig} that are being recorded.
+     * @return A list of {@link CarPropertyConfig} that are being recorded, the
+     *         {@link CarPropertyConfig}'s {@code propertyId} will be of hardware property Id.
      *
      * @hide
      */
@@ -192,12 +193,12 @@ public final class CarPropertySimulationManager extends CarManagerBase {
     }
 
     /**
-     * Stops recording of vehicle properties. If there is no recording in progress, this call will
-     * be treated as a no-op.
+     * Stops recording of vehicle properties.
      *
      * @throws IllegalStateException If the build is not userdebug or eng.
      * @throws IllegalStateException If the recording that was started was not started by this
      *                               process.
+     * @throws IllegalStateException If there are no recordings in progress.
      * @throws SecurityException If missing permission.
      *
      * @hide
@@ -220,7 +221,7 @@ public final class CarPropertySimulationManager extends CarManagerBase {
 
     /**
      * Initializes vehicle property injection mode, when this is enabled properties not in
-     * {@code propertyIdsFromRealHardware} will not receive VHAL events. To inject a vehicle
+     * {@code propertyIdsFromRealHardware} will not receive hardware events. To inject a vehicle
      * property see {@link CarPropertySimulationManager#injectVehicleProperties}.
      *
      * <p>This method is system-wide.
@@ -228,8 +229,9 @@ public final class CarPropertySimulationManager extends CarManagerBase {
      * <p>This method is idempotent. If the vehicle property injection is already
      * enabled, calling this method has no effect.
      *
-     * @param propertyIdsFromRealHardware The propertyIds allowed to receive events from real VHAL.
-     * If the propertyId is not supported by the real VHAL, it will be ignored.
+     * @param propertyIdsFromRealHardware The propertyIds allowed to receive events from real
+     *                                    hardware. If the propertyId is not supported by the real
+     *                                    hardware, it will be ignored.
      *
      * @throws IllegalStateException If the build is not userdebug or eng.
      * @throws IllegalStateException If recording vehicle property state is enabled.
@@ -333,14 +335,14 @@ public final class CarPropertySimulationManager extends CarManagerBase {
     }
 
     /**
-     * Injects fake VHAL data into the VHAL. It will call the onPropertyEvent callback in the VHAL.
-     * If the carPropertyValue's propertyId is not supported then that CarPropertyValue will be
-     * ignored and will not be injected. If the propertyId is part of the
-     * propertyIdsFromRealHardware when {@code enableInjectionMode} was called, those properties
-     * will also be ignored and will not be injected. The {@code mTimestampNanos} field in each
-     * {@link CarPropertyValue} represents the time elapsed since the initial call to
+     * Injects fake hardware data into the VHhardwareAL. It will call the onPropertyEvent callback
+     * in the hardware. If the carPropertyValue's propertyId is not supported then that
+     * {@link CarPropertyValue} will be ignored and will not be injected. If the propertyId is part
+     * of the propertyIdsFromRealHardware when {@code enableInjectionMode} was called, those
+     * properties will also be ignored and will not be injected. The {@code mTimestampNanos} field
+     * in each {@link CarPropertyValue} represents the time elapsed since the initial call to
      * {@link CarPropertySimulationManager#injectVehicleProperties}. This elapsed time determines
-     * when the corresponding value is injected into the VHAL.
+     * when the corresponding value is injected into the hardware.
      *
      * <p>This method supports queuing multiple injections. Each injection will be processed
      * independently at its designated time, ensuring that subsequent injections do not override
@@ -349,7 +351,7 @@ public final class CarPropertySimulationManager extends CarManagerBase {
      * <p>If {@code disableInjectionMode} is called before all scheduled property injections have
      * occurred, any pending injections will be cancelled.
      *
-     * @param carPropertyValues A list of carPropertyValues to inject. The VHAL will inject the
+     * @param carPropertyValues A list of carPropertyValues to inject. The hardware will inject the
      *                          vehiclePropValue when the has reached elapsed timestamp in ns. If
      *                          the timestamp has passed, it will inject the value immediately in
      *                          increasing order. If this has no value, it will be treated as a
@@ -440,7 +442,8 @@ public final class CarPropertySimulationManager extends CarManagerBase {
     }
 
     /**
-     * Applications registers CarRecorderListener object to receive updates on subscribed VHAL data.
+     * Applications registers CarRecorderListener object to receive updates on subscribed hardware
+     * data.
      *
      * @hide
      */

@@ -214,6 +214,19 @@ public abstract class HalPropValue {
      * @throws IllegalStateException If property has unsupported type
      */
     public CarPropertyValue toCarPropertyValue(int mgrPropId, HalPropConfig config) {
+        return toCarPropertyValue(mgrPropId, config, /* isVhalPropId= */ false);
+    }
+
+    /**
+     * Turns this class to a {@link CarPropertyValue}.
+     *
+     * @param mgrPropId The property ID used in {@link android.car.VehiclePropertyIds}.
+     * @param config The config for the property.
+     * @return A CarPropertyValue that could be passed to upper layer
+     * @throws IllegalStateException If property has unsupported type
+     */
+    public CarPropertyValue toCarPropertyValue(int mgrPropId, HalPropConfig config,
+            boolean isVhalPropId) {
         Class<?> clazz = CarPropertyUtils.getJavaClass(getPropId() & VehiclePropertyType.MASK);
         int areaId = getAreaId();
         int status = vehiclePropertyStatusToCarPropertyStatus(getStatus());
@@ -229,7 +242,7 @@ public abstract class HalPropValue {
             rawPropertyValue = new RawPropertyValue(CarPropertyHelper.getDefaultValue(clazz));
         }
         return new CarPropertyValue<>(mgrPropId, areaId, status, timestampNanos,
-                rawPropertyValue);
+                rawPropertyValue, isVhalPropId);
     }
 
     private @Nullable RawPropertyValue<?> toRawPropertyValue(int mgrPropId, HalPropConfig config) {
