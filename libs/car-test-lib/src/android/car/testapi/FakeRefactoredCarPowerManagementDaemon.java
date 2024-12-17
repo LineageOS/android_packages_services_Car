@@ -18,7 +18,7 @@ package android.car.testapi;
 
 import android.annotation.Nullable;
 import android.automotive.power.internal.ICarPowerManagementDelegate;
-import android.automotive.power.internal.ICarPowerPolicyDelegateCallback;
+import android.automotive.power.internal.ICarPowerManagementDelegateCallback;
 import android.automotive.power.internal.PowerPolicyInitData;
 import android.car.hardware.power.PowerComponent;
 import android.car.hardware.power.PowerComponentUtil;
@@ -87,7 +87,7 @@ public final class FakeRefactoredCarPowerManagementDaemon extends
     private String mLastDefinedPolicyId;
     private String mCurrentPowerPolicyId = SYSTEM_POWER_POLICY_INITIAL_ON;
     private Handler mHandler;
-    private ICarPowerPolicyDelegateCallback mCallback;
+    private ICarPowerManagementDelegateCallback mCallback;
     private File mFileKernelSilentMode;
 
     public FakeRefactoredCarPowerManagementDaemon(@Nullable File fileKernelSilentMode,
@@ -174,7 +174,7 @@ public final class FakeRefactoredCarPowerManagementDaemon extends
     }
 
     @Override
-    public PowerPolicyInitData notifyCarServiceReady(ICarPowerPolicyDelegateCallback callback) {
+    public PowerPolicyInitData notifyCarServiceReady(ICarPowerManagementDelegateCallback callback) {
         Log.i(TAG, "Fake refactored CPPD was notified that car service is ready");
         mCallback = callback;
         PowerPolicyInitData initData = new PowerPolicyInitData();

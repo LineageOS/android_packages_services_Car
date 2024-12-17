@@ -20,16 +20,16 @@ import android.automotive.power.internal.PowerPolicyFailureReason;
 import android.frameworks.automotive.powerpolicy.CarPowerPolicy;
 
 /**
- * ICarPowerPolicyDelegateCallback is an interface implemented by CarService.
+ * ICarPowerManagementDelegateCallback is an interface implemented by CarService.
  *
- * <p>CarService registers {@code ICarPowerPolicyDelegateCallback} to the car power policy daemon to
- * receive the result of applying a power policy.
+ * <p>CarService registers {@code ICarPowerManagementDelegateCallback} to the car power policy
+ * daemon to receive the result of applying a power policy.
  *
  * System private API for CarService.
  *
  * @hide
  */
-interface ICarPowerPolicyDelegateCallback {
+interface ICarPowerManagementDelegateCallback {
   /**
    * The car power policy daemon calls this method to ask CarService to update power components'
    * state.
@@ -68,4 +68,13 @@ interface ICarPowerPolicyDelegateCallback {
    * @param accumulatedPolicy the current accumulated power policy
    */
   oneway void onPowerPolicyChanged(in CarPowerPolicy accumulatedPolicy);
+
+  /**
+   * Used by car power management daemon to let CarService know that all native power state change
+   * listeners have completed.
+   *
+   * @param changeId The unique identifier of a power state change that was supplied by CarService
+   *                 when notifying car power management daemon of power state change.
+   */
+  oneway void onAllPowerStateChangeListenersComplete(int changeId);
 }

@@ -16,7 +16,7 @@
 
 #include "CarPowerPolicyServer.h"
 
-#include <aidl/android/automotive/power/internal/BnCarPowerPolicyDelegateCallback.h>
+#include <aidl/android/automotive/power/internal/BnCarPowerManagementDelegateCallback.h>
 #include <aidl/android/automotive/power/internal/PowerPolicyFailureReason.h>
 #include <aidl/android/automotive/power/internal/PowerPolicyInitData.h>
 #include <aidl/android/frameworks/automotive/powerpolicy/BnCarPowerPolicyChangeCallback.h>
@@ -49,9 +49,9 @@ namespace powerpolicy {
 
 using android::IBinder;
 
-using ::aidl::android::automotive::power::internal::BnCarPowerPolicyDelegateCallback;
+using ::aidl::android::automotive::power::internal::BnCarPowerManagementDelegateCallback;
 using ::aidl::android::automotive::power::internal::ICarPowerManagementDelegate;
-using ::aidl::android::automotive::power::internal::ICarPowerPolicyDelegateCallback;
+using ::aidl::android::automotive::power::internal::ICarPowerManagementDelegateCallback;
 using ::aidl::android::automotive::power::internal::PowerPolicyFailureReason;
 using ::aidl::android::automotive::power::internal::PowerPolicyInitData;
 using ::aidl::android::frameworks::automotive::powerpolicy::BnCarPowerPolicyChangeCallback;
@@ -90,7 +90,7 @@ public:
     }
 };
 
-class MockPowerPolicyDelegateCallback : public BnCarPowerPolicyDelegateCallback {
+class MockPowerManagementDelegateCallback : public BnCarPowerManagementDelegateCallback {
 public:
     MOCK_METHOD(ScopedAStatus, updatePowerComponents, (const CarPowerPolicy&), (override));
     MOCK_METHOD(ScopedAStatus, onApplyPowerPolicySucceeded, (int32_t, const CarPowerPolicy&, bool),
@@ -98,6 +98,8 @@ public:
     MOCK_METHOD(ScopedAStatus, onApplyPowerPolicyFailed, (int32_t, PowerPolicyFailureReason),
                 (override));
     MOCK_METHOD(ScopedAStatus, onPowerPolicyChanged, (const CarPowerPolicy&), (override));
+    MOCK_METHOD(ScopedAStatus, onAllPowerStateChangeListenersComplete, (int32_t changeId),
+                (override));
 };
 
 std::string getTestDataPath(const char* filename) {
@@ -177,7 +179,7 @@ public:
     }
 
     ScopedAStatus notifyCarServiceReady(
-            const std::shared_ptr<ICarPowerPolicyDelegateCallback>& callback,
+            const std::shared_ptr<ICarPowerManagementDelegateCallback>& callback,
             PowerPolicyInitData* aidlReturn) {
         return mServer->notifyCarServiceReadyInternal(callback, aidlReturn);
     }
@@ -399,8 +401,8 @@ public:
     void testApplyPowerPolicyPerPowerStateChangeAsyncInternal(const std::string& policyGroupId,
                                                               const std::string& expectedPolicyId) {
         sp<internal::CarPowerPolicyServerPeer> server = new internal::CarPowerPolicyServerPeer();
-        std::shared_ptr<MockPowerPolicyDelegateCallback> callback =
-                ndk::SharedRefBase::make<MockPowerPolicyDelegateCallback>();
+        std::shared_ptr<MockPowerManagementDelegateCallback> callback =
+                ndk::SharedRefBase::make<MockPowerManagementDelegateCallback>();
         server->expectLinkToDeathStatus(callback->asBinder().get(), STATUS_OK);
         server->init();
         setSystemCallingUid();
@@ -535,8 +537,8 @@ TEST_F(CarPowerPolicyServerTest, TestApplyPowerPolicyFromNativeClients) {
     }
 
     sp<internal::CarPowerPolicyServerPeer> server = new internal::CarPowerPolicyServerPeer();
-    std::shared_ptr<MockPowerPolicyDelegateCallback> callback =
-            ndk::SharedRefBase::make<MockPowerPolicyDelegateCallback>();
+    std::shared_ptr<MockPowerManagementDelegateCallback> callback =
+            ndk::SharedRefBase::make<MockPowerManagementDelegateCallback>();
     server->expectLinkToDeathStatus(callback->asBinder().get(), STATUS_OK);
     server->init();
     PowerPolicyInitData initData;
@@ -588,8 +590,8 @@ TEST_F(CarPowerPolicyServerTest, TestApplyPowerPolicyFromCarService) {
     }
 
     sp<internal::CarPowerPolicyServerPeer> server = new internal::CarPowerPolicyServerPeer();
-    std::shared_ptr<MockPowerPolicyDelegateCallback> callback =
-            ndk::SharedRefBase::make<MockPowerPolicyDelegateCallback>();
+    std::shared_ptr<MockPowerManagementDelegateCallback> callback =
+            ndk::SharedRefBase::make<MockPowerManagementDelegateCallback>();
     server->expectLinkToDeathStatus(callback->asBinder().get(), STATUS_OK);
     server->init();
     setSystemCallingUid();
@@ -630,8 +632,8 @@ TEST_F(CarPowerPolicyServerTest, TestApplyPowerPolicyFromCarService_nonSystemUid
     }
 
     sp<internal::CarPowerPolicyServerPeer> server = new internal::CarPowerPolicyServerPeer();
-    std::shared_ptr<MockPowerPolicyDelegateCallback> callback =
-            ndk::SharedRefBase::make<MockPowerPolicyDelegateCallback>();
+    std::shared_ptr<MockPowerManagementDelegateCallback> callback =
+            ndk::SharedRefBase::make<MockPowerManagementDelegateCallback>();
     server->expectLinkToDeathStatus(callback->asBinder().get(), STATUS_OK);
     server->init();
     PowerPolicyInitData initData;
@@ -649,8 +651,8 @@ TEST_F(CarPowerPolicyServerTest, TestApplyPowerPolicyFromCarService_invalidPolic
     }
 
     sp<internal::CarPowerPolicyServerPeer> server = new internal::CarPowerPolicyServerPeer();
-    std::shared_ptr<MockPowerPolicyDelegateCallback> callback =
-            ndk::SharedRefBase::make<MockPowerPolicyDelegateCallback>();
+    std::shared_ptr<MockPowerManagementDelegateCallback> callback =
+            ndk::SharedRefBase::make<MockPowerManagementDelegateCallback>();
     server->expectLinkToDeathStatus(callback->asBinder().get(), STATUS_OK);
     server->init();
     setSystemCallingUid();
@@ -690,8 +692,8 @@ TEST_F(CarPowerPolicyServerTest, TestApplyPowerPolicyFromCarService_duplicatedRe
     }
 
     sp<internal::CarPowerPolicyServerPeer> server = new internal::CarPowerPolicyServerPeer();
-    std::shared_ptr<MockPowerPolicyDelegateCallback> callback =
-            ndk::SharedRefBase::make<MockPowerPolicyDelegateCallback>();
+    std::shared_ptr<MockPowerManagementDelegateCallback> callback =
+            ndk::SharedRefBase::make<MockPowerManagementDelegateCallback>();
     server->expectLinkToDeathStatus(callback->asBinder().get(), STATUS_OK);
     server->init();
     setSystemCallingUid();
@@ -735,8 +737,8 @@ TEST_F(CarPowerPolicyServerTest, TestApplyPowerPolicyPerPowerStateChangeAsync_no
     }
 
     sp<internal::CarPowerPolicyServerPeer> server = new internal::CarPowerPolicyServerPeer();
-    std::shared_ptr<MockPowerPolicyDelegateCallback> callback =
-            ndk::SharedRefBase::make<MockPowerPolicyDelegateCallback>();
+    std::shared_ptr<MockPowerManagementDelegateCallback> callback =
+            ndk::SharedRefBase::make<MockPowerManagementDelegateCallback>();
     server->expectLinkToDeathStatus(callback->asBinder().get(), STATUS_OK);
     server->init();
     PowerPolicyInitData initData;
@@ -758,8 +760,8 @@ TEST_F(CarPowerPolicyServerTest,
     }
 
     sp<internal::CarPowerPolicyServerPeer> server = new internal::CarPowerPolicyServerPeer();
-    std::shared_ptr<MockPowerPolicyDelegateCallback> callback =
-            ndk::SharedRefBase::make<MockPowerPolicyDelegateCallback>();
+    std::shared_ptr<MockPowerManagementDelegateCallback> callback =
+            ndk::SharedRefBase::make<MockPowerManagementDelegateCallback>();
     server->expectLinkToDeathStatus(callback->asBinder().get(), STATUS_OK);
     server->init();
     setSystemCallingUid();

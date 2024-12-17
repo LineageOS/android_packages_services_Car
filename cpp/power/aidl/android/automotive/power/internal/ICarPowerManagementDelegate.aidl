@@ -17,7 +17,7 @@
 package android.automotive.power.internal;
 
 import android.automotive.power.internal.PowerPolicyInitData;
-import android.automotive.power.internal.ICarPowerPolicyDelegateCallback;
+import android.automotive.power.internal.ICarPowerManagementDelegateCallback;
 import android.frameworks.automotive.power.CarPowerState;
 
 /**
@@ -46,14 +46,14 @@ interface ICarPowerManagementDelegate {
    * policies in {@PowerPolicyInitData}.
    * @throws SecurityException if the caller doesn't have sufficient permissions.
    */
-  PowerPolicyInitData notifyCarServiceReady(in ICarPowerPolicyDelegateCallback callback);
+  PowerPolicyInitData notifyCarServiceReady(in ICarPowerManagementDelegateCallback callback);
 
   /**
    * CarService uses this method to request power policy application.
    *
    * <p>This method should return immediately after queueing the request. When the car power
    * daemon finishes applying the power policy, it invokes
-   * {@code ICarPowerPolicyDelegateCallback.onApplyPowerPolicySucceeded}.
+   * {@code ICarPowerManagementDelegateCallback.onApplyPowerPolicySucceeded}.
    *
    * @param The request ID for power policy application. Must be unique.
    * @param policyId The policy ID to apply.
@@ -135,7 +135,7 @@ interface ICarPowerManagementDelegate {
    *
    * <p>This method should return immediately after queueing the request. When the car power
    * daemon finishes applying the power policy for the new power state, it invokes
-   * {@code ICarPowerPolicyDelegateCallback.onApplyPowerPolicySucceeded}.
+   * {@code ICarPowerManagementDelegateCallback.onApplyPowerPolicySucceeded}.
    *
    * @param requestId The request ID for power policy application. Must be unique.
    * @param state The power state.
