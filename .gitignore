@@ -8,3 +8,5 @@ gen/
 __pycache__
 .idea
 /bin/
+.vscode/
+**/._*
