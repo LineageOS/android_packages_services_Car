@@ -20,7 +20,10 @@ import android.content.Context;
 import android.os.Handler;
 import android.view.IWindowManager;
 
+import androidx.annotation.NonNull;
+
 import com.android.systemui.car.CarServiceProvider;
+import com.android.systemui.car.wm.AutoDisplayCompatWindowDecorViewModel;
 import com.android.systemui.car.wm.CarFullscreenTaskMonitorListener;
 import com.android.systemui.dagger.qualifiers.Main;
 import com.android.systemui.wm.CarUiPortraitDisplaySystemBarsController;
@@ -28,6 +31,7 @@ import com.android.systemui.wm.DisplaySystemBarsController;
 import com.android.wm.shell.ShellTaskOrganizer;
 import com.android.wm.shell.common.DisplayController;
 import com.android.wm.shell.common.DisplayInsetsController;
+import com.android.wm.shell.common.ShellExecutor;
 import com.android.wm.shell.common.SyncTransactionQueue;
 import com.android.wm.shell.dagger.DynamicOverride;
 import com.android.wm.shell.dagger.WMShellBaseModule;
@@ -35,13 +39,21 @@ import com.android.wm.shell.dagger.WMSingleton;
 import com.android.wm.shell.fullscreen.FullscreenTaskListener;
 import com.android.wm.shell.pip.Pip;
 import com.android.wm.shell.recents.RecentTasksController;
+import com.android.wm.shell.shared.annotations.ShellBackgroundThread;
+import com.android.wm.shell.shared.annotations.ShellMainThread;
 import com.android.wm.shell.sysui.ShellInit;
 import com.android.wm.shell.taskview.TaskViewTransitions;
+import com.android.wm.shell.transition.FocusTransitionObserver;
 import com.android.wm.shell.windowdecor.WindowDecorViewModel;
+import com.android.wm.shell.windowdecor.common.viewhost.DefaultWindowDecorViewHostSupplier;
+import com.android.wm.shell.windowdecor.common.viewhost.WindowDecorViewHost;
+import com.android.wm.shell.windowdecor.common.viewhost.WindowDecorViewHostSupplier;
 
 import dagger.BindsOptionalOf;
 import dagger.Module;
 import dagger.Provides;
+
+import kotlinx.coroutines.CoroutineScope;
 
 import java.util.Optional;
 
@@ -88,5 +100,39 @@ public abstract class CarUiPortraitWMShellModule {
                 recentTasksOptional,
                 windowDecorViewModelOptional,
                 taskViewTransitions);
+    }
+
+    @WMSingleton
+    @Provides
+    static WindowDecorViewHostSupplier<WindowDecorViewHost> provideWindowDecorViewHostSupplier(
+            @ShellMainThread @NonNull CoroutineScope mainScope) {
+        return new DefaultWindowDecorViewHostSupplier(mainScope);
+    }
+
+    @WMSingleton
+    @Provides
+    static WindowDecorViewModel provideWindowDecorViewModel(
+            Context context,
+            @ShellMainThread ShellExecutor mainExecutor,
+            @ShellBackgroundThread ShellExecutor bgExecutor,
+            ShellInit shellInit,
+            ShellTaskOrganizer taskOrganizer,
+            DisplayController displayController,
+            SyncTransactionQueue syncQueue,
+            FocusTransitionObserver focusTransitionObserver,
+            WindowDecorViewHostSupplier<WindowDecorViewHost> windowDecorViewHostSupplier,
+            CarServiceProvider carServiceProvider
+    ) {
+        return new AutoDisplayCompatWindowDecorViewModel(
+                context,
+                mainExecutor,
+                bgExecutor,
+                shellInit,
+                taskOrganizer,
+                displayController,
+                syncQueue,
+                focusTransitionObserver,
+                windowDecorViewHostSupplier,
+                carServiceProvider);
     }
 }
