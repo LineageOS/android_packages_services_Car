@@ -233,6 +233,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     private final PowerManagerCallbackList<ICarPowerStateListener>
             mPowerManagerListenersWithCompletion = new PowerManagerCallbackList<>(
                     l -> CarPowerManagementService.this.doUnregisterListener(l));
+    private final AtomicInteger mPowerChangeIdCounter = new AtomicInteger(0);
     private final AtomicInteger mPolicyRequestIdCounter = new AtomicInteger(0);
     // The internal listeners that must indicates asynchronous completion by calling
     // completeStateChangeHandling(). Note that they are not binder objects.
@@ -920,24 +921,30 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         }
     }
 
-    private void notifyPowerStateChangeToDaemon(@CarPowerManager.CarPowerState int powerState) {
-        ICarPowerManagementDelegate daemon;
+    private ICarPowerManagementDelegate getCarPowerManagementDaemon() {
         synchronized (mLock) {
-            daemon = mRefactoredCarPowerManagementDaemon;
+            return mRefactoredCarPowerManagementDaemon;
         }
+    }
+
+    // TODO(b/384052834): Move logic into car power daemon
+    private void delegateDefaultPowerPolicyForStateToDaemon(
+            @CarPowerManager.CarPowerState int powerState) {
+        ICarPowerManagementDelegate daemon = getCarPowerManagementDaemon();
         if (daemon == null) {
             Slogf.e(TAG, "Failed to notify car power management daemon of power state change, "
                     + "daemon unavailable");
             return;
         }
-        notifyPowerStateChangeToDaemon(daemon, powerState);
+        delegateDefaultPowerPolicyForStateToDaemon(daemon, powerState);
     }
 
-    private void notifyPowerStateChangeToDaemon(ICarPowerManagementDelegate daemon,
+    // TODO(b/384052834): Move logic into car power daemon
+    private void delegateDefaultPowerPolicyForStateToDaemon(ICarPowerManagementDelegate daemon,
             @CarPowerManager.CarPowerState int powerState) {
+        String powerStateName = powerStateToString(powerState);
         Slogf.i(TAG, "Notifying CPPD of power state(%s)", powerStateToString(powerState));
 
-        String powerStateName = powerStateToString(powerState);
         if (!mReadyForCallback.get()) {
             Slogf.w(TAG, "Cannot notify power state(%S) of CPPD: not ready for calling to CPPD",
                     powerStateName);
@@ -992,6 +999,31 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                 accumulatedPolicy, /* legacyNotification= */ false));
     }
 
+    private void notifyPowerStateChangeToDaemon(@CarPowerManager.CarPowerState int newState,
+            long expirationTimeMs) {
+        String powerStateName = powerStateToString(newState);
+        Slogf.i(TAG, "Notifying CPPD of power state(%s) with expiration duration of (%d) ms",
+                powerStateToString(newState), expirationTimeMs);
+
+        ICarPowerManagementDelegate daemon = getCarPowerManagementDaemon();
+        if (daemon == null) {
+            Slogf.e(TAG, "Failed to notify car power management daemon of power state change "
+                    + "to %s, daemon unavailable", powerStateName);
+            return;
+        }
+        try {
+            daemon.notifyPowerStateChange(
+                    mPowerChangeIdCounter.getAndIncrement(), newState, expirationTimeMs);
+        } catch (IllegalArgumentException e) {
+            Slogf.e(TAG, e, "Failed to notify daemon of power state(%s)", powerStateName);
+        } catch (SecurityException e) {
+            Slogf.e(TAG, e, "Failed to notify daemon of power state, insufficient permissions");
+        } catch (RemoteException e) {
+            Slogf.e(TAG, e, "Failed to notify daemon of power state(%s), connection issue",
+                    powerStateName);
+        }
+    }
+
     private void handleWaitForVhal(CpmsState state) {
         @CarPowerManager.CarPowerState int carPowerStateListenerState =
                 state.mCarPowerStateListenerState;
@@ -1000,7 +1032,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         mSilentModeHandler.querySilentModeHwState();
 
         if (mFeatureFlags.carPowerPolicyRefactoring()) {
-            notifyPowerStateChangeToDaemon(CarPowerManager.STATE_WAIT_FOR_VHAL);
+            delegateDefaultPowerPolicyForStateToDaemon(CarPowerManager.STATE_WAIT_FOR_VHAL);
         } else {
             applyDefaultPowerPolicyForState(CarPowerManager.STATE_WAIT_FOR_VHAL,
                     PolicyReader.POWER_POLICY_ID_INITIAL_ON);
@@ -1080,7 +1112,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         }
 
         if (mFeatureFlags.carPowerPolicyRefactoring()) {
-            notifyPowerStateChangeToDaemon(CarPowerManager.STATE_ON);
+            delegateDefaultPowerPolicyForStateToDaemon(CarPowerManager.STATE_ON);
         } else {
             if (!mSilentModeHandler.isSilentMode()) {
                 cancelPreemptivePowerPolicy();
@@ -1686,6 +1718,11 @@ public class CarPowerManagementService extends ICarPower.Stub implements
 
     private void sendPowerManagerEvent(@CarPowerManager.CarPowerState int newState,
             long timeoutMs) {
+        // Notify power daemon to notify native listeners
+        if (mFeatureFlags.nativePowerNotifications()) {
+            notifyPowerStateChangeToDaemon(newState, timeoutMs);
+        }
+
         // Broadcasts to the listeners that do not signal completion.
         notifyListeners(mPowerManagerListeners, newState, INVALID_TIMEOUT);
 
@@ -1744,6 +1781,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                 }
                 mPowerManagerListenersWithCompletion.finishBroadcast();
             });
+            // TODO(b/383760195): Add native listener(s) to mListenersWeAreWaitingFor
         }
         // Resets the semaphore's available permits to 0.
         mListenerCompletionSem.drainPermits();
@@ -2437,7 +2475,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                         + "or on state, skipping notification of power state to daemon.",
                         powerStateToString(currentPowerState));
             } else {
-                notifyPowerStateChangeToDaemon(daemon, currentPowerState);
+                delegateDefaultPowerPolicyForStateToDaemon(daemon, currentPowerState);
             }
         } else {
             Slogf.i(TAG, "CPMS is taking control from carpowerpolicyd");
