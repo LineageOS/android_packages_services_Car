@@ -32,22 +32,14 @@
     <string name="car_permission_desc_mileage" msgid="7179735693278681090">"Pristupi informacijama o pređenom putu automobila."</string>
     <string name="car_permission_label_mileage_3p" msgid="7542459195663034759">"pristup podacima o kilometraži automobila"</string>
     <string name="car_permission_desc_mileage_3p" msgid="9109350882748664570">"Pristup podacima o kilometraži automobila."</string>
-    <!-- no translation found for car_permission_label_read_car_horn (5940158571880705176) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_read_car_horn (1099929991964988027) -->
-    <skip />
-    <!-- no translation found for car_permission_label_control_car_horn (6724124600587260102) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_car_horn (6054845567296317971) -->
-    <skip />
-    <!-- no translation found for car_permission_label_read_car_pedals (9053334935825814308) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_read_car_pedals (3148710874350250453) -->
-    <skip />
-    <!-- no translation found for car_permission_label_read_brake_info (6649283162262754200) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_read_brake_info (4641852049166846105) -->
-    <skip />
+    <string name="car_permission_label_read_car_horn" msgid="5940158571880705176">"čitanje informacija o sireni automobila"</string>
+    <string name="car_permission_desc_read_car_horn" msgid="1099929991964988027">"Čitanje informacija o sireni automobila."</string>
+    <string name="car_permission_label_control_car_horn" msgid="6724124600587260102">"kontrola sirene automobila"</string>
+    <string name="car_permission_desc_control_car_horn" msgid="6054845567296317971">"Kontrola sirene automobila."</string>
+    <string name="car_permission_label_read_car_pedals" msgid="9053334935825814308">"pristup informacijama o pedalama automobila"</string>
+    <string name="car_permission_desc_read_car_pedals" msgid="3148710874350250453">"Pristup informacijama o pedalama automobila."</string>
+    <string name="car_permission_label_read_brake_info" msgid="6649283162262754200">"pristup informacijama o kočnicama automobila"</string>
+    <string name="car_permission_desc_read_brake_info" msgid="4641852049166846105">"Pristup informacijama o kočnicama automobila."</string>
     <string name="car_permission_label_speed" msgid="1149027717860529745">"čitanje brzine automobila"</string>
     <string name="car_permission_desc_speed" msgid="2047965198165448241">"Pristupi brzini automobila."</string>
     <string name="car_permission_label_vehicle_dynamics_state" msgid="313779267420048367">"pristup statusu dinamike automobila"</string>
