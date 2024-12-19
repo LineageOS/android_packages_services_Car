@@ -17,6 +17,7 @@
 <resources>
     <dimen name="card_icon_margin_start">8dp</dimen>
     <dimen name="card_content_margin_start">16dp</dimen>
+    <dimen name="card_fragment_height">408dp</dimen>
     <dimen name="card_fragment_margin_horizontal">24dp</dimen>
     <dimen name="card_fragment_margin_vertical">32dp</dimen>
 
