@@ -220,7 +220,8 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
     @VisibleForTesting
     final UserLifecycleListener mUserLifecycleListener = event -> {
         if (DBG) Slogf.d(TAG, "onEvent(%s)", event);
-        handleUserChange();
+        boolean isUserSwitching = (event.getEventType() == USER_LIFECYCLE_EVENT_TYPE_SWITCHING);
+        handleUserChange(isUserSwitching);
     };
 
     @VisibleForTesting
@@ -1593,12 +1594,20 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
         });
     }
 
-    private void handleUserChange() {
-        boolean changed;
+    private void handleUserChange(boolean isUserSwitching) {
+        boolean changed = false;
         synchronized (mLock) {
             changed = handleUserChangesLocked();
         }
-        if (changed) {
+        if (changed || isUserSwitching) {
+            // Due to a timing issue, the currentUser can be System User 0 or Driver User 11.
+            // If the previous config.userid is set to a new userId 11, when processing the
+            // user switching event, the logic thinks it's not a user change.
+            // So always sendConfigChangeEvent when it's a user switching case.
+            if (!changed) {
+                Slogf.i(TAG, "User isn't changed(%b), and isUserSwitching(%b)",
+                        changed, isUserSwitching);
+            }
             syncStateAndSendConfigChangeEvent(CarOccupantZoneManager.ZONE_CONFIG_CHANGE_FLAG_USER);
         }
     }

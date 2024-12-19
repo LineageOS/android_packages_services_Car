@@ -130,7 +130,7 @@ PRODUCT_COPY_FILES += \
 include packages/services/Car/cpp/watchdog/product/carwatchdog.mk
 
 # Enable car power policy
-include packages/services/Car/cpp/powerpolicy/product/carpowerpolicy.mk
+include packages/services/Car/cpp/power/product/carpowerpolicy.mk
 
 # Conditionally enable the telemetry service
 ifeq ($(ENABLE_CARTELEMETRY_SERVICE), true)

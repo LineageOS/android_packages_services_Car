@@ -204,7 +204,7 @@ java_defaults {
     ],
 
     static_libs: [
-        "android.automotive.powerpolicy.delegate-V1-java",
+        "android.automotive.power.delegate-java",
         "android.automotive.telemetry.internal-V2-java", // ICarTelemetryInternal
         "android.automotive.watchdog.internal-java",
         "android.frameworks.automotive.powerpolicy.internal-V1-java",

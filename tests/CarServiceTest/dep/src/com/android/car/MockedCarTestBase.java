@@ -26,11 +26,11 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 
-import android.automotive.powerpolicy.internal.ICarPowerPolicyDelegate;
+import android.automotive.power.internal.ICarPowerManagementDelegate;
 import android.car.Car;
 import android.car.ICarResultReceiver;
 import android.car.feature.Flags;
-import android.car.testapi.FakeRefactoredCarPowerPolicyDaemon;
+import android.car.testapi.FakeRefactoredCarPowerManagementDaemon;
 import android.car.user.CarUserManager.UserLifecycleListener;
 import android.content.ComponentName;
 import android.content.Context;
@@ -145,7 +145,7 @@ public class MockedCarTestBase {
     @GuardedBy("mLock")
     private final List<UserLifecycleListener> mUserLifecycleListeners = new ArrayList<>();
 
-    private ICarPowerPolicyDelegate mRefactoredPowerPolicyDaemon;
+    private ICarPowerManagementDelegate mRefactoredPowerManagementDaemon;
     private MockitoSession mSession;
 
     protected HidlMockedVehicleHal createHidlMockedVehicleHal() {
@@ -168,9 +168,9 @@ public class MockedCarTestBase {
         return mFakeSystemInterface;
     }
 
-    protected android.os.IInterface getMockedPowerPolicyDaemon() {
+    protected android.os.IInterface getMockedPowerManagementDaemon() {
         if (Flags.carPowerPolicyRefactoring()) {
-            return mRefactoredPowerPolicyDaemon;
+            return mRefactoredPowerManagementDaemon;
         } else {
             return mPowerPolicyDaemon;
         }
@@ -370,13 +370,13 @@ public class MockedCarTestBase {
         }
 
         // Setup car
-        IInterface powerPolicyDaemon;
+        IInterface powerManagementDaemon;
         if (Flags.carPowerPolicyRefactoring()) {
-            mRefactoredPowerPolicyDaemon = new FakeRefactoredCarPowerPolicyDaemon(
+            mRefactoredPowerManagementDaemon = new FakeRefactoredCarPowerManagementDaemon(
                     /* fileKernelSilentMode= */ null, /* customComponents= */ null);
-            powerPolicyDaemon = mRefactoredPowerPolicyDaemon;
+            powerManagementDaemon = mRefactoredPowerManagementDaemon;
         } else {
-            powerPolicyDaemon = mPowerPolicyDaemon;
+            powerManagementDaemon = mPowerPolicyDaemon;
         }
         ICarImpl carImpl = new ICarImpl.Builder()
                 .setServiceContext(mMockedCarTestContext)
@@ -390,7 +390,7 @@ public class MockedCarTestBase {
                 .setCarRemoteAccessServiceConstructor(mCarRemoteAccessServiceConstructor)
                 .setAppFocusService(mAppFocusService)
                 .setGarageModeService(mGarageModeService)
-                .setPowerPolicyDaemon(powerPolicyDaemon)
+                .setPowerManagementDaemon(powerManagementDaemon)
                 .setDoPriorityInitInConstruction(false)
                 .setTestStaticBinder(new StaticBinderInterface() {
                     @Override

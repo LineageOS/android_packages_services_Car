@@ -1,0 +1,1473 @@
+/**
+ * Copyright (c) 2020, The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#define LOG_TAG "carpowerpolicyd"
+#define DEBUG false  // STOPSHIP if true.
+
+#include "CarPowerPolicyServer.h"
+
+#include <aidl/android/hardware/automotive/vehicle/StatusCode.h>
+#include <aidl/android/hardware/automotive/vehicle/SubscribeOptions.h>
+#include <aidl/android/hardware/automotive/vehicle/VehicleApPowerStateReport.h>
+#include <aidl/android/hardware/automotive/vehicle/VehicleProperty.h>
+#include <android-base/file.h>
+#include <android-base/properties.h>
+#include <android-base/stringprintf.h>
+#include <android/binder_ibinder.h>
+#include <android/binder_manager.h>
+#include <android/binder_status.h>
+#include <binder/IPCThreadState.h>
+#include <binder/IServiceManager.h>
+#include <hidl/HidlTransportSupport.h>
+#include <private/android_filesystem_config.h>
+#include <utils/String8.h>
+#include <utils/SystemClock.h>
+#include <utils/Timers.h>
+
+#include <android_car_feature.h>
+#include <inttypes.h>
+
+namespace android {
+namespace frameworks {
+namespace automotive {
+namespace powerpolicy {
+
+using ::aidl::android::automotive::power::internal::ICarPowerManagementDelegate;
+using ::aidl::android::automotive::power::internal::ICarPowerManagementDelegateCallback;
+using ::aidl::android::automotive::power::internal::PowerPolicyFailureReason;
+using ::aidl::android::automotive::power::internal::PowerPolicyInitData;
+using ::aidl::android::frameworks::automotive::power::CarPowerState;
+using ::aidl::android::frameworks::automotive::powerpolicy::CarPowerPolicy;
+using ::aidl::android::frameworks::automotive::powerpolicy::CarPowerPolicyFilter;
+using ::aidl::android::frameworks::automotive::powerpolicy::ICarPowerPolicyChangeCallback;
+using ::aidl::android::frameworks::automotive::powerpolicy::PowerComponent;
+using ::aidl::android::frameworks::automotive::powerpolicy::internal::PolicyState;
+using ::aidl::android::hardware::automotive::vehicle::StatusCode;
+using ::aidl::android::hardware::automotive::vehicle::SubscribeOptions;
+using ::aidl::android::hardware::automotive::vehicle::VehicleApPowerStateReport;
+using ::aidl::android::hardware::automotive::vehicle::VehicleProperty;
+
+using ::android::defaultServiceManager;
+using ::android::IBinder;
+using ::android::Looper;
+using ::android::Mutex;
+using ::android::status_t;
+using ::android::String16;
+using ::android::uptimeMillis;
+using ::android::Vector;
+using ::android::wp;
+using ::android::base::Error;
+using ::android::base::GetUintProperty;
+using ::android::base::Result;
+using ::android::base::StringAppendF;
+using ::android::base::StringPrintf;
+using ::android::base::WriteStringToFd;
+using ::android::car::feature::car_power_policy_refactoring;
+using ::android::frameworks::automotive::vhal::HalPropError;
+using ::android::frameworks::automotive::vhal::IHalPropValue;
+using ::android::frameworks::automotive::vhal::ISubscriptionClient;
+using ::android::frameworks::automotive::vhal::IVhalClient;
+using ::android::frameworks::automotive::vhal::VhalClientResult;
+
+using ::android::hardware::hidl_vec;
+using ::android::hardware::interfacesEqual;
+using ::android::hardware::Return;
+
+using ::android::hidl::base::V1_0::IBase;
+using ::ndk::ScopedAIBinder_DeathRecipient;
+using ::ndk::ScopedAStatus;
+using ::ndk::SharedRefBase;
+using ::ndk::SpAIBinder;
+
+namespace {
+
+const int32_t MSG_CONNECT_TO_VHAL = 1;  // Message to request of connecting to VHAL.
+
+const nsecs_t kConnectionRetryIntervalNs = 200000000;  // 200 milliseconds.
+// TODO(b/377348572): Change this to 5s.
+const nsecs_t kDefaultConnectToVhalTimeoutMillis = 60000;
+constexpr const char kConnectToVhalTimeoutMillisProp[] = "cppd.connectvhal.Timeoutmillis";
+
+constexpr const char kCarServiceInterface[] = "car_service";
+constexpr const char kCarPowerPolicyServerInterface[] =
+        "android.frameworks.automotive.powerpolicy.ICarPowerPolicyServer/default";
+constexpr const char kCarPowerPolicySystemNotificationInterface[] =
+        "android.frameworks.automotive.powerpolicy.internal.ICarPowerPolicySystemNotification/"
+        "default";
+constexpr const char kCarPowerManagementDelegateInterface[] =
+        "android.automotive.power.internal.ICarPowerManagementDelegate/default";
+
+std::vector<CallbackInfo>::const_iterator lookupPowerPolicyChangeCallback(
+        const std::vector<CallbackInfo>& callbacks, const AIBinder* binder) {
+    for (auto it = callbacks.begin(); it != callbacks.end(); it++) {
+        if (it->binder.get() == binder) {
+            return it;
+        }
+    }
+    return callbacks.end();
+}
+
+ScopedAStatus checkSystemPermission() {
+    if (IPCThreadState::self()->getCallingUid() != AID_SYSTEM) {
+        return ScopedAStatus::fromServiceSpecificErrorWithMessage(EX_SECURITY,
+                                                                  "Calling process does not have "
+                                                                  "proper privilege");
+    }
+    return ScopedAStatus::ok();
+}
+
+PowerPolicyFailureReason convertErrorToFailureReason(int errorCode) {
+    switch (errorCode) {
+        case EX_ILLEGAL_ARGUMENT:
+            return PowerPolicyFailureReason::POWER_POLICY_FAILURE_NOT_REGISTERED_ID;
+        default:
+            return PowerPolicyFailureReason::POWER_POLICY_FAILURE_UNKNOWN;
+    }
+}
+
+}  // namespace
+
+std::shared_ptr<CarPowerPolicyServer> CarPowerPolicyServer::sCarPowerPolicyServer = nullptr;
+
+PropertyChangeListener::PropertyChangeListener(CarPowerPolicyServer* service) : mService(service) {}
+
+void PropertyChangeListener::onPropertyEvent(
+        const std::vector<std::unique_ptr<IHalPropValue>>& values) {
+    for (const auto& value : values) {
+        const std::string stringValue = value->getStringValue();
+        int32_t propId = value->getPropId();
+        if (propId == static_cast<int32_t>(VehicleProperty::POWER_POLICY_GROUP_REQ)) {
+            const auto& ret = mService->setPowerPolicyGroupInternal(stringValue);
+            if (!ret.ok()) {
+                ALOGW("Failed to set power policy group(%s): %s", stringValue.c_str(),
+                      ret.error().message().c_str());
+            }
+        } else if (propId == static_cast<int32_t>(VehicleProperty::POWER_POLICY_REQ)) {
+            const auto& ret = mService->applyPowerPolicy(stringValue,
+                                                         /*carServiceExpected=*/false,
+                                                         /*force=*/false);
+            if (!ret.ok()) {
+                ALOGW("Failed to apply power policy(%s): %s", stringValue.c_str(),
+                      ret.error().message().c_str());
+            }
+        }
+    }
+}
+
+void PropertyChangeListener::onPropertySetError(
+        [[maybe_unused]] const std::vector<HalPropError>& errors) {
+    return;
+}
+
+EventHandler::EventHandler(CarPowerPolicyServer* service) : mService(service) {}
+
+void EventHandler::handleMessage(const Message& message) {
+    switch (message.what) {
+        case MSG_CONNECT_TO_VHAL:
+            mService->connectToVhalHelper();
+            break;
+        default:
+            ALOGW("Unknown message: %d", message.what);
+    }
+}
+
+RequestIdHandler::RequestIdHandler(CarPowerPolicyServer* service) : mService(service) {}
+
+void RequestIdHandler::handleMessage(const Message& message) {
+    mService->handleApplyPowerPolicyRequest(message.what);
+}
+
+CarServiceNotificationHandler::CarServiceNotificationHandler(CarPowerPolicyServer* service) :
+      mService(service) {}
+
+void CarServiceNotificationHandler::terminate() {
+    std::lock_guard<std::mutex> lock(mMutex);
+    mService = nullptr;
+}
+
+binder_status_t CarServiceNotificationHandler::dump(int fd, const char** args, uint32_t numArgs) {
+    std::lock_guard<std::mutex> lock(mMutex);
+    if (mService == nullptr) {
+        ALOGD("Skip dumping, CarPowerPolicyServer is ending");
+        return STATUS_OK;
+    }
+    return mService->dump(fd, args, numArgs);
+}
+
+ScopedAStatus CarServiceNotificationHandler::notifyCarServiceReady(PolicyState* policyState) {
+    std::lock_guard<std::mutex> lock(mMutex);
+    if (mService == nullptr) {
+        ALOGD("Skip notifying CarServiceReady, CarPowerPolicyServer is ending");
+        return ScopedAStatus::ok();
+    }
+    return mService->notifyCarServiceReady(policyState);
+}
+
+ScopedAStatus CarServiceNotificationHandler::notifyPowerPolicyChange(const std::string& policyId,
+                                                                     bool force) {
+    std::lock_guard<std::mutex> lock(mMutex);
+    if (mService == nullptr) {
+        ALOGD("Skip notifying PowerPolicyChange, CarPowerPolicyServer is ending");
+        return ScopedAStatus::ok();
+    }
+    return mService->notifyPowerPolicyChange(policyId, force);
+}
+
+ScopedAStatus CarServiceNotificationHandler::notifyPowerPolicyDefinition(
+        const std::string& policyId, const std::vector<std::string>& enabledComponents,
+        const std::vector<std::string>& disabledComponents) {
+    std::lock_guard<std::mutex> lock(mMutex);
+    if (mService == nullptr) {
+        ALOGD("Skip notifying PowerPolicyDefinition, CarPowerPolicyServer is ending");
+        return ScopedAStatus::ok();
+    }
+    return mService->notifyPowerPolicyDefinition(policyId, enabledComponents, disabledComponents);
+}
+
+CarPowerManagementDelegate::CarPowerManagementDelegate(CarPowerPolicyServer* service) :
+      mService(service) {}
+
+void CarPowerManagementDelegate::terminate() {
+    std::lock_guard<std::mutex> lock(mMutex);
+    mService = nullptr;
+}
+
+binder_status_t CarPowerManagementDelegate::dump(int fd, const char** args, uint32_t numArgs) {
+    std::lock_guard<std::mutex> lock(mMutex);
+    if (mService == nullptr) {
+        ALOGD("Skip dumping, CarPowerPolicyServer is ending");
+        return STATUS_OK;
+    }
+    return mService->dump(fd, args, numArgs);
+}
+
+ScopedAStatus CarPowerManagementDelegate::notifyCarServiceReady(
+        const std::shared_ptr<ICarPowerManagementDelegateCallback>& callback,
+        PowerPolicyInitData* aidlReturn) {
+    return runWithService(
+            [callback, aidlReturn](CarPowerPolicyServer* service) -> ScopedAStatus {
+                return service->notifyCarServiceReadyInternal(callback, aidlReturn);
+            },
+            "notifyCarServiceReady");
+}
+
+ScopedAStatus CarPowerManagementDelegate::applyPowerPolicyAsync(int32_t requestId,
+                                                                const std::string& policyId,
+                                                                bool force) {
+    return runWithService(
+            [requestId, policyId, force](CarPowerPolicyServer* service) -> ScopedAStatus {
+                return service->applyPowerPolicyAsync(requestId, policyId, force);
+            },
+            "applyPowerPolicyAsync");
+}
+
+ScopedAStatus CarPowerManagementDelegate::setPowerPolicyGroup(const std::string& policyGroupId) {
+    std::lock_guard<std::mutex> lock(mMutex);
+    if (mService == nullptr) {
+        ALOGD("Skip setting power policy group, CarPowerPolicyServer is ending");
+        return ScopedAStatus::ok();
+    }
+    if (const auto& ret = mService->setPowerPolicyGroupInternal(policyGroupId); !ret.ok()) {
+        return ScopedAStatus::fromExceptionCodeWithMessage(ret.error().code(),
+                                                           ret.error().message().c_str());
+    }
+    return ScopedAStatus::ok();
+}
+
+ScopedAStatus CarPowerManagementDelegate::notifyPowerPolicyDefinition(
+        const std::string& policyId, const std::vector<std::string>& enabledComponents,
+        const std::vector<std::string>& disabledComponents) {
+    return runWithService(
+            [policyId, enabledComponents,
+             disabledComponents](CarPowerPolicyServer* service) -> ScopedAStatus {
+                return service->notifyPowerPolicyDefinition(policyId, enabledComponents,
+                                                            disabledComponents);
+            },
+            "notifyPowerPolicyDefinition");
+}
+
+ScopedAStatus CarPowerManagementDelegate::notifyPowerPolicyGroupDefinition(
+        const std::string& policyGroupId, const std::vector<std::string>& powerPolicyPerState) {
+    return runWithService(
+            [policyGroupId, powerPolicyPerState](CarPowerPolicyServer* service) -> ScopedAStatus {
+                return service->notifyPowerPolicyGroupDefinition(policyGroupId,
+                                                                 powerPolicyPerState);
+            },
+            "notifyPowerPolicyGroupDefinition");
+}
+
+ScopedAStatus CarPowerManagementDelegate::applyPowerPolicyPerPowerStateChangeAsync(
+        int32_t requestId, ICarPowerManagementDelegate::PowerState state) {
+    return runWithService(
+            [requestId, state](CarPowerPolicyServer* service) -> ScopedAStatus {
+                return service->applyPowerPolicyPerPowerStateChangeAsync(requestId, state);
+            },
+            "applyPowerPolicyPerPowerStateChangeAsync");
+}
+
+ScopedAStatus CarPowerManagementDelegate::notifyPowerStateChange(
+        [[maybe_unused]] int32_t changeId, [[maybe_unused]] CarPowerState newState,
+        [[maybe_unused]] int64_t expirationTimeMs) {
+    // TODO(b/382256300): implement
+    return ScopedAStatus::ok();
+}
+
+ScopedAStatus CarPowerManagementDelegate::setSilentMode(const std::string& silentMode) {
+    return runWithService([silentMode](CarPowerPolicyServer* service)
+                                  -> ScopedAStatus { return service->setSilentMode(silentMode); },
+                          "setSilentMode");
+}
+
+ScopedAStatus CarPowerManagementDelegate::runWithService(
+        const std::function<ScopedAStatus(CarPowerPolicyServer*)>& action,
+        const std::string& actionTitle) {
+    std::lock_guard<std::mutex> lock(mMutex);
+    if (mService == nullptr) {
+        ALOGD("Skip %s, CarPowerPolicyServer is ending", actionTitle.c_str());
+        return ScopedAStatus::ok();
+    }
+    return action(mService);
+}
+
+ISilentModeChangeHandler::~ISilentModeChangeHandler() {}
+
+Result<std::shared_ptr<CarPowerPolicyServer>> CarPowerPolicyServer::startService(
+        const sp<Looper>& looper) {
+    if (sCarPowerPolicyServer != nullptr) {
+        return Error(INVALID_OPERATION) << "Cannot start service more than once";
+    }
+    std::shared_ptr<CarPowerPolicyServer> server = SharedRefBase::make<CarPowerPolicyServer>();
+    const auto& ret = server->init(looper);
+    if (!ret.ok()) {
+        return Error(ret.error().code())
+                << "Failed to start car power policy server: " << ret.error();
+    }
+    sCarPowerPolicyServer = server;
+
+    return sCarPowerPolicyServer;
+}
+
+void CarPowerPolicyServer::terminateService() {
+    if (sCarPowerPolicyServer != nullptr) {
+        sCarPowerPolicyServer->terminate();
+        sCarPowerPolicyServer = nullptr;
+    }
+}
+
+CarPowerPolicyServer::CarPowerPolicyServer() :
+      CarPowerPolicyServer(
+              GetUintProperty<uint64_t>(std::string(kConnectToVhalTimeoutMillisProp),
+                                        /*default_value=*/kDefaultConnectToVhalTimeoutMillis)) {}
+
+CarPowerPolicyServer::CarPowerPolicyServer(uint64_t connectToVhalTimeoutMillis) :
+      mConnectToVhalTimeoutMillis(connectToVhalTimeoutMillis),
+      mSilentModeHandler(this),
+      mIsPowerPolicyLocked(false),
+      mIsCarServiceInOperation(false),
+      mIsFirstConnectionToVhal(true) {
+    mEventHandler = new EventHandler(this);
+    mRequestIdHandler = new RequestIdHandler(this);
+    mClientDeathRecipient = ScopedAIBinder_DeathRecipient(
+            AIBinder_DeathRecipient_new(&CarPowerPolicyServer::onClientBinderDied));
+    mCarServiceDeathRecipient = ScopedAIBinder_DeathRecipient(
+            AIBinder_DeathRecipient_new(&CarPowerPolicyServer::onCarServiceBinderDied));
+    mPropertyChangeListener = std::make_unique<PropertyChangeListener>(this);
+    mLinkUnlinkImpl = std::make_unique<AIBinderLinkUnlinkImpl>();
+    mMaxConnectToVhalRetryCount = static_cast<size_t>(ceil(
+            static_cast<float>(connectToVhalTimeoutMillis) / (ns2ms(kConnectionRetryIntervalNs))));
+
+    setOnUnlinked();
+}
+
+CarPowerPolicyServer::~CarPowerPolicyServer() {
+    terminate();
+
+    // Delete the deathRecipient so that all binders would be unlinked.
+    mLinkUnlinkImpl->deleteDeathRecipient(mClientDeathRecipient.release());
+    mLinkUnlinkImpl->deleteDeathRecipient(mCarServiceDeathRecipient.release());
+
+    // Wait for all onClientDeathRecipientUnlinked and onCarServiceDeathRecipientUnlinked to be
+    // called.
+    {
+        std::unique_lock lock(mMutex);
+        mResourceReleasedCv.wait(lock, [this] {
+            return mOnClientBinderDiedContexts.empty() && !mCarServiceLinked;
+        });
+    }
+}
+
+// For test-only.
+void CarPowerPolicyServer::setLinkUnlinkImpl(
+        std::unique_ptr<CarPowerPolicyServer::LinkUnlinkImpl> impl) {
+    mLinkUnlinkImpl = std::move(impl);
+
+    setOnUnlinked();
+}
+
+void CarPowerPolicyServer::setOnUnlinked() {
+    mLinkUnlinkImpl->setOnUnlinked(mCarServiceDeathRecipient.get(),
+                                   &CarPowerPolicyServer::onCarServiceDeathRecipientUnlinked);
+    mLinkUnlinkImpl->setOnUnlinked(mClientDeathRecipient.get(),
+                                   &CarPowerPolicyServer::onClientDeathRecipientUnlinked);
+}
+
+ScopedAStatus CarPowerPolicyServer::getCurrentPowerPolicy(CarPowerPolicy* aidlReturn) {
+    std::lock_guard<std::mutex> lock(mMutex);
+    if (!isPowerPolicyAppliedLocked()) {
+        return ScopedAStatus::
+                fromServiceSpecificErrorWithMessage(EX_ILLEGAL_STATE,
+                                                    "The current power policy is not set");
+    }
+    *aidlReturn = *mCurrentPowerPolicyMeta.powerPolicy;
+    return ScopedAStatus::ok();
+}
+
+ScopedAStatus CarPowerPolicyServer::getPowerComponentState(PowerComponent componentId,
+                                                           bool* aidlReturn) {
+    const auto& ret = mComponentHandler.getPowerComponentState(componentId);
+    if (!ret.ok()) {
+        std::string errorMsg = ret.error().message();
+        ALOGW("getPowerComponentState(%s) failed: %s", toString(componentId).c_str(),
+              errorMsg.c_str());
+        return ScopedAStatus::fromServiceSpecificErrorWithMessage(EX_ILLEGAL_ARGUMENT,
+                                                                  errorMsg.c_str());
+    }
+    *aidlReturn = *ret;
+    return ScopedAStatus::ok();
+}
+
+ScopedAStatus CarPowerPolicyServer::registerPowerPolicyChangeCallback(
+        const std::shared_ptr<ICarPowerPolicyChangeCallback>& callback,
+        const CarPowerPolicyFilter& filter) {
+    if (callback == nullptr) {
+        std::string errorMsg = "Cannot register a null callback";
+        ALOGW("%s", errorMsg.c_str());
+        return ScopedAStatus::fromServiceSpecificErrorWithMessage(EX_ILLEGAL_ARGUMENT,
+                                                                  errorMsg.c_str());
+    }
+    pid_t callingPid = IPCThreadState::self()->getCallingPid();
+    uid_t callingUid = IPCThreadState::self()->getCallingUid();
+    SpAIBinder binder = callback->asBinder();
+    AIBinder* clientId = binder.get();
+    void* contextPtr;
+
+    {
+        std::lock_guard<std::mutex> lock(mMutex);
+        if (isRegisteredLocked(clientId)) {
+            std::string errorStr =
+                    StringPrintf("The callback(pid: %d, uid: %d) is already registered.",
+                                 callingPid, callingUid);
+            const char* errorCause = errorStr.c_str();
+            ALOGW("Cannot register a callback: %s", errorCause);
+            return ScopedAStatus::fromServiceSpecificErrorWithMessage(EX_ILLEGAL_ARGUMENT,
+                                                                      errorCause);
+        }
+
+        std::unique_ptr<OnClientBinderDiedContext> context =
+                std::make_unique<OnClientBinderDiedContext>(
+                        OnClientBinderDiedContext{.server = this, .clientId = clientId});
+        // Get a raw pointer to be passed as cookie to death recipient.
+        contextPtr = static_cast<void*>(context.get());
+        // Insert into a map to keep the context object alive.
+        mOnClientBinderDiedContexts[clientId] = std::move(context);
+        mPolicyChangeCallbacks.emplace_back(binder, filter, callingPid);
+    }
+
+    // Do not call linkToDeath within a locked scope. handleClientDeathRecipientUnlinked might be
+    // called within which requires a lock.
+    binder_status_t status =
+            mLinkUnlinkImpl->linkToDeath(clientId, mClientDeathRecipient.get(), contextPtr);
+    if (status != STATUS_OK) {
+        // In this case, onBinderDied will not be called and we should clean up registered
+        // policyChangeCallback.
+        handleClientBinderDeath(clientId);
+
+        std::string errorStr = StringPrintf("The given callback(pid: %d, uid: %d) is dead",
+                                            callingPid, callingUid);
+        const char* errorCause = errorStr.c_str();
+        ALOGW("Cannot register a callback: %s", errorCause);
+        return ScopedAStatus::fromServiceSpecificErrorWithMessage(EX_ILLEGAL_STATE, errorCause);
+    }
+    if (DEBUG) {
+        ALOGD("Power policy change callback(pid: %d, filter: %s) is registered", callingPid,
+              toString(filter.components).c_str());
+    }
+    return ScopedAStatus::ok();
+}
+
+ScopedAStatus CarPowerPolicyServer::unregisterPowerPolicyChangeCallback(
+        const std::shared_ptr<ICarPowerPolicyChangeCallback>& callback) {
+    pid_t callingPid = IPCThreadState::self()->getCallingPid();
+    uid_t callingUid = IPCThreadState::self()->getCallingUid();
+    if (callback == nullptr) {
+        std::string errorMsg = "Cannot unregister a null callback";
+        ALOGW("%s", errorMsg.c_str());
+        return ScopedAStatus::fromServiceSpecificErrorWithMessage(EX_ILLEGAL_ARGUMENT,
+                                                                  errorMsg.c_str());
+    }
+    AIBinder* clientId = callback->asBinder().get();
+    void* cookie = nullptr;
+
+    {
+        std::lock_guard<std::mutex> lock(mMutex);
+        auto it = lookupPowerPolicyChangeCallback(mPolicyChangeCallbacks, clientId);
+        if (it == mPolicyChangeCallbacks.end()) {
+            std::string errorStr =
+                    StringPrintf("The callback(pid: %d, uid: %d) has not been registered",
+                                 callingPid, callingUid);
+            const char* errorCause = errorStr.c_str();
+            ALOGW("Cannot unregister a callback: %s", errorCause);
+            return ScopedAStatus::fromServiceSpecificErrorWithMessage(EX_ILLEGAL_ARGUMENT,
+                                                                      errorCause);
+        }
+        if (mOnClientBinderDiedContexts.find(clientId) != mOnClientBinderDiedContexts.end()) {
+            // We don't set a callback for unlinkToDeath but need to call unlinkToDeath to clean up
+            // the registered death recipient.
+            cookie = static_cast<void*>(mOnClientBinderDiedContexts[clientId].get());
+        }
+        mPolicyChangeCallbacks.erase(it);
+    }
+
+    if (cookie != nullptr) {
+        mLinkUnlinkImpl->unlinkToDeath(clientId, mClientDeathRecipient.get(), cookie);
+    }
+
+    if (DEBUG) {
+        ALOGD("Power policy change callback(pid: %d, uid: %d) is unregistered", callingPid,
+              callingUid);
+    }
+    return ScopedAStatus::ok();
+}
+
+ScopedAStatus CarPowerPolicyServer::applyPowerPolicy(const std::string& policyId) {
+    if (!car_power_policy_refactoring()) {
+        ALOGE("Cannot execute applyPowerPolicy: car_power_policy_refactoring flag is not enabled");
+        return ScopedAStatus::fromExceptionCode(EX_UNSUPPORTED_OPERATION);
+    }
+    if (const auto& ret =
+                applyPowerPolicyInternal(policyId, /*force=*/false, /*notifyCarService=*/true);
+        !ret.ok()) {
+        return ScopedAStatus::fromExceptionCodeWithMessage(ret.error().code(),
+                                                           ret.error().message().c_str());
+    }
+    return ScopedAStatus::ok();
+}
+
+ScopedAStatus CarPowerPolicyServer::setPowerPolicyGroup(const std::string& policyGroupId) {
+    if (!car_power_policy_refactoring()) {
+        ALOGE("Cannot execute setPowerPolicyGroup: car_power_policy_refactoring flag is not "
+              "enabled");
+        return ScopedAStatus::fromExceptionCode(EX_UNSUPPORTED_OPERATION);
+    }
+    if (const auto& ret = setPowerPolicyGroupInternal(policyGroupId); !ret.ok()) {
+        return ScopedAStatus::fromExceptionCodeWithMessage(ret.error().code(),
+                                                           ret.error().message().c_str());
+    }
+    return ScopedAStatus::ok();
+}
+
+ScopedAStatus CarPowerPolicyServer::notifyCarServiceReady(PolicyState* policyState) {
+    ScopedAStatus status = checkSystemPermission();
+    if (!status.isOk()) {
+        return status;
+    }
+    mSilentModeHandler.stopMonitoringSilentModeHwState();
+    std::lock_guard<std::mutex> lock(mMutex);
+    policyState->policyId =
+            isPowerPolicyAppliedLocked() ? mCurrentPowerPolicyMeta.powerPolicy->policyId : "";
+    policyState->policyGroupId = mCurrentPolicyGroupId;
+    mIsCarServiceInOperation = true;
+    ALOGI("CarService is now responsible for power policy management");
+    return ScopedAStatus::ok();
+}
+
+ScopedAStatus CarPowerPolicyServer::notifyPowerPolicyChange(const std::string& policyId,
+                                                            bool force) {
+    ScopedAStatus status = checkSystemPermission();
+    if (!status.isOk()) {
+        return status;
+    }
+    const auto& ret = applyPowerPolicy(policyId, /*carServiceExpected=*/true, force);
+    if (!ret.ok()) {
+        return ScopedAStatus::
+                fromServiceSpecificErrorWithMessage(EX_ILLEGAL_STATE,
+                                                    StringPrintf("Failed to notify power policy "
+                                                                 "change: %s",
+                                                                 ret.error().message().c_str())
+                                                            .c_str());
+    }
+    ALOGD("Policy change(%s) is notified by CarService", policyId.c_str());
+    return ScopedAStatus::ok();
+}
+
+ScopedAStatus CarPowerPolicyServer::notifyPowerPolicyDefinition(
+        const std::string& policyId, const std::vector<std::string>& enabledComponents,
+        const std::vector<std::string>& disabledComponents) {
+    ScopedAStatus status = checkSystemPermission();
+    if (!status.isOk()) {
+        return status;
+    }
+    const auto& ret =
+            mPolicyManager.definePowerPolicy(policyId, enabledComponents, disabledComponents);
+    if (!ret.ok()) {
+        return ScopedAStatus::
+                fromServiceSpecificErrorWithMessage(EX_ILLEGAL_ARGUMENT,
+                                                    StringPrintf("Failed to notify power policy "
+                                                                 "definition: %s",
+                                                                 ret.error().message().c_str())
+                                                            .c_str());
+    }
+    return ScopedAStatus::ok();
+}
+
+ScopedAStatus CarPowerPolicyServer::notifyPowerPolicyGroupDefinition(
+        const std::string& policyGroupId, const std::vector<std::string>& powerPolicyPerState) {
+    ScopedAStatus status = checkSystemPermission();
+    if (!status.isOk()) {
+        return status;
+    }
+    const auto& ret = mPolicyManager.definePowerPolicyGroup(policyGroupId, powerPolicyPerState);
+    if (!ret.ok()) {
+        return ScopedAStatus::
+                fromServiceSpecificErrorWithMessage(EX_ILLEGAL_ARGUMENT,
+                                                    StringPrintf("Failed to notify power policy "
+                                                                 "group definition: %s",
+                                                                 ret.error().message().c_str())
+                                                            .c_str());
+    }
+    return ScopedAStatus::ok();
+}
+
+ScopedAStatus CarPowerPolicyServer::applyPowerPolicyPerPowerStateChangeAsync(
+        int32_t requestId, ICarPowerManagementDelegate::PowerState state) {
+    ScopedAStatus status = checkSystemPermission();
+    if (!status.isOk()) {
+        return status;
+    }
+    VehicleApPowerStateReport apPowerState;
+    std::string defaultPowerPolicyId;
+    // TODO(b/318520417): Power policy should be updated according to SilentMode.
+    // TODO(b/321319532): Create a map for default power policy in PolicyManager.
+    switch (state) {
+        case ICarPowerManagementDelegate::PowerState::WAIT_FOR_VHAL:
+            apPowerState = VehicleApPowerStateReport::WAIT_FOR_VHAL;
+            defaultPowerPolicyId = kSystemPolicyIdInitialOn;
+            break;
+        case ICarPowerManagementDelegate::PowerState::ON:
+            apPowerState = VehicleApPowerStateReport::ON;
+            defaultPowerPolicyId = kSystemPolicyIdAllOn;
+            break;
+        default:
+            return ScopedAStatus::
+                    fromServiceSpecificErrorWithMessage(EX_ILLEGAL_ARGUMENT,
+                                                        StringPrintf("Power policy cannot be "
+                                                                     "changed for power state(%d)",
+                                                                     static_cast<int32_t>(state))
+                                                                .c_str());
+    }
+    std::string powerStateName = toString(apPowerState);
+    ALOGI("Power policy change for new power state(%s) is requested", powerStateName.c_str());
+    std::string currentPolicyGroupId;
+    {
+        std::lock_guard<std::mutex> lock(mMutex);
+        currentPolicyGroupId = mCurrentPolicyGroupId;
+    }
+    const auto& policy =
+            mPolicyManager.getDefaultPowerPolicyForState(currentPolicyGroupId, apPowerState);
+    std::string policyId;
+    if (policy.ok()) {
+        policyId = (*policy)->policyId;
+        ALOGI("Vendor-configured policy(%s) is about to be applied for power state(%s)",
+              policyId.c_str(), powerStateName.c_str());
+    } else {
+        policyId = defaultPowerPolicyId;
+        ALOGI("Default policy(%s) is about to be applied for power state(%s)", policyId.c_str(),
+              powerStateName.c_str());
+    }
+
+    const bool useForce = !mSilentModeHandler.isSilentMode();
+
+    if (auto ret = enqueuePowerPolicyRequest(requestId, policyId, useForce); !ret.isOk()) {
+        ALOGW("Failed to apply power policy(%s) for power state(%s) with request ID(%d)",
+              policyId.c_str(), powerStateName.c_str(), requestId);
+        return ret;
+    }
+    return ScopedAStatus::ok();
+}
+
+ScopedAStatus CarPowerPolicyServer::notifyPowerStateChange(
+        [[maybe_unused]] int32_t changeId, [[maybe_unused]] CarPowerState newState,
+        [[maybe_unused]] int64_t expirationTimeMs) {
+    // TODO(b/382256300): implement
+    return ScopedAStatus::ok();
+}
+
+ScopedAStatus CarPowerPolicyServer::setSilentMode(const std::string& silentMode) {
+    ScopedAStatus status = checkSystemPermission();
+    if (!status.isOk()) {
+        return status;
+    }
+    if (auto ret = mSilentModeHandler.setSilentMode(silentMode); !ret.isOk()) {
+        ALOGW("Failed to set Silent Mode(%s)", silentMode.c_str());
+        return ret;
+    }
+    return ScopedAStatus::ok();
+}
+
+ScopedAStatus CarPowerPolicyServer::applyPowerPolicyAsync(int32_t requestId,
+                                                          const std::string& policyId, bool force) {
+    ScopedAStatus status = checkSystemPermission();
+    if (!status.isOk()) {
+        return status;
+    }
+    if (auto ret = enqueuePowerPolicyRequest(requestId, policyId, force); !ret.isOk()) {
+        ALOGW("Failed to apply power policy(%s) with request ID(%d)", policyId.c_str(), requestId);
+        return ret;
+    }
+    return ScopedAStatus::ok();
+}
+
+ScopedAStatus CarPowerPolicyServer::enqueuePowerPolicyRequest(int32_t requestId,
+                                                              const std::string& policyId,
+                                                              bool force) {
+    std::lock_guard<std::mutex> lock(mMutex);
+    if (mPolicyRequestById.count(requestId) > 0) {
+        return ScopedAStatus::
+                fromServiceSpecificErrorWithMessage(EX_ILLEGAL_ARGUMENT,
+                                                    StringPrintf("Duplicated request ID(%d)",
+                                                                 requestId)
+                                                            .c_str());
+    }
+    mPolicyRequestById[requestId] = PolicyRequest{.policyId = policyId, .force = force};
+    ALOGI("Queueing request ID(%d) for applying power policy(%s): force=%s", requestId,
+          policyId.c_str(), force ? "true" : "false");
+    mHandlerLooper->sendMessage(mRequestIdHandler, requestId);
+    return ScopedAStatus::ok();
+}
+
+ScopedAStatus CarPowerPolicyServer::notifyCarServiceReadyInternal(
+        const std::shared_ptr<ICarPowerManagementDelegateCallback>& callback,
+        PowerPolicyInitData* aidlReturn) {
+    ScopedAStatus status = checkSystemPermission();
+    if (!status.isOk()) {
+        return status;
+    }
+    if (callback == nullptr) {
+        std::string errorMsg = "Cannot register a null callback for notifyCarServiceReadyInternal";
+        ALOGW("%s", errorMsg.c_str());
+        return ScopedAStatus::fromServiceSpecificErrorWithMessage(EX_ILLEGAL_ARGUMENT,
+                                                                  errorMsg.c_str());
+    }
+
+    SpAIBinder newCallbackBinder;
+    SpAIBinder oldCallbackBinder;
+    {
+        std::lock_guard<std::mutex> lock(mMutex);
+        // Override with the newer callback.
+        newCallbackBinder = callback->asBinder();
+        // Copy old client binder out so that we can unlink it outside of the lock.
+        oldCallbackBinder = mPowerManagementDelegateCallback;
+        mPowerManagementDelegateCallback = newCallbackBinder;
+        mCarServiceLinked = true;
+    }
+
+    if (oldCallbackBinder != nullptr) {
+        mLinkUnlinkImpl->unlinkToDeath(oldCallbackBinder.get(), mCarServiceDeathRecipient.get(),
+                                       static_cast<void*>(this));
+    }
+
+    // Do not call linkToDeath within a locked scope. handleCarServiceDeathRecipientUnlinked might
+    // be called within which requires a lock.
+    binder_status_t linkStatus =
+            mLinkUnlinkImpl->linkToDeath(newCallbackBinder.get(), mCarServiceDeathRecipient.get(),
+                                         static_cast<void*>(this));
+    if (linkStatus != STATUS_OK) {
+        pid_t callingPid = IPCThreadState::self()->getCallingPid();
+        uid_t callingUid = IPCThreadState::self()->getCallingUid();
+        std::string errorStr =
+                StringPrintf("CarService(pid: %d, uid: %d) is dead", callingPid, callingUid);
+        const char* errorCause = errorStr.c_str();
+        ALOGW("Cannot handle notifyCarServiceReady: %s", errorCause);
+        return ScopedAStatus::fromServiceSpecificErrorWithMessage(EX_ILLEGAL_STATE, errorCause);
+    }
+
+    aidlReturn->registeredCustomComponents = mPolicyManager.getCustomComponents();
+    {
+        std::lock_guard<std::mutex> lock(mMutex);
+        aidlReturn->currentPowerPolicy = *mCurrentPowerPolicyMeta.powerPolicy;
+    }
+    aidlReturn->registeredPolicies = mPolicyManager.getRegisteredPolicies();
+    ALOGI("CarService registers ICarPowerManagementDelegateCallback");
+    return ScopedAStatus::ok();
+}
+
+status_t CarPowerPolicyServer::dump(int fd, const char** args, uint32_t numArgs) {
+    Vector<String16> argsV;
+    for (size_t i = 0; i < numArgs; i++) {
+        argsV.push(String16(args[i]));
+    }
+
+    {
+        std::lock_guard<std::mutex> lock(mMutex);
+        const char* indent = "  ";
+        const char* doubleIndent = "    ";
+        WriteStringToFd("CAR POWER POLICY DAEMON\n", fd);
+        WriteStringToFd(StringPrintf("%sConnect to VHAL timeout: %" PRIu64 " ms\n", indent,
+                                     mConnectToVhalTimeoutMillis),
+                        fd);
+        WriteStringToFd(StringPrintf("%sCarService is in operation: %s\n", indent,
+                                     mIsCarServiceInOperation ? "true" : "false"),
+                        fd);
+        WriteStringToFd(StringPrintf("%sConnection to VHAL: %s\n", indent,
+                                     mVhalService.get() ? "connected" : "disconnected"),
+                        fd);
+        WriteStringToFd(StringPrintf("%sCurrent power policy: %s\n", indent,
+                                     isPowerPolicyAppliedLocked()
+                                             ? mCurrentPowerPolicyMeta.powerPolicy->policyId.c_str()
+                                             : "not set"),
+                        fd);
+        WriteStringToFd(StringPrintf("%sLast uptime of applying power policy: %" PRId64 "ms\n",
+                                     indent, mLastApplyPowerPolicyUptimeMs.value_or(-1)),
+                        fd);
+        WriteStringToFd(StringPrintf("%sPending power policy ID: %s\n", indent,
+                                     mPendingPowerPolicyId.c_str()),
+                        fd);
+        WriteStringToFd(StringPrintf("%sCurrent power policy group ID: %s\n", indent,
+                                     mCurrentPolicyGroupId.empty() ? "not set"
+                                                                   : mCurrentPolicyGroupId.c_str()),
+                        fd);
+        WriteStringToFd(StringPrintf("%sLast uptime of setting default power policy group: "
+                                     "%" PRId64 "ms\n",
+                                     indent, mLastSetDefaultPowerPolicyGroupUptimeMs.value_or(-1)),
+                        fd);
+        WriteStringToFd(StringPrintf("%sPolicy change callbacks:%s\n", indent,
+                                     mPolicyChangeCallbacks.size() ? "" : " none"),
+                        fd);
+        for (auto& callback : mPolicyChangeCallbacks) {
+            WriteStringToFd(StringPrintf("%s- %s\n", doubleIndent,
+                                         callbackToString(callback).c_str()),
+                            fd);
+        }
+    }
+    if (const auto& ret = mPolicyManager.dump(fd, argsV); !ret.ok()) {
+        ALOGW("Failed to dump power policy handler: %s", ret.error().message().c_str());
+        return ret.error().code();
+    }
+    if (const auto& ret = mComponentHandler.dump(fd); !ret.ok()) {
+        ALOGW("Failed to dump power component handler: %s", ret.error().message().c_str());
+        return ret.error().code();
+    }
+    if (const auto& ret = mSilentModeHandler.dump(fd, argsV); !ret.ok()) {
+        ALOGW("Failed to dump Silent Mode handler: %s", ret.error().message().c_str());
+        return ret.error().code();
+    }
+    return OK;
+}
+
+Result<void> CarPowerPolicyServer::init(const sp<Looper>& looper) {
+    AIBinder* binderCarService = AServiceManager_checkService(kCarServiceInterface);
+    {
+        std::lock_guard<std::mutex> lock(mMutex);
+        // Before initializing power policy daemon, we need to update mIsCarServiceInOperation
+        // according to whether CPMS is running.
+        mIsCarServiceInOperation = binderCarService != nullptr;
+    }
+    mHandlerLooper = looper;
+    mPolicyManager.init();
+    mComponentHandler.init();
+    mSilentModeHandler.init();
+
+    binder_exception_t err =
+            AServiceManager_addService(this->asBinder().get(), kCarPowerPolicyServerInterface);
+    if (err != EX_NONE) {
+        return Error(err) << "Failed to add carpowerpolicyd to ServiceManager";
+    }
+
+    if (car_power_policy_refactoring()) {
+        ALOGI("Registering ICarPowerManagementDelegate");
+        mCarPowerManagementDelegate = SharedRefBase::make<CarPowerManagementDelegate>(this);
+        if (err = AServiceManager_addService(mCarPowerManagementDelegate->asBinder().get(),
+                                             kCarPowerManagementDelegateInterface);
+            err != EX_NONE) {
+            return Error(err) << "Failed to add car power policy delegate to ServiceManager";
+        }
+    } else {
+        mCarServiceNotificationHandler = SharedRefBase::make<CarServiceNotificationHandler>(this);
+        if (err = AServiceManager_addService(mCarServiceNotificationHandler->asBinder().get(),
+                                             kCarPowerPolicySystemNotificationInterface);
+            err != EX_NONE) {
+            return Error(err)
+                    << "Failed to add car power policy system notification to ServiceManager";
+        }
+    }
+
+    connectToVhal();
+    return {};
+}
+
+void CarPowerPolicyServer::terminate() {
+    ALOGI("CarPowerPolicyServer terminate");
+    std::lock_guard<std::mutex> lock(mMutex);
+    mPolicyChangeCallbacks.clear();
+    if (mVhalService != nullptr) {
+        mSubscriptionClient->unsubscribe(
+                {static_cast<int32_t>(VehicleProperty::POWER_POLICY_REQ),
+                 static_cast<int32_t>(VehicleProperty::POWER_POLICY_GROUP_REQ)});
+    }
+
+    if (car_power_policy_refactoring()) {
+        if (mCarPowerManagementDelegate != nullptr) {
+            mCarPowerManagementDelegate->terminate();
+            mCarPowerManagementDelegate = nullptr;
+        }
+    } else {
+        if (mCarServiceNotificationHandler != nullptr) {
+            mCarServiceNotificationHandler->terminate();
+            mCarServiceNotificationHandler = nullptr;
+        }
+    }
+
+    mSilentModeHandler.release();
+
+    if (mHandlerLooper != nullptr) {
+        // Remove the messages so that mEventHandler and mRequestIdHandler would no longer be used.
+        mHandlerLooper->removeMessages(mEventHandler);
+        mHandlerLooper->removeMessages(mRequestIdHandler);
+    }
+}
+
+void CarPowerPolicyServer::onCarServiceDeathRecipientUnlinked(void* cookie) {
+    CarPowerPolicyServer* server = static_cast<CarPowerPolicyServer*>(cookie);
+    server->handleCarServiceDeathRecipientUnlinked();
+}
+
+void CarPowerPolicyServer::onClientDeathRecipientUnlinked(void* cookie) {
+    OnClientBinderDiedContext* context = static_cast<OnClientBinderDiedContext*>(cookie);
+    context->server->handleClientDeathRecipientUnlinked(context->clientId);
+}
+
+void CarPowerPolicyServer::onClientBinderDied(void* cookie) {
+    OnClientBinderDiedContext* context = static_cast<OnClientBinderDiedContext*>(cookie);
+    context->server->handleClientBinderDeath(context->clientId);
+}
+
+void CarPowerPolicyServer::onCarServiceBinderDied(void* cookie) {
+    CarPowerPolicyServer* server = static_cast<CarPowerPolicyServer*>(cookie);
+    server->handleCarServiceBinderDeath();
+}
+
+void CarPowerPolicyServer::handleClientBinderDeath(const AIBinder* clientId) {
+    ALOGI("handleClientBinderDeath");
+    std::lock_guard<std::mutex> lock(mMutex);
+    auto it = lookupPowerPolicyChangeCallback(mPolicyChangeCallbacks, clientId);
+    if (it != mPolicyChangeCallbacks.end()) {
+        ALOGW("Power policy callback(pid: %d) died", it->pid);
+        mPolicyChangeCallbacks.erase(it);
+    }
+}
+
+void CarPowerPolicyServer::handleCarServiceDeathRecipientUnlinked() {
+    ALOGI("handleCarServiceDeathRecipientUnlinked");
+    std::lock_guard<std::mutex> lock(mMutex);
+    mCarServiceLinked = false;
+    mResourceReleasedCv.notify_all();
+}
+
+void CarPowerPolicyServer::handleClientDeathRecipientUnlinked(const AIBinder* clientId) {
+    ALOGI("handleClientDeathRecipientUnlinked");
+    std::lock_guard<std::mutex> lock(mMutex);
+    mOnClientBinderDiedContexts.erase(clientId);
+    if (mOnClientBinderDiedContexts.empty()) {
+        mResourceReleasedCv.notify_all();
+    }
+}
+
+void CarPowerPolicyServer::handleCarServiceBinderDeath() {
+    ALOGI("handleCarServiceBinderDeath");
+    std::lock_guard<std::mutex> lock(mMutex);
+    mPowerManagementDelegateCallback = nullptr;
+}
+
+void CarPowerPolicyServer::handleVhalDeath() {
+    {
+        std::lock_guard<std::mutex> lock(mMutex);
+        ALOGW("VHAL has died.");
+        mVhalService = nullptr;
+    }
+    connectToVhal();
+}
+
+void CarPowerPolicyServer::handleApplyPowerPolicyRequest(const int32_t requestId) {
+    ALOGI("Handling request ID(%d) to apply power policy", requestId);
+    PolicyRequest policyRequest;
+    std::shared_ptr<ICarPowerManagementDelegateCallback> callback;
+    {
+        std::lock_guard<std::mutex> lock(mMutex);
+        if (mPolicyRequestById.count(requestId) == 0) {
+            ALOGW("Request ID(%d) for applying power policy is not found", requestId);
+            return;
+        }
+        policyRequest = mPolicyRequestById[requestId];
+        mPolicyRequestById.erase(requestId);
+        callback =
+                ICarPowerManagementDelegateCallback::fromBinder(mPowerManagementDelegateCallback);
+        if (callback == nullptr) {
+            ALOGW("ICarPowerManagementDelegateCallback is not set");
+        }
+    }
+    if (const auto& ret = applyPowerPolicyInternal(policyRequest.policyId, policyRequest.force,
+                                                   /*notifyCarService=*/false);
+        !ret.ok()) {
+        ALOGW("%s", ret.error().message().c_str());
+        if (callback != nullptr) {
+            callback->onApplyPowerPolicyFailed(requestId,
+                                               convertErrorToFailureReason(ret.error().code()));
+        }
+        return;
+    } else if (callback != nullptr) {
+        callback->onApplyPowerPolicySucceeded(requestId, *mComponentHandler.getAccumulatedPolicy(),
+                                              !*ret);
+    }
+}
+
+Result<void> CarPowerPolicyServer::applyPowerPolicy(const std::string& policyId,
+                                                    const bool carServiceInOperation,
+                                                    const bool force) {
+    auto policyMeta = mPolicyManager.getPowerPolicy(policyId);
+    if (!policyMeta.ok()) {
+        return Error() << "Failed to apply power policy: " << policyMeta.error().message();
+    }
+
+    std::vector<CallbackInfo> clients;
+    if (std::lock_guard<std::mutex> lock(mMutex);
+        mIsCarServiceInOperation != carServiceInOperation) {
+        return Error() << (mIsCarServiceInOperation
+                                   ? "After CarService starts serving, power policy cannot be "
+                                     "managed in car power policy daemon"
+                                   : "Before CarService starts serving, power policy cannot be "
+                                     "applied from CarService");
+    } else {
+        if (!canApplyPowerPolicyLocked(*policyMeta, force, /*out*/ clients)) {
+            return {};
+        }
+    }
+    applyAndNotifyPowerPolicy(*policyMeta, clients, /*notifyCarService=*/false);
+    return {};
+}
+
+bool CarPowerPolicyServer::canApplyPowerPolicyLocked(const CarPowerPolicyMeta& policyMeta,
+                                                     const bool force,
+                                                     std::vector<CallbackInfo>& outClients) {
+    const std::string& policyId = policyMeta.powerPolicy->policyId;
+    bool isPolicyApplied = isPowerPolicyAppliedLocked();
+    if (isPolicyApplied && mCurrentPowerPolicyMeta.powerPolicy->policyId == policyId) {
+        ALOGI("Applying policy skipped: the given policy(ID: %s) is the current policy",
+              policyId.c_str());
+        return false;
+    }
+    if (policyMeta.isPreemptive) {
+        if (isPolicyApplied && !mCurrentPowerPolicyMeta.isPreemptive) {
+            mPendingPowerPolicyId = mCurrentPowerPolicyMeta.powerPolicy->policyId;
+        }
+        mIsPowerPolicyLocked = true;
+    } else {
+        if (force) {
+            mPendingPowerPolicyId.clear();
+            mIsPowerPolicyLocked = false;
+        } else if (mIsPowerPolicyLocked) {
+            ALOGI("%s is queued and will be applied after power policy get unlocked",
+                  policyId.c_str());
+            mPendingPowerPolicyId = policyId;
+            return false;
+        }
+    }
+    mCurrentPowerPolicyMeta = policyMeta;
+    outClients = mPolicyChangeCallbacks;
+    mLastApplyPowerPolicyUptimeMs = uptimeMillis();
+    ALOGD("CurrentPowerPolicyMeta is updated to %s", policyId.c_str());
+    return true;
+}
+
+void CarPowerPolicyServer::applyAndNotifyPowerPolicy(const CarPowerPolicyMeta& policyMeta,
+                                                     const std::vector<CallbackInfo>& clients,
+                                                     const bool notifyCarService) {
+    CarPowerPolicyPtr policy = policyMeta.powerPolicy;
+    const std::string& policyId = policy->policyId;
+    mComponentHandler.applyPowerPolicy(policy);
+
+    std::shared_ptr<ICarPowerManagementDelegateCallback> callback = nullptr;
+    if (car_power_policy_refactoring()) {
+        {
+            std::lock_guard<std::mutex> lock(mMutex);
+            callback = ICarPowerManagementDelegateCallback::fromBinder(
+                    mPowerManagementDelegateCallback);
+        }
+        if (callback != nullptr) {
+            ALOGD("Asking CPMS to update power components for policy(%s)", policyId.c_str());
+            callback->updatePowerComponents(*policy);
+        } else {
+            ALOGW("CarService isn't ready to update power components for policy(%s)",
+                  policyId.c_str());
+        }
+    }
+
+    if (const auto& ret = notifyVhalNewPowerPolicy(policy->policyId); !ret.ok()) {
+        ALOGW("Failed to tell VHAL the new power policy(%s): %s", policy->policyId.c_str(),
+              ret.error().message().c_str());
+    }
+    auto accumulatedPolicy = mComponentHandler.getAccumulatedPolicy();
+    for (auto client : clients) {
+        ICarPowerPolicyChangeCallback::fromBinder(client.binder)
+                ->onPolicyChanged(*accumulatedPolicy);
+    }
+    if (notifyCarService && callback != nullptr) {
+        callback->onPowerPolicyChanged(*accumulatedPolicy);
+    }
+    ALOGI("The current power policy is %s", policyId.c_str());
+}
+
+Result<bool> CarPowerPolicyServer::applyPowerPolicyInternal(const std::string& policyId,
+                                                            const bool force,
+                                                            const bool notifyCarService) {
+    auto policyMeta = mPolicyManager.getPowerPolicy(policyId);
+    if (!policyMeta.ok()) {
+        return Error(EX_ILLEGAL_ARGUMENT)
+                << "Failed to apply power policy: " << policyMeta.error().message();
+    }
+    std::vector<CallbackInfo> clients;
+    {
+        std::lock_guard<std::mutex> lock(mMutex);
+        if (!canApplyPowerPolicyLocked(*policyMeta, force, /*out*/ clients)) {
+            return false;
+        }
+    }
+    applyAndNotifyPowerPolicy(*policyMeta, clients, notifyCarService);
+    return true;
+}
+
+Result<void> CarPowerPolicyServer::setPowerPolicyGroupInternal(const std::string& groupId) {
+    if (!mPolicyManager.isPowerPolicyGroupAvailable(groupId)) {
+        return Error(EX_ILLEGAL_ARGUMENT)
+                << StringPrintf("Power policy group(%s) is not available", groupId.c_str());
+    }
+    std::lock_guard<std::mutex> lock(mMutex);
+    if (!car_power_policy_refactoring() && mIsCarServiceInOperation) {
+        return Error(EX_ILLEGAL_STATE) << "After CarService starts serving, power policy group "
+                                          "cannot be set in car power policy daemon";
+    }
+    mCurrentPolicyGroupId = groupId;
+    ALOGI("The current power policy group is |%s|", groupId.c_str());
+    return {};
+}
+
+void CarPowerPolicyServer::notifySilentModeChange(const bool isSilent) {
+    if (car_power_policy_refactoring()) {
+        notifySilentModeChangeInternal(isSilent);
+    } else {
+        notifySilentModeChangeLegacy(isSilent);
+    }
+}
+
+void CarPowerPolicyServer::notifySilentModeChangeLegacy(const bool isSilent) {
+    std::string pendingPowerPolicyId;
+    if (std::lock_guard<std::mutex> lock(mMutex); mIsCarServiceInOperation) {
+        return;
+    } else {
+        pendingPowerPolicyId = mPendingPowerPolicyId;
+    }
+    ALOGI("Silent Mode is set to %s", isSilent ? "silent" : "non-silent");
+    Result<void> ret;
+    if (isSilent) {
+        ret = applyPowerPolicy(kSystemPolicyIdNoUserInteraction,
+                               /*carServiceExpected=*/false, /*force=*/false);
+    } else {
+        ret = applyPowerPolicy(pendingPowerPolicyId,
+                               /*carServiceExpected=*/false, /*force=*/true);
+    }
+    if (!ret.ok()) {
+        ALOGW("Failed to apply power policy: %s", ret.error().message().c_str());
+    }
+}
+
+void CarPowerPolicyServer::notifySilentModeChangeInternal(const bool isSilent) {
+    std::string pendingPowerPolicyId;
+    {
+        std::lock_guard<std::mutex> lock(mMutex);
+        pendingPowerPolicyId = mPendingPowerPolicyId;
+    }
+    ALOGI("Silent Mode is set to %s", isSilent ? "silent" : "non-silent");
+    Result<bool> ret;
+    if (isSilent) {
+        ret = applyPowerPolicyInternal(kSystemPolicyIdNoUserInteraction, /*force=*/false,
+                                       /*notifyCarService=*/true);
+    } else {
+        ret = applyPowerPolicyInternal(pendingPowerPolicyId, /*force=*/true,
+                                       /*notifyCarService=*/true);
+    }
+    if (!ret.ok()) {
+        ALOGW("Failed to apply power policy: %s", ret.error().message().c_str());
+    }
+}
+
+bool CarPowerPolicyServer::isRegisteredLocked(const AIBinder* binder) {
+    return lookupPowerPolicyChangeCallback(mPolicyChangeCallbacks, binder) !=
+            mPolicyChangeCallbacks.end();
+}
+
+// This method ensures that the attempt to connect to VHAL occurs in the main thread.
+void CarPowerPolicyServer::connectToVhal() {
+    mRemainingConnectionRetryCount = mMaxConnectToVhalRetryCount;
+    mHandlerLooper->sendMessage(mEventHandler, MSG_CONNECT_TO_VHAL);
+}
+
+// connectToVhalHelper is always executed in the main thread.
+void CarPowerPolicyServer::connectToVhalHelper() {
+    {
+        std::lock_guard<std::mutex> lock(mMutex);
+        if (mVhalService != nullptr) {
+            return;
+        }
+    }
+    std::shared_ptr<IVhalClient> vhalService = IVhalClient::tryCreate();
+    if (vhalService == nullptr) {
+        ALOGW("Failed to connect to VHAL. Retrying in %" PRId64 " ms.",
+              nanoseconds_to_milliseconds(kConnectionRetryIntervalNs));
+        if (mRemainingConnectionRetryCount > 0) {
+            mRemainingConnectionRetryCount--;
+        }
+        if (mRemainingConnectionRetryCount == 0) {
+            ALOGE("Failed to connect to VHAL after %zu attempt%s. Gave up.",
+                  mMaxConnectToVhalRetryCount, mMaxConnectToVhalRetryCount > 1 ? "s" : "");
+            return;
+        }
+        mHandlerLooper->sendMessageDelayed(kConnectionRetryIntervalNs, mEventHandler,
+                                           MSG_CONNECT_TO_VHAL);
+        return;
+    }
+    vhalService->addOnBinderDiedCallback(
+            std::make_shared<IVhalClient::OnBinderDiedCallbackFunc>([this] { handleVhalDeath(); }));
+    std::string currentPolicyId;
+    {
+        std::lock_guard<std::mutex> lock(mMutex);
+        mVhalService = vhalService;
+        mSubscriptionClient = mVhalService->getSubscriptionClient(mPropertyChangeListener);
+        if (isPowerPolicyAppliedLocked()) {
+            currentPolicyId = mCurrentPowerPolicyMeta.powerPolicy->policyId;
+        }
+    }
+    /*
+     * When VHAL is first executed, a normal power management goes on. When VHAL is restarted due to
+     * some reasons, the current policy is notified to VHAL.
+     */
+    if (mIsFirstConnectionToVhal) {
+        applyInitialPowerPolicy();
+        mIsFirstConnectionToVhal = false;
+    } else if (!currentPolicyId.empty()) {
+        notifyVhalNewPowerPolicy(currentPolicyId);
+    }
+    subscribeToVhal();
+    ALOGI("Connected to VHAL");
+    return;
+}
+
+void CarPowerPolicyServer::applyInitialPowerPolicy() {
+    std::string policyId;
+    std::string currentPolicyGroupId;
+    CarPowerPolicyPtr powerPolicy;
+    {
+        std::lock_guard<std::mutex> lock(mMutex);
+        if (mIsCarServiceInOperation) {
+            ALOGI("Skipping initial power policy application because CarService is running");
+            return;
+        }
+        policyId = mPendingPowerPolicyId;
+        currentPolicyGroupId = mCurrentPolicyGroupId;
+    }
+    if (policyId.empty()) {
+        if (auto policy = mPolicyManager.getDefaultPowerPolicyForState(currentPolicyGroupId,
+                                                                       VehicleApPowerStateReport::
+                                                                               WAIT_FOR_VHAL);
+            policy.ok()) {
+            policyId = (*policy)->policyId;
+        } else {
+            policyId = kSystemPolicyIdInitialOn;
+        }
+    }
+    if (const auto& ret = applyPowerPolicy(policyId, /*carServiceExpected=*/false, /*force=*/false);
+        !ret.ok()) {
+        ALOGW("Cannot apply the initial power policy(%s): %s", policyId.c_str(),
+              ret.error().message().c_str());
+        return;
+    }
+    ALOGD("Policy(%s) is applied as the initial one", policyId.c_str());
+}
+
+void CarPowerPolicyServer::subscribeToVhal() {
+    subscribeToProperty(static_cast<int32_t>(VehicleProperty::POWER_POLICY_REQ),
+                        [this](const IHalPropValue& value) {
+                            std::string stringValue = value.getStringValue();
+                            if (stringValue.size() > 0) {
+                                const auto& ret = applyPowerPolicy(stringValue,
+                                                                   /*carServiceExpected=*/false,
+                                                                   /*force=*/false);
+                                if (!ret.ok()) {
+                                    ALOGW("Failed to apply power policy(%s): %s",
+                                          stringValue.c_str(), ret.error().message().c_str());
+                                }
+                            }
+                        });
+    subscribeToProperty(static_cast<int32_t>(VehicleProperty::POWER_POLICY_GROUP_REQ),
+                        [this](const IHalPropValue& value) {
+                            std::string stringValue = value.getStringValue();
+                            if (stringValue.size() > 0) {
+                                const auto& ret = setPowerPolicyGroupInternal(stringValue);
+                                if (ret.ok()) {
+                                    std::lock_guard<std::mutex> lock(mMutex);
+                                    mLastSetDefaultPowerPolicyGroupUptimeMs = value.getTimestamp();
+                                } else {
+                                    ALOGW("Failed to set power policy group(%s): %s",
+                                          stringValue.c_str(), ret.error().message().c_str());
+                                }
+                            }
+                        });
+}
+
+void CarPowerPolicyServer::subscribeToProperty(
+        int32_t prop, std::function<void(const IHalPropValue&)> processor) {
+    if (!isPropertySupported(prop)) {
+        ALOGW("Vehicle property(%d) is not supported by VHAL.", prop);
+        return;
+    }
+    std::shared_ptr<IVhalClient> vhalService;
+    {
+        std::lock_guard<std::mutex> lock(mMutex);
+        if (mVhalService == nullptr) {
+            ALOGW("Failed to subscribe to property(%d): VHAL is not ready", prop);
+            return;
+        }
+        vhalService = mVhalService;
+    }
+
+    VhalClientResult<std::unique_ptr<IHalPropValue>> result =
+            vhalService->getValueSync(*vhalService->createHalPropValue(prop));
+
+    if (!result.ok()) {
+        ALOGW("Failed to get vehicle property(%d) value, error: %s.", prop,
+              result.error().message().c_str());
+        return;
+    }
+    processor(*result.value());
+    std::vector<SubscribeOptions> options = {
+            {.propId = prop, .areaIds = {}},
+    };
+
+    if (auto result = mSubscriptionClient->subscribe(options); !result.ok()) {
+        ALOGW("Failed to subscribe to vehicle property(%d), error: %s", prop,
+              result.error().message().c_str());
+    }
+}
+
+Result<void> CarPowerPolicyServer::notifyVhalNewPowerPolicy(const std::string& policyId) {
+    int32_t prop = static_cast<int32_t>(VehicleProperty::CURRENT_POWER_POLICY);
+    if (!isPropertySupported(prop)) {
+        return Error() << StringPrintf("Vehicle property(%d) is not supported by VHAL.", prop);
+    }
+    std::shared_ptr<IVhalClient> vhalService;
+    {
+        std::lock_guard<std::mutex> lock(mMutex);
+        if (mVhalService == nullptr) {
+            return Error() << "VHAL is not ready";
+        }
+        vhalService = mVhalService;
+    }
+    std::unique_ptr<IHalPropValue> propValue = vhalService->createHalPropValue(prop);
+    propValue->setStringValue(policyId);
+
+    VhalClientResult<void> result = vhalService->setValueSync(*propValue);
+    if (!result.ok()) {
+        return Error() << "Failed to set CURRENT_POWER_POLICY property";
+    }
+    ALOGD("Policy(%s) is notified to VHAL", policyId.c_str());
+    return {};
+}
+
+bool CarPowerPolicyServer::isPropertySupported(const int32_t prop) {
+    if (mSupportedProperties.count(prop) > 0) {
+        return mSupportedProperties[prop];
+    }
+    StatusCode status;
+    hidl_vec<int32_t> props = {prop};
+    std::shared_ptr<IVhalClient> vhalService;
+    {
+        std::lock_guard<std::mutex> lock(mMutex);
+        if (mVhalService == nullptr) {
+            ALOGW("Failed to check if property(%d) is supported: VHAL is not ready", prop);
+            return false;
+        }
+        vhalService = mVhalService;
+    }
+    auto result = vhalService->getPropConfigs(props);
+    mSupportedProperties[prop] = result.ok();
+    return mSupportedProperties[prop];
+}
+
+bool CarPowerPolicyServer::isPowerPolicyAppliedLocked() const {
+    return mCurrentPowerPolicyMeta.powerPolicy != nullptr;
+}
+
+std::string CarPowerPolicyServer::callbackToString(const CallbackInfo& callback) {
+    const std::vector<PowerComponent>& components = callback.filter.components;
+    return StringPrintf("callback(pid %d, filter: %s)", callback.pid, toString(components).c_str());
+}
+
+std::vector<CallbackInfo> CarPowerPolicyServer::getPolicyChangeCallbacks() {
+    std::lock_guard<std::mutex> lock(mMutex);
+    return mPolicyChangeCallbacks;
+}
+
+size_t CarPowerPolicyServer::countOnClientBinderDiedContexts() {
+    std::lock_guard<std::mutex> lock(mMutex);
+    return mOnClientBinderDiedContexts.size();
+}
+
+binder_status_t CarPowerPolicyServer::AIBinderLinkUnlinkImpl::linkToDeath(
+        AIBinder* binder, AIBinder_DeathRecipient* recipient, void* cookie) {
+    return AIBinder_linkToDeath(binder, recipient, cookie);
+}
+
+binder_status_t CarPowerPolicyServer::AIBinderLinkUnlinkImpl::unlinkToDeath(
+        AIBinder* binder, AIBinder_DeathRecipient* recipient, void* cookie) {
+    return AIBinder_unlinkToDeath(binder, recipient, cookie);
+}
+
+void CarPowerPolicyServer::AIBinderLinkUnlinkImpl::setOnUnlinked(
+        AIBinder_DeathRecipient* recipient, AIBinder_DeathRecipient_onBinderUnlinked onUnlinked) {
+    AIBinder_DeathRecipient_setOnUnlinked(recipient, onUnlinked);
+}
+
+void CarPowerPolicyServer::AIBinderLinkUnlinkImpl::deleteDeathRecipient(
+        AIBinder_DeathRecipient* recipient) {
+    AIBinder_DeathRecipient_delete(recipient);
+}
+
+size_t CarPowerPolicyServer::getMaxConnectToVhalRetryCount() {
+    return mMaxConnectToVhalRetryCount;
+}
+
+}  // namespace powerpolicy
+}  // namespace automotive
+}  // namespace frameworks
+}  // namespace android

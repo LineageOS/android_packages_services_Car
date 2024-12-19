@@ -619,7 +619,7 @@ public class CarPowerManagementServiceTest extends MockedCarTestBase {
         wifiOffListener.waitForPowerPolicy();
 
         if (!Flags.carPowerPolicyRefactoring()) {
-            Mockito.verify((ICarPowerPolicySystemNotification) getMockedPowerPolicyDaemon())
+            Mockito.verify((ICarPowerPolicySystemNotification) getMockedPowerManagementDaemon())
                     .notifyPowerPolicyChange(policyIdWifiOff, /* force= */ false);
         }
     }
