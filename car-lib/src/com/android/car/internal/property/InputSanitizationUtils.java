@@ -18,6 +18,7 @@ package com.android.car.internal.property;
 
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.PRIVATE_CONSTRUCTOR;
 import static com.android.car.internal.util.ArrayUtils.convertToIntArray;
+import static com.android.car.internal.util.DebugUtils.toAreaIdString;
 
 import android.car.VehiclePropertyIds;
 import android.car.feature.FeatureFlags;
@@ -164,7 +165,8 @@ public final class InputSanitizationUtils {
                 // Do nothing.
             }
             if (DBG) {
-                Slog.d(TAG, "VUR is enabled but not supported for areaId: " + areaId);
+                Slog.d(TAG, "VUR is enabled but not supported for areaId: " + toAreaIdString(
+                        inputOption.propertyId, areaId));
             }
             disabledAreaIds.add(areaId);
         }
