@@ -34,6 +34,7 @@
         android:theme="@style/Theme.CarUi.NoToolbar"
         tools:replace="android:label,android:theme"
         tools:node="merge">
+        <uses-library android:name="com.android.oem.tokens" android:required="false"/>
 
         <activity
             android:name="com.android.car.carlauncher.CarLauncher"
