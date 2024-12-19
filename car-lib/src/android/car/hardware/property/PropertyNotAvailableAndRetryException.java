@@ -16,7 +16,7 @@
 
 package android.car.hardware.property;
 
-import static java.lang.Integer.toHexString;
+import static com.android.car.internal.util.DebugUtils.toAreaIdString;
 
 import android.car.VehiclePropertyIds;
 
@@ -29,8 +29,8 @@ public class PropertyNotAvailableAndRetryException extends IllegalStateException
      * @hide
      */
     public PropertyNotAvailableAndRetryException(int propertyId, int areaId) {
-        super("Property ID: " + VehiclePropertyIds.toString(propertyId) + " area ID: 0x"
-                + toHexString(areaId)
+        super("Property ID: " + VehiclePropertyIds.toString(propertyId) + " area ID: "
+                + toAreaIdString(propertyId, areaId)
                 + " - is temporarily not available. Try the operation later.");
     }
 }
