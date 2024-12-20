@@ -19,7 +19,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/card_view"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="@dimen/card_fragment_height"
     app:cardCornerRadius="@dimen/car_portrait_ui_window_rounded_corner_radius"
     android:visibility="gone">
 
@@ -32,6 +32,7 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_gravity="center"
         android:layout_marginVertical="@dimen/card_fragment_margin_vertical"
         android:layout_marginHorizontal="@dimen/card_fragment_margin_horizontal">
         <FrameLayout
