@@ -210,8 +210,8 @@ public class CarBluetoothService implements CarServiceBase {
         }
         mUserId = ActivityManager.getCurrentUser();
         createBluetoothUserServiceLocked();
-        createBluetoothDeviceManagerLocked();
         createBluetoothProfileInhibitManagerLocked();
+
         // Determine if we need to begin the default power policy
         mBluetoothPowerPolicy = null;
         if (mUseDefaultPowerPolicy) {
@@ -219,9 +219,11 @@ public class CarBluetoothService implements CarServiceBase {
         }
         createBluetoothConnectionRetryManagerLocked();
 
-        // Determine if we need to begin the default device connection policy
+        // Determine if we need to begin the default device connection policy and device manager
+        mDeviceManager = null;
         mBluetoothDeviceConnectionPolicy = null;
         if (mUseDefaultConnectionPolicy) {
+            createBluetoothDeviceManagerLocked();
             createBluetoothDeviceConnectionPolicyLocked();
         }
         if (DBG) {
