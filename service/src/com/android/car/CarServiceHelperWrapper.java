@@ -326,6 +326,19 @@ public final class CarServiceHelperWrapper {
         return false;
     }
 
+    /**
+     * @return true if a package requires launching in automotive compatibility mode for the given
+     * user id.
+     */
+    public boolean requiresDisplayCompatForUser(String packageName, int userId) {
+        try {
+            return waitForCarServiceHelper().requiresDisplayCompatForUser(packageName, userId);
+        } catch (RemoteException e) {
+            Slogf.e(TAG, REMOTE_EXCEPTION_STR, e);
+        }
+        return false;
+    }
+
     private CarServiceHelperWrapper(long carServiceHelperWaitTimeoutMs) {
         mCarServiceHelperWaitTimeoutMs = carServiceHelperWaitTimeoutMs;
     }

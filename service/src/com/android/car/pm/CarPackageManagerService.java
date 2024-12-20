@@ -1762,6 +1762,20 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
                 Objects.requireNonNull(packageName, "packageName cannot be Null"));
     }
 
+    @Override
+    public boolean requiresDisplayCompatForUser(String packageName, int userId) {
+        if (!callerCanQueryPackage(packageName)) {
+            throw new SecurityException("requires permission " + QUERY_ALL_PACKAGES);
+        }
+        int callingUid = Binder.getCallingUid();
+        if (!hasPermissionGranted(PERMISSION_MANAGE_DISPLAY_COMPATIBILITY, callingUid)) {
+            throw new SecurityException("requires permission "
+                    + PERMISSION_MANAGE_DISPLAY_COMPATIBILITY);
+        }
+        return CarServiceHelperWrapper.getInstance().requiresDisplayCompatForUser(
+                Objects.requireNonNull(packageName, "packageName cannot be Null"), userId);
+    }
+
     private String[] findDistractionOptimizedActivitiesAsUser(String pkgName, int userId)
             throws NameNotFoundException {
         String regionString;

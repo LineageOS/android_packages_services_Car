@@ -27,9 +27,11 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
 
 import android.annotation.NonNull;
+import android.bluetooth.BluetoothA2dpSink;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothHeadsetClient;
@@ -97,9 +99,11 @@ public class CarBluetoothUserServiceTest extends AbstractExtendedMockitoBluetoot
     @Mock private BluetoothManager mMockBluetoothManager;
     @Mock private BluetoothAdapter mMockBluetoothAdapter;
     @Captor private ArgumentCaptor<BluetoothProfile.ServiceListener> mProfileServiceListenerCaptor;
+    @Mock private BluetoothA2dpSink mMockBluetoothA2dpSink;
     @Mock private BluetoothHeadsetClient mMockBluetoothHeadsetClient;
     @Mock private TelecomManager mMockTelecomManager;
     @Mock private PhoneAccountHandle mMockPhoneAccountHandle;
+    @Mock private BluetoothDevice mMockDevice;
     @Captor private ArgumentCaptor<BluetoothDevice> mBvraDeviceCaptor;
     @Mock private Resources mMockResources;
 
@@ -144,6 +148,111 @@ public class CarBluetoothUserServiceTest extends AbstractExtendedMockitoBluetoot
         doReturn(true).when(mMockBluetoothAdapter).getProfileProxy(
                 any(Context.class), mProfileServiceListenerCaptor.capture(), anyInt());
         mCarBluetoothUserService.setupBluetoothConnectionProxies();
+    }
+
+    //-------------------------------------------------------------------------------------------//
+    // Connection Policy Tests                                                                   //
+    //-------------------------------------------------------------------------------------------//
+
+    // A2DP Sink
+
+    @Test
+    public void testGetConnectionPolicy_onA2dpSinkAndDeviceAllowed_returnsAllowed() {
+        doReturn(BluetoothProfile.CONNECTION_POLICY_ALLOWED).when(mMockBluetoothA2dpSink)
+                .getConnectionPolicy(eq(mMockDevice));
+        setBluetoothProfileProxy(BluetoothProfile.HEADSET_CLIENT, mMockBluetoothHeadsetClient);
+        setBluetoothProfileProxy(BluetoothProfile.A2DP_SINK, mMockBluetoothA2dpSink);
+
+        int policy = mCarBluetoothUserService.getConnectionPolicy(
+                        BluetoothProfile.A2DP_SINK, mMockDevice);
+
+        assertThat(policy).isEqualTo(BluetoothProfile.CONNECTION_POLICY_ALLOWED);
+    }
+
+    @Test
+    public void testSetConnectionPolicy_onA2dpSinkToAllowed_functionCalled() {
+        doReturn(BluetoothProfile.CONNECTION_POLICY_FORBIDDEN).when(mMockBluetoothA2dpSink)
+                .getConnectionPolicy(eq(mMockDevice));
+        setBluetoothProfileProxy(BluetoothProfile.HEADSET_CLIENT, mMockBluetoothHeadsetClient);
+        setBluetoothProfileProxy(BluetoothProfile.A2DP_SINK, mMockBluetoothA2dpSink);
+
+        mCarBluetoothUserService.setConnectionPolicy(BluetoothProfile.A2DP_SINK, mMockDevice,
+                BluetoothProfile.CONNECTION_POLICY_ALLOWED);
+
+        verify(mMockBluetoothA2dpSink, times(1))
+                .setConnectionPolicy(mMockDevice, BluetoothProfile.CONNECTION_POLICY_ALLOWED);
+    }
+
+    // HFP Hands-free
+
+    @Test
+    public void testGetConnectionPolicy_onHfpHfAndDeviceAllowed_returnsAllowed() {
+        doReturn(BluetoothProfile.CONNECTION_POLICY_ALLOWED).when(mMockBluetoothHeadsetClient)
+                .getConnectionPolicy(eq(mMockDevice));
+        setBluetoothProfileProxy(BluetoothProfile.A2DP_SINK, mMockBluetoothA2dpSink);
+        setBluetoothProfileProxy(BluetoothProfile.HEADSET_CLIENT, mMockBluetoothHeadsetClient);
+
+        int policy = mCarBluetoothUserService.getConnectionPolicy(
+                        BluetoothProfile.HEADSET_CLIENT, mMockDevice);
+
+        assertThat(policy).isEqualTo(BluetoothProfile.CONNECTION_POLICY_ALLOWED);
+    }
+
+    @Test
+    public void testSetConnectionPolicy_onHpfHfToAllowed_functionCalled() {
+        doReturn(BluetoothProfile.CONNECTION_POLICY_FORBIDDEN).when(mMockBluetoothHeadsetClient)
+                .getConnectionPolicy(eq(mMockDevice));
+        setBluetoothProfileProxy(BluetoothProfile.HEADSET_CLIENT, mMockBluetoothHeadsetClient);
+        setBluetoothProfileProxy(BluetoothProfile.A2DP_SINK, mMockBluetoothA2dpSink);
+
+        mCarBluetoothUserService.setConnectionPolicy(BluetoothProfile.HEADSET_CLIENT, mMockDevice,
+                BluetoothProfile.CONNECTION_POLICY_ALLOWED);
+
+        verify(mMockBluetoothHeadsetClient, times(1))
+                .setConnectionPolicy(mMockDevice, BluetoothProfile.CONNECTION_POLICY_ALLOWED);
+    }
+
+    // Error cases
+
+    @Test
+    public void testGetConnectionPolicy_deviceNull_returnUnknown() {
+        int policy = mCarBluetoothUserService.getConnectionPolicy(BluetoothProfile.A2DP_SINK, null);
+        assertThat(policy).isEqualTo(BluetoothProfile.CONNECTION_POLICY_UNKNOWN);
+    }
+
+    @Test
+    public void testSetConnectionPolicy_deviceNull_returnsWithoutOperation() {
+        mCarBluetoothUserService.setConnectionPolicy(BluetoothProfile.A2DP_SINK, null,
+                BluetoothProfile.CONNECTION_POLICY_ALLOWED);
+
+        verify(mMockBluetoothA2dpSink, never())
+                .setConnectionPolicy(any(BluetoothDevice.class), anyInt());
+        verify(mMockBluetoothHeadsetClient, never())
+                .setConnectionPolicy(any(BluetoothDevice.class), anyInt());
+    }
+
+    @Test
+    public void testGetConnectionPolicy_UnsupportedProfile_ReturnUnknown() {
+        setBluetoothProfileProxy(BluetoothProfile.A2DP_SINK, mMockBluetoothA2dpSink);
+        setBluetoothProfileProxy(BluetoothProfile.HEADSET_CLIENT, mMockBluetoothHeadsetClient);
+
+        int policy = mCarBluetoothUserService.getConnectionPolicy(
+                        BluetoothProfile.PBAP, mMockDevice);
+        assertThat(policy).isEqualTo(BluetoothProfile.CONNECTION_POLICY_UNKNOWN);
+    }
+
+    @Test
+    public void testSetConnectionPolicy_UnsupportedProfile_ReturnUnknown() {
+        setBluetoothProfileProxy(BluetoothProfile.A2DP_SINK, mMockBluetoothA2dpSink);
+        setBluetoothProfileProxy(BluetoothProfile.HEADSET_CLIENT, mMockBluetoothHeadsetClient);
+
+        mCarBluetoothUserService.setConnectionPolicy(BluetoothProfile.PBAP,
+                mMockDevice, BluetoothProfile.CONNECTION_POLICY_ALLOWED);
+
+        verify(mMockBluetoothA2dpSink, never())
+                .setConnectionPolicy(any(BluetoothDevice.class), anyInt());
+        verify(mMockBluetoothHeadsetClient, never())
+                .setConnectionPolicy(any(BluetoothDevice.class), anyInt());
     }
 
     //-------------------------------------------------------------------------------------------//

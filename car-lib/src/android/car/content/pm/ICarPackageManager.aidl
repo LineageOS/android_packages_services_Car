@@ -41,4 +41,5 @@ interface ICarPackageManager {
     boolean requiresDisplayCompat(in String packageName) = 12;
     void registerBlockingUiCommandListener(in ICarBlockingUiCommandListener listener, int displayId) = 13;
     void unregisterBlockingUiCommandListener(in ICarBlockingUiCommandListener listener) = 14;
+    boolean requiresDisplayCompatForUser(in String packageName, int userId) = 15;
 }

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  ~ Copyright (c) 2024 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <!-- no translation found for qc_footer_settings (2454589334180949900) -->
+    <skip />
+    <!-- no translation found for qc_footer_bluetooth_settings (8144159076284035563) -->
+    <skip />
+    <!-- no translation found for qc_footer_network_internet_settings (6300929675358433949) -->
+    <skip />
+    <!-- no translation found for qc_footer_display_settings (634284348832636387) -->
+    <skip />
+    <!-- no translation found for qc_footer_network_sound_settings (2775359706107142213) -->
+    <skip />
+    <!-- no translation found for qc_footer_profiles_accounts_settings (5856329638808072374) -->
+    <skip />
+    <!-- no translation found for qc_footer_debug_settings (282542682804584306) -->
+    <skip />
+    <!-- no translation found for status_icon_bluetooth_disconnected (246896533995219347) -->
+    <skip />
+    <string name="status_icon_bluetooth_connected" msgid="4669958056038594620">"Bluetooth-innstilling: tilkoblet"</string>
+    <string name="status_icon_bluetooth_off" msgid="4153017882052498500">"Bluetooth-innstilling: Bluetooth av"</string>
+    <!-- no translation found for status_icon_signal_mobile (195381322815761026) -->
+    <skip />
+    <string name="status_icon_signal_wifi" msgid="342037538589497883">"Signalinnstillinger: wifi på"</string>
+    <string name="status_icon_signal_hotspot" msgid="6693281808131682723">"Signalinnstillinger: wifi-sone på"</string>
+    <!-- no translation found for status_icon_display_status (8703788413735943940) -->
+    <skip />
+    <!-- no translation found for status_icon_debug_status (3968999768592060199) -->
+    <skip />
+    <string name="status_icon_sound_status" msgid="814152658790862843">"Lydinnstillinger"</string>
+    <!-- no translation found for status_icon_drive_mode (3768488232833133813) -->
+    <skip />
+</resources>

@@ -44,7 +44,12 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
- * Manages Bluetooth for user
+ * This service manages Bluetooth in the context of a particular Android user and provides a surface
+ * by which other users (primarily User 0 in this context) can call into Bluetooth.
+ *
+ * Bluetooth currently runs as the foreground user only, and restricts calls to many Bluetooth APIs
+ * to _only_ the user that Bluetooth runs under. This service allows the User 0 based Car*Services
+ * to make calls on behalf of the foreground user.
  */
 public class CarBluetoothUserService extends ICarBluetoothUserService.Stub {
 
@@ -300,6 +305,9 @@ public class CarBluetoothUserService extends ICarBluetoothUserService.Stub {
                 case BluetoothProfile.A2DP_SINK:
                     policy = mBluetoothA2dpSink.getConnectionPolicy(device);
                     break;
+                case BluetoothProfile.HEADSET_CLIENT:
+                    policy = mBluetoothHeadsetClient.getConnectionPolicy(device);
+                    break;
                 default:
                     Slogf.w(TAG, "Unsupported Profile: %s", BluetoothUtils.getProfileName(profile));
                     policy = BluetoothProfile.CONNECTION_POLICY_UNKNOWN;
@@ -348,6 +356,9 @@ public class CarBluetoothUserService extends ICarBluetoothUserService.Stub {
             switch (profile) {
                 case BluetoothProfile.A2DP_SINK:
                     mBluetoothA2dpSink.setConnectionPolicy(device, policy);
+                    break;
+                case BluetoothProfile.HEADSET_CLIENT:
+                    mBluetoothHeadsetClient.setConnectionPolicy(device, policy);
                     break;
                 default:
                     Slogf.w(TAG, "Unsupported Profile: %s", BluetoothUtils.getProfileName(profile));

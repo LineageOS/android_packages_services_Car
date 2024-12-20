@@ -110,4 +110,10 @@ interface ICarServiceHelper {
      * See {@link com.android.server.pm.UserManagerInternal#unassignUserFromExtraDisplay(int, int)}.
      */
     boolean unassignUserFromExtraDisplay(int userId, int displayId) = 17;
+
+    /**
+     * Returns true if the given package requires launching in automotive compatibility mode for the
+     * given user id.
+     */
+    boolean requiresDisplayCompatForUser(String packageName, int userId) = 18;
 }

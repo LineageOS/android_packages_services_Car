@@ -154,4 +154,10 @@ abstract class AbstractICarServiceHelperStub extends ICarServiceHelper.Stub {
     public boolean requiresDisplayCompat(String packageName) {
         return false;
     }
+
+    @Override
+    public boolean requiresDisplayCompatForUser(String packageName, int userId) {
+        return false;
+    }
+
 }
