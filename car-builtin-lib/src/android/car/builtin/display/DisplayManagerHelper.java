@@ -39,21 +39,21 @@ public final class DisplayManagerHelper {
      *
      * @see #registerDisplayListener(DisplayListener, Handler, long)
      */
-    public static final long EVENT_FLAG_DISPLAY_ADDED = DisplayManager.EVENT_FLAG_DISPLAY_ADDED;
+    public static final long EVENT_TYPE_DISPLAY_ADDED = DisplayManager.EVENT_TYPE_DISPLAY_ADDED;
 
     /**
      * Event type for when a display is removed.
      *
      * @see #registerDisplayListener(DisplayListener, Handler, long)
      */
-    public static final long EVENT_FLAG_DISPLAY_REMOVED = DisplayManager.EVENT_FLAG_DISPLAY_REMOVED;
+    public static final long EVENT_TYPE_DISPLAY_REMOVED = DisplayManager.EVENT_TYPE_DISPLAY_REMOVED;
 
     /**
      * Event type for when a display is changed.
      *
      * @see #registerDisplayListener(DisplayListener, Handler, long)
      */
-    public static final long EVENT_FLAG_DISPLAY_CHANGED = DisplayManager.EVENT_FLAG_DISPLAY_CHANGED;
+    public static final long EVENT_TYPE_DISPLAY_CHANGED = DisplayManager.EVENT_TYPE_DISPLAY_CHANGED;
 
     /**
      * Event flag to register for a display's brightness changes. This notification is sent
@@ -62,8 +62,8 @@ public final class DisplayManagerHelper {
      *
      * @see #registerDisplayListener(DisplayListener, Handler, long)
      */
-    public static final long EVENT_FLAG_DISPLAY_BRIGHTNESS =
-            DisplayManager.PRIVATE_EVENT_FLAG_DISPLAY_BRIGHTNESS;
+    public static final long EVENT_TYPE_DISPLAY_BRIGHTNESS =
+            DisplayManager.PRIVATE_EVENT_TYPE_DISPLAY_BRIGHTNESS;
 
     private DisplayManagerHelper() {
         throw new UnsupportedOperationException("contains only static members");
@@ -78,19 +78,19 @@ public final class DisplayManagerHelper {
      * if the listener should be invoked on the calling thread's looper.
      * @param eventsMask A bitmask of the event types for which this listener is subscribed.
      *
-     * @see DisplayManager#EVENT_FLAG_DISPLAY_ADDED
-     * @see DisplayManager#EVENT_FLAG_DISPLAY_CHANGED
-     * @see DisplayManager#EVENT_FLAG_DISPLAY_REMOVED
-     * @see DisplayManager#EVENT_FLAG_DISPLAY_BRIGHTNESS
+     * @see DisplayManager#EVENT_TYPE_DISPLAY_ADDED
+     * @see DisplayManager#EVENT_TYPE_DISPLAY_CHANGED
+     * @see DisplayManager#EVENT_TYPE_DISPLAY_REMOVED
+     * @see DisplayManager#EVENT_TYPE_DISPLAY_BRIGHTNESS
      * @see DisplayManager#registerDisplayListener(DisplayListener, Handler)
      * @see DisplayManager#unregisterDisplayListener
      */
     public static void registerDisplayListener(Context context, DisplayListener listener,
-            Handler handler, @DisplayManager.EventFlag long eventFlagsMask,
-            @DisplayManager.PrivateEventFlag long privateEventFlagsMask) {
+            Handler handler, @DisplayManager.EventType long eventFilter,
+            @DisplayManager.PrivateEventType long privateEventFilter) {
         DisplayManager displayManager = context.getSystemService(DisplayManager.class);
-        displayManager.registerDisplayListener(listener, handler, eventFlagsMask,
-                privateEventFlagsMask);
+        displayManager.registerDisplayListener(listener, handler, eventFilter,
+                privateEventFilter);
     }
 
     /**

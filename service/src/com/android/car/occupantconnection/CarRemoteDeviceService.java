@@ -26,7 +26,7 @@ import static android.car.CarRemoteDeviceManager.FLAG_CLIENT_SAME_SIGNATURE;
 import static android.car.CarRemoteDeviceManager.FLAG_OCCUPANT_ZONE_CONNECTION_READY;
 import static android.car.CarRemoteDeviceManager.FLAG_OCCUPANT_ZONE_POWER_ON;
 import static android.car.CarRemoteDeviceManager.FLAG_OCCUPANT_ZONE_SCREEN_UNLOCKED;
-import static android.car.builtin.display.DisplayManagerHelper.EVENT_FLAG_DISPLAY_CHANGED;
+import static android.car.builtin.display.DisplayManagerHelper.EVENT_TYPE_DISPLAY_CHANGED;
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_INVISIBLE;
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_STARTING;
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING;
@@ -519,7 +519,7 @@ public class CarRemoteDeviceService extends ICarRemoteDevice.Stub implements
                             /* callbackToNotify= */null);
                 }
             }
-        }, /* handler= */null, EVENT_FLAG_DISPLAY_CHANGED, /* privateEventFlags= */ 0);
+        }, /* handler= */null, EVENT_TYPE_DISPLAY_CHANGED, /* privateEventFlags= */ 0);
     }
 
     private void handleProcessRunningStateChange(int uid, @ProcessRunningState int newState) {
