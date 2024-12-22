@@ -105,6 +105,8 @@ const nsecs_t kDefaultConnectToVhalTimeoutMillis = 60000;
 constexpr const char kConnectToVhalTimeoutMillisProp[] = "cppd.connectvhal.Timeoutmillis";
 
 constexpr const char kCarServiceInterface[] = "car_service";
+constexpr const char kCarPowerServerInterface[] =
+        "android.frameworks.automotive.power.ICarPowerServer/default";
 constexpr const char kCarPowerPolicyServerInterface[] =
         "android.frameworks.automotive.powerpolicy.ICarPowerPolicyServer/default";
 constexpr const char kCarPowerPolicySystemNotificationInterface[] =
@@ -453,6 +455,11 @@ ScopedAStatus CarPowerServer::unregisterPowerStateListenerWithCompletion(
                 return service->unregisterPowerStateListenerWithCompletion(listener);
             },
             "unregisterPowerStateListenerWithCompletion");
+}
+
+void CarPowerServer::terminate() {
+    std::lock_guard<std::mutex> lock(mMutex);
+    mService = nullptr;
 }
 
 ScopedAStatus CarPowerServer::runWithService(
@@ -1177,7 +1184,18 @@ Result<void> CarPowerPolicyServer::init(const sp<Looper>& looper) {
     binder_exception_t err =
             AServiceManager_addService(this->asBinder().get(), kCarPowerPolicyServerInterface);
     if (err != EX_NONE) {
-        return Error(err) << "Failed to add carpowerpolicyd to ServiceManager";
+        return Error(err) << "Failed to add " << kCarPowerPolicyServerInterface
+                          << " to ServiceManager";
+    }
+
+    if (native_power_notifications()) {
+        mCarPowerServer = SharedRefBase::make<CarPowerServer>(this);
+        if (err = AServiceManager_addService(mCarPowerServer->asBinder().get(),
+                                             kCarPowerServerInterface);
+            err != EX_NONE) {
+            return Error(err) << "Failed to add " << kCarPowerServerInterface
+                              << " to ServiceManager";
+        }
     }
 
     if (car_power_policy_refactoring()) {
@@ -1210,6 +1228,12 @@ void CarPowerPolicyServer::terminate() {
         mSubscriptionClient->unsubscribe(
                 {static_cast<int32_t>(VehicleProperty::POWER_POLICY_REQ),
                  static_cast<int32_t>(VehicleProperty::POWER_POLICY_GROUP_REQ)});
+    }
+
+    if (native_power_notifications()) {
+        if (mCarPowerServer != nullptr) {
+            mCarPowerServer->terminate();
+        }
     }
 
     if (car_power_policy_refactoring()) {

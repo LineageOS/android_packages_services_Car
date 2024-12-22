@@ -15,6 +15,14 @@
 
 <manifest version="1.0" type="framework">
     <hal format="aidl">
+        <name>android.frameworks.automotive.power</name>
+        <version>1</version>
+        <interface>
+            <name>ICarPowerServer</name>
+            <instance>default</instance>
+        </interface>
+    </hal>
+    <hal format="aidl">
         <name>android.frameworks.automotive.powerpolicy</name>
         <version>3</version>
         <interface>
