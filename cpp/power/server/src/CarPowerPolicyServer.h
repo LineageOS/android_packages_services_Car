@@ -208,6 +208,7 @@ public:
                                           ICarPowerStateChangeListenerWithCompletion>& listener)
             override EXCLUDES(mMutex);
 
+    void terminate() EXCLUDES(mMutex);
     ndk::ScopedAStatus runWithService(
             const std::function<ndk::ScopedAStatus(CarPowerPolicyServer*)>& action,
             const std::string& actionTitle) EXCLUDES(mMutex);
@@ -468,6 +469,7 @@ private:
     // Thread-safe because only initialized once or modified in test.
     std::unique_ptr<LinkUnlinkImpl> mLinkUnlinkImpl;
 
+    std::shared_ptr<CarPowerServer> mCarPowerServer GUARDED_BY(mMutex);
     std::shared_ptr<CarPowerManagementDelegate> mCarPowerManagementDelegate GUARDED_BY(mMutex);
     ndk::SpAIBinder mPowerManagementDelegateCallback GUARDED_BY(mMutex);
     std::vector<std::shared_ptr<
