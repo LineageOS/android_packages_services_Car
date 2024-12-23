@@ -54,6 +54,7 @@ using ::aidl::android::automotive::power::internal::ICarPowerManagementDelegate;
 using ::aidl::android::automotive::power::internal::ICarPowerManagementDelegateCallback;
 using ::aidl::android::automotive::power::internal::PowerPolicyFailureReason;
 using ::aidl::android::automotive::power::internal::PowerPolicyInitData;
+using ::aidl::android::frameworks::automotive::power::CarPowerState;
 using ::aidl::android::frameworks::automotive::powerpolicy::BnCarPowerPolicyChangeCallback;
 using ::aidl::android::frameworks::automotive::powerpolicy::CarPowerPolicy;
 using ::aidl::android::frameworks::automotive::powerpolicy::CarPowerPolicyFilter;
@@ -62,6 +63,7 @@ using ::aidl::android::frameworks::automotive::powerpolicy::ICarPowerPolicyServe
 using ::aidl::android::frameworks::automotive::powerpolicy::PowerComponent;
 
 using ::android::car::feature::car_power_policy_refactoring;
+using ::android::car::feature::native_power_notifications;
 
 using ::ndk::ScopedAStatus;
 using ::ndk::SpAIBinder;
@@ -192,6 +194,11 @@ public:
     ScopedAStatus applyPowerPolicyPerPowerStateChangeAsync(
             int32_t requestId, ICarPowerManagementDelegate::PowerState state) {
         return mServer->applyPowerPolicyPerPowerStateChangeAsync(requestId, state);
+    }
+
+    ScopedAStatus notifyPowerStateChange(int32_t changeId, CarPowerState newState,
+                                         int64_t expirationTimeMs) {
+        return mServer->notifyPowerStateChange(changeId, newState, expirationTimeMs);
     }
 
     ScopedAStatus setPowerPolicyGroup(const std::string& policyGroupId) {
@@ -791,6 +798,46 @@ TEST_F(CarPowerPolicyServerTest, TestApplyPowerPolicyPerPowerStateChangeAsync_wi
 
     testApplyPowerPolicyPerPowerStateChangeAsyncInternal("basic_policy_group",
                                                          "policy_id_other_untouched");
+}
+
+TEST_F(CarPowerPolicyServerTest, TestNotifyPowerStateChange_noListeners) {
+    if (!native_power_notifications()) {
+        GTEST_SKIP() << "native_power_notifications feature flag is not enabled";
+    }
+
+    sp<internal::CarPowerPolicyServerPeer> server = new internal::CarPowerPolicyServerPeer();
+    std::shared_ptr<MockPowerManagementDelegateCallback> callback =
+            ndk::SharedRefBase::make<MockPowerManagementDelegateCallback>();
+    server->expectLinkToDeathStatus(callback->asBinder().get(), STATUS_OK);
+    server->init();
+    setSystemCallingUid();
+    PowerPolicyInitData initData;
+    server->notifyCarServiceReady(callback, &initData);
+
+    const int32_t changeId = 321;
+    int32_t calledChangeId = -1;
+    const CarPowerState state = CarPowerState::SHUTDOWN_PREPARE;
+    const int64_t expirationTimeMs = 5000;
+    std::mutex mutex;
+    std::condition_variable cv;
+    EXPECT_CALL(*callback, onAllPowerStateChangeListenersComplete)
+            .WillRepeatedly(
+                    Invoke([&calledChangeId, &cv, &mutex](int32_t changeId) -> ScopedAStatus {
+                        calledChangeId = changeId;
+                        std::unique_lock lock(mutex);
+                        cv.notify_all();
+                        return ScopedAStatus::ok();
+                    }));
+
+    ScopedAStatus status = server->notifyPowerStateChange(changeId, state, expirationTimeMs);
+
+    ASSERT_TRUE(status.isOk()) << "notifyPowerStateChange should return OK";
+
+    std::unique_lock lock(mutex);
+    bool waitResult = cv.wait_for(lock, kCallbackWaitTime,
+                                  [&calledChangeId] { return calledChangeId == changeId; });
+    ASSERT_TRUE(waitResult)
+            << "notifyPowerStateChange should be called with the same power state change ID";
 }
 
 TEST_F(CarPowerPolicyServerTest, TestSetMaxConnectToVhalRetryCount) {
