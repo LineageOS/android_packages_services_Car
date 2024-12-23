@@ -278,6 +278,9 @@ public final class FakeRefactoredCarPowerManagementDaemon extends
             throw new RemoteException();
         } else {
             mLastNotifiedPowerState = newState;
+            // TODO(b/382331302): Change this logic to "wait" for listeners w/completion once those
+            // are implemented.
+            mCallback.onAllPowerStateChangeListenersComplete(changeId);
         }
     }
 
