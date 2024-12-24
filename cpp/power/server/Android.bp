@@ -41,6 +41,7 @@ cc_defaults {
         "libaconfig_storage_read_api_cc",
     ],
     static_libs: [
+        "android.frameworks.automotive.power-V1-ndk",
         "android.automotive.power.delegate-ndk",
         "android.car.feature-aconfig-cpp",
         "libsysfsmonitor",

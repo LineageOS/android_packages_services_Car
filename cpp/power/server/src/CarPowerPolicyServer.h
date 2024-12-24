@@ -23,6 +23,9 @@
 
 #include <aidl/android/automotive/power/internal/BnCarPowerManagementDelegate.h>
 #include <aidl/android/automotive/power/internal/PowerPolicyInitData.h>
+#include <aidl/android/frameworks/automotive/power/BnCarPowerServer.h>
+#include <aidl/android/frameworks/automotive/power/ICarPowerStateChangeListener.h>
+#include <aidl/android/frameworks/automotive/power/ICarPowerStateChangeListenerWithCompletion.h>
 #include <aidl/android/frameworks/automotive/powerpolicy/BnCarPowerPolicyServer.h>
 #include <aidl/android/frameworks/automotive/powerpolicy/internal/BnCarPowerPolicySystemNotification.h>
 #include <android-base/result.h>
@@ -166,6 +169,55 @@ private:
     CarPowerPolicyServer* mService GUARDED_BY(mMutex);
 };
 
+class CarPowerServer final : public aidl::android::frameworks::automotive::power::BnCarPowerServer {
+public:
+    explicit CarPowerServer(CarPowerPolicyServer* service);
+
+    binder_status_t dump(int fd, const char** args, uint32_t numArgs) override EXCLUDES(mMutex);
+    ndk::ScopedAStatus getCurrentPowerPolicy(
+            aidl::android::frameworks::automotive::powerpolicy::CarPowerPolicy* aidlReturn) override
+            EXCLUDES(mMutex);
+    ndk::ScopedAStatus getPowerComponentState(
+            aidl::android::frameworks::automotive::powerpolicy::PowerComponent componentId,
+            bool* aidlReturn) override;
+    ndk::ScopedAStatus registerPowerPolicyChangeCallback(
+            const std::shared_ptr<aidl::android::frameworks::automotive::powerpolicy::
+                                          ICarPowerPolicyChangeCallback>& callback,
+            const aidl::android::frameworks::automotive::powerpolicy::CarPowerPolicyFilter& filter)
+            override EXCLUDES(mMutex);
+    ndk::ScopedAStatus unregisterPowerPolicyChangeCallback(
+            const std::shared_ptr<aidl::android::frameworks::automotive::powerpolicy::
+                                          ICarPowerPolicyChangeCallback>& callback) override
+            EXCLUDES(mMutex);
+    ndk::ScopedAStatus applyPowerPolicy(const std::string& policyId) override EXCLUDES(mMutex);
+    ndk::ScopedAStatus setPowerPolicyGroup(const std::string& policyGroupId) override;
+    ndk::ScopedAStatus registerPowerStateListener(
+            const std::shared_ptr<
+                    aidl::android::frameworks::automotive::power::ICarPowerStateChangeListener>&
+                    listener) override EXCLUDES(mMutex);
+    ndk::ScopedAStatus unregisterPowerStateListener(
+            const std::shared_ptr<
+                    aidl::android::frameworks::automotive::power::ICarPowerStateChangeListener>&
+                    listener) override EXCLUDES(mMutex);
+    ndk::ScopedAStatus registerPowerStateListenerWithCompletion(
+            const std::shared_ptr<aidl::android::frameworks::automotive::power::
+                                          ICarPowerStateChangeListenerWithCompletion>& listener)
+            override EXCLUDES(mMutex);
+    ndk::ScopedAStatus unregisterPowerStateListenerWithCompletion(
+            const std::shared_ptr<aidl::android::frameworks::automotive::power::
+                                          ICarPowerStateChangeListenerWithCompletion>& listener)
+            override EXCLUDES(mMutex);
+
+    void terminate() EXCLUDES(mMutex);
+    ndk::ScopedAStatus runWithService(
+            const std::function<ndk::ScopedAStatus(CarPowerPolicyServer*)>& action,
+            const std::string& actionTitle) EXCLUDES(mMutex);
+
+private:
+    std::mutex mMutex;
+    CarPowerPolicyServer* mService GUARDED_BY(mMutex);
+};
+
 /**
  * ISilentModeChangeHandler defines a method which is called when a Silent Mode hw state is changed.
  */
@@ -213,6 +265,22 @@ public:
             EXCLUDES(mMutex);
     ndk::ScopedAStatus applyPowerPolicy(const std::string& policyId) override EXCLUDES(mMutex);
     ndk::ScopedAStatus setPowerPolicyGroup(const std::string& policyGroupId) override;
+
+    // Internal implementation of ICarPowerServer.aidl
+    ndk::ScopedAStatus registerPowerStateListener(
+            const std::shared_ptr<
+                    aidl::android::frameworks::automotive::power::ICarPowerStateChangeListener>&
+                    listener);
+    ndk::ScopedAStatus unregisterPowerStateListener(
+            const std::shared_ptr<
+                    aidl::android::frameworks::automotive::power::ICarPowerStateChangeListener>&
+                    listener);
+    ndk::ScopedAStatus registerPowerStateListenerWithCompletion(
+            const std::shared_ptr<aidl::android::frameworks::automotive::power::
+                                          ICarPowerStateChangeListenerWithCompletion>& listener);
+    ndk::ScopedAStatus unregisterPowerStateListenerWithCompletion(
+            const std::shared_ptr<aidl::android::frameworks::automotive::power::
+                                          ICarPowerStateChangeListenerWithCompletion>& listener);
 
     // Implements ICarPowerPolicySystemNotification.aidl.
     ndk::ScopedAStatus notifyCarServiceReady(
@@ -263,7 +331,8 @@ public:
             EXCLUDES(mMutex);
 
     void connectToVhalHelper() EXCLUDES(mMutex);
-    void handleClientBinderDeath(const AIBinder* client) EXCLUDES(mMutex);
+    void handlePowerPolicyChangeClientBinderDeath(const AIBinder* clientId) EXCLUDES(mMutex);
+    void handlePowerStateChangeClientBinderDeath(const AIBinder* clientId) EXCLUDES(mMutex);
     void handleCarServiceBinderDeath() EXCLUDES(mMutex);
     void handleVhalDeath() EXCLUDES(mMutex);
     void handleApplyPowerPolicyRequest(const int32_t requestId);
@@ -272,8 +341,8 @@ private:
     friend class ndk::SharedRefBase;
 
     // OnClientBinderDiedContext is a type used as a cookie passed deathRecipient. The
-    // deathRecipient's onClientBinderDied function takes only a cookie as input and we have to
-    // store all the contexts as the cookie.
+    // deathRecipient's onPowerPolicyChangeClientBinderDied function takes only a cookie as input
+    // and we have to store all the contexts as the cookie.
     struct OnClientBinderDiedContext {
         CarPowerPolicyServer* server;
         const AIBinder* clientId;
@@ -309,7 +378,8 @@ private:
     };
 
     void terminate() EXCLUDES(mMutex);
-    bool isRegisteredLocked(const AIBinder* binder) REQUIRES(mMutex);
+    bool isPowerPolicyCallbackRegisteredLocked(const AIBinder* binder) REQUIRES(mMutex);
+    bool isPowerStateListenerRegisteredLocked(const AIBinder* binder) REQUIRES(mMutex);
     void connectToVhal();
     void subscribeToVhal();
     void subscribeToProperty(
@@ -339,7 +409,11 @@ private:
     void handleClientDeathRecipientUnlinked(const AIBinder* clientId);
     void handleCarServiceDeathRecipientUnlinked();
 
-    static void onClientBinderDied(void* cookie);
+    std::shared_ptr<aidl::android::automotive::power::internal::ICarPowerManagementDelegateCallback>
+    getPowerManagementDelegateCallback();
+
+    static void onPowerPolicyChangeClientBinderDied(void* cookie);
+    static void onPowerStateChangeClientBinderDied(void* cookie);
     static void onCarServiceBinderDied(void* cookie);
     static std::string callbackToString(const CallbackInfo& callback);
     static void onCarServiceDeathRecipientUnlinked(void* cookie);
@@ -349,6 +423,9 @@ private:
     explicit CarPowerPolicyServer(uint64_t connectToVhalTimeoutMillis);
     void setLinkUnlinkImpl(std::unique_ptr<LinkUnlinkImpl> impl);
     std::vector<CallbackInfo> getPolicyChangeCallbacks() EXCLUDES(mMutex);
+    std::vector<std::shared_ptr<
+            aidl::android::frameworks::automotive::power::ICarPowerStateChangeListener>>
+    getPowerStateListeners() EXCLUDES(mMutex);
     size_t countOnClientBinderDiedContexts() EXCLUDES(mMutex);
     size_t getMaxConnectToVhalRetryCount();
 
@@ -359,7 +436,8 @@ private:
     size_t mMaxConnectToVhalRetryCount;
     uint64_t mConnectToVhalTimeoutMillis;
 
-    ndk::ScopedAIBinder_DeathRecipient mClientDeathRecipient;
+    ndk::ScopedAIBinder_DeathRecipient mPowerPolicyClientDeathRecipient;
+    ndk::ScopedAIBinder_DeathRecipient mPowerStateClientDeathRecipient;
     ndk::ScopedAIBinder_DeathRecipient mCarServiceDeathRecipient;
     android::sp<android::Looper> mHandlerLooper;
     android::sp<EventHandler> mEventHandler;
@@ -391,10 +469,16 @@ private:
     // Thread-safe because only initialized once or modified in test.
     std::unique_ptr<LinkUnlinkImpl> mLinkUnlinkImpl;
 
+    std::shared_ptr<CarPowerServer> mCarPowerServer GUARDED_BY(mMutex);
     std::shared_ptr<CarPowerManagementDelegate> mCarPowerManagementDelegate GUARDED_BY(mMutex);
     ndk::SpAIBinder mPowerManagementDelegateCallback GUARDED_BY(mMutex);
+    std::vector<std::shared_ptr<
+            aidl::android::frameworks::automotive::power::ICarPowerStateChangeListener>>
+            mPowerStateChangeListeners GUARDED_BY(mMutex);
+    // TODO(b/384096831): add listeners with completion
 
-    // A map of callback ptr to context that is required for handleClientBinderDeath.
+    // A map of callback ptr to context that is required for
+    // handlePowerPolicyChangeClientBinderDeath.
     std::unordered_map<const AIBinder*, std::unique_ptr<OnClientBinderDiedContext>>
             mOnClientBinderDiedContexts GUARDED_BY(mMutex);
     std::unordered_map<uint32_t, PolicyRequest> mPolicyRequestById GUARDED_BY(mMutex);
