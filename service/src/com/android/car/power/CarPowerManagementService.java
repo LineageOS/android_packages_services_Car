@@ -2397,8 +2397,10 @@ public class CarPowerManagementService extends ICarPower.Stub implements
 
         @Override
         public void onAllPowerStateChangeListenersComplete(int changeId) {
-            // TODO(b/382331302): Implement
-            throw new UnsupportedOperationException("Not yet implemented");
+            // TODO(b/382331302): Implement to support listeners w/completion, not needed for
+            // listeners w/o completion because service currently doesn't wait for this method to
+            // be called to progress with power state transition.
+            return;
         }
     }
 
