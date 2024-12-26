@@ -56,5 +56,4 @@
             </item>
         </layer-list>
     </item>
-    <item android:drawable="@drawable/system_bar_background_pill"/>
 </selector>
