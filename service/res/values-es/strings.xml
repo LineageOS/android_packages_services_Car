@@ -37,7 +37,7 @@
     <string name="car_permission_label_control_car_horn" msgid="6724124600587260102">"controlar el claxon del coche"</string>
     <string name="car_permission_desc_control_car_horn" msgid="6054845567296317971">"Controlar el claxon de tu coche."</string>
     <string name="car_permission_label_read_car_pedals" msgid="9053334935825814308">"acceder a la información sobre los pedales del coche"</string>
-    <string name="car_permission_desc_read_car_pedals" msgid="3148710874350250453">"Acceder a la información sobre los pedales del coche."</string>
+    <string name="car_permission_desc_read_car_pedals" msgid="3148710874350250453">"Acceder a la información sobre los pedales de tu coche."</string>
     <string name="car_permission_label_read_brake_info" msgid="6649283162262754200">"acceder a la información sobre los frenos del coche"</string>
     <string name="car_permission_desc_read_brake_info" msgid="4641852049166846105">"Acceder a la información sobre los frenos de tu coche."</string>
     <string name="car_permission_label_speed" msgid="1149027717860529745">"consultar la velocidad del coche"</string>

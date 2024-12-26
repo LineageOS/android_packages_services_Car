@@ -30,7 +30,7 @@
     <string name="car_permission_desc_hvac" msgid="3754229695589774195">"ଆପଣଙ୍କ କାର୍‍ର hvac ଆକ୍ସେସ୍ କରିପାରେ।"</string>
     <string name="car_permission_label_mileage" msgid="4661317074631150551">"କାର୍\'ର ମାଇଲେଜ୍ ସୂଚନାକୁ ଆକ୍‍‍ସେସ୍ କରନ୍ତୁ"</string>
     <string name="car_permission_desc_mileage" msgid="7179735693278681090">"ଆପଣଙ୍କ କାର୍‍ର ମାଇଲେଜ୍ ସୂଚନା ଆକ୍ସେସ୍ କରିପାରେ।"</string>
-    <string name="car_permission_label_mileage_3p" msgid="7542459195663034759">"କାରର ମାଇଲେଜ ସୂଚନାକୁ ପଢ଼ିପାରିବ"</string>
+    <string name="car_permission_label_mileage_3p" msgid="7542459195663034759">"କାରର ମାଇଲେଜ ସୂଚନାକୁ ଆକ୍ସେସ କରିପାରିବ"</string>
     <string name="car_permission_desc_mileage_3p" msgid="9109350882748664570">"ଆପଣଙ୍କ କାରର ମାଇଲେଜ ସୂଚନାକୁ ଆକ୍ସେସ କରିପାରିବ।"</string>
     <string name="car_permission_label_read_car_horn" msgid="5940158571880705176">"କାରର ହର୍ଣ୍ଣ ସୂଚନାକୁ ପଢ଼ିପାରିବ"</string>
     <string name="car_permission_desc_read_car_horn" msgid="1099929991964988027">"ଆପଣଙ୍କ କାରର ହର୍ଣ୍ଣ ସୂଚନାକୁ ପଢ଼ିପାରିବ।"</string>
