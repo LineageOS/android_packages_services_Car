@@ -33,8 +33,7 @@
     <color name="status_icon_panel_bg_color">@android:color/transparent</color>
     <color name="qc_panel_bg_color">@color/car_surface_2</color>
 
-    <color name="status_bar_background_color">@android:color/transparent</color>
-    <drawable name="status_bar_background">@color/status_bar_background_color</drawable>
+    <color name="status_bar_background_color">#80FFFFFF</color>
 
     <color name="hvac_background_color">@color/car_background</color>
     <color name="hvac_master_switch_color">@color/car_nav_icon_fill_color</color>
