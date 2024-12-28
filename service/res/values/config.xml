@@ -668,4 +668,7 @@
 
     <!-- Controls the use of bluetooth pairing when long pressing the voice assist button in CarInputService. -->
     <bool name="config_enableLongPressBluetoothPairing">true</bool>
+
+    <!-- Interval in milliseconds to send SHUTDOWN_POSTPONE to VHAL -->
+    <integer name="config_shutdownPollingIntervalMs">2000</integer>
 </resources>

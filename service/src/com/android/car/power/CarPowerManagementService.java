@@ -189,12 +189,12 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     private static final String REFACTORED_CAR_POWER_MANAGEMENT_DAEMON_INTERFACE =
             "android.automotive.power.internal.ICarPowerManagementDelegate/default";
 
-    // TODO:  Make this OEM configurable.
-    private static final int SHUTDOWN_POLLING_INTERVAL_MS = 2000;
-    private static final int SHUTDOWN_EXTEND_MAX_MS = 5000;
+    private static final int SHUTDOWN_POLLING_INTERVAL_DEFAULT_MS = 2000;
+    private static final int SHUTDOWN_POLLING_INTERVAL_MIN_MS = 1000;
+    private static final int SHUTDOWN_POLLING_INTERVAL_MAX_MS = 5000;
 
     // maxGarageModeRunningDurationInSecs should be equal or greater than this. 15 min for now.
-    private static final int MIN_MAX_GARAGE_MODE_DURATION_MS = 15 * 60 * 1000;
+    private static final int MIN_GARAGE_MODE_DURATION_MS = 15 * 60 * 1000;
 
     // in secs
     private static final String PROP_MAX_GARAGE_MODE_DURATION_OVERRIDE =
@@ -292,9 +292,9 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     @GuardedBy("mLock")
     private boolean mShouldResumeUserService;
     @GuardedBy("mLock")
-    private int mShutdownPrepareTimeMs = MIN_MAX_GARAGE_MODE_DURATION_MS;
+    private int mShutdownPrepareTimeMs = MIN_GARAGE_MODE_DURATION_MS;
     @GuardedBy("mLock")
-    private int mShutdownPollingIntervalMs = SHUTDOWN_POLLING_INTERVAL_MS;
+    private int mShutdownPollingIntervalMs = SHUTDOWN_POLLING_INTERVAL_DEFAULT_MS;
     @GuardedBy("mLock")
     private boolean mRebootAfterGarageMode;
     @GuardedBy("mLock")
@@ -550,14 +550,25 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                 () -> builder.mContext.getResources());
         mShutdownPrepareTimeMs = resources.getInteger(
                 R.integer.maxGarageModeRunningDurationInSecs) * 1000;
+        mShutdownPollingIntervalMs =
+                resources.getInteger(R.integer.config_shutdownPollingIntervalMs);
         mSwitchGuestUserBeforeSleep = resources.getBoolean(
                 R.bool.config_switchGuestUserBeforeGoingSleep);
-        if (mShutdownPrepareTimeMs < MIN_MAX_GARAGE_MODE_DURATION_MS) {
+        if (mShutdownPrepareTimeMs < MIN_GARAGE_MODE_DURATION_MS) {
             Slogf.w(TAG,
                     "maxGarageModeRunningDurationInSecs smaller than minimum required, "
                             + "resource:%d(ms) while should exceed:%d(ms), Ignore resource.",
-                    mShutdownPrepareTimeMs, MIN_MAX_GARAGE_MODE_DURATION_MS);
-            mShutdownPrepareTimeMs = MIN_MAX_GARAGE_MODE_DURATION_MS;
+                    mShutdownPrepareTimeMs, MIN_GARAGE_MODE_DURATION_MS);
+            mShutdownPrepareTimeMs = MIN_GARAGE_MODE_DURATION_MS;
+        }
+        if (mShutdownPollingIntervalMs < SHUTDOWN_POLLING_INTERVAL_MIN_MS
+                || mShutdownPollingIntervalMs > SHUTDOWN_POLLING_INTERVAL_MAX_MS) {
+            Slogf.w(TAG,
+                    "config_shutdownPollingIntervalMs(value = %d) is outside the valid range of %d "
+                            + " to %d. Using the default value(%d).",
+                    mShutdownPollingIntervalMs, SHUTDOWN_POLLING_INTERVAL_MIN_MS,
+                    SHUTDOWN_POLLING_INTERVAL_MAX_MS, SHUTDOWN_POLLING_INTERVAL_DEFAULT_MS);
+            mShutdownPollingIntervalMs = SHUTDOWN_POLLING_INTERVAL_DEFAULT_MS;
         }
         mUserService = Objects.requireNonNull(builder.mCarUserService);
         if (builder.mFeatureFlags != null) {
@@ -602,10 +613,10 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     @VisibleForTesting
     public void setShutdownTimersForTest(int pollingIntervalMs, int shutdownTimeoutMs) {
         synchronized (mLock) {
-            mShutdownPollingIntervalMs =
-                    (pollingIntervalMs == 0) ? SHUTDOWN_POLLING_INTERVAL_MS : pollingIntervalMs;
+            mShutdownPollingIntervalMs = (pollingIntervalMs == 0)
+                    ? SHUTDOWN_POLLING_INTERVAL_DEFAULT_MS : pollingIntervalMs;
             mShutdownPrepareTimeMs =
-                    (shutdownTimeoutMs == 0) ? SHUTDOWN_EXTEND_MAX_MS : shutdownTimeoutMs;
+                    (shutdownTimeoutMs == 0) ? MIN_GARAGE_MODE_DURATION_MS : shutdownTimeoutMs;
         }
     }
 
@@ -1336,7 +1347,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
 
     private void doShutdownPrepare() {
         long timeoutMs;
-        long intervalMs;
+        int intervalMs;
         boolean isEmergencyShutdown;
         synchronized (mLock) {
             timeoutMs = mShutdownPrepareTimeMs;
@@ -1620,7 +1631,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                 });
     }
 
-    private void waitForShutdownPrepareListenersToComplete(long timeoutMs, long intervalMs) {
+    private void waitForShutdownPrepareListenersToComplete(long timeoutMs, int intervalMs) {
         int state = CarPowerManager.STATE_SHUTDOWN_PREPARE;
         Runnable taskAtCompletion = () -> {
             finishShutdownPrepare();
@@ -1637,7 +1648,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     }
 
     private void waitForCompletion(Runnable taskAtCompletion, Runnable taskAtInterval,
-            long timeoutMs, long intervalMs) {
+            long timeoutMs, int intervalMs) {
         boolean isComplete = false;
         synchronized (mLock) {
             isComplete = mListenersWeAreWaitingFor.isEmpty();
@@ -4070,9 +4081,9 @@ public class CarPowerManagementService extends ICarPower.Stub implements
 
     private void waitForCompletionWithShutdownPostpone(
             @CarPowerManager.CarPowerState int carPowerStateListenerState, long timeoutMs,
-            Runnable taskAtCompletion, long intervalMs) {
+            Runnable taskAtCompletion, int intervalMs) {
         Runnable taskAtInterval = () -> {
-            mHal.sendShutdownPostpone(SHUTDOWN_EXTEND_MAX_MS);
+            mHal.sendShutdownPostpone(intervalMs);
         };
 
         Slogf.i(TAG, "Start waiting for listener completion for %s",
