@@ -1,0 +1,13 @@
+{
+  "auto-presubmit": [
+    {
+      "name": "VtsAidlPowerPolicyTargetTest"
+    },
+    {
+      "name": "VtsAidlPowerServerTargetTest"
+    },
+    {
+      "name": "carpowerpolicyserver_test"
+    }
+  ]
+}
