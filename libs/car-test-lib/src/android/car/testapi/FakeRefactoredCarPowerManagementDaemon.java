@@ -20,6 +20,7 @@ import android.annotation.Nullable;
 import android.automotive.power.internal.ICarPowerManagementDelegate;
 import android.automotive.power.internal.ICarPowerManagementDelegateCallback;
 import android.automotive.power.internal.PowerPolicyInitData;
+import android.car.builtin.util.Slogf;
 import android.car.hardware.power.PowerComponent;
 import android.car.hardware.power.PowerComponentUtil;
 import android.frameworks.automotive.powerpolicy.CarPowerPolicy;
@@ -31,6 +32,8 @@ import android.util.ArrayMap;
 import android.util.IntArray;
 import android.util.Log;
 import android.util.SparseArray;
+
+import com.android.internal.annotations.GuardedBy;
 
 import libcore.io.IoUtils;
 
@@ -72,6 +75,7 @@ public final class FakeRefactoredCarPowerManagementDaemon extends
 
     private static final String POLICY_PER_STATE_GROUP_ID = "default_policy_per_state";
 
+    private final Object mLock = new Object();
     private final int[] mCustomComponents;
     private final FileObserver mFileObserver;
     private final ComponentHandler mComponentHandler = new ComponentHandler();
@@ -87,6 +91,7 @@ public final class FakeRefactoredCarPowerManagementDaemon extends
     private String mLastDefinedPolicyId;
     private String mCurrentPowerPolicyId = SYSTEM_POWER_POLICY_INITIAL_ON;
     private Handler mHandler;
+    @GuardedBy("mLock")
     private ICarPowerManagementDelegateCallback mCallback;
     private File mFileKernelSilentMode;
 
@@ -180,7 +185,9 @@ public final class FakeRefactoredCarPowerManagementDaemon extends
     @Override
     public PowerPolicyInitData notifyCarServiceReady(ICarPowerManagementDelegateCallback callback) {
         Log.i(TAG, "Fake refactored CPPD was notified that car service is ready");
-        mCallback = callback;
+        synchronized (mLock) {
+            mCallback = callback;
+        }
         PowerPolicyInitData initData = new PowerPolicyInitData();
         initData.currentPowerPolicy = mPolicies.get(mCurrentPowerPolicyId);
         initData.registeredPolicies = new CarPowerPolicy[]{
@@ -197,10 +204,8 @@ public final class FakeRefactoredCarPowerManagementDaemon extends
     public void applyPowerPolicyAsync(int requestId, String policyId, boolean force)
             throws RemoteException {
         Log.i(TAG, "Fake refactored CPPD is attempting to apply power policy " + policyId);
-        if (mCallback == null) {
-            throw new IllegalStateException("Fake refactored CPPD callback is null, was "
-                    + "notifyCarServiceReady() called?");
-        }
+        ICarPowerManagementDelegateCallback callback = getPowerManagementDelegateCallback();
+
         boolean deferred = isPreemptivePolicy(mCurrentPowerPolicyId)
                 && !isPreemptivePolicy(policyId);
         CarPowerPolicy currentPolicy = mPolicies.get(policyId);
@@ -209,8 +214,8 @@ public final class FakeRefactoredCarPowerManagementDaemon extends
         }
         mComponentHandler.applyPolicy(currentPolicy);
         CarPowerPolicy accumulatedPolicy = mComponentHandler.getAccumulatedPolicy(policyId);
-        mCallback.updatePowerComponents(accumulatedPolicy);
-        mCallback.onApplyPowerPolicySucceeded(requestId, accumulatedPolicy, deferred);
+        callback.updatePowerComponents(accumulatedPolicy);
+        callback.onApplyPowerPolicySucceeded(requestId, accumulatedPolicy, deferred);
         if (!deferred) {
             mCurrentPowerPolicyId = policyId;
         }
@@ -227,13 +232,15 @@ public final class FakeRefactoredCarPowerManagementDaemon extends
             mPendingPowerPolicyId = policy.policyId;
             Log.d(TAG, "Silent mode is on, so applying power policy for state " + state
                     + " is deferred, setting pending power policy to " + mPendingPowerPolicyId);
-            mCallback.onApplyPowerPolicySucceeded(requestId, policy, /* deferred= */ true);
+            ICarPowerManagementDelegateCallback callback = getPowerManagementDelegateCallback();
+            callback.onApplyPowerPolicySucceeded(requestId, policy, /* deferred= */ true);
             return;
         }
         mHandler.post(() -> {
             try {
-                mCallback.updatePowerComponents(policy);
-                mCallback.onApplyPowerPolicySucceeded(requestId, policy, /* deferred= */ false);
+                ICarPowerManagementDelegateCallback callback = getPowerManagementDelegateCallback();
+                callback.updatePowerComponents(policy);
+                callback.onApplyPowerPolicySucceeded(requestId, policy, /* deferred= */ false);
                 mLastNotifiedPowerState = state;
                 mComponentHandler.applyPolicy(policy);
                 mCurrentPowerPolicyId = policy.policyId;
@@ -280,7 +287,16 @@ public final class FakeRefactoredCarPowerManagementDaemon extends
             mLastNotifiedPowerState = newState;
             // TODO(b/382331302): Change this logic to "wait" for listeners w/completion once those
             // are implemented.
-            mCallback.onAllPowerStateChangeListenersComplete(changeId);
+            ICarPowerManagementDelegateCallback callback;
+            synchronized (mLock) {
+                if (mCallback == null) {
+                    Slogf.i(TAG, "notifyCarServiceReady is not called yet. Ignoring power state "
+                            + "change");
+                    return;
+                }
+                callback = mCallback;
+            }
+            callback.onAllPowerStateChangeListenersComplete(changeId);
         }
     }
 
@@ -288,8 +304,9 @@ public final class FakeRefactoredCarPowerManagementDaemon extends
         mComponentHandler.applyPolicy(mPolicies.get(policyId));
         CarPowerPolicy accumulatedPolicy = mComponentHandler.getAccumulatedPolicy(policyId);
         try {
-            mCallback.onPowerPolicyChanged(accumulatedPolicy);
-            mCallback.updatePowerComponents(accumulatedPolicy);
+            ICarPowerManagementDelegateCallback callback = getPowerManagementDelegateCallback();
+            callback.onPowerPolicyChanged(accumulatedPolicy);
+            callback.updatePowerComponents(accumulatedPolicy);
             mCurrentPowerPolicyId = policyId;
         } catch (RemoteException e) {
             Log.d(TAG, errMsg, e);
@@ -375,6 +392,16 @@ public final class FakeRefactoredCarPowerManagementDaemon extends
      */
     public void silentModeFileObserverStopWatching() {
         mFileObserver.stopWatching();
+    }
+
+    private ICarPowerManagementDelegateCallback getPowerManagementDelegateCallback() {
+        synchronized (mLock) {
+            if (mCallback == null) {
+                throw new IllegalStateException("Fake refactored CPPD callback is null, was "
+                        + "notifyCarServiceReady() called?");
+            }
+            return mCallback;
+        }
     }
 
     private boolean isPreemptivePolicy(String policyId) {
