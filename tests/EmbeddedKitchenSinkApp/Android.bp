@@ -33,6 +33,7 @@ android_app {
         "src/**/*.java",
         "src/**/*.kt",
         ":cartelemetryservice-proto-srcs",
+        ":VhalTestVendorProperties",
     ],
 
     resource_dirs: ["res"],
