@@ -1,12 +1,6 @@
 {
   "auto-postsubmit": [
     {
-      "name": "CarServicePmTest"
-    },
-    {
-      "name": "CarServicePmUnitTest"
-    },
-    {
       "name": "AndroidCarApiTest",
       "options": [
         {

@@ -1,9 +1,4 @@
 {
-  "auto-postsubmit": [
-    {
-      "name": "CarServiceStorageMonitoringUnitTest"
-    }
-  ],
   "auto-presubmit": [
     {
       "name": "CarServiceStorageMonitoringUnitTest"
