@@ -100,8 +100,7 @@ namespace {
 const int32_t MSG_CONNECT_TO_VHAL = 1;  // Message to request of connecting to VHAL.
 
 const nsecs_t kConnectionRetryIntervalNs = 200000000;  // 200 milliseconds.
-// TODO(b/377348572): Change this to 5s.
-const nsecs_t kDefaultConnectToVhalTimeoutMillis = 60000;
+const nsecs_t kDefaultConnectToVhalTimeoutMillis = 5000;
 constexpr const char kConnectToVhalTimeoutMillisProp[] = "cppd.connectvhal.Timeoutmillis";
 
 constexpr const char kCarServiceInterface[] = "car_service";
