@@ -1584,6 +1584,10 @@ public class PropertyHalService extends HalServiceBase {
             }
 
             for (int i = 0; i < mgrPropIdAreaIds.size(); i++) {
+                var halPropIdAreaId = managerToHalPropIdAreaId(mgrPropIdAreaIds.get(i));
+                if (!mVehicleHal.isSupportedValuesImplemented(halPropIdAreaId)) {
+                    continue;
+                }
                 var registeredCallbacks = mSupportedValuesChangeCallbackByPropIdAreaId.get(
                         mgrPropIdAreaIds.get(i));
                 if (registeredCallbacks == null) {
@@ -2378,6 +2382,20 @@ public class PropertyHalService extends HalServiceBase {
         synchronized (mLock) {
             return mHalPropIdToWaitingUpdateRequestInfo.size();
         }
+    }
+
+    /**
+     * Counts the number of supported values change clients.
+     *
+     * For test only.
+     */
+    @VisibleForTesting
+    public int countSupportedValuesChangeClient() {
+        ArraySet<ISupportedValuesChangeCallback> clients = new ArraySet<>();
+        for (int i = 0; i < mSupportedValuesChangeCallbackByPropIdAreaId.size(); i++) {
+            clients.addAll(mSupportedValuesChangeCallbackByPropIdAreaId.valueAt(i));
+        }
+        return clients.size();
     }
 
     private static String requestTypeToString(@AsyncRequestType int requestType) {

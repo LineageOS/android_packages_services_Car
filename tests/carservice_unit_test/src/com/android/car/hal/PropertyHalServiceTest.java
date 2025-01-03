@@ -3287,6 +3287,7 @@ public class PropertyHalServiceTest extends AbstractExpectableTestCase{
                 List.of(propIdAreaId1, propIdAreaId2, propIdAreaId3),
                 mSupportedValuesChangeCallback);
 
+        assertThat(mPropertyHalService.countSupportedValuesChangeClient()).isEqualTo(1);
         ArgumentCaptor<List> propIdAreaIdsCaptor = ArgumentCaptor.forClass(List.class);
         verify(mVehicleHal).registerSupportedValuesChange(any(), propIdAreaIdsCaptor.capture());
 
@@ -3298,6 +3299,12 @@ public class PropertyHalServiceTest extends AbstractExpectableTestCase{
         expectThat(requestedPropIdAreaIds.get(1).propId).isEqualTo(
                 VehicleProperty.VEHICLE_SPEED_DISPLAY_UNITS);
         expectThat(requestedPropIdAreaIds.get(1).areaId).isEqualTo(0);
+
+        mPropertyHalService.unregisterSupportedValuesChangeCallback(
+                List.of(propIdAreaId1, propIdAreaId2, propIdAreaId3),
+                mSupportedValuesChangeCallback);
+
+        assertThat(mPropertyHalService.countSupportedValuesChangeClient()).isEqualTo(0);
     }
 
     @Test
