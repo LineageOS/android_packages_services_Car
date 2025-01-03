@@ -78,7 +78,6 @@ cc_test {
     defaults: [
         "carpowerpolicyserver_defaults",
     ],
-    test_suites: ["general-tests"],
     srcs: [
         "tests/CarPowerPolicyServerTest.cpp",
         "tests/PolicyManagerTest.cpp",
@@ -89,6 +88,10 @@ cc_test {
         "libgmock",
         "libgtest",
         "lib_carpowerpolicyserver",
+    ],
+    test_suites: [
+        "general-tests",
+        "automotive-general-tests",
     ],
     data: [":powerpolicyxmlfiles"],
 }
