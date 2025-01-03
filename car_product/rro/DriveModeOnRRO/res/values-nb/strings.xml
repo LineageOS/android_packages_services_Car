@@ -20,7 +20,7 @@
     <string name="qc_footer_settings" msgid="2454589334180949900">"Innstillinger"</string>
     <string name="qc_footer_bluetooth_settings" msgid="8144159076284035563">"Bluetooth-innstillinger"</string>
     <string name="qc_footer_network_internet_settings" msgid="6300929675358433949">"Nettverks- og internettinnstillinger"</string>
-    <string name="qc_footer_display_settings" msgid="634284348832636387">"Visningsinnstillinger"</string>
+    <string name="qc_footer_display_settings" msgid="634284348832636387">"Skjerminnstillinger"</string>
     <string name="qc_footer_network_sound_settings" msgid="2775359706107142213">"Lydinnstillinger"</string>
     <string name="qc_footer_profiles_accounts_settings" msgid="5856329638808072374">"Profil- og kontoinnstillinger"</string>
     <string name="qc_footer_debug_settings" msgid="282542682804584306">"Utvikleralternativer"</string>
