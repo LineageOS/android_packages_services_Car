@@ -3411,6 +3411,116 @@ public class PropertyHalServiceTest extends AbstractExpectableTestCase{
     }
 
     @Test
+    public void testRegisterSupportedValuesChangeCallback_twoClients()
+            throws Exception {
+        var propIdAreaId1 = newPropIdAreaId(HVAC_FAN_SPEED,
+                android.car.VehicleAreaSeat.SEAT_ROW_1_LEFT);
+        var propIdAreaId2 = newPropIdAreaId(VEHICLE_SPEED_DISPLAY_UNITS, 0);
+        var halPropIdAreaId1 = newPropIdAreaId(VehicleProperty.HVAC_FAN_SPEED,
+                android.car.VehicleAreaSeat.SEAT_ROW_1_LEFT);
+        var halPropIdAreaId2 = newPropIdAreaId(VehicleProperty.VEHICLE_SPEED_DISPLAY_UNITS, 0);
+        when(mVehicleHal.isSupportedValuesImplemented(halPropIdAreaId1)).thenReturn(true);
+        when(mVehicleHal.isSupportedValuesImplemented(halPropIdAreaId2)).thenReturn(true);
+
+        // We use two binders to simulate two different clients.
+        ISupportedValuesChangeCallback callback1 = mock(ISupportedValuesChangeCallback.class);
+        IBinder binder1 = mock(IBinder.class);
+        ISupportedValuesChangeCallback callback2 = mock(ISupportedValuesChangeCallback.class);
+        IBinder binder2 = mock(IBinder.class);
+        when(callback1.asBinder()).thenReturn(binder1);
+        when(callback2.asBinder()).thenReturn(binder2);
+
+        mPropertyHalService.registerSupportedValuesChangeCallback(
+                List.of(propIdAreaId1, propIdAreaId2), callback1);
+        mPropertyHalService.registerSupportedValuesChangeCallback(
+                List.of(propIdAreaId1), callback2);
+
+        mPropertyHalService.unregisterSupportedValuesChangeCallback(
+                List.of(propIdAreaId1), callback1);
+
+        // propIdAreaId1 is still subscribed by callback2
+        verify(mVehicleHal, never()).unregisterSupportedValuesChange(any(), any());
+
+        // Trigger an on-change event to verify callback2 can still receive event.
+        mPropertyHalService.onSupportedValuesChange(List.of(halPropIdAreaId1, halPropIdAreaId2));
+
+        verify(callback2).onSupportedValuesChange(mListArgumentCaptor.capture());
+        var updatedPropIdAreaIds = (List<PropIdAreaId>) mListArgumentCaptor.getValue();
+        assertThat(updatedPropIdAreaIds).hasSize(1);
+        expectThat(updatedPropIdAreaIds.get(0)).isEqualTo(propIdAreaId1);
+
+        verify(callback1).onSupportedValuesChange(mListArgumentCaptor.capture());
+        updatedPropIdAreaIds = (List<PropIdAreaId>) mListArgumentCaptor.getValue();
+        assertThat(updatedPropIdAreaIds).hasSize(1);
+        expectThat(updatedPropIdAreaIds.get(0)).isEqualTo(propIdAreaId2);
+
+        // Unregister propIdAreaId1 for callback2 as well, after this, there is no client for
+        // propIdAreaId1, so it should be unsubscribed from VehicleHal.
+        mPropertyHalService.unregisterSupportedValuesChangeCallback(
+                List.of(propIdAreaId1), callback2);
+
+        verify(mVehicleHal).unregisterSupportedValuesChange(any(), mListArgumentCaptor.capture());
+        updatedPropIdAreaIds = (List<PropIdAreaId>) mListArgumentCaptor.getValue();
+        assertThat(updatedPropIdAreaIds).hasSize(1);
+        // Must be converted from CarPropertyManager property ID to VHAL property ID.
+        assertThat(updatedPropIdAreaIds.get(0)).isEqualTo(halPropIdAreaId1);
+
+        clearInvocations(mVehicleHal);
+
+        // Unregister propIdAreaId2 for callback1, after this, there is no client for propIdAreaId2.
+        mPropertyHalService.unregisterSupportedValuesChangeCallback(
+                List.of(propIdAreaId2), callback1);
+
+        verify(mVehicleHal).unregisterSupportedValuesChange(any(), mListArgumentCaptor.capture());
+        updatedPropIdAreaIds = (List<PropIdAreaId>) mListArgumentCaptor.getValue();
+        assertThat(updatedPropIdAreaIds).hasSize(1);
+        // Must be converted from CarPropertyManager property ID to VHAL property ID.
+        assertThat(updatedPropIdAreaIds.get(0)).isEqualTo(halPropIdAreaId2);
+
+        // Trigger an on-change event to verify both callback1 and callback2 cannot receive the
+        // event.
+        clearInvocations(callback1);
+        clearInvocations(callback2);
+
+        mPropertyHalService.onSupportedValuesChange(List.of(halPropIdAreaId1, halPropIdAreaId2));
+
+        verify(callback1, never()).onSupportedValuesChange(any());
+        verify(callback2, never()).onSupportedValuesChange(any());
+    }
+
+    @Test
+    public void testRegisterSupportedValuesChangeCallback_sameClientDifferentCallback()
+            throws Exception {
+        // We should uniquely identify a client via IBinder, not the Callback interface
+        // object.
+        var propIdAreaId1 = newPropIdAreaId(HVAC_FAN_SPEED,
+                android.car.VehicleAreaSeat.SEAT_ROW_1_LEFT);
+        var propIdAreaId2 = newPropIdAreaId(VEHICLE_SPEED_DISPLAY_UNITS, 0);
+        var halPropIdAreaId1 = newPropIdAreaId(VehicleProperty.HVAC_FAN_SPEED,
+                android.car.VehicleAreaSeat.SEAT_ROW_1_LEFT);
+        var halPropIdAreaId2 = newPropIdAreaId(VehicleProperty.VEHICLE_SPEED_DISPLAY_UNITS, 0);
+        when(mVehicleHal.isSupportedValuesImplemented(halPropIdAreaId1)).thenReturn(true);
+        when(mVehicleHal.isSupportedValuesImplemented(halPropIdAreaId2)).thenReturn(true);
+
+        ISupportedValuesChangeCallback callback1 = mock(ISupportedValuesChangeCallback.class);
+        ISupportedValuesChangeCallback callback2 = mock(ISupportedValuesChangeCallback.class);
+        IBinder binder = mock(IBinder.class);
+
+        // callback1 and callback2 is the same client.
+        when(callback1.asBinder()).thenReturn(binder);
+        when(callback2.asBinder()).thenReturn(binder);
+
+        mPropertyHalService.registerSupportedValuesChangeCallback(
+                List.of(propIdAreaId1, propIdAreaId2), callback1);
+        mPropertyHalService.unregisterSupportedValuesChangeCallback(
+                List.of(propIdAreaId1, propIdAreaId2), callback2);
+
+        verify(mVehicleHal).unregisterSupportedValuesChange(any(), mListArgumentCaptor.capture());
+        var updatedPropIdAreaIds = (List<PropIdAreaId>) mListArgumentCaptor.getValue();
+        assertThat(updatedPropIdAreaIds).hasSize(2);
+    }
+
+    @Test
     public void testOnSupportedValuesChange() throws Exception {
         when(mVehicleHal.isSupportedValuesImplemented(any())).thenReturn(true);
         var propIdAreaId1 = newPropIdAreaId(HVAC_FAN_SPEED,
