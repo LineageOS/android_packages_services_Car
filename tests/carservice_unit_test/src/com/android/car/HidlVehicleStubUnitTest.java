@@ -427,7 +427,8 @@ public final class HidlVehicleStubUnitTest {
         mHidlVehicleStub.getAsync(List.of(getVehicleStubAsyncRequest), mAsyncCallback);
 
         verify(mAsyncCallback, timeout(1000)).onGetAsyncResults(argumentCaptor.capture());
-        assertThat(argumentCaptor.getValue().get(0).getErrorCode()).isEqualTo(
+        assertThat(argumentCaptor.getValue().get(0).getCarPropertyErrorCodes()
+                .getCarPropertyManagerErrorCode()).isEqualTo(
                 CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR);
     }
 
@@ -450,7 +451,8 @@ public final class HidlVehicleStubUnitTest {
         mHidlVehicleStub.getAsync(List.of(getVehicleStubAsyncRequest), mAsyncCallback);
 
         verify(mAsyncCallback, timeout(1000)).onGetAsyncResults(argumentCaptor.capture());
-        assertThat(argumentCaptor.getValue().get(0).getErrorCode()).isEqualTo(
+        assertThat(argumentCaptor.getValue().get(0).getCarPropertyErrorCodes()
+                .getCarPropertyManagerErrorCode()).isEqualTo(
                 CarPropertyErrorCodes.STATUS_TRY_AGAIN);
     }
 
@@ -485,14 +487,16 @@ public final class HidlVehicleStubUnitTest {
                 .get(0);
         assertThat(callResult0).hasSize(1);
         assertThat(callResult0.get(0).getServiceRequestId()).isEqualTo(0);
-        assertThat(callResult0.get(0).getErrorCode()).isEqualTo(
+        assertThat(callResult0.get(0).getCarPropertyErrorCodes()
+                .getCarPropertyManagerErrorCode()).isEqualTo(
                 CarPropertyManager.STATUS_ERROR_NOT_AVAILABLE);
         List<VehicleStub.GetVehicleStubAsyncResult> callResult1 = argumentCaptor.getAllValues()
                 .get(1);
         assertThat(callResult1).hasSize(1);
         assertThat(callResult1.get(0).getServiceRequestId()).isEqualTo(1);
         assertThat(callResult1.get(0).getHalPropValue()).isEqualTo(newTestValue);
-        assertThat(callResult1.get(0).getErrorCode()).isEqualTo(STATUS_OK);
+        assertThat(callResult1.get(0).getCarPropertyErrorCodes()
+                .getCarPropertyManagerErrorCode()).isEqualTo(STATUS_OK);
     }
 
     @Test
@@ -539,7 +543,8 @@ public final class HidlVehicleStubUnitTest {
 
         verify(mAsyncCallback, timeout(1000)).onSetAsyncResults(argumentCaptor.capture());
         assertThat(argumentCaptor.getValue()).hasSize(1);
-        assertThat(argumentCaptor.getValue().get(0).getErrorCode()).isEqualTo(STATUS_OK);
+        assertThat(argumentCaptor.getValue().get(0).getCarPropertyErrorCodes()
+                .getCarPropertyManagerErrorCode()).isEqualTo(STATUS_OK);
     }
 
     @Test
@@ -556,7 +561,8 @@ public final class HidlVehicleStubUnitTest {
 
         verify(mAsyncCallback, timeout(1000)).onSetAsyncResults(argumentCaptor.capture());
         assertThat(argumentCaptor.getValue()).hasSize(1);
-        assertThat(argumentCaptor.getValue().get(0).getErrorCode()).isEqualTo(
+        assertThat(argumentCaptor.getValue().get(0).getCarPropertyErrorCodes()
+                .getCarPropertyManagerErrorCode()).isEqualTo(
                 CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR);
     }
 
@@ -574,7 +580,8 @@ public final class HidlVehicleStubUnitTest {
 
         verify(mAsyncCallback, timeout(1000)).onSetAsyncResults(argumentCaptor.capture());
         assertThat(argumentCaptor.getValue()).hasSize(1);
-        assertThat(argumentCaptor.getValue().get(0).getErrorCode()).isEqualTo(
+        assertThat(argumentCaptor.getValue().get(0).getCarPropertyErrorCodes()
+                .getCarPropertyManagerErrorCode()).isEqualTo(
                 CarPropertyErrorCodes.STATUS_TRY_AGAIN);
     }
 
@@ -592,7 +599,8 @@ public final class HidlVehicleStubUnitTest {
 
         verify(mAsyncCallback, timeout(1000)).onSetAsyncResults(argumentCaptor.capture());
         assertThat(argumentCaptor.getValue()).hasSize(1);
-        assertThat(argumentCaptor.getValue().get(0).getErrorCode()).isEqualTo(
+        assertThat(argumentCaptor.getValue().get(0).getCarPropertyErrorCodes()
+                .getCarPropertyManagerErrorCode()).isEqualTo(
                 CarPropertyManager.STATUS_ERROR_NOT_AVAILABLE);
     }
 
@@ -610,7 +618,8 @@ public final class HidlVehicleStubUnitTest {
 
         verify(mAsyncCallback, timeout(1000)).onSetAsyncResults(argumentCaptor.capture());
         assertThat(argumentCaptor.getValue()).hasSize(1);
-        assertThat(argumentCaptor.getValue().get(0).getErrorCode()).isEqualTo(
+        assertThat(argumentCaptor.getValue().get(0).getCarPropertyErrorCodes()
+                .getCarPropertyManagerErrorCode()).isEqualTo(
                 CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR);
     }
 

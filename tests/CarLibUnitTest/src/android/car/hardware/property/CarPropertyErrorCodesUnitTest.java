@@ -16,11 +16,12 @@
 
 package com.android.car;
 
-import static com.android.car.internal.property.CarPropertyErrorCodes.convertVhalStatusCodeToCarPropertyManagerErrorCodes;
+import static com.android.car.internal.property.CarPropertyErrorCodes.createFromVhalStatusCode;
 
 import static com.google.common.truth.Truth.assertThat;
 
 import android.car.hardware.property.CarPropertyManager;
+import android.car.hardware.property.VehicleHalStatusCode;
 import android.hardware.automotive.vehicle.StatusCode;
 import android.util.SparseIntArray;
 
@@ -39,7 +40,7 @@ public final class CarPropertyErrorCodesUnitTest {
     @Test
     public void testCarPropertyErrorCodesStatusOkNoErrors() throws Exception {
         CarPropertyErrorCodes carPropertyErrorCodes =
-                new CarPropertyErrorCodes(CarPropertyErrorCodes.STATUS_OK, NO_ERROR, NO_ERROR);
+                CarPropertyErrorCodes.STATUS_OK_NO_ERROR;
 
         assertThat(carPropertyErrorCodes.getCarPropertyManagerErrorCode())
                 .isEqualTo(CarPropertyErrorCodes.STATUS_OK);
@@ -51,8 +52,8 @@ public final class CarPropertyErrorCodesUnitTest {
 
     @Test
     public void testCarPropertyErrorCodesStatusInternalError() throws Exception {
-        CarPropertyErrorCodes carPropertyErrorCodes = new CarPropertyErrorCodes(
-                CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR, NO_ERROR, NO_ERROR);
+        CarPropertyErrorCodes carPropertyErrorCodes =
+                CarPropertyErrorCodes.ERROR_CODES_INTERNAL;
 
         assertThat(carPropertyErrorCodes.getCarPropertyManagerErrorCode())
                 .isEqualTo(CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR);
@@ -64,8 +65,8 @@ public final class CarPropertyErrorCodesUnitTest {
 
     @Test
     public void testCarPropertyErrorCodesStatusNotAvailable() throws Exception {
-        CarPropertyErrorCodes carPropertyErrorCodes = new CarPropertyErrorCodes(
-                CarPropertyManager.STATUS_ERROR_NOT_AVAILABLE, NO_ERROR, NO_ERROR);
+        CarPropertyErrorCodes carPropertyErrorCodes =
+                CarPropertyErrorCodes.ERROR_CODES_NOT_AVAILABLE;
 
         assertThat(carPropertyErrorCodes.getCarPropertyManagerErrorCode())
                 .isEqualTo(CarPropertyManager.STATUS_ERROR_NOT_AVAILABLE);
@@ -77,10 +78,8 @@ public final class CarPropertyErrorCodesUnitTest {
 
     @Test
     public void testCarPropertyErrorCodesStatusNotAvailableSpeedLow() throws Exception {
-        CarPropertyErrorCodes carPropertyErrorCodes = new CarPropertyErrorCodes(
-                CarPropertyManager.STATUS_ERROR_NOT_AVAILABLE,
-                NO_ERROR,
-                StatusCode.NOT_AVAILABLE_SPEED_LOW);
+        CarPropertyErrorCodes carPropertyErrorCodes =
+                createFromVhalStatusCode(StatusCode.NOT_AVAILABLE_SPEED_LOW);
 
         assertThat(carPropertyErrorCodes.getCarPropertyManagerErrorCode())
                 .isEqualTo(CarPropertyManager.STATUS_ERROR_NOT_AVAILABLE);
@@ -92,23 +91,21 @@ public final class CarPropertyErrorCodesUnitTest {
 
     @Test
     public void testCarPropertyErrorCodesStatusNotAvailableVendorError() throws Exception {
-        CarPropertyErrorCodes carPropertyErrorCodes = new CarPropertyErrorCodes(
-                CarPropertyManager.STATUS_ERROR_NOT_AVAILABLE,
-                VENDOR_ERROR_CODE,
-                NO_ERROR);
+        int vhalStatusCode = VehicleHalStatusCode.STATUS_NOT_AVAILABLE | (VENDOR_ERROR_CODE << 16);
+        CarPropertyErrorCodes carPropertyErrorCodes = createFromVhalStatusCode(vhalStatusCode);
 
         assertThat(carPropertyErrorCodes.getCarPropertyManagerErrorCode())
                 .isEqualTo(CarPropertyManager.STATUS_ERROR_NOT_AVAILABLE);
         assertThat(carPropertyErrorCodes.getVendorErrorCode())
                 .isEqualTo(VENDOR_ERROR_CODE);
         assertThat(carPropertyErrorCodes.getSystemErrorCode())
-                .isEqualTo(NO_ERROR);
+                .isEqualTo(VehicleHalStatusCode.STATUS_NOT_AVAILABLE);
     }
 
     @Test
     public void testConvertHalToCarPropertyManagerErrorStatusOK() throws Exception {
         CarPropertyErrorCodes carPropertyErrorCodes =
-                convertVhalStatusCodeToCarPropertyManagerErrorCodes(StatusCode.OK);
+                createFromVhalStatusCode(StatusCode.OK);
 
         assertThat(carPropertyErrorCodes.getCarPropertyManagerErrorCode())
                 .isEqualTo(CarPropertyErrorCodes.STATUS_OK);
@@ -119,30 +116,30 @@ public final class CarPropertyErrorCodesUnitTest {
 
     @Test
     public void testConvertHalToCarPropertyManagerErrorStatus() throws Exception {
-        SparseIntArray convertVhalStatusCodeToCarPropertyManagerErrorCodes = new SparseIntArray();
-        convertVhalStatusCodeToCarPropertyManagerErrorCodes.put(StatusCode.NOT_AVAILABLE,
+        SparseIntArray mgrErrorCodeByVhalStatusCode = new SparseIntArray();
+        mgrErrorCodeByVhalStatusCode.put(StatusCode.NOT_AVAILABLE,
                 CarPropertyManager.STATUS_ERROR_NOT_AVAILABLE);
-        convertVhalStatusCodeToCarPropertyManagerErrorCodes.put(StatusCode.NOT_AVAILABLE_DISABLED,
+        mgrErrorCodeByVhalStatusCode.put(StatusCode.NOT_AVAILABLE_DISABLED,
                 CarPropertyManager.STATUS_ERROR_NOT_AVAILABLE);
-        convertVhalStatusCodeToCarPropertyManagerErrorCodes.put(StatusCode.NOT_AVAILABLE_SPEED_LOW,
+        mgrErrorCodeByVhalStatusCode.put(StatusCode.NOT_AVAILABLE_SPEED_LOW,
                 CarPropertyManager.STATUS_ERROR_NOT_AVAILABLE);
-        convertVhalStatusCodeToCarPropertyManagerErrorCodes.put(StatusCode.NOT_AVAILABLE_SPEED_HIGH,
+        mgrErrorCodeByVhalStatusCode.put(StatusCode.NOT_AVAILABLE_SPEED_HIGH,
                 CarPropertyManager.STATUS_ERROR_NOT_AVAILABLE);
-        convertVhalStatusCodeToCarPropertyManagerErrorCodes.put(
+        mgrErrorCodeByVhalStatusCode.put(
                 StatusCode.NOT_AVAILABLE_POOR_VISIBILITY,
                 CarPropertyManager.STATUS_ERROR_NOT_AVAILABLE);
-        convertVhalStatusCodeToCarPropertyManagerErrorCodes.put(StatusCode.NOT_AVAILABLE_SAFETY,
+        mgrErrorCodeByVhalStatusCode.put(StatusCode.NOT_AVAILABLE_SAFETY,
                 CarPropertyManager.STATUS_ERROR_NOT_AVAILABLE);
-        convertVhalStatusCodeToCarPropertyManagerErrorCodes.put(StatusCode.TRY_AGAIN,
+        mgrErrorCodeByVhalStatusCode.put(StatusCode.TRY_AGAIN,
                 CarPropertyErrorCodes.STATUS_TRY_AGAIN);
-        convertVhalStatusCodeToCarPropertyManagerErrorCodes.put(StatusCode.INTERNAL_ERROR,
+        mgrErrorCodeByVhalStatusCode.put(StatusCode.INTERNAL_ERROR,
                 CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR);
 
-        for (int i = 0; i < convertVhalStatusCodeToCarPropertyManagerErrorCodes.size(); i++) {
-            int statusCode = convertVhalStatusCodeToCarPropertyManagerErrorCodes.keyAt(i);
-            int carPropMgrError = convertVhalStatusCodeToCarPropertyManagerErrorCodes.valueAt(i);
+        for (int i = 0; i < mgrErrorCodeByVhalStatusCode.size(); i++) {
+            int statusCode = mgrErrorCodeByVhalStatusCode.keyAt(i);
+            int carPropMgrError = mgrErrorCodeByVhalStatusCode.valueAt(i);
             CarPropertyErrorCodes carPropertyErrorCodes =
-                    convertVhalStatusCodeToCarPropertyManagerErrorCodes(
+                    createFromVhalStatusCode(
                             statusCode | (VENDOR_ERROR_CODE << VENDOR_ERROR_CODE_SHIFT));
 
             assertThat(carPropertyErrorCodes.getCarPropertyManagerErrorCode())

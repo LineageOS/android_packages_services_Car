@@ -22,7 +22,7 @@
     <string name="qc_footer_network_internet_settings" msgid="6300929675358433949">"నెట్‌వర్క్ &amp; ఇంటర్నెట్ సెట్టింగ్‌లు"</string>
     <string name="qc_footer_display_settings" msgid="634284348832636387">"డిస్‌ప్లే సెట్టింగ్‌లు"</string>
     <string name="qc_footer_network_sound_settings" msgid="2775359706107142213">"సౌండ్ సెట్టింగ్‌లు"</string>
-    <string name="qc_footer_profiles_accounts_settings" msgid="5856329638808072374">"ప్రొఫైల్‌లు &amp; ఖాతాల సెట్టింగ్‌లు"</string>
+    <string name="qc_footer_profiles_accounts_settings" msgid="5856329638808072374">"ప్రొఫైళ్లు &amp; ఖాతాల సెట్టింగ్‌లు"</string>
     <string name="qc_footer_debug_settings" msgid="282542682804584306">"డెవలపర్ ఆప్షన్‌లు"</string>
     <string name="status_icon_bluetooth_disconnected" msgid="246896533995219347">"బ్లూటూత్ సెట్టింగ్: డిస్‌కనెక్ట్ అయ్యింది"</string>
     <string name="status_icon_bluetooth_connected" msgid="4669958056038594620">"బ్లూటూత్ సెట్టింగ్: కనెక్ట్ చేయబడింది"</string>
