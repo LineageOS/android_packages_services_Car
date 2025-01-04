@@ -28,24 +28,59 @@
             android:baselineAligned="false"
             android:id="@+id/sPropertyId"
             android:layout_height="wrap_content"
-            android:layout_weight="2"
+            android:layout_weight="1"
             android:layout_width="0dp" />
-        <Button
+        <LinearLayout
             android:baselineAligned="false"
-            android:id="@+id/bGetProperty"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:layout_width="0dp"
-            android:text="@string/property_get"
-            android:textSize="@dimen/propertyTextSize"/>
-        <Button
-            android:baselineAligned="false"
-            android:id="@+id/getPropertyAsync"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_width="0dp"
-            android:text="@string/property_get_async"
-            android:textSize="@dimen/propertyTextSize"/>
+            android:orientation="vertical" >
+            <LinearLayout
+                android:baselineAligned="false"
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:orientation="horizontal" >
+                <Button
+                    android:baselineAligned="false"
+                    android:id="@+id/bGetProperty"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:text="@string/property_get"
+                    android:textSize="@dimen/propertyTextSize"/>
+                <Button
+                    android:baselineAligned="false"
+                    android:id="@+id/getPropertyAsync"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:text="@string/property_get_async"
+                    android:textSize="@dimen/propertyTextSize"/>
+            </LinearLayout>
+            <LinearLayout
+                android:baselineAligned="false"
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:orientation="horizontal" >
+                <Button
+                    android:baselineAligned="false"
+                    android:id="@+id/bGetMinMaxSupportedValues"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:text="@string/property_get_min_max_supported_values"
+                    android:textSize="@dimen/propertyTextSize"/>
+                <Button
+                    android:baselineAligned="false"
+                    android:id="@+id/bGetSupportedValuesList"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:text="@string/property_get_supported_values_list"
+                    android:textSize="@dimen/propertyTextSize"/>
+            </LinearLayout>
+        </LinearLayout>
     </LinearLayout>
 
     <LinearLayout
@@ -176,6 +211,15 @@
                 android:layout_width="match_parent"
                 android:textOff="@string/subscribe"
                 android:textOn="@string/unsubscribe"
+                android:textSize="@dimen/propertyTextSize"/>
+            <ToggleButton
+                android:clickable="true"
+                android:id="@+id/tbSubscribeSupportedValuesChangeButton"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:layout_width="match_parent"
+                android:textOff="@string/subscribeSupportedValuesChange"
+                android:textOn="@string/unsubscribeSupportedValuesChange"
                 android:textSize="@dimen/propertyTextSize"/>
         </LinearLayout>
         <!-- Event Log -->
