@@ -62,27 +62,40 @@ public final class ConstantDebugUtils {
      */
     @Nullable
     public static String toName(Class<?> clazz, int value) {
-        return getConstantDebugUtils(clazz).toName(value);
+        return toName(clazz, "", value);
     }
 
     /**
-     * Gets the constant's value based on the passed name for the specified {@code clazz}. Returns
-     * {@code null} if name does not exist.
+     * Gets the constant's name based on the {@code value} for the specified {@code clazz} and
+     * {@code prefix} combo. Returns {@code null} if value does not exist.
+     */
+    @Nullable
+    public static String toName(Class<?> clazz, String prefix, int value) {
+        return getConstantDebugUtils(new ConstantKey(clazz, prefix)).toName(value);
+    }
+
+    /**
+     * Gets the constant's value based on the passed {@code name} for the specified {@code clazz}.
+     * Returns {@code null} if name does not exist.
      */
     @Nullable
     public static Integer toValue(Class<?> clazz, String name) {
-        return getConstantDebugUtils(clazz).toValue(name);
+        return getConstantDebugUtils(new ConstantKey(clazz)).toValue(name);
     }
 
     /**
      * Gets the all the constant values for the specified {@code clazz}.
      */
     public static Collection<Integer> getValues(Class<?> clazz) {
-        return getConstantDebugUtils(clazz).getConstantNameToValueMapping().values();
+        return getValues(clazz, "");
     }
 
-    private static ConstantDebugUtils getConstantDebugUtils(Class<?> clazz) {
-        return getConstantDebugUtils(new ConstantKey(clazz));
+    /**
+     * Gets the all the constant values for the specified {@code clazz} and {@code prefix} combo.
+     */
+    public static Collection<Integer> getValues(Class<?> clazz, String prefix) {
+        return getConstantDebugUtils(
+                new ConstantKey(clazz, prefix)).getConstantNameToValueMapping().values();
     }
 
     private static ConstantDebugUtils getConstantDebugUtils(ConstantKey constantKey) {
