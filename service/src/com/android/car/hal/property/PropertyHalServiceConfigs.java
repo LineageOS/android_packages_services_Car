@@ -90,7 +90,7 @@ public class PropertyHalServiceConfigs {
         }
     }
 
-    private static final String CONFIG_RESOURCE_NAME = "CarSvcProps.json";
+    private static final String LATEST_CONFIG_RESOURCE_NAME = "CarSvcProps.json";
     private static final String RELEASED_CONFIG_RESOURCE_NAME = "CarSvcProps-Released.json";
     private static final String JSON_FIELD_NAME_PROPERTIES = "properties";
 
@@ -128,28 +128,10 @@ public class PropertyHalServiceConfigs {
         }
 
         // Read config from previous release.
-        try (InputStream defaultConfigInputStream = this.getClass().getClassLoader()
-                    .getResourceAsStream(RELEASED_CONFIG_RESOURCE_NAME)) {
-            mHalPropIdToReleasedCarSvcConfig = parseJsonConfig(defaultConfigInputStream,
-                    "defaultResource");
-        } catch (IOException e) {
-            String errorMsg = "failed to open/close resource input stream for: "
-                    + RELEASED_CONFIG_RESOURCE_NAME;
-            Slogf.e(TAG, errorMsg, e);
-            throw new IllegalStateException(errorMsg, e);
-        }
-
+        mHalPropIdToReleasedCarSvcConfig = readJsonConfig(RELEASED_CONFIG_RESOURCE_NAME, null);
         // Read latest generated config.
-        try (InputStream defaultConfigInputStream = this.getClass().getClassLoader()
-                    .getResourceAsStream(CONFIG_RESOURCE_NAME)) {
-            mHalPropIdToCarSvcConfig = parseJsonConfig(defaultConfigInputStream,
-                    "defaultResource", mHalPropIdToReleasedCarSvcConfig);
-        } catch (IOException e) {
-            String errorMsg = "failed to open/close resource input stream for: "
-                    + CONFIG_RESOURCE_NAME;
-            Slogf.e(TAG, errorMsg, e);
-            throw new IllegalStateException(errorMsg, e);
-        }
+        mHalPropIdToCarSvcConfig = readJsonConfig(
+                LATEST_CONFIG_RESOURCE_NAME, mHalPropIdToReleasedCarSvcConfig);
 
         List<Integer> halPropIdMgrIds = new ArrayList<>();
         for (int i = 0; i < mHalPropIdToCarSvcConfig.size(); i++) {
@@ -165,6 +147,25 @@ public class PropertyHalServiceConfigs {
         }
         mMgrPropIdToHalPropId = BidirectionalSparseIntArray.create(halPropIdMgrIdArray);
         Trace.traceEnd(TRACE_TAG);
+    }
+
+    /**
+     * Common helper function for reading a car svc json config in an input stream, and the parsing
+     * the json for the car property config information.
+     *
+     * @throws IllegalStateException if failed to open/close resource input stream.
+     */
+    private SparseArray<CarSvcPropertyConfig> readJsonConfig(String resourceName,
+            SparseArray<CarSvcPropertyConfig> halPropIdToReleasedCarSvcConfig) {
+        try (InputStream defaultConfigInputStream =
+                this.getClass().getClassLoader().getResourceAsStream(resourceName)) {
+            return parseJsonConfig(defaultConfigInputStream,
+                    "defaultResource", halPropIdToReleasedCarSvcConfig);
+        } catch (IOException e) {
+            String errorMsg = "Failed to open/close resource input stream for: " + resourceName;
+            Slogf.e(TAG, errorMsg, e);
+            throw new IllegalStateException(errorMsg, e);
+        }
     }
 
     /**
@@ -453,15 +454,6 @@ public class PropertyHalServiceConfigs {
             }
         }
         return true;
-    }
-
-    /**
-     * Parses a car service JSON config file. Only exposed for testing.
-     */
-    @VisibleForTesting
-    /* package */ SparseArray<CarSvcPropertyConfig> parseJsonConfig(
-            InputStream configFile, String path) {
-        return parseJsonConfig(configFile, path, null);
     }
 
     /**
