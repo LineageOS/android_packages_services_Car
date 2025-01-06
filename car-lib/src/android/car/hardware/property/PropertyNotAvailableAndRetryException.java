@@ -25,7 +25,10 @@ import android.car.VehiclePropertyIds;
  * not available. It's likely that retrying will be successful.
  */
 public class PropertyNotAvailableAndRetryException extends IllegalStateException {
-    PropertyNotAvailableAndRetryException(int propertyId, int areaId) {
+    /**
+     * @hide
+     */
+    public PropertyNotAvailableAndRetryException(int propertyId, int areaId) {
         super("Property ID: " + VehiclePropertyIds.toString(propertyId) + " area ID: 0x"
                 + toHexString(areaId)
                 + " - is temporarily not available. Try the operation later.");

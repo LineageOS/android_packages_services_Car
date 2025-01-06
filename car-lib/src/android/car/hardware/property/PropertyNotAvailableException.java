@@ -33,14 +33,20 @@ public class PropertyNotAvailableException extends IllegalStateException {
     private int mDetailedErrorCode = PropertyNotAvailableErrorCode.NOT_AVAILABLE;
     private int mVendorErrorCode;
 
-    PropertyNotAvailableException(int propertyId, int areaId, int vendorErrorCode) {
+    /**
+     * @hide
+     */
+    public PropertyNotAvailableException(int propertyId, int areaId, int vendorErrorCode) {
         super("Property ID: " + VehiclePropertyIds.toString(propertyId) + " area ID: 0x"
                 + toHexString(areaId)
                 + " - is not available because of vendor error code: " + vendorErrorCode);
         mVendorErrorCode = vendorErrorCode;
     }
 
-    PropertyNotAvailableException(int propertyId, int areaId, int detailedErrorCode,
+    /**
+     * @hide
+     */
+    public PropertyNotAvailableException(int propertyId, int areaId, int detailedErrorCode,
             int vendorErrorCode) {
         super("Property ID: " + VehiclePropertyIds.toString(propertyId) + " area ID: 0x"
                 + toHexString(areaId)

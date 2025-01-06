@@ -460,7 +460,15 @@ public abstract class HalPropValue {
                 return CarPropertyValue.STATUS_AVAILABLE;
             case VehiclePropertyStatus.ERROR:
                 return CarPropertyValue.STATUS_ERROR;
-            case VehiclePropertyStatus.UNAVAILABLE:
+            case VehiclePropertyStatus.NOT_AVAILABLE_GENERAL:
+                return CarPropertyValue.STATUS_UNAVAILABLE;
+            // TODO(b/381298607): Map these to individual CarPropertyValue status.
+            case VehiclePropertyStatus.NOT_AVAILABLE_DISABLED:  // Fallthrough
+            case VehiclePropertyStatus.NOT_AVAILABLE_SPEED_LOW:  // Fallthrough
+            case VehiclePropertyStatus.NOT_AVAILABLE_SPEED_HIGH:  // Fallthrough
+            case VehiclePropertyStatus.NOT_AVAILABLE_POOR_VISIBILITY:  // Fallthrough
+            case VehiclePropertyStatus.NOT_AVAILABLE_SAFETY:  // Fallthrough
+            case VehiclePropertyStatus.NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED:
                 return CarPropertyValue.STATUS_UNAVAILABLE;
         }
         return CarPropertyValue.STATUS_ERROR;

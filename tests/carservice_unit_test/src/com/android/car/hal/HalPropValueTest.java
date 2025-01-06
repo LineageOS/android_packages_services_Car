@@ -903,6 +903,78 @@ public final class HalPropValueTest {
                         TEST_TIMESTAMP, Boolean.TRUE));
     }
 
+    // TODO(b/381298607): Change this test once we expose the specific not_available status.
+    @Test
+    public void testToCarPropertyValue_NOT_AVAILABLE_DISABLED() {
+        HalPropValue value = createTestHalPropValueWithStatus(
+                VehiclePropertyStatus.NOT_AVAILABLE_DISABLED);
+
+        assertThat(value.toCarPropertyValue(TEST_MGR_PROP,
+                new AidlHalPropConfig(new VehiclePropConfig()))
+            ).isEqualTo(new CarPropertyValue<>(TEST_MGR_PROP, TEST_AREA_ID,
+                    CarPropertyValue.STATUS_UNAVAILABLE, TEST_TIMESTAMP, Boolean.TRUE));
+    }
+
+    // TODO(b/381298607): Change this test once we expose the specific not_available status.
+    @Test
+    public void testToCarPropertyValue_NOT_AVAILABLE_SPEED_LOW() {
+        HalPropValue value = createTestHalPropValueWithStatus(
+                VehiclePropertyStatus.NOT_AVAILABLE_SPEED_LOW);
+
+        assertThat(value.toCarPropertyValue(TEST_MGR_PROP,
+                new AidlHalPropConfig(new VehiclePropConfig()))
+            ).isEqualTo(new CarPropertyValue<>(TEST_MGR_PROP, TEST_AREA_ID,
+                    CarPropertyValue.STATUS_UNAVAILABLE, TEST_TIMESTAMP, Boolean.TRUE));
+    }
+
+    // TODO(b/381298607): Change this test once we expose the specific not_available status.
+    @Test
+    public void testToCarPropertyValue_NOT_AVAILABLE_SPEED_HIGH() {
+        HalPropValue value = createTestHalPropValueWithStatus(
+                VehiclePropertyStatus.NOT_AVAILABLE_SPEED_HIGH);
+
+        assertThat(value.toCarPropertyValue(TEST_MGR_PROP,
+                new AidlHalPropConfig(new VehiclePropConfig()))
+            ).isEqualTo(new CarPropertyValue<>(TEST_MGR_PROP, TEST_AREA_ID,
+                    CarPropertyValue.STATUS_UNAVAILABLE, TEST_TIMESTAMP, Boolean.TRUE));
+    }
+
+    // TODO(b/381298607): Change this test once we expose the specific not_available status.
+    @Test
+    public void testToCarPropertyValue_NOT_AVAILABLE_POOR_VISIBILITY() {
+        HalPropValue value = createTestHalPropValueWithStatus(
+                VehiclePropertyStatus.NOT_AVAILABLE_POOR_VISIBILITY);
+
+        assertThat(value.toCarPropertyValue(TEST_MGR_PROP,
+                new AidlHalPropConfig(new VehiclePropConfig()))
+            ).isEqualTo(new CarPropertyValue<>(TEST_MGR_PROP, TEST_AREA_ID,
+                    CarPropertyValue.STATUS_UNAVAILABLE, TEST_TIMESTAMP, Boolean.TRUE));
+    }
+
+    // TODO(b/381298607): Change this test once we expose the specific not_available status.
+    @Test
+    public void testToCarPropertyValue_NOT_AVAILABLE_SAFETY() {
+        HalPropValue value = createTestHalPropValueWithStatus(
+                VehiclePropertyStatus.NOT_AVAILABLE_SAFETY);
+
+        assertThat(value.toCarPropertyValue(TEST_MGR_PROP,
+                new AidlHalPropConfig(new VehiclePropConfig()))
+            ).isEqualTo(new CarPropertyValue<>(TEST_MGR_PROP, TEST_AREA_ID,
+                    CarPropertyValue.STATUS_UNAVAILABLE, TEST_TIMESTAMP, Boolean.TRUE));
+    }
+
+    // TODO(b/381298607): Change this test once we expose the specific not_available status.
+    @Test
+    public void testToCarPropertyValue_NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED() {
+        HalPropValue value = createTestHalPropValueWithStatus(
+                VehiclePropertyStatus.NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED);
+
+        assertThat(value.toCarPropertyValue(TEST_MGR_PROP,
+                new AidlHalPropConfig(new VehiclePropConfig()))
+            ).isEqualTo(new CarPropertyValue<>(TEST_MGR_PROP, TEST_AREA_ID,
+                    CarPropertyValue.STATUS_UNAVAILABLE, TEST_TIMESTAMP, Boolean.TRUE));
+    }
+
     // Creates an empty HalPropValue that does not have any value.
     private HalPropValue createTestHalPropValueWithNoValue(int prop) {
         android.hardware.automotive.vehicle.VehiclePropValue aidlValue =
