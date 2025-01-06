@@ -23,8 +23,8 @@ import static com.android.car.internal.common.CommonConstants.EMPTY_INT_ARRAY;
 import static com.android.car.internal.property.CarPropertyHelper.SYNC_OP_LIMIT_TRY_AGAIN;
 import static com.android.car.internal.property.CarPropertyHelper.getPropIdAreaIdsFromCarSubscriptions;
 import static com.android.car.internal.property.CarPropertyHelper.propertyIdsToString;
+import static com.android.car.internal.util.DebugUtils.toAreaIdString;
 
-import static java.lang.Integer.toHexString;
 import static java.util.Objects.requireNonNull;
 
 import android.annotation.NonNull;
@@ -308,8 +308,8 @@ public class CarPropertyService extends ICarProperty.Stub
                 for (int j = 0; j < areaIdToClient.size(); j++) {
                     int areaId = areaIdToClient.keyAt(j);
                     writer.println("Client: " + areaIdToClient.valueAt(j).hashCode() + " propId: "
-                            + VehiclePropertyIds.toString(propId)  + " areaId: 0x"
-                            + toHexString(areaId));
+                            + VehiclePropertyIds.toString(propId)  + " areaId: "
+                            + toAreaIdString(propId, areaId));
                 }
             }
             writer.decreaseIndent();
@@ -593,7 +593,7 @@ public class CarPropertyService extends ICarProperty.Stub
             } catch (ServiceSpecificException e) {
                 Slogf.w(TAG, "Get initial carPropertyValue for registerCallback failed -"
                                 + " property ID: %s, area ID %s, exception: %s",
-                        VehiclePropertyIds.toString(propertyId), Integer.toHexString(areaId),
+                        VehiclePropertyIds.toString(propertyId), toAreaIdString(propertyId, areaId),
                         e);
                 int errorCode = CarPropertyErrorCodes.getVhalSystemErrorCode(e.errorCode);
                 long timestampNanos = SystemClock.elapsedRealtimeNanos();
@@ -611,7 +611,7 @@ public class CarPropertyService extends ICarProperty.Stub
                 // Do nothing.
                 Slogf.e(TAG, "Get initial carPropertyValue for registerCallback failed -"
                                 + " property ID: %s, area ID %s, exception: %s",
-                        VehiclePropertyIds.toString(propertyId), Integer.toHexString(areaId),
+                        VehiclePropertyIds.toString(propertyId), toAreaIdString(propertyId, areaId),
                         e);
             }
             if (carPropertyValue != null) {
@@ -840,8 +840,8 @@ public class CarPropertyService extends ICarProperty.Stub
         try {
             return getProperty(propertyId, areaId);
         } catch (Exception e) {
-            Slogf.w(TAG, e, "getPropertySafe() failed for property id: %s area id: 0x%s",
-                    VehiclePropertyIds.toString(propertyId), toHexString(areaId));
+            Slogf.w(TAG, e, "getPropertySafe() failed for property ID: %s area ID: %s",
+                    VehiclePropertyIds.toString(propertyId), toAreaIdString(propertyId, areaId));
             return null;
         }
     }
@@ -945,8 +945,9 @@ public class CarPropertyService extends ICarProperty.Stub
             }
             for (int j = 0; j < areaIdsToRemove.size(); j++) {
                 if (DBG) {
-                    Slogf.d(TAG, "clear set operation client for property: %s, area ID: %d",
-                            VehiclePropertyIds.toString(propertyId), areaIdsToRemove.get(j));
+                    Slogf.d(TAG, "clear set operation client for property: %s, area ID: %s",
+                            VehiclePropertyIds.toString(propertyId),
+                            toAreaIdString(propertyId, areaIdsToRemove.get(j)));
                 }
                 areaIdToClient.remove(areaIdsToRemove.get(j));
             }
@@ -969,8 +970,8 @@ public class CarPropertyService extends ICarProperty.Stub
                         propId, areaId);
                 if (clients == null) {
                     Slogf.e(TAG,
-                            "onPropertyChange: no listener registered for propId=%s, areaId=%d",
-                            VehiclePropertyIds.toString(propId), areaId);
+                            "onPropertyChange: no listener registered for propId=%s, areaId=%s",
+                            VehiclePropertyIds.toString(propId), toAreaIdString(propId, areaId));
                     continue;
                 }
 
@@ -1010,8 +1011,9 @@ public class CarPropertyService extends ICarProperty.Stub
                     && mSetOpClientByAreaIdByPropId.get(property).get(areaId) != null) {
                 lastOperatedClient = mSetOpClientByAreaIdByPropId.get(property).get(areaId);
             } else {
-                Slogf.e(TAG, "Can not find the client changed propertyId: 0x"
-                        + toHexString(property) + " in areaId: 0x" + toHexString(areaId));
+                Slogf.e(TAG, "Can not find the client changed property ID: "
+                        + VehiclePropertyIds.toString(property) + " in areaId: " + toAreaIdString(
+                        property, areaId));
             }
 
         }
@@ -1086,12 +1088,13 @@ public class CarPropertyService extends ICarProperty.Stub
             if (valuePropertyId != propertyId) {
                 throw new IllegalArgumentException(String.format(
                         "Property ID in request and CarPropertyValue mismatch: %s vs %s",
-                        VehiclePropertyIds.toString(valuePropertyId), propertyName).toString());
+                        VehiclePropertyIds.toString(valuePropertyId), propertyName));
             }
             if (valueAreaId != areaId) {
                 throw new IllegalArgumentException(String.format(
-                        "For property: %s, area ID in request and CarPropertyValue mismatch: %d vs"
-                        + " %d", propertyName, valueAreaId, areaId).toString());
+                        "For property: %s, area ID in request and CarPropertyValue mismatch: %s vs"
+                                + " %s", propertyName, toAreaIdString(propertyId, valueAreaId),
+                        toAreaIdString(propertyId, areaId)));
             }
             validateSetParameters(carPropertyValueToSet);
             if (request.isWaitForPropertyUpdate()) {
@@ -1306,7 +1309,8 @@ public class CarPropertyService extends ICarProperty.Stub
     private static void assertAreaIdIsSupported(CarPropertyConfig<?> carPropertyConfig,
             int areaId) {
         Preconditions.checkArgument(ArrayUtils.contains(carPropertyConfig.getAreaIds(), areaId),
-                "area ID: 0x" + toHexString(areaId) + " not supported for property ID: "
+                "area ID: " + toAreaIdString(carPropertyConfig.getPropertyId(), areaId)
+                        + " not supported for property ID: "
                         + VehiclePropertyIds.toString(carPropertyConfig.getPropertyId()));
     }
 
@@ -1411,13 +1415,13 @@ public class CarPropertyService extends ICarProperty.Stub
         Preconditions.checkArgument(valueToSet != null,
                 "setProperty: CarPropertyValue's must not be null - property ID: %s area ID: %s",
                 VehiclePropertyIds.toString(carPropertyConfig.getPropertyId()),
-                toHexString(areaId));
+                toAreaIdString(carPropertyConfig.getPropertyId(), areaId));
         Preconditions.checkArgument(
                 valueToSet.getClass().equals(carPropertyConfig.getPropertyType()),
                 "setProperty: CarPropertyValue's value's type does not match property's type. - "
                         + "property ID: %s area ID: %s",
                 VehiclePropertyIds.toString(carPropertyConfig.getPropertyId()),
-                toHexString(areaId));
+                toAreaIdString(carPropertyConfig.getPropertyId(), areaId));
 
         AreaIdConfig<?> areaIdConfig = carPropertyConfig.getAreaIdConfig(areaId);
         if (areaIdConfig.getMinValue() != null) {
@@ -1436,7 +1440,8 @@ public class CarPropertyService extends ICarProperty.Stub
                     "setProperty: value to set must be greater than or equal to the area ID min "
                             + "value. - " + "property ID: %s area ID: 0x%s min value: %s",
                     VehiclePropertyIds.toString(carPropertyConfig.getPropertyId()),
-                    toHexString(areaId), areaIdConfig.getMinValue());
+                    toAreaIdString(carPropertyConfig.getPropertyId(), areaId),
+                    areaIdConfig.getMinValue());
 
         }
 
@@ -1456,7 +1461,8 @@ public class CarPropertyService extends ICarProperty.Stub
                     "setProperty: value to set must be less than or equal to the area ID max "
                             + "value. - " + "property ID: %s area ID: 0x%s min value: %s",
                     VehiclePropertyIds.toString(carPropertyConfig.getPropertyId()),
-                    toHexString(areaId), areaIdConfig.getMaxValue());
+                    toAreaIdString(carPropertyConfig.getPropertyId(), areaId),
+                    areaIdConfig.getMaxValue());
 
         }
 
@@ -1465,17 +1471,18 @@ public class CarPropertyService extends ICarProperty.Stub
                     "setProperty: value to set must exist in set of supported enum values. - "
                             + "property ID: %s area ID: 0x%s supported enum values: %s",
                     VehiclePropertyIds.toString(carPropertyConfig.getPropertyId()),
-                    toHexString(areaId), areaIdConfig.getSupportedEnumValues());
+                    toAreaIdString(carPropertyConfig.getPropertyId(), areaId),
+                    areaIdConfig.getSupportedEnumValues());
         }
 
         if (PROPERTY_ID_TO_UNWRITABLE_STATES.contains(carPropertyConfig.getPropertyId())) {
             Preconditions.checkArgument(!(PROPERTY_ID_TO_UNWRITABLE_STATES
-                    .get(carPropertyConfig.getPropertyId()).contains(valueToSet)),
+                            .get(carPropertyConfig.getPropertyId()).contains(valueToSet)),
                     "setProperty: value to set: %s must not be an unwritable state value. - "
                             + "property ID: %s area ID: 0x%s unwritable states: %s",
                     valueToSet,
                     VehiclePropertyIds.toString(carPropertyConfig.getPropertyId()),
-                    toHexString(areaId),
+                    toAreaIdString(carPropertyConfig.getPropertyId(), areaId),
                     PROPERTY_ID_TO_UNWRITABLE_STATES.get(carPropertyConfig.getPropertyId()));
         }
     }
