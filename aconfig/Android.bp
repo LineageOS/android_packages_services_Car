@@ -49,6 +49,11 @@ java_aconfig_library {
     name: "android.car.feature-aconfig-java",
     aconfig_declarations: "android.car.feature-aconfig",
     defaults: ["car-framework-aconfig-java-defaults"],
+    visibility: [
+        "//cts/tests:__subpackages__",
+        "//packages/services/Car:__subpackages__",
+        "//vendor:__subpackages__",
+    ],
 }
 
 java_aconfig_library {
@@ -56,9 +61,20 @@ java_aconfig_library {
     aconfig_declarations: "android.car.feature-aconfig",
     defaults: ["car-framework-aconfig-java-defaults"],
     host_supported: true,
+    visibility: [
+        "//cts/hostsidetests:__subpackages__",
+        "//packages/services/Car:__subpackages__",
+        "//vendor:__subpackages__",
+    ],
 }
 
 cc_aconfig_library {
     name: "android.car.feature-aconfig-cpp",
     aconfig_declarations: "android.car.feature-aconfig",
+    visibility: [
+        "//frameworks/hardware/interfaces/automotive:__subpackages__",
+        "//packages/services/Car:__subpackages__",
+        "//tools/security/fuzzing/system_fuzzers/libwatchdog_perf_service:__subpackages__",
+        "//vendor:__subpackages__",
+    ],
 }
