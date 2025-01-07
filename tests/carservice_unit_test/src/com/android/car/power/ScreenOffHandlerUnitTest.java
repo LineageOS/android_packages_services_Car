@@ -281,6 +281,24 @@ public final class ScreenOffHandlerUnitTest extends AbstractExtendedMockitoTestC
     }
 
     @Test
+    public void testParseSetting_valid_skipInvalidDisplayId() throws Exception {
+        bootComplete();
+
+        var display1 = createMockDisplay(/* displayId= */ 10, /* displayPort= */10);
+        var display2 = createMockDisplay(/* displayId= */ 11, /* displayPort= */11);
+        new MockDisplays(mDisplayManager).addDisplay(display1).addDisplay(display2).create();
+
+        // DisplayId: 21 is unknown.
+        SparseIntArray result = mScreenOffHandler.parseModeAssignmentSettingValue(
+                "10:0,11:0,21:1");
+
+        assertThat(result).isNotNull();
+        assertThat(result.get(10, -1)).isEqualTo(0);
+        assertThat(result.get(11, -1)).isEqualTo(0);
+        assertThat(result.get(21, -1)).isEqualTo(-1);
+    }
+
+    @Test
     public void testAssignDefaultPowerMode_ifStoredPowerModeNotValid() {
         OccupantZoneInfo zoneInfo1 = mCarOccupantZoneService.getOccupantZone(
                 CarOccupantZoneManager.OCCUPANT_TYPE_DRIVER,
