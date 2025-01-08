@@ -20,7 +20,6 @@ import static android.car.feature.Flags.FLAG_CAR_PROPERTY_SUPPORTED_VALUE;
 
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 import static com.android.car.internal.property.CarPropertyErrorCodes.STATUS_OK;
-import static com.android.car.internal.property.CarPropertyErrorCodes.STATUS_TRY_AGAIN;
 import static com.android.car.internal.property.CarPropertyHelper.SYNC_OP_LIMIT_TRY_AGAIN;
 import static com.android.car.internal.property.CarPropertyHelper.getPropIdAreaIdsFromCarSubscriptions;
 import static com.android.car.internal.property.CarPropertyHelper.newPropIdAreaId;
@@ -572,8 +571,7 @@ public class CarPropertyManager extends CarManagerBase {
         }
 
         public @CarPropertyAsyncErrorCode int getErrorCode() {
-            return getCarPropertyAsyncErrorCodeFromCarPropertyManagerErrorCode(
-                    mCarPropertyErrorCodes.getCarPropertyManagerErrorCode());
+            return mCarPropertyErrorCodes.toCarPropertyAsyncErrorCode();
         }
 
         /**
@@ -600,8 +598,10 @@ public class CarPropertyManager extends CarManagerBase {
          */
         @FlaggedApi(Flags.FLAG_CAR_PROPERTY_DETAILED_ERROR_CODES)
         public int getDetailedErrorCode() {
-            return getDetailedErrorCodeFromSystemErrorCode(
-                    mCarPropertyErrorCodes.getSystemErrorCode());
+            if (!Flags.carPropertyDetailedErrorCodes()) {
+                return 0;
+            }
+            return mCarPropertyErrorCodes.toDetailedErrorCode();
         }
 
         /**
@@ -914,12 +914,11 @@ public class CarPropertyManager extends CarManagerBase {
                 }
                 Executor callbackExecutor = requestInfo.getCallbackExecutor();
                 CallbackType clientCallback = requestInfo.getCallback();
-                @CarPropertyAsyncErrorCode int errorCode =
-                        result.getCarPropertyErrorCodes().getCarPropertyManagerErrorCode();
+                var errorCodes = result.getCarPropertyErrorCodes();
                 int propertyId = requestInfo.getRequest().getPropertyId();
                 String propertyName = VehiclePropertyIds.toString(propertyId);
                 int areaId = requestInfo.getRequest().getAreaId();
-                if (errorCode == STATUS_OK) {
+                if (errorCodes.isOkay()) {
                     CarPropertyValue<?> carPropertyValue = result.getCarPropertyValue();
                     long timestampNanos;
                     if (carPropertyValue != null) {
@@ -953,7 +952,7 @@ public class CarPropertyManager extends CarManagerBase {
                     runOnExecutor(callbackExecutor, () ->
                             propertyResultCallback.onFailure(clientCallback,
                                     new PropertyAsyncError(requestId, propertyId, areaId,
-                                            result.getCarPropertyErrorCodes())));
+                                            errorCodes)));
                 }
             }
         }
@@ -2976,112 +2975,10 @@ public class CarPropertyManager extends CarManagerBase {
             ServiceSpecificException e, int propertyId, int areaId) {
         // We are not passing the error message down, so log it here.
         Slog.w(TAG, "received ServiceSpecificException: " + e);
-        int errorCode = CarPropertyErrorCodes.getVhalSystemErrorCode(e.errorCode);
-        int vendorErrorCode = CarPropertyErrorCodes.getVhalVendorErrorCode(e.errorCode);
-
-        switch (errorCode) {
-            case VehicleHalStatusCode.STATUS_NOT_AVAILABLE:
-                throw new PropertyNotAvailableException(propertyId, areaId, vendorErrorCode);
-            case VehicleHalStatusCode.STATUS_TRY_AGAIN:
-                // Vendor error code is ignored for STATUS_TRY_AGAIN error
-                throw new PropertyNotAvailableAndRetryException(propertyId, areaId);
-            case VehicleHalStatusCode.STATUS_ACCESS_DENIED:
-                // Vendor error code is ignored for STATUS_ACCESS_DENIED error
-                throw new PropertyAccessDeniedSecurityException(propertyId, areaId);
-            case VehicleHalStatusCode.STATUS_INTERNAL_ERROR:
-                throw new CarInternalErrorException(propertyId, areaId, vendorErrorCode);
-            case VehicleHalStatusCode.STATUS_NOT_AVAILABLE_DISABLED:
-            case VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SPEED_LOW:
-            case VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SPEED_HIGH:
-            case VehicleHalStatusCode.STATUS_NOT_AVAILABLE_POOR_VISIBILITY:
-            case VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SAFETY:
-                throw new PropertyNotAvailableException(propertyId, areaId,
-                        getPropertyNotAvailableErrorCodeFromStatusCode(errorCode), vendorErrorCode);
-            default:
-                Slog.e(TAG, "Invalid errorCode: " + errorCode + " in CarService");
-                throw new CarInternalErrorException(propertyId, areaId);
-        }
-    }
-
-    /**
-     * Convert {@link VehicleHalStatusCode} into public {@link PropertyNotAvailableErrorCode}
-     * equivalents.
-     *
-     * @throws IllegalArgumentException if an invalid status code is passed in.
-     * @hide
-     */
-    private static int getPropertyNotAvailableErrorCodeFromStatusCode(int statusCode) {
-        switch (statusCode) {
-            case VehicleHalStatusCode.STATUS_NOT_AVAILABLE:
-                return PropertyNotAvailableErrorCode.NOT_AVAILABLE;
-            case VehicleHalStatusCode.STATUS_NOT_AVAILABLE_DISABLED:
-                return PropertyNotAvailableErrorCode.NOT_AVAILABLE_DISABLED;
-            case VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SPEED_LOW:
-                return PropertyNotAvailableErrorCode.NOT_AVAILABLE_SPEED_LOW;
-            case VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SPEED_HIGH:
-                return PropertyNotAvailableErrorCode.NOT_AVAILABLE_SPEED_HIGH;
-            case VehicleHalStatusCode.STATUS_NOT_AVAILABLE_POOR_VISIBILITY:
-                return PropertyNotAvailableErrorCode.NOT_AVAILABLE_POOR_VISIBILITY;
-            case VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SAFETY:
-                return PropertyNotAvailableErrorCode.NOT_AVAILABLE_SAFETY;
-            default:
-                throw new IllegalArgumentException("Invalid status code: " + statusCode);
-        }
-    }
-
-    /**
-     * Convert {@link VehicleHalStatusCode} system error code into its public
-     * {@link DetailedErrorCode} equivalent.
-     *
-     * @return the detailed error code if available, otherwise set to 0.
-     * @throws IllegalArgumentException if an invalid error code is passed in.
-     */
-    private static int getDetailedErrorCodeFromSystemErrorCode(int systemErrorCode) {
-        if (Flags.carPropertyDetailedErrorCodes()) {
-            switch (systemErrorCode) {
-                case VehicleHalStatusCode.STATUS_OK: // Fallthrough
-                case VehicleHalStatusCode.STATUS_TRY_AGAIN: // Fallthrough
-                case VehicleHalStatusCode.STATUS_INVALID_ARG: // Fallthrough
-                case VehicleHalStatusCode.STATUS_NOT_AVAILABLE: // Fallthrough
-                case VehicleHalStatusCode.STATUS_ACCESS_DENIED: // Fallthrough
-                case VehicleHalStatusCode.STATUS_INTERNAL_ERROR: // Fallthrough
-                    return DetailedErrorCode.NO_DETAILED_ERROR_CODE;
-                case VehicleHalStatusCode.STATUS_NOT_AVAILABLE_DISABLED:
-                    return DetailedErrorCode.NOT_AVAILABLE_DISABLED;
-                case VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SPEED_LOW:
-                    return DetailedErrorCode.NOT_AVAILABLE_SPEED_LOW;
-                case VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SPEED_HIGH:
-                    return DetailedErrorCode.NOT_AVAILABLE_SPEED_HIGH;
-                case VehicleHalStatusCode.STATUS_NOT_AVAILABLE_POOR_VISIBILITY:
-                    return DetailedErrorCode.NOT_AVAILABLE_POOR_VISIBILITY;
-                case VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SAFETY:
-                    return DetailedErrorCode.NOT_AVAILABLE_SAFETY;
-                default:
-                    throw new IllegalArgumentException("Invalid error code: " + systemErrorCode);
-            }
-        }
-
-        return 0;
-    }
-
-    /**
-     * Convert {@link CarPropMgrErrorCode} error code in {@link CarPropertyErrorCodes} into the
-     * {@link CarPropertyAsyncErrorCode} equivalent.
-     *
-     * @return the async error code
-     * @throws IllegalArgumentException if an invalid error code is passed in.
-     */
-    private static int getCarPropertyAsyncErrorCodeFromCarPropertyManagerErrorCode(int errorCode) {
-        switch (errorCode) {
-            case STATUS_OK: // Fallthrough
-            case STATUS_ERROR_INTERNAL_ERROR: // Fallthrough
-            case STATUS_ERROR_NOT_AVAILABLE: // Fallthrough
-            case STATUS_ERROR_TIMEOUT: // Fallthrough
-                return errorCode;
-            case STATUS_TRY_AGAIN: // Fallthrough
-            default:
-                throw new IllegalArgumentException("Invalid error code: " + errorCode);
-        }
+        // The e.errorCode here is not 0. This always throws a CarInternalErrorException or
+        // PropertyNotAvailableException.
+        CarPropertyErrorCodes.createFromVhalStatusCode(e.errorCode)
+                .checkAndMaybeThrowException(propertyId, areaId);
     }
 
     private void clearRequestIdToAsyncRequestInfo(

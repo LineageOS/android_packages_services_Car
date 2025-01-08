@@ -21,6 +21,7 @@ import android.annotation.NonNull;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.Set;
 
 /**
  * Error codes used in vehicle HAL interface.
@@ -88,6 +89,33 @@ public final class VehicleHalStatusCode {
     public static final int STATUS_NOT_AVAILABLE_SAFETY = 10;
 
     /**
+     * The property is not available because the sub-system for the feature is
+     * not connected.
+     *
+     * E.g. the trailer light property is in this state if the trailer is not
+     * attached.
+     */
+    public static final int STATUS_NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED = 11;
+
+    /**
+     * All possible enums.
+     */
+    public static final Set<Integer> VEHICLE_HAL_STATUS_CODES = Set.of(
+            STATUS_OK,
+            STATUS_TRY_AGAIN,
+            STATUS_INVALID_ARG,
+            STATUS_NOT_AVAILABLE,
+            STATUS_ACCESS_DENIED,
+            STATUS_INTERNAL_ERROR,
+            STATUS_NOT_AVAILABLE_DISABLED,
+            STATUS_NOT_AVAILABLE_SPEED_LOW,
+            STATUS_NOT_AVAILABLE_SPEED_HIGH,
+            STATUS_NOT_AVAILABLE_POOR_VISIBILITY,
+            STATUS_NOT_AVAILABLE_SAFETY,
+            STATUS_NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED
+    );
+
+    /**
      * Returns a user-friendly representation of a {@code VehicleHalStatusCode}.
      */
     @NonNull
@@ -116,6 +144,8 @@ public final class VehicleHalStatusCode {
                 return "STATUS_NOT_AVAILABLE_POOR_VISIBILITY";
             case STATUS_NOT_AVAILABLE_SAFETY:
                 return "STATUS_NOT_AVAILABLE_SAFETY";
+            case STATUS_NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED:
+                return "STATUS_NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED";
             default:
                 return Integer.toString(vehicleHalStatusCode);
         }
@@ -125,7 +155,8 @@ public final class VehicleHalStatusCode {
     @IntDef({STATUS_OK, STATUS_TRY_AGAIN, STATUS_INVALID_ARG, STATUS_NOT_AVAILABLE,
         STATUS_ACCESS_DENIED, STATUS_INTERNAL_ERROR, STATUS_NOT_AVAILABLE_DISABLED,
         STATUS_NOT_AVAILABLE_SPEED_LOW, STATUS_NOT_AVAILABLE_SPEED_HIGH,
-        STATUS_NOT_AVAILABLE_POOR_VISIBILITY, STATUS_NOT_AVAILABLE_SAFETY})
+        STATUS_NOT_AVAILABLE_POOR_VISIBILITY, STATUS_NOT_AVAILABLE_SAFETY,
+        STATUS_NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED})
     @Retention(RetentionPolicy.SOURCE)
     public @interface VehicleHalStatusCodeInt {}
 

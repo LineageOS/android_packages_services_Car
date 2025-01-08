@@ -55,6 +55,8 @@ import android.util.ArrayMap;
 import android.util.Log;
 import android.util.SparseArray;
 
+import com.android.car.internal.common.DispatchList;
+import com.android.car.internal.util.PairSparseArray;
 import com.android.internal.annotations.GuardedBy;
 
 import java.util.ArrayList;
@@ -107,6 +109,9 @@ public class AidlMockedVehicleHal extends IVehicle.Stub {
     private final SparseArray<VehiclePropConfig> mConfigs = new SparseArray<>();
     @GuardedBy("mLock")
     private final SparseArray<List<IVehicleCallback>> mSubscribers = new SparseArray<>();
+    @GuardedBy("mLock")
+    private final PairSparseArray<List<IVehicleCallback>> mSubscribersForSupportedValueChange =
+            new PairSparseArray<>();
     @GuardedBy("mLock")
     private int mVersion = IVehicle.VERSION;
 
@@ -448,15 +453,72 @@ public class AidlMockedVehicleHal extends IVehicle.Stub {
     @Override
     public void registerSupportedValueChangeCallback(IVehicleCallback callback,
             List<PropIdAreaId> propIdAreaIds) {
-        // Not used now.
-        throw new UnsupportedOperationException();
+        synchronized (mLock) {
+            for (int i = 0; i < propIdAreaIds.size(); i++) {
+                var propIdAreaId = propIdAreaIds.get(i);
+                int propId = propIdAreaId.propId;
+                int areaId = propIdAreaId.areaId;
+                var currentSubscribers = mSubscribersForSupportedValueChange.get(propId, areaId);
+                if (currentSubscribers == null) {
+                    currentSubscribers = new ArrayList<IVehicleCallback>();
+                    mSubscribersForSupportedValueChange.put(propId, areaId, currentSubscribers);
+                }
+                currentSubscribers.add(callback);
+            }
+        }
     }
 
     @Override
     public void unregisterSupportedValueChangeCallback(IVehicleCallback callback,
             List<PropIdAreaId> propIdAreaIds) {
-        // Not used now.
-        throw new UnsupportedOperationException();
+        synchronized (mLock) {
+            for (int i = 0; i < propIdAreaIds.size(); i++) {
+                var propIdAreaId = propIdAreaIds.get(i);
+                int propId = propIdAreaId.propId;
+                int areaId = propIdAreaId.areaId;
+                var currentSubscribers = mSubscribersForSupportedValueChange.get(propId, areaId);
+                if (currentSubscribers == null) {
+                    continue;
+                }
+                currentSubscribers.remove(callback);
+                if (currentSubscribers.size() == 0) {
+                    mSubscribersForSupportedValueChange.remove(propId, areaId);
+                }
+            }
+        }
+    }
+
+    private static class EventDispatchList extends DispatchList<IVehicleCallback, PropIdAreaId> {
+        @Override
+        protected void dispatchToClient(IVehicleCallback client, List<PropIdAreaId> events) {
+            try {
+                client.onSupportedValueChange(events);
+            } catch (RemoteException e) {
+                Log.e(TAG, "Failed to call client.onSupportedValueChange", e);
+            }
+        }
+    }
+
+    /**f
+     * Notifies clients about supported values change.
+     */
+    public void notifySupportedValueChange(List<PropIdAreaId> propIdAreaIds) {
+        EventDispatchList dispatchList = new EventDispatchList();
+        synchronized (mLock) {
+            for (int i = 0; i < propIdAreaIds.size(); i++) {
+                var propIdAreaId = propIdAreaIds.get(i);
+                int propId = propIdAreaId.propId;
+                int areaId = propIdAreaId.areaId;
+                var currentSubscribers = mSubscribersForSupportedValueChange.get(propId, areaId);
+                if (currentSubscribers == null) {
+                    continue;
+                }
+                for (int j = 0; j < currentSubscribers.size(); j++) {
+                    dispatchList.addEvent(currentSubscribers.get(j), propIdAreaId);
+                }
+            }
+        }
+        dispatchList.dispatchToClients();
     }
 
     @Override

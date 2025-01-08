@@ -638,7 +638,7 @@ public class PropertyHalServiceTest extends AbstractExpectableTestCase{
                 mAsyncResultCaptor.capture());
         GetSetValueResult result = mAsyncResultCaptor.getValue().getList().get(0);
         assertThat(result.getRequestId()).isEqualTo(REQUEST_ID_1);
-        assertThat(result.getCarPropertyErrorCodes().getCarPropertyManagerErrorCode()).isEqualTo(
+        assertThat(result.getCarPropertyErrorCodes().toCarPropertyAsyncErrorCode()).isEqualTo(
                 CarPropertyManager.STATUS_ERROR_TIMEOUT);
 
         verifyNoPendingRequest();
@@ -658,7 +658,7 @@ public class PropertyHalServiceTest extends AbstractExpectableTestCase{
                 mAsyncResultCaptor.capture());
         GetSetValueResult result = mAsyncResultCaptor.getValue().getList().get(0);
         assertThat(result.getRequestId()).isEqualTo(REQUEST_ID_1);
-        assertThat(result.getCarPropertyErrorCodes().getCarPropertyManagerErrorCode()).isEqualTo(
+        assertThat(result.getCarPropertyErrorCodes().toCarPropertyAsyncErrorCode()).isEqualTo(
                 CarPropertyManager.STATUS_ERROR_TIMEOUT);
 
         verifyNoPendingRequest();
@@ -689,7 +689,7 @@ public class PropertyHalServiceTest extends AbstractExpectableTestCase{
                 mAsyncResultCaptor.capture());
         GetSetValueResult result = mAsyncResultCaptor.getValue().getList().get(0);
         assertThat(result.getRequestId()).isEqualTo(REQUEST_ID_1);
-        assertThat(result.getCarPropertyErrorCodes().getCarPropertyManagerErrorCode()).isEqualTo(
+        assertThat(result.getCarPropertyErrorCodes().toCarPropertyAsyncErrorCode()).isEqualTo(
                 CarPropertyManager.STATUS_ERROR_TIMEOUT);
 
         verifyNoPendingRequest();
@@ -712,7 +712,7 @@ public class PropertyHalServiceTest extends AbstractExpectableTestCase{
                 mAsyncResultCaptor.capture());
         GetSetValueResult result = mAsyncResultCaptor.getValue().getList().get(0);
         assertThat(result.getRequestId()).isEqualTo(REQUEST_ID_1);
-        assertThat(result.getCarPropertyErrorCodes().getCarPropertyManagerErrorCode()).isEqualTo(
+        assertThat(result.getCarPropertyErrorCodes().toCarPropertyAsyncErrorCode()).isEqualTo(
                 CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR);
         assertThat(result.getCarPropertyValue()).isEqualTo(null);
 
@@ -738,7 +738,7 @@ public class PropertyHalServiceTest extends AbstractExpectableTestCase{
                 mAsyncResultCaptor.capture());
         GetSetValueResult result = mAsyncResultCaptor.getValue().getList().get(0);
         assertThat(result.getRequestId()).isEqualTo(REQUEST_ID_1);
-        assertThat(result.getCarPropertyErrorCodes().getCarPropertyManagerErrorCode()).isEqualTo(
+        assertThat(result.getCarPropertyErrorCodes().toCarPropertyAsyncErrorCode()).isEqualTo(
                 CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR);
         assertThat(result.getCarPropertyErrorCodes().getVendorErrorCode())
                 .isEqualTo(VENDOR_ERROR_CODE);
@@ -768,7 +768,7 @@ public class PropertyHalServiceTest extends AbstractExpectableTestCase{
                 mAsyncResultCaptor.capture());
         GetSetValueResult result = mAsyncResultCaptor.getValue().getList().get(0);
         assertThat(result.getRequestId()).isEqualTo(REQUEST_ID_1);
-        assertThat(result.getCarPropertyErrorCodes().getCarPropertyManagerErrorCode()).isEqualTo(
+        assertThat(result.getCarPropertyErrorCodes().toCarPropertyAsyncErrorCode()).isEqualTo(
                 CarPropertyManager.STATUS_ERROR_NOT_AVAILABLE);
         assertThat(result.getCarPropertyErrorCodes().getVendorErrorCode()).isEqualTo(0);
         assertThat(result.getCarPropertyErrorCodes().getSystemErrorCode()).isEqualTo(0);
@@ -796,7 +796,7 @@ public class PropertyHalServiceTest extends AbstractExpectableTestCase{
                 mAsyncResultCaptor.capture());
         GetSetValueResult result = mAsyncResultCaptor.getValue().getList().get(0);
         assertThat(result.getRequestId()).isEqualTo(REQUEST_ID_1);
-        assertThat(result.getCarPropertyErrorCodes().getCarPropertyManagerErrorCode()).isEqualTo(
+        assertThat(result.getCarPropertyErrorCodes().toCarPropertyAsyncErrorCode()).isEqualTo(
                 CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR);
         assertThat(result.getCarPropertyErrorCodes().getVendorErrorCode()).isEqualTo(0);
         assertThat(result.getCarPropertyErrorCodes().getSystemErrorCode()).isEqualTo(0);
@@ -1002,7 +1002,7 @@ public class PropertyHalServiceTest extends AbstractExpectableTestCase{
         verify(mSetAsyncPropertyResultCallback).onSetValueResults(mAsyncResultCaptor.capture());
         GetSetValueResult result = mAsyncResultCaptor.getValue().getList().get(0);
         assertThat(result.getRequestId()).isEqualTo(REQUEST_ID_1);
-        assertThat(result.getCarPropertyErrorCodes().getCarPropertyManagerErrorCode())
+        assertThat(result.getCarPropertyErrorCodes().toCarPropertyAsyncErrorCode())
                 .isEqualTo(STATUS_OK);
         // This should be the time when the request is successfully sent.
         assertThat(result.getUpdateTimestampNanos()).isGreaterThan(0);
@@ -1043,12 +1043,12 @@ public class PropertyHalServiceTest extends AbstractExpectableTestCase{
         verify(mSetAsyncPropertyResultCallback).onSetValueResults(mAsyncResultCaptor.capture());
         GetSetValueResult result1 = mAsyncResultCaptor.getValue().getList().get(0);
         assertThat(result1.getRequestId()).isEqualTo(REQUEST_ID_4);
-        assertThat(result1.getCarPropertyErrorCodes().getCarPropertyManagerErrorCode())
+        assertThat(result1.getCarPropertyErrorCodes().toCarPropertyAsyncErrorCode())
                 .isEqualTo(STATUS_OK);
         verify(mSetAsyncPropertyResultCallback).onSetValueResults(mAsyncResultCaptor.capture());
         GetSetValueResult result2 = mAsyncResultCaptor.getValue().getList().get(1);
         assertThat(result2.getRequestId()).isEqualTo(REQUEST_ID_5);
-        assertThat(result2.getCarPropertyErrorCodes().getCarPropertyManagerErrorCode())
+        assertThat(result2.getCarPropertyErrorCodes().toCarPropertyAsyncErrorCode())
                 .isEqualTo(STATUS_OK);
 
         // This should be the time when the request is successfully sent.
@@ -1115,7 +1115,7 @@ public class PropertyHalServiceTest extends AbstractExpectableTestCase{
                 mAsyncResultCaptor.capture());
         for (GetSetValueResultList results: mAsyncResultCaptor.getAllValues()) {
             GetSetValueResult result = results.getList().get(0);
-            assertThat(result.getCarPropertyErrorCodes().getCarPropertyManagerErrorCode())
+            assertThat(result.getCarPropertyErrorCodes().toCarPropertyAsyncErrorCode())
                     .isEqualTo(STATUS_OK);
             if (result.getRequestId() == REQUEST_ID_1) {
                 assertThat(result.getUpdateTimestampNanos()).isEqualTo(
@@ -1173,7 +1173,7 @@ public class PropertyHalServiceTest extends AbstractExpectableTestCase{
         verify(mSetAsyncPropertyResultCallback).onSetValueResults(mAsyncResultCaptor.capture());
         GetSetValueResult result = mAsyncResultCaptor.getValue().getList().get(0);
         assertThat(result.getRequestId()).isEqualTo(REQUEST_ID_1);
-        assertThat(result.getCarPropertyErrorCodes().getCarPropertyManagerErrorCode())
+        assertThat(result.getCarPropertyErrorCodes().toCarPropertyAsyncErrorCode())
                 .isEqualTo(STATUS_OK);
         assertThat(result.getUpdateTimestampNanos()).isEqualTo(TEST_UPDATE_TIMESTAMP_NANOS);
         // After the result comes, we must unsubscribe the property.
@@ -1222,7 +1222,7 @@ public class PropertyHalServiceTest extends AbstractExpectableTestCase{
         verify(mSetAsyncPropertyResultCallback).onSetValueResults(mAsyncResultCaptor.capture());
         GetSetValueResult result = mAsyncResultCaptor.getValue().getList().get(0);
         assertThat(result.getRequestId()).isEqualTo(REQUEST_ID_1);
-        assertThat(result.getCarPropertyErrorCodes().getCarPropertyManagerErrorCode())
+        assertThat(result.getCarPropertyErrorCodes().toCarPropertyAsyncErrorCode())
                 .isEqualTo(STATUS_OK);
         assertThat(result.getUpdateTimestampNanos()).isEqualTo(TEST_UPDATE_TIMESTAMP_NANOS);
         // After the result comes, we must unsubscribe the property.
@@ -1276,7 +1276,7 @@ public class PropertyHalServiceTest extends AbstractExpectableTestCase{
         verify(mSetAsyncPropertyResultCallback).onSetValueResults(mAsyncResultCaptor.capture());
         GetSetValueResult result = mAsyncResultCaptor.getValue().getList().get(0);
         assertThat(result.getRequestId()).isEqualTo(REQUEST_ID_1);
-        assertThat(result.getCarPropertyErrorCodes().getCarPropertyManagerErrorCode())
+        assertThat(result.getCarPropertyErrorCodes().toCarPropertyAsyncErrorCode())
                 .isEqualTo(STATUS_OK);
         assertThat(result.getUpdateTimestampNanos()).isEqualTo(TEST_UPDATE_TIMESTAMP_NANOS);
         // After the result comes, we must unsubscribe the property.
@@ -1324,7 +1324,7 @@ public class PropertyHalServiceTest extends AbstractExpectableTestCase{
                 mAsyncResultCaptor.capture());
         GetSetValueResult result = mAsyncResultCaptor.getValue().getList().get(0);
         assertThat(result.getRequestId()).isEqualTo(REQUEST_ID_1);
-        assertThat(result.getCarPropertyErrorCodes().getCarPropertyManagerErrorCode()).isEqualTo(
+        assertThat(result.getCarPropertyErrorCodes().toCarPropertyAsyncErrorCode()).isEqualTo(
                 CarPropertyManager.STATUS_ERROR_TIMEOUT);
 
         verifyNoPendingRequest();
@@ -1366,7 +1366,7 @@ public class PropertyHalServiceTest extends AbstractExpectableTestCase{
         verify(mSetAsyncPropertyResultCallback).onSetValueResults(mAsyncResultCaptor.capture());
         GetSetValueResult result = mAsyncResultCaptor.getValue().getList().get(0);
         assertThat(result.getRequestId()).isEqualTo(REQUEST_ID_1);
-        assertThat(result.getCarPropertyErrorCodes().getCarPropertyManagerErrorCode())
+        assertThat(result.getCarPropertyErrorCodes().toCarPropertyAsyncErrorCode())
                 .isEqualTo(CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR);
         // After the result comes, we must unsubscribe the property.
         verify(mVehicleHal).unsubscribeProperty(any(), eq(HVAC_TEMPERATURE_SET));
@@ -1447,7 +1447,7 @@ public class PropertyHalServiceTest extends AbstractExpectableTestCase{
                 mAsyncResultCaptor.capture());
         GetSetValueResult result = mAsyncResultCaptor.getValue().getList().get(0);
         assertThat(result.getRequestId()).isEqualTo(REQUEST_ID_1);
-        assertThat(result.getCarPropertyErrorCodes().getCarPropertyManagerErrorCode()).isEqualTo(
+        assertThat(result.getCarPropertyErrorCodes().toCarPropertyAsyncErrorCode()).isEqualTo(
                 CarPropertyManager.STATUS_ERROR_TIMEOUT);
 
         verifyNoPendingRequest();
@@ -1504,7 +1504,7 @@ public class PropertyHalServiceTest extends AbstractExpectableTestCase{
                 mAsyncResultCaptor.capture());
         for (GetSetValueResultList results : mAsyncResultCaptor.getAllValues()) {
             GetSetValueResult result = results.getList().get(0);
-            assertThat(result.getCarPropertyErrorCodes().getCarPropertyManagerErrorCode())
+            assertThat(result.getCarPropertyErrorCodes().toCarPropertyAsyncErrorCode())
                     .isEqualTo(STATUS_OK);
             assertThat(result.getUpdateTimestampNanos()).isEqualTo(TEST_UPDATE_TIMESTAMP_NANOS);
         }
@@ -1564,7 +1564,7 @@ public class PropertyHalServiceTest extends AbstractExpectableTestCase{
         verify(mSetAsyncPropertyResultCallback).onSetValueResults(mAsyncResultCaptor.capture());
         GetSetValueResult result = mAsyncResultCaptor.getValue().getList().get(0);
         assertThat(result.getRequestId()).isEqualTo(REQUEST_ID_1);
-        assertThat(result.getCarPropertyErrorCodes().getCarPropertyManagerErrorCode())
+        assertThat(result.getCarPropertyErrorCodes().toCarPropertyAsyncErrorCode())
                 .isEqualTo(STATUS_OK);
         assertThat(result.getUpdateTimestampNanos()).isEqualTo(TEST_UPDATE_TIMESTAMP_NANOS);
         // After the result comes, we must unsubscribe the property.
@@ -1638,7 +1638,7 @@ public class PropertyHalServiceTest extends AbstractExpectableTestCase{
         verify(mSetAsyncPropertyResultCallback).onSetValueResults(mAsyncResultCaptor.capture());
         assertThat(
                 mAsyncResultCaptor.getValue().getList().get(0)
-                        .getCarPropertyErrorCodes().getCarPropertyManagerErrorCode())
+                        .getCarPropertyErrorCodes().toCarPropertyAsyncErrorCode())
                 .isEqualTo(STATUS_OK);
 
         // After the internal subscription is finished, the client subscription must be kept,
@@ -1759,9 +1759,9 @@ public class PropertyHalServiceTest extends AbstractExpectableTestCase{
 
         verify(mSetAsyncPropertyResultCallback).onSetValueResults(mAsyncResultCaptor.capture());
         assertThat(mAsyncResultCaptor.getValue().getList().get(0).getCarPropertyErrorCodes()
-                .getCarPropertyManagerErrorCode()).isEqualTo(STATUS_OK);
+                .toCarPropertyAsyncErrorCode()).isEqualTo(STATUS_OK);
         assertThat(mAsyncResultCaptor.getValue().getList().get(1).getCarPropertyErrorCodes()
-                .getCarPropertyManagerErrorCode()).isEqualTo(STATUS_OK);
+                .toCarPropertyAsyncErrorCode()).isEqualTo(STATUS_OK);
 
         mPropertyHalService.unsubscribeProperty(PERF_VEHICLE_SPEED);
 
@@ -1926,7 +1926,7 @@ public class PropertyHalServiceTest extends AbstractExpectableTestCase{
 
         verify(mSetAsyncPropertyResultCallback).onSetValueResults(mAsyncResultCaptor.capture());
         assertThat(mAsyncResultCaptor.getValue().getList().get(0).getCarPropertyErrorCodes()
-                .getCarPropertyManagerErrorCode()).isEqualTo(STATUS_OK);
+                .toCarPropertyAsyncErrorCode()).isEqualTo(STATUS_OK);
 
         // After the internal subscription is finished, the client is still subscribed at 50hz
         // and no update rate change is required.
@@ -2059,9 +2059,9 @@ public class PropertyHalServiceTest extends AbstractExpectableTestCase{
         // Both request must succeed.
         assertThat(mAsyncResultCaptor.getValue().getList()).hasSize(2);
         assertThat(mAsyncResultCaptor.getValue().getList().get(0).getCarPropertyErrorCodes()
-                .getCarPropertyManagerErrorCode()).isEqualTo(STATUS_OK);
+                .toCarPropertyAsyncErrorCode()).isEqualTo(STATUS_OK);
         assertThat(mAsyncResultCaptor.getValue().getList().get(1).getCarPropertyErrorCodes()
-                .getCarPropertyManagerErrorCode()).isEqualTo(STATUS_OK);
+                .toCarPropertyAsyncErrorCode()).isEqualTo(STATUS_OK);
 
         // After internal subscription complete, the client subscription rate must be kept.
         verify(mVehicleHal).subscribeProperty(any(), mListArgumentCaptor.capture());
@@ -2164,7 +2164,7 @@ public class PropertyHalServiceTest extends AbstractExpectableTestCase{
         assertThat(mAsyncResultCaptor.getValue().getList()).hasSize(1);
         assertThat(
                 mAsyncResultCaptor.getValue().getList().get(0).getCarPropertyErrorCodes()
-                        .getCarPropertyManagerErrorCode())
+                        .toCarPropertyAsyncErrorCode())
                 .isEqualTo(CarPropertyManager.STATUS_ERROR_TIMEOUT);
         verify(mVehicleHal).unsubscribeProperty(any(), eq(HVAC_TEMPERATURE_SET));
 
@@ -2213,7 +2213,7 @@ public class PropertyHalServiceTest extends AbstractExpectableTestCase{
         assertThat(mAsyncResultCaptor.getValue().getList()).hasSize(1);
         assertThat(
                 mAsyncResultCaptor.getValue().getList().get(0).getCarPropertyErrorCodes()
-                        .getCarPropertyManagerErrorCode())
+                        .toCarPropertyAsyncErrorCode())
                 .isEqualTo(CarPropertyManager.STATUS_ERROR_NOT_AVAILABLE);
         assertThat(
                 mAsyncResultCaptor.getValue().getList().get(0).getCarPropertyErrorCodes()
@@ -2245,7 +2245,7 @@ public class PropertyHalServiceTest extends AbstractExpectableTestCase{
                 .isEqualTo(REQUEST_ID_1);
         assertThat(
                 mAsyncResultCaptor.getValue().getList().get(0).getCarPropertyErrorCodes()
-                        .getCarPropertyManagerErrorCode())
+                        .toCarPropertyAsyncErrorCode())
                 .isEqualTo(CarPropertyManager.STATUS_ERROR_TIMEOUT);
 
         verifyNoPendingRequest();
@@ -2274,7 +2274,7 @@ public class PropertyHalServiceTest extends AbstractExpectableTestCase{
         assertThat(mAsyncResultCaptor.getValue().getList().get(0).getRequestId())
                 .isEqualTo(REQUEST_ID_1);
         assertThat(mAsyncResultCaptor.getValue().getList().get(0).getCarPropertyErrorCodes()
-                        .getCarPropertyManagerErrorCode())
+                        .toCarPropertyAsyncErrorCode())
                 .isEqualTo(CarPropertyManager.STATUS_ERROR_TIMEOUT);
 
         verifyNoPendingRequest();
@@ -2296,7 +2296,7 @@ public class PropertyHalServiceTest extends AbstractExpectableTestCase{
                 mAsyncResultCaptor.capture());
         GetSetValueResult result = mAsyncResultCaptor.getValue().getList().get(0);
         assertThat(result.getRequestId()).isEqualTo(REQUEST_ID_1);
-        assertThat(result.getCarPropertyErrorCodes().getCarPropertyManagerErrorCode())
+        assertThat(result.getCarPropertyErrorCodes().toCarPropertyAsyncErrorCode())
                 .isEqualTo(CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR);
         assertThat(result.getCarPropertyValue()).isEqualTo(null);
 

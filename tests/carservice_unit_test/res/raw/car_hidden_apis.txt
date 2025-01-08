@@ -492,6 +492,7 @@ android.car.hardware.property CarPropertyManager void setFeatureFlags(FeatureFla
 android.car.hardware.property CarPropertySimulationManager CarRecorderListener getCarRecorderListener()
 android.car.hardware.property CarPropertySimulationManager Executor getCallbackExecutor()
 android.car.hardware.property CarPropertySimulationManager void onCarDisconnected()
+android.car.hardware.property VehicleHalStatusCode Set<Integer> VEHICLE_HAL_STATUS_CODES
 android.car.hardware.property VehicleHalStatusCode String toString(int vehicleHalStatusCode)
 android.car.hardware.property VehicleHalStatusCode int STATUS_ACCESS_DENIED
 android.car.hardware.property VehicleHalStatusCode int STATUS_INTERNAL_ERROR
@@ -502,6 +503,7 @@ android.car.hardware.property VehicleHalStatusCode int STATUS_NOT_AVAILABLE_POOR
 android.car.hardware.property VehicleHalStatusCode int STATUS_NOT_AVAILABLE_SAFETY
 android.car.hardware.property VehicleHalStatusCode int STATUS_NOT_AVAILABLE_SPEED_HIGH
 android.car.hardware.property VehicleHalStatusCode int STATUS_NOT_AVAILABLE_SPEED_LOW
+android.car.hardware.property VehicleHalStatusCode int STATUS_NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED
 android.car.hardware.property VehicleHalStatusCode int STATUS_OK
 android.car.hardware.property VehicleHalStatusCode int STATUS_TRY_AGAIN
 android.car.input CarInputManager void onCarDisconnected()

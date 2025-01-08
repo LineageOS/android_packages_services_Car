@@ -16,14 +16,29 @@
 
 package com.android.car.internal.property;
 
+import static android.car.hardware.property.VehicleHalStatusCode.VEHICLE_HAL_STATUS_CODES;
+
+import android.annotation.FlaggedApi;
 import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.annotation.SuppressLint;
+import android.car.feature.Flags;
+import android.car.hardware.property.CarInternalErrorException;
 import android.car.hardware.property.CarPropertyManager;
+import android.car.hardware.property.CarPropertyManager.CarPropertyAsyncErrorCode;
+import android.car.hardware.property.DetailedErrorCode;
+import android.car.hardware.property.DetailedErrorCode.DetailedErrorCodeInt;
+import android.car.hardware.property.PropertyAccessDeniedSecurityException;
+import android.car.hardware.property.PropertyNotAvailableAndRetryException;
+import android.car.hardware.property.PropertyNotAvailableErrorCode;
+import android.car.hardware.property.PropertyNotAvailableErrorCode.PropertyNotAvailableErrorCodeInt;
+import android.car.hardware.property.PropertyNotAvailableException;
 import android.car.hardware.property.VehicleHalStatusCode;
 import android.car.hardware.property.VehicleHalStatusCode.VehicleHalStatusCodeInt;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Slog;
+import android.util.SparseIntArray;
 
 import com.android.car.internal.util.AnnotationValidations;
 import com.android.car.internal.util.DataClass;
@@ -34,8 +49,63 @@ import java.util.StringJoiner;
  * Stores the various error codes for vehicle properties as they get passed up
  * the stack.
  */
-@DataClass(genConstructor = false)
+@DataClass(genConstructor = false, genSetters = false, genGetters = false)
 public final class CarPropertyErrorCodes implements Parcelable {
+
+    private static final String TAG = "CarPropertyErrorCodes";
+
+    // This variable must only be used if FLAG_CAR_PROPERTY_DETAILED_ERROR_CODES is true.
+    private static final SparseIntArray DETAILED_ERROR_CODE_BY_STATUS =
+            new SparseIntArray();
+    static {
+        if (Flags.carPropertyDetailedErrorCodes()) {
+            DETAILED_ERROR_CODE_BY_STATUS.put(
+                    VehicleHalStatusCode.STATUS_NOT_AVAILABLE_DISABLED,
+                    DetailedErrorCode.NOT_AVAILABLE_DISABLED);
+            DETAILED_ERROR_CODE_BY_STATUS.put(
+                    VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SPEED_LOW,
+                    DetailedErrorCode.NOT_AVAILABLE_SPEED_LOW);
+            DETAILED_ERROR_CODE_BY_STATUS.put(
+                    VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SPEED_HIGH,
+                    DetailedErrorCode.NOT_AVAILABLE_SPEED_HIGH);
+            DETAILED_ERROR_CODE_BY_STATUS.put(
+                    VehicleHalStatusCode.STATUS_NOT_AVAILABLE_POOR_VISIBILITY,
+                    DetailedErrorCode.NOT_AVAILABLE_POOR_VISIBILITY);
+            DETAILED_ERROR_CODE_BY_STATUS.put(
+                    VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SAFETY,
+                    DetailedErrorCode.NOT_AVAILABLE_SAFETY);
+        }
+        // TODO(b/381298607): Add STATUS_NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED once
+        // NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED is added to DetailedErrorCode.
+    }
+
+    private static final SparseIntArray PROP_NOT_AVAILABLE_ERROR_CODE_BY_STATUS =
+            new SparseIntArray();
+    static {
+        PROP_NOT_AVAILABLE_ERROR_CODE_BY_STATUS.put(
+                VehicleHalStatusCode.STATUS_NOT_AVAILABLE,
+                PropertyNotAvailableErrorCode.NOT_AVAILABLE);
+        PROP_NOT_AVAILABLE_ERROR_CODE_BY_STATUS.put(
+                VehicleHalStatusCode.STATUS_NOT_AVAILABLE_DISABLED,
+                PropertyNotAvailableErrorCode.NOT_AVAILABLE_DISABLED);
+        PROP_NOT_AVAILABLE_ERROR_CODE_BY_STATUS.put(
+                VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SPEED_LOW,
+                PropertyNotAvailableErrorCode.NOT_AVAILABLE_SPEED_LOW);
+        PROP_NOT_AVAILABLE_ERROR_CODE_BY_STATUS.put(
+                VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SPEED_HIGH,
+                PropertyNotAvailableErrorCode.NOT_AVAILABLE_SPEED_HIGH);
+        PROP_NOT_AVAILABLE_ERROR_CODE_BY_STATUS.put(
+                VehicleHalStatusCode.STATUS_NOT_AVAILABLE_POOR_VISIBILITY,
+                PropertyNotAvailableErrorCode.NOT_AVAILABLE_POOR_VISIBILITY);
+        PROP_NOT_AVAILABLE_ERROR_CODE_BY_STATUS.put(
+                VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SAFETY,
+                PropertyNotAvailableErrorCode.NOT_AVAILABLE_SAFETY);
+        // TODO(b/381298607): Change the mapping once
+        // NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED is added to PropertyNotAvailableErrorCode.
+        PROP_NOT_AVAILABLE_ERROR_CODE_BY_STATUS.put(
+                VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED,
+                PropertyNotAvailableErrorCode.NOT_AVAILABLE);
+    }
 
     /**
      * Status indicating no error.
@@ -91,23 +161,19 @@ public final class CarPropertyErrorCodes implements Parcelable {
         @VehicleHalStatusCodeInt int systemErrorCode = getVhalSystemErrorCode(vhalStatusCode);
         @CarPropMgrErrorCode int carPropertyManagerErrorCode = STATUS_OK;
 
-        switch (systemErrorCode) {
-            case VehicleHalStatusCode.STATUS_OK:
-                break;
-            case VehicleHalStatusCode.STATUS_NOT_AVAILABLE: // Fallthrough
-            case VehicleHalStatusCode.STATUS_NOT_AVAILABLE_DISABLED: // Fallthrough
-            case VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SPEED_LOW: // Fallthrough
-            case VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SPEED_HIGH: // Fallthrough
-            case VehicleHalStatusCode.STATUS_NOT_AVAILABLE_POOR_VISIBILITY: // Fallthrough
-            case VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SAFETY:
-                carPropertyManagerErrorCode = CarPropertyManager.STATUS_ERROR_NOT_AVAILABLE;
-                break;
-            case VehicleHalStatusCode.STATUS_TRY_AGAIN:
-                carPropertyManagerErrorCode = STATUS_TRY_AGAIN;
-                break;
-            default:
-                carPropertyManagerErrorCode = CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR;
-                break;
+        if (isNotAvailableVehicleHalStatusCode(systemErrorCode)) {
+            carPropertyManagerErrorCode = CarPropertyManager.STATUS_ERROR_NOT_AVAILABLE;
+        } else {
+            switch (systemErrorCode) {
+                case VehicleHalStatusCode.STATUS_OK:
+                    break;
+                case VehicleHalStatusCode.STATUS_TRY_AGAIN:
+                    carPropertyManagerErrorCode = STATUS_TRY_AGAIN;
+                    break;
+                default:
+                    carPropertyManagerErrorCode = CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR;
+                    break;
+            }
         }
 
         CarPropertyErrorCodes errorCodes = new CarPropertyErrorCodes(
@@ -136,7 +202,7 @@ public final class CarPropertyErrorCodes implements Parcelable {
     // If the error code comes from VHAL, this contains the optional vendor-specific error code.
     private int mVendorErrorCode;
     // If the error code comes from VHAL, this contains the VHAL system-defined error code. This is
-    // set to 0 if the error is generated internally.
+    // set to 0 if the error is generated internally from car service.
     private int mSystemErrorCode;
 
     /**
@@ -151,14 +217,24 @@ public final class CarPropertyErrorCodes implements Parcelable {
     }
 
     /**
-     * Get the errors returned by CarPropertyManager as defined by @link CarPropMgrErrorCode}.
+     * Whether status is okay (there is no error).
      */
-    public @CarPropMgrErrorCode int getCarPropertyManagerErrorCode() {
-        return mCarPropertyManagerErrorCode;
+    public boolean isOkay() {
+        return mCarPropertyManagerErrorCode == STATUS_OK;
     }
 
     /**
-     * Get the vendor specified error code to allow for more detailed error codes.
+     * Whether the error is try again.
+     */
+    public boolean isTryAgain() {
+        return mCarPropertyManagerErrorCode == STATUS_TRY_AGAIN;
+    }
+
+    /**
+     * Get the vendor specified error code to allow for more detailed error codes returned from
+     * VHAL.
+     *
+     * This will be 0 if the error is generated internally from car service.
      *
      * A vendor error code will have a range from 0x0000 to 0xffff.
      *
@@ -169,12 +245,111 @@ public final class CarPropertyErrorCodes implements Parcelable {
     }
 
     /**
-     * Get the system error code.
+     * Get the system error code returned from VHAL.
+     *
+     * This will be 0 if the error is generated internally from car service.
      *
      * A system error code will have a range from 0x0000 to 0xffff.
      */
-    public int getSystemErrorCode() {
+    public @VehicleHalStatusCodeInt int getSystemErrorCode() {
         return mSystemErrorCode;
+    }
+
+    /**
+     * Converts this to one of {@link CarPropertyAsyncErrorCode}.
+     *
+     * @return the async error code
+     * @throws IllegalArgumentException if an invalid error code is passed in.
+     */
+    public @CarPropertyAsyncErrorCode int toCarPropertyAsyncErrorCode() {
+        switch (mCarPropertyManagerErrorCode) {
+            case STATUS_OK: // Fallthrough
+            case CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR: // Fallthrough
+            case CarPropertyManager.STATUS_ERROR_NOT_AVAILABLE: // Fallthrough
+            case CarPropertyManager.STATUS_ERROR_TIMEOUT: // Fallthrough
+                return mCarPropertyManagerErrorCode;
+            case STATUS_TRY_AGAIN: // Fallthrough
+            default:
+                throw new IllegalArgumentException(
+                        "Invalid error code: " + mCarPropertyManagerErrorCode);
+        }
+    }
+
+    /**
+     * Converts this to one of {@link DetailedErrorCodeInt}.
+     *
+     * @return the detailed error code if available, otherwise set to 0.
+     * @throws IllegalArgumentException if an invalid error code is passed in.
+     */
+    @FlaggedApi(Flags.FLAG_CAR_PROPERTY_DETAILED_ERROR_CODES)
+    public @DetailedErrorCodeInt int toDetailedErrorCode() {
+        if (!VEHICLE_HAL_STATUS_CODES.contains(mSystemErrorCode)) {
+            throw new IllegalArgumentException(
+                        "Invalid VHAL system error code: " + mSystemErrorCode);
+        }
+        return DETAILED_ERROR_CODE_BY_STATUS.get(mSystemErrorCode,
+                /* valueIfKeyNotFound= */ DetailedErrorCode.NO_DETAILED_ERROR_CODE);
+    }
+
+    /**
+     * Checks the error code and throws corresponding exception.
+     *
+     * @throws PropertyNotAvailableException If the error code is one of NOT_AVAILABLE error.
+     * @throws CarInternalErrorException If the error code is INTERNAL_ERROR.
+     */
+    public void checkAndMaybeThrowException(int propertyId, int areaId) {
+        if (isOkay()) {
+            return;
+        }
+
+        if (mCarPropertyManagerErrorCode == CarPropertyManager.STATUS_ERROR_NOT_AVAILABLE) {
+            throw new PropertyNotAvailableException(propertyId, areaId,
+                    getPropertyNotAvailableErrorCodeFromStatusCode(mSystemErrorCode),
+                    mVendorErrorCode);
+        }
+
+        switch (mSystemErrorCode) {
+            case VehicleHalStatusCode.STATUS_TRY_AGAIN:
+                // Vendor error code is ignored for STATUS_TRY_AGAIN error
+                throw new PropertyNotAvailableAndRetryException(propertyId, areaId);
+            case VehicleHalStatusCode.STATUS_ACCESS_DENIED:
+                // Vendor error code is ignored for STATUS_ACCESS_DENIED error
+                throw new PropertyAccessDeniedSecurityException(propertyId, areaId);
+            case VehicleHalStatusCode.STATUS_INTERNAL_ERROR:
+                throw new CarInternalErrorException(propertyId, areaId, mVendorErrorCode);
+            default:
+                Slog.e(TAG, "Invalid VAHL error code: " + mSystemErrorCode
+                        + ", convert to CarInternalErrorException");
+                throw new CarInternalErrorException(propertyId, areaId);
+        }
+    }
+
+    /**
+     * Returns {@code true} if {@code vehicleHalStatusCode} is one of the not available
+     * {@link VehicleHalStatusCode} values}. Otherwise returns {@code false}.
+     */
+    public static boolean isNotAvailableVehicleHalStatusCode(
+            @VehicleHalStatusCodeInt int vehicleHalStatusCode) {
+        return PROP_NOT_AVAILABLE_ERROR_CODE_BY_STATUS
+                .indexOfKey(vehicleHalStatusCode) >= 0;
+    }
+
+    /**
+     * Convert {@link VehicleHalStatusCode} into public {@link PropertyNotAvailableErrorCode}
+     * equivalents.
+     *
+     * @throws IllegalArgumentException if an invalid status code is passed in.
+     * @hide
+     */
+    private static @PropertyNotAvailableErrorCodeInt int
+            getPropertyNotAvailableErrorCodeFromStatusCode(int statusCode) {
+        Integer propertyNotAvailableErrorCode =
+                PROP_NOT_AVAILABLE_ERROR_CODE_BY_STATUS.get(statusCode);
+        if (propertyNotAvailableErrorCode == null) {
+            throw new IllegalArgumentException(
+                    "Not an not_available error status code: " + statusCode);
+        }
+        return propertyNotAvailableErrorCode;
     }
 
     /**
@@ -192,32 +367,19 @@ public final class CarPropertyErrorCodes implements Parcelable {
         return vhalErrorCode >>> VENDOR_ERROR_CODE_SHIFT;
     }
 
-    /**
-     * Returns {@code true} if {@code vehicleHalStatusCode} is one of the not available
-     * {@link VehicleHalStatusCode} values}. Otherwise returns {@code false}.
-     */
-    public static boolean isNotAvailableVehicleHalStatusCode(
-            @VehicleHalStatusCodeInt int vehicleHalStatusCode) {
-        switch (vehicleHalStatusCode) {
-            case VehicleHalStatusCode.STATUS_NOT_AVAILABLE:
-            case VehicleHalStatusCode.STATUS_NOT_AVAILABLE_DISABLED:
-            case VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SPEED_LOW:
-            case VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SPEED_HIGH:
-            case VehicleHalStatusCode.STATUS_NOT_AVAILABLE_POOR_VISIBILITY:
-            case VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SAFETY:
-                return true;
-            default:
-                return false;
-        }
+    @Override
+    public String toString() {
+        return carPropertyErrorCodestoString(this);
     }
 
     /**
      * Returns a string representation of a {@code CarPropertyErrorCodes}.
      */
     @NonNull
-    public static String toString(CarPropertyErrorCodes carPropertyErrorCodes) {
+    public static String carPropertyErrorCodestoString(
+            CarPropertyErrorCodes carPropertyErrorCodes) {
         var sj = new StringJoiner(", ", "CarPropertyErrorCodes{", "}");
-        sj.add("cpmErrorCode: " + carPropertyErrorCodes.getCarPropertyManagerErrorCode());
+        sj.add("cpmErrorCode: " + carPropertyErrorCodes.mCarPropertyManagerErrorCode);
         sj.add("vendorErrorCode: " + carPropertyErrorCodes.getVendorErrorCode());
         sj.add("systemErrorCode: " + carPropertyErrorCodes.getSystemErrorCode());
         return sj.toString();
@@ -257,26 +419,6 @@ public final class CarPropertyErrorCodes implements Parcelable {
         }
     }
 
-    @DataClass.Generated.Member
-    public @NonNull CarPropertyErrorCodes setCarPropertyManagerErrorCode(@CarPropMgrErrorCode int value) {
-        mCarPropertyManagerErrorCode = value;
-        AnnotationValidations.validate(
-                CarPropMgrErrorCode.class, null, mCarPropertyManagerErrorCode);
-        return this;
-    }
-
-    @DataClass.Generated.Member
-    public @NonNull CarPropertyErrorCodes setVendorErrorCode( int value) {
-        mVendorErrorCode = value;
-        return this;
-    }
-
-    @DataClass.Generated.Member
-    public @NonNull CarPropertyErrorCodes setSystemErrorCode( int value) {
-        mSystemErrorCode = value;
-        return this;
-    }
-
     @Override
     @DataClass.Generated.Member
     public void writeToParcel(@NonNull Parcel dest, int flags) {
@@ -292,6 +434,7 @@ public final class CarPropertyErrorCodes implements Parcelable {
     @DataClass.Generated.Member
     public int describeContents() { return 0; }
 
+    /** @hide */
     @SuppressWarnings({"unchecked", "RedundantCast"})
     @DataClass.Generated.Member
     /* package-private */ CarPropertyErrorCodes(@NonNull Parcel in) {
@@ -326,10 +469,10 @@ public final class CarPropertyErrorCodes implements Parcelable {
     };
 
     @DataClass.Generated(
-            time = 1708039674741L,
+            time = 1732673628876L,
             codegenVersion = "1.0.23",
             sourceFile = "packages/services/Car/car-lib/src/com/android/car/internal/property/CarPropertyErrorCodes.java",
-            inputSignatures = "public static final  int STATUS_OK\npublic static final  int STATUS_TRY_AGAIN\nprivate static final  int SYSTEM_ERROR_CODE_MASK\nprivate static final  int VENDOR_ERROR_CODE_SHIFT\npublic static  com.android.car.internal.property.CarPropertyErrorCodes STATUS_OK_NO_ERROR\nprivate @com.android.car.internal.property.CarPropertyErrorCodes.CarPropMgrErrorCode int mCarPropertyManagerErrorCode\nprivate  int mVendorErrorCode\nprivate  int mSystemErrorCode\npublic @com.android.car.internal.property.CarPropertyErrorCodes.CarPropMgrErrorCode int getCarPropertyManagerErrorCode()\npublic  int getVendorErrorCode()\npublic  int getSystemErrorCode()\npublic static  com.android.car.internal.property.CarPropertyErrorCodes createFromVhalStatusCode(int)\npublic static @android.annotation.SuppressLint @android.car.hardware.property.VehicleHalStatusCode.VehicleHalStatusCodeInt int getVhalSystemErrorCode(int)\npublic static  int getVhalVendorErrorCode(int)\npublic static  boolean isNotAvailableVehicleHalStatusCode(int)\npublic static @android.annotation.NonNull java.lang.String toString(com.android.car.internal.property.CarPropertyErrorCodes)\nclass CarPropertyErrorCodes extends java.lang.Object implements [android.os.Parcelable]\n@com.android.car.internal.util.DataClass(genConstructor=false)")
+            inputSignatures = "public static final  int STATUS_OK\npublic static final  int STATUS_TRY_AGAIN\nprivate static final  int SYSTEM_ERROR_CODE_MASK\nprivate static final  int VENDOR_ERROR_CODE_SHIFT\npublic static  com.android.car.internal.property.CarPropertyErrorCodes STATUS_OK_NO_ERROR\npublic static  com.android.car.internal.property.CarPropertyErrorCodes ERROR_CODES_NOT_AVAILABLE\npublic static  com.android.car.internal.property.CarPropertyErrorCodes ERROR_CODES_TRY_AGAIN\npublic static  com.android.car.internal.property.CarPropertyErrorCodes ERROR_CODES_INTERNAL\npublic static  com.android.car.internal.property.CarPropertyErrorCodes ERROR_CODES_TIMEOUT\nprivate @com.android.car.internal.property.CarPropertyErrorCodes.CarPropMgrErrorCode int mCarPropertyManagerErrorCode\nprivate  int mVendorErrorCode\nprivate  int mSystemErrorCode\npublic static  com.android.car.internal.property.CarPropertyErrorCodes createFromVhalStatusCode(int)\npublic  boolean isOkay()\npublic  boolean isTryAgain()\npublic  int getVendorErrorCode()\npublic  int getSystemErrorCode()\npublic @android.car.hardware.property.CarPropertyManager.CarPropertyAsyncErrorCode int toCarPropertyAsyncErrorCode()\npublic static @android.annotation.SuppressLint @android.car.hardware.property.VehicleHalStatusCode.VehicleHalStatusCodeInt int getVhalSystemErrorCode(int)\npublic static  int getVhalVendorErrorCode(int)\npublic static  boolean isNotAvailableVehicleHalStatusCode(int)\npublic @java.lang.Override java.lang.String toString()\npublic static @android.annotation.NonNull java.lang.String toString(com.android.car.internal.property.CarPropertyErrorCodes)\nclass CarPropertyErrorCodes extends java.lang.Object implements [android.os.Parcelable]\n@com.android.car.internal.util.DataClass(genConstructor=false, genSetters=false, genGetters=false)")
     @Deprecated
     private void __metadata() {}
 

@@ -30,11 +30,17 @@ public class CarInternalErrorException extends RuntimeException {
 
     private int mVendorErrorCode;
 
-    CarInternalErrorException(int propertyId, int areaId) {
+    /**
+     * @hide
+     */
+    public CarInternalErrorException(int propertyId, int areaId) {
         this(propertyId, areaId, VENDOR_ERROR_CODE_SUCCESS);
     }
 
-    CarInternalErrorException(int propertyId, int areaId, int vendorErrorCode) {
+    /**
+     * @hide
+     */
+    public CarInternalErrorException(int propertyId, int areaId, int vendorErrorCode) {
         super("Property ID: " + VehiclePropertyIds.toString(propertyId) + " area ID: "
                 + toHexString(areaId) + " - raised an internal error in cars with "
                 + "vendor error code: " + vendorErrorCode);

@@ -1301,8 +1301,7 @@ final class AidlVehicleStub extends VehicleStub {
             AsyncResultsHandler asyncResultsHandler) {
         Slogf.w(TAG,
                 "Received RemoteException or ServiceSpecificException from VHAL. VHAL is likely "
-                        + "dead, system error code: %d, vendor error code: %d",
-                errorCodes.getCarPropertyManagerErrorCode(), errorCodes.getVendorErrorCode());
+                        + "dead, error code: " + errorCodes);
         synchronized (mLock) {
             VhalRequestType[] requests = asyncRequestsHandler.getRequestItems();
             for (int i = 0; i < requests.length; i++) {

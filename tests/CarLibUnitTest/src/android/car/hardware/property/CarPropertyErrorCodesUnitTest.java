@@ -14,22 +14,32 @@
  * limitations under the License.
  */
 
-package com.android.car;
+package android.car.hardware.property;
 
 import static com.android.car.internal.property.CarPropertyErrorCodes.createFromVhalStatusCode;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import android.car.hardware.property.CarPropertyManager;
-import android.car.hardware.property.VehicleHalStatusCode;
+import static org.junit.Assert.assertThrows;
+
+import android.car.feature.Flags;
+import android.car.test.AbstractExpectableTestCase;
 import android.hardware.automotive.vehicle.StatusCode;
+import android.platform.test.annotations.EnableFlags;
+import android.platform.test.flag.junit.SetFlagsRule;
 import android.util.SparseIntArray;
 
 import com.android.car.internal.property.CarPropertyErrorCodes;
 
+import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 
-public final class CarPropertyErrorCodesUnitTest {
+@EnableFlags(Flags.FLAG_CAR_PROPERTY_DETAILED_ERROR_CODES)
+public final class CarPropertyErrorCodesUnitTest extends AbstractExpectableTestCase {
+
+    @ClassRule public static final SetFlagsRule.ClassRule mClassRule = new SetFlagsRule.ClassRule();
+    @Rule public final SetFlagsRule mSetFlagsRule = mClassRule.createSetFlagsRule();
 
     private static final int NO_ERROR = 0;
     private static final int SYSTEM_ERROR_CODE = 0x0123;
@@ -42,8 +52,7 @@ public final class CarPropertyErrorCodesUnitTest {
         CarPropertyErrorCodes carPropertyErrorCodes =
                 CarPropertyErrorCodes.STATUS_OK_NO_ERROR;
 
-        assertThat(carPropertyErrorCodes.getCarPropertyManagerErrorCode())
-                .isEqualTo(CarPropertyErrorCodes.STATUS_OK);
+        assertThat(carPropertyErrorCodes.isOkay()).isTrue();
         assertThat(carPropertyErrorCodes.getVendorErrorCode())
                 .isEqualTo(NO_ERROR);
         assertThat(carPropertyErrorCodes.getSystemErrorCode())
@@ -55,8 +64,7 @@ public final class CarPropertyErrorCodesUnitTest {
         CarPropertyErrorCodes carPropertyErrorCodes =
                 CarPropertyErrorCodes.ERROR_CODES_INTERNAL;
 
-        assertThat(carPropertyErrorCodes.getCarPropertyManagerErrorCode())
-                .isEqualTo(CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR);
+        assertThat(carPropertyErrorCodes.isOkay()).isFalse();
         assertThat(carPropertyErrorCodes.getVendorErrorCode())
                 .isEqualTo(NO_ERROR);
         assertThat(carPropertyErrorCodes.getSystemErrorCode())
@@ -68,8 +76,7 @@ public final class CarPropertyErrorCodesUnitTest {
         CarPropertyErrorCodes carPropertyErrorCodes =
                 CarPropertyErrorCodes.ERROR_CODES_NOT_AVAILABLE;
 
-        assertThat(carPropertyErrorCodes.getCarPropertyManagerErrorCode())
-                .isEqualTo(CarPropertyManager.STATUS_ERROR_NOT_AVAILABLE);
+        assertThat(carPropertyErrorCodes.isOkay()).isFalse();
         assertThat(carPropertyErrorCodes.getVendorErrorCode())
                 .isEqualTo(NO_ERROR);
         assertThat(carPropertyErrorCodes.getSystemErrorCode())
@@ -81,8 +88,7 @@ public final class CarPropertyErrorCodesUnitTest {
         CarPropertyErrorCodes carPropertyErrorCodes =
                 createFromVhalStatusCode(StatusCode.NOT_AVAILABLE_SPEED_LOW);
 
-        assertThat(carPropertyErrorCodes.getCarPropertyManagerErrorCode())
-                .isEqualTo(CarPropertyManager.STATUS_ERROR_NOT_AVAILABLE);
+        assertThat(carPropertyErrorCodes.isOkay()).isFalse();
         assertThat(carPropertyErrorCodes.getVendorErrorCode())
                 .isEqualTo(NO_ERROR);
         assertThat(carPropertyErrorCodes.getSystemErrorCode())
@@ -94,8 +100,8 @@ public final class CarPropertyErrorCodesUnitTest {
         int vhalStatusCode = VehicleHalStatusCode.STATUS_NOT_AVAILABLE | (VENDOR_ERROR_CODE << 16);
         CarPropertyErrorCodes carPropertyErrorCodes = createFromVhalStatusCode(vhalStatusCode);
 
-        assertThat(carPropertyErrorCodes.getCarPropertyManagerErrorCode())
-                .isEqualTo(CarPropertyManager.STATUS_ERROR_NOT_AVAILABLE);
+        assertThat(carPropertyErrorCodes.toCarPropertyAsyncErrorCode()).isEqualTo(
+                CarPropertyManager.STATUS_ERROR_NOT_AVAILABLE);
         assertThat(carPropertyErrorCodes.getVendorErrorCode())
                 .isEqualTo(VENDOR_ERROR_CODE);
         assertThat(carPropertyErrorCodes.getSystemErrorCode())
@@ -107,8 +113,7 @@ public final class CarPropertyErrorCodesUnitTest {
         CarPropertyErrorCodes carPropertyErrorCodes =
                 createFromVhalStatusCode(StatusCode.OK);
 
-        assertThat(carPropertyErrorCodes.getCarPropertyManagerErrorCode())
-                .isEqualTo(CarPropertyErrorCodes.STATUS_OK);
+        assertThat(carPropertyErrorCodes.isOkay()).isTrue();
         assertThat(carPropertyErrorCodes.getVendorErrorCode()).isEqualTo(0);
         assertThat(carPropertyErrorCodes.getSystemErrorCode())
                 .isEqualTo(CarPropertyErrorCodes.STATUS_OK);
@@ -130,8 +135,6 @@ public final class CarPropertyErrorCodesUnitTest {
                 CarPropertyManager.STATUS_ERROR_NOT_AVAILABLE);
         mgrErrorCodeByVhalStatusCode.put(StatusCode.NOT_AVAILABLE_SAFETY,
                 CarPropertyManager.STATUS_ERROR_NOT_AVAILABLE);
-        mgrErrorCodeByVhalStatusCode.put(StatusCode.TRY_AGAIN,
-                CarPropertyErrorCodes.STATUS_TRY_AGAIN);
         mgrErrorCodeByVhalStatusCode.put(StatusCode.INTERNAL_ERROR,
                 CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR);
 
@@ -142,11 +145,46 @@ public final class CarPropertyErrorCodesUnitTest {
                     createFromVhalStatusCode(
                             statusCode | (VENDOR_ERROR_CODE << VENDOR_ERROR_CODE_SHIFT));
 
-            assertThat(carPropertyErrorCodes.getCarPropertyManagerErrorCode())
+            assertThat(carPropertyErrorCodes.toCarPropertyAsyncErrorCode())
                     .isEqualTo(carPropMgrError);
             assertThat(carPropertyErrorCodes.getVendorErrorCode()).isEqualTo(VENDOR_ERROR_CODE);
             assertThat(carPropertyErrorCodes.getSystemErrorCode()).isEqualTo(statusCode);
         }
+    }
+
+    @Test
+    public void testToDetailedErrorCode() throws Exception {
+        expectThat(createFromVhalStatusCode(StatusCode.OK).toDetailedErrorCode()).isEqualTo(
+                DetailedErrorCode.NO_DETAILED_ERROR_CODE);
+        expectThat(createFromVhalStatusCode(StatusCode.TRY_AGAIN).toDetailedErrorCode()).isEqualTo(
+                DetailedErrorCode.NO_DETAILED_ERROR_CODE);
+        expectThat(createFromVhalStatusCode(StatusCode.INVALID_ARG).toDetailedErrorCode())
+                .isEqualTo(DetailedErrorCode.NO_DETAILED_ERROR_CODE);
+        expectThat(createFromVhalStatusCode(StatusCode.NOT_AVAILABLE).toDetailedErrorCode())
+                .isEqualTo(DetailedErrorCode.NO_DETAILED_ERROR_CODE);
+        expectThat(createFromVhalStatusCode(StatusCode.ACCESS_DENIED).toDetailedErrorCode())
+                .isEqualTo(DetailedErrorCode.NO_DETAILED_ERROR_CODE);
+        expectThat(createFromVhalStatusCode(StatusCode.INTERNAL_ERROR).toDetailedErrorCode())
+                .isEqualTo(DetailedErrorCode.NO_DETAILED_ERROR_CODE);
+        expectThat(createFromVhalStatusCode(StatusCode.NOT_AVAILABLE_DISABLED)
+                .toDetailedErrorCode()).isEqualTo(DetailedErrorCode.NOT_AVAILABLE_DISABLED);
+        expectThat(createFromVhalStatusCode(StatusCode.NOT_AVAILABLE_SPEED_LOW)
+                .toDetailedErrorCode()).isEqualTo(DetailedErrorCode.NOT_AVAILABLE_SPEED_LOW);
+        expectThat(createFromVhalStatusCode(StatusCode.NOT_AVAILABLE_SPEED_HIGH)
+                .toDetailedErrorCode()).isEqualTo(DetailedErrorCode.NOT_AVAILABLE_SPEED_HIGH);
+        expectThat(createFromVhalStatusCode(StatusCode.NOT_AVAILABLE_POOR_VISIBILITY)
+                .toDetailedErrorCode()).isEqualTo(DetailedErrorCode.NOT_AVAILABLE_POOR_VISIBILITY);
+        expectThat(createFromVhalStatusCode(StatusCode.NOT_AVAILABLE_SAFETY).toDetailedErrorCode())
+                .isEqualTo(DetailedErrorCode.NOT_AVAILABLE_SAFETY);
+    }
+
+    @Test
+    public void testToDetailedErrorCode_invalidErrorCode() throws Exception {
+        int invalidErrorCode = 0xfffe;
+
+        assertThrows(IllegalArgumentException.class, () -> {
+            createFromVhalStatusCode(invalidErrorCode).toDetailedErrorCode();
+        });
     }
 
     @Test
@@ -159,5 +197,36 @@ public final class CarPropertyErrorCodesUnitTest {
     public void testGetVhalVendorErrorCode() {
         assertThat(CarPropertyErrorCodes.getVhalVendorErrorCode(COMBINED_ERROR_CODE)).isEqualTo(
                 VENDOR_ERROR_CODE);
+    }
+
+    @Test
+    public void testToDetailedErrorCode_SubsystemNotConnected() {
+        var errorCodes = createFromVhalStatusCode(
+                VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED);
+
+        assertThat(errorCodes.toDetailedErrorCode()).isEqualTo(
+                DetailedErrorCode.NO_DETAILED_ERROR_CODE);
+    }
+
+    // TODO(b/381298607): Update this test once we expose SUBSYSTEM_NOT_CONNECTED to
+    // CarPropertyManager.
+    @Test
+    public void testSubsystemNotConnected() {
+        var errorCodes = createFromVhalStatusCode(
+                VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED);
+
+        assertThat(errorCodes.getVendorErrorCode()).isEqualTo(0);
+        assertThat(errorCodes.getSystemErrorCode()).isEqualTo(
+                VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED);
+        assertThat(errorCodes.toCarPropertyAsyncErrorCode()).isEqualTo(
+                CarPropertyManager.STATUS_ERROR_NOT_AVAILABLE);
+        assertThat(errorCodes.toDetailedErrorCode()).isEqualTo(
+                DetailedErrorCode.NO_DETAILED_ERROR_CODE);
+        PropertyNotAvailableException exception = assertThrows(
+                PropertyNotAvailableException.class, () -> errorCodes.checkAndMaybeThrowException(
+                        /* propertyId= */ 0, /* areaId= */ 0));
+        assertThat(exception.getDetailedErrorCode()).isEqualTo(
+                PropertyNotAvailableErrorCode.NOT_AVAILABLE);
+        assertThat(exception.getVendorErrorCode()).isEqualTo(0);
     }
 }
