@@ -75,6 +75,8 @@ filegroup {
 
 cc_test {
     name: "carpowerpolicyserver_test",
+    team: "trendy_team_aaos_power_triage",
+
     defaults: [
         "carpowerpolicyserver_defaults",
     ],

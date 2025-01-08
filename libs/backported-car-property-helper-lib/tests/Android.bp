@@ -19,6 +19,8 @@ package {
 
 android_test {
     name: "com.android.car.property.backported-unit-test",
+    team: "trendy_team_aaos_carframework_triage",
+
     srcs: [
         "src/**/*.java",
     ],
