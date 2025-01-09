@@ -1300,7 +1300,7 @@
         </activity>
 
         <activity
-            android:name="com.android.settings.biometrics.face.FaceEnrollIntroduction"
+            android:name="com.android.settings.biometrics.face.FaceEnroll"
             android:enabled="false"
             android:exported="false"
             tools:node="merge"
