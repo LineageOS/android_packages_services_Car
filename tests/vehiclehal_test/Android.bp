@@ -24,6 +24,7 @@ package {
 // setup vehicle HAL state and test car services' behavior.
 android_test {
     name: "VehicleHalE2eTest",
+    team: "trendy_team_aaos_carframework_triage",
 
     defaults: ["vhal-interface-defaults"],
 

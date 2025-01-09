@@ -163,6 +163,7 @@ filegroup {
 
 cc_test {
     name: "libwatchdog_test",
+    team: "trendy_team_aaos_performance_triage",
     defaults: [
         "carwatchdogd_defaults",
         "libwatchdog_perf_service_defaults",
