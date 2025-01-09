@@ -20,6 +20,7 @@ import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DU
 
 import android.annotation.Nullable;
 import android.car.builtin.util.Slogf;
+import android.car.hardware.CarPropertyValue;
 import android.hardware.automotive.vehicle.VehiclePropError;
 import android.os.RemoteException;
 import android.os.ServiceSpecificException;
@@ -55,11 +56,14 @@ public final class SimulationVehicleStub extends VehicleStubWrapper {
     private ReplayingVehicleHalCallback mReplayingVehicleHalCallback;
     private final long mStartOfSimulationTime;
 
-    public SimulationVehicleStub(VehicleStub stub, List<Integer> propertyIdsFromRealHardware)
+    public SimulationVehicleStub(VehicleStub stub, List<Integer> propertyIdsFromRealHardware,
+            VehicleHalCallback realCallback)
             throws RemoteException {
         super(stub, getInitialPropValuesAndConfigs(stub));
         mPropertyIdsFromRealHardware = new ArraySet<>(propertyIdsFromRealHardware);
         mStartOfSimulationTime = SystemClock.elapsedRealtimeNanos();
+        mReplayingVehicleHalCallback = new ReplayingVehicleHalCallback(realCallback,
+                new ArraySet<>(propertyIdsFromRealHardware));
     }
 
     private static Pair<SparseArray<HalPropConfig>, PairSparseArray<HalPropValue>>
@@ -127,8 +131,6 @@ public final class SimulationVehicleStub extends VehicleStubWrapper {
 
     @Override
     public SubscriptionClient newSubscriptionClient(VehicleHalCallback callback) {
-        mReplayingVehicleHalCallback = new ReplayingVehicleHalCallback(callback,
-                mPropertyIdsFromRealHardware);
         return mRealVehicle.newSubscriptionClient(mReplayingVehicleHalCallback);
     }
 
@@ -208,7 +210,39 @@ public final class SimulationVehicleStub extends VehicleStubWrapper {
             Slogf.d(TAG, "Value did not change ignoring onPropertyEvent");
             return;
         }
-        callback.getRealCallback().onPropertyEvent(new ArrayList<>(List.of(updatedValue)));
+        callback.getRealCallback().onPropertyEvent(List.of(updatedValue));
+    }
+
+    /**
+     * Filters a list of items based on a set of property IDs.
+     *
+     * <p>This method iterates through a list of items and applies a provided function to extract a
+     * property ID from each item. It then checks if the extracted property ID exists within a
+     * given set of valid property IDs. Only items whose property IDs are present in the valid set
+     * are included in the returned filtered list.
+     *
+     * @param items The list of items to be filtered.
+     * @param propIdExtractor A function that extracts the property ID from an item.
+     * @param propertyIdsFromRealHardware A set of valid property IDs. Items with property IDs not
+     *                                    present in this set will be filtered out.
+     * @param <T> The type of items in the list.
+     * @return A new list containing only the items whose property IDs are present in
+     *         `propertyIdsFromRealHardware`.
+     */
+    public static <T> List<T> filterProperties(List<T> items, Function<T, Integer>
+            propIdExtractor, ArraySet<Integer> propertyIdsFromRealHardware) {
+        List<T> filteredItems = new ArrayList<>();
+        for (int i = 0; i < items.size(); i++) {
+            T item = items.get(i);
+            int propId = propIdExtractor.apply(item);
+            if (!propertyIdsFromRealHardware.contains(propId)) {
+                Slogf.d(TAG, "Filtering out real hardware due to %s property not being in "
+                        + "mPropertyIdsFromRealHardware", propId);
+                continue;
+            }
+            filteredItems.add(item);
+        }
+        return filteredItems;
     }
 
     private static final class ReplayingVehicleHalCallback implements VehicleHalCallback {
@@ -224,17 +258,8 @@ public final class SimulationVehicleStub extends VehicleStubWrapper {
 
         private <T> void filterAndInvokeCallback(List<T> items, Function<T, Integer>
                 propIdExtractor, Consumer<List<T>> callback, String methodName) {
-            List<T> filteredItems = new ArrayList<>();
-            for (int i = 0; i < items.size(); i++) {
-                T item = items.get(i);
-                int propId = propIdExtractor.apply(item);
-                if (!mPropertyIdsFromRealHardware.contains(propId)) {
-                    Slogf.d(TAG, "Filtering out real hardware due to "
-                            + propId + " property not being in mPropertyIdsFromRealHardware");
-                    continue;
-                }
-                filteredItems.add(item);
-            }
+            List<T> filteredItems = filterProperties(items, propIdExtractor,
+                    mPropertyIdsFromRealHardware);
             if (filteredItems.isEmpty()) {
                 Slogf.d(TAG, "All properties were filtered, not running %s", methodName);
                 return;
@@ -274,5 +299,9 @@ public final class SimulationVehicleStub extends VehicleStubWrapper {
     @Override
     public boolean isSimulatedModeEnabled() {
         return true;
+    }
+
+    @Override
+    public void injectVehicleProperties(List<CarPropertyValue> carPropertyValues) {
     }
 }

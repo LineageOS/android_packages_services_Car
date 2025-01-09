@@ -42,6 +42,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import android.car.feature.FeatureFlags;
+import android.car.hardware.CarPropertyValue;
 import android.car.hardware.property.CarPropertyManager;
 import android.car.hardware.property.ICarPropertyEventListener;
 import android.car.test.AbstractExpectableTestCase;
@@ -108,6 +109,7 @@ public class VehicleHalTest extends AbstractExpectableTestCase {
     private static final int SOME_INT64_VEC_PROPERTY = VehiclePropertyType.INT64_VEC | 0x11;
     private static final int CONTINUOUS_PROPERTY = VehiclePropertyType.INT32 | 0x12;
     private static final int SOME_WRITE_ONLY_ON_CHANGE_PROPERTY = 0x13;
+    private static final long TEST_TIMESTAMP = 1234;
     private static final int UNSUPPORTED_PROPERTY = -1;
     private static final int AREA_ID_1 = 1;
     private static final int AREA_ID_2 = 3;
@@ -1215,6 +1217,63 @@ public class VehicleHalTest extends AbstractExpectableTestCase {
     }
 
     @Test
+    public void testOnPropertyEvent_WithInjectionModePropertyIsFiltered() {
+        // Arrange
+        List<HalPropValue> dispatchList = new ArrayList<>();
+        when(mPowerHalService.getDispatchList()).thenReturn(dispatchList);
+
+        HalPropValue propValue = mPropValueBuilder.build(SOME_READ_ON_CHANGE_PROPERTY,
+                AREA_ID_1);
+        ArrayList<HalPropValue> propValues = new ArrayList<>();
+        propValues.add(propValue);
+
+        // Act
+        mVehicleHal.enableInjectionMode(List.of());
+        mVehicleHal.onPropertyEvent(propValues);
+
+        // Assert
+        verify(mPowerHalService, after(WAIT_TIMEOUT_MS).never()).onHalEvents(dispatchList);
+    }
+
+    @Test
+    public void testOnPropertyEvent_WithInjectionModePropertyIsNotFiltered() {
+        // Arrange
+        List<HalPropValue> dispatchList = new ArrayList<>();
+        when(mPowerHalService.getDispatchList()).thenReturn(dispatchList);
+        HalPropValue propValue = mPropValueBuilder.build(SOME_READ_ON_CHANGE_PROPERTY,
+                AREA_ID_1);
+        ArrayList<HalPropValue> propValues = new ArrayList<>();
+        propValues.add(propValue);
+
+        // Act
+        mVehicleHal.enableInjectionMode(List.of(SOME_READ_ON_CHANGE_PROPERTY));
+        mVehicleHal.onPropertyEvent(propValues);
+
+        // Assert
+        verify(mPowerHalService, timeout(WAIT_TIMEOUT_MS)).onHalEvents(dispatchList);
+    }
+
+    @Test
+    public void testOnPropertyEvent_WithInjectionModePropertySomeFiltered() {
+        // Arrange
+        List<HalPropValue> dispatchList = new ArrayList<>();
+        when(mPowerHalService.getDispatchList()).thenReturn(dispatchList);
+        HalPropValue propValue = mPropValueBuilder.build(SOME_READ_ON_CHANGE_PROPERTY,
+                AREA_ID_1);
+        HalPropValue propValue2 = mPropValueBuilder.build(SOME_FLOAT_PROPERTY, AREA_ID_1);
+        ArrayList<HalPropValue> propValues = new ArrayList<>();
+        propValues.add(propValue);
+        propValues.add(propValue2);
+
+        // Act
+        mVehicleHal.enableInjectionMode(List.of(SOME_READ_ON_CHANGE_PROPERTY));
+        mVehicleHal.onPropertyEvent(propValues);
+
+        // Assert
+        verify(mPowerHalService, timeout(WAIT_TIMEOUT_MS)).onHalEvents(dispatchList);
+    }
+
+    @Test
     public void testOnPropertyEvent_existingInfo() {
         // Arrange
         List<HalPropValue> dispatchList = mock(List.class);
@@ -1284,6 +1343,65 @@ public class VehicleHalTest extends AbstractExpectableTestCase {
                 new ArrayList<VehiclePropError>(Arrays.asList(error1, error2)));
         verify(mPropertyHalService, timeout(WAIT_TIMEOUT_MS)).onPropertySetError(
                 new ArrayList<VehiclePropError>(Arrays.asList(error3)));
+    }
+
+    @Test
+    public void testOnPropertySetError_InjectionModeEnabledFilterProperty() {
+        // Arrange
+        ArrayList<VehiclePropError> errors = new ArrayList<VehiclePropError>();
+        VehiclePropError error1 = new VehiclePropError();
+        error1.propId = SOME_READ_ON_CHANGE_PROPERTY;
+        error1.areaId = AREA_ID_1;
+        error1.errorCode = CarPropertyManager.CAR_SET_PROPERTY_ERROR_CODE_TRY_AGAIN;
+        errors.add(error1);
+        VehiclePropError error2 = new VehiclePropError();
+        error2.propId = SOME_READ_ON_CHANGE_PROPERTY;
+        error2.areaId = AREA_ID_1;
+        error2.errorCode = CarPropertyManager.CAR_SET_PROPERTY_ERROR_CODE_INVALID_ARG;
+        errors.add(error2);
+        VehiclePropError error3 = new VehiclePropError();
+        error3.propId = SOME_READ_WRITE_STATIC_PROPERTY;
+        error3.areaId = AREA_ID_1;
+        error3.errorCode = CarPropertyManager.CAR_SET_PROPERTY_ERROR_CODE_TRY_AGAIN;
+        errors.add(error3);
+
+        // Act
+        mVehicleHal.enableInjectionMode(List.of(SOME_READ_ON_CHANGE_PROPERTY));
+        mVehicleHal.onPropertySetError(errors);
+
+        // Assert
+        verify(mPowerHalService, timeout(WAIT_TIMEOUT_MS)).onPropertySetError(
+                new ArrayList<VehiclePropError>(Arrays.asList(error1, error2)));
+        verify(mPropertyHalService, after(WAIT_TIMEOUT_MS).never()).onPropertySetError(
+                new ArrayList<VehiclePropError>(Arrays.asList(error3)));
+    }
+
+    @Test
+    public void testOnPropertySetError_InjectionModeEnabledIsNotFilterProperty() {
+        // Arrange
+        ArrayList<VehiclePropError> errors = new ArrayList<VehiclePropError>();
+        VehiclePropError error1 = new VehiclePropError();
+        error1.propId = SOME_READ_ON_CHANGE_PROPERTY;
+        error1.areaId = AREA_ID_1;
+        error1.errorCode = CarPropertyManager.CAR_SET_PROPERTY_ERROR_CODE_TRY_AGAIN;
+        errors.add(error1);
+        VehiclePropError error2 = new VehiclePropError();
+        error2.propId = SOME_READ_ON_CHANGE_PROPERTY;
+        error2.areaId = AREA_ID_1;
+        error2.errorCode = CarPropertyManager.CAR_SET_PROPERTY_ERROR_CODE_INVALID_ARG;
+        errors.add(error2);
+        VehiclePropError error3 = new VehiclePropError();
+        error3.propId = SOME_READ_WRITE_STATIC_PROPERTY;
+        error3.areaId = AREA_ID_1;
+        error3.errorCode = CarPropertyManager.CAR_SET_PROPERTY_ERROR_CODE_TRY_AGAIN;
+        errors.add(error3);
+
+        // Act
+        mVehicleHal.enableInjectionMode(List.of());
+        mVehicleHal.onPropertySetError(errors);
+
+        // Assert
+        verify(mPowerHalService, after(WAIT_TIMEOUT_MS).never()).onPropertySetError(any());
     }
 
     @Test
@@ -2476,6 +2594,45 @@ public class VehicleHalTest extends AbstractExpectableTestCase {
     }
 
     @Test
+    public void testOnSupportedValuesChange_withEnableInjectionMode() {
+        var propIdAreaId1 = newPropIdAreaId(SOME_READ_WRITE_STATIC_PROPERTY, 0);
+        var propIdAreaId2 = newPropIdAreaId(CONTINUOUS_PROPERTY, 0);
+        var propIdAreaIds = List.of(propIdAreaId1, propIdAreaId2);
+
+        mVehicleHal.enableInjectionMode(List.of(SOME_READ_WRITE_STATIC_PROPERTY));
+        mVehicleHal.registerSupportedValuesChange(mPropertyHalService, propIdAreaIds);
+        mVehicleHal.onSupportedValuesChange(propIdAreaIds);
+
+        ArgumentCaptor<List> listCaptor = ArgumentCaptor.forClass(List.class);
+
+        verify(mPropertyHalService).onSupportedValuesChange(listCaptor.capture());
+        clearInvocations(mPropertyHalService);
+
+        var notifiedPropIdAreaIds = (List<PropIdAreaId>) listCaptor.getValue();
+        assertThat(notifiedPropIdAreaIds).containsExactly(propIdAreaId1);
+
+        mVehicleHal.onSupportedValuesChange(List.of(propIdAreaId1));
+
+        verify(mPropertyHalService).onSupportedValuesChange(listCaptor.capture());
+
+        notifiedPropIdAreaIds = (List<PropIdAreaId>) listCaptor.getValue();
+        assertThat(notifiedPropIdAreaIds).containsExactly(propIdAreaId1);
+    }
+
+    @Test
+    public void testOnSupportedValuesChange_withEnableInjectionModeAllPropertiesFiltered() {
+        var propIdAreaId1 = newPropIdAreaId(SOME_READ_WRITE_STATIC_PROPERTY, 0);
+        var propIdAreaId2 = newPropIdAreaId(CONTINUOUS_PROPERTY, 0);
+        var propIdAreaIds = List.of(propIdAreaId1, propIdAreaId2);
+
+        mVehicleHal.enableInjectionMode(List.of());
+        mVehicleHal.registerSupportedValuesChange(mPropertyHalService, propIdAreaIds);
+        mVehicleHal.onSupportedValuesChange(propIdAreaIds);
+
+        verify(mPropertyHalService, after(WAIT_TIMEOUT_MS).never()).onSupportedValuesChange(any());
+    }
+
+    @Test
     public void testOnSupportedValuesChange_ignoreUnregisteredProperty() {
         var propIdAreaId1 = newPropIdAreaId(SOME_READ_WRITE_STATIC_PROPERTY, 0);
         var propIdAreaId2 = newPropIdAreaId(CONTINUOUS_PROPERTY, 0);
@@ -2654,6 +2811,18 @@ public class VehicleHalTest extends AbstractExpectableTestCase {
         mVehicleHal.disableInjectionMode();
         assertWithMessage("Injection mode disabled")
                 .that(mVehicleHal.isVehiclePropertyInjectionModeEnabled()).isFalse();
+    }
+
+    @Test
+    public void testInjectVehicleProperties() {
+        CarPropertyValue value1 = new CarPropertyValue<>(SOME_READ_ON_CHANGE_PROPERTY, AREA_ID_1,
+                TEST_TIMESTAMP, 1.23F);
+        CarPropertyValue value2 = new CarPropertyValue<>(SOME_FLOAT_PROPERTY, AREA_ID_2,
+                TEST_TIMESTAMP, 1.23F);
+        List<CarPropertyValue> carPropertyValues = List.of(value1, value2);
+        mVehicleHal.injectVehicleProperties(carPropertyValues);
+
+        verify(mVehicle).injectVehicleProperties(carPropertyValues);
     }
 
     @Test

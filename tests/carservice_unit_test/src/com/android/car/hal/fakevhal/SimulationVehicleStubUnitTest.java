@@ -80,6 +80,7 @@ public class SimulationVehicleStubUnitTest {
 
     @Before
     public void setup() throws Exception {
+        // TODO(b/392180801): Convert these into real impl instead of mocks
         HalPropValue halPropValue1 = mock(HalPropValue.class);
         HalPropValue halPropValue2 = mock(HalPropValue.class);
         when(mHalPropConfig1.getPropId()).thenReturn(PROP_ID_1);
@@ -105,7 +106,7 @@ public class SimulationVehicleStubUnitTest {
         when(mMockVehicleStub.getAllPropConfigs()).thenReturn(halPropConfigs);
 
         mSimulationVehicleStub = new SimulationVehicleStub(mMockVehicleStub,
-                List.of(PROP_ID_2));
+                List.of(PROP_ID_2), mVehicleHalCallback);
     }
 
     @Test
@@ -207,7 +208,7 @@ public class SimulationVehicleStubUnitTest {
 
         mSimulationVehicleStub.set(halPropValue);
 
-        ArgumentCaptor<ArrayList> captor = ArgumentCaptor.forClass(ArrayList.class);
+        ArgumentCaptor<List> captor = ArgumentCaptor.forClass(List.class);
         verify(mMockVehicleStub, never()).set(any(HalPropValue.class));
         verify(mVehicleHalCallback).onPropertyEvent(captor.capture());
         assertWithMessage("onPropertyEvent value").that(captor.getValue()
@@ -390,9 +391,13 @@ public class SimulationVehicleStubUnitTest {
         when(mMockHalPropValue1.toVehiclePropValue()).thenReturn(vehiclePropValue1);
         VehiclePropValue vehiclePropValue2 = mock(VehiclePropValue.class);
         when(mMockHalPropValue2.toVehiclePropValue()).thenReturn(vehiclePropValue2);
+        HalPropValue updatedHalPropValue = mock(HalPropValue.class);
         CountDownLatch countDownLatch = new CountDownLatch(1);
         VehicleStub.VehicleStubCallbackInterface callback = new VehicleStubCallbackTest(
                 countDownLatch);
+        when(mMockHalPropValueBuilder.build(any(VehiclePropValue.class)))
+                .thenReturn(updatedHalPropValue);
+
         mSimulationVehicleStub.setAsync(List.of(defaultVehicleStubAsyncRequest(mMockHalPropValue1),
                         defaultVehicleStubAsyncRequest(mMockHalPropValue2)),
                 callback);
@@ -408,11 +413,15 @@ public class SimulationVehicleStubUnitTest {
         when(mMockHalPropValue1.toVehiclePropValue()).thenReturn(vehiclePropValue1);
         VehiclePropValue vehiclePropValue2 = mock(VehiclePropValue.class);
         when(mMockHalPropValue2.toVehiclePropValue()).thenReturn(vehiclePropValue2);
+        HalPropValue updatedHalPropValue = mock(HalPropValue.class);
         CountDownLatch countDownLatch = new CountDownLatch(1);
         VehicleStubCallbackTest callback = new VehicleStubCallbackTest(
                 countDownLatch);
         doThrow(new ServiceSpecificException(VehicleHalStatusCode.STATUS_NOT_AVAILABLE))
                 .when(mMockVehicleStub).set(mMockHalPropValue2);
+        when(mMockHalPropValueBuilder.build(any(VehiclePropValue.class)))
+                .thenReturn(updatedHalPropValue);
+
         mSimulationVehicleStub.setAsync(List.of(defaultVehicleStubAsyncRequest(mMockHalPropValue1),
                         defaultVehicleStubAsyncRequest(mMockHalPropValue2)),
                 callback);
@@ -437,10 +446,14 @@ public class SimulationVehicleStubUnitTest {
         when(mMockHalPropValue1.toVehiclePropValue()).thenReturn(vehiclePropValue1);
         VehiclePropValue vehiclePropValue2 = mock(VehiclePropValue.class);
         when(mMockHalPropValue2.toVehiclePropValue()).thenReturn(vehiclePropValue2);
+        HalPropValue updatedHalPropValue = mock(HalPropValue.class);
         CountDownLatch countDownLatch = new CountDownLatch(1);
         VehicleStubCallbackTest callback = new VehicleStubCallbackTest(
                 countDownLatch);
         doThrow(new RemoteException()).when(mMockVehicleStub).set(mMockHalPropValue2);
+        when(mMockHalPropValueBuilder.build(any(VehiclePropValue.class)))
+                .thenReturn(updatedHalPropValue);
+
         mSimulationVehicleStub.setAsync(List.of(defaultVehicleStubAsyncRequest(mMockHalPropValue1),
                         defaultVehicleStubAsyncRequest(mMockHalPropValue2)),
                 callback);

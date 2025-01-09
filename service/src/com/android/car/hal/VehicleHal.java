@@ -161,6 +161,8 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
     private static final String DATA_DELIMITER = ",";
     @GuardedBy("mLock")
     private RecordingListenerHandler mListenerHandler;
+    @GuardedBy("mLock")
+    private ArraySet<Integer> mPropertyIdsFromRealHardware = new ArraySet<>();
 
     /** A structure to store update rate in hz and whether to enable VUR. */
     private static final class RateInfo {
@@ -385,6 +387,17 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
     private void handleOnPropertyEvent(List<HalPropValue> propValues) {
         maybeHandleRecording(propValues);
         synchronized (mLock) {
+            if (isVehiclePropertyInjectionModeEnabled()) {
+                List<HalPropValue> filteredPropValues = SimulationVehicleStub.filterProperties(
+                        propValues,
+                        HalPropValue::getPropId, mPropertyIdsFromRealHardware);
+                if (filteredPropValues.isEmpty()) {
+                    Slogf.d(CarLog.TAG_HAL, "All onPropertyEvent properties filtered: %s",
+                            Arrays.toString(propValues.toArray()));
+                    return;
+                }
+                propValues = filteredPropValues;
+            }
             for (int i = 0; i < propValues.size(); i++) {
                 HalPropValue v = propValues.get(i);
                 int propId = v.getPropId();
@@ -413,6 +426,19 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
     }
 
     private void handleOnPropertySetError(List<VehiclePropError> errors) {
+        if (isVehiclePropertyInjectionModeEnabled()) {
+            List<VehiclePropError> filteredErrors;
+            synchronized (mLock) {
+                filteredErrors = SimulationVehicleStub.filterProperties(errors,
+                        (VehiclePropError err) -> err.propId, mPropertyIdsFromRealHardware);
+            }
+            if (filteredErrors.isEmpty()) {
+                Slogf.d(CarLog.TAG_HAL, "All onPropertySetError events filtered: %s",
+                        Arrays.toString(errors.toArray()));
+                return;
+            }
+            errors = filteredErrors;
+        }
         SparseArray<ArrayList<VehiclePropError>> errorsByPropId =
                 new SparseArray<ArrayList<VehiclePropError>>();
         for (int i = 0; i < errors.size(); i++) {
@@ -1408,6 +1434,7 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
                         + " not enabled");
                 return;
             }
+            mPropertyIdsFromRealHardware.clear();
             mVehicleStub.set(mVehicleStub.get().getRealVehicleStub());
         }
     }
@@ -1431,8 +1458,9 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
             // isVehiclePropertyInjectionModeEnabled can return false and cause another creation of
             // an SimulationVehicleStub before mVehicleStub is actually set.
             try {
-                mVehicleStub.set(
-                        new SimulationVehicleStub(mVehicleStub.get(), propertyIdsFromRealHardware));
+                mVehicleStub.set(new SimulationVehicleStub(
+                        mVehicleStub.get(), propertyIdsFromRealHardware, this));
+                mPropertyIdsFromRealHardware.addAll(propertyIdsFromRealHardware);
             } catch (RemoteException e) {
                 throw new IllegalStateException("Failed to create SimulationVehicleStub", e);
             }
@@ -1445,6 +1473,14 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
      */
     public boolean isVehiclePropertyInjectionModeEnabled() {
         return mVehicleStub.get().isSimulatedModeEnabled();
+    }
+
+    /**
+     * Injects the CarPropertyValues.
+     * @param carPropertyValues The carPropertyValues to inject.
+     */
+    public void injectVehicleProperties(List<CarPropertyValue> carPropertyValues) {
+        mVehicleStub.get().injectVehicleProperties(carPropertyValues);
     }
 
     /**
@@ -2040,9 +2076,21 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
             Slogf.i(CarLog.TAG_HAL, "onSupportedValuesChange called for: %s",
                     toHalPropIdAreaIdsString(propIdAreaIds));
         }
-
         var dispatchList = new SupportedValuesChangeDispatchList();
         synchronized (mLock) {
+            if (isVehiclePropertyInjectionModeEnabled()) {
+                List<PropIdAreaId> filteredPropIdAreaIds = SimulationVehicleStub.filterProperties(
+                        propIdAreaIds,
+                        (PropIdAreaId propIdAreaId) -> propIdAreaId.propId,
+                        mPropertyIdsFromRealHardware);
+                if (filteredPropIdAreaIds.isEmpty()) {
+                    Slogf.d(CarLog.TAG_HAL, "All onSupportedValuesChange events filtered %s",
+                            Arrays.toString(filteredPropIdAreaIds.toArray()));
+                    return;
+                }
+                propIdAreaIds = filteredPropIdAreaIds;
+            }
+
             for (int i = 0; i < propIdAreaIds.size(); i++) {
                 var propIdAreaId = propIdAreaIds.get(i);
                 HalServiceBase service = mPropertyHandlers.get(propIdAreaId.propId);
@@ -2064,7 +2112,6 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
                 dispatchList.addEvent(service, propIdAreaId);
             }
         }
-
         dispatchList.dispatchToClients();
     }
 
