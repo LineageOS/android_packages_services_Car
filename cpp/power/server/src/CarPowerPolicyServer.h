@@ -333,6 +333,8 @@ public:
     void connectToVhalHelper() EXCLUDES(mMutex);
     void handlePowerPolicyChangeClientBinderDeath(const AIBinder* clientId) EXCLUDES(mMutex);
     void handlePowerStateChangeClientBinderDeath(const AIBinder* clientId) EXCLUDES(mMutex);
+    void handlePowerStateChangeClientWithCompletionBinderDeath(const AIBinder* clientId)
+            EXCLUDES(mMutex);
     void handleCarServiceBinderDeath() EXCLUDES(mMutex);
     void handleVhalDeath() EXCLUDES(mMutex);
     void handleApplyPowerPolicyRequest(const int32_t requestId);
@@ -380,6 +382,8 @@ private:
     void terminate() EXCLUDES(mMutex);
     bool isPowerPolicyCallbackRegisteredLocked(const AIBinder* binder) REQUIRES(mMutex);
     bool isPowerStateListenerRegisteredLocked(const AIBinder* binder) REQUIRES(mMutex);
+    bool isPowerStateListenerWithCompletionRegisteredLocked(const AIBinder* binder)
+            REQUIRES(mMutex);
     void connectToVhal();
     void subscribeToVhal();
     void subscribeToProperty(
@@ -411,9 +415,13 @@ private:
 
     std::shared_ptr<aidl::android::automotive::power::internal::ICarPowerManagementDelegateCallback>
     getPowerManagementDelegateCallback();
+    ndk::ScopedAStatus logAndReturnErrorWithMessage(int32_t errorType, const std::string& errorMsg);
+    ndk::ScopedAStatus logAndReturnErrorWithMessage(int32_t errorType, const std::string& errorMsg,
+                                                    const std::string& errorLogPrefix);
 
     static void onPowerPolicyChangeClientBinderDied(void* cookie);
     static void onPowerStateChangeClientBinderDied(void* cookie);
+    static void onPowerStateChangeClientWithCompletionBinderDied(void* cookie);
     static void onCarServiceBinderDied(void* cookie);
     static std::string callbackToString(const CallbackInfo& callback);
     static void onCarServiceDeathRecipientUnlinked(void* cookie);
@@ -426,6 +434,9 @@ private:
     std::vector<std::shared_ptr<
             aidl::android::frameworks::automotive::power::ICarPowerStateChangeListener>>
     getPowerStateListeners() EXCLUDES(mMutex);
+    std::vector<std::shared_ptr<aidl::android::frameworks::automotive::power::
+                                        ICarPowerStateChangeListenerWithCompletion>>
+    getPowerStateListenersWithCompletion() EXCLUDES(mMutex);
     size_t countOnClientBinderDiedContexts() EXCLUDES(mMutex);
     size_t getMaxConnectToVhalRetryCount();
 
@@ -438,6 +449,7 @@ private:
 
     ndk::ScopedAIBinder_DeathRecipient mPowerPolicyClientDeathRecipient;
     ndk::ScopedAIBinder_DeathRecipient mPowerStateClientDeathRecipient;
+    ndk::ScopedAIBinder_DeathRecipient mPowerStateClientWithCompletionDeathRecipient;
     ndk::ScopedAIBinder_DeathRecipient mCarServiceDeathRecipient;
     android::sp<android::Looper> mHandlerLooper;
     android::sp<EventHandler> mEventHandler;
@@ -475,10 +487,12 @@ private:
     std::vector<std::shared_ptr<
             aidl::android::frameworks::automotive::power::ICarPowerStateChangeListener>>
             mPowerStateChangeListeners GUARDED_BY(mMutex);
-    // TODO(b/384096831): add listeners with completion
+    std::vector<std::shared_ptr<aidl::android::frameworks::automotive::power::
+                                        ICarPowerStateChangeListenerWithCompletion>>
+            mPowerStateChangeListenersWithCompletion GUARDED_BY(mMutex);
 
-    // A map of callback ptr to context that is required for
-    // handlePowerPolicyChangeClientBinderDeath.
+    // A map of callback ptr to context that is required for handling power policy change client
+    // and power state change client binder deaths.
     std::unordered_map<const AIBinder*, std::unique_ptr<OnClientBinderDiedContext>>
             mOnClientBinderDiedContexts GUARDED_BY(mMutex);
     std::unordered_map<uint32_t, PolicyRequest> mPolicyRequestById GUARDED_BY(mMutex);
