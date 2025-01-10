@@ -108,6 +108,7 @@ public class ControlBarActivity extends FragmentActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getTheme().applyStyle(R.style.CarLauncherActivityThemeOverlay, true);
         setContentView(R.layout.control_bar_activity);
 
         mControlBarArea = findViewById(R.id.control_bar_area);
