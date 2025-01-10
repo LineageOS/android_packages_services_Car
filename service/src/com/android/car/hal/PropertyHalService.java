@@ -406,6 +406,38 @@ public class PropertyHalService extends HalServiceBase {
         }
     };
 
+    // A class to represent one ISupportedValuesChangeCallback client.
+    // One SupportedValuesChangeClient is equal to another if they have the same binder.
+    private static final class SupportedValuesChangeClient {
+        private final ISupportedValuesChangeCallback mCallback;
+        private final IBinder mBinder;
+
+        SupportedValuesChangeClient(ISupportedValuesChangeCallback callback) {
+            mCallback = callback;
+            mBinder = callback.asBinder();
+        }
+
+        @Override
+        public boolean equals(Object other) {
+            if (this == other) {
+                return true;
+            }
+            if (!(other instanceof SupportedValuesChangeClient)) {
+                return false;
+            }
+            return mBinder.equals(((SupportedValuesChangeClient) other).mBinder);
+        }
+
+        @Override
+        public int hashCode() {
+            return mBinder.hashCode();
+        }
+
+        public ISupportedValuesChangeCallback getCallback() {
+            return mCallback;
+        }
+    }
+
     // The request ID passed by CarPropertyService (ManagerRequestId) is directly passed from
     // CarPropertyManager. Multiple CarPropertyManagers use the same car service instance, thus,
     // the ManagerRequestId is not unique. We have to create another unique ID called
@@ -438,10 +470,10 @@ public class PropertyHalService extends HalServiceBase {
     @GuardedBy("mLock")
     private final SparseArray<List<AsyncPropRequestInfo>> mHalPropIdToWaitingUpdateRequestInfo =
             new SparseArray<>();
-    // A map to store registered ISupportedValuesChangeCallback for each [propId, areaId].
+    // A map to store registered SupportedValuesChangeClient for each [propId, areaId].
     @GuardedBy("mLock")
-    private final ArrayMap<PropIdAreaId, ArraySet<ISupportedValuesChangeCallback>>
-            mSupportedValuesChangeCallbackByPropIdAreaId = new ArrayMap<>();
+    private final ArrayMap<PropIdAreaId, ArraySet<SupportedValuesChangeClient>>
+            mSupportedValuesChangeClientByPropIdAreaId = new ArrayMap<>();
 
     // CarPropertyService subscribes to properties through PropertyHalService. Meanwhile,
     // PropertyHalService internally also subscribes to some property for async set operations.
@@ -1569,9 +1601,9 @@ public class PropertyHalService extends HalServiceBase {
                     continue;
                 }
 
-                var registeredCallbacks = mSupportedValuesChangeCallbackByPropIdAreaId.get(
+                var registeredClients = mSupportedValuesChangeClientByPropIdAreaId.get(
                         mgrPropIdAreaIds.get(i));
-                if (registeredCallbacks == null) {
+                if (registeredClients == null) {
                     // [propId, areaId] was never registered before. Need to register to VHAL.
                     halPropIdAreaIds.add(halPropIdAreaId);
                 }
@@ -1584,14 +1616,18 @@ public class PropertyHalService extends HalServiceBase {
             }
 
             for (int i = 0; i < mgrPropIdAreaIds.size(); i++) {
-                var registeredCallbacks = mSupportedValuesChangeCallbackByPropIdAreaId.get(
-                        mgrPropIdAreaIds.get(i));
-                if (registeredCallbacks == null) {
-                    registeredCallbacks = new ArraySet<ISupportedValuesChangeCallback>();
+                var halPropIdAreaId = managerToHalPropIdAreaId(mgrPropIdAreaIds.get(i));
+                if (!mVehicleHal.isSupportedValuesImplemented(halPropIdAreaId)) {
+                    continue;
                 }
-                registeredCallbacks.add(callback);
-                mSupportedValuesChangeCallbackByPropIdAreaId.put(mgrPropIdAreaIds.get(i),
-                        registeredCallbacks);
+                var registeredClients = mSupportedValuesChangeClientByPropIdAreaId.get(
+                        mgrPropIdAreaIds.get(i));
+                if (registeredClients == null) {
+                    registeredClients = new ArraySet<SupportedValuesChangeClient>();
+                }
+                registeredClients.add(new SupportedValuesChangeClient(callback));
+                mSupportedValuesChangeClientByPropIdAreaId.put(mgrPropIdAreaIds.get(i),
+                        registeredClients);
             }
         }
     }
@@ -1615,19 +1651,19 @@ public class PropertyHalService extends HalServiceBase {
                     continue;
                 }
 
-                var registeredCallbacks = mSupportedValuesChangeCallbackByPropIdAreaId.get(
+                var registeredClients = mSupportedValuesChangeClientByPropIdAreaId.get(
                         propIdAreaId);
-                if (registeredCallbacks == null) {
+                if (registeredClients == null) {
                     continue;
                 }
-                registeredCallbacks.remove(callback);
-                if (!registeredCallbacks.isEmpty()) {
+                registeredClients.remove(new SupportedValuesChangeClient(callback));
+                if (!registeredClients.isEmpty()) {
                     // There are still callbacks registered for propIdAreaId, do not unregister
                     // from VehicleHal.
                     continue;
                 }
                 halPropIdAreaIdsToUnregister.add(managerToHalPropIdAreaId(propIdAreaId));
-                mSupportedValuesChangeCallbackByPropIdAreaId.remove(propIdAreaId);
+                mSupportedValuesChangeClientByPropIdAreaId.remove(propIdAreaId);
             }
             if (halPropIdAreaIdsToUnregister.isEmpty()) {
                 return;
@@ -1662,14 +1698,14 @@ public class PropertyHalService extends HalServiceBase {
         synchronized (mLock) {
             for (int i = 0; i < halPropIdAreaIds.size(); i++) {
                 PropIdAreaId propIdAreaId = halToManagerPropIdAreaId(halPropIdAreaIds.get(i));
-                var callbacks = mSupportedValuesChangeCallbackByPropIdAreaId.get(propIdAreaId);
-                if (callbacks == null) {
+                var clients = mSupportedValuesChangeClientByPropIdAreaId.get(propIdAreaId);
+                if (clients == null) {
                     Slogf.w(TAG, "No registered clients for supported values change event for "
                             + toDebugString(propIdAreaId) + ", ignore");
                     continue;
                 }
-                for (int j = 0; j < callbacks.size(); j++) {
-                    dispatchList.addEvent(callbacks.valueAt(j), propIdAreaId);
+                for (int j = 0; j < clients.size(); j++) {
+                    dispatchList.addEvent(clients.valueAt(j).getCallback(), propIdAreaId);
                 }
             }
         }
@@ -1680,13 +1716,13 @@ public class PropertyHalService extends HalServiceBase {
     private void unregisterSupportedValuesChangeCallback(ISupportedValuesChangeCallback callback) {
         synchronized (mLock) {
             List<PropIdAreaId> halPropIdAreaIdsToUnregister = new ArrayList<>();
-            for (int i = 0; i < mSupportedValuesChangeCallbackByPropIdAreaId.size(); i++) {
-                var callbacks = mSupportedValuesChangeCallbackByPropIdAreaId.valueAt(i);
-                var propIdAreaId = mSupportedValuesChangeCallbackByPropIdAreaId.keyAt(i);
-                callbacks.remove(callback);
-                if (callbacks.size() == 0) {
+            for (int i = 0; i < mSupportedValuesChangeClientByPropIdAreaId.size(); i++) {
+                var clients = mSupportedValuesChangeClientByPropIdAreaId.valueAt(i);
+                var propIdAreaId = mSupportedValuesChangeClientByPropIdAreaId.keyAt(i);
+                clients.remove(new SupportedValuesChangeClient(callback));
+                if (clients.size() == 0) {
                     halPropIdAreaIdsToUnregister.add(managerToHalPropIdAreaId(propIdAreaId));
-                    mSupportedValuesChangeCallbackByPropIdAreaId.remove(propIdAreaId);
+                    mSupportedValuesChangeClientByPropIdAreaId.remove(propIdAreaId);
                 }
             }
             if (halPropIdAreaIdsToUnregister.isEmpty()) {
@@ -2378,6 +2414,22 @@ public class PropertyHalService extends HalServiceBase {
         synchronized (mLock) {
             return mHalPropIdToWaitingUpdateRequestInfo.size();
         }
+    }
+
+    /**
+     * Counts the number of supported values change clients.
+     *
+     * For test only.
+     */
+    @VisibleForTesting
+    public int countSupportedValuesChangeClient() {
+        ArraySet<SupportedValuesChangeClient> clients = new ArraySet<>();
+        synchronized (mLock) {
+            for (int i = 0; i < mSupportedValuesChangeClientByPropIdAreaId.size(); i++) {
+                clients.addAll(mSupportedValuesChangeClientByPropIdAreaId.valueAt(i));
+            }
+        }
+        return clients.size();
     }
 
     private static String requestTypeToString(@AsyncRequestType int requestType) {

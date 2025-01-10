@@ -666,7 +666,7 @@ public class PropertyTestFragment extends Fragment implements OnItemSelectedList
             mTvLogEvent.append(String.format("Event %1$s: elapsedRealtimeNanos=%2$s propId=0x%3$s "
                     + "areaId=0x%4$s name=%5$s status=%6$s value=%7$s", mNumEvents.get(propId),
                     value.getTimestamp(), toHexString(propId), toHexString(areaId),
-                    VehiclePropertyIds.toString(propId), value.getStatus(), valueString));
+                    PropertyInfo.getPropertyName(propId), value.getStatus(), valueString));
             if (mPropSubscriptionRateHz.contains(propId)) {
                 mTvLogEvent.append(
                         String.format(" selected subscription rate (Hz)=%1$s "
@@ -683,14 +683,16 @@ public class PropertyTestFragment extends Fragment implements OnItemSelectedList
         @Override
         public void onErrorEvent(int propId, int areaId) {
             mTvLogEvent.append("Received error event propId="
-                    + VehiclePropertyIds.toString(propId) + ", areaId=0x" + toHexString(areaId));
+                    + PropertyInfo.getPropertyName(propId) + ", areaId=0x" + toHexString(areaId)
+                    + "\n");
             scrollEventLogsToBottom();
         }
 
         @Override
         public void onSupportedValuesChange(int propId, int areaId) {
             mTvLogEvent.append("Received onSupportedValuesChange event propId="
-                    + VehiclePropertyIds.toString(propId) + ", areaId=0x" + toHexString(areaId));
+                    + PropertyInfo.getPropertyName(propId) + ", areaId=0x" + toHexString(areaId)
+                    + "\n");
             scrollEventLogsToBottom();
         }
     }

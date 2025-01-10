@@ -103,7 +103,7 @@ private:
 
 class SubscriptionCallback;
 
-class HidlSubscriptionClient final : public ISubscriptionClient {
+class HidlSubscriptionClient final : public internal::SubscriptionClient {
 public:
     ~HidlSubscriptionClient() = default;
 

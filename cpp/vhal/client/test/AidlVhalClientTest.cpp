@@ -66,6 +66,7 @@ using ::aidl::android::hardware::automotive::vehicle::VehiclePropValues;
 using ::ndk::ScopedAStatus;
 using ::ndk::SharedRefBase;
 using ::testing::Gt;
+using ::testing::UnorderedElementsAre;
 
 class MockVhal final : public BnVehicle {
 public:
@@ -1068,6 +1069,28 @@ TEST_F(AidlVhalClientTest, testUnubscribeError) {
     auto result = subscriptionClient->unsubscribe({TEST_PROP_ID});
 
     ASSERT_FALSE(result.ok());
+}
+
+TEST_F(AidlVhalClientTest, testUnsubscribeAll) {
+    std::vector<SubscribeOptions> options = {
+            {
+                    .propId = TEST_PROP_ID,
+                    .areaIds = {TEST_AREA_ID},
+                    .sampleRate = 1.0,
+            },
+            {
+                    .propId = TEST_PROP_ID_2,
+                    .sampleRate = 2.0,
+            },
+    };
+
+    auto callback = std::make_shared<MockSubscriptionCallback>();
+    auto subscriptionClient = getClient()->getSubscriptionClient(callback);
+    subscriptionClient->subscribe(options);
+
+    subscriptionClient->unsubscribeAll();
+    ASSERT_THAT(getVhal()->getUnsubscribedPropIds(),
+                UnorderedElementsAre(TEST_PROP_ID, TEST_PROP_ID_2));
 }
 
 TEST_F(AidlVhalClientTest, testGetRemoteInterfaceVersion) {

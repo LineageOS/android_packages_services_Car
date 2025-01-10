@@ -249,12 +249,14 @@ VhalClientResult<void> HidlSubscriptionClient::subscribe(
         const std::vector<::aidl::android::hardware::automotive::vehicle::SubscribeOptions>&
                 options) {
     std::vector<SubscribeOptions> hidlOptions;
+    std::vector<int32_t> propIds;
     for (const auto& option : options) {
         hidlOptions.push_back(SubscribeOptions{
                 .propId = option.propId,
                 .sampleRate = option.sampleRate,
                 .flags = SubscribeFlags::EVENTS_FROM_CAR,
         });
+        propIds.push_back(option.propId);
     }
     auto result = mHal->subscribe(mVhalCallback, hidlOptions);
     if (!result.isOk()) {
@@ -266,6 +268,7 @@ VhalClientResult<void> HidlSubscriptionClient::subscribe(
         return ClientStatusError(toAidlStatusCode(status))
                 << "failed to subscribe: status code: " << toInt(status);
     }
+    addSubscribedPropIds(propIds);
     return {};
 }
 

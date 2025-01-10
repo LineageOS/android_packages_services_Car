@@ -20,6 +20,7 @@
 #include <aidl/android/hardware/automotive/vehicle/StatusCode.h>
 #include <android-base/result.h>
 #include <android/hardware/automotive/vehicle/2.0/IVehicle.h>
+#include <gmock/gmock.h>
 #include <gtest/gtest.h>
 #include <utils/StrongPointer.h>
 
@@ -45,6 +46,8 @@ using ::android::hardware::automotive::vehicle::V2_0::SubscribeFlags;
 using ::android::hardware::automotive::vehicle::V2_0::SubscribeOptions;
 using ::android::hardware::automotive::vehicle::V2_0::VehiclePropConfig;
 using ::android::hardware::automotive::vehicle::V2_0::VehiclePropValue;
+
+using ::testing::UnorderedElementsAre;
 
 class MockVhal final : public IVehicle {
 public:
@@ -80,7 +83,7 @@ public:
 
     Return<StatusCode> unsubscribe([[maybe_unused]] const sp<IVehicleCallback>& callback,
                                    int32_t propId) override {
-        mUnsubscribedPropId = propId;
+        mUnsubscribedPropIds.push_back(propId);
         return mStatus;
     }
 
@@ -100,7 +103,9 @@ public:
 
     std::vector<SubscribeOptions> getSubscribeOptions() { return mSubscribeOptions; }
 
-    int32_t getUnsubscribedPropId() { return mUnsubscribedPropId; }
+    int32_t getUnsubscribedPropId() { return mUnsubscribedPropIds[0]; }
+
+    std::vector<int32_t> getUnsubscribedPropIds() { return mUnsubscribedPropIds; }
 
     void triggerOnPropertyEvent(const std::vector<VehiclePropValue>& values) {
         mSubscribedCallback->onPropertyEvent(values);
@@ -119,7 +124,7 @@ private:
     VehiclePropValue mRequestPropValue;
     sp<IVehicleCallback> mSubscribedCallback;
     std::vector<SubscribeOptions> mSubscribeOptions;
-    int32_t mUnsubscribedPropId;
+    std::vector<int32_t> mUnsubscribedPropIds;
 };
 
 class MockSubscriptionCallback final : public ISubscriptionCallback {
@@ -539,6 +544,28 @@ TEST_F(HidlVhalClientTest, testUnubscribeError) {
     auto result = subscriptionClient->unsubscribe({TEST_PROP_ID});
 
     ASSERT_FALSE(result.ok());
+}
+
+TEST_F(HidlVhalClientTest, testUnsubscribeAll) {
+    std::vector<::aidl::android::hardware::automotive::vehicle::SubscribeOptions> options = {
+            {
+                    .propId = TEST_PROP_ID,
+                    .areaIds = {TEST_AREA_ID},
+                    .sampleRate = 1.0,
+            },
+            {
+                    .propId = TEST_PROP_ID_2,
+                    .sampleRate = 2.0,
+            },
+    };
+
+    auto callback = std::make_shared<MockSubscriptionCallback>();
+    auto subscriptionClient = getClient()->getSubscriptionClient(callback);
+    subscriptionClient->subscribe(options);
+
+    subscriptionClient->unsubscribeAll();
+    ASSERT_THAT(getVhal()->getUnsubscribedPropIds(),
+                UnorderedElementsAre(TEST_PROP_ID, TEST_PROP_ID_2));
 }
 
 TEST_F(HidlVhalClientTest, testGetRemoteInterfaceVersion) {

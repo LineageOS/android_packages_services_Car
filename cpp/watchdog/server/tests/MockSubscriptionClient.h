@@ -70,6 +70,8 @@ public:
         return {};
     }
 
+    MOCK_METHOD(void, unsubscribeAll, (), (override));
+
 private:
     std::shared_ptr<MockVehicle> mHal;
     std::shared_ptr<android::frameworks::automotive::vhal::SubscriptionVehicleCallback> mCallback;

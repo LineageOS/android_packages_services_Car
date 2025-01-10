@@ -264,7 +264,7 @@ private:
     std::shared_ptr<ISubscriptionCallback> mCallback;
 };
 
-class AidlSubscriptionClient final : public ISubscriptionClient {
+class AidlSubscriptionClient final : public internal::SubscriptionClient {
 public:
     ~AidlSubscriptionClient() = default;
 

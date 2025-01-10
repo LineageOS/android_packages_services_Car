@@ -378,9 +378,9 @@
          TODO(b/139497602): Remove dependency on Media Center, handle in CarMediaService -->
     <string name="serviceMediaConnection" translatable="false">com.android.car.media</string>
 
-    <!-- The package name of the default bugreport application that can use CarBugreportServiceManager.
-         There is no default bugreporting app.-->
-    <string name="config_car_bugreport_application" translatable="false"></string>
+    <!-- Specifies bugreport applications that can use CarBugreportManagerService. -->
+    <string-array name="config_car_bugreport_applications" translatable="false">
+    </string-array>
 
     <!--
         Lists all occupant (= driver + passenger) zones available in the car.
