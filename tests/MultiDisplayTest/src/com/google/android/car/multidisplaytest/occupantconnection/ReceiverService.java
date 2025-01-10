@@ -139,7 +139,7 @@ public class ReceiverService extends AbstractReceiverService {
     @Override
     public void onConnectionInitiated(@NonNull OccupantZoneInfo senderZone) {
         boolean needsUserApproval = SystemProperties.getBoolean(
-                SYSTEM_PROPERTY_KEY_CONNECTION_NEEDS_USER_APPROVAL, /* def= */ true);
+                SYSTEM_PROPERTY_KEY_CONNECTION_NEEDS_USER_APPROVAL, /* def= */ false);
         Slog.d(mTag, "onConnectionInitiated:senderZone=" + senderZone
                 + ", needsUserApproval=" + needsUserApproval);
         if (needsUserApproval) {
