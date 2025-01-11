@@ -79,8 +79,7 @@ public class HalPropertyDebugUtilsUnitTest {
 
     @Test
     public void testToAreaIdString_handlesDoorAreaType() {
-        assertThat(toAreaIdString(VehicleProperty.DOOR_POS,
-                android.hardware.automotive.vehicle.VehicleAreaDoor.REAR)).isEqualTo(
+        assertThat(toAreaIdString(VehicleProperty.DOOR_POS, VehicleAreaDoor.REAR)).isEqualTo(
                 "REAR(0x20000000)");
         assertThat(toAreaIdString(VehicleProperty.DOOR_POS,
                 VehicleAreaDoor.REAR | VehicleAreaDoor.HOOD)).isEqualTo("REAR|HOOD(0x30000000)");
@@ -90,7 +89,7 @@ public class HalPropertyDebugUtilsUnitTest {
     public void testToAreaIdString_handlesSeatAreaType() {
         assertThat(
                 toAreaIdString(VehicleProperty.HVAC_POWER_ON, VehicleAreaSeat.UNKNOWN)).isEqualTo(
-                "UNKNOWN");
+                "UNKNOWN(0x0)");
         assertThat(toAreaIdString(VehicleProperty.HVAC_POWER_ON,
                 VehicleAreaSeat.ROW_1_LEFT | VehicleAreaSeat.ROW_2_RIGHT)).isEqualTo(
                 "ROW_2_RIGHT|ROW_1_LEFT(0x41)");
@@ -109,7 +108,7 @@ public class HalPropertyDebugUtilsUnitTest {
     public void testToAreaIdString_handlesWheelAreaType() {
         assertThat(
                 toAreaIdString(VehicleProperty.TIRE_PRESSURE, VehicleAreaWheel.UNKNOWN)).isEqualTo(
-                "UNKNOWN");
+                "UNKNOWN(0x0)");
         assertThat(toAreaIdString(VehicleProperty.TIRE_PRESSURE,
                 VehicleAreaWheel.LEFT_REAR | VehicleAreaWheel.RIGHT_REAR)).isEqualTo(
                 "RIGHT_REAR|LEFT_REAR(0xc)");
@@ -140,6 +139,13 @@ public class HalPropertyDebugUtilsUnitTest {
     public void testToAreaIdString_handlesInvalidAreaTypeNoDefinedBits() {
         assertThat(toAreaIdString(VehicleProperty.MIRROR_Y_MOVE, /*areaId=*/
                 0)).isEqualTo("INVALID_VehicleAreaMirror_AREA_ID(0x0)");
+    }
+
+    @Test
+    public void testToAreaIdString_handlesPartialMatch() {
+        assertThat(toAreaIdString(VehicleProperty.MIRROR_Y_MOVE,
+                VehicleAreaMirror.DRIVER_LEFT | VehicleAreaSeat.ROW_3_RIGHT)).isEqualTo(
+                "DRIVER_LEFT|0x400(0x401)");
     }
 
     @Test

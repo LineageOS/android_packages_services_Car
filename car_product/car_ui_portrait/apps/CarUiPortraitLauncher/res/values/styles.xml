@@ -43,6 +43,7 @@
         <item name="android:tint">@color/car_surface_container_highest</item>
     </style>
     <style name="ControlBarActivityTheme" parent="Theme.CarUi.NoToolbar">
+        <item name="oemTokenOverrideEnabled">true</item>
         <item name="android:windowBackground">@android:color/transparent</item>
     </style>
 </resources>
