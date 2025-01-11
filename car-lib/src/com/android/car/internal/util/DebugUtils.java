@@ -52,28 +52,30 @@ public final class DebugUtils {
      * Use prefixed constants (static final values) on given class to turn flags
      * into human-readable string.
      */
-    public static String flagsToString(Class<?> clazz, String prefix, int flagsToConvert) {
-        int flags = flagsToConvert;
-        final StringBuilder res = new StringBuilder();
-        boolean flagsWasZero = flags == 0;
+    public static String flagsToString(Class<?> bitFlagClazz, String prefix, int flagsToConvert) {
+        boolean inputFlagsWasZero = flagsToConvert == 0;
+        int flagsToConvertCopy = flagsToConvert;
+        final StringBuilder result = new StringBuilder();
 
-        for (Integer bitFlag : ConstantDebugUtils.getValues(clazz, prefix)) {
+        List<Integer> bitFlags = ConstantDebugUtils.getValues(bitFlagClazz, prefix);
+        for (int i = 0; i < bitFlags.size(); i++) {
+            int bitFlag = bitFlags.get(i);
 
-            if (bitFlag == 0 && flagsWasZero) {
-                return ConstantDebugUtils.toName(clazz, prefix, bitFlag);
+            if (bitFlag == 0 && inputFlagsWasZero) {
+                return ConstantDebugUtils.toName(bitFlagClazz, prefix, bitFlag);
             }
-            if (bitFlag != 0 && (flags & bitFlag) == bitFlag) {
-                flags &= ~bitFlag;
-                res.append(ConstantDebugUtils.toName(clazz, prefix, bitFlag)).append('|');
+            if (bitFlag != 0 && (flagsToConvertCopy & bitFlag) == bitFlag) {
+                flagsToConvertCopy &= ~bitFlag;
+                result.append(ConstantDebugUtils.toName(bitFlagClazz, prefix, bitFlag)).append('|');
             }
         }
 
-        if (flags != 0 || res.isEmpty()) {
-            res.append(Integer.toHexString(flags));
+        if (flagsToConvertCopy != 0 || result.isEmpty()) {
+            result.append("0x").append(Integer.toHexString(flagsToConvertCopy));
         } else {
-            res.deleteCharAt(res.length() - 1);
+            result.deleteCharAt(result.length() - 1);
         }
-        return res.toString();
+        return result.toString();
     }
 
     /**
