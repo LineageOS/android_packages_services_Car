@@ -16,11 +16,14 @@
 
 package android.car.view;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.PRIVATE_CONSTRUCTOR;
 
 import android.annotation.NonNull;
 import android.annotation.RequiresPermission;
 import android.annotation.SystemApi;
 import android.view.WindowManager;
+
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 
 /**
  * Provide access to {@code android.view.WindowManager} calls.
@@ -29,6 +32,8 @@ import android.view.WindowManager;
  */
 @SystemApi
 public final class WindowManagerHelper {
+
+    @ExcludeFromCodeCoverageGeneratedReport(reason = PRIVATE_CONSTRUCTOR)
     private WindowManagerHelper() {
         throw new UnsupportedOperationException();
     }
