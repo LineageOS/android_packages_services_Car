@@ -18,6 +18,7 @@ package com.android.car.hal.property;
 
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.PRIVATE_CONSTRUCTOR;
 import static com.android.car.internal.util.ConstantDebugUtils.toName;
+import static com.android.car.internal.util.DebugUtils.flagsToOptionalString;
 
 import static java.lang.Integer.toHexString;
 
@@ -37,7 +38,6 @@ import android.hardware.automotive.vehicle.VehiclePropertyGroup;
 import android.hardware.automotive.vehicle.VehiclePropertyStatus;
 import android.hardware.automotive.vehicle.VehiclePropertyType;
 import android.hardware.automotive.vehicle.VehicleUnit;
-import android.util.ArrayMap;
 import android.util.Slog;
 
 import com.android.car.hal.HalPropValue;
@@ -46,13 +46,8 @@ import com.android.car.internal.property.CarPropertyHelper;
 import com.android.car.internal.property.PropIdAreaId;
 import com.android.car.internal.util.ConstantDebugUtils;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
 import java.util.StringJoiner;
-import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Utility class for converting {@link VehicleProperty} related information to human-readable names.
@@ -60,8 +55,6 @@ import java.util.concurrent.atomic.AtomicReference;
 public final class HalPropertyDebugUtils {
     private static final String TAG = HalPropertyDebugUtils.class.getSimpleName();
     private static final int MAX_BYTE_SIZE = 20;
-    private static final AtomicReference<Map<Class<?>, List<Integer>>> sClazzToAreaBitsHolder =
-            new AtomicReference<>();
     private static final String NO_VALUE = "NO_VALUE";
 
 
@@ -110,79 +103,34 @@ public final class HalPropertyDebugUtils {
                 return "INVALID_GLOBAL_AREA_ID(0x" + toHexString(areaId) + ")";
             }
             case VehicleArea.DOOR -> {
-                return convertAreaIdToDebugString(VehicleAreaDoor.class, areaId);
+                return processOptionalFlagsString(
+                        flagsToOptionalString(VehicleAreaDoor.class, areaId),
+                        VehicleAreaDoor.class.getSimpleName(), areaId);
             }
             case VehicleArea.SEAT -> {
-                if (areaId == VehicleAreaSeat.UNKNOWN) {
-                    return toName(VehicleAreaSeat.class, areaId);
-                }
-                return convertAreaIdToDebugString(VehicleAreaSeat.class, areaId);
+                return processOptionalFlagsString(
+                        flagsToOptionalString(VehicleAreaSeat.class, areaId),
+                        VehicleAreaSeat.class.getSimpleName(), areaId);
             }
             case VehicleArea.MIRROR -> {
-                return convertAreaIdToDebugString(VehicleAreaMirror.class, areaId);
+                return processOptionalFlagsString(
+                        flagsToOptionalString(VehicleAreaMirror.class, areaId),
+                        VehicleAreaMirror.class.getSimpleName(), areaId);
             }
             case VehicleArea.WHEEL -> {
-                if (areaId == VehicleAreaWheel.UNKNOWN) {
-                    return toName(VehicleAreaWheel.class, areaId);
-                }
-                return convertAreaIdToDebugString(VehicleAreaWheel.class, areaId);
+                return processOptionalFlagsString(
+                        flagsToOptionalString(VehicleAreaWheel.class, areaId),
+                        VehicleAreaWheel.class.getSimpleName(), areaId);
             }
             case VehicleArea.WINDOW -> {
-                return convertAreaIdToDebugString(VehicleAreaWindow.class, areaId);
+                return processOptionalFlagsString(
+                        flagsToOptionalString(VehicleAreaWindow.class, areaId),
+                        VehicleAreaWindow.class.getSimpleName(), areaId);
             }
             default -> {
                 return "UNKNOWN_AREA_ID(0x" + toHexString(areaId) + ")";
             }
         }
-    }
-
-    private static String convertAreaIdToDebugString(Class<?> clazz, int areaId) {
-        String output = "";
-
-        Map<Class<?>, List<Integer>> clazzToAreaBits = sClazzToAreaBitsHolder.get();
-        if (clazzToAreaBits == null || clazzToAreaBits.get(clazz) == null) {
-            clazzToAreaBits = getClazzToAreaBitsMapping(clazzToAreaBits, clazz);
-            sClazzToAreaBitsHolder.set(clazzToAreaBits);
-        }
-
-        int areaBitMask = 0;
-        for (int i = 0; i < clazzToAreaBits.get(clazz).size(); i++) {
-            int areaBit = clazzToAreaBits.get(clazz).get(i).intValue();
-            if (areaBit == 0) {
-                continue;
-            }
-            areaBitMask |= areaBit;
-            if ((areaId & areaBit) == areaBit) {
-                if (!output.isEmpty()) {
-                    output += "|";
-                }
-                output += toName(clazz, areaBit);
-            }
-        }
-
-        if ((areaId | areaBitMask) != areaBitMask || output.isEmpty()) {
-            output += "INVALID_" + clazz.getSimpleName() + "_AREA_ID";
-        }
-
-        output += "(0x" + toHexString(areaId) + ")";
-        return output;
-    }
-
-    private static Map<Class<?>, List<Integer>> getClazzToAreaBitsMapping(
-            @Nullable Map<Class<?>, List<Integer>> clazzToAreaBits, Class<?> clazz) {
-        Map<Class<?>, List<Integer>> outputClazzToAreaBits;
-        if (clazzToAreaBits == null) {
-            outputClazzToAreaBits = new ArrayMap<>();
-        } else {
-            outputClazzToAreaBits = new ArrayMap<>(clazzToAreaBits.size());
-            outputClazzToAreaBits.putAll(clazzToAreaBits);
-        }
-
-        List<Integer> areaBits = new ArrayList<>(ConstantDebugUtils.getValues(clazz));
-        Collections.sort(areaBits, Collections.reverseOrder());
-
-        outputClazzToAreaBits.put(clazz, areaBits);
-        return outputClazzToAreaBits;
     }
 
     /**
@@ -393,5 +341,16 @@ public final class HalPropertyDebugUtils {
      */
     private static boolean isSystemPropertyId(int propertyId) {
         return toName(VehicleProperty.class, propertyId) != null;
+    }
+
+    private static String processOptionalFlagsString(@Nullable String flagsString, String clazzName,
+            int areaId) {
+        StringBuilder stringBuilder = new StringBuilder();
+        if (flagsString == null) {
+            stringBuilder.append("INVALID_").append(clazzName).append("_AREA_ID");
+        } else {
+            stringBuilder.append(flagsString);
+        }
+        return stringBuilder.append("(0x").append(toHexString(areaId)).append(")").toString();
     }
 }

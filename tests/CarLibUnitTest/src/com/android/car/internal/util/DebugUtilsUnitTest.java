@@ -127,6 +127,60 @@ public final class DebugUtilsUnitTest {
     }
 
     @Test
+    public void testFlagsToString_handlesMultipleBitAreaIdWithPrefix() {
+        assertThat(DebugUtils.flagsToString(VehicleAreaDoor.class, "DOOR_", /*areaId=*/
+                VehicleAreaDoor.DOOR_HOOD | VehicleAreaDoor.DOOR_ROW_1_RIGHT)).isEqualTo(
+                "HOOD|ROW_1_RIGHT");
+    }
+
+    @Test
+    public void testFlagsToOptionalString_handlesNoPrefix() {
+        assertThat(DebugUtils.flagsToOptionalString(VehicleAreaDoor.class, /*areaId=*/
+                VehicleAreaDoor.DOOR_HOOD | VehicleAreaDoor.DOOR_ROW_1_RIGHT)).isEqualTo(
+                "DOOR_HOOD|DOOR_ROW_1_RIGHT");
+    }
+
+    @Test
+    public void testFlagsOptionalToString_handlesInvalidAreaId() {
+        assertThat(DebugUtils.flagsToOptionalString(VehicleAreaDoor.class, "", /*areaId=*/
+                0)).isNull();
+    }
+
+    @Test
+    public void testFlagsToOptionalString_handlesZeroBitFlag() {
+        assertThat(DebugUtils.flagsToOptionalString(CarHvacFanDirection.class, "", /*areaId=*/
+                CarHvacFanDirection.UNKNOWN)).isEqualTo("UNKNOWN");
+    }
+
+    @Test
+    public void testFlagsToOptionalString_handlesPartiallyInvalidAreaId() {
+        assertThat(DebugUtils.flagsToOptionalString(VehicleAreaMirror.class, "", /*areaId=*/
+                VehicleAreaMirror.MIRROR_DRIVER_CENTER
+                        | VehicleAreaSeat.SEAT_ROW_3_RIGHT)).isEqualTo(
+                "MIRROR_DRIVER_CENTER|0x400");
+    }
+
+    @Test
+    public void testFlagsToOptionalString_handlesSingleBitAreaId() {
+        assertThat(DebugUtils.flagsToOptionalString(VehicleAreaDoor.class, "", /*areaId=*/
+                VehicleAreaDoor.DOOR_HOOD)).isEqualTo("DOOR_HOOD");
+    }
+
+    @Test
+    public void testFlagsToOptionalString_handlesMultipleBitAreaId() {
+        assertThat(DebugUtils.flagsToOptionalString(VehicleAreaDoor.class, "", /*areaId=*/
+                VehicleAreaDoor.DOOR_HOOD | VehicleAreaDoor.DOOR_ROW_1_RIGHT)).isEqualTo(
+                "DOOR_HOOD|DOOR_ROW_1_RIGHT");
+    }
+
+    @Test
+    public void testFlagsToOptionalString_handlesMultipleBitAreaIdWithPrefix() {
+        assertThat(DebugUtils.flagsToOptionalString(VehicleAreaDoor.class, "DOOR_", /*areaId=*/
+                VehicleAreaDoor.DOOR_HOOD | VehicleAreaDoor.DOOR_ROW_1_RIGHT)).isEqualTo(
+                "HOOD|ROW_1_RIGHT");
+    }
+
+    @Test
     public void testPropIdAreaIdToDebugString() {
         var propIdAreaId = newPropIdAreaId(VehiclePropertyIds.PERF_VEHICLE_SPEED, /*areaId=*/1);
 
