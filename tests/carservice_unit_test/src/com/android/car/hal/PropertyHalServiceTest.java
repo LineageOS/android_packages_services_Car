@@ -906,11 +906,14 @@ public class PropertyHalServiceTest extends AbstractExpectableTestCase{
 
     @Test
     public void testSetCarPropertyValuesAsync() {
+        Object lock = new Object();
         Set<Integer> vhalCancelledRequestIds = new ArraySet<>();
         doAnswer((invocation) -> {
             List<Integer> ids = (List<Integer>) invocation.getArgument(0);
-            for (int i = 0; i < ids.size(); i++) {
-                vhalCancelledRequestIds.add(ids.get(i));
+            synchronized (lock) {
+                for (int i = 0; i < ids.size(); i++) {
+                    vhalCancelledRequestIds.add(ids.get(i));
+                }
             }
             return null;
         }).when(mVehicleHal).cancelRequests(any());
@@ -934,7 +937,9 @@ public class PropertyHalServiceTest extends AbstractExpectableTestCase{
         // Because we cancel the onging async set property request, the ongoing get initial value
         // request should be cancelled as well.
         verify(mVehicleHal, timeout(1000).times(2)).cancelRequests(any());
-        assertThat(vhalCancelledRequestIds).containsExactlyElementsIn(new Integer[]{0, 1});
+        synchronized (lock) {
+            assertThat(vhalCancelledRequestIds).containsExactlyElementsIn(new Integer[]{0, 1});
+        }
 
         verifyNoPendingRequest();
     }
