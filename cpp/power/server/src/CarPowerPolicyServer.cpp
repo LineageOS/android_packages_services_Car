@@ -136,6 +136,18 @@ lookupPowerStateChangeListener(
     return listeners.end();
 }
 
+std::vector<std::shared_ptr<ICarPowerStateChangeListenerWithCompletion>>::const_iterator
+lookupPowerStateChangeListenerWithCompletion(
+        const std::vector<std::shared_ptr<ICarPowerStateChangeListenerWithCompletion>>& listeners,
+        const AIBinder* binder) {
+    for (auto it = listeners.begin(); it != listeners.end(); it++) {
+        if ((*it)->asBinder().get() == binder) {
+            return it;
+        }
+    }
+    return listeners.end();
+}
+
 ScopedAStatus checkSystemPermission() {
     if (IPCThreadState::self()->getCallingUid() != AID_SYSTEM) {
         return ScopedAStatus::fromServiceSpecificErrorWithMessage(EX_SECURITY,
@@ -514,6 +526,9 @@ CarPowerPolicyServer::CarPowerPolicyServer(uint64_t connectToVhalTimeoutMillis) 
             &CarPowerPolicyServer::onPowerPolicyChangeClientBinderDied));
     mPowerStateClientDeathRecipient = ScopedAIBinder_DeathRecipient(
             AIBinder_DeathRecipient_new(&CarPowerPolicyServer::onPowerStateChangeClientBinderDied));
+    mPowerStateClientWithCompletionDeathRecipient =
+            ScopedAIBinder_DeathRecipient(AIBinder_DeathRecipient_new(
+                    &CarPowerPolicyServer::onPowerStateChangeClientWithCompletionBinderDied));
     mCarServiceDeathRecipient = ScopedAIBinder_DeathRecipient(
             AIBinder_DeathRecipient_new(&CarPowerPolicyServer::onCarServiceBinderDied));
     mPropertyChangeListener = std::make_unique<PropertyChangeListener>(this);
@@ -530,6 +545,7 @@ CarPowerPolicyServer::~CarPowerPolicyServer() {
     // Delete the deathRecipient so that all binders would be unlinked.
     mLinkUnlinkImpl->deleteDeathRecipient(mPowerPolicyClientDeathRecipient.release());
     mLinkUnlinkImpl->deleteDeathRecipient(mPowerStateClientDeathRecipient.release());
+    mLinkUnlinkImpl->deleteDeathRecipient(mPowerStateClientWithCompletionDeathRecipient.release());
     mLinkUnlinkImpl->deleteDeathRecipient(mCarServiceDeathRecipient.release());
 
     // Wait for all onClientDeathRecipientUnlinked and onCarServiceDeathRecipientUnlinked to be
@@ -557,6 +573,8 @@ void CarPowerPolicyServer::setOnUnlinked() {
                                    &CarPowerPolicyServer::onClientDeathRecipientUnlinked);
     mLinkUnlinkImpl->setOnUnlinked(mPowerStateClientDeathRecipient.get(),
                                    &CarPowerPolicyServer::onClientDeathRecipientUnlinked);
+    mLinkUnlinkImpl->setOnUnlinked(mPowerStateClientWithCompletionDeathRecipient.get(),
+                                   &CarPowerPolicyServer::onClientDeathRecipientUnlinked);
 }
 
 ScopedAStatus CarPowerPolicyServer::getCurrentPowerPolicy(CarPowerPolicy* aidlReturn) {
@@ -568,6 +586,18 @@ ScopedAStatus CarPowerPolicyServer::getCurrentPowerPolicy(CarPowerPolicy* aidlRe
     }
     *aidlReturn = *mCurrentPowerPolicyMeta.powerPolicy;
     return ScopedAStatus::ok();
+}
+
+ScopedAStatus CarPowerPolicyServer::logAndReturnErrorWithMessage(int32_t errorType,
+                                                                 const std::string& errorMsg) {
+    return logAndReturnErrorWithMessage(errorType, errorMsg, "");
+}
+
+ScopedAStatus CarPowerPolicyServer::logAndReturnErrorWithMessage(
+        int32_t errorType, const std::string& errorMsg, const std::string& errorLogPrefix) {
+    const char* errorCause = errorMsg.c_str();
+    ALOGW("%s: %s", errorLogPrefix.c_str(), errorCause);
+    return ScopedAStatus::fromServiceSpecificErrorWithMessage(errorType, errorCause);
 }
 
 ScopedAStatus CarPowerPolicyServer::getPowerComponentState(PowerComponent componentId,
@@ -588,10 +618,7 @@ ScopedAStatus CarPowerPolicyServer::registerPowerPolicyChangeCallback(
         const std::shared_ptr<ICarPowerPolicyChangeCallback>& callback,
         const CarPowerPolicyFilter& filter) {
     if (callback == nullptr) {
-        std::string errorMsg = "Cannot register a null callback";
-        ALOGW("%s", errorMsg.c_str());
-        return ScopedAStatus::fromServiceSpecificErrorWithMessage(EX_ILLEGAL_ARGUMENT,
-                                                                  errorMsg.c_str());
+        return logAndReturnErrorWithMessage(EX_ILLEGAL_ARGUMENT, "Cannot register a null callback");
     }
     pid_t callingPid = IPCThreadState::self()->getCallingPid();
     uid_t callingUid = IPCThreadState::self()->getCallingUid();
@@ -602,13 +629,11 @@ ScopedAStatus CarPowerPolicyServer::registerPowerPolicyChangeCallback(
     {
         std::lock_guard<std::mutex> lock(mMutex);
         if (isPowerPolicyCallbackRegisteredLocked(clientId)) {
-            std::string errorStr =
-                    StringPrintf("The callback(pid: %d, uid: %d) is already registered.",
-                                 callingPid, callingUid);
-            const char* errorCause = errorStr.c_str();
-            ALOGW("Cannot register a callback: %s", errorCause);
-            return ScopedAStatus::fromServiceSpecificErrorWithMessage(EX_ILLEGAL_ARGUMENT,
-                                                                      errorCause);
+            return logAndReturnErrorWithMessage(EX_ILLEGAL_ARGUMENT,
+                                                StringPrintf("The callback(pid: %d, uid: %d) is "
+                                                             "already registered.",
+                                                             callingPid, callingUid),
+                                                "Cannot register a callback");
         }
 
         std::unique_ptr<OnClientBinderDiedContext> context =
@@ -631,11 +656,11 @@ ScopedAStatus CarPowerPolicyServer::registerPowerPolicyChangeCallback(
         // policyChangeCallback.
         handlePowerPolicyChangeClientBinderDeath(clientId);
 
-        std::string errorStr = StringPrintf("The given callback(pid: %d, uid: %d) is dead",
-                                            callingPid, callingUid);
-        const char* errorCause = errorStr.c_str();
-        ALOGW("Cannot register a callback: %s", errorCause);
-        return ScopedAStatus::fromServiceSpecificErrorWithMessage(EX_ILLEGAL_STATE, errorCause);
+        return logAndReturnErrorWithMessage(EX_ILLEGAL_STATE,
+                                            StringPrintf("The given callback(pid: %d, uid: %d) is "
+                                                         "dead",
+                                                         callingPid, callingUid),
+                                            "Cannot register a callback");
     }
     if (DEBUG) {
         ALOGD("Power policy change callback(pid: %d, filter: %s) is registered", callingPid,
@@ -649,10 +674,8 @@ ScopedAStatus CarPowerPolicyServer::unregisterPowerPolicyChangeCallback(
     pid_t callingPid = IPCThreadState::self()->getCallingPid();
     uid_t callingUid = IPCThreadState::self()->getCallingUid();
     if (callback == nullptr) {
-        std::string errorMsg = "Cannot unregister a null callback";
-        ALOGW("%s", errorMsg.c_str());
-        return ScopedAStatus::fromServiceSpecificErrorWithMessage(EX_ILLEGAL_ARGUMENT,
-                                                                  errorMsg.c_str());
+        return logAndReturnErrorWithMessage(EX_ILLEGAL_ARGUMENT,
+                                            "Cannot unregister a null callback");
     }
     AIBinder* clientId = callback->asBinder().get();
     void* cookie = nullptr;
@@ -661,13 +684,11 @@ ScopedAStatus CarPowerPolicyServer::unregisterPowerPolicyChangeCallback(
         std::lock_guard<std::mutex> lock(mMutex);
         auto it = lookupPowerPolicyChangeCallback(mPolicyChangeCallbacks, clientId);
         if (it == mPolicyChangeCallbacks.end()) {
-            std::string errorStr =
-                    StringPrintf("The callback(pid: %d, uid: %d) has not been registered",
-                                 callingPid, callingUid);
-            const char* errorCause = errorStr.c_str();
-            ALOGW("Cannot unregister a callback: %s", errorCause);
-            return ScopedAStatus::fromServiceSpecificErrorWithMessage(EX_ILLEGAL_ARGUMENT,
-                                                                      errorCause);
+            return logAndReturnErrorWithMessage(EX_ILLEGAL_ARGUMENT,
+                                                StringPrintf("The callback(pid: %d, uid: %d) has "
+                                                             "not been registered",
+                                                             callingPid, callingUid),
+                                                "Cannot unregister a callback");
         }
         if (mOnClientBinderDiedContexts.find(clientId) != mOnClientBinderDiedContexts.end()) {
             // We don't set a callback for unlinkToDeath but need to call unlinkToDeath to clean up
@@ -723,10 +744,8 @@ ScopedAStatus CarPowerPolicyServer::registerPowerStateListener(
     }
 
     if (listener == nullptr) {
-        std::string errorMsg = "Cannot register a null power state change listener";
-        ALOGW("%s", errorMsg.c_str());
-        return ScopedAStatus::fromServiceSpecificErrorWithMessage(EX_ILLEGAL_ARGUMENT,
-                                                                  errorMsg.c_str());
+        return logAndReturnErrorWithMessage(EX_ILLEGAL_ARGUMENT,
+                                            "Cannot register a null power state change listener");
     }
     pid_t callingPid = IPCThreadState::self()->getCallingPid();
     uid_t callingUid = IPCThreadState::self()->getCallingUid();
@@ -737,13 +756,11 @@ ScopedAStatus CarPowerPolicyServer::registerPowerStateListener(
     {
         std::lock_guard<std::mutex> lock(mMutex);
         if (isPowerStateListenerRegisteredLocked(clientId)) {
-            std::string errorStr =
-                    StringPrintf("The listener(pid: %d, uid: %d) is already registered.",
-                                 callingPid, callingPid);
-            const char* errorCause = errorStr.c_str();
-            ALOGW("Cannot register listener: %s", errorCause);
-            return ScopedAStatus::fromServiceSpecificErrorWithMessage(EX_ILLEGAL_ARGUMENT,
-                                                                      errorCause);
+            return logAndReturnErrorWithMessage(EX_ILLEGAL_ARGUMENT,
+                                                StringPrintf("The listener(pid: %d, uid: %d) is "
+                                                             "already registered.",
+                                                             callingPid, callingUid),
+                                                "Cannot register listener");
         }
 
         std::unique_ptr<OnClientBinderDiedContext> context =
@@ -765,11 +782,11 @@ ScopedAStatus CarPowerPolicyServer::registerPowerStateListener(
         // In this case, onBinderDied will not be called and we should clean up registered listener.
         handlePowerStateChangeClientBinderDeath(clientId);
 
-        std::string errorStr = StringPrintf("The given listener(pid: %d, uid: %d) is dead",
-                                            callingPid, callingUid);
-        const char* errorCause = errorStr.c_str();
-        ALOGW("Cannot register a listener: %s", errorCause);
-        return ScopedAStatus::fromServiceSpecificErrorWithMessage(EX_ILLEGAL_STATE, errorCause);
+        return logAndReturnErrorWithMessage(EX_ILLEGAL_STATE,
+                                            StringPrintf("The given listener(pid: %d, uid: %d) is "
+                                                         "dead",
+                                                         callingPid, callingUid),
+                                            "Cannot register a listener");
     }
     if (DEBUG) {
         ALOGD("Power state change listener(pid: %d) is registered", callingPid);
@@ -782,10 +799,8 @@ ScopedAStatus CarPowerPolicyServer::unregisterPowerStateListener(
     pid_t callingPid = IPCThreadState::self()->getCallingPid();
     uid_t callingUid = IPCThreadState::self()->getCallingUid();
     if (listener == nullptr) {
-        std::string errorMsg = "Cannot unregister a null listener";
-        ALOGW("%s", errorMsg.c_str());
-        return ScopedAStatus::fromServiceSpecificErrorWithMessage(EX_ILLEGAL_ARGUMENT,
-                                                                  errorMsg.c_str());
+        return logAndReturnErrorWithMessage(EX_ILLEGAL_ARGUMENT,
+                                            "Cannot unregister a null listener");
     }
     AIBinder* clientId = listener->asBinder().get();
     void* cookie = nullptr;
@@ -794,13 +809,11 @@ ScopedAStatus CarPowerPolicyServer::unregisterPowerStateListener(
         std::lock_guard<std::mutex> lock(mMutex);
         auto it = lookupPowerStateChangeListener(mPowerStateChangeListeners, clientId);
         if (it == mPowerStateChangeListeners.end()) {
-            std::string errorStr =
-                    StringPrintf("The listener(pid: %d, uid: %d) has not been registered",
-                                 callingPid, callingUid);
-            const char* errorCause = errorStr.c_str();
-            ALOGW("Cannot unregister listener: %s", errorCause);
-            return ScopedAStatus::fromServiceSpecificErrorWithMessage(EX_ILLEGAL_ARGUMENT,
-                                                                      errorCause);
+            return logAndReturnErrorWithMessage(EX_ILLEGAL_ARGUMENT,
+                                                StringPrintf("The listener(pid: %d, uid: %d) has "
+                                                             "not been registered",
+                                                             callingPid, callingUid),
+                                                "Cannot unregister listener");
         }
         if (mOnClientBinderDiedContexts.find(clientId) != mOnClientBinderDiedContexts.end()) {
             // We don't set a listener for unlinkToDeath but need to call unlinkToDeath to clean up
@@ -822,16 +835,105 @@ ScopedAStatus CarPowerPolicyServer::unregisterPowerStateListener(
 }
 
 ScopedAStatus CarPowerPolicyServer::registerPowerStateListenerWithCompletion(
-        [[maybe_unused]] const std::shared_ptr<ICarPowerStateChangeListenerWithCompletion>&
-                listener) {
-    // TODO(b/385011377): implement
+        const std::shared_ptr<ICarPowerStateChangeListenerWithCompletion>& listener) {
+    if (!native_power_notifications()) {
+        ALOGE("Cannot register power state listener with completion: native_power_notifications "
+              "flag not enabled");
+        return ScopedAStatus::fromExceptionCode(EX_UNSUPPORTED_OPERATION);
+    }
+
+    if (listener == nullptr) {
+        return logAndReturnErrorWithMessage(EX_ILLEGAL_ARGUMENT,
+                                            "Cannot register a null power state change listener "
+                                            "with completion");
+    }
+    pid_t callingPid = IPCThreadState::self()->getCallingPid();
+    uid_t callingUid = IPCThreadState::self()->getCallingUid();
+    SpAIBinder binder = listener->asBinder();
+    AIBinder* clientId = binder.get();
+    void* contextPtr;
+
+    {
+        std::lock_guard<std::mutex> lock(mMutex);
+        if (isPowerStateListenerWithCompletionRegisteredLocked(clientId)) {
+            return logAndReturnErrorWithMessage(EX_ILLEGAL_ARGUMENT,
+                                                StringPrintf("The listener(pid: %d, uid: %d) is "
+                                                             "already registered.",
+                                                             callingPid, callingUid),
+                                                "Cannot register listener");
+        }
+
+        std::unique_ptr<OnClientBinderDiedContext> context =
+                std::make_unique<OnClientBinderDiedContext>(
+                        OnClientBinderDiedContext{.server = this, .clientId = clientId});
+        // Get pointer to be passed as cookie to death recipient.
+        contextPtr = static_cast<void*>(context.get());
+        // Insert context into map to keep object alive.
+        mOnClientBinderDiedContexts[clientId] = std::move(context);
+        mPowerStateChangeListenersWithCompletion.push_back(listener);
+    }
+
+    // Call linkToDeath outside of locked scope since handleClientDeathRecipientUnlinked might be
+    // called within a scope which requires a lock.
+    binder_status_t status =
+            mLinkUnlinkImpl->linkToDeath(clientId,
+                                         mPowerStateClientWithCompletionDeathRecipient.get(),
+                                         contextPtr);
+    if (status != STATUS_OK) {
+        // In this case, onBinderDied will not be called and we should clean up registered listener.
+        handlePowerStateChangeClientWithCompletionBinderDeath(clientId);
+
+        return logAndReturnErrorWithMessage(EX_ILLEGAL_STATE,
+                                            StringPrintf("The given listener(pid: %d, uid: %d) is "
+                                                         "dead",
+                                                         callingPid, callingUid),
+                                            "Cannot register a listener");
+    }
+    if (DEBUG) {
+        ALOGD("Power state change listener(pid: %d) is registered", callingPid);
+    }
     return ScopedAStatus::ok();
 }
 
 ScopedAStatus CarPowerPolicyServer::unregisterPowerStateListenerWithCompletion(
-        [[maybe_unused]] const std::shared_ptr<ICarPowerStateChangeListenerWithCompletion>&
-                listener) {
-    // TODO(b/385011377): implement
+        const std::shared_ptr<ICarPowerStateChangeListenerWithCompletion>& listener) {
+    pid_t callingPid = IPCThreadState::self()->getCallingPid();
+    uid_t callingUid = IPCThreadState::self()->getCallingUid();
+    if (listener == nullptr) {
+        return logAndReturnErrorWithMessage(EX_ILLEGAL_ARGUMENT,
+                                            "Cannot unregister a null listener with completion");
+    }
+    AIBinder* clientId = listener->asBinder().get();
+    void* cookie = nullptr;
+
+    {
+        std::lock_guard<std::mutex> lock(mMutex);
+        auto it = lookupPowerStateChangeListenerWithCompletion(
+                mPowerStateChangeListenersWithCompletion, clientId);
+        if (it == mPowerStateChangeListenersWithCompletion.end()) {
+            return logAndReturnErrorWithMessage(EX_ILLEGAL_ARGUMENT,
+                                                StringPrintf("The listener(pid: %d, uid: %d) has "
+                                                             "not been registered",
+                                                             callingPid, callingUid),
+                                                "Cannot unregister listener");
+        }
+        if (mOnClientBinderDiedContexts.find(clientId) != mOnClientBinderDiedContexts.end()) {
+            // We don't set a listener for unlinkToDeath but need to call unlinkToDeath to clean up
+            // the registered death recipient.
+            cookie = static_cast<void*>(mOnClientBinderDiedContexts[clientId].get());
+        }
+        mPowerStateChangeListenersWithCompletion.erase(it);
+    }
+
+    if (cookie != nullptr) {
+        mLinkUnlinkImpl->unlinkToDeath(clientId,
+                                       mPowerStateClientWithCompletionDeathRecipient.get(), cookie);
+    }
+
+    if (DEBUG) {
+        ALOGD("Power state change listener with completion(pid: %d, uid: %d) is unregistered",
+              callingPid, callingUid);
+    }
     return ScopedAStatus::ok();
 }
 
@@ -1053,10 +1155,9 @@ ScopedAStatus CarPowerPolicyServer::notifyCarServiceReadyInternal(
         return status;
     }
     if (callback == nullptr) {
-        std::string errorMsg = "Cannot register a null callback for notifyCarServiceReadyInternal";
-        ALOGW("%s", errorMsg.c_str());
-        return ScopedAStatus::fromServiceSpecificErrorWithMessage(EX_ILLEGAL_ARGUMENT,
-                                                                  errorMsg.c_str());
+        return logAndReturnErrorWithMessage(EX_ILLEGAL_ARGUMENT,
+                                            "Cannot register a null callback for "
+                                            "notifyCarServiceReadyInternal");
     }
 
     SpAIBinder newCallbackBinder;
@@ -1082,13 +1183,11 @@ ScopedAStatus CarPowerPolicyServer::notifyCarServiceReadyInternal(
             mLinkUnlinkImpl->linkToDeath(newCallbackBinder.get(), mCarServiceDeathRecipient.get(),
                                          static_cast<void*>(this));
     if (linkStatus != STATUS_OK) {
-        pid_t callingPid = IPCThreadState::self()->getCallingPid();
-        uid_t callingUid = IPCThreadState::self()->getCallingUid();
-        std::string errorStr =
-                StringPrintf("CarService(pid: %d, uid: %d) is dead", callingPid, callingUid);
-        const char* errorCause = errorStr.c_str();
-        ALOGW("Cannot handle notifyCarServiceReady: %s", errorCause);
-        return ScopedAStatus::fromServiceSpecificErrorWithMessage(EX_ILLEGAL_STATE, errorCause);
+        return logAndReturnErrorWithMessage(EX_ILLEGAL_STATE,
+                                            StringPrintf("CarService(pid: %d, uid: %d) is dead",
+                                                         IPCThreadState::self()->getCallingPid(),
+                                                         IPCThreadState::self()->getCallingUid()),
+                                            "Cannot handle notifyCarServiceReady");
     }
 
     aidlReturn->registeredCustomComponents = mPolicyManager.getCustomComponents();
@@ -1150,6 +1249,10 @@ status_t CarPowerPolicyServer::dump(int fd, const char** args, uint32_t numArgs)
         }
         WriteStringToFd(StringPrintf("%sPower state change listeners:%s\n", indent,
                                      mPowerStateChangeListeners.size() ? "" : " none"),
+                        fd);
+        WriteStringToFd(StringPrintf("%sPower state change listeners with completion:%s\n", indent,
+                                     mPowerStateChangeListenersWithCompletion.size() ? ""
+                                                                                     : " none"),
                         fd);
     }
     if (const auto& ret = mPolicyManager.dump(fd, argsV); !ret.ok()) {
@@ -1276,6 +1379,11 @@ void CarPowerPolicyServer::onPowerStateChangeClientBinderDied(void* cookie) {
     context->server->handlePowerStateChangeClientBinderDeath(context->clientId);
 }
 
+void CarPowerPolicyServer::onPowerStateChangeClientWithCompletionBinderDied(void* cookie) {
+    OnClientBinderDiedContext* context = static_cast<OnClientBinderDiedContext*>(cookie);
+    context->server->handlePowerStateChangeClientWithCompletionBinderDeath(context->clientId);
+}
+
 void CarPowerPolicyServer::onCarServiceBinderDied(void* cookie) {
     CarPowerPolicyServer* server = static_cast<CarPowerPolicyServer*>(cookie);
     server->handleCarServiceBinderDeath();
@@ -1298,6 +1406,18 @@ void CarPowerPolicyServer::handlePowerStateChangeClientBinderDeath(const AIBinde
     if (it != mPowerStateChangeListeners.end()) {
         ALOGW("Power state change listener died");
         mPowerStateChangeListeners.erase(it);
+    }
+}
+
+void CarPowerPolicyServer::handlePowerStateChangeClientWithCompletionBinderDeath(
+        const AIBinder* clientId) {
+    ALOGI("handlePowerStateChangeClientWithCompletionBinderDeath");
+    std::lock_guard<std::mutex> lock(mMutex);
+    auto it = lookupPowerStateChangeListenerWithCompletion(mPowerStateChangeListenersWithCompletion,
+                                                           clientId);
+    if (it != mPowerStateChangeListenersWithCompletion.end()) {
+        ALOGW("Power state change listener with completion died");
+        mPowerStateChangeListenersWithCompletion.erase(it);
     }
 }
 
@@ -1550,6 +1670,13 @@ bool CarPowerPolicyServer::isPowerStateListenerRegisteredLocked(const AIBinder* 
             mPowerStateChangeListeners.end();
 }
 
+bool CarPowerPolicyServer::isPowerStateListenerWithCompletionRegisteredLocked(
+        const AIBinder* binder) {
+    return lookupPowerStateChangeListenerWithCompletion(mPowerStateChangeListenersWithCompletion,
+                                                        binder) !=
+            mPowerStateChangeListenersWithCompletion.end();
+}
+
 // This method ensures that the attempt to connect to VHAL occurs in the main thread.
 void CarPowerPolicyServer::connectToVhal() {
     mRemainingConnectionRetryCount = mMaxConnectToVhalRetryCount;
@@ -1765,6 +1892,12 @@ std::vector<std::shared_ptr<ICarPowerStateChangeListener>>
 CarPowerPolicyServer::getPowerStateListeners() {
     std::lock_guard<std::mutex> lock(mMutex);
     return mPowerStateChangeListeners;
+}
+
+std::vector<std::shared_ptr<ICarPowerStateChangeListenerWithCompletion>>
+CarPowerPolicyServer::getPowerStateListenersWithCompletion() {
+    std::lock_guard<std::mutex> lock(mMutex);
+    return mPowerStateChangeListenersWithCompletion;
 }
 
 size_t CarPowerPolicyServer::countOnClientBinderDiedContexts() {
