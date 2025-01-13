@@ -53,9 +53,9 @@ public:
     constexpr static char AIDL_VHAL_SERVICE[] =
             "android.hardware.automotive.vehicle.IVehicle/default";
 
-    static std::shared_ptr<IVhalClient> create();
-    static std::shared_ptr<IVhalClient> tryCreate();
-    static std::shared_ptr<IVhalClient> tryCreate(const char* descriptor);
+    static std::shared_ptr<IVhalClient> create(bool startThreadPool);
+    static std::shared_ptr<IVhalClient> tryCreate(bool startThreadPool);
+    static std::shared_ptr<IVhalClient> tryCreate(const char* descriptor, bool startThreadPool);
 
     explicit AidlVhalClient(
             std::shared_ptr<aidl::android::hardware::automotive::vehicle::IVehicle> hal);
@@ -134,21 +134,48 @@ private:
                            AIBinder_DeathRecipient_onBinderUnlinked onUnlinked) override;
     };
 
+    // A thread-safe class to hold a list of onBinderDied callbacks.
+    class BinderDiedCallbacks final {
+    public:
+        void addCallback(std::shared_ptr<OnBinderDiedCallbackFunc> callback);
+        void invokeCallbacks();
+        VhalClientResult<void> removeCallback(std::shared_ptr<OnBinderDiedCallbackFunc> callback);
+        void clear();
+        size_t count();
+
+    private:
+        std::mutex mBinderDiedCallbacksLock;
+        std::unordered_set<std::shared_ptr<OnBinderDiedCallbackFunc>> mCallbacks
+                GUARDED_BY(mBinderDiedCallbacksLock);
+    };
+
+    // The cookie structure whose lifecycle is managed by libbinder library. It will be
+    // freed when onBinderUnlinked is called.
+    // This class is thread-safe.
+    class BinderDeathRecipientCookie final {
+    public:
+        BinderDeathRecipientCookie(std::shared_ptr<BinderDiedCallbacks> BinderDiedCallbacks);
+        void onBinderDied();
+        void onBinderUnlinked();
+
+    private:
+        // A weak reference to the callbacks wrapper managed by AidlVhalClient.
+        std::weak_ptr<BinderDiedCallbacks> mCallbacksRef;
+    };
+
     std::atomic<int64_t> mRequestId = 0;
     std::shared_ptr<GetSetValueClient> mGetSetValueClient;
     std::shared_ptr<aidl::android::hardware::automotive::vehicle::IVehicle> mHal;
     std::unique_ptr<ILinkUnlinkToDeath> mLinkUnlinkImpl;
     ndk::ScopedAIBinder_DeathRecipient mDeathRecipient;
 
-    std::mutex mLock;
-    std::unordered_set<std::shared_ptr<OnBinderDiedCallbackFunc>> mOnBinderDiedCallbacks
-            GUARDED_BY(mLock);
-    std::condition_variable mDeathRecipientUnlinkedCv;
-    bool mDeathRecipientUnlinked GUARDED_BY(mLock) = false;
+    // BinderDiedCallbacks is thread-safe.
+    std::shared_ptr<BinderDiedCallbacks> mOnBinderDiedCallbacks;
 
     static void onBinderDied(void* cookie);
     static void onBinderUnlinked(void* cookie);
 
+    bool linkToDeath();
     void onBinderDiedWithContext();
     void onBinderUnlinkedWithContext();
 

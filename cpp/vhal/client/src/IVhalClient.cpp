@@ -32,8 +32,8 @@ namespace vhal {
 
 using ::android::base::StringPrintf;
 
-std::shared_ptr<IVhalClient> IVhalClient::create() {
-    auto client = AidlVhalClient::create();
+std::shared_ptr<IVhalClient> IVhalClient::create(bool startThreadPool) {
+    auto client = AidlVhalClient::create(startThreadPool);
     if (client != nullptr) {
         return client;
     }
@@ -41,8 +41,8 @@ std::shared_ptr<IVhalClient> IVhalClient::create() {
     return HidlVhalClient::create();
 }
 
-std::shared_ptr<IVhalClient> IVhalClient::tryCreate() {
-    auto client = AidlVhalClient::tryCreate();
+std::shared_ptr<IVhalClient> IVhalClient::tryCreate(bool startThreadPool) {
+    auto client = AidlVhalClient::tryCreate(startThreadPool);
     if (client != nullptr) {
         return client;
     }
@@ -50,8 +50,9 @@ std::shared_ptr<IVhalClient> IVhalClient::tryCreate() {
     return HidlVhalClient::tryCreate();
 }
 
-std::shared_ptr<IVhalClient> IVhalClient::tryCreateAidlClient(const char* descriptor) {
-    return AidlVhalClient::tryCreate(descriptor);
+std::shared_ptr<IVhalClient> IVhalClient::tryCreateAidlClient(const char* descriptor,
+                                                              bool startThreadPool) {
+    return AidlVhalClient::tryCreate(descriptor, startThreadPool);
 }
 
 std::shared_ptr<IVhalClient> IVhalClient::tryCreateHidlClient(const char* descriptor) {
