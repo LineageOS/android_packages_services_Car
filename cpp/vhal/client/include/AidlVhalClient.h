@@ -293,7 +293,7 @@ private:
 
 class AidlSubscriptionClient final : public internal::SubscriptionClient {
 public:
-    ~AidlSubscriptionClient() = default;
+    ~AidlSubscriptionClient();
 
     AidlSubscriptionClient(
             std::shared_ptr<aidl::android::hardware::automotive::vehicle::IVehicle> hal,
@@ -301,12 +301,22 @@ public:
 
     VhalClientResult<void> subscribe(
             const std::vector<aidl::android::hardware::automotive::vehicle::SubscribeOptions>&
-                    options) override;
-    VhalClientResult<void> unsubscribe(const std::vector<int32_t>& propIds) override;
+                    options) override EXCLUDES(mLock);
+    VhalClientResult<void> unsubscribe(const std::vector<int32_t>& propIds) override
+            EXCLUDES(mLock);
+    void unsubscribeAll() override EXCLUDES(mLock);
+
+protected:
+    std::unordered_set<int32_t> getSubscribedPropIds() override;
 
 private:
     std::shared_ptr<SubscriptionVehicleCallback> mSubscriptionCallback;
     std::shared_ptr<aidl::android::hardware::automotive::vehicle::IVehicle> mHal;
+
+    std::mutex mLock;
+    std::unordered_set<int32_t> mSubscribedPropIds GUARDED_BY(mLock);
+
+    VhalClientResult<void> unsubscribeLocked(const std::vector<int32_t>& propIds) REQUIRES(mLock);
 };
 
 }  // namespace vhal
