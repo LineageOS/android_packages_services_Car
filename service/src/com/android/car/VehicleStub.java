@@ -375,6 +375,13 @@ public abstract class VehicleStub {
     }
 
     /**
+     * Checks if simulated mode is enabled
+     */
+    public boolean isSimulatedModeEnabled() {
+        return false;
+    }
+
+    /**
      * Cancels all the on-going async requests with the given request IDs.
      *
      * @param requestIds a list of async get/set request IDs.

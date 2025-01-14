@@ -16,8 +16,17 @@
 
 package com.android.car.internal.util;
 
+import static java.lang.Integer.toHexString;
+
 import android.annotation.Nullable;
+import android.car.VehicleAreaDoor;
+import android.car.VehicleAreaMirror;
+import android.car.VehicleAreaSeat;
+import android.car.VehicleAreaType;
+import android.car.VehicleAreaWheel;
+import android.car.VehicleAreaWindow;
 import android.car.VehiclePropertyIds;
+import android.car.feature.Flags;
 
 import com.android.car.internal.property.PropIdAreaId;
 
@@ -102,6 +111,45 @@ public final class DebugUtils {
     }
 
     /**
+     * Gets a user-friendly string representation of an {@code areaId} for the given
+     * {@link VehicleAreaType}.
+     */
+    public static String toAreaIdString(@VehicleAreaType.VehicleAreaTypeValue int areaType,
+            int areaId) {
+        if (Flags.androidVicVehicleProperties()
+                && areaType == VehicleAreaType.VEHICLE_AREA_TYPE_VENDOR) {
+            return "VENDOR_AREA_ID(0x" + toHexString(areaId) + ")";
+        }
+
+        switch (areaType) {
+            case VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL -> {
+                if (areaId == 0) {
+                    return "GLOBAL(0x0)";
+                }
+                return "INVALID_GLOBAL_AREA_ID(0x" + toHexString(areaId) + ")";
+            }
+            case VehicleAreaType.VEHICLE_AREA_TYPE_DOOR -> {
+                return areaIdToString(VehicleAreaDoor.class, "DOOR_", areaId);
+            }
+            case VehicleAreaType.VEHICLE_AREA_TYPE_MIRROR -> {
+                return areaIdToString(VehicleAreaMirror.class, "MIRROR_", areaId);
+            }
+            case VehicleAreaType.VEHICLE_AREA_TYPE_SEAT -> {
+                return areaIdToString(VehicleAreaSeat.class, "SEAT_", areaId);
+            }
+            case VehicleAreaType.VEHICLE_AREA_TYPE_WHEEL -> {
+                return areaIdToString(VehicleAreaWheel.class, "WHEEL_", areaId);
+            }
+            case VehicleAreaType.VEHICLE_AREA_TYPE_WINDOW -> {
+                return areaIdToString(VehicleAreaWindow.class, "WINDOW_", areaId);
+            }
+            default -> {
+                return "UNKNOWN_AREA_TYPE_AREA_ID(0x" + toHexString(areaId) + ")";
+            }
+        }
+    }
+
+    /**
      * Gets human-readable representation of a {@code PropIdAreaId} structure.
      */
     public static String toDebugString(PropIdAreaId propIdAreaId) {
@@ -126,5 +174,13 @@ public final class DebugUtils {
             sb.append(toDebugString(propIdAreaId));
         }
         return sb.append("]").toString();
+    }
+
+    private static String areaIdToString(Class<?> areaTypeClazz, String prefix, int areaId) {
+        String areaIdString = flagsToOptionalString(areaTypeClazz, prefix, areaId);
+        if (areaIdString != null) {
+            return areaIdString;
+        }
+        return "UNKNOWN_" + prefix + "AREA_ID(0x" + toHexString(areaId) + ")";
     }
 }

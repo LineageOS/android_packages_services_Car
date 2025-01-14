@@ -16,6 +16,8 @@
 
 package com.android.car.hal.fakevhal;
 
+import static com.android.car.internal.property.CarPropertyErrorCodes.ERROR_CODES_INTERNAL;
+import static com.android.car.internal.property.CarPropertyErrorCodes.ERROR_CODES_NOT_AVAILABLE;
 import static com.android.car.internal.property.CarPropertyErrorCodes.createFromVhalStatusCode;
 
 import android.annotation.Nullable;
@@ -23,15 +25,11 @@ import android.car.builtin.util.Slogf;
 import android.hardware.automotive.vehicle.RawPropValues;
 import android.hardware.automotive.vehicle.StatusCode;
 import android.hardware.automotive.vehicle.SubscribeOptions;
-import android.hardware.automotive.vehicle.VehicleArea;
 import android.hardware.automotive.vehicle.VehicleAreaConfig;
 import android.hardware.automotive.vehicle.VehiclePropConfig;
 import android.hardware.automotive.vehicle.VehiclePropValue;
 import android.hardware.automotive.vehicle.VehicleProperty;
-import android.hardware.automotive.vehicle.VehiclePropertyAccess;
 import android.hardware.automotive.vehicle.VehiclePropertyChangeMode;
-import android.hardware.automotive.vehicle.VehiclePropertyType;
-import android.os.Handler;
 import android.os.RemoteException;
 import android.os.ServiceSpecificException;
 import android.os.SystemClock;
@@ -41,15 +39,12 @@ import android.util.SparseArray;
 
 import com.android.car.CarLog;
 import com.android.car.CarServiceUtils;
-import com.android.car.IVehicleDeathRecipient;
 import com.android.car.VehicleStub;
 import com.android.car.hal.AidlHalPropConfig;
-import com.android.car.hal.HalAreaConfig;
 import com.android.car.hal.HalPropConfig;
 import com.android.car.hal.HalPropValue;
 import com.android.car.hal.HalPropValueBuilder;
 import com.android.car.hal.VehicleHalCallback;
-import com.android.car.internal.property.CarPropertyErrorCodes;
 import com.android.car.internal.property.PropIdAreaId;
 import com.android.car.internal.util.PairSparseArray;
 import com.android.internal.annotations.GuardedBy;
@@ -69,7 +64,7 @@ import java.util.Set;
 /**
  * FakeVehicleStub represents a fake Vhal implementation.
  */
-public final class FakeVehicleStub extends VehicleStub {
+public final class FakeVehicleStub extends VehicleStubWrapper {
 
     private static final String TAG = CarLog.tagFor(FakeVehicleStub.class);
     private static final List<Integer> SPECIAL_PROPERTIES = List.of(
@@ -89,26 +84,18 @@ public final class FakeVehicleStub extends VehicleStub {
     private static final String FAKE_VHAL_CONFIG_DIRECTORY = "/data/system/car/fake_vhal_config/";
     private static final String DEFAULT_CONFIG_FILE_NAME = "DefaultProperties.json";
     private static final String FAKE_MODE_ENABLE_FILE_NAME = "ENABLE";
-    private static final int AREA_ID_GLOBAL = 0;
 
-    private final SparseArray<HalPropConfig> mPropConfigsByPropId;
-    private final VehicleStub mRealVehicle;
     private final HalPropValueBuilder mHalPropValueBuilder;
-    private final FakeVhalConfigParser mParser;
-    private final List<File> mCustomConfigFiles;
-    private final Handler mHandler;
     private final List<Integer> mHvacPowerSupportedAreas;
     private final List<Integer> mHvacPowerDependentProps;
 
-    private final Object mLock = new Object();
-    @GuardedBy("mLock")
-    private final PairSparseArray<HalPropValue> mPropValuesByPropIdAreaId;
     @GuardedBy("mLock")
     private final PairSparseArray<Set<FakeVhalSubscriptionClient>>
             mOnChangeSubscribeClientByPropIdAreaId = new PairSparseArray<>();
     @GuardedBy("mLock")
     private final Map<FakeVhalSubscriptionClient, PairSparseArray<ContinuousPropUpdater>>
             mUpdaterByPropIdAreaIdByClient = new ArrayMap<>();
+    private final Object mLock = new Object();
 
     /**
      * Checks if fake mode is enabled.
@@ -146,17 +133,12 @@ public final class FakeVehicleStub extends VehicleStub {
     FakeVehicleStub(VehicleStub realVehicle, FakeVhalConfigParser parser,
             List<File> customConfigFiles) throws RemoteException, IOException,
             IllegalArgumentException {
-        mRealVehicle = realVehicle;
+        super(realVehicle, extractPropConfigs(parseConfigFiles(parser, customConfigFiles),
+                        realVehicle), extractPropValues(parseConfigFiles(parser,
+                customConfigFiles)));
         mHalPropValueBuilder = new HalPropValueBuilder(/* isAidl= */ true);
-        mParser = parser;
-        mCustomConfigFiles = customConfigFiles;
-        SparseArray<ConfigDeclaration> configDeclarationsByPropId = parseConfigFiles();
-        mPropConfigsByPropId = extractPropConfigs(configDeclarationsByPropId);
-        mPropValuesByPropIdAreaId = extractPropValues(configDeclarationsByPropId);
         mHvacPowerSupportedAreas = getHvacPowerSupportedAreaId();
         mHvacPowerDependentProps = getHvacPowerDependentProps();
-        mHandler = new Handler(CarServiceUtils.getHandlerThread(getClass().getSimpleName())
-                .getLooper());
         Slogf.d(TAG, "A FakeVehicleStub instance is created.");
     }
 
@@ -199,16 +181,14 @@ public final class FakeVehicleStub extends VehicleStub {
                     halPropValue);
                 if (halPropValue == null) {
                     result = new GetVehicleStubAsyncResult(request.getServiceRequestId(),
-                            CarPropertyErrorCodes.ERROR_CODES_NOT_AVAILABLE);
+                            ERROR_CODES_NOT_AVAILABLE);
                 }
             } catch (ServiceSpecificException e) {
-                CarPropertyErrorCodes carPropertyErrorCodes =
-                        createFromVhalStatusCode(e.errorCode);
                 result = new GetVehicleStubAsyncResult(request.getServiceRequestId(),
-                        carPropertyErrorCodes);
+                        createFromVhalStatusCode(e.errorCode));
             } catch (RemoteException e) {
                 result = new GetVehicleStubAsyncResult(request.getServiceRequestId(),
-                        CarPropertyErrorCodes.ERROR_CODES_INTERNAL);
+                        ERROR_CODES_INTERNAL);
             }
             onGetAsyncResultList.add(result);
         }
@@ -236,11 +216,10 @@ public final class FakeVehicleStub extends VehicleStub {
                 result = new SetVehicleStubAsyncResult(serviceRequestId);
             } catch (RemoteException e) {
                 result = new SetVehicleStubAsyncResult(serviceRequestId,
-                        CarPropertyErrorCodes.ERROR_CODES_INTERNAL);
+                        ERROR_CODES_INTERNAL);
             } catch (ServiceSpecificException e) {
-                CarPropertyErrorCodes carPropertyErrorCodes =
-                        createFromVhalStatusCode(e.errorCode);
-                result = new SetVehicleStubAsyncResult(serviceRequestId, carPropertyErrorCodes);
+                result = new SetVehicleStubAsyncResult(serviceRequestId,
+                        createFromVhalStatusCode(e.errorCode));
             }
             onSetAsyncResultsList.add(result);
         }
@@ -270,27 +249,6 @@ public final class FakeVehicleStub extends VehicleStub {
     }
 
     /**
-     * Registers a death recipient that would be called when Vhal died.
-     *
-     * @param recipient A death recipient.
-     * @throws IllegalStateException If unable to register the death recipient.
-     */
-    @Override
-    public void linkToDeath(IVehicleDeathRecipient recipient) throws IllegalStateException {
-        mRealVehicle.linkToDeath(recipient);
-    }
-
-    /**
-     * Unlinks a previously linked death recipient.
-     *
-     * @param recipient A previously linked death recipient.
-     */
-    @Override
-    public void unlinkToDeath(IVehicleDeathRecipient recipient) {
-        mRealVehicle.unlinkToDeath(recipient);
-    }
-
-    /**
      * Gets all property configs.
      *
      * @return an array of all property configs.
@@ -316,22 +274,6 @@ public final class FakeVehicleStub extends VehicleStub {
                 mRealVehicle.newSubscriptionClient(callback));
     }
 
-    private int getAccess(int propId, int areaId) {
-        HalPropConfig halPropConfig = mPropConfigsByPropId.get(propId);
-        HalAreaConfig[] halAreaConfigs = halPropConfig.getAreaConfigs();
-        for (int i = 0; i < halAreaConfigs.length; i++) {
-            if (halAreaConfigs[i].getAreaId() != areaId) {
-                continue;
-            }
-            int areaAccess = halAreaConfigs[i].getAccess();
-            if (areaAccess != VehiclePropertyAccess.NONE) {
-                return areaAccess;
-            }
-            break;
-        }
-        return halPropConfig.getAccess();
-    }
-
     /**
      * Gets a property value.
      *
@@ -354,31 +296,13 @@ public final class FakeVehicleStub extends VehicleStub {
             checkPropAvailable(propId, areaId);
         }
         // Check access permission.
-        int access = getAccess(propId, areaId);
-        if (access != VehiclePropertyAccess.READ && access != VehiclePropertyAccess.READ_WRITE) {
-            throw new ServiceSpecificException(StatusCode.ACCESS_DENIED, "This property " + propId
-                    + " doesn't have read permission.");
-        }
+        verifyReadAccess(propId, areaId);
 
         if (isSpecialProperty(propId)) {
             return mRealVehicle.get(requestedPropValue);
         }
 
-        // PropId config exists but the value map doesn't have this propId, this may be caused by:
-        // 1. This property is a global property, and it doesn't have default prop value.
-        // 2. This property has area configs, and it has neither default prop value nor area value.
-        synchronized (mLock) {
-            HalPropValue halPropValue = mPropValuesByPropIdAreaId.get(propId, areaId);
-            if (halPropValue == null) {
-                if (isPropertyGlobal(propId)) {
-                    throw new ServiceSpecificException(StatusCode.NOT_AVAILABLE,
-                        "propId: " + propId + " has no property value.");
-                }
-                throw new ServiceSpecificException(StatusCode.NOT_AVAILABLE,
-                    "propId: " + propId + ", areaId: " + areaId + " has no property value.");
-            }
-            return halPropValue;
-        }
+        return getFakeHalPropValue(propId, areaId);
     }
 
     /**
@@ -400,32 +324,20 @@ public final class FakeVehicleStub extends VehicleStub {
         if (isHvacPowerDependentProp(propId)) {
             checkPropAvailable(propId, areaId);
         }
+
         // Check access permission.
-        int access = getAccess(propId, areaId);
-        if (access != VehiclePropertyAccess.WRITE && access != VehiclePropertyAccess.READ_WRITE) {
-            throw new ServiceSpecificException(StatusCode.ACCESS_DENIED, "This property " + propId
-                    + " doesn't have write permission.");
-        }
+        verifyWriteAccess(propId, areaId);
 
         if (isSpecialProperty(propValue.getPropId())) {
             mRealVehicle.set(propValue);
             return;
         }
 
-        RawPropValues rawPropValues = ((VehiclePropValue) propValue.toVehiclePropValue()).value;
-
-        // Check if the set values are within the value config range.
-        if (!withinRange(propId, areaId, rawPropValues)) {
-            throw new ServiceSpecificException(StatusCode.INVALID_ARG,
-                    "The set value is outside the range.");
-        }
-
-        HalPropValue updatedValue = buildHalPropValue(propId, areaId,
-                SystemClock.elapsedRealtimeNanos(), rawPropValues);
+        HalPropValue updatedValue = buildRawPropValueAndCheckRange(propValue);
         Set<FakeVhalSubscriptionClient> clients;
 
         synchronized (mLock) {
-            mPropValuesByPropIdAreaId.put(propId, areaId, updatedValue);
+            putPropValue(propId, areaId, updatedValue);
             clients = mOnChangeSubscribeClientByPropIdAreaId.get(propId, areaId, new ArraySet<>());
         }
         clients.forEach(c -> c.onPropertyEvent(updatedValue));
@@ -547,20 +459,20 @@ public final class FakeVehicleStub extends VehicleStub {
      * @throws IOException if FakeVhalConfigParser throws IOException.
      * @throws IllegalArgumentException If default file doesn't exist or parsing errors occurred.
      */
-    private SparseArray<ConfigDeclaration> parseConfigFiles() throws IOException,
-            IllegalArgumentException {
-        InputStream defaultConfigInputStream = this.getClass().getClassLoader()
+    private static SparseArray<ConfigDeclaration> parseConfigFiles(FakeVhalConfigParser parser,
+            List<File> customConfigFiles) throws IOException, IllegalArgumentException {
+        InputStream defaultConfigInputStream = FakeVehicleStub.class.getClassLoader()
                 .getResourceAsStream(DEFAULT_CONFIG_FILE_NAME);
         SparseArray<ConfigDeclaration> configDeclarations;
         SparseArray<ConfigDeclaration> customConfigDeclarations;
         // Parse default config file.
-        configDeclarations = mParser.parseJsonConfig(defaultConfigInputStream);
+        configDeclarations = parser.parseJsonConfig(defaultConfigInputStream);
 
         // Parse all custom config files.
-        for (int i = 0; i < mCustomConfigFiles.size(); i++) {
-            File customFile = mCustomConfigFiles.get(i);
+        for (int i = 0; i < customConfigFiles.size(); i++) {
+            File customFile = customConfigFiles.get(i);
             try {
-                customConfigDeclarations = mParser.parseJsonConfig(customFile);
+                customConfigDeclarations = parser.parseJsonConfig(customFile);
             } catch (Exception e) {
                 Slogf.w(TAG, e, "Failed to parse custom config file: %s",
                         customFile.getPath());
@@ -612,8 +524,8 @@ public final class FakeVehicleStub extends VehicleStub {
      * @throws RemoteException if getting configs for special props through real vehicle HAL fails.
      * @return a {@link SparseArray} mapped from propId to its configs.
      */
-    private SparseArray<HalPropConfig> extractPropConfigs(SparseArray<ConfigDeclaration>
-            configDeclarationsByPropId) throws RemoteException {
+    private static SparseArray<HalPropConfig> extractPropConfigs(SparseArray<ConfigDeclaration>
+            configDeclarationsByPropId, VehicleStub realVehicleStub) throws RemoteException {
         SparseArray<HalPropConfig> propConfigsByPropId = new SparseArray<>();
         for (int i = 0; i < configDeclarationsByPropId.size(); i++) {
             VehiclePropConfig vehiclePropConfig = configDeclarationsByPropId.valueAt(i).getConfig();
@@ -622,7 +534,7 @@ public final class FakeVehicleStub extends VehicleStub {
         }
         // If the special property is supported in this configuration, then override with configs
         // from real vehicle.
-        overrideConfigsForSpecialProp(propConfigsByPropId);
+        overrideConfigsForSpecialProp(propConfigsByPropId, realVehicleStub);
         return propConfigsByPropId;
     }
 
@@ -632,8 +544,9 @@ public final class FakeVehicleStub extends VehicleStub {
      * @param configDeclarationsByPropId The parsing result.
      * @return a {@link Map} mapped from propId, areaId to its value.
      */
-    private PairSparseArray<HalPropValue> extractPropValues(
+    private static PairSparseArray<HalPropValue> extractPropValues(
             SparseArray<ConfigDeclaration> configDeclarationsByPropId) {
+        HalPropValueBuilder halPropValueBuilder = new HalPropValueBuilder(/* isAidl= */ true);
         long timestamp = SystemClock.elapsedRealtimeNanos();
         PairSparseArray<HalPropValue> propValuesByPropIdAreaId = new PairSparseArray<>();
         for (int i = 0; i < configDeclarationsByPropId.size(); i++) {
@@ -659,7 +572,8 @@ public final class FakeVehicleStub extends VehicleStub {
                 }
                 // Set the areaId to be 0.
                 propValuesByPropIdAreaId.put(propId, AREA_ID_GLOBAL,
-                        buildHalPropValue(propId, AREA_ID_GLOBAL, timestamp, defaultRawPropValues));
+                        buildHalPropValue(propId, AREA_ID_GLOBAL, timestamp,
+                                defaultRawPropValues, halPropValueBuilder));
                 continue;
             }
 
@@ -681,7 +595,8 @@ public final class FakeVehicleStub extends VehicleStub {
                     continue;
                 }
                 propValuesByPropIdAreaId.put(propId, areaId,
-                        buildHalPropValue(propId, areaId, timestamp, areaRawPropValues));
+                        buildHalPropValue(propId, areaId, timestamp, areaRawPropValues,
+                                halPropValueBuilder));
             }
         }
         return propValuesByPropIdAreaId;
@@ -727,9 +642,9 @@ public final class FakeVehicleStub extends VehicleStub {
      *
      * @throws RemoteException if getting prop configs from real vehicle HAL fails.
      */
-    private void overrideConfigsForSpecialProp(SparseArray<HalPropConfig> fakePropConfigsByPropId)
-            throws RemoteException {
-        HalPropConfig[] realVehiclePropConfigs = mRealVehicle.getAllPropConfigs();
+    private static void overrideConfigsForSpecialProp(SparseArray<HalPropConfig>
+            fakePropConfigsByPropId, VehicleStub realVehicleStub) throws RemoteException {
+        HalPropConfig[] realVehiclePropConfigs = realVehicleStub.getAllPropConfigs();
         for (int i = 0; i < realVehiclePropConfigs.length; i++) {
             HalPropConfig propConfig = realVehiclePropConfigs[i];
             int propId = propConfig.getPropId();
@@ -737,35 +652,6 @@ public final class FakeVehicleStub extends VehicleStub {
                 fakePropConfigsByPropId.put(propConfig.getPropId(), propConfig);
             }
         }
-    }
-
-    /**
-     * Checks if a property is a global property.
-     *
-     * @param propId The property to be checked.
-     * @return {@code true} if this property is a global property.
-     */
-    private boolean isPropertyGlobal(int propId) {
-        return (propId & VehicleArea.MASK) == VehicleArea.GLOBAL;
-    }
-
-    /**
-     * Builds a {@link HalPropValue}.
-     *
-     * @param propId The propId of the prop value to be built.
-     * @param areaId The areaId of the prop value to be built.
-     * @param timestamp The elapsed time in nanoseconds when mPropConfigsByPropId is initialized.
-     * @param rawPropValues The {@link RawPropValues} contains property values.
-     * @return a {@link HalPropValue} built by propId, areaId, timestamp and value.
-     */
-    private HalPropValue buildHalPropValue(int propId, int areaId, long timestamp,
-            RawPropValues rawPropValues) {
-        VehiclePropValue propValue = new VehiclePropValue();
-        propValue.prop = propId;
-        propValue.areaId = areaId;
-        propValue.timestamp = timestamp;
-        propValue.value = rawPropValues;
-        return mHalPropValueBuilder.build(propValue);
     }
 
     /**
@@ -823,135 +709,6 @@ public final class FakeVehicleStub extends VehicleStub {
         }
         throw new ServiceSpecificException(StatusCode.INVALID_ARG, "This areaId: " + areaId
                 + " doesn't match any supported areaIds in HVAC_POWER_ON");
-    }
-
-    /**
-     * Generates a list of all supported areaId for a certain property.
-     *
-     * @param propId The property to get all supported areaIds.
-     * @return A {@link List} of all supported areaId.
-     */
-    private List<Integer> getAllSupportedAreaId(int propId) {
-        List<Integer> allSupportedAreaId = new ArrayList<>();
-        HalAreaConfig[] areaConfigs = mPropConfigsByPropId.get(propId).getAreaConfigs();
-        for (int i = 0; i < areaConfigs.length; i++) {
-            allSupportedAreaId.add(areaConfigs[i].getAreaId());
-        }
-        return allSupportedAreaId;
-    }
-
-    /**
-     * Checks if the set value is within the value range.
-     *
-     * @return {@code true} if set value is within the prop config range.
-     */
-    private boolean withinRange(int propId, int areaId, RawPropValues rawPropValues) {
-        // For global property without areaId.
-        if (isPropertyGlobal(propId) && getAllSupportedAreaId(propId).isEmpty()) {
-            return true;
-        }
-
-        // For non-global properties and global properties with areaIds.
-        int index = getAllSupportedAreaId(propId).indexOf(areaId);
-
-        HalAreaConfig areaConfig = mPropConfigsByPropId.get(propId).getAreaConfigs()[index];
-
-        int[] int32Values = rawPropValues.int32Values;
-        long[] int64Values = rawPropValues.int64Values;
-        float[] floatValues = rawPropValues.floatValues;
-        // If max and min values exists, then check the boundaries. If max and min values are all
-        // 0s, return true.
-        switch (getPropType(propId)) {
-            case VehiclePropertyType.INT32:
-            case VehiclePropertyType.INT32_VEC:
-                int minInt32Value = areaConfig.getMinInt32Value();
-                int maxInt32Value = areaConfig.getMaxInt32Value();
-                if (minInt32Value != maxInt32Value || minInt32Value != 0) {
-                    for (int int32Value : int32Values) {
-                        if (int32Value > maxInt32Value || int32Value < minInt32Value) {
-                            Slogf.e(TAG, "For propId: %d, areaId: %d, the valid min value is: "
-                                    + "%d, max value is: %d, but the given value is: %d.", propId,
-                                    areaId, minInt32Value, maxInt32Value, int32Value);
-                            return false;
-                        }
-                    }
-                }
-                break;
-            case VehiclePropertyType.INT64:
-            case VehiclePropertyType.INT64_VEC:
-                long minInt64Value = areaConfig.getMinInt64Value();
-                long maxInt64Value = areaConfig.getMaxInt64Value();
-                if (minInt64Value != maxInt64Value || minInt64Value != 0) {
-                    for (long int64Value : int64Values) {
-                        if (int64Value > maxInt64Value || int64Value < minInt64Value) {
-                            Slogf.e(TAG, "For propId: %d, areaId: %d, the valid min value is: "
-                                    + "%d, max value is: %d, but the given value is: %d.", propId,
-                                    areaId, minInt64Value, maxInt64Value, int64Value);
-                            return false;
-                        }
-                    }
-                }
-                break;
-            case VehiclePropertyType.FLOAT:
-            case VehiclePropertyType.FLOAT_VEC:
-                float minFloatValue = areaConfig.getMinFloatValue();
-                float maxFloatValue = areaConfig.getMaxFloatValue();
-                if (minFloatValue != maxFloatValue || minFloatValue != 0) {
-                    for (float floatValue : floatValues) {
-                        if (floatValue > maxFloatValue || floatValue < minFloatValue) {
-                            Slogf.e(TAG, "For propId: %d, areaId: %d, the valid min value is: "
-                                    + "%f, max value is: %f, but the given value is: %d.", propId,
-                                    areaId, minFloatValue, maxFloatValue, floatValue);
-                            return false;
-                        }
-                    }
-                }
-                break;
-            default:
-                Slogf.d(TAG, "Skip checking range for propId: %d because it is mixed type.",
-                        propId);
-        }
-        return true;
-    }
-
-    /**
-     * Gets the type of property.
-     *
-     * @param propId The property to get the type.
-     * @return The type.
-     */
-    private static int getPropType(int propId) {
-        return propId & VehiclePropertyType.MASK;
-    }
-
-    /**
-     * Checks if a property is supported. If not, throw a {@link ServiceSpecificException}.
-     *
-     * @param propId The property to be checked.
-     */
-    private void checkPropIdSupported(int propId) {
-        // Check if the property config exists.
-        if (!mPropConfigsByPropId.contains(propId)) {
-            throw new ServiceSpecificException(StatusCode.INVALID_ARG, "The propId: " + propId
-                + " is not supported.");
-        }
-    }
-
-    /**
-     * Checks if an areaId of a property is supported.
-     *
-     * @param propId The property to be checked.
-     * @param areaId The area to be checked.
-     */
-    private void checkAreaIdSupported(int propId, int areaId) {
-        List<Integer> supportedAreaIds = getAllSupportedAreaId(propId);
-        // For global property, areaId will be ignored if the area config array is empty.
-        if ((isPropertyGlobal(propId) && supportedAreaIds.isEmpty())
-                || supportedAreaIds.contains(areaId)) {
-            return;
-        }
-        throw new ServiceSpecificException(StatusCode.INVALID_ARG, "The areaId: " + areaId
-                + " is not supported.");
     }
 
     /**
@@ -1196,11 +953,11 @@ public final class FakeVehicleStub extends VehicleStub {
      */
     private HalPropValue updateTimeStamp(int propId, int areaId) {
         synchronized (mLock) {
-            HalPropValue propValue = mPropValuesByPropIdAreaId.get(propId, areaId);
+            HalPropValue propValue = getPropValue(propId, areaId);
             RawPropValues rawPropValues = ((VehiclePropValue) propValue.toVehiclePropValue()).value;
             HalPropValue updatedValue = buildHalPropValue(propId, areaId,
                     SystemClock.elapsedRealtimeNanos(), rawPropValues);
-            mPropValuesByPropIdAreaId.put(propId, areaId, updatedValue);
+            putPropValue(propId, areaId, updatedValue);
             return updatedValue;
         }
     }

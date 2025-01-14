@@ -20,7 +20,10 @@
 #include <aidl/android/automotive/power/internal/PowerPolicyFailureReason.h>
 #include <aidl/android/automotive/power/internal/PowerPolicyInitData.h>
 #include <aidl/android/frameworks/automotive/power/BnCarPowerStateChangeListener.h>
+#include <aidl/android/frameworks/automotive/power/BnCarPowerStateChangeListenerWithCompletion.h>
 #include <aidl/android/frameworks/automotive/power/ICarPowerStateChangeListener.h>
+#include <aidl/android/frameworks/automotive/power/ICarPowerStateChangeListenerWithCompletion.h>
+#include <aidl/android/frameworks/automotive/power/ICompletablePowerStateChangeFuture.h>
 #include <aidl/android/frameworks/automotive/powerpolicy/BnCarPowerPolicyChangeCallback.h>
 #include <aidl/android/frameworks/automotive/powerpolicy/CarPowerPolicy.h>
 #include <aidl/android/frameworks/automotive/powerpolicy/CarPowerPolicyFilter.h>
@@ -57,8 +60,11 @@ using ::aidl::android::automotive::power::internal::ICarPowerManagementDelegateC
 using ::aidl::android::automotive::power::internal::PowerPolicyFailureReason;
 using ::aidl::android::automotive::power::internal::PowerPolicyInitData;
 using ::aidl::android::frameworks::automotive::power::BnCarPowerStateChangeListener;
+using ::aidl::android::frameworks::automotive::power::BnCarPowerStateChangeListenerWithCompletion;
 using ::aidl::android::frameworks::automotive::power::CarPowerState;
 using ::aidl::android::frameworks::automotive::power::ICarPowerStateChangeListener;
+using ::aidl::android::frameworks::automotive::power::ICarPowerStateChangeListenerWithCompletion;
+using ::aidl::android::frameworks::automotive::power::ICompletablePowerStateChangeFuture;
 using ::aidl::android::frameworks::automotive::powerpolicy::BnCarPowerPolicyChangeCallback;
 using ::aidl::android::frameworks::automotive::powerpolicy::CarPowerPolicy;
 using ::aidl::android::frameworks::automotive::powerpolicy::CarPowerPolicyFilter;
@@ -99,6 +105,16 @@ public:
 class MockPowerStateChangeListener : public BnCarPowerStateChangeListener {
 public:
     ScopedAStatus onStateChanged(const CarPowerState /*state*/) override {
+        return ScopedAStatus::ok();
+    }
+};
+
+class MockPowerStateChangeListenerWithCompletion :
+      public BnCarPowerStateChangeListenerWithCompletion {
+public:
+    ScopedAStatus onStateChanged(
+            const CarPowerState /*state*/, const int64_t /*expirationTimeMs*/,
+            const std::shared_ptr<ICompletablePowerStateChangeFuture>& /*future*/) override {
         return ScopedAStatus::ok();
     }
 };
@@ -221,9 +237,19 @@ public:
         return mServer->registerPowerStateListener(listener);
     }
 
+    ScopedAStatus registerPowerStateListenerWithCompletion(
+            const std::shared_ptr<ICarPowerStateChangeListenerWithCompletion>& listener) {
+        return mServer->registerPowerStateListenerWithCompletion(listener);
+    }
+
     ScopedAStatus unregisterPowerStateListener(
             const std::shared_ptr<ICarPowerStateChangeListener>& listener) {
         return mServer->unregisterPowerStateListener(listener);
+    }
+
+    ScopedAStatus unregisterPowerStateListenerWithCompletion(
+            const std::shared_ptr<ICarPowerStateChangeListenerWithCompletion>& listener) {
+        return mServer->unregisterPowerStateListenerWithCompletion(listener);
     }
 
     void init() {
@@ -243,6 +269,10 @@ public:
         mServer->onPowerStateChangeClientBinderDied(cookie);
     }
 
+    void onPowerStateClientWithCompletionBinderDied(void* cookie) {
+        mServer->onPowerStateChangeClientWithCompletionBinderDied(cookie);
+    }
+
     void onClientDeathRecipientUnlinked(void* cookie) {
         mServer->onClientDeathRecipientUnlinked(cookie);
     }
@@ -253,6 +283,11 @@ public:
 
     std::vector<std::shared_ptr<ICarPowerStateChangeListener>> getPowerStateListeners() {
         return mServer->getPowerStateListeners();
+    }
+
+    std::vector<std::shared_ptr<ICarPowerStateChangeListenerWithCompletion>>
+    getPowerStateListenersWithCompletion() {
+        return mServer->getPowerStateListenersWithCompletion();
     }
 
     size_t countOnClientBinderDiedContexts() { return mServer->countOnClientBinderDiedContexts(); }
@@ -435,6 +470,13 @@ public:
         std::shared_ptr<MockPowerStateChangeListener> listener =
                 ndk::SharedRefBase::make<MockPowerStateChangeListener>();
         return ICarPowerStateChangeListener::fromBinder(listener->asBinder());
+    }
+
+    std::shared_ptr<ICarPowerStateChangeListenerWithCompletion>
+    getPowerStateChangeListenerWithCompletion() {
+        std::shared_ptr<MockPowerStateChangeListenerWithCompletion> listener =
+                ndk::SharedRefBase::make<MockPowerStateChangeListenerWithCompletion>();
+        return ICarPowerStateChangeListenerWithCompletion::fromBinder(listener->asBinder());
     }
 
     // Sets calling UID to imitate System's process.
@@ -858,6 +900,10 @@ TEST_F(CarPowerPolicyServerTest, TestRegisterPowerStateChangeListener) {
 }
 
 TEST_F(CarPowerPolicyServerTest, TestRegisterPowerStateChangeListener_binderDied) {
+    if (!native_power_notifications()) {
+        GTEST_SKIP() << "native_power_notifications feature flag is not enabled";
+    }
+
     sp<internal::CarPowerPolicyServerPeer> server = new internal::CarPowerPolicyServerPeer();
     std::shared_ptr<ICarPowerStateChangeListener> listener = getPowerStateChangeListener();
     server->expectLinkToDeathStatus(listener->asBinder().get(), STATUS_DEAD_OBJECT);
@@ -904,6 +950,87 @@ TEST_F(CarPowerPolicyServerTest, TestUnregisterPowerStateChangeListener) {
     ASSERT_TRUE(status.isOk()) << status.getMessage();
     ASSERT_FALSE(server->unregisterPowerStateListener(listener).isOk())
             << "Unregistering an unregistered power state change listener should return an error";
+}
+
+TEST_F(CarPowerPolicyServerTest, TestRegisterPowerStateChangeListenerWithCompletion) {
+    if (!native_power_notifications()) {
+        GTEST_SKIP() << "native_power_notifications feature flag is not enabled";
+    }
+
+    sp<internal::CarPowerPolicyServerPeer> server = new internal::CarPowerPolicyServerPeer();
+    std::shared_ptr<ICarPowerStateChangeListenerWithCompletion> listenerOne =
+            getPowerStateChangeListenerWithCompletion();
+    server->expectLinkToDeathStatus(listenerOne->asBinder().get(), STATUS_OK);
+
+    ScopedAStatus status = server->registerPowerStateListenerWithCompletion(listenerOne);
+    ASSERT_TRUE(status.isOk()) << status.getMessage();
+    status = server->registerPowerStateListenerWithCompletion(listenerOne);
+    ASSERT_FALSE(status.isOk()) << "Double registration is not allowed";
+
+    std::shared_ptr<ICarPowerStateChangeListenerWithCompletion> listenerTwo =
+            getPowerStateChangeListenerWithCompletion();
+    server->expectLinkToDeathStatus(listenerTwo->asBinder().get(), STATUS_OK);
+
+    status = server->registerPowerStateListenerWithCompletion(listenerTwo);
+    ASSERT_TRUE(status.isOk()) << status.getMessage();
+}
+
+TEST_F(CarPowerPolicyServerTest, TestRegisterPowerStateChangeListenerWithCompletion_binderDied) {
+    if (!native_power_notifications()) {
+        GTEST_SKIP() << "native_power_notifications feature flag is not enabled";
+    }
+
+    sp<internal::CarPowerPolicyServerPeer> server = new internal::CarPowerPolicyServerPeer();
+    std::shared_ptr<ICarPowerStateChangeListenerWithCompletion> listener =
+            getPowerStateChangeListenerWithCompletion();
+    server->expectLinkToDeathStatus(listener->asBinder().get(), STATUS_DEAD_OBJECT);
+
+    ASSERT_FALSE(server->registerPowerStateListenerWithCompletion(listener).isOk())
+            << "When linkToDeath fails, registerPowerStateListenerWithCompletion should return an "
+               "error";
+}
+
+TEST_F(CarPowerPolicyServerTest, TestOnBinderDied_powerStateListenerWithCompletion) {
+    if (!native_power_notifications()) {
+        GTEST_SKIP() << "native_power_notifications feature flag is not enabled";
+    }
+
+    sp<internal::CarPowerPolicyServerPeer> server = new internal::CarPowerPolicyServerPeer();
+    std::shared_ptr<ICarPowerStateChangeListenerWithCompletion> listener =
+            getPowerStateChangeListenerWithCompletion();
+    server->expectLinkToDeathStatus(listener->asBinder().get(), STATUS_OK);
+
+    ScopedAStatus status = server->registerPowerStateListenerWithCompletion(listener);
+    ASSERT_TRUE(status.isOk()) << status.getMessage();
+    ASSERT_EQ(server->getPowerStateListenersWithCompletion().size(), static_cast<size_t>(1));
+    ASSERT_EQ(server->countOnClientBinderDiedContexts(), static_cast<size_t>(1));
+    ASSERT_EQ(server->getCookies().size(), static_cast<size_t>(1));
+
+    void* cookie = *(server->getCookies().begin());
+    server->onPowerStateClientWithCompletionBinderDied(cookie);
+    ASSERT_TRUE(server->getPowerStateListenersWithCompletion().empty());
+
+    server->onClientDeathRecipientUnlinked(cookie);
+
+    ASSERT_EQ(server->countOnClientBinderDiedContexts(), static_cast<size_t>(0));
+}
+
+TEST_F(CarPowerPolicyServerTest, TestUnregisterPowerStateChangeListenerWithCompletion) {
+    if (!native_power_notifications()) {
+        GTEST_SKIP() << "native_power_notifications feature flag is not enabled";
+    }
+
+    sp<internal::CarPowerPolicyServerPeer> server = new internal::CarPowerPolicyServerPeer();
+    std::shared_ptr<ICarPowerStateChangeListenerWithCompletion> listener =
+            getPowerStateChangeListenerWithCompletion();
+    server->expectLinkToDeathStatus(listener->asBinder().get(), STATUS_OK);
+
+    server->registerPowerStateListenerWithCompletion(listener);
+    ScopedAStatus status = server->unregisterPowerStateListenerWithCompletion(listener);
+    ASSERT_TRUE(status.isOk()) << status.getMessage();
+    ASSERT_FALSE(server->unregisterPowerStateListenerWithCompletion(listener).isOk())
+            << "Unregistering an unregistered power state change listener with completion should "
+               "return an error";
 }
 
 TEST_F(CarPowerPolicyServerTest, TestNotifyPowerStateChange_noListeners) {
