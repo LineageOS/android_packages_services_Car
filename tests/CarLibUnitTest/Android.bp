@@ -87,6 +87,7 @@ android_ravenwood_test {
     team: "trendy_team_aaos_framework",
     static_libs: [
         "android.car.builtin.testonly",
+        "android.car.testapi",
     ],
     defaults: [
         "CarLibUnitTestDefault",
@@ -220,6 +221,9 @@ android_test {
     team: "trendy_team_aaos_user_triage",
     defaults: [
         "CarLibDeviceUnitTestDefault",
+    ],
+    static_libs: [
+        "android.car.testapi",
     ],
     srcs: [
         "src/android/car/navigation/*.java",
