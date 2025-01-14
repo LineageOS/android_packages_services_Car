@@ -332,6 +332,8 @@ private:
     bool mIsEnabled GUARDED_BY(mMutex);
     std::shared_ptr<android::frameworks::automotive::vhal::IVhalClient> mVhalService
             GUARDED_BY(mMutex);
+    std::unique_ptr<android::frameworks::automotive::vhal::ISubscriptionClient>
+            mVhalSubscriptionClient GUARDED_BY(mMutex);
     std::optional<aidl::android::automotive::watchdog::internal::ProcessIdentifier>
             mVhalProcessIdentifier GUARDED_BY(mMutex);
     int32_t mTotalVhalPidCachingAttempts GUARDED_BY(mMutex);
