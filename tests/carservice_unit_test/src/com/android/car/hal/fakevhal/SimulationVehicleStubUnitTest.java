@@ -18,15 +18,22 @@ package com.android.car.hal.fakevhal;
 
 import static com.google.common.truth.Truth.assertWithMessage;
 
+import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import android.car.hardware.CarPropertyValue;
 import android.car.hardware.property.CarPropertyManager;
 import android.car.hardware.property.VehicleHalStatusCode;
+import android.hardware.automotive.vehicle.RawPropValues;
 import android.hardware.automotive.vehicle.VehiclePropError;
 import android.hardware.automotive.vehicle.VehiclePropValue;
 import android.hardware.automotive.vehicle.VehiclePropertyAccess;
@@ -65,16 +72,25 @@ public class SimulationVehicleStubUnitTest {
     @Mock
     private HalPropConfig mHalPropConfig2;
     @Mock
+    private HalPropConfig mHalPropConfig3;
+    @Mock
     private HalPropValueBuilder mMockHalPropValueBuilder;
     @Mock
     private HalPropValue mMockHalPropValue1;
     @Mock
     private HalPropValue mMockHalPropValue2;
     @Mock
+    private HalPropValue mMockHalPropValue3;
+    @Mock
+    private HalAreaConfig mAreaConfig;
+    @Mock
     private VehicleHalCallback mVehicleHalCallback;
     private static final int PROP_ID_1 = 42 | 0x01000000;
     private static final int PROP_ID_2 = 952 | 0x01000000;
+    private static final int PROP_ID_3 = 999 | 0x00500000;
+    private static final int INVALID_PROP_ID = 987;
     private static final int AREA_ID_GLOBAL = 0;
+    private static final int AREA_ID_1 = 1;
     private SimulationVehicleStub mSimulationVehicleStub;
 
 
@@ -83,26 +99,39 @@ public class SimulationVehicleStubUnitTest {
         // TODO(b/392180801): Convert these into real impl instead of mocks
         HalPropValue halPropValue1 = mock(HalPropValue.class);
         HalPropValue halPropValue2 = mock(HalPropValue.class);
+        HalPropValue halPropValue3 = mock(HalPropValue.class);
         when(mHalPropConfig1.getPropId()).thenReturn(PROP_ID_1);
         when(mHalPropConfig2.getPropId()).thenReturn(PROP_ID_2);
+        when(mHalPropConfig3.getPropId()).thenReturn(PROP_ID_3);
         when(mHalPropConfig1.getAccess()).thenReturn(VehiclePropertyAccess.READ_WRITE);
         when(mHalPropConfig2.getAccess()).thenReturn(VehiclePropertyAccess.READ_WRITE);
+        when(mHalPropConfig3.getAccess()).thenReturn(VehiclePropertyAccess.READ_WRITE);
+        HalAreaConfig[] halAreaConfigs = new HalAreaConfig[1];
+        halAreaConfigs[0] = mAreaConfig;
+        when(mAreaConfig.getAreaId()).thenReturn(AREA_ID_1);
         when(mHalPropConfig1.getAreaConfigs()).thenReturn(new HalAreaConfig[0]);
         when(mHalPropConfig2.getAreaConfigs()).thenReturn(new HalAreaConfig[0]);
+        when(mHalPropConfig3.getAreaConfigs()).thenReturn(halAreaConfigs);
         when(mMockVehicleStub.getHalPropValueBuilder()).thenReturn(mMockHalPropValueBuilder);
         when(mMockHalPropValueBuilder.build(PROP_ID_1, AREA_ID_GLOBAL))
                 .thenReturn(halPropValue1);
         when(mMockHalPropValueBuilder.build(PROP_ID_2, AREA_ID_GLOBAL))
                 .thenReturn(halPropValue2);
+        when(mMockHalPropValueBuilder.build(PROP_ID_3, AREA_ID_1))
+                .thenReturn(halPropValue3);
         when(mMockVehicleStub.get(halPropValue1)).thenReturn(mMockHalPropValue1);
         when(mMockVehicleStub.get(halPropValue2)).thenReturn(mMockHalPropValue2);
+        when(mMockVehicleStub.get(halPropValue3)).thenReturn(mMockHalPropValue3);
         when(mMockHalPropValue1.getPropId()).thenReturn(PROP_ID_1);
         when(mMockHalPropValue1.getAreaId()).thenReturn(AREA_ID_GLOBAL);
         when(mMockHalPropValue2.getPropId()).thenReturn(PROP_ID_2);
         when(mMockHalPropValue2.getAreaId()).thenReturn(AREA_ID_GLOBAL);
-        HalPropConfig[] halPropConfigs = new HalPropConfig[2];
+        when(mMockHalPropValue3.getPropId()).thenReturn(PROP_ID_3);
+        when(mMockHalPropValue3.getAreaId()).thenReturn(AREA_ID_1);
+        HalPropConfig[] halPropConfigs = new HalPropConfig[3];
         halPropConfigs[0] = mHalPropConfig1;
         halPropConfigs[1] = mHalPropConfig2;
+        halPropConfigs[2] = mHalPropConfig3;
         when(mMockVehicleStub.getAllPropConfigs()).thenReturn(halPropConfigs);
 
         mSimulationVehicleStub = new SimulationVehicleStub(mMockVehicleStub,
@@ -320,6 +349,173 @@ public class SimulationVehicleStubUnitTest {
         verify(mVehicleHalCallback).onSupportedValuesChange(listCaptor.capture());
         assertWithMessage("onPropertySetError value").that(listCaptor.getValue()
                 .getFirst()).isEqualTo(propIdAreaId);
+    }
+
+    @Test
+    public void testInjectVehicleProperties() {
+        ArgumentCaptor<List> captor = ArgumentCaptor.forClass(List.class);
+        mSimulationVehicleStub.newSubscriptionClient(mVehicleHalCallback);
+        CarPropertyValue carPropertyValue1 = new CarPropertyValue(PROP_ID_1, AREA_ID_GLOBAL, 0);
+        CarPropertyValue carPropertyValue2 = new CarPropertyValue(PROP_ID_2, AREA_ID_GLOBAL, 0);
+        VehiclePropValue vehiclePropValue1 = mock(VehiclePropValue.class);
+        when(mMockHalPropValue1.toVehiclePropValue()).thenReturn(vehiclePropValue1);
+        VehiclePropValue vehiclePropValue2 = mock(VehiclePropValue.class);
+        when(mMockHalPropValue2.toVehiclePropValue()).thenReturn(vehiclePropValue2);
+        when(mMockHalPropValueBuilder.build(eq(carPropertyValue1), eq(PROP_ID_1), anyLong(),
+                eq(mHalPropConfig1))).thenReturn(mMockHalPropValue1);
+        when(mMockHalPropValueBuilder.build(eq(carPropertyValue2), eq(PROP_ID_2), anyLong(),
+                eq(mHalPropConfig2))).thenReturn(mMockHalPropValue2);
+
+        mSimulationVehicleStub.injectVehicleProperties(List.of(carPropertyValue1,
+                carPropertyValue2));
+
+        verify(mVehicleHalCallback, timeout(2000).times(2))
+                .onPropertyEvent(captor.capture());
+        List<List> allCaptors = captor.getAllValues();
+        List<HalPropValue> callbackList = new ArrayList<>(allCaptors.get(0));
+        callbackList.addAll(allCaptors.get(1));
+        assertWithMessage("onPropertyEvent called").that(callbackList)
+                .containsExactly(mMockHalPropValue1, mMockHalPropValue2);
+    }
+
+    @Test
+    public void testInjectVehicleProperties_oneNotPostedToHandler() {
+        ArgumentCaptor<List> captor = ArgumentCaptor.forClass(List.class);
+        mSimulationVehicleStub.newSubscriptionClient(mVehicleHalCallback);
+        CarPropertyValue carPropertyValue1 = new CarPropertyValue(PROP_ID_1, AREA_ID_GLOBAL, 0);
+        CarPropertyValue carPropertyValue2 = new CarPropertyValue(PROP_ID_2, AREA_ID_GLOBAL,
+                1000000000L * 1000, 0);
+        VehiclePropValue vehiclePropValue1 = mock(VehiclePropValue.class);
+        when(mMockHalPropValue1.toVehiclePropValue()).thenReturn(vehiclePropValue1);
+        VehiclePropValue vehiclePropValue2 = mock(VehiclePropValue.class);
+        when(mMockHalPropValue2.toVehiclePropValue()).thenReturn(vehiclePropValue2);
+        when(mMockHalPropValueBuilder.build(eq(carPropertyValue1), eq(PROP_ID_1), anyLong(),
+                eq(mHalPropConfig1))).thenReturn(mMockHalPropValue1);
+        when(mMockHalPropValueBuilder.build(eq(carPropertyValue2), eq(PROP_ID_2), anyLong(),
+                eq(mHalPropConfig2))).thenReturn(mMockHalPropValue2);
+
+        mSimulationVehicleStub.injectVehicleProperties(List.of(carPropertyValue1,
+                carPropertyValue2));
+
+        verify(mVehicleHalCallback, timeout(2000))
+                .onPropertyEvent(captor.capture());
+        List<List> allCaptors = captor.getAllValues();
+        assertWithMessage("Single event").that(allCaptors).hasSize(1);
+        List<HalPropValue> callbackList = new ArrayList<>(allCaptors.get(0));
+        assertWithMessage("onPropertyEvent called").that(callbackList)
+                .containsExactly(mMockHalPropValue1);
+    }
+
+    @Test
+    public void testInjectVehicleProperties_propIdNotValid() {
+        mSimulationVehicleStub.newSubscriptionClient(mVehicleHalCallback);
+        CarPropertyValue carPropertyValue1 = new CarPropertyValue(
+                INVALID_PROP_ID, AREA_ID_GLOBAL, 0);
+
+        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class,
+                () -> mSimulationVehicleStub.injectVehicleProperties(List.of(carPropertyValue1)));
+
+        assertWithMessage("PropertyId not valid")
+                .that(thrown).hasMessageThat().contains("PropertyId or areaId not supported");
+    }
+
+    @Test
+    public void testInjectVehicleProperties_valueInRange() {
+        ArgumentCaptor<List> captor = ArgumentCaptor.forClass(List.class);
+        when(mAreaConfig.getMinInt64Value()).thenReturn(10L);
+        when(mAreaConfig.getMaxInt64Value()).thenReturn(100L);
+        mSimulationVehicleStub.newSubscriptionClient(mVehicleHalCallback);
+        CarPropertyValue carPropertyValue1 = new CarPropertyValue(PROP_ID_3, AREA_ID_1, 0L);
+        long[] longValues = new long[1];
+        longValues[0] = 15L;
+        RawPropValues rawPropValues = new RawPropValues();
+        rawPropValues.int64Values = longValues;
+        VehiclePropValue vehiclePropValue1 = new VehiclePropValue();
+        vehiclePropValue1.value = rawPropValues;
+        when(mMockHalPropValue3.toVehiclePropValue()).thenReturn(vehiclePropValue1);
+        when(mMockHalPropValueBuilder.build(eq(carPropertyValue1), eq(PROP_ID_3), anyLong(),
+                eq(mHalPropConfig3))).thenReturn(mMockHalPropValue3);
+
+        mSimulationVehicleStub.injectVehicleProperties(List.of(carPropertyValue1));
+
+        verify(mVehicleHalCallback, timeout(2000))
+                .onPropertyEvent(captor.capture());
+        List<List> allCaptors = captor.getAllValues();
+        assertWithMessage("Single event").that(allCaptors).hasSize(1);
+        List<HalPropValue> callbackList = new ArrayList<>(allCaptors.get(0));
+        assertWithMessage("onPropertyEvent called").that(callbackList)
+                .containsExactly(mMockHalPropValue3);
+    }
+
+
+    @Test
+    public void testInjectVehicleProperties_valueOutOfRange() {
+        when(mAreaConfig.getMinInt64Value()).thenReturn(10L);
+        when(mAreaConfig.getMaxInt64Value()).thenReturn(100L);
+        mSimulationVehicleStub.newSubscriptionClient(mVehicleHalCallback);
+        CarPropertyValue carPropertyValue1 = new CarPropertyValue(PROP_ID_3, AREA_ID_1, 0L);
+        long[] longValues = new long[1];
+        longValues[0] = 0L;
+        RawPropValues rawPropValues = new RawPropValues();
+        rawPropValues.int64Values = longValues;
+        VehiclePropValue vehiclePropValue1 = new VehiclePropValue();
+        vehiclePropValue1.value = rawPropValues;
+        when(mMockHalPropValue3.toVehiclePropValue()).thenReturn(vehiclePropValue1);
+        when(mMockHalPropValueBuilder.build(eq(carPropertyValue1), eq(PROP_ID_3), anyLong(),
+                eq(mHalPropConfig3))).thenReturn(mMockHalPropValue3);
+
+        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class,
+                () -> mSimulationVehicleStub.injectVehicleProperties(List.of(carPropertyValue1)));
+
+        assertWithMessage("Value out of range")
+                .that(thrown).hasMessageThat().contains("The property value is not within range");
+    }
+
+    @Test
+    public void testInjectVehicleProperties_incorrectAreaId() {
+        mSimulationVehicleStub.newSubscriptionClient(mVehicleHalCallback);
+        CarPropertyValue carPropertyValue1 = new CarPropertyValue(PROP_ID_3, 2, 0L);
+        when(mMockHalPropValueBuilder.build(eq(carPropertyValue1), eq(PROP_ID_3), anyLong(),
+                eq(mHalPropConfig3))).thenReturn(mMockHalPropValue3);
+
+        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class,
+                () -> mSimulationVehicleStub.injectVehicleProperties(List.of(carPropertyValue1)));
+
+        assertWithMessage("AreaId incorrect")
+                .that(thrown).hasMessageThat().contains("PropertyId or areaId not supported");
+    }
+
+    @Test
+    public void testInjectVehicleProperties_sameValue() {
+        ArgumentCaptor<List> captor = ArgumentCaptor.forClass(List.class);
+        mSimulationVehicleStub.newSubscriptionClient(mVehicleHalCallback);
+
+        CarPropertyValue carPropertyValue1 = new CarPropertyValue(PROP_ID_1, AREA_ID_GLOBAL, 0);
+        VehiclePropValue vehiclePropValue1 = mock(VehiclePropValue.class);
+        when(mMockHalPropValue1.toVehiclePropValue()).thenReturn(vehiclePropValue1);
+        when(mMockHalPropValueBuilder.build(eq(carPropertyValue1), eq(PROP_ID_1), anyLong(),
+                eq(mHalPropConfig1))).thenReturn(mMockHalPropValue1);
+
+        mSimulationVehicleStub.injectVehicleProperties(List.of(carPropertyValue1));
+        verify(mVehicleHalCallback, timeout(1000).times(1))
+                .onPropertyEvent(captor.capture());
+        reset(mVehicleHalCallback);
+        CarPropertyValue carPropertyValue2 = new CarPropertyValue(PROP_ID_1, AREA_ID_GLOBAL, 0);
+        VehiclePropValue vehiclePropValue2 = mock(VehiclePropValue.class);
+        when(mMockHalPropValue2.toVehiclePropValue()).thenReturn(vehiclePropValue2);
+        when(mMockHalPropValueBuilder.build(eq(carPropertyValue2), eq(PROP_ID_1), anyLong(),
+                eq(mHalPropConfig1))).thenReturn(mMockHalPropValue2);
+        when(mMockHalPropValue1.equalsExceptTimestamp(mMockHalPropValue2)).thenReturn(true);
+
+        mSimulationVehicleStub.injectVehicleProperties(List.of(carPropertyValue2));
+
+        verify(mVehicleHalCallback, timeout(2000).times(1))
+                .onPropertyEvent(captor.capture());
+        List<List> allCaptors = captor.getAllValues();
+        List<HalPropValue> callbackList = new ArrayList<>(allCaptors.get(0));
+        callbackList.addAll(allCaptors.get(1));
+        assertWithMessage("onPropertyEvent called").that(callbackList)
+                .containsExactly(mMockHalPropValue1, mMockHalPropValue2);
     }
 
     @Test

@@ -2814,15 +2814,40 @@ public class VehicleHalTest extends AbstractExpectableTestCase {
     }
 
     @Test
-    public void testInjectVehicleProperties() {
+    public void testInjectVehicleProperties_enabled() throws Exception {
+        when(mVehicle.get(eq(mPropValueBuilder.build(SOME_READ_ON_CHANGE_PROPERTY, AREA_ID_1))))
+                .thenReturn(mPropValueBuilder.build(SOME_READ_ON_CHANGE_PROPERTY, AREA_ID_1,
+                        1.55f));
+        when(mVehicle.get(eq(mPropValueBuilder.build(SOME_FLOAT_PROPERTY, AREA_ID_2))))
+                .thenReturn(mPropValueBuilder.build(SOME_FLOAT_PROPERTY, AREA_ID_2, 1.55f));
         CarPropertyValue value1 = new CarPropertyValue<>(SOME_READ_ON_CHANGE_PROPERTY, AREA_ID_1,
                 TEST_TIMESTAMP, 1.23F);
         CarPropertyValue value2 = new CarPropertyValue<>(SOME_FLOAT_PROPERTY, AREA_ID_2,
                 TEST_TIMESTAMP, 1.23F);
         List<CarPropertyValue> carPropertyValues = List.of(value1, value2);
-        mVehicleHal.injectVehicleProperties(carPropertyValues);
+        mVehicleHal.enableInjectionMode(List.of());
 
-        verify(mVehicle).injectVehicleProperties(carPropertyValues);
+        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class,
+                () -> mVehicleHal.injectVehicleProperties(carPropertyValues));
+
+        assertWithMessage("Property not available")
+                .that(thrown).hasMessageThat().contains("PropertyId or areaId not supported");
+        // Should be set to the SimulationVehicleStub not the original vehicle stub
+        verify(mVehicle, after(1000).never()).injectVehicleProperties(carPropertyValues);
+    }
+
+    @Test
+    public void testInjectVehicleProperties_disabled() {
+        CarPropertyValue value1 = mock(CarPropertyValue.class);
+        CarPropertyValue value2 = mock(CarPropertyValue.class);
+        List<CarPropertyValue> carPropertyValues = List.of(value1, value2);
+
+        IllegalStateException thrown = assertThrows(IllegalStateException.class,
+                () -> mVehicleHal.injectVehicleProperties(carPropertyValues));
+
+        assertWithMessage("Inject vehicle properties when injection mode is disabled")
+                .that(thrown).hasMessageThat()
+                .contains("Vehicle property injection mode is not enabled!");
     }
 
     @Test

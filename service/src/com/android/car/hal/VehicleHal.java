@@ -1480,6 +1480,9 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
      * @param carPropertyValues The carPropertyValues to inject.
      */
     public void injectVehicleProperties(List<CarPropertyValue> carPropertyValues) {
+        if (!isVehiclePropertyInjectionModeEnabled()) {
+            throw new IllegalStateException("Vehicle property injection mode is not enabled!");
+        }
         mVehicleStub.get().injectVehicleProperties(carPropertyValues);
     }
 
