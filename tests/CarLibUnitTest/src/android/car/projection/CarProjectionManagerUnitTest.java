@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 The Android Open Source Project
+ * Copyright (C) 2025 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
-package android.car;
+package android.car.projection;
 
 import static android.car.CarProjectionManager.ProjectionAccessPointCallback.ERROR_GENERIC;
 
 import static com.google.common.truth.Truth.assertThat;
+import static com.google.common.truth.Truth.assertWithMessage;
 
-import static org.junit.Assert.fail;
+import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
@@ -28,8 +29,10 @@ import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static org.robolectric.Shadows.shadowOf;
 
+import android.car.Car;
+import android.car.CarNotConnectedException;
+import android.car.CarProjectionManager;
 import android.car.CarProjectionManager.ProjectionAccessPointCallback;
 import android.car.testapi.CarProjectionController;
 import android.car.testapi.FakeCar;
@@ -38,23 +41,18 @@ import android.content.Intent;
 import android.net.MacAddress;
 import android.net.wifi.SoftApConfiguration;
 import android.net.wifi.WifiConfiguration;
-import android.os.Looper;
 import android.util.ArraySet;
 
 import androidx.test.core.app.ApplicationProvider;
 
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.InOrder;
 import org.mockito.Spy;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.internal.DoNotInstrument;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -63,11 +61,8 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
-@RunWith(RobolectricTestRunner.class)
-@DoNotInstrument
-public class CarProjectionManagerTest {
-    @Rule
-    public MockitoRule rule = MockitoJUnit.rule();
+@RunWith(MockitoJUnitRunner.class)
+public class CarProjectionManagerUnitTest {
 
     @Captor
     private ArgumentCaptor<Intent> mIntentArgumentCaptor;
@@ -100,7 +95,6 @@ public class CarProjectionManagerTest {
         mController.setSoftApConfiguration(null);
 
         mProjectionManager.startProjectionAccessPoint(mApCallback);
-        shadowOf(Looper.getMainLooper()).idle();
         mApCallback.mFailed.await(DEFAULT_TIMEOUT_MS, TimeUnit.MILLISECONDS);
         assertThat(mApCallback.mFailureReason).isEqualTo(ERROR_GENERIC);
     }
@@ -116,7 +110,6 @@ public class CarProjectionManagerTest {
         mController.setSoftApConfiguration(config);
 
         mProjectionManager.startProjectionAccessPoint(mApCallback);
-        shadowOf(Looper.getMainLooper()).idle();
         mApCallback.mStarted.await(DEFAULT_TIMEOUT_MS, TimeUnit.MILLISECONDS);
         assertThat(mApCallback.mSoftApConfiguration).isEqualTo(config);
     }
@@ -133,7 +126,6 @@ public class CarProjectionManagerTest {
         mController.setWifiConfiguration(wifiConfig);
 
         mProjectionManager.startProjectionAccessPoint(mApCallback);
-        shadowOf(Looper.getMainLooper()).idle();
         mApCallback.mStarted.await(DEFAULT_TIMEOUT_MS, TimeUnit.MILLISECONDS);
 
         assertThat(mApCallback.mSoftApConfiguration).isNull();
@@ -207,16 +199,17 @@ public class CarProjectionManagerTest {
         CarProjectionManager.ProjectionKeyEventHandler eventHandler =
                 mock(CarProjectionManager.ProjectionKeyEventHandler.class);
 
-        try {
-            mProjectionManager.addKeyEventHandler(Collections.singleton(-1), eventHandler);
-            fail();
-        } catch (IllegalArgumentException expected) { }
+        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () ->
+                mProjectionManager.addKeyEventHandler(Collections.singleton(-1),
+                        eventHandler));
+        assertWithMessage("Exception is thrown").that(thrown).hasMessageThat()
+                .contains("Invalid key event");
 
-        try {
-            mProjectionManager.addKeyEventHandler(
-                    Collections.singleton(CarProjectionManager.NUM_KEY_EVENTS), eventHandler);
-            fail();
-        } catch (IllegalArgumentException expected) { }
+        thrown = assertThrows(IllegalArgumentException.class, ()->
+                mProjectionManager.addKeyEventHandler(Collections.singleton(
+                        CarProjectionManager.NUM_KEY_EVENTS), eventHandler));
+        assertWithMessage("Exception is thrown").that(thrown).hasMessageThat()
+                .contains("Invalid key event");
     }
 
     @Test
