@@ -21,6 +21,7 @@ import static android.car.hardware.property.CarPropertyEvent.PROPERTY_EVENT_PROP
 import static java.lang.Integer.toHexString;
 
 import android.annotation.Nullable;
+import android.car.Car;
 import android.car.VehicleAreaType;
 import android.car.VehiclePropertyType;
 import android.car.feature.Flags;
@@ -32,7 +33,6 @@ import android.car.hardware.property.ICarPropertyEventListener;
 import android.os.RemoteException;
 import android.util.ArraySet;
 
-import com.android.car.internal.PropertyPermissionMapping;
 import com.android.car.internal.property.AsyncPropertyServiceRequest;
 import com.android.car.internal.property.AsyncPropertyServiceRequestList;
 import com.android.car.internal.property.CarPropertyConfigList;
@@ -64,8 +64,6 @@ import java.util.Set;
 class FakeCarPropertyService extends ICarProperty.Stub implements CarPropertyController {
     private final Map<Integer, CarPropertyConfig> mConfigs = new HashMap<>();
     private final Map<PropKey, CarPropertyValue> mValues = new HashMap<>();
-
-    private final PropertyPermissionMapping mPermissions = new PropertyPermissionMapping();
 
     // Contains a list of values that were set from the manager.
     private final ArrayList<CarPropertyValue<?>> mValuesSet = new ArrayList<>();
@@ -239,12 +237,14 @@ class FakeCarPropertyService extends ICarProperty.Stub implements CarPropertyCon
 
     @Override
     public String getReadPermission(int propId) throws RemoteException {
-        return mConfigs.containsKey(propId) ? mPermissions.getReadPermission(propId) : null;
+        // Return an arbitrary permission if the propId is supported.
+        return mConfigs.containsKey(propId) ? Car.PERMISSION_SPEED : null;
     }
 
     @Override
     public String getWritePermission(int propId) throws RemoteException {
-        return mConfigs.containsKey(propId) ? mPermissions.getWritePermission(propId) : null;
+        // Return an arbitrary permission if the propId is supported.
+        return mConfigs.containsKey(propId) ? Car.PERMISSION_SPEED : null;
     }
 
     @Override

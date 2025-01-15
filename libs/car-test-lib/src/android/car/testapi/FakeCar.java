@@ -68,7 +68,7 @@ import java.util.List;
  *     Car realCar = fakeCar.getCar();  // pass this instance to your DI framework or class to test
  *
  *     // Then you can obtain different controllers to modify behavior of your fake car.
- *     PropertyController propertyController = fakeCar.getPropertyController();
+ *     PropertyController propertyController = fakeCar.getCarPropertyController();
  *     propertyController.setProperties(listOfSupportedProperties)
  * </code>
  */
