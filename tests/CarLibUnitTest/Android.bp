@@ -125,6 +125,8 @@ android_ravenwood_test {
         "src/android/car/oem/CarAudioFadeConfigurationUnitTest.java",
         // The following cannot be enabled because Messenger/Context is not supported on host.
         "src/android/car/projection/CarProjectionManagerUnitTest.java",
+        // The following cannot be enabled because UserManager is not supported on host.
+        "src/android/car/drivingstate/CarUxRestrictionsManagerUnitTest.java",
     ],
 }
 
@@ -195,6 +197,20 @@ android_test {
     ],
     srcs: [
         "src/android/car/content/pm/*.java",
+    ],
+}
+
+android_test {
+    name: "CarLibUxRestrictionsUnitTest",
+    team: "trendy_team_aaos_user_triage",
+    defaults: [
+        "CarLibDeviceUnitTestDefault",
+    ],
+    static_libs: [
+        "android.car.testapi",
+    ],
+    srcs: [
+        "src/android/car/drivingstate/*.java",
     ],
 }
 

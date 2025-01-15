@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 The Android Open Source Project
+ * Copyright (C) 2025 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,17 +14,16 @@
  * limitations under the License.
  */
 
-package android.car;
+package android.car.drivingstate;
 
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import android.car.drivingstate.CarUxRestrictions;
-import android.car.drivingstate.CarUxRestrictionsManager;
-import android.car.drivingstate.CarUxRestrictionsManager.OnUxRestrictionsChangedListener;
+import android.car.Car;
 import android.car.testapi.CarUxRestrictionsController;
 import android.car.testapi.FakeCar;
 import android.content.Context;
@@ -41,13 +40,11 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.junit.MockitoRule;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.internal.DoNotInstrument;
 
-@RunWith(RobolectricTestRunner.class)
-@DoNotInstrument
-public class CarUxRestrictionsManagerTest {
+@RunWith(MockitoJUnitRunner.class)
+public class CarUxRestrictionsManagerUnitTest {
     @Rule
     public final MockitoRule rule = MockitoJUnit.rule();
 
@@ -56,12 +53,12 @@ public class CarUxRestrictionsManagerTest {
 
     @Mock
     private UserManager mUserManager;
+    @Mock
+    private CarUxRestrictionsManager.OnUxRestrictionsChangedListener mListener;
 
     private CarUxRestrictionsManager mCarUxRestrictionsManager;
     private CarUxRestrictionsController mCarUxRestrictionsController;
 
-    @Mock
-    OnUxRestrictionsChangedListener mListener;
 
     @Before
     public void setUp() {
@@ -113,12 +110,12 @@ public class CarUxRestrictionsManagerTest {
     }
 
     @Test
-    public void setUxRestrictions_listenerRegistered_listenerTriggered() throws RemoteException {
+    public void setUxRestrictions_listenerRegistered_listenerTriggered() throws Exception {
         mCarUxRestrictionsManager.registerListener(mListener);
         mCarUxRestrictionsController
                 .setUxRestrictions(CarUxRestrictions.UX_RESTRICTIONS_NO_TEXT_MESSAGE);
 
-        verify(mListener).onUxRestrictionsChanged(any());
+        verify(mListener, timeout(2000)).onUxRestrictionsChanged(any());
     }
 }
 
