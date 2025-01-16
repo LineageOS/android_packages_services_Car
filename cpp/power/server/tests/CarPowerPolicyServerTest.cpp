@@ -21,6 +21,7 @@
 #include <aidl/android/automotive/power/internal/PowerPolicyInitData.h>
 #include <aidl/android/frameworks/automotive/power/BnCarPowerStateChangeListener.h>
 #include <aidl/android/frameworks/automotive/power/BnCarPowerStateChangeListenerWithCompletion.h>
+#include <aidl/android/frameworks/automotive/power/BnCompletablePowerStateChangeFuture.h>
 #include <aidl/android/frameworks/automotive/power/ICarPowerStateChangeListener.h>
 #include <aidl/android/frameworks/automotive/power/ICarPowerStateChangeListenerWithCompletion.h>
 #include <aidl/android/frameworks/automotive/power/ICompletablePowerStateChangeFuture.h>
@@ -38,6 +39,7 @@
 #include <utils/Looper.h>
 #include <utils/Mutex.h>
 #include <utils/StrongPointer.h>
+#include <utils/SystemClock.h>
 
 #include <android_car_feature.h>
 #include <tinyxml2.h>
@@ -61,6 +63,7 @@ using ::aidl::android::automotive::power::internal::PowerPolicyFailureReason;
 using ::aidl::android::automotive::power::internal::PowerPolicyInitData;
 using ::aidl::android::frameworks::automotive::power::BnCarPowerStateChangeListener;
 using ::aidl::android::frameworks::automotive::power::BnCarPowerStateChangeListenerWithCompletion;
+using ::aidl::android::frameworks::automotive::power::BnCompletablePowerStateChangeFuture;
 using ::aidl::android::frameworks::automotive::power::CarPowerState;
 using ::aidl::android::frameworks::automotive::power::ICarPowerStateChangeListener;
 using ::aidl::android::frameworks::automotive::power::ICarPowerStateChangeListenerWithCompletion;
@@ -104,19 +107,16 @@ public:
 
 class MockPowerStateChangeListener : public BnCarPowerStateChangeListener {
 public:
-    ScopedAStatus onStateChanged(const CarPowerState /*state*/) override {
-        return ScopedAStatus::ok();
-    }
+    MOCK_METHOD(ScopedAStatus, onStateChanged, (CarPowerState), (override));
 };
 
 class MockPowerStateChangeListenerWithCompletion :
       public BnCarPowerStateChangeListenerWithCompletion {
 public:
-    ScopedAStatus onStateChanged(
-            const CarPowerState /*state*/, const int64_t /*expirationTimeMs*/,
-            const std::shared_ptr<ICompletablePowerStateChangeFuture>& /*future*/) override {
-        return ScopedAStatus::ok();
-    }
+    MOCK_METHOD(ScopedAStatus, onStateChanged,
+                (CarPowerState, int64_t,
+                 const std::shared_ptr<ICompletablePowerStateChangeFuture>&),
+                (override));
 };
 
 class MockPowerManagementDelegateCallback : public BnCarPowerManagementDelegateCallback {
@@ -479,9 +479,47 @@ public:
         return ICarPowerStateChangeListenerWithCompletion::fromBinder(listener->asBinder());
     }
 
+    std::shared_ptr<MockPowerStateChangeListener> getMockPowerStateChangeListener() {
+        return ndk::SharedRefBase::make<MockPowerStateChangeListener>();
+    }
+
+    std::shared_ptr<MockPowerStateChangeListenerWithCompletion>
+    getMockPowerStateChangeListenerWithCompletion() {
+        return ndk::SharedRefBase::make<MockPowerStateChangeListenerWithCompletion>();
+    }
+
     // Sets calling UID to imitate System's process.
     void setSystemCallingUid() {
         mScopedChangeCallingUid = sp<ScopedChangeCallingUid>::make(AID_SYSTEM);
+    }
+
+    void setUpServerWithCallback(sp<internal::CarPowerPolicyServerPeer> server,
+                                 std::shared_ptr<MockPowerManagementDelegateCallback> callback) {
+        server->expectLinkToDeathStatus(callback->asBinder().get(), STATUS_OK);
+        server->init();
+        setSystemCallingUid();
+        PowerPolicyInitData initData;
+        server->notifyCarServiceReady(callback, &initData);
+    }
+
+    void setUpServerWithPowerStateListener(
+            sp<internal::CarPowerPolicyServerPeer> server,
+            std::shared_ptr<MockPowerManagementDelegateCallback> callback,
+            std::shared_ptr<MockPowerStateChangeListener> listener) {
+        setUpServerWithCallback(server, callback);
+        server->expectLinkToDeathStatus(listener->asBinder().get(), STATUS_OK);
+        ScopedAStatus status = server->registerPowerStateListener(listener);
+        ASSERT_TRUE(status.isOk()) << status.getMessage();
+    }
+
+    void setUpServerWithPowerStateListenerWithCompletion(
+            sp<internal::CarPowerPolicyServerPeer> server,
+            std::shared_ptr<MockPowerManagementDelegateCallback> callback,
+            std::shared_ptr<MockPowerStateChangeListenerWithCompletion> listener) {
+        setUpServerWithCallback(server, callback);
+        server->expectLinkToDeathStatus(listener->asBinder().get(), STATUS_OK);
+        ScopedAStatus status = server->registerPowerStateListenerWithCompletion(listener);
+        ASSERT_TRUE(status.isOk()) << status.getMessage();
     }
 
     void testApplyPowerPolicyPerPowerStateChangeAsyncInternal(const std::string& policyGroupId,
@@ -914,7 +952,7 @@ TEST_F(CarPowerPolicyServerTest, TestRegisterPowerStateChangeListener_binderDied
 
 TEST_F(CarPowerPolicyServerTest, TestOnBinderDied_powerStateListener) {
     if (!native_power_notifications()) {
-        GTEST_SKIP() << "car_power_policy_refactoring feature flag is not enabled";
+        GTEST_SKIP() << "native_power_notifications feature flag is not enabled";
     }
 
     sp<internal::CarPowerPolicyServerPeer> server = new internal::CarPowerPolicyServerPeer();
@@ -938,7 +976,7 @@ TEST_F(CarPowerPolicyServerTest, TestOnBinderDied_powerStateListener) {
 
 TEST_F(CarPowerPolicyServerTest, TestUnregisterPowerStateChangeListener) {
     if (!native_power_notifications()) {
-        GTEST_SKIP() << "car_power_policy_refactoring feature flag is not enabled";
+        GTEST_SKIP() << "native_power_notifications feature flag is not enabled";
     }
 
     sp<internal::CarPowerPolicyServerPeer> server = new internal::CarPowerPolicyServerPeer();
@@ -1041,16 +1079,41 @@ TEST_F(CarPowerPolicyServerTest, TestNotifyPowerStateChange_noListeners) {
     sp<internal::CarPowerPolicyServerPeer> server = new internal::CarPowerPolicyServerPeer();
     std::shared_ptr<MockPowerManagementDelegateCallback> callback =
             ndk::SharedRefBase::make<MockPowerManagementDelegateCallback>();
-    server->expectLinkToDeathStatus(callback->asBinder().get(), STATUS_OK);
-    server->init();
-    setSystemCallingUid();
-    PowerPolicyInitData initData;
-    server->notifyCarServiceReady(callback, &initData);
+    setUpServerWithCallback(server, callback);
 
     const int32_t changeId = 321;
     int32_t calledChangeId = -1;
     const CarPowerState state = CarPowerState::SHUTDOWN_PREPARE;
     const int64_t expirationTimeMs = 5000;
+    EXPECT_CALL(*callback, onAllPowerStateChangeListenersComplete)
+            .WillRepeatedly(Invoke([&calledChangeId](int32_t changeId) -> ScopedAStatus {
+                calledChangeId = changeId;
+                return ScopedAStatus::ok();
+            }));
+
+    ScopedAStatus status = server->notifyPowerStateChange(changeId, state, expirationTimeMs);
+
+    ASSERT_TRUE(status.isOk()) << "notifyPowerStateChange should return OK";
+
+    ASSERT_EQ(calledChangeId, changeId)
+            << "Power state change ID passed to onAllPowerStateChangeListenersComplete should "
+               "match the one passed to notifyPowerStateChange";
+}
+
+TEST_F(CarPowerPolicyServerTest, TestNotifyPowerStateChange_listenerWithoutCompletion) {
+    if (!native_power_notifications()) {
+        GTEST_SKIP() << "native_power_notifications feature flag is not enabled";
+    }
+
+    sp<internal::CarPowerPolicyServerPeer> server = new internal::CarPowerPolicyServerPeer();
+    std::shared_ptr<MockPowerManagementDelegateCallback> callback =
+            ndk::SharedRefBase::make<MockPowerManagementDelegateCallback>();
+    std::shared_ptr<MockPowerStateChangeListener> listener = getMockPowerStateChangeListener();
+    setUpServerWithPowerStateListener(server, callback, listener);
+
+    const int32_t changeId = 777;
+    int32_t calledChangeId = -1;
+    const CarPowerState state = CarPowerState::HIBERNATION_ENTER;
     std::mutex mutex;
     std::condition_variable cv;
     EXPECT_CALL(*callback, onAllPowerStateChangeListenersComplete)
@@ -1061,16 +1124,266 @@ TEST_F(CarPowerPolicyServerTest, TestNotifyPowerStateChange_noListeners) {
                         cv.notify_all();
                         return ScopedAStatus::ok();
                     }));
+    CarPowerState notifiedState;
+    EXPECT_CALL(*listener, onStateChanged)
+            .WillRepeatedly(Invoke([&notifiedState](const CarPowerState state) -> ScopedAStatus {
+                notifiedState = state;
+                return ScopedAStatus::ok();
+            }));
+    const int64_t expirationTimeMs = 5000;
 
     ScopedAStatus status = server->notifyPowerStateChange(changeId, state, expirationTimeMs);
 
     ASSERT_TRUE(status.isOk()) << "notifyPowerStateChange should return OK";
 
+    EXPECT_EQ(notifiedState, state) << "State notified to listener is incorrect";
+
     std::unique_lock lock(mutex);
-    bool waitResult = cv.wait_for(lock, kCallbackWaitTime,
-                                  [&calledChangeId] { return calledChangeId == changeId; });
+    const bool waitResult = cv.wait_for(lock, kCallbackWaitTime,
+                                        [&calledChangeId] { return calledChangeId == changeId; });
     ASSERT_TRUE(waitResult)
             << "notifyPowerStateChange should be called with the same power state change ID";
+}
+
+TEST_F(CarPowerPolicyServerTest, TestNotifyPowerStateChange_listenerWithCompletion) {
+    if (!native_power_notifications()) {
+        GTEST_SKIP() << "native_power_notifications feature flag is not enabled";
+    }
+
+    sp<internal::CarPowerPolicyServerPeer> server = new internal::CarPowerPolicyServerPeer();
+    std::shared_ptr<MockPowerManagementDelegateCallback> callback =
+            ndk::SharedRefBase::make<MockPowerManagementDelegateCallback>();
+    std::shared_ptr<MockPowerStateChangeListenerWithCompletion> listener =
+            getMockPowerStateChangeListenerWithCompletion();
+    setUpServerWithPowerStateListenerWithCompletion(server, callback, listener);
+
+    const int32_t changeId = 234;
+    int32_t calledChangeId = -1;
+    const CarPowerState state = CarPowerState::SUSPEND_ENTER;
+    std::mutex mutex;
+    std::condition_variable cv;
+    EXPECT_CALL(*callback, onAllPowerStateChangeListenersComplete)
+            .WillRepeatedly(
+                    Invoke([&calledChangeId, &cv, &mutex](int32_t changeId) -> ScopedAStatus {
+                        calledChangeId = changeId;
+                        std::unique_lock lock(mutex);
+                        cv.notify_all();
+                        return ScopedAStatus::ok();
+                    }));
+    CarPowerState notifiedState;
+    int64_t notifiedExpirationTimestamp;
+    std::thread listenerThread;
+    EXPECT_CALL(*listener, onStateChanged)
+            .WillRepeatedly(Invoke(
+                    [&notifiedState, &notifiedExpirationTimestamp,
+                     &listenerThread](const CarPowerState state, const int64_t expirationTimeMs,
+                                      const std::shared_ptr<ICompletablePowerStateChangeFuture>&
+                                              future) -> ScopedAStatus {
+                        notifiedState = state;
+                        notifiedExpirationTimestamp = expirationTimeMs;
+                        // Simulate listener executing work on another thread to better represent
+                        // real scenario where listener will execute onStateChanged over binder
+                        listenerThread = std::thread([&future]() {
+                            std::this_thread::sleep_for(std::chrono::milliseconds(400));
+                            future->complete();
+                        });
+                        return ScopedAStatus::ok();
+                    }));
+    const int64_t expirationTimeMs = 500;
+    const int64_t beforeNotifyTimestamp = android::elapsedRealtime();
+
+    ScopedAStatus status = server->notifyPowerStateChange(changeId, state, expirationTimeMs);
+    ASSERT_TRUE(status.isOk()) << "notifyPowerStateChange should return OK";
+
+    const int64_t afterNotifyTimestamp = android::elapsedRealtime();
+    EXPECT_LT(afterNotifyTimestamp, beforeNotifyTimestamp + expirationTimeMs)
+            << "Power state notification (and therefore listener) should complete before time out";
+
+    EXPECT_EQ(notifiedState, state) << "State notified to listener is incorrect";
+    EXPECT_GE(abs(notifiedExpirationTimestamp - beforeNotifyTimestamp), expirationTimeMs)
+            << "Expiration time supplied to listener with completion is too early";
+
+    std::unique_lock lock(mutex);
+    const bool waitResult = cv.wait_for(lock, std::chrono::milliseconds(expirationTimeMs),
+                                        [&calledChangeId] { return calledChangeId == changeId; });
+    ASSERT_TRUE(waitResult)
+            << "notifyPowerStateChange should be called with the same power state change ID";
+
+    if (listenerThread.joinable()) {
+        listenerThread.join();
+    }
+}
+
+TEST_F(CarPowerPolicyServerTest, TestNotifyPowerStateChange_listenerWithCompletionTimesOut) {
+    if (!native_power_notifications()) {
+        GTEST_SKIP() << "native_power_notifications feature flag is not enabled";
+    }
+
+    sp<internal::CarPowerPolicyServerPeer> server = new internal::CarPowerPolicyServerPeer();
+    std::shared_ptr<MockPowerManagementDelegateCallback> callback =
+            ndk::SharedRefBase::make<MockPowerManagementDelegateCallback>();
+    std::shared_ptr<MockPowerStateChangeListenerWithCompletion> listener =
+            getMockPowerStateChangeListenerWithCompletion();
+    setUpServerWithPowerStateListenerWithCompletion(server, callback, listener);
+
+    const int32_t changeId = 345;
+    int32_t calledChangeId = -1;
+    const CarPowerState state = CarPowerState::PRE_SHUTDOWN_PREPARE;
+    std::mutex listenersCompleteMutex;
+    std::condition_variable listenersCompleteCv;
+    EXPECT_CALL(*callback, onAllPowerStateChangeListenersComplete)
+            .WillRepeatedly(Invoke([&calledChangeId, &listenersCompleteCv,
+                                    &listenersCompleteMutex](int32_t changeId) -> ScopedAStatus {
+                calledChangeId = changeId;
+                std::unique_lock lock(listenersCompleteMutex);
+                listenersCompleteCv.notify_all();
+                return ScopedAStatus::ok();
+            }));
+    std::shared_ptr<ICompletablePowerStateChangeFuture> notifiedFuture;
+    EXPECT_CALL(*listener, onStateChanged)
+            .WillRepeatedly(Invoke(
+                    [&notifiedFuture]([[maybe_unused]] const CarPowerState state,
+                                      [[maybe_unused]] const int64_t expirationTimeMs,
+                                      const std::shared_ptr<ICompletablePowerStateChangeFuture>&
+                                              future) -> ScopedAStatus {
+                        notifiedFuture = future;
+                        return ScopedAStatus::ok();
+                    }));
+    const int64_t expirationTimeMs = 200;
+    const int64_t beforeNotifyTimestamp = android::elapsedRealtime();
+
+    ScopedAStatus status = server->notifyPowerStateChange(changeId, state, expirationTimeMs);
+    ASSERT_TRUE(status.isOk()) << "notifyPowerStateChange should return OK";
+
+    const int64_t afterNotifyTimestamp = android::elapsedRealtime();
+    ASSERT_GE(afterNotifyTimestamp, beforeNotifyTimestamp + expirationTimeMs)
+            << "notifyPowerStateChange should time out before notifying car service that listeners "
+               "completed or timed out";
+    // Future doesn't complete until after the timeout is reached, no error should occur
+    notifiedFuture->complete();
+
+    std::unique_lock lock(listenersCompleteMutex);
+    const bool waitResult =
+            listenersCompleteCv.wait_for(lock, std::chrono::milliseconds(expirationTimeMs),
+                                         [&calledChangeId] { return calledChangeId == changeId; });
+    ASSERT_TRUE(waitResult)
+            << "notifyPowerStateChange should be called with the same power state change ID";
+}
+
+TEST_F(CarPowerPolicyServerTest, TestNotifyPowerStateChange_nonCompletableState) {
+    if (!native_power_notifications()) {
+        GTEST_SKIP() << "native_power_notifications feature flag is not enabled";
+    }
+
+    sp<internal::CarPowerPolicyServerPeer> server = new internal::CarPowerPolicyServerPeer();
+    std::shared_ptr<MockPowerManagementDelegateCallback> callback =
+            ndk::SharedRefBase::make<MockPowerManagementDelegateCallback>();
+    std::shared_ptr<MockPowerStateChangeListenerWithCompletion> listener =
+            getMockPowerStateChangeListenerWithCompletion();
+    setUpServerWithPowerStateListenerWithCompletion(server, callback, listener);
+
+    const int32_t changeId = 999;
+    int32_t calledChangeId = -1;
+    const CarPowerState state = CarPowerState::SHUTDOWN_CANCELLED;
+    std::mutex mutex;
+    std::condition_variable cv;
+    EXPECT_CALL(*callback, onAllPowerStateChangeListenersComplete)
+            .WillRepeatedly(
+                    Invoke([&calledChangeId, &cv, &mutex](int32_t changeId) -> ScopedAStatus {
+                        calledChangeId = changeId;
+                        std::unique_lock lock(mutex);
+                        cv.notify_all();
+                        return ScopedAStatus::ok();
+                    }));
+    CarPowerState notifiedState;
+    int64_t notifiedExpirationTimestamp;
+    std::shared_ptr<ICompletablePowerStateChangeFuture> notifiedFuture;
+    EXPECT_CALL(*listener, onStateChanged)
+            .WillRepeatedly(Invoke(
+                    [&notifiedState, &notifiedExpirationTimestamp,
+                     &notifiedFuture](const CarPowerState state, const int64_t expirationTimeMs,
+                                      const std::shared_ptr<ICompletablePowerStateChangeFuture>&
+                                              future) -> ScopedAStatus {
+                        notifiedState = state;
+                        notifiedExpirationTimestamp = expirationTimeMs;
+                        notifiedFuture = future;
+                        return ScopedAStatus::ok();
+                    }));
+    const int64_t expirationTimeMs = 500;
+    const int64_t beforeNotifyTimestamp = android::elapsedRealtime();
+
+    ScopedAStatus status = server->notifyPowerStateChange(changeId, state, expirationTimeMs);
+    ASSERT_TRUE(status.isOk()) << "notifyPowerStateChange should return OK";
+
+    const int64_t afterNotifyTimestamp = android::elapsedRealtime();
+    EXPECT_LT(afterNotifyTimestamp, beforeNotifyTimestamp + (expirationTimeMs * 0.5))
+            << "notifyPowerStateChange should not block on futures completing and should not time "
+               "out before notifying car service";
+
+    EXPECT_EQ(notifiedState, state) << "State notified to listener with completion is incorrect";
+    EXPECT_TRUE(abs(notifiedExpirationTimestamp - beforeNotifyTimestamp) < expirationTimeMs)
+            << "Expiration time supplied to listener with completion is too late";
+    EXPECT_EQ(notifiedFuture, nullptr)
+            << "Future supplied to listener with completion should be null";
+
+    std::unique_lock lock(mutex);
+    const bool waitResult = cv.wait_for(lock, kCallbackWaitTime,
+                                        [&calledChangeId] { return calledChangeId == changeId; });
+    ASSERT_TRUE(waitResult)
+            << "notifyPowerStateChange should be called with the same power state change ID";
+}
+
+TEST_F(CarPowerPolicyServerTest, TestNotifyPowerStateChange_serverDies) {
+    if (!native_power_notifications()) {
+        GTEST_SKIP() << "native_power_notifications feature flag is not enabled";
+    }
+
+    sp<internal::CarPowerPolicyServerPeer> server = new internal::CarPowerPolicyServerPeer();
+    std::shared_ptr<MockPowerManagementDelegateCallback> callback =
+            ndk::SharedRefBase::make<MockPowerManagementDelegateCallback>();
+    std::shared_ptr<MockPowerStateChangeListenerWithCompletion> listener =
+            getMockPowerStateChangeListenerWithCompletion();
+    setUpServerWithPowerStateListenerWithCompletion(server, callback, listener);
+
+    const int32_t changeId = 432;
+    int32_t calledChangeId = -1;
+    const CarPowerState state = CarPowerState::POST_SUSPEND_ENTER;
+    std::mutex mutex;
+    std::condition_variable cv;
+    EXPECT_CALL(*callback, onAllPowerStateChangeListenersComplete)
+            .WillRepeatedly(
+                    Invoke([&calledChangeId, &cv, &mutex](int32_t changeId) -> ScopedAStatus {
+                        calledChangeId = changeId;
+                        std::unique_lock lock(mutex);
+                        cv.notify_all();
+                        return ScopedAStatus::ok();
+                    }));
+    std::shared_ptr<ICompletablePowerStateChangeFuture> notifiedFuture;
+    EXPECT_CALL(*listener, onStateChanged)
+            .WillRepeatedly(Invoke(
+                    [&notifiedFuture]([[maybe_unused]] const CarPowerState state,
+                                      [[maybe_unused]] const int64_t expirationTimeMs,
+                                      const std::shared_ptr<ICompletablePowerStateChangeFuture>&
+                                              future) -> ScopedAStatus {
+                        notifiedFuture = future;
+                        return ScopedAStatus::ok();
+                    }));
+    const int64_t expirationTimeMs = 500;
+
+    ScopedAStatus status = server->notifyPowerStateChange(changeId, state, expirationTimeMs);
+    ASSERT_TRUE(status.isOk()) << "notifyPowerStateChange should return OK";
+
+    server.clear();
+
+    std::unique_lock lock(mutex);
+    const bool waitResult = cv.wait_for(lock, std::chrono::milliseconds(expirationTimeMs),
+                                        [&calledChangeId] { return calledChangeId == changeId; });
+    ASSERT_TRUE(waitResult)
+            << "notifyPowerStateChange should be called with the same power state change ID";
+
+    status = notifiedFuture->complete();
+    ASSERT_TRUE(status.isOk()) << "Calling future complete() after car power server destroyed "
+                                  "should return OK";
 }
 
 TEST_F(CarPowerPolicyServerTest, TestSetMaxConnectToVhalRetryCount) {

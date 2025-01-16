@@ -24,6 +24,7 @@
 #include <aidl/android/automotive/power/internal/BnCarPowerManagementDelegate.h>
 #include <aidl/android/automotive/power/internal/PowerPolicyInitData.h>
 #include <aidl/android/frameworks/automotive/power/BnCarPowerServer.h>
+#include <aidl/android/frameworks/automotive/power/BnCompletablePowerStateChangeFuture.h>
 #include <aidl/android/frameworks/automotive/power/ICarPowerStateChangeListener.h>
 #include <aidl/android/frameworks/automotive/power/ICarPowerStateChangeListenerWithCompletion.h>
 #include <aidl/android/frameworks/automotive/powerpolicy/BnCarPowerPolicyServer.h>
@@ -374,6 +375,20 @@ private:
         void deleteDeathRecipient(AIBinder_DeathRecipient* recipient) override;
     };
 
+    class CompletablePowerStateChangeFuture final :
+          public aidl::android::frameworks::automotive::power::BnCompletablePowerStateChangeFuture {
+    public:
+        explicit CompletablePowerStateChangeFuture(
+                std::weak_ptr<std::condition_variable> listenersCompletedCv);
+
+        ndk::ScopedAStatus complete() override;
+        bool isComplete() const;
+
+    private:
+        std::atomic_bool mCompleted;
+        std::weak_ptr<std::condition_variable> mListenersCompletedCvPtr;
+    };
+
     struct PolicyRequest {
         std::string policyId;
         bool force;
@@ -415,9 +430,14 @@ private:
 
     std::shared_ptr<aidl::android::automotive::power::internal::ICarPowerManagementDelegateCallback>
     getPowerManagementDelegateCallback();
-    ndk::ScopedAStatus logAndReturnErrorWithMessage(int32_t errorType, const std::string& errorMsg);
-    ndk::ScopedAStatus logAndReturnErrorWithMessage(int32_t errorType, const std::string& errorMsg,
-                                                    const std::string& errorLogPrefix);
+
+    static ndk::ScopedAStatus logAndReturnErrorWithMessage(int32_t errorType,
+                                                           const std::string& errorMsg);
+    static ndk::ScopedAStatus logAndReturnErrorWithMessage(int32_t errorType,
+                                                           const std::string& errorMsg,
+                                                           const std::string& errorLogPrefix);
+    static bool isCompletionAllowed(
+            aidl::android::frameworks::automotive::power::CarPowerState state);
 
     static void onPowerPolicyChangeClientBinderDied(void* cookie);
     static void onPowerStateChangeClientBinderDied(void* cookie);
@@ -490,6 +510,9 @@ private:
     std::vector<std::shared_ptr<aidl::android::frameworks::automotive::power::
                                         ICarPowerStateChangeListenerWithCompletion>>
             mPowerStateChangeListenersWithCompletion GUARDED_BY(mMutex);
+    // A cv to indicate whether all listeners with completion notified of a power state change
+    // have completed or not. This cv is protected by mMutex.
+    std::condition_variable mListenersCompletedCv;
 
     // A map of callback ptr to context that is required for handling power policy change client
     // and power state change client binder deaths.
