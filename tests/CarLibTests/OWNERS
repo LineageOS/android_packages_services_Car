@@ -1,7 +1,0 @@
-# Bug component: 1316886
-
-# AppFocus
-per-file src/android/car/CarAppFocusManagerTest.java = bkchoi@google.com
-
-# Navigation
-per-file src/android/car/CarNavigationStatusManagerTest.java = bkchoi@google.com
