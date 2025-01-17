@@ -18,9 +18,11 @@ package com.android.car.hal;
 
 import android.annotation.Nullable;
 import android.car.VehicleAreaType;
+import android.car.builtin.util.Slogf;
 import android.car.feature.Flags;
 import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.property.AreaIdConfig;
+import android.hardware.automotive.vehicle.AnnotationsForVehicleProperty;
 import android.hardware.automotive.vehicle.HasSupportedValueInfo;
 import android.hardware.automotive.vehicle.VehicleArea;
 import android.hardware.automotive.vehicle.VehicleProperty;
@@ -28,6 +30,7 @@ import android.hardware.automotive.vehicle.VehiclePropertyAccess;
 import android.hardware.automotive.vehicle.VehiclePropertyChangeMode;
 import android.hardware.automotive.vehicle.VehiclePropertyType;
 
+import com.android.car.CarLog;
 import com.android.car.hal.property.PropertyHalServiceConfigs;
 
 import java.util.ArrayList;
@@ -38,6 +41,19 @@ import java.util.Set;
  * HalPropConfig represents a vehicle property config.
  */
 public abstract class HalPropConfig {
+    /**
+     *  The expected length for config array for HVAC_TEMPERATURE_SET.
+     */
+    public static final int HVAC_CONFIG_ARRAY_LENGTH = 6;
+
+    /**
+     * The @legacy_supported_values_in_config annotation defined in VehicleProperty.aidl.
+     */
+    public static final String ANNOTATION_SUPPORTED_VALUES_IN_CONFIG =
+            "legacy_supported_values_in_config";
+
+    private static final String TAG = CarLog.tagFor(HalPropConfig.class);
+
     private static final Set<Integer> CONFIG_ARRAY_DEFINES_SUPPORTED_ENUM_VALUES =
             Set.of(
                     VehicleProperty.GEAR_SELECTION,
@@ -221,6 +237,49 @@ public abstract class HalPropConfig {
                 areaIdConfigBuilder.setHasMaxSupportedValue(true);
             }
             if (hasSupportedValueInfo.hasSupportedValuesList) {
+                areaIdConfigBuilder.setHasSupportedValuesList(true);
+            }
+        } else {
+            // Special logic for properties whose min/max value or supported values list
+            // may be specified through some other way.
+            switch (getPropId()) {
+                case VehicleProperty.HVAC_FAN_DIRECTION:
+                    // The supported values for {@code HVAC_FAN_DIRECTION} are specified by
+                    // {@code HVAC_FAN_DIRECTION_AVAILABLE}.
+                    // If HVAC_FAN_DIRECTION is supported, HVAC_FAN_DIRECTION_AVAILABLE must be
+                    // supported.
+                    areaIdConfigBuilder.setHasSupportedValuesList(true);
+                    break;
+                case VehicleProperty.HVAC_TEMPERATURE_SET:
+                    // The supported values for {@code HVAC_TEMPERATURE_SET} might be specified by
+                    // config array.
+                    int configArrayLength = getConfigArray().length;
+                    if (configArrayLength == HVAC_CONFIG_ARRAY_LENGTH) {
+                        areaIdConfigBuilder.setHasSupportedValuesList(true);
+                    } else if (configArrayLength != 0) {
+                        Slogf.e(TAG, "Unexpected config array length for HVAC_TEMPERATURE_SET, "
+                                + "expect: %d, actual config array: %s", HVAC_CONFIG_ARRAY_LENGTH,
+                                getConfigArray());
+                    }
+                    break;
+                case VehicleProperty.EV_CHARGE_CURRENT_DRAW_LIMIT:
+                    // The max value for {@code EV_CHARGE_CURRENT_DRAW_LIMIT} is specified by config
+                    // array, the min value is set to 0.
+                    if (getConfigArray().length > 0) {
+                        areaIdConfigBuilder.setHasMinSupportedValue(true);
+                        areaIdConfigBuilder.setHasMaxSupportedValue(true);
+                    } else {
+                        Slogf.e(TAG, "Expect at least one element in config array for "
+                                + "EV_CHARGE_CURRENT_DRAW_LIMIT");
+                    }
+                    break;
+            }
+
+            // If the property has annotation: legacy_supported_values_in_config, its supported
+            // values are specified by config array.
+            var annotations = AnnotationsForVehicleProperty.values.get(getPropId());
+            if (annotations != null && annotations.contains(
+                    ANNOTATION_SUPPORTED_VALUES_IN_CONFIG) && getConfigArray().length > 0) {
                 areaIdConfigBuilder.setHasSupportedValuesList(true);
             }
         }
