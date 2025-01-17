@@ -351,7 +351,8 @@ public final class CarPropertyValue<T> implements Parcelable {
      * <p>Simulation property is a property which is used by car service and vehicle hardware but
      * is not defined in {@link android.car.VehiclePropertyIds}
      *
-     * @return This will only be {@code true} if returned from CarSimulationManager.
+     * @return This will only be {@code true} if returned from
+     * {@link android.car.hardware.property.CarPropertySimulationManager}.
      *
      * @hide
      */
