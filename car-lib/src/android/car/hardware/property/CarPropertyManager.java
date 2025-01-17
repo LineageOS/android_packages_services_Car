@@ -23,8 +23,8 @@ import static com.android.car.internal.property.CarPropertyErrorCodes.STATUS_OK;
 import static com.android.car.internal.property.CarPropertyHelper.SYNC_OP_LIMIT_TRY_AGAIN;
 import static com.android.car.internal.property.CarPropertyHelper.getPropIdAreaIdsFromCarSubscriptions;
 import static com.android.car.internal.property.CarPropertyHelper.newPropIdAreaId;
+import static com.android.car.internal.util.DebugUtils.toAreaIdString;
 
-import static java.lang.Integer.toHexString;
 import static java.util.Objects.requireNonNull;
 
 import android.annotation.CallbackExecutor;
@@ -238,7 +238,8 @@ public class CarPropertyManager extends CarManagerBase {
                 @CarSetPropertyErrorCode int errorCode) {
             if (DBG) {
                 Slog.d(TAG, "onErrorEvent propertyId: " + VehiclePropertyIds.toString(propertyId)
-                        + " areaId: 0x" + toHexString(areaId) + " ErrorCode: " + errorCode);
+                        + " areaId: " + toAreaIdString(propertyId, areaId) + " ErrorCode: "
+                        + errorCode);
             }
             onErrorEvent(propertyId, areaId);
         }
@@ -931,11 +932,12 @@ public class CarPropertyManager extends CarManagerBase {
                                     + VehiclePropertyIds.toString(valuePropertyId));
                         }
                         int valueAreaId = carPropertyValue.getAreaId();
-                        if (areaId  != valueAreaId) {
+                        if (areaId != valueAreaId) {
                             Slog.e(TAG, "onResults: Property: " + propertyName + " Request ID: "
                                     + requestId + " received get property value result, but has "
-                                    + "mismatch area ID, expect: " + areaId + ", got: "
-                                    + valueAreaId);
+                                    + "mismatch area ID, expect: " + toAreaIdString(propertyId,
+                                    areaId) + ", got: "
+                                    + toAreaIdString(propertyId, valueAreaId));
                         }
                         timestampNanos = carPropertyValue.getTimestamp();
                     } else {
@@ -1734,8 +1736,8 @@ public class CarPropertyManager extends CarManagerBase {
                 var clientCallbacks = mSupportedValuesChangeCallbackByPropIdAreaId.get(propId,
                         areaId);
                 if (clientCallbacks == null) {
-                    Slogf.w(TAG, "No client callback registered for property: %s, areaId: %d",
-                            VehiclePropertyIds.toString(propId), areaId);
+                    Slogf.w(TAG, "No client callback registered for property: %s, areaId: %s",
+                            VehiclePropertyIds.toString(propId), toAreaIdString(propId, areaId));
                     continue;
                 }
                 for (int j = 0; j < clientCallbacks.size(); j++) {
@@ -2175,7 +2177,8 @@ public class CarPropertyManager extends CarManagerBase {
         assertNotUserHalProperty(propertyId);
         String propertyIdStr = VehiclePropertyIds.toString(propertyId);
         if (DBG) {
-            Slog.d(TAG, "getAreaId(propertyId = " + propertyIdStr + ", area = " + area + ")");
+            Slog.d(TAG, "getAreaId(propertyId = " + propertyIdStr + ", area = " + toAreaIdString(
+                    propertyId, area) + ")");
         }
         CarPropertyConfigs configs = getPropertyConfigsFromService(
                 new ArraySet<>(Set.of(propertyId)));
@@ -2200,14 +2203,14 @@ public class CarPropertyManager extends CarManagerBase {
         for (int areaId : propConfig.getAreaIds()) {
             if ((area & areaId) == area) {
                 if (DBG) {
-                    Slog.d(TAG, "getAreaId returns " + areaId);
+                    Slog.d(TAG, "getAreaId returns " + toAreaIdString(propertyId, areaId));
                 }
                 return areaId;
             }
         }
 
         throw new IllegalArgumentException("The propertyId: " + propertyIdStr
-                + " is not available at the area: 0x" + toHexString(area));
+                + " is not available at the area: " + toAreaIdString(propertyId, area));
     }
 
     /**
@@ -2272,7 +2275,8 @@ public class CarPropertyManager extends CarManagerBase {
     public boolean isPropertyAvailable(int propertyId, int areaId) {
         if (DBG) {
             Slog.d(TAG, "isPropertyAvailable(propertyId = "
-                    + VehiclePropertyIds.toString(propertyId) + ", areaId = " + areaId + ")");
+                    + VehiclePropertyIds.toString(propertyId) + ", areaId = " + toAreaIdString(
+                    propertyId, areaId) + ")");
         }
         assertNotUserHalProperty(propertyId);
         if (!CarPropertyHelper.isSupported(propertyId)) {
@@ -2754,7 +2758,7 @@ public class CarPropertyManager extends CarManagerBase {
     public <E> CarPropertyValue<E> getProperty(int propertyId, int areaId) {
         if (DBG) {
             Slog.d(TAG, "getProperty, propertyId: " + VehiclePropertyIds.toString(propertyId)
-                    + ", areaId: 0x" + toHexString(areaId));
+                    + ", areaId: " + toAreaIdString(propertyId, areaId));
         }
 
         assertNotUserHalProperty(propertyId);
@@ -2809,8 +2813,8 @@ public class CarPropertyManager extends CarManagerBase {
                     return null;
                 } else {
                     throw new IllegalStateException("Failed to get propertyId: "
-                            + VehiclePropertyIds.toString(propertyId) + " areaId: 0x"
-                            + toHexString(areaId), e);
+                            + VehiclePropertyIds.toString(propertyId) + " areaId: "
+                            + toAreaIdString(propertyId, areaId), e);
                 }
             }
             handleCarServiceSpecificException(e, propertyId, areaId);
@@ -2888,7 +2892,8 @@ public class CarPropertyManager extends CarManagerBase {
             @NonNull E val) {
         if (DBG) {
             Slog.d(TAG, "setProperty, propertyId: " + VehiclePropertyIds.toString(propertyId)
-                    + ", areaId: 0x" + toHexString(areaId) + ", class: " + clazz + ", val: " + val);
+                    + ", areaId: " + toAreaIdString(propertyId, areaId) + ", class: " + clazz
+                    + ", val: " + val);
         }
 
         assertNotUserHalProperty(propertyId);
@@ -2911,12 +2916,12 @@ public class CarPropertyManager extends CarManagerBase {
             if (mAppTargetSdk < Build.VERSION_CODES.R) {
                 if (e.errorCode == VehicleHalStatusCode.STATUS_TRY_AGAIN) {
                     throw new RuntimeException("Failed to set propertyId: "
-                            + VehiclePropertyIds.toString(propertyId) + " areaId: 0x"
-                            + toHexString(areaId), e);
+                            + VehiclePropertyIds.toString(propertyId) + " areaId: "
+                            + toAreaIdString(propertyId, areaId), e);
                 } else {
                     throw new IllegalStateException("Failed to set propertyId: "
-                            + VehiclePropertyIds.toString(propertyId) + " areaId: 0x"
-                            + toHexString(areaId), e);
+                            + VehiclePropertyIds.toString(propertyId) + " areaId: "
+                            + toAreaIdString(propertyId, areaId), e);
                 }
             }
             handleCarServiceSpecificException(e, propertyId, areaId);
@@ -3044,8 +3049,8 @@ public class CarPropertyManager extends CarManagerBase {
         int requestIdCounter = mRequestIdCounter.getAndIncrement();
         if (DBG) {
             Slog.d(TAG, String.format("generateGetPropertyRequest, requestId: %d, propertyId: %s, "
-                    + "areaId: %d", requestIdCounter, VehiclePropertyIds.toString(propertyId),
-                    areaId));
+                    + "areaId: %s", requestIdCounter, VehiclePropertyIds.toString(propertyId),
+                    toAreaIdString(propertyId, areaId)));
         }
         return new GetPropertyRequest(requestIdCounter, propertyId, areaId);
     }
@@ -3068,8 +3073,9 @@ public class CarPropertyManager extends CarManagerBase {
         int requestIdCounter = mRequestIdCounter.getAndIncrement();
         if (DBG) {
             Slog.d(TAG, String.format("generateSetPropertyRequest, requestId: %d, propertyId: %s, "
-                    + "areaId: %d, value: %s", requestIdCounter,
-                    VehiclePropertyIds.toString(propertyId), areaId, value));
+                            + "areaId: %s, value: %s", requestIdCounter,
+                    VehiclePropertyIds.toString(propertyId), toAreaIdString(propertyId, areaId),
+                    value));
         }
         return new SetPropertyRequest(requestIdCounter, propertyId, areaId, value);
     }
@@ -3568,7 +3574,7 @@ public class CarPropertyManager extends CarManagerBase {
                                 + "supportedValuesChangeCallback: " + registeredCallback
                                 + ", must not happen should at least contain property: "
                                 + VehiclePropertyIds.toString(propertyId) + ", areaId: "
-                                + areaId);
+                                + toAreaIdString(propertyId, areaId));
                         continue;
                     }
                     registeredPropIdAreaIdsForCallback.remove(newPropIdAreaId(propertyId, areaId));

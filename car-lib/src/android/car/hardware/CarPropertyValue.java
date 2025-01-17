@@ -19,6 +19,7 @@ package android.car.hardware;
 import static android.car.feature.Flags.FLAG_CAR_PROPERTY_VALUE_PROPERTY_STATUS;
 
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
+import static com.android.car.internal.util.DebugUtils.toAreaIdString;
 
 import static java.lang.Integer.toHexString;
 
@@ -212,9 +213,10 @@ public final class CarPropertyValue<T> implements Parcelable {
 
         this(propertyId, areaId, status, timestampNanos, new RawPropertyValue(
                 Objects.requireNonNull(value, "value for propertyId: "
-                        + VehiclePropertyIds.toString(propertyId) + ", areaId: 0x"
-                        + toHexString(areaId) + ", status: " + status + " must not be null")
-                ));
+                        + VehiclePropertyIds.toString(propertyId) + ", areaId: "
+                        + toAreaIdString(propertyId, areaId) + ", status: " + status
+                        + " must not be null")
+        ));
     }
 
     /**
@@ -377,7 +379,7 @@ public final class CarPropertyValue<T> implements Parcelable {
         String propertyValueString = "CarPropertyValue{"
                 + "mPropertyId=0x" + toHexString(mPropertyId)
                 + ", propertyName=" + propertyIdToString
-                + ", mAreaId=0x" + toHexString(mAreaId)
+                + ", mAreaId=" + toAreaIdString(mPropertyId, mAreaId)
                 + ", mStatus=" + mStatus
                 + ", mTimestampNanos=" + mTimestampNanos
                 + ", mValue=" + mValue;
