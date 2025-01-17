@@ -16,6 +16,8 @@
 
 package com.android.car.internal.property;
 
+import static com.android.car.internal.util.DebugUtils.toAreaIdString;
+
 import static java.util.Objects.requireNonNull;
 
 import android.car.VehiclePropertyIds;
@@ -74,8 +76,10 @@ public class CarPropertyEventController {
                 if (mLogger.dbg()) {
                     mLogger.logD(String.format(
                             "Add new continuous property event tracker, property: %s, "
-                            + "areaId: %d, updateRate: %f Hz, enableVur: %b, resolution: %f",
-                            VehiclePropertyIds.toString(propertyId), areaId, updateRateHz,
+                                    + "areaId: %s, updateRate: %f Hz, enableVur: %b, resolution: "
+                                    + "%f",
+                            VehiclePropertyIds.toString(propertyId),
+                            toAreaIdString(propertyId, areaId), updateRateHz,
                             enableVur, resolution));
                 }
                 mPropIdToAreaIdToCpeTracker.put(propertyId, areaId,
@@ -93,7 +97,8 @@ public class CarPropertyEventController {
                 if (mLogger.dbg()) {
                     mLogger.logD(String.format(
                             "Add new on-change property event tracker, property: %s, "
-                            + "areaId: %d", VehiclePropertyIds.toString(propertyId), areaId));
+                                    + "areaId: %s", VehiclePropertyIds.toString(propertyId),
+                            toAreaIdString(propertyId, areaId)));
                 }
                 mPropIdToAreaIdToCpeTracker.put(propertyId, areaId,
                         new OnChangeCarPropertyEventTracker(mUseSystemLogger));

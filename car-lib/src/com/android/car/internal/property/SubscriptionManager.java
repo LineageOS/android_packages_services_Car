@@ -19,6 +19,7 @@ package com.android.car.internal.property;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 import static com.android.car.internal.property.CarPropertyHelper.propertyIdsToString;
 import static com.android.car.internal.util.ArrayUtils.convertToIntArray;
+import static com.android.car.internal.util.DebugUtils.toAreaIdString;
 
 import android.annotation.Nullable;
 import android.car.VehiclePropertyIds;
@@ -318,7 +319,8 @@ public final class SubscriptionManager<ClientType> {
                         mStagedRateInfoByClientByPropIdAreaId.get(propertyId, areaId);
                 if (rateInfoForClients == null) {
                     Slog.e(TAG, "The property: " + VehiclePropertyIds.toString(propertyId)
-                            + ", area ID: " + areaId + " was not registered, do nothing");
+                            + ", area ID: " + toAreaIdString(propertyId, areaId)
+                            + " was not registered, do nothing");
                     continue;
                 }
                 rateInfoForClients.remove(client);
@@ -425,8 +427,9 @@ public final class SubscriptionManager<ClientType> {
             if (!mStagedRateInfoByClientByPropIdAreaId.contains(propertyId, areaId)) {
                 // The [PropertyId, areaId] is no longer subscribed.
                 if (DBG) {
-                    Slog.d(TAG, String.format("The property: %s, areaId: %d is no longer "
-                            + "subscribed", VehiclePropertyIds.toString(propertyId), areaId));
+                    Slog.d(TAG, String.format("The property: %s, areaId: %s is no longer "
+                                    + "subscribed", VehiclePropertyIds.toString(propertyId),
+                            toAreaIdString(propertyId, areaId)));
                 }
                 possiblePropIdsToUnsubscribe.add(propertyId);
                 continue;
@@ -441,8 +444,9 @@ public final class SubscriptionManager<ClientType> {
                             .equals(newCombinedRateInfo))) {
                 if (DBG) {
                     Slog.d(TAG, String.format(
-                            "New combined subscription rate info for property: %s, areaId: %d, %s",
-                            VehiclePropertyIds.toString(propertyId), areaId, newCombinedRateInfo));
+                            "New combined subscription rate info for property: %s, areaId: %s, %s",
+                            VehiclePropertyIds.toString(propertyId),
+                            toAreaIdString(propertyId, areaId), newCombinedRateInfo));
                 }
                 diffRateInfoByPropIdAreaId.put(propertyId, areaId, newCombinedRateInfo);
                 continue;
@@ -535,7 +539,8 @@ public final class SubscriptionManager<ClientType> {
             int areaId = propIdAreaId[1];
             Set<ClientType> clients = states.get(propertyId, areaId).getClients();
             writer.println("property: " + VehiclePropertyIds.toString(propertyId)
-                    + ", area ID: " + areaId + " is registered by " + clients.size()
+                    + ", area ID: " + toAreaIdString(propertyId, areaId) + " is registered by "
+                    + clients.size()
                     + " client(s).");
             writer.increaseIndent();
             for (ClientType client : clients) {
