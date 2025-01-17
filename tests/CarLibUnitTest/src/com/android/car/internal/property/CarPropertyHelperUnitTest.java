@@ -19,6 +19,9 @@ package com.android.car.internal.property;
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
+import static org.junit.Assert.assertThrows;
+
+import android.car.VehicleAreaType;
 import android.car.VehiclePropertyIds;
 import android.car.test.AbstractExpectableTestCase;
 
@@ -84,5 +87,53 @@ public final class CarPropertyHelperUnitTest extends AbstractExpectableTestCase 
         expectThat(CarPropertyHelper.isBackportedProperty(VENDOR_PROPERTY)).isFalse();
         expectThat(CarPropertyHelper.isBackportedProperty(BACKPORTED_PROPERTY)).isTrue();
         expectThat(CarPropertyHelper.isBackportedProperty(SYSTEM_PROPERTY)).isFalse();
+    }
+
+    @Test
+    public void testGetAreaType_handlesDoorProperty() {
+        expectThat(CarPropertyHelper.getAreaType(VehiclePropertyIds.DOOR_LOCK)).isEqualTo(
+                VehicleAreaType.VEHICLE_AREA_TYPE_DOOR);
+    }
+
+    @Test
+    public void testGetAreaType_handlesGlobalProperty() {
+        expectThat(CarPropertyHelper.getAreaType(VehiclePropertyIds.GEAR_SELECTION)).isEqualTo(
+                VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL);
+    }
+
+    @Test
+    public void testGetAreaType_handlesMirrorProperty() {
+        expectThat(CarPropertyHelper.getAreaType(VehiclePropertyIds.MIRROR_Y_MOVE)).isEqualTo(
+                VehicleAreaType.VEHICLE_AREA_TYPE_MIRROR);
+    }
+
+    @Test
+    public void testGetAreaType_handlesSeatProperty() {
+        expectThat(CarPropertyHelper.getAreaType(VehiclePropertyIds.SEAT_AIRBAG_ENABLED)).isEqualTo(
+                VehicleAreaType.VEHICLE_AREA_TYPE_SEAT);
+    }
+
+    @Test
+    public void testGetAreaType_handlesWheelProperty() {
+        expectThat(CarPropertyHelper.getAreaType(VehiclePropertyIds.TIRE_PRESSURE)).isEqualTo(
+                VehicleAreaType.VEHICLE_AREA_TYPE_WHEEL);
+    }
+
+    @Test
+    public void testGetAreaType_handlesWindowProperty() {
+        expectThat(CarPropertyHelper.getAreaType(VehiclePropertyIds.WINDOW_MOVE)).isEqualTo(
+                VehicleAreaType.VEHICLE_AREA_TYPE_WINDOW);
+    }
+
+    @Test
+    public void testGetAreaType_handlesVendorProperty() {
+        expectThat(CarPropertyHelper.getAreaType(
+                VehiclePropertyIds.ULTRASONICS_SENSOR_MEASURED_DISTANCE)).isEqualTo(
+                VehicleAreaType.VEHICLE_AREA_TYPE_VENDOR);
+    }
+
+    @Test
+    public void testGetAreaType_handlesUnsupportedAreaType() {
+        assertThrows(IllegalArgumentException.class, () -> CarPropertyHelper.getAreaType(0x0));
     }
 }
