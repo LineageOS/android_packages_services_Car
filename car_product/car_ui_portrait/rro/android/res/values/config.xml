@@ -57,9 +57,6 @@
      tabletop mode top (0.0) is used. -->
     <item name="config_letterboxVerticalPositionMultiplier" format="float" type="dimen">0.5</item>
 
-    <!-- Whether vertical reachability repositioning is allowed for letterboxed fullscreen apps. -->
-    <bool name="config_letterboxIsVerticalReachabilityEnabled">true</bool>
-
     <!-- Class name of the device specific implementation of DisplayAreaPolicy.Provider or empty if the default should be used. -->
     <string translatable="false" name="config_deviceSpecificDisplayAreaPolicyProvider">
         com.android.server.wm.CarDisplayAreaPolicyProvider

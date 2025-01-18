@@ -23,7 +23,6 @@ import static com.google.common.truth.Truth.assertThat;
 import android.car.VehicleAreaDoor;
 import android.car.VehicleAreaMirror;
 import android.car.VehicleAreaSeat;
-import android.car.VehicleAreaType;
 import android.car.VehicleAreaWheel;
 import android.car.VehicleAreaWindow;
 import android.car.VehiclePropertyIds;
@@ -185,26 +184,26 @@ public final class DebugUtilsUnitTest {
 
     @Test
     public void testToAreaIdString_handlesGlobalAreaId() {
-        assertThat(DebugUtils.toAreaIdString(VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL, /*areaId=*/
-                0)).isEqualTo("GLOBAL(0x0)");
+        assertThat(DebugUtils.toAreaIdString(VehiclePropertyIds.WHEEL_TICK, /*areaId=*/
+                0)).isEqualTo("GLOBAL");
     }
 
     @Test
     public void testToAreaIdString_handlesInvalidGlobalAreaId() {
-        assertThat(DebugUtils.toAreaIdString(VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL,
+        assertThat(DebugUtils.toAreaIdString(VehiclePropertyIds.WHEEL_TICK,
                 VehicleAreaSeat.SEAT_ROW_3_RIGHT)).isEqualTo("INVALID_GLOBAL_AREA_ID(0x400)");
     }
 
     @Test
     public void testToAreaIdString_handlesDoorAreaType() {
-        assertThat(DebugUtils.toAreaIdString(VehicleAreaType.VEHICLE_AREA_TYPE_DOOR,
+        assertThat(DebugUtils.toAreaIdString(VehiclePropertyIds.DOOR_CHILD_LOCK_ENABLED,
                 VehicleAreaDoor.DOOR_ROW_2_LEFT | VehicleAreaDoor.DOOR_ROW_1_RIGHT)).isEqualTo(
                 "ROW_2_LEFT|ROW_1_RIGHT");
     }
 
     @Test
     public void testToAreaIdString_handlesMirrorAreaType() {
-        assertThat(DebugUtils.toAreaIdString(VehicleAreaType.VEHICLE_AREA_TYPE_MIRROR,
+        assertThat(DebugUtils.toAreaIdString(VehiclePropertyIds.MIRROR_Z_MOVE,
                 VehicleAreaMirror.MIRROR_DRIVER_LEFT | VehicleAreaMirror.MIRROR_DRIVER_RIGHT
                         | VehicleAreaMirror.MIRROR_DRIVER_CENTER)).isEqualTo(
                 "DRIVER_CENTER|DRIVER_RIGHT|DRIVER_LEFT");
@@ -212,62 +211,63 @@ public final class DebugUtilsUnitTest {
 
     @Test
     public void testToAreaIdString_handlesSeatAreaType() {
-        assertThat(DebugUtils.toAreaIdString(VehicleAreaType.VEHICLE_AREA_TYPE_SEAT,
+        assertThat(DebugUtils.toAreaIdString(VehiclePropertyIds.SEAT_BELT_BUCKLED,
                 VehicleAreaSeat.SEAT_ROW_2_CENTER)).isEqualTo("ROW_2_CENTER");
     }
 
     @Test
     public void testToAreaIdString_handlesWheelAreaType() {
-        assertThat(DebugUtils.toAreaIdString(VehicleAreaType.VEHICLE_AREA_TYPE_WHEEL,
+        assertThat(DebugUtils.toAreaIdString(VehiclePropertyIds.TIRE_PRESSURE,
                 VehicleAreaWheel.WHEEL_UNKNOWN)).isEqualTo("UNKNOWN");
     }
 
     @Test
     public void testToAreaIdString_handlesWindowAreaType() {
-        assertThat(DebugUtils.toAreaIdString(VehicleAreaType.VEHICLE_AREA_TYPE_WINDOW,
+        assertThat(DebugUtils.toAreaIdString(VehiclePropertyIds.WINDOW_POS,
                 VehicleAreaWindow.WINDOW_REAR_WINDSHIELD)).isEqualTo("REAR_WINDSHIELD");
     }
 
     @Test
     public void testToAreaIdString_handlesVendorAreaType() {
-        assertThat(DebugUtils.toAreaIdString(VehicleAreaType.VEHICLE_AREA_TYPE_VENDOR,
+        assertThat(DebugUtils.toAreaIdString(VehiclePropertyIds.ULTRASONICS_SENSOR_DETECTION_RANGE,
                 /*areaId=*/0x89)).isEqualTo("VENDOR_AREA_ID(0x89)");
     }
 
     @Test
     public void testToAreaIdString_handlesUnknownAreaType() {
-        assertThat(DebugUtils.toAreaIdString(/*areaType=*/-1,
+        assertThat(DebugUtils.toAreaIdString(VehiclePropertyIds.INVALID,
                 /*areaId=*/0x89)).isEqualTo("UNKNOWN_AREA_TYPE_AREA_ID(0x89)");
     }
 
     @Test
     public void testToAreaIdString_handlesNoMatchForAreaType() {
-        assertThat(DebugUtils.toAreaIdString(VehicleAreaType.VEHICLE_AREA_TYPE_MIRROR,
+        assertThat(DebugUtils.toAreaIdString(VehiclePropertyIds.MIRROR_Y_MOVE,
                 VehicleAreaWindow.WINDOW_ROOF_TOP_2)).isEqualTo("UNKNOWN_MIRROR_AREA_ID(0x20000)");
     }
 
     @Test
     public void testToAreaIdString_handlesPartialMatchForAreaType() {
-        assertThat(DebugUtils.toAreaIdString(VehicleAreaType.VEHICLE_AREA_TYPE_MIRROR,
+        assertThat(DebugUtils.toAreaIdString(VehiclePropertyIds.MIRROR_Y_POS,
                 VehicleAreaWindow.WINDOW_ROOF_TOP_2
                         | VehicleAreaMirror.MIRROR_DRIVER_RIGHT)).isEqualTo("DRIVER_RIGHT|0x20000");
     }
 
     @Test
     public void testPropIdAreaIdToDebugString() {
-        var propIdAreaId = newPropIdAreaId(VehiclePropertyIds.PERF_VEHICLE_SPEED, /*areaId=*/1);
+        var propIdAreaId = newPropIdAreaId(VehiclePropertyIds.PERF_VEHICLE_SPEED, /*areaId=*/0);
 
         assertThat(DebugUtils.toDebugString(propIdAreaId)).isEqualTo(
-                "PropIdAreaId{propId=PERF_VEHICLE_SPEED, areaId=1}");
+                "PropIdAreaId{propId=PERF_VEHICLE_SPEED, areaId=GLOBAL}");
     }
 
     @Test
     public void testPropIdAreaIdListToDebugString() {
-        var propIdAreaId1 = newPropIdAreaId(VehiclePropertyIds.PERF_VEHICLE_SPEED, /*areaId=*/1);
-        var propIdAreaId2 = newPropIdAreaId(VehiclePropertyIds.HVAC_FAN_SPEED, /*areaId=*/2);
+        var propIdAreaId1 = newPropIdAreaId(VehiclePropertyIds.PERF_VEHICLE_SPEED, /*areaId=*/0);
+        var propIdAreaId2 = newPropIdAreaId(VehiclePropertyIds.HVAC_FAN_SPEED,
+                VehicleAreaSeat.SEAT_ROW_1_CENTER);
 
         assertThat(DebugUtils.toDebugString(List.of(propIdAreaId1, propIdAreaId2))).isEqualTo(
-                "propIdAreaIds: [PropIdAreaId{propId=PERF_VEHICLE_SPEED, areaId=1}, "
-                        + "PropIdAreaId{propId=HVAC_FAN_SPEED, areaId=2}]");
+                "propIdAreaIds: [PropIdAreaId{propId=PERF_VEHICLE_SPEED, areaId=GLOBAL}, "
+                        + "PropIdAreaId{propId=HVAC_FAN_SPEED, areaId=ROW_1_CENTER}]");
     }
 }

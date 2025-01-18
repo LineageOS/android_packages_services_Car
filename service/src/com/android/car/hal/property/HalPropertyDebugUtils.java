@@ -57,7 +57,6 @@ public final class HalPropertyDebugUtils {
     private static final int MAX_BYTE_SIZE = 20;
     private static final String NO_VALUE = "NO_VALUE";
 
-
     /**
      * HalPropertyDebugUtils only contains static fields and methods and must never be
      * instantiated.
@@ -73,7 +72,7 @@ public final class HalPropertyDebugUtils {
     public static String toPropertyIdString(int propertyId) {
         String hexSuffix = "(0x" + toHexString(propertyId) + ")";
         if (isSystemPropertyId(propertyId)) {
-            return toName(VehicleProperty.class, propertyId) + hexSuffix;
+            return VehicleProperty.$.toString(propertyId) + hexSuffix;
         } else if (CarPropertyHelper.isVendorProperty(propertyId)) {
             return "VENDOR_PROPERTY" + hexSuffix;
         } else if (CarPropertyHelper.isBackportedProperty(propertyId)) {
@@ -340,7 +339,7 @@ public final class HalPropertyDebugUtils {
      * {@code false} otherwise.
      */
     private static boolean isSystemPropertyId(int propertyId) {
-        return toName(VehicleProperty.class, propertyId) != null;
+        return (propertyId & VehiclePropertyGroup.MASK) == VehiclePropertyGroup.SYSTEM;
     }
 
     private static String processOptionalFlagsString(@Nullable String flagsString, String clazzName,
