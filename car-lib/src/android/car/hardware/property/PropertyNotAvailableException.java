@@ -16,8 +16,7 @@
 
 package android.car.hardware.property;
 
-
-import static java.lang.Integer.toHexString;
+import static com.android.car.internal.util.DebugUtils.toAreaIdString;
 
 import android.annotation.SystemApi;
 import android.car.VehiclePropertyIds;
@@ -37,8 +36,8 @@ public class PropertyNotAvailableException extends IllegalStateException {
      * @hide
      */
     public PropertyNotAvailableException(int propertyId, int areaId, int vendorErrorCode) {
-        super("Property ID: " + VehiclePropertyIds.toString(propertyId) + " area ID: 0x"
-                + toHexString(areaId)
+        super("Property ID: " + VehiclePropertyIds.toString(propertyId) + " area ID: "
+                + toAreaIdString(propertyId, areaId)
                 + " - is not available because of vendor error code: " + vendorErrorCode);
         mVendorErrorCode = vendorErrorCode;
     }
@@ -48,8 +47,8 @@ public class PropertyNotAvailableException extends IllegalStateException {
      */
     public PropertyNotAvailableException(int propertyId, int areaId, int detailedErrorCode,
             int vendorErrorCode) {
-        super("Property ID: " + VehiclePropertyIds.toString(propertyId) + " area ID: 0x"
-                + toHexString(areaId)
+        super("Property ID: " + VehiclePropertyIds.toString(propertyId) + " area ID: "
+                + toAreaIdString(propertyId, areaId)
                 + " - is not available because of status code: "
                 + PropertyNotAvailableErrorCode.toString(detailedErrorCode));
         mDetailedErrorCode = detailedErrorCode;

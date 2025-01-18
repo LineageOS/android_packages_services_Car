@@ -17,7 +17,7 @@
 package android.car.hardware.property;
 
 
-import static java.lang.Integer.toHexString;
+import static com.android.car.internal.util.DebugUtils.toAreaIdString;
 
 import android.annotation.SystemApi;
 import android.car.VehiclePropertyIds;
@@ -42,7 +42,7 @@ public class CarInternalErrorException extends RuntimeException {
      */
     public CarInternalErrorException(int propertyId, int areaId, int vendorErrorCode) {
         super("Property ID: " + VehiclePropertyIds.toString(propertyId) + " area ID: "
-                + toHexString(areaId) + " - raised an internal error in cars with "
+                + toAreaIdString(propertyId, areaId) + " - raised an internal error in cars with "
                 + "vendor error code: " + vendorErrorCode);
         mVendorErrorCode = vendorErrorCode;
     }
