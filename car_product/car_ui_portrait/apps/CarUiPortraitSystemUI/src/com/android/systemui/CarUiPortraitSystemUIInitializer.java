@@ -58,6 +58,7 @@ public class CarUiPortraitSystemUIInitializer extends CarSystemUIInitializer {
                 .setCarUiPortraitDisplaySystemBarsController(
                         carWm.getCarUiPortraitDisplaySystemBarsController())
                 .setFullscreenTaskListener(carWm.getFullscreenTaskListener())
-                .setTransitions(carWm.getTransitions());
+                .setTransitions(carWm.getTransitions())
+                .setScalableUIWMInitializer(carWm.getScalableUIWMInitializer());
     }
 }
