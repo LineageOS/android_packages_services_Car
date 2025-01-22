@@ -20,7 +20,6 @@ import android.hardware.automotive.vehicle.VehiclePropError;
 
 import com.android.car.internal.property.PropIdAreaId;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -30,12 +29,12 @@ public interface VehicleHalCallback {
     /**
      * Called when new property events happen.
      */
-    void onPropertyEvent(ArrayList<HalPropValue> values);
+    void onPropertyEvent(List<HalPropValue> values);
 
     /**
      * Called when property set errors happen.
      */
-    void onPropertySetError(ArrayList<VehiclePropError> errors);
+    void onPropertySetError(List<VehiclePropError> errors);
 
     /**
      * Method called when supported values change.

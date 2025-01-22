@@ -1224,12 +1224,12 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
     private final ArraySet<HalServiceBase> mServicesToDispatch = new ArraySet<>();
 
     @Override
-    public void onPropertyEvent(ArrayList<HalPropValue> propValues) {
+    public void onPropertyEvent(List<HalPropValue> propValues) {
         mHandler.post(() -> handleOnPropertyEvent(propValues));
     }
 
     @Override
-    public void onPropertySetError(ArrayList<VehiclePropError> errors) {
+    public void onPropertySetError(List<VehiclePropError> errors) {
         mHandler.post(() -> handleOnPropertySetError(errors));
     }
 
