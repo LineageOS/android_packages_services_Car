@@ -51,8 +51,16 @@ java_defaults {
         "vehicle-hal-support-lib",
         "car-helper-lib",
     ],
-    libs: [
-        "android.test.base.stubs.system",
+}
+
+java_defaults {
+    name: "CarLibHostUnitTestDefault",
+    defaults: [
+        "CarLibUnitTestDefault",
+    ],
+    static_libs: [
+        "android.car.builtin.testonly",
+        "android.car.testapi",
         "framework-annotations-lib",
     ],
 }
@@ -65,6 +73,8 @@ java_defaults {
     ],
     libs: [
         "android.car.builtin.stubs.module_lib",
+        "android.test.base.stubs.system",
+        "framework-annotations-lib",
     ],
     defaults: [
         "CarLibUnitTestDefault",
@@ -85,12 +95,8 @@ java_defaults {
 android_ravenwood_test {
     name: "CarLibHostUnitTest",
     team: "trendy_team_aaos_framework",
-    static_libs: [
-        "android.car.builtin.testonly",
-        "android.car.testapi",
-    ],
     defaults: [
-        "CarLibUnitTestDefault",
+        "CarLibHostUnitTestDefault",
     ],
     auto_gen_config: true,
     srcs: [
