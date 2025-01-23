@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package android.car.apitest;
+package android.car.extendedapitest;
 
 import static android.hardware.automotive.vehicle.TestVendorProperty.ECHO_REVERSE_BYTES;
 
@@ -24,7 +24,7 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assume.assumeTrue;
 
 import android.app.UiAutomation;
-import android.car.apitest.testbase.CarApiTestBase;
+import android.car.extendedapitest.testbase.CarApiTestBase;
 
 import androidx.test.platform.app.InstrumentationRegistry;
 

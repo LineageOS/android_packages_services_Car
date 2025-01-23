@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package android.car.apitest;
+package android.car.extendedapitest;
 
 import static com.google.common.truth.Truth.assertThat;
 
 import android.car.VehicleAreaWindow;
-import android.car.apitest.testbase.CarLessApiTestBase;
+import android.car.extendedapitest.testbase.CarLessApiTestBase;
 
 import androidx.test.filters.SmallTest;
 

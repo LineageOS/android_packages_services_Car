@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 The Android Open Source Project
+ * Copyright (C) 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package android.car.apitest;
+package android.car.extendedapitest;
 
-import static com.google.common.truth.Truth.assertWithMessage;
+import static com.google.common.truth.Truth.assertThat;
 
 import androidx.test.filters.SmallTest;
 
@@ -29,11 +29,11 @@ import java.util.Collection;
 
 @SmallTest
 @RunWith(Parameterized.class)
-public class TrailerStateTest {
+public class VehicleLightStateTest {
     private final int mJavaConstantValue;
     private final int mHalConstantValue;
 
-    public TrailerStateTest(int javaConstantValue, int halConstantValue) {
+    public VehicleLightStateTest(int javaConstantValue, int halConstantValue) {
         mJavaConstantValue = javaConstantValue;
         mHalConstantValue = halConstantValue;
     }
@@ -43,28 +43,24 @@ public class TrailerStateTest {
         return Arrays.asList(
                 new Object[][] {
                         {
-                                android.car.hardware.property.TrailerState.STATE_UNKNOWN,
-                                android.hardware.automotive.vehicle.TrailerState.UNKNOWN
+                                android.car.hardware.property.VehicleLightState.STATE_OFF,
+                                android.hardware.automotive.vehicle.VehicleLightState.OFF
                         },
                         {
-                                android.car.hardware.property.TrailerState.STATE_NOT_PRESENT,
-                                android.hardware.automotive.vehicle.TrailerState.NOT_PRESENT
+                                android.car.hardware.property.VehicleLightState.STATE_ON,
+                                android.hardware.automotive.vehicle.VehicleLightState.ON
                         },
                         {
-                                android.car.hardware.property.TrailerState.STATE_PRESENT,
-                                android.hardware.automotive.vehicle.TrailerState.PRESENT
-                        },
-                        {
-                                android.car.hardware.property.TrailerState.STATE_ERROR,
-                                android.hardware.automotive.vehicle.TrailerState.ERROR
+                                android.car.hardware.property.VehicleLightState
+                                        .STATE_DAYTIME_RUNNING,
+                                android.hardware.automotive.vehicle.VehicleLightState
+                                        .DAYTIME_RUNNING
                         }
                 });
     }
 
     @Test
     public void testMatchWithVehicleHal() {
-        assertWithMessage("Java constant")
-                .that(mJavaConstantValue)
-                .isEqualTo(mHalConstantValue);
+        assertThat(mJavaConstantValue).isEqualTo(mHalConstantValue);
     }
 }

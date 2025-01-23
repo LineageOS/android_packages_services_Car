@@ -21,9 +21,9 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assume.assumeTrue;
 
 import android.car.Car;
-import android.car.apitest.testbase.CarApiTestBase;
 import android.car.diagnostic.CarDiagnosticEvent;
 import android.car.diagnostic.CarDiagnosticManager;
+import android.car.extendedapitest.testbase.CarApiTestBase;
 
 import androidx.test.filters.MediumTest;
 

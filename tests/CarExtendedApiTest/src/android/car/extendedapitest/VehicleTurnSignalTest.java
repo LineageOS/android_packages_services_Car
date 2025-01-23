@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package android.car.apitest;
+package android.car.extendedapitest;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -29,11 +29,11 @@ import java.util.Collection;
 
 @SmallTest
 @RunWith(Parameterized.class)
-public final class VehicleLightSwitchTest {
+public final class VehicleTurnSignalTest {
     private final int mJavaConstantValue;
     private final int mHalConstantValue;
 
-    public VehicleLightSwitchTest(int javaConstantValue, int halConstantValue) {
+    public VehicleTurnSignalTest(int javaConstantValue, int halConstantValue) {
         mJavaConstantValue = javaConstantValue;
         mHalConstantValue = halConstantValue;
     }
@@ -43,22 +43,16 @@ public final class VehicleLightSwitchTest {
         return Arrays.asList(
                 new Object[][] {
                         {
-                                android.car.hardware.property.VehicleLightSwitch.STATE_OFF,
-                                android.hardware.automotive.vehicle.VehicleLightSwitch.OFF
+                                android.car.hardware.property.VehicleTurnSignal.STATE_NONE,
+                                android.hardware.automotive.vehicle.VehicleTurnSignal.NONE
                         },
                         {
-                                android.car.hardware.property.VehicleLightSwitch.STATE_ON,
-                                android.hardware.automotive.vehicle.VehicleLightSwitch.ON
+                                android.car.hardware.property.VehicleTurnSignal.STATE_RIGHT,
+                                android.hardware.automotive.vehicle.VehicleTurnSignal.RIGHT
                         },
                         {
-                                android.car.hardware.property.VehicleLightSwitch
-                                        .STATE_DAYTIME_RUNNING,
-                                android.hardware.automotive.vehicle.VehicleLightSwitch
-                                        .DAYTIME_RUNNING
-                        },
-                        {
-                                android.car.hardware.property.VehicleLightSwitch.STATE_AUTOMATIC,
-                                android.hardware.automotive.vehicle.VehicleLightSwitch.AUTOMATIC
+                                android.car.hardware.property.VehicleTurnSignal.STATE_LEFT,
+                                android.hardware.automotive.vehicle.VehicleTurnSignal.LEFT
                         }
                 });
     }

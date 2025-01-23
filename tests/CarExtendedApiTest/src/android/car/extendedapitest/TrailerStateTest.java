@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 The Android Open Source Project
+ * Copyright (C) 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package android.car.apitest;
+package android.car.extendedapitest;
 
-import static com.google.common.truth.Truth.assertThat;
+import static com.google.common.truth.Truth.assertWithMessage;
 
 import androidx.test.filters.SmallTest;
 
@@ -29,11 +29,11 @@ import java.util.Collection;
 
 @SmallTest
 @RunWith(Parameterized.class)
-public final class VehicleTurnSignalTest {
+public class TrailerStateTest {
     private final int mJavaConstantValue;
     private final int mHalConstantValue;
 
-    public VehicleTurnSignalTest(int javaConstantValue, int halConstantValue) {
+    public TrailerStateTest(int javaConstantValue, int halConstantValue) {
         mJavaConstantValue = javaConstantValue;
         mHalConstantValue = halConstantValue;
     }
@@ -43,22 +43,28 @@ public final class VehicleTurnSignalTest {
         return Arrays.asList(
                 new Object[][] {
                         {
-                                android.car.hardware.property.VehicleTurnSignal.STATE_NONE,
-                                android.hardware.automotive.vehicle.VehicleTurnSignal.NONE
+                                android.car.hardware.property.TrailerState.STATE_UNKNOWN,
+                                android.hardware.automotive.vehicle.TrailerState.UNKNOWN
                         },
                         {
-                                android.car.hardware.property.VehicleTurnSignal.STATE_RIGHT,
-                                android.hardware.automotive.vehicle.VehicleTurnSignal.RIGHT
+                                android.car.hardware.property.TrailerState.STATE_NOT_PRESENT,
+                                android.hardware.automotive.vehicle.TrailerState.NOT_PRESENT
                         },
                         {
-                                android.car.hardware.property.VehicleTurnSignal.STATE_LEFT,
-                                android.hardware.automotive.vehicle.VehicleTurnSignal.LEFT
+                                android.car.hardware.property.TrailerState.STATE_PRESENT,
+                                android.hardware.automotive.vehicle.TrailerState.PRESENT
+                        },
+                        {
+                                android.car.hardware.property.TrailerState.STATE_ERROR,
+                                android.hardware.automotive.vehicle.TrailerState.ERROR
                         }
                 });
     }
 
     @Test
     public void testMatchWithVehicleHal() {
-        assertThat(mJavaConstantValue).isEqualTo(mHalConstantValue);
+        assertWithMessage("Java constant")
+                .that(mJavaConstantValue)
+                .isEqualTo(mHalConstantValue);
     }
 }

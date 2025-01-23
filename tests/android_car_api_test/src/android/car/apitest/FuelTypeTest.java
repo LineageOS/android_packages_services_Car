@@ -19,7 +19,7 @@ package android.car.apitest;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.car.FuelType;
-import android.car.apitest.testbase.CarLessApiTestBase;
+import android.car.extendedapitest.testbase.CarLessApiTestBase;
 
 import androidx.test.filters.SmallTest;
 

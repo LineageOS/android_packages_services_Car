@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package android.car.apitest.testbase;
+package android.car.extendedapitest.testbase;
 
 import android.annotation.Nullable;
 import android.content.BroadcastReceiver;

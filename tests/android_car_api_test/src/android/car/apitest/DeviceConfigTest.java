@@ -22,7 +22,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
 
-import android.car.apitest.testbase.CarApiTestBase;
+import android.car.extendedapitest.testbase.CarApiTestBase;
 import android.provider.DeviceConfig;
 import android.provider.Settings;
 import android.util.Log;

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package android.car.apitest;
+package android.car.extendedapitest;
 
 import android.car.Car;
 import android.car.CarAppFocusManager;
@@ -24,7 +24,6 @@ import android.car.CarOccupantZoneManager;
 import android.car.CarProjectionManager;
 import android.car.CarRemoteDeviceManager;
 import android.car.admin.CarDevicePolicyManager;
-import android.car.apitest.testbase.CarLessApiTestBase;
 import android.car.app.CarActivityManager;
 import android.car.app.CarDisplayCompatManager;
 import android.car.cluster.CarInstrumentClusterManager;
@@ -34,6 +33,7 @@ import android.car.diagnostic.CarDiagnosticManager;
 import android.car.drivingstate.CarDrivingStateManager;
 import android.car.drivingstate.CarUxRestrictionsManager;
 import android.car.evs.CarEvsManager;
+import android.car.extendedapitest.testbase.CarLessApiTestBase;
 import android.car.feature.Flags;
 import android.car.hardware.CarSensorManager;
 import android.car.hardware.CarVendorExtensionManager;

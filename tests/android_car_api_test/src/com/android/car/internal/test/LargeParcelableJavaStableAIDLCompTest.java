@@ -19,7 +19,7 @@ package com.android.car.internal.test;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.car.apitest.StableAIDLTestLargeParcelable;
-import android.car.apitest.testbase.CarLessApiTestBase;
+import android.car.extendedapitest.testbase.CarLessApiTestBase;
 import android.os.Parcel;
 import android.os.Parcelable;
 

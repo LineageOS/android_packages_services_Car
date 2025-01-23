@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package android.car.apitest;
+package android.car.extendedapitest;
 
 import static android.car.feature.Flags.FLAG_ANDROID_B_VEHICLE_PROPERTIES;
 

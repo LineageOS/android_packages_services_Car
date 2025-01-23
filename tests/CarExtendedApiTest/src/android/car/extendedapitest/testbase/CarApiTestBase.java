@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package android.car.apitest.testbase;
+package android.car.extendedapitest.testbase;
 
 import static com.android.compatibility.common.util.ShellUtils.runShellCommand;
 import static com.android.compatibility.common.util.TestUtils.BooleanSupplierWithThrow;

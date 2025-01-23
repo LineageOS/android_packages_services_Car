@@ -20,7 +20,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import android.car.Car;
 import android.car.CarFeatures;
-import android.car.apitest.testbase.CarApiTestBase;
+import android.car.extendedapitest.testbase.CarApiTestBase;
 import android.car.feature.Flags;
 import android.util.ArraySet;
 

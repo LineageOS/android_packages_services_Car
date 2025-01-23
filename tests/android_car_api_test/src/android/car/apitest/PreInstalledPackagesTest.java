@@ -19,7 +19,7 @@ import static com.android.compatibility.common.util.ShellUtils.runShellCommand;
 
 import static org.junit.Assert.fail;
 
-import android.car.apitest.testbase.CarLessApiTestBase;
+import android.car.extendedapitest.testbase.CarLessApiTestBase;
 import android.platform.test.annotations.Presubmit;
 import android.text.TextUtils;
 
