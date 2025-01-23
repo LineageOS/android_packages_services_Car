@@ -35,6 +35,8 @@ import android.util.Log;
 
 import androidx.car.app.CarContext;
 
+import com.android.car.carlauncher.Flags;
+import com.android.car.tos.TosHelper;
 import com.android.systemui.R;
 import com.android.systemui.dagger.SysUISingleton;
 
@@ -327,6 +329,13 @@ public class TaskCategoryManager {
     Intent getDefaultMapsIntent() {
         Intent mapsIntent = new Intent();
         mapsIntent.setComponent(mDefaultMaps);
+        if (Flags.tosRestrictionsEnabled()) {
+            return TosHelper.maybeReplaceWithTosMapIntent(
+                    mContext,
+                    mapsIntent,
+                    R.string.config_tosMapIntent
+            );
+        }
         return mapsIntent;
     }
 
