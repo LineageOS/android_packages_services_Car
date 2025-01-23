@@ -35,6 +35,7 @@ import android.os.ServiceSpecificException;
 import android.os.SystemClock;
 import android.util.ArrayMap;
 import android.util.ArraySet;
+import android.util.Pair;
 import android.util.SparseArray;
 
 import com.android.car.CarLog;
@@ -52,7 +53,6 @@ import com.android.internal.annotations.VisibleForTesting;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileDescriptor;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -133,9 +133,9 @@ public final class FakeVehicleStub extends VehicleStubWrapper {
     FakeVehicleStub(VehicleStub realVehicle, FakeVhalConfigParser parser,
             List<File> customConfigFiles) throws RemoteException, IOException,
             IllegalArgumentException {
-        super(realVehicle, extractPropConfigs(parseConfigFiles(parser, customConfigFiles),
-                        realVehicle), extractPropValues(parseConfigFiles(parser,
-                customConfigFiles)));
+        super(realVehicle, new Pair<>(extractPropConfigs(parseConfigFiles(parser,
+                        customConfigFiles), realVehicle), extractPropValues(parseConfigFiles(
+                                parser, customConfigFiles))));
         mHalPropValueBuilder = new HalPropValueBuilder(/* isAidl= */ true);
         mHvacPowerSupportedAreas = getHvacPowerSupportedAreaId();
         mHvacPowerDependentProps = getHvacPowerDependentProps();
@@ -341,20 +341,6 @@ public final class FakeVehicleStub extends VehicleStubWrapper {
             clients = mOnChangeSubscribeClientByPropIdAreaId.get(propId, areaId, new ArraySet<>());
         }
         clients.forEach(c -> c.onPropertyEvent(updatedValue));
-    }
-
-    /**
-     * Dumps VHAL debug information.
-     *
-     * @param fd The file descriptor to print output.
-     * @param args Optional additional arguments for the debug command. Can be empty.
-     * @throws RemoteException if the remote operation fails.
-     * @throws ServiceSpecificException if VHAL returns service specific error.
-     */
-    @Override
-    public void dump(FileDescriptor fd, List<String> args) throws RemoteException,
-            ServiceSpecificException {
-        mRealVehicle.dump(fd, args);
     }
 
     /**

@@ -184,12 +184,11 @@ final class StateMachine {
         boolean contains(ICarEvsStreamCallback target) {
             boolean found = false;
             synchronized (mCallbacks) {
-                int idx = mCallbacks.beginBroadcast();
+                int idx = mCallbacks.getRegisteredCallbackCount();
                 while (!found && idx-- > 0) {
-                    ICarEvsStreamCallback callback = mCallbacks.getBroadcastItem(idx);
+                    ICarEvsStreamCallback callback = mCallbacks.getRegisteredCallbackItem(idx);
                     found = target.asBinder() == callback.asBinder();
                 }
-                mCallbacks.finishBroadcast();
             }
             return found;
         }
@@ -204,12 +203,11 @@ final class StateMachine {
 
         void stop() {
             synchronized (mCallbacks) {
-                int idx = mCallbacks.beginBroadcast();
+                int idx = mCallbacks.getRegisteredCallbackCount();
                 while (idx-- > 0) {
-                    ICarEvsStreamCallback callback = mCallbacks.getBroadcastItem(idx);
-                    requestStopVideoStream(callback);
+                    ICarEvsStreamCallback callback = mCallbacks.getRegisteredCallbackItem(idx);
+                    requestStopVideoStreamImpl(callback);
                 }
-                mCallbacks.finishBroadcast();
             }
         }
 
@@ -218,11 +216,10 @@ final class StateMachine {
             writer.printf("Active clients:\n");
             writer.increaseIndent();
             synchronized (mCallbacks) {
-                int idx = mCallbacks.beginBroadcast();
+                int idx = mCallbacks.getRegisteredCallbackCount();
                 while (idx-- > 0) {
-                    writer.printf("%s\n", mCallbacks.getBroadcastItem(idx).asBinder());
+                    writer.printf("%s\n", mCallbacks.getRegisteredCallbackItem(idx).asBinder());
                 }
-                mCallbacks.finishBroadcast();
             }
             writer.decreaseIndent();
         }
@@ -523,6 +520,10 @@ final class StateMachine {
             return;
         }
 
+        requestStopVideoStreamImpl(callback);
+    }
+
+    private void requestStopVideoStreamImpl(ICarEvsStreamCallback callback) {
         if (execute(REQUEST_PRIORITY_HIGH, SERVICE_STATE_INACTIVE, callback) != ERROR_NONE) {
             Slogf.w(mLogTag, "Failed to stop a video stream");
         }
@@ -790,13 +791,14 @@ final class StateMachine {
      * @param intervalInMillis an interval to try again if current attempt fails.
      */
     private void connectToHalServiceIfNecessary(long intervalInMillis) {
-        if (execute(REQUEST_PRIORITY_HIGH, SERVICE_STATE_INACTIVE) != ERROR_NONE) {
-            // Try to restore a connection again after a given amount of time.
-            Slogf.i(TAG_EVS, "Failed to connect to EvsManager service. Retrying after %d ms.",
-                    intervalInMillis);
-            mHandler.postDelayed(() -> connectToHalServiceIfNecessary(intervalInMillis),
-                    intervalInMillis);
+        if (execute(REQUEST_PRIORITY_HIGH, SERVICE_STATE_INACTIVE) == ERROR_NONE &&
+                startActivityIfNecessary() == ERROR_NONE) {
+            return;
         }
+
+        // Try to restore a connection again after a given amount of time.
+        mHandler.postDelayed(() -> connectToHalServiceIfNecessary(intervalInMillis),
+                intervalInMillis);
     }
 
     /**

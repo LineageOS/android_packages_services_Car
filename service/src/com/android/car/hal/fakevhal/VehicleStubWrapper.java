@@ -32,6 +32,7 @@ import android.os.Handler;
 import android.os.RemoteException;
 import android.os.ServiceSpecificException;
 import android.os.SystemClock;
+import android.util.Pair;
 import android.util.SparseArray;
 
 import com.android.car.CarLog;
@@ -43,9 +44,13 @@ import com.android.car.hal.HalPropConfig;
 import com.android.car.hal.HalPropValue;
 import com.android.car.hal.HalPropValueBuilder;
 import com.android.car.internal.property.CarPropertyErrorCodes;
+import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.car.internal.util.PairSparseArray;
 import com.android.internal.annotations.GuardedBy;
 
+import java.io.FileDescriptor;
+import java.io.FileOutputStream;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -58,17 +63,17 @@ public abstract class VehicleStubWrapper extends VehicleStub {
     final SparseArray<HalPropConfig> mPropConfigsByPropId;
     final VehicleStub mRealVehicle;
     @GuardedBy("mLock")
-    final PairSparseArray<HalPropValue> mPropValuesByPropIdAreaId;
+    private final PairSparseArray<HalPropValue> mPropValuesByPropIdAreaId;
     final Handler mHandler;
     private final Object mLock = new Object();
 
-    public VehicleStubWrapper(VehicleStub vehicleStub, SparseArray<HalPropConfig>
-            propConfigsByPropId, PairSparseArray<HalPropValue> propValuesByPropIdAreaId) {
+    public VehicleStubWrapper(VehicleStub vehicleStub, Pair<SparseArray<HalPropConfig>,
+            PairSparseArray<HalPropValue>> propConfigsByPropIdPropValuesByPropIdAreaIdPair) {
         mRealVehicle = vehicleStub;
         mHandler = new Handler(CarServiceUtils.getHandlerThread(getClass().getSimpleName())
                 .getLooper());
-        mPropConfigsByPropId = propConfigsByPropId;
-        mPropValuesByPropIdAreaId = propValuesByPropIdAreaId;
+        mPropConfigsByPropId = propConfigsByPropIdPropValuesByPropIdAreaIdPair.first;
+        mPropValuesByPropIdAreaId = propConfigsByPropIdPropValuesByPropIdAreaIdPair.second;
     }
 
     /**
@@ -486,5 +491,22 @@ public abstract class VehicleStubWrapper extends VehicleStub {
     @Override
     public boolean isFakeModeEnabled() {
         return false;
+    }
+
+    @Override
+    public void dump(FileDescriptor fd, List<String> args) throws RemoteException,
+            ServiceSpecificException {
+        IndentingPrintWriter writer = new IndentingPrintWriter(new PrintWriter(
+                new FileOutputStream(fd)));
+        synchronized (mLock) {
+            writer.println("Fake values: ");
+            writer.increaseIndent();
+            for (int i = 0; i < mPropValuesByPropIdAreaId.size(); i++) {
+                HalPropValue propValue = mPropValuesByPropIdAreaId.valueAt(i);
+                writer.println("HalPropValue: " + propValue);
+            }
+            writer.decreaseIndent();
+        }
+        mRealVehicle.dump(fd, args);
     }
 }
