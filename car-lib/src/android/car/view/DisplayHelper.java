@@ -16,10 +16,14 @@
 
 package android.car.view;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.PRIVATE_CONSTRUCTOR;
+
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.SystemApi;
 import android.view.Display;
+
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 
 /**
  * Provide access to {@code android.view.Display} calls.
@@ -31,6 +35,7 @@ public final class DisplayHelper {
     /** The same value as {@code android.car.builtin.view.DisplayHelper.INVALID_PORT} */
     public static final int INVALID_PORT = -1;
 
+    @ExcludeFromCodeCoverageGeneratedReport(reason = PRIVATE_CONSTRUCTOR)
     private DisplayHelper() {
         throw new UnsupportedOperationException();
     }
