@@ -16,10 +16,15 @@
 
 package android.car.builtin.input;
 
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.verify;
 
 import android.hardware.input.InputManager;
 import android.view.KeyEvent;
+import android.view.View;
+import android.view.ViewRootImpl;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -30,15 +35,48 @@ import org.mockito.junit.MockitoJUnitRunner;
 public final class InputManagerHelperTest {
 
     @Mock
-    private InputManager mInputManager;
+    private InputManager mMockInputManager;
 
     @Test
     public void injectInputEvent_delegateInjectionInAsyncMode() {
         KeyEvent someEvent = new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_0);
 
-        InputManagerHelper.injectInputEvent(mInputManager, someEvent);
+        InputManagerHelper.injectInputEvent(mMockInputManager, someEvent);
 
-        verify(mInputManager).injectInputEvent(someEvent,
+        verify(mMockInputManager).injectInputEvent(someEvent,
                 InputManager.INJECT_INPUT_EVENT_MODE_ASYNC);
+    }
+
+    @Test
+    public void testPilferPointers() {
+        View view = mock(View.class);
+        ViewRootImpl viewRootImpl = mock(ViewRootImpl.class);
+        when(view.getViewRootImpl()).thenReturn(viewRootImpl);
+
+        InputManagerHelper.pilferPointers(mMockInputManager, view);
+
+        verify(mMockInputManager).pilferPointers(viewRootImpl.getInputToken());
+    }
+
+    @Test
+    public void testAddUniqueIdAssociationByDescriptor() {
+        String inputDeviceDescriptor = "descriptor";
+        String displayUniqueId = "uniqueId";
+
+        InputManagerHelper.addUniqueIdAssociationByDescriptor(mMockInputManager,
+                inputDeviceDescriptor, displayUniqueId);
+
+        verify(mMockInputManager).addUniqueIdAssociationByDescriptor(eq(inputDeviceDescriptor),
+                eq(displayUniqueId));
+    }
+
+    @Test
+    public void testRemoveUniqueIdAssociationByDescriptor() {
+        String inputDeviceDescriptor = "descriptor";
+
+        InputManagerHelper.removeUniqueIdAssociationByDescriptor(mMockInputManager,
+                inputDeviceDescriptor);
+
+        verify(mMockInputManager).removeUniqueIdAssociationByDescriptor(eq(inputDeviceDescriptor));
     }
 }
