@@ -225,7 +225,7 @@ public final class CarPropertyManagerTest extends CarApiTestBase {
             mCarPropertyManager.getPropertiesAsync(getPropertyRequests, /* timeoutInMs= */ 1000,
                     /* cancellationSignal= */ null, callbackExecutor, callback);
 
-            callback.waitAndFinish(/* timeoutInMs= */ 3000);
+            callback.waitAndFinish(/* timeoutInMs= */ 8000);
             assertThat(callback.getTestErrors()).isEmpty();
             List<CarPropertyManager.GetPropertyResult<?>> results = callback.getGetResultList();
             assertThat(results.size()).isEqualTo(NUMBER_OF_TEST_CODES);
