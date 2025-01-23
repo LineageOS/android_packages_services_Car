@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package android.car.apitest;
+package android.car.apitest.testbase;
 
 import static com.android.compatibility.common.util.ShellUtils.runShellCommand;
 import static com.android.compatibility.common.util.TestUtils.BooleanSupplierWithThrow;
@@ -58,9 +58,9 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Base class for tests that don't need to connect to a {@link android.car.Car} object.
+ * Base class for tests that don't need to connect to a {@link Car} object.
  *
- * <p>For tests that don't need a {@link android.car.Car} object, use
+ * <p>For tests that don't need a {@link Car} object, use
  * {@link CarLessApiTestBase} instead.
  */
 public abstract class CarApiTestBase extends AbstractExpectableTestCase {
@@ -79,7 +79,8 @@ public abstract class CarApiTestBase extends AbstractExpectableTestCase {
      */
     private static final int SMALL_NAP_MS = 100;
 
-    private final ReceiverTrackingContext mContext = new ReceiverTrackingContext(
+    private final ReceiverTrackingContext
+            mContext = new ReceiverTrackingContext(
             InstrumentationRegistry.getInstrumentation().getTargetContext());
 
     private Car mCar;
@@ -151,13 +152,24 @@ public abstract class CarApiTestBase extends AbstractExpectableTestCase {
         return castService;
     }
 
-    protected static void assertMainThread() {
+    /**
+     * Asserts that the current thread is the main thread.
+     */
+    public static void assertMainThread() {
         assertThat(Looper.getMainLooper().isCurrentThread()).isTrue();
     }
 
-    protected static final class DefaultServiceConnectionListener implements ServiceConnection {
+    public static final class DefaultServiceConnectionListener implements ServiceConnection {
         private final Semaphore mConnectionWait = new Semaphore(0);
 
+        /**
+         * Waits for a connection to become available.
+         *
+         * <p>This method blocks until a connection is available or the timeout expires.
+         *
+         * @param timeoutMs the maximum time to wait in milliseconds
+         * @throws InterruptedException if the current thread is interrupted while waiting
+         */
         public void waitForConnection(long timeoutMs) throws InterruptedException {
             mConnectionWait.tryAcquire(timeoutMs, TimeUnit.MILLISECONDS);
         }

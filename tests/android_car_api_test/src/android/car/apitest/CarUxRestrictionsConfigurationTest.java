@@ -30,6 +30,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
 
+import android.car.apitest.testbase.CarLessApiTestBase;
 import android.car.drivingstate.CarUxRestrictions;
 import android.car.drivingstate.CarUxRestrictionsConfiguration;
 import android.car.drivingstate.CarUxRestrictionsConfiguration.Builder;

@@ -22,6 +22,7 @@ import static org.junit.Assert.assertThrows;
 import android.app.Service;
 import android.car.Car;
 import android.car.CarProjectionManager;
+import android.car.apitest.testbase.CarApiTestBase;
 import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;

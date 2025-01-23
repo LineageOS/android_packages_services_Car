@@ -24,6 +24,7 @@ import android.car.CarOccupantZoneManager;
 import android.car.CarProjectionManager;
 import android.car.CarRemoteDeviceManager;
 import android.car.admin.CarDevicePolicyManager;
+import android.car.apitest.testbase.CarLessApiTestBase;
 import android.car.app.CarActivityManager;
 import android.car.app.CarDisplayCompatManager;
 import android.car.cluster.CarInstrumentClusterManager;
@@ -134,7 +135,7 @@ public final class CarGetCarManagerTest extends CarLessApiTestBase {
 
     @Test
     @ApiTest(apis = {"android.car.Car#getCarManager(String)",
-             "android.car.Car#getCarManager(Class)"})
+            "android.car.Car#getCarManager(Class)"})
     public void test_forCarServiceManager() throws Exception {
         Car car = Car.createCar(mContext);
 

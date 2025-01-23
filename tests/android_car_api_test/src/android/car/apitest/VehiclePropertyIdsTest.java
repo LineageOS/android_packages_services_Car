@@ -18,6 +18,7 @@ package android.car.apitest;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.car.VehiclePropertyIds;
+import android.car.apitest.testbase.CarLessApiTestBase;
 import android.hardware.automotive.vehicle.VehicleProperty;
 import android.util.SparseArray;
 

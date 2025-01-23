@@ -24,7 +24,7 @@ import static org.hamcrest.CoreMatchers.containsStringIgnoringCase;
 import static org.junit.Assume.assumeThat;
 import static org.junit.Assume.assumeTrue;
 
-import android.car.apitest.CarApiTestBase;
+import android.car.apitest.testbase.CarApiTestBase;
 import android.os.Build;
 
 import com.android.compatibility.common.util.ApiTest;
