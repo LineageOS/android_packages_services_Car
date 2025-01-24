@@ -45,6 +45,8 @@ using ::aidl::android::automotive::watchdog::TimeoutLength;
 using ::aidl::android::automotive::watchdog::internal::ICarWatchdogMonitor;
 using ::aidl::android::automotive::watchdog::internal::ICarWatchdogMonitorDefault;
 using ::aidl::android::automotive::watchdog::internal::ProcessIdentifier;
+using ::aidl::android::hardware::automotive::vehicle::IVehicleCallback;
+using ::aidl::android::hardware::automotive::vehicle::SubscribeOptions;
 using ::aidl::android::hardware::automotive::vehicle::VehicleProperty;
 using ::android::IBinder;
 using ::android::Looper;
@@ -187,6 +189,12 @@ protected:
         mNotSupportedVehicleProperties = {VehicleProperty::WATCHDOG_ALIVE,
                                           VehicleProperty::WATCHDOG_TERMINATED_PROCESS};
         mMockPackageInfoResolver = std::make_shared<MockPackageInfoResolver>();
+
+        ON_CALL(*mMockVehicle, subscribe(_, _, _))
+                .WillByDefault([](const std::shared_ptr<IVehicleCallback>&,
+                                  const std::vector<SubscribeOptions>&,
+                                  int32_t) { return ScopedAStatus::ok(); });
+
         startService();
     }
 
