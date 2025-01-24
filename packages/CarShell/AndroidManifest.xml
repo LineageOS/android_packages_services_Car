@@ -194,4 +194,7 @@
     <uses-permission android:name="android.permission.MANAGE_TIME_AND_ZONE_DETECTION" />
     <!-- permissions required for ATS aareceiverts test - AccessPointTests -->
     <uses-permission android:name="android.permissions.NETWORK_SETTINGS" />
+    <!-- Permission required for CTS tests - MirroredSurfaceViewTest -->
+    <uses-permission android:name="android.car.permission.ACCESS_MIRRORED_SURFACE" />
+    <uses-permission android:name="android.car.permission.MIRROR_DISPLAY" />
 </manifest>
