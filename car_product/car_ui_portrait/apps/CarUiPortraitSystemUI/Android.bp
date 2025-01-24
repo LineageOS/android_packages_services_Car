@@ -27,6 +27,7 @@ android_app {
         "CarSystemUI-core",
         "car-portrait-ui-common",
         "androidx.car.app_app",
+        "car-tos-lib",
     ],
 
     libs: [
@@ -82,6 +83,7 @@ android_library {
         "CarSystemUI-tests",
         "car-portrait-ui-common",
         "androidx.car.app_app",
+        "car-tos-lib",
     ],
 
     plugins: ["dagger2-compiler"],
