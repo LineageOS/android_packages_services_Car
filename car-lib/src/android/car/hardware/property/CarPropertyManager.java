@@ -377,7 +377,7 @@ public class CarPropertyManager extends CarManagerBase {
                     .append(", property ID: ")
                     .append(VehiclePropertyIds.toString(mPropertyId))
                     .append(", area ID: ")
-                    .append(mAreaId)
+                    .append(toAreaIdString(mPropertyId, mAreaId))
                     .append("}").toString();
         }
     }
@@ -539,7 +539,7 @@ public class CarPropertyManager extends CarManagerBase {
                     .append(", property ID: ")
                     .append(VehiclePropertyIds.toString(mPropertyId))
                     .append(", area ID: ")
-                    .append(mAreaId)
+                    .append(toAreaIdString(mPropertyId, mAreaId))
                     .append(", value: ")
                     .append(mValue)
                     .append(", waitForPropertyUpdate: ")
@@ -633,7 +633,7 @@ public class CarPropertyManager extends CarManagerBase {
                     .append(", property: ")
                     .append(VehiclePropertyIds.toString(mPropertyId))
                     .append(", areaId: ")
-                    .append(mAreaId)
+                    .append(toAreaIdString(mPropertyId, mAreaId))
                     .append(", error codes: ")
                     .append(mCarPropertyErrorCodes)
                     .append("}").toString();
@@ -727,7 +727,7 @@ public class CarPropertyManager extends CarManagerBase {
                     .append(", property: ")
                     .append(VehiclePropertyIds.toString(mPropertyId))
                     .append(", areaId: ")
-                    .append(mAreaId)
+                    .append(toAreaIdString(mPropertyId, mAreaId))
                     .append(", value: ")
                     .append(mValue)
                     .append(", timestamp: ")
@@ -803,7 +803,7 @@ public class CarPropertyManager extends CarManagerBase {
                     .append(", property: ")
                     .append(VehiclePropertyIds.toString(mPropertyId))
                     .append(", areaId: ")
-                    .append(mAreaId)
+                    .append(toAreaIdString(mPropertyId, mAreaId))
                     .append(", updated timestamp: ")
                     .append(mUpdateTimestampNanos).append("ns")
                     .append("}").toString();
@@ -1683,7 +1683,7 @@ public class CarPropertyManager extends CarManagerBase {
                 if (propertyToAreaId.contains(propertyId, areaId)) {
                     throw new IllegalArgumentException("Subscribe options contain overlapping "
                             + "propertyId: " + VehiclePropertyIds.toString(propertyId) + " areaId: "
-                            + areaId);
+                            + toAreaIdString(propertyId, areaId));
                 }
                 propertyToAreaId.append(propertyId, areaId, placeHolder);
             }
