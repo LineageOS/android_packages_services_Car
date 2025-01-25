@@ -469,6 +469,7 @@ android.car.hardware.power PowerComponentUtil int FIRST_POWER_COMPONENT
 android.car.hardware.power PowerComponentUtil int INVALID_POWER_COMPONENT
 android.car.hardware.power PowerComponentUtil int LAST_POWER_COMPONENT
 android.car.hardware.power PowerComponentUtil int toPowerComponent(String componentArg, boolean prefix)
+android.car.hardware.property AreaIdConfig String toString(Integer propertyId)
 android.car.hardware.property AreaIdConfig.Builder Builder<T> setHasMaxSupportedValue(boolean hasMaxSupportedValue)
 android.car.hardware.property AreaIdConfig.Builder Builder<T> setHasMinSupportedValue(boolean hasMinSupportedValue)
 android.car.hardware.property AreaIdConfig.Builder Builder<T> setHasSupportedValuesList(boolean hasSupportedValuesList)

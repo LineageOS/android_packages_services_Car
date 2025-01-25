@@ -503,7 +503,8 @@ public final class CarPropertyConfig<T> implements Parcelable {
                 + ", mConfigString=" + mConfigString
                 + ", mMaxSampleRate(Hz)=" + mMaxSampleRate
                 + ", mMinSampleRate(Hz)=" + mMinSampleRate
-                + ", mAreaIdConfigs =" + mAreaIdConfigs
+                + ", mAreaIdConfigs =" + mAreaIdConfigs.stream().map(
+                    areaIdConfig -> areaIdConfig.toString(mPropertyId)).toList()
                 + ", mType=" + mType;
         if (Flags.carPropertySimulation()) {
             if (isPropertyIdSimulationPropId()) {
