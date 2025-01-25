@@ -52,11 +52,24 @@ public:
         mHal.reset();
         mCallback.reset();
     }
+    android::frameworks::automotive::vhal::VhalClientResult<void> subscribe(
+            const std::vector<aidl::android::hardware::automotive::vehicle::SubscribeOptions>&
+                    options) override {
+        {
+            std::lock_guard<std::mutex> lock(mLock);
+            for (const auto& option : options) {
+                mSubscribedPropIds.insert(option.propId);
+            }
+        }
 
-    MOCK_METHOD(
-            android::frameworks::automotive::vhal::VhalClientResult<void>, subscribe,
-            (const std::vector<aidl::android::hardware::automotive::vehicle::SubscribeOptions>&),
-            (override));
+        if (auto status = mHal->subscribe(mCallback, options, /*maxSharedMemoryFileCount=*/0);
+            !status.isOk()) {
+            return android::frameworks::automotive::vhal::ClientStatusError(
+                    static_cast<aidl::android::hardware::automotive::vehicle::StatusCode>(
+                            status.getServiceSpecificError()));
+        }
+        return {};
+    }
 
     android::frameworks::automotive::vhal::VhalClientResult<void> unsubscribe(
             const std::vector<int32_t>& propIds) override {
@@ -70,11 +83,21 @@ public:
         return {};
     }
 
-    MOCK_METHOD(void, unsubscribeAll, (), (override));
+    void unsubscribeAll() override {
+        std::vector<int32_t> propIds;
+        {
+            std::lock_guard<std::mutex> lock(mLock);
+            propIds = std::vector<int32_t>(mSubscribedPropIds.begin(), mSubscribedPropIds.end());
+        }
+        unsubscribe(propIds);
+    }
 
 private:
     std::shared_ptr<MockVehicle> mHal;
     std::shared_ptr<android::frameworks::automotive::vhal::SubscriptionVehicleCallback> mCallback;
+
+    std::mutex mLock;
+    std::unordered_set<int32_t> mSubscribedPropIds GUARDED_BY(mLock);
 };
 
 }  // namespace watchdog
