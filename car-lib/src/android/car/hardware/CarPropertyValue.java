@@ -19,6 +19,7 @@ package android.car.hardware;
 import static android.car.feature.Flags.FLAG_CAR_PROPERTY_VALUE_PROPERTY_STATUS;
 
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
+import static com.android.car.internal.util.DebugUtils.constantToString;
 import static com.android.car.internal.util.DebugUtils.toAreaIdString;
 
 import static java.lang.Integer.toHexString;
@@ -380,7 +381,7 @@ public final class CarPropertyValue<T> implements Parcelable {
                 + "mPropertyId=0x" + toHexString(mPropertyId)
                 + ", propertyName=" + propertyIdToString
                 + ", mAreaId=" + toAreaIdString(mPropertyId, mAreaId)
-                + ", mStatus=" + mStatus
+                + ", mStatus=" + constantToString(CarPropertyValue.class, "STATUS_", mStatus)
                 + ", mTimestampNanos=" + mTimestampNanos
                 + ", mValue=" + mValue;
         if (Flags.carPropertySimulation()) {
