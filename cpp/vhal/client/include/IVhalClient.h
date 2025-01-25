@@ -218,14 +218,48 @@ public:
 // IVhalClient is a thread-safe client for AIDL or HIDL VHAL backend.
 class IVhalClient {
 public:
+    [[deprecated("Use create(startThreadPool) instead")]]
+    static std::shared_ptr<IVhalClient> create() {
+        return create(/*startThreadPool=*/true);
+    }
+
     // Wait for VHAL service and create a client. Return nullptr if failed to connect to VHAL.
-    static std::shared_ptr<IVhalClient> create();
+    //
+    // This waits for a certain short time period determined by the system. It is recommended to
+    // use tryCreate if you do not want to block.
+    //
+    // startThreadPool indicates whether the IVhalClient will create a binder thread pool for
+    // receiving callbacks. It is recommended to call ABinderProcess_startThreadPool only once from
+    // the app's main function and then call this method with startThreadPool as false.
+    static std::shared_ptr<IVhalClient> create(bool startThreadPool);
+
+    [[deprecated("Use tryCreate(startThreadPool) instead")]]
+    static std::shared_ptr<IVhalClient> tryCreate() {
+        return tryCreate(/*startThreadPool=*/true);
+    }
 
     // Try to get the VHAL service and create a client. Return nullptr if failed to connect to VHAL.
-    static std::shared_ptr<IVhalClient> tryCreate();
+    //
+    // This function does not block and returns immediately. It is possible that VHAL is still
+    // starting up so the client should typically retry if failed to connect to VHAL.
+    //
+    // startThreadPool indicates whether the IVhalClient will create a binder thread pool for
+    // receiving callbacks. It is recommended to call ABinderProcess_startThreadPool only once from
+    // the app's main function and then call this method with startThreadPool as false.
+    static std::shared_ptr<IVhalClient> tryCreate(bool startThreadPool);
+
+    [[deprecated("Use tryCreateAidlClient(descriptor, startThreadPool) instead")]]
+    static std::shared_ptr<IVhalClient> tryCreateAidlClient(const char* descriptor) {
+        return tryCreateAidlClient(descriptor, /*startThreadPool=*/true);
+    }
 
     // Try to create a client based on the AIDL VHAL service descriptor.
-    static std::shared_ptr<IVhalClient> tryCreateAidlClient(const char* descriptor);
+    //
+    // startThreadPool indicates whether the IVhalClient will create a binder thread pool for
+    // receiving callbacks. It is recommended to call ABinderProcess_startThreadPool only once from
+    // the app's main function and then call this method with startThreadPool as false.
+    static std::shared_ptr<IVhalClient> tryCreateAidlClient(const char* descriptor,
+                                                            bool startThreadPool);
 
     // Try to create a client based on the HIDL VHAL service descriptor.
     static std::shared_ptr<IVhalClient> tryCreateHidlClient(const char* descriptor);
@@ -373,43 +407,20 @@ inline std::string toString(const std::vector<int32_t>& values) {
 
 // SubscriptionClient is the common base class for Aidl and Hidl Subscription Client.
 class SubscriptionClient : public ISubscriptionClient {
-public:
-    void unsubscribeAll() override {
-        std::vector<int32_t> propIds;
-        {
-            std::lock_guard<std::mutex> lk(mLock);
-            propIds = std::vector<int32_t>(mSubscribedPropIds.begin(), mSubscribedPropIds.end());
-        }
-        auto result = unsubscribe(propIds);
-        if (!result.ok()) {
-            ALOGE("Failed to unsubscribe all subscribed properties: %s, error: %s",
-                  toString(propIds).c_str(), result.error().message().c_str());
-        }
-    }
+protected:
+    virtual std::unordered_set<int32_t> getSubscribedPropIds() = 0;
 
-    ~SubscriptionClient() {
-        std::lock_guard<std::mutex> lk(mLock);
-        if (!mSubscribedPropIds.empty()) {
+    // This should be called inside subclass's destructor.
+    void verifySubscribedPropIdsEmpty() {
+        const auto& subscribedPropIds = getSubscribedPropIds();
+        if (!subscribedPropIds.empty()) {
             ALOGW("Properties: %s are still subscribed when the SubscriptionClient is destroyed, "
                   "they will always be subscribed until the client process ends, do you forget"
                   " to call unsubscribeAll?",
-                  toString(std::vector<int32_t>(mSubscribedPropIds.begin(),
-                                                mSubscribedPropIds.end()))
+                  toString(std::vector<int32_t>(subscribedPropIds.begin(), subscribedPropIds.end()))
                           .c_str());
         }
     }
-
-protected:
-    void addSubscribedPropIds(const std::vector<int32_t>& propIds) {
-        std::lock_guard<std::mutex> lk(mLock);
-        for (int32_t propId : propIds) {
-            mSubscribedPropIds.insert(propId);
-        }
-    }
-
-private:
-    std::mutex mLock;
-    std::unordered_set<int32_t> mSubscribedPropIds GUARDED_BY(mLock);
 };
 
 }  // namespace internal

@@ -161,7 +161,7 @@ public:
 
     ScopedAStatus unsubscribe([[maybe_unused]] const CallbackType& callback,
                               const std::vector<int32_t>& propIds) override {
-        mUnsubscribePropIds = propIds;
+        mUnsubscribedPropIds = propIds;
 
         if (mStatus != StatusCode::OK) {
             return ScopedAStatus::fromServiceSpecificError(toInt(mStatus));
@@ -228,7 +228,9 @@ public:
         mSubscriptionCallback->onPropertySetError(propErrors);
     }
 
-    std::vector<int32_t> getUnsubscribedPropIds() { return mUnsubscribePropIds; }
+    std::vector<int32_t> getUnsubscribedPropIds() { return mUnsubscribedPropIds; }
+
+    void resetUnsubscribedPropIds() { mUnsubscribedPropIds.clear(); }
 
 private:
     std::mutex mLock;
@@ -244,7 +246,7 @@ private:
     std::atomic<int> mThreadCount = 0;
     CallbackType mSubscriptionCallback;
     std::vector<SubscribeOptions> mSubscriptionOptions;
-    std::vector<int32_t> mUnsubscribePropIds;
+    std::vector<int32_t> mUnsubscribedPropIds;
 };
 
 class MockSubscriptionCallback : public ISubscriptionCallback {
@@ -278,9 +280,16 @@ protected:
         }
 
         void deleteDeathRecipient(AIBinder_DeathRecipient* recipient) override {
-            if (mDeathRecipient == recipient) {
-                triggerBinderUnlinked();
+            if (mDeathRecipient != recipient) {
+                return;
             }
+            if (mOnBinderDiedOngoing) {
+                // If onBinderDied is ongoing, we do not call unlink until the function
+                // returns.
+                mToUnlink = true;
+                return;
+            }
+            triggerBinderUnlinked();
         }
 
         void setOnUnlinked([[maybe_unused]] AIBinder_DeathRecipient* recipient,
@@ -299,10 +308,21 @@ protected:
             mDeathRecipient = nullptr;
         }
 
+        void triggerBinderDied() { mOnBinderDiedOngoing = true; }
+
+        void endBinderDied() {
+            mOnBinderDiedOngoing = false;
+            if (mToUnlink) {
+                triggerBinderUnlinked();
+            }
+        }
+
     private:
         void* mCookie;
         AIBinder_DeathRecipient_onBinderUnlinked mOnUnlinked;
         AIBinder_DeathRecipient* mDeathRecipient;
+        bool mOnBinderDiedOngoing = false;
+        bool mToUnlink = false;
     };
 
     constexpr static int32_t TEST_PROP_ID = 1;
@@ -320,6 +340,7 @@ protected:
         mLinkUnlinkImpl = impl.get();
         mVhalClient = std::unique_ptr<AidlVhalClient>(
                 new AidlVhalClient(mVhal, TEST_TIMEOUT_IN_MS, std::move(impl)));
+        mVhalClient->linkToDeath();
     }
 
     AidlVhalClient* getClient() { return mVhalClient.get(); }
@@ -329,8 +350,11 @@ protected:
     MockVhal* getVhal() { return mVhal.get(); }
 
     void triggerBinderDied() {
+        // We cannot directly trigger onBinderDied inside mLinkUnlinkImpl because the recipient
+        // implementation is private.
+        mLinkUnlinkImpl->triggerBinderDied();
         AidlVhalClient::onBinderDied(mLinkUnlinkImpl->getCookie());
-        mLinkUnlinkImpl->triggerBinderUnlinked();
+        mLinkUnlinkImpl->endBinderDied();
     }
 
     size_t countOnBinderDiedCallbacks() { return mVhalClient->countOnBinderDiedCallbacks(); }
@@ -818,8 +842,7 @@ TEST_F(AidlVhalClientTest, testAddOnBinderDiedCallback) {
 
     ASSERT_TRUE(result.callbackOneCalled);
     ASSERT_TRUE(result.callbackTwoCalled);
-
-    ASSERT_EQ(countOnBinderDiedCallbacks(), static_cast<size_t>(0));
+    ASSERT_EQ(countOnBinderDiedCallbacks(), static_cast<size_t>(2));
 }
 
 TEST_F(AidlVhalClientTest, testOnBinderDied_noDeadLock) {
@@ -850,7 +873,7 @@ TEST_F(AidlVhalClientTest, testRemoveOnBinderDiedCallback) {
 
     ASSERT_FALSE(result.callbackOneCalled);
     ASSERT_TRUE(result.callbackTwoCalled);
-    ASSERT_EQ(countOnBinderDiedCallbacks(), static_cast<size_t>(0));
+    ASSERT_EQ(countOnBinderDiedCallbacks(), static_cast<size_t>(1));
 }
 
 TEST_F(AidlVhalClientTest, testGetAllPropConfigs) {
@@ -1089,8 +1112,37 @@ TEST_F(AidlVhalClientTest, testUnsubscribeAll) {
     subscriptionClient->subscribe(options);
 
     subscriptionClient->unsubscribeAll();
+
     ASSERT_THAT(getVhal()->getUnsubscribedPropIds(),
                 UnorderedElementsAre(TEST_PROP_ID, TEST_PROP_ID_2));
+
+    getVhal()->resetUnsubscribedPropIds();
+    subscriptionClient->unsubscribeAll();
+
+    ASSERT_EQ(getVhal()->getUnsubscribedPropIds().size(), 0u);
+}
+
+TEST_F(AidlVhalClientTest, testUnsubscribeAll_AfterUnsubscribe) {
+    std::vector<SubscribeOptions> options = {
+            {
+                    .propId = TEST_PROP_ID,
+                    .areaIds = {TEST_AREA_ID},
+                    .sampleRate = 1.0,
+            },
+            {
+                    .propId = TEST_PROP_ID_2,
+                    .sampleRate = 2.0,
+            },
+    };
+
+    auto callback = std::make_shared<MockSubscriptionCallback>();
+    auto subscriptionClient = getClient()->getSubscriptionClient(callback);
+    subscriptionClient->subscribe(options);
+    subscriptionClient->unsubscribe({TEST_PROP_ID});
+    getVhal()->resetUnsubscribedPropIds();
+
+    subscriptionClient->unsubscribeAll();
+    ASSERT_THAT(getVhal()->getUnsubscribedPropIds(), UnorderedElementsAre(TEST_PROP_ID_2));
 }
 
 TEST_F(AidlVhalClientTest, testGetRemoteInterfaceVersion) {

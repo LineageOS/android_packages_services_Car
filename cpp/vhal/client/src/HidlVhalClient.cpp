@@ -245,9 +245,14 @@ HidlSubscriptionClient::HidlSubscriptionClient(sp<IVehicle> hal,
     mVhalCallback = sp<SubscriptionCallback>::make(callback);
 }
 
+HidlSubscriptionClient::~HidlSubscriptionClient() {
+    verifySubscribedPropIdsEmpty();
+}
+
 VhalClientResult<void> HidlSubscriptionClient::subscribe(
         const std::vector<::aidl::android::hardware::automotive::vehicle::SubscribeOptions>&
                 options) {
+    std::lock_guard<std::mutex> lk(mLock);
     std::vector<SubscribeOptions> hidlOptions;
     std::vector<int32_t> propIds;
     for (const auto& option : options) {
@@ -268,11 +273,19 @@ VhalClientResult<void> HidlSubscriptionClient::subscribe(
         return ClientStatusError(toAidlStatusCode(status))
                 << "failed to subscribe: status code: " << toInt(status);
     }
-    addSubscribedPropIds(propIds);
+    for (int32_t propId : propIds) {
+        mSubscribedPropIds.insert(propId);
+    }
     return {};
 }
 
 VhalClientResult<void> HidlSubscriptionClient::unsubscribe(const std::vector<int32_t>& propIds) {
+    std::lock_guard<std::mutex> lk(mLock);
+    return unsubscribeLocked(propIds);
+}
+
+VhalClientResult<void> HidlSubscriptionClient::unsubscribeLocked(
+        const std::vector<int32_t>& propIds) {
     for (int32_t propId : propIds) {
         auto result = mHal->unsubscribe(mVhalCallback, propId);
         if (!result.isOk()) {
@@ -286,8 +299,26 @@ VhalClientResult<void> HidlSubscriptionClient::unsubscribe(const std::vector<int
                     << "failed to unsubscribe prop Id: " << propId
                     << ": status code: " << toInt(status);
         }
+        mSubscribedPropIds.erase(propId);
     }
     return {};
+}
+
+std::unordered_set<int32_t> HidlSubscriptionClient::getSubscribedPropIds() {
+    std::lock_guard<std::mutex> lk(mLock);
+    // This creates a copy.
+    return mSubscribedPropIds;
+}
+
+void HidlSubscriptionClient::unsubscribeAll() {
+    std::lock_guard<std::mutex> lk(mLock);
+    std::vector<int32_t> propIds =
+            std::vector<int32_t>(mSubscribedPropIds.begin(), mSubscribedPropIds.end());
+    auto result = unsubscribeLocked(propIds);
+    if (!result.ok()) {
+        ALOGE("Failed to unsubscribe all subscribed properties: %s, error: %s",
+              internal::toString(propIds).c_str(), result.error().message().c_str());
+    }
 }
 
 SubscriptionCallback::SubscriptionCallback(std::shared_ptr<ISubscriptionCallback> callback) :

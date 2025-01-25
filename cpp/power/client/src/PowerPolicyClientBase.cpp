@@ -69,6 +69,17 @@ PowerPolicyClientBase::PowerPolicyClientBase() :
 
 PowerPolicyClientBase::~PowerPolicyClientBase() {
     release();
+
+    // This will unlink all linked binders.
+    AIBinder_DeathRecipient_delete(mDeathRecipient.release());
+
+    // Need to wait until for each linkToDeath call, one onBinderUnlinked is called.
+    // In release, the connection thread already ends so we are sure mSelfRefCounter does not
+    // increase. We are sure mSelfRefCounter will not change once it is set to 0.
+    {
+        std::unique_lock lk(mLock);
+        mDeathRecipientLinkedCv.wait(lk, [this] { return mSelfRefCounter == 0; });
+    }
 }
 
 void PowerPolicyClientBase::onDeathRecipientUnlinked(void* cookie) {
@@ -113,18 +124,6 @@ void PowerPolicyClientBase::release() {
         auto status = policyServer->unregisterPowerPolicyChangeCallback(policyChangeCallback);
         if (!status.isOk()) {
             LOG(ERROR) << "Unregister power policy change callback failed";
-        }
-
-        status = ScopedAStatus::fromStatus(
-                AIBinder_unlinkToDeath(binder.get(), mDeathRecipient.get(), this));
-        if (!status.isOk()) {
-            LOG(WARNING) << "Unlinking from death recipient failed";
-        }
-
-        // Need to wait until onUnlinked to be called.
-        {
-            std::unique_lock lk(mLock);
-            mDeathRecipientLinkedCv.wait(lk, [this] { return !mDeathRecipientLinked; });
         }
     }
 
@@ -172,10 +171,7 @@ void PowerPolicyClientBase::handleBinderDeath() {
 
 void PowerPolicyClientBase::handleDeathRecipientUnlinked() {
     LOG(INFO) << "Power policy death recipient unlinked";
-    {
-        std::lock_guard<std::mutex> lk(mLock);
-        mDeathRecipientLinked = false;
-    }
+    mSelfRefCounter--;
     mDeathRecipientLinkedCv.notify_all();
 }
 
@@ -197,7 +193,9 @@ Result<void> PowerPolicyClientBase::connectToDaemon() {
     if (binder.get() == nullptr) {
         return Error() << "Failed to get car power policy client binder object";
     }
-    mDeathRecipientLinked = true;
+    // We pass 'this' as cookie to DeathRecipient so we need to increase ref counter to make
+    // sure we do not delete 'this' before the cookie is never used again.
+    mSelfRefCounter++;
     auto status = ScopedAStatus::fromStatus(
             AIBinder_linkToDeath(server->asBinder().get(), mDeathRecipient.get(), this));
     if (!status.isOk()) {
