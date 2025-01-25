@@ -70,7 +70,69 @@ using ::ndk::SpAIBinder;
 
 }  // namespace
 
-std::shared_ptr<IVhalClient> AidlVhalClient::create() {
+void AidlVhalClient::BinderDiedCallbacks::addCallback(
+        std::shared_ptr<OnBinderDiedCallbackFunc> callback) {
+    std::lock_guard<std::mutex> lk(mBinderDiedCallbacksLock);
+    mCallbacks.insert(callback);
+}
+
+void AidlVhalClient::BinderDiedCallbacks::invokeCallbacks() {
+    std::unordered_set<std::shared_ptr<OnBinderDiedCallbackFunc>> callbacksCopy;
+    {
+        // Copy the callbacks so that we avoid invoking the callback with lock hold.
+        std::lock_guard<std::mutex> lk(mBinderDiedCallbacksLock);
+        callbacksCopy = mCallbacks;
+    }
+
+    for (auto callback : callbacksCopy) {
+        (*callback)();
+    }
+}
+
+size_t AidlVhalClient::BinderDiedCallbacks::count() {
+    std::lock_guard<std::mutex> lk(mBinderDiedCallbacksLock);
+    return mCallbacks.size();
+}
+
+void AidlVhalClient::BinderDiedCallbacks::clear() {
+    std::lock_guard<std::mutex> lk(mBinderDiedCallbacksLock);
+    mCallbacks.clear();
+}
+
+VhalClientResult<void> AidlVhalClient::BinderDiedCallbacks::removeCallback(
+        std::shared_ptr<OnBinderDiedCallbackFunc> callback) {
+    std::lock_guard<std::mutex> lk(mBinderDiedCallbacksLock);
+    if (mCallbacks.find(callback) == mCallbacks.end()) {
+        return ClientStatusError(ErrorCode::INVALID_ARG)
+                << "The callback to remove was not added before";
+    }
+    mCallbacks.erase(callback);
+    return {};
+}
+
+AidlVhalClient::BinderDeathRecipientCookie::BinderDeathRecipientCookie(
+        std::shared_ptr<BinderDiedCallbacks> binderDiedCallbacks) {
+    mCallbacksRef = std::weak_ptr<BinderDiedCallbacks>(binderDiedCallbacks);
+}
+
+void AidlVhalClient::BinderDeathRecipientCookie::onBinderDied() {
+    auto callbacksRef = mCallbacksRef.lock();
+    if (callbacksRef == nullptr) {
+        ALOGI("AidlVhalClient: Ignore onBinderDied because the client is already gone.");
+    }
+    callbacksRef->invokeCallbacks();
+}
+
+void AidlVhalClient::BinderDeathRecipientCookie::onBinderUnlinked() {
+    auto callbacksRef = mCallbacksRef.lock();
+    if (callbacksRef == nullptr) {
+        ALOGI("AidlVhalClient: Ignore onBinderUnlinked because the client is already gone.");
+        return;
+    }
+    callbacksRef->clear();
+}
+
+std::shared_ptr<IVhalClient> AidlVhalClient::create(bool startThreadPool) {
     if (!AServiceManager_isDeclared(AIDL_VHAL_SERVICE)) {
         ALOGD("AIDL VHAL service is not declared, maybe HIDL VHAL is used instead?");
         return nullptr;
@@ -81,15 +143,22 @@ std::shared_ptr<IVhalClient> AidlVhalClient::create() {
         ALOGW("AIDL VHAL service is not available");
         return nullptr;
     }
-    ABinderProcess_startThreadPool();
-    return std::make_shared<AidlVhalClient>(aidlVhal);
+    if (startThreadPool) {
+        ABinderProcess_startThreadPool();
+    }
+    auto client = std::make_shared<AidlVhalClient>(aidlVhal);
+    if (!client->linkToDeath()) {
+        return nullptr;
+    }
+    return client;
 }
 
-std::shared_ptr<IVhalClient> AidlVhalClient::tryCreate() {
-    return tryCreate(AIDL_VHAL_SERVICE);
+std::shared_ptr<IVhalClient> AidlVhalClient::tryCreate(bool startThreadPool) {
+    return tryCreate(AIDL_VHAL_SERVICE, startThreadPool);
 }
 
-std::shared_ptr<IVhalClient> AidlVhalClient::tryCreate(const char* descriptor) {
+std::shared_ptr<IVhalClient> AidlVhalClient::tryCreate(const char* descriptor,
+                                                       bool startThreadPool) {
     if (!AServiceManager_isDeclared(descriptor)) {
         ALOGD("AIDL VHAL service, descriptor: %s is not declared, maybe HIDL VHAL is used instead?",
               descriptor);
@@ -101,8 +170,14 @@ std::shared_ptr<IVhalClient> AidlVhalClient::tryCreate(const char* descriptor) {
         ALOGW("AIDL VHAL service, descriptor: %s is not available", descriptor);
         return nullptr;
     }
-    ABinderProcess_startThreadPool();
-    return std::make_shared<AidlVhalClient>(aidlVhal);
+    if (startThreadPool) {
+        ABinderProcess_startThreadPool();
+    }
+    auto client = std::make_shared<AidlVhalClient>(aidlVhal);
+    if (!client->linkToDeath()) {
+        return nullptr;
+    }
+    return client;
 }
 
 AidlVhalClient::AidlVhalClient(std::shared_ptr<IVehicle> hal) :
@@ -119,25 +194,27 @@ AidlVhalClient::AidlVhalClient(std::shared_ptr<IVehicle> hal, int64_t timeoutInM
     mDeathRecipient = ScopedAIBinder_DeathRecipient(
             AIBinder_DeathRecipient_new(&AidlVhalClient::onBinderDied));
     mLinkUnlinkImpl = std::move(linkUnlinkImpl);
-    // setOnUnlinked must be called before linkToDeath.
-    mLinkUnlinkImpl->setOnUnlinked(mDeathRecipient.get(), &AidlVhalClient::onBinderUnlinked);
-    binder_status_t status =
-            mLinkUnlinkImpl->linkToDeath(hal->asBinder().get(), mDeathRecipient.get(),
-                                         static_cast<void*>(this));
-    if (status != STATUS_OK) {
-        ALOGE("failed to link to VHAL death, status: %d", static_cast<int32_t>(status));
-    }
+    mOnBinderDiedCallbacks = std::make_shared<BinderDiedCallbacks>();
 }
 
 AidlVhalClient::~AidlVhalClient() {
     mLinkUnlinkImpl->deleteDeathRecipient(mDeathRecipient.release());
+}
 
-    // Wait until onUnlinked is call. Now we are safe to cleanup cookie, which is the pointer to
-    // 'this'.
-    {
-        std::unique_lock lk(mLock);
-        mDeathRecipientUnlinkedCv.wait(lk, [this] { return mDeathRecipientUnlinked; });
+bool AidlVhalClient::linkToDeath() {
+    // The life cycle for this object is managed by linkUnlinkImpl. This object will live
+    // until onBinderUnlinked is called.
+    auto cookie = new BinderDeathRecipientCookie(mOnBinderDiedCallbacks);
+    // setOnUnlinked must be called before linkToDeath.
+    mLinkUnlinkImpl->setOnUnlinked(mDeathRecipient.get(), &AidlVhalClient::onBinderUnlinked);
+    binder_status_t status =
+            mLinkUnlinkImpl->linkToDeath(mHal->asBinder().get(), mDeathRecipient.get(),
+                                         static_cast<void*>(cookie));
+    if (status != STATUS_OK) {
+        ALOGE("failed to link to VHAL death, status: %d", static_cast<int32_t>(status));
+        return false;
     }
+    return true;
 }
 
 bool AidlVhalClient::isAidlVhal() {
@@ -181,20 +258,13 @@ void AidlVhalClient::setValue(const IHalPropValue& requestValue,
 
 VhalClientResult<void> AidlVhalClient::addOnBinderDiedCallback(
         std::shared_ptr<OnBinderDiedCallbackFunc> callback) {
-    std::lock_guard<std::mutex> lk(mLock);
-    mOnBinderDiedCallbacks.insert(callback);
+    mOnBinderDiedCallbacks->addCallback(callback);
     return {};
 }
 
 VhalClientResult<void> AidlVhalClient::removeOnBinderDiedCallback(
         std::shared_ptr<OnBinderDiedCallbackFunc> callback) {
-    std::lock_guard<std::mutex> lk(mLock);
-    if (mOnBinderDiedCallbacks.find(callback) == mOnBinderDiedCallbacks.end()) {
-        return ClientStatusError(ErrorCode::INVALID_ARG)
-                << "The callback to remove was not added before";
-    }
-    mOnBinderDiedCallbacks.erase(callback);
-    return {};
+    return mOnBinderDiedCallbacks->removeCallback(callback);
 }
 
 VhalClientResult<std::vector<std::unique_ptr<IHalPropConfig>>> AidlVhalClient::getAllPropConfigs() {
@@ -236,40 +306,22 @@ AidlVhalClient::parseVehiclePropConfigs(const VehiclePropConfigs& configs) {
 }
 
 void AidlVhalClient::onBinderDied(void* cookie) {
-    AidlVhalClient* vhalClient = reinterpret_cast<AidlVhalClient*>(cookie);
-    vhalClient->onBinderDiedWithContext();
+    BinderDeathRecipientCookie* binderDeathRecipientCookie =
+            reinterpret_cast<BinderDeathRecipientCookie*>(cookie);
+    binderDeathRecipientCookie->onBinderDied();
 }
 
 void AidlVhalClient::onBinderUnlinked(void* cookie) {
-    AidlVhalClient* vhalClient = reinterpret_cast<AidlVhalClient*>(cookie);
-    vhalClient->onBinderUnlinkedWithContext();
-}
-
-void AidlVhalClient::onBinderDiedWithContext() {
-    std::unordered_set<std::shared_ptr<OnBinderDiedCallbackFunc>> callbacksCopy;
-    {
-        // Copy the callbacks so that we avoid invoking the callback with lock hold.
-        std::lock_guard<std::mutex> lk(mLock);
-        callbacksCopy = mOnBinderDiedCallbacks;
-    }
-
-    for (auto callback : callbacksCopy) {
-        (*callback)();
-    }
-}
-
-void AidlVhalClient::onBinderUnlinkedWithContext() {
-    {
-        std::lock_guard<std::mutex> lk(mLock);
-        mOnBinderDiedCallbacks.clear();
-        mDeathRecipientUnlinked = true;
-    }
-    mDeathRecipientUnlinkedCv.notify_all();
+    BinderDeathRecipientCookie* binderDeathRecipientCookie =
+            reinterpret_cast<BinderDeathRecipientCookie*>(cookie);
+    binderDeathRecipientCookie->onBinderUnlinked();
+    // Delete the cookie resource during onBinderUnlinked. This cookie was originally allocated
+    // during linkToDeath and will never be used again.
+    delete binderDeathRecipientCookie;
 }
 
 size_t AidlVhalClient::countOnBinderDiedCallbacks() {
-    std::lock_guard<std::mutex> lk(mLock);
-    return mOnBinderDiedCallbacks.size();
+    return mOnBinderDiedCallbacks->count();
 }
 
 int32_t AidlVhalClient::getRemoteInterfaceVersion() {
@@ -578,8 +630,13 @@ AidlSubscriptionClient::AidlSubscriptionClient(std::shared_ptr<IVehicle> hal,
     mSubscriptionCallback = SharedRefBase::make<SubscriptionVehicleCallback>(callback);
 }
 
+AidlSubscriptionClient::~AidlSubscriptionClient() {
+    verifySubscribedPropIdsEmpty();
+}
+
 VhalClientResult<void> AidlSubscriptionClient::subscribe(
         const std::vector<SubscribeOptions>& options) {
+    std::lock_guard<std::mutex> lk(mLock);
     std::vector<int32_t> propIds;
     for (const SubscribeOptions& option : options) {
         propIds.push_back(option.propId);
@@ -594,18 +651,47 @@ VhalClientResult<void> AidlSubscriptionClient::subscribe(
                       StringPrintf("failed to subscribe to prop IDs: %s",
                                    internal::toString(propIds).c_str()));
     }
-    addSubscribedPropIds(propIds);
+
+    for (int32_t propId : propIds) {
+        mSubscribedPropIds.insert(propId);
+    }
     return {};
 }
 
 VhalClientResult<void> AidlSubscriptionClient::unsubscribe(const std::vector<int32_t>& propIds) {
+    std::lock_guard<std::mutex> lk(mLock);
+    return unsubscribeLocked(propIds);
+}
+
+VhalClientResult<void> AidlSubscriptionClient::unsubscribeLocked(
+        const std::vector<int32_t>& propIds) {
     if (auto status = mHal->unsubscribe(mSubscriptionCallback, propIds); !status.isOk()) {
         return AidlVhalClient::statusToError<
                 void>(status,
                       StringPrintf("failed to unsubscribe to prop IDs: %s",
                                    internal::toString(propIds).c_str()));
     }
+    for (int propId : propIds) {
+        mSubscribedPropIds.erase(propId);
+    }
     return {};
+}
+
+std::unordered_set<int32_t> AidlSubscriptionClient::getSubscribedPropIds() {
+    std::lock_guard<std::mutex> lk(mLock);
+    // This creates a copy.
+    return mSubscribedPropIds;
+}
+
+void AidlSubscriptionClient::unsubscribeAll() {
+    std::lock_guard<std::mutex> lk(mLock);
+    std::vector<int32_t> propIds =
+            std::vector<int32_t>(mSubscribedPropIds.begin(), mSubscribedPropIds.end());
+    auto result = unsubscribeLocked(propIds);
+    if (!result.ok()) {
+        ALOGE("Failed to unsubscribe all subscribed properties: %s, error: %s",
+              internal::toString(propIds).c_str(), result.error().message().c_str());
+    }
 }
 
 SubscriptionVehicleCallback::SubscriptionVehicleCallback(

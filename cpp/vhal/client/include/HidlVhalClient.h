@@ -105,20 +105,30 @@ class SubscriptionCallback;
 
 class HidlSubscriptionClient final : public internal::SubscriptionClient {
 public:
-    ~HidlSubscriptionClient() = default;
+    ~HidlSubscriptionClient();
 
     HidlSubscriptionClient(android::sp<android::hardware::automotive::vehicle::V2_0::IVehicle> hal,
                            std::shared_ptr<ISubscriptionCallback> callback);
 
     VhalClientResult<void> subscribe(
             const std::vector<aidl::android::hardware::automotive::vehicle::SubscribeOptions>&
-                    options) override;
-    VhalClientResult<void> unsubscribe(const std::vector<int32_t>& propIds) override;
+                    options) override EXCLUDES(mLock);
+    VhalClientResult<void> unsubscribe(const std::vector<int32_t>& propIds) override
+            EXCLUDES(mLock);
+    void unsubscribeAll() override EXCLUDES(mLock);
+
+protected:
+    std::unordered_set<int32_t> getSubscribedPropIds() override;
 
 private:
     std::shared_ptr<ISubscriptionCallback> mCallback;
     android::sp<android::hardware::automotive::vehicle::V2_0::IVehicle> mHal;
     android::sp<SubscriptionCallback> mVhalCallback;
+
+    std::mutex mLock;
+    std::unordered_set<int32_t> mSubscribedPropIds GUARDED_BY(mLock);
+
+    VhalClientResult<void> unsubscribeLocked(const std::vector<int32_t>& propIds) REQUIRES(mLock);
 };
 
 class SubscriptionCallback : public android::hardware::automotive::vehicle::V2_0::IVehicleCallback {

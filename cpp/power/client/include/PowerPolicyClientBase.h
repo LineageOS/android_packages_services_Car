@@ -100,7 +100,8 @@ private:
     std::atomic<bool> mConnecting;
     bool mDisconnecting GUARDED_BY(mLock);
     std::condition_variable mDeathRecipientLinkedCv;
-    bool mDeathRecipientLinked GUARDED_BY(mLock) = false;
+    // A counter to indicate how many pointers to 'this' is currently being used by DeathRecipient.
+    std::atomic<size_t> mSelfRefCounter = 0;
 
     static void onDeathRecipientUnlinked(void* cookie);
 

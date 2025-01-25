@@ -228,8 +228,9 @@ std::string timeoutToString(TimeoutLength timeout) {
 }
 
 WatchdogProcessService::WatchdogProcessService(const sp<Looper>& handlerLooper) :
-      WatchdogProcessService(IVhalClient::tryCreate, kDefaultTryGetHidlServiceManager,
-                             getStartTimeForPid, kDefaultVhalPidCachingRetryDelayNs, handlerLooper,
+      WatchdogProcessService((std::shared_ptr<IVhalClient> (*)())IVhalClient::tryCreate,
+                             kDefaultTryGetHidlServiceManager, getStartTimeForPid,
+                             kDefaultVhalPidCachingRetryDelayNs, handlerLooper,
                              sp<AIBinderDeathRegistrationWrapper>::make()) {}
 
 WatchdogProcessService::WatchdogProcessService(
