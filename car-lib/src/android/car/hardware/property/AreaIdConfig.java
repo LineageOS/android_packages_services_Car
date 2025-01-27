@@ -20,6 +20,8 @@ import static android.car.feature.Flags.FLAG_AREA_ID_CONFIG_ACCESS;
 import static android.car.feature.Flags.FLAG_CAR_PROPERTY_SUPPORTED_VALUE;
 import static android.car.feature.Flags.FLAG_VARIABLE_UPDATE_RATE;
 
+import static com.android.car.internal.util.DebugUtils.toAreaIdString;
+
 import android.annotation.FlaggedApi;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
@@ -319,10 +321,15 @@ public final class AreaIdConfig<T> implements Parcelable {
 
     @Override
     public String toString() {
+        return toString(null);
+    }
+
+    /** @hide */
+    public String toString(@Nullable Integer propertyId) {
         StringBuilder sb = new StringBuilder();
-        sb.append("AreaIdConfig{")
-                .append("mAccess=").append(mAccess)
-                .append("mAreaId=").append(mAreaId);
+        sb.append("AreaIdConfig{").append("mAreaId=").append(
+                        propertyId == null ? mAreaId : toAreaIdString(propertyId, mAreaId))
+                .append("mAccess=").append(mAccess);
         if (mMinValue != null) {
             sb.append(", mMinValue=").append(mMinValue);
         }
