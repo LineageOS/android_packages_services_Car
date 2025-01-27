@@ -21,6 +21,7 @@ import static android.car.occupantconnection.CarOccupantConnectionManager.CONNEC
 import static android.car.occupantconnection.CarOccupantConnectionManager.CONNECTION_ERROR_SIGNATURE_NOT_MATCH;
 import static android.content.pm.PackageManager.GET_SIGNING_CERTIFICATES;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
@@ -37,6 +38,7 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.os.RemoteException;
 
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.BinderKeyValueContainer;
 
 import java.io.FileDescriptor;
@@ -410,6 +412,7 @@ public abstract class AbstractReceiverService extends Service {
         return START_STICKY;
     }
 
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     @Override
     public void dump(@Nullable FileDescriptor fd, @NonNull PrintWriter writer,
             @Nullable String[] args) {
