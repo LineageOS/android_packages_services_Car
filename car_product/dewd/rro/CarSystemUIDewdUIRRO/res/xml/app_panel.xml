@@ -1,0 +1,44 @@
+<!--
+  ~ Copyright (C) 2025 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+  <Panel id="app_panel" defaultVariant="@id/closed" role="@string/default_config" displayId="0">
+    <Variant id="@+id/opened">
+        <Layer layer="50"/>
+        <Visibility isVisible="true"/>
+        <Alpha alpha="1.0" />
+        <Bounds left="0" bottom="@dimen/app_bottom" width="100%" height="@dimen/app_height" />
+    </Variant>
+    <Variant id="@+id/closed">
+        <Layer layer="50"/>
+        <Alpha alpha="0.0" />
+        <Visibility isVisible="false"/>
+        <Bounds left="0" top="@dimen/screen_height" width="100%" height="@dimen/app_height" />
+    </Variant>
+    <Variant id="@+id/immersive">
+        <Layer layer="50"/>
+        <Visibility isVisible="true"/>
+        <Alpha alpha="1.0" />
+        <Bounds left="0" top="@dimen/app_immersive_top" width="100%" height="@dimen/app_immersive_height" />
+    </Variant>
+
+    <Transitions>
+        <Transition onEvent="home_event" toVariant="@id/closed"/>
+        <Transition onEvent="home_2_event" toVariant="@id/closed"/>
+        <Transition onEvent="open_app_drawer_event" toVariant="@id/opened"/>
+        <Transition onEvent="close_app_drawer_event" toVariant="@id/closed"/>
+        <Transition onEvent="enter_immersive_event" toVariant="@id/immersive"/>
+        <Transition onEvent="exit_immersive_event" toVariant="@id/opened"/>
+    </Transitions>
+</Panel>
