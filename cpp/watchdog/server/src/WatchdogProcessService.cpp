@@ -1276,6 +1276,8 @@ void WatchdogProcessService::updateVhalHeartBeat(int64_t value) {
         return;
     }
     std::chrono::nanoseconds intervalNs = mVhalHealthCheckWindowMillis + kHealthCheckDelayMillis;
+    // TODO(b/392721766): remove existing check vhal health message here and repurpose
+    // checkVhalHealth to a timeout handler.
     mHandlerLooper->sendMessageDelayed(intervalNs.count(), mMessageHandler,
                                        Message(MSG_VHAL_HEALTH_CHECK));
 }
@@ -1290,7 +1292,12 @@ void WatchdogProcessService::checkVhalHealth() {
         }
         lastEventTime = mVhalHeartBeat.eventTime;
     }
-    if (currentUptime > lastEventTime + mVhalHealthCheckWindowMillis.count()) {
+    // Make sure that we have received at least one new event during this check window. The
+    // event we received from the previous window is <= [currentUptime - window], so
+    // if the latest event time is <= [currentUptime - window], it means we have not received
+    // any new event.
+    if (currentUptime >=
+        lastEventTime + (mVhalHealthCheckWindowMillis + kHealthCheckDelayMillis).count()) {
         ALOGW("VHAL failed to update heart beat within timeout. Terminating VHAL...");
         terminateVhal();
     }
