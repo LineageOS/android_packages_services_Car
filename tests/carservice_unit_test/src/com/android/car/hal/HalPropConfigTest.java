@@ -16,6 +16,8 @@
 
 package com.android.car.hal;
 
+import static com.android.car.hal.HalPropConfig.shouldConfigArrayDefineSupportedEnumValues;
+
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.mockito.Mockito.when;
@@ -27,6 +29,7 @@ import android.car.feature.Flags;
 import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.property.AreaIdConfig;
 import android.car.hardware.property.VehicleOilLevel;
+import android.car.test.AbstractExpectableTestCase;
 import android.hardware.automotive.vehicle.HasSupportedValueInfo;
 import android.hardware.automotive.vehicle.VehicleArea;
 import android.hardware.automotive.vehicle.VehicleAreaConfig;
@@ -54,7 +57,7 @@ import java.util.Set;
 
 @EnableFlags({Flags.FLAG_ANDROID_VIC_VEHICLE_PROPERTIES, Flags.FLAG_AREA_ID_CONFIG_ACCESS})
 @RunWith(MockitoJUnitRunner.class)
-public final class HalPropConfigTest {
+public final class HalPropConfigTest extends AbstractExpectableTestCase {
 
     @Rule
     public final SetFlagsRule mSetFlagsRule = new SetFlagsRule();
@@ -883,5 +886,31 @@ public final class HalPropConfigTest {
 
         var areaIdConfig = carPropertyConfig.getAreaIdConfig(TEST_AREA_ID);
         assertThat(areaIdConfig.hasSupportedValuesList()).isFalse();
+    }
+
+    @Test
+    public void testShouldConfigArrayDefineSupportedEnumValues() {
+        expectThat(shouldConfigArrayDefineSupportedEnumValues(VehicleProperty.GEAR_SELECTION))
+                .isTrue();
+        expectThat(shouldConfigArrayDefineSupportedEnumValues(VehicleProperty.CURRENT_GEAR))
+                .isTrue();
+        expectThat(shouldConfigArrayDefineSupportedEnumValues(
+                VehicleProperty.DISTANCE_DISPLAY_UNITS)).isTrue();
+        expectThat(shouldConfigArrayDefineSupportedEnumValues(
+                VehicleProperty.EV_BATTERY_DISPLAY_UNITS)).isTrue();
+        expectThat(shouldConfigArrayDefineSupportedEnumValues(
+                VehicleProperty.TIRE_PRESSURE_DISPLAY_UNITS)).isTrue();
+        expectThat(shouldConfigArrayDefineSupportedEnumValues(
+                VehicleProperty.FUEL_VOLUME_DISPLAY_UNITS)).isTrue();
+        expectThat(shouldConfigArrayDefineSupportedEnumValues(
+                VehicleProperty.HVAC_TEMPERATURE_DISPLAY_UNITS)).isTrue();
+        expectThat(shouldConfigArrayDefineSupportedEnumValues(
+                VehicleProperty.VEHICLE_SPEED_DISPLAY_UNITS)).isTrue();
+        // regular data_enum property
+        expectThat(shouldConfigArrayDefineSupportedEnumValues(VehicleProperty.INFO_FUEL_TYPE))
+                .isFalse();
+        // non data_enum property
+        expectThat(shouldConfigArrayDefineSupportedEnumValues(
+                VehicleProperty.EV_CHARGE_PERCENT_LIMIT)).isFalse();
     }
 }

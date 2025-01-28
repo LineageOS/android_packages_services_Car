@@ -32,6 +32,7 @@ import android.hardware.automotive.vehicle.VehiclePropertyType;
 
 import com.android.car.CarLog;
 import com.android.car.hal.property.PropertyHalServiceConfigs;
+import com.android.internal.annotations.VisibleForTesting;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,18 +53,12 @@ public abstract class HalPropConfig {
     public static final String ANNOTATION_SUPPORTED_VALUES_IN_CONFIG =
             "legacy_supported_values_in_config";
 
-    private static final String TAG = CarLog.tagFor(HalPropConfig.class);
+     /**
+     * The @data_enum annotation defined in VehicleProperty.aidl.
+     */
+    public static final String ANNOTATION_DATA_ENUM = "data_enum";
 
-    private static final Set<Integer> CONFIG_ARRAY_DEFINES_SUPPORTED_ENUM_VALUES =
-            Set.of(
-                    VehicleProperty.GEAR_SELECTION,
-                    VehicleProperty.CURRENT_GEAR,
-                    VehicleProperty.DISTANCE_DISPLAY_UNITS,
-                    VehicleProperty.EV_BATTERY_DISPLAY_UNITS,
-                    VehicleProperty.TIRE_PRESSURE_DISPLAY_UNITS,
-                    VehicleProperty.FUEL_VOLUME_DISPLAY_UNITS,
-                    VehicleProperty.HVAC_TEMPERATURE_DISPLAY_UNITS,
-                    VehicleProperty.VEHICLE_SPEED_DISPLAY_UNITS);
+    private static final String TAG = CarLog.tagFor(HalPropConfig.class);
 
     /**
      * Get the property ID.
@@ -151,7 +146,7 @@ public abstract class HalPropConfig {
         ArrayList<Integer> configArray = new ArrayList<>(configIntArray.length);
         long[] supportedEnumValues = null;
         boolean shouldConfigArrayDefineSupportedEnumValues =
-                CONFIG_ARRAY_DEFINES_SUPPORTED_ENUM_VALUES.contains(propId);
+                shouldConfigArrayDefineSupportedEnumValues(propId);
         if (shouldConfigArrayDefineSupportedEnumValues) {
             supportedEnumValues = new long[configIntArray.length];
         }
@@ -193,6 +188,20 @@ public abstract class HalPropConfig {
         }
         carPropertyConfigBuilder.setPropertyIdIsSimulationPropId(isVhalPropId);
         return carPropertyConfigBuilder.build();
+    }
+
+    /**
+     * Whether the property is a enum property and config array should be used to define supported
+     * values.
+     */
+    @VisibleForTesting
+    public static boolean shouldConfigArrayDefineSupportedEnumValues(int halPropId) {
+        var annotations = AnnotationsForVehicleProperty.values.get(halPropId);
+        if (annotations == null) {
+            return false;
+        }
+        return annotations.contains(ANNOTATION_SUPPORTED_VALUES_IN_CONFIG)
+                && annotations.contains(ANNOTATION_DATA_ENUM);
     }
 
     private AreaIdConfig generateAreaIdConfig(Class<?> clazz,
