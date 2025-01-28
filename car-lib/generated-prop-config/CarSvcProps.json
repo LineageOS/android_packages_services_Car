@@ -3039,7 +3039,7 @@
     "EV_CHARGE_CURRENT_DRAW_LIMIT": {
       "propertyName": "EV_CHARGE_CURRENT_DRAW_LIMIT",
       "propertyId": 291508031,
-      "description": "EV charge current draw limit.",
+      "description": "The vehicle's selected alternating current (AC) EV charging draw limit in Amperes.",
       "readPermission": {
         "type": "anyOf",
         "value": [
