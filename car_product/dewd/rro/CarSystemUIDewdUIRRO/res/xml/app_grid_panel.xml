@@ -1,0 +1,35 @@
+<!--
+  ~ Copyright (C) 2025 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+  <Panel id="panel_app_grid" defaultVariant="@id/closed" role="@string/appgrid_componentName" displayId="0">
+    <Variant id="@+id/opened">
+        <Layer layer="100"/>
+        <Visibility isVisible="true"/>
+        <Bounds left="0" bottom="@dimen/app_grid_drawer_bottom" width="100%" height="@dimen/app_grid_drawer_height" />
+    </Variant>
+    <Variant id="@+id/closed">
+        <Layer layer="100"/>
+        <Visibility isVisible="false"/>
+        <Bounds left="0" top="@dimen/bottom_bar_bottom" width="100%" height="@dimen/app_grid_drawer_height" />
+    </Variant>
+
+    <Transitions>
+        <Transition onEvent="home_event" toVariant="@id/closed"/>
+        <Transition onEvent="home_2_event" toVariant="@id/closed"/>
+        <Transition onEvent="open_app_drawer_event" toVariant="@id/closed"/>
+        <Transition onEvent="close_app_grid_drawer_event" toVariant="@id/closed"/>
+        <Transition onEvent="open_app_grid_drawer_event" toVariant="@id/opened"/>
+    </Transitions>
+</Panel>

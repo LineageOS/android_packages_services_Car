@@ -26,10 +26,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.android.car.portraitlauncher.R;
 
 /**
- * Used as a blank activity to be placed on top of the stack to make sure the other apps go to the
- * background state.
+ * A stub home activity that handles the home intent.
  */
-public class BlankActivity extends AppCompatActivity {
+public class StubHome extends AppCompatActivity {
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -39,7 +38,7 @@ public class BlankActivity extends AppCompatActivity {
 
     /** Creates an intent that can be used to launch this activity. */
     public static Intent createIntent(Context context) {
-        Intent intent = new Intent(context, BlankActivity.class);
+        Intent intent = new Intent(context, StubHome.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK  | Intent.FLAG_ACTIVITY_LAUNCH_ADJACENT);
         return intent;
     }
