@@ -944,7 +944,7 @@
     "HVAC_FAN_DIRECTION": {
       "propertyName": "HVAC_FAN_DIRECTION",
       "propertyId": 356517121,
-      "description": "Fan direction setting.",
+      "description": "The current {@link CarHvacFanDirection} setting.",
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CONTROL_CAR_CLIMATE"
@@ -1210,7 +1210,7 @@
     "HVAC_FAN_DIRECTION_AVAILABLE": {
       "propertyName": "HVAC_FAN_DIRECTION_AVAILABLE",
       "propertyId": 356582673,
-      "description": "Fan Positions Available.",
+      "description": "List of supported {@link CarHvacFanDirection} values for the vehicle.",
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CONTROL_CAR_CLIMATE"
