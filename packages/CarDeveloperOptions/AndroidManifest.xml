@@ -3100,6 +3100,16 @@
             <intent-filter tools:node="removeAll"/>
         </activity>
 
+        <activity
+            android:name="com.android.settings.Settings$ContentProtectionSettingsActivity"
+            android:enabled="false"
+            android:exported="false"
+            android:featureFlag="android.view.contentprotection.flags.exported_settings_activity_enabled"
+            tools:node="merge"
+            tools:replace="android:exported, android:enabled">
+            <intent-filter tools:node="removeAll"/>
+        </activity>
+
         <activity-alias
             android:name="com.android.settings.ConfirmDeviceCredentialActivity"
             android:enabled="false"
