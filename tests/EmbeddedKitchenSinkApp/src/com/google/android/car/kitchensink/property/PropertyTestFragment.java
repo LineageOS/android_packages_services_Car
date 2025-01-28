@@ -135,9 +135,12 @@ public class PropertyTestFragment extends Fragment implements OnItemSelectedList
         @Override
         public void onFailure(@NonNull CarPropertyManager.PropertyAsyncError propertyAsyncError) {
             Log.e(TAG, "Failed to get async VHAL property");
-            Toast.makeText(mContext, "Failed to get async VHAL property with error code: "
+            Toast.makeText(mContext, "Failed to get async VHAL property", Toast.LENGTH_SHORT)
+                    .show();
+            mEventLog.append("Failed to get async VHAL property with error code: "
                     + propertyAsyncError.getErrorCode() + " and vendor error code: "
-                    + propertyAsyncError.getVendorErrorCode(), Toast.LENGTH_SHORT).show();
+                    + propertyAsyncError.getVendorErrorCode() + "\n");
+            scrollEventLogsToBottom();
         }
     };
 
@@ -153,9 +156,12 @@ public class PropertyTestFragment extends Fragment implements OnItemSelectedList
                 public void onFailure(
                         @NonNull CarPropertyManager.PropertyAsyncError propertyAsyncError) {
                     Log.e(TAG, "Failed to get async VHAL property");
-                    Toast.makeText(mContext, "Failed to set async VHAL property with error code: "
+                    Toast.makeText(mContext, "Failed to set async VHAL property",
+                            Toast.LENGTH_SHORT).show();
+                    mEventLog.append("Failed to set async VHAL property with error code: "
                             + propertyAsyncError.getErrorCode() + " and vendor error code: "
-                            + propertyAsyncError.getVendorErrorCode(), Toast.LENGTH_SHORT).show();
+                            + propertyAsyncError.getVendorErrorCode() + "\n");
+                    scrollEventLogsToBottom();
                 }
     };
 
@@ -230,9 +236,7 @@ public class PropertyTestFragment extends Fragment implements OnItemSelectedList
                 CarPropertyValue value = mMgr.getProperty(propId, areaId);
                 setTextOnSuccess(propId, value.getTimestamp(), value.getValue(), value.getStatus());
             } catch (Exception e) {
-                Log.e(TAG, "Failed to get VHAL property", e);
-                Toast.makeText(mContext, "Failed to get VHAL property: " + e.getMessage(),
-                        Toast.LENGTH_SHORT).show();
+                showExceptionMessage(e, "Failed to get VHAL property");
             }
         });
 
@@ -247,9 +251,7 @@ public class PropertyTestFragment extends Fragment implements OnItemSelectedList
                         /* cancellationSignal= */ null, /* callbackExecutor= */ null,
                         mGetPropertyCallback);
             } catch (Exception e) {
-                Log.e(TAG, "Failed to get async VHAL property", e);
-                Toast.makeText(mContext, "Failed to get async VHAL property: "
-                                + e.getMessage(), Toast.LENGTH_SHORT).show();
+                showExceptionMessage(e, "Failed to get async VHAL property");
             }
         });
 
@@ -281,9 +283,7 @@ public class PropertyTestFragment extends Fragment implements OnItemSelectedList
                 }
                 scrollEventLogsToBottom();
             } catch (Exception e) {
-                Log.e(TAG, "Failed to get min max supported values", e);
-                Toast.makeText(mContext, "Failed to get min max supported values: "
-                                + e.getMessage(), Toast.LENGTH_SHORT).show();
+                showExceptionMessage(e, "Failed to get min/max supported values");
             }
         });
 
@@ -303,9 +303,7 @@ public class PropertyTestFragment extends Fragment implements OnItemSelectedList
                 }
                 scrollEventLogsToBottom();
             } catch (Exception e) {
-                Log.e(TAG, "Failed to get supported values list", e);
-                Toast.makeText(mContext, "Failed to get supported values list: "
-                                + e.getMessage(), Toast.LENGTH_SHORT).show();
+                showExceptionMessage(e, "Failed to get supported values list");
             }
         });
 
@@ -336,9 +334,7 @@ public class PropertyTestFragment extends Fragment implements OnItemSelectedList
                         break;
                 }
             } catch (Exception e) {
-                Log.e(TAG, "Failed to set VHAL property", e);
-                Toast.makeText(mContext, "Failed to set VHAL property: " + e.getMessage(),
-                        Toast.LENGTH_LONG).show();
+                showExceptionMessage(e, "Failed to set VHAL property");
             }
         });
 
@@ -369,9 +365,7 @@ public class PropertyTestFragment extends Fragment implements OnItemSelectedList
                         break;
                 }
             } catch (Exception e) {
-                Log.e(TAG, "Failed to set VHAL property", e);
-                Toast.makeText(mContext, "Failed to set async VHAL property: "
-                        + e.getMessage(), Toast.LENGTH_LONG).show();
+                showExceptionMessage(e, "Failed to set async VHAL property");
             }
         });
 
@@ -383,6 +377,13 @@ public class PropertyTestFragment extends Fragment implements OnItemSelectedList
         requestPermissions(REQUIRED_DANGEROUS_PERMISSIONS, KS_PERMISSIONS_REQUEST);
 
         return view;
+    }
+
+    private void showExceptionMessage(Exception e, String context) {
+        Log.e(TAG, context, e);
+        Toast.makeText(mContext, context, Toast.LENGTH_SHORT).show();
+        mEventLog.append(context + ": " + e.getMessage() + "\n");
+        scrollEventLogsToBottom();
     }
 
     private void populateConfigList() {
