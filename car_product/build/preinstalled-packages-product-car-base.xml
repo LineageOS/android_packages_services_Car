@@ -298,6 +298,11 @@
         <install-in user-type="FULL" />
         <install-in user-type="SYSTEM" />
     </install-in-user-type>
+    <!-- Mainline module -->
+    <install-in-user-type package="com.android.healthconnect.controller">
+        <install-in user-type="FULL" />
+        <install-in user-type="SYSTEM" />
+    </install-in-user-type>
 
 <!--
   Apps that do need to run on SYSTEM and evaluated by package owner.
@@ -433,10 +438,6 @@
         <install-in user-type="FULL" />
     </install-in-user-type>
     <install-in-user-type package="com.android.car.rotaryplayground">
-        <install-in user-type="FULL" />
-    </install-in-user-type>
-    <!-- Mainline module -->
-    <install-in-user-type package="com.android.healthconnect.controller">
         <install-in user-type="FULL" />
     </install-in-user-type>
     <!-- Mainline module -->
