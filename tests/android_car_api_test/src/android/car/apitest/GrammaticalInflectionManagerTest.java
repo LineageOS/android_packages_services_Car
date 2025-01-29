@@ -24,6 +24,7 @@ import android.Manifest;
 import android.app.GrammaticalInflectionManager;
 import android.app.Instrumentation;
 import android.app.UiAutomation;
+import android.car.apitest.testbase.CarApiTestBase;
 import android.content.Context;
 import android.content.res.Configuration;
 

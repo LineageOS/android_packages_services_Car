@@ -21,6 +21,7 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assume.assumeTrue;
 
 import android.car.Car;
+import android.car.apitest.testbase.CarApiTestBase;
 import android.car.app.CarDisplayCompatManager;
 import android.car.feature.Flags;
 import android.platform.test.annotations.RequiresFlagsEnabled;

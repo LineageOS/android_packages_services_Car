@@ -24,6 +24,7 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assume.assumeTrue;
 
 import android.app.UiAutomation;
+import android.car.apitest.testbase.CarApiTestBase;
 
 import androidx.test.platform.app.InstrumentationRegistry;
 

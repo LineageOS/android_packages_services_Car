@@ -19,6 +19,7 @@ package android.car.apitest;
 import static com.google.common.truth.Truth.assertWithMessage;
 
 import android.annotation.UserIdInt;
+import android.car.apitest.testbase.CarApiTestBase;
 import android.car.settings.CarSettings;
 import android.content.ContentResolver;
 import android.os.UserHandle;

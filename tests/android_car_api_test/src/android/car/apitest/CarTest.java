@@ -25,6 +25,8 @@ import android.car.Car;
 import android.car.CarVersion;
 import android.car.ICar;
 import android.car.PlatformVersion;
+import android.car.apitest.testbase.CarApiTestBase;
+import android.car.apitest.testbase.CarLessApiTestBase;
 import android.car.hardware.CarSensorManager;
 import android.car.test.CarTestManager;
 import android.content.ComponentName;

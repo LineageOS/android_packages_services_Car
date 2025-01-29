@@ -24,6 +24,7 @@ import static org.junit.Assert.assertThrows;
 
 import android.car.Car;
 import android.car.CarAppFocusManager;
+import android.car.apitest.testbase.CarApiTestBase;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;

@@ -18,7 +18,7 @@ package com.android.car.internal.test;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import android.car.apitest.CarLessApiTestBase;
+import android.car.apitest.testbase.CarLessApiTestBase;
 import android.car.test.mocks.JavaMockitoHelper;
 import android.content.ComponentName;
 import android.content.Context;

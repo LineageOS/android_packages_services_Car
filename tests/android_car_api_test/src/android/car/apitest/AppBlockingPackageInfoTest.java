@@ -17,6 +17,7 @@ package android.car.apitest;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import android.car.apitest.testbase.CarLessApiTestBase;
 import android.car.content.pm.AppBlockingPackageInfo;
 import android.content.Context;
 import android.content.pm.PackageManager;

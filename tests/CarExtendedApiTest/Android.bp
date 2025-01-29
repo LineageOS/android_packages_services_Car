@@ -1,4 +1,4 @@
-// Copyright (C) 2015 The Android Open Source Project
+// Copyright (C) 2025 The Android Open Source Project
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,13 +19,30 @@ package {
     default_applicable_licenses: ["Android-Apache-2.0"],
 }
 
+java_library {
+    name: "android.car.testapi.testbase",
+    srcs: [
+        "src/android/car/apitest/testbase/*.java",
+    ],
+
+    libs: [
+        "android.car",
+    ],
+
+    static_libs: [
+        "junit",
+        "truth",
+        "androidx.test.rules",
+        "android.car.testapi",
+        "compatibility-device-util-axt",
+    ],
+}
+
 android_test {
-    name: "AndroidCarApiTest",
+    name: "CarExtendedApiTest",
 
     srcs: [
         "src/**/*.java",
-        "src/**/*.aidl",
-        ":VhalTestVendorProperties",
     ],
 
     platform_apis: true,
@@ -36,34 +53,17 @@ android_test {
     min_sdk_version: "33",
     target_sdk_version: "34",
 
-    // When built explicitly put it in the data partition
-
     optimize: {
         enabled: false,
     },
 
-    static_libs: ["junit"] + [
-        "androidx.test.rules",
-        "android.car.apitest-aidl-binder-java",
-        "android.car.cluster.navigation",
-        "android.car.cluster.navigation",
-        "android.car.testapi",
+    static_libs: [
+        "junit",
         "android.car.testapi.testbase",
-        "android.car.test.utils",
-        "com.android.car.test.lib",
-        "androidx.test.runner",
-        // TODO(b/236153976): comment back once guava is supported
-        //      "guava-android-testlib",
-        "compatibility-device-util-axt",
-        "platform-test-annotations",
-        "truth",
-        "Harrier",
     ],
 
     libs: [
         "android.car",
-        "android.test.runner.stubs.system",
-        "android.test.base.stubs.system",
     ],
 
     // mockito-target-inline dependency
