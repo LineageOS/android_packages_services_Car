@@ -17,12 +17,15 @@
 package android.car.occupantconnection;
 
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
+
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.SystemApi;
 import android.os.IBinder;
 import android.os.Parcel;
 
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.LargeParcelableBase;
 
 import java.util.Arrays;
@@ -92,6 +95,7 @@ public final class Payload extends LargeParcelableBase {
     /**
      * {@inheritDoc}
      */
+    @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -111,6 +115,7 @@ public final class Payload extends LargeParcelableBase {
     /**
      * {@inheritDoc}
      */
+    @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
     @Override
     public int hashCode() {
         if (containsBinder()) {
@@ -142,6 +147,7 @@ public final class Payload extends LargeParcelableBase {
     /**
      * {@inheritDoc}
      */
+    @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
     @Override
     public int describeContents() {
         return 0;

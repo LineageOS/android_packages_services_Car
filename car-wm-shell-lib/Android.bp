@@ -25,6 +25,7 @@ android_library {
         "src/**/*.java",
     ],
     static_libs: [
+        "Slogf",
         "WindowManager-Shell",
         "WindowManager-Shell-shared",
     ],

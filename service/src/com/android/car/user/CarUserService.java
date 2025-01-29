@@ -563,11 +563,13 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         return null;
     }
 
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     private void dumpGlobalProperty(IndentingPrintWriter writer, String property) {
         String value = mSettings.getStringGlobal(mContext.getContentResolver(), property);
         writer.printf("%s=%s\n", property, value);
     }
 
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     private void handleDumpListeners(IndentingPrintWriter writer) {
         writer.increaseIndent();
         CountDownLatch latch = new CountDownLatch(1);
@@ -589,6 +591,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         writer.decreaseIndent();
     }
 
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     private void handleDumpServiceLifecycleListeners(PrintWriter writer) {
         if (mUserLifecycleListeners.isEmpty()) {
             writer.println("No lifecycle listeners for internal services");
