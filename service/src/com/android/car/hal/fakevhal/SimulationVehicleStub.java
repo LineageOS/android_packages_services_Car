@@ -16,14 +16,11 @@
 
 package com.android.car.hal.fakevhal;
 
-import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
-
 import android.annotation.Nullable;
 import android.car.builtin.util.Slogf;
 import android.hardware.automotive.vehicle.VehiclePropError;
 import android.os.RemoteException;
 import android.os.ServiceSpecificException;
-import android.os.SystemClock;
 import android.util.ArraySet;
 import android.util.Pair;
 import android.util.SparseArray;
@@ -34,7 +31,6 @@ import com.android.car.hal.HalPropConfig;
 import com.android.car.hal.HalPropValue;
 import com.android.car.hal.HalPropValueBuilder;
 import com.android.car.hal.VehicleHalCallback;
-import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.property.PropIdAreaId;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.car.internal.util.PairSparseArray;
@@ -53,13 +49,11 @@ public final class SimulationVehicleStub extends VehicleStubWrapper {
 
     private final ArraySet<Integer> mPropertyIdsFromRealHardware;
     private ReplayingVehicleHalCallback mReplayingVehicleHalCallback;
-    private final long mStartOfSimulationTime;
 
     public SimulationVehicleStub(VehicleStub stub, List<Integer> propertyIdsFromRealHardware)
             throws RemoteException {
         super(stub, getInitialPropValuesAndConfigs(stub));
         mPropertyIdsFromRealHardware = new ArraySet<>(propertyIdsFromRealHardware);
-        mStartOfSimulationTime = SystemClock.elapsedRealtimeNanos();
     }
 
     private static Pair<SparseArray<HalPropConfig>, PairSparseArray<HalPropValue>>
@@ -160,7 +154,6 @@ public final class SimulationVehicleStub extends VehicleStubWrapper {
      * @throws ServiceSpecificException if VHAL returns service specific error.
      */
     @Override
-    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     public void dump(FileDescriptor fd, List<String> args) throws RemoteException,
             ServiceSpecificException {
         IndentingPrintWriter writer = new IndentingPrintWriter(new PrintWriter(
@@ -264,15 +257,5 @@ public final class SimulationVehicleStub extends VehicleStubWrapper {
         private VehicleHalCallback getRealCallback() {
             return mRealCallback;
         }
-    }
-
-    @Override
-    public long getSimulationStartTimestampNanos() {
-        return mStartOfSimulationTime;
-    }
-
-    @Override
-    public boolean isSimulatedModeEnabled() {
-        return true;
     }
 }

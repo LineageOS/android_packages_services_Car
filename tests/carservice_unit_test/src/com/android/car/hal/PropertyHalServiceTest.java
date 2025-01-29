@@ -3970,42 +3970,6 @@ public class PropertyHalServiceTest extends AbstractExpectableTestCase{
         verify(mVehicleHal).stopRecordingVehicleProperties(eq(mCallback));
     }
 
-    @Test
-    public void testEnableInjectionModeReturnsValue() {
-        when(mVehicleHal.enableInjectionMode(anyList())).thenReturn(5000L);
-
-        assertThat(mPropertyHalService.enableInjectionMode(List.of())).isEqualTo(5000L);
-    }
-
-    @Test
-    public void testEnableInjectionMode() {
-        List<Integer> list = List.of(52);
-        mPropertyHalService.enableInjectionMode(list);
-
-        verify(mVehicleHal).enableInjectionMode(list);
-    }
-
-    @Test
-    public void testDisableInjectionMode() {
-        mPropertyHalService.disableInjectionMode();
-
-        verify(mVehicleHal).disableInjectionMode();
-    }
-
-    @Test
-    public void testIsVehiclePropertyInjectionModeEnabled() {
-        mPropertyHalService.isVehiclePropertyInjectionModeEnabled();
-
-        verify(mVehicleHal).isVehiclePropertyInjectionModeEnabled();
-    }
-
-    @Test
-    public void testIsVehiclePropertyInjectionModeEnabledReturnsValue() {
-        when(mVehicleHal.isVehiclePropertyInjectionModeEnabled()).thenReturn(true);
-
-        assertThat(mPropertyHalService.isVehiclePropertyInjectionModeEnabled()).isTrue();
-    }
-
     /** Creates a {@code CarSubscription} with Vur off. */
     @VisibleForTesting
     public static CarSubscription createCarSubscriptionOption(int propertyId,

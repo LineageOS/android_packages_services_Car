@@ -2051,22 +2051,22 @@ public class PropertyHalService extends HalServiceBase {
      * Enables Injection mode with the list of properties to allow to come from the real VHAL.
      * @param propertyIdsFromRealHardware THe list of properties to allow to come from real VHAL.
      */
-    public long enableInjectionMode(List<Integer> propertyIdsFromRealHardware) {
-        return mVehicleHal.enableInjectionMode(propertyIdsFromRealHardware);
+    public void enableInjectionMode(List<Integer> propertyIdsFromRealHardware) {
+
     }
 
     /**
      * Disables injeciton mode.
      */
     public void disableInjectionMode() {
-        mVehicleHal.disableInjectionMode();
+
     }
 
     /**
      * @return True if Vehicle property injection mode is enabled, false otherwise.
      */
     public boolean isVehiclePropertyInjectionModeEnabled() {
-        return mVehicleHal.isVehiclePropertyInjectionModeEnabled();
+        return false;
     }
 
     /**
