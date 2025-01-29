@@ -68,6 +68,7 @@ import com.android.car.VehicleStub;
 import com.android.car.VehicleStub.AsyncGetSetRequest;
 import com.android.car.VehicleStub.MinMaxSupportedRawPropValues;
 import com.android.car.hal.VehicleHal.HalSubscribeOptions;
+import com.android.car.hal.fakevhal.SimulationVehicleStub;
 import com.android.car.internal.property.PropIdAreaId;
 import com.android.car.internal.util.ArrayUtils;
 import com.android.car.internal.util.IndentingPrintWriter;
@@ -2580,6 +2581,8 @@ public class VehicleHalTest extends AbstractExpectableTestCase {
 
         assertWithMessage("Register Recording Listener called twice").that(thrown).hasMessageThat()
                 .contains("Recording already in progress");
+
+        mVehicleHal.stopRecordingVehicleProperties(mCallback);
     }
 
     @Test
@@ -2625,6 +2628,67 @@ public class VehicleHalTest extends AbstractExpectableTestCase {
         mVehicleHal.stopRecordingVehicleProperties(mCallback2);
 
         verify(mListenerBinder, never()).unlinkToDeath(any(), eq(0));
+    }
+
+    @Test
+    public void testEnableInjectionMode() throws Exception {
+        long nanoTime = System.nanoTime();
+        long currentNanoTime = mVehicleHal.enableInjectionMode(List.of());
+
+        assertWithMessage("Simulated vehicle stub created").that(mVehicleHal.getVehicleStub())
+                .isInstanceOf(SimulationVehicleStub.class);
+        assertWithMessage("enableInjectionMode started")
+                .that(currentNanoTime - nanoTime).isLessThan(/* 1 second */ 1000000000L);
+        mVehicleHal.disableInjectionMode();
+        assertWithMessage("Injection mode disabled").that(mVehicleHal.getVehicleStub())
+                .isEqualTo(mVehicle);
+    }
+
+    @Test
+    public void testEnableInjectionMode_isVehiclePropertyInjectionModeEnabled() {
+        mVehicleHal.enableInjectionMode(List.of());
+
+        assertWithMessage("Injection mode enabled")
+                .that(mVehicleHal.isVehiclePropertyInjectionModeEnabled()).isTrue();
+
+        mVehicleHal.disableInjectionMode();
+        assertWithMessage("Injection mode disabled")
+                .that(mVehicleHal.isVehiclePropertyInjectionModeEnabled()).isFalse();
+    }
+
+    @Test
+    public void testDisableInjectionMode_propertyInjectionNotEnabled() throws Exception {
+        mVehicleHal.disableInjectionMode();
+
+        verify(mVehicle, never()).set(any());
+    }
+
+    @Test
+    public void testEnableInjectionModeWhenRecordingIsOngoing() {
+        when(mCallback.asBinder()).thenReturn(mListenerBinder);
+        mVehicleHal.registerRecordingListener(mCallback);
+
+        IllegalStateException thrown = assertThrows(IllegalStateException.class,
+                () -> mVehicleHal.enableInjectionMode(List.of()));
+
+        assertWithMessage("Enable injection mode when recording is in progress")
+                .that(thrown).hasMessageThat().contains("Cannot enable injection mode while "
+                        + "recording is in progress");
+        mVehicleHal.stopRecordingVehicleProperties(mCallback);
+    }
+
+    @Test
+    public void testEnableRecordingDisableRecordingEnableInjectionDisableInjection() {
+        when(mCallback.asBinder()).thenReturn(mListenerBinder);
+        mVehicleHal.registerRecordingListener(mCallback);
+        mVehicleHal.stopRecordingVehicleProperties(mCallback);
+        long nanoTime = System.nanoTime();
+
+        long currentNanoTime = mVehicleHal.enableInjectionMode(List.of());
+
+        assertWithMessage("Enable injection mode started when no recording in progress")
+                .that(currentNanoTime - nanoTime).isLessThan(/* 1 second */ 1000000000L);
+        mVehicleHal.disableInjectionMode();
     }
 
     @Test
