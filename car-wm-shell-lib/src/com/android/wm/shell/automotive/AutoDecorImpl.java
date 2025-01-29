@@ -28,6 +28,7 @@ import android.view.SurfaceControl;
 import android.view.SurfaceControlViewHost;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.FrameLayout;
 import android.window.InputTransferToken;
 
 import com.android.server.utils.Slogf;
@@ -44,11 +45,14 @@ public class AutoDecorImpl implements AutoDecor {
     private final Context mContext;
     private final DisplayController mDisplayController;
     private final ShellExecutor mShellExecutor;
+    private final FrameLayout mViewContainer;
     private View mView;
     private int mZOrder;
     private Rect mBounds;
     private SurfaceControlViewHost mViewHost;
-    private boolean mIsAttached;
+    private boolean mIsCurrentlyAttached;
+    private boolean mIsEverAttached;
+
 
     AutoDecorImpl(Context context, DisplayController displayController, View view, int zOrder,
             Rect bounds, @ShellMainThread ShellExecutor shellExecutor) {
@@ -58,11 +62,17 @@ public class AutoDecorImpl implements AutoDecor {
         mZOrder = zOrder;
         mBounds = bounds;
         mShellExecutor = shellExecutor;
-        mIsAttached = false;
+        mViewContainer = new FrameLayout(mContext);
+        mIsCurrentlyAttached = false;
+        mIsEverAttached = false;
     }
 
-    boolean isAttached() {
-        return mIsAttached;
+    boolean isCurrentlyAttached() {
+        return mIsCurrentlyAttached;
+    }
+
+    boolean isEverAttached() {
+        return mIsEverAttached;
     }
 
     void detachDecorFromParentSurface(SurfaceControl.Transaction t) {
@@ -71,6 +81,7 @@ public class AutoDecorImpl implements AutoDecor {
         }
         SurfaceControl viewSurface = mViewHost.getSurfacePackage().getSurfaceControl();
         t.reparent(viewSurface, null);
+        mIsCurrentlyAttached = false;
     }
 
     void attachDecorToParentSurface(SurfaceControl.Transaction t, int displayId,
@@ -81,7 +92,9 @@ public class AutoDecorImpl implements AutoDecor {
         }
         mViewHost = new SurfaceControlViewHost(mContext, mDisplayController.getDisplay(displayId),
                 (InputTransferToken) null, "AutoDecor");
-        mViewHost.setView(mView, getLayoutParams());
+        mViewContainer.removeAllViews();
+        mViewContainer.addView(mView);
+        mViewHost.setView(mViewContainer, getLayoutParams());
 
         SurfaceControl viewSurface = mViewHost.getSurfacePackage().getSurfaceControl();
 
@@ -89,7 +102,8 @@ public class AutoDecorImpl implements AutoDecor {
                 .setPosition(viewSurface, mBounds.left, mBounds.top)
                 .setLayer(viewSurface, mZOrder)
                 .show(viewSurface);
-        mIsAttached = true;
+        mIsCurrentlyAttached = true;
+        mIsEverAttached = true;
     }
 
     @ShellMainThread
@@ -106,7 +120,7 @@ public class AutoDecorImpl implements AutoDecor {
                 .show(viewSurface);
 
         // TODO(b/388083112): Figure out a better way to achieve it.
-        t.addTransactionCommittedListener(mShellExecutor::execute,
+        t.addTransactionCommittedListener(mShellExecutor,
                 () -> mViewHost.relayout(getLayoutParams()));
     }
 
@@ -125,8 +139,13 @@ public class AutoDecorImpl implements AutoDecor {
     @ShellMainThread
     @Override
     public void setView(SurfaceControl.Transaction t, View view) {
-        // TODO(b/388083112): Implement setView call
-        throw new IllegalArgumentException("Not implemented Yet");
+        mView = view;
+        // TODO(b/388083112): Figure out a better way to achieve it.
+        t.addTransactionCommittedListener(mShellExecutor,
+                () -> {
+                    mViewContainer.removeAllViews();
+                    mViewContainer.addView(mView);
+                });
     }
 
     @ShellMainThread
