@@ -15,7 +15,9 @@
  */
 package com.android.car.hal;
 
+import static android.car.VehiclePropertyIds.HVAC_FAN_DIRECTION_AVAILABLE;
 import static android.car.hardware.CarPropertyConfig.VEHICLE_PROPERTY_CHANGE_MODE_STATIC;
+import static android.car.hardware.CarPropertyValue.STATUS_AVAILABLE;
 import static android.car.hardware.property.CarPropertyManager.CAR_SET_PROPERTY_ERROR_CODE_ACCESS_DENIED;
 import static android.car.hardware.property.CarPropertyManager.CAR_SET_PROPERTY_ERROR_CODE_INVALID_ARG;
 import static android.car.hardware.property.CarPropertyManager.CAR_SET_PROPERTY_ERROR_CODE_PROPERTY_NOT_AVAILABLE;
@@ -58,6 +60,7 @@ import android.car.hardware.property.CarPropertyManager.CarSetPropertyErrorCode;
 import android.car.hardware.property.ICarPropertyEventListener;
 import android.car.hardware.property.VehicleHalStatusCode.VehicleHalStatusCodeInt;
 import android.content.Context;
+import android.hardware.automotive.vehicle.AnnotationsForVehicleProperty;
 import android.hardware.automotive.vehicle.RawPropValues;
 import android.hardware.automotive.vehicle.VehiclePropError;
 import android.hardware.automotive.vehicle.VehicleProperty;
@@ -1447,6 +1450,18 @@ public class PropertyHalService extends HalServiceBase {
             }
             return returnValue;
         } else {
+            if (halPropId == VehicleProperty.EV_CHARGE_CURRENT_DRAW_LIMIT) {
+                // We use configArray[0] as the max value for EV_CHARGE_CURRENT_DRAW_LIMIT.
+                var configArray = halPropConfig.getConfigArray();
+                if (configArray.length > 0) {
+                    // Note that EV_CHARGE_CURRENT_DRAW_LIMIT is float type.
+                    returnValue.minValue.setParcelable(new RawPropertyValue(0.f));
+                    returnValue.maxValue.setParcelable(new RawPropertyValue(
+                            (float) configArray[0]));
+                }
+                return returnValue;
+            }
+
             // If VHAL does not support value range, we use areaIdConfig.
             if (areaIdConfig.hasMinSupportedValue() && areaIdConfig.getMinValue() != null) {
                 returnValue.minValue.setParcelable(new RawPropertyValue(
@@ -1519,9 +1534,69 @@ public class PropertyHalService extends HalServiceBase {
             }
             return sortRawPropertyValueList(halPropId, supportedValuesList);
         } else {
-            // If VHAL does not support value range, we use areaIdConfig.
+            // If VHAL does not support value range, we try to get the supported values from
+            // CarPropertyConfig or AreaIdConfig.
             List<RawPropertyValue> returnValues = new ArrayList<>();
+            if (halPropId == VehicleProperty.HVAC_FAN_DIRECTION) {
+                return getHvacFanDirectionSupportedValues(areaId);
+            } else if (halPropId == VehicleProperty.HVAC_TEMPERATURE_SET) {
+                // The config array for HVAC_TEMPERATURE_SET is defined as:
+                // configArray[0] = [the lower bound of the supported temperature in Celsius] * 10.
+                // configArray[1] = [the upper bound of the supported temperature in Celsius] * 10.
+                // configArray[2] = [the increment in Celsius] * 10.
+                // configArray[3] = [the lower bound of the supported temperature in Fahrenheit]
+                // * 10.
+                // configArray[4] = [the upper bound of the supported temperature in Fahrenheit]
+                // * 10.
+                // configArray[5] = [the increment in Fahrenheit] * 10.
+                int[] configArray = halPropConfig.getConfigArray();
+                if (configArray.length == HalPropConfig.HVAC_CONFIG_ARRAY_LENGTH) {
+                    int celsiusLowerBound = configArray[0];
+                    int celsiusUpperBound = configArray[1];
+                    int step = configArray[2];
+                    for (int temp = celsiusLowerBound; temp <= celsiusUpperBound; temp += step) {
+                        // The celsiusUpperBound, celsiusUpperBound and step is Celsius temp * 10.
+                        returnValues.add(new RawPropertyValue(temp / 10.f));
+                    }
+                } else {
+                    return null;
+                }
+                // This is already sorted.
+                return returnValues;
+            }
+
+            var annotations = AnnotationsForVehicleProperty.values.get(halPropId);
+            if (annotations != null && annotations.contains(
+                    HalPropConfig.ANNOTATION_SUPPORTED_VALUES_IN_CONFIG)) {
+                // For certain properties, we use config array to represent supported values.
+                int propertyType = halPropId & VehiclePropertyType.MASK;
+                int[] configArray = halPropConfig.getConfigArray();
+                if (configArray.length == 0) {
+                    return null;
+                }
+                for (int i = 0; i < configArray.length; i++) {
+                    int value = configArray[i];
+                    if (propertyType == VehiclePropertyType.INT32) {
+                        returnValues.add(new RawPropertyValue<Integer>(value));
+                    } else if (propertyType == VehiclePropertyType.INT64) {
+                        returnValues.add(new RawPropertyValue<Long>((long) value));
+                    } else if (propertyType == VehiclePropertyType.FLOAT) {
+                        returnValues.add(new RawPropertyValue<Float>((float) value));
+                    } else {
+                        Slogf.wtf(TAG,
+                                "annotation: %s must only be used for INT32, INT64 or FLOAT "
+                                + "property",
+                                HalPropConfig.ANNOTATION_SUPPORTED_VALUES_IN_CONFIG);
+                        break;
+                    }
+                }
+                return sortRawPropertyValueList(halPropId, returnValues);
+            }
+
             var supportedEnumValues = areaIdConfig.getSupportedEnumValues();
+            if (supportedEnumValues.size() == 0) {
+                return null;
+            }
             for (int i = 0; i < supportedEnumValues.size(); i++) {
                 returnValues.add(new RawPropertyValue(supportedEnumValues.get(i)));
             }
@@ -2462,5 +2537,34 @@ public class PropertyHalService extends HalServiceBase {
 
     private String halPropIdToName(int halPropId) {
         return mPropertyHalServiceConfigs.halPropIdToName(halPropId);
+    }
+
+    private @Nullable List<RawPropertyValue> getHvacFanDirectionSupportedValues(int areaId) {
+        List<RawPropertyValue> supportedValues = new ArrayList<>();
+        try {
+            // Since HVAC_FAN_DIRECTION_AVAILABLE, the value should be cached here.
+            var hvacFanDirectionAvailable =
+                    (CarPropertyValue<Integer[]>) getProperty(
+                            HVAC_FAN_DIRECTION_AVAILABLE, areaId);
+            var status = hvacFanDirectionAvailable.getPropertyStatus();
+            if (status != STATUS_AVAILABLE) {
+                throw new IllegalStateException(
+                        "HVAC_FAN_DIRECTION_AVAILABLE property status is not available, status: "
+                        + status);
+            }
+            Integer[] availableDirections = hvacFanDirectionAvailable.getValue();
+            for (int availableDirection : availableDirections) {
+                supportedValues.add(new RawPropertyValue(availableDirection));
+            }
+        } catch (Exception e) {
+            Slogf.e(TAG, "Failed to get property: "
+                    + VehiclePropertyIds.toString(HVAC_FAN_DIRECTION_AVAILABLE)
+                    + ", areaId: "
+                    + toAreaIdString(VehicleProperty.HVAC_FAN_DIRECTION_AVAILABLE, areaId),
+                    e);
+            return null;
+        }
+        return sortRawPropertyValueList(VehicleProperty.HVAC_FAN_DIRECTION,
+                supportedValues);
     }
 }

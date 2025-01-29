@@ -16,16 +16,20 @@
 
 package com.android.car.hal;
 
+import static com.android.car.hal.HalPropConfig.shouldConfigArrayDefineSupportedEnumValues;
+
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.mockito.Mockito.when;
 
 import android.car.VehicleAreaType;
+import android.car.VehiclePropertyIds;
 import android.car.feature.FeatureFlagsImpl;
 import android.car.feature.Flags;
 import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.property.AreaIdConfig;
 import android.car.hardware.property.VehicleOilLevel;
+import android.car.test.AbstractExpectableTestCase;
 import android.hardware.automotive.vehicle.HasSupportedValueInfo;
 import android.hardware.automotive.vehicle.VehicleArea;
 import android.hardware.automotive.vehicle.VehicleAreaConfig;
@@ -53,7 +57,7 @@ import java.util.Set;
 
 @EnableFlags({Flags.FLAG_ANDROID_VIC_VEHICLE_PROPERTIES, Flags.FLAG_AREA_ID_CONFIG_ACCESS})
 @RunWith(MockitoJUnitRunner.class)
-public final class HalPropConfigTest {
+public final class HalPropConfigTest extends AbstractExpectableTestCase {
 
     @Rule
     public final SetFlagsRule mSetFlagsRule = new SetFlagsRule();
@@ -739,5 +743,174 @@ public final class HalPropConfigTest {
         assertThat(areaIdConfig.hasMinSupportedValue()).isTrue();
         assertThat(areaIdConfig.hasMaxSupportedValue()).isTrue();
         assertThat(areaIdConfig.hasSupportedValuesList()).isTrue();
+    }
+
+    // Verifies HVAC_FAN_DIRECTION always has supported values.
+    @Test
+    public void testToCarPropertyConfig_HVAC_FAN_DIRECTION_setHasSupportedValuesList() {
+        var vehiclePropConfig = getTestAidlPropConfig();
+        vehiclePropConfig.prop = VehicleProperty.HVAC_FAN_DIRECTION;
+        VehicleAreaConfig areaConfig = new VehicleAreaConfig();
+        areaConfig.access = TEST_ACCESS;
+        areaConfig.areaId = TEST_AREA_ID;
+        vehiclePropConfig.areaConfigs = new VehicleAreaConfig[] {areaConfig};
+
+        var carPropertyConfig = new AidlHalPropConfig(vehiclePropConfig)
+                .toCarPropertyConfig(VehiclePropertyIds.HVAC_FAN_DIRECTION,
+                        mPropertyHalServiceConfigs);
+
+        var areaIdConfig = carPropertyConfig.getAreaIdConfig(TEST_AREA_ID);
+        assertThat(areaIdConfig.hasSupportedValuesList()).isTrue();
+    }
+
+    // Verifies HVAC_TEMPERATURE_SET has supported values if config array is valid.
+    @Test
+    public void testToCarPropertyConfig_HVAC_TEMPERATURE_SET_setHasSupportedValuesList() {
+        var vehiclePropConfig = getTestAidlPropConfig();
+        vehiclePropConfig.prop = VehicleProperty.HVAC_TEMPERATURE_SET;
+        vehiclePropConfig.configArray = new int[] {1, 10, 1, 2, 20, 2};
+        VehicleAreaConfig areaConfig = new VehicleAreaConfig();
+        areaConfig.access = TEST_ACCESS;
+        areaConfig.areaId = TEST_AREA_ID;
+        vehiclePropConfig.areaConfigs = new VehicleAreaConfig[] {areaConfig};
+
+        var carPropertyConfig = new AidlHalPropConfig(vehiclePropConfig)
+                .toCarPropertyConfig(VehiclePropertyIds.HVAC_TEMPERATURE_SET,
+                        mPropertyHalServiceConfigs);
+
+        var areaIdConfig = carPropertyConfig.getAreaIdConfig(TEST_AREA_ID);
+        assertThat(areaIdConfig.hasSupportedValuesList()).isTrue();
+    }
+
+    // Verifies HVAC_TEMPERATURE_SET does not have supported values if config array is not valid.
+    @Test
+    public void testToCarPropertyConfig_HVAC_TEMPERATURE_SET_setHasSupportedValuesList_invalid() {
+        var vehiclePropConfig = getTestAidlPropConfig();
+        vehiclePropConfig.prop = VehicleProperty.HVAC_TEMPERATURE_SET;
+        // config array must have 6 elements, this is missing one element.
+        vehiclePropConfig.configArray = new int[] {1, 10, 1, 2, 20};
+        VehicleAreaConfig areaConfig = new VehicleAreaConfig();
+        areaConfig.access = TEST_ACCESS;
+        areaConfig.areaId = TEST_AREA_ID;
+        vehiclePropConfig.areaConfigs = new VehicleAreaConfig[] {areaConfig};
+
+        var carPropertyConfig = new AidlHalPropConfig(vehiclePropConfig)
+                .toCarPropertyConfig(VehiclePropertyIds.HVAC_TEMPERATURE_SET,
+                        mPropertyHalServiceConfigs);
+
+        var areaIdConfig = carPropertyConfig.getAreaIdConfig(TEST_AREA_ID);
+        assertThat(areaIdConfig.hasSupportedValuesList()).isFalse();
+    }
+
+    // Verifies EV_CHARGE_CURRENT_DRAW_LIMIT has min/max value if config array is valid.
+    @Test
+    public void testToCarPropertyConfig_EV_CHARGE_CURRENT_DRAW_LIMIT() {
+        var vehiclePropConfig = getTestAidlPropConfig();
+        vehiclePropConfig.prop = VehicleProperty.EV_CHARGE_CURRENT_DRAW_LIMIT;
+        // Need one element representing the max value.
+        vehiclePropConfig.configArray = new int[] {10};
+        VehicleAreaConfig areaConfig = new VehicleAreaConfig();
+        areaConfig.access = TEST_ACCESS;
+        areaConfig.areaId = TEST_AREA_ID;
+        vehiclePropConfig.areaConfigs = new VehicleAreaConfig[] {areaConfig};
+
+        var carPropertyConfig = new AidlHalPropConfig(vehiclePropConfig)
+                .toCarPropertyConfig(VehiclePropertyIds.EV_CHARGE_CURRENT_DRAW_LIMIT,
+                        mPropertyHalServiceConfigs);
+
+        var areaIdConfig = carPropertyConfig.getAreaIdConfig(TEST_AREA_ID);
+        assertThat(areaIdConfig.hasMinSupportedValue()).isTrue();
+        assertThat(areaIdConfig.hasMaxSupportedValue()).isTrue();
+    }
+
+    // Verifies EV_CHARGE_CURRENT_DRAW_LIMIT does not have min/max value if config array is not
+    // valid. This actually must not happen since we check this in CTS.
+    @Test
+    public void testToCarPropertyConfig_EV_CHARGE_CURRENT_DRAW_LIMIT_invalid() {
+        var vehiclePropConfig = getTestAidlPropConfig();
+        vehiclePropConfig.prop = VehicleProperty.EV_CHARGE_CURRENT_DRAW_LIMIT;
+        // No element.
+        vehiclePropConfig.configArray = new int[] {};
+        VehicleAreaConfig areaConfig = new VehicleAreaConfig();
+        areaConfig.access = TEST_ACCESS;
+        areaConfig.areaId = TEST_AREA_ID;
+        vehiclePropConfig.areaConfigs = new VehicleAreaConfig[] {areaConfig};
+
+        var carPropertyConfig = new AidlHalPropConfig(vehiclePropConfig)
+                .toCarPropertyConfig(VehiclePropertyIds.EV_CHARGE_CURRENT_DRAW_LIMIT,
+                        mPropertyHalServiceConfigs);
+
+        var areaIdConfig = carPropertyConfig.getAreaIdConfig(TEST_AREA_ID);
+        assertThat(areaIdConfig.hasMinSupportedValue()).isFalse();
+        assertThat(areaIdConfig.hasMaxSupportedValue()).isFalse();
+    }
+
+    // Verifies property that has annotation: legacy_supported_values_in_config has supported values
+    // if the config array is not empty.
+    @Test
+    public void testToCarPropertyConfig_legacySupportedValuesInConfig() {
+        var vehiclePropConfig = getTestAidlPropConfig();
+        // This property has the annotation: legacy_supported_values_in_config
+        vehiclePropConfig.prop = VehicleProperty.EV_CHARGE_PERCENT_LIMIT;
+        // config array list the supported values.
+        vehiclePropConfig.configArray = new int[] {1, 2, 3};
+        VehicleAreaConfig areaConfig = new VehicleAreaConfig();
+        areaConfig.access = TEST_ACCESS;
+        areaConfig.areaId = TEST_AREA_ID;
+        vehiclePropConfig.areaConfigs = new VehicleAreaConfig[] {areaConfig};
+
+        var carPropertyConfig = new AidlHalPropConfig(vehiclePropConfig)
+                .toCarPropertyConfig(VehiclePropertyIds.EV_CHARGE_PERCENT_LIMIT,
+                        mPropertyHalServiceConfigs);
+
+        var areaIdConfig = carPropertyConfig.getAreaIdConfig(TEST_AREA_ID);
+        assertThat(areaIdConfig.hasSupportedValuesList()).isTrue();
+    }
+
+    // Verifies property that has annotation: legacy_supported_values_in_config does not have
+    // supported values if the config array is empty.
+    @Test
+    public void testToCarPropertyConfig_legacySupportedValuesInConfig_emptyConfig() {
+        var vehiclePropConfig = getTestAidlPropConfig();
+        // This property has the annotation: legacy_supported_values_in_config
+        vehiclePropConfig.prop = VehicleProperty.EV_CHARGE_PERCENT_LIMIT;
+        vehiclePropConfig.configArray = new int[] {};
+        VehicleAreaConfig areaConfig = new VehicleAreaConfig();
+        areaConfig.access = TEST_ACCESS;
+        areaConfig.areaId = TEST_AREA_ID;
+        vehiclePropConfig.areaConfigs = new VehicleAreaConfig[] {areaConfig};
+
+        var carPropertyConfig = new AidlHalPropConfig(vehiclePropConfig)
+                .toCarPropertyConfig(VehiclePropertyIds.EV_CHARGE_PERCENT_LIMIT,
+                        mPropertyHalServiceConfigs);
+
+        var areaIdConfig = carPropertyConfig.getAreaIdConfig(TEST_AREA_ID);
+        assertThat(areaIdConfig.hasSupportedValuesList()).isFalse();
+    }
+
+    @Test
+    public void testShouldConfigArrayDefineSupportedEnumValues() {
+        expectThat(shouldConfigArrayDefineSupportedEnumValues(VehicleProperty.GEAR_SELECTION))
+                .isTrue();
+        expectThat(shouldConfigArrayDefineSupportedEnumValues(VehicleProperty.CURRENT_GEAR))
+                .isTrue();
+        expectThat(shouldConfigArrayDefineSupportedEnumValues(
+                VehicleProperty.DISTANCE_DISPLAY_UNITS)).isTrue();
+        expectThat(shouldConfigArrayDefineSupportedEnumValues(
+                VehicleProperty.EV_BATTERY_DISPLAY_UNITS)).isTrue();
+        expectThat(shouldConfigArrayDefineSupportedEnumValues(
+                VehicleProperty.TIRE_PRESSURE_DISPLAY_UNITS)).isTrue();
+        expectThat(shouldConfigArrayDefineSupportedEnumValues(
+                VehicleProperty.FUEL_VOLUME_DISPLAY_UNITS)).isTrue();
+        expectThat(shouldConfigArrayDefineSupportedEnumValues(
+                VehicleProperty.HVAC_TEMPERATURE_DISPLAY_UNITS)).isTrue();
+        expectThat(shouldConfigArrayDefineSupportedEnumValues(
+                VehicleProperty.VEHICLE_SPEED_DISPLAY_UNITS)).isTrue();
+        // regular data_enum property
+        expectThat(shouldConfigArrayDefineSupportedEnumValues(VehicleProperty.INFO_FUEL_TYPE))
+                .isFalse();
+        // non data_enum property
+        expectThat(shouldConfigArrayDefineSupportedEnumValues(
+                VehicleProperty.EV_CHARGE_PERCENT_LIMIT)).isFalse();
     }
 }
