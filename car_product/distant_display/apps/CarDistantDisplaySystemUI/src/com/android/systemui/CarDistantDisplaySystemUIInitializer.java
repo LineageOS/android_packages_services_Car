@@ -55,7 +55,8 @@ public class CarDistantDisplaySystemUIInitializer extends CarSystemUIInitializer
                 .setRootTaskDisplayAreaOrganizer(
                         isSystemUser ? Optional.of(carWm.getRootTaskDisplayAreaOrganizer())
                                 : Optional.empty())
-                .setScalableUIWMInitializer(carWm.getScalableUIWMInitializer());
+                .setScalableUIWMInitializer(carWm.getScalableUIWMInitializer())
+                .setScalableUIEventDispatcher(carWm.getScalableUIEventDispatcher());
     }
 
 }
