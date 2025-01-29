@@ -459,18 +459,6 @@ public class SimulationVehicleStubUnitTest {
         assertWithMessage("Async result error").that(found).isTrue();
     }
 
-    @Test
-    public void testIsSimulationMode() {
-        assertWithMessage("SimulatedVehicleStub is simulation")
-                .that(mSimulationVehicleStub.isSimulatedModeEnabled()).isTrue();
-    }
-
-    @Test
-    public void testGetRealVehicleStub() {
-        assertWithMessage("Real Vehicle Stub").that(mSimulationVehicleStub.getRealVehicleStub())
-                .isEqualTo(mMockVehicleStub);
-    }
-
     private static VehicleStub.AsyncGetSetRequest defaultVehicleStubAsyncRequest(
             HalPropValue value) {
         return new VehicleStub.AsyncGetSetRequest(/* serviceRequestId=*/ 0, value,

@@ -177,10 +177,8 @@ interface ICarProperty {
      * @throws IllegalStateException If the build is not userdebug or eng.
      * @throws IllegalStateException If recording vehicle property state is enabled.
      * @throws SecurityException If missing permission.
-     *
-     * @return The timestamp in nanos when the injection mode has started.
      */
-    long enableInjectionMode(in int[] propertyIdsFromRealHardware);
+    void enableInjectionMode(in int[] propertyIdsFromRealHardware);
 
     /**
      * Disables injection mode.

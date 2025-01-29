@@ -234,27 +234,24 @@ public final class CarPropertySimulationManager extends CarManagerBase {
      *                                    hardware, it will be ignored.
      *
      * @throws IllegalStateException If the build is not userdebug or eng.
-     * @throws IllegalStateException If car service is unable to enable injection mode.
+     * @throws IllegalStateException If recording vehicle property state is enabled.
      * @throws SecurityException If missing permission.
-     *
-     * @return The elapsedRealtimeNanos when the injection mode has started.
      *
      * @hide
      */
     @SystemApi
     @FlaggedApi(Flags.FLAG_CAR_PROPERTY_SIMULATION)
     @RequiresPermission(Car.PERMISSION_INJECT_VEHICLE_PROPERTIES)
-    public long enableInjectionMode(@NonNull List<Integer> propertyIdsFromRealHardware) {
+    public void enableInjectionMode(@NonNull List<Integer> propertyIdsFromRealHardware) {
         requireNonNull(propertyIdsFromRealHardware);
         IntArray propertyIdsFromRealHardwareArray = new IntArray();
         for (int i = 0; i < propertyIdsFromRealHardware.size(); i++) {
             propertyIdsFromRealHardwareArray.add(propertyIdsFromRealHardware.get(i));
         }
         try {
-            return mCarPropertyService.enableInjectionMode(propertyIdsFromRealHardwareArray
-                    .toArray());
+            mCarPropertyService.enableInjectionMode(propertyIdsFromRealHardwareArray.toArray());
         } catch (RemoteException e) {
-            throw new IllegalStateException("Unable to enable injection mode.");
+            handleRemoteExceptionFromCarService(e);
         }
     }
 
@@ -264,7 +261,9 @@ public final class CarPropertySimulationManager extends CarManagerBase {
      *
      * <p>This method is system-wide.
      *
-     * @throws IllegalStateException If the vehicle property injection is not in progress.
+     * <p>This method is idempotent. If the vehicle property injection is already disabled,
+     * calling this method has no effect.
+     *
      * @throws IllegalStateException if the build is not userdebug or eng.
      * @throws SecurityException If missing permission.
      *

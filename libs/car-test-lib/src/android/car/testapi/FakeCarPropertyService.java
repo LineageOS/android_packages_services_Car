@@ -211,8 +211,8 @@ class FakeCarPropertyService extends ICarProperty.Stub implements CarPropertyCon
     }
 
     @Override
-    public long enableInjectionMode(int[] propertyIdsFromRealHardware) {
-        return -1;
+    public void enableInjectionMode(int[] propertyIdsFromRealHardware) {
+        // no-op
     }
 
     @Override
