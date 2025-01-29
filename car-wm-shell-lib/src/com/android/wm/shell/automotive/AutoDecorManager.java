@@ -28,7 +28,9 @@ import android.view.View;
 import com.android.server.utils.Slogf;
 import com.android.wm.shell.RootTaskDisplayAreaOrganizer;
 import com.android.wm.shell.common.DisplayController;
+import com.android.wm.shell.common.ShellExecutor;
 import com.android.wm.shell.dagger.WMSingleton;
+import com.android.wm.shell.shared.annotations.ShellMainThread;
 
 import javax.inject.Inject;
 
@@ -46,13 +48,16 @@ public class AutoDecorManager {
     private final DisplayController mDisplayController;
     private final ArraySet<AutoDecorImpl> mDecors = new ArraySet<>();
     private final RootTaskDisplayAreaOrganizer mRootTaskDisplayAreaOrganizer;
+    private final ShellExecutor mShellExecutor;
 
     @Inject
     AutoDecorManager(Context context, DisplayController displayController,
-            RootTaskDisplayAreaOrganizer rootTdaOrganizer) {
+            RootTaskDisplayAreaOrganizer rootTdaOrganizer,
+            @ShellMainThread ShellExecutor shellExecutor) {
         mContext = context;
         mDisplayController = displayController;
         mRootTaskDisplayAreaOrganizer = rootTdaOrganizer;
+        mShellExecutor = shellExecutor;
     }
 
     /**
@@ -63,6 +68,7 @@ public class AutoDecorManager {
      * @param initialBounds The bounds of the AutoDecor.
      * @return The newly created AutoDecor object, or null if creation failed.
      */
+    @ShellMainThread
     public AutoDecor createAutoDecor(View view, int initialZOrder, Rect initialBounds) {
         if (!enableAutoTaskStackController()) {
             Slogf.e(TAG,
@@ -72,7 +78,7 @@ public class AutoDecorManager {
         }
 
         AutoDecorImpl autoDecorImpl = new AutoDecorImpl(mContext, mDisplayController, view,
-                initialZOrder, initialBounds);
+                initialZOrder, initialBounds, mShellExecutor);
         if (DBG) {
             Slogf.d(TAG, "Creating auto decor %s", autoDecorImpl);
         }
@@ -88,9 +94,9 @@ public class AutoDecorManager {
      * @param autoDecor The AutoDecor to add.
      * @param displayId display where decor needs to be added.
      */
+    @ShellMainThread
     public void attachAutoDecorToDisplay(SurfaceControl.Transaction t, AutoDecor autoDecor,
             int displayId) {
-
         if (!enableAutoTaskStackController()) {
             Slogf.e(TAG,
                     "Failed to create root task stack as the auto_task_stack_windowing TS flag is"
@@ -131,6 +137,7 @@ public class AutoDecorManager {
      * @param t         The transaction to apply the removal to.
      * @param autoDecor The AutoDecor to remove.
      */
+    @ShellMainThread
     public void removeAutoDecor(SurfaceControl.Transaction t, AutoDecor autoDecor) {
         if (!enableAutoTaskStackController()) {
             Slogf.e(TAG,
@@ -143,6 +150,7 @@ public class AutoDecorManager {
         if (DBG) {
             Slogf.d(TAG, "Deleting decor %s", autoDecorImpl);
         }
+        autoDecorImpl.detachDecorFromParentSurface(t);
         mDecors.remove(autoDecorImpl);
     }
 }
