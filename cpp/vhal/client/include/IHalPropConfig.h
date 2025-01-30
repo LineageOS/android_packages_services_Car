@@ -17,7 +17,10 @@
 #ifndef CPP_VHAL_CLIENT_INCLUDE_IHALPROPCONFIG_H_
 #define CPP_VHAL_CLIENT_INCLUDE_IHALPROPCONFIG_H_
 
+#include <aidl/android/hardware/automotive/vehicle/HasSupportedValueInfo.h>
+
 #include <cstdint>
+#include <optional>
 #include <vector>
 
 namespace android {
@@ -46,6 +49,11 @@ public:
     virtual ~IHalAreaConfig() = default;
 
     virtual bool isVariableUpdateRateSupported() const = 0;
+
+    virtual std::optional<aidl::android::hardware::automotive::vehicle::HasSupportedValueInfo>
+    getHasSupportedValueInfo() const {
+        return std::nullopt;
+    }
 };
 
 class IHalPropConfig {
