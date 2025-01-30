@@ -22,10 +22,10 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
 
-
-import android.util.Log;
+import android.car.apitest.testbase.CarApiTestBase;
 import android.provider.DeviceConfig;
 import android.provider.Settings;
+import android.util.Log;
 
 import com.android.bedstead.harrier.DeviceState;
 import com.android.bedstead.multiuser.annotations.RequireRunNotOnVisibleBackgroundNonProfileUser;

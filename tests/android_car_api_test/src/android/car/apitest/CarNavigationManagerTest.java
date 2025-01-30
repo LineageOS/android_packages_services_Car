@@ -22,6 +22,7 @@ import static org.junit.Assert.assertThrows;
 import android.car.Car;
 import android.car.CarAppFocusManager;
 import android.car.CarAppFocusManager.OnAppFocusOwnershipCallback;
+import android.car.apitest.testbase.CarApiTestBase;
 import android.car.cluster.navigation.NavigationState.Cue;
 import android.car.cluster.navigation.NavigationState.Cue.CueElement;
 import android.car.cluster.navigation.NavigationState.Destination;

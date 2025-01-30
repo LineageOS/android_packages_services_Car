@@ -24,6 +24,7 @@ import static org.junit.Assert.assertThrows;
 import static org.junit.Assume.assumeTrue;
 
 import android.car.Car;
+import android.car.apitest.testbase.CarApiTestBase;
 import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.property.CarInternalErrorException;
 import android.car.hardware.property.CarPropertyManager;

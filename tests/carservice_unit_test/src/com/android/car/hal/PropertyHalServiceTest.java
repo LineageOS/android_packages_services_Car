@@ -18,6 +18,9 @@ package com.android.car.hal;
 
 import static android.car.Car.PERMISSION_VENDOR_EXTENSION;
 import static android.car.VehiclePropertyIds.EPOCH_TIME;
+import static android.car.VehiclePropertyIds.EV_CHARGE_CURRENT_DRAW_LIMIT;
+import static android.car.VehiclePropertyIds.EV_CHARGE_PERCENT_LIMIT;
+import static android.car.VehiclePropertyIds.HVAC_FAN_DIRECTION;
 import static android.car.VehiclePropertyIds.HVAC_FAN_SPEED;
 import static android.car.VehiclePropertyIds.HVAC_TEMPERATURE_SET;
 import static android.car.VehiclePropertyIds.INFO_FUEL_DOOR_LOCATION;
@@ -3019,6 +3022,75 @@ public class PropertyHalServiceTest extends AbstractExpectableTestCase{
                 .isNull();
     }
 
+    // Verifies that EV_CHARGE_CURRENT_DRAW_LIMIT max value comes from config array.
+    @Test
+    public void testGetMinMaxSupportedValue_EV_CHARGE_CURRENT_DRAW_LIMIT_fromConfig() {
+        int mgrPropId = EV_CHARGE_CURRENT_DRAW_LIMIT;
+        // This property does not implement the new APIs so it falls back to config array.
+        when(mVehicleHal.isSupportedValuesImplemented(newPropIdAreaId(mgrPropId, 0)))
+                .thenReturn(false);
+        int areaId = 0;
+        int maxValue = 123;
+
+        var vehiclePropConfig = new VehiclePropConfig();
+        vehiclePropConfig.prop = VehicleProperty.EV_CHARGE_CURRENT_DRAW_LIMIT;
+        vehiclePropConfig.access = VehiclePropertyAccess.READ;
+        vehiclePropConfig.changeMode = VehiclePropertyChangeMode.ON_CHANGE;
+        vehiclePropConfig.configArray = new int[]{maxValue};
+        HalPropConfig halPropConfig = new AidlHalPropConfig(vehiclePropConfig);
+        CarPropertyConfig carPropertyConfig = halPropConfig.toCarPropertyConfig(
+                mgrPropId, PropertyHalServiceConfigs.newConfigs(), /* isVhalPropId= */ false);
+
+        mPropertyHalService.takeProperties(List.of(halPropConfig));
+
+        var areaIdConfig = carPropertyConfig.getAreaIdConfig(areaId);
+
+        expectThat(areaIdConfig.hasMinSupportedValue()).isTrue();
+        expectThat(areaIdConfig.hasMaxSupportedValue()).isTrue();
+
+        var minMaxSupportedPropertyValue = mPropertyHalService.getMinMaxSupportedValue(
+                mgrPropId, areaId, areaIdConfig);
+
+        expectThat(minMaxSupportedPropertyValue.minValue.getParcelable(RawPropertyValue.class)
+                .getTypedValue()).isEqualTo(0.f);
+        expectThat(minMaxSupportedPropertyValue.maxValue.getParcelable(RawPropertyValue.class)
+                .getTypedValue()).isEqualTo((float) maxValue);
+    }
+
+    @Test
+    public void testGetMinMaxSupportedValue_EV_CHARGE_CURRENT_DRAW_LIMIT_noConfig() {
+        int mgrPropId = EV_CHARGE_CURRENT_DRAW_LIMIT;
+        // This property does not implement the new APIs so it falls back to config array.
+        when(mVehicleHal.isSupportedValuesImplemented(newPropIdAreaId(mgrPropId, 0)))
+                .thenReturn(false);
+        int areaId = 0;
+
+        var vehiclePropConfig = new VehiclePropConfig();
+        vehiclePropConfig.prop = VehicleProperty.EV_CHARGE_CURRENT_DRAW_LIMIT;
+        vehiclePropConfig.access = VehiclePropertyAccess.READ;
+        vehiclePropConfig.changeMode = VehiclePropertyChangeMode.ON_CHANGE;
+        // No element in config array.
+        vehiclePropConfig.configArray = new int[]{};
+        HalPropConfig halPropConfig = new AidlHalPropConfig(vehiclePropConfig);
+        CarPropertyConfig carPropertyConfig = halPropConfig.toCarPropertyConfig(
+                mgrPropId, PropertyHalServiceConfigs.newConfigs(), /* isVhalPropId= */ false);
+
+        mPropertyHalService.takeProperties(List.of(halPropConfig));
+
+        var areaIdConfig = carPropertyConfig.getAreaIdConfig(areaId);
+
+        expectThat(areaIdConfig.hasMinSupportedValue()).isFalse();
+        expectThat(areaIdConfig.hasMaxSupportedValue()).isFalse();
+
+        var minMaxSupportedPropertyValue = mPropertyHalService.getMinMaxSupportedValue(
+                mgrPropId, areaId, areaIdConfig);
+
+        expectThat(minMaxSupportedPropertyValue.minValue.getParcelable(RawPropertyValue.class))
+                .isNull();
+        expectThat(minMaxSupportedPropertyValue.maxValue.getParcelable(RawPropertyValue.class))
+                .isNull();
+    }
+
     @Test
     public void testGetSupportedValuesList_dynamicSupportedValuesNotSupported() {
         when(mVehicleHal.isSupportedValuesImplemented(
@@ -3243,6 +3315,235 @@ public class PropertyHalServiceTest extends AbstractExpectableTestCase{
         assertThrows(IllegalArgumentException.class, () -> {
             mPropertyHalService.getSupportedValuesList(mgrPropId, areaId, areaIdConfig);
         });
+    }
+
+    // Verifies that properties that has annotation: legacy_supported_values_in_config gets
+    // supported values from config.
+    @Test
+    public void testGetSupportedValuesList_withAnnotationfromConfig() {
+        int mgrPropId = EV_CHARGE_PERCENT_LIMIT;
+        // This property does not implement the new APIs so it falls back to config array.
+        when(mVehicleHal.isSupportedValuesImplemented(newPropIdAreaId(mgrPropId, 0)))
+                .thenReturn(false);
+        int areaId = 0;
+
+        var vehiclePropConfig = new VehiclePropConfig();
+        vehiclePropConfig.prop = VehicleProperty.EV_CHARGE_PERCENT_LIMIT;
+        vehiclePropConfig.access = VehiclePropertyAccess.READ;
+        vehiclePropConfig.changeMode = VehiclePropertyChangeMode.ON_CHANGE;
+        vehiclePropConfig.configArray = new int[]{1, 2, 3};
+        HalPropConfig halPropConfig = new AidlHalPropConfig(vehiclePropConfig);
+        CarPropertyConfig carPropertyConfig = halPropConfig.toCarPropertyConfig(
+                mgrPropId, PropertyHalServiceConfigs.newConfigs(), /* isVhalPropId= */ false);
+
+        mPropertyHalService.takeProperties(List.of(halPropConfig));
+
+        var areaIdConfig = carPropertyConfig.getAreaIdConfig(areaId);
+
+        expectThat(areaIdConfig.hasSupportedValuesList()).isTrue();
+
+        var supportedValuesList = mPropertyHalService.getSupportedValuesList(
+                mgrPropId, areaId, areaIdConfig);
+
+        assertThat(supportedValuesList).hasSize(3);
+        expectThat(supportedValuesList.get(0).getTypedValue()).isEqualTo(1.f);
+        expectThat(supportedValuesList.get(1).getTypedValue()).isEqualTo(2.f);
+        expectThat(supportedValuesList.get(2).getTypedValue()).isEqualTo(3.f);
+    }
+
+    @Test
+    public void testGetSupportedValuesList_withAnnotationfromConfig_noConfig() {
+        int mgrPropId = EV_CHARGE_PERCENT_LIMIT;
+        // This property does not implement the new APIs so it falls back to config array.
+        when(mVehicleHal.isSupportedValuesImplemented(newPropIdAreaId(mgrPropId, 0)))
+                .thenReturn(false);
+        int areaId = 0;
+
+        var vehiclePropConfig = new VehiclePropConfig();
+        vehiclePropConfig.prop = VehicleProperty.EV_CHARGE_PERCENT_LIMIT;
+        vehiclePropConfig.access = VehiclePropertyAccess.READ;
+        vehiclePropConfig.changeMode = VehiclePropertyChangeMode.ON_CHANGE;
+        // No element in config array.
+        vehiclePropConfig.configArray = new int[]{};
+        HalPropConfig halPropConfig = new AidlHalPropConfig(vehiclePropConfig);
+        CarPropertyConfig carPropertyConfig = halPropConfig.toCarPropertyConfig(
+                mgrPropId, PropertyHalServiceConfigs.newConfigs(), /* isVhalPropId= */ false);
+
+        mPropertyHalService.takeProperties(List.of(halPropConfig));
+
+        var areaIdConfig = carPropertyConfig.getAreaIdConfig(areaId);
+
+        expectThat(areaIdConfig.hasSupportedValuesList()).isFalse();
+
+        var supportedValuesList = mPropertyHalService.getSupportedValuesList(
+                mgrPropId, areaId, areaIdConfig);
+
+        assertThat(supportedValuesList).isNull();
+    }
+
+    // Verifies that the supported values for HVAC_FAN_DIRECTION comes from
+    // HVAC_FAN_DIRECTION_AVAILABLE
+    @Test
+    public void testGetSupportedValuesList_HVAC_FAN_DIRECTION() {
+        int mgrPropId = HVAC_FAN_DIRECTION;
+        int areaId = VehicleAreaSeat.ROW_1_LEFT;
+        // This property does not implement the new APIs.
+        when(mVehicleHal.isSupportedValuesImplemented(newPropIdAreaId(mgrPropId, areaId)))
+                .thenReturn(false);
+
+        var vehiclePropConfig = new VehiclePropConfig();
+        vehiclePropConfig.prop = VehicleProperty.HVAC_FAN_DIRECTION;
+        vehiclePropConfig.access = VehiclePropertyAccess.READ;
+        vehiclePropConfig.changeMode = VehiclePropertyChangeMode.ON_CHANGE;
+        var vehicleAreaConfig = new VehicleAreaConfig();
+        vehicleAreaConfig.areaId = areaId;
+        vehicleAreaConfig.access = VehiclePropertyAccess.READ;
+        vehiclePropConfig.areaConfigs = new VehicleAreaConfig[] {vehicleAreaConfig};
+        HalPropConfig halPropConfig = new AidlHalPropConfig(vehiclePropConfig);
+        CarPropertyConfig carPropertyConfig = halPropConfig.toCarPropertyConfig(
+                mgrPropId, PropertyHalServiceConfigs.newConfigs(), /* isVhalPropId= */ false);
+
+        var hvacFanDirectionAvailablePropConfig = new VehiclePropConfig();
+        hvacFanDirectionAvailablePropConfig.prop = VehicleProperty.HVAC_FAN_DIRECTION_AVAILABLE;
+        hvacFanDirectionAvailablePropConfig.access = VehiclePropertyAccess.READ;
+        hvacFanDirectionAvailablePropConfig.changeMode = VehiclePropertyChangeMode.ON_CHANGE;
+        hvacFanDirectionAvailablePropConfig.areaConfigs = new VehicleAreaConfig[] {
+                vehicleAreaConfig};
+        HalPropConfig hvacFanDirectionAvailableHalPropConfig = new AidlHalPropConfig(
+                hvacFanDirectionAvailablePropConfig);
+
+        mPropertyHalService.takeProperties(List.of(halPropConfig,
+                hvacFanDirectionAvailableHalPropConfig));
+
+        when(mVehicleHal.get(VehicleProperty.HVAC_FAN_DIRECTION_AVAILABLE, areaId))
+                .thenReturn(mPropValueBuilder.build(
+                        VehicleProperty.HVAC_FAN_DIRECTION_AVAILABLE, areaId,
+                        TEST_UPDATE_TIMESTAMP_NANOS, /* status= */ 0, new int[]{1, 2, 3}));
+
+        var areaIdConfig = carPropertyConfig.getAreaIdConfig(areaId);
+
+        var supportedValuesList = mPropertyHalService.getSupportedValuesList(
+                mgrPropId, areaId, areaIdConfig);
+
+        assertThat(supportedValuesList).hasSize(3);
+        expectThat(supportedValuesList.get(0).getTypedValue()).isEqualTo(1);
+        expectThat(supportedValuesList.get(1).getTypedValue()).isEqualTo(2);
+        expectThat(supportedValuesList.get(2).getTypedValue()).isEqualTo(3);
+    }
+
+    @Test
+    public void testGetSupportedValuesList_HVAC_FAN_DIRECTION_getHvacFanDirectAvailableFailed() {
+        int mgrPropId = HVAC_FAN_DIRECTION;
+        int areaId = VehicleAreaSeat.ROW_1_LEFT;
+        // This property does not implement the new APIs.
+        when(mVehicleHal.isSupportedValuesImplemented(newPropIdAreaId(mgrPropId, areaId)))
+                .thenReturn(false);
+
+        var vehiclePropConfig = new VehiclePropConfig();
+        vehiclePropConfig.prop = VehicleProperty.HVAC_FAN_DIRECTION;
+        vehiclePropConfig.access = VehiclePropertyAccess.READ;
+        vehiclePropConfig.changeMode = VehiclePropertyChangeMode.ON_CHANGE;
+        var vehicleAreaConfig = new VehicleAreaConfig();
+        vehicleAreaConfig.areaId = areaId;
+        vehicleAreaConfig.access = VehiclePropertyAccess.READ;
+        vehiclePropConfig.areaConfigs = new VehicleAreaConfig[] {vehicleAreaConfig};
+        HalPropConfig halPropConfig = new AidlHalPropConfig(vehiclePropConfig);
+        CarPropertyConfig carPropertyConfig = halPropConfig.toCarPropertyConfig(
+                mgrPropId, PropertyHalServiceConfigs.newConfigs(), /* isVhalPropId= */ false);
+
+        var hvacFanDirectionAvailablePropConfig = new VehiclePropConfig();
+        hvacFanDirectionAvailablePropConfig.prop = VehicleProperty.HVAC_FAN_DIRECTION_AVAILABLE;
+        hvacFanDirectionAvailablePropConfig.access = VehiclePropertyAccess.READ;
+        hvacFanDirectionAvailablePropConfig.changeMode = VehiclePropertyChangeMode.ON_CHANGE;
+        hvacFanDirectionAvailablePropConfig.areaConfigs = new VehicleAreaConfig[] {
+                vehicleAreaConfig};
+        HalPropConfig hvacFanDirectionAvailableHalPropConfig = new AidlHalPropConfig(
+                hvacFanDirectionAvailablePropConfig);
+
+        mPropertyHalService.takeProperties(List.of(halPropConfig,
+                hvacFanDirectionAvailableHalPropConfig));
+
+        // Simulate some error from VHAL while getting the property.
+        when(mVehicleHal.get(VehicleProperty.HVAC_FAN_DIRECTION_AVAILABLE, areaId))
+                .thenThrow(new ServiceSpecificException(0));
+
+        var areaIdConfig = carPropertyConfig.getAreaIdConfig(areaId);
+
+        var supportedValuesList = mPropertyHalService.getSupportedValuesList(
+                mgrPropId, areaId, areaIdConfig);
+
+        assertThat(supportedValuesList).isNull();
+    }
+
+    // Verifies that the supported values for HVAC_TEMPERATURE_SET comes from config array.
+    @Test
+    public void testGetSupportedValuesList_HVAC_TEMPERATURE_SET() {
+        int mgrPropId = HVAC_TEMPERATURE_SET;
+        int areaId = VehicleAreaSeat.ROW_1_LEFT;
+        // This property does not implement the new APIs.
+        when(mVehicleHal.isSupportedValuesImplemented(newPropIdAreaId(mgrPropId, areaId)))
+                .thenReturn(false);
+
+        var vehiclePropConfig = new VehiclePropConfig();
+        vehiclePropConfig.prop = VehicleProperty.HVAC_TEMPERATURE_SET;
+        vehiclePropConfig.access = VehiclePropertyAccess.READ;
+        vehiclePropConfig.changeMode = VehiclePropertyChangeMode.ON_CHANGE;
+        vehiclePropConfig.configArray = new int[]{100, 110, 5, 20, 30, 5};
+        var vehicleAreaConfig = new VehicleAreaConfig();
+        vehicleAreaConfig.areaId = areaId;
+        vehicleAreaConfig.access = VehiclePropertyAccess.READ;
+        vehiclePropConfig.areaConfigs = new VehicleAreaConfig[] {vehicleAreaConfig};
+        HalPropConfig halPropConfig = new AidlHalPropConfig(vehiclePropConfig);
+        CarPropertyConfig carPropertyConfig = halPropConfig.toCarPropertyConfig(
+                mgrPropId, PropertyHalServiceConfigs.newConfigs(), /* isVhalPropId= */ false);
+
+        mPropertyHalService.takeProperties(List.of(halPropConfig));
+
+        var areaIdConfig = carPropertyConfig.getAreaIdConfig(areaId);
+
+        expectThat(areaIdConfig.hasSupportedValuesList()).isTrue();
+
+        var supportedValuesList = mPropertyHalService.getSupportedValuesList(
+                mgrPropId, areaId, areaIdConfig);
+
+        assertThat(supportedValuesList).hasSize(3);
+        expectThat(supportedValuesList.get(0).getTypedValue()).isEqualTo(10.f);
+        expectThat(supportedValuesList.get(1).getTypedValue()).isEqualTo(10.5f);
+        expectThat(supportedValuesList.get(2).getTypedValue()).isEqualTo(11.f);
+    }
+
+    @Test
+    public void testGetSupportedValuesList_HVAC_TEMPERATURE_SET_invalidConfig() {
+        int mgrPropId = HVAC_TEMPERATURE_SET;
+        int areaId = VehicleAreaSeat.ROW_1_LEFT;
+        // This property does not implement the new APIs.
+        when(mVehicleHal.isSupportedValuesImplemented(newPropIdAreaId(mgrPropId, areaId)))
+                .thenReturn(false);
+
+        var vehiclePropConfig = new VehiclePropConfig();
+        vehiclePropConfig.prop = VehicleProperty.HVAC_TEMPERATURE_SET;
+        vehiclePropConfig.access = VehiclePropertyAccess.READ;
+        vehiclePropConfig.changeMode = VehiclePropertyChangeMode.ON_CHANGE;
+        // Invalid config, expect 6 elements.
+        vehiclePropConfig.configArray = new int[]{100, 110, 5, 20, 30};
+        var vehicleAreaConfig = new VehicleAreaConfig();
+        vehicleAreaConfig.areaId = areaId;
+        vehicleAreaConfig.access = VehiclePropertyAccess.READ;
+        vehiclePropConfig.areaConfigs = new VehicleAreaConfig[] {vehicleAreaConfig};
+        HalPropConfig halPropConfig = new AidlHalPropConfig(vehiclePropConfig);
+        CarPropertyConfig carPropertyConfig = halPropConfig.toCarPropertyConfig(
+                mgrPropId, PropertyHalServiceConfigs.newConfigs(), /* isVhalPropId= */ false);
+
+        mPropertyHalService.takeProperties(List.of(halPropConfig));
+
+        var areaIdConfig = carPropertyConfig.getAreaIdConfig(areaId);
+
+        expectThat(areaIdConfig.hasSupportedValuesList()).isFalse();
+
+        var supportedValuesList = mPropertyHalService.getSupportedValuesList(
+                mgrPropId, areaId, areaIdConfig);
+
+        assertThat(supportedValuesList).isNull();
     }
 
     @Test

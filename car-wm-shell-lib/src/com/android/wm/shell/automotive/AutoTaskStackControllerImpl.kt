@@ -240,6 +240,16 @@ class AutoTaskStackControllerImpl @Inject constructor(
         )
     }
 
+    override fun destroyTaskStack(taskStackId: Int) {
+        // TODO(b/384946072): Add support for DisplayAreaTaskStack
+        val taskStack = taskStackMap[taskStackId] as? RootTaskStack
+        if (taskStack == null) {
+            Slog.e(TAG, "Task stack with id $taskStackId doesn't exist")
+            return
+        }
+        val deleted: Boolean = taskOrganizer.deleteRootTask(taskStack.rootTaskInfo.token)
+    }
+
     override fun setDefaultRootTaskStackOnDisplay(displayId: Int, rootTaskStackId: Int?) {
         if (!enableAutoTaskStackController()) {
             Slog.e(
@@ -282,6 +292,7 @@ class AutoTaskStackControllerImpl @Inject constructor(
                     ACTIVITY_TYPE_ASSISTANT
                 )
             )
+            defaultRootTaskPerDisplay[displayId] = taskStack.id
         }
 
         taskOrganizer.applyTransaction(wct)

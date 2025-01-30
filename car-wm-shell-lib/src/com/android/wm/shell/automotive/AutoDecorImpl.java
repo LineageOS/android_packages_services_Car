@@ -23,8 +23,6 @@ import static android.view.WindowManager.LayoutParams.TYPE_APPLICATION;
 import android.content.Context;
 import android.graphics.PixelFormat;
 import android.graphics.Rect;
-import android.os.Handler;
-import android.os.Looper;
 import android.util.Log;
 import android.view.SurfaceControl;
 import android.view.SurfaceControlViewHost;
@@ -34,6 +32,8 @@ import android.window.InputTransferToken;
 
 import com.android.server.utils.Slogf;
 import com.android.wm.shell.common.DisplayController;
+import com.android.wm.shell.common.ShellExecutor;
+import com.android.wm.shell.shared.annotations.ShellMainThread;
 
 /**
  * Managers the auto decor surface.
@@ -43,8 +43,7 @@ public class AutoDecorImpl implements AutoDecor {
     private static final boolean DBG = Log.isLoggable(TAG, Log.DEBUG);
     private final Context mContext;
     private final DisplayController mDisplayController;
-    // TODO(b/388083112): Use SHellExecutor instead.
-    private final Handler mHandler = new Handler(Looper.getMainLooper());
+    private final ShellExecutor mShellExecutor;
     private View mView;
     private int mZOrder;
     private Rect mBounds;
@@ -52,17 +51,26 @@ public class AutoDecorImpl implements AutoDecor {
     private boolean mIsAttached;
 
     AutoDecorImpl(Context context, DisplayController displayController, View view, int zOrder,
-            Rect bounds) {
+            Rect bounds, @ShellMainThread ShellExecutor shellExecutor) {
         mContext = context;
         mDisplayController = displayController;
         mView = view;
         mZOrder = zOrder;
         mBounds = bounds;
+        mShellExecutor = shellExecutor;
         mIsAttached = false;
     }
 
     boolean isAttached() {
         return mIsAttached;
+    }
+
+    void detachDecorFromParentSurface(SurfaceControl.Transaction t) {
+        if (DBG) {
+            Slogf.e(TAG, "Detaching Decor %s", this);
+        }
+        SurfaceControl viewSurface = mViewHost.getSurfacePackage().getSurfaceControl();
+        t.reparent(viewSurface, null);
     }
 
     void attachDecorToParentSurface(SurfaceControl.Transaction t, int displayId,
@@ -84,6 +92,7 @@ public class AutoDecorImpl implements AutoDecor {
         mIsAttached = true;
     }
 
+    @ShellMainThread
     @Override
     public void setBounds(SurfaceControl.Transaction t, Rect bounds) {
         if (DBG) {
@@ -97,11 +106,11 @@ public class AutoDecorImpl implements AutoDecor {
                 .show(viewSurface);
 
         // TODO(b/388083112): Figure out a better way to achieve it.
-        t.addTransactionCommittedListener(mHandler::post,
+        t.addTransactionCommittedListener(mShellExecutor::execute,
                 () -> mViewHost.relayout(getLayoutParams()));
     }
 
-
+    @ShellMainThread
     @Override
     public void setZOrder(SurfaceControl.Transaction t, int zOrder) {
         if (DBG) {
@@ -113,12 +122,14 @@ public class AutoDecorImpl implements AutoDecor {
                 .show(viewSurface);
     }
 
+    @ShellMainThread
     @Override
     public void setView(SurfaceControl.Transaction t, View view) {
         // TODO(b/388083112): Implement setView call
         throw new IllegalArgumentException("Not implemented Yet");
     }
 
+    @ShellMainThread
     @Override
     public void setVisibility(SurfaceControl.Transaction t, boolean isVisible) {
         if (DBG) {

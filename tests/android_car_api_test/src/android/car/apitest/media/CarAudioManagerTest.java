@@ -27,7 +27,7 @@ import static com.google.common.truth.Truth.assertWithMessage;
 
 import static org.junit.Assume.assumeTrue;
 
-import android.car.apitest.CarApiTestBase;
+import android.car.apitest.testbase.CarApiTestBase;
 import android.car.media.CarAudioManager;
 import android.car.media.CarVolumeGroupInfo;
 import android.media.AudioDeviceInfo;

@@ -32,6 +32,7 @@ import android.app.ActivityManager;
 import android.car.Car;
 import android.car.CarOccupantZoneManager;
 import android.car.SyncResultCallback;
+import android.car.apitest.testbase.CarApiTestBase;
 import android.car.test.util.AndroidHelper;
 import android.car.test.util.UserTestingHelper;
 import android.car.testapi.BlockingUserLifecycleListener;

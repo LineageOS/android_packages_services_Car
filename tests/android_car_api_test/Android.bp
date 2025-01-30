@@ -48,6 +48,7 @@ android_test {
         "android.car.cluster.navigation",
         "android.car.cluster.navigation",
         "android.car.testapi",
+        "android.car.testapi.testbase",
         "android.car.test.utils",
         "com.android.car.test.lib",
         "androidx.test.runner",

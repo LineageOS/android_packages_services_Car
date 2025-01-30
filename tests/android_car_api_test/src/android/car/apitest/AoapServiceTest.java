@@ -19,6 +19,7 @@ package android.car.apitest;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.car.AoapService;
+import android.car.apitest.testbase.CarLessApiTestBase;
 import android.hardware.usb.UsbDevice;
 
 import com.android.compatibility.common.util.ApiTest;
