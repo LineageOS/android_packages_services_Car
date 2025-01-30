@@ -38,3 +38,25 @@ fun OverlayManager.setEnableOverlay(
             .build()
     )
 }
+
+/**
+ * Alternative to the standard [OverlayManager.setEnabledExclusiveInCategory] that also works for fabricated RROs.
+ */
+fun OverlayManager.setEnableExclusive(
+    identifier: OverlayIdentifier,
+    overlayList: List<OverlayInfo>,
+    userHandle: UserHandle
+) {
+    val transaction = OverlayManagerTransaction.Builder()
+    transaction.setEnabled(identifier, true, userHandle.identifier)
+    for (overlay in overlayList) {
+        if (overlay.overlayIdentifier != identifier) {
+            transaction.setEnabled(
+                overlay.overlayIdentifier,
+                false,
+                userHandle.identifier
+            )
+        }
+    }
+    commit(transaction.build())
+}
