@@ -125,6 +125,10 @@ std::optional<HasSupportedValueInfo> AidlHalAreaConfig::getHasSupportedValueInfo
     return mAreaConfig.hasSupportedValueInfo;
 }
 
+std::optional<std::vector<int64_t>> AidlHalAreaConfig::getSupportedEnumValues() const {
+    return mAreaConfig.supportedEnumValues;
+}
+
 }  // namespace vhal
 }  // namespace automotive
 }  // namespace frameworks

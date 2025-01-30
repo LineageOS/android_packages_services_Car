@@ -59,6 +59,8 @@ public:
     std::optional<aidl::android::hardware::automotive::vehicle::HasSupportedValueInfo>
     getHasSupportedValueInfo() const override;
 
+    std::optional<std::vector<int64_t>> getSupportedEnumValues() const override;
+
 private:
     ::aidl::android::hardware::automotive::vehicle::VehicleAreaConfig mAreaConfig;
     int32_t mAccess;
