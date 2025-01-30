@@ -29,6 +29,8 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 
+import android.text.TextUtils;
+import android.util.Log;
 import com.android.internal.util.UserIcons;
 
 /**
@@ -37,6 +39,8 @@ import com.android.internal.util.UserIcons;
  * @hide
  */
 class CarUserIconProvider {
+    private static final String TAG = "CarUserIconProvider";
+
     private static final int[] USER_NAME_ICON_COLORS = {
             R.color.car_internal_user_name_icon_1,
             R.color.car_internal_user_name_icon_2,
@@ -76,8 +80,14 @@ class CarUserIconProvider {
 
         Bitmap userIconBitmap = UserIcons.convertToBitmap(icon);
 
+        String name = userInfo.name;
+        if (TextUtils.isEmpty(name)) {
+            Log.w(TAG, "User name is empty.");
+            return userIconBitmap;
+        }
+
         // Set the first letter of user name as user icon.
-        String firstLetter = userInfo.name.substring(/* beginIndex= */ 0, /* endIndex= */ 1);
+        String firstLetter = name.substring(/* beginIndex= */ 0, /* endIndex= */ 1);
         Paint paint = new Paint();
         paint.setStyle(Paint.Style.FILL);
         paint.setColor(getUserNameIconColor(context, userInfo));
