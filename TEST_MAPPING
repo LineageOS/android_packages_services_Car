@@ -72,5 +72,12 @@
     {
       "name": "CarServiceWatchdogTest"
     }
+  ],
+  "ravenwood-presubmit": [
+    {
+      "name": "CarServiceHostUnitTest",
+      "host": true,
+      "keywords": ["automotive_code_coverage"]
+    }
   ]
 }
