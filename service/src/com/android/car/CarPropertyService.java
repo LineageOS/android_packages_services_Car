@@ -106,6 +106,10 @@ import java.util.concurrent.TimeUnit;
  */
 public class CarPropertyService extends ICarProperty.Stub
         implements CarServiceBase, PropertyHalService.PropertyHalListener {
+    // The tolerance we allow for float property value comparison. This is set to a relatively
+    // large value so that we avoid false negative, but may cause false positive, which is okay
+    // since VHAL is supposed to check again.
+    private static final float EPSILON = 0.001f;
     private static final String TAG = CarLog.tagFor(CarPropertyService.class);
     private static final boolean DBG = Slogf.isLoggable(TAG, Log.DEBUG);
     // Maximum count of sync get/set property operation allowed at once. The reason we limit this
@@ -167,6 +171,7 @@ public class CarPropertyService extends ICarProperty.Stub
 
     private final FeatureFlags mFeatureFlags;
     private final HistogramFactoryInterface mHistogramFactory;
+    private final MinMaxSupportedPropertyValueHelper mMinMaxSupportedPropertyValueHelper;
 
     private Histogram mConcurrentSyncOperationHistogram;
     private Histogram mGetPropertySyncLatencyHistogram;
@@ -196,6 +201,39 @@ public class CarPropertyService extends ICarProperty.Stub
     private int mSyncGetSetPropertyOpCount;
 
     /**
+     * An interface to get RawPropertyValue min/max value from MinMaxSupportedPropertyValue.
+     *
+     * This interface is designed so that unit test could fake the implementation.
+     */
+    public interface MinMaxSupportedPropertyValueHelper {
+        /** Gets the min raw property value. */
+        @Nullable RawPropertyValue getMinValue(
+                MinMaxSupportedPropertyValue minMaxSupportedPropertyValue);
+         /** Gets the max raw property value. */
+        @Nullable RawPropertyValue getMaxValue(
+                MinMaxSupportedPropertyValue minMaxSupportedPropertyValue);
+    }
+
+    private static final class SystemMinMaxSupportedPropertyValueHelper implements
+            MinMaxSupportedPropertyValueHelper {
+        public @Nullable RawPropertyValue getMinValue(
+                MinMaxSupportedPropertyValue minMaxSupportedPropertyValue) {
+            if (minMaxSupportedPropertyValue.minValue == null) {
+                return null;
+            }
+            return minMaxSupportedPropertyValue.minValue.getParcelable(RawPropertyValue.class);
+        }
+
+        public @Nullable RawPropertyValue getMaxValue(
+                MinMaxSupportedPropertyValue minMaxSupportedPropertyValue) {
+            if (minMaxSupportedPropertyValue.maxValue == null) {
+                return null;
+            }
+            return minMaxSupportedPropertyValue.maxValue.getParcelable(RawPropertyValue.class);
+        }
+    }
+
+    /**
      * The builder for {@link com.android.car.CarPropertyService}.
      */
     public static final class Builder {
@@ -204,6 +242,7 @@ public class CarPropertyService extends ICarProperty.Stub
         private @Nullable FeatureFlags mFeatureFlags;
         private @Nullable HistogramFactoryInterface mHistogramFactory;
         private boolean mBuilt;
+        private @Nullable MinMaxSupportedPropertyValueHelper mMinMaxSupportedPropertyValueHelper;
 
         /** Sets the context. */
         public Builder setContext(Context context) {
@@ -241,6 +280,13 @@ public class CarPropertyService extends ICarProperty.Stub
             mHistogramFactory = histogramFactory;
             return this;
         }
+
+        /** Sets fake MinMaxSupportedPropertyValueHelper for unit testing. */
+        @VisibleForTesting
+        Builder setMinMaxSupportedPropertyValueHelper(MinMaxSupportedPropertyValueHelper helper) {
+            mMinMaxSupportedPropertyValueHelper = helper;
+            return this;
+        }
     }
 
     private CarPropertyService(Builder builder) {
@@ -253,6 +299,9 @@ public class CarPropertyService extends ICarProperty.Stub
                 () -> new FeatureFlagsImpl());
         mHistogramFactory = Objects.requireNonNullElseGet(builder.mHistogramFactory,
                 () -> new SystemHistogramFactory());
+        mMinMaxSupportedPropertyValueHelper = Objects.requireNonNullElseGet(
+                builder.mMinMaxSupportedPropertyValueHelper,
+                () -> new SystemMinMaxSupportedPropertyValueHelper());
         initializeHistogram();
     }
 
@@ -1423,22 +1472,93 @@ public class CarPropertyService extends ICarProperty.Stub
                 VehiclePropertyIds.toString(carPropertyConfig.getPropertyId()),
                 toAreaIdString(carPropertyConfig.getPropertyId(), areaId));
 
+        validateValueRange(carPropertyValue, carPropertyConfig);
+
+        if (PROPERTY_ID_TO_UNWRITABLE_STATES.contains(carPropertyConfig.getPropertyId())) {
+            Preconditions.checkArgument(!(PROPERTY_ID_TO_UNWRITABLE_STATES
+                            .get(carPropertyConfig.getPropertyId()).contains(valueToSet)),
+                    "setProperty: value to set: %s must not be an unwritable state value. - "
+                            + "property ID: %s area ID: %s unwritable states: %s",
+                    valueToSet,
+                    VehiclePropertyIds.toString(carPropertyConfig.getPropertyId()),
+                    toAreaIdString(carPropertyConfig.getPropertyId(), areaId),
+                    PROPERTY_ID_TO_UNWRITABLE_STATES.get(carPropertyConfig.getPropertyId()));
+        }
+    }
+
+    private void validateValueRange(CarPropertyValue<?> carPropertyValue,
+            CarPropertyConfig<?> carPropertyConfig) {
+        int propertyId = carPropertyValue.getPropertyId();
+        int areaId = carPropertyValue.getAreaId();
         AreaIdConfig<?> areaIdConfig = carPropertyConfig.getAreaIdConfig(areaId);
-        if (areaIdConfig.getMinValue() != null) {
-            boolean isGreaterThanOrEqualToMinValue = false;
-            if (carPropertyConfig.getPropertyType().equals(Integer.class)) {
-                isGreaterThanOrEqualToMinValue =
-                        (Integer) valueToSet >= (Integer) areaIdConfig.getMinValue();
-            } else if (carPropertyConfig.getPropertyType().equals(Long.class)) {
-                isGreaterThanOrEqualToMinValue =
-                        (Long) valueToSet >= (Long) areaIdConfig.getMinValue();
-            } else if (carPropertyConfig.getPropertyType().equals(Float.class)) {
-                isGreaterThanOrEqualToMinValue =
-                        (Float) valueToSet >= (Float) areaIdConfig.getMinValue();
+        Object valueToSet = carPropertyValue.getValue();
+
+        if (!mFeatureFlags.carPropertySupportedValue()) {
+            validateValueRangeBasedOnConfig(carPropertyConfig, areaIdConfig, valueToSet);
+            return;
+        }
+
+        if (areaIdConfig.hasMinSupportedValue() || areaIdConfig.hasMaxSupportedValue()) {
+            MinMaxSupportedPropertyValue minMaxSupportedPropertyValue =
+                    getMinMaxSupportedValue(propertyId, areaId);
+            RawPropertyValue minRawPropertyValue = mMinMaxSupportedPropertyValueHelper
+                    .getMinValue(minMaxSupportedPropertyValue);
+            RawPropertyValue maxRawPropertyValue = mMinMaxSupportedPropertyValueHelper
+                    .getMaxValue(minMaxSupportedPropertyValue);
+            if (areaIdConfig.hasMinSupportedValue() && minRawPropertyValue != null) {
+                Object minValue = minRawPropertyValue.getTypedValue();
+                Preconditions.checkArgument(isGreaterThanOrEqualTo(
+                        carPropertyConfig.getPropertyType(), valueToSet, minValue),
+                        "setProperty: value to set must be greater than or equal to the area ID min"
+                                + " value. - " + "property ID: %s, area ID: %s, valueToSet: %s, "
+                                + "min value: %s",
+                        VehiclePropertyIds.toString(carPropertyConfig.getPropertyId()),
+                        toAreaIdString(carPropertyConfig.getPropertyId(), areaId),
+                        valueToSet, minValue);
             }
-            Preconditions.checkArgument(isGreaterThanOrEqualToMinValue,
+            if (areaIdConfig.hasMaxSupportedValue() && maxRawPropertyValue != null) {
+                Object maxValue = maxRawPropertyValue.getTypedValue();
+                Preconditions.checkArgument(isLessThanOrEqualTo(
+                        carPropertyConfig.getPropertyType(), valueToSet, maxValue),
+                        "setProperty: value to set must be less than or equal to the area ID max "
+                                + "value. - " + "property ID: %s area ID: %s, valueToSet: %s, "
+                                + "max value: %s",
+                        VehiclePropertyIds.toString(carPropertyConfig.getPropertyId()),
+                        toAreaIdString(carPropertyConfig.getPropertyId(), areaId),
+                        valueToSet, maxValue);
+            }
+        }
+
+        if (areaIdConfig.hasSupportedValuesList()) {
+            List<RawPropertyValue> supportedValues = getSupportedValuesList(propertyId, areaId);
+            if (supportedValues != null) {
+                boolean found = false;
+                for (int i = 0; i < supportedValues.size(); i++) {
+                    if (isEqualTo(carPropertyConfig.getPropertyType(), valueToSet,
+                            supportedValues.get(i).getTypedValue())) {
+                        found = true;
+                        break;
+                    }
+                }
+                Preconditions.checkArgument(found,
+                        "setProperty: value to set must exist in set of supported values. - "
+                                + "value. - " + "property ID: %s area ID: %s, valueToSet: %s, "
+                                + "supported values: %s",
+                        VehiclePropertyIds.toString(carPropertyConfig.getPropertyId()),
+                        toAreaIdString(carPropertyConfig.getPropertyId(), areaId),
+                        valueToSet, Arrays.toString(supportedValues.toArray()));
+            }
+        }
+    }
+
+    private void validateValueRangeBasedOnConfig(CarPropertyConfig<?> carPropertyConfig,
+            AreaIdConfig<?> areaIdConfig, Object valueToSet) {
+        int areaId = areaIdConfig.getAreaId();
+        if (areaIdConfig.getMinValue() != null) {
+            Preconditions.checkArgument(isGreaterThanOrEqualTo(carPropertyConfig.getPropertyType(),
+                    valueToSet, areaIdConfig.getMinValue()),
                     "setProperty: value to set must be greater than or equal to the area ID min "
-                            + "value. - " + "property ID: %s area ID: 0x%s min value: %s",
+                            + "value. - " + "property ID: %s area ID: %s min value: %s",
                     VehiclePropertyIds.toString(carPropertyConfig.getPropertyId()),
                     toAreaIdString(carPropertyConfig.getPropertyId(), areaId),
                     areaIdConfig.getMinValue());
@@ -1446,20 +1566,10 @@ public class CarPropertyService extends ICarProperty.Stub
         }
 
         if (areaIdConfig.getMaxValue() != null) {
-            boolean isLessThanOrEqualToMaxValue = false;
-            if (carPropertyConfig.getPropertyType().equals(Integer.class)) {
-                isLessThanOrEqualToMaxValue =
-                        (Integer) valueToSet <= (Integer) areaIdConfig.getMaxValue();
-            } else if (carPropertyConfig.getPropertyType().equals(Long.class)) {
-                isLessThanOrEqualToMaxValue =
-                        (Long) valueToSet <= (Long) areaIdConfig.getMaxValue();
-            } else if (carPropertyConfig.getPropertyType().equals(Float.class)) {
-                isLessThanOrEqualToMaxValue =
-                        (Float) valueToSet <= (Float) areaIdConfig.getMaxValue();
-            }
-            Preconditions.checkArgument(isLessThanOrEqualToMaxValue,
+            Preconditions.checkArgument(isLessThanOrEqualTo(carPropertyConfig.getPropertyType(),
+                    valueToSet, areaIdConfig.getMaxValue()),
                     "setProperty: value to set must be less than or equal to the area ID max "
-                            + "value. - " + "property ID: %s area ID: 0x%s min value: %s",
+                            + "value. - " + "property ID: %s area ID: %s min value: %s",
                     VehiclePropertyIds.toString(carPropertyConfig.getPropertyId()),
                     toAreaIdString(carPropertyConfig.getPropertyId(), areaId),
                     areaIdConfig.getMaxValue());
@@ -1469,21 +1579,46 @@ public class CarPropertyService extends ICarProperty.Stub
         if (!areaIdConfig.getSupportedEnumValues().isEmpty()) {
             Preconditions.checkArgument(areaIdConfig.getSupportedEnumValues().contains(valueToSet),
                     "setProperty: value to set must exist in set of supported enum values. - "
-                            + "property ID: %s area ID: 0x%s supported enum values: %s",
+                            + "property ID: %s area ID: %s supported enum values: %s",
                     VehiclePropertyIds.toString(carPropertyConfig.getPropertyId()),
                     toAreaIdString(carPropertyConfig.getPropertyId(), areaId),
                     areaIdConfig.getSupportedEnumValues());
         }
+    }
 
-        if (PROPERTY_ID_TO_UNWRITABLE_STATES.contains(carPropertyConfig.getPropertyId())) {
-            Preconditions.checkArgument(!(PROPERTY_ID_TO_UNWRITABLE_STATES
-                            .get(carPropertyConfig.getPropertyId()).contains(valueToSet)),
-                    "setProperty: value to set: %s must not be an unwritable state value. - "
-                            + "property ID: %s area ID: 0x%s unwritable states: %s",
-                    valueToSet,
-                    VehiclePropertyIds.toString(carPropertyConfig.getPropertyId()),
-                    toAreaIdString(carPropertyConfig.getPropertyId(), areaId),
-                    PROPERTY_ID_TO_UNWRITABLE_STATES.get(carPropertyConfig.getPropertyId()));
+    private static boolean isGreaterThanOrEqualTo(Class<?> clazz, Object left, Object right) {
+        if (clazz.equals(Integer.class)) {
+            return (Integer) left >= (Integer) right;
+        } else if (clazz.equals(Long.class)) {
+            return (Long) left >= (Long) right;
+        } else if (clazz.equals(Float.class)) {
+            return (Float) left >= (Float) right - EPSILON;
         }
+        // We don't check for other type of properties.
+        return true;
+    }
+
+    private static boolean isLessThanOrEqualTo(Class<?> clazz, Object left, Object right) {
+        if (clazz.equals(Integer.class)) {
+            return (Integer) left <= (Integer) right;
+        } else if (clazz.equals(Long.class)) {
+            return (Long) left <= (Long) right;
+        } else if (clazz.equals(Float.class)) {
+            return (Float) left <= (Float) right + EPSILON;
+        }
+        // We don't check for other type of properties.
+        return true;
+    }
+
+    private static boolean isEqualTo(Class<?> clazz, Object left, Object right) {
+        if (clazz.equals(Integer.class)) {
+            return ((Integer) left).equals((Integer) right);
+        } else if (clazz.equals(Long.class)) {
+            return ((Long) left).equals((Long) right);
+        } else if (clazz.equals(Float.class)) {
+            return Math.abs((Float) left - (Float) right) < EPSILON;
+        }
+        // We don't check for other type of properties.
+        return true;
     }
 }

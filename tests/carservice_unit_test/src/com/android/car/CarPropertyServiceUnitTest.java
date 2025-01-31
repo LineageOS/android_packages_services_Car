@@ -122,6 +122,9 @@ public final class CarPropertyServiceUnitTest extends AbstractExpectableTestCase
     private ArgumentCaptor<List<CarPropertyEvent>> mPropertyEventCaptor;
     @Mock
     private ISupportedValuesChangeCallback mSupportedValuesChangeCallback;
+    @Mock
+    private CarPropertyService.MinMaxSupportedPropertyValueHelper
+                mMinMaxSupportedPropertyValueHelper;
 
     private CarPropertyService mService;
 
@@ -311,17 +314,24 @@ public final class CarPropertyServiceUnitTest extends AbstractExpectableTestCase
         when(mFeatureFlags.variableUpdateRate()).thenReturn(true);
         when(mFeatureFlags.subscriptionWithResolution()).thenReturn(true);
         when(mFeatureFlags.alwaysSendInitialValueEvent()).thenReturn(true);
+        when(mFeatureFlags.carPropertySupportedValue()).thenReturn(true);
 
         when(mHistogramFactory.newUniformHistogram(any(), anyInt(), anyFloat(), anyFloat()))
                 .thenReturn(mock(Histogram.class));
         when(mHistogramFactory.newScaledRangeHistogram(any(), anyInt(), anyInt(), anyFloat(),
                 anyFloat())).thenReturn(mock(Histogram.class));
 
+        // We cannot use a real MinMaxSupportedPropertyValue because its field type:
+        // ParcelableHolder is not supported on host.
+        when(mHalService.getMinMaxSupportedValue(anyInt(), anyInt(), any()))
+                .thenReturn(mock(MinMaxSupportedPropertyValue.class));
+
         mService = new CarPropertyService.Builder()
                 .setContext(mContext)
                 .setPropertyHalService(mHalService)
                 .setFeatureFlags(mFeatureFlags)
                 .setHistogramFactory(mHistogramFactory)
+                .setMinMaxSupportedPropertyValueHelper(mMinMaxSupportedPropertyValueHelper)
                 .build();
         mService.init();
     }
@@ -526,7 +536,9 @@ public final class CarPropertyServiceUnitTest extends AbstractExpectableTestCase
     }
 
     @Test
-    public void testSetPropertiesAsync_valueLargerThanMaxValue() {
+    public void testSetPropertiesAsync_valueLargerThanMaxValue_noDynamicSupportedValues() {
+        when(mFeatureFlags.carPropertySupportedValue()).thenReturn(false);
+
         AsyncPropertyServiceRequest request = new AsyncPropertyServiceRequest(
                 0, READ_WRITE_INT_PROPERTY_ID, 0, new CarPropertyValue(READ_WRITE_INT_PROPERTY_ID,
                         0, MAX_INT_VALUE + 1));
@@ -537,7 +549,85 @@ public final class CarPropertyServiceUnitTest extends AbstractExpectableTestCase
     }
 
     @Test
-    public void testSetPropertiesAsync_valueSmallerThanMinValue() {
+    public void testSetPropertiesAsync_valueLargerThanMaxValue_IntValue() {
+        int propId = READ_WRITE_INT_PROPERTY_ID;
+        when(mMinMaxSupportedPropertyValueHelper.getMaxValue(any())).thenReturn(
+                new RawPropertyValue(MAX_INT_VALUE));
+
+        AsyncPropertyServiceRequest request = new AsyncPropertyServiceRequest(
+                0, propId, 0, new CarPropertyValue(propId, 0, MAX_INT_VALUE + 1));
+
+        assertThrows(IllegalArgumentException.class, () -> mService.setPropertiesAsync(
+                new AsyncPropertyServiceRequestList(List.of(request)),
+                mAsyncPropertyResultCallback, ASYNC_TIMEOUT_MS));
+
+        var request2 = new AsyncPropertyServiceRequest(
+                0, propId, 0, new CarPropertyValue(propId, 0, MAX_INT_VALUE));
+
+        // Must not throw exception.
+        mService.setPropertiesAsync(
+                new AsyncPropertyServiceRequestList(List.of(request2)),
+                mAsyncPropertyResultCallback, ASYNC_TIMEOUT_MS);
+    }
+
+    @Test
+    public void testSetPropertiesAsync_valueLargerThanMaxValue_LongValue() {
+        int propId = WRITE_ONLY_LONG_PROPERTY_ID;
+        when(mMinMaxSupportedPropertyValueHelper.getMaxValue(any())).thenReturn(
+                new RawPropertyValue(MAX_LONG_VALUE));
+
+        AsyncPropertyServiceRequest request = new AsyncPropertyServiceRequest(
+                0, propId, 0, new CarPropertyValue(propId, 0, MAX_LONG_VALUE + 1L));
+        // The property is not readable so we cannot wait for property update.
+        request.setWaitForPropertyUpdate(false);
+
+        assertThrows(IllegalArgumentException.class, () -> mService.setPropertiesAsync(
+                new AsyncPropertyServiceRequestList(List.of(request)),
+                mAsyncPropertyResultCallback, ASYNC_TIMEOUT_MS));
+
+        var request2 = new AsyncPropertyServiceRequest(
+                0, propId, 0, new CarPropertyValue(propId, 0, MAX_LONG_VALUE));
+        // The property is not readable so we cannot wait for property update.
+        request2.setWaitForPropertyUpdate(false);
+
+        // Must not throw exception.
+        mService.setPropertiesAsync(
+                new AsyncPropertyServiceRequestList(List.of(request2)),
+                mAsyncPropertyResultCallback, ASYNC_TIMEOUT_MS);
+    }
+
+    @Test
+    public void testSetPropertiesAsync_valueLargerThanMaxValue_FloatValue() {
+        float maxValue = 1 / 3.f;
+        int propId = WRITE_ONLY_FLOAT_PROPERTY_ID;
+        when(mMinMaxSupportedPropertyValueHelper.getMaxValue(any())).thenReturn(
+                new RawPropertyValue(maxValue));
+
+        AsyncPropertyServiceRequest request = new AsyncPropertyServiceRequest(
+                0, propId, 0, new CarPropertyValue(propId, 0, maxValue + 0.01f));
+        // The property is not readable so we cannot wait for property update.
+        request.setWaitForPropertyUpdate(false);
+
+        assertThrows(IllegalArgumentException.class, () -> mService.setPropertiesAsync(
+                new AsyncPropertyServiceRequestList(List.of(request)),
+                mAsyncPropertyResultCallback, ASYNC_TIMEOUT_MS));
+
+        // The calculated float might not be exactly the same as maxValue.
+        var request2 = new AsyncPropertyServiceRequest(
+                0, propId, 0, new CarPropertyValue(propId, 0, 1 / 9.f * 3.f));
+        // The property is not readable so we cannot wait for property update.
+        request2.setWaitForPropertyUpdate(false);
+
+        // Must not throw exception.
+        mService.setPropertiesAsync(
+                new AsyncPropertyServiceRequestList(List.of(request2)),
+                mAsyncPropertyResultCallback, ASYNC_TIMEOUT_MS);
+    }
+
+    @Test
+    public void testSetPropertiesAsync_valueSmallerThanMinValue_noDynamicSupportedValue() {
+        when(mFeatureFlags.carPropertySupportedValue()).thenReturn(false);
+
         AsyncPropertyServiceRequest request = new AsyncPropertyServiceRequest(
                 0, READ_WRITE_INT_PROPERTY_ID, 0, new CarPropertyValue(READ_WRITE_INT_PROPERTY_ID,
                         0, MIN_INT_VALUE - 1));
@@ -545,6 +635,82 @@ public final class CarPropertyServiceUnitTest extends AbstractExpectableTestCase
         assertThrows(IllegalArgumentException.class, () -> mService.setPropertiesAsync(
                 new AsyncPropertyServiceRequestList(List.of(request)),
                 mAsyncPropertyResultCallback, ASYNC_TIMEOUT_MS));
+    }
+
+    @Test
+    public void testSetPropertiesAsync_valueSmallerThanMinValue_IntValue() {
+        int propId = READ_WRITE_INT_PROPERTY_ID;
+        when(mMinMaxSupportedPropertyValueHelper.getMinValue(any())).thenReturn(
+                new RawPropertyValue(MIN_INT_VALUE));
+
+        AsyncPropertyServiceRequest request = new AsyncPropertyServiceRequest(
+                0, propId, 0, new CarPropertyValue(propId, 0, MIN_INT_VALUE - 1));
+
+        assertThrows(IllegalArgumentException.class, () -> mService.setPropertiesAsync(
+                new AsyncPropertyServiceRequestList(List.of(request)),
+                mAsyncPropertyResultCallback, ASYNC_TIMEOUT_MS));
+
+        var request2 = new AsyncPropertyServiceRequest(
+                0, propId, 0, new CarPropertyValue(propId, 0, MIN_INT_VALUE));
+
+        // Must not throw exception.
+        mService.setPropertiesAsync(
+                new AsyncPropertyServiceRequestList(List.of(request2)),
+                mAsyncPropertyResultCallback, ASYNC_TIMEOUT_MS);
+    }
+
+    @Test
+    public void testSetPropertiesAsync_valueSmallerThanMinValue_LongValue() {
+        int propId = WRITE_ONLY_LONG_PROPERTY_ID;
+        when(mMinMaxSupportedPropertyValueHelper.getMinValue(any())).thenReturn(
+                new RawPropertyValue(MIN_LONG_VALUE));
+
+        AsyncPropertyServiceRequest request = new AsyncPropertyServiceRequest(
+                0, propId, 0, new CarPropertyValue(propId, 0, MIN_LONG_VALUE - 1L));
+        // The property is not readable so we cannot wait for property update.
+        request.setWaitForPropertyUpdate(false);
+
+        assertThrows(IllegalArgumentException.class, () -> mService.setPropertiesAsync(
+                new AsyncPropertyServiceRequestList(List.of(request)),
+                mAsyncPropertyResultCallback, ASYNC_TIMEOUT_MS));
+
+        var request2 = new AsyncPropertyServiceRequest(
+                0, propId, 0, new CarPropertyValue(propId, 0, MIN_LONG_VALUE));
+        // The property is not readable so we cannot wait for property update.
+        request2.setWaitForPropertyUpdate(false);
+
+        // Must not throw exception.
+        mService.setPropertiesAsync(
+                new AsyncPropertyServiceRequestList(List.of(request2)),
+                mAsyncPropertyResultCallback, ASYNC_TIMEOUT_MS);
+    }
+
+    @Test
+    public void testSetPropertiesAsync_valueSmallerThanMinValue_FloatValue() {
+        float minValue = 1 / 3.f;
+        int propId = WRITE_ONLY_FLOAT_PROPERTY_ID;
+        when(mMinMaxSupportedPropertyValueHelper.getMinValue(any())).thenReturn(
+                new RawPropertyValue(minValue));
+
+        AsyncPropertyServiceRequest request = new AsyncPropertyServiceRequest(
+                0, propId, 0, new CarPropertyValue(propId, 0, minValue - 0.01f));
+        // The property is not readable so we cannot wait for property update.
+        request.setWaitForPropertyUpdate(false);
+
+        assertThrows(IllegalArgumentException.class, () -> mService.setPropertiesAsync(
+                new AsyncPropertyServiceRequestList(List.of(request)),
+                mAsyncPropertyResultCallback, ASYNC_TIMEOUT_MS));
+
+        // The calculated float might not be exactly the same as maxValue.
+        var request2 = new AsyncPropertyServiceRequest(
+                0, propId, 0, new CarPropertyValue(propId, 0, 1 / 9.f * 3.f));
+        // The property is not readable so we cannot wait for property update.
+        request2.setWaitForPropertyUpdate(false);
+
+        // Must not throw exception.
+        mService.setPropertiesAsync(
+                new AsyncPropertyServiceRequestList(List.of(request2)),
+                mAsyncPropertyResultCallback, ASYNC_TIMEOUT_MS);
     }
 
     @Test
@@ -1385,52 +1551,218 @@ public final class CarPropertyServiceUnitTest extends AbstractExpectableTestCase
     }
 
     @Test
-    public void setProperty_throwsExceptionBecauseOfIntSetValueIsLessThanMinValue() {
+    public void setProperty_throwsExceptionIntSetValueTooSmall_noDynamicSupportedValue() {
+        when(mFeatureFlags.carPropertySupportedValue()).thenReturn(false);
+
         assertThrows(IllegalArgumentException.class, () -> mService.setProperty(
                 new CarPropertyValue(WRITE_ONLY_INT_PROPERTY_ID, GLOBAL_AREA_ID, MIN_INT_VALUE - 1),
                 mICarPropertyEventListener));
     }
 
     @Test
-    public void setProperty_throwsExceptionBecauseOfIntSetValueIsGreaterThanMaxValue() {
+    public void setProperty_throwsExceptionIntSetValueWithinRange() {
+        when(mMinMaxSupportedPropertyValueHelper.getMinValue(any())).thenReturn(
+                new RawPropertyValue(MIN_INT_VALUE));
+        when(mMinMaxSupportedPropertyValueHelper.getMaxValue(any())).thenReturn(
+                new RawPropertyValue(MAX_INT_VALUE));
+
+        // No exception.
+        mService.setProperty(
+                new CarPropertyValue(WRITE_ONLY_INT_PROPERTY_ID, GLOBAL_AREA_ID, MIN_INT_VALUE + 1),
+                mICarPropertyEventListener);
+    }
+
+    @Test
+    public void setProperty_throwsExceptionIntSetValueTooSmall() {
+        when(mMinMaxSupportedPropertyValueHelper.getMinValue(any())).thenReturn(
+                new RawPropertyValue(MIN_INT_VALUE));
+
+        assertThrows(IllegalArgumentException.class, () -> mService.setProperty(
+                new CarPropertyValue(WRITE_ONLY_INT_PROPERTY_ID, GLOBAL_AREA_ID, MIN_INT_VALUE - 1),
+                mICarPropertyEventListener));
+    }
+
+    @Test
+    public void setProperty_throwsExceptionIntSetValueTooLarge_noDynamicSupportedValue() {
+        when(mFeatureFlags.carPropertySupportedValue()).thenReturn(false);
+
         assertThrows(IllegalArgumentException.class, () -> mService.setProperty(
                 new CarPropertyValue(WRITE_ONLY_INT_PROPERTY_ID, GLOBAL_AREA_ID, MAX_INT_VALUE + 1),
                 mICarPropertyEventListener));
     }
 
     @Test
-    public void setProperty_throwsExceptionBecauseOfLongSetValueIsLessThanMinValue() {
+    public void setProperty_throwsExceptionIntSetValueTooLarge() {
+        when(mMinMaxSupportedPropertyValueHelper.getMaxValue(any())).thenReturn(
+                new RawPropertyValue(MAX_INT_VALUE));
+
+        assertThrows(IllegalArgumentException.class, () -> mService.setProperty(
+                new CarPropertyValue(WRITE_ONLY_INT_PROPERTY_ID, GLOBAL_AREA_ID, MAX_INT_VALUE + 1),
+                mICarPropertyEventListener));
+    }
+
+    @Test
+    public void setProperty_throwsExceptionLongSetValueTooSmall_noDynamicSupportedValue() {
+        when(mFeatureFlags.carPropertySupportedValue()).thenReturn(false);
+
         assertThrows(IllegalArgumentException.class, () -> mService.setProperty(
                 new CarPropertyValue(WRITE_ONLY_LONG_PROPERTY_ID, GLOBAL_AREA_ID,
                         MIN_LONG_VALUE - 1), mICarPropertyEventListener));
     }
 
     @Test
-    public void setProperty_throwsExceptionBecauseOfLongSetValueIsGreaterThanMaxValue() {
+    public void setProperty_throwsExceptionLongSetValueTooSmall() {
+        when(mMinMaxSupportedPropertyValueHelper.getMinValue(any())).thenReturn(
+                new RawPropertyValue(MIN_LONG_VALUE));
+
+        assertThrows(IllegalArgumentException.class, () -> mService.setProperty(
+                new CarPropertyValue(WRITE_ONLY_LONG_PROPERTY_ID, GLOBAL_AREA_ID,
+                        MIN_LONG_VALUE - 1), mICarPropertyEventListener));
+    }
+
+    @Test
+    public void setProperty_throwsExceptionLongSetValueTooLarge_noDynamicSupportedValue() {
+        when(mFeatureFlags.carPropertySupportedValue()).thenReturn(false);
+
         assertThrows(IllegalArgumentException.class, () -> mService.setProperty(
                 new CarPropertyValue(WRITE_ONLY_LONG_PROPERTY_ID, GLOBAL_AREA_ID,
                         MAX_LONG_VALUE + 1), mICarPropertyEventListener));
     }
 
     @Test
-    public void setProperty_throwsExceptionBecauseOfFloatSetValueIsLessThanMinValue() {
+    public void setProperty_throwsExceptionLongSetValueTooLarge() {
+        when(mMinMaxSupportedPropertyValueHelper.getMaxValue(any())).thenReturn(
+                new RawPropertyValue(MAX_LONG_VALUE));
+
         assertThrows(IllegalArgumentException.class, () -> mService.setProperty(
                 new CarPropertyValue(WRITE_ONLY_LONG_PROPERTY_ID, GLOBAL_AREA_ID,
-                        MIN_LONG_VALUE - 1), mICarPropertyEventListener));
+                        MAX_LONG_VALUE + 1), mICarPropertyEventListener));
     }
 
     @Test
-    public void setProperty_throwsExceptionBecauseOfFloatSetValueIsGreaterThanMaxValue() {
+    public void setProperty_throwsExceptionFloatSetValueTooSmall_noDynamicSupportedValue() {
+        when(mFeatureFlags.carPropertySupportedValue()).thenReturn(false);
+
+        assertThrows(IllegalArgumentException.class, () -> mService.setProperty(
+                new CarPropertyValue(WRITE_ONLY_FLOAT_PROPERTY_ID, GLOBAL_AREA_ID,
+                        MIN_FLOAT_VALUE - 1), mICarPropertyEventListener));
+    }
+
+    @Test
+    public void setProperty_throwsExceptionFloatSetValueTooSmall() {
+        when(mMinMaxSupportedPropertyValueHelper.getMinValue(any())).thenReturn(
+                new RawPropertyValue(MIN_FLOAT_VALUE));
+
+        assertThrows(IllegalArgumentException.class, () -> mService.setProperty(
+                new CarPropertyValue(WRITE_ONLY_FLOAT_PROPERTY_ID, GLOBAL_AREA_ID,
+                        MIN_FLOAT_VALUE - 1), mICarPropertyEventListener));
+    }
+
+    @Test
+    public void setProperty_throwsExceptionFloatSetValueTooLarge_noDynamicSupportedValue() {
+        when(mFeatureFlags.carPropertySupportedValue()).thenReturn(false);
+
         assertThrows(IllegalArgumentException.class, () -> mService.setProperty(
                 new CarPropertyValue(WRITE_ONLY_FLOAT_PROPERTY_ID, GLOBAL_AREA_ID,
                         MAX_FLOAT_VALUE + 1), mICarPropertyEventListener));
     }
 
     @Test
-    public void setProperty_throwsExceptionBecauseOfSetValueIsNotInSupportedEnumValues() {
+    public void setProperty_throwsExceptionFloatSetValueTooLarge() {
+        when(mMinMaxSupportedPropertyValueHelper.getMaxValue(any())).thenReturn(
+                new RawPropertyValue(MAX_FLOAT_VALUE));
+
+        assertThrows(IllegalArgumentException.class, () -> mService.setProperty(
+                new CarPropertyValue(WRITE_ONLY_FLOAT_PROPERTY_ID, GLOBAL_AREA_ID,
+                        MAX_FLOAT_VALUE + 1), mICarPropertyEventListener));
+    }
+
+    @Test
+    public void setProperty_setNotSupportedValue_noDynamicSupportedValue() {
+        when(mFeatureFlags.carPropertySupportedValue()).thenReturn(false);
+
         assertThrows(IllegalArgumentException.class, () -> mService.setProperty(
                 new CarPropertyValue(WRITE_ONLY_ENUM_PROPERTY_ID, GLOBAL_AREA_ID,
                         UNSUPPORTED_ENUM_VALUE), mICarPropertyEventListener));
+
+        // No exception
+        mService.setProperty(
+                new CarPropertyValue(WRITE_ONLY_ENUM_PROPERTY_ID, GLOBAL_AREA_ID,
+                        SUPPORTED_ENUM_VALUES.get(0)), mICarPropertyEventListener);
+    }
+
+    @Test
+    public void setProperty_setNotSupportedValue_intValue() {
+        List<RawPropertyValue> supportedValues = new ArrayList<>();
+        for (int i = 0; i < SUPPORTED_ENUM_VALUES.size(); i++) {
+            supportedValues.add(new RawPropertyValue(SUPPORTED_ENUM_VALUES.get(i)));
+        }
+
+        when(mHalService.getSupportedValuesList(anyInt(), anyInt(), any())).thenReturn(
+                supportedValues);
+
+        assertThrows(IllegalArgumentException.class, () -> mService.setProperty(
+                new CarPropertyValue(WRITE_ONLY_ENUM_PROPERTY_ID, GLOBAL_AREA_ID,
+                        UNSUPPORTED_ENUM_VALUE), mICarPropertyEventListener));
+
+        // No exception
+        mService.setProperty(
+                new CarPropertyValue(WRITE_ONLY_ENUM_PROPERTY_ID, GLOBAL_AREA_ID,
+                        SUPPORTED_ENUM_VALUES.get(0)), mICarPropertyEventListener);
+    }
+
+    @Test
+    public void setProperty_setNotSupportedValue_longValue() {
+        int propId = WRITE_ONLY_LONG_PROPERTY_ID;
+        List<RawPropertyValue> supportedValues = List.of(
+                new RawPropertyValue(1L), new RawPropertyValue(2L));
+        // Change the config to set HasSupportedValuesList to true.
+        mConfigs.put(propId, CarPropertyConfig.newBuilder(Long.class,
+                propId, VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL, 1)
+                .addAreaIdConfig(new AreaIdConfig.Builder<Long>(
+                        CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_WRITE, GLOBAL_AREA_ID)
+                        .setHasSupportedValuesList(true).build())
+                .setAccess(CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_WRITE)
+                .build());
+
+        when(mHalService.getSupportedValuesList(anyInt(), anyInt(), any())).thenReturn(
+                supportedValues);
+
+        assertThrows(IllegalArgumentException.class, () -> mService.setProperty(
+                new CarPropertyValue(propId, GLOBAL_AREA_ID, 3L),
+                mICarPropertyEventListener));
+
+        // No exception
+        mService.setProperty(
+                new CarPropertyValue(propId, GLOBAL_AREA_ID, 2L),
+                mICarPropertyEventListener);
+    }
+
+    @Test
+    public void setProperty_setNotSupportedValue_floatValue() {
+        int propId = WRITE_ONLY_FLOAT_PROPERTY_ID;
+        List<RawPropertyValue> supportedValues = List.of(
+                new RawPropertyValue(1.f), new RawPropertyValue(2.f));
+        // Change the config to set HasSupportedValuesList to true.
+        mConfigs.put(propId, CarPropertyConfig.newBuilder(Float.class,
+                propId, VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL, 1)
+                .addAreaIdConfig(new AreaIdConfig.Builder<Float>(
+                        CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_WRITE, GLOBAL_AREA_ID)
+                        .setHasSupportedValuesList(true).build())
+                .setAccess(CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_WRITE)
+                .build());
+
+        when(mHalService.getSupportedValuesList(anyInt(), anyInt(), any())).thenReturn(
+                supportedValues);
+
+        assertThrows(IllegalArgumentException.class, () -> mService.setProperty(
+                new CarPropertyValue(propId, GLOBAL_AREA_ID, 1.5f),
+                mICarPropertyEventListener));
+
+        // No exception, the value to set might not be exactly the same as the supported value.
+        mService.setProperty(
+                new CarPropertyValue(propId, GLOBAL_AREA_ID, 1 / 3.f * 3.f),
+                mICarPropertyEventListener);
     }
 
     @Test
