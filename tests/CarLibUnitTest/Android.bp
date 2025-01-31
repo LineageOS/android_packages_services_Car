@@ -50,6 +50,7 @@ java_defaults {
         "truth",
         "vehicle-hal-support-lib",
         "car-helper-lib",
+        "compatibility-device-util-axt-ravenwood",
     ],
 }
 
@@ -70,6 +71,7 @@ java_defaults {
     static_libs: [
         "mockito-target-extended",
         "ravenwood-junit",
+        "compatibility-device-util-axt",
     ],
     libs: [
         "android.car.builtin.stubs.module_lib",
