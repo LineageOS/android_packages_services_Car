@@ -75,4 +75,10 @@ internal sealed class PanelItem(open val isEnabled: Boolean) {
         override val isEnabled: Boolean,
         val action: PanelAction,
     ) : PanelItem(isEnabled)
+
+    data class Status(
+        val text: String,
+        val errorText: String?,
+        val isPositive: Boolean,
+    ) : PanelItem(isEnabled = true)
 }
