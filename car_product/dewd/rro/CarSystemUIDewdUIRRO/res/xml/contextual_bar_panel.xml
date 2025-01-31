@@ -27,7 +27,7 @@
     </Variant>
 
     <Transitions>
-        <Transition onEvent="home_2_event" toVariant="@id/opened"/>
-        <Transition onEvent="home_event" toVariant="@id/opened"/>
+        <Transition onEvent="_System_OnHomeEvent" toVariant="@id/opened"/>
+        <Transition onEvent="_System_EnterSuwEvent" toVariant="@id/closed"/>
     </Transitions>
 </Panel>
