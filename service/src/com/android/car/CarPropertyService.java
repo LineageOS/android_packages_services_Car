@@ -1259,10 +1259,10 @@ public class CarPropertyService extends ICarProperty.Stub
     }
 
     @Override
-    public void enableInjectionMode(int[] propertyIdsFromRealHardware) {
+    public long enableInjectionMode(int[] propertyIdsFromRealHardware) {
         CarServiceUtils.assertPermission(mContext, Car.PERMISSION_INJECT_VEHICLE_PROPERTIES);
         CarServiceUtils.assertBuildIsDebuggable();
-        mPropertyHalService.enableInjectionMode(Lists.asImmutableList(
+        return mPropertyHalService.enableInjectionMode(Lists.asImmutableList(
                 propertyIdsFromRealHardware));
     }
 

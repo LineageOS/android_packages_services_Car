@@ -346,8 +346,9 @@ ScopedAStatus CarPowerManagementDelegate::applyPowerPolicyPerPowerStateChangeAsy
             "applyPowerPolicyPerPowerStateChangeAsync");
 }
 
-ScopedAStatus CarPowerManagementDelegate::notifyPowerStateChange(
-        int32_t changeId, CarPowerState newState, [[maybe_unused]] int64_t expirationTimeMs) {
+ScopedAStatus CarPowerManagementDelegate::notifyPowerStateChange(int32_t changeId,
+                                                                 CarPowerState newState,
+                                                                 int64_t expirationTimeMs) {
     return runWithService(
             [changeId, newState, expirationTimeMs](CarPowerPolicyServer* service) -> ScopedAStatus {
                 return service->notifyPowerStateChange(changeId, newState, expirationTimeMs);
@@ -1077,8 +1078,22 @@ CarPowerPolicyServer::getPowerManagementDelegateCallback() {
     return callback;
 }
 
-ScopedAStatus CarPowerPolicyServer::notifyPowerStateChange(
-        int32_t changeId, CarPowerState newState, [[maybe_unused]] int64_t expirationTimeMs) {
+bool CarPowerPolicyServer::isCompletionAllowed(CarPowerState state) {
+    switch (state) {
+        case CarPowerState::PRE_SHUTDOWN_PREPARE:
+        case CarPowerState::SHUTDOWN_ENTER:
+        case CarPowerState::SUSPEND_ENTER:
+        case CarPowerState::HIBERNATION_ENTER:
+        case CarPowerState::POST_SHUTDOWN_ENTER:
+        case CarPowerState::POST_SUSPEND_ENTER:
+            return true;
+        default:
+            return false;
+    }
+}
+
+ScopedAStatus CarPowerPolicyServer::notifyPowerStateChange(int32_t changeId, CarPowerState newState,
+                                                           int64_t expirationTimeMs) {
     ScopedAStatus status = checkSystemPermission();
     if (!status.isOk()) {
         ALOGW("Failed to notify power state change (newState: %d), lacking permissions",
@@ -1086,16 +1101,55 @@ ScopedAStatus CarPowerPolicyServer::notifyPowerStateChange(
         return status;
     }
     std::vector<std::shared_ptr<ICarPowerStateChangeListener>> listeners;
+    std::vector<std::shared_ptr<ICarPowerStateChangeListenerWithCompletion>>
+            listenersWithCompletion;
     {
         std::lock_guard<std::mutex> lock(mMutex);
         listeners = mPowerStateChangeListeners;
+        listenersWithCompletion = mPowerStateChangeListenersWithCompletion;
     }
     for (auto& listener : listeners) {
         listener->onStateChanged(newState);
     }
-    // TODO(b/384531836): check if completion allowed, notify listeners w/completion, and add
-    //                     their futures to ones we are waiting for
-    // TODO(b/384531836): await all futures complete (or timeout)
+    if (isCompletionAllowed(newState)) {
+        const int64_t expirationTimestamp = elapsedRealtime() + expirationTimeMs;
+        std::vector<std::shared_ptr<CompletablePowerStateChangeFuture>> futuresWaitingToComplete;
+        std::shared_ptr<std::condition_variable> listenersCompletedCv =
+                std::make_shared<std::condition_variable>();
+        for (auto& listener : listenersWithCompletion) {
+            std::weak_ptr<std::condition_variable> cvPtr = listenersCompletedCv;
+            std::shared_ptr<CompletablePowerStateChangeFuture> future =
+                    SharedRefBase::make<CompletablePowerStateChangeFuture>(cvPtr);
+            futuresWaitingToComplete.push_back(future);
+            listener->onStateChanged(newState, expirationTimestamp, future);
+        }
+        bool listenersCompleted;
+        {
+            std::unique_lock lock(mMutex);
+            listenersCompleted =
+                    listenersCompletedCv->wait_for(lock,
+                                                   std::chrono::milliseconds(expirationTimeMs),
+                                                   [&futuresWaitingToComplete] {
+                                                       for (const auto& future :
+                                                            futuresWaitingToComplete) {
+                                                           if (!future->isComplete()) {
+                                                               return false;
+                                                           }
+                                                       }
+                                                       return true;
+                                                   });
+        }
+        if (!listenersCompleted) {
+            ALOGI("One or more power state change listeners with completion failed to complete "
+                  "before the timeout");
+        }
+    } else {
+        const int64_t expirationTimestamp = elapsedRealtime();
+        for (auto& listener : listenersWithCompletion) {
+            listener->onStateChanged(newState, expirationTimestamp,
+                                     /* in_future= */ nullptr);
+        }
+    }
     std::shared_ptr<ICarPowerManagementDelegateCallback> callback =
             getPowerManagementDelegateCallback();
     if (callback != nullptr) {
@@ -1326,6 +1380,8 @@ void CarPowerPolicyServer::terminate() {
     ALOGI("CarPowerPolicyServer terminate");
     std::lock_guard<std::mutex> lock(mMutex);
     mPolicyChangeCallbacks.clear();
+    mPowerStateChangeListeners.clear();
+    mPowerStateChangeListenersWithCompletion.clear();
     if (mVhalService != nullptr) {
         mSubscriptionClient->unsubscribe(
                 {static_cast<int32_t>(VehicleProperty::POWER_POLICY_REQ),
@@ -1923,6 +1979,30 @@ void CarPowerPolicyServer::AIBinderLinkUnlinkImpl::setOnUnlinked(
 void CarPowerPolicyServer::AIBinderLinkUnlinkImpl::deleteDeathRecipient(
         AIBinder_DeathRecipient* recipient) {
     AIBinder_DeathRecipient_delete(recipient);
+}
+
+CarPowerPolicyServer::CompletablePowerStateChangeFuture::CompletablePowerStateChangeFuture(
+        std::weak_ptr<std::condition_variable> listenersCompletedCvPtr) :
+      mListenersCompletedCvPtr(listenersCompletedCvPtr) {}
+
+ndk::ScopedAStatus CarPowerPolicyServer::CompletablePowerStateChangeFuture::complete() {
+    std::shared_ptr<std::condition_variable> cvPtr = mListenersCompletedCvPtr.lock();
+    if (cvPtr == nullptr) {
+        ALOGW("Listeners completed conditional variable pointer is null, no longer waiting for "
+              "listeners to complete, or server died");
+        return ScopedAStatus::ok();
+    }
+    if (mCompleted) {
+        ALOGW("This future has already completed");
+        return ScopedAStatus::ok();
+    }
+    mCompleted = true;
+    cvPtr->notify_all();
+    return ScopedAStatus::ok();
+}
+
+bool CarPowerPolicyServer::CompletablePowerStateChangeFuture::isComplete() const {
+    return mCompleted;
 }
 
 size_t CarPowerPolicyServer::getMaxConnectToVhalRetryCount() {

@@ -69,6 +69,7 @@ import com.android.car.CarSystemService;
 import com.android.car.VehicleStub;
 import com.android.car.VehicleStub.MinMaxSupportedRawPropValues;
 import com.android.car.VehicleStub.SubscriptionClient;
+import com.android.car.hal.fakevhal.SimulationVehicleStub;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.common.DispatchList;
 import com.android.car.internal.property.PropIdAreaId;
@@ -89,6 +90,7 @@ import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Abstraction for vehicle HAL. This class handles interface with native HAL and does basic parsing
@@ -125,7 +127,7 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
     private final EvsHalService mEvsHal;
     private final TimeHalService mTimeHalService;
     private final HalPropValueBuilder mPropValueBuilder;
-    private final VehicleStub mVehicleStub;
+    private AtomicReference<VehicleStub> mVehicleStub;
 
     private final Object mLock = new Object();
 
@@ -264,7 +266,8 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
                 /* inputHal= */ null, /* vmsHal= */ null, /* userHal= */ null,
                 /* diagnosticHal= */ null, /* clusterHalService= */ null,
                 /* timeHalService= */ null,
-                CarServiceUtils.getHandlerThread(VehicleHal.class.getSimpleName()), vehicle);
+                CarServiceUtils.getHandlerThread(VehicleHal.class.getSimpleName()),
+                vehicle);
     }
 
     /**
@@ -311,8 +314,17 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
                 // mPropertyHal must be the last so that on init/release it can be used for all
                 // other HAL services properties.
                 mPropertyHal);
-        mVehicleStub = vehicle;
+        mVehicleStub = new AtomicReference<>(vehicle);
         mSubscriptionClient = vehicle.newSubscriptionClient(this);
+    }
+
+    /**
+     * Gets the current vehicle stub
+     * @return The current vehicle stub
+     */
+    @VisibleForTesting
+    public VehicleStub getVehicleStub() {
+        return mVehicleStub.get();
     }
 
     /** Sets fake feature flag for unit testing. */
@@ -457,7 +469,7 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
             result = invokeRetriable((requestValue) -> {
                 Trace.traceBegin(TRACE_TAG, "VehicleStub#get");
                 try {
-                    return mVehicleStub.get(requestValue);
+                    return mVehicleStub.get().get(requestValue);
                 } finally {
                     Trace.traceEnd(TRACE_TAG);
                 }
@@ -477,7 +489,7 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
     private void setValueWithRetry(HalPropValue value)  {
         invokeRetriable((requestValue) -> {
             Trace.traceBegin(TRACE_TAG, "VehicleStub#set");
-            mVehicleStub.set(requestValue);
+            mVehicleStub.get().set(requestValue);
             Trace.traceEnd(TRACE_TAG);
             return null;
         }, "set", value, mMaxDurationForRetryMs, mSleepBetweenRetryMs, /* maxRetries= */ 0);
@@ -1361,8 +1373,13 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
      */
     public boolean isRecordingVehicleProperties() {
         synchronized (mLock) {
-            return mListenerHandler != null;
+            return isRecordingVehiclePropertiesLocked();
         }
+    }
+
+    @GuardedBy("mLock")
+    private boolean isRecordingVehiclePropertiesLocked() {
+        return mListenerHandler != null;
     }
 
     /**
@@ -1382,11 +1399,61 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
     }
 
     /**
+     * Disables injeciton mode.
+     */
+    public void disableInjectionMode() {
+        synchronized (mLock) {
+            if (!isVehiclePropertyInjectionModeEnabled()) {
+                Slogf.w(CarLog.TAG_HAL, "Cannot disable injection mode, injection mode is"
+                        + " not enabled");
+                return;
+            }
+            mVehicleStub.set(mVehicleStub.get().getRealVehicleStub());
+        }
+    }
+
+    /**
+     * Enables Injection mode with the list of properties to allow to come from the real VHAL.
+     * @param propertyIdsFromRealHardware THe list of properties to allow to come from real VHAL.
+     */
+    public long enableInjectionMode(List<Integer> propertyIdsFromRealHardware) {
+        synchronized (mLock) {
+            if (isRecordingVehiclePropertiesLocked()) {
+                throw new IllegalStateException("Cannot enable injection mode while recording is in"
+                        + " progress");
+            }
+            if (isVehiclePropertyInjectionModeEnabled()) {
+                Slogf.w(CarLog.TAG_HAL, "Cannot enable injection mode, it is already in"
+                        + " progress");
+                return -1L;
+            }
+            // Creation of SimulationVehicleStub needs to be inside lock because
+            // isVehiclePropertyInjectionModeEnabled can return false and cause another creation of
+            // an SimulationVehicleStub before mVehicleStub is actually set.
+            try {
+                mVehicleStub.set(
+                        new SimulationVehicleStub(mVehicleStub.get(), propertyIdsFromRealHardware));
+            } catch (RemoteException e) {
+                throw new IllegalStateException("Failed to create SimulationVehicleStub", e);
+            }
+        }
+        return mVehicleStub.get().getSimulationStartTimestampNanos();
+    }
+
+    /**
+     * @return {@code true} if Vehicle property injection mode is enabled, {@code false} otherwise.
+     */
+    public boolean isVehiclePropertyInjectionModeEnabled() {
+        return mVehicleStub.get().isSimulatedModeEnabled();
+    }
+
+    /**
     * Dumps or debug VHAL.
     */
     @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     public void dumpVhal(ParcelFileDescriptor fd, List<String> options) throws RemoteException {
-        mVehicleStub.dump(fd.getFileDescriptor(), options);
+        VehicleStub vehicleStub = mVehicleStub.get();
+        vehicleStub.dump(fd.getFileDescriptor(), options);
     }
 
     /**
@@ -1463,7 +1530,7 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
      * Gets all property configs from VHAL.
      */
     public HalPropConfig[] getAllPropConfigs() throws RemoteException, ServiceSpecificException {
-        return mVehicleStub.getAllPropConfigs();
+        return mVehicleStub.get().getAllPropConfigs();
     }
 
     /**
@@ -1479,7 +1546,7 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
      * Checks whether we are connected to AIDL VHAL: {@code true} or HIDL VHAL: {@code false}.
      */
     public boolean isAidlVhal() {
-        return mVehicleStub.isAidlVhal();
+        return mVehicleStub.get().isAidlVhal();
     }
 
     /**
@@ -1488,7 +1555,7 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
      * @return {@code true} if car service is connected to FakeVehicleStub.
      */
     public boolean isFakeModeEnabled() {
-        return mVehicleStub.isFakeModeEnabled();
+        return mVehicleStub.get().isFakeModeEnabled();
     }
 
     private void dumpPropertyValueByConfig(PrintWriter writer, HalPropConfig config) {
@@ -1893,7 +1960,7 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
      */
     public void getAsync(List<VehicleStub.AsyncGetSetRequest> getVehicleStubAsyncRequests,
             VehicleStub.VehicleStubCallbackInterface getVehicleStubAsyncCallback) {
-        mVehicleStub.getAsync(getVehicleStubAsyncRequests, getVehicleStubAsyncCallback);
+        mVehicleStub.get().getAsync(getVehicleStubAsyncRequests, getVehicleStubAsyncCallback);
     }
 
     /**
@@ -1901,14 +1968,14 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
      */
     public void setAsync(List<VehicleStub.AsyncGetSetRequest> setVehicleStubAsyncRequests,
             VehicleStub.VehicleStubCallbackInterface setVehicleStubAsyncCallback) {
-        mVehicleStub.setAsync(setVehicleStubAsyncRequests, setVehicleStubAsyncCallback);
+        mVehicleStub.get().setAsync(setVehicleStubAsyncRequests, setVehicleStubAsyncCallback);
     }
 
     /**
      * Cancels all the on-going async requests with the given request IDs.
      */
     public void cancelRequests(List<Integer> vehicleStubRequestIds) {
-        mVehicleStub.cancelRequests(vehicleStubRequestIds);
+        mVehicleStub.get().cancelRequests(vehicleStubRequestIds);
     }
 
     /**
@@ -1929,7 +1996,7 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
         for (int i = 0; i < areaConfigs.length; i++) {
             var areaConfig = areaConfigs[i];
             if (areaConfig.getAreaId() == halPropIdAreaId.areaId) {
-                return mVehicleStub.isSupportedValuesImplemented(areaConfig);
+                return mVehicleStub.get().isSupportedValuesImplemented(areaConfig);
             }
         }
         Slogf.i(CarLog.TAG_HAL,
@@ -1946,7 +2013,7 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
      */
     public MinMaxSupportedRawPropValues getMinMaxSupportedValue(int propertyId, int areaId)
             throws ServiceSpecificException {
-        return mVehicleStub.getMinMaxSupportedValue(propertyId, areaId);
+        return mVehicleStub.get().getMinMaxSupportedValue(propertyId, areaId);
     }
 
     /**
@@ -1956,7 +2023,7 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
      */
     public @Nullable List<RawPropValues> getSupportedValuesList(int propertyId, int areaId)
             throws ServiceSpecificException {
-        return mVehicleStub.getSupportedValuesList(propertyId, areaId);
+        return mVehicleStub.get().getSupportedValuesList(propertyId, areaId);
     }
 
     private static class SupportedValuesChangeDispatchList extends

@@ -509,4 +509,12 @@ public abstract class VehicleStubWrapper extends VehicleStub {
         }
         mRealVehicle.dump(fd, args);
     }
+
+    /**
+     * @return The real vehicle stub.
+     */
+    @Override
+    public VehicleStub getRealVehicleStub() {
+        return mRealVehicle;
+    }
 }

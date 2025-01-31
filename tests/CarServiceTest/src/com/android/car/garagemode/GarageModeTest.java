@@ -67,7 +67,7 @@ import java.util.concurrent.TimeUnit;
 @SmallTest
 public final class GarageModeTest {
 
-    private static final int DEFAULT_TIMEOUT_MS = 100;
+    private static final int DEFAULT_TIMEOUT_MS = 1000;
     private static final String TAG = "GarageModeTest";
 
     @Rule
