@@ -105,7 +105,8 @@ public class AutoDecorManagerTest {
         AutoDecor autoDecor = mAutoDecorManager.createAutoDecor(mView, 0, mBounds);
         mAutoDecorManager.attachAutoDecorToDisplay(mTransaction, autoDecor, mDisplayId);
 
-        assertThat(((AutoDecorImpl) autoDecor).isAttached()).isTrue();
+        assertThat(((AutoDecorImpl) autoDecor).isCurrentlyAttached()).isTrue();
+        assertThat(((AutoDecorImpl) autoDecor).isEverAttached()).isTrue();
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -136,5 +137,7 @@ public class AutoDecorManagerTest {
         mAutoDecorManager.removeAutoDecor(mTransaction, autoDecor);
 
         verify(mTransaction).reparent(any(SurfaceControl.class), eq(null));
+        assertThat(((AutoDecorImpl) autoDecor).isCurrentlyAttached()).isFalse();
+        assertThat(((AutoDecorImpl) autoDecor).isEverAttached()).isTrue();
     }
 }

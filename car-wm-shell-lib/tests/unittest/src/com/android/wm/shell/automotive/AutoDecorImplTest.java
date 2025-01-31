@@ -96,7 +96,8 @@ public class AutoDecorImplTest {
         mAutoDecor.attachDecorToParentSurface(mTransaction, Display.DEFAULT_DISPLAY,
                 mParentSurface);
 
-        assertThat(mAutoDecor.isAttached()).isTrue();
+        assertThat(mAutoDecor.isCurrentlyAttached()).isTrue();
+        assertThat(mAutoDecor.isEverAttached()).isTrue();
         verify(mTransaction).reparent(any(SurfaceControl.class), eq(mParentSurface));
         verify(mTransaction).setPosition(any(SurfaceControl.class), eq(left), eq(top));
         verify(mTransaction).setLayer(any(SurfaceControl.class), eq(mZOrder));
@@ -111,6 +112,8 @@ public class AutoDecorImplTest {
 
         mAutoDecor.detachDecorFromParentSurface(mTransaction);
 
+        assertThat(mAutoDecor.isCurrentlyAttached()).isFalse();
+        assertThat(mAutoDecor.isEverAttached()).isTrue();
         verify(mTransaction).reparent(any(SurfaceControl.class), eq(null));
     }
 
