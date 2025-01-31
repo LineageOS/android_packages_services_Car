@@ -20,6 +20,8 @@
 #include "IHalPropConfig.h"
 #include "IHalPropValue.h"
 
+#include <aidl/android/hardware/automotive/vehicle/MinMaxSupportedValueResult.h>
+#include <aidl/android/hardware/automotive/vehicle/PropIdAreaId.h>
 #include <aidl/android/hardware/automotive/vehicle/StatusCode.h>
 #include <aidl/android/hardware/automotive/vehicle/SubscribeOptions.h>
 #include <android-base/result.h>
@@ -75,6 +77,8 @@ enum class ErrorCode : int {
     ACCESS_DENIED_FROM_VHAL = 6,
     // Some unexpected errors, for example OOM, happen in VHAL.
     INTERNAL_ERROR_FROM_VHAL = 7,
+    // The operation is not supported for the current VHAL.
+    NOT_SUPPORTED = 8,
 };
 
 // Convert the VHAL {@code StatusCode} to {@code ErrorCode}.
@@ -223,7 +227,7 @@ public:
         return create(/*startThreadPool=*/true);
     }
 
-    // Wait for VHAL service and create a client. Return nullptr if failed to connect to VHAL.
+    // Waits for VHAL service and create a client. Return nullptr if failed to connect to VHAL.
     //
     // This waits for a certain short time period determined by the system. It is recommended to
     // use tryCreate if you do not want to block.
@@ -238,7 +242,8 @@ public:
         return tryCreate(/*startThreadPool=*/true);
     }
 
-    // Try to get the VHAL service and create a client. Return nullptr if failed to connect to VHAL.
+    // Tries to get the VHAL service and create a client. Return nullptr if failed to connect to
+    // VHAL.
     //
     // This function does not block and returns immediately. It is possible that VHAL is still
     // starting up so the client should typically retry if failed to connect to VHAL.
@@ -253,7 +258,7 @@ public:
         return tryCreateAidlClient(descriptor, /*startThreadPool=*/true);
     }
 
-    // Try to create a client based on the AIDL VHAL service descriptor.
+    // Tries to create a client based on the AIDL VHAL service descriptor.
     //
     // startThreadPool indicates whether the IVhalClient will create a binder thread pool for
     // receiving callbacks. It is recommended to call ABinderProcess_startThreadPool only once from
@@ -261,7 +266,7 @@ public:
     static std::shared_ptr<IVhalClient> tryCreateAidlClient(const char* descriptor,
                                                             bool startThreadPool);
 
-    // Try to create a client based on the HIDL VHAL service descriptor.
+    // Tries to create a client based on the HIDL VHAL service descriptor.
     static std::shared_ptr<IVhalClient> tryCreateHidlClient(const char* descriptor);
 
     // The default timeout for callbacks.
@@ -275,7 +280,7 @@ public:
     using OnBinderDiedCallbackFunc = std::function<void()>;
 
     /**
-     * Check whether we are connected to AIDL VHAL backend.
+     * Checks whether we are connected to AIDL VHAL backend.
      *
      * Returns {@code true} if we are connected to AIDL VHAL backend, {@code false} if we are
      * connected to HIDL backend.
@@ -283,7 +288,7 @@ public:
     virtual bool isAidlVhal() = 0;
 
     /**
-     * Create a new {@code IHalpropValue}.
+     * Creates a new {@code IHalpropValue}.
      *
      * @param propId The property ID.
      * @return The created {@code IHalPropValue}.
@@ -291,7 +296,7 @@ public:
     virtual std::unique_ptr<IHalPropValue> createHalPropValue(int32_t propId) = 0;
 
     /**
-     * Create a new {@code IHalpropValue}.
+     * Creates a new {@code IHalpropValue}.
      *
      * @param propId The property ID.
      * @param areaId The area ID for the property.
@@ -300,7 +305,7 @@ public:
     virtual std::unique_ptr<IHalPropValue> createHalPropValue(int32_t propId, int32_t areaId) = 0;
 
     /**
-     * Get a property value asynchronously.
+     * Gets a property value asynchronously.
      *
      * @param requestValue The value to request.
      * @param callback The callback that would be called when the result is ready. The callback
@@ -312,7 +317,7 @@ public:
                           std::shared_ptr<GetValueCallbackFunc> callback) = 0;
 
     /**
-     * Get a property value synchronously.
+     * Gets a property value synchronously.
      *
      * @param requestValue the value to request.
      * @return An okay result with the returned value on success or an error result with returned
@@ -323,7 +328,7 @@ public:
             const IHalPropValue& requestValue);
 
     /**
-     * Set a property value asynchronously.
+     * Sets a property value asynchronously.
      *
      * @param requestValue The value to set.
      * @param callback The callback that would be called when the request is processed. The callback
@@ -334,7 +339,7 @@ public:
                           std::shared_ptr<SetValueCallbackFunc> callback) = 0;
 
     /**
-     * Set a property value synchronously.
+     * Sets a property value synchronously.
      *
      * @param requestValue the value to set.
      * @return An empty okay result on success or an error result with returned status code as
@@ -344,7 +349,7 @@ public:
     virtual VhalClientResult<void> setValueSync(const IHalPropValue& requestValue);
 
     /**
-     * Add a callback that would be called when the binder connection to VHAL died.
+     * Adds a callback that would be called when the binder connection to VHAL died.
      *
      * @param callback The callback that would be called when the binder died.
      * @return An okay result on success or an error on failure.
@@ -353,7 +358,7 @@ public:
             std::shared_ptr<OnBinderDiedCallbackFunc> callback) = 0;
 
     /**
-     * Remove a previously added OnBinderDied callback.
+     * Removes a previously added OnBinderDied callback.
      *
      * @param callback The callback that would be removed.
      * @return An okay result on success, or an error if the callback is not added before.
@@ -362,14 +367,14 @@ public:
             std::shared_ptr<OnBinderDiedCallbackFunc> callback) = 0;
 
     /**
-     * Get all the property configurations.
+     * Gets all the property configurations.
      *
      * @return An okay result that contains all property configs on success or an error on failure.
      */
     virtual VhalClientResult<std::vector<std::unique_ptr<IHalPropConfig>>> getAllPropConfigs() = 0;
 
     /**
-     * Get the configs for specified properties.
+     * Gets the configs for specified properties.
      *
      * @param propIds A list of property IDs to get configs for.
      * @return An okay result that contains property configs for specified properties on success or
@@ -379,13 +384,34 @@ public:
             std::vector<int32_t> propIds) = 0;
 
     /**
-     * Get a {@code ISubscriptionClient} that could be used to subscribe/unsubscribe to properties.
+     * Gets a {@code ISubscriptionClient} that could be used to subscribe/unsubscribe to properties.
      *
      * @param callback The callback that would be called when property event happens.
      * @return A {@code ISubscriptionClient} used to subscribe/unsubscribe.
      */
     virtual std::unique_ptr<ISubscriptionClient> getSubscriptionClient(
             std::shared_ptr<ISubscriptionCallback> callback) = 0;
+
+    /**
+     * Gets the min/max supported values for the specified [propId, areaId]s if they are provided
+     * by VHAL.
+     *
+     * This is only supported for AIDL VHAL V4 and above.
+     *
+     * @param propIdAreaIds A list of [propId, areaId] to get the min/max supported values.
+     * @return A list of results, one for each [propId, areaId], or error if failed to get any
+     *      get any results. Caller must check the status inside each result before accessing
+     *      the min/max value. Even if status is OK, minSupportedValue or maxSupportedValue may
+     *      be std::nullopt if it is not specified by VHAL.
+     */
+    virtual VhalClientResult<
+            std::vector<::aidl::android::hardware::automotive::vehicle::MinMaxSupportedValueResult>>
+    getMinMaxSupportedValue(
+            [[maybe_unused]] const std::vector<
+                    ::aidl::android::hardware::automotive::vehicle::PropIdAreaId>& propIdAreaIds) {
+        return ClientStatusError(ErrorCode::NOT_SUPPORTED)
+                << "getMinMaxSupportedValue is not supported for the VHAL implementation";
+    }
 
     /**
      * Gets the VHAL interface version used by VHAL.

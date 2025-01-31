@@ -34,6 +34,7 @@ namespace automotive {
 namespace vhal {
 namespace hidl_test {
 
+using ::aidl::android::hardware::automotive::vehicle::PropIdAreaId;
 using ::aidl::android::hardware::automotive::vehicle::VehiclePropertyStatus;
 using ::android::sp;
 using ::android::hardware::hidl_vec;
@@ -646,6 +647,18 @@ TEST_F(HidlVhalClientTest, testHidlHalPropValueClone_modifyCloneDoesNotAffectOri
     EXPECT_EQ(halPropValue->getFloatValues(), floatValues1);
     EXPECT_EQ(halPropValueClone->getInt32Values(), int32Values2);
     EXPECT_EQ(halPropValueClone->getFloatValues(), floatValues2);
+}
+
+TEST_F(HidlVhalClientTest, testGetMinMaxSupportedValue_notSupported) {
+    PropIdAreaId propIdAreaId = {
+            .propId = 1,
+            .areaId = 2,
+    };
+
+    auto result = getClient()->getMinMaxSupportedValue({propIdAreaId});
+
+    ASSERT_FALSE(result.ok());
+    ASSERT_EQ(result.error().code().value(), ErrorCode::NOT_SUPPORTED);
 }
 
 }  // namespace hidl_test
