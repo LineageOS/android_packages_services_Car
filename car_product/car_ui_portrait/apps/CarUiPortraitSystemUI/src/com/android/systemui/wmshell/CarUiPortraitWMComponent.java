@@ -16,6 +16,7 @@
 
 package com.android.systemui.wmshell;
 
+import com.android.systemui.car.wm.scalableui.EventDispatcher;
 import com.android.systemui.car.wm.scalableui.ScalableUIWMInitializer;
 import com.android.systemui.wm.CarUiPortraitDisplaySystemBarsController;
 import com.android.wm.shell.RootTaskDisplayAreaOrganizer;
@@ -70,4 +71,8 @@ public interface CarUiPortraitWMComponent extends CarWMComponent {
      */
     @WMSingleton
     Optional<ScalableUIWMInitializer> getScalableUIWMInitializer();
+
+    /** Provides the {@link EventDispatcher} used to dispatch ScalableUI events. */
+    @WMSingleton
+    EventDispatcher getScalableUIEventDispatcher();
 }

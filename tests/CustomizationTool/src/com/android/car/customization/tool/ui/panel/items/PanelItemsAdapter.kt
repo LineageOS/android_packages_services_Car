@@ -39,7 +39,7 @@ internal class PanelItemsAdapter(
                     inflater.inflate(
                         R.layout.vh_panel_section_title,
                         parent,
-                        /*attachToRoot=*/false
+                        /*attachToRoot=*/ false
                     )
                 )
             }
@@ -49,7 +49,17 @@ internal class PanelItemsAdapter(
                     inflater.inflate(
                         R.layout.vh_panel_switch,
                         parent,
-                        /*attachToRoot=*/false
+                        /*attachToRoot=*/ false
+                    )
+                )
+            }
+
+            ViewType.STATUS -> {
+                PanelStatusViewHolder(
+                    inflater.inflate(
+                        R.layout.vh_panel_status,
+                        parent,
+                        /*attachToRoot=*/ false
                     )
                 )
             }
@@ -64,6 +74,7 @@ internal class PanelItemsAdapter(
         return when (getItem(position)) {
             is PanelItem.SectionTitle -> ViewType.SECTION_TITLE.ordinal
             is PanelItem.Switch -> ViewType.SWITCH.ordinal
+            is PanelItem.Status -> ViewType.STATUS.ordinal
         }
     }
 
@@ -71,14 +82,14 @@ internal class PanelItemsAdapter(
      * Defines which types of panel items are supported by this Adapter.
      */
     enum class ViewType {
-        SECTION_TITLE, SWITCH;
+        SECTION_TITLE, SWITCH, STATUS;
 
         companion object {
             fun from(index: Int): ViewType {
-                if (index >= values().size) {
+                if (index >= entries.size) {
                     throw IllegalArgumentException("Type not supported")
                 }
-                return values()[index]
+                return entries[index]
             }
         }
     }

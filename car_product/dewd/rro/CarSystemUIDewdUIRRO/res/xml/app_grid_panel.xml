@@ -26,10 +26,9 @@
     </Variant>
 
     <Transitions>
-        <Transition onEvent="home_event" toVariant="@id/closed"/>
-        <Transition onEvent="home_2_event" toVariant="@id/closed"/>
-        <Transition onEvent="open_app_drawer_event" toVariant="@id/closed"/>
-        <Transition onEvent="close_app_grid_drawer_event" toVariant="@id/closed"/>
-        <Transition onEvent="open_app_grid_drawer_event" toVariant="@id/opened"/>
+        <Transition onEvent="_System_TaskOpenEvent" onEventTokens="panelId=panel_app_grid" toVariant="@id/opened"/>
+        <Transition onEvent="_System_TaskOpenEvent" onEventTokens="panelId=app_panel" toVariant="@id/closed"/>
+        <Transition onEvent="_System_OnHomeEvent" toVariant="@id/closed"/>
+        <Transition onEvent="_System_EnterSuwEvent" toVariant="@id/closed"/>
     </Transitions>
 </Panel>

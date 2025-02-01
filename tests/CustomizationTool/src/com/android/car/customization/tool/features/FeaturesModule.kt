@@ -23,7 +23,7 @@ import com.android.car.customization.tool.features.system.advanced.submenu.Advan
 import com.android.car.customization.tool.features.system.cutouts.DisplayCutoutsModule
 import com.android.car.customization.tool.features.system.submenu.SystemMenuModule
 import com.android.car.customization.tool.features.system.systembarpresets.SystemBarPresetsModule
-import com.android.car.customization.tool.features.system.theme.oemtokenstoggle.OemTokensToggleModule
+import com.android.car.customization.tool.features.system.theme.oemtokenspanel.OemTokensPanelModule
 import com.android.car.customization.tool.features.system.theme.plugintoggle.PluginToggleModule
 import com.android.car.customization.tool.features.system.theme.submenu.ThemeMenuModule
 import com.android.car.customization.tool.features.system.theme.themepresets.ThemePresetsModule
@@ -40,7 +40,7 @@ import dagger.Module
         ApplicationsMenuModule::class,
         AppRroModule::class,
         DisplayCutoutsModule::class,
-        OemTokensToggleModule::class,
+        OemTokensPanelModule::class,
         PluginToggleModule::class,
         RroListPanelModule::class,
         SystemMenuModule::class,
