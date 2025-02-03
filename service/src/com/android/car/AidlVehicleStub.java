@@ -16,6 +16,7 @@
 
 package com.android.car;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
 import static com.android.car.internal.property.CarPropertyErrorCodes.createFromVhalStatusCode;
 
 import android.annotation.Nullable;
@@ -62,6 +63,7 @@ import com.android.car.hal.HalPropConfig;
 import com.android.car.hal.HalPropValue;
 import com.android.car.hal.HalPropValueBuilder;
 import com.android.car.hal.VehicleHalCallback;
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.LargeParcelable;
 import com.android.car.internal.LongPendingRequestPool;
 import com.android.car.internal.LongPendingRequestPool.TimeoutCallback;
@@ -701,6 +703,7 @@ final class AidlVehicleStub extends VehicleStub {
             mBuilder = builder;
         }
 
+        @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
         @Override
         public void onGetValues(GetValueResults responses) throws RemoteException {
             // We use GetSetValuesCallback for getValues and setValues operation.
@@ -708,6 +711,7 @@ final class AidlVehicleStub extends VehicleStub {
                     "onGetValues should never be called on AidlSubscriptionClient");
         }
 
+        @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
         @Override
         public void onSetValues(SetValueResults responses) throws RemoteException {
             // We use GetSetValuesCallback for getValues and setValues operation.
@@ -902,17 +906,20 @@ final class AidlVehicleStub extends VehicleStub {
             AidlVehicleStub.this.onSetValues(responses);
         }
 
+        @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
         @Override
         public void onPropertyEvent(VehiclePropValues propValues, int sharedMemoryFileCount)
                 throws RemoteException {
             throwUnsupportedException();
         }
 
+        @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
         @Override
         public void onPropertySetError(VehiclePropErrors errors) throws RemoteException {
             throwUnsupportedException();
         }
 
+        @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
         @Override
         public void onSupportedValueChange(
                 List<android.hardware.automotive.vehicle.PropIdAreaId> propIdAreaIds)
@@ -920,16 +927,19 @@ final class AidlVehicleStub extends VehicleStub {
             throwUnsupportedException();
         }
 
+        @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
         @Override
         public String getInterfaceHash() {
             return IVehicleCallback.HASH;
         }
 
+        @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
         @Override
         public int getInterfaceVersion() {
             return IVehicleCallback.VERSION;
         }
 
+        @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
         private void throwUnsupportedException() {
             throw new UnsupportedOperationException(
                     "GetSetValuesCallback only support onGetValues or onSetValues");
