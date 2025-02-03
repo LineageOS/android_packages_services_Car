@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package android.car.apitest;
+package android.car.extendedapitest;
 
 import static android.car.feature.Flags.FLAG_ANDROID_VIC_VEHICLE_PROPERTIES;
 
@@ -35,13 +35,13 @@ import java.util.Collection;
 
 @SmallTest
 @RunWith(Parameterized.class)
-public class VehicleAirbagLocationTest {
+public class VehicleAutonomousStateTest {
     @Rule
     public final CheckFlagsRule mCheckFlagsRule = DeviceFlagsValueProvider.createCheckFlagsRule();
     private final int mJavaConstantValue;
     private final int mHalConstantValue;
 
-    public VehicleAirbagLocationTest(int javaConstantValue, int halConstantValue) {
+    public VehicleAutonomousStateTest(int javaConstantValue, int halConstantValue) {
         mJavaConstantValue = javaConstantValue;
         mHalConstantValue = halConstantValue;
     }
@@ -51,28 +51,34 @@ public class VehicleAirbagLocationTest {
         return Arrays.asList(
                 new Object[][] {
                         {
-                                android.car.hardware.property.VehicleAirbagLocation.OTHER,
-                                android.hardware.automotive.vehicle.VehicleAirbagLocation.OTHER
+                                android.car.hardware.property.VehicleAutonomousState.LEVEL_0,
+                                android.hardware.automotive.vehicle.VehicleAutonomousState
+                                        .LEVEL_0
                         },
                         {
-                                android.car.hardware.property.VehicleAirbagLocation.FRONT,
-                                android.hardware.automotive.vehicle.VehicleAirbagLocation.FRONT
+                                android.car.hardware.property.VehicleAutonomousState.LEVEL_1,
+                                android.hardware.automotive.vehicle.VehicleAutonomousState
+                                        .LEVEL_1
                         },
                         {
-                                android.car.hardware.property.VehicleAirbagLocation.KNEE,
-                                android.hardware.automotive.vehicle.VehicleAirbagLocation.KNEE
+                                android.car.hardware.property.VehicleAutonomousState.LEVEL_2,
+                                android.hardware.automotive.vehicle.VehicleAutonomousState
+                                        .LEVEL_2
                         },
                         {
-                                android.car.hardware.property.VehicleAirbagLocation.LEFT_SIDE,
-                                android.hardware.automotive.vehicle.VehicleAirbagLocation.LEFT_SIDE
+                                android.car.hardware.property.VehicleAutonomousState.LEVEL_3,
+                                android.hardware.automotive.vehicle.VehicleAutonomousState
+                                        .LEVEL_3
                         },
                         {
-                                android.car.hardware.property.VehicleAirbagLocation.RIGHT_SIDE,
-                                android.hardware.automotive.vehicle.VehicleAirbagLocation.RIGHT_SIDE
+                                android.car.hardware.property.VehicleAutonomousState.LEVEL_4,
+                                android.hardware.automotive.vehicle.VehicleAutonomousState
+                                        .LEVEL_4
                         },
                         {
-                                android.car.hardware.property.VehicleAirbagLocation.CURTAIN,
-                                android.hardware.automotive.vehicle.VehicleAirbagLocation.CURTAIN
+                                android.car.hardware.property.VehicleAutonomousState.LEVEL_5,
+                                android.hardware.automotive.vehicle.VehicleAutonomousState
+                                        .LEVEL_5
                         },
                 });
     }

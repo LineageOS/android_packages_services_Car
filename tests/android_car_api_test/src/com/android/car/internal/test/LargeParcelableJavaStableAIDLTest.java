@@ -21,7 +21,7 @@ import static com.google.common.truth.Truth.assertThat;
 import android.car.apitest.IStableAIDLTestBinder;
 import android.car.apitest.IStableAIDLTestCallback;
 import android.car.apitest.StableAIDLTestLargeParcelable;
-import android.car.apitest.testbase.CarLessApiTestBase;
+import android.car.extendedapitest.testbase.CarLessApiTestBase;
 import android.car.test.mocks.JavaMockitoHelper;
 import android.content.ComponentName;
 import android.content.Context;

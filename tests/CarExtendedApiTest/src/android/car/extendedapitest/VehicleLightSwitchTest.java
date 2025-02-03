@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 The Android Open Source Project
+ * Copyright (C) 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package android.car.apitest;
+package android.car.extendedapitest;
 
-import static com.google.common.truth.Truth.assertWithMessage;
+import static com.google.common.truth.Truth.assertThat;
 
 import androidx.test.filters.SmallTest;
 
@@ -29,11 +29,11 @@ import java.util.Collection;
 
 @SmallTest
 @RunWith(Parameterized.class)
-public class WindshieldWipersStateTest {
+public final class VehicleLightSwitchTest {
     private final int mJavaConstantValue;
     private final int mHalConstantValue;
 
-    public WindshieldWipersStateTest(int javaConstantValue, int halConstantValue) {
+    public VehicleLightSwitchTest(int javaConstantValue, int halConstantValue) {
         mJavaConstantValue = javaConstantValue;
         mHalConstantValue = halConstantValue;
     }
@@ -43,28 +43,28 @@ public class WindshieldWipersStateTest {
         return Arrays.asList(
                 new Object[][] {
                         {
-                                android.car.hardware.property.WindshieldWipersState.OTHER,
-                                android.hardware.automotive.vehicle.WindshieldWipersState.OTHER
+                                android.car.hardware.property.VehicleLightSwitch.STATE_OFF,
+                                android.hardware.automotive.vehicle.VehicleLightSwitch.OFF
                         },
                         {
-                                android.car.hardware.property.WindshieldWipersState.OFF,
-                                android.hardware.automotive.vehicle.WindshieldWipersState.OFF
+                                android.car.hardware.property.VehicleLightSwitch.STATE_ON,
+                                android.hardware.automotive.vehicle.VehicleLightSwitch.ON
                         },
                         {
-                                android.car.hardware.property.WindshieldWipersState.ON,
-                                android.hardware.automotive.vehicle.WindshieldWipersState.ON
+                                android.car.hardware.property.VehicleLightSwitch
+                                        .STATE_DAYTIME_RUNNING,
+                                android.hardware.automotive.vehicle.VehicleLightSwitch
+                                        .DAYTIME_RUNNING
                         },
                         {
-                                android.car.hardware.property.WindshieldWipersState.SERVICE,
-                                android.hardware.automotive.vehicle.WindshieldWipersState.SERVICE
+                                android.car.hardware.property.VehicleLightSwitch.STATE_AUTOMATIC,
+                                android.hardware.automotive.vehicle.VehicleLightSwitch.AUTOMATIC
                         }
                 });
     }
 
     @Test
     public void testMatchWithVehicleHal() {
-        assertWithMessage("Java constant")
-                .that(mJavaConstantValue)
-                .isEqualTo(mHalConstantValue);
+        assertThat(mJavaConstantValue).isEqualTo(mHalConstantValue);
     }
 }

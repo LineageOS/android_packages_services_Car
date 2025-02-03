@@ -22,7 +22,7 @@ package {
 java_library {
     name: "android.car.testapi.testbase",
     srcs: [
-        "src/android/car/apitest/testbase/*.java",
+        "src/android/car/extendedapitest/testbase/*.java",
     ],
 
     libs: [
@@ -44,8 +44,6 @@ android_test {
     srcs: [
         "src/**/*.java",
     ],
-
-    platform_apis: true,
 
     // for system|privileged permission.
     certificate: "platform",

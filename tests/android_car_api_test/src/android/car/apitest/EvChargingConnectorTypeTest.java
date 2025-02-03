@@ -18,7 +18,7 @@ package android.car.apitest;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import android.car.apitest.testbase.CarLessApiTestBase;
+import android.car.extendedapitest.testbase.CarLessApiTestBase;
 import android.car.feature.Flags;
 import android.car.hardware.property.EvChargingConnectorType;
 import android.hardware.automotive.vehicle.EvConnectorType;
