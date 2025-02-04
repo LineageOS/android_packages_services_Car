@@ -529,4 +529,30 @@ public final class CarActivityManager extends CarManagerBase {
         }
         return valid;
     }
+
+    /**
+     * Updates CarService that a rootTask is removed.
+     *
+     * @hide
+     */
+    public void onRootTaskVanished(int taskId) {
+        try {
+            mService.onRootTaskVanished(taskId);
+        } catch (RemoteException e) {
+            handleRemoteExceptionFromCarService(e);
+        }
+    }
+
+    /**
+     * Updates CarService that a rootTask is added.
+     *
+     * @hide
+     */
+    public void onRootTaskAppeared(int taskId, ActivityManager.RunningTaskInfo taskInfo) {
+        try {
+            mService.onRootTaskAppeared(taskId, taskInfo);
+        } catch (RemoteException e) {
+            handleRemoteExceptionFromCarService(e);
+        }
+    }
 }

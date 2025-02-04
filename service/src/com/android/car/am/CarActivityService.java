@@ -107,6 +107,9 @@ public final class CarActivityService extends ICarActivityService.Stub
     private final SparseArray<SurfaceControl> mTaskToSurfaceMap = new SparseArray<>();
 
     @GuardedBy("mLock")
+    private final SparseArray<ActivityManager.RunningTaskInfo> mRootTaskMap = new SparseArray<>();
+
+    @GuardedBy("mLock")
     private final ArrayMap<IBinder, IBinder.DeathRecipient> mMonitorTokens = new ArrayMap<>();
 
     @GuardedBy("mLock")
@@ -392,6 +395,19 @@ public final class CarActivityService extends ICarActivityService.Stub
         Trace.endSection();
     }
 
+    @Override
+    public void onRootTaskVanished(int taskId) {
+        synchronized (mLock) {
+            mRootTaskMap.remove(taskId);
+        }
+    }
+
+    @Override
+    public void onRootTaskAppeared(int taskId, ActivityManager.RunningTaskInfo taskInfo) {
+        synchronized (mLock) {
+            mRootTaskMap.put(taskId, taskInfo);
+        }
+    }
     @Override
     public void unregisterTaskMonitor(IBinder token) {
         if (DBG) Slogf.d(TAG, "unregisterTaskMonitor: %s", token);
