@@ -24,7 +24,7 @@ import android.annotation.FloatRange;
 import android.car.Car;
 import android.car.CarBugreportManager;
 import android.car.CarBugreportManager.CarBugreportManagerCallback;
-import android.car.apitest.testbase.CarApiTestBase;
+import android.car.extendedapitest.testbase.CarApiTestBase;
 import android.os.FileUtils;
 import android.os.ParcelFileDescriptor;
 

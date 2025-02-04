@@ -25,8 +25,8 @@ import static org.junit.Assume.assumeTrue;
 
 import android.app.ActivityManager;
 import android.car.Car;
-import android.car.apitest.testbase.CarApiTestBase;
 import android.car.content.pm.CarPackageManager;
+import android.car.extendedapitest.testbase.CarApiTestBase;
 import android.content.pm.PackageManager;
 import android.os.Build;
 

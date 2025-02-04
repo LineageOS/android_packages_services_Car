@@ -21,8 +21,8 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
 
 import android.car.Car;
-import android.car.apitest.testbase.CarApiTestBase;
 import android.car.app.CarActivityManager;
+import android.car.extendedapitest.testbase.CarApiTestBase;
 import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.view.Display;

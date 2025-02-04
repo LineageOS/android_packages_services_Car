@@ -19,7 +19,7 @@ package android.car.apitest;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.car.Car;
-import android.car.apitest.testbase.CarApiTestBase;
+import android.car.extendedapitest.testbase.CarApiTestBase;
 import android.car.hardware.CarSensorManager;
 
 import androidx.test.filters.MediumTest;
