@@ -21,6 +21,7 @@ import static android.car.builtin.content.pm.PackageManagerHelper.PROPERTY_CAR_S
 
 import static com.android.car.CarServiceImpl.CAR_SERVICE_INIT_TIMING_MIN_DURATION_MS;
 import static com.android.car.CarServiceImpl.CAR_SERVICE_INIT_TIMING_TAG;
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DEPRECATED_CODE;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 import static com.android.car.internal.SystemConstants.ICAR_SYSTEM_SERVER_CLIENT;
@@ -134,6 +135,8 @@ public class ICarImpl extends ICar.Stub {
 
     private final FeatureFlags mFeatureFlags;
 
+    private final boolean mIsUserBuild;
+
     private final CarOemProxyService mCarOemService;
     private final SystemActivityMonitoringService mSystemActivityMonitoringService;
     private final CarPowerManagementService mCarPowerManagementService;
@@ -213,6 +216,8 @@ public class ICarImpl extends ICar.Stub {
                 CAR_SERVICE_INIT_TIMING_MIN_DURATION_MS);
         t.traceBegin("ICarImpl.constructor");
 
+        mIsUserBuild = Objects.requireNonNullElseGet(builder.mIsUserBuild,
+                () -> BuildHelper.isUserBuild());
         mStaticBinder = Objects.requireNonNullElseGet(builder.mStaticBinder,
                 () -> new SystemStaticBinder());
         mFeatureFlags = Objects.requireNonNullElseGet(builder.mFeatureFlags,
@@ -437,9 +442,9 @@ public class ICarImpl extends ICar.Stub {
                 () -> new CarWifiService(mContext), allServices);
 
         // Always put mCarExperimentalFeatureServiceController in last.
-        if (!BuildHelper.isUserBuild()) {
-            mCarExperimentalFeatureServiceController = constructWithTrace(
-                    t, CarExperimentalFeatureServiceController.class,
+        if (!mIsUserBuild) {
+            mCarExperimentalFeatureServiceController = getFromBuilderOrConstruct(
+                    t, CarExperimentalFeatureServiceController.class, builder,
                     () -> new CarExperimentalFeatureServiceController(mContext),
                     allServices);
         } else {
@@ -835,14 +840,16 @@ public class ICarImpl extends ICar.Stub {
         }
     }
 
-    private void dumpOemService(IndentingPrintWriter writer) {
-        mCarOemService.dump(writer);
-    }
-
     public String getOemServiceName() {
         return mCarOemService.getOemServiceName();
     }
 
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    private void dumpOemService(IndentingPrintWriter writer) {
+        mCarOemService.dump(writer);
+    }
+
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     private void dumpAll(IndentingPrintWriter writer) {
         writer.println("*Dump car service*");
         dumpVersions(writer);
@@ -851,6 +858,7 @@ public class ICarImpl extends ICar.Stub {
         dumpRROs(writer);
     }
 
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     private void dumpRROs(IndentingPrintWriter writer) {
         writer.println("*Dump Car Service RROs*");
 
@@ -1069,7 +1077,16 @@ public class ICarImpl extends ICar.Stub {
         return constructWithTrace(t, cls, callable, allServices);
     }
 
-    private static <T extends CarSystemService> T constructWithTrace(TimingsTraceLog t,
+    /**
+     * Constructs a car service class with tracing.
+     *
+     * @param t The trace log class.
+     * @param cls The class for the car service.
+     * @param callable A function to construct the class.
+     * @param allServices The all services list to add the created class to.
+     */
+    @VisibleForTesting
+    public static <T extends CarSystemService> T constructWithTrace(TimingsTraceLog t,
             Class<T> cls, Callable<T> callable, List<CarSystemService> allServices) {
         t.traceBegin(cls.getSimpleName());
         T constructed;
@@ -1122,11 +1139,13 @@ public class ICarImpl extends ICar.Stub {
         }
     }
 
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     /* package */ void dumpVhal(ParcelFileDescriptor fd, List<String> options)
             throws RemoteException {
         mHal.dumpVhal(fd, options);
     }
 
+    @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
     /* package */ boolean hasAidlVhal() {
         return mHal.isAidlVhal();
     }
@@ -1147,6 +1166,8 @@ public class ICarImpl extends ICar.Stub {
         StaticBinderInterface mStaticBinder;
         FeatureFlags mFeatureFlags;
         boolean mDoPriorityInitInConstruction = true;
+        // Can be used to inject isUserBuild value.
+        Boolean mIsUserBuild = null;
 
         // Services injected to replace the real service.
         final Map<Class<?>, Object> mInjectedServices = new ArrayMap<>();
@@ -1287,6 +1308,27 @@ public class ICarImpl extends ICar.Stub {
          */
         public Builder setCarTelemetryService(CarTelemetryService carTelemetryService) {
             mInjectedServices.put(CarTelemetryService.class, carTelemetryService);
+            return this;
+        }
+
+        /**
+         * Sets ICarImpl car experimental feature service controller.
+         * @param controller The controller.
+         * @return Current builder object.
+         */
+        public Builder setCarExperimentalFeatureServiceController(
+                    CarExperimentalFeatureServiceController controller) {
+            mInjectedServices.put(CarExperimentalFeatureServiceController.class, controller);
+            return this;
+        }
+
+        /**
+         * Injects fake isUserBuild value for testing.
+         * @param isUserBuild Whether the current build is a user build.
+         * @return Current builder object.
+         */
+        public Builder setIsUserBuild(boolean isUserBuild) {
+            mIsUserBuild = isUserBuild;
             return this;
         }
 
