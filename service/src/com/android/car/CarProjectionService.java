@@ -122,6 +122,9 @@ class CarProjectionService extends ICarProjection.Stub implements CarServiceBase
     private @Nullable ProjectionSoftApCallback mSoftApCallback;
 
     @GuardedBy("mLock")
+    private @Nullable LocalOnlyProjectionSoftApCallback mLocalOnlySoftApCallback;
+
+    @GuardedBy("mLock")
     private final HashMap<IBinder, ProjectionReceiverClient> mProjectionReceiverClients =
             new HashMap<>();
 
@@ -835,6 +838,8 @@ class CarProjectionService extends ICarProjection.Stub implements CarServiceBase
             return;
         }
 
+        unregisterLocalOnlyHotspotSoftApCallbackLocked();
+
         mLocalOnlyHotspotReservation.close();
         mLocalOnlyHotspotReservation = null;
     }
@@ -1125,6 +1130,15 @@ class CarProjectionService extends ICarProjection.Stub implements CarServiceBase
         mFeatureFlags = fakeFeatureFlags;
     }
 
+    @GuardedBy("mLock")
+    private void unregisterLocalOnlyHotspotSoftApCallbackLocked() {
+        if (mFeatureFlags.registerLocalOnlyHotspotSoftApCallback()
+                && mLocalOnlySoftApCallback != null) {
+            mWifiManager.unregisterLocalOnlyHotspotSoftApCallback(mLocalOnlySoftApCallback);
+            mLocalOnlySoftApCallback = null;
+        }
+    }
+
     private class ProjectionSoftApCallback implements WifiManager.SoftApCallback {
         private boolean mCurrentStateCall = true;
 
@@ -1173,6 +1187,20 @@ class CarProjectionService extends ICarProjection.Stub implements CarServiceBase
             if (DBG) {
                 Slogf.d(TAG, "ProjectionSoftApCallback, onConnectedClientsChanged with "
                         + clients.size() + " clients");
+            }
+        }
+    }
+
+    private class LocalOnlyProjectionSoftApCallback implements WifiManager.SoftApCallback {
+        @Override
+        public void onStateChanged(int state, int softApFailureReason) {
+            Slogf.i(TAG, "LocalOnlyProjectionSoftApCallback, onStateChanged, state: " + state
+                    + ", failed reason: " + softApFailureReason);
+
+            if (state == WifiManager.WIFI_AP_STATE_DISABLED
+                || state == WifiManager.WIFI_AP_STATE_FAILED) {
+                Slogf.i(TAG, "LOHS AP was disabled, trying to stop.");
+                stopAccessPoint();
             }
         }
     }
@@ -1259,6 +1287,13 @@ class CarProjectionService extends ICarProjection.Stub implements CarServiceBase
             Slogf.d(TAG, "Local-only hotspot started");
             boolean shouldPersistSoftApConfig;
             synchronized (mLock) {
+                if (mFeatureFlags.registerLocalOnlyHotspotSoftApCallback()
+                        && mLocalOnlySoftApCallback == null) {
+                    mLocalOnlySoftApCallback = new LocalOnlyProjectionSoftApCallback();
+                    mWifiManager.registerLocalOnlyHotspotSoftApCallback(
+                            new HandlerExecutor(mHandler), mLocalOnlySoftApCallback);
+                }
+
                 mLocalOnlyHotspotReservation = reservation;
                 shouldPersistSoftApConfig = mStableLocalOnlyHotspotConfig;
             }
@@ -1282,6 +1317,8 @@ class CarProjectionService extends ICarProjection.Stub implements CarServiceBase
         public void onStopped() {
             Slogf.i(TAG, "Local-only hotspot stopped.");
             synchronized (mLock) {
+                unregisterLocalOnlyHotspotSoftApCallbackLocked();
+
                 if (mLocalOnlyHotspotReservation != null) {
                     // We must explicitly released old reservation object, otherwise it may
                     // unexpectedly stop LOHS later because it overrode finalize() method.
@@ -1297,6 +1334,8 @@ class CarProjectionService extends ICarProjection.Stub implements CarServiceBase
             Slogf.w(TAG, "Local-only hotspot failed, reason: "
                     + localonlyHostspotFailureReason);
             synchronized (mLock) {
+                unregisterLocalOnlyHotspotSoftApCallbackLocked();
+
                 mLocalOnlyHotspotReservation = null;
             }
             int reason;
