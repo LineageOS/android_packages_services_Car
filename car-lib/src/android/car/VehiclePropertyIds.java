@@ -1849,12 +1849,16 @@ public final class VehiclePropertyIds {
     @RequiresPermission(Car.PERMISSION_CONTROL_CAR_CLIMATE)
     public static final int HVAC_FAN_SPEED = 356517120;
     /**
-     * Fan direction setting.
+     * The current {@link CarHvacFanDirection} setting.
      *
-     * The supported values for this property is exposed via {@link #HVAC_FAN_DIRECTION_AVAILABLE}.
-     * Caller should not call {@link CarPropertyManager#getSupportedValuesList} or
+     * <p>The supported values for this property is exposed via
+     * {@link #HVAC_FAN_DIRECTION_AVAILABLE}. Caller should not call
+     * {@link CarPropertyManager#getSupportedValuesList} or
      * {@link CarPropertyManager#getMinMaxSupportedValue} or
      * {@link AreaIdConfig#getSupportedEnumValues}.
+     *
+     * <p>This property will be supported if {@link #HVAC_FAN_DIRECTION_AVAILABLE} is supported
+     * on the vehicle, and vice versa.
      *
      * <p>Property Config:
      * <ul>
@@ -2314,7 +2318,14 @@ public final class VehiclePropertyIds {
     @RequiresPermission(Car.PERMISSION_CONTROL_CAR_CLIMATE)
     public static final int HVAC_POWER_ON = 354419984;
     /**
-     * Fan Positions Available.
+     * List of supported {@link CarHvacFanDirection} values for the vehicle.
+     *
+     * <p>For each supported area ID, this property provides a list of supported HVAC fan
+     * positions for the {@link #HVAC_FAN_DIRECTION} property (e.g.
+     * {@link CarHvacFanDirection#DEFROST_AND_FLOOR}).
+     *
+     * <p>This property will be supported if {@link #HVAC_FAN_DIRECTION} is supported on the
+     * vehicle, and vice versa.
      *
      * <p>Property Config:
      * <ul>
