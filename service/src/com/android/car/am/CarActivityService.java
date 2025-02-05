@@ -757,8 +757,12 @@ public final class CarActivityService extends ICarActivityService.Stub
      * block the current task with the provided new activity.
      */
     private void handleBlockActivity(TaskInfo currentTask, Intent newActivityIntent) {
+        if (DBG) {
+            Slogf.d(CarLog.TAG_AM, "Blocking activity on: " + currentTask);
+        }
         int displayId = newActivityIntent.getIntExtra(BLOCKING_INTENT_EXTRA_DISPLAY_ID,
                 Display.DEFAULT_DISPLAY);
+
         Trace.beginSection(
                 "CarActivityService-blockTask: " + currentTask.taskId + "-onDisplay: " + displayId);
         if (Slogf.isLoggable(CarLog.TAG_AM, Log.DEBUG)) {
@@ -766,7 +770,20 @@ public final class CarActivityService extends ICarActivityService.Stub
         }
 
         ActivityOptions options = ActivityOptions.makeBasic();
-        options.setLaunchDisplayId(displayId);
+        TaskInfo parentTask;
+        synchronized (mLock) {
+            parentTask = mRootTaskMap.get(TaskInfoHelper.geParentTaskId(currentTask));
+        }
+        if (parentTask != null && mIsUsingAutoTaskStackWindowing) {
+            newActivityIntent.addFlags(
+                    Intent.FLAG_ACTIVITY_NEW_DOCUMENT | Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
+            TaskInfoHelper.setLaunchRootTask(options, parentTask);
+            if (DBG) {
+                Slogf.d(CarLog.TAG_AM, "launching ABA on root task: " + parentTask);
+            }
+        } else {
+            options.setLaunchDisplayId(displayId);
+        }
         // Starts ABA as User 0 consistenly since the target apps can be any users (User 0 -
         // UserPicker, Driver/Passegners - general NDO apps) and launching ABA as passengers
         // have some issue (b/294447050).
