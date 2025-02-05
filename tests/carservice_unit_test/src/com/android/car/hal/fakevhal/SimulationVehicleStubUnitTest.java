@@ -239,8 +239,8 @@ public class SimulationVehicleStubUnitTest {
 
         ArgumentCaptor<List> captor = ArgumentCaptor.forClass(List.class);
         verify(mMockVehicleStub, never()).set(any(HalPropValue.class));
-        verify(mVehicleHalCallback).onPropertyEvent(captor.capture());
-        assertWithMessage("onPropertyEvent value").that(captor.getValue()
+        verify(mVehicleHalCallback).onInjectionPropertyEvent(captor.capture());
+        assertWithMessage("onInjectionPropertyEvent value").that(captor.getValue()
                 .getFirst()).isEqualTo(updatedHalPropValue);
     }
 
@@ -370,7 +370,7 @@ public class SimulationVehicleStubUnitTest {
                 carPropertyValue2));
 
         verify(mVehicleHalCallback, timeout(2000).times(2))
-                .onPropertyEvent(captor.capture());
+                .onInjectionPropertyEvent(captor.capture());
         List<List> allCaptors = captor.getAllValues();
         List<HalPropValue> callbackList = new ArrayList<>(allCaptors.get(0));
         callbackList.addAll(allCaptors.get(1));
@@ -398,7 +398,7 @@ public class SimulationVehicleStubUnitTest {
                 carPropertyValue2));
 
         verify(mVehicleHalCallback, timeout(2000))
-                .onPropertyEvent(captor.capture());
+                .onInjectionPropertyEvent(captor.capture());
         List<List> allCaptors = captor.getAllValues();
         assertWithMessage("Single event").that(allCaptors).hasSize(1);
         List<HalPropValue> callbackList = new ArrayList<>(allCaptors.get(0));
@@ -439,11 +439,11 @@ public class SimulationVehicleStubUnitTest {
         mSimulationVehicleStub.injectVehicleProperties(List.of(carPropertyValue1));
 
         verify(mVehicleHalCallback, timeout(2000))
-                .onPropertyEvent(captor.capture());
+                .onInjectionPropertyEvent(captor.capture());
         List<List> allCaptors = captor.getAllValues();
         assertWithMessage("Single event").that(allCaptors).hasSize(1);
         List<HalPropValue> callbackList = new ArrayList<>(allCaptors.get(0));
-        assertWithMessage("onPropertyEvent called").that(callbackList)
+        assertWithMessage("onInjectionPropertyEvent called").that(callbackList)
                 .containsExactly(mMockHalPropValue3);
     }
 
@@ -498,7 +498,7 @@ public class SimulationVehicleStubUnitTest {
 
         mSimulationVehicleStub.injectVehicleProperties(List.of(carPropertyValue1));
         verify(mVehicleHalCallback, timeout(1000).times(1))
-                .onPropertyEvent(captor.capture());
+                .onInjectionPropertyEvent(captor.capture());
         reset(mVehicleHalCallback);
         CarPropertyValue carPropertyValue2 = new CarPropertyValue(PROP_ID_1, AREA_ID_GLOBAL, 0);
         VehiclePropValue vehiclePropValue2 = mock(VehiclePropValue.class);
@@ -510,11 +510,11 @@ public class SimulationVehicleStubUnitTest {
         mSimulationVehicleStub.injectVehicleProperties(List.of(carPropertyValue2));
 
         verify(mVehicleHalCallback, timeout(2000).times(1))
-                .onPropertyEvent(captor.capture());
+                .onInjectionPropertyEvent(captor.capture());
         List<List> allCaptors = captor.getAllValues();
         List<HalPropValue> callbackList = new ArrayList<>(allCaptors.get(0));
         callbackList.addAll(allCaptors.get(1));
-        assertWithMessage("onPropertyEvent called").that(callbackList)
+        assertWithMessage("onInjectionPropertyEvent called").that(callbackList)
                 .containsExactly(mMockHalPropValue1, mMockHalPropValue2);
     }
 
@@ -680,10 +680,96 @@ public class SimulationVehicleStubUnitTest {
                 .isEqualTo(mMockVehicleStub);
     }
 
+    @Test
+    public void testGetLastInjectedVehicleProperty_propertyDoesNotExist() {
+        assertWithMessage("last injected property does not exist")
+                .that(mSimulationVehicleStub.getLastInjectedVehicleProperty(52)).isNull();
+    }
+
+    @Test
+    public void testGetLastInjectedVehicleProperty_propertyExists() throws Exception {
+        mSimulationVehicleStub.newSubscriptionClient(mVehicleHalCallback);
+        CarPropertyValue carPropertyValue1 = new CarPropertyValue(PROP_ID_1, AREA_ID_GLOBAL, 0);
+        VehiclePropValue vehiclePropValue1 = mock(VehiclePropValue.class);
+        when(mMockHalPropValue1.toVehiclePropValue()).thenReturn(vehiclePropValue1);
+        when(mMockHalPropValueBuilder.build(eq(carPropertyValue1), eq(PROP_ID_1), anyLong(),
+                eq(mHalPropConfig1))).thenReturn(mMockHalPropValue1);
+        CountDownLatch countDownLatch = new CountDownLatch(1);
+        mSimulationVehicleStub.setReplayingVehicleHalCallback(
+                new CountDownVehicleHalCallback(countDownLatch), List.of());
+
+        mSimulationVehicleStub.injectVehicleProperties(List.of(carPropertyValue1));
+
+        countDownLatch.await(1000, TimeUnit.MILLISECONDS);
+        assertWithMessage("last injected property does not exist")
+                .that(mSimulationVehicleStub.getLastInjectedVehicleProperty(PROP_ID_1))
+                .isEqualTo(carPropertyValue1);
+    }
+
+    @Test
+    public void testGetLastInjectedVehicleProperty_propertyChanges() throws Exception {
+        mSimulationVehicleStub.newSubscriptionClient(mVehicleHalCallback);
+        CarPropertyValue carPropertyValue1 = new CarPropertyValue(PROP_ID_1, AREA_ID_GLOBAL, 0);
+        VehiclePropValue vehiclePropValue1 = mock(VehiclePropValue.class);
+        when(mMockHalPropValue1.toVehiclePropValue()).thenReturn(vehiclePropValue1);
+        when(mMockHalPropValueBuilder.build(eq(carPropertyValue1), eq(PROP_ID_1), anyLong(),
+                eq(mHalPropConfig1))).thenReturn(mMockHalPropValue1);
+        CountDownLatch countDownLatch = new CountDownLatch(1);
+        mSimulationVehicleStub.setReplayingVehicleHalCallback(
+                new CountDownVehicleHalCallback(countDownLatch), List.of());
+
+        mSimulationVehicleStub.injectVehicleProperties(List.of(carPropertyValue1));
+
+        countDownLatch.await(1000, TimeUnit.MILLISECONDS);
+        assertWithMessage("last injected property does not exist")
+                .that(mSimulationVehicleStub.getLastInjectedVehicleProperty(PROP_ID_1))
+                .isEqualTo(carPropertyValue1);
+
+        CarPropertyValue carPropertyValue2 = new CarPropertyValue(PROP_ID_1, AREA_ID_GLOBAL, 0);
+        VehiclePropValue vehiclePropValue2 = mock(VehiclePropValue.class);
+        when(mMockHalPropValue1.toVehiclePropValue()).thenReturn(vehiclePropValue2);
+        when(mMockHalPropValueBuilder.build(eq(carPropertyValue2), eq(PROP_ID_1), anyLong(),
+                eq(mHalPropConfig1))).thenReturn(mMockHalPropValue1);
+        CountDownLatch countDownLatch2 = new CountDownLatch(1);
+        mSimulationVehicleStub.setReplayingVehicleHalCallback(
+                new CountDownVehicleHalCallback(countDownLatch2), List.of());
+
+        mSimulationVehicleStub.injectVehicleProperties(List.of(carPropertyValue2));
+
+        countDownLatch2.await(1000, TimeUnit.MILLISECONDS);
+        assertWithMessage("last injected property does not exist")
+                .that(mSimulationVehicleStub.getLastInjectedVehicleProperty(PROP_ID_1))
+                .isEqualTo(carPropertyValue2);
+    }
+
     private static VehicleStub.AsyncGetSetRequest defaultVehicleStubAsyncRequest(
             HalPropValue value) {
         return new VehicleStub.AsyncGetSetRequest(/* serviceRequestId=*/ 0, value,
                 /* timeoutUptimeMs= */ SystemClock.uptimeMillis() + 1000);
+    }
+
+    private static final class CountDownVehicleHalCallback implements VehicleHalCallback {
+        private final CountDownLatch mCountDownLatch;
+        private CountDownVehicleHalCallback(CountDownLatch countDownLatch) {
+            mCountDownLatch = countDownLatch;
+        }
+
+        @Override
+        public void onPropertyEvent(List<HalPropValue> values) {
+        }
+
+        @Override
+        public void onPropertySetError(List<VehiclePropError> errors) {
+        }
+
+        @Override
+        public void onSupportedValuesChange(List<PropIdAreaId> propIdAreaIds) {
+        }
+
+        @Override
+        public void onInjectionPropertyEvent(List<HalPropValue> values) {
+            mCountDownLatch.countDown();
+        }
     }
 
     private static class VehicleStubCallbackTest extends VehicleStub.VehicleStubCallbackInterface {
