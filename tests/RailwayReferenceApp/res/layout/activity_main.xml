@@ -77,6 +77,7 @@
         android:textAppearance="@style/InputText"
         android:textColor="@null"
         android:background="@android:color/white"
+        android:hint="@string/allowed_package_names_hint"
         app:layout_constraintEnd_toStartOf="@id/guideline50"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/allowedPackageNamesTitle" />
