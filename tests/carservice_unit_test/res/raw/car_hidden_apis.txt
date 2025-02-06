@@ -162,6 +162,7 @@ android.car.admin StopUserResult int STATUS_FAILURE_USER_DOES_NOT_EXIST
 android.car.admin StopUserResult int STATUS_SUCCESS
 android.car.admin StopUserResult int getStatus()
 android.car.app CarActivityManager Pair<SurfaceControl,Rect> getMirroredSurface(IBinder token)
+android.car.app CarActivityManager boolean isUsingAutoTaskStackWindowing()
 android.car.app CarActivityManager boolean registerTaskMonitor()
 android.car.app CarActivityManager int ERROR_CODE_ACTIVITY_NOT_FOUND
 android.car.app CarActivityManager void onCarDisconnected()

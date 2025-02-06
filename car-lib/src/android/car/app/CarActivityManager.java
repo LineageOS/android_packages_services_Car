@@ -506,6 +506,21 @@ public final class CarActivityManager extends CarManagerBase {
         }
     }
 
+    /**
+     * Returns the boolean value of config_isAutoTaskStackUsed set in CarService resources.
+     *
+     * @return boolean value of config_isAutoTaskStackUsed.
+     * @hide
+     */
+    public boolean isUsingAutoTaskStackWindowing() {
+        try {
+            return mService.isUsingAutoTaskStackWindowing();
+        } catch (RemoteException e) {
+            handleRemoteExceptionFromCarService(e);
+            return false;
+        }
+    }
+
     private boolean hasValidToken() {
         boolean valid = mTaskMonitorToken != null;
         if (!valid) {
