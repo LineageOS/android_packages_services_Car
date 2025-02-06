@@ -16,6 +16,7 @@
 
 package com.google.android.car.kitchensink.power;
 
+import android.app.ActivityManager;
 import android.car.hardware.power.CarPowerManager;
 import android.car.settings.CarSettings;
 import android.content.Context;
@@ -136,6 +137,9 @@ public class PowerTestFragment extends Fragment {
     }
 
     private void shutdownBtn(View v) {
+        if (ActivityManager.isUserAMonkey()) {
+            return;
+        }
         if(DBG) {
             Log.d(TAG, "Calling shutdown method");
         }

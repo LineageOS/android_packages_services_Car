@@ -525,8 +525,10 @@ public final class WatchdogStorage {
 
     private SQLiteDatabase getDatabase(boolean isWritable) {
         mMainHandler.removeCallbacks(mCloseDbHelperRunnable);
+        SQLiteDatabase db = isWritable ? mDbHelper.getWritableDatabase()
+                                       : mDbHelper.getReadableDatabase();
         mMainHandler.postDelayed(mCloseDbHelperRunnable, CLOSE_DB_HELPER_DELAY_MS);
-        return isWritable ? mDbHelper.getWritableDatabase() : mDbHelper.getReadableDatabase();
+        return db;
     }
 
     /**

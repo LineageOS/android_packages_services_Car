@@ -69,6 +69,13 @@ flag {
   bug: "256112021"
 }
 
+flag {
+  name: "register_local_only_hotspot_soft_ap_callback"
+  namespace: "car_framework"
+  description: "This flag controls whether the LOHS SoftAp callback is registered when the LOHS Ap starts."
+  bug: "346928471"
+}
+
 # CarRemoteAccessManager
 flag {
   name: "serverless_remote_access"

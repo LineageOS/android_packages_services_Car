@@ -192,6 +192,65 @@ public class CarProjectionServiceTest {
     }
 
     @Test
+    public void startLohs_success_registerLocalOnlyHotspotSoftApCallback() throws Exception {
+        when(mFeatureFlags.registerLocalOnlyHotspotSoftApCallback()).thenReturn(true);
+        WifiManager.LocalOnlyHotspotCallback callback = startProjectionLohs(false);
+        when(mContext.getSystemService(WifiManager.class)).thenReturn(mWifiManager);
+
+        // Simulate framework saying AP successfully created.
+        callback.onStarted(mLohsReservation);
+
+        verify(mWifiManager).registerLocalOnlyHotspotSoftApCallback(any(), any());
+    }
+
+    @Test
+    public void startLohs_onStateChanged_stateDisabled_callStopAp() throws Exception {
+        when(mFeatureFlags.registerLocalOnlyHotspotSoftApCallback()).thenReturn(true);
+        WifiManager.LocalOnlyHotspotCallback callback = startProjectionLohs(false);
+        when(mContext.getSystemService(WifiManager.class)).thenReturn(mWifiManager);
+
+        // Simulate framework saying AP successfully created.
+        callback.onStarted(mLohsReservation);
+
+        ArgumentCaptor<WifiManager.SoftApCallback> localOnlyHotspotSoftApCallbackCaptor =
+                ArgumentCaptor.forClass(WifiManager.SoftApCallback.class);
+        verify(mWifiManager)
+                .registerLocalOnlyHotspotSoftApCallback(
+                        any(), localOnlyHotspotSoftApCallbackCaptor.capture());
+
+        localOnlyHotspotSoftApCallbackCaptor
+                .getValue()
+                .onStateChanged(WifiManager.WIFI_AP_STATE_DISABLED, /* failureReason= */ 0);
+        verify(mLohsReservation).close();
+    }
+
+    @Test
+    public void startLohs_failure_unregisterLocalOnlyHotspotSoftApCallback() throws Exception {
+        when(mFeatureFlags.registerLocalOnlyHotspotSoftApCallback()).thenReturn(true);
+        WifiManager.LocalOnlyHotspotCallback callback = startProjectionLohs(false);
+        when(mContext.getSystemService(WifiManager.class)).thenReturn(mWifiManager);
+
+        // Simulate framework saying AP failed on creation.
+        callback.onStarted(mLohsReservation);
+        callback.onFailed(WifiManager.LocalOnlyHotspotCallback.ERROR_NO_CHANNEL);
+
+        verify(mWifiManager).unregisterLocalOnlyHotspotSoftApCallback(any());
+    }
+
+    @Test
+    public void startAndStopLohs_unregisterLocalOnlyHotspotSoftApCallback() throws Exception {
+        when(mFeatureFlags.registerLocalOnlyHotspotSoftApCallback()).thenReturn(true);
+        WifiManager.LocalOnlyHotspotCallback callback = startProjectionLohs(false);
+        when(mContext.getSystemService(WifiManager.class)).thenReturn(mWifiManager);
+
+        // Simulate framework saying AP started and then stopped.
+        callback.onStarted(mLohsReservation);
+        callback.onStopped();
+
+        verify(mWifiManager).unregisterLocalOnlyHotspotSoftApCallback(any());
+    }
+
+    @Test
     public void stopLohs_success() throws Exception {
         WifiManager.LocalOnlyHotspotCallback callback = startProjectionLohs(false);
 
@@ -201,6 +260,20 @@ public class CarProjectionServiceTest {
 
         mService.stopProjectionAccessPoint(mToken);
         verify(mLohsReservation).close();
+    }
+
+    @Test
+    public void stopLohs_success_unregisterLocalOnlyHotspotSoftApCallback() throws Exception {
+        when(mFeatureFlags.registerLocalOnlyHotspotSoftApCallback()).thenReturn(true);
+        WifiManager.LocalOnlyHotspotCallback callback = startProjectionLohs(false);
+
+        // Simulate framework saying AP successfully created.
+        callback.onStarted(mLohsReservation);
+        assertMessageSent(PROJECTION_AP_STARTED, AP_CONFIG);
+
+        mService.stopProjectionAccessPoint(mToken);
+
+        verify(mWifiManager).unregisterLocalOnlyHotspotSoftApCallback(any());
     }
 
     @Test
