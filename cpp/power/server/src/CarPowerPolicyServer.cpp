@@ -78,7 +78,6 @@ using ::android::base::StringAppendF;
 using ::android::base::StringPrintf;
 using ::android::base::WriteStringToFd;
 using ::android::car::feature::car_power_policy_refactoring;
-using ::android::car::feature::native_power_notifications;
 using ::android::frameworks::automotive::vhal::HalPropError;
 using ::android::frameworks::automotive::vhal::IHalPropValue;
 using ::android::frameworks::automotive::vhal::ISubscriptionClient;
@@ -743,10 +742,11 @@ ScopedAStatus CarPowerPolicyServer::setPowerPolicyGroup(const std::string& polic
 
 ScopedAStatus CarPowerPolicyServer::registerPowerStateListener(
         const std::shared_ptr<ICarPowerStateChangeListener>& listener) {
-    if (!native_power_notifications()) {
-        ALOGE("Cannot register power state listener: native_power_notifications flag not enabled");
-        return ScopedAStatus::fromExceptionCode(EX_UNSUPPORTED_OPERATION);
-    }
+#ifndef LAUNCH_CAR_POWER_SERVER
+    // In case native_power_notifications is not enabled, return an error.
+    ALOGE("Cannot register power state listener: native_power_notifications flag not enabled");
+    return ScopedAStatus::fromExceptionCode(EX_UNSUPPORTED_OPERATION);
+#endif  // LAUNCH_CAR_POWER_SERVER
 
     if (listener == nullptr) {
         return logAndReturnErrorWithMessage(EX_ILLEGAL_ARGUMENT,
@@ -841,11 +841,12 @@ ScopedAStatus CarPowerPolicyServer::unregisterPowerStateListener(
 
 ScopedAStatus CarPowerPolicyServer::registerPowerStateListenerWithCompletion(
         const std::shared_ptr<ICarPowerStateChangeListenerWithCompletion>& listener) {
-    if (!native_power_notifications()) {
-        ALOGE("Cannot register power state listener with completion: native_power_notifications "
-              "flag not enabled");
-        return ScopedAStatus::fromExceptionCode(EX_UNSUPPORTED_OPERATION);
-    }
+#ifndef LAUNCH_CAR_POWER_SERVER
+    // In case native_power_notifications is not enabled, return an error.
+    ALOGE("Cannot register power state listener with completion: native_power_notifications "
+          "flag not enabled");
+    return ScopedAStatus::fromExceptionCode(EX_UNSUPPORTED_OPERATION);
+#endif  // LAUNCH_CAR_POWER_SERVER
 
     if (listener == nullptr) {
         return logAndReturnErrorWithMessage(EX_ILLEGAL_ARGUMENT,
@@ -1341,22 +1342,23 @@ Result<void> CarPowerPolicyServer::init(const sp<Looper>& looper) {
     mComponentHandler.init();
     mSilentModeHandler.init();
 
-    binder_exception_t err =
-            AServiceManager_addService(this->asBinder().get(), kCarPowerPolicyServerInterface);
+    binder_exception_t err = AServiceManager_addService(this->asBinder().get(),
+                                                        kCarPowerPolicyServerInterface);
     if (err != EX_NONE) {
         return Error(err) << "Failed to add " << kCarPowerPolicyServerInterface
                           << " to ServiceManager";
     }
 
-    if (native_power_notifications()) {
-        mCarPowerServer = SharedRefBase::make<CarPowerServer>(this);
-        if (err = AServiceManager_addService(mCarPowerServer->asBinder().get(),
-                                             kCarPowerServerInterface);
-            err != EX_NONE) {
-            return Error(err) << "Failed to add " << kCarPowerServerInterface
-                              << " to ServiceManager";
-        }
+#ifdef LAUNCH_CAR_POWER_SERVER
+    // In case native_power_notifications is enabled, start serving ICarPowerServer.
+    mCarPowerServer = SharedRefBase::make<CarPowerServer>(this);
+    if (err = AServiceManager_addService(mCarPowerServer->asBinder().get(),
+                                         kCarPowerServerInterface);
+        err != EX_NONE) {
+        return Error(err) << "Failed to add " << kCarPowerServerInterface
+                          << " to ServiceManager";
     }
+#endif  // LAUNCH_CAR_POWER_SERVER
 
     if (car_power_policy_refactoring()) {
         ALOGI("Registering ICarPowerManagementDelegate");
@@ -1392,11 +1394,12 @@ void CarPowerPolicyServer::terminate() {
                  static_cast<int32_t>(VehicleProperty::POWER_POLICY_GROUP_REQ)});
     }
 
-    if (native_power_notifications()) {
-        if (mCarPowerServer != nullptr) {
-            mCarPowerServer->terminate();
-        }
+#ifdef LAUNCH_CAR_POWER_SERVER
+    // In case native_power_notifications is enabled, stop serving ICarPowerServer.
+    if (mCarPowerServer != nullptr) {
+        mCarPowerServer->terminate();
     }
+#endif  // LAUNCH_CAR_POWER_SERVER
 
     if (car_power_policy_refactoring()) {
         if (mCarPowerManagementDelegate != nullptr) {

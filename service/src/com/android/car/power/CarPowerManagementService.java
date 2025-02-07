@@ -1730,7 +1730,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     private void sendPowerManagerEvent(@CarPowerManager.CarPowerState int newState,
             long timeoutMs) {
         // Notify power daemon to notify native listeners
-        if (mFeatureFlags.nativePowerNotifications()) {
+        if (NativePowerNotificationsFlag.isFeatureSupported()) {
             notifyPowerStateChangeToDaemon(newState, timeoutMs);
         }
 

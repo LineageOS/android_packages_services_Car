@@ -314,6 +314,15 @@ android_test {
         ":car-service-dump-proto-srcs",
     ],
 
+    static_libs: select(release_flag("RELEASE_FRAMEWORK_NATIVE_POWER_NOTIFICATIONS"), {
+        true: [
+            "native_power_notifications_enabled",
+        ],
+        default: [
+            "native_power_notifications_disabled",
+        ],
+    }),
+
     defaults: [
         "CarServiceUnitTestDefaults",
         "car-framework-aconfig-libraries",
