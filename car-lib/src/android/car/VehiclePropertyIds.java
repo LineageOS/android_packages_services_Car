@@ -29,6 +29,7 @@ import static com.android.car.internal.property.VehiclePropertyIdDebugUtils.toNa
 import android.annotation.FlaggedApi;
 import android.annotation.RequiresPermission;
 import android.car.hardware.CarHvacFanDirection;
+import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.CarPropertyValue;
 import android.car.hardware.property.AutomaticEmergencyBrakingState;
 import android.car.hardware.property.BlindSpotWarningState;
@@ -6026,10 +6027,13 @@ public final class VehiclePropertyIds {
     public static final int REAR_FOG_LIGHTS_SWITCH = 289410878;
 
     /**
-     * EV charge current draw limit.
+     * The vehicle's selected alternating current (AC) EV charging draw limit in Amperes.
      *
-     * <p>Indicates the maximum current draw threshold for charging set by the user. {@code
-     * configArray[0]} contains the max current draw allowed by the vehicle in Amperes.
+     * <p>This may or may not match the vehicle's maximum possible draw limit. This maximum draw
+     * limit in Amperes is listed in the first entry in its
+     * {@link CarPropertyConfig#getConfigArray()}.
+     *
+     * <p>If property is writable, the user may adjust this value.
      *
      * <p>Property Config:
      * <ul>

@@ -109,15 +109,8 @@ ScopedAStatus CarDisplayProxy::getDisplayInfo(int64_t id, DisplayDesc* _aidl_ret
 ::android::sp<::android::IBinder> CarDisplayProxy::getDisplayInfoFromSurfaceComposerClient(
         int64_t id, ::android::ui::DisplayMode* displayMode,
         ::android::ui::DisplayState* displayState) {
-    ::android::sp<::android::IBinder> displayToken;
-    std::optional<::android::PhysicalDisplayId> displayId =
-            ::android::DisplayId::fromValue<::android::PhysicalDisplayId>(id);
-    if (!displayId) {
-        LOG(ERROR) << "Failed to get a valid display name";
-        return nullptr;
-    }
-
-    displayToken = SurfaceComposerClient::getPhysicalDisplayToken(*displayId);
+    ::android::sp<::android::IBinder> displayToken = SurfaceComposerClient::getPhysicalDisplayToken(
+            ::android::PhysicalDisplayId::fromValue(id));
     if (!displayToken) {
         LOG(ERROR) << "Failed to get a valid display token";
         return nullptr;
