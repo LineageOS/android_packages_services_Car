@@ -893,6 +893,8 @@ TEST_F(AidlVhalClientTest, testGetAllPropConfigs) {
                                                             .hasMaxSupportedValue = true,
                                                             .hasSupportedValuesList = false,
                                                     },
+                                            .supportedEnumValues =
+                                                    std::vector<int64_t>({1L, 2L, 3L}),
                                     },
                                     {
                                             .areaId = TEST_AREA_ID_2,
@@ -926,6 +928,8 @@ TEST_F(AidlVhalClientTest, testGetAllPropConfigs) {
     ASSERT_TRUE(areaConfig0->getHasSupportedValueInfo()->hasMinSupportedValue);
     ASSERT_TRUE(areaConfig0->getHasSupportedValueInfo()->hasMaxSupportedValue);
     ASSERT_FALSE(areaConfig0->getHasSupportedValueInfo()->hasSupportedValuesList);
+    ASSERT_TRUE(areaConfig0->getSupportedEnumValues().has_value());
+    ASSERT_THAT(areaConfig0->getSupportedEnumValues().value(), ::testing::ElementsAre(1L, 2L, 3L));
 
     const std::unique_ptr<IHalAreaConfig>& areaConfig1 = configs[0]->getAreaConfigs()[1];
     ASSERT_EQ(areaConfig1->getAreaId(), TEST_AREA_ID_2);
@@ -934,6 +938,7 @@ TEST_F(AidlVhalClientTest, testGetAllPropConfigs) {
     ASSERT_EQ(areaConfig1->getMaxInt32Value(), 3);
     ASSERT_FALSE(areaConfig1->isVariableUpdateRateSupported());
     ASSERT_FALSE(areaConfig1->getHasSupportedValueInfo().has_value());
+    ASSERT_FALSE(areaConfig1->getSupportedEnumValues().has_value());
 
     ASSERT_EQ(configs[1]->getPropId(), TEST_PROP_ID_2);
     ASSERT_EQ(configs[1]->getAccess(), 0);
