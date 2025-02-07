@@ -16,8 +16,8 @@
   -->
 
 <resources>
-    <bool name="config_enableScalableUI">true</bool>
-    <bool name="config_enableClearBackStack">false</bool>
+    <bool name="config_enableScalableUI" translatable="false">true</bool>
+    <bool name="config_enableClearBackStack" translatable="false">false</bool>
     <string name="system_bar_app_drawer_intent" translatable="false">intent:#Intent;action=com.android.car.carlauncher.ACTION_APP_GRID;package=com.android.car.portraitlauncher;launchFlags=0x24000000;end</string>
 
     <array name="window_states">
@@ -26,4 +26,14 @@
         <item>@xml/map_panel</item>
         <item>@xml/contextual_bar_panel</item>
     </array>
+
+    <string-array name="config_non_trimmable_activities" translatable="false">
+        <item>@string/contextual_bar_component</item>
+    </string-array>
+
+    <string-array name="config_default_activities" translatable="false">
+        <item>app_grid_panel;com.android.car.portraitlauncher/com.android.car.carlauncher.AppGridActivity</item>
+        <item>map_panel;com.android.car.portraitlauncher/.homeactivities.BackgroundPanelBaseActivity</item>
+        <item>contextual_bar_panel;com.android.car.portraitlauncher/com.android.car.carlauncher.ControlBarActivity</item>
+    </string-array>
 </resources>

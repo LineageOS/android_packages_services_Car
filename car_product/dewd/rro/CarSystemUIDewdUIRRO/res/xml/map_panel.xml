@@ -13,7 +13,7 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-  <Panel id="map_panel" defaultVariant="@id/opened" role="@string/nav_component" displayId="0">
+  <Panel id="map_panel" defaultVariant="@id/opened" role="@array/nav_components" displayId="0">
     <Variant id="@+id/map_base">
         <Layer layer="2"/>
     </Variant>
