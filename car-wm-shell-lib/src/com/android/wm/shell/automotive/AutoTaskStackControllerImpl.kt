@@ -46,6 +46,7 @@ import com.android.wm.shell.shared.annotations.ShellMainThread
 import com.android.wm.shell.sysui.ShellInit
 import com.android.wm.shell.transition.Transitions
 import com.android.wm.shell.transition.Transitions.TransitionFinishCallback
+import java.io.PrintWriter
 import javax.inject.Inject
 
 const val TAG = "AutoTaskStackController"
@@ -58,7 +59,8 @@ class AutoTaskStackControllerImpl @Inject constructor(
     val shellInit: ShellInit,
     val rootTdaOrganizer: RootTaskDisplayAreaOrganizer,
     val context: Context,
-    val autoTaskRepository: AutoTaskRepository
+    val autoTaskRepository: AutoTaskRepository,
+    val unused: AutoWmShellCommandHandler
 ) : AutoTaskStackController, Transitions.TransitionHandler {
     override var autoTransitionHandlerDelegate: AutoTaskStackTransitionHandlerDelegate? = null
     override val taskStackStateMap = mutableMapOf<Int, AutoTaskStackState>()
@@ -86,8 +88,6 @@ class AutoTaskStackControllerImpl @Inject constructor(
 
     fun onInit() {
         transitions.addHandler(this)
-        // TODO(b/392757141): Add a listener to get all the tasks instead of modifying the
-        // RootTaskStackListenerAdapter
     }
 
     /** Translates the [AutoTaskStackState] to relevant WM and surface transactions. */
@@ -623,6 +623,15 @@ class AutoTaskStackControllerImpl @Inject constructor(
             return
         }
         pending.isClaimed = transitions.startTransition(pending.mType, pending.wct, this)
+    }
+
+    fun dump(pw: PrintWriter, prefix: String) {
+        // TODO(b/395032583): Add more dump data.
+        pw.println(prefix + "AutoTaskStackController:")
+        pw.println(prefix + "RootTaskStacksMap: ")
+        for ((key, value) in taskStackStateMap) {
+            pw.println(prefix + "RootTaskStackId: $key $value")
+        }
     }
 
     internal class PendingTransition(
