@@ -59,6 +59,10 @@ public final class EventLogHelper {
         EventLog.writeEvent(EventLogTags.CAR_HELPER_USER_STOPPED, userId);
     }
 
+    public static void writeCarHelperWatchdogAnrKill() {
+        EventLog.writeEvent(EventLogTags.CAR_HELPER_WATCHDOG_ANR_KILL);
+    }
+
     public static void writeCarHelperServiceConnected() {
         EventLog.writeEvent(EventLogTags.CAR_HELPER_SVC_CONNECTED);
     }
