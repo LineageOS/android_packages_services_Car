@@ -537,19 +537,20 @@ public class PropertyHalService extends HalServiceBase {
                 List<GetSetValueResultWrapper> getSetValueResultWrapperList,
                 @AsyncRequestType int asyncRequestType) {
             List<GetSetValueResult> getSetValueResults = new ArrayList<>();
-            float systemCurrentTimeMillis = (float) System.currentTimeMillis();
+            long systemCurrentTimeMillis = System.currentTimeMillis();
             for (int i = 0; i < getSetValueResultWrapperList.size(); i++) {
                 GetSetValueResultWrapper getSetValueResultWrapper =
                         getSetValueResultWrapperList.get(i);
                 GetSetValueResult getSetValueResult = getSetValueResultWrapper
                         .getGetSetValueResult();
-                histogram.logSample(systemCurrentTimeMillis
-                                - getSetValueResultWrapper.getAsyncRequestStartTime());
+                long durationInMillis = systemCurrentTimeMillis
+                        - getSetValueResultWrapper.getAsyncRequestStartTime();
+                histogram.logSample((float)durationInMillis);
                 getSetValueResults.add(getSetValueResult);
                 if (DBG) {
-                    Slogf.d(TAG, "E2E latency for %sPropertiesAsync for requestId: %d is %d",
+                    Slogf.d(TAG, "E2E latency for %sPropertiesAsync for requestId: %d is %d ms",
                             requestTypeToString(asyncRequestType), getSetValueResult.getRequestId(),
-                            getSetValueResultWrapper.getAsyncRequestStartTime());
+                            durationInMillis);
                 }
                 if (getSetValueResultWrapper.getRetryCount() != 0) {
                     Slogf.i(TAG, "Async %s request finished after retry, requestID: %d,"
