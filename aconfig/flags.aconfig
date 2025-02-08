@@ -437,3 +437,11 @@ flag {
     description: "Density dpi scaling of display compat apps"
     bug: "379954641"
 }
+
+# CarWatchdog ANR Kill Metrics Reporting
+flag {
+    name: "car_watchdog_anr_metrics"
+    namespace: "car_framework"
+    description: "Controls CarWatchdog ANR metrics reporting feature."
+    bug: "373716861"
+}

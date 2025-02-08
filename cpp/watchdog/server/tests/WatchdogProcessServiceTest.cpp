@@ -15,6 +15,7 @@
  */
 
 #include "MockAIBinderDeathRegistrationWrapper.h"
+#include "MockCarWatchdogMonitor.h"
 #include "MockCarWatchdogServiceForSystem.h"
 #include "MockHidlServiceManager.h"
 #include "MockPackageInfoResolver.h"
@@ -42,6 +43,7 @@ namespace watchdog {
 using ::aidl::android::automotive::watchdog::ICarWatchdogClient;
 using ::aidl::android::automotive::watchdog::ICarWatchdogClientDefault;
 using ::aidl::android::automotive::watchdog::TimeoutLength;
+using ::aidl::android::automotive::watchdog::internal::GarageMode;
 using ::aidl::android::automotive::watchdog::internal::ICarWatchdogMonitor;
 using ::aidl::android::automotive::watchdog::internal::ICarWatchdogMonitorDefault;
 using ::aidl::android::automotive::watchdog::internal::ProcessIdentifier;
@@ -52,6 +54,7 @@ using ::android::IBinder;
 using ::android::Looper;
 using ::android::sp;
 using ::android::base::Error;
+using ::android::car::feature::car_watchdog_anr_metrics;
 using ::android::frameworks::automotive::vhal::ClientStatusError;
 using ::android::frameworks::automotive::vhal::ErrorCode;
 using ::android::frameworks::automotive::vhal::IHalPropConfig;
@@ -71,32 +74,64 @@ using ::testing::Field;
 using ::testing::Invoke;
 using ::testing::Matcher;
 using ::testing::Return;
+using ::testing::UnorderedElementsAreArray;
 
 namespace {
 
 constexpr std::chrono::milliseconds kMaxWaitForLooperExecutionMillis = 5s;
 constexpr std::chrono::nanoseconds kTestVhalPidCachingRetryDelayNs = 20ms;
 constexpr char kTestLooperThreadName[] = "WdProcSvcTest";
+constexpr char kTestPidComm[] = "test_pid_comm";
 constexpr const int32_t kTestAidlVhalPid = 564269;
+constexpr const int32_t kTestAidlVhalUid = 100124025;
+constexpr const int32_t kTestAidlVhalTgid = 564269;
 constexpr const int32_t kTestPidStartTime = 12356;
 constexpr const int32_t kMaxVhalPidCachingAttempts = 2;
+constexpr const int32_t kTestAidlClientUid = 100124036;
 
 enum TestMessage {
     NOTIFY_ALL,
     ON_AIDL_VHAL_PID,
 };
 
-ProcessIdentifier constructProcessIdentifier(int32_t pid, int64_t startTimeMillis) {
+ProcessIdentifier constructProcessIdentifier(pid_t pid, uid_t uid, std::string processName,
+                                             int64_t startTimeMillis) {
     ProcessIdentifier processIdentifier;
     processIdentifier.pid = pid;
     processIdentifier.startTimeMillis = startTimeMillis;
+    processIdentifier.uid = uid;
+    processIdentifier.processName = processName;
     return processIdentifier;
 }
 
 MATCHER_P(ProcessIdentifierEq, expected, "") {
     return ExplainMatchResult(AllOf(Field("pid", &ProcessIdentifier::pid, Eq(expected.pid)),
                                     Field("startTimeMillis", &ProcessIdentifier::startTimeMillis,
-                                          Eq(expected.startTimeMillis))),
+                                          Eq(expected.startTimeMillis)),
+                                    Field("processName", &ProcessIdentifier::processName,
+                                          Eq(expected.processName)),
+                                    Field("uid", &ProcessIdentifier::uid, Eq(expected.uid))),
+                              arg, result_listener);
+}
+
+std::vector<Matcher<const ProcessIdentifier&>> constructProcessIdentifierMatchers(
+        const std::vector<ProcessIdentifier>& processIdentifiers) {
+    std::vector<Matcher<const ProcessIdentifier&>> processIdentifierMatchers;
+    processIdentifierMatchers.reserve(processIdentifiers.size());
+    for (const auto& processIdentifier : processIdentifiers) {
+        processIdentifierMatchers.push_back(ProcessIdentifierEq(processIdentifier));
+    }
+    return processIdentifierMatchers;
+}
+
+MATCHER_P(ClientsNotRespondingInfoEq, expected, "") {
+    return ExplainMatchResult(AllOf(Field("processIdentifiers",
+                                          &ClientsNotRespondingInfo::processIdentifiers,
+                                          UnorderedElementsAreArray(
+                                                  constructProcessIdentifierMatchers(
+                                                          expected.processIdentifiers))),
+                                    Field("garageMode", &ClientsNotRespondingInfo::garageMode,
+                                          Eq(expected.garageMode))),
                               arg, result_listener);
 }
 
@@ -106,8 +141,13 @@ namespace internal {
 
 class WatchdogProcessServicePeer final {
 public:
-    explicit WatchdogProcessServicePeer(const sp<WatchdogProcessService>& watchdogProcessService) :
-          mWatchdogProcessService(watchdogProcessService) {}
+    explicit WatchdogProcessServicePeer(
+            const sp<WatchdogProcessService>& watchdogProcessService,
+            const std::shared_ptr<PackageInfoResolverInterface>& packageInfoResolver) :
+          mWatchdogProcessService(watchdogProcessService) {
+        Mutex::Autolock lock(mWatchdogProcessService->mMutex);
+        mWatchdogProcessService->mPackageInfoResolver = packageInfoResolver;
+    }
 
     void expectVhalProcessIdentifier(const Matcher<const ProcessIdentifier&> matcher) {
         Mutex::Autolock lock(mWatchdogProcessService->mMutex);
@@ -137,8 +177,12 @@ public:
         mWatchdogProcessService->mVhalProcessIdentifier = processIdentifier;
 
         WatchdogProcessService::ClientInfoMap clientInfoMap;
-        WatchdogProcessService::ClientInfo clientInfo(nullptr, 1, 1, 1000,
-                                                      WatchdogProcessService(nullptr));
+        WatchdogProcessService::ClientInfo clientInfo(
+                /*client=*/nullptr,
+                /*pid=*/1, kTestAidlClientUid,
+                /*processName=*/"",
+                /*startTimeMillis=*/1000, WatchdogProcessService(nullptr));
+
         clientInfo.packageName = "shell";
         clientInfoMap.insert({100, clientInfo});
         mWatchdogProcessService->mClientsByTimeout.clear();
@@ -147,6 +191,12 @@ public:
     }
 
     void clearClientsByTimeout() { mWatchdogProcessService->mClientsByTimeout.clear(); }
+
+    base::Result<void> dumpAndKillAllProcesses(
+            const std::vector<ProcessIdentifier>& processesNotResponding, bool reportToVhal) {
+        return mWatchdogProcessService->dumpAndKillAllProcesses(processesNotResponding,
+                                                                reportToVhal);
+    }
 
     bool hasClientInfoWithPackageName(TimeoutLength timeoutLength, std::string packageName) {
         auto clientInfoMap = mWatchdogProcessService->mClientsByTimeout[timeoutLength];
@@ -158,9 +208,14 @@ public:
         return false;
     }
 
-    void setPackageInfoResolver(const std::shared_ptr<PackageInfoResolverInterface>&
-          packageInfoResolver) {
-        mWatchdogProcessService->mPackageInfoResolver = packageInfoResolver;
+    bool hasClientInfoWithProcessName(TimeoutLength timeoutLength, std::string processName) {
+        auto clientInfoMap = mWatchdogProcessService->mClientsByTimeout[timeoutLength];
+        for (const auto& [_, clientInfo] : clientInfoMap) {
+            if (clientInfo.kProcessName == processName) {
+                return true;
+            }
+        }
+        return false;
     }
 
 private:
@@ -176,7 +231,13 @@ public:
           mMockHidlServiceManager(nullptr),
           kTryCreateVhalClientFunc([this]() { return mMockVhalClient; }),
           kTryGetHidlServiceManagerFunc([this]() { return mMockHidlServiceManager; }),
-          kGetStartTimeForPidFunc([](pid_t) { return kTestPidStartTime; }) {}
+          kGetPidStatForPidFunc([](pid_t) {
+              return PidStat{
+                      .startTimeMillis = kTestPidStartTime,
+                      .comm = kTestPidComm,
+              };
+          }),
+          kGetUidForPidFunc([](pid_t) { return kTestAidlVhalUid; }) {}
 
 protected:
     void SetUp() override {
@@ -189,12 +250,11 @@ protected:
         mNotSupportedVehicleProperties = {VehicleProperty::WATCHDOG_ALIVE,
                                           VehicleProperty::WATCHDOG_TERMINATED_PROCESS};
         mMockPackageInfoResolver = std::make_shared<MockPackageInfoResolver>();
-
+        mMockWatchdogMonitor = SharedRefBase::make<MockCarWatchdogMonitor>();
         ON_CALL(*mMockVehicle, subscribe(_, _, _))
                 .WillByDefault([](const std::shared_ptr<IVehicleCallback>&,
                                   const std::vector<SubscribeOptions>&,
                                   int32_t) { return ScopedAStatus::ok(); });
-
         startService();
     }
 
@@ -213,12 +273,12 @@ protected:
         mWatchdogProcessService =
                 sp<WatchdogProcessService>::make(kTryCreateVhalClientFunc,
                                                  kTryGetHidlServiceManagerFunc,
-                                                 kGetStartTimeForPidFunc,
+                                                 kGetPidStatForPidFunc, kGetUidForPidFunc,
                                                  kTestVhalPidCachingRetryDelayNs, mHandlerLooper,
                                                  mMockDeathRegistrationWrapper);
         mWatchdogProcessServicePeer =
-                std::make_unique<internal::WatchdogProcessServicePeer>(mWatchdogProcessService);
-        mWatchdogProcessServicePeer->setPackageInfoResolver(mMockPackageInfoResolver);
+                std::make_unique<internal::WatchdogProcessServicePeer>(mWatchdogProcessService,
+                                                                       mMockPackageInfoResolver);
 
         expectGetPropConfigs(mSupportedVehicleProperties, mNotSupportedVehicleProperties);
 
@@ -333,6 +393,7 @@ protected:
     std::vector<VehicleProperty> mSupportedVehicleProperties;
     std::vector<VehicleProperty> mNotSupportedVehicleProperties;
     std::shared_ptr<MockPackageInfoResolver> mMockPackageInfoResolver;
+    std::shared_ptr<MockCarWatchdogMonitor> mMockWatchdogMonitor;
 
 private:
     class MessageHandlerImpl : public android::MessageHandler {
@@ -389,7 +450,8 @@ private:
     const std::function<std::shared_ptr<IVhalClient>()> kTryCreateVhalClientFunc;
     const std::function<android::sp<android::hidl::manager::V1_0::IServiceManager>()>
             kTryGetHidlServiceManagerFunc;
-    const std::function<int64_t(pid_t)> kGetStartTimeForPidFunc;
+    const std::function<PidStat(pid_t)> kGetPidStatForPidFunc;
+    const std::function<uid_t(pid_t)> kGetUidForPidFunc;
 
     sp<Looper> mHandlerLooper;
     sp<MessageHandlerImpl> mMessageHandler;
@@ -585,10 +647,12 @@ TEST_F(WatchdogProcessServiceTest, TestTellCarWatchdogServiceAlive) {
             SharedRefBase::make<MockCarWatchdogServiceForSystem>();
 
     std::vector<ProcessIdentifier> processIdentifiers;
-    processIdentifiers.push_back(
-            constructProcessIdentifier(/* pid= */ 111, /* startTimeMillis= */ 0));
-    processIdentifiers.push_back(
-            constructProcessIdentifier(/* pid= */ 222, /* startTimeMillis= */ 0));
+    processIdentifiers.push_back(constructProcessIdentifier(/*pid=*/111, /*uid=*/1,
+                                                            /*processName=*/"process1",
+                                                            /*startTimeMillis=*/0));
+    processIdentifiers.push_back(constructProcessIdentifier(/*pid=*/222, /*uid=*/2,
+                                                            /*processName=*/"process2",
+                                                            /*startTimeMillis=*/0));
     ASSERT_FALSE(mWatchdogProcessService
                          ->tellCarWatchdogServiceAlive(mockService, processIdentifiers, 1234)
                          .isOk())
@@ -600,8 +664,10 @@ TEST_F(WatchdogProcessServiceTest, TestTellDumpFinished) {
             SharedRefBase::make<ICarWatchdogMonitorDefault>();
     ASSERT_FALSE(mWatchdogProcessService
                          ->tellDumpFinished(monitor,
-                                            constructProcessIdentifier(/* pid= */ 1234,
-                                                                       /* startTimeMillis= */ 0))
+                                            constructProcessIdentifier(/*pid=*/1234,
+                                                                       /*uid=*/1,
+                                                                       /*processName=*/"process",
+                                                                       /*startTimeMillis=*/0))
                          .isOk())
             << "Unregistered monitor cannot call tellDumpFinished";
 
@@ -610,8 +676,10 @@ TEST_F(WatchdogProcessServiceTest, TestTellDumpFinished) {
     mWatchdogProcessService->registerMonitor(monitor);
     auto status = mWatchdogProcessService
                           ->tellDumpFinished(monitor,
-                                             constructProcessIdentifier(/* pid= */ 1234,
-                                                                        /* startTimeMillis= */ 0));
+                                             constructProcessIdentifier(/*pid=*/1234,
+                                                                        /*uid=*/1,
+                                                                        /*processName=*/"process",
+                                                                        /*startTimeMillis=*/0));
 
     ASSERT_TRUE(status.isOk()) << status.getMessage();
 }
@@ -633,7 +701,8 @@ TEST_F(WatchdogProcessServiceTest, TestCacheAidlVhalPidFromCarWatchdogService) {
     waitForLooperNotification();
 
     ASSERT_NO_FATAL_FAILURE(mWatchdogProcessServicePeer->expectVhalProcessIdentifier(
-            ProcessIdentifierEq(constructProcessIdentifier(kTestAidlVhalPid, kTestPidStartTime))));
+            ProcessIdentifierEq(constructProcessIdentifier(kTestAidlVhalPid, kTestAidlVhalUid,
+                                                           kTestPidComm, kTestPidStartTime))));
 }
 
 TEST_F(WatchdogProcessServiceTest, TestFailsCacheAidlVhalPidWithNoCarWatchdogServiceResponse) {
@@ -718,7 +787,8 @@ TEST_F(WatchdogProcessServiceTest, TestCacheHidlVhalPidFromHidlServiceManager) {
     startService();
 
     ASSERT_NO_FATAL_FAILURE(mWatchdogProcessServicePeer->expectVhalProcessIdentifier(
-            ProcessIdentifierEq(constructProcessIdentifier(2034, kTestPidStartTime))));
+            ProcessIdentifierEq(constructProcessIdentifier(2034, kTestAidlVhalUid, kTestPidComm,
+                                                           kTestPidStartTime))));
 }
 
 TEST_F(WatchdogProcessServiceTest, TestFailsCacheHidlVhalPidWithNoHidlVhalService) {
@@ -767,6 +837,8 @@ TEST_F(WatchdogProcessServiceTest, TestNoCacheHidlVhalPidWithUnsupportedVhalHear
 TEST_F(WatchdogProcessServiceTest, TestOnDumpProto) {
     ProcessIdentifier processIdentifier;
     processIdentifier.pid = 1;
+    processIdentifier.uid = kTestAidlClientUid;
+    processIdentifier.processName = "process";
     processIdentifier.startTimeMillis = 1000;
 
     mWatchdogProcessServicePeer->setWatchdogProcessServiceState(true, nullptr,
@@ -804,7 +876,8 @@ TEST_F(WatchdogProcessServiceTest, TestOnDumpProto) {
     EXPECT_EQ(healthCheckClientInfo.pid(), 1);
 
     UserPackageInfo userPackageInfo = healthCheckClientInfo.user_package_info();
-    EXPECT_EQ(userPackageInfo.user_id(), 1);
+    EXPECT_EQ(userPackageInfo.user_id(),
+              static_cast<int>(multiuser_get_user_id(kTestAidlClientUid)));
     EXPECT_EQ(userPackageInfo.package_name(), "shell");
 
     EXPECT_EQ(healthCheckClientInfo.client_type(), HealthCheckClientInfo_ClientType_REGULAR);
@@ -827,11 +900,17 @@ TEST_F(WatchdogProcessServiceTest, TestRegisterClientWithPackageName) {
 
     ASSERT_FALSE(mWatchdogProcessServicePeer
                          ->hasClientInfoWithPackageName(TimeoutLength::TIMEOUT_CRITICAL, "shell"));
+    ASSERT_FALSE(
+            mWatchdogProcessServicePeer
+                    ->hasClientInfoWithProcessName(TimeoutLength::TIMEOUT_CRITICAL, kTestPidComm));
 
     auto status = mWatchdogProcessService->registerClient(client, TimeoutLength::TIMEOUT_CRITICAL);
 
     ASSERT_TRUE(mWatchdogProcessServicePeer
                         ->hasClientInfoWithPackageName(TimeoutLength::TIMEOUT_CRITICAL, "shell"));
+    ASSERT_TRUE(
+            mWatchdogProcessServicePeer
+                    ->hasClientInfoWithProcessName(TimeoutLength::TIMEOUT_CRITICAL, kTestPidComm));
 }
 
 TEST_F(WatchdogProcessServiceTest, TestRegisterClientWithPackageNameAndNonExistentUid) {
@@ -846,11 +925,110 @@ TEST_F(WatchdogProcessServiceTest, TestRegisterClientWithPackageNameAndNonExiste
 
     ASSERT_FALSE(mWatchdogProcessServicePeer
                          ->hasClientInfoWithPackageName(TimeoutLength::TIMEOUT_CRITICAL, "shell"));
+    ASSERT_FALSE(
+            mWatchdogProcessServicePeer
+                    ->hasClientInfoWithProcessName(TimeoutLength::TIMEOUT_CRITICAL, kTestPidComm));
 
     auto status = mWatchdogProcessService->registerClient(client, TimeoutLength::TIMEOUT_CRITICAL);
 
     ASSERT_FALSE(mWatchdogProcessServicePeer
                          ->hasClientInfoWithPackageName(TimeoutLength::TIMEOUT_CRITICAL, "shell"));
+    ASSERT_TRUE(
+            mWatchdogProcessServicePeer
+                    ->hasClientInfoWithProcessName(TimeoutLength::TIMEOUT_CRITICAL, kTestPidComm));
+}
+
+TEST_F(WatchdogProcessServiceTest, TestDumpAndKillAllProcessesDuringGarageMode) {
+    if (!car_watchdog_anr_metrics()) {
+        GTEST_SKIP() << "car_watchdog_anr_metrics feature flag is not enabled";
+    }
+
+    auto status = mWatchdogProcessService->registerMonitor(mMockWatchdogMonitor);
+
+    ASSERT_TRUE(status.isOk()) << status.getMessage();
+
+    mWatchdogProcessService->setGarageMode(GarageMode::GARAGE_MODE_ON);
+
+    std::vector<ProcessIdentifier> processIdentifiers;
+    processIdentifiers.push_back(constructProcessIdentifier(/*pid=*/111, /*uid=*/1,
+                                                            /*processName=*/"process1",
+                                                            /*startTimeMillis=*/0));
+    processIdentifiers.push_back(constructProcessIdentifier(/*pid=*/222, /*uid=*/2,
+                                                            /*processName=*/"process2",
+                                                            /*startTimeMillis=*/0));
+    ClientsNotRespondingInfo clientsNotRespondingInfo = {
+            .processIdentifiers = processIdentifiers,
+            .garageMode = GarageMode::GARAGE_MODE_ON,
+    };
+
+    EXPECT_CALL(*mMockWatchdogMonitor,
+                onClientsNotRespondingWithSystemState(
+                        ClientsNotRespondingInfoEq(clientsNotRespondingInfo)))
+            .Times(1);
+
+    // TODO(b/388042850): Update to use end-to-end implementation
+    mWatchdogProcessServicePeer->dumpAndKillAllProcesses(processIdentifiers,
+                                                         /*reportToVhal=*/false);
+}
+
+TEST_F(WatchdogProcessServiceTest, TestDumpAndKillAllProcesses) {
+    if (!car_watchdog_anr_metrics()) {
+        GTEST_SKIP() << "car_watchdog_anr_metrics feature flag is not enabled";
+    }
+
+    auto status = mWatchdogProcessService->registerMonitor(mMockWatchdogMonitor);
+
+    ASSERT_TRUE(status.isOk()) << status.getMessage();
+
+    mWatchdogProcessService->setGarageMode(GarageMode::GARAGE_MODE_OFF);
+
+    std::vector<ProcessIdentifier> processIdentifiers;
+    processIdentifiers.push_back(constructProcessIdentifier(/*pid=*/111, /*uid=*/1,
+                                                            /*processName=*/"process1",
+                                                            /*startTimeMillis=*/0));
+    processIdentifiers.push_back(constructProcessIdentifier(/*pid=*/222, /*uid=*/2,
+                                                            /*processName=*/"process2",
+                                                            /*startTimeMillis=*/0));
+    ClientsNotRespondingInfo clientsNotRespondingInfo = {
+            .processIdentifiers = processIdentifiers,
+            .garageMode = GarageMode::GARAGE_MODE_OFF,
+    };
+
+    EXPECT_CALL(*mMockWatchdogMonitor,
+                onClientsNotRespondingWithSystemState(
+                        ClientsNotRespondingInfoEq(clientsNotRespondingInfo)))
+            .Times(1);
+
+    // TODO(b/388042850): Update to use end-to-end implementation
+    mWatchdogProcessServicePeer->dumpAndKillAllProcesses(processIdentifiers,
+                                                         /*reportToVhal=*/false);
+}
+
+TEST_F(WatchdogProcessServiceTest, TestDumpAndKillAllProcessesWithAnrMetricsFeatureDisabled) {
+    if (car_watchdog_anr_metrics()) {
+        GTEST_SKIP() << "car_watchdog_anr_metrics feature flag is not disabled";
+    }
+
+    auto status = mWatchdogProcessService->registerMonitor(mMockWatchdogMonitor);
+
+    ASSERT_TRUE(status.isOk()) << status.getMessage();
+
+    std::vector<ProcessIdentifier> processIdentifiers;
+    processIdentifiers.push_back(constructProcessIdentifier(/*pid=*/111, /*uid=*/1,
+                                                            /*processName=*/"process1",
+                                                            /*startTimeMillis=*/0));
+    processIdentifiers.push_back(constructProcessIdentifier(/*pid=*/222, /*uid=*/2,
+                                                            /*processName=*/"process2",
+                                                            /*startTimeMillis=*/0));
+
+    EXPECT_CALL(*mMockWatchdogMonitor,
+                onClientsNotResponding(UnorderedElementsAreArray(
+                        constructProcessIdentifierMatchers(processIdentifiers))))
+            .Times(1);
+
+    // TODO(b/388042850): Update to use end-to-end implementation
+    mWatchdogProcessServicePeer->dumpAndKillAllProcesses(processIdentifiers,
+                                                         /*reportToVhal=*/false);
 }
 
 }  // namespace watchdog

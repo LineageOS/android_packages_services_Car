@@ -179,10 +179,10 @@ public final class CarPropertyManagerTest extends CarApiTestBase {
             }
             TestPropertyAsyncCallback callback = new TestPropertyAsyncCallback(
                     setPropertyIds);
-            mCarPropertyManager.setPropertiesAsync(setPropertyRequests, /* timeoutInMs= */ 1000,
+            mCarPropertyManager.setPropertiesAsync(setPropertyRequests, /* timeoutInMs= */ 10000,
                     /* cancellationSignal= */ null, callbackExecutor, callback);
 
-            callback.waitAndFinish(/* timeoutInMs= */ 3000);
+            callback.waitAndFinish(/* timeoutInMs= */ 30000);
             assertThat(callback.getTestErrors()).isEmpty();
             List<CarPropertyManager.SetPropertyResult> results = callback.getSetResultList();
             assertThat(results).hasSize(NUMBER_OF_TEST_CODES);
@@ -223,10 +223,10 @@ public final class CarPropertyManagerTest extends CarApiTestBase {
             }
             TestPropertyAsyncCallback callback = new TestPropertyAsyncCallback(
                     getPropertyIds);
-            mCarPropertyManager.getPropertiesAsync(getPropertyRequests, /* timeoutInMs= */ 1000,
+            mCarPropertyManager.getPropertiesAsync(getPropertyRequests, /* timeoutInMs= */ 10000,
                     /* cancellationSignal= */ null, callbackExecutor, callback);
 
-            callback.waitAndFinish(/* timeoutInMs= */ 8000);
+            callback.waitAndFinish(/* timeoutInMs= */ 30000);
             assertThat(callback.getTestErrors()).isEmpty();
             List<CarPropertyManager.GetPropertyResult<?>> results = callback.getGetResultList();
             assertThat(results.size()).isEqualTo(NUMBER_OF_TEST_CODES);

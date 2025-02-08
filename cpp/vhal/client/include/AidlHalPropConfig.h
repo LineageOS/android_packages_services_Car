@@ -19,9 +19,11 @@
 
 #include "IHalPropConfig.h"
 
+#include <aidl/android/hardware/automotive/vehicle/HasSupportedValueInfo.h>
 #include <aidl/android/hardware/automotive/vehicle/VehicleAreaConfig.h>
 #include <aidl/android/hardware/automotive/vehicle/VehiclePropConfig.h>
 
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -53,6 +55,11 @@ public:
     float getMaxFloatValue() const override;
 
     bool isVariableUpdateRateSupported() const override;
+
+    std::optional<aidl::android::hardware::automotive::vehicle::HasSupportedValueInfo>
+    getHasSupportedValueInfo() const override;
+
+    std::optional<std::vector<int64_t>> getSupportedEnumValues() const override;
 
 private:
     ::aidl::android::hardware::automotive::vehicle::VehicleAreaConfig mAreaConfig;

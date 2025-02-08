@@ -1982,8 +1982,10 @@ void CarPowerPolicyServer::AIBinderLinkUnlinkImpl::deleteDeathRecipient(
 }
 
 CarPowerPolicyServer::CompletablePowerStateChangeFuture::CompletablePowerStateChangeFuture(
-        std::weak_ptr<std::condition_variable> listenersCompletedCvPtr) :
-      mListenersCompletedCvPtr(listenersCompletedCvPtr) {}
+        std::weak_ptr<std::condition_variable> listenersCompletedCvPtr) {
+          mListenersCompletedCvPtr = listenersCompletedCvPtr;
+          mCompleted = false;
+    }
 
 ndk::ScopedAStatus CarPowerPolicyServer::CompletablePowerStateChangeFuture::complete() {
     std::shared_ptr<std::condition_variable> cvPtr = mListenersCompletedCvPtr.lock();

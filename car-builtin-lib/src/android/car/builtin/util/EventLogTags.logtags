@@ -39,6 +39,7 @@ option java_package android.car.builtin.util
 #150013 (Not_used_anymore) car_helper_hal_create_user (flags|1),(safe_name|3),(user_locales|3)
 #150014 (Not_used_anymore) car_helper_pre_creation_requested
 #150015 (Not_used_anymore) car_helper_pre_creation_status
+150016 car_helper_watchdog_anr_kill
 
 ####
 #### Tags used by ICarImpl / CarService

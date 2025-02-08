@@ -18,10 +18,6 @@
           xmlns:tools="http://schemas.android.com/tools"
           package="com.android.car.documentsui"
           android:versionCode="0">
-    <!-- Use AdaptApp for Back button and better DPI -->
-    <uses-feature
-        android:name="android.software.car.display_compatibility"
-        android:required="true" />
 
     <application
         tools:node="merge">
@@ -49,6 +45,11 @@
             android:targetActivity="com.android.documentsui.files.LauncherActivity"
             tools:node="remove">
         </activity-alias>
+
+        <!-- Use AdaptApp for Back button and better DPI -->
+        <meta-data
+            android:name="android.software.car.display_compatibility"
+            android:value="true" />
     </application>
     <uses-sdk
       tools:overrideLibrary="com.android.documentsui" />

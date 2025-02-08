@@ -23,13 +23,14 @@
     <string name="activity_title">Vehicular Networking App</string>
     <string name="update_configuration_section_title">Update Configuration</string>
     <string name="allowed_package_names_title">Allowed Package Names</string>
+    <string name="allowed_package_names_hint">comma separated list, e.g. com.android.package1,com.android.package2,&#8230;</string>
     <string name="ip_configuration_title">Update Configuration (IPv4 only)</string>
     <string name="ip_configuration_hint">valid IPv4, e.g. 192.x.x.x/24</string>
     <string name="interface_name_title">Interface Name</string>
     <string name="interface_to_update_name_title">Interface Name to Update</string>
     <string name="interface_name_hint">e.g., eth0</string>
     <string name="network_capabilities_title">Network Capabilities</string>
-    <string name="network_capabilities_hint">comma separated list, e.g. 1,2,3,...,x</string>
+    <string name="network_capabilities_hint">comma separated list, e.g. 1,2,3,&#8230;,x</string>
     <string name="enable_disable_section_title">Enable/Disable/Bind Interface</string>
     <string name="current_ethernet_networks_section_title">Current Ethernet Networks</string>
     <string name="success">Success</string>

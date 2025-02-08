@@ -17,7 +17,10 @@
 #ifndef CPP_VHAL_CLIENT_INCLUDE_IHALPROPCONFIG_H_
 #define CPP_VHAL_CLIENT_INCLUDE_IHALPROPCONFIG_H_
 
+#include <aidl/android/hardware/automotive/vehicle/HasSupportedValueInfo.h>
+
 #include <cstdint>
+#include <optional>
 #include <vector>
 
 namespace android {
@@ -46,6 +49,25 @@ public:
     virtual ~IHalAreaConfig() = default;
 
     virtual bool isVariableUpdateRateSupported() const = 0;
+
+    // Returns optional information about whether this [propertyId, areaId] may specify
+    // min/max supported values or supported values list through getMinMaxSupportedValue
+    // and getSupportedValuesList function.
+    // For VHAL implementation that does not implement the mentioned functions for this
+    // [propertyId, areaId], this returns std::nullopt. In this case, the functions should not be
+    // called.
+    virtual std::optional<aidl::android::hardware::automotive::vehicle::HasSupportedValueInfo>
+    getHasSupportedValueInfo() const {
+        return std::nullopt;
+    }
+
+    // Returns optional supported enum values for enum property Ids.
+    // For enum values, if this returns std::nullopt, this means all values in the enum type
+    // are supported.
+    // For non-enum values, this function always returns std::nullopt.
+    virtual std::optional<std::vector<int64_t>> getSupportedEnumValues() const {
+        return std::nullopt;
+    }
 };
 
 class IHalPropConfig {

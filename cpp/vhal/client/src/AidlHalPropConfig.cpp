@@ -23,6 +23,7 @@ namespace frameworks {
 namespace automotive {
 namespace vhal {
 
+using ::aidl::android::hardware::automotive::vehicle::HasSupportedValueInfo;
 using ::aidl::android::hardware::automotive::vehicle::VehicleAreaConfig;
 using ::aidl::android::hardware::automotive::vehicle::VehiclePropConfig;
 using ::aidl::android::hardware::automotive::vehicle::VehiclePropertyAccess;
@@ -118,6 +119,14 @@ float AidlHalAreaConfig::getMaxFloatValue() const {
 
 bool AidlHalAreaConfig::isVariableUpdateRateSupported() const {
     return mAreaConfig.supportVariableUpdateRate;
+}
+
+std::optional<HasSupportedValueInfo> AidlHalAreaConfig::getHasSupportedValueInfo() const {
+    return mAreaConfig.hasSupportedValueInfo;
+}
+
+std::optional<std::vector<int64_t>> AidlHalAreaConfig::getSupportedEnumValues() const {
+    return mAreaConfig.supportedEnumValues;
 }
 
 }  // namespace vhal
