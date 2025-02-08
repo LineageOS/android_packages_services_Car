@@ -134,6 +134,8 @@ std::string VhalClientError::toString(ErrorCode code) {
             return "ACCESS_DENIED_FROM_VHAL";
         case ErrorCode::INTERNAL_ERROR_FROM_VHAL:
             return "INTERNAL_ERROR_FROM_VHAL";
+        case ErrorCode::NOT_SUPPORTED:
+            return "NOT_SUPPORTED";
         default:
             return StringPrintf("Unknown error. Code: %d", static_cast<int>(code));
     }

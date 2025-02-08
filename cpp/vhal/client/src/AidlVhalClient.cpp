@@ -48,6 +48,8 @@ using ::aidl::android::hardware::automotive::vehicle::GetValueRequests;
 using ::aidl::android::hardware::automotive::vehicle::GetValueResult;
 using ::aidl::android::hardware::automotive::vehicle::GetValueResults;
 using ::aidl::android::hardware::automotive::vehicle::IVehicle;
+using ::aidl::android::hardware::automotive::vehicle::MinMaxSupportedValueResult;
+using ::aidl::android::hardware::automotive::vehicle::MinMaxSupportedValueResults;
 using ::aidl::android::hardware::automotive::vehicle::PropIdAreaId;
 using ::aidl::android::hardware::automotive::vehicle::SetValueRequest;
 using ::aidl::android::hardware::automotive::vehicle::SetValueRequests;
@@ -325,6 +327,9 @@ size_t AidlVhalClient::countOnBinderDiedCallbacks() {
 }
 
 int32_t AidlVhalClient::getRemoteInterfaceVersion() {
+    if (mTestRemoteInterfaceVersion != 0) {
+        return mTestRemoteInterfaceVersion;
+    }
     int32_t interfaceVersion = 0;
     if (auto status = mHal->getInterfaceVersion(&interfaceVersion); !status.isOk()) {
         ALOGE("failed to get VHAL interface version, assume 0");
@@ -335,6 +340,29 @@ int32_t AidlVhalClient::getRemoteInterfaceVersion() {
 std::unique_ptr<ISubscriptionClient> AidlVhalClient::getSubscriptionClient(
         std::shared_ptr<ISubscriptionCallback> callback) {
     return std::make_unique<AidlSubscriptionClient>(mHal, callback);
+}
+
+VhalClientResult<std::vector<MinMaxSupportedValueResult>> AidlVhalClient::getMinMaxSupportedValue(
+        const std::vector<PropIdAreaId>& propIdAreaIds) {
+    int32_t interfaceVersion = getRemoteInterfaceVersion();
+    if (interfaceVersion < 4) {
+        return ClientStatusError(ErrorCode::NOT_SUPPORTED)
+                << "getMinMaxSupportedValue is not supported on VHAL version: V" << interfaceVersion
+                << ", require at least V4";
+    }
+    MinMaxSupportedValueResults results = {};
+    if (auto status = mHal->getMinMaxSupportedValue(propIdAreaIds, &results); !status.isOk()) {
+        return statusToError<std::vector<
+                MinMaxSupportedValueResult>>(status,
+                                             "failed to get min/max supported value from VHAL");
+    }
+    auto parcelableResult = fromStableLargeParcelable(results);
+    if (!parcelableResult.ok()) {
+        return ClientStatusError(ErrorCode::INTERNAL_ERROR_FROM_VHAL)
+                << "failed to parse MinMaxSupportedValueResults returned from VHAL, error: "
+                << parcelableResult.error().getMessage();
+    }
+    return parcelableResult.value().getObject()->payloads;
 }
 
 GetSetValueClient::GetSetValueClient(int64_t timeoutInNs, std::shared_ptr<IVehicle> hal) :

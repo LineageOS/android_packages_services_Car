@@ -92,6 +92,12 @@ public:
     std::unique_ptr<ISubscriptionClient> getSubscriptionClient(
             std::shared_ptr<ISubscriptionCallback> callback) override;
 
+    VhalClientResult<
+            std::vector<::aidl::android::hardware::automotive::vehicle::MinMaxSupportedValueResult>>
+    getMinMaxSupportedValue(
+            const std::vector<::aidl::android::hardware::automotive::vehicle::PropIdAreaId>&
+                    propIdAreaIds) override;
+
     int32_t getRemoteInterfaceVersion() override;
 
     // Converts a non-okay status to an error {@code Result}.
@@ -172,6 +178,9 @@ private:
     // BinderDiedCallbacks is thread-safe.
     std::shared_ptr<BinderDiedCallbacks> mOnBinderDiedCallbacks;
 
+    // For test-only.
+    int32_t mTestRemoteInterfaceVersion = 0;
+
     static void onBinderDied(void* cookie);
     static void onBinderUnlinked(void* cookie);
 
@@ -186,6 +195,8 @@ private:
     AidlVhalClient(std::shared_ptr<aidl::android::hardware::automotive::vehicle::IVehicle> hal,
                    int64_t timeoutInMs, std::unique_ptr<ILinkUnlinkToDeath> linkUnlinkImpl);
     size_t countOnBinderDiedCallbacks();
+
+    void setTestRemoteInterfaceVersion(int version) { mTestRemoteInterfaceVersion = version; }
 };
 
 class GetSetValueClient final :

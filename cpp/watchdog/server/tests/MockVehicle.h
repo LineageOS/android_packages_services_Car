@@ -23,7 +23,7 @@ namespace android {
 namespace automotive {
 namespace watchdog {
 
-class MockVehicle final : public aidl::android::hardware::automotive::vehicle::BnVehicle {
+class MockVehicle : public aidl::android::hardware::automotive::vehicle::BnVehicle {
 public:
     MockVehicle() {
         ON_CALL(*this, unsubscribe(::testing::_, ::testing::_)).WillByDefault([]() {

@@ -120,7 +120,9 @@ public:
             const std::function<uid_t(pid_t)>& getUidForPidFunc,
             const std::chrono::nanoseconds& vhalPidCachingRetryDelayNs,
             const sp<Looper>& handlerLooper,
-            const sp<AIBinderDeathRegistrationWrapperInterface>& deathRegistrationWrapper);
+            const sp<AIBinderDeathRegistrationWrapperInterface>& deathRegistrationWrapper,
+            const std::chrono::milliseconds& vhalHealthCheckIntervalMillis,
+            const std::chrono::milliseconds& vhalHealthCheckDelayMillis);
     ~WatchdogProcessService();
 
     android::base::Result<void> start() override;
@@ -328,7 +330,7 @@ private:
     // mLastSessionId is accessed only within main thread. No need for mutual-exclusion.
     int32_t mLastSessionId;
     bool mServiceStarted;
-    std::chrono::milliseconds mVhalHealthCheckWindowMillis;
+    std::chrono::milliseconds mVhalHealthCheckIntervalMillis;
     std::optional<std::chrono::nanoseconds> mOverriddenClientHealthCheckWindowNs;
     std::shared_ptr<android::frameworks::automotive::vhal::IVhalClient::OnBinderDiedCallbackFunc>
             mVhalBinderDiedCallback;
