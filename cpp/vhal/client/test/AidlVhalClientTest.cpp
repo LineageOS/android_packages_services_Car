@@ -45,6 +45,7 @@ using ::aidl::android::hardware::automotive::vehicle::GetValueResults;
 using ::aidl::android::hardware::automotive::vehicle::HasSupportedValueInfo;
 using ::aidl::android::hardware::automotive::vehicle::IVehicle;
 using ::aidl::android::hardware::automotive::vehicle::IVehicleCallback;
+using ::aidl::android::hardware::automotive::vehicle::MinMaxSupportedValueResult;
 using ::aidl::android::hardware::automotive::vehicle::MinMaxSupportedValueResults;
 using ::aidl::android::hardware::automotive::vehicle::PropIdAreaId;
 using ::aidl::android::hardware::automotive::vehicle::RawPropValues;
@@ -180,10 +181,8 @@ public:
         return ScopedAStatus::ok();
     }
 
-    ScopedAStatus getMinMaxSupportedValue(const std::vector<PropIdAreaId>&,
-                                          MinMaxSupportedValueResults*) {
-        return ScopedAStatus::ok();
-    }
+    MOCK_METHOD(ScopedAStatus, getMinMaxSupportedValue,
+                (const std::vector<PropIdAreaId>&, MinMaxSupportedValueResults*), (override));
 
     ScopedAStatus registerSupportedValueChangeCallback(const std::shared_ptr<IVehicleCallback>&,
                                                        const std::vector<PropIdAreaId>&) {
@@ -359,6 +358,10 @@ protected:
     }
 
     size_t countOnBinderDiedCallbacks() { return mVhalClient->countOnBinderDiedCallbacks(); }
+
+    void setTestRemoteInterfaceVersion(int32_t version) {
+        mVhalClient->setTestRemoteInterfaceVersion(version);
+    }
 
 private:
     std::shared_ptr<MockVhal> mVhal;
@@ -1249,6 +1252,63 @@ TEST_F(AidlVhalClientTest, testAidlHalPropValueClone_modifyCloneDoesNotAffectOri
     EXPECT_EQ(halPropValue->getFloatValues(), floatValues1);
     EXPECT_EQ(halPropValueClone->getInt32Values(), int32Values2);
     EXPECT_EQ(halPropValueClone->getFloatValues(), floatValues2);
+}
+
+TEST_F(AidlVhalClientTest, testGetMinMaxSupportedValue) {
+    setTestRemoteInterfaceVersion(4);
+    PropIdAreaId propIdAreaId = {
+            .propId = TEST_PROP_ID,
+            .areaId = TEST_AREA_ID,
+    };
+    MinMaxSupportedValueResult vhalResult = {.minSupportedValue = RawPropValues{.int32Values = {1}},
+                                             .maxSupportedValue =
+                                                     RawPropValues{.int32Values = {10}}};
+
+    EXPECT_CALL(*getVhal(), getMinMaxSupportedValue)
+            .WillOnce([&propIdAreaId, &vhalResult](const std::vector<PropIdAreaId>& propIdAreaIds,
+                                                   MinMaxSupportedValueResults* results) {
+                EXPECT_THAT(propIdAreaIds, ::testing::ElementsAre(propIdAreaId));
+                results->payloads = {vhalResult};
+                return ScopedAStatus::ok();
+            });
+
+    auto result = getClient()->getMinMaxSupportedValue({propIdAreaId});
+
+    ASSERT_TRUE(result.ok());
+    ASSERT_THAT(result.value(), ::testing::SizeIs(1));
+    const MinMaxSupportedValueResult& propIdAreaIdResult = result.value()[0];
+    EXPECT_EQ(propIdAreaIdResult.status, StatusCode::OK);
+    EXPECT_EQ(propIdAreaIdResult, vhalResult);
+}
+
+TEST_F(AidlVhalClientTest, testGetMinMaxSupportedValue_vhalReturnsError) {
+    setTestRemoteInterfaceVersion(4);
+    PropIdAreaId propIdAreaId = {
+            .propId = TEST_PROP_ID,
+            .areaId = TEST_AREA_ID,
+    };
+
+    EXPECT_CALL(*getVhal(), getMinMaxSupportedValue)
+            .WillOnce(::testing::Return(
+                    ScopedAStatus::fromServiceSpecificError(toInt(StatusCode::INTERNAL_ERROR))));
+
+    auto result = getClient()->getMinMaxSupportedValue({propIdAreaId});
+
+    ASSERT_FALSE(result.ok());
+    ASSERT_EQ(result.error().code().value(), ErrorCode::INTERNAL_ERROR_FROM_VHAL);
+}
+
+TEST_F(AidlVhalClientTest, testGetMinMaxSupportedValue_notSupportedVersionTooLow) {
+    PropIdAreaId propIdAreaId = {
+            .propId = TEST_PROP_ID,
+            .areaId = TEST_AREA_ID,
+    };
+    setTestRemoteInterfaceVersion(3);
+
+    auto result = getClient()->getMinMaxSupportedValue({propIdAreaId});
+
+    ASSERT_FALSE(result.ok());
+    ASSERT_EQ(result.error().code().value(), ErrorCode::NOT_SUPPORTED);
 }
 
 }  // namespace aidl_test
