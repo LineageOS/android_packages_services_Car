@@ -20,11 +20,13 @@
 
 #include <gmock/gmock.h>
 
+#include <AidlHalPropValue.h>
+
 namespace android {
 namespace automotive {
 namespace watchdog {
 
-class MockVhalClient final : public android::frameworks::automotive::vhal::IVhalClient {
+class MockVhalClient : public android::frameworks::automotive::vhal::IVhalClient {
 public:
     template <class T>
     using VhalClientResult = android::frameworks::automotive::vhal::VhalClientResult<T>;
@@ -44,10 +46,17 @@ public:
         return std::make_unique<MockSubscriptionClient>(mVehicle, callback);
     }
 
-    MOCK_METHOD(std::unique_ptr<android::frameworks::automotive::vhal::IHalPropValue>,
-                createHalPropValue, (int32_t), (override));
-    MOCK_METHOD(std::unique_ptr<android::frameworks::automotive::vhal::IHalPropValue>,
-                createHalPropValue, (int32_t, int32_t), (override));
+    std::unique_ptr<android::frameworks::automotive::vhal::IHalPropValue> createHalPropValue(
+            int32_t propId) override {
+        return std::make_unique<android::frameworks::automotive::vhal::AidlHalPropValue>(propId);
+    }
+
+    std::unique_ptr<android::frameworks::automotive::vhal::IHalPropValue> createHalPropValue(
+            int32_t propId, int32_t areaId) override {
+        return std::make_unique<android::frameworks::automotive::vhal::AidlHalPropValue>(propId,
+                                                                                         areaId);
+    }
+
     MOCK_METHOD(void, getValue,
                 (const android::frameworks::automotive::vhal::IHalPropValue&,
                  std::shared_ptr<GetValueCallbackFunc>),

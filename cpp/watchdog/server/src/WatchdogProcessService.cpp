@@ -260,7 +260,12 @@ WatchdogProcessService::WatchdogProcessService(const sp<Looper>& handlerLooper) 
       WatchdogProcessService((std::shared_ptr<IVhalClient> (*)())IVhalClient::tryCreate,
                              kDefaultTryGetHidlServiceManager, getPidStatForPid, getUidForPid,
                              kDefaultVhalPidCachingRetryDelayNs, handlerLooper,
-                             sp<AIBinderDeathRegistrationWrapper>::make()) {}
+                             sp<AIBinderDeathRegistrationWrapper>::make(),
+                             std::chrono::seconds(
+                                     std::max(GetIntProperty(kPropertyVhalCheckInterval,
+                                                             kDefaultVhalCheckIntervalSec),
+                                              kDefaultVhalCheckIntervalSec)),
+                             kHealthCheckDelayMillis) {}
 
 WatchdogProcessService::WatchdogProcessService(
         const std::function<std::shared_ptr<IVhalClient>()>& tryCreateVhalClientFunc,
@@ -268,7 +273,9 @@ WatchdogProcessService::WatchdogProcessService(
         const std::function<PidStat(pid_t)>& getPidStatForPidFunc,
         const std::function<uid_t(pid_t)>& getUidForPidFunc,
         const std::chrono::nanoseconds& vhalPidCachingRetryDelayNs, const sp<Looper>& handlerLooper,
-        const sp<AIBinderDeathRegistrationWrapperInterface>& deathRegistrationWrapper) :
+        const sp<AIBinderDeathRegistrationWrapperInterface>& deathRegistrationWrapper,
+        const std::chrono::milliseconds& vhalHealthCheckIntervalMillis,
+        const std::chrono::milliseconds& vhalHealthCheckDelayMillis) :
       kTryCreateVhalClientFunc(tryCreateVhalClientFunc),
       kTryGetHidlServiceManagerFunc(tryGetHidlServiceManagerFunc),
       kGetPidStatForPidFunc(getPidStatForPidFunc),
@@ -291,10 +298,7 @@ WatchdogProcessService::WatchdogProcessService(
         mPingedClients.insert(std::make_pair(timeout, PingedClientMap()));
     }
 
-    int32_t vhalHealthCheckIntervalSec =
-            GetIntProperty(kPropertyVhalCheckInterval, kDefaultVhalCheckIntervalSec);
-    vhalHealthCheckIntervalSec = std::max(vhalHealthCheckIntervalSec, kDefaultVhalCheckIntervalSec);
-    mVhalHealthCheckWindowMillis = std::chrono::seconds(vhalHealthCheckIntervalSec);
+    mVhalHealthCheckIntervalMillis = vhalHealthCheckIntervalMillis + vhalHealthCheckDelayMillis;
 
     int32_t clientHealthCheckIntervalSec =
             GetIntProperty(kPropertyClientCheckInterval, kMissingIntPropertyValue);
@@ -515,8 +519,7 @@ void WatchdogProcessService::setEnabled(bool isEnabled) {
     }
     if (mNotSupportedVhalProperties.count(VehicleProperty::VHAL_HEARTBEAT) == 0) {
         mVhalHeartBeat.eventTime = uptimeMillis();
-        std::chrono::nanoseconds intervalNs =
-                mVhalHealthCheckWindowMillis + kHealthCheckDelayMillis;
+        std::chrono::nanoseconds intervalNs = mVhalHealthCheckIntervalMillis;
         mHandlerLooper->sendMessageDelayed(intervalNs.count(), mMessageHandler,
                                            Message(MSG_VHAL_HEALTH_CHECK));
     }
@@ -578,7 +581,7 @@ void WatchdogProcessService::onDump(int fd) {
         WriteStringToFd(StringPrintf("%sVHAL health check is supported:\n%s\tVHAL health check "
                                      "interval: %lld millis\n%s\tVHAL heartbeat was updated "
                                      "%" PRIi64 " millis ago",
-                                     indent, indent, mVhalHealthCheckWindowMillis.count(), indent,
+                                     indent, indent, mVhalHealthCheckIntervalMillis.count(), indent,
                                      systemUptime - mVhalHeartBeat.eventTime),
                         fd);
         std::string vhalType = mVhalService->isAidlVhal() ? "AIDL" : "HIDL";
@@ -648,7 +651,7 @@ void WatchdogProcessService::onDumpProto(ProtoOutputStream& outProto) {
             outProto.start(HealthCheckServiceDump::VHAL_HEALTH_CHECK_INFO);
     outProto.write(VhalHealthCheckInfo::IS_ENABLED, mVhalService != nullptr);
     outProto.write(VhalHealthCheckInfo::HEALTH_CHECK_WINDOW_MILLIS,
-                   mVhalHealthCheckWindowMillis.count());
+                   mVhalHealthCheckIntervalMillis.count());
     outProto.write(VhalHealthCheckInfo::LAST_HEARTBEAT_UPDATE_AGO_MILLIS,
                    uptimeMillis() - mVhalHeartBeat.eventTime);
     int pidCachingProgressState = VhalHealthCheckInfo::FAILURE;
@@ -1199,7 +1202,8 @@ void WatchdogProcessService::subscribeToVhalHeartBeat() {
             return;
         }
     }
-    std::chrono::nanoseconds intervalNs = mVhalHealthCheckWindowMillis + kHealthCheckDelayMillis;
+    ALOGD("Successfully subscribed to VHAL_HEARTBEAT");
+    std::chrono::nanoseconds intervalNs = mVhalHealthCheckIntervalMillis;
     mHandlerLooper->sendMessageDelayed(intervalNs.count(), mMessageHandler,
                                        Message(MSG_VHAL_HEALTH_CHECK));
     // VHAL process identifier is required only when terminating the VHAL process. VHAL process is
@@ -1323,23 +1327,34 @@ int32_t WatchdogProcessService::getNewSessionId() {
 
 void WatchdogProcessService::updateVhalHeartBeat(int64_t value) {
     bool wrongHeartBeat;
+    int64_t currentUptime = uptimeMillis();
     {
         Mutex::Autolock lock(mMutex);
         if (!mIsEnabled) {
             return;
         }
         wrongHeartBeat = value <= mVhalHeartBeat.value;
-        mVhalHeartBeat.eventTime = uptimeMillis();
-        mVhalHeartBeat.value = value;
+        if (!wrongHeartBeat) {
+            mVhalHeartBeat.eventTime = currentUptime;
+            mVhalHeartBeat.value = value;
+        }
+        if (DEBUG) {
+            ALOGD("Received vhal heart beat update event with value: %" PRId64
+                  ", currentUptime: %" PRId64,
+                  value, currentUptime);
+        }
     }
     if (wrongHeartBeat) {
-        ALOGW("VHAL updated heart beat with a wrong value. Terminating VHAL...");
+        ALOGE("VHAL updated heart beat with a value that is older or equal to the existing value. "
+              "received value: %" PRId64 ", existing value: %" PRId64 ", currentUptime: % " PRId64
+              " ms",
+              value, mVhalHeartBeat.eventTime, currentUptime);
         terminateVhal();
         return;
     }
-    std::chrono::nanoseconds intervalNs = mVhalHealthCheckWindowMillis + kHealthCheckDelayMillis;
     // TODO(b/392721766): remove existing check vhal health message here and repurpose
     // checkVhalHealth to a timeout handler.
+    std::chrono::nanoseconds intervalNs = mVhalHealthCheckIntervalMillis;
     mHandlerLooper->sendMessageDelayed(intervalNs.count(), mMessageHandler,
                                        Message(MSG_VHAL_HEALTH_CHECK));
 }
@@ -1354,13 +1369,19 @@ void WatchdogProcessService::checkVhalHealth() {
         }
         lastEventTime = mVhalHeartBeat.eventTime;
     }
+    if (DEBUG) {
+        ALOGD("checkVhalHealth: currentUptime: %" PRId64 " ms, lastEventTime: %" PRId64
+              " ms, check window: %lld ms",
+              currentUptime, lastEventTime, mVhalHealthCheckIntervalMillis.count());
+    }
     // Make sure that we have received at least one new event during this check window. The
     // event we received from the previous window is <= [currentUptime - window], so
     // if the latest event time is <= [currentUptime - window], it means we have not received
     // any new event.
-    if (currentUptime >=
-        lastEventTime + (mVhalHealthCheckWindowMillis + kHealthCheckDelayMillis).count()) {
-        ALOGW("VHAL failed to update heart beat within timeout. Terminating VHAL...");
+    if (currentUptime >= lastEventTime + mVhalHealthCheckIntervalMillis.count()) {
+        ALOGE("VHAL failed to update heart beat within timeout. VHAL may be stuck or slow! "
+              "currentUptime: %" PRId64 " ms, lastEventTime: %" PRId64 " ms, check window: %lld ms",
+              currentUptime, lastEventTime, mVhalHealthCheckIntervalMillis.count());
         terminateVhal();
     }
 }
@@ -1378,6 +1399,7 @@ void WatchdogProcessService::resetVhalInfoLocked() {
 }
 
 void WatchdogProcessService::terminateVhal() {
+    ALOGE("Terminating VHAL...");
     std::optional<ProcessIdentifier> processIdentifier;
     {
         Mutex::Autolock lock(mMutex);

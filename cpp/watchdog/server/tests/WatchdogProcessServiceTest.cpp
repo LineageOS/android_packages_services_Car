@@ -25,10 +25,12 @@
 #include "WatchdogProcessService.h"
 #include "WatchdogServiceHelper.h"
 
+#include <aidl/android/automotive/watchdog/internal/BnCarWatchdogMonitor.h>
 #include <android/binder_interface_utils.h>
 #include <android/hidl/manager/1.0/IServiceManager.h>
 #include <android/util/ProtoOutputStream.h>
 #include <gmock/gmock.h>
+#include <utils/SystemClock.h>
 
 #include <thread>  // NOLINT(build/c++11)
 
@@ -43,13 +45,17 @@ namespace watchdog {
 using ::aidl::android::automotive::watchdog::ICarWatchdogClient;
 using ::aidl::android::automotive::watchdog::ICarWatchdogClientDefault;
 using ::aidl::android::automotive::watchdog::TimeoutLength;
+using ::aidl::android::automotive::watchdog::internal::BnCarWatchdogMonitor;
 using ::aidl::android::automotive::watchdog::internal::GarageMode;
 using ::aidl::android::automotive::watchdog::internal::ICarWatchdogMonitor;
 using ::aidl::android::automotive::watchdog::internal::ICarWatchdogMonitorDefault;
 using ::aidl::android::automotive::watchdog::internal::ProcessIdentifier;
 using ::aidl::android::hardware::automotive::vehicle::IVehicleCallback;
+using ::aidl::android::hardware::automotive::vehicle::RawPropValues;
 using ::aidl::android::hardware::automotive::vehicle::SubscribeOptions;
 using ::aidl::android::hardware::automotive::vehicle::VehicleProperty;
+using ::aidl::android::hardware::automotive::vehicle::VehiclePropValue;
+using ::aidl::android::hardware::automotive::vehicle::VehiclePropValues;
 using ::android::IBinder;
 using ::android::Looper;
 using ::android::sp;
@@ -73,7 +79,9 @@ using ::testing::Eq;
 using ::testing::Field;
 using ::testing::Invoke;
 using ::testing::Matcher;
+using ::testing::NiceMock;
 using ::testing::Return;
+using ::testing::SizeIs;
 using ::testing::UnorderedElementsAreArray;
 
 namespace {
@@ -87,11 +95,14 @@ constexpr const int32_t kTestAidlVhalUid = 100124025;
 constexpr const int32_t kTestAidlVhalTgid = 564269;
 constexpr const int32_t kTestPidStartTime = 12356;
 constexpr const int32_t kMaxVhalPidCachingAttempts = 2;
+constexpr std::chrono::milliseconds kTestVhalHealthCheckIntervalMillis = 200ms;
+constexpr std::chrono::milliseconds kTestVhalHealthCheckDelayMillis = 100ms;
 constexpr const int32_t kTestAidlClientUid = 100124036;
 
 enum TestMessage {
-    NOTIFY_ALL,
+    SYNC_LOOPER_MARKER,
     ON_AIDL_VHAL_PID,
+    UPDATE_VHAL_HEARTBEAT,
 };
 
 ProcessIdentifier constructProcessIdentifier(pid_t pid, uid_t uid, std::string processName,
@@ -165,7 +176,6 @@ public:
                     monitor,
             std::chrono::nanoseconds overriddenClientHealthCheckWindowNs,
             std::unordered_set<userid_t> stoppedUserIds,
-            std::chrono::milliseconds vhalHealthCheckWindowMillis,
             const ProcessIdentifier& processIdentifier) {
         Mutex::Autolock lock(mWatchdogProcessService->mMutex);
         mWatchdogProcessService->mIsEnabled = isEnabled;
@@ -173,7 +183,6 @@ public:
         mWatchdogProcessService->mOverriddenClientHealthCheckWindowNs =
                 overriddenClientHealthCheckWindowNs;
         mWatchdogProcessService->mStoppedUserIds = stoppedUserIds;
-        mWatchdogProcessService->mVhalHealthCheckWindowMillis = vhalHealthCheckWindowMillis;
         mWatchdogProcessService->mVhalProcessIdentifier = processIdentifier;
 
         WatchdogProcessService::ClientInfoMap clientInfoMap;
@@ -237,13 +246,14 @@ public:
                       .comm = kTestPidComm,
               };
           }),
-          kGetUidForPidFunc([](pid_t) { return kTestAidlVhalUid; }) {}
+          kGetUidForPidFunc([](pid_t) { return kTestAidlVhalUid; }),
+          mVhalHeartbeatUpdateIntervalMillis(kTestVhalHealthCheckIntervalMillis) {}
 
 protected:
     void SetUp() override {
         mMessageHandler = sp<MessageHandlerImpl>::make(this);
-        mMockVehicle = SharedRefBase::make<MockVehicle>();
-        mMockVhalClient = std::make_shared<MockVhalClient>(mMockVehicle);
+        mMockVehicle = SharedRefBase::make<NiceMock<MockVehicle>>();
+        mMockVhalClient = std::make_shared<NiceMock<MockVhalClient>>(mMockVehicle);
         mMockHidlServiceManager = sp<MockHidlServiceManager>::make();
         mMockDeathRegistrationWrapper = sp<MockAIBinderDeathRegistrationWrapper>::make();
         mSupportedVehicleProperties = {VehicleProperty::VHAL_HEARTBEAT};
@@ -252,9 +262,16 @@ protected:
         mMockPackageInfoResolver = std::make_shared<MockPackageInfoResolver>();
         mMockWatchdogMonitor = SharedRefBase::make<MockCarWatchdogMonitor>();
         ON_CALL(*mMockVehicle, subscribe(_, _, _))
-                .WillByDefault([](const std::shared_ptr<IVehicleCallback>&,
-                                  const std::vector<SubscribeOptions>&,
-                                  int32_t) { return ScopedAStatus::ok(); });
+                .WillByDefault([this](const std::shared_ptr<IVehicleCallback>& callback,
+                                      const std::vector<SubscribeOptions>&, int32_t) {
+                    {
+                        std::lock_guard<std::mutex> lock(mMutex);
+                        mSubscribedCallback = callback;
+                    }
+                    mLooperCondition.notify_all();
+                    return ScopedAStatus::ok();
+                });
+
         startService();
     }
 
@@ -275,7 +292,9 @@ protected:
                                                  kTryGetHidlServiceManagerFunc,
                                                  kGetPidStatForPidFunc, kGetUidForPidFunc,
                                                  kTestVhalPidCachingRetryDelayNs, mHandlerLooper,
-                                                 mMockDeathRegistrationWrapper);
+                                                 mMockDeathRegistrationWrapper,
+                                                 kTestVhalHealthCheckIntervalMillis,
+                                                 kTestVhalHealthCheckDelayMillis);
         mWatchdogProcessServicePeer =
                 std::make_unique<internal::WatchdogProcessServicePeer>(mWatchdogProcessService,
                                                                        mMockPackageInfoResolver);
@@ -285,7 +304,8 @@ protected:
         mWatchdogProcessService->start();
         // Sync with the looper before proceeding to ensure that all startup looper messages are
         // processed before testing the service.
-        syncLooper();
+        ASSERT_TRUE(syncLooper())
+                << "Looper not finish handling pending tasks before timeout, probably stuck";
     }
 
     void terminateService() {
@@ -294,6 +314,23 @@ protected:
         mWatchdogProcessService->terminate();
         mWatchdogProcessService.clear();
         mHandlerLooper.clear();
+    }
+
+    bool waitForSubscribedCallbackSet(std::chrono::milliseconds timeoutMillis) {
+        std::unique_lock<std::mutex> lock(mMutex);
+        return mLooperCondition.wait_for(lock, timeoutMillis,
+                                         [this] { return mSubscribedCallback != nullptr; });
+    }
+
+    void scheduleVhalHeartBeatUpdate(std::chrono::milliseconds delayMillis = 0ms) {
+        mHandlerLooper->sendMessageDelayed(std::chrono::nanoseconds(delayMillis).count(),
+                                           mMessageHandler,
+                                           Message(TestMessage::UPDATE_VHAL_HEARTBEAT));
+    }
+
+    void setVhalHeartbeatUpdateInterval(
+            std::chrono::milliseconds vhalHeartbeatUpdateIntervalMillis) {
+        mVhalHeartbeatUpdateIntervalMillis = vhalHeartbeatUpdateIntervalMillis;
     }
 
     void expectLinkToDeath(AIBinder* aiBinder, ScopedAStatus expectedStatus) {
@@ -344,34 +381,31 @@ protected:
         });
     }
 
-    void syncLooper(std::chrono::nanoseconds delay = 0ns) {
+    // Wait for ON_AIDL_VHAL_PID message is handled. This is only supposed to be called once.
+    // If you need to wait for another ON_AIDL_VHAL_PID to be handled, mOnAidlVhalPidHandled must
+    // be reset to false.
+    bool waitForOnAidlVhalPidHandled(std::chrono::milliseconds timeoutMillis) {
+        std::unique_lock lock(mMutex);
+        return mLooperCondition.wait_for(lock, timeoutMillis,
+                                         [this] { return mOnAidlVhalPidHandled; });
+    }
+
+    // Finishes all the posted tasks that are supposed to run inside the handler.
+    bool syncLooper(std::chrono::nanoseconds delay = 0ns) {
         // Acquire the lock before sending message to avoid any race condition.
         std::unique_lock lock(mMutex);
+        mLooperSynced = false;
         mHandlerLooper->sendMessageDelayed(delay.count(), mMessageHandler,
-                                           Message(TestMessage::NOTIFY_ALL));
-        waitForLooperNotificationLocked(lock, delay);
+                                           Message(TestMessage::SYNC_LOOPER_MARKER));
+        return mLooperCondition
+                .wait_for(lock,
+                          kMaxWaitForLooperExecutionMillis +
+                                  std::chrono::duration_cast<std::chrono::milliseconds>(delay),
+                          [this] { return mLooperSynced; });
     }
 
-    void waitForLooperNotification(std::chrono::nanoseconds delay = 0ns) {
-        std::unique_lock lock(mMutex);
-        waitForLooperNotificationLocked(lock, delay);
-    }
-
-    void waitForLooperNotificationLocked(std::unique_lock<std::mutex>& lock,
-                                         std::chrono::nanoseconds delay = 0ns) {
-        // If a race condition is detected in the handler looper, the current locking mechanism
-        // should be re-evaluated as discussed in b/299676049.
-        std::cv_status status =
-                mLooperCondition
-                        .wait_for(lock,
-                                  kMaxWaitForLooperExecutionMillis +
-                                          std::chrono::duration_cast<std::chrono::milliseconds>(
-                                                  delay));
-        ASSERT_EQ(status, std::cv_status::no_timeout) << "Looper notification not received";
-    }
-
-    void waitUntilVhalPidCachingAttemptsExhausted() {
-        syncLooper((kMaxVhalPidCachingAttempts + 1) * kTestVhalPidCachingRetryDelayNs);
+    bool waitUntilVhalPidCachingAttemptsExhausted() {
+        return syncLooper((kMaxVhalPidCachingAttempts + 1) * kTestVhalPidCachingRetryDelayNs);
     }
 
     std::string toString(util::ProtoOutputStream* proto) {
@@ -384,10 +418,12 @@ protected:
         return content;
     }
 
+    void setupMockCarServiceAndWaitForAidlVhalPidFetched();
+
     sp<WatchdogProcessService> mWatchdogProcessService;
     std::unique_ptr<internal::WatchdogProcessServicePeer> mWatchdogProcessServicePeer;
-    std::shared_ptr<MockVhalClient> mMockVhalClient;
-    std::shared_ptr<MockVehicle> mMockVehicle;
+    std::shared_ptr<NiceMock<MockVhalClient>> mMockVhalClient;
+    std::shared_ptr<NiceMock<MockVehicle>> mMockVehicle;
     sp<MockHidlServiceManager> mMockHidlServiceManager;
     sp<MockAIBinderDeathRegistrationWrapper> mMockDeathRegistrationWrapper;
     std::vector<VehicleProperty> mSupportedVehicleProperties;
@@ -402,16 +438,20 @@ private:
 
         void handleMessage(const Message& message) override {
             switch (message.what) {
-                case static_cast<int>(TestMessage::NOTIFY_ALL):
+                case static_cast<int>(TestMessage::SYNC_LOOPER_MARKER):
+                    mTest->handleSyncLooperMarker();
                     break;
                 case static_cast<int>(TestMessage::ON_AIDL_VHAL_PID):
-                    mTest->mWatchdogProcessService->onAidlVhalPidFetched(kTestAidlVhalPid);
+                    mTest->handleOnAidlVhalPid();
+                    break;
+                case static_cast<int>(TestMessage::UPDATE_VHAL_HEARTBEAT):
+                    mTest->updateVhalHeartBeat();
                     break;
                 default:
                     ALOGE("Unknown TestMessage: %d", message.what);
                     return;
             }
-            std::unique_lock lock(mTest->mMutex);
+            std::lock_guard lock(mTest->mMutex);
             mTest->mLooperCondition.notify_all();
         }
 
@@ -422,7 +462,7 @@ private:
     // Looper runs on the calling thread when it is polled for messages with the poll* calls.
     // The poll* calls are blocking, so they must be executed on a separate thread.
     void prepareLooper() {
-        mHandlerLooper = Looper::prepare(/*opts=*/0);
+        mHandlerLooper = sp<Looper>::make(/*allowNonCallbacks=*/false);
         mHandlerLooperThread = std::thread([this]() {
             Looper::setForThread(mHandlerLooper);
             if (int result = pthread_setname_np(pthread_self(), kTestLooperThreadName);
@@ -447,6 +487,50 @@ private:
         }
     }
 
+    void updateVhalHeartBeat() {
+        std::shared_ptr<IVehicleCallback> callback;
+        {
+            std::lock_guard<std::mutex> lock(mMutex);
+            callback = mSubscribedCallback;
+        }
+        int64_t now = uptimeNanos();
+        callback->onPropertyEvent(
+                VehiclePropValues{
+                        .payloads = {VehiclePropValue{
+                                .timestamp = now,
+                                .prop = static_cast<int32_t>(VehicleProperty::VHAL_HEARTBEAT),
+                                .areaId = 0,
+                                .value =
+                                        RawPropValues{
+                                                .int64Values = {now},
+                                        },
+                        }},
+                },
+                /*sharedMemoryCount=*/0);
+        if (mShouldTerminateLooper.load()) {
+            return;
+        }
+        // Schedule the next VHAL heartbeat update unless the test is ending.
+        scheduleVhalHeartBeatUpdate(mVhalHeartbeatUpdateIntervalMillis);
+    }
+
+    void handleOnAidlVhalPid() {
+        mWatchdogProcessService->onAidlVhalPidFetched(kTestAidlVhalPid);
+        {
+            std::lock_guard<std::mutex> lock(mMutex);
+            mOnAidlVhalPidHandled = true;
+        }
+        mLooperCondition.notify_all();
+    }
+
+    void handleSyncLooperMarker() {
+        {
+            std::lock_guard<std::mutex> lock(mMutex);
+            mLooperSynced = true;
+        }
+        mLooperCondition.notify_all();
+    }
+
     const std::function<std::shared_ptr<IVhalClient>()> kTryCreateVhalClientFunc;
     const std::function<android::sp<android::hidl::manager::V1_0::IServiceManager>()>
             kTryGetHidlServiceManagerFunc;
@@ -457,9 +541,42 @@ private:
     sp<MessageHandlerImpl> mMessageHandler;
     std::thread mHandlerLooperThread;
     mutable std::mutex mMutex;
-    std::condition_variable mLooperCondition GUARDED_BY(mMutex);
     std::atomic<bool> mShouldTerminateLooper;
+    std::atomic<std::chrono::milliseconds> mVhalHeartbeatUpdateIntervalMillis;
+
+    std::condition_variable mLooperCondition;
+    // The following are variables that notified by mLooperCondition;
+    std::shared_ptr<IVehicleCallback> mSubscribedCallback GUARDED_BY(mMutex);
+    bool mOnAidlVhalPidHandled GUARDED_BY(mMutex) = false;
+    bool mLooperSynced GUARDED_BY(mMutex) = false;
 };
+
+void WatchdogProcessServiceTest::setupMockCarServiceAndWaitForAidlVhalPidFetched() {
+    sp<MockWatchdogServiceHelper> mockServiceHelper = sp<MockWatchdogServiceHelper>::make();
+
+    std::shared_ptr<MockCarWatchdogServiceForSystem> mockService =
+            SharedRefBase::make<MockCarWatchdogServiceForSystem>();
+    const auto binder = mockService->asBinder();
+    ON_CALL(*mMockPackageInfoResolver, asyncFetchPackageNamesForUids(_, _))
+            .WillByDefault([&](const std::vector<uid_t>& uids,
+                               const std::function<void(std::unordered_map<uid_t, std::string>)>&
+                                       callback) { callback({{uids[0], "shell"}}); });
+    // For mock services, if they are checked, they will respond alive to prevent being killed.
+    ON_CALL(*mockService, checkIfAlive).WillByDefault([]() { return ScopedAStatus::ok(); });
+    ON_CALL(*mockServiceHelper, checkIfAlive).WillByDefault([]() { return ScopedAStatus::ok(); });
+
+    expectRequestAidlVhalPidAndRespond(mockServiceHelper);
+
+    auto status = mWatchdogProcessService->registerCarWatchdogService(binder, mockServiceHelper);
+    ASSERT_TRUE(status.isOk()) << status.getMessage();
+
+    ASSERT_TRUE(waitForOnAidlVhalPidHandled(kMaxWaitForLooperExecutionMillis))
+            << "ON_AIDL_VHAL_PID is not handled before timeout";
+
+    ASSERT_NO_FATAL_FAILURE(mWatchdogProcessServicePeer->expectVhalProcessIdentifier(
+            ProcessIdentifierEq(constructProcessIdentifier(kTestAidlVhalPid, kTestAidlVhalUid,
+                                                           kTestPidComm, kTestPidStartTime))));
+}
 
 TEST_F(WatchdogProcessServiceTest, TestTerminate) {
     std::vector<int32_t> propIds = {static_cast<int32_t>(VehicleProperty::VHAL_HEARTBEAT)};
@@ -546,7 +663,8 @@ TEST_F(WatchdogProcessServiceTest, TestRegisterCarWatchdogService) {
     // The implementation posts message on the looper to cache VHAL pid when registering
     // the car watchdog service. So, sync with the looper to ensure the above requestAidlVhalPid
     // EXPECT_CALL is satisfied.
-    syncLooper();
+    ASSERT_TRUE(syncLooper())
+            << "Looper not finish handling pending tasks before timeout, probably stuck";
 
     // No new request to fetch AIDL VHAL pid should be sent on duplicate registration.
     EXPECT_CALL(*mockServiceHelper, requestAidlVhalPid()).Times(0);
@@ -698,7 +816,8 @@ TEST_F(WatchdogProcessServiceTest, TestCacheAidlVhalPidFromCarWatchdogService) {
 
     // On processing the TestMessage::ON_AIDL_VHAL_PID, the looper notifies all waiting threads.
     // Wait for the notification to ensure the VHAL pid caching is satisfied.
-    waitForLooperNotification();
+    ASSERT_TRUE(waitForOnAidlVhalPidHandled(kMaxWaitForLooperExecutionMillis))
+            << "ON_AIDL_VHAL_PID is not handled before timeout";
 
     ASSERT_NO_FATAL_FAILURE(mWatchdogProcessServicePeer->expectVhalProcessIdentifier(
             ProcessIdentifierEq(constructProcessIdentifier(kTestAidlVhalPid, kTestAidlVhalUid,
@@ -724,7 +843,8 @@ TEST_F(WatchdogProcessServiceTest, TestFailsCacheAidlVhalPidWithNoCarWatchdogSer
 
     // Because CarWatchdogService doesn't respond with the AIDL VHAL pid, wait until all caching
     // attempts are exhausted to ensure the expected number of caching attempts are satisfied.
-    waitUntilVhalPidCachingAttemptsExhausted();
+    ASSERT_TRUE(waitUntilVhalPidCachingAttemptsExhausted())
+            << "Looper not finish handling pending tasks before timeout, probably stuck";
 
     ASSERT_NO_FATAL_FAILURE(mWatchdogProcessServicePeer->expectNoVhalProcessIdentifier());
 }
@@ -752,7 +872,8 @@ TEST_F(WatchdogProcessServiceTest, TestNoCacheAidlVhalPidWithUnsupportedVhalHear
 
     // VHAL process identifier caching happens on the looper thread. Sync with the looper before
     // proceeding.
-    syncLooper();
+    ASSERT_TRUE(syncLooper())
+            << "Looper not finish handling pending tasks before timeout, probably stuck";
 
     ASSERT_NO_FATAL_FAILURE(mWatchdogProcessServicePeer->expectNoVhalProcessIdentifier());
 }
@@ -813,7 +934,8 @@ TEST_F(WatchdogProcessServiceTest, TestFailsCacheHidlVhalPidWithNoHidlVhalServic
 
     // Because HIDL service manager doesn't have the HIDL VHAL pid, wait until all caching
     // attempts are exhausted to ensure the expected number of caching attempts are satisfied.
-    waitUntilVhalPidCachingAttemptsExhausted();
+    ASSERT_TRUE(waitUntilVhalPidCachingAttemptsExhausted())
+            << "Looper not finish handling pending tasks before timeout, probably stuck";
 
     ASSERT_NO_FATAL_FAILURE(mWatchdogProcessServicePeer->expectNoVhalProcessIdentifier());
 }
@@ -843,9 +965,7 @@ TEST_F(WatchdogProcessServiceTest, TestOnDumpProto) {
 
     mWatchdogProcessServicePeer->setWatchdogProcessServiceState(true, nullptr,
                                                                 std::chrono::milliseconds(20000),
-                                                                {101, 102},
-                                                                std::chrono::milliseconds(10000),
-                                                                processIdentifier);
+                                                                {101, 102}, processIdentifier);
 
     util::ProtoOutputStream proto;
     mWatchdogProcessService->onDumpProto(proto);
@@ -865,7 +985,8 @@ TEST_F(WatchdogProcessServiceTest, TestOnDumpProto) {
     VhalHealthCheckInfo vhalHealthCheckInfo = healthCheckServiceDump.vhal_health_check_info();
 
     EXPECT_EQ(vhalHealthCheckInfo.is_enabled(), true);
-    EXPECT_EQ(vhalHealthCheckInfo.health_check_window_millis(), 10000);
+    EXPECT_EQ(vhalHealthCheckInfo.health_check_window_millis(),
+              (kTestVhalHealthCheckIntervalMillis + kTestVhalHealthCheckDelayMillis).count());
     EXPECT_EQ(vhalHealthCheckInfo.pid_caching_progress_state(),
               VhalHealthCheckInfo_CachingProgressState_SUCCESS);
     EXPECT_EQ(vhalHealthCheckInfo.pid(), 1);
@@ -1029,6 +1150,156 @@ TEST_F(WatchdogProcessServiceTest, TestDumpAndKillAllProcessesWithAnrMetricsFeat
     // TODO(b/388042850): Update to use end-to-end implementation
     mWatchdogProcessServicePeer->dumpAndKillAllProcesses(processIdentifiers,
                                                          /*reportToVhal=*/false);
+}
+
+class TestCarWatchdogMonitor : public BnCarWatchdogMonitor {
+public:
+    ScopedAStatus onClientsNotResponding(const std::vector<ProcessIdentifier>& pids) override {
+        {
+            std::lock_guard lock(mMutex);
+            mKilledPids = pids;
+        }
+        mCv.notify_all();
+        return ScopedAStatus::ok();
+    }
+
+    ScopedAStatus onClientsNotRespondingWithSystemState(
+            [[maybe_unused]] const ClientsNotRespondingInfo& clientsNotRespondingInfo) override {
+        {
+            std::lock_guard lock(mMutex);
+            mKilledPids = clientsNotRespondingInfo.processIdentifiers;
+        }
+        mCv.notify_all();
+        return ScopedAStatus::ok();
+    }
+
+    bool waitForPidsKilled(std::chrono::milliseconds timeoutInMs) {
+        std::unique_lock lock(mMutex);
+        return mCv.wait_for(lock, timeoutInMs, [this] { return mKilledPids.size() != 0; });
+    }
+
+    std::vector<ProcessIdentifier> getKilledPids() {
+        std::lock_guard<std::mutex> lock(mMutex);
+        return mKilledPids;
+    }
+
+private:
+    std::mutex mMutex;
+    std::condition_variable mCv GUARDED_BY(mMutex);
+    std::vector<ProcessIdentifier> mKilledPids GUARDED_BY(mMutex);
+};
+
+// Verifies that if VHAL updates VHAL_HEARTBEAT property according to requirement, carwatchdog
+// will not kill VHAL.
+TEST_F(WatchdogProcessServiceTest, TestSuccessfulVhalHeartBeatUpdate) {
+    // Restart service to support all properties.
+    terminateService();
+    mSupportedVehicleProperties = {VehicleProperty::VHAL_HEARTBEAT, VehicleProperty::WATCHDOG_ALIVE,
+                                   VehicleProperty::WATCHDOG_TERMINATED_PROCESS};
+    mNotSupportedVehicleProperties = {};
+    startService();
+
+    ASSERT_NO_FATAL_FAILURE(setupMockCarServiceAndWaitForAidlVhalPidFetched());
+
+    std::shared_ptr<TestCarWatchdogMonitor> monitor = SharedRefBase::make<TestCarWatchdogMonitor>();
+
+    auto status = mWatchdogProcessService->registerMonitor(monitor);
+
+    ASSERT_TRUE(status.isOk()) << status.getMessage();
+
+    ASSERT_TRUE(waitForSubscribedCallbackSet(1s)) << "IVehicle.subscribe is not called";
+
+    scheduleVhalHeartBeatUpdate();
+
+    ASSERT_FALSE(monitor->waitForPidsKilled(1s)) << "VHAL should not be killed";
+}
+
+// Verifies that if VHAL does not update VHAL_HEARTBEAT, carwatchdog should kill VHAL.
+TEST_F(WatchdogProcessServiceTest, TestKillVhalOnMissingVhalHeartBeatUpdate) {
+    // Restart service to support all properties.
+    terminateService();
+    mSupportedVehicleProperties = {VehicleProperty::VHAL_HEARTBEAT, VehicleProperty::WATCHDOG_ALIVE,
+                                   VehicleProperty::WATCHDOG_TERMINATED_PROCESS};
+    mNotSupportedVehicleProperties = {};
+    startService();
+
+    ASSERT_NO_FATAL_FAILURE(setupMockCarServiceAndWaitForAidlVhalPidFetched());
+
+    std::shared_ptr<TestCarWatchdogMonitor> monitor = SharedRefBase::make<TestCarWatchdogMonitor>();
+
+    auto status = mWatchdogProcessService->registerMonitor(monitor);
+
+    ASSERT_TRUE(status.isOk()) << status.getMessage();
+
+    // The check interval is 200ms, delay is 100ms, so we should expect to see the kill around
+    // 300ms, wait for 1s to be safe.
+    ASSERT_TRUE(monitor->waitForPidsKilled(1s)) << "Expect not-responding pids to be killed";
+    const auto& killedPids = monitor->getKilledPids();
+    ASSERT_THAT(killedPids, SizeIs(1));
+    ASSERT_THAT(killedPids[0].pid, kTestAidlVhalPid);
+}
+
+// Verifies that if VHAL updates VHAL_HEARTBEAT too slow, carwatchdog should kill VHAL.
+TEST_F(WatchdogProcessServiceTest, TestKillVhalOnDelayedVhalHeartBeatSecondUpdate) {
+    // Restart service to support all properties.
+    terminateService();
+    mSupportedVehicleProperties = {VehicleProperty::VHAL_HEARTBEAT, VehicleProperty::WATCHDOG_ALIVE,
+                                   VehicleProperty::WATCHDOG_TERMINATED_PROCESS};
+    mNotSupportedVehicleProperties = {};
+    startService();
+
+    ASSERT_NO_FATAL_FAILURE(setupMockCarServiceAndWaitForAidlVhalPidFetched());
+
+    std::shared_ptr<TestCarWatchdogMonitor> monitor = SharedRefBase::make<TestCarWatchdogMonitor>();
+
+    auto status = mWatchdogProcessService->registerMonitor(monitor);
+
+    ASSERT_TRUE(status.isOk()) << status.getMessage();
+
+    ASSERT_TRUE(waitForSubscribedCallbackSet(1s)) << "IVehicle.subscribe is not called";
+
+    // Schedule the first heart beat update to happen immediately. But set the update interval to
+    // trigger the second heart beat update to happen outside the allowed health check window
+    // (300ms).
+    // This should trigger the watchdog killing after the first update and before the  delayed
+    // second update.
+    setVhalHeartbeatUpdateInterval(400ms);
+    scheduleVhalHeartBeatUpdate();
+
+    // We expect the kill to happen around 300ms, set this to 1s to be safe.
+    ASSERT_TRUE(monitor->waitForPidsKilled(1s)) << "Expect not-responding pids to be killed";
+    const auto& killedPids = monitor->getKilledPids();
+    ASSERT_THAT(killedPids, SizeIs(1));
+    ASSERT_THAT(killedPids[0].pid, kTestAidlVhalPid);
+}
+
+// Verifies that if the first VHAL_HEARTBEAT arrives too late, carwatchdog should kill VHAL.
+TEST_F(WatchdogProcessServiceTest, TestKillVhalOnDelayedVhalHeartBeatFirstUpdate) {
+    // Restart service to support all properties.
+    terminateService();
+    mSupportedVehicleProperties = {VehicleProperty::VHAL_HEARTBEAT, VehicleProperty::WATCHDOG_ALIVE,
+                                   VehicleProperty::WATCHDOG_TERMINATED_PROCESS};
+    mNotSupportedVehicleProperties = {};
+    startService();
+
+    ASSERT_NO_FATAL_FAILURE(setupMockCarServiceAndWaitForAidlVhalPidFetched());
+
+    std::shared_ptr<TestCarWatchdogMonitor> monitor = SharedRefBase::make<TestCarWatchdogMonitor>();
+
+    auto status = mWatchdogProcessService->registerMonitor(monitor);
+
+    ASSERT_TRUE(status.isOk()) << status.getMessage();
+
+    ASSERT_TRUE(waitForSubscribedCallbackSet(1s)) << "IVehicle.subscribe is not called";
+
+    // Schedule the first heart beat update to happen outside the allowed health check window
+    // (300ms) to trigger the watchdog killing before the first heart beat update.
+    scheduleVhalHeartBeatUpdate(400ms);
+
+    ASSERT_TRUE(monitor->waitForPidsKilled(1s)) << "Expect not-responding pids to be killed";
+    const auto& killedPids = monitor->getKilledPids();
+    ASSERT_THAT(killedPids, SizeIs(1));
+    ASSERT_THAT(killedPids[0].pid, kTestAidlVhalPid);
 }
 
 }  // namespace watchdog
