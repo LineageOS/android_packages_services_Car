@@ -336,13 +336,12 @@ public final class CarPropertySimulationManager extends CarManagerBase {
     }
 
     /**
-     * Injects fake hardware data into the VHhardwareAL. It will call the onPropertyEvent callback
-     * in the hardware. If the carPropertyValue's propertyId is not supported then that
-     * {@link CarPropertyValue} will be ignored and will not be injected. If the propertyId is part
-     * of the propertyIdsFromRealHardware when {@code enableInjectionMode} was called, those
-     * properties will also be ignored and will not be injected. The {@code mTimestampNanos} field
-     * in each {@link CarPropertyValue} represents the time elapsed since the initial call to
-     * {@link CarPropertySimulationManager#injectVehicleProperties}. This elapsed time determines
+     * Injects fake hardware data into the hardware. It will call the onPropertyEvent callback
+     * in the hardware. If the propertyId is part of the propertyIdsFromRealHardware when
+     * {@code enableInjectionMode} was called, those properties will also be ignored and will
+     * not be injected. The {@code mTimestampNanos} field in each {@link CarPropertyValue}
+     * represents the time elapsed since the initial call to
+     * {@link CarPropertySimulationManager#enableInjectionMode}. This elapsed time determines
      * when the corresponding value is injected into the hardware.
      *
      * <p>This method supports queuing multiple injections. Each injection will be processed
@@ -352,6 +351,9 @@ public final class CarPropertySimulationManager extends CarManagerBase {
      * <p>If {@code disableInjectionMode} is called before all scheduled property injections have
      * occurred, any pending injections will be cancelled.
      *
+     * <p>If any of the {@link CarPropertyValue} that are being injected are not valid, then none
+     * of the {@link CarPropertyValue} in {@code carPropertyValues} will be injected.
+     *
      * @param carPropertyValues A list of carPropertyValues to inject. The hardware will inject the
      *                          vehiclePropValue when the has reached elapsed timestamp in ns. If
      *                          the timestamp has passed, it will inject the value immediately in
@@ -360,6 +362,8 @@ public final class CarPropertySimulationManager extends CarManagerBase {
      *
      * @throws IllegalStateException if the build is not userdebug or eng.
      * @throws IllegalStateException if vehiclePropertyInjectionMode is not enabled.
+     * @throws IllegalArgumentException If a {@link CarPropertyValue} that is being injected is out
+     *                                  of range or the propertyId or areaId is invalid.
      * @throws SecurityException If missing permission.
      *
      * @hide

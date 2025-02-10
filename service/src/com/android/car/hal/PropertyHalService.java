@@ -2085,7 +2085,7 @@ public class PropertyHalService extends HalServiceBase {
      * @param carPropertyValues The carPropertyValues to inject.
      */
     public void injectVehicleProperties(List<CarPropertyValue> carPropertyValues) {
-
+        mVehicleHal.injectVehicleProperties(carPropertyValues);
     }
 
     private static @CarSetPropertyErrorCode int convertStatusCodeToCarSetPropertyErrorCode(

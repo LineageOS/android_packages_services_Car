@@ -16,11 +16,14 @@
 
 package com.android.car.hal.fakevhal;
 
+import static com.android.car.hal.property.HalPropertyDebugUtils.toValueString;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
 import android.annotation.Nullable;
 import android.car.builtin.util.Slogf;
+import android.car.hardware.CarPropertyValue;
 import android.hardware.automotive.vehicle.VehiclePropError;
+import android.hardware.automotive.vehicle.VehiclePropValue;
 import android.os.RemoteException;
 import android.os.ServiceSpecificException;
 import android.os.SystemClock;
@@ -44,6 +47,7 @@ import java.io.FileOutputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -52,14 +56,18 @@ public final class SimulationVehicleStub extends VehicleStubWrapper {
     private static final String TAG = CarLog.tagFor(SimulationVehicleStub.class);
 
     private final ArraySet<Integer> mPropertyIdsFromRealHardware;
-    private ReplayingVehicleHalCallback mReplayingVehicleHalCallback;
+    private final ReplayingVehicleHalCallback mReplayingVehicleHalCallback;
     private final long mStartOfSimulationTime;
+    private final Object mLock = new Object();
 
-    public SimulationVehicleStub(VehicleStub stub, List<Integer> propertyIdsFromRealHardware)
+    public SimulationVehicleStub(VehicleStub stub, List<Integer> propertyIdsFromRealHardware,
+            VehicleHalCallback realCallback)
             throws RemoteException {
         super(stub, getInitialPropValuesAndConfigs(stub));
         mPropertyIdsFromRealHardware = new ArraySet<>(propertyIdsFromRealHardware);
         mStartOfSimulationTime = SystemClock.elapsedRealtimeNanos();
+        mReplayingVehicleHalCallback = new ReplayingVehicleHalCallback(realCallback,
+                new ArraySet<>(propertyIdsFromRealHardware));
     }
 
     private static Pair<SparseArray<HalPropConfig>, PairSparseArray<HalPropValue>>
@@ -127,8 +135,6 @@ public final class SimulationVehicleStub extends VehicleStubWrapper {
 
     @Override
     public SubscriptionClient newSubscriptionClient(VehicleHalCallback callback) {
-        mReplayingVehicleHalCallback = new ReplayingVehicleHalCallback(callback,
-                mPropertyIdsFromRealHardware);
         return mRealVehicle.newSubscriptionClient(mReplayingVehicleHalCallback);
     }
 
@@ -191,24 +197,69 @@ public final class SimulationVehicleStub extends VehicleStubWrapper {
         verifyWriteAccess(propId, areaId);
 
         HalPropValue updatedValue = buildRawPropValueAndCheckRange(propValue);
+        maybeInvokeCallback(updatedValue, propId, areaId);
+    }
 
+    private void buildHalPropValueAndMaybeInvokeCallback(CarPropertyValue carPropertyValue) {
+        int propId = carPropertyValue.getPropertyId();
+        int areaId = carPropertyValue.getAreaId();
+        HalPropValue halPropValue = buildHalPropValue(carPropertyValue,
+                carPropertyValue.getPropertyId(), SystemClock.elapsedRealtimeNanos());
+        maybeInvokeCallback(halPropValue, propId, areaId);
+    }
+
+    private void maybeInvokeCallback(HalPropValue halPropValue, int propId, int areaId) {
         HalPropValue oldValue;
-        ReplayingVehicleHalCallback callback;
-        // Let CarPropertyService decide if the callback should be invoked.
-        oldValue = getPropValue(propId, areaId);
-        Slogf.d(TAG, "Fake value stored for propId: %d, areaId: %d, value: %s",
-                propId, areaId, propValue);
-        putPropValue(propId, areaId, propValue);
-        if (mReplayingVehicleHalCallback == null) {
-            Slogf.w(TAG, "Replaying Vehicle Hal Callback is null");
-            return;
+        // Need mLock in case of race condition E.G.
+        // Thread 1 get returns 4
+        // Thread 2 get returns 4
+        // Thread 1 put 3
+        // Thread 2 put 4
+        // If lock is not present, thread 2 would not invoke onPropertyEvent change from 3 -> 4,
+        // client would assume the propValue would be 3
+        synchronized (mLock) {
+            if (mReplayingVehicleHalCallback == null) {
+                Slogf.w(TAG, "Replaying Vehicle Hal Callback is null");
+                return;
+            }
+            oldValue = getPropValue(propId, areaId);
+            Slogf.d(TAG, "Fake value stored for propId: %d, areaId: %d, value: %s Storing "
+                            + "new value %s", propId, areaId, oldValue, halPropValue);
+            putPropValue(propId, areaId, halPropValue);
         }
-        callback = mReplayingVehicleHalCallback;
-        if (oldValue.equalsExceptTimestamp(propValue)) {
-            Slogf.d(TAG, "Value did not change ignoring onPropertyEvent");
-            return;
+        mReplayingVehicleHalCallback.getRealCallback().onPropertyEvent(List.of(halPropValue));
+    }
+
+    /**
+     * Filters a list of items based on a set of property IDs.
+     *
+     * <p>This method iterates through a list of items and applies a provided function to extract a
+     * property ID from each item. It then checks if the extracted property ID exists within a
+     * given set of valid property IDs. Only items whose property IDs are present in the valid set
+     * are included in the returned filtered list.
+     *
+     * @param items The list of items to be filtered.
+     * @param propIdExtractor A function that extracts the property ID from an item.
+     * @param propertyIdsFromRealHardware A set of valid property IDs. Items with property IDs not
+     *                                    present in this set will be filtered out.
+     * @param <T> The type of items in the list.
+     * @return A new list containing only the items whose property IDs are present in
+     *         `propertyIdsFromRealHardware`.
+     */
+    public static <T> List<T> filterProperties(List<T> items, Function<T, Integer>
+            propIdExtractor, ArraySet<Integer> propertyIdsFromRealHardware) {
+        List<T> filteredItems = new ArrayList<>();
+        for (int i = 0; i < items.size(); i++) {
+            T item = items.get(i);
+            int propId = propIdExtractor.apply(item);
+            if (!propertyIdsFromRealHardware.contains(propId)) {
+                Slogf.d(TAG, "Filtering out real hardware due to %s property not being in "
+                        + "mPropertyIdsFromRealHardware", propId);
+                continue;
+            }
+            filteredItems.add(item);
         }
-        callback.getRealCallback().onPropertyEvent(new ArrayList<>(List.of(updatedValue)));
+        return filteredItems;
     }
 
     private static final class ReplayingVehicleHalCallback implements VehicleHalCallback {
@@ -224,17 +275,8 @@ public final class SimulationVehicleStub extends VehicleStubWrapper {
 
         private <T> void filterAndInvokeCallback(List<T> items, Function<T, Integer>
                 propIdExtractor, Consumer<List<T>> callback, String methodName) {
-            List<T> filteredItems = new ArrayList<>();
-            for (int i = 0; i < items.size(); i++) {
-                T item = items.get(i);
-                int propId = propIdExtractor.apply(item);
-                if (!mPropertyIdsFromRealHardware.contains(propId)) {
-                    Slogf.d(TAG, "Filtering out real hardware due to "
-                            + propId + " property not being in mPropertyIdsFromRealHardware");
-                    continue;
-                }
-                filteredItems.add(item);
-            }
+            List<T> filteredItems = filterProperties(items, propIdExtractor,
+                    mPropertyIdsFromRealHardware);
             if (filteredItems.isEmpty()) {
                 Slogf.d(TAG, "All properties were filtered, not running %s", methodName);
                 return;
@@ -274,5 +316,37 @@ public final class SimulationVehicleStub extends VehicleStubWrapper {
     @Override
     public boolean isSimulatedModeEnabled() {
         return true;
+    }
+
+    @Override
+    public void injectVehicleProperties(List<CarPropertyValue> carPropertyValues) {
+        for (int i = 0; i < carPropertyValues.size(); i++) {
+            CarPropertyValue carPropertyValue = carPropertyValues.get(i);
+            int propId = carPropertyValue.getPropertyId();
+            int areaId = carPropertyValue.getAreaId();
+            // Skip this CarPropertyValue if the propertyId or areaId is not supported
+            try {
+                checkPropIdSupported(propId);
+                checkAreaIdSupported(propId, areaId);
+            } catch (ServiceSpecificException e) {
+                throw new IllegalArgumentException("PropertyId or areaId not supported", e);
+            }
+            // Skip this CarPropertyValue if value was not within range.
+            HalPropValue halPropValue = buildHalPropValue(carPropertyValue,
+                    carPropertyValue.getPropertyId(), 0);
+            if (!isWithinRange(propId, areaId,
+                    ((VehiclePropValue) halPropValue.toVehiclePropValue()).value)) {
+                throw new IllegalArgumentException("The property value is not within range "
+                        + toValueString(halPropValue));
+            }
+        }
+        for (int i = 0; i < carPropertyValues.size(); i++) {
+            CarPropertyValue carPropertyValue = carPropertyValues.get(i);
+            // If timeToInject < 0, will post immediately
+            long timeToInject = mStartOfSimulationTime + carPropertyValue.getTimestamp()
+                    - SystemClock.elapsedRealtimeNanos();
+            mHandler.postDelayed(() -> buildHalPropValueAndMaybeInvokeCallback(carPropertyValue),
+                    TimeUnit.NANOSECONDS.toMillis(timeToInject));
+        }
     }
 }

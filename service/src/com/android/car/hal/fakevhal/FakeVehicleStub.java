@@ -352,18 +352,18 @@ public final class FakeVehicleStub extends VehicleStubWrapper {
     }
 
     private final class FakeVhalSubscriptionClient implements SubscriptionClient {
-        private final VehicleHalCallback mCallBack;
+        private final VehicleHalCallback mCallback;
         private final SubscriptionClient mRealClient;
 
         FakeVhalSubscriptionClient(VehicleHalCallback callback,
                 SubscriptionClient realVehicleClient) {
-            mCallBack = callback;
+            mCallback = callback;
             mRealClient = realVehicleClient;
             Slogf.d(TAG, "A FakeVhalSubscriptionClient instance is created.");
         }
 
         public void onPropertyEvent(HalPropValue value) {
-            mCallBack.onPropertyEvent(new ArrayList<>(List.of(value)));
+            mCallback.onPropertyEvent(new ArrayList<>(List.of(value)));
         }
 
         @Override

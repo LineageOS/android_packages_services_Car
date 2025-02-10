@@ -22,6 +22,7 @@ import static com.android.car.internal.property.CarPropertyErrorCodes.createFrom
 
 import android.annotation.Nullable;
 import android.car.builtin.util.Slogf;
+import android.car.hardware.CarPropertyValue;
 import android.hardware.automotive.vehicle.RawPropValues;
 import android.hardware.automotive.vehicle.StatusCode;
 import android.hardware.automotive.vehicle.VehicleArea;
@@ -383,6 +384,16 @@ public abstract class VehicleStubWrapper extends VehicleStub {
         propValue.timestamp = timestamp;
         propValue.value = rawPropValues;
         return halPropValueBuilder.build(propValue);
+    }
+
+    /**
+     * Builds a {@link HalPropValue} from the given parameters using a {@link HalPropValueBuilder}
+     *
+     */
+    /* package */ HalPropValue buildHalPropValue(CarPropertyValue carPropertyValue,
+            int halPropId, long timestamp) {
+        return getHalPropValueBuilder().build(carPropertyValue, halPropId, timestamp,
+                mPropConfigsByPropId.get(halPropId));
     }
 
     /**

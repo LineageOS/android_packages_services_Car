@@ -19,6 +19,7 @@ package com.android.car;
 import android.annotation.Nullable;
 import android.car.builtin.os.BuildHelper;
 import android.car.builtin.util.Slogf;
+import android.car.hardware.CarPropertyValue;
 import android.hardware.automotive.vehicle.RawPropValues;
 import android.hardware.automotive.vehicle.SubscribeOptions;
 import android.os.IBinder.DeathRecipient;
@@ -444,6 +445,14 @@ public abstract class VehicleStub {
      * Returns the start time of the simulation in nanos.
      */
     public long getSimulationStartTimestampNanos() {
+        throw new UnsupportedOperationException("Not in simulated mode");
+    }
+
+    /**
+     * Injects the CarPropertyValues.
+     * @param carPropertyValues The carPropertyValues to inject.
+     */
+    public void injectVehicleProperties(List<CarPropertyValue> carPropertyValues) {
         throw new UnsupportedOperationException("Not in simulated mode");
     }
 }
