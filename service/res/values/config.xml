@@ -671,4 +671,9 @@
 
     <!-- Interval in milliseconds to send SHUTDOWN_POSTPONE to VHAL -->
     <integer name="config_shutdownPollingIntervalMs">2000</integer>
+
+    <!-- Auto task stack is the new functionality added as part of the Car-WindowManager-Shell
+         library. SystemUI can use this library for windowing. CarService makes some internal
+         changes if Auto Task Stack is used. Set it to true if Auto Task is used. -->
+    <bool name="config_isUsingAutoTaskStackWindowing">false</bool>
 </resources>

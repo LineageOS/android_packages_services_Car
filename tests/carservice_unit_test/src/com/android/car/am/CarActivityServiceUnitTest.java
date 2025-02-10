@@ -18,6 +18,8 @@ package com.android.car.am;
 
 import static android.view.Display.DEFAULT_DISPLAY;
 
+import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
+
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
@@ -31,6 +33,7 @@ import android.car.app.CarActivityManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.os.Binder;
 import android.os.IBinder;
 import android.os.RemoteException;
@@ -39,6 +42,7 @@ import android.os.UserHandle;
 import com.android.car.CarLocalServices;
 import com.android.car.CarServiceHelperWrapper;
 import com.android.car.CarServiceHelperWrapperTimeout;
+import com.android.car.R;
 import com.android.car.internal.ICarServiceHelper;
 
 import org.junit.After;
@@ -68,10 +72,16 @@ public class CarActivityServiceUnitTest {
     @Mock
     private Context mContext;
     @Mock
+    private Resources mMockedResources;
+    @Mock
     private ICarServiceHelper mICarServiceHelper;
 
     @Before
     public void setUp() {
+        doReturn(mMockedResources).when(mContext).getResources();
+        doReturn(false).when(mMockedResources)
+                .getBoolean(R.bool.config_isUsingAutoTaskStackWindowing);
+
         mCarActivityService = spy(new CarActivityService(mContext));
 
         int nonCurrentUserId = 9999990;

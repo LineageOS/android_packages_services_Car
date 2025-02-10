@@ -67,8 +67,8 @@ import com.android.car.CarServiceHelperWrapper;
 import com.android.car.CarServiceUtils;
 import com.android.car.R;
 import com.android.car.SystemActivityMonitoringService;
-import com.android.car.internal.dep.Trace;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
+import com.android.car.internal.dep.Trace;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
@@ -118,6 +118,7 @@ public final class CarActivityService extends ICarActivityService.Stub
     private final RemoteCallbackList<ICarSystemUIProxyCallback> mCarSystemUIProxyCallbacks =
             new RemoteCallbackList<ICarSystemUIProxyCallback>();
 
+    private final boolean mIsUsingAutoTaskStackWindowing;
     private IBinder mCurrentMonitor;
 
     /**
@@ -155,6 +156,13 @@ public final class CarActivityService extends ICarActivityService.Stub
         mContext = context;
         mDisplayManager = context.getSystemService(DisplayManager.class);
         mMirroringTokenTimeoutMs = mirroringTokenTimeout;
+        mIsUsingAutoTaskStackWindowing = context.getResources().getBoolean(
+                R.bool.config_isUsingAutoTaskStackWindowing);
+    }
+
+    @Override
+    public boolean isUsingAutoTaskStackWindowing() {
+        return mIsUsingAutoTaskStackWindowing;
     }
 
     @Override
@@ -790,6 +798,7 @@ public final class CarActivityService extends ICarActivityService.Stub
             }
             writer.println(" Surfaces: " + mTaskToSurfaceMap.toString());
             writer.println(" ActivityListeners: " + mActivityListeners.toString());
+            writer.println(" IsAutoTaskStackUsed: " + mIsUsingAutoTaskStackWindowing);
         }
     }
 
