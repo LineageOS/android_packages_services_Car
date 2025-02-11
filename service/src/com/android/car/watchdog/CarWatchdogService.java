@@ -557,6 +557,9 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
 
     /**
      * Kills a specific package for a user due to resource overuse.
+
+     * <p>Called only by the car shell "watchdog-resource-overuse-kill"
+     * command, which is only used by tests.
      *
      * @return whether package was killed
      */
