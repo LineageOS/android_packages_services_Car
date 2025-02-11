@@ -346,7 +346,7 @@ public final class HalPropValueBuilder {
     }
 
     /**
-     * Creates a HalPropValue based on a {@link CarPropretyValue}.
+     * Creates a HalPropValue based on a {@link CarPropertyValue}.
      *
      * @param carPropertyValue The car property value to convert from.
      * @param halPropId The property ID used in vehicle HAL.
@@ -355,10 +355,23 @@ public final class HalPropValueBuilder {
      */
     public HalPropValue build(CarPropertyValue carPropertyValue, int halPropId,
             HalPropConfig config) {
+        return build(carPropertyValue, halPropId, /* timestamp */ 0, config);
+    }
+
+    /**
+     * Creates a HalPropValue based on a {@link CarPropertyValue}.
+     *
+     * @param carPropertyValue The car property value to convert from.
+     * @param halPropId The property ID used in vehicle HAL.
+     * @param config The property config.
+     * @return a HalPropValue.
+     */
+    public HalPropValue build(CarPropertyValue carPropertyValue, int halPropId, long timestamp,
+            HalPropConfig config) {
         if (mIsAidl) {
-            return new AidlHalPropValue(carPropertyValue, halPropId, config);
+            return new AidlHalPropValue(carPropertyValue, halPropId, timestamp, config);
         }
-        return new HidlHalPropValue(carPropertyValue, halPropId, config);
+        return new HidlHalPropValue(carPropertyValue, halPropId, timestamp, config);
     }
 
     /**
@@ -501,8 +514,9 @@ public final class HalPropValueBuilder {
             mVehiclePropValue.value.byteValues = byteValues;
         }
 
-        AidlHalPropValue(CarPropertyValue value, int halPropId, HalPropConfig config) {
-            init(halPropId, value.getAreaId(), 0, VehiclePropertyStatus.AVAILABLE);
+        AidlHalPropValue(CarPropertyValue value, int halPropId, long timestamp,
+                HalPropConfig config) {
+            init(halPropId, value.getAreaId(), timestamp, VehiclePropertyStatus.AVAILABLE);
 
             if (HalPropValue.isMixedTypeProperty(halPropId)) {
                 setMixedCarProperty(value, config.getConfigArray());
@@ -878,8 +892,9 @@ public final class HalPropValueBuilder {
             mVehiclePropValue.value.bytes = byteArrayToList(byteValues);
         }
 
-        HidlHalPropValue(CarPropertyValue value, int halPropId, HalPropConfig config) {
-            init(halPropId, value.getAreaId(), 0, VehiclePropertyStatus.AVAILABLE);
+        HidlHalPropValue(CarPropertyValue value, int halPropId, long timestamp,
+                HalPropConfig config) {
+            init(halPropId, value.getAreaId(), timestamp, VehiclePropertyStatus.AVAILABLE);
 
             if (HalPropValue.isMixedTypeProperty(halPropId)) {
                 setMixedCarProperty(value, config.getConfigArray());

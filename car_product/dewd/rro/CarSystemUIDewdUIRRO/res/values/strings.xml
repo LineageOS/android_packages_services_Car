@@ -14,10 +14,13 @@
   ~ limitations under the License.
   -->
   <resources>
-    <string name="nav_component">com.android.car.portraitlauncher/.homeactivities.BackgroundPanelBaseActivity</string>
-    <string name="appgrid_componentName">com.android.car.portraitlauncher/com.android.car.carlauncher.AppGridActivity</string>
-    <string name="contextual_bar_component">com.android.car.portraitlauncher/com.android.car.carlauncher.ControlBarActivity</string>
-    <string name="default_config">DEFAULT</string>
+    <string name="appgrid_componentName" translatable="false">com.android.car.portraitlauncher/com.android.car.carlauncher.AppGridActivity</string>
+    <string name="contextual_bar_component" translatable="false">com.android.car.portraitlauncher/com.android.car.carlauncher.ControlBarActivity</string>
+    <string name="default_config" translatable="false">DEFAULT</string>
 
-    <string name="config_appGridComponentName">@string/appgrid_componentName</string>
+    <string name="config_appGridComponentName" translatable="false">@string/appgrid_componentName</string>
+
+    <string-array name="nav_components" translatable="false">
+        <item>com.android.car.portraitlauncher/.homeactivities.BackgroundPanelBaseActivity</item>
+    </string-array>
 </resources>
