@@ -130,9 +130,7 @@ public class WatchdogProcessHandlerUnitTest extends AbstractExtendedMockitoTestC
         mWatchdogProcessHandler.registerClient(badClient, TIMEOUT_CRITICAL);
 
         // Start a health check, which will ping registered clients.
-        mWatchdogProcessHandler.postHealthCheckMessage(123456);
-
-        CarServiceUtils.runOnMainSync(() -> {});
+        postHealthCheckMessageAndWait(123456);
 
         // Clears all pending clients
         mWatchdogProcessHandler.prepareHealthCheck();
@@ -140,9 +138,7 @@ public class WatchdogProcessHandlerUnitTest extends AbstractExtendedMockitoTestC
         // Since the pending clients cache was cleared, CarWatchdogService won't
         // call onPrepareProcessTermination on our bad client even if it did not
         // respond to the initial ping.
-        mWatchdogProcessHandler.postHealthCheckMessage(123456);
-
-        CarServiceUtils.runOnMainSync(() -> {});
+        postHealthCheckMessageAndWait(123456);
 
         // Check if bad client received onPrepareProcessTermination
         assertWithMessage("Pinged clients not resetting").that(
@@ -187,10 +183,9 @@ public class WatchdogProcessHandlerUnitTest extends AbstractExtendedMockitoTestC
 
     @Test
     public void testPostHealthCheckMessage() throws Exception {
-        mWatchdogProcessHandler.postHealthCheckMessage(123456);
+        postHealthCheckMessageAndWait(123456);
 
-        verify(mMockCarWatchdogDaemonHelper,
-                timeout(MAX_WAIT_TIME_MS)).tellCarWatchdogServiceAlive(
+        verify(mMockCarWatchdogDaemonHelper).tellCarWatchdogServiceAlive(
                 eq(mWatchdogServiceForSystemImpl), mProcessIdentifiersCaptor.capture(), eq(123456));
         assertWithMessage("clients not responding").that(
                 mProcessIdentifiersCaptor.getValue().size()).isEqualTo(0);
@@ -205,11 +200,9 @@ public class WatchdogProcessHandlerUnitTest extends AbstractExtendedMockitoTestC
         assertWithMessage("Critical timeout client count").that(
                 mWatchdogProcessHandler.getClientCount(TIMEOUT_CRITICAL)).isEqualTo(1);
 
-        mWatchdogProcessHandler.postHealthCheckMessage(123456);
+        postHealthCheckMessageAndWait(123456);
 
-        // Checking client health is asynchronous, so wait at most 1 second.
-        verify(mMockCarWatchdogDaemonHelper,
-                timeout(1000)).tellCarWatchdogServiceAlive(
+        verify(mMockCarWatchdogDaemonHelper).tellCarWatchdogServiceAlive(
                 eq(mWatchdogServiceForSystemImpl), any(), eq(123456));
 
         assertThat(client.getLastSessionId()).isNotEqualTo(INVALID_SESSION_ID);
@@ -239,7 +232,7 @@ public class WatchdogProcessHandlerUnitTest extends AbstractExtendedMockitoTestC
         assertWithMessage("Critical timeout client count").that(
                 mWatchdogProcessHandler.getClientCount(TIMEOUT_CRITICAL)).isEqualTo(0);
 
-        mWatchdogProcessHandler.postHealthCheckMessage(123456);
+        postHealthCheckMessageAndWait(123456);
 
         assertThat(client.getLastSessionId()).isEqualTo(INVALID_SESSION_ID);
     }
@@ -355,18 +348,16 @@ public class WatchdogProcessHandlerUnitTest extends AbstractExtendedMockitoTestC
     private void testClientHealthCheck(TestClient client, int badClientCount) throws Exception {
         mWatchdogProcessHandler.registerClient(client, TIMEOUT_CRITICAL);
 
-        mWatchdogProcessHandler.postHealthCheckMessage(123456);
+        postHealthCheckMessageAndWait(123456);
 
-        verify(mMockCarWatchdogDaemonHelper,
-                timeout(MAX_WAIT_TIME_MS)).tellCarWatchdogServiceAlive(
+        verify(mMockCarWatchdogDaemonHelper).tellCarWatchdogServiceAlive(
                 eq(mWatchdogServiceForSystemImpl), mProcessIdentifiersCaptor.capture(), eq(123456));
 
         assertThat(mProcessIdentifiersCaptor.getValue()).isEmpty();
 
-        mWatchdogProcessHandler.postHealthCheckMessage(987654);
+        postHealthCheckMessageAndWait(987654);
 
-        verify(mMockCarWatchdogDaemonHelper,
-                timeout(MAX_WAIT_TIME_MS)).tellCarWatchdogServiceAlive(
+        verify(mMockCarWatchdogDaemonHelper).tellCarWatchdogServiceAlive(
                 eq(mWatchdogServiceForSystemImpl), mProcessIdentifiersCaptor.capture(), eq(987654));
 
         assertThat(mProcessIdentifiersCaptor.getValue().size()).isEqualTo(badClientCount);
@@ -386,6 +377,12 @@ public class WatchdogProcessHandlerUnitTest extends AbstractExtendedMockitoTestC
             }
             return names;
         });
+    }
+
+    private void postHealthCheckMessageAndWait(int sessionId) {
+        mWatchdogProcessHandler.postHealthCheckMessage(sessionId);
+        // Wait for asynchronous postHealthCheckMessage call to return to prevent race conditions
+        CarServiceUtils.runOnMainSync(() -> {});
     }
 
     private class TestClient extends ICarWatchdogServiceCallback.Stub {
