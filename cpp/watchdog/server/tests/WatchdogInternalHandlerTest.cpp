@@ -356,12 +356,14 @@ TEST_F(WatchdogInternalHandlerTest, TestTellDumpFinished) {
 
     std::shared_ptr<ICarWatchdogMonitor> monitor =
             SharedRefBase::make<ICarWatchdogMonitorDefault>();
+    std::vector<ProcessIdentifier> processIdentifiers;
     ProcessIdentifier processIdentifier;
     processIdentifier.pid = 456;
-    EXPECT_CALL(*mMockWatchdogProcessService, tellDumpFinished(monitor, processIdentifier))
+    processIdentifiers.push_back(processIdentifier);
+    EXPECT_CALL(*mMockWatchdogProcessService, tellDumpFinished(monitor, processIdentifiers))
             .WillOnce(Return(ByMove(ScopedAStatus::ok())));
 
-    auto status = mWatchdogInternalHandler->tellDumpFinished(monitor, processIdentifier);
+    auto status = mWatchdogInternalHandler->tellDumpFinished(monitor, processIdentifiers);
 
     ASSERT_TRUE(status.isOk()) << status.getMessage();
 }
@@ -369,12 +371,14 @@ TEST_F(WatchdogInternalHandlerTest, TestTellDumpFinished) {
 TEST_F(WatchdogInternalHandlerTest, TestErrorOnTellDumpFinishedWithNonSystemCallingUid) {
     EXPECT_CALL(*mMockWatchdogProcessService, tellDumpFinished(_, _)).Times(0);
 
+    std::vector<ProcessIdentifier> processIdentifiers;
     ProcessIdentifier processIdentifier;
     processIdentifier.pid = 456;
+    processIdentifiers.push_back(processIdentifier);
     std::shared_ptr<ICarWatchdogMonitor> monitor =
             SharedRefBase::make<ICarWatchdogMonitorDefault>();
 
-    ASSERT_FALSE(mWatchdogInternalHandler->tellDumpFinished(monitor, processIdentifier).isOk())
+    ASSERT_FALSE(mWatchdogInternalHandler->tellDumpFinished(monitor, processIdentifiers).isOk())
             << "tellDumpFinished " << kFailOnNonSystemCallingUidMessage;
 }
 

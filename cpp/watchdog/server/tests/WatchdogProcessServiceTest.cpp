@@ -780,24 +780,18 @@ TEST_F(WatchdogProcessServiceTest, TestTellCarWatchdogServiceAlive) {
 TEST_F(WatchdogProcessServiceTest, TestTellDumpFinished) {
     std::shared_ptr<ICarWatchdogMonitor> monitor =
             SharedRefBase::make<ICarWatchdogMonitorDefault>();
-    ASSERT_FALSE(mWatchdogProcessService
-                         ->tellDumpFinished(monitor,
-                                            constructProcessIdentifier(/*pid=*/1234,
-                                                                       /*uid=*/1,
-                                                                       /*processName=*/"process",
-                                                                       /*startTimeMillis=*/0))
-                         .isOk())
+    std::vector<ProcessIdentifier> processIdentifiers;
+    processIdentifiers.push_back(constructProcessIdentifier(/*pid=*/1234,
+                                                            /*uid=*/1,
+                                                            /*processName=*/"process",
+                                                            /*startTimeMillis=*/0));
+    ASSERT_FALSE(mWatchdogProcessService->tellDumpFinished(monitor, processIdentifiers).isOk())
             << "Unregistered monitor cannot call tellDumpFinished";
 
     expectLinkToDeath(monitor->asBinder().get(), ScopedAStatus::ok());
 
     mWatchdogProcessService->registerMonitor(monitor);
-    auto status = mWatchdogProcessService
-                          ->tellDumpFinished(monitor,
-                                             constructProcessIdentifier(/*pid=*/1234,
-                                                                        /*uid=*/1,
-                                                                        /*processName=*/"process",
-                                                                        /*startTimeMillis=*/0));
+    auto status = mWatchdogProcessService->tellDumpFinished(monitor, processIdentifiers);
 
     ASSERT_TRUE(status.isOk()) << status.getMessage();
 }
