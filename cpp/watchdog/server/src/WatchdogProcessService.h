@@ -294,7 +294,7 @@ private:
     void handleVhalDeath();
     void queryVhalProperties();
     void updateVhalHeartBeat(int64_t value);
-    void checkVhalHealth();
+    void handleVhalHealthCheckTimeout();
     void resetVhalInfoLocked();
     void terminateVhal();
 

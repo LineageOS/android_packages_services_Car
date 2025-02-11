@@ -102,8 +102,8 @@ const std::vector<TimeoutLength> kTimeouts = {TimeoutLength::TIMEOUT_CRITICAL,
 // TimeoutLength is also used as a message ID. Other message IDs should start next to
 // TimeoutLength::TIMEOUT_NORMAL.
 const int32_t MSG_VHAL_WATCHDOG_ALIVE = static_cast<int>(TimeoutLength::TIMEOUT_NORMAL) + 1;
-const int32_t MSG_VHAL_HEALTH_CHECK = MSG_VHAL_WATCHDOG_ALIVE + 1;
-const int32_t MSG_CACHE_VHAL_PROCESS_IDENTIFIER = MSG_VHAL_HEALTH_CHECK + 1;
+const int32_t MSG_VHAL_HEALTH_CHECK_TIMEOUT = MSG_VHAL_WATCHDOG_ALIVE + 1;
+const int32_t MSG_CACHE_VHAL_PROCESS_IDENTIFIER = MSG_VHAL_HEALTH_CHECK_TIMEOUT + 1;
 
 // VHAL is supposed to send heart beat every 3s. Car watchdog checks if there is the latest heart
 // beat from VHAL within 3s, allowing 1s marginal time.
@@ -513,7 +513,7 @@ void WatchdogProcessService::setEnabled(bool isEnabled) {
     }
     ALOGI("%s is %s", kServiceName, isEnabled ? "enabled" : "disabled");
     mIsEnabled = isEnabled;
-    mHandlerLooper->removeMessages(mMessageHandler, MSG_VHAL_HEALTH_CHECK);
+    mHandlerLooper->removeMessages(mMessageHandler, MSG_VHAL_HEALTH_CHECK_TIMEOUT);
     if (!mIsEnabled) {
         return;
     }
@@ -521,7 +521,7 @@ void WatchdogProcessService::setEnabled(bool isEnabled) {
         mVhalHeartBeat.eventTime = uptimeMillis();
         std::chrono::nanoseconds intervalNs = mVhalHealthCheckIntervalMillis;
         mHandlerLooper->sendMessageDelayed(intervalNs.count(), mMessageHandler,
-                                           Message(MSG_VHAL_HEALTH_CHECK));
+                                           Message(MSG_VHAL_HEALTH_CHECK_TIMEOUT));
     }
     for (const auto& timeout : kTimeouts) {
         mHandlerLooper->removeMessages(mMessageHandler, static_cast<int>(timeout));
@@ -775,7 +775,7 @@ void WatchdogProcessService::terminate() {
                                                      static_cast<void*>(aiBinder));
             mMonitor.reset();
         }
-        mHandlerLooper->removeMessages(mMessageHandler, MSG_VHAL_HEALTH_CHECK);
+        mHandlerLooper->removeMessages(mMessageHandler);
         mServiceStarted = false;
         if (mVhalService == nullptr) {
             return;
@@ -1038,7 +1038,7 @@ void WatchdogProcessService::handleBinderDeath(void* cookie) {
 void WatchdogProcessService::handleVhalDeath() {
     Mutex::Autolock lock(mMutex);
     ALOGW("VHAL has died.");
-    mHandlerLooper->removeMessages(mMessageHandler, MSG_VHAL_HEALTH_CHECK);
+    mHandlerLooper->removeMessages(mMessageHandler, MSG_VHAL_HEALTH_CHECK_TIMEOUT);
     // Destroying mVHalService would remove all onBinderDied callbacks.
     resetVhalInfoLocked();
 }
@@ -1205,7 +1205,7 @@ void WatchdogProcessService::subscribeToVhalHeartBeat() {
     ALOGD("Successfully subscribed to VHAL_HEARTBEAT");
     std::chrono::nanoseconds intervalNs = mVhalHealthCheckIntervalMillis;
     mHandlerLooper->sendMessageDelayed(intervalNs.count(), mMessageHandler,
-                                       Message(MSG_VHAL_HEALTH_CHECK));
+                                       Message(MSG_VHAL_HEALTH_CHECK_TIMEOUT));
     // VHAL process identifier is required only when terminating the VHAL process. VHAL process is
     // terminated only when the VHAL is unhealthy. However, caching the process identifier as soon
     // as connecting to VHAL guarantees the correct PID is cached. Because the VHAL pid is queried
@@ -1352,14 +1352,13 @@ void WatchdogProcessService::updateVhalHeartBeat(int64_t value) {
         terminateVhal();
         return;
     }
-    // TODO(b/392721766): remove existing check vhal health message here and repurpose
-    // checkVhalHealth to a timeout handler.
     std::chrono::nanoseconds intervalNs = mVhalHealthCheckIntervalMillis;
+    mHandlerLooper->removeMessages(mMessageHandler, MSG_VHAL_HEALTH_CHECK_TIMEOUT);
     mHandlerLooper->sendMessageDelayed(intervalNs.count(), mMessageHandler,
-                                       Message(MSG_VHAL_HEALTH_CHECK));
+                                       Message(MSG_VHAL_HEALTH_CHECK_TIMEOUT));
 }
 
-void WatchdogProcessService::checkVhalHealth() {
+void WatchdogProcessService::handleVhalHealthCheckTimeout() {
     int64_t lastEventTime;
     int64_t currentUptime = uptimeMillis();
     {
@@ -1369,21 +1368,10 @@ void WatchdogProcessService::checkVhalHealth() {
         }
         lastEventTime = mVhalHeartBeat.eventTime;
     }
-    if (DEBUG) {
-        ALOGD("checkVhalHealth: currentUptime: %" PRId64 " ms, lastEventTime: %" PRId64
-              " ms, check window: %lld ms",
-              currentUptime, lastEventTime, mVhalHealthCheckIntervalMillis.count());
-    }
-    // Make sure that we have received at least one new event during this check window. The
-    // event we received from the previous window is <= [currentUptime - window], so
-    // if the latest event time is <= [currentUptime - window], it means we have not received
-    // any new event.
-    if (currentUptime >= lastEventTime + mVhalHealthCheckIntervalMillis.count()) {
-        ALOGE("VHAL failed to update heart beat within timeout. VHAL may be stuck or slow! "
-              "currentUptime: %" PRId64 " ms, lastEventTime: %" PRId64 " ms, check window: %lld ms",
-              currentUptime, lastEventTime, mVhalHealthCheckIntervalMillis.count());
-        terminateVhal();
-    }
+    ALOGE("VHAL failed to update heart beat within timeout. VHAL may be stuck or slow! "
+          "currentUptime: %" PRId64 " ms, lastEventTime: %" PRId64 " ms, check window: %lld ms",
+          currentUptime, lastEventTime, mVhalHealthCheckIntervalMillis.count());
+    terminateVhal();
 }
 
 void WatchdogProcessService::resetVhalInfoLocked() {
@@ -1536,8 +1524,8 @@ void WatchdogProcessService::MessageHandlerImpl::handleMessage(const Message& me
         case MSG_VHAL_WATCHDOG_ALIVE:
             kService->reportWatchdogAliveToVhal();
             break;
-        case MSG_VHAL_HEALTH_CHECK:
-            kService->checkVhalHealth();
+        case MSG_VHAL_HEALTH_CHECK_TIMEOUT:
+            kService->handleVhalHealthCheckTimeout();
             break;
         case MSG_CACHE_VHAL_PROCESS_IDENTIFIER:
             kService->cacheVhalProcessIdentifier();
