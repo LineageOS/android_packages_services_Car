@@ -99,6 +99,10 @@ namespace {
 
 const int32_t MSG_CONNECT_TO_VHAL = 1;  // Message to request of connecting to VHAL.
 
+constexpr int32_t VHAL_ERROR_NOT_READY = 1;
+constexpr int32_t VHAL_ERROR_PROP_NOT_SUPPORTED = 2;
+constexpr int32_t VHAL_ERROR_PROP_FAILED_TO_SET = 3;
+
 const nsecs_t kConnectionRetryIntervalNs = 200000000;  // 200 milliseconds.
 const nsecs_t kDefaultConnectToVhalTimeoutMillis = 5000;
 constexpr const char kConnectToVhalTimeoutMillisProp[] = "cppd.connectvhal.Timeoutmillis";
@@ -1619,8 +1623,17 @@ void CarPowerPolicyServer::applyAndNotifyPowerPolicy(const CarPowerPolicyMeta& p
     }
 
     if (const auto& ret = notifyVhalNewPowerPolicy(policy->policyId); !ret.ok()) {
-        ALOGW("Failed to tell VHAL the new power policy(%s): %s", policy->policyId.c_str(),
-              ret.error().message().c_str());
+        std::string errMsgPrefix = StringPrintf("Failed to tell VHAL the new power policy(%s)",
+                                                policy->policyId.c_str());
+        switch (ret.error().code()) {
+            case VHAL_ERROR_NOT_READY:
+            case VHAL_ERROR_PROP_NOT_SUPPORTED:
+                ALOGI("%s: %s", errMsgPrefix.c_str(), ret.error().message().c_str());
+                break;
+            default:
+                ALOGE("%s: %s", errMsgPrefix.c_str(), ret.error().message().c_str());
+                break;
+        }
     }
     auto accumulatedPolicy = mComponentHandler.getAccumulatedPolicy();
     for (auto client : clients) {
@@ -1889,13 +1902,14 @@ void CarPowerPolicyServer::subscribeToProperty(
 Result<void> CarPowerPolicyServer::notifyVhalNewPowerPolicy(const std::string& policyId) {
     int32_t prop = static_cast<int32_t>(VehicleProperty::CURRENT_POWER_POLICY);
     if (!isPropertySupported(prop)) {
-        return Error() << StringPrintf("Vehicle property(%d) is not supported by VHAL.", prop);
+        return Error(VHAL_ERROR_PROP_NOT_SUPPORTED)
+                << StringPrintf("Vehicle property(%d) is not supported by VHAL.", prop);
     }
     std::shared_ptr<IVhalClient> vhalService;
     {
         std::lock_guard<std::mutex> lock(mMutex);
         if (mVhalService == nullptr) {
-            return Error() << "VHAL is not ready";
+            return Error(VHAL_ERROR_NOT_READY) << "VHAL is not ready";
         }
         vhalService = mVhalService;
     }
@@ -1904,7 +1918,8 @@ Result<void> CarPowerPolicyServer::notifyVhalNewPowerPolicy(const std::string& p
 
     VhalClientResult<void> result = vhalService->setValueSync(*propValue);
     if (!result.ok()) {
-        return Error() << "Failed to set CURRENT_POWER_POLICY property";
+        return Error(VHAL_ERROR_PROP_FAILED_TO_SET)
+                << "Failed to set CURRENT_POWER_POLICY property";
     }
     ALOGD("Policy(%s) is notified to VHAL", policyId.c_str());
     return {};
