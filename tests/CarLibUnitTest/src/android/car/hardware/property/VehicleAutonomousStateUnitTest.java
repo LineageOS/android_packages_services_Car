@@ -15,17 +15,10 @@
  */
 package android.car.hardware.property;
 
-import static android.car.feature.Flags.FLAG_ANDROID_VIC_VEHICLE_PROPERTIES;
-
 import static com.google.common.truth.Truth.assertWithMessage;
-
-import android.platform.test.annotations.RequiresFlagsEnabled;
-import android.platform.test.flag.junit.CheckFlagsRule;
-import android.platform.test.flag.junit.DeviceFlagsValueProvider;
 
 import androidx.test.filters.SmallTest;
 
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -36,8 +29,6 @@ import java.util.Collection;
 @SmallTest
 @RunWith(Parameterized.class)
 public class VehicleAutonomousStateUnitTest {
-    @Rule
-    public final CheckFlagsRule mCheckFlagsRule = DeviceFlagsValueProvider.createCheckFlagsRule();
     private final int mJavaConstantValue;
     private final int mHalConstantValue;
 
@@ -84,7 +75,6 @@ public class VehicleAutonomousStateUnitTest {
     }
 
     @Test
-    @RequiresFlagsEnabled(FLAG_ANDROID_VIC_VEHICLE_PROPERTIES)
     public void testMatchWithVehicleHal() {
         assertWithMessage("Java constant")
                 .that(mJavaConstantValue)

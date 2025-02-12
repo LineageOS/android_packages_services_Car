@@ -20,8 +20,6 @@ import static com.android.car.hal.HalPropConfig.shouldConfigArrayDefineSupported
 
 import static com.google.common.truth.Truth.assertThat;
 
-import static org.mockito.Mockito.when;
-
 import android.car.VehicleAreaType;
 import android.car.VehiclePropertyIds;
 import android.car.feature.FeatureFlagsImpl;
@@ -55,7 +53,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
-@EnableFlags({Flags.FLAG_ANDROID_VIC_VEHICLE_PROPERTIES, Flags.FLAG_AREA_ID_CONFIG_ACCESS})
+@EnableFlags({Flags.FLAG_AREA_ID_CONFIG_ACCESS})
 @RunWith(MockitoJUnitRunner.class)
 public final class HalPropConfigTest extends AbstractExpectableTestCase {
 
@@ -191,7 +189,6 @@ public final class HalPropConfigTest extends AbstractExpectableTestCase {
 
     @Before
     public void setUp() {
-        when(mMockFeatureFlags.androidVicVehicleProperties()).thenReturn(true);
         mPropertyHalServiceConfigs = new PropertyHalServiceConfigs(mMockFeatureFlags);
     }
 

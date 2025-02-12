@@ -23,7 +23,6 @@ import static com.android.car.internal.property.VehiclePropertyIdDebugUtils.toDe
 
 import android.car.VehicleAreaType;
 import android.car.VehiclePropertyIds;
-import android.car.feature.Flags;
 import android.car.hardware.CarPropertyValue;
 import android.util.ArraySet;
 
@@ -195,11 +194,6 @@ public final class CarPropertyHelper {
     public static @VehicleAreaType.VehicleAreaTypeValue int getAreaType(int propertyId) {
         int halAreaType = propertyId & VEHICLE_PROPERTY_AREA_TYPE_MASK;
 
-        if (Flags.androidVicVehicleProperties()
-                && halAreaType == VEHICLE_PROPERTY_AREA_TYPE_VENDOR) {
-            return VehicleAreaType.VEHICLE_AREA_TYPE_VENDOR;
-        }
-
         switch (halAreaType) {
             case VEHICLE_PROPERTY_AREA_TYPE_DOOR -> {
                 return VehicleAreaType.VEHICLE_AREA_TYPE_DOOR;
@@ -218,6 +212,9 @@ public final class CarPropertyHelper {
             }
             case VEHICLE_PROPERTY_AREA_TYPE_WINDOW -> {
                 return VehicleAreaType.VEHICLE_AREA_TYPE_WINDOW;
+            }
+            case VEHICLE_PROPERTY_AREA_TYPE_VENDOR -> {
+                return VehicleAreaType.VEHICLE_AREA_TYPE_VENDOR;
             }
             default -> {
                 throw new IllegalArgumentException(

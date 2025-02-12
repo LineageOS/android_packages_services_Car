@@ -804,8 +804,7 @@
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CAR_ENERGY"
-      },
-      "featureFlag": "FLAG_ANDROID_VIC_VEHICLE_PROPERTIES"
+      }
     },
     "TIRE_PRESSURE": {
       "propertyName": "TIRE_PRESSURE",
