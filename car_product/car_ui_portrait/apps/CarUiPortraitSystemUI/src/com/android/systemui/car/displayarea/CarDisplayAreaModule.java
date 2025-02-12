@@ -23,6 +23,7 @@ import com.android.systemui.car.CarDeviceProvisionedController;
 import com.android.systemui.car.CarServiceProvider;
 import com.android.systemui.car.loading.LoadingViewController;
 import com.android.systemui.dagger.SysUISingleton;
+import com.android.systemui.dagger.qualifiers.Main;
 import com.android.systemui.qs.QSHost;
 import com.android.systemui.statusbar.CommandQueue;
 import com.android.systemui.statusbar.policy.ConfigurationController;
@@ -102,7 +103,7 @@ public abstract class CarDisplayAreaModule {
     @Provides
     @SysUISingleton
     public static ShellExecutor provideShellExecutor(
-            Handler sysuiMainHandler) {
+            @Main Handler sysuiMainHandler) {
         return new HandlerExecutor(sysuiMainHandler);
     }
 
