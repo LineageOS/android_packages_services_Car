@@ -18,24 +18,24 @@ package com.android.car.portraitlauncher.controlbar;
 
 import android.telecom.Call;
 
-import com.android.car.carlauncher.homescreen.audio.InCallModel;
+import com.android.car.carlauncher.homescreen.audio.InCallServiceManagerProvider;
+import com.android.car.carlauncher.homescreen.audio.InCallViewModel;
 import com.android.car.carlauncher.homescreen.ui.DescriptiveTextWithControlsView;
 import com.android.car.portraitlauncher.R;
+import com.android.car.telephony.calling.InCallServiceManager;
 import com.android.car.telephony.common.CallDetail;
 import com.android.internal.util.ArrayUtils;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.time.Clock;
 import java.util.List;
 
-/** A wrapper around InCallModel to track when an active call is in progress. */
-public class DialerCardModel extends InCallModel {
+/** A wrapper around InCallViewModel to track when an active call is in progress. */
+public class DialerCardModel extends InCallViewModel {
     private List<Integer> mAvailableRoutes;
     private int mActiveRoute;
 
-    public DialerCardModel(Clock elapsedTimeClock) {
-        super(elapsedTimeClock);
+    public DialerCardModel() {
         InCallTaskStateRouter.InCallTaskStateListener inCallTaskStateListener = isTaskOnTop -> {
             if (updateDialpadButtonSelectedState(isTaskOnTop)) {
                 mOnModelUpdateListener.onModelUpdate(this);
@@ -47,9 +47,10 @@ public class DialerCardModel extends InCallModel {
 
     @Override
     protected void handleActiveCall(@NotNull Call call) {
+        InCallServiceManager icsManager = InCallServiceManagerProvider.get();
         CallDetail callDetails = CallDetail.fromTelecomCallDetail(call.getDetails());
-        mAvailableRoutes = sInCallServiceManager.getSupportedAudioRoute(callDetails);
-        mActiveRoute = sInCallServiceManager.getAudioRoute(
+        mAvailableRoutes = icsManager.getSupportedAudioRoute(callDetails);
+        mActiveRoute = icsManager.getAudioRoute(
                 CallDetail.fromTelecomCallDetail(call.getDetails()).getScoState());
         super.handleActiveCall(call);
     }
@@ -76,7 +77,7 @@ public class DialerCardModel extends InCallModel {
             // AudioRouteButton is disabled if it is null. Simply ignore it.
             return;
         }
-        sInCallServiceManager.setAudioRoute(audioRoute, getCurrentCall());
+        InCallServiceManagerProvider.get().setAudioRoute(audioRoute, getCurrentCall());
         mActiveRoute = audioRoute;
     }
 
@@ -85,7 +86,7 @@ public class DialerCardModel extends InCallModel {
                 mContext.getDrawable(R.drawable.ic_mute_activatable),
                 v -> {
                     boolean toggledValue = !v.isSelected();
-                    mInCallService.setMuted(toggledValue);
+                    InCallServiceManagerProvider.get().setMuted(toggledValue);
                     v.setSelected(toggledValue);
                 });
         mEndCallButton = new DescriptiveTextWithControlsView.Control(

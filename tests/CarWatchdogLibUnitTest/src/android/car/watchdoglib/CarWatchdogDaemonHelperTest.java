@@ -165,6 +165,7 @@ public class CarWatchdogDaemonHelperTest {
         ProcessIdentifier processIdentifier = new ProcessIdentifier();
         processIdentifier.pid = 111;
         processIdentifier.startTimeMillis = 1000;
+        processIdentifiers.add(processIdentifier);
 
         mCarWatchdogDaemonHelper.tellCarWatchdogServiceAlive(service, processIdentifiers, 123456);
 
