@@ -414,6 +414,28 @@ public:
     }
 
     /**
+     * Gets the supported values lists for the specified [propId, areaId]s if they are provided
+     * by VHAL.
+     *
+     * This is only supported for AIDL VHAL V4 and above.
+     *
+     * @param propIdAreaIds A list of [propId, areaId] to get the supported values lists.
+     * @return A list of results, one for each [propId, areaId], or error if failed to get any
+     *      get any results. Caller must check the status inside each result before accessing
+     *      the supported values list. Even if status is OK, supportedValuesList may be
+     *      {@code std::nullopt} if it is not specified by VHAL. If the supportedValuesList has
+     *      value, each element inside the list is guaranteed to have value.
+     */
+    virtual VhalClientResult<
+            std::vector<::aidl::android::hardware::automotive::vehicle::SupportedValuesListResult>>
+    getSupportedValuesLists(
+            [[maybe_unused]] const std::vector<
+                    ::aidl::android::hardware::automotive::vehicle::PropIdAreaId>& propIdAreaIds) {
+        return ClientStatusError(ErrorCode::NOT_SUPPORTED)
+                << "getSupportedValuesLists is not supported for the VHAL implementation";
+    }
+
+    /**
      * Gets the VHAL interface version used by VHAL.
      *
      * This is only useful for AIDL VHAL.
