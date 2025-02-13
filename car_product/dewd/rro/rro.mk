@@ -17,3 +17,4 @@ PRODUCT_PACKAGES += \
     CarFrameworkDewdRRO \
     CarSystemUIDewdUIRRO \
     CarUpdatableDewdRRO \
+    CarNotificationDewdRRO \

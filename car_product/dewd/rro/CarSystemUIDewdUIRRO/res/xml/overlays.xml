@@ -1,0 +1,50 @@
+<!--
+  ~ Copyright (C) 2025 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<overlay>
+    <item target="array/nav_components" value="@array/nav_components"/>
+    <item target="array/window_states" value="@array/window_states"/>
+
+    <item target="bool/config_enableScalableUI" value="@bool/config_enableScalableUI"/>
+    <item target="bool/config_enableClearBackStack" value="@bool/config_enableClearBackStack"/>
+
+    <item target="dimen/screen_height" value="@dimen/screen_height"/>
+    <item target="dimen/top_bar_bottom" value="@dimen/top_bar_bottom"/>
+    <item target="dimen/bottom_bar_top" value="@dimen/bottom_bar_top"/>
+    <item target="dimen/bottom_bar_bottom" value="@dimen/bottom_bar_bottom"/>
+    <item target="dimen/app_grid_drawer_bottom" value="@dimen/app_grid_drawer_bottom"/>
+    <item target="dimen/app_grid_drawer_height" value="@dimen/app_grid_drawer_height"/>
+    <item target="dimen/map_top" value="@dimen/map_top"/>
+    <item target="dimen/map_height" value="@dimen/map_height"/>
+    <item target="dimen/contextual_bar_top" value="@dimen/contextual_bar_top"/>
+    <item target="dimen/contextual_bar_bottom" value="@dimen/contextual_bar_bottom"/>
+    <item target="dimen/contextual_bar_height" value="@dimen/contextual_bar_height"/>
+    <item target="dimen/app_immersive_top" value="@dimen/app_immersive_top"/>
+    <item target="dimen/app_immersive_height" value="@dimen/app_immersive_height"/>
+    <item target="dimen/app_bottom" value="@dimen/app_bottom"/>
+    <item target="dimen/app_height" value="@dimen/app_height"/>
+
+    <!-- Toast IDs -->
+    <item target="id/icon" value="@id/icon"/>
+    <item target="id/text" value="@id/text"/>
+
+    <item target="layout/text_toast" value="@layout/text_toast"/>
+
+    <item target="string/system_bar_app_drawer_intent" value="@string/system_bar_app_drawer_intent" />
+    <item target="string/appgrid_componentName" value="@string/appgrid_componentName"/>
+    <item target="string/contextual_bar_component" value="@string/contextual_bar_component"/>
+    <item target="string/default_config" value="@string/default_config"/>
+    <item target="string/config_appGridComponentName" value="@string/config_appGridComponentName"/>
+</overlay>
