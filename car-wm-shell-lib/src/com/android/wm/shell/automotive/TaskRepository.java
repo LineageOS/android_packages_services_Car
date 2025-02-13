@@ -21,20 +21,33 @@ import android.app.ActivityManager;
 import android.car.Car;
 import android.car.app.CarActivityManager;
 import android.content.Context;
+import android.os.UserHandle;
 import android.util.Log;
 import android.util.Pair;
 import android.util.SparseArray;
 import android.view.SurfaceControl;
 
 import com.android.server.utils.Slogf;
+import com.android.wm.shell.dagger.WMSingleton;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 
+import javax.inject.Inject;
+
 // TODO(b/395767437): Add tasks related to fullscreen and multi window mode outside the root task
-class TaskRepository {
+
+/**
+ * Repository for tasks.
+ *
+ * <p>This class is responsible for storing and retrieving tasks. It also provides methods for
+ * updating the repository when tasks are created, destroyed, or changed. This class also updates
+ * CarService when tasks are created, destroyed or changed.
+ */
+@WMSingleton
+public class TaskRepository {
 
     private static final String TAG = "TaskRepository";
     private static final boolean DBG = Log.isLoggable(TAG, Log.DEBUG);
@@ -49,6 +62,12 @@ class TaskRepository {
     private final SparseArray<Pair<ActivityManager.RunningTaskInfo, SurfaceControl>>
             mPendingTasks = new SparseArray<>();
 
+    /**
+     * Map of task id to task info for tasks that are not part of any root task.
+     */
+    private final LinkedHashMap<Integer,
+            ActivityManager.RunningTaskInfo> mTaskStackWithoutRootTask = new LinkedHashMap<>();
+
     private CarActivityManager mCarActivityManager;
 
     private boolean mIsCarReady = false;
@@ -56,21 +75,23 @@ class TaskRepository {
     private final SparseArray<ActivityManager.RunningTaskInfo> mPendingRootTasks =
             new SparseArray<>();
 
-    // TODO(b/394613255): Inject this task repo. It is currently not working as the constructor
-    //  is initialized twice
+    @Inject
     TaskRepository(Context context) {
-        Car.createCar(context, /* handler= */ null, Car.CAR_WAIT_TIMEOUT_DO_NOT_WAIT,
-                (car, ready) -> {
-                    if (mIsCarReady) {
-                        return;
-                    }
-                    mIsCarReady = ready;
-                    if (ready) {
-                        mCarActivityManager = (CarActivityManager) car.getCarManager(
-                                Car.CAR_ACTIVITY_SERVICE);
-                        onCarServiceConnectedLocked();
-                    }
-                });
+        // register task monitor only for User 0.
+        if (UserHandle.getCallingUserId() == UserHandle.USER_SYSTEM) {
+            Car.createCar(context, /* handler= */ null, Car.CAR_WAIT_TIMEOUT_DO_NOT_WAIT,
+                    (car, ready) -> {
+                        if (mIsCarReady) {
+                            return;
+                        }
+                        mIsCarReady = ready;
+                        if (ready) {
+                            mCarActivityManager = (CarActivityManager) car.getCarManager(
+                                    Car.CAR_ACTIVITY_SERVICE);
+                            onCarServiceConnectedLocked();
+                        }
+                    });
+        }
     }
 
     @SuppressLint("MissingPermission")
@@ -78,7 +99,11 @@ class TaskRepository {
         Slogf.i(TAG, "onCarServiceConnectedLocked. mPendingTasks count %d. mPendingTasks count %d",
                 mPendingTasks.size(), mPendingRootTasks.size());
 
-        mCarActivityManager.registerTaskMonitor();
+        if (mCarActivityManager.isUsingAutoTaskStackWindowing()) {
+            mCarActivityManager.registerTaskMonitor();
+        } else {
+            return;
+        }
 
         for (int i = 0; i < mPendingTasks.size(); i++) {
             mCarActivityManager.onTaskAppeared(mPendingTasks.valueAt(i).first,
@@ -98,9 +123,13 @@ class TaskRepository {
         return mSurfaceControlMap.get(taskInfo.taskId);
     }
 
-    List<ActivityManager.RunningTaskInfo> getCurrentTaskStack(RootTaskStack rootTaskStack) {
+    List<ActivityManager.RunningTaskInfo> getTaskStack(RootTaskStack rootTaskStack) {
         if (!mRootTaskStacks.containsKey(rootTaskStack)) return null;
         return mRootTaskStacks.get(rootTaskStack).getTaskStack();
+    }
+
+    List<ActivityManager.RunningTaskInfo> getTaskStackWithoutRootTask() {
+        return new ArrayList<>(mTaskStackWithoutRootTask.values());
     }
 
     void addOrUpdateTask(RootTaskStack rootTaskStack, ActivityManager.RunningTaskInfo taskInfo,
@@ -231,6 +260,70 @@ class TaskRepository {
                     task.getTaskId());
         }
         removeTask(rootTaskStack, task);
+        if (mIsCarReady) {
+            mCarActivityManager.onTaskVanished(task);
+        } else {
+            mPendingTasks.remove(task.taskId);
+        }
+    }
+
+    /**
+     * Updates the task repository when a new task appeared.
+     *
+     * @param task          the task that appeared.
+     * @param leash         the leash of the task that appeared.
+     */
+    @SuppressLint("MissingPermission")
+    public void onTaskAppeared(ActivityManager.RunningTaskInfo task, SurfaceControl leash) {
+        if (DBG) {
+            Slogf.d(TAG, "onTaskAppeared. TaskId %d.", task.getTaskId());
+        }
+        mTaskStackWithoutRootTask.put(task.taskId, task);
+        mSurfaceControlMap.put(task.taskId, leash);
+
+        if (mIsCarReady) {
+            mCarActivityManager.onTaskAppeared(task, leash);
+        } else {
+            mPendingTasks.put(task.taskId, new Pair<>(task, leash));
+        }
+    }
+
+    /**
+     * Updates the task repository when a task info change
+     *
+     * @param task          the task that changed.
+     */
+    @SuppressLint("MissingPermission")
+    public void onTaskChanged(ActivityManager.RunningTaskInfo task) {
+        if (DBG) {
+            Slogf.d(TAG, "onTaskChanged. TaskId %d.", task.getTaskId());
+        }
+
+        mTaskStackWithoutRootTask.remove(task.taskId);
+        mTaskStackWithoutRootTask.put(task.taskId, task);
+
+        if (mIsCarReady) {
+            mCarActivityManager.onTaskInfoChanged(task);
+        } else {
+            mPendingTasks.put(task.taskId,
+                    new Pair<>(task, mSurfaceControlMap.get(task.taskId)));
+        }
+    }
+
+    /**
+     * Updates the task repository when a task is vanished
+     *
+     * @param task          the task that vanished.
+     */
+    @SuppressLint("MissingPermission")
+    public void onTaskVanished(ActivityManager.RunningTaskInfo task) {
+        if (DBG) {
+            Slogf.d(TAG, "onTaskDestroyed. TaskId %d.", task.getTaskId());
+        }
+
+        mTaskStackWithoutRootTask.remove(task.taskId);
+        mSurfaceControlMap.remove(task.taskId);
+
         if (mIsCarReady) {
             mCarActivityManager.onTaskVanished(task);
         } else {
