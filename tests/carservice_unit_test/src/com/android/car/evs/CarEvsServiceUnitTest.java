@@ -1151,10 +1151,14 @@ public final class CarEvsServiceUnitTest extends AbstractExtendedMockitoTestCase
 
     @Test
     public void testHandleStreamCallbackCrashAndRequestActivity() throws Exception {
+        int uid = Binder.getCallingUid();
+        when(mMockPackageManager.getPackageUidAsUser(SYSTEMUI_PACKAGE_NAME, UserHandle.USER_SYSTEM))
+                .thenReturn(uid);
+        IBinder token = mCarEvsService.generateSessionToken();
+        assertThat(token).isNotNull();
         EvsStreamCallbackImpl spiedCallback = spy(new EvsStreamCallbackImpl());
         assertThat(mCarEvsService
-                .startVideoStream(SERVICE_TYPE_REARVIEW,
-                                  /* token= */ null, spiedCallback))
+                .startVideoStream(SERVICE_TYPE_REARVIEW, token, spiedCallback))
                 .isEqualTo(ERROR_NONE);
 
         verify(spiedCallback, atLeastOnce()).asBinder();
@@ -1163,9 +1167,10 @@ public final class CarEvsServiceUnitTest extends AbstractExtendedMockitoTestCase
         assertWithMessage("CarEvsService binder death recipient")
             .that(binderDeathRecipient).isNotNull();
 
-        mCarEvsService.setServiceState(SERVICE_TYPE_REARVIEW, SERVICE_STATE_ACTIVE);
         mCarEvsService.setLastEvsHalEvent(/* timestamp= */ 0, SERVICE_TYPE_REARVIEW,
                                           /* on= */ true);
+        // To workaround a loss of states, we override a session token as null object.
+        mCarEvsService.setSessionToken(SERVICE_TYPE_REARVIEW, null);
         binderDeathRecipient.binderDied();
         assertThat(mCarEvsService.getCurrentStatus(0).getState())
                 .isEqualTo(SERVICE_STATE_REQUESTED);
