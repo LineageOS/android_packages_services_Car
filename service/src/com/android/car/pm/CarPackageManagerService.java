@@ -1446,6 +1446,10 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
                 if (DBG) {
                     Slogf.d(TAG, "Display %d has already been blocked.", displayIdOfTask);
                 }
+            }
+            // Iterate over all the visible tasks only if root task is enabled
+            // TODO(b/392757141): A long term solution can be to iterate on per root task basis.
+            if (!mActivityService.isUsingAutoTaskStackWindowing()) {
                 break;
             }
         }

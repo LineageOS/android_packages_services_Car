@@ -43,6 +43,7 @@ android_test {
     ],
 
     libs: [
+        "android.car",
         "android.test.mock.stubs.system",
         "android.test.base.stubs.system",
         "android.test.runner.stubs.system",

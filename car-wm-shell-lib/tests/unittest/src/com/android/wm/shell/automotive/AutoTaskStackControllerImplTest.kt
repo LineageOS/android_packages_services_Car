@@ -16,7 +16,6 @@
 
 package com.android.wm.shell.automotive
 
-
 import android.app.ActivityManager.RunningTaskInfo
 import android.app.WindowConfiguration.ACTIVITY_TYPE_ASSISTANT
 import android.app.WindowConfiguration.ACTIVITY_TYPE_RECENTS
@@ -58,11 +57,11 @@ import org.mockito.Mock
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.times
 import org.mockito.Mockito.verify
+import org.mockito.Mockito.`when` as whenever
 import org.mockito.MockitoAnnotations
 import org.mockito.kotlin.anyOrNull
 import org.mockito.kotlin.argumentCaptor
 import org.mockito.kotlin.never
-import org.mockito.Mockito.`when` as whenever
 
 @SmallTest
 @RunWith(AndroidTestingRunner::class)
@@ -87,7 +86,6 @@ class AutoTaskStackControllerImplTest : CarWmShellTestCase() {
     lateinit var rootTaskStackListener: RootTaskStackListener
 
     var mMainThreadHandler: Handler? = null
-
 
     private lateinit var controller: AutoTaskStackControllerImpl
     private val displayId = 0
@@ -188,8 +186,10 @@ class AutoTaskStackControllerImplTest : CarWmShellTestCase() {
             shellMainThread,
             transitions,
             shellInit,
-            rootTdaOrganizer
+            rootTdaOrganizer,
+            context
         )
+        controller.onInit()
         mMainThreadHandler = Handler(Looper.getMainLooper())
 
         controller.autoTransitionHandlerDelegate = delegate
@@ -363,7 +363,9 @@ class AutoTaskStackControllerImplTest : CarWmShellTestCase() {
         )
         assertThat(wctCaptor.firstValue.hierarchyOps[0].activityTypes).isEqualTo(
             intArrayOf(
-                ACTIVITY_TYPE_STANDARD, ACTIVITY_TYPE_UNDEFINED, ACTIVITY_TYPE_RECENTS,
+                ACTIVITY_TYPE_STANDARD,
+                ACTIVITY_TYPE_UNDEFINED,
+                ACTIVITY_TYPE_RECENTS,
                 ACTIVITY_TYPE_ASSISTANT
             )
         )
@@ -392,7 +394,8 @@ class AutoTaskStackControllerImplTest : CarWmShellTestCase() {
             )
         ).thenAnswer {
             mMainThreadHandler!!.post({
-                controller.startAnimation(transitionId,
+                controller.startAnimation(
+                    transitionId,
                     TransitionInfo(1, 0),
                     mock(SurfaceControl.Transaction::class.java),
                     mock(SurfaceControl.Transaction::class.java),
@@ -425,7 +428,8 @@ class AutoTaskStackControllerImplTest : CarWmShellTestCase() {
         val wct = wctCaptor.firstValue
         val expected = WindowContainerTransaction()
             .setBounds(
-                taskInfo.token, Rect(10, 10, 10, 10)
+                taskInfo.token,
+                Rect(10, 10, 10, 10)
             )
             .reorder(taskInfo.token, true)
         assertThat(wct.toString()).isEqualTo(expected.toString())
@@ -523,7 +527,6 @@ class AutoTaskStackControllerImplTest : CarWmShellTestCase() {
         }
         whenever(rootTdaOrganizer.getDisplayAreaLeash(anyInt())).thenReturn(tdaLeash)
 
-
         // Act
         val transaction = AutoTaskStackTransaction()
             .setTaskStackState(
@@ -593,7 +596,8 @@ class AutoTaskStackControllerImplTest : CarWmShellTestCase() {
         assertThat(result).isNotNull()
         val expected = WindowContainerTransaction()
             .setBounds(
-                taskInfo.token, Rect(10, 10, 30, 30)
+                taskInfo.token,
+                Rect(10, 10, 30, 30)
             )
             .reorder(taskInfo.token, true)
         assertThat(result.toString()).isEqualTo(expected.toString())
