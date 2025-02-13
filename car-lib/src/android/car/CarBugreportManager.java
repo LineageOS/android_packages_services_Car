@@ -175,8 +175,7 @@ public final class CarBugreportManager extends CarManagerBase {
      *
      * <p>This method is enabled only for allowed bug reporting apps. It can be configured
      * using {@code config_car_bugreport_applications} array that is defined in
-     * {@code packages/services/Car/service/res/values/config.xml}. To learn more please
-     * see {@code packages/services/Car/tests/BugReportApp/README.md}.
+     * {@code packages/services/Car/service/res/values/config.xml}.
      *
      * @param output the zipped bugreport file.
      * @param extraOutput a zip file that contains extra files generated for automotive.
