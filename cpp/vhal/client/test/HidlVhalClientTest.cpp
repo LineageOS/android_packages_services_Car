@@ -661,6 +661,18 @@ TEST_F(HidlVhalClientTest, testGetMinMaxSupportedValue_notSupported) {
     ASSERT_EQ(result.error().code().value(), ErrorCode::NOT_SUPPORTED);
 }
 
+TEST_F(HidlVhalClientTest, testGetSupportedValuesLists_notSupported) {
+    PropIdAreaId propIdAreaId = {
+            .propId = 1,
+            .areaId = 2,
+    };
+
+    auto result = getClient()->getSupportedValuesLists({propIdAreaId});
+
+    ASSERT_FALSE(result.ok());
+    ASSERT_EQ(result.error().code().value(), ErrorCode::NOT_SUPPORTED);
+}
+
 }  // namespace hidl_test
 }  // namespace vhal
 }  // namespace automotive
