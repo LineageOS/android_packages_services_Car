@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package android.car.apitest;
+package android.car.hiddenapitest;
 
 import android.app.Activity;
 
-public class TestDrivingSafetyRegionAllOnlyActivity extends Activity {
+public class TestDrivingSafetyRegionNoMetadataActivity extends Activity {
 }

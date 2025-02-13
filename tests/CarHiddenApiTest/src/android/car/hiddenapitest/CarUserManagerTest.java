@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package android.car.apitest;
+package android.car.hiddenapitest;
 
 import static android.car.test.util.UserTestingHelper.clearUserLockCredentials;
 import static android.car.test.util.UserTestingHelper.setMaxSupportedUsers;
