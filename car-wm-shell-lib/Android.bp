@@ -30,6 +30,8 @@ android_library {
         "WindowManager-Shell-shared",
     ],
 
+    libs: ["android.car"],
+
     kotlincflags: ["-Xjvm-default=all"],
     plugins: ["dagger2-compiler"],
     use_resource_processor: true,

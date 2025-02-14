@@ -19,6 +19,7 @@ package android.car.builtin.app;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.SystemApi;
+import android.app.ActivityOptions;
 import android.app.TaskInfo;
 import android.graphics.Rect;
 import android.os.IBinder;
@@ -48,6 +49,16 @@ public class TaskInfoHelper {
     /** Returns the binder token of the task. */
     public static IBinder getToken(@NonNull TaskInfo task) {
         return task.token.asBinder();
+    }
+
+    /** Sets task as launch root task on options.*/
+    public static void setLaunchRootTask(@NonNull ActivityOptions options, @NonNull TaskInfo task) {
+        options.setLaunchRootTask(task.token);
+    }
+
+    /** Returns parent's task id of a task.*/
+    public static int geParentTaskId(@NonNull TaskInfo task) {
+        return task.parentTaskId;
     }
 
     /** Returns the string representation of the task */

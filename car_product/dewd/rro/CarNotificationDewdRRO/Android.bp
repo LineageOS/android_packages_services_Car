@@ -1,4 +1,3 @@
-//
 // Copyright (C) 2025 The Android Open Source Project
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,24 +11,19 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-//
-
 package {
     default_applicable_licenses: ["Android-Apache-2.0"],
 }
 
-// Sets the CarSystemUI system bar position to bottom only.
 runtime_resource_overlay {
-    name: "CarSystemUIDewdUIRRO",
+    name: "CarNotificationDewdRRO",
     resource_dirs: ["res"],
     certificate: "platform",
-    manifest: "AndroidManifest.xml",
-    system_ext_specific: true,
     aaptflags: [
         "--no-resource-deduping",
         "--no-resource-removal",
     ],
     static_libs: [
-        "car-portrait-ui-common",
+        "CarUiPortraitNotificationRROResLib",
     ],
 }

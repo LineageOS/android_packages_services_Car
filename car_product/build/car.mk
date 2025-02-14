@@ -44,7 +44,6 @@ PRODUCT_PACKAGES += \
     EmbeddedKitchenSinkApp \
     GarageModeTestApp \
     ExperimentalCarService \
-    BugReportApp \
     SampleCustomInputService \
     AdasLocationTestApp \
     curl \

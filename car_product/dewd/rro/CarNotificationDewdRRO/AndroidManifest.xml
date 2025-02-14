@@ -1,5 +1,6 @@
+<?xml version="1.0" encoding="utf-8" ?>
 <!--
-  ~ Copyright (C) 2025 The Android Open Source Project
+  ~ Copyright (C) 2021 The Android Open Source Project
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -15,11 +16,10 @@
   -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="com.android.systemui.rro.dewd">
-    <application android:hasCode="false" />
-    <overlay
-        android:targetPackage="com.android.systemui"
-        android:isStatic="true"
-        android:resourcesMap="@xml/overlays"
-    />
+          package="com.android.car.notification.dewd.rro">
+    <application android:hasCode="false"/>
+    <overlay android:priority="20"
+             android:targetPackage="com.android.systemui"
+             android:resourcesMap="@xml/overlays"
+             android:isStatic="true" />
 </manifest>

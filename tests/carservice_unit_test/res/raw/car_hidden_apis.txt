@@ -166,6 +166,8 @@ android.car.app CarActivityManager boolean isUsingAutoTaskStackWindowing()
 android.car.app CarActivityManager boolean registerTaskMonitor()
 android.car.app CarActivityManager int ERROR_CODE_ACTIVITY_NOT_FOUND
 android.car.app CarActivityManager void onCarDisconnected()
+android.car.app CarActivityManager void onRootTaskAppeared(int taskId, ActivityManager.RunningTaskInfo taskInfo)
+android.car.app CarActivityManager void onRootTaskVanished(int taskId)
 android.car.app CarActivityManager void onTaskAppeared(ActivityManager.RunningTaskInfo taskInfo)
 android.car.app CarActivityManager void onTaskAppeared(ActivityManager.RunningTaskInfo taskInfo, SurfaceControl leash)
 android.car.app CarActivityManager void onTaskInfoChanged(ActivityManager.RunningTaskInfo taskInfo)

@@ -17,12 +17,25 @@ package {
 
 android_app {
     name: "CarUiPortraitNotificationRRO",
-    resource_dirs: ["res"],
+    resource_dirs: [],
     platform_apis: true,
     aaptflags: [
         "--no-resource-deduping",
         "--no-resource-removal",
     ],
+    static_libs: [
+        "CarUiPortraitNotificationRROResLib",
+    ],
+}
+
+android_library {
+    name: "CarUiPortraitNotificationRROResLib",
+    sdk_version: "system_current",
+    platform_apis: true,
+    resource_dirs: [
+        "res",
+    ],
+    manifest: "AndroidManifest-empty.xml",
     static_libs: [
         "CarNotificationLib",
         "car-portrait-ui-common",

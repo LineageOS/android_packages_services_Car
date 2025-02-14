@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <!--
   ~ Copyright (C) 2025 The Android Open Source Project
   ~
@@ -13,13 +14,6 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="com.android.systemui.rro.dewd">
-    <application android:hasCode="false" />
-    <overlay
-        android:targetPackage="com.android.systemui"
-        android:isStatic="true"
-        android:resourcesMap="@xml/overlays"
-    />
+<manifest package="com.android.car.notification.caruiportrait.rro.res">
+    <application/>
 </manifest>
