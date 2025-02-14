@@ -444,7 +444,11 @@ public interface DisplayInterface {
             } else {
                 mWakeLockInterface.switchToPartialWakeLock(displayId);
                 Slogf.i(CarLog.TAG_POWER, "off display %d, obtain partial wake lock", displayId);
-                PowerManagerHelper.goToSleep(mContext, displayId, SystemClock.uptimeMillis());
+                try {
+                    PowerManagerHelper.goToSleep(mContext, displayId, SystemClock.uptimeMillis());
+                } catch (IllegalArgumentException e) {
+                    Slogf.e(CarLog.TAG_POWER, e, "Can not off display %d", displayId);
+                }
             }
             if (carPowerManagementService != null) {
                 carPowerManagementService.handleDisplayChanged(displayId, on);
