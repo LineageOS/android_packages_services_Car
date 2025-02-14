@@ -16,4 +16,5 @@
   -->
 <overlay>
     <item target="string/config_userNoticeUiService" value="@string/config_userNoticeUiService" />
+    <item target="bool/config_isUsingAutoTaskStackWindowing" value="@bool/config_isUsingAutoTaskStackWindowing" />
 </overlay>

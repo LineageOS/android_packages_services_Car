@@ -57,7 +57,8 @@ class AutoTaskStackControllerImpl @Inject constructor(
     val transitions: Transitions,
     val shellInit: ShellInit,
     val rootTdaOrganizer: RootTaskDisplayAreaOrganizer,
-    val context: Context
+    val context: Context,
+    val taskRepository: TaskRepository
 ) : AutoTaskStackController, Transitions.TransitionHandler {
     override var autoTransitionHandlerDelegate: AutoTaskStackTransitionHandlerDelegate? = null
     override val taskStackStateMap = mutableMapOf<Int, AutoTaskStackState>()
@@ -70,8 +71,6 @@ class AutoTaskStackControllerImpl @Inject constructor(
     private val mTaskStackStateTranslator = TaskStackStateTranslator()
     private val appTasksMap = mutableMapOf<Int, ActivityManager.RunningTaskInfo>()
     private val defaultRootTaskPerDisplay = mutableMapOf<Int, Int>()
-
-    private lateinit var taskRepository: TaskRepository
 
     init {
         if (!enableAutoTaskStackController()) {
@@ -89,7 +88,6 @@ class AutoTaskStackControllerImpl @Inject constructor(
         transitions.addHandler(this)
         // TODO(b/392757141): Add a listener to get all the tasks instead of modifying the
         // RootTaskStackListenerAdapter
-        taskRepository = TaskRepository(context)
     }
 
     /** Translates the [AutoTaskStackState] to relevant WM and surface transactions. */
