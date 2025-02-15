@@ -21,13 +21,16 @@ import android.app.ActivityManager;
 import android.car.Car;
 import android.car.app.CarActivityManager;
 import android.content.Context;
+import android.hardware.display.DisplayManager;
 import android.os.UserHandle;
 import android.util.Log;
 import android.util.Pair;
 import android.util.SparseArray;
+import android.view.Display;
 import android.view.SurfaceControl;
 
 import com.android.server.utils.Slogf;
+import com.android.wm.shell.ShellTaskOrganizer;
 import com.android.wm.shell.dagger.WMSingleton;
 
 import java.io.PrintWriter;
@@ -68,6 +71,8 @@ public class AutoTaskRepository {
      */
     private final LinkedHashMap<Integer,
             ActivityManager.RunningTaskInfo> mTaskStackWithoutRootTask = new LinkedHashMap<>();
+    private final Context mContext;
+    private final ShellTaskOrganizer mShellTaskOrganizer;
 
     private CarActivityManager mCarActivityManager;
 
@@ -77,8 +82,11 @@ public class AutoTaskRepository {
             new SparseArray<>();
 
     @Inject
-    AutoTaskRepository(Context context) {
-        // register task monitor only for User 0.
+    AutoTaskRepository(Context context, ShellTaskOrganizer shellTaskOrganizer) {
+        mShellTaskOrganizer = shellTaskOrganizer;
+        mContext = context;
+        // register task monitor only for User 0. It is possible that AutoTaskRepository is created
+        // for other users if system UI runs any process on any other users.
         if (UserHandle.getCallingUserId() == UserHandle.USER_SYSTEM) {
             Car.createCar(context, /* handler= */ null, Car.CAR_WAIT_TIMEOUT_DO_NOT_WAIT,
                     (car, ready) -> {
@@ -104,11 +112,23 @@ public class AutoTaskRepository {
         Slogf.i(TAG, "onCarServiceConnectedLocked. mPendingTasks count %d. mPendingTasks count %d",
                 mPendingTasks.size(), mPendingRootTasks.size());
 
-        if (mCarActivityManager.isUsingAutoTaskStackWindowing()) {
-            mCarActivityManager.registerTaskMonitor();
-        } else {
-            return;
+        mCarActivityManager.registerTaskMonitor();
+
+
+        // TODO(b/392757141): Is this required? Do we need to query existing tasks and report
+        // them on start?
+        DisplayManager displayManager = mContext.getSystemService(DisplayManager.class);
+        Display[] displays = displayManager.getDisplays();
+        for (Display display : displays) {
+            List<ActivityManager.RunningTaskInfo> taskInfos = mShellTaskOrganizer.getRunningTasks(
+                    display.getDisplayId());
+            for (ActivityManager.RunningTaskInfo taskInfo : taskInfos) {
+                if (!mPendingTasks.contains(taskInfo.taskId)) {
+                    mPendingTasks.put(taskInfo.taskId, new Pair<>(taskInfo, null));
+                }
+            }
         }
+
 
         for (int i = 0; i < mPendingTasks.size(); i++) {
             mCarActivityManager.onTaskAppeared(mPendingTasks.valueAt(i).first,
@@ -120,6 +140,7 @@ public class AutoTaskRepository {
                     mPendingRootTasks.valueAt(i));
         }
 
+        // TODO(b/400851144): handle Car Service crash if required
         mPendingTasks.clear();
         mPendingRootTasks.clear();
     }
