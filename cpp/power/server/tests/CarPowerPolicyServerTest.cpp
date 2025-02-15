@@ -76,7 +76,6 @@ using ::aidl::android::frameworks::automotive::powerpolicy::ICarPowerPolicyServe
 using ::aidl::android::frameworks::automotive::powerpolicy::PowerComponent;
 
 using ::android::car::feature::car_power_policy_refactoring;
-using ::android::car::feature::native_power_notifications;
 
 using ::ndk::ScopedAStatus;
 using ::ndk::SpAIBinder;
@@ -917,9 +916,9 @@ TEST_F(CarPowerPolicyServerTest, TestApplyPowerPolicyPerPowerStateChangeAsync_wi
 }
 
 TEST_F(CarPowerPolicyServerTest, TestRegisterPowerStateChangeListener) {
-    if (!native_power_notifications()) {
-        GTEST_SKIP() << "native_power_notifications feature flag is not enabled";
-    }
+#ifndef LAUNCH_CAR_POWER_SERVER
+    GTEST_SKIP() << "native_power_notifications feature flag is not enabled";
+#endif  // LAUNCH_CAR_POWER_SERVER
 
     sp<internal::CarPowerPolicyServerPeer> server = new internal::CarPowerPolicyServerPeer();
     std::shared_ptr<ICarPowerStateChangeListener> listenerOne = getPowerStateChangeListener();
@@ -938,9 +937,9 @@ TEST_F(CarPowerPolicyServerTest, TestRegisterPowerStateChangeListener) {
 }
 
 TEST_F(CarPowerPolicyServerTest, TestRegisterPowerStateChangeListener_binderDied) {
-    if (!native_power_notifications()) {
-        GTEST_SKIP() << "native_power_notifications feature flag is not enabled";
-    }
+#ifndef LAUNCH_CAR_POWER_SERVER
+    GTEST_SKIP() << "native_power_notifications feature flag is not enabled";
+#endif  // LAUNCH_CAR_POWER_SERVER
 
     sp<internal::CarPowerPolicyServerPeer> server = new internal::CarPowerPolicyServerPeer();
     std::shared_ptr<ICarPowerStateChangeListener> listener = getPowerStateChangeListener();
@@ -951,9 +950,9 @@ TEST_F(CarPowerPolicyServerTest, TestRegisterPowerStateChangeListener_binderDied
 }
 
 TEST_F(CarPowerPolicyServerTest, TestOnBinderDied_powerStateListener) {
-    if (!native_power_notifications()) {
-        GTEST_SKIP() << "native_power_notifications feature flag is not enabled";
-    }
+#ifndef LAUNCH_CAR_POWER_SERVER
+    GTEST_SKIP() << "native_power_notifications feature flag is not enabled";
+#endif  // LAUNCH_CAR_POWER_SERVER
 
     sp<internal::CarPowerPolicyServerPeer> server = new internal::CarPowerPolicyServerPeer();
     std::shared_ptr<ICarPowerStateChangeListener> listener = getPowerStateChangeListener();
@@ -975,9 +974,9 @@ TEST_F(CarPowerPolicyServerTest, TestOnBinderDied_powerStateListener) {
 }
 
 TEST_F(CarPowerPolicyServerTest, TestUnregisterPowerStateChangeListener) {
-    if (!native_power_notifications()) {
-        GTEST_SKIP() << "native_power_notifications feature flag is not enabled";
-    }
+#ifndef LAUNCH_CAR_POWER_SERVER
+    GTEST_SKIP() << "native_power_notifications feature flag is not enabled";
+#endif  // LAUNCH_CAR_POWER_SERVER
 
     sp<internal::CarPowerPolicyServerPeer> server = new internal::CarPowerPolicyServerPeer();
     std::shared_ptr<ICarPowerStateChangeListener> listener = getPowerStateChangeListener();
@@ -991,9 +990,9 @@ TEST_F(CarPowerPolicyServerTest, TestUnregisterPowerStateChangeListener) {
 }
 
 TEST_F(CarPowerPolicyServerTest, TestRegisterPowerStateChangeListenerWithCompletion) {
-    if (!native_power_notifications()) {
-        GTEST_SKIP() << "native_power_notifications feature flag is not enabled";
-    }
+#ifndef LAUNCH_CAR_POWER_SERVER
+    GTEST_SKIP() << "native_power_notifications feature flag is not enabled";
+#endif  // LAUNCH_CAR_POWER_SERVER
 
     sp<internal::CarPowerPolicyServerPeer> server = new internal::CarPowerPolicyServerPeer();
     std::shared_ptr<ICarPowerStateChangeListenerWithCompletion> listenerOne =
@@ -1014,9 +1013,9 @@ TEST_F(CarPowerPolicyServerTest, TestRegisterPowerStateChangeListenerWithComplet
 }
 
 TEST_F(CarPowerPolicyServerTest, TestRegisterPowerStateChangeListenerWithCompletion_binderDied) {
-    if (!native_power_notifications()) {
-        GTEST_SKIP() << "native_power_notifications feature flag is not enabled";
-    }
+#ifndef LAUNCH_CAR_POWER_SERVER
+    GTEST_SKIP() << "native_power_notifications feature flag is not enabled";
+#endif  // LAUNCH_CAR_POWER_SERVER
 
     sp<internal::CarPowerPolicyServerPeer> server = new internal::CarPowerPolicyServerPeer();
     std::shared_ptr<ICarPowerStateChangeListenerWithCompletion> listener =
@@ -1029,9 +1028,9 @@ TEST_F(CarPowerPolicyServerTest, TestRegisterPowerStateChangeListenerWithComplet
 }
 
 TEST_F(CarPowerPolicyServerTest, TestOnBinderDied_powerStateListenerWithCompletion) {
-    if (!native_power_notifications()) {
-        GTEST_SKIP() << "native_power_notifications feature flag is not enabled";
-    }
+#ifndef LAUNCH_CAR_POWER_SERVER
+    GTEST_SKIP() << "native_power_notifications feature flag is not enabled";
+#endif  // LAUNCH_CAR_POWER_SERVER
 
     sp<internal::CarPowerPolicyServerPeer> server = new internal::CarPowerPolicyServerPeer();
     std::shared_ptr<ICarPowerStateChangeListenerWithCompletion> listener =
@@ -1054,9 +1053,9 @@ TEST_F(CarPowerPolicyServerTest, TestOnBinderDied_powerStateListenerWithCompleti
 }
 
 TEST_F(CarPowerPolicyServerTest, TestUnregisterPowerStateChangeListenerWithCompletion) {
-    if (!native_power_notifications()) {
-        GTEST_SKIP() << "native_power_notifications feature flag is not enabled";
-    }
+#ifndef LAUNCH_CAR_POWER_SERVER
+    GTEST_SKIP() << "native_power_notifications feature flag is not enabled";
+#endif  // LAUNCH_CAR_POWER_SERVER
 
     sp<internal::CarPowerPolicyServerPeer> server = new internal::CarPowerPolicyServerPeer();
     std::shared_ptr<ICarPowerStateChangeListenerWithCompletion> listener =
@@ -1072,9 +1071,9 @@ TEST_F(CarPowerPolicyServerTest, TestUnregisterPowerStateChangeListenerWithCompl
 }
 
 TEST_F(CarPowerPolicyServerTest, TestNotifyPowerStateChange_noListeners) {
-    if (!native_power_notifications()) {
-        GTEST_SKIP() << "native_power_notifications feature flag is not enabled";
-    }
+#ifndef LAUNCH_CAR_POWER_SERVER
+    GTEST_SKIP() << "native_power_notifications feature flag is not enabled";
+#endif  // LAUNCH_CAR_POWER_SERVER
 
     sp<internal::CarPowerPolicyServerPeer> server = new internal::CarPowerPolicyServerPeer();
     std::shared_ptr<MockPowerManagementDelegateCallback> callback =
@@ -1101,9 +1100,9 @@ TEST_F(CarPowerPolicyServerTest, TestNotifyPowerStateChange_noListeners) {
 }
 
 TEST_F(CarPowerPolicyServerTest, TestNotifyPowerStateChange_listenerWithoutCompletion) {
-    if (!native_power_notifications()) {
-        GTEST_SKIP() << "native_power_notifications feature flag is not enabled";
-    }
+#ifndef LAUNCH_CAR_POWER_SERVER
+    GTEST_SKIP() << "native_power_notifications feature flag is not enabled";
+#endif  // LAUNCH_CAR_POWER_SERVER
 
     sp<internal::CarPowerPolicyServerPeer> server = new internal::CarPowerPolicyServerPeer();
     std::shared_ptr<MockPowerManagementDelegateCallback> callback =
@@ -1146,9 +1145,9 @@ TEST_F(CarPowerPolicyServerTest, TestNotifyPowerStateChange_listenerWithoutCompl
 }
 
 TEST_F(CarPowerPolicyServerTest, TestNotifyPowerStateChange_listenerWithCompletion) {
-    if (!native_power_notifications()) {
-        GTEST_SKIP() << "native_power_notifications feature flag is not enabled";
-    }
+#ifndef LAUNCH_CAR_POWER_SERVER
+    GTEST_SKIP() << "native_power_notifications feature flag is not enabled";
+#endif  // LAUNCH_CAR_POWER_SERVER
 
     sp<internal::CarPowerPolicyServerPeer> server = new internal::CarPowerPolicyServerPeer();
     std::shared_ptr<MockPowerManagementDelegateCallback> callback =
@@ -1215,9 +1214,9 @@ TEST_F(CarPowerPolicyServerTest, TestNotifyPowerStateChange_listenerWithCompleti
 }
 
 TEST_F(CarPowerPolicyServerTest, TestNotifyPowerStateChange_listenerWithCompletionTimesOut) {
-    if (!native_power_notifications()) {
-        GTEST_SKIP() << "native_power_notifications feature flag is not enabled";
-    }
+#ifndef LAUNCH_CAR_POWER_SERVER
+    GTEST_SKIP() << "native_power_notifications feature flag is not enabled";
+#endif  // LAUNCH_CAR_POWER_SERVER
 
     sp<internal::CarPowerPolicyServerPeer> server = new internal::CarPowerPolicyServerPeer();
     std::shared_ptr<MockPowerManagementDelegateCallback> callback =
@@ -1271,9 +1270,9 @@ TEST_F(CarPowerPolicyServerTest, TestNotifyPowerStateChange_listenerWithCompleti
 }
 
 TEST_F(CarPowerPolicyServerTest, TestNotifyPowerStateChange_nonCompletableState) {
-    if (!native_power_notifications()) {
-        GTEST_SKIP() << "native_power_notifications feature flag is not enabled";
-    }
+#ifndef LAUNCH_CAR_POWER_SERVER
+    GTEST_SKIP() << "native_power_notifications feature flag is not enabled";
+#endif  // LAUNCH_CAR_POWER_SERVER
 
     sp<internal::CarPowerPolicyServerPeer> server = new internal::CarPowerPolicyServerPeer();
     std::shared_ptr<MockPowerManagementDelegateCallback> callback =
@@ -1334,9 +1333,9 @@ TEST_F(CarPowerPolicyServerTest, TestNotifyPowerStateChange_nonCompletableState)
 }
 
 TEST_F(CarPowerPolicyServerTest, TestNotifyPowerStateChange_serverDies) {
-    if (!native_power_notifications()) {
-        GTEST_SKIP() << "native_power_notifications feature flag is not enabled";
-    }
+#ifndef LAUNCH_CAR_POWER_SERVER
+    GTEST_SKIP() << "native_power_notifications feature flag is not enabled";
+#endif  // LAUNCH_CAR_POWER_SERVER
 
     sp<internal::CarPowerPolicyServerPeer> server = new internal::CarPowerPolicyServerPeer();
     std::shared_ptr<MockPowerManagementDelegateCallback> callback =

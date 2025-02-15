@@ -33,6 +33,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.junit.Assume.assumeTrue;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.mock;
@@ -1776,8 +1777,9 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
 
     @Test
     public void testPowerStateChangeNotifiedToDaemon_nativeNotificationsEnabled() throws Exception {
+        assumeTrue(NativePowerNotificationsFlag.isFeatureSupported());
+
         setRefactoredService();
-        setNativePowerNotificationsFeatureFlag(true);
         mPowerSignalListener.addEventListener(PowerHalService.SET_DEEP_SLEEP_ENTRY);
 
         mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.SHUTDOWN_PREPARE,
@@ -2742,10 +2744,6 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         mFeatureFlags.setFlag(Flags.FLAG_CAR_POWER_POLICY_REFACTORING, flagValue);
     }
 
-    private void setNativePowerNotificationsFeatureFlag(boolean flagValue) {
-        mFeatureFlags.setFlag(Flags.FLAG_NATIVE_POWER_NOTIFICATIONS, flagValue);
-    }
-
     private void setServerlessRemoteAccessFlag(boolean flagValue) {
         mFeatureFlags.setFlag(Flags.FLAG_SERVERLESS_REMOTE_ACCESS, flagValue);
     }
@@ -2791,7 +2789,6 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
                 new AtomicFile(mComponentStateFile));
         mPowerPolicyDaemon = new FakeCarPowerPolicyDaemon();
         setCarPowerPolicyRefactoringFeatureFlag(false);
-        setNativePowerNotificationsFeatureFlag(false);
         mService = new CarPowerManagementService.Builder()
                 .setContext(mContext).setResources(mResources)
                 .setPowerHalService(mPowerHal).setSystemInterface(mSystemInterface)
@@ -2819,7 +2816,6 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
                 mFileKernelSilentMode, new int[]{CUSTOM_COMPONENT_1000, CUSTOM_COMPONENT_1001,
                         CUSTOM_COMPONENT_1002, CUSTOM_COMPONENT_1003});
         setCarPowerPolicyRefactoringFeatureFlag(true);
-        setNativePowerNotificationsFeatureFlag(false);
         mService = new CarPowerManagementService.Builder()
                 .setContext(mContext).setResources(mResources)
                 .setPowerHalService(mPowerHal).setSystemInterface(mSystemInterface)
@@ -3329,7 +3325,8 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
     }
 
     private void testNotifyPowerStateChangeThrowsException(String exceptionName) throws Exception {
-        setNativePowerNotificationsFeatureFlag(true);
+        assumeTrue(NativePowerNotificationsFlag.isFeatureSupported());
+
         setRefactoredService();
         if (exceptionName.equals("illegalArgument")) {
             mRefactoredCarPowerManagementDaemon

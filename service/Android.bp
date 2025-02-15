@@ -149,6 +149,17 @@ filegroup {
     ],
 }
 
+filegroup {
+    name: "car-service-srcs",
+    srcs: [
+        "src/**/*.java",
+    ],
+    exclude_srcs: [
+        "src/com/android/car/power/NativePowerNotificationsOff.java",
+        "src/com/android/car/power/NativePowerNotificationsOn.java",
+    ],
+}
+
 java_defaults {
     name: "carservice-updatable-min-java-defaults",
 
@@ -171,7 +182,7 @@ java_defaults {
         ":iscriptexecutor_aidl",
         ":statslog-Car-java-gen",
         ":VhalTestVendorProperties",
-        "src/**/*.java",
+        ":car-service-srcs",
     ],
 
     aidl: {
@@ -219,7 +230,10 @@ java_defaults {
         "android.media.audiopolicy-aconfig-java",
         "libprotobuf-java-lite",
         "modules-utils-expresslog",
-    ],
+    ] + select(release_flag("RELEASE_FRAMEWORK_NATIVE_POWER_NOTIFICATIONS"), {
+        true: ["native_power_notifications_enabled"],
+        default: ["native_power_notifications_disabled"],
+    }),
 
     proto: {
         type: "lite",
@@ -345,5 +359,32 @@ java_defaults {
         "android.hardware.automotive.vehicle-V2.0-java",
         "android.hardware.automotive.vehicle-V4-java",
         "android.hardware.automotive.vehicle.property-V4-java",
+    ],
+}
+
+// #############################################################################
+// Java library to control features based on build system flag.
+// #############################################################################
+java_library {
+    name: "native_power_notifications_enabled",
+    srcs: [
+        "src/com/android/car/power/NativePowerNotificationsOn.java",
+    ],
+    sdk_version: "module_current",
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.car.framework",
+    ],
+}
+
+java_library {
+    name: "native_power_notifications_disabled",
+    srcs: [
+        "src/com/android/car/power/NativePowerNotificationsOff.java",
+    ],
+    sdk_version: "module_current",
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.car.framework",
     ],
 }
