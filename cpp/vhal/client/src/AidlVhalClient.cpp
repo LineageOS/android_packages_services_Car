@@ -57,6 +57,8 @@ using ::aidl::android::hardware::automotive::vehicle::SetValueResult;
 using ::aidl::android::hardware::automotive::vehicle::SetValueResults;
 using ::aidl::android::hardware::automotive::vehicle::StatusCode;
 using ::aidl::android::hardware::automotive::vehicle::SubscribeOptions;
+using ::aidl::android::hardware::automotive::vehicle::SupportedValuesListResult;
+using ::aidl::android::hardware::automotive::vehicle::SupportedValuesListResults;
 using ::aidl::android::hardware::automotive::vehicle::toString;
 using ::aidl::android::hardware::automotive::vehicle::VehiclePropConfig;
 using ::aidl::android::hardware::automotive::vehicle::VehiclePropConfigs;
@@ -360,6 +362,29 @@ VhalClientResult<std::vector<MinMaxSupportedValueResult>> AidlVhalClient::getMin
     if (!parcelableResult.ok()) {
         return ClientStatusError(ErrorCode::INTERNAL_ERROR_FROM_VHAL)
                 << "failed to parse MinMaxSupportedValueResults returned from VHAL, error: "
+                << parcelableResult.error().getMessage();
+    }
+    return parcelableResult.value().getObject()->payloads;
+}
+
+VhalClientResult<std::vector<SupportedValuesListResult>> AidlVhalClient::getSupportedValuesLists(
+        const std::vector<PropIdAreaId>& propIdAreaIds) {
+    int32_t interfaceVersion = getRemoteInterfaceVersion();
+    if (interfaceVersion < 4) {
+        return ClientStatusError(ErrorCode::NOT_SUPPORTED)
+                << "getSupportedValuesLists is not supported on VHAL version: V" << interfaceVersion
+                << ", require at least V4";
+    }
+    SupportedValuesListResults results = {};
+    if (auto status = mHal->getSupportedValuesLists(propIdAreaIds, &results); !status.isOk()) {
+        return statusToError<std::vector<
+                SupportedValuesListResult>>(status,
+                                            "failed to get supported values list from VHAL");
+    }
+    auto parcelableResult = fromStableLargeParcelable(results);
+    if (!parcelableResult.ok()) {
+        return ClientStatusError(ErrorCode::INTERNAL_ERROR_FROM_VHAL)
+                << "failed to parse SupportedValuesListResults returned from VHAL, error: "
                 << parcelableResult.error().getMessage();
     }
     return parcelableResult.value().getObject()->payloads;

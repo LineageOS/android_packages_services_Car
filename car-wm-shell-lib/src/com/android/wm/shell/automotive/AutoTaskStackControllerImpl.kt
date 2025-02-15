@@ -17,6 +17,7 @@
 package com.android.wm.shell.automotive
 
 import android.app.ActivityManager
+import android.app.ActivityTaskManager.INVALID_TASK_ID
 import android.app.WindowConfiguration.ACTIVITY_TYPE_ASSISTANT
 import android.app.WindowConfiguration.ACTIVITY_TYPE_RECENTS
 import android.app.WindowConfiguration.ACTIVITY_TYPE_STANDARD
@@ -24,6 +25,7 @@ import android.app.WindowConfiguration.ACTIVITY_TYPE_UNDEFINED
 import android.app.WindowConfiguration.WINDOWING_MODE_MULTI_WINDOW
 import android.app.WindowConfiguration.WINDOWING_MODE_UNDEFINED
 import android.content.Context
+import android.graphics.Rect
 import android.os.IBinder
 import android.util.Log
 import android.util.Slog
@@ -55,25 +57,27 @@ class AutoTaskStackControllerImpl @Inject constructor(
     val transitions: Transitions,
     val shellInit: ShellInit,
     val rootTdaOrganizer: RootTaskDisplayAreaOrganizer,
-    val context: Context
+    val context: Context,
+    val taskRepository: TaskRepository
 ) : AutoTaskStackController, Transitions.TransitionHandler {
     override var autoTransitionHandlerDelegate: AutoTaskStackTransitionHandlerDelegate? = null
     override val taskStackStateMap = mutableMapOf<Int, AutoTaskStackState>()
 
     private val DBG = Log.isLoggable(TAG, Log.DEBUG)
+
+    // Map of task stack id to the corresponding AutoTaskStack object.
     private val taskStackMap = mutableMapOf<Int, AutoTaskStack>()
     private val pendingTransitions = ArrayList<PendingTransition>()
     private val mTaskStackStateTranslator = TaskStackStateTranslator()
     private val appTasksMap = mutableMapOf<Int, ActivityManager.RunningTaskInfo>()
     private val defaultRootTaskPerDisplay = mutableMapOf<Int, Int>()
 
-    private lateinit var taskRepository: TaskRepository
-
     init {
         if (!enableAutoTaskStackController()) {
             throw IllegalStateException(
                 "Failed to initialize" +
-                    "AutoTaskStackController as the auto_task_stack_windowing TS flag is disabled."
+                        "AutoTaskStackController as the auto_task_stack_windowing TS flag is " +
+                        "disabled."
             )
         } else {
             shellInit.addInitCallback(this::onInit, this)
@@ -84,7 +88,6 @@ class AutoTaskStackControllerImpl @Inject constructor(
         transitions.addHandler(this)
         // TODO(b/392757141): Add a listener to get all the tasks instead of modifying the
         // RootTaskStackListenerAdapter
-        taskRepository = TaskRepository(context)
     }
 
     /** Translates the [AutoTaskStackState] to relevant WM and surface transactions. */
@@ -343,7 +346,7 @@ class AutoTaskStackControllerImpl @Inject constructor(
             Slog.d(
                 TAG,
                 "handle request, id=${request.debugId}, type=${request.type}, " +
-                    "triggertask = ${request.triggerTask ?: "null"}"
+                        "triggertask = ${request.triggerTask ?: "null"}"
             )
         }
         val ast = autoTransitionHandlerDelegate?.handleRequest(transition, request)
@@ -365,6 +368,58 @@ class AutoTaskStackControllerImpl @Inject constructor(
         taskStackStateMap.putAll(taskStatStates)
     }
 
+    fun reconcileTaskStackStatesFromTransition(
+        requestedTaskStackChanges: Map<Int, AutoTaskStackState>,
+        changes: List<TransitionInfo.Change>
+    ): Map<Int, AutoTaskStackState> {
+        var changedTaskStacks = mutableMapOf<Int, AutoTaskStackState>()
+        changedTaskStacks.putAll(requestedTaskStackChanges)
+
+        // TODO: The reconciliation below won't be required once b/388067743 is fixed.
+        for (chg in changes) {
+            val taskInfo = chg.taskInfo ?: continue
+            if (taskInfo.parentTaskId == INVALID_TASK_ID) continue
+            if (taskStackMap[taskInfo.parentTaskId] == null) {
+                if (DBG) {
+                    Slog.v(
+                        TAG,
+                        "${taskInfo.taskId}'s parent ${taskInfo.parentTaskId} is not known"
+                    )
+                }
+                continue
+            }
+
+            if (!TransitionUtil.isOpeningMode(chg.mode)) {
+                if (DBG) Slog.v(TAG, "${taskInfo.taskId} is not opening type")
+                continue
+            }
+            if (requestedTaskStackChanges[taskInfo.parentTaskId] != null &&
+                requestedTaskStackChanges[taskInfo.parentTaskId]!!.childrenTasksVisible
+            ) {
+                if (DBG) {
+                    Slog.v(
+                        TAG,
+                        "${taskInfo.taskId}'s parent ${taskInfo.parentTaskId} is already " +
+                                "being changed to visible"
+                    )
+                }
+                continue
+            }
+            if (DBG) {
+                Slog.v(TAG, "${taskInfo.taskId} found conflicting task change")
+            }
+            val taskStackLayer = taskStackStateMap[taskInfo.taskId]?.layer ?: 1
+            // Use a fixed layer 1 when state is unknown. This is just a placeholder and clients
+            // should anyway see this as a conflict and fire a new transition with the correct layer
+            changedTaskStacks[taskInfo.parentTaskId] = AutoTaskStackState(
+                bounds = taskStackStateMap[taskInfo.taskId]?.bounds ?: Rect(),
+                childrenTasksVisible = true,
+                layer = taskStackLayer
+            )
+        }
+        return changedTaskStacks
+    }
+
     override fun startAnimation(
         transition: IBinder,
         info: TransitionInfo,
@@ -374,9 +429,16 @@ class AutoTaskStackControllerImpl @Inject constructor(
     ): Boolean {
         if (DBG) Slog.d(TAG, "  startAnimation, id=${info.debugId} = changes=" + info.changes)
         val pending: PendingTransition? = findPending(transition)
+        var changedTaskStacks = mutableMapOf<Int, AutoTaskStackState>()
         if (pending != null) {
             pendingTransitions.remove(pending)
-            updateTaskStackStates(pending.transaction.getTaskStackStates())
+            changedTaskStacks.putAll(
+                reconcileTaskStackStatesFromTransition(
+                    pending.transaction.getTaskStackStates(),
+                    info.changes
+                )
+            )
+            updateTaskStackStates(changedTaskStacks)
         }
 
         reorderLeashes(startTransaction)
@@ -406,7 +468,7 @@ class AutoTaskStackControllerImpl @Inject constructor(
 
         val isPlayedByDelegate = autoTransitionHandlerDelegate?.startAnimation(
             transition,
-            pending?.transaction?.getTaskStackStates() ?: mapOf(),
+            changedTaskStacks,
             info,
             startTransaction,
             finishTransaction,
@@ -481,8 +543,10 @@ class AutoTaskStackControllerImpl @Inject constructor(
                             operation.state
                         )
                     }
-                        ?: Slog.w(TAG, "AutoTaskStack with id ${operation.taskStackId} " +
-                                "not found.")
+                        ?: Slog.w(
+                            TAG, "AutoTaskStack with id ${operation.taskStackId} " +
+                                    "not found."
+                        )
                 }
             }
         }

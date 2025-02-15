@@ -55,6 +55,7 @@ using ::aidl::android::hardware::automotive::vehicle::SetValueResult;
 using ::aidl::android::hardware::automotive::vehicle::SetValueResults;
 using ::aidl::android::hardware::automotive::vehicle::StatusCode;
 using ::aidl::android::hardware::automotive::vehicle::SubscribeOptions;
+using ::aidl::android::hardware::automotive::vehicle::SupportedValuesListResult;
 using ::aidl::android::hardware::automotive::vehicle::SupportedValuesListResults;
 using ::aidl::android::hardware::automotive::vehicle::VehiclePropConfig;
 using ::aidl::android::hardware::automotive::vehicle::VehiclePropConfigs;
@@ -176,10 +177,8 @@ public:
         return ScopedAStatus::ok();
     }
 
-    ScopedAStatus getSupportedValuesLists(const std::vector<PropIdAreaId>&,
-                                          SupportedValuesListResults*) {
-        return ScopedAStatus::ok();
-    }
+    MOCK_METHOD(ScopedAStatus, getSupportedValuesLists,
+                (const std::vector<PropIdAreaId>&, SupportedValuesListResults*), (override));
 
     MOCK_METHOD(ScopedAStatus, getMinMaxSupportedValue,
                 (const std::vector<PropIdAreaId>&, MinMaxSupportedValueResults*), (override));
@@ -1306,6 +1305,63 @@ TEST_F(AidlVhalClientTest, testGetMinMaxSupportedValue_notSupportedVersionTooLow
     setTestRemoteInterfaceVersion(3);
 
     auto result = getClient()->getMinMaxSupportedValue({propIdAreaId});
+
+    ASSERT_FALSE(result.ok());
+    ASSERT_EQ(result.error().code().value(), ErrorCode::NOT_SUPPORTED);
+}
+
+TEST_F(AidlVhalClientTest, testGetSupportedValuesLists) {
+    setTestRemoteInterfaceVersion(4);
+    PropIdAreaId propIdAreaId = {
+            .propId = TEST_PROP_ID,
+            .areaId = TEST_AREA_ID,
+    };
+    SupportedValuesListResult vhalResult = {
+            .supportedValuesList =
+                    std::vector<std::optional<RawPropValues>>({RawPropValues{.int32Values = {1}}})};
+
+    EXPECT_CALL(*getVhal(), getSupportedValuesLists)
+            .WillOnce([&propIdAreaId, &vhalResult](const std::vector<PropIdAreaId>& propIdAreaIds,
+                                                   SupportedValuesListResults* results) {
+                EXPECT_THAT(propIdAreaIds, ::testing::ElementsAre(propIdAreaId));
+                results->payloads = {vhalResult};
+                return ScopedAStatus::ok();
+            });
+
+    auto result = getClient()->getSupportedValuesLists({propIdAreaId});
+
+    ASSERT_TRUE(result.ok());
+    ASSERT_THAT(result.value(), ::testing::SizeIs(1));
+    const SupportedValuesListResult& propIdAreaIdResult = result.value()[0];
+    EXPECT_EQ(propIdAreaIdResult.status, StatusCode::OK);
+    EXPECT_EQ(propIdAreaIdResult, vhalResult);
+}
+
+TEST_F(AidlVhalClientTest, testGetSupportedValuesLists_vhalReturnsError) {
+    setTestRemoteInterfaceVersion(4);
+    PropIdAreaId propIdAreaId = {
+            .propId = TEST_PROP_ID,
+            .areaId = TEST_AREA_ID,
+    };
+
+    EXPECT_CALL(*getVhal(), getSupportedValuesLists)
+            .WillOnce(::testing::Return(
+                    ScopedAStatus::fromServiceSpecificError(toInt(StatusCode::INTERNAL_ERROR))));
+
+    auto result = getClient()->getSupportedValuesLists({propIdAreaId});
+
+    ASSERT_FALSE(result.ok());
+    ASSERT_EQ(result.error().code().value(), ErrorCode::INTERNAL_ERROR_FROM_VHAL);
+}
+
+TEST_F(AidlVhalClientTest, testGetSupportedValuesLists_notSupportedVersionTooLow) {
+    PropIdAreaId propIdAreaId = {
+            .propId = TEST_PROP_ID,
+            .areaId = TEST_AREA_ID,
+    };
+    setTestRemoteInterfaceVersion(3);
+
+    auto result = getClient()->getSupportedValuesLists({propIdAreaId});
 
     ASSERT_FALSE(result.ok());
     ASSERT_EQ(result.error().code().value(), ErrorCode::NOT_SUPPORTED);

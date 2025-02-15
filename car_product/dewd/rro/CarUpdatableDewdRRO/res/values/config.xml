@@ -23,4 +23,5 @@
      resolve permission by itself to use any higher priority window type.
      Setting this string to empty will disable the feature. -->
     <string name="config_userNoticeUiService" translatable="false"></string>
+    <bool name="config_isUsingAutoTaskStackWindowing">true</bool>
 </resources>

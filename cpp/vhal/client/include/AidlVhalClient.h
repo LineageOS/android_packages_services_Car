@@ -98,6 +98,12 @@ public:
             const std::vector<::aidl::android::hardware::automotive::vehicle::PropIdAreaId>&
                     propIdAreaIds) override;
 
+    VhalClientResult<
+            std::vector<::aidl::android::hardware::automotive::vehicle::SupportedValuesListResult>>
+    getSupportedValuesLists(
+            const std::vector<::aidl::android::hardware::automotive::vehicle::PropIdAreaId>&
+                    propIdAreaIds) override;
+
     int32_t getRemoteInterfaceVersion() override;
 
     // Converts a non-okay status to an error {@code Result}.
