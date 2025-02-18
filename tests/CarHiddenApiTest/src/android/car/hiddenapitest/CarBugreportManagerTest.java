@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package android.car.apitest;
+package android.car.hiddenapitest;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -291,7 +291,7 @@ public final class CarBugreportManagerTest extends CarApiTestBase {
         /** Copies data from the pipe to the persistent file. Blocks the thread. */
         void copyToPersistentFile() throws IOException {
             try (InputStream in = new ParcelFileDescriptor.AutoCloseInputStream(mReadFd);
-                FileOutputStream out = new FileOutputStream(mPersistentFile)) {
+                    FileOutputStream out = new FileOutputStream(mPersistentFile)) {
                 FileUtils.copy(in, out);
             }
         }

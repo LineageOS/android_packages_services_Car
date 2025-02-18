@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package android.car.apitest;
+package android.car.hiddenapitest;
 
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_CREATED;
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_STARTING;

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package android.car.apitest;
+package android.car.hiddenapitest;
 
 import static com.android.compatibility.common.util.ShellUtils.runShellCommand;
 import static com.android.compatibility.common.util.SystemUtil.eventually;
@@ -222,13 +222,13 @@ public final class CarDevicePolicyManagerTest extends CarMultiUserTestBase {
     }
 
     @Test
-    @FlakyTest(bugId = 190417819)
+    @FlakyTest(bugId = 396445755)
     public void testLockNow_safe() throws Exception {
         lockNowTest(/* safe= */ true);
     }
 
     @Test
-    @FlakyTest(bugId = 190417819)
+    @FlakyTest(bugId = 396445755)
     public void testLockNow_unsafe() throws Exception {
         lockNowTest(/* safe= */ false);
     }
