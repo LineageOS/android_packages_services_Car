@@ -75,6 +75,8 @@ private:
 
     std::list<::aidl::android::hardware::automotive::evs::BufferDesc> mReceivedBuffers
             GUARDED_BY(mLock);
+    std::list<::aidl::android::hardware::automotive::evs::BufferDesc> mReturnedBuffers
+            GUARDED_BY(mLock);
     int mMaxNumFramesInFlightPerClient;
 
     // Track number of active streaming clients.
