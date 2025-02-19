@@ -25,10 +25,6 @@ runtime_resource_overlay {
     certificate: "platform",
     manifest: "AndroidManifest.xml",
     system_ext_specific: true,
-    aaptflags: [
-        "--no-resource-deduping",
-        "--no-resource-removal",
-    ],
     static_libs: [
         "car-portrait-ui-common",
     ],
