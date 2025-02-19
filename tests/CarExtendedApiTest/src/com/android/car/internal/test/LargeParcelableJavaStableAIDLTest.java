@@ -157,6 +157,13 @@ public final class LargeParcelableJavaStableAIDLTest extends CarLessApiTestBase 
         doTestEchoWithCallback(ARRAY_LENGTH_BIG);
     }
 
+    /**
+     * Prepares a StableAIDLTestLargeParcelable object for sending across process boundaries using
+     * a LargeParcelable wrapper.
+     *
+     * @param in The StableAIDLTestLargeParcelable object to be prepared.
+     * @return The prepared StableAIDLTestLargeParcelable object, wrapped and ready for sending.
+     */
     public StableAIDLTestLargeParcelable prepareParcelable(StableAIDLTestLargeParcelable in) {
         Parcelable sendableParcelable = LargeParcelable.toLargeParcelable(in, () -> {
             StableAIDLTestLargeParcelable o = new StableAIDLTestLargeParcelable();

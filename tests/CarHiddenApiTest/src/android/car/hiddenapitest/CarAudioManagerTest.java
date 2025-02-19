@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package android.car.apitest.media;
+package android.car.hiddenapitest;
 
 import static android.car.Car.AUDIO_SERVICE;
 import static android.car.media.CarAudioManager.AUDIO_FEATURE_DYNAMIC_ROUTING;
@@ -29,7 +29,6 @@ import static org.junit.Assume.assumeTrue;
 
 import android.car.extendedapitest.testbase.CarApiTestBase;
 import android.car.media.CarAudioManager;
-import android.car.media.CarVolumeGroupInfo;
 import android.media.AudioDeviceInfo;
 import android.os.Process;
 
@@ -57,62 +56,10 @@ public final class CarAudioManagerTest extends CarApiTestBase {
     }
 
     @Test
-    public void getVolumeGroupInfo() {
-        assumeDynamicRoutingIsEnabled();
-
-        int groupCount = mCarAudioManager.getVolumeGroupCount(PRIMARY_AUDIO_ZONE);
-
-        for (int index = 0; index < groupCount; index++) {
-            CarVolumeGroupInfo info =
-                    mCarAudioManager.getVolumeGroupInfo(PRIMARY_AUDIO_ZONE, index);
-            expectWithMessage("Car volume group info id for group %s", index)
-                    .that(info.getId()).isEqualTo(index);
-            expectWithMessage("Car volume group info zone for group %s", index)
-                    .that(info.getZoneId()).isEqualTo(PRIMARY_AUDIO_ZONE);
-        }
-    }
-
-    @Test
-    public void getVolumeGroupInfosForZone() {
-        assumeDynamicRoutingIsEnabled();
-
-        int groupCount = mCarAudioManager.getVolumeGroupCount(PRIMARY_AUDIO_ZONE);
-
-        List<CarVolumeGroupInfo> infos =
-                mCarAudioManager.getVolumeGroupInfosForZone(PRIMARY_AUDIO_ZONE);
-
-        expectWithMessage("Car volume group infos for primary zone")
-                .that(infos).hasSize(groupCount);
-        for (int index = 0; index < groupCount; index++) {
-            CarVolumeGroupInfo info =
-                    mCarAudioManager.getVolumeGroupInfo(PRIMARY_AUDIO_ZONE, index);
-            expectWithMessage("Car volume group infos for primary zone and group %s", index)
-                    .that(infos).contains(info);
-        }
-    }
-
-    @Test
-    public void test_getAudioZoneIds() throws Exception {
-        assumeDynamicRoutingIsEnabled();
-
-        List<Integer> zoneIds = mCarAudioManager.getAudioZoneIds();
-        assertThat(zoneIds).isNotEmpty();
-        assertThat(zoneIds).contains(PRIMARY_AUDIO_ZONE);
-    }
-
-    @Test
     public void test_isAudioFeatureEnabled() throws Exception {
         // nothing to assert. Just call the API.
         mCarAudioManager.isAudioFeatureEnabled(AUDIO_FEATURE_DYNAMIC_ROUTING);
         mCarAudioManager.isAudioFeatureEnabled(AUDIO_FEATURE_VOLUME_GROUP_MUTING);
-    }
-
-    @Test
-    public void test_getVolumeGroupCount() throws Exception {
-        int primaryZoneCount = mCarAudioManager.getVolumeGroupCount();
-        assertThat(
-                mCarAudioManager.getVolumeGroupCount(PRIMARY_AUDIO_ZONE)).isEqualTo(
-                primaryZoneCount);
     }
 
     @Test
@@ -133,11 +80,11 @@ public final class CarAudioManagerTest extends CarApiTestBase {
 
     @Test
     public void test_setGroupVolume() throws Exception {
-        int groudId = 0;
-        int volume = mCarAudioManager.getGroupVolume(groudId);
-        mCarAudioManager.setGroupVolume(groudId, volume, TEST_FLAGS);
-        mCarAudioManager.setGroupVolume(PRIMARY_AUDIO_ZONE, groudId, volume, TEST_FLAGS);
-        assertThat(mCarAudioManager.getGroupVolume(groudId)).isEqualTo(volume);
+        int groupId = 0;
+        int volume = mCarAudioManager.getGroupVolume(groupId);
+        mCarAudioManager.setGroupVolume(groupId, volume, TEST_FLAGS);
+        mCarAudioManager.setGroupVolume(PRIMARY_AUDIO_ZONE, groupId, volume, TEST_FLAGS);
+        assertThat(mCarAudioManager.getGroupVolume(groupId)).isEqualTo(volume);
     }
 
     @Test
@@ -250,7 +197,7 @@ public final class CarAudioManagerTest extends CarApiTestBase {
     public void getGroupVolume_whileMuted_returnsMinVolume() throws Exception {
         assumeVolumeGroupMutingIsEnabled();
         int groupId = 0;
-        boolean  muteState = mCarAudioManager.isVolumeGroupMuted(PRIMARY_AUDIO_ZONE, groupId);
+        boolean muteState = mCarAudioManager.isVolumeGroupMuted(PRIMARY_AUDIO_ZONE, groupId);
         int minVolume = mCarAudioManager.getGroupMinVolume(PRIMARY_AUDIO_ZONE, groupId);
 
         try {
@@ -292,7 +239,7 @@ public final class CarAudioManagerTest extends CarApiTestBase {
     public void test_isPlaybackOnVolumeGroupActive() throws Exception {
         assumeDynamicRoutingIsEnabled();
 
-        // TODO(b/191660867): Better to change this to play something and asert true.
+        // TODO(b/191660867): Better to change this to play something and assert true.
         assertThat(
                 mCarAudioManager.isPlaybackOnVolumeGroupActive(PRIMARY_AUDIO_ZONE,
                         0)).isFalse();
