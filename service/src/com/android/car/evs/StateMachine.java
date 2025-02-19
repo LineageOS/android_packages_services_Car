@@ -109,7 +109,9 @@ final class StateMachine {
 
             Slogf.w(mLogTag, "StreamCallback %s has died.", callback.asBinder());
             synchronized (mLock) {
-                if (StateMachine.this.needToStartActivityLocked()) {
+                boolean wasPrivileged = StateMachine.this.isSessionToken(
+                        StateMachine.this.mHalCallback.getToken(callback));
+                if (wasPrivileged && StateMachine.this.needToStartActivityLocked()) {
                     if (StateMachine.this.startActivity(/* resetState= */ true) != ERROR_NONE) {
                         Slogf.e(mLogTag, "Failed to request the acticity.");
                     }
@@ -191,6 +193,22 @@ final class StateMachine {
                 }
             }
             return found;
+        }
+
+        IBinder getToken(ICarEvsStreamCallback target) {
+            synchronized (mCallbacks) {
+                int idx = mCallbacks.getRegisteredCallbackCount();
+                while (idx-- > 0) {
+                    ICarEvsStreamCallback callback = mCallbacks.getRegisteredCallbackItem(idx);
+                    if (target.asBinder() != callback.asBinder()) {
+                        continue;
+                    }
+
+                    return (IBinder) mCallbacks.getRegisteredCallbackCookie(idx);
+                }
+            }
+
+            return null;
         }
 
         boolean isEmpty() {
@@ -830,7 +848,7 @@ final class StateMachine {
      */
     @GuardedBy("mLock")
     private boolean isSessionTokenLocked(IBinder token) {
-        return token != null && mService.isSessionToken(token);
+        return mService.isSessionToken(token);
     }
 
     /**
@@ -1231,8 +1249,15 @@ final class StateMachine {
     @ExcludeFromCodeCoverageGeneratedReport(reason = DEBUGGING_CODE)
     @VisibleForTesting
     void addStreamCallback(ICarEvsStreamCallback callback) {
-        Slogf.d(mLogTag, "Register additional callback %s", callback);
-        mHalCallback.register(callback, /* token= */ null);
+        addStreamCallback(callback, /* token= */ null);
+    }
+
+    /** Overrides a current callback object with a token object. */
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DEBUGGING_CODE)
+    @VisibleForTesting
+    void addStreamCallback(ICarEvsStreamCallback callback, IBinder token) {
+        Slogf.d(mLogTag, "Register additional callback %s with a token %s", callback, token);
+        mHalCallback.register(callback, token);
     }
 
     /** Overrides a current valid session token. */
