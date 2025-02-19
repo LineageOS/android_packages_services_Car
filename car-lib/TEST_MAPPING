@@ -2,6 +2,9 @@
   "auto-presubmit": [
     {
       "name": "CarLibCarUnitTest"
+    },
+    {
+      "name": "CtsCarTestCases"
     }
   ],
   "ravenwood-presubmit": [
