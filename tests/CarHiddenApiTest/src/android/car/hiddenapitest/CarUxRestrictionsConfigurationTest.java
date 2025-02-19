@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package android.car.apitest;
+package android.car.hiddenapitest;
 
 import static android.car.drivingstate.CarDrivingStateEvent.DRIVING_STATE_IDLING;
 import static android.car.drivingstate.CarDrivingStateEvent.DRIVING_STATE_MOVING;

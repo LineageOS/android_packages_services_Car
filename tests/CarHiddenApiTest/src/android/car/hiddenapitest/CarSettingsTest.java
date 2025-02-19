@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package android.car.apitest;
+package android.car.hiddenapitest;
 
 import static com.google.common.truth.Truth.assertWithMessage;
 

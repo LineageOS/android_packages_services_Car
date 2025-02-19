@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package android.car.apitest;
+package android.car.hiddenapitest;
 
 import static com.android.compatibility.common.util.ShellUtils.runShellCommand;
 
@@ -44,7 +44,7 @@ public class DrivingSafetyRegionTest extends CarApiTestBase {
     private static final String REGION2 = "com.android.car.test.drivingsafetyregion.2";
     private static final String REGION3 = "com.android.car.test.drivingsafetyregion.3";
 
-    private static final String TEST_PACKAGE_NAME = "android.car.apitest";
+    private static final String TEST_PACKAGE_NAME = "android.car.hiddenapitest";
 
     private CarPackageManager mCarPackageManager;
     private String mOriginalDrivingSafetyRegion = null;
