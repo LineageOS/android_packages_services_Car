@@ -720,22 +720,10 @@ public final class CoreAudioVolumeGroupTest  extends AbstractExtendedMockitoTest
     }
 
     @Test
-    public void updateDevices_withCoreAudioRoutingDisabled() {
-        boolean useCoreAudioRouting = false;
-
-        mMusicCoreAudioVolumeGroup.updateDevices(useCoreAudioRouting);
+    public void updateDevices() {
+        mMusicCoreAudioVolumeGroup.updateDevices();
 
         verify(mMockAudioManager).setPreferredDeviceForStrategy(MUSIC_STRATEGY,
-                mMusicDeviceAttributes);
-    }
-
-    @Test
-    public void updateDevices_withCoreAudioRoutingEnabled() {
-        boolean useCoreAudioRouting = true;
-
-        mMusicCoreAudioVolumeGroup.updateDevices(useCoreAudioRouting);
-
-        verify(mMockAudioManager, never()).setPreferredDeviceForStrategy(MUSIC_STRATEGY,
                 mMusicDeviceAttributes);
     }
 

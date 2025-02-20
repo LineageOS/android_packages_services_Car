@@ -3461,10 +3461,9 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
             prevZoneConfig = zone.getCurrentCarAudioZoneConfig();
             try {
                 log.traceBegin("switch-config-set-" + zoneConfig.getConfigId());
+                // Core routing uses config change to setup audio routing for config changes
                 zone.setCurrentCarZoneConfig(zoneConfig);
-                newAudioPolicy = setupRoutingAudioPolicyLocked();
-                setAllUserIdDeviceAffinitiesToNewPolicyLocked(newAudioPolicy);
-                swapRoutingAudioPolicyLocked(newAudioPolicy);
+                newAudioPolicy = changeAudioPolicyForConfigChangeLocked();
                 zone.updateVolumeGroupsSettingsForUser(userId);
                 carVolumeGroupInfoList = getVolumeGroupInfosForZoneLocked(zoneId);
                 updateFadeManagerConfigurationLocked(zone.isPrimaryZone());
@@ -3494,6 +3493,19 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
         log.traceEnd();
         callbackVolumeGroupEvent(getVolumeGroupEventsForSwitchZoneConfig(carVolumeGroupInfoList));
         return true;
+    }
+
+    @GuardedBy("mImplLock")
+    @Nullable
+    private AudioPolicy changeAudioPolicyForConfigChangeLocked() {
+        // Core audio routing does not uses audio policy to setup routing
+        if (mUseCoreAudioRouting) {
+            return null;
+        }
+        AudioPolicy newAudioPolicy = setupRoutingAudioPolicyLocked();
+        setAllUserIdDeviceAffinitiesToNewPolicyLocked(newAudioPolicy);
+        swapRoutingAudioPolicyLocked(newAudioPolicy);
+        return newAudioPolicy;
     }
 
     private void enableDynamicDevicesInOtherZones(CarAudioZoneConfigInfo zoneConfig) {

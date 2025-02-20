@@ -1059,7 +1059,7 @@ import java.util.Set;
         }
     }
 
-    void updateDevices(boolean useCoreAudioRouting) {
+    void updateDevices() {
     }
 
     /**

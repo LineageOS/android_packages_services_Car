@@ -283,7 +283,7 @@ public final class CarAudioZoneUnitTest extends AbstractExpectableTestCase {
                 .that(mTestAudioZone.isCurrentZoneConfig(currentZoneConfigInfoToSwitch))
                 .isTrue();
         verify(mMockZoneConfig1).setIsSelected(true);
-        verify(mMockZoneConfig1).updateVolumeDevices(/* useCoreAudioRouting= */ false);
+        verify(mMockZoneConfig1).updateVolumeDevices();
         verify(mMockZoneConfig0).setIsSelected(false);
     }
 
@@ -319,7 +319,7 @@ public final class CarAudioZoneUnitTest extends AbstractExpectableTestCase {
                 + "with core audio routing")
                 .that(testAudioZone.isCurrentZoneConfig(currentZoneConfigInfoToSwitch)).isTrue();
         verify(mMockZoneConfig1).setIsSelected(true);
-        verify(mMockZoneConfig1).updateVolumeDevices(/* useCoreAudioRouting= */ true);
+        verify(mMockZoneConfig1).updateVolumeDevices();
         verify(mMockZoneConfig0).setIsSelected(false);
     }
 
