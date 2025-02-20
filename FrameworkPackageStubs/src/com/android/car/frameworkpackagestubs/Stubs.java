@@ -109,6 +109,12 @@ public final class Stubs {
     }
 
     /**
+     * Stub activity for Launcher events.
+     */
+    public static class LauncherStub extends BaseActivity {
+    }
+
+    /**
      * Stub activity for media events.
      */
     public static class MediaStub extends BaseActivity {
