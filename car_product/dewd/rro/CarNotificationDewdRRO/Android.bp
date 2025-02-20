@@ -19,10 +19,6 @@ runtime_resource_overlay {
     name: "CarNotificationDewdRRO",
     resource_dirs: ["res"],
     certificate: "platform",
-    aaptflags: [
-        "--no-resource-deduping",
-        "--no-resource-removal",
-    ],
     static_libs: [
         "CarUiPortraitNotificationRROResLib",
     ],

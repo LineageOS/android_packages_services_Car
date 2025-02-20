@@ -100,24 +100,12 @@ endif
 # the device.mk with the corresponding selinux policies
 ifeq ($(ENABLE_EVS_SAMPLE), true)
 PRODUCT_PACKAGES += evs_app
-# A reference EVS HAL implementation will be added in car_vendor.mk and require AIDL version of
-# the automotive display service implementation.
-USE_AIDL_DISPLAY_SERVICE := true
 else ifeq ($(ENABLE_SAMPLE_EVS_APP), true)
 PRODUCT_PACKAGES += evs_app
 endif
 
-
-ifeq ($(USE_HIDL_DISPLAY_SERVICE), true)
-# TODO(b/276340636): Remove HIDL Automotive Display Service implementation when we stop supporting
-# HIDL EVS interface implementations.
-$(warning HIDL version of the Automotive Display Service is deprecated \
-          and will be replaced with cardisplayproxyd.)
-PRODUCT_PACKAGES += android.frameworks.automotive.display@1.0-service
-endif  # USE_HIDL_DISPLAY_SERVICE
-
+# Add ICarDisplayProxy/default instance.
 PRODUCT_PACKAGES += cardisplayproxyd
-
 
 PRODUCT_NAME := car_generic_system
 PRODUCT_BRAND := generic
