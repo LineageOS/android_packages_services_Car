@@ -5,6 +5,12 @@
       "propertyName": "INFO_VIN",
       "propertyId": 286261504,
       "description": "VIN of vehicle",
+      "propertyType": "String",
+      "areaType": "GLOBAL",
+      "changeMode": "STATIC",
+      "allowedAccessModes": [
+        "READ"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CAR_IDENTIFICATION"
@@ -14,6 +20,12 @@
       "propertyName": "INFO_MAKE",
       "propertyId": 286261505,
       "description": "Manufacturer of vehicle.",
+      "propertyType": "String",
+      "areaType": "GLOBAL",
+      "changeMode": "STATIC",
+      "allowedAccessModes": [
+        "READ"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CAR_INFO"
@@ -23,6 +35,12 @@
       "propertyName": "INFO_MODEL",
       "propertyId": 286261506,
       "description": "Model of vehicle.",
+      "propertyType": "String",
+      "areaType": "GLOBAL",
+      "changeMode": "STATIC",
+      "allowedAccessModes": [
+        "READ"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CAR_INFO"
@@ -32,6 +50,12 @@
       "propertyName": "INFO_MODEL_YEAR",
       "propertyId": 289407235,
       "description": "Model year of vehicle in YYYY format based on Gregorian calendar.",
+      "propertyType": "Integer",
+      "areaType": "GLOBAL",
+      "changeMode": "STATIC",
+      "allowedAccessModes": [
+        "READ"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CAR_INFO"
@@ -41,6 +65,12 @@
       "propertyName": "INFO_FUEL_CAPACITY",
       "propertyId": 291504388,
       "description": "Fuel capacity of the vehicle in milliliters.",
+      "propertyType": "Float",
+      "areaType": "GLOBAL",
+      "changeMode": "STATIC",
+      "allowedAccessModes": [
+        "READ"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CAR_INFO"
@@ -50,6 +80,12 @@
       "propertyName": "INFO_FUEL_TYPE",
       "propertyId": 289472773,
       "description": "List the {@link FuelType}s the vehicle may use.",
+      "propertyType": "Integer[]",
+      "areaType": "GLOBAL",
+      "changeMode": "STATIC",
+      "allowedAccessModes": [
+        "READ"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CAR_INFO"
@@ -74,6 +110,12 @@
       "propertyName": "INFO_EV_BATTERY_CAPACITY",
       "propertyId": 291504390,
       "description": "Nominal usable battery capacity for EV or hybrid vehicle.",
+      "propertyType": "Float",
+      "areaType": "GLOBAL",
+      "changeMode": "STATIC",
+      "allowedAccessModes": [
+        "READ"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CAR_INFO"
@@ -83,6 +125,12 @@
       "propertyName": "INFO_EV_CONNECTOR_TYPE",
       "propertyId": 289472775,
       "description": "List of {@link android.car.hardware.property.EvChargingConnectorType}s this vehicle may use.",
+      "propertyType": "Integer[]",
+      "areaType": "GLOBAL",
+      "changeMode": "STATIC",
+      "allowedAccessModes": [
+        "READ"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CAR_INFO"
@@ -107,6 +155,12 @@
       "propertyName": "INFO_FUEL_DOOR_LOCATION",
       "propertyId": 289407240,
       "description": "{@link PortLocationType} for the fuel door location.",
+      "propertyType": "Integer",
+      "areaType": "GLOBAL",
+      "changeMode": "STATIC",
+      "allowedAccessModes": [
+        "READ"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CAR_INFO"
@@ -125,6 +179,12 @@
       "propertyName": "INFO_EV_PORT_LOCATION",
       "propertyId": 289407241,
       "description": "{@link PortLocationType} for the EV port location.",
+      "propertyType": "Integer",
+      "areaType": "GLOBAL",
+      "changeMode": "STATIC",
+      "allowedAccessModes": [
+        "READ"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CAR_INFO"
@@ -143,6 +203,12 @@
       "propertyName": "INFO_MULTI_EV_PORT_LOCATIONS",
       "propertyId": 289472780,
       "description": "List {@link PortLocationType}s for Multiple EV port locations.",
+      "propertyType": "Integer[]",
+      "areaType": "GLOBAL",
+      "changeMode": "STATIC",
+      "allowedAccessModes": [
+        "READ"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CAR_INFO"
@@ -161,6 +227,12 @@
       "propertyName": "INFO_DRIVER_SEAT",
       "propertyId": 356516106,
       "description": "Driver's seat location.",
+      "propertyType": "Integer",
+      "areaType": "SEAT",
+      "changeMode": "STATIC",
+      "allowedAccessModes": [
+        "READ"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CAR_INFO"
@@ -182,6 +254,12 @@
       "propertyName": "INFO_EXTERIOR_DIMENSIONS",
       "propertyId": 289472779,
       "description": "Vehicle's exterior dimensions in millimeters.",
+      "propertyType": "Integer[]",
+      "areaType": "GLOBAL",
+      "changeMode": "STATIC",
+      "allowedAccessModes": [
+        "READ"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CAR_INFO"
@@ -191,6 +269,12 @@
       "propertyName": "INFO_MODEL_TRIM",
       "propertyId": 286261517,
       "description": "Public trim name of the vehicle.",
+      "propertyType": "String",
+      "areaType": "GLOBAL",
+      "changeMode": "STATIC",
+      "allowedAccessModes": [
+        "READ"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CAR_INFO"
@@ -201,6 +285,12 @@
       "propertyName": "INFO_VEHICLE_SIZE_CLASS",
       "propertyId": 289472782,
       "description": "Vehicle Size Class.",
+      "propertyType": "Integer[]",
+      "areaType": "GLOBAL",
+      "changeMode": "STATIC",
+      "allowedAccessModes": [
+        "READ"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CAR_INFO"
@@ -248,6 +338,12 @@
       "propertyName": "PERF_ODOMETER",
       "propertyId": 291504644,
       "description": "Current odometer value of the vehicle in kilometers.",
+      "propertyType": "Float",
+      "areaType": "GLOBAL",
+      "changeMode": "CONTINUOUS",
+      "allowedAccessModes": [
+        "READ"
+      ],
       "readPermission": {
         "type": "anyOf",
         "value": [
@@ -267,6 +363,12 @@
       "propertyName": "PERF_VEHICLE_SPEED",
       "propertyId": 291504647,
       "description": "Speed of the vehicle in meters per second.",
+      "propertyType": "Float",
+      "areaType": "GLOBAL",
+      "changeMode": "CONTINUOUS",
+      "allowedAccessModes": [
+        "READ"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CAR_SPEED"
@@ -276,6 +378,12 @@
       "propertyName": "PERF_VEHICLE_SPEED_DISPLAY",
       "propertyId": 291504648,
       "description": "Speed of the vehicle in meters per second for displays.",
+      "propertyType": "Float",
+      "areaType": "GLOBAL",
+      "changeMode": "CONTINUOUS",
+      "allowedAccessModes": [
+        "READ"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CAR_SPEED"
@@ -285,6 +393,12 @@
       "propertyName": "PERF_STEERING_ANGLE",
       "propertyId": 291504649,
       "description": "Front bicycle model steering angle for vehicle in degrees.",
+      "propertyType": "Float",
+      "areaType": "GLOBAL",
+      "changeMode": "CONTINUOUS",
+      "allowedAccessModes": [
+        "READ"
+      ],
       "readPermission": {
         "type": "anyOf",
         "value": [
@@ -304,6 +418,12 @@
       "propertyName": "PERF_REAR_STEERING_ANGLE",
       "propertyId": 291504656,
       "description": "Rear bicycle model steering angle for vehicle in degrees.",
+      "propertyType": "Float",
+      "areaType": "GLOBAL",
+      "changeMode": "CONTINUOUS",
+      "allowedAccessModes": [
+        "READ"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.READ_CAR_STEERING"
@@ -313,6 +433,12 @@
       "propertyName": "INSTANTANEOUS_FUEL_ECONOMY",
       "propertyId": 291504657,
       "description": "Instantaneous Fuel Economy in L\/100km.",
+      "propertyType": "Float",
+      "areaType": "GLOBAL",
+      "changeMode": "CONTINUOUS",
+      "allowedAccessModes": [
+        "READ"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CAR_MILEAGE_3P"
@@ -323,6 +449,12 @@
       "propertyName": "INSTANTANEOUS_EV_EFFICIENCY",
       "propertyId": 291504658,
       "description": "Instantaneous EV efficiency in km\/kWh.",
+      "propertyType": "Float",
+      "areaType": "GLOBAL",
+      "changeMode": "CONTINUOUS",
+      "allowedAccessModes": [
+        "READ"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CAR_MILEAGE_3P"
@@ -333,6 +465,12 @@
       "propertyName": "ENGINE_COOLANT_TEMP",
       "propertyId": 291504897,
       "description": "Temperature of engine coolant in celsius.",
+      "propertyType": "Float",
+      "areaType": "GLOBAL",
+      "changeMode": "CONTINUOUS",
+      "allowedAccessModes": [
+        "READ"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CAR_ENGINE_DETAILED"
@@ -342,6 +480,12 @@
       "propertyName": "ENGINE_OIL_LEVEL",
       "propertyId": 289407747,
       "description": "Engine oil level.",
+      "propertyType": "Integer",
+      "areaType": "GLOBAL",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CAR_ENGINE_DETAILED"
@@ -358,6 +502,12 @@
       "propertyName": "ENGINE_OIL_TEMP",
       "propertyId": 291504900,
       "description": "Temperature of engine oil in celsius.",
+      "propertyType": "Float",
+      "areaType": "GLOBAL",
+      "changeMode": "CONTINUOUS",
+      "allowedAccessModes": [
+        "READ"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CAR_ENGINE_DETAILED"
@@ -367,6 +517,12 @@
       "propertyName": "ENGINE_RPM",
       "propertyId": 291504901,
       "description": "Engine rpm.",
+      "propertyType": "Float",
+      "areaType": "GLOBAL",
+      "changeMode": "CONTINUOUS",
+      "allowedAccessModes": [
+        "READ"
+      ],
       "readPermission": {
         "type": "anyOf",
         "value": [
@@ -386,6 +542,13 @@
       "propertyName": "ENGINE_IDLE_AUTO_STOP_ENABLED",
       "propertyId": 287310624,
       "description": "Represents feature for engine idle automatic stop.",
+      "propertyType": "Boolean",
+      "areaType": "GLOBAL",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CAR_ENGINE_DETAILED"
@@ -400,6 +563,12 @@
       "propertyName": "IMPACT_DETECTED",
       "propertyId": 289407792,
       "description": "Impact detected.",
+      "propertyType": "Integer",
+      "areaType": "GLOBAL",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.READ_IMPACT_SENSORS"
@@ -419,6 +588,13 @@
       "propertyName": "VEHICLE_HORN_ENGAGED",
       "propertyId": 287310656,
       "description": "Vehicle horn engaged.",
+      "propertyType": "Boolean",
+      "areaType": "GLOBAL",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "anyOf",
         "value": [
@@ -442,6 +618,12 @@
       "propertyName": "WHEEL_TICK",
       "propertyId": 290521862,
       "description": "Reports wheel ticks.",
+      "propertyType": "Long[]",
+      "areaType": "GLOBAL",
+      "changeMode": "CONTINUOUS",
+      "allowedAccessModes": [
+        "READ"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CAR_SPEED"
@@ -451,6 +633,12 @@
       "propertyName": "FUEL_LEVEL",
       "propertyId": 291504903,
       "description": "Fuel level in milliliters.",
+      "propertyType": "Float",
+      "areaType": "GLOBAL",
+      "changeMode": "CONTINUOUS",
+      "allowedAccessModes": [
+        "READ"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CAR_ENERGY"
@@ -460,6 +648,13 @@
       "propertyName": "FUEL_DOOR_OPEN",
       "propertyId": 287310600,
       "description": "Fuel door open.",
+      "propertyType": "Boolean",
+      "areaType": "GLOBAL",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "anyOf",
         "value": [
@@ -482,6 +677,12 @@
       "propertyName": "EV_BATTERY_LEVEL",
       "propertyId": 291504905,
       "description": "EV battery level.",
+      "propertyType": "Float",
+      "areaType": "GLOBAL",
+      "changeMode": "CONTINUOUS",
+      "allowedAccessModes": [
+        "READ"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CAR_ENERGY"
@@ -491,6 +692,12 @@
       "propertyName": "EV_CURRENT_BATTERY_CAPACITY",
       "propertyId": 291504909,
       "description": "Current usable battery capacity for EV or hybrid vehicle.",
+      "propertyType": "Float",
+      "areaType": "GLOBAL",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CAR_ENERGY"
@@ -500,6 +707,13 @@
       "propertyName": "EV_CHARGE_PORT_OPEN",
       "propertyId": 287310602,
       "description": "EV charge port open.",
+      "propertyType": "Boolean",
+      "areaType": "GLOBAL",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "anyOf",
         "value": [
@@ -522,6 +736,12 @@
       "propertyName": "EV_CHARGE_PORT_CONNECTED",
       "propertyId": 287310603,
       "description": "EV charge port connected.",
+      "propertyType": "Boolean",
+      "areaType": "GLOBAL",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CAR_ENERGY_PORTS"
@@ -531,6 +751,12 @@
       "propertyName": "EV_BATTERY_INSTANTANEOUS_CHARGE_RATE",
       "propertyId": 291504908,
       "description": "EV instantaneous charge rate in milliwatts.",
+      "propertyType": "Float",
+      "areaType": "GLOBAL",
+      "changeMode": "CONTINUOUS",
+      "allowedAccessModes": [
+        "READ"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CAR_ENERGY"
@@ -540,6 +766,13 @@
       "propertyName": "RANGE_REMAINING",
       "propertyId": 291504904,
       "description": "Range remaining in meters.",
+      "propertyType": "Float",
+      "areaType": "GLOBAL",
+      "changeMode": "CONTINUOUS",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "anyOf",
         "value": [
@@ -562,6 +795,12 @@
       "propertyName": "EV_BATTERY_AVERAGE_TEMPERATURE",
       "propertyId": 291504910,
       "description": "EV battery average temperature",
+      "propertyType": "Float",
+      "areaType": "GLOBAL",
+      "changeMode": "CONTINUOUS",
+      "allowedAccessModes": [
+        "READ"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CAR_ENERGY"
@@ -572,6 +811,12 @@
       "propertyName": "TIRE_PRESSURE",
       "propertyId": 392168201,
       "description": "Tire pressure in kilopascals.",
+      "propertyType": "Float",
+      "areaType": "WHEEL",
+      "changeMode": "CONTINUOUS",
+      "allowedAccessModes": [
+        "READ"
+      ],
       "readPermission": {
         "type": "anyOf",
         "value": [
@@ -591,6 +836,12 @@
       "propertyName": "CRITICALLY_LOW_TIRE_PRESSURE",
       "propertyId": 392168202,
       "description": "Critically low tire pressure.",
+      "propertyType": "Float",
+      "areaType": "WHEEL",
+      "changeMode": "STATIC",
+      "allowedAccessModes": [
+        "READ"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CAR_TIRES"
@@ -600,6 +851,12 @@
       "propertyName": "ACCELERATOR_PEDAL_COMPRESSION_PERCENTAGE",
       "propertyId": 291504911,
       "description": "Accelerator pedal compression percentage.",
+      "propertyType": "Float",
+      "areaType": "GLOBAL",
+      "changeMode": "CONTINUOUS",
+      "allowedAccessModes": [
+        "READ"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.READ_CAR_PEDALS"
@@ -610,6 +867,12 @@
       "propertyName": "BRAKE_PEDAL_COMPRESSION_PERCENTAGE",
       "propertyId": 291504912,
       "description": "Brake pedal compression percentage.",
+      "propertyType": "Float",
+      "areaType": "GLOBAL",
+      "changeMode": "CONTINUOUS",
+      "allowedAccessModes": [
+        "READ"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.READ_CAR_PEDALS"
@@ -620,6 +883,12 @@
       "propertyName": "BRAKE_PAD_WEAR_PERCENTAGE",
       "propertyId": 392168209,
       "description": "Brake pad wear percentage.",
+      "propertyType": "Float",
+      "areaType": "WHEEL",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.READ_BRAKE_INFO"
@@ -630,6 +899,12 @@
       "propertyName": "BRAKE_FLUID_LEVEL_LOW",
       "propertyId": 287310610,
       "description": "Brake fluid level low.",
+      "propertyType": "Boolean",
+      "areaType": "GLOBAL",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.READ_BRAKE_INFO"
@@ -640,6 +915,12 @@
       "propertyName": "VEHICLE_PASSIVE_SUSPENSION_HEIGHT",
       "propertyId": 390071059,
       "description": "Vehicle Passive Suspension Height in mm.",
+      "propertyType": "Integer",
+      "areaType": "WHEEL",
+      "changeMode": "CONTINUOUS",
+      "allowedAccessModes": [
+        "READ"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CAR_DYNAMICS_STATE"
@@ -650,6 +931,12 @@
       "propertyName": "GEAR_SELECTION",
       "propertyId": 289408000,
       "description": "Currently selected gear by user.",
+      "propertyType": "Integer",
+      "areaType": "GLOBAL",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CAR_POWERTRAIN"
@@ -675,6 +962,12 @@
       "propertyName": "CURRENT_GEAR",
       "propertyId": 289408001,
       "description": "Vehicle transmission's current {@link VehicleGear}.",
+      "propertyType": "Integer",
+      "areaType": "GLOBAL",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CAR_POWERTRAIN"
@@ -700,6 +993,12 @@
       "propertyName": "PARKING_BRAKE_ON",
       "propertyId": 287310850,
       "description": "Parking brake state.",
+      "propertyType": "Boolean",
+      "areaType": "GLOBAL",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CAR_POWERTRAIN"
@@ -709,6 +1008,12 @@
       "propertyName": "PARKING_BRAKE_AUTO_APPLY",
       "propertyId": 287310851,
       "description": "Auto-apply parking brake.",
+      "propertyType": "Boolean",
+      "areaType": "GLOBAL",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CAR_POWERTRAIN"
@@ -718,6 +1023,13 @@
       "propertyName": "EV_BRAKE_REGENERATION_LEVEL",
       "propertyId": 289408012,
       "description": "Regenerative braking level of an electronic vehicle.",
+      "propertyType": "Integer",
+      "areaType": "GLOBAL",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "anyOf",
         "value": [
@@ -740,6 +1052,13 @@
       "propertyName": "EV_STOPPING_MODE",
       "propertyId": 289408013,
       "description": "Represents property for the current stopping mode of the vehicle.",
+      "propertyType": "Integer",
+      "areaType": "GLOBAL",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "anyOf",
         "value": [
@@ -768,6 +1087,12 @@
       "propertyName": "FUEL_LEVEL_LOW",
       "propertyId": 287310853,
       "description": "Warning for fuel low level.",
+      "propertyType": "Boolean",
+      "areaType": "GLOBAL",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CAR_ENERGY"
@@ -777,6 +1102,12 @@
       "propertyName": "NIGHT_MODE",
       "propertyId": 287310855,
       "description": "Night mode.",
+      "propertyType": "Boolean",
+      "areaType": "GLOBAL",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CAR_EXTERIOR_ENVIRONMENT"
@@ -786,6 +1117,12 @@
       "propertyName": "TURN_SIGNAL_STATE",
       "propertyId": 289408008,
       "description": "State of the vehicles turn signals",
+      "propertyType": "Integer",
+      "areaType": "GLOBAL",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CAR_EXTERIOR_LIGHTS"
@@ -801,6 +1138,12 @@
       "propertyName": "IGNITION_STATE",
       "propertyId": 289408009,
       "description": "Vehicle's ignition state.",
+      "propertyType": "Integer",
+      "areaType": "GLOBAL",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CAR_POWERTRAIN"
@@ -818,6 +1161,12 @@
       "propertyName": "ABS_ACTIVE",
       "propertyId": 287310858,
       "description": "ABS is active.",
+      "propertyType": "Boolean",
+      "areaType": "GLOBAL",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CAR_DYNAMICS_STATE"
@@ -827,6 +1176,12 @@
       "propertyName": "TRACTION_CONTROL_ACTIVE",
       "propertyId": 287310859,
       "description": "Traction Control is active.",
+      "propertyType": "Boolean",
+      "areaType": "GLOBAL",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CAR_DYNAMICS_STATE"
@@ -836,6 +1191,13 @@
       "propertyName": "ELECTRONIC_STABILITY_CONTROL_ENABLED",
       "propertyId": 287310862,
       "description": "Enable or disable Electronic Stability Control (ESC).",
+      "propertyType": "Boolean",
+      "areaType": "GLOBAL",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "anyOf",
         "value": [
@@ -859,6 +1221,12 @@
       "propertyName": "ELECTRONIC_STABILITY_CONTROL_STATE",
       "propertyId": 289408015,
       "description": "Electronic Stability Control (ESC) state.",
+      "propertyType": "Integer",
+      "areaType": "GLOBAL",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CAR_DYNAMICS_STATE"
@@ -880,6 +1248,12 @@
       "propertyName": "TURN_SIGNAL_LIGHT_STATE",
       "propertyId": 289408016,
       "description": "Turn signal light state.",
+      "propertyType": "Integer",
+      "areaType": "GLOBAL",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ"
+      ],
       "readPermission": {
         "type": "anyOf",
         "value": [
@@ -904,6 +1278,13 @@
       "propertyName": "TURN_SIGNAL_SWITCH",
       "propertyId": 289408017,
       "description": "Turn signal switch.",
+      "propertyType": "Integer",
+      "areaType": "GLOBAL",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "anyOf",
         "value": [
@@ -932,6 +1313,13 @@
       "propertyName": "HVAC_FAN_SPEED",
       "propertyId": 356517120,
       "description": "Fan speed setting.",
+      "propertyType": "Integer",
+      "areaType": "SEAT",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CONTROL_CAR_CLIMATE"
@@ -945,6 +1333,13 @@
       "propertyName": "HVAC_FAN_DIRECTION",
       "propertyId": 356517121,
       "description": "The current {@link CarHvacFanDirection} setting.",
+      "propertyType": "Integer",
+      "areaType": "SEAT",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CONTROL_CAR_CLIMATE"
@@ -968,6 +1363,12 @@
       "propertyName": "HVAC_TEMPERATURE_CURRENT",
       "propertyId": 358614274,
       "description": "HVAC current temperature in celsius.",
+      "propertyType": "Float",
+      "areaType": "SEAT",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CONTROL_CAR_CLIMATE"
@@ -977,6 +1378,13 @@
       "propertyName": "HVAC_TEMPERATURE_SET",
       "propertyId": 358614275,
       "description": "HVAC target temperature set in Celsius.",
+      "propertyType": "Float",
+      "areaType": "SEAT",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CONTROL_CAR_CLIMATE"
@@ -990,6 +1398,12 @@
       "propertyName": "HVAC_TEMPERATURE_VALUE_SUGGESTION",
       "propertyId": 291570965,
       "description": "Suggested values for setting HVAC temperature.",
+      "propertyType": "Float[]",
+      "areaType": "GLOBAL",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CONTROL_CAR_CLIMATE"
@@ -1003,6 +1417,13 @@
       "propertyName": "HVAC_DEFROSTER",
       "propertyId": 320865540,
       "description": "On\/off defrost for designated window.",
+      "propertyType": "Boolean",
+      "areaType": "WINDOW",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CONTROL_CAR_CLIMATE"
@@ -1016,6 +1437,13 @@
       "propertyName": "HVAC_AC_ON",
       "propertyId": 354419973,
       "description": "On\/off AC for designated areaId.",
+      "propertyType": "Boolean",
+      "areaType": "SEAT",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CONTROL_CAR_CLIMATE"
@@ -1029,6 +1457,13 @@
       "propertyName": "HVAC_MAX_AC_ON",
       "propertyId": 354419974,
       "description": "On\/off max AC.",
+      "propertyType": "Boolean",
+      "areaType": "SEAT",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CONTROL_CAR_CLIMATE"
@@ -1042,6 +1477,13 @@
       "propertyName": "HVAC_MAX_DEFROST_ON",
       "propertyId": 354419975,
       "description": "On\/off max defrost.",
+      "propertyType": "Boolean",
+      "areaType": "SEAT",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CONTROL_CAR_CLIMATE"
@@ -1055,6 +1497,13 @@
       "propertyName": "HVAC_RECIRC_ON",
       "propertyId": 354419976,
       "description": "Recirculation on\/off.",
+      "propertyType": "Boolean",
+      "areaType": "SEAT",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CONTROL_CAR_CLIMATE"
@@ -1068,6 +1517,13 @@
       "propertyName": "HVAC_DUAL_ON",
       "propertyId": 354419977,
       "description": "Enable temperature coupling between areas.",
+      "propertyType": "Boolean",
+      "areaType": "SEAT",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CONTROL_CAR_CLIMATE"
@@ -1081,6 +1537,13 @@
       "propertyName": "HVAC_AUTO_ON",
       "propertyId": 354419978,
       "description": "On\/off automatic mode.",
+      "propertyType": "Boolean",
+      "areaType": "SEAT",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CONTROL_CAR_CLIMATE"
@@ -1094,6 +1557,13 @@
       "propertyName": "HVAC_SEAT_TEMPERATURE",
       "propertyId": 356517131,
       "description": "Seat heating\/cooling.",
+      "propertyType": "Integer",
+      "areaType": "SEAT",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CONTROL_CAR_CLIMATE"
@@ -1107,6 +1577,13 @@
       "propertyName": "HVAC_SIDE_MIRROR_HEAT",
       "propertyId": 339739916,
       "description": "Side Mirror Heat.",
+      "propertyType": "Integer",
+      "areaType": "MIRROR",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CONTROL_CAR_CLIMATE"
@@ -1120,6 +1597,13 @@
       "propertyName": "HVAC_STEERING_WHEEL_HEAT",
       "propertyId": 289408269,
       "description": "Steering Wheel Heating\/Cooling.",
+      "propertyType": "Integer",
+      "areaType": "GLOBAL",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CONTROL_CAR_CLIMATE"
@@ -1133,6 +1617,13 @@
       "propertyName": "HVAC_TEMPERATURE_DISPLAY_UNITS",
       "propertyId": 289408270,
       "description": "Temperature units for display.",
+      "propertyType": "Integer",
+      "areaType": "GLOBAL",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "anyOf",
         "value": [
@@ -1189,6 +1680,12 @@
       "propertyName": "HVAC_ACTUAL_FAN_SPEED_RPM",
       "propertyId": 356517135,
       "description": "Actual fan speed.",
+      "propertyType": "Integer",
+      "areaType": "SEAT",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CONTROL_CAR_CLIMATE"
@@ -1198,6 +1695,13 @@
       "propertyName": "HVAC_POWER_ON",
       "propertyId": 354419984,
       "description": "Represents global power state for HVAC.",
+      "propertyType": "Boolean",
+      "areaType": "SEAT",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CONTROL_CAR_CLIMATE"
@@ -1211,6 +1715,12 @@
       "propertyName": "HVAC_FAN_DIRECTION_AVAILABLE",
       "propertyId": 356582673,
       "description": "List of supported {@link CarHvacFanDirection} values for the vehicle.",
+      "propertyType": "Integer[]",
+      "areaType": "SEAT",
+      "changeMode": "STATIC",
+      "allowedAccessModes": [
+        "READ"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CONTROL_CAR_CLIMATE"
@@ -1230,6 +1740,13 @@
       "propertyName": "HVAC_AUTO_RECIRC_ON",
       "propertyId": 354419986,
       "description": "Automatic recirculation on\/off.",
+      "propertyType": "Boolean",
+      "areaType": "SEAT",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CONTROL_CAR_CLIMATE"
@@ -1243,6 +1760,13 @@
       "propertyName": "HVAC_SEAT_VENTILATION",
       "propertyId": 356517139,
       "description": "Seat ventilation.",
+      "propertyType": "Integer",
+      "areaType": "SEAT",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CONTROL_CAR_CLIMATE"
@@ -1256,6 +1780,13 @@
       "propertyName": "HVAC_ELECTRIC_DEFROSTER_ON",
       "propertyId": 320865556,
       "description": "ELECTRIC DEFROSTER.",
+      "propertyType": "Boolean",
+      "areaType": "WINDOW",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CONTROL_CAR_CLIMATE"
@@ -1270,6 +1801,13 @@
       "propertyName": "DISTANCE_DISPLAY_UNITS",
       "propertyId": 289408512,
       "description": "Distance units for display.",
+      "propertyType": "Integer",
+      "areaType": "GLOBAL",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.READ_CAR_DISPLAY_UNITS"
@@ -1326,6 +1864,13 @@
       "propertyName": "FUEL_VOLUME_DISPLAY_UNITS",
       "propertyId": 289408513,
       "description": "Fuel volume units for display.",
+      "propertyType": "Integer",
+      "areaType": "GLOBAL",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.READ_CAR_DISPLAY_UNITS"
@@ -1382,6 +1927,13 @@
       "propertyName": "TIRE_PRESSURE_DISPLAY_UNITS",
       "propertyId": 289408514,
       "description": "Tire pressure units for display.",
+      "propertyType": "Integer",
+      "areaType": "GLOBAL",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.READ_CAR_DISPLAY_UNITS"
@@ -1438,6 +1990,13 @@
       "propertyName": "EV_BATTERY_DISPLAY_UNITS",
       "propertyId": 289408515,
       "description": "EV battery units for display.",
+      "propertyType": "Integer",
+      "areaType": "GLOBAL",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.READ_CAR_DISPLAY_UNITS"
@@ -1494,6 +2053,13 @@
       "propertyName": "VEHICLE_SPEED_DISPLAY_UNITS",
       "propertyId": 289408516,
       "description": "Speed units for display.",
+      "propertyType": "Integer",
+      "areaType": "GLOBAL",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.READ_CAR_DISPLAY_UNITS"
@@ -1551,6 +2117,13 @@
       "propertyName": "FUEL_CONSUMPTION_UNITS_DISTANCE_OVER_VOLUME",
       "propertyId": 287311364,
       "description": "Fuel consumption units for display.",
+      "propertyType": "Boolean",
+      "areaType": "GLOBAL",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.READ_CAR_DISPLAY_UNITS"
@@ -1573,6 +2146,12 @@
       "propertyName": "ENV_OUTSIDE_TEMPERATURE",
       "propertyId": 291505923,
       "description": "Outside temperature in celsius.",
+      "propertyType": "Float",
+      "areaType": "GLOBAL",
+      "changeMode": "CONTINUOUS",
+      "allowedAccessModes": [
+        "READ"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CAR_EXTERIOR_ENVIRONMENT"
@@ -1582,36 +2161,48 @@
       "propertyName": "AP_POWER_STATE_REQ",
       "propertyId": 289475072,
       "description": "Property to control power state of application processor.",
+      "allowedAccessModes": [],
       "deprecated": true
     },
     "AP_POWER_STATE_REPORT": {
       "propertyName": "AP_POWER_STATE_REPORT",
       "propertyId": 289475073,
       "description": "Property to report power state of application processor.",
+      "allowedAccessModes": [],
       "deprecated": true
     },
     "AP_POWER_BOOTUP_REASON": {
       "propertyName": "AP_POWER_BOOTUP_REASON",
       "propertyId": 289409538,
       "description": "Property to report bootup reason for the current power on.",
+      "allowedAccessModes": [],
       "deprecated": true
     },
     "DISPLAY_BRIGHTNESS": {
       "propertyName": "DISPLAY_BRIGHTNESS",
       "propertyId": 289409539,
       "description": "Property to represent brightness of the display.",
+      "allowedAccessModes": [],
       "deprecated": true
     },
     "PER_DISPLAY_BRIGHTNESS": {
       "propertyName": "PER_DISPLAY_BRIGHTNESS",
       "propertyId": 289475076,
       "description": "Property to represent brightness of the displays which are controlled separately.",
+      "allowedAccessModes": [],
       "deprecated": true
     },
     "VALET_MODE_ENABLED": {
       "propertyName": "VALET_MODE_ENABLED",
       "propertyId": 287312389,
       "description": "Valet mode enabled",
+      "propertyType": "Boolean",
+      "areaType": "GLOBAL",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "anyOf",
         "value": [
@@ -1635,6 +2226,13 @@
       "propertyName": "HEAD_UP_DISPLAY_ENABLED",
       "propertyId": 354421254,
       "description": "Head up display (HUD) enabled",
+      "propertyType": "Boolean",
+      "areaType": "SEAT",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "anyOf",
         "value": [
@@ -1658,12 +2256,20 @@
       "propertyName": "HW_KEY_INPUT",
       "propertyId": 289475088,
       "description": "Property to feed H\/W input events to android.",
+      "allowedAccessModes": [],
       "deprecated": true
     },
     "DOOR_POS": {
       "propertyName": "DOOR_POS",
       "propertyId": 373295872,
       "description": "Door position.",
+      "propertyType": "Integer",
+      "areaType": "DOOR",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CONTROL_CAR_DOORS"
@@ -1677,6 +2283,13 @@
       "propertyName": "DOOR_MOVE",
       "propertyId": 373295873,
       "description": "Door move.",
+      "propertyType": "Integer",
+      "areaType": "DOOR",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CONTROL_CAR_DOORS"
@@ -1690,6 +2303,13 @@
       "propertyName": "DOOR_LOCK",
       "propertyId": 371198722,
       "description": "Door lock.",
+      "propertyType": "Boolean",
+      "areaType": "DOOR",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CONTROL_CAR_DOORS"
@@ -1703,6 +2323,13 @@
       "propertyName": "DOOR_CHILD_LOCK_ENABLED",
       "propertyId": 371198723,
       "description": "Door child lock feature enabled.",
+      "propertyType": "Boolean",
+      "areaType": "DOOR",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CONTROL_CAR_DOORS"
@@ -1717,6 +2344,13 @@
       "propertyName": "MIRROR_Z_POS",
       "propertyId": 339741504,
       "description": "Mirror Z Position.",
+      "propertyType": "Integer",
+      "areaType": "MIRROR",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CONTROL_CAR_MIRRORS"
@@ -1730,6 +2364,13 @@
       "propertyName": "MIRROR_Z_MOVE",
       "propertyId": 339741505,
       "description": "Mirror Z Move.",
+      "propertyType": "Integer",
+      "areaType": "MIRROR",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CONTROL_CAR_MIRRORS"
@@ -1743,6 +2384,13 @@
       "propertyName": "MIRROR_Y_POS",
       "propertyId": 339741506,
       "description": "Mirror Y Position.",
+      "propertyType": "Integer",
+      "areaType": "MIRROR",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CONTROL_CAR_MIRRORS"
@@ -1756,6 +2404,13 @@
       "propertyName": "MIRROR_Y_MOVE",
       "propertyId": 339741507,
       "description": "Mirror Y Move.",
+      "propertyType": "Integer",
+      "areaType": "MIRROR",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CONTROL_CAR_MIRRORS"
@@ -1769,6 +2424,13 @@
       "propertyName": "MIRROR_LOCK",
       "propertyId": 287312708,
       "description": "Mirror Lock.",
+      "propertyType": "Boolean",
+      "areaType": "GLOBAL",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CONTROL_CAR_MIRRORS"
@@ -1782,6 +2444,13 @@
       "propertyName": "MIRROR_FOLD",
       "propertyId": 287312709,
       "description": "Mirror Fold.",
+      "propertyType": "Boolean",
+      "areaType": "GLOBAL",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CONTROL_CAR_MIRRORS"
@@ -1795,6 +2464,13 @@
       "propertyName": "MIRROR_AUTO_FOLD_ENABLED",
       "propertyId": 337644358,
       "description": "Represents property for the Mirror Auto Fold feature.",
+      "propertyType": "Boolean",
+      "areaType": "MIRROR",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CONTROL_CAR_MIRRORS"
@@ -1809,6 +2485,13 @@
       "propertyName": "MIRROR_AUTO_TILT_ENABLED",
       "propertyId": 337644359,
       "description": "Represents property for the Mirror Auto Tilt feature.",
+      "propertyType": "Boolean",
+      "areaType": "MIRROR",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CONTROL_CAR_MIRRORS"
@@ -1823,6 +2506,13 @@
       "propertyName": "GLOVE_BOX_DOOR_POS",
       "propertyId": 356518896,
       "description": "Property that represents the current position of the glove box door.",
+      "propertyType": "Integer",
+      "areaType": "SEAT",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CONTROL_GLOVE_BOX"
@@ -1837,6 +2527,13 @@
       "propertyName": "GLOVE_BOX_LOCKED",
       "propertyId": 354421745,
       "description": "Lock or unlock the glove box.",
+      "propertyType": "Boolean",
+      "areaType": "SEAT",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CONTROL_GLOVE_BOX"
@@ -1851,6 +2548,12 @@
       "propertyName": "SEAT_MEMORY_SELECT",
       "propertyId": 356518784,
       "description": "Seat memory select.",
+      "propertyType": "Integer",
+      "areaType": "SEAT",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "WRITE"
+      ],
       "writePermission": {
         "type": "single",
         "value": "android.car.permission.CONTROL_CAR_SEATS"
@@ -1860,6 +2563,12 @@
       "propertyName": "SEAT_MEMORY_SET",
       "propertyId": 356518785,
       "description": "Seat memory set.",
+      "propertyType": "Integer",
+      "areaType": "SEAT",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "WRITE"
+      ],
       "writePermission": {
         "type": "single",
         "value": "android.car.permission.CONTROL_CAR_SEATS"
@@ -1869,6 +2578,13 @@
       "propertyName": "SEAT_BELT_BUCKLED",
       "propertyId": 354421634,
       "description": "Seatbelt buckled.",
+      "propertyType": "Boolean",
+      "areaType": "SEAT",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CONTROL_CAR_SEATS"
@@ -1882,6 +2598,13 @@
       "propertyName": "SEAT_BELT_HEIGHT_POS",
       "propertyId": 356518787,
       "description": "Seatbelt height position.",
+      "propertyType": "Integer",
+      "areaType": "SEAT",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CONTROL_CAR_SEATS"
@@ -1895,6 +2618,13 @@
       "propertyName": "SEAT_BELT_HEIGHT_MOVE",
       "propertyId": 356518788,
       "description": "Seatbelt height move.",
+      "propertyType": "Integer",
+      "areaType": "SEAT",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CONTROL_CAR_SEATS"
@@ -1908,6 +2638,13 @@
       "propertyName": "SEAT_FORE_AFT_POS",
       "propertyId": 356518789,
       "description": "Seat fore\/aft position.",
+      "propertyType": "Integer",
+      "areaType": "SEAT",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CONTROL_CAR_SEATS"
@@ -1921,6 +2658,13 @@
       "propertyName": "SEAT_FORE_AFT_MOVE",
       "propertyId": 356518790,
       "description": "Seat fore\/aft move.",
+      "propertyType": "Integer",
+      "areaType": "SEAT",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CONTROL_CAR_SEATS"
@@ -1934,6 +2678,13 @@
       "propertyName": "SEAT_BACKREST_ANGLE_1_POS",
       "propertyId": 356518791,
       "description": "Seat backrest angle 1 position.",
+      "propertyType": "Integer",
+      "areaType": "SEAT",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CONTROL_CAR_SEATS"
@@ -1947,6 +2698,13 @@
       "propertyName": "SEAT_BACKREST_ANGLE_1_MOVE",
       "propertyId": 356518792,
       "description": "Seat backrest angle 1 move.",
+      "propertyType": "Integer",
+      "areaType": "SEAT",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CONTROL_CAR_SEATS"
@@ -1960,6 +2718,13 @@
       "propertyName": "SEAT_BACKREST_ANGLE_2_POS",
       "propertyId": 356518793,
       "description": "Seat backrest angle 2 position.",
+      "propertyType": "Integer",
+      "areaType": "SEAT",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CONTROL_CAR_SEATS"
@@ -1973,6 +2738,13 @@
       "propertyName": "SEAT_BACKREST_ANGLE_2_MOVE",
       "propertyId": 356518794,
       "description": "Seat backrest angle 2 move.",
+      "propertyType": "Integer",
+      "areaType": "SEAT",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CONTROL_CAR_SEATS"
@@ -1986,6 +2758,13 @@
       "propertyName": "SEAT_HEIGHT_POS",
       "propertyId": 356518795,
       "description": "Seat height position.",
+      "propertyType": "Integer",
+      "areaType": "SEAT",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CONTROL_CAR_SEATS"
@@ -1999,6 +2778,13 @@
       "propertyName": "SEAT_HEIGHT_MOVE",
       "propertyId": 356518796,
       "description": "Seat height move.",
+      "propertyType": "Integer",
+      "areaType": "SEAT",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CONTROL_CAR_SEATS"
@@ -2012,6 +2798,13 @@
       "propertyName": "SEAT_DEPTH_POS",
       "propertyId": 356518797,
       "description": "Seat depth position.",
+      "propertyType": "Integer",
+      "areaType": "SEAT",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CONTROL_CAR_SEATS"
@@ -2025,6 +2818,13 @@
       "propertyName": "SEAT_DEPTH_MOVE",
       "propertyId": 356518798,
       "description": "Seat depth move.",
+      "propertyType": "Integer",
+      "areaType": "SEAT",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CONTROL_CAR_SEATS"
@@ -2038,6 +2838,13 @@
       "propertyName": "SEAT_TILT_POS",
       "propertyId": 356518799,
       "description": "Seat tilt position.",
+      "propertyType": "Integer",
+      "areaType": "SEAT",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CONTROL_CAR_SEATS"
@@ -2051,6 +2858,13 @@
       "propertyName": "SEAT_TILT_MOVE",
       "propertyId": 356518800,
       "description": "Seat tilt move.",
+      "propertyType": "Integer",
+      "areaType": "SEAT",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CONTROL_CAR_SEATS"
@@ -2064,6 +2878,13 @@
       "propertyName": "SEAT_LUMBAR_FORE_AFT_POS",
       "propertyId": 356518801,
       "description": "Lumber fore\/aft position.",
+      "propertyType": "Integer",
+      "areaType": "SEAT",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CONTROL_CAR_SEATS"
@@ -2077,6 +2898,13 @@
       "propertyName": "SEAT_LUMBAR_FORE_AFT_MOVE",
       "propertyId": 356518802,
       "description": "Lumbar fore\/aft move.",
+      "propertyType": "Integer",
+      "areaType": "SEAT",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CONTROL_CAR_SEATS"
@@ -2090,6 +2918,13 @@
       "propertyName": "SEAT_LUMBAR_SIDE_SUPPORT_POS",
       "propertyId": 356518803,
       "description": "Lumbar side support position.",
+      "propertyType": "Integer",
+      "areaType": "SEAT",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CONTROL_CAR_SEATS"
@@ -2103,6 +2938,13 @@
       "propertyName": "SEAT_LUMBAR_SIDE_SUPPORT_MOVE",
       "propertyId": 356518804,
       "description": "Lumbar side support move.",
+      "propertyType": "Integer",
+      "areaType": "SEAT",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CONTROL_CAR_SEATS"
@@ -2116,12 +2958,21 @@
       "propertyName": "SEAT_HEADREST_HEIGHT_POS",
       "propertyId": 289409941,
       "description": "Headrest height position.",
+      "areaType": "GLOBAL",
+      "allowedAccessModes": [],
       "deprecated": true
     },
     "SEAT_HEADREST_HEIGHT_POS_V2": {
       "propertyName": "SEAT_HEADREST_HEIGHT_POS_V2",
       "propertyId": 356518820,
       "description": "Headrest height position.",
+      "propertyType": "Integer",
+      "areaType": "SEAT",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CONTROL_CAR_SEATS"
@@ -2135,6 +2986,13 @@
       "propertyName": "SEAT_HEADREST_HEIGHT_MOVE",
       "propertyId": 356518806,
       "description": "Headrest height move.",
+      "propertyType": "Integer",
+      "areaType": "SEAT",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CONTROL_CAR_SEATS"
@@ -2148,6 +3006,13 @@
       "propertyName": "SEAT_HEADREST_ANGLE_POS",
       "propertyId": 356518807,
       "description": "Headrest angle position.",
+      "propertyType": "Integer",
+      "areaType": "SEAT",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CONTROL_CAR_SEATS"
@@ -2161,6 +3026,13 @@
       "propertyName": "SEAT_HEADREST_ANGLE_MOVE",
       "propertyId": 356518808,
       "description": "Headrest angle move.",
+      "propertyType": "Integer",
+      "areaType": "SEAT",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CONTROL_CAR_SEATS"
@@ -2174,6 +3046,13 @@
       "propertyName": "SEAT_HEADREST_FORE_AFT_POS",
       "propertyId": 356518809,
       "description": "Headrest fore\/aft position.",
+      "propertyType": "Integer",
+      "areaType": "SEAT",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CONTROL_CAR_SEATS"
@@ -2187,6 +3066,13 @@
       "propertyName": "SEAT_HEADREST_FORE_AFT_MOVE",
       "propertyId": 356518810,
       "description": "Headrest fore\/aft move.",
+      "propertyType": "Integer",
+      "areaType": "SEAT",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CONTROL_CAR_SEATS"
@@ -2200,6 +3086,12 @@
       "propertyName": "SEAT_FOOTWELL_LIGHTS_STATE",
       "propertyId": 356518811,
       "description": "Represents property for state of the footwell lights.",
+      "propertyType": "Integer",
+      "areaType": "SEAT",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.READ_CAR_INTERIOR_LIGHTS"
@@ -2214,6 +3106,13 @@
       "propertyName": "SEAT_FOOTWELL_LIGHTS_SWITCH",
       "propertyId": 356518812,
       "description": "Represents property for switch of the footwell lights.",
+      "propertyType": "Integer",
+      "areaType": "SEAT",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CONTROL_CAR_INTERIOR_LIGHTS"
@@ -2233,6 +3132,13 @@
       "propertyName": "SEAT_EASY_ACCESS_ENABLED",
       "propertyId": 354421661,
       "description": "Represents property for Seat easy access feature.",
+      "propertyType": "Boolean",
+      "areaType": "SEAT",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CONTROL_CAR_SEATS"
@@ -2247,6 +3153,13 @@
       "propertyName": "SEAT_AIRBAG_ENABLED",
       "propertyId": 354421662,
       "description": "Represents feature to enable\/disable a seat's ability to deploy airbag(s) when triggered",
+      "propertyType": "Boolean",
+      "areaType": "SEAT",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CONTROL_CAR_AIRBAGS"
@@ -2261,6 +3174,12 @@
       "propertyName": "SEAT_AIRBAGS_DEPLOYED",
       "propertyId": 356518821,
       "description": "State of deployment for seat airbags.",
+      "propertyType": "Integer",
+      "areaType": "SEAT",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.READ_CAR_AIRBAGS"
@@ -2279,6 +3198,13 @@
       "propertyName": "SEAT_CUSHION_SIDE_SUPPORT_POS",
       "propertyId": 356518815,
       "description": "Represents property for seat’s hipside (bottom cushion’s side) support position.",
+      "propertyType": "Integer",
+      "areaType": "SEAT",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CONTROL_CAR_SEATS"
@@ -2293,6 +3219,13 @@
       "propertyName": "SEAT_CUSHION_SIDE_SUPPORT_MOVE",
       "propertyId": 356518816,
       "description": "Represents property for movement direction and speed of seat cushion side support.",
+      "propertyType": "Integer",
+      "areaType": "SEAT",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CONTROL_CAR_SEATS"
@@ -2307,6 +3240,13 @@
       "propertyName": "SEAT_LUMBAR_VERTICAL_POS",
       "propertyId": 356518817,
       "description": "Represents property for seat’s lumbar support vertical position.",
+      "propertyType": "Integer",
+      "areaType": "SEAT",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CONTROL_CAR_SEATS"
@@ -2321,6 +3261,13 @@
       "propertyName": "SEAT_LUMBAR_VERTICAL_MOVE",
       "propertyId": 356518818,
       "description": "Represents property for vertical movement direction and speed of seat lumbar support.",
+      "propertyType": "Integer",
+      "areaType": "SEAT",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CONTROL_CAR_SEATS"
@@ -2335,6 +3282,13 @@
       "propertyName": "SEAT_WALK_IN_POS",
       "propertyId": 356518819,
       "description": "Represents property that indicates the current walk-in position of the seat.",
+      "propertyType": "Integer",
+      "areaType": "SEAT",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CONTROL_CAR_SEATS"
@@ -2349,6 +3303,12 @@
       "propertyName": "SEAT_BELT_PRETENSIONER_DEPLOYED",
       "propertyId": 354421670,
       "description": "Seat belt pretensioner deployed.",
+      "propertyType": "Boolean",
+      "areaType": "SEAT",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.READ_CAR_SEAT_BELTS"
@@ -2359,6 +3319,12 @@
       "propertyName": "SEAT_OCCUPANCY",
       "propertyId": 356518832,
       "description": "Seat Occupancy.",
+      "propertyType": "Integer",
+      "areaType": "SEAT",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ"
+      ],
       "readPermission": {
         "type": "anyOf",
         "value": [
@@ -2383,6 +3349,13 @@
       "propertyName": "WINDOW_POS",
       "propertyId": 322964416,
       "description": "Window Position.",
+      "propertyType": "Integer",
+      "areaType": "WINDOW",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CONTROL_CAR_WINDOWS"
@@ -2396,6 +3369,13 @@
       "propertyName": "WINDOW_MOVE",
       "propertyId": 322964417,
       "description": "Window Move.",
+      "propertyType": "Integer",
+      "areaType": "WINDOW",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CONTROL_CAR_WINDOWS"
@@ -2409,6 +3389,13 @@
       "propertyName": "WINDOW_LOCK",
       "propertyId": 320867268,
       "description": "Window Child Lock.",
+      "propertyType": "Boolean",
+      "areaType": "WINDOW",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CONTROL_CAR_WINDOWS"
@@ -2422,6 +3409,12 @@
       "propertyName": "WINDSHIELD_WIPERS_PERIOD",
       "propertyId": 322964421,
       "description": "Windshield wipers period (milliseconds).",
+      "propertyType": "Integer",
+      "areaType": "WINDOW",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.READ_WINDSHIELD_WIPERS"
@@ -2432,6 +3425,12 @@
       "propertyName": "WINDSHIELD_WIPERS_STATE",
       "propertyId": 322964422,
       "description": "Windshield wipers state.",
+      "propertyType": "Integer",
+      "areaType": "WINDOW",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ"
+      ],
       "readPermission": {
         "type": "anyOf",
         "value": [
@@ -2457,6 +3456,13 @@
       "propertyName": "WINDSHIELD_WIPERS_SWITCH",
       "propertyId": 322964423,
       "description": "Windshield wipers switch.",
+      "propertyType": "Integer",
+      "areaType": "WINDOW",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "anyOf",
         "value": [
@@ -2497,6 +3503,13 @@
       "propertyName": "STEERING_WHEEL_DEPTH_POS",
       "propertyId": 289410016,
       "description": "Steering wheel depth position.",
+      "propertyType": "Integer",
+      "areaType": "GLOBAL",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CONTROL_STEERING_WHEEL"
@@ -2511,6 +3524,13 @@
       "propertyName": "STEERING_WHEEL_DEPTH_MOVE",
       "propertyId": 289410017,
       "description": "Steering wheel depth movement.",
+      "propertyType": "Integer",
+      "areaType": "GLOBAL",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CONTROL_STEERING_WHEEL"
@@ -2525,6 +3545,13 @@
       "propertyName": "STEERING_WHEEL_HEIGHT_POS",
       "propertyId": 289410018,
       "description": "Steering wheel height position.",
+      "propertyType": "Integer",
+      "areaType": "GLOBAL",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CONTROL_STEERING_WHEEL"
@@ -2539,6 +3566,13 @@
       "propertyName": "STEERING_WHEEL_HEIGHT_MOVE",
       "propertyId": 289410019,
       "description": "Steering wheel height movement.",
+      "propertyType": "Integer",
+      "areaType": "GLOBAL",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CONTROL_STEERING_WHEEL"
@@ -2553,6 +3587,13 @@
       "propertyName": "STEERING_WHEEL_THEFT_LOCK_ENABLED",
       "propertyId": 287312868,
       "description": "Steering wheel theft lock feature enabled.",
+      "propertyType": "Boolean",
+      "areaType": "GLOBAL",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CONTROL_STEERING_WHEEL"
@@ -2567,6 +3608,13 @@
       "propertyName": "STEERING_WHEEL_LOCKED",
       "propertyId": 287312869,
       "description": "Steering wheel locked.",
+      "propertyType": "Boolean",
+      "areaType": "GLOBAL",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CONTROL_STEERING_WHEEL"
@@ -2581,6 +3629,13 @@
       "propertyName": "STEERING_WHEEL_EASY_ACCESS_ENABLED",
       "propertyId": 287312870,
       "description": "Steering wheel easy access feature enabled.",
+      "propertyType": "Boolean",
+      "areaType": "GLOBAL",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CONTROL_STEERING_WHEEL"
@@ -2595,12 +3650,19 @@
       "propertyName": "VEHICLE_MAP_SERVICE",
       "propertyId": 299895808,
       "description": "Vehicle Maps Service (VMS) message.",
+      "allowedAccessModes": [],
       "deprecated": true
     },
     "LOCATION_CHARACTERIZATION": {
       "propertyName": "LOCATION_CHARACTERIZATION",
       "propertyId": 289410064,
       "description": "Characterization of inputs used for computing location.",
+      "propertyType": "Integer",
+      "areaType": "GLOBAL",
+      "changeMode": "STATIC",
+      "allowedAccessModes": [
+        "READ"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.permission.ACCESS_FINE_LOCATION"
@@ -2621,6 +3683,12 @@
       "propertyName": "ULTRASONICS_SENSOR_POSITION",
       "propertyId": 406916128,
       "description": "Static data for the position of each ultrasonic sensor installed on the vehicle.",
+      "propertyType": "Integer[]",
+      "areaType": "VENDOR",
+      "changeMode": "STATIC",
+      "allowedAccessModes": [
+        "READ"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.READ_ULTRASONICS_SENSOR_DATA"
@@ -2631,6 +3699,12 @@
       "propertyName": "ULTRASONICS_SENSOR_ORIENTATION",
       "propertyId": 409013281,
       "description": "Static data for the orientation of each ultrasonic sensor installed on the vehicle.",
+      "propertyType": "Float[]",
+      "areaType": "VENDOR",
+      "changeMode": "STATIC",
+      "allowedAccessModes": [
+        "READ"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.READ_ULTRASONICS_SENSOR_DATA"
@@ -2641,6 +3715,12 @@
       "propertyName": "ULTRASONICS_SENSOR_FIELD_OF_VIEW",
       "propertyId": 406916130,
       "description": "Static data for the field of view of each ultrasonic sensor in degrees.",
+      "propertyType": "Integer[]",
+      "areaType": "VENDOR",
+      "changeMode": "STATIC",
+      "allowedAccessModes": [
+        "READ"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.READ_ULTRASONICS_SENSOR_DATA"
@@ -2651,6 +3731,12 @@
       "propertyName": "ULTRASONICS_SENSOR_DETECTION_RANGE",
       "propertyId": 406916131,
       "description": "Static data for the detection range of each ultrasonic sensor in millimeters.",
+      "propertyType": "Integer[]",
+      "areaType": "VENDOR",
+      "changeMode": "STATIC",
+      "allowedAccessModes": [
+        "READ"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.READ_ULTRASONICS_SENSOR_DATA"
@@ -2661,6 +3747,12 @@
       "propertyName": "ULTRASONICS_SENSOR_SUPPORTED_RANGES",
       "propertyId": 406916132,
       "description": "Static data for the supported ranges of each ultrasonic sensor in millimeters.",
+      "propertyType": "Integer[]",
+      "areaType": "VENDOR",
+      "changeMode": "STATIC",
+      "allowedAccessModes": [
+        "READ"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.READ_ULTRASONICS_SENSOR_DATA"
@@ -2671,6 +3763,12 @@
       "propertyName": "ULTRASONICS_SENSOR_MEASURED_DISTANCE",
       "propertyId": 406916133,
       "description": "The distance reading of the nearest detected object per sensor in millimeters.",
+      "propertyType": "Integer[]",
+      "areaType": "VENDOR",
+      "changeMode": "CONTINUOUS",
+      "allowedAccessModes": [
+        "READ"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.READ_ULTRASONICS_SENSOR_DATA"
@@ -2681,30 +3779,40 @@
       "propertyName": "OBD2_LIVE_FRAME",
       "propertyId": 299896064,
       "description": "OBD2 Live Sensor Data.",
+      "allowedAccessModes": [],
       "deprecated": true
     },
     "OBD2_FREEZE_FRAME": {
       "propertyName": "OBD2_FREEZE_FRAME",
       "propertyId": 299896065,
       "description": "OBD2 Freeze Frame Sensor Data.",
+      "allowedAccessModes": [],
       "deprecated": true
     },
     "OBD2_FREEZE_FRAME_INFO": {
       "propertyName": "OBD2_FREEZE_FRAME_INFO",
       "propertyId": 299896066,
       "description": "OBD2 Freeze Frame Information.",
+      "allowedAccessModes": [],
       "deprecated": true
     },
     "OBD2_FREEZE_FRAME_CLEAR": {
       "propertyName": "OBD2_FREEZE_FRAME_CLEAR",
       "propertyId": 299896067,
       "description": "OBD2 Freeze Frame Clear.",
+      "allowedAccessModes": [],
       "deprecated": true
     },
     "HEADLIGHTS_STATE": {
       "propertyName": "HEADLIGHTS_STATE",
       "propertyId": 289410560,
       "description": "Headlights State.",
+      "propertyType": "Integer",
+      "areaType": "GLOBAL",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CAR_EXTERIOR_LIGHTS"
@@ -2719,6 +3827,12 @@
       "propertyName": "HIGH_BEAM_LIGHTS_STATE",
       "propertyId": 289410561,
       "description": "High beam lights state.",
+      "propertyType": "Integer",
+      "areaType": "GLOBAL",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CAR_EXTERIOR_LIGHTS"
@@ -2733,6 +3847,12 @@
       "propertyName": "FOG_LIGHTS_STATE",
       "propertyId": 289410562,
       "description": "Fog light state.",
+      "propertyType": "Integer",
+      "areaType": "GLOBAL",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CAR_EXTERIOR_LIGHTS"
@@ -2747,6 +3867,12 @@
       "propertyName": "HAZARD_LIGHTS_STATE",
       "propertyId": 289410563,
       "description": "Hazard light status.",
+      "propertyType": "Integer",
+      "areaType": "GLOBAL",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CAR_EXTERIOR_LIGHTS"
@@ -2761,6 +3887,13 @@
       "propertyName": "HEADLIGHTS_SWITCH",
       "propertyId": 289410576,
       "description": "Headlight switch.",
+      "propertyType": "Integer",
+      "areaType": "GLOBAL",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CONTROL_CAR_EXTERIOR_LIGHTS"
@@ -2780,6 +3913,13 @@
       "propertyName": "HIGH_BEAM_LIGHTS_SWITCH",
       "propertyId": 289410577,
       "description": "High beam light switch.",
+      "propertyType": "Integer",
+      "areaType": "GLOBAL",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CONTROL_CAR_EXTERIOR_LIGHTS"
@@ -2799,6 +3939,13 @@
       "propertyName": "FOG_LIGHTS_SWITCH",
       "propertyId": 289410578,
       "description": "Fog light switch.",
+      "propertyType": "Integer",
+      "areaType": "GLOBAL",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CONTROL_CAR_EXTERIOR_LIGHTS"
@@ -2818,6 +3965,13 @@
       "propertyName": "HAZARD_LIGHTS_SWITCH",
       "propertyId": 289410579,
       "description": "Hazard light switch.",
+      "propertyType": "Integer",
+      "areaType": "GLOBAL",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CONTROL_CAR_EXTERIOR_LIGHTS"
@@ -2837,6 +3991,12 @@
       "propertyName": "CABIN_LIGHTS_STATE",
       "propertyId": 289410817,
       "description": "Cabin lights.",
+      "propertyType": "Integer",
+      "areaType": "GLOBAL",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.READ_CAR_INTERIOR_LIGHTS"
@@ -2851,6 +4011,13 @@
       "propertyName": "CABIN_LIGHTS_SWITCH",
       "propertyId": 289410818,
       "description": "Cabin lights switch.",
+      "propertyType": "Integer",
+      "areaType": "GLOBAL",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CONTROL_CAR_INTERIOR_LIGHTS"
@@ -2870,6 +4037,12 @@
       "propertyName": "READING_LIGHTS_STATE",
       "propertyId": 356519683,
       "description": "Reading lights.",
+      "propertyType": "Integer",
+      "areaType": "SEAT",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.READ_CAR_INTERIOR_LIGHTS"
@@ -2884,6 +4057,13 @@
       "propertyName": "READING_LIGHTS_SWITCH",
       "propertyId": 356519684,
       "description": "Reading lights switch.",
+      "propertyType": "Integer",
+      "areaType": "SEAT",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CONTROL_CAR_INTERIOR_LIGHTS"
@@ -2903,6 +4083,12 @@
       "propertyName": "STEERING_WHEEL_LIGHTS_STATE",
       "propertyId": 289410828,
       "description": "Steering wheel lights state.",
+      "propertyType": "Integer",
+      "areaType": "GLOBAL",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.READ_CAR_INTERIOR_LIGHTS"
@@ -2917,6 +4103,13 @@
       "propertyName": "STEERING_WHEEL_LIGHTS_SWITCH",
       "propertyId": 289410829,
       "description": "Steering wheel lights switch.",
+      "propertyType": "Integer",
+      "areaType": "GLOBAL",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CONTROL_CAR_INTERIOR_LIGHTS"
@@ -2936,6 +4129,12 @@
       "propertyName": "EPOCH_TIME",
       "propertyId": 290457094,
       "description": "Current date and time, encoded as Unix time.",
+      "propertyType": "Long",
+      "areaType": "GLOBAL",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "WRITE"
+      ],
       "writePermission": {
         "type": "single",
         "value": "android.car.permission.CAR_EPOCH_TIME"
@@ -2945,6 +4144,12 @@
       "propertyName": "ELECTRONIC_TOLL_COLLECTION_CARD_TYPE",
       "propertyId": 289410873,
       "description": "Electronic Toll Collection card type.",
+      "propertyType": "Integer",
+      "areaType": "GLOBAL",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CAR_INFO"
@@ -2959,6 +4164,12 @@
       "propertyName": "ELECTRONIC_TOLL_COLLECTION_CARD_STATUS",
       "propertyId": 289410874,
       "description": "Electronic Toll Collection card status.",
+      "propertyType": "Integer",
+      "areaType": "GLOBAL",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CAR_INFO"
@@ -2974,6 +4185,12 @@
       "propertyName": "FRONT_FOG_LIGHTS_STATE",
       "propertyId": 289410875,
       "description": "Front fog lights state.",
+      "propertyType": "Integer",
+      "areaType": "GLOBAL",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CAR_EXTERIOR_LIGHTS"
@@ -2988,6 +4205,13 @@
       "propertyName": "FRONT_FOG_LIGHTS_SWITCH",
       "propertyId": 289410876,
       "description": "Front fog lights switch.",
+      "propertyType": "Integer",
+      "areaType": "GLOBAL",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CONTROL_CAR_EXTERIOR_LIGHTS"
@@ -3007,6 +4231,12 @@
       "propertyName": "REAR_FOG_LIGHTS_STATE",
       "propertyId": 289410877,
       "description": "Rear fog lights state.",
+      "propertyType": "Integer",
+      "areaType": "GLOBAL",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CAR_EXTERIOR_LIGHTS"
@@ -3021,6 +4251,13 @@
       "propertyName": "REAR_FOG_LIGHTS_SWITCH",
       "propertyId": 289410878,
       "description": "Rear fog lights switch.",
+      "propertyType": "Integer",
+      "areaType": "GLOBAL",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CONTROL_CAR_EXTERIOR_LIGHTS"
@@ -3040,6 +4277,13 @@
       "propertyName": "EV_CHARGE_CURRENT_DRAW_LIMIT",
       "propertyId": 291508031,
       "description": "The vehicle's selected alternating current (AC) EV charging draw limit in Amperes.",
+      "propertyType": "Float",
+      "areaType": "GLOBAL",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "anyOf",
         "value": [
@@ -3062,6 +4306,13 @@
       "propertyName": "EV_CHARGE_PERCENT_LIMIT",
       "propertyId": 291508032,
       "description": "EV charge percent limit.",
+      "propertyType": "Float",
+      "areaType": "GLOBAL",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "anyOf",
         "value": [
@@ -3084,6 +4335,12 @@
       "propertyName": "EV_CHARGE_STATE",
       "propertyId": 289410881,
       "description": "Charging state of the car.",
+      "propertyType": "Integer",
+      "areaType": "GLOBAL",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CAR_ENERGY"
@@ -3100,6 +4357,13 @@
       "propertyName": "EV_CHARGE_SWITCH",
       "propertyId": 287313730,
       "description": "Start or stop charging the EV battery.",
+      "propertyType": "Boolean",
+      "areaType": "GLOBAL",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "anyOf",
         "value": [
@@ -3122,6 +4386,12 @@
       "propertyName": "EV_CHARGE_TIME_REMAINING",
       "propertyId": 289410883,
       "description": "Estimated charge time remaining in seconds.",
+      "propertyType": "Integer",
+      "areaType": "GLOBAL",
+      "changeMode": "CONTINUOUS",
+      "allowedAccessModes": [
+        "READ"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CAR_ENERGY"
@@ -3131,6 +4401,12 @@
       "propertyName": "EV_REGENERATIVE_BRAKING_STATE",
       "propertyId": 289410884,
       "description": "Regenerative braking or one-pedal drive setting on the car.",
+      "propertyType": "Integer",
+      "areaType": "GLOBAL",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CAR_ENERGY"
@@ -3146,6 +4422,12 @@
       "propertyName": "VEHICLE_CURB_WEIGHT",
       "propertyId": 289410886,
       "description": "Vehicle’s curb weight in kilograms.",
+      "propertyType": "Integer",
+      "areaType": "GLOBAL",
+      "changeMode": "STATIC",
+      "allowedAccessModes": [
+        "READ"
+      ],
       "readPermission": {
         "type": "anyOf",
         "value": [
@@ -3165,6 +4447,12 @@
       "propertyName": "TRAILER_PRESENT",
       "propertyId": 289410885,
       "description": "Indicates if there is a trailer present or not.",
+      "propertyType": "Integer",
+      "areaType": "GLOBAL",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.PRIVILEGED_CAR_INFO"
@@ -3180,6 +4468,12 @@
       "propertyName": "GENERAL_SAFETY_REGULATION_COMPLIANCE",
       "propertyId": 289410887,
       "description": "EU's General security regulation compliance requirement.",
+      "propertyType": "Integer",
+      "areaType": "GLOBAL",
+      "changeMode": "STATIC",
+      "allowedAccessModes": [
+        "READ"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CAR_INFO"
@@ -3193,6 +4487,12 @@
       "propertyName": "VEHICLE_DRIVING_AUTOMATION_CURRENT_LEVEL",
       "propertyId": 289410892,
       "description": "Current state of vehicle autonomy.",
+      "propertyType": "Integer",
+      "areaType": "GLOBAL",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ"
+      ],
       "readPermission": {
         "type": "anyOf",
         "value": [
@@ -3220,6 +4520,12 @@
       "propertyName": "VEHICLE_DRIVING_AUTOMATION_TARGET_LEVEL",
       "propertyId": 289410895,
       "description": "Target state of vehicle autonomy.",
+      "propertyType": "Integer",
+      "areaType": "GLOBAL",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.CAR_DRIVING_STATE"
@@ -3238,6 +4544,13 @@
       "propertyName": "AUTOMATIC_EMERGENCY_BRAKING_ENABLED",
       "propertyId": 287313920,
       "description": "Enable or disable Automatic Emergency Braking (AEB).",
+      "propertyType": "Boolean",
+      "areaType": "GLOBAL",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "anyOf",
         "value": [
@@ -3261,6 +4574,12 @@
       "propertyName": "AUTOMATIC_EMERGENCY_BRAKING_STATE",
       "propertyId": 289411073,
       "description": "Automatic Emergency Braking (AEB) state.",
+      "propertyType": "Integer",
+      "areaType": "GLOBAL",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.READ_ADAS_STATES"
@@ -3283,6 +4602,13 @@
       "propertyName": "FORWARD_COLLISION_WARNING_ENABLED",
       "propertyId": 287313922,
       "description": "Enable or disable Forward Collision Warning (FCW).",
+      "propertyType": "Boolean",
+      "areaType": "GLOBAL",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "anyOf",
         "value": [
@@ -3306,6 +4632,12 @@
       "propertyName": "FORWARD_COLLISION_WARNING_STATE",
       "propertyId": 289411075,
       "description": "Forward Collision Warning State (FCW) state.",
+      "propertyType": "Integer",
+      "areaType": "GLOBAL",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.READ_ADAS_STATES"
@@ -3327,6 +4659,13 @@
       "propertyName": "BLIND_SPOT_WARNING_ENABLED",
       "propertyId": 287313924,
       "description": "Enable and disable Blind Spot Warning (BSW).",
+      "propertyType": "Boolean",
+      "areaType": "GLOBAL",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "anyOf",
         "value": [
@@ -3350,6 +4689,12 @@
       "propertyName": "BLIND_SPOT_WARNING_STATE",
       "propertyId": 339742725,
       "description": "Blind Spot Warning (BSW) state.",
+      "propertyType": "Integer",
+      "areaType": "MIRROR",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.READ_ADAS_STATES"
@@ -3371,6 +4716,13 @@
       "propertyName": "LANE_DEPARTURE_WARNING_ENABLED",
       "propertyId": 287313926,
       "description": "Enable or disable Lane Departure Warning (LDW).",
+      "propertyType": "Boolean",
+      "areaType": "GLOBAL",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "anyOf",
         "value": [
@@ -3394,6 +4746,12 @@
       "propertyName": "LANE_DEPARTURE_WARNING_STATE",
       "propertyId": 289411079,
       "description": "Lane Departure Warning (LDW) state.",
+      "propertyType": "Integer",
+      "areaType": "GLOBAL",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.READ_ADAS_STATES"
@@ -3416,6 +4774,13 @@
       "propertyName": "LANE_KEEP_ASSIST_ENABLED",
       "propertyId": 287313928,
       "description": "Enable or disable Lane Keep Assist (LKA).",
+      "propertyType": "Boolean",
+      "areaType": "GLOBAL",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "anyOf",
         "value": [
@@ -3439,6 +4804,12 @@
       "propertyName": "LANE_KEEP_ASSIST_STATE",
       "propertyId": 289411081,
       "description": "Lane Keep Assist (LKA) state.",
+      "propertyType": "Integer",
+      "areaType": "GLOBAL",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.READ_ADAS_STATES"
@@ -3462,6 +4833,13 @@
       "propertyName": "LANE_CENTERING_ASSIST_ENABLED",
       "propertyId": 287313930,
       "description": "Enable or disable Lane Centering Assist (LCA).",
+      "propertyType": "Boolean",
+      "areaType": "GLOBAL",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "anyOf",
         "value": [
@@ -3485,6 +4863,12 @@
       "propertyName": "LANE_CENTERING_ASSIST_COMMAND",
       "propertyId": 289411083,
       "description": "Lane Centering Assist (LCA) commands.",
+      "propertyType": "Integer",
+      "areaType": "GLOBAL",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "WRITE"
+      ],
       "writePermission": {
         "type": "single",
         "value": "android.car.permission.CONTROL_ADAS_STATES"
@@ -3499,6 +4883,12 @@
       "propertyName": "LANE_CENTERING_ASSIST_STATE",
       "propertyId": 289411084,
       "description": "Lane Centering Assist (LCA) state.",
+      "propertyType": "Integer",
+      "areaType": "GLOBAL",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.READ_ADAS_STATES"
@@ -3523,6 +4913,13 @@
       "propertyName": "EMERGENCY_LANE_KEEP_ASSIST_ENABLED",
       "propertyId": 287313933,
       "description": "Enable or disable Emergency Lane Keep Assist (ELKA).",
+      "propertyType": "Boolean",
+      "areaType": "GLOBAL",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "anyOf",
         "value": [
@@ -3546,6 +4943,12 @@
       "propertyName": "EMERGENCY_LANE_KEEP_ASSIST_STATE",
       "propertyId": 289411086,
       "description": "Emergency Lane Keep Assist (ELKA) state.",
+      "propertyType": "Integer",
+      "areaType": "GLOBAL",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.READ_ADAS_STATES"
@@ -3571,6 +4974,13 @@
       "propertyName": "CRUISE_CONTROL_ENABLED",
       "propertyId": 287313935,
       "description": "Enable or disable Cruise Control (CC).",
+      "propertyType": "Boolean",
+      "areaType": "GLOBAL",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "anyOf",
         "value": [
@@ -3594,6 +5004,13 @@
       "propertyName": "CRUISE_CONTROL_TYPE",
       "propertyId": 289411088,
       "description": "Current type of Cruise Control (CC).",
+      "propertyType": "Integer",
+      "areaType": "GLOBAL",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "anyOf",
         "value": [
@@ -3629,6 +5046,12 @@
       "propertyName": "CRUISE_CONTROL_STATE",
       "propertyId": 289411089,
       "description": "Current state of Cruise Control (CC).",
+      "propertyType": "Integer",
+      "areaType": "GLOBAL",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.READ_ADAS_STATES"
@@ -3653,6 +5076,12 @@
       "propertyName": "CRUISE_CONTROL_COMMAND",
       "propertyId": 289411090,
       "description": "Write Cruise Control (CC) commands.",
+      "propertyType": "Integer",
+      "areaType": "GLOBAL",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "WRITE"
+      ],
       "writePermission": {
         "type": "single",
         "value": "android.car.permission.CONTROL_ADAS_STATES"
@@ -3671,6 +5100,12 @@
       "propertyName": "CRUISE_CONTROL_TARGET_SPEED",
       "propertyId": 291508243,
       "description": "Current target speed for Cruise Control (CC) in meters per second.",
+      "propertyType": "Float",
+      "areaType": "GLOBAL",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.READ_ADAS_STATES"
@@ -3681,6 +5116,13 @@
       "propertyName": "ADAPTIVE_CRUISE_CONTROL_TARGET_TIME_GAP",
       "propertyId": 289411092,
       "description": "Current target time gap for Adaptive Cruise Control (ACC) or Predictive Cruise Control in",
+      "propertyType": "Integer",
+      "areaType": "GLOBAL",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "anyOf",
         "value": [
@@ -3704,6 +5146,12 @@
       "propertyName": "ADAPTIVE_CRUISE_CONTROL_LEAD_VEHICLE_MEASURED_DISTANCE",
       "propertyId": 289411093,
       "description": "Measured distance from leading vehicle when using Adaptive Cruise Control (ACC) or Predictive",
+      "propertyType": "Integer",
+      "areaType": "GLOBAL",
+      "changeMode": "CONTINUOUS",
+      "allowedAccessModes": [
+        "READ"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.READ_ADAS_STATES"
@@ -3714,6 +5162,13 @@
       "propertyName": "HANDS_ON_DETECTION_ENABLED",
       "propertyId": 287313942,
       "description": "Enable or disable Hands On Detection (HOD).",
+      "propertyType": "Boolean",
+      "areaType": "GLOBAL",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "anyOf",
         "value": [
@@ -3737,6 +5192,12 @@
       "propertyName": "HANDS_ON_DETECTION_DRIVER_STATE",
       "propertyId": 289411095,
       "description": "Hands On Detection (HOD) driver state.",
+      "propertyType": "Integer",
+      "areaType": "GLOBAL",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.READ_DRIVER_MONITORING_STATES"
@@ -3758,6 +5219,12 @@
       "propertyName": "HANDS_ON_DETECTION_WARNING",
       "propertyId": 289411096,
       "description": "Hands On Detection (HOD) warning.",
+      "propertyType": "Integer",
+      "areaType": "GLOBAL",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.READ_DRIVER_MONITORING_STATES"
@@ -3779,6 +5246,13 @@
       "propertyName": "DRIVER_DROWSINESS_ATTENTION_SYSTEM_ENABLED",
       "propertyId": 287313945,
       "description": "Enable or disable driver drowsiness and attention monitoring.",
+      "propertyType": "Boolean",
+      "areaType": "GLOBAL",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "anyOf",
         "value": [
@@ -3802,6 +5276,12 @@
       "propertyName": "DRIVER_DROWSINESS_ATTENTION_STATE",
       "propertyId": 289411098,
       "description": "Driver drowsiness and attention level state.",
+      "propertyType": "Integer",
+      "areaType": "GLOBAL",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.READ_DRIVER_MONITORING_STATES"
@@ -3830,6 +5310,13 @@
       "propertyName": "DRIVER_DROWSINESS_ATTENTION_WARNING_ENABLED",
       "propertyId": 287313947,
       "description": "Enable or disable driver drowsiness and attention warnings.",
+      "propertyType": "Boolean",
+      "areaType": "GLOBAL",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "anyOf",
         "value": [
@@ -3853,6 +5340,12 @@
       "propertyName": "DRIVER_DROWSINESS_ATTENTION_WARNING",
       "propertyId": 289411100,
       "description": "Driver drowsiness and attention warning.",
+      "propertyType": "Integer",
+      "areaType": "GLOBAL",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.READ_DRIVER_MONITORING_STATES"
@@ -3874,6 +5367,13 @@
       "propertyName": "DRIVER_DISTRACTION_SYSTEM_ENABLED",
       "propertyId": 287313949,
       "description": "Enable or disable driver distraction monitoring.",
+      "propertyType": "Boolean",
+      "areaType": "GLOBAL",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "anyOf",
         "value": [
@@ -3897,6 +5397,12 @@
       "propertyName": "DRIVER_DISTRACTION_STATE",
       "propertyId": 289411102,
       "description": "Driver distraction state.",
+      "propertyType": "Integer",
+      "areaType": "GLOBAL",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.READ_DRIVER_MONITORING_STATES"
@@ -3918,6 +5424,13 @@
       "propertyName": "DRIVER_DISTRACTION_WARNING_ENABLED",
       "propertyId": 287313951,
       "description": "Enable or disable driver distraction warnings.",
+      "propertyType": "Boolean",
+      "areaType": "GLOBAL",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "anyOf",
         "value": [
@@ -3941,6 +5454,12 @@
       "propertyName": "DRIVER_DISTRACTION_WARNING",
       "propertyId": 289411104,
       "description": "Driver distraction warning.",
+      "propertyType": "Integer",
+      "areaType": "GLOBAL",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.READ_DRIVER_MONITORING_STATES"
@@ -3962,6 +5481,13 @@
       "propertyName": "LOW_SPEED_COLLISION_WARNING_ENABLED",
       "propertyId": 287313953,
       "description": "Enable or disable Low Speed Collision Warning.",
+      "propertyType": "Boolean",
+      "areaType": "GLOBAL",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "anyOf",
         "value": [
@@ -3985,6 +5511,12 @@
       "propertyName": "LOW_SPEED_COLLISION_WARNING_STATE",
       "propertyId": 289411106,
       "description": "Low Speed Collision Warning State state.",
+      "propertyType": "Integer",
+      "areaType": "GLOBAL",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.READ_ADAS_STATES"
@@ -4006,6 +5538,13 @@
       "propertyName": "CROSS_TRAFFIC_MONITORING_ENABLED",
       "propertyId": 287313955,
       "description": "Enable or disable Cross Traffic Monitoring.",
+      "propertyType": "Boolean",
+      "areaType": "GLOBAL",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "anyOf",
         "value": [
@@ -4029,6 +5568,12 @@
       "propertyName": "CROSS_TRAFFIC_MONITORING_WARNING_STATE",
       "propertyId": 289411108,
       "description": "Cross Traffic Monitoring Warning state.",
+      "propertyType": "Integer",
+      "areaType": "GLOBAL",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.READ_ADAS_STATES"
@@ -4055,6 +5600,13 @@
       "propertyName": "LOW_SPEED_AUTOMATIC_EMERGENCY_BRAKING_ENABLED",
       "propertyId": 287313957,
       "description": "Enable or disable Low Speed Automatic Emergency Braking.",
+      "propertyType": "Boolean",
+      "areaType": "GLOBAL",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ",
+        "READ_WRITE"
+      ],
       "readPermission": {
         "type": "anyOf",
         "value": [
@@ -4078,6 +5630,12 @@
       "propertyName": "LOW_SPEED_AUTOMATIC_EMERGENCY_BRAKING_STATE",
       "propertyId": 289411110,
       "description": "Low Speed Automatic Emergency Braking state.",
+      "propertyType": "Integer",
+      "areaType": "GLOBAL",
+      "changeMode": "ONCHANGE",
+      "allowedAccessModes": [
+        "READ"
+      ],
       "readPermission": {
         "type": "single",
         "value": "android.car.permission.READ_ADAS_STATES"
