@@ -47,9 +47,9 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.quality.Strictness;
 
 @RunWith(MockitoJUnitRunner.class)
-public class TaskRepositoryTest {
+public class AutoTaskRepositoryTest {
 
-    private TaskRepository mTaskRepository;
+    private AutoTaskRepository mTaskRepository;
     private RootTaskStack mRootTaskStack1;
     private RootTaskStack mRootTaskStack2;
     @Mock
@@ -88,7 +88,7 @@ public class TaskRepositoryTest {
             return mCar;
         }).when(() -> Car.createCar(any(), any(), anyLong(), any()));
 
-        mTaskRepository = new TaskRepository(mContext);
+        mTaskRepository = new AutoTaskRepository(mContext);
         mRootTaskStack1 = new RootTaskStack(1, 0, mock(SurfaceControl.class),
                 createMockTaskInfo(1));
         mRootTaskStack2 = new RootTaskStack(1, 0, mock(SurfaceControl.class),
