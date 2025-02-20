@@ -34,8 +34,10 @@ import static com.android.car.audio.CarAudioContext.VOICE_COMMAND;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
 import android.annotation.UserIdInt;
+import android.car.builtin.os.TraceHelper;
 import android.car.builtin.os.UserManagerHelper;
 import android.car.builtin.util.Slogf;
+import android.car.builtin.util.TimingsTraceLog;
 import android.car.settings.CarSettings;
 import android.database.ContentObserver;
 import android.media.AudioAttributes;
@@ -395,17 +397,22 @@ final class FocusInteraction {
             boolean allowsDelayedFocus, List<FocusEntry> focusLosers) {
         int holderUsage = focusHolder.getAudioFocusInfo().getAttributes().getSystemUsage();
 
+        TimingsTraceLog t = new TimingsTraceLog(TAG, TraceHelper.TRACE_TAG_CAR_SERVICE);
+        t.traceBegin("evaluate-focus-request");
         synchronized (mLock) {
             int focusDecision = getFocusInteractionLocked(requestedUsage, holderUsage);
 
             switch (focusDecision) {
                 case INTERACTION_REJECT:
                     if (allowsDelayedFocus) {
+                        t.traceEnd();
                         return AUDIOFOCUS_REQUEST_DELAYED;
                     }
+                    t.traceEnd();
                     return AUDIOFOCUS_REQUEST_FAILED;
                 case INTERACTION_EXCLUSIVE:
                     focusLosers.add(focusHolder);
+                    t.traceEnd();
                     return AUDIOFOCUS_REQUEST_GRANTED;
                 case INTERACTION_CONCURRENT:
                     // If ducking isn't allowed by the focus requester, then everybody else
@@ -419,10 +426,12 @@ final class FocusInteraction {
                             || focusHolder.receivesDuckEvents()) {
                         focusLosers.add(focusHolder);
                     }
+                    t.traceEnd();
                     return AUDIOFOCUS_REQUEST_GRANTED;
                 default:
                     Slogf.e(TAG, "Unsupported CarAudioContext %d - rejecting request",
                             focusDecision);
+                    t.traceEnd();
                     return AUDIOFOCUS_REQUEST_FAILED;
             }
         }
