@@ -545,17 +545,21 @@ class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
 
         int results = delayFocus ? AUDIOFOCUS_REQUEST_DELAYED : AUDIOFOCUS_REQUEST_GRANTED;
 
+        t.traceBegin("evaluate-focus-entry-build");
         AudioFocusEntry focusEntry =
                 new AudioFocusEntry.Builder(audioFocusInfo,
                         mCarAudioContext.getContextForAudioAttribute(
                                 audioFocusInfo.getAttributes()),
                         getVolumeGroupForAttribute(audioFocusInfo.getAttributes()),
                         AUDIOFOCUS_GAIN).build();
+        t.traceEnd();
 
+        t.traceBegin("evaluate-focus-result-build");
         OemCarAudioFocusResult focusResult = new OemCarAudioFocusResult.Builder(
                 convertAudioFocusEntries(holdersEvaluation.mChangedEntries),
                 convertAudioFocusEntries(losersEvaluation.mChangedEntries),
                 results).setAudioFocusEntry(focusEntry).build();
+        t.traceEnd();
         t.traceEnd();
         return focusResult;
     }
@@ -647,8 +651,12 @@ class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
             FocusEntry replacedBlockedEntry, int requestedUsage, boolean allowDucking,
             boolean allowDelayedFocus) {
         Slogf.i(TAG, "Scanning those who've already lost focus...");
-        return evaluateAgainstFocusArrayLocked(mFocusLosers, replacedBlockedEntry,
+        TimingsTraceLog t = new TimingsTraceLog(TAG, TraceHelper.TRACE_TAG_CAR_SERVICE);
+        t.traceBegin("evaluate-focus-losers");
+        var results = evaluateAgainstFocusArrayLocked(mFocusLosers, replacedBlockedEntry,
                 requestedUsage, allowDucking, allowDelayedFocus);
+        t.traceEnd();
+        return results;
     }
 
     @GuardedBy("mLock")
@@ -656,8 +664,12 @@ class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
             FocusEntry replacedCurrentEntry, int requestedUsage, boolean allowDucking,
             boolean allowDelayedFocus) {
         Slogf.i(TAG, "Scanning focus holders...");
-        return evaluateAgainstFocusArrayLocked(mFocusHolders, replacedCurrentEntry,
+        TimingsTraceLog t = new TimingsTraceLog(TAG, TraceHelper.TRACE_TAG_CAR_SERVICE);
+        t.traceBegin("evaluate-focus-holders");
+        var results =  evaluateAgainstFocusArrayLocked(mFocusHolders, replacedCurrentEntry,
                 requestedUsage, allowDucking, allowDelayedFocus);
+        t.traceEnd();
+        return results;
     }
 
     @GuardedBy("mLock")
