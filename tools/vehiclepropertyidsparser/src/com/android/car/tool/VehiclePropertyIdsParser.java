@@ -60,6 +60,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * A parser for VehiclePropertyIds.java.
@@ -82,6 +84,15 @@ public final class VehiclePropertyIdsParser {
             "{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_WRITE}";
     private static final String ACCESS_MODE_READ_WRITE_LINK =
             "{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ_WRITE}";
+    private static final String PROPERTY_TYPE_REGEX = "\\{@code (.+?)\\} property type";
+    private static final String AREA_TYPE_REGEX =
+            "\\{@link VehicleAreaType#VEHICLE_AREA_TYPE_(.+?)\\}";
+    private static final String CHANGE_MODE_REGEX =
+            "\\{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_(.+?)\\}";
+
+    private static final Pattern PROPERTY_TYPE_PATTERN = Pattern.compile(PROPERTY_TYPE_REGEX);
+    private static final Pattern AREA_TYPE_PATTERN = Pattern.compile(AREA_TYPE_REGEX);
+    private static final Pattern CHANGE_MODE_PATTERN = Pattern.compile(CHANGE_MODE_REGEX);
 
     // A map from property name to VHAL property ID if we use different property ID in car service
     // and in VHAL.
@@ -96,6 +107,10 @@ public final class VehiclePropertyIdsParser {
             Map.entry("ACCESS_FINE_LOCATION", "android.permission.ACCESS_FINE_LOCATION")
     );
 
+    private enum ACCESS_MODE {
+        READ, WRITE, READ_WRITE
+    }
+
     private static final class PropertyConfig {
         public String propertyName;
         public int propertyId;
@@ -109,6 +124,10 @@ public final class VehiclePropertyIdsParser {
         public Set<Integer> dataEnums;
         public Set<Integer> dataFlag;
         public String featureFlag;
+        public String propertyType;
+        public String areaType;
+        public String changeMode;
+        public Set<ACCESS_MODE> accessModes;
 
         @Override
         public String toString() {
@@ -116,6 +135,7 @@ public final class VehiclePropertyIdsParser {
                     .append("\n    propertyName: ").append(propertyName)
                     .append("\n    propertyId: ").append(propertyId)
                     .append("\n    description: ").append(description)
+                    .append("\n    propertyType: ").append(propertyType)
                     .append("\n    readPermission: ").append(readPermission)
                     .append("\n    writePermission: ").append(writePermission)
                     .append("\n    deprecated: ").append(deprecated)
@@ -131,10 +151,6 @@ public final class VehiclePropertyIdsParser {
 
             return s.append("\n}").toString();
         }
-    }
-
-    private enum ACCESS_MODE {
-        READ, WRITE, READ_WRITE
     }
 
     private static final class PermissionType {
@@ -161,17 +177,25 @@ public final class VehiclePropertyIdsParser {
     /**
      * Sets the read/write permission for the config.
      */
-    private static void setPermission(PropertyConfig config, ACCESS_MODE accessMode,
+    private static void setPermission(PropertyConfig config, Set<ACCESS_MODE> accessModes,
             PermissionType permission, boolean forRead, boolean forWrite) {
         if (forRead) {
-            if (accessMode == ACCESS_MODE.READ || accessMode == ACCESS_MODE.READ_WRITE) {
-                config.readPermission = permission;
+            if (!accessModes.contains(ACCESS_MODE.READ)
+                    && !accessModes.contains(ACCESS_MODE.READ_WRITE)) {
+                throw new IllegalStateException("Trying to set read permission for property: "
+                        + config.propertyName + ", but the property access mode does not contain "
+                        + "READ or READ_WRITE");
             }
+            config.readPermission = permission;
         }
         if (forWrite) {
-            if (accessMode == ACCESS_MODE.WRITE || accessMode == ACCESS_MODE.READ_WRITE) {
-                config.writePermission = permission;
+            if (!accessModes.contains(ACCESS_MODE.WRITE)
+                    && !accessModes.contains(ACCESS_MODE.READ_WRITE)) {
+                throw new IllegalStateException("Trying to set write permission for property: "
+                        + config.propertyName + ", but the property access mode does not contain "
+                        + "WRITE or READ_WRITE");
             }
+            config.writePermission = permission;
         }
     }
 
@@ -395,8 +419,8 @@ public final class VehiclePropertyIdsParser {
      * Parses the permission annotation and sets the config's permission accordingly.
      */
     private void parseAndSetPermAnnotation(AnnotationExpr annotation, PropertyConfig config,
-            ACCESS_MODE accessMode, boolean forRead, boolean forWrite) {
-        if (accessMode == null) {
+            boolean forRead, boolean forWrite) {
+        if (config.accessModes == null) {
             return;
         }
         PermissionType permission = parsePermAnnotation(annotation);
@@ -405,7 +429,7 @@ public final class VehiclePropertyIdsParser {
                         + annotation + " for property: " + config.propertyName);
             System.exit(1);
         }
-        setPermission(config, accessMode, permission, forRead, forWrite);
+        setPermission(config, config.accessModes, permission, forRead, forWrite);
     }
 
     /**
@@ -418,7 +442,6 @@ public final class VehiclePropertyIdsParser {
 
         List<FieldDeclaration> variables = vehiclePropertyIdsClass.findAll(FieldDeclaration.class);
         for (int i = 0; i < variables.size(); i++) {
-            ACCESS_MODE accessMode = null;
             PropertyConfig propertyConfig = new PropertyConfig();
 
             FieldDeclaration propertyDef = variables.get(i).asFieldDeclaration();
@@ -489,37 +512,99 @@ public final class VehiclePropertyIdsParser {
             propertyConfig.dataEnums = dataEnums;
             propertyConfig.dataFlag = dataFlag;
 
+            Set<ACCESS_MODE> accessModes = new TreeSet<>();
             if (docText.indexOf(ACCESS_MODE_READ_WRITE_LINK) != -1) {
-                accessMode = ACCESS_MODE.READ_WRITE;
-            } else if (docText.indexOf(ACCESS_MODE_READ_LINK) != -1) {
-                accessMode = ACCESS_MODE.READ;
-            } else if (docText.indexOf(ACCESS_MODE_WRITE_LINK) != -1) {
-                accessMode = ACCESS_MODE.WRITE;
-            } else {
-                if (!deprecated) {
-                    System.out.println("missing access mode for property: " + propertyName);
+                accessModes.add(ACCESS_MODE.READ_WRITE);
+            }
+            if (docText.indexOf(ACCESS_MODE_READ_LINK) != -1) {
+                accessModes.add(ACCESS_MODE.READ);
+            }
+            if (docText.indexOf(ACCESS_MODE_WRITE_LINK) != -1) {
+                accessModes.add(ACCESS_MODE.WRITE);
+            }
+            if (accessModes.isEmpty() && !deprecated) {
+                System.out.println("missing access mode for property: " + propertyName);
+                System.exit(1);
+            }
+            propertyConfig.accessModes = accessModes;
+            Matcher matcher = PROPERTY_TYPE_PATTERN.matcher(docText);
+            boolean result = matcher.find();
+            if (!deprecated && !result) {
+                System.out.println("missing property type for property: " + propertyName);
+                System.exit(1);
+            }
+            if (result) {
+                String propertyType = matcher.group(1);
+                try {
+                    checkVehiclePropertyType(propertyType);
+                } catch (IllegalArgumentException e) {
+                    System.out.println("invalid property type for property: " + propertyName
+                            + ", error: " + e.getMessage());
                     System.exit(1);
                 }
+                propertyConfig.propertyType = propertyType;
             }
-
+            matcher = AREA_TYPE_PATTERN.matcher(docText);
+            result = matcher.find();
+            if (!deprecated && !result) {
+                System.out.println("missing area type for property: " + propertyName);
+                System.exit(1);
+            }
+            if (result) {
+                String areaType = matcher.group(1);
+                try {
+                    checkVehicleAreaType(areaType);
+                } catch (IllegalArgumentException e) {
+                    System.out.println("invalid area type for property: " + propertyName
+                            + ", error: " + e.getMessage());
+                    System.exit(1);
+                }
+                propertyConfig.areaType = areaType;
+            }
+            matcher = CHANGE_MODE_PATTERN.matcher(docText);
+            result = matcher.find();
+            if (!deprecated && !result) {
+                System.out.println("missing change mode for property: " + propertyName);
+                System.exit(1);
+            }
+            if (result) {
+                String changeMode = matcher.group(1);
+                try {
+                    checkChangeMode(changeMode);
+                } catch (IllegalArgumentException e) {
+                    System.out.println("invalid change mode for property: " + propertyName
+                            + ", error: " + e.getMessage());
+                    System.exit(1);
+                }
+                propertyConfig.changeMode = changeMode;
+            }
             List<AnnotationExpr> annotations = propertyDef.getAnnotations();
             for (int j = 0; j < annotations.size(); j++) {
                 AnnotationExpr annotation = annotations.get(j);
                 String annotationName = annotation.getName().asString();
                 if (annotationName.equals("RequiresPermission")) {
-                    parseAndSetPermAnnotation(annotation, propertyConfig, accessMode,
-                            /* forRead= */ true, /* forWrite= */ true);
+                    boolean forRead = false;
+                    boolean forWrite = false;
+                    if (propertyConfig.accessModes.contains(ACCESS_MODE.READ)
+                            || propertyConfig.accessModes.contains(ACCESS_MODE.READ_WRITE)) {
+                        forRead = true;
+                    }
+                    if (propertyConfig.accessModes.contains(ACCESS_MODE.WRITE)
+                            || propertyConfig.accessModes.contains(ACCESS_MODE.READ_WRITE)) {
+                        forWrite = true;
+                    }
+                    parseAndSetPermAnnotation(annotation, propertyConfig, forRead, forWrite);
                 }
                 if (annotationName.equals("RequiresPermission.Read")) {
                     AnnotationExpr requireAnnotation = annotation.asSingleMemberAnnotationExpr()
                             .getMemberValue().asAnnotationExpr();
-                    parseAndSetPermAnnotation(requireAnnotation, propertyConfig, accessMode,
+                    parseAndSetPermAnnotation(requireAnnotation, propertyConfig,
                             /* forRead= */ true, /* forWrite= */ false);
                 }
                 if (annotationName.equals("RequiresPermission.Write")) {
                     AnnotationExpr requireAnnotation = annotation.asSingleMemberAnnotationExpr()
                             .getMemberValue().asAnnotationExpr();
-                    parseAndSetPermAnnotation(requireAnnotation, propertyConfig, accessMode,
+                    parseAndSetPermAnnotation(requireAnnotation, propertyConfig,
                             /* forRead= */ false, /* forWrite= */ true);
                 }
                 if (annotationName.equals("SystemApi")) {
@@ -570,6 +655,26 @@ public final class VehiclePropertyIdsParser {
             jsonProp.put("propertyName", config.propertyName);
             jsonProp.put("propertyId", config.propertyId);
             jsonProp.put("description", config.description);
+            jsonProp.put("propertyType", config.propertyType);
+            jsonProp.put("areaType", config.areaType);
+            jsonProp.put("changeMode", config.changeMode);
+            if (config.accessModes != null) {
+                List<String> accessModesStr = new ArrayList<>();
+                for (ACCESS_MODE access : config.accessModes) {
+                    switch (access) {
+                        case READ:
+                            accessModesStr.add("READ");
+                            break;
+                        case WRITE:
+                            accessModesStr.add("WRITE");
+                            break;
+                        case READ_WRITE:
+                            accessModesStr.add("READ_WRITE");
+                            break;
+                    }
+                }
+                jsonProp.put("allowedAccessModes", new JSONArray(accessModesStr));
+            }
             if (config.readPermission != null) {
                 jsonProp.put("readPermission", config.readPermission.toJson());
             }
@@ -602,5 +707,49 @@ public final class VehiclePropertyIdsParser {
         }
         System.out.println("Input: " + vehiclePropertyIdsJava
                 + " successfully parsed. Output at: " + output);
+    }
+
+    private static void checkVehiclePropertyType(String propertyType) {
+        switch (propertyType) {
+            case "String":
+            case "Boolean":
+            case "Integer":
+            case "Integer[]":
+            case "Long":
+            case "Long[]":
+            case "Float":
+            case "Float[]":
+            case "byte[]":
+            case "Object[]":
+                return;
+            default:
+                throw new IllegalArgumentException("Unknown property type: " + propertyType);
+        }
+    }
+
+    private static void checkVehicleAreaType(String areaType) {
+        switch (areaType) {
+            case "GLOBAL":
+            case "WINDOW":
+            case "SEAT":
+            case "DOOR":
+            case "MIRROR":
+            case "WHEEL":
+            case "VENDOR":
+                return;
+            default:
+                throw new IllegalArgumentException("Unknown area type: " + areaType);
+        }
+    }
+
+    private static void checkChangeMode(String changeMode) {
+        switch (changeMode) {
+            case "STATIC":
+            case "ONCHANGE":
+            case "CONTINUOUS":
+                return;
+            default:
+                throw new IllegalArgumentException("Unknown change mode: " + changeMode);
+        }
     }
 }
