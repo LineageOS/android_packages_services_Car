@@ -16,6 +16,8 @@
 
 package android.car.testapi;
 
+import static com.android.car.power.CarPowerManagementService.powerStateToString;
+
 import android.annotation.Nullable;
 import android.automotive.power.internal.ICarPowerManagementDelegate;
 import android.automotive.power.internal.ICarPowerManagementDelegateCallback;
@@ -28,11 +30,14 @@ import android.os.FileObserver;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.RemoteException;
+import android.os.SystemClock;
 import android.util.ArrayMap;
 import android.util.IntArray;
 import android.util.Log;
 import android.util.SparseArray;
+import android.util.SparseIntArray;
 
+import com.android.car.CarServiceUtils;
 import com.android.internal.annotations.GuardedBy;
 
 import libcore.io.IoUtils;
@@ -41,7 +46,11 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Fake power management daemon to be used in car service test and car service unit test when
@@ -78,31 +87,34 @@ public final class FakeRefactoredCarPowerManagementDaemon extends
     private final Object mLock = new Object();
     private final int[] mCustomComponents;
     private final FileObserver mFileObserver;
+    private final File mFileKernelSilentMode;
     private final ComponentHandler mComponentHandler = new ComponentHandler();
-    private final HandlerThread mHandlerThread = new HandlerThread(TAG);
+    private final Handler mHandler;
     private final Map<String, CarPowerPolicy> mPolicies = new ArrayMap<>();
     private final Map<String, SparseArray<CarPowerPolicy>> mPowerPolicyGroups = new ArrayMap<>();
+    private final ReentrantLock mNotifiedStateLock = new ReentrantLock();
+    private final Condition mNotifiedStateCondition = mNotifiedStateLock.newCondition();
+    @GuardedBy("mLock")
+    private final ArrayList<Integer> mNotifiedPowerStates = new ArrayList<>();
+    @GuardedBy("mLock")
+    private final SparseIntArray mPowerStateChangeIds = new SparseIntArray();
 
     private String mLastSetPowerPolicyGroupId = POLICY_PER_STATE_GROUP_ID;
-
-    private int mLastNotifiedPowerState;
-    private boolean mSilentModeOn;
     private String mPendingPowerPolicyId;
     private String mLastDefinedPolicyId;
     private String mCurrentPowerPolicyId = SYSTEM_POWER_POLICY_INITIAL_ON;
-    private Handler mHandler;
-    @GuardedBy("mLock")
-    private ICarPowerManagementDelegateCallback mCallback;
-    private File mFileKernelSilentMode;
-
+    private boolean mSilentModeOn;
+    private boolean mHasPowerStateListenersWithCompletion = false;
     private boolean mNotifyPowerStateChangeThrowsIllegalArgumentException;
     private boolean mNotifyPowerStateChangeThrowsSecurityException;
     private boolean mNotifyPowerStateChangeThrowsRemoteException;
+    @GuardedBy("mLock")
+    private ICarPowerManagementDelegateCallback mCallback;
 
     public FakeRefactoredCarPowerManagementDaemon(@Nullable File fileKernelSilentMode,
             @Nullable int[] customComponents) throws Exception {
-        mHandlerThread.start();
-        mHandler = new Handler(mHandlerThread.getLooper());
+        HandlerThread handlerThread = CarServiceUtils.getHandlerThread(TAG);
+        mHandler = new Handler(handlerThread.getLooper());
         mFileKernelSilentMode = (fileKernelSilentMode == null)
                 ? new File("KERNEL_SILENT_MODE") : fileKernelSilentMode;
         mFileObserver = new SilentModeFileObserver(mFileKernelSilentMode, FileObserver.CLOSE_WRITE);
@@ -241,7 +253,9 @@ public final class FakeRefactoredCarPowerManagementDaemon extends
                 ICarPowerManagementDelegateCallback callback = getPowerManagementDelegateCallback();
                 callback.updatePowerComponents(policy);
                 callback.onApplyPowerPolicySucceeded(requestId, policy, /* deferred= */ false);
-                mLastNotifiedPowerState = state;
+                synchronized (mLock) {
+                    mNotifiedPowerStates.add(state);
+                }
                 mComponentHandler.applyPolicy(policy);
                 mCurrentPowerPolicyId = policy.policyId;
             } catch (Exception e) {
@@ -277,27 +291,92 @@ public final class FakeRefactoredCarPowerManagementDaemon extends
     @Override
     public void notifyPowerStateChange(int changeId, int newState, long expirationTimeMs)
             throws RemoteException {
+        String stateName = powerStateToString(newState);
+        Slogf.d(TAG, "Daemon has been notified of state change to %s with expiration of %d ms",
+                stateName, expirationTimeMs);
         if (mNotifyPowerStateChangeThrowsIllegalArgumentException) {
             throw new IllegalArgumentException();
         } else if (mNotifyPowerStateChangeThrowsSecurityException) {
             throw new SecurityException();
         } else if (mNotifyPowerStateChangeThrowsRemoteException) {
             throw new RemoteException();
-        } else {
-            mLastNotifiedPowerState = newState;
-            // TODO(b/382331302): Change this logic to "wait" for listeners w/completion once those
-            // are implemented.
-            ICarPowerManagementDelegateCallback callback;
-            synchronized (mLock) {
-                if (mCallback == null) {
-                    Slogf.i(TAG, "notifyCarServiceReady is not called yet. Ignoring power state "
-                            + "change");
-                    return;
-                }
-                callback = mCallback;
-            }
-            callback.onAllPowerStateChangeListenersComplete(changeId);
         }
+        synchronized (mLock) {
+            mNotifiedPowerStates.add(newState);
+            mPowerStateChangeIds.put(newState, changeId);
+        }
+        if (!mHasPowerStateListenersWithCompletion) {
+            setAllPowerStateChangeListenersComplete(newState);
+        }
+        mNotifiedStateLock.lock();
+        try {
+            mNotifiedStateCondition.signalAll();
+        } finally {
+            mNotifiedStateLock.unlock();
+        }
+    }
+
+    /**
+     * Set if notifying power state change waits for completion before notifying to CPMS that all
+     * listeners completed or timed out.
+     * @param hasListeners Whether the daemon should behave as if it has power state change
+     *                     listeners with completion registered. If true, caller will have to
+     *                     designate listeners as complete by using
+     *                     {@link setAllPowerStateChangeListenersComplete}
+     */
+    public void setHasListenersWithCompletion(boolean hasListeners) {
+        mHasPowerStateListenersWithCompletion = hasListeners;
+    }
+
+    /**
+     * Initiate a call to onAllPowerStateChangeListenersComplete for the given state
+     * @param state State for which all listeners should be considered complete
+     */
+    public void setAllPowerStateChangeListenersComplete(int state) {
+        ICarPowerManagementDelegateCallback callback;
+        int changeId = -1;
+        synchronized (mLock) {
+            if (mCallback == null) {
+                Slogf.i(TAG, "notifyCarServiceReady is not called yet. Ignoring power state "
+                        + "change");
+                return;
+            }
+            callback = mCallback;
+            changeId = mPowerStateChangeIds.get(state, -1);
+        }
+        try {
+            callback.onAllPowerStateChangeListenersComplete(changeId);
+        } catch (RemoteException e) {
+            Slogf.w(TAG, "Cannot call onAllPowerStateChangeListenersComplete", e);
+        }
+    }
+
+    /**
+     * Wait for a power state change to be notified to the daemon
+     * @param state The state to wait for
+     * @param timeoutMs The max amount of time to wait for in milliseconds
+     * @return True if the state was notified, false otherwise
+     * @throws InterruptedException if awaiting state notification is interrupted
+     */
+    public boolean waitForStateNotified(int state, long timeoutMs) throws InterruptedException {
+        boolean stateNotified = false;
+        synchronized (mLock) {
+            stateNotified = mNotifiedPowerStates.getLast().equals(state);
+        }
+        while (!stateNotified && timeoutMs > 0) {
+            long startTimeMs = SystemClock.elapsedRealtime();
+            mNotifiedStateLock.lock();
+            try {
+                mNotifiedStateCondition.await(timeoutMs, TimeUnit.MILLISECONDS);
+                synchronized (mLock) {
+                    stateNotified = mNotifiedPowerStates.getLast().equals(state);
+                }
+            } finally {
+                mNotifiedStateLock.unlock();
+            }
+            timeoutMs -= SystemClock.elapsedRealtime() - startTimeMs;
+        }
+        return stateNotified;
     }
 
     private void applyPowerPolicyInternal(String policyId, String errMsg) {
@@ -310,13 +389,6 @@ public final class FakeRefactoredCarPowerManagementDaemon extends
             mCurrentPowerPolicyId = policyId;
         } catch (RemoteException e) {
             Log.d(TAG, errMsg, e);
-        }
-    }
-
-    @Override
-    public void setPowerPolicyGroup(String policyGroupId) {
-        if (mPowerPolicyGroups.get(policyGroupId) == null) {
-            throw new IllegalArgumentException("Policy group " + policyGroupId + " undefined");
         }
     }
 
@@ -363,19 +435,57 @@ public final class FakeRefactoredCarPowerManagementDaemon extends
     }
 
     /**
+     * Get the current power policy
+     * @return The current power policy
+     */
+    public CarPowerPolicy getCurrentPowerPolicy() {
+        return mPolicies.get(mCurrentPowerPolicyId);
+    }
+
+    @Override
+    public void setPowerPolicyGroup(String policyGroupId) {
+        if (mPowerPolicyGroups.containsKey(policyGroupId)) {
+            mLastSetPowerPolicyGroupId = policyGroupId;
+        } else {
+            throw new IllegalArgumentException("Policy group " + policyGroupId + " doesn't exist");
+        }
+    }
+
+    /**
      * Get the last power state notified to the daemon
      * @return Last notified power state
      */
     public int getLastNotifiedPowerState() {
-        return mLastNotifiedPowerState;
+        synchronized (mLock) {
+            try {
+                return mNotifiedPowerStates.getLast();
+            } catch (NoSuchElementException e) {
+                return -1;
+            }
+        }
+    }
+
+    /**
+     * Get the power states that have been notified to the daemon in the order they were received.
+     * @return Power states notified to daemon.
+     */
+    public List<Integer> getNotifiedPowerStates() {
+        synchronized (mLock) {
+            return new ArrayList<>(mNotifiedPowerStates);
+        }
+    }
+
+    /**
+     * Clear the list of power states that have been notified to the daemon.
+     */
+    public void clearNotifiedPowerStates() {
+        synchronized (mLock) {
+            mNotifiedPowerStates.clear();
+        }
     }
 
     public String getLastDefinedPolicyId() {
         return mLastDefinedPolicyId;
-    }
-
-    public String getCurrentPowerPolicyId() {
-        return mCurrentPowerPolicyId;
     }
 
     /**
