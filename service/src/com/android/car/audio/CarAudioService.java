@@ -108,7 +108,6 @@ import android.os.Binder;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.IBinder;
-import android.os.Looper;
 import android.os.RemoteCallbackList;
 import android.os.RemoteException;
 import android.os.SystemClock;
@@ -147,6 +146,7 @@ import com.android.car.audio.hal.HalAudioGainCallback;
 import com.android.car.audio.hal.HalAudioModuleChangeCallback;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.annotation.AttributeUsage;
+import com.android.car.internal.os.HandlerExecutor;
 import com.android.car.internal.util.ArrayUtils;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.car.internal.util.LocalLog;
@@ -547,8 +547,8 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
 
     private void initCarAudioService() {
         boolean isAudioServerDown = !mAudioManagerWrapper.isAudioServerRunning();
-        mAudioManagerWrapper.setAudioServerStateCallback(mContext.getMainExecutor(),
-                mAudioServerStateCallback);
+        var executor = new HandlerExecutor(mHandler);
+        mAudioManagerWrapper.setAudioServerStateCallback(executor, mAudioServerStateCallback);
         synchronized (mImplLock) {
             mCarInputService = CarLocalServices.getService(CarInputService.class);
             mIsAudioServerDown = isAudioServerDown;
@@ -2155,9 +2155,10 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
             Slogf.i(TAG, "Not using core volume, core volume callback not setup");
             return;
         }
+        var executor = new HandlerExecutor(mHandler);
         mCoreAudioVolumeGroupCallback = new CoreAudioVolumeGroupCallback(
-                new CarVolumeInfoWrapper(this), mAudioManagerWrapper);
-        mCoreAudioVolumeGroupCallback.init(mContext.getMainExecutor());
+                new CarVolumeInfoWrapper(this), mAudioManagerWrapper, executor);
+        mCoreAudioVolumeGroupCallback.init();
     }
 
     /**
@@ -2172,7 +2173,7 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
         TimingsTraceLog log = new TimingsTraceLog(TAG, TraceHelper.TRACE_TAG_CAR_SERVICE);
         log.traceBegin("routing-policy");
         AudioPolicy.Builder builder = new AudioPolicy.Builder(mContext);
-        builder.setLooper(Looper.getMainLooper());
+        builder.setLooper(mHandlerThread.getLooper());
 
         // Mirror policy has to be set before general audio policy
         log.traceBegin("routing-policy-setup");
@@ -2202,7 +2203,7 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
                 mAudioVolumeAdjustmentContextsVersion, mKeyEventTimeoutMs);
 
         AudioPolicy.Builder volumeControlPolicyBuilder = new AudioPolicy.Builder(mContext);
-        volumeControlPolicyBuilder.setLooper(Looper.getMainLooper());
+        volumeControlPolicyBuilder.setLooper(mHandlerThread.getLooper());
 
         AudioPolicyVolumeCallbackInternal volumeCallbackInternal =
                 new AudioPolicyVolumeCallbackInternal() {
@@ -2250,7 +2251,7 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
                 new CarVolumeInfoWrapper(this), getAudioFeaturesInfo());
 
         AudioPolicy.Builder focusControlPolicyBuilder = new AudioPolicy.Builder(mContext);
-        focusControlPolicyBuilder.setLooper(Looper.getMainLooper());
+        focusControlPolicyBuilder.setLooper(mHandlerThread.getLooper());
 
         focusControlPolicyBuilder.setAudioPolicyFocusListener(mFocusHandler);
         focusControlPolicyBuilder.setIsAudioFocusPolicy(true);
@@ -2290,7 +2291,8 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
             return;
         }
 
-        mFadeManagerConfigAudioPolicy = new AudioPolicy.Builder(mContext).build();
+        mFadeManagerConfigAudioPolicy = new AudioPolicy.Builder(mContext)
+                .setLooper(mHandlerThread.getLooper()).build();
         int status = mAudioManagerWrapper.registerAudioPolicy(mFadeManagerConfigAudioPolicy);
         if (status != AudioManager.SUCCESS) {
             throw new IllegalStateException("Could not register the car audio service's fade"

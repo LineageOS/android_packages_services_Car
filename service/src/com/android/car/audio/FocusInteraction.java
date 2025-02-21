@@ -42,11 +42,13 @@ import android.car.settings.CarSettings;
 import android.database.ContentObserver;
 import android.media.AudioAttributes;
 import android.net.Uri;
+import android.os.Handler;
 import android.provider.Settings;
 import android.util.SparseArray;
 import android.util.proto.ProtoOutputStream;
 
 import com.android.car.CarLog;
+import com.android.car.CarServiceUtils;
 import com.android.car.audio.CarAudioContext.AudioContext;
 import com.android.car.audio.CarAudioDumpProto.CarAudioZoneFocusProto.CarAudioFocusProto;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
@@ -460,8 +462,11 @@ final class FocusInteraction {
                 setRejectNavigationOnCallLocked(false);
                 return;
             }
+            var carHandlerThread = CarServiceUtils.getHandlerThread(
+                    CarAudioService.class.getSimpleName());
             mContentObserver = mContentObserverFactory.createObserver(
-                    () -> navigationOnCallSettingChanged());
+                    this::navigationOnCallSettingChanged,
+                    new Handler(carHandlerThread.getLooper()));
             mCarAudioFocusSettings.getContentResolverForUser(mUserId)
                     .registerContentObserver(AUDIO_FOCUS_NAVIGATION_REJECTED_DURING_CALL_URI,
                             /* notifyForDescendants= */false, mContentObserver);

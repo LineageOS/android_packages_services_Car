@@ -32,16 +32,18 @@ final class CoreAudioVolumeGroupCallback extends AudioManager.VolumeGroupCallbac
 
     private final CarVolumeInfoWrapper mCarVolumeInfoWrapper;
     private final AudioManagerWrapper mAudioManager;
+    private final Executor mExecutor;
 
     CoreAudioVolumeGroupCallback(CarVolumeInfoWrapper carVolumeInfoWrapper,
-            AudioManagerWrapper audioManager) {
+            AudioManagerWrapper audioManager, Executor executor) {
         mCarVolumeInfoWrapper = Objects.requireNonNull(carVolumeInfoWrapper,
                 "CarVolumeInfoWrapper cannot be null");
         mAudioManager = Objects.requireNonNull(audioManager, "AudioManager cannot be null");
+        mExecutor = Objects.requireNonNull(executor, "Executor cannot be null");
     }
 
-    public void init(Executor executor) {
-        mAudioManager.registerVolumeGroupCallback(executor, this);
+    public void init() {
+        mAudioManager.registerVolumeGroupCallback(mExecutor, this);
         if (Slogf.isLoggable(TAG_AUDIO, DEBUG)) {
             Slogf.d(TAG, "Registered car audio volume group callback");
         }
