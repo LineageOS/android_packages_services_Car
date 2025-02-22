@@ -134,9 +134,7 @@ public:
     /*
      * Tells whether or not a target camera device is opened
      */
-    bool isCameraOpenedLocked() REQUIRES(mLock) {
-        return mCamera != nullptr;
-    }
+    bool isCameraOpenedLocked() REQUIRES(mLock) { return mCamera != nullptr; }
 
     /*
      * Implements EvsServiceCallback methods

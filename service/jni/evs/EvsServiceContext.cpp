@@ -15,6 +15,7 @@
  */
 
 #include "EvsServiceContext.h"
+
 #include "NoOpEvsDisplay.h"
 
 #include <aidl/android/hardware/automotive/evs/EvsResult.h>
@@ -306,8 +307,7 @@ bool EvsServiceContext::openCamera(const char* id) {
 
     Stream streamConfig = selectStreamConfiguration(availableStreams);
     std::shared_ptr<IEvsCamera> camObj;
-    if (!pService->openCamera(id, streamConfig, &camObj).isOk() ||
-        !camObj) {
+    if (!pService->openCamera(id, streamConfig, &camObj).isOk() || !camObj) {
         LOG(ERROR) << "Failed to open a camera " << id;
         return false;
     }
