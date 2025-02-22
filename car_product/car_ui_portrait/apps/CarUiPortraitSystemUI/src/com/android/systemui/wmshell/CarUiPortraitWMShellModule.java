@@ -31,7 +31,7 @@ import com.android.systemui.wm.CarUiPortraitDisplaySystemBarsController;
 import com.android.systemui.wm.DisplaySystemBarsController;
 import com.android.wm.shell.ShellTaskOrganizer;
 import com.android.wm.shell.automotive.AutoShellModule;
-import com.android.wm.shell.automotive.TaskRepository;
+import com.android.wm.shell.automotive.AutoTaskRepository;
 import com.android.wm.shell.common.DisplayController;
 import com.android.wm.shell.common.DisplayInsetsController;
 import com.android.wm.shell.common.ShellExecutor;
@@ -95,7 +95,7 @@ public abstract class CarUiPortraitWMShellModule {
             Optional<RecentTasksController> recentTasksOptional,
             Optional<WindowDecorViewModel> windowDecorViewModelOptional,
             TaskViewTransitions taskViewTransitions,
-            TaskRepository taskRepository) {
+            AutoTaskRepository taskRepository) {
         return new CarFullscreenTaskMonitorListener(context,
                 carServiceProvider,
                 shellInit,

@@ -29,6 +29,7 @@ import static com.android.car.audio.FocusInteraction.INTERACTION_EXCLUSIVE;
 import static com.android.car.audio.FocusInteraction.INTERACTION_REJECT;
 
 import static org.junit.Assert.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -334,7 +335,7 @@ public final class FocusInteractionTest extends AbstractExpectableTestCase {
                 .thenReturn(true, false);
         mFocusInteraction.setUserIdForSettings(TEST_USER_ID);
         var captor = ArgumentCaptor.forClass(ContentChangeCallback.class);
-        verify(mMockContentObserverFactory).createObserver(captor.capture());
+        verify(mMockContentObserverFactory).createObserver(captor.capture(), any());
 
         captor.getValue().onChange();
 

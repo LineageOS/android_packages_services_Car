@@ -47,7 +47,7 @@ import javax.inject.Inject;
  * CarService when tasks are created, destroyed or changed.
  */
 @WMSingleton
-public class TaskRepository {
+public class AutoTaskRepository {
 
     private static final String TAG = "TaskRepository";
     private static final boolean DBG = Log.isLoggable(TAG, Log.DEBUG);
@@ -76,7 +76,7 @@ public class TaskRepository {
             new SparseArray<>();
 
     @Inject
-    TaskRepository(Context context) {
+    AutoTaskRepository(Context context) {
         // register task monitor only for User 0.
         if (UserHandle.getCallingUserId() == UserHandle.USER_SYSTEM) {
             Car.createCar(context, /* handler= */ null, Car.CAR_WAIT_TIMEOUT_DO_NOT_WAIT,

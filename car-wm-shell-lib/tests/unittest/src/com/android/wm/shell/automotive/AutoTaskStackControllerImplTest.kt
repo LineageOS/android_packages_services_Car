@@ -87,7 +87,7 @@ class AutoTaskStackControllerImplTest : CarWmShellTestCase() {
     lateinit var rootTaskStackListener: RootTaskStackListener
 
     @Mock
-    lateinit var taskRepository: TaskRepository
+    lateinit var mAutoTaskRepository: AutoTaskRepository
 
     var mMainThreadHandler: Handler? = null
 
@@ -195,7 +195,7 @@ class AutoTaskStackControllerImplTest : CarWmShellTestCase() {
             shellInit,
             rootTdaOrganizer,
             context,
-            taskRepository
+            mAutoTaskRepository
         )
         controller.onInit()
         mMainThreadHandler = Handler(Looper.getMainLooper())

@@ -27,6 +27,8 @@ import static org.mockito.Mockito.verify;
 import android.car.settings.CarSettings;
 import android.database.ContentObserver;
 import android.net.Uri;
+import android.os.Handler;
+import android.os.Looper;
 import android.provider.Settings;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -42,6 +44,8 @@ public final class ContentObserverFactoryTest {
 
     private static final Uri TEST_URI = Settings.Secure.getUriFor(
             CarSettings.Secure.KEY_AUDIO_PERSIST_VOLUME_GROUP_MUTE_STATES);
+
+    private Handler mHandler = new Handler(Looper.getMainLooper());
 
     @Test
     public void constructor_withNullUri_fails() {
@@ -59,16 +63,31 @@ public final class ContentObserverFactoryTest {
                 new ContentObserverFactory(getNavigationRejectedUri());
         NullPointerException thrown =
                 assertThrows(NullPointerException.class,
-                        () -> factory.createObserver(null));
+                        () -> factory.createObserver(null, mHandler));
 
         assertWithMessage("Create Observer with Null Callback Exception")
                 .that(thrown).hasMessageThat().contains("Content Change Callback");
     }
 
     @Test
+    public void createObserver_withNullHandler_fails() {
+        ContentChangeCallback callback = Mockito.mock(ContentChangeCallback.class);
+        ContentObserverFactory factory =
+                new ContentObserverFactory(getNavigationRejectedUri());
+
+        NullPointerException thrown =
+                assertThrows(NullPointerException.class,
+                        () -> factory.createObserver(callback, /* handler= */ null));
+
+        assertWithMessage("Create Observer with Null Handler Exception")
+                .that(thrown).hasMessageThat().contains("Handler");
+    }
+
+    @Test
     public void createObserver_withCallback_createsContentObserver() {
         ContentChangeCallback callback = Mockito.mock(ContentChangeCallback.class);
-        ContentObserver observer = getTestContentObserverFactory().createObserver(callback);
+        ContentObserver observer = getTestContentObserverFactory()
+                .createObserver(callback, mHandler);
 
         assertWithMessage("Created Content Observer").that(observer).isNotNull();
     }
@@ -76,7 +95,8 @@ public final class ContentObserverFactoryTest {
     @Test
     public void onChange_calledWithCreatedUri_callsCallback() {
         ContentChangeCallback callback = Mockito.mock(ContentChangeCallback.class);
-        ContentObserver observer = getTestContentObserverFactory().createObserver(callback);
+        ContentObserver observer = getTestContentObserverFactory()
+                .createObserver(callback, mHandler);
 
         observer.onChange(true, getNavigationRejectedUri());
 
@@ -86,7 +106,8 @@ public final class ContentObserverFactoryTest {
     @Test
     public void onChange_calledWithDifferentUri_doesNotCallCallback() {
         ContentChangeCallback callback = Mockito.mock(ContentChangeCallback.class);
-        ContentObserver observer = getTestContentObserverFactory().createObserver(callback);
+        ContentObserver observer = getTestContentObserverFactory()
+                .createObserver(callback, mHandler);
 
         observer.onChange(true, TEST_URI);
 
