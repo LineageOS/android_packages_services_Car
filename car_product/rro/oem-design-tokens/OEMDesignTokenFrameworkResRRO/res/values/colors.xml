@@ -21,22 +21,6 @@
     <!-- The background color for the container of notification actions. -->
     <color name="notification_action_list">@*android:color/car_colorSecondary</color>
 
-    <!-- The primary text color if the text is on top of a light background. -->
-    <color name="notification_primary_text_color_light">@*android:color/car_body1</color>
-
-    <!-- The primary text color if the text is on top of a dark background. -->
-    <color name="notification_primary_text_color_dark">@*android:color/car_body1</color>
-
-    <!-- The secondary text color if the text is on top of a light background. -->
-    <color name="notification_secondary_text_color_light">@*android:color/car_body2</color>
-
-    <!-- The secondary text color if the text is on top of a dark background. -->
-    <color name="notification_secondary_text_color_dark">@*android:color/car_body2</color>
-
-    <!-- The default color for text in a notification. This color is also the default color for
-         icons. -->
-    <color name="notification_default_color">@*android:color/car_accent</color>
-
     <!-- Focus colors -->
     <color name="focus_stroke_color">#94CBFF</color>
     <color name="focus_fill_color">#3D94CBFF</color>
