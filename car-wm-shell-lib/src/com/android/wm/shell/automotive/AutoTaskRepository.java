@@ -158,6 +158,21 @@ public class AutoTaskRepository {
         return mRootTaskStacks.get(rootTaskStack).getTaskStack();
     }
 
+    // TODO(b/401349206): Refactor it. Save a mapping of taks id and taskInfo and use that.
+    ActivityManager.RunningTaskInfo getTaskInfo(int taskId) {
+        if (mTaskStackWithoutRootTask.get(taskId) != null) {
+            return mTaskStackWithoutRootTask.get(taskId);
+        }
+
+        for (RootTaskStackInfo rootTaskStackInfo : mRootTaskStacks.values()) {
+            if (rootTaskStackInfo.getTaskStack().get(taskId) != null) {
+                return rootTaskStackInfo.getTaskStack().get(taskId);
+            }
+        }
+
+        return null;
+    }
+
     List<ActivityManager.RunningTaskInfo> getTaskStackWithoutRootTask() {
         return new ArrayList<>(mTaskStackWithoutRootTask.values());
     }

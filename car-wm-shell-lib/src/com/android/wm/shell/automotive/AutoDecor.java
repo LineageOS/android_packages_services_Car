@@ -20,6 +20,7 @@ import static android.view.WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
 import static android.view.WindowManager.LayoutParams.FLAG_SPLIT_TOUCH;
 import static android.view.WindowManager.LayoutParams.TYPE_APPLICATION;
 
+import android.app.ActivityManager;
 import android.content.Context;
 import android.graphics.PixelFormat;
 import android.graphics.Rect;
@@ -48,6 +49,7 @@ public final class AutoDecor {
     private final DisplayController mDisplayController;
     private final View mView;
     private final String mDecorName;
+    private final AutoTaskRepository mAutoTaskRepository;
     private SurfaceControlViewHost mViewHost;
     private int mZOrder;
     private Rect mBounds;
@@ -60,15 +62,18 @@ public final class AutoDecor {
      *
      * @param context The context.
      * @param displayController The display controller.
+     * @param autoTaskRepository The auto task repository
      * @param view The view associated with the decor.
      * @param zOrder The z-order of the decor.
      * @param bounds The bounds of the decor.
      * @param decorName The name of the decor.
      */
-    AutoDecor(Context context, DisplayController displayController, View view, int zOrder,
-            Rect bounds, String decorName) {
+    AutoDecor(Context context, DisplayController displayController,
+            AutoTaskRepository autoTaskRepository,
+            View view, int zOrder, Rect bounds, String decorName) {
         mContext = context;
         mDisplayController = displayController;
+        mAutoTaskRepository = autoTaskRepository;
         mView = view;
         mDecorName = decorName;
         mZOrder = zOrder;
@@ -154,7 +159,7 @@ public final class AutoDecor {
      */
     void attachDecorToParentSurface(int displayId, SurfaceControl parentSurface) {
         if (DBG) {
-            Slogf.e(TAG, "Adding Decor %s to the parent surface %s for display %d", this,
+            Slogf.d(TAG, "Adding Decor %s to the parent surface %s for display %d", this,
                     parentSurface, displayId);
         }
         mViewHost = new SurfaceControlViewHost(mContext, mDisplayController.getDisplay(displayId),
@@ -181,11 +186,25 @@ public final class AutoDecor {
     }
 
     /**
+     * Attaches the decor to the task.
+     */
+    void attachDecorToTask(ActivityManager.RunningTaskInfo task) {
+        int displayId = task.getDisplayId();
+        SurfaceControl taskSurface = mAutoTaskRepository.getSurfaceControl(task);
+        if (taskSurface == null) {
+            Slogf.e(TAG, "TaskSurface is not found. Not adding the decor. Task: %s", task);
+            return;
+        }
+
+        attachDecorToParentSurface(displayId, taskSurface);
+    }
+
+    /**
      * Detaches the decor from the parent surface.
      */
     void detachDecorFromParentSurface() {
         if (DBG) {
-            Slogf.e(TAG, "Detaching Decor %s", this);
+            Slogf.d(TAG, "Detaching Decor %s", this);
         }
         SurfaceControl viewSurface = mViewHost.getSurfacePackage().getSurfaceControl();
         SurfaceControl.Transaction t = new SurfaceControl.Transaction();
