@@ -42,6 +42,7 @@ import java.util.Map;
 public class AutoSurfaceTransaction {
     private static final String TAG = "AutoSurfaceTransaction";
     private static final boolean DBG = Log.isLoggable(TAG, Log.DEBUG);
+    private final AutoTaskRepository mAutoTaskRepository;
 
     private SurfaceSyncGroup mSurfaceSyncGroup;
 
@@ -58,17 +59,18 @@ public class AutoSurfaceTransaction {
      * Constructs a new AutoSurfaceTransaction with the given name.
      * @param transactionName The name of the transaction.
      */
-    public AutoSurfaceTransaction(String transactionName) {
+    AutoSurfaceTransaction(String transactionName, AutoTaskRepository autoTaskRepository) {
         this(transactionName, new SurfaceSyncGroup(transactionName),
-                new SurfaceControl.Transaction());
+                new SurfaceControl.Transaction(), autoTaskRepository);
     }
 
     @VisibleForTesting
     AutoSurfaceTransaction(String transactionName, SurfaceSyncGroup surfaceSyncGroup,
-            SurfaceControl.Transaction transaction) {
+            SurfaceControl.Transaction transaction, AutoTaskRepository autoTaskRepository) {
         mTransactionName = transactionName;
         mSurfaceSyncGroup = surfaceSyncGroup;
         mTransaction = transaction;
+        mAutoTaskRepository = autoTaskRepository;
     }
 
     private String getTransactionName() {
@@ -92,6 +94,51 @@ public class AutoSurfaceTransaction {
         mPendingAutoDecors.clear();
         mSurfaceSyncGroup = new SurfaceSyncGroup(getTransactionName());
         mTransaction = new SurfaceControl.Transaction();
+    }
+
+    /**
+     * Sets the task surface position.
+     *
+     * @param taskId The taskId whose surface needs to be updated.
+     * @param x the X position
+     * @param y the Y position
+     * @return This {@link AutoSurfaceTransaction} instance for chaining.
+     */
+    public AutoSurfaceTransaction setTaskSurfacePosition(int taskId, float x, float y) {
+        SurfaceControl surfaceControl = mAutoTaskRepository.getSurfaceControl(taskId);
+        mTransaction.setPosition(surfaceControl, x, y);
+        return this;
+    }
+
+    /**
+     * Sets the task surface corner radius.
+     *
+     * <p>The API should not be used on default launch root task as there is no way to update apps
+     * that task has corner radius.
+     *
+     * @param taskId The taskId whose surface needs to be updated.
+     * @param cornerRadius the corner radius
+     * @return This {@link AutoSurfaceTransaction} instance for chaining.
+     */
+    public AutoSurfaceTransaction setTaskSurfaceCornerRadius(int taskId, float cornerRadius) {
+        // TODO(b/388083112): Add a check that only task not launched in default launch root task
+        //  are using it as feature is not properly supported at this point.
+        SurfaceControl surfaceControl = mAutoTaskRepository.getSurfaceControl(taskId);
+        mTransaction.setCornerRadius(surfaceControl, cornerRadius);
+        return this;
+    }
+
+    /**
+     * Sets the task surface crop
+     *
+     * @param taskId The taskId whose surface needs to be updated.
+     * @param cropBounds Updated bounds.
+     * @return This {@link AutoSurfaceTransaction} instance for chaining.
+     */
+    public AutoSurfaceTransaction setTaskSurfaceCrop(int taskId, Rect cropBounds) {
+        SurfaceControl surfaceControl = mAutoTaskRepository.getSurfaceControl(taskId);
+        mTransaction.setCrop(surfaceControl, cropBounds);
+        return this;
     }
 
     /**
