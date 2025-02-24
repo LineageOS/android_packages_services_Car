@@ -88,8 +88,6 @@ WatchdogBinderMediator::WatchdogBinderMediator(
         const android::sp<IoOveruseMonitorInterface>& ioOveruseMonitor,
         const AddServiceFunction& addServiceHandler) :
       mWatchdogProcessService(watchdogProcessService),
-      mWatchdogPerfService(watchdogPerfService),
-      mWatchdogServiceHelper(watchdogServiceHelper),
       mIoOveruseMonitor(ioOveruseMonitor),
       mAddServiceHandler(addServiceHandler) {
     if (mAddServiceHandler == nullptr) {
@@ -99,33 +97,32 @@ WatchdogBinderMediator::WatchdogBinderMediator(
         mWatchdogInternalHandler =
                 SharedRefBase::make<WatchdogInternalHandler>(watchdogServiceHelper,
                                                              mWatchdogProcessService,
-                                                             mWatchdogPerfService,
+                                                             watchdogPerfService,
                                                              mIoOveruseMonitor);
     }
 }
 
 Result<void> WatchdogBinderMediator::init() {
-    if (mWatchdogProcessService == nullptr || mWatchdogPerfService == nullptr ||
-        mWatchdogServiceHelper == nullptr || mIoOveruseMonitor == nullptr) {
+    if (mWatchdogProcessService == nullptr || mIoOveruseMonitor == nullptr ||
+        mWatchdogInternalHandler == nullptr) {
         std::string serviceList;
         if (mWatchdogProcessService == nullptr) {
             StringAppendF(&serviceList, "%s%s", (!serviceList.empty() ? ", " : ""),
                           "Watchdog process service");
         }
-        if (mWatchdogPerfService == nullptr) {
-            StringAppendF(&serviceList, "%s%s", (!serviceList.empty() ? ", " : ""),
-                          "Watchdog performance service");
-        }
-        if (mWatchdogServiceHelper == nullptr) {
-            StringAppendF(&serviceList, "%s%s", (!serviceList.empty() ? ", " : ""),
-                          "Watchdog service helper");
-        }
         if (mIoOveruseMonitor == nullptr) {
             StringAppendF(&serviceList, "%s%s", (!serviceList.empty() ? ", " : ""),
                           "I/O overuse monitor service");
         }
+        if (mWatchdogInternalHandler == nullptr) {
+            StringAppendF(&serviceList, "%s%s", (!serviceList.empty() ? ", " : ""),
+                          "Watchdog internal handler");
+        }
         return Error(INVALID_OPERATION)
                 << serviceList << " must be initialized with non-null instance";
+    }
+    if (const auto result = mWatchdogInternalHandler->init(); !result.ok()) {
+        return result;
     }
     if (const auto result = mAddServiceHandler(kCarWatchdogServerInterface, this,
                                                /* allowIsolated= */ false,

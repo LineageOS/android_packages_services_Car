@@ -53,6 +53,7 @@ class WatchdogInternalHandlerPeer;
 class WatchdogInternalHandlerInterface :
       public aidl::android::automotive::watchdog::internal::BnCarWatchdog {
 public:
+    virtual android::base::Result<void> init() = 0;
     virtual void terminate() = 0;
 };
 
@@ -70,6 +71,7 @@ public:
           mThreadPriorityController(std::make_unique<ThreadPriorityController>()) {}
     ~WatchdogInternalHandler() { terminate(); }
 
+    android::base::Result<void> init() override;
     binder_status_t dump(int fd, const char** args, uint32_t numArgs) override;
     ndk::ScopedAStatus registerCarWatchdogService(
             const std::shared_ptr<
@@ -150,6 +152,7 @@ private:
 
     // For unit tests.
     friend class internal::WatchdogInternalHandlerPeer;
+    FRIEND_TEST(WatchdogInternalHandlerTest, TestInit);
     FRIEND_TEST(WatchdogInternalHandlerTest, TestTerminate);
 };
 
