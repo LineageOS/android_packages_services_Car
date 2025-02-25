@@ -64,6 +64,7 @@
         <item name="android:layout_marginStart">204dp</item>
         <item name="android:paddingTop">21dp</item>
         <item name="android:gravity">center</item>
+        <item name="android:textColor">@color/car_panel_border</item>
     </style>
 
     <style name="GroupNotificationFooterText" parent="TextAppearance.Car.Subhead.Medium">
