@@ -1428,6 +1428,7 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
      */
     private void blockTopActivitiesOnDisplayIfNecessary(List<? extends TaskInfo> visibleTasks,
             int displayId) {
+        Set<Integer> rootTasksBlocked = new ArraySet<>();
         for (TaskInfo topTask : visibleTasks) {
             if (topTask == null) {
                 Slogf.e(TAG, "Top tasks contains null.");
@@ -1441,16 +1442,25 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
                 continue;
             }
 
+            if (rootTasksBlocked.contains(TaskInfoHelper.geParentTaskId(topTask))) {
+                // Root task already blocked. No need to launch another ABA
+                if (DBG) {
+                    Slogf.d(TAG, "Root task %d has already been blocked.",
+                            TaskInfoHelper.geParentTaskId(topTask));
+                }
+                continue;
+            }
+
             boolean blocked = blockTopActivity(topTask);
             if (blocked) {
                 if (DBG) {
-                    Slogf.d(TAG, "Display %d has already been blocked.", displayIdOfTask);
+                    Slogf.d(TAG, "Display %d has been blocked. Root task id: %d",
+                            displayIdOfTask, TaskInfoHelper.geParentTaskId(topTask));
                 }
-            }
-            // Iterate over all the visible tasks only if root task is enabled
-            // TODO(b/392757141): A long term solution can be to iterate on per root task basis.
-            if (!mActivityService.isUsingAutoTaskStackWindowing()) {
-                break;
+                // When root tasks are not used, the value of parent root task would be -1.
+                // It is okay to add it to this list as it would help to skip all the tasks
+                // which are blocked but not parented to root task.
+                rootTasksBlocked.add(TaskInfoHelper.geParentTaskId(topTask));
             }
         }
     }
