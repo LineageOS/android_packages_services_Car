@@ -85,6 +85,7 @@ allow carservice_app procfsinspector:binder call;
 allow carservice_app statsd:binder call;
 
 # To access /sys/fs/<type>/<partition>/lifetime_write_kbytes
+allow carservice_app sysfs_fs_lifetime_write:file { getattr open read };
 allow carservice_app sysfs:dir { open read search };
 allow carservice_app sysfs_fs_ext4_features:dir { open read search};
 allow carservice_app sysfs_fs_f2fs:dir { open read search };
