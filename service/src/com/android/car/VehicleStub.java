@@ -455,4 +455,14 @@ public abstract class VehicleStub {
     public void injectVehicleProperties(List<CarPropertyValue> carPropertyValues) {
         throw new UnsupportedOperationException("Not in simulated mode");
     }
+
+    /**
+     * Gets the last injected vehicle property for the propertyId.
+     *
+     * @param propertyId The propertyId that was last injected.
+     * @return The {@link CarPropertyValue} that was last injected.
+     */
+    public CarPropertyValue getLastInjectedVehicleProperty(int propertyId) {
+        throw new UnsupportedOperationException("Not in simulated mode");
+    }
 }

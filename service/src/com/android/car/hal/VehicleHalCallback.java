@@ -40,4 +40,11 @@ public interface VehicleHalCallback {
      * Method called when supported values change.
      */
     void onSupportedValuesChange(List<PropIdAreaId> propIdAreaIds);
+
+    /**
+     * Called when property events get injected.
+     *
+     * @param values The values to inject.
+     */
+    void onInjectionPropertyEvent(List<HalPropValue> values);
 }

@@ -4006,6 +4006,16 @@ public class PropertyHalServiceTest extends AbstractExpectableTestCase{
         assertThat(mPropertyHalService.isVehiclePropertyInjectionModeEnabled()).isTrue();
     }
 
+    @Test
+    public void testGetLastInjectedVehicleProperty() {
+        CarPropertyValue carPropertyValue = new CarPropertyValue(52, 0, 0);
+        when(mVehicleHal.getLastInjectedVehicleProperty(52)).thenReturn(carPropertyValue);
+
+        assertWithMessage("Get last injected vehicle property")
+                .that(mPropertyHalService.getLastInjectedVehicleProperty(52))
+                .isEqualTo(carPropertyValue);
+    }
+
     /** Creates a {@code CarSubscription} with Vur off. */
     @VisibleForTesting
     public static CarSubscription createCarSubscriptionOption(int propertyId,
