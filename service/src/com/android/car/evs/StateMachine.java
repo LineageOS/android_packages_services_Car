@@ -29,6 +29,7 @@ import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DU
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DEBUGGING_CODE;
 
 import android.annotation.NonNull;
+import android.car.builtin.content.pm.PackageManagerHelper;
 import android.car.builtin.util.Slogf;
 import android.car.evs.CarEvsBufferDescriptor;
 import android.car.evs.CarEvsManager;
@@ -42,7 +43,9 @@ import android.car.feature.Flags;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.hardware.HardwareBuffer;
+import android.os.Binder;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -64,6 +67,7 @@ import com.android.internal.annotations.VisibleForTesting;
 
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Objects;
 
 /** CarEvsService state machine implementation to handle all state transitions. */
@@ -148,6 +152,8 @@ final class StateMachine {
     // This is a device name to override initial camera id.
     private String mCameraIdOverride = null;
 
+    private record CallbackRecord(IBinder token, int pid, int uid) {}
+
     @VisibleForTesting
     final class HalCallback implements EvsHalWrapper.HalEventCallback {
 
@@ -176,7 +182,9 @@ final class StateMachine {
         }
 
         boolean register(ICarEvsStreamCallback callback, IBinder token) {
-            return mCallbacks.register(callback, token);
+            int pid = Binder.getCallingPid();
+            int uid = Binder.getCallingUid();
+            return mCallbacks.register(callback, new CallbackRecord(token, pid, uid));
         }
 
         boolean unregister(ICarEvsStreamCallback callback) {
@@ -233,10 +241,19 @@ final class StateMachine {
         void dump(IndentingPrintWriter writer) {
             writer.printf("Active clients:\n");
             writer.increaseIndent();
+
+            PackageManager pm = mContext.getPackageManager();
             synchronized (mCallbacks) {
                 int idx = mCallbacks.getRegisteredCallbackCount();
                 while (idx-- > 0) {
-                    writer.printf("%s\n", mCallbacks.getRegisteredCallbackItem(idx).asBinder());
+                    IBinder callback = mCallbacks.getRegisteredCallbackItem(idx).asBinder();
+                    CallbackRecord rec =
+                            (CallbackRecord) mCallbacks.getRegisteredCallbackCookie(idx);
+
+                    String[] names = PackageManagerHelper.getNamesForUids(pm,
+                            new int[] { rec.uid() });
+                    writer.printf("%s (pid = %d, callback = %s)\n",
+                            Arrays.toString(names), rec.pid(), callback);
                 }
             }
             writer.decreaseIndent();
