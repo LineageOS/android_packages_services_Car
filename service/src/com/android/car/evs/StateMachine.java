@@ -586,8 +586,8 @@ final class StateMachine {
                             CarEvsUtils.convertToString(mServiceType));
             writer.printf("SessionToken = %s.\n",
                     mSessionToken == null ? "Not exist" : mSessionToken);
-            writer.printf("Camera Id = %s.\n", mCameraId);
-
+            writer.printf("Camera Id = %s.\n",
+                    mCameraIdOverride != null ? mCameraIdOverride : mCameraId);
             writer.println("Current state: " + mState);
             writer.increaseIndent();
             writer.println("State transition log:");
