@@ -82,7 +82,9 @@ namespace android::automotive::evs {
 
 StreamHandler::StreamHandler(const std::shared_ptr<IEvsCamera>& camObj,
                              EvsServiceCallback* callback, int maxNumFramesInFlight) :
-      mEvsCamera(camObj), mCallback(callback), mMaxNumFramesInFlightPerClient(maxNumFramesInFlight),
+      mEvsCamera(camObj),
+      mCallback(callback),
+      mMaxNumFramesInFlightPerClient(maxNumFramesInFlight),
       mNumClients(0) {
     if (!camObj) {
         LOG(ERROR) << "IEvsCamera is invalid.";
@@ -166,7 +168,6 @@ void StreamHandler::blockingStopStream() {
             // Decrease a number of active clients and return.
             --mNumClients;
             return;
-
         }
 
         // Return all buffers currently held by us.
@@ -300,8 +301,8 @@ void StreamHandler::doneWithFrame(const BufferDesc& buffer) {
         case EvsEventType::FRAME_DROPPED:
             [[fallthrough]];
         case EvsEventType::TIMEOUT:
-            LOG(INFO) << "Event 0x" << std::hex << static_cast<int32_t>(event.aType)
-                      << " from " << (event.deviceId.empty() ? "Unknown" : event.deviceId)
+            LOG(INFO) << "Event 0x" << std::hex << static_cast<int32_t>(event.aType) << " from "
+                      << (event.deviceId.empty() ? "Unknown" : event.deviceId)
                       << " is received but ignored";
             break;
         default:
