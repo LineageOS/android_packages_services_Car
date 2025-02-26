@@ -48,6 +48,7 @@
     <application
         tools:replace="android:appComponentFactory"
         android:appComponentFactory="com.android.systemui.CarDistantDisplaySystemUIAppComponentFactory">
+        <uses-library android:name="com.android.oem.tokens" android:required="false"/>
         <activity
             android:name=".car.distantdisplay.activity.DistantDisplayCompanionActivity"
             android:documentLaunchMode="always"

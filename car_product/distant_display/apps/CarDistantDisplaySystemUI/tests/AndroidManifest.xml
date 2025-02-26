@@ -22,6 +22,7 @@
     <application
         android:debuggable="true">
         <uses-library android:name="android.test.runner"/>
+        <uses-library android:name="com.android.oem.tokens" android:required="false"/>
 
         <activity android:name="com.android.systemui.car.distantdisplay.common.TestActivity"
                   android:exported="false" />

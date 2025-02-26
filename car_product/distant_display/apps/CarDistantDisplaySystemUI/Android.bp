@@ -38,7 +38,10 @@ android_app {
     libs: [
         "android.car",
         "android.car-system-stubs",
+        "token-shared-lib-prebuilt",
     ],
+
+    enforce_uses_libs: false,
 
     manifest: "AndroidManifest.xml",
 
@@ -103,7 +106,11 @@ android_library {
     libs: [
         "android.car",
         "android.car-system-stubs",
+        "token-shared-lib-prebuilt",
     ],
+
+    enforce_uses_libs: false,
+
     aaptflags: [
         "--extra-packages",
         "com.android.systemui",
