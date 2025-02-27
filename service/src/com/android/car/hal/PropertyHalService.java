@@ -51,6 +51,7 @@ import android.annotation.IntDef;
 import android.annotation.Nullable;
 import android.car.VehiclePropertyIds;
 import android.car.builtin.os.BuildHelper;
+import android.car.builtin.os.TraceHelper;
 import android.car.builtin.util.Slogf;
 import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.CarPropertyValue;
@@ -73,6 +74,7 @@ import android.os.IBinder.DeathRecipient;
 import android.os.RemoteException;
 import android.os.ServiceSpecificException;
 import android.os.SystemClock;
+import android.os.Trace;
 import android.util.ArrayMap;
 import android.util.ArraySet;
 import android.util.Log;
@@ -148,6 +150,8 @@ public class PropertyHalService extends HalServiceBase {
     // A fake pending request ID for car property service.
     private static final int CAR_PROP_SVC_REQUEST_ID = -1;
 
+    private static final long TRACE_TAG = TraceHelper.TRACE_TAG_CAR_SERVICE;
+
     // Only changed in testing.
     private PropertyHalServiceConfigs mPropertyHalServiceConfigs =
             PropertyHalServiceConfigs.getInstance();
@@ -204,12 +208,14 @@ public class PropertyHalService extends HalServiceBase {
         private GetSetValueResult mGetSetValueResult;
         private long mAsyncRequestStartTime;
         private final int mRetryCount;
+        private final int mPropertyId;
 
         private GetSetValueResultWrapper(GetSetValueResult getSetValueResult,
-                long asyncRequestStartTime, int retryCount) {
+                long asyncRequestStartTime, int retryCount, int propertyId) {
             mGetSetValueResult = getSetValueResult;
             mAsyncRequestStartTime = asyncRequestStartTime;
             mRetryCount = retryCount;
+            mPropertyId = propertyId;
         }
 
         private GetSetValueResult getGetSetValueResult() {
@@ -222,6 +228,10 @@ public class PropertyHalService extends HalServiceBase {
 
         private int getRetryCount() {
             return mRetryCount;
+        }
+
+        private int getPropertyId() {
+            return mPropertyId;
         }
     }
 
@@ -536,32 +546,46 @@ public class PropertyHalService extends HalServiceBase {
         private static List<GetSetValueResult> logAndReturnResults(Histogram histogram,
                 List<GetSetValueResultWrapper> getSetValueResultWrapperList,
                 @AsyncRequestType int asyncRequestType) {
-            List<GetSetValueResult> getSetValueResults = new ArrayList<>();
-            long systemCurrentTimeMillis = System.currentTimeMillis();
-            for (int i = 0; i < getSetValueResultWrapperList.size(); i++) {
-                GetSetValueResultWrapper getSetValueResultWrapper =
-                        getSetValueResultWrapperList.get(i);
-                GetSetValueResult getSetValueResult = getSetValueResultWrapper
-                        .getGetSetValueResult();
-                long durationInMillis = systemCurrentTimeMillis
-                        - getSetValueResultWrapper.getAsyncRequestStartTime();
-                histogram.logSample((float)durationInMillis);
-                getSetValueResults.add(getSetValueResult);
-                if (DBG) {
-                    Slogf.d(TAG, "E2E latency for %sPropertiesAsync for requestId: %d is %d ms",
-                            requestTypeToString(asyncRequestType), getSetValueResult.getRequestId(),
-                            durationInMillis);
+            try {
+                List<GetSetValueResult> getSetValueResults = new ArrayList<>();
+                long systemCurrentTimeMillis = System.currentTimeMillis();
+                for (int i = 0; i < getSetValueResultWrapperList.size(); i++) {
+                    GetSetValueResultWrapper getSetValueResultWrapper =
+                            getSetValueResultWrapperList.get(i);
+                    GetSetValueResult getSetValueResult = getSetValueResultWrapper
+                            .getGetSetValueResult();
+                    long durationInMillis = systemCurrentTimeMillis
+                            - getSetValueResultWrapper.getAsyncRequestStartTime();
+                    histogram.logSample((float)durationInMillis);
+                    getSetValueResults.add(getSetValueResult);
+                    if (DBG) {
+                        Slogf.d(TAG, "E2E latency for %sPropertiesAsync for requestId: %d is %d ms",
+                                requestTypeToString(asyncRequestType),
+                                getSetValueResult.getRequestId(), durationInMillis);
+                    }
+                    if (getSetValueResultWrapper.getRetryCount() != 0) {
+                        Slogf.i(TAG, "Async %s request finished after retry, requestID: %d,"
+                                        + " CarPropertyValue: %s , retry count: %d",
+                                requestTypeToString(asyncRequestType),
+                                getSetValueResult.getRequestId(),
+                                getSetValueResult.getCarPropertyValue(),
+                                getSetValueResultWrapper.getRetryCount());
+                    }
                 }
-                if (getSetValueResultWrapper.getRetryCount() != 0) {
-                    Slogf.i(TAG, "Async %s request finished after retry, requestID: %d,"
-                                    + " CarPropertyValue: %s , retry count: %d",
-                            requestTypeToString(asyncRequestType),
-                            getSetValueResult.getRequestId(),
-                            getSetValueResult.getCarPropertyValue(),
-                            getSetValueResultWrapper.getRetryCount());
+                return getSetValueResults;
+            } finally {
+                if (asyncRequestType == SET) {
+                    for (int i = 0; i < getSetValueResultWrapperList.size(); i++) {
+                        GetSetValueResultWrapper getSetValueResultWrapper =
+                                getSetValueResultWrapperList.get(i);
+                        Trace.asyncTraceEnd(TRACE_TAG, "setCarPropertyValuesAsync-propertyId: "
+                            + getSetValueResultWrapper.getPropertyId(),
+                            /* cookie= */ getSetValueResultWrapper
+                                .getGetSetValueResult()
+                                .getRequestId());
+                    }
                 }
             }
-            return getSetValueResults;
         }
 
         private void sendGetValueResults(List<GetSetValueResultWrapper> results) {
@@ -736,7 +760,8 @@ public class PropertyHalService extends HalServiceBase {
                     if (clientRequestInfo.getRequestType() != GET_INITIAL_VALUE_FOR_SET) {
                         getValueResults.add(new GetSetValueResultWrapper(result,
                                 clientRequestInfo.getAsyncRequestStartTime(),
-                                clientRequestInfo.getRetryCount()));
+                                clientRequestInfo.getRetryCount(),
+                                clientRequestInfo.getPropertyId()));
                         if (carPropertyValue != null) {
                             int propertyId = carPropertyValue.getPropertyId();
                             int areaId = carPropertyValue.getAreaId();
@@ -778,7 +803,8 @@ public class PropertyHalService extends HalServiceBase {
                         }
                         setValueResults.add(new GetSetValueResultWrapper(maybeSetResult,
                                 assocSetValueRequestInfo.getAsyncRequestStartTime(),
-                                assocSetValueRequestInfo.getRetryCount()));
+                                assocSetValueRequestInfo.getRetryCount(),
+                                assocSetValueRequestInfo.getPropertyId()));
                         removePendingAsyncPropRequestInfoLocked(assocSetValueRequestInfo);
                     }
                 }
@@ -826,7 +852,8 @@ public class PropertyHalService extends HalServiceBase {
                         setValueResults.add(new GetSetValueResultWrapper(clientRequestInfo
                                 .toErrorResult(errorCodes),
                                 clientRequestInfo.getAsyncRequestStartTime(),
-                                clientRequestInfo.getRetryCount()));
+                                clientRequestInfo.getRetryCount(),
+                                clientRequestInfo.getPropertyId()));
                         removePendingAsyncPropRequestInfoLocked(clientRequestInfo);
                         mSetAsyncEndToEndLatencyHistogram
                                 .logSample((float) System.currentTimeMillis()
@@ -848,7 +875,8 @@ public class PropertyHalService extends HalServiceBase {
                         setValueResults.add(new GetSetValueResultWrapper(clientRequestInfo
                                 .toSetValueResult(updateTimestampNanos),
                                 clientRequestInfo.getAsyncRequestStartTime(),
-                                clientRequestInfo.getRetryCount()));
+                                clientRequestInfo.getRetryCount(),
+                                clientRequestInfo.getPropertyId()));
                     }
                 }
                 updateSubscriptionRateForAsyncSetRequestLocked();
@@ -876,7 +904,8 @@ public class PropertyHalService extends HalServiceBase {
             switch (requestInfo.getRequestType()) {
                 case GET:
                     timeoutGetResults.add(new GetSetValueResultWrapper(timeoutResult,
-                            requestInfo.getAsyncRequestStartTime(), requestInfo.getRetryCount()));
+                            requestInfo.getAsyncRequestStartTime(), requestInfo.getRetryCount(),
+                            requestInfo.getPropertyId()));
                     break;
                 case GET_INITIAL_VALUE_FOR_SET:
                     // Do not send the timeout requests back to the user because the original
@@ -885,7 +914,8 @@ public class PropertyHalService extends HalServiceBase {
                     break;
                 case SET:
                     timeoutSetResults.add(new GetSetValueResultWrapper(timeoutResult,
-                            requestInfo.getAsyncRequestStartTime(), requestInfo.getRetryCount()));
+                            requestInfo.getAsyncRequestStartTime(), requestInfo.getRetryCount(),
+                            requestInfo.getPropertyId()));
                     break;
             }
         }
@@ -1826,7 +1856,7 @@ public class PropertyHalService extends HalServiceBase {
             callbackToResults.put(clientCallback, new ArrayList<>());
         }
         callbackToResults.get(clientCallback).add(new GetSetValueResultWrapper(result,
-                request.getAsyncRequestStartTime(), request.getRetryCount()));
+                request.getAsyncRequestStartTime(), request.getRetryCount(), request.getAreaId()));
     }
 
     /**
@@ -2207,7 +2237,7 @@ public class PropertyHalService extends HalServiceBase {
                     staticGetValueResults.add(new GetSetValueResultWrapper(newGetValueResult(
                             serviceRequest.getRequestId(), mStaticPropertyIdAreaIdCache.get(
                                     propertyId, areaId)), asyncRequestStartTime,
-                            /* retryCount= */ 0));
+                            /* retryCount= */ 0, propertyId));
                     continue;
                 }
                 AsyncPropRequestInfo pendingRequest = new AsyncPropRequestInfo(requestType,
@@ -2376,6 +2406,11 @@ public class PropertyHalService extends HalServiceBase {
             List<AsyncPropertyServiceRequest> serviceRequests,
             IAsyncPropertyResultCallback asyncPropertyResultCallback,
             long timeoutInMs, long asyncRequestStartTime) {
+        for (int i = 0; i < serviceRequests.size(); i++) {
+            Trace.asyncTraceBegin(TRACE_TAG, "setCarPropertyValuesAsync-propertyId: "
+                    + serviceRequests.get(i).getPropertyId(),
+                    /* cookie= */ serviceRequests.get(i).getRequestId());
+        }
         List<AsyncPropRequestInfo> pendingSetRequestInfo = new ArrayList<>();
         VehicleStubCallback vehicleStubCallback = createVehicleStubCallback(
                 asyncPropertyResultCallback);
