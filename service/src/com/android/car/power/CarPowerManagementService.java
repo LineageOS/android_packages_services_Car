@@ -1029,22 +1029,21 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                     + "to %s, daemon unavailable", powerStateName);
             return;
         }
-        try {
-            int changeId = mPowerChangeIdCounter.getAndIncrement();
-            if (isCompletionAllowed(newState)
-                    && newState != CarPowerManager.STATE_SHUTDOWN_PREPARE) {
-                synchronized (mLock) {
-                    mWaitingNativeListenerChangeId = changeId;
-                }
+        int changeId = mPowerChangeIdCounter.getAndIncrement();
+        if (isCompletionAllowed(newState)
+                && newState != CarPowerManager.STATE_SHUTDOWN_PREPARE) {
+            synchronized (mLock) {
+                mWaitingNativeListenerChangeId = changeId;
             }
+        }
+        try {
             daemon.notifyPowerStateChange(changeId, newState, expirationTimeMs);
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException | SecurityException | RemoteException e) {
             Slogf.e(TAG, e, "Failed to notify daemon of power state(%s)", powerStateName);
-        } catch (SecurityException e) {
-            Slogf.e(TAG, e, "Failed to notify daemon of power state, insufficient permissions");
-        } catch (RemoteException e) {
-            Slogf.e(TAG, e, "Failed to notify daemon of power state(%s), connection issue",
-                    powerStateName);
+            synchronized (mLock) {
+                // If an exception occurs, no reason to wait on native listener completion
+                mWaitingNativeListenerChangeId = INVALID_NATIVE_LISTENER_CHANGE_ID;
+            }
         }
     }
 

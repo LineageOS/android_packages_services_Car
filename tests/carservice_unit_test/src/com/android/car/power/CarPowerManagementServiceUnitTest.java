@@ -3418,14 +3418,21 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         assumeTrue(NativePowerNotificationsFlag.isFeatureSupported());
 
         setRefactoredService();
-        setAllShutdownTimeouts(/* timeoutMs= */ 500);
-        if (exceptionName.equals("illegalArgument")) {
-            mRefactoredCarPowerManagementDaemon
-                    .notifyPowerStateChangeThrowsIllegalArgumentException(true);
-        } else if (exceptionName.equals("security")) {
-            mRefactoredCarPowerManagementDaemon.notifyPowerStateChangeThrowsSecurityException(true);
-        } else if (exceptionName.equals("remote")) {
-            mRefactoredCarPowerManagementDaemon.notifyPowerStateChangeThrowsRemoteException(true);
+        switch (exceptionName) {
+            case "illegalArgument":
+                mRefactoredCarPowerManagementDaemon
+                        .notifyPowerStateChangeThrowsIllegalArgumentException(true);
+                break;
+            case "security":
+                mRefactoredCarPowerManagementDaemon
+                        .notifyPowerStateChangeThrowsSecurityException(true);
+                break;
+            case "remote":
+                mRefactoredCarPowerManagementDaemon
+                        .notifyPowerStateChangeThrowsRemoteException(true);
+                break;
+            default:
+                throw new IllegalArgumentException("Unknown exception: " + exceptionName);
         }
         mPowerSignalListener.addEventListener(PowerHalService.SET_DEEP_SLEEP_ENTRY);
 
