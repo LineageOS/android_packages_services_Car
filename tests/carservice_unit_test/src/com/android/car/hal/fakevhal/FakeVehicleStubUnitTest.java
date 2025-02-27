@@ -1824,16 +1824,20 @@ public class FakeVehicleStubUnitTest {
 
     private void testWithRetry(RunnableWithException runnable) throws Exception {
         int retryCount = 0;
-        Exception lastException = null;
+        AssertionError lastError = null;
         while (retryCount < FLAKY_RETRY_COUNT) {
             retryCount++;
             try {
+                // This may throw exception. We just rethrow.
                 runnable.run();
                 return;
-            } catch (Exception e) {
-                lastException = e;
+            } catch (AssertionError e) {
+                // Catch all errors that may be caused by test failure to retry. assertThat may
+                // throw AssertionError. verify may throw MockitoAssertionError which is also
+                // subclass for AssertionError.
+                lastError = e;
             }
         }
-        throw lastException;
+        throw lastError;
     }
 }
