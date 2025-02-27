@@ -1304,6 +1304,10 @@ public class CarPropertyService extends ICarProperty.Stub
     public void stopRecordingVehicleProperties(ICarPropertyEventListener callback) {
         CarServiceUtils.assertBuildIsDebuggable();
         CarServiceUtils.assertPermission(mContext, Car.PERMISSION_RECORD_VEHICLE_PROPERTIES);
+        if (callback == null) {
+            Slogf.w(TAG, "Callback is null, unable to unregister null callback");
+            return;
+        }
         mPropertyHalService.stopRecordingVehicleProperties(callback);
     }
 

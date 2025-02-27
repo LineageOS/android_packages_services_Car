@@ -141,7 +141,6 @@ public final class CarFeatureController implements CarServiceBase {
         if (Flags.displayCompatibility()) {
             FLAGGED_OPTIONAL_FEATURES.add(Car.CAR_DISPLAY_COMPAT_SERVICE);
         }
-
         // Note: if a new entry is added here, the capacity of FLAGGED_OPTIONAL_FEATURES
         // should also be increased.
     }
@@ -151,6 +150,12 @@ public final class CarFeatureController implements CarServiceBase {
 
     // This is a feature still under development and cannot be enabled in user build.
     private static final ArraySet<String> NON_USER_ONLY_FEATURES = new ArraySet<>();
+
+    static {
+        if (Flags.carPropertySimulation()) {
+            NON_USER_ONLY_FEATURES.add(Car.CAR_PROPERTY_SIMULATION_SERVICE);
+        }
+    }
 
     // Features that depend on another feature being enabled (i.e. legacy API support).
     // For example, VMS_SUBSCRIBER_SERVICE will be enabled if VEHICLE_MAP_SERVICE is enabled

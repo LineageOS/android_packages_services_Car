@@ -57,6 +57,10 @@ android_test {
         enabled: false,
     },
 
+    flags_packages: [
+        "android.car.feature-aconfig",
+    ],
+
     static_libs: [
         "junit",
         "android.car.apitest-aidl-binder-java",

@@ -199,4 +199,7 @@
     <uses-permission android:name="android.car.permission.MIRROR_DISPLAY" />
     <!-- permissions required for 'adb shell cmd car_service set-display-brightness' -->
     <uses-permission android:name="android.permission.CONTROL_DISPLAY_BRIGHTNESS" />
+    <!-- permissions required for CarPropertySimulationManagerTest -->
+    <uses-permission android:name="android.car.permission.INJECT_VEHICLE_PROPERTIES" />
+    <uses-permission android:name="android.car.permission.RECORD_VEHICLE_PROPERTIES" />
 </manifest>

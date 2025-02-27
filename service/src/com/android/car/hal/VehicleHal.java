@@ -1425,7 +1425,11 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
      */
     public void stopRecordingVehicleProperties(ICarPropertyEventListener callback) {
         synchronized (mLock) {
-            if (mListenerHandler == null || mListenerHandler.mCallback != callback) {
+            if (mListenerHandler == null) {
+                Slogf.w(CarLog.TAG_HAL, "No recording was started");
+                return;
+            }
+            if (mListenerHandler.mCallback.asBinder() != callback.asBinder()) {
                 Slogf.w(CarLog.TAG_HAL, "ICarPropertyEventListener are not the same");
                 return;
             }
@@ -1435,7 +1439,7 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
     }
 
     /**
-     * Disables injeciton mode.
+     * Disables injection mode.
      */
     public void disableInjectionMode() {
         synchronized (mLock) {
