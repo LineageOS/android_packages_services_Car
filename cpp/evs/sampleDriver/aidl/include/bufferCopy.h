@@ -40,6 +40,8 @@ void fillYUYVFromUYVY(const ::aidl::android::hardware::automotive::evs::BufferDe
 void fillRGBAFromBGRA(const ::aidl::android::hardware::automotive::evs::BufferDesc& tgtBuff,
                       uint8_t* tgt, void* imgData, unsigned imgStride);
 
+void fillRGBAFromRGB3(const ::aidl::android::hardware::automotive::evs::BufferDesc& tgtBuff,
+                      uint8_t* tgt, void* imgData, unsigned imgStride);
 }  // namespace aidl::android::hardware::automotive::evs::implementation
 
 #endif  // CPP_EVS_SAMPLEDRIVER_AIDL_INCLUDE_BUFFERCOPY_H

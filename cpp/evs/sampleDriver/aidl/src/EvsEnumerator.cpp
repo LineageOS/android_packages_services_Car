@@ -724,6 +724,9 @@ bool EvsEnumerator::qualifyCaptureDevice(const char* deviceName) {
                     found = true;
                     break;
 #endif  // V4L2_PIX_FMT_ARGB32
+                case V4L2_PIX_FMT_RGB24:
+                    found = true;
+                    break;
                 default:
                     LOG(WARNING) << "Unsupported, "
                                  << convertToFourccString(formatDescription.pixelformat);
