@@ -27,7 +27,7 @@ android.car Car String PROPERTY_EMULATED_PLATFORM_VERSION_MAJOR
 android.car Car String PROPERTY_EMULATED_PLATFORM_VERSION_MINOR
 android.car Car T handleRemoteExceptionFromCarService(RemoteException e, T returnValue)
 android.car Car T handleRemoteExceptionFromCarService(Service service, RemoteException e, T returnValue)
-android.car Car record Deps(ServiceManager serviceManager, Process process, long carServiceBindRetryIntervalMs, long carServiceBindMaxRetry)
+android.car Car record Deps(ServiceManager serviceManager, Process process, long carServiceBindRetryIntervalMs, long carServiceBindMaxRetry, long createCarDefaultTimeoutMs)
 android.car Car void handleRemoteExceptionFromCarService(RemoteException e)
 android.car Car void handleRemoteExceptionFromCarService(Service service, RemoteException e)
 android.car Car.CarBuilder Car createCar(Context context)

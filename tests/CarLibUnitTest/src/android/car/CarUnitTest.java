@@ -31,6 +31,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.after;
 import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.timeout;
@@ -92,7 +93,8 @@ public final class CarUnitTest {
     private static final String TAG = CarUnitTest.class.getSimpleName();
     private static final String PKG_NAME = "Bond.James.Bond";
     private static final int DEFAULT_TIMEOUT_MS = 10_000;
-    private static final int DEFAULT_SLEEP_MS = 1_000;
+    private static final int DEFAULT_SLEEP_MS = 100;
+    private static final int TEST_CREATE_CAR_TIMEOUT = 1_000;
     private static final int MY_PID = 1234;
 
     @Rule
@@ -199,7 +201,7 @@ public final class CarUnitTest {
         }
     };
 
-    private final FakeService mService = new FakeService();
+    private final IBinder mService = new FakeService();
 
     private static final class LifecycleListener implements Car.CarServiceLifecycleListener {
         private final Object mLock = new Object();
@@ -241,6 +243,9 @@ public final class CarUnitTest {
 
     @Before
     public void setUp() throws Exception {
+        synchronized (mLock) {
+            mBindServiceConnections.clear();
+        }
         mEventHandlerThread = new HandlerThread("CarTestEvent");
         mEventHandlerThread.start();
         mEventHandler = new Handler(mEventHandlerThread.getLooper());
@@ -251,7 +256,7 @@ public final class CarUnitTest {
         // Inject fake dependencies.
         mCarBuilder = new CarBuilder().setFakeDeps(new Deps(
                 mServiceManager, mFakeProcess, /* carServiceBindRetryIntervalMs= */ 10,
-                /* carServiceBindMaxRetry= */ 2));
+                /* carServiceBindMaxRetry= */ 2, TEST_CREATE_CAR_TIMEOUT));
         when(mFakeProcess.myPid()).thenReturn(MY_PID);
 
         when(mContext.getPackageName()).thenReturn(PKG_NAME);
@@ -271,23 +276,29 @@ public final class CarUnitTest {
     }
 
     private void setupFakeServiceManager() throws Exception {
-        setupFakeServiceManager(mContext);
+        setupFakeServiceManager(mContext, mService);
     }
 
     private void setupFakeServiceManager(Context context) throws Exception {
-        when(context.bindService(any(), any(), anyInt())).thenAnswer((inv) -> {
+        setupFakeServiceManager(context, mService);
+    }
+
+    private void setupFakeServiceManager(Context context, IBinder service) throws Exception {
+        // Use doAnswer instead of when here to prevent the previous registered invocation to
+        // be invoked during setup.
+        doAnswer((inv) -> {
             ServiceConnection serviceConnection = inv.getArgument(1);
 
             synchronized (mLock) {
                 if (mCarServiceRegistered) {
                     mMainHandler.post(() -> serviceConnection.onServiceConnected(
-                            mCarServiceComponentName,  mService));
+                            mCarServiceComponentName,  service));
                 }
                 mBindServiceConnections.add(serviceConnection);
             }
 
             return true;
-        });
+        }).when(context).bindService(any(), any(), anyInt());
 
         doAnswer((inv) -> {
             ServiceConnection serviceConnection = inv.getArgument(0);
@@ -302,7 +313,7 @@ public final class CarUnitTest {
             synchronized (mLock) {
                 if (mCarServiceRegistered) {
                     ((IServiceRegistrationCallback) inv.getArgument(1))
-                            .onRegistration(CAR_SERVICE_BINDER_SERVICE_NAME, mService);
+                            .onRegistration(CAR_SERVICE_BINDER_SERVICE_NAME, service);
                 }
                 mServiceCallbacks.add(inv.getArgument(1));
             }
@@ -314,7 +325,7 @@ public final class CarUnitTest {
                 .thenAnswer((inv) -> {
                     synchronized (mLock) {
                         if (mCarServiceRegistered) {
-                            return mService;
+                            return service;
                         }
                         return null;
                     }
@@ -322,17 +333,21 @@ public final class CarUnitTest {
     }
 
     private void setCarServiceRegistered() {
+        setCarServiceRegistered(mService);
+    }
+
+    private void setCarServiceRegistered(IBinder service) {
         synchronized (mLock) {
             mCarServiceRegistered = true;
             for (int i = 0; i < mBindServiceConnections.size(); i++) {
                 var serviceConnection = mBindServiceConnections.get(i);
                 mMainHandler.post(() -> serviceConnection.onServiceConnected(
-                        mCarServiceComponentName, mService));
+                        mCarServiceComponentName, service));
             }
             for (int i = 0; i < mServiceCallbacks.size(); i++) {
                 IServiceRegistrationCallback callback = mServiceCallbacks.get(i);
                 mServiceManagerHandler.post(() -> callback.onRegistration(
-                        CAR_SERVICE_BINDER_SERVICE_NAME, mService));
+                        CAR_SERVICE_BINDER_SERVICE_NAME, service));
             }
         }
     }
@@ -383,6 +398,37 @@ public final class CarUnitTest {
 
         car.disconnect();
         assertThat(car.isConnected()).isFalse();
+    }
+
+    @Test
+    @EnableFlags(FLAG_CREATE_CAR_USE_NOTIFICATIONS)
+    public void testCreateCar_Context_ServiceConnection_Handler_gotDeadBinder()
+            throws Exception {
+        IBinder mockServiceBinder = mock(IBinder.class);
+        // Simulate that the binder is already dead when linkToDeath is called.
+        doThrow(new RemoteException("binder died")).when(mockServiceBinder)
+                .linkToDeath(any(), anyInt());
+        setupFakeServiceManager(mContext, mockServiceBinder);
+
+        Car car = mCarBuilder.createCar(mContext, mServiceConnectionListener, mEventHandler);
+
+        assertThat(car).isNotNull();
+
+        car.connect();
+
+        setCarServiceRegistered(mockServiceBinder);
+
+        verify(mServiceConnectionListener, after(DEFAULT_SLEEP_MS).never())
+                .onServiceConnected(any(), any());
+        assertThat(car.isConnected()).isFalse();
+
+        // Now simulate a healthy binder.
+        setCarServiceRegistered(mService);
+
+        verify(mServiceConnectionListener, timeout(DEFAULT_TIMEOUT_MS)).onServiceConnected(
+                any(), eq(mService));
+        assertThat(car.isConnected()).isTrue();
+        assertThat(car.getCarManager(Car.PROPERTY_SERVICE)).isNotNull();
     }
 
     @Test
@@ -526,7 +572,7 @@ public final class CarUnitTest {
         setCarServiceRegistered();
 
         // Callback must not be invoked while car is disconnected.
-        verify(mServiceConnectionListener, after(DEFAULT_TIMEOUT_MS).never()).onServiceConnected(
+        verify(mServiceConnectionListener, after(DEFAULT_SLEEP_MS).never()).onServiceConnected(
                 any(), eq(mService));
 
         car.connect();
@@ -578,6 +624,58 @@ public final class CarUnitTest {
 
         car.disconnect();
         assertThat(car.isConnected()).isFalse();
+    }
+
+    @Test
+    @EnableFlags(FLAG_CREATE_CAR_USE_NOTIFICATIONS)
+    public void testCreateCar_Context_CarServiceRegistered_serviceMgrAlwaysReturnDeadBinder()
+            throws Exception {
+        IBinder mockServiceBinder = mock(IBinder.class);
+        // Simulate that the binder is already dead when linkToDeath is called.
+        doThrow(new RemoteException("binder died")).when(mockServiceBinder)
+                .linkToDeath(any(), anyInt());
+        setupFakeServiceManager(mContext, mockServiceBinder);
+        setCarServiceRegistered(mockServiceBinder);
+
+        Car car = mCarBuilder.createCar(mContext);
+
+        assertThat(car).isNull();
+    }
+
+    @Test
+    @EnableFlags(FLAG_CREATE_CAR_USE_NOTIFICATIONS)
+    public void testCreateCar_Context_CarServiceRegistered_serviceManagerReturnDeadBinder_retry()
+            throws Exception {
+        IBinder mockServiceBinder = mock(IBinder.class);
+        // Simulate that the first binder returned from serviceManager is already dead.
+        doThrow(new RemoteException("binder died")).when(mockServiceBinder)
+                .linkToDeath(any(), anyInt());
+        when(mServiceManager.getService(CAR_SERVICE_BINDER_SERVICE_NAME))
+                .thenReturn(mockServiceBinder);
+        // Record the notification listener when registering.
+        doAnswer((inv) -> {
+            synchronized (mLock) {
+                mServiceCallbacks.add(inv.getArgument(1));
+            }
+            return null;
+        }).when(mServiceManager).registerForNotifications(
+                eq(CAR_SERVICE_BINDER_SERVICE_NAME), any());
+
+        // After 100ms, car service is restarted with a healthy binder.
+        mEventHandler.postDelayed(() -> {
+            IServiceRegistrationCallback callback;
+            synchronized (mLock) {
+                callback = mServiceCallbacks.get(0);
+            }
+            mServiceManagerHandler.post(() -> callback.onRegistration(
+                    CAR_SERVICE_BINDER_SERVICE_NAME, mService));
+        }, 100);
+
+        Car car = mCarBuilder.createCar(mContext);
+
+        assertThat(car).isNotNull();
+        assertThat(car.isConnected()).isTrue();
+        assertThat(car.getCarManager(Car.PROPERTY_SERVICE)).isNotNull();
     }
 
     @Test
@@ -666,6 +764,28 @@ public final class CarUnitTest {
 
         car.disconnect();
         assertThat(car.isConnected()).isFalse();
+    }
+
+    @Test
+    @EnableFlags(FLAG_CREATE_CAR_USE_NOTIFICATIONS)
+    public void testCreateCar_Context_CarServiceRegisteredLater_gotDeadBinder_retry()
+            throws Exception {
+        IBinder mockServiceBinder = mock(IBinder.class);
+        // Simulate that the binder is already dead when linkToDeath is called.
+        doThrow(new RemoteException("binder died")).when(mockServiceBinder)
+                .linkToDeath(any(), anyInt());
+        // Car service is registered after 100ms, but the binder is already dead.
+        mEventHandler.postDelayed(() -> setCarServiceRegistered(mockServiceBinder), 100);
+
+        // Car service is registered again after 200ms with a valid binder
+        mEventHandler.postDelayed(() -> setCarServiceRegistered(mService), 200);
+
+        // This should block until car service is registered.
+        Car car = mCarBuilder.createCar(mContext);
+
+        assertThat(car).isNotNull();
+        assertThat(car.isConnected()).isTrue();
+        assertThat(car.getCarManager(Car.PROPERTY_SERVICE)).isNotNull();
     }
 
     @Test
@@ -1098,13 +1218,41 @@ public final class CarUnitTest {
 
     private void createCar_Context_DoNotWait_CarServiceRegisteredLater()
             throws Exception {
+        long startTimeMs = SystemClock.elapsedRealtime();
+
         Car car = mCarBuilder.createCar(mContext, null,
                 Car.CAR_WAIT_TIMEOUT_DO_NOT_WAIT, mLifecycleListener);
+
+        assertThat(SystemClock.elapsedRealtime() - startTimeMs).isLessThan(TEST_CREATE_CAR_TIMEOUT);
 
         assertThat(car).isNotNull();
         assertThat(car.isConnected()).isFalse();
 
         setCarServiceRegistered();
+
+        mLifecycleListener.waitForEvent(1, DEFAULT_TIMEOUT_MS);
+        mLifecycleListener.assertOneListenerCallAndClear(car, true);
+    }
+
+    @Test
+    @EnableFlags(FLAG_CREATE_CAR_USE_NOTIFICATIONS)
+    public void testCreateCar_Context_DoNotWait_CarServiceRegisteredLater_withDeadBinder()
+            throws Exception {
+        Car car = mCarBuilder.createCar(mContext, null,
+                Car.CAR_WAIT_TIMEOUT_DO_NOT_WAIT, mLifecycleListener);
+
+        IBinder mockServiceBinder = mock(IBinder.class);
+        doThrow(new RemoteException("binder died")).when(mockServiceBinder)
+                .linkToDeath(any(), anyInt());
+        setCarServiceRegistered(mockServiceBinder);
+
+        // The onServiceRegistered event must not be notified to the client if the binder is already
+        // dead.
+        Thread.sleep(DEFAULT_SLEEP_MS);
+        mLifecycleListener.assertNoEvent();
+
+        // Simulate car service restarts with a healthy binder.
+        setCarServiceRegistered(mService);
 
         mLifecycleListener.waitForEvent(1, DEFAULT_TIMEOUT_MS);
         mLifecycleListener.assertOneListenerCallAndClear(car, true);
