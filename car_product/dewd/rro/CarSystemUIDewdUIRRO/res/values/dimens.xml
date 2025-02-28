@@ -36,4 +36,8 @@
     <dimen name="app_immersive_height">1712px</dimen>
     <dimen name="app_bottom">@dimen/contextual_bar_top</dimen>
     <dimen name="app_height">749px</dimen>
+
+    <dimen name="calm_mode_left">0px</dimen>
+    <dimen name="calm_mode_top">0px</dimen>
+    <dimen name="calm_mode_height">1836px</dimen>
 </resources>
