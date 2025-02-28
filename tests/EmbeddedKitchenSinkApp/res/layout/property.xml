@@ -24,12 +24,23 @@
         android:layout_weight="1"
         android:layout_width="match_parent"
         android:orientation="horizontal" >
-        <Spinner
+        <LinearLayout
             android:baselineAligned="false"
-            android:id="@+id/sPropertyId"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:layout_width="0dp" />
+            android:layout_width="0dp"
+            android:orientation="vertical" >
+            <AutoCompleteTextView
+                android:id="@+id/autoCompletePropertyNameInput"
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:hint="Property Name" />
+            <Spinner
+                android:baselineAligned="false"
+                android:id="@+id/sPropertyId"
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent" />
+        </LinearLayout>
         <LinearLayout
             android:baselineAligned="false"
             android:layout_height="wrap_content"
