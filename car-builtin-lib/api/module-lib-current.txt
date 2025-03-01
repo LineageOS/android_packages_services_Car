@@ -535,6 +535,7 @@ package android.car.builtin.util {
     method public static void writeCarUserServiceSwitchUserReq(int, int);
     method public static void writeCarUserServiceSwitchUserResp(int, int, @Nullable String);
     method public static void writeCarUserServiceSwitchUserUiReq(int);
+    method public static void writeCarWatchdogServiceIoOveruseKill(String, int, long, long, long, long, long, long, long, boolean);
     method public static void writeGarageModeEvent(int);
     method public static void writePowerPolicyChange(String);
   }
