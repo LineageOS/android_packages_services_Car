@@ -123,6 +123,10 @@ public class AutoTaskRepository {
         return mSurfaceControlMap.get(taskInfo.taskId);
     }
 
+    SurfaceControl getSurfaceControl(int taskId) {
+        return mSurfaceControlMap.get(taskId);
+    }
+
     List<ActivityManager.RunningTaskInfo> getTaskStack(RootTaskStack rootTaskStack) {
         if (!mRootTaskStacks.containsKey(rootTaskStack)) return null;
         return mRootTaskStacks.get(rootTaskStack).getTaskStack();
@@ -181,6 +185,8 @@ public class AutoTaskRepository {
             mPendingRootTasks.put(rootTaskStack.getRootTaskInfo().taskId,
                     rootTaskStack.getRootTaskInfo());
         }
+        mSurfaceControlMap.append(rootTaskStack.getRootTaskInfo().taskId,
+                rootTaskStack.getLeash());
     }
 
     /**
@@ -199,6 +205,7 @@ public class AutoTaskRepository {
         } else {
             mPendingRootTasks.remove(rootTaskStack.getRootTaskInfo().taskId);
         }
+        mSurfaceControlMap.remove(rootTaskStack.getRootTaskInfo().taskId);
     }
 
     /**

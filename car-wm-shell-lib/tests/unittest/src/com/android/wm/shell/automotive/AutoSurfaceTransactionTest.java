@@ -47,13 +47,15 @@ public class AutoSurfaceTransactionTest {
     @Mock
     private SurfaceControl.Transaction mSurfaceTransaction;
     @Mock
-    SurfaceControlViewHost.SurfacePackage mSurfacePackage;
+    private SurfaceControlViewHost.SurfacePackage mSurfacePackage;
+    @Mock
+    private AutoTaskRepository mAutoTaskRepository;
 
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
         mTransaction = new AutoSurfaceTransaction("TestTransaction", mSurfaceSyncGroup,
-                mSurfaceTransaction);
+                mSurfaceTransaction, mAutoTaskRepository);
         when(mViewHost.getSurfacePackage()).thenReturn(mSurfacePackage);
         when(mSurfacePackage.getSurfaceControl()).thenReturn(mSurface);
         when(mDecor.getViewHost()).thenReturn(mViewHost);

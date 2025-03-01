@@ -999,12 +999,13 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
                 activities.addAll(configActivitiesForPackage);
             }
         }
-        /* 2. If app is not listed in the config.xml check their Manifest meta-data to
-          see if they have any Distraction Optimized(DO) activities.
-          For non system apps, we check if the app install source was a permittable
-          source. This prevents side-loaded apps to fake DO.  Bypass the check
-          for debug builds for development convenience. */
-        if (!isDebugBuild()
+        /* 2. If app is not listed in the config.xml check their Manifest meta-data to see if
+        they have any Distraction Optimized(DO) activities. For non system apps, we check if the
+        app install source was a permissible source. This prevents side-loaded apps to fake DO.
+        Bypass the check for debug builds for development convenience. The check for activities
+        which are already allowlisted in the config can be bypassed since the config can only be
+        modified by the OEMs, so side-loading does not matter for such a case. */
+        if (!isDebugBuild() && configActivitiesForPackage == null
                 && !PackageManagerHelper.isSystemApp(info.applicationInfo)
                 && !PackageManagerHelper.isUpdatedSystemApp(info.applicationInfo)) {
             try {

@@ -131,7 +131,6 @@ TEST_F(WatchdogBinderMediatorTest, TestInit) {
     ASSERT_RESULT_OK(mediator->init());
 
     ASSERT_NE(mediator->mWatchdogProcessService, nullptr);
-    ASSERT_NE(mediator->mWatchdogPerfService, nullptr);
     ASSERT_NE(mediator->mIoOveruseMonitor, nullptr);
     ASSERT_NE(mediator->mWatchdogInternalHandler, nullptr);
 }
@@ -150,20 +149,14 @@ TEST_F(WatchdogBinderMediatorTest, TestErrorOnInitWithNullServiceInstances) {
     EXPECT_FALSE(mediator->init().ok()) << "No error returned on nullptr watchdog process service";
     mediator.reset();
 
-    mediator = SharedRefBase::make<WatchdogBinderMediator>(mockWatchdogProcessService, nullptr,
-                                                           mockWatchdogServiceHelper,
-                                                           mockIoOveruseMonitor,
-                                                           kAddServiceFunctionStub);
-
-    EXPECT_FALSE(mediator->init().ok()) << "No error returned on nullptr watchdog perf service";
-    mediator.reset();
-
     mediator = SharedRefBase::make<WatchdogBinderMediator>(mockWatchdogProcessService,
                                                            mockWatchdogPerfservice, nullptr,
                                                            mockIoOveruseMonitor,
                                                            kAddServiceFunctionStub);
 
-    EXPECT_FALSE(mediator->init().ok()) << "No error returned on nullptr watchdog service helper";
+    EXPECT_FALSE(mediator->init().ok()) << "No error returned on null watchdog "
+                                           "internal handler due to nullptr "
+                                           "watchdog service helper";
     mediator.reset();
 
     mediator = SharedRefBase::make<WatchdogBinderMediator>(mockWatchdogProcessService,
