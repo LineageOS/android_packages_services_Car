@@ -171,6 +171,7 @@ public:
         Mutex::Autolock lock(mService->mMutex);
         mService->mPostSystemEventDurationNs = kTestPostSystemEventDurationSecs;
         mService->mBoottimeCollection.pollingIntervalNs = kTestSystemEventCollectionIntervalSecs;
+        mService->mWakeUpCollection.pollingIntervalNs = kTestSystemEventCollectionIntervalSecs;
         mService->mPeriodicCollection.pollingIntervalNs = kTestPeriodicCollectionIntervalSecs;
         mService->mUserSwitchCollection.pollingIntervalNs = kTestSystemEventCollectionIntervalSecs;
         mService->mPeriodicMonitor.pollingIntervalNs = kTestPeriodicMonitorIntervalSecs;

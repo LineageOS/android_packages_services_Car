@@ -34,6 +34,6 @@
     <string-array name="config_default_activities" translatable="false">
         <item>app_grid_panel;com.android.car.portraitlauncher/com.android.car.carlauncher.AppGridActivity</item>
         <item>map_panel;com.android.car.portraitlauncher/.homeactivities.BackgroundPanelBaseActivity</item>
-        <item>contextual_bar_panel;com.android.car.portraitlauncher/com.android.car.carlauncher.ControlBarActivity</item>
+        <item>contextual_bar_panel;com.android.car.portraitlauncher/.controlbar.ControlBarActivity</item>
     </string-array>
 </resources>

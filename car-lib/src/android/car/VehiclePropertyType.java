@@ -59,5 +59,6 @@ public class VehiclePropertyType {
             MASK
     })
     public @interface Enum {}
+
     private VehiclePropertyType() {}
 }

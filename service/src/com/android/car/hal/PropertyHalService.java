@@ -2076,8 +2076,9 @@ public class PropertyHalService extends HalServiceBase {
      * @param propertyId The propertyId that was last injected.
      * @return The {@link CarPropertyValue} that was last injected.
      */
+    @Nullable
     public CarPropertyValue getLastInjectedVehicleProperty(int propertyId) {
-        return null;
+        return mVehicleHal.getLastInjectedVehicleProperty(propertyId);
     }
 
     /**

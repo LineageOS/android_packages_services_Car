@@ -41,6 +41,8 @@ import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.property.PropIdAreaId;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.car.internal.util.PairSparseArray;
+import com.android.internal.annotations.GuardedBy;
+import com.android.internal.annotations.VisibleForTesting;
 
 import java.io.FileDescriptor;
 import java.io.FileOutputStream;
@@ -56,7 +58,9 @@ public final class SimulationVehicleStub extends VehicleStubWrapper {
     private static final String TAG = CarLog.tagFor(SimulationVehicleStub.class);
 
     private final ArraySet<Integer> mPropertyIdsFromRealHardware;
-    private final ReplayingVehicleHalCallback mReplayingVehicleHalCallback;
+    @GuardedBy("mLock")
+    private final SparseArray<CarPropertyValue> mLastInjectedProperty;
+    private ReplayingVehicleHalCallback mReplayingVehicleHalCallback;
     private final long mStartOfSimulationTime;
     private final Object mLock = new Object();
 
@@ -67,6 +71,14 @@ public final class SimulationVehicleStub extends VehicleStubWrapper {
         mPropertyIdsFromRealHardware = new ArraySet<>(propertyIdsFromRealHardware);
         mStartOfSimulationTime = SystemClock.elapsedRealtimeNanos();
         mReplayingVehicleHalCallback = new ReplayingVehicleHalCallback(realCallback,
+                new ArraySet<>(propertyIdsFromRealHardware));
+        mLastInjectedProperty = new SparseArray<>();
+    }
+
+    @VisibleForTesting
+    /* package */ void setReplayingVehicleHalCallback(VehicleHalCallback callback,
+            List<Integer> propertyIdsFromRealHardware) {
+        mReplayingVehicleHalCallback = new ReplayingVehicleHalCallback(callback,
                 new ArraySet<>(propertyIdsFromRealHardware));
     }
 
@@ -205,10 +217,14 @@ public final class SimulationVehicleStub extends VehicleStubWrapper {
         int areaId = carPropertyValue.getAreaId();
         HalPropValue halPropValue = buildHalPropValue(carPropertyValue,
                 carPropertyValue.getPropertyId(), SystemClock.elapsedRealtimeNanos());
-        maybeInvokeCallback(halPropValue, propId, areaId);
+        if (maybeInvokeCallback(halPropValue, propId, areaId)) {
+            synchronized (mLock) {
+                mLastInjectedProperty.put(propId, carPropertyValue);
+            }
+        }
     }
 
-    private void maybeInvokeCallback(HalPropValue halPropValue, int propId, int areaId) {
+    private boolean maybeInvokeCallback(HalPropValue halPropValue, int propId, int areaId) {
         HalPropValue oldValue;
         // Need mLock in case of race condition E.G.
         // Thread 1 get returns 4
@@ -220,14 +236,16 @@ public final class SimulationVehicleStub extends VehicleStubWrapper {
         synchronized (mLock) {
             if (mReplayingVehicleHalCallback == null) {
                 Slogf.w(TAG, "Replaying Vehicle Hal Callback is null");
-                return;
+                return false;
             }
             oldValue = getPropValue(propId, areaId);
             Slogf.d(TAG, "Fake value stored for propId: %d, areaId: %d, value: %s Storing "
                             + "new value %s", propId, areaId, oldValue, halPropValue);
             putPropValue(propId, areaId, halPropValue);
         }
-        mReplayingVehicleHalCallback.getRealCallback().onPropertyEvent(List.of(halPropValue));
+        mReplayingVehicleHalCallback.getRealCallback().onInjectionPropertyEvent(List.of(
+                halPropValue));
+        return true;
     }
 
     /**
@@ -303,6 +321,11 @@ public final class SimulationVehicleStub extends VehicleStubWrapper {
                     "onSupportedValuesChange");
         }
 
+        @Override
+        public void onInjectionPropertyEvent(List<HalPropValue> values) {
+            mRealCallback.onInjectionPropertyEvent(values);
+        }
+
         private VehicleHalCallback getRealCallback() {
             return mRealCallback;
         }
@@ -347,6 +370,14 @@ public final class SimulationVehicleStub extends VehicleStubWrapper {
                     - SystemClock.elapsedRealtimeNanos();
             mHandler.postDelayed(() -> buildHalPropValueAndMaybeInvokeCallback(carPropertyValue),
                     TimeUnit.NANOSECONDS.toMillis(timeToInject));
+        }
+    }
+
+    @Override
+    @Nullable
+    public CarPropertyValue getLastInjectedVehicleProperty(int propertyId) {
+        synchronized (mLock) {
+            return mLastInjectedProperty.get(propertyId);
         }
     }
 }

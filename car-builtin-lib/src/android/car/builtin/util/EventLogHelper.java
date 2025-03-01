@@ -541,6 +541,15 @@ public final class EventLogHelper {
         EventLog.writeEvent(EventLogTags.CAR_PWR_MGR_GARAGE_MODE, status);
     }
 
+    public static void writeCarWatchdogServiceIoOveruseKill(String packageName, int userId,
+            long writtenFgBytes, long writtenBgBytes, long writtenGarageModeBytes,
+            long thresholdFgBytes, long thresholdBgBytes, long thresholdGarageModeBytes,
+            long timesKilled, boolean isPackageDisabled) {
+        EventLog.writeEvent(EventLogTags.CAR_WATCHDOG_SVC_IO_OVERUSE_KILL, packageName, userId,
+                writtenFgBytes, writtenBgBytes, writtenGarageModeBytes, thresholdFgBytes,
+                thresholdBgBytes, thresholdGarageModeBytes, timesKilled, isPackageDisabled ? 1 : 0);
+    }
+
     private EventLogHelper() {
         throw new UnsupportedOperationException();
     }

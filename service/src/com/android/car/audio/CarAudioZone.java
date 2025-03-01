@@ -219,7 +219,7 @@ public class CarAudioZone {
             CarAudioZoneConfig current = mCarAudioZoneConfigs.get(mCurrentConfigId);
             current.setIsSelected(true);
             current.synchronizeCurrentGainIndex();
-            current.updateVolumeDevices(mCarAudioContext.useCoreAudioRouting());
+            current.updateVolumeDevices();
         }
     }
 
@@ -235,7 +235,7 @@ public class CarAudioZone {
             defaultConfig = config.getZoneConfigId();
             config.setIsSelected(true);
             config.synchronizeCurrentGainIndex();
-            config.updateVolumeDevices(mCarAudioContext.useCoreAudioRouting());
+            config.updateVolumeDevices();
             break;
         }
         synchronized (mLock) {

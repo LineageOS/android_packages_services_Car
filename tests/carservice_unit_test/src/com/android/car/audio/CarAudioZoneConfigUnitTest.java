@@ -307,27 +307,14 @@ public final class CarAudioZoneConfigUnitTest extends AbstractExpectableTestCase
     }
 
     @Test
-    public void updateVolumeDevices_withUseCoreAudioRoutingEnabled() {
+    public void updateVolumeDevices() {
         CarAudioZoneConfig zoneConfig = mTestAudioZoneConfigBuilder.addVolumeGroup(mMockMusicGroup)
                 .addVolumeGroup(mMockNavGroup).build();
-        boolean useCoreAudioRouting = true;
 
-        zoneConfig.updateVolumeDevices(useCoreAudioRouting);
+        zoneConfig.updateVolumeDevices();
 
-        verify(mMockMusicGroup).updateDevices(useCoreAudioRouting);
-        verify(mMockNavGroup).updateDevices(useCoreAudioRouting);
-    }
-
-    @Test
-    public void updateVolumeDevices_withUseCoreAudioRoutingDisabled() {
-        CarAudioZoneConfig zoneConfig = mTestAudioZoneConfigBuilder.addVolumeGroup(mMockMusicGroup)
-                .addVolumeGroup(mMockNavGroup).build();
-        boolean useCoreAudioRouting = false;
-
-        zoneConfig.updateVolumeDevices(useCoreAudioRouting);
-
-        verify(mMockMusicGroup).updateDevices(useCoreAudioRouting);
-        verify(mMockNavGroup).updateDevices(useCoreAudioRouting);
+        verify(mMockMusicGroup).updateDevices();
+        verify(mMockNavGroup).updateDevices();
     }
 
     @Test

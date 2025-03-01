@@ -29,6 +29,7 @@ import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DU
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DEBUGGING_CODE;
 
 import android.annotation.NonNull;
+import android.car.builtin.content.pm.PackageManagerHelper;
 import android.car.builtin.util.Slogf;
 import android.car.evs.CarEvsBufferDescriptor;
 import android.car.evs.CarEvsManager;
@@ -42,7 +43,9 @@ import android.car.feature.Flags;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.hardware.HardwareBuffer;
+import android.os.Binder;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -64,6 +67,7 @@ import com.android.internal.annotations.VisibleForTesting;
 
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Objects;
 
 /** CarEvsService state machine implementation to handle all state transitions. */
@@ -109,7 +113,9 @@ final class StateMachine {
 
             Slogf.w(mLogTag, "StreamCallback %s has died.", callback.asBinder());
             synchronized (mLock) {
-                if (StateMachine.this.needToStartActivityLocked()) {
+                boolean wasPrivileged = StateMachine.this.isSessionToken(
+                        StateMachine.this.mHalCallback.getToken(callback));
+                if (wasPrivileged && StateMachine.this.needToStartActivityLocked()) {
                     if (StateMachine.this.startActivity(/* resetState= */ true) != ERROR_NONE) {
                         Slogf.e(mLogTag, "Failed to request the acticity.");
                     }
@@ -146,6 +152,8 @@ final class StateMachine {
     // This is a device name to override initial camera id.
     private String mCameraIdOverride = null;
 
+    private record CallbackRecord(IBinder token, int pid, int uid) {}
+
     @VisibleForTesting
     final class HalCallback implements EvsHalWrapper.HalEventCallback {
 
@@ -174,7 +182,9 @@ final class StateMachine {
         }
 
         boolean register(ICarEvsStreamCallback callback, IBinder token) {
-            return mCallbacks.register(callback, token);
+            int pid = Binder.getCallingPid();
+            int uid = Binder.getCallingUid();
+            return mCallbacks.register(callback, new CallbackRecord(token, pid, uid));
         }
 
         boolean unregister(ICarEvsStreamCallback callback) {
@@ -191,6 +201,22 @@ final class StateMachine {
                 }
             }
             return found;
+        }
+
+        IBinder getToken(ICarEvsStreamCallback target) {
+            synchronized (mCallbacks) {
+                int idx = mCallbacks.getRegisteredCallbackCount();
+                while (idx-- > 0) {
+                    ICarEvsStreamCallback callback = mCallbacks.getRegisteredCallbackItem(idx);
+                    if (target.asBinder() != callback.asBinder()) {
+                        continue;
+                    }
+
+                    return (IBinder) mCallbacks.getRegisteredCallbackCookie(idx);
+                }
+            }
+
+            return null;
         }
 
         boolean isEmpty() {
@@ -215,10 +241,19 @@ final class StateMachine {
         void dump(IndentingPrintWriter writer) {
             writer.printf("Active clients:\n");
             writer.increaseIndent();
+
+            PackageManager pm = mContext.getPackageManager();
             synchronized (mCallbacks) {
                 int idx = mCallbacks.getRegisteredCallbackCount();
                 while (idx-- > 0) {
-                    writer.printf("%s\n", mCallbacks.getRegisteredCallbackItem(idx).asBinder());
+                    IBinder callback = mCallbacks.getRegisteredCallbackItem(idx).asBinder();
+                    CallbackRecord rec =
+                            (CallbackRecord) mCallbacks.getRegisteredCallbackCookie(idx);
+
+                    String[] names = PackageManagerHelper.getNamesForUids(pm,
+                            new int[] { rec.uid() });
+                    writer.printf("%s (pid = %d, callback = %s)\n",
+                            Arrays.toString(names), rec.pid(), callback);
                 }
             }
             writer.decreaseIndent();
@@ -551,8 +586,8 @@ final class StateMachine {
                             CarEvsUtils.convertToString(mServiceType));
             writer.printf("SessionToken = %s.\n",
                     mSessionToken == null ? "Not exist" : mSessionToken);
-            writer.printf("Camera Id = %s.\n", mCameraId);
-
+            writer.printf("Camera Id = %s.\n",
+                    mCameraIdOverride != null ? mCameraIdOverride : mCameraId);
             writer.println("Current state: " + mState);
             writer.increaseIndent();
             writer.println("State transition log:");
@@ -830,7 +865,7 @@ final class StateMachine {
      */
     @GuardedBy("mLock")
     private boolean isSessionTokenLocked(IBinder token) {
-        return token != null && mService.isSessionToken(token);
+        return mService.isSessionToken(token);
     }
 
     /**
@@ -1231,8 +1266,15 @@ final class StateMachine {
     @ExcludeFromCodeCoverageGeneratedReport(reason = DEBUGGING_CODE)
     @VisibleForTesting
     void addStreamCallback(ICarEvsStreamCallback callback) {
-        Slogf.d(mLogTag, "Register additional callback %s", callback);
-        mHalCallback.register(callback, /* token= */ null);
+        addStreamCallback(callback, /* token= */ null);
+    }
+
+    /** Overrides a current callback object with a token object. */
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DEBUGGING_CODE)
+    @VisibleForTesting
+    void addStreamCallback(ICarEvsStreamCallback callback, IBinder token) {
+        Slogf.d(mLogTag, "Register additional callback %s with a token %s", callback, token);
+        mHalCallback.register(callback, token);
     }
 
     /** Overrides a current valid session token. */

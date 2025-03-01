@@ -1789,9 +1789,17 @@ public final class Car implements ICarBase {
                     Slog.wtf(TAG_CAR, "null binder service", new RuntimeException());
                     return;  // should not happen.
                 }
-                if (mService != null && mService.asBinder().equals(newService.asBinder())) {
-                    // already connected.
-                    return;
+                if (mService != null) {
+                    if (mService.asBinder().equals(newService.asBinder())) {
+                        // already connected.
+                        return;
+                    } else {
+                        // The binder handle has changed, indicating that CarService has restarted.
+                        // This Car client object is now attached to a different instance than
+                        // when it was originally instantiated. We need to process the
+                        // onServiceDisconnected() event for the previous connection instance.
+                        onServiceDisconnected(name);
+                    }
                 }
                 mConnectionState = STATE_CONNECTED;
                 mService = newService;

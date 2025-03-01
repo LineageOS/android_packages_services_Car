@@ -25,7 +25,6 @@ import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyInt;
-import static org.mockito.Mockito.anyObject;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.times;
@@ -108,7 +107,7 @@ public final class EvsHalWrapperImplUnitTest {
                     mEvsHalWrapper.doneWithFrame(args.getArgument(0));
                     frameLatch.countDown();
                     return true;
-            }).when(mEventCallback).onFrameEvent(anyInt(), anyObject());
+            }).when(mEventCallback).onFrameEvent(anyInt(), any());
 
             String cameraId = MOCK_EVS_CAMERA_NAME_BASE + i;
             assertThat(mEvsHalWrapper.openCamera(cameraId)).isTrue();

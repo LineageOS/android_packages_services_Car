@@ -19,12 +19,6 @@ package com.android.wm.shell.automotive;
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
-import static org.mockito.ArgumentMatchers.anyFloat;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import android.content.Context;
@@ -40,7 +34,6 @@ import androidx.test.platform.app.InstrumentationRegistry;
 
 import com.android.wm.shell.RootTaskDisplayAreaOrganizer;
 import com.android.wm.shell.common.DisplayController;
-import com.android.wm.shell.common.ShellExecutor;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -55,46 +48,34 @@ public class AutoDecorManagerTest {
     @Mock
     private RootTaskDisplayAreaOrganizer mRootTaskDisplayAreaOrganizer;
     @Mock
-    private ShellExecutor mShellExecutor;
-    @Mock
     private View mView;
-    @Mock
-    private SurfaceControl mParentSurface;
-    @Mock
-    private SurfaceControl.Transaction mTransaction;
     private AutoDecorManager mAutoDecorManager;
     private Rect mBounds;
     private final int mDisplayId = 0; // Define display ID
+    private SurfaceControl mParentSurface;
 
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
         Context context = InstrumentationRegistry.getInstrumentation().getContext();
         mBounds = new Rect(10, 20, 100, 200);
+        mParentSurface = (new SurfaceControl.Builder()).setName("test").build();
+
         DisplayManager mDisplayManager = context.getSystemService(DisplayManager.class);
         Display defaultDisplay = mDisplayManager.getDisplay(Display.DEFAULT_DISPLAY);
 
         when(mRootTaskDisplayAreaOrganizer.getDisplayAreaLeash(any(Integer.class))).thenReturn(
                 mParentSurface);
         when(mDisplayController.getDisplay(any(Integer.class))).thenReturn(defaultDisplay);
-        doAnswer((inv) -> {
-            Runnable runnable = inv.getArgument(0);
-            runnable.run(); //Run on the same thread for testing
-            return null;
-        }).when(mShellExecutor).execute(any(Runnable.class));
 
         mAutoDecorManager = new AutoDecorManager(context, mDisplayController,
-                mRootTaskDisplayAreaOrganizer, mShellExecutor);
-        when(mTransaction.setVisibility(any(), anyBoolean())).thenReturn(mTransaction);
-        when(mTransaction.reparent(any(), any())).thenReturn(mTransaction);
-        when(mTransaction.setLayer(any(), anyInt())).thenReturn(mTransaction);
-        when(mTransaction.setPosition(any(), anyFloat(), anyFloat())).thenReturn(mTransaction);
+                mRootTaskDisplayAreaOrganizer);
     }
 
     @Test
     public void testCreateAutoDecor() {
         Looper.prepare();
-        AutoDecor autoDecor = mAutoDecorManager.createAutoDecor(mView, 0, mBounds);
+        AutoDecor autoDecor = mAutoDecorManager.createAutoDecor(mView, 0, mBounds, "testDecor");
 
         assertThat(autoDecor).isNotNull();
     }
@@ -102,42 +83,41 @@ public class AutoDecorManagerTest {
     @Test
     public void testAttachAutoDecorToDisplay() {
         Looper.prepare();
-        AutoDecor autoDecor = mAutoDecorManager.createAutoDecor(mView, 0, mBounds);
-        mAutoDecorManager.attachAutoDecorToDisplay(mTransaction, autoDecor, mDisplayId);
+        AutoDecor autoDecor = mAutoDecorManager.createAutoDecor(mView, 0, mBounds, "testDecor");
+        mAutoDecorManager.attachAutoDecorToDisplay(autoDecor, mDisplayId);
 
-        assertThat(((AutoDecorImpl) autoDecor).isCurrentlyAttached()).isTrue();
-        assertThat(((AutoDecorImpl) autoDecor).isEverAttached()).isTrue();
+        assertThat(autoDecor.isCurrentlyAttached()).isTrue();
+        assertThat(autoDecor.isEverAttached()).isTrue();
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testAttachAutoDecorToDisplay_alreadyAttached() {
         Looper.prepare();
-        AutoDecor autoDecor = mAutoDecorManager.createAutoDecor(mView, 0, mBounds);
-        mAutoDecorManager.attachAutoDecorToDisplay(mTransaction, autoDecor, mDisplayId);
+        AutoDecor autoDecor = mAutoDecorManager.createAutoDecor(mView, 0, mBounds, "testDecor");
+        mAutoDecorManager.attachAutoDecorToDisplay(autoDecor, mDisplayId);
 
-        mAutoDecorManager.attachAutoDecorToDisplay(mTransaction, autoDecor, mDisplayId);
+        mAutoDecorManager.attachAutoDecorToDisplay(autoDecor, mDisplayId);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testAttachAutoDecorToDisplay_deletedDecor() {
         Looper.prepare();
-        AutoDecor autoDecor = mAutoDecorManager.createAutoDecor(mView, 0, mBounds);
-        mAutoDecorManager.attachAutoDecorToDisplay(mTransaction, autoDecor, mDisplayId);
-        mAutoDecorManager.removeAutoDecor(mTransaction, autoDecor);
+        AutoDecor autoDecor = mAutoDecorManager.createAutoDecor(mView, 0, mBounds, "testDecor");
+        mAutoDecorManager.attachAutoDecorToDisplay(autoDecor, mDisplayId);
+        mAutoDecorManager.removeAutoDecor(autoDecor);
 
-        mAutoDecorManager.attachAutoDecorToDisplay(mTransaction, autoDecor, mDisplayId);
+        mAutoDecorManager.attachAutoDecorToDisplay(autoDecor, mDisplayId);
     }
 
     @Test
     public void testRemoveAutoDecor() {
         Looper.prepare();
-        AutoDecor autoDecor = mAutoDecorManager.createAutoDecor(mView, 0, mBounds);
-        mAutoDecorManager.attachAutoDecorToDisplay(mTransaction, autoDecor, mDisplayId);
+        AutoDecor autoDecor = mAutoDecorManager.createAutoDecor(mView, 0, mBounds, "testDecor");
+        mAutoDecorManager.attachAutoDecorToDisplay(autoDecor, mDisplayId);
 
-        mAutoDecorManager.removeAutoDecor(mTransaction, autoDecor);
+        mAutoDecorManager.removeAutoDecor(autoDecor);
 
-        verify(mTransaction).reparent(any(SurfaceControl.class), eq(null));
-        assertThat(((AutoDecorImpl) autoDecor).isCurrentlyAttached()).isFalse();
-        assertThat(((AutoDecorImpl) autoDecor).isEverAttached()).isTrue();
+        assertThat(autoDecor.isCurrentlyAttached()).isFalse();
+        assertThat(autoDecor.isEverAttached()).isTrue();
     }
 }

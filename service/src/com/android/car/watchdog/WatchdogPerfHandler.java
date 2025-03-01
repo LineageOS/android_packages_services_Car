@@ -77,6 +77,7 @@ import android.automotive.watchdog.internal.PerStateIoOveruseThreshold;
 import android.automotive.watchdog.internal.ResourceSpecificConfiguration;
 import android.automotive.watchdog.internal.UserPackageIoUsageStats;
 import android.car.builtin.content.pm.PackageManagerHelper;
+import android.car.builtin.util.EventLogHelper;
 import android.car.builtin.util.Slogf;
 import android.car.drivingstate.CarUxRestrictions;
 import android.car.drivingstate.ICarUxRestrictionsChangeListener;
@@ -1910,7 +1911,20 @@ public final class WatchdogPerfHandler {
             boolean isKilled = false;
             for (int pkgIdx = 0; pkgIdx < packages.size(); pkgIdx++) {
                 String packageName = packages.get(pkgIdx);
-                isKilled |= disablePackageForUser(packageName, usage.userId);
+                boolean isPackageDisabled = disablePackageForUser(packageName, usage.userId);
+                android.automotive.watchdog.PerStateBytes writtenBytes =
+                        usage.ioUsage.getInternalIoOveruseStats().writtenBytes;
+                @ComponentType int componentType = mPackageInfoHandler.getComponentType(
+                        usage.getUid(), usage.genericPackageName);
+                android.automotive.watchdog.PerStateBytes thresholdBytes =
+                        mOveruseConfigurationCache.fetchThreshold(usage.genericPackageName,
+                                                                  componentType);
+                EventLogHelper.writeCarWatchdogServiceIoOveruseKill(packageName, usage.userId,
+                        writtenBytes.foregroundBytes, writtenBytes.backgroundBytes,
+                        writtenBytes.garageModeBytes, thresholdBytes.foregroundBytes,
+                        thresholdBytes.backgroundBytes, thresholdBytes.garageModeBytes,
+                        usage.ioUsage.getTotalTimesKilled(), isPackageDisabled);
+                isKilled |= isPackageDisabled;
             }
             if (isKilled) {
                 usage.ioUsage.killed();

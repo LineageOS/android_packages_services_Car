@@ -520,9 +520,21 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
     }
 
     /**
+     * Injects power state signals.
+     *
+     * <p>Called by car shell command.
+     *
+     * @param powerState Power state to inject.
+     */
+    public void injectPowerState(int powerState) {
+        assertPermission(mContext, Car.PERMISSION_USE_CAR_WATCHDOG);
+        onPowerState(powerState);
+    }
+
+    /**
      * Handles power state signals.
      */
-    public void onPowerState(int powerState) {
+    private void onPowerState(int powerState) {
         int powerCycle = carPowerStateToPowerCycle(powerState);
         if (powerCycle < 0) {
             return;
@@ -557,6 +569,9 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
 
     /**
      * Kills a specific package for a user due to resource overuse.
+
+     * <p>Called only by the car shell "watchdog-resource-overuse-kill"
+     * command, which is only used by tests.
      *
      * @return whether package was killed
      */

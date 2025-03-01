@@ -28,9 +28,9 @@
     <dimen name="map_top">0px</dimen>
     <dimen name="map_height">1479px</dimen>
 
-    <dimen name="contextual_bar_top">1479px</dimen>
+    <dimen name="contextual_bar_top">1428px</dimen>
     <dimen name="contextual_bar_bottom">1836px</dimen>
-    <dimen name="contextual_bar_height">357px</dimen>
+    <dimen name="contextual_bar_height">408px</dimen>
 
     <dimen name="app_immersive_top">@dimen/top_bar_bottom</dimen>
     <dimen name="app_immersive_height">1712px</dimen>

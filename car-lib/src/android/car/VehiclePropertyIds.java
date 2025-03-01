@@ -5824,7 +5824,7 @@ public final class VehiclePropertyIds {
      *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_WRITE}
      *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
      *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
-     *  <li>{@code bytes[]} property type
+     *  <li>{@code byte[]} property type
      * </ul>
      *
      * @hide

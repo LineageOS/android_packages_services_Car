@@ -1330,6 +1330,7 @@ public class CarPropertyService extends ICarProperty.Stub
     }
 
     @Override
+    @Nullable
     public CarPropertyValue getLastInjectedVehicleProperty(int propertyId) {
         CarServiceUtils.assertPermission(mContext, Car.PERMISSION_INJECT_VEHICLE_PROPERTIES);
         CarServiceUtils.assertBuildIsDebuggable();

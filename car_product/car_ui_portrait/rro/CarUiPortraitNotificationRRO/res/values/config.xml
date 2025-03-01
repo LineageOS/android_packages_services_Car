@@ -47,7 +47,7 @@
     <item name="config_olderNotificationsAlpha" format="float" type="dimen">1</item>
 
     <!-- Whether to collapse notification shade panel after manage button click -->
-    <bool name="config_collapseShadePanelAfterManageButtonPress">false</bool>
+    <bool name="config_collapseShadePanelAfterManageButtonPress">true</bool>
 
     <!-- Whether to show expansion header in group notifications.  -->
     <bool name="config_showExpansionHeader">false</bool>

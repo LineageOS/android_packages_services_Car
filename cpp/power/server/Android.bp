@@ -25,7 +25,10 @@ cc_defaults {
         "-Werror",
         "-Wno-unused-variable",
         "-Wunused-parameter",
-    ],
+    ] + select(release_flag("RELEASE_FRAMEWORK_NATIVE_POWER_NOTIFICATIONS"), {
+        true: ["-DLAUNCH_CAR_POWER_SERVER"],
+        default: [],
+    }),
     shared_libs: [
         "android.frameworks.automotive.powerpolicy-V3-ndk",
         "android.frameworks.automotive.powerpolicy.internal-V1-ndk",
@@ -103,6 +106,11 @@ vintf_fragment {
     src: "carpowerpolicyd.xml",
 }
 
+vintf_fragment {
+    name: "carpowerpolicyd_with_notification.xml",
+    src: "carpowerpolicyd_with_notification.xml",
+}
+
 cc_binary {
     name: "carpowerpolicyd",
     defaults: [
@@ -115,7 +123,10 @@ cc_binary {
         "lib_carpowerpolicyserver",
     ],
     init_rc: ["carpowerpolicyd.rc"],
-    vintf_fragment_modules: ["carpowerpolicyd.xml"],
+    vintf_fragment_modules: select(release_flag("RELEASE_FRAMEWORK_NATIVE_POWER_NOTIFICATIONS"), {
+        true: ["carpowerpolicyd_with_notification.xml"],
+        default: ["carpowerpolicyd.xml"],
+    }),
 }
 
 cc_fuzz {

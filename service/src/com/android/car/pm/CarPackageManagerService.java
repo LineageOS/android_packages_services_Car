@@ -999,12 +999,13 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
                 activities.addAll(configActivitiesForPackage);
             }
         }
-        /* 2. If app is not listed in the config.xml check their Manifest meta-data to
-          see if they have any Distraction Optimized(DO) activities.
-          For non system apps, we check if the app install source was a permittable
-          source. This prevents side-loaded apps to fake DO.  Bypass the check
-          for debug builds for development convenience. */
-        if (!isDebugBuild()
+        /* 2. If app is not listed in the config.xml check their Manifest meta-data to see if
+        they have any Distraction Optimized(DO) activities. For non system apps, we check if the
+        app install source was a permissible source. This prevents side-loaded apps to fake DO.
+        Bypass the check for debug builds for development convenience. The check for activities
+        which are already allowlisted in the config can be bypassed since the config can only be
+        modified by the OEMs, so side-loading does not matter for such a case. */
+        if (!isDebugBuild() && configActivitiesForPackage == null
                 && !PackageManagerHelper.isSystemApp(info.applicationInfo)
                 && !PackageManagerHelper.isUpdatedSystemApp(info.applicationInfo)) {
             try {
@@ -1428,6 +1429,7 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
      */
     private void blockTopActivitiesOnDisplayIfNecessary(List<? extends TaskInfo> visibleTasks,
             int displayId) {
+        Set<Integer> rootTasksBlocked = new ArraySet<>();
         for (TaskInfo topTask : visibleTasks) {
             if (topTask == null) {
                 Slogf.e(TAG, "Top tasks contains null.");
@@ -1441,16 +1443,25 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
                 continue;
             }
 
+            if (rootTasksBlocked.contains(TaskInfoHelper.geParentTaskId(topTask))) {
+                // Root task already blocked. No need to launch another ABA
+                if (DBG) {
+                    Slogf.d(TAG, "Root task %d has already been blocked.",
+                            TaskInfoHelper.geParentTaskId(topTask));
+                }
+                continue;
+            }
+
             boolean blocked = blockTopActivity(topTask);
             if (blocked) {
                 if (DBG) {
-                    Slogf.d(TAG, "Display %d has already been blocked.", displayIdOfTask);
+                    Slogf.d(TAG, "Display %d has been blocked. Root task id: %d",
+                            displayIdOfTask, TaskInfoHelper.geParentTaskId(topTask));
                 }
-            }
-            // Iterate over all the visible tasks only if root task is enabled
-            // TODO(b/392757141): A long term solution can be to iterate on per root task basis.
-            if (!mActivityService.isUsingAutoTaskStackWindowing()) {
-                break;
+                // When root tasks are not used, the value of parent root task would be -1.
+                // It is okay to add it to this list as it would help to skip all the tasks
+                // which are blocked but not parented to root task.
+                rootTasksBlocked.add(TaskInfoHelper.geParentTaskId(topTask));
             }
         }
     }

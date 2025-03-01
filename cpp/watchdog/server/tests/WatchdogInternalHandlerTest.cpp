@@ -87,14 +87,14 @@ public:
             return;
         }
         mChangedUid = uid;
-        int64_t token = ((int64_t)mChangedUid << 32) | mCallingPid;
+        int64_t token = (static_cast<int64_t>(mChangedUid) << 32) | mCallingPid;
         IPCThreadState::self()->restoreCallingIdentity(token);
     }
     ~ScopedChangeCallingUid() {
         if (mCallingUid == mChangedUid) {
             return;
         }
-        int64_t token = ((int64_t)mCallingUid << 32) | mCallingPid;
+        int64_t token = (static_cast<int64_t>(mCallingUid) << 32) | mCallingPid;
         IPCThreadState::self()->restoreCallingIdentity(token);
     }
 
@@ -175,6 +175,67 @@ protected:
     sp<ScopedChangeCallingUid> mScopedChangeCallingUid;
     MockThreadPriorityController* mThreadPriorityController;
 };
+
+TEST_F(WatchdogInternalHandlerTest, TestInit) {
+    std::shared_ptr<WatchdogInternalHandler> internalHandler =
+            SharedRefBase::make<WatchdogInternalHandler>(sp<MockWatchdogServiceHelper>::make(),
+                                                         sp<MockWatchdogProcessService>::make(),
+                                                         sp<MockWatchdogPerfService>::make(),
+                                                         sp<MockIoOveruseMonitor>::make());
+
+    ASSERT_RESULT_OK(internalHandler->init());
+
+    ASSERT_NE(internalHandler->mWatchdogProcessService, nullptr);
+    ASSERT_NE(internalHandler->mWatchdogServiceHelper, nullptr);
+    ASSERT_NE(internalHandler->mIoOveruseMonitor, nullptr);
+    ASSERT_NE(internalHandler->mWatchdogPerfService, nullptr);
+}
+
+TEST_F(WatchdogInternalHandlerTest, TestErrorOnInitWithNullServiceInstances) {
+    auto mockWatchdogProcessService = sp<MockWatchdogProcessService>::make();
+    auto mockWatchdogPerfservice = sp<MockWatchdogPerfService>::make();
+    auto mockWatchdogServiceHelper = sp<MockWatchdogServiceHelper>::make();
+    auto mockIoOveruseMonitor = sp<MockIoOveruseMonitor>::make();
+    std::shared_ptr<WatchdogInternalHandler> internalHandler =
+            SharedRefBase::make<WatchdogInternalHandler>(nullptr, mockWatchdogProcessService,
+                                                         mockWatchdogPerfservice,
+                                                         mockIoOveruseMonitor);
+
+    EXPECT_FALSE(internalHandler->init().ok())
+            << "No error returned on nullptr watchdog service helper";
+    internalHandler.reset();
+
+    internalHandler = SharedRefBase::make<WatchdogInternalHandler>(mockWatchdogServiceHelper,
+                                                                   nullptr, mockWatchdogPerfservice,
+                                                                   mockIoOveruseMonitor);
+
+    EXPECT_FALSE(internalHandler->init().ok())
+            << "No error returned on nullptr watchdog process service";
+    internalHandler.reset();
+
+    internalHandler = SharedRefBase::make<WatchdogInternalHandler>(mockWatchdogServiceHelper,
+                                                                   mockWatchdogProcessService,
+                                                                   nullptr, mockIoOveruseMonitor);
+
+    EXPECT_FALSE(internalHandler->init().ok())
+            << "No error returned on nullptr watchdog performance service";
+    internalHandler.reset();
+
+    internalHandler =
+            SharedRefBase::make<WatchdogInternalHandler>(mockWatchdogServiceHelper,
+                                                         mockWatchdogProcessService,
+                                                         mockWatchdogPerfservice, nullptr);
+
+    EXPECT_FALSE(internalHandler->init().ok())
+            << "No error returned on nullptr I/O overuse monitor";
+    internalHandler.reset();
+
+    internalHandler =
+            SharedRefBase::make<WatchdogInternalHandler>(nullptr, nullptr, nullptr, nullptr);
+
+    EXPECT_FALSE(internalHandler->init().ok()) << "No error returned on null services";
+    internalHandler.reset();
+}
 
 TEST_F(WatchdogInternalHandlerTest, TestTerminate) {
     ASSERT_NE(mWatchdogInternalHandler->mWatchdogServiceHelper, nullptr);
