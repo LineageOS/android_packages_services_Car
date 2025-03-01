@@ -47,9 +47,11 @@ using ::aidl::android::automotive::watchdog::internal::UserState;
 using ::android::sp;
 using ::android::String16;
 using ::android::base::EqualsIgnoreCase;
+using ::android::base::Error;
 using ::android::base::Join;
 using ::android::base::Result;
 using ::android::base::Split;
+using ::android::base::StringAppendF;
 using ::android::base::StringPrintf;
 using ::android::base::WriteStringToFd;
 using ::android::car::feature::car_watchdog_anr_metrics;
@@ -91,6 +93,32 @@ ScopedAStatus checkSystemUser(const std::string& methodName) {
 }
 
 }  // namespace
+
+Result<void> WatchdogInternalHandler::init() {
+    if (mWatchdogPerfService == nullptr || mIoOveruseMonitor == nullptr ||
+        mWatchdogProcessService == nullptr || mWatchdogServiceHelper == nullptr) {
+        std::string serviceList;
+        if (mWatchdogPerfService == nullptr) {
+            StringAppendF(&serviceList, "%s%s", (!serviceList.empty() ? ", " : ""),
+                          "Watchdog performance service");
+        }
+        if (mIoOveruseMonitor == nullptr) {
+            StringAppendF(&serviceList, "%s%s", (!serviceList.empty() ? ", " : ""),
+                          "I/O overuse monitor service");
+        }
+        if (mWatchdogProcessService == nullptr) {
+            StringAppendF(&serviceList, "%s%s", (!serviceList.empty() ? ", " : ""),
+                          "Watchdog process service");
+        }
+        if (mWatchdogServiceHelper == nullptr) {
+            StringAppendF(&serviceList, "%s%s", (!serviceList.empty() ? ", " : ""),
+                          "Watchdog service helper");
+        }
+        return Error(INVALID_OPERATION)
+                << serviceList << " must be initialized with non-null instance";
+    }
+    return {};
+}
 
 binder_status_t WatchdogInternalHandler::dump(int fd, const char** args, uint32_t numArgs) {
     if (numArgs == 0 || strcmp(args[0], kDumpAllFlag) == 0) {
