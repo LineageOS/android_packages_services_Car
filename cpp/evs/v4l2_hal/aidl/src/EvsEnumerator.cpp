@@ -673,27 +673,35 @@ bool EvsEnumerator::qualifyCaptureDevice(const char* deviceName) {
 
     FileHandleWrapper fd = open(deviceName, O_RDWR, 0);
     if (fd < 0) {
+        LOG(ERROR) << "Failed to open " << deviceName;
         return false;
     }
 
     v4l2_capability caps;
     int result = ioctl(fd, VIDIOC_QUERYCAP, &caps);
     if (result < 0) {
+        LOG(ERROR) << "Failed to query the capability " << deviceName
+                   << ", error = " << strerror(result);
         return false;
     }
-    if (((caps.capabilities & V4L2_CAP_VIDEO_CAPTURE) == 0) ||
+
+    if ((((caps.capabilities & V4L2_CAP_VIDEO_CAPTURE) == 0) &&
+         (caps.capabilities & V4L2_CAP_VIDEO_CAPTURE_MPLANE) == 0) ||
         ((caps.capabilities & V4L2_CAP_STREAMING) == 0)) {
+        LOG(ERROR) << deviceName << " does not support either capture nor streaming.";
         return false;
     }
 
     // Enumerate the available capture formats (if any)
     v4l2_fmtdesc formatDescription;
-    formatDescription.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+    formatDescription.type = ((caps.capabilities & V4L2_CAP_VIDEO_CAPTURE) != 0)
+            ? V4L2_BUF_TYPE_VIDEO_CAPTURE
+            : V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE;
     bool found = false;
     for (int i = 0; !found; ++i) {
         formatDescription.index = i;
         if (ioctl(fd, VIDIOC_ENUM_FMT, &formatDescription) == 0) {
-            LOG(DEBUG) << "Format: 0x" << std::hex << formatDescription.pixelformat << " Type: 0x"
+            LOG(INFO) << "Format: 0x" << std::hex << formatDescription.pixelformat << " Type: 0x"
                        << std::hex << formatDescription.type
                        << " Desc: " << formatDescription.description << " Flags: 0x" << std::hex
                        << formatDescription.flags;
@@ -734,7 +742,7 @@ bool EvsEnumerator::qualifyCaptureDevice(const char* deviceName) {
             }
         } else {
             // No more formats available.
-            LOG(ERROR) << "No format info is available; " << strerror(errno);
+            PLOG(ERROR) << "No format info is available; ";
             break;
         }
     }
