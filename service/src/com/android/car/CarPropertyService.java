@@ -1350,9 +1350,7 @@ public class CarPropertyService extends ICarProperty.Stub
 
     private void assertPropertyIsReadable(CarPropertyConfig<?> carPropertyConfig,
             int areaId) {
-        int accessLevel = mFeatureFlags.areaIdConfigAccess()
-                ? carPropertyConfig.getAreaIdConfig(areaId).getAccess()
-                : carPropertyConfig.getAccess();
+        int accessLevel = carPropertyConfig.getAreaIdConfig(areaId).getAccess();
         Preconditions.checkArgument(
                 accessLevel == CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ
                         || accessLevel == CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ_WRITE,
@@ -1449,9 +1447,7 @@ public class CarPropertyService extends ICarProperty.Stub
         assertAreaIdIsSupported(carPropertyConfig, areaId);
 
         // Assert property is writable.
-        int accessLevel = mFeatureFlags.areaIdConfigAccess()
-                ? carPropertyConfig.getAreaIdConfig(areaId).getAccess()
-                : carPropertyConfig.getAccess();
+        int accessLevel = carPropertyConfig.getAreaIdConfig(areaId).getAccess();
         Preconditions.checkArgument(
                 accessLevel == CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_WRITE
                         || accessLevel == CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ_WRITE,
