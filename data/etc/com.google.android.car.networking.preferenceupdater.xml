@@ -22,7 +22,7 @@
         <permission name="android.permission.CHANGE_NETWORK_STATE" />
         <permission name="android.permission.CONNECTIVITY_INTERNAL" />
         <permission name="android.permission.CONNECTIVITY_USE_RESTRICTED_NETWORKS"/>
-        <permission name="android.permission.CONTROL_OEM_PAID_NETWORK_PREFERNCE" />
+        <permission name="android.permission.CONTROL_OEM_PAID_NETWORK_PREFERENCE" />
         <permission name="android.permission.INTERACT_ACROSS_USERS"/>
         <permission name="android.permission.INTERACT_ACROSS_USERS_FULL"/>
         <permission name="android.permission.INTERNET" />
