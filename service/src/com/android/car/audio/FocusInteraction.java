@@ -34,17 +34,21 @@ import static com.android.car.audio.CarAudioContext.VOICE_COMMAND;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
 import android.annotation.UserIdInt;
+import android.car.builtin.os.TraceHelper;
 import android.car.builtin.os.UserManagerHelper;
 import android.car.builtin.util.Slogf;
+import android.car.builtin.util.TimingsTraceLog;
 import android.car.settings.CarSettings;
 import android.database.ContentObserver;
 import android.media.AudioAttributes;
 import android.net.Uri;
+import android.os.Handler;
 import android.provider.Settings;
 import android.util.SparseArray;
 import android.util.proto.ProtoOutputStream;
 
 import com.android.car.CarLog;
+import com.android.car.CarServiceUtils;
 import com.android.car.audio.CarAudioContext.AudioContext;
 import com.android.car.audio.CarAudioDumpProto.CarAudioZoneFocusProto.CarAudioFocusProto;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
@@ -395,17 +399,22 @@ final class FocusInteraction {
             boolean allowsDelayedFocus, List<FocusEntry> focusLosers) {
         int holderUsage = focusHolder.getAudioFocusInfo().getAttributes().getSystemUsage();
 
+        TimingsTraceLog t = new TimingsTraceLog(TAG, TraceHelper.TRACE_TAG_CAR_SERVICE);
+        t.traceBegin("evaluate-focus-request");
         synchronized (mLock) {
             int focusDecision = getFocusInteractionLocked(requestedUsage, holderUsage);
 
             switch (focusDecision) {
                 case INTERACTION_REJECT:
                     if (allowsDelayedFocus) {
+                        t.traceEnd();
                         return AUDIOFOCUS_REQUEST_DELAYED;
                     }
+                    t.traceEnd();
                     return AUDIOFOCUS_REQUEST_FAILED;
                 case INTERACTION_EXCLUSIVE:
                     focusLosers.add(focusHolder);
+                    t.traceEnd();
                     return AUDIOFOCUS_REQUEST_GRANTED;
                 case INTERACTION_CONCURRENT:
                     // If ducking isn't allowed by the focus requester, then everybody else
@@ -419,10 +428,12 @@ final class FocusInteraction {
                             || focusHolder.receivesDuckEvents()) {
                         focusLosers.add(focusHolder);
                     }
+                    t.traceEnd();
                     return AUDIOFOCUS_REQUEST_GRANTED;
                 default:
                     Slogf.e(TAG, "Unsupported CarAudioContext %d - rejecting request",
                             focusDecision);
+                    t.traceEnd();
                     return AUDIOFOCUS_REQUEST_FAILED;
             }
         }
@@ -451,8 +462,11 @@ final class FocusInteraction {
                 setRejectNavigationOnCallLocked(false);
                 return;
             }
+            var carHandlerThread = CarServiceUtils.getHandlerThread(
+                    CarAudioService.class.getSimpleName());
             mContentObserver = mContentObserverFactory.createObserver(
-                    () -> navigationOnCallSettingChanged());
+                    this::navigationOnCallSettingChanged,
+                    new Handler(carHandlerThread.getLooper()));
             mCarAudioFocusSettings.getContentResolverForUser(mUserId)
                     .registerContentObserver(AUDIO_FOCUS_NAVIGATION_REJECTED_DURING_CALL_URI,
                             /* notifyForDescendants= */false, mContentObserver);

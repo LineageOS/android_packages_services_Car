@@ -29,6 +29,7 @@ namespace watchdog {
 
 class MockWatchdogInternalHandler : public WatchdogInternalHandlerInterface {
 public:
+    MOCK_METHOD(android::base::Result<void>, init, (), (override));
     MOCK_METHOD(binder_status_t, dump, (int, const char**, uint32_t), (override));
     MOCK_METHOD(
             ndk::ScopedAStatus, registerCarWatchdogService,

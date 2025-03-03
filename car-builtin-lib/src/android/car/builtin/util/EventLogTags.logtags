@@ -171,3 +171,6 @@ option java_package android.car.builtin.util
 ### state: state from VehicleApPowerStateReq
 ### param: additional parameter from VehicleApPowerStateReq
 150303 car_pwr_mgr_state_req (state|1),(param|1)
+
+#### Car watchdog related tags (range 150400 - 150499)
+150400 car_watchdog_svc_io_overuse_kill (package_name|3),(user_id|1),(written_fg_bytes|2),(written_bg_bytes|2),(written_garage_mode_bytes|2),(threshold_fg_bytes|2),(threshold_bg_bytes|2),(threshold_garage_mode_bytes|2),(times_killed|2),(is_package_disabled|1)

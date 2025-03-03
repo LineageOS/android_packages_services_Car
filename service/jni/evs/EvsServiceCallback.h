@@ -27,7 +27,7 @@ namespace android::automotive::evs {
  */
 class EvsServiceCallback {
 public:
-    virtual ~EvsServiceCallback(){};
+    virtual ~EvsServiceCallback() {};
 
     // Called upon the arrival of the new stream event.
     virtual void onNewEvent(const ::aidl::android::hardware::automotive::evs::EvsEventDesc&) = 0;

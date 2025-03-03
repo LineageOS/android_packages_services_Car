@@ -398,6 +398,13 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
                 }
                 propValues = filteredPropValues;
             }
+        }
+        dispatchPropertyEvents(propValues);
+    }
+
+    private void dispatchPropertyEvents(List<HalPropValue> propValues) {
+        ArraySet<HalServiceBase> servicesToDispatch = new ArraySet<>();
+        synchronized (mLock) {
             for (int i = 0; i < propValues.size(); i++) {
                 HalPropValue v = propValues.get(i);
                 int propId = v.getPropId();
@@ -408,7 +415,7 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
                     continue;
                 }
                 service.getDispatchList().add(v);
-                mServicesToDispatch.add(service);
+                servicesToDispatch.add(service);
                 VehiclePropertyEventInfo info = mEventLog.get(propId);
                 if (info == null) {
                     info = new VehiclePropertyEventInfo(v);
@@ -418,11 +425,10 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
                 }
             }
         }
-        for (HalServiceBase s : mServicesToDispatch) {
+        for (HalServiceBase s : servicesToDispatch) {
             s.onHalEvents(s.getDispatchList());
             s.getDispatchList().clear();
         }
-        mServicesToDispatch.clear();
     }
 
     private void handleOnPropertySetError(List<VehiclePropError> errors) {
@@ -1259,11 +1265,15 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
         set(halPropValue);
     }
 
-    private final ArraySet<HalServiceBase> mServicesToDispatch = new ArraySet<>();
 
     @Override
     public void onPropertyEvent(List<HalPropValue> propValues) {
         mHandler.post(() -> handleOnPropertyEvent(propValues));
+    }
+
+    @Override
+    public void onInjectionPropertyEvent(List<HalPropValue> propValues) {
+        mHandler.post(() -> dispatchPropertyEvents(propValues));
     }
 
     @Override
@@ -1473,6 +1483,20 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
      */
     public boolean isVehiclePropertyInjectionModeEnabled() {
         return mVehicleStub.get().isSimulatedModeEnabled();
+    }
+
+    /**
+     * Gets the last injected vehicle property for the propertyId.
+     *
+     * @param propertyId The propertyId that was last injected.
+     * @return The {@link CarPropertyValue} that was last injected.
+     */
+    @Nullable
+    public CarPropertyValue getLastInjectedVehicleProperty(int propertyId) {
+        if (!isVehiclePropertyInjectionModeEnabled()) {
+            throw new IllegalStateException("Vehicle property injection mode is not enabled!");
+        }
+        return mVehicleStub.get().getLastInjectedVehicleProperty(propertyId);
     }
 
     /**

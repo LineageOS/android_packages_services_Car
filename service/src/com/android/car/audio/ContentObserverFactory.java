@@ -19,7 +19,6 @@ package com.android.car.audio;
 import android.database.ContentObserver;
 import android.net.Uri;
 import android.os.Handler;
-import android.os.Looper;
 
 import java.util.Objects;
 
@@ -31,10 +30,11 @@ final class ContentObserverFactory {
         mUri = Objects.requireNonNull(uri, "Uri cannot be null");
     }
 
-    ContentObserver createObserver(ContentChangeCallback wrapper) {
+    ContentObserver createObserver(ContentChangeCallback wrapper, Handler handler) {
         Objects.requireNonNull(wrapper, "Content Change Callback cannot be null");
+        Objects.requireNonNull(handler, "Handler cannot be null");
 
-        return new ContentObserver(new Handler(Looper.getMainLooper())) {
+        return new ContentObserver(handler) {
             @Override
             public void onChange(boolean selfChange, Uri uri) {
                 if (mUri.equals(uri)) {

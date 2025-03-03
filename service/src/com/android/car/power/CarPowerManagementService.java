@@ -135,6 +135,7 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -159,6 +160,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
 
     public static final long INVALID_TIMEOUT = -1L;
 
+    public static final int INVALID_NATIVE_LISTENER_CHANGE_ID = -1;
     public static final int NO_WAKEUP_BY_TIMER = -1;
 
     static final String TAG = CarLog.tagFor(CarPowerManagementService.class);
@@ -327,8 +329,10 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     private final CountDownLatch mPowerPolicyInitializationLatch = new CountDownLatch(1);
     @GuardedBy("mLock")
     private CarPowerPolicy mCurrentAccumulatedPowerPolicy = getInitialAccumulatedPowerPolicy();
-    private AtomicBoolean mIsListenerWaitingCancelled = new AtomicBoolean(false);
+    private final AtomicBoolean mIsListenerWaitingCancelled = new AtomicBoolean(false);
     private final Semaphore mListenerCompletionSem = new Semaphore(/* permits= */ 0);
+    @GuardedBy("mLock")
+    private int mWaitingNativeListenerChangeId = INVALID_NATIVE_LISTENER_CHANGE_ID;
     @GuardedBy("mLock")
     @CarPowerManager.CarPowerState
     private int mStateForCompletion = CarPowerManager.STATE_INVALID;
@@ -661,6 +665,9 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             }
             mHandler.cancelAll();
             mListenersWeAreWaitingFor.clear();
+            if (NativePowerNotificationsFlag.isFeatureSupported()) {
+                mWaitingNativeListenerChangeId = INVALID_NATIVE_LISTENER_CHANGE_ID;
+            }
         }
         mSystemInterface.stopDisplayStateMonitoring();
         mPowerManagerListeners.kill();
@@ -1013,7 +1020,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     private void notifyPowerStateChangeToDaemon(@CarPowerManager.CarPowerState int newState,
             long expirationTimeMs) {
         String powerStateName = powerStateToString(newState);
-        Slogf.i(TAG, "Notifying CPPD of power state(%s) with expiration duration of (%d) ms",
+        Slogf.i(TAG, "Notifying CPPD of power state (%s) with expiration duration of %d ms",
                 powerStateToString(newState), expirationTimeMs);
 
         ICarPowerManagementDelegate daemon = getCarPowerManagementDaemon();
@@ -1022,16 +1029,21 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                     + "to %s, daemon unavailable", powerStateName);
             return;
         }
+        int changeId = mPowerChangeIdCounter.getAndIncrement();
+        if (isCompletionAllowed(newState)
+                && newState != CarPowerManager.STATE_SHUTDOWN_PREPARE) {
+            synchronized (mLock) {
+                mWaitingNativeListenerChangeId = changeId;
+            }
+        }
         try {
-            daemon.notifyPowerStateChange(
-                    mPowerChangeIdCounter.getAndIncrement(), newState, expirationTimeMs);
-        } catch (IllegalArgumentException e) {
+            daemon.notifyPowerStateChange(changeId, newState, expirationTimeMs);
+        } catch (IllegalArgumentException | SecurityException | RemoteException e) {
             Slogf.e(TAG, e, "Failed to notify daemon of power state(%s)", powerStateName);
-        } catch (SecurityException e) {
-            Slogf.e(TAG, e, "Failed to notify daemon of power state, insufficient permissions");
-        } catch (RemoteException e) {
-            Slogf.e(TAG, e, "Failed to notify daemon of power state(%s), connection issue",
-                    powerStateName);
+            synchronized (mLock) {
+                // If an exception occurs, no reason to wait on native listener completion
+                mWaitingNativeListenerChangeId = INVALID_NATIVE_LISTENER_CHANGE_ID;
+            }
         }
     }
 
@@ -1220,13 +1232,10 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     }
 
     private void handleShutdownPrepare(CpmsState currentState, CpmsState prevState) {
-        boolean areListenersEmpty;
-        synchronized (mLock) {
-            areListenersEmpty = mListenersWeAreWaitingFor.isEmpty();
-        }
         switch (currentState.mCarPowerStateListenerState) {
             case CarPowerManager.STATE_PRE_SHUTDOWN_PREPARE:
                 updateShutdownPrepareStatus(currentState);
+                boolean isComplete = false;
                 if (prevState.mCarPowerStateListenerState == STATE_SHUTDOWN_PREPARE) {
                     // Received request to update SHUTDOWN target
                     currentState = new CpmsState(currentState.mState,
@@ -1234,8 +1243,9 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                             prevState.mCanPostpone, currentState.mShutdownType);
                     synchronized (mLock) {
                         mCurrentState = currentState;
+                        isComplete = arePowerStateChangeListenersCompleteLocked();
                     }
-                    if (!areListenersEmpty) {
+                    if (!isComplete) {
                       if (garageModeShouldExitImmediately()) {
                             Slogf.e(TAG, "Received 2nd shutdown request. Waiting for listeners is "
                                 + "not allowed. Clearing listeners.");
@@ -1253,8 +1263,11 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                         finishShutdownPrepare();
                     }
                 } else if (prevState.mCarPowerStateListenerState == STATE_PRE_SHUTDOWN_PREPARE) {
+                    synchronized (mLock) {
+                        isComplete = arePowerStateChangeListenersCompleteLocked();
+                    }
                     // Update of state occurred while in PRE_SHUTDOWN_PREPARE
-                    if (areListenersEmpty) {
+                    if (isComplete) {
                         handleCoreShutdownPrepare();
                     } else {
                         // PRE_SHUTDOWN_PREPARE is still being processed, no actions required
@@ -1325,8 +1338,9 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         sendPowerManagerEvent(state, timeoutMs);
         Runnable taskAtCompletion = () -> {
             // The next power state is still SHUTDOWN_PREPARE, and the listener state is
-            // SHUTDOW_PREPARE.
-            Slogf.i(TAG, "All listeners completed for %s", powerStateToString(state));
+            // SHUTDOWN_PREPARE.
+            Slogf.i(TAG, "All listeners completed (or timed out) for %s",
+                    powerStateToString(state));
             onApPowerStateChange(CpmsState.SHUTDOWN_PREPARE,
                     CarPowerManager.STATE_SHUTDOWN_PREPARE);
         };
@@ -1388,7 +1402,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         int timeoutMs = getShutdownEnterTimeoutConfig();
         sendPowerManagerEvent(state.mCarPowerStateListenerState, timeoutMs);
         Runnable taskAtCompletion = () -> {
-            Slogf.i(TAG, "All listeners completed for %s",
+            Slogf.i(TAG, "All listeners completed (or timed out) for %s",
                     powerStateToString(state.mCarPowerStateListenerState));
             if (mFeatureFlags.carPowerCancelShellCommand()) {
                 synchronized (mSimulationWaitObject) {
@@ -1464,7 +1478,8 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         int timeoutMs = getPostShutdownEnterTimeoutConfig();
         sendPowerManagerEvent(listenerState, timeoutMs);
         Runnable taskAtCompletion = () -> {
-            Slogf.i(TAG, "All listeners completed for %s", powerStateToString(listenerState));
+            Slogf.i(TAG, "All listeners completed (or timed out) for %s",
+                    powerStateToString(listenerState));
             doHandleFinish();
         };
         Slogf.i(TAG, "Start waiting for listener completion for %s",
@@ -1635,7 +1650,8 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         int state = CarPowerManager.STATE_SHUTDOWN_PREPARE;
         Runnable taskAtCompletion = () -> {
             finishShutdownPrepare();
-            Slogf.i(TAG, "All listeners completed for %s", powerStateToString(state));
+            Slogf.i(TAG, "All listeners completed (or timed out) for %s",
+                    powerStateToString(state));
         };
 
         waitForCompletionWithShutdownPostpone(state, timeoutMs, taskAtCompletion, intervalMs);
@@ -1651,7 +1667,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             long timeoutMs, int intervalMs) {
         boolean isComplete = false;
         synchronized (mLock) {
-            isComplete = mListenersWeAreWaitingFor.isEmpty();
+            isComplete = arePowerStateChangeListenersCompleteLocked();
         }
         if (isComplete) {
             taskAtCompletion.run();
@@ -1683,7 +1699,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                     mListenerCompletionSem.drainPermits();
                     if (!isNotified) {
                         if (isLastWait) {
-                            Slogf.w(TAG, "Waiting for listener completion is timeout(%d)",
+                            Slogf.w(TAG, "Waiting for listener completion has timed out(%d)",
                                     waitTimeMs);
                             taskAtCompletion.run();
                             return;
@@ -1698,7 +1714,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                             mIsListenerWaitingCancelled.set(false);
                             return;
                         }
-                        isComplete = mListenersWeAreWaitingFor.isEmpty();
+                        isComplete = arePowerStateChangeListenersCompleteLocked();
                     }
                     if (isComplete) {
                         Slogf.i(TAG, "All listeners completed");
@@ -1719,6 +1735,9 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         if (clearQueue) {
             synchronized (mLock) {
                 mListenersWeAreWaitingFor.clear();
+                if (NativePowerNotificationsFlag.isFeatureSupported()) {
+                    mWaitingNativeListenerChangeId = INVALID_NATIVE_LISTENER_CHANGE_ID;
+                }
             }
         } else {
             mIsListenerWaitingCancelled.set(true);
@@ -1727,17 +1746,28 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         mListenerCompletionSem.release();
     }
 
+    @GuardedBy("mLock")
+    private boolean arePowerStateChangeListenersCompleteLocked() {
+        boolean javaListenersComplete = mListenersWeAreWaitingFor.isEmpty();
+        if (NativePowerNotificationsFlag.isFeatureSupported()) {
+            boolean nativeListenersComplete =
+                    mWaitingNativeListenerChangeId == INVALID_NATIVE_LISTENER_CHANGE_ID;
+            return javaListenersComplete && nativeListenersComplete;
+        }
+        return javaListenersComplete;
+    }
+
     private void sendPowerManagerEvent(@CarPowerManager.CarPowerState int newState,
             long timeoutMs) {
         // Notify power daemon to notify native listeners
-        if (mFeatureFlags.nativePowerNotifications()) {
-            notifyPowerStateChangeToDaemon(newState, timeoutMs);
+        if (NativePowerNotificationsFlag.isFeatureSupported()) {
+            notifyPowerStateChangeToDaemon(newState, timeoutMs == INVALID_TIMEOUT ? 0 : timeoutMs);
         }
 
         // Broadcasts to the listeners that do not signal completion.
         notifyListeners(mPowerManagerListeners, newState, INVALID_TIMEOUT);
 
-        boolean allowCompletion;
+        boolean allowCompletion = isCompletionAllowed(newState);
         boolean isShutdownPrepare = newState == CarPowerManager.STATE_SHUTDOWN_PREPARE;
         long internalListenerExpirationTimeMs = INVALID_TIMEOUT;
         long binderListenerExpirationTimeMs = INVALID_TIMEOUT;
@@ -1753,19 +1783,17 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                 new PowerManagerCallbackList(l -> {
                 });
         synchronized (mLock) {
-            if (isCompletionAllowed(newState)) {
+            if (allowCompletion) {
                 if (timeoutMs < 0) {
                     Slogf.wtf(TAG, "Completion timeout(%d) for state(%d) should be "
                             + "non-negative", timeoutMs, newState);
                     return;
                 }
                 mStateForCompletion = newState;
-                allowCompletion = true;
                 internalListenerExpirationTimeMs = SystemClock.elapsedRealtime() + timeoutMs;
                 binderListenerExpirationTimeMs =
                         isShutdownPrepare ? INVALID_TIMEOUT : internalListenerExpirationTimeMs;
             } else {
-                allowCompletion = false;
                 mStateForCompletion = CarPowerManager.STATE_INVALID;
             }
 
@@ -1783,7 +1811,6 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                     ICarPowerStateListener listener =
                             mPowerManagerListenersWithCompletion.getBroadcastItem(idx);
                     completingBinderListeners.register(listener);
-                    // For binder listeners, listener completion is not allowed for SHUTDOWN_PREPARE
                     if (allowCompletion && !isShutdownPrepare) {
                         synchronized (mLock) {
                             mListenersWeAreWaitingFor.add(listener.asBinder());
@@ -1792,7 +1819,6 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                 }
                 mPowerManagerListenersWithCompletion.finishBroadcast();
             });
-            // TODO(b/383760195): Add native listener(s) to mListenersWeAreWaitingFor
         }
         // Resets the semaphore's available permits to 0.
         mListenerCompletionSem.drainPermits();
@@ -2072,8 +2098,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
      */
     public void completeHandlingPowerStateChange(int state, ICarPowerStateListener listener) {
         CarServiceUtils.assertCallingFromSystemProcessOrSelf();
-        handleListenerCompletion(state, listener,
-                new ArraySet(new Integer[] {CarPowerManager.STATE_INVALID}));
+        handleListenerCompletion(state, listener, Set.of());
     }
 
     // Binder interface for general use.
@@ -2113,8 +2138,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     @Override
     public void finished(int state, ICarPowerStateListener listener) {
         CarServiceUtils.assertPermission(mContext, Car.PERMISSION_CONTROL_SHUTDOWN_PROCESS);
-        handleListenerCompletion(state, listener, new ArraySet(new Integer[]
-                {CarPowerManager.STATE_INVALID, CarPowerManager.STATE_SHUTDOWN_PREPARE}));
+        handleListenerCompletion(state, listener, Set.of(CarPowerManager.STATE_SHUTDOWN_PREPARE));
     }
 
     @Override
@@ -2282,8 +2306,12 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     }
 
     private void handleListenerCompletion(int state, ICarPowerStateListener listener,
-            ArraySet<Integer> notAllowedStates) {
+            Set<Integer> notAllowedStates) {
         synchronized (mLock) {
+            if (mStateForCompletion == CarPowerManager.STATE_INVALID) {
+                Slogf.w(TAG, "The current state is invalid, listener completion not allowed");
+                return;
+            }
             if (notAllowedStates.contains(mStateForCompletion)) {
                 Slogf.w(TAG, "The current state(%d) doesn't allow listener completion",
                         mStateForCompletion);
@@ -2408,10 +2436,16 @@ public class CarPowerManagementService extends ICarPower.Stub implements
 
         @Override
         public void onAllPowerStateChangeListenersComplete(int changeId) {
-            // TODO(b/382331302): Implement to support listeners w/completion, not needed for
-            // listeners w/o completion because service currently doesn't wait for this method to
-            // be called to progress with power state transition.
-            return;
+            synchronized (mLock) {
+                if (changeId == mWaitingNativeListenerChangeId) {
+                    mWaitingNativeListenerChangeId = INVALID_NATIVE_LISTENER_CHANGE_ID;
+                    mListenerCompletionSem.release();
+                } else {
+                    Slogf.i(TAG, "Native power state change listeners completed for change "
+                            + "ID %d, but currently waiting for change ID %d to finish",
+                            changeId, mWaitingNativeListenerChangeId);
+                }
+            }
         }
     }
 
@@ -3905,9 +3939,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     /**
      * Returns whether a listener completion is allowed for the given state.
      *
-     * <p>This method is used internally and is different from
-     * {@link CarPowerManager.isCompletionAllowed} in that listener completion is allowed for
-     * SHUTDOWN_PREPARE.
+     * <p>See {@link CarPowerManager.isCompletionAllowed}
      */
     public static boolean isCompletionAllowed(@CarPowerManager.CarPowerState int state) {
         return CarPowerManager.isCompletionAllowed(state);

@@ -127,7 +127,6 @@ protected:
 
     void terminate() {
         mWatchdogProcessService.clear();
-        mWatchdogPerfService.clear();
         mIoOveruseMonitor.clear();
         if (mWatchdogInternalHandler != nullptr) {
             mWatchdogInternalHandler->terminate();
@@ -137,8 +136,6 @@ protected:
 
 private:
     android::sp<WatchdogProcessServiceInterface> mWatchdogProcessService;
-    android::sp<WatchdogPerfServiceInterface> mWatchdogPerfService;
-    android::sp<WatchdogServiceHelperInterface> mWatchdogServiceHelper;
     android::sp<IoOveruseMonitorInterface> mIoOveruseMonitor;
     std::shared_ptr<WatchdogInternalHandlerInterface> mWatchdogInternalHandler;
 

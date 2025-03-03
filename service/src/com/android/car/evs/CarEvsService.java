@@ -23,6 +23,7 @@ import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_UNLOCKED
 import static com.android.car.CarLog.TAG_EVS;
 import static com.android.car.evs.StateMachine.REQUEST_PRIORITY_NORMAL;
 import static com.android.car.evs.StateMachine.REQUEST_PRIORITY_HIGH;
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DEBUGGING_CODE;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
 import android.annotation.NonNull;
@@ -1026,12 +1027,22 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
      */
     @VisibleForTesting
     void addStreamCallback(@CarEvsServiceType int type, @Nullable ICarEvsStreamCallback callback) {
+        addStreamCallback(type, callback, /* token= */ null);
+    }
+
+    /**
+     * Manually sets a stream callback with a token.
+     */
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DEBUGGING_CODE)
+    @VisibleForTesting
+    void addStreamCallback(@CarEvsServiceType int type, @Nullable ICarEvsStreamCallback callback,
+            @Nullable IBinder token) {
         StateMachine instance = mServiceInstances.get(type);
         if (instance == null || callback == null) {
             return;
         }
 
-        instance.addStreamCallback(callback);
+        instance.addStreamCallback(callback, token);
 
         ArraySet<Integer> types = mCallbackToServiceType.get(callback.asBinder());
         if (types == null) {
@@ -1083,6 +1094,21 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
         synchronized (mLock) {
             mLastEvsHalEvent = new EvsHalEvent(timestamp, type, on);
         }
+    }
+
+    /**
+     * Manually sets the last EVS HAL event.
+     */
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DEBUGGING_CODE)
+    @VisibleForTesting
+    void setSessionToken(@CarEvsServiceType int type, @Nullable IBinder token) {
+        StateMachine instance = mServiceInstances.get(type);
+        if (instance == null) {
+            return;
+        }
+
+        instance.setSessionToken(token);
+        mSessionTokens.add(token);
     }
 
     /** Notifies the service status gets changed */

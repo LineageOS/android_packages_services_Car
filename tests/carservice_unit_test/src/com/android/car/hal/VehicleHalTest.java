@@ -2858,6 +2858,37 @@ public class VehicleHalTest extends AbstractExpectableTestCase {
     }
 
     @Test
+    public void testGetLastInjectedVehicleProperty_injectionModeDisabled() {
+        IllegalStateException thrown = assertThrows(IllegalStateException.class,
+                () -> mVehicleHal.getLastInjectedVehicleProperty(52));
+
+        assertWithMessage("Injection mode not enabled").that(thrown).hasMessageThat()
+                .contains("Vehicle property injection mode is not enabled");
+    }
+
+    @Test
+    public void testGetLastInjectedVehicleProperty_injectionModeEnabled() {
+        mVehicleHal.enableInjectionMode(List.of());
+        CarPropertyValue value = mVehicleHal.getLastInjectedVehicleProperty(52);
+
+        assertWithMessage("No injected values").that(value).isNull();
+    }
+
+    @Test
+    public void testGetLastInjectedVehicleProperty_getInjectedValue() {
+        mVehicleHal.enableInjectionMode(List.of());
+        CarPropertyValue injectedValue = new CarPropertyValue(SOME_READ_ON_CHANGE_PROPERTY,
+                AREA_ID_1, 0);
+
+        mVehicleHal.injectVehicleProperties(List.of(injectedValue));
+
+        verify(mPowerHalService, timeout(1000)).onHalEvents(any(List.class));
+        assertWithMessage("Last injected vehicle property is present")
+                .that(mVehicleHal.getLastInjectedVehicleProperty(SOME_READ_ON_CHANGE_PROPERTY))
+                .isEqualTo(injectedValue);
+    }
+
+    @Test
     public void testEnableInjectionModeWhenRecordingIsOngoing() {
         when(mCallback.asBinder()).thenReturn(mListenerBinder);
         mVehicleHal.registerRecordingListener(mCallback);

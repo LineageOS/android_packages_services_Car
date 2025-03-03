@@ -299,13 +299,7 @@ final class CoreAudioVolumeGroup extends CarVolumeGroup {
     }
 
     @Override
-    void updateDevices(boolean useCoreAudioRouting) {
-        // If not using core audio routing, than device need to be updated to match the information
-        // for audio attributes to core volume groups.
-        if (useCoreAudioRouting) {
-            return;
-        }
-
+    void updateDevices() {
         int[] contexts = getContexts();
         for (int c = 0; c < contexts.length; c++) {
             int context = contexts[c];

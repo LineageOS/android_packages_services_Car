@@ -294,7 +294,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
             "watchdog-control-health-check";
     private static final String COMMAND_WATCHDOG_RESOURCE_OVERUSE_KILL =
             "watchdog-resource-overuse-kill";
-    private static final String COMMAND_WATCHDOG_POWER_SIGNAL = "watchdog-inject-power-state";
+    private static final String COMMAND_WATCHDOG_INJECT_POWER_STATE = "watchdog-inject-power-state";
 
     private static final String COMMAND_DRIVING_SAFETY_SET_REGION =
             "set-drivingsafety-region";
@@ -434,8 +434,8 @@ final class CarShellCommand extends BasicShellCommandHandler {
                 PERMISSION_USE_CAR_WATCHDOG);
         USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_WATCHDOG_RESOURCE_OVERUSE_KILL,
                 PERMISSION_USE_CAR_WATCHDOG);
-        USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_WATCHDOG_POWER_SIGNAL,
-                PERMISSION_CAR_POWER);
+        USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_WATCHDOG_INJECT_POWER_STATE,
+                PERMISSION_USE_CAR_WATCHDOG);
         USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_CONTROL_COMPONENT_ENABLED_STATE,
                 android.Manifest.permission.CHANGE_COMPONENT_ENABLED_STATE);
         // borrow the permission to pass assertHasAtLeastOnePermission() for a user build
@@ -1013,7 +1013,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
                 + "input descriptor.");
         pw.printf("\t%s <input descriptor>", COMMAND_REMOVE_INPUT_DESCRIPTOR_ASSOCIATION);
         pw.println("\t Remove association of the input device descriptor to any display.");
-        pw.printf("\t%s shutdown-prepare|shutdown-enter", COMMAND_WATCHDOG_POWER_SIGNAL);
+        pw.printf("\t%s shutdown-prepare|shutdown-enter", COMMAND_WATCHDOG_INJECT_POWER_STATE);
         pw.println("\t Sends a power signal to CarWatchdog.");
     }
 
@@ -1522,7 +1522,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
             case COMMAND_WATCHDOG_RESOURCE_OVERUSE_KILL:
                 performResourceOveruseKill(args, writer);
                 break;
-            case COMMAND_WATCHDOG_POWER_SIGNAL:
+            case COMMAND_WATCHDOG_INJECT_POWER_STATE:
                 setWatchdogPowerState(args, writer);
                 break;
             case COMMAND_DRIVING_SAFETY_SET_REGION:
@@ -3714,7 +3714,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
             return;
         }
 
-        mCarWatchdogService.onPowerState(powerState);
+        mCarWatchdogService.injectPowerState(powerState);
     }
 
     private int getPowerStateFromString(String powerState) {

@@ -2295,7 +2295,7 @@ public class CarPropertyManager extends CarManagerBase {
                     && propValue.getStatus() == CarPropertyValue.STATUS_AVAILABLE);
         } catch (RemoteException e) {
             return handleRemoteExceptionFromCarService(e, false);
-        } catch (ServiceSpecificException e) {
+        } catch (ServiceSpecificException | IllegalArgumentException e) {
             Slog.e(TAG, "unable to get property", e);
             return false;
         }

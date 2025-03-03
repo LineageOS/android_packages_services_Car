@@ -21,7 +21,7 @@ service carwatchdogd /system/bin/carwatchdogd
 
 on early-init && property:ro.build.type=userdebug
     # Below intervals are in seconds
-    setprop ro.carwatchdog.system_event_collection_interval 1
+    setprop ro.carwatchdog.system_event_collection_interval 10
     setprop ro.carwatchdog.periodic_collection_interval 60
     setprop ro.carwatchdog.periodic_monitor_interval 5
 
@@ -32,7 +32,7 @@ on early-init && property:ro.build.type=userdebug
 
 on early-init && property:ro.build.type=eng
     # Below intervals are in seconds
-    setprop ro.carwatchdog.system_event_collection_interval 1
+    setprop ro.carwatchdog.system_event_collection_interval 10
     setprop ro.carwatchdog.periodic_collection_interval 60
     setprop ro.carwatchdog.periodic_monitor_interval 5
 
