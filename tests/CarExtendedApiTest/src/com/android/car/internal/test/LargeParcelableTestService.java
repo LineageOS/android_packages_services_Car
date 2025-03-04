@@ -61,6 +61,14 @@ public final class LargeParcelableTestService extends Service {
         }
     };
 
+    /**
+     * Calculates the sum of all bytes within the byte array of a {@link TestLargeParcelable}
+     * object.
+     *
+     * @param p The {@code TestLargeParcelable} object containing the byte array.
+     * @return The sum of all bytes in the {@code byteData} array, or 0 if the input or byte array
+     * is null.
+     */
     public static long calcByteSum(TestLargeParcelable p) {
         long ret = 0;
         if (p != null && p.byteData != null) {

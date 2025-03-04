@@ -234,6 +234,12 @@ public final class LargeParcelableTest extends CarLessApiTestBase {
         assertThat(r).isEqualTo(expectedRet);
     }
 
+    /**
+     * Creates a byte array of the specified length, populated with incrementing byte values.
+     *
+     * @param length The desired length of the byte array.
+     * @return A byte array of the specified length, populated with incrementing byte values.
+     */
     public static byte[] createByteArray(int length) {
         byte[] array = new byte[length];
         byte val = 0x7f;

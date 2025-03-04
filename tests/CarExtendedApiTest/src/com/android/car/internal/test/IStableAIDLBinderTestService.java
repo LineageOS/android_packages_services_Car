@@ -67,6 +67,12 @@ public final class IStableAIDLBinderTestService extends Service {
         }
     }
 
+    /**
+     * Calculates the sum of all bytes within the payload of a StableAIDLTestLargeParcelable object.
+     *
+     * @param p The StableAIDLTestLargeParcelable object whose payload byte sum is to be calculated.
+     * @return The sum of all bytes in the payload, or 0 if the object or payload is null.
+     */
     public static long calcByteSum(StableAIDLTestLargeParcelable p) {
         long ret = 0;
         if (p != null && p.payload != null) {

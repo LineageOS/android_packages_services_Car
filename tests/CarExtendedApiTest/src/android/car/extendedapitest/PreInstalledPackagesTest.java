@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package android.car.apitest;
+package android.car.extendedapitest;
 
 import static com.android.compatibility.common.util.ShellUtils.runShellCommand;
 
