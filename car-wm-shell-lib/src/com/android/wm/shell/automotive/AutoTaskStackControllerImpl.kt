@@ -232,6 +232,56 @@ class AutoTaskStackControllerImpl @Inject constructor(
             super.onBackPressedOnTaskRoot(taskInfo)
             rootTaskStackListener.onBackPressedOnTaskRoot(taskInfo)
         }
+
+        override fun attachChildSurfaceToTask(taskId: Int, b: SurfaceControl.Builder) {
+            val parentLeash = findParentSurfaceControl(taskId)
+            if (parentLeash != null) {
+                b.setParent(parentLeash)
+            } else {
+                Slog.e(
+                    TAG,
+                    "Failed to attach child surface to task#$taskId: Parent surface not found."
+                )
+            }
+        }
+
+        override fun reparentChildSurfaceToTask(
+            taskId: Int,
+            sc: SurfaceControl,
+            t: SurfaceControl.Transaction
+        ) {
+            val parentLeash = findParentSurfaceControl(taskId)
+            if (parentLeash != null) {
+                t.reparent(sc, parentLeash)
+            } else {
+                Slog.e(
+                    TAG,
+                    "Failed to attach child surface to task#$taskId: Parent surface not found."
+                )
+            }
+        }
+    }
+
+    private fun findParentSurfaceControl(taskId: Int): SurfaceControl? {
+        // Attempt to retrieve from autoTaskRepository
+        appTasksMap[taskId]?.let { appTask ->
+            autoTaskRepository.getSurfaceControl(appTask)?.let {
+                return it // Found in autoTaskRepository
+            } ?: run {
+                Slog.w(TAG, "SurfaceControl not found in autoTaskRepository for task#$taskId")
+            }
+        } ?: run {
+            Slog.w(TAG, "Task not found in appTasksMap for task#$taskId")
+        }
+
+        // If not found, attempt to retrieve from taskStackMap
+        (taskStackMap[taskId] as? RootTaskStack)?.leash?.let {
+            return it // Found in taskStackMap
+        } ?: run {
+            Slog.w(TAG, "RootTaskStack or Leash not found for task#$taskId")
+        }
+
+        return null // Parent surface not found in either source
     }
 
     override fun createRootTaskStack(

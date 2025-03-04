@@ -16,6 +16,8 @@
 
 package android.car.view;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
+
 import android.annotation.MainThread;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
@@ -40,6 +42,7 @@ import android.view.SurfaceControl;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.internal.annotations.VisibleForTesting;
 
 import java.io.PrintWriter;
@@ -253,12 +256,15 @@ public final class MirroredSurfaceView extends SurfaceView {
 
     private final Dumpable mDumper = new Dumpable() {
         private static final String INDENTATION = "  ";
+
+        @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
         @NonNull
         @Override
         public String getDumpableName() {
             return TAG;
         }
 
+        @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
         @Override
         public void dump(@NonNull PrintWriter writer, @Nullable String[] args) {
             writer.println(TAG + ": id=#" + Integer.toHexString(getId()));
