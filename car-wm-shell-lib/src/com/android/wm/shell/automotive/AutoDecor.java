@@ -33,6 +33,8 @@ import android.window.InputTransferToken;
 import com.android.server.utils.Slogf;
 import com.android.wm.shell.common.DisplayController;
 
+import java.io.PrintWriter;
+
 /**
  * A class representing a decorative element in the automotive UI.  This class manages the
  * lifecycle and properties of the decor view, including its attachment to the parent surface,
@@ -206,5 +208,16 @@ public final class AutoDecor {
      */
     String getName() {
         return mDecorName;
+    }
+
+    void dump(PrintWriter pw, String prefix) {
+        String localPrefix = "    ";
+        pw.println(prefix + "Auto Decor:-");
+        pw.println(prefix + localPrefix + "Name: " + mDecorName);
+        pw.println(prefix + localPrefix + "Z Order: " + mZOrder);
+        pw.println(prefix + localPrefix + "Bounds: " + mBounds);
+        pw.println(prefix + localPrefix + "Currently attached: " + mIsCurrentlyAttached);
+        pw.println(prefix + localPrefix + "Ever attached: " + mIsEverAttached);
+        pw.println(prefix + localPrefix + "Visible: " + mIsVisible);
     }
 }

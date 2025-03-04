@@ -30,6 +30,7 @@ import android.view.SurfaceControl;
 import com.android.server.utils.Slogf;
 import com.android.wm.shell.dagger.WMSingleton;
 
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -92,6 +93,10 @@ public class AutoTaskRepository {
                         }
                     });
         }
+    }
+
+    void dump(PrintWriter pw, String prefix) {
+        pw.println(prefix + "TaskRepository:");
     }
 
     @SuppressLint("MissingPermission")
