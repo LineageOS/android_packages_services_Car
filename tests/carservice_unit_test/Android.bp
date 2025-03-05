@@ -70,8 +70,6 @@ java_defaults {
 
     instrumentation_for: "CarService",
 
-    sdk_version: "core_platform",
-
     use_resource_processor: false,
 
     test_suites: [
