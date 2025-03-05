@@ -91,9 +91,10 @@ interface ICarWatchdog {
    * The caller should have system UID. Otherwise, returns security exception binder error.
    *
    * @param monitor              Watchdog monitor that is registered to watchdog server.
-   * @param pid                  Process identifier of the process that has been dumped.
+   * @param processIdentifiers   List of process identifiers of the processes that have been dumped.
    */
-  void tellDumpFinished(in ICarWatchdogMonitor monitor, in ProcessIdentifier processIdentifier);
+  void tellDumpFinished(in ICarWatchdogMonitor monitor,
+          in List<ProcessIdentifier> processIdentifiers);
 
   /**
    * Notify watchdog server about the system state change.
