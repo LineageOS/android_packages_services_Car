@@ -647,7 +647,7 @@ public class CarBluetoothService implements CarServiceBase {
             return;
         }
         throw new SecurityException("requires permission "
-                + android.Manifest.permission.BLUETOOTH_PRIVILEGED);
+                + android.Manifest.permission.MODIFY_PHONE_STATE);
     }
 
     /**
