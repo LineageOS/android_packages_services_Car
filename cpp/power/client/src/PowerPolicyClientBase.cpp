@@ -47,7 +47,7 @@ namespace {
 constexpr const char* kPowerPolicyServerInterface =
         "android.frameworks.automotive.powerpolicy.ICarPowerPolicyServer/default";
 
-constexpr std::chrono::milliseconds kPowerPolicyDaemomFindMarginalTimeMs = 500ms;
+constexpr std::chrono::milliseconds kPowerPolicyDaemonFindMarginalTimeMs = 500ms;
 
 }  // namespace
 
@@ -182,7 +182,7 @@ Result<void> PowerPolicyClientBase::connectToDaemon() {
         return Error() << "Failed to get car power policy daemon";
     }
     int64_t elapsedTime = uptimeMillis() - currentUptime;
-    if (elapsedTime > kPowerPolicyDaemomFindMarginalTimeMs.count()) {
+    if (elapsedTime > kPowerPolicyDaemonFindMarginalTimeMs.count()) {
         LOG(WARNING) << "Finding power policy daemon took too long(" << elapsedTime << " ms)";
     }
     std::shared_ptr<ICarPowerPolicyServer> server = ICarPowerPolicyServer::fromBinder(binder);
