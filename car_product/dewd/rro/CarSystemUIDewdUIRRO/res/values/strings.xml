@@ -23,4 +23,11 @@
     <string-array name="nav_components" translatable="false">
         <item>com.android.car.portraitlauncher/.homeactivities.BackgroundPanelBaseActivity</item>
     </string-array>
-</resources>
+
+    <!-- A list of packages that are excluded from being shown on Dock -->
+    <string-array name="config_packagesExcludedFromDock" translatable="false">
+      <item>com.android.car.portraitlauncher</item>
+      <item>android.car.usb.handler</item>
+    </string-array>
+
+  </resources>
