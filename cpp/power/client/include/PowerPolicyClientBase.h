@@ -45,7 +45,7 @@ bool hasComponent(
  *
  * In the inheriting class, the change notifiction can be handled as follows:
  *   1. Implement getComponentsOfInterest() so that it returns the vector of components of interest.
- *   2. Override ICarPowerPolicyChangeCallbackk::onPolicyChanged callback.
+ *   2. Override ICarPowerPolicyChangeCallback::onPolicyChanged callback.
  *   3. Check if the component of interest is in enabled or disabled components.
  *   4. Handle each case.
  *
