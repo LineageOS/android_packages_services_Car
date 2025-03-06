@@ -31,6 +31,8 @@ import com.android.wm.shell.common.DisplayController;
 import com.android.wm.shell.dagger.WMSingleton;
 import com.android.wm.shell.shared.annotations.ShellMainThread;
 
+import java.io.PrintWriter;
+
 import javax.inject.Inject;
 
 /**
@@ -144,5 +146,13 @@ public class AutoDecorManager {
         }
         autoDecor.detachDecorFromParentSurface();
         mDecors.remove(autoDecor);
+    }
+
+    void dump(PrintWriter pw, String prefix) {
+        pw.println(prefix + "AutoDecorManager:");
+        pw.println(prefix + "Total Decors: " + mDecors.size());
+        for (AutoDecor autoDecor : mDecors) {
+            autoDecor.dump(pw, prefix);
+        }
     }
 }

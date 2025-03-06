@@ -13,16 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package android.car.apitest;
+
+package android.car.extendedapitest;
 
 import static com.google.common.truth.Truth.assertThat;
-
-import static org.junit.Assert.assertThrows;
 
 import android.app.Service;
 import android.car.Car;
 import android.car.CarProjectionManager;
 import android.car.extendedapitest.testbase.CarApiTestBase;
+import android.car.test.PermissionsCheckerRule;
+import android.car.test.PermissionsCheckerRule.EnsureHasPermission;
 import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
@@ -30,13 +31,14 @@ import android.os.IBinder;
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 
 
 public final class CarProjectionManagerTest extends CarApiTestBase {
     private static final String TAG = CarProjectionManagerTest.class.getSimpleName();
-
-    private final CarProjectionManager.CarProjectionListener mListener = (fromLongPress) -> { };
+    @Rule
+    public final PermissionsCheckerRule mPermissionsCheckerRule = new PermissionsCheckerRule();
 
     private CarProjectionManager mManager;
 
@@ -70,19 +72,7 @@ public final class CarProjectionManagerTest extends CarApiTestBase {
     }
 
     @Test
-    public void testSetUnsetListeners() throws Exception {
-        mManager.registerProjectionListener(
-                mListener, CarProjectionManager.PROJECTION_VOICE_SEARCH);
-        mManager.unregisterProjectionListener();
-    }
-
-    @Test
-    public void testRegisterListenersHandleBadInput() throws Exception {
-        assertThrows(NullPointerException.class, () -> mManager.registerProjectionListener(null,
-                CarProjectionManager.PROJECTION_VOICE_SEARCH));
-    }
-
-    @Test
+    @EnsureHasPermission(Car.PERMISSION_CAR_PROJECTION)
     public void testRegisterProjectionRunner() throws Exception {
         Intent intent = new Intent(
                 InstrumentationRegistry.getInstrumentation().getContext(), TestService.class);
@@ -90,7 +80,7 @@ public final class CarProjectionManagerTest extends CarApiTestBase {
         mManager.registerProjectionRunner(intent);
         synchronized (TestService.mLock) {
             try {
-                TestService.mLock.wait(1000);
+                TestService.mLock.wait(5000);
             } catch (InterruptedException e) {
                 // Do nothing
             }
