@@ -41,6 +41,7 @@ import com.android.car.internal.CarPermission;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;
+import com.android.internal.annotations.VisibleForTesting;
 
 import java.util.Arrays;
 import java.util.ConcurrentModificationException;
@@ -698,4 +699,12 @@ public class CarDiagnosticService extends ICarDiagnostic.Stub
     @Override
     @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     public void dumpProto(ProtoOutputStream proto) {}
+
+    /** Counts the number of registered diagnostic clients. */
+    @VisibleForTesting
+    public int countClients() {
+        synchronized (mLock) {
+            return mClients.size();
+        }
+    }
 }
