@@ -39,14 +39,14 @@
 #include <gmock/gmock.h>
 #include <utils/RefBase.h>
 
-#include <packages/services/Car/service/proto/android/car/watchdog/carwatchdog_daemon_dump.pb.h>
-#include <packages/services/Car/service/proto/android/car/watchdog/health_check_client_info.pb.h>
-#include <packages/services/Car/service/proto/android/car/watchdog/performance_stats.pb.h>
-
 #include <future>  // NOLINT(build/c++11)
 #include <queue>
 #include <string>
 #include <vector>
+
+#include <packages/services/Car/service/proto/android/car/watchdog/carwatchdog_daemon_dump.pb.h>
+#include <packages/services/Car/service/proto/android/car/watchdog/health_check_client_info.pb.h>
+#include <packages/services/Car/service/proto/android/car/watchdog/performance_stats.pb.h>
 
 namespace android {
 namespace automotive {
@@ -196,8 +196,8 @@ public:
     }
 
     void setKernelStartTime(time_t startTime) {
-      Mutex::Autolock lock(mService->mMutex);
-      mService->mKernelStartTimeEpochSeconds = startTime;
+        Mutex::Autolock lock(mService->mMutex);
+        mService->mKernelStartTimeEpochSeconds = startTime;
     }
 
     int64_t getCurrentCollectionIntervalMillis() {
@@ -344,13 +344,13 @@ protected:
     }
 
     std::string protoToString(util::ProtoOutputStream* proto) {
-      std::string content;
-      content.reserve(proto->size());
-      sp<ProtoReader> reader = proto->data();
-      while (reader->hasNext()) {
-        content.push_back(reader->next());
-      }
-      return content;
+        std::string content;
+        content.reserve(proto->size());
+        sp<ProtoReader> reader = proto->data();
+        while (reader->hasNext()) {
+            content.push_back(reader->next());
+        }
+        return content;
     }
 
     sp<WatchdogPerfService> mService;
@@ -1865,18 +1865,17 @@ TEST_F(WatchdogPerfServiceTest, TestOnDumpProto) {
     ASSERT_NO_FATAL_FAILURE(startPeriodicCollection());
     ASSERT_NO_FATAL_FAILURE(skipPeriodicMonitorEvents());
 
-    DataProcessorInterface::CollectionIntervals expectedCollectionIntervals = {
-        .mBoottimeIntervalMillis = std::chrono::duration_cast<std::chrono::milliseconds>(
-            kTestSystemEventCollectionIntervalSecs),
-        .mPeriodicIntervalMillis = std::chrono::duration_cast<std::chrono::milliseconds>(
-            kTestPeriodicCollectionIntervalSecs),
-        .mUserSwitchIntervalMillis = std::chrono::duration_cast<std::chrono::milliseconds>(
-            kTestSystemEventCollectionIntervalSecs),
-        .mWakeUpIntervalMillis = std::chrono::duration_cast<std::chrono::milliseconds>(
-            kTestSystemEventCollectionIntervalSecs),
-        .mCustomIntervalMillis = std::chrono::duration_cast<std::chrono::milliseconds>(
-            kTestCustomCollectionIntervalSecs)
-    };
+    DataProcessorInterface::CollectionIntervals expectedCollectionIntervals =
+            {.mBoottimeIntervalMillis = std::chrono::duration_cast<std::chrono::milliseconds>(
+                     kTestSystemEventCollectionIntervalSecs),
+             .mPeriodicIntervalMillis = std::chrono::duration_cast<std::chrono::milliseconds>(
+                     kTestPeriodicCollectionIntervalSecs),
+             .mUserSwitchIntervalMillis = std::chrono::duration_cast<std::chrono::milliseconds>(
+                     kTestSystemEventCollectionIntervalSecs),
+             .mWakeUpIntervalMillis = std::chrono::duration_cast<std::chrono::milliseconds>(
+                     kTestSystemEventCollectionIntervalSecs),
+             .mCustomIntervalMillis = std::chrono::duration_cast<std::chrono::milliseconds>(
+                     kTestCustomCollectionIntervalSecs)};
 
     EXPECT_CALL(*mMockUidStatsCollector, collect()).Times(1);
     EXPECT_CALL(*mMockProcStatCollector, collect()).Times(1);
@@ -1892,12 +1891,11 @@ TEST_F(WatchdogPerfServiceTest, TestOnDumpProto) {
     ASSERT_TRUE(carWatchdogDaemonDump.has_performance_profiler_dump());
 
     PerformanceProfilerDump performanceProfilerDump =
-          carWatchdogDaemonDump.performance_profiler_dump();
+            carWatchdogDaemonDump.performance_profiler_dump();
 
     ASSERT_TRUE(performanceProfilerDump.has_current_event());
     ASSERT_TRUE(performanceProfilerDump.has_kernel_start_time_epoch_seconds());
-    ASSERT_TRUE(
-          performanceProfilerDump.has_boot_completed_time_epoch_seconds());
+    ASSERT_TRUE(performanceProfilerDump.has_boot_completed_time_epoch_seconds());
 
     EXPECT_EQ(performanceProfilerDump.current_event(),
               toProtoEventType(mServicePeer->getCurrCollectionEvent()));

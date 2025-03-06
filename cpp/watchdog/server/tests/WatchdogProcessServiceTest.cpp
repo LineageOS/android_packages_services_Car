@@ -1009,9 +1009,7 @@ TEST_F(WatchdogProcessServiceTest, TestRegisterClientWithPackageName) {
     ON_CALL(*mMockPackageInfoResolver, asyncFetchPackageNamesForUids(_, _))
             .WillByDefault([&](const std::vector<uid_t>& uids,
                                const std::function<void(std::unordered_map<uid_t, std::string>)>&
-                                       callback) {
-                callback({{uids[0], "shell"}});
-            });
+                                       callback) { callback({{uids[0], "shell"}}); });
 
     ASSERT_FALSE(mWatchdogProcessServicePeer
                          ->hasClientInfoWithPackageName(TimeoutLength::TIMEOUT_CRITICAL, "shell"));

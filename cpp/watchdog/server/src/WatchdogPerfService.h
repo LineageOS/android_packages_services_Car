@@ -88,10 +88,10 @@ public:
         std::chrono::milliseconds mCustomIntervalMillis = std::chrono::milliseconds(0);
         bool operator==(const CollectionIntervals& other) const {
             return mBoottimeIntervalMillis == other.mBoottimeIntervalMillis &&
-            mPeriodicIntervalMillis == other.mPeriodicIntervalMillis &&
-            mUserSwitchIntervalMillis == other.mUserSwitchIntervalMillis &&
-            mWakeUpIntervalMillis == other.mWakeUpIntervalMillis &&
-            mCustomIntervalMillis == other.mCustomIntervalMillis;
+                    mPeriodicIntervalMillis == other.mPeriodicIntervalMillis &&
+                    mUserSwitchIntervalMillis == other.mUserSwitchIntervalMillis &&
+                    mWakeUpIntervalMillis == other.mWakeUpIntervalMillis &&
+                    mCustomIntervalMillis == other.mCustomIntervalMillis;
         }
     };
     DataProcessorInterface() {}

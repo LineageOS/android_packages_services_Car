@@ -44,17 +44,15 @@ std::string toString(const ProcStatInfo& info) {
     std::stringstream kernelStartTimeEpochSeconds;
     kernelStartTimeEpochSeconds << info.kernelStartTimeEpochSeconds;
     return StringPrintf("KernelStartTimeEpochSeconds: %s \nCpu Stats:\nUserTimeMillis: %" PRIu64
-                        " NiceTimeMillis: %" PRIu64
-                        " SysTimeMillis: %" PRIu64 " IdleTimeMillis: %" PRIu64
-                        " IoWaitTimeMillis: %" PRIu64 " IrqTimeMillis: %" PRIu64
-                        " SoftIrqTimeMillis: %" PRIu64 " StealTimeMillis: %" PRIu64
-                        " GuestTimeMillis: %" PRIu64 " GuestNiceTimeMillis: %" PRIu64
-                        "\nNumber of running processes: %" PRIu32
+                        " NiceTimeMillis: %" PRIu64 " SysTimeMillis: %" PRIu64
+                        " IdleTimeMillis: %" PRIu64 " IoWaitTimeMillis: %" PRIu64
+                        " IrqTimeMillis: %" PRIu64 " SoftIrqTimeMillis: %" PRIu64
+                        " StealTimeMillis: %" PRIu64 " GuestTimeMillis: %" PRIu64
+                        " GuestNiceTimeMillis: %" PRIu64 "\nNumber of running processes: %" PRIu32
                         "\nNumber of blocked processes: %" PRIu32
                         "\nNumber of context switches: %" PRIu64,
-                        kernelStartTimeEpochSeconds.str().c_str(),
-                        cpuStats.userTimeMillis, cpuStats.niceTimeMillis,
-                        cpuStats.sysTimeMillis, cpuStats.idleTimeMillis,
+                        kernelStartTimeEpochSeconds.str().c_str(), cpuStats.userTimeMillis,
+                        cpuStats.niceTimeMillis, cpuStats.sysTimeMillis, cpuStats.idleTimeMillis,
                         cpuStats.ioWaitTimeMillis, cpuStats.irqTimeMillis,
                         cpuStats.softIrqTimeMillis, cpuStats.stealTimeMillis,
                         cpuStats.guestTimeMillis, cpuStats.guestNiceTimeMillis,
@@ -152,7 +150,7 @@ TEST(ProcStatCollectorTest, TestValidStatFile) {
 
     const auto& actualSecondDelta = collector.deltaStats();
     EXPECT_EQ(expectedSecondDelta, actualSecondDelta)
-            << "Second snapshot doesnt't match.\nExpected:\n"
+            << "Second snapshot doesn't match.\nExpected:\n"
             << toString(expectedSecondDelta) << "\nActual:\n"
             << toString(actualSecondDelta);
 }
@@ -330,19 +328,19 @@ TEST(ProcStatCollectorTest, TestProcStatContentsFromDevice) {
 
 TEST(ProcStatCollectorTest, TestReadKernelStartTimeOnce) {
     constexpr char contents[] =
-        "cpu  16200 8700 2000 4100 1250 6200 5900 0 0 0\n"
-        "cpu0 2400 2900 600 690 340 4300 2100 0 0 0\n"
-        "cpu1 1900 2380 510 760 51 370 1500 0 0 0\n"
-        "cpu2 900 400 400 1000 600 400 160 0 0 0\n"
-        "cpu3 1000 20 190 650 109 130 140 0 0 0\n"
-        "intr 694351583 0 0 0 297062868 0 5922464 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 "
-        "0 0\n"
-        "ctxt 579020168\n"
-        "btime 1579718450\n"
-        "processes 113804\n"
-        "procs_running 17\n"
-        "procs_blocked 5\n"
-        "softirq 33275060 934664 11958403 5111 516325 200333 0 341482 10651335 0 8667407\n";
+            "cpu  16200 8700 2000 4100 1250 6200 5900 0 0 0\n"
+            "cpu0 2400 2900 600 690 340 4300 2100 0 0 0\n"
+            "cpu1 1900 2380 510 760 51 370 1500 0 0 0\n"
+            "cpu2 900 400 400 1000 600 400 160 0 0 0\n"
+            "cpu3 1000 20 190 650 109 130 140 0 0 0\n"
+            "intr 694351583 0 0 0 297062868 0 5922464 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 "
+            "0 0\n"
+            "ctxt 579020168\n"
+            "btime 1579718450\n"
+            "processes 113804\n"
+            "procs_running 17\n"
+            "procs_blocked 5\n"
+            "softirq 33275060 934664 11958403 5111 516325 200333 0 341482 10651335 0 8667407\n";
     TemporaryFile tf;
     ASSERT_NE(tf.fd, -1);
     ASSERT_TRUE(WriteStringToFile(contents, tf.path));
@@ -356,19 +354,19 @@ TEST(ProcStatCollectorTest, TestReadKernelStartTimeOnce) {
     const auto& firstLatestStats = collector.latestStats();
 
     constexpr char contents_with_new_btime[] =
-        "cpu  16200 8700 2000 4100 1250 6200 5900 0 0 0\n"
-        "cpu0 2400 2900 600 690 340 4300 2100 0 0 0\n"
-        "cpu1 1900 2380 510 760 51 370 1500 0 0 0\n"
-        "cpu2 900 400 400 1000 600 400 160 0 0 0\n"
-        "cpu3 1000 20 190 650 109 130 140 0 0 0\n"
-        "intr 694351583 0 0 0 297062868 0 5922464 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 "
-        "0 0\n"
-        "ctxt 579020168\n"
-        "btime 6482659380\n"
-        "processes 113804\n"
-        "procs_running 17\n"
-        "procs_blocked 5\n"
-        "softirq 33275060 934664 11958403 5111 516325 200333 0 341482 10651335 0 8667407\n";
+            "cpu  16200 8700 2000 4100 1250 6200 5900 0 0 0\n"
+            "cpu0 2400 2900 600 690 340 4300 2100 0 0 0\n"
+            "cpu1 1900 2380 510 760 51 370 1500 0 0 0\n"
+            "cpu2 900 400 400 1000 600 400 160 0 0 0\n"
+            "cpu3 1000 20 190 650 109 130 140 0 0 0\n"
+            "intr 694351583 0 0 0 297062868 0 5922464 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 "
+            "0 0\n"
+            "ctxt 579020168\n"
+            "btime 6482659380\n"
+            "processes 113804\n"
+            "procs_running 17\n"
+            "procs_blocked 5\n"
+            "softirq 33275060 934664 11958403 5111 516325 200333 0 341482 10651335 0 8667407\n";
     ASSERT_TRUE(WriteStringToFile(contents_with_new_btime, tf.path));
 
     ASSERT_TRUE(collector.enabled()) << "Temporary file is inaccessible";
@@ -378,7 +376,7 @@ TEST(ProcStatCollectorTest, TestReadKernelStartTimeOnce) {
 
     ASSERT_TRUE(firstLatestStats.kernelStartTimeEpochSeconds ==
                 secondLatestStats.kernelStartTimeEpochSeconds)
-                << "kernel start time is read more than once";
+            << "kernel start time is read more than once";
 }
 
 }  // namespace watchdog

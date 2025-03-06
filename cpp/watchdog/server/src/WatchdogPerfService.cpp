@@ -346,8 +346,8 @@ Result<void> WatchdogPerfService::onBootFinished() {
     Mutex::Autolock lock(mMutex);
 
     if (mBootCompletedTimeEpochSeconds <= 0) {
-        mBootCompletedTimeEpochSeconds = std::chrono::system_clock::to_time_t(
-            std::chrono::system_clock::now());
+        mBootCompletedTimeEpochSeconds =
+                std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
     }
 
     if (EventType expected = EventType::BOOT_TIME_COLLECTION; mCurrCollectionEvent != expected) {
@@ -589,7 +589,7 @@ Result<void> WatchdogPerfService::onDump(int fd) const {
     std::stringstream kernelStartTimestamp;
     if (mKernelStartTimeEpochSeconds != 0) {
         kernelStartTimestamp << std::put_time(std::localtime(&mKernelStartTimeEpochSeconds),
-                                            "%c %Z");
+                                              "%c %Z");
     } else {
         kernelStartTimestamp << "Missing";
     }
@@ -597,7 +597,7 @@ Result<void> WatchdogPerfService::onDump(int fd) const {
     std::stringstream bootCompletedTimestamp;
     if (mBootCompletedTimeEpochSeconds != 0) {
         bootCompletedTimestamp << std::put_time(std::localtime(&mBootCompletedTimeEpochSeconds),
-                                              "%c %Z");
+                                                "%c %Z");
     } else {
         bootCompletedTimestamp << "Missing";
     }
@@ -605,14 +605,13 @@ Result<void> WatchdogPerfService::onDump(int fd) const {
                                       "Kernel start time: <%s>\n"
                                       "Boot completed time: <%s>\n",
                                       kDumpMajorDelimiter.c_str(), kServiceName,
-                                      kDumpMajorDelimiter.c_str(),
-                                      std::string(33, '=').c_str(),
+                                      kDumpMajorDelimiter.c_str(), std::string(33, '=').c_str(),
                                       kernelStartTimestamp.str().c_str(),
                                       bootCompletedTimestamp.str().c_str()),
                          fd) ||
         !WriteStringToFd(StringPrintf("\nBoot-time collection "
-                      "information:\n%s\n",
-                      std::string(33, '=').c_str()),
+                                      "information:\n%s\n",
+                                      std::string(33, '=').c_str()),
                          fd) ||
         !WriteStringToFd(mBoottimeCollection.toString(), fd) ||
         !WriteStringToFd(StringPrintf("\nWake-up collection information:\n%s\n",
@@ -938,8 +937,7 @@ Result<void> WatchdogPerfService::collectLocked(WatchdogPerfService::EventMetada
         }
 
         if (mKernelStartTimeEpochSeconds <= 0) {
-            mKernelStartTimeEpochSeconds =
-                mProcStatCollector->getKernelStartTimeEpochSeconds();
+            mKernelStartTimeEpochSeconds = mProcStatCollector->getKernelStartTimeEpochSeconds();
         }
     }
 

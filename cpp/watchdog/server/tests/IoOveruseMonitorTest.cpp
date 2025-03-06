@@ -152,14 +152,14 @@ public:
             return;
         }
         mChangedUid = uid;
-        int64_t token = ((int64_t)mChangedUid << 32) | mCallingPid;
+        int64_t token = (static_cast<int64_t>(mChangedUid) << 32) | mCallingPid;
         IPCThreadState::self()->restoreCallingIdentity(token);
     }
     ~ScopedChangeCallingUid() {
         if (mCallingUid == mChangedUid) {
             return;
         }
-        int64_t token = ((int64_t)mCallingUid << 32) | mCallingPid;
+        int64_t token = (static_cast<int64_t>(mCallingUid) << 32) | mCallingPid;
         IPCThreadState::self()->restoreCallingIdentity(token);
     }
 

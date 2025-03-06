@@ -159,8 +159,8 @@ public:
     explicit UidStatsCollectorPeer(sp<UidStatsCollector> collector) : mCollector(collector) {}
     ~UidStatsCollectorPeer() { mCollector.clear(); }
 
-    void setPackageInfoResolver(const std::shared_ptr<PackageInfoResolverInterface>&
-          packageInfoResolver) {
+    void setPackageInfoResolver(
+            const std::shared_ptr<PackageInfoResolverInterface>& packageInfoResolver) {
         mCollector->mPackageInfoResolver = packageInfoResolver;
     }
 
