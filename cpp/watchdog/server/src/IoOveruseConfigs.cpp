@@ -26,7 +26,6 @@
 
 #include <inttypes.h>
 
-#include <filesystem>
 #include <limits>
 
 namespace android {

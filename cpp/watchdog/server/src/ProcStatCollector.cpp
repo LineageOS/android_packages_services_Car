@@ -95,12 +95,12 @@ bool parseProcsCount(const std::string& data, uint32_t* out) {
 }
 
 bool parseBootTime(const std::string& data, time_t* out) {
-  std::vector<std::string> fields = Split(data, " ");
-  if (fields.size() != 2 || !StartsWith(fields[0], "btime") || !ParseInt(fields[1], out)) {
-    ALOGW("Invalid btime line: \"%s\"", data.c_str());
-    return false;
-  }
-  return true;
+    std::vector<std::string> fields = Split(data, " ");
+    if (fields.size() != 2 || !StartsWith(fields[0], "btime") || !ParseInt(fields[1], out)) {
+        ALOGW("Invalid btime line: \"%s\"", data.c_str());
+        return false;
+    }
+    return true;
 }
 
 }  // namespace
@@ -177,15 +177,15 @@ Result<ProcStatInfo> ProcStatCollector::getProcStatLocked() const {
             return Error() << "Unknown procs_ line `" << lines[i] << "` in " << kPath;
         } else if (!lines[i].compare(0, 5, "btime")) {
             if (didReadBootTime) {
-              return Error() << "Duplicate `btime .*` line in " << kPath;
+                return Error() << "Duplicate `btime .*` line in " << kPath;
             }
             if (mLatestStats.kernelStartTimeEpochSeconds > 0) {
-              didReadBootTime = true;
-              info.kernelStartTimeEpochSeconds = mLatestStats.kernelStartTimeEpochSeconds;
-              continue;
+                didReadBootTime = true;
+                info.kernelStartTimeEpochSeconds = mLatestStats.kernelStartTimeEpochSeconds;
+                continue;
             }
             if (!parseBootTime(std::move(lines[i]), &info.kernelStartTimeEpochSeconds)) {
-              return Error() << "Failed to parse `ctxt .*` line in " << kPath;
+                return Error() << "Failed to parse `ctxt .*` line in " << kPath;
             }
             didReadBootTime = true;
         }

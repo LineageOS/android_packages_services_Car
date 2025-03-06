@@ -104,17 +104,15 @@ MATCHER_P(UidIoSingleOpStatsEq, expected, "") {
 }
 
 MATCHER_P(ProcessSingleStatsEq, expected, "") {
-    return ExplainMatchResult(AllOf(
-              Field(
-                    "comm",
-                    &UserPackageStats::UidSingleStats::ProcessSingleStats::
-                            comm,
-                    Eq(expected.comm)),
-              Field("value",
-                    &UserPackageStats::UidSingleStats::ProcessSingleStats::
-                            value,
-                    Eq(expected.value))),
-        arg, result_listener);
+    return ExplainMatchResult(AllOf(Field("comm",
+                                          &UserPackageStats::UidSingleStats::ProcessSingleStats::
+                                                  comm,
+                                          Eq(expected.comm)),
+                                    Field("value",
+                                          &UserPackageStats::UidSingleStats::ProcessSingleStats::
+                                                  value,
+                                          Eq(expected.value))),
+                              arg, result_listener);
 }
 
 MATCHER_P(UidSingleStatsEq, expected, "") {
@@ -124,33 +122,30 @@ MATCHER_P(UidSingleStatsEq, expected, "") {
     for (const auto& processSingleStats : expected.topNProcesses) {
         processSingleStatsMatchers.push_back(ProcessSingleStatsEq(processSingleStats));
     }
-    return ExplainMatchResult(AllOf(
-              Field("value", &UserPackageStats::UidSingleStats::value,
+    return ExplainMatchResult(AllOf(Field("value", &UserPackageStats::UidSingleStats::value,
                                           Eq(expected.value)),
-              Field("topNProcesses",
-                    &UserPackageStats::UidSingleStats::topNProcesses,
-                    ElementsAreArray(processSingleStatsMatchers))),
-        arg, result_listener);
+                                    Field("topNProcesses",
+                                          &UserPackageStats::UidSingleStats::topNProcesses,
+                                          ElementsAreArray(processSingleStatsMatchers))),
+                              arg, result_listener);
 }
 
 MATCHER_P(ProcessCpuStatsEq, expected, "") {
-    return ExplainMatchResult(AllOf(
-              Field("pid",
-                    &UserPackageStats::UidCpuStats::ProcessCpuStats::pid,
-                    Eq(expected.pid)),
-              Field("comm",
-                    &UserPackageStats::UidCpuStats::ProcessCpuStats::
-                            comm,
-                    Eq(expected.comm)),
-              Field("cpuTimeMillis",
-                    &UserPackageStats::UidCpuStats::ProcessCpuStats::
-                            cpuTimeMillis,
-                    Eq(expected.cpuTimeMillis)),
-              Field("cpuCycles",
-                    &UserPackageStats::UidCpuStats::ProcessCpuStats::
-                            cpuCycles,
-                    Eq(expected.cpuCycles))),
-        arg, result_listener);
+    return ExplainMatchResult(AllOf(Field("pid",
+                                          &UserPackageStats::UidCpuStats::ProcessCpuStats::pid,
+                                          Eq(expected.pid)),
+                                    Field("comm",
+                                          &UserPackageStats::UidCpuStats::ProcessCpuStats::comm,
+                                          Eq(expected.comm)),
+                                    Field("cpuTimeMillis",
+                                          &UserPackageStats::UidCpuStats::ProcessCpuStats::
+                                                  cpuTimeMillis,
+                                          Eq(expected.cpuTimeMillis)),
+                                    Field("cpuCycles",
+                                          &UserPackageStats::UidCpuStats::ProcessCpuStats::
+                                                  cpuCycles,
+                                          Eq(expected.cpuCycles))),
+                              arg, result_listener);
 }
 
 MATCHER_P(UidCpuStatsEq, expected, "") {
@@ -163,8 +158,7 @@ MATCHER_P(UidCpuStatsEq, expected, "") {
     return ExplainMatchResult(AllOf(Field("cpuTimeMillis",
                                           &UserPackageStats::UidCpuStats::cpuTimeMillis,
                                           Eq(expected.cpuTimeMillis)),
-                                    Field("cpuCycles",
-                                          &UserPackageStats::UidCpuStats::cpuCycles,
+                                    Field("cpuCycles", &UserPackageStats::UidCpuStats::cpuCycles,
                                           Eq(expected.cpuCycles)),
                                     Field("topNProcesses",
                                           &UserPackageStats::UidCpuStats::topNProcesses,
@@ -224,35 +218,30 @@ MATCHER_P(UserPackageStatsEq, expected, "") {
             [&](const auto& statsVariant) -> bool {
                 using T = std::decay_t<decltype(statsVariant)>;
                 if constexpr (std::is_same_v<T, UserPackageStats::UidIoSingleOpStats>) {
-                    return ExplainMatchResult(
-                      AllOf(uidMatcher, packageNameMatcher,
-                            Field("statsVariant:UidIoSingleOpStats",
-                                  &UserPackageStats::statsVariant,
-                                  VariantWith<
-                                          UserPackageStats::UidIoSingleOpStats>(
-                                          UidIoSingleOpStatsEq(statsVariant)))),
-                      arg, result_listener);
+                    return ExplainMatchResult(AllOf(uidMatcher, packageNameMatcher,
+                                                    Field("statsVariant:UidIoSingleOpStats",
+                                                          &UserPackageStats::statsVariant,
+                                                          VariantWith<UserPackageStats::
+                                                                              UidIoSingleOpStats>(
+                                                                  UidIoSingleOpStatsEq(
+                                                                          statsVariant)))),
+                                              arg, result_listener);
                 } else if constexpr (std::is_same_v<T, UserPackageStats::UidSingleStats>) {
-                    return ExplainMatchResult(AllOf(
-                                  uidMatcher,
-                                  packageNameMatcher,
-                                  Field("statsVariant:UidSingleStats",
-                                        &UserPackageStats::statsVariant,
-                                        VariantWith<UserPackageStats::
-                                                            UidSingleStats>(
-                                                UidSingleStatsEq(
-                                                        statsVariant)))),
-                            arg, result_listener);
+                    return ExplainMatchResult(AllOf(uidMatcher, packageNameMatcher,
+                                                    Field("statsVariant:UidSingleStats",
+                                                          &UserPackageStats::statsVariant,
+                                                          VariantWith<
+                                                                  UserPackageStats::UidSingleStats>(
+                                                                  UidSingleStatsEq(statsVariant)))),
+                                              arg, result_listener);
                 } else if constexpr (std::is_same_v<T, UserPackageStats::UidCpuStats>) {
-                    return ExplainMatchResult(AllOf(
-                                  uidMatcher,
-                                  packageNameMatcher,
-                                  Field("statsVariant:UidCpuStats",
-                                        &UserPackageStats::statsVariant,
-                                        VariantWith<UserPackageStats::
-                                                            UidCpuStats>(
-                                                UidCpuStatsEq(statsVariant)))),
-                            arg, result_listener);
+                    return ExplainMatchResult(AllOf(uidMatcher, packageNameMatcher,
+                                                    Field("statsVariant:UidCpuStats",
+                                                          &UserPackageStats::statsVariant,
+                                                          VariantWith<
+                                                                  UserPackageStats::UidCpuStats>(
+                                                                  UidCpuStatsEq(statsVariant)))),
+                                              arg, result_listener);
                 } else if constexpr (std::is_same_v<T, UserPackageStats::UidMemoryStats>) {
                     return ExplainMatchResult(AllOf(uidMatcher, packageNameMatcher,
                                                     Field("statsVariant:UidMemoryStats",
@@ -576,68 +565,60 @@ std::tuple<std::vector<UidStats>, UserPackageSummaryStats> sampleUidStats(
     UserPackageSummaryStats userPackageSummaryStats{
             .topNCpuTimes = {{1012345, "1012345",
                               UserPackageStats::UidCpuStats{int64Multiplier(100),
-                                                                 50'000,
-                                                                 {{2345, "MapsApp",
-                                                                   int64Multiplier(100), 50'000}}}},
+                                                            50'000,
+                                                            {{2345, "MapsApp", int64Multiplier(100),
+                                                              50'000}}}},
                              {1002001, "com.google.android.car.kitchensink",
                               UserPackageStats::UidCpuStats{int64Multiplier(60),
-                                                                 10'000,
-                                                                 {{1001, "CTS", int64Multiplier(30),
-                                                                   5000},
-                                                                  {1000, "KitchenSinkApp",
-                                                                   int64Multiplier(25), 4000}}}},
+                                                            10'000,
+                                                            {{1001, "CTS", int64Multiplier(30),
+                                                              5000},
+                                                             {1000, "KitchenSinkApp",
+                                                              int64Multiplier(25), 4000}}}},
                              {1009, "mount",
                               UserPackageStats::UidCpuStats{int64Multiplier(50),
-                                                                 4000,
-                                                                 {{100, "disk I/O",
-                                                                   int64Multiplier(50), 4000}}}}},
+                                                            4000,
+                                                            {{100, "disk I/O", int64Multiplier(50),
+                                                              4000}}}}},
             .topNIoReads = {{1009, "mount",
                              UserPackageStats::UidIoSingleOpStats{{0, int64Multiplier(14'000)},
-                                                           {0, int64Multiplier(100)}}},
+                                                                  {0, int64Multiplier(100)}}},
                             {1012345, "1012345",
                              UserPackageStats::UidIoSingleOpStats{{int64Multiplier(1'000),
-                                                            int64Multiplier(4'200)},
-                                                           {int64Multiplier(600),
-                                                            int64Multiplier(300)}}},
+                                                                   int64Multiplier(4'200)},
+                                                                  {int64Multiplier(600),
+                                                                   int64Multiplier(300)}}},
                             {1002001, "com.google.android.car.kitchensink",
                              UserPackageStats::UidIoSingleOpStats{{0, int64Multiplier(3'400)},
-                                                           {0, int64Multiplier(200)}}}},
-            .topNIoWrites =
-                    {{1009, "mount",
-                      UserPackageStats::UidIoSingleOpStats{{0, int64Multiplier(16'000)},
-                                                    {0, int64Multiplier(100)}}},
-                     {1002001, "com.google.android.car.kitchensink",
-                      UserPackageStats::UidIoSingleOpStats{{0, int64Multiplier(6'700)},
-                                                    {0, int64Multiplier(200)}}},
-                     {1012345, "1012345",
-                      UserPackageStats::UidIoSingleOpStats{{int64Multiplier(300),
-                                                        int64Multiplier(5'600)},
-                                                    {int64Multiplier(600),
-                                                     int64Multiplier(300)}}}},
+                                                                  {0, int64Multiplier(200)}}}},
+            .topNIoWrites = {{1009, "mount",
+                              UserPackageStats::UidIoSingleOpStats{{0, int64Multiplier(16'000)},
+                                                                   {0, int64Multiplier(100)}}},
+                             {1002001, "com.google.android.car.kitchensink",
+                              UserPackageStats::UidIoSingleOpStats{{0, int64Multiplier(6'700)},
+                                                                   {0, int64Multiplier(200)}}},
+                             {1012345, "1012345",
+                              UserPackageStats::UidIoSingleOpStats{{int64Multiplier(300),
+                                                                    int64Multiplier(5'600)},
+                                                                   {int64Multiplier(600),
+                                                                    int64Multiplier(300)}}}},
             .topNIoBlocked =
                     {{1002001, "com.google.android.car.kitchensink",
-                      UserPackageStats::UidSingleStats{3,
-                                                            {{"CTS", 2}, {"KitchenSinkApp", 1}}}},
-                     {1012345, "1012345",
-                      UserPackageStats::UidSingleStats{2, {{"MapsApp", 2}}}},
-                     {1009,
-                      "mount",
-                      UserPackageStats::UidSingleStats{1, {{"disk I/O",
-                                                                1}}}}},
+                      UserPackageStats::UidSingleStats{3, {{"CTS", 2}, {"KitchenSinkApp", 1}}}},
+                     {1012345, "1012345", UserPackageStats::UidSingleStats{2, {{"MapsApp", 2}}}},
+                     {1009, "mount", UserPackageStats::UidSingleStats{1, {{"disk I/O", 1}}}}},
             .topNMajorFaults =
                     {{1012345, "1012345",
                       UserPackageStats::UidSingleStats{uint64Multiplier(50'900),
-                                                            {{"MapsApp",
-                                                              uint64Multiplier(50'900)}}}},
+                                                       {{"MapsApp", uint64Multiplier(50'900)}}}},
                      {1002001, "com.google.android.car.kitchensink",
                       UserPackageStats::UidSingleStats{uint64Multiplier(22'445),
-                                                            {{"KitchenSinkApp",
-                                                              uint64Multiplier(12'345)},
-                                                             {"CTS", uint64Multiplier(10'100)}}}},
+                                                       {{"KitchenSinkApp",
+                                                         uint64Multiplier(12'345)},
+                                                        {"CTS", uint64Multiplier(10'100)}}}},
                      {1009, "mount",
                       UserPackageStats::UidSingleStats{uint64Multiplier(11'000),
-                                                            {{"disk I/O",
-                                                              uint64Multiplier(11'000)}}}}},
+                                                       {{"disk I/O", uint64Multiplier(11'000)}}}}},
             .topNMemStats =
                     isSmapsRollupSupported ? topNMemStatsRankedByPss : topNMemStatsRankedByRss,
             .totalIoStats = {{int64Multiplier(1'000), int64Multiplier(21'600)},
@@ -922,19 +903,21 @@ MATCHER_P4(StorageIoStatsProtoEq, fgBytes, fgFsync, bgBytes, byFsync, "") {
 
 MATCHER_P(PackageStorageIoStatsProtoEq, expected, "") {
     const auto& uidIoSingleOpStats =
-        std::get_if<UserPackageStats::UidIoSingleOpStats>(&expected.statsVariant);
-    return ExplainMatchResult(AllOf(
-              Property("user_package_info",
-                       &PackageStorageIoStats::user_package_info,
-                       UserPackageInfoProtoEq(expected)),
-              Property("storage_io_stats",
-                       &PackageStorageIoStats::storage_io_stats,
-                       StorageIoStatsProtoEq(uidIoSingleOpStats->bytes[FOREGROUND],
-                                             uidIoSingleOpStats->fsync[FOREGROUND],
-                                             uidIoSingleOpStats->bytes[BACKGROUND],
-                                             uidIoSingleOpStats
-                                                     ->fsync[BACKGROUND]))),
-        arg, result_listener);
+            std::get_if<UserPackageStats::UidIoSingleOpStats>(&expected.statsVariant);
+    return ExplainMatchResult(AllOf(Property("user_package_info",
+                                             &PackageStorageIoStats::user_package_info,
+                                             UserPackageInfoProtoEq(expected)),
+                                    Property("storage_io_stats",
+                                             &PackageStorageIoStats::storage_io_stats,
+                                             StorageIoStatsProtoEq(uidIoSingleOpStats
+                                                                           ->bytes[FOREGROUND],
+                                                                   uidIoSingleOpStats
+                                                                           ->fsync[FOREGROUND],
+                                                                   uidIoSingleOpStats
+                                                                           ->bytes[BACKGROUND],
+                                                                   uidIoSingleOpStats
+                                                                           ->fsync[BACKGROUND]))),
+                              arg, result_listener);
 }
 
 MATCHER_P(ProcessTaskStateStatsProtoEq, expected, "") {
@@ -955,7 +938,7 @@ MATCHER_P2(PackageTaskStateStatsProtoEq, expected, taskCountByUid, "") {
             processTaskStateStatsMatchers;
     for (const auto& expectedProcessSingleStats : uidSingleStats->topNProcesses) {
         processTaskStateStatsMatchers.push_back(
-            ProcessTaskStateStatsProtoEq(expectedProcessSingleStats));
+                ProcessTaskStateStatsProtoEq(expectedProcessSingleStats));
     }
     return ExplainMatchResult(AllOf(Property("user_package_info",
                                              &PackageTaskStateStats::user_package_info,
@@ -1510,16 +1493,13 @@ TEST_F(PerformanceProfilerTest, TestOnUserSwitchCollection) {
 
     UserPackageSummaryStats nextUserPackageSummaryStats = {
             .topNIoReads = {{1009, "mount",
-                             UserPackageStats::UidIoSingleOpStats{{0, 5'000},
-                                                              {0, 50}}}},
+                             UserPackageStats::UidIoSingleOpStats{{0, 5'000}, {0, 50}}}},
             .topNIoWrites = {{1009, "mount",
-                              UserPackageStats::UidIoSingleOpStats{{0, 3'000},
-                                                               {0, 50}}}},
+                              UserPackageStats::UidIoSingleOpStats{{0, 3'000}, {0, 50}}}},
             .topNIoBlocked = {{1009, "mount",
                                UserPackageStats::UidSingleStats{2, {{"disk I/O", 2}}}}},
             .topNMajorFaults = {{1009, "mount",
-                                 UserPackageStats::UidSingleStats{6'000,
-                                                                       {{"disk I/O", 6'000}}}}},
+                                 UserPackageStats::UidSingleStats{6'000, {{"disk I/O", 6'000}}}}},
             .totalIoStats = {{0, 5'000}, {0, 3'000}, {0, 50}},
             .taskCountByUid = {{1009, 1}},
             .totalCpuTimeMillis = 48'376,
@@ -1705,38 +1685,32 @@ TEST_F(PerformanceProfilerTest, TestOnCustomCollectionWithPackageFilter) {
     const auto actualCollectionInfo = mCollectorPeer->getCustomCollectionInfo();
 
     UserPackageSummaryStats userPackageSummaryStats{
-            .topNCpuTimes = {{1009, "mount",
-                              UserPackageStats::UidCpuStats{50,
-                                                                 4'000,
-                                                                 {{100, "disk I/O", 50, 4'000}}}},
-                             {1002001, "com.google.android.car.kitchensink",
-                              UserPackageStats::UidCpuStats{60,
-                                                                 10'000,
-                                                                 {{1001, "CTS", 30, 5'000},
-                                                                  {1000, "KitchenSinkApp", 25,
-                                                                   4'000}}}}},
+            .topNCpuTimes =
+                    {{1009, "mount",
+                      UserPackageStats::UidCpuStats{50, 4'000, {{100, "disk I/O", 50, 4'000}}}},
+                     {1002001, "com.google.android.car.kitchensink",
+                      UserPackageStats::UidCpuStats{60,
+                                                    10'000,
+                                                    {{1001, "CTS", 30, 5'000},
+                                                     {1000, "KitchenSinkApp", 25, 4'000}}}}},
             .topNIoReads = {{1009, "mount",
-                             UserPackageStats::UidIoSingleOpStats{{0, 14'000},
-                                                              {0, 100}}},
+                             UserPackageStats::UidIoSingleOpStats{{0, 14'000}, {0, 100}}},
                             {1002001, "com.google.android.car.kitchensink",
                              UserPackageStats::UidIoSingleOpStats{{0, 3'400}, {0, 200}}}},
             .topNIoWrites = {{1009, "mount",
-                              UserPackageStats::UidIoSingleOpStats{{0, 16'000},
-                                                               {0, 100}}},
+                              UserPackageStats::UidIoSingleOpStats{{0, 16'000}, {0, 100}}},
                              {1002001, "com.google.android.car.kitchensink",
                               UserPackageStats::UidIoSingleOpStats{{0, 6'700}, {0, 200}}}},
             .topNIoBlocked =
                     {{1009, "mount", UserPackageStats::UidSingleStats{1, {{"disk I/O", 1}}}},
                      {1002001, "com.google.android.car.kitchensink",
-                      UserPackageStats::UidSingleStats{3,
-                                                            {{"CTS", 2}, {"KitchenSinkApp", 1}}}}},
+                      UserPackageStats::UidSingleStats{3, {{"CTS", 2}, {"KitchenSinkApp", 1}}}}},
             .topNMajorFaults = {{1009, "mount",
-                                 UserPackageStats::UidSingleStats{11'000,
-                                                                       {{"disk I/O", 11'000}}}},
+                                 UserPackageStats::UidSingleStats{11'000, {{"disk I/O", 11'000}}}},
                                 {1002001, "com.google.android.car.kitchensink",
                                  UserPackageStats::UidSingleStats{22'445,
-                                                                       {{"KitchenSinkApp", 12'345},
-                                                                        {"CTS", 10'100}}}}},
+                                                                  {{"KitchenSinkApp", 12'345},
+                                                                   {"CTS", 10'100}}}}},
             .topNMemStats =
                     {{1009, "mount",
                       UserPackageStats::UidMemoryStats{{/*rssKb=*/2010, /*pssKb=*/1635,
@@ -1816,20 +1790,16 @@ TEST_F(PerformanceProfilerTest, TestOnPeriodicCollectionWithTrimmingStatsAfterTo
     UserPackageSummaryStats userPackageSummaryStats{
             .topNCpuTimes = {{1012345, "1012345",
                               UserPackageStats::UidCpuStats{100,
-                                                                 50'000,
-                                                                 {{2345, "MapsApp", 100,
-                                                                   50'000}}}}},
+                                                            50'000,
+                                                            {{2345, "MapsApp", 100, 50'000}}}}},
             .topNIoReads = {{1009, "mount",
-                             UserPackageStats::UidIoSingleOpStats{{0, 14'000},
-                                                              {0, 100}}}},
+                             UserPackageStats::UidIoSingleOpStats{{0, 14'000}, {0, 100}}}},
             .topNIoWrites = {{1009, "mount",
-                              UserPackageStats::UidIoSingleOpStats{{0, 16'000},
-                                                               {0, 100}}}},
+                              UserPackageStats::UidIoSingleOpStats{{0, 16'000}, {0, 100}}}},
             .topNIoBlocked = {{1002001, "com.google.android.car.kitchensink",
                                UserPackageStats::UidSingleStats{3, {{"CTS", 2}}}}},
             .topNMajorFaults = {{1012345, "1012345",
-                                 UserPackageStats::UidSingleStats{50'900,
-                                                                       {{"MapsApp", 50'900}}}}},
+                                 UserPackageStats::UidSingleStats{50'900, {{"MapsApp", 50'900}}}}},
             .topNMemStats = {{1002001, "com.google.android.car.kitchensink",
                               UserPackageStats::UidMemoryStats{{/*rssKb=*/2000, /*pssKb=*/1645,
                                                                 /*ussKb=*/1286, /*swapPssKb=*/600},

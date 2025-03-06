@@ -122,8 +122,8 @@ public:
     UserPackageStats() : uid(0), genericPackageName("") {}
     // For unit test case only
     UserPackageStats(uid_t uid, std::string genericPackageName,
-                     std::variant<std::monostate, UidIoSingleOpStats, UidSingleStats,
-                                  UidCpuStats, UidMemoryStats>
+                     std::variant<std::monostate, UidIoSingleOpStats, UidSingleStats, UidCpuStats,
+                                  UidMemoryStats>
                              statsVariant) :
           uid(uid),
           genericPackageName(std::move(genericPackageName)),
@@ -140,22 +140,16 @@ public:
 
     uid_t uid;
     std::string genericPackageName;
-    std::variant<std::monostate,
-                UidIoSingleOpStats,
-                UidSingleStats,
-                UidCpuStats,
-                UidMemoryStats>
+    std::variant<std::monostate, UidIoSingleOpStats, UidSingleStats, UidCpuStats, UidMemoryStats>
             statsVariant;
 
 private:
     void cacheTopNProcessSingleStats(
-          ProcStatType procStatType, const UidStats& uidStats, int topNProcessCount,
-          std::vector<UserPackageStats::UidSingleStats::ProcessSingleStats>*
-              topNProcesses);
+            ProcStatType procStatType, const UidStats& uidStats, int topNProcessCount,
+            std::vector<UserPackageStats::UidSingleStats::ProcessSingleStats>* topNProcesses);
     void cacheTopNProcessCpuStats(
             const UidStats& uidStats, int topNProcessCount,
-            std::vector<UserPackageStats::UidCpuStats::ProcessCpuStats>*
-                topNProcesses);
+            std::vector<UserPackageStats::UidCpuStats::ProcessCpuStats>* topNProcesses);
     void cacheTopNProcessMemStats(
             const UidStats& uidStats, int topNProcessCount, bool isSmapsRollupSupported,
             std::vector<UserPackageStats::UidMemoryStats::ProcessMemoryStats>* topNProcesses);

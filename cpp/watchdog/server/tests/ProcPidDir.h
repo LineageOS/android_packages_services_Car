@@ -17,6 +17,7 @@
 #pragma once
 
 #include <android-base/result.h>
+
 #include <stdint.h>
 
 #include <string>
