@@ -671,4 +671,21 @@ public final class HidlVehicleStubUnitTest {
 
         verify(mHidlVehicle).debug(any(), eq(options));
     }
+
+    @Test
+    public void testIsSupportedValuesImplemented() {
+        assertThat(mHidlVehicleStub.isSupportedValuesImplemented(null)).isFalse();
+    }
+
+    @Test
+    public void testGetMinMaxSupportedValue() {
+        assertThrows(UnsupportedOperationException.class,
+                () -> mHidlVehicleStub.getMinMaxSupportedValue(0, 0));
+    }
+
+    @Test
+    public void testGetMinMaxSupportedValuesList() {
+        assertThrows(UnsupportedOperationException.class,
+                () -> mHidlVehicleStub.getSupportedValuesList(0, 0));
+    }
 }
