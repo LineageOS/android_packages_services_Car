@@ -31,83 +31,81 @@ interface ICarActivityService {
      * Designates the given {@code activity} to be launched in {@code TaskDisplayArea} of
      * {@code featureId} in the display of {@code displayId}.
      */
-    int setPersistentActivity(in ComponentName activity, int displayId, int featureId) = 0;
+    int setPersistentActivity(in ComponentName activity, int displayId, int featureId);
 
     /**
      * Registers the caller as TaskMonitor, which can provide Task lifecycle events to CarService.
      * The caller should provide a binder token, which is used to check if the given TaskMonitor is
      * live and the reported events are from the legitimate TaskMonitor.
      */
-    void registerTaskMonitor(in IBinder token) = 1;
+    void registerTaskMonitor(in IBinder token);
 
     /**
      * Reports that a Task is created.
      */
-    void onTaskAppeared(in IBinder token, in RunningTaskInfo taskInfo, in SurfaceControl leash) = 8;
+    void onTaskAppeared(in IBinder token, in RunningTaskInfo taskInfo, in SurfaceControl leash);
 
     /**
      * Reports that a Task is vanished.
      */
-    void onTaskVanished(in IBinder token, in RunningTaskInfo taskInfo) = 3;
+    void onTaskVanished(in IBinder token, in RunningTaskInfo taskInfo);
 
     /**
      * Reports that some Task's states are changed.
      */
-    void onTaskInfoChanged(in IBinder token, in RunningTaskInfo taskInfo) = 4;
+    void onTaskInfoChanged(in IBinder token, in RunningTaskInfo taskInfo);
 
     /**
      * Unregisters the caller from TaskMonitor.
      */
-    void unregisterTaskMonitor(in IBinder token) = 5;
+    void unregisterTaskMonitor(in IBinder token);
 
     /** See {@link CarActivityManager#getVisibleTasks(int)} */
-    List<RunningTaskInfo> getVisibleTasks(int displayId) = 6;
+    List<RunningTaskInfo> getVisibleTasks(int displayId);
 
     /** See {@link CarActivityManager#startUserPickerOnDisplay(int)} */
-    void startUserPickerOnDisplay(int displayId) = 7;
+    void startUserPickerOnDisplay(int displayId);
 
     /** See {@link CarActivityManager#createTaskMirroringToken(int)} */
-    IBinder createTaskMirroringToken(int taskId) = 9;
+    IBinder createTaskMirroringToken(int taskId);
 
     /** See {@link CarActivityManager#createDisplayMirroringToken(int)} */
-    IBinder createDisplayMirroringToken(int displayId) = 10;
+    IBinder createDisplayMirroringToken(int displayId);
 
     /** See {@link CarActivityManager#getMirroredSurface(IBinder, Rect)} */
-    SurfaceControl getMirroredSurface(in IBinder mirroringToken, out Rect bounds) = 11;
+    SurfaceControl getMirroredSurface(in IBinder mirroringToken, out Rect bounds);
 
     /**
      * Registers a System UI proxy which is meant to host all the system ui interaction that is
      * required by other apps.
      */
-    void registerCarSystemUIProxy(in ICarSystemUIProxy carSystemUIProxy) = 12;
+    void registerCarSystemUIProxy(in ICarSystemUIProxy carSystemUIProxy);
 
     /**
      * Adds a callback to monitor the lifecycle of System UI proxy. Calling this for an already
      * registered callback will result in a no-op.
      */
-    void addCarSystemUIProxyCallback(in ICarSystemUIProxyCallback callback) = 13;
+    void addCarSystemUIProxyCallback(in ICarSystemUIProxyCallback callback);
 
     /**
      * Removes the callback to monitor the lifecycle of System UI proxy.
      * Calling this for an already unregistered callback will result in a no-op
      */
-    void removeCarSystemUIProxyCallback(in ICarSystemUIProxyCallback callback) = 14;
+    void removeCarSystemUIProxyCallback(in ICarSystemUIProxyCallback callback);
 
     /** See {@link CarActivityManager#moveRootTaskToDisplay(int, int)} */
-    void moveRootTaskToDisplay(int taskId, int displayId) = 15;
+    void moveRootTaskToDisplay(int taskId, int displayId);
 
     /**
      * Returns true if the {@link CarSystemUIProxy} is registered, false otherwise.
      */
-    boolean isCarSystemUIProxyRegistered() = 16;
+    boolean isCarSystemUIProxyRegistered() ;
 
     void setPersistentActivitiesOnRootTask(in List<ComponentName> activities,
-        in IBinder launchCookie) = 17;
+        in IBinder launchCookie);
 
-    boolean isUsingAutoTaskStackWindowing() = 18;
+    void onRootTaskVanished(int taskId);
 
-    void onRootTaskVanished(int taskId) = 19;
-
-    void onRootTaskAppeared(int taskId, in RunningTaskInfo taskInfo) = 20;
+    void onRootTaskAppeared(int taskId, in RunningTaskInfo taskInfo);
 }
 
