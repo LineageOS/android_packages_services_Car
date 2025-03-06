@@ -197,4 +197,6 @@
     <!-- Permission required for CTS tests - MirroredSurfaceViewTest -->
     <uses-permission android:name="android.car.permission.ACCESS_MIRRORED_SURFACE" />
     <uses-permission android:name="android.car.permission.MIRROR_DISPLAY" />
+    <!-- permissions required for 'adb shell cmd car_service set-display-brightness' -->
+    <uses-permission android:name="android.permission.CONTROL_DISPLAY_BRIGHTNESS" />
 </manifest>

@@ -190,6 +190,10 @@ final class CarShellCommand extends BasicShellCommandHandler {
     private static final String TAG = CarLog.tagFor(CarShellCommand.class);
     private static final boolean VERBOSE = false;
 
+    // Same as android.Manifest.permission.CONTROL_DISPLAY_BRIGHTNESS which is a hidden API.
+    private static final String CONTROL_DISPLAY_BRIGHTNESS =
+            "android.permission.CONTROL_DISPLAY_BRIGHTNESS";
+
     private static final String COMMAND_HELP = "-h";
     private static final String COMMAND_DAY_NIGHT_MODE = "day-night-mode";
     private static final String COMMAND_INJECT_VHAL_EVENT = "inject-vhal-event";
@@ -209,6 +213,8 @@ final class CarShellCommand extends BasicShellCommandHandler {
     private static final String COMMAND_SUSPEND = "suspend";
     private static final String COMMAND_HIBERNATE = "hibernate";
     private static final String COMMAND_SET_DISPLAY_STATE = "set-display-state";
+    private static final String COMMAND_SET_DISPLAY_BRIGHTNESS = "set-display-brightness";
+    private static final String COMMAND_GET_DISPLAY_BRIGHTNESS = "get-display-brightness";
     private static final String PARAM_SIMULATE = "--simulate";
     private static final String PARAM_REAL = "--real";
     private static final String PARAM_AUTO = "--auto";
@@ -391,6 +397,10 @@ final class CarShellCommand extends BasicShellCommandHandler {
         USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_SUSPEND, PERMISSION_CAR_POWER);
         USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_HIBERNATE, PERMISSION_CAR_POWER);
         USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_SET_DISPLAY_STATE, PERMISSION_CAR_POWER);
+        USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_SET_DISPLAY_BRIGHTNESS,
+                CONTROL_DISPLAY_BRIGHTNESS);
+        USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_GET_DISPLAY_BRIGHTNESS,
+                CONTROL_DISPLAY_BRIGHTNESS);
         USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_POWER_OFF, PERMISSION_CAR_POWER);
         USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_DEFINE_POWER_POLICY, PERMISSION_CAR_POWER);
         USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_APPLY_POWER_POLICY,
@@ -696,6 +706,8 @@ final class CarShellCommand extends BasicShellCommandHandler {
         pw.println("\tresume");
         pw.println("\t  Wake the system up after a simulated suspension/hibernation.");
         pw.println("\tset-display-state [displayId] [true|false]");
+        pw.println("\tset-display-brightness [displayId] [brightness_at_0_to_1_scale]");
+        pw.println("\tget-display-brightness [displayId]");
         pw.println("\t  Turn on or off the individual display.");
         pw.println("\tprojection-tethering [true|false]");
         pw.println("\t  Whether tethering should be used when creating access point for"
@@ -1342,6 +1354,10 @@ final class CarShellCommand extends BasicShellCommandHandler {
                     return showInvalidArguments(writer);
                 }
                 break;
+            case COMMAND_SET_DISPLAY_BRIGHTNESS:
+                return setDisplayBrightness(args, writer);
+            case COMMAND_GET_DISPLAY_BRIGHTNESS:
+                return getDisplayBrightness(args, writer);
             case COMMAND_SET_UID_TO_ZONE:
                 if (args.length != 3) {
                     return showInvalidArguments(writer);
@@ -1603,6 +1619,69 @@ final class CarShellCommand extends BasicShellCommandHandler {
                 showHelp(writer);
                 return RESULT_ERROR;
         }
+        return RESULT_OK;
+    }
+
+    private boolean isDisplayIdValid(int displayId) {
+        DisplayManager displayManager = mContext.getSystemService(DisplayManager.class);
+        Display display = displayManager.getDisplay(displayId);
+        return (display != null);
+    }
+
+    private int setDisplayBrightness(String[] args, IndentingPrintWriter writer) {
+        if (args.length != 3) {
+            return showInvalidArguments(writer);
+        }
+        int displayId;
+        float brightness;
+        try {
+            displayId = Integer.valueOf(args[1]);
+        } catch (Exception e) {
+            writer.println("Invalid displayId: " + args[1] + ", must be a valid integer");
+            return RESULT_ERROR;
+        }
+        try {
+            brightness = Float.valueOf(args[2]);
+        } catch (Exception e) {
+            writer.println("Invalid brightness: " + args[2] + ", must be a valid float");
+            return RESULT_ERROR;
+        }
+        if (!isDisplayIdValid(displayId)) {
+            writer.println("Invalid display Id: " + displayId);
+            return RESULT_ERROR;
+        }
+        try {
+            DisplayManagerHelper.setBrightness(mContext, displayId, brightness);
+        } catch (SecurityException e) {
+            writer.println("Car shell does not have permission to set display brightness");
+            return RESULT_ERROR;
+        }
+        return RESULT_OK;
+    }
+
+    private int getDisplayBrightness(String[] args, IndentingPrintWriter writer) {
+        if (args.length != 2) {
+            return showInvalidArguments(writer);
+        }
+        int displayId;
+        try {
+            displayId = Integer.valueOf(args[1]);
+        } catch (Exception e) {
+            writer.println("Invalid displayId: " + args[1] + ", must be a valid integer");
+            return RESULT_ERROR;
+        }
+        if (!isDisplayIdValid(displayId)) {
+            writer.println("Invalid display Id: " + displayId);
+            return RESULT_ERROR;
+        }
+        try {
+            float brightness = DisplayManagerHelper.getBrightness(mContext, displayId);
+            writer.println("Brightness for display Id " + displayId + ": " + brightness);
+        } catch (SecurityException e) {
+            writer.println("Car shell does not have permission to get display brightness");
+            return RESULT_ERROR;
+        }
+
         return RESULT_OK;
     }
 
