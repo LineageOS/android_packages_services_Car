@@ -216,7 +216,8 @@ public class AutoTaskRepository {
      */
     void onRootTaskStackCreated(RootTaskStack rootTaskStack) {
         if (DBG) {
-            Slogf.d(TAG, "onRootTaskStackCreated. RootTask Id %d.", rootTaskStack.getId());
+            Slogf.d(TAG, "onRootTaskStackCreated. RootTask Id %d. RootTask Name %s",
+                    rootTaskStack.getId(), rootTaskStack.getName());
         }
         mRootTaskStacks.put(rootTaskStack, new RootTaskStackInfo(rootTaskStack));
         if (mIsCarReady) {
@@ -237,7 +238,8 @@ public class AutoTaskRepository {
      */
     void onRootTaskStackDestroyed(RootTaskStack rootTaskStack) {
         if (DBG) {
-            Slogf.d(TAG, "onRootTaskStackDestroyed. RootTask Id %d.", rootTaskStack.getId());
+            Slogf.d(TAG, "onRootTaskStackDestroyed. RootTask Id %d. RootTask Name %s",
+                    rootTaskStack.getId(), rootTaskStack.getName());
         }
         mRootTaskStacks.remove(rootTaskStack);
 
@@ -260,8 +262,8 @@ public class AutoTaskRepository {
     void onTaskAppeared(RootTaskStack rootTaskStack, ActivityManager.RunningTaskInfo task,
             SurfaceControl leash) {
         if (DBG) {
-            Slogf.d(TAG, "onTaskAppeared. RootTask Id %d. TaskId %d.", rootTaskStack.getId(),
-                    task.getTaskId());
+            Slogf.d(TAG, "onTaskAppeared. RootTask Id %d. TaskId %d. Name %s",
+                    rootTaskStack.getId(), task.getTaskId(), rootTaskStack.getName());
         }
         addOrUpdateTask(rootTaskStack, task, leash);
 
@@ -281,8 +283,8 @@ public class AutoTaskRepository {
     @SuppressLint("MissingPermission")
     void onTaskChanged(RootTaskStack rootTaskStack, ActivityManager.RunningTaskInfo task) {
         if (DBG) {
-            Slogf.d(TAG, "onTaskChanged. RootTask Id %d. TaskId %d.", rootTaskStack.getId(),
-                    task.getTaskId());
+            Slogf.d(TAG, "onTaskChanged. RootTask Id %d. TaskId %d. Name %s",
+                    rootTaskStack.getId(), task.getTaskId(), rootTaskStack.getName());
         }
         addOrUpdateTask(rootTaskStack, task, mSurfaceControlMap.get(task.taskId));
 
@@ -304,8 +306,8 @@ public class AutoTaskRepository {
     @SuppressLint("MissingPermission")
     void onTaskVanished(RootTaskStack rootTaskStack, ActivityManager.RunningTaskInfo task) {
         if (DBG) {
-            Slogf.d(TAG, "onTaskDestroyed. RootTask Id %d. TaskId %d.", rootTaskStack.getId(),
-                    task.getTaskId());
+            Slogf.d(TAG, "onTaskDestroyed. RootTask Id %d. TaskId %d. Name %s",
+                    rootTaskStack.getId(), task.getTaskId(), rootTaskStack.getName());
         }
         removeTask(rootTaskStack, task);
         if (mIsCarReady) {
