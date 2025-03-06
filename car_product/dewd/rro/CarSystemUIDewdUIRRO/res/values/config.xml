@@ -25,6 +25,7 @@
         <item>@xml/app_grid_panel</item>
         <item>@xml/map_panel</item>
         <item>@xml/contextual_bar_panel</item>
+        <item>@xml/calm_mode_panel</item>
     </array>
 
     <string-array name="config_non_trimmable_activities" translatable="false">

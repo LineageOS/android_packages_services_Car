@@ -13,22 +13,24 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-  <Panel id="panel_app_grid" defaultVariant="@id/closed" role="@string/appgrid_componentName" displayId="0">
-    <Variant id="@+id/opened">
-        <Layer layer="@integer/app_grid_panel_layer"/>
-        <Visibility isVisible="true"/>
-        <Bounds left="0" bottom="@dimen/app_grid_drawer_bottom" width="100%" height="@dimen/app_grid_drawer_height" />
+  <Panel id="panel_calm_mode" defaultVariant="@id/closed" role="@string/config_calmModeComponentName" displayId="0">
+    <Variant id="@+id/calm_mode_base">
+        <Layer layer="@integer/calm_mode_panel_layer"/>
     </Variant>
-    <Variant id="@+id/closed">
-        <Layer layer="@integer/app_grid_panel_layer"/>
+    <Variant id="@+id/opened" parent="@id/calm_mode_base">
+        <Visibility isVisible="true"/>
+        <Bounds left="@dimen/calm_mode_left" top="@dimen/calm_mode_top" width="100%" height="@dimen/calm_mode_height" />
+    </Variant>
+    <Variant id="@+id/closed" parent="@id/calm_mode_base">
         <Visibility isVisible="false"/>
-        <Bounds left="0" top="@dimen/bottom_bar_bottom" width="100%" height="@dimen/app_grid_drawer_height" />
+        <Bounds left="@dimen/calm_mode_left" top="@dimen/bottom_bar_bottom" width="100%" height="@dimen/calm_mode_height" />
     </Variant>
 
     <Transitions>
-        <Transition onEvent="_System_TaskOpenEvent" onEventTokens="panelId=panel_app_grid" toVariant="@id/opened"/>
+        <Transition onEvent="_System_TaskOpenEvent" onEventTokens="panelId=panel_calm_mode" toVariant="@id/opened"/>
+        <Transition onEvent="_System_TaskOpenEvent" onEventTokens="panelId=panel_app_grid" toVariant="@id/closed"/>
         <Transition onEvent="_System_TaskOpenEvent" onEventTokens="panelId=app_panel" toVariant="@id/closed"/>
-        <Transition onEvent="_System_TaskOpenEvent" onEventTokens="panelId=panel_calm_mode" toVariant="@id/closed"/>
+        <Transition onEvent="_System_TaskCloseEvent" onEventTokens="panelId=panel_calm_mode" toVariant="@id/closed"/>
         <Transition onEvent="_System_OnHomeEvent" toVariant="@id/closed"/>
         <Transition onEvent="_System_EnterSuwEvent" toVariant="@id/closed"/>
     </Transitions>

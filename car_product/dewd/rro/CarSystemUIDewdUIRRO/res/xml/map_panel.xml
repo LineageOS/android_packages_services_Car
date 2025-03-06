@@ -15,7 +15,7 @@
   -->
   <Panel id="map_panel" defaultVariant="@id/opened" role="@array/nav_components" displayId="0">
     <Variant id="@+id/map_base">
-        <Layer layer="2"/>
+        <Layer layer="@integer/map_panel_layer"/>
     </Variant>
     <Variant id="@+id/opened" parent="@id/map_base">
         <Visibility isVisible="true"/>
