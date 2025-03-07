@@ -445,3 +445,11 @@ flag {
     description: "Controls CarWatchdog ANR metrics reporting feature."
     bug: "373716861"
 }
+
+# Support for suspending media apps in cars
+flag {
+    name: "car_media_apps_suspension"
+    namespace: "car_framework"
+    description: "Enables suspension of templated media apps in cars."
+    bug: "401584551"
+}
