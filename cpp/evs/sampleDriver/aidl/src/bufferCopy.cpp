@@ -146,6 +146,17 @@ void fillRGBAFromBGRA(const BufferDesc& tgtBuff, uint8_t* tgt, void* imgData, un
     }
 }
 
+void fillRGBAFromRGB3(const BufferDesc& tgtBuff, uint8_t* tgt, void* imgData, unsigned imgStride) {
+    const AHardwareBuffer_Desc* pDesc =
+            reinterpret_cast<const AHardwareBuffer_Desc*>(&tgtBuff.buffer.description);
+    const auto dstStrideInBytes = pDesc->stride * 4;  // 4-byte per pixel
+    auto result = libyuv::RGB24ToARGB((const uint8_t*)imgData, imgStride, tgt, dstStrideInBytes,
+                                      pDesc->width, pDesc->height);
+    if (result) {
+        LOG(ERROR) << "Failed to convert RGB3 to RGBA.";
+    }
+}
+
 void fillYUYVFromYUYV(const BufferDesc& tgtBuff, uint8_t* tgt, void* imgData, unsigned imgStride) {
     const AHardwareBuffer_Desc* pDesc =
             reinterpret_cast<const AHardwareBuffer_Desc*>(&tgtBuff.buffer.description);
