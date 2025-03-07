@@ -23,6 +23,7 @@ import android.car.app.CarActivityManager;
 import android.content.Context;
 import android.hardware.display.DisplayManager;
 import android.os.UserHandle;
+import android.util.ArraySet;
 import android.util.Log;
 import android.util.Pair;
 import android.util.SparseArray;
@@ -71,9 +72,12 @@ public class AutoTaskRepository {
      */
     private final LinkedHashMap<Integer,
             ActivityManager.RunningTaskInfo> mTaskStackWithoutRootTask = new LinkedHashMap<>();
+    private final ArraySet<AutoAppTaskListener> mAutoTaskListeners = new ArraySet<>();
+
     private final Context mContext;
     private final ShellTaskOrganizer mShellTaskOrganizer;
 
+    // TODO(b/401349206): Move the task reporting outside of the Task Repository
     private CarActivityManager mCarActivityManager;
 
     private boolean mIsCarReady = false;
@@ -158,7 +162,7 @@ public class AutoTaskRepository {
         return mRootTaskStacks.get(rootTaskStack).getTaskStack();
     }
 
-    // TODO(b/401349206): Refactor it. Save a mapping of taks id and taskInfo and use that.
+    // TODO(b/401349206): Refactor it. Save a mapping of task id and taskInfo and use that.
     ActivityManager.RunningTaskInfo getTaskInfo(int taskId) {
         if (mTaskStackWithoutRootTask.get(taskId) != null) {
             return mTaskStackWithoutRootTask.get(taskId);
@@ -167,6 +171,19 @@ public class AutoTaskRepository {
         for (RootTaskStackInfo rootTaskStackInfo : mRootTaskStacks.values()) {
             if (rootTaskStackInfo.getTaskStack().get(taskId) != null) {
                 return rootTaskStackInfo.getTaskStack().get(taskId);
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Returns RootTaskStack for root task stack Id.
+     */
+    RootTaskStack getRootTaskStack(int rootTaskStackId) {
+        for (RootTaskStack rootTaskStack : mRootTaskStacks.keySet()) {
+            if (rootTaskStack.getId() == rootTaskStackId) {
+                return rootTaskStack;
             }
         }
 
@@ -270,6 +287,10 @@ public class AutoTaskRepository {
         } else {
             mPendingTasks.put(task.taskId, new Pair<>(task, leash));
         }
+
+        for (AutoAppTaskListener listener: mAutoTaskListeners) {
+            listener.onTaskAppeared(task);
+        }
     }
 
     /**
@@ -291,7 +312,10 @@ public class AutoTaskRepository {
         } else {
             mPendingTasks.put(task.taskId,
                     new Pair<>(task, mSurfaceControlMap.get(task.taskId)));
+        }
 
+        for (AutoAppTaskListener listener: mAutoTaskListeners) {
+            listener.onTaskChanged(task);
         }
     }
 
@@ -313,6 +337,10 @@ public class AutoTaskRepository {
         } else {
             mPendingTasks.remove(task.taskId);
         }
+
+        for (AutoAppTaskListener listener: mAutoTaskListeners) {
+            listener.onTaskVanished(task);
+        }
     }
 
     /**
@@ -333,6 +361,10 @@ public class AutoTaskRepository {
             mCarActivityManager.onTaskAppeared(task, leash);
         } else {
             mPendingTasks.put(task.taskId, new Pair<>(task, leash));
+        }
+
+        for (AutoAppTaskListener listener: mAutoTaskListeners) {
+            listener.onTaskAppeared(task);
         }
     }
 
@@ -356,6 +388,10 @@ public class AutoTaskRepository {
             mPendingTasks.put(task.taskId,
                     new Pair<>(task, mSurfaceControlMap.get(task.taskId)));
         }
+
+        for (AutoAppTaskListener listener: mAutoTaskListeners) {
+            listener.onTaskChanged(task);
+        }
     }
 
     /**
@@ -377,6 +413,27 @@ public class AutoTaskRepository {
         } else {
             mPendingTasks.remove(task.taskId);
         }
+
+        for (AutoAppTaskListener listener: mAutoTaskListeners) {
+            listener.onTaskVanished(task);
+        }
+    }
+
+    // TODO(b/401349206): Expose this call once listener is moved to car-wm-shell
+    void addAppTaskListener(AutoAppTaskListener autoAppTaskListener) {
+        mAutoTaskListeners.add(autoAppTaskListener);
+    }
+
+    // TODO(b/401349206): Expose this call once listener is moved to car-wm-shell
+    void removeAppTaskListener(AutoAppTaskListener autoAppTaskListener) {
+        mAutoTaskListeners.remove(autoAppTaskListener);
+    }
+
+    // TODO(b/401349206): Expose this call once listener is moved to car-wm-shell
+    interface AutoAppTaskListener {
+        void onTaskAppeared(ActivityManager.RunningTaskInfo taskInfo);
+        void onTaskChanged(ActivityManager.RunningTaskInfo taskInfo);
+        void onTaskVanished(ActivityManager.RunningTaskInfo taskInfo);
     }
 
     /**
