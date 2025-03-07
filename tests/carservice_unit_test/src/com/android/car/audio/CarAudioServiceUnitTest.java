@@ -23,6 +23,7 @@ import static android.car.media.CarAudioManager.AUDIO_FEATURE_AUDIO_MIRRORING;
 import static android.car.media.CarAudioManager.AUDIO_FEATURE_DYNAMIC_ROUTING;
 import static android.car.media.CarAudioManager.AUDIO_FEATURE_MIN_MAX_ACTIVATION_VOLUME;
 import static android.car.media.CarAudioManager.AUDIO_FEATURE_OEM_AUDIO_SERVICE;
+import static android.car.media.CarAudioManager.AUDIO_FEATURE_PERSIST_FADE_BALANCE_VALUES;
 import static android.car.media.CarAudioManager.AUDIO_FEATURE_VOLUME_GROUP_EVENTS;
 import static android.car.media.CarAudioManager.AUDIO_FEATURE_VOLUME_GROUP_MUTING;
 import static android.car.media.CarAudioManager.AUDIO_MIRROR_CAN_ENABLE;
@@ -85,6 +86,7 @@ import static android.view.KeyEvent.KEYCODE_VOLUME_MUTE;
 import static android.view.KeyEvent.KEYCODE_VOLUME_UP;
 
 import static com.android.car.R.bool.audioEnableVolumeKeyEventsToDynamicDevices;
+import static com.android.car.R.bool.audioPersistFadeBalanceLevels;
 import static com.android.car.R.bool.audioPersistMasterMuteState;
 import static com.android.car.R.bool.audioUseCarVolumeGroupEvent;
 import static com.android.car.R.bool.audioUseCarVolumeGroupMuting;
@@ -500,6 +502,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     private boolean mUseCarVolumeGroupEvents = true;
     private boolean mUseMinMaxActivationVolume = true;
     private boolean mEnableVolumeKeyEventsToDynamicDevices = false;
+    private boolean mPersistFadeBalanceValues = true;
 
 
     private TemporaryFile mTempCarAudioConfigFile;
@@ -806,6 +809,8 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
                 .thenReturn(AUDIO_CONTEXT_PRIORITY_LIST_VERSION_ONE);
         when(mMockResources.getBoolean(audioPersistMasterMuteState)).thenReturn(mPersistMasterMute);
         enableVolumeKeyEventsToDynamicDevices(mEnableVolumeKeyEventsToDynamicDevices);
+        when(mMockResources.getBoolean(audioPersistFadeBalanceLevels))
+                .thenReturn(mPersistFadeBalanceValues);
     }
 
     private void enableVolumeKeyEventsToDynamicDevices(boolean enableVolumeKeyEvents) {
@@ -2312,6 +2317,49 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
 
         expectWithMessage("Min/max activation volume feature with disabled feature flag")
                 .that(service.isAudioFeatureEnabled(AUDIO_FEATURE_MIN_MAX_ACTIVATION_VOLUME))
+                .isFalse();
+    }
+
+    @Test
+    @EnableFlags({Flags.FLAG_AUDIO_FADE_BALANCE_GETTER_APIS})
+    public void isAudioFeatureEnabled_forEnabledPersistFadeBalance() throws Exception {
+        CarAudioService service = setUpAudioService();
+
+        expectWithMessage("Persist fade balance values feature")
+                .that(service.isAudioFeatureEnabled(AUDIO_FEATURE_PERSIST_FADE_BALANCE_VALUES))
+                .isTrue();
+    }
+
+    @Test
+    @EnableFlags({Flags.FLAG_AUDIO_FADE_BALANCE_GETTER_APIS})
+    public void isAudioFeatureEnabled_forDisabledPersistFadeBalance() throws Exception {
+        CarAudioService service =
+                setUpAudioServiceWithDisabledResource(audioPersistFadeBalanceLevels);
+
+        expectWithMessage("Disabled persist fade balance values feature")
+                .that(service.isAudioFeatureEnabled(AUDIO_FEATURE_PERSIST_FADE_BALANCE_VALUES))
+                .isFalse();
+    }
+
+    @Test
+    @EnableFlags({Flags.FLAG_AUDIO_FADE_BALANCE_GETTER_APIS})
+    public void isAudioFeatureEnabled_forPersistFadeBalance_whenDisabledDynamicRouting()
+            throws Exception {
+        CarAudioService nonDynamicAudioService = setUpAudioServiceWithoutDynamicRouting();
+
+        expectWithMessage("Persist fade balance feature when dynamic routing disabled")
+                .that(nonDynamicAudioService
+                        .isAudioFeatureEnabled(AUDIO_FEATURE_PERSIST_FADE_BALANCE_VALUES))
+                .isFalse();
+    }
+
+    @Test
+    @DisableFlags({Flags.FLAG_AUDIO_FADE_BALANCE_GETTER_APIS})
+    public void isAudioFeatureEnabled_forDisabledFadeBalanceGetterFlags() throws Exception {
+        CarAudioService service = setUpAudioService();
+
+        expectWithMessage("Disabled fade balance getter apis flag")
+                .that(service.isAudioFeatureEnabled(AUDIO_FEATURE_PERSIST_FADE_BALANCE_VALUES))
                 .isFalse();
     }
 
