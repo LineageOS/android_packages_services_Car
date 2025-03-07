@@ -17,7 +17,7 @@ package {
 }
 
 cc_binary {
-    name: "android.hardware.automotive.evs-default",
+    name: "android.hardware.automotive.evs-v4l2",
     defaults: ["android.hardware.graphics.common-ndk_static"],
     vendor: true,
     relative_install_path: "hw",
@@ -61,7 +61,7 @@ cc_binary {
         "frameworks/native/include/",
     ],
     cflags: [
-        "-DLOG_TAG=\"EvsDriver\"",
+        "-DLOG_TAG=\"EvsV4lDriver\"",
         "-DGL_GLEXT_PROTOTYPES",
         "-DEGL_EGLEXT_PROTOTYPES",
         "-Wall",
@@ -70,14 +70,14 @@ cc_binary {
         "-Wthread-safety",
     ],
     init_rc: [
-        "android.hardware.automotive.evs-default.rc",
+        "android.hardware.automotive.evs-v4l2.rc",
     ],
     required: [
         "evs_aidl_hal_configuration.dtd",
         "evs_aidl_hal_configuration.xml",
     ],
     vintf_fragments: [
-        "manifest_android.hardware.automotive.evs-default.xml",
+        "manifest_android.hardware.automotive.evs-v4l2.xml",
     ],
 }
 
@@ -91,6 +91,6 @@ prebuilt_etc {
 prebuilt_etc {
     name: "evs_aidl_hal_configuration.xml",
     soc_specific: true,
-    src: "resources/evs_configuration_default.xml",
+    src: "resources/evs_configuration_v4l2.xml",
     sub_dir: "automotive/evs",
 }
