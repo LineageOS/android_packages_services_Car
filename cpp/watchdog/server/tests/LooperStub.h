@@ -16,17 +16,18 @@
 
 #pragma once
 
+#include "LooperWrapper.h"
+
 #include <android-base/chrono_utils.h>
 #include <android-base/result.h>
-#include <time.h>
 #include <utils/Looper.h>
 #include <utils/Mutex.h>
 #include <utils/StrongPointer.h>
 
+#include <time.h>
+
 #include <functional>
 #include <vector>
-
-#include "LooperWrapper.h"
 
 namespace android {
 namespace automotive {

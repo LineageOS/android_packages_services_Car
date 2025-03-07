@@ -36,6 +36,8 @@ import android.content.Context;
 import android.os.UserHandle;
 import android.view.SurfaceControl;
 
+import com.android.wm.shell.ShellTaskOrganizer;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -54,6 +56,8 @@ public class AutoTaskRepositoryTest {
     private RootTaskStack mRootTaskStack2;
     @Mock
     private Context mContext;
+    @Mock
+    private ShellTaskOrganizer mShellTaskOrganizer;
 
     @Mock
     private Car mCar;
@@ -88,7 +92,7 @@ public class AutoTaskRepositoryTest {
             return mCar;
         }).when(() -> Car.createCar(any(), any(), anyLong(), any()));
 
-        mTaskRepository = new AutoTaskRepository(mContext);
+        mTaskRepository = new AutoTaskRepository(mContext, mShellTaskOrganizer);
         mRootTaskStack1 = new RootTaskStack(1, 0, mock(SurfaceControl.class),
                 createMockTaskInfo(1));
         mRootTaskStack2 = new RootTaskStack(1, 0, mock(SurfaceControl.class),

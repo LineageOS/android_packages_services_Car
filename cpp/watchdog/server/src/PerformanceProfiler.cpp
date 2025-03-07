@@ -201,10 +201,8 @@ UidResourceUsageStats constructUidResourceUsageStats(
     } else {
         ioUsageStats.readBytes.foregroundBytes = uidIoReadsStats.bytes[UidState::FOREGROUND];
         ioUsageStats.readBytes.backgroundBytes = uidIoReadsStats.bytes[UidState::BACKGROUND];
-        ioUsageStats.writtenBytes.foregroundBytes =
-            uidIoWritesStats.bytes[UidState::FOREGROUND];
-        ioUsageStats.writtenBytes.backgroundBytes =
-            uidIoWritesStats.bytes[UidState::BACKGROUND];
+        ioUsageStats.writtenBytes.foregroundBytes = uidIoWritesStats.bytes[UidState::FOREGROUND];
+        ioUsageStats.writtenBytes.backgroundBytes = uidIoWritesStats.bytes[UidState::BACKGROUND];
     }
 
     // clang-format off
@@ -296,9 +294,11 @@ UserPackageStats::UserPackageStats(MetricType metricType, const UidStats& uidSta
     genericPackageName = uidStats.genericPackageName();
     statsVariant = UserPackageStats::
             UidIoSingleOpStats{.bytes = {ioStats.metrics[metricType][UidState::FOREGROUND],
-                                     ioStats.metrics[metricType][UidState::BACKGROUND]},
-                        .fsync = {ioStats.metrics[MetricType::FSYNC_COUNT][UidState::FOREGROUND],
-                                  ioStats.metrics[MetricType::FSYNC_COUNT][UidState::BACKGROUND]}};
+                                         ioStats.metrics[metricType][UidState::BACKGROUND]},
+                               .fsync = {ioStats.metrics[MetricType::FSYNC_COUNT]
+                                                        [UidState::FOREGROUND],
+                                         ioStats.metrics[MetricType::FSYNC_COUNT]
+                                                        [UidState::BACKGROUND]}};
 }
 
 UserPackageStats::UserPackageStats(ProcStatType procStatType, const UidStats& uidStats,
@@ -308,14 +308,12 @@ UserPackageStats::UserPackageStats(ProcStatType procStatType, const UidStats& ui
     switch (procStatType) {
         case CPU_TIME: {
             statsVariant = UserPackageStats::UidCpuStats{.cpuTimeMillis = static_cast<int64_t>(
-                                                                   uidStats.cpuTimeMillis),
-                                                           .cpuCycles = static_cast<int64_t>(
-                                                                   uidStats.procStats.cpuCycles)};
+                                                                 uidStats.cpuTimeMillis),
+                                                         .cpuCycles = static_cast<int64_t>(
+                                                                 uidStats.procStats.cpuCycles)};
             auto& uidCpuStats = std::get<UserPackageStats::UidCpuStats>(statsVariant);
             uidCpuStats.topNProcesses.resize(topNProcessCount);
-            cacheTopNProcessCpuStats(uidStats,
-                                     topNProcessCount,
-                                     &uidCpuStats.topNProcesses);
+            cacheTopNProcessCpuStats(uidStats, topNProcessCount, &uidCpuStats.topNProcesses);
             break;
         }
         case MEMORY_STATS: {
@@ -328,13 +326,13 @@ UserPackageStats::UserPackageStats(ProcStatType procStatType, const UidStats& ui
                 totalSwapPssKb += processStats.swapPssKb;
             }
             statsVariant = UserPackageStats::UidMemoryStats{.memoryStats.rssKb =
-                                                                 uidStats.procStats.totalRssKb,
-                                                         .memoryStats.pssKb =
-                                                                 uidStats.procStats.totalPssKb,
-                                                         .memoryStats.ussKb = totalUssKb,
-                                                         .memoryStats.swapPssKb = totalSwapPssKb,
-                                                         .isSmapsRollupSupported =
-                                                                 isSmapsRollupSupported};
+                                                                    uidStats.procStats.totalRssKb,
+                                                            .memoryStats.pssKb =
+                                                                    uidStats.procStats.totalPssKb,
+                                                            .memoryStats.ussKb = totalUssKb,
+                                                            .memoryStats.swapPssKb = totalSwapPssKb,
+                                                            .isSmapsRollupSupported =
+                                                                    isSmapsRollupSupported};
             auto& uidMemoryStats = std::get<UserPackageStats::UidMemoryStats>(statsVariant);
             uidMemoryStats.topNProcesses.resize(topNProcessCount);
             cacheTopNProcessMemStats(uidStats, topNProcessCount,
@@ -393,11 +391,9 @@ std::string UserPackageStats::toString(MetricType metricsType,
     for (int i = 0; i < UID_STATES; ++i) {
         StringAppendF(&buffer, ", %" PRIi64 ", %.2f%%, %" PRIi64 ", %.2f%%",
                       uidIoSingleOpStats.bytes[i],
-                      percentage(uidIoSingleOpStats.bytes[i],
-                                 totalIoStats[metricsType][i]),
+                      percentage(uidIoSingleOpStats.bytes[i], totalIoStats[metricsType][i]),
                       uidIoSingleOpStats.fsync[i],
-                      percentage(uidIoSingleOpStats.fsync[i],
-                                 totalIoStats[FSYNC_COUNT][i]));
+                      percentage(uidIoSingleOpStats.fsync[i], totalIoStats[FSYNC_COUNT][i]));
     }
     StringAppendF(&buffer, "\n");
     return buffer;
@@ -417,18 +413,15 @@ std::string UserPackageStats::toString(int64_t totalValue) const {
         for (const auto& processCpuStats : uidCpuStats->topNProcesses) {
             totalProcessTimeMillis += processCpuStats.cpuTimeMillis;
         }
-        totalProcessTimeMillis = std::max(totalProcessTimeMillis,
-                                          uidCpuStats->cpuTimeMillis);
+        totalProcessTimeMillis = std::max(totalProcessTimeMillis, uidCpuStats->cpuTimeMillis);
         StringAppendF(&buffer, "%" PRIu32 ", %s, %" PRIu64 ", %.2f%%, %" PRIu64 "\n",
                       multiuser_get_user_id(uid), genericPackageName.c_str(),
-                      totalProcessTimeMillis,
-                      percentage(totalProcessTimeMillis, totalValue),
+                      totalProcessTimeMillis, percentage(totalProcessTimeMillis, totalValue),
                       uidCpuStats->cpuCycles);
         for (const auto& processCpuStats : uidCpuStats->topNProcesses) {
             StringAppendF(&buffer, "\t%s, %" PRIu64 ", %.2f%%, %" PRIu64 "\n",
                           processCpuStats.comm.c_str(), processCpuStats.cpuTimeMillis,
-                          percentage(processCpuStats.cpuTimeMillis,
-                                     totalProcessTimeMillis),
+                          percentage(processCpuStats.cpuTimeMillis, totalProcessTimeMillis),
                           processCpuStats.cpuCycles);
         }
         return buffer;
@@ -440,8 +433,7 @@ std::string UserPackageStats::toString(int64_t totalValue) const {
     for (const auto& processSingleStats : uidSingleStats.topNProcesses) {
         StringAppendF(&buffer, "\t%s, %" PRIu64 ", %.2f%%\n", processSingleStats.comm.c_str(),
                       processSingleStats.value,
-                      percentage(processSingleStats.value,
-                                 uidSingleStats.value));
+                      percentage(processSingleStats.value, uidSingleStats.value));
     }
     return buffer;
 }
@@ -1286,9 +1278,8 @@ void PerformanceProfiler::processUidStatsLocked(
 
         UidResourceUsageStats usageStats =
                 constructUidResourceUsageStats(std::move(packageIdentifier), uidUptimeMillis,
-                                               totalCpuTimeMillis, isGarageModeActive,
-                                               uidCpuStats, uidIoReadsStats,
-                                               uidIoWritesStats);
+                                               totalCpuTimeMillis, isGarageModeActive, uidCpuStats,
+                                               uidIoReadsStats, uidIoWritesStats);
         uidResourceUsageStats->push_back(std::move(usageStats));
     }
     if (mLastMajorFaults != 0) {

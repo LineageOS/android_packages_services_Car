@@ -101,8 +101,8 @@ public:
     virtual ndk::ScopedAStatus tellDumpFinished(
             const std::shared_ptr<
                     aidl::android::automotive::watchdog::internal::ICarWatchdogMonitor>& monitor,
-            const aidl::android::automotive::watchdog::internal::ProcessIdentifier&
-                    processIdentifier) = 0;
+            const std::vector<aidl::android::automotive::watchdog::internal::ProcessIdentifier>&
+                    processIdentifiers) = 0;
     virtual void setEnabled(bool isEnabled) = 0;
     virtual void onUserStateChange(userid_t userId, bool isStarted) = 0;
     virtual void onAidlVhalPidFetched(int32_t) = 0;
@@ -164,8 +164,8 @@ public:
     ndk::ScopedAStatus tellDumpFinished(
             const std::shared_ptr<
                     aidl::android::automotive::watchdog::internal::ICarWatchdogMonitor>& monitor,
-            const aidl::android::automotive::watchdog::internal::ProcessIdentifier&
-                    processIdentifier) override;
+            const std::vector<aidl::android::automotive::watchdog::internal::ProcessIdentifier>&
+                    processIdentifiers) override;
     void setEnabled(bool isEnabled) override;
     void onUserStateChange(userid_t userId, bool isStarted) override;
     void onAidlVhalPidFetched(int32_t) override;
