@@ -1,4 +1,4 @@
-service android.hardware.automotive.evs-default /vendor/bin/hw/android.hardware.automotive.evs-default
+service android.hardware.automotive.evs-v4l2 /vendor/bin/hw/android.hardware.automotive.evs-v4l2
     class early_hal
     priority -20
     user graphics
@@ -8,4 +8,4 @@ service android.hardware.automotive.evs-default /vendor/bin/hw/android.hardware.
     disabled
 
 on late-init
-    start android.hardware.automotive.evs-default
+    start android.hardware.automotive.evs-v4l2

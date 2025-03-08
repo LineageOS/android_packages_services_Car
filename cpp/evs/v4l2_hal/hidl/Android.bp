@@ -65,7 +65,7 @@ cc_binary {
 
     init_rc: ["android.hardware.automotive.evs@1.1-sample.rc"],
 
-    cflags: ["-DLOG_TAG=\"EvsSampleDriver\""] + [
+    cflags: ["-DLOG_TAG=\"EvsV4lDriver\""] + [
         "-DGL_GLEXT_PROTOTYPES",
         "-DEGL_EGLEXT_PROTOTYPES",
     ] + [
