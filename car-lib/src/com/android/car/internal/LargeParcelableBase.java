@@ -60,12 +60,6 @@ import java.nio.ByteBuffer;
  * data.
  */
 public abstract class LargeParcelableBase implements Parcelable, Closeable {
-    static {
-        if (largeparcelableUseNativeParcel()) {
-            System.loadLibrary("largeparcelablejni");
-        }
-    }
-
     /**
      * This is a similar method to Parcel.unmarshall except that this can accept a byte buffer
      * mapped from a file as argument. We can avoid an additional memory copy using this method.
@@ -91,13 +85,18 @@ public abstract class LargeParcelableBase implements Parcelable, Closeable {
     private static Field sParcelNativePtrField;
 
     static {
-        if (largeparcelableUseNativeParcel()) {
-            try {
-                sParcelNativePtrField = Parcel.class.getDeclaredField("mNativePtr");
-                sParcelNativePtrField.setAccessible(true);
-            } catch (NoSuchFieldException e) {
-                throw new IllegalStateException("No field mNativePtr in android.os.Parcel");
-            }
+        // This should technically be executed only if largeparcelableUseNativeParcel is true,
+        // however, we need to test both true and false behavior in tests. If we guard this with
+        // flag, then we cannot test the flag: true behavior if flag is false by the time
+        // LargeParcelableBase first invoked.
+        // Loading this anyway will cause small performance impact for flag: false case, however
+        // since we plan to enable the flag anyway, it is okay.
+        System.loadLibrary("largeparcelablejni");
+        try {
+            sParcelNativePtrField = Parcel.class.getDeclaredField("mNativePtr");
+            sParcelNativePtrField.setAccessible(true);
+        } catch (NoSuchFieldException e) {
+            throw new IllegalStateException("No field mNativePtr in android.os.Parcel");
         }
     }
 
