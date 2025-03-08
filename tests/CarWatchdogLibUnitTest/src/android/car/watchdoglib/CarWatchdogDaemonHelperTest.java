@@ -176,12 +176,14 @@ public class CarWatchdogDaemonHelperTest {
     public void testIndirectCall_TellDumpFinished() throws Exception {
         ICarWatchdogMonitor monitor = new ICarWatchdogMonitor.Default();
 
+        List<ProcessIdentifier> processIdentifiers = new ArrayList<>();
         ProcessIdentifier processIdentifier = new ProcessIdentifier();
         processIdentifier.pid = 123456;
         processIdentifier.startTimeMillis = 1000;
-        mCarWatchdogDaemonHelper.tellDumpFinished(monitor, processIdentifier);
+        processIdentifiers.add(processIdentifier);
+        mCarWatchdogDaemonHelper.tellDumpFinished(monitor, processIdentifiers);
 
-        verify(mFakeCarWatchdog).tellDumpFinished(monitor, processIdentifier);
+        verify(mFakeCarWatchdog).tellDumpFinished(monitor, processIdentifiers);
     }
 
     @Test

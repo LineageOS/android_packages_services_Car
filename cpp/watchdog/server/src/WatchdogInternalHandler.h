@@ -99,8 +99,8 @@ public:
     ndk::ScopedAStatus tellDumpFinished(
             const std::shared_ptr<
                     aidl::android::automotive::watchdog::internal::ICarWatchdogMonitor>& monitor,
-            const aidl::android::automotive::watchdog::internal::ProcessIdentifier&
-                    processIdentifier) override;
+            const std::vector<aidl::android::automotive::watchdog::internal::ProcessIdentifier>&
+                    processIdentifiers) override;
     ndk::ScopedAStatus notifySystemStateChange(
             aidl::android::automotive::watchdog::internal::StateType type, int32_t arg1,
             int32_t arg2) override;

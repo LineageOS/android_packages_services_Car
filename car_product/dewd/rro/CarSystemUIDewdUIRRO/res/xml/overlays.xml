@@ -18,6 +18,7 @@
     <item target="array/window_states" value="@array/window_states"/>
     <item target="array/config_non_trimmable_activities" value="@array/config_non_trimmable_activities"/>
     <item target="array/config_default_activities" value="@array/config_default_activities"/>
+    <item target="array/config_packagesExcludedFromDock" value="@array/config_packagesExcludedFromDock"/>
 
     <item target="bool/config_enableScalableUI" value="@bool/config_enableScalableUI"/>
     <item target="bool/config_enableClearBackStack" value="@bool/config_enableClearBackStack"/>

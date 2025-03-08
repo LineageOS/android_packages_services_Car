@@ -15,7 +15,7 @@
   -->
   <Panel id="contextual_bar_panel" defaultVariant="@id/opened" role="@string/contextual_bar_component" displayId="0">
     <Variant id="@+id/base">
-        <Layer layer="101"/>
+        <Layer layer="@integer/contextual_bar_panel_layer"/>
     </Variant>
     <Variant id="@+id/opened" parent="@id/base">
         <Visibility isVisible="true"/>

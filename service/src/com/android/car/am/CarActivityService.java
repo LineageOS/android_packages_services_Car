@@ -163,7 +163,6 @@ public final class CarActivityService extends ICarActivityService.Stub
                 R.bool.config_isUsingAutoTaskStackWindowing);
     }
 
-    @Override
     public boolean isUsingAutoTaskStackWindowing() {
         return mIsUsingAutoTaskStackWindowing;
     }

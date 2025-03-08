@@ -46,6 +46,7 @@ import com.android.wm.shell.shared.annotations.ShellMainThread
 import com.android.wm.shell.sysui.ShellInit
 import com.android.wm.shell.transition.Transitions
 import com.android.wm.shell.transition.Transitions.TransitionFinishCallback
+import java.io.PrintWriter
 import javax.inject.Inject
 
 const val TAG = "AutoTaskStackController"
@@ -58,7 +59,8 @@ class AutoTaskStackControllerImpl @Inject constructor(
     val shellInit: ShellInit,
     val rootTdaOrganizer: RootTaskDisplayAreaOrganizer,
     val context: Context,
-    val autoTaskRepository: AutoTaskRepository
+    val autoTaskRepository: AutoTaskRepository,
+    val unused: AutoWmShellCommandHandler
 ) : AutoTaskStackController, Transitions.TransitionHandler {
     override var autoTransitionHandlerDelegate: AutoTaskStackTransitionHandlerDelegate? = null
     override val taskStackStateMap = mutableMapOf<Int, AutoTaskStackState>()
@@ -86,8 +88,6 @@ class AutoTaskStackControllerImpl @Inject constructor(
 
     fun onInit() {
         transitions.addHandler(this)
-        // TODO(b/392757141): Add a listener to get all the tasks instead of modifying the
-        // RootTaskStackListenerAdapter
     }
 
     /** Translates the [AutoTaskStackState] to relevant WM and surface transactions. */
@@ -232,6 +232,56 @@ class AutoTaskStackControllerImpl @Inject constructor(
             super.onBackPressedOnTaskRoot(taskInfo)
             rootTaskStackListener.onBackPressedOnTaskRoot(taskInfo)
         }
+
+        override fun attachChildSurfaceToTask(taskId: Int, b: SurfaceControl.Builder) {
+            val parentLeash = findParentSurfaceControl(taskId)
+            if (parentLeash != null) {
+                b.setParent(parentLeash)
+            } else {
+                Slog.e(
+                    TAG,
+                    "Failed to attach child surface to task#$taskId: Parent surface not found."
+                )
+            }
+        }
+
+        override fun reparentChildSurfaceToTask(
+            taskId: Int,
+            sc: SurfaceControl,
+            t: SurfaceControl.Transaction
+        ) {
+            val parentLeash = findParentSurfaceControl(taskId)
+            if (parentLeash != null) {
+                t.reparent(sc, parentLeash)
+            } else {
+                Slog.e(
+                    TAG,
+                    "Failed to attach child surface to task#$taskId: Parent surface not found."
+                )
+            }
+        }
+    }
+
+    private fun findParentSurfaceControl(taskId: Int): SurfaceControl? {
+        // Attempt to retrieve from autoTaskRepository
+        appTasksMap[taskId]?.let { appTask ->
+            autoTaskRepository.getSurfaceControl(appTask)?.let {
+                return it // Found in autoTaskRepository
+            } ?: run {
+                Slog.w(TAG, "SurfaceControl not found in autoTaskRepository for task#$taskId")
+            }
+        } ?: run {
+            Slog.w(TAG, "Task not found in appTasksMap for task#$taskId")
+        }
+
+        // If not found, attempt to retrieve from taskStackMap
+        (taskStackMap[taskId] as? RootTaskStack)?.leash?.let {
+            return it // Found in taskStackMap
+        } ?: run {
+            Slog.w(TAG, "RootTaskStack or Leash not found for task#$taskId")
+        }
+
+        return null // Parent surface not found in either source
     }
 
     override fun createRootTaskStack(
@@ -623,6 +673,15 @@ class AutoTaskStackControllerImpl @Inject constructor(
             return
         }
         pending.isClaimed = transitions.startTransition(pending.mType, pending.wct, this)
+    }
+
+    fun dump(pw: PrintWriter, prefix: String) {
+        // TODO(b/395032583): Add more dump data.
+        pw.println(prefix + "AutoTaskStackController:")
+        pw.println(prefix + "RootTaskStacksMap: ")
+        for ((key, value) in taskStackStateMap) {
+            pw.println(prefix + "RootTaskStackId: $key $value")
+        }
     }
 
     internal class PendingTransition(

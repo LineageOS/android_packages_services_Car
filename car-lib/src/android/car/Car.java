@@ -1653,9 +1653,7 @@ public final class Car implements ICarBase {
     private static final long CAR_SERVICE_BIND_MAX_RETRY = 20;
 
     private static final long CAR_SERVICE_BINDER_POLLING_INTERVAL_MS = 50;
-    private static final long CAR_SERVICE_BINDER_POLLING_MAX_RETRY = 100;
-    private static final long CAR_SERVICE_REGISTRATION_TIMEOUT_MS =
-            CAR_SERVICE_BINDER_POLLING_INTERVAL_MS * CAR_SERVICE_BINDER_POLLING_MAX_RETRY;
+    private static final long CREATE_CAR_DEFAULT_TIMEOUT_MS = 5_000;
 
     private static final int STATE_DISCONNECTED = 0;
     private static final int STATE_CONNECTING = 1;
@@ -1880,12 +1878,14 @@ public final class Car implements ICarBase {
      */
     @VisibleForTesting
     public record Deps(ServiceManager serviceManager, Process process,
-            long carServiceBindRetryIntervalMs, long carServiceBindMaxRetry) {}
+            long carServiceBindRetryIntervalMs, long carServiceBindMaxRetry,
+            long createCarDefaultTimeoutMs) {}
 
     // Real system dependencies.
     private static final Deps SYSTEM_DEPS = new Deps(
             new SystemServiceManager(), new SystemProcess(),
-            CAR_SERVICE_BIND_RETRY_INTERVAL_MS, CAR_SERVICE_BIND_MAX_RETRY);
+            CAR_SERVICE_BIND_RETRY_INTERVAL_MS, CAR_SERVICE_BIND_MAX_RETRY,
+            CREATE_CAR_DEFAULT_TIMEOUT_MS);
 
     private final Deps mDeps;
 
@@ -2211,7 +2211,7 @@ public final class Car implements ICarBase {
 
             if (Flags.createCarUseNotifications()) {
                 // New optimized logic.
-                return createCarInternal(context, handler, CAR_SERVICE_REGISTRATION_TIMEOUT_MS,
+                return createCarInternal(context, handler, mDeps.createCarDefaultTimeoutMs,
                         /* statusChangeListener= */ null);
             }
 
@@ -2245,11 +2245,16 @@ public final class Car implements ICarBase {
                     CAR_SERVICE_BINDER_SERVICE_NAME);
             if (binderService != null) {
                 // Most common case when car service is already ready.
-                car.setCarService(binderService);
-                Slogf.i(TAG_CAR, "createCar car_service is already ready, took (ms): %d",
-                        car.timeSinceCreateMillis());
-                car.notifyCarReadyOnMainThread(binderService);
-                return car;
+                if (car.setCarService(binderService)) {
+                    Slogf.i(TAG_CAR, "createCar: car_service is already ready, took (ms): %d",
+                            car.timeSinceCreateMillis());
+                    car.notifyCarReadyOnMainThread(binderService);
+                    return car;
+                } else {
+                    // If the binder is already dead, we ignore it and keep waiting.
+                    Slogf.w(TAG_CAR, "createCar: the binder returned from serviceManager."
+                            + "getService is already dead, ignore the binder");
+                }
             }
 
             car.registerServiceListenerIfNotRegistered();
@@ -2257,7 +2262,7 @@ public final class Car implements ICarBase {
 
             if (serviceBinder == null) {
                 Slog.w(TAG_CAR,
-                        "createCar (waitTimeoutMs=" + waitTimeoutMs
+                        "createCar: (waitTimeoutMs=" + waitTimeoutMs
                         + ") car_service not ready, took (ms):"
                         + car.timeSinceCreateMillis());
                 if (statusChangeListener == null) {
@@ -2267,11 +2272,20 @@ public final class Car implements ICarBase {
                 return car;
             }
 
-            Slog.i(TAG_CAR, "createCar (waitTimeoutMs=" + waitTimeoutMs
+            Slog.i(TAG_CAR, "createCar: (waitTimeoutMs=" + waitTimeoutMs
                     + ") connected to car_service, took (ms): "
                     + car.timeSinceCreateMillis());
             car.notifyCarReadyOnMainThread(serviceBinder);
             return car;
+        }
+
+        private static long getMaxRetryCount(long timeoutMs, long intervalMs) {
+            long maxRetryCount = timeoutMs / intervalMs;
+            if (timeoutMs > 0 && maxRetryCount == 0) {
+                // at least retry once.
+                maxRetryCount = 1;
+            }
+            return maxRetryCount;
         }
 
         // Legacy createCar implementation.
@@ -2279,7 +2293,9 @@ public final class Car implements ICarBase {
             Car car = null;
             IBinder service = null;
             boolean started = false;
-            int retryCount = 0;
+            long retryCount = 0;
+            long maxRetryCount = getMaxRetryCount(mDeps.createCarDefaultTimeoutMs,
+                    CAR_SERVICE_BINDER_POLLING_INTERVAL_MS);
             while (true) {
                 service = mDeps.serviceManager().getService(CAR_SERVICE_BINDER_SERVICE_NAME);
                 if (car == null) {
@@ -2301,10 +2317,9 @@ public final class Car implements ICarBase {
                     started = true;
                 }
                 retryCount++;
-                if (retryCount > CAR_SERVICE_BINDER_POLLING_MAX_RETRY) {
+                if (retryCount > maxRetryCount) {
                     Slog.e(TAG_CAR, "cannot get car_service, waited for car service (ms):"
-                                    + CAR_SERVICE_BINDER_POLLING_INTERVAL_MS
-                                    * CAR_SERVICE_BINDER_POLLING_MAX_RETRY,
+                                    + mDeps.createCarDefaultTimeoutMs,
                             new RuntimeException());
                     return null;
                 }
@@ -2340,11 +2355,11 @@ public final class Car implements ICarBase {
             int retryCount = 0;
             long maxRetryCount = 0;
             if (waitTimeoutMs > 0) {
-                maxRetryCount = waitTimeoutMs / CAR_SERVICE_BINDER_POLLING_INTERVAL_MS;
-                // at least wait once if it is positive value.
-                if (maxRetryCount == 0) {
-                    maxRetryCount = 1;
-                }
+                maxRetryCount = getMaxRetryCount(waitTimeoutMs,
+                    CAR_SERVICE_BINDER_POLLING_INTERVAL_MS);
+            } else if (waitTimeoutMs < 0) {
+                maxRetryCount = getMaxRetryCount(CREATE_CAR_DEFAULT_TIMEOUT_MS,
+                    CAR_SERVICE_BINDER_POLLING_INTERVAL_MS);
             }
             boolean isMainThread = Looper.myLooper() == Looper.getMainLooper();
             while (true) {
@@ -2371,12 +2386,12 @@ public final class Car implements ICarBase {
                     started = true;
                 }
                 retryCount++;
-                if (waitTimeoutMs < 0 && retryCount >= CAR_SERVICE_BINDER_POLLING_MAX_RETRY
-                        && retryCount % CAR_SERVICE_BINDER_POLLING_MAX_RETRY == 0) {
+                if (waitTimeoutMs < 0 && retryCount >= maxRetryCount
+                        && retryCount % maxRetryCount == 0) {
                     // Log warning if car service is not alive even for waiting forever case.
                     Slog.w(TAG_CAR, "car_service not ready, waited for car service (ms):"
                                     + retryCount * CAR_SERVICE_BINDER_POLLING_INTERVAL_MS,
-                            new RuntimeException());
+                            new RuntimeException("create_car wait info, not a real exception"));
                 } else if (waitTimeoutMs >= 0 && retryCount > maxRetryCount) {
                     if (waitTimeoutMs > 0) {
                         Slog.w(TAG_CAR, "car_service not ready, waited for car service (ms):"
@@ -2410,7 +2425,7 @@ public final class Car implements ICarBase {
                 car.mService = ICar.Stub.asInterface(service);
                 car.mConnectionState = STATE_CONNECTED;
             }
-            Slog.i(TAG_CAR, "createCar car_service is ready, took (ms): "
+            Slog.i(TAG_CAR, "createCar: car_service is ready, took (ms): "
                     + car.timeSinceCreateMillis());
             car.dispatchCarReadyToMainThread(isMainThread);
             return car;
@@ -2441,14 +2456,14 @@ public final class Car implements ICarBase {
     @GuardedBy("mLock")
     private void waitForCarServiceBinderNoTimeoutLocked() throws InterruptedException {
         // First wait for 5s.
-        waitForCarServiceBinderLocked(CAR_SERVICE_REGISTRATION_TIMEOUT_MS);
+        waitForCarServiceBinderLocked(mDeps.createCarDefaultTimeoutMs);
         if (mCarServiceBinder != null) {
             return;
         }
         // Log warning if car service is not alive even for waiting forever case.
         Slog.w(TAG_CAR,
-                "createCar (wait indefinitely) still cannot get car_service after "
-                + CAR_SERVICE_REGISTRATION_TIMEOUT_MS + "ms");
+                "createCar: (wait indefinitely) still cannot get car_service after "
+                + mDeps.createCarDefaultTimeoutMs + "ms");
         // If we still cannot get car service, then wait forever.
         while (mCarServiceBinder == null) {
             // await in a loop to prevent spurious wakeup.
@@ -2459,15 +2474,14 @@ public final class Car implements ICarBase {
     @GuardedBy("mLock")
     private void waitForCarServiceBinderLocked(long waitTimeoutMs) throws InterruptedException {
         long deadlineMillis = SystemClock.uptimeMillis() + waitTimeoutMs;
-        boolean stillWaiting = true;
         while (mCarServiceBinder == null) {
             long uptimeMillis = SystemClock.uptimeMillis();
             if (uptimeMillis >= deadlineMillis) {
                 break;
             }
-            Slog.w(TAG_CAR, "wait: " + (deadlineMillis - uptimeMillis));
+            Slog.i(TAG_CAR, "waitForCarServiceConnection: " + (deadlineMillis - uptimeMillis));
             mLock.wait(deadlineMillis - uptimeMillis);
-            Slog.w(TAG_CAR, "after wait");
+            Slog.i(TAG_CAR, "after waitForCarServiceConnection");
         }
     }
 
@@ -2476,53 +2490,72 @@ public final class Car implements ICarBase {
             return null;
         }
 
-        IBinder serviceBinder;
+        long deadlineMillis = SystemClock.uptimeMillis() + waitTimeoutMs;
         synchronized (mLock) {
-            mWaiting = true;
-            try {
-                if (waitTimeoutMs < 0) {
-                    waitForCarServiceBinderNoTimeoutLocked();
-                } else {
-                    waitForCarServiceBinderLocked(waitTimeoutMs);
+            IBinder serviceBinder;
+
+            while (true) {
+                mWaiting = true;
+                try {
+                    if (waitTimeoutMs < 0) {
+                        waitForCarServiceBinderNoTimeoutLocked();
+                    } else {
+                        long currentUptimeMillis = SystemClock.uptimeMillis();
+                        if (currentUptimeMillis >= deadlineMillis) {
+                            // Cannot get car service binder before timeout.
+                            return null;
+                        }
+                        waitForCarServiceBinderLocked(deadlineMillis - currentUptimeMillis);
+                    }
+                    serviceBinder = mCarServiceBinder;
+                } catch (InterruptedException e) {
+                    Slog.e(TAG_CAR, "Interrupted while waiting for car_service");
+                    Thread.currentThread().interrupt();
+                    return null;
+                } finally {
+                    mWaiting = false;
                 }
-                serviceBinder = mCarServiceBinder;
-            } catch (InterruptedException e) {
-                Slog.e(TAG_CAR, "Interrupted while waiting for car_service");
-                Thread.currentThread().interrupt();
-                return null;
-            } finally {
-                mWaiting = false;
+                if (serviceBinder == null) {
+                    // Cannot get car service binder before timeout.
+                    return null;
+                }
+                if (!setCarServiceLocked(serviceBinder)) {
+                    Slog.e(TAG_CAR, "we got the car service binder but it is already dead, "
+                            + "continue waiting");
+                    mCarServiceBinder = null;
+                } else {
+                    return serviceBinder;
+                }
             }
-            if (serviceBinder == null) {
-                // Cannot get car service binder before timeout.
-                return null;
-            }
-            setCarServiceLocked(serviceBinder);
         }
-        return serviceBinder;
     }
 
-    private void setCarService(IBinder carServiceBinder) {
+    private boolean setCarService(IBinder carServiceBinder) {
         synchronized (mLock) {
-            setCarServiceLocked(carServiceBinder);
+            return setCarServiceLocked(carServiceBinder);
         }
     }
 
+    // Tries to set the carServiceBinder if the service binder is valid and still alive.
     @GuardedBy("mLock")
-    private void setCarServiceLocked(IBinder carServiceBinder) {
+    private boolean setCarServiceLocked(IBinder carServiceBinder) {
         ICar newService = ICar.Stub.asInterface(carServiceBinder);
         if (newService == null) {
             Slogf.wtf(TAG_CAR, "null binder service", new RuntimeException());
-            return;  // should not happen.
+            return false;  // should not happen.
         }
-        mConnectionState = STATE_CONNECTED;
-        mService = newService;
         try {
             carServiceBinder.linkToDeath(mDeathRecipient, /* flags= */ 0);
         } catch (RemoteException e) {
-            Slog.e(TAG_CAR, "Failed to call linkToDeath on car service binder, will not receive "
-                    + "callback if car service crashes", e);
+            // If the binder is already dead, do not set mService. Returning an already-dead
+            // binder to client is not useful.
+            Slog.e(TAG_CAR, "Failed to call linkToDeath on car service binder, the binder is"
+                    + " already dead", e);
+            return false;
         }
+        mConnectionState = STATE_CONNECTED;
+        mService = newService;
+        return true;
     }
 
     private void notifyCarReady(IBinder serviceBinder) {
@@ -2579,7 +2612,11 @@ public final class Car implements ICarBase {
     }
 
     private void setBinderAndNotifyReady(IBinder binder) {
-        setCarService(binder);
+        if (!setCarService(binder)) {
+            Slogf.e(TAG_CAR, "the car service binder object received via onRegistration is already "
+                    + "dead, ignore the binder");
+            return;
+        }
         Slog.i(TAG_CAR, "car_service ready on main thread, Time between Car object creation"
                 + " and car_service connected (ms): " + timeSinceCreateMillis());
         notifyCarReady(binder);

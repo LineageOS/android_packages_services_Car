@@ -27,7 +27,7 @@ endif
 
 ifeq ($(ENABLE_EVS_SAMPLE), true)
 # Include the reference EVS HAL implementation.
-PRODUCT_PACKAGES += android.hardware.automotive.evs-default
+PRODUCT_PACKAGES += android.hardware.automotive.evs-v4l2
 endif  # ENABLE_EVS_SAMPLE
 
 # Sensor features

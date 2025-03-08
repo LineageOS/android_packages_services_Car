@@ -780,24 +780,18 @@ TEST_F(WatchdogProcessServiceTest, TestTellCarWatchdogServiceAlive) {
 TEST_F(WatchdogProcessServiceTest, TestTellDumpFinished) {
     std::shared_ptr<ICarWatchdogMonitor> monitor =
             SharedRefBase::make<ICarWatchdogMonitorDefault>();
-    ASSERT_FALSE(mWatchdogProcessService
-                         ->tellDumpFinished(monitor,
-                                            constructProcessIdentifier(/*pid=*/1234,
-                                                                       /*uid=*/1,
-                                                                       /*processName=*/"process",
-                                                                       /*startTimeMillis=*/0))
-                         .isOk())
+    std::vector<ProcessIdentifier> processIdentifiers;
+    processIdentifiers.push_back(constructProcessIdentifier(/*pid=*/1234,
+                                                            /*uid=*/1,
+                                                            /*processName=*/"process",
+                                                            /*startTimeMillis=*/0));
+    ASSERT_FALSE(mWatchdogProcessService->tellDumpFinished(monitor, processIdentifiers).isOk())
             << "Unregistered monitor cannot call tellDumpFinished";
 
     expectLinkToDeath(monitor->asBinder().get(), ScopedAStatus::ok());
 
     mWatchdogProcessService->registerMonitor(monitor);
-    auto status = mWatchdogProcessService
-                          ->tellDumpFinished(monitor,
-                                             constructProcessIdentifier(/*pid=*/1234,
-                                                                        /*uid=*/1,
-                                                                        /*processName=*/"process",
-                                                                        /*startTimeMillis=*/0));
+    auto status = mWatchdogProcessService->tellDumpFinished(monitor, processIdentifiers);
 
     ASSERT_TRUE(status.isOk()) << status.getMessage();
 }
@@ -1015,9 +1009,7 @@ TEST_F(WatchdogProcessServiceTest, TestRegisterClientWithPackageName) {
     ON_CALL(*mMockPackageInfoResolver, asyncFetchPackageNamesForUids(_, _))
             .WillByDefault([&](const std::vector<uid_t>& uids,
                                const std::function<void(std::unordered_map<uid_t, std::string>)>&
-                                       callback) {
-                callback({{uids[0], "shell"}});
-            });
+                                       callback) { callback({{uids[0], "shell"}}); });
 
     ASSERT_FALSE(mWatchdogProcessServicePeer
                          ->hasClientInfoWithPackageName(TimeoutLength::TIMEOUT_CRITICAL, "shell"));

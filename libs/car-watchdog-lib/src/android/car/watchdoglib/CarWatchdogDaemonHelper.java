@@ -229,14 +229,14 @@ public final class CarWatchdogDaemonHelper {
      * Tells car watchdog daemon that the monitor has dumped clients' process information.
      *
      * @param monitor Car watchdog monitor that dumped process information.
-     * @param processIdentifier Process identifier of process that has been dumped.
+     * @param processIdentifiers List of process identifiers of processes that have been dumped.
      * @throws IllegalArgumentException If the monitor is not registered.
      * @throws IllegalStateException If car watchdog daemon is not connected.
      * @throws RemoteException
      */
     public void tellDumpFinished(ICarWatchdogMonitor monitor,
-            ProcessIdentifier processIdentifier) throws RemoteException {
-        invokeDaemonMethod((daemon) -> daemon.tellDumpFinished(monitor, processIdentifier));
+            List<ProcessIdentifier> processIdentifiers) throws RemoteException {
+        invokeDaemonMethod((daemon) -> daemon.tellDumpFinished(monitor, processIdentifiers));
     }
 
     /**

@@ -56,11 +56,12 @@ public:
              const std::vector<aidl::android::automotive::watchdog::internal::ProcessIdentifier>&,
              int32_t),
             (override));
-    MOCK_METHOD(ndk::ScopedAStatus, tellDumpFinished,
-                (const std::shared_ptr<
-                         aidl::android::automotive::watchdog::internal::ICarWatchdogMonitor>&,
-                 const aidl::android::automotive::watchdog::internal::ProcessIdentifier&),
-                (override));
+    MOCK_METHOD(
+            ndk::ScopedAStatus, tellDumpFinished,
+            (const std::shared_ptr<
+                     aidl::android::automotive::watchdog::internal::ICarWatchdogMonitor>&,
+             const std::vector<aidl::android::automotive::watchdog::internal::ProcessIdentifier>&),
+            (override));
     MOCK_METHOD(ndk::ScopedAStatus, notifySystemStateChange,
                 (aidl::android::automotive::watchdog::internal::StateType, int32_t, int32_t),
                 (override));

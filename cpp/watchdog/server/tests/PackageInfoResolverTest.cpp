@@ -122,9 +122,7 @@ private:
             memset(packageName, 0, packageNameLen);
             snprintf(packageName, packageNameLen, "%s", it.second.c_str());
 
-            struct passwd pwd {
-                .pw_name = packageName, .pw_uid = it.first
-            };
+            struct passwd pwd{.pw_name = packageName, .pw_uid = it.first};
             mNativeUidToPackageNameMapping.insert(std::make_pair(it.first, pwd));
         }
     }

@@ -17,12 +17,20 @@
 package com.android.car.bluetooth;
 
 import static android.bluetooth.BluetoothProfile.A2DP_SINK;
+import static android.bluetooth.BluetoothProfile.CONNECTION_POLICY_ALLOWED;
 import static android.bluetooth.BluetoothProfile.CONNECTION_POLICY_FORBIDDEN;
 
+import static com.google.common.truth.Truth.assertThat;
+
+import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import android.bluetooth.BluetoothAdapter;
@@ -114,6 +122,13 @@ public class CarBluetoothServiceTest {
         when(mMockBluetoothManager.getAdapter()).thenReturn(mMockBluetoothAdapter);
         when(mMockContext.createContextAsUser(any(), anyInt())).thenReturn(mMockContext);
 
+        mockPermission(android.Manifest.permission.BLUETOOTH_CONNECT,
+                PackageManager.PERMISSION_GRANTED);
+        mockPermission(android.Manifest.permission.BLUETOOTH_PRIVILEGED,
+                PackageManager.PERMISSION_GRANTED);
+        mockPermission(android.Manifest.permission.MODIFY_PHONE_STATE,
+                PackageManager.PERMISSION_GRANTED);
+
         // Make sure we grab and store CarBluetoothService's user switch callback so we can
         // invoke it at any time.
         doAnswer((Answer<Void>) invocation -> {
@@ -166,9 +181,8 @@ public class CarBluetoothServiceTest {
     public void testConnectionResourceFlagTrue_doCreateDefaultConnectionPolicy() {
         when(mMockResources.getBoolean(
                 R.bool.useDefaultBluetoothConnectionPolicy)).thenReturn(true);
-        mCarBluetoothService = new CarBluetoothService(mMockContext, mMockUserSwitchService);
-        mCarBluetoothService.init();
-        mUserSwitchCallback.onServiceConnected(mMockCarPerUserService);
+        initServiceUnderTest();
+
         Assert.assertTrue(mCarBluetoothService.isUsingDefaultConnectionPolicy());
     }
 
@@ -186,9 +200,8 @@ public class CarBluetoothServiceTest {
     public void testConnectionResourceFlagFalse_doNotCreateDefaultConnectionPolicy() {
         when(mMockResources.getBoolean(
                 R.bool.useDefaultBluetoothConnectionPolicy)).thenReturn(false);
-        mCarBluetoothService = new CarBluetoothService(mMockContext, mMockUserSwitchService);
-        mCarBluetoothService.init();
-        mUserSwitchCallback.onServiceConnected(mMockCarPerUserService);
+        initServiceUnderTest();
+
         Assert.assertFalse(mCarBluetoothService.isUsingDefaultConnectionPolicy());
     }
 
@@ -206,9 +219,8 @@ public class CarBluetoothServiceTest {
     public void testPowerResourceFlagTrue_doCreateDefaultPowerPolicy() {
         when(mMockResources.getBoolean(
                 R.bool.useDefaultBluetoothPowerPolicy)).thenReturn(true);
-        mCarBluetoothService = new CarBluetoothService(mMockContext, mMockUserSwitchService);
-        mCarBluetoothService.init();
-        mUserSwitchCallback.onServiceConnected(mMockCarPerUserService);
+        initServiceUnderTest();
+
         Assert.assertTrue(mCarBluetoothService.isUsingDefaultPowerPolicy());
     }
 
@@ -226,38 +238,199 @@ public class CarBluetoothServiceTest {
     public void testPowerResourceFlagFalse_doNotCreateDefaultPowerPolicy() {
         when(mMockResources.getBoolean(
                 R.bool.useDefaultBluetoothPowerPolicy)).thenReturn(false);
-        mCarBluetoothService = new CarBluetoothService(mMockContext, mMockUserSwitchService);
-        mCarBluetoothService.init();
-        mUserSwitchCallback.onServiceConnected(mMockCarPerUserService);
+        initServiceUnderTest();
+
         Assert.assertFalse(mCarBluetoothService.isUsingDefaultPowerPolicy());
+    }
+
+    //--------------------------------------------------------------------------------------------//
+    // Connect Devices Tests                                                                      //
+    //--------------------------------------------------------------------------------------------//
+
+    @Test
+    public void testConnectDevices_withoutBluetoothConnect_throwsSecurityException() {
+        mockPermission(android.Manifest.permission.BLUETOOTH_CONNECT,
+                PackageManager.PERMISSION_DENIED);
+        initServiceUnderTest();
+
+        assertThrows(SecurityException.class, () -> mCarBluetoothService.connectDevices());
+    }
+
+    @Test
+    public void testConnectDevices_withoutBluetoothCPrivileged_throwsSecurityException() {
+        mockPermission(android.Manifest.permission.BLUETOOTH_PRIVILEGED,
+                PackageManager.PERMISSION_DENIED);
+        initServiceUnderTest();
+
+        assertThrows(SecurityException.class, () -> mCarBluetoothService.connectDevices());
+    }
+
+    @Test
+    public void testConnectDevices_withoutModifyPhoneStatePthrowsSecurityException() {
+        mockPermission(android.Manifest.permission.MODIFY_PHONE_STATE,
+                PackageManager.PERMISSION_DENIED);
+        initServiceUnderTest();
+
+        assertThrows(SecurityException.class, () -> mCarBluetoothService.connectDevices());
     }
 
     //--------------------------------------------------------------------------------------------//
     // Profile Inhibit Tests                                                                      //
     //--------------------------------------------------------------------------------------------//
 
+    // Request
+
+    @Test
+    public void testRequestProfileInhibit_setsConnectionPolicyForbidden() {
+        BluetoothDevice device = mock(BluetoothDevice.class);
+        doReturn(CONNECTION_POLICY_ALLOWED).when(mMockBluetoothUserService)
+                .getConnectionPolicy(A2DP_SINK, device);
+        doReturn(true).when(mMockBluetoothUserService)
+                .isBluetoothConnectionProxyAvailable(A2DP_SINK);
+        initServiceUnderTest();
+
+        assertThat(mCarBluetoothService.requestProfileInhibit(device, A2DP_SINK, mToken)).isTrue();
+        verify(mMockBluetoothUserService, times(1))
+                .setConnectionPolicy(eq(A2DP_SINK), eq(device), eq(CONNECTION_POLICY_FORBIDDEN));
+    }
+
+    @Test
+    public void testRequestProfileInhibit_withoutBluetoothConnect_throwsSecurityException() {
+        BluetoothDevice device = mock(BluetoothDevice.class);
+        mockPermission(android.Manifest.permission.BLUETOOTH_CONNECT,
+                PackageManager.PERMISSION_DENIED);
+        initServiceUnderTest();
+
+        assertThrows(SecurityException.class,
+                () -> mCarBluetoothService.requestProfileInhibit(device, A2DP_SINK, mToken));
+    }
+
+    @Test
+    public void testRequestProfileInhibit_withoutBluetoothPrivileged_throwsSecurityException() {
+        BluetoothDevice device = mock(BluetoothDevice.class);
+        mockPermission(android.Manifest.permission.BLUETOOTH_PRIVILEGED,
+                PackageManager.PERMISSION_DENIED);
+        initServiceUnderTest();
+
+        assertThrows(SecurityException.class,
+                () -> mCarBluetoothService.requestProfileInhibit(device, A2DP_SINK, mToken));
+    }
+
+    // Release
+
+    @Test
+    public void testReleaseProfileInhibit_setsConnectionPolicyAllowed() {
+        BluetoothDevice device = mock(BluetoothDevice.class);
+        doReturn(CONNECTION_POLICY_ALLOWED).when(mMockBluetoothUserService)
+                .getConnectionPolicy(A2DP_SINK, device);
+        doReturn(true).when(mMockBluetoothUserService)
+                .isBluetoothConnectionProxyAvailable(A2DP_SINK);
+        initServiceUnderTest();
+
+        assertThat(mCarBluetoothService.requestProfileInhibit(device, A2DP_SINK, mToken)).isTrue();
+        verify(mMockBluetoothUserService, times(1))
+                .setConnectionPolicy(eq(A2DP_SINK), eq(device), eq(CONNECTION_POLICY_FORBIDDEN));
+
+        doReturn(CONNECTION_POLICY_FORBIDDEN).when(mMockBluetoothUserService)
+                .getConnectionPolicy(A2DP_SINK, device);
+
+        assertThat(mCarBluetoothService.releaseProfileInhibit(device, A2DP_SINK, mToken)).isTrue();
+        verify(mMockBluetoothUserService, times(1))
+                .setConnectionPolicy(eq(A2DP_SINK), eq(device), eq(CONNECTION_POLICY_ALLOWED));
+    }
+
+    @Test
+    public void testReleaseProfileInhibit_withoutBluetoothConnect_throwsSecurityException() {
+        BluetoothDevice device = mock(BluetoothDevice.class);
+        mockPermission(android.Manifest.permission.BLUETOOTH_CONNECT,
+                PackageManager.PERMISSION_DENIED);
+        initServiceUnderTest();
+
+        assertThrows(SecurityException.class,
+                () -> mCarBluetoothService.releaseProfileInhibit(device, A2DP_SINK, mToken));
+    }
+
+    @Test
+    public void testReleaseProfileInhibit_withoutBluetoothPrivileged_throwsSecurityException() {
+        BluetoothDevice device = mock(BluetoothDevice.class);
+        mockPermission(android.Manifest.permission.BLUETOOTH_PRIVILEGED,
+                PackageManager.PERMISSION_DENIED);
+        initServiceUnderTest();
+
+        assertThrows(SecurityException.class,
+                () -> mCarBluetoothService.releaseProfileInhibit(device, A2DP_SINK, mToken));
+    }
+
+    // isProfileInihibited
+
     @Test
     public void testIsProfileInhibited_defaultFalse() {
-        mCarBluetoothService = new CarBluetoothService(mMockContext, mMockUserSwitchService);
-        mCarBluetoothService.init();
-        mUserSwitchCallback.onServiceConnected(mMockCarPerUserService);
+        initServiceUnderTest();
 
         Assert.assertFalse(mCarBluetoothService.isProfileInhibited(mock(BluetoothDevice.class),
                 A2DP_SINK, mToken));
     }
 
     @Test
-    public void testIsProfileInhibited_inhibited() {
+    public void testIsProfileInhibited_profileIsInhibited_returnsTrue() {
         BluetoothDevice device = mock(BluetoothDevice.class);
         when(mMockBluetoothUserService.getConnectionPolicy(A2DP_SINK, device))
                 .thenReturn(CONNECTION_POLICY_FORBIDDEN);
         when(mMockBluetoothUserService.isBluetoothConnectionProxyAvailable(A2DP_SINK))
                 .thenReturn(true);
-        mCarBluetoothService = new CarBluetoothService(mMockContext, mMockUserSwitchService);
-        mCarBluetoothService.init();
-        mUserSwitchCallback.onServiceConnected(mMockCarPerUserService);
+        initServiceUnderTest();
+
         mCarBluetoothService.requestProfileInhibit(device, A2DP_SINK, mToken);
 
         Assert.assertTrue(mCarBluetoothService.isProfileInhibited(device, A2DP_SINK, mToken));
+    }
+
+    @Test
+    public void testIsProfileInhibited_profileIsNotInhibited_returnsFalse() {
+        BluetoothDevice device = mock(BluetoothDevice.class);
+        when(mMockBluetoothUserService.getConnectionPolicy(A2DP_SINK, device))
+                .thenReturn(CONNECTION_POLICY_FORBIDDEN);
+        when(mMockBluetoothUserService.isBluetoothConnectionProxyAvailable(A2DP_SINK))
+                .thenReturn(true);
+        initServiceUnderTest();
+        mCarBluetoothService.requestProfileInhibit(device, A2DP_SINK, mToken);
+
+        Assert.assertTrue(mCarBluetoothService.isProfileInhibited(device, A2DP_SINK, mToken));
+    }
+
+    @Test
+    public void testIsProfileInhibited_withoutBluetoothConnect_throwsSecurityException() {
+        BluetoothDevice device = mock(BluetoothDevice.class);
+        mockPermission(android.Manifest.permission.BLUETOOTH_CONNECT,
+                PackageManager.PERMISSION_DENIED);
+        initServiceUnderTest();
+
+        assertThrows(SecurityException.class,
+                () -> mCarBluetoothService.isProfileInhibited(device, A2DP_SINK, mToken));
+    }
+
+    @Test
+    public void testIsProfileInhibited_withoutBluetoothPrivileged_throwsSecurityException() {
+        BluetoothDevice device = mock(BluetoothDevice.class);
+        mockPermission(android.Manifest.permission.BLUETOOTH_PRIVILEGED,
+                PackageManager.PERMISSION_DENIED);
+        initServiceUnderTest();
+
+        assertThrows(SecurityException.class,
+                () -> mCarBluetoothService.isProfileInhibited(device, A2DP_SINK, mToken));
+    }
+
+    //--------------------------------------------------------------------------------------------//
+    // Utilities                                                                                  //
+    //--------------------------------------------------------------------------------------------//
+
+    private void initServiceUnderTest() {
+        mCarBluetoothService = new CarBluetoothService(mMockContext, mMockUserSwitchService);
+        mCarBluetoothService.init();
+        mUserSwitchCallback.onServiceConnected(mMockCarPerUserService);
+    }
+
+    private void mockPermission(String permission, int setting) {
+        doReturn(setting).when(mMockContext).checkCallingOrSelfPermission(permission);
     }
 }

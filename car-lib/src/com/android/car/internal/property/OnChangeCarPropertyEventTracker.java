@@ -16,21 +16,22 @@
 
 package com.android.car.internal.property;
 
+import android.car.builtin.util.Slogf;
 import android.car.hardware.CarPropertyValue;
+import android.util.Log;
 
 /**
  * A {@link CarPropertyEventTracker} implementation for on-change property
  */
 public final class OnChangeCarPropertyEventTracker implements CarPropertyEventTracker {
     private static final String TAG = "OnChangeCarPropertyEventTracker";
+    private static final boolean DBG = Slogf.isLoggable(TAG, Log.DEBUG);
     private static final float INVALID_UPDATE_RATE_HZ = 0f;
 
-    private final Logger mLogger;
     private long mPreviousEventTimeNanos;
     private CarPropertyValue<?> mCurrentCarPropertyValue;
 
-    public OnChangeCarPropertyEventTracker(boolean useSystemLogger) {
-        mLogger = new Logger(useSystemLogger, TAG);
+    public OnChangeCarPropertyEventTracker() {
     }
 
     @Override
@@ -47,11 +48,12 @@ public final class OnChangeCarPropertyEventTracker implements CarPropertyEventTr
     @Override
     public boolean hasUpdate(CarPropertyValue<?> carPropertyValue) {
         if (carPropertyValue.getTimestamp() < mPreviousEventTimeNanos) {
-            if (mLogger.dbg()) {
-                mLogger.logD(String.format("hasUpdate: Dropping carPropertyValue: %s, "
+            if (DBG) {
+                Slogf.d(TAG,
+                        "hasUpdate: Dropping carPropertyValue: %s, "
                         + "because getTimestamp()=%d < previousEventTimeNanos=%d",
                         carPropertyValue, carPropertyValue.getTimestamp(),
-                        mPreviousEventTimeNanos));
+                        mPreviousEventTimeNanos);
             }
             return false;
         }

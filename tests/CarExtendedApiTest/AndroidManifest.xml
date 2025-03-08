@@ -32,8 +32,23 @@
     <uses-permission android:name="android.car.permission.STORAGE_MONITORING"/>
     <uses-permission android:name="android.car.permission.CAR_DRIVING_STATE"/>
 
+    <uses-permission android:name="android.car.permission.CAR_VENDOR_EXTENSION"/>
+
     <instrumentation android:name="androidx.test.runner.AndroidJUnitRunner"
          android:targetPackage="android.car.extendedapitest"
          android:label="Tests for Car APIs"
          android:debuggable="true"/>
+
+    <application>
+        <meta-data android:name="android.car.targetCarVersion" android:value="108:42"/>
+        <service android:name=".CarProjectionManagerTest$TestService"
+            android:exported="true"/>
+
+        <service android:name="com.android.car.internal.test.LargeParcelableTestService"
+            android:process=":apiTestServiceProcess"
+            android:exported="true"/>
+        <service android:name="com.android.car.internal.test.IStableAIDLBinderTestService"
+            android:process=":apiTestServiceProcess"
+            android:exported="true"/>
+    </application>
 </manifest>

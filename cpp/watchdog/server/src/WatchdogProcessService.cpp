@@ -486,14 +486,15 @@ ScopedAStatus WatchdogProcessService::tellCarWatchdogServiceAlive(
 
 ScopedAStatus WatchdogProcessService::tellDumpFinished(
         const std::shared_ptr<ICarWatchdogMonitor>& monitor,
-        const ProcessIdentifier& processIdentifier) {
+        const std::vector<ProcessIdentifier>& processIdentifiers) {
     Mutex::Autolock lock(mMutex);
     if (mMonitor == nullptr || monitor == nullptr || mMonitor->asBinder() != monitor->asBinder()) {
         return ScopedAStatus::fromExceptionCodeWithMessage(EX_ILLEGAL_ARGUMENT,
                                                            "The monitor is not registered or an "
                                                            "invalid monitor is given");
     }
-    ALOGI("Process(pid: %d) has been dumped and killed", processIdentifier.pid);
+    ALOGI("Processes with the following pids have been dumped and killed: [%s]",
+          toPidString(processIdentifiers).c_str());
     return ScopedAStatus::ok();
 }
 
