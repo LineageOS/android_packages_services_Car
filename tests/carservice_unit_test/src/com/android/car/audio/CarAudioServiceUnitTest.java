@@ -134,6 +134,7 @@ import static com.google.common.truth.Truth.assertWithMessage;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyFloat;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -362,6 +363,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     private static final int TEST_FRONT_PASSENGER_USER_ID = 13;
     private static final int TEST_REAR_ROW_3_PASSENGER_USER_ID = 14;
     private static final int TEST_GAIN_INDEX = 4;
+    private static final int TEST_SYSTEM_USER_ID = 0;
 
     // TODO(b/273800524): create a utility test class for audio attributes.
     private static final AudioAttributes ATTRIBUTES_UNKNOWN =
@@ -448,6 +450,8 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     private static final int AUDIO_SERVICE_POLICY_REGISTRATIONS = 3;
     private static final int AUDIO_SERVICE_POLICY_REGISTRATIONS_WITH_FADE_MANAGER = 4;
     private static final int AUDIO_SERVICE_CALLBACKS_REGISTRATION = 1;
+    private static final float AUDIO_DEFAULT_FADE_LEVEL = 0.0f;
+    private static final float AUDIO_DEFAULT_BALANCE_LEVEL = 0.0f;
 
     private HandlerThread mHandlerThread;
     private Handler mHandler;
@@ -504,7 +508,6 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     private boolean mEnableVolumeKeyEventsToDynamicDevices = false;
     private boolean mPersistFadeBalanceValues = true;
 
-
     private TemporaryFile mTempCarAudioConfigFile;
     private TemporaryFile mTempCarAudioFadeConfigFile;
 
@@ -550,7 +553,8 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
                 .spyStatic(AudioControlFactory.class)
                 .spyStatic(SystemProperties.class)
                 .spyStatic(ServiceManager.class)
-                .spyStatic(Car.class);
+                .spyStatic(Car.class)
+                .spyStatic(Binder.class);
     }
 
     @Before
@@ -2102,8 +2106,11 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     }
 
     @Test
+    @EnableFlags({Flags.FLAG_AUDIO_FADE_BALANCE_GETTER_APIS})
     public void setBalanceTowardRight_nonNullValue() throws Exception {
         CarAudioService service = setUpAudioService();
+        assignOccupantToAudioZones();
+        mockGetCallingUserHandle(TEST_DRIVER_USER_ID);
 
         service.setBalanceTowardRight(TEST_VALUE);
 
@@ -2111,20 +2118,52 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     }
 
     @Test
+    @EnableFlags({Flags.FLAG_AUDIO_FADE_BALANCE_GETTER_APIS})
     public void setBalanceTowardRight_throws() throws Exception {
         CarAudioService service = setUpAudioService();
+        assignOccupantToAudioZones();
+        mockGetCallingUserHandle(TEST_DRIVER_USER_ID);
 
         IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, ()
                 -> service.setBalanceTowardRight(INVALID_TEST_VALUE));
 
         expectWithMessage("Out of bounds balance")
                 .that(thrown).hasMessageThat()
-                .contains(String.format("Balance is out of range of [%f, %f]", -1f, 1f));
+                .contains("Balance level must be within the range [-1.0, 1.0]");
     }
 
     @Test
+    @EnableFlags({Flags.FLAG_AUDIO_FADE_BALANCE_GETTER_APIS})
+    public void setBalanceTowardRight_byInvalidCaller_throws() throws Exception {
+        CarAudioService service = setUpAudioService();
+        assignOccupantToAudioZones();
+        mockGetCallingUserHandle(TEST_FRONT_PASSENGER_USER_ID);
+
+        SecurityException thrown = assertThrows(SecurityException.class, ()
+                -> service.setBalanceTowardRight(TEST_VALUE));
+
+        expectWithMessage("Set balance by invalid caller").that(thrown).hasMessageThat()
+                .contains("must be a user of primary zone");
+    }
+
+    @Test
+    @EnableFlags({Flags.FLAG_AUDIO_FADE_BALANCE_GETTER_APIS})
+    public void setBalanceTowardRight_bySystemCaller_setsValue() throws Exception {
+        CarAudioService service = setUpAudioService();
+        assignOccupantToAudioZones();
+        mockGetCallingUserHandle(TEST_SYSTEM_USER_ID);
+
+        service.setBalanceTowardRight(TEST_VALUE);
+
+        verify(mAudioControlWrapperAidl).setBalanceTowardRight(TEST_VALUE);
+    }
+
+    @Test
+    @EnableFlags({Flags.FLAG_AUDIO_FADE_BALANCE_GETTER_APIS})
     public void setFadeTowardFront_nonNullValue() throws Exception {
         CarAudioService service = setUpAudioService();
+        assignOccupantToAudioZones();
+        mockGetCallingUserHandle(TEST_DRIVER_USER_ID);
 
         service.setFadeTowardFront(TEST_VALUE);
 
@@ -2132,15 +2171,44 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     }
 
     @Test
+    @EnableFlags({Flags.FLAG_AUDIO_FADE_BALANCE_GETTER_APIS})
     public void setFadeTowardFront_throws() throws Exception {
         CarAudioService service = setUpAudioService();
+        assignOccupantToAudioZones();
+        mockGetCallingUserHandle(TEST_DRIVER_USER_ID);
 
         IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, ()
                 -> service.setFadeTowardFront(INVALID_TEST_VALUE));
 
         expectWithMessage("Out of bounds fade")
                 .that(thrown).hasMessageThat()
-                .contains(String.format("Fade is out of range of [%f, %f]", -1f, 1f));
+                .contains("Fade level must be within the range [-1.0, 1.0]");
+    }
+
+    @Test
+    @EnableFlags({Flags.FLAG_AUDIO_FADE_BALANCE_GETTER_APIS})
+    public void setFadeTowardFront_byInvalidCaller_throws() throws Exception {
+        CarAudioService service = setUpAudioService();
+        assignOccupantToAudioZones();
+        mockGetCallingUserHandle(TEST_FRONT_PASSENGER_USER_ID);
+
+        SecurityException thrown = assertThrows(SecurityException.class, ()
+                -> service.setFadeTowardFront(TEST_VALUE));
+
+        expectWithMessage("Set fade by invalid caller").that(thrown).hasMessageThat()
+                .contains("must be a user of primary zone");
+    }
+
+    @Test
+    @EnableFlags({Flags.FLAG_AUDIO_FADE_BALANCE_GETTER_APIS})
+    public void setFadeTowardFront_bySystemCaller_setsValue() throws Exception {
+        CarAudioService service = setUpAudioService();
+        assignOccupantToAudioZones();
+        mockGetCallingUserHandle(TEST_SYSTEM_USER_ID);
+
+        service.setFadeTowardFront(TEST_VALUE);
+
+        verify(mAudioControlWrapperAidl).setFadeTowardFront(TEST_VALUE);
     }
 
     @Test
@@ -2453,6 +2521,36 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         expectWithMessage("Secondary user ID config changed")
                 .that(service.getUserIdForZone(TEST_REAR_LEFT_ZONE_ID))
                 .isEqualTo(TEST_REAR_RIGHT_USER_ID);
+    }
+
+    @Test
+    @EnableFlags({Flags.FLAG_AUDIO_FADE_BALANCE_GETTER_APIS})
+    public void onOccupantZoneConfigChanged_restoresAudioEffects() throws Exception {
+        setUpAudioService();
+        when(mMockOccupantZoneService.getDriverUserId()).thenReturn(TEST_DRIVER_USER_ID);
+        when(mMockOccupantZoneService.getUserForOccupant(anyInt()))
+                .thenReturn(TEST_REAR_LEFT_USER_ID);
+        ICarOccupantZoneCallback callback = getOccupantZoneCallback();
+
+        callback.onOccupantZoneConfigChanged(CarOccupantZoneManager.ZONE_CONFIG_CHANGE_FLAG_USER);
+
+        verify(mAudioControlWrapperAidl).setBalanceTowardRight(AUDIO_DEFAULT_BALANCE_LEVEL);
+        verify(mAudioControlWrapperAidl).setFadeTowardFront(AUDIO_DEFAULT_FADE_LEVEL);
+    }
+
+    @Test
+    @EnableFlags({Flags.FLAG_AUDIO_FADE_BALANCE_GETTER_APIS})
+    public void onOccupantZoneConfigChanged_alreadyAssigned_doesnotRestoreAudioEffects()
+            throws Exception {
+        when(mMockOccupantZoneService.getDriverUserId()).thenReturn(TEST_DRIVER_USER_ID);
+        setUpCarAudioServiceWithoutZoneMapping();
+        ICarOccupantZoneCallback callback = getOccupantZoneCallback();
+        callback.onOccupantZoneConfigChanged(CarOccupantZoneManager.ZONE_CONFIG_CHANGE_FLAG_USER);
+
+        callback.onOccupantZoneConfigChanged(CarOccupantZoneManager.ZONE_CONFIG_CHANGE_FLAG_USER);
+
+        verify(mAudioControlWrapperAidl, never()).setBalanceTowardRight(anyFloat());
+        verify(mAudioControlWrapperAidl, never()).setFadeTowardFront(anyFloat());
     }
 
     @Test

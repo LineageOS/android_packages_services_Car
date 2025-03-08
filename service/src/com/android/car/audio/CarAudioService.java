@@ -278,6 +278,8 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
     private boolean mUseHalDuckingSignals;
     @GuardedBy("mImplLock")
     private boolean mCarAudioControlHalConfig;
+    @GuardedBy("mImplLock")
+    private CarAudioEffects mCarAudioEffects;
 
 
     /**
@@ -579,6 +581,7 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
                 mCarInputService.registerKeyEventListener(mCarKeyEventListener,
                         KEYCODES_OF_INTEREST);
                 setupAudioDeviceInfoCallbackLocked();
+                setupCarAudioEffectsLocked();
             } else {
                 Slogf.i(TAG, "Audio dynamic routing not enabled, run in legacy mode");
                 setupLegacyVolumeChangedListener();
@@ -617,6 +620,12 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
     private void setupPowerPolicyListener() {
         mCarAudioPowerListener = CarAudioPowerListener.newCarAudioPowerListener(this);
         mCarAudioPowerListener.startListeningForPolicyChanges();
+    }
+
+    @GuardedBy("mImplLock")
+    private void setupCarAudioEffectsLocked() {
+        mCarAudioEffects = new CarAudioEffects(mCarAudioSettings, getAudioControlWrapperLocked(),
+                mPersistFadeBalanceLevels);
     }
 
     private void restoreMasterMuteState() {
@@ -908,6 +917,14 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
 
                 writer.println();
                 mFocusHandler.dump(writer);
+
+                if (mPersistFadeBalanceLevels && mCarAudioEffects != null) {
+                    writer.println();
+                    writer.println("Car audio effects");
+                    writer.increaseIndent();
+                    mCarAudioEffects.dump(writer, getUserIdForZoneLocked(PRIMARY_AUDIO_ZONE));
+                    writer.decreaseIndent();
+                }
 
                 writer.println();
                 getAudioControlWrapperLocked().dump(writer);
@@ -2488,19 +2505,25 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
 
     @Override
     public void setFadeTowardFront(float value) {
+        enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
+        // fade can only be controlled by driver user or system (for backward compatibility)
+        enforcePrimaryZoneOrSystemUser("setFadeTowardFront");
         synchronized (mImplLock) {
-            enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
-            requireValidFadeRange(value);
-            getAudioControlWrapperLocked().setFadeTowardFront(value);
+            int userId = getUserIdForZoneLocked(PRIMARY_AUDIO_ZONE);
+            Slogf.i(TAG, "setFadeTowardFront for value: %f, for user id: %d", value, userId);
+            mCarAudioEffects.setFadeLevelForUser(userId, value);
         }
     }
 
     @Override
     public void setBalanceTowardRight(float value) {
+        enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
+        // balance can only be controlled by driver user or system (for backward compatibility)
+        enforcePrimaryZoneOrSystemUser("setBalanceTowardRight");
         synchronized (mImplLock) {
-            enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
-            requireValidBalanceRange(value);
-            getAudioControlWrapperLocked().setBalanceTowardRight(value);
+            int userId = getUserIdForZoneLocked(PRIMARY_AUDIO_ZONE);
+            Slogf.i(TAG, "setBalanceTowardRight for value: %f, for user id: %d", value, userId);
+            mCarAudioEffects.setBalanceLevelForUser(userId, value);
         }
     }
 
@@ -3646,6 +3669,21 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
         }
     }
 
+    private void enforcePrimaryZoneOrSystemUser(String callerFunc)
+            throws SecurityException {
+        if (!Flags.audioFadeBalanceGetterApis()) {
+            return;
+        }
+
+        UserHandle callingUser = getCallingUserHandle();
+        if (!callingUser.isSystem()
+                && callingUser.getIdentifier() != getUserIdForZone(PRIMARY_AUDIO_ZONE)) {
+            String msg = "Invalid user (" + callingUser.getIdentifier() + ") calling " + callerFunc
+                    + ", must be a user of primary zone or system";
+            throw new SecurityException(msg);
+        }
+    }
+
     private void requireNonLegacyRouting() {
         Preconditions.checkState(!runInLegacyMode(), "Non legacy routing is required");
     }
@@ -3663,14 +3701,6 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
     private void requireVolumeGroupEvents() {
         Preconditions.checkState(mUseCarVolumeGroupEvents,
                 "Car Volume Group Event is required");
-    }
-
-    private void requireValidFadeRange(float value) {
-        Preconditions.checkArgumentInRange(value, -1f, 1f, "Fade");
-    }
-
-    private void requireValidBalanceRange(float value) {
-        Preconditions.checkArgumentInRange(value, -1f, 1f, "Balance");
     }
 
     @GuardedBy("mImplLock")
@@ -3846,6 +3876,18 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
         mFocusHandler.updateUserForZoneId(audioZoneId, userId);
         setUserIdForAudioZoneLocked(userId, audioZoneId);
         resetActivationTypeLocked(audioZoneId);
+
+        if (audioZoneId == PRIMARY_AUDIO_ZONE) {
+            restoreAudioEffectsLocked(userId);
+        }
+    }
+
+    @GuardedBy("mImplLock")
+    private void restoreAudioEffectsLocked(@UserIdInt int userId) {
+        if (!Flags.audioFadeBalanceGetterApis()) {
+            return;
+        }
+        mCarAudioEffects.restoreAudioEffectsForUser(userId);
     }
 
     private void removeAudioMirrorForZoneId(int audioZoneId) {
