@@ -32,12 +32,10 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.RemoteException;
 import android.os.ServiceSpecificException;
 import android.platform.test.annotations.DisabledOnRavenwood;
-import android.platform.test.ravenwood.RavenwoodRule;
 
 import com.android.car.internal.ICarBase;
 
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -47,12 +45,6 @@ import java.util.concurrent.Executor;
 
 @RunWith(MockitoJUnitRunner.class)
 public final class CarPackageManagerUnitTest {
-
-    // Need to fake Process.myUserHandle().
-    @Rule
-    public final RavenwoodRule mRavenwood = new RavenwoodRule.Builder()
-            .setProcessApp()
-            .build();
 
     @Mock
     private ICarBase mCar;

@@ -51,14 +51,12 @@ import android.content.Context;
 import android.hardware.automotive.vehicle.UserInfo;
 import android.os.UserHandle;
 import android.os.UserManager;
-import android.platform.test.ravenwood.RavenwoodRule;
 import android.provider.Settings;
 import android.util.ArrayMap;
 
 import com.android.internal.annotations.GuardedBy;
 
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -83,10 +81,6 @@ public final class InitialUserSetterTest {
             new InitialUserSetter.Builder(InitialUserSetter.TYPE_CREATE,
                     InitialUserSetter.ON_RESUME)
                     .build();
-
-    @Rule
-    public final RavenwoodRule mRavenwood = new RavenwoodRule.Builder().setProvideMainThread(true)
-            .build();
 
     @Mock
     private Context mContext;

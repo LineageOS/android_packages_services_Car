@@ -81,8 +81,6 @@ public final class CarUserManagerUnitTest extends AbstractExpectableTestCase {
     @Rule
     public final RavenwoodRule mRavenwood = new RavenwoodRule.Builder()
             .setSystemPropertyImmutable("android.car.user_hal_timeout", "")
-            // AndroidFuture uses getMainHandler
-            .setProvideMainThread(true)
             .build();
 
     @Mock
