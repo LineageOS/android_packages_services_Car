@@ -2982,6 +2982,33 @@
             <intent-filter tools:node="removeAll"/>
         </activity>
 
+        <activity
+            android:name="com.android.settings.Settings$MagnificationActivity"
+            android:enabled="false"
+            android:exported="false"
+            tools:node="merge"
+            tools:replace="android:exported">
+            <intent-filter tools:node="removeAll"/>
+        </activity>
+
+        <activity
+            android:name="com.android.settings.Settings$FlashNotificationsActivity"
+            android:enabled="false"
+            android:exported="false"
+            tools:node="merge"
+            tools:replace="android:exported">
+            <intent-filter tools:node="removeAll"/>
+        </activity>
+
+        <activity
+            android:name="com.android.settings.connecteddevice.audiosharing.AudioSharingJoinHandlerActivity"
+            android:enabled="false"
+            android:exported="false"
+            tools:node="merge"
+            tools:replace="android:exported">
+            <intent-filter tools:node="removeAll"/>
+        </activity>
+
         <activity android:name="com.android.settings.biometrics.fingerprint2.ui.enrollment.activity.FingerprintEnrollmentV2Activity"
             android:enabled="false"
             android:exported="false"

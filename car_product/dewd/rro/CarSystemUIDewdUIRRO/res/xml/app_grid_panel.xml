@@ -15,12 +15,12 @@
   -->
   <Panel id="panel_app_grid" defaultVariant="@id/closed" role="@string/appgrid_componentName" displayId="0">
     <Variant id="@+id/opened">
-        <Layer layer="100"/>
+        <Layer layer="@integer/app_grid_panel_layer"/>
         <Visibility isVisible="true"/>
         <Bounds left="0" bottom="@dimen/app_grid_drawer_bottom" width="100%" height="@dimen/app_grid_drawer_height" />
     </Variant>
     <Variant id="@+id/closed">
-        <Layer layer="100"/>
+        <Layer layer="@integer/app_grid_panel_layer"/>
         <Visibility isVisible="false"/>
         <Bounds left="0" top="@dimen/bottom_bar_bottom" width="100%" height="@dimen/app_grid_drawer_height" />
     </Variant>
@@ -28,6 +28,7 @@
     <Transitions>
         <Transition onEvent="_System_TaskOpenEvent" onEventTokens="panelId=panel_app_grid" toVariant="@id/opened"/>
         <Transition onEvent="_System_TaskOpenEvent" onEventTokens="panelId=app_panel" toVariant="@id/closed"/>
+        <Transition onEvent="_System_TaskOpenEvent" onEventTokens="panelId=panel_calm_mode" toVariant="@id/closed"/>
         <Transition onEvent="_System_OnHomeEvent" toVariant="@id/closed"/>
         <Transition onEvent="_System_EnterSuwEvent" toVariant="@id/closed"/>
     </Transitions>

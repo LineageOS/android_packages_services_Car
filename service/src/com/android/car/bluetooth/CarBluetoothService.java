@@ -38,8 +38,7 @@ import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Objects;
 
 /**
  * CarBluetoothService - Maintains the current user's Bluetooth devices and profile connections.
@@ -157,7 +156,7 @@ public class CarBluetoothService implements CarServiceBase {
      */
     public CarBluetoothService(Context context, CarPerUserServiceHelper userSwitchService) {
         mUserId = UserManagerHelper.USER_NULL;
-        mContext = context;
+        mContext = Objects.requireNonNull(context);
         mUserServiceHelper = userSwitchService;
         mUseDefaultConnectionPolicy = mContext.getResources().getBoolean(
                 R.bool.useDefaultBluetoothConnectionPolicy);
@@ -510,59 +509,16 @@ public class CarBluetoothService implements CarServiceBase {
      * profile.
      */
     public void connectDevices() {
-        enforceBluetoothAdminPermission();
+        enforceBluetoothConnectPermission();
+        enforceBluetoothPrivilegedPermission();
+        enforceModifyPhoneStatePermission();
+
         if (DBG) {
             Slogf.d(TAG, "Connect devices for each profile");
         }
         synchronized (mPerUserLock) {
             if (mDeviceManager != null) {
                 mDeviceManager.beginAutoConnecting();
-            }
-        }
-    }
-
-    /**
-     * Get the Auto Connect priority list
-     *
-     * @return A list of BluetoothDevice objects, ordered by highest priority first
-     */
-    public List<BluetoothDevice> getProfileDevicePriorityList() {
-        enforceBluetoothAdminPermission();
-        synchronized (mPerUserLock) {
-            if (mDeviceManager != null) {
-                return mDeviceManager.getDeviceListSnapshot();
-            }
-        }
-        return new ArrayList<BluetoothDevice>();
-    }
-
-    /**
-     * Get the Auto Connect priority for a paired Bluetooth Device.
-     *
-     * @param device BluetoothDevice to get priority for
-     * @return integer priority value, or -1 if no priority available.
-     */
-    public int getDeviceConnectionPriority(BluetoothDevice device) {
-        enforceBluetoothAdminPermission();
-        synchronized (mPerUserLock) {
-            if (mDeviceManager != null) {
-                return mDeviceManager.getDeviceConnectionPriority(device);
-            }
-        }
-        return -1;
-    }
-
-    /**
-     * Set the Auto Connect priority for a paired Bluetooth Device.
-     *
-     * @param device   Device to set priority (Tag)
-     * @param priority What priority level to set to
-     */
-    public void setDeviceConnectionPriority(BluetoothDevice device, int priority) {
-        enforceBluetoothAdminPermission();
-        synchronized (mPerUserLock) {
-            if (mDeviceManager != null) {
-                mDeviceManager.setDeviceConnectionPriority(device, priority);
             }
         }
     }
@@ -578,6 +534,9 @@ public class CarBluetoothService implements CarServiceBase {
      * @return True if the profile was successfully inhibited, false if an error occurred.
      */
     public boolean requestProfileInhibit(BluetoothDevice device, int profile, IBinder token) {
+        enforceBluetoothConnectPermission();
+        enforceBluetoothPrivilegedPermission();
+
         if (DBG) {
             Slogf.d(TAG, "Request profile inhibit: profile %s, device %s",
                     BluetoothUtils.getProfileName(profile), device.getAddress());
@@ -599,6 +558,9 @@ public class CarBluetoothService implements CarServiceBase {
      * @return True if the request was released, false if an error occurred.
      */
     public boolean releaseProfileInhibit(BluetoothDevice device, int profile, IBinder token) {
+        enforceBluetoothConnectPermission();
+        enforceBluetoothPrivilegedPermission();
+
         if (DBG) {
             Slogf.d(TAG, "Release profile inhibit: profile %s, device %s",
                     BluetoothUtils.getProfileName(profile), device.getAddress());
@@ -622,6 +584,9 @@ public class CarBluetoothService implements CarServiceBase {
      *         inactive.
      */
     public boolean isProfileInhibited(BluetoothDevice device, int profile, IBinder token) {
+        enforceBluetoothConnectPermission();
+        enforceBluetoothPrivilegedPermission();
+
         if (DBG) {
             Slogf.d(TAG, "Check profile inhibit: profile %s, device %s",
                     BluetoothUtils.getProfileName(profile), device.getAddress());
@@ -636,6 +601,8 @@ public class CarBluetoothService implements CarServiceBase {
      * Triggers Bluetooth to start a BVRA session with the default HFP Client device.
      */
     public boolean startBluetoothVoiceRecognition() {
+        enforceBluetoothConnectPermission();
+
         synchronized (mPerUserLock) {
             try {
                 return mCarBluetoothUserService.startBluetoothVoiceRecognition();
@@ -647,19 +614,40 @@ public class CarBluetoothService implements CarServiceBase {
     }
 
     /**
-     * Make sure the caller has the Bluetooth permissions that are required to execute any function
+     * Make sure the caller has the Bluetooth Connect permission
      */
-    private void enforceBluetoothAdminPermission() {
-        if (mContext != null
-                && PackageManager.PERMISSION_GRANTED == mContext.checkCallingOrSelfPermission(
-                android.Manifest.permission.BLUETOOTH_ADMIN)) {
+    private void enforceBluetoothConnectPermission() {
+        if (PackageManager.PERMISSION_GRANTED == mContext.checkCallingOrSelfPermission(
+                android.Manifest.permission.BLUETOOTH_CONNECT)) {
             return;
         }
-        if (mContext == null) {
-            Slogf.e(TAG, "CarBluetoothPrioritySettings does not have a Context");
+
+        throw new SecurityException("requires permission "
+                + android.Manifest.permission.BLUETOOTH_CONNECT);
+    }
+
+    /**
+     * Make sure the caller has the Bluetooth Privileged permission
+     */
+    private void enforceBluetoothPrivilegedPermission() {
+        if (PackageManager.PERMISSION_GRANTED == mContext.checkCallingOrSelfPermission(
+                android.Manifest.permission.BLUETOOTH_PRIVILEGED)) {
+            return;
         }
         throw new SecurityException("requires permission "
-                + android.Manifest.permission.BLUETOOTH_ADMIN);
+                + android.Manifest.permission.BLUETOOTH_PRIVILEGED);
+    }
+
+    /**
+     * Make sure the caller has the Modify Phone State permission
+     */
+    private void enforceModifyPhoneStatePermission() {
+        if (PackageManager.PERMISSION_GRANTED == mContext.checkCallingOrSelfPermission(
+                android.Manifest.permission.MODIFY_PHONE_STATE)) {
+            return;
+        }
+        throw new SecurityException("requires permission "
+                + android.Manifest.permission.MODIFY_PHONE_STATE);
     }
 
     /**

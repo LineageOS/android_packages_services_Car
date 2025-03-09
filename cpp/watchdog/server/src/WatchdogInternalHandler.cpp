@@ -304,14 +304,14 @@ ScopedAStatus WatchdogInternalHandler::tellCarWatchdogServiceAlive(
 
 ScopedAStatus WatchdogInternalHandler::tellDumpFinished(
         const std::shared_ptr<ICarWatchdogMonitor>& monitor,
-        const ProcessIdentifier& processIdentifier) {
+        const std::vector<ProcessIdentifier>& processIdentifiers) {
     if (auto status = checkSystemUser(/*methodName=*/"tellDumpFinished"); !status.isOk()) {
         return status;
     }
     if (monitor == nullptr) {
         return toScopedAStatus(EX_ILLEGAL_ARGUMENT, kNullCarWatchdogMonitorError);
     }
-    return mWatchdogProcessService->tellDumpFinished(monitor, processIdentifier);
+    return mWatchdogProcessService->tellDumpFinished(monitor, processIdentifiers);
 }
 
 ScopedAStatus WatchdogInternalHandler::notifySystemStateChange(StateType type, int32_t arg1,

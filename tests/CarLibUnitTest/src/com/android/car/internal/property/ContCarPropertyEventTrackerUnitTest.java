@@ -110,17 +110,13 @@ public final class ContCarPropertyEventTrackerUnitTest {
     @Before
     public void setup() {
         mNoVurTracker = new ContCarPropertyEventTracker(
-                /* useSystemLogger= */ false, FIRST_UPDATE_RATE_HZ, /* enableVur= */ false,
-                /* resolution */ 0.0f);
+                FIRST_UPDATE_RATE_HZ, /* enableVur= */ false, /* resolution */ 0.0f);
         mVurTracker = new ContCarPropertyEventTracker(
-                /* useSystemLogger= */ false, FIRST_UPDATE_RATE_HZ, /* enableVur= */ true,
-                /* resolution */ 0.0f);
+                FIRST_UPDATE_RATE_HZ, /* enableVur= */ true, /* resolution */ 0.0f);
         mVurWithResolutionIntegerTracker = new ContCarPropertyEventTracker(
-                /* useSystemLogger= */ false, FIRST_UPDATE_RATE_HZ, /* enableVur= */ true,
-                RESOLUTION_INTEGER);
+                FIRST_UPDATE_RATE_HZ, /* enableVur= */ true, RESOLUTION_INTEGER);
         mVurWithResolutionFloatTracker = new ContCarPropertyEventTracker(
-                /* useSystemLogger= */ false, FIRST_UPDATE_RATE_HZ, /* enableVur= */ true,
-                RESOLUTION_FLOAT);
+                FIRST_UPDATE_RATE_HZ, /* enableVur= */ true, RESOLUTION_FLOAT);
     }
 
     @Test

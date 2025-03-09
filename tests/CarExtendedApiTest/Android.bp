@@ -43,6 +43,8 @@ android_test {
 
     srcs: [
         "src/**/*.java",
+        "src/**/*.aidl",
+        ":VhalTestVendorProperties",
     ],
 
     // for system|privileged permission.
@@ -57,7 +59,10 @@ android_test {
 
     static_libs: [
         "junit",
+        "android.car.apitest-aidl-binder-java",
         "android.car.testapi.testbase",
+        "bedstead-multiuser",
+        "com.android.car.test.lib",
     ],
 
     libs: [

@@ -2059,7 +2059,12 @@ public class CarPropertyManager extends CarManagerBase {
     }
 
     /**
-     * @return the list of properties supported by this car that the application may access
+     * Returns all the list of properties supported by this car that the application may access.
+     *
+     * If the caller does not have read/write access to some of the properties, then they will not
+     * be returned as part of the list, even if the properties are supported by the vehicle.
+     *
+     * @return the property config list.
      */
     @NonNull
     public List<CarPropertyConfig> getPropertyList() {
@@ -2085,7 +2090,8 @@ public class CarPropertyManager extends CarManagerBase {
     /**
      * Checks the given property IDs and returns a list of property configs supported by the car.
      *
-     * If some of the properties in the given ID list are not supported, they will not be returned.
+     * If some of the properties in the given ID list are not supported or if the caller does not
+     * own the read/write permission to access them, they will not be returned.
      *
      * @param propertyIds the list of property IDs
      * @return the list of property configs
@@ -2119,7 +2125,7 @@ public class CarPropertyManager extends CarManagerBase {
     }
 
     /**
-     * Get {@link CarPropertyConfig} by property ID.
+     * Gets {@link CarPropertyConfig} by property ID.
      *
      * @param propertyId the property ID
      * @return the {@link CarPropertyConfig} for the selected property, {@code null} if missing
@@ -2262,12 +2268,14 @@ public class CarPropertyManager extends CarManagerBase {
 
 
     /**
-     * Check whether a given property is available or disabled based on the car's current state.
+     * Checks whether a given property is available or disabled based on the car's current state.
      *
      * @param propertyId the property ID
      * @param areaId the area ID
      * @return {@code true} if {@link CarPropertyValue#STATUS_AVAILABLE}, {@code false} otherwise
      * (eg {@link CarPropertyValue#STATUS_UNAVAILABLE})
+     * @throws SecurityException if the client does not have the required read permission to access
+     * the [propertyId, areaId].
      */
     public boolean isPropertyAvailable(int propertyId, int areaId) {
         if (DBG) {
@@ -2361,8 +2369,8 @@ public class CarPropertyManager extends CarManagerBase {
      *     temporarily not available.
      * </ul>
      *
-     * <p>For pre-R client, the returned value might be {@code false} if the property is temporarily
-     * not available. The client should try again in this case.
+     * <p>For pre-R client, if the property is temporarily not available, this will return
+     * {@code false}.
      *
      * <p>For pre-U client, when the [propertyId, areaId] is not supported, this will return
      * {@code false}.
@@ -2373,15 +2381,21 @@ public class CarPropertyManager extends CarManagerBase {
      * @param propertyId the property ID to get
      * @param areaId the area ID of the property to get
      *
-     * @throws CarInternalErrorException when there is an unexpected error detected in cars
+     * @throws IllegalStateException when there is an error detected in cars, or when cars denied
+     * the access of the [propertyId, areaId], or when the [propertyId, areaId] is not available and
+     * might be unavailable for a while, or when unexpected error happens for pre-R clients.
+     * @throws CarInternalErrorException when there is an unexpected error detected in cars for
+     * R and later clients.
      * @throws PropertyAccessDeniedSecurityException when cars denied the access of the
-     * property
+     * property for R and later clients.
      * @throws PropertyNotAvailableAndRetryException when [propertyId, areaId] is temporarily
-     * not available and likely that retrying will be successful
+     * not available and likely that retrying will be successful for R and later clients.
      * @throws PropertyNotAvailableException when [propertyId, areaId] is not available and might be
-     * unavailable for a while.
+     * unavailable for a while for R and later clients.
      * @throws IllegalArgumentException when the [propertyId, areaId] is not supported for U and
-     * later client, or when the property is of wrong type.
+     * later client, or when the specified class does not match the property type.
+     * @throws SecurityException when the client does not have the required read permission to
+     * access the [propertyId, areaId].
      *
      * @return the value of a bool property or {@code false}.
      */
@@ -2398,18 +2412,30 @@ public class CarPropertyManager extends CarManagerBase {
      *
      * <p>This method has the same exception behavior as {@link #getBooleanProperty(int, int)}.
      *
+     * <p>For pre-R client, if the property is temporarily not available, this will return
+     * {@code 0}.
+     *
+     * <p>For pre-U client, when the [propertyId, areaId] is not supported, this will return
+     * {@code 0}.
+     *
      * @param propertyId the property ID to get
      * @param areaId the area ID of the property to get
      *
-     * @throws CarInternalErrorException when there is an unexpected error detected in cars
+     * @throws IllegalStateException when there is an error detected in cars, or when cars denied
+     * the access of the [propertyId, areaId], or when the [propertyId, areaId] is not available and
+     * might be unavailable for a while, or when unexpected error happens for pre-R clients.
+     * @throws CarInternalErrorException when there is an unexpected error detected in cars for
+     * R and later clients.
      * @throws PropertyAccessDeniedSecurityException when cars denied the access of the
-     * property
+     * property for R and later clients.
      * @throws PropertyNotAvailableAndRetryException when [propertyId, areaId] is temporarily
-     * not available and likely that retrying will be successful
+     * not available and likely that retrying will be successful for R and later clients.
      * @throws PropertyNotAvailableException when [propertyId, areaId] is not available and might be
-     * unavailable for a while.
+     * unavailable for a while for R and later clients.
      * @throws IllegalArgumentException when the [propertyId, areaId] is not supported for U and
-     * later client, or when the property is of wrong type.
+     * later client, or when the specified class does not match the property type.
+     * @throws SecurityException when the client does not have the required read permission to
+     * access the [propertyId, areaId].
      *
      * @return the value of a float property or {@code 0}.
      */
@@ -2426,18 +2452,30 @@ public class CarPropertyManager extends CarManagerBase {
      *
      * <p>This method has the same exception behavior as {@link #getBooleanProperty(int, int)}.
      *
+     * <p>For pre-R client, if the property is temporarily not available, this will return
+     * {@code 0}.
+     *
+     * <p>For pre-U client, when the [propertyId, areaId] is not supported, this will return
+     * {@code 0}.
+     *
      * @param propertyId the property ID to get
      * @param areaId the area ID of the property to get
      *
-     * @throws CarInternalErrorException when there is an unexpected error detected in cars
+     * @throws IllegalStateException when there is an error detected in cars, or when cars denied
+     * the access of the [propertyId, areaId], or when the [propertyId, areaId] is not available and
+     * might be unavailable for a while, or when unexpected error happens for pre-R clients.
+     * @throws CarInternalErrorException when there is an unexpected error detected in cars for
+     * R and later clients.
      * @throws PropertyAccessDeniedSecurityException when cars denied the access of the
-     * property
+     * property for R and later clients.
      * @throws PropertyNotAvailableAndRetryException when [propertyId, areaId] is temporarily
-     * not available and likely that retrying will be successful
+     * not available and likely that retrying will be successful for R and later clients.
      * @throws PropertyNotAvailableException when [propertyId, areaId] is not available and might be
-     * unavailable for a while.
+     * unavailable for a while for R and later clients.
      * @throws IllegalArgumentException when the [propertyId, areaId] is not supported for U and
-     * later client, or when the property is of wrong type.
+     * later client, or when the specified class does not match the property type.
+     * @throws SecurityException when the client does not have the required read permission to
+     * access the [propertyId, areaId].
      *
      * @return the value of aa integer property or {@code 0}.
      */
@@ -2453,6 +2491,12 @@ public class CarPropertyManager extends CarManagerBase {
      * non-main thread.
      *
      * <p>This method has the same exception behavior as {@link #getBooleanProperty(int, int)}.
+     *
+     * <p>For pre-R client, if the property is temporarily not available, this will return
+     * an empty array.
+     *
+     * <p>For pre-U client, when the [propertyId, areaId] is not supported, this will return
+     * an empty array.
      *
      * @param propertyId the property ID to get
      * @param areaId the area ID of the property to get
@@ -2562,11 +2606,11 @@ public class CarPropertyManager extends CarManagerBase {
      * <ul>
      *     <li>{@link CarInternalErrorException} when there is an unexpected error detected in cars
      *     <li>{@link PropertyAccessDeniedSecurityException} when cars denied the access of the
-     *     property
-     *     <li>{@link PropertyNotAvailableAndRetryException} when the property is temporarily
-     *     not available and likely that retrying will be successful
-     *     <li>{@link PropertyNotAvailableException} when the property is not available and might be
-     *     unavailable for a while.
+     *     [propertyId, areaId].
+     *     <li>{@link PropertyNotAvailableAndRetryException} when the [propertyId, areaId] is
+     *     temporarily not available and likely that retrying will be successful
+     *     <li>{@link PropertyNotAvailableException} when the [propertyId, areaId] is not available
+     *     and might be unavailable for a while.
      *     <li>{@link IllegalArgumentException} when the [propertyId, areaId] is not supported or
      *     when the specified class does not match the property type.
      * </ul>
@@ -2578,11 +2622,11 @@ public class CarPropertyManager extends CarManagerBase {
      * <ul>
      *     <li>{@link CarInternalErrorException} when there is an unexpected error detected in cars
      *     <li>{@link PropertyAccessDeniedSecurityException} when cars denied the access of the
-     *     property
-     *     <li>{@link PropertyNotAvailableAndRetryException} when the property is temporarily
-     *     not available and likely that retrying will be successful
-     *     <li>{@link PropertyNotAvailableException} when the property is not available and might be
-     *     unavailable for a while.
+     *     [propertyId, areaId].
+     *     <li>{@link PropertyNotAvailableAndRetryException} when the [propertyId, areaId] is
+     *     temporarily not available and likely that retrying will be successful
+     *     <li>{@link PropertyNotAvailableException} when the [propertyId, areaId] is not available
+     *     and might be unavailable for a while.
      *     <li>{@link IllegalArgumentException} when the specified class does not match the property
      *     type.
      *     <li>{@code null} when the [propertyId, areaId] is not supported
@@ -2593,8 +2637,9 @@ public class CarPropertyManager extends CarManagerBase {
      * {@code null} when request failed.
      * <ul>
      *     <li>{@link IllegalStateException} when there is an error detected in cars, or when
-     *         cars denied the access of the property, or when the property is not available and
-     *         might be unavailable for a while, or when unexpected error happens.
+     *         cars denied the access of the [propertyId, areaId], or when the [propertyId, areaId]
+     *         is not available and might be unavailable for a while, or when unexpected error
+     *         happens.
      *     <li>{@link IllegalArgumentException} when the specified class does not match the
      *         property type.
      *     <li>{@code null} when the [propertyId, areaId] is not supported or when the property is
@@ -2627,15 +2672,21 @@ public class CarPropertyManager extends CarManagerBase {
      * @param propertyId the property ID to get
      * @param areaId the area ID of the property to get
      *
-     * @throws CarInternalErrorException when there is an unexpected error detected in cars
+     * @throws IllegalStateException when there is an error detected in cars, or when cars denied
+     * the access of the [propertyId, areaId], or when the [propertyId, areaId] is not available and
+     * might be unavailable for a while, or when unexpected error happens for pre-R clients.
+     * @throws CarInternalErrorException when there is an unexpected error detected in cars for
+     * R and later clients.
      * @throws PropertyAccessDeniedSecurityException when cars denied the access of the
-     * property
+     * property for R and later clients.
      * @throws PropertyNotAvailableAndRetryException when [propertyId, areaId] is temporarily
-     * not available and likely that retrying will be successful
+     * not available and likely that retrying will be successful for R and later clients.
      * @throws PropertyNotAvailableException when [propertyId, areaId] is not available and might be
-     * unavailable for a while.
+     * unavailable for a while for R and later clients.
      * @throws IllegalArgumentException when the [propertyId, areaId] is not supported for U and
      * later client, or when the specified class does not match the property type.
+     * @throws SecurityException when the client does not have the required read permission to
+     * access the [propertyId, areaId].
      *
      * @return the value of a property or {@code null}.
      */
@@ -2679,12 +2730,13 @@ public class CarPropertyManager extends CarManagerBase {
      * <ul>
      *     <li>{@link CarInternalErrorException} when there is an unexpected error detected in cars
      *     <li>{@link PropertyAccessDeniedSecurityException} when cars denied the access of the
-     *     property
-     *     <li>{@link PropertyNotAvailableAndRetryException} when the property is temporarily
-     *     not available and likely that retrying will be successful
-     *     <li>{@link PropertyNotAvailableException} when the property is not available and might be
-     *     unavailable for a while.
-     *     <li>{@link IllegalArgumentException} when the [propertyId, areaId] is not supported.
+     *     [propertyId, areaId].
+     *     <li>{@link PropertyNotAvailableAndRetryException} when the [propertyId, areaId] is
+     *     temporarily not available and likely that retrying will be successful
+     *     <li>{@link PropertyNotAvailableException} when the [propertyId, areaId] is not available
+     *     and might be unavailable for a while.
+     *     <li>{@link IllegalArgumentException} when the [propertyId, areaId] is not supported or
+     *     when the specified class does not match the property type.
      * </ul>
      *
      * <p>Clients that declare a {@link android.content.pm.ApplicationInfo#targetSdkVersion} equal
@@ -2694,11 +2746,13 @@ public class CarPropertyManager extends CarManagerBase {
      * <ul>
      *     <li>{@link CarInternalErrorException} when there is an unexpected error detected in cars
      *     <li>{@link PropertyAccessDeniedSecurityException} when cars denied the access of the
-     *     property
-     *     <li>{@link PropertyNotAvailableAndRetryException} when the property is temporarily
-     *     not available and likely that retrying will be successful
-     *     <li>{@link PropertyNotAvailableException} when the property is not available and might be
-     *     unavailable for a while.
+     *     [propertyId, areaId].
+     *     <li>{@link PropertyNotAvailableAndRetryException} when the [propertyId, areaId] is
+     *     temporarily not available and likely that retrying will be successful
+     *     <li>{@link PropertyNotAvailableException} when the [propertyId, areaId] is not available
+     *     and might be unavailable for a while.
+     *     <li>{@link IllegalArgumentException} when the specified class does not match the property
+     *     type.
      *     <li>{@code null} when the [propertyId, areaId] is not supported
      * </ul>
      *
@@ -2707,8 +2761,11 @@ public class CarPropertyManager extends CarManagerBase {
      * {@code null} when request failed.
      * <ul>
      *     <li>{@link IllegalStateException} when there is an error detected in cars, or when
-     *         cars denied the access of the property, or when the property is not available and
-     *         might be unavailable for a while, or when unexpected error happens.
+     *         cars denied the access of the [propertyId, areaId], or when the [propertyId, areaId]
+     *         is not available and might be unavailable for a while, or when unexpected error
+     *         happens.
+     *     <li>{@link IllegalArgumentException} when the specified class does not match the
+     *         property type.
      *     <li>{@code null} when the [propertyId, areaId] is not supported or when the property is
      *     temporarily not available.
      * </ul>
@@ -2739,15 +2796,21 @@ public class CarPropertyManager extends CarManagerBase {
      * @param areaId the area ID of the property to get
      * @param <E> the class type of the property
      *
-     * @throws CarInternalErrorException when there is an unexpected error detected in cars
+     * @throws IllegalStateException when there is an error detected in cars, or when cars denied
+     * the access of the [propertyId, areaId], or when the [propertyId, areaId] is not available and
+     * might be unavailable for a while, or when unexpected error happens for pre-R clients.
+     * @throws CarInternalErrorException when there is an unexpected error detected in cars for
+     * R and later clients.
      * @throws PropertyAccessDeniedSecurityException when cars denied the access of the
-     * property
+     * property for R and later clients.
      * @throws PropertyNotAvailableAndRetryException when [propertyId, areaId] is temporarily
-     * not available and likely that retrying will be successful
+     * not available and likely that retrying will be successful for R and later clients.
      * @throws PropertyNotAvailableException when [propertyId, areaId] is not available and might be
-     * unavailable for a while.
+     * unavailable for a while for R and later clients.
      * @throws IllegalArgumentException when the [propertyId, areaId] is not supported for U and
-     * later client.
+     * later client, or when the specified class does not match the property type.
+     * @throws SecurityException when the client does not have the required read permission to
+     * access the [propertyId, areaId].
      *
      * @return the value of a property
      */
@@ -2847,10 +2910,10 @@ public class CarPropertyManager extends CarManagerBase {
      * earlier than {@link Build.VERSION_CODES#R} will receive the following exceptions when request
      * failed.
      * <ul>
-     *     <li>{@link RuntimeException} when the property is temporarily not available.
+     *     <li>{@link RuntimeException} when the [propertyId, areaId] is temporarily not available.
      *     <li>{@link IllegalStateException} when there is an error detected in cars, or when
-     *         cars denied the access of the property, or when the property is not available and
-     *         might be unavailable for a while, or when unexpected error happens.
+     *         cars denied the access of the [propertyId, areaId], or when the [property, areaId} is
+     *         not available and might be unavailable for a while, or when unexpected error happens.
      *     <li>{@link IllegalArgumentException} when the [propertyId, areaId] is not supported.
      * </ul>
      *
@@ -2877,13 +2940,22 @@ public class CarPropertyManager extends CarManagerBase {
      * defined as {@code VEHICLE_VALUE_TYPE_INT32} in vehicle HAL could be accessed using
      * {@code Integer.class}.
      *
-     * @throws CarInternalErrorException when there is an unexpected error detected in cars.
-     * @throws PropertyAccessDeniedSecurityException when cars denied the access of the property.
+     * @throws RuntimeException when the [propertyId, areaId] is temporarily not available for
+     * pre-R clients.
+     * @throws IllegalStateException when there is an error detected in cars, or when cars denied
+     * the access of the [propertyId, areaId], or when the [propertyId, areaId] is not available and
+     * might be unavailable for a while, or when unexpected error happens for pre-R clients.
+     * @throws CarInternalErrorException when there is an unexpected error detected in cars for
+     * R and later clients.
+     * @throws PropertyAccessDeniedSecurityException when cars denied the access of the property
+     * for R and later clients.
      * @throws PropertyNotAvailableException when [propertyId, areaId] is not available and might be
-     * unavailable for a while.
+     * unavailable for a while for R and later clients.
      * @throws PropertyNotAvailableAndRetryException when [propertyId, areaId] is temporarily not
-     * available and likely that retrying will be successful.
+     * available and likely that retrying will be successful for R and later clients.
      * @throws IllegalArgumentException when the [propertyId, areaId] or value is not supported.
+     * @throws SecurityException when the client does not have the required write permission to
+     * access the [propertyId, areaId].
      */
     public <E> void setProperty(@NonNull Class<E> clazz, int propertyId, int areaId,
             @NonNull E val) {
@@ -2937,6 +3009,23 @@ public class CarPropertyManager extends CarManagerBase {
      * @param propertyId the property ID to modify
      * @param areaId the area ID to apply the modification
      * @param val the value to set
+     *
+     * @throws RuntimeException when the [propertyId, areaId] is temporarily not available for
+     * pre-R clients.
+     * @throws IllegalStateException when there is an error detected in cars, or when cars denied
+     * the access of the [propertyId, areaId], or when the [propertyId, areaId] is not available and
+     * might be unavailable for a while, or when unexpected error happens for pre-R clients.
+     * @throws CarInternalErrorException when there is an unexpected error detected in cars for
+     * R and later clients.
+     * @throws PropertyAccessDeniedSecurityException when cars denied the access of the property
+     * for R and later clients.
+     * @throws PropertyNotAvailableException when [propertyId, areaId] is not available and might be
+     * unavailable for a while for R and later clients.
+     * @throws PropertyNotAvailableAndRetryException when [propertyId, areaId] is temporarily not
+     * available and likely that retrying will be successful for R and later clients.
+     * @throws IllegalArgumentException when the [propertyId, areaId] or value is not supported.
+     * @throws SecurityException when the client does not have the required write permission to
+     * access the [propertyId, areaId].
      */
     public void setBooleanProperty(int propertyId, int areaId, boolean val) {
         setProperty(Boolean.class, propertyId, areaId, val);
@@ -2951,6 +3040,23 @@ public class CarPropertyManager extends CarManagerBase {
      * @param propertyId the property ID to modify
      * @param areaId the area ID to apply the modification
      * @param val the value to set
+     *
+     * @throws RuntimeException when the [propertyId, areaId] is temporarily not available for
+     * pre-R clients.
+     * @throws IllegalStateException when there is an error detected in cars, or when cars denied
+     * the access of the [propertyId, areaId], or when the [propertyId, areaId] is not available and
+     * might be unavailable for a while, or when unexpected error happens for pre-R clients.
+     * @throws CarInternalErrorException when there is an unexpected error detected in cars for
+     * R and later clients.
+     * @throws PropertyAccessDeniedSecurityException when cars denied the access of the property
+     * for R and later clients.
+     * @throws PropertyNotAvailableException when [propertyId, areaId] is not available and might be
+     * unavailable for a while for R and later clients.
+     * @throws PropertyNotAvailableAndRetryException when [propertyId, areaId] is temporarily not
+     * available and likely that retrying will be successful for R and later clients.
+     * @throws IllegalArgumentException when the [propertyId, areaId] or value is not supported.
+     * @throws SecurityException when the client does not have the required write permission to
+     * access the [propertyId, areaId].
      */
     public void setFloatProperty(int propertyId, int areaId, float val) {
         setProperty(Float.class, propertyId, areaId, val);
@@ -2965,6 +3071,23 @@ public class CarPropertyManager extends CarManagerBase {
      * @param propertyId the property ID to modify
      * @param areaId the area ID to apply the modification
      * @param val the value to set
+     *
+     * @throws RuntimeException when the [propertyId, areaId] is temporarily not available for
+     * pre-R clients.
+     * @throws IllegalStateException when there is an error detected in cars, or when cars denied
+     * the access of the [propertyId, areaId], or when the [propertyId, areaId] is not available and
+     * might be unavailable for a while, or when unexpected error happens for pre-R clients.
+     * @throws CarInternalErrorException when there is an unexpected error detected in cars for
+     * R and later clients.
+     * @throws PropertyAccessDeniedSecurityException when cars denied the access of the property
+     * for R and later clients.
+     * @throws PropertyNotAvailableException when [propertyId, areaId] is not available and might be
+     * unavailable for a while for R and later clients.
+     * @throws PropertyNotAvailableAndRetryException when [propertyId, areaId] is temporarily not
+     * available and likely that retrying will be successful for R and later clients.
+     * @throws IllegalArgumentException when the [propertyId, areaId] or value is not supported.
+     * @throws SecurityException when the client does not have the required write permission to
+     * access the [propertyId, areaId].
      */
     public void setIntProperty(int propertyId, int areaId, int val) {
         setProperty(Integer.class, propertyId, areaId, val);

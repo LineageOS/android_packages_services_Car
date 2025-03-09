@@ -63,8 +63,8 @@ public:
           contextSwitchesCount(0),
           runnableProcessCount(0),
           ioBlockedProcessCount(0) {}
-    ProcStatInfo(CpuStats stats, uint64_t ctxtSwitches, uint32_t runnableCnt,
-                 uint32_t ioBlockedCnt, time_t kernelStartTimeEpochSeconds) :
+    ProcStatInfo(CpuStats stats, uint64_t ctxtSwitches, uint32_t runnableCnt, uint32_t ioBlockedCnt,
+                 time_t kernelStartTimeEpochSeconds) :
           cpuStats(stats),
           kernelStartTimeEpochSeconds(kernelStartTimeEpochSeconds),
           contextSwitchesCount(ctxtSwitches),
@@ -161,9 +161,7 @@ public:
         return mDeltaStats;
     }
 
-    time_t getKernelStartTimeEpochSeconds() {
-        return mLatestStats.kernelStartTimeEpochSeconds;
-    }
+    time_t getKernelStartTimeEpochSeconds() { return mLatestStats.kernelStartTimeEpochSeconds; }
 
 private:
     // Reads the contents of |kPath|.

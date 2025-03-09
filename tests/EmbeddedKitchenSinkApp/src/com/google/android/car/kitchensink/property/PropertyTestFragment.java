@@ -38,6 +38,9 @@ import android.car.hardware.property.Subscription;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.util.ArrayMap;
 import android.util.Log;
 import android.util.SparseArray;
 import android.util.SparseBooleanArray;
@@ -49,6 +52,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ScrollView;
@@ -113,6 +117,7 @@ public class PropertyTestFragment extends Fragment implements OnItemSelectedList
     private ToggleButton mSubscribeSupportedValuesChangeButton;
     private Spinner mAreaId;
     private TextView mEventLog;
+    private AutoCompleteTextView mPropertyNameInput;
     private Spinner mPropertyId;
     private ScrollView mScrollView;
     private EditText mSetValue;
@@ -126,9 +131,9 @@ public class PropertyTestFragment extends Fragment implements OnItemSelectedList
     private GetPropertyCallback mGetPropertyCallback = new GetPropertyCallback() {
         @Override
         public void onSuccess(@NonNull GetPropertyResult<?> getPropertyResult) {
-            int propId = getPropertyResult.getPropertyId();
-            long timestamp = getPropertyResult.getTimestampNanos();
-            setTextOnSuccess(propId, timestamp, getPropertyResult.getValue(),
+            setTextOnSuccess(getPropertyResult.getPropertyId(), getPropertyResult.getAreaId(),
+                    getPropertyResult.getTimestampNanos(),
+                    getPropertyResult.getValue(),
                     CarPropertyValue.STATUS_AVAILABLE);
         }
 
@@ -137,9 +142,12 @@ public class PropertyTestFragment extends Fragment implements OnItemSelectedList
             Log.e(TAG, "Failed to get async VHAL property");
             Toast.makeText(mContext, "Failed to get async VHAL property", Toast.LENGTH_SHORT)
                     .show();
-            mEventLog.append("Failed to get async VHAL property with error code: "
-                    + propertyAsyncError.getErrorCode() + " and vendor error code: "
-                    + propertyAsyncError.getVendorErrorCode() + "\n");
+            mEventLog.append(String.format(
+                            "getProperty(%s, %d): fail, errorCode: %d, vendorErrorCode: %d\n",
+                            PropertyInfo.getPropertyName(propertyAsyncError.getPropertyId()),
+                            propertyAsyncError.getAreaId(),
+                            propertyAsyncError.getErrorCode(),
+                            propertyAsyncError.getVendorErrorCode()));
             scrollEventLogsToBottom();
         }
     };
@@ -150,6 +158,10 @@ public class PropertyTestFragment extends Fragment implements OnItemSelectedList
                 public void onSuccess(
                         @NonNull CarPropertyManager.SetPropertyResult setPropertyResult) {
                     Toast.makeText(mContext, "Success", Toast.LENGTH_SHORT).show();
+                    mEventLog.append(String.format("setProperty(%s, %d): success\n",
+                            PropertyInfo.getPropertyName(setPropertyResult.getPropertyId()),
+                            setPropertyResult.getAreaId()));
+                    scrollEventLogsToBottom();
                 }
 
                 @Override
@@ -158,9 +170,12 @@ public class PropertyTestFragment extends Fragment implements OnItemSelectedList
                     Log.e(TAG, "Failed to get async VHAL property");
                     Toast.makeText(mContext, "Failed to set async VHAL property",
                             Toast.LENGTH_SHORT).show();
-                    mEventLog.append("Failed to set async VHAL property with error code: "
-                            + propertyAsyncError.getErrorCode() + " and vendor error code: "
-                            + propertyAsyncError.getVendorErrorCode() + "\n");
+                    mEventLog.append(String.format(
+                            "setProperty(%s, %d): fail, errorCode: %d, vendorErrorCode: %d\n",
+                            PropertyInfo.getPropertyName(propertyAsyncError.getPropertyId()),
+                            propertyAsyncError.getAreaId(),
+                            propertyAsyncError.getErrorCode(),
+                            propertyAsyncError.getVendorErrorCode()));
                     scrollEventLogsToBottom();
                 }
     };
@@ -179,18 +194,49 @@ public class PropertyTestFragment extends Fragment implements OnItemSelectedList
             populateConfigList();
 
             // Configure dropdown menu for propertyId spinner
-            ArrayAdapter<PropertyInfo> adapter =
+            ArrayAdapter<PropertyInfo> propertyIdAdapter =
                     new ArrayAdapter<PropertyInfo>(mContext, android.R.layout.simple_spinner_item,
                             mPropInfo);
-            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-            mPropertyId.setAdapter(adapter);
+            propertyIdAdapter.setDropDownViewResource(
+                    android.R.layout.simple_spinner_dropdown_item);
+            ArrayMap<String, Integer> propertyIdAdapterPositionByName = new ArrayMap<>();
+            for (int i = 0; i < mPropInfo.size(); i++) {
+                propertyIdAdapterPositionByName.put(mPropInfo.get(i).toString(), i);
+            }
+            mPropertyId.setAdapter(propertyIdAdapter);
             mPropertyId.setOnItemSelectedListener(this);
+            var propertyNameAdapter = new ArrayAdapter<PropertyInfo>(
+                    mContext, android.R.layout.simple_dropdown_item_1line,
+                    mPropInfo);
+            mPropertyNameInput.setAdapter(propertyNameAdapter);
+            mPropertyNameInput.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void afterTextChanged(Editable s) {
+                    String propertyName = s.toString();
+                    if (propertyName.equals("")) {
+                        return;
+                    }
+                    Integer index = propertyIdAdapterPositionByName.get(propertyName);
+                    if (index != null) {
+                        mPropertyId.setSelection(index);
+                    }
+                }
+
+                @Override
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+                @Override
+                public void onTextChanged(CharSequence s, int start, int before, int count) {}
+            });
         };
         mKitchenSinkHelper.requestRefreshManager(r, new Handler(getContext().getMainLooper()));
     }
 
-    private int getSelectedPropertyId() {
-        PropertyInfo info = (PropertyInfo) mPropertyId.getSelectedItem();
+    private @Nullable Integer getSelectedPropertyId() {
+        PropertyInfo info = getSelectedPropertyInfo();
+        if (info == null) {
+            return null;
+        }
         return info.mConfig.getPropertyId();
     }
 
@@ -211,6 +257,7 @@ public class PropertyTestFragment extends Fragment implements OnItemSelectedList
         mAreaId = view.findViewById(R.id.sAreaId);
         mEventLog = view.findViewById(R.id.tvEventLog);
         mPropertyId = view.findViewById(R.id.sPropertyId);
+        mPropertyNameInput = view.findViewById(R.id.autoCompletePropertyNameInput);
         mScrollView = view.findViewById(R.id.svEventLog);
         mSetValue = view.findViewById(R.id.etSetPropertyValue);
         mContext = getActivity();
@@ -230,40 +277,55 @@ public class PropertyTestFragment extends Fragment implements OnItemSelectedList
         // Configure listeners for buttons
         Button b = view.findViewById(R.id.bGetProperty);
         b.setOnClickListener(v -> {
+            Integer propId = getSelectedPropertyId();
+            if (propId == null) {
+                return;
+            }
+            int areaId = getSelectedAreaId();
             try {
-                int propId = getSelectedPropertyId();
-                int areaId = getSelectedAreaId();
                 CarPropertyValue value = mMgr.getProperty(propId, areaId);
-                setTextOnSuccess(propId, value.getTimestamp(), value.getValue(), value.getStatus());
+                setTextOnSuccess(propId, areaId, value.getTimestamp(), value.getValue(),
+                        value.getStatus());
             } catch (Exception e) {
-                showExceptionMessage(e, "Failed to get VHAL property");
+                showExceptionMessage(e, "getProperty failed",
+                        String.format("getProperty(%s, %d): failed",
+                                PropertyInfo.getPropertyName(propId), areaId));
             }
         });
 
         b = view.findViewById(R.id.getPropertyAsync);
         b.setOnClickListener(v -> {
+            Integer propId = getSelectedPropertyId();
+            if (propId == null) {
+                return;
+            }
+            int areaId = getSelectedAreaId();
             try {
-                int propId = getSelectedPropertyId();
-                int areaId = getSelectedAreaId();
                 GetPropertyRequest getPropertyRequest = mMgr.generateGetPropertyRequest(propId,
                         areaId);
                 mMgr.getPropertiesAsync(List.of(getPropertyRequest),
                         /* cancellationSignal= */ null, /* callbackExecutor= */ null,
                         mGetPropertyCallback);
             } catch (Exception e) {
-                showExceptionMessage(e, "Failed to get async VHAL property");
+                showExceptionMessage(e, "async getProperty failed",
+                        String.format("async getProperty(%s, %d): failed",
+                                PropertyInfo.getPropertyName(propId), areaId));
             }
         });
 
         b = view.findViewById(R.id.bGetMinMaxSupportedValues);
         b.setOnClickListener(v -> {
+            Integer propId = getSelectedPropertyId();
+            if (propId == null) {
+                return;
+            }
+            int areaId = getSelectedAreaId();
             try {
-                int propId = getSelectedPropertyId();
-                int areaId = getSelectedAreaId();
                 MinMaxSupportedValue<Object> minMaxSupportedValue = mMgr.getMinMaxSupportedValue(
                         propId, areaId);
 
-                mEventLog.append("getMinMaxSupportedValue: ");
+                mEventLog.append(String.format("getMinMaxSupportedValue(%s, %d):",
+                        PropertyInfo.getPropertyName(propId), areaId));
                 Object minValue = minMaxSupportedValue.getMinValue();
                 Object maxValue = minMaxSupportedValue.getMaxValue();
                 if (minValue == null && maxValue == null) {
@@ -283,19 +345,25 @@ public class PropertyTestFragment extends Fragment implements OnItemSelectedList
                 }
                 scrollEventLogsToBottom();
             } catch (Exception e) {
-                showExceptionMessage(e, "Failed to get min/max supported values");
+                showExceptionMessage(e, "getMinMaxSupportedValue failed",
+                        String.format("getMinMaxSupportedValue(%s, %d): failed",
+                                PropertyInfo.getPropertyName(propId), areaId));
             }
         });
 
         b = view.findViewById(R.id.bGetSupportedValuesList);
         b.setOnClickListener(v -> {
+            Integer propId = getSelectedPropertyId();
+            if (propId == null) {
+                return;
+            }
+            int areaId = getSelectedAreaId();
             try {
-                int propId = getSelectedPropertyId();
-                int areaId = getSelectedAreaId();
                 List<Object> supportedValuesList = mMgr.getSupportedValuesList(
                         propId, areaId);
 
-                mEventLog.append("getSupportedValuesList: ");
+                mEventLog.append(String.format("getSupportedValuesList(%s, %d):",
+                        PropertyInfo.getPropertyName(propId), areaId));
                 if (supportedValuesList == null) {
                     mEventLog.append("not specified\n");
                 } else {
@@ -303,15 +371,20 @@ public class PropertyTestFragment extends Fragment implements OnItemSelectedList
                 }
                 scrollEventLogsToBottom();
             } catch (Exception e) {
-                showExceptionMessage(e, "Failed to get supported values list");
+                showExceptionMessage(e, "getSupportedValuesList failed",
+                        String.format("getSupportedValuesList(%s, %d): failed",
+                                PropertyInfo.getPropertyName(propId), areaId));
             }
         });
 
         b = view.findViewById(R.id.bSetProperty);
         b.setOnClickListener(v -> {
+            Integer propId = getSelectedPropertyId();
+            if (propId == null) {
+                return;
+            }
+            int areaId = getSelectedAreaId();
             try {
-                int propId = getSelectedPropertyId();
-                int areaId = getSelectedAreaId();
                 String valueString = mSetValue.getText().toString();
 
                 switch (propId & VehiclePropertyType.MASK) {
@@ -334,15 +407,20 @@ public class PropertyTestFragment extends Fragment implements OnItemSelectedList
                         break;
                 }
             } catch (Exception e) {
-                showExceptionMessage(e, "Failed to set VHAL property");
+                showExceptionMessage(e, "setProperty failed",
+                        String.format("setProperty(%s, %d): failed",
+                                PropertyInfo.getPropertyName(propId), areaId));
             }
         });
 
         b = view.findViewById(R.id.SetPropertyAsync);
         b.setOnClickListener(v -> {
+            Integer propId = getSelectedPropertyId();
+            if (propId == null) {
+                return;
+            }
+            int areaId = getSelectedAreaId();
             try {
-                int propId = getSelectedPropertyId();
-                int areaId = getSelectedAreaId();
                 String valueString = mSetValue.getText().toString();
 
                 switch (propId & VehiclePropertyType.MASK) {
@@ -365,7 +443,9 @@ public class PropertyTestFragment extends Fragment implements OnItemSelectedList
                         break;
                 }
             } catch (Exception e) {
-                showExceptionMessage(e, "Failed to set async VHAL property");
+                showExceptionMessage(e, "async setProperty failed",
+                        String.format("async setProperty(%s, %d): failed",
+                                PropertyInfo.getPropertyName(propId), areaId));
             }
         });
 
@@ -374,15 +454,94 @@ public class PropertyTestFragment extends Fragment implements OnItemSelectedList
             mEventLog.setText("");
         });
 
+        mSubscribeButton.setOnClickListener(v -> {
+            PropertyInfo info = getSelectedPropertyInfo();
+            if (info == null) {
+                return;
+            }
+            int propertyId = info.mConfig.getPropertyId();
+            int changeMode = info.mConfig.getChangeMode();
+            Float subscriptionRateHz = SUBSCRIPTION_RATES_HZ[
+                    mPropertySubscriptionRateHzSelection.get(propertyId, 0)];
+            if (mSubscribeButton.isChecked()
+                    && (changeMode != CarPropertyConfig.VEHICLE_PROPERTY_CHANGE_MODE_CONTINUOUS
+                            || subscriptionRateHz != 0.0)) {
+                mListener.addPropertySelectedSubscriptionRateHz(propertyId, subscriptionRateHz);
+                mListener.updatePropertyStartTime(propertyId);
+                mListener.resetEventCountForProperty(propertyId);
+
+                Float resolution = RESOLUTIONS[mPropertyResolutionSelection.get(propertyId)];
+                boolean variableUpdateRate =
+                        mPropertyVariableUpdateRateSelection.get(propertyId) != 0;
+
+                try {
+                    mMgr.subscribePropertyEvents(List.of(
+                            new Subscription.Builder(propertyId)
+                                    .setUpdateRateHz(subscriptionRateHz)
+                                    .setResolution(resolution)
+                                    .setVariableUpdateRateEnabled(variableUpdateRate)
+                                    .build()),
+                            /* callbackExecutor= */ null, mListener);
+                    mPropertyIsSubscribedSelection.put(propertyId, true);
+                    setEnabledSubscriptionScrollViews(false);
+                } catch (Exception e) {
+                    Log.e(TAG, "Unhandled exception: ", e);
+                }
+            } else {
+                try {
+                    mMgr.unsubscribePropertyEvents(propertyId, mListener);
+                    mPropertyIsSubscribedSelection.put(propertyId, false);
+                    setEnabledSubscriptionScrollViews(true);
+                } catch (Exception e) {
+                    Log.e(TAG, "Unhandled exception: ", e);
+                }
+            }
+        });
+
+        mSubscribeSupportedValuesChangeButton.setOnClickListener(v -> {
+            Integer propertyId = getSelectedPropertyId();
+            if (propertyId == null) {
+                return;
+            }
+            if (mSubscribeSupportedValuesChangeButton.isChecked()) {
+                try {
+                    mMgr.registerSupportedValuesChangeCallback(propertyId, mListener);
+                    mPropertyIsSubscribedSupportedValuesChange.put(propertyId, true);
+                } catch (Exception e) {
+                    Log.e(TAG, "Unhandled exception: ", e);
+                }
+            } else {
+                try {
+                    mMgr.unregisterSupportedValuesChangeCallback(propertyId);
+                    mPropertyIsSubscribedSupportedValuesChange.put(propertyId, false);
+                } catch (Exception e) {
+                    Log.e(TAG, "Unhandled exception: ", e);
+                }
+            }
+        });
+
         requestPermissions(REQUIRED_DANGEROUS_PERMISSIONS, KS_PERMISSIONS_REQUEST);
 
         return view;
     }
 
-    private void showExceptionMessage(Exception e, String context) {
-        Log.e(TAG, context, e);
-        Toast.makeText(mContext, context, Toast.LENGTH_SHORT).show();
+    private @Nullable PropertyInfo getSelectedPropertyInfo() {
+        PropertyInfo info = (PropertyInfo) mPropertyId.getSelectedItem();
+        String propertyName = mPropertyNameInput.getText().toString();
+        if (!propertyName.equals("") && !info.toString().equals(propertyName)) {
+            // This means user manually input the property name and it is not one of the valid
+            // choices in the spinner.
+            Toast.makeText(mContext, "Invalid property name: " + propertyName, Toast.LENGTH_SHORT)
+                    .show();
+            return null;
+        }
+        return info;
+    }
+
+    private void showExceptionMessage(Exception e, String briefContext, String context) {
+        Toast.makeText(mContext, briefContext, Toast.LENGTH_SHORT).show();
         mEventLog.append(context + ": " + e.getMessage() + "\n");
+        Log.e(TAG, context + ": " + e.getMessage());
         scrollEventLogsToBottom();
     }
 
@@ -407,6 +566,11 @@ public class PropertyTestFragment extends Fragment implements OnItemSelectedList
     // Spinner callbacks
     public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
         PropertyInfo info = (PropertyInfo) parent.getItemAtPosition(pos);
+        String propertyName = info.toString();
+        // Clear property name input box if it is selected from the spinner.
+        if (!mPropertyNameInput.getText().toString().equals(propertyName)) {
+            mPropertyNameInput.setText("");
+        }
         int propertyId = info.mPropId;
         int[] areaIds = info.mConfig.getAreaIds();
         List<String> areaIdsString = new ArrayList<String>();
@@ -418,7 +582,7 @@ public class PropertyTestFragment extends Fragment implements OnItemSelectedList
             }
         }
 
-        // Configure dropdown menu for propertyId spinner
+        // Configure dropdown menu for areaId spinner
         ArrayAdapter<String> areaIdAdapter = new ArrayAdapter<String>(mContext,
                 android.R.layout.simple_spinner_item, areaIdsString);
         areaIdAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -528,64 +692,8 @@ public class PropertyTestFragment extends Fragment implements OnItemSelectedList
         if (mSubscribeButton.isChecked()) {
             setEnabledSubscriptionScrollViews(false);
         }
-        mSubscribeButton.setOnClickListener(v -> {
-            Float subscriptionRateHz = SUBSCRIPTION_RATES_HZ[
-                    mPropertySubscriptionRateHzSelection.get(propertyId)];
-            if (mSubscribeButton.isChecked()
-                    && (changeMode != CarPropertyConfig.VEHICLE_PROPERTY_CHANGE_MODE_CONTINUOUS
-                            || subscriptionRateHz != 0.0)) {
-                mListener.addPropertySelectedSubscriptionRateHz(propertyId, subscriptionRateHz);
-                mListener.updatePropertyStartTime(propertyId);
-                mListener.resetEventCountForProperty(propertyId);
-
-                Float resolution = RESOLUTIONS[mPropertyResolutionSelection.get(propertyId)];
-                boolean variableUpdateRate =
-                        mPropertyVariableUpdateRateSelection.get(propertyId) != 0;
-
-                try {
-                    mMgr.subscribePropertyEvents(List.of(
-                            new Subscription.Builder(propertyId)
-                                    .setUpdateRateHz(subscriptionRateHz)
-                                    .setResolution(resolution)
-                                    .setVariableUpdateRateEnabled(variableUpdateRate)
-                                    .build()),
-                            /* callbackExecutor= */ null, mListener);
-                    mPropertyIsSubscribedSelection.put(propertyId, true);
-                    setEnabledSubscriptionScrollViews(false);
-                } catch (Exception e) {
-                    Log.e(TAG, "Unhandled exception: ", e);
-                }
-            } else {
-                try {
-                    mMgr.unsubscribePropertyEvents(propertyId, mListener);
-                    mPropertyIsSubscribedSelection.put(propertyId, false);
-                    setEnabledSubscriptionScrollViews(true);
-                } catch (Exception e) {
-                    Log.e(TAG, "Unhandled exception: ", e);
-                }
-            }
-        });
-
         mSubscribeSupportedValuesChangeButton.setChecked(
                 mPropertyIsSubscribedSupportedValuesChange.get(propertyId));
-
-        mSubscribeSupportedValuesChangeButton.setOnClickListener(v -> {
-            if (mSubscribeSupportedValuesChangeButton.isChecked()) {
-                try {
-                    mMgr.registerSupportedValuesChangeCallback(propertyId, mListener);
-                    mPropertyIsSubscribedSupportedValuesChange.put(propertyId, true);
-                } catch (Exception e) {
-                    Log.e(TAG, "Unhandled exception: ", e);
-                }
-            } else {
-                try {
-                    mMgr.unregisterSupportedValuesChangeCallback(propertyId);
-                    mPropertyIsSubscribedSupportedValuesChange.put(propertyId, false);
-                } catch (Exception e) {
-                    Log.e(TAG, "Unhandled exception: ", e);
-                }
-            }
-        });
     }
 
     public void onNothingSelected(AdapterView<?> parent) {
@@ -601,8 +709,11 @@ public class PropertyTestFragment extends Fragment implements OnItemSelectedList
         });
     }
 
-    private void setTextOnSuccess(int propId, long timestamp, Object value, int status) {
-        mEventLog.append("getProperty: ");
+    private void setTextOnSuccess(int propId, int areaId, long timestamp,
+            Object value, int status) {
+        String propertyName = PropertyInfo.getPropertyName(propId);
+        mEventLog.append(String.format("getProperty(%s, %d):",
+                        PropertyInfo.getPropertyName(propId), areaId));
         if (propId == VehiclePropertyIds.WHEEL_TICK) {
             Object[] ticks = (Object[]) value;
             mEventLog.append("ElapsedRealtimeNanos=" + timestamp
@@ -614,8 +725,8 @@ public class PropertyTestFragment extends Fragment implements OnItemSelectedList
                     ? Arrays.toString((Object[]) value)
                     : value.toString();
             mEventLog.append("ElapsedRealtimeNanos=" + timestamp
-                    + " status=" + status
                     + " value=" + valueString
+                    + " status=" + status
                     + " read=" + mMgr.getReadPermission(propId)
                     + " write=" + mMgr.getWritePermission(propId));
         }

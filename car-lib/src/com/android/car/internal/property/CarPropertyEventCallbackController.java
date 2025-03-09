@@ -39,7 +39,6 @@ public final class CarPropertyEventCallbackController extends CarPropertyEventCo
 
     public CarPropertyEventCallbackController(CarPropertyEventCallback carPropertyEventCallback,
             Executor executor) {
-        super(/* useSystemLogger= */ false);
         requireNonNull(carPropertyEventCallback);
         mCarPropertyEventCallback = carPropertyEventCallback;
         mExecutor = executor;
