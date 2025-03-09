@@ -16,8 +16,12 @@
 
 package android.car.hardware.property;
 
+import static android.car.feature.Flags.FLAG_ANDROID_B_VEHICLE_PROPERTIES;
+
+import android.annotation.FlaggedApi;
 import android.annotation.IntDef;
 import android.annotation.NonNull;
+import android.car.feature.Flags;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -84,17 +88,21 @@ public final class EvChargingConnectorType {
     /**
      * High Power Wall Charger of Tesla.
      *
-     * <p>This is the same connector as the {@link #TESLA_SUPERCHARGER}.
-     * @see #TESLA_SUPERCHARGER
+     * @deprecated This is the same connector as the {@link #SAE_J3400_AC}. Please use that field
+     * instead.
+     * @see #SAE_J3400_AC
      */
+    @Deprecated
     public static final int TESLA_HPWC = 8;
 
     /**
-     * SAE J3400 connector
+     * Tesla Supercharger
      *
-     * <p>Also known as the "North American Charging Standard" (NACS)
-     * or the "Tesla charging standard" connector.
+     * @deprecated This is the same connector as the {@link #SAE_J3400_DC}. Please use that field
+     * instead.
+     * @see #SAE_J3400_DC
      */
+    @Deprecated
     public static final int TESLA_SUPERCHARGER = 9;
 
     /** GBT_AC Fast Charging Standard */
@@ -102,6 +110,37 @@ public final class EvChargingConnectorType {
 
     /** GBT_DC Fast Charging Standard */
     public static final int GBT_DC = 11;
+
+    /**
+     * SAE J3400 connector - AC Charging.
+     *
+     * <p>Also known as the "North American Charging Standard" (NACS).
+     *
+     * <p>This enum will be used if the vehicle specifically supports AC charging. If the vehicle
+     * supports both AC and DC, {@link android.car.VehiclePropertyIds#INFO_EV_CONNECTOR_TYPE} will
+     * be populated with both {@code SAE_J3400_AC} and {@link #SAE_J3400_DC}. If the vehicle only
+     * supports AC charging, it will only be populated with {@code SAE_J3400_AC}.
+     *
+     * <p>This is equivalent to {@link #TESLA_HPWC} enum, which used to map to the same value.
+     */
+    @FlaggedApi(FLAG_ANDROID_B_VEHICLE_PROPERTIES)
+    public static final int SAE_J3400_AC = 8;
+
+    /**
+     * SAE J3400 connector - DC Charging.
+     *
+     * <p>Also known as the "North American Charging Standard" (NACS).
+     *
+     * <p>This enum will be used if the vehicle specifically supports DC charging. If the vehicle
+     * supports both AC and DC, {@link android.car.VehiclePropertyIds#INFO_EV_CONNECTOR_TYPE} will
+     * be populated with both {@link #SAE_J3400_AC} and {@code SAE_J3400_DC}. If the vehicle only
+     * supports DC charging, it will only be populated with {@code SAE_J3400_DC}.
+     *
+     * <p>This is equivalent to {@link #TESLA_SUPERCHARGER} enum, which used to map to the same
+     * value.
+     */
+    @FlaggedApi(FLAG_ANDROID_B_VEHICLE_PROPERTIES)
+    public static final int SAE_J3400_DC = 9;
 
     /**
      * Connector type to use when no other types apply.
@@ -122,6 +161,8 @@ public final class EvChargingConnectorType {
             TESLA_SUPERCHARGER,
             GBT_AC,
             GBT_DC,
+            SAE_J3400_AC,
+            SAE_J3400_DC,
             OTHER
     })
     @Retention(RetentionPolicy.SOURCE)
@@ -151,10 +192,6 @@ public final class EvChargingConnectorType {
                 return "IEC_TYPE_2_CCS_DC";
             case TESLA_ROADSTER:
                 return "TESLA_ROADSTER";
-            case TESLA_HPWC:
-                return "TESLA_HPWC";
-            case TESLA_SUPERCHARGER:
-                return "TESLA_SUPERCHARGER";
             case GBT_AC:
                 return "GBT_AC";
             case GBT_DC:
@@ -162,6 +199,19 @@ public final class EvChargingConnectorType {
             case OTHER:
                 return "OTHER";
             default:
+                if (Flags.androidBVehicleProperties()) {
+                    if (connectorType == SAE_J3400_AC) {
+                        return "SAE_J3400_AC";
+                    } else if (connectorType == SAE_J3400_DC) {
+                        return "SAE_J3400_DC";
+                    }
+                } else {
+                    if (connectorType == TESLA_HPWC) {
+                        return "TESLA_HPWC";
+                    } else if (connectorType == TESLA_SUPERCHARGER) {
+                        return "TESLA_SUPERCHARGER";
+                    }
+                }
                 return "0x" + Integer.toHexString(connectorType);
         }
     }

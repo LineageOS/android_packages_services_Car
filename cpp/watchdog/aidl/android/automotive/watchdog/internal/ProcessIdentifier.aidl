@@ -29,4 +29,14 @@ parcelable ProcessIdentifier {
    * Process start time in milliseconds.
    */
   long startTimeMillis;
+
+  /**
+   * Uid.
+   */
+  int uid;
+
+  /**
+   * Process name.
+   */
+  @utf8InCpp String processName = "";
 }

@@ -35,8 +35,13 @@
 #include <android-base/stringprintf.h>
 #include <android/binder_auto_utils.h>
 #include <android/binder_interface_utils.h>
+#include <android/util/ProtoOutputStream.h>
 #include <gmock/gmock.h>
 #include <utils/RefBase.h>
+
+#include <packages/services/Car/service/proto/android/car/watchdog/carwatchdog_daemon_dump.pb.h>
+#include <packages/services/Car/service/proto/android/car/watchdog/health_check_client_info.pb.h>
+#include <packages/services/Car/service/proto/android/car/watchdog/performance_stats.pb.h>
 
 #include <future>  // NOLINT(build/c++11)
 #include <queue>
@@ -63,6 +68,7 @@ using ::android::automotive::watchdog::testing::LooperStub;
 using ::android::base::Error;
 using ::android::base::Result;
 using ::android::base::StringAppendF;
+using ::android::util::ProtoReader;
 using ::testing::_;
 using ::testing::ByMove;
 using ::testing::Eq;
@@ -79,6 +85,7 @@ constexpr std::chrono::seconds kTestPeriodicCollectionIntervalSecs = 5s;
 constexpr std::chrono::seconds kTestCustomCollectionIntervalSecs = 3s;
 constexpr std::chrono::seconds kTestCustomCollectionDurationSecs = 11s;
 constexpr std::chrono::seconds kTestPeriodicMonitorIntervalSecs = 2s;
+constexpr std::chrono::seconds kTestWakeupCollectionIntervalSecs = 7s;
 constexpr std::chrono::seconds kTestUserSwitchTimeoutSecs = 15s;
 constexpr std::chrono::seconds kTestWakeUpDurationSecs = 20s;
 
@@ -93,6 +100,27 @@ std::string toString(const std::vector<ResourceStats>& resourceStats) {
     }
     StringAppendF(&buffer, "}");
     return buffer;
+}
+
+constexpr int toProtoEventType(EventType eventType) {
+    switch (eventType) {
+        case EventType::INIT:
+            return PerformanceProfilerDump::INIT;
+        case EventType::TERMINATED:
+            return PerformanceProfilerDump::TERMINATED;
+        case EventType::BOOT_TIME_COLLECTION:
+            return PerformanceProfilerDump::BOOT_TIME_COLLECTION;
+        case EventType::PERIODIC_COLLECTION:
+            return PerformanceProfilerDump::PERIODIC_COLLECTION;
+        case EventType::USER_SWITCH_COLLECTION:
+            return PerformanceProfilerDump::USER_SWITCH_COLLECTION;
+        case EventType::WAKE_UP_COLLECTION:
+            return PerformanceProfilerDump::WAKE_UP_COLLECTION;
+        case EventType::CUSTOM_COLLECTION:
+            return PerformanceProfilerDump::CUSTOM_COLLECTION;
+        default:
+            return PerformanceProfilerDump::EVENT_TYPE_UNSPECIFIED;
+    }
 }
 
 ResourceUsageStats constructResourceUsageStats(
@@ -146,6 +174,7 @@ public:
         mService->mPeriodicCollection.pollingIntervalNs = kTestPeriodicCollectionIntervalSecs;
         mService->mUserSwitchCollection.pollingIntervalNs = kTestSystemEventCollectionIntervalSecs;
         mService->mPeriodicMonitor.pollingIntervalNs = kTestPeriodicMonitorIntervalSecs;
+        mService->mCustomCollection.pollingIntervalNs = kTestCustomCollectionIntervalSecs;
         mService->mUserSwitchTimeoutNs = kTestUserSwitchTimeoutSecs;
         mService->mWakeUpDurationNs = kTestWakeUpDurationSecs;
     }
@@ -163,6 +192,11 @@ public:
     void setCurrCollectionEvent(EventType eventType) {
         Mutex::Autolock lock(mService->mMutex);
         mService->mCurrCollectionEvent = eventType;
+    }
+
+    void setKernelStartTime(time_t startTime) {
+      Mutex::Autolock lock(mService->mMutex);
+      mService->mKernelStartTimeEpochSeconds = startTime;
     }
 
     int64_t getCurrentCollectionIntervalMillis() {
@@ -306,6 +340,16 @@ protected:
         int64_t timeSinceBootMs = mElapsedTimeSinceBootMs;
         mElapsedTimeSinceBootMs += mServicePeer->getCurrentCollectionIntervalMillis();
         return timeSinceBootMs;
+    }
+
+    std::string protoToString(util::ProtoOutputStream* proto) {
+      std::string content;
+      content.reserve(proto->size());
+      sp<ProtoReader> reader = proto->data();
+      while (reader->hasNext()) {
+        content.push_back(reader->next());
+      }
+      return content;
     }
 
     sp<WatchdogPerfService> mService;
@@ -1812,6 +1856,54 @@ TEST_F(WatchdogPerfServiceTest, TestUnsentResourceStatsMaxCacheSize) {
     ASSERT_EQ(actualResourceStats, expectedResourceStats)
             << "Expected: " << toString(expectedResourceStats)
             << "\nActual: " << toString(actualResourceStats);
+}
+
+TEST_F(WatchdogPerfServiceTest, TestOnDumpProto) {
+    ASSERT_NO_FATAL_FAILURE(startService());
+
+    ASSERT_NO_FATAL_FAILURE(startPeriodicCollection());
+    ASSERT_NO_FATAL_FAILURE(skipPeriodicMonitorEvents());
+
+    DataProcessorInterface::CollectionIntervals expectedCollectionIntervals = {
+        .mBoottimeIntervalMillis = std::chrono::duration_cast<std::chrono::milliseconds>(
+            kTestSystemEventCollectionIntervalSecs),
+        .mPeriodicIntervalMillis = std::chrono::duration_cast<std::chrono::milliseconds>(
+            kTestPeriodicCollectionIntervalSecs),
+        .mUserSwitchIntervalMillis = std::chrono::duration_cast<std::chrono::milliseconds>(
+            kTestSystemEventCollectionIntervalSecs),
+        .mWakeUpIntervalMillis = std::chrono::duration_cast<std::chrono::milliseconds>(
+            kTestSystemEventCollectionIntervalSecs),
+        .mCustomIntervalMillis = std::chrono::duration_cast<std::chrono::milliseconds>(
+            kTestCustomCollectionIntervalSecs)
+    };
+
+    EXPECT_CALL(*mMockUidStatsCollector, collect()).Times(1);
+    EXPECT_CALL(*mMockProcStatCollector, collect()).Times(1);
+    EXPECT_CALL(*mMockDataProcessor, onDumpProto(Eq(expectedCollectionIntervals), _)).Times(1);
+
+    util::ProtoOutputStream proto;
+    mServicePeer->setKernelStartTime(1727278967);
+    mService->onDumpProto(proto);
+
+    CarWatchdogDaemonDump carWatchdogDaemonDump;
+
+    ASSERT_TRUE(carWatchdogDaemonDump.ParseFromString(protoToString(&proto)));
+    ASSERT_TRUE(carWatchdogDaemonDump.has_performance_profiler_dump());
+
+    PerformanceProfilerDump performanceProfilerDump =
+          carWatchdogDaemonDump.performance_profiler_dump();
+
+    ASSERT_TRUE(performanceProfilerDump.has_current_event());
+    ASSERT_TRUE(performanceProfilerDump.has_kernel_start_time_epoch_seconds());
+    ASSERT_TRUE(
+          performanceProfilerDump.has_boot_completed_time_epoch_seconds());
+
+    EXPECT_EQ(performanceProfilerDump.current_event(),
+              toProtoEventType(mServicePeer->getCurrCollectionEvent()));
+    // startPeriodicCollection helper function calls onBootFinished. This generates the
+    // values for boot_completed_time_epoch_seconds.
+    EXPECT_GT(performanceProfilerDump.boot_completed_time_epoch_seconds(), 0);
+    EXPECT_GT(performanceProfilerDump.kernel_start_time_epoch_seconds(), 0);
 }
 
 }  // namespace watchdog

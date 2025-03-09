@@ -44,13 +44,28 @@ import android.car.media.CarVolumeGroupInfo;
 import android.media.AudioAttributes;
 import android.media.AudioDeviceAttributes;
 import android.media.AudioDeviceInfo;
+import android.media.AudioManager;
+import android.text.TextUtils;
+import android.util.ArrayMap;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 final class CarAudioUtils {
+
+    static final int ACTIVATION_VOLUME_PERCENTAGE_MIN = 0;
+    static final int ACTIVATION_VOLUME_PERCENTAGE_MAX = 100;
+    static final int ACTIVATION_VOLUME_INVOCATION_TYPE =
+            CarActivationVolumeConfig.ACTIVATION_VOLUME_ON_BOOT
+                    | CarActivationVolumeConfig.ACTIVATION_VOLUME_ON_SOURCE_CHANGED
+                    | CarActivationVolumeConfig.ACTIVATION_VOLUME_ON_PLAYBACK_CHANGED;
+
+    static final CarActivationVolumeConfig DEFAULT_ACTIVATION_VOLUME =
+            new CarActivationVolumeConfig(ACTIVATION_VOLUME_INVOCATION_TYPE,
+                    ACTIVATION_VOLUME_PERCENTAGE_MIN, ACTIVATION_VOLUME_PERCENTAGE_MAX);
 
     @ExcludeFromCodeCoverageGeneratedReport(reason = PRIVATE_CONSTRUCTOR)
     private CarAudioUtils() {
@@ -132,6 +147,11 @@ final class CarAudioUtils {
         return true;
     }
 
+    static boolean isInvalidActivationPercentage(int activationValue) {
+        return activationValue < ACTIVATION_VOLUME_PERCENTAGE_MIN
+                || activationValue > ACTIVATION_VOLUME_PERCENTAGE_MAX;
+    }
+
     private static boolean excludesDynamicDevices(List<AudioDeviceAttributes> devices) {
         for (int c = 0; c < devices.size(); c++) {
             if (!isDynamicDeviceType(devices.get(c).getType())) {
@@ -156,6 +176,55 @@ final class CarAudioUtils {
             audioAttributes.addAll(groupInfo.getAudioAttributes());
         }
         return audioAttributes;
+    }
+
+    static ArrayMap<String, CarAudioDeviceInfo> generateAddressToCarAudioDeviceInfoMap(
+            List<CarAudioDeviceInfo> carAudioDeviceInfos) {
+        Objects.requireNonNull(carAudioDeviceInfos, "Car audio device infos can not be null");
+        var addressToCarInfo = new ArrayMap<String, CarAudioDeviceInfo>();
+        for (int i = 0; i < carAudioDeviceInfos.size(); i++) {
+            CarAudioDeviceInfo info = carAudioDeviceInfos.get(i);
+            if (!TextUtils.isEmpty(info.getAddress())) {
+                addressToCarInfo.put(info.getAddress(), info);
+            }
+        }
+        return addressToCarInfo;
+    }
+
+    static ArrayMap<String, AudioDeviceInfo> generateAddressToInputAudioDeviceInfoMap(
+            AudioDeviceInfo[] deviceInfos) {
+        Objects.requireNonNull(deviceInfos, "Input audio device infos can not be null");
+        var addressToInputDevice = new ArrayMap<String, AudioDeviceInfo>();
+        for (AudioDeviceInfo info : deviceInfos) {
+            if (info.isSource() && !TextUtils.isEmpty(info.getAddress())) {
+                addressToInputDevice.put(info.getAddress(), info);
+            }
+        }
+        return addressToInputDevice;
+    }
+
+    static List<CarAudioDeviceInfo> generateCarAudioDeviceInfos(AudioManagerWrapper audioManager) {
+        Objects.requireNonNull(audioManager, "Audio manager can not be null");
+        AudioDeviceInfo[] deviceInfos = audioManager.getDevices(AudioManager.GET_DEVICES_OUTPUTS);
+        List<CarAudioDeviceInfo> carInfos = new ArrayList<>();
+        for (int index = 0; index < deviceInfos.length; index++) {
+            if (!isValidDeviceType(deviceInfos[index].getType())) {
+                continue;
+            }
+            AudioDeviceInfo info = deviceInfos[index];
+            AudioDeviceAttributes attributes = new AudioDeviceAttributes(info);
+            CarAudioDeviceInfo carInfo = new CarAudioDeviceInfo(audioManager, attributes);
+            carInfo.setAudioDeviceInfo(info);
+            carInfos.add(carInfo);
+        }
+        return carInfos;
+    }
+
+    /*
+     * Currently only BUS and BUILT_SPEAKER devices are valid static devices.
+     */
+    private static boolean isValidDeviceType(int type) {
+        return type == AudioDeviceInfo.TYPE_BUS || type == AudioDeviceInfo.TYPE_BUILTIN_SPEAKER;
     }
 
     private static List<AudioDeviceInfo> getDynamicAudioDevices(

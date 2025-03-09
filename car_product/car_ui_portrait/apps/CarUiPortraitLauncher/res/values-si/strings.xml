@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+    Copyright (C) 2022 Google Inc.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_title" msgid="4784708395624095674">"මෝටර් රථ දියත් කිරීමේ යොමුව"</string>
+    <string name="base_layer_failure_recovery_title_string" msgid="8290782074384199510">"සංචාලන යෙදුමක් විවෘත කරන්න"</string>
+    <string name="audio_route_dialog_title" msgid="1140388655412845356">"ශ්‍රව්‍ය ප්‍රතිදානය"</string>
+    <string name="audio_route_vehicle" msgid="7873534810130878412">"මෝටර් රථ ස්පීකර"</string>
+    <string name="audio_route_phone_speaker" msgid="5532368961581735034">"දුරකථන ස්පීකරය"</string>
+    <string name="audio_route_handset" msgid="8283803824498570957">"දුරකථනය"</string>
+    <string name="back" msgid="2360066808525519279">"ආපසු"</string>
+    <string name="fullscreen" msgid="4312009981831027701">"පූර්ණ තිරය"</string>
+    <string name="blank_home_message" msgid="1931676618245482098">"යෙදුමක් විවෘත කරන්න"</string>
+</resources>

@@ -23,7 +23,9 @@ import com.android.internal.annotations.VisibleForTesting;
 
 import libcore.io.IoUtils;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 
@@ -32,8 +34,8 @@ import java.io.IOException;
  */
 public final class SystemPowerControlHelper {
     // Constants matching return values from libsuspend
-    public static final int SUSPEND_RESULT_SUCCESS = 0;
-    public static final int SUSPEND_RESULT_FAILURE = -1;
+    public static final int SUSPEND_SUCCESS = 0;
+    public static final int SUSPEND_FAILURE = -1;
 
     @VisibleForTesting
     static final String TAG = "SystemPowerControlHelper";
@@ -43,6 +45,8 @@ public final class SystemPowerControlHelper {
     static final String SUSPEND_TYPE_DISK = "disk";
 
     private static final String SYSFS_POWER_STATE_CONTROL_FILE = "/sys/power/state";
+    private static final String SYSFS_LAST_RESUME_REASON_FILE =
+            "/sys/kernel/wakeup_reasons/last_resume_reason";
 
     private SystemPowerControlHelper() {
     }
@@ -50,7 +54,7 @@ public final class SystemPowerControlHelper {
     /**
      * Forces system to enter deep sleep (Suspend-to-RAM)
      *
-     * @return {@code SUSPEND_RESULT_SUCCESS} in case of success and {@code SUSPEND_RESULT_FAILURE}
+     * @return {@code SUSPEND_SUCCESS} in case of success and {@code SUSPEND_FAILURE}
      * if Suspend-to-RAM fails
      */
     public static int forceDeepSleep() {
@@ -60,7 +64,7 @@ public final class SystemPowerControlHelper {
     /**
      * Forces system to enter hibernation (Suspend-to-disk)
      *
-     * @return {@code SUSPEND_RESULT_SUCCESS} in case of success and {@code SUSPEND_RESULT_FAILURE}
+     * @return {@code SUSPEND_SUCCESS} in case of success and {@code SUSPEND_FAILURE}
      * if Suspend-to-disk fails
      */
     public static int forceHibernate() {
@@ -81,10 +85,35 @@ public final class SystemPowerControlHelper {
         return isSuspendTypeSupported(SUSPEND_TYPE_DISK);
     }
 
+    /**
+     * Gets the last resume reason at /sys/kernel/wakeup_reasons/last_resume_reason written by the
+     * kernel.
+     */
+    @NonNull
+    public static String readLastResumeReason() {
+        String sysFsLastResumeReasonFile = getSysFsLastResumeReasonFile();
+        try (BufferedReader reader =
+                new BufferedReader(new FileReader(sysFsLastResumeReasonFile))) {
+            String fileContents = reader.readLine();
+            if (fileContents == null) {
+                return "";
+            } else {
+                return fileContents.trim();
+            }
+        } catch (IOException e) {
+            Slogf.w(TAG, e, "Failed to read %s", sysFsLastResumeReasonFile);
+            return "";
+        }
+    }
 
     @VisibleForTesting
     static String getSysFsPowerControlFile() {
         return SYSFS_POWER_STATE_CONTROL_FILE;
+    }
+
+    @VisibleForTesting
+    static String getSysFsLastResumeReasonFile() {
+        return SYSFS_LAST_RESUME_REASON_FILE;
     }
 
     /*
@@ -100,9 +129,9 @@ public final class SystemPowerControlHelper {
         } catch (IOException e) {
             Slogf.e(TAG, e, "Failed to suspend. Target %s. Failed to write to %s", mode,
                     sysFsPowerControlFile);
-            return SUSPEND_RESULT_FAILURE;
+            return SUSPEND_FAILURE;
         }
-        return SUSPEND_RESULT_SUCCESS;
+        return SUSPEND_SUCCESS;
     }
 
     private static boolean isSuspendTypeSupported(@NonNull String suspendType) {

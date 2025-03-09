@@ -96,7 +96,8 @@ public final class LargeParcelableJavaStableAIDLCompTest extends CarLessApiTestB
         assertThat(payloadP.payload).isEqualTo(payload);
     }
 
-    private void doTestStableAIDLTestLargeParcelableToTestLargeParcelable(int payloadSize) {
+    private void doTestStableAIDLTestLargeParcelableToTestLargeParcelable(int payloadSize)
+            throws Exception {
         byte[] payload = LargeParcelableTest.createByteArray(payloadSize);
         StableAIDLTestLargeParcelable origP = new StableAIDLTestLargeParcelable();
         origP.payload = payload;

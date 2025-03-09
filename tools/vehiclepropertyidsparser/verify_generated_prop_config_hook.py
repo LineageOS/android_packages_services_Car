@@ -83,7 +83,7 @@ def main():
 
     try:
         tempCarSvcProps = createTempFile()
-        javaBin = os.path.join(javaHomeDir, '/bin/java');
+        javaBin = os.path.join(javaHomeDir, 'bin/java');
         subprocess.check_call([javaBin, '-jar', vehiclePropertyIdsParser,
                 carLib, tempCarSvcProps])
         carSvcProps = os.path.join(args.android_build_top, CAR_SVC_PROPS);

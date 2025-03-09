@@ -195,12 +195,12 @@ public class SystemInterface implements ActivityManagerInterface,
     }
 
     @Override
-    public boolean enterDeepSleep() {
+    public int enterDeepSleep() {
         return mSystemStateInterface.enterDeepSleep();
     }
 
     @Override
-    public boolean enterHibernation() {
+    public int enterHibernation() {
         return mSystemStateInterface.enterHibernation();
     }
 
@@ -218,6 +218,11 @@ public class SystemInterface implements ActivityManagerInterface,
     @Override
     public boolean isWakeupCausedByTimer() {
         return mSystemStateInterface.isWakeupCausedByTimer();
+    }
+
+    @Override
+    public boolean isWakeupCausedByError() {
+        return mSystemStateInterface.isWakeupCausedByError();
     }
 
     @Override

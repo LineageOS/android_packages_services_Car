@@ -30,12 +30,17 @@ import android.hardware.automotive.vehicle.GetValueResult;
 import android.hardware.automotive.vehicle.GetValueResults;
 import android.hardware.automotive.vehicle.IVehicle;
 import android.hardware.automotive.vehicle.IVehicleCallback;
+import android.hardware.automotive.vehicle.MinMaxSupportedValueResult;
+import android.hardware.automotive.vehicle.MinMaxSupportedValueResults;
+import android.hardware.automotive.vehicle.RawPropValues;
 import android.hardware.automotive.vehicle.SetValueRequest;
 import android.hardware.automotive.vehicle.SetValueRequests;
 import android.hardware.automotive.vehicle.SetValueResult;
 import android.hardware.automotive.vehicle.SetValueResults;
 import android.hardware.automotive.vehicle.StatusCode;
 import android.hardware.automotive.vehicle.SubscribeOptions;
+import android.hardware.automotive.vehicle.SupportedValuesListResult;
+import android.hardware.automotive.vehicle.SupportedValuesListResults;
 import android.hardware.automotive.vehicle.VehiclePropConfig;
 import android.hardware.automotive.vehicle.VehiclePropConfigs;
 import android.hardware.automotive.vehicle.VehiclePropError;
@@ -62,6 +67,9 @@ import com.android.car.internal.LongPendingRequestPool;
 import com.android.car.internal.LongPendingRequestPool.TimeoutCallback;
 import com.android.car.internal.LongRequestIdWithTimeout;
 import com.android.car.internal.property.CarPropertyErrorCodes;
+import com.android.car.internal.property.PropIdAreaId;
+import com.android.car.logging.HistogramFactoryInterface;
+import com.android.car.logging.SystemHistogramFactory;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.modules.expresslog.Histogram;
@@ -78,15 +86,8 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
 
 final class AidlVehicleStub extends VehicleStub {
-    private static final Histogram sVehicleHalGetSyncLatencyHistogram = new Histogram(
-            "automotive_os.value_sync_hal_get_property_latency",
-            new Histogram.ScaledRangeOptions(/* binCount= */ 20, /* minValue= */ 0,
-                    /* firstBinWidth= */ 2, /* scaleFactor= */ 1.5f));
-
-    private static final Histogram sVehicleHalSetSyncLatencyHistogram = new Histogram(
-            "automotive_os.value_sync_hal_set_property_latency",
-            new Histogram.ScaledRangeOptions(/* binCount= */ 20, /* minValue= */ 0,
-                    /* firstBinWidth= */ 2, /* scaleFactor= */ 1.5f));
+    private final Histogram mVehicleHalGetSyncLatencyHistogram;
+    private final Histogram mVehicleHalSetSyncLatencyHistogram;
 
     private static final String AIDL_VHAL_SERVICE =
             "android.hardware.automotive.vehicle.IVehicle/default";
@@ -157,17 +158,25 @@ final class AidlVehicleStub extends VehicleStub {
     @VisibleForTesting
     AidlVehicleStub(IVehicle aidlVehicle) {
         this(aidlVehicle,
-                CarServiceUtils.getHandlerThread(AidlVehicleStub.class.getSimpleName()));
+                CarServiceUtils.getHandlerThread(AidlVehicleStub.class.getSimpleName()),
+                new SystemHistogramFactory());
     }
 
     @VisibleForTesting
-    AidlVehicleStub(IVehicle aidlVehicle, HandlerThread handlerThread) {
+    AidlVehicleStub(IVehicle aidlVehicle, HandlerThread handlerThread,
+            HistogramFactoryInterface histogramFactory) {
         mAidlVehicle = aidlVehicle;
         mPropValueBuilder = new HalPropValueBuilder(/*isAidl=*/true);
         mHandlerThread = handlerThread;
         mHandler = new Handler(mHandlerThread.getLooper());
         mGetSetValuesCallback = new GetSetValuesCallback();
         mPendingAsyncRequestPool = new PendingAsyncRequestPool(mHandler.getLooper());
+        mVehicleHalGetSyncLatencyHistogram = histogramFactory.newScaledRangeHistogram(
+                "automotive_os.value_sync_hal_get_property_latency", /* binCount= */ 20,
+                /* minValue= */ 0, /* firstBinWidth= */ 2, /* scaleFactor= */ 1.5f);
+        mVehicleHalSetSyncLatencyHistogram = histogramFactory.newScaledRangeHistogram(
+                "automotive_os.value_sync_hal_set_property_latency", /* binCount= */ 20,
+                /* minValue= */ 0, /* firstBinWidth= */ 2, /* scaleFactor= */ 1.5f);
     }
 
     /**
@@ -313,7 +322,7 @@ final class AidlVehicleStub extends VehicleStub {
                     }
                     return mPropValueBuilder.build(result.prop);
                 });
-        sVehicleHalGetSyncLatencyHistogram.logSample((float)
+        mVehicleHalGetSyncLatencyHistogram.logSample((float)
                 (System.currentTimeMillis() - currentTime));
         return halPropValue;
     }
@@ -338,7 +347,7 @@ final class AidlVehicleStub extends VehicleStub {
                     }
                     return null;
                 });
-        sVehicleHalSetSyncLatencyHistogram.logSample((float)
+        mVehicleHalSetSyncLatencyHistogram.logSample((float)
                 (System.currentTimeMillis() - currentTime));
     }
 
@@ -366,6 +375,92 @@ final class AidlVehicleStub extends VehicleStub {
     @Override
     public void cancelRequests(List<Integer> serviceRequestIds) {
         mPendingAsyncRequestPool.cancelRequests(serviceRequestIds);
+    }
+
+    @Override
+    public boolean isSupportedValuesImplemented() {
+        // We start supporting dynamic supported values API from V4.
+        try {
+            return mAidlVehicle.getInterfaceVersion() >= 4;
+        } catch (RemoteException e) {
+            Slogf.e(TAG, "Failed to get VHAL interface version, default "
+                    + "isSupportedValuesImplemented to false", e);
+            return false;
+        }
+    }
+
+    /**
+     * Gets the min/max supported value.
+     *
+     * Caller should only call this if {@link #isSupportedValuesImplemented} is {@code true}.
+     *
+     * If no min/max supported value is specified, return an empty structure.
+     *
+     * @throws ServiceSpecificException if the operation fails.
+     */
+    @Override
+    public MinMaxSupportedRawPropValues getMinMaxSupportedValue(
+            int propertyId, int areaId) throws ServiceSpecificException {
+        var propIdAreaId = new android.hardware.automotive.vehicle.PropIdAreaId();
+        propIdAreaId.propId = propertyId;
+        propIdAreaId.areaId = areaId;
+        MinMaxSupportedValueResults results;
+        try {
+            // This may throw ServiceSpecificException, we just rethrow it.
+            results = mAidlVehicle.getMinMaxSupportedValue(List.of(propIdAreaId));
+        } catch (RemoteException e) {
+            throw new ServiceSpecificException(StatusCode.INTERNAL_ERROR,
+                    "failed to connect to VHAL: " + e);
+        } catch (ServiceSpecificException e) {
+            throw new ServiceSpecificException(e.errorCode,
+                    "VHAL returns non-okay status code: " + e);
+        }
+        var actualResults = (MinMaxSupportedValueResults)
+                LargeParcelable.reconstructStableAIDLParcelable(
+                        results, /* keepSharedMemory= */ false);
+        MinMaxSupportedValueResult result = actualResults.payloads[0];
+        if (result.status != StatusCode.OK) {
+            throw new ServiceSpecificException(result.status,
+                    "MinMaxSupportedValueResult contains non-okay status code");
+        }
+        return new MinMaxSupportedRawPropValues(result.minSupportedValue, result.maxSupportedValue);
+    }
+
+    /**
+     * Gets the supported values list.
+     *
+     * Caller should only call this if {@link #isSupportedValuesImplemented} is {@code true}.
+     *
+     * If no supported values list is specified, return {@code null}.
+     *
+     * @throws ServiceSpecificException if the operation fails.
+     */
+    @Override
+    public @Nullable List<RawPropValues> getSupportedValuesList(int propertyId, int areaId)
+            throws ServiceSpecificException {
+        var propIdAreaId = new android.hardware.automotive.vehicle.PropIdAreaId();
+        propIdAreaId.propId = propertyId;
+        propIdAreaId.areaId = areaId;
+        SupportedValuesListResults results;
+        try {
+            // This may throw ServiceSpecificException, we just rethrow it.
+            results = mAidlVehicle.getSupportedValuesLists(List.of(propIdAreaId));
+        } catch (RemoteException e) {
+            throw new ServiceSpecificException(StatusCode.INTERNAL_ERROR,
+                    "failed to connect to VHAL: " + e);
+        } catch (ServiceSpecificException e) {
+            throw new ServiceSpecificException(e.errorCode,
+                    "VHAL returns non-okay status code: " + e);
+        }
+        var actualResults = (SupportedValuesListResults)
+                LargeParcelable.reconstructStableAIDLParcelable(
+                        results, /* keepSharedMemory= */ false);
+        SupportedValuesListResult result = actualResults.payloads[0];
+        if (result.status != StatusCode.OK) {
+            throw new ServiceSpecificException(result.status,
+                    "SupportedValuesListResult contains non-okay status code");
+        }
+        return result.supportedValuesList;
     }
 
     /**
@@ -614,6 +709,13 @@ final class AidlVehicleStub extends VehicleStub {
         }
 
         @Override
+        public void onSupportedValueChange(
+                List<android.hardware.automotive.vehicle.PropIdAreaId> vhalPropIdAreaIds)
+                throws RemoteException {
+            mCallback.onSupportedValuesChange(fromVhalPropIdAreaIds(vhalPropIdAreaIds));
+        }
+
+        @Override
         public void onPropertyEvent(VehiclePropValues propValues, int sharedMemoryFileCount)
                 throws RemoteException {
             VehiclePropValues origPropValues = (VehiclePropValues)
@@ -649,6 +751,43 @@ final class AidlVehicleStub extends VehicleStub {
             mAidlVehicle.unsubscribe(this, new int[]{prop});
         }
 
+        /**
+         * Registers the callback to be called when the min/max supported value or supportd values
+         * list change for the [propId, areaId]s.
+         *
+         * @throws ServiceSpecificException If VHAL returns error or VHAL connection fails.
+         */
+        @Override
+        public void registerSupportedValuesChange(List<PropIdAreaId> propIdAreaIds) {
+            try {
+                mAidlVehicle.registerSupportedValueChangeCallback(this,
+                        toVhalPropIdAreaIds(propIdAreaIds));
+            } catch (RemoteException e) {
+                throw new ServiceSpecificException(StatusCode.INTERNAL_ERROR,
+                        "failed to connect to VHAL: " + e);
+            } catch (ServiceSpecificException e) {
+                throw new ServiceSpecificException(e.errorCode,
+                        "VHAL returns non-okay status code: " + e);
+            }
+        }
+
+        /**
+         * Unregisters the [propId, areaId]s previously registered with
+         * registerSupportedValuesChange.
+         *
+         * Do nothing if the [propId, areaId]s were not previously registered.
+         */
+        @Override
+        public void unregisterSupportedValuesChange(List<PropIdAreaId> propIdAreaIds) {
+            try {
+                mAidlVehicle.unregisterSupportedValueChangeCallback(this,
+                        toVhalPropIdAreaIds(propIdAreaIds));
+            } catch (RemoteException | ServiceSpecificException e) {
+                Slogf.e(TAG, "Failed to call unregisterSupportedValueChangeCallback to VHAL for "
+                        + "propIdAreaIds: " + propIdAreaIds, e);
+            }
+        }
+
         @Override
         public String getInterfaceHash() {
             return IVehicleCallback.HASH;
@@ -657,6 +796,33 @@ final class AidlVehicleStub extends VehicleStub {
         @Override
         public int getInterfaceVersion() {
             return IVehicleCallback.VERSION;
+        }
+
+        private static List<android.hardware.automotive.vehicle.PropIdAreaId> toVhalPropIdAreaIds(
+                List<PropIdAreaId> propIdAreaIds) {
+            var vhalPropIdAreaIds =
+                    new ArrayList<android.hardware.automotive.vehicle.PropIdAreaId>();
+            for (int i = 0; i < propIdAreaIds.size(); i++) {
+                var propIdAreaId = propIdAreaIds.get(i);
+                var vhalPropIdAreaId = new android.hardware.automotive.vehicle.PropIdAreaId();
+                vhalPropIdAreaId.propId = propIdAreaId.propId;
+                vhalPropIdAreaId.areaId = propIdAreaId.areaId;
+                vhalPropIdAreaIds.add(vhalPropIdAreaId);
+            }
+            return vhalPropIdAreaIds;
+        }
+
+        private static List<PropIdAreaId> fromVhalPropIdAreaIds(
+                List<android.hardware.automotive.vehicle.PropIdAreaId> vhalPropIdAreaIds) {
+            var propIdAreaIds = new ArrayList<PropIdAreaId>();
+            for (int i = 0; i < vhalPropIdAreaIds.size(); i++) {
+                var vhalPropIdAreaId = vhalPropIdAreaIds.get(i);
+                var propIdAreaId = new PropIdAreaId();
+                propIdAreaId.propId = vhalPropIdAreaId.propId;
+                propIdAreaId.areaId = vhalPropIdAreaId.areaId;
+                propIdAreaIds.add(propIdAreaId);
+            }
+            return propIdAreaIds;
         }
     }
 
@@ -732,14 +898,19 @@ final class AidlVehicleStub extends VehicleStub {
         @Override
         public void onPropertyEvent(VehiclePropValues propValues, int sharedMemoryFileCount)
                 throws RemoteException {
-            throw new UnsupportedOperationException(
-                    "GetSetValuesCallback only support onGetValues or onSetValues");
+            throwUnsupportedException();
         }
 
         @Override
         public void onPropertySetError(VehiclePropErrors errors) throws RemoteException {
-            throw new UnsupportedOperationException(
-                    "GetSetValuesCallback only support onGetValues or onSetValues");
+            throwUnsupportedException();
+        }
+
+        @Override
+        public void onSupportedValueChange(
+                List<android.hardware.automotive.vehicle.PropIdAreaId> propIdAreaIds)
+                throws RemoteException {
+            throwUnsupportedException();
         }
 
         @Override
@@ -750,6 +921,11 @@ final class AidlVehicleStub extends VehicleStub {
         @Override
         public int getInterfaceVersion() {
             return IVehicleCallback.VERSION;
+        }
+
+        private void throwUnsupportedException() {
+            throw new UnsupportedOperationException(
+                    "GetSetValuesCallback only support onGetValues or onSetValues");
         }
     }
 
@@ -805,7 +981,6 @@ final class AidlVehicleStub extends VehicleStub {
             Trace.traceBegin(TRACE_TAG, "Prepare LargeParcelable");
             GetValueRequests largeParcelableRequest = new GetValueRequests();
             largeParcelableRequest.payloads = mVhalRequestItems;
-
             // TODO(b/269669729): Don't try to use large parcelable if the request size is too
             // small.
             largeParcelableRequest = (GetValueRequests) LargeParcelable.toLargeParcelable(
@@ -815,9 +990,14 @@ final class AidlVehicleStub extends VehicleStub {
                         return newRequests;
             });
             Trace.traceEnd(TRACE_TAG);
-            Trace.traceBegin(TRACE_TAG, "IVehicle#getValues");
-            iVehicle.getValues(callbackForVhal, largeParcelableRequest);
-            Trace.traceEnd(TRACE_TAG);
+
+            try {
+                Trace.traceBegin(TRACE_TAG, "IVehicle#getValues");
+                iVehicle.getValues(callbackForVhal, largeParcelableRequest);
+            } finally {
+                LargeParcelable.closeFd(largeParcelableRequest.sharedMemoryFd);
+                Trace.traceEnd(TRACE_TAG);
+            }
         }
 
         @Override
@@ -860,7 +1040,11 @@ final class AidlVehicleStub extends VehicleStub {
                         newRequests.payloads = new SetValueRequest[0];
                         return newRequests;
             });
-            iVehicle.setValues(callbackForVhal, largeParcelableRequest);
+            try {
+                iVehicle.setValues(callbackForVhal, largeParcelableRequest);
+            } finally {
+                LargeParcelable.closeFd(largeParcelableRequest.sharedMemoryFd);
+            }
         }
 
         @Override

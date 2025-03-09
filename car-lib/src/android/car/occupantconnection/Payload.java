@@ -45,6 +45,9 @@ import java.util.Objects;
  * <p>
  * The sender client can put the receiver endpoint ID in the payload so that the receiver service
  * knows which receiver endpoint(s) to dispatch the payload to.
+ * <p>
+ * When the sender client creates a Payload instance via the constructor, if the instance is never
+ * passed to @link CarOccupantConnectionManager#sendPayload}, the sender must call {@link #close}.
  *
  * @hide
  */
@@ -188,6 +191,11 @@ public final class Payload extends LargeParcelableBase {
     // LargeParcelableBase is hidden class but it implements parcelable and closeable which are
     // public APIs. So the test is not able to find these methods in payload.java and complains.
     // More details in b/275738385
+    /**
+     * Releases the shared memory file created for passing large data across binder.
+     *
+     * <p>Must be called to prevent resource leak.
+     */
     @Override
     public void close() {
         super.close();

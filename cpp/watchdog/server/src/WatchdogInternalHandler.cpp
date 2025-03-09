@@ -26,7 +26,7 @@
 #include <binder/IPCThreadState.h>
 #include <private/android_filesystem_config.h>
 
-#include <carwatchdog_daemon_dump.proto.h>
+#include <packages/services/Car/service/proto/android/car/watchdog/carwatchdog_daemon_dump.proto.h>
 
 namespace android {
 namespace automotive {

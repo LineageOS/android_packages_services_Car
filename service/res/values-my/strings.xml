@@ -30,6 +30,10 @@
     <string name="car_permission_desc_hvac" msgid="3754229695589774195">"သင့်ကား၏ \"havc စနစ်\" ကို အသုံးပြုပါမည်။"</string>
     <string name="car_permission_label_mileage" msgid="4661317074631150551">"ကား၏ ခရီးမိုင်အချက်အလက်များကို ရယူပါမည်"</string>
     <string name="car_permission_desc_mileage" msgid="7179735693278681090">"သင့်ကား၏ ခရီးမိုင်အချက်အလက်ကို အသုံးပြုပါမည်။"</string>
+    <!-- no translation found for car_permission_label_mileage_3p (7542459195663034759) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_mileage_3p (9109350882748664570) -->
+    <skip />
     <string name="car_permission_label_speed" msgid="1149027717860529745">"ကားအမြန်နှုန်းကို ကြည့်ပါမည်"</string>
     <string name="car_permission_desc_speed" msgid="2047965198165448241">"သင့်ကား၏ အမြန်နှုန်းကို အသုံးပြုပါမည်။"</string>
     <string name="car_permission_label_vehicle_dynamics_state" msgid="313779267420048367">"သင့်ကား၏ လှုပ်ရှားမှုစက်အား အခြေအနေကို ရယူပါမည်"</string>
@@ -92,6 +96,10 @@
     <string name="car_permission_desc_storage_monitoring" msgid="2075712271139671318">"မြန်နှုန်းမြင့်သိုလှောင်မှုအား အသုံးပြုခြင်းကို စောင့်ကြည့်ပါမည်"</string>
     <string name="car_permission_label_driving_state" msgid="7754624599537393650">"ယာဉ်မောင်းနှင်မှုအခြေအနေကို စောင့်ကြည့်ပါမည်"</string>
     <string name="car_permission_desc_driving_state" msgid="2684025262811635737">"\'ယာဉ်မောင်းနှင်မှုဆိုင်ရာ\' အခြေအနေ ပြောင်းလဲမှုများကို စောင့်ကြည့်ပါမည်။"</string>
+    <!-- no translation found for car_permission_label_driving_state_3p (1395905103166125030) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_driving_state_3p (5491522450897843003) -->
+    <skip />
     <string name="car_permission_label_use_telemetry_service" msgid="948005838683758846">"ကား၏ တယ်လီမက်ထရီဝန်ဆောင်မှုကို သုံးနိုင်သည်။"</string>
     <string name="car_permission_desc_use_telemetry_service" msgid="3633214312435700766">"ကားစနစ်၏ အခြေအနေဒေတာကို စုဆောင်းနိုင်သည်။"</string>
     <string name="car_permission_label_use_evs_service" msgid="1729276125209310607">"‘ကား EVS ဝန်ဆောင်မှု’ ကို သုံးရန်"</string>
@@ -106,6 +114,10 @@
     <string name="car_permission_desc_monitor_evs_status" msgid="2764278897143573535">"EVS ဝန်ဆောင်မှု အခြေအနေအပြောင်းအလဲများကို နားထောင်နိုင်သည်"</string>
     <string name="car_permission_label_car_engine_detailed" msgid="8911992719173587337">"ကား၏ အင်ဂျင်အသေးစိတ်ကို ရယူပါမည်"</string>
     <string name="car_permission_desc_car_engine_detailed" msgid="1746863362811347700">"သင့်ကား၏ အသေးစိတ် အင်ဂျင်အချက်အလက်ကို ရယူပါမည်။"</string>
+    <!-- no translation found for car_permission_label_car_engine_detailed_3p (2695036212735960169) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_car_engine_detailed_3p (7536940094077391015) -->
+    <skip />
     <string name="car_permission_label_car_energy_ports" msgid="8548990315169219454">"ကား၏ ဆီတိုင်ကီတံခါးပေါက်နှင့် အားသွင်းသည့်အပေါက်ကို အသုံးပြုပါမည်"</string>
     <string name="car_permission_desc_car_energy_ports" msgid="7771185999828794949">"ကား၏ ဆီတိုင်ကီတံခါးပေါက်နှင့် အားသွင်းသည့်အပေါက်ကို အသုံးပြုပါမည်။"</string>
     <string name="car_permission_label_control_car_energy_ports" msgid="4375137311026313475">"ကား၏ ဆီတိုင်ကီတံခါးပေါက်နှင့် အားသွင်းသည့်အပေါက်ကို ထိန်းချုပ်ရန်"</string>
@@ -120,6 +132,10 @@
     <string name="car_permission_desc_control_car_mirrors" msgid="1224135684068855032">"ကားမှန်များကို ထိန်းချုပ်ပါမည်။"</string>
     <string name="car_permission_label_control_car_seats" msgid="1826934820585497135">"ကားတွင်းထိုင်ခုံများကို ထိန်းချုပ်ပါမည်"</string>
     <string name="car_permission_desc_control_car_seats" msgid="2407536601226470563">"ကားတွင်းထိုင်ခုံများကို ထိန်းချုပ်ပါမည်။"</string>
+    <!-- no translation found for car_permission_label_read_car_seats (2996918480980128872) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_read_car_seats (5894145845932493046) -->
+    <skip />
     <string name="car_permission_label_read_car_seat_belts" msgid="2051828795852087659">"ကား၏ ထိုင်ခုံခါးပတ်များကို ဖတ်နိုင်သည်"</string>
     <string name="car_permission_desc_read_car_seat_belts" msgid="7076977711613912339">"ကား၏ ထိုင်ခုံခါးပတ်အခြေအနေကို ဖတ်နိုင်သည်။"</string>
     <string name="car_permission_label_read_impact_sensors" msgid="9193288836326363975">"ကား၏ တိုက်ခြင်းပြ အာရုံခံကိရိယာများကို ဖတ်နိုင်သည်"</string>
@@ -158,8 +174,16 @@
     <string name="car_permission_desc_car_exterior_environment" msgid="1716656004731603379">"ကားအပြင်ဘက် အပူချိန်ကို အသုံးပြုပါမည်။"</string>
     <string name="car_permission_label_car_tires" msgid="4379255261197836840">"ကား၏ တာယာအချက်အလက်များကို ရယူပါမည်"</string>
     <string name="car_permission_desc_car_tires" msgid="8134496466769810134">"ကား၏ တာယာအချက်အလက်များကို ရယူပါမည်။"</string>
+    <!-- no translation found for car_permission_label_car_tires_3p (1360632319908226570) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_car_tires_3p (820574543667371274) -->
+    <skip />
     <string name="car_permission_label_car_steering" msgid="7779530447441232479">"ကား၏ စတီယာရင် အနေအထားဆိုင်ရာ အချက်အလက်များကို ကြည့်ပါမည်။"</string>
     <string name="car_permission_desc_car_steering" msgid="1357331844530708138">"ကား၏ စတီယာရင် အနေအထားဆိုင်ရာ အချက်အလက်များကို ရယူပါမည်။"</string>
+    <!-- no translation found for car_permission_label_read_car_steering_3p (1598866058085489462) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_read_car_steering_3p (576361609663755171) -->
+    <skip />
     <string name="car_permission_label_read_car_display_units" msgid="7617008314862097183">"ကားမျက်နှာပြင်ပြသမှု ယူနစ်များကို ကြည့်ပါမည်"</string>
     <string name="car_permission_desc_read_car_display_units" msgid="6891898275208542385">"မျက်နှာပြင်ပြသမှု ယူနစ်များကို ကြည့်ပါမည်။"</string>
     <string name="car_permission_label_control_car_display_units" msgid="4975303668183173076">"ကား၏ မျက်နှာပြင်ပြသမှုယူနစ်များကို ထိန်းချုပ်ပါမည်"</string>
@@ -212,6 +236,10 @@
     <string name="car_permission_desc_control_adas_states" msgid="1893171217779342348">"ကား၏ ADAS အခြေအနေ အချက်အလက်များကို ထိန်းချုပ်နိုင်သည်။"</string>
     <string name="car_permission_label_read_windshield_wipers" msgid="896867772546890348">"ကားလေကာမှန်ရေယက်များ၏ အခြေအနေကို ဖတ်ပါ"</string>
     <string name="car_permission_desc_read_windshield_wipers" msgid="597300271560195986">"ကားလေကာမှန်ရေယက်များ၏ အခြေအနေကို ဖတ်ပါ။"</string>
+    <!-- no translation found for car_permission_label_read_windshield_wipers_3p (4784843702416325970) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_read_windshield_wipers_3p (604163171596913379) -->
+    <skip />
     <string name="car_permission_label_control_windshield_wipers" msgid="7971852482734087493">"ကား၏ လေကာမှန်ရေယက်များကို ထိန်းချုပ်ပါ"</string>
     <string name="car_permission_desc_control_windshield_wipers" msgid="3803429825323199728">"ကား၏ လေကာမှန်ရေယက်များကို ထိန်းချုပ်ပါ။"</string>
     <string name="car_permission_label_manage_display_compatibility" msgid="52642673039197383">"ဖန်သားပြင် ကိုက်ညီမှုဆိုင်ရာပက်ကေ့ဂျ်များ စီမံခြင်း"</string>
@@ -232,6 +260,10 @@
     <string name="car_permission_desc_manage_car_system_ui" msgid="6201733970421818637">"လုပ်ဆောင်စရာမြင်ကွင်းများ ပြုလုပ်ခြင်း (သို့) စနစ် UI အပြောင်းအလဲများဆိုင်ရာ အကြောင်းချက်ရယူခြင်းအတွက် ကားစနစ် UI နှင့် ချိတ်ဆက်ပါ။"</string>
     <string name="car_permission_label_read_persist_tethering_settings" msgid="6395145649477916950">"ကား၏ မိုဘိုင်းသုံး၍ ချိတ်ဆက်ခြင်း ရှိမြဲဆက်တင်များကို ဖတ်ပါ"</string>
     <string name="car_permission_desc_read_persist_tethering_settings" msgid="7373546466696896323">"ကား၏ မိုဘိုင်းသုံး၍ ချိတ်ဆက်ခြင်း ရှိမြဲဆက်တင်များကို ဖတ်ပါ"</string>
+    <string name="car_permission_label_record_vehicle_properties" msgid="958971344399611906">"မော်တော်ယာဉ် သတ်မှတ်ချက်များ မှတ်တမ်းတင်ရန်"</string>
+    <string name="car_permission_desc_record_vehicle_properties" msgid="2560365700851584569">"မော်တော်ယာဉ် သတ်မှတ်ချက်များ မှတ်တမ်းတင်ရန်"</string>
+    <string name="car_permission_label_inject_vehicle_properties" msgid="2943134725643169428">"မော်တော်ယာဉ် သတ်မှတ်ချက်များ ထည့်ရန်"</string>
+    <string name="car_permission_desc_inject_vehicle_properties" msgid="2616112105084870775">"မော်တော်ယာဉ် သတ်မှတ်ချက်များ ထည့်ရန်"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"\"CAN bus\" စနစ် အသုံးပြုမှု မအောင်မြင်ပါ"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN bus စနစ်က တုန့်ပြန်မှုမရှိပါ။ စက်အထိုင်ဘောက်စ်ကို ပလတ်ဖြုတ်ပြီး ပြန်တပ်ကာ ကားကို ပြန်လည်စတင်ပါ"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"ကျွန်ုပ်၏စက်"</string>

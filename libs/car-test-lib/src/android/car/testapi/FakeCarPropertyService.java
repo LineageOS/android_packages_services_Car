@@ -41,6 +41,10 @@ import com.android.car.internal.property.GetPropertyConfigListResult;
 import com.android.car.internal.property.GetSetValueResult;
 import com.android.car.internal.property.GetSetValueResultList;
 import com.android.car.internal.property.IAsyncPropertyResultCallback;
+import com.android.car.internal.property.ISupportedValuesChangeCallback;
+import com.android.car.internal.property.MinMaxSupportedPropertyValue;
+import com.android.car.internal.property.PropIdAreaId;
+import com.android.car.internal.property.RawPropertyValue;
 import com.android.car.internal.util.PairSparseArray;
 import com.android.internal.annotations.GuardedBy;
 
@@ -162,8 +166,22 @@ class FakeCarPropertyService extends ICarProperty.Stub implements CarPropertyCon
     }
 
     @Override
-    public CarPropertyValue getProperty(int prop, int zone) throws RemoteException {
-        return mValues.get(PropKey.of(prop, zone));
+    public CarPropertyValue getProperty(int prop, int areaId) throws RemoteException {
+        return mValues.get(PropKey.of(prop, areaId));
+    }
+
+    @Override
+    public void getAndDispatchInitialValue(List<PropIdAreaId> propIdAreaIds,
+            ICarPropertyEventListener carPropertyEventListener) throws RemoteException {
+        List<CarPropertyEvent> events = new ArrayList<>();
+        for (var propIdAreaId : propIdAreaIds) {
+            CarPropertyEvent event = new CarPropertyEvent(
+                    CarPropertyEvent.PROPERTY_EVENT_PROPERTY_CHANGE,
+                    getProperty(propIdAreaId.propId, propIdAreaId.areaId));
+            events.add(event);
+        }
+
+        carPropertyEventListener.onEvent(events);
     }
 
     @Override
@@ -177,6 +195,46 @@ class FakeCarPropertyService extends ICarProperty.Stub implements CarPropertyCon
     @Override
     public void cancelRequests(int[] serviceRequestIds) {
         // Do nothing.
+    }
+
+    @Override
+    public CarPropertyConfigList registerRecordingListener(ICarPropertyEventListener callback) {
+        return new CarPropertyConfigList(new ArrayList<>());
+    }
+
+    @Override
+    public boolean isRecordingVehicleProperties() {
+        return false;
+    }
+
+    @Override
+    public void stopRecordingVehicleProperties(ICarPropertyEventListener callback) {
+        // no-op
+    }
+
+    @Override
+    public void enableInjectionMode(int[] propertyIdsFromRealHardware) {
+        // no-op
+    }
+
+    @Override
+    public void disableInjectionMode() {
+        // no-op
+    }
+
+    @Override
+    public boolean isVehiclePropertyInjectionModeEnabled() {
+        return false;
+    }
+
+    @Override
+    public CarPropertyValue getLastInjectedVehicleProperty(int propertyId) {
+        return null;
+    }
+
+    @Override
+    public void injectVehicleProperties(List<CarPropertyValue> carPropertyValues) {
+        // no-op
     }
 
     @Override
@@ -231,6 +289,33 @@ class FakeCarPropertyService extends ICarProperty.Stub implements CarPropertyCon
                 sendEvent(v);
             }
         }
+    }
+
+    @Override
+    public MinMaxSupportedPropertyValue getMinMaxSupportedValue(int propertyId, int areaId) {
+        // This is currently unused, so just return a fake result here that doesn't support
+        // min or max value.
+        return new MinMaxSupportedPropertyValue();
+    }
+
+    @Override
+    @Nullable
+    public List<RawPropertyValue> getSupportedValuesList(int propertyId, int areaId) {
+        // This is currently unused, so just return null indicating the hardware does not specify
+        // supported values list.
+        return null;
+    }
+
+    @Override
+    public void registerSupportedValuesChangeCallback(List<PropIdAreaId> propIdAreaIds,
+            ISupportedValuesChangeCallback callback) {
+        // This is currently unused, do nothing.
+    }
+
+    @Override
+    public void unregisterSupportedValuesChangeCallback(List<PropIdAreaId> propIdAreaIds,
+            ISupportedValuesChangeCallback callback) {
+        // This is currently unused, do nothing.
     }
 
     private void sendEvent(CarPropertyValue v) {

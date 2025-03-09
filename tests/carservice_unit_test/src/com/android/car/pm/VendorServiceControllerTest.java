@@ -196,6 +196,7 @@ public final class VendorServiceControllerTest extends AbstractExpectableTestCas
                 return userHandle.getIdentifier() == mUnlockingOrUnlockedUserId;
             }
         });
+        when(mUserManager.isUserRunning(any(UserHandle.class))).thenReturn(true);
 
         mCarUserService = new CarUserService(mContext, mUserHal, mUserManager,
                 /* maxRunningUsers= */ 2, mUxRestrictionService, mCarPackageManagerService,
@@ -234,6 +235,15 @@ public final class VendorServiceControllerTest extends AbstractExpectableTestCas
     public void init_nothingConfigured() {
         when(mResources.getStringArray(com.android.car.R.array.config_earlyStartupServices))
                 .thenReturn(new String[0]);
+
+        mController.init();
+
+        mContext.expectNoMoreServiceLaunches();
+    }
+
+    @Test
+    public void init_userNotRunning() throws Exception {
+        when(mUserManager.isUserRunning(any(UserHandle.class))).thenReturn(false);
 
         mController.init();
 

@@ -55,7 +55,6 @@ import static android.media.AudioAttributes.USAGE_UNKNOWN;
 import static android.media.AudioAttributes.USAGE_VEHICLE_STATUS;
 import static android.media.AudioAttributes.USAGE_VOICE_COMMUNICATION;
 import static android.media.AudioAttributes.USAGE_VOICE_COMMUNICATION_SIGNALLING;
-import static android.media.AudioDeviceInfo.TYPE_BLUETOOTH_A2DP;
 import static android.media.AudioDeviceInfo.TYPE_BUILTIN_MIC;
 import static android.media.AudioDeviceInfo.TYPE_FM_TUNER;
 import static android.media.AudioManager.AUDIOFOCUS_GAIN;
@@ -97,7 +96,29 @@ import static com.android.car.R.bool.audioUseHalDuckingSignals;
 import static com.android.car.R.bool.audioUseMinMaxActivationVolume;
 import static com.android.car.R.integer.audioVolumeAdjustmentContextsVersion;
 import static com.android.car.R.integer.audioVolumeKeyEventTimeoutMs;
+import static com.android.car.audio.CarAudioDeviceInfoTestUtils.CALL_TEST_DEVICE;
+import static com.android.car.audio.CarAudioDeviceInfoTestUtils.MEDIA_TEST_DEVICE;
+import static com.android.car.audio.CarAudioDeviceInfoTestUtils.MIRROR_TEST_DEVICE;
+import static com.android.car.audio.CarAudioDeviceInfoTestUtils.NAVIGATION_TEST_DEVICE;
+import static com.android.car.audio.CarAudioDeviceInfoTestUtils.SECONDARY_TEST_DEVICE_CONFIG_0;
+import static com.android.car.audio.CarAudioDeviceInfoTestUtils.SECONDARY_TEST_DEVICE_CONFIG_1_0;
+import static com.android.car.audio.CarAudioDeviceInfoTestUtils.TERTIARY_TEST_DEVICE_1;
+import static com.android.car.audio.CarAudioDeviceInfoTestUtils.VOICE_TEST_DEVICE;
 import static com.android.car.audio.CarAudioService.CAR_DEFAULT_AUDIO_ATTRIBUTE;
+import static com.android.car.audio.CarAudioTestUtils.PRIMARY_OCCUPANT_ID;
+import static com.android.car.audio.CarAudioTestUtils.QUATERNARY_OCCUPANT_ID;
+import static com.android.car.audio.CarAudioTestUtils.QUATERNARY_ZONE_ID;
+import static com.android.car.audio.CarAudioTestUtils.SECONDARY_OCCUPANT_ID;
+import static com.android.car.audio.CarAudioTestUtils.SECONDARY_ZONE_CONFIG_NAME_1;
+import static com.android.car.audio.CarAudioTestUtils.SECONDARY_ZONE_CONFIG_NAME_2;
+import static com.android.car.audio.CarAudioTestUtils.SECONDARY_ZONE_ID;
+import static com.android.car.audio.CarAudioTestUtils.SECONDARY_ZONE_VOLUME_GROUP_COUNT;
+import static com.android.car.audio.CarAudioTestUtils.SECONDARY_ZONE_VOLUME_GROUP_ID;
+import static com.android.car.audio.CarAudioTestUtils.TERTIARY_OCCUPANT_ID;
+import static com.android.car.audio.CarAudioTestUtils.TERTIARY_ZONE_ID;
+import static com.android.car.audio.CarAudioTestUtils.TEST_SECONDARY_ZONE_GROUP_0;
+import static com.android.car.audio.CarAudioTestUtils.TEST_SECONDARY_ZONE_GROUP_1;
+import static com.android.car.audio.CarAudioTestUtils.createAudioServiceAudioZones;
 import static com.android.car.audio.CarHalAudioUtils.usageToMetadata;
 import static com.android.car.audio.GainBuilder.DEFAULT_GAIN;
 import static com.android.car.audio.GainBuilder.MAX_GAIN;
@@ -105,6 +126,8 @@ import static com.android.car.audio.GainBuilder.MIN_GAIN;
 import static com.android.car.audio.GainBuilder.STEP_SIZE;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.verify;
+
+import static com.google.common.truth.Truth.assertWithMessage;
 
 import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -116,6 +139,7 @@ import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
 
@@ -149,15 +173,16 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
+import android.hardware.automotive.audiocontrol.AudioDeviceConfiguration;
 import android.hardware.automotive.audiocontrol.AudioGainConfigInfo;
 import android.hardware.automotive.audiocontrol.IAudioControl;
 import android.hardware.automotive.audiocontrol.Reasons;
+import android.hardware.automotive.audiocontrol.RoutingDeviceConfiguration;
 import android.media.AudioAttributes;
 import android.media.AudioDeviceAttributes;
 import android.media.AudioDeviceCallback;
 import android.media.AudioDeviceInfo;
 import android.media.AudioFocusInfo;
-import android.media.AudioGain;
 import android.media.AudioManager;
 import android.media.AudioManager.AudioPlaybackCallback;
 import android.media.AudioManager.AudioServerStateCallback;
@@ -236,30 +261,11 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     private static final long TEST_CALLBACK_TIMEOUT_MS = 100;
     private static final long TEST_ZONE_CONFIG_CALLBACK_TIMEOUT_MS = 500;
     private static final int VOLUME_KEY_EVENT_TIMEOUT_MS = 3000;
+    private static final int INIT_TIMEOUT_MS = 10_000;
     private static final int AUDIO_CONTEXT_PRIORITY_LIST_VERSION_ONE = 1;
     private static final int AUDIO_CONTEXT_PRIORITY_LIST_VERSION_TWO = 2;
-    private static final String MEDIA_TEST_DEVICE = "media_bus_device";
-    private static final String OEM_TEST_DEVICE = "oem_bus_device";
-    private static final String MIRROR_TEST_DEVICE = "mirror_bus_device";
-    private static final String NAVIGATION_TEST_DEVICE = "navigation_bus_device";
-    private static final String CALL_TEST_DEVICE = "call_bus_device";
-    private static final String NOTIFICATION_TEST_DEVICE = "notification_bus_device";
-    private static final String VOICE_TEST_DEVICE = "voice_bus_device";
-    private static final String RING_TEST_DEVICE = "ring_bus_device";
-    private static final String ALARM_TEST_DEVICE = "alarm_bus_device";
-    private static final String SYSTEM_BUS_DEVICE = "system_bus_device";
-    private static final String SECONDARY_TEST_DEVICE_CONFIG_0 = "secondary_zone_bus_100";
-    private static final String SECONDARY_TEST_DEVICE_CONFIG_1_0 = "secondary_zone_bus_200";
-    private static final String SECONDARY_TEST_DEVICE_CONFIG_1_1 = "secondary_zone_bus_201";
-    private static final String TEST_BT_DEVICE = "08:67:53:09";
-    private static final String TERTIARY_TEST_DEVICE_1 = "tertiary_zone_bus_100";
-    private static final String TERTIARY_TEST_DEVICE_2 = "tertiary_zone_bus_200";
-    private static final String QUATERNARY_TEST_DEVICE_1 = "quaternary_zone_bus_1";
-    private static final String TEST_REAR_ROW_3_DEVICE = "rear_row_three_zone_bus_1";
     private static final String PRIMARY_ZONE_MICROPHONE_ADDRESS = "Built-In Mic";
     private static final String PRIMARY_ZONE_FM_TUNER_ADDRESS = "FM Tuner";
-    private static final String SECONDARY_ZONE_CONFIG_NAME_1 = "secondary zone config 1";
-    private static final String SECONDARY_ZONE_CONFIG_NAME_2 = "secondary zone config 2";
     public static final String SECONDARY_ZONE_BT_CONFIG_NAME = "secondary BT zone config 0";
     private static final String DEFAULT_CONFIG_NAME_DYNAMIC_DEVICES = "primary zone config 0";
     private static final String PRIMARY_CONFIG_NAME_DYNAMIC_DEVICES = "primary zone BT media";
@@ -275,13 +281,9 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
             TEST_REAR_RIGHT_ZONE_ID};
     private static final int OUT_OF_RANGE_ZONE = TEST_REAR_ROW_3_ZONE_ID + 1;
     private static final int PRIMARY_ZONE_VOLUME_GROUP_COUNT = 4;
-    private static final int SECONDARY_ZONE_VOLUME_GROUP_COUNT = 1;
-    private static final int SECONDARY_ZONE_VOLUME_GROUP_ID = SECONDARY_ZONE_VOLUME_GROUP_COUNT - 1;
     private static final int TEST_PRIMARY_ZONE_GROUP_0 = 0;
     private static final int TEST_PRIMARY_ZONE_GROUP_1 = 1;
     private static final int TEST_PRIMARY_ZONE_GROUP_2 = 2;
-    private static final int TEST_SECONDARY_ZONE_GROUP_0 = 0;
-    private static final int TEST_SECONDARY_ZONE_GROUP_1 = 1;
     private static final int TEST_FLAGS = 0;
     private static final float TEST_VALUE = -.75f;
     private static final float INVALID_TEST_VALUE = -1.5f;
@@ -506,15 +508,6 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     private Context mContext;
     private AudioDeviceInfo mMicrophoneInputDevice;
     private AudioDeviceInfo mFmTunerInputDevice;
-    private AudioDeviceInfo mMediaOutputDevice;
-    private AudioDeviceInfo mNotificationOutpuBus;
-    private AudioDeviceInfo mNavOutputDevice;
-    private AudioDeviceInfo mVoiceOutpuBus;
-    private AudioDeviceInfo mSecondaryConfig0Group0Device;
-    private AudioDeviceInfo mSecondaryConfig1Group0Device;
-    private AudioDeviceInfo mSecondaryConfig1Group1Device;
-
-    private AudioDeviceInfo mBTAudioDeviceInfo;
 
     private CarVolumeGroupInfo mTestPrimaryZoneVolumeInfo0;
     private CarVolumeGroupInfo mTestPrimaryZoneUmMutedVolueInfo0;
@@ -535,6 +528,8 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
 
     @Rule
     public final SetFlagsRule mSetFlagsRule = new SetFlagsRule();
+
+    private CarAudioDeviceInfoTestUtils mCarAudioDeviceUtils;
 
     public CarAudioServiceUnitTest() {
         super(CarAudioService.TAG);
@@ -688,7 +683,8 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     }
 
     private void setUpAudioManager() throws Exception {
-        AudioDeviceInfo[] outputDevices = generateOutputDeviceInfos();
+        mCarAudioDeviceUtils = new CarAudioDeviceInfoTestUtils();
+        AudioDeviceInfo[] outputDevices = mCarAudioDeviceUtils.generateOutputDeviceInfos();
         AudioDeviceInfo[] inputDevices = generateInputDeviceInfos();
         mTestPrimaryZoneVolumeInfo0 =
                 new CarVolumeGroupInfo.Builder("config 0 group " + TEST_PRIMARY_ZONE_GROUP_0,
@@ -696,9 +692,9 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
                         .setMinVolumeGainIndex(0).setMaxVolumeGainIndex(MAX_GAIN / STEP_SIZE)
                         .setVolumeGainIndex(DEFAULT_GAIN / STEP_SIZE)
                         .setAudioAttributes(TEST_PRIMARY_ZONE_AUDIO_ATTRIBUTES_0)
-                        .setAudioDeviceAttributes(List.of(
-                                new AudioDeviceAttributes(mNotificationOutpuBus),
-                                new AudioDeviceAttributes(mMediaOutputDevice)))
+                        .setAudioDeviceAttributes(List.of(new AudioDeviceAttributes(
+                                mCarAudioDeviceUtils.mNotificationOutputBus),
+                                new AudioDeviceAttributes(mCarAudioDeviceUtils.mMediaOutputDevice)))
                         .setMinActivationVolumeGainIndex(0)
                         .setMaxActivationVolumeGainIndex(MAX_GAIN / STEP_SIZE).build();
         mTestPrimaryZoneUmMutedVolueInfo0 =
@@ -707,9 +703,9 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
                         .setMinVolumeGainIndex(0).setMaxVolumeGainIndex(MAX_GAIN / STEP_SIZE)
                         .setVolumeGainIndex(DEFAULT_GAIN / STEP_SIZE)
                         .setAudioAttributes(TEST_PRIMARY_ZONE_AUDIO_ATTRIBUTES_0)
-                        .setAudioDeviceAttributes(List.of(
-                                new AudioDeviceAttributes(mNotificationOutpuBus),
-                                new AudioDeviceAttributes(mMediaOutputDevice)))
+                        .setAudioDeviceAttributes(List.of(new AudioDeviceAttributes(
+                                mCarAudioDeviceUtils.mNotificationOutputBus),
+                                new AudioDeviceAttributes(mCarAudioDeviceUtils.mMediaOutputDevice)))
                         .setMinActivationVolumeGainIndex(0)
                         .setMaxActivationVolumeGainIndex(MAX_GAIN / STEP_SIZE).build();
         mTestPrimaryZoneVolumeInfo1 =
@@ -719,8 +715,8 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
                         .setAudioAttributes(TEST_PRIMARY_ZONE_AUDIO_ATTRIBUTES_1)
                         .setVolumeGainIndex(DEFAULT_GAIN / STEP_SIZE)
                         .setAudioDeviceAttributes(List.of(
-                                new AudioDeviceAttributes(mVoiceOutpuBus),
-                                new AudioDeviceAttributes(mNavOutputDevice)))
+                                new AudioDeviceAttributes(mCarAudioDeviceUtils.mVoiceOutputBus),
+                                new AudioDeviceAttributes(mCarAudioDeviceUtils.mNavOutputDevice)))
                         .setMinActivationVolumeGainIndex(0)
                         .setMaxActivationVolumeGainIndex(MAX_GAIN / STEP_SIZE).build();
         mTestSecondaryConfig0VolumeGroup0Info =
@@ -730,7 +726,8 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
                         .setAudioAttributes(TEST_SECONDARY_ZONE_AUDIO_ATTRIBUTES_DEFAULT)
                         .setVolumeGainIndex(DEFAULT_GAIN / STEP_SIZE)
                         .setAudioDeviceAttributes(List.of(
-                                new AudioDeviceAttributes(mSecondaryConfig0Group0Device)))
+                                new AudioDeviceAttributes(mCarAudioDeviceUtils
+                                        .mSecondaryConfigOutputDevice)))
                         .setMinActivationVolumeGainIndex(0)
                         .setMaxActivationVolumeGainIndex(MAX_GAIN / STEP_SIZE).build();
         mTestSecondaryZoneConfig1VolumeInfo0 =
@@ -740,7 +737,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
                         .setAudioAttributes(TEST_SECONDARY_ZONE_AUDIO_ATTRIBUTES_0)
                         .setVolumeGainIndex(DEFAULT_GAIN / STEP_SIZE)
                         .setAudioDeviceAttributes(List.of(new AudioDeviceAttributes(
-                                mSecondaryConfig1Group0Device)))
+                                mCarAudioDeviceUtils.mSecondaryConfig1Group0Device)))
                         .setMinActivationVolumeGainIndex(0)
                         .setMaxActivationVolumeGainIndex(MAX_GAIN / STEP_SIZE).build();
         mTestSecondaryZoneConfig1VolumeInfo1 =
@@ -750,7 +747,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
                         .setAudioAttributes(TEST_SECONDARY_ZONE_AUDIO_ATTRIBUTES_1)
                         .setVolumeGainIndex(DEFAULT_GAIN / STEP_SIZE)
                         .setAudioDeviceAttributes(List.of(new AudioDeviceAttributes(
-                                mSecondaryConfig1Group1Device)))
+                                mCarAudioDeviceUtils.mSecondaryConfig1Group1Device)))
                         .setMinActivationVolumeGainIndex(0)
                         .setMaxActivationVolumeGainIndex(MAX_GAIN / STEP_SIZE).build();
         mTestCarVolumeGroupEvent =
@@ -866,6 +863,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     }
 
     @Test
+    @DisableFlags({Flags.FLAG_ASYNC_AUDIO_SERVICE_INIT})
     public void init_withVolumeControlPolicyRegistrationError_fails() throws Exception {
         mAudioPolicyRegistrationStatus.add(ERROR);
         CarAudioService service = setUpAudioServiceWithoutInit();
@@ -878,6 +876,19 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     }
 
     @Test
+    @EnableFlags({Flags.FLAG_ASYNC_AUDIO_SERVICE_INIT})
+    public void init_withVolumeControlPolicyRegistrationError_fails_asyncInit() throws Exception {
+        mAudioPolicyRegistrationStatus.add(ERROR);
+        CarAudioService service = setUpAudioServiceWithoutInit();
+
+        service.init();
+
+        expectWithMessage("waitForInitComplete succeeded").that(
+                service.waitForInitComplete(INIT_TIMEOUT_MS)).isFalse();
+    }
+
+    @Test
+    @DisableFlags({Flags.FLAG_ASYNC_AUDIO_SERVICE_INIT})
     public void init_withRepeatedDynamicDevicesInConfig_fails() throws Exception {
         setUpTempFileForAudioConfiguration(
                 R.raw.car_audio_configuration_with_repeated_dynamic_devices_in_config);
@@ -894,6 +905,22 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     }
 
     @Test
+    @EnableFlags({Flags.FLAG_ASYNC_AUDIO_SERVICE_INIT})
+    public void init_withRepeatedDynamicDevicesInConfig_fails_asyncInit() throws Exception {
+        setUpTempFileForAudioConfiguration(
+                R.raw.car_audio_configuration_with_repeated_dynamic_devices_in_config);
+        setUpTempFileForAudioFadeConfiguration(R.raw.car_audio_fade_configuration);
+        CarAudioService service = setUpAudioServiceWithDynamicDevices(mTempCarAudioConfigFile,
+                mTempCarAudioFadeConfigFile);
+
+        service.init();
+
+        expectWithMessage("waitForInitComplete succeeded").that(
+                service.waitForInitComplete(INIT_TIMEOUT_MS)).isFalse();
+    }
+
+    @Test
+    @DisableFlags({Flags.FLAG_ASYNC_AUDIO_SERVICE_INIT})
     public void init_withFocusControlPolicyRegistrationError_fails() throws Exception {
         mAudioPolicyRegistrationStatus.add(SUCCESS);
         mAudioPolicyRegistrationStatus.add(ERROR);
@@ -907,6 +934,20 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     }
 
     @Test
+    @EnableFlags({Flags.FLAG_ASYNC_AUDIO_SERVICE_INIT})
+    public void init_withFocusControlPolicyRegistrationError_fails_asyncInit() throws Exception {
+        mAudioPolicyRegistrationStatus.add(SUCCESS);
+        mAudioPolicyRegistrationStatus.add(ERROR);
+        CarAudioService service = setUpAudioServiceWithoutInit();
+
+        service.init();
+
+        expectWithMessage("waitForInitComplete succeeded").that(
+                service.waitForInitComplete(INIT_TIMEOUT_MS)).isFalse();
+    }
+
+    @Test
+    @DisableFlags({Flags.FLAG_ASYNC_AUDIO_SERVICE_INIT})
     public void init_withAudioRoutingPolicyRegistrationError_fails() throws Exception {
         mAudioPolicyRegistrationStatus.add(SUCCESS);
         mAudioPolicyRegistrationStatus.add(SUCCESS);
@@ -921,6 +962,21 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     }
 
     @Test
+    @EnableFlags({Flags.FLAG_ASYNC_AUDIO_SERVICE_INIT})
+    public void init_withAudioRoutingPolicyRegistrationError_fails_asyncInit() throws Exception {
+        mAudioPolicyRegistrationStatus.add(SUCCESS);
+        mAudioPolicyRegistrationStatus.add(SUCCESS);
+        mAudioPolicyRegistrationStatus.add(ERROR);
+        CarAudioService service = setUpAudioServiceWithoutInit();
+
+        service.init();
+
+        expectWithMessage("waitForInitComplete succeeded").that(
+                service.waitForInitComplete(INIT_TIMEOUT_MS)).isFalse();
+    }
+
+    @Test
+    @DisableFlags({Flags.FLAG_ASYNC_AUDIO_SERVICE_INIT})
     public void init_withFadeManagerConfigPolicyRegistrationError_fails() throws Exception {
         mSetFlagsRule.enableFlags(FLAG_ENABLE_FADE_MANAGER_CONFIGURATION);
         mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_FADE_MANAGER_CONFIGURATION);
@@ -939,11 +995,30 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     }
 
     @Test
+    @EnableFlags({Flags.FLAG_ASYNC_AUDIO_SERVICE_INIT})
+    public void init_withFadeManagerConfigPolicyRegistrationError_fails_asyncInit()
+            throws Exception {
+        mSetFlagsRule.enableFlags(FLAG_ENABLE_FADE_MANAGER_CONFIGURATION);
+        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_FADE_MANAGER_CONFIGURATION);
+        when(mMockResources.getBoolean(audioUseFadeManagerConfiguration)).thenReturn(true);
+        mAudioPolicyRegistrationStatus.add(SUCCESS);
+        mAudioPolicyRegistrationStatus.add(SUCCESS);
+        mAudioPolicyRegistrationStatus.add(SUCCESS);
+        mAudioPolicyRegistrationStatus.add(ERROR);
+        CarAudioService service = setUpAudioServiceWithoutInit();
+
+        service.init();
+
+        expectWithMessage("waitForInitComplete succeeded").that(
+                service.waitForInitComplete(INIT_TIMEOUT_MS)).isFalse();
+    }
+
+    @Test
     public void init_initializesAudioServiceCallbacks() throws Exception {
         mSetFlagsRule.disableFlags(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
         CarAudioService service = setUpAudioServiceWithoutInit();
 
-        service.init();
+        initServiceAndWaitForComplete(service);
 
         verify(mAudioManager).setAudioServerStateCallback(any(), any());
         verify(mAudioManager, never()).registerAudioDeviceCallback(any(), any());
@@ -954,7 +1029,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
         CarAudioService service = setUpAudioServiceWithDynamicDevices();
 
-        service.init();
+        initServiceAndWaitForComplete(service);
 
         verify(mAudioManager).setAudioServerStateCallback(any(), any());
         verify(mAudioManager).registerAudioDeviceCallback(any(), any());
@@ -965,7 +1040,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
         CarAudioService audioServiceWithDynamicDevices = setUpAudioServiceWithDynamicDevices();
 
-        audioServiceWithDynamicDevices.init();
+        initServiceAndWaitForComplete(audioServiceWithDynamicDevices);
 
         List<CarAudioZoneConfigInfo> zoneConfigInfos =
                 audioServiceWithDynamicDevices.getAudioZoneConfigInfos(PRIMARY_AUDIO_ZONE);
@@ -981,7 +1056,8 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     }
 
     @Test
-    public void init_withAudioServerDown() throws Exception {
+    @DisableFlags({Flags.FLAG_ASYNC_AUDIO_SERVICE_INIT})
+    public void init_withAudioServerDown_noAsyncInit() throws Exception {
         mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
         when(mAudioManager.isAudioServerRunning()).thenReturn(false);
         CarAudioService service = setUpAudioServiceWithDynamicDevices();
@@ -993,19 +1069,55 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     }
 
     @Test
-    @EnableFlags({Flags.FLAG_AUDIO_VENDOR_FREEZE_IMPROVEMENTS})
+    @EnableFlags({Flags.FLAG_ASYNC_AUDIO_SERVICE_INIT})
+    public void init_withAudioServerDown_asyncInit() throws Exception {
+        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
+        when(mAudioManager.isAudioServerRunning()).thenReturn(false);
+        CarAudioService service = setUpAudioServiceWithDynamicDevices();
+
+        service.init();
+
+        expectWithMessage("waitForInitComplete succeeded").that(
+                service.waitForInitComplete(INIT_TIMEOUT_MS)).isTrue();
+        verify(mAudioManager).setAudioServerStateCallback(any(), any());
+        verify(mAudioManager, never()).registerAudioDeviceCallback(any(), any());
+    }
+
+    @Test
+    @EnableFlags({Flags.FLAG_ASYNC_AUDIO_SERVICE_INIT})
+    public void init_withAudioServerDown_asyncInit_audioServerUpLater() throws Exception {
+        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
+        when(mAudioManager.isAudioServerRunning()).thenReturn(false);
+        CarAudioService service = setUpAudioServiceWithDynamicDevices();
+
+        service.init();
+
+        AudioServerStateCallback callback = getAudioServerStateCallback();
+        when(mAudioManager.isAudioServerRunning()).thenReturn(true);
+        callback.onAudioServerUp();
+
+        expectWithMessage("waitForInitComplete succeeded").that(
+                service.waitForInitComplete(INIT_TIMEOUT_MS)).isTrue();
+        verify(mAudioManager, timeout(INIT_TIMEOUT_MS)).registerAudioDeviceCallback(any(), any());
+    }
+
+    @Test
+    @EnableFlags({Flags.FLAG_AUDIO_VENDOR_FREEZE_IMPROVEMENTS, Flags.FLAG_ASYNC_AUDIO_SERVICE_INIT})
     public void init_withCoreVolumeMisconfigured() throws Exception {
         when(mMockResources.getBoolean(audioUseCoreVolume)).thenReturn(true);
         CarAudioService service = setUpAudioServiceWithoutInit();
 
-        service.init();
+        // Init should complete normally after vendor freeze improvements, since no exception will
+        // be thrown.
+        initServiceAndWaitForComplete(service);
 
         verify(mAudioManager).setAudioServerStateCallback(any(), any());
         verify(mAudioManager).registerAudioDeviceCallback(any(), any());
     }
 
     @Test
-    @DisableFlags({Flags.FLAG_AUDIO_VENDOR_FREEZE_IMPROVEMENTS})
+    @DisableFlags({Flags.FLAG_AUDIO_VENDOR_FREEZE_IMPROVEMENTS,
+            Flags.FLAG_ASYNC_AUDIO_SERVICE_INIT})
     public void init_withCoreVolumeMisconfigured_failsOnInit() throws Exception {
         when(mMockResources.getBoolean(audioUseCoreVolume)).thenReturn(true);
         CarAudioService service = setUpAudioServiceWithoutInit();
@@ -1019,14 +1131,16 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     }
 
     @Test
-    @EnableFlags({Flags.FLAG_AUDIO_VENDOR_FREEZE_IMPROVEMENTS})
+    @EnableFlags({Flags.FLAG_AUDIO_VENDOR_FREEZE_IMPROVEMENTS, Flags.FLAG_ASYNC_AUDIO_SERVICE_INIT})
     public void init_withMissingOccupantZones_captureActiveZonesOnly() throws Exception {
         SparseArray<CarOccupantZoneManager.OccupantZoneInfo> configs = new SparseArray<>();
         configs.put(TEST_DRIVER_OCCUPANT_ZONE_ID, TEST_DRIVER_OCCUPANT);
         when(mMockOccupantZoneService.getOccupantsConfig()).thenReturn(configs);
         CarAudioService service = setUpAudioServiceWithoutInit();
 
-        service.init();
+        // Init should complete normally after vendor freeze improvements, since no exception will
+        // be thrown.
+        initServiceAndWaitForComplete(service);
 
         ArgumentCaptor<SparseIntArray> captor =
                 ArgumentCaptor.forClass(SparseIntArray.class);
@@ -1037,14 +1151,64 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     }
 
     @Test
-    @DisableFlags({Flags.FLAG_AUDIO_VENDOR_FREEZE_IMPROVEMENTS})
+    @EnableFlags({Flags.FLAG_AUDIO_CONTROL_HAL_CONFIGURATION})
+    public void init_withCarAudioControlHAL_initsHALZones() throws Exception {
+        CarAudioService service = setupAudioServiceUsingAudioControlWithoutInit();
+
+        initServiceAndWaitForComplete(service);
+
+        expectWithMessage("Audio control HAL configured status")
+                .that(service.isConfiguredUsingAudioControlHAL()).isTrue();
+        expectWithMessage("Audio control HAL configured zones")
+                .that(service.getAudioZoneIds()).asList().containsExactly(PRIMARY_AUDIO_ZONE,
+                        SECONDARY_ZONE_ID, TERTIARY_ZONE_ID, QUATERNARY_ZONE_ID);
+        ArgumentCaptor<SparseIntArray> captor = ArgumentCaptor.forClass(SparseIntArray.class);
+        verify(mMockOccupantZoneService).setAudioZoneIdsForOccupantZoneIds(captor.capture());
+        var map = new SparseIntArray(4);
+        map.put(PRIMARY_AUDIO_ZONE, PRIMARY_OCCUPANT_ID);
+        map.put(SECONDARY_ZONE_ID, SECONDARY_OCCUPANT_ID);
+        map.put(TERTIARY_ZONE_ID, TERTIARY_OCCUPANT_ID);
+        map.put(QUATERNARY_ZONE_ID, QUATERNARY_OCCUPANT_ID);
+        var zoneIdOccupantZoneId = captor.getValue();
+        expectWithMessage("Audio control HAL configured size of mapped occupants")
+                .that(zoneIdOccupantZoneId.size()).isEqualTo(map.size());
+        for (int c = 0; c < map.size(); c++) {
+            int zoneId = map.keyAt(c);
+            int occupantZoneId = map.get(zoneId);
+            expectWithMessage("Occupant zone audio control HAL for zone id %s", zoneId)
+                    .that(zoneIdOccupantZoneId.get(zoneId)).isEqualTo(occupantZoneId);
+        }
+    }
+
+    @Test
+    @DisableFlags({Flags.FLAG_AUDIO_CONTROL_HAL_CONFIGURATION})
+    public void init_withCarAudioControlHALDisabled_initsFileConfigZones() throws Exception {
+        CarAudioService service = setupAudioServiceUsingAudioControlWithoutInit();
+
+        initServiceAndWaitForComplete(service);
+
+        expectWithMessage("Car audio files configured status")
+                .that(service.isConfiguredUsingAudioControlHAL()).isFalse();
+        expectWithMessage("Car audio zones configure using car audio configuration file")
+                .that(service.getAudioZoneIds()).asList().containsExactly(PRIMARY_AUDIO_ZONE,
+                        SECONDARY_ZONE_ID);
+        ArgumentCaptor<SparseIntArray> captor = ArgumentCaptor.forClass(SparseIntArray.class);
+        verify(mMockOccupantZoneService).setAudioZoneIdsForOccupantZoneIds(captor.capture());
+        var zoneIdOccupantZoneId = captor.getValue();
+        expectWithMessage("Car audio file configured size of mapped occupants")
+                .that(zoneIdOccupantZoneId.size()).isEqualTo(0);
+    }
+
+    @Test
+    @DisableFlags({Flags.FLAG_AUDIO_VENDOR_FREEZE_IMPROVEMENTS,
+            Flags.FLAG_ASYNC_AUDIO_SERVICE_INIT})
     public void init_withMissingOccupantZones_captureActiveAllZones() throws Exception {
         SparseArray<CarOccupantZoneManager.OccupantZoneInfo> configs = new SparseArray<>();
         configs.put(TEST_DRIVER_OCCUPANT_ZONE_ID, TEST_DRIVER_OCCUPANT);
         when(mMockOccupantZoneService.getOccupantsConfig()).thenReturn(configs);
         CarAudioService service = setUpAudioServiceWithoutInit();
 
-        service.init();
+        initServiceAndWaitForComplete(service);
 
         ArgumentCaptor<SparseIntArray> captor =
                 ArgumentCaptor.forClass(SparseIntArray.class);
@@ -1070,7 +1234,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     @Test
     public void release_releasesAudioServiceCallbacks_withDynamicDevices() throws Exception {
         CarAudioService service = setUpAudioServiceWithDynamicDevices();
-        service.init();
+        initServiceAndWaitForComplete(service);
 
         service.release();
 
@@ -1088,6 +1252,23 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         service.release();
 
         verify(mAudioControlWrapperAidl, never()).clearModuleChangeCallback();
+    }
+
+    @Test
+    public void release_beforeInitComplete() throws Exception {
+        mSetFlagsRule.disableFlags(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
+        setUpTempFileForAudioConfiguration(R.raw.car_audio_configuration);
+        setUpTempFileForAudioFadeConfiguration(R.raw.car_audio_fade_configuration);
+        CarAudioService service = new CarAudioService(mMockContext, mAudioManager,
+                mTempCarAudioConfigFile.getFile().getAbsolutePath(), mCarVolumeCallbackHandler,
+                mTempCarAudioFadeConfigFile.getFile().getAbsolutePath());
+        service.init();
+
+        service.release();
+
+        verify(mAudioManager, never()).unregisterAudioDeviceCallback(any());
+        verify(mAudioManager).clearAudioServerStateCallback();
+        verify(mAudioControlWrapperAidl).clearModuleChangeCallback();
     }
 
     @Test
@@ -1295,8 +1476,8 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         doReturn(false)
                 .when(() -> SystemProperties.getBoolean(PROPERTY_RO_ENABLE_AUDIO_PATCH, true));
         doReturn(new AudioPatchInfo(PRIMARY_ZONE_FM_TUNER_ADDRESS, MEDIA_TEST_DEVICE, 0))
-                .when(() -> AudioManagerHelper
-                        .createAudioPatch(mFmTunerInputDevice, mMediaOutputDevice, DEFAULT_GAIN));
+                .when(() -> AudioManagerHelper.createAudioPatch(mFmTunerInputDevice,
+                        mCarAudioDeviceUtils.mMediaOutputDevice, DEFAULT_GAIN));
 
         CarAudioPatchHandle audioPatch = service
                 .createAudioPatch(PRIMARY_ZONE_FM_TUNER_ADDRESS, USAGE_MEDIA, DEFAULT_GAIN);
@@ -1346,8 +1527,8 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         CarAudioService service = setUpAudioService();
         mockGrantCarControlAudioSettingsPermission();
         doReturn(new AudioPatchInfo(PRIMARY_ZONE_FM_TUNER_ADDRESS, MEDIA_TEST_DEVICE, 0))
-                .when(() -> AudioManagerHelper
-                        .createAudioPatch(mFmTunerInputDevice, mMediaOutputDevice, DEFAULT_GAIN));
+                .when(() -> AudioManagerHelper.createAudioPatch(mFmTunerInputDevice,
+                        mCarAudioDeviceUtils.mMediaOutputDevice, DEFAULT_GAIN));
 
         CarAudioPatchHandle audioPatch = mock(CarAudioPatchHandle.class);
         when(audioPatch.getSourceAddress()).thenReturn(null);
@@ -2235,7 +2416,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
                 .thenReturn(TEST_REAR_RIGHT_USER_ID);
         CarAudioService service = setUpAudioServiceWithoutInit();
 
-        service.init();
+        initServiceAndWaitForComplete(service);
 
         waitForInternalCallback();
         expectWithMessage("User ID for primary zone for user available at init")
@@ -2644,6 +2825,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
 
         callback.onAudioServerUp();
 
+        service.waitForInitComplete(INIT_TIMEOUT_MS);
         expectWithMessage("Re-initialized Car Audio Service Zones")
                 .that(service.getAudioZoneIds()).asList()
                 .containsExactly(PRIMARY_AUDIO_ZONE, TEST_REAR_LEFT_ZONE_ID,
@@ -2680,6 +2862,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
 
         callback.onAudioServerUp();
 
+        service.waitForInitComplete(INIT_TIMEOUT_MS);
         expectWithMessage("Re-initialized Car Audio Service Zones")
                 .that(service.getAudioZoneIds()).asList()
                 .containsExactly(PRIMARY_AUDIO_ZONE);
@@ -2717,6 +2900,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
 
         callback.onAudioServerUp();
 
+        service.waitForInitComplete(INIT_TIMEOUT_MS);
         waitForInternalCallback();
         expectWithMessage("Re-initialized Car Audio Service Zones")
                 .that(service.getAudioZoneIds()).asList()
@@ -2881,7 +3065,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     @Test
     public void getVolumeGroupInfosForZone_forDynamicRoutingDisabled() throws Exception {
         CarAudioService nonDynamicAudioService = setUpAudioServiceWithoutDynamicRouting();
-        List<AudioDeviceInfo> deviceInfos = List.of(mMediaOutputDevice);
+        List<AudioDeviceInfo> deviceInfos = List.of(mCarAudioDeviceUtils.mMediaOutputDevice);
         when(mAudioManager.getAudioDevicesForAttributes(ATTRIBUTES_MEDIA)).thenReturn(deviceInfos);
         when(mAudioManager.isStreamMute(AudioManager.STREAM_MUSIC)).thenReturn(true);
         CarVolumeGroupInfo expectedVolumeGroupInfo = new CarVolumeGroupInfo.Builder(
@@ -2890,7 +3074,8 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
                 .setMaxVolumeGainIndex(TEST_STREAM_MAX_VOLUME)
                 .setMinVolumeGainIndex(TEST_STREAM_MIN_VOLUME)
                 .setAudioAttributes(Arrays.asList(ATTRIBUTES_MEDIA))
-                .setAudioDeviceAttributes(List.of(new AudioDeviceAttributes(mMediaOutputDevice)))
+                .setAudioDeviceAttributes(List.of(
+                        new AudioDeviceAttributes(mCarAudioDeviceUtils.mMediaOutputDevice)))
                 .setMuted(true)
                 .setBlocked(false)
                 .setAttenuated(false)
@@ -2913,7 +3098,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         CarAudioService nonDynamicAudioService = new CarAudioService(mMockContext, mAudioManager,
                 mTempCarAudioConfigFile.getFile().getAbsolutePath(), mCarVolumeCallbackHandler,
                 /* audioFadeConfigurationPath= */ null);
-        nonDynamicAudioService.init();
+        initServiceAndWaitForComplete(nonDynamicAudioService);
 
         List<CarVolumeGroupInfo> infos =
                 nonDynamicAudioService.getVolumeGroupInfosForZone(PRIMARY_AUDIO_ZONE);
@@ -3000,7 +3185,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     @Test
     public void getVolumeGroupInfo_withLegacyMode() throws Exception {
         CarAudioService service = setUpAudioServiceWithoutDynamicRouting();
-        List<AudioDeviceInfo> deviceInfos = List.of(mMediaOutputDevice);
+        List<AudioDeviceInfo> deviceInfos = List.of(mCarAudioDeviceUtils.mMediaOutputDevice);
         when(mAudioManager.getAudioDevicesForAttributes(ATTRIBUTES_MEDIA)).thenReturn(deviceInfos);
         when(mAudioManager.isStreamMute(AudioManager.STREAM_MUSIC)).thenReturn(true);
         CarVolumeGroupInfo expectedVolumeGroupInfo = new CarVolumeGroupInfo.Builder(
@@ -3009,7 +3194,8 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
                 .setMaxVolumeGainIndex(TEST_STREAM_MAX_VOLUME)
                 .setMinVolumeGainIndex(TEST_STREAM_MIN_VOLUME)
                 .setAudioAttributes(Arrays.asList(ATTRIBUTES_MEDIA))
-                .setAudioDeviceAttributes(List.of(new AudioDeviceAttributes(mMediaOutputDevice)))
+                .setAudioDeviceAttributes(List.of(
+                        new AudioDeviceAttributes(mCarAudioDeviceUtils.mMediaOutputDevice)))
                 .setMuted(true)
                 .setBlocked(false)
                 .setAttenuated(false)
@@ -3723,7 +3909,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
             throws Exception {
         enableVolumeKeyEventsToDynamicDevices(/* enableVolumeKeyEvents= */ true);
         CarAudioService service = setUpAudioServiceWithDynamicDevices();
-        service.init();
+        initServiceAndWaitForComplete(service);
         assignOccupantToAudioZones();
         int volumeBefore = service.getGroupVolume(PRIMARY_AUDIO_ZONE, TEST_PRIMARY_ZONE_GROUP_0);
         KeyEventListener listener = getAudioKeyEventListener();
@@ -3749,13 +3935,14 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
             throws Exception {
         enableVolumeKeyEventsToDynamicDevices(/* enableVolumeKeyEvents= */ true);
         CarAudioService service = setUpAudioServiceWithDynamicDevices();
-        service.init();
+        initServiceAndWaitForComplete(service);
         assignOccupantToAudioZones();
         SwitchAudioZoneConfigCallbackImpl callback = new SwitchAudioZoneConfigCallbackImpl();
         TestAudioZoneConfigurationsChangeCallback configCallback =
                 getRegisteredZoneConfigCallback(service);
         AudioDeviceCallback deviceCallback = captureAudioDeviceCallback();
-        deviceCallback.onAudioDevicesAdded(new AudioDeviceInfo[]{mBTAudioDeviceInfo});
+        deviceCallback.onAudioDevicesAdded(
+                new AudioDeviceInfo[]{mCarAudioDeviceUtils.mBTAudioDeviceInfo});
         configCallback.waitForCallback();
         configCallback.reset();
         List<CarAudioZoneConfigInfo> zoneConfigInfos =
@@ -3789,13 +3976,14 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
             throws Exception {
         enableVolumeKeyEventsToDynamicDevices(/* enableVolumeKeyEvents= */ false);
         CarAudioService service = setUpAudioServiceWithDynamicDevices();
-        service.init();
+        initServiceAndWaitForComplete(service);
         assignOccupantToAudioZones();
         SwitchAudioZoneConfigCallbackImpl callback = new SwitchAudioZoneConfigCallbackImpl();
         TestAudioZoneConfigurationsChangeCallback configCallback =
                 getRegisteredZoneConfigCallback(service);
         AudioDeviceCallback deviceCallback = captureAudioDeviceCallback();
-        deviceCallback.onAudioDevicesAdded(new AudioDeviceInfo[]{mBTAudioDeviceInfo});
+        deviceCallback.onAudioDevicesAdded(
+                new AudioDeviceInfo[]{mCarAudioDeviceUtils.mBTAudioDeviceInfo});
         configCallback.waitForCallback();
         configCallback.reset();
         List<CarAudioZoneConfigInfo> zoneConfigInfos =
@@ -5006,13 +5194,14 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         CarAudioService dynamicDeviceService =
                 setUpAudioServiceWithDynamicDevices(mTempCarAudioConfigFile,
                         mTempCarAudioFadeConfigFile);
-        dynamicDeviceService.init();
+        initServiceAndWaitForComplete(dynamicDeviceService);
         assignOccupantToAudioZones();
         SwitchAudioZoneConfigCallbackImpl callback = new SwitchAudioZoneConfigCallbackImpl();
         TestAudioZoneConfigurationsChangeCallback configCallback =
                 getRegisteredZoneConfigCallback(dynamicDeviceService);
         AudioDeviceCallback deviceCallback = captureAudioDeviceCallback();
-        deviceCallback.onAudioDevicesAdded(new AudioDeviceInfo[]{mBTAudioDeviceInfo});
+        deviceCallback.onAudioDevicesAdded(
+                new AudioDeviceInfo[]{mCarAudioDeviceUtils.mBTAudioDeviceInfo});
         configCallback.waitForCallback();
         configCallback.reset();
         List<CarAudioZoneConfigInfo> zoneConfigInfos =
@@ -5041,13 +5230,14 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         CarAudioService dynamicDeviceService =
                 setUpAudioServiceWithDynamicDevices(mTempCarAudioConfigFile,
                         mTempCarAudioFadeConfigFile);
-        dynamicDeviceService.init();
+        initServiceAndWaitForComplete(dynamicDeviceService);
         assignOccupantToAudioZones();
         SwitchAudioZoneConfigCallbackImpl callback = new SwitchAudioZoneConfigCallbackImpl();
         TestAudioZoneConfigurationsChangeCallback configCallback =
                 getRegisteredZoneConfigCallback(dynamicDeviceService);
         AudioDeviceCallback deviceCallback = captureAudioDeviceCallback();
-        deviceCallback.onAudioDevicesAdded(new AudioDeviceInfo[]{mBTAudioDeviceInfo});
+        deviceCallback.onAudioDevicesAdded(
+                new AudioDeviceInfo[]{mCarAudioDeviceUtils.mBTAudioDeviceInfo});
         configCallback.waitForCallback();
         configCallback.reset();
         List<CarAudioZoneConfigInfo> zoneConfigInfos =
@@ -5113,12 +5303,13 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     @Test
     public void onAudioDevicesAdded_forDynamicDevicesEnabled() throws Exception {
         CarAudioService audioServiceWithDynamicDevices = setUpAudioServiceWithDynamicDevices();
-        audioServiceWithDynamicDevices.init();
+        initServiceAndWaitForComplete(audioServiceWithDynamicDevices);
         TestAudioZoneConfigurationsChangeCallback
                 configCallback = getRegisteredZoneConfigCallback(audioServiceWithDynamicDevices);
         AudioDeviceCallback deviceCallback = captureAudioDeviceCallback();
 
-        deviceCallback.onAudioDevicesAdded(new AudioDeviceInfo[]{mBTAudioDeviceInfo});
+        deviceCallback.onAudioDevicesAdded(
+                new AudioDeviceInfo[]{mCarAudioDeviceUtils.mBTAudioDeviceInfo});
 
         configCallback.waitForCallback();
         List<CarAudioZoneConfigInfo> zoneConfigInfos =
@@ -5132,12 +5323,13 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     @Test
     public void onAudioDevicesAdded_forDynamicDevicesEnabled_triggersCallback() throws Exception {
         CarAudioService serviceWithDynamicDevices = setUpAudioServiceWithDynamicDevices();
-        serviceWithDynamicDevices.init();
+        initServiceAndWaitForComplete(serviceWithDynamicDevices);
         TestAudioZoneConfigurationsChangeCallback
                 configCallback = getRegisteredZoneConfigCallback(serviceWithDynamicDevices);
         AudioDeviceCallback deviceCallback = captureAudioDeviceCallback();
 
-        deviceCallback.onAudioDevicesAdded(new AudioDeviceInfo[]{mBTAudioDeviceInfo});
+        deviceCallback.onAudioDevicesAdded(
+                new AudioDeviceInfo[]{mCarAudioDeviceUtils.mBTAudioDeviceInfo});
 
         configCallback.waitForCallback();
         expectWithMessage("Enabled dynamic config callback status").that(configCallback.mStatus)
@@ -5153,13 +5345,14 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     public void onAudioDevicesAdded_forDynamicDevicesEnabled_withAudioServerDown()
             throws Exception {
         CarAudioService audioServiceWithDynamicDevices = setUpAudioServiceWithDynamicDevices();
-        audioServiceWithDynamicDevices.init();
+        initServiceAndWaitForComplete(audioServiceWithDynamicDevices);
         TestAudioZoneConfigurationsChangeCallback
                 configCallback = getRegisteredZoneConfigCallback(audioServiceWithDynamicDevices);
         AudioDeviceCallback deviceCallback = captureAudioDeviceCallback();
         audioServiceWithDynamicDevices.releaseAudioCallbacks(/* isAudioServerDown= */ true);
 
-        deviceCallback.onAudioDevicesAdded(new AudioDeviceInfo[]{mBTAudioDeviceInfo});
+        deviceCallback.onAudioDevicesAdded(
+                new AudioDeviceInfo[]{mCarAudioDeviceUtils.mBTAudioDeviceInfo});
 
         configCallback.waitForCallback();
         List<CarAudioZoneConfigInfo> zoneConfigInfos =
@@ -5175,15 +5368,17 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     public void onAudioDevicesRemoved_forDynamicDevicesEnabled_triggersCallback()
             throws Exception {
         CarAudioService serviceWithDynamicDevices = setUpAudioServiceWithDynamicDevices();
-        serviceWithDynamicDevices.init();
+        initServiceAndWaitForComplete(serviceWithDynamicDevices);
         AudioDeviceCallback deviceCallback = captureAudioDeviceCallback();
         TestAudioZoneConfigurationsChangeCallback
                 configCallback = getRegisteredZoneConfigCallback(serviceWithDynamicDevices);
-        deviceCallback.onAudioDevicesAdded(new AudioDeviceInfo[]{mBTAudioDeviceInfo});
+        deviceCallback.onAudioDevicesAdded(
+                new AudioDeviceInfo[]{mCarAudioDeviceUtils.mBTAudioDeviceInfo});
         configCallback.waitForCallback();
         configCallback.reset();
 
-        deviceCallback.onAudioDevicesRemoved(new AudioDeviceInfo[]{mBTAudioDeviceInfo});
+        deviceCallback.onAudioDevicesRemoved(
+                new AudioDeviceInfo[]{mCarAudioDeviceUtils.mBTAudioDeviceInfo});
 
         configCallback.waitForCallback();
         expectWithMessage("Disabled dynamic config callback status").that(configCallback.mStatus)
@@ -5198,15 +5393,17 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     @Test
     public void onAudioDevicesRemoved_afterAdded_forDynamicDevicesEnabled() throws Exception {
         CarAudioService audioServiceWithDynamicDevices = setUpAudioServiceWithDynamicDevices();
-        audioServiceWithDynamicDevices.init();
+        initServiceAndWaitForComplete(audioServiceWithDynamicDevices);
         TestAudioZoneConfigurationsChangeCallback
                 configCallback = getRegisteredZoneConfigCallback(audioServiceWithDynamicDevices);
         AudioDeviceCallback deviceCallback = captureAudioDeviceCallback();
-        deviceCallback.onAudioDevicesAdded(new AudioDeviceInfo[]{mBTAudioDeviceInfo});
+        deviceCallback.onAudioDevicesAdded(
+                new AudioDeviceInfo[]{mCarAudioDeviceUtils.mBTAudioDeviceInfo});
         configCallback.waitForCallback();
         configCallback.reset();
 
-        deviceCallback.onAudioDevicesRemoved(new AudioDeviceInfo[]{mBTAudioDeviceInfo});
+        deviceCallback.onAudioDevicesRemoved(
+                new AudioDeviceInfo[]{mCarAudioDeviceUtils.mBTAudioDeviceInfo});
 
         configCallback.waitForCallback();
         List<CarAudioZoneConfigInfo> zoneConfigInfos =
@@ -5223,12 +5420,13 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
             throws Exception {
         SwitchAudioZoneConfigCallbackImpl switchCallback = new SwitchAudioZoneConfigCallbackImpl();
         CarAudioService serviceWithDynamicDevices = setUpAudioServiceWithDynamicDevices();
-        serviceWithDynamicDevices.init();
+        initServiceAndWaitForComplete(serviceWithDynamicDevices);
         assignOccupantToAudioZones();
         AudioDeviceCallback deviceCallback = captureAudioDeviceCallback();
         TestAudioZoneConfigurationsChangeCallback
                 configCallback = getRegisteredZoneConfigCallback(serviceWithDynamicDevices);
-        deviceCallback.onAudioDevicesAdded(new AudioDeviceInfo[]{mBTAudioDeviceInfo});
+        deviceCallback.onAudioDevicesAdded(
+                new AudioDeviceInfo[]{mCarAudioDeviceUtils.mBTAudioDeviceInfo});
         configCallback.waitForCallback();
         configCallback.reset();
         List<CarAudioZoneConfigInfo> infos =
@@ -5239,7 +5437,8 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         serviceWithDynamicDevices.switchZoneToConfig(btConfig, switchCallback);
         switchCallback.waitForCallback();
 
-        deviceCallback.onAudioDevicesRemoved(new AudioDeviceInfo[]{mBTAudioDeviceInfo});
+        deviceCallback.onAudioDevicesRemoved(
+                new AudioDeviceInfo[]{mCarAudioDeviceUtils.mBTAudioDeviceInfo});
 
         configCallback.waitForCallback();
         CarAudioZoneConfigInfo updatedBTConfig = configCallback.mInfos.stream().filter(
@@ -5255,16 +5454,18 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     public void onAudioDevicesRemoved_forDynamicDevicesEnabled_afterAddedWithAudioServerDown()
             throws Exception {
         CarAudioService audioServiceWithDynamicDevices = setUpAudioServiceWithDynamicDevices();
-        audioServiceWithDynamicDevices.init();
+        initServiceAndWaitForComplete(audioServiceWithDynamicDevices);
         TestAudioZoneConfigurationsChangeCallback
                 configCallback = getRegisteredZoneConfigCallback(audioServiceWithDynamicDevices);
         AudioDeviceCallback deviceCallback = captureAudioDeviceCallback();
-        deviceCallback.onAudioDevicesAdded(new AudioDeviceInfo[]{mBTAudioDeviceInfo});
+        deviceCallback.onAudioDevicesAdded(
+                new AudioDeviceInfo[]{mCarAudioDeviceUtils.mBTAudioDeviceInfo});
         configCallback.waitForCallback();
         configCallback.reset();
         audioServiceWithDynamicDevices.releaseAudioCallbacks(/* isAudioServerDown= */ true);
 
-        deviceCallback.onAudioDevicesRemoved(new AudioDeviceInfo[]{mBTAudioDeviceInfo});
+        deviceCallback.onAudioDevicesRemoved(
+                new AudioDeviceInfo[]{mCarAudioDeviceUtils.mBTAudioDeviceInfo});
 
         configCallback.waitForCallback();
         List<CarAudioZoneConfigInfo> zoneConfigInfos =
@@ -6580,6 +6781,28 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         latch.await(TEST_ZONE_CONFIG_CALLBACK_TIMEOUT_MS, TimeUnit.MILLISECONDS);
     }
 
+    private void initServiceAndWaitForComplete(CarAudioService service) throws Exception {
+        service.init();
+        assertWithMessage("waitForInitComplete succeeded").that(
+                service.waitForInitComplete(INIT_TIMEOUT_MS)).isTrue();
+    }
+
+    private CarAudioService setupAudioServiceUsingAudioControlWithoutInit() throws Exception {
+        when(mAudioControlWrapperAidl.supportsFeature(
+                AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_CONFIGURATION)).thenReturn(true);
+        var deviceConfig = new AudioDeviceConfiguration();
+        deviceConfig.routingConfig = RoutingDeviceConfiguration.DYNAMIC_AUDIO_ROUTING;
+        when(mAudioControlWrapperAidl.getAudioDeviceConfiguration()).thenReturn(deviceConfig);
+        when(mAudioControlWrapperAidl.getCarAudioZones())
+                .thenReturn(createAudioServiceAudioZones());
+        // File not use for configuration for to differentiate between HAL config and file config
+        setUpTempFileForAudioConfiguration(R.raw.car_audio_configuration_without_zone_mapping);
+        setUpTempFileForAudioFadeConfiguration(R.raw.car_audio_fade_configuration);
+        return new CarAudioService(mMockContext, mAudioManager,
+                mTempCarAudioConfigFile.getFile().getAbsolutePath(), mCarVolumeCallbackHandler,
+                mTempCarAudioFadeConfigFile.getFile().getAbsolutePath());
+    }
+
     private CarAudioService setUpCarAudioServiceWithoutZoneMapping() throws Exception {
         setUpTempFileForAudioConfiguration(R.raw.car_audio_configuration_without_zone_mapping);
         setUpTempFileForAudioFadeConfiguration(R.raw.car_audio_fade_configuration);
@@ -6588,7 +6811,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         CarAudioService noZoneMappingAudioService = new CarAudioService(mMockContext, mAudioManager,
                 mTempCarAudioConfigFile.getFile().getAbsolutePath(), mCarVolumeCallbackHandler,
                 /* audioFadeConfigurationPath= */ null);
-        noZoneMappingAudioService.init();
+        initServiceAndWaitForComplete(noZoneMappingAudioService);
         return noZoneMappingAudioService;
     }
 
@@ -6598,7 +6821,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         CarAudioService service = new CarAudioService(mMockContext, mAudioManager,
                 mTempCarAudioConfigFile.getFile().getAbsolutePath(), mCarVolumeCallbackHandler,
                 mTempCarAudioFadeConfigFile.getFile().getAbsolutePath());
-        service.init();
+        initServiceAndWaitForComplete(service);
         return service;
     }
 
@@ -6618,7 +6841,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         CarAudioService nonDynamicAudioService = new CarAudioService(mMockContext, mAudioManager,
                 mTempCarAudioConfigFile.getFile().getAbsolutePath(), mCarVolumeCallbackHandler,
                 /* audioFadeConfigurationPath= */ null);
-        nonDynamicAudioService.init();
+        initServiceAndWaitForComplete(nonDynamicAudioService);
         return nonDynamicAudioService;
     }
 
@@ -6629,7 +6852,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         CarAudioService nonDynamicAudioService = new CarAudioService(mMockContext, mAudioManager,
                 mTempCarAudioConfigFile.getFile().getAbsolutePath(), mCarVolumeCallbackHandler,
                 mTempCarAudioFadeConfigFile.getFile().getAbsolutePath());
-        nonDynamicAudioService.init();
+        initServiceAndWaitForComplete(nonDynamicAudioService);
         return nonDynamicAudioService;
     }
 
@@ -6675,7 +6898,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         CarAudioService service = new CarAudioService(mMockContext, mAudioManager,
                 mTempCarAudioConfigFile.getFile().getAbsolutePath(), mCarVolumeCallbackHandler,
                 mTempCarAudioFadeConfigFile.getFile().getAbsolutePath());
-        service.init();
+        initServiceAndWaitForComplete(service);
         return service;
     }
 
@@ -6699,7 +6922,8 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     private AudioServerStateCallback getAudioServerStateCallback() {
         ArgumentCaptor<AudioServerStateCallback> captor = ArgumentCaptor.forClass(
                 AudioServerStateCallback.class);
-        verify(mAudioManager).setAudioServerStateCallback(any(), captor.capture());
+        verify(mAudioManager, timeout(INIT_TIMEOUT_MS)).setAudioServerStateCallback(
+                any(), captor.capture());
         return captor.getValue();
     }
 
@@ -6838,7 +7062,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
                 .setUsage(USAGE_MEDIA).build();
         AudioPlaybackConfiguration config = mock(AudioPlaybackConfiguration.class);
         when(config.getAudioAttributes()).thenReturn(audioAttributes);
-        when(config.getAudioDeviceInfo()).thenReturn(mMediaOutputDevice);
+        when(config.getAudioDeviceInfo()).thenReturn(mCarAudioDeviceUtils.mMediaOutputDevice);
         when(config.isActive()).thenReturn(true);
 
         return config;
@@ -6847,12 +7071,12 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     private CarAudioService setUpCarAudioServiceWithoutMirroring() throws Exception {
         setUpTempFileForAudioConfiguration(R.raw.car_audio_configuration_without_mirroring);
         setUpTempFileForAudioFadeConfiguration(R.raw.car_audio_fade_configuration);
-        AudioDeviceInfo[] outputDevices = generateOutputDeviceInfos();
+        AudioDeviceInfo[] outputDevices = mCarAudioDeviceUtils.generateOutputDeviceInfos();
         when(mAudioManager.getDevices(AudioManager.GET_DEVICES_OUTPUTS)).thenReturn(outputDevices);
         CarAudioService service = new CarAudioService(mMockContext, mAudioManager,
                 mTempCarAudioConfigFile.getFile().getAbsolutePath(), mCarVolumeCallbackHandler,
                 mTempCarAudioFadeConfigFile.getFile().getAbsolutePath());
-        service.init();
+        initServiceAndWaitForComplete(service);
         return service;
     }
 
@@ -6864,7 +7088,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         CarAudioService service = new CarAudioService(mMockContext, mAudioManager,
                 mTempCarAudioConfigFile.getFile().getAbsolutePath(), mCarVolumeCallbackHandler,
                 mTempCarAudioFadeConfigFile.getFile().getAbsolutePath());
-        service.init();
+        initServiceAndWaitForComplete(service);
         return service;
     }
 
@@ -6900,7 +7124,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
                 mAudioManager,
                 mTempCarAudioConfigFile.getFile().getAbsolutePath(), mCarVolumeCallbackHandler,
                 /* audioFadeConfigurationPath= */ null);
-        useCoreAudioCarAudioService.init();
+        initServiceAndWaitForComplete(useCoreAudioCarAudioService);
         return useCoreAudioCarAudioService;
     }
 
@@ -6914,7 +7138,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
                 mAudioManager,
                 mTempCarAudioConfigFile.getFile().getAbsolutePath(), mCarVolumeCallbackHandler,
                 /* audioFadeConfigurationPath= */ null);
-        useCoreAudioCarAudioService.init();
+        initServiceAndWaitForComplete(useCoreAudioCarAudioService);
         return useCoreAudioCarAudioService;
     }
 
@@ -6928,7 +7152,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
                 mAudioManager,
                 mTempCarAudioConfigFile.getFile().getAbsolutePath(), mCarVolumeCallbackHandler,
                 /* audioFadeConfigurationPath= */ null);
-        useCoreAudioCarAudioService.init();
+        initServiceAndWaitForComplete(useCoreAudioCarAudioService);
         return useCoreAudioCarAudioService;
     }
 
@@ -6941,7 +7165,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         CarAudioService audioCarAudioService = new CarAudioService(mMockContext, mAudioManager,
                 mTempCarAudioConfigFile.getFile().getAbsolutePath(), mCarVolumeCallbackHandler,
                 /* audioFadeConfigurationPath= */ null);
-        audioCarAudioService.init();
+        initServiceAndWaitForComplete(audioCarAudioService);
         return audioCarAudioService;
     }
 
@@ -6953,7 +7177,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         CarAudioService audioCarAudioService = new CarAudioService(mMockContext, mAudioManager,
                 mTempCarAudioConfigFile.getFile().getAbsolutePath(), mCarVolumeCallbackHandler,
                 /* audioFadeConfigurationPath= */ null);
-        audioCarAudioService.init();
+        initServiceAndWaitForComplete(audioCarAudioService);
         return audioCarAudioService;
     }
 
@@ -6984,93 +7208,6 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
                 .setIsSource(true)
                 .build();
         return new AudioDeviceInfo[]{mMicrophoneInputDevice, mFmTunerInputDevice};
-    }
-
-    private AudioDeviceInfo[] generateOutputDeviceInfos() {
-        mMediaOutputDevice = new AudioDeviceInfoBuilder()
-                .setAudioGains(new AudioGain[] {new GainBuilder().build()})
-                .setAddressName(MEDIA_TEST_DEVICE)
-                .build();
-        mNotificationOutpuBus = new AudioDeviceInfoBuilder()
-                .setAudioGains(new AudioGain[] {new GainBuilder().build()})
-                .setAddressName(NOTIFICATION_TEST_DEVICE)
-                .build();
-        mNavOutputDevice = new AudioDeviceInfoBuilder()
-                .setAudioGains(new AudioGain[] {new GainBuilder().build()})
-                .setAddressName(NAVIGATION_TEST_DEVICE)
-                .build();
-        mVoiceOutpuBus = new AudioDeviceInfoBuilder()
-                .setAudioGains(new AudioGain[] {new GainBuilder().build()})
-                .setAddressName(VOICE_TEST_DEVICE)
-                .build();
-        mSecondaryConfig0Group0Device = new AudioDeviceInfoBuilder()
-                .setAudioGains(new AudioGain[] {new GainBuilder().build()})
-                .setAddressName(SECONDARY_TEST_DEVICE_CONFIG_0)
-                .build();
-        mSecondaryConfig1Group0Device = new AudioDeviceInfoBuilder()
-                .setAudioGains(new AudioGain[] {new GainBuilder().build()})
-                .setAddressName(SECONDARY_TEST_DEVICE_CONFIG_1_0)
-                .build();
-        mSecondaryConfig1Group1Device = new AudioDeviceInfoBuilder()
-                .setAudioGains(new AudioGain[] {new GainBuilder().build()})
-                .setAddressName(SECONDARY_TEST_DEVICE_CONFIG_1_1)
-                .build();
-        mBTAudioDeviceInfo = new AudioDeviceInfoBuilder()
-                .setAudioGains(new AudioGain[] {new GainBuilder().build()})
-                .setAddressName(TEST_BT_DEVICE)
-                .setType(TYPE_BLUETOOTH_A2DP)
-                .build();
-        return new AudioDeviceInfo[] {
-                mBTAudioDeviceInfo,
-                mMediaOutputDevice,
-                mNavOutputDevice,
-                new AudioDeviceInfoBuilder()
-                        .setAudioGains(new AudioGain[] {new GainBuilder().build()})
-                        .setAddressName(CALL_TEST_DEVICE)
-                        .build(),
-                new AudioDeviceInfoBuilder()
-                        .setAudioGains(new AudioGain[] {new GainBuilder().build()})
-                        .setAddressName(SYSTEM_BUS_DEVICE)
-                        .build(),
-                mNotificationOutpuBus,
-                mVoiceOutpuBus,
-                new AudioDeviceInfoBuilder()
-                        .setAudioGains(new AudioGain[] {new GainBuilder().build()})
-                        .setAddressName(RING_TEST_DEVICE)
-                        .build(),
-                new AudioDeviceInfoBuilder()
-                        .setAudioGains(new AudioGain[] {new GainBuilder().build()})
-                        .setAddressName(ALARM_TEST_DEVICE)
-                        .build(),
-                new AudioDeviceInfoBuilder()
-                        .setAudioGains(new AudioGain[] {new GainBuilder().build()})
-                        .setAddressName(SECONDARY_TEST_DEVICE_CONFIG_0)
-                        .build(),
-                mSecondaryConfig1Group0Device,
-                mSecondaryConfig1Group1Device,
-                new AudioDeviceInfoBuilder()
-                        .setAudioGains(new AudioGain[] {new GainBuilder().build()})
-                        .setAddressName(TERTIARY_TEST_DEVICE_1)
-                        .build(),
-                new AudioDeviceInfoBuilder()
-                        .setAudioGains(new AudioGain[] {new GainBuilder().build()})
-                        .setAddressName(TERTIARY_TEST_DEVICE_2)
-                        .build(),
-                new AudioDeviceInfoBuilder()
-                        .setAudioGains(new AudioGain[] {new GainBuilder().build()})
-                        .setAddressName(QUATERNARY_TEST_DEVICE_1)
-                        .build(),
-                new AudioDeviceInfoBuilder()
-                        .setAudioGains(new AudioGain[] {new GainBuilder().build()})
-                        .setAddressName(OEM_TEST_DEVICE)
-                        .build(),
-                new AudioDeviceInfoBuilder()
-                        .setAudioGains(new AudioGain[] {new GainBuilder().build()})
-                        .setAddressName(MIRROR_TEST_DEVICE).build(),
-                new AudioDeviceInfoBuilder()
-                        .setAudioGains(new AudioGain[] {new GainBuilder().build()})
-                        .setAddressName(TEST_REAR_ROW_3_DEVICE).build(),
-        };
     }
 
     private void mockCoreAudioRoutingAndVolume() {

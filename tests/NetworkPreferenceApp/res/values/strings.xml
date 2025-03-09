@@ -36,6 +36,7 @@
   <string name="label_metric_total_oem_managed" translatable="false">Total OEM Managed</string>
 
   <!-- Wifi PANS SSID control labels -->
+  <string name="ssid_case_sensitive_text" translatable="false">SSIDs are case sensitive</string>
   <string name="oem_paid_wifi_ssids_text" translatable="false">Wifi SSIDs with OEM_PAID capability (ssid1[:password],ssid2[:password2],...))</string>
   <string name="oem_private_wifi_ssids_text" translatable="false">Wifi SSIDs with OEM_PRIVATE capability (ssid1[:password],ssid2[:password2],...))</string>
   <string name="button_apply_wifi_configuration" translatable="false">Apply WiFi suggestions</string>

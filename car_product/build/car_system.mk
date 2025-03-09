@@ -23,8 +23,9 @@ $(call inherit-product, $(SRC_TARGET_DIR)/product/languages_default.mk)
 # Add adb keys to debuggable AOSP builds (if they exist)
 $(call inherit-product-if-exists, vendor/google/security/adb/vendor_key.mk)
 
-# If your device needs telephony stack for mobile network, please include
-# telephony_system.mk and APN configs in your device makefile.
+ifneq ($(TARGET_NO_TELEPHONY), true)
+$(call inherit-product, $(SRC_TARGET_DIR)/product/telephony_system.mk)
+endif
 
 # Enable updating of APEXes
 $(call inherit-product, $(SRC_TARGET_DIR)/product/updatable_apex.mk)
@@ -146,6 +147,10 @@ PRODUCT_SYSTEM_PROPERTIES += \
 
 # Update with PLATFORM_VERSION_MINOR_INT update
 PRODUCT_SYSTEM_PROPERTIES += ro.android.car.version.platform_minor=0
+
+# Enable dual pane activity embedding by default on automotive
+PRODUCT_SYSTEM_PROPERTIES += \
+    persist.settings.large_screen_opt.enabled=true
 
 PRODUCT_PACKAGES += \
     com.android.wifi \

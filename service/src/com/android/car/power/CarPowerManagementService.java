@@ -24,6 +24,9 @@ import static android.net.ConnectivityManager.TETHERING_WIFI;
 
 import static com.android.car.hal.PowerHalService.BOOTUP_REASON_SYSTEM_ENTER_GARAGE_MODE;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
+import static com.android.car.systeminterface.SystemInterface.SUSPEND_RESULT_ABORT;
+import static com.android.car.systeminterface.SystemInterface.SUSPEND_RESULT_RETRY;
+import static com.android.car.systeminterface.SystemInterface.SUSPEND_RESULT_SUCCESS;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
@@ -86,6 +89,7 @@ import android.os.UserManager;
 import android.util.ArraySet;
 import android.util.AtomicFile;
 import android.util.SparseArray;
+import android.util.SparseBooleanArray;
 import android.util.proto.ProtoOutputStream;
 import android.view.Display;
 
@@ -163,6 +167,8 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     private static final String TETHERING_STATE_FILENAME = "tethering_state";
     private static final String COMPONENT_STATE_MODIFIED = "forcibly_disabled";
     private static final String COMPONENT_STATE_ORIGINAL = "original";
+    private static final String KERNEL_BOOT_TIME_PROPERTY = "boot.car_kernel_boot_time";
+    private static final String DEVICE_START_TIME_PROPERTY = "boot.car_device_start_time";
     // If Suspend to RAM fails, we retry with an exponential back-off:
     // The wait interval will be 10 msec, 20 msec, 40 msec, ...
     // Once the wait interval goes beyond 100 msec, it is fixed at 100 msec.
@@ -247,6 +253,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     private final AtomicFile mTetheringStateFile;
     private final boolean mWifiAdjustmentForSuspend;
     private boolean mShouldChangeSwap = true;
+    private long mCarServiceStartTimeAfterSuspend = 0;
 
     // This is a temp work-around to reduce user switching delay after wake-up.
     private final boolean mSwitchGuestUserBeforeSleep;
@@ -694,6 +701,10 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                     mResumeDelayFromSimulatedSuspendSec);
             writer.printf("mFreeMemoryBeforeSuspend: %b\n", mFreeMemoryBeforeSuspend);
         }
+        writer.printf("Kernel boot time property: %d", SystemPropertiesHelper.getLong(
+                KERNEL_BOOT_TIME_PROPERTY, /* defaultVal= */0L));
+        writer.printf("Device start time property: %d", SystemPropertiesHelper.getLong(
+                DEVICE_START_TIME_PROPERTY, /* defaultVal= */0L));
 
         mPolicyReader.dump(writer);
         mPowerComponentHandler.dump(writer);
@@ -975,7 +986,9 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         }
         CarPowerPolicy accumulatedPolicy = request.getAccumulatedPolicy();
         updateCurrentPowerPolicy(accumulatedPolicy);
-        notifyPowerPolicyChange(accumulatedPolicy);
+        notifyPowerPolicyChange(new PowerPolicyChangeNotification(
+                mPowerComponentHandler.getLastModifiedComponents(),
+                accumulatedPolicy, /* legacyNotification= */ false));
     }
 
     private void handleWaitForVhal(CpmsState state) {
@@ -1329,7 +1342,12 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             if (mFeatureFlags.carPowerCancelShellCommand()) {
                 synchronized (mSimulationWaitObject) {
                     if (mInSimulatedDeepSleepMode && mCancelDelayFromSimulatedSuspendSec >= 0) {
-                        mHandler.postDelayed(() -> forceSimulatedCancel(),
+                        // Cannot use mHandler here because it can cause deadlock. This code
+                        // can run on handler thread which relies on the results of
+                        // forceSimulatedCancel. If forceSimulatedCancel runs on the same handler,
+                        // it will cause deadlock.
+                        Handler handler = new Handler(Looper.getMainLooper());
+                        handler.postDelayed(() -> forceSimulatedCancel(),
                                 mCancelDelayFromSimulatedSuspendSec * 1000L);
                         while (!mBlockFromSimulatedCancelEvent) {
                             try {
@@ -1794,6 +1812,19 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         }
         Slogf.i(TAG, "Resuming after suspending");
         forEachDisplay(mContext, mSystemInterface::refreshDisplayBrightness);
+        // TODO(b/311063174): Verify boot.car_kernel_boot_time and boot.car_device_start time
+        //                    format when LA.3.7.0 lands.
+        if (!simulatedMode) {
+            long userPerceivedStartTimeAfterSuspend = SystemClock.uptimeMillis();
+            String suspendTarget = getSuspendType();
+            long kernelStartTimeMillis = SystemPropertiesHelper.getLong(
+                    KERNEL_BOOT_TIME_PROPERTY, /* defaultVal= */ 0L);
+            long deviceStartTimeMillis = SystemPropertiesHelper.getLong(
+                    DEVICE_START_TIME_PROPERTY, /* defaultVal= */ 0L);
+            CarStatsLogHelper.logResumeFromSuspend(suspendTarget, kernelStartTimeMillis,
+                    mCarServiceStartTimeAfterSuspend, userPerceivedStartTimeAfterSuspend,
+                    deviceStartTimeMillis);
+        }
         onApPowerStateChange(CpmsState.WAIT_FOR_VHAL, nextListenerState);
     }
 
@@ -1889,13 +1920,13 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         mScreenOffHandler.handleDisplayStateChange(displayId, on);
     }
 
-    private void doHandlePowerPolicyNotification(String policyId) {
+    private void doHandlePowerPolicyNotification(PowerPolicyChangeNotification notification) {
         // Sending notification of power policy change triggered through CarPowerManager API.
-        notifyPowerPolicyChange(policyId, /* upToDaemon= */ true, /* force= */ false);
-    }
-
-    private void doHandlePowerPolicyNotification(CarPowerPolicy accumulatedPolicy) {
-        notifyPowerPolicyChange(accumulatedPolicy);
+        if (notification.legacyNotification) {
+            notifyPowerPolicyChange(notification, /* upToDaemon= */ true, /* force= */ false);
+        } else {
+            notifyPowerPolicyChange(notification);
+        }
     }
 
     /**
@@ -2313,7 +2344,9 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             updateCurrentPowerPolicy(currentAccumulatedPolicy);
             String policyId = accumulatedPolicy.policyId;
             Slogf.i(TAG, "Queueing power policy notification (ID: %s) in the handler", policyId);
-            mHandler.handlePowerPolicyNotification(currentAccumulatedPolicy);
+            mHandler.handlePowerPolicyNotification(new PowerPolicyChangeNotification(
+                    mPowerComponentHandler.getLastModifiedComponents(),
+                    currentAccumulatedPolicy, /* legacyNotification= */ false));
         }
 
         @Override
@@ -2389,7 +2422,9 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                     powerPolicyInitData.currentPowerPolicy);
             updateCurrentPowerPolicy(currentPowerPolicy);
             mPowerComponentHandler.applyPowerPolicy(currentPowerPolicy);
-            notifyPowerPolicyChange(currentPowerPolicy);
+            notifyPowerPolicyChange(new PowerPolicyChangeNotification(
+                    mPowerComponentHandler.getLastModifiedComponents(),
+                    currentPowerPolicy, /* legacyNotification= */ false));
             // To cover the case where power state changed before connecting to CPPD.
             int currentPowerState = getPowerState();
             if (currentPowerState != CarPowerManager.STATE_WAIT_FOR_VHAL
@@ -2648,12 +2683,15 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             }
             CarPowerPolicy accumulatedPolicy = request.getAccumulatedPolicy();
             updateCurrentPowerPolicy(accumulatedPolicy);
+            PowerPolicyChangeNotification notification = new PowerPolicyChangeNotification(policyId,
+                    mPowerComponentHandler.getLastModifiedComponents(),
+                    mPowerComponentHandler.getAccumulatedPolicy(), /* legacyNotification= */ false);
             if (delayNotification) {
                 Slogf.d(TAG,
                         "Queueing power policy notification (id: %s) in the handler", policyId);
-                mHandler.handlePowerPolicyNotification(accumulatedPolicy);
+                mHandler.handlePowerPolicyNotification(notification);
             } else {
-                notifyPowerPolicyChange(accumulatedPolicy);
+                notifyPowerPolicyChange(notification);
             }
             Trace.traceEnd(TraceHelper.TRACE_TAG_CAR_SERVICE);
         } else {
@@ -2673,12 +2711,15 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                 mCurrentPowerPolicyId = policyId;
             }
             mPowerComponentHandler.applyPowerPolicy(policy);
+            PowerPolicyChangeNotification notification = new PowerPolicyChangeNotification(
+                    mPowerComponentHandler.getLastModifiedComponents(),
+                    policy, /* legacyNotification= */ true);
             if (delayNotification) {
                 Slogf.d(TAG,
                         "Queueing power policy notification (id: %s) in the handler", policyId);
-                mHandler.handlePowerPolicyNotification(policyId);
+                mHandler.handlePowerPolicyNotification(notification);
             } else {
-                notifyPowerPolicyChange(policyId, upToDaemon, force);
+                notifyPowerPolicyChange(notification, upToDaemon, force);
             }
         }
         Slogf.i(TAG, "The current power policy is %s", policyId);
@@ -2701,7 +2742,11 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             mCurrentPowerPolicyId = policyId;
         }
         mPowerComponentHandler.applyPowerPolicy(policy);
-        notifyPowerPolicyChange(policyId, /* upToDaemon= */ true, /* force= */ true);
+        notifyPowerPolicyChange(new PowerPolicyChangeNotification(policyId,
+                        mPowerComponentHandler.getLastModifiedComponents(),
+                        mPowerComponentHandler.getAccumulatedPolicy(),
+                        /* legacyNotification= */ true),
+                /* upToDaemon= */ true, /* force= */ true);
         Slogf.i(TAG, "The current power policy is %s", policyId);
         return PolicyOperationStatus.OK;
     }
@@ -2754,8 +2799,10 @@ public class CarPowerManagementService extends ICarPower.Stub implements
 
     // TODO(b/286303350): remove after power policy refactor is complete - will only use version
     //                    that takes 'accumulatedPowerPolicy' as input
-    private void notifyPowerPolicyChange(String policyId, boolean upToDaemon, boolean force) {
+    private void notifyPowerPolicyChange(PowerPolicyChangeNotification policyChangeNotification,
+            boolean upToDaemon, boolean force) {
         // Notify system clients
+        String policyId = policyChangeNotification.policyId;
         if (upToDaemon) {
             notifyPowerPolicyChangeToDaemon(policyId, force);
         }
@@ -2764,7 +2811,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                 ? mPolicyReader.getPreemptivePowerPolicy(policyId)
                 : mPolicyReader.getPowerPolicy(policyId);
         CarPowerPolicy accumulatedPolicy = mPowerComponentHandler.getAccumulatedPolicy();
-        notifyPowerPolicyChange(policyId, appliedPolicy, accumulatedPolicy);
+        notifyPowerPolicyChangeToListeners(policyChangeNotification, appliedPolicy);
     }
 
     @Nullable
@@ -2782,8 +2829,8 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         return mPolicyReader.getPowerPolicy(policyId);
     }
 
-    private void notifyPowerPolicyChange(CarPowerPolicy accumulatedPowerPolicy) {
-        String policyId = accumulatedPowerPolicy.getPolicyId();
+    private void notifyPowerPolicyChange(PowerPolicyChangeNotification policyChangeNotification) {
+        String policyId = policyChangeNotification.policyId;
         try {
             CarPowerPolicy appliedPolicy =
                     getPowerPolicyDefinition(policyId, CAR_POWER_POLICY_DEFINITION_TIMEOUT_MS);
@@ -2791,18 +2838,20 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                 Slogf.wtf(TAG, "The new power policy(%s) should exist", policyId);
                 return;
             }
-            notifyPowerPolicyChange(policyId, appliedPolicy, accumulatedPowerPolicy);
+            notifyPowerPolicyChangeToListeners(policyChangeNotification, appliedPolicy);
         } catch (InterruptedException e) {
             Slogf.e(TAG, e, "Failed to get power policy definition for policy ID %s", policyId);
         }
     }
 
-    // TODO(b/286303350): after power policy refactor is complete, remove this function and replace
-    //                    the inner call to it by notifyPowerPolicyChange(accumulatedPowerPolicy)
-    //                    with this function's code contents
-    private void notifyPowerPolicyChange(String policyId, CarPowerPolicy appliedPolicy,
-            CarPowerPolicy accumulatedPolicy) {
+    private void notifyPowerPolicyChangeToListeners(
+            PowerPolicyChangeNotification policyChangeNotification, CarPowerPolicy appliedPolicy) {
+        String policyId = policyChangeNotification.policyId;
+
+        SparseBooleanArray updatedComponents = policyChangeNotification.lastModifiedComponents;
+
         EventLogHelper.writePowerPolicyChange(policyId);
+
         if (appliedPolicy == null) {
             Slogf.wtf(TAG, "The new power policy(%s) should exist", policyId);
         }
@@ -2815,11 +2864,12 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                 ICarPowerPolicyListener listener = mPowerPolicyListeners.getBroadcastItem(idx);
                 CarPowerPolicyFilter filter =
                         (CarPowerPolicyFilter) mPowerPolicyListeners.getBroadcastCookie(idx);
-                if (!mPowerComponentHandler.isComponentChanged(filter)) {
+                if (!PowerComponentHandler.isComponentChanged(updatedComponents, filter)) {
                     continue;
                 }
                 try {
-                    listener.onPolicyChanged(appliedPolicy, accumulatedPolicy);
+                    listener.onPolicyChanged(appliedPolicy,
+                            policyChangeNotification.accumulatedPolicy);
                 } catch (RemoteException e) {
                     // It's likely the connection snapped. Let binder death handle the situation.
                     Slogf.e(TAG, e, "onPolicyChanged() call failed: policyId = %s", policyId);
@@ -3085,13 +3135,9 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             removeMessages(MSG_PROCESSING_COMPLETE);
         }
 
-        private void handlePowerPolicyNotification(String policyId) {
-            Message msg = obtainMessage(MSG_POWER_POLICY_NOTIFICATION, policyId);
-            sendMessage(msg);
-        }
 
-        private void handlePowerPolicyNotification(CarPowerPolicy accumulatedPolicy) {
-            Message msg = obtainMessage(MSG_POWER_POLICY_NOTIFICATION, accumulatedPolicy);
+        private void handlePowerPolicyNotification(PowerPolicyChangeNotification notification) {
+            Message msg = obtainMessage(MSG_POWER_POLICY_NOTIFICATION, notification);
             sendMessage(msg);
         }
 
@@ -3127,16 +3173,20 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                     service.doHandleProcessingComplete();
                     break;
                 case MSG_POWER_POLICY_NOTIFICATION:
-                    if (mFeatureFlags.carPowerPolicyRefactoring()) {
-                        service.doHandlePowerPolicyNotification((CarPowerPolicy) msg.obj);
-                    } else {
-                        service.doHandlePowerPolicyNotification((String) msg.obj);
-                    }
+                    service.doHandlePowerPolicyNotification(
+                            (PowerPolicyChangeNotification) msg.obj);
                     break;
                 default:
                     Slogf.w(TAG, "handleMessage invalid message type: %d", msg.what);
                     break;
             }
+        }
+    }
+
+    private String getSuspendType() {
+        synchronized (mLock) {
+            return mActionOnFinish == ACTION_ON_FINISH_HIBERNATION ? "Suspend-to-Disk"
+                    : "Suspend-to-RAM";
         }
     }
 
@@ -3146,12 +3196,8 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     // If we decide to go to a different power state, abort this retry mechanism.
     // Returns true if we successfully suspended.
     private boolean suspendWithRetries() {
-        boolean isSuspendToDisk;
-        synchronized (mLock) {
-            isSuspendToDisk = mActionOnFinish == ACTION_ON_FINISH_HIBERNATION;
-        }
-
-        String suspendTarget = isSuspendToDisk ? "Suspend-to-Disk" : "Suspend-to-RAM";
+        String suspendTarget = getSuspendType();
+        boolean isSuspendToDisk = suspendTarget.equals("Suspend-to-Disk");
         long retryIntervalMs = INITIAL_SUSPEND_RETRY_INTERVAL_MS;
         long totalWaitDurationMs = 0;
         while (true) {
@@ -3163,15 +3209,24 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                     SystemPropertiesHelper.set("sys.hibernate", "1");
                 }
             }
-            boolean suspendSucceeded = isSuspendToDisk ? mSystemInterface.enterHibernation()
+            int suspendResult = isSuspendToDisk ? mSystemInterface.enterHibernation()
                     : mSystemInterface.enterDeepSleep();
 
-            if (suspendSucceeded) {
-                if (isSuspendToDisk && mFeatureFlags.changeSwapsDuringSuspendToDisk()
-                        && mShouldChangeSwap) {
-                    SystemPropertiesHelper.set("sys.hibernate", "0");
-                }
-                return true;
+            switch (suspendResult) {
+                case SUSPEND_RESULT_SUCCESS:
+                    mCarServiceStartTimeAfterSuspend = SystemClock.uptimeMillis();
+                    if (isSuspendToDisk && mFeatureFlags.changeSwapsDuringSuspendToDisk()
+                            && mShouldChangeSwap) {
+                        SystemPropertiesHelper.set("sys.hibernate", "0");
+                    }
+                    return true;
+                case SUSPEND_RESULT_RETRY:
+                    break;
+                case SUSPEND_RESULT_ABORT:
+                    Slogf.e(TAG, "Creating hibernation image failed. Shuttind down");
+                    mSystemInterface.shutdown();
+                    Slogf.wtf(TAG, "The system must be turned off");
+                    return false;
             }
             if (totalWaitDurationMs >= mMaxSuspendWaitDurationMs) {
                 break;
@@ -3204,6 +3259,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         Slogf.w(TAG, "Could not %s after %dms long trial. Shutting down.", suspendTarget,
                 totalWaitDurationMs);
         mSystemInterface.shutdown();
+        Slogf.wtf(TAG, "The system must be turned off");
         return false;
     }
 
@@ -4056,7 +4112,19 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     }
 
     @VisibleForTesting
-    void changeShouldChangeSwap(boolean value) {
-        mShouldChangeSwap = value;
+    void setSwapChangeEnabled(boolean enable) {
+        mShouldChangeSwap = enable;
+    }
+
+    // TODO (b/286303350): remove legacyNotification field after power policy refactor is complete
+    private record PowerPolicyChangeNotification(String policyId,
+                                                 SparseBooleanArray lastModifiedComponents,
+                                                 CarPowerPolicy accumulatedPolicy,
+                                                 boolean legacyNotification) {
+        PowerPolicyChangeNotification(SparseBooleanArray lastModifiedComponents,
+                CarPowerPolicy accumulatedPolicy, boolean legacyNotification) {
+            this(accumulatedPolicy.getPolicyId(), lastModifiedComponents, accumulatedPolicy,
+                    legacyNotification);
+        }
     }
 }

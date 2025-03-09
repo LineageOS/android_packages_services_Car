@@ -22,14 +22,18 @@ import static com.android.car.hal.property.HalPropertyDebugUtils.toStatusString;
 import static com.android.car.hal.property.HalPropertyDebugUtils.toValueString;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
+import android.annotation.Nullable;
 import android.car.VehiclePropertyIds;
 import android.car.builtin.util.Slogf;
 import android.car.hardware.CarPropertyValue;
+import android.hardware.automotive.vehicle.RawPropValues;
+import android.hardware.automotive.vehicle.VehiclePropValue;
 import android.hardware.automotive.vehicle.VehiclePropertyStatus;
 import android.hardware.automotive.vehicle.VehiclePropertyType;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.property.CarPropertyHelper;
+import com.android.car.internal.property.RawPropertyValue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -176,6 +180,32 @@ public abstract class HalPropValue {
     public abstract Object toVehiclePropValue();
 
     /**
+     * Converts a {@link RawPropValues} received from AIDL VHAL to a {@link RawPropertyValue}.
+     *
+     * This only works for AIDL types.
+     *
+     * This wraps the {@link RawPropValues} to a {@link HalPropValue}, converts it to a
+     * {@link CarPropertyValue} and gets the {@link RawPropertyValue} from it.
+     */
+    public static @Nullable RawPropertyValue<?> toRawPropertyValue(int propId, int areaId,
+            int mgrPropId, RawPropValues rawPropValues, HalPropConfig config) {
+        VehiclePropValue aidlVehiclePropValue = new VehiclePropValue();
+        aidlVehiclePropValue.prop = propId;
+        aidlVehiclePropValue.areaId = areaId;
+        aidlVehiclePropValue.value = rawPropValues;
+        HalPropValue aidlHalPropValue = new HalPropValueBuilder(/* isAidl= */ true)
+                .build(aidlVehiclePropValue);
+        RawPropertyValue<?> rawPropertyValue = aidlHalPropValue.toRawPropertyValue(
+                mgrPropId, config);
+        if (rawPropertyValue == null) {
+            Slogf.e(TAG, "Invalid RawPropValues: " + rawPropValues
+                    + ", cannot convert to RawPropertyValue, return null");
+            return null;
+        }
+        return rawPropertyValue;
+    }
+
+    /**
      * Turns this class to a {@link CarPropertyValue}.
      *
      * @param mgrPropId The property ID used in {@link android.car.VehiclePropertyIds}.
@@ -184,13 +214,32 @@ public abstract class HalPropValue {
      * @throws IllegalStateException If property has unsupported type
      */
     public CarPropertyValue toCarPropertyValue(int mgrPropId, HalPropConfig config) {
+        Class<?> clazz = CarPropertyUtils.getJavaClass(getPropId() & VehiclePropertyType.MASK);
+        int areaId = getAreaId();
+        int status = vehiclePropertyStatusToCarPropertyStatus(getStatus());
+        long timestampNanos = getTimestamp();
+        var rawPropertyValue = toRawPropertyValue(mgrPropId, config);
+        if (rawPropertyValue == null) {
+            // Cannot convert to a valid rawPropertyValue. If the property has available status,
+            // change it to error.
+            if (status == CarPropertyValue.STATUS_AVAILABLE) {
+                status = CarPropertyValue.STATUS_ERROR;
+            }
+            // Fill in the default value, rawPropertyValue must not be null.
+            rawPropertyValue = new RawPropertyValue(CarPropertyHelper.getDefaultValue(clazz));
+        }
+        return new CarPropertyValue<>(mgrPropId, areaId, status, timestampNanos,
+                rawPropertyValue);
+    }
+
+    private @Nullable RawPropertyValue<?> toRawPropertyValue(int mgrPropId, HalPropConfig config) {
         if (isMixedTypeProperty(getPropId())) {
             int[] configArray = config.getConfigArray();
             boolean containStringType = configArray[0] == 1;
             boolean containBooleanType = configArray[1] == 1;
-            return toMixedCarPropertyValue(mgrPropId, containBooleanType, containStringType);
+            return toMixedRawPropertyValue(containBooleanType, containStringType);
         }
-        return toCarPropertyValue(mgrPropId);
+        return toRegularRawPropertyValue(mgrPropId);
     }
 
     /**
@@ -281,37 +330,30 @@ public abstract class HalPropValue {
 
     protected abstract Long[] getInt64ContainerArray();
 
-    private CarPropertyValue<?> toCarPropertyValue(int propertyId) {
+    private @Nullable RawPropertyValue<?> toRegularRawPropertyValue(int mgrPropId) {
         Class<?> clazz = CarPropertyUtils.getJavaClass(getPropId() & VehiclePropertyType.MASK);
-        int areaId = getAreaId();
-        int status = vehiclePropertyStatusToCarPropertyStatus(getStatus());
-        long timestampNanos = getTimestamp();
         Object value = null;
 
         if (Boolean.class == clazz) {
-            if (getInt32ValuesSize() > 0) {
-                value = Boolean.valueOf(getInt32Value(0) == 1);
-            } else if (status == CarPropertyValue.STATUS_AVAILABLE) {
-                status = CarPropertyValue.STATUS_ERROR;
+            if (getInt32ValuesSize() == 0) {
+                return null;
             }
+            value = Boolean.valueOf(getInt32Value(0) == 1);
         } else if (Float.class == clazz) {
-            if (getFloatValuesSize() > 0) {
-                value = Float.valueOf(getFloatValue(0));
-            } else if (status == CarPropertyValue.STATUS_AVAILABLE) {
-                status = CarPropertyValue.STATUS_ERROR;
+            if (getFloatValuesSize() == 0) {
+                return null;
             }
+            value = Float.valueOf(getFloatValue(0));
         } else if (Integer.class == clazz) {
-            if (getInt32ValuesSize() > 0) {
-                value = Integer.valueOf(getInt32Value(0));
-            } else if (status == CarPropertyValue.STATUS_AVAILABLE) {
-                status = CarPropertyValue.STATUS_ERROR;
+            if (getInt32ValuesSize() == 0) {
+                return null;
             }
+            value = Integer.valueOf(getInt32Value(0));
         } else if (Long.class == clazz) {
-            if (getInt64ValuesSize() > 0) {
-                value = Long.valueOf(getInt64Value(0));
-            } else if (status == CarPropertyValue.STATUS_AVAILABLE) {
-                status = CarPropertyValue.STATUS_ERROR;
+            if (getInt64ValuesSize() == 0) {
+                return null;
             }
+            value = Long.valueOf(getInt64Value(0));
         } else if (Float[].class == clazz) {
             value = getFloatContainerArray();
         } else if (Integer[].class == clazz) {
@@ -325,33 +367,25 @@ public abstract class HalPropValue {
         } else {
             throw new IllegalStateException(
                     "Unexpected type " + clazz + " - propertyId: " + VehiclePropertyIds.toString(
-                            propertyId));
+                            mgrPropId));
         }
-        if (value == null) {
-            value = CarPropertyHelper.getDefaultValue(clazz);
-        }
-        return new CarPropertyValue<>(propertyId, areaId, status, timestampNanos, value);
+        return new RawPropertyValue(value);
     }
 
-    private CarPropertyValue<?> toMixedCarPropertyValue(
-            int propertyId, boolean containBoolean, boolean containString) {
-        int areaId = getAreaId();
-        int status = vehiclePropertyStatusToCarPropertyStatus(getStatus());
-        long timestampNanos = getTimestamp();
-
+    private @Nullable RawPropertyValue<?> toMixedRawPropertyValue(
+            boolean containBoolean, boolean containString) {
         List<Object> valuesList = new ArrayList<>();
         if (containString) {
             valuesList.add(getStringValue());
         }
         if (containBoolean) {
-            if (getInt32ValuesSize() > 0) {
-                boolean boolValue = getInt32Value(0) == 1;
-                valuesList.add(boolValue);
-                for (int i = 1; i < getInt32ValuesSize(); i++) {
-                    valuesList.add(getInt32Value(i));
-                }
-            } else if (status == CarPropertyValue.STATUS_AVAILABLE) {
-                status = CarPropertyValue.STATUS_ERROR;
+            if (getInt32ValuesSize() == 0) {
+                return null;
+            }
+            boolean boolValue = getInt32Value(0) == 1;
+            valuesList.add(boolValue);
+            for (int i = 1; i < getInt32ValuesSize(); i++) {
+                valuesList.add(getInt32Value(i));
             }
         } else {
             for (int i = 0; i < getInt32ValuesSize(); i++) {
@@ -367,8 +401,7 @@ public abstract class HalPropValue {
         for (int i = 0; i < getByteValuesSize(); i++) {
             valuesList.add(getByteValue(i));
         }
-        return new CarPropertyValue<>(propertyId, areaId, status, timestampNanos,
-                valuesList.toArray());
+        return new RawPropertyValue(valuesList.toArray());
     }
 
     private boolean equalInt32Values(HalPropValue argument) {

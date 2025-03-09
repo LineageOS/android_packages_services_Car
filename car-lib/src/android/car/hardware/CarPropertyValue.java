@@ -26,16 +26,14 @@ import android.annotation.FlaggedApi;
 import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.car.VehiclePropertyIds;
-import android.car.builtin.os.ParcelHelper;
 import android.os.Parcel;
 import android.os.Parcelable;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
+import com.android.car.internal.property.RawPropertyValue;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Objects;
 
@@ -50,13 +48,12 @@ import java.util.Objects;
  *            here.
  */
 public final class CarPropertyValue<T> implements Parcelable {
-    private static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
 
     private final int mPropertyId;
     private final int mAreaId;
     private final int mStatus;
     private final long mTimestampNanos;
-    private final T mValue;
+    private final RawPropertyValue<T> mValue;
 
     /** @removed accidentally exposed previously */
     @IntDef({
@@ -134,17 +131,52 @@ public final class CarPropertyValue<T> implements Parcelable {
     }
 
     /**
+     * Creates an instance of {@code CarPropertyValue}. The {@code timestampNanos} is the time in
+     * nanoseconds at which the event happened. For a given car property, each new {@code
+     * CarPropertyValue} should be monotonically increasing using the same time base as
+     * {@link android.os.SystemClock#elapsedRealtimeNanos()}.
+     *
+     * @param propertyId The property identifier, see constants in
+     *                   {@link android.car.VehiclePropertyIds} for system defined property IDs.
+     * @param areaId     The area identifier. Must be {@code 0} if property is
+     *                   {@link android.car.VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}. Otherwise, it
+     *                   must be one or more OR'd together constants of this property's
+     *                   {@link android.car.VehicleAreaType}:
+     *                     <ul>
+     *                       <li>{@code VehicleAreaWindow}</li>
+     *                       <li>{@code VehicleAreaDoor}</li>
+     *                       <li>{@link android.car.VehicleAreaSeat}</li>
+     *                       <li>{@code VehicleAreaMirror}</li>
+     *                       <li>{@link android.car.VehicleAreaWheel}</li>
+     *                     </ul>
+     * @param status           The status of the property.
+     * @param timestampNanos   Elapsed time in nanoseconds since boot
+     * @param rawPropertyValue Value of the property.
+     *
+     * @hide
+     */
+    public CarPropertyValue(int propertyId, int areaId, int status, long timestampNanos,
+            RawPropertyValue<T> rawPropertyValue) {
+        mPropertyId = propertyId;
+        mAreaId = areaId;
+        mStatus = status;
+        mTimestampNanos = timestampNanos;
+        mValue = rawPropertyValue;
+    }
+
+    /**
      * @hide
      *
      * @deprecated use {@link CarPropertyValue#CarPropertyValue(int, int, long, T)} instead
      */
     @Deprecated
     public CarPropertyValue(int propertyId, int areaId, int status, long timestampNanos, T value) {
-        mPropertyId = propertyId;
-        mAreaId = areaId;
-        mStatus = status;
-        mTimestampNanos = timestampNanos;
-        mValue = value;
+
+        this(propertyId, areaId, status, timestampNanos, new RawPropertyValue(
+                Objects.requireNonNull(value, "value for propertyId: "
+                        + VehiclePropertyIds.toString(propertyId) + ", areaId: 0x"
+                        + toHexString(areaId) + ", status: " + status + " must not be null")
+                ));
     }
 
     /**
@@ -159,22 +191,8 @@ public final class CarPropertyValue<T> implements Parcelable {
         mAreaId = in.readInt();
         mStatus = in.readInt();
         mTimestampNanos = in.readLong();
-        String valueClassName = in.readString();
-        Class<?> valueClass;
-        try {
-            valueClass = Class.forName(valueClassName);
-        } catch (ClassNotFoundException e) {
-            throw new IllegalArgumentException("Class not found: " + valueClassName, e);
-        }
-
-        if (String.class.equals(valueClass)) {
-            byte[] bytes = ParcelHelper.readBlob(in);
-            mValue = (T) new String(bytes, DEFAULT_CHARSET);
-        } else if (byte[].class.equals(valueClass)) {
-            mValue = (T) ParcelHelper.readBlob(in);
-        } else {
-            mValue = (T) in.readValue(valueClass.getClassLoader());
-        }
+        mValue = (RawPropertyValue<T>) in.readParcelable(RawPropertyValue.class.getClassLoader(),
+                RawPropertyValue.class);
     }
 
     public static final Creator<CarPropertyValue> CREATOR = new Creator<CarPropertyValue>() {
@@ -201,18 +219,7 @@ public final class CarPropertyValue<T> implements Parcelable {
         dest.writeInt(mAreaId);
         dest.writeInt(mStatus);
         dest.writeLong(mTimestampNanos);
-
-        Class<?> valueClass = mValue == null ? null : mValue.getClass();
-        dest.writeString(valueClass == null ? null : valueClass.getName());
-
-        // Special handling for String and byte[] to mitigate transaction buffer limitations.
-        if (String.class.equals(valueClass)) {
-            ParcelHelper.writeBlob(dest, ((String) mValue).getBytes(DEFAULT_CHARSET));
-        } else if (byte[].class.equals(valueClass)) {
-            ParcelHelper.writeBlob(dest, (byte[]) mValue);
-        } else {
-            dest.writeValue(mValue);
-        }
+        dest.writeParcelable(mValue, /* parcelableFlags= */ 0);
     }
 
     /**
@@ -255,7 +262,7 @@ public final class CarPropertyValue<T> implements Parcelable {
 
     /**
      * @return Status of {@code CarPropertyValue}
-     * @deprecated Use a new API that communicates the property status.
+     * @deprecated Use {@link #getPropertyStatus} instead.
      */
     @Deprecated
     @PropertyStatus
@@ -280,12 +287,21 @@ public final class CarPropertyValue<T> implements Parcelable {
      * Returns the value for {@code CarPropertyValue}.
      *
      * <p>
-     * <b>Note:</b>Caller must check the value of {@link #getStatus()}. Only use
-     * {@link #getValue()} when {@link #getStatus()} is {@link #STATUS_AVAILABLE}. If not,
+     * <b>Note:</b>Caller must check the value of {@link #getPropertyStatus()}. Only use
+     * {@link #getValue()} when {@link #getPropertyStatus()} is {@link #STATUS_AVAILABLE}. If not,
      * {@link #getValue()} is meaningless.
      */
     @NonNull
     public T getValue() {
+        return mValue.getTypedValue();
+    }
+
+    /**
+     * Gets the internal raw property value.
+     *
+     * @hide
+     */
+    public RawPropertyValue getRawPropertyValue() {
         return mValue;
     }
 
@@ -305,7 +321,7 @@ public final class CarPropertyValue<T> implements Parcelable {
     /** Generates hash code for this instance. */
     @Override
     public int hashCode() {
-        return Arrays.deepHashCode(new Object[]{
+        return Arrays.hashCode(new Object[]{
                 mPropertyId, mAreaId, mStatus, mTimestampNanos, mValue});
     }
 
@@ -322,6 +338,6 @@ public final class CarPropertyValue<T> implements Parcelable {
         return mPropertyId == carPropertyValue.mPropertyId && mAreaId == carPropertyValue.mAreaId
                 && mStatus == carPropertyValue.mStatus
                 && mTimestampNanos == carPropertyValue.mTimestampNanos
-                && Objects.deepEquals(mValue, carPropertyValue.mValue);
+                && Objects.equals(mValue, carPropertyValue.mValue);
     }
 }

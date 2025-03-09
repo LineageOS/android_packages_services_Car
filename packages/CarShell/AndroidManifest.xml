@@ -33,6 +33,7 @@
     <uses-permission android:name="android.permission.ACCESS_VOICE_INTERACTION_SERVICE" />
     <!-- Permission required for ATS tests - AtsCarHostTestCases, AtsCarDeviceApp -->
     <uses-permission android:name="android.car.permission.CAR_DRIVING_STATE" />
+    <uses-permission android:name="android.car.permission.CAR_DRIVING_STATE_3P" />
     <!-- Permission required for 'adb shell cmd location is-automotive-gnss-suspended' -->
     <uses-permission android:name="android.permission.CONTROL_AUTOMOTIVE_GNSS" />
     <!-- Permission required for ATS tests - AtsCarTests#CarPropertyManagerTest-->
@@ -51,6 +52,7 @@
     <uses-permission android:name="android.car.permission.MODIFY_DAY_NIGHT_MODE" />
     <!-- Permission required for ATS tests - AtsDeviceInfo -->
     <uses-permission android:name="android.car.permission.CAR_TIRES" />
+    <uses-permission android:name="android.car.permission.CAR_TIRES_3P" />
     <!-- Permission required for ATS tests - AtsDeviceInfo -->
     <uses-permission android:name="android.car.permission.READ_CAR_STEERING" />
     <!-- Permissions required for ATS tests - CarEvsManagerTest -->
@@ -69,15 +71,23 @@
     <!-- Permission required for CTS test - CarPowerManagerTest-->
     <uses-permission android:name="android.car.permission.CONTROL_CAR_POWER_POLICY" />
     <!-- Permissions required for CTS test - CarPropertyManagerTest -->
+    <uses-permission android:name="android.car.permission.READ_CAR_STEERING_3P" />
     <uses-permission android:name="android.car.permission.READ_DRIVER_MONITORING_SETTINGS"/>
     <uses-permission android:name="android.car.permission.CONTROL_DRIVER_MONITORING_SETTINGS"/>
     <uses-permission android:name="android.car.permission.READ_DRIVER_MONITORING_STATES"/>
     <uses-permission android:name="android.car.permission.CAR_DYNAMICS_STATE" />
     <uses-permission android:name="android.car.permission.CONTROL_CAR_DYNAMICS_STATE" />
     <uses-permission android:name="android.car.permission.CAR_ENGINE_DETAILED" />
+    <uses-permission android:name="android.car.permission.CAR_ENGINE_DETAILED_3P" />
     <uses-permission android:name="android.car.permission.CAR_MILEAGE" />
+    <uses-permission android:name="android.car.permission.CAR_MILEAGE_3P" />
+    <uses-permission android:name="android.car.permission.READ_CAR_HORN" />
+    <uses-permission android:name="android.car.permission.CONTROL_CAR_HORN" />
+    <uses-permission android:name="android.car.permission.READ_CAR_PEDALS" />
+    <uses-permission android:name="android.car.permission.READ_BRAKE_INFO" />
     <uses-permission android:name="android.car.permission.CAR_TIRES" />
     <uses-permission android:name="android.car.permission.CAR_EXTERIOR_LIGHTS" />
+    <uses-permission android:name="android.car.permission.READ_CAR_EXTERIOR_LIGHTS" />
     <uses-permission android:name="android.car.permission.CONTROL_CAR_EXTERIOR_LIGHTS" />
     <uses-permission android:name="android.car.permission.CAR_VENDOR_EXTENSION" />
     <uses-permission android:name="android.car.permission.CONTROL_CAR_DOORS" />
@@ -85,6 +95,7 @@
     <uses-permission android:name="android.car.permission.CAR_ENERGY_PORTS" />
     <uses-permission android:name="android.car.permission.CONTROL_CAR_ENERGY_PORTS" />
     <uses-permission android:name="android.car.permission.CONTROL_CAR_SEATS" />
+    <uses-permission android:name="android.car.permission.READ_CAR_SEATS" />
     <uses-permission android:name="android.car.permission.READ_CAR_SEAT_BELTS"/>
     <uses-permission android:name="android.car.permission.READ_IMPACT_SENSORS"/>
     <uses-permission android:name="android.car.permission.READ_VALET_MODE"/>
@@ -115,6 +126,7 @@
     <uses-permission android:name="android.car.permission.READ_ADAS_STATES" />
     <uses-permission android:name="android.car.permission.CONTROL_ADAS_STATES" />
     <uses-permission android:name="android.car.permission.READ_WINDSHIELD_WIPERS" />
+    <uses-permission android:name="android.car.permission.READ_WINDSHIELD_WIPERS_3P" />
     <uses-permission android:name="android.car.permission.CONTROL_WINDSHIELD_WIPERS" />
     <uses-permission android:name="android.car.permission.CAR_EPOCH_TIME" />
     <uses-permission android:name="android.car.permission.VMS_PUBLISHER" />
@@ -182,6 +194,4 @@
     <uses-permission android:name="android.permission.MANAGE_TIME_AND_ZONE_DETECTION" />
     <!-- permissions required for ATS aareceiverts test - AccessPointTests -->
     <uses-permission android:name="android.permissions.NETWORK_SETTINGS" />
-    <!-- permissions required for AtsBlockinguiDeviceTest -->
-    <uses-permission android:name="android.permission.MANAGE_ACTIVITY_TASKS" />
 </manifest>

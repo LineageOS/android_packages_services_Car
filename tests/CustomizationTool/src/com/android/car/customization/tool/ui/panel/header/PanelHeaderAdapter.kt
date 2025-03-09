@@ -34,31 +34,35 @@ internal class PanelHeaderAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PanelHeaderItemViewHolder {
         val inflater = LayoutInflater.from(parent.context)
         return when (ViewType.from(viewType)) {
-            ViewType.HEADER_CLOSE -> {
-                PanelHeaderCloseViewHolder(
-                    inflater.inflate(
-                        R.layout.vh_panel_header_close,
-                        parent,
-                        /*attachToRoot=*/false
-                    )
+            ViewType.HEADER_CLOSE -> PanelHeaderCloseViewHolder(
+                inflater.inflate(
+                    R.layout.vh_panel_header_close,
+                    parent,
+                    /* attachToRoot = */ false
                 )
-            }
+            )
 
-            ViewType.HEADER_SEARCH -> {
-                PanelHeaderSearchBoxViewHolder(
-                    inflater.inflate(
-                        R.layout.vh_panel_header_search,
-                        parent,
-                        /*attachToRoot=*/false
-                    )
+            ViewType.HEADER_TITLE -> PanelHeaderTitleViewHolder(
+                inflater.inflate(
+                    R.layout.vh_panel_header_title,
+                    parent,
+                    /* attachToRoot = */ false
                 )
-            }
+            )
+
+            ViewType.HEADER_SEARCH -> PanelHeaderSearchBoxViewHolder(
+                inflater.inflate(
+                    R.layout.vh_panel_header_search,
+                    parent,
+                    /* attachToRoot = */ false
+                )
+            )
 
             ViewType.HEADER_DROPDOWN -> PanelHeaderDropDownViewHolder(
                 inflater.inflate(
                     R.layout.vh_panel_header_dropdown,
                     parent,
-                    /*attachToRoot=*/false
+                    /* attachToRoot = */ false
                 )
             )
         }
@@ -70,8 +74,9 @@ internal class PanelHeaderAdapter(
 
     override fun getItemViewType(position: Int): Int {
         return when (getItem(position)) {
-            is PanelHeaderItem.SearchBox -> ViewType.HEADER_SEARCH.ordinal
             is PanelHeaderItem.CloseButton -> ViewType.HEADER_CLOSE.ordinal
+            is PanelHeaderItem.Title -> ViewType.HEADER_TITLE.ordinal
+            is PanelHeaderItem.SearchBox -> ViewType.HEADER_SEARCH.ordinal
             is PanelHeaderItem.DropDown -> ViewType.HEADER_DROPDOWN.ordinal
         }
     }
@@ -80,7 +85,7 @@ internal class PanelHeaderAdapter(
      * Defines which types of panel items are supported by this Adapter.
      */
     enum class ViewType {
-        HEADER_SEARCH, HEADER_CLOSE, HEADER_DROPDOWN;
+        HEADER_CLOSE, HEADER_TITLE, HEADER_SEARCH, HEADER_DROPDOWN;
 
         companion object {
             fun from(index: Int): ViewType {

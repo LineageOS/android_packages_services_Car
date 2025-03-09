@@ -59,38 +59,11 @@ final class CoreAudioHelper {
      */
     static final AudioAttributes DEFAULT_ATTRIBUTES = new AudioAttributes.Builder().build();
 
-    /**
-     * Due to testing issue with static mock, use lazy initialize pattern for static variables
-     */
     private static List<AudioProductStrategy> getAudioProductStrategies() {
-        return StaticLazyInitializer.sAudioProductStrategies;
+        return AudioManagerWrapper.getAudioProductStrategies();
     }
     private static List<AudioVolumeGroup> getAudioVolumeGroups() {
-        return StaticLazyInitializer.sAudioVolumeGroups;
-    }
-    private static SparseArray<String> getGroupIdToNames() {
-        return StaticLazyInitializer.sGroupIdToNames;
-    }
-
-    private static class StaticLazyInitializer {
-        /**
-         * @see AudioProductStrategy
-         */
-        static final List<AudioProductStrategy> sAudioProductStrategies =
-                AudioManagerWrapper.getAudioProductStrategies();
-        /**
-         * @see AudioVolumeGroup
-         */
-        static final List<AudioVolumeGroup> sAudioVolumeGroups =
-                AudioManagerWrapper.getAudioVolumeGroups();
-        static final SparseArray<String> sGroupIdToNames = new SparseArray<>() {
-            {
-                for (int index = 0; index < sAudioVolumeGroups.size(); index++) {
-                    AudioVolumeGroup group = sAudioVolumeGroups.get(index);
-                    put(group.getId(), group.name());
-                }
-            }
-        };
+        return AudioManagerWrapper.getAudioVolumeGroups();
     }
 
     /**
@@ -263,7 +236,17 @@ final class CoreAudioHelper {
      */
     @Nullable
     public static String getVolumeGroupNameFromCoreId(int coreGroupId) {
-        return getGroupIdToNames().get(coreGroupId);
+        List<AudioVolumeGroup> audioVolumeGroups =
+                AudioManagerWrapper.getAudioVolumeGroups();
+        SparseArray<String> groupIdToNames = new SparseArray<>() {
+            {
+                for (int index = 0; index < audioVolumeGroups.size(); index++) {
+                    AudioVolumeGroup group = audioVolumeGroups.get(index);
+                    put(group.getId(), group.name());
+                }
+            }
+        };
+        return groupIdToNames.get(coreGroupId);
     }
 
     /**

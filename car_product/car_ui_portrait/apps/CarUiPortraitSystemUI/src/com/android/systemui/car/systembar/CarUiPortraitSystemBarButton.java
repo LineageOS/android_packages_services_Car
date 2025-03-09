@@ -16,26 +16,14 @@
 
 package com.android.systemui.car.systembar;
 
-import static com.android.car.caruiportrait.common.service.CarUiPortraitService.INTENT_EXTRA_COLLAPSE_APPLICATION_PANEL;
-import static com.android.car.caruiportrait.common.service.CarUiPortraitService.INTENT_EXTRA_FG_TASK_VIEW_READY;
-import static com.android.car.caruiportrait.common.service.CarUiPortraitService.REQUEST_FROM_LAUNCHER;
-import static com.android.car.caruiportrait.common.service.CarUiPortraitService.REQUEST_FROM_SYSTEM_UI;
+import static com.android.systemui.car.displayarea.DisplayAreaComponent.COLLAPSE_APPLICATION_PANEL;
 
-import android.app.ActivityManager;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.res.Configuration;
 import android.os.Build;
-import android.os.UserHandle;
 import android.util.AttributeSet;
-import android.util.Log;
-import android.widget.Toast;
 
-import androidx.annotation.Nullable;
-
-import com.android.systemui.R;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 /**
  * CarUiPortraitSystemBarButton is an extension of {@link CarSystemBarButton} that disables itself
@@ -43,69 +31,18 @@ import com.android.systemui.R;
  */
 public class CarUiPortraitSystemBarButton extends CarSystemBarButton {
 
-    private static final String TAG = "CarUiPortraitSystemBarButton";
+    private static final String TAG = CarUiPortraitSystemBarButton.class.getSimpleName();
     private static final boolean DEBUG = Build.IS_DEBUGGABLE;
 
-    // this is static so that we can save its state when configuration changes
-    private static boolean sTaskViewReady = false;
     private final Context mContext;
 
     public CarUiPortraitSystemBarButton(Context context, AttributeSet attrs) {
         super(context, attrs);
-        logIfDebuggable("CarUiPortraitSystemBarButton");
         mContext = context;
-        // disable button by default
-        super.setDisabled(/* disabled= */ true, getDisabledRunnable(context));
-
-        BroadcastReceiver taskViewReadyReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                if (intent.hasExtra(INTENT_EXTRA_FG_TASK_VIEW_READY)) {
-                    boolean taskViewReady = intent.getBooleanExtra(
-                            INTENT_EXTRA_FG_TASK_VIEW_READY, /* defaultValue= */ false);
-                    sTaskViewReady = taskViewReady;
-                    if (sTaskViewReady) {
-                        logIfDebuggable("Foreground task view ready");
-                    }
-                    setDisabled(!taskViewReady, getDisabledRunnable(context));
-                }
-            }
-        };
-        context.registerReceiverForAllUsers(taskViewReadyReceiver,
-                new IntentFilter(REQUEST_FROM_LAUNCHER), null, null, Context.RECEIVER_EXPORTED);
-    }
-
-    private static void logIfDebuggable(String message) {
-        if (DEBUG) {
-            Log.d(TAG, message);
-        }
-    }
-
-    @Override
-    protected void onConfigurationChanged(Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-        setDisabled(!sTaskViewReady, getDisabledRunnable(getContext()));
-    }
-
-    @Override
-    public void setDisabled(boolean disabled, @Nullable Runnable runnable) {
-        // do not externally control disable state until taskview is ready
-        if (!sTaskViewReady) {
-            return;
-        }
-
-        super.setDisabled(disabled, runnable);
-    }
-
-    private Runnable getDisabledRunnable(Context context) {
-        return () -> Toast.makeText(context, R.string.task_view_not_ready_message,
-                Toast.LENGTH_LONG).show();
     }
 
     protected void collapseApplicationPanel() {
-        Intent intent = new Intent(REQUEST_FROM_SYSTEM_UI);
-        intent.putExtra(INTENT_EXTRA_COLLAPSE_APPLICATION_PANEL, /* value= */ true);
-        mContext.getApplicationContext().sendBroadcastAsUser(intent,
-                new UserHandle(ActivityManager.getCurrentUser()));
+        Intent intent = new Intent(COLLAPSE_APPLICATION_PANEL);
+        LocalBroadcastManager.getInstance(mContext.getApplicationContext()).sendBroadcast(intent);
     }
 }

@@ -385,7 +385,66 @@ public final class HalPropValueBuilder {
         return new AidlHalPropValue(value);
     }
 
-    private static class AidlHalPropValue extends HalPropValue {
+    /**
+     * A mutable HalPropValue interface for internal use inside HalPropValueBuilder only.
+     *
+     * Must not be exposed outside of this class.
+     */
+    private abstract static class MutableHalPropValue extends HalPropValue {
+        protected abstract void setInt32Values(ArrayList<Integer> values);
+
+        protected abstract void setInt64Values(ArrayList<Long> values);
+
+        protected abstract void setFloatValues(ArrayList<Float> values);
+
+        protected abstract void setByteValues(ArrayList<Byte> values);
+
+        protected abstract void setStringValue(String value);
+
+        /**
+         * Set the vehicle property value for MIXED type properties according to configArray.
+         * configArray[0], 1 indicates the property has a String value.
+         * configArray[1], 1 indicates the property has a Boolean value.
+         * configArray[2], 1 indicates the property has a Integer value.
+         * configArray[3], the number indicates the size of Integer[] in the property.
+         * configArray[4], 1 indicates the property has a Long value.
+         * configArray[5], the number indicates the size of Long[] in the property.
+         * configArray[6], 1 indicates the property has a Float value.
+         * configArray[7], the number indicates the size of Float[] in the property.
+         * configArray[8], the number indicates the size of byte[] in the property.
+         *
+         * <p>For example: configArray = {1, 1, 1, 3, 0, 0, 0, 0, 0} indicates the property has a
+         * String value, a Boolean value, an Integer value, an Integer array with 3 enums.
+         */
+        protected void setMixedCarProperty(CarPropertyValue carProp, int[] configArray) {
+            if (configArray.length != CONFIG_ARRAY_LENGTH) {
+                throw new IllegalArgumentException("Unexpected configArray in:" + carProp);
+            }
+
+            Object[] values = (Object[]) carProp.getValue();
+            int indexOfValues = 0;
+            if (configArray[CONFIG_ARRAY_INDEX_STRING] != 0) {
+                // Add a string value
+                setStringValue((String) values[indexOfValues]);
+                indexOfValues++;
+            }
+
+            ArrayList<Integer> int32Values = new ArrayList<Integer>();
+            ArrayList<Long> int64Values = new ArrayList<Long>();
+            ArrayList<Byte> byteValues = new ArrayList<Byte>();
+            ArrayList<Float> floatValues = new ArrayList<Float>();
+
+            setMixedTypeValues(indexOfValues, values, configArray, int32Values, floatValues,
+                    int64Values, byteValues);
+
+            setInt32Values(int32Values);
+            setInt64Values(int64Values);
+            setByteValues(byteValues);
+            setFloatValues(floatValues);
+        }
+    }
+
+    private static class AidlHalPropValue extends MutableHalPropValue {
         private android.hardware.automotive.vehicle.VehiclePropValue mVehiclePropValue;
 
         AidlHalPropValue(int prop, int areaId, long timestamp, int status) {
@@ -661,6 +720,31 @@ public final class HalPropValueBuilder {
             return mVehiclePropValue.equals(that.mVehiclePropValue);
         }
 
+        @Override
+        protected void setInt32Values(ArrayList<Integer> values) {
+            mVehiclePropValue.value.int32Values = toIntArray(values);
+        }
+
+        @Override
+        protected void setInt64Values(ArrayList<Long> values) {
+            mVehiclePropValue.value.int64Values = toLongArray(values);
+        }
+
+        @Override
+        protected void setFloatValues(ArrayList<Float> values) {
+            mVehiclePropValue.value.floatValues = toFloatArray(values);
+        }
+
+        @Override
+        protected void setByteValues(ArrayList<Byte> values) {
+            mVehiclePropValue.value.byteValues = toByteArray(values);
+        }
+
+        @Override
+        protected void setStringValue(String value) {
+            mVehiclePropValue.value.stringValue = value;
+        }
+
         protected Float[] getFloatContainerArray() {
             int size =  getFloatValuesSize();
             Float[] array = new Float[size];
@@ -735,51 +819,9 @@ public final class HalPropValueBuilder {
                 throw new IllegalArgumentException("Unexpected type in: " + carProp);
             }
         }
-
-        /**
-         * Set the vehicle property value for MIXED type properties according to configArray.
-         * configArray[0], 1 indicates the property has a String value.
-         * configArray[1], 1 indicates the property has a Boolean value.
-         * configArray[2], 1 indicates the property has a Integer value.
-         * configArray[3], the number indicates the size of Integer[] in the property.
-         * configArray[4], 1 indicates the property has a Long value.
-         * configArray[5], the number indicates the size of Long[] in the property.
-         * configArray[6], 1 indicates the property has a Float value.
-         * configArray[7], the number indicates the size of Float[] in the property.
-         * configArray[8], the number indicates the size of byte[] in the property.
-         *
-         * <p>For example: configArray = {1, 1, 1, 3, 0, 0, 0, 0, 0} indicates the property has a
-         * String value, a Boolean value, an Integer value, an Integer array with 3 enums.
-         */
-        private void setMixedCarProperty(CarPropertyValue carProp, int[] configArray) {
-            if (configArray.length != CONFIG_ARRAY_LENGTH) {
-                throw new IllegalArgumentException("Unexpected configArray in:" + carProp);
-            }
-
-            Object[] values = (Object[]) carProp.getValue();
-            int indexOfValues = 0;
-            if (configArray[CONFIG_ARRAY_INDEX_STRING] != 0) {
-                // Add a string value
-                mVehiclePropValue.value.stringValue = (String) values[indexOfValues];
-                indexOfValues++;
-            }
-
-            ArrayList<Integer> int32Values = new ArrayList<Integer>();
-            ArrayList<Long> int64Values = new ArrayList<Long>();
-            ArrayList<Byte> byteValues = new ArrayList<Byte>();
-            ArrayList<Float> floatValues = new ArrayList<Float>();
-
-            setMixedTypeValues(indexOfValues, values, configArray, int32Values, floatValues,
-                    int64Values, byteValues);
-
-            mVehiclePropValue.value.int32Values = toIntArray(int32Values);
-            mVehiclePropValue.value.floatValues = toFloatArray(floatValues);
-            mVehiclePropValue.value.int64Values = toLongArray(int64Values);
-            mVehiclePropValue.value.byteValues = toByteArray(byteValues);
-        }
     }
 
-    private static class HidlHalPropValue extends HalPropValue {
+    private static class HidlHalPropValue extends MutableHalPropValue {
         private android.hardware.automotive.vehicle.V2_0.VehiclePropValue mVehiclePropValue;
 
         HidlHalPropValue(int prop, int areaId, long timestamp, int status) {
@@ -1056,6 +1098,31 @@ public final class HalPropValueBuilder {
             return mVehiclePropValue.equals(that.mVehiclePropValue);
         }
 
+        @Override
+        protected void setInt32Values(ArrayList<Integer> values) {
+            mVehiclePropValue.value.int32Values = values;
+        }
+
+        @Override
+        protected void setInt64Values(ArrayList<Long> values) {
+            mVehiclePropValue.value.int64Values = values;
+        }
+
+        @Override
+        protected void setFloatValues(ArrayList<Float> values) {
+            mVehiclePropValue.value.floatValues = values;
+        }
+
+        @Override
+        protected void setByteValues(ArrayList<Byte> values) {
+            mVehiclePropValue.value.bytes = values;
+        }
+
+        @Override
+        protected void setStringValue(String value) {
+            mVehiclePropValue.value.stringValue = value;
+        }
+
         protected Float[] getFloatContainerArray() {
             return mVehiclePropValue.value.floatValues.toArray(new Float[getFloatValuesSize()]);
         }
@@ -1105,48 +1172,6 @@ public final class HalPropValueBuilder {
             } else {
                 throw new IllegalArgumentException("Unexpected type in: " + carProp);
             }
-        }
-
-         /**
-         * Set the vehicle property value for MIXED type properties according to configArray.
-         * configArray[0], 1 indicates the property has a String value.
-         * configArray[1], 1 indicates the property has a Boolean value.
-         * configArray[2], 1 indicates the property has a Integer value.
-         * configArray[3], the number indicates the size of Integer[] in the property.
-         * configArray[4], 1 indicates the property has a Long value.
-         * configArray[5], the number indicates the size of Long[] in the property.
-         * configArray[6], 1 indicates the property has a Float value.
-         * configArray[7], the number indicates the size of Float[] in the property.
-         * configArray[8], the number indicates the size of byte[] in the property.
-         *
-         * <p>For example: configArray = {1, 1, 1, 3, 0, 0, 0, 0, 0} indicates the property has a
-         * String value, a Boolean value, an Integer value, an Integer array with 3 enums.
-         */
-        private void setMixedCarProperty(CarPropertyValue carProp, int[] configArray) {
-            if (configArray.length != CONFIG_ARRAY_LENGTH) {
-                throw new IllegalArgumentException("Unexpected configArray in:" + carProp);
-            }
-
-            Object[] values = (Object[]) carProp.getValue();
-            int indexOfValues = 0;
-            if (configArray[CONFIG_ARRAY_INDEX_STRING] != 0) {
-                // Add a string value
-                mVehiclePropValue.value.stringValue = (String) values[indexOfValues];
-                indexOfValues++;
-            }
-
-            ArrayList<Integer> int32Values = new ArrayList<Integer>();
-            ArrayList<Long> int64Values = new ArrayList<Long>();
-            ArrayList<Byte> byteValues = new ArrayList<Byte>();
-            ArrayList<Float> floatValues = new ArrayList<Float>();
-
-            setMixedTypeValues(indexOfValues, values, configArray, int32Values, floatValues,
-                    int64Values, byteValues);
-
-            mVehiclePropValue.value.int32Values = int32Values;
-            mVehiclePropValue.value.floatValues = floatValues;
-            mVehiclePropValue.value.int64Values = int64Values;
-            mVehiclePropValue.value.bytes = byteValues;
         }
     }
 

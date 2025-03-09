@@ -32,9 +32,9 @@
 #include <iterator>
 #include <vector>
 
-#include <carwatchdog_daemon_dump.proto.h>
-#include <health_check_client_info.proto.h>
-#include <performance_stats.proto.h>
+#include <packages/services/Car/service/proto/android/car/watchdog/carwatchdog_daemon_dump.proto.h>
+#include <packages/services/Car/service/proto/android/car/watchdog/health_check_client_info.proto.h>
+#include <packages/services/Car/service/proto/android/car/watchdog/performance_stats.proto.h>
 
 namespace android {
 namespace automotive {
@@ -344,6 +344,12 @@ void WatchdogPerfService::onCarWatchdogServiceRegistered() {
 
 Result<void> WatchdogPerfService::onBootFinished() {
     Mutex::Autolock lock(mMutex);
+
+    if (mBootCompletedTimeEpochSeconds <= 0) {
+        mBootCompletedTimeEpochSeconds = std::chrono::system_clock::to_time_t(
+            std::chrono::system_clock::now());
+    }
+
     if (EventType expected = EventType::BOOT_TIME_COLLECTION; mCurrCollectionEvent != expected) {
         /*
          * This case happens when either the WatchdogPerfService has prematurely terminated before
@@ -355,9 +361,6 @@ Result<void> WatchdogPerfService::onBootFinished() {
               toString(expected));
         return {};
     }
-
-    mBootCompletedTimeEpochSeconds = std::chrono::system_clock::to_time_t(
-          std::chrono::system_clock::now());
 
     mHandlerLooper->sendMessageAtTime(mHandlerLooper->now() + mPostSystemEventDurationNs.count(),
                                       sp<WatchdogPerfService>::fromExisting(this),
@@ -583,6 +586,14 @@ Result<void> WatchdogPerfService::onDump(int fd) const {
         return Error(FAILED_TRANSACTION) << result.error();
     }
 
+    std::stringstream kernelStartTimestamp;
+    if (mKernelStartTimeEpochSeconds != 0) {
+        kernelStartTimestamp << std::put_time(std::localtime(&mKernelStartTimeEpochSeconds),
+                                            "%c %Z");
+    } else {
+        kernelStartTimestamp << "Missing";
+    }
+
     std::stringstream bootCompletedTimestamp;
     if (mBootCompletedTimeEpochSeconds != 0) {
         bootCompletedTimestamp << std::put_time(std::localtime(&mBootCompletedTimeEpochSeconds),
@@ -591,10 +602,12 @@ Result<void> WatchdogPerfService::onDump(int fd) const {
         bootCompletedTimestamp << "Missing";
     }
     if (!WriteStringToFd(StringPrintf("\n%s%s report:\n%sSystem information:\n%s\n"
+                                      "Kernel start time: <%s>\n"
                                       "Boot completed time: <%s>\n",
                                       kDumpMajorDelimiter.c_str(), kServiceName,
                                       kDumpMajorDelimiter.c_str(),
                                       std::string(33, '=').c_str(),
+                                      kernelStartTimestamp.str().c_str(),
                                       bootCompletedTimestamp.str().c_str()),
                          fd) ||
         !WriteStringToFd(StringPrintf("\nBoot-time collection "
@@ -640,6 +653,8 @@ Result<void> WatchdogPerfService::onDumpProto(ProtoOutputStream& outProto) const
     outProto.write(PerformanceProfilerDump::CURRENT_EVENT, toProtoEventType(mCurrCollectionEvent));
     outProto.write(PerformanceProfilerDump::BOOT_COMPLETED_TIME_EPOCH_SECONDS,
                    mBootCompletedTimeEpochSeconds);
+    outProto.write(PerformanceProfilerDump::KERNEL_START_TIME_EPOCH_SECONDS,
+                   mKernelStartTimeEpochSeconds);
 
     DataProcessorInterface::CollectionIntervals collectionIntervals =
             {.mBoottimeIntervalMillis = std::chrono::duration_cast<std::chrono::milliseconds>(
@@ -920,6 +935,11 @@ Result<void> WatchdogPerfService::collectLocked(WatchdogPerfService::EventMetada
     if (mProcStatCollector->enabled()) {
         if (const auto result = mProcStatCollector->collect(); !result.ok()) {
             return Error() << "Failed to collect proc stats: " << result.error();
+        }
+
+        if (mKernelStartTimeEpochSeconds <= 0) {
+            mKernelStartTimeEpochSeconds =
+                mProcStatCollector->getKernelStartTimeEpochSeconds();
         }
     }
 

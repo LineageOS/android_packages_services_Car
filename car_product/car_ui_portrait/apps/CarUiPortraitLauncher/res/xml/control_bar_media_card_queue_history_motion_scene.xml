@@ -26,12 +26,60 @@
         <KeyFrameSet>
             <KeyAttribute
                 android:alpha="0"
-                motion:framePosition="50"
+                motion:framePosition="10"
                 motion:motionTarget="@id/title" />
             <KeyAttribute
                 android:alpha="0"
-                motion:framePosition="50"
+                motion:framePosition="85"
+                motion:motionTarget="@id/title" />
+            <KeyPosition
+                motion:motionTarget="@+id/title"
+                motion:framePosition="20"
+                motion:keyPositionType="deltaRelative"
+                motion:percentX="0"
+                motion:percentY="0"/>
+            <KeyPosition
+                motion:motionTarget="@+id/title"
+                motion:framePosition="75"
+                motion:keyPositionType="deltaRelative"
+                motion:percentX="1"
+                motion:percentY="1"/>
+            <KeyAttribute
+                android:alpha="0"
+                motion:framePosition="10"
                 motion:motionTarget="@id/playback_seek_bar" />
+            <KeyAttribute
+                android:alpha="0"
+                motion:framePosition="85"
+                motion:motionTarget="@id/playback_seek_bar" />
+            <KeyPosition
+                motion:motionTarget="@+id/playback_seek_bar"
+                motion:framePosition="20"
+                motion:keyPositionType="deltaRelative"
+                motion:percentX="0"
+                motion:percentY="0"/>
+            <KeyPosition
+                motion:motionTarget="@+id/playback_seek_bar"
+                motion:framePosition="75"
+                motion:keyPositionType="deltaRelative"
+                motion:percentX="1"
+                motion:percentY="1"/>
+            <KeyAttribute
+                android:alpha="0"
+                motion:framePosition="10"
+                motion:motionTarget="@id/subtitle" />
+            <KeyAttribute
+                android:alpha="0"
+                motion:framePosition="10"
+                motion:motionTarget="@id/current_time" />
+            <KeyAttribute
+                android:alpha="0"
+                motion:framePosition="10"
+                motion:motionTarget="@id/max_time" />
+            <KeyAttribute
+                android:alpha="0"
+                motion:framePosition="10"
+                motion:motionTarget="@id/inner_separator" />
         </KeyFrameSet>
     </Transition>
 
@@ -112,6 +160,11 @@
         </ConstraintOverride>
         <ConstraintOverride
             android:id="@id/playback_action_id2">
+            <PropertySet
+                motion:visibilityMode="ignore"/>
+        </ConstraintOverride>
+        <ConstraintOverride
+            android:id="@id/queue_button">
             <PropertySet
                 motion:visibilityMode="ignore"/>
         </ConstraintOverride>
@@ -263,6 +316,11 @@
         </ConstraintOverride>
         <ConstraintOverride
             android:id="@id/playback_action_id2">
+            <PropertySet
+                motion:visibilityMode="ignore"/>
+        </ConstraintOverride>
+        <ConstraintOverride
+            android:id="@id/queue_button">
             <PropertySet
                 motion:visibilityMode="ignore"/>
         </ConstraintOverride>

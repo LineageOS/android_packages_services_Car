@@ -35,6 +35,7 @@ public final class TaskViewPanelStateChangeReason {
     public static final String ON_HOME_SCREEN_LAYOUT_CHANGED = "ON_HOME_SCREEN_LAYOUT_CHANGED";
     public static final String ON_IMMERSIVE_REQUEST = "ON_IMMERSIVE_REQUEST";
     public static final String ON_MEDIA_INTENT = "ON_MEDIA_INTENT";
+    public static final String ON_INCALL_INTENT = "ON_INCALL_INTENT";
     public static final String ON_PANEL_STATE_CHANGE_END = "ON_PANEL_STATE_CHANGE_END";
     public static final String ON_PANEL_READY = "ON_PANEL_READY";
     public static final String ON_SUW_STATE_CHANGED = "ON_SUW_STATE_CHANGED";
@@ -115,6 +116,7 @@ public final class TaskViewPanelStateChangeReason {
             ON_TASK_REMOVED,
             ON_CALM_MODE_STARTED,
             ON_TASK_INFO_CHANGED,
+            ON_INCALL_INTENT,
     })
     @Retention(RetentionPolicy.SOURCE)
     @interface Reason {

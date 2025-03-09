@@ -201,15 +201,12 @@ public final class PowerComponentHandler {
         }
     }
 
-    boolean isComponentChanged(CarPowerPolicyFilter filter) {
+    /**
+     * Method to get array of components modified during last power policy change
+     */
+    public SparseBooleanArray getLastModifiedComponents() {
         synchronized (mLock) {
-            int[] components = filter.getComponents();
-            for (int i = 0; i < components.length; i++) {
-                if (mLastModifiedComponents.get(components[i], false)) {
-                    return true;
-                }
-            }
-            return false;
+            return mLastModifiedComponents.clone();
         }
     }
 
@@ -391,6 +388,20 @@ public final class PowerComponentHandler {
                 }
             }
         }
+    }
+
+    /**
+     * Utility method to check if array contains component from filter
+     */
+    public static boolean isComponentChanged(SparseBooleanArray updatedComponents,
+            CarPowerPolicyFilter carPowerPolicyFilter) {
+        int[] components = carPowerPolicyFilter.getComponents();
+        for (int i = 0; i < components.length; i++) {
+            if (updatedComponents.get(components[i], false)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     abstract static class PowerComponentMediator {

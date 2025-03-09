@@ -17,6 +17,6 @@
 
 <resources>
     <bool name="config_global_force_single_pane">false</bool>
-    <string name="config_homepage_fragment_class" translatable="false">com.android.car.settings.bluetooth.BluetoothSettingsFragment</string>
     <bool name="config_top_level_enable_chevrons">false</bool>
+    <integer name="config_activity_embed_split_min_cur_dp">1000</integer>
 </resources>

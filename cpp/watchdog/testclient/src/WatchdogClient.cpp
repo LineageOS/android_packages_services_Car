@@ -18,6 +18,7 @@
 
 #include "WatchdogClient.h"
 
+#include <android-base/chrono_utils.h>
 #include <android-base/file.h>
 #include <android/binder_manager.h>
 
@@ -42,6 +43,9 @@ const std::unordered_map<std::string, TimeoutLength> kTimeoutMap =
          {"moderate", TimeoutLength::TIMEOUT_MODERATE},
          {"normal", TimeoutLength::TIMEOUT_NORMAL}};
 
+constexpr std::chrono::seconds kGetServiceTimeout = 5s;
+constexpr std::chrono::milliseconds kGetServiceSleepInterval = 100ms;
+
 }  // namespace
 
 WatchdogClient::WatchdogClient(const sp<Looper>& handlerLooper) : mHandlerLooper(handlerLooper) {
@@ -65,8 +69,17 @@ ndk::ScopedAStatus WatchdogClient::prepareProcessTermination() {
 }
 
 bool WatchdogClient::initialize(const CommandParam& param) {
-    ndk::SpAIBinder binder(
-            AServiceManager_getService("android.automotive.watchdog.ICarWatchdog/default"));
+    const auto startTime = std::chrono::steady_clock::now();
+    ndk::SpAIBinder binder;
+    while (std::chrono::steady_clock::now() - startTime < kGetServiceTimeout) {
+        binder = ndk::SpAIBinder(
+                AServiceManager_checkService("android.automotive.watchdog.ICarWatchdog/default"));
+        if (binder.get() != nullptr) {
+            break;
+        }
+        // usleep takes microseconds as argument.
+        usleep(std::chrono::microseconds(kGetServiceSleepInterval).count());
+    }
     if (binder.get() == nullptr) {
         ALOGE("Getting carwatchdog daemon failed");
         return false;

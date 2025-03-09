@@ -17,6 +17,6 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="owner_name" msgid="3416113395996003764">"ယာဉ်မောင်းသူ"</string>
-    <string name="permlab_accessCoarseLocation" msgid="2494909511737161237">"မျက်နှာစာတွင်သာ ခန့်မှန်းခြေ တည်နေရာ အသုံးပြုခြင်း"</string>
+    <string name="owner_name" msgid="8354667862218433758">"ယာဉ်မောင်း"</string>
+    <string name="permlab_accessCoarseLocation" msgid="1761992503775040108">"မျက်နှာစာတွင်သာ ခန့်မှန်းခြေတည်နေရာ အသုံးပြုခြင်း"</string>
 </resources>

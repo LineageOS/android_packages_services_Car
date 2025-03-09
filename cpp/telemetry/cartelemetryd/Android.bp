@@ -81,6 +81,11 @@ cc_test {
     ],
 }
 
+vintf_fragment {
+    name: "android.automotive.telemetryd@1.0.xml",
+    src: "android.automotive.telemetryd@1.0.xml",
+}
+
 cc_binary {
     name: "android.automotive.telemetryd@1.0",
     defaults: [
@@ -90,7 +95,7 @@ cc_binary {
         "src/main.cpp",
     ],
     init_rc: ["android.automotive.telemetryd@1.0.rc"],
-    vintf_fragments: ["android.automotive.telemetryd@1.0.xml"],
+    vintf_fragment_modules: ["android.automotive.telemetryd@1.0.xml"],
     shared_libs: [
         "android.automotive.telemetryd@1.0-impl",
     ],

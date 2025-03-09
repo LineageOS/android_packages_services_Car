@@ -1,0 +1,184 @@
+/*
+ * Copyright (C) 2024 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.android.car.internal.property;
+
+import android.annotation.NonNull;
+import android.car.builtin.os.ParcelHelper;
+import android.os.Parcel;
+import android.os.Parcelable;
+
+import com.android.car.internal.util.DataClass;
+
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.Objects;
+
+/**
+ * This is a custom parcelable that stores a property's actual value.
+ *
+ * @param <T> maybe one of the following types:
+ * <ul>
+ * <li>String for STRING type property.</li>
+ * <li>Boolean for BOOLEAN type property.</li>
+ * <li>Integer for INT32 type property.</li>
+ * <li>Integer[] for INT32_VEC type property.</li>
+ * <li>Long for INT64 type property.</li>
+ * <li>Long[] for INT64_VEC type property.</li>
+ * <li>Float for FLOAT type property.</li>
+ * <li>Float[] for FLOAT_VEC.</li>
+ * <li>byte[] for BTYES type property.</li>
+ * <li>Object[] for MIXED type property.</li>
+ * </ul>
+ */
+@DataClass(genConstructor = false)
+public final class RawPropertyValue<T> implements Parcelable {
+    private static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
+    private static final int TYPE_OTHER = 0;
+    private static final int TYPE_STRING = 1;
+    private static final int TYPE_BYTE_ARRAY = 2;
+
+    private final @NonNull T mTypedValue;
+
+    public RawPropertyValue(T typedValue) {
+        mTypedValue = typedValue;
+    }
+
+    /**
+     * Creates an instance of {@code RawPropertyValue}.
+     *
+     * @param in Parcel to read
+     */
+    @SuppressWarnings("unchecked")
+    public RawPropertyValue(Parcel in) {
+        int type = in.readInt();
+        switch (type) {
+            case TYPE_STRING:
+                byte[] bytes = ParcelHelper.readBlob(in);
+                mTypedValue = (T) new String(bytes, DEFAULT_CHARSET);
+                break;
+            case TYPE_BYTE_ARRAY:
+                mTypedValue = (T) ParcelHelper.readBlob(in);
+                break;
+            default:
+                mTypedValue = (T) in.readValue(getClass().getClassLoader());
+        }
+    }
+
+    public T getTypedValue() {
+        return mTypedValue;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        Class<?> valueClass =  mTypedValue.getClass();
+
+        // Special handling for String and byte[] to mitigate transaction buffer limitations.
+        if (valueClass == String.class) {
+            dest.writeInt(TYPE_STRING);
+            ParcelHelper.writeBlob(dest, ((String) mTypedValue).getBytes(DEFAULT_CHARSET));
+        } else if (valueClass == byte[].class) {
+            dest.writeInt(TYPE_BYTE_ARRAY);
+            ParcelHelper.writeBlob(dest, (byte[]) mTypedValue);
+        } else {
+            dest.writeInt(TYPE_OTHER);
+            dest.writeValue(mTypedValue);
+        }
+    }
+
+    @Override
+    public boolean equals(@android.annotation.Nullable Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        @SuppressWarnings("unchecked")
+        RawPropertyValue<?> that = (RawPropertyValue<?>) o;
+        return Objects.deepEquals(mTypedValue, that.mTypedValue);
+    }
+
+    @Override
+    public int hashCode() {
+        return Arrays.deepHashCode(new Object[]{mTypedValue});
+    }
+
+    @Override
+    public String toString() {
+        String typedValueString = "";
+        Class<?> valueClass =  mTypedValue.getClass();
+        if (valueClass == Integer[].class) {
+            typedValueString = Arrays.toString((Integer[]) mTypedValue);
+        } else if (valueClass == Long[].class) {
+            typedValueString = Arrays.toString((Long[]) mTypedValue);
+        } else if (valueClass == Float[].class) {
+            typedValueString = Arrays.toString((Float[]) mTypedValue);
+        } else if (valueClass == byte[].class) {
+            typedValueString = Arrays.toString((byte[]) mTypedValue);
+        } else if (valueClass == Object[].class) {
+            typedValueString = Arrays.toString((Object[]) mTypedValue);
+        } else {
+            typedValueString = mTypedValue.toString();
+        }
+        return "RawPropertyValue{typedValue=" + typedValueString + "}";
+    }
+
+
+    // Code below generated by codegen v1.0.23.
+    //
+    // DO NOT MODIFY!
+    // CHECKSTYLE:OFF Generated code
+    //
+    // To regenerate run:
+    // $ codegen $ANDROID_BUILD_TOP/packages/services/Car/car-lib/src/com/android/car/internal/property/RawPropertyValue.java
+    //
+    // To exclude the generated code from IntelliJ auto-formatting enable (one-time):
+    //   Settings > Editor > Code Style > Formatter Control
+    //@formatter:off
+
+    @Override
+    @DataClass.Generated.Member
+    public int describeContents() { return 0; }
+
+    @DataClass.Generated.Member
+    public static final @NonNull Parcelable.Creator<RawPropertyValue> CREATOR
+            = new Parcelable.Creator<RawPropertyValue>() {
+        @Override
+        public RawPropertyValue[] newArray(int size) {
+            return new RawPropertyValue[size];
+        }
+
+        @Override
+        public RawPropertyValue createFromParcel(@NonNull Parcel in) {
+            return new RawPropertyValue(in);
+        }
+    };
+
+    @DataClass.Generated(
+            time = 1728329458051L,
+            codegenVersion = "1.0.23",
+            sourceFile = "packages/services/Car/car-lib/src/com/android/car/internal/property/RawPropertyValue.java",
+            inputSignatures = "private static final  java.nio.charset.Charset DEFAULT_CHARSET\nprivate final @android.annotation.NonNull com.android.car.internal.property.T mTypedValue\npublic  com.android.car.internal.property.T getTypedValue()\npublic @java.lang.Override void writeToParcel(android.os.Parcel,int)\npublic @java.lang.Override boolean equals(java.lang.Object)\npublic @java.lang.Override int hashCode()\nclass RawPropertyValue extends java.lang.Object implements [android.os.Parcelable]\n@com.android.car.internal.util.DataClass(genConstructor=false, genToString=true)")
+    @Deprecated
+    private void __metadata() {}
+
+
+    //@formatter:on
+    // End of generated code
+
+}

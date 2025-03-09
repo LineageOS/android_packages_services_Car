@@ -334,9 +334,16 @@ class CarProjectionService extends ICarProjection.Stub implements CarServiceBase
         // Use {@link WifiManager} to get channels as {@link WifiScanner} fails to retrieve
         // channels when wifi is off.
         if (mFeatureFlags.useWifiManagerForAvailableChannels()) {
+            List<WifiAvailableChannel> availableChannels;
+
+            try {
+                availableChannels = mWifiManager.getUsableChannels(band, OP_MODE_SAP);
+            } catch (UnsupportedOperationException e) {
+                Slogf.w(TAG, "Unable to query channels from WifiManager", e);
+                return EMPTY_INT_ARRAY;
+            }
+
             channels = new ArrayList<>();
-            List<WifiAvailableChannel> availableChannels =
-                    mWifiManager.getUsableChannels(band, OP_MODE_SAP);
             for (int i = 0; i < availableChannels.size(); i++) {
                 WifiAvailableChannel channel = availableChannels.get(i);
                 channels.add(channel.getFrequencyMhz());
@@ -833,6 +840,13 @@ class CarProjectionService extends ICarProjection.Stub implements CarServiceBase
     }
 
     private void sendApStarted(SoftApConfiguration softApConfiguration) {
+        if (mFeatureFlags.setBssidOnApStarted() && mApBssid != null) {
+            softApConfiguration = new SoftApConfiguration.Builder(softApConfiguration)
+                .setMacRandomizationSetting(SoftApConfiguration.RANDOMIZATION_NONE)
+                .setBssid(mApBssid)
+                .build();
+        }
+
         Message message = Message.obtain();
         message.what = CarProjectionManager.PROJECTION_AP_STARTED;
         message.obj = softApConfiguration;

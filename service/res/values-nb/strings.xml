@@ -30,6 +30,10 @@
     <string name="car_permission_desc_hvac" msgid="3754229695589774195">"Tilgang til bilens klimaanlegg."</string>
     <string name="car_permission_label_mileage" msgid="4661317074631150551">"få informasjon om bilens kjørelengde"</string>
     <string name="car_permission_desc_mileage" msgid="7179735693278681090">"Tilgang til informasjon om bilens kjørelengde."</string>
+    <!-- no translation found for car_permission_label_mileage_3p (7542459195663034759) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_mileage_3p (9109350882748664570) -->
+    <skip />
     <string name="car_permission_label_speed" msgid="1149027717860529745">"lese bilens hastighet"</string>
     <string name="car_permission_desc_speed" msgid="2047965198165448241">"Tilgang til bilens hastighet."</string>
     <string name="car_permission_label_vehicle_dynamics_state" msgid="313779267420048367">"få tilgang til bilens dynamiske tilstand"</string>
@@ -92,6 +96,10 @@
     <string name="car_permission_desc_storage_monitoring" msgid="2075712271139671318">"Overvåking av bruk av flash-lagring"</string>
     <string name="car_permission_label_driving_state" msgid="7754624599537393650">"lytte etter kjøretilstand"</string>
     <string name="car_permission_desc_driving_state" msgid="2684025262811635737">"Lytt etter endringer i kjøretilstanden."</string>
+    <!-- no translation found for car_permission_label_driving_state_3p (1395905103166125030) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_driving_state_3p (5491522450897843003) -->
+    <skip />
     <string name="car_permission_label_use_telemetry_service" msgid="948005838683758846">"Bruk bilens telemetritjeneste"</string>
     <string name="car_permission_desc_use_telemetry_service" msgid="3633214312435700766">"Samle inn data om bilsystemets helse"</string>
     <string name="car_permission_label_use_evs_service" msgid="1729276125209310607">"Bruk Car EVS Service"</string>
@@ -106,6 +114,10 @@
     <string name="car_permission_desc_monitor_evs_status" msgid="2764278897143573535">"lytte til EVS-tjenestens statusendringer"</string>
     <string name="car_permission_label_car_engine_detailed" msgid="8911992719173587337">"få informasjon om bilmotoren"</string>
     <string name="car_permission_desc_car_engine_detailed" msgid="1746863362811347700">"Tilgang til detaljert informasjon om bilmotoren."</string>
+    <!-- no translation found for car_permission_label_car_engine_detailed_3p (2695036212735960169) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_car_engine_detailed_3p (7536940094077391015) -->
+    <skip />
     <string name="car_permission_label_car_energy_ports" msgid="8548990315169219454">"få tilgang til tanklokket og ladeporten på bilen"</string>
     <string name="car_permission_desc_car_energy_ports" msgid="7771185999828794949">"Tilgang til tanklokket og ladeporten på bilen."</string>
     <string name="car_permission_label_control_car_energy_ports" msgid="4375137311026313475">"kontrollere tanklokket og ladeporten på bilen"</string>
@@ -120,6 +132,10 @@
     <string name="car_permission_desc_control_car_mirrors" msgid="1224135684068855032">"Kontroller bilspeilene."</string>
     <string name="car_permission_label_control_car_seats" msgid="1826934820585497135">"kontrollére bilsetene"</string>
     <string name="car_permission_desc_control_car_seats" msgid="2407536601226470563">"Kontroller bilsetene."</string>
+    <!-- no translation found for car_permission_label_read_car_seats (2996918480980128872) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_read_car_seats (5894145845932493046) -->
+    <skip />
     <string name="car_permission_label_read_car_seat_belts" msgid="2051828795852087659">"lese bilens sikkerhetsbelter"</string>
     <string name="car_permission_desc_read_car_seat_belts" msgid="7076977711613912339">"Lese bilens sikkerhetsbelter."</string>
     <string name="car_permission_label_read_impact_sensors" msgid="9193288836326363975">"lese bilens støtsensorer"</string>
@@ -158,8 +174,16 @@
     <string name="car_permission_desc_car_exterior_environment" msgid="1716656004731603379">"Tilgang til temperaturen utenfor bilen."</string>
     <string name="car_permission_label_car_tires" msgid="4379255261197836840">"få informasjon om bildekkene"</string>
     <string name="car_permission_desc_car_tires" msgid="8134496466769810134">"Tilgang til informasjon om bildekkene."</string>
+    <!-- no translation found for car_permission_label_car_tires_3p (1360632319908226570) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_car_tires_3p (820574543667371274) -->
+    <skip />
     <string name="car_permission_label_car_steering" msgid="7779530447441232479">"lese informasjon om bilens styringsvinkel"</string>
     <string name="car_permission_desc_car_steering" msgid="1357331844530708138">"Tilgang til informasjon om bilens styringsvinkel."</string>
+    <!-- no translation found for car_permission_label_read_car_steering_3p (1598866058085489462) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_read_car_steering_3p (576361609663755171) -->
+    <skip />
     <string name="car_permission_label_read_car_display_units" msgid="7617008314862097183">"lese bilens visningsenheter"</string>
     <string name="car_permission_desc_read_car_display_units" msgid="6891898275208542385">"Les visningsenheter."</string>
     <string name="car_permission_label_control_car_display_units" msgid="4975303668183173076">"kontrollére bilens visningsenheter"</string>
@@ -212,6 +236,10 @@
     <string name="car_permission_desc_control_adas_states" msgid="1893171217779342348">"kontrollere informasjon om ADAS-tilstandene i bilen"</string>
     <string name="car_permission_label_read_windshield_wipers" msgid="896867772546890348">"lese informasjon om vindusviskerne på bilen"</string>
     <string name="car_permission_desc_read_windshield_wipers" msgid="597300271560195986">"lese informasjon om vindusviskerne på bilen"</string>
+    <!-- no translation found for car_permission_label_read_windshield_wipers_3p (4784843702416325970) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_read_windshield_wipers_3p (604163171596913379) -->
+    <skip />
     <string name="car_permission_label_control_windshield_wipers" msgid="7971852482734087493">"kontrollere vindusviskerne på bilen"</string>
     <string name="car_permission_desc_control_windshield_wipers" msgid="3803429825323199728">"kontrollere vindusviskerne på bilen"</string>
     <string name="car_permission_label_manage_display_compatibility" msgid="52642673039197383">"administrere pakker for kompatibilitet med visning"</string>
@@ -232,6 +260,10 @@
     <string name="car_permission_desc_manage_car_system_ui" msgid="6201733970421818637">"kommunisere med system-UI-et for bilen for å lage oppgavevisninger eller få varsler om endringer av system-UI-et"</string>
     <string name="car_permission_label_read_persist_tethering_settings" msgid="6395145649477916950">"Les bilens innstillinger for vedvarende internettdeling"</string>
     <string name="car_permission_desc_read_persist_tethering_settings" msgid="7373546466696896323">"Les bilens innstillinger for vedvarende internettdeling"</string>
+    <string name="car_permission_label_record_vehicle_properties" msgid="958971344399611906">"registrere kjøretøyegenskaper"</string>
+    <string name="car_permission_desc_record_vehicle_properties" msgid="2560365700851584569">"registrere kjøretøyegenskaper"</string>
+    <string name="car_permission_label_inject_vehicle_properties" msgid="2943134725643169428">"injisere kjøretøyegenskaper"</string>
+    <string name="car_permission_desc_inject_vehicle_properties" msgid="2616112105084870775">"injisere kjøretøyegenskaper"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN-bus mislyktes"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN-bus svarer ikke. Koble bilens hovedenhet ut og inn igjen, og start bilen på nytt"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"Enheten min"</string>

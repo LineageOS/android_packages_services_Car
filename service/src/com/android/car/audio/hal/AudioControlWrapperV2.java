@@ -25,10 +25,13 @@ import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.car.builtin.util.Slogf;
 import android.hardware.audio.common.PlaybackTrackMetadata;
+import android.hardware.automotive.audiocontrol.AudioDeviceConfiguration;
+import android.hardware.automotive.audiocontrol.AudioZone;
 import android.hardware.automotive.audiocontrol.MutingInfo;
 import android.hardware.automotive.audiocontrol.V2_0.IAudioControl;
 import android.hardware.automotive.audiocontrol.V2_0.ICloseHandle;
 import android.hardware.automotive.audiocontrol.V2_0.IFocusListener;
+import android.media.audio.common.AudioPort;
 import android.os.RemoteException;
 import android.util.Log;
 
@@ -98,14 +101,12 @@ public final class AudioControlWrapperV2 implements AudioControlWrapper {
 
     @Override
     public void registerAudioGainCallback(HalAudioGainCallback gainCallback) {
-        throw new UnsupportedOperationException(
-                "Audio Gain Callback is unsupported for IAudioControl@2.0");
+        throw new UnsupportedOperationException(getUnsupportedMessage("Audio Gain Callback"));
     }
 
     @Override
     public void unregisterAudioGainCallback() {
-        throw new UnsupportedOperationException(
-                "Audio Gain Callback is unsupported for IAudioControl@2.0");
+        throw new UnsupportedOperationException(getUnsupportedMessage("Audio Gain Callback"));
     }
 
     @Override
@@ -157,24 +158,41 @@ public final class AudioControlWrapperV2 implements AudioControlWrapper {
 
     @Override
     public void onDevicesToDuckChange(List<CarDuckingInfo> carDuckingInfos) {
-        throw new UnsupportedOperationException("HAL ducking is unsupported for IAudioControl@2.0");
+        throw new UnsupportedOperationException(getUnsupportedMessage("HAL ducking"));
     }
 
     @Override
     public void onDevicesToMuteChange(@NonNull List<MutingInfo> carZonesMutingInfo) {
-        throw new UnsupportedOperationException("HAL muting is unsupported for IAudioControl@2.0");
+        throw new UnsupportedOperationException(getUnsupportedMessage("HAL muting"));
     }
 
     @Override
     public void setModuleChangeCallback(HalAudioModuleChangeCallback moduleChangeCallback) {
-        throw new UnsupportedOperationException("Module change callback is unsupported for"
-                + " IAudioControl@2.0");
+        throw new UnsupportedOperationException(getUnsupportedMessage("Module change callback"));
     }
 
     @Override
     public void clearModuleChangeCallback() {
-        throw new UnsupportedOperationException("Module change callback is unsupported for"
-                + " IAudioControl@2.0");
+        throw new UnsupportedOperationException(getUnsupportedMessage("Module change callback"));
+    }
+
+    @Override
+    public AudioDeviceConfiguration getAudioDeviceConfiguration() {
+        throw new UnsupportedOperationException(getUnsupportedMessage("Audio device configs"));
+    }
+
+    @Override
+    public List<AudioPort> getOutputMirroringDevices() {
+        throw new UnsupportedOperationException(getUnsupportedMessage("Output mirror devices"));
+    }
+
+    @Override
+    public List<AudioZone> getCarAudioZones() {
+        throw new UnsupportedOperationException(getUnsupportedMessage("Audio zones"));
+    }
+
+    private static String getUnsupportedMessage(String operation) {
+        return operation + " is unsupported for IAudioControl@2.0";
     }
 
     @Override

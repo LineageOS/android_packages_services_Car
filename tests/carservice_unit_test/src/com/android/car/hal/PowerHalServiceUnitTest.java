@@ -32,6 +32,7 @@ import static android.hardware.automotive.vehicle.VehicleProperty.AP_POWER_STATE
 import static android.hardware.automotive.vehicle.VehicleProperty.AP_POWER_STATE_REQ;
 import static android.hardware.automotive.vehicle.VehicleProperty.DISPLAY_BRIGHTNESS;
 import static android.hardware.automotive.vehicle.VehicleProperty.PER_DISPLAY_BRIGHTNESS;
+import static android.hardware.automotive.vehicle.VehicleProperty.PER_DISPLAY_MAX_BRIGHTNESS;
 import static android.hardware.automotive.vehicle.VehicleProperty.SHUTDOWN_REQUEST;
 import static android.hardware.automotive.vehicle.VehicleProperty.VEHICLE_IN_USE;
 
@@ -90,10 +91,6 @@ import java.util.List;
 public final class PowerHalServiceUnitTest {
 
     private static final String TAG = PowerHalServiceUnitTest.class.getSimpleName();
-
-    // TODO(b/337307388): replace this with VehicleProperty.PER_DISPLAY_MAX_BRIGHTNESS once we use
-    // property V4.
-    private static final int PER_DISPLAY_MAX_BRIGHTNESS = 0x11410F4E;
 
     private static final SparseBooleanArray CAN_POSTPONE_SHUTDOWN = new SparseBooleanArray(6);
     static {

@@ -103,4 +103,23 @@
             android:duplicateParentState="true"
             systemui:controller="com.android.systemui.car.statusicon.ui.MediaVolumeStatusIconController"/>
     </com.android.systemui.car.systembar.CarSystemBarPanelButtonView>
+    <com.android.systemui.car.systembar.CarSystemBarPanelButtonView
+        android:id="@+id/debug_panel"
+        android:orientation="horizontal"
+        android:gravity="center"
+        style="@style/TopBarButton"
+        systemui:controller="com.android.systemui.car.systembar.DebugPanelButtonViewController"
+        systemui:panelLayoutRes="@layout/qc_debug_panel"
+        systemui:disabledWhileUnprovisioned="true"
+        systemui:systemBarDisable2Flags="quickSettings">
+        <ImageView
+            android:id="@+id/debug_status_icon"
+            android:layout_width="@dimen/top_system_bar_qc_icon_drawing_size"
+            android:layout_height="@dimen/top_system_bar_qc_icon_drawing_size"
+            android:layout_gravity="center"
+            android:tint="@color/car_status_icon_color"
+            android:duplicateParentState="true"
+            android:src="@drawable/car_ic_debug"
+            android:contentDescription="@string/status_icon_debug_status"/>
+    </com.android.systemui.car.systembar.CarSystemBarPanelButtonView>
 </LinearLayout>

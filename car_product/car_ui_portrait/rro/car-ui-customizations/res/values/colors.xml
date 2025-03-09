@@ -21,4 +21,5 @@
     <color name="car_ui_preference_two_action_divider_color">@color/car_outline</color>
     <color name="car_ui_toolbar_nav_icon_color">@color/car_ui_text_color_primary</color>
     <color name="car_ui_toolbar_search_hint_text_color">@color/car_ui_text_color_primary</color>
+    <color name="car_ui_activity_background_color">@color/car_background</color>
 </resources>

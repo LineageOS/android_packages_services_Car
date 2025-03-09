@@ -187,14 +187,81 @@
         "value": "android.car.permission.CAR_INFO"
       }
     },
+    "INFO_MODEL_TRIM": {
+      "propertyName": "INFO_MODEL_TRIM",
+      "propertyId": 286261517,
+      "description": "Public trim name of the vehicle.",
+      "readPermission": {
+        "type": "single",
+        "value": "android.car.permission.CAR_INFO"
+      },
+      "featureFlag": "FLAG_ANDROID_B_VEHICLE_PROPERTIES"
+    },
+    "INFO_VEHICLE_SIZE_CLASS": {
+      "propertyName": "INFO_VEHICLE_SIZE_CLASS",
+      "propertyId": 289472782,
+      "description": "Vehicle Size Class.",
+      "readPermission": {
+        "type": "single",
+        "value": "android.car.permission.CAR_INFO"
+      },
+      "dataEnums": [
+        256,
+        257,
+        258,
+        259,
+        260,
+        261,
+        262,
+        263,
+        264,
+        265,
+        266,
+        267,
+        268,
+        269,
+        270,
+        512,
+        513,
+        514,
+        515,
+        516,
+        517,
+        518,
+        519,
+        520,
+        768,
+        769,
+        770,
+        1024,
+        1025,
+        1026,
+        1027,
+        1028,
+        1029,
+        1030,
+        1031
+      ],
+      "featureFlag": "FLAG_ANDROID_B_VEHICLE_PROPERTIES"
+    },
     "PERF_ODOMETER": {
       "propertyName": "PERF_ODOMETER",
       "propertyId": 291504644,
       "description": "Current odometer value of the vehicle in kilometers.",
       "readPermission": {
-        "type": "single",
-        "value": "android.car.permission.CAR_MILEAGE"
-      }
+        "type": "anyOf",
+        "value": [
+          {
+            "type": "single",
+            "value": "android.car.permission.CAR_MILEAGE_3P"
+          },
+          {
+            "type": "single",
+            "value": "android.car.permission.CAR_MILEAGE"
+          }
+        ]
+      },
+      "featureFlag": "FLAG_ANDROID_B_VEHICLE_PROPERTIES"
     },
     "PERF_VEHICLE_SPEED": {
       "propertyName": "PERF_VEHICLE_SPEED",
@@ -219,9 +286,19 @@
       "propertyId": 291504649,
       "description": "Front bicycle model steering angle for vehicle in degrees.",
       "readPermission": {
-        "type": "single",
-        "value": "android.car.permission.READ_CAR_STEERING"
-      }
+        "type": "anyOf",
+        "value": [
+          {
+            "type": "single",
+            "value": "android.car.permission.READ_CAR_STEERING_3P"
+          },
+          {
+            "type": "single",
+            "value": "android.car.permission.READ_CAR_STEERING"
+          }
+        ]
+      },
+      "featureFlag": "FLAG_VEHICLE_PROPERTY_25Q2_3P_PERMISSIONS"
     },
     "PERF_REAR_STEERING_ANGLE": {
       "propertyName": "PERF_REAR_STEERING_ANGLE",
@@ -231,6 +308,26 @@
         "type": "single",
         "value": "android.car.permission.READ_CAR_STEERING"
       }
+    },
+    "INSTANTANEOUS_FUEL_ECONOMY": {
+      "propertyName": "INSTANTANEOUS_FUEL_ECONOMY",
+      "propertyId": 291504657,
+      "description": "Instantaneous Fuel Economy in L\/100km.",
+      "readPermission": {
+        "type": "single",
+        "value": "android.car.permission.CAR_MILEAGE_3P"
+      },
+      "featureFlag": "FLAG_ANDROID_B_VEHICLE_PROPERTIES"
+    },
+    "INSTANTANEOUS_EV_EFFICIENCY": {
+      "propertyName": "INSTANTANEOUS_EV_EFFICIENCY",
+      "propertyId": 291504658,
+      "description": "Instantaneous EV efficiency in km\/kWh.",
+      "readPermission": {
+        "type": "single",
+        "value": "android.car.permission.CAR_MILEAGE_3P"
+      },
+      "featureFlag": "FLAG_ANDROID_B_VEHICLE_PROPERTIES"
     },
     "ENGINE_COOLANT_TEMP": {
       "propertyName": "ENGINE_COOLANT_TEMP",
@@ -271,9 +368,19 @@
       "propertyId": 291504901,
       "description": "Engine rpm.",
       "readPermission": {
-        "type": "single",
-        "value": "android.car.permission.CAR_ENGINE_DETAILED"
-      }
+        "type": "anyOf",
+        "value": [
+          {
+            "type": "single",
+            "value": "android.car.permission.CAR_ENGINE_DETAILED_3P"
+          },
+          {
+            "type": "single",
+            "value": "android.car.permission.CAR_ENGINE_DETAILED"
+          }
+        ]
+      },
+      "featureFlag": "FLAG_VEHICLE_PROPERTY_25Q2_3P_PERMISSIONS"
     },
     "ENGINE_IDLE_AUTO_STOP_ENABLED": {
       "propertyName": "ENGINE_IDLE_AUTO_STOP_ENABLED",
@@ -287,7 +394,7 @@
         "type": "single",
         "value": "android.car.permission.CAR_ENGINE_DETAILED"
       },
-      "systemApi": true
+      "featureFlag": "FLAG_VEHICLE_PROPERTY_REMOVE_SYSTEM_API_TAGS"
     },
     "IMPACT_DETECTED": {
       "propertyName": "IMPACT_DETECTED",
@@ -297,7 +404,6 @@
         "type": "single",
         "value": "android.car.permission.READ_IMPACT_SENSORS"
       },
-      "systemApi": true,
       "dataEnums": [
         1,
         2,
@@ -307,7 +413,30 @@
         32,
         64
       ],
-      "featureFlag": "FLAG_ANDROID_VIC_VEHICLE_PROPERTIES"
+      "featureFlag": "FLAG_VEHICLE_PROPERTY_REMOVE_SYSTEM_API_TAGS"
+    },
+    "VEHICLE_HORN_ENGAGED": {
+      "propertyName": "VEHICLE_HORN_ENGAGED",
+      "propertyId": 287310656,
+      "description": "Vehicle horn engaged.",
+      "readPermission": {
+        "type": "anyOf",
+        "value": [
+          {
+            "type": "single",
+            "value": "android.car.permission.READ_CAR_HORN"
+          },
+          {
+            "type": "single",
+            "value": "android.car.permission.CONTROL_CAR_HORN"
+          }
+        ]
+      },
+      "writePermission": {
+        "type": "single",
+        "value": "android.car.permission.CONTROL_CAR_HORN"
+      },
+      "featureFlag": "FLAG_ANDROID_B_VEHICLE_PROPERTIES"
     },
     "WHEEL_TICK": {
       "propertyName": "WHEEL_TICK",
@@ -444,9 +573,19 @@
       "propertyId": 392168201,
       "description": "Tire pressure in kilopascals.",
       "readPermission": {
-        "type": "single",
-        "value": "android.car.permission.CAR_TIRES"
-      }
+        "type": "anyOf",
+        "value": [
+          {
+            "type": "single",
+            "value": "android.car.permission.CAR_TIRES_3P"
+          },
+          {
+            "type": "single",
+            "value": "android.car.permission.CAR_TIRES"
+          }
+        ]
+      },
+      "featureFlag": "FLAG_VEHICLE_PROPERTY_25Q2_3P_PERMISSIONS"
     },
     "CRITICALLY_LOW_TIRE_PRESSURE": {
       "propertyName": "CRITICALLY_LOW_TIRE_PRESSURE",
@@ -456,6 +595,56 @@
         "type": "single",
         "value": "android.car.permission.CAR_TIRES"
       }
+    },
+    "ACCELERATOR_PEDAL_COMPRESSION_PERCENTAGE": {
+      "propertyName": "ACCELERATOR_PEDAL_COMPRESSION_PERCENTAGE",
+      "propertyId": 291504911,
+      "description": "Accelerator pedal compression percentage.",
+      "readPermission": {
+        "type": "single",
+        "value": "android.car.permission.READ_CAR_PEDALS"
+      },
+      "featureFlag": "FLAG_ANDROID_B_VEHICLE_PROPERTIES"
+    },
+    "BRAKE_PEDAL_COMPRESSION_PERCENTAGE": {
+      "propertyName": "BRAKE_PEDAL_COMPRESSION_PERCENTAGE",
+      "propertyId": 291504912,
+      "description": "Brake pedal compression percentage.",
+      "readPermission": {
+        "type": "single",
+        "value": "android.car.permission.READ_CAR_PEDALS"
+      },
+      "featureFlag": "FLAG_ANDROID_B_VEHICLE_PROPERTIES"
+    },
+    "BRAKE_PAD_WEAR_PERCENTAGE": {
+      "propertyName": "BRAKE_PAD_WEAR_PERCENTAGE",
+      "propertyId": 392168209,
+      "description": "Brake pad wear percentage.",
+      "readPermission": {
+        "type": "single",
+        "value": "android.car.permission.READ_BRAKE_INFO"
+      },
+      "featureFlag": "FLAG_ANDROID_B_VEHICLE_PROPERTIES"
+    },
+    "BRAKE_FLUID_LEVEL_LOW": {
+      "propertyName": "BRAKE_FLUID_LEVEL_LOW",
+      "propertyId": 287310610,
+      "description": "Brake fluid level low.",
+      "readPermission": {
+        "type": "single",
+        "value": "android.car.permission.READ_BRAKE_INFO"
+      },
+      "featureFlag": "FLAG_ANDROID_B_VEHICLE_PROPERTIES"
+    },
+    "VEHICLE_PASSIVE_SUSPENSION_HEIGHT": {
+      "propertyName": "VEHICLE_PASSIVE_SUSPENSION_HEIGHT",
+      "propertyId": 390071059,
+      "description": "Vehicle Passive Suspension Height in mm.",
+      "readPermission": {
+        "type": "single",
+        "value": "android.car.permission.CAR_DYNAMICS_STATE"
+      },
+      "featureFlag": "FLAG_ANDROID_B_VEHICLE_PROPERTIES"
     },
     "GEAR_SELECTION": {
       "propertyName": "GEAR_SELECTION",
@@ -601,6 +790,7 @@
         "type": "single",
         "value": "android.car.permission.CAR_EXTERIOR_LIGHTS"
       },
+      "deprecated": true,
       "dataEnums": [
         0,
         1,
@@ -663,8 +853,7 @@
         "type": "single",
         "value": "android.car.permission.CONTROL_CAR_DYNAMICS_STATE"
       },
-      "systemApi": true,
-      "featureFlag": "FLAG_ANDROID_VIC_VEHICLE_PROPERTIES"
+      "featureFlag": "FLAG_VEHICLE_PROPERTY_REMOVE_SYSTEM_API_TAGS"
     },
     "ELECTRONIC_STABILITY_CONTROL_STATE": {
       "propertyName": "ELECTRONIC_STABILITY_CONTROL_STATE",
@@ -674,19 +863,70 @@
         "type": "single",
         "value": "android.car.permission.CAR_DYNAMICS_STATE"
       },
-      "systemApi": true,
+      "dataEnums": [
+        -6,
+        -5,
+        -4,
+        -3,
+        -2,
+        -1,
+        0,
+        1,
+        2
+      ],
+      "featureFlag": "FLAG_VEHICLE_PROPERTY_REMOVE_SYSTEM_API_TAGS"
+    },
+    "TURN_SIGNAL_LIGHT_STATE": {
+      "propertyName": "TURN_SIGNAL_LIGHT_STATE",
+      "propertyId": 289408016,
+      "description": "Turn signal light state.",
+      "readPermission": {
+        "type": "anyOf",
+        "value": [
+          {
+            "type": "single",
+            "value": "android.car.permission.READ_CAR_EXTERIOR_LIGHTS"
+          },
+          {
+            "type": "single",
+            "value": "android.car.permission.CONTROL_CAR_EXTERIOR_LIGHTS"
+          }
+        ]
+      },
       "dataEnums": [
         0,
         1,
-        2,
-        -1,
-        -2,
-        -3,
-        -4,
-        -5,
-        -6
+        2
       ],
-      "featureFlag": "FLAG_ANDROID_VIC_VEHICLE_PROPERTIES"
+      "featureFlag": "FLAG_ANDROID_B_VEHICLE_PROPERTIES"
+    },
+    "TURN_SIGNAL_SWITCH": {
+      "propertyName": "TURN_SIGNAL_SWITCH",
+      "propertyId": 289408017,
+      "description": "Turn signal switch.",
+      "readPermission": {
+        "type": "anyOf",
+        "value": [
+          {
+            "type": "single",
+            "value": "android.car.permission.READ_CAR_EXTERIOR_LIGHTS"
+          },
+          {
+            "type": "single",
+            "value": "android.car.permission.CONTROL_CAR_EXTERIOR_LIGHTS"
+          }
+        ]
+      },
+      "writePermission": {
+        "type": "single",
+        "value": "android.car.permission.CONTROL_CAR_EXTERIOR_LIGHTS"
+      },
+      "dataEnums": [
+        0,
+        1,
+        2
+      ],
+      "featureFlag": "FLAG_ANDROID_B_VEHICLE_PROPERTIES"
     },
     "HVAC_FAN_SPEED": {
       "propertyName": "HVAC_FAN_SPEED",
@@ -912,17 +1152,10 @@
       },
       "dataEnums": [
         0,
+        1,
         2,
         3,
         16,
-        80,
-        81,
-        83,
-        89,
-        97,
-        98,
-        99,
-        128,
         32,
         33,
         35,
@@ -934,13 +1167,20 @@
         65,
         66,
         67,
+        80,
+        81,
+        83,
+        89,
         96,
+        97,
+        98,
+        99,
         100,
         101,
         112,
         113,
         114,
-        1,
+        128,
         144,
         145
       ]
@@ -1024,7 +1264,7 @@
         "type": "single",
         "value": "android.car.permission.CONTROL_CAR_CLIMATE"
       },
-      "systemApi": true
+      "featureFlag": "FLAG_VEHICLE_PROPERTY_REMOVE_SYSTEM_API_TAGS"
     },
     "DISTANCE_DISPLAY_UNITS": {
       "propertyName": "DISTANCE_DISPLAY_UNITS",
@@ -1049,17 +1289,10 @@
       },
       "dataEnums": [
         0,
+        1,
         2,
         3,
         16,
-        80,
-        81,
-        83,
-        89,
-        97,
-        98,
-        99,
-        128,
         32,
         33,
         35,
@@ -1071,13 +1304,20 @@
         65,
         66,
         67,
+        80,
+        81,
+        83,
+        89,
         96,
+        97,
+        98,
+        99,
         100,
         101,
         112,
         113,
         114,
-        1,
+        128,
         144,
         145
       ]
@@ -1105,17 +1345,10 @@
       },
       "dataEnums": [
         0,
+        1,
         2,
         3,
         16,
-        80,
-        81,
-        83,
-        89,
-        97,
-        98,
-        99,
-        128,
         32,
         33,
         35,
@@ -1127,13 +1360,20 @@
         65,
         66,
         67,
+        80,
+        81,
+        83,
+        89,
         96,
+        97,
+        98,
+        99,
         100,
         101,
         112,
         113,
         114,
-        1,
+        128,
         144,
         145
       ]
@@ -1161,17 +1401,10 @@
       },
       "dataEnums": [
         0,
+        1,
         2,
         3,
         16,
-        80,
-        81,
-        83,
-        89,
-        97,
-        98,
-        99,
-        128,
         32,
         33,
         35,
@@ -1183,13 +1416,20 @@
         65,
         66,
         67,
+        80,
+        81,
+        83,
+        89,
         96,
+        97,
+        98,
+        99,
         100,
         101,
         112,
         113,
         114,
-        1,
+        128,
         144,
         145
       ]
@@ -1217,17 +1457,10 @@
       },
       "dataEnums": [
         0,
+        1,
         2,
         3,
         16,
-        80,
-        81,
-        83,
-        89,
-        97,
-        98,
-        99,
-        128,
         32,
         33,
         35,
@@ -1239,13 +1472,20 @@
         65,
         66,
         67,
+        80,
+        81,
+        83,
+        89,
         96,
+        97,
+        98,
+        99,
         100,
         101,
         112,
         113,
         114,
-        1,
+        128,
         144,
         145
       ]
@@ -1274,17 +1514,10 @@
       "vhalPropertyId": 289408517,
       "dataEnums": [
         0,
+        1,
         2,
         3,
         16,
-        80,
-        81,
-        83,
-        89,
-        97,
-        98,
-        99,
-        128,
         32,
         33,
         35,
@@ -1296,13 +1529,20 @@
         65,
         66,
         67,
+        80,
+        81,
+        83,
+        89,
         96,
+        97,
+        98,
+        99,
         100,
         101,
         112,
         113,
         114,
-        1,
+        128,
         144,
         145
       ]
@@ -1389,8 +1629,7 @@
         "type": "single",
         "value": "android.car.permission.CONTROL_VALET_MODE"
       },
-      "systemApi": true,
-      "featureFlag": "FLAG_ANDROID_VIC_VEHICLE_PROPERTIES"
+      "featureFlag": "FLAG_VEHICLE_PROPERTY_REMOVE_SYSTEM_API_TAGS"
     },
     "HEAD_UP_DISPLAY_ENABLED": {
       "propertyName": "HEAD_UP_DISPLAY_ENABLED",
@@ -1413,8 +1652,7 @@
         "type": "single",
         "value": "android.car.permission.CONTROL_HEAD_UP_DISPLAY"
       },
-      "systemApi": true,
-      "featureFlag": "FLAG_ANDROID_VIC_VEHICLE_PROPERTIES"
+      "featureFlag": "FLAG_VEHICLE_PROPERTY_REMOVE_SYSTEM_API_TAGS"
     },
     "HW_KEY_INPUT": {
       "propertyName": "HW_KEY_INPUT",
@@ -1473,7 +1711,7 @@
         "type": "single",
         "value": "android.car.permission.CONTROL_CAR_DOORS"
       },
-      "systemApi": true
+      "featureFlag": "FLAG_VEHICLE_PROPERTY_REMOVE_SYSTEM_API_TAGS"
     },
     "MIRROR_Z_POS": {
       "propertyName": "MIRROR_Z_POS",
@@ -1565,7 +1803,7 @@
         "type": "single",
         "value": "android.car.permission.CONTROL_CAR_MIRRORS"
       },
-      "systemApi": true
+      "featureFlag": "FLAG_VEHICLE_PROPERTY_REMOVE_SYSTEM_API_TAGS"
     },
     "MIRROR_AUTO_TILT_ENABLED": {
       "propertyName": "MIRROR_AUTO_TILT_ENABLED",
@@ -1579,7 +1817,7 @@
         "type": "single",
         "value": "android.car.permission.CONTROL_CAR_MIRRORS"
       },
-      "systemApi": true
+      "featureFlag": "FLAG_VEHICLE_PROPERTY_REMOVE_SYSTEM_API_TAGS"
     },
     "GLOVE_BOX_DOOR_POS": {
       "propertyName": "GLOVE_BOX_DOOR_POS",
@@ -1593,7 +1831,7 @@
         "type": "single",
         "value": "android.car.permission.CONTROL_GLOVE_BOX"
       },
-      "systemApi": true
+      "featureFlag": "FLAG_VEHICLE_PROPERTY_REMOVE_SYSTEM_API_TAGS"
     },
     "GLOVE_BOX_LOCKED": {
       "propertyName": "GLOVE_BOX_LOCKED",
@@ -1607,7 +1845,7 @@
         "type": "single",
         "value": "android.car.permission.CONTROL_GLOVE_BOX"
       },
-      "systemApi": true
+      "featureFlag": "FLAG_VEHICLE_PROPERTY_REMOVE_SYSTEM_API_TAGS"
     },
     "SEAT_MEMORY_SELECT": {
       "propertyName": "SEAT_MEMORY_SELECT",
@@ -2003,7 +2241,7 @@
         "type": "single",
         "value": "android.car.permission.CONTROL_CAR_SEATS"
       },
-      "systemApi": true
+      "featureFlag": "FLAG_VEHICLE_PROPERTY_REMOVE_SYSTEM_API_TAGS"
     },
     "SEAT_AIRBAG_ENABLED": {
       "propertyName": "SEAT_AIRBAG_ENABLED",
@@ -2017,7 +2255,7 @@
         "type": "single",
         "value": "android.car.permission.CONTROL_CAR_AIRBAGS"
       },
-      "systemApi": true
+      "featureFlag": "FLAG_VEHICLE_PROPERTY_REMOVE_SYSTEM_API_TAGS"
     },
     "SEAT_AIRBAGS_DEPLOYED": {
       "propertyName": "SEAT_AIRBAGS_DEPLOYED",
@@ -2027,7 +2265,6 @@
         "type": "single",
         "value": "android.car.permission.READ_CAR_AIRBAGS"
       },
-      "systemApi": true,
       "dataEnums": [
         1,
         2,
@@ -2036,7 +2273,7 @@
         16,
         32
       ],
-      "featureFlag": "FLAG_ANDROID_VIC_VEHICLE_PROPERTIES"
+      "featureFlag": "FLAG_VEHICLE_PROPERTY_REMOVE_SYSTEM_API_TAGS"
     },
     "SEAT_CUSHION_SIDE_SUPPORT_POS": {
       "propertyName": "SEAT_CUSHION_SIDE_SUPPORT_POS",
@@ -2050,7 +2287,7 @@
         "type": "single",
         "value": "android.car.permission.CONTROL_CAR_SEATS"
       },
-      "systemApi": true
+      "featureFlag": "FLAG_VEHICLE_PROPERTY_REMOVE_SYSTEM_API_TAGS"
     },
     "SEAT_CUSHION_SIDE_SUPPORT_MOVE": {
       "propertyName": "SEAT_CUSHION_SIDE_SUPPORT_MOVE",
@@ -2064,7 +2301,7 @@
         "type": "single",
         "value": "android.car.permission.CONTROL_CAR_SEATS"
       },
-      "systemApi": true
+      "featureFlag": "FLAG_VEHICLE_PROPERTY_REMOVE_SYSTEM_API_TAGS"
     },
     "SEAT_LUMBAR_VERTICAL_POS": {
       "propertyName": "SEAT_LUMBAR_VERTICAL_POS",
@@ -2078,7 +2315,7 @@
         "type": "single",
         "value": "android.car.permission.CONTROL_CAR_SEATS"
       },
-      "systemApi": true
+      "featureFlag": "FLAG_VEHICLE_PROPERTY_REMOVE_SYSTEM_API_TAGS"
     },
     "SEAT_LUMBAR_VERTICAL_MOVE": {
       "propertyName": "SEAT_LUMBAR_VERTICAL_MOVE",
@@ -2092,7 +2329,7 @@
         "type": "single",
         "value": "android.car.permission.CONTROL_CAR_SEATS"
       },
-      "systemApi": true
+      "featureFlag": "FLAG_VEHICLE_PROPERTY_REMOVE_SYSTEM_API_TAGS"
     },
     "SEAT_WALK_IN_POS": {
       "propertyName": "SEAT_WALK_IN_POS",
@@ -2106,7 +2343,7 @@
         "type": "single",
         "value": "android.car.permission.CONTROL_CAR_SEATS"
       },
-      "systemApi": true
+      "featureFlag": "FLAG_VEHICLE_PROPERTY_REMOVE_SYSTEM_API_TAGS"
     },
     "SEAT_BELT_PRETENSIONER_DEPLOYED": {
       "propertyName": "SEAT_BELT_PRETENSIONER_DEPLOYED",
@@ -2116,22 +2353,31 @@
         "type": "single",
         "value": "android.car.permission.READ_CAR_SEAT_BELTS"
       },
-      "systemApi": true,
-      "featureFlag": "FLAG_ANDROID_VIC_VEHICLE_PROPERTIES"
+      "featureFlag": "FLAG_VEHICLE_PROPERTY_REMOVE_SYSTEM_API_TAGS"
     },
     "SEAT_OCCUPANCY": {
       "propertyName": "SEAT_OCCUPANCY",
       "propertyId": 356518832,
       "description": "Seat Occupancy.",
       "readPermission": {
-        "type": "single",
-        "value": "android.car.permission.CONTROL_CAR_SEATS"
+        "type": "anyOf",
+        "value": [
+          {
+            "type": "single",
+            "value": "android.car.permission.READ_CAR_SEATS"
+          },
+          {
+            "type": "single",
+            "value": "android.car.permission.CONTROL_CAR_SEATS"
+          }
+        ]
       },
       "dataEnums": [
         0,
         1,
         2
-      ]
+      ],
+      "featureFlag": "FLAG_VEHICLE_PROPERTY_25Q2_3P_PERMISSIONS"
     },
     "WINDOW_POS": {
       "propertyName": "WINDOW_POS",
@@ -2180,23 +2426,32 @@
         "type": "single",
         "value": "android.car.permission.READ_WINDSHIELD_WIPERS"
       },
-      "systemApi": true
+      "featureFlag": "FLAG_VEHICLE_PROPERTY_REMOVE_SYSTEM_API_TAGS"
     },
     "WINDSHIELD_WIPERS_STATE": {
       "propertyName": "WINDSHIELD_WIPERS_STATE",
       "propertyId": 322964422,
       "description": "Windshield wipers state.",
       "readPermission": {
-        "type": "single",
-        "value": "android.car.permission.READ_WINDSHIELD_WIPERS"
+        "type": "anyOf",
+        "value": [
+          {
+            "type": "single",
+            "value": "android.car.permission.READ_WINDSHIELD_WIPERS_3P"
+          },
+          {
+            "type": "single",
+            "value": "android.car.permission.READ_WINDSHIELD_WIPERS"
+          }
+        ]
       },
-      "systemApi": true,
       "dataEnums": [
         0,
         1,
         2,
         3
-      ]
+      ],
+      "featureFlag": "FLAG_VEHICLE_PROPERTY_25Q2_3P_PERMISSIONS"
     },
     "WINDSHIELD_WIPERS_SWITCH": {
       "propertyName": "WINDSHIELD_WIPERS_SWITCH",
@@ -2219,7 +2474,6 @@
         "type": "single",
         "value": "android.car.permission.CONTROL_WINDSHIELD_WIPERS"
       },
-      "systemApi": true,
       "dataEnums": [
         0,
         1,
@@ -2236,7 +2490,8 @@
         12,
         13,
         14
-      ]
+      ],
+      "featureFlag": "FLAG_VEHICLE_PROPERTY_REMOVE_SYSTEM_API_TAGS"
     },
     "STEERING_WHEEL_DEPTH_POS": {
       "propertyName": "STEERING_WHEEL_DEPTH_POS",
@@ -2250,7 +2505,7 @@
         "type": "single",
         "value": "android.car.permission.CONTROL_STEERING_WHEEL"
       },
-      "systemApi": true
+      "featureFlag": "FLAG_VEHICLE_PROPERTY_REMOVE_SYSTEM_API_TAGS"
     },
     "STEERING_WHEEL_DEPTH_MOVE": {
       "propertyName": "STEERING_WHEEL_DEPTH_MOVE",
@@ -2264,7 +2519,7 @@
         "type": "single",
         "value": "android.car.permission.CONTROL_STEERING_WHEEL"
       },
-      "systemApi": true
+      "featureFlag": "FLAG_VEHICLE_PROPERTY_REMOVE_SYSTEM_API_TAGS"
     },
     "STEERING_WHEEL_HEIGHT_POS": {
       "propertyName": "STEERING_WHEEL_HEIGHT_POS",
@@ -2278,7 +2533,7 @@
         "type": "single",
         "value": "android.car.permission.CONTROL_STEERING_WHEEL"
       },
-      "systemApi": true
+      "featureFlag": "FLAG_VEHICLE_PROPERTY_REMOVE_SYSTEM_API_TAGS"
     },
     "STEERING_WHEEL_HEIGHT_MOVE": {
       "propertyName": "STEERING_WHEEL_HEIGHT_MOVE",
@@ -2292,7 +2547,7 @@
         "type": "single",
         "value": "android.car.permission.CONTROL_STEERING_WHEEL"
       },
-      "systemApi": true
+      "featureFlag": "FLAG_VEHICLE_PROPERTY_REMOVE_SYSTEM_API_TAGS"
     },
     "STEERING_WHEEL_THEFT_LOCK_ENABLED": {
       "propertyName": "STEERING_WHEEL_THEFT_LOCK_ENABLED",
@@ -2306,7 +2561,7 @@
         "type": "single",
         "value": "android.car.permission.CONTROL_STEERING_WHEEL"
       },
-      "systemApi": true
+      "featureFlag": "FLAG_VEHICLE_PROPERTY_REMOVE_SYSTEM_API_TAGS"
     },
     "STEERING_WHEEL_LOCKED": {
       "propertyName": "STEERING_WHEEL_LOCKED",
@@ -2320,7 +2575,7 @@
         "type": "single",
         "value": "android.car.permission.CONTROL_STEERING_WHEEL"
       },
-      "systemApi": true
+      "featureFlag": "FLAG_VEHICLE_PROPERTY_REMOVE_SYSTEM_API_TAGS"
     },
     "STEERING_WHEEL_EASY_ACCESS_ENABLED": {
       "propertyName": "STEERING_WHEEL_EASY_ACCESS_ENABLED",
@@ -2334,7 +2589,7 @@
         "type": "single",
         "value": "android.car.permission.CONTROL_STEERING_WHEEL"
       },
-      "systemApi": true
+      "featureFlag": "FLAG_VEHICLE_PROPERTY_REMOVE_SYSTEM_API_TAGS"
     },
     "VEHICLE_MAP_SERVICE": {
       "propertyName": "VEHICLE_MAP_SERVICE",
@@ -2370,8 +2625,7 @@
         "type": "single",
         "value": "android.car.permission.READ_ULTRASONICS_SENSOR_DATA"
       },
-      "systemApi": true,
-      "featureFlag": "FLAG_ANDROID_VIC_VEHICLE_PROPERTIES"
+      "featureFlag": "FLAG_VEHICLE_PROPERTY_REMOVE_SYSTEM_API_TAGS"
     },
     "ULTRASONICS_SENSOR_ORIENTATION": {
       "propertyName": "ULTRASONICS_SENSOR_ORIENTATION",
@@ -2381,8 +2635,7 @@
         "type": "single",
         "value": "android.car.permission.READ_ULTRASONICS_SENSOR_DATA"
       },
-      "systemApi": true,
-      "featureFlag": "FLAG_ANDROID_VIC_VEHICLE_PROPERTIES"
+      "featureFlag": "FLAG_VEHICLE_PROPERTY_REMOVE_SYSTEM_API_TAGS"
     },
     "ULTRASONICS_SENSOR_FIELD_OF_VIEW": {
       "propertyName": "ULTRASONICS_SENSOR_FIELD_OF_VIEW",
@@ -2392,8 +2645,7 @@
         "type": "single",
         "value": "android.car.permission.READ_ULTRASONICS_SENSOR_DATA"
       },
-      "systemApi": true,
-      "featureFlag": "FLAG_ANDROID_VIC_VEHICLE_PROPERTIES"
+      "featureFlag": "FLAG_VEHICLE_PROPERTY_REMOVE_SYSTEM_API_TAGS"
     },
     "ULTRASONICS_SENSOR_DETECTION_RANGE": {
       "propertyName": "ULTRASONICS_SENSOR_DETECTION_RANGE",
@@ -2403,8 +2655,7 @@
         "type": "single",
         "value": "android.car.permission.READ_ULTRASONICS_SENSOR_DATA"
       },
-      "systemApi": true,
-      "featureFlag": "FLAG_ANDROID_VIC_VEHICLE_PROPERTIES"
+      "featureFlag": "FLAG_VEHICLE_PROPERTY_REMOVE_SYSTEM_API_TAGS"
     },
     "ULTRASONICS_SENSOR_SUPPORTED_RANGES": {
       "propertyName": "ULTRASONICS_SENSOR_SUPPORTED_RANGES",
@@ -2414,8 +2665,7 @@
         "type": "single",
         "value": "android.car.permission.READ_ULTRASONICS_SENSOR_DATA"
       },
-      "systemApi": true,
-      "featureFlag": "FLAG_ANDROID_VIC_VEHICLE_PROPERTIES"
+      "featureFlag": "FLAG_VEHICLE_PROPERTY_REMOVE_SYSTEM_API_TAGS"
     },
     "ULTRASONICS_SENSOR_MEASURED_DISTANCE": {
       "propertyName": "ULTRASONICS_SENSOR_MEASURED_DISTANCE",
@@ -2425,8 +2675,7 @@
         "type": "single",
         "value": "android.car.permission.READ_ULTRASONICS_SENSOR_DATA"
       },
-      "systemApi": true,
-      "featureFlag": "FLAG_ANDROID_VIC_VEHICLE_PROPERTIES"
+      "featureFlag": "FLAG_VEHICLE_PROPERTY_REMOVE_SYSTEM_API_TAGS"
     },
     "OBD2_LIVE_FRAME": {
       "propertyName": "OBD2_LIVE_FRAME",
@@ -2935,10 +3184,18 @@
       "propertyId": 289410892,
       "description": "Current state of vehicle autonomy.",
       "readPermission": {
-        "type": "single",
-        "value": "android.car.permission.CAR_DRIVING_STATE"
+        "type": "anyOf",
+        "value": [
+          {
+            "type": "single",
+            "value": "android.car.permission.CAR_DRIVING_STATE_3P"
+          },
+          {
+            "type": "single",
+            "value": "android.car.permission.CAR_DRIVING_STATE"
+          }
+        ]
       },
-      "systemApi": true,
       "dataEnums": [
         0,
         1,
@@ -2947,7 +3204,25 @@
         4,
         5
       ],
-      "featureFlag": "FLAG_ANDROID_VIC_VEHICLE_PROPERTIES"
+      "featureFlag": "FLAG_VEHICLE_PROPERTY_25Q2_3P_PERMISSIONS"
+    },
+    "VEHICLE_DRIVING_AUTOMATION_TARGET_LEVEL": {
+      "propertyName": "VEHICLE_DRIVING_AUTOMATION_TARGET_LEVEL",
+      "propertyId": 289410895,
+      "description": "Target state of vehicle autonomy.",
+      "readPermission": {
+        "type": "single",
+        "value": "android.car.permission.CAR_DRIVING_STATE"
+      },
+      "dataEnums": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "featureFlag": "FLAG_ANDROID_B_VEHICLE_PROPERTIES"
     },
     "AUTOMATIC_EMERGENCY_BRAKING_ENABLED": {
       "propertyName": "AUTOMATIC_EMERGENCY_BRAKING_ENABLED",
@@ -2970,7 +3245,7 @@
         "type": "single",
         "value": "android.car.permission.CONTROL_ADAS_SETTINGS"
       },
-      "systemApi": true
+      "featureFlag": "FLAG_VEHICLE_PROPERTY_REMOVE_SYSTEM_API_TAGS"
     },
     "AUTOMATIC_EMERGENCY_BRAKING_STATE": {
       "propertyName": "AUTOMATIC_EMERGENCY_BRAKING_STATE",
@@ -2980,19 +3255,19 @@
         "type": "single",
         "value": "android.car.permission.READ_ADAS_STATES"
       },
-      "systemApi": true,
       "dataEnums": [
+        -6,
+        -5,
+        -4,
+        -3,
+        -2,
+        -1,
         0,
         1,
         2,
-        3,
-        -1,
-        -2,
-        -3,
-        -4,
-        -5,
-        -6
-      ]
+        3
+      ],
+      "featureFlag": "FLAG_VEHICLE_PROPERTY_REMOVE_SYSTEM_API_TAGS"
     },
     "FORWARD_COLLISION_WARNING_ENABLED": {
       "propertyName": "FORWARD_COLLISION_WARNING_ENABLED",
@@ -3015,7 +3290,7 @@
         "type": "single",
         "value": "android.car.permission.CONTROL_ADAS_SETTINGS"
       },
-      "systemApi": true
+      "featureFlag": "FLAG_VEHICLE_PROPERTY_REMOVE_SYSTEM_API_TAGS"
     },
     "FORWARD_COLLISION_WARNING_STATE": {
       "propertyName": "FORWARD_COLLISION_WARNING_STATE",
@@ -3025,18 +3300,18 @@
         "type": "single",
         "value": "android.car.permission.READ_ADAS_STATES"
       },
-      "systemApi": true,
       "dataEnums": [
+        -6,
+        -5,
+        -4,
+        -3,
+        -2,
+        -1,
         0,
         1,
-        2,
-        -1,
-        -2,
-        -3,
-        -4,
-        -5,
-        -6
-      ]
+        2
+      ],
+      "featureFlag": "FLAG_VEHICLE_PROPERTY_REMOVE_SYSTEM_API_TAGS"
     },
     "BLIND_SPOT_WARNING_ENABLED": {
       "propertyName": "BLIND_SPOT_WARNING_ENABLED",
@@ -3059,7 +3334,7 @@
         "type": "single",
         "value": "android.car.permission.CONTROL_ADAS_SETTINGS"
       },
-      "systemApi": true
+      "featureFlag": "FLAG_VEHICLE_PROPERTY_REMOVE_SYSTEM_API_TAGS"
     },
     "BLIND_SPOT_WARNING_STATE": {
       "propertyName": "BLIND_SPOT_WARNING_STATE",
@@ -3069,18 +3344,18 @@
         "type": "single",
         "value": "android.car.permission.READ_ADAS_STATES"
       },
-      "systemApi": true,
       "dataEnums": [
+        -6,
+        -5,
+        -4,
+        -3,
+        -2,
+        -1,
         0,
         1,
-        2,
-        -1,
-        -2,
-        -3,
-        -4,
-        -5,
-        -6
-      ]
+        2
+      ],
+      "featureFlag": "FLAG_VEHICLE_PROPERTY_REMOVE_SYSTEM_API_TAGS"
     },
     "LANE_DEPARTURE_WARNING_ENABLED": {
       "propertyName": "LANE_DEPARTURE_WARNING_ENABLED",
@@ -3103,7 +3378,7 @@
         "type": "single",
         "value": "android.car.permission.CONTROL_ADAS_SETTINGS"
       },
-      "systemApi": true
+      "featureFlag": "FLAG_VEHICLE_PROPERTY_REMOVE_SYSTEM_API_TAGS"
     },
     "LANE_DEPARTURE_WARNING_STATE": {
       "propertyName": "LANE_DEPARTURE_WARNING_STATE",
@@ -3113,19 +3388,19 @@
         "type": "single",
         "value": "android.car.permission.READ_ADAS_STATES"
       },
-      "systemApi": true,
       "dataEnums": [
+        -6,
+        -5,
+        -4,
+        -3,
+        -2,
+        -1,
         0,
         1,
         2,
-        3,
-        -1,
-        -2,
-        -3,
-        -4,
-        -5,
-        -6
-      ]
+        3
+      ],
+      "featureFlag": "FLAG_VEHICLE_PROPERTY_REMOVE_SYSTEM_API_TAGS"
     },
     "LANE_KEEP_ASSIST_ENABLED": {
       "propertyName": "LANE_KEEP_ASSIST_ENABLED",
@@ -3148,7 +3423,7 @@
         "type": "single",
         "value": "android.car.permission.CONTROL_ADAS_SETTINGS"
       },
-      "systemApi": true
+      "featureFlag": "FLAG_VEHICLE_PROPERTY_REMOVE_SYSTEM_API_TAGS"
     },
     "LANE_KEEP_ASSIST_STATE": {
       "propertyName": "LANE_KEEP_ASSIST_STATE",
@@ -3158,20 +3433,20 @@
         "type": "single",
         "value": "android.car.permission.READ_ADAS_STATES"
       },
-      "systemApi": true,
       "dataEnums": [
+        -6,
+        -5,
+        -4,
+        -3,
+        -2,
+        -1,
         0,
         1,
         2,
         3,
-        4,
-        -1,
-        -2,
-        -3,
-        -4,
-        -5,
-        -6
-      ]
+        4
+      ],
+      "featureFlag": "FLAG_VEHICLE_PROPERTY_REMOVE_SYSTEM_API_TAGS"
     },
     "LANE_CENTERING_ASSIST_ENABLED": {
       "propertyName": "LANE_CENTERING_ASSIST_ENABLED",
@@ -3194,7 +3469,7 @@
         "type": "single",
         "value": "android.car.permission.CONTROL_ADAS_SETTINGS"
       },
-      "systemApi": true
+      "featureFlag": "FLAG_VEHICLE_PROPERTY_REMOVE_SYSTEM_API_TAGS"
     },
     "LANE_CENTERING_ASSIST_COMMAND": {
       "propertyName": "LANE_CENTERING_ASSIST_COMMAND",
@@ -3204,11 +3479,11 @@
         "type": "single",
         "value": "android.car.permission.CONTROL_ADAS_STATES"
       },
-      "systemApi": true,
       "dataEnums": [
         1,
         2
-      ]
+      ],
+      "featureFlag": "FLAG_VEHICLE_PROPERTY_REMOVE_SYSTEM_API_TAGS"
     },
     "LANE_CENTERING_ASSIST_STATE": {
       "propertyName": "LANE_CENTERING_ASSIST_STATE",
@@ -3218,21 +3493,21 @@
         "type": "single",
         "value": "android.car.permission.READ_ADAS_STATES"
       },
-      "systemApi": true,
       "dataEnums": [
+        -6,
+        -5,
+        -4,
+        -3,
+        -2,
+        -1,
         0,
         1,
         2,
         3,
         4,
-        5,
-        -1,
-        -2,
-        -3,
-        -4,
-        -5,
-        -6
-      ]
+        5
+      ],
+      "featureFlag": "FLAG_VEHICLE_PROPERTY_REMOVE_SYSTEM_API_TAGS"
     },
     "EMERGENCY_LANE_KEEP_ASSIST_ENABLED": {
       "propertyName": "EMERGENCY_LANE_KEEP_ASSIST_ENABLED",
@@ -3255,7 +3530,7 @@
         "type": "single",
         "value": "android.car.permission.CONTROL_ADAS_SETTINGS"
       },
-      "systemApi": true
+      "featureFlag": "FLAG_VEHICLE_PROPERTY_REMOVE_SYSTEM_API_TAGS"
     },
     "EMERGENCY_LANE_KEEP_ASSIST_STATE": {
       "propertyName": "EMERGENCY_LANE_KEEP_ASSIST_STATE",
@@ -3265,22 +3540,22 @@
         "type": "single",
         "value": "android.car.permission.READ_ADAS_STATES"
       },
-      "systemApi": true,
       "dataEnums": [
+        -6,
+        -5,
+        -4,
+        -3,
+        -2,
+        -1,
         0,
         1,
         2,
         3,
         4,
         5,
-        6,
-        -1,
-        -2,
-        -3,
-        -4,
-        -5,
-        -6
-      ]
+        6
+      ],
+      "featureFlag": "FLAG_VEHICLE_PROPERTY_REMOVE_SYSTEM_API_TAGS"
     },
     "CRUISE_CONTROL_ENABLED": {
       "propertyName": "CRUISE_CONTROL_ENABLED",
@@ -3303,7 +3578,7 @@
         "type": "single",
         "value": "android.car.permission.CONTROL_ADAS_SETTINGS"
       },
-      "systemApi": true
+      "featureFlag": "FLAG_VEHICLE_PROPERTY_REMOVE_SYSTEM_API_TAGS"
     },
     "CRUISE_CONTROL_TYPE": {
       "propertyName": "CRUISE_CONTROL_TYPE",
@@ -3326,19 +3601,19 @@
         "type": "single",
         "value": "android.car.permission.CONTROL_ADAS_STATES"
       },
-      "systemApi": true,
       "dataEnums": [
+        -6,
+        -5,
+        -4,
+        -3,
+        -2,
+        -1,
         0,
         1,
         2,
-        3,
-        -1,
-        -2,
-        -3,
-        -4,
-        -5,
-        -6
-      ]
+        3
+      ],
+      "featureFlag": "FLAG_VEHICLE_PROPERTY_REMOVE_SYSTEM_API_TAGS"
     },
     "CRUISE_CONTROL_STATE": {
       "propertyName": "CRUISE_CONTROL_STATE",
@@ -3348,21 +3623,21 @@
         "type": "single",
         "value": "android.car.permission.READ_ADAS_STATES"
       },
-      "systemApi": true,
       "dataEnums": [
+        -6,
+        -5,
+        -4,
+        -3,
+        -2,
+        -1,
         0,
         1,
         2,
         3,
         4,
-        5,
-        -1,
-        -2,
-        -3,
-        -4,
-        -5,
-        -6
-      ]
+        5
+      ],
+      "featureFlag": "FLAG_VEHICLE_PROPERTY_REMOVE_SYSTEM_API_TAGS"
     },
     "CRUISE_CONTROL_COMMAND": {
       "propertyName": "CRUISE_CONTROL_COMMAND",
@@ -3372,7 +3647,6 @@
         "type": "single",
         "value": "android.car.permission.CONTROL_ADAS_STATES"
       },
-      "systemApi": true,
       "dataEnums": [
         1,
         2,
@@ -3380,7 +3654,8 @@
         4,
         5,
         6
-      ]
+      ],
+      "featureFlag": "FLAG_VEHICLE_PROPERTY_REMOVE_SYSTEM_API_TAGS"
     },
     "CRUISE_CONTROL_TARGET_SPEED": {
       "propertyName": "CRUISE_CONTROL_TARGET_SPEED",
@@ -3390,7 +3665,7 @@
         "type": "single",
         "value": "android.car.permission.READ_ADAS_STATES"
       },
-      "systemApi": true
+      "featureFlag": "FLAG_VEHICLE_PROPERTY_REMOVE_SYSTEM_API_TAGS"
     },
     "ADAPTIVE_CRUISE_CONTROL_TARGET_TIME_GAP": {
       "propertyName": "ADAPTIVE_CRUISE_CONTROL_TARGET_TIME_GAP",
@@ -3413,7 +3688,7 @@
         "type": "single",
         "value": "android.car.permission.CONTROL_ADAS_STATES"
       },
-      "systemApi": true
+      "featureFlag": "FLAG_VEHICLE_PROPERTY_REMOVE_SYSTEM_API_TAGS"
     },
     "ADAPTIVE_CRUISE_CONTROL_LEAD_VEHICLE_MEASURED_DISTANCE": {
       "propertyName": "ADAPTIVE_CRUISE_CONTROL_LEAD_VEHICLE_MEASURED_DISTANCE",
@@ -3423,7 +3698,7 @@
         "type": "single",
         "value": "android.car.permission.READ_ADAS_STATES"
       },
-      "systemApi": true
+      "featureFlag": "FLAG_VEHICLE_PROPERTY_REMOVE_SYSTEM_API_TAGS"
     },
     "HANDS_ON_DETECTION_ENABLED": {
       "propertyName": "HANDS_ON_DETECTION_ENABLED",
@@ -3446,7 +3721,7 @@
         "type": "single",
         "value": "android.car.permission.CONTROL_DRIVER_MONITORING_SETTINGS"
       },
-      "systemApi": true
+      "featureFlag": "FLAG_VEHICLE_PROPERTY_REMOVE_SYSTEM_API_TAGS"
     },
     "HANDS_ON_DETECTION_DRIVER_STATE": {
       "propertyName": "HANDS_ON_DETECTION_DRIVER_STATE",
@@ -3456,18 +3731,18 @@
         "type": "single",
         "value": "android.car.permission.READ_DRIVER_MONITORING_STATES"
       },
-      "systemApi": true,
       "dataEnums": [
+        -6,
+        -5,
+        -4,
+        -3,
+        -2,
+        -1,
         0,
         1,
-        2,
-        -1,
-        -2,
-        -3,
-        -4,
-        -5,
-        -6
-      ]
+        2
+      ],
+      "featureFlag": "FLAG_VEHICLE_PROPERTY_REMOVE_SYSTEM_API_TAGS"
     },
     "HANDS_ON_DETECTION_WARNING": {
       "propertyName": "HANDS_ON_DETECTION_WARNING",
@@ -3477,18 +3752,18 @@
         "type": "single",
         "value": "android.car.permission.READ_DRIVER_MONITORING_STATES"
       },
-      "systemApi": true,
       "dataEnums": [
+        -6,
+        -5,
+        -4,
+        -3,
+        -2,
+        -1,
         0,
         1,
-        2,
-        -1,
-        -2,
-        -3,
-        -4,
-        -5,
-        -6
-      ]
+        2
+      ],
+      "featureFlag": "FLAG_VEHICLE_PROPERTY_REMOVE_SYSTEM_API_TAGS"
     },
     "DRIVER_DROWSINESS_ATTENTION_SYSTEM_ENABLED": {
       "propertyName": "DRIVER_DROWSINESS_ATTENTION_SYSTEM_ENABLED",
@@ -3511,8 +3786,7 @@
         "type": "single",
         "value": "android.car.permission.CONTROL_DRIVER_MONITORING_SETTINGS"
       },
-      "systemApi": true,
-      "featureFlag": "FLAG_ANDROID_VIC_VEHICLE_PROPERTIES"
+      "featureFlag": "FLAG_VEHICLE_PROPERTY_REMOVE_SYSTEM_API_TAGS"
     },
     "DRIVER_DROWSINESS_ATTENTION_STATE": {
       "propertyName": "DRIVER_DROWSINESS_ATTENTION_STATE",
@@ -3522,8 +3796,13 @@
         "type": "single",
         "value": "android.car.permission.READ_DRIVER_MONITORING_STATES"
       },
-      "systemApi": true,
       "dataEnums": [
+        -6,
+        -5,
+        -4,
+        -3,
+        -2,
+        -1,
         0,
         1,
         2,
@@ -3533,15 +3812,9 @@
         6,
         7,
         8,
-        9,
-        -1,
-        -2,
-        -3,
-        -4,
-        -5,
-        -6
+        9
       ],
-      "featureFlag": "FLAG_ANDROID_VIC_VEHICLE_PROPERTIES"
+      "featureFlag": "FLAG_VEHICLE_PROPERTY_REMOVE_SYSTEM_API_TAGS"
     },
     "DRIVER_DROWSINESS_ATTENTION_WARNING_ENABLED": {
       "propertyName": "DRIVER_DROWSINESS_ATTENTION_WARNING_ENABLED",
@@ -3564,8 +3837,7 @@
         "type": "single",
         "value": "android.car.permission.CONTROL_DRIVER_MONITORING_SETTINGS"
       },
-      "systemApi": true,
-      "featureFlag": "FLAG_ANDROID_VIC_VEHICLE_PROPERTIES"
+      "featureFlag": "FLAG_VEHICLE_PROPERTY_REMOVE_SYSTEM_API_TAGS"
     },
     "DRIVER_DROWSINESS_ATTENTION_WARNING": {
       "propertyName": "DRIVER_DROWSINESS_ATTENTION_WARNING",
@@ -3575,19 +3847,18 @@
         "type": "single",
         "value": "android.car.permission.READ_DRIVER_MONITORING_STATES"
       },
-      "systemApi": true,
       "dataEnums": [
+        -6,
+        -5,
+        -4,
+        -3,
+        -2,
+        -1,
         0,
         1,
-        2,
-        -1,
-        -2,
-        -3,
-        -4,
-        -5,
-        -6
+        2
       ],
-      "featureFlag": "FLAG_ANDROID_VIC_VEHICLE_PROPERTIES"
+      "featureFlag": "FLAG_VEHICLE_PROPERTY_REMOVE_SYSTEM_API_TAGS"
     },
     "DRIVER_DISTRACTION_SYSTEM_ENABLED": {
       "propertyName": "DRIVER_DISTRACTION_SYSTEM_ENABLED",
@@ -3610,8 +3881,7 @@
         "type": "single",
         "value": "android.car.permission.CONTROL_DRIVER_MONITORING_SETTINGS"
       },
-      "systemApi": true,
-      "featureFlag": "FLAG_ANDROID_VIC_VEHICLE_PROPERTIES"
+      "featureFlag": "FLAG_VEHICLE_PROPERTY_REMOVE_SYSTEM_API_TAGS"
     },
     "DRIVER_DISTRACTION_STATE": {
       "propertyName": "DRIVER_DISTRACTION_STATE",
@@ -3621,19 +3891,18 @@
         "type": "single",
         "value": "android.car.permission.READ_DRIVER_MONITORING_STATES"
       },
-      "systemApi": true,
       "dataEnums": [
+        -6,
+        -5,
+        -4,
+        -3,
+        -2,
+        -1,
         0,
         1,
-        2,
-        -1,
-        -2,
-        -3,
-        -4,
-        -5,
-        -6
+        2
       ],
-      "featureFlag": "FLAG_ANDROID_VIC_VEHICLE_PROPERTIES"
+      "featureFlag": "FLAG_VEHICLE_PROPERTY_REMOVE_SYSTEM_API_TAGS"
     },
     "DRIVER_DISTRACTION_WARNING_ENABLED": {
       "propertyName": "DRIVER_DISTRACTION_WARNING_ENABLED",
@@ -3656,8 +3925,7 @@
         "type": "single",
         "value": "android.car.permission.CONTROL_DRIVER_MONITORING_SETTINGS"
       },
-      "systemApi": true,
-      "featureFlag": "FLAG_ANDROID_VIC_VEHICLE_PROPERTIES"
+      "featureFlag": "FLAG_VEHICLE_PROPERTY_REMOVE_SYSTEM_API_TAGS"
     },
     "DRIVER_DISTRACTION_WARNING": {
       "propertyName": "DRIVER_DISTRACTION_WARNING",
@@ -3667,19 +3935,18 @@
         "type": "single",
         "value": "android.car.permission.READ_DRIVER_MONITORING_STATES"
       },
-      "systemApi": true,
       "dataEnums": [
+        -6,
+        -5,
+        -4,
+        -3,
+        -2,
+        -1,
         0,
         1,
-        2,
-        -1,
-        -2,
-        -3,
-        -4,
-        -5,
-        -6
+        2
       ],
-      "featureFlag": "FLAG_ANDROID_VIC_VEHICLE_PROPERTIES"
+      "featureFlag": "FLAG_VEHICLE_PROPERTY_REMOVE_SYSTEM_API_TAGS"
     },
     "LOW_SPEED_COLLISION_WARNING_ENABLED": {
       "propertyName": "LOW_SPEED_COLLISION_WARNING_ENABLED",
@@ -3702,8 +3969,7 @@
         "type": "single",
         "value": "android.car.permission.CONTROL_ADAS_SETTINGS"
       },
-      "systemApi": true,
-      "featureFlag": "FLAG_ANDROID_VIC_VEHICLE_PROPERTIES"
+      "featureFlag": "FLAG_VEHICLE_PROPERTY_REMOVE_SYSTEM_API_TAGS"
     },
     "LOW_SPEED_COLLISION_WARNING_STATE": {
       "propertyName": "LOW_SPEED_COLLISION_WARNING_STATE",
@@ -3713,19 +3979,18 @@
         "type": "single",
         "value": "android.car.permission.READ_ADAS_STATES"
       },
-      "systemApi": true,
       "dataEnums": [
+        -6,
+        -5,
+        -4,
+        -3,
+        -2,
+        -1,
         0,
         1,
-        2,
-        -1,
-        -2,
-        -3,
-        -4,
-        -5,
-        -6
+        2
       ],
-      "featureFlag": "FLAG_ANDROID_VIC_VEHICLE_PROPERTIES"
+      "featureFlag": "FLAG_VEHICLE_PROPERTY_REMOVE_SYSTEM_API_TAGS"
     },
     "CROSS_TRAFFIC_MONITORING_ENABLED": {
       "propertyName": "CROSS_TRAFFIC_MONITORING_ENABLED",
@@ -3748,8 +4013,7 @@
         "type": "single",
         "value": "android.car.permission.CONTROL_ADAS_SETTINGS"
       },
-      "systemApi": true,
-      "featureFlag": "FLAG_ANDROID_VIC_VEHICLE_PROPERTIES"
+      "featureFlag": "FLAG_VEHICLE_PROPERTY_REMOVE_SYSTEM_API_TAGS"
     },
     "CROSS_TRAFFIC_MONITORING_WARNING_STATE": {
       "propertyName": "CROSS_TRAFFIC_MONITORING_WARNING_STATE",
@@ -3759,8 +4023,13 @@
         "type": "single",
         "value": "android.car.permission.READ_ADAS_STATES"
       },
-      "systemApi": true,
       "dataEnums": [
+        -6,
+        -5,
+        -4,
+        -3,
+        -2,
+        -1,
         0,
         1,
         2,
@@ -3768,15 +4037,9 @@
         4,
         5,
         6,
-        7,
-        -1,
-        -2,
-        -3,
-        -4,
-        -5,
-        -6
+        7
       ],
-      "featureFlag": "FLAG_ANDROID_VIC_VEHICLE_PROPERTIES"
+      "featureFlag": "FLAG_VEHICLE_PROPERTY_REMOVE_SYSTEM_API_TAGS"
     },
     "LOW_SPEED_AUTOMATIC_EMERGENCY_BRAKING_ENABLED": {
       "propertyName": "LOW_SPEED_AUTOMATIC_EMERGENCY_BRAKING_ENABLED",
@@ -3799,8 +4062,7 @@
         "type": "single",
         "value": "android.car.permission.CONTROL_ADAS_SETTINGS"
       },
-      "systemApi": true,
-      "featureFlag": "FLAG_ANDROID_VIC_VEHICLE_PROPERTIES"
+      "featureFlag": "FLAG_VEHICLE_PROPERTY_REMOVE_SYSTEM_API_TAGS"
     },
     "LOW_SPEED_AUTOMATIC_EMERGENCY_BRAKING_STATE": {
       "propertyName": "LOW_SPEED_AUTOMATIC_EMERGENCY_BRAKING_STATE",
@@ -3810,20 +4072,19 @@
         "type": "single",
         "value": "android.car.permission.READ_ADAS_STATES"
       },
-      "systemApi": true,
       "dataEnums": [
+        -6,
+        -5,
+        -4,
+        -3,
+        -2,
+        -1,
         0,
         1,
         2,
-        3,
-        -1,
-        -2,
-        -3,
-        -4,
-        -5,
-        -6
+        3
       ],
-      "featureFlag": "FLAG_ANDROID_VIC_VEHICLE_PROPERTIES"
+      "featureFlag": "FLAG_VEHICLE_PROPERTY_REMOVE_SYSTEM_API_TAGS"
     }
   }
 }

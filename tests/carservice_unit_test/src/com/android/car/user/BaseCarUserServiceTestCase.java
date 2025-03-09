@@ -50,6 +50,7 @@ import android.app.admin.DevicePolicyManager;
 import android.car.ICarResultReceiver;
 import android.car.SyncResultCallback;
 import android.car.builtin.app.ActivityManagerHelper;
+import android.car.builtin.os.StorageManagerHelper;
 import android.car.builtin.os.UserManagerHelper;
 import android.car.drivingstate.CarUxRestrictions;
 import android.car.drivingstate.ICarUxRestrictionsChangeListener;
@@ -266,7 +267,8 @@ abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCas
                 .spyStatic(UserHelperLite.class)
                 .spyStatic(CarSystemProperties.class)
                 .spyStatic(Binder.class)
-                .spyStatic(UserManagerHelper.class);
+                .spyStatic(UserManagerHelper.class)
+                .spyStatic(StorageManagerHelper.class);
     }
 
     /**

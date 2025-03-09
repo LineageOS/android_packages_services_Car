@@ -28,6 +28,8 @@
 
     <item target="color/icon_color_default" value="@color/top_level_icon_default"/>
     <item target="color/qc_default_icon_color" value="@color/qc_default_icon_color"/>
+    <item target="color/aspect_ratio_icon_outline_color" value="@color/aspect_ratio_icon_outline_color"/>
+    <item target="color/aspect_ratio_icon_background_color" value="@color/aspect_ratio_icon_background_color"/>
     <item target="color/top_level_injected_default_background" value="@android:color/transparent" />
     <item target="color/top_level_icon_default" value="@color/top_level_icon_default"/>
     <item target="color/top_level_accessibility_background" value="@color/top_level_icon_background"/>
@@ -50,6 +52,7 @@
     <item target="dimen/bluetooth_device_icon_size" value="@dimen/toggle_button_icon_size"/>
     <item target="dimen/icon_size" value="@dimen/icon_size"/>
     <item target="dimen/top_level_menu_width" value="@dimen/top_level_menu_width"/>
+    <item target="dimen/top_level_preference_title_margin_horizontal" value="@dimen/top_level_preference_title_margin_horizontal"/>
     <item target="dimen/top_level_recyclerview_margin_right" value="@dimen/top_level_recyclerview_margin_right"/>
     <item target="dimen/top_level_foreground_icon_inset" value="@dimen/top_level_foreground_icon_inset"/>
 
@@ -67,6 +70,8 @@
     <item target="id/settings_car_ui_focus_area" value="@id/settings_car_ui_focus_area"/>
     <item target="id/top_level_recycler_view" value="@id/top_level_recycler_view"/>
 
+    <item target="integer/config_activity_embed_split_min_cur_dp" value="@integer/config_activity_embed_split_min_cur_dp"/>
+
     <item target="layout/preference_dialog_password_edittext" value="@layout/preference_dialog_password_edittext"/>
     <item target="layout/settings_recyclerview_default" value="@layout/settings_recyclerview_default"/>
     <item target="layout/top_level_preference" value="@layout/top_level_preference"/>
@@ -75,6 +80,4 @@
     <item target="style/CarSettingsActivityDividerStyle" value="@style/CarSettingsActivityDividerStyle" />
     <item target="style/CarSettingsFragmentContainerStyle" value="@style/CarSettingsFragmentContainerStyle" />
     <item target="style/LockPattern" value="@style/LockPattern"/>
-
-    <item target="string/config_homepage_fragment_class" value="@string/config_homepage_fragment_class" />
 </overlay>

@@ -203,6 +203,10 @@ public:
 
     void onClientBinderDied(void* cookie) { mServer->onClientBinderDied(cookie); }
 
+    void onClientDeathRecipientUnlinked(void* cookie) {
+        mServer->onClientDeathRecipientUnlinked(cookie);
+    }
+
     std::vector<CallbackInfo> getPolicyChangeCallbacks() {
         return mServer->getPolicyChangeCallbacks();
     }
@@ -281,33 +285,86 @@ private:
                     (override));
         MOCK_METHOD(binder_status_t, unlinkToDeath, (AIBinder*, AIBinder_DeathRecipient*, void*),
                     (override));
+        MOCK_METHOD(void, setOnUnlinked,
+                    (AIBinder_DeathRecipient*, AIBinder_DeathRecipient_onBinderUnlinked),
+                    (override));
+        MOCK_METHOD(void, deleteDeathRecipient, (AIBinder_DeathRecipient*), (override));
+
+        MockLinkUnlinkImpl() {
+            ON_CALL(*this, setOnUnlinked(_, _))
+                    .WillByDefault(
+                            Invoke([this](AIBinder_DeathRecipient* recipient,
+                                          AIBinder_DeathRecipient_onBinderUnlinked onUnlinked) {
+                                Mutex::Autolock lock(mMutex);
+                                mOnUnlinked[recipient] = onUnlinked;
+                            }));
+            ON_CALL(*this, deleteDeathRecipient(_))
+                    .WillByDefault(Invoke([this](AIBinder_DeathRecipient* recipient) {
+                        // Call onUnlinked for all the death recipients that are still registered.
+                        std::unordered_set<void*> cookies;
+                        AIBinder_DeathRecipient_onBinderUnlinked onUnlinked;
+                        {
+                            Mutex::Autolock lock(mMutex);
+                            cookies = mCookies[recipient];
+                            onUnlinked = *mOnUnlinked[recipient];
+                        }
+
+                        for (const auto& cookie : cookies) {
+                            (*onUnlinked)(cookie);
+                        }
+                    }));
+        }
 
         void expectLinkToDeathStatus(AIBinder* binder, binder_status_t linkToDeathResult) {
             EXPECT_CALL(*this, linkToDeath(binder, _, _))
-                    .WillRepeatedly(
-                            Invoke([this, linkToDeathResult](AIBinder*, AIBinder_DeathRecipient*,
-                                                             void* cookie) {
+                    .WillRepeatedly(Invoke(
+                            [this, linkToDeathResult](AIBinder*, AIBinder_DeathRecipient* recipient,
+                                                      void* cookie) {
+                                // If success, store the cookie with the death recipient, otherwise,
+                                // call onUnlinked.
+                                if (linkToDeathResult != STATUS_OK) {
+                                    (*getOnUnlinked(recipient))(cookie);
+                                    return linkToDeathResult;
+                                }
                                 Mutex::Autolock lock(mMutex);
-                                mCookies.insert(cookie);
+                                mCookies[recipient].insert(cookie);
                                 return linkToDeathResult;
                             }));
             EXPECT_CALL(*this, unlinkToDeath(binder, _, _))
-                    .WillRepeatedly(
-                            Invoke([this](AIBinder*, AIBinder_DeathRecipient*, void* cookie) {
-                                Mutex::Autolock lock(mMutex);
-                                mCookies.erase(cookie);
+                    .WillRepeatedly(Invoke(
+                            [this](AIBinder*, AIBinder_DeathRecipient* recipient, void* cookie) {
+                                // Remove the cookie and call onUnlinked.
+                                {
+                                    Mutex::Autolock lock(mMutex);
+                                    mCookies[recipient].erase(cookie);
+                                }
+                                (*getOnUnlinked(recipient))(cookie);
                                 return STATUS_OK;
                             }));
         }
 
         std::unordered_set<void*> getCookies() {
             Mutex::Autolock lock(mMutex);
-            return mCookies;
+            std::unordered_set<void*> allCookies;
+            for (const auto& [recipient, cookies] : mCookies) {
+                for (const auto& cookie : cookies) {
+                    allCookies.insert(cookie);
+                }
+            }
+            return allCookies;
         }
 
     private:
         android::Mutex mMutex;
-        std::unordered_set<void*> mCookies GUARDED_BY(mMutex);
+        std::unordered_map<AIBinder_DeathRecipient*, std::unordered_set<void*>> mCookies
+                GUARDED_BY(mMutex);
+        std::unordered_map<AIBinder_DeathRecipient*, AIBinder_DeathRecipient_onBinderUnlinked>
+                mOnUnlinked GUARDED_BY(mMutex);
+
+        AIBinder_DeathRecipient_onBinderUnlinked getOnUnlinked(AIBinder_DeathRecipient* recipient) {
+            Mutex::Autolock lock(mMutex);
+            return mOnUnlinked[recipient];
+        }
     };
 
     MockLinkUnlinkImpl* mLinkUnlinkImpl;
@@ -438,6 +495,8 @@ TEST_F(CarPowerPolicyServerTest, TestOnBinderDied) {
     server->onClientBinderDied(cookie);
 
     ASSERT_TRUE(server->getPolicyChangeCallbacks().empty());
+
+    server->onClientDeathRecipientUnlinked(cookie);
 
     ASSERT_EQ(server->countOnClientBinderDiedContexts(), static_cast<size_t>(0));
 }

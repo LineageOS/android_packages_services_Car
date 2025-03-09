@@ -620,4 +620,16 @@
     <install-in-user-type package="com.android.car.systemui.systembar.transparency.statusbar.translucent">
         <install-in user-type="SYSTEM" />
     </install-in-user-type>
+    <install-in-user-type package="com.android.car.systemui.systembar.persistency.barpolicy">
+        <install-in user-type="SYSTEM" />
+    </install-in-user-type>
+    <install-in-user-type package="com.android.systemui.emulation.automotive_round">
+        <install-in user-type="SYSTEM" />
+    </install-in-user-type>
+    <install-in-user-type package="com.android.systemui.emulation.automotive_large_portrait">
+        <install-in user-type="SYSTEM" />
+    </install-in-user-type>
+    <install-in-user-type package="com.android.systemui.emulation.automotive_ultrawide_cutout">
+        <install-in user-type="SYSTEM" />
+    </install-in-user-type>
 </config>

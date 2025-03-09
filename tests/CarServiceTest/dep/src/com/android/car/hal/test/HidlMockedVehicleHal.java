@@ -42,6 +42,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.annotation.concurrent.NotThreadSafe;
+import javax.annotation.concurrent.ThreadSafe;
 
 /**
  * Mocked implementation of {@link IVehicle}.
@@ -54,17 +55,8 @@ public class HidlMockedVehicleHal extends IVehicle.Stub {
     /**
      * Interface for handler of each property.
      */
-    public interface VehicleHalPropertyHandler {
-        default void onPropertySet(VehiclePropValue value) {}
-
-        default VehiclePropValue onPropertyGet(VehiclePropValue value) {
-            return null;
-        }
-
-        default void onPropertySubscribe(int property, float sampleRate) {}
-
-        default void onPropertyUnsubscribe(int property) {}
-
+    public interface VehicleHalPropertyHandler
+            extends GenericVehicleHalPropertyHandler<VehiclePropValue> {
         VehicleHalPropertyHandler NOP = new VehicleHalPropertyHandler() {};
     }
 
@@ -281,72 +273,24 @@ public class HidlMockedVehicleHal extends IVehicle.Stub {
         return null;
     }
 
-    public static class FailingPropertyHandler implements VehicleHalPropertyHandler {
-        @Override
-        public void onPropertySet(VehiclePropValue value) {
-            fail("Unexpected onPropertySet call");
-        }
-
-        @Override
-        public VehiclePropValue onPropertyGet(VehiclePropValue value) {
-            fail("Unexpected onPropertyGet call");
-            return null;
-        }
-
-        @Override
-        public void onPropertySubscribe(int property, float sampleRate) {
-            fail("Unexpected onPropertySubscribe call");
-        }
-
-        @Override
-        public void onPropertyUnsubscribe(int property) {
-            fail("Unexpected onPropertyUnsubscribe call");
-        }
-    }
+    @ThreadSafe
+    public static final class FailingPropertyHandler
+            extends GenericFailingPropertyHandler<VehiclePropValue>
+            implements VehicleHalPropertyHandler {}
 
     @NotThreadSafe
-    public static final class StaticPropertyHandler extends FailingPropertyHandler {
-
-        private final VehiclePropValue mValue;
-
+    public static final class StaticPropertyHandler
+            extends GenericStaticPropertyHandler<VehiclePropValue>
+            implements VehicleHalPropertyHandler {
         public StaticPropertyHandler(VehiclePropValue value) {
-            mValue = value;
-        }
-
-        @Override
-        public VehiclePropValue onPropertyGet(VehiclePropValue value) {
-            return mValue;
+            super(value);
         }
     }
 
-    @NotThreadSafe
-    public static final class ErrorCodeHandler extends FailingPropertyHandler {
-
-        private final Object mLock = new Object();
-
-        @GuardedBy("mLock")
-        private int mStatus;
-
-        public void setStatus(int status) {
-            synchronized (mLock) {
-                mStatus = status;
-            }
-        }
-
-        @Override
-        public VehiclePropValue onPropertyGet(VehiclePropValue value) {
-            synchronized (mLock) {
-                throw new ServiceSpecificException(mStatus);
-            }
-        }
-
-        @Override
-        public void onPropertySet(VehiclePropValue value) {
-            synchronized (mLock) {
-                throw new ServiceSpecificException(mStatus);
-            }
-        }
-    }
+    @ThreadSafe
+    public static final class ErrorCodeHandler
+            extends GenericErrorCodeHandler<VehiclePropValue>
+            implements VehicleHalPropertyHandler {}
 
     @NotThreadSafe
     public static final class DefaultPropertyHandler implements VehicleHalPropertyHandler {

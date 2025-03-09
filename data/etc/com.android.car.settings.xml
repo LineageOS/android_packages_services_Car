@@ -18,6 +18,8 @@
     <privapp-permissions package="com.android.car.settings">
         <permission name="android.car.permission.CAR_CONTROL_AUDIO_SETTINGS"/>
         <permission name="android.car.permission.CAR_CONTROL_AUDIO_VOLUME"/>
+        <permission name="android.car.permission.CAR_IDENTIFICATION"/>
+        <permission name="android.car.permission.CONTROL_APP_BLOCKING"/>
         <permission name="android.car.permission.READ_PERSIST_TETHERING_SETTINGS"/>
         <permission name="android.permission.ACCESS_CHECKIN_PROPERTIES"/>
         <permission name="android.permission.ACCESS_NOTIFICATIONS"/>
@@ -32,6 +34,7 @@
         <permission name="android.permission.FORCE_STOP_PACKAGES"/>
         <permission name="android.permission.LOCAL_MAC_ADDRESS"/>
         <permission name="android.permission.GET_ACCOUNTS_PRIVILEGED"/>
+        <permission name="android.permission.INSTALL_PACKAGES"/>
         <permission name="android.permission.MANAGE_DEBUGGING"/>
         <permission name="android.permission.MANAGE_DEVICE_ADMINS"/>
         <permission name="android.permission.MANAGE_FINGERPRINT"/>

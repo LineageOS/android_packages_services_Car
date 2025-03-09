@@ -23,4 +23,6 @@
         <item name="*android:dotColor">@color/car_secondary_container</item>
     </style>
 
+    <style name="Theme.SystemUI.Dialog" parent="android:Theme.DeviceDefault.Dialog"/>
+
 </resources>

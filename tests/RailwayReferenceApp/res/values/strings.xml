@@ -25,6 +25,7 @@
     <string name="allowed_package_names_title">Allowed Package Names</string>
     <string name="ip_configuration_title">Update Configuration (IPv4 only)</string>
     <string name="interface_name_title">Interface Name</string>
+    <string name="interface_to_update_name_title">Interface Name to Update</string>
     <string name="network_capabilities_title">Network Capabilities</string>
     <string name="enable_disable_section_title">Enable/Disable/Bind Interface</string>
     <string name="current_ethernet_networks_section_title">Current Ethernet Networks</string>

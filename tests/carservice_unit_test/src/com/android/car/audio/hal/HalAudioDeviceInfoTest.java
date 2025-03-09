@@ -36,6 +36,8 @@ import android.media.audio.common.AudioPortMixExt;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
+import com.android.car.audio.CarAudioTestUtils;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -66,9 +68,9 @@ public final class HalAudioDeviceInfoTest extends AbstractExtendedMockitoTestCas
 
     @Test
     public void constructor_succeeds() {
-        AudioPortDeviceExt deviceExt = CarAudioHalTestUtils.createAudioPortDeviceExt(OUT_DEVICE,
+        AudioPortDeviceExt deviceExt = CarAudioTestUtils.createAudioPortDeviceExt(OUT_DEVICE,
                 CONNECTION_BUS, ADDRESS_BUS_MEDIA);
-        AudioPort audioPort = CarAudioHalTestUtils.createAudioPort(PORT_ID, PORT_NAME, GAINS,
+        AudioPort audioPort = CarAudioTestUtils.createAudioPort(PORT_ID, PORT_NAME, GAINS,
                 deviceExt);
 
         HalAudioDeviceInfo deviceInfo = new HalAudioDeviceInfo(audioPort);
@@ -119,9 +121,9 @@ public final class HalAudioDeviceInfoTest extends AbstractExtendedMockitoTestCas
 
     @Test
     public void constructor_requiresNonNullAudioGains() {
-        AudioPortDeviceExt deviceExt = CarAudioHalTestUtils.createAudioPortDeviceExt(OUT_DEVICE,
+        AudioPortDeviceExt deviceExt = CarAudioTestUtils.createAudioPortDeviceExt(OUT_DEVICE,
                 CONNECTION_BUS, ADDRESS_BUS_MEDIA);
-        AudioPort audioPort = CarAudioHalTestUtils.createAudioPort(PORT_ID, PORT_NAME, null,
+        AudioPort audioPort = CarAudioTestUtils.createAudioPort(PORT_ID, PORT_NAME, null,
                 deviceExt);
 
         Throwable thrown = assertThrows(NullPointerException.class,
@@ -142,9 +144,9 @@ public final class HalAudioDeviceInfoTest extends AbstractExtendedMockitoTestCas
                     stepValue = TEST_GAIN_STEP_VALUE;
                 }}
         };
-        AudioPortDeviceExt deviceExt = CarAudioHalTestUtils.createAudioPortDeviceExt(OUT_DEVICE,
+        AudioPortDeviceExt deviceExt = CarAudioTestUtils.createAudioPortDeviceExt(OUT_DEVICE,
                 CONNECTION_BUS, ADDRESS_BUS_MEDIA);
-        AudioPort audioPort = CarAudioHalTestUtils.createAudioPort(PORT_ID, PORT_NAME, gains,
+        AudioPort audioPort = CarAudioTestUtils.createAudioPort(PORT_ID, PORT_NAME, gains,
                 deviceExt);
 
         Throwable thrown = assertThrows(IllegalStateException.class,
@@ -165,9 +167,9 @@ public final class HalAudioDeviceInfoTest extends AbstractExtendedMockitoTestCas
                     stepValue = TEST_GAIN_STEP_VALUE;
                 }}
         };
-        AudioPortDeviceExt deviceExt = CarAudioHalTestUtils.createAudioPortDeviceExt(OUT_DEVICE,
+        AudioPortDeviceExt deviceExt = CarAudioTestUtils.createAudioPortDeviceExt(OUT_DEVICE,
                 CONNECTION_BUS, ADDRESS_BUS_MEDIA);
-        AudioPort audioPort = CarAudioHalTestUtils.createAudioPort(PORT_ID, PORT_NAME, gains,
+        AudioPort audioPort = CarAudioTestUtils.createAudioPort(PORT_ID, PORT_NAME, gains,
                 deviceExt);
 
         Throwable thrown = assertThrows(IllegalArgumentException.class,
@@ -188,9 +190,9 @@ public final class HalAudioDeviceInfoTest extends AbstractExtendedMockitoTestCas
                     stepValue = TEST_GAIN_STEP_VALUE;
                 }}
         };
-        AudioPortDeviceExt deviceExt = CarAudioHalTestUtils.createAudioPortDeviceExt(OUT_DEVICE,
+        AudioPortDeviceExt deviceExt = CarAudioTestUtils.createAudioPortDeviceExt(OUT_DEVICE,
                 CONNECTION_BUS, ADDRESS_BUS_MEDIA);
-        AudioPort audioPort = CarAudioHalTestUtils.createAudioPort(PORT_ID, PORT_NAME, gains,
+        AudioPort audioPort = CarAudioTestUtils.createAudioPort(PORT_ID, PORT_NAME, gains,
                 deviceExt);
 
         Throwable thrown = assertThrows(IllegalArgumentException.class,
@@ -211,9 +213,9 @@ public final class HalAudioDeviceInfoTest extends AbstractExtendedMockitoTestCas
                     stepValue = TEST_GAIN_STEP_VALUE;
                 }}
         };
-        AudioPortDeviceExt deviceExt = CarAudioHalTestUtils.createAudioPortDeviceExt(OUT_DEVICE,
+        AudioPortDeviceExt deviceExt = CarAudioTestUtils.createAudioPortDeviceExt(OUT_DEVICE,
                 CONNECTION_BUS, ADDRESS_BUS_MEDIA);
-        AudioPort audioPort = CarAudioHalTestUtils.createAudioPort(PORT_ID, PORT_NAME, gains,
+        AudioPort audioPort = CarAudioTestUtils.createAudioPort(PORT_ID, PORT_NAME, gains,
                 deviceExt);
 
         Throwable thrown = assertThrows(IllegalArgumentException.class,
@@ -234,9 +236,9 @@ public final class HalAudioDeviceInfoTest extends AbstractExtendedMockitoTestCas
                     stepValue = 7;
                 }}
         };
-        AudioPortDeviceExt deviceExt = CarAudioHalTestUtils.createAudioPortDeviceExt(OUT_DEVICE,
+        AudioPortDeviceExt deviceExt = CarAudioTestUtils.createAudioPortDeviceExt(OUT_DEVICE,
                 CONNECTION_BUS, ADDRESS_BUS_MEDIA);
-        AudioPort audioPort = CarAudioHalTestUtils.createAudioPort(PORT_ID, PORT_NAME, gains,
+        AudioPort audioPort = CarAudioTestUtils.createAudioPort(PORT_ID, PORT_NAME, gains,
                 deviceExt);
 
         Throwable thrown = assertThrows(IllegalArgumentException.class,
@@ -257,9 +259,9 @@ public final class HalAudioDeviceInfoTest extends AbstractExtendedMockitoTestCas
                     stepValue = 7;
                 }}
         };
-        AudioPortDeviceExt deviceExt = CarAudioHalTestUtils.createAudioPortDeviceExt(OUT_DEVICE,
+        AudioPortDeviceExt deviceExt = CarAudioTestUtils.createAudioPortDeviceExt(OUT_DEVICE,
                 CONNECTION_BUS, ADDRESS_BUS_MEDIA);
-        AudioPort audioPort = CarAudioHalTestUtils.createAudioPort(PORT_ID, PORT_NAME, gains,
+        AudioPort audioPort = CarAudioTestUtils.createAudioPort(PORT_ID, PORT_NAME, gains,
                 deviceExt);
 
         Throwable thrown = assertThrows(IllegalArgumentException.class,
@@ -287,9 +289,9 @@ public final class HalAudioDeviceInfoTest extends AbstractExtendedMockitoTestCas
 
     @Test
     public void constructor_requiresConnectionBus() {
-        AudioPortDeviceExt deviceExt = CarAudioHalTestUtils.createAudioPortDeviceExt(OUT_DEVICE,
+        AudioPortDeviceExt deviceExt = CarAudioTestUtils.createAudioPortDeviceExt(OUT_DEVICE,
                 CONNECTION_USB, ADDRESS_BUS_MEDIA);
-        AudioPort audioPort = CarAudioHalTestUtils.createAudioPort(PORT_ID, PORT_NAME, GAINS,
+        AudioPort audioPort = CarAudioTestUtils.createAudioPort(PORT_ID, PORT_NAME, GAINS,
                 deviceExt);
 
         Throwable thrown = assertThrows(IllegalArgumentException.class,
@@ -301,9 +303,9 @@ public final class HalAudioDeviceInfoTest extends AbstractExtendedMockitoTestCas
 
     @Test
     public void constructor_requiresDeviceTypeInOrOut() {
-        AudioPortDeviceExt deviceExt = CarAudioHalTestUtils.createAudioPortDeviceExt(OUT_SPEAKER,
+        AudioPortDeviceExt deviceExt = CarAudioTestUtils.createAudioPortDeviceExt(OUT_SPEAKER,
                 CONNECTION_BUS, ADDRESS_BUS_MEDIA);
-        AudioPort audioPort = CarAudioHalTestUtils.createAudioPort(PORT_ID, PORT_NAME, GAINS,
+        AudioPort audioPort = CarAudioTestUtils.createAudioPort(PORT_ID, PORT_NAME, GAINS,
                 deviceExt);
 
         Throwable thrown = assertThrows(IllegalArgumentException.class,
@@ -315,9 +317,9 @@ public final class HalAudioDeviceInfoTest extends AbstractExtendedMockitoTestCas
 
     @Test
     public void constructor_requiresNotEmptyAddress() {
-        AudioPortDeviceExt deviceExt = CarAudioHalTestUtils.createAudioPortDeviceExt(OUT_DEVICE,
+        AudioPortDeviceExt deviceExt = CarAudioTestUtils.createAudioPortDeviceExt(OUT_DEVICE,
                 CONNECTION_BUS, /* address= */ "");
-        AudioPort audioPort = CarAudioHalTestUtils.createAudioPort(PORT_ID, PORT_NAME, GAINS,
+        AudioPort audioPort = CarAudioTestUtils.createAudioPort(PORT_ID, PORT_NAME, GAINS,
                 deviceExt);
 
         Throwable thrown = assertThrows(IllegalArgumentException.class,
@@ -336,9 +338,9 @@ public final class HalAudioDeviceInfoTest extends AbstractExtendedMockitoTestCas
                 defaultValue = TEST_GAIN_DEFAULT_VALUE;
                 stepValue = TEST_GAIN_STEP_VALUE;
             }};
-        AudioPortDeviceExt deviceExt = CarAudioHalTestUtils.createAudioPortDeviceExt(OUT_DEVICE,
+        AudioPortDeviceExt deviceExt = CarAudioTestUtils.createAudioPortDeviceExt(OUT_DEVICE,
                 CONNECTION_BUS, ADDRESS_BUS_MEDIA);
-        AudioPort audioPort = CarAudioHalTestUtils.createAudioPort(PORT_ID, PORT_NAME, GAINS,
+        AudioPort audioPort = CarAudioTestUtils.createAudioPort(PORT_ID, PORT_NAME, GAINS,
                 deviceExt);
         HalAudioDeviceInfo deviceInfo = new HalAudioDeviceInfo(audioPort);
 
@@ -357,9 +359,9 @@ public final class HalAudioDeviceInfoTest extends AbstractExtendedMockitoTestCas
                 defaultValue = TEST_GAIN_DEFAULT_VALUE;
                 stepValue = TEST_GAIN_STEP_VALUE;
             }};
-        AudioPortDeviceExt deviceExt = CarAudioHalTestUtils.createAudioPortDeviceExt(OUT_DEVICE,
+        AudioPortDeviceExt deviceExt = CarAudioTestUtils.createAudioPortDeviceExt(OUT_DEVICE,
                 CONNECTION_BUS, ADDRESS_BUS_MEDIA);
-        AudioPort audioPort = CarAudioHalTestUtils.createAudioPort(PORT_ID, PORT_NAME, GAINS,
+        AudioPort audioPort = CarAudioTestUtils.createAudioPort(PORT_ID, PORT_NAME, GAINS,
                 deviceExt);
         HalAudioDeviceInfo deviceInfo = new HalAudioDeviceInfo(audioPort);
 
@@ -370,9 +372,9 @@ public final class HalAudioDeviceInfoTest extends AbstractExtendedMockitoTestCas
 
     @Test
     public void hash_forTheSameObject_Equals() {
-        AudioPortDeviceExt deviceExt = CarAudioHalTestUtils.createAudioPortDeviceExt(OUT_DEVICE,
+        AudioPortDeviceExt deviceExt = CarAudioTestUtils.createAudioPortDeviceExt(OUT_DEVICE,
                 CONNECTION_BUS, ADDRESS_BUS_MEDIA);
-        AudioPort audioPort = CarAudioHalTestUtils.createAudioPort(PORT_ID, PORT_NAME, GAINS,
+        AudioPort audioPort = CarAudioTestUtils.createAudioPort(PORT_ID, PORT_NAME, GAINS,
                 deviceExt);
         HalAudioDeviceInfo deviceInfo1 = new HalAudioDeviceInfo(audioPort);
         HalAudioDeviceInfo deviceInfo2 = new HalAudioDeviceInfo(audioPort);
@@ -383,9 +385,9 @@ public final class HalAudioDeviceInfoTest extends AbstractExtendedMockitoTestCas
 
     @Test
     public void equals_forTheSameObject_succeeds() {
-        AudioPortDeviceExt deviceExt = CarAudioHalTestUtils.createAudioPortDeviceExt(OUT_DEVICE,
+        AudioPortDeviceExt deviceExt = CarAudioTestUtils.createAudioPortDeviceExt(OUT_DEVICE,
                 CONNECTION_BUS, ADDRESS_BUS_MEDIA);
-        AudioPort audioPort = CarAudioHalTestUtils.createAudioPort(PORT_ID, PORT_NAME, GAINS,
+        AudioPort audioPort = CarAudioTestUtils.createAudioPort(PORT_ID, PORT_NAME, GAINS,
                 deviceExt);
         HalAudioDeviceInfo deviceInfo1 = new HalAudioDeviceInfo(audioPort);
         HalAudioDeviceInfo deviceInfo2 = new HalAudioDeviceInfo(audioPort);
@@ -407,11 +409,11 @@ public final class HalAudioDeviceInfoTest extends AbstractExtendedMockitoTestCas
                     stepValue = TEST_GAIN_STEP_VALUE;
                 }}
         };
-        AudioPortDeviceExt deviceExtRef = CarAudioHalTestUtils.createAudioPortDeviceExt(OUT_DEVICE,
+        AudioPortDeviceExt deviceExtRef = CarAudioTestUtils.createAudioPortDeviceExt(OUT_DEVICE,
                 CONNECTION_BUS, ADDRESS_BUS_MEDIA);
-        AudioPort audioPortRef = CarAudioHalTestUtils.createAudioPort(PORT_ID, PORT_NAME, GAINS,
+        AudioPort audioPortRef = CarAudioTestUtils.createAudioPort(PORT_ID, PORT_NAME, GAINS,
                 deviceExtRef);
-        AudioPort audioPort = CarAudioHalTestUtils.createAudioPort(PORT_ID, PORT_NAME, gains,
+        AudioPort audioPort = CarAudioTestUtils.createAudioPort(PORT_ID, PORT_NAME, gains,
                 deviceExtRef);
         HalAudioDeviceInfo deviceInfoRef = new HalAudioDeviceInfo(audioPortRef);
         HalAudioDeviceInfo deviceInfo = new HalAudioDeviceInfo(audioPort);
@@ -425,11 +427,11 @@ public final class HalAudioDeviceInfoTest extends AbstractExtendedMockitoTestCas
 
     @Test
     public void equals_withDifferentNames_fails() {
-        AudioPortDeviceExt deviceExtRef = CarAudioHalTestUtils.createAudioPortDeviceExt(OUT_DEVICE,
+        AudioPortDeviceExt deviceExtRef = CarAudioTestUtils.createAudioPortDeviceExt(OUT_DEVICE,
                 CONNECTION_BUS, ADDRESS_BUS_MEDIA);
-        AudioPort audioPortRef = CarAudioHalTestUtils.createAudioPort(PORT_ID, PORT_NAME, GAINS,
+        AudioPort audioPortRef = CarAudioTestUtils.createAudioPort(PORT_ID, PORT_NAME, GAINS,
                 deviceExtRef);
-        AudioPort audioPort = CarAudioHalTestUtils.createAudioPort(PORT_ID, PORT_NAME_ALT, GAINS,
+        AudioPort audioPort = CarAudioTestUtils.createAudioPort(PORT_ID, PORT_NAME_ALT, GAINS,
                 deviceExtRef);
         HalAudioDeviceInfo deviceInfoRef = new HalAudioDeviceInfo(audioPortRef);
         HalAudioDeviceInfo deviceInfo = new HalAudioDeviceInfo(audioPort);
@@ -442,13 +444,13 @@ public final class HalAudioDeviceInfoTest extends AbstractExtendedMockitoTestCas
 
     @Test
     public void equals_withDifferentTypes_fails() {
-        AudioPortDeviceExt deviceExtRef = CarAudioHalTestUtils.createAudioPortDeviceExt(OUT_DEVICE,
+        AudioPortDeviceExt deviceExtRef = CarAudioTestUtils.createAudioPortDeviceExt(OUT_DEVICE,
                 CONNECTION_BUS, ADDRESS_BUS_MEDIA);
-        AudioPortDeviceExt deviceExt = CarAudioHalTestUtils.createAudioPortDeviceExt(IN_DEVICE,
+        AudioPortDeviceExt deviceExt = CarAudioTestUtils.createAudioPortDeviceExt(IN_DEVICE,
                 CONNECTION_BUS, ADDRESS_BUS_MEDIA);
-        AudioPort audioPortRef = CarAudioHalTestUtils.createAudioPort(PORT_ID, PORT_NAME, GAINS,
+        AudioPort audioPortRef = CarAudioTestUtils.createAudioPort(PORT_ID, PORT_NAME, GAINS,
                 deviceExtRef);
-        AudioPort audioPort = CarAudioHalTestUtils.createAudioPort(PORT_ID, PORT_NAME, GAINS,
+        AudioPort audioPort = CarAudioTestUtils.createAudioPort(PORT_ID, PORT_NAME, GAINS,
                 deviceExt);
         HalAudioDeviceInfo deviceInfoRef = new HalAudioDeviceInfo(audioPortRef);
         HalAudioDeviceInfo deviceInfo = new HalAudioDeviceInfo(audioPort);
@@ -462,13 +464,13 @@ public final class HalAudioDeviceInfoTest extends AbstractExtendedMockitoTestCas
 
     @Test
     public void equals_withDifferentAddress_fails() {
-        AudioPortDeviceExt deviceExtRef = CarAudioHalTestUtils.createAudioPortDeviceExt(OUT_DEVICE,
+        AudioPortDeviceExt deviceExtRef = CarAudioTestUtils.createAudioPortDeviceExt(OUT_DEVICE,
                 CONNECTION_BUS, ADDRESS_BUS_MEDIA);
-        AudioPortDeviceExt deviceExt = CarAudioHalTestUtils.createAudioPortDeviceExt(OUT_DEVICE,
+        AudioPortDeviceExt deviceExt = CarAudioTestUtils.createAudioPortDeviceExt(OUT_DEVICE,
                 CONNECTION_BUS, ADDRESS_BUS_NAV);
-        AudioPort audioPortRef = CarAudioHalTestUtils.createAudioPort(PORT_ID, PORT_NAME, GAINS,
+        AudioPort audioPortRef = CarAudioTestUtils.createAudioPort(PORT_ID, PORT_NAME, GAINS,
                 deviceExtRef);
-        AudioPort audioPort = CarAudioHalTestUtils.createAudioPort(PORT_ID, PORT_NAME, GAINS,
+        AudioPort audioPort = CarAudioTestUtils.createAudioPort(PORT_ID, PORT_NAME, GAINS,
                 deviceExt);
         HalAudioDeviceInfo deviceInfoRef = new HalAudioDeviceInfo(audioPortRef);
         HalAudioDeviceInfo deviceInfo = new HalAudioDeviceInfo(audioPort);

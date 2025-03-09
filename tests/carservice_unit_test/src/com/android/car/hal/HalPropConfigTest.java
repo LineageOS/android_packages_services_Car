@@ -18,15 +18,15 @@ package com.android.car.hal;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import static org.junit.Assume.assumeFalse;
-import static org.junit.Assert.assertThrows;
-import static org.junit.Assume.assumeTrue;
+import static org.mockito.Mockito.when;
 
 import android.car.VehicleAreaType;
+import android.car.feature.FeatureFlagsImpl;
 import android.car.feature.Flags;
 import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.property.AreaIdConfig;
 import android.car.hardware.property.VehicleOilLevel;
+import android.hardware.automotive.vehicle.HasSupportedValueInfo;
 import android.hardware.automotive.vehicle.VehicleArea;
 import android.hardware.automotive.vehicle.VehicleAreaConfig;
 import android.hardware.automotive.vehicle.VehiclePropConfig;
@@ -34,22 +34,34 @@ import android.hardware.automotive.vehicle.VehicleProperty;
 import android.hardware.automotive.vehicle.VehiclePropertyAccess;
 import android.hardware.automotive.vehicle.VehiclePropertyChangeMode;
 import android.hardware.automotive.vehicle.VehiclePropertyType;
-import android.platform.test.annotations.RequiresFlagsDisabled;
-import android.platform.test.annotations.RequiresFlagsEnabled;
-import android.platform.test.flag.junit.CheckFlagsRule;
-import android.platform.test.flag.junit.DeviceFlagsValueProvider;
+import android.platform.test.annotations.EnableFlags;
+import android.platform.test.flag.junit.SetFlagsRule;
 
 import com.android.car.hal.property.PropertyHalServiceConfigs;
 
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
+@EnableFlags({Flags.FLAG_ANDROID_VIC_VEHICLE_PROPERTIES, Flags.FLAG_AREA_ID_CONFIG_ACCESS})
+@RunWith(MockitoJUnitRunner.class)
 public final class HalPropConfigTest {
+
+    @Rule
+    public final SetFlagsRule mSetFlagsRule = new SetFlagsRule();
+
+    @Mock
+    public FeatureFlagsImpl mMockFeatureFlags;
+
+    private PropertyHalServiceConfigs mPropertyHalServiceConfigs;
 
     private static final int GLOBAL_INTEGER_PROP_ID =
             1 | VehicleArea.GLOBAL | VehiclePropertyType.INT32;
@@ -88,12 +100,6 @@ public final class HalPropConfigTest {
                     VehicleProperty.FUEL_VOLUME_DISPLAY_UNITS,
                     VehicleProperty.HVAC_TEMPERATURE_DISPLAY_UNITS,
                     VehicleProperty.VEHICLE_SPEED_DISPLAY_UNITS);
-
-    private final PropertyHalServiceConfigs mPropertyHalServiceConfigs =
-            PropertyHalServiceConfigs.getInstance();
-
-    @Rule
-    public final CheckFlagsRule mCheckFlagsRule = DeviceFlagsValueProvider.createCheckFlagsRule();
 
     private static android.hardware.automotive.vehicle.V2_0.VehiclePropConfig
             getTestHidlPropConfig() {
@@ -177,6 +183,12 @@ public final class HalPropConfigTest {
         aidlAreaConfig.supportedEnumValues = SUPPORTED_ENUM_VALUES;
         aidlAreaConfig.supportVariableUpdateRate = true;
         return aidlAreaConfig;
+    }
+
+    @Before
+    public void setUp() {
+        when(mMockFeatureFlags.androidVicVehicleProperties()).thenReturn(true);
+        mPropertyHalServiceConfigs = new PropertyHalServiceConfigs(mMockFeatureFlags);
     }
 
     @Test
@@ -269,7 +281,7 @@ public final class HalPropConfigTest {
     }
 
     @Test
-    public void toCarPropertyConfig_populatesGlobalAreaId() {
+    public void testToCarPropertyConfig_populatesGlobalAreaId() {
         VehiclePropConfig aidlVehiclePropConfig = getTestAidlPropConfig();
         HalPropConfig halPropConfig = new AidlHalPropConfig(aidlVehiclePropConfig);
 
@@ -291,7 +303,7 @@ public final class HalPropConfigTest {
     }
 
     @Test
-    public void toCarPropertyConfig_convertsIntegerMinMax() {
+    public void testToCarPropertyConfig_convertsIntegerMinMax() {
         VehiclePropConfig aidlVehiclePropConfig = getTestAidlPropConfig();
         aidlVehiclePropConfig.areaConfigs = new VehicleAreaConfig[]{getTestAidlAreaConfig()};
         HalPropConfig halPropConfig = new AidlHalPropConfig(aidlVehiclePropConfig);
@@ -309,7 +321,7 @@ public final class HalPropConfigTest {
     }
 
     @Test
-    public void toCarPropertyConfig_doesNotConvertIntegerMinMaxIfBothZero() {
+    public void testToCarPropertyConfig_doesNotConvertIntegerMinMaxIfBothZero() {
         VehiclePropConfig aidlVehiclePropConfig = getTestAidlPropConfig();
         aidlVehiclePropConfig.areaConfigs = new VehicleAreaConfig[]{getTestAidlAreaConfig()};
         aidlVehiclePropConfig.areaConfigs[0].minInt32Value = 0;
@@ -329,7 +341,7 @@ public final class HalPropConfigTest {
     }
 
     @Test
-    public void toCarPropertyConfig_convertsLongMinMax() {
+    public void testToCarPropertyConfig_convertsLongMinMax() {
         VehiclePropConfig aidlVehiclePropConfig = getTestAidlPropConfig();
         aidlVehiclePropConfig.prop = GLOBAL_LONG_PROP_ID;
         aidlVehiclePropConfig.areaConfigs = new VehicleAreaConfig[]{getTestAidlAreaConfig()};
@@ -348,7 +360,7 @@ public final class HalPropConfigTest {
     }
 
     @Test
-    public void toCarPropertyConfig_doesNotConvertLongMinMaxIfBothZero() {
+    public void testToCarPropertyConfig_doesNotConvertLongMinMaxIfBothZero() {
         VehiclePropConfig aidlVehiclePropConfig = getTestAidlPropConfig();
         aidlVehiclePropConfig.prop = GLOBAL_LONG_PROP_ID;
         aidlVehiclePropConfig.areaConfigs = new VehicleAreaConfig[]{getTestAidlAreaConfig()};
@@ -369,7 +381,7 @@ public final class HalPropConfigTest {
     }
 
     @Test
-    public void toCarPropertyConfig_convertsFloatMinMax() {
+    public void testToCarPropertyConfig_convertsFloatMinMax() {
         VehiclePropConfig aidlVehiclePropConfig = getTestAidlPropConfig();
         aidlVehiclePropConfig.prop = GLOBAL_FLOAT_PROP_ID;
         aidlVehiclePropConfig.areaConfigs = new VehicleAreaConfig[]{getTestAidlAreaConfig()};
@@ -388,7 +400,7 @@ public final class HalPropConfigTest {
     }
 
     @Test
-    public void toCarPropertyConfig_doesNotConvertFloatMinMaxIfBothZero() {
+    public void testToCarPropertyConfig_doesNotConvertFloatMinMaxIfBothZero() {
         VehiclePropConfig aidlVehiclePropConfig = getTestAidlPropConfig();
         aidlVehiclePropConfig.prop = GLOBAL_FLOAT_PROP_ID;
         aidlVehiclePropConfig.areaConfigs = new VehicleAreaConfig[]{getTestAidlAreaConfig()};
@@ -409,7 +421,7 @@ public final class HalPropConfigTest {
     }
 
     @Test
-    public void toCarPropertyConfig_doesNotPopulateMinMaxForUnsupportedType() {
+    public void testToCarPropertyConfig_doesNotPopulateMinMaxForUnsupportedType() {
         VehiclePropConfig aidlVehiclePropConfig = getTestAidlPropConfig();
         aidlVehiclePropConfig.prop = GLOBAL_INTEGER_VEC_PROP_ID;
         aidlVehiclePropConfig.areaConfigs = new VehicleAreaConfig[]{getTestAidlAreaConfig()};
@@ -429,7 +441,7 @@ public final class HalPropConfigTest {
     }
 
     @Test
-    public void toCarPropertyConfig_aidlHandlesNullSupportedEnumsValues() {
+    public void testToCarPropertyConfig_aidlHandlesNullSupportedEnumsValues() {
         VehiclePropConfig aidlVehiclePropConfig = getTestAidlPropConfig();
         aidlVehiclePropConfig.areaConfigs = new VehicleAreaConfig[]{getTestAidlAreaConfig()};
         aidlVehiclePropConfig.areaConfigs[0].supportedEnumValues = null;
@@ -441,7 +453,7 @@ public final class HalPropConfigTest {
     }
 
     @Test
-    public void toCarPropertyConfig_aidlHandlesSupportedEnumsValues() {
+    public void testToCarPropertyConfig_aidlHandlesSupportedEnumsValues() {
         VehiclePropConfig aidlVehiclePropConfig = getTestAidlPropConfig();
         aidlVehiclePropConfig.areaConfigs = new VehicleAreaConfig[]{getTestAidlAreaConfig()};
         HalPropConfig halPropConfig = new AidlHalPropConfig(aidlVehiclePropConfig);
@@ -452,7 +464,7 @@ public final class HalPropConfigTest {
     }
 
     @Test
-    public void toCarPropertyConfig_aidlSkipsSupportedEnumValuesIfNonOnChangeProperty() {
+    public void testToCarPropertyConfig_aidlSkipsSupportedEnumValuesIfNonOnChangeProperty() {
         VehiclePropConfig aidlVehiclePropConfig = getTestAidlPropConfig();
         aidlVehiclePropConfig.changeMode = VehiclePropertyChangeMode.STATIC;
         aidlVehiclePropConfig.areaConfigs = new VehicleAreaConfig[]{getTestAidlAreaConfig()};
@@ -464,7 +476,7 @@ public final class HalPropConfigTest {
     }
 
     @Test
-    public void toCarPropertyConfig_aidlAutoPopulatesSupportedEnumValuesIfEmpty() {
+    public void testToCarPropertyConfig_aidlAutoPopulatesSupportedEnumValuesIfEmpty() {
         VehiclePropConfig aidlVehiclePropConfig = getTestAidlPropConfig();
         aidlVehiclePropConfig.prop = VehicleProperty.ENGINE_OIL_LEVEL;
         aidlVehiclePropConfig.areaConfigs = new VehicleAreaConfig[]{getTestAidlAreaConfig()};
@@ -483,7 +495,7 @@ public final class HalPropConfigTest {
     }
 
     @Test
-    public void toCarPropertyConfig_hidlGetSupportedEnumsValuesReturnsEmpty() {
+    public void testToCarPropertyConfig_hidlGetSupportedEnumsValuesReturnsEmpty() {
         android.hardware.automotive.vehicle.V2_0.VehiclePropConfig hidlVehiclePropConfig =
                 getTestHidlPropConfig();
         hidlVehiclePropConfig.areaConfigs =
@@ -497,8 +509,7 @@ public final class HalPropConfigTest {
     }
 
     @Test
-    @RequiresFlagsEnabled(Flags.FLAG_AREA_ID_CONFIG_ACCESS)
-    public void toCarPropertyConfig_hidlAreaConfigGetAccessReturnsPropConfigAccess() {
+    public void testToCarPropertyConfig_hidlAreaConfigGetAccessReturnsPropConfigAccess() {
         android.hardware.automotive.vehicle.V2_0.VehiclePropConfig hidlVehiclePropConfig =
                 getTestHidlPropConfig();
         hidlVehiclePropConfig.areaConfigs =
@@ -512,8 +523,7 @@ public final class HalPropConfigTest {
     }
 
     @Test
-    @RequiresFlagsEnabled(Flags.FLAG_AREA_ID_CONFIG_ACCESS)
-    public void toCarPropertyConfig_aidlAreaConfigWithInvalidAccessPopulatedWithPropConfigAccess() {
+    public void testToCarPropertyConfig_aidlAreaConfigWithInvalidAccessPopulatedWithGlobalAccess() {
         VehiclePropConfig aidlVehiclePropConfig = getTestAidlPropConfig();
         aidlVehiclePropConfig.areaConfigs = new VehicleAreaConfig[] {
             getTestAidlAreaConfig(),
@@ -537,7 +547,7 @@ public final class HalPropConfigTest {
     }
 
     @Test
-    public void toCarPropertyConfig_configArrayMatchesSupportedEnumValues() {
+    public void testToCarPropertyConfig_configArrayMatchesSupportedEnumValues() {
         VehiclePropConfig aidlVehiclePropConfig = getTestAidlPropConfig();
         aidlVehiclePropConfig.areaConfigs = new VehicleAreaConfig[]{getTestAidlAreaConfig()};
         for (Integer propId: CONFIG_ARRAY_DEFINES_SUPPORTED_ENUM_VALUES) {
@@ -551,7 +561,7 @@ public final class HalPropConfigTest {
     }
 
     @Test
-    public void toCarPropertyConfig_aidlSupportVariableUpdateRate() {
+    public void testToCarPropertyConfig_aidlSupportVariableUpdateRate() {
         VehiclePropConfig aidlVehiclePropConfig = getTestAidlPropConfig();
         aidlVehiclePropConfig.areaConfigs = new VehicleAreaConfig[]{getTestAidlAreaConfig()};
         HalPropConfig halPropConfig = new AidlHalPropConfig(aidlVehiclePropConfig);
@@ -562,7 +572,7 @@ public final class HalPropConfigTest {
     }
 
     @Test
-    public void toCarPropertyConfig_hidlSupportVariableUpdateRate() {
+    public void testToCarPropertyConfig_hidlSupportVariableUpdateRate() {
         android.hardware.automotive.vehicle.V2_0.VehiclePropConfig hidlConfig =
                 getTestHidlPropConfig();
         hidlConfig.areaConfigs =
@@ -576,12 +586,7 @@ public final class HalPropConfigTest {
     }
 
     @Test
-    @RequiresFlagsEnabled("android.car.feature.android_vic_vehicle_properties")
-    public void toCarPropertyConfig_populatesVendorAreaType() {
-        assumeTrue("android_vic_vehicle_properties flag is disabled, so the VENDOR area type isn't "
-                        + "supported. Skipping test.",
-                Flags.androidVicVehicleProperties());
-
+    public void testToCarPropertyConfig_populatesVendorAreaType() {
         VehiclePropConfig aidlVehiclePropConfig = getTestVendorAidlPropConfig();
         HalPropConfig halPropConfig = new AidlHalPropConfig(aidlVehiclePropConfig);
 
@@ -593,16 +598,146 @@ public final class HalPropConfigTest {
     }
 
     @Test
-    @RequiresFlagsDisabled("android.car.feature.android_vic_vehicle_properties")
-    public void toCarPropertyConfig_throwExceptionForUnsupportedVendorAreaType() {
-        assumeFalse("android_vic_vehicle_properties flag is enabled, so the VENDOR area type is "
-                        + "supported. Skipping test.",
-                Flags.androidVicVehicleProperties());
+    public void testToCarPropertyConfig_hasMinMaxSupportedValue_Int32() {
+        var vehiclePropConfig = getTestAidlPropConfig();
+        vehiclePropConfig.areaConfigs = new VehicleAreaConfig[] {
+            getTestAidlAreaConfig(),
+        };
 
-        VehiclePropConfig aidlVehiclePropConfig = getTestVendorAidlPropConfig();
+        var carPropertyConfig = new AidlHalPropConfig(vehiclePropConfig)
+                .toCarPropertyConfig(GLOBAL_INTEGER_PROP_ID,
+                        mPropertyHalServiceConfigs);
+
+        var areaIdConfig = carPropertyConfig.getAreaIdConfig(TEST_AREA_ID);
+        assertThat(areaIdConfig.hasMinSupportedValue()).isTrue();
+        assertThat(areaIdConfig.hasMaxSupportedValue()).isTrue();
+    }
+
+    @Test
+    public void testToCarPropertyConfig_hasMinMaxSupportedValue_Int64() {
+        var vehiclePropConfig = getTestAidlPropConfig();
+        vehiclePropConfig.prop = GLOBAL_LONG_PROP_ID;
+        var areaConfig = getTestAidlAreaConfig();
+        areaConfig.minInt64Value = MIN_INT64_VALUE;
+        areaConfig.maxInt64Value = MAX_INT64_VALUE;
+        vehiclePropConfig.areaConfigs = new VehicleAreaConfig[] {areaConfig};
+
+        var carPropertyConfig = new AidlHalPropConfig(vehiclePropConfig)
+                .toCarPropertyConfig(GLOBAL_LONG_PROP_ID,
+                        mPropertyHalServiceConfigs);
+
+        var areaIdConfig = carPropertyConfig.getAreaIdConfig(TEST_AREA_ID);
+        assertThat(areaIdConfig.hasMinSupportedValue()).isTrue();
+        assertThat(areaIdConfig.hasMaxSupportedValue()).isTrue();
+    }
+
+    @Test
+    public void testToCarPropertyConfig_hasMinMaxSupportedValue_Float() {
+        var vehiclePropConfig = getTestAidlPropConfig();
+        vehiclePropConfig.prop = GLOBAL_FLOAT_PROP_ID;
+        var areaConfig = getTestAidlAreaConfig();
+        areaConfig.minFloatValue = MIN_FLOAT_VALUE;
+        areaConfig.maxFloatValue = MAX_FLOAT_VALUE;
+        vehiclePropConfig.areaConfigs = new VehicleAreaConfig[] {areaConfig};
+
+        var carPropertyConfig = new AidlHalPropConfig(vehiclePropConfig)
+                .toCarPropertyConfig(GLOBAL_FLOAT_PROP_ID,
+                        mPropertyHalServiceConfigs);
+
+        var areaIdConfig = carPropertyConfig.getAreaIdConfig(TEST_AREA_ID);
+        assertThat(areaIdConfig.hasMinSupportedValue()).isTrue();
+        assertThat(areaIdConfig.hasMaxSupportedValue()).isTrue();
+    }
+
+    @Test
+    public void testToCarPropertyConfig_noMinMaxSupportedValue() {
+        var vehiclePropConfig = getTestAidlPropConfig();
+        var areaConfig = getTestAidlAreaConfig();
+        areaConfig.minInt32Value = 0;
+        areaConfig.maxInt32Value = 0;
+        vehiclePropConfig.areaConfigs = new VehicleAreaConfig[] {areaConfig};
+
+        var carPropertyConfig = new AidlHalPropConfig(vehiclePropConfig)
+                .toCarPropertyConfig(GLOBAL_INTEGER_PROP_ID,
+                        mPropertyHalServiceConfigs);
+
+        var areaIdConfig = carPropertyConfig.getAreaIdConfig(TEST_AREA_ID);
+        assertThat(areaIdConfig.hasMinSupportedValue()).isFalse();
+        assertThat(areaIdConfig.hasMaxSupportedValue()).isFalse();
+    }
+
+    @Test
+    public void testToCarPropertyConfig_hasSupportedValuesList_specifyEnums() {
+        VehiclePropConfig aidlVehiclePropConfig = getTestAidlPropConfig();
+        aidlVehiclePropConfig.areaConfigs = new VehicleAreaConfig[]{getTestAidlAreaConfig()};
         HalPropConfig halPropConfig = new AidlHalPropConfig(aidlVehiclePropConfig);
 
-        assertThrows(RuntimeException.class, () -> halPropConfig.toCarPropertyConfig(
-                VENDOR_INTEGER_VEC_PROP_ID, mPropertyHalServiceConfigs));
+        assertThat(halPropConfig.toCarPropertyConfig(
+                GLOBAL_INTEGER_PROP_ID, mPropertyHalServiceConfigs).getAreaIdConfig(
+                TEST_AREA_ID).hasSupportedValuesList()).isTrue();
+    }
+
+    @Test
+    public void testToCarPropertyConfig_hasSupportedValuesList_autoPopulateEnums() {
+        VehiclePropConfig aidlVehiclePropConfig = getTestAidlPropConfig();
+        aidlVehiclePropConfig.prop = VehicleProperty.ENGINE_OIL_LEVEL;
+        aidlVehiclePropConfig.areaConfigs = new VehicleAreaConfig[]{getTestAidlAreaConfig()};
+        aidlVehiclePropConfig.areaConfigs[0].supportedEnumValues = null;
+        HalPropConfig halPropConfig = new AidlHalPropConfig(aidlVehiclePropConfig);
+
+        assertThat(halPropConfig.toCarPropertyConfig(
+                VehicleProperty.ENGINE_OIL_LEVEL, mPropertyHalServiceConfigs).getAreaIdConfig(
+                TEST_AREA_ID).hasSupportedValuesList()).isTrue();
+    }
+
+    @Test
+    public void testToCarPropertyConfig_hasSupportedValuesList_noEnums() {
+        VehiclePropConfig aidlVehiclePropConfig = getTestAidlPropConfig();
+        var areaConfig = getTestAidlAreaConfig();
+        areaConfig.supportedEnumValues = null;
+        aidlVehiclePropConfig.areaConfigs = new VehicleAreaConfig[]{areaConfig};
+        HalPropConfig halPropConfig = new AidlHalPropConfig(aidlVehiclePropConfig);
+
+        assertThat(halPropConfig.toCarPropertyConfig(
+                GLOBAL_INTEGER_PROP_ID, mPropertyHalServiceConfigs).getAreaIdConfig(
+                TEST_AREA_ID).hasSupportedValuesList()).isFalse();
+    }
+
+    @Test
+    public void testToCarPropertyConfig_hasSupportedValuesList_supportedValuesInConfig() {
+        VehiclePropConfig aidlVehiclePropConfig = getTestAidlPropConfig();
+        aidlVehiclePropConfig.areaConfigs = new VehicleAreaConfig[]{getTestAidlAreaConfig()};
+        aidlVehiclePropConfig.areaConfigs[0].supportedEnumValues = null;
+
+        for (Integer propId: CONFIG_ARRAY_DEFINES_SUPPORTED_ENUM_VALUES) {
+            aidlVehiclePropConfig.prop = propId;
+            HalPropConfig halPropConfig = new AidlHalPropConfig(aidlVehiclePropConfig);
+
+            assertThat(halPropConfig.toCarPropertyConfig(propId, mPropertyHalServiceConfigs)
+                    .getAreaIdConfig(TEST_AREA_ID).hasSupportedValuesList()).isTrue();
+        }
+    }
+
+    @Test
+    public void testToCarPropertyConfig_parseHasSupportedValueInfo() {
+        var vehiclePropConfig = getTestAidlPropConfig();
+        vehiclePropConfig.prop = GLOBAL_LONG_PROP_ID;
+        VehicleAreaConfig areaConfig = new VehicleAreaConfig();
+        areaConfig.access = TEST_ACCESS;
+        areaConfig.areaId = TEST_AREA_ID;
+        areaConfig.hasSupportedValueInfo = new HasSupportedValueInfo();
+        areaConfig.hasSupportedValueInfo.hasMinSupportedValue = true;
+        areaConfig.hasSupportedValueInfo.hasMaxSupportedValue = true;
+        areaConfig.hasSupportedValueInfo.hasSupportedValuesList = true;
+        vehiclePropConfig.areaConfigs = new VehicleAreaConfig[] {areaConfig};
+
+        var carPropertyConfig = new AidlHalPropConfig(vehiclePropConfig)
+                .toCarPropertyConfig(GLOBAL_LONG_PROP_ID,
+                        mPropertyHalServiceConfigs);
+
+        var areaIdConfig = carPropertyConfig.getAreaIdConfig(TEST_AREA_ID);
+        assertThat(areaIdConfig.hasMinSupportedValue()).isTrue();
+        assertThat(areaIdConfig.hasMaxSupportedValue()).isTrue();
+        assertThat(areaIdConfig.hasSupportedValuesList()).isTrue();
     }
 }

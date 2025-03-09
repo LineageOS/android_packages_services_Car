@@ -17,9 +17,12 @@
 package com.google.android.car.kitchensink.radio;
 
 import android.annotation.Nullable;
+import android.app.NotificationChannel;
+import android.content.Context;
 import android.hardware.radio.Flags;
 import android.hardware.radio.ProgramList;
 import android.hardware.radio.ProgramSelector;
+import android.hardware.radio.RadioAlert;
 import android.hardware.radio.RadioManager;
 import android.hardware.radio.RadioMetadata;
 import android.hardware.radio.RadioTuner;
@@ -34,12 +37,14 @@ import android.widget.CheckBox;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import androidx.core.app.NotificationManagerCompat;
 import androidx.fragment.app.Fragment;
 
 import com.android.car.broadcastradio.support.platform.ProgramInfoExt;
 
 import com.google.android.car.kitchensink.R;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
@@ -50,13 +55,17 @@ public class RadioTunerFragment extends Fragment {
     protected static final CharSequence NULL_TUNER_WARNING = "Tuner cannot be null";
     protected static final CharSequence TUNING_TEXT = "Tuning...";
     private static final CharSequence TUNING_COMPLETION_TEXT = "Tuning completes";
+    private static final String RADIO_ALERT_DELIMITER = " · ";
 
     protected final RadioTuner mRadioTuner;
     protected final RadioTestFragment.TunerListener mListener;
     private final ProgramList mProgramList;
     protected boolean mViewCreated = false;
+    private int mAlertNotificationId = 0;
 
     protected ProgramInfoAdapter mProgramInfoAdapter;
+
+    protected Context mActivityContext;
 
     private CheckBox mSeekChannelCheckBox;
     protected TextView mTuningTextView;
@@ -85,6 +94,8 @@ public class RadioTunerFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         Log.i(TAG, "onCreateView");
+        mActivityContext = getActivity();
+
         View view = inflater.inflate(R.layout.radio_tuner_fragment, container,
                 /* attachToRoot= */ false);
         Button closeButton = view.findViewById(R.id.button_radio_close);
@@ -108,6 +119,12 @@ public class RadioTunerFragment extends Fragment {
 
         setupTunerView(view);
         programListView.setAdapter(mProgramInfoAdapter);
+
+        NotificationManagerCompat notificationManager =
+                NotificationManagerCompat.from(mActivityContext);
+        notificationManager.createNotificationChannel(new NotificationChannel(
+                AlertNotificationHelper.IMPORTANCE_ALERT_ID, "Importance High",
+                NotificationManagerCompat.IMPORTANCE_HIGH));
 
         mViewCreated = true;
         Log.i(TAG, "onCreateView done");
@@ -255,11 +272,59 @@ public class RadioTunerFragment extends Fragment {
     void updateConfigFlag(int flag, boolean value) {
     }
 
+    private void handleRadioAlert(RadioManager.ProgramInfo info) {
+        RadioAlert alert = info.getAlert();
+        if (alert == null || alert.getInfoList().isEmpty()) {
+            return;
+        }
+
+        int notificationId = mAlertNotificationId++;
+        String alertTitle = RadioTestFragmentUtils.alertStatusToString(alert.getStatus())
+                + RADIO_ALERT_DELIMITER + getChannelName(info);
+        String alertText = getAlertInfoDisplayText(alert.getInfoList().getFirst());
+
+        AlertNotificationHelper.createRadioAlertNotification(mActivityContext, alertTitle,
+                alertText, notificationId);
+    }
+
+    private static String getAlertInfoDisplayText(RadioAlert.AlertInfo alertInfo) {
+        int[] categories = alertInfo.getCategories();
+        List<String> categoryStringList = new ArrayList<>(categories.length);
+        for (int i = 0; i < categories.length; i++) {
+            categoryStringList.add(RadioTestFragmentUtils.alertCategoryToString(categories[i]));
+        }
+        String categoryText = formatTextWithDelimiter(categoryStringList, ",");
+        List<String> textList = List.of(RadioTestFragmentUtils.alertUrgencyToString(
+                alertInfo.getUrgency()), RadioTestFragmentUtils.alertSeverityToString(
+                alertInfo.getSeverity()), RadioTestFragmentUtils.alertCertaintyToString(
+                alertInfo.getCertainty()), alertInfo.getDescription(), categoryText);
+
+        return formatTextWithDelimiter(textList, RADIO_ALERT_DELIMITER);
+    }
+
+    private static String formatTextWithDelimiter(List<String> textList, String delimiter) {
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < textList.size(); i++) {
+            String text = textList.get(i);
+            if (text == null || text.isEmpty()) {
+                continue;
+            }
+            if (!builder.isEmpty()) {
+                builder.append(delimiter);
+            }
+            builder.append(text);
+        }
+        return builder.toString();
+    }
+
     private final class RadioTunerCallbackImpl extends RadioTuner.Callback {
         @Override
         public void onProgramInfoChanged(RadioManager.ProgramInfo info) {
             setProgramInfo(info);
             setTuningStatus(info);
+            if (Flags.hdRadioEmergencyAlertSystem()) {
+                handleRadioAlert(info);
+            }
         }
 
         @Override
@@ -294,6 +359,12 @@ public class RadioTunerFragment extends Fragment {
                     new ProgramInfoExt.ProgramInfoComparator();
             list.sort(selectorComparator);
             mProgramInfoAdapter.updateProgramInfos(list.toArray(new RadioManager.ProgramInfo[0]));
+            if (!Flags.hdRadioEmergencyAlertSystem()) {
+                return;
+            }
+            for (int i = 0; i < list.size(); i++) {
+                handleRadioAlert(list.get(i));
+            }
         }
     }
 }

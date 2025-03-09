@@ -50,7 +50,7 @@
     <dimen name="large_avatar_icon_size">180dp</dimen>
     <!-- Dialpad dimensions -->
     <dimen name="dialpad_keypad_fragment_margin_start">172dp</dimen>
-    <dimen name="dialpad_fragment_list_view_height">266dp</dimen>
+    <dimen name="dialpad_fragment_list_view_height">133dp</dimen>
     <dimen name="dialpad_fragment_list_view_width">552dp</dimen>
     <dimen name="dialpad_fragment_list_view_margin_bottom">10dp</dimen>
     <dimen name="dialpad_fragment_restricted_dialing_mode_label_margin_top">10dp</dimen>

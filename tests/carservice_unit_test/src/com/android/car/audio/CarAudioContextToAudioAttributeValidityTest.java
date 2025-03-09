@@ -96,6 +96,13 @@ public final class CarAudioContextToAudioAttributeValidityTest {
     }
 
     private static boolean isAudioAttributeUsageField(Field field) {
+        //TODO don't use reflection for finding usage values,
+        //     instead introduce new API to query valid usages, tracked in b/376918085
+        //     in the meantime, hardcode the new value since we can't use the flag as it
+        //     is found by reflection
+        if (field.getName().startsWith("USAGE_SPEAKER_CLEANUP")) {
+            return false;
+        }
         return (field.getType() == int.class)
                 && (field.getModifiers() == (Modifier.STATIC | Modifier.FINAL | Modifier.PUBLIC))
                 && field.getName().startsWith("USAGE_");

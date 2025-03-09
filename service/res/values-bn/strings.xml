@@ -30,6 +30,10 @@
     <string name="car_permission_desc_hvac" msgid="3754229695589774195">"আপনার গাড়ির HVAC অ্যাক্সেস করা।"</string>
     <string name="car_permission_label_mileage" msgid="4661317074631150551">"গাড়ির মাইলেজ সংক্রান্ত তথ্য অ্যাক্সেস করা"</string>
     <string name="car_permission_desc_mileage" msgid="7179735693278681090">"আপনার গাড়ির মাইলেজের তথ্য অ্যাক্সেস করা।"</string>
+    <!-- no translation found for car_permission_label_mileage_3p (7542459195663034759) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_mileage_3p (9109350882748664570) -->
+    <skip />
     <string name="car_permission_label_speed" msgid="1149027717860529745">"গাড়ির স্পিড দেখা"</string>
     <string name="car_permission_desc_speed" msgid="2047965198165448241">"আপনার গাড়ির স্পিড অ্যাক্সেস করা।"</string>
     <string name="car_permission_label_vehicle_dynamics_state" msgid="313779267420048367">"গাড়ির ডায়নামিক স্ট্যাটাস অ্যাক্সেস করা"</string>
@@ -92,6 +96,10 @@
     <string name="car_permission_desc_storage_monitoring" msgid="2075712271139671318">"ফ্ল্যাশ স্টোরেজের ব্যবহার মনিটর করা"</string>
     <string name="car_permission_label_driving_state" msgid="7754624599537393650">"ড্রাইভিংয়ের স্ট্যাটাস পরিবর্তন করার বিষয়ে শোনা"</string>
     <string name="car_permission_desc_driving_state" msgid="2684025262811635737">"ড্রাইভিংয়ের স্ট্যাটাস পরিবর্তন করার বিষয়ে শোনা।"</string>
+    <!-- no translation found for car_permission_label_driving_state_3p (1395905103166125030) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_driving_state_3p (5491522450897843003) -->
+    <skip />
     <string name="car_permission_label_use_telemetry_service" msgid="948005838683758846">"গাড়ির টেলিমেট্রি পরিষেবা ব্যবহার করুন"</string>
     <string name="car_permission_desc_use_telemetry_service" msgid="3633214312435700766">"গাড়ির সিস্টেমের অবস্থা সম্পর্কিত ডেটা সংগ্রহ করুন।"</string>
     <string name="car_permission_label_use_evs_service" msgid="1729276125209310607">"গাড়ি EVS পরিষেবা ব্যবহার করুন"</string>
@@ -106,6 +114,10 @@
     <string name="car_permission_desc_monitor_evs_status" msgid="2764278897143573535">"EVS পরিষেবার স্ট্যাটাস পরিবর্তনগুলি শুনুন"</string>
     <string name="car_permission_label_car_engine_detailed" msgid="8911992719173587337">"গাড়ির ইঞ্জিনের বিবরণ অ্যাক্সেস করা"</string>
     <string name="car_permission_desc_car_engine_detailed" msgid="1746863362811347700">"আপনার গাড়ির ইঞ্জিনের বিশদ তথ্য অ্যাক্সেস করা।"</string>
+    <!-- no translation found for car_permission_label_car_engine_detailed_3p (2695036212735960169) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_car_engine_detailed_3p (7536940094077391015) -->
+    <skip />
     <string name="car_permission_label_car_energy_ports" msgid="8548990315169219454">"গাড়ির জ্বালানীর চেম্বারের ঢাকনা ও চার্জ পোর্ট অ্যাক্সেস করা"</string>
     <string name="car_permission_desc_car_energy_ports" msgid="7771185999828794949">"গাড়ির জ্বালানীর চেম্বারের ঢাকনা ও চার্জ পোর্ট অ্যাক্সেস করা।"</string>
     <string name="car_permission_label_control_car_energy_ports" msgid="4375137311026313475">"গাড়ির জ্বালানীর চেম্বারের ঢাকনা ও চার্জ পোর্ট নিয়ন্ত্রণ করা"</string>
@@ -120,6 +132,10 @@
     <string name="car_permission_desc_control_car_mirrors" msgid="1224135684068855032">"গাড়ির আয়না নিয়ন্ত্রণ করা।"</string>
     <string name="car_permission_label_control_car_seats" msgid="1826934820585497135">"গাড়ির সিট নিয়ন্ত্রণ করা"</string>
     <string name="car_permission_desc_control_car_seats" msgid="2407536601226470563">"গাড়ির সিট নিয়ন্ত্রণ করা।"</string>
+    <!-- no translation found for car_permission_label_read_car_seats (2996918480980128872) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_read_car_seats (5894145845932493046) -->
+    <skip />
     <string name="car_permission_label_read_car_seat_belts" msgid="2051828795852087659">"গাড়ির সিট বেল্টগুলির অবস্থা বুঝতে পারে"</string>
     <string name="car_permission_desc_read_car_seat_belts" msgid="7076977711613912339">"গাড়ির সিট বেল্টগুলির অবস্থা বুঝতে পারে।"</string>
     <string name="car_permission_label_read_impact_sensors" msgid="9193288836326363975">"গাড়ির ইম্প্যাক্ট সেন্সরগুলির অবস্থা বুঝতে পারে"</string>
@@ -158,8 +174,16 @@
     <string name="car_permission_desc_car_exterior_environment" msgid="1716656004731603379">"গাড়ির এক্সটিরিয়র বা বাইরের দিকের বডির তাপমাত্রা অ্যাক্সেস করা।"</string>
     <string name="car_permission_label_car_tires" msgid="4379255261197836840">"গাড়ির টায়ারের তথ্য অ্যাক্সেস করা"</string>
     <string name="car_permission_desc_car_tires" msgid="8134496466769810134">"গাড়ির টায়ারের তথ্য অ্যাক্সেস করা।"</string>
+    <!-- no translation found for car_permission_label_car_tires_3p (1360632319908226570) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_car_tires_3p (820574543667371274) -->
+    <skip />
     <string name="car_permission_label_car_steering" msgid="7779530447441232479">"গাড়ির স্টিয়ারিং অ্যাঙ্গেলের তথ্য দেখা"</string>
     <string name="car_permission_desc_car_steering" msgid="1357331844530708138">"গাড়ির স্টিয়ারিং অ্যাঙ্গেলের তথ্য অ্যাক্সেস করা।"</string>
+    <!-- no translation found for car_permission_label_read_car_steering_3p (1598866058085489462) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_read_car_steering_3p (576361609663755171) -->
+    <skip />
     <string name="car_permission_label_read_car_display_units" msgid="7617008314862097183">"গাড়ির ডিসপ্লে ইউনিট দেখা"</string>
     <string name="car_permission_desc_read_car_display_units" msgid="6891898275208542385">"ডিসপ্লে ইউনিট দেখা।"</string>
     <string name="car_permission_label_control_car_display_units" msgid="4975303668183173076">"গাড়ির ডিসপ্লে ইউনিট নিয়ন্ত্রণ করা"</string>
@@ -212,6 +236,10 @@
     <string name="car_permission_desc_control_adas_states" msgid="1893171217779342348">"গাড়ির ADAS স্ট্যাটাস সম্পর্কিত তথ্য কন্ট্রোল করা।"</string>
     <string name="car_permission_label_read_windshield_wipers" msgid="896867772546890348">"গাড়ির উইন্ডশিল্ড ওয়াইপার সংক্রান্ত তথ্য দেখতে পারে"</string>
     <string name="car_permission_desc_read_windshield_wipers" msgid="597300271560195986">"গাড়ির উইন্ডশিল্ড ওয়াইপার সংক্রান্ত তথ্য দেখতে পারে।"</string>
+    <!-- no translation found for car_permission_label_read_windshield_wipers_3p (4784843702416325970) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_read_windshield_wipers_3p (604163171596913379) -->
+    <skip />
     <string name="car_permission_label_control_windshield_wipers" msgid="7971852482734087493">"গাড়ির উইন্ডশিল্ড ওয়াইপার, নিয়ন্ত্রণ করতে পারে"</string>
     <string name="car_permission_desc_control_windshield_wipers" msgid="3803429825323199728">"গাড়ির উইন্ডশিল্ড ওয়াইপার, নিয়ন্ত্রণ করতে পারে।"</string>
     <string name="car_permission_label_manage_display_compatibility" msgid="52642673039197383">"ডিসপ্লে কম্প্যাটিবিলিটি প্যাকেজ ম্যানেজ করুন"</string>
@@ -232,6 +260,10 @@
     <string name="car_permission_desc_manage_car_system_ui" msgid="6201733970421818637">"টাস্কভিউ তৈরি করতে অথবা সিস্টেম UI সংক্রান্ত পরিবর্তন সম্পর্কে জানার জন্য গাড়ির সিস্টেম UI দেখুন।"</string>
     <string name="car_permission_label_read_persist_tethering_settings" msgid="6395145649477916950">"গাড়িতে ফিক্সড টিথারিং সেটিংসের জন্য পড়ুন"</string>
     <string name="car_permission_desc_read_persist_tethering_settings" msgid="7373546466696896323">"গাড়িতে ফিক্সড টিথারিং সেটিংসের জন্য পড়ুন"</string>
+    <string name="car_permission_label_record_vehicle_properties" msgid="958971344399611906">"গাড়ির প্রপার্টি সংক্রান্ত তথ্য রেকর্ড করার অনুমতি দিন"</string>
+    <string name="car_permission_desc_record_vehicle_properties" msgid="2560365700851584569">"গাড়ির প্রপার্টি সংক্রান্ত তথ্য রেকর্ড করার অনুমতি দিন"</string>
+    <string name="car_permission_label_inject_vehicle_properties" msgid="2943134725643169428">"গাড়ির প্রপার্টি সংক্রান্ত তথ্য যোগ করার অনুমতি দিন"</string>
+    <string name="car_permission_desc_inject_vehicle_properties" msgid="2616112105084870775">"গাড়ির প্রপার্টি সংক্রান্ত তথ্য যোগ করার অনুমতি দিন"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN বাস কাজ করছে না"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN বাস কাজ করছে না। হেডইউনিট বক্স খুলে নিয়ে আবার লাগান ও গাড়ি রিস্টার্ট করুন"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"আমার ডিভাইস"</string>

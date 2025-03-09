@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  ~ Copyright (C) 2024 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="data_subscription_title" msgid="4896299571993400309">"Premium Connectivity 구독하기"</string>
+    <string name="data_subscription_description" msgid="5007971442417755397">"휴대전화의 카메라 앱을 열고 이 코드에 초점을 맞추면 자동으로 스캔됩니다. 카메라 화면 상단에 계속하라는 알림이 표시됩니다."</string>
+    <string name="data_subscription_button_text" msgid="8402418977157554019">"다시 표시하지 않음"</string>
+    <string name="data_subscription_qr_code_content_description" msgid="6964602870750966660">"데이터 구독 등록 QR 코드"</string>
+</resources>

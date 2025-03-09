@@ -32,6 +32,7 @@ import com.google.common.truth.Truth;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -51,9 +52,10 @@ public final class IoOveruseConfigurationSubject extends Subject {
 
                 @Override
                 protected int doHash(PerStateBytes perStateBytes) {
-                    return (int) ((perStateBytes.getForegroundModeBytes() * 10 ^ 4)
-                            + (perStateBytes.getBackgroundModeBytes() * 10 ^ 3)
-                            + perStateBytes.getGarageModeBytes());
+                    return Objects.hash(
+                            perStateBytes.getForegroundModeBytes(),
+                            perStateBytes.getBackgroundModeBytes(),
+                            perStateBytes.getGarageModeBytes());
                 }
             };
 

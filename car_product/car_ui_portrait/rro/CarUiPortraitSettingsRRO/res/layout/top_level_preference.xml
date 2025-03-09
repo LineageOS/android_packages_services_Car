@@ -19,7 +19,6 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="@dimen/car_portrait_ui_tab_width"
     android:layout_height="wrap_content"
-    android:layout_marginHorizontal="@dimen/car_portrait_ui_tab_margin_horizontal"
     android:layout_marginVertical="@dimen/car_portrait_ui_tab_margin_vertical"
     android:background="?android:attr/selectableItemBackground"
     android:clipToPadding="false"
@@ -48,6 +47,7 @@
             android:id="@android:id/title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/top_level_preference_title_margin_horizontal"
             android:singleLine="false"
             style="@style/TopLevelPreferenceTitleStyle"/>
 

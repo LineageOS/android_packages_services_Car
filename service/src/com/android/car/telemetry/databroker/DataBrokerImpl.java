@@ -580,12 +580,16 @@ public class DataBrokerImpl implements DataBroker {
                     bundleList.bundles = new ArrayList<>();
                     return bundleList;
                 });
-        mScriptExecutor.invokeScriptForBundleList(
-                task.getMetricsConfig().getScript(),
-                task.getHandlerName(),
-                bl,
-                mResultStore.getInterimResult(mCurrentMetricsConfigName),
-                mScriptExecutorListener);
+        try {
+            mScriptExecutor.invokeScriptForBundleList(
+                    task.getMetricsConfig().getScript(),
+                    task.getHandlerName(),
+                    bl,
+                    mResultStore.getInterimResult(mCurrentMetricsConfigName),
+                    mScriptExecutorListener);
+        } finally {
+            LargeParcelable.closeFd(bl.sharedMemoryFd);
+        }
     }
 
     private TelemetryError buildTelemetryError(

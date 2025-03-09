@@ -18,6 +18,7 @@ package android.car.hardware.property;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import android.car.test.AbstractExpectableTestCase;
 import android.os.Parcel;
 
 import org.junit.Test;
@@ -27,7 +28,7 @@ import java.util.List;
 /**
  * Unit tests for {@link AreaIdConfig}
  */
-public class AreaIdConfigTest {
+public class AreaIdConfigTest extends AbstractExpectableTestCase {
     private static final int ACCESS = 1;
     private static final int AREA_ID = 99;
     private static final int MAX_VALUE = 10;
@@ -35,7 +36,9 @@ public class AreaIdConfigTest {
     private static final List<Integer> SUPPORTED_ENUM_VALUES = List.of(2, 3, 4);
     private static final AreaIdConfig<Integer> AREA_ID_CONFIG = new AreaIdConfig.Builder<Integer>(
             ACCESS, AREA_ID).setMaxValue(MAX_VALUE).setMinValue(MIN_VALUE).setSupportedEnumValues(
-            SUPPORTED_ENUM_VALUES).setSupportVariableUpdateRate(true).build();
+            SUPPORTED_ENUM_VALUES).setSupportVariableUpdateRate(true)
+            .setHasMinSupportedValue(true).setHasMaxSupportedValue(true)
+            .setHasSupportedValuesList(true).build();
 
     @Test
     public void getAccess_returnsExpectedValue() {
@@ -104,12 +107,45 @@ public class AreaIdConfigTest {
         parcel.setDataPosition(0);
 
         AreaIdConfig<Object> areaIdConfig = AreaIdConfig.CREATOR.createFromParcel(parcel);
-        assertThat((Integer) areaIdConfig.getMaxValue()).isEqualTo(MAX_VALUE);
-        assertThat((Integer) areaIdConfig.getMinValue()).isEqualTo(MIN_VALUE);
-        assertThat(
+        expectThat((Integer) areaIdConfig.getMaxValue()).isEqualTo(MAX_VALUE);
+        expectThat((Integer) areaIdConfig.getMinValue()).isEqualTo(MIN_VALUE);
+        expectThat(
                 (List<?>) areaIdConfig.getSupportedEnumValues()).containsExactlyElementsIn(
                 SUPPORTED_ENUM_VALUES);
-        assertThat(areaIdConfig.isVariableUpdateRateSupported()).isTrue();
+        expectThat(areaIdConfig.isVariableUpdateRateSupported()).isTrue();
+        expectThat(areaIdConfig.hasMinSupportedValue()).isTrue();
+        expectThat(areaIdConfig.hasMaxSupportedValue()).isTrue();
+        expectThat(areaIdConfig.hasSupportedValuesList()).isTrue();
+    }
+
+    @Test
+    public void testSetMinSupportedValue() {
+        var areaIdConfig = new AreaIdConfig.Builder<Integer>(ACCESS, AREA_ID)
+                .setMinValue(MIN_VALUE).build();
+
+        expectThat(areaIdConfig.getMinValue()).isEqualTo(MIN_VALUE);
+        expectThat(areaIdConfig.hasMinSupportedValue()).isTrue();
+        expectThat(areaIdConfig.hasMaxSupportedValue()).isFalse();
+    }
+
+    @Test
+    public void testSetMaxSupportedValue() {
+        var areaIdConfig = new AreaIdConfig.Builder<Integer>(ACCESS, AREA_ID)
+                .setMaxValue(MAX_VALUE).build();
+
+        expectThat(areaIdConfig.getMaxValue()).isEqualTo(MAX_VALUE);
+        expectThat(areaIdConfig.hasMaxSupportedValue()).isTrue();
+        expectThat(areaIdConfig.hasMinSupportedValue()).isFalse();
+    }
+
+    @Test
+    public void testSetSupportedEnumValues() {
+        var areaIdConfig = new AreaIdConfig.Builder<Integer>(ACCESS, AREA_ID)
+                .setSupportedEnumValues(SUPPORTED_ENUM_VALUES).build();
+
+        expectThat(areaIdConfig.getSupportedEnumValues()).containsExactlyElementsIn(
+                SUPPORTED_ENUM_VALUES);
+        expectThat(areaIdConfig.hasSupportedValuesList()).isTrue();
     }
 
     @Test

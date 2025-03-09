@@ -89,6 +89,18 @@ public class CarUiPortraitService extends Service {
     public static final String INTENT_EXTRA_COLLAPSE_APPLICATION_PANEL =
             "INTENT_EXTRA_COLLAPSE_APPLICATION_PANEL";
 
+    // key name for the intent's extra that tells if application panel is open.
+    public static final String INTENT_EXTRA_IS_APPLICATION_PANEL_OPEN =
+            "INTENT_EXTRA_IS_APPLICATION_PANEL_OPEN";
+
+    // key name for the intent's extra that tells the visible task in application panel.
+    public static final String INTENT_EXTRA_TOP_TASK_IN_APPLICATION_PANEL =
+            "INTENT_EXTRA_TOP_TASK_IN_APPLICATION_PANEL";
+
+    // key name for the intent's extra that tells if controlbar height changed
+    public static final String INTENT_EXTRA_CONTROL_BAR_HEIGHT_CHANGE =
+            "INTENT_EXTRA_CONTROL_BAR_SIZE_CHANGE";
+
     // Keeps track of all current registered clients.
     private final ArrayList<Messenger> mClients = new ArrayList<Messenger>();
 

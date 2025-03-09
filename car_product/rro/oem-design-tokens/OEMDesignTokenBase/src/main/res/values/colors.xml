@@ -29,6 +29,29 @@
     <color name="color_surface_tint">#8F4A51</color>
     <color name="color_outline_variant">#D7C1C2</color>
     <color name="color_scrim">#000000</color>
+    <color name="color_shadow">#000000</color>
+    <color name="color_surface_dim">#D7DADF</color>
+    <color name="color_surface_bright">#F6FAFE</color>
+    <color name="color_surface_container">#EBEEF3</color>
+    <color name="color_surface_container_low">#F0F4F8</color>
+    <color name="color_surface_container_lowest">@color/color_neutral_palette_100</color>
+    <color name="color_surface_container_high">#E5E8ED</color>
+    <color name="color_surface_container_highest">@color/color_neutral_palette_90</color>
+
+    <color name="color_blue">#0057CC</color>
+    <color name="color_on_blue">#FFFFFF</color>
+    <color name="color_blue_container">#D9E2FF</color>
+    <color name="color_on_blue_container">#001945</color>
+
+    <color name="color_green">#006E29</color>
+    <color name="color_on_green">#FFFFFF</color>
+    <color name="color_green_container">#92F99D</color>
+    <color name="color_on_green_container">#002107</color>
+
+    <color name="color_yellow">#845400</color>
+    <color name="color_on_yellow">#FFFFFF</color>
+    <color name="color_yellow_container">#FFDDB6</color>
+    <color name="color_on_yellow_container">#2A1800</color>
 
     <color name="color_primary_palette_0">#000000</color>
     <color name="color_primary_palette_10">#3B0711</color>

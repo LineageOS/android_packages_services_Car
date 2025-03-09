@@ -14,27 +14,27 @@
   limitations under the License.
   -->
 <resources>
-    <!--    MENU IDs    -->
+    <!-- MENU IDs -->
+    <!-- Root and Back buttons do not need a unique identifiers. -->
     <string name="menu_root">-</string>
     <string name="menu_back">-</string>
 
-    <string name="menu_rro">RRO</string>
-    <string name="menu_rro_list_control_panel">RRO List</string>
-    <string name="menu_rro_unbundled">Unbundled Apps RRO</string>
-    <string name="menu_rro_unbundled_dialer">Dialer RROs</string>
-    <string name="menu_rro_unbundled_media">Media RROs</string>
-    <string name="menu_rro_unbundled_messenger">Messenger RROs</string>
-    <string name="menu_rro_unbundled_calendar">Calendar RROs</string>
-    <string name="menu_rro_systemui">System UI</string>
-    <string name="menu_rro_systemui_bars">System Bars</string>
-    <string name="menu_rro_systemui_theme">Themes</string>
-    <string name="menu_rro_systemui_cutouts">Cutouts</string>
+    <!-- Application sub Menu -->
+    <string name="menu_applications">Applications</string>
+    <string name="menu_applications_dialer_panel">Dialer</string>
+    <string name="menu_applications_media_panel">Media</string>
+    <string name="menu_applications_messenger_panel">Messenger</string>
 
-    <string name="menu_plugin">Plugin</string>
-    <string name="menu_plugin_global_switch">Car UI Lib Plugin</string>
-
-    <string name="menu_oem_tokens">OEM Design Tokens</string>
-    <string name="menu_oem_tokens_toggle">Tokens enabled</string>
+    <!-- System sub Menu -->
+    <string name="menu_system">System</string>
+    <string name="menu_system_theme">Theme</string>
+    <string name="menu_system_theme_design_tokens_switch">Design Tokens</string>
+    <string name="menu_system_theme_car_ui_plugin_switch">Car UI Lib Plugin</string>
+    <string name="menu_system_theme_presets_dropdown">Presets</string>
+    <string name="menu_system_advanced">Advanced</string>
+    <string name="menu_system_advanced_rro_list_panel">RRO List</string>
+    <string name="menu_system_system_bar_dropdown">System Bars</string>
+    <string name="menu_system_cutouts_dropdown">Cutouts</string>
 
     <!--  Copies  -->
     <string name="dropdown_default">Default</string>

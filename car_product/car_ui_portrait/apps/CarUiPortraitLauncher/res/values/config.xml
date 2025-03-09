@@ -19,10 +19,19 @@
     <string-array name="config_backgroundActivities" translatable="false">
         <item>com.google.android.apps.maps/com.google.android.maps.MapsActivity</item>
         <item>com.android.car.portraitlauncher/com.android.car.portraitlauncher.homeactivities.BackgroundPanelBaseActivity</item>
+        <item>com.android.car.portraitlauncher/com.android.car.carlauncher.homescreen.MapTosActivity</item>
     </string-array>
 
     <string name="config_notificationActivity" translatable="false">
         com.android.car.notification/com.android.car.notification.CarNotificationCenterActivity
+    </string>
+
+    <string name="config_inCallActivity" translatable="false">
+        com.android.car.dialer/com.android.car.dialer.ui.activecall.InCallActivity
+    </string>
+
+    <string name="config_mediaActivity" translatable="false">
+        com.android.car.media/.MediaActivity
     </string>
 
     <string-array name="config_ignoreOpeningForegroundDA" translatable="false">
@@ -106,11 +115,17 @@
 
     <!--
         Config for allowing NDO apps to be opened while driving if they contain an active media
-        session
-        TODO(b/310687870): Add RB to testing plan
+        session and media notification. These NDO apps will still be blocked by blocking UI, but may
+        be provided playback controls.
     -->
     <bool name="config_enableMediaSessionAppsWhileDriving">false</bool>
 
     <!-- Boolean value to indicate if the recents activity should open the most recent task on dismiss. -->
     <bool name="config_launch_most_recent_task_on_recents_dismiss">false</bool>
+
+    <!-- An intent to start tos map activity when user has not accepted terms of service
+         URI, for example:
+         "intent:#Intent;component=com.android.car.carlauncher/com.android.car.carlauncher.homescreen.MapActivityTos;action=android.intent.action.MAIN;end"
+    -->
+    <string name="config_tosMapIntent" translatable="false">intent:#Intent;component=com.android.car.portraitlauncher/com.android.car.carlauncher.homescreen.MapTosActivity;action=android.intent.action.MAIN;end</string>
 </resources>

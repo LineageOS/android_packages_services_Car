@@ -19,7 +19,7 @@
     <color name="card_background">@color/car_surface_1</color>
     <color name="action_button_background_color">@color/car_secondary_container</color>
     <color name="clear_all_button_background_color">@color/car_primary_container</color>
-    <color name="notification_background_color">@color/car_surface_1</color>
+    <color name="notification_background_color">@color/car_surface_container_high</color>
     <color name="hun_background_color">@color/car_surface_2</color>
     <color name="primary_text_color">@color/car_on_surface</color>
     <color name="notification_list_divider_color">@color/car_secondary</color>

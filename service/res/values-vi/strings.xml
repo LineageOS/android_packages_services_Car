@@ -30,6 +30,10 @@
     <string name="car_permission_desc_hvac" msgid="3754229695589774195">"Truy cập vào hvac của ô tô."</string>
     <string name="car_permission_label_mileage" msgid="4661317074631150551">"truy cập vào thông tin về quãng đường đi được của ô tô"</string>
     <string name="car_permission_desc_mileage" msgid="7179735693278681090">"Truy cập vào thông tin về số dặm đã đi trên ô tô của bạn."</string>
+    <!-- no translation found for car_permission_label_mileage_3p (7542459195663034759) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_mileage_3p (9109350882748664570) -->
+    <skip />
     <string name="car_permission_label_speed" msgid="1149027717860529745">"đọc tốc độ ô tô"</string>
     <string name="car_permission_desc_speed" msgid="2047965198165448241">"Truy cập vào thông tin về tốc độ của ô tô."</string>
     <string name="car_permission_label_vehicle_dynamics_state" msgid="313779267420048367">"truy cập vào trạng thái động của ô tô"</string>
@@ -92,6 +96,10 @@
     <string name="car_permission_desc_storage_monitoring" msgid="2075712271139671318">"Giám sát mức sử dụng bộ nhớ flash"</string>
     <string name="car_permission_label_driving_state" msgid="7754624599537393650">"nghe trạng thái lái xe"</string>
     <string name="car_permission_desc_driving_state" msgid="2684025262811635737">"Nghe những thay đổi về trạng thái Lái xe."</string>
+    <!-- no translation found for car_permission_label_driving_state_3p (1395905103166125030) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_driving_state_3p (5491522450897843003) -->
+    <skip />
     <string name="car_permission_label_use_telemetry_service" msgid="948005838683758846">"Dùng dịch vụ Dữ liệu từ xa cho ô tô"</string>
     <string name="car_permission_desc_use_telemetry_service" msgid="3633214312435700766">"Thu thập dữ liệu về tình trạng của hệ thống trên ô tô."</string>
     <string name="car_permission_label_use_evs_service" msgid="1729276125209310607">"Sử dụng dịch vụ CarEvsService"</string>
@@ -106,6 +114,10 @@
     <string name="car_permission_desc_monitor_evs_status" msgid="2764278897143573535">"Theo dõi sự thay đổi trạng thái của dịch vụ EVS"</string>
     <string name="car_permission_label_car_engine_detailed" msgid="8911992719173587337">"truy cập vào thông tin chi tiết về động cơ ô tô"</string>
     <string name="car_permission_desc_car_engine_detailed" msgid="1746863362811347700">"Truy cập vào thông tin chi tiết về động cơ trên ô tô của bạn."</string>
+    <!-- no translation found for car_permission_label_car_engine_detailed_3p (2695036212735960169) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_car_engine_detailed_3p (7536940094077391015) -->
+    <skip />
     <string name="car_permission_label_car_energy_ports" msgid="8548990315169219454">"truy cập vào cổng sạc và cổng nhiên liệu của ô tô"</string>
     <string name="car_permission_desc_car_energy_ports" msgid="7771185999828794949">"Truy cập vào cổng sạc và cổng nhiên liệu trên ô tô."</string>
     <string name="car_permission_label_control_car_energy_ports" msgid="4375137311026313475">"kiểm soát cổng sạc và cổng nhiên liệu của ô tô"</string>
@@ -120,6 +132,10 @@
     <string name="car_permission_desc_control_car_mirrors" msgid="1224135684068855032">"Kiểm soát gương ô tô."</string>
     <string name="car_permission_label_control_car_seats" msgid="1826934820585497135">"kiểm soát ghế ngồi trên ô tô"</string>
     <string name="car_permission_desc_control_car_seats" msgid="2407536601226470563">"Kiểm soát ghế ngồi trên ô tô."</string>
+    <!-- no translation found for car_permission_label_read_car_seats (2996918480980128872) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_read_car_seats (5894145845932493046) -->
+    <skip />
     <string name="car_permission_label_read_car_seat_belts" msgid="2051828795852087659">"đọc trạng thái dây an toàn của ô tô"</string>
     <string name="car_permission_desc_read_car_seat_belts" msgid="7076977711613912339">"Đọc trạng thái dây an toàn của ô tô."</string>
     <string name="car_permission_label_read_impact_sensors" msgid="9193288836326363975">"đọc thông tin cảm biến va chạm của ô tô"</string>
@@ -158,8 +174,16 @@
     <string name="car_permission_desc_car_exterior_environment" msgid="1716656004731603379">"Truy cập vào nhiệt độ bên ngoài ô tô."</string>
     <string name="car_permission_label_car_tires" msgid="4379255261197836840">"truy cập vào thông tin về lốp xe ô tô"</string>
     <string name="car_permission_desc_car_tires" msgid="8134496466769810134">"Truy cập vào thông tin về lốp xe ô tô."</string>
+    <!-- no translation found for car_permission_label_car_tires_3p (1360632319908226570) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_car_tires_3p (820574543667371274) -->
+    <skip />
     <string name="car_permission_label_car_steering" msgid="7779530447441232479">"đọc thông tin về góc lái của ô tô"</string>
     <string name="car_permission_desc_car_steering" msgid="1357331844530708138">"Truy cập vào thông tin về góc lái của ô tô."</string>
+    <!-- no translation found for car_permission_label_read_car_steering_3p (1598866058085489462) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_read_car_steering_3p (576361609663755171) -->
+    <skip />
     <string name="car_permission_label_read_car_display_units" msgid="7617008314862097183">"đọc thiết bị hiển thị trên ô tô"</string>
     <string name="car_permission_desc_read_car_display_units" msgid="6891898275208542385">"Đọc thiết bị hiển thị."</string>
     <string name="car_permission_label_control_car_display_units" msgid="4975303668183173076">"kiểm soát các thiết bị hiển thị trên ô tô"</string>
@@ -212,6 +236,10 @@
     <string name="car_permission_desc_control_adas_states" msgid="1893171217779342348">"Quản lý thông tin trạng thái Hệ thống hỗ trợ người lái nâng cao (ADAS) của ô tô."</string>
     <string name="car_permission_label_read_windshield_wipers" msgid="896867772546890348">"đọc dữ liệu của cần gạt nước ô tô"</string>
     <string name="car_permission_desc_read_windshield_wipers" msgid="597300271560195986">"Đọc dữ liệu của cần gạt nước ô tô."</string>
+    <!-- no translation found for car_permission_label_read_windshield_wipers_3p (4784843702416325970) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_read_windshield_wipers_3p (604163171596913379) -->
+    <skip />
     <string name="car_permission_label_control_windshield_wipers" msgid="7971852482734087493">"kiểm soát cần gạt nước của ô tô"</string>
     <string name="car_permission_desc_control_windshield_wipers" msgid="3803429825323199728">"Kiểm soát cần gạt nước của ô tô."</string>
     <string name="car_permission_label_manage_display_compatibility" msgid="52642673039197383">"quản lý gói về khả năng tương thích với màn hình"</string>
@@ -232,6 +260,10 @@
     <string name="car_permission_desc_manage_car_system_ui" msgid="6201733970421818637">"Giao tiếp với giao diện người dùng hệ thống ô tô để tạo các chế độ xem tác vụ hoặc nhận thông báo về các thay đổi đối với giao diện người dùng hệ thống."</string>
     <string name="car_permission_label_read_persist_tethering_settings" msgid="6395145649477916950">"Đọc chế độ chia sẻ Internet liên tục của ô tô"</string>
     <string name="car_permission_desc_read_persist_tethering_settings" msgid="7373546466696896323">"Đọc chế độ chia sẻ Internet liên tục của ô tô"</string>
+    <string name="car_permission_label_record_vehicle_properties" msgid="958971344399611906">"ghi lại thuộc tính của xe"</string>
+    <string name="car_permission_desc_record_vehicle_properties" msgid="2560365700851584569">"ghi lại thuộc tính của xe"</string>
+    <string name="car_permission_label_inject_vehicle_properties" msgid="2943134725643169428">"chèn thuộc tính xe"</string>
+    <string name="car_permission_desc_inject_vehicle_properties" msgid="2616112105084870775">"chèn thuộc tính xe"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"Đường dẫn chính CAN không hoạt động"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"Đường dẫn chính CAN không phản hồi. Rút rồi cắm lại hộp bộ đầu và khởi động lại ô tô"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"Thiết bị của tôi"</string>

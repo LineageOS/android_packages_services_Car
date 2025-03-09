@@ -357,6 +357,7 @@ android.car.hardware CarPropertyConfig.AreaConfig T getMaxValue()
 android.car.hardware CarPropertyConfig.AreaConfig T getMinValue()
 android.car.hardware CarPropertyConfig.AreaConfig int describeContents()
 android.car.hardware CarPropertyConfig.AreaConfig void writeToParcel(Parcel dest, int flags)
+android.car.hardware CarPropertyValue RawPropertyValue getRawPropertyValue()
 android.car.hardware CarPropertyValue String toString()
 android.car.hardware CarSensorConfig Bundle getBundle()
 android.car.hardware CarSensorConfig Parcelable.Creator<CarSensorConfig> CREATOR
@@ -467,6 +468,9 @@ android.car.hardware.power PowerComponentUtil int FIRST_POWER_COMPONENT
 android.car.hardware.power PowerComponentUtil int INVALID_POWER_COMPONENT
 android.car.hardware.power PowerComponentUtil int LAST_POWER_COMPONENT
 android.car.hardware.power PowerComponentUtil int toPowerComponent(String componentArg, boolean prefix)
+android.car.hardware.property AreaIdConfig.Builder Builder<T> setHasMaxSupportedValue(boolean hasMaxSupportedValue)
+android.car.hardware.property AreaIdConfig.Builder Builder<T> setHasMinSupportedValue(boolean hasMinSupportedValue)
+android.car.hardware.property AreaIdConfig.Builder Builder<T> setHasSupportedValuesList(boolean hasSupportedValuesList)
 android.car.hardware.property AreaIdConfig.Builder Builder<T> setSupportVariableUpdateRate(boolean supportVariableUpdateRate)
 android.car.hardware.property CarPropertyEvent CarPropertyEvent createErrorEventWithErrorCode(int propertyId, int areaId, int errorCode)
 android.car.hardware.property CarPropertyEvent CarPropertyValue<?> getCarPropertyValue()
@@ -484,6 +488,9 @@ android.car.hardware.property CarPropertyManager String getReadPermission(int pr
 android.car.hardware.property CarPropertyManager String getWritePermission(int propId)
 android.car.hardware.property CarPropertyManager void onCarDisconnected()
 android.car.hardware.property CarPropertyManager void setFeatureFlags(FeatureFlags fakeFeatureFlags)
+android.car.hardware.property CarPropertySimulationManager CarRecorderListener getCarRecorderListener()
+android.car.hardware.property CarPropertySimulationManager Executor getCallbackExecutor()
+android.car.hardware.property CarPropertySimulationManager void onCarDisconnected()
 android.car.hardware.property VehicleHalStatusCode String toString(int vehicleHalStatusCode)
 android.car.hardware.property VehicleHalStatusCode int STATUS_ACCESS_DENIED
 android.car.hardware.property VehicleHalStatusCode int STATUS_INTERNAL_ERROR

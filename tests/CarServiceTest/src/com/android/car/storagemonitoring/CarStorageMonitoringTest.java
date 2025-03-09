@@ -899,13 +899,13 @@ public class CarStorageMonitoringTest extends MockedCarTestBase {
         public void shutdown() {}
 
         @Override
-        public boolean enterDeepSleep() {
-            return true;
+        public int enterDeepSleep() {
+            return SUSPEND_RESULT_SUCCESS;
         }
 
         @Override
-        public boolean enterHibernation() {
-            return true;
+        public int enterHibernation() {
+            return SUSPEND_RESULT_SUCCESS;
         }
 
         @Override

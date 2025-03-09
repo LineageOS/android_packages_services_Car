@@ -28,7 +28,7 @@ readonly PSI_AVG10_POSITION=2
 PSI_AVG10_THRESHOLD=80
 # Baseline should determined only when the PSI is below 50.
 MAX_BASELINE_PSI=50
-TOTAL_PSI_ENTRIES_TO_MONITOR_BASELINE=5
+TOTAL_PSI_ENTRIES_TO_MONITOR_BASELINE=10
 MAX_PSI_BASE_POINT_DIFF=5
 
 SHOULD_DYNAMICALLY_DETECT_BASELINE=true
@@ -48,7 +48,8 @@ set -e
 function trap_error() {
     local return_value=$?
     local line_no=$1
-    echo "Error at line ${line_no}: \"${BASH_COMMAND}\""
+    echo "Error at line ${line_no}: \"${BASH_COMMAND}\"" > ${LOG_FILE}
+    echo "Return value ${return_value}" > ${LOG_FILE}
     exit ${return_value}
 }
 trap 'trap_error $LINENO' ERR
@@ -60,22 +61,22 @@ function uptime_millis() {
 }
 
 function err() {
-  echo -e "[$(date +'%Y-%m-%dT%H:%M:%S%z')] [$(uptime_millis)]: $*" | tee -a ${LOG_FILE} >&2
+  echo -e "[$(date +'%Y-%m-%d %H:%M:%S%z')] [$(uptime_millis)]: $*" | tee -a ${LOG_FILE} >&2
   logcat_log -t "$0" -p e "$@"
 }
 
 function print_log() {
-  echo -e "[$(date +'%Y-%m-%dT%H:%M:%S%z')] [$(uptime_millis)]: $*" | tee -a ${LOG_FILE}
+  echo -e "[$(date +'%Y-%m-%d %H:%M:%S%z')] [$(uptime_millis)]: $*" | tee -a ${LOG_FILE}
   logcat_log -t "$0" -p i "$@"
 }
 
 function usage() {
   echo "Monitors PSI and detects system readiness post CUJ completion."
-  echo "Usage: psi_monitor.sh [--no_detect_baseline] [--out_dir=<output_dir>] "\
-       "[--max_duration_seconds=<max_duration_seconds>] "\
-       "[--psi_avg10_threshold=<psi_avg10_threshold>] "\
-       "[--last_n_psi_entries_to_monitor_baseline=<last_n_psi_entries_to_monitor_baseline>] "\
-       "[--max_psi_base_point_diff=<max_psi_base_point_diff>] --exit_on_psi_stabilized"
+  echo "Usage: psi_monitor.sh [--no_detect_baseline] [--out_dir <output_dir>] "\
+       "[--max_duration_seconds <max_duration_seconds>] "\
+       "[--psi_avg10_threshold <psi_avg10_threshold>] "\
+       "[--last_n_psi_entries_to_monitor_baseline <last_n_psi_entries_to_monitor_baseline>] "\
+       "[--max_psi_base_point_diff <max_psi_base_point_diff>] --exit_on_psi_stabilized"
   echo "--no_detect_baseline: Instruct the monitor to not wait for the PSI to reach "\
        "a baseline value"
   echo "-o|--out_dir: Location to output the psi dump and logs"
@@ -127,6 +128,17 @@ function parse_arguments() {
   done
 }
 
+function print_arguments() {
+  print_log "Command line args:"
+  print_log "\t SHOULD_DYNAMICALLY_DETECT_BASELINE=${SHOULD_DYNAMICALLY_DETECT_BASELINE}"
+  print_log "\t OUTPUT_DIR=${OUTPUT_DIR}"
+  print_log "\t MAX_DURATION_SECONDS=${MAX_DURATION_SECONDS}"
+  print_log "\t PSI_AVG10_THRESHOLD=${PSI_AVG10_THRESHOLD}"
+  print_log "\t TOTAL_PSI_ENTRIES_TO_MONITOR_BASELINE=${TOTAL_PSI_ENTRIES_TO_MONITOR_BASELINE}"
+  print_log "\t MAX_PSI_BASE_POINT_DIFF=${MAX_PSI_BASE_POINT_DIFF}"
+  print_log "\t EXIT_ON_PSI_STABILIZED=${EXIT_ON_PSI_STABILIZED}"
+}
+
 function check_arguments() {
   readonly OUTPUT_DIR
   if [[ ! -d ${OUTPUT_DIR} ]]; then
@@ -134,7 +146,7 @@ function check_arguments() {
     exit 1
   fi
 
-  readonly DUMP_FILE=${OUTPUT_DIR}/dump.txt
+  readonly DUMP_FILE=${OUTPUT_DIR}/psi_dump.txt
   readonly LOG_FILE=${OUTPUT_DIR}/log.txt
   rm -f ${DUMP_FILE}; touch ${DUMP_FILE}
   rm -f ${LOG_FILE}; touch ${LOG_FILE}
@@ -192,7 +204,8 @@ latest_psi_avg_10=0
 latest_psi_line=""
 function read_psi_avg() {
   latest_psi_line=$(grep . /proc/pressure/* | tr '\n' ' ' | sed 's|/proc/pressure/||g')
-  local cpu_some_line=$(echo ${latest_psi_line} | sed 's/\(total=[0-9]*\) /\1\n/g' | grep cpu:some)
+  local cpu_some_line=$(echo ${latest_psi_line} | sed 's/\(total=[0-9]*\) /\1\n/g' \
+                        | grep "cpu:some")
   latest_psi_avg_10=$(echo ${cpu_some_line} | cut -f${PSI_AVG10_POSITION} -d' ' \
     | cut -f2 -d'=' | cut -f1 -d'.')
   if [[ ${latest_psi_avg_10} != +([[:digit:]]) ]]; then
@@ -203,16 +216,21 @@ function read_psi_avg() {
 
 EXCEEDED_THRESHOLD_UPTIME_MILLIS=-1
 DROPPED_BELOW_THRESHOLD_UPTIME_MILLIS=-1
+readonly PSI_TYPE_CPU_SOME="cpu:some avg10"
 function populate_exceeded_and_dropped_below_threshold() {
   local psi_avg10=${1}
   if [[ ${EXCEEDED_THRESHOLD_UPTIME_MILLIS} -lt 0 && ${psi_avg10} -ge ${PSI_AVG10_THRESHOLD} ]]
   then
     EXCEEDED_THRESHOLD_UPTIME_MILLIS=$(uptime_millis)
+    echo -n " \"PSI exceeded threshold: ${PSI_AVG10_THRESHOLD}% ${PSI_TYPE_CPU_SOME}\"" \
+      >> ${DUMP_FILE}
     return
   fi
   if [[ ${EXCEEDED_THRESHOLD_UPTIME_MILLIS} -gt 0 && ${psi_avg10} -lt ${PSI_AVG10_THRESHOLD} ]]
   then
     DROPPED_BELOW_THRESHOLD_UPTIME_MILLIS=$(uptime_millis)
+    echo -n " \"PSI dropped below threshold: ${PSI_AVG10_THRESHOLD}% ${PSI_TYPE_CPU_SOME}\"" \
+      >> ${DUMP_FILE}
   fi
 }
 
@@ -257,12 +275,15 @@ function monitor_baseline_psi() {
   BASELINE_UPTIME_MILLIS=$(uptime_millis)
   print_log "PSI baseline is stable across ${TOTAL_PSI_ENTRIES_TO_MONITOR_BASELINE} entries. "\
             "Min / Max / Latest PSI: [${psi_min}, ${psi_max}, ${1}]"
+  echo -n " \"PSI reached baseline across latest ${TOTAL_PSI_ENTRIES_TO_MONITOR_BASELINE}" \
+          "entries\"" >> ${DUMP_FILE}
   set_baseline_met
   return
 }
 
 function main() {
   parse_arguments "$@"
+  print_arguments
   check_arguments
   reset_threshold_met
   reset_baseline_met
@@ -281,22 +302,24 @@ function main() {
   while [[ $(uptime_millis) -lt ${max_uptime_millis} ]]; do
     read_psi_avg
 
-    echo "$(uptime_millis) $(date '+%Y-%m-%d_%H:%M:%S') ${latest_psi_line}" >> ${DUMP_FILE}
+    echo -n "$(uptime_millis) $(date '+%Y-%m-%d %H:%M:%S.%N') ${latest_psi_line}" >> ${DUMP_FILE}
 
     if [[ ${cuj_completion_uptime_millis} -gt 0 || $(did_cuj_complete) == true ]]; then
       if [[ ${cuj_completion_uptime_millis} == -1 ]]; then
         cuj_completion_uptime_millis=$(uptime_millis)
+        echo -n " \"CUJ completed\"" >> ${DUMP_FILE}
       fi
       check_exceed_and_drop_below_threshold ${latest_psi_avg_10}
       monitor_baseline_psi ${latest_psi_avg_10}
     fi
     if [[ ${EXCEEDED_THRESHOLD_UPTIME_MILLIS} -gt 0
           && ${DROPPED_BELOW_THRESHOLD_UPTIME_MILLIS} -gt 0
-          && ( ${SHOULD_DYNAMICALLY_DETECT_BASELINE} == false
-              || ${BASELINE_UPTIME_MILLIS} -gt 0 )
+          && ( ${SHOULD_DYNAMICALLY_DETECT_BASELINE} == false || ${BASELINE_UPTIME_MILLIS} -gt 0 )
           && ${EXIT_ON_PSI_STABILIZED} == true ]]; then
+          print_log "Stopping on psi stabilized"
           break
     fi
+    echo "" >> ${DUMP_FILE}
     sleep 1
   done
 

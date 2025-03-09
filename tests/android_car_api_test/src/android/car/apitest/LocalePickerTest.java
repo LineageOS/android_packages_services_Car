@@ -25,9 +25,9 @@ import android.os.LocaleList;
 import android.util.Log;
 
 import com.android.bedstead.harrier.DeviceState;
-import com.android.bedstead.harrier.annotations.RequireRunNotOnVisibleBackgroundNonProfileUser;
-import com.android.bedstead.harrier.annotations.RequireRunOnVisibleBackgroundNonProfileUser;
-import com.android.bedstead.harrier.annotations.RequireVisibleBackgroundUsers;
+import com.android.bedstead.multiuser.annotations.RequireRunNotOnVisibleBackgroundNonProfileUser;
+import com.android.bedstead.multiuser.annotations.RequireRunOnVisibleBackgroundNonProfileUser;
+import com.android.bedstead.multiuser.annotations.RequireVisibleBackgroundUsers;
 import com.android.compatibility.common.util.ApiTest;
 import com.android.internal.app.LocalePicker;
 

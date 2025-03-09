@@ -16,6 +16,6 @@
 
 <resources>
     <!-- Control bar media card panel animation duration in ms -->
-    <integer name="control_bar_side_panel_animation_duration">400</integer>
+    <integer name="control_bar_side_panel_animation_duration">500</integer>
     <integer name="control_bar_media_card_overflow_animation_duration">200</integer>
 </resources>

@@ -1,0 +1,5 @@
+per-file cpu_perf/* = lakshmana@google.com, jahdiel@google.com
+per-file perf/* = lakshmana@google.com, jahdiel@google.com
+per-file watchdog/* = lakshmana@google.com, jahdiel@google.com
+per-file psi_monitor/* = lakshmana@google.com, jahdiel@google.com
+per-file ioanalyze/* = lakshmana@google.com, jahdiel@google.com

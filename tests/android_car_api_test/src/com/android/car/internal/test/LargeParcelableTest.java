@@ -27,6 +27,7 @@ import android.content.ServiceConnection;
 import android.os.IBinder;
 import android.os.Parcel;
 
+import androidx.test.filters.LargeTest;
 import androidx.test.filters.SmallTest;
 
 import com.android.car.internal.LargeParcelable;
@@ -159,6 +160,30 @@ public final class LargeParcelableTest extends CarLessApiTestBase {
             + "hidden API")
     public void testMultiArgsBigPayload() throws Exception {
         doTestMultipleArgs(ARRAY_LENGTH_BIG);
+    }
+
+    // Test that after closing the LargeParcelableBase, the shared memory file must be released and
+    // we will not leak shared memory file descriptor. This test is slow because of the loops.
+    @LargeTest
+    @Test
+    public void testClosingLargeParcelableBase_releaseResource() throws Exception {
+        byte[] origArray = createByteArray(ARRAY_LENGTH_BIG);
+        // Loop for a 32k times so that if we don't clean up fd, we will hit fd limit. In Android
+        // the soft limit for nofiles is 32k.
+        int loopCount = 32 * 1024 + 1;
+
+        TestLargeParcelable[] parcelables = new TestLargeParcelable[loopCount];
+        for (int i = 0; i < loopCount; i++) {
+            // We share the same byte array, so this will not allocate many memory.
+            parcelables[i] = new TestLargeParcelable(origArray);
+        }
+
+        for (int i = 0; i < loopCount; i++) {
+            mBinder.echoTestLargeParcelable(parcelables[i]);
+            // After close, the shared memory allocated should be closed, so we will not keep
+            // increasing memory size.
+            parcelables[i].close();
+        }
     }
 
     private void doTestLargeParcelable(int payloadSize) throws Exception {

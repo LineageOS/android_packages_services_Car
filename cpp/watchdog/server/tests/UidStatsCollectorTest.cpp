@@ -159,7 +159,8 @@ public:
     explicit UidStatsCollectorPeer(sp<UidStatsCollector> collector) : mCollector(collector) {}
     ~UidStatsCollectorPeer() { mCollector.clear(); }
 
-    void setPackageInfoResolver(const sp<PackageInfoResolverInterface>& packageInfoResolver) {
+    void setPackageInfoResolver(const std::shared_ptr<PackageInfoResolverInterface>&
+          packageInfoResolver) {
         mCollector->mPackageInfoResolver = packageInfoResolver;
     }
 
@@ -186,7 +187,7 @@ protected:
     virtual void SetUp() {
         mUidStatsCollector = sp<UidStatsCollector>::make();
         mUidStatsCollectorPeer = sp<internal::UidStatsCollectorPeer>::make(mUidStatsCollector);
-        mMockPackageInfoResolver = sp<MockPackageInfoResolver>::make();
+        mMockPackageInfoResolver = std::make_shared<MockPackageInfoResolver>();
         mMockUidIoStatsCollector = sp<MockUidIoStatsCollector>::make();
         mMockUidProcStatsCollector = sp<MockUidProcStatsCollector>::make();
         mMockUidCpuStatsCollector = sp<MockUidCpuStatsCollector>::make();
@@ -199,7 +200,7 @@ protected:
     virtual void TearDown() {
         mUidStatsCollector.clear();
         mUidStatsCollectorPeer.clear();
-        mMockPackageInfoResolver.clear();
+        mMockPackageInfoResolver.reset();
         mMockUidIoStatsCollector.clear();
         mMockUidProcStatsCollector.clear();
         mMockUidCpuStatsCollector.clear();
@@ -207,7 +208,7 @@ protected:
 
     sp<UidStatsCollector> mUidStatsCollector;
     sp<internal::UidStatsCollectorPeer> mUidStatsCollectorPeer;
-    sp<MockPackageInfoResolver> mMockPackageInfoResolver;
+    std::shared_ptr<MockPackageInfoResolver> mMockPackageInfoResolver;
     sp<MockUidIoStatsCollector> mMockUidIoStatsCollector;
     sp<MockUidProcStatsCollector> mMockUidProcStatsCollector;
     sp<MockUidCpuStatsCollector> mMockUidCpuStatsCollector;

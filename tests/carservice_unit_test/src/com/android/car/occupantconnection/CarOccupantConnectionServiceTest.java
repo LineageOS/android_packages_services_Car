@@ -744,13 +744,13 @@ public final class CarOccupantConnectionServiceTest {
                 .thenReturn(PackageManager.PERMISSION_DENIED);
 
         assertThrows(SecurityException.class,
-                () -> mService.sendPayload(PACKAGE_NAME, mReceiverZone, any(Payload.class)));
+                () -> mService.sendPayload(PACKAGE_NAME, mReceiverZone, mock(Payload.class)));
     }
 
     @Test
     public void testSendPayloadWithFakePackageName_throwsException() {
         assertThrows(SecurityException.class,
-                () -> mService.sendPayload(FAKE_PACKAGE_NAME, mReceiverZone, any(Payload.class)));
+                () -> mService.sendPayload(FAKE_PACKAGE_NAME, mReceiverZone, mock(Payload.class)));
     }
 
     @Test
@@ -759,7 +759,7 @@ public final class CarOccupantConnectionServiceTest {
         when(mOccupantZoneService.getOccupantZoneForUser(senderUserHandle)).thenReturn(mSenderZone);
 
         assertThrows(IllegalStateException.class,
-                () -> mService.sendPayload(PACKAGE_NAME, mReceiverZone, any(Payload.class)));
+                () -> mService.sendPayload(PACKAGE_NAME, mReceiverZone, mock(Payload.class)));
     }
 
     @Test

@@ -44,40 +44,48 @@ import static com.android.car.audio.CoreAudioRoutingUtils.OEM_STRATEGY;
 import static com.android.car.audio.CoreAudioRoutingUtils.OEM_STRATEGY_ID;
 import static com.android.car.audio.CoreAudioRoutingUtils.UNSUPPORTED_ATTRIBUTES;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
+import static com.android.dx.mockito.inline.extended.ExtendedMockito.mockitoSession;
 
 import static org.junit.Assert.assertThrows;
 
-import android.car.test.mocks.AbstractExtendedMockitoTestCase;
+import android.car.test.AbstractExpectableTestCase;
 import android.media.audiopolicy.AudioProductStrategy;
 import android.media.audiopolicy.AudioVolumeGroup;
 
+import com.android.dx.mockito.inline.extended.StaticMockitoSession;
+import com.android.dx.mockito.inline.extended.StaticMockitoSessionBuilder;
+
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.quality.Strictness;
 
 import java.util.List;
 
 @RunWith(MockitoJUnitRunner.class)
-public final class CoreAudioHelperTest extends AbstractExtendedMockitoTestCase {
+public final class CoreAudioHelperTest extends AbstractExpectableTestCase {
 
     private static final String TAG = CoreAudioHelperTest.class.getSimpleName();
 
-    public CoreAudioHelperTest() {
-        super(CoreAudioHelper.TAG);
-    }
-
-    @Override
-    protected void onSessionBuilder(CustomMockitoSessionBuilder session) {
-        session.spyStatic(AudioManagerWrapper.class);
-    }
+    private StaticMockitoSession mSession;
 
     @Before
     public void setUp() throws Exception {
+        StaticMockitoSessionBuilder builder = mockitoSession()
+                .strictness(Strictness.LENIENT)
+                .spyStatic(AudioManagerWrapper.class);
+        mSession = builder.initMocks(this).startMocking();
         List<AudioVolumeGroup> groups = CoreAudioRoutingUtils.getVolumeGroups();
         List<AudioProductStrategy> strategies = CoreAudioRoutingUtils.getProductStrategies();
         doReturn(strategies).when(AudioManagerWrapper::getAudioProductStrategies);
         doReturn(groups).when(AudioManagerWrapper::getAudioVolumeGroups);
+    }
+
+    @After
+    public void tearDown() {
+        mSession.finishMocking();
     }
 
     @Test

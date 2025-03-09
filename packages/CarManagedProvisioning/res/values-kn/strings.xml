@@ -27,7 +27,7 @@
     <string name="contact_your_admin_for_more_info" msgid="1419852317652804536">"ಸಂಸ್ಥೆಯ ಗೌಪ್ಯತೆ ನೀತಿಗಳು ಸೇರಿದಂತೆ ಹೆಚ್ಚಿನ ಮಾಹಿತಿಗಾಗಿ ಸಂಸ್ಥೆಯ ನಿರ್ವಾಹಕರನ್ನು ಸಂಪರ್ಕಿಸಿ."</string>
     <string name="managed_device_info" msgid="2134697391634083944">"ಇದು ನಿರ್ವಹಣಾ ವಾಹನವಾಗಿದೆ"</string>
     <string name="contact_your_admin_for_help" msgid="1741496631607502730">"ಸಹಾಯಕ್ಕಾಗಿ ಸಂಸ್ಥೆಯ ನಿರ್ವಾಹಕರನ್ನು ಸಂಪರ್ಕಿಸಿ"</string>
-    <string name="fully_managed_device_provisioning_accept_header" msgid="8767138982035307813">"ನಿರ್ವಹಿಸಿದ ವಾಹನವನ್ನು ಹೊಂದಿಸಿ"</string>
+    <string name="fully_managed_device_provisioning_accept_header" msgid="8767138982035307813">"ನಿರ್ವಹಿಸಿದ ವಾಹನವನ್ನು ಸೆಟಪ್ ಮಾಡಿ"</string>
     <string name="fully_managed_device_provisioning_step_1_header" msgid="8704166635032524345">"ನಿಮ್ಮ ಸಂಸ್ಥೆಯ ಆ್ಯಪ್‌ಗಳನ್ನು ಪ್ರವೇಶಿಸಿ"</string>
     <string name="fully_managed_device_provisioning_step_1_description" msgid="5960961281295355254">"ಇನ್‌ಫೋಟೈನ್‌ಮೆಂಟ್ ಸಿಸ್ಟಂ ಅನ್ನು ಹೊಂದಿಸಲಾಗುತ್ತಿದೆ..."</string>
     <string name="fully_managed_device_provisioning_step_2_header" msgid="5888602026900289468">"ಇನ್‌ಫೋಟೈನ್‌ಮೆಂಟ್ ಸಿಸ್ಟಂ ಡೇಟಾ ಖಾಸಗಿಯಲ್ಲ"</string>

@@ -24,7 +24,7 @@
     <string name="decline_call" msgid="3593508497959313142"></string>
     <string name="answer_call" msgid="5688982198411188640"></string>
     <string name="no_hfp" msgid="2403350988312998712">"Para makumpleto ang iyong tawag, ikonekta muna ang telepono mo sa iyong sasakyan sa pamamagitan ng Bluetooth."</string>
-    <string name="call_history_title" msgid="2665386600747022608">"Mga Kamakailan Lang"</string>
+    <string name="call_history_title" msgid="2665386600747022608">"Kailan Lang"</string>
     <string name="contacts_title" msgid="1240631807791315855">"Mga Contact"</string>
     <string name="favorites_title" msgid="8714933097892306747">"Mga Paborito"</string>
     <string name="dialpad_title" msgid="8608224919862313238">"Dialpad"</string>

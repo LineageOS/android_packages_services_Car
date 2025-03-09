@@ -650,7 +650,7 @@ public class CarRemoteDeviceServiceTest {
             Object[] args = invocation.getArguments();
             displayListener[0] = (DisplayListener) args[0];
             return null;
-        }).when(mDisplayManager).registerDisplayListener(any(), any(), anyLong());
+        }).when(mDisplayManager).registerDisplayListener(any(), any(), anyLong(), anyLong());
 
         mService.init();
         mOccupantZoneStateMap.put(mOccupantZone, INITIAL_OCCUPANT_ZONE_STATE);

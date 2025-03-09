@@ -30,6 +30,10 @@
     <string name="car_permission_desc_hvac" msgid="3754229695589774195">"ចូលប្រើ​ប្រព័ន្ធកម្តៅ ខ្យល់ និងម៉ាស៊ីនត្រជាក់​របស់រថយន្តអ្នក។"</string>
     <string name="car_permission_label_mileage" msgid="4661317074631150551">"ចូលប្រើព័ត៌មាន​អំពីរយៈចម្ងាយរត់​របស់រថយន្ត"</string>
     <string name="car_permission_desc_mileage" msgid="7179735693278681090">"ចូលប្រើ​ព័ត៌មាន​អំពីរយៈចម្ងាយរត់​របស់រថយន្តអ្នក។"</string>
+    <!-- no translation found for car_permission_label_mileage_3p (7542459195663034759) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_mileage_3p (9109350882748664570) -->
+    <skip />
     <string name="car_permission_label_speed" msgid="1149027717860529745">"អានល្បឿន​រថយន្ត"</string>
     <string name="car_permission_desc_speed" msgid="2047965198165448241">"ចូលប្រើ​ល្បឿន​របស់រថយន្តអ្នក។"</string>
     <string name="car_permission_label_vehicle_dynamics_state" msgid="313779267420048367">"ចូលប្រើស្ថានភាព​ឌីណាមិច​របស់រថយន្ត"</string>
@@ -92,6 +96,10 @@
     <string name="car_permission_desc_storage_monitoring" msgid="2075712271139671318">"តាមដាន​ការប្រើប្រាស់​ឧបករណ៍ផ្ទុក​ទិន្នន័យ"</string>
     <string name="car_permission_label_driving_state" msgid="7754624599537393650">"ស្ដាប់អំពីស្ថានភាព​បើកបរ"</string>
     <string name="car_permission_desc_driving_state" msgid="2684025262811635737">"ស្តាប់អំពី​ការផ្លាស់ប្ដូរ​ស្ថានភាព​បើកបរ។"</string>
+    <!-- no translation found for car_permission_label_driving_state_3p (1395905103166125030) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_driving_state_3p (5491522450897843003) -->
+    <skip />
     <string name="car_permission_label_use_telemetry_service" msgid="948005838683758846">"ប្រើ​សេវាកម្ម​ទូរមាត្រវិធី​សម្រាប់រថយន្ត"</string>
     <string name="car_permission_desc_use_telemetry_service" msgid="3633214312435700766">"ប្រមូល​ទិន្នន័យអំពី​ស្ថានភាព​ប្រព័ន្ធ​រថយន្ត​។"</string>
     <string name="car_permission_label_use_evs_service" msgid="1729276125209310607">"ប្រើ Car EVS Service"</string>
@@ -106,6 +114,10 @@
     <string name="car_permission_desc_monitor_evs_status" msgid="2764278897143573535">"ស្ដាប់​ការផ្លាស់ប្ដូរ​ស្ថានភាព​នៃសេវាកម្ម EVS"</string>
     <string name="car_permission_label_car_engine_detailed" msgid="8911992719173587337">"ចូលប្រើព័ត៌មាន​លម្អិត​អំពីម៉ាស៊ីន​រថយន្ត"</string>
     <string name="car_permission_desc_car_engine_detailed" msgid="1746863362811347700">"ចូលប្រើ​ព័ត៌មាន​លម្អិត​អំពីម៉ាស៊ីនរថយន្តរបស់អ្នក។"</string>
+    <!-- no translation found for car_permission_label_car_engine_detailed_3p (2695036212735960169) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_car_engine_detailed_3p (7536940094077391015) -->
+    <skip />
     <string name="car_permission_label_car_energy_ports" msgid="8548990315169219454">"ចូលប្រើ​គម្របសាំង និងរន្ធសាក​អាគុយរថយន្ត។"</string>
     <string name="car_permission_desc_car_energy_ports" msgid="7771185999828794949">"ចូលប្រើ​គម្របសាំង និងរន្ធសាក​អាគុយរថយន្ត។"</string>
     <string name="car_permission_label_control_car_energy_ports" msgid="4375137311026313475">"គ្រប់គ្រង​គម្រប​សាំង និង​រន្ធ​សាក​អាគុយ​រថយន្ត"</string>
@@ -120,6 +132,10 @@
     <string name="car_permission_desc_control_car_mirrors" msgid="1224135684068855032">"គ្រប់គ្រង​កញ្ចក់​រថយន្ត។"</string>
     <string name="car_permission_label_control_car_seats" msgid="1826934820585497135">"គ្រប់គ្រង​កៅអី​រថយន្ត"</string>
     <string name="car_permission_desc_control_car_seats" msgid="2407536601226470563">"គ្រប់គ្រង​កៅអី​រថយន្ត។"</string>
+    <!-- no translation found for car_permission_label_read_car_seats (2996918480980128872) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_read_car_seats (5894145845932493046) -->
+    <skip />
     <string name="car_permission_label_read_car_seat_belts" msgid="2051828795852087659">"អានខ្សែក្រវាត់របស់រថយន្ត"</string>
     <string name="car_permission_desc_read_car_seat_belts" msgid="7076977711613912339">"អានខ្សែក្រវាត់របស់រថយន្ត។"</string>
     <string name="car_permission_label_read_impact_sensors" msgid="9193288836326363975">"អានសេនស័រប៉ះទង្គិចរបស់រថយន្ត"</string>
@@ -158,8 +174,16 @@
     <string name="car_permission_desc_car_exterior_environment" msgid="1716656004731603379">"ចូលប្រើ​សីតុណ្ហភាព​ផ្នែកខាងក្រៅរបស់​រថយន្ត។"</string>
     <string name="car_permission_label_car_tires" msgid="4379255261197836840">"ចូលប្រើ​ព័ត៌មានអំពី​សម្បកកង់រថយន្ត"</string>
     <string name="car_permission_desc_car_tires" msgid="8134496466769810134">"ចូលប្រើព័ត៌មាន​អំពីសម្បកកង់រថយន្ត។"</string>
+    <!-- no translation found for car_permission_label_car_tires_3p (1360632319908226570) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_car_tires_3p (820574543667371274) -->
+    <skip />
     <string name="car_permission_label_car_steering" msgid="7779530447441232479">"អានព័ត៌មាន​អំពីមុំ​គ្រប់គ្រង​ចង្កូត​រថយន្ត"</string>
     <string name="car_permission_desc_car_steering" msgid="1357331844530708138">"ចូលប្រើ​ព័ត៌មាន​អំពីមុំ​គ្រប់គ្រង​ចង្កូត​រថយន្ត។"</string>
+    <!-- no translation found for car_permission_label_read_car_steering_3p (1598866058085489462) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_read_car_steering_3p (576361609663755171) -->
+    <skip />
     <string name="car_permission_label_read_car_display_units" msgid="7617008314862097183">"អានផ្ទាំងអេក្រង់​របស់​រថយន្ត"</string>
     <string name="car_permission_desc_read_car_display_units" msgid="6891898275208542385">"អាន​អំពីផ្ទាំងអេក្រង់។"</string>
     <string name="car_permission_label_control_car_display_units" msgid="4975303668183173076">"គ្រប់គ្រងផ្ទាំងអេក្រង់​របស់​រថយន្ត"</string>
@@ -212,6 +236,10 @@
     <string name="car_permission_desc_control_adas_states" msgid="1893171217779342348">"គ្រប់គ្រង​ព័ត៌មានអំពី​ស្ថានភាព ADAS របស់រថយន្ត។"</string>
     <string name="car_permission_label_read_windshield_wipers" msgid="896867772546890348">"អានព័ត៌មាន​ទាក់ទងនឹងផ្លិតទឹក​របស់រថយន្ត"</string>
     <string name="car_permission_desc_read_windshield_wipers" msgid="597300271560195986">"អានព័ត៌មាន​ទាក់ទងនឹងផ្លិតទឹក​របស់រថយន្ត។"</string>
+    <!-- no translation found for car_permission_label_read_windshield_wipers_3p (4784843702416325970) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_read_windshield_wipers_3p (604163171596913379) -->
+    <skip />
     <string name="car_permission_label_control_windshield_wipers" msgid="7971852482734087493">"គ្រប់គ្រង​ផ្លិតទឹករបស់រថយន្ត"</string>
     <string name="car_permission_desc_control_windshield_wipers" msgid="3803429825323199728">"គ្រប់គ្រង​ផ្លិតទឹករបស់រថយន្ត។"</string>
     <string name="car_permission_label_manage_display_compatibility" msgid="52642673039197383">"គ្រប់គ្រងកញ្ចប់នៃភាពត្រូវគ្នាក្នុងការបង្ហាញ"</string>
@@ -232,6 +260,10 @@
     <string name="car_permission_desc_manage_car_system_ui" msgid="6201733970421818637">"ទំនាក់ទំនង​ជាមួយ ui ប្រព័ន្ធសម្រាប់​ការបង្កើតទិដ្ឋភាពកិច្ចការ ឬទទួលបាន​ការជូនដំណឹងអំពី​ការផ្លាស់ប្ដូរ ui ប្រព័ន្ធ។"</string>
     <string name="car_permission_label_read_persist_tethering_settings" msgid="6395145649477916950">"អានការកំណត់ការ​ភ្ជាប់ដែលបន្តបើករបស់រថយន្ត"</string>
     <string name="car_permission_desc_read_persist_tethering_settings" msgid="7373546466696896323">"អានការកំណត់ការ​ភ្ជាប់ដែលបន្តបើករបស់រថយន្ត"</string>
+    <string name="car_permission_label_record_vehicle_properties" msgid="958971344399611906">"កត់ត្រាលក្ខណៈរបស់យានជំនិះ"</string>
+    <string name="car_permission_desc_record_vehicle_properties" msgid="2560365700851584569">"កត់ត្រាលក្ខណៈរបស់យានជំនិះ"</string>
+    <string name="car_permission_label_inject_vehicle_properties" msgid="2943134725643169428">"បញ្ចូលលក្ខណៈរបស់យានជំនិះ"</string>
+    <string name="car_permission_desc_inject_vehicle_properties" msgid="2616112105084870775">"បញ្ចូលលក្ខណៈរបស់យានជំនិះ"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"មិនអាច​ដំណើរការ CAN bus បានទេ"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN bus មិនឆ្លើយតបទេ។ សូមផ្ដាច់ រួចភ្ជាប់​ប្រអប់​ឧបករណ៍ចាក់តន្ត្រី​ម្តងទៀត បន្ទាប់មក​បញ្ឆេះ​រថយន្ត​ឡើងវិញ"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"ឧបករណ៍របស់ខ្ញុំ"</string>

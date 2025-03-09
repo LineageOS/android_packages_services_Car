@@ -348,6 +348,74 @@
         </LinearLayout>
 
         <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#000000"
+            android:orientation="vertical">
+
+            <Spinner
+                android:id="@+id/spinner_importance"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:spinnerMode="dropdown"/>
+
+            <Spinner
+                android:id="@+id/spinner_category"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:spinnerMode="dropdown"/>
+
+            <CheckBox android:id="@+id/checkbox_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:textColor="#ffa9a8"
+                android:text="Content Title"
+                android:textSize="30sp"/>
+
+            <CheckBox android:id="@+id/checkbox_content"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:textColor="#ffa9a8"
+                android:text="Content Text"
+                android:textSize="30sp"/>
+
+            <CheckBox android:id="@+id/checkbox_colorized"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:textColor="#ffa9a8"
+                android:text="Colorized"
+                android:textSize="30sp"/>
+
+            <Spinner
+                android:id="@+id/spinner_colors"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:spinnerMode="dropdown"/>
+
+            <Spinner
+                android:id="@+id/spinner_actions"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:spinnerMode="dropdown"/>
+
+            <Button
+                android:id="@+id/custom_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:textColor="#ffa9a8"
+                android:text="Custom Notification"
+                android:textSize="30sp"/>
+        </LinearLayout>
+
+        <LinearLayout
             android:layout_height="wrap_content"
             android:layout_width="match_parent"
             android:background="#663333">

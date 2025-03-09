@@ -21,6 +21,7 @@ import android.car.VehicleAreaType;
 import android.car.feature.Flags;
 import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.property.AreaIdConfig;
+import android.hardware.automotive.vehicle.HasSupportedValueInfo;
 import android.hardware.automotive.vehicle.VehicleArea;
 import android.hardware.automotive.vehicle.VehicleProperty;
 import android.hardware.automotive.vehicle.VehiclePropertyAccess;
@@ -143,7 +144,8 @@ public abstract class HalPropConfig {
                     /* minInt32Value= */ 0, /* maxInt32Value= */ 0,
                     /* minFloatValue= */ 0, /* maxFloatValue= */ 0,
                     /* minInt64Value= */ 0, /* maxInt64Value= */ 0,
-                    supportedEnumValues, /* supportVariableUpdateRate= */ false, access));
+                    supportedEnumValues, /* supportVariableUpdateRate= */ false, access,
+                    /* hasSupportedValueInfo= */ null));
         } else {
             for (HalAreaConfig halAreaConfig : halAreaConfigs) {
                 if (!shouldConfigArrayDefineSupportedEnumValues) {
@@ -158,7 +160,7 @@ public abstract class HalPropConfig {
                                 halAreaConfig.getMinFloatValue(), halAreaConfig.getMaxFloatValue(),
                                 halAreaConfig.getMinInt64Value(), halAreaConfig.getMaxInt64Value(),
                                 supportedEnumValues, halAreaConfig.isVariableUpdateRateSupported(),
-                                areaAccess));
+                                areaAccess, halAreaConfig.getHasSupportedValueInfo()));
             }
         }
         return carPropertyConfigBuilder.build();
@@ -168,7 +170,7 @@ public abstract class HalPropConfig {
             @Nullable Set<Integer> allPossibleEnumValues, int areaId, int minInt32Value,
             int maxInt32Value, float minFloatValue, float maxFloatValue, long minInt64Value,
             long maxInt64Value, long[] supportedEnumValues, boolean supportVariableUpdateRate,
-            int access) {
+            int access, @Nullable HasSupportedValueInfo hasSupportedValueInfo) {
         AreaIdConfig.Builder areaIdConfigBuilder = Flags.areaIdConfigAccess()
                 ? new AreaIdConfig.Builder(access, areaId)
                 : new AreaIdConfig.Builder(areaId);
@@ -198,6 +200,17 @@ public abstract class HalPropConfig {
             areaIdConfigBuilder.setMinValue(minInt64Value).setMaxValue(maxInt64Value);
         }
         areaIdConfigBuilder.setSupportVariableUpdateRate(supportVariableUpdateRate);
+        if (hasSupportedValueInfo != null) {
+            if (hasSupportedValueInfo.hasMinSupportedValue) {
+                areaIdConfigBuilder.setHasMinSupportedValue(true);
+            }
+            if (hasSupportedValueInfo.hasMaxSupportedValue) {
+                areaIdConfigBuilder.setHasMaxSupportedValue(true);
+            }
+            if (hasSupportedValueInfo.hasSupportedValuesList) {
+                areaIdConfigBuilder.setHasSupportedValuesList(true);
+            }
+        }
         return areaIdConfigBuilder.build();
     }
 

@@ -276,7 +276,7 @@ private:
     void writeConfigsToDiskAsyncLocked();
 
     // Local PackageInfoResolverInterface instance. Useful to mock in tests.
-    sp<PackageInfoResolverInterface> mPackageInfoResolver;
+    std::shared_ptr<PackageInfoResolverInterface> mPackageInfoResolver;
 
     // Minimum written bytes to sync the stats with the Watchdog service.
     double mMinSyncWrittenBytes;

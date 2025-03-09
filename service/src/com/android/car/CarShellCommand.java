@@ -60,6 +60,7 @@ import android.car.builtin.os.UserManagerHelper;
 import android.car.builtin.util.Slogf;
 import android.car.builtin.widget.LockPatternHelper;
 import android.car.content.pm.CarPackageManager;
+import android.car.drivingstate.CarDrivingStateEvent;
 import android.car.drivingstate.CarUxRestrictions;
 import android.car.feature.Flags;
 import android.car.hardware.power.CarPowerPolicy;
@@ -273,7 +274,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
     private static final String DRIVING_STATE_PARK = "park";
     private static final String DRIVING_STATE_REVERSE = "reverse";
     private static final String DRIVING_STATE_NEUTRAL = "neutral";
-
+    private static final String COMMAND_GET_DRIVING_STATE = "get-driving-state";
     private static final String COMMAND_SET_REARVIEW_CAMERA_ID = "set-rearview-camera-id";
     private static final String COMMAND_GET_REARVIEW_CAMERA_ID = "get-rearview-camera-id";
     private static final String COMMAND_SET_CAMERA_ID = "set-camera-id";
@@ -856,6 +857,9 @@ final class CarShellCommand extends BasicShellCommandHandler {
         pw.printf("\t%s [%s|%s|%s|%s]\n", COMMAND_EMULATE_DRIVING_STATE, DRIVING_STATE_DRIVE,
                 DRIVING_STATE_PARK, DRIVING_STATE_REVERSE, DRIVING_STATE_NEUTRAL);
         pw.println("\t  Emulates the giving driving state.");
+
+        pw.printf("\t%s\n", COMMAND_GET_DRIVING_STATE);
+        pw.println("\t  Gets the current driving state.");
 
         pw.printf("\t%s <POLICY_ID> [--enable COMP1,COMP2,...] [--disable COMP1,COMP2,...]\n",
                 COMMAND_DEFINE_POWER_POLICY);
@@ -1457,6 +1461,9 @@ final class CarShellCommand extends BasicShellCommandHandler {
                 break;
             case COMMAND_EMULATE_DRIVING_STATE:
                 emulateDrivingState(args, writer);
+                break;
+            case COMMAND_GET_DRIVING_STATE:
+                getDrivingState(writer);
                 break;
             case COMMAND_DEFINE_POWER_POLICY:
                 return definePowerPolicy(args, writer);
@@ -3149,6 +3156,26 @@ final class CarShellCommand extends BasicShellCommandHandler {
             default:
                 writer.printf("invalid driving mode %s; must be %s or %s\n", mode,
                         DRIVING_STATE_DRIVE, DRIVING_STATE_PARK);
+        }
+    }
+
+    private void getDrivingState(IndentingPrintWriter writer) {
+        CarDrivingStateService service =
+                (CarDrivingStateService) mAllServicesByClazz.get(CarDrivingStateService.class);
+        int driveState = service.getCurrentDrivingState().eventValue;
+
+        switch (driveState) {
+            case CarDrivingStateEvent.DRIVING_STATE_PARKED:
+                writer.println("Parked");
+                break;
+            case CarDrivingStateEvent.DRIVING_STATE_IDLING:
+                writer.println("Idling");
+                break;
+            case CarDrivingStateEvent.DRIVING_STATE_MOVING:
+                writer.println("Moving");
+                break;
+            default:
+                writer.println("Unknown");
         }
     }
 

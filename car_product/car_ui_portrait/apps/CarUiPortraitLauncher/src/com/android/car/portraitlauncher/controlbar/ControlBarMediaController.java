@@ -231,7 +231,10 @@ public class ControlBarMediaController extends PlaybackCardController {
 
     @Override
     protected void updateAlbumCoverWithDrawable(Drawable drawable) {
-        RoundedDrawable roundedDrawable = new RoundedDrawable(drawable, mView.getResources()
+        Drawable drawableToUse = drawable == null ? mView.getResources().getDrawable(
+                /* drawable */ R.drawable.media_card_default_album_art, /* theme */ null)
+                : drawable;
+        RoundedDrawable roundedDrawable = new RoundedDrawable(drawableToUse, mView.getResources()
                 .getFloat(R.dimen.control_bar_media_card_album_art_drawable_corner_ratio));
         super.updateAlbumCoverWithDrawable(roundedDrawable);
     }
@@ -384,6 +387,7 @@ public class ControlBarMediaController extends PlaybackCardController {
     @Override
     protected void updateQueueState(boolean hasQueue, boolean isQueueVisible) {
         super.updateQueueState(hasQueue, isQueueVisible);
+        ViewUtils.setVisible(mQueueButton, hasQueue);
         if (isPanelOpen() && mViewModel.getQueueVisible() && !hasQueue) {
             unselectPanelButtons();
 
@@ -464,6 +468,7 @@ public class ControlBarMediaController extends PlaybackCardController {
         mCustomActionOverflowLayoutVisibility = mCustomActionOverflowLayout.getVisibility();
 
         mSeekBar.getThumb().mutate().setAlpha(0);
+        mSeekBar.setEnabled(false);
 
         mMotionLayout.transitionToEnd();
     }
@@ -481,6 +486,7 @@ public class ControlBarMediaController extends PlaybackCardController {
         mCustomActionOverflowLayout.setVisibility(mCustomActionOverflowLayoutVisibility);
 
         mSeekBar.getThumb().mutate().setAlpha(255);
+        mSeekBar.setEnabled(true);
 
         mMotionLayout.transitionToStart();
     }

@@ -5,12 +5,12 @@ package {
 aidl_interface {
     name: "android.automotive.computepipe.runner",
     vendor_available: true,
+    defaults: [
+        "android.hardware.graphics.common-latest",
+    ],
     srcs: [
         "android/automotive/computepipe/runner/*.aidl",
         "android/automotive/computepipe/*.aidl",
-    ],
-    imports: [
-        "android.hardware.graphics.common-V5",
     ],
     stability: "vintf",
     // Automotive has different platform schedule. We shouldn't need to

@@ -17,10 +17,10 @@
 package com.android.systemui.car.systembar;
 
 import android.content.Context;
-import android.content.res.Configuration;
 
 import com.android.systemui.car.dagger.CarSysUIDynamicOverride;
-import com.android.systemui.car.displayarea.CarDisplayAreaController;
+import com.android.systemui.car.displayarea.TaskCategoryManager;
+import com.android.systemui.car.hvac.CarUiPortraitTemperatureControlViewController;
 import com.android.systemui.car.systembar.element.CarSystemBarElementController;
 import com.android.systemui.dagger.SysUISingleton;
 
@@ -40,25 +40,16 @@ public abstract class CarUiPortraitSystemBarModule {
     @CarSysUIDynamicOverride
     static ButtonSelectionStateListener provideButtonSelectionStateListener(Context context,
             ButtonSelectionStateController buttonSelectionStateController,
-            CarDisplayAreaController displayAreaController) {
-        if (context.getResources().getConfiguration().orientation
-                == Configuration.ORIENTATION_LANDSCAPE) {
-            return new ButtonSelectionStateListener(buttonSelectionStateController);
-        }
+            TaskCategoryManager taskCategoryManager) {
 
         return new CarUiPortraitButtonSelectionStateListener(context,
-                buttonSelectionStateController, displayAreaController);
+                buttonSelectionStateController, taskCategoryManager);
     }
 
     @SysUISingleton
     @Provides
     @CarSysUIDynamicOverride
     static ButtonSelectionStateController provideButtonSelectionStateController(Context context) {
-        if (context.getResources().getConfiguration().orientation
-                == Configuration.ORIENTATION_LANDSCAPE) {
-            return new ButtonSelectionStateController(context);
-        }
-
         return new CarUiPortraitButtonSelectionStateController(context);
     }
 
@@ -68,4 +59,12 @@ public abstract class CarUiPortraitSystemBarModule {
     @ClassKey(CarUiPortraitDockViewControllerWrapper.class)
     public abstract CarSystemBarElementController.Factory bindPortraitDockViewControllerWrapper(
             CarUiPortraitDockViewControllerWrapper.Factory factory);
+
+    /** Injects CarUiPortraitTemperatureControlViewController. */
+    @Binds
+    @IntoMap
+    @ClassKey(CarUiPortraitTemperatureControlViewController.class)
+    public abstract CarSystemBarElementController.Factory
+            bindCarUiPortraitTemperatureControlViewController(
+                    CarUiPortraitTemperatureControlViewController.Factory factory);
 }

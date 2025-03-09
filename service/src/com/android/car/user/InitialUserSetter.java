@@ -34,7 +34,6 @@ import android.car.builtin.util.Slogf;
 import android.car.builtin.widget.LockPatternHelper;
 import android.car.settings.CarSettings;
 import android.content.Context;
-import android.hardware.automotive.vehicle.InitialUserInfoRequestType;
 import android.hardware.automotive.vehicle.UserInfo;
 import android.os.UserHandle;
 import android.os.UserManager;
@@ -122,6 +121,32 @@ final class InitialUserSetter {
     })
     @Retention(RetentionPolicy.SOURCE)
     public @interface InitialUserInfoType {
+    }
+
+    /**
+     * Request is made during boot phase.
+     */
+    public static final int ON_BOOT = 0;
+
+    /**
+     * Request is made during resume phase.
+     */
+    public static final int ON_RESUME = 1;
+
+    /**
+     * Request is made during suspend phase.
+     */
+    public static final int ON_SUSPEND = 2;
+
+    @IntDef(prefix = {
+            "ON_"
+    }, value = {
+            ON_BOOT,
+            ON_RESUME,
+            ON_SUSPEND
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface RequestType {
     }
 
     @VisibleForTesting
@@ -219,13 +244,13 @@ final class InitialUserSetter {
     public static final class Builder {
 
         private final @InitialUserInfoType int mType;
+        private final @RequestType int mRequestType;
         private boolean mReplaceGuest;
         private @UserIdInt int mSwitchUserId;
         private @Nullable String mNewUserName;
         private int mNewUserFlags;
         private boolean mSupportsOverrideUserIdProperty;
         private @Nullable String mUserLocales;
-        private int mRequestType;
 
         /**
          * Constructor for the given type.
@@ -233,18 +258,13 @@ final class InitialUserSetter {
          * @param type {@link #TYPE_DEFAULT_BEHAVIOR}, {@link #TYPE_SWITCH}, {@link #TYPE_CREATE} or
          *            {@link #TYPE_REPLACE_GUEST}.
          */
-        public Builder(@InitialUserInfoType int type) {
+        Builder(@InitialUserInfoType int type, @RequestType int requestType) {
             Preconditions.checkArgument(type == TYPE_DEFAULT_BEHAVIOR || type == TYPE_SWITCH
                     || type == TYPE_CREATE || type == TYPE_REPLACE_GUEST, "invalid builder type");
+            Preconditions.checkArgument(requestType == ON_BOOT || requestType == ON_RESUME
+                    || requestType == ON_SUSPEND, "invalid request type: " + requestType);
             mType = type;
-        }
-
-        /**
-         * Sets the request type for {@link InitialUserInfoRequestType}.
-         */
-        public Builder setRequestType(int requestType) {
             mRequestType = requestType;
-            return this;
         }
 
         /**
@@ -254,7 +274,8 @@ final class InitialUserSetter {
          */
         @NonNull
         public Builder setSwitchUserId(@UserIdInt int userId) {
-            Preconditions.checkArgument(mType == TYPE_SWITCH, "invalid builder type: " + mType);
+            Preconditions.checkArgument(mType == TYPE_SWITCH,
+                    "invalid builder type: " + mType);
             mSwitchUserId = userId;
             return this;
         }
@@ -339,7 +360,7 @@ final class InitialUserSetter {
         public final int newUserFlags;
         public final boolean supportsOverrideUserIdProperty;
         public @Nullable String userLocales;
-        public final int requestType;
+        public final @RequestType int requestType;
 
         private InitialUserInfo(@NonNull Builder builder) {
             type = builder.mType;
@@ -454,7 +475,7 @@ final class InitialUserSetter {
             return;
         }
 
-        switchUser(new Builder(TYPE_SWITCH)
+        switchUser(new Builder(TYPE_SWITCH, info.requestType)
                 .setSwitchUserId(newUser.getIdentifier())
                 .build(), fallback);
 
@@ -472,7 +493,7 @@ final class InitialUserSetter {
                 Slogf.d(TAG, "executeDefaultBehavior(): "
                         + "Multi User No Driver switching to system user");
             }
-            switchUser(new Builder(TYPE_SWITCH)
+            switchUser(new Builder(TYPE_SWITCH, info.requestType)
                     .setSwitchUserId(UserHandle.SYSTEM.getIdentifier())
                     .setSupportsOverrideUserIdProperty(info.supportsOverrideUserIdProperty)
                     .setReplaceGuest(false)
@@ -481,7 +502,7 @@ final class InitialUserSetter {
             if (DBG) {
                 Slogf.d(TAG, "executeDefaultBehavior(): no initial user, creating it");
             }
-            createAndSwitchUser(new Builder(TYPE_CREATE)
+            createAndSwitchUser(new Builder(TYPE_CREATE, info.requestType)
                     .setNewUserName(mNewUserName)
                     .setNewUserFlags(UserInfo.USER_FLAG_ADMIN)
                     .setSupportsOverrideUserIdProperty(info.supportsOverrideUserIdProperty)
@@ -492,7 +513,7 @@ final class InitialUserSetter {
                 Slogf.d(TAG, "executeDefaultBehavior(): switching to initial user");
             }
             int userId = getInitialUser(info.supportsOverrideUserIdProperty);
-            switchUser(new Builder(TYPE_SWITCH)
+            switchUser(new Builder(TYPE_SWITCH, info.requestType)
                     .setSwitchUserId(userId)
                     .setSupportsOverrideUserIdProperty(info.supportsOverrideUserIdProperty)
                     .setReplaceGuest(info.replaceGuest)
@@ -623,10 +644,8 @@ final class InitialUserSetter {
             Slogf.w(TAG, "failed to mark guest " + user.getIdentifier() + " for deletion");
         }
 
-        Pair<UserHandle, String> result = createNewUser(new Builder(TYPE_CREATE)
-                .setNewUserName(mNewGuestName)
-                .setNewUserFlags(halFlags)
-                .build());
+        Pair<UserHandle, String> result = createNewUser(mNewGuestName, halFlags,
+                /* userLocales= */ null);
 
         String errorMessage = result.second;
         if (errorMessage != null) {
@@ -638,14 +657,15 @@ final class InitialUserSetter {
     }
 
     private void createAndSwitchUser(@NonNull InitialUserInfo info, boolean fallback) {
-        Pair<UserHandle, String> result = createNewUser(info);
+        Pair<UserHandle, String> result = createNewUser(info.newUserName, info.newUserFlags,
+                info.userLocales);
         String reason = result.second;
         if (reason != null) {
             fallbackDefaultBehavior(info, fallback, reason);
             return;
         }
 
-        switchUser(new Builder(TYPE_SWITCH)
+        switchUser(new Builder(TYPE_SWITCH, info.requestType)
                 .setSwitchUserId(result.first.getIdentifier())
                 .setSupportsOverrideUserIdProperty(info.supportsOverrideUserIdProperty)
                 .build(), fallback);
@@ -658,10 +678,7 @@ final class InitialUserSetter {
      *         error message.
      */
     @NonNull
-    private Pair<UserHandle, String> createNewUser(@NonNull InitialUserInfo info) {
-        String name = info.newUserName;
-        int halFlags = info.newUserFlags;
-
+    private Pair<UserHandle, String> createNewUser(String name, int halFlags, String userLocales) {
         if (DBG) {
             Slogf.d(TAG, "createUser(name=" + UserHelperLite.safeName(name) + ", flags="
                     + userFlagsToString(halFlags) + ")");
@@ -707,14 +724,14 @@ final class InitialUserSetter {
             Slogf.d(TAG, "user created: " + user.getIdentifier());
         }
 
-        if (info.userLocales != null) {
+        if (userLocales != null) {
             if (DBG) {
                 Slogf.d(TAG, "setting locale for user " + user.getIdentifier() + " to "
-                        + info.userLocales);
+                        + userLocales);
             }
             mSettings.putStringSystem(
                     getContentResolverForUser(mContext, user.getIdentifier()),
-                    SettingsHelper.SYSTEM_LOCALES, info.userLocales);
+                    SettingsHelper.SYSTEM_LOCALES, userLocales);
         }
 
         return new Pair<>(user, null);
@@ -738,12 +755,12 @@ final class InitialUserSetter {
             }
         }
 
-        if (info.requestType == InitialUserInfoRequestType.RESUME) {
-            return mActivityManagerHelper.startUserInForeground(userId);
-        } else {
+        if (info.requestType == ON_BOOT) {
             Slogf.i(TAG, "Setting boot user to: %d", userId);
             mUm.setBootUser(UserHandle.of(userId));
             return true;
+        } else {
+            return mActivityManagerHelper.startUserInForeground(userId);
         }
     }
 

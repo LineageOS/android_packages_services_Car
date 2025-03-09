@@ -20,6 +20,7 @@ import static android.hardware.automotive.vehicle.VehicleProperty.AP_POWER_STATE
 import static android.hardware.automotive.vehicle.VehicleProperty.AP_POWER_STATE_REQ;
 import static android.hardware.automotive.vehicle.VehicleProperty.DISPLAY_BRIGHTNESS;
 import static android.hardware.automotive.vehicle.VehicleProperty.PER_DISPLAY_BRIGHTNESS;
+import static android.hardware.automotive.vehicle.VehicleProperty.PER_DISPLAY_MAX_BRIGHTNESS;
 import static android.hardware.automotive.vehicle.VehicleProperty.SHUTDOWN_REQUEST;
 import static android.hardware.automotive.vehicle.VehicleProperty.VEHICLE_IN_USE;
 
@@ -71,9 +72,6 @@ public class PowerHalService extends HalServiceBase {
     // Set display brightness from 0-100%
     public static final int MAX_BRIGHTNESS = 100;
 
-    // TODO(b/337307388): replace this with VehicleProperty.PER_DISPLAY_MAX_BRIGHTNESS once we use
-    // property V4.
-    private static final int PER_DISPLAY_MAX_BRIGHTNESS = 0x11410F4E;
     // In order to prevent flickering caused by
     // set_vhal_brightness_1 -> set_vhal_brightness_2 -> vhal_report_1 -> set_vhal_brightness_1
     // -> vhal_report_2 -> set_vhal_brightness_2 -> ...

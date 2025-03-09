@@ -23,7 +23,5 @@
     where users can choose how to display apps, the device determines how apps are shown.-->
     <feature name="android.software.car.splitscreen_multitasking"/>
     <feature name="android.hardware.screen.portrait"/>
-    <!-- Disallow third-party IME apps. -->
-    <unavailable-feature name="android.software.input_methods"/>
     <unavailable-feature name="android.hardware.screen.landscape"/>
 </permissions>

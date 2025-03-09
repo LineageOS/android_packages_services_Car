@@ -49,6 +49,7 @@ using ::aidl::android::hardware::automotive::vehicle::GetValueRequests;
 using ::aidl::android::hardware::automotive::vehicle::GetValueResult;
 using ::aidl::android::hardware::automotive::vehicle::GetValueResults;
 using ::aidl::android::hardware::automotive::vehicle::IVehicle;
+using ::aidl::android::hardware::automotive::vehicle::PropIdAreaId;
 using ::aidl::android::hardware::automotive::vehicle::SetValueRequest;
 using ::aidl::android::hardware::automotive::vehicle::SetValueRequests;
 using ::aidl::android::hardware::automotive::vehicle::SetValueResult;
@@ -254,8 +255,14 @@ void AidlVhalClient::onBinderUnlinked(void* cookie) {
 }
 
 void AidlVhalClient::onBinderDiedWithContext() {
-    std::lock_guard<std::mutex> lk(mLock);
-    for (auto callback : mOnBinderDiedCallbacks) {
+    std::unordered_set<std::shared_ptr<OnBinderDiedCallbackFunc>> callbacksCopy;
+    {
+        // Copy the callbacks so that we avoid invoking the callback with lock hold.
+        std::lock_guard<std::mutex> lk(mLock);
+        callbacksCopy = mOnBinderDiedCallbacks;
+    }
+
+    for (auto callback : callbacksCopy) {
         (*callback)();
     }
 }
@@ -537,6 +544,12 @@ ScopedAStatus GetSetValueClient::onPropertySetError([[maybe_unused]] const Vehic
                                                 "called from GetSetValueClient");
 }
 
+ScopedAStatus GetSetValueClient::onSupportedValueChange(
+        [[maybe_unused]] const std::vector<PropIdAreaId>&) {
+    // TODO(b/381020465): Add relevant implementation.
+    return ScopedAStatus::fromExceptionCode(EX_UNSUPPORTED_OPERATION);
+}
+
 template <class T>
 void GetSetValueClient::onTimeout(const std::unordered_set<int64_t>& requestIds,
                                   std::unordered_map<int64_t, std::unique_ptr<T>>* callbacks) {
@@ -667,6 +680,12 @@ ScopedAStatus SubscriptionVehicleCallback::onPropertySetError(const VehiclePropE
         });
     }
     mCallback->onPropertySetError(halPropErrors);
+    return ScopedAStatus::ok();
+}
+
+ScopedAStatus SubscriptionVehicleCallback::onSupportedValueChange(
+        [[maybe_unused]] const std::vector<PropIdAreaId>&) {
+    // TODO(b/381020465): Add relevant implementation.
     return ScopedAStatus::ok();
 }
 

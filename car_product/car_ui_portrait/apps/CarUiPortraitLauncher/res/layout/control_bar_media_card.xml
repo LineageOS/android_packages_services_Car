@@ -43,6 +43,7 @@
             android:layout_width="@dimen/control_bar_media_card_album_art_size"
             android:layout_height="@dimen/control_bar_media_card_album_art_size"
             android:background="@drawable/radius_24_background"
+            android:src="@drawable/media_card_default_album_art"
             android:clipToOutline="true"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -70,7 +71,6 @@
             android:id="@+id/custom_action_overflow_container"
             android:layout_width="wrap_content"
             android:layout_height="@dimen/media_card_large_button_size"
-            android:layout_marginEnd="@dimen/control_bar_media_card_view_end_margin"
             android:layout_marginStart="@dimen/media_card_view_separation_margin"
             android:paddingHorizontal="@dimen/control_bar_media_card_custom_action_layout_horizontal_padding"
             android:background="@drawable/pill_button_shape"
@@ -78,7 +78,7 @@
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="@id/play_pause_button"
             app:layout_constraintStart_toEndOf="@id/playback_action_id2"
-            app:layout_constraintEnd_toStartOf="@id/queue_button"
+            app:layout_constraintEnd_toStartOf="@id/guideline"
             app:layout_constraintTop_toTopOf="@id/play_pause_button"
             app:layout_constraintHorizontal_bias="1">
 
@@ -132,12 +132,11 @@
             android:id="@+id/custom_action_container"
             android:layout_width="wrap_content"
             android:layout_height="@dimen/media_card_large_button_size"
-            android:layout_marginEnd="@dimen/control_bar_media_card_view_end_margin"
             android:layout_marginStart="@dimen/media_card_view_separation_margin"
             android:paddingHorizontal="@dimen/control_bar_media_card_custom_action_layout_horizontal_padding"
             app:layout_constraintBottom_toBottomOf="@id/play_pause_button"
             app:layout_constraintStart_toEndOf="@id/playback_action_id2"
-            app:layout_constraintEnd_toStartOf="@id/queue_button"
+            app:layout_constraintEnd_toStartOf="@id/guideline"
             app:layout_constraintTop_toTopOf="@id/play_pause_button"
             app:layout_constraintHorizontal_bias="1">
 
@@ -222,6 +221,7 @@
             android:padding="@dimen/control_bar_media_card_playback_button_icon_padding"
             android:cropToPadding="true"
             android:backgroundTint="@color/car_surface_container_highest"
+            android:visibility="gone"
             app:layout_constraintStart_toEndOf="@id/play_pause_button"
             app:layout_constraintBottom_toBottomOf="@id/play_pause_button"
             app:layout_constraintTop_toTopOf="@id/play_pause_button" />
@@ -238,6 +238,7 @@
             android:padding="@dimen/control_bar_media_card_playback_button_icon_padding"
             android:cropToPadding="true"
             android:backgroundTint="@color/car_surface_container_highest"
+            android:visibility="gone"
             app:layout_goneMarginStart="@dimen/media_card_view_separation_margin"
             app:layout_constraintStart_toEndOf="@id/playback_action_id1"
             app:layout_constraintBottom_toBottomOf="@id/play_pause_button"

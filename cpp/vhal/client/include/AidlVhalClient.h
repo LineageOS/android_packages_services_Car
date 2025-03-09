@@ -190,6 +190,9 @@ public:
             int32_t sharedMemoryCount) override;
     ndk::ScopedAStatus onPropertySetError(
             const aidl::android::hardware::automotive::vehicle::VehiclePropErrors& errors) override;
+    ndk::ScopedAStatus onSupportedValueChange(
+            const std::vector<::aidl::android::hardware::automotive::vehicle::PropIdAreaId>&
+                    propIdAreaIds) override;
 
     void getValue(int64_t requestId, const IHalPropValue& requestValue,
                   std::shared_ptr<AidlVhalClient::GetValueCallbackFunc> clientCallback,
@@ -253,6 +256,9 @@ public:
             int32_t sharedMemoryCount) override;
     ndk::ScopedAStatus onPropertySetError(
             const aidl::android::hardware::automotive::vehicle::VehiclePropErrors& errors) override;
+    ndk::ScopedAStatus onSupportedValueChange(
+            const std::vector<::aidl::android::hardware::automotive::vehicle::PropIdAreaId>&
+                    propIdAreaIds) override;
 
 private:
     std::shared_ptr<ISubscriptionCallback> mCallback;

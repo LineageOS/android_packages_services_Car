@@ -16,10 +16,14 @@
 
 package android.car.hardware.property;
 
+import static android.car.feature.Flags.FLAG_CAR_PROPERTY_SUPPORTED_VALUE;
+
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 import static com.android.car.internal.property.CarPropertyErrorCodes.STATUS_OK;
 import static com.android.car.internal.property.CarPropertyErrorCodes.STATUS_TRY_AGAIN;
 import static com.android.car.internal.property.CarPropertyHelper.SYNC_OP_LIMIT_TRY_AGAIN;
+import static com.android.car.internal.property.CarPropertyHelper.getPropIdAreaIdsFromCarSubscriptions;
+import static com.android.car.internal.property.CarPropertyHelper.newPropIdAreaId;
 
 import static java.lang.Integer.toHexString;
 import static java.util.Objects.requireNonNull;
@@ -35,6 +39,7 @@ import android.annotation.SystemApi;
 import android.car.Car;
 import android.car.CarManagerBase;
 import android.car.VehiclePropertyIds;
+import android.car.builtin.util.Slogf;
 import android.car.feature.FeatureFlags;
 import android.car.feature.FeatureFlagsImpl;
 import android.car.feature.Flags;
@@ -45,6 +50,7 @@ import android.os.Build;
 import android.os.CancellationSignal;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.ParcelableHolder;
 import android.os.RemoteException;
 import android.os.ServiceSpecificException;
 import android.os.SystemClock;
@@ -57,6 +63,7 @@ import android.util.SparseArray;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.ICarBase;
 import com.android.car.internal.SingleMessageHandler;
+import com.android.car.internal.common.DispatchList;
 import com.android.car.internal.dep.Trace;
 import com.android.car.internal.os.HandlerExecutor;
 import com.android.car.internal.property.AsyncPropertyServiceRequest;
@@ -69,7 +76,11 @@ import com.android.car.internal.property.GetPropertyConfigListResult;
 import com.android.car.internal.property.GetSetValueResult;
 import com.android.car.internal.property.GetSetValueResultList;
 import com.android.car.internal.property.IAsyncPropertyResultCallback;
+import com.android.car.internal.property.ISupportedValuesChangeCallback;
 import com.android.car.internal.property.InputSanitizationUtils;
+import com.android.car.internal.property.MinMaxSupportedPropertyValue;
+import com.android.car.internal.property.PropIdAreaId;
+import com.android.car.internal.property.RawPropertyValue;
 import com.android.car.internal.property.SubscriptionManager;
 import com.android.car.internal.util.IntArray;
 import com.android.car.internal.util.PairSparseArray;
@@ -82,6 +93,7 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -118,6 +130,8 @@ public class CarPropertyManager extends CarManagerBase {
 
     private final CarPropertyEventListenerToService mCarPropertyEventToService =
             new CarPropertyEventListenerToService(this);
+    private final CarServiceSupportedValuesChangeCallback mCarServiceSupportedValuesChangeCallback =
+            new CarServiceSupportedValuesChangeCallback(this);
 
     // This lock is shared with all CarPropertyEventCallbackController instances to prevent
     // potential deadlock.
@@ -137,6 +151,20 @@ public class CarPropertyManager extends CarManagerBase {
     @GuardedBy("mLock")
     private final SubscriptionManager<CarPropertyEventCallback> mSubscriptionManager =
             new SubscriptionManager<>();
+    // Map from [propId, areaId] to set of registered SupportedValuesChangeCallbacks.
+    @GuardedBy("mLock")
+    private final PairSparseArray<ArraySet<SupportedValuesChangeCallback>>
+            mSupportedValuesChangeCallbackByPropIdAreaId = new PairSparseArray<>();
+    // Map from SupportedValuesChangeCallback to its associated executor. Only one executor is
+    // associated with one callback.
+    @GuardedBy("mLock")
+    private final Map<SupportedValuesChangeCallback, Executor>
+            mExecutorBySupportedValuesChangeCallback = new ArrayMap<>();
+    // Map from SupportedValuesChangeCallback to its registered set of [propId, areaIds]. This is
+    // the reverse map for mSupportedValuesChangeCallbackByPropIdAreaId.
+    @GuardedBy("mLock")
+    private final Map<SupportedValuesChangeCallback, ArraySet<PropIdAreaId>>
+            mPropIdAreaIdsBySupportedValuesChangeCallback = new ArrayMap<>();
 
     private FeatureFlags mFeatureFlags = new FeatureFlagsImpl();
 
@@ -919,17 +947,23 @@ public class CarPropertyManager extends CarManagerBase {
                     ResultType clientResult = propertyResultCallback.build(
                             requestId, propertyId, areaId, timestampNanos,
                             carPropertyValue == null ? null : carPropertyValue.getValue());
-                    Binder.clearCallingIdentity();
-                    callbackExecutor.execute(() -> propertyResultCallback.onSuccess(
+                    runOnExecutor(callbackExecutor, () -> propertyResultCallback.onSuccess(
                             clientCallback, clientResult));
                 } else {
-                    Binder.clearCallingIdentity();
-                    callbackExecutor.execute(() -> propertyResultCallback.onFailure(clientCallback,
-                            new PropertyAsyncError(requestId, propertyId, areaId,
-                                    result.getCarPropertyErrorCodes())));
+                    runOnExecutor(callbackExecutor, () ->
+                            propertyResultCallback.onFailure(clientCallback,
+                                    new PropertyAsyncError(requestId, propertyId, areaId,
+                                            result.getCarPropertyErrorCodes())));
                 }
             }
         }
+    }
+
+    private static void runOnExecutor(Executor executor, Runnable runnable) {
+        // Must clear binder identity before running client executor.
+        long token = Binder.clearCallingIdentity();
+        executor.execute(runnable);
+        Binder.restoreCallingIdentity(token);
     }
 
     /**
@@ -970,8 +1004,6 @@ public class CarPropertyManager extends CarManagerBase {
     public static final float SENSOR_RATE_FAST = 10f;
     /** Read sensors at the rate of 100 hertz */
     public static final float SENSOR_RATE_FASTEST = 100f;
-
-
 
     /**
      * Status to indicate that set operation failed. Try it again.
@@ -1092,10 +1124,19 @@ public class CarPropertyManager extends CarManagerBase {
      * </ul>
      *
      * <p>
-     * <b>Note:</b> When this function is called, the callback will receive the current
+     * <b>Note:</b> When this function is called, if for the {@code CarPropertyManager} instance,
+     * this is the first callback registered for the property, it will receive the current
      * values for all the areaIds for the property through property change events if they are
      * currently okay for reading. If they are not available for reading or in error state,
      * property change events with a unavailable or error status will be generated.
+     *
+     * <p>
+     * <b>Note:</b> If the client has {@link android.content.pm.ApplicationInfo#targetSdkVersion} <
+     * 16, if the client calls this function after the property is already registered
+     * (aka, this is not the first callback registered for the property),
+     * it is not guaranteed that the initial current-value event will be generated. If the client
+     * has {@link android.content.pm.ApplicationInfo#targetSdkVersion} > 16, it is guaranteed that
+     * the initial current-value event will always be generated for every call.
      *
      * <p>For properties that might be unavailable for reading because their power state
      * is off, property change events containing the property's initial value will be generated
@@ -1314,10 +1355,19 @@ public class CarPropertyManager extends CarManagerBase {
      * <p>The {@code carPropertyEventCallback} is executed on a single default event handler thread.
      *
      * <p>
-     * <b>Note:</b> When this function is called, the callback will receive the current
-     * values of the subscribed [propertyId, areaId]s through property change events if they are
-     * currently okay for reading. If they are not available for reading or in error state,
+     * <b>Note:</b> When this function is called, if for the {@code CarPropertyManager} instance,
+     * this is the first callback registered for the [propertyId, areaId], it will receive the
+     * current values of the subscribed [propertyId, areaId]s through property change events if they
+     * are currently okay for reading. If they are not available for reading or in error state,
      * property change events with a unavailable or error status will be generated.
+     *
+     * <p>
+     * <b>Note:</b> If the client has {@link android.content.pm.ApplicationInfo#targetSdkVersion} <
+     * 16, if the client calls this function after the [propertyId, areaId] is already registered
+     * (aka, this is not the first callback registered for the [propertyId, areaId]),
+     * it is not guaranteed that the initial current-value event will be generated. If the client
+     * has {@link android.content.pm.ApplicationInfo#targetSdkVersion} > 16, it is guaranteed that
+     * the initial current-value event will always be generated for every call.
      *
      * <p>Note that the callback will be executed on the event handler provided to the
      * {@link android.car.Car} or the main thread if none was provided.
@@ -1377,11 +1427,6 @@ public class CarPropertyManager extends CarManagerBase {
      * {@code callbackExecutor} is {@code null}, the callback will be executed on the default event
      * handler thread. If no AreaIds are specified, then it will subscribe to all AreaIds for that
      * PropertyId.
-     *
-     * <p>
-     * Only one executor can be registered to a callback. The callback must be unregistered before
-     * trying to register another executor for the same callback. (A callback cannot have
-     * multiple executors)
      *
      * <p>Only one executor can be registered to a callback. The callback must be unregistered
      * before trying to register another executor for the same callback. (E.G. A callback cannot
@@ -1526,6 +1571,7 @@ public class CarPropertyManager extends CarManagerBase {
             Slog.e(TAG, "failed to sanitize update rate", e);
             return false;
         }
+        List<CarSubscription> updatedSubscribeOptions;
 
         synchronized (mLock) {
             CarPropertyEventCallbackController cpeCallbackController =
@@ -1539,10 +1585,12 @@ public class CarPropertyManager extends CarManagerBase {
             mSubscriptionManager.stageNewOptions(carPropertyEventCallback,
                     sanitizedSubscribeOptions);
 
-            if (!applySubscriptionChangesLocked()) {
+            var maybeUpdatedCarSubscriptions = applySubscriptionChangesLocked();
+            if (maybeUpdatedCarSubscriptions.isEmpty()) {
                 Slog.e(TAG, "Subscription failed: failed to apply subscription changes");
                 return false;
             }
+            updatedSubscribeOptions = maybeUpdatedCarSubscriptions.get();
 
             if (cpeCallbackController == null) {
                 cpeCallbackController =
@@ -1581,6 +1629,40 @@ public class CarPropertyManager extends CarManagerBase {
                 cpeCallbackControllerSet.add(cpeCallbackController);
             }
         }
+
+        if (!mFeatureFlags.alwaysSendInitialValueEvent() || mAppTargetSdk < 36) {
+            return true;
+        }
+
+        Set<PropIdAreaId> propIdAreaIdsToSubscribe = getPropIdAreaIdsFromCarSubscriptions(
+                sanitizedSubscribeOptions);
+        Set<PropIdAreaId> updatedPropIdAreaIds = getPropIdAreaIdsFromCarSubscriptions(
+                updatedSubscribeOptions);
+
+        List<PropIdAreaId> getInitialValuePropIdAreaIds = new ArrayList<>();
+        for (var propIdAreaId : propIdAreaIdsToSubscribe) {
+            if (updatedPropIdAreaIds.contains(propIdAreaId)) {
+                // If this [propId, areaId] is updated, then car service will generate an initial
+                // value event, so we don't have to do anything here.
+                continue;
+            }
+            // Otherwise, the request for this [propId, areaId] will not reach car service, hence
+            // we have to generate the initial value event.
+            getInitialValuePropIdAreaIds.add(propIdAreaId);
+        }
+
+        if (getInitialValuePropIdAreaIds.isEmpty()) {
+            return true;
+        }
+
+        try {
+            mService.getAndDispatchInitialValue(getInitialValuePropIdAreaIds,
+                    mCarPropertyEventToService);
+        } catch (Exception e) {
+            Slog.w(TAG, "getAndDispatchInitialValue failed for PropIdAreaIds: "
+                    + getInitialValuePropIdAreaIds, e);
+        }
+
         return true;
     }
 
@@ -1623,6 +1705,62 @@ public class CarPropertyManager extends CarManagerBase {
         }
     }
 
+    private static final class CarServiceSupportedValuesChangeCallback
+            extends ISupportedValuesChangeCallback.Stub {
+        private final WeakReference<CarPropertyManager> mCarPropertyManager;
+
+        CarServiceSupportedValuesChangeCallback(CarPropertyManager carPropertyManager) {
+            mCarPropertyManager = new WeakReference<>(carPropertyManager);
+        }
+
+        @Override
+        public void onSupportedValuesChange(List<PropIdAreaId> propIdAreaIds) {
+            CarPropertyManager carPropertyManager = mCarPropertyManager.get();
+            if (carPropertyManager != null) {
+                carPropertyManager.handleSupportedValuesChange(propIdAreaIds);
+            }
+        }
+    }
+
+    private record SupportedValuesChangeClientInfo(Executor executor,
+            SupportedValuesChangeCallback callback, int propId, int areaId) {}
+
+    private void handleSupportedValuesChange(List<PropIdAreaId> propIdAreaIds) {
+        List<SupportedValuesChangeClientInfo> clientInfo = new ArrayList<>();
+        synchronized (mLock) {
+            for (int i = 0; i < propIdAreaIds.size(); i++) {
+                var propIdAreaId = propIdAreaIds.get(i);
+                int propId = propIdAreaId.propId;
+                int areaId = propIdAreaId.areaId;
+                var clientCallbacks = mSupportedValuesChangeCallbackByPropIdAreaId.get(propId,
+                        areaId);
+                if (clientCallbacks == null) {
+                    Slogf.w(TAG, "No client callback registered for property: %s, areaId: %d",
+                            VehiclePropertyIds.toString(propId), areaId);
+                    continue;
+                }
+                for (int j = 0; j < clientCallbacks.size(); j++) {
+                    var callback = clientCallbacks.valueAt(j);
+                    var callbackExecutor = mExecutorBySupportedValuesChangeCallback.get(callback);
+                    if (callbackExecutor == null) {
+                        Slog.wtf(TAG, "No executor associated with client callback, "
+                                + "must not happen");
+                        continue;
+                    }
+                    clientInfo.add(new SupportedValuesChangeClientInfo(callbackExecutor,
+                            callback, propId, areaId));
+                }
+            }
+        }
+
+        // Invoke client callback outside of lock scope.
+        for (int i = 0; i < clientInfo.size(); i++) {
+            var info = clientInfo.get(i);
+            runOnExecutor(info.executor(), () -> info.callback().onSupportedValuesChange(
+                    info.propId(), info.areaId()));
+        }
+    }
+
     private void handleEvents(List<CarPropertyEvent> carPropertyEvents) {
         if (mHandler == null) {
             Slog.wtf(TAG,
@@ -1639,11 +1777,12 @@ public class CarPropertyManager extends CarManagerBase {
     /**
      * Update the property ID and area IDs subscription in {@link #mService}.
      *
-     * @return {@code true} if the property has been successfully registered with the service.
+     * @return list of updated {@code CarSubscription} if the property has been successfully
+     *      registered with the service or an empty option if failed to register.
      * @throws SecurityException if missing the appropriate property access permission.
      */
     @GuardedBy("mLock")
-    private boolean applySubscriptionChangesLocked() {
+    private Optional<List<CarSubscription>> applySubscriptionChangesLocked() {
         List<CarSubscription> updatedCarSubscriptions = new ArrayList<>();
         List<Integer> propertiesToUnsubscribe = new ArrayList<>();
 
@@ -1651,9 +1790,13 @@ public class CarPropertyManager extends CarManagerBase {
                 propertiesToUnsubscribe);
 
         if (propertiesToUnsubscribe.isEmpty() && updatedCarSubscriptions.isEmpty()) {
-            Slog.d(TAG, "There is nothing to subscribe or unsubscribe to CarPropertyService");
+            if (DBG) {
+                Slog.d(TAG, "There is nothing to subscribe or unsubscribe to CarPropertyService");
+            }
             mSubscriptionManager.commit();
-            return true;
+            // Returns an empty updated subscriptions here. We must not return empty option
+            // here because the operation does not fail.
+            return Optional.of(updatedCarSubscriptions);
         }
 
         if (DBG) {
@@ -1665,8 +1808,9 @@ public class CarPropertyManager extends CarManagerBase {
         try {
             if (!updatedCarSubscriptions.isEmpty()) {
                 if (!registerLocked(updatedCarSubscriptions)) {
+                    Slog.e(TAG, "failed to register subscriptions: " + updatedCarSubscriptions);
                     mSubscriptionManager.dropCommit();
-                    return false;
+                    return Optional.empty();
                 }
             }
 
@@ -1676,17 +1820,18 @@ public class CarPropertyManager extends CarManagerBase {
                         Slog.w(TAG, "Failed to unsubscribe to: " + VehiclePropertyIds.toString(
                                 propertiesToUnsubscribe.get(i)));
                         mSubscriptionManager.dropCommit();
-                        return false;
+                        return Optional.empty();
                     }
                 }
             }
         } catch (SecurityException e) {
+            Slog.e(TAG, "Received security exception when updating subscription, drop commit", e);
             mSubscriptionManager.dropCommit();
             throw e;
         }
 
         mSubscriptionManager.commit();
-        return true;
+        return Optional.of(updatedCarSubscriptions);
     }
 
     /**
@@ -1896,7 +2041,7 @@ public class CarPropertyManager extends CarManagerBase {
                 mSubscriptionManager.stageUnregister(carPropertyEventCallback,
                         new ArraySet<>(Set.of(propertyId)));
 
-                if (!applySubscriptionChangesLocked()) {
+                if (applySubscriptionChangesLocked().isEmpty()) {
                     continue;
                 }
 
@@ -2983,6 +3128,9 @@ public class CarPropertyManager extends CarManagerBase {
             mCpeCallbackToCpeCallbackController.clear();
             mPropIdToCpeCallbackControllerList.clear();
             mSubscriptionManager.clear();
+            mSupportedValuesChangeCallbackByPropIdAreaId.clear();
+            mExecutorBySupportedValuesChangeCallback.clear();
+            mPropIdAreaIdsBySupportedValuesChangeCallback.clear();
         }
     }
 
@@ -3253,6 +3401,396 @@ public class CarPropertyManager extends CarManagerBase {
                 callbackExecutor, setPropertyCallback);
     }
 
+    /**
+     * Gets the currently supported min/max value for [propertyId, areaId].
+     *
+     * This is only meaningful if {@link AreaIdConfig#hasMinSupportedValue} or
+     * {@link AreaIdConfig#hasMaxSupportedValue} returns {@code true}.
+     *
+     * <p>Unless mentioned otherwise in property definition, this function is only meaningful
+     * for int32, int64, float property types.
+     *
+     * <p>For certain properties, {@link AreaIdConfig#hasMinSupportedValue} and
+     * {@link AreaIdConfig#hasMaxSupportedValue} always returns
+     * {@code true} and you could always use this function to get min/max value in normal cases,
+     * e.g. {@code EV_BRAKE_REGENERATION_LEVEL}. Check {@link VehiclePropertyIds} documentation for
+     * more detail.
+     *
+     * <p>Note that the returned value range is a super-set applies for both values
+     * set to vehicle hardware and values read from vehicle hardware. The value
+     * range may change dynamically so it is still possible to get
+     * {@link IllegalArgumentException} for
+     * {@link CarPropertyManager#setProperty} even though the value to set is
+     * within the value range.
+     *
+     * <p>Caller should use {@link CarPropertyManager#registerSupportedValuesChangeCallback} to
+     * register for supported value change.
+     *
+     * @return The currently supported min/max value.
+     * @throws IllegalArgumentException if [propertyId, areaId] is not supported.
+     * @throws SecurityException if the caller does not have either read or write access to the
+     *      property.
+     * @throws CarInternalErrorException if failed to get the information from the hardware.
+     */
+    @FlaggedApi(FLAG_CAR_PROPERTY_SUPPORTED_VALUE)
+    public <T> @NonNull MinMaxSupportedValue<T> getMinMaxSupportedValue(
+            int propertyId, int areaId) {
+        assertPropertyIdIsSupported(propertyId);
+
+        MinMaxSupportedPropertyValue supportedPropertyValue;
+        try {
+            // This throws IllegalArgumentException or SecurityException, we just rethrow.
+            supportedPropertyValue = mService.getMinMaxSupportedValue(propertyId, areaId);
+        } catch (RemoteException e) {
+            return handleRemoteExceptionFromCarService(e, new MinMaxSupportedValue(
+                    /* minValue= */ null, /* maxValue= */ null));
+        } catch (ServiceSpecificException e) {
+            Slog.e(TAG, "Failed to get min max supported value", e);
+            throw new CarInternalErrorException(propertyId, areaId);
+        }
+
+        T minValue = null;
+        T maxValue = null;
+        RawPropertyValue minRawPropertyValue = extractRawPropertyValue(
+                supportedPropertyValue.minValue);
+        if (minRawPropertyValue != null) {
+            minValue = (T) minRawPropertyValue.getTypedValue();
+        }
+        RawPropertyValue maxRawPropertyValue = extractRawPropertyValue(
+                supportedPropertyValue.maxValue);
+        if (maxRawPropertyValue != null) {
+            maxValue = (T) maxRawPropertyValue.getTypedValue();
+        }
+        return new MinMaxSupportedValue(minValue, maxValue);
+    }
+
+    /**
+     * Gets the currently supported values list for [propertyId, areaId].
+     *
+     * <p>This is only meaningful if {@link AreaIdConfig#hasSupportedValuesList} returns
+     * {@code true}.
+     *
+     * <p>For certain properties, {@link AreaIdConfig#hasSupportedValuesList} always returns
+     * {@code true} and you could always use this function to get supported values in normal cases,
+     * e.g. {@code GEAR_SELECTION}. Check {@link VehiclePropertyIds} documentation for
+     * more detail.
+     *
+     * <p>Note that the returned value range is a super-set applies for both values
+     * set to vehicle hardware and values read from vehicle hardware. The value
+     * range may change dynamically so it is still possible to get
+     * {@link IllegalArgumentException} for
+     * {@link CarPropertyManager#setProperty} even though the value to set is
+     * within the value range.
+     *
+     * <p>Caller should use {@link CarPropertyManager#registerSupportedValuesChangeCallback} to
+     * register for supported value list change.
+     *
+     * <p>The returned supported value list is in sorted ascending order if the property is of
+     * type int32, int64 or float.
+     *
+     * @return The immutable supported values. {@code null} if no supported values are currently
+     *      specified. If this returns an empty set, it means no values are supported now
+     *      (the property is probably in an error state).
+     * @throws IllegalArgumentException if [propertyId, areaId] is not supported.
+     * @throws SecurityException if the caller does not have either read or write access to the
+     *      property.
+     * @throws CarInternalErrorException if failed to get the information from the hardware.
+     */
+    @FlaggedApi(FLAG_CAR_PROPERTY_SUPPORTED_VALUE)
+    public <T> @Nullable List<T> getSupportedValuesList(int propertyId, int areaId) {
+        assertPropertyIdIsSupported(propertyId);
+
+        List<RawPropertyValue> supportedRawPropertyValues;
+        try {
+            // This throws IllegalArgumentException or SecurityException, we just rethrow.
+            supportedRawPropertyValues = mService.getSupportedValuesList(propertyId, areaId);
+        } catch (RemoteException e) {
+            return handleRemoteExceptionFromCarService(e, null);
+        } catch (ServiceSpecificException e) {
+            Slog.e(TAG, "Failed to get supported values list", e);
+            throw new CarInternalErrorException(propertyId, areaId);
+        }
+
+        if (supportedRawPropertyValues == null) {
+            return null;
+        }
+
+        List<T> mutableReturnValues = new ArrayList<T>();
+        for (int i = 0; i < supportedRawPropertyValues.size(); i++) {
+            mutableReturnValues.add((T) supportedRawPropertyValues.get(i).getTypedValue());
+        }
+        // Returns an immutable list.
+        return List.copyOf(mutableReturnValues);
+    }
+
+    /**
+     * A callback interface to deliver value range change callbacks.
+     */
+    @FlaggedApi(FLAG_CAR_PROPERTY_SUPPORTED_VALUE)
+    public interface SupportedValuesChangeCallback {
+        /**
+         * Called when the result for {@link CarPropertyManager#getMinMaxSupportedValue} or
+         * {@link CarPropertyManager#getSupportedValuesList} change for the [propertyId, areaId].
+         *
+         * <p>Caller should call the listed APIs to refresh.
+         *
+         * @param propertyId The property ID.
+         * @param areaId The area ID.
+         */
+        void onSupportedValuesChange(int propertyId, int areaId);
+    }
+
+    /**
+     * Registers a callback that will be called when min or max or supported value list for any
+     * areaIds for the propertyId changes.
+     *
+     * <p>If a different callback was previously registered for this property, this adds a new
+     * callback.
+     *
+     * <p>The callback will be executed on the event handler provided to the
+     * {@link android.car.Car} or the main thread if none was provided.
+     *
+     * @param propertyId The property ID.
+     * @param cb The callback to deliver value range change events.
+     * @return {@code true} if registered successfully.
+     * @throws IllegalArgumentException if the property ID is not supported.
+     */
+    @FlaggedApi(FLAG_CAR_PROPERTY_SUPPORTED_VALUE)
+    public boolean registerSupportedValuesChangeCallback(int propertyId,
+            @NonNull SupportedValuesChangeCallback cb) {
+        return registerSupportedValuesChangeCallbackInternal(propertyId,
+                /* callbackExecutor= */ null, cb);
+    }
+
+    /**
+     * Registers a callback that will be called when min or max or supported value list for any
+     * areaIds for the propertyId changes.
+     *
+     * <p>One callback must only be associated with one executor.
+     *
+     * <p>If a different callback was previously registered for this property, this adds a new
+     * callback.
+     *
+     * @param propertyId The property ID.
+     * @param callbackExecutor The executor in which the callback is done on. One callback is only
+     *                         allowed to be associated with one executor.
+     * @param cb The callback to deliver value range change events.
+     * @return {@code true} if registered successfully.
+     * @throws IllegalArgumentException if the property ID is not supported.
+     * @throws IllegalArgumentException if the callback was previously associated with a different
+     *                                  executor.
+     */
+    @FlaggedApi(FLAG_CAR_PROPERTY_SUPPORTED_VALUE)
+    public boolean registerSupportedValuesChangeCallback(int propertyId,
+            @NonNull @CallbackExecutor Executor callbackExecutor,
+            @NonNull SupportedValuesChangeCallback cb) {
+        requireNonNull(callbackExecutor);
+        return registerSupportedValuesChangeCallbackInternal(propertyId, callbackExecutor, cb);
+    }
+
+    /**
+     * Registers a callback that will be called when min or max or supported value list for
+     * [propertyId, areaId] changes.
+     *
+     * <p>If a different callback was previously registered for [propertyId, areaId], this adds a
+     * new callback.
+     *
+     * <p>The callback will be executed on the event handler provided to the
+     * {@link android.car.Car} or the main thread if none was provided.
+     *
+     * @param propertyId The property ID.
+     * @param areaId The area ID.
+     * @param cb The callback to deliver value range change events.
+     * @return {@code true} if registers successfully.
+     * @throws IllegalArgumentException if [propertyId, areaId] is not supported.
+     */
+    @FlaggedApi(FLAG_CAR_PROPERTY_SUPPORTED_VALUE)
+    public boolean registerSupportedValuesChangeCallback(int propertyId, int areaId,
+            @NonNull SupportedValuesChangeCallback cb) {
+        return registerSupportedValuesChangeCallbackInternal(propertyId, areaId,
+                /* callbackExecutor= */ null, cb);
+    }
+
+    /**
+     * Registers a callback that will be called when min or max or supported value list for
+     * [propertyId, areaId] changes.
+     *
+     * <p>One callback must only be associated with one executor.
+     *
+     * <p>If a different callback was previously registered for [propertyId, areaId], this adds a
+     * new callback.
+     *
+     * @param propertyId The property ID.
+     * @param areaId The area ID.
+     * @param callbackExecutor The executor in which the callback is done on.
+     * @param cb The callback to deliver value range change events.
+     * @return {@code true} if registers successfully.
+     * @throws IllegalArgumentException if [propertyId, areaId] is not supported.
+     * @throws IllegalArgumentException if the callback was previously associated with a different
+     *                                  executor.
+     */
+    @FlaggedApi(FLAG_CAR_PROPERTY_SUPPORTED_VALUE)
+    public boolean registerSupportedValuesChangeCallback(int propertyId, int areaId,
+            @NonNull @CallbackExecutor Executor callbackExecutor,
+            @NonNull SupportedValuesChangeCallback cb) {
+        requireNonNull(callbackExecutor);
+        return registerSupportedValuesChangeCallbackInternal(propertyId, areaId, callbackExecutor,
+                cb);
+    }
+
+    /**
+     * Unregisters all value range change callbacks for the property ID
+     *
+     * <p>Do nothing if no callbacks was registered before.
+     *
+     * @param propertyId The property ID.
+     * @throws IllegalArgumentException if the propertyId is not supported.
+     */
+    @FlaggedApi(FLAG_CAR_PROPERTY_SUPPORTED_VALUE)
+    public void unregisterSupportedValuesChangeCallback(int propertyId) {
+        synchronized (mLock) {
+            var areaIds = mSupportedValuesChangeCallbackByPropIdAreaId.getSecondKeysForFirstKey(
+                    propertyId);
+            if (areaIds.isEmpty()) {
+                Slog.d(TAG, "No SupportedValuesChangeCallback was registered for property: "
+                        + VehiclePropertyIds.toString(propertyId) + ", do nothing");
+                return;
+            }
+            List<PropIdAreaId> propIdAreaIds = new ArrayList<>();
+            for (int i = 0; i < areaIds.size(); i++) {
+                var areaId = areaIds.valueAt(i);
+                propIdAreaIds.add(newPropIdAreaId(propertyId, areaId));
+                var registeredCallbacks = mSupportedValuesChangeCallbackByPropIdAreaId.get(
+                        propertyId, areaId);
+                for (int j = 0; j < registeredCallbacks.size(); j++) {
+                    var registeredCallback = registeredCallbacks.valueAt(j);
+                    var registeredPropIdAreaIdsForCallback =
+                            mPropIdAreaIdsBySupportedValuesChangeCallback.get(registeredCallback);
+                    if (registeredPropIdAreaIdsForCallback == null) {
+                        Slog.e(TAG, "No registered propIdAreaId for "
+                                + "supportedValuesChangeCallback: " + registeredCallback
+                                + ", must not happen should at least contain property: "
+                                + VehiclePropertyIds.toString(propertyId) + ", areaId: "
+                                + areaId);
+                        continue;
+                    }
+                    registeredPropIdAreaIdsForCallback.remove(newPropIdAreaId(propertyId, areaId));
+                    if (registeredPropIdAreaIdsForCallback.isEmpty()) {
+                        // There is no more [propId, areaId]s registered for the callback, we can
+                        // now unlink the executor.
+                        mExecutorBySupportedValuesChangeCallback.remove(registeredCallback);
+                        mPropIdAreaIdsBySupportedValuesChangeCallback.remove(registeredCallback);
+                    }
+                }
+            }
+            for (int i = 0; i < areaIds.size(); i++) {
+                mSupportedValuesChangeCallbackByPropIdAreaId.remove(propertyId, areaIds.valueAt(i));
+            }
+
+            // Even though this involves a binder call, we call this inside the lock so that this
+            // whole block does not overlap with another unregister or register operation.
+            unregisterSupportedValuesChangeCbToCarService(propIdAreaIds);
+        }
+    }
+
+    /**
+     * Unregisters the specific callback for the property ID.
+     *
+     * <p>Do nothing if the callback was not registered before.
+     *
+     * @param propertyId The property ID.
+     * @param cb The callback to unregister.
+     * @throws IllegalArgumentException if the propertyId is not supported.
+     */
+    @FlaggedApi(FLAG_CAR_PROPERTY_SUPPORTED_VALUE)
+    public void unregisterSupportedValuesChangeCallback(int propertyId,
+            @NonNull SupportedValuesChangeCallback cb) {
+        synchronized (mLock) {
+            var areaIds = mSupportedValuesChangeCallbackByPropIdAreaId.getSecondKeysForFirstKey(
+                    propertyId);
+            if (areaIds.isEmpty()) {
+                Slog.d(TAG, "No SupportedValuesChangeCallback was registered for property: "
+                        + VehiclePropertyIds.toString(propertyId) + ", do nothing");
+                return;
+            }
+            unregisterSupportedValuesChangeCallbackWithAreaIdsLocked(propertyId, areaIds, cb);
+        }
+    }
+
+    /**
+     * Unregisters the specific callback for the [propertyId, areaId].
+     *
+     * <p>Do nothing if the callback was not registered before.
+     *
+     * @param propertyId The property ID.
+     * @param areaId The area ID.
+     * @param cb The callback to unregister.
+     * @throws IllegalArgumentException if the [propertyId, areaId] is not supported.
+     */
+    @FlaggedApi(FLAG_CAR_PROPERTY_SUPPORTED_VALUE)
+    public void unregisterSupportedValuesChangeCallback(int propertyId, int areaId,
+            @NonNull SupportedValuesChangeCallback cb) {
+        synchronized (mLock) {
+            unregisterSupportedValuesChangeCallbackWithAreaIdsLocked(propertyId,
+                    new ArraySet<>(Set.of(areaId)), cb);
+        }
+    }
+
+    @GuardedBy("mLock")
+    private void unregisterSupportedValuesChangeCallbackWithAreaIdsLocked(int propertyId,
+            ArraySet<Integer> areaIds, SupportedValuesChangeCallback cb) {
+        List<PropIdAreaId> propIdAreaIds = new ArrayList<>();
+        boolean found = false;
+        var propIdAreaIdsForCallback = mPropIdAreaIdsBySupportedValuesChangeCallback.get(cb);
+        for (int i = 0; i < areaIds.size(); i++) {
+            var areaId = areaIds.valueAt(i);
+            var callbacks = mSupportedValuesChangeCallbackByPropIdAreaId.get(propertyId,
+                    areaId);
+            if (callbacks == null || !callbacks.contains(cb)) {
+                continue;
+            }
+            found = true;
+            callbacks.remove(cb);
+            if (callbacks.isEmpty()) {
+                mSupportedValuesChangeCallbackByPropIdAreaId.remove(propertyId, areaId);
+                propIdAreaIds.add(newPropIdAreaId(propertyId, areaId));
+            }
+            if (propIdAreaIdsForCallback != null) {
+                propIdAreaIdsForCallback.remove(newPropIdAreaId(propertyId, areaId));
+            }
+        }
+        if (propIdAreaIdsForCallback != null && propIdAreaIdsForCallback.isEmpty()) {
+            // There is no more [propId, areaId]s registered for the callback, we can now unlink
+            // the executor.
+            mPropIdAreaIdsBySupportedValuesChangeCallback.remove(cb);
+            mExecutorBySupportedValuesChangeCallback.remove(cb);
+        }
+        if (!found) {
+            Slog.d(TAG, "No SupportedValuesChangeCallback was registered for the callback "
+                    + "for property: " + VehiclePropertyIds.toString(propertyId)
+                    + ", do nothing");
+            return;
+        }
+        if (propIdAreaIds.isEmpty()) {
+            return;
+        }
+
+        // Even though this involves a binder call, we call this inside the lock so that this
+        // whole block does not overlap with another unregister or register operation.
+        unregisterSupportedValuesChangeCbToCarService(propIdAreaIds);
+    }
+
+    private static class EventDispatchList extends
+            DispatchList<CarPropertyEventCallbackController, CarPropertyEvent> {
+        @Override
+        protected void dispatchToClient(CarPropertyEventCallbackController client,
+                List<CarPropertyEvent> events) {
+            for (int j = 0; j < events.size(); j++) {
+                client.onEvent(events.get(j));
+            }
+        }
+    }
+
     private void handleCarPropertyEvents(List<CarPropertyEvent> carPropertyEvents) {
         SparseArray<List<CarPropertyEvent>> carPropertyEventsByPropertyId = new SparseArray<>();
         for (int i = 0; i < carPropertyEvents.size(); i++) {
@@ -3264,8 +3802,7 @@ public class CarPropertyManager extends CarManagerBase {
             carPropertyEventsByPropertyId.get(propertyId).add(carPropertyEvent);
         }
 
-        ArrayMap<CarPropertyEventCallbackController, List<CarPropertyEvent>> eventsByCallback =
-                new ArrayMap<>();
+        var eventsDispatchList = new EventDispatchList();
 
         synchronized (mLock) {
             for (int i = 0; i < carPropertyEventsByPropertyId.size(); i++) {
@@ -3281,10 +3818,7 @@ public class CarPropertyManager extends CarManagerBase {
                 }
                 for (int j = 0; j < cpeCallbackControllerSet.size(); j++) {
                     var callback = cpeCallbackControllerSet.valueAt(j);
-                    if (eventsByCallback.get(callback) == null) {
-                        eventsByCallback.put(callback, new ArrayList<>());
-                    }
-                    eventsByCallback.get(callback).addAll(eventsForPropertyId);
+                    eventsDispatchList.addEvents(callback, eventsForPropertyId);
                 }
             }
         }
@@ -3292,12 +3826,107 @@ public class CarPropertyManager extends CarManagerBase {
         // This might be invoked from a binder thread (CarPropertyEventListenerToService.onEvent),
         // so we must clear calling identity before calling client executor.
         Binder.clearCallingIdentity();
-        for (int i = 0; i < eventsByCallback.size(); i++) {
-            var callback = eventsByCallback.keyAt(i);
-            var events = eventsByCallback.valueAt(i);
-            for (int j = 0; j < events.size(); j++) {
-                callback.onEvent(events.get(j));
+        eventsDispatchList.dispatchToClients();
+    }
+
+    private boolean registerSupportedValuesChangeCallbackInternal(int propertyId,
+            @Nullable @CallbackExecutor Executor callbackExecutor,
+            @NonNull SupportedValuesChangeCallback cb) {
+        requireNonNull(cb);
+        assertPropertyIdIsSupported(propertyId);
+
+        CarPropertyConfigs configs = getPropertyConfigsFromService(
+                new ArraySet(Set.of(propertyId)));
+        if (configs == null) {
+            Slog.e(TAG, "Failed to get car property config from car service");
+            return false;
+        }
+
+        verifyPropertyConfigForProperty(configs, propertyId);
+
+        CarPropertyConfig<?> config = configs.getConfig(propertyId);
+        int[] areaIds = config.getAreaIds();
+
+        return registerSupportedValuesChangeCallbackForPropIdAreaIds(
+                propertyId, areaIds, callbackExecutor, cb);
+    }
+
+    private boolean registerSupportedValuesChangeCallbackInternal(int propertyId, int areaId,
+            @Nullable @CallbackExecutor Executor callbackExecutor,
+            @NonNull SupportedValuesChangeCallback cb) {
+        requireNonNull(cb);
+        assertPropertyIdIsSupported(propertyId);
+
+        return registerSupportedValuesChangeCallbackForPropIdAreaIds(
+                propertyId, new int[]{areaId}, callbackExecutor, cb);
+    }
+
+    private boolean registerSupportedValuesChangeCallbackForPropIdAreaIds(
+            int propertyId, int[] areaIds,
+            @Nullable @CallbackExecutor Executor callbackExecutor,
+            SupportedValuesChangeCallback cb) {
+        if (callbackExecutor == null) {
+            callbackExecutor = mExecutor;
+        }
+
+        List<PropIdAreaId> propIdAreaIds = new ArrayList<>();
+        for (int areaId : areaIds) {
+            propIdAreaIds.add(newPropIdAreaId(propertyId, areaId));
+        }
+        synchronized (mLock) {
+            var associatedExecutor = mExecutorBySupportedValuesChangeCallback.get(cb);
+            if (associatedExecutor != null && associatedExecutor != callbackExecutor) {
+                throw new IllegalArgumentException("A different executor is already associated with"
+                        + " this callback, please use the same executor.");
             }
+
+            if (!registerSupportedValuesChangeCbToCarService(propIdAreaIds)) {
+                return false;
+            }
+
+            mExecutorBySupportedValuesChangeCallback.put(cb, callbackExecutor);
+            var propIdAreaIdsForCallback = mPropIdAreaIdsBySupportedValuesChangeCallback.get(cb);
+            if (propIdAreaIdsForCallback == null) {
+                propIdAreaIdsForCallback = new ArraySet<PropIdAreaId>();
+            }
+            propIdAreaIdsForCallback.addAll(propIdAreaIds);
+            mPropIdAreaIdsBySupportedValuesChangeCallback.put(cb, propIdAreaIdsForCallback);
+            for (int areaId : areaIds) {
+                var registeredCallbacks = mSupportedValuesChangeCallbackByPropIdAreaId.get(
+                        propertyId, areaId);
+                if (registeredCallbacks == null) {
+                    registeredCallbacks = new ArraySet<>();
+                }
+                registeredCallbacks.add(cb);
+                mSupportedValuesChangeCallbackByPropIdAreaId.put(propertyId, areaId,
+                        registeredCallbacks);
+            }
+        }
+        return true;
+    }
+
+    private boolean registerSupportedValuesChangeCbToCarService(List<PropIdAreaId> propIdAreaIds) {
+        try {
+            mService.registerSupportedValuesChangeCallback(propIdAreaIds,
+                    mCarServiceSupportedValuesChangeCallback);
+        } catch (RemoteException e) {
+            Slog.e(TAG, "Failed to register SupportedValuesChangeCallback", e);
+            return handleRemoteExceptionFromCarService(e, false);
+        } catch (ServiceSpecificException e) {
+            Slog.e(TAG, "Failed to register SupportedValuesChangeCallback", e);
+            return false;
+        }
+
+        return true;
+    }
+
+    private void unregisterSupportedValuesChangeCbToCarService(List<PropIdAreaId> propIdAreaIds) {
+        try {
+            mService.unregisterSupportedValuesChangeCallback(propIdAreaIds,
+                    mCarServiceSupportedValuesChangeCallback);
+        } catch (RemoteException e) {
+            Slog.e(TAG, "Failed to unregister SupportedValuesChangeCallback", e);
+            handleRemoteExceptionFromCarService(e);
         }
     }
 
@@ -3354,21 +3983,7 @@ public class CarPropertyManager extends CarManagerBase {
             CarSubscription subscribeOption = subscribeOptions.get(i);
             int propertyId = subscribeOption.propertyId;
 
-            if (configs.isNotSupported(propertyId)) {
-                String errorMessage = "propertyId is not in carPropertyConfig list: "
-                        + VehiclePropertyIds.toString(propertyId);
-                Slog.e(TAG, "sanitizeUpdateRate: " + errorMessage);
-                throw new IllegalArgumentException(errorMessage);
-            }
-            if (configs.missingPermission(propertyId)) {
-                // This should not happen since we already checked whether the caller has read
-                // permission via getSupportedNoReadPermPropIds. If the caller does not have
-                // read or write permission, {@code SecurityException} should be thrown before this.
-                String errorMessage = "missing required read/write permission for: "
-                        + VehiclePropertyIds.toString(propertyId);
-                Slog.wtf(TAG, "sanitizeUpdateRate: " + errorMessage);
-                throw new SecurityException(errorMessage);
-            }
+            verifyPropertyConfigForProperty(configs, propertyId);
 
             CarPropertyConfig<?> carPropertyConfig = configs.getConfig(propertyId);
             CarSubscription carSubscription = new CarSubscription();
@@ -3535,6 +4150,28 @@ public class CarPropertyManager extends CarManagerBase {
             return handleRemoteExceptionFromCarService(e, null);
         }
         return new CarPropertyConfigs(result, unsupportedPropertyIds);
+    }
+
+    @Nullable
+    private static RawPropertyValue<?> extractRawPropertyValue(
+            ParcelableHolder holder) {
+        return holder.getParcelable(RawPropertyValue.class);
+    }
+
+    private static void verifyPropertyConfigForProperty(CarPropertyConfigs configs,
+            int propertyId) {
+        if (configs.isNotSupported(propertyId)) {
+            String errorMessage = "propertyId is not in carPropertyConfig list: "
+                    + VehiclePropertyIds.toString(propertyId);
+            Slog.e(TAG, "verifyPropertyConfigForProperty: " + errorMessage);
+            throw new IllegalArgumentException(errorMessage);
+        }
+        if (configs.missingPermission(propertyId)) {
+            String errorMessage = "missing required read/write permission for: "
+                    + VehiclePropertyIds.toString(propertyId);
+            Slog.e(TAG, "verifyPropertyConfigForProperty: " + errorMessage);
+            throw new SecurityException(errorMessage);
+        }
     }
 
 }

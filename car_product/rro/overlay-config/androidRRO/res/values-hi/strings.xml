@@ -17,6 +17,6 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="owner_name" msgid="3416113395996003764">"ड्राइवर"</string>
-    <string name="permlab_accessCoarseLocation" msgid="2494909511737161237">"अनुमानित जगह की जानकारी सिर्फ़ तब ऐक्सेस करें, जब ऐप्लिकेशन स्क्रीन पर खुला हो"</string>
+    <string name="owner_name" msgid="8354667862218433758">"ड्राइवर"</string>
+    <string name="permlab_accessCoarseLocation" msgid="1761992503775040108">"जगह की अनुमानित जानकारी सिर्फ़ तब ऐक्सेस करें, जब ऐप्लिकेशन स्क्रीन पर खुला हो"</string>
 </resources>

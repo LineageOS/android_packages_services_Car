@@ -42,20 +42,23 @@ final class CarAudioZonesValidator {
     }
 
     /**
-     * Returns {@code true} if validation succeeds, throws an a run time exception otherwise.
+     * Returns {@code true} if validation succeeds, throws a run time exception otherwise.
      *
      * <p>The current rules that apply are:
      * <ul>
-     * <li>There must be a zone defined
-     * <li>Has valid zone configuration, see
-     *  {@link CarAudioZoneConfig#validateVolumeGroups(CarAudioContext, boolean)}) for further
-     *  information.
-     *  <li>Configurations can be routed by dynamic audio policy if core routing is not used, see
-     *  {@link CarAudioZoneConfig#validateCanUseDynamicMixRouting(boolean)} for further information.
-     *  <li>Device addresses are not shared across zones
-     *  <li>Device addresses are not shared across volume groups in same config
-     *  <li>Device addresses can be shared across configs in the same zone
+     *  <li>There must be a zone defined</li>
+     *  <li>Has valid zone configuration,
+     *   @see CarAudioZoneConfig#validateVolumeGroups(CarAudioContext, boolean) for further
+     *   information.
+     *  </li>
+     *  <li>Configurations can be routed by dynamic audio policy if core routing is not used,
+     *   @see CarAudioZoneConfig#validateCanUseDynamicMixRouting(boolean) for further information.
+     *  </li>
+     *  <li>Device addresses are not shared across zones</li>
+     *  <li>Device addresses are not shared across volume groups in same config</li>
+     *  <li>Device addresses can be shared across configs in the same zone</li>
      * </ul>
+     * </p>
      *
      * @param carAudioZones Audio zones to validate
      * @param useCoreAudioRouting If the service is using core audio routing
@@ -63,12 +66,42 @@ final class CarAudioZonesValidator {
      */
     static void validate(SparseArray<CarAudioZone> carAudioZones, boolean useCoreAudioRouting)
             throws RuntimeException {
+        validateWithoutInputDevicesCheck(carAudioZones, useCoreAudioRouting);
+        validatePrimaryZoneHasInputDevice(carAudioZones);
+    }
+
+    /**
+     * Returns {@code true} if validation succeeds without checking input devices for each zone,
+     *  throws a run time exception otherwise.
+     *
+     * <p>The current rules that apply are:
+     * <ul>
+     * <li>There must be a zone defined</li>
+     * <li>Has valid zone configuration,
+     * @see CarAudioZoneConfig#validateVolumeGroups(CarAudioContext, boolean) for further
+     * information.
+     * </li>
+     * <li>Configurations can be routed by dynamic audio policy if core routing is not used,
+     * @see CarAudioZoneConfig#validateCanUseDynamicMixRouting(boolean) for further information.
+     * </li>
+     * <li>Device addresses are not shared across zones</li>
+     * <li>Device addresses are not shared across volume groups in same config</li>
+     * <li>Device addresses can be shared across configs in the same zone</li>
+     * </ul>
+     * </p>
+     *
+     * @param carAudioZones Audio zones to validate
+     * @param useCoreAudioRouting If the service is using core audio routing
+     * @throws RuntimeException when ever there is a failure when validating the audio zones
+     */
+    static void validateWithoutInputDevicesCheck(SparseArray<CarAudioZone> carAudioZones,
+            boolean useCoreAudioRouting)
+            throws RuntimeException {
         validateAtLeastOneZoneDefined(carAudioZones);
         validateZoneConfigsForEachZone(carAudioZones, useCoreAudioRouting);
         if (!useCoreAudioRouting) {
             validateEachAddressAppearsAtMostOnceInOneConfig(carAudioZones);
         }
-        validatePrimaryZoneHasInputDevice(carAudioZones);
     }
 
     private static void validatePrimaryZoneHasInputDevice(SparseArray<CarAudioZone> carAudioZones) {

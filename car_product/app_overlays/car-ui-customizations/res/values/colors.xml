@@ -37,4 +37,6 @@
     <color name="car_ui_toolbar_tab_selected_color">@color/car_on_secondary_container</color>
     <!-- The text color for unselected toolbar tabs -->
     <color name="car_ui_toolbar_tab_unselected_color">@color/car_on_surface_variant</color>
+    <!-- Background color to use on full screen activities -->
+    <color name="car_ui_activity_background_color">@color/car_background</color>
 </resources>

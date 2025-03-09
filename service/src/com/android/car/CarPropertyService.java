@@ -21,6 +21,7 @@ import static android.car.hardware.CarPropertyConfig.VEHICLE_PROPERTY_CHANGE_MOD
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 import static com.android.car.internal.common.CommonConstants.EMPTY_INT_ARRAY;
 import static com.android.car.internal.property.CarPropertyHelper.SYNC_OP_LIMIT_TRY_AGAIN;
+import static com.android.car.internal.property.CarPropertyHelper.getPropIdAreaIdsFromCarSubscriptions;
 import static com.android.car.internal.property.CarPropertyHelper.propertyIdsToString;
 
 import static java.lang.Integer.toHexString;
@@ -28,6 +29,7 @@ import static java.util.Objects.requireNonNull;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
+import android.car.Car;
 import android.car.VehiclePropertyIds;
 import android.car.builtin.os.TraceHelper;
 import android.car.builtin.util.Slogf;
@@ -68,11 +70,16 @@ import com.android.car.internal.property.CarPropertyHelper;
 import com.android.car.internal.property.CarSubscription;
 import com.android.car.internal.property.GetPropertyConfigListResult;
 import com.android.car.internal.property.IAsyncPropertyResultCallback;
+import com.android.car.internal.property.ISupportedValuesChangeCallback;
 import com.android.car.internal.property.InputSanitizationUtils;
+import com.android.car.internal.property.MinMaxSupportedPropertyValue;
+import com.android.car.internal.property.PropIdAreaId;
+import com.android.car.internal.property.RawPropertyValue;
 import com.android.car.internal.property.SubscriptionManager;
 import com.android.car.internal.util.ArrayUtils;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.car.internal.util.IntArray;
+import com.android.car.internal.util.Lists;
 import com.android.car.logging.HistogramFactoryInterface;
 import com.android.car.logging.SystemHistogramFactory;
 import com.android.car.property.CarPropertyServiceClient;
@@ -479,8 +486,9 @@ public class CarPropertyService extends ICarProperty.Stub
             finalClient = client;
         }
 
+        var propIdAreaIds = getPropIdAreaIdsFromCarSubscriptions(sanitizedOptions);
         mHandler.post(() ->
-                getAndDispatchPropertyInitValue(sanitizedOptions, finalClient));
+                getAndDispatchPropertyInitValue(propIdAreaIds, finalClient));
     }
 
     /**
@@ -553,46 +561,63 @@ public class CarPropertyService extends ICarProperty.Stub
         }
     }
 
-    private void getAndDispatchPropertyInitValue(List<CarSubscription> carSubscriptions,
+    @Override
+    public void getAndDispatchInitialValue(List<PropIdAreaId> propIdAreaIds,
+            ICarPropertyEventListener carPropertyEventListener) {
+        requireNonNull(propIdAreaIds);
+        requireNonNull(carPropertyEventListener);
+        CarPropertyServiceClient client;
+        synchronized (mLock) {
+            // We create the client first so that we will not subscribe if the binder is already
+            // dead.
+            client = getOrCreateClientForBinderLocked(carPropertyEventListener);
+            if (client == null) {
+                // The client is already dead.
+                return;
+            }
+        }
+        mHandler.post(() ->
+                getAndDispatchPropertyInitValue(new ArraySet<PropIdAreaId>(propIdAreaIds),
+                        client));
+    }
+
+    private void getAndDispatchPropertyInitValue(Set<PropIdAreaId> propIdAreaIds,
             CarPropertyServiceClient client) {
         List<CarPropertyEvent> events = new ArrayList<>();
-        for (int i = 0; i < carSubscriptions.size(); i++) {
-            CarSubscription option = carSubscriptions.get(i);
-            int propertyId = option.propertyId;
-            int[] areaIds = option.areaIds;
-            for (int areaId : areaIds) {
-                CarPropertyValue carPropertyValue = null;
-                try {
-                    carPropertyValue = getProperty(propertyId, areaId);
-                } catch (ServiceSpecificException e) {
-                    Slogf.w(TAG, "Get initial carPropertyValue for registerCallback failed -"
-                                    + " property ID: %s, area ID %s, exception: %s",
-                            VehiclePropertyIds.toString(propertyId), Integer.toHexString(areaId),
-                            e);
-                    int errorCode = CarPropertyErrorCodes.getVhalSystemErrorCode(e.errorCode);
-                    long timestampNanos = SystemClock.elapsedRealtimeNanos();
-                    CarPropertyConfig<?> carPropertyConfig = getCarPropertyConfig(propertyId);
-                    Object defaultValue = CarPropertyHelper.getDefaultValue(
-                            carPropertyConfig.getPropertyType());
-                    if (CarPropertyErrorCodes.isNotAvailableVehicleHalStatusCode(errorCode)) {
-                        carPropertyValue = new CarPropertyValue<>(propertyId, areaId,
-                                CarPropertyValue.STATUS_UNAVAILABLE, timestampNanos, defaultValue);
-                    } else {
-                        carPropertyValue = new CarPropertyValue<>(propertyId, areaId,
-                                CarPropertyValue.STATUS_ERROR, timestampNanos, defaultValue);
-                    }
-                } catch (Exception e) {
-                    // Do nothing.
-                    Slogf.e(TAG, "Get initial carPropertyValue for registerCallback failed -"
-                                    + " property ID: %s, area ID %s, exception: %s",
-                            VehiclePropertyIds.toString(propertyId), Integer.toHexString(areaId),
-                            e);
+        for (var propIdAreaId : propIdAreaIds) {
+            int propertyId = propIdAreaId.propId;
+            int areaId = propIdAreaId.areaId;
+            CarPropertyValue carPropertyValue = null;
+            try {
+                carPropertyValue = getProperty(propertyId, areaId);
+            } catch (ServiceSpecificException e) {
+                Slogf.w(TAG, "Get initial carPropertyValue for registerCallback failed -"
+                                + " property ID: %s, area ID %s, exception: %s",
+                        VehiclePropertyIds.toString(propertyId), Integer.toHexString(areaId),
+                        e);
+                int errorCode = CarPropertyErrorCodes.getVhalSystemErrorCode(e.errorCode);
+                long timestampNanos = SystemClock.elapsedRealtimeNanos();
+                CarPropertyConfig<?> carPropertyConfig = getCarPropertyConfig(propertyId);
+                Object defaultValue = CarPropertyHelper.getDefaultValue(
+                        carPropertyConfig.getPropertyType());
+                if (CarPropertyErrorCodes.isNotAvailableVehicleHalStatusCode(errorCode)) {
+                    carPropertyValue = new CarPropertyValue<>(propertyId, areaId,
+                            CarPropertyValue.STATUS_UNAVAILABLE, timestampNanos, defaultValue);
+                } else {
+                    carPropertyValue = new CarPropertyValue<>(propertyId, areaId,
+                            CarPropertyValue.STATUS_ERROR, timestampNanos, defaultValue);
                 }
-                if (carPropertyValue != null) {
-                    CarPropertyEvent event = new CarPropertyEvent(
-                            CarPropertyEvent.PROPERTY_EVENT_PROPERTY_CHANGE, carPropertyValue);
-                    events.add(event);
-                }
+            } catch (Exception e) {
+                // Do nothing.
+                Slogf.e(TAG, "Get initial carPropertyValue for registerCallback failed -"
+                                + " property ID: %s, area ID %s, exception: %s",
+                        VehiclePropertyIds.toString(propertyId), Integer.toHexString(areaId),
+                        e);
+            }
+            if (carPropertyValue != null) {
+                CarPropertyEvent event = new CarPropertyEvent(
+                        CarPropertyEvent.PROPERTY_EVENT_PROPERTY_CHANGE, carPropertyValue);
+                events.add(event);
             }
         }
 
@@ -600,7 +625,13 @@ public class CarPropertyService extends ICarProperty.Stub
             return;
         }
         try {
-            client.onEvent(events);
+            if (mFeatureFlags.alwaysSendInitialValueEvent()) {
+                // Do not filter the initial value events. We always want the initial value events
+                // to reach the clients.
+                client.onFilteredEvents(events);
+            } else {
+                client.onEvent(events);
+            }
         } catch (RemoteException ex) {
             // If we cannot send a record, it's likely the connection snapped. Let the binder
             // death handle the situation.
@@ -1110,6 +1141,146 @@ public class CarPropertyService extends ICarProperty.Stub
     @Override
     public void cancelRequests(int[] serviceRequestIds) {
         mPropertyHalService.cancelRequests(serviceRequestIds);
+    }
+
+    /**
+     * Gets the currently min/max supported value.
+     *
+     * @return The currently supported min/max value.
+     * @throws IllegalArgumentException if [propertyId, areaId] is not supported.
+     * @throws SecurityException if the caller does not have read and does not have write access
+     *      for the property.
+     * @throws ServiceSpecificException If VHAL returns error.
+     */
+    @Override
+    public MinMaxSupportedPropertyValue getMinMaxSupportedValue(int propertyId, int areaId) {
+        var areaIdConfig = verifyGetSupportedValueRequestAndGetAreaIdConfig(propertyId, areaId);
+        return mPropertyHalService.getMinMaxSupportedValue(propertyId, areaId, areaIdConfig);
+    }
+
+    /**
+     * Gets the currently supported values list.
+     *
+     * <p>The returned supported value list is in sorted ascending order if the property is of
+     * type int32, int64 or float.
+     *
+     * @return The currently supported values list.
+     * @throws IllegalArgumentException if [propertyId, areaId] is not supported.
+     * @throws SecurityException if the caller does not have read and does not have write access
+     *      for the property.
+     * @throws ServiceSpecificException If VHAL returns error.
+     */
+    @Override
+    public @Nullable List<RawPropertyValue> getSupportedValuesList(int propertyId, int areaId) {
+        var areaIdConfig = verifyGetSupportedValueRequestAndGetAreaIdConfig(propertyId, areaId);
+        return mPropertyHalService.getSupportedValuesList(propertyId, areaId, areaIdConfig);
+    }
+
+    /**
+     * Registers the callback to be called when the min/max supported value or supported values
+     * list change.
+     *
+     * @throws IllegalArgumentException if one of the [propertyId, areaId]s are not supported.
+     * @throws SecurityException if the caller does not have read and does not have write access
+     *      for any of the requested property.
+     * @throws ServiceSpecificException If VHAL returns error.
+     */
+    @Override
+    public void registerSupportedValuesChangeCallback(List<PropIdAreaId> propIdAreaIds,
+            ISupportedValuesChangeCallback callback) {
+        for (int i = 0; i < propIdAreaIds.size(); i++) {
+            var propIdAreaId = propIdAreaIds.get(i);
+            // Verify [propId, areaId] is supported and the caller has read or write permission.
+            // This may throw IllegalArgumentException or SecurityException.
+            verifyGetSupportedValueRequestAndGetAreaIdConfig(propIdAreaId.propId,
+                    propIdAreaId.areaId);
+        }
+        mPropertyHalService.registerSupportedValuesChangeCallback(propIdAreaIds, callback);
+    }
+
+    /**
+     * Unregisters the callback previously registered with registerSupportedValuesChangeCallback.
+     *
+     * Do nothing if the [propertyId, areaId]s were not previously registered.
+     */
+    @Override
+    public void unregisterSupportedValuesChangeCallback(List<PropIdAreaId> propIdAreaIds,
+            ISupportedValuesChangeCallback callback) {
+        mPropertyHalService.unregisterSupportedValuesChangeCallback(propIdAreaIds, callback);
+    }
+
+    /**
+     * @throws IllegalArgumentException If the propertyId or areaId is not supported.
+     * @throws SecurityException If caller does not have read and does not have write permission.
+     */
+    private AreaIdConfig<?> verifyGetSupportedValueRequestAndGetAreaIdConfig(
+            int propertyId, int areaId) {
+        var config = getCarPropertyConfig(propertyId);
+        var propertyIdStr = VehiclePropertyIds.toString(propertyId);
+        if (config == null) {
+            throw new IllegalArgumentException("The property: " + propertyIdStr
+                    + " is not supported");
+        }
+        // This will throw IllegalArgumentException if areaId is not supported.
+        AreaIdConfig<?> areaIdConfig = config.getAreaIdConfig(areaId);
+
+        if (!mPropertyHalService.isReadable(mContext, propertyId)
+                && !mPropertyHalService.isWritable(mContext, propertyId)) {
+            throw new SecurityException("Caller missing read or write permission to access"
+                    + " property: " + propertyIdStr);
+        }
+        return areaIdConfig;
+    }
+
+    @Override
+    public CarPropertyConfigList registerRecordingListener(ICarPropertyEventListener callback) {
+        CarServiceUtils.assertPermission(mContext, Car.PERMISSION_RECORD_VEHICLE_PROPERTIES);
+        List<CarPropertyConfig> carPropertyConfigList = mPropertyHalService
+                .registerRecordingListener(callback);
+        return new CarPropertyConfigList(carPropertyConfigList);
+    }
+
+    @Override
+    public boolean isRecordingVehicleProperties() {
+        CarServiceUtils.assertPermission(mContext, Car.PERMISSION_RECORD_VEHICLE_PROPERTIES);
+        return mPropertyHalService.isRecordingVehicleProperties();
+    }
+
+    @Override
+    public void stopRecordingVehicleProperties(ICarPropertyEventListener callback) {
+        CarServiceUtils.assertPermission(mContext, Car.PERMISSION_RECORD_VEHICLE_PROPERTIES);
+        mPropertyHalService.stopRecordingVehicleProperties(callback);
+    }
+
+    @Override
+    public void enableInjectionMode(int[] propertyIdsFromRealHardware) {
+        CarServiceUtils.assertPermission(mContext, Car.PERMISSION_INJECT_VEHICLE_PROPERTIES);
+        mPropertyHalService.enableInjectionMode(Lists.asImmutableList(
+                propertyIdsFromRealHardware));
+    }
+
+    @Override
+    public void disableInjectionMode() {
+        CarServiceUtils.assertPermission(mContext, Car.PERMISSION_INJECT_VEHICLE_PROPERTIES);
+        mPropertyHalService.disableInjectionMode();
+    }
+
+    @Override
+    public boolean isVehiclePropertyInjectionModeEnabled() {
+        CarServiceUtils.assertPermission(mContext, Car.PERMISSION_INJECT_VEHICLE_PROPERTIES);
+        return mPropertyHalService.isVehiclePropertyInjectionModeEnabled();
+    }
+
+    @Override
+    public CarPropertyValue getLastInjectedVehicleProperty(int propertyId) {
+        CarServiceUtils.assertPermission(mContext, Car.PERMISSION_INJECT_VEHICLE_PROPERTIES);
+        return mPropertyHalService.getLastInjectedVehicleProperty(propertyId);
+    }
+
+    @Override
+    public void injectVehicleProperties(List<CarPropertyValue> carPropertyValues) {
+        CarServiceUtils.assertPermission(mContext, Car.PERMISSION_INJECT_VEHICLE_PROPERTIES);
+        mPropertyHalService.injectVehicleProperties(carPropertyValues);
     }
 
     private void assertPropertyIsReadable(CarPropertyConfig<?> carPropertyConfig,

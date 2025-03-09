@@ -94,6 +94,11 @@ public class PropertyHalServiceConfigs {
     private static final String JSON_FIELD_NAME_PROPERTIES = "properties";
 
     private static final String VIC_FLAG_NAME = "FLAG_ANDROID_VIC_VEHICLE_PROPERTIES";
+    private static final String REMOVE_SYSTEM_API_TAGS_FLAG_NAME =
+            "FLAG_VEHICLE_PROPERTY_REMOVE_SYSTEM_API_TAGS";
+    private static final String FLAG_25Q2_3P_PERMISSIONS =
+            "FLAG_VEHICLE_PROPERTY_25Q2_3P_PERMISSIONS";
+    private static final String B_FLAG_NAME = "FLAG_ANDROID_B_VEHICLE_PROPERTIES";
 
     private final FeatureFlags mFeatureFlags;
 
@@ -112,7 +117,7 @@ public class PropertyHalServiceConfigs {
      * Should only be used in unit tests. Use {@link getInsance} instead.
      */
     @VisibleForTesting
-    /* package */ PropertyHalServiceConfigs(@Nullable FeatureFlags featureFlags) {
+    public PropertyHalServiceConfigs(@Nullable FeatureFlags featureFlags) {
         Trace.traceBegin(TRACE_TAG, "initialize PropertyHalServiceConfigs");
         if (featureFlags == null) {
             mFeatureFlags = new FeatureFlagsImpl();
@@ -546,15 +551,26 @@ public class PropertyHalServiceConfigs {
             return null;
         }
         if (featureFlag != null) {
-            if (featureFlag.equals(VIC_FLAG_NAME)) {
-                if (!mFeatureFlags.androidVicVehicleProperties()) {
-                    Slogf.w(TAG, "The required feature flag for property: "
-                            + propertyName + " is not enabled, so its config is ignored");
-                    return null;
-                }
-            } else {
-                throw new IllegalArgumentException("Unknown feature flag: "
-                        + featureFlag + " for property: " + propertyName);
+            switch (featureFlag) {
+                case VIC_FLAG_NAME:
+                    // do nothing since Android V release is already cut
+                    break;
+                case REMOVE_SYSTEM_API_TAGS_FLAG_NAME:
+                    // do nothing as no behavior change
+                    break;
+                case FLAG_25Q2_3P_PERMISSIONS:
+                    // do nothing as no behavior change
+                    break;
+                case B_FLAG_NAME:
+                    if (!mFeatureFlags.androidBVehicleProperties()) {
+                        Slogf.w(TAG, "The required feature flag for property: %s is not enabled, "
+                                + "so its config is ignored", propertyName);
+                        return null;
+                    }
+                    break;
+                default:
+                    throw new IllegalArgumentException("Unknown feature flag: "
+                            + featureFlag + " for property: " + propertyName);
             }
         }
         if (description == null) {

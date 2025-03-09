@@ -301,9 +301,7 @@ public final class CarWatchdogDaemonHelper {
      */
     public void setThreadPriority(int pid, int tid, int uid, int policy, int priority)
             throws RemoteException {
-        invokeDaemonMethodForVersionAtLeast(
-                (daemon) -> daemon.setThreadPriority(pid, tid, uid, policy, priority),
-                /* expectedDaemonVersion= */ 2);
+        invokeDaemonMethod((daemon) -> daemon.setThreadPriority(pid, tid, uid, policy, priority));
     }
 
     /**
@@ -318,11 +316,11 @@ public final class CarWatchdogDaemonHelper {
         // resultValues stores policy as first element and priority as second element.
         int[] resultValues = new int[2];
 
-        invokeDaemonMethodForVersionAtLeast((daemon) -> {
+        invokeDaemonMethod((daemon) -> {
             ThreadPolicyWithPriority t = daemon.getThreadPriority(pid, tid, uid);
             resultValues[0] = t.policy;
             resultValues[1] = t.priority;
-        }, /* expectedDaemonVersion= */ 2);
+        });
 
         return resultValues;
     }
@@ -336,8 +334,7 @@ public final class CarWatchdogDaemonHelper {
      * @param pid The AIDL VHAL process ID.
      */
     public void onAidlVhalPidFetched(int pid) throws RemoteException {
-        invokeDaemonMethodForVersionAtLeast(
-                (daemon) -> daemon.onAidlVhalPidFetched(pid), /* expectedDaemonVersion= */ 3);
+        invokeDaemonMethod((daemon) -> daemon.onAidlVhalPidFetched(pid));
     }
 
     /**
@@ -348,30 +345,16 @@ public final class CarWatchdogDaemonHelper {
      */
     public void onTodayIoUsageStatsFetched(List<UserPackageIoUsageStats> userPackageIoUsageStats)
             throws RemoteException {
-        invokeDaemonMethodForVersionAtLeast(
-                (daemon) -> daemon.onTodayIoUsageStatsFetched(userPackageIoUsageStats),
-                /* expectedDaemonVersion= */ 3);
+        invokeDaemonMethod((daemon) -> daemon.onTodayIoUsageStatsFetched(userPackageIoUsageStats));
     }
 
     private void invokeDaemonMethod(Invokable r) throws RemoteException {
-        invokeDaemonMethodForVersionAtLeast(r, /* expectedDaemonVersion= */ -1);
-    }
-
-    private void invokeDaemonMethodForVersionAtLeast(Invokable r, int expectedDaemonVersion)
-            throws RemoteException {
         ICarWatchdog daemon;
         synchronized (mLock) {
             if (mCarWatchdogDaemon == null) {
                 throw new IllegalStateException("Car watchdog daemon is not connected");
             }
             daemon = mCarWatchdogDaemon;
-        }
-        int actualDaemonVersion = daemon.getInterfaceVersion();
-        if (actualDaemonVersion < expectedDaemonVersion) {
-            // TODO(b/238328234): Replace this with a special exception type.
-            throw new UnsupportedOperationException(
-                    "Require car watchdog daemon version: " + expectedDaemonVersion
-                    + ", actual version: " + actualDaemonVersion);
         }
         r.invoke(daemon);
     }

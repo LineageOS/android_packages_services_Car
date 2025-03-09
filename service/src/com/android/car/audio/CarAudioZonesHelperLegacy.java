@@ -49,7 +49,7 @@ import java.util.Objects;
 /**
  * A helper class loads volume groups from car_volume_groups.xml configuration into one zone.
  *
- * @deprecated This is replaced by {@link CarAudioZonesHelper}.
+ * @deprecated This is replaced by {@link CarAudioZonesHelperImpl}.
  */
 @Deprecated
 @ExcludeFromCodeCoverageGeneratedReport(reason = DEPRECATED_CODE)

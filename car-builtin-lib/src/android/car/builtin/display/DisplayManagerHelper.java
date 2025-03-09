@@ -23,7 +23,6 @@ import android.annotation.SystemApi;
 import android.content.Context;
 import android.hardware.display.DisplayManager;
 import android.hardware.display.DisplayManager.DisplayListener;
-import android.hardware.display.DisplayManager.EventsMask;
 import android.os.Handler;
 import android.view.Display;
 
@@ -64,7 +63,7 @@ public final class DisplayManagerHelper {
      * @see #registerDisplayListener(DisplayListener, Handler, long)
      */
     public static final long EVENT_FLAG_DISPLAY_BRIGHTNESS =
-            DisplayManager.EVENT_FLAG_DISPLAY_BRIGHTNESS;
+            DisplayManager.PRIVATE_EVENT_FLAG_DISPLAY_BRIGHTNESS;
 
     private DisplayManagerHelper() {
         throw new UnsupportedOperationException("contains only static members");
@@ -87,9 +86,11 @@ public final class DisplayManagerHelper {
      * @see DisplayManager#unregisterDisplayListener
      */
     public static void registerDisplayListener(Context context, DisplayListener listener,
-            Handler handler, @EventsMask long eventsMask) {
+            Handler handler, @DisplayManager.EventFlag long eventFlagsMask,
+            @DisplayManager.PrivateEventFlag long privateEventFlagsMask) {
         DisplayManager displayManager = context.getSystemService(DisplayManager.class);
-        displayManager.registerDisplayListener(listener, handler, eventsMask);
+        displayManager.registerDisplayListener(listener, handler, eventFlagsMask,
+                privateEventFlagsMask);
     }
 
     /**

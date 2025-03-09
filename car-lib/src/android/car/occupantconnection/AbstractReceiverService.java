@@ -136,6 +136,7 @@ public abstract class AbstractReceiverService extends Service {
                 AbstractReceiverService.this.onPayloadReceived(senderZone, payload);
             } finally {
                 Binder.restoreCallingIdentity(token);
+                payload.close();
             }
         }
 
@@ -247,6 +248,8 @@ public abstract class AbstractReceiverService extends Service {
      *   <li> cache the {@code payload}, then dispatch it when a new receiver endpoint is
      *        registered. The inheritance should clear the cache once it is no longer needed.
      * </ul>
+     * <p>
+     * The implementation does not need to close the payload. It will be closed after this call.
      */
     public abstract void onPayloadReceived(@NonNull OccupantZoneInfo senderZone,
             @NonNull Payload payload);

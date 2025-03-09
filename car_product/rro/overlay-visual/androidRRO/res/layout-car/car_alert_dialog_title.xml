@@ -33,7 +33,7 @@
             android:layout_width="@dimen/car_alert_dialog_icon_size"
             android:layout_height="@dimen/car_alert_dialog_icon_size"
             android:layout_alignParentStart="true"
-            android:layout_centerVertical="true"
+            android:layout_alignParentTop="true"
             android:layout_marginBottom="@dimen/car_alert_dialog_padding"
             android:scaleType="fitCenter"
             android:src="@null" />
@@ -44,9 +44,8 @@
             android:ellipsize="none"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_toEndOf="@+id/icon"
-            android:textAlignment="center"
-            android:layout_centerVertical="true"
+            android:layout_below="@android:id/icon"
+            android:textAlignment="textStart"
             style="@android:style/TextAppearance.DeviceDefault.DialogWindowTitle" />
     </RelativeLayout>
 

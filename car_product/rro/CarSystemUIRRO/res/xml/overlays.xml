@@ -16,7 +16,7 @@
   -->
 
 <overlay>
-    <item target="style/Theme.SystemUI.Dialog" value="@android:Theme.DeviceDefault.Dialog"/>
+    <item target="style/Theme.SystemUI.Dialog" value="@style/Theme.SystemUI.Dialog"/>
     <item target="id/auth_credential_input" value="@id/auth_credential_input" />
     <item target="id/cancel_button" value="@id/cancel_button" />
     <item target="id/emergencyCallButton" value="@id/emergencyCallButton" />

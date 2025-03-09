@@ -49,6 +49,26 @@
     <string name="car_permission_label_mileage">access car\u2019s mileage information</string>
     <!-- Permission text: can access your car's mileage information [CHAR LIMIT=NONE] -->
     <string name="car_permission_desc_mileage">Access your car\u2019s mileage information.</string>
+    <!-- Permission text: can access your car's mileage information [CHAR LIMIT=NONE] -->
+    <string name="car_permission_label_mileage_3p">access car\u2019s mileage information</string>
+    <!-- Permission text: can access your car's mileage information [CHAR LIMIT=NONE] -->
+    <string name="car_permission_desc_mileage_3p">Access your car\u2019s mileage information.</string>
+    <!-- Permission text: can read your car's horn information [CHAR LIMIT=NONE] -->
+    <string name="car_permission_label_read_car_horn">read car\u2019s horn information</string>
+    <!-- Permission text: can read your car's horn information [CHAR LIMIT=NONE] -->
+    <string name="car_permission_desc_read_car_horn">Read your car\u2019s horn information.</string>
+    <!-- Permission text: can control your car's horn [CHAR LIMIT=NONE] -->
+    <string name="car_permission_label_control_car_horn">control car\u2019s horn</string>
+    <!-- Permission text: can control your car's horn [CHAR LIMIT=NONE] -->
+    <string name="car_permission_desc_control_car_horn">Control your car\u2019s horn.</string>
+    <!-- Permission text: can access your car's pedal information [CHAR LIMIT=NONE] -->
+    <string name="car_permission_label_read_car_pedals">access car\u2019s pedal information</string>
+    <!-- Permission text: can access your car's pedal information [CHAR LIMIT=NONE] -->
+    <string name="car_permission_desc_read_car_pedals">Access your car\u2019s pedal information.</string>
+    <!-- Permission text: can access your car's brake information [CHAR LIMIT=NONE] -->
+    <string name="car_permission_label_read_brake_info">access car\u2019s brake information</string>
+    <!-- Permission text: can access your car's brake information [CHAR LIMIT=NONE] -->
+    <string name="car_permission_desc_read_brake_info">Access your car\u2019s brake information.</string>
     <!-- Permission text: can access your car's speed [CHAR LIMIT=NONE] -->
     <string name="car_permission_label_speed">read car\u2019s speed</string>
     <!-- Permission text: can access your car's speed [CHAR LIMIT=NONE] -->
@@ -174,6 +194,11 @@
     <!-- Permission text: apps can listen to driving state changes [CHAR LIMIT=NONE] -->
     <string name="car_permission_desc_driving_state">Listen to Driving state changes.</string>
 
+    <!-- Permission text: apps can listen to driving state changes [CHAR LIMIT=NONE] -->
+    <string name="car_permission_label_driving_state_3p">read car\u2019s driving state</string>
+    <!-- Permission text: apps can listen to driving state changes [CHAR LIMIT=NONE] -->
+    <string name="car_permission_desc_driving_state_3p">Read car\u2019s driving state changes.</string>
+
     <!-- Permission text: apps can collect metrics. [CHAR LIMIT=NONE] -->
     <string name="car_permission_label_use_telemetry_service">Use Car Telemetry Service</string>
     <!-- Permission text: apps can collect metrics. [CHAR LIMIT=NONE] -->
@@ -209,6 +234,11 @@
     <!-- Permission text: apps can listen to Engine Detailed [CHAR LIMIT=NONE] -->
     <string name="car_permission_desc_car_engine_detailed">Access your car\u2019s detailed engine information.</string>
 
+    <!-- Permission text: apps read Engine Detailed 3P [CHAR LIMIT=NONE] -->
+    <string name="car_permission_label_car_engine_detailed_3p">read car\u2019s engine detailed</string>
+    <!-- Permission text: apps can listen to Engine Detailed 3P [CHAR LIMIT=NONE] -->
+    <string name="car_permission_desc_car_engine_detailed_3p">Read your car\u2019s detailed engine information.</string>
+
     <!-- Permission text: apps can access car's fuel door and ev charge port [CHAR LIMIT=NONE] -->
     <string name="car_permission_label_car_energy_ports">access car\u2019s fuel door and charge port</string>
     <!-- Permission text: apps can access car's fuel door and ev charge port [CHAR LIMIT=NONE] -->
@@ -243,6 +273,11 @@
     <string name="car_permission_label_control_car_seats">control car\u2019s seats</string>
     <!-- Permission text: apps can control car seats [CHAR LIMIT=NONE] -->
     <string name="car_permission_desc_control_car_seats">Control car\u2019s seats.</string>
+
+    <!-- Permission text: apps can read car seats [CHAR LIMIT=NONE] -->
+    <string name="car_permission_label_read_car_seats">read car\u2019s seats</string>
+    <!-- Permission text: apps can read car seats [CHAR LIMIT=NONE] -->
+    <string name="car_permission_desc_read_car_seats">Read car\u2019s seats.</string>
 
     <!-- Permission text: apps can read car seat belts [CHAR LIMIT=NONE] -->
     <string name="car_permission_label_read_car_seat_belts">read car\u2019s seat belts</string>
@@ -304,6 +339,11 @@
     <!-- Permission text: apps access car's exterior lights state [CHAR LIMIT=NONE] -->
     <string name="car_permission_desc_car_exterior_lights">Access car\u2019s exterior lights state.</string>
 
+    <!-- Permission text: 3P apps access car's exterior lights state [CHAR LIMIT=NONE] -->
+    <string name="car_permission_label_read_car_exterior_lights">read car\u2019s exterior lights state</string>
+    <!-- Permission text: 3P apps access car's exterior lights state [CHAR LIMIT=NONE] -->
+    <string name="car_permission_desc_read_car_exterior_lights">Read car\u2019s exterior lights state.</string>
+
     <!-- Permission text: apps access car's glove box state [CHAR LIMIT=NONE] -->
     <string name="car_permission_label_control_glove_box">access car\u2019s glove box state</string>
     <!-- Permission text: apps access car's glove box state [CHAR LIMIT=NONE] -->
@@ -339,10 +379,20 @@
     <!-- Permission text: apps access car's tire information [CHAR LIMIT=NONE] -->
     <string name="car_permission_desc_car_tires">Access car\u2019s tire information.</string>
 
+    <!-- Permission text: apps access car's tire information [CHAR LIMIT=NONE] -->
+    <string name="car_permission_label_car_tires_3p">read car\u2019s tires information</string>
+    <!-- Permission text: apps access car's tire information [CHAR LIMIT=NONE] -->
+    <string name="car_permission_desc_car_tires_3p">Read car\u2019s tire information.</string>
+
     <!-- Permission text: apps access car's steering angle information [CHAR LIMIT=NONE] -->
     <string name="car_permission_label_car_steering">read car\u2019s steering angle information</string>
     <!-- Permission text: apps access car's steering angle information [CHAR LIMIT=NONE] -->
     <string name="car_permission_desc_car_steering">Access car\u2019s steering angle information.</string>
+
+    <!-- Permission text: apps access car's steering angle information [CHAR LIMIT=NONE] -->
+    <string name="car_permission_label_read_car_steering_3p">read car\u2019s steering angle information</string>
+    <!-- Permission text: apps access car's steering angle information [CHAR LIMIT=NONE] -->
+    <string name="car_permission_desc_read_car_steering_3p">Access car\u2019s steering angle information.</string>
 
     <!-- Permission text: apps read display units [CHAR LIMIT=NONE] -->
     <string name="car_permission_label_read_car_display_units">read car display units</string>
@@ -657,6 +707,11 @@
     <!-- Permission text: apps can read car windshield wipers [CHAR LIMIT=NONE] -->
     <string name="car_permission_desc_read_windshield_wipers">Read car\u2019s windshield wipers.</string>
 
+    <!-- Permission text: apps can read car windshield wipers [CHAR LIMIT=NONE] -->
+    <string name="car_permission_label_read_windshield_wipers_3p">read car\u2019s windshield wipers</string>
+    <!-- Permission text: apps can read car windshield wipers [CHAR LIMIT=NONE] -->
+    <string name="car_permission_desc_read_windshield_wipers_3p">Read car\u2019s windshield wipers.</string>
+
     <!-- Permission text: apps can control car windshield wipers [CHAR LIMIT=NONE] -->
     <string name="car_permission_label_control_windshield_wipers">control car\u2019s windshield wipers</string>
     <!-- Permission text: apps can control car windshield wipers [CHAR LIMIT=NONE] -->
@@ -738,6 +793,16 @@
     <!-- Permission text: apps can read car persist tethering settings [CHAR LIMIT=NONE] -->
     <string name="car_permission_desc_read_persist_tethering_settings">Read car\u2019s persist
         tethering settings</string>
+
+    <!-- Permission text: apps can record vehicle properties [CHAR LIMIT=NONE] -->
+    <string name="car_permission_label_record_vehicle_properties">record vehicle properties</string>
+    <!-- Permission text: apps can record vehicle properties [CHAR LIMIT=NONE] -->
+    <string name="car_permission_desc_record_vehicle_properties">record vehicle properties</string>
+
+    <!-- Permission text: apps can inject vehicle properties [CHAR LIMIT=NONE] -->
+    <string name="car_permission_label_inject_vehicle_properties">inject vehicle properties</string>
+    <!-- Permission text: apps can inject vehicle properties [CHAR LIMIT=NONE] -->
+    <string name="car_permission_desc_inject_vehicle_properties">inject vehicle properties</string>
 
     <!-- Notification messages -->
     <!-- Notification text: Notification shown to the user when vehicle CAN bus fails -->

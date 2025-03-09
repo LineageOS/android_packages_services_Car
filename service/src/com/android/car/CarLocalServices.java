@@ -16,6 +16,8 @@
 
 package com.android.car;
 
+import static android.car.feature.Flags.asyncAudioServiceInit;
+
 import android.annotation.Nullable;
 import android.car.Car;
 import android.car.builtin.util.Slogf;
@@ -24,6 +26,7 @@ import android.content.Context;
 import android.util.ArrayMap;
 import android.util.Log;
 
+import com.android.car.audio.CarAudioService;
 import com.android.car.power.CarPowerManagementService;
 import com.android.internal.annotations.VisibleForTesting;
 
@@ -54,8 +57,30 @@ public final class CarLocalServices {
         if (DBG) {
             Slogf.d(TAG, " getService " + type.getSimpleName());
         }
+        if (asyncAudioServiceInit()) {
+            if (type.equals(CarAudioService.class)) {
+                throw new UnsupportedOperationException("Use getCarAudioService instead.");
+            }
+        }
         synchronized (sLocalServiceObjects) {
             return (T) sLocalServiceObjects.get(type);
+        }
+    }
+
+     /**
+     * Returns a {@link CarAudioService}.
+     *
+     * <p>Note that the returned service is not fully initialized. Caller should call
+     * {@link CarAudioService#waitForInitComplete} to make sure the initialization is complete.
+     */
+    @SuppressWarnings("unchecked")
+    @Nullable
+    public static CarAudioService getCarAudioService() {
+        if (DBG) {
+            Slogf.d(TAG, " getService CarAudioService");
+        }
+        synchronized (sLocalServiceObjects) {
+            return (CarAudioService) sLocalServiceObjects.get(CarAudioService.class);
         }
     }
 

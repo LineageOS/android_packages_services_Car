@@ -37,7 +37,8 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:gravity="center_vertical"
-            systemui:hvacAreaId="68">
+            systemui:hvacAreaId="68"
+            systemui:controller="com.android.systemui.car.hvac.TemperatureControlViewController">
             <include layout="@layout/adjustable_temperature_view"/>
         </com.android.systemui.car.hvac.TemperatureControlView>
 
@@ -73,7 +74,8 @@
                 systemui:highlightWhenSelected="true"
                 systemui:icon="@drawable/car_ic_control_center"
                 systemui:intent="intent:#Intent;action=android.intent.action.MAIN;package=com.android.car.multidisplay.controlcenter;component=com.android.car.multidisplay.controlcenter/.ControlCenterActivity;B.BOTTOM_BAR_LAUNCH=true;end"
-                systemui:componentNames="com.android.car.multidisplay.controlcenter/.ControlCenterActivity"/>
+                systemui:componentNames="com.android.car.multidisplay.controlcenter/.ControlCenterActivity"
+                systemui:controller="com.android.systemui.car.systembar.ControlCenterButtonController"/>
 
             <com.android.systemui.car.systembar.CarSystemBarButton
                 android:id="@+id/notifications"
@@ -81,7 +83,9 @@
                 style="@style/SystemBarButton"
                 android:layout_marginEnd="0dp"
                 systemui:highlightWhenSelected="true"
-                systemui:icon="@drawable/car_ic_notification"/>
+                systemui:icon="@drawable/car_ic_notification"
+                systemui:systemBarDisableFlags="notificationIcons"
+                systemui:controller="com.android.systemui.car.notification.NotificationButtonController"/>
 
             <Space
                 android:layout_width="0dp"

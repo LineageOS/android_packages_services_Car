@@ -30,6 +30,10 @@
     <string name="car_permission_desc_hvac" msgid="3754229695589774195">"käyttää auton lämmitys-,ilmanvaihto- ja ilmastointijärjestelmää"</string>
     <string name="car_permission_label_mileage" msgid="4661317074631150551">"käyttää tietoja ajetuista kilometreistä"</string>
     <string name="car_permission_desc_mileage" msgid="7179735693278681090">"nähdä auton matkamittarilukeman"</string>
+    <!-- no translation found for car_permission_label_mileage_3p (7542459195663034759) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_mileage_3p (9109350882748664570) -->
+    <skip />
     <string name="car_permission_label_speed" msgid="1149027717860529745">"nähdä auton nopeuden"</string>
     <string name="car_permission_desc_speed" msgid="2047965198165448241">"tarkistaa auton nopeuden"</string>
     <string name="car_permission_label_vehicle_dynamics_state" msgid="313779267420048367">"käyttää auton dynamiikan tilaa"</string>
@@ -92,6 +96,10 @@
     <string name="car_permission_desc_storage_monitoring" msgid="2075712271139671318">"valvoa flash-tallennustilan käyttöä"</string>
     <string name="car_permission_label_driving_state" msgid="7754624599537393650">"kuunnella ajotilaa"</string>
     <string name="car_permission_desc_driving_state" msgid="2684025262811635737">"kuunnella ajotilan muutoksia"</string>
+    <!-- no translation found for car_permission_label_driving_state_3p (1395905103166125030) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_driving_state_3p (5491522450897843003) -->
+    <skip />
     <string name="car_permission_label_use_telemetry_service" msgid="948005838683758846">"käyttää auton telemetriapalvelua"</string>
     <string name="car_permission_desc_use_telemetry_service" msgid="3633214312435700766">"kerätä dataa auton järjestelmän kunnosta."</string>
     <string name="car_permission_label_use_evs_service" msgid="1729276125209310607">"käyttää auton EVS-palvelua"</string>
@@ -106,6 +114,10 @@
     <string name="car_permission_desc_monitor_evs_status" msgid="2764278897143573535">"kuunnella muutoksia EVS-palvelun tilassa"</string>
     <string name="car_permission_label_car_engine_detailed" msgid="8911992719173587337">"käyttää auton moottorin yksityiskohtaisia tietoja"</string>
     <string name="car_permission_desc_car_engine_detailed" msgid="1746863362811347700">"käyttää auton moottorin yksityiskohtaisia tietoja"</string>
+    <!-- no translation found for car_permission_label_car_engine_detailed_3p (2695036212735960169) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_car_engine_detailed_3p (7536940094077391015) -->
+    <skip />
     <string name="car_permission_label_car_energy_ports" msgid="8548990315169219454">"käyttää auton polttoaineluukkua ja latausliitäntää"</string>
     <string name="car_permission_desc_car_energy_ports" msgid="7771185999828794949">"käyttää auton polttoaineluukkua ja latausliitäntää"</string>
     <string name="car_permission_label_control_car_energy_ports" msgid="4375137311026313475">"ohjata auton polttoaineluukkua ja latausliitäntää"</string>
@@ -120,6 +132,10 @@
     <string name="car_permission_desc_control_car_mirrors" msgid="1224135684068855032">"ohjata auton peilejä"</string>
     <string name="car_permission_label_control_car_seats" msgid="1826934820585497135">"ohjata auton istuimia"</string>
     <string name="car_permission_desc_control_car_seats" msgid="2407536601226470563">"ohjata auton istuimia"</string>
+    <!-- no translation found for car_permission_label_read_car_seats (2996918480980128872) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_read_car_seats (5894145845932493046) -->
+    <skip />
     <string name="car_permission_label_read_car_seat_belts" msgid="2051828795852087659">"lukea auton turvavöiden tietoja"</string>
     <string name="car_permission_desc_read_car_seat_belts" msgid="7076977711613912339">"Lue auton turvavöiden tietoja."</string>
     <string name="car_permission_label_read_impact_sensors" msgid="9193288836326363975">"lukea auton törmäyssensoreiden tietoja"</string>
@@ -158,8 +174,16 @@
     <string name="car_permission_desc_car_exterior_environment" msgid="1716656004731603379">"käyttää auton ulkolämpötilaa"</string>
     <string name="car_permission_label_car_tires" msgid="4379255261197836840">"käyttää auton renkaiden tilaa"</string>
     <string name="car_permission_desc_car_tires" msgid="8134496466769810134">"käyttää auton renkaiden tietoja"</string>
+    <!-- no translation found for car_permission_label_car_tires_3p (1360632319908226570) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_car_tires_3p (820574543667371274) -->
+    <skip />
     <string name="car_permission_label_car_steering" msgid="7779530447441232479">"nähdä auton ohjaamisen kulmatiedot"</string>
     <string name="car_permission_desc_car_steering" msgid="1357331844530708138">"käyttää auton ohjauskulman tietoja"</string>
+    <!-- no translation found for car_permission_label_read_car_steering_3p (1598866058085489462) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_read_car_steering_3p (576361609663755171) -->
+    <skip />
     <string name="car_permission_label_read_car_display_units" msgid="7617008314862097183">"nähdä auton näyttöjen sisällön"</string>
     <string name="car_permission_desc_read_car_display_units" msgid="6891898275208542385">"lukea näyttöjä"</string>
     <string name="car_permission_label_control_car_display_units" msgid="4975303668183173076">"ohjata auton näyttöjä"</string>
@@ -212,6 +236,10 @@
     <string name="car_permission_desc_control_adas_states" msgid="1893171217779342348">"Ohjaa auton ADAS-tilojen tietoja."</string>
     <string name="car_permission_label_read_windshield_wipers" msgid="896867772546890348">"lukea tiedot auton tuulilasinpyyhkijöistä"</string>
     <string name="car_permission_desc_read_windshield_wipers" msgid="597300271560195986">"Lue tiedot auton tuulilasinpyyhkijöistä."</string>
+    <!-- no translation found for car_permission_label_read_windshield_wipers_3p (4784843702416325970) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_read_windshield_wipers_3p (604163171596913379) -->
+    <skip />
     <string name="car_permission_label_control_windshield_wipers" msgid="7971852482734087493">"ohjata auton tuulilasinpyyhkijöitä"</string>
     <string name="car_permission_desc_control_windshield_wipers" msgid="3803429825323199728">"Ohjaa auton tuulilasinpyyhkijöitä."</string>
     <string name="car_permission_label_manage_display_compatibility" msgid="52642673039197383">"ylläpitää näytön yhteensopivuuspaketteja"</string>
@@ -232,6 +260,10 @@
     <string name="car_permission_desc_manage_car_system_ui" msgid="6201733970421818637">"Kommunikoi autojärjestelmän käyttöliittymän kanssa tehtävänäkymien luomiseksi tai järjestelmän käyttöliittymän muutoksista ilmoittamiseksi."</string>
     <string name="car_permission_label_read_persist_tethering_settings" msgid="6395145649477916950">"Lukea auton jatkuvan jakamisen asetukset"</string>
     <string name="car_permission_desc_read_persist_tethering_settings" msgid="7373546466696896323">"Lukea auton jatkuvan jakamisen asetukset"</string>
+    <string name="car_permission_label_record_vehicle_properties" msgid="958971344399611906">"rekisteröi ajoneuvo-ominaisuuksia"</string>
+    <string name="car_permission_desc_record_vehicle_properties" msgid="2560365700851584569">"rekisteröi ajoneuvo-ominaisuuksia"</string>
+    <string name="car_permission_label_inject_vehicle_properties" msgid="2943134725643169428">"lisää ajoneuvo-ominaisuuksia"</string>
+    <string name="car_permission_desc_inject_vehicle_properties" msgid="2616112105084870775">"lisää ajoneuvo-ominaisuuksia"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN-väylä hylättiin"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN-väylä ei vastaa. Irrota pääyksikkö ja liitä se takaisin. Käynnistä auto sitten uudelleen."</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"Oma laite"</string>

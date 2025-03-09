@@ -31,9 +31,9 @@
 
 #include <thread>  // NOLINT(build/c++11)
 
-#include <carwatchdog_daemon_dump.pb.h>
-#include <health_check_client_info.pb.h>
-#include <performance_stats.pb.h>
+#include <packages/services/Car/service/proto/android/car/watchdog/carwatchdog_daemon_dump.pb.h>
+#include <packages/services/Car/service/proto/android/car/watchdog/health_check_client_info.pb.h>
+#include <packages/services/Car/service/proto/android/car/watchdog/performance_stats.pb.h>
 
 namespace android {
 namespace automotive {
@@ -156,7 +156,8 @@ public:
         return false;
     }
 
-    void setPackageInfoResolver(const sp<PackageInfoResolverInterface>& packageInfoResolver) {
+    void setPackageInfoResolver(const std::shared_ptr<PackageInfoResolverInterface>&
+          packageInfoResolver) {
         mWatchdogProcessService->mPackageInfoResolver = packageInfoResolver;
     }
 
@@ -185,7 +186,7 @@ protected:
         mSupportedVehicleProperties = {VehicleProperty::VHAL_HEARTBEAT};
         mNotSupportedVehicleProperties = {VehicleProperty::WATCHDOG_ALIVE,
                                           VehicleProperty::WATCHDOG_TERMINATED_PROCESS};
-        mMockPackageInfoResolver = sp<MockPackageInfoResolver>::make();
+        mMockPackageInfoResolver = std::make_shared<MockPackageInfoResolver>();
         startService();
     }
 
@@ -196,7 +197,7 @@ protected:
         mMockVhalClient.reset();
         mMockVehicle.reset();
         mMessageHandler.clear();
-        mMockPackageInfoResolver.clear();
+        mMockPackageInfoResolver.reset();
     }
 
     void startService() {
@@ -323,7 +324,7 @@ protected:
     sp<MockAIBinderDeathRegistrationWrapper> mMockDeathRegistrationWrapper;
     std::vector<VehicleProperty> mSupportedVehicleProperties;
     std::vector<VehicleProperty> mNotSupportedVehicleProperties;
-    sp<MockPackageInfoResolver> mMockPackageInfoResolver;
+    std::shared_ptr<MockPackageInfoResolver> mMockPackageInfoResolver;
 
 private:
     class MessageHandlerImpl : public android::MessageHandler {
