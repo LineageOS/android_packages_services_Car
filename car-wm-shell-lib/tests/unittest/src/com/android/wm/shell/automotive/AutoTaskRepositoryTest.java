@@ -33,7 +33,9 @@ import android.app.ActivityManager;
 import android.car.Car;
 import android.car.app.CarActivityManager;
 import android.content.Context;
+import android.hardware.display.DisplayManager;
 import android.os.UserHandle;
+import android.view.Display;
 import android.view.SurfaceControl;
 
 import com.android.wm.shell.ShellTaskOrganizer;
@@ -65,6 +67,12 @@ public class AutoTaskRepositoryTest {
     @Mock
     private CarActivityManager mCarActivityManager;
 
+    @Mock
+    private Display mDisplay0;
+
+    @Mock
+    private DisplayManager mDisplayManager;
+
     private Car.CarServiceLifecycleListener mCarServiceLifecycleListener;
 
     private MockitoSession mSession;
@@ -82,9 +90,11 @@ public class AutoTaskRepositoryTest {
 
         when(mCar.getCarManager(Car.CAR_ACTIVITY_SERVICE)).thenReturn(mCarActivityManager);
 
-        doAnswer(invocation -> {
-            return UserHandle.USER_SYSTEM;
-        }).when(() -> UserHandle.getCallingUserId());
+        doAnswer(invocation -> UserHandle.USER_SYSTEM).when(() -> UserHandle.getCallingUserId());
+
+        when(mDisplay0.getDisplayId()).thenReturn(0);
+        when(mDisplayManager.getDisplays()).thenReturn(new Display[]{mDisplay0});
+        when(mContext.getSystemService(DisplayManager.class)).thenReturn(mDisplayManager);
 
         doAnswer(invocation -> {
             mCarServiceLifecycleListener = invocation.getArgument(3);
