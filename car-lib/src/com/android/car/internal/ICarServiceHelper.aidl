@@ -116,4 +116,14 @@ interface ICarServiceHelper {
      * given user id.
      */
     boolean requiresDisplayCompatForUser(String packageName, int userId) = 18;
+
+    /**
+    * Reports that a Root Task is created.
+    */
+    void onRootTaskAppeared(String name, in IBinder rootTaskToken) = 19;
+
+    /**
+    * Reports that a Root Task has vanished.
+    */
+    void onRootTaskVanished(String name) = 20;
 }

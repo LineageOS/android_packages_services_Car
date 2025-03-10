@@ -199,6 +199,28 @@ public final class CarServiceHelperWrapper {
     /**
      * See {@code ICarServiceHelper}.
      */
+    public void onRootTaskAppeared(String name, IBinder rootTaskToken) {
+        try {
+            waitForCarServiceHelper().onRootTaskAppeared(name, rootTaskToken);
+        } catch (RemoteException e) {
+            Slogf.e(TAG, REMOTE_EXCEPTION_STR, e);
+        }
+    }
+
+    /**
+     * See {@code ICarServiceHelper}.
+     */
+    public void onRootTaskVanished(String name) {
+        try {
+            waitForCarServiceHelper().onRootTaskVanished(name);
+        } catch (RemoteException e) {
+            Slogf.e(TAG, REMOTE_EXCEPTION_STR, e);
+        }
+    }
+
+    /**
+     * See {@code ICarServiceHelper}.
+     */
     public void sendInitialUser(UserHandle user) {
         try {
             waitForCarServiceHelper().sendInitialUser(user);
