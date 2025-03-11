@@ -3687,10 +3687,15 @@ public final class VehiclePropertyIds {
      * <p>This property is not in any particular unit but in a specified range of relative
      * positions.
      *
-     * <p>{@link android.car.hardware.property.AreaIdConfig#getMinValue()} indicates the seat's
-     * lowest position.
-     * <p>{@link android.car.hardware.property.AreaIdConfig#getMaxValue()} indicates the seat's
-     * highest position.
+     * <p>{@link android.car.hardware.property.AreaIdConfig#hasMinSupportedValue()} and {@link
+     * android.car.hardware.property.AreaIdConfig#hasMaxSupportedValue()} will be {@code true} for
+     * all areaIds.
+     *
+     * <p>{@link android.car.hardware.property.MinMaxSupportedValue#getMinValue()} indicates the
+     * seat is in its lowest position.
+     *
+     * <p>{@link android.car.hardware.property.MinMaxSupportedValue#getMaxValue()} indicates the
+     * seat is in its highest position.
      *
      * <p>All integers between the min and max values are supported and indicate a transition state
      * between the lowest and highest positions.
@@ -3723,9 +3728,15 @@ public final class VehiclePropertyIds {
      * reaches the positional limit, the value resets to 0. When this property's value is 0, that
      * means there is no movement currently occurring.
      *
-     * <p>See {@link android.car.hardware.property.AreaIdConfig#getMaxValue()} and {@link
-     * android.car.hardware.property.AreaIdConfig#getMinValue()} for the range of possible speeds.
-     * All integers between min and max value are supported.
+     * <p>{@link android.car.hardware.property.AreaIdConfig#hasMinSupportedValue()} and {@link
+     * android.car.hardware.property.AreaIdConfig#hasMaxSupportedValue()} will be {@code true} for
+     * all areaIds.
+     *
+     * <p>{@link android.car.hardware.property.MinMaxSupportedValue#getMinValue()} represents the
+     * maximum movement speed of the seat while moving downward.
+     *
+     * <p>{@link android.car.hardware.property.MinMaxSupportedValue#getMaxValue()} represents the
+     * maximum movement speed of the seat while moving upward.
      *
      * <p>Property Config:
      * <ul>
@@ -3750,12 +3761,17 @@ public final class VehiclePropertyIds {
      * <p>This property is not in any particular unit but in a specified range of relative
      * positions.
      *
-     * <p>{@link android.car.hardware.property.AreaIdConfig#getMinValue()} indicates the seat's
-     * shallowest position. This corresponds to the smallest distance between the front edge of the
-     * seat and the seat backrest.
-     * <p>{@link android.car.hardware.property.AreaIdConfig#getMaxValue()} indicates the seat's
-     * deepest position. This corresponds to the largest distance between the front edge of the seat
-     * and the seat backrest.
+     * <p>{@link android.car.hardware.property.AreaIdConfig#hasMinSupportedValue()} and {@link
+     * android.car.hardware.property.AreaIdConfig#hasMaxSupportedValue()} will be {@code true} for
+     * all areaIds.
+     *
+     * <p>{@link android.car.hardware.property.MinMaxSupportedValue#getMinValue()} indicates the
+     * seat is in its shallowest position (i.e. the position with the smallest distance between the
+     * front edge of the seat cushion and the rear end of the seat).
+     *
+     * <p>{@link android.car.hardware.property.MinMaxSupportedValue#getMaxValue()} indicates the
+     * seat is in its deepest position (i.e. the position with the largest distance between the
+     * front edge of the seat cushion and the rear end of the seat).
      *
      * <p>All integers between the min and max values are supported and indicate a transition state
      * between the shallowest and deepest positions.
@@ -3790,9 +3806,15 @@ public final class VehiclePropertyIds {
      * reaches its limit, the value resets to 0. When this property's value is 0, that means there
      * is no movement currently occurring.
      *
-     * <p>See {@link android.car.hardware.property.AreaIdConfig#getMaxValue()} and {@link
-     * android.car.hardware.property.AreaIdConfig#getMinValue()} for the range of possible speeds.
-     * All integers between min and max value are supported.
+     * <p>{@link android.car.hardware.property.AreaIdConfig#hasMinSupportedValue()} and {@link
+     * android.car.hardware.property.AreaIdConfig#hasMaxSupportedValue()} will be {@code true} for
+     * all areaIds.
+     *
+     * <p>{@link android.car.hardware.property.MinMaxSupportedValue#getMinValue()} represents the
+     * maximum movement speed of the seat while getting shallower.
+     *
+     * <p>{@link android.car.hardware.property.MinMaxSupportedValue#getMaxValue()} represents the
+     * maximum movement speed of the seat while getting deeper.
      *
      * <p>Property Config:
      * <ul>
@@ -3817,12 +3839,17 @@ public final class VehiclePropertyIds {
      * <p>This property is not in any particular unit but in a specified range of relative
      * positions.
      *
-     * <p>{@link android.car.hardware.property.AreaIdConfig#getMinValue()} indicates the seat
-     * bottom's lowest angular position. This corresponds to the seat's front edge at its lowest
-     * possible position relative to the rear end of the seat.
-     * <p>{@link android.car.hardware.property.AreaIdConfig#getMaxValue()} indicates the seat
-     * bottom's highest angular position. This corresponds to the seat's front edge at its highest
-     * possible position relative to the rear end of the seat.
+     * <p>{@link android.car.hardware.property.AreaIdConfig#hasMinSupportedValue()} and {@link
+     * android.car.hardware.property.AreaIdConfig#hasMaxSupportedValue()} will be {@code true} for
+     * all areaIds.
+     *
+     * <p>{@link android.car.hardware.property.MinMaxSupportedValue#getMinValue()} indicates the
+     * seat bottom is angled at its lowest angular position. This corresponds to the seat's front
+     * edge at its lowest possible position relative to the rear end of the seat.
+     *
+     * <p>{@link android.car.hardware.property.MinMaxSupportedValue#getMaxValue()} indicates the
+     * seat bottom is angled at its highest angular position. This corresponds to the seat's front
+     * edge at its highest possible position relative to the rear end of the seat.
      *
      * <p>All integers between the min and max values are supported and indicate a transition state
      * between the lowest and highest positions.
@@ -3857,9 +3884,15 @@ public final class VehiclePropertyIds {
      * seat cushion reaches the positional limit, the value resets to 0. When this property's value
      * is 0, that means there is no movement currently occurring.
      *
-     * <p>See {@link android.car.hardware.property.AreaIdConfig#getMaxValue()} and {@link
-     * android.car.hardware.property.AreaIdConfig#getMinValue()} for the range of possible speeds.
-     * All integers between min and max value are supported.
+     * <p>{@link android.car.hardware.property.AreaIdConfig#hasMinSupportedValue()} and {@link
+     * android.car.hardware.property.AreaIdConfig#hasMaxSupportedValue()} will be {@code true} for
+     * all areaIds.
+     *
+     * <p>{@link android.car.hardware.property.MinMaxSupportedValue#getMinValue()} represents the
+     * maximum movement speed of the front edge of the seat while moving downward.
+     *
+     * <p>{@link android.car.hardware.property.MinMaxSupportedValue#getMaxValue()} represents the
+     * maximum movement speed of the front edge of the seat while moving upward.
      *
      * <p>Property Config:
      * <ul>
