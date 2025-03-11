@@ -62,7 +62,6 @@ import android.os.SystemClock;
 import android.platform.test.annotations.DisableFlags;
 import android.platform.test.annotations.EnableFlags;
 import android.platform.test.flag.junit.SetFlagsRule;
-import android.platform.test.ravenwood.RavenwoodRule;
 import android.util.Pair;
 
 import com.android.car.internal.ICarServiceHelper;
@@ -99,9 +98,6 @@ public final class CarUnitTest {
 
     @Rule
     public final SetFlagsRule mSetFlagsRule = new SetFlagsRule();
-    @Rule
-    public final RavenwoodRule mRavenwood = new RavenwoodRule.Builder().setProvideMainThread(true)
-            .build();
 
     @Mock
     private Context mContext;
