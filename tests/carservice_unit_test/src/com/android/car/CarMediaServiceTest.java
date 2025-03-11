@@ -40,7 +40,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import android.app.ActivityManager;
@@ -783,7 +783,7 @@ public final class CarMediaServiceTest extends AbstractExtendedMockitoTestCase {
 
         sendKeyEvent(MEDIA_KEY_EVENT, DISPLAY_TYPE_IGNORED, SEAT_NUMBER);
 
-        verifyZeroInteractions(mMediaSessionManager);
+        verifyNoMoreInteractions(mMediaSessionManager);
     }
 
     @Test
@@ -795,7 +795,7 @@ public final class CarMediaServiceTest extends AbstractExtendedMockitoTestCase {
 
         sendKeyEvent(MEDIA_KEY_EVENT, DISPLAY_TYPE_IGNORED, SEAT_NUMBER);
 
-        verifyZeroInteractions(mMediaSessionManager);
+        verifyNoMoreInteractions(mMediaSessionManager);
     }
 
     @Test

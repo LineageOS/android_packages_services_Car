@@ -25,7 +25,7 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import android.car.hardware.property.VehicleHalStatusCode;
@@ -1058,7 +1058,7 @@ public class VmsHalServiceTest {
     @Test
     public void testDumpMetrics_DefaultConfig() {
         mHalService.dumpMetrics(new FileDescriptor());
-        verifyZeroInteractions(mVehicleHal);
+        verifyNoMoreInteractions(mVehicleHal);
     }
 
     @Test
@@ -1073,7 +1073,7 @@ public class VmsHalServiceTest {
         setUp();
 
         mHalService.dumpMetrics(new FileDescriptor());
-        verifyZeroInteractions(mVehicleHal);
+        verifyNoMoreInteractions(mVehicleHal);
     }
 
     @Test
