@@ -15,6 +15,9 @@
  */
 package com.android.car.audio;
 
+import static android.car.media.CarAudioManager.AUDIO_DEFAULT_BALANCE_LEVEL;
+import static android.car.media.CarAudioManager.AUDIO_DEFAULT_FADE_LEVEL;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyFloat;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -46,8 +49,6 @@ public class CarAudioEffectsUnitTest extends AbstractExtendedMockitoTestCase {
     private static final float INVALID_FADE_LEVEL = 2.0f;
     private static final float INVALID_BALANCE_LEVEL = -2.0f;
     private static final int INVALID_USER_ID = -1;
-    private static final float DEFAULT_FADE_LEVEL = 0.0f;
-    private static final float DEFAULT_BALANCE_LEVEL = 0.0f;
 
     private CarAudioEffects mCarAudioEffects;
     private CarAudioSettings mCarAudioSettings;
@@ -169,7 +170,7 @@ public class CarAudioEffectsUnitTest extends AbstractExtendedMockitoTestCase {
         float result = mCarAudioEffects.getFadeLevelForUser(INVALID_USER_ID);
 
         expectWithMessage("Persisted fade level for invalid user").that(result)
-                .isEqualTo(DEFAULT_FADE_LEVEL);
+                .isEqualTo(AUDIO_DEFAULT_FADE_LEVEL);
     }
 
     @Test
@@ -180,7 +181,7 @@ public class CarAudioEffectsUnitTest extends AbstractExtendedMockitoTestCase {
         float result = mCarAudioEffects.getFadeLevelForUser(TEST_USER_ID);
 
         expectWithMessage("Fade level for non persistence").that(result)
-                .isEqualTo(DEFAULT_FADE_LEVEL);
+                .isEqualTo(AUDIO_DEFAULT_FADE_LEVEL);
     }
 
     @Test
@@ -197,7 +198,7 @@ public class CarAudioEffectsUnitTest extends AbstractExtendedMockitoTestCase {
         float result = mCarAudioEffects.getBalanceLevelForUser(INVALID_USER_ID);
 
         expectWithMessage("Persisted balance level for invalid user").that(result)
-                .isEqualTo(DEFAULT_BALANCE_LEVEL);
+                .isEqualTo(AUDIO_DEFAULT_BALANCE_LEVEL);
     }
 
     @Test
@@ -208,7 +209,7 @@ public class CarAudioEffectsUnitTest extends AbstractExtendedMockitoTestCase {
         float result = mCarAudioEffects.getBalanceLevelForUser(TEST_USER_ID);
 
         expectWithMessage("Balance level for non persistence").that(result)
-                .isEqualTo(DEFAULT_BALANCE_LEVEL);
+                .isEqualTo(AUDIO_DEFAULT_BALANCE_LEVEL);
     }
 
     @Test
@@ -218,8 +219,9 @@ public class CarAudioEffectsUnitTest extends AbstractExtendedMockitoTestCase {
         float fadeLevel = mCarAudioEffects.getFadeLevelForUser(TEST_USER_ID);
         float balanceLevel = mCarAudioEffects.getBalanceLevelForUser(TEST_USER_ID);
 
-        expectWithMessage("Fade level after restore").that(fadeLevel).isEqualTo(DEFAULT_FADE_LEVEL);
+        expectWithMessage("Fade level after restore").that(fadeLevel)
+                .isEqualTo(AUDIO_DEFAULT_FADE_LEVEL);
         expectWithMessage("Balance level after restore").that(balanceLevel)
-                .isEqualTo(DEFAULT_BALANCE_LEVEL);
+                .isEqualTo(AUDIO_DEFAULT_BALANCE_LEVEL);
     }
 }

@@ -2516,6 +2516,17 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
     }
 
     @Override
+    public float getFadeTowardFront() {
+        enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
+        // fade can only be controlled by driver user or system (for backward compatibility)
+        enforcePrimaryZoneOrSystemUser("getFadeTowardFront");
+        synchronized (mImplLock) {
+            return mCarAudioEffects.getFadeLevelForUser(getUserIdForZoneLocked(PRIMARY_AUDIO_ZONE));
+        }
+    }
+
+
+    @Override
     public void setBalanceTowardRight(float value) {
         enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
         // balance can only be controlled by driver user or system (for backward compatibility)
@@ -2524,6 +2535,17 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
             int userId = getUserIdForZoneLocked(PRIMARY_AUDIO_ZONE);
             Slogf.i(TAG, "setBalanceTowardRight for value: %f, for user id: %d", value, userId);
             mCarAudioEffects.setBalanceLevelForUser(userId, value);
+        }
+    }
+
+    @Override
+    public float getBalanceTowardRight() {
+        enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
+        // balance can only be controlled by driver user or system (for backward compatibility)
+        enforcePrimaryZoneOrSystemUser("getBalanceTowardRight");
+        synchronized (mImplLock) {
+            return mCarAudioEffects.getBalanceLevelForUser(
+                    getUserIdForZoneLocked(PRIMARY_AUDIO_ZONE));
         }
     }
 

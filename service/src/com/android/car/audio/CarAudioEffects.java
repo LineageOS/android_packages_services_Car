@@ -17,6 +17,8 @@
 package com.android.car.audio;
 
 import static android.car.builtin.os.UserManagerHelper.USER_NULL;
+import static android.car.media.CarAudioManager.AUDIO_DEFAULT_BALANCE_LEVEL;
+import static android.car.media.CarAudioManager.AUDIO_DEFAULT_FADE_LEVEL;
 
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
@@ -68,10 +70,6 @@ import java.util.Objects;
  */
 public final class CarAudioEffects {
     private static final String TAG = CarLog.TAG_AUDIO;
-    // Balanced audio between front and rear speakers
-    private static final float AUDIO_DEFAULT_FADE_LEVEL = 0.0f;
-    // Balanced audio between left and right speakers
-    private static final float AUDIO_DEFAULT_BALANCE_LEVEL = 0.0f;
 
     private final CarAudioSettings mCarAudioSettings;
     private final AudioControlWrapper mAudioControlWrapper;

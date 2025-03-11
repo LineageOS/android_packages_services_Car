@@ -2212,6 +2212,77 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     }
 
     @Test
+    @EnableFlags({Flags.FLAG_AUDIO_FADE_BALANCE_GETTER_APIS})
+    public void getBalanceTowardRight_afterSetBalance_matches() throws Exception {
+        CarAudioService service = setUpAudioService();
+        assignOccupantToAudioZones();
+        mockGetCallingUserHandle(TEST_DRIVER_USER_ID);
+        service.setBalanceTowardRight(TEST_VALUE);
+
+        expectWithMessage("Balance level")
+                .that(service.getBalanceTowardRight()).isEqualTo(TEST_VALUE);
+    }
+
+    @Test
+    @EnableFlags({Flags.FLAG_AUDIO_FADE_BALANCE_GETTER_APIS})
+    public void getBalanceTowardRight_returnsDefault() throws Exception {
+        CarAudioService service = setUpAudioService();
+        assignOccupantToAudioZones();
+        mockGetCallingUserHandle(TEST_DRIVER_USER_ID);
+
+        expectWithMessage("Default balance level")
+                .that(service.getBalanceTowardRight()).isEqualTo(AUDIO_DEFAULT_BALANCE_LEVEL);
+    }
+
+    @Test
+    @EnableFlags({Flags.FLAG_AUDIO_FADE_BALANCE_GETTER_APIS})
+    public void getBalanceTowardRight_withoutVolumePermission_fails() throws Exception {
+        CarAudioService service = setUpAudioService();
+        mockDenyCarControlAudioVolumePermission();
+
+        SecurityException thrown = assertThrows(SecurityException.class,
+                () -> service.getBalanceTowardRight());
+
+        expectWithMessage("Get balance toward right permission exception")
+                .that(thrown).hasMessageThat().contains(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
+    }
+
+    @Test
+    @EnableFlags({Flags.FLAG_AUDIO_FADE_BALANCE_GETTER_APIS})
+    public void getFadeTowardFront_afterSetFade_matches() throws Exception {
+        CarAudioService service = setUpAudioService();
+        assignOccupantToAudioZones();
+        mockGetCallingUserHandle(TEST_DRIVER_USER_ID);
+        service.setFadeTowardFront(TEST_VALUE);
+
+        expectWithMessage("Fade level").that(service.getFadeTowardFront()).isEqualTo(TEST_VALUE);
+    }
+
+    @Test
+    @EnableFlags({Flags.FLAG_AUDIO_FADE_BALANCE_GETTER_APIS})
+    public void getFadeTowardFront_returnsDefault() throws Exception {
+        CarAudioService service = setUpAudioService();
+        assignOccupantToAudioZones();
+        mockGetCallingUserHandle(TEST_DRIVER_USER_ID);
+
+        expectWithMessage("Default fade level")
+                .that(service.getFadeTowardFront()).isEqualTo(AUDIO_DEFAULT_FADE_LEVEL);
+    }
+
+    @Test
+    @EnableFlags({Flags.FLAG_AUDIO_FADE_BALANCE_GETTER_APIS})
+    public void getFadeTowardFront_withoutVolumePermission_fails() throws Exception {
+        CarAudioService service = setUpAudioService();
+        mockDenyCarControlAudioVolumePermission();
+
+        SecurityException thrown = assertThrows(SecurityException.class,
+                () -> service.getFadeTowardFront());
+
+        expectWithMessage("Get fade toward front permission exception")
+                .that(thrown).hasMessageThat().contains(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
+    }
+
+    @Test
     public void isAudioFeatureEnabled_forDynamicRouting() throws Exception {
         CarAudioService service = setUpAudioService();
 
