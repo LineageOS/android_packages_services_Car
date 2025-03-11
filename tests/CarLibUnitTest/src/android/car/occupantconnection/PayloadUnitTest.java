@@ -30,13 +30,11 @@ import android.os.IBinder;
 import android.os.Parcel;
 import android.os.RemoteException;
 import android.platform.test.annotations.DisabledOnRavenwood;
-import android.platform.test.ravenwood.RavenwoodClassRule;
 
 import androidx.test.filters.SmallTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.Before;
-import org.junit.ClassRule;
 import org.junit.Test;
 
 import java.util.concurrent.CountDownLatch;
@@ -44,9 +42,6 @@ import java.util.concurrent.CountDownLatch;
 @SmallTest
 @DisabledOnRavenwood(blockedBy = InstrumentationRegistry.class)
 public final class PayloadUnitTest {
-    @ClassRule
-    public static final RavenwoodClassRule sRavenwood = new RavenwoodClassRule();
-
     private static final int ARRAY_LENGTH_SMALL = MAX_DIRECT_PAYLOAD_SIZE - 1;
     private static final int ARRAY_LENGTH_BIG = MAX_DIRECT_PAYLOAD_SIZE + 1;
     private static final long DEFAULT_TIMEOUT_MS = 10_000;

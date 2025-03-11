@@ -68,9 +68,8 @@ import android.os.Looper;
 import android.os.RemoteException;
 import android.os.ServiceSpecificException;
 import android.platform.test.annotations.EnableFlags;
-import android.platform.test.annotations.IgnoreUnderRavenwood;
+import android.platform.test.annotations.DisabledOnRavenwood;
 import android.platform.test.flag.junit.SetFlagsRule;
-import android.platform.test.ravenwood.RavenwoodRule;
 import android.util.ArraySet;
 import android.util.SparseArray;
 
@@ -110,14 +109,6 @@ import java.util.concurrent.Executor;
  */
 @RunWith(MockitoJUnitRunner.class)
 public final class CarPropertyManagerUnitTest extends AbstractExpectableTestCase {
-    // Required to set the process ID and set the "main" thread for this test, otherwise
-    // getMainLooper will return null.
-    @Rule
-    public final RavenwoodRule mRavenwood = new RavenwoodRule.Builder()
-            .setProcessApp()
-            .setProvideMainThread(true)
-            .build();
-
     @Rule public final SetFlagsRule mSetFlagsRule = new SetFlagsRule();
 
     // Defined as vendor property.
@@ -1098,7 +1089,7 @@ public final class CarPropertyManagerUnitTest extends AbstractExpectableTestCase
     }
 
     @Test
-    @IgnoreUnderRavenwood(blockedBy = android.os.CancellationSignal.class)
+    @DisabledOnRavenwood(blockedBy = android.os.CancellationSignal.class)
     public void testGetPropertiesAsync_cancellationSignalCancelRequests() throws Exception {
         CarPropertyManager.GetPropertyRequest getPropertyRequest = createGetPropertyRequest();
         CancellationSignal cancellationSignal = new CancellationSignal();
@@ -3129,7 +3120,7 @@ public final class CarPropertyManagerUnitTest extends AbstractExpectableTestCase
     }
 
     @Test
-    @IgnoreUnderRavenwood(blockedBy = android.os.ParcelableHolder.class)
+    @DisabledOnRavenwood(blockedBy = android.os.ParcelableHolder.class)
     public void testGetMinMaxSupportedValue() throws Exception {
         int minValue = 123;
         int maxValue = 321;
@@ -3148,7 +3139,7 @@ public final class CarPropertyManagerUnitTest extends AbstractExpectableTestCase
     }
 
     @Test
-    @IgnoreUnderRavenwood(blockedBy = android.os.ParcelableHolder.class)
+    @DisabledOnRavenwood(blockedBy = android.os.ParcelableHolder.class)
     public void testGetMinMaxSupportedValue_nullMinValue() throws Exception {
         int maxValue = 321;
         var minMaxSupportedPropertyValue = new MinMaxSupportedPropertyValue();
@@ -3165,7 +3156,7 @@ public final class CarPropertyManagerUnitTest extends AbstractExpectableTestCase
     }
 
     @Test
-    @IgnoreUnderRavenwood(blockedBy = android.os.ParcelableHolder.class)
+    @DisabledOnRavenwood(blockedBy = android.os.ParcelableHolder.class)
     public void testGetMinMaxSupportedValue_nullMaxValue() throws Exception {
         int minValue = 123;
         var minMaxSupportedPropertyValue = new MinMaxSupportedPropertyValue();
