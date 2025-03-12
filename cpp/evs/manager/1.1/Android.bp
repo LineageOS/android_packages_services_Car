@@ -112,7 +112,6 @@ cc_library {
         "libbinder",
         "libstatsbootstrap",
         "libutils",
-        "android.os.statsbootstrap_aidl-cpp",
     ],
 }
 
