@@ -26,11 +26,13 @@ import android.view.SurfaceControl
  * @property id The ID of the task stack.
  * @property displayId The ID of the display the task stack is on.
  * @property leash The surface control leash of the task stack.
+ * @property name The name of the task stack.
  */
 interface AutoTaskStack {
     val id: Int
     val displayId: Int
     var leash: SurfaceControl
+    val name: String
 }
 
 /**
@@ -52,11 +54,13 @@ data class AutoTaskStackState(
  * @property id The ID of the root task stack
  * @property displayId The ID of the display the root task stack is on.
  * @property leash The surface control leash of the root task stack.
+ * @property name The name of the root task stack.
  * @property rootTaskInfo The running task info of the root task.
  */
 data class RootTaskStack(
     override val id: Int,
     override val displayId: Int,
     override var leash: SurfaceControl,
+    override val name: String,
     var rootTaskInfo: ActivityManager.RunningTaskInfo
 ) : AutoTaskStack
