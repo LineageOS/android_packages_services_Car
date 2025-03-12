@@ -145,6 +145,7 @@ class AutoTaskStackControllerImpl @Inject constructor(
 
     inner class RootTaskStackListenerAdapter(
         val rootTaskStackListener: RootTaskStackListener,
+        val name: String
     ) : ShellTaskOrganizer.TaskListener {
         private var rootTaskStack: RootTaskStack? = null
 
@@ -163,7 +164,7 @@ class AutoTaskStackControllerImpl @Inject constructor(
 
             if (rootTaskStack == null) {
                 val rootTask =
-                    RootTaskStack(taskInfo.taskId, taskInfo.displayId, leash, taskInfo)
+                    RootTaskStack(taskInfo.taskId, taskInfo.displayId, leash, name, taskInfo)
                 taskStackMap[rootTask.id] = rootTask
 
                 rootTaskStack = rootTask
@@ -286,6 +287,7 @@ class AutoTaskStackControllerImpl @Inject constructor(
 
     override fun createRootTaskStack(
         displayId: Int,
+        name: String,
         listener: RootTaskStackListener
     ) {
         if (!enableAutoTaskStackController()) {
@@ -296,10 +298,11 @@ class AutoTaskStackControllerImpl @Inject constructor(
             )
             return
         }
+        // TODO(b/400484573): Add name capability to the root task stack in core.
         taskOrganizer.createRootTask(
             displayId,
             WINDOWING_MODE_MULTI_WINDOW,
-            RootTaskStackListenerAdapter(listener),
+            RootTaskStackListenerAdapter(listener, name),
             /* removeWithTaskOrganizer= */
             true
         )

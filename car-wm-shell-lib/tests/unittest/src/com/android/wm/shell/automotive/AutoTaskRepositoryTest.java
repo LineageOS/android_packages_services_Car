@@ -37,6 +37,7 @@ import android.hardware.display.DisplayManager;
 import android.os.UserHandle;
 import android.view.Display;
 import android.view.SurfaceControl;
+import android.window.WindowContainerToken;
 
 import com.android.wm.shell.ShellTaskOrganizer;
 
@@ -104,9 +105,9 @@ public class AutoTaskRepositoryTest {
 
         mTaskRepository = new AutoTaskRepository(mContext, mShellTaskOrganizer);
         mRootTaskStack1 = new RootTaskStack(1, 0, mock(SurfaceControl.class),
-                createMockTaskInfo(1));
+                "testRootTaskStack1", createMockTaskInfo(1));
         mRootTaskStack2 = new RootTaskStack(1, 0, mock(SurfaceControl.class),
-                createMockTaskInfo(1));
+                "testRootTaskStack2", createMockTaskInfo(1));
     }
 
     @After
@@ -241,7 +242,9 @@ public class AutoTaskRepositoryTest {
 
     private ActivityManager.RunningTaskInfo createMockTaskInfo(int taskId) {
         ActivityManager.RunningTaskInfo taskInfo = mock(ActivityManager.RunningTaskInfo.class);
+        WindowContainerToken rootTaskToken = mock(WindowContainerToken.class);
         taskInfo.taskId = taskId;
+        taskInfo.token = rootTaskToken;
         return taskInfo;
     }
 }
