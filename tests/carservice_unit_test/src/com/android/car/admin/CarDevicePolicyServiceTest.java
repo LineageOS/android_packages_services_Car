@@ -18,6 +18,7 @@ package com.android.car.admin;
 import static android.app.admin.DevicePolicyManager.ACTION_SHOW_NEW_USER_DISCLAIMER;
 
 import static com.android.car.admin.CarDevicePolicyService.NEW_USER_DISCLAIMER_STATUS_ACKED;
+import static com.android.car.admin.CarDevicePolicyService.NEW_USER_DISCLAIMER_STATUS_NEVER_RECEIVED;
 import static com.android.car.admin.CarDevicePolicyService.NEW_USER_DISCLAIMER_STATUS_NOTIFICATION_SENT;
 import static com.android.car.admin.CarDevicePolicyService.NEW_USER_DISCLAIMER_STATUS_SHOWN;
 import static com.android.car.admin.CarDevicePolicyService.newUserDisclaimerStatusToString;
@@ -31,6 +32,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import android.app.ActivityManager;
@@ -218,6 +220,20 @@ public final class CarDevicePolicyServiceTest extends AbstractExtendedMockitoTes
 
         verify(mNotificationHelper).showUserDisclaimerNotification(UserHandle.of(userId));
         assertStatusString(userId, NEW_USER_DISCLAIMER_STATUS_NOTIFICATION_SENT);
+    }
+
+    @Test
+    public void testOnReceive_doesNotShowDisclaimer_deviceAdminFeatureDisabled() {
+        int userId = 100;
+        doAnswer(inv -> userId).when(() -> ActivityManager.getCurrentUser());
+        when(mPackageManager.hasSystemFeature(PackageManager.FEATURE_DEVICE_ADMIN))
+                .thenReturn(false);
+        BroadcastReceiver receiver = callInit();
+
+        sendShowNewUserDisclaimerBroadcast(receiver);
+
+        verifyZeroInteractions(mNotificationHelper);
+        assertStatusString(userId, NEW_USER_DISCLAIMER_STATUS_NEVER_RECEIVED);
     }
 
     @Test
