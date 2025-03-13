@@ -28,7 +28,6 @@ import android.util.Log;
 import android.util.SparseIntArray;
 import android.view.Display;
 
-import com.android.car.CarServiceUtils;
 import com.android.car.VehicleStub;
 import com.android.car.hal.ClusterHalService;
 import com.android.car.hal.DiagnosticHalService;
@@ -100,7 +99,6 @@ public class MockedPowerHalService extends PowerHalService {
                 mock(DiagnosticHalService.class),
                 mock(ClusterHalService.class),
                 mock(TimeHalService.class),
-                CarServiceUtils.getHandlerThread(VehicleHal.class.getSimpleName()),
                 vehicleStub);
 
         return mockedVehicleHal;
