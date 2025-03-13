@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2020, The Android Open Source Project
+ * Copyright (c) 2025, The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,8 @@
 
 #pragma once
 
-#include "IoOveruseMonitor.h"
+#include "IoOveruseMonitorWrapper.h"
+#include "MockDataProcessor.h"
 
 #include <android-base/result.h>
 #include <gmock/gmock.h>
@@ -25,14 +26,14 @@ namespace android {
 namespace automotive {
 namespace watchdog {
 
-class MockIoOveruseMonitor : public IoOveruseMonitorInterface {
+class MockIoOveruseMonitorWrapper :
+      public MockDataProcessor,
+      public IoOveruseMonitorWrapperInterface {
 public:
-    MockIoOveruseMonitor() {
-        ON_CALL(*this, name()).WillByDefault(::testing::Return("MockIoOveruseMonitor"));
+    MockIoOveruseMonitorWrapper() {
+        ON_CALL(*this, name()).WillByDefault(::testing::Return("MockIoOveruseMonitorWrapper"));
     }
-    ~MockIoOveruseMonitor() {}
-    MOCK_METHOD(std::string, name, (), (const, override));
-    MOCK_METHOD(android::base::Result<void>, init, (), (override));
+    ~MockIoOveruseMonitorWrapper() {}
     MOCK_METHOD(bool, isInitialized, (), (const, override));
     MOCK_METHOD(bool, dumpHelpText, (int), (const, override));
     MOCK_METHOD(void, onCarWatchdogServiceRegistered, (), (override));
@@ -63,16 +64,7 @@ public:
                 (aidl::android::automotive::watchdog::IoOveruseStats*), (const, override));
     MOCK_METHOD(android::base::Result<void>, resetIoOveruseStats, (const std::vector<std::string>&),
                 (override));
-    MOCK_METHOD(android::base::Result<void>, onPeriodicCollection,
-                (time_point_millis, bool, const android::wp<UidStatsCollectorBaseInterface>&,
-                 aidl::android::automotive::watchdog::internal::ResourceStats*),
-                (override));
-    MOCK_METHOD(android::base::Result<void>, onPeriodicMonitor,
-                (time_t, const android::wp<ProcDiskStatsCollectorInterface>&,
-                 const std::function<void()>&),
-                (override));
     MOCK_METHOD(void, removeStatsForUser, (userid_t), (override));
-    MOCK_METHOD(void, terminate, (), (override));
 };
 
 }  // namespace watchdog
