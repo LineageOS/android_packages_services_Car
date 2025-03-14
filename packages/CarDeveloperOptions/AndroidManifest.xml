@@ -3486,6 +3486,14 @@
             <intent-filter tools:node="removeAll"/>
         </receiver>
 
+        <receiver android:name="com.android.settings.connecteddevice.audiosharing.audiostreams.PrivateBroadcastReceiver"
+            android:exported="false"
+            android:enabled="false"
+            tools:node="merge"
+            tools:replace="android:exported">
+            <intent-filter tools:node="removeAll"/>
+        </receiver>
+
         <receiver android:name="com.android.settings.shortcut.ShortcutsUpdateReceiver"
             android:exported="false"
             android:enabled="false"
