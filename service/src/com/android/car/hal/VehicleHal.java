@@ -94,6 +94,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Function;
 
 /**
  * Abstraction for vehicle HAL. This class handles interface with native HAL and does basic parsing
@@ -169,8 +170,6 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
     private static final String DATA_DELIMITER = ",";
     private final AtomicReference<RecordingListenerHandler> mListenerHandlerRef =
             new AtomicReference<>();
-    @GuardedBy("mLock")
-    private ArraySet<Integer> mPropertyIdsFromRealHardware = new ArraySet<>();
 
     /** A structure to store update rate in hz and whether to enable VUR. */
     private static final class RateInfo {
@@ -1277,17 +1276,12 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
         // Note that this function runs from a binder thread and should not do heavy works.
         Binder.clearCallingIdentity();
 
-        List<VehiclePropError> filteredErrors = errors;
-        if (isVehiclePropertyInjectionModeEnabled()) {
-            synchronized (mLock) {
-                filteredErrors = SimulationVehicleStub.filterProperties(errors,
-                        (VehiclePropError err) -> err.propId, mPropertyIdsFromRealHardware);
-            }
-            if (filteredErrors.isEmpty()) {
-                Slogf.d(CarLog.TAG_HAL, "All onPropertySetError events filtered: %s",
-                        Arrays.toString(errors.toArray()));
-                return;
-            }
+        var filteredErrors = maybeFilterItemsForInjectionMode(errors,
+                (VehiclePropError err) -> err.propId);
+        if (filteredErrors.isEmpty()) {
+            Slogf.d(CarLog.TAG_HAL, "All onPropertySetError events filtered: %s",
+                    Arrays.toString(errors.toArray()));
+            return;
         }
         var dispatchList = new PropertySetErrorDispatchList();
         synchronized (mLock) {
@@ -1313,6 +1307,23 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
         }
 
         dispatchList.dispatchToClients();
+    }
+
+    /**
+     * Filter the items we received from VHAL if we are in simulation mode.
+     */
+    private <T> List<T> maybeFilterItemsForInjectionMode(List<T> items,
+            Function<T, Integer> propIdExtractor) {
+        // In rare cases, mVehicleStub might change after we copy it to vehicleStub locally, in that
+        // case we will act on the old vehicle stub. This is okay because we do not lock guard the
+        // whole operation of delivering property events/errors to the client so there is no
+        // guarantee that all events/errors will be filtered immediately after simulation mode
+        // is enabled.
+        var vehicleStub = mVehicleStub.get();
+        if (!vehicleStub.isSimulatedModeEnabled()) {
+            return items;
+        }
+        return ((SimulationVehicleStub) vehicleStub).filterProperties(items, propIdExtractor);
     }
 
     @Override
@@ -1411,16 +1422,7 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
             return halPropValues;
         }
 
-        synchronized (mLock) {
-            if (!isVehiclePropertyInjectionModeEnabled()) {
-                return halPropValues;
-            }
-
-            List<HalPropValue> filteredPropValues = SimulationVehicleStub.filterProperties(
-                    halPropValues,
-                    HalPropValue::getPropId, mPropertyIdsFromRealHardware);
-            return filteredPropValues;
-        }
+        return maybeFilterItemsForInjectionMode(halPropValues, HalPropValue::getPropId);
     }
 
     /**
@@ -1485,14 +1487,15 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
      * Disables injection mode.
      */
     public void disableInjectionMode() {
+        // Use a lock to synchronize this with disableInjectionMode and enableInjectionMode.
         synchronized (mLock) {
-            if (!isVehiclePropertyInjectionModeEnabled()) {
+            var vehicleStub = mVehicleStub.get();
+            if (!vehicleStub.isSimulatedModeEnabled()) {
                 Slogf.w(CarLog.TAG_HAL, "Cannot disable injection mode, injection mode is"
                         + " not enabled");
                 return;
             }
-            mPropertyIdsFromRealHardware.clear();
-            mVehicleStub.set(mVehicleStub.get().getRealVehicleStub());
+            mVehicleStub.set(vehicleStub.getRealVehicleStub());
         }
     }
 
@@ -1501,28 +1504,28 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
      * @param propertyIdsFromRealHardware THe list of properties to allow to come from real VHAL.
      */
     public long enableInjectionMode(List<Integer> propertyIdsFromRealHardware) {
+        // Use a lock to synchronize this with disableInjectionMode and enableInjectionMode.
         synchronized (mLock) {
             if (isRecordingVehicleProperties()) {
                 throw new IllegalStateException("Cannot enable injection mode while recording is in"
                         + " progress");
             }
-            if (isVehiclePropertyInjectionModeEnabled()) {
+            var vehicleStub = mVehicleStub.get();
+            if (vehicleStub.isSimulatedModeEnabled()) {
                 Slogf.w(CarLog.TAG_HAL, "Cannot enable injection mode, it is already in"
                         + " progress");
                 return -1L;
             }
             // Creation of SimulationVehicleStub needs to be inside lock because
-            // isVehiclePropertyInjectionModeEnabled can return false and cause another creation of
-            // an SimulationVehicleStub before mVehicleStub is actually set.
+            // we need to make sure mVehicleStub (copied to vehicleStub) does not change.
             try {
                 mVehicleStub.set(new SimulationVehicleStub(
-                        mVehicleStub.get(), propertyIdsFromRealHardware, this));
-                mPropertyIdsFromRealHardware.addAll(propertyIdsFromRealHardware);
+                        vehicleStub, propertyIdsFromRealHardware, this));
             } catch (RemoteException e) {
                 throw new IllegalStateException("Failed to create SimulationVehicleStub", e);
             }
+            return mVehicleStub.get().getSimulationStartTimestampNanos();
         }
-        return mVehicleStub.get().getSimulationStartTimestampNanos();
     }
 
     /**
@@ -1540,10 +1543,11 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
      */
     @Nullable
     public CarPropertyValue getLastInjectedVehicleProperty(int propertyId) {
-        if (!isVehiclePropertyInjectionModeEnabled()) {
+        var vehicleStub = mVehicleStub.get();
+        if (!vehicleStub.isSimulatedModeEnabled()) {
             throw new IllegalStateException("Vehicle property injection mode is not enabled!");
         }
-        return mVehicleStub.get().getLastInjectedVehicleProperty(propertyId);
+        return vehicleStub.getLastInjectedVehicleProperty(propertyId);
     }
 
     /**
@@ -1551,10 +1555,11 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
      * @param carPropertyValues The carPropertyValues to inject.
      */
     public void injectVehicleProperties(List<CarPropertyValue> carPropertyValues) {
-        if (!isVehiclePropertyInjectionModeEnabled()) {
+        var vehicleStub = mVehicleStub.get();
+        if (!vehicleStub.isSimulatedModeEnabled()) {
             throw new IllegalStateException("Vehicle property injection mode is not enabled!");
         }
-        mVehicleStub.get().injectVehicleProperties(carPropertyValues);
+        vehicleStub.injectVehicleProperties(carPropertyValues);
     }
 
     /**
@@ -2150,23 +2155,18 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
             Slogf.i(CarLog.TAG_HAL, "onSupportedValuesChange called for: %s",
                     toHalPropIdAreaIdsString(propIdAreaIds));
         }
+        List<PropIdAreaId> filteredPropIdAreaIds = maybeFilterItemsForInjectionMode(
+                propIdAreaIds,
+                (PropIdAreaId propIdAreaId) -> propIdAreaId.propId);
+        if (filteredPropIdAreaIds.isEmpty()) {
+            Slogf.d(CarLog.TAG_HAL, "All onSupportedValuesChange events filtered %s",
+                    Arrays.toString(filteredPropIdAreaIds.toArray()));
+            return;
+        }
         var dispatchList = new SupportedValuesChangeDispatchList();
         synchronized (mLock) {
-            if (isVehiclePropertyInjectionModeEnabled()) {
-                List<PropIdAreaId> filteredPropIdAreaIds = SimulationVehicleStub.filterProperties(
-                        propIdAreaIds,
-                        (PropIdAreaId propIdAreaId) -> propIdAreaId.propId,
-                        mPropertyIdsFromRealHardware);
-                if (filteredPropIdAreaIds.isEmpty()) {
-                    Slogf.d(CarLog.TAG_HAL, "All onSupportedValuesChange events filtered %s",
-                            Arrays.toString(filteredPropIdAreaIds.toArray()));
-                    return;
-                }
-                propIdAreaIds = filteredPropIdAreaIds;
-            }
-
-            for (int i = 0; i < propIdAreaIds.size(); i++) {
-                var propIdAreaId = propIdAreaIds.get(i);
+            for (int i = 0; i < filteredPropIdAreaIds.size(); i++) {
+                var propIdAreaId = filteredPropIdAreaIds.get(i);
                 HalServiceBase service = mPropertyHandlers.get(propIdAreaId.propId);
                 if (service == null) {
                     Slogf.e(CarLog.TAG_HAL, "onSupportedValuesChange: HalService not found for %s",
