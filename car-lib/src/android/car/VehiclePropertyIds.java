@@ -3280,10 +3280,18 @@ public final class VehiclePropertyIds {
     /**
      * Seat memory select.
      *
-     * <p>This parameter selects the memory preset to use to select the seat position. The {@link
-     * android.car.hardware.property.AreaIdConfig#getMinValue()} is always 0, and the {@link
-     * android.car.hardware.property.AreaIdConfig#getMaxValue()} determines the number of seat
-     * positions available (i.e. numSeatPresets - 1).
+     * <p>This parameter selects the memory preset to use to select the seat position.
+     *
+     * <p>{@link android.car.hardware.property.AreaIdConfig#hasMinSupportedValue()} and {@link
+     * android.car.hardware.property.AreaIdConfig#hasMaxSupportedValue()} will be {@code true} for
+     * all areaIds.
+     *
+     * <p>{@link android.car.hardware.property.MinMaxSupportedValue#getMinValue()} is always 0.
+     *
+     * <p>{@link android.car.hardware.property.MinMaxSupportedValue#getMaxValue()} represents the
+     * max memory preset that can be chosen. For instance, if the driver's seat has 3 memory
+     * presets, the max value will be 2. When the user wants to select a preset, the desired preset
+     * number (0, 1, or 2) is set.
      *
      * <p>Property Config:
      * <ul>
@@ -3309,6 +3317,17 @@ public final class VehiclePropertyIds {
      * preset slot. The {@link android.car.hardware.property.AreaIdConfig#getMaxValue()} for each
      * seat position must match the {@link android.car.hardware.property.AreaIdConfig#getMaxValue()}
      * for {@link #SEAT_MEMORY_SELECT}.
+     *
+     * <p>{@link android.car.hardware.property.AreaIdConfig#hasMinSupportedValue()} and {@link
+     * android.car.hardware.property.AreaIdConfig#hasMaxSupportedValue()} will be {@code true} for
+     * all areaIds.
+     *
+     * <p>{@link android.car.hardware.property.MinMaxSupportedValue#getMinValue()} is always 0.
+     *
+     * <p>{@link android.car.hardware.property.MinMaxSupportedValue#getMaxValue()} represents the
+     * max memory preset that can be chosen. For instance, if the driver's seat has 3 memory
+     * presets, the max value will be 2. When the user wants to select a preset, the desired preset
+     * number (0, 1, or 2) is set.
      *
      * <p>Property Config:
      * <ul>
@@ -3355,10 +3374,15 @@ public final class VehiclePropertyIds {
      * <p>This property is not in any particular unit but in a specified range of relative
      * positions.
      *
-     * <p>{@link android.car.hardware.property.AreaIdConfig#getMinValue()} indicates the seat belt
-     * shoulder anchor's lowest position.
-     * <p>{@link android.car.hardware.property.AreaIdConfig#getMaxValue()} indicates the seat belt
-     * shoulder anchor's highest position.
+     * <p>{@link android.car.hardware.property.AreaIdConfig#hasMinSupportedValue()} and {@link
+     * android.car.hardware.property.AreaIdConfig#hasMaxSupportedValue()} will be {@code true} for
+     * all areaIds.
+     *
+     * <p>{@link android.car.hardware.property.MinMaxSupportedValue#getMinValue()} indicates the
+     * seat belt's shoulder anchor is at its lowest position.
+     *
+     * <p>{@link android.car.hardware.property.MinMaxSupportedValue#getMaxValue()} indicates the
+     * seat belt's shoulder anchor is at its highest position.
      *
      * <p>All integers between the min and max values are supported and indicate a transition state
      * between the lowest and highest positions.
@@ -3392,9 +3416,15 @@ public final class VehiclePropertyIds {
      * the value resets to 0. When this property's value is 0, that means there is no movement
      * currently occurring.
      *
-     * <p>See {@link android.car.hardware.property.AreaIdConfig#getMaxValue()} and {@link
-     * android.car.hardware.property.AreaIdConfig#getMinValue()} for the range of possible speeds.
-     * All integers between min and max value are supported.
+     * <p>{@link android.car.hardware.property.AreaIdConfig#hasMinSupportedValue()} and {@link
+     * android.car.hardware.property.AreaIdConfig#hasMaxSupportedValue()} will be {@code true} for
+     * all areaIds.
+     *
+     * <p>{@link android.car.hardware.property.MinMaxSupportedValue#getMinValue()} represents the
+     * maximum movement speed of the seat belt's shoulder anchor while moving downwards.
+     *
+     * <p>{@link android.car.hardware.property.MinMaxSupportedValue#getMaxValue()} represents the
+     * maximum movement speed of the seat belt's shoulder anchor while moving upwards.
      *
      * <p>Property Config:
      * <ul>
@@ -3419,10 +3449,15 @@ public final class VehiclePropertyIds {
      * <p>This property is not in any particular unit but in a specified range of relative
      * positions.
      *
-     * <p>{@link android.car.hardware.property.AreaIdConfig#getMinValue()} indicates the seat's
-     * rearward-most linear position.
-     * <p>{@link android.car.hardware.property.AreaIdConfig#getMaxValue()} indicates the seat's
-     * forward-most linear position.
+     * <p>{@link android.car.hardware.property.AreaIdConfig#hasMinSupportedValue()} and {@link
+     * android.car.hardware.property.AreaIdConfig#hasMaxSupportedValue()} will be {@code true} for
+     * all areaIds.
+     *
+     * <p>{@link android.car.hardware.property.MinMaxSupportedValue#getMinValue()} indicates the
+     * seat is at its rearward-most linear position.
+     *
+     * <p>{@link android.car.hardware.property.MinMaxSupportedValue#getMaxValue()} indicates the
+     * seat is at its forward-most linear position.
      *
      * <p>All integers between the min and max values are supported and indicate a transition state
      * between the forward most and rearward most positions.
@@ -3457,9 +3492,15 @@ public final class VehiclePropertyIds {
      * the seat reaches the positional limit, the value resets to 0. When this property's value is
      * 0, that means there is no movement currently occurring.
      *
-     * <p>See {@link android.car.hardware.property.AreaIdConfig#getMaxValue()} and {@link
-     * android.car.hardware.property.AreaIdConfig#getMinValue()} for the range of possible speeds.
-     * All integers between min and max value are supported.
+     * <p>{@link android.car.hardware.property.AreaIdConfig#hasMinSupportedValue()} and {@link
+     * android.car.hardware.property.AreaIdConfig#hasMaxSupportedValue()} will be {@code true} for
+     * all areaIds.
+     *
+     * <p>{@link android.car.hardware.property.MinMaxSupportedValue#getMinValue()} represents the
+     * maximum movement speed of the seat while moving backward.
+     *
+     * <p>{@link android.car.hardware.property.MinMaxSupportedValue#getMaxValue()} represents the
+     * maximum movement speed of the seat while moving forward.
      *
      * <p>Property Config:
      * <ul>
