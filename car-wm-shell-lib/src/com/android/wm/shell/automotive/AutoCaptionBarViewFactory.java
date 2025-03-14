@@ -22,14 +22,14 @@ import android.view.View;
 /**
  * A factory for creating caption bar views.
  */
-public abstract class AutoCaptionViewFactory {
+public abstract class AutoCaptionBarViewFactory {
     /**
      * Gets the view for the caption bar.
      *
      * @param taskInfo The running task information.
      * @return The view for the caption bar.
      */
-    View createView(ActivityManager.RunningTaskInfo taskInfo) {
+    public View createView(ActivityManager.RunningTaskInfo taskInfo) {
         return null;
     }
 }
