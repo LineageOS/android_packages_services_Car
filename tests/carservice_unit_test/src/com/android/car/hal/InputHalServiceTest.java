@@ -84,6 +84,11 @@ public class InputHalServiceTest {
             AidlVehiclePropConfigBuilder.newBuilder(VehicleProperty.HW_ROTARY_INPUT).build());
     private static final HalPropConfig HW_CUSTOM_INPUT_CONFIG = new AidlHalPropConfig(
             AidlVehiclePropConfigBuilder.newBuilder(VehicleProperty.HW_CUSTOM_INPUT).build());
+    private static final HalPropConfig HW_MOTION_INPUT = new AidlHalPropConfig(
+            AidlVehiclePropConfigBuilder.newBuilder(VehicleProperty.HW_MOTION_INPUT).build());
+    private static final HalPropConfig HW_KEY_INPUT_V2 = new AidlHalPropConfig(
+            AidlVehiclePropConfigBuilder.newBuilder(VehicleProperty.HW_KEY_INPUT_V2).build());
+
 
     private final HalPropValueBuilder mPropValueBuilder = new HalPropValueBuilder(/*isAidl=*/true);
 
@@ -161,6 +166,8 @@ public class InputHalServiceTest {
         assertThat(mInputHalService.isRotaryInputSupported()).isFalse();
         assertThat(mInputHalService.isKeyInputSupported()).isFalse();
         assertThat(mInputHalService.isCustomInputSupported()).isTrue();
+        assertThat(mInputHalService.isMotionInputSupported()).isFalse();
+        assertThat(mInputHalService.isKeyInputV2Supported()).isFalse();
     }
 
     @Test
@@ -171,6 +178,8 @@ public class InputHalServiceTest {
                 HW_KEY_INPUT_CONFIG,
                 HW_ROTARY_INPUT_CONFIG,
                 HW_CUSTOM_INPUT_CONFIG,
+                HW_MOTION_INPUT,
+                HW_KEY_INPUT_V2,
                 new AidlHalPropConfig(AidlVehiclePropConfigBuilder.newBuilder(
                         VehicleProperty.CURRENT_GEAR).build()));
 
@@ -179,6 +188,8 @@ public class InputHalServiceTest {
         assertThat(mInputHalService.isKeyInputSupported()).isTrue();
         assertThat(mInputHalService.isRotaryInputSupported()).isTrue();
         assertThat(mInputHalService.isCustomInputSupported()).isTrue();
+        assertThat(mInputHalService.isKeyInputV2Supported()).isTrue();
+        assertThat(mInputHalService.isMotionInputSupported()).isTrue();
     }
 
     @Test
