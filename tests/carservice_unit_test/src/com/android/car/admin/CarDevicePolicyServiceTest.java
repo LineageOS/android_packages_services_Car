@@ -32,7 +32,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import android.app.ActivityManager;
@@ -232,7 +232,7 @@ public final class CarDevicePolicyServiceTest extends AbstractExtendedMockitoTes
 
         sendShowNewUserDisclaimerBroadcast(receiver);
 
-        verifyZeroInteractions(mNotificationHelper);
+        verifyNoMoreInteractions(mNotificationHelper);
         assertStatusString(userId, NEW_USER_DISCLAIMER_STATUS_NEVER_RECEIVED);
     }
 
