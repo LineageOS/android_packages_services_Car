@@ -29,6 +29,7 @@ import android.view.InsetsFrameProvider;
 import android.window.WindowContainerToken;
 import android.window.WindowContainerTransaction;
 
+import com.android.internal.annotations.VisibleForTesting;
 import com.android.server.utils.Slogf;
 import com.android.wm.shell.ShellTaskOrganizer;
 import com.android.wm.shell.dagger.WMSingleton;
@@ -48,7 +49,8 @@ public class AutoLayoutManager {
     private static final boolean DBG = Log.isLoggable(TAG, Log.DEBUG);
     private final ShellTaskOrganizer mShellTaskOrganizer;
     private final AutoTaskRepository mAutoTaskRepository;
-    private final SparseArray<ArraySet<InsetsFrameProvider>> mTaskIdToInsetFrameProviderMap =
+    @VisibleForTesting
+    final SparseArray<ArraySet<InsetsFrameProvider>> mTaskIdToInsetFrameProviderMap =
             new SparseArray<>();
     private final Binder mInsetToken = new Binder();
 
@@ -72,8 +74,8 @@ public class AutoLayoutManager {
             return;
         }
 
-        Slogf.i(TAG, "Defining safe region [%s] for WindowContainerToken [%s]"
-                + " stack %d", safeRegion, windowContainerToken);
+        Slogf.i(TAG, "Defining safe region [%s] for WindowContainerToken [%s]", safeRegion,
+                windowContainerToken);
 
         WindowContainerTransaction wct = new WindowContainerTransaction();
         wct.setSafeRegionBounds(windowContainerToken, safeRegion);
@@ -112,7 +114,12 @@ public class AutoLayoutManager {
         }
 
         ArraySet<InsetsFrameProvider> insetsFrameProviders = mTaskIdToInsetFrameProviderMap.get(
-                taskId, new ArraySet<>());
+                taskId);
+        if (insetsFrameProviders == null) {
+            insetsFrameProviders = new ArraySet<>();
+            mTaskIdToInsetFrameProviderMap.put(taskId, insetsFrameProviders);
+        }
+
         InsetsFrameProvider requestedInset = new InsetsFrameProvider(mInsetToken, index, type);
         insetsFrameProviders.add(requestedInset);
 
