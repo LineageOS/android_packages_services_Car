@@ -16,7 +16,7 @@
 <overlay>
     <item target="array/nav_components" value="@array/nav_components"/>
     <item target="array/window_states" value="@array/window_states"/>
-    <item target="array/config_non_trimmable_activities" value="@array/config_non_trimmable_activities"/>
+    <item target="array/config_untrimmable_activities" value="@array/config_untrimmable_activities"/>
     <item target="array/config_default_activities" value="@array/config_default_activities"/>
     <item target="array/config_packagesExcludedFromDock" value="@array/config_packagesExcludedFromDock"/>
 
