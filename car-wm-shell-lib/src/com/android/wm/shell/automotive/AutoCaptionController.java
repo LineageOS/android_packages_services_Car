@@ -125,16 +125,19 @@ public class AutoCaptionController {
      *
      * <p>Calling this API for same rootTaskStack would update the safe region. If activities using
      * the safe region are present, they will receive a config change. In this case, caption region
-     * would be updated and caption bar would be shown in the updated caption region.
+     * would be updated and caption bar would be shown in the updated caption region. If root task
+     * stack bounds are changed, this API should be called again.
      *
      * @param rootTaskStack             The root task stack.
-     * @param safeRegion                The safe region for activity.
-     * @param captionRegion             The region for caption bar.
+     * @param relativeSafeRegion        The safe region for activity. The region is relative to
+     *                                  the root task bounds.
+     * @param relativeCaptionRegion     The region for caption bar. The region is relative to
+     *                                  the root task bounds.
      * @param autoCaptionBarViewFactory The factory for providing view of the caption bar.
      */
     // TODO(b/398655273): Use builder pattern to avoid confusion in the parameter names.
-    public void setSafeRegionAndCaptionRegion(RootTaskStack rootTaskStack, Rect safeRegion,
-            Rect captionRegion, AutoCaptionBarViewFactory autoCaptionBarViewFactory) {
+    public void setSafeRegionAndCaptionRegion(RootTaskStack rootTaskStack, Rect relativeSafeRegion,
+            Rect relativeCaptionRegion, AutoCaptionBarViewFactory autoCaptionBarViewFactory) {
         if (!safeRegionLetterboxing()) {
             Slogf.e(TAG, "safe_region_letterboxing TS flag is disabled.");
             return;
@@ -144,19 +147,39 @@ public class AutoCaptionController {
             Slogf.i(TAG,
                     "Root task already have a safe regions. Updating it to new values. safe "
                             + "region [%s], caption region [%s], root task stack [%d]",
-                    safeRegion, captionRegion, rootTaskStack.getId());
+                    relativeSafeRegion, relativeCaptionRegion, rootTaskStack.getId());
         } else {
             Slogf.i(TAG, "Defining safe region [%s] and caption region [%s] for root task"
-                    + " stack %d", safeRegion, captionRegion, rootTaskStack.getId());
+                            + " stack %d", relativeSafeRegion, relativeCaptionRegion,
+                    rootTaskStack.getId());
         }
 
+        Rect absoluteSafeRegion = getAbsoluteSafeRegionBounds(rootTaskStack, relativeSafeRegion);
+
         mSafeAreaInfoPerRootTask.append(rootTaskStack.getId(),
-                new SafeRegionInfo(safeRegion, captionRegion, autoCaptionBarViewFactory));
+                new SafeRegionInfo(absoluteSafeRegion, relativeCaptionRegion,
+                        autoCaptionBarViewFactory));
 
         // Define safe region for the container
         WindowContainerTransaction wct = new WindowContainerTransaction();
-        wct.setSafeRegionBounds(rootTaskStack.getRootTaskInfo().token, safeRegion);
+        wct.setSafeRegionBounds(rootTaskStack.getRootTaskInfo().token, absoluteSafeRegion);
         mShellTaskOrganizer.applyTransaction(wct);
+    }
+
+    private static Rect getAbsoluteSafeRegionBounds(RootTaskStack rootTaskStack,
+            Rect relativeSafeRegion) {
+        Rect lastNonFullscreenBounds = rootTaskStack.getRootTaskInfo().lastNonFullscreenBounds;
+        Rect updatedSafeRegion = relativeSafeRegion;
+        if (lastNonFullscreenBounds != null) {
+            int taskLeft = lastNonFullscreenBounds.left;
+            int taskTop = lastNonFullscreenBounds.top;
+            updatedSafeRegion = new Rect(relativeSafeRegion.left + taskLeft,
+                    relativeSafeRegion.top + taskTop, relativeSafeRegion.right + taskLeft,
+                    relativeSafeRegion.bottom + taskTop);
+        }
+        Slogf.i(TAG, "Original safe region [%s] and updated safe region [%s]", relativeSafeRegion,
+                updatedSafeRegion);
+        return updatedSafeRegion;
     }
 
     /**
