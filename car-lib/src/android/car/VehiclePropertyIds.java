@@ -1927,10 +1927,12 @@ public final class VehiclePropertyIds {
     /**
      * HVAC target temperature set in Celsius.
      *
-     * <p>{@link android.car.hardware.property.AreaIdConfig#getMinValue()} indicates the minimum
-     * temperature setting in Celsius.
-     * <p>{@link android.car.hardware.property.AreaIdConfig#getMaxValue()} indicates the maximum
-     * temperature setting in Celsius.
+     * <p>{@link android.car.hardware.property.AreaIdConfig#hasMinSupportedValue()} and {@link
+     * android.car.hardware.property.AreaIdConfig#hasMaxSupportedValue()} will be {@code true} for
+     * all areaIds.
+     *
+     * <p>For each areaId, the result for {@code getMinMaxSupportedValue} indicates the range of
+     * HVAC temperature in Celsius.
      *
      * <p>The vehicle may not support setting a continuous range of temperature values in between
      * the min and max values.
@@ -2214,6 +2216,22 @@ public final class VehiclePropertyIds {
     /**
      * Seat heating/cooling.
      *
+     * <p>This property is not in any particular unit, but in a specified range of relative
+     * temperature settings. 0 means no heating or cooling. Positive values indicate heating and
+     * negative values indicate cooling. Larger absolute values indicate stronger heating or
+     * cooling.
+     *
+     * <p>{@link android.car.hardware.property.AreaIdConfig#hasMinSupportedValue()} and {@link
+     * android.car.hardware.property.AreaIdConfig#hasMaxSupportedValue()} will be {@code true} for
+     * all areaIds.
+     *
+     * <p>{@link android.car.hardware.property.MinMaxSupportedValue#getMinValue()} is 0, unless
+     * the vehicle supports seat cooling as well. In this case, it indicates the maximum seat
+     * temperature cooling setting in negative number.
+     *
+     * <p>{@link android.car.hardware.property.MinMaxSupportedValue#getMaxValue()} indicates the
+     * maximum seat temperature heating setting.
+     *
      * <p>Property Config:
      * <ul>
      *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ_WRITE} or
@@ -2234,6 +2252,16 @@ public final class VehiclePropertyIds {
     /**
      * Side Mirror Heat.
      *
+     * <p>{@link android.car.hardware.property.AreaIdConfig#hasMinSupportedValue()} and {@link
+     * android.car.hardware.property.AreaIdConfig#hasMaxSupportedValue()} will be {@code true} for
+     * all areaIds.
+     *
+     * <p>{@link android.car.hardware.property.MinMaxSupportedValue#getMinValue()} is 0 and
+     * indicates no heating.
+     *
+     * <p>{@link android.car.hardware.property.MinMaxSupportedValue#getMaxValue()} indicates the
+     * the maximum heating level.
+     *
      * <p>Property Config:
      * <ul>
      *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ_WRITE} or
@@ -2253,6 +2281,21 @@ public final class VehiclePropertyIds {
     public static final int HVAC_SIDE_MIRROR_HEAT = 339739916;
     /**
      * Steering Wheel Heating/Cooling.
+     *
+     * <p>This property is not in any particular unit but in a specified range of heating settings.
+     * 0 means no heating or cooling. Positive values indicate heating and negative values indicate
+     * cooling. Larger absolute values indicate stronger heating or cooling.
+     *
+     * <p>{@link android.car.hardware.property.AreaIdConfig#hasMinSupportedValue()} and {@link
+     * android.car.hardware.property.AreaIdConfig#hasMaxSupportedValue()} will be {@code true} for
+     * all areaIds.
+     *
+     * <p>{@link android.car.hardware.property.MinMaxSupportedValue#getMinValue()} is 0, unless the
+     * vehicle supports steering wheel cooling as well. In such a case, it indicates the maximum
+     * steering wheel cooling setting in negative number.
+     *
+     * <p>{@link android.car.hardware.property.MinMaxSupportedValue#getMaxValue()} indicates the
+     * maximum steering wheel heating setting.
      *
      * <p>Property Config:
      * <ul>
