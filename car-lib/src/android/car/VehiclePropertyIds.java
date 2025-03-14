@@ -2437,6 +2437,19 @@ public final class VehiclePropertyIds {
     /**
      * Seat ventilation.
      *
+     * <p>This property is not in any particular unit but in the specified range of ventilation
+     * settings. 0 means no ventilation. The value must be non-negative. Larger values indicate
+     * stronger ventilation.
+     *
+     * <p>{@link android.car.hardware.property.AreaIdConfig#hasMinSupportedValue()} and {@link
+     * android.car.hardware.property.AreaIdConfig#hasMaxSupportedValue()} will be {@code true} for
+     * all areaIds.
+     *
+     * <p>{@link android.car.hardware.property.MinMaxSupportedValue#getMinValue()} is 0.
+     *
+     * <p>{@link android.car.hardware.property.MinMaxSupportedValue#getMaxValue()} indicates the
+     * maximum ventilation setting available for the seat.
+     *
      * <p>Property Config:
      * <ul>
      *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ_WRITE} or
@@ -2840,10 +2853,15 @@ public final class VehiclePropertyIds {
      * <p>This property is not in any particular unit but in a specified range of relative
      * positions.
      *
-     * <p>{@link android.car.hardware.property.AreaIdConfig#getMinValue()} indicates the door's
-     * position when closed. This value will be 0
-     * <p>{@link android.car.hardware.property.AreaIdConfig#getMaxValue()} indicates the door's
-     * position when fully open.
+     * <p>{@link android.car.hardware.property.AreaIdConfig#hasMinSupportedValue()} and {@link
+     * android.car.hardware.property.AreaIdConfig#hasMaxSupportedValue()} will be {@code true} for
+     * all areaIds.
+     *
+     * <p>{@link android.car.hardware.property.MinMaxSupportedValue#getMinValue()} is 0. It
+     * indicates the door is closed.
+     *
+     * <p>{@link android.car.hardware.property.MinMaxSupportedValue#getMaxValue()} indicates the
+     * door is fully open.
      *
      * <p>All integers between the min and max values are supported and indicate a transition state
      * between the closed and fully open positions.
@@ -2876,9 +2894,15 @@ public final class VehiclePropertyIds {
      * the positional limit, the value resets to 0. When this property's value is 0, that means
      * there is no movement currently occurring.
      *
-     * <p>See {@link android.car.hardware.property.AreaIdConfig#getMaxValue()} and {@link
-     * android.car.hardware.property.AreaIdConfig#getMinValue()} for the range of possible speeds.
-     * All integers between min and max value are supported.
+     * <p>{@link android.car.hardware.property.AreaIdConfig#hasMinSupportedValue()} and {@link
+     * android.car.hardware.property.AreaIdConfig#hasMaxSupportedValue()} will be {@code true} for
+     * all areaIds.
+     *
+     * <p>{@link android.car.hardware.property.MinMaxSupportedValue#getMinValue()} indicates the
+     * maximum movement speed of the door while closing.
+     *
+     * <p>{@link android.car.hardware.property.MinMaxSupportedValue#getMaxValue()} indicates the
+     * maximum movement speed of the door while opening.
      *
      * <p>Property Config:
      * <ul>
@@ -2949,10 +2973,16 @@ public final class VehiclePropertyIds {
      * <p>This property is not in any particular unit but in a specified range of relative
      * positions.
      *
-     * <p>{@link android.car.hardware.property.AreaIdConfig#getMinValue()} indicates the mirror's
-     * position when tilted completely downwards.
-     * <p>{@link android.car.hardware.property.AreaIdConfig#getMaxValue()} indicates the mirror's
-     * position when tilted completely upwards.
+     * <p>{@link android.car.hardware.property.AreaIdConfig#hasMinSupportedValue()} and {@link
+     * android.car.hardware.property.AreaIdConfig#hasMaxSupportedValue()} will be {@code true} for
+     * all areaIds.
+     *
+     * <p>{@link android.car.hardware.property.MinMaxSupportedValue#getMinValue()} indicates the
+     * mirror is tilted completely downwards. This must be a non-positive value.
+     *
+     * <p>{@link android.car.hardware.property.MinMaxSupportedValue#getMaxValue()} indicates the
+     * mirror is tilted completely upwards. This must be a non-negative value.
+     *
      * <p>0 indicates the mirror is not tilted in either direction.
      *
      * <p>All integers between the min and max values are supported and indicate a transition state
@@ -2986,9 +3016,17 @@ public final class VehiclePropertyIds {
      * mirror reaches the positional limit, the value resets to 0. When this property's value is 0,
      * that means there is no movement currently occurring.
      *
-     * <p>See {@link android.car.hardware.property.AreaIdConfig#getMaxValue()} and {@link
-     * android.car.hardware.property.AreaIdConfig#getMinValue()} for the range of possible speeds.
-     * All integers between min and max value are supported.
+     * <p>{@link android.car.hardware.property.AreaIdConfig#hasMinSupportedValue()} and {@link
+     * android.car.hardware.property.AreaIdConfig#hasMaxSupportedValue()} will be {@code true} for
+     * all areaIds.
+     *
+     * <p>{@link android.car.hardware.property.MinMaxSupportedValue#getMinValue()} represents the
+     * maximum movement speed of the mirror while tilting downwards.
+     *
+     * <p>{@link android.car.hardware.property.MinMaxSupportedValue#getMaxValue()} represents the
+     * maximum movement speed of the mirror while tilting upwards.
+     *
+     * <p>All integers between min and max value are supported.
      *
      * <p>Property Config:
      * <ul>
@@ -3013,10 +3051,16 @@ public final class VehiclePropertyIds {
      * <p>This property is not in any particular unit but in a specified range of relative
      * positions.
      *
-     * <p>{@link android.car.hardware.property.AreaIdConfig#getMinValue()} indicates the mirror's
-     * position when tilted completely to the left.
-     * <p>{@link android.car.hardware.property.AreaIdConfig#getMaxValue()} indicates the mirror's
-     * position when tilted completely to the right.
+     * <p>{@link android.car.hardware.property.AreaIdConfig#hasMinSupportedValue()} and {@link
+     * android.car.hardware.property.AreaIdConfig#hasMaxSupportedValue()} will be {@code true} for
+     * all areaIds.
+     *
+     * <p>{@link android.car.hardware.property.MinMaxSupportedValue#getMinValue()} indicates the
+     * mirror is tilted completely to the left. This must be a non-positive value.
+     *
+     * <p>{@link android.car.hardware.property.MinMaxSupportedValue#getMaxValue()} indicates the
+     * mirror is tilted completely to the right. This must be a non-negative value.
+     *
      * <p>0 indicates the mirror is not tilted in either direction.
      *
      * <p>All integers between the min and max values are supported and indicate a transition state
@@ -3050,9 +3094,15 @@ public final class VehiclePropertyIds {
      * faster speed. Once the mirror reaches the positional limit, the value resets to 0. When this
      * property's value is 0, that means there is no movement currently occurring.
      *
-     * <p>See {@link android.car.hardware.property.AreaIdConfig#getMaxValue()} and {@link
-     * android.car.hardware.property.AreaIdConfig#getMinValue()} for the range of possible speeds.
-     * All integers between min and max value are supported.
+     * <p>{@link android.car.hardware.property.AreaIdConfig#hasMinSupportedValue()} and {@link
+     * android.car.hardware.property.AreaIdConfig#hasMaxSupportedValue()} will be {@code true} for
+     * all areaIds.
+     *
+     * <p>{@link android.car.hardware.property.MinMaxSupportedValue#getMinValue()} represents the
+     * maximum movement speed of the mirror while tilting left.
+     *
+     * <p>{@link android.car.hardware.property.MinMaxSupportedValue#getMaxValue()} represents the
+     * maximum movement speed of the mirror while tilting right.
      *
      * <p>Property Config:
      * <ul>
