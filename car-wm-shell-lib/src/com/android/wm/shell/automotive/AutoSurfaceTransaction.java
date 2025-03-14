@@ -128,6 +128,24 @@ public class AutoSurfaceTransaction {
         return this;
     }
 
+
+    /**
+     * Sets the z-order of an {@link AutoDecor}.
+     * @param autoDecor The {@link AutoDecor} to update.
+     * @param cornerRadius The corner radius.
+     * @return This {@link AutoSurfaceTransaction} instance for chaining.
+     */
+    public AutoSurfaceTransaction setCornerRadius(AutoDecor autoDecor, float cornerRadius) {
+        SurfaceControlViewHost viewHost = autoDecor.getViewHost();
+        SurfaceControl surfaceControl = viewHost.getSurfacePackage().getSurfaceControl();
+        // Crop is required for setCornerRadius API to work.
+        mTransaction.setCrop(surfaceControl,
+                new Rect(0, 0, autoDecor.getBounds().width(), autoDecor.getBounds().height()));
+        mTransaction.setCornerRadius(surfaceControl, cornerRadius);
+        return this;
+    }
+
+
     /**
      * Sets the task surface crop
      *
