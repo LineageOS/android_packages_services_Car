@@ -49,14 +49,12 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.IBinder;
 import android.os.RemoteException;
-import android.platform.test.ravenwood.RavenwoodRule;
 
 import com.android.car.audio.AudioDeviceInfoBuilder;
 import com.android.car.internal.ICarBase;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -70,12 +68,6 @@ import java.util.concurrent.TimeUnit;
 
 @RunWith(MockitoJUnitRunner.class)
 public final class CarAudioManagerUnitTest extends AbstractExpectableTestCase {
-    // Required to set the process ID and set the "main" thread for this test, otherwise
-    // getMainLooper will return null.
-    @Rule
-    public final RavenwoodRule mRavenwood = new RavenwoodRule.Builder().setProcessApp()
-            .setProvideMainThread(true).build();
-
     private static final String Car_AUDIO_MANAGER_TEST_THREAD_NAME = "CarAudioManagerUnitTest";
     private static final String MICROPHONE_ADDRESS = "Built-In Mic";
     private static final String FM_TUNER_ADDRESS = "FM Tuner";

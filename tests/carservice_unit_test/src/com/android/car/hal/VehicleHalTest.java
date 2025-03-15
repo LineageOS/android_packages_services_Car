@@ -62,7 +62,6 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.ServiceSpecificException;
 import android.os.SystemClock;
-import android.platform.test.ravenwood.RavenwoodRule;
 
 import com.android.car.CarServiceUtils;
 import com.android.car.VehicleStub;
@@ -152,10 +151,6 @@ public class VehicleHalTest extends AbstractExpectableTestCase {
 
     @Rule public final TestName mTestName = new TestName();
     // Required for HandlerThread to work.
-    @Rule
-    public final RavenwoodRule mRavenwood = new RavenwoodRule.Builder()
-            .setProvideMainThread(true)
-            .build();
 
     private HandlerThread mHandlerThread;
     private Handler mHandler;

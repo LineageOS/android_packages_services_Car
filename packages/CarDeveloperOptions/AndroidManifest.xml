@@ -1245,6 +1245,15 @@
             <intent-filter tools:node="removeAll"/>
         </activity>
 
+        <activity android:name="com.android.settings.supervision.ConfirmSupervisionCredentialsActivity"
+            android:enabled="false"
+            android:exported="false"
+            android:featureFlag="android.app.supervision.flags.supervision_manager_apis"
+            tools:node="merge"
+            tools:replace="android:exported">
+            <intent-filter tools:node="removeAll"/>
+        </activity>
+
         <activity
             android:name="com.android.settings.SetupRedactionInterstitial"
             android:enabled="false"
@@ -3470,6 +3479,14 @@
         </receiver>
 
         <receiver android:name="com.android.settings.connecteddevice.audiosharing.AudioSharingReceiver"
+            android:exported="false"
+            android:enabled="false"
+            tools:node="merge"
+            tools:replace="android:exported">
+            <intent-filter tools:node="removeAll"/>
+        </receiver>
+
+        <receiver android:name="com.android.settings.connecteddevice.audiosharing.audiostreams.PrivateBroadcastReceiver"
             android:exported="false"
             android:enabled="false"
             tools:node="merge"

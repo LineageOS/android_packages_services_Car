@@ -73,7 +73,6 @@ import android.os.RemoteException;
 import android.os.ServiceSpecificException;
 import android.os.SystemClock;
 import android.platform.test.annotations.DisabledOnRavenwood;
-import android.platform.test.ravenwood.RavenwoodRule;
 
 import com.android.car.VehicleStub.AsyncGetSetRequest;
 import com.android.car.VehicleStub.MinMaxSupportedRawPropValues;
@@ -89,7 +88,6 @@ import com.android.modules.expresslog.Histogram;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -133,10 +131,6 @@ public final class AidlVehicleStubUnitTest {
 
     @Captor
     private ArgumentCaptor<List> mListCaptor;
-
-    @Rule
-    public final RavenwoodRule mRavenwood = new RavenwoodRule.Builder().setProvideMainThread(true)
-            .build();
 
     private AidlVehicleStub mAidlVehicleStub;
 

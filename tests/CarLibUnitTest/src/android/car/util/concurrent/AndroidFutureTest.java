@@ -24,10 +24,8 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 import android.os.Parcel;
 import android.platform.test.annotations.DisabledOnRavenwood;
-import android.platform.test.ravenwood.RavenwoodRule;
 
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 
 import java.util.concurrent.CountDownLatch;
@@ -36,10 +34,6 @@ import java.util.concurrent.TimeoutException;
 import java.util.function.BiFunction;
 
 public final class AndroidFutureTest {
-    @Rule
-    public final RavenwoodRule mRavenwood = new RavenwoodRule.Builder().setProvideMainThread(true)
-            .build();
-
     private static final String STRING_VALUE = "test-future-string";
     private static final String EXCEPTION_MESSAGE = "An exception was thrown!";
     private static final long TIMEOUT_MS = 100;

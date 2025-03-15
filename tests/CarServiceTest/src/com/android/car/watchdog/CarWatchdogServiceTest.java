@@ -37,6 +37,7 @@ import android.automotive.watchdog.internal.ICarWatchdog;
 import android.automotive.watchdog.internal.ICarWatchdogServiceForSystem;
 import android.automotive.watchdog.internal.ProcessIdentifier;
 import android.car.Car;
+import android.car.hardware.power.CarPowerManager;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.car.watchdog.CarWatchdogManager;
 import android.content.Context;
@@ -60,7 +61,9 @@ import com.android.car.power.CarPowerManagementService;
 import com.android.car.systeminterface.SystemInterface;
 import com.android.car.user.CarUserService;
 
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -89,6 +92,11 @@ public class CarWatchdogServiceTest extends AbstractExtendedMockitoTestCase {
     private static final int RECURRING_OVERUSE_PERIOD_IN_DAYS = 2;
     private static final String CANONICAL_PACKAGE_NAME =
             CarWatchdogServiceTest.class.getCanonicalName();
+    private static SystemInterface sSystemInterfaceOriginal;
+    private static CarUserService sCarUserServiceOriginal;
+    private static CarUxRestrictionsManagerService sCarUxRestrictionsManagerServiceOriginal;
+    private static CarPowerManagementService sCarPowerManagementServiceOriginal;
+
 
     private final Handler mMainHandler = new Handler(Looper.getMainLooper());
     private final Executor mExecutor =
@@ -125,6 +133,16 @@ public class CarWatchdogServiceTest extends AbstractExtendedMockitoTestCase {
         super(CarWatchdogService.TAG);
     }
 
+    @BeforeClass
+    public static void setUpClass() {
+        sSystemInterfaceOriginal = CarLocalServices.getService(SystemInterface.class);
+        sCarUserServiceOriginal = CarLocalServices.getService(CarUserService.class);
+        sCarUxRestrictionsManagerServiceOriginal = CarLocalServices.getService(
+                CarUxRestrictionsManagerService.class);
+        sCarPowerManagementServiceOriginal = CarLocalServices.getService(
+                CarPowerManagementService.class);
+    }
+
     @Before
     public void setUp() throws Exception {
         mockQueryService(CAR_WATCHDOG_DAEMON_INTERFACE, mMockDaemonBinder, mMockCarWatchdogDaemon);
@@ -140,14 +158,17 @@ public class CarWatchdogServiceTest extends AbstractExtendedMockitoTestCase {
                 .thenReturn(RECURRING_OVERUSE_TIMES);
         when(mMockContext.getPackageManager()).thenReturn(mMockPackageManager);
 
-        doReturn(mMockSystemInterface)
-                .when(() -> CarLocalServices.getService(SystemInterface.class));
-        doReturn(mMockCarUserService)
-                .when(() -> CarLocalServices.getService(CarUserService.class));
-        doReturn(mMockCarUxRestrictionsManagerService)
-                .when(() -> CarLocalServices.getService(CarUxRestrictionsManagerService.class));
-        doReturn(mMockCarPowerManagementService)
-                .when(() -> CarLocalServices.getService(CarPowerManagementService.class));
+        CarLocalServices.removeServiceForTest(SystemInterface.class);
+        CarLocalServices.addService(SystemInterface.class, mMockSystemInterface);
+        CarLocalServices.removeServiceForTest(CarUserService.class);
+        CarLocalServices.addService(CarUserService.class, mMockCarUserService);
+        CarLocalServices.removeServiceForTest(CarUxRestrictionsManagerService.class);
+        CarLocalServices.addService(
+                CarUxRestrictionsManagerService.class, mMockCarUxRestrictionsManagerService);
+        CarLocalServices.removeServiceForTest(CarPowerManagementService.class);
+        CarLocalServices.addService(
+                CarPowerManagementService.class, mMockCarPowerManagementService);
+        when(mMockCarPowerManagementService.getPowerState()).thenReturn(CarPowerManager.STATE_ON);
 
         mockUmGetUserHandles(mMockUserManager, /* excludeDying= */ false, mUsers);
         mockUmIsUserRunning(mMockUserManager, 100, true);
@@ -163,10 +184,23 @@ public class CarWatchdogServiceTest extends AbstractExtendedMockitoTestCase {
         mWatchdogServiceForSystemImpl = registerCarWatchdogService();
     }
 
+    @AfterClass
+    public static void tearDown() {
+        CarLocalServices.removeServiceForTest(SystemInterface.class);
+        CarLocalServices.addService(SystemInterface.class, sSystemInterfaceOriginal);
+        CarLocalServices.removeServiceForTest(CarUserService.class);
+        CarLocalServices.addService(CarUserService.class, sCarUserServiceOriginal);
+        CarLocalServices.removeServiceForTest(CarUxRestrictionsManagerService.class);
+        CarLocalServices.addService(CarUxRestrictionsManagerService.class,
+                sCarUxRestrictionsManagerServiceOriginal);
+        CarLocalServices.removeServiceForTest(CarPowerManagementService.class);
+        CarLocalServices.addService(CarPowerManagementService.class,
+                sCarPowerManagementServiceOriginal);
+    }
+
     @Override
     protected void onSessionBuilder(CustomMockitoSessionBuilder builder) {
         builder
-            .spyStatic(CarLocalServices.class)
             .spyStatic(CarServiceUtils.class)
             .spyStatic(ServiceManager.class)
             .spyStatic(UserHandle.class);

@@ -41,6 +41,8 @@ public class AutoDecorTest {
     @Mock
     private DisplayController mDisplayController;
     @Mock
+    private AutoTaskRepository mAutoTaskRepository;
+    @Mock
     private View mView;
     private final int mZOrder = 10;
     private final Rect mBounds = new Rect(0, 0, 100, 100);
@@ -50,8 +52,8 @@ public class AutoDecorTest {
         MockitoAnnotations.initMocks(this);
         when(mDisplayController.getDisplay(Mockito.anyInt())).thenReturn(
                 mock(android.view.Display.class));
-        mAutoDecor = new AutoDecor(mContext, mDisplayController, mView, mZOrder, mBounds,
-                "TestDecor");
+        mAutoDecor = new AutoDecor(mContext, mDisplayController, mAutoTaskRepository,
+                mView, mZOrder, mBounds, "TestDecor");
     }
 
     @Test

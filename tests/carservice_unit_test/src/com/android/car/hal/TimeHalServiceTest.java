@@ -24,7 +24,7 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import android.app.time.ExternalTimeSuggestion;
@@ -130,7 +130,7 @@ public final class TimeHalServiceTest {
         timeHalService.init();
 
         assertThat(timeHalService.isExternalCarTimeSupported()).isFalse();
-        verifyZeroInteractions(mTimeManagerService);
+        verifyNoMoreInteractions(mTimeManagerService);
     }
 
     @Test
