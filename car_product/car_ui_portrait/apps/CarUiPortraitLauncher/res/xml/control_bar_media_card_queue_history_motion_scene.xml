@@ -192,9 +192,6 @@
             <PropertySet
                 motion:visibilityMode="ignore"/>
             <CustomAttribute
-                motion:attributeName="lineHeight"
-                motion:customDimension="@dimen/media_card_title_animated_line_height" />
-            <CustomAttribute
                 motion:attributeName="textSize"
                 motion:customDimension="@dimen/media_card_title_animated_text_size" />
         </Constraint>
