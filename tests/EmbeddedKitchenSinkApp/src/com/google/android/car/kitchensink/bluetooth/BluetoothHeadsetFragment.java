@@ -115,15 +115,19 @@ public class BluetoothHeadsetFragment extends Fragment {
 
     private void checkPermissions() {
         if (!BluetoothPermissionChecker.isPermissionGranted(
-                getActivity(), Manifest.permission.BLUETOOTH_CONNECT)) {
-            BluetoothPermissionChecker.requestPermission(Manifest.permission.BLUETOOTH_CONNECT,
+                getActivity(), Manifest.permission.BLUETOOTH_CONNECT)
+                || !BluetoothPermissionChecker.isPermissionGranted(
+                getActivity(), Manifest.permission.CALL_PHONE)) {
+            BluetoothPermissionChecker.requestMultiplePermissions(
+                    new String[]{Manifest.permission.BLUETOOTH_CONNECT,
+                            Manifest.permission.CALL_PHONE},
                     this,
                     this::setDevicePickerButtonClickable,
                     () -> {
                         setDevicePickerButtonUnclickable();
                         Toast.makeText(getContext(),
-                                "Device picker can't run without BLUETOOTH_CONNECT permission. "
-                                        + "(You can change permissions in Settings.)",
+                                "Headset Test can't run without BLUETOOTH_CONNECT and CALL_PHONE"
+                                        + " permission. (You can change permissions in Settings.)",
                                 Toast.LENGTH_SHORT).show();
                     }
             );

@@ -54,7 +54,7 @@ import javax.inject.Inject;
 @WMSingleton
 public class AutoTaskRepository {
 
-    private static final String TAG = "TaskRepository";
+    private static final String TAG = "AutoTaskRepository";
     private static final boolean DBG = Log.isLoggable(TAG, Log.DEBUG);
 
     private final HashMap<RootTaskStack, RootTaskStackInfo> mRootTaskStacks = new HashMap<>();
@@ -82,8 +82,7 @@ public class AutoTaskRepository {
 
     private boolean mIsCarReady = false;
 
-    private final SparseArray<ActivityManager.RunningTaskInfo> mPendingRootTasks =
-            new SparseArray<>();
+    private final SparseArray<RootTaskStack> mPendingRootTasks = new SparseArray<>();
 
     @Inject
     AutoTaskRepository(Context context, ShellTaskOrganizer shellTaskOrganizer) {
@@ -140,8 +139,9 @@ public class AutoTaskRepository {
         }
 
         for (int i = 0; i < mPendingRootTasks.size(); i++) {
-            mCarActivityManager.onRootTaskAppeared(mPendingRootTasks.keyAt(i),
-                    mPendingRootTasks.valueAt(i));
+            mCarActivityManager.onRootTaskAppeared(mPendingRootTasks.valueAt(i).getName(),
+                    mPendingRootTasks.valueAt(i).getRootTaskInfo(),
+                    mPendingRootTasks.valueAt(i).getRootTaskInfo().token.asBinder());
         }
 
         // TODO(b/400851144): handle Car Service crash if required
@@ -238,11 +238,11 @@ public class AutoTaskRepository {
         }
         mRootTaskStacks.put(rootTaskStack, new RootTaskStackInfo(rootTaskStack));
         if (mIsCarReady) {
-            mCarActivityManager.onRootTaskAppeared(rootTaskStack.getRootTaskInfo().taskId,
-                    rootTaskStack.getRootTaskInfo());
+            mCarActivityManager.onRootTaskAppeared(rootTaskStack.getName(),
+                    rootTaskStack.getRootTaskInfo(),
+                    rootTaskStack.getRootTaskInfo().token.asBinder());
         } else {
-            mPendingRootTasks.put(rootTaskStack.getRootTaskInfo().taskId,
-                    rootTaskStack.getRootTaskInfo());
+            mPendingRootTasks.put(rootTaskStack.getRootTaskInfo().taskId, rootTaskStack);
         }
         mSurfaceControlMap.append(rootTaskStack.getRootTaskInfo().taskId,
                 rootTaskStack.getLeash());

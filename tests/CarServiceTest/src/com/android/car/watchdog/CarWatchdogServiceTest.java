@@ -37,6 +37,7 @@ import android.automotive.watchdog.internal.ICarWatchdog;
 import android.automotive.watchdog.internal.ICarWatchdogServiceForSystem;
 import android.automotive.watchdog.internal.ProcessIdentifier;
 import android.car.Car;
+import android.car.hardware.power.CarPowerManager;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.car.watchdog.CarWatchdogManager;
 import android.content.Context;
@@ -167,6 +168,7 @@ public class CarWatchdogServiceTest extends AbstractExtendedMockitoTestCase {
         CarLocalServices.removeServiceForTest(CarPowerManagementService.class);
         CarLocalServices.addService(
                 CarPowerManagementService.class, mMockCarPowerManagementService);
+        when(mMockCarPowerManagementService.getPowerState()).thenReturn(CarPowerManager.STATE_ON);
 
         mockUmGetUserHandles(mMockUserManager, /* excludeDying= */ false, mUsers);
         mockUmIsUserRunning(mMockUserManager, 100, true);

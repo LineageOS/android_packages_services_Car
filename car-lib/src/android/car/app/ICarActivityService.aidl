@@ -106,6 +106,5 @@ interface ICarActivityService {
 
     void onRootTaskVanished(int taskId);
 
-    void onRootTaskAppeared(int taskId, in RunningTaskInfo taskInfo);
+    void onRootTaskAppeared(String name, in RunningTaskInfo taskInfo, IBinder rootTaskToken);
 }
-

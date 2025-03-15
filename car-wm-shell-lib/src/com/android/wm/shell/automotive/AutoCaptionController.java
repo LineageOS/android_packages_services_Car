@@ -22,6 +22,7 @@ import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.car.Car;
 import android.car.content.pm.CarPackageManager;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Rect;
@@ -30,6 +31,7 @@ import android.util.SparseArray;
 import android.view.View;
 import android.window.WindowContainerTransaction;
 
+import com.android.internal.annotations.VisibleForTesting;
 import com.android.server.utils.Slogf;
 import com.android.wm.shell.RootTaskDisplayAreaOrganizer;
 import com.android.wm.shell.ShellTaskOrganizer;
@@ -46,19 +48,21 @@ import javax.inject.Inject;
  * {@code CarPackageManager#requiresDisplayCompat}.
  */
 @WMSingleton
-public class AutoCaptionController implements AutoTaskRepository.AutoAppTaskListener {
+public class AutoCaptionController {
 
     private static final String TAG = "AutoCaptionController";
     private static final boolean DBG = Log.isLoggable(TAG, Log.DEBUG);
-    private static final int DEFAULT_Z_INDEX_CAPTION_BAR = 1;
+    private static final int DEFAULT_Z_INDEX_CAPTION_BAR = 100001;
     private final ShellTaskOrganizer mShellTaskOrganizer;
     private final RootTaskDisplayAreaOrganizer mRootTaskDisplayAreaOrganizer;
     private final AutoSurfaceTransactionFactory mAutoSurfaceTransactionFactory;
     private final AutoDecorManager mAutoDecorManager;
     // To save the safe area info for each root task. Each root task can have its own safe area.
-    private final SparseArray<SafeRegionInfo> mSafeAreaInfoPerRootTask = new SparseArray<>();
+    @VisibleForTesting
+    final SparseArray<SafeRegionInfo> mSafeAreaInfoPerRootTask = new SparseArray<>();
     // To save the safe area for each display. This safe area is for default task display area.
-    private final SparseArray<SafeRegionInfo> mSafeAreaInfoPerDisplay = new SparseArray<>();
+    @VisibleForTesting
+    final SparseArray<SafeRegionInfo> mSafeAreaInfoPerDisplay = new SparseArray<>();
     // To keep the AutoDecor added to the task as caption bar.
     private final SparseArray<AutoDecor> mTaskIdToCaptionBar = new SparseArray<>();
     private final AutoTaskRepository mAutoTaskRepository;
@@ -66,6 +70,29 @@ public class AutoCaptionController implements AutoTaskRepository.AutoAppTaskList
     private CarPackageManager mCarPackageManager;
 
     private boolean mIsCarReady = false;
+
+    private AutoTaskRepository.AutoAppTaskListener mAutoAppTaskListener =
+            new AutoTaskRepository.AutoAppTaskListener() {
+                public void onTaskAppeared(ActivityManager.RunningTaskInfo taskInfo) {
+                    if (taskInfo.parentTaskId != -1) {
+                        // task is within a root task
+                        handleCaptionBarOnTaskAppeared(
+                                mAutoTaskRepository.getRootTaskStack(taskInfo.parentTaskId),
+                                taskInfo);
+                        return;
+                    }
+
+                    handleCaptionBarOnTaskAppeared(taskInfo);
+                }
+
+                public void onTaskChanged(ActivityManager.RunningTaskInfo taskInfo) {
+                    handleCaptionBarOnTaskChanged(taskInfo);
+                }
+
+                public void onTaskVanished(ActivityManager.RunningTaskInfo taskInfo) {
+                    handleCaptionBarOnTaskVanished(taskInfo);
+                }
+            };
 
     @Inject
     AutoCaptionController(Context context,
@@ -78,7 +105,7 @@ public class AutoCaptionController implements AutoTaskRepository.AutoAppTaskList
         mRootTaskDisplayAreaOrganizer = rootTaskDisplayAreaOrganizer;
         mAutoDecorManager = autoDecorManager;
         mAutoSurfaceTransactionFactory = autoSurfaceTransactionFactory;
-        autoTaskRepository.addAppTaskListener(this);
+        autoTaskRepository.addAppTaskListener(mAutoAppTaskListener);
         // TODO((b/401349206): Add a factory or provider for CarService connection.
         Car.createCar(context, /* handler= */ null, Car.CAR_WAIT_TIMEOUT_DO_NOT_WAIT,
                 (car, ready) -> {
@@ -100,26 +127,31 @@ public class AutoCaptionController implements AutoTaskRepository.AutoAppTaskList
      * the safe region are present, they will receive a config change. In this case, caption region
      * would be updated and caption bar would be shown in the updated caption region.
      *
-     * @param rootTaskStack The root task stack.
-     * @param safeRegion    The safe region for activity.
-     * @param captionRegion The region for caption bar.
-     * @param autoCaptionViewFactory The factory for providing view of the caption bar.
+     * @param rootTaskStack             The root task stack.
+     * @param safeRegion                The safe region for activity.
+     * @param captionRegion             The region for caption bar.
+     * @param autoCaptionBarViewFactory The factory for providing view of the caption bar.
      */
     // TODO(b/398655273): Use builder pattern to avoid confusion in the parameter names.
     public void setSafeRegionAndCaptionRegion(RootTaskStack rootTaskStack, Rect safeRegion,
-            Rect captionRegion, AutoCaptionViewFactory autoCaptionViewFactory) {
+            Rect captionRegion, AutoCaptionBarViewFactory autoCaptionBarViewFactory) {
         if (!safeRegionLetterboxing()) {
             Slogf.e(TAG, "safe_region_letterboxing TS flag is disabled.");
             return;
         }
 
-        if (DBG) {
-            Slogf.d(TAG, "Defining safe region [%s] and caption region [%s] for root task stack %d",
+        if (mSafeAreaInfoPerRootTask.contains(rootTaskStack.getId())) {
+            Slogf.i(TAG,
+                    "Root task already have a safe regions. Updating it to new values. safe "
+                            + "region [%s], caption region [%s], root task stack [%d]",
                     safeRegion, captionRegion, rootTaskStack.getId());
+        } else {
+            Slogf.i(TAG, "Defining safe region [%s] and caption region [%s] for root task"
+                    + " stack %d", safeRegion, captionRegion, rootTaskStack.getId());
         }
 
         mSafeAreaInfoPerRootTask.append(rootTaskStack.getId(),
-                new SafeRegionInfo(safeRegion, captionRegion, autoCaptionViewFactory));
+                new SafeRegionInfo(safeRegion, captionRegion, autoCaptionBarViewFactory));
 
         // Define safe region for the container
         WindowContainerTransaction wct = new WindowContainerTransaction();
@@ -138,10 +170,8 @@ public class AutoCaptionController implements AutoTaskRepository.AutoAppTaskList
             return;
         }
 
-        if (DBG) {
-            Slogf.d(TAG, "Removing safe region and caption region for root task stack %d",
-                    rootTaskStack.getId());
-        }
+        Slogf.i(TAG, "Removing safe region and caption region for root task stack %d",
+                rootTaskStack.getId());
 
         mSafeAreaInfoPerRootTask.remove(rootTaskStack.getId());
 
@@ -159,26 +189,35 @@ public class AutoCaptionController implements AutoTaskRepository.AutoAppTaskList
      * the safe region are present, they will receive a config change. In this case, caption region
      * would be updated and caption bar would be shown in the updated caption region.
      *
-     * @param displayId     The display Id.
-     * @param safeRegion    The safe region for activity.
-     * @param captionRegion The region for caption bar.
-     * @param autoCaptionViewFactory The factory for providing view of the caption bar.
+     * @param displayId                 The display Id.
+     * @param safeRegion                The safe region for activity.
+     * @param captionRegion             The region for caption bar.
+     * @param autoCaptionBarViewFactory The factory for providing view of the caption bar.
      */
     // TODO(b/398655273): Use builder pattern to avoid confusion in the parameter names.
     public void setSafeRegionAndCaptionRegion(int displayId, Rect safeRegion, Rect captionRegion,
-            AutoCaptionViewFactory autoCaptionViewFactory) {
+            AutoCaptionBarViewFactory autoCaptionBarViewFactory) {
         if (!safeRegionLetterboxing()) {
             Slogf.e(TAG, "safe_region_letterboxing TS flag is disabled.");
             return;
         }
 
-        if (DBG) {
-            Slogf.d(TAG, "Defining safe region [%s] and caption region [%s] for display %d",
+        if (mSafeAreaInfoPerDisplay.contains(displayId)) {
+            Slogf.i(TAG, "Display already have a safe regions. Updating it to new values. "
+                            + "safe region [%s] and caption region [%s] for display %d", safeRegion,
+                    captionRegion, displayId);
+        } else {
+            Slogf.i(TAG, "Defining safe region [%s] and caption region [%s] for display %d",
                     safeRegion, captionRegion, displayId);
         }
 
+        if (mRootTaskDisplayAreaOrganizer.getDisplayAreaInfo(displayId) == null) {
+            Slogf.e(TAG, "DisplayAreaInfo for Display [%d] is not available.", displayId);
+            return;
+        }
+
         mSafeAreaInfoPerDisplay.append(displayId,
-                new SafeRegionInfo(safeRegion, captionRegion, autoCaptionViewFactory));
+                new SafeRegionInfo(safeRegion, captionRegion, autoCaptionBarViewFactory));
 
         // Define safe region for the container
         WindowContainerTransaction wct = new WindowContainerTransaction();
@@ -191,7 +230,7 @@ public class AutoCaptionController implements AutoTaskRepository.AutoAppTaskList
     /**
      * Removes a safe region and caption region for the default task display area.
      *
-     * @param displayId     The display Id.
+     * @param displayId The display Id.
      */
     public void removeSafeRegionAndCaptionRegion(int displayId) {
         if (!safeRegionLetterboxing()) {
@@ -199,10 +238,8 @@ public class AutoCaptionController implements AutoTaskRepository.AutoAppTaskList
             return;
         }
 
-        if (DBG) {
-            Slogf.d(TAG, "Removing safe region and caption region for display %d",
-                    displayId);
-        }
+        Slogf.i(TAG, "Removing safe region and caption region for display %d",
+                displayId);
 
         mSafeAreaInfoPerDisplay.remove(displayId);
 
@@ -239,7 +276,7 @@ public class AutoCaptionController implements AutoTaskRepository.AutoAppTaskList
     /**
      * Attaches a caption bar to a task using the provided safe area information.
      *
-     * @param taskInfo     The running task information.
+     * @param taskInfo       The running task information.
      * @param safeRegionInfo The safe area information containing caption bar details.
      */
     private void attachCaptionBar(ActivityManager.RunningTaskInfo taskInfo,
@@ -250,14 +287,13 @@ public class AutoCaptionController implements AutoTaskRepository.AutoAppTaskList
         }
 
         if (DBG) {
-            Slogf.d(TAG, "Adding caption to task. TaskId: %d, SafeAreaInfo: %s",
-                    taskInfo.taskId, safeRegionInfo);
+            Slogf.d(TAG, "Adding caption to task. TaskId: %d", taskInfo.taskId);
         }
 
-        AutoCaptionViewFactory autoCaptionViewFactory =
+        AutoCaptionBarViewFactory autoCaptionBarViewFactory =
                 safeRegionInfo.getAutoCaptionBarViewFactory();
         Rect captionBarBounds = safeRegionInfo.getCaptionRegionBounds();
-        View captionView = autoCaptionViewFactory.createView(taskInfo);
+        View captionView = autoCaptionBarViewFactory.createView(taskInfo);
 
         if (captionView == null) {
             Slogf.e(TAG, "Caption view is not provided for task %d", taskInfo.taskId);
@@ -275,12 +311,17 @@ public class AutoCaptionController implements AutoTaskRepository.AutoAppTaskList
     /**
      * Updates the visibility of the caption bar attached to a task
      *
-     * @param taskInfo The running task information.
+     * @param taskInfo   The running task information.
      * @param visibility to be updated.
      */
     void updateCaptionBarVisibility(ActivityManager.RunningTaskInfo taskInfo, boolean visibility) {
         AutoDecor captionDecor = mTaskIdToCaptionBar.get(taskInfo.taskId);
         if (captionDecor != null) {
+            if (DBG) {
+                Slogf.d(TAG, "updateCaptionBarVisibility. TaskId: %d, visibility %b",
+                        taskInfo.taskId, visibility);
+            }
+
             AutoSurfaceTransaction autoSurfaceTransaction =
                     mAutoSurfaceTransactionFactory.createTransaction(
                             "CaptionVisibility-" + taskInfo.taskId);
@@ -301,30 +342,8 @@ public class AutoCaptionController implements AutoTaskRepository.AutoAppTaskList
             mAutoDecorManager.removeAutoDecor(captionDecor);
         }
         if (DBG) {
-            Slogf.d(TAG, "Caption removed. TaskId: %d, captionDecor: %s",
-                    taskInfo.taskId, captionDecor);
+            Slogf.d(TAG, "Caption removed. TaskId: %d", taskInfo.taskId);
         }
-    }
-    @Override
-    public void onTaskAppeared(ActivityManager.RunningTaskInfo taskInfo) {
-        if (taskInfo.parentTaskId != -1) {
-            // task is within a root task
-            handleCaptionBarOnTaskAppeared(
-                    mAutoTaskRepository.getRootTaskStack(taskInfo.parentTaskId), taskInfo);
-            return;
-        }
-
-        handleCaptionBarOnTaskAppeared(taskInfo);
-    }
-
-    @Override
-    public void onTaskChanged(ActivityManager.RunningTaskInfo taskInfo) {
-        handleCaptionBarOnTaskChanged(taskInfo);
-    }
-
-    @Override
-    public void onTaskVanished(ActivityManager.RunningTaskInfo taskInfo) {
-        handleCaptionBarOnTaskVanished(taskInfo);
     }
 
     private void handleCaptionBarOnTaskAppeared(RootTaskStack rootTaskStack,
@@ -367,8 +386,24 @@ public class AutoCaptionController implements AutoTaskRepository.AutoAppTaskList
         }
 
         try {
-            if (mCarPackageManager.requiresDisplayCompatForUser(task.topActivity.getPackageName(),
-                    task.userId)) {
+            ComponentName componentName = task.topActivity;
+            if (componentName == null) {
+                if (DBG) {
+                    Slogf.d(TAG, "componentName is null. TaskId: %d", task.taskId);
+                }
+                return false;
+            }
+
+            boolean requiresDisplayCompat = mCarPackageManager.requiresDisplayCompatForUser(
+                    componentName.getPackageName(), task.userId);
+
+            if (DBG) {
+                Slogf.d(TAG,
+                        "Task id %d requires DisplayCompat %b for user %d and top activity: %s",
+                        task.taskId, requiresDisplayCompat, task.userId, componentName);
+            }
+
+            if (requiresDisplayCompat) {
                 return true;
             }
         } catch (PackageManager.NameNotFoundException e) {
@@ -379,27 +414,26 @@ public class AutoCaptionController implements AutoTaskRepository.AutoAppTaskList
     }
 
 
-
     /**
      * Contains all relevant information for safe area.
      */
     static class SafeRegionInfo {
         private final Rect mSafeRegionBounds;
         private final Rect mCaptionRegionBounds;
-        private final AutoCaptionViewFactory mAutoCaptionViewFactory;
+        private final AutoCaptionBarViewFactory mAutoCaptionBarViewFactory;
 
         /**
          * Constructor for SafeAreaInfo.
          *
-         * @param safeRegionBounds                The safe region.
-         * @param captionRegionBounds             The caption region.
-         * @param autoCaptionViewFactory The factory for creating caption bar views.
+         * @param safeRegionBounds          The safe region.
+         * @param captionRegionBounds       The caption region.
+         * @param autoCaptionBarViewFactory The factory for creating caption bar views.
          */
         SafeRegionInfo(Rect safeRegionBounds, Rect captionRegionBounds,
-                AutoCaptionViewFactory autoCaptionViewFactory) {
+                AutoCaptionBarViewFactory autoCaptionBarViewFactory) {
             mSafeRegionBounds = safeRegionBounds;
             mCaptionRegionBounds = captionRegionBounds;
-            mAutoCaptionViewFactory = autoCaptionViewFactory;
+            mAutoCaptionBarViewFactory = autoCaptionBarViewFactory;
         }
 
         /**
@@ -425,17 +459,17 @@ public class AutoCaptionController implements AutoTaskRepository.AutoAppTaskList
          *
          * @return The auto caption bar view factory.
          */
-        public AutoCaptionViewFactory getAutoCaptionBarViewFactory() {
-            return mAutoCaptionViewFactory;
+        public AutoCaptionBarViewFactory getAutoCaptionBarViewFactory() {
+            return mAutoCaptionBarViewFactory;
         }
 
         @Override
         public String toString() {
             return "SafeAreaInfo{" + "mSafeRegion=" + (
                     mSafeRegionBounds != null ? mSafeRegionBounds.toString()
-                    : "null") + ", mCaptionRegion=" + (mCaptionRegionBounds != null
+                            : "null") + ", mCaptionRegion=" + (mCaptionRegionBounds != null
                     ? mCaptionRegionBounds.toString()
-                    : "null") + ", mAutoCaptionBarViewFactory=" + mAutoCaptionViewFactory + '}';
+                    : "null") + ", mAutoCaptionBarViewFactory=" + mAutoCaptionBarViewFactory + '}';
         }
     }
 }

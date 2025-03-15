@@ -107,7 +107,7 @@ public final class CarActivityService extends ICarActivityService.Stub
     private final SparseArray<SurfaceControl> mTaskToSurfaceMap = new SparseArray<>();
 
     @GuardedBy("mLock")
-    private final SparseArray<ActivityManager.RunningTaskInfo> mRootTaskMap = new SparseArray<>();
+    private final SparseArray<RootTaskInfo> mRootTaskMap = new SparseArray<>();
 
     @GuardedBy("mLock")
     private final ArrayMap<IBinder, IBinder.DeathRecipient> mMonitorTokens = new ArrayMap<>();
@@ -402,9 +402,10 @@ public final class CarActivityService extends ICarActivityService.Stub
     }
 
     @Override
-    public void onRootTaskAppeared(int taskId, ActivityManager.RunningTaskInfo taskInfo) {
+    public void onRootTaskAppeared(String name, ActivityManager.RunningTaskInfo taskInfo,
+            IBinder rootTaskToken) {
         synchronized (mLock) {
-            mRootTaskMap.put(taskId, taskInfo);
+            mRootTaskMap.put(taskInfo.taskId, new RootTaskInfo(name, taskInfo, rootTaskToken));
         }
     }
     @Override
@@ -769,9 +770,12 @@ public final class CarActivityService extends ICarActivityService.Stub
         }
 
         ActivityOptions options = ActivityOptions.makeBasic();
-        TaskInfo parentTask;
+        TaskInfo parentTask = null;
         synchronized (mLock) {
-            parentTask = mRootTaskMap.get(TaskInfoHelper.geParentTaskId(currentTask));
+            if (mRootTaskMap.get(TaskInfoHelper.geParentTaskId(currentTask)) != null) {
+                parentTask = mRootTaskMap.get(
+                        TaskInfoHelper.geParentTaskId(currentTask)).getTaskInfo();
+            }
         }
         if (parentTask != null && mIsUsingAutoTaskStackWindowing) {
             newActivityIntent.addFlags(
@@ -814,6 +818,25 @@ public final class CarActivityService extends ICarActivityService.Stub
             ActivityManagerHelper.moveRootTaskToDisplay(taskId, displayId);
         } finally {
             Binder.restoreCallingIdentity(identity);
+        }
+    }
+
+    /**
+     * Data class to hold the info for a root task.
+     */
+    static class RootTaskInfo {
+        final String mName;
+        final ActivityManager.RunningTaskInfo mTaskInfo;
+        final IBinder mRootTaskToken;
+
+        RootTaskInfo(String name, ActivityManager.RunningTaskInfo taskInfo, IBinder rootTaskToken) {
+            mName = name;
+            mTaskInfo = taskInfo;
+            mRootTaskToken = rootTaskToken;
+        }
+
+        public TaskInfo getTaskInfo() {
+            return mTaskInfo;
         }
     }
 
