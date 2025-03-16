@@ -800,11 +800,6 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
                     Slogf.w(CarLog.TAG_HAL, "resolution is always 0 for non-continuous property: "
                             + toPropertyIdString(property));
                 }
-                if (!mFeatureFlags.subscriptionWithResolution()) {
-                    resolution = 0.0f;
-                    Slogf.w(CarLog.TAG_HAL,
-                            "Resolution feature is not enabled, resolution is always 0");
-                }
             }
 
             if (isStaticProperty(config)) {
