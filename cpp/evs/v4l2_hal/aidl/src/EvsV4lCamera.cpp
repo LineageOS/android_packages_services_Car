@@ -188,6 +188,9 @@ ScopedAStatus EvsV4lCamera::startVideoStream(const std::shared_ptr<IEvsCameraStr
                 case V4L2_PIX_FMT_BGRX32:
                     mFillBufferFromVideo = fillRGBAFromBGRA;
                     break;
+                case V4L2_PIX_FMT_ARGB32:
+                    mFillBufferFromVideo = fillRGBAFromARGB;
+                    break;
                 case V4L2_PIX_FMT_RGB24:
                     mFillBufferFromVideo = fillRGBAFromRGB3;
                     break;
@@ -215,8 +218,9 @@ ScopedAStatus EvsV4lCamera::startVideoStream(const std::shared_ptr<IEvsCameraStr
     mStream = client;
 
     // Set up the video stream with a callback to our member function forwardFrame()
-    if (!mVideo.startStream([this](VideoCapture*, imageBuffer* tgt, void* data) {
-            this->forwardFrame(tgt, data);
+    if (!mVideo.startStream([this](VideoCapture*, imageBuffer* tgt, void* data[VIDEO_MAX_PLANES],
+                                   size_t length[VIDEO_MAX_PLANES], size_t numPlanes) {
+            this->forwardFrame(tgt, data, length, numPlanes);
         })) {
         // No need to hold onto this if we failed to start
         mStream = nullptr;
@@ -655,7 +659,9 @@ unsigned EvsV4lCamera::decreaseAvailableFrames_Locked(unsigned numToRemove) {
 }
 
 // This is the async callback from the video camera that tells us a frame is ready
-void EvsV4lCamera::forwardFrame(imageBuffer* pV4lBuff, void* pData) {
+void EvsV4lCamera::forwardFrame(imageBuffer* pV4lBuff, void* pData[VIDEO_MAX_PLANES],
+                                [[maybe_unused]] size_t length[VIDEO_MAX_PLANES],
+                                [[maybe_unused]] size_t numPlanes) {
     LOG(DEBUG) << __FUNCTION__;
     bool readyForFrame = false;
     unsigned idx = 0;

@@ -32,6 +32,22 @@
 #include <cassert>
 #include <iomanip>
 
+namespace {
+
+inline bool isCaptureSupported(const v4l2_capability& caps) {
+    return (caps.capabilities & (V4L2_CAP_VIDEO_CAPTURE | V4L2_CAP_VIDEO_CAPTURE_MPLANE)) != 0;
+}
+
+inline bool isMultiplanarCaptureSupported(const v4l2_capability& caps) {
+    return (caps.capabilities & V4L2_CAP_VIDEO_CAPTURE_MPLANE) != 0;
+}
+
+inline bool isStreamingSupported(const v4l2_capability& caps) {
+    return (caps.capabilities & V4L2_CAP_STREAMING) != 0;
+}
+
+}  // namespace
+
 // NOTE:  This developmental code does not properly clean up resources in case of failure
 //        during the resource setup phase.  Of particular note is the potential to leak
 //        the file descriptor.  This must be fixed before using this code for anything but
@@ -55,63 +71,74 @@ bool VideoCapture::open(const char* deviceName, const int32_t width, const int32
 
     // Report device properties
     LOG(INFO) << "Open Device: " << deviceName << " (fd = " << mDeviceFd << ")";
-    LOG(DEBUG) << "  Driver: " << caps.driver;
-    LOG(DEBUG) << "  Card: " << caps.card;
-    LOG(DEBUG) << "  Version: " << ((caps.version >> 16) & 0xFF) << "."
-               << ((caps.version >> 8) & 0xFF) << "." << (caps.version & 0xFF);
-    LOG(DEBUG) << "  All Caps: " << std::hex << std::setw(8) << caps.capabilities;
-    LOG(DEBUG) << "  Dev Caps: " << std::hex << caps.device_caps;
+    LOG(INFO) << "  Driver: " << caps.driver;
+    LOG(INFO) << "  Card: " << caps.card;
+    LOG(INFO) << "  Version: " << ((caps.version >> 16) & 0xFF) << "."
+              << ((caps.version >> 8) & 0xFF) << "." << (caps.version & 0xFF);
+    LOG(INFO) << "  All Caps: " << std::hex << std::setw(8) << caps.capabilities;
+    LOG(INFO) << "  Dev Caps: " << std::hex << caps.device_caps;
+
+    // Verify we can use this device for video capture
+    if (!isCaptureSupported(caps) || !isStreamingSupported(caps)) {
+        // Can't do streaming capture.
+        LOG(ERROR) << "Streaming capture not supported by " << deviceName;
+        return false;
+    }
+
+    mIsMultiplanar = isMultiplanarCaptureSupported(caps);
 
     // Enumerate the available capture formats (if any)
-    LOG(DEBUG) << "Supported capture formats:";
+    LOG(INFO) << "Supported capture formats:";
     v4l2_fmtdesc formatDescriptions;
-    formatDescriptions.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+    formatDescriptions.type =
+            mIsMultiplanar ? V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE : V4L2_BUF_TYPE_VIDEO_CAPTURE;
     for (int i = 0; true; i++) {
         formatDescriptions.index = i;
         if (ioctl(mDeviceFd, VIDIOC_ENUM_FMT, &formatDescriptions) == 0) {
-            LOG(DEBUG) << "  " << std::setw(2) << i << ": " << formatDescriptions.description << " "
-                       << std::hex << std::setw(8) << formatDescriptions.pixelformat << " "
-                       << std::hex << formatDescriptions.flags;
+            LOG(INFO) << "  " << std::setw(2) << i << ": " << formatDescriptions.description << " "
+                      << std::hex << std::setw(8) << formatDescriptions.pixelformat << " "
+                      << std::hex << formatDescriptions.flags;
         } else {
             // No more formats available
             break;
         }
     }
 
-    // Verify we can use this device for video capture
-    if (!(caps.capabilities & V4L2_CAP_VIDEO_CAPTURE) ||
-        !(caps.capabilities & V4L2_CAP_STREAMING)) {
-        // Can't do streaming capture.
-        LOG(ERROR) << "Streaming capture not supported by " << deviceName;
-        return false;
-    }
-
-    // Set our desired output format
+    // Set our desired output format; single-plane and YUYV format.
     v4l2_format format;
-    format.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+    format.type = mIsMultiplanar ? V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE : V4L2_BUF_TYPE_VIDEO_CAPTURE;
     format.fmt.pix.pixelformat = V4L2_PIX_FMT_YUYV;
     format.fmt.pix.width = width;
     format.fmt.pix.height = height;
-    LOG(INFO) << "Requesting format: " << ((char*)&format.fmt.pix.pixelformat)[0]
-              << ((char*)&format.fmt.pix.pixelformat)[1] << ((char*)&format.fmt.pix.pixelformat)[2]
-              << ((char*)&format.fmt.pix.pixelformat)[3] << "(" << std::hex << std::setw(8)
-              << format.fmt.pix.pixelformat << ")";
+    LOG(INFO) << "Requesting format: " << std::string((char*)&format.fmt.pix.pixelformat) << "("
+              << std::hex << std::setw(8) << format.fmt.pix.pixelformat << ")";
 
     if (ioctl(mDeviceFd, VIDIOC_S_FMT, &format) < 0) {
-        PLOG(ERROR) << "VIDIOC_S_FMT failed";
+        PLOG(WARNING) << "VIDIOC_S_FMT failed";
     }
 
     // Report the current output format
-    format.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
     if (ioctl(mDeviceFd, VIDIOC_G_FMT, &format) == 0) {
-        mFormat = format.fmt.pix.pixelformat;
-        mWidth = format.fmt.pix.width;
-        mHeight = format.fmt.pix.height;
-        mStride = format.fmt.pix.bytesperline;
+        std::string fmtString;
+        if (mIsMultiplanar) {
+            // See: google3/third_party/OpenCV/public/modules/videoio/src/cap_v4l.cpp
+            mFormat = format.fmt.pix_mp.pixelformat;
+            mWidth = format.fmt.pix_mp.width;
+            mHeight = format.fmt.pix_mp.height;
+            mStride = format.fmt.pix_mp.plane_fmt[0].bytesperline;
+            mNumPlanes = format.fmt.pix_mp.num_planes;
+            fmtString = std::string((char*)&format.fmt.pix_mp.pixelformat);
+        } else {
+            mFormat = format.fmt.pix.pixelformat;
+            mWidth = format.fmt.pix.width;
+            mHeight = format.fmt.pix.height;
+            mStride = format.fmt.pix.bytesperline;
+            fmtString = std::string((char*)&format.fmt.pix.pixelformat);
+        }
 
-        LOG(INFO) << "Current output format:  " << "fmt=0x" << std::hex
-                  << format.fmt.pix.pixelformat << ", " << std::dec << format.fmt.pix.width << " x "
-                  << format.fmt.pix.height << ", pitch=" << format.fmt.pix.bytesperline;
+        LOG(INFO) << "Current output format:  " << fmtString << "(0x" << std::hex << mFormat
+                  << "), " << std::dec << mWidth << " x " << mHeight << ", pitch=" << mStride
+                  << ", planes=" << mNumPlanes;
     } else {
         PLOG(ERROR) << "VIDIOC_G_FMT failed";
         return false;
@@ -137,7 +164,9 @@ void VideoCapture::close() {
     }
 }
 
-bool VideoCapture::startStream(std::function<void(VideoCapture*, imageBuffer*, void*)> callback) {
+bool VideoCapture::startStream(
+        std::function<void(VideoCapture*, imageBuffer*, void**, size_t*, size_t numPlanes)>
+                callback) {
     // Set the state of our background thread
     int prevRunMode = mRunMode.fetch_or(RUN);
     if (prevRunMode & RUN) {
@@ -146,9 +175,10 @@ bool VideoCapture::startStream(std::function<void(VideoCapture*, imageBuffer*, v
         return false;
     }
 
-    // Tell the L4V2 driver to prepare our streaming buffers
+    // Tell the V4L2 driver to prepare our streaming buffers
     v4l2_requestbuffers bufrequest;
-    bufrequest.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+    bufrequest.type =
+            mIsMultiplanar ? V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE : V4L2_BUF_TYPE_VIDEO_CAPTURE;
     bufrequest.memory = V4L2_MEMORY_MMAP;
     bufrequest.count = 1;
     if (ioctl(mDeviceFd, VIDIOC_REQBUFS, &bufrequest) < 0) {
@@ -157,47 +187,62 @@ bool VideoCapture::startStream(std::function<void(VideoCapture*, imageBuffer*, v
     }
 
     mNumBuffers = bufrequest.count;
-    mBufferInfos = std::make_unique<v4l2_buffer[]>(mNumBuffers);
-    mPixelBuffers = std::make_unique<void*[]>(mNumBuffers);
+    mBufferInfos = std::make_unique<BufferDesc[]>(mNumBuffers);
 
     for (int i = 0; i < mNumBuffers; ++i) {
         // Get the information on the buffer that was created for us
-        memset(&mBufferInfos[i], 0, sizeof(v4l2_buffer));
-        mBufferInfos[i].type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-        mBufferInfos[i].memory = V4L2_MEMORY_MMAP;
-        mBufferInfos[i].index = i;
+        memset(&mBufferInfos[i].buffer, 0, sizeof(v4l2_buffer));
+        mBufferInfos[i].buffer.memory = V4L2_MEMORY_MMAP;
+        mBufferInfos[i].buffer.index = i;
 
-        if (ioctl(mDeviceFd, VIDIOC_QUERYBUF, &mBufferInfos[i]) < 0) {
+        if (mIsMultiplanar) {
+            mBufferInfos[i].buffer.type = V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE;
+            mBufferInfos[i].buffer.m.planes = mBufferInfos[i].planes;
+            mBufferInfos[i].buffer.length = VIDEO_MAX_PLANES;
+        } else {
+            mBufferInfos[i].buffer.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+        }
+
+        if (ioctl(mDeviceFd, VIDIOC_QUERYBUF, &mBufferInfos[i].buffer) < 0) {
             PLOG(ERROR) << "VIDIOC_QUERYBUF failed";
             return false;
         }
 
-        LOG(DEBUG) << "Buffer description:";
-        LOG(DEBUG) << "  offset: " << mBufferInfos[i].m.offset;
-        LOG(DEBUG) << "  length: " << mBufferInfos[i].length;
-        LOG(DEBUG) << "  flags : " << std::hex << mBufferInfos[i].flags;
+        for (auto j = 0u; j < mNumPlanes; ++j) {
+            const auto length = mIsMultiplanar ? mBufferInfos[i].buffer.m.planes[j].length
+                                               : mBufferInfos[i].buffer.length;
+            const auto offset = mIsMultiplanar ? mBufferInfos[i].buffer.m.planes[j].m.mem_offset
+                                               : mBufferInfos[i].buffer.m.offset;
 
-        // Get a pointer to the buffer contents by mapping into our address space
-        mPixelBuffers[i] = mmap(NULL, mBufferInfos[i].length, PROT_READ | PROT_WRITE, MAP_SHARED,
-                                mDeviceFd, mBufferInfos[i].m.offset);
+            LOG(DEBUG) << "Buffer description:";
+            LOG(DEBUG) << "  plane : " << j;
+            LOG(DEBUG) << "  offset: " << offset;
+            LOG(DEBUG) << "  length: " << length;
+            LOG(DEBUG) << "  flags : " << std::hex << mBufferInfos[i].buffer.flags;
 
-        if (mPixelBuffers[i] == MAP_FAILED) {
-            PLOG(ERROR) << "mmap() failed";
-            return false;
+            // Get a pointer to the buffer contents by mapping into our address space
+            mBufferInfos[i].start[j] =
+                    mmap(NULL, length, PROT_READ | PROT_WRITE, MAP_SHARED, mDeviceFd, offset);
+            mBufferInfos[i].length[j] = length;
+            if (mBufferInfos[i].start[j] == MAP_FAILED) {
+                PLOG(ERROR) << "mmap() failed";
+                return false;
+            }
+
+            memset(mBufferInfos[i].start[j], 0, length);
+            LOG(INFO) << "Buffer mapped at " << mBufferInfos[i].start[j];
         }
 
-        memset(mPixelBuffers[i], 0, mBufferInfos[i].length);
-        LOG(INFO) << "Buffer mapped at " << mPixelBuffers[i];
-
         // Queue the first capture buffer
-        if (ioctl(mDeviceFd, VIDIOC_QBUF, &mBufferInfos[i]) < 0) {
+        if (ioctl(mDeviceFd, VIDIOC_QBUF, &mBufferInfos[i].buffer) < 0) {
             PLOG(ERROR) << "VIDIOC_QBUF failed";
             return false;
         }
     }
 
     // Start the video stream
-    const int type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+    const int type =
+            mIsMultiplanar ? V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE : V4L2_BUF_TYPE_VIDEO_CAPTURE;
     if (ioctl(mDeviceFd, VIDIOC_STREAMON, &type) < 0) {
         PLOG(ERROR) << "VIDIOC_STREAMON failed";
         return false;
@@ -230,7 +275,8 @@ void VideoCapture::stopStream() {
         }
 
         // Stop the underlying video stream (automatically empties the buffer queue)
-        const int type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+        const int type =
+                mIsMultiplanar ? V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE : V4L2_BUF_TYPE_VIDEO_CAPTURE;
         if (ioctl(mDeviceFd, VIDIOC_STREAMOFF, &type) < 0) {
             PLOG(ERROR) << "VIDIOC_STREAMOFF failed";
         }
@@ -239,13 +285,15 @@ void VideoCapture::stopStream() {
     }
 
     for (int i = 0; i < mNumBuffers; ++i) {
-        // Unmap the buffers we allocated
-        munmap(mPixelBuffers[i], mBufferInfos[i].length);
+        for (auto j = 0u; j < mNumPlanes; ++j) {
+            // Unmap the buffers we allocated
+            munmap(mBufferInfos[i].start[j], mBufferInfos[i].length[j]);
+        }
     }
 
     // Tell the L4V2 driver to release our streaming buffers
     v4l2_requestbuffers bufrequest;
-    bufrequest.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+    bufrequest.type = V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE;
     bufrequest.memory = V4L2_MEMORY_MMAP;
     bufrequest.count = 0;
     ioctl(mDeviceFd, VIDIOC_REQBUFS, &bufrequest);
@@ -256,7 +304,6 @@ void VideoCapture::stopStream() {
     // Release capture buffers
     mNumBuffers = 0;
     mBufferInfos = nullptr;
-    mPixelBuffers = nullptr;
 }
 
 bool VideoCapture::returnFrame(int id) {
@@ -281,7 +328,18 @@ bool VideoCapture::returnFrame(int id) {
 void VideoCapture::collectFrames() {
     // Run until our atomic signal is cleared
     while (mRunMode == RUN) {
-        struct v4l2_buffer buf = {.type = V4L2_BUF_TYPE_VIDEO_CAPTURE, .memory = V4L2_MEMORY_MMAP};
+        v4l2_buffer buf = {.memory = V4L2_MEMORY_MMAP};
+        v4l2_plane mplanes[VIDEO_MAX_PLANES];
+
+        if (!mIsMultiplanar) {
+            buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+            v4l2_buffer buf = {.type = V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE,
+                               .memory = V4L2_MEMORY_MMAP};
+        } else {
+            buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE;
+            buf.m.planes = mplanes;
+            buf.length = VIDEO_MAX_PLANES;
+        }
 
         // Wait for a buffer to be ready
         if (ioctl(mDeviceFd, VIDIOC_DQBUF, &buf) < 0) {
@@ -292,11 +350,27 @@ void VideoCapture::collectFrames() {
         mFrames.insert(buf.index);
 
         // Update a frame metadata
-        mBufferInfos[buf.index] = buf;
+        mBufferInfos[buf.index].buffer = buf;
+        if (mIsMultiplanar) {
+            // Copy v4l2_plane metadata.
+            mBufferInfos[buf.index].buffer.m.planes = mBufferInfos[buf.index].planes;
+            memcpy(mBufferInfos[buf.index].planes, buf.m.planes, sizeof(mplanes));
+
+            auto offset = 0;
+            for (auto i = 0u; i < mNumPlanes; ++i) {
+                auto bytesused = mBufferInfos[buf.index].planes[i].bytesused -
+                        mBufferInfos[buf.index].planes[i].data_offset;
+                offset += bytesused;
+            }
+            mBufferInfos[buf.index].bytesused = offset;
+        } else {
+            mBufferInfos[buf.index].bytesused = mBufferInfos[buf.index].buffer.bytesused;
+        }
 
         // If a callback was requested per frame, do that now
         if (mCallback) {
-            mCallback(this, &mBufferInfos[buf.index], mPixelBuffers[buf.index]);
+            mCallback(this, &mBufferInfos[buf.index].buffer, mBufferInfos[buf.index].start,
+                      mBufferInfos[buf.index].length, mNumPlanes);
         }
     }
 

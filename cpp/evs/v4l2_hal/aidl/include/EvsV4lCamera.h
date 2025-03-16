@@ -96,7 +96,8 @@ private:
     unsigned increaseAvailableFrames_Locked(unsigned numToAdd);
     unsigned decreaseAvailableFrames_Locked(unsigned numToRemove);
 
-    void forwardFrame(imageBuffer* tgt, void* data);
+    void forwardFrame(imageBuffer* tgt, void* data[VIDEO_MAX_PLANES],
+                      size_t length[VIDEO_MAX_PLANES], size_t numPlanes);
     inline bool convertToV4l2CID(aidlevs::CameraParam id, uint32_t& v4l2cid);
 
     // The callback used to deliver each frame
@@ -129,8 +130,8 @@ private:
     std::set<uint32_t> mCameraControls;  // Available camera controls
 
     // Which format specific function we need to use to move camera imagery into our output buffers
-    void (*mFillBufferFromVideo)(const aidlevs::BufferDesc& tgtBuff, uint8_t* tgt, void* imgData,
-                                 unsigned imgStride);
+    void (*mFillBufferFromVideo)(const aidlevs::BufferDesc& tgtBuff, uint8_t* tgt,
+                                 void* imgData[VIDEO_MAX_PLANES], unsigned imgStride);
 
     aidlevs::EvsResult doneWithFrame_impl(const aidlevs::BufferDesc& bufferDesc);
     aidlevs::EvsResult doneWithFrame_impl(uint32_t id, buffer_handle_t handle);
