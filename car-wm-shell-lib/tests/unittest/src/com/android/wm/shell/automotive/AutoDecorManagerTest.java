@@ -49,6 +49,8 @@ public class AutoDecorManagerTest {
     private RootTaskDisplayAreaOrganizer mRootTaskDisplayAreaOrganizer;
     @Mock
     private View mView;
+    @Mock
+    private AutoTaskRepository mAutoTaskRepository;
     private AutoDecorManager mAutoDecorManager;
     private Rect mBounds;
     private final int mDisplayId = 0; // Define display ID
@@ -69,7 +71,7 @@ public class AutoDecorManagerTest {
         when(mDisplayController.getDisplay(any(Integer.class))).thenReturn(defaultDisplay);
 
         mAutoDecorManager = new AutoDecorManager(context, mDisplayController,
-                mRootTaskDisplayAreaOrganizer);
+                mRootTaskDisplayAreaOrganizer, mAutoTaskRepository);
     }
 
     @Test

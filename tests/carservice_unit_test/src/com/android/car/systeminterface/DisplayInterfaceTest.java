@@ -87,7 +87,6 @@ public final class DisplayInterfaceTest {
 
     @Rule
     public final RavenwoodRule mRavenwood = new RavenwoodRule.Builder()
-            .setProvideMainThread(true)
             .setSystemPropertyImmutable("android.car.user_hal_timeout", 0).build();
     @Rule
     public final SetFlagsRule mSetFlagsRule = new SetFlagsRule();

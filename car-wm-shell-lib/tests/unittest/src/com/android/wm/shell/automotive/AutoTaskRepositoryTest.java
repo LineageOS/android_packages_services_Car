@@ -25,6 +25,7 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
@@ -33,8 +34,11 @@ import android.app.ActivityManager;
 import android.car.Car;
 import android.car.app.CarActivityManager;
 import android.content.Context;
+import android.hardware.display.DisplayManager;
 import android.os.UserHandle;
+import android.view.Display;
 import android.view.SurfaceControl;
+import android.window.WindowContainerToken;
 
 import com.android.wm.shell.ShellTaskOrganizer;
 
@@ -65,6 +69,12 @@ public class AutoTaskRepositoryTest {
     @Mock
     private CarActivityManager mCarActivityManager;
 
+    @Mock
+    private Display mDisplay0;
+
+    @Mock
+    private DisplayManager mDisplayManager;
+
     private Car.CarServiceLifecycleListener mCarServiceLifecycleListener;
 
     private MockitoSession mSession;
@@ -82,9 +92,11 @@ public class AutoTaskRepositoryTest {
 
         when(mCar.getCarManager(Car.CAR_ACTIVITY_SERVICE)).thenReturn(mCarActivityManager);
 
-        doAnswer(invocation -> {
-            return UserHandle.USER_SYSTEM;
-        }).when(() -> UserHandle.getCallingUserId());
+        doAnswer(invocation -> UserHandle.USER_SYSTEM).when(() -> UserHandle.getCallingUserId());
+
+        when(mDisplay0.getDisplayId()).thenReturn(0);
+        when(mDisplayManager.getDisplays()).thenReturn(new Display[]{mDisplay0});
+        when(mContext.getSystemService(DisplayManager.class)).thenReturn(mDisplayManager);
 
         doAnswer(invocation -> {
             mCarServiceLifecycleListener = invocation.getArgument(3);
@@ -94,9 +106,9 @@ public class AutoTaskRepositoryTest {
 
         mTaskRepository = new AutoTaskRepository(mContext, mShellTaskOrganizer);
         mRootTaskStack1 = new RootTaskStack(1, 0, mock(SurfaceControl.class),
-                createMockTaskInfo(1));
+                "testRootTaskStack1", createMockTaskInfo(1));
         mRootTaskStack2 = new RootTaskStack(1, 0, mock(SurfaceControl.class),
-                createMockTaskInfo(1));
+                "testRootTaskStack2", createMockTaskInfo(1));
     }
 
     @After
@@ -117,7 +129,7 @@ public class AutoTaskRepositoryTest {
         assertThat(mTaskRepository.getTaskStack(mRootTaskStack1)).hasSize(1);
         assertThat(mTaskRepository.getSurfaceControl(taskInfo1)).isEqualTo(surfaceControl1);
         verify(mCarActivityManager).onTaskAppeared(any(), any());
-        verify(mCarActivityManager).onRootTaskAppeared(anyInt(), any());
+        verify(mCarActivityManager).onRootTaskAppeared(anyString(), any(), any());
     }
 
     @Test
@@ -132,7 +144,7 @@ public class AutoTaskRepositoryTest {
         assertThat(mTaskRepository.getTaskStack(mRootTaskStack1)).hasSize(1);
         assertThat(mTaskRepository.getSurfaceControl(taskInfo1)).isEqualTo(surfaceControl1);
         verify(mCarActivityManager).onTaskAppeared(any(), any());
-        verify(mCarActivityManager).onRootTaskAppeared(anyInt(), any());
+        verify(mCarActivityManager).onRootTaskAppeared(anyString(), any(), any());
         verify(mCarActivityManager).onTaskInfoChanged(any());
     }
 
@@ -149,7 +161,7 @@ public class AutoTaskRepositoryTest {
         assertThat(mTaskRepository.getTaskStack(mRootTaskStack1)).isEmpty();
         assertThat(mTaskRepository.getSurfaceControl(taskInfo1)).isNull();
         verify(mCarActivityManager).onTaskAppeared(any(), any());
-        verify(mCarActivityManager).onRootTaskAppeared(anyInt(), any());
+        verify(mCarActivityManager).onRootTaskAppeared(anyString(), any(), any());
         verify(mCarActivityManager).onTaskVanished(any());
     }
 
@@ -164,7 +176,7 @@ public class AutoTaskRepositoryTest {
 
         assertThat(mTaskRepository.getTaskStack(mRootTaskStack1)).isNull();
         verify(mCarActivityManager).onTaskAppeared(any(), any());
-        verify(mCarActivityManager).onRootTaskAppeared(anyInt(), any());
+        verify(mCarActivityManager).onRootTaskAppeared(anyString(), any(), any());
         verify(mCarActivityManager).onRootTaskVanished(anyInt());
     }
 
@@ -185,7 +197,7 @@ public class AutoTaskRepositoryTest {
         assertThat(mTaskRepository.getSurfaceControl(taskInfo1)).isEqualTo(surfaceControl1);
         assertThat(mTaskRepository.getSurfaceControl(taskInfo2)).isEqualTo(surfaceControl2);
         verify(mCarActivityManager, times(2)).onTaskAppeared(any(), any());
-        verify(mCarActivityManager, times(2)).onRootTaskAppeared(anyInt(), any());
+        verify(mCarActivityManager, times(2)).onRootTaskAppeared(anyString(), any(), any());
     }
 
     @Test
@@ -231,7 +243,9 @@ public class AutoTaskRepositoryTest {
 
     private ActivityManager.RunningTaskInfo createMockTaskInfo(int taskId) {
         ActivityManager.RunningTaskInfo taskInfo = mock(ActivityManager.RunningTaskInfo.class);
+        WindowContainerToken rootTaskToken = mock(WindowContainerToken.class);
         taskInfo.taskId = taskId;
+        taskInfo.token = rootTaskToken;
         return taskInfo;
     }
 }

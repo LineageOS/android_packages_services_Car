@@ -59,7 +59,6 @@ import android.content.pm.PackageManager;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.ServiceSpecificException;
-import android.platform.test.ravenwood.RavenwoodRule;
 import android.util.Log;
 import android.util.SparseArray;
 
@@ -79,7 +78,6 @@ import com.android.modules.expresslog.Histogram;
 
 import org.junit.Assume;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
@@ -97,12 +95,6 @@ import java.util.concurrent.TimeUnit;
 public final class CarPropertyServiceUnitTest extends AbstractExpectableTestCase {
     private static final String TAG = CarLog.tagFor(CarPropertyServiceUnitTest.class);
     private static final int DEFAULT_CALLBACK_TIMEOUT = 5000;
-
-    @Rule
-    public final RavenwoodRule mRavenwood = new RavenwoodRule.Builder()
-            .setProcessSystem()
-            .setProvideMainThread(true)
-            .build();
 
     @Mock
     private Context mContext;

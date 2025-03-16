@@ -40,7 +40,7 @@ import android.car.feature.FakeFeatureFlagsImpl;
 import android.hardware.HardwareBuffer;
 import android.os.IBinder;
 import android.os.RemoteException;
-import android.platform.test.annotations.IgnoreUnderRavenwood;
+import android.platform.test.annotations.DisabledOnRavenwood;
 import android.platform.test.ravenwood.RavenwoodRule;
 
 import com.android.car.internal.ICarBase;
@@ -173,7 +173,7 @@ public final class CarEvsManagerUnitTest {
     }
 
     @Test
-    @IgnoreUnderRavenwood(blockedBy = HardwareBuffer.class)
+    @DisabledOnRavenwood(blockedBy = HardwareBuffer.class)
     public void testStartVideoStreamWithoutToken() throws Exception {
         when(mMockICarEvsService
                 .startVideoStream(anyInt(), any(), mCarEvsStreamCallbackCaptor.capture()))
@@ -325,7 +325,7 @@ public final class CarEvsManagerUnitTest {
     }
 
     @Test
-    @IgnoreUnderRavenwood(blockedBy = HardwareBuffer.class)
+    @DisabledOnRavenwood(blockedBy = HardwareBuffer.class)
     public void testReturnFrameBuffer() throws Exception {
         int bufferId = 1;
         HardwareBuffer hwbuffer =
@@ -341,7 +341,7 @@ public final class CarEvsManagerUnitTest {
     }
 
     @Test
-    @IgnoreUnderRavenwood(blockedBy = HardwareBuffer.class)
+    @DisabledOnRavenwood(blockedBy = HardwareBuffer.class)
     public void testReturnFrameBufferRemoteExceptionThrown() throws Exception {
         doThrow(new RemoteException()).when(mMockICarEvsService).returnFrameBuffer(any());
         int bufferId = 1;
@@ -414,7 +414,7 @@ public final class CarEvsManagerUnitTest {
     }
 
     @Test
-    @IgnoreUnderRavenwood(blockedBy = HardwareBuffer.class)
+    @DisabledOnRavenwood(blockedBy = HardwareBuffer.class)
     public void testCarEvsBufferDescriptor() {
         CarEvsBufferDescriptor[] arr = CarEvsBufferDescriptor.CREATOR.newArray(3);
         assertThat(arr.length).isEqualTo(3);

@@ -533,9 +533,10 @@ public final class CarActivityManager extends CarManagerBase {
      *
      * @hide
      */
-    public void onRootTaskAppeared(int taskId, ActivityManager.RunningTaskInfo taskInfo) {
+    public void onRootTaskAppeared(String name, ActivityManager.RunningTaskInfo taskInfo,
+            IBinder rootTaskToken) {
         try {
-            mService.onRootTaskAppeared(taskId, taskInfo);
+            mService.onRootTaskAppeared(name, taskInfo, rootTaskToken);
         } catch (RemoteException e) {
             handleRemoteExceptionFromCarService(e);
         }

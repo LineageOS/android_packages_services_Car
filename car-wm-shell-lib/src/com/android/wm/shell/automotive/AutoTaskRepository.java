@@ -23,6 +23,7 @@ import android.car.app.CarActivityManager;
 import android.content.Context;
 import android.hardware.display.DisplayManager;
 import android.os.UserHandle;
+import android.util.ArraySet;
 import android.util.Log;
 import android.util.Pair;
 import android.util.SparseArray;
@@ -53,7 +54,7 @@ import javax.inject.Inject;
 @WMSingleton
 public class AutoTaskRepository {
 
-    private static final String TAG = "TaskRepository";
+    private static final String TAG = "AutoTaskRepository";
     private static final boolean DBG = Log.isLoggable(TAG, Log.DEBUG);
 
     private final HashMap<RootTaskStack, RootTaskStackInfo> mRootTaskStacks = new HashMap<>();
@@ -71,15 +72,17 @@ public class AutoTaskRepository {
      */
     private final LinkedHashMap<Integer,
             ActivityManager.RunningTaskInfo> mTaskStackWithoutRootTask = new LinkedHashMap<>();
+    private final ArraySet<AutoAppTaskListener> mAutoTaskListeners = new ArraySet<>();
+
     private final Context mContext;
     private final ShellTaskOrganizer mShellTaskOrganizer;
 
+    // TODO(b/401349206): Move the task reporting outside of the Task Repository
     private CarActivityManager mCarActivityManager;
 
     private boolean mIsCarReady = false;
 
-    private final SparseArray<ActivityManager.RunningTaskInfo> mPendingRootTasks =
-            new SparseArray<>();
+    private final SparseArray<RootTaskStack> mPendingRootTasks = new SparseArray<>();
 
     @Inject
     AutoTaskRepository(Context context, ShellTaskOrganizer shellTaskOrganizer) {
@@ -136,8 +139,9 @@ public class AutoTaskRepository {
         }
 
         for (int i = 0; i < mPendingRootTasks.size(); i++) {
-            mCarActivityManager.onRootTaskAppeared(mPendingRootTasks.keyAt(i),
-                    mPendingRootTasks.valueAt(i));
+            mCarActivityManager.onRootTaskAppeared(mPendingRootTasks.valueAt(i).getName(),
+                    mPendingRootTasks.valueAt(i).getRootTaskInfo(),
+                    mPendingRootTasks.valueAt(i).getRootTaskInfo().token.asBinder());
         }
 
         // TODO(b/400851144): handle Car Service crash if required
@@ -156,6 +160,34 @@ public class AutoTaskRepository {
     List<ActivityManager.RunningTaskInfo> getTaskStack(RootTaskStack rootTaskStack) {
         if (!mRootTaskStacks.containsKey(rootTaskStack)) return null;
         return mRootTaskStacks.get(rootTaskStack).getTaskStack();
+    }
+
+    // TODO(b/401349206): Refactor it. Save a mapping of task id and taskInfo and use that.
+    ActivityManager.RunningTaskInfo getTaskInfo(int taskId) {
+        if (mTaskStackWithoutRootTask.get(taskId) != null) {
+            return mTaskStackWithoutRootTask.get(taskId);
+        }
+
+        for (RootTaskStackInfo rootTaskStackInfo : mRootTaskStacks.values()) {
+            if (rootTaskStackInfo.getTaskStack().get(taskId) != null) {
+                return rootTaskStackInfo.getTaskStack().get(taskId);
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Returns RootTaskStack for root task stack Id.
+     */
+    RootTaskStack getRootTaskStack(int rootTaskStackId) {
+        for (RootTaskStack rootTaskStack : mRootTaskStacks.keySet()) {
+            if (rootTaskStack.getId() == rootTaskStackId) {
+                return rootTaskStack;
+            }
+        }
+
+        return null;
     }
 
     List<ActivityManager.RunningTaskInfo> getTaskStackWithoutRootTask() {
@@ -201,15 +233,16 @@ public class AutoTaskRepository {
      */
     void onRootTaskStackCreated(RootTaskStack rootTaskStack) {
         if (DBG) {
-            Slogf.d(TAG, "onRootTaskStackCreated. RootTask Id %d.", rootTaskStack.getId());
+            Slogf.d(TAG, "onRootTaskStackCreated. RootTask Id %d. RootTask Name %s",
+                    rootTaskStack.getId(), rootTaskStack.getName());
         }
         mRootTaskStacks.put(rootTaskStack, new RootTaskStackInfo(rootTaskStack));
         if (mIsCarReady) {
-            mCarActivityManager.onRootTaskAppeared(rootTaskStack.getRootTaskInfo().taskId,
-                    rootTaskStack.getRootTaskInfo());
+            mCarActivityManager.onRootTaskAppeared(rootTaskStack.getName(),
+                    rootTaskStack.getRootTaskInfo(),
+                    rootTaskStack.getRootTaskInfo().token.asBinder());
         } else {
-            mPendingRootTasks.put(rootTaskStack.getRootTaskInfo().taskId,
-                    rootTaskStack.getRootTaskInfo());
+            mPendingRootTasks.put(rootTaskStack.getRootTaskInfo().taskId, rootTaskStack);
         }
         mSurfaceControlMap.append(rootTaskStack.getRootTaskInfo().taskId,
                 rootTaskStack.getLeash());
@@ -222,7 +255,8 @@ public class AutoTaskRepository {
      */
     void onRootTaskStackDestroyed(RootTaskStack rootTaskStack) {
         if (DBG) {
-            Slogf.d(TAG, "onRootTaskStackDestroyed. RootTask Id %d.", rootTaskStack.getId());
+            Slogf.d(TAG, "onRootTaskStackDestroyed. RootTask Id %d. RootTask Name %s",
+                    rootTaskStack.getId(), rootTaskStack.getName());
         }
         mRootTaskStacks.remove(rootTaskStack);
 
@@ -245,8 +279,8 @@ public class AutoTaskRepository {
     void onTaskAppeared(RootTaskStack rootTaskStack, ActivityManager.RunningTaskInfo task,
             SurfaceControl leash) {
         if (DBG) {
-            Slogf.d(TAG, "onTaskAppeared. RootTask Id %d. TaskId %d.", rootTaskStack.getId(),
-                    task.getTaskId());
+            Slogf.d(TAG, "onTaskAppeared. RootTask Id %d. TaskId %d. Name %s",
+                    rootTaskStack.getId(), task.getTaskId(), rootTaskStack.getName());
         }
         addOrUpdateTask(rootTaskStack, task, leash);
 
@@ -254,6 +288,10 @@ public class AutoTaskRepository {
             mCarActivityManager.onTaskAppeared(task, leash);
         } else {
             mPendingTasks.put(task.taskId, new Pair<>(task, leash));
+        }
+
+        for (AutoAppTaskListener listener: mAutoTaskListeners) {
+            listener.onTaskAppeared(task);
         }
     }
 
@@ -266,8 +304,8 @@ public class AutoTaskRepository {
     @SuppressLint("MissingPermission")
     void onTaskChanged(RootTaskStack rootTaskStack, ActivityManager.RunningTaskInfo task) {
         if (DBG) {
-            Slogf.d(TAG, "onTaskChanged. RootTask Id %d. TaskId %d.", rootTaskStack.getId(),
-                    task.getTaskId());
+            Slogf.d(TAG, "onTaskChanged. RootTask Id %d. TaskId %d. Name %s",
+                    rootTaskStack.getId(), task.getTaskId(), rootTaskStack.getName());
         }
         addOrUpdateTask(rootTaskStack, task, mSurfaceControlMap.get(task.taskId));
 
@@ -276,7 +314,10 @@ public class AutoTaskRepository {
         } else {
             mPendingTasks.put(task.taskId,
                     new Pair<>(task, mSurfaceControlMap.get(task.taskId)));
+        }
 
+        for (AutoAppTaskListener listener: mAutoTaskListeners) {
+            listener.onTaskChanged(task);
         }
     }
 
@@ -289,14 +330,18 @@ public class AutoTaskRepository {
     @SuppressLint("MissingPermission")
     void onTaskVanished(RootTaskStack rootTaskStack, ActivityManager.RunningTaskInfo task) {
         if (DBG) {
-            Slogf.d(TAG, "onTaskDestroyed. RootTask Id %d. TaskId %d.", rootTaskStack.getId(),
-                    task.getTaskId());
+            Slogf.d(TAG, "onTaskDestroyed. RootTask Id %d. TaskId %d. Name %s",
+                    rootTaskStack.getId(), task.getTaskId(), rootTaskStack.getName());
         }
         removeTask(rootTaskStack, task);
         if (mIsCarReady) {
             mCarActivityManager.onTaskVanished(task);
         } else {
             mPendingTasks.remove(task.taskId);
+        }
+
+        for (AutoAppTaskListener listener: mAutoTaskListeners) {
+            listener.onTaskVanished(task);
         }
     }
 
@@ -318,6 +363,10 @@ public class AutoTaskRepository {
             mCarActivityManager.onTaskAppeared(task, leash);
         } else {
             mPendingTasks.put(task.taskId, new Pair<>(task, leash));
+        }
+
+        for (AutoAppTaskListener listener: mAutoTaskListeners) {
+            listener.onTaskAppeared(task);
         }
     }
 
@@ -341,6 +390,10 @@ public class AutoTaskRepository {
             mPendingTasks.put(task.taskId,
                     new Pair<>(task, mSurfaceControlMap.get(task.taskId)));
         }
+
+        for (AutoAppTaskListener listener: mAutoTaskListeners) {
+            listener.onTaskChanged(task);
+        }
     }
 
     /**
@@ -362,6 +415,27 @@ public class AutoTaskRepository {
         } else {
             mPendingTasks.remove(task.taskId);
         }
+
+        for (AutoAppTaskListener listener: mAutoTaskListeners) {
+            listener.onTaskVanished(task);
+        }
+    }
+
+    // TODO(b/401349206): Expose this call once listener is moved to car-wm-shell
+    void addAppTaskListener(AutoAppTaskListener autoAppTaskListener) {
+        mAutoTaskListeners.add(autoAppTaskListener);
+    }
+
+    // TODO(b/401349206): Expose this call once listener is moved to car-wm-shell
+    void removeAppTaskListener(AutoAppTaskListener autoAppTaskListener) {
+        mAutoTaskListeners.remove(autoAppTaskListener);
+    }
+
+    // TODO(b/401349206): Expose this call once listener is moved to car-wm-shell
+    interface AutoAppTaskListener {
+        void onTaskAppeared(ActivityManager.RunningTaskInfo taskInfo);
+        void onTaskChanged(ActivityManager.RunningTaskInfo taskInfo);
+        void onTaskVanished(ActivityManager.RunningTaskInfo taskInfo);
     }
 
     /**

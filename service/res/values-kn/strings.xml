@@ -208,7 +208,7 @@
     <string name="car_permission_desc_read_car_power_policy" msgid="5430714179790601808">"ಕಾರಿನ ಪವರ್‌ ನೀತಿಯನ್ನು ಓದಿ."</string>
     <string name="car_permission_label_control_car_power_policy" msgid="6840069695926008330">"ಕಾರಿನ ಪವರ್‌ ನೀತಿಯನ್ನು ನಿಯಂತ್ರಿಸಿ"</string>
     <string name="car_permission_desc_control_car_power_policy" msgid="8565782440893507028">"ಕಾರಿನ ಪವರ್ ನೀತಿಯನ್ನು ನಿಯಂತ್ರಿಸಿ."</string>
-    <string name="car_permission_label_adjust_shutdown_process" msgid="184826150481255557">"ಸ್ಥಗಿತಗೊಳಿಸುವ ಪ್ರಕ್ರಿಯೆಯನ್ನು ಹೊಂದಿಸಿ"</string>
+    <string name="car_permission_label_adjust_shutdown_process" msgid="184826150481255557">"ಸ್ಥಗಿತಗೊಳಿಸುವ ಪ್ರಕ್ರಿಯೆಯನ್ನು ಅಡ್ಜಸ್ಟ್ ಮಾಡಿ"</string>
     <string name="car_permission_desc_adjust_shutdown_process" msgid="5059212045073049971">"ಸ್ಥಗಿತಗೊಳಿಸುವ ಪ್ರಕ್ರಿಯೆಯನ್ನು ಅಡ್ಜಸ್ಟ್ ಮಾಡಿ."</string>
     <string name="car_permission_label_template_renderer" msgid="3464887382919754850">"ಟೆಂಪ್ಲೇಟ್‌ಗಳನ್ನು ರೆಂಡರ್ ಮಾಡಿ"</string>
     <string name="car_permission_desc_template_renderer" msgid="6047233999260920122">"ಟೆಂಪ್ಲೇಟ್‌ಗಳನ್ನು ರೆಂಡರ್ ಮಾಡಿ."</string>

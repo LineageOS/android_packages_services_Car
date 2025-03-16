@@ -149,6 +149,7 @@ class AutoTaskStackControllerImplTest : CarWmShellTestCase() {
         taskId: Int,
         leash: SurfaceControl = mock(SurfaceControl::class.java),
         task: RunningTaskInfo? = null,
+        name: String = ""
     ): Pair<RunningTaskInfo, TaskListener> {
         val taskInfo = task ?: let {
             TestRunningTaskInfoBuilder()
@@ -166,7 +167,7 @@ class AutoTaskStackControllerImplTest : CarWmShellTestCase() {
             listener = it.arguments[2] as ShellTaskOrganizer.TaskListener
             listener!!.onTaskAppeared(taskInfo, leash)
         }
-        controller.createRootTaskStack(displayId, rootTaskStackListener)
+        controller.createRootTaskStack(displayId, name, rootTaskStackListener)
         return Pair(taskInfo, listener!!)
     }
 
@@ -224,9 +225,10 @@ class AutoTaskStackControllerImplTest : CarWmShellTestCase() {
             listener = it.arguments[2] as ShellTaskOrganizer.TaskListener
             listener!!.onTaskAppeared(taskInfo, mock(SurfaceControl::class.java))
         }
+        val name = ""
 
         // Act
-        controller.createRootTaskStack(displayId, rootTaskStackListener)
+        controller.createRootTaskStack(displayId, name, rootTaskStackListener)
 
         // Assert
         val captor = argumentCaptor<RootTaskStack>()
