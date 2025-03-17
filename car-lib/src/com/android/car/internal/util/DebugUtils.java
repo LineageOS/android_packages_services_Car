@@ -26,7 +26,6 @@ import android.car.VehicleAreaType;
 import android.car.VehicleAreaWheel;
 import android.car.VehicleAreaWindow;
 import android.car.VehiclePropertyIds;
-import android.car.feature.Flags;
 import android.util.Slog;
 
 import com.android.car.internal.property.CarPropertyHelper;
@@ -128,11 +127,6 @@ public final class DebugUtils {
             areaType = -1;
         }
 
-        if (Flags.androidVicVehicleProperties()
-                && areaType == VehicleAreaType.VEHICLE_AREA_TYPE_VENDOR) {
-            return "VENDOR_AREA_ID(0x" + toHexString(areaId) + ")";
-        }
-
         switch (areaType) {
             case VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL -> {
                 if (areaId == 0) {
@@ -154,6 +148,9 @@ public final class DebugUtils {
             }
             case VehicleAreaType.VEHICLE_AREA_TYPE_WINDOW -> {
                 return areaIdToString(VehicleAreaWindow.class, "WINDOW_", areaId);
+            }
+            case VehicleAreaType.VEHICLE_AREA_TYPE_VENDOR -> {
+                return "VENDOR_AREA_ID(0x" + toHexString(areaId) + ")";
             }
             default -> {
                 return "UNKNOWN_AREA_TYPE_AREA_ID(0x" + toHexString(areaId) + ")";

@@ -309,12 +309,9 @@ public abstract class HalPropConfig {
                 return VehicleAreaType.VEHICLE_AREA_TYPE_MIRROR;
             case VehicleArea.WHEEL:
                 return VehicleAreaType.VEHICLE_AREA_TYPE_WHEEL;
+            case VehicleArea.VENDOR:
+                return VehicleAreaType.VEHICLE_AREA_TYPE_VENDOR;
             default:
-                if (Flags.androidVicVehicleProperties()) {
-                    if (halArea == VehicleArea.VENDOR) {
-                        return VehicleAreaType.VEHICLE_AREA_TYPE_VENDOR;
-                    }
-                }
                 throw new RuntimeException("Unsupported area type " + halArea);
         }
     }
