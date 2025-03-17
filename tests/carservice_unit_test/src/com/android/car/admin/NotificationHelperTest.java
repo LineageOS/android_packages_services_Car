@@ -56,24 +56,31 @@ import android.util.ArrayMap;
 import android.util.SparseArray;
 
 import androidx.test.platform.app.InstrumentationRegistry;
+import androidx.test.runner.AndroidJUnit4;
 
 import com.android.car.R;
 import com.android.car.admin.ui.ManagedDeviceTextView;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
 
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(AndroidJUnit4.class)
 public final class NotificationHelperTest {
+
+    @Rule
+    public final MockitoRule mockito = MockitoJUnit.rule();
+
     private static final long TIMEOUT_MS = 1_000;
     private static final String APP_SUFFIX = ".app";
 
