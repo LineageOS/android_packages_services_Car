@@ -39,6 +39,18 @@ import org.junit.Test;
 
 import java.util.concurrent.CountDownLatch;
 
+/**
+ * Integration test for {@link com.android.car.internal.LargeParcelable}.
+ *
+ * <p>This test uses the {@link TestLargeParcelable} class which is a subclass for
+ * {@link LargeParcelableBase} to communicate large data between the test process and a
+ * {@link LargeParcelableTestService} we created.
+ *
+ * <p>This test verifies that we can send and receive large parcelable to/from a service.
+ *
+ * <p>The {@link TestParcelable} and {@link TestLargeParcelable} are not stable parcelable. For
+ * stable parcelable usage, see {@link LargeParcelableJavaStableAIDLTest}.
+ */
 @SmallTest
 public final class LargeParcelableTest extends CarLessApiTestBase {
 
