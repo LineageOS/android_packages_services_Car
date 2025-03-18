@@ -17,6 +17,7 @@
 package com.android.car.internal;
 
 import static android.system.OsConstants.PROT_READ;
+import static android.car.feature.Flags.largeparcelableUseNativeParcel;
 
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
 
@@ -34,6 +35,7 @@ import com.android.internal.annotations.GuardedBy;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
 
 /**
@@ -58,6 +60,20 @@ import java.nio.ByteBuffer;
  * data.
  */
 public abstract class LargeParcelableBase implements Parcelable, Closeable {
+    /**
+     * This is a similar method to Parcel.marshall except that this accepts a byte buffer
+     * mapped from a file as argument. We can avoid an additional memory copy using this method.
+     */
+    private static native void nativeMarshallParcelToBuffer(
+            long parcelNativePtr, ByteBuffer buffer, int size);
+
+    /**
+     * This is a similar method to Parcel.unmarshall except that this accepts a byte buffer
+     * mapped from a file as argument. We can avoid an additional memory copy using this method.
+     */
+    private static native void nativeUnmarshallBufferToParcel(
+            ByteBuffer buffer, int size, long parcelNativePtr);
+
     /** Payload size bigger than this value will be passed over shared memory. */
     public static final int MAX_DIRECT_PAYLOAD_SIZE = 4096;
     private static final String TAG = LargeParcelable.class.getSimpleName();
@@ -68,6 +84,28 @@ public abstract class LargeParcelableBase implements Parcelable, Closeable {
     private static final int NULL_PAYLOAD = 0;
     private static final int NONNULL_PAYLOAD = 1;
     private static final int FD_HEADER = 0;
+
+    // Java field to access private 'nativePtr' field of Parcel. This is a hacky way to access the
+    // private field because we need to use it inside JNI code to avoid memory copy. An althernative
+    // would be to access the private field inside native code, however, that would have worse
+    // performance and does not really bypass the fact that we need the field to be present.
+    private static Field sParcelNativePtrField;
+
+    static {
+        // This should technically be executed only if largeparcelableUseNativeParcel is true,
+        // however, we need to test both true and false behavior in tests. If we guard this with
+        // flag, then we cannot test the flag: true behavior if flag is false by the time
+        // LargeParcelableBase first invoked.
+        // Loading this anyway will cause small performance impact for flag: false case, however
+        // since we plan to enable the flag anyway, it is okay.
+        System.loadLibrary("largeparcelablejni");
+        try {
+            sParcelNativePtrField = Parcel.class.getDeclaredField("mNativePtr");
+            sParcelNativePtrField.setAccessible(true);
+        } catch (NoSuchFieldException e) {
+            throw new IllegalStateException("No field mNativePtr in android.os.Parcel");
+        }
+    }
 
     private final Object mLock = new Object();
     @GuardedBy("mLock")
@@ -91,8 +129,7 @@ public abstract class LargeParcelableBase implements Parcelable, Closeable {
      */
     protected abstract void deserialize(@NonNull Parcel src);
 
-    public LargeParcelableBase() {
-    }
+    public LargeParcelableBase() {}
 
     public LargeParcelableBase(Parcel in) {
         // Make this compatible with stable AIDL
@@ -263,19 +300,16 @@ public abstract class LargeParcelableBase implements Parcelable, Closeable {
         try {
             memory = SharedMemory.create(LargeParcelableBase.class.getSimpleName(), size);
             buffer = memory.mapReadWrite();
-            byte[] data = p.marshall();
-            buffer.put(data, 0, size);
+            if (largeparcelableUseNativeParcel()) {
+                nativeMarshallParcelToBuffer(getParcelNativePtr(p), buffer, size);
+            } else {
+                byte[] data = p.marshall();
+                buffer.put(data, 0, size);
+            }
             if (DBG_PAYLOAD) {
-                int dumpSize = Math.min(DBG_DUMP_LENGTH, data.length);
+                int dumpSize = Math.min(DBG_DUMP_LENGTH, size);
                 StringBuilder bd = new StringBuilder();
                 bd.append("marshalled:");
-                for (int i = 0; i < dumpSize; i++) {
-                    bd.append(data[i]);
-                    if (i != dumpSize - 1) {
-                        bd.append(',');
-                    }
-                }
-                bd.append("=memory:");
                 for (int i = 0; i < dumpSize; i++) {
                     bd.append(buffer.get(i));
                     if (i != dumpSize - 1) {
@@ -308,13 +342,16 @@ public abstract class LargeParcelableBase implements Parcelable, Closeable {
         Parcel in = Parcel.obtain();
         try {
             buffer = memory.mapReadOnly();
-            // TODO(b/188781089) find way to avoid this additional copy
-            byte[] payload = new byte[buffer.limit()];
-            buffer.get(payload);
-            in.unmarshall(payload, 0, payload.length);
+            if (largeparcelableUseNativeParcel()) {
+                nativeUnmarshallBufferToParcel(buffer, buffer.limit(), getParcelNativePtr(in));
+            } else {
+                byte[] payload = new byte[buffer.limit()];
+                buffer.get(payload);
+                in.unmarshall(payload, 0, payload.length);
+            }
             in.setDataPosition(0);
             if (DBG_PAYLOAD) {
-                int dumpSize = Math.min(DBG_DUMP_LENGTH, payload.length);
+                int dumpSize = Math.min(DBG_DUMP_LENGTH, buffer.limit());
                 StringBuilder bd = new StringBuilder();
                 bd.append("unmarshalled:");
                 int parcelStartPosition = in.dataPosition();
@@ -330,11 +367,6 @@ public abstract class LargeParcelableBase implements Parcelable, Closeable {
                     bd.append(buffer.get(i));
                     if (i != dumpSize - 1) bd.append(',');
                 }
-                bd.append("=interim_payload:");
-                for (int i = 0; i < dumpSize; i++) {
-                    bd.append(payload[i]);
-                    if (i != dumpSize - 1) bd.append(',');
-                }
                 Slog.d(TAG, bd.toString());
                 in.setDataPosition(parcelStartPosition);
             }
@@ -348,6 +380,19 @@ public abstract class LargeParcelableBase implements Parcelable, Closeable {
             }
         }
         return in;
+    }
+
+    private static long getParcelNativePtr(Parcel p) {
+        long parcelNativePtr;
+        try {
+            parcelNativePtr = (long) sParcelNativePtrField.get(p);
+        } catch (IllegalAccessException e) {
+            throw new IllegalStateException("Cannot access Parcel.mNativePtr field", e);
+        }
+        if (parcelNativePtr == 0) {
+            throw new IllegalStateException("Parcel.mNativePtr is null, must not happen");
+        }
+        return parcelNativePtr;
     }
 
     private void deserializeSharedMemory(SharedMemory memory) {

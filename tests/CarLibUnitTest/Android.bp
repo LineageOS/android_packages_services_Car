@@ -52,6 +52,9 @@ java_defaults {
         "car-helper-lib",
         "compatibility-device-util-axt-ravenwood",
     ],
+    jni_libs: [
+        "liblargeparcelablejni",
+    ],
 }
 
 java_defaults {
