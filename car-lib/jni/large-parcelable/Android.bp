@@ -55,8 +55,11 @@ cc_test {
         "liblargeparcelablejni",
     ],
     shared_libs: [
+        "libbase",
         "libbinder",
         "libbinder_ndk",
+        "libcutils",
+        "libutils",
     ],
     test_suites: ["device-tests"],
     host_supported: true,
