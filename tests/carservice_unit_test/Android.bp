@@ -552,6 +552,10 @@ android_ravenwood_test {
         "framework-annotations-lib",
     ],
 
+    jni_libs: [
+        "liblargeparcelablejni",
+    ],
+
     platform_apis: true,
 
     auto_gen_config: true,
