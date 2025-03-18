@@ -4765,9 +4765,30 @@ public final class VehiclePropertyIds {
      * window reaches the positional limit, the value resets to 0. When this property's value is 0,
      * that means there is no movement currently occurring.
      *
-     * <p>See {@link android.car.hardware.property.AreaIdConfig#getMaxValue()} and {@link
-     * android.car.hardware.property.AreaIdConfig#getMinValue()} for the range of possible speeds.
-     * All integers between min and max value are supported.
+     * <p>For a window that may open out of plane (i.e. vent mode of sunroof) this
+     * parameter will work as follows:
+     *
+     * <p>If sunroof is open:
+     *   Max = open the sunroof further, automatically stop when fully open.
+     *   Min = close the sunroof, automatically stop when sunroof is closed.
+     *
+     * <p>If vent is open:
+     *   Max = close the vent, automatically stop when vent is closed.
+     *   Min = open the vent further, automatically stop when vent is fully open.
+     *
+     * <p>If sunroof is in the closed position:
+     *   Max = open the sunroof, automatically stop when sunroof is fully open.
+     *   Min = open the vent, automatically stop when vent is fully open.
+     *
+     * <p>{@link android.car.hardware.property.AreaIdConfig#hasMinSupportedValue()} and {@link
+     * android.car.hardware.property.AreaIdConfig#hasMaxSupportedValue()} will be {@code true} for
+     * all areaIds.
+     *
+     * <p>{@link android.car.hardware.property.MinMaxSupportedValue#getMinValue()} indicates the
+     * window is closing in plane/opening in the out of plane direction at the fastest speed.
+     *
+     * <p>{@link android.car.hardware.property.MinMaxSupportedValue#getMaxValue()} indicates the
+     * window is opening in plane/closing in the out of plane direction at the fastest speed.
      *
      * <p>Property Config:
      * <ul>
@@ -4814,11 +4835,20 @@ public final class VehiclePropertyIds {
      *
      * <p>Returns the instantaneous time period for 1 full cycle of the windshield wipers in {@link
      * android.car.VehicleUnit#MILLI_SECS}. A full cycle is defined as a wiper moving from and
-     * returning to its rest position. The {@link
-     * android.car.hardware.property.AreaIdConfig#getMaxValue()} specifies the longest wiper period.
-     * The {@link android.car.hardware.property.AreaIdConfig#getMinValue()} is always 0. When an
-     * intermittent wiper setting is selected, this property value will be set to 0 during the
-     * "pause" phase of the intermittent wiping.
+     * returning to its rest position.
+     *
+     * <p>When an intermittent wiper setting is selected, this property value will be set to 0
+     * during the "pause" phase of the intermittent wiping.
+     *
+     * <p>{@link android.car.hardware.property.AreaIdConfig#hasMinSupportedValue()} and {@link
+     * android.car.hardware.property.AreaIdConfig#hasMaxSupportedValue()} will be {@code true} for
+     * all areaIds.
+     *
+     * <p>{@link android.car.hardware.property.MinMaxSupportedValue#getMinValue()} must be set to 0
+     * for each area ID.
+     *
+     * <p>{@link android.car.hardware.property.MinMaxSupportedValue#getMaxValue()} must specify the
+     * longest wiper period.
      *
      * <p>Property Config:
      * <ul>
@@ -4931,10 +4961,15 @@ public final class VehiclePropertyIds {
      * <p>This property is not in any particular unit but in a specified range of relative
      * positions.
      *
-     * <p>{@link android.car.hardware.property.AreaIdConfig#getMinValue()} indicates the steering
-     * wheel's position when closest to the driver.
-     * <p>{@link android.car.hardware.property.AreaIdConfig#getMaxValue()} indicates the steering
-     * wheel's position when farthest from the driver.
+     * <p>{@link android.car.hardware.property.AreaIdConfig#hasMinSupportedValue()} and {@link
+     * android.car.hardware.property.AreaIdConfig#hasMaxSupportedValue()} will be {@code true} for
+     * all areaIds.
+     *
+     * <p>{@link android.car.hardware.property.MinMaxSupportedValue#getMinValue()} indicates the
+     * steering wheel position closest to the driver.
+     *
+     * <p>{@link android.car.hardware.property.MinMaxSupportedValue#getMaxValue()} indicates the
+     * steering wheel position furthest from the driver.
      *
      * <p>All integers in between the min and max values are supported and indicate a transition
      * state between the closest and farthest positions.
@@ -4970,9 +5005,15 @@ public final class VehiclePropertyIds {
      * value resets to 0. When this property's value is 0, that means there is no movement currently
      * occurring.
      *
-     * <p>See {@link android.car.hardware.property.AreaIdConfig#getMaxValue()} and {@link
-     * android.car.hardware.property.AreaIdConfig#getMinValue()} for the range of possible speeds.
-     * All integers between min and max value are supported.
+     * <p>{@link android.car.hardware.property.AreaIdConfig#hasMinSupportedValue()} and {@link
+     * android.car.hardware.property.AreaIdConfig#hasMaxSupportedValue()} will be {@code true} for
+     * all areaIds.
+     *
+     * <p>{@link android.car.hardware.property.MinMaxSupportedValue#getMinValue()} indicates the
+     * maximum speed at which the steering wheel is moving towards the driver.
+     *
+     * <p>{@link android.car.hardware.property.MinMaxSupportedValue#getMaxValue()} indicates the
+     * maximum speed at which the steering wheel moving away from the driver.
      *
      * <p>Property Config:
      * <ul>
@@ -4998,10 +5039,15 @@ public final class VehiclePropertyIds {
      * <p>This property is not in any particular unit but in a specified range of relative
      * positions.
      *
-     * <p>{@link android.car.hardware.property.AreaIdConfig#getMinValue()} indicates the steering
-     * wheel's lowest position.
-     * <p>{@link android.car.hardware.property.AreaIdConfig#getMaxValue()} indicates the steering
-     * wheel's highest position.
+     * <p>{@link android.car.hardware.property.AreaIdConfig#hasMinSupportedValue()} and {@link
+     * android.car.hardware.property.AreaIdConfig#hasMaxSupportedValue()} will be {@code true} for
+     * all areaIds.
+     *
+     * <p>{@link android.car.hardware.property.MinMaxSupportedValue#getMinValue()} indicates the
+     * steering wheel being in the lowest position.
+     *
+     * <p>{@link android.car.hardware.property.MinMaxSupportedValue#getMaxValue()} indicates the
+     * steering wheel being in the highest position.
      *
      * <p>All integers in between the min and max values are supported and indicate a transition
      * state between the lowest and highest positions.
@@ -5036,9 +5082,15 @@ public final class VehiclePropertyIds {
      * reaches the positional limit, the value resets to 0. When this property's value is 0, that
      * means there is no movement currently occurring.
      *
-     * <p>See {@link android.car.hardware.property.AreaIdConfig#getMaxValue()} and {@link
-     * android.car.hardware.property.AreaIdConfig#getMinValue()} for the range of possible speeds.
-     * All integers between min and max value are supported.
+     * <p>{@link android.car.hardware.property.AreaIdConfig#hasMinSupportedValue()} and {@link
+     * android.car.hardware.property.AreaIdConfig#hasMaxSupportedValue()} will be {@code true} for
+     * all areaIds.
+     *
+     * <p>{@link android.car.hardware.property.MinMaxSupportedValue#getMinValue()} indicates the
+     * maximum speed at which the steering wheel is moving downwards.
+     *
+     * <p>{@link android.car.hardware.property.MinMaxSupportedValue#getMaxValue()} indicates the
+     * maximum speed at which the steering wheel is moving upwards.
      *
      * <p>Property Config:
      * <ul>
