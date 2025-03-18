@@ -164,6 +164,24 @@ public final class CarAudioManager extends CarManagerBase {
     @FlaggedApi(Flags.FLAG_CAR_AUDIO_MIN_MAX_ACTIVATION_VOLUME)
     public static final int AUDIO_FEATURE_MIN_MAX_ACTIVATION_VOLUME = 6;
 
+    /**
+     * This is used to determine if fade and balance values are persisted via
+     * {@link #isAudioFeatureEnabled(int)}
+     *
+     * <p>If this feature is enabled, the fade and balance values set using
+     * {@link #setFadeTowardFront(float)} and {@link #setBalanceTowardRight(float)} will be:
+     * <ul>
+     *     <li>Persisted per user.</li>
+     *     <li>Persistence occurs across ignition cycles.</li>
+     *     <li>Persistence applies to the cabin zone or the primary audio zone (only).</li>
+     * </ul>
+     *
+     * <p>If this feature is disabled, the fade and balance settings will not be saved and will
+     * revert to defaults on the next power cycle or user change.
+     */
+    @FlaggedApi(Flags.FLAG_AUDIO_FADE_BALANCE_GETTER_APIS)
+    public static final int AUDIO_FEATURE_PERSIST_FADE_BALANCE_VALUES = 7;
+
     /** @hide */
     @IntDef(flag = false, prefix = "AUDIO_FEATURE", value = {
             AUDIO_FEATURE_DYNAMIC_ROUTING,
@@ -171,7 +189,8 @@ public final class CarAudioManager extends CarManagerBase {
             AUDIO_FEATURE_OEM_AUDIO_SERVICE,
             AUDIO_FEATURE_VOLUME_GROUP_EVENTS,
             AUDIO_FEATURE_AUDIO_MIRRORING,
-            AUDIO_FEATURE_MIN_MAX_ACTIVATION_VOLUME
+            AUDIO_FEATURE_MIN_MAX_ACTIVATION_VOLUME,
+            AUDIO_FEATURE_PERSIST_FADE_BALANCE_VALUES
     })
     @Retention(RetentionPolicy.SOURCE)
     public @interface CarAudioFeature {}
@@ -451,8 +470,9 @@ public final class CarAudioManager extends CarManagerBase {
      *                     {@link #AUDIO_FEATURE_DYNAMIC_ROUTING},
      *                     {@link #AUDIO_FEATURE_VOLUME_GROUP_MUTING},
      *                     {@link #AUDIO_FEATURE_VOLUME_GROUP_EVENTS},
-     *                     {@link #AUDIO_FEATURE_AUDIO_MIRRORING} or
-     *                     {@link #AUDIO_FEATURE_MIN_MAX_ACTIVATION_VOLUME}
+     *                     {@link #AUDIO_FEATURE_AUDIO_MIRRORING},
+     *                     {@link #AUDIO_FEATURE_MIN_MAX_ACTIVATION_VOLUME} or
+     *                     {@link #AUDIO_FEATURE_PERSIST_FADE_BALANCE_VALUES}
      * @return Returns {@code true} if the feature is enabled, {@code false} otherwise.
      */
     public boolean isAudioFeatureEnabled(@CarAudioFeature int audioFeature) {
