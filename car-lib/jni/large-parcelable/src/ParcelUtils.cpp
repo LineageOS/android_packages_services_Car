@@ -16,28 +16,54 @@
 
 #define LOG_TAG "LargeParcelableJni"
 
+#include "ParcelUtils.h"
+
 #include <android-base/logging.h>
-#include <binder/Parcel.h>
 
 namespace android::jni::largeparcelable {
 
 using ::android::Parcel;
+using ::android::base::Error;
+using ::android::base::Result;
 
-void unmarshall(const void* buffer_addr, size_t size, Parcel* parcel) {
+Result<void> marshall(const Parcel* parcel, void* bufferAddr, int signedSize) {
     if (parcel == NULL) {
-        LOG(ERROR) << "Parcel must be non-NULL";
-        return;
-    }
-    if (size < 0) {
-        LOG(ERROR) << "size must be non-negative";
-        return;
+        return Error() << "Parcel must be non-NULL";
     }
 
+    if (parcel->isForRpc()) {
+        return Error() << "Tried to marshall an RPC Parcel";
+    }
+
+    if (parcel->objectsCount()) {
+        return Error() << "Tried to marshall a Parcel that contains objects (binders or FDs)";
+    }
+
+    if (parcel->dataSize() != static_cast<size_t>(signedSize)) {
+        return Error() << "Invalid size, must be equal to parcel size: " << parcel->dataSize();
+    }
+
+    memcpy(bufferAddr, parcel->data(), parcel->dataSize());
+
+    return {};
+}
+
+Result<void> unmarshall(const void* bufferAddr, int signedSize, Parcel* parcel) {
+    if (parcel == NULL) {
+        return Error() << "Parcel must be non-NULL";
+    }
+    if (signedSize < 0) {
+        return Error() << "size must be non-negative";
+    }
+
+    size_t size = static_cast<size_t>(signedSize);
     parcel->setDataSize(size);
     parcel->setDataPosition(0);
 
     void* raw = parcel->writeInplace(size);
-    memcpy(raw, buffer_addr, size);
+    memcpy(raw, bufferAddr, size);
+
+    return {};
 }
 
 }  // namespace android::jni::largeparcelable

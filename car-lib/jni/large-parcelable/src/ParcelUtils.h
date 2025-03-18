@@ -16,10 +16,14 @@
 
 #pragma once
 
+#include <android-base/result.h>
 #include <binder/Parcel.h>
 
 namespace android::jni::largeparcelable {
 
-void unmarshall(const void* buffer_addr, size_t size, ::android::Parcel* parcel);
+android::base::Result<void> marshall(const android::Parcel* parcel, void* bufferAddr, int size);
+
+android::base::Result<void> unmarshall(const void* bufferAddr, int size,
+                                       android::Parcel* parcel);
 
 }  // namespace android::jni::largeparcelable
