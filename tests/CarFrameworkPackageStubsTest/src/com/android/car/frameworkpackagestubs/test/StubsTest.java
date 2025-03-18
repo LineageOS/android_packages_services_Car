@@ -21,6 +21,7 @@ import static android.app.Activity.RESULT_CANCELED;
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
+import android.app.DownloadManager;
 import android.app.Instrumentation;
 import android.content.Context;
 import android.content.Intent;
@@ -88,6 +89,23 @@ public final class StubsTest {
         mData = "package:com.android.car.frameworkpackagestubs.test";
         mExpectedResult = RESULT_CANCELED;
         checkIfHandleByStub(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES);
+    }
+
+    @Test
+    public void testViewDocumentRoot() {
+        mMimeType = "vnd.android.document/root";
+        checkIfHandleByStub(Intent.ACTION_VIEW);
+    }
+
+    @Test
+    public void testViewDocumentDirectory() {
+        mMimeType = "vnd.android.document/directory";
+        checkIfHandleByStub(Intent.ACTION_VIEW);
+    }
+
+    @Test
+    public void testViewDownloads() {
+        checkIfHandleByStub(DownloadManager.ACTION_VIEW_DOWNLOADS);
     }
 
     private void checkIfHandleByStub(String strIntent) {
