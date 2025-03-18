@@ -599,9 +599,6 @@ public class CarPropertyManager extends CarManagerBase {
          */
         @FlaggedApi(Flags.FLAG_CAR_PROPERTY_DETAILED_ERROR_CODES)
         public int getDetailedErrorCode() {
-            if (!Flags.carPropertyDetailedErrorCodes()) {
-                return 0;
-            }
             return mCarPropertyErrorCodes.toDetailedErrorCode();
         }
 
