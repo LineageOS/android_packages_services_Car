@@ -4034,9 +4034,15 @@ public final class VehiclePropertyIds {
      * reaches the positional limit, the value resets to 0. When this property's value is 0, that
      * means there is no movement currently occurring.
      *
-     * <p>See {@link android.car.hardware.property.AreaIdConfig#getMaxValue()} and {@link
-     * android.car.hardware.property.AreaIdConfig#getMinValue()} for the range of possible speeds.
-     * All integers between min and max value are supported.
+     * <p>{@link android.car.hardware.property.AreaIdConfig#hasMinSupportedValue()} and {@link
+     * android.car.hardware.property.AreaIdConfig#hasMaxSupportedValue()} will be {@code true} for
+     * all areaIds.
+     *
+     * <p>{@link android.car.hardware.property.MinMaxSupportedValue#getMinValue()} represents the
+     * maximum movement speed of the seat's lumbar side support while getting thinner.
+     *
+     * <p>{@link android.car.hardware.property.MinMaxSupportedValue#getMaxValue()} represents the
+     * maximum movement speed of the seat's lumbar side support while getting wider.
      *
      * <p>Property Config:
      * <ul>
@@ -4078,10 +4084,15 @@ public final class VehiclePropertyIds {
      * <p>This property is not in any particular unit but in a specified range of relative
      * positions.
      *
-     * <p>The {@link android.car.hardware.property.AreaIdConfig#getMinValue()} indicates the seat
-     * headrest's shortest position.
-     * <p>The {@link android.car.hardware.property.AreaIdConfig#getMaxValue()} indicates the seat
-     * headrest's tallest position.
+     * <p>{@link android.car.hardware.property.AreaIdConfig#hasMinSupportedValue()} and {@link
+     * android.car.hardware.property.AreaIdConfig#hasMaxSupportedValue()} will be {@code true} for
+     * all areaIds.
+     *
+     * <p>{@link android.car.hardware.property.MinMaxSupportedValue#getMinValue()} indicates the
+     * headrest is in its lowest position.
+     *
+     * <p>{@link android.car.hardware.property.MinMaxSupportedValue#getMaxValue()} indicates the
+     * headrest is in its highest position.
      *
      * <p>All integers between the min and max values are supported and indicate a transition state
      * between the shortest and tallest positions.
@@ -4118,9 +4129,15 @@ public final class VehiclePropertyIds {
      * headrest reaches the positional limit, the value resets to 0. When this property's value is
      * 0, that means there is no movement currently occurring.
      *
-     * <p>See {@link android.car.hardware.property.AreaIdConfig#getMaxValue()} and {@link
-     * android.car.hardware.property.AreaIdConfig#getMinValue()} for the range of possible speeds.
-     * All integers between min and max value are supported.
+     * <p>{@link android.car.hardware.property.AreaIdConfig#hasMinSupportedValue()} and {@link
+     * android.car.hardware.property.AreaIdConfig#hasMaxSupportedValue()} will be {@code true} for
+     * all areaIds.
+     *
+     * <p>{@link android.car.hardware.property.MinMaxSupportedValue#getMinValue()} represents the
+     * maximum movement speed of the seat's headrest while moving down.
+     *
+     * <p>{@link android.car.hardware.property.MinMaxSupportedValue#getMaxValue()} represents the
+     * maximum movement speed of the seat's headrest while moving up.
      *
      * <p>Property Config:
      * <ul>
@@ -4145,10 +4162,15 @@ public final class VehiclePropertyIds {
      * <p>This property is not in any particular unit but in a specified range of relative
      * positions.
      *
-     * <p>The {@link android.car.hardware.property.AreaIdConfig#getMinValue()} indicates the seat
-     * headrest's full recline position.
-     * <p>The {@link android.car.hardware.property.AreaIdConfig#getMaxValue()} indicates the seat
-     * headrest's most upright/forward position.
+     * <p>{@link android.car.hardware.property.AreaIdConfig#hasMinSupportedValue()} and {@link
+     * android.car.hardware.property.AreaIdConfig#hasMaxSupportedValue()} will be {@code true} for
+     * all areaIds.
+     *
+     * <p>{@link android.car.hardware.property.MinMaxSupportedValue#getMinValue()} indicates the
+     * headrest is in its full recline position.
+     *
+     * <p>{@link android.car.hardware.property.MinMaxSupportedValue#getMaxValue()} indicates the
+     * headrest is in its most upright/forward position.
      *
      * <p>All integers between the min and max values are supported and indicate a transition state
      * between the forward most and rearward most positions.
@@ -4181,9 +4203,16 @@ public final class VehiclePropertyIds {
      * Once the headrest reaches the positional limit, the value resets to 0. When this property's
      * value is 0, that means there is no movement currently occurring.
      *
-     * <p>See {@link android.car.hardware.property.AreaIdConfig#getMaxValue()} and {@link
-     * android.car.hardware.property.AreaIdConfig#getMinValue()} for the range of possible speeds.
-     * All integers between min and max value are supported.
+     * <p>{@link android.car.hardware.property.AreaIdConfig#hasMinSupportedValue()} and {@link
+     * android.car.hardware.property.AreaIdConfig#hasMaxSupportedValue()} will be {@code true} for
+     * all areaIds.
+     *
+     * <p>{@link android.car.hardware.property.MinMaxSupportedValue#getMinValue()} represents the
+     * maximum movement speed of the seat's headrest while moving into a shallow position.
+     *
+     * <p>{@link android.car.hardware.property.MinMaxSupportedValue#getMaxValue()} represents the
+     * maximum movement speed of the seat's headrest while moving into an upright/forward
+     * position.
      *
      * <p>Property Config:
      * <ul>
@@ -4208,10 +4237,15 @@ public final class VehiclePropertyIds {
      * <p>This property is not in any particular unit but in a specified range of relative
      * positions.
      *
-     * <p>The {@link android.car.hardware.property.AreaIdConfig#getMinValue()} indicates the seat
-     * headrest's rearward-most linear position.
-     * <p>The {@link android.car.hardware.property.AreaIdConfig#getMaxValue()} indicates the seat
-     * headrest's forward-most linear position.
+     * <p>{@link android.car.hardware.property.AreaIdConfig#hasMinSupportedValue()} and {@link
+     * android.car.hardware.property.AreaIdConfig#hasMaxSupportedValue()} will be {@code true} for
+     * all areaIds.
+     *
+     * <p>{@link android.car.hardware.property.MinMaxSupportedValue#getMinValue()} indicates the
+     * headrest is in its rearward-most linear position.
+     *
+     * <p>{@link android.car.hardware.property.MinMaxSupportedValue#getMaxValue()} indicates the
+     * headrest is in its forward-most linear position.
      *
      * <p>All integers between the min and max values are supported and indicate a transition state
      * between the forward most and rearward most positions.
@@ -4245,9 +4279,15 @@ public final class VehiclePropertyIds {
      * positional limit, the value resets to 0. When this property's value is 0, that means there is
      * no movement currently occurring.
      *
-     * <p>See {@link android.car.hardware.property.AreaIdConfig#getMaxValue()} and {@link
-     * android.car.hardware.property.AreaIdConfig#getMinValue()} for the range of possible speeds.
-     * All integers between min and max value are supported.
+     * <p>{@link android.car.hardware.property.AreaIdConfig#hasMinSupportedValue()} and {@link
+     * android.car.hardware.property.AreaIdConfig#hasMaxSupportedValue()} will be {@code true} for
+     * all areaIds.
+     *
+     * <p>{@link android.car.hardware.property.MinMaxSupportedValue#getMinValue()} represents the
+     * maximum movement speed of the seat's headrest while moving backward.
+     *
+     * <p>{@link android.car.hardware.property.MinMaxSupportedValue#getMaxValue()} represents the
+     * maximum movement speed of the seat's headrest while moving forward.
      *
      * <p>Property Config:
      * <ul>
