@@ -90,10 +90,6 @@ java_defaults {
     dist: {
         targets: ["dist_files"],
     },
-    jni_libs: [
-        // Required for LarceParcelableBase
-        "liblargeparcelablejni",
-    ],
 }
 
 java_library {

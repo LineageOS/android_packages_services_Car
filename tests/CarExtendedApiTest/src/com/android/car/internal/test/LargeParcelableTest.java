@@ -19,7 +19,6 @@ package com.android.car.internal.test;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.car.extendedapitest.testbase.CarLessApiTestBase;
-import android.car.feature.Flags;
 import android.car.test.mocks.JavaMockitoHelper;
 import android.content.ComponentName;
 import android.content.Context;
@@ -27,8 +26,6 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.IBinder;
 import android.os.Parcel;
-import android.platform.test.flag.junit.FlagsParameterization;
-import android.platform.test.flag.junit.SetFlagsRule;
 
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SmallTest;
@@ -38,17 +35,10 @@ import com.android.compatibility.common.util.NonApiTest;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
-import platform.test.runner.parameterized.ParameterizedAndroidJunit4;
-import platform.test.runner.parameterized.Parameters;
-
-import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
-@RunWith(ParameterizedAndroidJunit4.class)
 @SmallTest
 public final class LargeParcelableTest extends CarLessApiTestBase {
 
@@ -62,19 +52,6 @@ public final class LargeParcelableTest extends CarLessApiTestBase {
     private final TestServiceConnection mServiceConnection = new TestServiceConnection();
 
     private IJavaTestBinder mBinder;
-
-    @Parameters(name = "{0}")
-    public static List<FlagsParameterization> getParams() {
-        return FlagsParameterization.allCombinationsOf(
-                Flags.FLAG_LARGEPARCELABLE_USE_NATIVE_PARCEL);
-    }
-
-    @Rule
-    public SetFlagsRule mSetFlagsRule;
-
-    public LargeParcelableTest(FlagsParameterization flags) {
-        mSetFlagsRule = new SetFlagsRule(flags);
-    }
 
     @Before
     public void setUp() throws Exception {
@@ -114,9 +91,9 @@ public final class LargeParcelableTest extends CarLessApiTestBase {
         origParcelable.writeToParcel(dest, 0);
         dest.setDataPosition(0);
 
-        TestLargeParcelable newParcelable = new TestLargeParcelable(dest);
+        TestLargeParcelable newPaecelable = new TestLargeParcelable(dest);
 
-        assertThat(newParcelable.byteData).isNull();
+        assertThat(newPaecelable.byteData).isNull();
     }
 
     @Test
