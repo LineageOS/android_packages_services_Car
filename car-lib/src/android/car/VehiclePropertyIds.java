@@ -1103,10 +1103,16 @@ public final class VehiclePropertyIds {
     /**
      * Tire pressure in kilopascals.
      *
-     * <p>For each area ID listed in {@link android.car.hardware.CarPropertyConfig#getAreaIds}, the
-     * corresponding {@link android.car.hardware.property.AreaIdConfig#getMinValue()} and {@link
-     * android.car.hardware.property.AreaIdConfig#getMaxValue()} indicates the OEM recommended tire
-     * pressure range for that tire.
+     * <p>Each areaId represents one tire. The
+     * {@link android.car.hardware.CarPropertyConfig#getAreaIds} for {@code TIRE_PRESSURE} will be a
+     * list of {@link VehicleAreaWheel}s.
+     *
+     * <p>{@link android.car.hardware.property.AreaIdConfig#hasMinSupportedValue()} and {@link
+     * android.car.hardware.property.AreaIdConfig#hasMaxSupportedValue()} will be {@code true} for
+     * all areaIds.
+     *
+     * <p>For each areaId, the result for {@code getMinMaxSupportedValue} indicates the OEM
+     * recommended tire pressure range for that tire.
      *
      * <p>Property Config:
      * <ul>
@@ -1475,9 +1481,13 @@ public final class VehiclePropertyIds {
      *
      * <p>Returns the current setting for the regenerative braking level. Larger setting values mean
      * more energy regenerated from braking while smaller setting values mean less energy
-     * regenerated from braking. 0 means the setting for no regenerative braking. See {@link
-     * android.car.hardware.property.AreaIdConfig#getMaxValue()} and {@link
-     * android.car.hardware.property.AreaIdConfig#getMinValue()} for the range of possible values.
+     * regenerated from braking. 0 means the setting for no regenerative braking.
+     *
+     * <p>{@link android.car.hardware.property.AreaIdConfig#hasMinSupportedValue()} and {@link
+     * android.car.hardware.property.AreaIdConfig#hasMaxSupportedValue()} will be {@code true} for
+     * the global areaId.
+     *
+     * <p>the result for {@code getMinMaxSupportedValue} indicates the range of possible values.
      *
      * <p>Property Config:
      * <ul>
@@ -1831,6 +1841,20 @@ public final class VehiclePropertyIds {
     public static final int TURN_SIGNAL_SWITCH = 289408017;
     /**
      * Fan speed setting.
+     *
+     * <p>This property is not in any particular unit but in a specified range of relative speeds.
+     * 0 means the fan is off. The value must be non-negative, larger values mean faster fan speed.
+     *
+     * <p>{@link android.car.hardware.property.AreaIdConfig#hasMinSupportedValue()} and {@link
+     * android.car.hardware.property.AreaIdConfig#hasMaxSupportedValue()} will be {@code true} for
+     * all areaIds.
+     *
+     * <p>For each areaId, the result for {@code getMinMaxSupportedValue} indicates the range
+     * of possible fan speed.
+     *
+     * <p>If 0 is included in the range, then you can use this property to turn off the fan.
+     * Otherwise, you cannot use this property to turn off the fan, use {@link HVAC_POWER_ON}
+     * instead.
      *
      * <p>Property Config:
      * <ul>
