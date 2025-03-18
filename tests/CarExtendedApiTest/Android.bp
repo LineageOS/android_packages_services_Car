@@ -63,7 +63,6 @@ android_test {
         "android.car.testapi.testbase",
         "bedstead-multiuser",
         "com.android.car.test.lib",
-        "platform-parametric-runner-lib",
     ],
 
     libs: [
