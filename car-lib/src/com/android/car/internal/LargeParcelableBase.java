@@ -61,14 +61,7 @@ import java.nio.ByteBuffer;
  */
 public abstract class LargeParcelableBase implements Parcelable, Closeable {
     /**
-     * This is a similar method to Parcel.marshall except that this accepts a byte buffer
-     * mapped from a file as argument. We can avoid an additional memory copy using this method.
-     */
-    private static native void nativeMarshallParcelToBuffer(
-            long parcelNativePtr, ByteBuffer buffer, int size);
-
-    /**
-     * This is a similar method to Parcel.unmarshall except that this accepts a byte buffer
+     * This is a similar method to Parcel.unmarshall except that this can accept a byte buffer
      * mapped from a file as argument. We can avoid an additional memory copy using this method.
      */
     private static native void nativeUnmarshallBufferToParcel(
@@ -300,16 +293,20 @@ public abstract class LargeParcelableBase implements Parcelable, Closeable {
         try {
             memory = SharedMemory.create(LargeParcelableBase.class.getSimpleName(), size);
             buffer = memory.mapReadWrite();
-            if (largeparcelableUseNativeParcel()) {
-                nativeMarshallParcelToBuffer(getParcelNativePtr(p), buffer, size);
-            } else {
-                byte[] data = p.marshall();
-                buffer.put(data, 0, size);
-            }
+            // TODO(b/188781089): Avoid the extra copy here.
+            byte[] data = p.marshall();
+            buffer.put(data, 0, size);
             if (DBG_PAYLOAD) {
-                int dumpSize = Math.min(DBG_DUMP_LENGTH, size);
+                int dumpSize = Math.min(DBG_DUMP_LENGTH, data.length);
                 StringBuilder bd = new StringBuilder();
                 bd.append("marshalled:");
+                for (int i = 0; i < dumpSize; i++) {
+                    bd.append(data[i]);
+                    if (i != dumpSize - 1) {
+                        bd.append(',');
+                    }
+                }
+                bd.append("=memory:");
                 for (int i = 0; i < dumpSize; i++) {
                     bd.append(buffer.get(i));
                     if (i != dumpSize - 1) {
@@ -343,7 +340,11 @@ public abstract class LargeParcelableBase implements Parcelable, Closeable {
         try {
             buffer = memory.mapReadOnly();
             if (largeparcelableUseNativeParcel()) {
-                nativeUnmarshallBufferToParcel(buffer, buffer.limit(), getParcelNativePtr(in));
+                long parcelNativePtr = (long) sParcelNativePtrField.get(in);
+                if (parcelNativePtr == 0) {
+                    throw new IllegalStateException("Parcel.mNativePtr is null, must not happen");
+                }
+                nativeUnmarshallBufferToParcel(buffer, buffer.limit(), parcelNativePtr);
             } else {
                 byte[] payload = new byte[buffer.limit()];
                 buffer.get(payload);
@@ -380,19 +381,6 @@ public abstract class LargeParcelableBase implements Parcelable, Closeable {
             }
         }
         return in;
-    }
-
-    private static long getParcelNativePtr(Parcel p) {
-        long parcelNativePtr;
-        try {
-            parcelNativePtr = (long) sParcelNativePtrField.get(p);
-        } catch (IllegalAccessException e) {
-            throw new IllegalStateException("Cannot access Parcel.mNativePtr field", e);
-        }
-        if (parcelNativePtr == 0) {
-            throw new IllegalStateException("Parcel.mNativePtr is null, must not happen");
-        }
-        return parcelNativePtr;
     }
 
     private void deserializeSharedMemory(SharedMemory memory) {

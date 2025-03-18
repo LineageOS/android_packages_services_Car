@@ -27,46 +27,25 @@
 namespace {
 
 using ::android::Parcel;
-using ::android::jni::largeparcelable::marshall;
 using ::android::jni::largeparcelable::unmarshall;
 
 constexpr jint kJniVersion = JNI_VERSION_1_6;
 constexpr const char kClassName[] = "com/android/car/internal/LargeParcelableBase";
 
-// This method is similar to android_os_Parcel_marshall method used in core binder JNI, except
-// that this method takes a ByteBuffer backed by DirectByteBuffer instead of byte array as input.
-void marshallParcelToBuffer(JNIEnv* env, jclass clazz, jlong parcelNativePtr, jobject buffer,
-                                   jint size) {
-    void* bufferAddr = env->GetDirectBufferAddress(buffer);
-    const Parcel* parcel = reinterpret_cast<const Parcel*>(parcelNativePtr);
-    auto result = marshall(parcel, bufferAddr, size);
-    if (!result.ok()) {
-        jniThrowException(env, "java/lang/IllegalStateException", result.error().message().c_str());
-    }
-}
-
 // This method is similar to android_os_Parcel_unmarshall method used in core binder JNI, except
 // that this method takes a ByteBuffer backed by DirectByteBuffer instead of byte array as input.
 void unmarshallBufferToParcel(JNIEnv* env, jclass clazz, jobject buffer, jint size,
                                      jlong parcelNativePtr) {
-    const void* bufferAddr = env->GetDirectBufferAddress(buffer);
+    const void* buffer_addr = env->GetDirectBufferAddress(buffer);
     Parcel* parcel = reinterpret_cast<Parcel*>(parcelNativePtr);
-    auto result = unmarshall(bufferAddr, size, parcel);
-    if (!result.ok()) {
-        jniThrowException(env, "java/lang/IllegalStateException", result.error().message().c_str());
-    }
+    unmarshall(buffer_addr, size, parcel);
 }
 
 const JNINativeMethod METHODS[] = {
         // nativeUnmarshall in android_os_Parcel.cpp is not FastNative, so we also do not
         // add FastNative here.
-        //
-        // private static native void nativeMarshallParcelToBuffer(
-        //      long parcelNativePtr, ByteBuffer buffer, int size);
-        {"nativeMarshallParcelToBuffer", "(JLjava/nio/ByteBuffer;I)V",
-         reinterpret_cast<void*>(marshallParcelToBuffer)},
         // private static native void nativeUnmarshallBufferToParcel(
-        //      ByteBuffer buffer, int size, long parcelNativePtr);
+        //      ByteBuffer buffer, int size, Parcel parcel);
         {"nativeUnmarshallBufferToParcel", "(Ljava/nio/ByteBuffer;IJ)V",
          reinterpret_cast<void*>(unmarshallBufferToParcel)},
 };
