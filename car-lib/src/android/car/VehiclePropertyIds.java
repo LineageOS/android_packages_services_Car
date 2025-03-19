@@ -2346,6 +2346,14 @@ public final class VehiclePropertyIds {
     /**
      * Temperature units for display.
      *
+     * <p>Will be one of {@link VehicleUnit#CELSIUS} or {@link VehicleUnit#FAHRENHEIT} or
+     * {@link VehicleUnit#KELVIN}.
+     *
+     * <p>For the global area ID(0),
+     * {@link android.car.hardware.property.AreaIdConfig#hasSupportedValuesList()} will be
+     * {@code true}. {@link android.car.hardware.property.CarPropertyManager#getSupportedValuesList}
+     * returns the supported values, e.g. [VehicleUnit.CELSIUS, VehicleUnit.FAHRENHEIT]
+     *
      * <p>Property Config:
      * <ul>
      *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ_WRITE} or
@@ -2522,13 +2530,14 @@ public final class VehiclePropertyIds {
      *
      * <p>Indicates which units the car is using to display distances to the user.
      *
-     * <p>configArray represents the list of supported units for {@code
-     * DISTANCE_DISPLAY_UNITS}. Here is an example configArray:
-     * <ul>
-     *  <li>configArray[0] = {@link VehicleUnit#METER}
-     *  <li>configArray[1] = {@link VehicleUnit#KILOMETER}
-     *  <li>configArray[2] = {@link VehicleUnit#MILE}
-     * </ul>
+     * <p>Will be one of {@link VehicleUnit#MILLIMETER} or {@link VehicleUnit#METER} or
+     * {@link VehicleUnit#KILOMETER} or {@link VehicleUnit#MILE}.
+     *
+     * <p>For the global area ID(0),
+     * {@link android.car.hardware.property.AreaIdConfig#hasSupportedValuesList()} will be
+     * {@code true}. {@link android.car.hardware.property.CarPropertyManager#getSupportedValuesList}
+     * returns the supported values, e.g.
+     * [VehicleUnit.METER, VehicleUnit.KILOMETER, VehicleUnit.MILE].
      *
      * <p>Property Config:
      * <ul>
@@ -2557,12 +2566,13 @@ public final class VehiclePropertyIds {
      *
      * <p>Indicates which units the car is using to display fuel volume to the user.
      *
-     * <p>configArray represents the list of supported units for {@code
-     * FUEL_VOLUME_DISPLAY_UNITS}. Here is an example configArray:
-     * <ul>
-     *  <li>configArray[0] = {@link VehicleUnit#LITER}
-     *  <li>configArray[1] = {@link VehicleUnit#US_GALLON}
-     * </ul>
+     * <p>Will be one of {@link VehicleUnit#MILLILITER} or {@link VehicleUnit#LITER}
+     * or {@link VehicleUnit#US_GALLON} or {@link VehicleUnit#IMPERIAL_GALLON}.
+     *
+     * <p>For the global area ID(0),
+     * {@link android.car.hardware.property.AreaIdConfig#hasSupportedValuesList()} will be
+     * {@code true}. {@link android.car.hardware.property.CarPropertyManager#getSupportedValuesList}
+     * returns the supported values, e.g. [VehicleUnit.LITER, VehicleUnit.US_GALLON].
      *
      * <p>Property Config:
      * <ul>
@@ -2591,13 +2601,13 @@ public final class VehiclePropertyIds {
      *
      * <p>Indicates which units the car is using to display tire pressure to the user.
      *
-     * <p>configArray represents the list of supported units for {@code
-     * TIRE_PRESSURE_DISPLAY_UNITS}. Here is an example configArray:
-     * <ul>
-     *  <li>configArray[0] = {@link VehicleUnit#KILOPASCAL}
-     *  <li>configArray[1] = {@link VehicleUnit#PSI}
-     *  <li>configArray[2] = {@link VehicleUnit#BAR}
-     * </ul>
+     * <p>Will be one of {@link VehicleUnit#KILOPASCAL} or {@link VehicleUnit#PSI}
+     * or {@link VehicleUnit#BAR}.
+     *
+     * <p>For the global area ID(0),
+     * {@link android.car.hardware.property.AreaIdConfig#hasSupportedValuesList()} will be
+     * {@code true}. {@link android.car.hardware.property.CarPropertyManager#getSupportedValuesList}
+     * returns the supported values, e.g. [VehicleUnit.KILOPASCAL, VehicleUnit.PSI].
      *
      * <p>Property Config:
      * <ul>
@@ -2626,13 +2636,13 @@ public final class VehiclePropertyIds {
      *
      * <p>Indicates which units the vehicle is using to display EV battery information to the user.
      *
-     * <p>configArray represents the list of supported units for {@code
-     * EV_BATTERY_DISPLAY_UNITS}. Here is an example configArray:
-     * <ul>
-     *  <li>configArray[0] = {@link VehicleUnit#WATT_HOUR}
-     *  <li>configArray[1] = {@link VehicleUnit#AMPERE_HOURS}
-     *  <li>configArray[2] = {@link VehicleUnit#KILOWATT_HOUR}
-     * </ul>
+     * <p>Will be one of {@link VehicleUnit#WATT_HOUR} or {@link VehicleUnit#AMPERE_HOURS}
+     * or {@link VehicleUnit#KILOWATT_HOUR}.
+     *
+     * <p>For the global area ID(0),
+     * {@link android.car.hardware.property.AreaIdConfig#hasSupportedValuesList()} will be
+     * {@code true}. {@link android.car.hardware.property.CarPropertyManager#getSupportedValuesList}
+     * returns the supported values, e.g. [VehicleUnit.WATT_HOUR, VehicleUnit.KILOWATT_HOUR].
      *
      * <p>Property Config:
      * <ul>
