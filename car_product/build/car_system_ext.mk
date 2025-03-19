@@ -29,6 +29,7 @@ PRODUCT_PACKAGES += \
     CarDeveloperOptions \
     CarProvision \
     CarSystemUI \
+    StatementService \
 
 PRODUCT_PACKAGES_DEBUG += \
     BugReportApp \
