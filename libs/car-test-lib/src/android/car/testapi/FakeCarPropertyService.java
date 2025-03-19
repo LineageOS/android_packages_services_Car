@@ -24,7 +24,6 @@ import android.annotation.Nullable;
 import android.car.Car;
 import android.car.VehicleAreaType;
 import android.car.VehiclePropertyType;
-import android.car.feature.Flags;
 import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.CarPropertyValue;
 import android.car.hardware.property.CarPropertyEvent;
@@ -449,12 +448,9 @@ class FakeCarPropertyService extends ICarProperty.Stub implements CarPropertyCon
                 return VehicleAreaType.VEHICLE_AREA_TYPE_MIRROR;
             case VehicleArea.WHEEL:
                 return VehicleAreaType.VEHICLE_AREA_TYPE_WHEEL;
+            case VehicleArea.VENDOR:
+                return VehicleAreaType.VEHICLE_AREA_TYPE_VENDOR;
             default:
-                if (Flags.androidVicVehicleProperties()) {
-                    if (halArea == VehicleArea.VENDOR) {
-                        return VehicleAreaType.VEHICLE_AREA_TYPE_VENDOR;
-                    }
-                }
                 throw new RuntimeException("Unsupported area type " + halArea);
         }
     }

@@ -156,6 +156,14 @@ public final class Stubs {
         }
     }
 
+    /** Stub activity for intents to browse files/documents */
+    public static class FileManagerStub extends BaseActivity {
+        @Override
+        protected CharSequence getMessage() {
+            return getResources().getString(R.string.file_manager_not_supported);
+        }
+    }
+
     /** Stub activity for Dream Settings. */
     public static class DreamSettingsStub extends BaseActivity {
         @Override

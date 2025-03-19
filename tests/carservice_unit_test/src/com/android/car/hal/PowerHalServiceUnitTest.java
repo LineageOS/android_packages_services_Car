@@ -63,6 +63,7 @@ import android.hardware.automotive.vehicle.VehicleApPowerBootupReason;
 import android.hardware.automotive.vehicle.VehicleApPowerStateReport;
 import android.hardware.automotive.vehicle.VehicleApPowerStateShutdownParam;
 import android.hardware.automotive.vehicle.VehicleProperty;
+import android.hardware.automotive.vehicle.VehiclePropertyStatus;
 import android.hardware.display.DisplayManager;
 import android.os.ServiceSpecificException;
 import android.util.ArrayMap;
@@ -1024,6 +1025,31 @@ public final class PowerHalServiceUnitTest {
 
         assertThat(powerStateStr).contains("1");
         assertThat(powerStateStr).contains("2");
+    }
+
+    @Test
+    public void testIsVehicleInUseSupported() {
+        HalPropValue value = mPropValueBuilder.build(VEHICLE_IN_USE, /* areaId= */ 0,
+                /* timestamp= */ 0L, VehiclePropertyStatus.AVAILABLE, /* value= */ 0);
+        when(mHal.get(VEHICLE_IN_USE)).thenReturn(value);
+
+        assertThat(mPowerHalService.isVehicleInUseSupported()).isTrue();
+    }
+
+    @Test
+    public void testIsVehicleInUseSupported_notAvailable() {
+        HalPropValue value = mPropValueBuilder.build(VEHICLE_IN_USE, /* areaId= */ 0,
+                /* timestamp= */ 0L, VehiclePropertyStatus.UNAVAILABLE, /* value= */ 0);
+        when(mHal.get(VEHICLE_IN_USE)).thenReturn(value);
+
+        assertThat(mPowerHalService.isVehicleInUseSupported()).isFalse();
+    }
+
+    @Test
+    public void testIsVehicleInUseSupported_noValue() {
+        doThrow(new ServiceSpecificException(0)).when(mHal).get(VEHICLE_IN_USE);
+
+        assertThat(mPowerHalService.isVehicleInUseSupported()).isFalse();
     }
 
     private void addDisplay(int displayId, int displayPort) {

@@ -714,6 +714,11 @@ public class ICarImpl extends ICar.Stub {
                         return mCarWifiService;
                     }
                 }
+                if (mFeatureFlags.carPropertySimulation()) {
+                    if (serviceName.equals(Car.CAR_PROPERTY_SIMULATION_SERVICE)) {
+                        return mCarPropertyService;
+                    }
+                }
                 IBinder service = null;
                 if (mCarExperimentalFeatureServiceController != null) {
                     service = mCarExperimentalFeatureServiceController.getCarService(serviceName);

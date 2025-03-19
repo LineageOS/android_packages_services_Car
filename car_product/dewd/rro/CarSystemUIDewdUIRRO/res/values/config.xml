@@ -28,7 +28,7 @@
         <item>@xml/calm_mode_panel</item>
     </array>
 
-    <string-array name="config_non_trimmable_activities" translatable="false">
+    <string-array name="config_untrimmable_activities" translatable="false">
         <item>@string/contextual_bar_component</item>
     </string-array>
 
