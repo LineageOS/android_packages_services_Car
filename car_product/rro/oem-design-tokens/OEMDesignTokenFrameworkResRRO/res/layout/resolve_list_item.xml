@@ -20,7 +20,7 @@
               android:orientation="horizontal"
               android:layout_height="wrap_content"
               android:layout_width="match_parent"
-              android:minHeight="96dp"
+              android:minHeight="@*android:dimen/car_activity_resolver_list_item_height"
               android:background="?android:attr/colorBackgroundFloating" >
     <ImageView
                 android:layout_width="wrap_content"
