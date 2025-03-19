@@ -148,7 +148,6 @@ public final class CarOemProxyService implements CarServiceBase {
 
     private final IOemCarServiceCallback mOemCarServiceCallback = new IOemCarServiceCallbackImpl();
 
-    @VisibleForTesting
     public CarOemProxyService(Context context) {
         this(context, null);
     }

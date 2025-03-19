@@ -16,9 +16,6 @@
 
 package com.android.car;
 
-import static com.google.common.truth.Truth.assertThat;
-
-import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -26,15 +23,12 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import android.automotive.power.internal.ICarPowerManagementDelegate;
 import android.car.Car;
 import android.car.ICarResultReceiver;
-import android.car.builtin.util.TimingsTraceLog;
 import android.car.feature.Flags;
 import android.content.Context;
 import android.content.res.Resources;
@@ -56,7 +50,6 @@ import com.android.car.hal.HalPropValueBuilder;
 import com.android.car.hal.PowerHalService;
 import com.android.car.internal.ICarServiceHelper;
 import com.android.car.internal.StaticBinderInterface;
-import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.car.os.CarPerformanceService;
 import com.android.car.provider.Settings;
 import com.android.car.remoteaccess.CarRemoteAccessService;
@@ -82,11 +75,10 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
- * This class contains unit tests for the {@link ICarImpl}.
+ * This class is the integration test for the {@link ICarImpl} that replace some of the deps to
+ * mock objects.
  *
  * <p>It tests that services started with {@link ICarImpl} are initialized properly.
  * <p>The following mocks are used:
@@ -281,134 +273,6 @@ public final class ICarImplTest {
 
         mCar.disconnect();
         carImpl.release();
-    }
-
-    @Test
-    public void testGetCarService_CarAudioService_CallsWaitForInitComplete_true() throws Exception {
-        ICarImpl carImpl = getBaseICarImplBuilder().setCarUserService(mMockCarUserService).build();
-        when(mMockCarAudioService.waitForInitComplete(anyInt())).thenReturn(true);
-
-        carImpl.init();
-
-        try {
-            verify(mMockCarAudioService).init();
-
-            assertThat(carImpl.getCarService(Car.AUDIO_SERVICE)).isEqualTo(mMockCarAudioService);
-        } finally {
-            carImpl.release();
-        }
-    }
-
-    @Test
-    public void testGetCarService_CarAudioService_CallsWaitForInitComplete_false()
-            throws Exception {
-        ICarImpl carImpl = getBaseICarImplBuilder().setCarUserService(mMockCarUserService).build();
-
-        when(mMockCarAudioService.waitForInitComplete(anyInt())).thenReturn(false);
-
-        carImpl.init();
-
-        try {
-            assertThat(carImpl.getCarService(Car.AUDIO_SERVICE)).isNull();
-        } finally {
-            carImpl.release();
-        }
-    }
-
-    @Test
-    public void testGetCarService_CarAudioService_CallsWaitForInitComplete_interrupted()
-            throws Exception {
-        ICarImpl carImpl = getBaseICarImplBuilder().setCarUserService(mMockCarUserService).build();
-        when(mMockCarAudioService.waitForInitComplete(anyInt())).thenThrow(
-                new InterruptedException());
-
-        carImpl.init();
-
-        try {
-            assertThat(carImpl.getCarService(Car.AUDIO_SERVICE)).isNull();
-        } finally {
-            carImpl.release();
-        }
-
-        assertThat(Thread.currentThread().isInterrupted()).isTrue();
-    }
-
-    @Test
-    public void testSetSystemServerConnections_notCallingFromSystemProcess() throws Exception {
-        StaticBinderInterface mockStaticBinder = mock(StaticBinderInterface.class);
-        ICarResultReceiver.Stub carResultReceiver = mock(ICarResultReceiver.Stub.class);
-        ICarImpl carImpl = getBaseICarImplBuilder().setTestStaticBinder(mockStaticBinder).build();
-
-        when(mockStaticBinder.getCallingPid()).thenReturn(123);
-        when(mockStaticBinder.getCallingUid()).thenReturn(Process.SYSTEM_UID + 1);
-
-        carImpl.setSystemServerConnections(mICarServiceHelper, carResultReceiver);
-
-        // Verifies that our receiver receives null as bundle.
-        verify(carResultReceiver).send(eq(0), eq(null));
-    }
-
-    @Test
-    public void testGetCarManagerClassForFeature() throws Exception {
-        var mockCarExpFeatureServiceController = mock(
-                CarExperimentalFeatureServiceController.class);
-        ICarImpl carImpl = getBaseICarImplBuilder().setIsUserBuild(false)
-                .setCarExperimentalFeatureServiceController(mockCarExpFeatureServiceController)
-                .build();
-        String testFeature = "testFeature";
-        String testClass = "testClass";
-
-        when(mockCarExpFeatureServiceController.getCarManagerClassForFeature(testFeature))
-                .thenReturn(testClass);
-
-        assertThat(carImpl.getCarManagerClassForFeature(testFeature)).isEqualTo(testClass);
-    }
-
-    @Test
-    public void testGetCarManagerClassForFeature_userBuildMustReturnNull() throws Exception {
-        var mockCarExpFeatureServiceController = mock(
-                CarExperimentalFeatureServiceController.class);
-        ICarImpl carImpl = getBaseICarImplBuilder().setIsUserBuild(true)
-                .setCarExperimentalFeatureServiceController(mockCarExpFeatureServiceController)
-                .build();
-        String testFeature = "testFeature";
-        String testClass = "testClass";
-
-        when(mockCarExpFeatureServiceController.getCarManagerClassForFeature(testFeature))
-                .thenReturn(testClass);
-
-        assertThat(carImpl.getCarManagerClassForFeature(testFeature)).isNull();
-    }
-
-    @Test
-    public void testConstructWithTrace() throws Exception {
-        var mockTimingsTraceLog = mock(TimingsTraceLog.class);
-        List<CarSystemService> allServices = new ArrayList<>();
-
-        TestCarService testCarService = ICarImpl.constructWithTrace(mockTimingsTraceLog,
-                TestCarService.class, () -> new TestCarService(), allServices);
-
-        assertThat(allServices).containsExactly(testCarService);
-    }
-
-    @Test
-    public void testConstructWithTrace_exceptionThrownInConstructor() throws Exception {
-        var mockTimingsTraceLog = mock(TimingsTraceLog.class);
-        List<CarSystemService> allServices = new ArrayList<>();
-
-        assertThrows(RuntimeException.class, () -> ICarImpl.constructWithTrace(mockTimingsTraceLog,
-                TestCarService.class, () -> {
-                    throw new IllegalStateException();
-                }, allServices));
-    }
-
-    static final class TestCarService implements CarSystemService {
-        @Override
-        public void init() {}
-        @Override
-        public void release() {}
-        @Override
-        public void dump(IndentingPrintWriter writer) {}
     }
 
     static final class MockIOInterface implements IOInterface {
