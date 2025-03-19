@@ -5422,6 +5422,11 @@ public final class VehiclePropertyIds {
     /**
      * Headlights State.
      *
+     * <p>For the global area ID(0),
+     * {@link android.car.hardware.property.AreaIdConfig#hasSupportedValuesList()} will be
+     * {@code true}. {@link android.car.hardware.property.CarPropertyManager#getSupportedValuesList}
+     * specifies which enum values from {@code VehicleLightState} are supported.
+     *
      * <p>Property Config:
      * <ul>
      *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
@@ -5443,6 +5448,11 @@ public final class VehiclePropertyIds {
     public static final int HEADLIGHTS_STATE = 289410560;
     /**
      * High beam lights state.
+     *
+     * <p>For the global area ID(0),
+     * {@link android.car.hardware.property.AreaIdConfig#hasSupportedValuesList()} will be
+     * {@code true}. {@link android.car.hardware.property.CarPropertyManager#getSupportedValuesList}
+     * specifies which enum values from {@code VehicleLightState} are supported.
      *
      * <p>Property Config:
      * <ul>
@@ -5487,6 +5497,11 @@ public final class VehiclePropertyIds {
      *  implemented in the car. The implemented property provides the state of the rear fog lights.
      * </ul>
      *
+     * <p>For the global area ID(0),
+     * {@link android.car.hardware.property.AreaIdConfig#hasSupportedValuesList()} will be
+     * {@code true}. {@link android.car.hardware.property.CarPropertyManager#getSupportedValuesList}
+     * specifies which enum values from {@code VehicleLightState} are supported.
+     *
      * <p>Property Config:
      * <ul>
      *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
@@ -5508,6 +5523,11 @@ public final class VehiclePropertyIds {
     public static final int FOG_LIGHTS_STATE = 289410562;
     /**
      * Hazard light status.
+     *
+     * <p>For the global area ID(0),
+     * {@link android.car.hardware.property.AreaIdConfig#hasSupportedValuesList()} will be
+     * {@code true}. {@link android.car.hardware.property.CarPropertyManager#getSupportedValuesList}
+     * specifies which enum values from {@code VehicleLightState} are supported.
      *
      * <p>Property Config:
      * <ul>
@@ -5531,6 +5551,11 @@ public final class VehiclePropertyIds {
     /**
      * Headlight switch.
      *
+     * <p>For the global area ID(0),
+     * {@link android.car.hardware.property.AreaIdConfig#hasSupportedValuesList()} will be
+     * {@code true}. {@link android.car.hardware.property.CarPropertyManager#getSupportedValuesList}
+     * specifies which enum values from {@code VehicleLightSwitch} are supported.
+     *
      * <p>Property Config:
      * <ul>
      *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ_WRITE} or
@@ -5553,6 +5578,11 @@ public final class VehiclePropertyIds {
     /**
      * High beam light switch.
      *
+     * <p>For the global area ID(0),
+     * {@link android.car.hardware.property.AreaIdConfig#hasSupportedValuesList()} will be
+     * {@code true}. {@link android.car.hardware.property.CarPropertyManager#getSupportedValuesList}
+     * specifies which enum values from {@code VehicleLightSwitch} are supported.
+     *
      * <p>Property Config:
      * <ul>
      *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ_WRITE} or
@@ -5574,6 +5604,11 @@ public final class VehiclePropertyIds {
     public static final int HIGH_BEAM_LIGHTS_SWITCH = 289410577;
     /**
      * Fog light switch.
+     *
+     * <p>For the global area ID(0),
+     * {@link android.car.hardware.property.AreaIdConfig#hasSupportedValuesList()} will be
+     * {@code true}. {@link android.car.hardware.property.CarPropertyManager#getSupportedValuesList}
+     * specifies which enum values from {@code VehicleLightSwitch} are supported.
      *
      * <p>If the car has both front and rear fog lights:
      * <ul>
@@ -5620,6 +5655,11 @@ public final class VehiclePropertyIds {
     /**
      * Hazard light switch.
      *
+     * <p>For the global area ID(0),
+     * {@link android.car.hardware.property.AreaIdConfig#hasSupportedValuesList()} will be
+     * {@code true}. {@link android.car.hardware.property.CarPropertyManager#getSupportedValuesList}
+     * specifies which enum values from {@code VehicleLightSwitch} are supported.
+     *
      * <p>Property Config:
      * <ul>
      *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ_WRITE} or
@@ -5641,6 +5681,11 @@ public final class VehiclePropertyIds {
     public static final int HAZARD_LIGHTS_SWITCH = 289410579;
     /**
      * Cabin lights.
+     *
+     * <p>For the global area ID(0),
+     * {@link android.car.hardware.property.AreaIdConfig#hasSupportedValuesList()} will be
+     * {@code true}. {@link android.car.hardware.property.CarPropertyManager#getSupportedValuesList}
+     * specifies which enum values from {@code VehicleLightState} are supported.
      *
      * <p>Property Config:
      * <ul>
@@ -5664,6 +5709,11 @@ public final class VehiclePropertyIds {
     /**
      * Cabin lights switch.
      *
+     * <p>For the global area ID(0),
+     * {@link android.car.hardware.property.AreaIdConfig#hasSupportedValuesList()} will be
+     * {@code true}. {@link android.car.hardware.property.CarPropertyManager#getSupportedValuesList}
+     * specifies which enum values from {@code VehicleLightSwitch} are supported.
+     *
      * <p>Property Config:
      * <ul>
      *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ_WRITE} or
@@ -5686,6 +5736,11 @@ public final class VehiclePropertyIds {
     /**
      * Reading lights.
      *
+     * <p>For each supported area ID,
+     * {@link android.car.hardware.property.AreaIdConfig#hasSupportedValuesList()} will be
+     * {@code true}. {@link android.car.hardware.property.CarPropertyManager#getSupportedValuesList}
+     * specifies which enum values from {@code VehicleLightState} are supported.
+     *
      * <p>Property Config:
      * <ul>
      *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
@@ -5707,6 +5762,11 @@ public final class VehiclePropertyIds {
     public static final int READING_LIGHTS_STATE = 356519683;
     /**
      * Reading lights switch.
+     *
+     * <p>For each supported area ID,
+     * {@link android.car.hardware.property.AreaIdConfig#hasSupportedValuesList()} will be
+     * {@code true}. {@link android.car.hardware.property.CarPropertyManager#getSupportedValuesList}
+     * specifies which enum values from {@code VehicleLightSwitch} are supported.
      *
      * <p>Property Config:
      * <ul>
@@ -5741,10 +5801,10 @@ public final class VehiclePropertyIds {
      * <p>This property will only be implemented if {@code STEERING_WHEEL_LIGHTS_STATE}'s value may
      * be different from that of {@link #CABIN_LIGHTS_STATE}.
      *
-     * <p>For the global area ID (0), the {@link
-     * android.car.hardware.property.AreaIdConfig#getSupportedEnumValues()} obtained from {@link
-     * android.car.hardware.CarPropertyConfig#getAreaIdConfig(int)} specifies which enum values from
-     * {@code VehicleLightState} are supported.
+     * <p>For the global area ID(0),
+     * {@link android.car.hardware.property.AreaIdConfig#hasSupportedValuesList()} will be
+     * {@code true}. {@link android.car.hardware.property.CarPropertyManager#getSupportedValuesList}
+     * specifies which enum values from {@code VehicleLightState} are supported.
      *
      * <p>Property Config:
      * <ul>
@@ -5779,10 +5839,10 @@ public final class VehiclePropertyIds {
      * <p>This property will only be implemented if {@code STEERING_WHEEL_LIGHTS_SWITCH}'s value may
      * be different from that of {@link #CABIN_LIGHTS_SWITCH}.
      *
-     * <p>For the global area ID (0), the {@link
-     * android.car.hardware.property.AreaIdConfig#getSupportedEnumValues()} obtained from {@link
-     * android.car.hardware.CarPropertyConfig#getAreaIdConfig(int)} specifies which enum values from
-     * {@code VehicleLightSwitch} are supported.
+     * <p>For the global area ID(0),
+     * {@link android.car.hardware.property.AreaIdConfig#hasSupportedValuesList()} will be
+     * {@code true}. {@link android.car.hardware.property.CarPropertyManager#getSupportedValuesList}
+     * specifies which enum values from {@code VehicleLightSwitch} are supported.
      *
      * <p>Property Config:
      * <ul>
