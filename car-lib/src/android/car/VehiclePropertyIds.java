@@ -2671,13 +2671,14 @@ public final class VehiclePropertyIds {
      *
      * <p>Indicates type of units the vehicle is using to display speed to user.
      *
-     * <p>configArray represents the list of supported units for {@code
-     * VEHICLE_SPEED_DISPLAY_UNITS}. Here is an example configArray:
-     * <ul>
-     *  <li>configArray[0] = {@link VehicleUnit#METER_PER_SEC}
-     *  <li>configArray[1] = {@link VehicleUnit#MILES_PER_HOUR}
-     *  <li>configArray[2] = {@link VehicleUnit#KILOMETERS_PER_HOUR}
-     * </ul>
+     * <p>Will be one of {@link VehicleUnit#METER_PER_SEC} or {@link VehicleUnit#MILES_PER_HOUR} or
+     * {@link VehicleUnit#KILOMETERS_PER_HOUR}
+     *
+     * <p>For the global area ID(0),
+     * {@link android.car.hardware.property.AreaIdConfig#hasSupportedValuesList()} will be
+     * {@code true}. {@link android.car.hardware.property.CarPropertyManager#getSupportedValuesList}
+     * returns the supported values, e.g.
+     * [VehicleUnit.MILES_PER_HOUR, VehicleUnit.KILOMETERS_PER_HOUR].
      *
      * <p>Property Config:
      * <ul>
@@ -4302,10 +4303,10 @@ public final class VehiclePropertyIds {
      * <p>This property will only be implemented if {@code SEAT_FOOTWELL_LIGHTS_STATE}'s value may
      * be different from that of {@link #CABIN_LIGHTS_STATE}.
      *
-     * <p>For each supported area ID, the {@link
-     * android.car.hardware.property.AreaIdConfig#getSupportedEnumValues()} obtained from {@link
-     * android.car.hardware.CarPropertyConfig#getAreaIdConfig(int)} specifies which enum values from
-     * {@code VehicleLightState} are supported.
+     * <p>For each supported area ID,
+     * {@link android.car.hardware.property.AreaIdConfig#hasSupportedValuesList()} will be
+     * {@code true}. {@link android.car.hardware.property.CarPropertyManager#getSupportedValuesList}
+     * specifies which enum values from {@code VehicleLightState} are supported.
      *
      * <p>Property Config:
      * <ul>
@@ -4339,10 +4340,10 @@ public final class VehiclePropertyIds {
      * <p>This property will only be implemented if {@code SEAT_FOOTWELL_LIGHTS_SWITCH}'s value may
      * be different from that of {@link #CABIN_LIGHTS_SWITCH}.
      *
-     * <p>For each supported area ID, the {@link
-     * android.car.hardware.property.AreaIdConfig#getSupportedEnumValues()} obtained from {@link
-     * android.car.hardware.CarPropertyConfig#getAreaIdConfig(int)} specifies which enum values from
-     * {@code VehicleLightSwitch} are supported.
+     * <p>For each supported area ID,
+     * {@link android.car.hardware.property.AreaIdConfig#hasSupportedValuesList()} will be
+     * {@code true}. {@link android.car.hardware.property.CarPropertyManager#getSupportedValuesList}
+     * specifies which enum values from {@code VehicleLightSwitch} are supported.
      *
      * <p>Property Config:
      * <ul>
@@ -4426,10 +4427,11 @@ public final class VehiclePropertyIds {
      * represents whether the driver side curtain airbag has been deployed. Multiple bit flags can
      * be set to indicate that multiple different airbags have been deployed for the seat.
      *
-     * <p>For each seat area ID, the {@link
-     * android.car.hardware.property.AreaIdConfig#getSupportedEnumValues()} array obtained from
-     * {@link android.car.hardware.CarPropertyConfig#getAreaIdConfig(int)} specifies which states
-     * from {@link android.car.hardware.property.VehicleAirbagLocation} are supported.
+     * <p>For each supported area ID,
+     * {@link android.car.hardware.property.AreaIdConfig#hasSupportedValuesList()} will be
+     * {@code true}. {@link android.car.hardware.property.CarPropertyManager#getSupportedValuesList}
+     * specifies which states from {@link android.car.hardware.property.VehicleAirbagLocation} are
+     * supported.
      *
      * <p>Property Config:
      * <ul>
@@ -4649,6 +4651,11 @@ public final class VehiclePropertyIds {
     /**
      * Seat Occupancy.
      *
+     * <p>For each supported area ID,
+     * {@link android.car.hardware.property.AreaIdConfig#hasSupportedValuesList()} will be
+     * {@code true}. {@link android.car.hardware.property.CarPropertyManager#getSupportedValuesList}
+     * specifies which enum values from {@code VehicleSeatOccupancyState} are supported.
+     *
      * <p>Property Config:
      * <ul>
      *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
@@ -4807,10 +4814,11 @@ public final class VehiclePropertyIds {
      * is implemented, then {@link #WINDSHIELD_WIPERS_PERIOD} will reflect the time period of 1
      * full cycle of the wipers.
      *
-     * <p>For each supported area ID, the {@link
-     * android.car.hardware.property.AreaIdConfig#getSupportedEnumValues()} array obtained from
-     * {@link android.car.hardware.CarPropertyConfig#getAreaIdConfig(int)} specifies which states
-     * from {@link android.car.hardware.property.WindshieldWipersState} are supported.
+     * <p>For each supported area ID,
+     * {@link android.car.hardware.property.AreaIdConfig#hasSupportedValuesList()} will be
+     * {@code true}. {@link android.car.hardware.property.CarPropertyManager#getSupportedValuesList}
+     * specifies which states from {@link android.car.hardware.property.WindshieldWipersState} are
+     * supported.
      *
      * <p>Property Config:
      * <ul>
@@ -4844,10 +4852,11 @@ public final class VehiclePropertyIds {
      * android.car.hardware.property.WindshieldWipersSwitch#AUTO} and {@link
      * #WINDSHIELD_WIPERS_STATE} = WindshieldWipersState#ON).
      *
-     * <p>For each supported area ID, the {@link
-     * android.car.hardware.property.AreaIdConfig#getSupportedEnumValues()} array obtained from
-     * {@link android.car.hardware.CarPropertyConfig#getAreaIdConfig(int)} specifies which values
-     * from {@link android.car.hardware.property.WindshieldWipersSwitch} are supported.
+     * <p>For each supported area ID,
+     * {@link android.car.hardware.property.AreaIdConfig#hasSupportedValuesList()} will be
+     * {@code true}. {@link android.car.hardware.property.CarPropertyManager#getSupportedValuesList}
+     * specifies which values from {@link android.car.hardware.property.WindshieldWipersSwitch} are
+     * supported.
      *
      * <p>This property is defined as read_write, but OEMs have the option to implement it as read
      * only.
