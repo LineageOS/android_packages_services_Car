@@ -396,9 +396,12 @@ public final class CarActivityService extends ICarActivityService.Stub
 
     @Override
     public void onRootTaskVanished(int taskId) {
+        String name;
         synchronized (mLock) {
+            name = mRootTaskMap.get(taskId).getName();
             mRootTaskMap.remove(taskId);
         }
+        CarServiceHelperWrapper.getInstance().onRootTaskVanished(name);
     }
 
     @Override
@@ -407,6 +410,7 @@ public final class CarActivityService extends ICarActivityService.Stub
         synchronized (mLock) {
             mRootTaskMap.put(taskInfo.taskId, new RootTaskInfo(name, taskInfo, rootTaskToken));
         }
+        CarServiceHelperWrapper.getInstance().onRootTaskAppeared(name, rootTaskToken);
     }
     @Override
     public void unregisterTaskMonitor(IBinder token) {
@@ -825,6 +829,7 @@ public final class CarActivityService extends ICarActivityService.Stub
      * Data class to hold the info for a root task.
      */
     static class RootTaskInfo {
+        // TODO(b/402623192): Parcel RootTaskInfo and send it to CarServiceHelperService
         final String mName;
         final ActivityManager.RunningTaskInfo mTaskInfo;
         final IBinder mRootTaskToken;
@@ -837,6 +842,10 @@ public final class CarActivityService extends ICarActivityService.Stub
 
         public TaskInfo getTaskInfo() {
             return mTaskInfo;
+        }
+
+        public String getName() {
+            return mName;
         }
     }
 

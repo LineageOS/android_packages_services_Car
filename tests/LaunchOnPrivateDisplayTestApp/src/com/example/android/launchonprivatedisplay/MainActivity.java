@@ -33,9 +33,9 @@ import android.widget.Spinner;
  */
 public final class MainActivity extends Activity {
 
-    private static final String NAMESPACE_KEY = "com.android.car.app.private_display";
-    private static final String LAUNCH_ON_PRIVATE_DISPLAY =
-            NAMESPACE_KEY + ".launch_on_private_display";
+    private static final String NAMESPACE_KEY = "com.android.car.app.launch_redirect";
+    private static final String LAUNCH_REDIRECT_ON_CONTAINER =
+            NAMESPACE_KEY + ".launch_redirect_on_container";
     private static final ComponentName LAUNCHED_ACTIVITY_COMPONENT_NAME = new ComponentName(
             "com.example.android.launchonprivatedisplay",
             "com.example.android.launchonprivatedisplay.ActivityForPrivateDisplay");
@@ -78,7 +78,7 @@ public final class MainActivity extends Activity {
             final Intent intent = new Intent();
             intent.setComponent(LAUNCHED_ACTIVITY_COMPONENT_NAME);
             Bundle bundle = new Bundle();
-            bundle.putString(LAUNCH_ON_PRIVATE_DISPLAY, selectedOption);
+            bundle.putString(LAUNCH_REDIRECT_ON_CONTAINER, selectedOption);
             ActivityOptions options = ActivityOptions.makeBasic();
             intent.putExtras(bundle);
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
