@@ -6201,6 +6201,12 @@ public final class VehiclePropertyIds {
      * the type of card attached; otherwise, this property should be UNAVAILABLE. The property value
      * should be one of {@link VehicleElectronicTollCollectionCardType}.
      *
+     * <p>For the global area ID(0),
+     * {@link android.car.hardware.property.AreaIdConfig#hasSupportedValuesList()} will be
+     * {@code true}. {@link android.car.hardware.property.CarPropertyManager#getSupportedValuesList}
+     * specifies which enum values from {@code VehicleElectronicTollCollectionCardType} are
+     * supported.
+     *
      * <p>Property Config:
      * <ul>
      *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
@@ -6228,6 +6234,12 @@ public final class VehiclePropertyIds {
      * status of the card; otherwise, this property should be UNAVAILABLE. The property value should
      * be one of {@link VehicleElectronicTollCollectionCardStatus}.
      *
+     * <p>For the global area ID(0),
+     * {@link android.car.hardware.property.AreaIdConfig#hasSupportedValuesList()} will be
+     * {@code true}. {@link android.car.hardware.property.CarPropertyManager#getSupportedValuesList}
+     * specifies which enum values from {@code VehicleElectronicTollCollectionCardStatus} are
+     * supported.
+     *
      * <p>Property Config:
      * <ul>
      *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
@@ -6251,6 +6263,11 @@ public final class VehiclePropertyIds {
      * Front fog lights state.
      *
      * <p>Please refer to the documentation on {@link #FOG_LIGHTS_STATE} for more information.
+     *
+     * <p>For the global area ID(0),
+     * {@link android.car.hardware.property.AreaIdConfig#hasSupportedValuesList()} will be
+     * {@code true}. {@link android.car.hardware.property.CarPropertyManager#getSupportedValuesList}
+     * specifies which enum values from {@code VehicleLightState} are supported.
      *
      * <p>Property Config:
      * <ul>
@@ -6277,6 +6294,11 @@ public final class VehiclePropertyIds {
      *
      * <p>Please refer to the documentation on {@link #FOG_LIGHTS_SWITCH} for more information.
      *
+     * <p>For the global area ID(0),
+     * {@link android.car.hardware.property.AreaIdConfig#hasSupportedValuesList()} will be
+     * {@code true}. {@link android.car.hardware.property.CarPropertyManager#getSupportedValuesList}
+     * specifies which enum values from {@code VehicleLightSwitch} are supported.
+     *
      * <p>Property Config:
      * <ul>
      *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ_WRITE} or
@@ -6302,6 +6324,11 @@ public final class VehiclePropertyIds {
      *
      * <p>Please refer to the documentation on {@link #FOG_LIGHTS_STATE} for more information.
      *
+     * <p>For the global area ID(0),
+     * {@link android.car.hardware.property.AreaIdConfig#hasSupportedValuesList()} will be
+     * {@code true}. {@link android.car.hardware.property.CarPropertyManager#getSupportedValuesList}
+     * specifies which enum values from {@code VehicleLightState} are supported.
+     *
      * <p>Property Config:
      * <ul>
      *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
@@ -6326,6 +6353,11 @@ public final class VehiclePropertyIds {
      * Rear fog lights switch.
      *
      * <p>Please refer to the documentation on {@link #FOG_LIGHTS_SWITCH} for more information.
+     *
+     * <p>For the global area ID(0),
+     * {@link android.car.hardware.property.AreaIdConfig#hasSupportedValuesList()} will be
+     * {@code true}. {@link android.car.hardware.property.CarPropertyManager#getSupportedValuesList}
+     * specifies which enum values from {@code VehicleLightSwitch} are supported.
      *
      * <p>Property Config:
      * <ul>
@@ -6384,14 +6416,11 @@ public final class VehiclePropertyIds {
      * <p>Indicates the maximum charge percent threshold set by the user. Returns a float value
      * from 0 to 100.
      *
-     * <p>configArray is optional. If it is populated, it represents the valid charge percent limit
-     * values for the vehicle. Here is an example configArray:
-     * <ul>
-     *  <li>configArray[0] = 20
-     *  <li>configArray[1] = 40
-     *  <li>configArray[2] = 60
-     *  <li>configArray[3] = 80
-     * </ul>
+     * <p>For the global area ID(0),
+     * {@link android.car.hardware.property.AreaIdConfig#hasSupportedValuesList()} might be
+     * {@code true}. If it is {@code false}, then all values from 0 to 100 are supported. If it is
+     * {@code true}, {@link android.car.hardware.property.CarPropertyManager#getSupportedValuesList}
+     * specifies the valid carge percent limit options for the vehicle, e.g. [20, 40, 60, 80].
      *
      * <p>Property Config:
      * <ul>
@@ -6424,6 +6453,11 @@ public final class VehiclePropertyIds {
      * <p>If the vehicle has a target charge percentage other than 100, this property will return
      * {@link EvChargeState#STATE_FULLY_CHARGED} when the battery charge level has reached the
      * target level. See {@link #EV_CHARGE_PERCENT_LIMIT} for more context.
+     *
+     * <p>For the global area ID(0),
+     * {@link android.car.hardware.property.AreaIdConfig#hasSupportedValuesList()} will be
+     * {@code true}. {@link android.car.hardware.property.CarPropertyManager#getSupportedValuesList}
+     * specifies which enum values from {@code EvChargeState} are supported.
      *
      * <p>Property Config:
      * <ul>
