@@ -19,14 +19,13 @@
         android:gravity="center" />
     <item
         android:gravity="center"
-        android:width="@dimen/car_seekbar_thumb_selectable_size"
-        android:height="@dimen/car_seekbar_thumb_selectable_size">
-        <shape android:shape="rectangle">
+        android:width="@dimen/car_seekbar_thumb_size"
+        android:height="@dimen/car_seekbar_thumb_size">
+        <shape android:shape="oval">
             <stroke
                 android:color="@color/car_seekbar_thumb_selected_stroke_color_selector"
                 android:width="@dimen/car_seekbar_thumb_selected_stroke_width" />
             <solid android:color="@color/car_seekbar_thumb_selected_background_color_selector" />
-            <corners android:radius="@dimen/car_seekbar_thumb_radius" />
         </shape>
     </item>
 </layer-list>
