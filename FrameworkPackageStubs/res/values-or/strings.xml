@@ -5,6 +5,8 @@
     <string name="message_not_supported" msgid="133939962837892495">"କୌଣସି ଆପ୍‌ ଏହାକୁ ନିୟନ୍ତ୍ରଣ କରିପାରିବେ ନାହିଁ।"</string>
     <string name="pip_not_supported" msgid="8681268258599412706">"ଏହି ଡିଭାଇସରେ ପିକଚର୍ ଇନ୍ ପିକଚର୍ ସମର୍ଥିତ ନୁହେଁ"</string>
     <string name="manage_unknown_app_sources_not_supported" msgid="7368611099531260439">"ଏହି ଡିଭାଇସରେ ଅଜଣା ଆପ ସୋର୍ସ ପରିଚାଳନା କରିବା ସମର୍ଥିତ ନୁହେଁ"</string>
+    <!-- no translation found for file_manager_not_supported (7246020599076461545) -->
+    <skip />
     <string name="dream_not_supported" msgid="2274365800432553936">"ଏହି ଡିଭାଇସରେ ସ୍କ୍ରିନସେଭରଗୁଡ଼ିକ ସମର୍ଥିତ ନୁହେଁ"</string>
     <string name="stub_name" msgid="3987164490218189006">"କିଛିନାହିଁ"</string>
 </resources>

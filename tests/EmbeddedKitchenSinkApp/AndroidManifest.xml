@@ -279,11 +279,12 @@
             user and we need to launch the activity as system user as well to access the data stored
             by the service.
         -->
+        <uses-library android:name="com.android.oem.tokens" android:required="false"/>
 
         <activity android:name=".KitchenSink2Activity"
             android:launchMode="singleTop"
             android:exported="true"
-            android:theme="@style/Theme.CarUi.NoToolbar"
+            android:theme="@style/KitchenSink2ActivityTheme"
             android:label="@string/app_title">
             <intent-filter>
                 <category android:name="android.intent.category.DEFAULT" />

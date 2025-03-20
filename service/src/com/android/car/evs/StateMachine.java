@@ -52,7 +52,9 @@ import android.os.HandlerThread;
 import android.os.IBinder;
 import android.os.RemoteCallbackList;
 import android.os.RemoteException;
+import android.util.ArraySet;
 import android.util.Log;
+import android.util.SparseArray;
 import android.util.SparseIntArray;
 
 import com.android.car.BuiltinPackageDependency;
@@ -68,7 +70,9 @@ import com.android.internal.annotations.VisibleForTesting;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 /** CarEvsService state machine implementation to handle all state transitions. */
 final class StateMachine {
@@ -86,11 +90,54 @@ final class StateMachine {
     private static final long EVS_HAL_SERVICE_BIND_RETRY_INTERVAL_MS = 1000;
     // Object to recognize Runnable objects.
     private static final String CALLBACK_RUNNABLE_TOKEN = StateMachine.class.getSimpleName();
+    private static final String BUFFER_RETURN_RUNNABLE_TOKEN =
+            BufferReturnRunnable.class.getSimpleName();
     private static final String DEFAULT_CAMERA_ALIAS = "default";
     // Maximum length of state transition logs.
     private static final int MAX_TRANSITION_LOG_LENGTH = 20;
 
-    private final SparseIntArray mBufferRecords = new SparseIntArray();
+    private static final class BufferRecord {
+        BufferRecord() {
+            // Create an empty buffer record.
+            this(/* refcount = */ 0, /* clients = */ new HashSet<>());
+        }
+
+        BufferRecord(int refcount, Set<IBinder> clients) {
+            mReferenceCount = refcount;
+            mClients = clients;
+        }
+
+        // Number of CarEvsService clients that are actively using a buffer associated with this
+        // record.
+        private int mReferenceCount;
+
+        // CarEvsService clients (ICarEvsStreamCallback objects) that are holding a buffer
+        // associated with this record.
+        private Set<IBinder> mClients;
+
+        int getReferenceCount() {
+            return mReferenceCount;
+        }
+
+        int decreaseReference() {
+            return --mReferenceCount;
+        }
+
+        boolean removeClient(ICarEvsStreamCallback callback) {
+            return mClients.remove(callback.asBinder());
+        }
+
+        boolean contains(ICarEvsStreamCallback callback) {
+            return mClients.contains(callback.asBinder());
+        }
+
+        @Override
+        public String toString() {
+            return "Reference: " + mReferenceCount + " Clients: " + mClients;
+        }
+    }
+
+    private final SparseArray<BufferRecord> mBufferRecords = new SparseArray();
     private final CarEvsService mService;
     private final ComponentName mActivityName;
     private final Context mContext;
@@ -101,6 +148,11 @@ final class StateMachine {
             CarServiceUtils.getHandlerThread(getClass().getSimpleName());
     private final Object mLock = new Object();
     private final Runnable mActivityRequestTimeoutRunnable = () -> handleActivityRequestTimeout();
+    private final Runnable mConnectToHalServiceIfNecessaryRunnable =
+            () -> connectToHalServiceIfNecessary();
+    private final Runnable mReleaseBuffersHeldByDisconnectedClientRunnable =
+            () -> releaseBuffersHeldByDisconnectedClient();
+    private final ArraySet<Integer> mBuffersToReturn = new ArraySet();
     private final String mLogTag;
     private final @CarEvsServiceType int mServiceType;
 
@@ -124,6 +176,38 @@ final class StateMachine {
                     StateMachine.this.handleClientDisconnected(callback);
                 }
             }
+        }
+    }
+
+    private final class BufferReturnRunnable implements Runnable {
+        private final int mBufferId;
+
+        BufferReturnRunnable(int bufferId) {
+            mBufferId = bufferId;
+        }
+
+        @Override
+        public void run() {
+          synchronized (mLock) {
+              BufferRecord rec = mBufferRecords.get(mBufferId);
+              if (rec == null) {
+                  Slogf.w(mLogTag, "Ignore an unknown returned buffer %d", mBufferId);
+                  return;
+              }
+
+              int refcount = rec.decreaseReference();
+              if (refcount > 0) {
+                  if (DBG) {
+                      Slogf.d(mLogTag, "Buffer %d has %d references.", mBufferId, refcount);
+                  }
+                  return;
+              }
+
+              mBufferRecords.delete(mBufferId);
+            }
+
+            // This may throw a NullPointerException if the native EVS service handle is invalid.
+            mHalWrapper.doneWithFrame(mBufferId);
         }
     }
 
@@ -285,36 +369,38 @@ final class StateMachine {
 
             // Counts how many callbacks are successfully done.
             int refcount = 0;
-            synchronized (mCallbacks) {
-                int idx = mCallbacks.beginBroadcast();
-                while (idx-- > 0) {
-                    ICarEvsStreamCallback callback = mCallbacks.getBroadcastItem(idx);
-                    try {
-                        CarEvsBufferDescriptor descriptor;
-                        if (Flags.carEvsStreamManagement()) {
-                            descriptor = new CarEvsBufferDescriptor(id, mServiceType, buffer);
-                        } else {
-                            descriptor = new CarEvsBufferDescriptor(
-                                    CarEvsUtils.putTag(mServiceType, id), buffer);
+            HashSet<IBinder> clientSet = new HashSet();
+            synchronized (mLock) {
+                synchronized (mCallbacks) {
+                    int idx = mCallbacks.beginBroadcast();
+                    while (idx-- > 0) {
+                        ICarEvsStreamCallback callback = mCallbacks.getBroadcastItem(idx);
+                        try {
+                            CarEvsBufferDescriptor descriptor;
+                            if (Flags.carEvsStreamManagement()) {
+                                descriptor = new CarEvsBufferDescriptor(id, mServiceType, buffer);
+                            } else {
+                                descriptor = new CarEvsBufferDescriptor(
+                                        CarEvsUtils.putTag(mServiceType, id), buffer);
+                            }
+                            callback.onNewFrame(descriptor);
+                            refcount += 1;
+                            clientSet.add(callback.asBinder());
+                        } catch (RemoteException e) {
+                            Slogf.w(mLogTag, "Failed to forward a frame to %s", callback);
                         }
-                        callback.onNewFrame(descriptor);
-                        refcount += 1;
-                    } catch (RemoteException e) {
-                        Slogf.w(mLogTag, "Failed to forward a frame to %s", callback);
+                    }
+                    mCallbacks.finishBroadcast();
+
+                    if (refcount > 0) {
+                        mBufferRecords.put(id, new BufferRecord(refcount, clientSet));
+                    } else {
+                        Slogf.i(mLogTag, "No client is actively listening.");
+                        mHalWrapper.doneWithFrame(id);
                     }
                 }
-                mCallbacks.finishBroadcast();
             }
             buffer.close();
-
-            if (refcount > 0) {
-                synchronized (mLock) {
-                    mBufferRecords.put(id, refcount);
-                }
-            } else {
-                Slogf.i(mLogTag, "No client is actively listening.");
-                mHalWrapper.doneWithFrame(id);
-            }
             return refcount;
         }
     }
@@ -374,6 +460,7 @@ final class StateMachine {
     /** Releases this StateMachine instance. */
     void release() {
         mHandler.removeCallbacks(mActivityRequestTimeoutRunnable);
+        mHandler.removeCallbacks(mConnectToHalServiceIfNecessaryRunnable);
         mHalWrapper.release();
     }
 
@@ -417,22 +504,8 @@ final class StateMachine {
      * @param id An identifier of a frame buffer we have consumed.
      */
     void doneWithFrame(int id) {
-        int bufferId = CarEvsUtils.getValue(id);
-        synchronized (mLock) {
-            int refcount = mBufferRecords.get(bufferId) - 1;
-            if (refcount > 0) {
-                if (DBG) {
-                    Slogf.d(mLogTag, "Buffer %d has %d references.", id, refcount);
-                }
-                mBufferRecords.put(bufferId, refcount);
-                return;
-            }
-
-            mBufferRecords.delete(bufferId);
-        }
-
-        // This may throw a NullPointerException if the native EVS service handle is invalid.
-        mHalWrapper.doneWithFrame(bufferId);
+        mHandler.postDelayed(new BufferReturnRunnable(CarEvsUtils.getValue(id)),
+                             BUFFER_RETURN_RUNNABLE_TOKEN, /* delayMillis= */ 0);
     }
 
     /**
@@ -826,14 +899,20 @@ final class StateMachine {
      * @param intervalInMillis an interval to try again if current attempt fails.
      */
     private void connectToHalServiceIfNecessary(long intervalInMillis) {
+        if (getCurrentStatus().getState() != SERVICE_STATE_UNAVAILABLE) {
+            if (DBG) {
+                Slogf.d(mLogTag, "A connection to the HAL service is already restored.");
+            }
+            return;
+        }
+
         if (execute(REQUEST_PRIORITY_HIGH, SERVICE_STATE_INACTIVE) == ERROR_NONE &&
                 startActivityIfNecessary() == ERROR_NONE) {
             return;
         }
 
         // Try to restore a connection again after a given amount of time.
-        mHandler.postDelayed(() -> connectToHalServiceIfNecessary(intervalInMillis),
-                intervalInMillis);
+        mHandler.postDelayed(mConnectToHalServiceIfNecessaryRunnable, intervalInMillis);
     }
 
     /**
@@ -917,18 +996,19 @@ final class StateMachine {
                                 callback);
                     }
                     return ERROR_NONE;
-                } else {
-                    // Requested to connect to the Extended View System service
-                    if (!mHalWrapper.connectToHalServiceIfNecessary()) {
-                        return ERROR_UNAVAILABLE;
-                    }
+                }
 
-                    if (needToStartActivityLocked()) {
-                        // Request to launch the viewer because we lost the Extended View System
-                        // service while a client was actively streaming a video.
-                        mHandler.postDelayed(mActivityRequestTimeoutRunnable,
-                                             STREAM_START_REQUEST_TIMEOUT_MS);
-                    }
+                // Requested to connect to the Extended View System service
+                if (!mHalWrapper.connectToHalServiceIfNecessary()) {
+                    return ERROR_UNAVAILABLE;
+                }
+
+                mHandler.removeCallbacks(mConnectToHalServiceIfNecessaryRunnable);
+                if (needToStartActivityLocked()) {
+                    // Request to launch the viewer because we lost the Extended View System
+                    // service while a client was actively streaming a video.
+                    mHandler.postDelayed(mActivityRequestTimeoutRunnable,
+                                         STREAM_START_REQUEST_TIMEOUT_MS);
                 }
                 break;
 
@@ -960,6 +1040,20 @@ final class StateMachine {
                         mPrivilegedCallback = null;
                         invalidateSessionTokenLocked();
                     }
+
+                    // Create a task to return buffers held by a stopping client and schedule it.
+                    for (int i = 0; i < mBufferRecords.size(); i++) {
+                        BufferRecord rec = mBufferRecords.valueAt(i);
+                        if (!rec.contains(callback)) {
+                            continue;
+                        }
+
+                        rec.removeClient(callback);
+                        rec.decreaseReference();
+                    }
+
+                    mHandler.postDelayed(mReleaseBuffersHeldByDisconnectedClientRunnable,
+                            /* delayMillis= */ 0);
                 }
 
                 mHalWrapper.requestToStopVideoStream();
@@ -969,6 +1063,8 @@ final class StateMachine {
                 }
 
                 Slogf.i(mLogTag, "Last streaming client has been disconnected.");
+                mHandler.removeCallbacksAndMessages(BUFFER_RETURN_RUNNABLE_TOKEN);
+                releaseBuffersHeldByDisconnectedClientLocked();
                 mBufferRecords.clear();
                 break;
 
@@ -1003,6 +1099,7 @@ final class StateMachine {
                 if (!mHalWrapper.connectToHalServiceIfNecessary()) {
                     return ERROR_UNAVAILABLE;
                 }
+                mHandler.removeCallbacks(mConnectToHalServiceIfNecessaryRunnable);
                 break;
 
             case SERVICE_STATE_INACTIVE:
@@ -1107,6 +1204,8 @@ final class StateMachine {
                 if (!mHalWrapper.connectToHalServiceIfNecessary()) {
                     return ERROR_UNAVAILABLE;
                 }
+
+                mHandler.removeCallbacks(mConnectToHalServiceIfNecessaryRunnable);
                 // fallthrough
 
             case SERVICE_STATE_INACTIVE:
@@ -1131,13 +1230,6 @@ final class StateMachine {
                 break;
 
             case SERVICE_STATE_ACTIVE:
-                // CarEvsManager will transfer an active video stream to a new client with a
-                // higher or equal priority.
-                if (priority < mLastRequestPriority) {
-                    Slogf.i(mLogTag, "Declines a service request with a lower priority.");
-                    break;
-                }
-
                 result = startService();
                 if (result != ERROR_NONE) {
                     return result;
@@ -1199,6 +1291,32 @@ final class StateMachine {
         Slogf.d(mLogTag, "Timer expired.  Request to launch the activity again.");
         if (startActivityIfNecessary(/* resetState= */ true) != ERROR_NONE) {
             Slogf.w(mLogTag, "Failed to request an activity.");
+        }
+    }
+
+    private void releaseBuffersHeldByDisconnectedClient() {
+        synchronized (mLock) {
+            releaseBuffersHeldByDisconnectedClientLocked();
+        }
+    }
+
+    @GuardedBy("mLock")
+    private void releaseBuffersHeldByDisconnectedClientLocked() {
+        ArrayList<Integer> buffersToReturn = new ArrayList<>();
+        for (int i = 0; i < mBufferRecords.size(); i++) {
+            BufferRecord rec = mBufferRecords.valueAt(i);
+            if (rec.getReferenceCount() > 0) {
+                continue;
+            }
+
+            int bufferId = mBufferRecords.keyAt(i);
+            buffersToReturn.add(bufferId);
+        }
+
+        for (Integer bufferId : buffersToReturn) {
+            int id = bufferId.intValue();
+            mHalWrapper.doneWithFrame(id);
+            mBufferRecords.delete(id);
         }
     }
 

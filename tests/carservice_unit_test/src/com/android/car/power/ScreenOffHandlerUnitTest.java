@@ -24,6 +24,7 @@ import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -827,6 +828,39 @@ public final class ScreenOffHandlerUnitTest extends AbstractExtendedMockitoTestC
         advanceTime(SCREEN_OFF_TIMEOUT);
 
         verify(mSystemInterface, never()).setDisplayState(displayId, false);
+    }
+
+    // Test the default power policy assigned to a display that is missing from the config.
+    @Test
+    public void testDefaultDisplayPowerMode_missingFromSettings() throws Exception {
+        OccupantZoneInfo zoneInfo = mCarOccupantZoneService.getOccupantZone(
+                CarOccupantZoneManager.OCCUPANT_TYPE_REAR_PASSENGER,
+                VehicleAreaSeat.SEAT_ROW_2_LEFT);
+        int zoneId = zoneInfo.zoneId;
+        int displayId = mCarOccupantZoneService.getDisplayForOccupant(
+                zoneId, CarOccupantZoneManager.DISPLAY_TYPE_MAIN);
+        var mockDisplay = createMockDisplay(displayId);
+        new MockDisplays(mDisplayManager).addDisplay(mockDisplay).create();
+
+        DisplayPowerModeBuilder builder = new DisplayPowerModeBuilder(mDisplayManager);
+        // We only have the settings for driver display
+        OccupantZoneInfo zoneInfoDriver = mCarOccupantZoneService.getOccupantZone(
+                CarOccupantZoneManager.OCCUPANT_TYPE_DRIVER,
+                VehicleAreaSeat.SEAT_ROW_1_LEFT);
+        int driverDisplayid = mCarOccupantZoneService.getDisplayForOccupant(
+                zoneInfoDriver.zoneId, CarOccupantZoneManager.DISPLAY_TYPE_MAIN);
+        builder.setDisplayMode(createMockDisplay(driverDisplayid),
+                ScreenOffHandler.DISPLAY_POWER_MODE_ALWAYS_ON);
+        Settings.Global.putString(mContentResolver, CarSettings.Global.DISPLAY_POWER_MODE,
+                builder.build());
+
+        bootComplete();
+
+        // We should by assign the default power mode: ALWAYS_ON to passenger display if it is
+        // missing from the settings.
+        advanceTime(SCREEN_OFF_TIMEOUT + 1);
+
+        verify(mSystemInterface, never()).setDisplayState(anyInt(), eq(false));
     }
 
     private void setService() {
