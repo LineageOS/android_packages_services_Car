@@ -21,7 +21,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:text="@*android:string/use_a_different_app"
-    android:textAppearance="@*android:style/TextAppearance.DeviceDefault.DialogWindowTitle"
+    android:textAppearance="?oemTextAppearanceBodyLarge"
     android:gravity="start|center_vertical"
     android:paddingVertical="@*android:dimen/car_padding_4"
     android:paddingHorizontal="@*android:dimen/car_padding_4" />

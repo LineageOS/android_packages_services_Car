@@ -20,7 +20,7 @@
         android:gravity="center"
         android:top="@dimen/car_switch_track_margin_vertical">
         <shape android:shape="rectangle">
-            <corners android:radius="@dimen/car_switch_thumb_outer_radius" />
+            <corners android:radius="?oemShapeCornerMedium" />
             <padding
                 android:left="@dimen/car_switch_thumb_stroke_width"
                 android:right="@dimen/car_switch_thumb_stroke_width" />

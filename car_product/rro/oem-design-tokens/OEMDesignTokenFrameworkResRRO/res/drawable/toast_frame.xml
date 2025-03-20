@@ -17,6 +17,6 @@
 -->
 <shape xmlns:android="http://schemas.android.com/apk/res/android"
        android:shape="rectangle">
-    <solid android:color="@color/car_inverse_surface" />
-    <corners android:radius="@dimen/toast_corner_radius" />
+    <solid android:color="?oemColorSurfaceInverse" />
+    <corners android:radius="?oemShapeCornerExtraLarge" />
 </shape>

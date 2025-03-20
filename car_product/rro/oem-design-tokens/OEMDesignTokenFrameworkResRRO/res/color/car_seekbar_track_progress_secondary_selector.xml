@@ -18,6 +18,6 @@
     <item
         android:state_enabled="false"
         android:alpha="?android:attr/disabledAlpha"
-        android:color="@color/car_seekbar_track_progress_secondary"/>
-    <item android:color="@color/car_seekbar_track_progress_secondary"/>
+        android:color="?oemColorSecondary"/>
+    <item android:color="?oemColorSecondary"/>
 </selector>

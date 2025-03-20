@@ -18,12 +18,12 @@
     <item
         android:state_checked="true" android:state_enabled="false"
         android:alpha="?android:attr/disabledAlpha"
-        android:color="@color/car_switch_track_background_checked" />
+        android:color="?oemColorPrimary" />
     <item
         android:state_enabled="false"
         android:alpha="?android:attr/disabledAlpha"
-        android:color="@color/car_switch_track_background_unchecked" />
+        android:color="?oemColorSecondaryContainer" />
     <item
-        android:state_checked="true" android:color="@color/car_switch_track_background_checked" />
-    <item android:color="@color/car_switch_track_background_unchecked" />
+        android:state_checked="true" android:color="?oemColorPrimary" />
+    <item android:color="?oemColorSecondaryContainer" />
 </selector>
