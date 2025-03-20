@@ -6539,6 +6539,11 @@ public final class VehiclePropertyIds {
      * that the OEM supports a more granular set of regeneration levels than those provided by this
      * property through {@link EvRegenerativeBrakingState}.
      *
+     * <p>For the global area ID(0),
+     * {@link android.car.hardware.property.AreaIdConfig#hasSupportedValuesList()} will be
+     * {@code true}. {@link android.car.hardware.property.CarPropertyManager#getSupportedValuesList}
+     * specifies which enum values from {@code EvRegenerativeBrakingState} are supported.
+     *
      * <p>Property Config:
      * <ul>
      *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
@@ -6593,6 +6598,11 @@ public final class VehiclePropertyIds {
      * <p>Returns the trailer state of the car. See {@code TrailerState} for possible values for
      * {@code TRAILER_PRESENT}.
      *
+     * <p>For the global area ID(0),
+     * {@link android.car.hardware.property.AreaIdConfig#hasSupportedValuesList()} will be
+     * {@code true}. {@link android.car.hardware.property.CarPropertyManager#getSupportedValuesList}
+     * specifies which enum values from {@code TrailerState} are supported.
+     *
      * <p>Property Config:
      * <ul>
      *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
@@ -6645,10 +6655,11 @@ public final class VehiclePropertyIds {
      * revision of the SAE standard levels 0-5, with 0 representing no autonomy and 5 representing
      * full driving automation.
      *
-     * <p>For the global area ID (0), the {@link
-     * android.car.hardware.property.AreaIdConfig#getSupportedEnumValues()} array obtained from
-     * {@link android.car.hardware.CarPropertyConfig#getAreaIdConfig(int)} specifies which states
-     * from {@link android.car.hardware.property.VehicleAutonomousState} are supported.
+     * <p>For the global area ID(0),
+     * {@link android.car.hardware.property.AreaIdConfig#hasSupportedValuesList()} will be
+     * {@code true}. {@link android.car.hardware.property.CarPropertyManager#getSupportedValuesList}
+     * specifies which enum values from {@link android.car.hardware.property.VehicleAutonomousState}
+     * are supported.
      *
      * <p>Property Config:
      * <ul>
@@ -6764,11 +6775,12 @@ public final class VehiclePropertyIds {
      * <p>If AEB includes forward collision warnings before activating the brakes, those warnings
      * will be surfaced through the Forward Collision Warning (FCW) properties.
      *
-     * <p>For the global area ID (0), the {@link
-     * android.car.hardware.property.AreaIdConfig#getSupportedEnumValues()} array obtained from
-     * {@link android.car.hardware.CarPropertyConfig#getAreaIdConfig(int)} specifies which states
-     * from {@link android.car.hardware.property.AutomaticEmergencyBrakingState} and {@link
-     * android.car.hardware.property.ErrorState} are supported.
+     * <p>For the global area ID(0),
+     * {@link android.car.hardware.property.AreaIdConfig#hasSupportedValuesList()} will be
+     * {@code true}. {@link android.car.hardware.property.CarPropertyManager#getSupportedValuesList}
+     * specifies which states from
+     * {@link android.car.hardware.property.AutomaticEmergencyBrakingState} and
+     * {@link android.car.hardware.property.ErrorState} are supported.
      *
      * <p>Property Config:
      * <ul>
@@ -6832,11 +6844,12 @@ public final class VehiclePropertyIds {
      * in {@link android.car.hardware.property.ForwardCollisionWarningState} or {@link
      * android.car.hardware.property.ErrorState}.
      *
-     * <p>For the global area ID (0), the {@link
-     * android.car.hardware.property.AreaIdConfig#getSupportedEnumValues()} array obtained from
-     * {@link android.car.hardware.CarPropertyConfig#getAreaIdConfig(int)} specifies which states
-     * from {@link android.car.hardware.property.ForwardCollisionWarningState} and {@link
-     * android.car.hardware.property.ErrorState} are supported.
+     * <p>For the global area ID(0),
+     * {@link android.car.hardware.property.AreaIdConfig#hasSupportedValuesList()} will be
+     * {@code true}. {@link android.car.hardware.property.CarPropertyManager#getSupportedValuesList}
+     * specifies which states from
+     * {@link android.car.hardware.property.ForwardCollisionWarningState} and
+     * {@link android.car.hardware.property.ErrorState} are supported.
      *
      * <p>Property Config:
      * <ul>
@@ -6901,11 +6914,12 @@ public final class VehiclePropertyIds {
      * in {@link android.car.hardware.property.BlindSpotWarningState} or {@link
      * android.car.hardware.property.ErrorState}.
      *
-     * <p>For the global area ID (0), the {@link
-     * android.car.hardware.property.AreaIdConfig#getSupportedEnumValues()} array obtained from
-     * {@link android.car.hardware.CarPropertyConfig#getAreaIdConfig(int)} specifies which states
-     * from {@link android.car.hardware.property.BlindSpotWarningState} and {@link
-     * android.car.hardware.property.ErrorState} are supported.
+     * <p>For each supported area ID,
+     * {@link android.car.hardware.property.AreaIdConfig#hasSupportedValuesList()} will be
+     * {@code true}. {@link android.car.hardware.property.CarPropertyManager#getSupportedValuesList}
+     * specifies which states from
+     * {@link android.car.hardware.property.BlindSpotWarningState} and
+     * {@link android.car.hardware.property.ErrorState} are supported.
      *
      * <p>Property Config:
      * <ul>
@@ -6970,11 +6984,12 @@ public final class VehiclePropertyIds {
      * in {@link android.car.hardware.property.LaneDepartureWarningState} or {@link
      * android.car.hardware.property.ErrorState}.
      *
-     * <p>For the global area ID (0), the {@link
-     * android.car.hardware.property.AreaIdConfig#getSupportedEnumValues()} array obtained from
-     * {@link android.car.hardware.CarPropertyConfig#getAreaIdConfig(int)} specifies which states
-     * from {@link android.car.hardware.property.LaneDepartureWarningState} and {@link
-     * android.car.hardware.property.ErrorState} are supported.
+     * <p>For the global area ID(0),
+     * {@link android.car.hardware.property.AreaIdConfig#hasSupportedValuesList()} will be
+     * {@code true}. {@link android.car.hardware.property.CarPropertyManager#getSupportedValuesList}
+     * specifies which states from
+     * {@link android.car.hardware.property.LaneDepartureWarningState} and
+     * {@link android.car.hardware.property.ErrorState} are supported.
      *
      * <p>Property Config:
      * <ul>
@@ -7046,11 +7061,12 @@ public final class VehiclePropertyIds {
      * <p>If LKA includes lane departure warnings before applying steering corrections, those
      * warnings will be surfaced through {@link #LANE_DEPARTURE_WARNING_STATE}.
      *
-     * <p>For the global area ID (0), the {@link
-     * android.car.hardware.property.AreaIdConfig#getSupportedEnumValues()} array obtained from
-     * {@link android.car.hardware.CarPropertyConfig#getAreaIdConfig(int)} specifies which states
-     * from {@link android.car.hardware.property.LaneKeepAssistState} and {@link
-     * android.car.hardware.property.ErrorState} are supported.
+     * <p>For the global area ID(0),
+     * {@link android.car.hardware.property.AreaIdConfig#hasSupportedValuesList()} will be
+     * {@code true}. {@link android.car.hardware.property.CarPropertyManager#getSupportedValuesList}
+     * specifies which states from
+     * {@link android.car.hardware.property.LaneKeepAssistState} and
+     * {@link android.car.hardware.property.ErrorState} are supported.
      *
      * <p>Property Config:
      * <ul>
@@ -7130,10 +7146,11 @@ public final class VehiclePropertyIds {
      * #LANE_CENTERING_ASSIST_STATE} will be set to {@link
      * android.car.hardware.property.LaneCenteringAssistState#ENABLED}.
      *
-     * <p>For the global area ID (0), the {@link
-     * android.car.hardware.property.AreaIdConfig#getSupportedEnumValues()} array obtained from
-     * {@link android.car.hardware.CarPropertyConfig#getAreaIdConfig(int)} specifies which enum
-     * values from {@link android.car.hardware.property.LaneCenteringAssistCommand} are supported.
+     * <p>For the global area ID(0),
+     * {@link android.car.hardware.property.AreaIdConfig#hasSupportedValuesList()} will be
+     * {@code true}. {@link android.car.hardware.property.CarPropertyManager#getSupportedValuesList}
+     * specifies which states from
+     * {@link android.car.hardware.property.LaneCenteringAssistCommand} are supported.
      *
      * <p>Property Config:
      * <ul>
