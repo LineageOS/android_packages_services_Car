@@ -53,6 +53,8 @@ public class AutoCaptionController {
     private static final String TAG = "AutoCaptionController";
     private static final boolean DBG = Log.isLoggable(TAG, Log.DEBUG);
     private static final int DEFAULT_Z_INDEX_CAPTION_BAR = 100001;
+    private static final String CAPTION_BAR_NAME_FORMAT = "AutoCaptionControllerBar:%d";
+    private static final String TRANSACTION_NAME_FORMAT = "AutoCaptionControllerTransaction:%d";
     private final ShellTaskOrganizer mShellTaskOrganizer;
     private final RootTaskDisplayAreaOrganizer mRootTaskDisplayAreaOrganizer;
     private final AutoSurfaceTransactionFactory mAutoSurfaceTransactionFactory;
@@ -300,7 +302,7 @@ public class AutoCaptionController {
             return;
         }
 
-        String captionBarName = "CaptionBar:" + taskInfo.taskId;
+        String captionBarName = String.format(CAPTION_BAR_NAME_FORMAT, taskInfo.taskId);
 
         AutoDecor captionDecor = mAutoDecorManager.createAutoDecor(captionView,
                 DEFAULT_Z_INDEX_CAPTION_BAR, captionBarBounds, captionBarName);
@@ -322,9 +324,10 @@ public class AutoCaptionController {
                         taskInfo.taskId, visibility);
             }
 
+            String transactionName = String.format(TRANSACTION_NAME_FORMAT, taskInfo.taskId);
+
             AutoSurfaceTransaction autoSurfaceTransaction =
-                    mAutoSurfaceTransactionFactory.createTransaction(
-                            "CaptionVisibility-" + taskInfo.taskId);
+                    mAutoSurfaceTransactionFactory.createTransaction(transactionName);
             autoSurfaceTransaction.setVisibility(captionDecor, visibility);
             autoSurfaceTransaction.apply();
         }

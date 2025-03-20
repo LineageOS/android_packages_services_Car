@@ -55,6 +55,8 @@ import org.mockito.quality.Strictness;
 @RunWith(MockitoJUnitRunner.class)
 public class AutoTaskRepositoryTest {
 
+    private static final int ROOT_TASK_ID_1 = 10;
+    private static final int ROOT_TASK_ID_2 = 11;
     private AutoTaskRepository mTaskRepository;
     private RootTaskStack mRootTaskStack1;
     private RootTaskStack mRootTaskStack2;
@@ -78,6 +80,8 @@ public class AutoTaskRepositoryTest {
     private Car.CarServiceLifecycleListener mCarServiceLifecycleListener;
 
     private MockitoSession mSession;
+    private ActivityManager.RunningTaskInfo mRootTaskStackTask1;
+    private ActivityManager.RunningTaskInfo mRootTaskStackTask2;
 
     @Before
     public void setUp() {
@@ -105,10 +109,12 @@ public class AutoTaskRepositoryTest {
         }).when(() -> Car.createCar(any(), any(), anyLong(), any()));
 
         mTaskRepository = new AutoTaskRepository(mContext, mShellTaskOrganizer);
+        mRootTaskStackTask1 = createMockTaskInfo(ROOT_TASK_ID_1);
+        mRootTaskStackTask2 = createMockTaskInfo(ROOT_TASK_ID_2);
         mRootTaskStack1 = new RootTaskStack(1, 0, mock(SurfaceControl.class),
-                "testRootTaskStack1", createMockTaskInfo(1));
+                "testRootTaskStack1", mRootTaskStackTask1);
         mRootTaskStack2 = new RootTaskStack(1, 0, mock(SurfaceControl.class),
-                "testRootTaskStack2", createMockTaskInfo(1));
+                "testRootTaskStack2", mRootTaskStackTask2);
     }
 
     @After
@@ -120,13 +126,17 @@ public class AutoTaskRepositoryTest {
 
     @Test
     public void testAddTask() {
-        ActivityManager.RunningTaskInfo taskInfo1 = createMockTaskInfo(1);
+        int taskId = 7;
+        ActivityManager.RunningTaskInfo taskInfo1 = createMockTaskInfo(taskId);
         SurfaceControl surfaceControl1 = mock(SurfaceControl.class);
 
         mTaskRepository.onRootTaskStackCreated(mRootTaskStack1);
         mTaskRepository.onTaskAppeared(mRootTaskStack1, taskInfo1, surfaceControl1);
 
         assertThat(mTaskRepository.getTaskStack(mRootTaskStack1)).hasSize(1);
+        assertThat(mTaskRepository.getTaskStack(mRootTaskStack1).get(0).taskId).isEqualTo(taskId);
+        assertThat(mTaskRepository.getTaskInfo(taskId)).isEqualTo(taskInfo1);
+        assertThat(mTaskRepository.getTaskInfo(ROOT_TASK_ID_1)).isEqualTo(mRootTaskStackTask1);
         assertThat(mTaskRepository.getSurfaceControl(taskInfo1)).isEqualTo(surfaceControl1);
         verify(mCarActivityManager).onTaskAppeared(any(), any());
         verify(mCarActivityManager).onRootTaskAppeared(anyString(), any(), any());
@@ -196,6 +206,8 @@ public class AutoTaskRepositoryTest {
         assertThat(mTaskRepository.getTaskStack(mRootTaskStack2)).hasSize(1);
         assertThat(mTaskRepository.getSurfaceControl(taskInfo1)).isEqualTo(surfaceControl1);
         assertThat(mTaskRepository.getSurfaceControl(taskInfo2)).isEqualTo(surfaceControl2);
+        assertThat(mTaskRepository.getTaskInfo(ROOT_TASK_ID_1)).isEqualTo(mRootTaskStackTask1);
+        assertThat(mTaskRepository.getTaskInfo(ROOT_TASK_ID_2)).isEqualTo(mRootTaskStackTask2);
         verify(mCarActivityManager, times(2)).onTaskAppeared(any(), any());
         verify(mCarActivityManager, times(2)).onRootTaskAppeared(anyString(), any(), any());
     }

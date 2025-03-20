@@ -169,8 +169,8 @@ public class AutoTaskRepository {
         }
 
         for (RootTaskStackInfo rootTaskStackInfo : mRootTaskStacks.values()) {
-            if (rootTaskStackInfo.getTaskStack().get(taskId) != null) {
-                return rootTaskStackInfo.getTaskStack().get(taskId);
+            if (rootTaskStackInfo.getTaskInfo(taskId) != null) {
+                return rootTaskStackInfo.getTaskInfo(taskId);
             }
         }
 
@@ -462,6 +462,13 @@ public class AutoTaskRepository {
 
         List<ActivityManager.RunningTaskInfo> getTaskStack() {
             return new ArrayList<>(mTaskStack.values());
+        }
+
+        ActivityManager.RunningTaskInfo getTaskInfo(int taskId) {
+            if (mRootTaskStack.getRootTaskInfo().taskId == taskId) {
+                return mRootTaskStack.getRootTaskInfo();
+            }
+            return mTaskStack.get(taskId);
         }
     }
 }
