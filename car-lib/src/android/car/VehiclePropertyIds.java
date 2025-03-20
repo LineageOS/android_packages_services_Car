@@ -7183,11 +7183,12 @@ public final class VehiclePropertyIds {
      * <p>If LCA includes lane departure warnings, those warnings will be surfaced through the Lane
      * Departure Warning (LDW) properties.
      *
-     * <p>For the global area ID (0), the {@link
-     * android.car.hardware.property.AreaIdConfig#getSupportedEnumValues()} array obtained from
-     * {@link android.car.hardware.CarPropertyConfig#getAreaIdConfig(int)} specifies which states
-     * from {@link android.car.hardware.property.LaneCenteringAssistState} and {@link
-     * android.car.hardware.property.ErrorState} are supported.
+     * <p>For the global area ID(0),
+     * {@link android.car.hardware.property.AreaIdConfig#hasSupportedValuesList()} will be
+     * {@code true}. {@link android.car.hardware.property.CarPropertyManager#getSupportedValuesList}
+     * specifies which states from
+     * {@link android.car.hardware.property.LaneCenteringAssistState} and
+     * {@link android.car.hardware.property.ErrorState} are supported.
      *
      * <p>Property Config:
      * <ul>
@@ -7255,11 +7256,12 @@ public final class VehiclePropertyIds {
      * to some temporary state, that information should be conveyed through {@link
      * android.car.hardware.property.ErrorState}.
      *
-     * <p>For the global area ID (0), the {@link
-     * android.car.hardware.property.AreaIdConfig#getSupportedEnumValues()} array obtained from
-     * {@link android.car.hardware.CarPropertyConfig#getAreaIdConfig(int)} specifies which states
-     * from {@link android.car.hardware.property.EmergencyLaneKeepAssistState} and {@link
-     * android.car.hardware.property.ErrorState} are supported.
+     * <p>For the global area ID(0),
+     * {@link android.car.hardware.property.AreaIdConfig#hasSupportedValuesList()} will be
+     * {@code true}. {@link android.car.hardware.property.CarPropertyManager#getSupportedValuesList}
+     * specifies which states from
+     * {@link android.car.hardware.property.EmergencyLaneKeepAssistState} and
+     * {@link android.car.hardware.property.ErrorState} are supported.
      *
      * <p>Property Config:
      * <ul>
@@ -7330,13 +7332,14 @@ public final class VehiclePropertyIds {
      * to some temporary state, that information should be conveyed through {@link
      * android.car.hardware.property.ErrorState}.
      *
-     * <p>For the global area ID (0), the {@link
-     * android.car.hardware.property.AreaIdConfig#getSupportedEnumValues()} array obtained from
-     * {@link android.car.hardware.CarPropertyConfig#getAreaIdConfig(int)} specifies which states
-     * from {@link android.car.hardware.property.CruiseControlType} and {@link
-     * android.car.hardware.property.ErrorState} are supported.
+     * <p>For the global area ID(0),
+     * {@link android.car.hardware.property.AreaIdConfig#hasSupportedValuesList()} will be
+     * {@code true}. {@link android.car.hardware.property.CarPropertyManager#getSupportedValuesList}
+     * specifies which states from
+     * {@link android.car.hardware.property.CruiseControlType} and
+     * {@link android.car.hardware.property.ErrorState} are supported.
      *
-     * Trying to write {@link android.car.hardware.property.CruiseControlType#OTHER} or an
+     * <p>Trying to write {@link android.car.hardware.property.CruiseControlType#OTHER} or an
      * {@link android.car.hardware.property.ErrorState} to this property will throw an {@code
      * IllegalArgumentException}.
      *
@@ -7376,11 +7379,12 @@ public final class VehiclePropertyIds {
      * to some temporary state, that information should be conveyed through {@link
      * android.car.hardware.property.ErrorState}.
      *
-     * <p>For the global area ID (0), the {@link
-     * android.car.hardware.property.AreaIdConfig#getSupportedEnumValues()} array obtained from
-     * {@link android.car.hardware.CarPropertyConfig#getAreaIdConfig(int)} specifies which states
-     * from {@link android.car.hardware.property.CruiseControlState} and {@link
-     * android.car.hardware.property.ErrorState} are supported.
+     * <p>For the global area ID(0),
+     * {@link android.car.hardware.property.AreaIdConfig#hasSupportedValuesList()} will be
+     * {@code true}. {@link android.car.hardware.property.CarPropertyManager#getSupportedValuesList}
+     * specifies which states from
+     * {@link android.car.hardware.property.CruiseControlState} and
+     * {@link android.car.hardware.property.ErrorState} are supported.
      *
      * <p>Property Config:
      * <ul>
@@ -7410,10 +7414,11 @@ public final class VehiclePropertyIds {
      * <p>See {@link android.car.hardware.property.CruiseControlCommand} for the details about
      * each supported command.
      *
-     * <p>For the global area ID (0), the {@link
-     * android.car.hardware.property.AreaIdConfig#getSupportedEnumValues()} array obtained from
-     * {@link android.car.hardware.CarPropertyConfig#getAreaIdConfig(int)} specifies which states
-     * from {@link android.car.hardware.property.CruiseControlCommand} are supported.
+     * <p>For the global area ID(0),
+     * {@link android.car.hardware.property.AreaIdConfig#hasSupportedValuesList()} will be
+     * {@code true}. {@link android.car.hardware.property.CarPropertyManager#getSupportedValuesList}
+     * specifies which states from
+     * {@link android.car.hardware.property.CruiseControlCommand} are supported.
      *
      * <p>When this property is unavailable (for example when {@link #CRUISE_CONTROL_ENABLED} is
      * false), writing this property will throw a {@link
@@ -7484,9 +7489,12 @@ public final class VehiclePropertyIds {
      * vehicle's front-most point. The actual time gap from a leading vehicle can be above or below
      * this value.
      *
-     * <p>The possible values to set for the target time gap should be specified in {@code
-     * configArray} in ascending order. All values must be positive. If the property is writable,
-     * all values must be writable.
+     * <p>For the global area ID(0),
+     * {@link android.car.hardware.property.AreaIdConfig#hasSupportedValuesList()} will be
+     * {@code true}. {@link android.car.hardware.property.CarPropertyManager#getSupportedValuesList}
+     * specifies the supported target time gap in ascending order.
+     *
+     * <p>All values must be positive. If the property is writable, all values must be writable.
      *
      * <p>When this property is unavailable (for example when {@link #CRUISE_CONTROL_ENABLED} is
      * false), reading or writing this property will throw a {@link
@@ -7605,11 +7613,11 @@ public final class VehiclePropertyIds {
      * the steering wheel for too long, the warning should be surfaced through
      * {@link #HANDS_ON_DETECTION_WARNING}.
      *
-     * <p>For the global area ID (0), the {@link
-     * android.car.hardware.property.AreaIdConfig#getSupportedEnumValues()} array obtained from
-     * {@link android.car.hardware.CarPropertyConfig#getAreaIdConfig(int)} specifies which states
-     * from {@link android.car.hardware.property.HandsOnDetectionDriverState} and {@link
-     * android.car.hardware.property.ErrorState} are supported.
+     * <p>For the global area ID(0),
+     * {@link android.car.hardware.property.AreaIdConfig#hasSupportedValuesList()} will be
+     * {@code true}. {@link android.car.hardware.property.CarPropertyManager#getSupportedValuesList}
+     * specifies which states from {@link android.car.hardware.property.HandsOnDetectionDriverState}
+     * and {@link android.car.hardware.property.ErrorState} are supported.
      *
      * <p>Property Config:
      * <ul>
@@ -7644,11 +7652,11 @@ public final class VehiclePropertyIds {
      * to some temporary state, that information should be conveyed through an {@link
      * android.car.hardware.property.ErrorState}.
      *
-     * <p>For the global area ID (0), the {@link
-     * android.car.hardware.property.AreaIdConfig#getSupportedEnumValues()} array obtained from
-     * {@link android.car.hardware.CarPropertyConfig#getAreaIdConfig(int)} specifies which states
-     * from {@link android.car.hardware.property.HandsOnDetectionWarning} and {@link
-     * android.car.hardware.property.ErrorState} are supported.
+     * <p>For the global area ID(0),
+     * {@link android.car.hardware.property.AreaIdConfig#hasSupportedValuesList()} will be
+     * {@code true}. {@link android.car.hardware.property.CarPropertyManager#getSupportedValuesList}
+     * specifies which states from {@link android.car.hardware.property.HandsOnDetectionWarning}
+     * and {@link android.car.hardware.property.ErrorState} are supported.
      *
      * <p>Property Config:
      * <ul>
