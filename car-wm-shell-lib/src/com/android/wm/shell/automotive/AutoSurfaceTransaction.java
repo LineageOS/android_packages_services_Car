@@ -128,6 +128,18 @@ public class AutoSurfaceTransaction {
         return this;
     }
 
+    /**
+     * Sets the task surface crop
+     *
+     * @param taskId The taskId whose surface needs to be updated.
+     * @param cropBounds Updated bounds.
+     * @return This {@link AutoSurfaceTransaction} instance for chaining.
+     */
+    public AutoSurfaceTransaction setTaskSurfaceCrop(int taskId, Rect cropBounds) {
+        SurfaceControl surfaceControl = mAutoTaskRepository.getSurfaceControl(taskId);
+        mTransaction.setCrop(surfaceControl, cropBounds);
+        return this;
+    }
 
     /**
      * Sets the z-order of an {@link AutoDecor}.
@@ -145,16 +157,16 @@ public class AutoSurfaceTransaction {
         return this;
     }
 
-
     /**
-     * Sets the task surface crop
+     * Sets the Auto Decor crop
      *
-     * @param taskId The taskId whose surface needs to be updated.
+     * @param autoDecor The {@link AutoDecor} to update.
      * @param cropBounds Updated bounds.
      * @return This {@link AutoSurfaceTransaction} instance for chaining.
      */
-    public AutoSurfaceTransaction setTaskSurfaceCrop(int taskId, Rect cropBounds) {
-        SurfaceControl surfaceControl = mAutoTaskRepository.getSurfaceControl(taskId);
+    public AutoSurfaceTransaction setCrop(AutoDecor autoDecor, Rect cropBounds) {
+        SurfaceControlViewHost viewHost = autoDecor.getViewHost();
+        SurfaceControl surfaceControl = viewHost.getSurfacePackage().getSurfaceControl();
         mTransaction.setCrop(surfaceControl, cropBounds);
         return this;
     }
