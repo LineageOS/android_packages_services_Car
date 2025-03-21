@@ -16,7 +16,11 @@
 
 package com.android.wm.shell.automotive;
 
+import android.annotation.NonNull;
+
 import com.android.wm.shell.dagger.WMSingleton;
+
+import java.util.Objects;
 
 import javax.inject.Inject;
 
@@ -37,7 +41,8 @@ public class AutoSurfaceTransactionFactory {
      * @param transactionName Used for debugging.
      * @return a new Auto surface transaction.
      */
-    public AutoSurfaceTransaction createTransaction(String transactionName) {
+    public AutoSurfaceTransaction createTransaction(@NonNull String transactionName) {
+        Objects.requireNonNull(transactionName);
         return new AutoSurfaceTransaction(transactionName, mAutoTaskRepository);
     }
 }

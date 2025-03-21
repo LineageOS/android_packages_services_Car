@@ -19,6 +19,7 @@ package com.android.wm.shell.automotive;
 import static com.android.wm.shell.Flags.enableAutoTaskStackController;
 import static com.android.window.flags.Flags.safeRegionLetterboxing;
 
+import android.annotation.NonNull;
 import android.app.ActivityManager;
 import android.graphics.Rect;
 import android.os.Binder;
@@ -33,6 +34,9 @@ import com.android.internal.annotations.VisibleForTesting;
 import com.android.server.utils.Slogf;
 import com.android.wm.shell.ShellTaskOrganizer;
 import com.android.wm.shell.dagger.WMSingleton;
+
+import java.io.PrintWriter;
+import java.util.Objects;
 
 import javax.inject.Inject;
 
@@ -68,7 +72,11 @@ public class AutoLayoutManager {
      * using the safe region are present, they will receive a config change. Pass safeRegion null
      * for resetting the safe region.
      */
-    public void setOrUpdateSafeRegion(WindowContainerToken windowContainerToken, Rect safeRegion) {
+    public void setOrUpdateSafeRegion(@NonNull WindowContainerToken windowContainerToken,
+            @NonNull  Rect safeRegion) {
+        Objects.requireNonNull(windowContainerToken);
+        Objects.requireNonNull(safeRegion);
+
         if (!safeRegionLetterboxing()) {
             Slogf.e(TAG, "safe_region_letterboxing TS flag is disabled.");
             return;
@@ -93,7 +101,11 @@ public class AutoLayoutManager {
      * @param type          The type of the inset.
      * @param frame         The frame of the inset.
      */
-    public void addOrUpdateInsets(RootTaskStack rootTaskStack, int index, int type, Rect frame) {
+    public void addOrUpdateInsets(@NonNull RootTaskStack rootTaskStack, int index, int type,
+            @NonNull  Rect frame) {
+        Objects.requireNonNull(rootTaskStack);
+        Objects.requireNonNull(frame);
+
         if (!enableAutoTaskStackController()) {
             Slogf.e(TAG, "auto_task_stack_windowing TS flag is disabled.");
             return;
@@ -135,7 +147,9 @@ public class AutoLayoutManager {
      * @param index         The index of the inset.
      * @param type          The type of the inset.
      */
-    public void removeInsets(RootTaskStack rootTaskStack, int index, int type) {
+    public void removeInsets(@NonNull RootTaskStack rootTaskStack, int index, int type) {
+        Objects.requireNonNull(rootTaskStack);
+
         if (!enableAutoTaskStackController()) {
             Slogf.e(TAG, "auto_task_stack_windowing TS flag is disabled.");
             return;
@@ -184,6 +198,7 @@ public class AutoLayoutManager {
      *
      * @param taskId The task id.
      */
+    // TODO(b/405379514): When task disappear, call this to remove all the inset.
     void removeAllInsetForTask(int taskId) {
         ArraySet<InsetsFrameProvider> insetsFrameProviders = mTaskIdToInsetFrameProviderMap.get(
                 taskId);
@@ -200,5 +215,24 @@ public class AutoLayoutManager {
         mShellTaskOrganizer.applyTransaction(wct);
 
         mTaskIdToInsetFrameProviderMap.remove(taskId);
+    }
+
+    void dump(PrintWriter pw, String prefix) {
+        pw.println(prefix + "AutoLayoutManager:");
+        for (int i = 0; i < mTaskIdToInsetFrameProviderMap.size(); i++) {
+            int taskId = mTaskIdToInsetFrameProviderMap.keyAt(i);
+            ArraySet<InsetsFrameProvider> insetsFrameProviders =
+                    mTaskIdToInsetFrameProviderMap.valueAt(i);
+            pw.println(
+                    prefix + "TaskId:" + taskId + " inset Count: " + insetsFrameProviders.size());
+            String insetPrefix = "    ";
+            if (!insetsFrameProviders.isEmpty()) {
+                pw.println(prefix + "Insets:");
+            }
+            for (int j = 0; j < insetsFrameProviders.size(); j++) {
+                pw.println(prefix + insetPrefix + insetsFrameProviders.valueAt(i));
+            }
+
+        }
     }
 }

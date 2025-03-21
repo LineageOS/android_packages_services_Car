@@ -20,6 +20,7 @@ import static android.view.WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
 import static android.view.WindowManager.LayoutParams.FLAG_SPLIT_TOUCH;
 import static android.view.WindowManager.LayoutParams.TYPE_APPLICATION;
 
+import android.annotation.NonNull;
 import android.graphics.PixelFormat;
 import android.graphics.Rect;
 import android.util.Log;
@@ -33,6 +34,7 @@ import com.android.server.utils.Slogf;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * A class for managing a set of atomic changes to multiple {@link AutoDecor} instances.
@@ -135,7 +137,8 @@ public class AutoSurfaceTransaction {
      * @param cropBounds Updated bounds.
      * @return This {@link AutoSurfaceTransaction} instance for chaining.
      */
-    public AutoSurfaceTransaction setTaskSurfaceCrop(int taskId, Rect cropBounds) {
+    public AutoSurfaceTransaction setTaskSurfaceCrop(int taskId, @NonNull Rect cropBounds) {
+        Objects.requireNonNull(cropBounds);
         SurfaceControl surfaceControl = mAutoTaskRepository.getSurfaceControl(taskId);
         mTransaction.setCrop(surfaceControl, cropBounds);
         return this;
@@ -147,7 +150,9 @@ public class AutoSurfaceTransaction {
      * @param cornerRadius The corner radius.
      * @return This {@link AutoSurfaceTransaction} instance for chaining.
      */
-    public AutoSurfaceTransaction setCornerRadius(AutoDecor autoDecor, float cornerRadius) {
+    public AutoSurfaceTransaction setCornerRadius(@NonNull AutoDecor autoDecor,
+            float cornerRadius) {
+        Objects.requireNonNull(autoDecor);
         SurfaceControlViewHost viewHost = autoDecor.getViewHost();
         SurfaceControl surfaceControl = viewHost.getSurfacePackage().getSurfaceControl();
         // Crop is required for setCornerRadius API to work.
@@ -164,7 +169,9 @@ public class AutoSurfaceTransaction {
      * @param cropBounds Updated bounds.
      * @return This {@link AutoSurfaceTransaction} instance for chaining.
      */
-    public AutoSurfaceTransaction setCrop(AutoDecor autoDecor, Rect cropBounds) {
+    public AutoSurfaceTransaction setCrop(@NonNull AutoDecor autoDecor, @NonNull Rect cropBounds) {
+        Objects.requireNonNull(autoDecor);
+        Objects.requireNonNull(cropBounds);
         SurfaceControlViewHost viewHost = autoDecor.getViewHost();
         SurfaceControl surfaceControl = viewHost.getSurfacePackage().getSurfaceControl();
         mTransaction.setCrop(surfaceControl, cropBounds);
@@ -178,7 +185,9 @@ public class AutoSurfaceTransaction {
      * @param bounds The new bounds.
      * @return This {@link AutoSurfaceTransaction} instance for chaining.
      */
-    public AutoSurfaceTransaction setBounds(AutoDecor autoDecor, Rect bounds) {
+    public AutoSurfaceTransaction setBounds(@NonNull AutoDecor autoDecor, @NonNull Rect bounds) {
+        Objects.requireNonNull(autoDecor);
+        Objects.requireNonNull(bounds);
         if (DBG) {
             Slogf.d(TAG, "Updating bounds for decor %s to the new bounds %s", autoDecor, bounds);
         }
@@ -209,7 +218,8 @@ public class AutoSurfaceTransaction {
      * @param zOrder The new z-order.
      * @return This {@link AutoSurfaceTransaction} instance for chaining.
      */
-    public AutoSurfaceTransaction setZOrder(AutoDecor autoDecor, int zOrder) {
+    public AutoSurfaceTransaction setZOrder(@NonNull AutoDecor autoDecor, int zOrder) {
+        Objects.requireNonNull(autoDecor);
         if (DBG) {
             Slogf.d(TAG, "Updating zOrder for decor %s to the new z order %d", autoDecor, zOrder);
         }
@@ -231,7 +241,8 @@ public class AutoSurfaceTransaction {
      * @param isVisible The new visibility.
      * @return This {@link AutoSurfaceTransaction} instance for chaining.
      */
-    public AutoSurfaceTransaction setVisibility(AutoDecor autoDecor, boolean isVisible) {
+    public AutoSurfaceTransaction setVisibility(@NonNull AutoDecor autoDecor, boolean isVisible) {
+        Objects.requireNonNull(autoDecor);
         if (DBG) {
             Slogf.d(TAG, "Updating Decor Visibility for decor %s to %s", this, isVisible);
         }
