@@ -534,7 +534,6 @@ public final class Car implements ICarBase {
      */
     @MandatoryFeature
     @SystemApi
-    @FlaggedApi(Flags.FLAG_PERSIST_AP_SETTINGS)
     public static final String CAR_WIFI_SERVICE = "car_wifi_service";
 
     /**
@@ -1463,7 +1462,6 @@ public final class Car implements ICarBase {
      * Permission necessary to read persist tethering settings.
      * @hide
      */
-    @FlaggedApi(Flags.FLAG_PERSIST_AP_SETTINGS)
     @SystemApi
     public static final String PERMISSION_READ_PERSIST_TETHERING_SETTINGS =
             "android.car.permission.READ_PERSIST_TETHERING_SETTINGS";
@@ -1926,9 +1924,7 @@ public final class Car implements ICarBase {
         CAR_SERVICE_NAMES.put(CarRemoteAccessManager.class, CAR_REMOTE_ACCESS_SERVICE);
         CAR_SERVICE_NAMES.put(CarOccupantConnectionManager.class, CAR_OCCUPANT_CONNECTION_SERVICE);
         CAR_SERVICE_NAMES.put(CarRemoteDeviceManager.class, CAR_REMOTE_DEVICE_SERVICE);
-        if (Flags.persistApSettings()) {
-            CAR_SERVICE_NAMES.put(CarWifiManager.class, CAR_WIFI_SERVICE);
-        }
+        CAR_SERVICE_NAMES.put(CarWifiManager.class, CAR_WIFI_SERVICE);
         if (Flags.displayCompatibility()) {
             CAR_SERVICE_NAMES.put(CarDisplayCompatManager.class, CAR_DISPLAY_COMPAT_SERVICE);
         }
@@ -3201,17 +3197,14 @@ public final class Car implements ICarBase {
             case CAR_REMOTE_DEVICE_SERVICE:
                 manager = new CarRemoteDeviceManager(this, binder);
                 break;
+            case CAR_WIFI_SERVICE:
+                manager = new CarWifiManager(this, binder);
+                break;
             default:
                 // Experimental or non-existing
                 if (Flags.displayCompatibility()) {
                     if (serviceName.equals(CAR_DISPLAY_COMPAT_SERVICE)) {
-                        manager =  new CarDisplayCompatManager(this, binder);
-                        break;
-                    }
-                }
-                if (Flags.persistApSettings()) {
-                    if (serviceName.equals(CAR_WIFI_SERVICE)) {
-                        manager = new CarWifiManager(this, binder);
+                        manager = new CarDisplayCompatManager(this, binder);
                         break;
                     }
                 }
