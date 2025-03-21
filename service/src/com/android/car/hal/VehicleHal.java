@@ -152,8 +152,8 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
     /** Stores handler for each HAL property. Property events are sent to handler. */
     @GuardedBy("mLock")
     private final SparseArray<HalServiceBase> mPropertyHandlers = new SparseArray<>();
-    /** This is for iterating all HalServices with fixed order. */
-    @GuardedBy("mLock")
+    // This is for iterating all HalServices with fixed order. Only initialized during
+    // constructor.
     private final List<HalServiceBase> mAllServices;
     @GuardedBy("mLock")
     private PairSparseArray<RateInfo> mRateInfoByPropIdAreaId = new PairSparseArray<>();
@@ -511,10 +511,10 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
         fetchAllPropConfigs();
 
         // PropertyHalService will take most properties, so make it big enough.
-        ArrayMap<HalServiceBase, ArrayList<HalPropConfig>> configsForAllServices;
+        ArrayMap<HalServiceBase, ArrayList<HalPropConfig>> configsForAllServices =
+                new ArrayMap<>(mAllServices.size());
         var propertyConfigsByPropId = mPropertyConfigsByPropIdRef.get();
         synchronized (mLock) {
-            configsForAllServices = new ArrayMap<>(mAllServices.size());
             for (int i = 0; i < mAllServices.size(); i++) {
                 ArrayList<HalPropConfig> configsForService = new ArrayList();
                 HalServiceBase service = mAllServices.get(i);
@@ -556,12 +556,12 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
      */
     @Override
     public void release() {
+        // release in reverse order from init
+        for (int i = mAllServices.size() - 1; i >= 0; i--) {
+            mAllServices.get(i).release();
+        }
         ArraySet<Integer> subscribedProperties = new ArraySet<>();
         synchronized (mLock) {
-            // release in reverse order from init
-            for (int i = mAllServices.size() - 1; i >= 0; i--) {
-                mAllServices.get(i).release();
-            }
             for (int i = 0; i < mRateInfoByPropIdAreaId.size(); i++) {
                 int propertyId = mRateInfoByPropIdAreaId.keyPairAt(i)[0];
                 subscribedProperties.add(propertyId);
@@ -1337,15 +1337,15 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
     @Override
     @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     public void dump(IndentingPrintWriter writer) {
+        writer.println("**dump HAL services**");
+        for (int i = 0; i < mAllServices.size(); i++) {
+            mAllServices.get(i).dump(writer);
+        }
+        // Dump all VHAL property configure.
+        dumpPropertyConfigs(writer, -1);
+        writer.printf("**All Events, now ns:%d**\n",
+                SystemClock.elapsedRealtimeNanos());
         synchronized (mLock) {
-            writer.println("**dump HAL services**");
-            for (int i = 0; i < mAllServices.size(); i++) {
-                mAllServices.get(i).dump(writer);
-            }
-            // Dump all VHAL property configure.
-            dumpPropertyConfigs(writer, -1);
-            writer.printf("**All Events, now ns:%d**\n",
-                    SystemClock.elapsedRealtimeNanos());
             for (int i = 0; i < mEventLog.size(); i++) {
                 VehiclePropertyEventInfo info = mEventLog.valueAt(i);
                 writer.printf("event count:%d, lastEvent: ", info.mEventCount);
@@ -1581,10 +1581,8 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
      * Dumps the list of HALs.
      */
     public void dumpListHals(PrintWriter writer) {
-        synchronized (mLock) {
-            for (int i = 0; i < mAllServices.size(); i++) {
-                writer.println(mAllServices.get(i).getClass().getName());
-            }
+        for (int i = 0; i < mAllServices.size(); i++) {
+            writer.println(mAllServices.get(i).getClass().getName());
         }
     }
 
@@ -1592,21 +1590,19 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
      * Dumps the given HALs.
      */
     public void dumpSpecificHals(PrintWriter writer, String... halNames) {
-        synchronized (mLock) {
-            ArrayMap<String, HalServiceBase> byName = new ArrayMap<>();
-            for (int index = 0; index < mAllServices.size(); index++) {
-                HalServiceBase halService = mAllServices.get(index);
-                byName.put(halService.getClass().getSimpleName(), halService);
+        ArrayMap<String, HalServiceBase> byName = new ArrayMap<>();
+        for (int index = 0; index < mAllServices.size(); index++) {
+            HalServiceBase halService = mAllServices.get(index);
+            byName.put(halService.getClass().getSimpleName(), halService);
+        }
+        for (String halName : halNames) {
+            HalServiceBase service = byName.get(halName);
+            if (service == null) {
+                writer.printf("No HAL named %s. Valid options are: %s\n",
+                        halName, byName.keySet());
+                continue;
             }
-            for (String halName : halNames) {
-                HalServiceBase service = byName.get(halName);
-                if (service == null) {
-                    writer.printf("No HAL named %s. Valid options are: %s\n",
-                            halName, byName.keySet());
-                    continue;
-                }
-                service.dump(writer);
-            }
+            service.dump(writer);
         }
     }
 
