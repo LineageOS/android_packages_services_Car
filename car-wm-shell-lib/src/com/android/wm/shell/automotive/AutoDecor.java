@@ -229,10 +229,16 @@ public final class AutoDecor {
         return mDecorName;
     }
 
+    @Override
+    public String toString() {
+        return "AutoDecor: Name-" + mDecorName;
+    }
+
     void dump(PrintWriter pw, String prefix) {
         String localPrefix = "    ";
         pw.println(prefix + "Auto Decor:-");
         pw.println(prefix + localPrefix + "Name: " + mDecorName);
+        pw.println(prefix + localPrefix + "View: " + mView);
         pw.println(prefix + localPrefix + "Z Order: " + mZOrder);
         pw.println(prefix + localPrefix + "Bounds: " + mBounds);
         pw.println(prefix + localPrefix + "Currently attached: " + mIsCurrentlyAttached);

@@ -34,19 +34,25 @@ import javax.inject.Inject;
 public final class AutoWmShellCommandHandler implements
         ShellCommandHandler.ShellCommandActionHandler {
 
-    private Lazy<AutoTaskStackController> mAutoTaskStackController;
-    private AutoDecorManager mAutoDecorManager;
-    private AutoTaskRepository mTaskRepository;
+    private final AutoLayoutManager mAutoLayoutManager;
+    private final AutoCaptionController mAutoCaptionController;
+    private final Lazy<AutoTaskStackController> mAutoTaskStackController;
+    private final AutoDecorManager mAutoDecorManager;
+    private final AutoTaskRepository mTaskRepository;
     @Inject
     AutoWmShellCommandHandler(ShellCommandHandler shellCommandHandler,
             Lazy<AutoTaskStackController> autoTaskStackController,
             AutoTaskRepository taskRepository,
-            AutoDecorManager autoDecorManager) {
+            AutoDecorManager autoDecorManager,
+            AutoLayoutManager autoLayoutManager,
+            AutoCaptionController autoCaptionController) {
         shellCommandHandler.addCommandCallback("car-wm-shell", this, this);
         shellCommandHandler.addDumpCallback(this::dump, this);
         mAutoTaskStackController = autoTaskStackController;
         mAutoDecorManager = autoDecorManager;
         mTaskRepository = taskRepository;
+        mAutoLayoutManager = autoLayoutManager;
+        mAutoCaptionController = autoCaptionController;
     }
 
     @Override
@@ -66,6 +72,8 @@ public final class AutoWmShellCommandHandler implements
         ((AutoTaskStackControllerImpl) mAutoTaskStackController.get()).dump(pw, prefix);
         mAutoDecorManager.dump(pw, prefix);
         mTaskRepository.dump(pw, prefix);
+        mAutoLayoutManager.dump(pw, prefix);
+        mAutoCaptionController.dump(pw, prefix);
     }
 
     @Override
