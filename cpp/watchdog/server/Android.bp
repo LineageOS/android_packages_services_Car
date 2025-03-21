@@ -132,6 +132,8 @@ cc_library {
         "src/UidIoStatsCollector.cpp",
         "src/UidProcStatsCollector.cpp",
         "src/UidStatsCollector.cpp",
+        // TODO(b/404836151): Move Base files to a separate library
+        "src/UidStatsCollectorBase.cpp",
         "src/WatchdogPerfService.cpp",
     ],
     static_libs: [
@@ -200,6 +202,7 @@ cc_test {
         "tests/UidIoStatsCollectorTest.cpp",
         "tests/UidProcStatsCollectorTest.cpp",
         "tests/UidCpuStatsCollectorTest.cpp",
+        "tests/UidStatsCollectorBaseTest.cpp",
         "tests/UidStatsCollectorTest.cpp",
         "tests/WatchdogBinderMediatorTest.cpp",
         "tests/WatchdogInternalHandlerTest.cpp",
