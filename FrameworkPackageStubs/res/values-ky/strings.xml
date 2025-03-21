@@ -5,8 +5,7 @@
     <string name="message_not_supported" msgid="133939962837892495">"Бул аракетти бир да колдонмо аткарбайт"</string>
     <string name="pip_not_supported" msgid="8681268258599412706">"Бул түзмөктө сүрөттөгү сүрөт режими колдоого алынбайт"</string>
     <string name="manage_unknown_app_sources_not_supported" msgid="7368611099531260439">"Белгисиз колдонмо булактарын башкаруу бул түзмөктө колдоого алынбайт"</string>
-    <!-- no translation found for file_manager_not_supported (7246020599076461545) -->
-    <skip />
+    <string name="file_manager_not_supported" msgid="7246020599076461545">"Файлдарды тескөө бул түзмөктө колдоого алынбайт"</string>
     <string name="dream_not_supported" msgid="2274365800432553936">"Бул түзмөктө көшөгөлөр колдоого алынбайт"</string>
     <string name="stub_name" msgid="3987164490218189006">"Жок"</string>
 </resources>
