@@ -61,7 +61,11 @@ public final class CarPropertyValue<T> implements Parcelable {
     private final RawPropertyValue<T> mValue;
     private final boolean mIsSimulationPropId;
 
-    /** @removed accidentally exposed previously */
+    /**
+     * @removed accidentally exposed previously
+     *
+     * This is now deprecated and not used any more. Internally we use CarPropertyStatus instead.
+     */
     @IntDef({
         STATUS_AVAILABLE,
         STATUS_UNAVAILABLE,
@@ -71,19 +75,89 @@ public final class CarPropertyValue<T> implements Parcelable {
     public @interface PropertyStatus {}
 
     /**
+     * All possible status for a car property value.
+     *
+     * @hide
+     */
+    @IntDef({
+        STATUS_AVAILABLE,
+        STATUS_ERROR,
+        STATUS_NOT_AVAILABLE_GENERAL,
+        STATUS_NOT_AVAILABLE_DISABLED,
+        STATUS_NOT_AVAILABLE_SPEED_LOW,
+        STATUS_NOT_AVAILABLE_SPEED_HIGH,
+        STATUS_NOT_AVAILABLE_SPEED_POOR_VISIBILITY,
+        STATUS_NOT_AVAILABLE_SAFETY,
+        STATUS_NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface CarPropertyStatus {}
+
+    /**
      * {@code CarPropertyValue} is available.
      */
     public static final int STATUS_AVAILABLE = 0;
 
     /**
-     * {@code CarPropertyValue} is unavailable.
+     * {@code CarPropertyValue} is not available for general reason.
      */
     public static final int STATUS_UNAVAILABLE = 1;
+
+    /**
+     * {@code CarPropertyValue} is not available for general reason.
+     *
+     * Same as {@link #STATUS_UNAVAILABLE} but with a more specific name.
+     */
+    @FlaggedApi(Flags.FLAG_CAR_PROPERTY_STATUS_DETAILED_NOT_AVAILABLE)
+    public static final int STATUS_NOT_AVAILABLE_GENERAL = 1;
 
     /**
      * {@code CarPropertyValue} has an error.
      */
     public static final int STATUS_ERROR = 2;
+
+    /**
+     * {@code CarPropertyValue} is not available because the property feature is disabled.
+     */
+    @FlaggedApi(Flags.FLAG_CAR_PROPERTY_STATUS_DETAILED_NOT_AVAILABLE)
+    public static final int STATUS_NOT_AVAILABLE_DISABLED = 3;
+
+    /**
+     * {@code CarPropertyValue} is not available because the vehicle speed is too low.
+     */
+    @FlaggedApi(Flags.FLAG_CAR_PROPERTY_STATUS_DETAILED_NOT_AVAILABLE)
+    public static final int STATUS_NOT_AVAILABLE_SPEED_LOW = 4;
+
+    /**
+     * {@code CarPropertyValue} is not available because the vehicle speed is too high.
+     */
+    @FlaggedApi(Flags.FLAG_CAR_PROPERTY_STATUS_DETAILED_NOT_AVAILABLE)
+    public static final int STATUS_NOT_AVAILABLE_SPEED_HIGH = 5;
+
+    /**
+     * {@code CarPropertyValue} is not available because of bad camera or sensor
+     * visibility. Examples might be bird poop blocking the camera or a bumper cover blocking an
+     * ultrasonic sensor.
+     */
+    @FlaggedApi(Flags.FLAG_CAR_PROPERTY_STATUS_DETAILED_NOT_AVAILABLE)
+    public static final int STATUS_NOT_AVAILABLE_SPEED_POOR_VISIBILITY = 6;
+
+    /**
+     * {@code CarPropertyValue} is not available because of safety reasons. Eg. System could be
+     * in a faulty state, an object or person could be blocking the requested operation such as
+     * closing a trunk door, etc..
+     */
+    @FlaggedApi(Flags.FLAG_CAR_PROPERTY_STATUS_DETAILED_NOT_AVAILABLE)
+    public static final int STATUS_NOT_AVAILABLE_SAFETY = 7;
+
+  /**
+     * {@code CarPropertyValue} is not available because the sub-system for the feature is not
+     * connected.
+     *
+     * <p>E.g. the trailer light property is in this state if the trailer is not attached.
+     */
+    @FlaggedApi(Flags.FLAG_CAR_PROPERTY_STATUS_DETAILED_NOT_AVAILABLE)
+    public static final int STATUS_NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED = 8;
 
     /**
      * Creates an instance of {@code CarPropertyValue}.
@@ -298,7 +372,7 @@ public final class CarPropertyValue<T> implements Parcelable {
      * @return The property status of {@code CarPropertyValue}
      */
     @FlaggedApi(FLAG_CAR_PROPERTY_VALUE_PROPERTY_STATUS)
-    @PropertyStatus
+    @CarPropertyStatus
     public int getPropertyStatus() {
         return mStatus;
     }
@@ -308,7 +382,7 @@ public final class CarPropertyValue<T> implements Parcelable {
      * @deprecated Use {@link #getPropertyStatus} instead.
      */
     @Deprecated
-    @PropertyStatus
+    @CarPropertyStatus
     public int getStatus() {
         return mStatus;
     }

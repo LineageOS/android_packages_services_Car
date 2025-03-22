@@ -293,6 +293,13 @@ flag {
   bug: "343489611"
 }
 
+flag {
+  name: "car_property_status_detailed_not_available"
+  namespace: "car_framework"
+  description: "Expose detailed not available status codes for CarPropertyValue"
+  bug: "343489611"
+}
+
 # ClusterHomeManager
 flag {
   name: "cluster_health_monitoring"
