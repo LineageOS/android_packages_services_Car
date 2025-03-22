@@ -128,8 +128,9 @@ public final class ContCarPropertyEventTracker implements CarPropertyEventTracke
             if (DBG) {
                 Slogf.d(TAG,
                         "hasUpdate: Dropping carPropertyValue: %s, "
-                        + "because getTimestamp()=%d < nextUpdateTimeNanos=%d",
-                        carPropertyValue, carPropertyValue.getTimestamp(), mNextUpdateTimeNanos);
+                        + "because getTimestamp()=%d < nextUpdateTimeNanos=%d, updateRateHz=%f",
+                        carPropertyValue, carPropertyValue.getTimestamp(), mNextUpdateTimeNanos,
+                        mUpdateRateHz);
             }
             return false;
         }
