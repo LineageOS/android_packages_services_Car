@@ -50,7 +50,7 @@
                 android:layout_gravity="center"
                 android:elevation="5dp"
                 android:singleLine="true"
-                android:textAppearance="@style/TextAppearance.SystemBar.Clock"
+                style="@style/SystemBarClockText"
                 systemui:amPmStyle="gone"
                 />
         </FrameLayout>

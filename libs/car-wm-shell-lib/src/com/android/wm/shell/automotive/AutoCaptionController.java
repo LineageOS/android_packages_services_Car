@@ -18,6 +18,7 @@ package com.android.wm.shell.automotive;
 
 import static com.android.window.flags.Flags.safeRegionLetterboxing;
 
+import android.annotation.NonNull;
 import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.car.Car;
@@ -37,6 +38,9 @@ import com.android.wm.shell.RootTaskDisplayAreaOrganizer;
 import com.android.wm.shell.ShellTaskOrganizer;
 import com.android.wm.shell.dagger.WMSingleton;
 
+import java.io.PrintWriter;
+import java.util.Objects;
+
 import javax.inject.Inject;
 
 /**
@@ -53,6 +57,8 @@ public class AutoCaptionController {
     private static final String TAG = "AutoCaptionController";
     private static final boolean DBG = Log.isLoggable(TAG, Log.DEBUG);
     private static final int DEFAULT_Z_INDEX_CAPTION_BAR = 100001;
+    private static final String CAPTION_BAR_NAME_FORMAT = "AutoCaptionControllerBar:%d";
+    private static final String TRANSACTION_NAME_FORMAT = "AutoCaptionControllerTransaction:%d";
     private final ShellTaskOrganizer mShellTaskOrganizer;
     private final RootTaskDisplayAreaOrganizer mRootTaskDisplayAreaOrganizer;
     private final AutoSurfaceTransactionFactory mAutoSurfaceTransactionFactory;
@@ -136,8 +142,14 @@ public class AutoCaptionController {
      * @param autoCaptionBarViewFactory The factory for providing view of the caption bar.
      */
     // TODO(b/398655273): Use builder pattern to avoid confusion in the parameter names.
-    public void setSafeRegionAndCaptionRegion(RootTaskStack rootTaskStack, Rect relativeSafeRegion,
-            Rect relativeCaptionRegion, AutoCaptionBarViewFactory autoCaptionBarViewFactory) {
+    public void setSafeRegionAndCaptionRegion(@NonNull RootTaskStack rootTaskStack,
+            @NonNull Rect relativeSafeRegion, @NonNull Rect relativeCaptionRegion,
+            @NonNull AutoCaptionBarViewFactory autoCaptionBarViewFactory) {
+        Objects.requireNonNull(rootTaskStack);
+        Objects.requireNonNull(relativeSafeRegion);
+        Objects.requireNonNull(relativeCaptionRegion);
+        Objects.requireNonNull(autoCaptionBarViewFactory);
+
         if (!safeRegionLetterboxing()) {
             Slogf.e(TAG, "safe_region_letterboxing TS flag is disabled.");
             return;
@@ -187,7 +199,9 @@ public class AutoCaptionController {
      *
      * @param rootTaskStack The root task stack.
      */
-    public void removeSafeRegionAndCaptionRegion(RootTaskStack rootTaskStack) {
+    public void removeSafeRegionAndCaptionRegion(@NonNull RootTaskStack rootTaskStack) {
+        Objects.requireNonNull(rootTaskStack);
+
         if (!safeRegionLetterboxing()) {
             Slogf.e(TAG, "safe_region_letterboxing TS flag is disabled.");
             return;
@@ -218,8 +232,13 @@ public class AutoCaptionController {
      * @param autoCaptionBarViewFactory The factory for providing view of the caption bar.
      */
     // TODO(b/398655273): Use builder pattern to avoid confusion in the parameter names.
-    public void setSafeRegionAndCaptionRegion(int displayId, Rect safeRegion, Rect captionRegion,
-            AutoCaptionBarViewFactory autoCaptionBarViewFactory) {
+    public void setSafeRegionAndCaptionRegion(int displayId, @NonNull Rect safeRegion,
+            @NonNull Rect captionRegion,
+            @NonNull AutoCaptionBarViewFactory autoCaptionBarViewFactory) {
+        Objects.requireNonNull(safeRegion);
+        Objects.requireNonNull(captionRegion);
+        Objects.requireNonNull(autoCaptionBarViewFactory);
+
         if (!safeRegionLetterboxing()) {
             Slogf.e(TAG, "safe_region_letterboxing TS flag is disabled.");
             return;
@@ -323,7 +342,7 @@ public class AutoCaptionController {
             return;
         }
 
-        String captionBarName = "CaptionBar:" + taskInfo.taskId;
+        String captionBarName = String.format(CAPTION_BAR_NAME_FORMAT, taskInfo.taskId);
 
         AutoDecor captionDecor = mAutoDecorManager.createAutoDecor(captionView,
                 DEFAULT_Z_INDEX_CAPTION_BAR, captionBarBounds, captionBarName);
@@ -345,9 +364,10 @@ public class AutoCaptionController {
                         taskInfo.taskId, visibility);
             }
 
+            String transactionName = String.format(TRANSACTION_NAME_FORMAT, taskInfo.taskId);
+
             AutoSurfaceTransaction autoSurfaceTransaction =
-                    mAutoSurfaceTransactionFactory.createTransaction(
-                            "CaptionVisibility-" + taskInfo.taskId);
+                    mAutoSurfaceTransactionFactory.createTransaction(transactionName);
             autoSurfaceTransaction.setVisibility(captionDecor, visibility);
             autoSurfaceTransaction.apply();
         }
@@ -436,6 +456,42 @@ public class AutoCaptionController {
         return false;
     }
 
+    void dump(PrintWriter pw, String prefix) {
+        pw.println(prefix + "AutoCaptionController");
+
+        if (mSafeAreaInfoPerRootTask.size() > 0) {
+            pw.println(prefix + "SafeAreaInfoPerRootTask");
+        }
+
+        for (int i = 0; i < mSafeAreaInfoPerRootTask.size(); i++) {
+            int rootTaskId = mSafeAreaInfoPerRootTask.keyAt(i);
+            SafeRegionInfo safeRegionInfo = mSafeAreaInfoPerRootTask.valueAt(i);
+            pw.println(prefix + "Root task id:" + rootTaskId);
+            pw.println(prefix + "SafeRegionInfo:" + safeRegionInfo);
+        }
+
+        if (mSafeAreaInfoPerDisplay.size() > 0) {
+            pw.println(prefix + "SafeAreaInfoPerDisplay");
+        }
+
+        for (int i = 0; i < mSafeAreaInfoPerDisplay.size(); i++) {
+            int displayId = mSafeAreaInfoPerDisplay.keyAt(i);
+            SafeRegionInfo safeRegionInfo = mSafeAreaInfoPerDisplay.valueAt(i);
+            pw.println(prefix + "Display id:" + displayId);
+            pw.println(prefix + "SafeRegionInfo:" + safeRegionInfo);
+        }
+
+        if (mTaskIdToCaptionBar.size() > 0) {
+            pw.println(prefix + "TaskIdToCaptionBar");
+        }
+
+        for (int i = 0; i < mTaskIdToCaptionBar.size(); i++) {
+            int taskId = mTaskIdToCaptionBar.keyAt(i);
+            AutoDecor captionBarDecor = mTaskIdToCaptionBar.valueAt(i);
+            pw.println(prefix + "taskId id:" + taskId);
+            pw.println(prefix + "captionBarDecor:" + captionBarDecor);
+        }
+    }
 
     /**
      * Contains all relevant information for safe area.

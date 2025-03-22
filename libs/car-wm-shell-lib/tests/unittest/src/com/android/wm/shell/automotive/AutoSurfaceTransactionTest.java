@@ -35,6 +35,7 @@ import org.mockito.MockitoAnnotations;
 
 public class AutoSurfaceTransactionTest {
 
+    private static final int TEST_TASK_ID = 5;
     private AutoSurfaceTransaction mTransaction;
     @Mock
     private AutoDecor mDecor;
@@ -59,6 +60,7 @@ public class AutoSurfaceTransactionTest {
         when(mViewHost.getSurfacePackage()).thenReturn(mSurfacePackage);
         when(mSurfacePackage.getSurfaceControl()).thenReturn(mSurface);
         when(mDecor.getViewHost()).thenReturn(mViewHost);
+        when(mAutoTaskRepository.getSurfaceControl(TEST_TASK_ID)).thenReturn(mSurface);
     }
 
     @Test
@@ -91,5 +93,57 @@ public class AutoSurfaceTransactionTest {
 
         verify(mSurfaceTransaction).setVisibility(mSurface, false);
         verify(mDecor).updateVisibility(false);
+    }
+
+    @Test
+    public void testSetCornerRadius() {
+        Rect bounds = new Rect(0, 0, 100, 50);
+        when(mDecor.getBounds()).thenReturn(bounds);
+
+        float cornerRadius = 5;
+
+        mTransaction.setCornerRadius(mDecor, cornerRadius);
+        mTransaction.apply();
+
+        verify(mSurfaceTransaction).setCrop(mSurface, bounds);
+        verify(mSurfaceTransaction).setCornerRadius(mSurface, cornerRadius);
+    }
+
+    @Test
+    public void testSetCrop() {
+        Rect bounds = new Rect(0, 0, 100, 50);
+
+        mTransaction.setCrop(mDecor, bounds);
+        mTransaction.apply();
+
+        verify(mSurfaceTransaction).setCrop(mSurface, bounds);
+    }
+
+    @Test
+    public void testSetTaskCornerRadius() {
+        float cornerRadius = 5;
+
+        mTransaction.setTaskSurfaceCornerRadius(TEST_TASK_ID, cornerRadius);
+        mTransaction.apply();
+
+        verify(mSurfaceTransaction).setCornerRadius(mSurface, cornerRadius);
+    }
+
+    @Test
+    public void testSetTaskSurfaceCrop() {
+        Rect bounds = new Rect(0, 0, 100, 50);
+
+        mTransaction.setTaskSurfaceCrop(TEST_TASK_ID, bounds);
+        mTransaction.apply();
+
+        verify(mSurfaceTransaction).setCrop(mSurface, bounds);
+    }
+
+    @Test
+    public void testSetTaskSurfacePosition() {
+        mTransaction.setTaskSurfacePosition(TEST_TASK_ID, 100, 200);
+        mTransaction.apply();
+
+        verify(mSurfaceTransaction).setPosition(mSurface, 100, 200);
     }
 }

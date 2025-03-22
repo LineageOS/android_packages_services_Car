@@ -16,24 +16,22 @@
   -->
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:state_focused="true" android:state_pressed="true">
-        <shape android:shape="rectangle">
+        <shape android:shape="oval">
             <size
                 android:width="@dimen/car_radio_button_focus_ring_size"
                 android:height="@dimen/car_radio_button_focus_ring_size" />
             <solid android:color="@color/focus_pressed_fill_color" />
-            <corners android:radius="@dimen/car_radio_button_focus_ring_radius" />
             <stroke
                 android:width="@dimen/focus_pressed_stroke_width"
                 android:color="@color/focus_pressed_stroke_color" />
         </shape>
     </item>
     <item android:state_focused="true">
-        <shape android:shape="rectangle">
+        <shape android:shape="oval">
             <size
                 android:width="@dimen/car_radio_button_focus_ring_size"
                 android:height="@dimen/car_radio_button_focus_ring_size" />
             <solid android:color="@color/focus_fill_color" />
-            <corners android:radius="@dimen/car_radio_button_focus_ring_radius" />
             <stroke
                 android:width="@dimen/focus_stroke_width"
                 android:color="@color/focus_stroke_color" />

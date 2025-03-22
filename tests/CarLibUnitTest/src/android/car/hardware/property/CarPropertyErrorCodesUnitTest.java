@@ -22,10 +22,8 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
 
-import android.car.feature.Flags;
 import android.car.test.AbstractExpectableTestCase;
 import android.hardware.automotive.vehicle.StatusCode;
-import android.platform.test.annotations.EnableFlags;
 import android.platform.test.flag.junit.SetFlagsRule;
 import android.util.SparseIntArray;
 
@@ -35,7 +33,6 @@ import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 
-@EnableFlags(Flags.FLAG_CAR_PROPERTY_DETAILED_ERROR_CODES)
 public final class CarPropertyErrorCodesUnitTest extends AbstractExpectableTestCase {
 
     @ClassRule public static final SetFlagsRule.ClassRule mClassRule = new SetFlagsRule.ClassRule();

@@ -1758,4 +1758,42 @@ public final class AidlVehicleStubUnitTest {
         assertThat(propIdAreaIds.get(1)).isEqualTo(newPropIdAreaId(testPropId2, testAreaId2));
     }
 
+    @Test
+    public void testGetLastInjectedVehicleProperty() {
+        UnsupportedOperationException thrown = assertThrows(UnsupportedOperationException.class,
+                () -> mAidlVehicleStub.getLastInjectedVehicleProperty(0));
+
+        assertThat(thrown).hasMessageThat().contains("Not in simulated mode");
+    }
+
+    @Test
+    public void testInjectVehicleProperties() {
+        UnsupportedOperationException thrown = assertThrows(UnsupportedOperationException.class,
+                () -> mAidlVehicleStub.injectVehicleProperties(List.of()));
+
+        assertThat(thrown).hasMessageThat().contains("Not in simulated mode");
+    }
+
+    @Test
+    public void testGetSimulationStartTimestampNanos() {
+        UnsupportedOperationException thrown = assertThrows(UnsupportedOperationException.class,
+                () -> mAidlVehicleStub.getSimulationStartTimestampNanos());
+
+        assertThat(thrown).hasMessageThat().contains("Not in simulated mode");
+    }
+
+    @Test
+    public void testGetRealVehicleStub() {
+        assertThat(mAidlVehicleStub.getRealVehicleStub()).isEqualTo(mAidlVehicleStub);
+    }
+
+    @Test
+    public void testIsSimulatedModeEnabled() {
+        assertThat(mAidlVehicleStub.isSimulatedModeEnabled()).isFalse();
+    }
+
+    @Test
+    public void testIsFakeModeEnabled() {
+        assertThat(mAidlVehicleStub.isFakeModeEnabled()).isFalse();
+    }
 }

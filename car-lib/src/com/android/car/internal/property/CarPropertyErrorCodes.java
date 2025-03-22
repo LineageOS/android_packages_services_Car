@@ -54,27 +54,24 @@ public final class CarPropertyErrorCodes implements Parcelable {
 
     private static final String TAG = "CarPropertyErrorCodes";
 
-    // This variable must only be used if FLAG_CAR_PROPERTY_DETAILED_ERROR_CODES is true.
     private static final SparseIntArray DETAILED_ERROR_CODE_BY_STATUS =
             new SparseIntArray();
     static {
-        if (Flags.carPropertyDetailedErrorCodes()) {
-            DETAILED_ERROR_CODE_BY_STATUS.put(
-                    VehicleHalStatusCode.STATUS_NOT_AVAILABLE_DISABLED,
-                    DetailedErrorCode.NOT_AVAILABLE_DISABLED);
-            DETAILED_ERROR_CODE_BY_STATUS.put(
-                    VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SPEED_LOW,
-                    DetailedErrorCode.NOT_AVAILABLE_SPEED_LOW);
-            DETAILED_ERROR_CODE_BY_STATUS.put(
-                    VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SPEED_HIGH,
-                    DetailedErrorCode.NOT_AVAILABLE_SPEED_HIGH);
-            DETAILED_ERROR_CODE_BY_STATUS.put(
-                    VehicleHalStatusCode.STATUS_NOT_AVAILABLE_POOR_VISIBILITY,
-                    DetailedErrorCode.NOT_AVAILABLE_POOR_VISIBILITY);
-            DETAILED_ERROR_CODE_BY_STATUS.put(
-                    VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SAFETY,
-                    DetailedErrorCode.NOT_AVAILABLE_SAFETY);
-        }
+        DETAILED_ERROR_CODE_BY_STATUS.put(
+                VehicleHalStatusCode.STATUS_NOT_AVAILABLE_DISABLED,
+                DetailedErrorCode.NOT_AVAILABLE_DISABLED);
+        DETAILED_ERROR_CODE_BY_STATUS.put(
+                VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SPEED_LOW,
+                DetailedErrorCode.NOT_AVAILABLE_SPEED_LOW);
+        DETAILED_ERROR_CODE_BY_STATUS.put(
+                VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SPEED_HIGH,
+                DetailedErrorCode.NOT_AVAILABLE_SPEED_HIGH);
+        DETAILED_ERROR_CODE_BY_STATUS.put(
+                VehicleHalStatusCode.STATUS_NOT_AVAILABLE_POOR_VISIBILITY,
+                DetailedErrorCode.NOT_AVAILABLE_POOR_VISIBILITY);
+        DETAILED_ERROR_CODE_BY_STATUS.put(
+                VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SAFETY,
+                DetailedErrorCode.NOT_AVAILABLE_SAFETY);
         // TODO(b/381298607): Add STATUS_NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED once
         // NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED is added to DetailedErrorCode.
     }
