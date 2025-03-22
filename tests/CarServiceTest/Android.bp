@@ -90,12 +90,12 @@ android_test {
     ],
 
     srcs: [
-        "src/com/android/car/ICarImplTest.java",
         "src/com/android/car/CarFeatureControllerTest.java",
         "src/com/android/car/AppFocusTest.java",
         "src/com/android/car/CarAppFocusManagerTest.java",
         "src/com/android/car/CarProjectionManagerTest.java",
         "src/com/android/car/CarVendorExtensionManagerTest.java",
+        "src/com/android/car/ICarImplTest.java",
     ],
 
     test_config: "AndroidTest_CarTest.xml",

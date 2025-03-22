@@ -111,6 +111,11 @@ public final class VehiclePropertyIdsParser {
         READ, WRITE, READ_WRITE
     }
 
+    // Set of obsolete flags. Filter these flags from generated property config file.
+    private static final Set<String> OBSOLETE_FLAGS = Set.of(
+            "FLAG_ANDROID_VIC_VEHICLE_PROPERTIES"
+    );
+
     private static final class PropertyConfig {
         public String propertyName;
         public int propertyId;
@@ -613,8 +618,10 @@ public final class VehiclePropertyIdsParser {
                 if (annotationName.equals("FlaggedApi")) {
                     SingleMemberAnnotationExpr single =
                             annotation.asSingleMemberAnnotationExpr();
-                    Expression member = single.getMemberValue();
-                    propertyConfig.featureFlag = member.toString();
+                    String flagName = single.getMemberValue().toString();
+                    if (!OBSOLETE_FLAGS.contains(flagName)) {
+                        propertyConfig.featureFlag = flagName;
+                    }
                 }
             }
             if (propertyConfig.systemApi || !propertyConfig.hide) {

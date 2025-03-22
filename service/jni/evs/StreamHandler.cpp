@@ -164,31 +164,52 @@ void StreamHandler::blockingStopStream() {
             return;
         }
 
-        if (mNumClients > 1) {
-            // Decrease a number of active clients and return.
-            --mNumClients;
-            return;
+        // Decrease a number of active clients.
+        --mNumClients;
+
+        LOG(DEBUG) << "Request to deallocate buffers assigned for a stopping client.";
+        // Keep the minimum number of buffers allocated for CarEvsService as
+        // mMaxNumFramesInFlightPerClient.
+        const auto desiredNumBuffers = (mNumClients > 0)
+                ? (mNumClients * mMaxNumFramesInFlightPerClient)
+                : mMaxNumFramesInFlightPerClient;
+        auto recv_it = mReceivedBuffers.begin();
+        if (mReceivedBuffers.size() > desiredNumBuffers) {
+            LOG(DEBUG) << "Attempt to return buffers held by us excessively.";
+            std::advance(recv_it, desiredNumBuffers);
+            mReceivedBuffers.splice(recv_it, mReturnedBuffers);
+
+            auto it = mReturnedBuffers.begin();
+            while (it != mReturnedBuffers.end()) {
+                // Packages a returned buffer and sends it back to the camera
+                std::vector<BufferDesc> frames(1);
+                frames[0] = dupBufferDesc(*it, /* dup= */ true);
+                auto status = mEvsCamera->doneWithFrame(frames);
+                if (!status.isOk()) {
+                    LOG(WARNING) << "Failed to return a frame to EVS service; "
+                                 << "this may leak the memory: "
+                                 << status.getServiceSpecificError();
+                }
+
+                std::advance(it, 1);
+            }
         }
 
-        // Return all buffers currently held by us.
-        auto it = mReceivedBuffers.begin();
-        while (it != mReceivedBuffers.end()) {
-            // Packages a returned buffer and sends it back to the camera
-            std::vector<BufferDesc> frames(1);
-            frames[0] = std::move(*it);
-            auto status = mEvsCamera->doneWithFrame(frames);
-            if (!status.isOk()) {
-                LOG(WARNING) << "Failed to return a frame to EVS service; "
-                             << "this may leak the memory: " << status.getServiceSpecificError();
-            }
+        if (!mEvsCamera->setMaxFramesInFlight(desiredNumBuffers).isOk()) {
+            LOG(WARNING) << "Failed to adjust buffer pool size as desired.";
+        }
 
-            it = mReceivedBuffers.erase(it);
+        // Return if we still have any active client.
+        if (mNumClients > 0) {
+            LOG(DEBUG) << "Keep a device running as we still have " << mNumClients
+                       << " active clients.";
+            return;
         }
     }
 
-    auto status = mEvsCamera->stopVideoStream();
-    if (!status.isOk()) {
+    if (!mEvsCamera->stopVideoStream().isOk()) {
         LOG(WARNING) << "stopVideoStream() failed but ignored.";
+        return;
     }
 
     // Now, we are waiting for the ack from EvsManager service.
@@ -201,9 +222,6 @@ void StreamHandler::blockingStopStream() {
                 break;
             }
         }
-
-        // Decrease a number of active clients.
-        --mNumClients;
     }
 }
 
@@ -216,6 +234,15 @@ void StreamHandler::doneWithFrame(int bufferId) {
     BufferDesc bufferToReturn;
     {
         std::lock_guard<std::mutex> lock(mLock);
+        auto returned_it =
+                std::find_if(mReturnedBuffers.begin(), mReturnedBuffers.end(),
+                             [bufferId](BufferDesc& b) { return b.bufferId == bufferId; });
+        if (returned_it != mReturnedBuffers.end()) {
+            LOG(DEBUG) << "Buffer " << bufferId << " has been returned already.";
+            (void)mReturnedBuffers.erase(returned_it);
+            return;
+        }
+
         auto it = std::find_if(mReceivedBuffers.begin(), mReceivedBuffers.end(),
                                [bufferId](BufferDesc& b) { return b.bufferId == bufferId; });
         if (it == mReceivedBuffers.end()) {

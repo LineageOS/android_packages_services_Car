@@ -16,7 +16,11 @@
 
 package com.android.car.internal.test;
 
+import static com.android.car.internal.test.LargeParcelableTest.createByteArray;
+
 import static com.google.common.truth.Truth.assertThat;
+
+import static org.junit.Assert.assertThrows;
 
 import android.car.apitest.IStableAIDLTestBinder;
 import android.car.apitest.IStableAIDLTestCallback;
@@ -157,6 +161,23 @@ public final class LargeParcelableJavaStableAIDLTest extends CarLessApiTestBase 
         doTestEchoWithCallback(ARRAY_LENGTH_BIG);
     }
 
+    @Test
+    @NonApiTest(exemptionReasons = {}, justification = "Testing large parcelable, which is a "
+            + "hidden API")
+    public void testToLargeParcelableNull() {
+        assertThat(LargeParcelable.toLargeParcelable(null)).isNull();
+    }
+
+    @Test
+    @NonApiTest(exemptionReasons = {}, justification = "Testing large parcelable, which is a "
+            + "hidden API")
+    public void testToLargeParcelableNoField() {
+        TestParcelable smallParcelable = new TestParcelable(createByteArray(5));
+
+        assertThrows(IllegalArgumentException.class, () -> LargeParcelable.toLargeParcelable(
+                smallParcelable));
+    }
+
     /**
      * Prepares a StableAIDLTestLargeParcelable object for sending across process boundaries using
      * a LargeParcelable wrapper.
@@ -175,7 +196,7 @@ public final class LargeParcelableJavaStableAIDLTest extends CarLessApiTestBase 
 
     private void doTestLEcho(int payloadSize) throws Exception {
         StableAIDLTestLargeParcelable orig = new StableAIDLTestLargeParcelable();
-        byte[] payload = LargeParcelableTest.createByteArray(payloadSize);
+        byte[] payload = createByteArray(payloadSize);
         orig.payload = payload;
         orig = prepareParcelable(orig);
 
@@ -199,7 +220,7 @@ public final class LargeParcelableJavaStableAIDLTest extends CarLessApiTestBase 
 
     private void doTestMultipleArgs(int payloadSize) throws Exception {
         StableAIDLTestLargeParcelable orig = new StableAIDLTestLargeParcelable();
-        byte[] payload = LargeParcelableTest.createByteArray(payloadSize);
+        byte[] payload = createByteArray(payloadSize);
         orig.payload = payload;
         long argValue = 0x12345678;
         long expectedRet = argValue + IStableAIDLBinderTestService.calcByteSum(orig);
@@ -219,7 +240,7 @@ public final class LargeParcelableJavaStableAIDLTest extends CarLessApiTestBase 
 
     private void doTestEchoWithCallback(int payloadSize) throws Exception {
         StableAIDLTestLargeParcelable orig = new StableAIDLTestLargeParcelable();
-        byte[] payload = LargeParcelableTest.createByteArray(payloadSize);
+        byte[] payload = createByteArray(payloadSize);
         orig.payload = payload;
         TestCallback callback = new TestCallback();
         orig = prepareParcelable(orig);

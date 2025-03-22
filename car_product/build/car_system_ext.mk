@@ -29,6 +29,7 @@ PRODUCT_PACKAGES += \
     CarDeveloperOptions \
     CarProvision \
     CarSystemUI \
+    StatementService \
 
 # Default dex optimization configurations
 PRODUCT_SYSTEM_EXT_PROPERTIES += \

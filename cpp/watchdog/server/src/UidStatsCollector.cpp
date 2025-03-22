@@ -26,24 +26,8 @@ namespace android {
 namespace automotive {
 namespace watchdog {
 
-using ::android::sp;
 using ::android::base::Error;
 using ::android::base::Result;
-
-bool UidStats::hasPackageInfo() const {
-    return !packageInfo.packageIdentifier.name.empty();
-}
-
-uid_t UidStats::uid() const {
-    return static_cast<uid_t>(packageInfo.packageIdentifier.uid);
-}
-
-std::string UidStats::genericPackageName() const {
-    if (hasPackageInfo()) {
-        return packageInfo.packageIdentifier.name;
-    }
-    return std::to_string(packageInfo.packageIdentifier.uid);
-}
 
 Result<void> UidStatsCollector::collect() {
     Mutex::Autolock lock(mMutex);

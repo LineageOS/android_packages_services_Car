@@ -31,7 +31,8 @@ int align(int value) {
     return (value + mask) & ~mask;
 }
 
-void fillNV21FromNV21(const BufferDesc& tgtBuff, uint8_t* tgt, void* imgData, unsigned) {
+void fillNV21FromNV21(const BufferDesc& tgtBuff, uint8_t* tgt, void* imgData[VIDEO_MAX_PLANES],
+                      unsigned) {
     // The NV21 format provides a Y array of 8bit values, followed by a 1/2 x 1/2 interleave U/V
     // array. It assumes an even width and height for the overall image, and a horizontal stride
     // that is an even multiple of 16 bytes for both the Y and UV arrays.
@@ -46,10 +47,11 @@ void fillNV21FromNV21(const BufferDesc& tgtBuff, uint8_t* tgt, void* imgData, un
     const unsigned totalBytes = sizeY + sizeColor;
 
     // Simply copy the data byte for byte
-    memcpy(tgt, imgData, totalBytes);
+    memcpy(tgt, imgData[0], totalBytes);
 }
 
-void fillNV21FromYUYV(const BufferDesc& tgtBuff, uint8_t* tgt, void* imgData, unsigned imgStride) {
+void fillNV21FromYUYV(const BufferDesc& tgtBuff, uint8_t* tgt, void* imgData[VIDEO_MAX_PLANES],
+                      unsigned imgStride) {
     // The YUYV format provides an interleaved array of pixel values with U and V subsampled in
     // the horizontal direction only.  Also known as interleaved 422 format.  A 4 byte
     // "macro pixel" provides the Y value for two adjacent pixels and the U and V values shared
@@ -58,7 +60,7 @@ void fillNV21FromYUYV(const BufferDesc& tgtBuff, uint8_t* tgt, void* imgData, un
     // to construct the NV21 format.
     // NV21 requires even width and height, so we assume that is the case for the incomming image
     // as well.
-    uint32_t* srcDataYUYV = (uint32_t*)imgData;
+    uint32_t* srcDataYUYV = (uint32_t*)imgData[0];
     struct YUYVpixel {
         uint8_t Y1;
         uint8_t U;
@@ -110,13 +112,14 @@ void fillNV21FromYUYV(const BufferDesc& tgtBuff, uint8_t* tgt, void* imgData, un
     }
 }
 
-void fillRGBAFromYUYV(const BufferDesc& tgtBuff, uint8_t* tgt, void* imgData, unsigned imgStride) {
+void fillRGBAFromYUYV(const BufferDesc& tgtBuff, uint8_t* tgt, void* imgData[VIDEO_MAX_PLANES],
+                      unsigned imgStride) {
     const AHardwareBuffer_Desc* pDesc =
             reinterpret_cast<const AHardwareBuffer_Desc*>(&tgtBuff.buffer.description);
     // Converts YUY2ToARGB (little endian).  Please note that libyuv uses the
     // little endian while we're using the big endian in RGB format names.
     const auto dstStrideInBytes = pDesc->stride * 4;  // 4-byte per pixel
-    auto result = libyuv::YUY2ToARGB((const uint8_t*)imgData,
+    auto result = libyuv::YUY2ToARGB((const uint8_t*)imgData[0],
                                      imgStride,  // input stride in bytes
                                      tgt,
                                      dstStrideInBytes,  // output stride in bytes
@@ -136,33 +139,49 @@ void fillRGBAFromYUYV(const BufferDesc& tgtBuff, uint8_t* tgt, void* imgData, un
     }
 }
 
-void fillRGBAFromBGRA(const BufferDesc& tgtBuff, uint8_t* tgt, void* imgData, unsigned imgStride) {
+void fillRGBAFromBGRA(const BufferDesc& tgtBuff, uint8_t* tgt, void* imgData[VIDEO_MAX_PLANES],
+                      unsigned imgStride) {
     const AHardwareBuffer_Desc* pDesc =
             reinterpret_cast<const AHardwareBuffer_Desc*>(&tgtBuff.buffer.description);
-    auto result = libyuv::ABGRToARGB((const uint8_t*)imgData, imgStride, tgt, imgStride,
+    auto result = libyuv::ABGRToARGB((const uint8_t*)imgData[0], imgStride, tgt, imgStride,
                                      pDesc->width, pDesc->height);
     if (result) {
         LOG(ERROR) << "Failed to convert BGRA to RGBA.";
     }
 }
 
-void fillRGBAFromRGB3(const BufferDesc& tgtBuff, uint8_t* tgt, void* imgData, unsigned imgStride) {
+void fillRGBAFromARGB(const BufferDesc& tgtBuff, uint8_t* tgt, void* imgData[VIDEO_MAX_PLANES],
+                      unsigned imgStride) {
+    const AHardwareBuffer_Desc* pDesc =
+            reinterpret_cast<const AHardwareBuffer_Desc*>(&tgtBuff.buffer.description);
+
+    const auto dstStrideInBytes = pDesc->stride * 4;  // 4-byte per pixel
+    auto result = libyuv::ARGBToABGR((const uint8_t*)imgData[0], imgStride, tgt, imgStride,
+                                     pDesc->width, pDesc->height);
+    if (result) {
+        LOG(ERROR) << "Failed to convert BGRA to RGBA.";
+    }
+}
+
+void fillRGBAFromRGB3(const BufferDesc& tgtBuff, uint8_t* tgt, void* imgData[VIDEO_MAX_PLANES],
+                      unsigned imgStride) {
     const AHardwareBuffer_Desc* pDesc =
             reinterpret_cast<const AHardwareBuffer_Desc*>(&tgtBuff.buffer.description);
     const auto dstStrideInBytes = pDesc->stride * 4;  // 4-byte per pixel
-    auto result = libyuv::RGB24ToARGB((const uint8_t*)imgData, imgStride, tgt, dstStrideInBytes,
+    auto result = libyuv::RGB24ToARGB((const uint8_t*)imgData[0], imgStride, tgt, dstStrideInBytes,
                                       pDesc->width, pDesc->height);
     if (result) {
         LOG(ERROR) << "Failed to convert RGB3 to RGBA.";
     }
 }
 
-void fillYUYVFromYUYV(const BufferDesc& tgtBuff, uint8_t* tgt, void* imgData, unsigned imgStride) {
+void fillYUYVFromYUYV(const BufferDesc& tgtBuff, uint8_t* tgt, void* imgData[VIDEO_MAX_PLANES],
+                      unsigned imgStride) {
     const AHardwareBuffer_Desc* pDesc =
             reinterpret_cast<const AHardwareBuffer_Desc*>(&tgtBuff.buffer.description);
     unsigned width = pDesc->width;
     unsigned height = pDesc->height;
-    uint8_t* src = (uint8_t*)imgData;
+    uint8_t* src = (uint8_t*)imgData[0];
     uint8_t* dst = (uint8_t*)tgt;
     unsigned srcStrideBytes = imgStride;
     unsigned dstStrideBytes = pDesc->stride * 2;
@@ -173,12 +192,13 @@ void fillYUYVFromYUYV(const BufferDesc& tgtBuff, uint8_t* tgt, void* imgData, un
     }
 }
 
-void fillYUYVFromUYVY(const BufferDesc& tgtBuff, uint8_t* tgt, void* imgData, unsigned imgStride) {
+void fillYUYVFromUYVY(const BufferDesc& tgtBuff, uint8_t* tgt, void* imgData[VIDEO_MAX_PLANES],
+                      unsigned imgStride) {
     const AHardwareBuffer_Desc* pDesc =
             reinterpret_cast<const AHardwareBuffer_Desc*>(&tgtBuff.buffer.description);
     unsigned width = pDesc->width;
     unsigned height = pDesc->height;
-    uint32_t* src = (uint32_t*)imgData;
+    uint32_t* src = (uint32_t*)imgData[0];
     uint32_t* dst = (uint32_t*)tgt;
     unsigned srcStridePixels = imgStride / 2;
     unsigned dstStridePixels = pDesc->stride;

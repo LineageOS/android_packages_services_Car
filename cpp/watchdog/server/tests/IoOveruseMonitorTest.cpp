@@ -264,12 +264,12 @@ protected:
             } else {
                 packageInfo.packageIdentifier.uid = uid;
             }
-            uidStats.push_back(UidStats{.packageInfo = packageInfo,
-                                        .ioStats = {/*fgRdBytes=*/989'000,
-                                                    /*bgRdBytes=*/678'000,
-                                                    /*fgWrBytes=*/std::get<0>(writtenBytes),
-                                                    /*bgWrBytes=*/std::get<1>(writtenBytes),
-                                                    /*fgFsync=*/10'000, /*bgFsync=*/50'000}});
+            uidStats.push_back(UidStats{{.packageInfo = packageInfo,
+                                         .ioStats = {/*fgRdBytes=*/989'000,
+                                                     /*bgRdBytes=*/678'000,
+                                                     /*fgWrBytes=*/std::get<0>(writtenBytes),
+                                                     /*bgWrBytes=*/std::get<1>(writtenBytes),
+                                                     /*fgFsync=*/10'000, /*bgFsync=*/50'000}}});
         }
         return uidStats;
     }

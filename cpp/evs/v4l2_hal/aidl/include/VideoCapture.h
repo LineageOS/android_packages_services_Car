@@ -30,7 +30,9 @@ public:
     bool open(const char* deviceName, const int32_t width = 0, const int32_t height = 0);
     void close();
 
-    bool startStream(std::function<void(VideoCapture*, imageBuffer*, void*)> callback = nullptr);
+    bool startStream(std::function<void(VideoCapture*, imageBuffer*, void* [VIDEO_MAX_PLANES],
+                                        size_t[VIDEO_MAX_PLANES], size_t)>
+                             callback = nullptr);
     void stopStream();
 
     // Valid only after open()
@@ -40,15 +42,16 @@ public:
     __u32 getV4LFormat() { return mFormat; };
 
     // NULL until stream is started
-    void* getLatestData() {
+    void** getLatestData(int *numPlanes) {
         if (mFrames.empty()) {
             // No frame is available
             return nullptr;
         }
 
         // Return a pointer to the buffer captured most recently
-        const int latestBufferId = *mFrames.end();
-        return mPixelBuffers[latestBufferId];
+        const int id = *mFrames.end();
+        *numPlanes = mBufferInfos[id].numPlanes;
+        return mBufferInfos[id].start;
     }
 
     bool isFrameReady() { return !mFrames.empty(); }
@@ -66,16 +69,31 @@ private:
 
     int mDeviceFd = -1;
 
+    struct BufferDesc {
+        // Dequeued v4l2 buffer.
+        v4l2_buffer buffer;
+
+        v4l2_plane planes[VIDEO_MAX_PLANES];
+        __u32 bytesused;
+
+        void* start[VIDEO_MAX_PLANES];
+        size_t length[VIDEO_MAX_PLANES];
+        size_t numPlanes;
+    };
+
     int mNumBuffers = 0;
-    std::unique_ptr<v4l2_buffer[]> mBufferInfos = nullptr;
-    std::unique_ptr<void*[]> mPixelBuffers = nullptr;
+    std::unique_ptr<BufferDesc[]> mBufferInfos = nullptr;
 
     __u32 mFormat = 0;
     __u32 mWidth = 0;
     __u32 mHeight = 0;
     __u32 mStride = 0;
+    __u32 mNumPlanes = 1;
+    bool mIsMultiplanar = false;
 
-    std::function<void(VideoCapture*, imageBuffer*, void*)> mCallback;
+    std::function<void(VideoCapture*, imageBuffer*, void* [VIDEO_MAX_PLANES],
+                       size_t[VIDEO_MAX_PLANES], size_t)>
+            mCallback;
 
     std::thread mCaptureThread;  // The thread we'll use to dispatch frames
     std::atomic<int> mRunMode;   // Used to signal the frame loop (see RunModes below)

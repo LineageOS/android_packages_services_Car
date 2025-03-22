@@ -23,7 +23,7 @@
 
     <!-- NOTE: when you're adding a new permission, you should edit
      cts/tests/tests/permission2/res/raw/automotive_android_manifest.xml accordingly and run
-     the test with 'atest android.permission2.cts.PermissionPolicyTest' to verify it.
+     the test with 'atest android.permissionpolicy.cts.PermissionPolicyTest' to verify it.
     -->
 
     <!-- Allows an application to read the driver monitoring settings information.

@@ -195,10 +195,12 @@ public final class CarPropertySimulationManager extends CarManagerBase {
     /**
      * Stops recording of vehicle properties.
      *
+     * <p>This method is idempotent. If the vehicle property recording is already
+     * disabled, calling this method has no effect.
+     *
      * @throws IllegalStateException If the build is not userdebug or eng.
      * @throws IllegalStateException If the recording that was started was not started by this
      *                               process.
-     * @throws IllegalStateException If there are no recordings in progress.
      * @throws SecurityException If missing permission.
      *
      * @hide
@@ -210,12 +212,20 @@ public final class CarPropertySimulationManager extends CarManagerBase {
         try {
             mCarPropertyService.stopRecordingVehicleProperties(
                     mCarSubscriptionEventListenerToService);
-            synchronized (mLock) {
-                mListener = null;
-                mCallbackExecutor = null;
-            }
         } catch (RemoteException e) {
             handleRemoteExceptionFromCarService(e);
+            return;
+        }
+        CarRecorderListener listener;
+        Executor executor;
+        synchronized (mLock) {
+            listener = mListener;
+            executor = mCallbackExecutor;
+            mListener = null;
+            mCallbackExecutor = null;
+        }
+        if (listener != null && executor != null) {
+            executor.execute(() -> listener.onRecordingFinished());
         }
     }
 
@@ -264,7 +274,9 @@ public final class CarPropertySimulationManager extends CarManagerBase {
      *
      * <p>This method is system-wide.
      *
-     * @throws IllegalStateException If the vehicle property injection is not in progress.
+     * <p>This method is idempotent. If the vehicle property injection is already
+     * disabled, calling this method has no effect.
+     *
      * @throws IllegalStateException if the build is not userdebug or eng.
      * @throws SecurityException If missing permission.
      *

@@ -128,20 +128,20 @@ std::unordered_map<uid_t, int64_t> sampleUidCpuStatsByUid() {
 }
 
 std::vector<UidStats> sampleUidStats() {
-    return {{.packageInfo = constructPackageInfo("system.daemon", 1001234, UidType::NATIVE),
+    return {{{.packageInfo = constructPackageInfo("system.daemon", 1001234, UidType::NATIVE),
+              .ioStats = UidIoStats{/*fgRdBytes=*/3'000, /*bgRdBytes=*/0, /*fgWrBytes=*/500,
+                                    /*bgWrBytes=*/0, /*fgFsync=*/20, /*bgFsync=*/0}},
              .cpuTimeMillis = 15,
-             .ioStats = UidIoStats{/*fgRdBytes=*/3'000, /*bgRdBytes=*/0, /*fgWrBytes=*/500,
-                                   /*bgWrBytes=*/0, /*fgFsync=*/20, /*bgFsync=*/0},
              .procStats = UidProcStats{.cpuTimeMillis = 10,
                                        .totalMajorFaults = 220,
                                        .totalTasksCount = 2,
                                        .ioBlockedTasksCount = 1,
                                        .processStatsByPid = {{1, {"init", 0, 10, 220, 2, 1}}}}},
-            {.packageInfo = constructPackageInfo("kitchensink.app", 1005678, UidType::APPLICATION),
+            {{.packageInfo = constructPackageInfo("kitchensink.app", 1005678, UidType::APPLICATION),
+              .ioStats = UidIoStats{/*fgRdBytes=*/30, /*bgRdBytes=*/100, /*fgWrBytes=*/50,
+                                    /*bgWrBytes=*/200,
+                                    /*fgFsync=*/45, /*bgFsync=*/60}},
              .cpuTimeMillis = 43,
-             .ioStats = UidIoStats{/*fgRdBytes=*/30, /*bgRdBytes=*/100, /*fgWrBytes=*/50,
-                                   /*bgWrBytes=*/200,
-                                   /*fgFsync=*/45, /*bgFsync=*/60},
              .procStats = UidProcStats{.cpuTimeMillis = 43,
                                        .totalMajorFaults = 600,
                                        .totalTasksCount = 2,
@@ -237,6 +237,7 @@ TEST_F(UidStatsCollectorTest, TestCollect) {
             .WillOnce(Return(std::unordered_map<uid_t, UidIoStats>()));
     EXPECT_CALL(*mMockUidProcStatsCollector, deltaStats())
             .WillOnce(Return(std::unordered_map<uid_t, UidProcStats>()));
+    // TODO(b/404841034): Add check for mMockUidCpuStatsCollector
 
     ASSERT_RESULT_OK(mUidStatsCollector->collect());
 }
@@ -256,6 +257,8 @@ TEST_F(UidStatsCollectorTest, TestFailsCollectOnUidProcStatsCollectorError) {
     ASSERT_FALSE(mUidStatsCollector->collect().ok())
             << "Must fail to collect when per-UID proc stats collector fails";
 }
+
+// TODO(b/404841034): Add fail case for mMockUidCpuStatsCollector
 
 TEST_F(UidStatsCollectorTest, TestCollectLatestStats) {
     const std::unordered_map<uid_t, PackageInfo> packageInfoByUid = samplePackageInfoByUid();
@@ -443,6 +446,7 @@ TEST_F(UidStatsCollectorTest, TestUidStatsHasPackageInfo) {
             .WillOnce(Return(packageInfoByUid));
     EXPECT_CALL(*mMockUidIoStatsCollector, deltaStats()).WillOnce(Return(uidIoStatsByUid));
     EXPECT_CALL(*mMockUidProcStatsCollector, deltaStats()).WillOnce(Return(uidProcStatsByUid));
+    // TODO(b/404841034): Add check for mMockUidCpuStatsCollector
 
     ASSERT_RESULT_OK(mUidStatsCollector->collect());
 
@@ -472,6 +476,7 @@ TEST_F(UidStatsCollectorTest, TestUidStatsGenericPackageName) {
             .WillOnce(Return(packageInfoByUid));
     EXPECT_CALL(*mMockUidIoStatsCollector, deltaStats()).WillOnce(Return(uidIoStatsByUid));
     EXPECT_CALL(*mMockUidProcStatsCollector, deltaStats()).WillOnce(Return(uidProcStatsByUid));
+    // TODO(b/404841034): Add check for mMockUidCpuStatsCollector
 
     ASSERT_RESULT_OK(mUidStatsCollector->collect());
 
@@ -502,6 +507,7 @@ TEST_F(UidStatsCollectorTest, TestUidStatsUid) {
             .WillOnce(Return(packageInfoByUid));
     EXPECT_CALL(*mMockUidIoStatsCollector, deltaStats()).WillOnce(Return(uidIoStatsByUid));
     EXPECT_CALL(*mMockUidProcStatsCollector, deltaStats()).WillOnce(Return(uidProcStatsByUid));
+    // TODO(b/404841034): Add check for mMockUidCpuStatsCollector
 
     ASSERT_RESULT_OK(mUidStatsCollector->collect());
 
