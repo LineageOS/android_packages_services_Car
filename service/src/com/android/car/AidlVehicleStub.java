@@ -278,9 +278,10 @@ final class AidlVehicleStub extends VehicleStub {
     @Override
     public HalPropConfig[] getAllPropConfigs()
             throws RemoteException, ServiceSpecificException {
+        var aidlConfigs = mAidlVehicle.getAllPropConfigs();
         VehiclePropConfigs propConfigs = (VehiclePropConfigs)
                 LargeParcelable.reconstructStableAIDLParcelable(
-                        mAidlVehicle.getAllPropConfigs(), /* keepSharedMemory= */ false);
+                        aidlConfigs, aidlConfigs.sharedMemoryFd, VehiclePropConfigs.CREATOR);
         VehiclePropConfig[] payloads = propConfigs.payloads;
         int size = payloads.length;
         HalPropConfig[] configs = new HalPropConfig[size];
@@ -426,7 +427,7 @@ final class AidlVehicleStub extends VehicleStub {
         }
         var actualResults = (MinMaxSupportedValueResults)
                 LargeParcelable.reconstructStableAIDLParcelable(
-                        results, /* keepSharedMemory= */ false);
+                        results, results.sharedMemoryFd, MinMaxSupportedValueResults.CREATOR);
         MinMaxSupportedValueResult result = actualResults.payloads[0];
         if (result.status != StatusCode.OK) {
             throw new ServiceSpecificException(result.status,
@@ -463,7 +464,7 @@ final class AidlVehicleStub extends VehicleStub {
         }
         var actualResults = (SupportedValuesListResults)
                 LargeParcelable.reconstructStableAIDLParcelable(
-                        results, /* keepSharedMemory= */ false);
+                        results, results.sharedMemoryFd, SupportedValuesListResults.CREATOR);
         SupportedValuesListResult result = actualResults.payloads[0];
         if (result.status != StatusCode.OK) {
             throw new ServiceSpecificException(result.status,
@@ -730,8 +731,8 @@ final class AidlVehicleStub extends VehicleStub {
         public void onPropertyEvent(VehiclePropValues propValues, int sharedMemoryFileCount)
                 throws RemoteException {
             VehiclePropValues origPropValues = (VehiclePropValues)
-                    LargeParcelable.reconstructStableAIDLParcelable(propValues,
-                            /* keepSharedMemory= */ false);
+                    LargeParcelable.reconstructStableAIDLParcelable(
+                            propValues, propValues.sharedMemoryFd, VehiclePropValues.CREATOR);
             ArrayList<HalPropValue> values = new ArrayList<>(origPropValues.payloads.length);
             for (VehiclePropValue value : origPropValues.payloads) {
                 values.add(mBuilder.build(value));
@@ -742,8 +743,8 @@ final class AidlVehicleStub extends VehicleStub {
         @Override
         public void onPropertySetError(VehiclePropErrors errors) throws RemoteException {
             VehiclePropErrors origErrors = (VehiclePropErrors)
-                    LargeParcelable.reconstructStableAIDLParcelable(errors,
-                            /* keepSharedMemory= */ false);
+                    LargeParcelable.reconstructStableAIDLParcelable(
+                            errors, errors.sharedMemoryFd, VehiclePropErrors.CREATOR);
             ArrayList<VehiclePropError> errorList = new ArrayList<>(origErrors.payloads.length);
             for (VehiclePropError error : origErrors.payloads) {
                 errorList.add(error);
@@ -840,8 +841,8 @@ final class AidlVehicleStub extends VehicleStub {
     private void onGetValues(GetValueResults responses) {
         Trace.traceBegin(TRACE_TAG, "AidlVehicleStub#onGetValues");
         GetValueResults origResponses = (GetValueResults)
-                LargeParcelable.reconstructStableAIDLParcelable(responses,
-                        /* keepSharedMemory= */ false);
+                LargeParcelable.reconstructStableAIDLParcelable(
+                        responses, responses.sharedMemoryFd, GetValueResults.CREATOR);
         onGetSetValues(origResponses.payloads, new AsyncGetResultsHandler(mPropValueBuilder),
                 mPendingSyncGetValueRequestPool);
         Trace.traceEnd(TRACE_TAG);
@@ -850,8 +851,8 @@ final class AidlVehicleStub extends VehicleStub {
     private void onSetValues(SetValueResults responses) {
         Trace.traceBegin(TRACE_TAG, "AidlVehicleStub#onSetValues");
         SetValueResults origResponses = (SetValueResults)
-                LargeParcelable.reconstructStableAIDLParcelable(responses,
-                        /* keepSharedMemory= */ false);
+                LargeParcelable.reconstructStableAIDLParcelable(
+                        responses, responses.sharedMemoryFd, SetValueResults.CREATOR);
         onGetSetValues(origResponses.payloads, new AsyncSetResultsHandler(),
                 mPendingSyncSetValueRequestPool);
         Trace.traceEnd(TRACE_TAG);
