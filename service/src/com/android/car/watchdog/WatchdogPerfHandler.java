@@ -161,7 +161,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
-import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
 /**
@@ -982,7 +981,7 @@ public final class WatchdogPerfHandler {
                                     usage.getIoOveruseStats()).build();
                     notifyResourceOveruseStatsLocked(stats.uid, resourceOveruseStats);
                 }
-                if (!usage.ioUsage.exceedsThreshold()) {
+                if (!usage.ioUsage.isExceedingThreshold()) {
                     continue;
                 }
                 overusingUserPackageKeys.add(usage.getUniqueId());
@@ -1927,7 +1926,7 @@ public final class WatchdogPerfHandler {
                 isKilled |= isPackageDisabled;
             }
             if (isKilled) {
-                usage.ioUsage.killed();
+                usage.ioUsage.onKilled();
                 killedUserPackageKeys.add(usage.getUniqueId());
             }
         }
@@ -2544,38 +2543,7 @@ public final class WatchdogPerfHandler {
             proto.write(PerformanceDump.UsageByUserPackage.KILLABLE_STATE,
                     toProtoKillableState(packageResourceUsage.mKillableState));
 
-            long packageIoUsageToken = proto.start(
-                    PerformanceDump.UsageByUserPackage.PACKAGE_IO_USAGE);
-
-            long ioOveruseStatsToken = proto.start(
-                    PerformanceDump.PackageIoUsage.IO_OVERUSE_STATS);
-            proto.write(PerformanceDump.IoOveruseStats.KILLABLE_ON_OVERUSE,
-                    packageIoUsage.mIoOveruseStats.killableOnOveruse);
-            dumpPerStateBytes(packageIoUsage.mIoOveruseStats.remainingWriteBytes,
-                    PerformanceDump.IoOveruseStats.REMAINING_WRITE_BYTES, proto);
-            proto.write(PerformanceDump.IoOveruseStats.START_TIME,
-                    packageIoUsage.mIoOveruseStats.startTime);
-            proto.write(PerformanceDump.IoOveruseStats.DURATION,
-                    packageIoUsage.mIoOveruseStats.durationInSeconds);
-
-            dumpPerStateBytes(packageIoUsage.mIoOveruseStats.writtenBytes,
-                    PerformanceDump.IoOveruseStats.WRITTEN_BYTES, proto);
-
-            proto.write(PerformanceDump.IoOveruseStats.TOTAL_OVERUSES,
-                    packageIoUsage.mIoOveruseStats.totalOveruses);
-            proto.end(ioOveruseStatsToken);
-
-            dumpPerStateBytes(packageIoUsage.mForgivenWriteBytes,
-                    PerformanceDump.PackageIoUsage.FORGIVEN_WRITE_BYTES, proto);
-
-            proto.write(PerformanceDump.PackageIoUsage.FORGIVEN_OVERUSES,
-                    packageIoUsage.mForgivenOveruses);
-            proto.write(PerformanceDump.PackageIoUsage.HISTORICAL_NOT_FORGIVEN_OVERUSES,
-                    packageIoUsage.mHistoricalNotForgivenOveruses);
-            proto.write(PerformanceDump.PackageIoUsage.TOTAL_TIMES_KILLED,
-                    packageIoUsage.mTotalTimesKilled);
-
-            proto.end(packageIoUsageToken);
+            packageIoUsage.dumpProto(proto);
 
             proto.end(usageByUserPackagesToken);
         }
@@ -2596,18 +2564,6 @@ public final class WatchdogPerfHandler {
         proto.end(fieldIdToken);
     }
 
-    private static void dumpPerStateBytes(android.automotive.watchdog.PerStateBytes perStateBytes,
-            long fieldId, ProtoOutputStream proto) {
-        long perStateBytesToken = proto.start(fieldId);
-        proto.write(PerformanceDump.PerStateBytes.FOREGROUND_BYTES,
-                perStateBytes.foregroundBytes);
-        proto.write(PerformanceDump.PerStateBytes.BACKGROUND_BYTES,
-                perStateBytes.backgroundBytes);
-        proto.write(PerformanceDump.PerStateBytes.GARAGEMODE_BYTES,
-                perStateBytes.garageModeBytes);
-        proto.end(perStateBytesToken);
-    }
-
     private static File getWatchdogMetadataFile() {
         return new File(CarWatchdogService.getWatchdogDirFile(), METADATA_FILENAME);
     }
@@ -2624,31 +2580,10 @@ public final class WatchdogPerfHandler {
         return uniqueId.split(USER_PACKAGE_SEPARATOR)[1];
     }
 
-    @VisibleForTesting
-    static IoOveruseStats.Builder toIoOveruseStatsBuilder(
-            android.automotive.watchdog.IoOveruseStats internalStats,
-            int totalTimesKilled, boolean isKillableOnOveruses) {
-        return new IoOveruseStats.Builder(internalStats.startTime, internalStats.durationInSeconds)
-                .setTotalOveruses(internalStats.totalOveruses)
-                .setTotalTimesKilled(totalTimesKilled)
-                .setTotalBytesWritten(totalPerStateBytes(internalStats.writtenBytes))
-                .setKillableOnOveruse(isKillableOnOveruses)
-                .setRemainingWriteBytes(toPerStateBytes(internalStats.remainingWriteBytes));
-    }
-
     private static PerStateBytes toPerStateBytes(
             android.automotive.watchdog.PerStateBytes internalPerStateBytes) {
         return new PerStateBytes(internalPerStateBytes.foregroundBytes,
                 internalPerStateBytes.backgroundBytes, internalPerStateBytes.garageModeBytes);
-    }
-
-    private static long totalPerStateBytes(
-            android.automotive.watchdog.PerStateBytes internalPerStateBytes) {
-        BiFunction<Long, Long, Long> sum = (l, r) -> {
-            return (Long.MAX_VALUE - l > r) ? l + r : Long.MAX_VALUE;
-        };
-        return sum.apply(sum.apply(internalPerStateBytes.foregroundBytes,
-                internalPerStateBytes.backgroundBytes), internalPerStateBytes.garageModeBytes);
     }
 
     private static long getMinimumBytesWritten(
@@ -3159,132 +3094,6 @@ public final class WatchdogPerfHandler {
 
         public void resetStats() {
             ioUsage.resetStats();
-        }
-    }
-
-    /** Defines I/O usage fields for a package. */
-    public static final class PackageIoUsage {
-        private static final android.automotive.watchdog.PerStateBytes DEFAULT_PER_STATE_BYTES =
-                new android.automotive.watchdog.PerStateBytes();
-        private static final int MISSING_VALUE = -1;
-
-        private android.automotive.watchdog.IoOveruseStats mIoOveruseStats;
-        private android.automotive.watchdog.PerStateBytes mForgivenWriteBytes;
-        private int mForgivenOveruses;
-        private int mHistoricalNotForgivenOveruses;
-        private int mTotalTimesKilled;
-
-        private PackageIoUsage() {
-            mForgivenWriteBytes = DEFAULT_PER_STATE_BYTES;
-            mForgivenOveruses = 0;
-            mHistoricalNotForgivenOveruses = MISSING_VALUE;
-            mTotalTimesKilled = 0;
-        }
-
-        public PackageIoUsage(android.automotive.watchdog.IoOveruseStats ioOveruseStats,
-                android.automotive.watchdog.PerStateBytes forgivenWriteBytes, int forgivenOveruses,
-                int totalTimesKilled) {
-            mIoOveruseStats = ioOveruseStats;
-            mForgivenWriteBytes = forgivenWriteBytes;
-            mForgivenOveruses = forgivenOveruses;
-            mTotalTimesKilled = totalTimesKilled;
-            mHistoricalNotForgivenOveruses = MISSING_VALUE;
-        }
-
-        /** Returns the I/O overuse stats related to the package. */
-        public android.automotive.watchdog.IoOveruseStats getInternalIoOveruseStats() {
-            return mIoOveruseStats;
-        }
-
-        /** Returns the forgiven write bytes. */
-        public android.automotive.watchdog.PerStateBytes getForgivenWriteBytes() {
-            return mForgivenWriteBytes;
-        }
-
-        /** Returns the number of forgiven overuses today. */
-        public int getForgivenOveruses() {
-            return mForgivenOveruses;
-        }
-
-        /**
-         * Returns the number of not forgiven overuses. These are overuses that have not been
-         * attributed previously to a package's recurring overuse.
-         */
-        public int getNotForgivenOveruses() {
-            if (!hasUsage()) {
-                return 0;
-            }
-            int historicalNotForgivenOveruses =
-                    mHistoricalNotForgivenOveruses != MISSING_VALUE
-                            ? mHistoricalNotForgivenOveruses : 0;
-            return (mIoOveruseStats.totalOveruses - mForgivenOveruses)
-                    + historicalNotForgivenOveruses;
-        }
-
-        /** Sets historical not forgiven overuses. */
-        public void setHistoricalNotForgivenOveruses(int historicalNotForgivenOveruses) {
-            mHistoricalNotForgivenOveruses = historicalNotForgivenOveruses;
-        }
-
-        /** Forgives all the I/O overuse stats' overuses. */
-        public void forgiveOveruses() {
-            if (!hasUsage()) {
-                return;
-            }
-            mForgivenOveruses = mIoOveruseStats.totalOveruses;
-            mHistoricalNotForgivenOveruses = 0;
-        }
-
-        /** Returns the total number of times the package was killed. */
-        public int getTotalTimesKilled() {
-            return mTotalTimesKilled;
-        }
-
-        boolean shouldForgiveHistoricalOveruses() {
-            return mHistoricalNotForgivenOveruses != MISSING_VALUE;
-        }
-
-        boolean hasUsage() {
-            return mIoOveruseStats != null;
-        }
-
-        void overwrite(PackageIoUsage ioUsage) {
-            mIoOveruseStats = ioUsage.mIoOveruseStats;
-            mForgivenWriteBytes = ioUsage.mForgivenWriteBytes;
-            mTotalTimesKilled = ioUsage.mTotalTimesKilled;
-            mHistoricalNotForgivenOveruses = ioUsage.mHistoricalNotForgivenOveruses;
-        }
-
-        void update(android.automotive.watchdog.IoOveruseStats internalStats,
-                android.automotive.watchdog.PerStateBytes forgivenWriteBytes) {
-            mIoOveruseStats = internalStats;
-            mForgivenWriteBytes = forgivenWriteBytes;
-        }
-
-        IoOveruseStats getIoOveruseStats(boolean isKillable) {
-            return toIoOveruseStatsBuilder(mIoOveruseStats, mTotalTimesKilled, isKillable).build();
-        }
-
-        boolean exceedsThreshold() {
-            if (!hasUsage()) {
-                return false;
-            }
-            android.automotive.watchdog.PerStateBytes remaining =
-                    mIoOveruseStats.remainingWriteBytes;
-            return remaining.foregroundBytes == 0 || remaining.backgroundBytes == 0
-                    || remaining.garageModeBytes == 0;
-        }
-
-        void killed() {
-            ++mTotalTimesKilled;
-        }
-
-        void resetStats() {
-            mIoOveruseStats = null;
-            mForgivenWriteBytes = DEFAULT_PER_STATE_BYTES;
-            mForgivenOveruses = 0;
-            mHistoricalNotForgivenOveruses = MISSING_VALUE;
-            mTotalTimesKilled = 0;
         }
     }
 

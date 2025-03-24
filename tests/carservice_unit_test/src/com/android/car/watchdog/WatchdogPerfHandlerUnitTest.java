@@ -536,13 +536,11 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
 
         List<WatchdogStorage.IoUsageStatsEntry> expectedSavedIoUsageEntries = Arrays.asList(
                 new WatchdogStorage.IoUsageStatsEntry(/* userId= */ 100, "system_package",
-                        new WatchdogPerfHandler.PackageIoUsage(
-                                packageIoOveruseStats.get(0).ioOveruseStats,
+                        new PackageIoUsage(packageIoOveruseStats.get(0).ioOveruseStats,
                                 /* forgivenWriteBytes= */ constructPerStateBytes(600, 700, 800),
                                 /* forgivenOveruses= */ 3, /* totalTimesKilled= */ 0)),
                 new WatchdogStorage.IoUsageStatsEntry(/* userId= */ 100, "third_party_package",
-                        new WatchdogPerfHandler.PackageIoUsage(
-                                packageIoOveruseStats.get(1).ioOveruseStats,
+                        new PackageIoUsage(packageIoOveruseStats.get(1).ioOveruseStats,
                                 /* forgivenWriteBytes= */ constructPerStateBytes(1050, 1100, 1200),
                                 /* forgivenOveruses= */ 0, /* totalTimesKilled= */ 0)));
 
@@ -589,13 +587,11 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
 
         List<WatchdogStorage.IoUsageStatsEntry> expectedSavedIoUsageEntries = Arrays.asList(
                 new WatchdogStorage.IoUsageStatsEntry(/* userId= */ 100, "system_package",
-                        new WatchdogPerfHandler.PackageIoUsage(
-                                packageIoOveruseStats.get(0).ioOveruseStats,
+                        new PackageIoUsage(packageIoOveruseStats.get(0).ioOveruseStats,
                                 /* forgivenWriteBytes= */ constructPerStateBytes(600, 700, 800),
                                 /* forgivenOveruses= */ 3, /* totalTimesKilled= */ 0)),
                 new WatchdogStorage.IoUsageStatsEntry(/* userId= */ 100, "third_party_package",
-                        new WatchdogPerfHandler.PackageIoUsage(
-                                packageIoOveruseStats.get(1).ioOveruseStats,
+                        new PackageIoUsage(packageIoOveruseStats.get(1).ioOveruseStats,
                                 /* forgivenWriteBytes= */ constructPerStateBytes(1050, 1100, 1200),
                                 /* forgivenOveruses= */ 0, /* totalTimesKilled= */ 0)));
 
@@ -3257,11 +3253,11 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
 
         List<WatchdogStorage.IoUsageStatsEntry> expectedSavedIoUsageEntries = Arrays.asList(
                 new WatchdogStorage.IoUsageStatsEntry(/* userId= */ 100, "system_package",
-                        new WatchdogPerfHandler.PackageIoUsage(prevDayStats.get(0).ioOveruseStats,
+                        new PackageIoUsage(prevDayStats.get(0).ioOveruseStats,
                                 /* forgivenWriteBytes= */ constructPerStateBytes(600, 700, 800),
                                 /* forgivenOveruses= */ 3, /* totalTimesKilled= */ 1)),
                 new WatchdogStorage.IoUsageStatsEntry(/* userId= */ 100, "third_party_package",
-                        new WatchdogPerfHandler.PackageIoUsage(prevDayStats.get(1).ioOveruseStats,
+                        new PackageIoUsage(prevDayStats.get(1).ioOveruseStats,
                                 /* forgivenWriteBytes= */ constructPerStateBytes(1050, 1100, 1200),
                                 /* forgivenOveruses= */ 0, /* totalTimesKilled= */ 0)));
 
@@ -4672,8 +4668,7 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
             for (WatchdogStorage.IoUsageStatsEntry entry : ioUsageStatsEntries) {
                 mIoUsageStatsEntries.add(
                         new WatchdogStorage.IoUsageStatsEntry(entry.userId, entry.packageName,
-                                new WatchdogPerfHandler.PackageIoUsage(
-                                        entry.ioUsage.getInternalIoOveruseStats(),
+                                new PackageIoUsage(entry.ioUsage.getInternalIoOveruseStats(),
                                         entry.ioUsage.getForgivenWriteBytes(),
                                         entry.ioUsage.getForgivenOveruses(),
                                         entry.ioUsage.getTotalTimesKilled())));
@@ -4728,7 +4723,7 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
 
     private static ResourceOveruseStats constructResourceOveruseStats(int uid, String packageName,
             android.automotive.watchdog.IoOveruseStats internalIoOveruseStats) {
-        IoOveruseStats ioOveruseStats = WatchdogPerfHandler.toIoOveruseStatsBuilder(
+        IoOveruseStats ioOveruseStats = PackageIoUsage.toIoOveruseStatsBuilder(
                 internalIoOveruseStats, /* totalTimesKilled= */ 0,
                 internalIoOveruseStats.killableOnOveruse).build();
 
