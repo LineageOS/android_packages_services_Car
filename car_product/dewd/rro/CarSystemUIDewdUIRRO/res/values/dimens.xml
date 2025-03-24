@@ -45,4 +45,8 @@
     <!-- Keyguard -->
     <dimen name="pin_view_container_maxHeight">380dp</dimen>
     <dimen name="pattern_view_container_maxHeight">800dp</dimen>
+
+    <dimen name="safe_bounds_open_top">747px</dimen>
+    <dimen name="safe_bounds_close_top">2156px</dimen>
+    <dimen name="safe_bounds_close_bottom">2837px</dimen>
 </resources>

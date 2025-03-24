@@ -22,6 +22,7 @@
 
     <item target="bool/config_enableScalableUI" value="@bool/config_enableScalableUI"/>
     <item target="bool/config_enableClearBackStack" value="@bool/config_enableClearBackStack"/>
+    <item target="bool/config_enableSafeAreaAndToolbarPerDisplay" value="@bool/config_enableSafeAreaAndToolbarPerDisplay"/>
 
     <item target="dimen/screen_height" value="@dimen/screen_height"/>
     <item target="dimen/top_bar_bottom" value="@dimen/top_bar_bottom"/>
