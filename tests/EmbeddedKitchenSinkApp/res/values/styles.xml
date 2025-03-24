@@ -58,6 +58,11 @@
         <item name="android:radioButtonStyle">@style/RadioButtonStyle</item>
         <item name="android:checkboxStyle">@style/CheckBoxStyle</item>
         <item name="android:spinnerStyle">@style/SpinnerStyle</item>
+        <item name="oemTokenOverrideEnabled">true</item>
+    </style>
+
+    <style name="KitchenSink2ActivityTheme" parent="Theme.CarUi.NoToolbar">
+        <item name="oemTokenOverrideEnabled">true</item>
     </style>
 
     <style name="KSDayNightTheme" parent="Theme.AppCompat.DayNight.NoActionBar">

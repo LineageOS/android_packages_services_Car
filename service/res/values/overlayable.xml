@@ -41,6 +41,7 @@
           <item type="bool" name="audioUseMinMaxActivationVolume"/>
           <item type="bool" name="audioUseIsolatedAudioFocusForDynamicDevices"/>
           <item type="bool" name="audioEnableVolumeKeyEventsToDynamicDevices"/>
+          <item type="bool" name="audioPersistFadeBalanceLevels"/>
           <item type="bool" name="displayOffMuteLockAllAudio"/>
           <item type="bool" name="useDefaultBluetoothConnectionPolicy"/>
           <item type="bool" name="useDefaultBluetoothPowerPolicy"/>

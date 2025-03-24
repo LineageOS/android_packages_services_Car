@@ -43,13 +43,13 @@
         </item>
     </style>
 
-    <style name="TextAppearance.SystemBar.ClockWithSelection"
+    <style name="SystemBarClockWithSelectionText"
         parent="@*android:style/TextAppearance.StatusBar.Icon">
         <item name="android:textSize">@dimen/car_quick_controls_entry_points_clock_text_size</item>
         <item name="android:textColor">@color/system_bar_text_color_with_selection</item>
     </style>
 
-    <style name="TextAppearance.SystemBar.Username"
+    <style name="SystemBarUsernameText"
         parent="@android:style/TextAppearance.DeviceDefault">
         <item name="android:textSize">@dimen/car_body3_size</item>
         <item name="android:textColor">@color/system_bar_text_color_with_selection</item>

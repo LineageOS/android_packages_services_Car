@@ -22,6 +22,7 @@ import static android.car.media.CarAudioManager.AUDIO_FEATURE_AUDIO_MIRRORING;
 import static android.car.media.CarAudioManager.AUDIO_FEATURE_DYNAMIC_ROUTING;
 import static android.car.media.CarAudioManager.AUDIO_FEATURE_MIN_MAX_ACTIVATION_VOLUME;
 import static android.car.media.CarAudioManager.AUDIO_FEATURE_OEM_AUDIO_SERVICE;
+import static android.car.media.CarAudioManager.AUDIO_FEATURE_PERSIST_FADE_BALANCE_VALUES;
 import static android.car.media.CarAudioManager.AUDIO_FEATURE_VOLUME_GROUP_EVENTS;
 import static android.car.media.CarAudioManager.AUDIO_FEATURE_VOLUME_GROUP_MUTING;
 import static android.car.media.CarAudioManager.CONFIG_STATUS_CHANGED;
@@ -233,6 +234,7 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
     private final @CarVolume.CarVolumeListVersion int mAudioVolumeAdjustmentContextsVersion;
     private final boolean mPersistMasterMuteState;
     private final boolean mUseFadeManagerConfiguration;
+    private final boolean mPersistFadeBalanceLevels;
     private final CarAudioSettings mCarAudioSettings;
     private final int mKeyEventTimeoutMs;
     private final MediaRequestHandler mMediaRequestHandler = new MediaRequestHandler();
@@ -469,6 +471,8 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
         mUseKeyEventsForDynamicDevices = Flags.carAudioDynamicDevices() && !runInLegacyMode()
                 && mContext.getResources().getBoolean(
                         R.bool.audioEnableVolumeKeyEventsToDynamicDevices);
+        mPersistFadeBalanceLevels = Flags.audioFadeBalanceGetterApis() && !runInLegacyMode()
+                && mContext.getResources().getBoolean(R.bool.audioPersistFadeBalanceLevels);
         validateFeatureFlagSettings();
         mAudioServerStateCallback = new CarAudioServerStateCallback(this);
     }
@@ -837,6 +841,7 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
             if (mCarAudioConfigurationPath != null) {
                 writer.printf("Car audio configuration path: %s\n", mCarAudioConfigurationPath);
             }
+            writer.printf("Persist fade and balance levels? %b\n", mPersistFadeBalanceLevels);
             writer.decreaseIndent();
             writer.println();
 
@@ -1053,6 +1058,8 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
                 return mCarAudioMirrorRequestHandler.isMirrorAudioEnabled();
             case AUDIO_FEATURE_MIN_MAX_ACTIVATION_VOLUME:
                 return mUseMinMaxActivationVolume;
+            case AUDIO_FEATURE_PERSIST_FADE_BALANCE_VALUES:
+                return mPersistFadeBalanceLevels;
             default:
                 throw new IllegalArgumentException("Unknown Audio Feature type: "
                         + audioFeatureType);

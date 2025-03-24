@@ -16,18 +16,15 @@
 
 #pragma once
 
-#include "PackageInfoResolver.h"
 #include "UidCpuStatsCollector.h"
-#include "UidIoStatsCollector.h"
 #include "UidProcStatsCollector.h"
+#include "UidStatsCollectorBase.h"
 
-#include <aidl/android/automotive/watchdog/internal/PackageInfo.h>
 #include <android-base/result.h>
 #include <utils/Mutex.h>
 #include <utils/RefBase.h>
 #include <utils/StrongPointer.h>
 
-#include <string>
 #include <vector>
 
 namespace android {
@@ -41,21 +38,13 @@ class UidStatsCollectorPeer;
 
 }  // namespace internal
 
-struct UidStats {
-    aidl::android::automotive::watchdog::internal::PackageInfo packageInfo;
+struct UidStats : public UidBaseStats {
     int64_t cpuTimeMillis = 0;
-    UidIoStats ioStats = {};
     UidProcStats procStats = {};
-    // Returns true when package info is available.
-    bool hasPackageInfo() const;
-    // Returns package name if the |packageInfo| is available. Otherwise, returns the |uid|.
-    std::string genericPackageName() const;
-    // Returns the uid for the stats;
-    uid_t uid() const;
 };
 
 // Collector/Aggregator for per-UID I/O and proc stats.
-class UidStatsCollectorInterface : public RefBase {
+class UidStatsCollectorInterface : virtual public RefBase {
 public:
     // Initializes the collector.
     virtual void init() = 0;
@@ -69,12 +58,10 @@ public:
     virtual bool enabled() const = 0;
 };
 
-class UidStatsCollector final : public UidStatsCollectorInterface {
+class UidStatsCollector final : public UidStatsCollectorBase, public UidStatsCollectorInterface {
 public:
     UidStatsCollector() :
-          mPackageInfoResolver(PackageInfoResolver::getInstance()),
           mUidCpuStatsCollector(android::sp<UidCpuStatsCollector>::make()),
-          mUidIoStatsCollector(android::sp<UidIoStatsCollector>::make()),
           mUidProcStatsCollector(android::sp<UidProcStatsCollector>::make()) {}
 
     void init() override {
@@ -97,7 +84,7 @@ public:
     }
 
     bool enabled() const override {
-        return mUidIoStatsCollector->enabled() || mUidProcStatsCollector->enabled();
+        return UidStatsCollectorBase::enabled() || mUidProcStatsCollector->enabled();
     }
 
 private:
@@ -106,14 +93,7 @@ private:
             const std::unordered_map<uid_t, UidProcStats>& uidProcStatsByUid,
             const std::unordered_map<uid_t, int64_t>& cpuTimeMillisByUid) const;
 
-    // Local PackageInfoResolverInterface instance. Useful to mock in tests.
-    std::shared_ptr<PackageInfoResolverInterface> mPackageInfoResolver;
-
-    mutable Mutex mMutex;
-
     android::sp<UidCpuStatsCollectorInterface> mUidCpuStatsCollector GUARDED_BY(mMutex);
-
-    android::sp<UidIoStatsCollectorInterface> mUidIoStatsCollector GUARDED_BY(mMutex);
 
     android::sp<UidProcStatsCollectorInterface> mUidProcStatsCollector GUARDED_BY(mMutex);
 

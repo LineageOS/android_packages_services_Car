@@ -122,6 +122,12 @@
           will not consider volume groups containing dynamic devices. -->
     <bool name="audioEnableVolumeKeyEventsToDynamicDevices">false</bool>
 
+    <!--  Configuration to enable persistence of fade and balance levels per user. These levels are
+          only available for the cabin. If set to false, the fade and balance levels are reset to
+          zero after every ignition cycle. When enabled, OEMs must also implement
+          IAudioControl#setFadeTowardFront and IAudioControl#setBalanceTowardRight APIs. -->
+    <bool name="audioPersistFadeBalanceLevels">false</bool>
+
     <!-- Whether to block other audio while media audio is muted with display off. When set to true,
          other sounds cannot be played either while display is off. If false, only media is muted
          and other sounds can be still played. -->
@@ -486,6 +492,7 @@
         <item>vehicle_map_service</item>
         <item>car_evs_service</item>
         <item>car_telemetry_service</item>
+        <item>car_property_simulation_service</item>
     </string-array>
 
     <!-- Configuration to enable passenger support.

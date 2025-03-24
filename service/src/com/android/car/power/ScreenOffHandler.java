@@ -416,7 +416,9 @@ class ScreenOffHandler {
         if (powerMode == DISPLAY_POWER_MODE_NONE) {
             Slogf.w(TAG, "No power mode specified for display port: " + displayPort
                     + ", default to POWER_MODE_ON");
-            powerMode = DISPLAY_POWER_MODE_ON;
+            // TODO(b/274050716): We changed this from ON to ALWAYS_ON due to b/393626464, we
+            // should change this back once it is fixed.
+            powerMode = DISPLAY_POWER_MODE_ALWAYS_ON;
         }
         info.setMode(powerMode);
         Slogf.i(TAG, "Set displayPort=" + displayPort + ", powerMode=" + powerMode);

@@ -567,10 +567,20 @@ final class VendorServiceController implements UserLifecycleListener {
                 }
                 return canBind;
             } else if (mVendorServiceInfo.shouldBeStartedInForeground()) {
-                mStarted = mUserContext.startForegroundService(intent) != null;
+                try {
+                    mStarted = mUserContext.startForegroundService(intent) != null;
+                } catch (SecurityException e) {
+                    Slogf.e(TAG, "ERROR: Failed to start fg service : " + e);
+                    mStarted = false;
+                }
                 return mStarted;
             } else {
-                mStarted = mUserContext.startService(intent) != null;
+                try {
+                    mStarted = mUserContext.startService(intent) != null;
+                } catch (SecurityException e) {
+                    Slogf.e(TAG, "ERROR: Failed to start service : " + e);
+                    mStarted = false;
+                }
                 return mStarted;
             }
         }

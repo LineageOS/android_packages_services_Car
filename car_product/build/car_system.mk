@@ -110,7 +110,6 @@ PRODUCT_PACKAGES += \
     Bluetooth \
     CarActivityResolver \
     CarManagedProvisioning \
-    StatementService \
     SystemUpdater \
     pppd \
     screenrecord
@@ -275,3 +274,7 @@ endif # USE_CAR_FRAMEWORK_APEX
 # Disable Dynamic System Update for automotive targets
 PRODUCT_NO_DYNAMIC_SYSTEM_UPDATE := true
 
+
+PRODUCT_PROPERTY_OVERRIDES += \
+    persist.log.tag.ContCarPropertyEventTracker=D \
+    persist.log.tag.SubscriptionManager=D

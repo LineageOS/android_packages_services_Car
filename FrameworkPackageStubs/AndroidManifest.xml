@@ -277,5 +277,31 @@
             </intent-filter>
         </activity>
 
+        <!-- File management stubs -->
+        <activity
+            android:name=".Stubs$FileManagerStub"
+            android:label="@string/stub_name"
+            android:excludeFromRecents="true"
+            android:exported="true">
+            <!-- For VIEW actions, ComponentResolver always adjustPriority to 0. -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="vnd.android.document/root" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="vnd.android.document/directory" />
+            </intent-filter>
+            <!-- .ViewDownloadsActivity
+                 Set android:priority="101" to avoid other apps to take the priority,
+                 nor conflicting with DocumentsUI's 0. -->
+            <intent-filter android:priority="101">
+                <action android:name="android.intent.action.VIEW_DOWNLOADS" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
     </application>
 </manifest>

@@ -143,7 +143,7 @@
                 android:layout_height="wrap_content"
                 android:elevation="5dp"
                 android:singleLine="true"
-                android:textAppearance="@style/TextAppearance.SystemBar.ClockWithSelection"
+                style="@style/SystemBarClockWithSelectionText"
                 systemui:amPmStyle="gone"/>
         </com.android.systemui.car.systembar.CarSystemBarPanelButtonView>
     </RelativeLayout>

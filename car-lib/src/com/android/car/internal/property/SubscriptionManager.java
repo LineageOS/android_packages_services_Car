@@ -72,6 +72,7 @@ import java.util.TreeSet;
 public final class SubscriptionManager<ClientType> {
     private static final String TAG = SubscriptionManager.class.getSimpleName();
     private static final boolean DBG = Log.isLoggable(TAG, Log.DEBUG);
+    private static final boolean VERBOSE = Log.isLoggable(TAG, Log.VERBOSE);
 
     private static final class RateInfo {
         public final float updateRateHz;
@@ -339,8 +340,8 @@ public final class SubscriptionManager<ClientType> {
      */
     public void commit() {
         if (mStagedAffectedPropIdAreaIds.isEmpty()) {
-            if (DBG) {
-                Slog.d(TAG, "No changes has been staged, nothing to commit");
+            if (VERBOSE) {
+                Slog.v(TAG, "No changes has been staged, nothing to commit");
             }
             return;
         }
@@ -412,8 +413,8 @@ public final class SubscriptionManager<ClientType> {
     public void diffBetweenCurrentAndStage(List<CarSubscription> outDiffSubscriptions,
             List<Integer> outPropertyIdsToUnsubscribe) {
         if (mStagedAffectedPropIdAreaIds.isEmpty()) {
-            if (DBG) {
-                Slog.d(TAG, "No changes has been staged, no diff");
+            if (VERBOSE) {
+                Slog.v(TAG, "No changes has been staged, no diff");
             }
             return;
         }

@@ -207,6 +207,13 @@ flag {
     bug: "359686069"
 }
 
+flag {
+    name: "audio_fade_balance_getter_apis"
+    namespace: "car_framework"
+    description: "Controls whether to support car audio manager getter APIs for Fade and Balance"
+    bug: "401266742"
+}
+
 # CarPropertyManager
 flag {
   name: "batched_subscriptions"
@@ -444,4 +451,12 @@ flag {
     namespace: "car_framework"
     description: "Controls CarWatchdog ANR metrics reporting feature."
     bug: "373716861"
+}
+
+# Support for suspending media apps in cars
+flag {
+    name: "car_media_apps_suspension"
+    namespace: "car_framework"
+    description: "Enables suspension of templated media apps in cars."
+    bug: "401584551"
 }

@@ -55,7 +55,6 @@ import android.car.VehicleAreaSeat;
 import android.car.VehicleAreaType;
 import android.car.VehiclePropertyIds;
 import android.car.feature.FeatureFlags;
-import android.car.feature.Flags;
 import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.CarPropertyValue;
 import android.car.test.AbstractExpectableTestCase;
@@ -67,7 +66,6 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.RemoteException;
 import android.os.ServiceSpecificException;
-import android.platform.test.annotations.EnableFlags;
 import android.platform.test.annotations.DisabledOnRavenwood;
 import android.platform.test.flag.junit.SetFlagsRule;
 import android.util.ArraySet;
@@ -1245,7 +1243,6 @@ public final class CarPropertyManagerUnitTest extends AbstractExpectableTestCase
     }
 
     @Test
-    @EnableFlags(Flags.FLAG_CAR_PROPERTY_DETAILED_ERROR_CODES)
     public void testPropertyAsyncError_GetDetailedErrorCode() throws RemoteException {
         doAnswer((invocation) -> {
             Object[] args = invocation.getArguments();
