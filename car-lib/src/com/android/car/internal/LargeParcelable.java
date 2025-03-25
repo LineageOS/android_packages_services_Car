@@ -28,6 +28,7 @@ import android.util.Slog;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.concurrent.Callable;
 
@@ -39,10 +40,9 @@ import java.util.concurrent.Callable;
  * interface with C++ world. For such usage, child class will only add its own {@code CREATOR} impl
  * and a constructor taking {@code Parcel in}.
  *
- * <p>For stable AIDL, this class also provides two methods for serialization {@link
- * #toLargeParcelable(Parcelable)} and deserialization
- * {@link #reconstructStableAIDLParcelable(Parcelable, boolean)}. Plz check included test for the
- * usage.
+ * <p>For stable AIDL, this class also provides two methods for serialization
+ * {@link #toLargeParcelable} and deserialization {@link #reconstructStableAIDLParcelable}.
+ * Please check included test for the usage.
  *
  * <p>If the caller sends this class through binder, the caller must close this class after writing
  * to parcel, unless this class is used as the return value for a binder call. If this is used as
@@ -286,6 +286,30 @@ public class LargeParcelable extends LargeParcelableBase {
     }
 
     /**
+     * Reconstructs {@code Parcelable} defined from Stable AIDL. It will create
+     * a new {@code Parcelable} if the shared memory fd is not null. If the shared memory fd is
+     * null, it will return the original {@code Parcelable p} as it is.
+     *
+     * <p>The sharedMemoryFd field in the input will be closed inside this function,
+     *
+     * <p>This version is faster than {@link #reconstructStableAIDLParcelable(Parcelable, boolean)}
+     * by avoid using reflection.
+     *
+     * @param p                 Original {@code Parcelable} containing the payload.
+     * @param sharedMemoryFd    The file descriptor to the shared memory, this is the
+     * {@link #STABLE_AIDL_SHARED_MEMORY_MEMBER} field inside the parcelable.
+     * @param parcelableCreator A creator used to create the parcelable from a parcel.
+     * @param <T>               The parcelable class.
+     * @return a new {@code Parcelable} if shared memory fd is not null or the original parcelable.
+     */
+    public static <T extends Parcelable> @Nullable T reconstructStableAIDLParcelable(@Nullable T p,
+            @Nullable ParcelFileDescriptor sharedMemoryFd,
+            Parcelable.Creator<T> parcelableCreator) {
+        return reconstructStableAIDLParcelable(p, sharedMemoryFd, parcelableCreator,
+                /* sharedMemorySetter= */ null);
+    }
+
+    /**
      * Reconstructs {@code Parcelable} defined from Stable AIDL. It should have a {@link
      * ParcelFileDescriptor} member named {@link #STABLE_AIDL_SHARED_MEMORY_MEMBER} and will create
      * a new {@code Parcelable} if the shared memory portion is not null. If there is no shared
@@ -296,60 +320,88 @@ public class LargeParcelable extends LargeParcelableBase {
      *
      * <p>If keepSharedMemory is true, the caller must close the returned shared memory after using.
      *
+     * <p>This method uses reflection to find the fields inside the input parcelable so must not
+     * be used for performance critical task.
+     *
      * @param p                Original {@code Parcelable} containing the payload.
      * @param keepSharedMemory Whether to keep created shared memory in the returned {@code
      *                         Parcelable}. Set to {@code true} if this {@code Parcelable} is sent
      *                         across binder repeatedly.
+     * @param <T>              The parcelable class.
      * @return a new {@code Parcelable} if payload read from shared memory or old one if payload
      * is small enough.
      */
-    public static @Nullable Parcelable reconstructStableAIDLParcelable(@Nullable Parcelable p,
-            boolean keepSharedMemory) {
+    public static <T extends Parcelable> @Nullable T reconstructStableAIDLParcelable(
+            @Nullable T p, boolean keepSharedMemory) {
         if (p == null) {
             return null;
-        }
-        Class parcelableClass = p.getClass();
-        if (DBG_STABLE_AIDL_CLASS) {
-            Slog.d(TAG, "reconstructStableAIDLParcelable stable AIDL Parcelable:"
-                    + parcelableClass.getSimpleName());
         }
         ParcelFileDescriptor sharedMemoryFd = null;
         Field fieldSharedMemory;
         try {
-            fieldSharedMemory = parcelableClass.getField(STABLE_AIDL_SHARED_MEMORY_MEMBER);
+            fieldSharedMemory = p.getClass().getField(STABLE_AIDL_SHARED_MEMORY_MEMBER);
             sharedMemoryFd = (ParcelFileDescriptor) fieldSharedMemory.get(p);
         } catch (Exception e) {
             throw new IllegalArgumentException("Cannot access " + STABLE_AIDL_SHARED_MEMORY_MEMBER,
                     e);
         }
+        ReflectionStableParcelableCreator<T> creator;
+        try {
+            creator = new ReflectionStableParcelableCreator(p);
+        } catch (NoSuchMethodException e) {
+            throw new IllegalArgumentException(
+                    "The input parcelable is not a stabke parcelable, cannot find readFromParcel "
+                    + "method", e);
+        }
+        ReflectionSharedMemorySetter<T> sharedMemorySetter = null;
+        if (keepSharedMemory) {
+            sharedMemorySetter = new ReflectionSharedMemorySetter(fieldSharedMemory);
+        }
+        return reconstructStableAIDLParcelable(p, sharedMemoryFd, creator, sharedMemorySetter);
+    }
+
+    private static ParcelFileDescriptor dupFd(ParcelFileDescriptor fd) {
+        try {
+            return fd.dup();
+        } catch (IOException e) {
+            throw new IllegalStateException("Failed to duplicate shared memory fd", e);
+        }
+    }
+
+    private static <T extends Parcelable> @Nullable T reconstructStableAIDLParcelable(@Nullable T p,
+            @Nullable ParcelFileDescriptor sharedMemoryFd, Parcelable.Creator<T> parcelableCreator,
+            @Nullable SharedMemorySetter sharedMemorySetter) {
         if (sharedMemoryFd == null) {
             if (DBG_PAYLOAD) {
                 Slog.d(TAG, "reconstructStableAIDLParcelable null shared memory");
             }
             return p;
         }
+        if (p == null) {
+            return null;
+        }
+        if (DBG_STABLE_AIDL_CLASS) {
+            Slog.d(TAG, "reconstructStableAIDLParcelable stable AIDL Parcelable:"
+                    + p.getClass().getSimpleName());
+        }
         Parcel in = null;
-        Parcelable retParcelable;
+        T retParcelable = null;
         try {
             // SharedMemory.fromFileDescriptor take ownership, so we need to dupe to keep
             // sharedMemoryFd the Parcelable valid.
-            try (SharedMemory memory = SharedMemory.fromFileDescriptor(sharedMemoryFd.dup())) {
+            try (SharedMemory memory = SharedMemory.fromFileDescriptor(dupFd(sharedMemoryFd))) {
                 in = LargeParcelableBase.copyFromSharedMemory(memory);
             }
-            retParcelable = (Parcelable) parcelableClass.newInstance();
-            // runs retParcelable.readFromParcel(in)
-            Method readMethod = parcelableClass.getMethod(STABLE_AIDL_PARCELABLE_READ_FROM_PARCEL,
-                    new Class[]{Parcel.class});
-            readMethod.invoke(retParcelable, in);
-            if (keepSharedMemory) {
-                fieldSharedMemory.set(retParcelable, sharedMemoryFd.dup());
+
+            retParcelable = parcelableCreator.createFromParcel(in);
+            if (sharedMemorySetter != null) {
+                sharedMemorySetter.set(retParcelable, dupFd(sharedMemoryFd));
             }
+
             if (DBG_PAYLOAD) {
                 Slog.d(TAG, "reconstructStableAIDLParcelable read shared memory, data size:"
                         + in.dataPosition());
             }
-        } catch (Exception e) {
-            throw new IllegalArgumentException("Cannot access Parcelable constructor/method", e);
         } finally {
             closeFd(sharedMemoryFd);
             if (in != null) {
@@ -357,5 +409,71 @@ public class LargeParcelable extends LargeParcelableBase {
             }
         }
         return retParcelable;
+    }
+
+    /**
+     * An implementation for {@code createFromParcel} by using reflection to get the
+     * {@link STABLE_AIDL_PARCELABLE_READ_FROM_PARCEL} method from the parcelable and inoke it.
+     */
+    private static final class ReflectionStableParcelableCreator<T extends Parcelable>
+            implements Parcelable.Creator<T> {
+        private final Class<?> mParcelableClass;
+        private final Method mReadMethod;
+
+        ReflectionStableParcelableCreator(T p) throws NoSuchMethodException {
+            mParcelableClass = p.getClass();
+            mReadMethod = mParcelableClass.getMethod(
+                    STABLE_AIDL_PARCELABLE_READ_FROM_PARCEL, new Class[]{Parcel.class});
+        }
+
+        @Override
+        public T createFromParcel(Parcel source) {
+            try {
+                T p = (T) mParcelableClass.getDeclaredConstructor().newInstance();
+                // runs p.readFromParcel(source). readFromParcel is a method implemented
+                // by every stable Parcelable class, but not exposed directly from Parcelable.
+                mReadMethod.invoke(p, source);
+                return p;
+            } catch (IllegalAccessException | InvocationTargetException | InstantiationException
+                    | NoSuchMethodException e) {
+                throw new IllegalArgumentException(
+                        "Cannot access the input Parcelable's readFromParcel/constructor method",
+                        e);
+            }
+        }
+
+        @Override
+        public T[] newArray(int size) {
+            throw new UnsupportedOperationException("This must never be used");
+        }
+    }
+
+    /**
+     * An interface to set the 'sharedMemoryFd' field inside a parcelable.
+     */
+    private interface SharedMemorySetter<T extends Parcelable> {
+        void set(T parcelable, ParcelFileDescriptor sharedMemoryFd);
+    }
+
+    /**
+     * An implementation for SharedMemorySetter using reflection to find the field.
+     */
+    private static final class ReflectionSharedMemorySetter<T extends Parcelable>
+            implements SharedMemorySetter<T> {
+        private final Field mFieldSharedMemory;
+
+        ReflectionSharedMemorySetter(Field fieldSharedMemory) {
+            mFieldSharedMemory = fieldSharedMemory;
+        }
+
+        @Override
+        public void set(T parcelable, ParcelFileDescriptor sharedMemoryFd) {
+            try {
+                mFieldSharedMemory.set(parcelable, sharedMemoryFd);
+            } catch (IllegalAccessException e) {
+                throw new IllegalArgumentException(
+                        "Cannot access the input Parcelable's sharedMemoryFd field", e);
+            }
+        }
     }
 }
