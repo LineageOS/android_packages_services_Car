@@ -37,7 +37,6 @@ import android.os.Parcelable;
 import androidx.test.filters.SmallTest;
 
 import com.android.car.internal.LargeParcelable;
-import com.android.compatibility.common.util.NonApiTest;
 
 import org.junit.After;
 import org.junit.Before;
@@ -45,6 +44,15 @@ import org.junit.Test;
 
 import java.util.concurrent.CountDownLatch;
 
+/**
+ * Integration tests for {@link LargeParcelable#toLargeParcelable} and
+ * {@link LargeParcelable#reconstructStableAIDLParcelable}.
+ *
+ * <p>This test uses the stable parcelable: {@link StableAIDLTestLargeParcelable} to communicate
+ * data between the test process and a {@link IStableAIDLBinderTestService} we created.
+ *
+ * <p>This test verifies that we can send and receive stable large parcelable to/from a service.
+ */
 @SmallTest
 public final class LargeParcelableJavaStableAIDLTest extends CarLessApiTestBase {
 
@@ -87,22 +95,16 @@ public final class LargeParcelableJavaStableAIDLTest extends CarLessApiTestBase 
     }
 
     @Test
-    @NonApiTest(exemptionReasons = {}, justification = "Testing large parcelable, which is a "
-            + "hidden API")
     public void testEchoSmallPayload() throws Exception {
         doTestLEcho(ARRAY_LENGTH_SMALL);
     }
 
     @Test
-    @NonApiTest(exemptionReasons = {}, justification = "Testing large parcelable, which is a "
-            + "hidden API")
     public void testEchoBigPayload() throws Exception {
         doTestLEcho(ARRAY_LENGTH_BIG);
     }
 
     @Test
-    @NonApiTest(exemptionReasons = {}, justification = "Testing large parcelable, which is a "
-            + "hidden API")
     public void testEchoSmallPayloadPerfTest() throws Exception {
         for (int i = 0; i < 1000; i++) {
             doTestLEcho(ARRAY_LENGTH_SMALL);
@@ -110,8 +112,6 @@ public final class LargeParcelableJavaStableAIDLTest extends CarLessApiTestBase 
     }
 
     @Test
-    @NonApiTest(exemptionReasons = {}, justification = "Testing large parcelable, which is a "
-            + "hidden API")
     public void testEchoBigPayloadPerfTest() throws Exception {
         for (int i = 0; i < 1000; i++) {
             doTestLEcho(ARRAY_LENGTH_BIG);
@@ -119,22 +119,16 @@ public final class LargeParcelableJavaStableAIDLTest extends CarLessApiTestBase 
     }
 
     @Test
-    @NonApiTest(exemptionReasons = {}, justification = "Testing large parcelable, which is a "
-            + "hidden API")
     public void testEchoMultipleArgsSmallPayload() throws Exception {
         doTestMultipleArgs(ARRAY_LENGTH_SMALL);
     }
 
     @Test
-    @NonApiTest(exemptionReasons = {}, justification = "Testing large parcelable, which is a "
-            + "hidden API")
     public void testEchoMultipleArgsBigPayload() throws Exception {
         doTestMultipleArgs(ARRAY_LENGTH_BIG);
     }
 
     @Test
-    @NonApiTest(exemptionReasons = {}, justification = "Testing large parcelable, which is a "
-            + "hidden API")
     public void testNullParcelable() throws Exception {
         StableAIDLTestLargeParcelable r = mBinder.echo(null);
 
@@ -148,34 +142,45 @@ public final class LargeParcelableJavaStableAIDLTest extends CarLessApiTestBase 
     }
 
     @Test
-    @NonApiTest(exemptionReasons = {}, justification = "Testing large parcelable, which is a "
-            + "hidden API")
     public void testEchoWithCallbackSmallPayload() throws Exception {
         doTestEchoWithCallback(ARRAY_LENGTH_SMALL);
     }
 
     @Test
-    @NonApiTest(exemptionReasons = {}, justification = "Testing large parcelable, which is a "
-            + "hidden API")
     public void testEchoWithCallbackBigPayload() throws Exception {
         doTestEchoWithCallback(ARRAY_LENGTH_BIG);
     }
 
     @Test
-    @NonApiTest(exemptionReasons = {}, justification = "Testing large parcelable, which is a "
-            + "hidden API")
     public void testToLargeParcelableNull() {
         assertThat(LargeParcelable.toLargeParcelable(null)).isNull();
     }
 
     @Test
-    @NonApiTest(exemptionReasons = {}, justification = "Testing large parcelable, which is a "
-            + "hidden API")
     public void testToLargeParcelableNoField() {
         TestParcelable smallParcelable = new TestParcelable(createByteArray(5));
 
         assertThrows(IllegalArgumentException.class, () -> LargeParcelable.toLargeParcelable(
                 smallParcelable));
+    }
+
+    @Test
+    public void testReconstructStableLargeParcelable_withCreator() throws Exception {
+        int payloadSize = ARRAY_LENGTH_BIG;
+        StableAIDLTestLargeParcelable orig = new StableAIDLTestLargeParcelable();
+        byte[] payload = LargeParcelableTest.createByteArray(payloadSize);
+        orig.payload = payload;
+        orig = prepareParcelable(orig);
+
+        StableAIDLTestLargeParcelable r = mBinder.echo(orig);
+
+        var reconstructed = LargeParcelable.reconstructStableAIDLParcelable(r, r.sharedMemoryFd,
+                StableAIDLTestLargeParcelable.CREATOR);
+
+        assertThat(reconstructed).isNotNull();
+        assertThat(reconstructed.payload).isNotNull();
+        assertThat(reconstructed.payload).isEqualTo(payload);
+        assertThat(reconstructed.sharedMemoryFd).isNull();
     }
 
     /**
