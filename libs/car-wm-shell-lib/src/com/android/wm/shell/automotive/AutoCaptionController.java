@@ -336,22 +336,44 @@ public class AutoCaptionController {
      * Updates the visibility of the caption bar attached to a task
      *
      * @param taskInfo   The running task information.
-     * @param visibility to be updated.
+     * @param visible to be updated.
      */
-    void updateCaptionBarVisibility(ActivityManager.RunningTaskInfo taskInfo, boolean visibility) {
+    void updateCaptionBarVisibility(ActivityManager.RunningTaskInfo taskInfo, boolean visible) {
         AutoDecor captionDecor = mTaskIdToCaptionBar.get(taskInfo.taskId);
-        if (captionDecor != null) {
-            if (DBG) {
-                Slogf.d(TAG, "updateCaptionBarVisibility. TaskId: %d, visibility %b",
-                        taskInfo.taskId, visibility);
-            }
+        if (DBG) {
+            Slogf.d(TAG, "updateCaptionBarVisibility. TaskId: %d, visible %b, captionDecor %s",
+                    taskInfo.taskId, visible, captionDecor);
+        }
 
+        if (captionDecor != null) {
             String transactionName = String.format(TRANSACTION_NAME_FORMAT, taskInfo.taskId);
 
             AutoSurfaceTransaction autoSurfaceTransaction =
                     mAutoSurfaceTransactionFactory.createTransaction(transactionName);
-            autoSurfaceTransaction.setVisibility(captionDecor, visibility);
+            autoSurfaceTransaction.setVisibility(captionDecor, visible);
             autoSurfaceTransaction.apply();
+        } else if (visible) {
+            // A new activity started within the same task which needs caption bar, attach a new
+            // caption bar.
+            addCaptionBarToTask(taskInfo);
+        }
+    }
+
+    private void addCaptionBarToTask(ActivityManager.RunningTaskInfo taskInfo) {
+        if (taskInfo.parentTaskId == -1) {
+            // Task is not within a root task. Use display Id
+            addCaptionBar(taskInfo.displayId, taskInfo);
+        } else {
+            // Get task's root task stack
+            RootTaskStack rootTaskStack = mAutoTaskRepository.getRootTaskStack(
+                    taskInfo.parentTaskId);
+            if (rootTaskStack != null) {
+                addCaptionBar(rootTaskStack, taskInfo);
+            } else {
+                // Should not happen
+                Slogf.e(TAG, "updateCaptionBarVisibility. RootTaskStack is null. TaskId: %d",
+                        taskInfo.taskId);
+            }
         }
     }
 
