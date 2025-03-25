@@ -56,14 +56,11 @@ import android.hardware.automotive.vehicle.VehicleProperty;
 import android.hardware.automotive.vehicle.VehiclePropertyAccess;
 import android.hardware.automotive.vehicle.VehiclePropertyChangeMode;
 import android.hardware.automotive.vehicle.VehiclePropertyType;
-import android.os.Handler;
-import android.os.HandlerThread;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.ServiceSpecificException;
 import android.os.SystemClock;
 
-import com.android.car.CarServiceUtils;
 import com.android.car.VehicleStub;
 import com.android.car.VehicleStub.AsyncGetSetRequest;
 import com.android.car.VehicleStub.MinMaxSupportedRawPropValues;
@@ -91,6 +88,7 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.Executor;
 
 @RunWith(MockitoJUnitRunner.class)
 public class VehicleHalTest extends AbstractExpectableTestCase {
@@ -152,8 +150,6 @@ public class VehicleHalTest extends AbstractExpectableTestCase {
     @Rule public final TestName mTestName = new TestName();
     // Required for HandlerThread to work.
 
-    private HandlerThread mHandlerThread;
-    private Handler mHandler;
     private VehicleHal mVehicleHal;
 
     /** Hal services configurations */
@@ -271,18 +267,13 @@ public class VehicleHalTest extends AbstractExpectableTestCase {
 
     @Before
     public void setUp() throws Exception {
-        mHandlerThread = new HandlerThread("VehicleHalTest");
-        mHandlerThread.start();
-
-        mHandler = mHandlerThread.getThreadHandler();
-
         when(mVehicle.getHalPropValueBuilder()).thenReturn(mPropValueBuilder);
         when(mVehicle.newSubscriptionClient(any())).thenReturn(mSubscriptionClient);
 
         mVehicleHal = new VehicleHal(mContext, mPowerHalService,
                 mPropertyHalService, mInputHalService, mVmsHalService, mUserHalService,
                 mDiagnosticHalService, mClusterHalService, mTimeHalService,
-                mHandlerThread, mVehicle);
+                mVehicle);
 
         mConfigs.clear();
 
@@ -301,7 +292,7 @@ public class VehicleHalTest extends AbstractExpectableTestCase {
 
     @After
     public void tearDown() {
-        mHandlerThread.quitSafely();
+        mVehicleHal.release();
     }
 
     @Test
@@ -1194,9 +1185,6 @@ public class VehicleHalTest extends AbstractExpectableTestCase {
     @Test
     public void testOnPropertyEvent() {
         // Arrange
-        List<HalPropValue> dispatchList = mock(List.class);
-        when(mPowerHalService.getDispatchList()).thenReturn(dispatchList);
-
         HalPropValue propValue = mPropValueBuilder.build(SOME_READ_ON_CHANGE_PROPERTY,
                 AREA_ID_1);
         ArrayList<HalPropValue> propValues = new ArrayList<>();
@@ -1206,17 +1194,33 @@ public class VehicleHalTest extends AbstractExpectableTestCase {
         mVehicleHal.onPropertyEvent(propValues);
 
         // Assert
-        verify(dispatchList, timeout(WAIT_TIMEOUT_MS)).add(propValue);
-        verify(mPowerHalService, timeout(WAIT_TIMEOUT_MS)).onHalEvents(dispatchList);
-        verify(dispatchList, timeout(WAIT_TIMEOUT_MS)).clear();
+        verify(mPowerHalService, timeout(WAIT_TIMEOUT_MS)).onHalEvents(mListCaptor.capture());
+        var events = (List<HalPropValue>) mListCaptor.getValue();
+        assertThat(events).hasSize(1);
+        assertThat(events.get(0)).isEqualTo(propValue);
+    }
+
+    @Test
+    public void testOnPropertyEvent_directExecutor() {
+        HalPropValue propValue = mPropValueBuilder.build(SOME_READ_ON_CHANGE_PROPERTY,
+                AREA_ID_1);
+        ArrayList<HalPropValue> propValues = new ArrayList<>();
+        propValues.add(propValue);
+
+        Executor directExecutor = r -> r.run();
+        mVehicleHal.setCallbackExecutor(mPowerHalService, directExecutor);
+        mVehicleHal.onPropertyEvent(propValues);
+
+        // The callback should be executed synchronously so we do not need a timeout here.
+        verify(mPowerHalService).onHalEvents(mListCaptor.capture());
+        var events = (List<HalPropValue>) mListCaptor.getValue();
+        assertThat(events).hasSize(1);
+        assertThat(events.get(0)).isEqualTo(propValue);
     }
 
     @Test
     public void testOnPropertyEvent_WithInjectionModePropertyIsFiltered() {
         // Arrange
-        List<HalPropValue> dispatchList = new ArrayList<>();
-        when(mPowerHalService.getDispatchList()).thenReturn(dispatchList);
-
         HalPropValue propValue = mPropValueBuilder.build(SOME_READ_ON_CHANGE_PROPERTY,
                 AREA_ID_1);
         ArrayList<HalPropValue> propValues = new ArrayList<>();
@@ -1227,14 +1231,12 @@ public class VehicleHalTest extends AbstractExpectableTestCase {
         mVehicleHal.onPropertyEvent(propValues);
 
         // Assert
-        verify(mPowerHalService, after(WAIT_TIMEOUT_MS).never()).onHalEvents(dispatchList);
+        verify(mPowerHalService, after(WAIT_TIMEOUT_MS).never()).onHalEvents(any());
     }
 
     @Test
     public void testOnPropertyEvent_WithInjectionModePropertyIsNotFiltered() {
         // Arrange
-        List<HalPropValue> dispatchList = new ArrayList<>();
-        when(mPowerHalService.getDispatchList()).thenReturn(dispatchList);
         HalPropValue propValue = mPropValueBuilder.build(SOME_READ_ON_CHANGE_PROPERTY,
                 AREA_ID_1);
         ArrayList<HalPropValue> propValues = new ArrayList<>();
@@ -1245,14 +1247,12 @@ public class VehicleHalTest extends AbstractExpectableTestCase {
         mVehicleHal.onPropertyEvent(propValues);
 
         // Assert
-        verify(mPowerHalService, timeout(WAIT_TIMEOUT_MS)).onHalEvents(dispatchList);
+        verify(mPowerHalService, timeout(WAIT_TIMEOUT_MS)).onHalEvents(any());
     }
 
     @Test
     public void testOnPropertyEvent_WithInjectionModePropertySomeFiltered() {
         // Arrange
-        List<HalPropValue> dispatchList = new ArrayList<>();
-        when(mPowerHalService.getDispatchList()).thenReturn(dispatchList);
         HalPropValue propValue = mPropValueBuilder.build(SOME_READ_ON_CHANGE_PROPERTY,
                 AREA_ID_1);
         HalPropValue propValue2 = mPropValueBuilder.build(SOME_FLOAT_PROPERTY, AREA_ID_1);
@@ -1265,15 +1265,15 @@ public class VehicleHalTest extends AbstractExpectableTestCase {
         mVehicleHal.onPropertyEvent(propValues);
 
         // Assert
-        verify(mPowerHalService, timeout(WAIT_TIMEOUT_MS)).onHalEvents(dispatchList);
+        verify(mPowerHalService, timeout(WAIT_TIMEOUT_MS)).onHalEvents(mListCaptor.capture());
+        var events = (List<HalPropValue>) mListCaptor.getValue();
+        assertThat(events).hasSize(1);
+        assertThat(events.get(0)).isEqualTo(propValue);
     }
 
     @Test
     public void testOnPropertyEvent_existingInfo() {
         // Arrange
-        List<HalPropValue> dispatchList = mock(List.class);
-        when(mPowerHalService.getDispatchList()).thenReturn(dispatchList);
-
         HalPropValue propValue = mPropValueBuilder.build(SOME_READ_ON_CHANGE_PROPERTY,
                 AREA_ID_1);
         ArrayList<HalPropValue> propValues = new ArrayList<>();
@@ -1282,8 +1282,9 @@ public class VehicleHalTest extends AbstractExpectableTestCase {
         // Act
         mVehicleHal.onPropertyEvent(propValues);
         mVehicleHal.onPropertyEvent(propValues);
-        // Wait for event to be handled.
-        verify(dispatchList, timeout(WAIT_TIMEOUT_MS).times(2)).clear();
+
+        verify(mPowerHalService, timeout(WAIT_TIMEOUT_MS).times(2)).onHalEvents(
+                mListCaptor.capture());
 
         // Assert
         StringWriter writer = new StringWriter();
@@ -1444,8 +1445,7 @@ public class VehicleHalTest extends AbstractExpectableTestCase {
         errors.add(error);
 
         // Act
-        mHandler.post(() -> mVehicleHal.onPropertySetError(errors));
-        CarServiceUtils.runOnLooperSync(mHandlerThread.getLooper(), () -> {});
+        mVehicleHal.onPropertySetError(errors);
 
         // Assert
         verify(mPowerHalService, timeout(WAIT_TIMEOUT_MS)).onPropertySetError(errors);
@@ -1671,30 +1671,12 @@ public class VehicleHalTest extends AbstractExpectableTestCase {
         });
     }
 
-    // A test class to class protected method of VehicleHal.
-    private static final class VehicleHalTestClass extends VehicleHal {
-        VehicleHalTestClass(Context context,
-                PowerHalService powerHal,
-                PropertyHalService propertyHal,
-                InputHalService inputHal,
-                VmsHalService vmsHal,
-                UserHalService userHal,
-                DiagnosticHalService diagnosticHal,
-                ClusterHalService clusterHalService,
-                TimeHalService timeHalService,
-                HandlerThread handlerThread,
-                VehicleStub vehicleStub) {
-            super(context, powerHal, propertyHal, inputHal, vmsHal, userHal, diagnosticHal,
-                    clusterHalService, timeHalService, handlerThread, vehicleStub);
-        }
-    }
-
     @Test
     public void testSet() throws Exception {
-        VehicleHalTestClass t = new VehicleHalTestClass(mContext, mPowerHalService,
+        VehicleHal t = new VehicleHal(mContext, mPowerHalService,
                 mPropertyHalService, mInputHalService, mVmsHalService, mUserHalService,
                 mDiagnosticHalService, mClusterHalService, mTimeHalService,
-                mHandlerThread, mVehicle);
+                mVehicle);
         t.init();
 
         HalPropValue propValue = mPropValueBuilder.build(SOME_READ_ON_CHANGE_PROPERTY,
@@ -1706,10 +1688,10 @@ public class VehicleHalTest extends AbstractExpectableTestCase {
 
     @Test
     public void testSetWithRetry_retrySucceed() throws Exception {
-        VehicleHalTestClass t = new VehicleHalTestClass(mContext, mPowerHalService,
+        VehicleHal t = new VehicleHal(mContext, mPowerHalService,
                 mPropertyHalService, mInputHalService, mVmsHalService, mUserHalService,
                 mDiagnosticHalService, mClusterHalService, mTimeHalService,
-                mHandlerThread, mVehicle);
+                mVehicle);
         t.init();
         doThrow(new ServiceSpecificException(StatusCode.TRY_AGAIN))
                 .doNothing().when(mVehicle).set(any());
@@ -1725,10 +1707,10 @@ public class VehicleHalTest extends AbstractExpectableTestCase {
 
     @Test
     public void testSetWithRetry_retryFailed() throws Exception {
-        VehicleHalTestClass t = new VehicleHalTestClass(mContext, mPowerHalService,
+        VehicleHal t = new VehicleHal(mContext, mPowerHalService,
                 mPropertyHalService, mInputHalService, mVmsHalService, mUserHalService,
                 mDiagnosticHalService, mClusterHalService, mTimeHalService,
-                mHandlerThread, mVehicle);
+                mVehicle);
         t.init();
         doThrow(new ServiceSpecificException(StatusCode.TRY_AGAIN))
                 .doThrow(new ServiceSpecificException(StatusCode.TRY_AGAIN))
@@ -1748,10 +1730,10 @@ public class VehicleHalTest extends AbstractExpectableTestCase {
 
     @Test
     public void testSetWithRetry_nonRetriableError() throws Exception {
-        VehicleHalTestClass t = new VehicleHalTestClass(mContext, mPowerHalService,
+        VehicleHal t = new VehicleHal(mContext, mPowerHalService,
                 mPropertyHalService, mInputHalService, mVmsHalService, mUserHalService,
                 mDiagnosticHalService, mClusterHalService, mTimeHalService,
-                mHandlerThread, mVehicle);
+                mVehicle);
         t.init();
         doThrow(new ServiceSpecificException(StatusCode.TRY_AGAIN))
                 .doThrow(new ServiceSpecificException(StatusCode.TRY_AGAIN))
@@ -1771,10 +1753,10 @@ public class VehicleHalTest extends AbstractExpectableTestCase {
 
     @Test
     public void testSetWithRetry_IllegalArgumentException() throws Exception {
-        VehicleHalTestClass t = new VehicleHalTestClass(mContext, mPowerHalService,
+        VehicleHal t = new VehicleHal(mContext, mPowerHalService,
                 mPropertyHalService, mInputHalService, mVmsHalService, mUserHalService,
                 mDiagnosticHalService, mClusterHalService, mTimeHalService,
-                mHandlerThread, mVehicle);
+                mVehicle);
         t.init();
         doThrow(new ServiceSpecificException(StatusCode.TRY_AGAIN))
                 .doThrow(new ServiceSpecificException(StatusCode.TRY_AGAIN))
@@ -2163,8 +2145,6 @@ public class VehicleHalTest extends AbstractExpectableTestCase {
         when(mTimeHalService.getAllSupportedProperties()).thenReturn(new int[0]);
         when(mClusterHalService.getAllSupportedProperties()).thenReturn(new int[0]);
 
-        List<HalPropValue> dispatchList = new ArrayList<HalPropValue>();
-        when(mPowerHalService.getDispatchList()).thenReturn(dispatchList);
         doAnswer(storePropValues(values)).when(mPowerHalService).onHalEvents(any());
 
         initVehicleHal();
@@ -2179,9 +2159,9 @@ public class VehicleHalTest extends AbstractExpectableTestCase {
 
         // Act
         mVehicleHal.injectVhalEvent(SOME_INT32_PROPERTY, AREA_ID_1, "1", 0);
-        CarServiceUtils.runOnLooperSync(mHandlerThread.getLooper(), () -> {});
 
         // Assert
+        verify(mPowerHalService, timeout(WAIT_TIMEOUT_MS)).onHalEvents(any());
         assertThat(values.size()).isEqualTo(1);
         HalPropValue prop = values.get(0);
         assertThat(prop.getPropId()).isEqualTo(SOME_INT32_PROPERTY);
@@ -2199,9 +2179,9 @@ public class VehicleHalTest extends AbstractExpectableTestCase {
 
         // Act
         mVehicleHal.injectVhalEvent(SOME_INT32_VEC_PROPERTY, AREA_ID_1, "1,2", 0);
-        CarServiceUtils.runOnLooperSync(mHandlerThread.getLooper(), () -> {});
 
         // Assert
+        verify(mPowerHalService, timeout(WAIT_TIMEOUT_MS)).onHalEvents(any());
         assertThat(values.size()).isEqualTo(1);
         HalPropValue prop = values.get(0);
         assertThat(prop.getPropId()).isEqualTo(SOME_INT32_VEC_PROPERTY);
@@ -2220,9 +2200,9 @@ public class VehicleHalTest extends AbstractExpectableTestCase {
 
         // Act
         mVehicleHal.injectVhalEvent(SOME_INT64_PROPERTY, AREA_ID_1, "1", 0);
-        CarServiceUtils.runOnLooperSync(mHandlerThread.getLooper(), () -> {});
 
         // Assert
+        verify(mPowerHalService, timeout(WAIT_TIMEOUT_MS)).onHalEvents(any());
         assertThat(values.size()).isEqualTo(1);
         HalPropValue prop = values.get(0);
         assertThat(prop.getPropId()).isEqualTo(SOME_INT64_PROPERTY);
@@ -2240,9 +2220,9 @@ public class VehicleHalTest extends AbstractExpectableTestCase {
 
         // Act
         mVehicleHal.injectVhalEvent(SOME_INT64_VEC_PROPERTY, AREA_ID_1, "1,2", 0);
-        CarServiceUtils.runOnLooperSync(mHandlerThread.getLooper(), () -> {});
 
         // Assert
+        verify(mPowerHalService, timeout(WAIT_TIMEOUT_MS)).onHalEvents(any());
         assertThat(values.size()).isEqualTo(1);
         HalPropValue prop = values.get(0);
         assertThat(prop.getPropId()).isEqualTo(SOME_INT64_VEC_PROPERTY);
@@ -2261,9 +2241,9 @@ public class VehicleHalTest extends AbstractExpectableTestCase {
 
         // Act
         mVehicleHal.injectVhalEvent(SOME_BOOL_PROPERTY, AREA_ID_1, "True", 0);
-        CarServiceUtils.runOnLooperSync(mHandlerThread.getLooper(), () -> {});
 
         // Assert
+        verify(mPowerHalService, timeout(WAIT_TIMEOUT_MS)).onHalEvents(any());
         assertThat(values.size()).isEqualTo(1);
         HalPropValue prop = values.get(0);
         assertThat(prop.getPropId()).isEqualTo(SOME_BOOL_PROPERTY);
@@ -2281,9 +2261,9 @@ public class VehicleHalTest extends AbstractExpectableTestCase {
 
         // Act
         mVehicleHal.injectVhalEvent(SOME_FLOAT_PROPERTY, AREA_ID_1, "1.1", 0);
-        CarServiceUtils.runOnLooperSync(mHandlerThread.getLooper(), () -> {});
 
         // Assert
+        verify(mPowerHalService, timeout(WAIT_TIMEOUT_MS)).onHalEvents(any());
         assertThat(values.size()).isEqualTo(1);
         HalPropValue prop = values.get(0);
         assertThat(prop.getPropId()).isEqualTo(SOME_FLOAT_PROPERTY);
@@ -2301,9 +2281,9 @@ public class VehicleHalTest extends AbstractExpectableTestCase {
 
         // Act
         mVehicleHal.injectVhalEvent(SOME_FLOAT_VEC_PROPERTY, AREA_ID_1, "1.1,1.2", 0);
-        CarServiceUtils.runOnLooperSync(mHandlerThread.getLooper(), () -> {});
 
         // Assert
+        verify(mPowerHalService, timeout(WAIT_TIMEOUT_MS)).onHalEvents(any());
         assertThat(values.size()).isEqualTo(1);
         HalPropValue prop = values.get(0);
         assertThat(prop.getPropId()).isEqualTo(SOME_FLOAT_VEC_PROPERTY);
@@ -2322,10 +2302,9 @@ public class VehicleHalTest extends AbstractExpectableTestCase {
 
         // Act
         mVehicleHal.injectVhalEvent(SOME_READ_ON_CHANGE_PROPERTY, AREA_ID_1, "1", 0);
-        CarServiceUtils.runOnLooperSync(mHandlerThread.getLooper(), () -> {});
 
         // Assert
-        verify(mPowerHalService, never()).onHalEvents(any());
+        verify(mPowerHalService, after(100).never()).onHalEvents(any());
     }
 
     @Test
@@ -2338,7 +2317,6 @@ public class VehicleHalTest extends AbstractExpectableTestCase {
         mVehicleHal.injectContinuousVhalEvent(SOME_INT32_PROPERTY, AREA_ID_1, "1", 10, 1);
         // Wait for injection to complete.
         SystemClock.sleep(1000);
-        CarServiceUtils.runOnLooperSync(mHandlerThread.getLooper(), () -> {});
 
         // Assert
 
@@ -2356,10 +2334,9 @@ public class VehicleHalTest extends AbstractExpectableTestCase {
         // Act
         mVehicleHal.injectContinuousVhalEvent(
                 SOME_READ_ON_CHANGE_PROPERTY, AREA_ID_1, "1", 10, 1);
-        CarServiceUtils.runOnLooperSync(mHandlerThread.getLooper(), () -> {});
 
         // Assert
-        verify(mPowerHalService, never()).onHalEvents(any());
+        verify(mPowerHalService, after(100).never()).onHalEvents(any());
     }
 
     @Test
@@ -2370,10 +2347,9 @@ public class VehicleHalTest extends AbstractExpectableTestCase {
 
         // Act
         mVehicleHal.injectContinuousVhalEvent(SOME_INT32_PROPERTY, AREA_ID_1, "1", -1, 1);
-        CarServiceUtils.runOnLooperSync(mHandlerThread.getLooper(), () -> {});
 
         // Assert
-        verify(mPowerHalService, never()).onHalEvents(any());
+        verify(mPowerHalService, after(100).never()).onHalEvents(any());
     }
 
     @Test
