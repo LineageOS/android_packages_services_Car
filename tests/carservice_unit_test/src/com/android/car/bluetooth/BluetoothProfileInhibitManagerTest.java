@@ -35,10 +35,13 @@ import android.os.IBinder;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
 
 /**
  * Unit tests for {@link BluetoothProfileInhibitManager}
@@ -46,8 +49,11 @@ import org.mockito.junit.MockitoJUnitRunner;
  * Run:
  * atest BluetoothProfileInhibitManagerTest
  */
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(JUnit4.class)
 public class BluetoothProfileInhibitManagerTest {
+
+    @Rule
+    public MockitoRule mMockitoRule = MockitoJUnit.rule();
 
     @Mock
     private ICarBluetoothUserService mMockCarBluetoothUserService;
