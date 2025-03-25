@@ -146,7 +146,7 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
-            Trace.beginSection("CarWatchdogService-broadcast-" + action);
+            Trace.beginSection("CarWatchdogSvc.onBroadcastReceive(action=" + action + ")");
             switch (action) {
                 case CAR_WATCHDOG_ACTION_DISMISS_RESOURCE_OVERUSE_NOTIFICATION:
                 case CAR_WATCHDOG_ACTION_LAUNCH_APP_SETTINGS:
@@ -225,8 +225,8 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
                 @Override
                 public void onPolicyChanged(CarPowerPolicy appliedPolicy,
                         CarPowerPolicy accumulatedPolicy) {
-                    Trace.beginSection("CarWatchdogService-carPowerPolicyChanged-"
-                            + appliedPolicy.getPolicyId());
+                    Trace.beginSection("CarWatchdogSvc.onCarPowerPolicyChanged(policyId="
+                            + appliedPolicy.getPolicyId() + ")");
                     boolean isDisplayEnabled =
                             appliedPolicy.isComponentEnabled(PowerComponent.DISPLAY);
                     boolean didStateChange = false;
@@ -299,7 +299,7 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
 
     @Override
     public void init() {
-        Trace.beginSection("CarWatchdogService.init");
+        Trace.beginSection("CarWatchdogSvc.init");
         // TODO(b/266008677): The daemon reads the sendResourceUsageStatsEnabled sysprop at the
         // moment the CarWatchdogService connects to it. Therefore, the property must be set by
         // CarWatchdogService before connecting with the CarWatchdog daemon. Set the property to
@@ -326,7 +326,7 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
 
     @Override
     public void release() {
-        Trace.beginSection("CarWatchdogService.release");
+        Trace.beginSection("CarWatchdogSvc.release");
         mContext.unregisterReceiver(mBroadcastReceiver);
         unsubscribePowerManagementService();
         mWatchdogPerfHandler.release();
@@ -539,8 +539,8 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
         if (powerCycle < 0) {
             return;
         }
-        Trace.beginSection("CarWatchdogService-powerStateChanged-"
-                + CarPowerManagementService.powerStateToString(powerState));
+        Trace.beginSection("CarWatchdogSvc.onPowerState(powerState="
+                + CarPowerManagementService.powerStateToString(powerState) + ")");
         switch (powerCycle) {
             case PowerCycle.POWER_CYCLE_SHUTDOWN_PREPARE:
                 // Perform time consuming disk I/O operation during shutdown prepare to avoid
@@ -652,7 +652,7 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
     }
 
     private void notifyAllUserStates() {
-        Trace.beginSection("CarWatchdogService.notifyAllUserStates");
+        Trace.beginSection("CarWatchdogSvc.notifyAllUserStates");
         UserManager userManager = mContext.getSystemService(UserManager.class);
         List<UserHandle> users = userManager.getUserHandles(/* excludeDying= */ false);
         try {
@@ -732,7 +732,7 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
                 return;
             }
         }
-        Trace.beginSection("CarWatchdogService.registerToDaemon");
+        Trace.beginSection("CarWatchdogSvc.registerToDaemon");
         try {
             mCarWatchdogDaemonHelper.registerCarWatchdogService(mWatchdogServiceForSystem);
             if (DEBUG) {
@@ -768,7 +768,7 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
     }
 
     private void unregisterFromDaemon() {
-        Trace.beginSection("CarWatchdogService.unregisterFromDaemon");
+        Trace.beginSection("CarWatchdogSvc.unregisterFromDaemon");
         try {
             mCarWatchdogDaemonHelper.unregisterCarWatchdogService(mWatchdogServiceForSystem);
             if (DEBUG) {
