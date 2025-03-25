@@ -122,8 +122,7 @@ public final class IoUsageStatsEntrySubject extends Subject {
         return builder.append('}');
     }
 
-    private static StringBuilder toStringBuilder(StringBuilder builder,
-            WatchdogPerfHandler.PackageIoUsage ioUsage) {
+    private static StringBuilder toStringBuilder(StringBuilder builder, PackageIoUsage ioUsage) {
         builder.append("{IoOveruseStats: ");
         toStringBuilder(builder, ioUsage.getInternalIoOveruseStats());
         builder.append(", ForgivenWriteBytes: ");

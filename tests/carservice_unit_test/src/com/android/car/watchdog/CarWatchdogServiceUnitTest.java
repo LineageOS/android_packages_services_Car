@@ -1117,8 +1117,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
             for (WatchdogStorage.IoUsageStatsEntry entry : ioUsageStatsEntries) {
                 mIoUsageStatsEntries.add(
                         new WatchdogStorage.IoUsageStatsEntry(entry.userId, entry.packageName,
-                                new WatchdogPerfHandler.PackageIoUsage(
-                                        entry.ioUsage.getInternalIoOveruseStats(),
+                                new PackageIoUsage(entry.ioUsage.getInternalIoOveruseStats(),
                                         entry.ioUsage.getForgivenWriteBytes(),
                                         entry.ioUsage.getForgivenOveruses(),
                                         entry.ioUsage.getTotalTimesKilled())));
