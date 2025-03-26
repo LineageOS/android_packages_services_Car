@@ -2141,7 +2141,7 @@ public class PropertyHalService extends HalServiceBase {
     }
 
     @Override
-    public void onPropertySetError(ArrayList<VehiclePropError> vehiclePropErrors) {
+    public void onPropertySetError(List<VehiclePropError> vehiclePropErrors) {
         PropertyHalListener propertyHalListener;
         synchronized (mLock) {
             propertyHalListener = mPropertyHalListener;

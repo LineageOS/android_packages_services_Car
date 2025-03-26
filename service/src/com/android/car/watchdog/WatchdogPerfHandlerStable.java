@@ -166,7 +166,7 @@ import java.util.function.Consumer;
 /**
  * Handles system resource performance monitoring module.
  */
-public final class WatchdogPerfHandler {
+public final class WatchdogPerfHandlerStable {
     public static final String INTERNAL_APPLICATION_CATEGORY_TYPE_MAPS = "MAPS";
     public static final String INTERNAL_APPLICATION_CATEGORY_TYPE_MEDIA = "MEDIA";
     public static final String INTERNAL_APPLICATION_CATEGORY_TYPE_UNKNOWN = "UNKNOWN";
@@ -315,7 +315,7 @@ public final class WatchdogPerfHandler {
                 }
             };
 
-    public WatchdogPerfHandler(Context context, Context builtinPackageContext,
+    public WatchdogPerfHandlerStable(Context context, Context builtinPackageContext,
             CarWatchdogDaemonHelper daemonHelper, PackageInfoHandler packageInfoHandler,
             WatchdogStorage watchdogStorage, TimeSource timeSource) {
         mContext = context;
@@ -373,7 +373,7 @@ public final class WatchdogPerfHandler {
                 mCarUxRestrictionsChangeListener, Display.DEFAULT_DISPLAY);
 
         if (DEBUG) {
-            Slogf.d(TAG, "WatchdogPerfHandler is initialized");
+            Slogf.d(TAG, "WatchdogPerfHandlerStable is initialized");
         }
     }
 
@@ -493,7 +493,7 @@ public final class WatchdogPerfHandler {
 
     /** Retries any pending requests on re-connecting to the daemon */
     public void onDaemonConnectionChange(boolean isConnected) {
-        Trace.beginSection("WatchdogPerfHandler-daemonConnectionChanged-" + isConnected);
+        Trace.beginSection("WatchdogPerfHandlerStable-daemonConnectionChanged-" + isConnected);
         boolean hasPendingRequest;
         synchronized (mLock) {
             mIsConnectedToDaemon = isConnected;
@@ -527,7 +527,7 @@ public final class WatchdogPerfHandler {
 
     /** Updates the current UX state based on the display state. */
     public void onDisplayStateChanged(boolean isEnabled) {
-        Trace.beginSection("WatchdogPerfHandler-displayStateChanged-" + isEnabled);
+        Trace.beginSection("WatchdogPerfHandlerStable-displayStateChanged-" + isEnabled);
         synchronized (mLock) {
             if (isEnabled) {
                 mCurrentUxState = UX_STATE_NO_DISTRACTION;
@@ -542,7 +542,7 @@ public final class WatchdogPerfHandler {
 
     /** Handles garage mode change. */
     public void onGarageModeChange(@GarageMode int garageMode) {
-        Trace.beginSection("WatchdogPerfHandler-garageModeChanged-" + garageMode);
+        Trace.beginSection("WatchdogPerfHandlerStable-garageModeChanged-" + garageMode);
         synchronized (mLock) {
             mCurrentGarageMode = garageMode;
             if (mCurrentGarageMode == GarageMode.GARAGE_MODE_ON) {
@@ -707,8 +707,8 @@ public final class WatchdogPerfHandler {
         }
         int userId = userHandle.getIdentifier();
         String genericPackageName = mPackageInfoHandler.getNameForUserPackage(packageName, userId);
-        Trace.beginSection("WatchdogPerfHandler-setKillable: " + packageName + ":" + userId + " : "
-                + isKillable);
+        Trace.beginSection("WatchdogPerfHandlerStable-setKillable: " + packageName + ":" + userId
+                + " : " + isKillable);
         if (genericPackageName == null) {
             Trace.endSection();
             throw new IllegalArgumentException("Package '" + packageName + "' not found");
@@ -749,8 +749,8 @@ public final class WatchdogPerfHandler {
     }
 
     private void setPackageKillableStateForAllUsers(String packageName, boolean isKillable) {
-        Trace.beginSection(
-                "WatchdogPerfHandler-setKillableForAllUsers: " + packageName + " : " + isKillable);
+        Trace.beginSection("WatchdogPerfHandlerStable-setKillableForAllUsers: " + packageName
+                + " : " + isKillable);
         int[] userIds = getAliveUserIds();
         String genericPackageName = null;
         List<PackageResourceUsage> updatedUsages = new ArrayList<>(userIds.length);
@@ -950,7 +950,7 @@ public final class WatchdogPerfHandler {
     }
 
     private void latestIoOveruseStatsInternal(List<PackageIoOveruseStats> packageIoOveruseStats) {
-        Trace.beginSection("WatchdogPerfHandler.latestIoOveruseStatsInternal");
+        Trace.beginSection("WatchdogPerfHandlerStable.latestIoOveruseStatsInternal");
         int[] uids = new int[packageIoOveruseStats.size()];
         for (int i = 0; i < packageIoOveruseStats.size(); ++i) {
             uids[i] = packageIoOveruseStats.get(i).uid;
@@ -1019,7 +1019,7 @@ public final class WatchdogPerfHandler {
     /** Resets the resource overuse settings and stats for the given generic package names. */
     public void resetResourceOveruseStats(Set<String> genericPackageNames) {
         mServiceHandler.post(() -> {
-            Trace.beginSection("WatchdogPerfHandler.resetResourceOveruseStats");
+            Trace.beginSection("WatchdogPerfHandlerStable.resetResourceOveruseStats");
             synchronized (mLock) {
                 mIsHeadsUpNotificationSent = false;
                 for (int i = 0; i < mUsageByUserPackage.size(); ++i) {
@@ -1057,7 +1057,7 @@ public final class WatchdogPerfHandler {
      */
     public void asyncFetchTodayIoUsageStats() {
         mServiceHandler.post(() -> {
-            Trace.beginSection("WatchdogPerfHandler.asyncFetchTodayIoUsageStats");
+            Trace.beginSection("WatchdogPerfHandlerStable.asyncFetchTodayIoUsageStats");
             List<UserPackageIoUsageStats> todayIoUsageStats = getTodayIoUsageStats();
             try {
                 mCarWatchdogDaemonHelper.onTodayIoUsageStatsFetched(todayIoUsageStats);
@@ -1070,7 +1070,7 @@ public final class WatchdogPerfHandler {
 
     /** Returns today's I/O usage stats for all packages collected during the previous boot. */
     public List<UserPackageIoUsageStats> getTodayIoUsageStats() {
-        Trace.beginSection("WatchdogPerfHandler.getTodayIoUsageStats");
+        Trace.beginSection("WatchdogPerfHandlerStable.getTodayIoUsageStats");
         List<UserPackageIoUsageStats> userPackageIoUsageStats = new ArrayList<>();
         List<WatchdogStorage.IoUsageStatsEntry> entries = mWatchdogStorage.getTodayIoUsageStats();
         for (int i = 0; i < entries.size(); ++i) {
@@ -1117,7 +1117,7 @@ public final class WatchdogPerfHandler {
                     packageName, userHandle);
             return;
         }
-        Trace.beginSection("WatchdogPerfHandler-userNotification-" + action);
+        Trace.beginSection("WatchdogPerfHandlerStable-userNotification-" + action);
         switch (action) {
             case CAR_WATCHDOG_ACTION_RESOURCE_OVERUSE_DISABLE_APP:
                 disablePackageForUser(packageName, userHandle.getIdentifier());
@@ -1188,7 +1188,7 @@ public final class WatchdogPerfHandler {
             return;
         }
         String packageName = intent.getData().getSchemeSpecificPart();
-        Trace.beginSection("WatchdogPerfHandler-packageChanged: " + packageName);
+        Trace.beginSection("WatchdogPerfHandlerStable-packageChanged: " + packageName);
         try {
             if (PackageManagerHelper.getApplicationEnabledSettingForUser(packageName, userId)
                     != COMPONENT_ENABLED_STATE_ENABLED) {
@@ -1226,7 +1226,7 @@ public final class WatchdogPerfHandler {
 
     /** Disables a package for specific user until used. */
     public boolean disablePackageForUser(String packageName, @UserIdInt int userId) {
-        Trace.beginSection("WatchdogPerfHandler-disablePackage: " + packageName);
+        Trace.beginSection("WatchdogPerfHandlerStable-disablePackage: " + packageName);
         synchronized (mLock) {
             ArraySet<String> disabledPackages = mDisabledUserPackagesByUserId.get(userId);
             if (disabledPackages != null && disabledPackages.contains(packageName)) {
@@ -1295,7 +1295,7 @@ public final class WatchdogPerfHandler {
             systemIoUsageSummaryReportDate = mLastSystemIoUsageSummaryReportedDate;
             uidIoUsageSummaryReportDate = mLastUidIoUsageSummaryReportedDate;
         }
-        Trace.beginSection("WatchdogPerfHandler.writeMetadataFile");
+        Trace.beginSection("WatchdogPerfHandlerStable.writeMetadataFile");
         File file = getWatchdogMetadataFile();
         AtomicFile atomicFile = new AtomicFile(file);
         FileOutputStream fos = null;
@@ -1336,7 +1336,7 @@ public final class WatchdogPerfHandler {
 
     /** Fetches and syncs the resource overuse configurations from watchdog daemon. */
     private void fetchAndSyncResourceOveruseConfigurations() {
-        Trace.beginSection("WatchdogPerfHandler.fetchAndSyncResourceOveruseConfigurations");
+        Trace.beginSection("WatchdogPerfHandlerStable.fetchAndSyncResourceOveruseConfigurations");
         List<android.automotive.watchdog.internal.ResourceOveruseConfiguration> internalConfigs;
         try {
             internalConfigs = mCarWatchdogDaemonHelper.getResourceOveruseConfigurations();
@@ -1360,7 +1360,7 @@ public final class WatchdogPerfHandler {
     }
 
     private void readFromDatabase() {
-        Trace.beginSection("WatchdogPerfHandler.readFromDatabase");
+        Trace.beginSection("WatchdogPerfHandlerStable.readFromDatabase");
         mWatchdogStorage.syncUsers(getAliveUserIds());
         List<WatchdogStorage.UserPackageSettingsEntry> settingsEntries =
                 mWatchdogStorage.getUserPackageSettings();
@@ -1454,7 +1454,7 @@ public final class WatchdogPerfHandler {
         if (!mWatchdogStorage.startWrite()) {
             return;
         }
-        Trace.beginSection("WatchdogPerfHandler.writeToDatabase");
+        Trace.beginSection("WatchdogPerfHandlerStable.writeToDatabase");
         try {
             List<WatchdogStorage.UserPackageSettingsEntry> userPackageSettingsEntries =
                     new ArrayList<>();
@@ -1516,7 +1516,7 @@ public final class WatchdogPerfHandler {
 
     private boolean writeStats(List<WatchdogStorage.IoUsageStatsEntry> ioUsageStatsEntries,
             SparseArray<List<String>> forgivePackagesByUserId) {
-        Trace.beginSection("WatchdogPerfHandler.writeStats");
+        Trace.beginSection("WatchdogPerfHandlerStable.writeStats");
         // Forgive historical overuses before writing the latest stats to disk to avoid forgiving
         // the latest stats when the write is triggered after date change.
         if (forgivePackagesByUserId.size() != 0) {
@@ -1812,7 +1812,7 @@ public final class WatchdogPerfHandler {
     private int setResourceOveruseConfigurationsInternal(
             List<android.automotive.watchdog.internal.ResourceOveruseConfiguration> configs,
             boolean isPendingRequest) throws RemoteException {
-        Trace.beginSection("WatchdogPerfHandler.setResourceOveruseConfigurationsInternal");
+        Trace.beginSection("WatchdogPerfHandlerStable.setResourceOveruseConfigurationsInternal");
         boolean doClearPendingRequest = isPendingRequest;
         try {
             mCarWatchdogDaemonHelper.updateResourceOveruseConfigurations(configs);
@@ -1860,7 +1860,7 @@ public final class WatchdogPerfHandler {
     }
 
     private int[] getAliveUserIds() {
-        Trace.beginSection("WatchdogPerfHandler.getAliveUserIds");
+        Trace.beginSection("WatchdogPerfHandlerStable.getAliveUserIds");
         UserManager userManager = mContext.getSystemService(UserManager.class);
         List<UserHandle> aliveUsers = userManager.getUserHandles(/* excludeDying= */ true);
         int userSize = aliveUsers.size();
@@ -1885,7 +1885,7 @@ public final class WatchdogPerfHandler {
         if (mActionableUserPackages.isEmpty() || mCurrentUxState != UX_STATE_NO_INTERACTION) {
             return;
         }
-        Trace.beginSection("WatchdogPerfHandler.performOveruseHandlingLocked");
+        Trace.beginSection("WatchdogPerfHandlerStable.performOveruseHandlingLocked");
         ArraySet<String> killedUserPackageKeys = new ArraySet<>();
         for (int i = 0; i < mActionableUserPackages.size(); ++i) {
             PackageResourceUsage usage =
@@ -1936,7 +1936,7 @@ public final class WatchdogPerfHandler {
     }
 
     private void notifyUserOnOveruse() {
-        Trace.beginSection("WatchdogPerfHandler.notifyUserOnOveruse");
+        Trace.beginSection("WatchdogPerfHandlerStable.notifyUserOnOveruse");
         SparseArray<String> headsUpNotificationPackagesByNotificationId = new SparseArray<>();
         SparseArray<String> notificationCenterPackagesByNotificationId = new SparseArray<>();
         int currentUserId = ActivityManager.getCurrentUser();
@@ -2011,8 +2011,8 @@ public final class WatchdogPerfHandler {
                 return;
             }
         }
-        Trace.beginSection(
-                "WatchdogPerfHandler-enablePackage: " + genericPackageName + " : " + userId);
+        Trace.beginSection("WatchdogPerfHandlerStable-enablePackage: " + genericPackageName + " : "
+                + userId);
         List<String> packages;
         if (isSharedPackage(genericPackageName)) {
             packages = mPackageInfoHandler.getPackagesForUid(uid, genericPackageName);

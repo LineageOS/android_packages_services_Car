@@ -219,7 +219,7 @@ public final class UserHalService extends HalServiceBase {
 
     @Override
     @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
-    public void onPropertySetError(ArrayList<VehiclePropError> errors) {
+    public void onPropertySetError(List<VehiclePropError> errors) {
         if (DBG) {
             for (VehiclePropError error : errors) {
                 Slogf.d(TAG, "handlePropertySetError(" + error.propId + "/" + error.areaId + ")");

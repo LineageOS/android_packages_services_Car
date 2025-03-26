@@ -460,3 +460,11 @@ flag {
     description: "Enables suspension of templated media apps in cars."
     bug: "401584551"
 }
+
+# LargeParcelable
+flag {
+    name: "largeparcelable_use_native_parcel"
+    namespace: "car_framework"
+    description: "Use JNI native code for Parcel.marshall and Parcel.unmarshall to avoid memory copy"
+    bug: "188781089"
+}

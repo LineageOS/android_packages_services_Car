@@ -50,8 +50,7 @@ import android.hardware.automotive.vehicle.VehiclePropertyAccess;
 import android.hardware.automotive.vehicle.VehiclePropertyChangeMode;
 import android.hardware.automotive.vehicle.VehiclePropertyStatus;
 import android.hardware.automotive.vehicle.VehiclePropertyType;
-import android.os.Handler;
-import android.os.HandlerThread;
+import android.os.Binder;
 import android.os.IBinder;
 import android.os.ParcelFileDescriptor;
 import android.os.RemoteException;
@@ -89,6 +88,10 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -113,8 +116,9 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
     private static final int SLEEP_BETWEEN_RETRIABLE_INVOKES_MS = 100;
     private static final float PRECISION_THRESHOLD = 0.001f;
 
-    private final HandlerThread mHandlerThread;
-    private final Handler mHandler;
+    // The timeout in seconds for the default executor to temrinate.
+    private static final int EXECUTOR_TERMINATE_TIMEOUT_SECONDS = 10;
+
     private final SubscriptionClient mSubscriptionClient;
 
     private final PowerHalService mPowerHal;
@@ -128,6 +132,10 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
     private final TimeHalService mTimeHalService;
     private final HalPropValueBuilder mPropValueBuilder;
     private AtomicReference<VehicleStub> mVehicleStub;
+
+    private final AtomicReference<ExecutorService> mDefaultExecutorRef = new AtomicReference<>();
+    private final ConcurrentHashMap<HalServiceBase, Executor> mExecutorByService =
+            new ConcurrentHashMap<>();
 
     private final Object mLock = new Object();
 
@@ -259,6 +267,30 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
         }
     }
 
+    private final class PropertySetErrorDispatchList extends
+            DispatchList<HalServiceBase, VehiclePropError> {
+        @Override
+        protected void dispatchToClient(HalServiceBase service, List<VehiclePropError> events) {
+            // Copy to make sure events are not modified.
+            var eventsCopy = List.copyOf(events);
+            mExecutorByService.getOrDefault(service, mDefaultExecutorRef.get()).execute(() -> {
+                service.onPropertySetError(eventsCopy);
+            });
+        }
+    }
+
+    private final class HalEventsDispatchList extends
+            DispatchList<HalServiceBase, HalPropValue> {
+        @Override
+        protected void dispatchToClient(HalServiceBase service, List<HalPropValue> events) {
+            // Copy to make sure events are not modified.
+            var eventsCopy = List.copyOf(events);
+            mExecutorByService.getOrDefault(service, mDefaultExecutorRef.get()).execute(() -> {
+                service.onHalEvents(eventsCopy);
+            });
+        }
+    }
+
     /**
      * Constructs a new {@link VehicleHal} object given the {@link Context} and {@link IVehicle}
      * both passed as parameters.
@@ -268,7 +300,6 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
                 /* inputHal= */ null, /* vmsHal= */ null, /* userHal= */ null,
                 /* diagnosticHal= */ null, /* clusterHalService= */ null,
                 /* timeHalService= */ null,
-                CarServiceUtils.getHandlerThread(VehicleHal.class.getSimpleName()),
                 vehicle);
     }
 
@@ -286,12 +317,9 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
             DiagnosticHalService diagnosticHal,
             ClusterHalService clusterHalService,
             TimeHalService timeHalService,
-            HandlerThread handlerThread,
             VehicleStub vehicle) {
         // Must be initialized before HalService so that HalService could use this.
         mPropValueBuilder = vehicle.getHalPropValueBuilder();
-        mHandlerThread = handlerThread;
-        mHandler = new Handler(mHandlerThread.getLooper());
         mPowerHal = powerHal != null ? powerHal : new PowerHalService(context, mFeatureFlags, this,
                 new DisplayHelperInterface.DefaultImpl());
         mPropertyHal = propertyHal != null ? propertyHal : new PropertyHalService(this);
@@ -403,19 +431,18 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
     }
 
     private void dispatchPropertyEvents(List<HalPropValue> propValues) {
-        ArraySet<HalServiceBase> servicesToDispatch = new ArraySet<>();
+        var dispatchList = new HalEventsDispatchList();
         synchronized (mLock) {
             for (int i = 0; i < propValues.size(); i++) {
                 HalPropValue v = propValues.get(i);
                 int propId = v.getPropId();
                 HalServiceBase service = mPropertyHandlers.get(propId);
                 if (service == null) {
-                    Slogf.e(CarLog.TAG_HAL, "handleOnPropertyEvent: HalService not found for %s",
+                    Slogf.e(CarLog.TAG_HAL, "dispatchPropertyEvents: HalService not found for %s",
                             v);
                     continue;
                 }
-                service.getDispatchList().add(v);
-                servicesToDispatch.add(service);
+                dispatchList.addEvent(service, v);
                 VehiclePropertyEventInfo info = mEventLog.get(propId);
                 if (info == null) {
                     info = new VehiclePropertyEventInfo(v);
@@ -425,64 +452,7 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
                 }
             }
         }
-        for (HalServiceBase s : servicesToDispatch) {
-            s.onHalEvents(s.getDispatchList());
-            s.getDispatchList().clear();
-        }
-    }
-
-    private void handleOnPropertySetError(List<VehiclePropError> errors) {
-        if (isVehiclePropertyInjectionModeEnabled()) {
-            List<VehiclePropError> filteredErrors;
-            synchronized (mLock) {
-                filteredErrors = SimulationVehicleStub.filterProperties(errors,
-                        (VehiclePropError err) -> err.propId, mPropertyIdsFromRealHardware);
-            }
-            if (filteredErrors.isEmpty()) {
-                Slogf.d(CarLog.TAG_HAL, "All onPropertySetError events filtered: %s",
-                        Arrays.toString(errors.toArray()));
-                return;
-            }
-            errors = filteredErrors;
-        }
-        SparseArray<ArrayList<VehiclePropError>> errorsByPropId =
-                new SparseArray<ArrayList<VehiclePropError>>();
-        for (int i = 0; i < errors.size(); i++) {
-            VehiclePropError error = errors.get(i);
-            int errorCode = error.errorCode;
-            int propId = error.propId;
-            int areaId = error.areaId;
-            Slogf.w(CarLog.TAG_HAL, "onPropertySetError, errorCode: %d, prop: 0x%x, area: 0x%x",
-                    errorCode, propId, areaId);
-            if (propId == VehicleProperty.INVALID) {
-                continue;
-            }
-
-            ArrayList<VehiclePropError> propErrors;
-            if (errorsByPropId.get(propId) == null) {
-                propErrors = new ArrayList<VehiclePropError>();
-                errorsByPropId.put(propId, propErrors);
-            } else {
-                propErrors = errorsByPropId.get(propId);
-            }
-            propErrors.add(error);
-        }
-
-        for (int i = 0; i < errorsByPropId.size(); i++) {
-            int propId = errorsByPropId.keyAt(i);
-            HalServiceBase service;
-            synchronized (mLock) {
-                service = mPropertyHandlers.get(propId);
-            }
-            if (service == null) {
-                Slogf.e(CarLog.TAG_HAL,
-                        "handleOnPropertySetError: HalService not found for prop: 0x%x", propId);
-                continue;
-            }
-
-            ArrayList<VehiclePropError> propErrors = errorsByPropId.get(propId);
-            service.onPropertySetError(propErrors);
-        }
+        dispatchList.dispatchToClients();
     }
 
     private static String errorMessage(String action, HalPropValue propValue, String errorMsg) {
@@ -539,6 +509,8 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
      * PriorityInit for the vhal configurations.
      */
     public void priorityInit() {
+        mDefaultExecutorRef.set(Executors.newSingleThreadExecutor());
+
         fetchAllPropConfigs();
 
         // PropertyHalService will take most properties, so make it big enough.
@@ -608,7 +580,25 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
                 Slogf.w(CarLog.TAG_HAL, "Failed to unsubscribe", e);
             }
         }
-        // keep the looper thread as should be kept for the whole life cycle.
+        var defaultExecutor = mDefaultExecutorRef.getAndSet(null);
+        if (defaultExecutor != null) {
+            Slogf.d(CarLog.TAG_HAL, "Shutting down VehicleHal default executor");
+            defaultExecutor.shutdown();
+            try {
+                // 10s should be more than enough for the posted tasks to finish.
+                boolean result = defaultExecutor.awaitTermination(
+                        EXECUTOR_TERMINATE_TIMEOUT_SECONDS, TimeUnit.SECONDS);
+                if (!result) {
+                    Slogf.e(CarLog.TAG_HAL, "VehicleHal default executor not finishing within 10s");
+                } else {
+                    Slogf.d(CarLog.TAG_HAL, "VehicleHal default executor shutdown complete");
+                }
+            } catch (InterruptedException e) {
+                Slogf.w(CarLog.TAG_HAL, "Interrupted while shutting down default executor");
+                defaultExecutor.shutdownNow();
+                Thread.currentThread().interrupt();
+            }
+        }
     }
 
     public DiagnosticHalService getDiagnosticHal() {
@@ -657,6 +647,19 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
             throw new IllegalArgumentException(String.format(
                     "Property 0x%x  is not owned by service: %s", property, service));
         }
+    }
+
+    /**
+     * Sets the callback executor for the service.
+     *
+     * <p>The callback (e.g. onHalEvents) will be called using the executor.
+     *
+     * <p>If not set, a default single thread executor is used for all services. Services that
+     * have light-weight callback functions can set a direct executor to avoid the overhead
+     * introduced by the default executor.
+     */
+    public void setCallbackExecutor(HalServiceBase service, Executor executor) {
+        mExecutorByService.put(service, executor);
     }
 
     /**
@@ -1268,17 +1271,61 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
 
     @Override
     public void onPropertyEvent(List<HalPropValue> propValues) {
-        mHandler.post(() -> handleOnPropertyEvent(propValues));
+        // Note that this function runs from a binder thread and should not do heavy works.
+        Binder.clearCallingIdentity();
+
+        handleOnPropertyEvent(propValues);
     }
 
     @Override
     public void onInjectionPropertyEvent(List<HalPropValue> propValues) {
-        mHandler.post(() -> dispatchPropertyEvents(propValues));
+        // Note that this function runs from a binder thread and should not do heavy works.
+        Binder.clearCallingIdentity();
+
+        dispatchPropertyEvents(propValues);
     }
 
     @Override
     public void onPropertySetError(List<VehiclePropError> errors) {
-        mHandler.post(() -> handleOnPropertySetError(errors));
+        // Note that this function runs from a binder thread and should not do heavy works.
+        Binder.clearCallingIdentity();
+
+        List<VehiclePropError> filteredErrors = errors;
+        if (isVehiclePropertyInjectionModeEnabled()) {
+            synchronized (mLock) {
+                filteredErrors = SimulationVehicleStub.filterProperties(errors,
+                        (VehiclePropError err) -> err.propId, mPropertyIdsFromRealHardware);
+            }
+            if (filteredErrors.isEmpty()) {
+                Slogf.d(CarLog.TAG_HAL, "All onPropertySetError events filtered: %s",
+                        Arrays.toString(errors.toArray()));
+                return;
+            }
+        }
+        var dispatchList = new PropertySetErrorDispatchList();
+        synchronized (mLock) {
+            for (int i = 0; i < filteredErrors.size(); i++) {
+                VehiclePropError error = filteredErrors.get(i);
+                int errorCode = error.errorCode;
+                int propId = error.propId;
+                int areaId = error.areaId;
+                Slogf.w(CarLog.TAG_HAL, "onPropertySetError, errorCode: %d, prop: 0x%x, area: 0x%x",
+                        errorCode, propId, areaId);
+                if (propId == VehicleProperty.INVALID) {
+                    continue;
+                }
+                HalServiceBase service = mPropertyHandlers.get(propId);
+                if (service == null) {
+                    Slogf.e(CarLog.TAG_HAL,
+                            "onPropertySetError: HalService not found for prop: 0x%x", propId);
+                    continue;
+                }
+
+                dispatchList.addEvent(service, error);
+            }
+        }
+
+        dispatchList.dispatchToClients();
     }
 
     @Override
@@ -1722,7 +1769,7 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
         if (v == null) {
             return;
         }
-        mHandler.post(() -> handleOnPropertyEvent(Lists.newArrayList(v)));
+        handleOnPropertyEvent(Lists.newArrayList(v));
     }
 
     /**
@@ -1762,7 +1809,7 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
                             + TimeUnit.SECONDS.toNanos(timeDurationInSec);
                     HalPropValue v = createPropValueForInjecting(mPropValueBuilder, property, zone,
                             new ArrayList<>(Arrays.asList(value.split(DATA_DELIMITER))), timestamp);
-                    mHandler.post(() -> handleOnPropertyEvent(Lists.newArrayList(v)));
+                    handleOnPropertyEvent(Lists.newArrayList(v));
                 }
             }
         }, /* delay= */0, period);

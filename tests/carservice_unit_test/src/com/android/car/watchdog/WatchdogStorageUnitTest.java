@@ -1034,10 +1034,9 @@ public final class WatchdogStorageUnitTest {
             PerStateBytes remainingWriteBytes, PerStateBytes writtenBytes,
             PerStateBytes forgivenWriteBytes, int totalOveruses, int forgivenOveruses,
             int totalTimesKilled) {
-        WatchdogPerfHandler.PackageIoUsage ioUsage = new WatchdogPerfHandler.PackageIoUsage(
-                constructInternalIoOveruseStats(startTime, duration, remainingWriteBytes,
-                        writtenBytes, totalOveruses), forgivenWriteBytes, forgivenOveruses,
-                totalTimesKilled);
+        PackageIoUsage ioUsage = new PackageIoUsage(constructInternalIoOveruseStats(startTime,
+                duration, remainingWriteBytes, writtenBytes, totalOveruses), forgivenWriteBytes,
+                forgivenOveruses, totalTimesKilled);
         return new WatchdogStorage.IoUsageStatsEntry(userId, packageName, ioUsage);
     }
 
