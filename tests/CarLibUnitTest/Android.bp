@@ -17,7 +17,7 @@ package {
 }
 
 java_library {
-    name: "android.car-no-dep",
+    name: "android.car-with-fake-dep",
     defaults: [
         "android.car-defaults",
     ],
@@ -39,7 +39,7 @@ java_library {
 java_defaults {
     name: "CarLibUnitTestDefault",
     static_libs: [
-        "android.car-no-dep",
+        "android.car-with-fake-dep",
         "android.car.test.utils",
         "androidx.annotation_annotation",
         "androidx.test.core",

@@ -16,8 +16,8 @@
 
 package com.android.car.internal;
 
-import static android.system.OsConstants.PROT_READ;
 import static android.car.feature.Flags.largeparcelableUseNativeParcel;
+import static android.system.OsConstants.PROT_READ;
 
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
 
@@ -28,9 +28,10 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.os.SharedMemory;
 import android.system.ErrnoException;
-import android.system.SystemCleaner;
 import android.util.Log;
 import android.util.Slog;
+
+import com.android.car.internal.dep.SystemCleaner;
 
 import java.io.Closeable;
 import java.io.IOException;
