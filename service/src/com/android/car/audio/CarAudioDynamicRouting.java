@@ -28,6 +28,7 @@ import android.media.AudioManager;
 import android.media.audiopolicy.AudioMix;
 import android.media.audiopolicy.AudioMixingRule;
 import android.media.audiopolicy.AudioPolicy;
+import android.os.UserHandle;
 import android.util.Log;
 import android.util.SparseArray;
 
@@ -173,6 +174,10 @@ final class CarAudioDynamicRouting {
             AudioMixingRule.Builder mixingRuleBuilder = new AudioMixingRule.Builder();
             mixingRuleBuilder.addRule(CarAudioContext.getAudioAttributeFromUsage(USAGE_MEDIA),
                     AudioMixingRule.RULE_MATCH_ATTRIBUTE_USAGE);
+            // Exclude system user from mirroring, so that system user's audio can be routed to
+            // internal speakers.
+            mixingRuleBuilder.excludeMixRule(AudioMixingRule.RULE_MATCH_USERID,
+                    UserHandle.SYSTEM.getIdentifier());
             AudioDeviceInfo info = getAudioDeviceInfo(
                     audioDeviceInfos.get(index).getAudioDevice(), audioManager);
 
