@@ -130,7 +130,7 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
     private final PackageInfoHandler mPackageInfoHandler;
     private final WatchdogStorage mWatchdogStorage;
     private final WatchdogProcessHandler mWatchdogProcessHandler;
-    private final WatchdogPerfHandler mWatchdogPerfHandler;
+    private final WatchdogPerfHandlerInterface mWatchdogPerfHandler;
     private final CarWatchdogDaemonHelper.OnConnectionChangeListener mConnectionListener;
 
     private CarWatchdogDaemonHelper mCarWatchdogDaemonHelper;
@@ -267,7 +267,7 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
     CarWatchdogService(Context context, Context carServiceBuiltinPackageContext,
             WatchdogStorage watchdogStorage, TimeSource timeSource,
             WatchdogProcessHandler watchdogProcessHandler,
-            WatchdogPerfHandler watchdogPerfHandler) {
+            WatchdogPerfHandlerInterface watchdogPerfHandler) {
         mContext = context;
         mWatchdogStorage = watchdogStorage;
         mPackageInfoHandler = new PackageInfoHandler(mContext.getPackageManager());
@@ -276,11 +276,17 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
         mWatchdogProcessHandler = watchdogProcessHandler != null ? watchdogProcessHandler
                 : new WatchdogProcessHandler(mWatchdogServiceForSystem, mCarWatchdogDaemonHelper,
                         mPackageInfoHandler);
-        mWatchdogPerfHandler =
-                watchdogPerfHandler != null ? watchdogPerfHandler : new WatchdogPerfHandler(
-                        mContext, carServiceBuiltinPackageContext,
-                        mCarWatchdogDaemonHelper, mPackageInfoHandler, mWatchdogStorage,
-                        timeSource);
+        if (watchdogPerfHandler != null) {
+            mWatchdogPerfHandler = watchdogPerfHandler;
+        } else if (WatchdogFlashMemoryRefactorFeatureFlag.isFeatureSupported()) {
+            mWatchdogPerfHandler = new WatchdogPerfHandler(mContext,
+                    carServiceBuiltinPackageContext, mCarWatchdogDaemonHelper, mPackageInfoHandler,
+                    mWatchdogStorage, timeSource);
+        } else {
+            mWatchdogPerfHandler = new WatchdogPerfHandlerStable(mContext,
+                    carServiceBuiltinPackageContext, mCarWatchdogDaemonHelper, mPackageInfoHandler,
+                    mWatchdogStorage, timeSource);
+        }
         mConnectionListener = (isConnected) -> {
             mWatchdogPerfHandler.onDaemonConnectionChange(isConnected);
             synchronized (mLock) {
