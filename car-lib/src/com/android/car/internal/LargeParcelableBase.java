@@ -28,17 +28,15 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.os.SharedMemory;
 import android.system.ErrnoException;
-import android.system.SystemCleaner;
 import android.util.Log;
 import android.util.Slog;
 
+import com.android.internal.annotations.GuardedBy;
+
 import java.io.Closeable;
 import java.io.IOException;
-import java.lang.ref.Cleaner;
 import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Base class to allow passing {@code Parcelable} over binder directly or through shared memory if
@@ -87,44 +85,6 @@ public abstract class LargeParcelableBase implements Parcelable, Closeable {
     private static final int NONNULL_PAYLOAD = 1;
     private static final int FD_HEADER = 0;
 
-    private static final Cleaner CLEANER = SystemCleaner.cleaner();
-
-    private AtomicReference<SharedMemory> mSharedMemoryRef = new AtomicReference<>();
-    private AtomicBoolean mClosedRef = new AtomicBoolean();
-
-    /**
-     * The state required to clean up the LargeParcelableBase object.
-     *
-     * We must make this static and not reference the LargeParcelableBase. Otherwise it will never
-     * become a phantom reference.
-     */
-    private static final class CleanerState implements Runnable {
-        private final String mObjStr;
-        private final AtomicReference<SharedMemory> mSharedMemoryRef;
-        private final AtomicBoolean mClosedRef;
-
-        CleanerState(String objStr, AtomicReference<SharedMemory> sharedMemoryRef,
-                AtomicBoolean closedRef) {
-            mObjStr = objStr;
-            mSharedMemoryRef = sharedMemoryRef;
-            mClosedRef = closedRef;
-        }
-
-        public void run() {
-            // Clean up resources.
-            SharedMemory sharedMemory = mSharedMemoryRef.getAndSet(null);
-            if (sharedMemory != null) {
-                if (!mClosedRef.get()) {
-                    Slog.w(TAG, "LargeParcelableBase.close is not called before it is GCed, "
-                            + "object: " + mObjStr);
-                }
-                sharedMemory.close();
-            }
-        }
-    }
-
-    private final Cleaner.Cleanable mCleanable;
-
     // Java field to access private 'nativePtr' field of Parcel. This is a hacky way to access the
     // private field because we need to use it inside JNI code to avoid memory copy. An althernative
     // would be to access the private field inside native code, however, that would have worse
@@ -147,6 +107,10 @@ public abstract class LargeParcelableBase implements Parcelable, Closeable {
         }
     }
 
+    private final Object mLock = new Object();
+    @GuardedBy("mLock")
+    private @Nullable SharedMemory mSharedMemory;
+
     /**
      * Serialize (=write Parcelable into given Parcel) a {@code Parcelable} child class wants to
      * pass over binder call.
@@ -165,14 +129,9 @@ public abstract class LargeParcelableBase implements Parcelable, Closeable {
      */
     protected abstract void deserialize(@NonNull Parcel src);
 
-    public LargeParcelableBase() {
-        mCleanable = CLEANER.register(
-                this, new CleanerState(this.toString(), mSharedMemoryRef, mClosedRef));
-    }
+    public LargeParcelableBase() {}
 
     public LargeParcelableBase(Parcel in) {
-        this();
-
         // Make this compatible with stable AIDL
         // payload size + Parcelable / payload + 1:has shared memory + 0 + file
         //                                       0:no shared memory
@@ -205,7 +164,10 @@ public abstract class LargeParcelableBase implements Parcelable, Closeable {
     @Override
     public void writeToParcel(@NonNull Parcel dest, int flags) {
         int startPosition = dest.dataPosition();
-        SharedMemory storedSharedMemory = mSharedMemoryRef.get();
+        SharedMemory storedSharedMemory;
+        synchronized (mLock) {
+            storedSharedMemory = mSharedMemory;
+        }
         int totalPayloadSize = 0;
         if (storedSharedMemory != null) {
             // optimized path for resending the same Parcelable multiple times with already
@@ -246,11 +208,13 @@ public abstract class LargeParcelableBase implements Parcelable, Closeable {
                     // Duplicate the file descriptor to store it.
                     SharedMemory sharedMemoryCopy = SharedMemory.fromFileDescriptor(
                             SharedMemoryHelper.createParcelFileDescriptor(sharedMemory));
-                    // If mSharedMemory is already set, replace the existing stored copy which
-                    // should be the same.
-                    storedSharedMemory = mSharedMemoryRef.getAndSet(sharedMemoryCopy);
-                    if (storedSharedMemory != null) {
-                        storedSharedMemory.close();
+                    synchronized (mLock) {
+                        // If it is already set, replace the existing stored copy which should be
+                        // the same.
+                        if (mSharedMemory != null) {
+                            mSharedMemory.close();
+                        }
+                        mSharedMemory = sharedMemoryCopy;
                     }
                 }
             } catch (IOException e) {
@@ -296,6 +260,16 @@ public abstract class LargeParcelableBase implements Parcelable, Closeable {
         return 0;
     }
 
+    @Override
+    protected void finalize() {
+        synchronized (mLock) {
+            if (mSharedMemory != null) {
+                Slog.e(TAG, "LargeParcelableBase.close is not called before it is GCed");
+            }
+        }
+        close();
+    }
+
     /**
      * {@inheritDoc}
      *
@@ -309,8 +283,14 @@ public abstract class LargeParcelableBase implements Parcelable, Closeable {
      */
     @Override
     public void close() {
-        mClosedRef.set(true);
-        mCleanable.clean();
+        SharedMemory sharedMemory = null;
+        synchronized (mLock) {
+            sharedMemory = mSharedMemory;
+            mSharedMemory = null;
+        }
+        if (sharedMemory != null) {
+            sharedMemory.close();
+        }
     }
 
     protected static SharedMemory serializeParcelToSharedMemory(Parcel p) {
