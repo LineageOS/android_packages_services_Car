@@ -45,4 +45,34 @@
     <!-- Keyguard -->
     <dimen name="pin_view_container_maxHeight">380dp</dimen>
     <dimen name="pattern_view_container_maxHeight">800dp</dimen>
+
+    <!-- Bottom system bar dimens -->
+    <dimen name="car_nav_buttons_margin">@*android:dimen/car_padding_3</dimen>
+    <dimen name="system_bar_button_size">64dp</dimen>
+    <dimen name="system_bar_icon_drawing_size">44dp</dimen>
+    <dimen name="system_bar_button_margin">32dp</dimen>
+    <dimen name="system_bar_button_padding">16dp</dimen>
+    <dimen name="dock_container_margin">10dp</dimen>
+    <dimen name="car_keyline_1">24dp</dimen>
+
+    <dimen name="hvac_container_padding">16dp</dimen>
+    <dimen name="hvac_temperature_bar_margin">32dp</dimen>
+    <dimen name="hvac_temperature_text_size">44sp</dimen>
+    <dimen name="hvac_temperature_text_padding">10dp</dimen>
+    <dimen name="hvac_temperature_button_size">64dp</dimen>
+    <dimen name="hvac_temperature_icon_size">36dp</dimen>
+    <dimen name="hvac_temperature_button_padding">12dp</dimen>
+
+    <!-- Biometrics dimens -->
+    <dimen name="biometric_dialog_elevation">1dp</dimen>
+    <dimen name="biometric_car_auth_pattern_view_size">420dp</dimen>
+    <dimen name="confirm_lock_message_vertical_spacing">80dp</dimen>
+    <dimen name="biometric_horizontal_margin">348dp</dimen>
+    <dimen name="credential_input_width">528dp</dimen>
+    <dimen name="credential_input_vertical_padding">160dp</dimen>
+    <dimen name="pin_pad_key_radius">44dp</dimen>
+    <dimen name="pin_pad_key_width">160dp</dimen>
+    <dimen name="pin_pad_key_height">108dp</dimen>
+    <dimen name="pin_pad_key_margin">10dp</dimen>
+    <dimen name="lock_pattern_dot_size">32dp</dimen>
 </resources>
