@@ -18,7 +18,6 @@ package com.android.car;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.car.occupantawareness.GazeDetection;
-import android.car.occupantawareness.OccupantAwarenessDetection;
 import android.hardware.automotive.occupant_awareness.VehicleRegion;
 
 import org.junit.Test;
@@ -44,7 +43,7 @@ public final class OccupantAwarenessUtilsVehicleRegionTest {
         return Arrays.asList(new Object[][]{
             {VehicleRegion.UNKNOWN, GazeDetection.VEHICLE_REGION_UNKNOWN},
             {VehicleRegion.INSTRUMENT_CLUSTER,
-                      GazeDetection.VEHICLE_REGION_CENTER_INSTRUMENT_CLUSTER},
+                    GazeDetection.VEHICLE_REGION_CENTER_INSTRUMENT_CLUSTER},
             {VehicleRegion.REAR_VIEW_MIRROR, GazeDetection.VEHICLE_REGION_REAR_VIEW_MIRROR},
             {VehicleRegion.LEFT_SIDE_MIRROR, GazeDetection.VEHICLE_REGION_LEFT_SIDE_MIRROR},
             {VehicleRegion.RIGHT_SIDE_MIRROR, GazeDetection.VEHICLE_REGION_RIGHT_SIDE_MIRROR},

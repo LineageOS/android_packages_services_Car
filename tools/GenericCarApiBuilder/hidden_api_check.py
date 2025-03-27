@@ -59,7 +59,7 @@ java_cmd = javaHomeDir + "/bin/java -jar " + rootDir + \
 new_hidden_apis = subprocess.check_output(java_cmd, shell=True).decode('utf-8').strip().split("\n")
 
 # read existing hidden APIs
-existing_hidden_apis_path = rootDir + "/packages/services/Car/tests/carservice_unit_test/res/raw" \
+existing_hidden_apis_path = rootDir + "/packages/services/Car/tests/CarServiceUnitTest/res/raw" \
                                       "/car_hidden_apis.txt"
 
 existing_hidden_apis = []

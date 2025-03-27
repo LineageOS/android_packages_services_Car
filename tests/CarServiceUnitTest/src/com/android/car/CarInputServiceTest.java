@@ -50,7 +50,6 @@ import android.car.CarProjectionManager;
 import android.car.VehicleAreaSeat;
 import android.car.builtin.util.AssistUtilsHelper;
 import android.car.builtin.util.AssistUtilsHelper.VoiceInteractionSessionShowCallbackHelper;
-import android.car.drivingstate.CarDrivingStateEvent;
 import android.car.feature.Flags;
 import android.car.input.CarInputManager;
 import android.car.input.CustomInputEvent;

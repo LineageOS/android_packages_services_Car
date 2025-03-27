@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2017 The Android Open Source Project
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -68,7 +68,7 @@ public class UptimeTrackerTest extends TestCase {
         MockTimeInterface timeInterface = new MockTimeInterface();
         try (TemporaryFile uptimeFile = new TemporaryFile(TAG)) {
             UptimeTracker uptimeTracker = new UptimeTracker(uptimeFile.getFile(),
-                SNAPSHOT_INTERVAL, timeInterface);
+                    SNAPSHOT_INTERVAL, timeInterface);
 
             assertEquals(0, uptimeTracker.getTotalUptime());
 
@@ -91,7 +91,7 @@ public class UptimeTrackerTest extends TestCase {
         try (TemporaryFile uptimeFile = new TemporaryFile(TAG)) {
             uptimeFile.write("{\"uptime\" : 5000}");
             UptimeTracker uptimeTracker = new UptimeTracker(uptimeFile.getFile(),
-                SNAPSHOT_INTERVAL, timeInterface);
+                    SNAPSHOT_INTERVAL, timeInterface);
 
             assertEquals(5000, uptimeTracker.getTotalUptime());
 
@@ -108,7 +108,7 @@ public class UptimeTrackerTest extends TestCase {
         try (TemporaryFile uptimeFile = new TemporaryFile(TAG)) {
             uptimeFile.write("{\"uptime\" : 5000}");
             UptimeTracker uptimeTracker = new UptimeTracker(uptimeFile.getFile(),
-                SNAPSHOT_INTERVAL, timeInterface);
+                    SNAPSHOT_INTERVAL, timeInterface);
 
             assertEquals(5000, uptimeTracker.getTotalUptime());
 
@@ -131,14 +131,14 @@ public class UptimeTrackerTest extends TestCase {
         MockTimeInterface timeInterface = new MockTimeInterface();
         try (TemporaryFile uptimeFile = new TemporaryFile(TAG)) {
             UptimeTracker uptimeTracker = new UptimeTracker(uptimeFile.getFile(),
-                SNAPSHOT_INTERVAL, timeInterface);
+                    SNAPSHOT_INTERVAL, timeInterface);
 
             timeInterface.incrementTime(6000);
             uptimeTracker.onDestroy();
             timeInterface.cancelAllActions();
 
             uptimeTracker = new UptimeTracker(uptimeFile.getFile(),
-                SNAPSHOT_INTERVAL, timeInterface);
+                    SNAPSHOT_INTERVAL, timeInterface);
             assertEquals(6000, uptimeTracker.getTotalUptime());
         }
     }
