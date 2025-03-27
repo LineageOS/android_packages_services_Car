@@ -98,6 +98,7 @@
           <item type="integer" name="config_mediaBootAutoplay"/>
           <item type="bool" name="config_mediaSourceIndependentPlayback"/>
           <item type="array" name="config_allowed_optional_car_features" translatable="false"/>
+          <item type="array" name="config_allowed_optional_car_features_non_user_builds" stranslatable="false"/>
           <item type="bool" name="enablePassengerSupport"/>
           <item type="string" name="config_customCountryDetector" translatable="false"/>
           <item type="bool" name="enableLongPressBluetoothVoiceRecognition"/>
