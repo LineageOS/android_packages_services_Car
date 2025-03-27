@@ -505,7 +505,7 @@ android_test {
     team: "trendy_team_aaos_user_triage",
 
     srcs: [
-        "src/com/android/car/admin/*.java",
+        "src/com/android/car/admin/**/*.java",
     ],
 
     defaults: [
