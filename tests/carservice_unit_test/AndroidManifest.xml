@@ -26,5 +26,6 @@
     <application android:label="@string/app_title"
         android:debuggable="true" android:testOnly="true">
         <uses-library android:name="android.test.runner" />
+        <activity android:name="com.android.car.admin.ui.CarAdminUiTestActivity" />
     </application>
 </manifest>
