@@ -26,16 +26,15 @@ import android.content.pm.PackageManager;
 import android.view.View;
 
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
+import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
-
 
 /** Unit tests for {@link ManagedDeviceTextView}. */
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(AndroidJUnit4.class)
 public final class ManagedDeviceTextViewTest {
 
     @Rule
