@@ -26,7 +26,7 @@ import com.android.car.CarServiceUtils;
 import java.util.Objects;
 
 /**
- * Use to save/load car volume settings
+ * Use to save/load car volume and effect settings
  */
 public class CarAudioSettings {
 
@@ -41,6 +41,12 @@ public class CarAudioSettings {
 
     // Key to persist master mute state in system settings
     private static final String VOLUME_SETTINGS_KEY_MASTER_MUTE = "android.car.MASTER_MUTE";
+
+    // Key to persist Fade level in system settings
+    private static final String KEY_FADE_LEVEL = "android.car.FADE_LEVEL";
+
+    // Key to persist Balance level in system settings
+    private static final String KEY_BALANCE_LEVEL = "android.car.BALANCE_LEVEL";
 
     private final Context mContext;
 
@@ -96,6 +102,30 @@ public class CarAudioSettings {
         return getSecureIntForUser(
                 CarSettings.Secure.KEY_AUDIO_FOCUS_NAVIGATION_REJECTED_DURING_CALL,
                 /* defaultValue= */  0, userId) == 1;
+    }
+
+    void storeFadeLevelForUser(@UserIdInt int userId, float level) {
+        putFloatForUser(KEY_FADE_LEVEL, level, userId);
+    }
+
+    float getFadeLevelForUser(@UserIdInt int userId, float defaultValue) {
+        return getFloatForUser(KEY_FADE_LEVEL, defaultValue, userId);
+    }
+
+    void storeBalanceLevelForUser(@UserIdInt int userId, float level) {
+        putFloatForUser(KEY_BALANCE_LEVEL, level, userId);
+    }
+
+    float getBalanceLevelForUser(@UserIdInt int userId, float defaultValue) {
+        return getFloatForUser(KEY_BALANCE_LEVEL, defaultValue, userId);
+    }
+
+    private void putFloatForUser(String name, float value, int userId) {
+        Settings.System.putFloat(getContentResolverForUser(userId), name, value);
+    }
+
+    private float getFloatForUser(String name, float defaultValue, @UserIdInt int userId) {
+        return Settings.System.getFloat(getContentResolverForUser(userId), name, defaultValue);
     }
 
     private int getIntForUser(String name, int defaultValue, @UserIdInt int userId) {

@@ -30,58 +30,34 @@ public final class LargeParcelableTestService extends Service {
 
         @Override
         public TestLargeParcelable echoTestLargeParcelable(TestLargeParcelable p) {
-            try {
-                Log.i(TAG, "echoTestLargeParcelable, TestLargeParcelable:" + p);
-                if (p != null) {
-                    Log.i(TAG, "byteArray:" + ((p.byteData == null) ? null : p.byteData.length));
-                }
-                return p;
-            } finally {
-                if (p != null) {
-                    p.close();
-                }
+            Log.i(TAG, "echoTestLargeParcelable, TestLargeParcelable:" + p);
+            if (p != null) {
+                Log.i(TAG, "byteArray:" + ((p.byteData == null) ? null : p.byteData.length));
             }
+            return p;
         }
 
         @Override
         public LargeParcelable echoLargeParcelable(LargeParcelable p) {
-            try {
-                Log.i(TAG, "echoLargeParcelable, LargeParcelable:" + p);
-                if (p != null) {
-                    TestParcelable tp = (TestParcelable) (p.getParcelable());
-                    if (tp != null) {
-                        Log.i(TAG, "byteArray:"
-                                + ((tp.byteData == null) ? null : tp.byteData.length));
-                    }
-                }
-                return p;
-            } finally {
-                if (p != null) {
-                    p.close();
+            Log.i(TAG, "echoLargeParcelable, LargeParcelable:" + p);
+            if (p != null) {
+                TestParcelable tp = (TestParcelable) (p.getParcelable());
+                if (tp != null) {
+                    Log.i(TAG, "byteArray:"
+                            + ((tp.byteData == null) ? null : tp.byteData.length));
                 }
             }
+            return p;
         }
 
         @Override
         public long echoLongWithTestLargeParcelable(TestLargeParcelable p, long v) {
-            try {
-                return v + calcByteSum(p);
-            } finally {
-                if (p != null) {
-                    p.close();
-                }
-            }
+            return v + calcByteSum(p);
         }
 
         @Override
         public long echoLongWithLargeParcelable(LargeParcelable p, long v) {
-            try {
-                return v;
-            } finally {
-                if (p != null) {
-                    p.close();
-                }
-            }
+            return v;
         }
     };
 
