@@ -5,8 +5,7 @@
     <string name="message_not_supported" msgid="133939962837892495">"Ni aplikacij za obravnavo tega dejanja"</string>
     <string name="pip_not_supported" msgid="8681268258599412706">"Način slike v sliki v tej napravi ni podprt."</string>
     <string name="manage_unknown_app_sources_not_supported" msgid="7368611099531260439">"Upravljanje neznanih virov aplikacij ni podprto v tej napravi"</string>
-    <!-- no translation found for file_manager_not_supported (7246020599076461545) -->
-    <skip />
+    <string name="file_manager_not_supported" msgid="7246020599076461545">"Upravljanje datotek ni podprto v tej napravi"</string>
     <string name="dream_not_supported" msgid="2274365800432553936">"Ohranjevalniki zaslona niso podprti v tej napravi"</string>
     <string name="stub_name" msgid="3987164490218189006">"Brez"</string>
 </resources>
