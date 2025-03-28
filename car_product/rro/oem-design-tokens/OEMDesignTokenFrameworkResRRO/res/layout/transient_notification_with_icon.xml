@@ -38,6 +38,6 @@
             android:id="@android:id/message"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            style="@style/TextAppearance.Car.Toast"/>
+            style="@style/CarToastText"/>
     </LinearLayout>
 </FrameLayout>

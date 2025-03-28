@@ -18,7 +18,7 @@
         <shape>
             <solid android:color="@color/car_rotary_focus_pressed_fill_color"/>
             <stroke android:width="@dimen/car_rotary_focus_pressed_stroke_width" android:color="@color/car_rotary_focus_stroke_color"/>
-            <corners android:radius="@dimen/car_selectable_item_radius"/>
+            <corners android:radius="?oemShapeCornerMedium"/>
         </shape>
     </item>
     <item android:state_focused="true" android:state_activated="true">
@@ -31,14 +31,14 @@
     <item android:state_activated="true">
         <shape>
             <solid android:color="?android:attr/colorControlActivated"/>
-            <corners android:radius="@dimen/car_selectable_item_radius"/>
+            <corners android:radius="?oemShapeCornerMedium"/>
         </shape>
     </item>
     <item android:state_focused="true">
         <shape>
             <solid android:color="@color/car_rotary_focus_fill_color"/>
             <stroke android:width="@dimen/car_rotary_focus_stroke_width" android:color="@color/car_rotary_focus_stroke_color"/>
-            <corners android:radius="@dimen/car_selectable_item_radius"/>
+            <corners android:radius="?oemShapeCornerMedium"/>
         </shape>
     </item>
     <item>

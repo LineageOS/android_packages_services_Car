@@ -18,6 +18,6 @@
     <item
         android:state_enabled="false"
         android:alpha="?android:attr/disabledAlpha"
-        android:color="@color/car_seekbar_track_background"/>
-    <item android:color="@color/car_seekbar_track_background"/>
+        android:color="?oemColorSurfaceVariant"/>
+    <item android:color="?oemColorSurfaceVariant"/>
 </selector>
