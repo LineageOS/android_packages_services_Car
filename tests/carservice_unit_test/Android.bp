@@ -538,7 +538,9 @@ android_ravenwood_test {
     ],
 
     static_libs: [
-        "android.car",
+        // Use the car-lib with fake dependencies because some real dependencies are missing on
+        // host.
+        "android.car-with-fake-dep",
         "android.car.testapi",
         "android.car.test.utils",
         "androidx.annotation_annotation",
