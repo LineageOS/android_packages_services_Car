@@ -53,6 +53,8 @@ import android.content.pm.PackageManager;
 import android.os.UserHandle;
 import android.util.Log;
 
+import androidx.test.runner.AndroidJUnit4;
+
 import com.android.car.BuiltinPackageDependency;
 import com.android.car.CarServiceUtils;
 import com.android.car.internal.ResultCallbackImpl;
@@ -60,9 +62,11 @@ import com.android.car.user.CarUserService;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
+@RunWith(AndroidJUnit4.class)
 public final class CarDevicePolicyServiceTest extends AbstractExtendedMockitoTestCase {
     private static final String TAG = CarDevicePolicyServiceTest.class.getSimpleName();
     @Mock

@@ -29,6 +29,7 @@ import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.OvalShape;
 
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
+import androidx.test.runner.AndroidJUnit4;
 
 import com.android.settingslib.drawable.UserIconDrawable;
 
@@ -36,10 +37,9 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
 
 /** Unit tests for {@link UserAvatarView}. */
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(AndroidJUnit4.class)
 public final class UserAvatarViewTest {
     @Rule
     public ActivityScenarioRule<CarAdminUiTestActivity> mActivityScenarioRule =
