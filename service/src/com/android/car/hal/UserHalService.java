@@ -190,6 +190,9 @@ public final class UserHalService extends HalServiceBase {
     }
 
     @Override
+    public void destroy() {}
+
+    @Override
     public void onHalEvents(List<HalPropValue> values) {
         if (DBG) Slogf.d(TAG, "handleHalEvents(): " + values);
 

@@ -244,6 +244,9 @@ public class InputHalService extends HalServiceBase {
     }
 
     @Override
+    public void destroy() {}
+
+    @Override
     int[] getAllSupportedProperties() {
         return SUPPORTED_PROPERTIES;
     }

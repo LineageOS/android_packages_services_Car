@@ -491,6 +491,9 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     }
 
     @Override
+    public void destroy() {}
+
+    @Override
     @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     public void dump(@NonNull IndentingPrintWriter writer) {
         checkHasDumpPermissionGranted(mContext, "dump()");

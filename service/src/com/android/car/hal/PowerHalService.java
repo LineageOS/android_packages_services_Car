@@ -830,6 +830,9 @@ public class PowerHalService extends HalServiceBase {
     }
 
     @Override
+    public void destroy() {}
+
+    @Override
     public int[] getAllSupportedProperties() {
         int[] propertyIds = new int[SUPPORTED_PROPERTIES.size()];
         for (int i = 0; i < SUPPORTED_PROPERTIES.size(); i++) {
