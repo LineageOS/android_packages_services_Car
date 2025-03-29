@@ -44,10 +44,16 @@ public class CarAudioSettingsUnitTest extends AbstractExtendedMockitoTestCase {
     private static final int TEST_CONFIG_ID = 1;
     private static final int TEST_GROUP_ID = 0;
     private static final int TEST_GAIN_INDEX = 10;
+    private static final float TEST_FADE_LEVEL = 0.123f;
+    private static final float TEST_BALANCE_LEVEL = 0.345f;
+    private static final float DEFAULT_FADE_LEVEL = 0.0f;
+    private static final float DEFAULT_BALANCE_LEVEL = 0.0f;
     private static final String TEST_GAIN_INDEX_KEY = "android.car.VOLUME_GROUP/" + TEST_ZONE_ID
             + "/" + TEST_CONFIG_ID + "/" + TEST_GROUP_ID;
     private static final String TEST_MUTE_KEY = "android.car.VOLUME_GROUP_MUTE/" + TEST_ZONE_ID
             + "/" + TEST_CONFIG_ID + "/" + TEST_GROUP_ID;
+    private static final String TEST_FADE_KEY = "android.car.FADE_LEVEL";
+    private static final String TEST_BALANCE_KEY = "android.car.BALANCE_LEVEL";
 
     @Mock
     private Context mMockContext;
@@ -175,6 +181,41 @@ public class CarAudioSettingsUnitTest extends AbstractExtendedMockitoTestCase {
                 .isPersistVolumeGroupMuteEnabled(TEST_USER_ID_1)).isTrue();
     }
 
+    @Test
+    public void storeFadeLevelForUser_savesValue() {
+        mCarAudioSettings.storeFadeLevelForUser(TEST_USER_ID_1, TEST_FADE_LEVEL);
+
+        assertWithMessage("Fade level stored for userId %s", TEST_USER_ID_1)
+                .that(mMockSettings.getFloat(TEST_FADE_KEY)).isEqualTo(TEST_FADE_LEVEL);
+    }
+
+    @Test
+    public void storeBalanceLevelForUser_savesValue() {
+        mCarAudioSettings.storeBalanceLevelForUser(TEST_USER_ID_1, TEST_BALANCE_LEVEL);
+
+        assertWithMessage("Balance level stored for userId %s", TEST_USER_ID_1)
+                .that(mMockSettings.getFloat(TEST_BALANCE_KEY)).isEqualTo(TEST_BALANCE_LEVEL);
+
+    }
+
+    @Test
+    public void getFadeLevelForUser_returnsSavedValue() {
+        setFadeLevel(TEST_FADE_LEVEL);
+
+        assertWithMessage("Fade level for userId %s", TEST_USER_ID_1)
+                .that(mCarAudioSettings.getFadeLevelForUser(TEST_USER_ID_1, DEFAULT_FADE_LEVEL))
+                .isEqualTo(TEST_FADE_LEVEL);
+    }
+
+    @Test
+    public void getBalanceLevelForUser_returnsSavedValue() {
+        setBalanceLevel(TEST_BALANCE_LEVEL);
+
+        assertWithMessage("Balance level for userId %s", TEST_USER_ID_1)
+                .that(mCarAudioSettings.getBalanceLevelForUser(TEST_USER_ID_1,
+                        DEFAULT_BALANCE_LEVEL)).isEqualTo(TEST_BALANCE_LEVEL);
+    }
+
     private void setStoredVolumeGainIndexForUser(int gainIndexForUser) {
         mMockSettings.putInt(TEST_GAIN_INDEX_KEY, gainIndexForUser);
     }
@@ -191,5 +232,13 @@ public class CarAudioSettingsUnitTest extends AbstractExtendedMockitoTestCase {
     private void setPersistVolumeGroupMuteSettingsValues(int persistMuteSetting) {
         mMockSettings.putInt(CarSettings.Secure.KEY_AUDIO_PERSIST_VOLUME_GROUP_MUTE_STATES,
                 persistMuteSetting);
+    }
+
+    private void setFadeLevel(float value) {
+        mMockSettings.putFloat(TEST_FADE_KEY, value);
+    }
+
+    private void setBalanceLevel(float value) {
+        mMockSettings.putFloat(TEST_BALANCE_KEY, value);
     }
 }

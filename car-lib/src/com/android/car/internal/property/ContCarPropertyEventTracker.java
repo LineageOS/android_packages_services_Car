@@ -126,10 +126,11 @@ public final class ContCarPropertyEventTracker implements CarPropertyEventTracke
     public boolean hasUpdate(CarPropertyValue<?> carPropertyValue) {
         if (carPropertyValue.getTimestamp() < mNextUpdateTimeNanos) {
             if (DBG) {
-                Slogf.d(TAG,
+                Slogf.v(TAG,
                         "hasUpdate: Dropping carPropertyValue: %s, "
-                        + "because getTimestamp()=%d < nextUpdateTimeNanos=%d",
-                        carPropertyValue, carPropertyValue.getTimestamp(), mNextUpdateTimeNanos);
+                        + "because getTimestamp()=%d < nextUpdateTimeNanos=%d, updateRateHz=%f",
+                        carPropertyValue, carPropertyValue.getTimestamp(), mNextUpdateTimeNanos,
+                        mUpdateRateHz);
             }
             return false;
         }
@@ -141,7 +142,7 @@ public final class ContCarPropertyEventTracker implements CarPropertyEventTracke
         if (mEnableVur && status == mCurrentStatus && mCurrentCarPropertyValue != null
                     && Objects.deepEquals(value, mCurrentCarPropertyValue.getValue())) {
             if (DBG) {
-                Slogf.d(TAG,
+                Slogf.v(TAG,
                                 "hasUpdate: Dropping carPropertyValue: %s, "
                                 + "because VUR is enabled and value is the same",
                         sanitizedCarPropertyValue);

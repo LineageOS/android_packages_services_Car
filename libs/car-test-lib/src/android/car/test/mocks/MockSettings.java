@@ -16,6 +16,7 @@
 package android.car.test.mocks;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyFloat;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
@@ -61,6 +62,8 @@ public final class MockSettings {
                 getAnswer(invocation, Integer.class, 1, 2);
         Answer<String> getStringAnswer = invocation ->
                 getAnswer(invocation, String.class, 1, INVALID_DEFAULT_INDEX);
+        Answer<Float> getFloatAnswer = invocation ->
+                getAnswer(invocation, Float.class, 1, 2);
 
         when(Settings.Global.putInt(any(), any(), anyInt())).thenAnswer(insertObjectAnswer);
 
@@ -97,6 +100,10 @@ public final class MockSettings {
 
         when(Settings.System.putString(any(), any(), any()))
                 .thenAnswer(insertObjectAnswer);
+
+        when(Settings.System.putFloat(any(), any(), anyFloat())).thenAnswer(insertObjectAnswer);
+
+        when(Settings.System.getFloat(any(), any(), anyFloat())).thenAnswer(getFloatAnswer);
     }
 
     private Object insertObjectFromInvocation(InvocationOnMock invocation, int keyIndex,
@@ -176,6 +183,20 @@ public final class MockSettings {
 
     public int getInt(String key) {
         return get(key, null, Integer.class);
+    }
+
+    /**
+     * Adds key-value(float) pair in mocked Settings.system
+     */
+    public void putFloat(String key, float value) {
+        insertObject(key, value);
+    }
+
+    /**
+     * Returns float value for the corresponding key in mocked Settings.system
+     */
+    public float getFloat(String key) {
+        return get(key, null, Float.class);
     }
 
     public void assertDoesNotContainsKey(String key) {

@@ -203,6 +203,7 @@ cc_test {
         "tests/UidProcStatsCollectorTest.cpp",
         "tests/UidCpuStatsCollectorTest.cpp",
         "tests/UidStatsCollectorBaseTest.cpp",
+        "tests/UidStatsCollectorBaseTestUtils.cpp",
         "tests/UidStatsCollectorTest.cpp",
         "tests/WatchdogBinderMediatorTest.cpp",
         "tests/WatchdogInternalHandlerTest.cpp",

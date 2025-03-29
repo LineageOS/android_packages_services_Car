@@ -5,8 +5,7 @@
     <string name="message_not_supported" msgid="133939962837892495">"אין אפליקציה שיכולה לבצע פעולה זו"</string>
     <string name="pip_not_supported" msgid="8681268258599412706">"המכשיר הזה לא תומך בתמונה בתוך תמונה"</string>
     <string name="manage_unknown_app_sources_not_supported" msgid="7368611099531260439">"האפשרות \'ניהול מקורות לא ידועים של אפליקציות\' לא נתמכת במכשיר הזה"</string>
-    <!-- no translation found for file_manager_not_supported (7246020599076461545) -->
-    <skip />
+    <string name="file_manager_not_supported" msgid="7246020599076461545">"אין תמיכה בניהול קבצים במכשיר הזה"</string>
     <string name="dream_not_supported" msgid="2274365800432553936">"המכשיר הזה לא תומך בשומרי מסך"</string>
     <string name="stub_name" msgid="3987164490218189006">"ללא"</string>
 </resources>

@@ -113,4 +113,7 @@ interface ICarAudio {
 
     boolean registerCarVolumeEventCallback(in ICarVolumeEventCallback callback);
     boolean unregisterCarVolumeEventCallback(in ICarVolumeEventCallback callback);
+
+    float getFadeTowardFront();
+    float getBalanceTowardRight();
 }

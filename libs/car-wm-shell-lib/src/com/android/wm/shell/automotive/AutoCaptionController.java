@@ -135,18 +135,18 @@ public class AutoCaptionController {
      * stack bounds are changed, this API should be called again.
      *
      * @param rootTaskStack             The root task stack.
-     * @param relativeSafeRegion        The safe region for activity. The region is relative to
-     *                                  the root task bounds.
+     * @param absoluteSafeRegion        The safe region for activity. The region is absolute to
+     *                                  the display bounds.
      * @param relativeCaptionRegion     The region for caption bar. The region is relative to
      *                                  the root task bounds.
      * @param autoCaptionBarViewFactory The factory for providing view of the caption bar.
      */
     // TODO(b/398655273): Use builder pattern to avoid confusion in the parameter names.
     public void setSafeRegionAndCaptionRegion(@NonNull RootTaskStack rootTaskStack,
-            @NonNull Rect relativeSafeRegion, @NonNull Rect relativeCaptionRegion,
+            @NonNull Rect absoluteSafeRegion, @NonNull Rect relativeCaptionRegion,
             @NonNull AutoCaptionBarViewFactory autoCaptionBarViewFactory) {
         Objects.requireNonNull(rootTaskStack);
-        Objects.requireNonNull(relativeSafeRegion);
+        Objects.requireNonNull(absoluteSafeRegion);
         Objects.requireNonNull(relativeCaptionRegion);
         Objects.requireNonNull(autoCaptionBarViewFactory);
 
@@ -159,14 +159,12 @@ public class AutoCaptionController {
             Slogf.i(TAG,
                     "Root task already have a safe regions. Updating it to new values. safe "
                             + "region [%s], caption region [%s], root task stack [%d]",
-                    relativeSafeRegion, relativeCaptionRegion, rootTaskStack.getId());
+                    absoluteSafeRegion, relativeCaptionRegion, rootTaskStack.getId());
         } else {
             Slogf.i(TAG, "Defining safe region [%s] and caption region [%s] for root task"
-                            + " stack %d", relativeSafeRegion, relativeCaptionRegion,
+                            + " stack %d", absoluteSafeRegion, relativeCaptionRegion,
                     rootTaskStack.getId());
         }
-
-        Rect absoluteSafeRegion = getAbsoluteSafeRegionBounds(rootTaskStack, relativeSafeRegion);
 
         mSafeAreaInfoPerRootTask.append(rootTaskStack.getId(),
                 new SafeRegionInfo(absoluteSafeRegion, relativeCaptionRegion,
@@ -176,22 +174,6 @@ public class AutoCaptionController {
         WindowContainerTransaction wct = new WindowContainerTransaction();
         wct.setSafeRegionBounds(rootTaskStack.getRootTaskInfo().token, absoluteSafeRegion);
         mShellTaskOrganizer.applyTransaction(wct);
-    }
-
-    private static Rect getAbsoluteSafeRegionBounds(RootTaskStack rootTaskStack,
-            Rect relativeSafeRegion) {
-        Rect lastNonFullscreenBounds = rootTaskStack.getRootTaskInfo().lastNonFullscreenBounds;
-        Rect updatedSafeRegion = relativeSafeRegion;
-        if (lastNonFullscreenBounds != null) {
-            int taskLeft = lastNonFullscreenBounds.left;
-            int taskTop = lastNonFullscreenBounds.top;
-            updatedSafeRegion = new Rect(relativeSafeRegion.left + taskLeft,
-                    relativeSafeRegion.top + taskTop, relativeSafeRegion.right + taskLeft,
-                    relativeSafeRegion.bottom + taskTop);
-        }
-        Slogf.i(TAG, "Original safe region [%s] and updated safe region [%s]", relativeSafeRegion,
-                updatedSafeRegion);
-        return updatedSafeRegion;
     }
 
     /**
@@ -354,22 +336,44 @@ public class AutoCaptionController {
      * Updates the visibility of the caption bar attached to a task
      *
      * @param taskInfo   The running task information.
-     * @param visibility to be updated.
+     * @param visible to be updated.
      */
-    void updateCaptionBarVisibility(ActivityManager.RunningTaskInfo taskInfo, boolean visibility) {
+    void updateCaptionBarVisibility(ActivityManager.RunningTaskInfo taskInfo, boolean visible) {
         AutoDecor captionDecor = mTaskIdToCaptionBar.get(taskInfo.taskId);
-        if (captionDecor != null) {
-            if (DBG) {
-                Slogf.d(TAG, "updateCaptionBarVisibility. TaskId: %d, visibility %b",
-                        taskInfo.taskId, visibility);
-            }
+        if (DBG) {
+            Slogf.d(TAG, "updateCaptionBarVisibility. TaskId: %d, visible %b, captionDecor %s",
+                    taskInfo.taskId, visible, captionDecor);
+        }
 
+        if (captionDecor != null) {
             String transactionName = String.format(TRANSACTION_NAME_FORMAT, taskInfo.taskId);
 
             AutoSurfaceTransaction autoSurfaceTransaction =
                     mAutoSurfaceTransactionFactory.createTransaction(transactionName);
-            autoSurfaceTransaction.setVisibility(captionDecor, visibility);
+            autoSurfaceTransaction.setVisibility(captionDecor, visible);
             autoSurfaceTransaction.apply();
+        } else if (visible) {
+            // A new activity started within the same task which needs caption bar, attach a new
+            // caption bar.
+            addCaptionBarToTask(taskInfo);
+        }
+    }
+
+    private void addCaptionBarToTask(ActivityManager.RunningTaskInfo taskInfo) {
+        if (taskInfo.parentTaskId == -1) {
+            // Task is not within a root task. Use display Id
+            addCaptionBar(taskInfo.displayId, taskInfo);
+        } else {
+            // Get task's root task stack
+            RootTaskStack rootTaskStack = mAutoTaskRepository.getRootTaskStack(
+                    taskInfo.parentTaskId);
+            if (rootTaskStack != null) {
+                addCaptionBar(rootTaskStack, taskInfo);
+            } else {
+                // Should not happen
+                Slogf.e(TAG, "updateCaptionBarVisibility. RootTaskStack is null. TaskId: %d",
+                        taskInfo.taskId);
+            }
         }
     }
 

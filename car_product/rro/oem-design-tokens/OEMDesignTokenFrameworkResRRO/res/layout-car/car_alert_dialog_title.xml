@@ -46,7 +46,7 @@
             android:layout_height="wrap_content"
             android:layout_below="@android:id/icon"
             android:textAlignment="textStart"
-            style="@android:style/TextAppearance.DeviceDefault.DialogWindowTitle" />
+            android:textAppearance="?oemTextAppearanceBodyLarge" />
     </RelativeLayout>
 
     <Space

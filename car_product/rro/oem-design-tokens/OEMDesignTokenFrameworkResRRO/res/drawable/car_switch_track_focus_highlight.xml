@@ -17,7 +17,7 @@
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:state_focused="true" android:state_pressed="true">
         <shape android:shape="rectangle">
-            <corners android:radius="@dimen/car_switch_track_focus_ring_outer_radius" />
+            <corners android:radius="?oemShapeCornerLarge" />
             <solid android:color="@color/focus_pressed_fill_color" />
             <padding
                 android:left="@dimen/car_switch_track_focus_ring_padding"
@@ -32,7 +32,7 @@
     </item>
     <item android:state_focused="true">
         <shape android:shape="rectangle">
-            <corners android:radius="@dimen/car_switch_track_focus_ring_outer_radius" />
+            <corners android:radius="?oemShapeCornerLarge" />
             <solid android:color="@color/focus_fill_color" />
             <padding
                 android:left="@dimen/car_switch_track_focus_ring_padding"

@@ -505,7 +505,7 @@ android_test {
     team: "trendy_team_aaos_user_triage",
 
     srcs: [
-        "src/com/android/car/admin/*.java",
+        "src/com/android/car/admin/**/*.java",
     ],
 
     defaults: [
@@ -538,7 +538,9 @@ android_ravenwood_test {
     ],
 
     static_libs: [
-        "android.car",
+        // Use the car-lib with fake dependencies because some real dependencies are missing on
+        // host.
+        "android.car-with-fake-dep",
         "android.car.testapi",
         "android.car.test.utils",
         "androidx.annotation_annotation",
@@ -550,6 +552,10 @@ android_ravenwood_test {
     libs: [
         "android.test.base.stubs.system",
         "framework-annotations-lib",
+    ],
+
+    jni_libs: [
+        "liblargeparcelablejni",
     ],
 
     platform_apis: true,
