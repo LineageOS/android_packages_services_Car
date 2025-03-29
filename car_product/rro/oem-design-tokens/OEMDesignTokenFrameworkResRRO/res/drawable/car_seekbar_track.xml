@@ -20,7 +20,7 @@
         android:top="@dimen/car_seekbar_track_vertical_padding"
         android:bottom="@dimen/car_seekbar_track_vertical_padding">
         <shape android:shape="rectangle">
-            <corners android:radius="@dimen/car_seekbar_thumb_outer_radius" />
+            <corners android:radius="?oemShapeCornerMedium" />
             <size android:height="@dimen/car_seekbar_track_height" />
             <solid android:color="@color/car_seekbar_track_background_selector" />
         </shape>
@@ -31,7 +31,7 @@
         android:bottom="@dimen/car_seekbar_track_vertical_padding">
         <scale android:scaleWidth="100%">
             <shape android:shape="rectangle">
-                <corners android:radius="@dimen/car_seekbar_thumb_outer_radius" />
+                <corners android:radius="?oemShapeCornerMedium" />
                 <size android:height="@dimen/car_seekbar_track_height" />
                 <solid android:color="@color/car_seekbar_track_progress_secondary_selector" />
             </shape>
@@ -43,7 +43,7 @@
         android:bottom="@dimen/car_seekbar_track_vertical_padding">
         <clip>
             <shape android:shape="rectangle">
-                <corners android:radius="@dimen/car_seekbar_thumb_outer_radius" />
+                <corners android:radius="?oemShapeCornerMedium" />
                 <size android:height="@dimen/car_seekbar_track_height" />
                 <solid android:color="@color/car_seekbar_track_progress_selector" />
             </shape>

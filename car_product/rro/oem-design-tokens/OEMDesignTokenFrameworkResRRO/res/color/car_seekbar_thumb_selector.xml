@@ -21,6 +21,6 @@
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:state_enabled="false"
-        android:color="@color/car_seekbar_thumb_disabled"/>
-    <item android:color="@color/car_seekbar_thumb"/>
+        android:color="?oemColorNeutralPalette40"/>
+    <item android:color="?oemColorSurfaceInverse"/>
 </selector>

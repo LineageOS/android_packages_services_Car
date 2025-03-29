@@ -18,6 +18,9 @@
 -->
 <!-- Consider other dimension overrides in values-xxx when adding/changing the value here! -->
 <resources>
+    <dimen name="car_rotary_focus_stroke_width">8dp</dimen>
+    <dimen name="car_rotary_focus_pressed_stroke_width">4dp</dimen>
+
     <dimen name="status_bar_height">76dp</dimen>
     <dimen name="status_bar_height_default">76dp</dimen>
     <dimen name="status_bar_height_landscape">76dp</dimen>
@@ -157,20 +160,20 @@
     <dimen name="car_switch_track_focus_ring_width">112dp</dimen>
     <!-- Switch focus ring padding. -->
     <dimen name="car_switch_track_focus_ring_padding">12dp</dimen>
-    <!-- Should be the half of car_switch_track_focus_ring_height. -->
-    <dimen name="car_switch_track_focus_ring_outer_radius">36dp</dimen>
-    <!-- Should be the half of car_switch_track_height. -->
-    <dimen name="car_switch_thumb_outer_radius">24dp</dimen>
     <!--  The difference between the track size and the thumb size. -->
     <dimen name="car_switch_thumb_stroke_width">4dp</dimen>
     <!-- car_switch_thumb_size + car_switch_thumb_stroke_width == car_switch_track_height -->
     <dimen name="car_switch_thumb_size">40dp</dimen>
 
     <!-- Toast Dimensions -->
-    <dimen name="toast_corner_radius">48dp</dimen>
     <dimen name="toast_elevation">0dp</dimen>
     <dimen name="toast_width">1050dp</dimen>
     <dimen name="toast_y_offset">268dp</dimen>
+    <dimen name="car_toast_margin">24dp</dimen>
+    <dimen name="car_toast_bottom_margin">32dp</dimen>
+    <dimen name="car_toast_icon_margin">24dp</dimen>
+    <dimen name="car_toast_icon_size">48dp</dimen>
+
 
     <!-- Button Dimensions -->
     <dimen name="car_button_height">88dp</dimen>
@@ -178,8 +181,6 @@
     <dimen name="car_button_height_small">64dp</dimen>
     <dimen name="car_button_min_height_small">64dp</dimen>
     <dimen name="car_button_min_width">158dp</dimen>
-    <dimen name="car_button_radius">44dp</dimen>
-    <dimen name="car_button_small_radius">32dp</dimen>
 
     <!-- Radio button dimensions -->
     <dimen name="car_radio_button_outer_ring_size">45dp</dimen>
@@ -208,8 +209,6 @@
     <dimen name="car_seekbar_thumb_selected_stroke_width">8dp</dimen>
     <!-- The size of the SeekBar thumb. -->
     <dimen name="car_seekbar_thumb_size">68dp</dimen>
-    <!-- The radius of the end of the SeekbarTrack. -->
-    <dimen name="car_seekbar_thumb_outer_radius">24dp</dimen>
 
     <!-- Sets the Theme android:disabledAlpha value -->
     <dimen name="car_disabled_alpha">0.35</dimen>
@@ -217,4 +216,9 @@
     <dimen name="resolver_max_collapsed_height">400dp</dimen>
 
     <dimen name="car_dialog_min_width_major">75%</dimen>
+    <dimen name="car_alert_dialog_padding">24dp</dimen>
+    <dimen name="car_alert_dialog_content_min_height">48dp</dimen>
+    <dimen name="car_alert_dialog_icon_size">64dp</dimen>
+    <dimen name="car_alert_dialog_button_spacing">16dp</dimen>
+    <dimen name="car_alert_dialog_button_height">88dp</dimen>
 </resources>
