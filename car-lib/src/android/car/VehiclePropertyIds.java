@@ -668,8 +668,13 @@ public final class VehiclePropertyIds {
     /**
      * Engine oil level.
      *
-     * <p>Returns the status of the oil level for the vehicle. See {@code VehicleOilLevel} for
-     * possible values for {@code ENGINE_OIL_LEVEL}.
+     * <p>Returns the status of the oil level for the vehicle. It will be one of
+     * {@link android.car.VehicleOilLevel}.
+     *
+     * <p>For the global area ID(0),
+     * {@link android.car.hardware.property.AreaIdConfig#hasSupportedValuesList()} will be
+     * {@code true}. {@link android.car.hardware.property.CarPropertyManager#getSupportedValuesList}
+     * returns the supported values.
      *
      * <p>Property Config:
      * <ul>
@@ -762,12 +767,14 @@ public final class VehiclePropertyIds {
      * <p>Bit flag property to relay information on whether an impact has occurred on a particular
      * side of the vehicle as described through the {@link
      * android.car.hardware.property.ImpactSensorLocation} enum. As a bit flag property, this
-     * property can be set to multiple ORed together values of the enum when necessary.
+     * property can be set to multiple ORed together values of the enum when necessary, e.g.
+     * {@code ImpactSensorLocation.FRONT_LEFT_DOOR_SIDE | ImpactSensorLocation.REAR_LEFT_DOOR_SIDE}
+     * indicates an impact is detected at both front left and rear left door side.
      *
-     * <p>For the global area ID (0), the {@link
-     * android.car.hardware.property.AreaIdConfig#getSupportedEnumValues()} array obtained from
-     * {@link android.car.hardware.CarPropertyConfig#getAreaIdConfig(int)} specifies which bit flags
-     * from {@link android.car.hardware.property.ImpactSensorLocation} are supported.
+     * <p>For the global area ID(0),
+     * {@link android.car.hardware.property.AreaIdConfig#hasSupportedValuesList()} will be
+     * {@code true}. {@link android.car.hardware.property.CarPropertyManager#getSupportedValuesList}
+     * returns the supported values.
      *
      * <p>Property Config:
      * <ul>
@@ -1318,34 +1325,38 @@ public final class VehiclePropertyIds {
      *
      * <p> See {@link VehicleGear} for gear value enum.
      *
-     * <p>configArray represents the list of supported gears for the vehicle. For example,
-     * configArray for an EV vehicle is set as follows:
+     * <p>For the global area ID(0),
+     * {@link android.car.hardware.property.AreaIdConfig#hasSupportedValuesList()} will be
+     * {@code true}. {@link android.car.hardware.property.CarPropertyManager#getSupportedValuesList}
+     * returns the supported values.
+     *
+     * <p>For example, supported values for an EV vehicle is set as follows:
      *
      * <ul>
-     *  <li>configArray[0] = {@link VehicleGear#GEAR_REVERSE}
-     *  <li>configArray[1] = {@link VehicleGear#GEAR_PARK}
-     *  <li>configArray[2] = {@link VehicleGear#GEAR_DRIVE}
+     *  <li>{@link VehicleGear#GEAR_REVERSE}
+     *  <li>{@link VehicleGear#GEAR_PARK}
+     *  <li>{@link VehicleGear#GEAR_DRIVE}
      * </ul>
      *
-     * <p>Example automatic transmission configArray:
+     * <p>Example automatic transmission supported values:
      *
      * <ul>
-     *  <li>configArray[0] = {@link VehicleGear#GEAR_NEUTRAL}
-     *  <li>configArray[1] = {@link VehicleGear#GEAR_REVERSE}
-     *  <li>configArray[2] = {@link VehicleGear#GEAR_PARK}
-     *  <li>configArray[3] = {@link VehicleGear#GEAR_DRIVE}
-     *  <li>configArray[4] = {@link VehicleGear#GEAR_FIRST}
-     *  <li>configArray[5] = {@link VehicleGear#GEAR_SECOND}
+     *  <li>{@link VehicleGear#GEAR_NEUTRAL}
+     *  <li>{@link VehicleGear#GEAR_REVERSE}
+     *  <li>{@link VehicleGear#GEAR_PARK}
+     *  <li>{@link VehicleGear#GEAR_DRIVE}
+     *  <li>{@link VehicleGear#GEAR_FIRST}
+     *  <li>{@link VehicleGear#GEAR_SECOND}
      *  <li>...
      * </ul>
      *
-     * <p>Example manual transmission configArray:
+     * <p>Example manual transmission supported values:
      *
      * <ul>
-     *  <li>configArray[0] = {@link VehicleGear#GEAR_NEUTRAL}
-     *  <li>configArray[1] = {@link VehicleGear#GEAR_REVERSE}
-     *  <li>configArray[4] = {@link VehicleGear#GEAR_FIRST}
-     *  <li>configArray[5] = {@link VehicleGear#GEAR_SECOND}
+     *  <li>{@link VehicleGear#GEAR_NEUTRAL}
+     *  <li>{@link VehicleGear#GEAR_REVERSE}
+     *  <li>{@link VehicleGear#GEAR_FIRST}
+     *  <li>{@link VehicleGear#GEAR_SECOND}
      *  <li>...
      * </ul>
      *
@@ -1377,16 +1388,20 @@ public final class VehiclePropertyIds {
      * VehicleGear#GEAR_FIRST}, {@link VehicleGear#GEAR_SECOND}, etc, which reflects the actual gear
      * the transmission is currently running in.
      *
-     * <p>configArray represents the list of supported {@link VehicleGear}s for {@code
-     * CURRENT_GEAR}. For example, the configArray for an EV vehicle is set as follows:
+     * <p>For the global area ID(0),
+     * {@link android.car.hardware.property.AreaIdConfig#hasSupportedValuesList()} will be
+     * {@code true}. {@link android.car.hardware.property.CarPropertyManager#getSupportedValuesList}
+     * returns the supported values.
+     *
+     * <p>For example, the supported values for an EV vehicle is set as follows:
      *
      * <ul>
-     *  <li>configArray[0] = {@link VehicleGear#GEAR_REVERSE}
-     *  <li>configArray[1] = {@link VehicleGear#GEAR_PARK}
-     *  <li>configArray[2] = {@link VehicleGear#GEAR_DRIVE}
+     *  <li>{@link VehicleGear#GEAR_REVERSE}
+     *  <li>{@link VehicleGear#GEAR_PARK}
+     *  <li>{@link VehicleGear#GEAR_DRIVE}
      * </ul>
      *
-     * <p>Example automatic transmission configArray:
+     * <p>Example automatic transmission supported values:
      *
      * <ul>
      *  <li>configArray[0] = {@link VehicleGear#GEAR_NEUTRAL}
@@ -1397,13 +1412,13 @@ public final class VehiclePropertyIds {
      *  <li>...
      * </ul>
      *
-     * <p>Example manual transmission configArray:
+     * <p>Example manual transmission supported values:
      *
      * <ul>
-     *  <li>configArray[0] = {@link VehicleGear#GEAR_NEUTRAL}
-     *  <li>configArray[1] = {@link VehicleGear#GEAR_REVERSE}
-     *  <li>configArray[4] = {@link VehicleGear#GEAR_FIRST}
-     *  <li>configArray[5] = {@link VehicleGear#GEAR_SECOND}
+     *  <li>{@link VehicleGear#GEAR_NEUTRAL}
+     *  <li>{@link VehicleGear#GEAR_REVERSE}
+     *  <li>{@link VehicleGear#GEAR_FIRST}
+     *  <li>{@link VehicleGear#GEAR_SECOND}
      *  <li>...
      * </ul>
      *
