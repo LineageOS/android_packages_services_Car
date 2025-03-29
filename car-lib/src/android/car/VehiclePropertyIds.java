@@ -1641,7 +1641,12 @@ public final class VehiclePropertyIds {
     /**
      * Vehicle's ignition state.
      *
-     * <p>See {@link VehicleIgnitionState} for possible values for {@code IGNITION_STATE}.
+     * <p>Will be one of {@link android.car.VehicleIgnitionState}s.
+     *
+     * <p>For the global area ID(0),
+     * {@link android.car.hardware.property.AreaIdConfig#hasSupportedValuesList()} will be
+     * {@code true}. {@link android.car.hardware.property.CarPropertyManager#getSupportedValuesList}
+     * returns the supported values.
      *
      * <p>Property Config:
      * <ul>
@@ -1741,11 +1746,10 @@ public final class VehiclePropertyIds {
      * in {@link android.car.hardware.property.ElectronicStabilityControlState} or {@link
      * android.car.hardware.property.ErrorState}.
      *
-     * <p>For the global area ID (0), the {@link
-     * android.car.hardware.property.AreaIdConfig#getSupportedEnumValues()} array obtained from
-     * {@link android.car.hardware.CarPropertyConfig#getAreaIdConfig(int)} specifies which states
-     * from {@link android.car.hardware.property.ElectronicStabilityControlState} and {@link
-     * android.car.hardware.property.ErrorState} are supported.
+     * <p>For the global area ID(0),
+     * {@link android.car.hardware.property.AreaIdConfig#hasSupportedValuesList()} will be
+     * {@code true}. {@link android.car.hardware.property.CarPropertyManager#getSupportedValuesList}
+     * returns the supported values.
      *
      * <p>Property Config:
      * <ul>
@@ -1795,6 +1799,11 @@ public final class VehiclePropertyIds {
      * #TURN_SIGNAL_SWITCH}, which uses it like a regular enum. This means this property supports
      * ORed together values in {@link VehicleTurnSignal}.
      *
+     * <p>For the global area ID(0),
+     * {@link android.car.hardware.property.AreaIdConfig#hasSupportedValuesList()} will be
+     * {@code true}. {@link android.car.hardware.property.CarPropertyManager#getSupportedValuesList}
+     * returns all supported combinations of {@link VehicleTurnSignal}.
+     *
      * <p>Property Config:
      * <ul>
      *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
@@ -1829,6 +1838,11 @@ public final class VehiclePropertyIds {
      *
      * <p>This property is defined as read_write, but OEMs have the option to implement it as read
      * only.
+     *
+     * <p>For the global area ID(0),
+     * {@link android.car.hardware.property.AreaIdConfig#hasSupportedValuesList()} will be
+     * {@code true}. {@link android.car.hardware.property.CarPropertyManager#getSupportedValuesList}
+     * returns the supported {@link VehicleTurnSignal}s.
      *
      * <p>Property Config:
      * <ul>
