@@ -57,6 +57,7 @@ import static org.mockito.Mockito.when;
 import android.car.builtin.view.DisplayHelper;
 import android.car.feature.FakeFeatureFlagsImpl;
 import android.car.feature.Flags;
+import android.car.test.NoActiveHandlerThreadCheckerRule;
 import android.car.test.util.FakeContext;
 import android.hardware.automotive.vehicle.StatusCode;
 import android.hardware.automotive.vehicle.VehicleApPowerBootupReason;
@@ -79,7 +80,9 @@ import com.android.car.hal.VehicleHal.HalPropValueSetter;
 import com.android.car.hal.test.AidlVehiclePropConfigBuilder;
 import com.android.car.systeminterface.DisplayHelperInterface;
 
+import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -90,6 +93,10 @@ import java.util.List;
 
 @RunWith(MockitoJUnitRunner.class)
 public final class PowerHalServiceUnitTest {
+
+    @Rule
+    public NoActiveHandlerThreadCheckerRule mNoActiveHandlerThreadCheckerRule =
+            new NoActiveHandlerThreadCheckerRule();
 
     private static final String TAG = PowerHalServiceUnitTest.class.getSimpleName();
 
@@ -139,7 +146,7 @@ public final class PowerHalServiceUnitTest {
     private FakeFeatureFlagsImpl mFakeFeatureFlags = new FakeFeatureFlagsImpl();
 
     @Before
-    public void setUp() {
+    public void setUp() throws Exception {
         mFakeContext.setSystemService(DisplayManager.class, mDisplayManager);
         mFakeFeatureFlags.setFlag(Flags.FLAG_PER_DISPLAY_MAX_BRIGHTNESS, false);
         mFakeFeatureFlags.setFlag(Flags.FLAG_MULTI_DISPLAY_BRIGHTNESS_CONTROL, false);
@@ -147,6 +154,11 @@ public final class PowerHalServiceUnitTest {
         mPowerHalService = new PowerHalService(mFakeContext, mFakeFeatureFlags, mHal,
                 mDisplayHelper);
         mPowerHalService.setListener(mEventListener);
+    }
+
+    @After
+    public void tearDown() {
+        mPowerHalService.destroy();
     }
 
     private void initPowerHal() {

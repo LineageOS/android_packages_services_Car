@@ -79,6 +79,8 @@ public class PowerHalService extends HalServiceBase {
     private static final int PREVENT_LOOP_REQUEST_TIME_WINDOW_MS = 1000;
     private static final int GLOBAL_PORT = -1;
 
+    private static final String HANDLER_THREAD_NAME = PowerHalService.class.getSimpleName();
+
     private record PropertyInfo(boolean needSubscription) {}
 
     private static SparseArray<PropertyInfo> getSupportedProperties() {
@@ -358,7 +360,7 @@ public class PowerHalService extends HalServiceBase {
         mContext = context;
         mFeatureFlags = featureFlags;
         mHal = hal;
-        mHandlerThread = CarServiceUtils.getHandlerThread(getClass().getSimpleName());
+        mHandlerThread = CarServiceUtils.getHandlerThread(HANDLER_THREAD_NAME);
         mHandler = new Handler(mHandlerThread.getLooper());
         mDisplayHelper = displayHelper;
     }
@@ -826,11 +828,16 @@ public class PowerHalService extends HalServiceBase {
             }
             mProperties.clear();
         }
-        mHandlerThread.quitSafely();
     }
 
     @Override
-    public void destroy() {}
+    public void destroy() {
+        try {
+            CarServiceUtils.releaseHandlerThread(HANDLER_THREAD_NAME);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+    }
 
     @Override
     public int[] getAllSupportedProperties() {
