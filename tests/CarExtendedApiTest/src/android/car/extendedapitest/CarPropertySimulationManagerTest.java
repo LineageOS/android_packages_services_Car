@@ -18,11 +18,6 @@ package android.car.extendedapitest;
 
 import static android.car.Car.CAR_PROPERTY_SIMULATION_SERVICE;
 import static android.car.Car.PROPERTY_SERVICE;
-import static android.car.VehiclePropertyIds.PERF_VEHICLE_SPEED;
-import static android.car.VehiclePropertyIds.PERF_VEHICLE_SPEED_DISPLAY;
-import static android.car.hardware.CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ;
-import static android.car.hardware.CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ_WRITE;
-import static android.car.hardware.CarPropertyValue.STATUS_AVAILABLE;
 
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
@@ -37,30 +32,21 @@ import android.car.extendedapitest.testbase.CarApiTestBase;
 import android.car.feature.Flags;
 import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.CarPropertyValue;
-import android.car.hardware.property.AreaIdConfig;
 import android.car.hardware.property.CarPropertyManager;
 import android.car.hardware.property.CarPropertySimulationManager;
-import android.car.hardware.property.Subscription;
 import android.car.test.PermissionsCheckerRule;
 import android.car.test.PermissionsCheckerRule.EnsureHasPermission;
-import android.os.SystemClock;
 import android.platform.test.annotations.RequiresFlagsEnabled;
-import android.util.Pair;
 
 import androidx.annotation.NonNull;
 
-import com.android.bedstead.nene.TestApis;
-import com.android.bedstead.permissions.PermissionContext;
 import com.android.compatibility.common.util.ApiTest;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -83,17 +69,6 @@ public class CarPropertySimulationManagerTest extends CarApiTestBase {
         mCarPropertyManager = (CarPropertyManager) getCar().getCarManager(PROPERTY_SERVICE);
     }
 
-    @After
-    public void tearDown() {
-        // Both methods are idempotent
-        try (PermissionContext p = TestApis.permissions().withPermission(
-                "android.car.permission.RECORD_VEHICLE_PROPERTIES",
-                "android.car.permission.INJECT_VEHICLE_PROPERTIES")) {
-            mCarPropertySimulationManager.stopRecordingVehicleProperties();
-            mCarPropertySimulationManager.disableInjectionMode();
-        }
-    }
-
     @Test
     @RequiresFlagsEnabled(Flags.FLAG_CAR_PROPERTY_SIMULATION)
     @ApiTest(
@@ -102,8 +77,7 @@ public class CarPropertySimulationManagerTest extends CarApiTestBase {
                     "android.car.CarProjectionManager#isVehiclePropertyInjectionModeEnabled",
                     "android.car.CarProjectionManager#disableInjectionMode"
             })
-    @EnsureHasPermission({Car.PERMISSION_INJECT_VEHICLE_PROPERTIES,
-            Car.PERMISSION_RECORD_VEHICLE_PROPERTIES})
+    @EnsureHasPermission(Car.PERMISSION_INJECT_VEHICLE_PROPERTIES)
     public void testEnableInjectionMode() {
         assumeTrue(BuildHelper.isEngBuild() || BuildHelper.isUserDebugBuild());
 
@@ -126,8 +100,7 @@ public class CarPropertySimulationManagerTest extends CarApiTestBase {
                     "android.car.CarProjectionManager#isRecordingVehicleProperties",
                     "android.car.CarProjectionManager#stopRecordingVehicleProperties"
             })
-    @EnsureHasPermission({Car.PERMISSION_INJECT_VEHICLE_PROPERTIES,
-            Car.PERMISSION_RECORD_VEHICLE_PROPERTIES})
+    @EnsureHasPermission(Car.PERMISSION_RECORD_VEHICLE_PROPERTIES)
     public void testRecordingVehicleProperties() throws Exception {
         assumeTrue(BuildHelper.isEngBuild() || BuildHelper.isUserDebugBuild());
 
@@ -158,8 +131,7 @@ public class CarPropertySimulationManagerTest extends CarApiTestBase {
                     "android.car.CarProjectionManager#isRecordingVehicleProperties",
                     "android.car.CarProjectionManager#stopRecordingVehicleProperties"
             })
-    @EnsureHasPermission({Car.PERMISSION_INJECT_VEHICLE_PROPERTIES,
-            Car.PERMISSION_RECORD_VEHICLE_PROPERTIES})
+    @EnsureHasPermission(Car.PERMISSION_RECORD_VEHICLE_PROPERTIES)
     public void testRecordingVehiclePropertiesTwice() throws Exception {
         assumeTrue(BuildHelper.isEngBuild() || BuildHelper.isUserDebugBuild());
 
@@ -188,8 +160,7 @@ public class CarPropertySimulationManagerTest extends CarApiTestBase {
     @Test
     @RequiresFlagsEnabled(Flags.FLAG_CAR_PROPERTY_SIMULATION)
     @ApiTest(apis = {"android.car.CarProjectionManager#startRecordingVehicleProperties"})
-    @EnsureHasPermission({Car.PERMISSION_INJECT_VEHICLE_PROPERTIES,
-            Car.PERMISSION_RECORD_VEHICLE_PROPERTIES})
+    @EnsureHasPermission(Car.PERMISSION_RECORD_VEHICLE_PROPERTIES)
     public void testRecordingVehiclePropertiesNullListener() {
         assumeTrue(BuildHelper.isEngBuild() || BuildHelper.isUserDebugBuild());
 
@@ -208,8 +179,7 @@ public class CarPropertySimulationManagerTest extends CarApiTestBase {
                     "android.car.CarProjectionManager#isVehiclePropertyInjectionModeEnabled",
                     "android.car.CarProjectionManager#disableInjectionMode"
             })
-    @EnsureHasPermission({Car.PERMISSION_INJECT_VEHICLE_PROPERTIES,
-            Car.PERMISSION_RECORD_VEHICLE_PROPERTIES})
+    @EnsureHasPermission(Car.PERMISSION_INJECT_VEHICLE_PROPERTIES)
     public void testEnableInjectionModeTwice() {
         assumeTrue(BuildHelper.isEngBuild() || BuildHelper.isUserDebugBuild());
 
@@ -234,8 +204,7 @@ public class CarPropertySimulationManagerTest extends CarApiTestBase {
                     "android.car.CarProjectionManager#isRecordingVehicleProperties",
                     "android.car.CarProjectionManager#stopRecordingVehicleProperties"
             })
-    @EnsureHasPermission({Car.PERMISSION_INJECT_VEHICLE_PROPERTIES,
-            Car.PERMISSION_RECORD_VEHICLE_PROPERTIES})
+    @EnsureHasPermission(Car.PERMISSION_RECORD_VEHICLE_PROPERTIES)
     public void testStopRecordingVehiclePropertiesWhenAlreadyDisabled() {
         assumeTrue(BuildHelper.isEngBuild() || BuildHelper.isUserDebugBuild());
 
@@ -244,276 +213,11 @@ public class CarPropertySimulationManagerTest extends CarApiTestBase {
         assertThat(mCarPropertySimulationManager.isRecordingVehicleProperties()).isFalse();
     }
 
-    @Test
-    @RequiresFlagsEnabled(Flags.FLAG_CAR_PROPERTY_SIMULATION)
-    @ApiTest(
-            apis = {
-                    "android.car.CarProjectionManager#stopRecordingVehicleProperties",
-                    "android.car.CarProjectionManager#startRecordingVehicleProperties"
-            })
-    @EnsureHasPermission({Car.PERMISSION_INJECT_VEHICLE_PROPERTIES,
-            Car.PERMISSION_RECORD_VEHICLE_PROPERTIES})
-    public void testStartRecordingCheckNumberOfEvents() throws Exception {
-        Set<String> adoptablePermissions = TestApis.permissions().adoptablePermissions();
-        try (PermissionContext p = TestApis.permissions().withPermission(adoptablePermissions
-                .toArray(new String[0]))) {
-            assumeTrue(BuildHelper.isEngBuild() || BuildHelper.isUserDebugBuild());
-
-            CountDownLatch onRecordingFinishedLatch = new CountDownLatch(1);
-            CarRecordingListener listener = new CarRecordingListener(/* carPropertyEventsLatch= */
-                    null,
-                    onRecordingFinishedLatch);
-
-            mCarPropertySimulationManager.startRecordingVehicleProperties(/* callbackExecutor= */
-                    null,
-                    listener);
-
-            CarPropertyEventCallback carPropertyEventCallback = new CarPropertyEventCallback();
-            Pair<Integer, List<Subscription>> numberOfInitialEventSubscriptionListPair =
-                    createSubscriptionList(mCarPropertyManager.getPropertyList());
-            List<Subscription> subscriptionList = numberOfInitialEventSubscriptionListPair.second;
-            int numberOfInitialEvents = numberOfInitialEventSubscriptionListPair.first;
-            assertThat(mCarPropertyManager.subscribePropertyEvents(subscriptionList,
-                    /* callbackExecutor= */ null, carPropertyEventCallback)).isTrue();
-            Thread.sleep(TIMEOUT_MS);
-            mCarPropertyManager.unsubscribePropertyEvents(carPropertyEventCallback);
-
-            mCarPropertySimulationManager.stopRecordingVehicleProperties();
-            assertWithMessage("CarPropertySimulationManager stop recording")
-                    .that(onRecordingFinishedLatch.await(TIMEOUT_MS,
-                            TimeUnit.MILLISECONDS)).isTrue();
-            // Subtract carPropertyConfigList because that is the size of properties that is going
-            // to be sent as an initial event. Those events are propagated through the "get" api
-            // instead of onEvents
-            assertThat(listener.getEventCount()).isAtLeast(carPropertyEventCallback.getEventCount()
-                    - numberOfInitialEvents);
-        }
-    }
-
-    @Test
-    @RequiresFlagsEnabled(Flags.FLAG_CAR_PROPERTY_SIMULATION)
-    @ApiTest(
-            apis = {
-                    "android.car.CarProjectionManager#enableInjectionMode",
-                    "android.car.CarProjectionManager#disableInjectionMode"
-            })
-    @EnsureHasPermission({Car.PERMISSION_INJECT_VEHICLE_PROPERTIES,
-            Car.PERMISSION_RECORD_VEHICLE_PROPERTIES})
-    public void testEnableInjectionModeNoPropertiesFromRealHardware() throws Exception {
-        assumeTrue(BuildHelper.isEngBuild() || BuildHelper.isUserDebugBuild());
-        Set<String> adoptablePermissions = TestApis.permissions().adoptablePermissions();
-        try (PermissionContext p = TestApis.permissions().withPermission(adoptablePermissions
-                .toArray(new String[0]))) {
-            List<CarPropertyConfig> carPropertyConfigList = mCarPropertyManager.getPropertyList();
-            CarPropertyEventCallback carPropertyEventCallback = new CarPropertyEventCallback();
-            Pair<Integer, List<Subscription>> numberOfInitialEventSubscriptionListPair =
-                    createSubscriptionList(carPropertyConfigList);
-            List<Subscription> subscriptionList = numberOfInitialEventSubscriptionListPair.second;
-            assertThat(mCarPropertyManager.subscribePropertyEvents(subscriptionList,
-                    /* callbackExecutor= */ null, carPropertyEventCallback)).isTrue();
-
-            mCarPropertySimulationManager.enableInjectionMode(List.of());
-            carPropertyEventCallback.resetCount();
-            Thread.sleep(TIMEOUT_MS);
-
-            mCarPropertyManager.unsubscribePropertyEvents(carPropertyEventCallback);
-            mCarPropertySimulationManager.disableInjectionMode();
-            assertThat(carPropertyEventCallback.getEventCount()).isEqualTo(0);
-        }
-    }
-
-    @Test
-    @RequiresFlagsEnabled(Flags.FLAG_CAR_PROPERTY_SIMULATION)
-    @ApiTest(
-            apis = {
-                    "android.car.CarProjectionManager#enableInjectionMode",
-                    "android.car.CarProjectionManager#injectVehicleProperties",
-                    "android.car.CarProjectionManager#getLastInjectedVehicleProperty",
-                    "android.car.CarProjectionManager#disableInjectionMode"
-            })
-    @EnsureHasPermission({Car.PERMISSION_INJECT_VEHICLE_PROPERTIES,
-            Car.PERMISSION_RECORD_VEHICLE_PROPERTIES})
-    public void testInjectVehicleProperties() throws Exception {
-        assumeTrue(BuildHelper.isEngBuild() || BuildHelper.isUserDebugBuild());
-        Set<String> adoptablePermissions = TestApis.permissions().adoptablePermissions();
-        try (PermissionContext p = TestApis.permissions().withPermission(adoptablePermissions
-                .toArray(new String[0]))) {
-            List<CarPropertyConfig> carPropertyConfigList = mCarPropertyManager.getPropertyList();
-            Pair<Integer, List<Subscription>> numberOfInitialEventSubscriptionListPair =
-                    createSubscriptionList(carPropertyConfigList);
-            int numberOfInitialEvent = numberOfInitialEventSubscriptionListPair.first;
-            CountDownLatch initialEventsLatch = new CountDownLatch(numberOfInitialEvent);
-            List<Subscription> subscriptionList = numberOfInitialEventSubscriptionListPair.second;
-            CarPropertyEventCallback carPropertyEventCallback = new CarPropertyEventCallback(
-                    initialEventsLatch);
-            mCarPropertySimulationManager.enableInjectionMode(List.of());
-            assertThat(mCarPropertyManager.subscribePropertyEvents(subscriptionList,
-                    /* callbackExecutor= */ null, carPropertyEventCallback)).isTrue();
-
-            assertWithMessage("Initial events latch")
-                    .that(initialEventsLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)).isTrue();
-            carPropertyEventCallback.resetCount();
-            CarPropertyValue speedValueToBeInjected = mCarPropertySimulationManager
-                    .createCarPropertyValue(PERF_VEHICLE_SPEED, /* areaId= */ 0, STATUS_AVAILABLE,
-                            /* timestampNanos= */ 0L, /* value= */ 15.4f);
-            CarPropertyValue vehicleSpeedDisplayToBeInjected = mCarPropertySimulationManager
-                    .createCarPropertyValue(PERF_VEHICLE_SPEED_DISPLAY, /* areaId= */ 0,
-                            STATUS_AVAILABLE, /* timestampNanos= */ 0L, /* value= */ 19.2f);
-            mCarPropertySimulationManager.injectVehicleProperties(List.of(speedValueToBeInjected,
-                    vehicleSpeedDisplayToBeInjected));
-            Thread.sleep(TIMEOUT_MS);
-
-            mCarPropertyManager.unsubscribePropertyEvents(carPropertyEventCallback);
-            assertThat(
-                    mCarPropertySimulationManager.getLastInjectedVehicleProperty(PERF_VEHICLE_SPEED)
-                            .getValue()).isEqualTo(15.4f);
-            assertThat(mCarPropertySimulationManager.getLastInjectedVehicleProperty(
-                    PERF_VEHICLE_SPEED_DISPLAY).getValue()).isEqualTo(19.2f);
-            mCarPropertySimulationManager.disableInjectionMode();
-            assertThat(carPropertyEventCallback.getEventCount()).isEqualTo(2);
-        }
-    }
-
-    @Test
-    @RequiresFlagsEnabled(Flags.FLAG_CAR_PROPERTY_SIMULATION)
-    @ApiTest(
-            apis = {
-                    "android.car.CarProjectionManager#enableInjectionMode",
-                    "android.car.CarProjectionManager#injectVehicleProperties",
-                    "android.car.CarProjectionManager#getLastInjectedVehicleProperty",
-                    "android.car.CarProjectionManager#disableInjectionMode"
-            })
-    @EnsureHasPermission({Car.PERMISSION_INJECT_VEHICLE_PROPERTIES,
-            Car.PERMISSION_RECORD_VEHICLE_PROPERTIES})
-    public void testInjectVehiclePropertiesSameValueChanged() throws Exception {
-        assumeTrue(BuildHelper.isEngBuild() || BuildHelper.isUserDebugBuild());
-        Set<String> adoptablePermissions = TestApis.permissions().adoptablePermissions();
-        try (PermissionContext p = TestApis.permissions().withPermission(adoptablePermissions
-                .toArray(new String[0]))) {
-
-            CountDownLatch initialEventsLatch = new CountDownLatch(1);
-            CarPropertyEventCallback carPropertyEventCallback = new CarPropertyEventCallback(
-                    initialEventsLatch);
-            assertThat(mCarPropertyManager.subscribePropertyEvents(List.of(new Subscription.Builder(
-                            PERF_VEHICLE_SPEED).setUpdateRateFastest().build()),
-                    /* callbackExecutor= */null, carPropertyEventCallback)).isTrue();
-            assertWithMessage("Initial events latch")
-                    .that(initialEventsLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)).isTrue();
-            CountDownLatch injectionCountDownLatch = new CountDownLatch(1);
-            carPropertyEventCallback.setCountDownLatch(injectionCountDownLatch);
-
-            long injectionStartTime = mCarPropertySimulationManager.enableInjectionMode(List.of());
-            CarPropertyValue speedValueToBeInjected = mCarPropertySimulationManager
-                    .createCarPropertyValue(PERF_VEHICLE_SPEED, /* areaId= */ 0, STATUS_AVAILABLE,
-                            /* timestampNanos= */ 0L, /* value= */ 15.4f);
-            mCarPropertySimulationManager.injectVehicleProperties(List.of(speedValueToBeInjected));
-            assertWithMessage("Injection countdown latch")
-                    .that(injectionCountDownLatch.await(TIMEOUT_MS,
-                            TimeUnit.MILLISECONDS)).isTrue();
-            assertThat(
-                    mCarPropertySimulationManager.getLastInjectedVehicleProperty(PERF_VEHICLE_SPEED)
-                            .getValue()).isEqualTo(15.4f);
-            assertThat(mCarPropertyManager.getProperty(PERF_VEHICLE_SPEED, 0).getValue())
-                    .isEqualTo(15.4f);
-
-            speedValueToBeInjected = mCarPropertySimulationManager
-                    .createCarPropertyValue(PERF_VEHICLE_SPEED, /* areaId= */ 0, STATUS_AVAILABLE,
-                            // Inject after 1 second so it does not get filtered out by update rate
-                            /* timestampNanos= */ SystemClock.elapsedRealtimeNanos()
-                                    - injectionStartTime + 1000000000, /* value= */ 19.2f);
-            injectionCountDownLatch = new CountDownLatch(1);
-            carPropertyEventCallback.setCountDownLatch(injectionCountDownLatch);
-            mCarPropertySimulationManager.injectVehicleProperties(List.of(speedValueToBeInjected));
-            assertWithMessage("Injection countdown latch")
-                    .that(injectionCountDownLatch.await(TIMEOUT_MS,
-                            TimeUnit.MILLISECONDS)).isTrue();
-
-            assertThat(
-                    mCarPropertySimulationManager.getLastInjectedVehicleProperty(PERF_VEHICLE_SPEED)
-                            .getValue()).isEqualTo(19.2f);
-            assertThat(mCarPropertyManager.getProperty(PERF_VEHICLE_SPEED, 0).getValue())
-                    .isEqualTo(19.2f);
-            mCarPropertyManager.unsubscribePropertyEvents(carPropertyEventCallback);
-            mCarPropertySimulationManager.disableInjectionMode();
-        }
-    }
-
-    private Pair<Integer, List<Subscription>> createSubscriptionList(
-            List<CarPropertyConfig> configList) {
-        List<Subscription> list = new ArrayList<>();
-        int numberOfInitialEvents = 0;
-        for (int i = 0; i < configList.size(); i++) {
-            CarPropertyConfig config = configList.get(i);
-            Subscription.Builder builder = new Subscription.Builder(config.getPropertyId());
-            List<AreaIdConfig> areaIdConfigs = config.getAreaIdConfigs();
-            boolean addedAreaIds = false;
-            for (int p = 0; p < areaIdConfigs.size(); p++) {
-                AreaIdConfig areaIdConfig = areaIdConfigs.get(p);
-                if (areaIdConfig.getAccess() != VEHICLE_PROPERTY_ACCESS_READ
-                        && areaIdConfig.getAccess() != VEHICLE_PROPERTY_ACCESS_READ_WRITE) {
-                    continue;
-                }
-                addedAreaIds = true;
-                builder.addAreaId(areaIdConfigs.get(p).getAreaId());
-                numberOfInitialEvents++;
-            }
-            if (!addedAreaIds) {
-                continue;
-            }
-            builder.setUpdateRateFastest();
-            builder.setVariableUpdateRateEnabled(false);
-            list.add(builder.build());
-        }
-        return new Pair<>(numberOfInitialEvents, list);
-    }
-
-    private static final class CarPropertyEventCallback implements
-            CarPropertyManager.CarPropertyEventCallback {
-
-        private int mEventCount = 0;
-        private CountDownLatch mCountDownLatch;
-
-        public int getEventCount() {
-            return mEventCount;
-        }
-
-        public void resetCount() {
-            mEventCount = 0;
-        }
-
-        public void setCountDownLatch(CountDownLatch countDownLatch) {
-            mCountDownLatch = countDownLatch;
-        }
-
-        private CarPropertyEventCallback() {
-            this(null);
-        }
-
-        private CarPropertyEventCallback(CountDownLatch countDownLatch) {
-            if (countDownLatch == null) {
-                countDownLatch = new CountDownLatch(0);
-            }
-            mCountDownLatch = countDownLatch;
-        }
-
-        @Override
-        public void onChangeEvent(CarPropertyValue value) {
-            mEventCount++;
-            mCountDownLatch.countDown();
-        }
-
-        @Override
-        public void onErrorEvent(int propertyId, int areaId) {
-
-        }
-    }
-
     private static final class CarRecordingListener
             implements CarPropertySimulationManager.CarRecorderListener {
 
         private final CountDownLatch mCarPropertyEventsLatch;
         private final CountDownLatch mCarPropertyFinishedLatch;
-        private int mEventCount = 0;
 
         private CarRecordingListener(
                 CountDownLatch carPropertyEventsLatch, CountDownLatch onRecordingFinishedLatch) {
@@ -525,14 +229,9 @@ public class CarPropertySimulationManagerTest extends CarApiTestBase {
                             : onRecordingFinishedLatch;
         }
 
-        public int getEventCount() {
-            return mEventCount;
-        }
-
         @Override
         public void onCarPropertyEvents(@NonNull List<CarPropertyValue<?>> carPropertyValues) {
             mCarPropertyEventsLatch.countDown();
-            mEventCount += carPropertyValues.size();
         }
 
         @Override

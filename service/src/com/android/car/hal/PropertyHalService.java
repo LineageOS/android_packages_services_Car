@@ -1978,6 +1978,7 @@ public class PropertyHalService extends HalServiceBase {
             updateSubscriptionRateLocked();
         } catch (ServiceSpecificException e) {
             Slogf.e(TAG, "failed to update subscription rate after we finish async set request", e);
+            return;
         }
     }
 

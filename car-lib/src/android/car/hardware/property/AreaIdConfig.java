@@ -329,7 +329,7 @@ public final class AreaIdConfig<T> implements Parcelable {
         StringBuilder sb = new StringBuilder();
         sb.append("AreaIdConfig{").append("mAreaId=").append(
                         propertyId == null ? mAreaId : toAreaIdString(propertyId, mAreaId))
-                .append(" mAccess=").append(mAccess);
+                .append("mAccess=").append(mAccess);
         if (mMinValue != null) {
             sb.append(", mMinValue=").append(mMinValue);
         }
