@@ -22,8 +22,6 @@ import static com.google.common.truth.Truth.assertThat;
 
 import android.car.VehicleAreaType;
 import android.car.VehiclePropertyIds;
-import android.car.feature.FeatureFlagsImpl;
-import android.car.feature.Flags;
 import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.property.AreaIdConfig;
 import android.car.hardware.property.VehicleOilLevel;
@@ -36,16 +34,12 @@ import android.hardware.automotive.vehicle.VehicleProperty;
 import android.hardware.automotive.vehicle.VehiclePropertyAccess;
 import android.hardware.automotive.vehicle.VehiclePropertyChangeMode;
 import android.hardware.automotive.vehicle.VehiclePropertyType;
-import android.platform.test.annotations.EnableFlags;
-import android.platform.test.flag.junit.SetFlagsRule;
 
 import com.android.car.hal.property.PropertyHalServiceConfigs;
 
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.ArrayList;
@@ -53,15 +47,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
-@EnableFlags({Flags.FLAG_AREA_ID_CONFIG_ACCESS})
 @RunWith(MockitoJUnitRunner.class)
 public final class HalPropConfigTest extends AbstractExpectableTestCase {
-
-    @Rule
-    public final SetFlagsRule mSetFlagsRule = new SetFlagsRule();
-
-    @Mock
-    public FeatureFlagsImpl mMockFeatureFlags;
 
     private PropertyHalServiceConfigs mPropertyHalServiceConfigs;
 
@@ -189,7 +176,7 @@ public final class HalPropConfigTest extends AbstractExpectableTestCase {
 
     @Before
     public void setUp() {
-        mPropertyHalServiceConfigs = new PropertyHalServiceConfigs(mMockFeatureFlags);
+        mPropertyHalServiceConfigs = new PropertyHalServiceConfigs(/* featureFlags */ null);
     }
 
     @Test
@@ -297,10 +284,7 @@ public final class HalPropConfigTest extends AbstractExpectableTestCase {
         assertThat(areaIdConfig.getMinValue()).isNull();
         assertThat(areaIdConfig.getMaxValue()).isNull();
         assertThat(areaIdConfig.getSupportedEnumValues()).isEmpty();
-
-        if (Flags.areaIdConfigAccess()) {
-            assertThat(areaIdConfig.getAccess()).isEqualTo(TEST_ACCESS);
-        }
+        assertThat(areaIdConfig.getAccess()).isEqualTo(TEST_ACCESS);
     }
 
     @Test
@@ -315,10 +299,7 @@ public final class HalPropConfigTest extends AbstractExpectableTestCase {
         assertThat(areaIdConfig.getAreaId()).isEqualTo(TEST_AREA_ID);
         assertThat(areaIdConfig.getMinValue()).isEqualTo(MIN_INT32_VALUE);
         assertThat(areaIdConfig.getMaxValue()).isEqualTo(MAX_INT32_VALUE);
-
-        if (Flags.areaIdConfigAccess()) {
-            assertThat(areaIdConfig.getAccess()).isEqualTo(TEST_ACCESS);
-        }
+        assertThat(areaIdConfig.getAccess()).isEqualTo(TEST_ACCESS);
     }
 
     @Test
@@ -335,10 +316,7 @@ public final class HalPropConfigTest extends AbstractExpectableTestCase {
         assertThat(areaIdConfig.getAreaId()).isEqualTo(TEST_AREA_ID);
         assertThat(areaIdConfig.getMinValue()).isNull();
         assertThat(areaIdConfig.getMaxValue()).isNull();
-
-        if (Flags.areaIdConfigAccess()) {
-            assertThat(areaIdConfig.getAccess()).isEqualTo(TEST_ACCESS);
-        }
+        assertThat(areaIdConfig.getAccess()).isEqualTo(TEST_ACCESS);
     }
 
     @Test
@@ -354,10 +332,7 @@ public final class HalPropConfigTest extends AbstractExpectableTestCase {
         assertThat(areaIdConfig.getAreaId()).isEqualTo(TEST_AREA_ID);
         assertThat(areaIdConfig.getMinValue()).isEqualTo(MIN_INT64_VALUE);
         assertThat(areaIdConfig.getMaxValue()).isEqualTo(MAX_INT64_VALUE);
-
-        if (Flags.areaIdConfigAccess()) {
-            assertThat(areaIdConfig.getAccess()).isEqualTo(TEST_ACCESS);
-        }
+        assertThat(areaIdConfig.getAccess()).isEqualTo(TEST_ACCESS);
     }
 
     @Test
@@ -375,10 +350,7 @@ public final class HalPropConfigTest extends AbstractExpectableTestCase {
         assertThat(areaIdConfig.getAreaId()).isEqualTo(TEST_AREA_ID);
         assertThat(areaIdConfig.getMinValue()).isNull();
         assertThat(areaIdConfig.getMaxValue()).isNull();
-
-        if (Flags.areaIdConfigAccess()) {
-            assertThat(areaIdConfig.getAccess()).isEqualTo(TEST_ACCESS);
-        }
+        assertThat(areaIdConfig.getAccess()).isEqualTo(TEST_ACCESS);
     }
 
     @Test
@@ -394,10 +366,7 @@ public final class HalPropConfigTest extends AbstractExpectableTestCase {
         assertThat(areaIdConfig.getAreaId()).isEqualTo(TEST_AREA_ID);
         assertThat(areaIdConfig.getMinValue()).isEqualTo(MIN_FLOAT_VALUE);
         assertThat(areaIdConfig.getMaxValue()).isEqualTo(MAX_FLOAT_VALUE);
-
-        if (Flags.areaIdConfigAccess()) {
-            assertThat(areaIdConfig.getAccess()).isEqualTo(TEST_ACCESS);
-        }
+        assertThat(areaIdConfig.getAccess()).isEqualTo(TEST_ACCESS);
     }
 
     @Test
@@ -415,10 +384,7 @@ public final class HalPropConfigTest extends AbstractExpectableTestCase {
         assertThat(areaIdConfig.getAreaId()).isEqualTo(TEST_AREA_ID);
         assertThat(areaIdConfig.getMinValue()).isNull();
         assertThat(areaIdConfig.getMaxValue()).isNull();
-
-        if (Flags.areaIdConfigAccess()) {
-            assertThat(areaIdConfig.getAccess()).isEqualTo(TEST_ACCESS);
-        }
+        assertThat(areaIdConfig.getAccess()).isEqualTo(TEST_ACCESS);
     }
 
     @Test
@@ -435,10 +401,7 @@ public final class HalPropConfigTest extends AbstractExpectableTestCase {
         assertThat(areaIdConfig.getAreaId()).isEqualTo(TEST_AREA_ID);
         assertThat(areaIdConfig.getMinValue()).isNull();
         assertThat(areaIdConfig.getMaxValue()).isNull();
-
-        if (Flags.areaIdConfigAccess()) {
-            assertThat(areaIdConfig.getAccess()).isEqualTo(TEST_ACCESS);
-        }
+        assertThat(areaIdConfig.getAccess()).isEqualTo(TEST_ACCESS);
     }
 
     @Test
