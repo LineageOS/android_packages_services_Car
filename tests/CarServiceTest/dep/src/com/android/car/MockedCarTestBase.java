@@ -26,7 +26,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 
-import android.automotive.power.internal.ICarPowerManagementDelegate;
 import android.car.Car;
 import android.car.ICarResultReceiver;
 import android.car.feature.Flags;
@@ -146,7 +145,7 @@ public class MockedCarTestBase {
     @GuardedBy("mLock")
     private final List<UserLifecycleListener> mUserLifecycleListeners = new ArrayList<>();
 
-    private ICarPowerManagementDelegate mRefactoredPowerManagementDaemon;
+    private FakeRefactoredCarPowerManagementDaemon mRefactoredPowerManagementDaemon;
     private MockitoSession mSession;
 
     protected HidlMockedVehicleHal createHidlMockedVehicleHal() {
@@ -441,6 +440,10 @@ public class MockedCarTestBase {
             mMockIOInterface.tearDown();
             mHidlMockedVehicleHal = null;
             mAidlMockedVehicleHal = null;
+
+            if (mRefactoredPowerManagementDaemon != null) {
+                mRefactoredPowerManagementDaemon.destroy();
+            }
         } finally {
             // Wait for the main looper to handle the current queued tasks before finishing the
             // mocking session since the task might use the mocked object.

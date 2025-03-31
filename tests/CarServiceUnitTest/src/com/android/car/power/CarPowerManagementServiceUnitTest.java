@@ -60,6 +60,7 @@ import android.car.hardware.power.ICarPowerPolicyListener;
 import android.car.hardware.power.ICarPowerStateListener;
 import android.car.hardware.power.PowerComponent;
 import android.car.remoteaccess.CarRemoteAccessManager;
+import android.car.test.NoActiveHandlerThreadCheckerRule;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.car.test.mocks.JavaMockitoHelper;
 import android.car.testapi.FakeRefactoredCarPowerManagementDaemon;
@@ -217,6 +218,9 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
 
     @Rule
     public final TemporaryFolder temporaryFolder = new TemporaryFolder();
+    @Rule
+    public NoActiveHandlerThreadCheckerRule mNoActiveHandlerThreadCheckerRule =
+            new NoActiveHandlerThreadCheckerRule();
 
     private final FakeFeatureFlagsImpl mFeatureFlags = new FakeFeatureFlagsImpl();
     private final MockDisplayInterface mDisplayInterface = new MockDisplayInterface();
@@ -304,6 +308,9 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         CarServiceUtils.quitHandlerThreads();
         CarLocalServices.removeServiceForTest(CarPowerManagementService.class);
         mIOInterface.tearDown();
+        if (mRefactoredCarPowerManagementDaemon != null) {
+            mRefactoredCarPowerManagementDaemon.destroy();
+        }
     }
 
     @Test
