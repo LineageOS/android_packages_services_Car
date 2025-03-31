@@ -15,6 +15,7 @@
   ~ limitations under the License.
   -->
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingDefaultResource,PxUsage">
+    <!-- ScalableUI -->
     <dimen name="screen_height">2048px</dimen>
 
     <dimen name="top_bar_bottom">80px</dimen>
@@ -40,4 +41,8 @@
     <dimen name="calm_mode_left">0px</dimen>
     <dimen name="calm_mode_top">0px</dimen>
     <dimen name="calm_mode_height">1836px</dimen>
+
+    <!-- Keyguard -->
+    <dimen name="pin_view_container_maxHeight">380dp</dimen>
+    <dimen name="pattern_view_container_maxHeight">800dp</dimen>
 </resources>

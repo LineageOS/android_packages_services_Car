@@ -38,6 +38,8 @@
     <item target="dimen/app_immersive_height" value="@dimen/app_immersive_height"/>
     <item target="dimen/app_bottom" value="@dimen/app_bottom"/>
     <item target="dimen/app_height" value="@dimen/app_height"/>
+    <item target="dimen/pin_view_container_maxHeight" value="@dimen/pin_view_container_maxHeight"/>
+    <item target="dimen/pattern_view_container_maxHeight" value="@dimen/pattern_view_container_maxHeight"/>
 
     <!-- Toast IDs -->
     <item target="id/icon" value="@id/icon"/>
