@@ -41,7 +41,6 @@ import static com.android.car.CarStatsLog.CAR_WATCHDOG_SYSTEM_IO_USAGE_SUMMARY;
 import static com.android.car.CarStatsLog.CAR_WATCHDOG_UID_IO_USAGE_SUMMARY;
 import static com.android.car.internal.NotificationHelperBase.CAR_WATCHDOG_ACTION_DISMISS_RESOURCE_OVERUSE_NOTIFICATION;
 import static com.android.car.internal.NotificationHelperBase.CAR_WATCHDOG_ACTION_LAUNCH_APP_SETTINGS;
-import static com.android.car.internal.NotificationHelperBase.CAR_WATCHDOG_ACTION_RESOURCE_OVERUSE_DISABLE_APP;
 import static com.android.car.internal.NotificationHelperBase.RESOURCE_OVERUSE_NOTIFICATION_BASE_ID;
 import static com.android.car.internal.NotificationHelperBase.RESOURCE_OVERUSE_NOTIFICATION_MAX_OFFSET;
 import static com.android.car.watchdog.TimeSource.ZONE_OFFSET;
@@ -359,62 +358,6 @@ public class IoOveruseHandlerUnitTest extends AbstractExtendedMockitoTestCase {
             mIoOveruseHandler.addResourceOveruseListener(/* resourceOveruseFlag= */ 0,
                     mockListener);
         });
-    }
-
-    @Test
-    public void testProcessUserNotificationIntentDisablePackage() {
-        String packageName = "third_party_package";
-        UserHandle userHandle = UserHandle.of(100);
-        int notificationId = 150;
-
-        Intent intent = new Intent(CAR_WATCHDOG_ACTION_RESOURCE_OVERUSE_DISABLE_APP)
-                .putExtra(Intent.EXTRA_PACKAGE_NAME, packageName)
-                .putExtra(Intent.EXTRA_USER, userHandle)
-                .putExtra(INTENT_EXTRA_NOTIFICATION_ID, notificationId);
-
-        mIoOveruseHandler.processUserNotificationIntent(intent);
-
-        verifyDisabledPackages(/* userPackagesCsv= */ "100:third_party_package");
-
-        verify(mMockNotificationHelper).cancelNotificationAsUser(eq(userHandle),
-                eq(notificationId));
-    }
-
-    @Test
-    public void testProcessUserNotificationIntentDisablePackageWithDisabledPackage() {
-        String packageName = "third_party_package";
-        UserHandle userHandle = UserHandle.of(100);
-        int notificationId = 150;
-        doReturn(COMPONENT_ENABLED_STATE_DISABLED_UNTIL_USED).when(() -> PackageManagerHelper
-                .getApplicationEnabledSettingForUser(anyString(), anyInt()));
-
-        Intent intent = new Intent(CAR_WATCHDOG_ACTION_RESOURCE_OVERUSE_DISABLE_APP)
-                .putExtra(Intent.EXTRA_PACKAGE_NAME, packageName)
-                .putExtra(Intent.EXTRA_USER, userHandle)
-                .putExtra(INTENT_EXTRA_NOTIFICATION_ID, notificationId);
-
-        mIoOveruseHandler.processUserNotificationIntent(intent);
-
-        verifyNoDisabledPackages();
-
-        verify(mMockNotificationHelper).cancelNotificationAsUser(eq(userHandle),
-                eq(notificationId));
-    }
-
-    @Test
-    public void testProcessUserNotificationIntentDisablePackageWithMissingNotificationId() {
-        String packageName = "third_party_package";
-        UserHandle userHandle = UserHandle.of(100);
-
-        Intent intent = new Intent(CAR_WATCHDOG_ACTION_RESOURCE_OVERUSE_DISABLE_APP)
-                .putExtra(Intent.EXTRA_PACKAGE_NAME, packageName)
-                .putExtra(Intent.EXTRA_USER, userHandle);
-
-        mIoOveruseHandler.processUserNotificationIntent(intent);
-
-        verifyDisabledPackages(/* userPackagesCsv= */ "100:third_party_package");
-
-        verify(mMockNotificationHelper, never()).cancelNotificationAsUser(any(), anyInt());
     }
 
     @Test
