@@ -119,6 +119,7 @@ public class MockedCarTestBase {
     private CarPerformanceService mCarPerformanceService;
     private CarRemoteAccessServiceConstructor mCarRemoteAccessServiceConstructor;
     private AppFocusService mAppFocusService;
+    private VehicleStub mVehicleStub;
 
     private final CarUserService mCarUserService = mock(CarUserService.class);
     private final MockIOInterface mMockIOInterface = new MockIOInterface();
@@ -362,11 +363,10 @@ public class MockedCarTestBase {
         // This should be done here as feature property is accessed inside the constructor.
         initMockedHal();
 
-        VehicleStub mockedVehicleStub;
         if (!mUseAidlVhal) {
-            mockedVehicleStub = new HidlVehicleStub(mHidlMockedVehicleHal);
+            mVehicleStub = new HidlVehicleStub(mHidlMockedVehicleHal);
         } else {
-            mockedVehicleStub = new AidlVehicleStub(mAidlMockedVehicleHal);
+            mVehicleStub = new AidlVehicleStub(mAidlMockedVehicleHal);
         }
 
         // Setup car
@@ -380,7 +380,7 @@ public class MockedCarTestBase {
         }
         ICarImpl carImpl = new ICarImpl.Builder()
                 .setServiceContext(mMockedCarTestContext)
-                .setVehicle(mockedVehicleStub)
+                .setVehicle(mVehicleStub)
                 .setVehicleInterfaceName("MockedCar")
                 .setSystemInterface(mFakeSystemInterface)
                 .setCarUserService(mCarUserService)
@@ -433,6 +433,9 @@ public class MockedCarTestBase {
                 mCarImpl.release();
                 mCarImpl.destroy();
                 mCarImpl = null;
+            }
+            if (mVehicleStub != null) {
+                mVehicleStub.destroy();
             }
             CarServiceUtils.quitHandlerThreads();
             mMockIOInterface.tearDown();

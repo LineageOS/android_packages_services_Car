@@ -99,6 +99,7 @@ public class CarServiceImpl extends ProxiedService {
         mICarImpl = null;
 
         mVehicle.unlinkToDeath(mVehicleDeathRecipient);
+        mVehicle.destroy();
         mVehicle = null;
 
         super.onDestroy();

@@ -33,6 +33,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import android.car.hardware.property.CarPropertyManager;
+import android.car.test.NoActiveHandlerThreadCheckerRule;
 import android.hardware.automotive.vehicle.FuelType;
 import android.hardware.automotive.vehicle.RawPropValues;
 import android.hardware.automotive.vehicle.StatusCode;
@@ -54,7 +55,6 @@ import android.util.SparseArray;
 
 import androidx.test.filters.SmallTest;
 
-import com.android.car.CarServiceUtils;
 import com.android.car.IVehicleDeathRecipient;
 import com.android.car.VehicleStub;
 import com.android.car.VehicleStub.AsyncGetSetRequest;
@@ -156,10 +156,15 @@ public class FakeVehicleStubUnitTest {
     private VehicleStubCallbackInterface mCallback;
 
     @Rule
+    public NoActiveHandlerThreadCheckerRule mNoActiveHandlerThreadCheckerRule =
+            new NoActiveHandlerThreadCheckerRule();
+    @Rule
     public final Expect expect = Expect.create();
     @Rule
     public final RavenwoodRule mRavenwood = new RavenwoodRule.Builder()
             .build();
+
+    private final List<FakeVehicleStub> mFakeVehicleStubs = new ArrayList<>();
 
     @Before
     public void setup() throws Exception {
@@ -169,12 +174,22 @@ public class FakeVehicleStubUnitTest {
 
     @After
     public void teardown() throws Exception {
-        CarServiceUtils.quitHandlerThreads();
+        for (int i = 0; i < mFakeVehicleStubs.size(); i++) {
+            mFakeVehicleStubs.get(i).destroy();
+        }
+        mFakeVehicleStubs.clear();
+    }
+
+    private FakeVehicleStub createFakeVehicleStub(VehicleStub realVehicle,
+            FakeVhalConfigParser parser, List<File> customConfigFiles) throws Exception {
+        var fakeVehicleStub = new FakeVehicleStub(realVehicle, parser, customConfigFiles);
+        mFakeVehicleStubs.add(fakeVehicleStub);
+        return fakeVehicleStub;
     }
 
     @Test
     public void testGetAllPropConfigsWithoutCustomConfig() throws Exception {
-        FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub,
+        FakeVehicleStub fakeVehicleStub = createFakeVehicleStub(mMockRealVehicleStub,
                 new FakeVhalConfigParser(), new ArrayList<>());
 
         HalPropConfig[] allPropConfig = fakeVehicleStub.getAllPropConfigs();
@@ -197,7 +212,7 @@ public class FakeVehicleStubUnitTest {
                 + "\"defaultValue\": {\"floatValues\": [200.0]}, \"maxSampleRate\": 2.5}]}";
         List<File> customFileList = createFilenameList(jsonString);
 
-        FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub,
+        FakeVehicleStub fakeVehicleStub = createFakeVehicleStub(mMockRealVehicleStub,
                 new FakeVhalConfigParser(), customFileList);
         HalPropConfig[] allPropConfig = fakeVehicleStub.getAllPropConfigs();
         HalPropConfig propConfig = getPropConfigByPropId(allPropConfig,
@@ -217,14 +232,14 @@ public class FakeVehicleStubUnitTest {
                 + "\"maxSampleRate\": 5.0}]}";
         List<File> customFileList = createFilenameList(jsonString);
 
-        FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub,
+        FakeVehicleStub fakeVehicleStub = createFakeVehicleStub(mMockRealVehicleStub,
                 new FakeVhalConfigParser(), customFileList);
         HalPropConfig[] allPropConfig = fakeVehicleStub.getAllPropConfigs();
         HalPropConfig propConfig = getPropConfigByPropId(allPropConfig, 123);
 
         expect.that(propConfig.getPropId()).isEqualTo(123);
         expect.that(propConfig.getMaxSampleRate()).isEqualTo(5.0f);
-        expect.that(allPropConfig.length).isEqualTo(new FakeVehicleStub(mMockRealVehicleStub,
+        expect.that(allPropConfig.length).isEqualTo(createFakeVehicleStub(mMockRealVehicleStub,
                 new FakeVhalConfigParser(), new ArrayList<>()).getAllPropConfigs().length + 1);
     }
 
@@ -235,7 +250,7 @@ public class FakeVehicleStubUnitTest {
         when(mMockRealVehicleStub.getAllPropConfigs()).thenReturn(new HalPropConfig[]{
                 new AidlHalPropConfig(createConfig(VehicleProperty.VHAL_HEARTBEAT,
                         /* sampleRate= */ 0, VehiclePropertyAccess.READ_WRITE, /* areaId= */ 0))});
-        FakeVehicleStub fakeVehicleStub =  new FakeVehicleStub(mMockRealVehicleStub,
+        FakeVehicleStub fakeVehicleStub =  createFakeVehicleStub(mMockRealVehicleStub,
                 new FakeVhalConfigParser(), new ArrayList<>());
 
         HalPropConfig propConfig = getPropConfigByPropId(fakeVehicleStub.getAllPropConfigs(),
@@ -251,7 +266,7 @@ public class FakeVehicleStubUnitTest {
                 new IllegalArgumentException("This file does not contain a valid JSONObject."));
 
         IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class,
-                () -> new FakeVehicleStub(mMockRealVehicleStub, mParser, new ArrayList<>()));
+                () -> createFakeVehicleStub(mMockRealVehicleStub, mParser, new ArrayList<>()));
 
         expect.that(thrown).hasMessageThat().contains("This file does not contain a valid "
                 + "JSONObject.");
@@ -264,7 +279,7 @@ public class FakeVehicleStubUnitTest {
                 /* access= */ VehiclePropertyAccess.NONE, /* areaId= */ 0);
         when(mParser.parseJsonConfig(any(InputStream.class))).thenReturn(defaultParseResult);
 
-        FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub, mParser,
+        FakeVehicleStub fakeVehicleStub = createFakeVehicleStub(mMockRealVehicleStub, mParser,
                 new ArrayList<>());
         HalPropConfig[] allPropConfig = fakeVehicleStub.getAllPropConfigs();
 
@@ -282,7 +297,7 @@ public class FakeVehicleStubUnitTest {
                 + "\"maxSampleRate\": 5.0}";
         List<File> customFileList = createFilenameList(jsonString);
 
-        FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub,
+        FakeVehicleStub fakeVehicleStub = createFakeVehicleStub(mMockRealVehicleStub,
                 new FakeVhalConfigParser(), customFileList);
 
         expect.that(fakeVehicleStub.isFakeModeEnabled()).isEqualTo(true);
@@ -309,7 +324,7 @@ public class FakeVehicleStubUnitTest {
         HalPropValue requestPropValue = new HalPropValueBuilder(/* isAidl= */ true)
                 .build(/* prop= */ VehicleProperty.INFO_FUEL_TYPE, /* areaId= */ 0);
 
-        FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub,
+        FakeVehicleStub fakeVehicleStub = createFakeVehicleStub(mMockRealVehicleStub,
                 new FakeVhalConfigParser(), customFileList);
 
         expect.that(fakeVehicleStub.isFakeModeEnabled()).isEqualTo(true);
@@ -326,7 +341,7 @@ public class FakeVehicleStubUnitTest {
         HalPropValue requestPropValue = new HalPropValueBuilder(/* isAidl= */ true)
                 .build(/* prop= */ VehicleProperty.INFO_FUEL_TYPE, /* areaId= */ 0);
         // Create a FakeVehicleStub instance.
-        FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub, mParser,
+        FakeVehicleStub fakeVehicleStub = createFakeVehicleStub(mMockRealVehicleStub, mParser,
                 new ArrayList<>());
 
         ServiceSpecificException thrown = assertThrows(ServiceSpecificException.class,
@@ -349,7 +364,7 @@ public class FakeVehicleStubUnitTest {
         HalPropValue requestPropValue = new HalPropValueBuilder(/* isAidl= */ true)
                 .build(/* prop= */ VehicleProperty.ANDROID_EPOCH_TIME, /* areaId= */ 0);
         // Create a FakeVehicleStub instance.
-        FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub,
+        FakeVehicleStub fakeVehicleStub = createFakeVehicleStub(mMockRealVehicleStub,
                 new FakeVhalConfigParser(), customFileList);
 
         ServiceSpecificException thrown = assertThrows(ServiceSpecificException.class,
@@ -368,7 +383,7 @@ public class FakeVehicleStubUnitTest {
         // Create a request prop value.
         HalPropValue requestPropValue = new HalPropValueBuilder(/* isAidl= */ true)
                 .build(/* prop= */ VehicleProperty.INFO_FUEL_CAPACITY, /* areaId= */ 123);
-        FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub,
+        FakeVehicleStub fakeVehicleStub = createFakeVehicleStub(mMockRealVehicleStub,
                 new FakeVhalConfigParser(), customFileList);
 
         ServiceSpecificException thrown = assertThrows(ServiceSpecificException.class,
@@ -393,7 +408,7 @@ public class FakeVehicleStubUnitTest {
         HalPropValue requestPropValue = new HalPropValueBuilder(/* isAidl= */ true)
                 .build(/* prop= */ VehicleProperty.DISPLAY_BRIGHTNESS, /* areaId= */ 1);
 
-        FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub,
+        FakeVehicleStub fakeVehicleStub = createFakeVehicleStub(mMockRealVehicleStub,
                 new FakeVhalConfigParser(), customFileList);
         ServiceSpecificException thrown = assertThrows(ServiceSpecificException.class,
                 () -> fakeVehicleStub.get(requestPropValue));
@@ -413,7 +428,7 @@ public class FakeVehicleStubUnitTest {
         // Create a request prop value.
         HalPropValue requestPropValue = new HalPropValueBuilder(/* isAidl= */ true)
                 .build(/* prop= */ VehicleProperty.INFO_FUEL_TYPE, /* areaId= */ 123);
-        FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub,
+        FakeVehicleStub fakeVehicleStub = createFakeVehicleStub(mMockRealVehicleStub,
                 new FakeVhalConfigParser(), customFileList);
 
         HalPropValue propValue = fakeVehicleStub.get(requestPropValue);
@@ -434,7 +449,7 @@ public class FakeVehicleStubUnitTest {
         // Create a request prop value.
         HalPropValue requestPropValue = new HalPropValueBuilder(/* isAidl= */ true)
                 .build(/* prop= */ VehicleProperty.WINDOW_POS, /* areaId= */ WINDOW_1_LEFT);
-        FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub,
+        FakeVehicleStub fakeVehicleStub = createFakeVehicleStub(mMockRealVehicleStub,
                 new FakeVhalConfigParser(), customFileList);
 
         ServiceSpecificException thrown = assertThrows(ServiceSpecificException.class,
@@ -458,7 +473,7 @@ public class FakeVehicleStubUnitTest {
         // Create a request prop value.
         HalPropValue requestPropValue = new HalPropValueBuilder(/* isAidl= */ true)
                 .build(/* prop= */ VehicleProperty.WINDOW_POS, /* areaId= */ WINDOW_1_LEFT);
-        FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub,
+        FakeVehicleStub fakeVehicleStub = createFakeVehicleStub(mMockRealVehicleStub,
                 new FakeVhalConfigParser(), customFileList);
 
         HalPropValue propValue = fakeVehicleStub.get(requestPropValue);
@@ -480,7 +495,7 @@ public class FakeVehicleStubUnitTest {
         // Create a request prop value.
         HalPropValue requestPropValue = new HalPropValueBuilder(/* isAidl= */ true)
                 .build(VehicleProperty.DOOR_LOCK, DOOR_1_LEFT);
-        FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub,
+        FakeVehicleStub fakeVehicleStub = createFakeVehicleStub(mMockRealVehicleStub,
                 new FakeVhalConfigParser(), customFileList);
 
         HalPropValue propValue = fakeVehicleStub.get(requestPropValue);
@@ -501,7 +516,7 @@ public class FakeVehicleStubUnitTest {
         // Create a request prop value.
         HalPropValue requestPropValue = new HalPropValueBuilder(/* isAidl= */ true)
                 .build(/* prop= */ VehicleProperty.SEAT_BELT_BUCKLED, /* areaId= */ 0);
-        FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub,
+        FakeVehicleStub fakeVehicleStub = createFakeVehicleStub(mMockRealVehicleStub,
                 new FakeVhalConfigParser(), customFileList);
 
         ServiceSpecificException thrown = assertThrows(ServiceSpecificException.class,
@@ -525,7 +540,7 @@ public class FakeVehicleStubUnitTest {
         // Create a request prop value.
         HalPropValue requestPropValue = new HalPropValueBuilder(/* isAidl= */ true)
                 .build(/* prop= */ VehicleProperty.HVAC_FAN_SPEED, /* areaId= */ HVAC_ALL);
-        FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub,
+        FakeVehicleStub fakeVehicleStub = createFakeVehicleStub(mMockRealVehicleStub,
                 new FakeVhalConfigParser(), customFileList);
 
         HalPropValue propValue = fakeVehicleStub.get(requestPropValue);
@@ -542,7 +557,7 @@ public class FakeVehicleStubUnitTest {
         // Create a request prop value.
         HalPropValue requestPropValue = new HalPropValueBuilder(/* isAidl= */ true)
                 .build(/* prop= */ VehicleProperty.HVAC_FAN_SPEED, /* areaId= */ SEAT_1_LEFT);
-        FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub,
+        FakeVehicleStub fakeVehicleStub = createFakeVehicleStub(mMockRealVehicleStub,
                 new FakeVhalConfigParser(), customFileList);
 
         ServiceSpecificException thrown = assertThrows(ServiceSpecificException.class,
@@ -567,7 +582,7 @@ public class FakeVehicleStubUnitTest {
         // Create a request prop value.
         HalPropValue requestPropValue = new HalPropValueBuilder(/* isAidl= */ true)
                 .build(/* prop= */ VehicleProperty.HVAC_FAN_SPEED, /* areaId= */ HVAC_LEFT);
-        FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub,
+        FakeVehicleStub fakeVehicleStub = createFakeVehicleStub(mMockRealVehicleStub,
                 new FakeVhalConfigParser(), customFileList);
 
         HalPropValue propValue = fakeVehicleStub.get(requestPropValue);
@@ -595,7 +610,7 @@ public class FakeVehicleStubUnitTest {
         // Create a request prop value.
         HalPropValue requestPropValue = new HalPropValueBuilder(/* isAidl= */ true)
                 .build(/* prop= */ VehicleProperty.HVAC_FAN_SPEED, /* areaId= */ HVAC_LEFT);
-        FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub,
+        FakeVehicleStub fakeVehicleStub = createFakeVehicleStub(mMockRealVehicleStub,
                 new FakeVhalConfigParser(), customFileList);
 
         ServiceSpecificException thrown = assertThrows(ServiceSpecificException.class,
@@ -625,7 +640,7 @@ public class FakeVehicleStubUnitTest {
         // Create a request prop value.
         HalPropValue requestPropValue = new HalPropValueBuilder(/* isAidl= */ true)
                 .build(/* prop= */ VehicleProperty.HVAC_FAN_SPEED, /* areaId= */ HVAC_ALL);
-        FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub,
+        FakeVehicleStub fakeVehicleStub = createFakeVehicleStub(mMockRealVehicleStub,
                 new FakeVhalConfigParser(), customFileList);
 
         HalPropValue propValue = fakeVehicleStub.get(requestPropValue);
@@ -640,7 +655,7 @@ public class FakeVehicleStubUnitTest {
         List<File> customFileList = createFilenameList(jsonString);
         HalPropValue requestPropValue = new HalPropValueBuilder(/* isAidl= */ true)
                 .build(/* prop= */ VehicleProperty.INFO_FUEL_TYPE, /* areaId= */ 123);
-        FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub,
+        FakeVehicleStub fakeVehicleStub = createFakeVehicleStub(mMockRealVehicleStub,
                 new FakeVhalConfigParser(), customFileList);
         AsyncGetSetRequest getRequest = new AsyncGetSetRequest(/* serviceRequestId= */ 0,
                 requestPropValue, DEFAULT_TIMEOUT);
@@ -665,7 +680,7 @@ public class FakeVehicleStubUnitTest {
         List<File> customFileList = createFilenameList(jsonString);
         HalPropValue requestPropValue = new HalPropValueBuilder(/* isAidl= */ true)
                 .build(/* prop= */ VehicleProperty.ANDROID_EPOCH_TIME, /* areaId= */ 0);
-        FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub,
+        FakeVehicleStub fakeVehicleStub = createFakeVehicleStub(mMockRealVehicleStub,
                 new FakeVhalConfigParser(), customFileList);
         AsyncGetSetRequest getRequest = new AsyncGetSetRequest(/* serviceRequestId= */ 0,
                 requestPropValue, DEFAULT_TIMEOUT);
@@ -689,7 +704,7 @@ public class FakeVehicleStubUnitTest {
                 .build(/* prop= */ VehicleProperty.HVAC_FAN_SPEED, /* areaId= */ SEAT_1_LEFT);
         AsyncGetSetRequest getRequest = new AsyncGetSetRequest(/* serviceRequestId= */ 0,
                 requestPropValue, DEFAULT_TIMEOUT);
-        FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub,
+        FakeVehicleStub fakeVehicleStub = createFakeVehicleStub(mMockRealVehicleStub,
                 new FakeVhalConfigParser(), customFileList);
 
         fakeVehicleStub.getAsync(List.of(getRequest), mCallback);
@@ -708,7 +723,7 @@ public class FakeVehicleStubUnitTest {
                 .build(VehicleProperty.VHAL_HEARTBEAT, 0);
         AsyncGetSetRequest getRequest = new AsyncGetSetRequest(/* serviceRequestId= */ 0,
                 requestPropValue, DEFAULT_TIMEOUT);
-        FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub,
+        FakeVehicleStub fakeVehicleStub = createFakeVehicleStub(mMockRealVehicleStub,
                 new FakeVhalConfigParser(), new ArrayList<>());
         when(mMockRealVehicleStub.get(requestPropValue)).thenThrow(RemoteException.class);
 
@@ -734,7 +749,7 @@ public class FakeVehicleStubUnitTest {
                 .build(/* prop= */ VehicleProperty.ANDROID_EPOCH_TIME, /* areaId= */ 0);
         HalPropValue requestPropValue2 = new HalPropValueBuilder(/* isAidl= */ true)
                 .build(/* prop= */ VehicleProperty.INFO_FUEL_TYPE, /* areaId= */ 123);
-        FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub,
+        FakeVehicleStub fakeVehicleStub = createFakeVehicleStub(mMockRealVehicleStub,
                 new FakeVhalConfigParser(), customFileList);
         AsyncGetSetRequest getRequest1 = new AsyncGetSetRequest(/* serviceRequestId= */ 0,
                 requestPropValue1, DEFAULT_TIMEOUT);
@@ -769,7 +784,7 @@ public class FakeVehicleStubUnitTest {
         // Create a request prop value.
         HalPropValue requestPropValue = new HalPropValueBuilder(/* isAidl= */ true)
                 .build(/* prop= */ 123456, /* areaId= */ 0);
-        FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub,
+        FakeVehicleStub fakeVehicleStub = createFakeVehicleStub(mMockRealVehicleStub,
                 new FakeVhalConfigParser(), customFileList);
 
         ServiceSpecificException thrown = assertThrows(ServiceSpecificException.class,
@@ -793,7 +808,7 @@ public class FakeVehicleStubUnitTest {
                 /* propId= */ VehicleProperty.INFO_FUEL_CAPACITY, /* areaId= */ 0,
                 SystemClock.elapsedRealtimeNanos(), rawPropValues);
 
-        FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub,
+        FakeVehicleStub fakeVehicleStub = createFakeVehicleStub(mMockRealVehicleStub,
                 new FakeVhalConfigParser(), customFileList);
         HalPropValue oldPropValue = fakeVehicleStub.get(requestPropValue);
         fakeVehicleStub.set(requestPropValue);
@@ -818,7 +833,7 @@ public class FakeVehicleStubUnitTest {
                 /* propId= */ VehicleProperty.INFO_FUEL_CAPACITY, /* areaId= */ 0,
                 SystemClock.elapsedRealtimeNanos(), rawPropValues);
 
-        FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub,
+        FakeVehicleStub fakeVehicleStub = createFakeVehicleStub(mMockRealVehicleStub,
                 new FakeVhalConfigParser(), customFileList);
         ServiceSpecificException thrown = assertThrows(ServiceSpecificException.class,
                 () -> fakeVehicleStub.get(requestPropValue));
@@ -847,7 +862,7 @@ public class FakeVehicleStubUnitTest {
                 /* propId= */ VehicleProperty.SEAT_BELT_HEIGHT_POS, /* areaId= */ SEAT_1_LEFT,
                 SystemClock.elapsedRealtimeNanos(), rawPropValues);
 
-        FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub,
+        FakeVehicleStub fakeVehicleStub = createFakeVehicleStub(mMockRealVehicleStub,
                 new FakeVhalConfigParser(), customFileList);
         ServiceSpecificException thrown = assertThrows(ServiceSpecificException.class,
                 () -> fakeVehicleStub.set(requestPropValue));
@@ -871,7 +886,7 @@ public class FakeVehicleStubUnitTest {
                 /* propId= */ VehicleProperty.DISPLAY_BRIGHTNESS, /* areaId= */ 0,
                 SystemClock.elapsedRealtimeNanos(), rawPropValues);
 
-        FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub,
+        FakeVehicleStub fakeVehicleStub = createFakeVehicleStub(mMockRealVehicleStub,
                 new FakeVhalConfigParser(), customFileList);
         ServiceSpecificException thrown = assertThrows(ServiceSpecificException.class,
                 () -> fakeVehicleStub.set(requestPropValue));
@@ -894,7 +909,7 @@ public class FakeVehicleStubUnitTest {
                 /* propId= */ VehicleProperty.DISPLAY_BRIGHTNESS, /* areaId= */ 0,
                 SystemClock.elapsedRealtimeNanos(), rawPropValues);
 
-        FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub,
+        FakeVehicleStub fakeVehicleStub = createFakeVehicleStub(mMockRealVehicleStub,
                 new FakeVhalConfigParser(), customFileList);
         fakeVehicleStub.set(requestPropValue);
         HalPropValue updatedPropValue = fakeVehicleStub.get(requestPropValue);
@@ -917,7 +932,7 @@ public class FakeVehicleStubUnitTest {
                 /* propId= */ VehicleProperty.DISPLAY_BRIGHTNESS, /* areaId= */ 1,
                 SystemClock.elapsedRealtimeNanos(), rawPropValues);
 
-        FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub,
+        FakeVehicleStub fakeVehicleStub = createFakeVehicleStub(mMockRealVehicleStub,
                 new FakeVhalConfigParser(), customFileList);
         ServiceSpecificException thrown = assertThrows(ServiceSpecificException.class,
                 () -> fakeVehicleStub.get(requestPropValue));
@@ -937,7 +952,7 @@ public class FakeVehicleStubUnitTest {
                 + "\"areas\": [{\"areaId\": \"Constants::SEAT_1_LEFT\"}]}]}";
         List<File> customFileList = createFilenameList(jsonString);
         // Create a request prop value.
-        FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub,
+        FakeVehicleStub fakeVehicleStub = createFakeVehicleStub(mMockRealVehicleStub,
                 new FakeVhalConfigParser(), customFileList);
         RawPropValues rawPropValues = new RawPropValues();
         rawPropValues.int32Values = new int[]{32};
@@ -964,7 +979,7 @@ public class FakeVehicleStubUnitTest {
         HalPropValue requestPropValue = buildHalPropValue(
                 /* propId= */ VehicleProperty.HVAC_FAN_SPEED, /* areaId= */ HVAC_ALL,
                 SystemClock.elapsedRealtimeNanos(), rawPropValues);
-        FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub,
+        FakeVehicleStub fakeVehicleStub = createFakeVehicleStub(mMockRealVehicleStub,
                 new FakeVhalConfigParser(), customFileList);
         HalPropValue oldPropValue = fakeVehicleStub.get(requestPropValue);
         fakeVehicleStub.set(requestPropValue);
@@ -982,7 +997,7 @@ public class FakeVehicleStubUnitTest {
         // Create a request prop value.
         HalPropValue requestPropValue = new HalPropValueBuilder(/* isAidl= */ true)
                 .build(/* prop= */ VehicleProperty.HVAC_FAN_SPEED, /* areaId= */ SEAT_1_LEFT);
-        FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub,
+        FakeVehicleStub fakeVehicleStub = createFakeVehicleStub(mMockRealVehicleStub,
                 new FakeVhalConfigParser(), customFileList);
 
         ServiceSpecificException thrown = assertThrows(ServiceSpecificException.class,
@@ -1007,7 +1022,7 @@ public class FakeVehicleStubUnitTest {
                 SystemClock.elapsedRealtimeNanos(), rawPropValues);
         AsyncGetSetRequest request = new AsyncGetSetRequest(/* serviceRequestId= */ 0,
                 requestPropValue, DEFAULT_TIMEOUT);
-        FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub,
+        FakeVehicleStub fakeVehicleStub = createFakeVehicleStub(mMockRealVehicleStub,
                 new FakeVhalConfigParser(), customFileList);
         fakeVehicleStub.getAsync(List.of(request), mCallback);
         List<GetVehicleStubAsyncResult> getOldAsyncResult = captureOnGetAsyncResults();
@@ -1047,7 +1062,7 @@ public class FakeVehicleStubUnitTest {
                 SystemClock.elapsedRealtimeNanos(), rawPropValues);
         AsyncGetSetRequest request = new AsyncGetSetRequest(/* serviceRequestId= */ 0,
                 requestPropValue, DEFAULT_TIMEOUT);
-        FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub,
+        FakeVehicleStub fakeVehicleStub = createFakeVehicleStub(mMockRealVehicleStub,
                 new FakeVhalConfigParser(), customFileList);
 
         fakeVehicleStub.setAsync(List.of(request), mCallback);
@@ -1069,7 +1084,7 @@ public class FakeVehicleStubUnitTest {
                 /* propId= */ VehicleProperty.SWITCH_USER, /* areaId= */ 0,
                 SystemClock.elapsedRealtimeNanos(), rawPropValues);
         doThrow(new RemoteException()).when(mMockRealVehicleStub).set(requestPropValue);
-        FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub,
+        FakeVehicleStub fakeVehicleStub = createFakeVehicleStub(mMockRealVehicleStub,
                 new FakeVhalConfigParser(), new ArrayList<>());
         AsyncGetSetRequest request = new AsyncGetSetRequest(/* serviceRequestId= */ 0,
                 requestPropValue, DEFAULT_TIMEOUT);
@@ -1107,7 +1122,7 @@ public class FakeVehicleStubUnitTest {
                 SystemClock.elapsedRealtimeNanos(), rawPropValues2);
         AsyncGetSetRequest request2 = new AsyncGetSetRequest(/* serviceRequestId= */ 1,
                 requestPropValue2, DEFAULT_TIMEOUT);
-        FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub,
+        FakeVehicleStub fakeVehicleStub = createFakeVehicleStub(mMockRealVehicleStub,
                 new FakeVhalConfigParser(), customFileList);
 
         fakeVehicleStub.setAsync(List.of(request1, request2), mCallback);
@@ -1142,7 +1157,7 @@ public class FakeVehicleStubUnitTest {
                 /* propId= */ VehicleProperty.ENGINE_OIL_LEVEL, /* areaId= */ 0,
                 SystemClock.elapsedRealtimeNanos(), rawPropValues);
         VehicleHalCallback callback = mock(VehicleHalCallback.class);
-        FakeVehicleStub fakeVehicleStub =  new FakeVehicleStub(mMockRealVehicleStub,
+        FakeVehicleStub fakeVehicleStub =  createFakeVehicleStub(mMockRealVehicleStub,
                 new FakeVhalConfigParser(), customFileList);
 
         VehicleStub.SubscriptionClient client = fakeVehicleStub.newSubscriptionClient(callback);
@@ -1187,7 +1202,7 @@ public class FakeVehicleStubUnitTest {
                 /* propId= */ VehicleProperty.NIGHT_MODE, /* areaId= */ 0,
                 SystemClock.elapsedRealtimeNanos(), rawPropValues2);
         VehicleHalCallback callback = mock(VehicleHalCallback.class);
-        FakeVehicleStub fakeVehicleStub =  new FakeVehicleStub(mMockRealVehicleStub,
+        FakeVehicleStub fakeVehicleStub =  createFakeVehicleStub(mMockRealVehicleStub,
                 new FakeVhalConfigParser(), customFileList);
 
         VehicleStub.SubscriptionClient client = fakeVehicleStub.newSubscriptionClient(callback);
@@ -1230,7 +1245,7 @@ public class FakeVehicleStubUnitTest {
                 /* propId= */ VehicleProperty.SEAT_HEADREST_ANGLE_POS, SEAT_1_RIGHT,
                 SystemClock.elapsedRealtimeNanos(), rawPropValues);
         VehicleHalCallback callback = mock(VehicleHalCallback.class);
-        FakeVehicleStub fakeVehicleStub =  new FakeVehicleStub(mMockRealVehicleStub,
+        FakeVehicleStub fakeVehicleStub =  createFakeVehicleStub(mMockRealVehicleStub,
                 new FakeVhalConfigParser(), customFileList);
 
         VehicleStub.SubscriptionClient client = fakeVehicleStub.newSubscriptionClient(callback);
@@ -1259,7 +1274,7 @@ public class FakeVehicleStubUnitTest {
                 SystemClock.elapsedRealtimeNanos(), rawPropValues);
         VehicleHalCallback callback1 = mock(VehicleHalCallback.class);
         VehicleHalCallback callback2 = mock(VehicleHalCallback.class);
-        FakeVehicleStub fakeVehicleStub =  new FakeVehicleStub(mMockRealVehicleStub,
+        FakeVehicleStub fakeVehicleStub =  createFakeVehicleStub(mMockRealVehicleStub,
                 new FakeVhalConfigParser(), customFileList);
 
         VehicleStub.SubscriptionClient client1 = fakeVehicleStub.newSubscriptionClient(callback1);
@@ -1288,7 +1303,7 @@ public class FakeVehicleStubUnitTest {
         option.sampleRate = 100f;
         SubscribeOptions[] options = new SubscribeOptions[]{option};
         VehicleHalCallback callback = mock(VehicleHalCallback.class);
-        FakeVehicleStub fakeVehicleStub =  new FakeVehicleStub(mMockRealVehicleStub,
+        FakeVehicleStub fakeVehicleStub =  createFakeVehicleStub(mMockRealVehicleStub,
                 new FakeVhalConfigParser(), customFileList);
 
         VehicleStub.SubscriptionClient client = fakeVehicleStub.newSubscriptionClient(callback);
@@ -1320,7 +1335,7 @@ public class FakeVehicleStubUnitTest {
         option2.sampleRate = 50f;
         SubscribeOptions[] options2 = new SubscribeOptions[]{option2};
         VehicleHalCallback callback = mock(VehicleHalCallback.class);
-        FakeVehicleStub fakeVehicleStub =  new FakeVehicleStub(mMockRealVehicleStub,
+        FakeVehicleStub fakeVehicleStub =  createFakeVehicleStub(mMockRealVehicleStub,
                 new FakeVhalConfigParser(), customFileList);
 
         VehicleStub.SubscriptionClient client = fakeVehicleStub.newSubscriptionClient(callback);
@@ -1356,7 +1371,7 @@ public class FakeVehicleStubUnitTest {
         SubscribeOptions[] options = new SubscribeOptions[]{option};
 
         VehicleHalCallback callback = mock(VehicleHalCallback.class);
-        FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub,
+        FakeVehicleStub fakeVehicleStub = createFakeVehicleStub(mMockRealVehicleStub,
                 new FakeVhalConfigParser(), customFileList);
         VehicleStub.SubscriptionClient client = fakeVehicleStub.newSubscriptionClient(callback);
         testWithRetry(() -> {
@@ -1384,7 +1399,7 @@ public class FakeVehicleStubUnitTest {
         option.sampleRate = -50f;
         SubscribeOptions[] options = new SubscribeOptions[]{option};
         VehicleHalCallback callback = mock(VehicleHalCallback.class);
-        FakeVehicleStub fakeVehicleStub =  new FakeVehicleStub(mMockRealVehicleStub,
+        FakeVehicleStub fakeVehicleStub =  createFakeVehicleStub(mMockRealVehicleStub,
                 new FakeVhalConfigParser(), customFileList);
 
         VehicleStub.SubscriptionClient client = fakeVehicleStub.newSubscriptionClient(callback);
@@ -1409,7 +1424,7 @@ public class FakeVehicleStubUnitTest {
         option.sampleRate = 0f;
         SubscribeOptions[] options = new SubscribeOptions[]{option};
         VehicleHalCallback callback = mock(VehicleHalCallback.class);
-        FakeVehicleStub fakeVehicleStub =  new FakeVehicleStub(mMockRealVehicleStub,
+        FakeVehicleStub fakeVehicleStub =  createFakeVehicleStub(mMockRealVehicleStub,
                 new FakeVhalConfigParser(), new ArrayList<>());
 
         VehicleStub.SubscriptionClient client = fakeVehicleStub.newSubscriptionClient(callback);
@@ -1434,7 +1449,7 @@ public class FakeVehicleStubUnitTest {
         option.sampleRate = 1f;
         SubscribeOptions[] options = new SubscribeOptions[]{option};
         VehicleHalCallback callback = mock(VehicleHalCallback.class);
-        FakeVehicleStub fakeVehicleStub =  new FakeVehicleStub(mMockRealVehicleStub,
+        FakeVehicleStub fakeVehicleStub =  createFakeVehicleStub(mMockRealVehicleStub,
                 new FakeVhalConfigParser(), customFileList);
 
         VehicleStub.SubscriptionClient client = fakeVehicleStub.newSubscriptionClient(callback);
@@ -1461,7 +1476,7 @@ public class FakeVehicleStubUnitTest {
         option.sampleRate = 0f;
         SubscribeOptions[] options = new SubscribeOptions[]{option};
         VehicleHalCallback callback = mock(VehicleHalCallback.class);
-        FakeVehicleStub fakeVehicleStub =  new FakeVehicleStub(mMockRealVehicleStub,
+        FakeVehicleStub fakeVehicleStub =  createFakeVehicleStub(mMockRealVehicleStub,
                 new FakeVhalConfigParser(), customFileList);
 
         VehicleStub.SubscriptionClient client = fakeVehicleStub.newSubscriptionClient(callback);
@@ -1475,7 +1490,7 @@ public class FakeVehicleStubUnitTest {
     @Test
     public void testUnsubscribePropIdNotSupport() throws Exception {
         VehicleHalCallback callback = mock(VehicleHalCallback.class);
-        FakeVehicleStub fakeVehicleStub =  new FakeVehicleStub(mMockRealVehicleStub,
+        FakeVehicleStub fakeVehicleStub =  createFakeVehicleStub(mMockRealVehicleStub,
                 new FakeVhalConfigParser(), new ArrayList<>());
 
         VehicleStub.SubscriptionClient client = fakeVehicleStub.newSubscriptionClient(callback);
@@ -1492,7 +1507,7 @@ public class FakeVehicleStubUnitTest {
         String jsonString = "{\"properties\": [" + PROPERTY_CONFIG_STRING_STATIC + "]}";
         List<File> customFileList = createFilenameList(jsonString);
         VehicleHalCallback callback = mock(VehicleHalCallback.class);
-        FakeVehicleStub fakeVehicleStub =  new FakeVehicleStub(mMockRealVehicleStub,
+        FakeVehicleStub fakeVehicleStub =  createFakeVehicleStub(mMockRealVehicleStub,
                 new FakeVhalConfigParser(), customFileList);
 
         VehicleStub.SubscriptionClient client = fakeVehicleStub.newSubscriptionClient(callback);
@@ -1520,7 +1535,7 @@ public class FakeVehicleStubUnitTest {
                 /* propId= */ VehicleProperty.ENGINE_OIL_LEVEL, /* areaId= */ 0,
                 SystemClock.elapsedRealtimeNanos(), rawPropValues);
         VehicleHalCallback callback = mock(VehicleHalCallback.class);
-        FakeVehicleStub fakeVehicleStub =  new FakeVehicleStub(mMockRealVehicleStub,
+        FakeVehicleStub fakeVehicleStub =  createFakeVehicleStub(mMockRealVehicleStub,
                 new FakeVhalConfigParser(), customFileList);
         VehicleStub.SubscriptionClient client = fakeVehicleStub.newSubscriptionClient(callback);
         client.subscribe(options);
@@ -1548,7 +1563,7 @@ public class FakeVehicleStubUnitTest {
         option.sampleRate = 100f;
         SubscribeOptions[] options = new SubscribeOptions[]{option};
         VehicleHalCallback callback = mock(VehicleHalCallback.class);
-        FakeVehicleStub fakeVehicleStub =  new FakeVehicleStub(mMockRealVehicleStub,
+        FakeVehicleStub fakeVehicleStub =  createFakeVehicleStub(mMockRealVehicleStub,
                 new FakeVhalConfigParser(), customFileList);
 
         VehicleStub.SubscriptionClient client = fakeVehicleStub.newSubscriptionClient(callback);
@@ -1582,7 +1597,7 @@ public class FakeVehicleStubUnitTest {
         SubscribeOptions[] options = new SubscribeOptions[]{option};
         VehicleHalCallback callback1 = mock(VehicleHalCallback.class);
         VehicleHalCallback callback2 = mock(VehicleHalCallback.class);
-        FakeVehicleStub fakeVehicleStub =  new FakeVehicleStub(mMockRealVehicleStub,
+        FakeVehicleStub fakeVehicleStub =  createFakeVehicleStub(mMockRealVehicleStub,
                 new FakeVhalConfigParser(), customFileList);
 
         VehicleStub.SubscriptionClient client1 = fakeVehicleStub.newSubscriptionClient(callback1);
@@ -1626,7 +1641,7 @@ public class FakeVehicleStubUnitTest {
         option2.sampleRate = 100f;
         SubscribeOptions[] options = new SubscribeOptions[]{option1, option2};
         VehicleHalCallback callback = mock(VehicleHalCallback.class);
-        FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub,
+        FakeVehicleStub fakeVehicleStub = createFakeVehicleStub(mMockRealVehicleStub,
                 new FakeVhalConfigParser(), customFileList);
 
         VehicleStub.SubscriptionClient client = fakeVehicleStub.newSubscriptionClient(callback);
@@ -1654,7 +1669,7 @@ public class FakeVehicleStubUnitTest {
         // Create a request prop value.
         HalPropValue requestPropValue = new HalPropValueBuilder(/* isAidl= */ true)
                 .build(VehicleProperty.VHAL_HEARTBEAT, 0);
-        FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub,
+        FakeVehicleStub fakeVehicleStub = createFakeVehicleStub(mMockRealVehicleStub,
                 new FakeVhalConfigParser(), new ArrayList<>());
 
         fakeVehicleStub.get(requestPropValue);
@@ -1670,7 +1685,7 @@ public class FakeVehicleStubUnitTest {
         HalPropValue requestPropValue = buildHalPropValue(
                 /* propId= */ VehicleProperty.SWITCH_USER, /* areaId= */ 0,
                 SystemClock.elapsedRealtimeNanos(), rawPropValues);
-        FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub,
+        FakeVehicleStub fakeVehicleStub = createFakeVehicleStub(mMockRealVehicleStub,
                 new FakeVhalConfigParser(), new ArrayList<>());
 
         fakeVehicleStub.set(requestPropValue);
@@ -1686,7 +1701,7 @@ public class FakeVehicleStubUnitTest {
         option.sampleRate = 100f;
         SubscribeOptions[] options = new SubscribeOptions[]{option};
         VehicleHalCallback callback = mock(VehicleHalCallback.class);
-        FakeVehicleStub fakeVehicleStub =  new FakeVehicleStub(mMockRealVehicleStub,
+        FakeVehicleStub fakeVehicleStub =  createFakeVehicleStub(mMockRealVehicleStub,
                 new FakeVhalConfigParser(), new ArrayList<>());
         SubscriptionClient realClient = mock(SubscriptionClient.class);
         when(mMockRealVehicleStub.newSubscriptionClient(callback)).thenReturn(realClient);
@@ -1706,7 +1721,7 @@ public class FakeVehicleStubUnitTest {
         option.sampleRate = 100f;
         SubscribeOptions[] options = new SubscribeOptions[]{option};
         VehicleHalCallback callback = mock(VehicleHalCallback.class);
-        FakeVehicleStub fakeVehicleStub =  new FakeVehicleStub(mMockRealVehicleStub,
+        FakeVehicleStub fakeVehicleStub =  createFakeVehicleStub(mMockRealVehicleStub,
                 new FakeVhalConfigParser(), new ArrayList<>());
         SubscriptionClient realClient = mock(SubscriptionClient.class);
         when(mMockRealVehicleStub.newSubscriptionClient(callback)).thenReturn(realClient);
@@ -1726,7 +1741,7 @@ public class FakeVehicleStubUnitTest {
     @Test
     public void testLinkToDeath() throws Exception {
         IVehicleDeathRecipient recipient = mock(IVehicleDeathRecipient.class);
-        FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub,
+        FakeVehicleStub fakeVehicleStub = createFakeVehicleStub(mMockRealVehicleStub,
                 new FakeVhalConfigParser(), new ArrayList<>());
 
         fakeVehicleStub.linkToDeath(recipient);
@@ -1737,7 +1752,7 @@ public class FakeVehicleStubUnitTest {
     @Test
     public void testUnLinkToDeath() throws Exception {
         IVehicleDeathRecipient recipient = mock(IVehicleDeathRecipient.class);
-        FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub,
+        FakeVehicleStub fakeVehicleStub = createFakeVehicleStub(mMockRealVehicleStub,
                 new FakeVhalConfigParser(), new ArrayList<>());
 
         fakeVehicleStub.unlinkToDeath(recipient);
@@ -1748,7 +1763,7 @@ public class FakeVehicleStubUnitTest {
     @Test
     public void testDump() throws Exception {
         FileDescriptor fd = mock(FileDescriptor.class);
-        FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub,
+        FakeVehicleStub fakeVehicleStub = createFakeVehicleStub(mMockRealVehicleStub,
                 new FakeVhalConfigParser(), new ArrayList<>());
 
         fakeVehicleStub.dump(fd, new ArrayList<>());

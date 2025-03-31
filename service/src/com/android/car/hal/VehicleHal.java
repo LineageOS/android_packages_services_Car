@@ -134,6 +134,7 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
     private final EvsHalService mEvsHal;
     private final TimeHalService mTimeHalService;
     private final HalPropValueBuilder mPropValueBuilder;
+    private final AtomicReference<VehicleStub> mSimulationVehicleStub = new AtomicReference<>();
     private AtomicReference<VehicleStub> mVehicleStub;
 
     private final AtomicReference<ExecutorService> mDefaultExecutorRef = new AtomicReference<>();
@@ -274,10 +275,22 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
         protected void dispatchToClient(HalServiceBase service, List<VehiclePropError> events) {
             // Copy to make sure events are not modified.
             var eventsCopy = List.copyOf(events);
-            mExecutorByService.getOrDefault(service, mDefaultExecutorRef.get()).execute(() -> {
+            var executor = getExecutorForService(service);
+            if (executor == null) {
+                return;
+            }
+            executor.execute(() -> {
                 service.onPropertySetError(eventsCopy);
             });
         }
+    }
+
+    private @Nullable Executor getExecutorForService(HalServiceBase service) {
+        var executor = mExecutorByService.getOrDefault(service, mDefaultExecutorRef.get());
+        if (executor == null) {
+            Slogf.w(CarLog.TAG_HAL, "Default executor is null, the service is ending");
+        }
+        return executor;
     }
 
     private final class HalEventsDispatchList extends
@@ -286,7 +299,11 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
         protected void dispatchToClient(HalServiceBase service, List<HalPropValue> events) {
             // Copy to make sure events are not modified.
             var eventsCopy = List.copyOf(events);
-            mExecutorByService.getOrDefault(service, mDefaultExecutorRef.get()).execute(() -> {
+            var executor = getExecutorForService(service);
+            if (executor == null) {
+                return;
+            }
+            executor.execute(() -> {
                 service.onHalEvents(eventsCopy);
             });
         }
@@ -601,11 +618,16 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
 
     @Override
     public void destroy() {
+        VehicleStub simulationVehicleStub;
         synchronized (mLock) {
             // destroy in reverse order from init
             for (int i = mAllServices.size() - 1; i >= 0; i--) {
                 mAllServices.get(i).destroy();
             }
+            simulationVehicleStub = mSimulationVehicleStub.getAndSet(null);
+        }
+        if (simulationVehicleStub != null) {
+            simulationVehicleStub.destroy();
         }
     }
 
@@ -1503,6 +1525,7 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
      * Disables injection mode.
      */
     public void disableInjectionMode() {
+        VehicleStub simulationVehicleStub;
         // Use a lock to synchronize this with disableInjectionMode and enableInjectionMode.
         synchronized (mLock) {
             var vehicleStub = mVehicleStub.get();
@@ -1511,7 +1534,11 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
                         + " not enabled");
                 return;
             }
+            simulationVehicleStub = mSimulationVehicleStub.getAndSet(null);
             mVehicleStub.set(vehicleStub.getRealVehicleStub());
+        }
+        if (simulationVehicleStub != null) {
+            simulationVehicleStub.destroy();
         }
     }
 
@@ -1535,8 +1562,10 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
             // Creation of SimulationVehicleStub needs to be inside lock because
             // we need to make sure mVehicleStub (copied to vehicleStub) does not change.
             try {
-                mVehicleStub.set(new SimulationVehicleStub(
-                        vehicleStub, propertyIdsFromRealHardware, this));
+                var simulationVehicleStub = new SimulationVehicleStub(
+                        vehicleStub, propertyIdsFromRealHardware, this);
+                mVehicleStub.set(simulationVehicleStub);
+                mSimulationVehicleStub.set(simulationVehicleStub);
             } catch (RemoteException e) {
                 throw new IllegalStateException("Failed to create SimulationVehicleStub", e);
             }

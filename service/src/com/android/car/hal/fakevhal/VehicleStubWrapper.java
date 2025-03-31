@@ -30,6 +30,7 @@ import android.hardware.automotive.vehicle.VehiclePropValue;
 import android.hardware.automotive.vehicle.VehiclePropertyAccess;
 import android.hardware.automotive.vehicle.VehiclePropertyType;
 import android.os.Handler;
+import android.os.HandlerThread;
 import android.os.RemoteException;
 import android.os.ServiceSpecificException;
 import android.os.SystemClock;
@@ -65,16 +66,28 @@ public abstract class VehicleStubWrapper extends VehicleStub {
     final VehicleStub mRealVehicle;
     @GuardedBy("mLock")
     private final PairSparseArray<HalPropValue> mPropValuesByPropIdAreaId;
+    final HandlerThread mHandlerThread;
     final Handler mHandler;
     private final Object mLock = new Object();
+    private final String mClassName;
 
     public VehicleStubWrapper(VehicleStub vehicleStub, Pair<SparseArray<HalPropConfig>,
             PairSparseArray<HalPropValue>> propConfigsByPropIdPropValuesByPropIdAreaIdPair) {
+        mClassName = getClass().getSimpleName();
         mRealVehicle = vehicleStub;
-        mHandler = new Handler(CarServiceUtils.getHandlerThread(getClass().getSimpleName())
-                .getLooper());
+        mHandlerThread = CarServiceUtils.getHandlerThread(mClassName);
+        mHandler = new Handler(mHandlerThread.getLooper());
         mPropConfigsByPropId = propConfigsByPropIdPropValuesByPropIdAreaIdPair.first;
         mPropValuesByPropIdAreaId = propConfigsByPropIdPropValuesByPropIdAreaIdPair.second;
+    }
+
+    @Override
+    public void destroy() {
+        try {
+            CarServiceUtils.releaseHandlerThread(mClassName);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
 
     /**
