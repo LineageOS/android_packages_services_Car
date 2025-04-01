@@ -53,6 +53,7 @@ import android.car.VehiclePropertyIds;
 import android.car.builtin.os.BuildHelper;
 import android.car.builtin.os.TraceHelper;
 import android.car.builtin.util.Slogf;
+import android.car.feature.Flags;
 import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.CarPropertyValue;
 import android.car.hardware.property.AreaIdConfig;
@@ -123,6 +124,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 
@@ -1362,6 +1364,13 @@ public class PropertyHalService extends HalServiceBase {
     public void init() {
         if (DBG) {
             Slogf.d(TAG, "init()");
+        }
+        if (Flags.propertyValueUseDirectExecutor()) {
+            // Use a direct executor to avoid the overhead of dispatching to a separate thread.
+            // Note that the onHalEvents and onPropertySetError callback must be fast enough to
+            // not block the binder thread.
+            Executor directExecutor = r -> r.run();
+            mVehicleHal.setCallbackExecutor(this, directExecutor);
         }
     }
 

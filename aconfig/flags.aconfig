@@ -278,6 +278,13 @@ flag {
   bug: "377378043"
 }
 
+flag {
+  name: "property_value_use_direct_executor"
+  namespace: "car_framework"
+  description: "Uses direct executor instead of the single thread executor to deliver car property events to propertyHalService to improve performance"
+  bug: "402997840"
+}
+
 # CarServiceBase
 flag {
   name: "car_dump_to_proto"

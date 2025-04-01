@@ -258,13 +258,15 @@ public final class SimulationVehicleStub extends VehicleStubWrapper {
      *
      * @param items The list of items to be filtered.
      * @param propIdExtractor A function that extracts the property ID from an item.
-     * @param propertyIdsFromRealHardware A set of valid property IDs. Items with property IDs not
-     *                                    present in this set will be filtered out.
      * @param <T> The type of items in the list.
      * @return A new list containing only the items whose property IDs are present in
-     *         `propertyIdsFromRealHardware`.
+     *         `mPropertyIdsFromRealHardware`.
      */
-    public static <T> List<T> filterProperties(List<T> items, Function<T, Integer>
+    public <T> List<T> filterProperties(List<T> items, Function<T, Integer> propIdExtractor) {
+        return filterProperties(items, propIdExtractor, mPropertyIdsFromRealHardware);
+    }
+
+    private static <T> List<T> filterProperties(List<T> items, Function<T, Integer>
             propIdExtractor, ArraySet<Integer> propertyIdsFromRealHardware) {
         List<T> filteredItems = new ArrayList<>();
         for (int i = 0; i < items.size(); i++) {
@@ -272,7 +274,7 @@ public final class SimulationVehicleStub extends VehicleStubWrapper {
             int propId = propIdExtractor.apply(item);
             if (!propertyIdsFromRealHardware.contains(propId)) {
                 Slogf.d(TAG, "Filtering out real hardware due to %s property not being in "
-                        + "mPropertyIdsFromRealHardware", propId);
+                        + "propertyIdsFromRealHardware", propId);
                 continue;
             }
             filteredItems.add(item);
