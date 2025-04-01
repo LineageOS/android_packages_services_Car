@@ -510,7 +510,7 @@ public class CarProjectionServiceTest {
     public void getWifiChannels_wifiManagerFeatureOn_wifiManagerFails_returnsEmptyArray() {
         when(mFeatureFlags.useWifiManagerForAvailableChannels()).thenReturn(true);
         when(mWifiManager.getUsableChannels(anyInt(), anyInt()))
-            .thenThrow(new UnsupportedOperationException());
+                .thenThrow(new UnsupportedOperationException());
         when(mContext.getSystemService(WifiManager.class)).thenReturn(mWifiManager);
 
         int[] wifiChannels = mService.getAvailableWifiChannels(WifiScanner.WIFI_BAND_BOTH_WITH_DFS);
@@ -772,9 +772,8 @@ public class CarProjectionServiceTest {
     }
 
     @Test
-    public void
-        startProjectionTetheredAccessPoint_setBssidOnApStartedDisabled_bssidIsNotSet()
-        throws RemoteException {
+    public void startProjectionTetheredAccessPoint_setBssidOnApStartedDisabled_bssidIsNotSet()
+            throws RemoteException {
         when(mFeatureFlags.setBssidOnApStarted()).thenReturn(false);
 
         when(mWifiManager.startTetheredHotspot(any())).thenReturn(false);
@@ -799,9 +798,8 @@ public class CarProjectionServiceTest {
     }
 
     @Test
-    public void
-        startProjectionTetheredAccessPoint_setBssidOnApStartedEnabled_bssidIsSet()
-        throws RemoteException {
+    public void startProjectionTetheredAccessPoint_setBssidOnApStartedEnabled_bssidIsSet()
+            throws RemoteException {
         when(mFeatureFlags.setBssidOnApStarted()).thenReturn(true);
 
         when(mWifiManager.startTetheredHotspot(any())).thenReturn(false);
@@ -817,9 +815,9 @@ public class CarProjectionServiceTest {
                 .setBands(singleBand)
                 .build();
         SoftApConfiguration softApConfig_with_bssid =
-            new SoftApConfiguration.Builder(softApConfig_null_bssid)
-                .setBssid(MacAddress.fromString("de:ad:be:ef:77:77"))
-                .build();
+                new SoftApConfiguration.Builder(softApConfig_null_bssid)
+                        .setBssid(MacAddress.fromString("de:ad:be:ef:77:77"))
+                        .build();
 
         when(mWifiManager.getSoftApConfiguration()).thenReturn(softApConfig_null_bssid);
 

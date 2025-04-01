@@ -4016,8 +4016,7 @@ public class CarPropertyManager extends CarManagerBase {
                     subscribeOption.enableVariableUpdateRate;
             carSubscription.updateRateHz = InputSanitizationUtils.sanitizeUpdateRateHz(
                     carPropertyConfig, subscribeOption.updateRateHz);
-            float resolution = mFeatureFlags.subscriptionWithResolution()
-                    ? subscribeOption.resolution : 0.0f;
+            float resolution = subscribeOption.resolution;
             carSubscription.resolution = InputSanitizationUtils.sanitizeResolution(mFeatureFlags,
                     carPropertyConfig, resolution);
             output.addAll(InputSanitizationUtils.sanitizeEnableVariableUpdateRate(

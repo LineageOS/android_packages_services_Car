@@ -187,7 +187,6 @@ public class VehicleHalTest extends AbstractExpectableTestCase {
         mVehicleHal.fetchAllPropConfigs();
 
         when(mFeatureFlags.variableUpdateRate()).thenReturn(true);
-        when(mFeatureFlags.subscriptionWithResolution()).thenReturn(true);
         mVehicleHal.setFeatureFlags(mFeatureFlags);
 
         mVehicleHal.priorityInit();
@@ -802,21 +801,6 @@ public class VehicleHalTest extends AbstractExpectableTestCase {
 
         SubscribeOptions expectedOptions = createSubscribeOptions(CONTINUOUS_PROPERTY,
                 ANY_SAMPLING_RATE_1, areaIds, /* enableVur= */ true, /* resolution= */ 1.0f);
-
-        verify(mSubscriptionClient).subscribe(eq(new SubscribeOptions[]{expectedOptions}));
-    }
-
-    @Test
-    public void testSubscribeProperty_withResolution_featureDisabled() throws Exception {
-        when(mFeatureFlags.subscriptionWithResolution()).thenReturn(false);
-        int[] areaIds = new int[] {AREA_ID_1};
-        HalSubscribeOptions option = new HalSubscribeOptions(CONTINUOUS_PROPERTY,
-                areaIds, ANY_SAMPLING_RATE_1, /* enableVariableUpdateRate= */ true,
-                /* resolution= */ 1.0f);
-        mVehicleHal.subscribeProperty(mPropertyHalService, List.of(option));
-
-        SubscribeOptions expectedOptions = createSubscribeOptions(CONTINUOUS_PROPERTY,
-                ANY_SAMPLING_RATE_1, areaIds, /* enableVur= */ true, /* resolution= */ 0.0f);
 
         verify(mSubscriptionClient).subscribe(eq(new SubscribeOptions[]{expectedOptions}));
     }

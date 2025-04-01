@@ -180,12 +180,6 @@ public final class InputSanitizationUtilsUnitTest {
         CarPropertyConfig config = mock(CarPropertyConfig.class);
         when(config.getChangeMode()).thenReturn(
                 CarPropertyConfig.VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE);
-        when(featureFlags.subscriptionWithResolution()).thenReturn(false);
-
-        assertThat(InputSanitizationUtils.sanitizeResolution(featureFlags,
-                config, 123.456f)).isEqualTo(0.0f);
-
-        when(featureFlags.subscriptionWithResolution()).thenReturn(true);
         assertThat(InputSanitizationUtils.sanitizeResolution(featureFlags,
                 config, 123.456f)).isEqualTo(0.0f);
 

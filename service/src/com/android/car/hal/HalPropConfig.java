@@ -19,7 +19,6 @@ package com.android.car.hal;
 import android.annotation.Nullable;
 import android.car.VehicleAreaType;
 import android.car.builtin.util.Slogf;
-import android.car.feature.Flags;
 import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.property.AreaIdConfig;
 import android.hardware.automotive.vehicle.AnnotationsForVehicleProperty;
@@ -209,9 +208,7 @@ public abstract class HalPropConfig {
             int maxInt32Value, float minFloatValue, float maxFloatValue, long minInt64Value,
             long maxInt64Value, long[] supportedEnumValues, boolean supportVariableUpdateRate,
             int access, @Nullable HasSupportedValueInfo hasSupportedValueInfo) {
-        AreaIdConfig.Builder areaIdConfigBuilder = Flags.areaIdConfigAccess()
-                ? new AreaIdConfig.Builder(access, areaId)
-                : new AreaIdConfig.Builder(areaId);
+        AreaIdConfig.Builder areaIdConfigBuilder = new AreaIdConfig.Builder(access, areaId);
         if (classMatched(Integer.class, clazz)) {
             if ((minInt32Value != 0 || maxInt32Value != 0)) {
                 areaIdConfigBuilder.setMinValue(minInt32Value).setMaxValue(maxInt32Value);
