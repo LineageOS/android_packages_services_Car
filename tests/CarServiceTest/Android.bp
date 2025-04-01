@@ -43,6 +43,7 @@ java_defaults {
     },
 
     static_libs: [
+        "CarServiceTestRule",
         "junit",
         "android.car.test.utils",
         "android.car.testapi",
