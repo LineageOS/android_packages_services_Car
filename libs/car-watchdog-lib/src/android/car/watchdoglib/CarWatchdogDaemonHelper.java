@@ -27,13 +27,14 @@ import android.automotive.watchdog.internal.ThreadPolicyWithPriority;
 import android.automotive.watchdog.internal.UserPackageIoUsageStats;
 import android.car.builtin.os.ServiceManagerHelper;
 import android.os.Handler;
+import android.os.HandlerThread;
 import android.os.IBinder;
-import android.os.Looper;
 import android.os.RemoteException;
 import android.os.SystemClock;
 import android.util.Log;
 
 import com.android.internal.annotations.GuardedBy;
+import com.android.internal.annotations.VisibleForTesting;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -59,7 +60,7 @@ public final class CarWatchdogDaemonHelper {
     private static final String CAR_WATCHDOG_DAEMON_INTERFACE =
             "android.automotive.watchdog.internal.ICarWatchdog/default";
 
-    private final Handler mHandler = new Handler(Looper.getMainLooper());
+    private final Handler mServiceHandler;
     private final CopyOnWriteArrayList<OnConnectionChangeListener> mConnectionListeners =
             new CopyOnWriteArrayList<>();
     private final String mTag;
@@ -80,7 +81,7 @@ public final class CarWatchdogDaemonHelper {
             for (OnConnectionChangeListener listener : mConnectionListeners) {
                 listener.onConnectionChange(/* isConnected= */false);
             }
-            mHandler.postDelayed(() -> connectToDaemon(CAR_WATCHDOG_DAEMON_BIND_MAX_RETRY),
+            mServiceHandler.postDelayed(() -> connectToDaemon(CAR_WATCHDOG_DAEMON_BIND_MAX_RETRY),
                     CAR_WATCHDOG_DAEMON_BIND_RETRY_INTERVAL_MS);
         }
     };
@@ -97,12 +98,20 @@ public final class CarWatchdogDaemonHelper {
         void onConnectionChange(boolean isConnected);
     }
 
-    public CarWatchdogDaemonHelper() {
+    @VisibleForTesting
+    CarWatchdogDaemonHelper(Handler handler) {
         mTag = TAG;
+
+        mServiceHandler = handler;
     }
 
     public CarWatchdogDaemonHelper(@NonNull String requestor) {
         mTag = TAG + "[" + requestor + "]";
+
+        HandlerThread thread = new HandlerThread(TAG);
+        thread.start();
+
+        mServiceHandler = new Handler(thread.getLooper());
     }
 
     /**
@@ -118,7 +127,7 @@ public final class CarWatchdogDaemonHelper {
             }
             mConnectionInProgress = true;
         }
-        connectToDaemon(CAR_WATCHDOG_DAEMON_BIND_MAX_RETRY);
+        mServiceHandler.post(() -> connectToDaemon(CAR_WATCHDOG_DAEMON_BIND_MAX_RETRY));
     }
 
     /**
@@ -373,7 +382,7 @@ public final class CarWatchdogDaemonHelper {
             return;
         }
         final int nextRetry = retryCount - 1;
-        mHandler.postDelayed(() -> connectToDaemon(nextRetry),
+        mServiceHandler.postDelayed(() -> connectToDaemon(nextRetry),
                 CAR_WATCHDOG_DAEMON_BIND_RETRY_INTERVAL_MS);
     }
 
