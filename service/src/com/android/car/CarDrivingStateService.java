@@ -80,8 +80,9 @@ public class CarDrivingStateService extends ICarDrivingState.Stub implements Car
     private static final int[] OPTIONAL_PROPERTIES = {
             VehicleProperty.IGNITION_STATE
     };
+    private final String mClassName = getClass().getSimpleName();
     private final HandlerThread mClientDispatchThread = CarServiceUtils.getHandlerThread(
-            getClass().getSimpleName());
+            mClassName);
     private final Handler mClientDispatchHandler = new Handler(mClientDispatchThread.getLooper());
     private final Object mLock = new Object();
 
@@ -113,6 +114,15 @@ public class CarDrivingStateService extends ICarDrivingState.Stub implements Car
         mContext = context;
         mPropertyService = propertyService;
         mCurrentDrivingState = createDrivingStateEvent(CarDrivingStateEvent.DRIVING_STATE_UNKNOWN);
+    }
+
+    @Override
+    public void destroy() {
+        try {
+            CarServiceUtils.releaseHandlerThread(mClassName);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
 
     @Override
