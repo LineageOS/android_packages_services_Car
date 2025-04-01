@@ -168,13 +168,13 @@ class AutoTaskStackControllerImpl @Inject constructor(
                 taskStackMap[rootTask.id] = rootTask
 
                 rootTaskStack = rootTask
-                rootTaskStackListener.onRootTaskStackCreated(rootTask)
                 autoTaskRepository.onRootTaskStackCreated(rootTask)
+                rootTaskStackListener.onRootTaskStackCreated(rootTask)
                 return
             }
             appTasksMap[taskInfo.taskId] = taskInfo
-            rootTaskStackListener.onTaskAppeared(taskInfo, leash)
             autoTaskRepository.onTaskAppeared(rootTaskStack, taskInfo, leash)
+            rootTaskStackListener.onTaskAppeared(taskInfo, leash)
         }
 
         override fun onTaskInfoChanged(taskInfo: ActivityManager.RunningTaskInfo?) {
@@ -198,8 +198,8 @@ class AutoTaskStackControllerImpl @Inject constructor(
             }
 
             appTasksMap[taskInfo.taskId] = taskInfo
-            rootTaskStackListener.onTaskInfoChanged(taskInfo)
             autoTaskRepository.onTaskChanged(rootTaskStack, taskInfo)
+            rootTaskStackListener.onTaskInfoChanged(taskInfo)
         }
 
         override fun onTaskVanished(taskInfo: ActivityManager.RunningTaskInfo?) {
@@ -461,11 +461,14 @@ class AutoTaskStackControllerImpl @Inject constructor(
             if (DBG) {
                 Slog.v(TAG, "${taskInfo.taskId} found conflicting task change")
             }
-            val taskStackLayer = taskStackStateMap[taskInfo.taskId]?.layer ?: 1
+            val taskStackLayer = (taskStackStateMap[taskInfo.parentTaskId]
+                ?: requestedTaskStackChanges[taskInfo.parentTaskId])
+                ?.layer ?: 1
             // Use a fixed layer 1 when state is unknown. This is just a placeholder and clients
             // should anyway see this as a conflict and fire a new transition with the correct layer
             changedTaskStacks[taskInfo.parentTaskId] = AutoTaskStackState(
-                bounds = taskStackStateMap[taskInfo.taskId]?.bounds ?: Rect(),
+                bounds = (taskStackStateMap[taskInfo.parentTaskId]
+                    ?: requestedTaskStackChanges[taskInfo.parentTaskId])?.bounds ?: Rect(),
                 childrenTasksVisible = true,
                 layer = taskStackLayer
             )
