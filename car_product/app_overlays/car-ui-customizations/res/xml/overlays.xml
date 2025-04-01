@@ -110,8 +110,6 @@
     <item target="id/car_ui_toolbar_title_logo" value="@id/car_ui_toolbar_title_logo" />
     <item target="id/car_ui_toolbar_title" value="@id/car_ui_toolbar_title" />
     <item target="id/list" value="@id/list"/>
-    <item target="id/seekbar" value="@id/seekbar"/>
-    <item target="id/seekbar_value" value="@id/seekbar_value"/>
     <item target="id/car_ui_alert_icon" value="@id/car_ui_alert_icon"/>
     <item target="id/car_ui_alert_title" value="@id/car_ui_alert_title"/>
     <item target="id/car_ui_alert_subtitle" value="@id/car_ui_alert_subtitle"/>
@@ -128,8 +126,6 @@
     <item target="layout/car_ui_preference_two_action_switch" value="@layout/car_ui_preference_two_action_switch"/>
     <item target="layout/car_ui_preference_two_action_text" value="@layout/car_ui_preference_two_action_text"/>
     <item target="layout/car_ui_preference_two_action_text_borderless" value="@layout/car_ui_preference_two_action_text_borderless"/>
-    <item target="layout/car_ui_preference_widget_switch" value="@layout/car_ui_preference_widget_switch"/>
-    <item target="layout/car_ui_preference_widget_seekbar" value="@layout/car_ui_preference_widget_seekbar"/>
     <item target="layout/car_ui_two_action_preference" value="@layout/car_ui_two_action_preference"/>
     <item target="layout/car_ui_toolbar_menu_item_primary" value="@layout/car_ui_toolbar_menu_item_primary"/>
     <item target="layout/car_ui_toolbar_menu_item" value="@layout/car_ui_toolbar_menu_item"/>
@@ -147,8 +143,6 @@
     <item target="style/TextAppearance.CarUi.PreferenceTitle" value="@style/TextAppearance.CarUi.PreferenceTitle"/>
     <item target="style/TextAppearance.CarUi" value="@style/TextAppearance.CarUi"/>
     <item target="style/Widget.CarUi.Button.Borderless.Colored" value="@style/Widget.CarUi.Button.Borderless.Colored"/>
-    <item target="style/Widget.CarUi.SeekbarPreference.Seekbar" value="@style/Widget.CarUi.SeekbarPreference.Seekbar"/>
-    <item target="style/Widget.CarUi.SeekbarPreference" value="@style/Widget.CarUi.SeekbarPreference"/>
     <item target="style/Widget.CarUi.Toolbar.MenuItem.IndividualContainer" value="@style/Widget.CarUi.Toolbar.MenuItem.IndividualContainer"/>
     <item target="style/Widget.CarUi.Toolbar.MenuItem" value="@style/Widget.CarUi.Toolbar.MenuItem"/>
     <item target="style/Widget.CarUi.Toolbar.NavIconContainer" value="@style/Widget.CarUi.Toolbar.NavIconContainer"/>
