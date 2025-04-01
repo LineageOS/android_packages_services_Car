@@ -18,7 +18,7 @@ package com.android.car.internal.property;
 
 import android.car.builtin.util.Slogf;
 import android.car.hardware.CarPropertyValue;
-import android.car.hardware.CarPropertyValue.PropertyStatus;
+import android.car.hardware.CarPropertyValue.CarPropertyStatus;
 import android.util.Log;
 
 import com.android.internal.util.Preconditions;
@@ -43,7 +43,7 @@ public final class ContCarPropertyEventTracker implements CarPropertyEventTracke
     private final long mUpdatePeriodNanos;
     private long mNextUpdateTimeNanos;
     private CarPropertyValue<?> mCurrentCarPropertyValue;
-    private @PropertyStatus int mCurrentStatus;
+    private @CarPropertyStatus int mCurrentStatus;
 
     public ContCarPropertyEventTracker(float updateRateHz, boolean enableVur, float resolution) {
         if (DBG) {
