@@ -21,10 +21,12 @@ This directory contains unit tests, instrumentation tests and sample apps.
 ## Structure
 
 ```
-android_car_api_test/        - Car API instrumentation tests, they use the real services
-CarSecurityPermissionTest/   - Car API permission tests
-carservice_test/             - Car API instrumentation tests, mocks VHAL
-carservice_unit_test/        - Car services instrumented unit tests
+CarHiddenApiTest/            - Car hidden API tests, they use the real services
+CarExtendedApiTest/          - Car API instrumentation tests that cannot be tested with CTS, they
+                               use the real services
+CarLibUnitTest/              - Car API unit tests
+CarServiceTest/              - Car service instrumentation tests, mocks VHAL
+CarServiceUnitTest/          - Car service unit tests
 common_utils/                - Shared utility library
 
 # The following test directories are located relative to $ANDROID_BUILD_TOP
@@ -46,6 +48,6 @@ Add tests using these priorities:
 
 1. CTS/VTS
 2. `CarSecurityPermissionTest`
-3. `android_car_api_test` - if CTS doesn't cover
-4. `carservice_test` - if CTS doesn't cover
-5. `carservice_unit_test`
+3. `CarExtendedApiTest` - if CTS doesn't cover
+4. `CarHiddenApiTest` - if APIs are hidden
+5. `CarServiceTest`
