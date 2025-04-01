@@ -35,6 +35,7 @@ import android.car.Car;
 import android.car.ICarResultReceiver;
 import android.car.builtin.os.UserManagerHelper;
 import android.car.builtin.util.TimingsTraceLog;
+import android.car.test.NoActiveHandlerThreadCheckerRule;
 import android.car.user.CarUserManager;
 import android.content.Context;
 import android.content.res.Resources;
@@ -89,6 +90,7 @@ import com.android.car.wifi.CarWifiService;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -108,8 +110,9 @@ import java.util.List;
 public final class ICarImplUnitTest {
     private static final String TAG = ICarImplUnitTest.class.getSimpleName();
 
-    // TODO(b/407826045): Add NoActiveHandlerThreadCheckerRule once we implement destroy for all
-    // hal services that is created inside VehicleHal.
+    @Rule
+    public NoActiveHandlerThreadCheckerRule mNoActiveHandlerThreadCheckerRule =
+            new NoActiveHandlerThreadCheckerRule();
 
     @Mock private ActivityManagerInterface mMockActivityManagerInterface;
     @Mock private DisplayInterface mMockDisplayInterface;

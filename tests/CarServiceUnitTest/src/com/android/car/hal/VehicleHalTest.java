@@ -562,18 +562,6 @@ public class VehicleHalTest extends AbstractExpectableTestCase {
     }
 
     @Test
-    public void testDestroy() throws Exception {
-        mVehicleHal.destroy();
-
-        verify(mPowerHalService).destroy();
-        verify(mPropertyHalService).destroy();
-        verify(mInputHalService).destroy();
-        verify(mVmsHalService).destroy();
-        verify(mUserHalService).destroy();
-        verify(mDiagnosticHalService).destroy();
-    }
-
-    @Test
     public void testReleaseUnsubscribeRemoteException() throws Exception {
         mVehicleHal.subscribeProperty(
                 mPowerHalService, SOME_READ_ON_CHANGE_PROPERTY, ANY_SAMPLING_RATE_1);

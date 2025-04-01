@@ -53,6 +53,7 @@ import static org.mockito.Mockito.when;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.car.hardware.property.VehicleHalStatusCode;
+import android.car.test.NoActiveHandlerThreadCheckerRule;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.car.test.mocks.JavaMockitoHelper;
 import android.hardware.automotive.vehicle.CreateUserRequest;
@@ -87,6 +88,7 @@ import com.android.car.user.CarUserService;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -151,6 +153,10 @@ public final class UserHalServiceTest extends AbstractExtendedMockitoTestCase {
 
     private static final int INITIAL_USER_INFO_RESPONSE_ACTION = 108;
 
+    @Rule
+    public NoActiveHandlerThreadCheckerRule mNoActiveHandlerThreadCheckerRule =
+            new NoActiveHandlerThreadCheckerRule();
+
     @Mock
     private VehicleHal mVehicleHal;
     @Mock
@@ -163,6 +169,7 @@ public final class UserHalServiceTest extends AbstractExtendedMockitoTestCase {
 
     private final UsersInfo mUsersInfo = UserHalHelper.emptyUsersInfo();
 
+    private UserHalService mRealUserHalService;
     // Must be a spy so we can mock getNextRequestId()
     private UserHalService mUserHalService;
 
@@ -182,7 +189,8 @@ public final class UserHalServiceTest extends AbstractExtendedMockitoTestCase {
     public void setFixtures() {
         mockUserHalEnabled(true);
         when(mVehicleHal.getHalPropValueBuilder()).thenReturn(mPropValueBuilder);
-        mUserHalService = spy(new UserHalService(mVehicleHal, mHandler));
+        mRealUserHalService = new UserHalService(mVehicleHal, mHandler);
+        mUserHalService = spy(mRealUserHalService);
         // Needs at least one property, otherwise isSupported() and isUserAssociationSupported()
         // will return false
         mUserHalService.takeProperties(
@@ -207,6 +215,7 @@ public final class UserHalServiceTest extends AbstractExtendedMockitoTestCase {
     @After
     public void clearFixtures() {
         CarLocalServices.removeServiceForTest(CarUserService.class);
+        mRealUserHalService.destroy();
     }
 
     @Test
@@ -217,6 +226,8 @@ public final class UserHalServiceTest extends AbstractExtendedMockitoTestCase {
         myHalService.takeProperties(Collections.emptyList());
         assertThat(myHalService.isSupported()).isFalse();
         assertThat(myHalService.isUserAssociationSupported()).isFalse();
+
+        myHalService.destroy();
     }
 
     @Test
@@ -230,6 +241,8 @@ public final class UserHalServiceTest extends AbstractExtendedMockitoTestCase {
 
         assertThat(myHalService.isSupported()).isFalse();
         assertThat(myHalService.isUserAssociationSupported()).isFalse();
+
+        myHalService.destroy();
     }
 
     @Test
@@ -244,6 +257,8 @@ public final class UserHalServiceTest extends AbstractExtendedMockitoTestCase {
 
         assertThat(myHalService.isSupported()).isFalse();
         assertThat(myHalService.isUserAssociationSupported()).isFalse();
+
+        myHalService.destroy();
     }
 
     @Test
@@ -258,6 +273,8 @@ public final class UserHalServiceTest extends AbstractExtendedMockitoTestCase {
 
         assertThat(myHalService.isSupported()).isFalse();
         assertThat(myHalService.isUserAssociationSupported()).isFalse();
+
+        myHalService.destroy();
     }
 
     @Test
@@ -272,6 +289,8 @@ public final class UserHalServiceTest extends AbstractExtendedMockitoTestCase {
 
         assertThat(myHalService.isSupported()).isTrue();
         assertThat(myHalService.isUserAssociationSupported()).isFalse();
+
+        myHalService.destroy();
     }
 
     @Test
@@ -287,6 +306,8 @@ public final class UserHalServiceTest extends AbstractExtendedMockitoTestCase {
 
         assertThat(myHalService.isSupported()).isFalse();
         assertThat(myHalService.isUserAssociationSupported()).isTrue();
+
+        myHalService.destroy();
     }
 
     @Test
@@ -302,6 +323,8 @@ public final class UserHalServiceTest extends AbstractExtendedMockitoTestCase {
 
         assertThat(myHalService.isSupported()).isFalse();
         assertThat(myHalService.isUserAssociationSupported()).isTrue();
+
+        myHalService.destroy();
     }
 
     @Test
@@ -317,6 +340,8 @@ public final class UserHalServiceTest extends AbstractExtendedMockitoTestCase {
 
         assertThat(myHalService.isSupported()).isTrue();
         assertThat(myHalService.isUserAssociationSupported()).isTrue();
+
+        myHalService.destroy();
     }
 
     @Test
@@ -342,6 +367,8 @@ public final class UserHalServiceTest extends AbstractExtendedMockitoTestCase {
         verify(mVehicleHal).subscribePropertySafe(myHalService, REMOVE_USER);
         verify(mVehicleHal).subscribePropertySafe(myHalService, SWITCH_USER);
         verify(mVehicleHal).subscribePropertySafe(myHalService, USER_IDENTIFICATION_ASSOCIATION);
+
+        myHalService.destroy();
     }
 
     @Test
@@ -358,6 +385,8 @@ public final class UserHalServiceTest extends AbstractExtendedMockitoTestCase {
 
         assertThrows(IllegalStateException.class, () -> myHalService.getInitialUserInfo(COLD_BOOT,
                 HAL_TIMEOUT_MS, mUsersInfo, noOpCallback()));
+
+        myHalService.destroy();
     }
 
     @Test
@@ -626,6 +655,8 @@ public final class UserHalServiceTest extends AbstractExtendedMockitoTestCase {
         assertThrows(IllegalStateException.class,
                 () -> myHalService.switchUser(createUserSwitchRequest(mUser100, mUsersInfo),
                         HAL_TIMEOUT_MS, noOpCallback()));
+
+        myHalService.destroy();
     }
 
     @Test
@@ -997,6 +1028,8 @@ public final class UserHalServiceTest extends AbstractExtendedMockitoTestCase {
 
         assertThrows(IllegalStateException.class,
                 () -> myHalService.postSwitchResponse(UserHalHelper.emptySwitchUserRequest()));
+
+        myHalService.destroy();
     }
 
     @Test
@@ -1053,6 +1086,8 @@ public final class UserHalServiceTest extends AbstractExtendedMockitoTestCase {
 
         assertThrows(IllegalStateException.class,
                 () -> myHalService.removeUser(UserHalHelper.emptyRemoveUserRequest()));
+
+        myHalService.destroy();
     }
 
     @Test
@@ -1111,6 +1146,8 @@ public final class UserHalServiceTest extends AbstractExtendedMockitoTestCase {
 
         assertThrows(IllegalStateException.class,
                 () -> myHalService.legacyUserSwitch(UserHalHelper.emptySwitchUserRequest()));
+
+        myHalService.destroy();
     }
 
     @Test
@@ -1147,6 +1184,8 @@ public final class UserHalServiceTest extends AbstractExtendedMockitoTestCase {
         assertThrows(IllegalStateException.class,
                 () -> myHalService.createUser(UserHalHelper.emptyCreateUserRequest(),
                         HAL_TIMEOUT_MS, noOpCallback()));
+
+        myHalService.destroy();
     }
 
     @Test
@@ -1351,6 +1390,8 @@ public final class UserHalServiceTest extends AbstractExtendedMockitoTestCase {
 
         assertThrows(IllegalStateException.class,
                 () -> myHalService.getUserAssociation(new UserIdentificationGetRequest()));
+
+        myHalService.destroy();
     }
 
     @Test
@@ -1496,6 +1537,8 @@ public final class UserHalServiceTest extends AbstractExtendedMockitoTestCase {
         assertThrows(IllegalStateException.class,
                 () -> myHalService.setUserAssociation(HAL_TIMEOUT_MS,
                         UserHalHelper.emptyUserIdentificationSetRequest(), noOpCallback()));
+
+        myHalService.destroy();
     }
 
     @Test
