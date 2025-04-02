@@ -13,11 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-DO_NOT_INCLUDE_GAS_CAR_LAUNCHER := true
-
-PRODUCT_PACKAGES += \
-    CarFrameworkDewdRRO \
-    DewdCarLauncher
+PRODUCT_PACKAGES += CarFrameworkDewdRRO
 
 PRODUCT_COPY_FILES += \
     packages/services/Car/car_product/dewd/android.software.car.splitscreen_multitasking.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.software.car.splitscreen_multitasking.xml
