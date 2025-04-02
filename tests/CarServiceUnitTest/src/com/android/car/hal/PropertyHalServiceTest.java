@@ -26,6 +26,7 @@ import static android.car.VehiclePropertyIds.HVAC_TEMPERATURE_SET;
 import static android.car.VehiclePropertyIds.INFO_FUEL_DOOR_LOCATION;
 import static android.car.VehiclePropertyIds.PERF_VEHICLE_SPEED;
 import static android.car.VehiclePropertyIds.VEHICLE_SPEED_DISPLAY_UNITS;
+import static android.car.feature.Flags.FLAG_PROPERTY_VALUE_USE_DIRECT_EXECUTOR;
 import static android.car.hardware.CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ;
 import static android.car.hardware.property.VehicleHalStatusCode.STATUS_INTERNAL_ERROR;
 import static android.car.hardware.property.VehicleHalStatusCode.STATUS_NOT_AVAILABLE;
@@ -81,6 +82,8 @@ import android.hardware.automotive.vehicle.VehicleVendorPermission;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.ServiceSpecificException;
+import android.platform.test.annotations.EnableFlags;
+import android.platform.test.flag.junit.SetFlagsRule;
 import android.util.ArraySet;
 
 import androidx.test.runner.AndroidJUnit4;
@@ -128,6 +131,8 @@ import java.util.Set;
 public class PropertyHalServiceTest extends AbstractExpectableTestCase{
     @Rule
     public MockitoRule mMockitoRule = MockitoJUnit.rule();
+    @Rule
+    public final SetFlagsRule mSetFlagsRule = new SetFlagsRule();
 
     @Mock
     private VehicleHal mVehicleHal;
@@ -4014,6 +4019,18 @@ public class PropertyHalServiceTest extends AbstractExpectableTestCase{
         assertWithMessage("Get last injected vehicle property")
                 .that(mPropertyHalService.getLastInjectedVehicleProperty(52))
                 .isEqualTo(carPropertyValue);
+    }
+
+    @Test
+    @EnableFlags(FLAG_PROPERTY_VALUE_USE_DIRECT_EXECUTOR)
+    public void testSetDirectExecutor() {
+        clearInvocations(mVehicleHal);
+        var propertyHalService = new PropertyHalService(mVehicleHal);
+        propertyHalService.setPropertyHalServiceConfigs(PropertyHalServiceConfigs.newConfigs());
+
+        propertyHalService.init();
+
+        verify(mVehicleHal).setCallbackExecutor(eq(propertyHalService), any());
     }
 
     /** Creates a {@code CarSubscription} with Vur off. */

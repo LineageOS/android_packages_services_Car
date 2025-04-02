@@ -16,8 +16,8 @@
 
 package com.android.car.watchdog;
 
-import static com.android.car.watchdog.WatchdogPerfHandler.INTERNAL_APPLICATION_CATEGORY_TYPE_MAPS;
-import static com.android.car.watchdog.WatchdogPerfHandler.INTERNAL_APPLICATION_CATEGORY_TYPE_MEDIA;
+import static com.android.car.watchdog.WatchdogPerfHandlerInterface.INTERNAL_APPLICATION_CATEGORY_TYPE_MAPS;
+import static com.android.car.watchdog.WatchdogPerfHandlerInterface.INTERNAL_APPLICATION_CATEGORY_TYPE_MEDIA;
 
 import android.automotive.watchdog.PerStateBytes;
 import android.automotive.watchdog.internal.ApplicationCategoryType;

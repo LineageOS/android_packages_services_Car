@@ -45,9 +45,9 @@ import static com.android.car.internal.NotificationHelperBase.CAR_WATCHDOG_ACTIO
 import static com.android.car.internal.NotificationHelperBase.RESOURCE_OVERUSE_NOTIFICATION_BASE_ID;
 import static com.android.car.internal.NotificationHelperBase.RESOURCE_OVERUSE_NOTIFICATION_MAX_OFFSET;
 import static com.android.car.watchdog.TimeSource.ZONE_OFFSET;
-import static com.android.car.watchdog.WatchdogPerfHandler.MAX_WAIT_TIME_MILLS;
-import static com.android.car.watchdog.WatchdogPerfHandler.PACKAGES_DISABLED_ON_RESOURCE_OVERUSE_SEPARATOR;
-import static com.android.car.watchdog.WatchdogPerfHandler.USER_PACKAGE_SEPARATOR;
+import static com.android.car.watchdog.WatchdogPerfHandlerInterface.MAX_DAEMON_CONNECTION_WAIT_TIME_MILLS;
+import static com.android.car.watchdog.WatchdogPerfHandlerInterface.PACKAGES_DISABLED_ON_RESOURCE_OVERUSE_SEPARATOR;
+import static com.android.car.watchdog.WatchdogPerfHandlerInterface.USER_PACKAGE_SEPARATOR;
 import static com.android.car.watchdog.WatchdogStorage.RETENTION_PERIOD;
 import static com.android.car.watchdog.WatchdogStorage.WatchdogDbHelper.DATABASE_NAME;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doAnswer;
@@ -1113,7 +1113,7 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
 
         mMainHandler.postDelayed(
                 () -> mWatchdogPerfHandler.onDaemonConnectionChange(/* isConnected= */ true),
-                MAX_WAIT_TIME_MILLS - 1000);
+                MAX_DAEMON_CONNECTION_WAIT_TIME_MILLS - 1000);
     }
 
     @Test
@@ -1142,7 +1142,7 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
         ArgumentCaptor<List<UserPackageIoUsageStats>> userPackageIoUsageStatsCaptor =
                 ArgumentCaptor.forClass(List.class);
 
-        verify(mMockCarWatchdogDaemonHelper, timeout(MAX_WAIT_TIME_MILLS))
+        verify(mMockCarWatchdogDaemonHelper, timeout(MAX_DAEMON_CONNECTION_WAIT_TIME_MILLS))
                 .onTodayIoUsageStatsFetched(userPackageIoUsageStatsCaptor.capture());
 
         List<UserPackageIoUsageStats> expectedStats = Arrays.asList(
@@ -1188,7 +1188,7 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
         mWatchdogPerfHandler.asyncFetchTodayIoUsageStats();
 
         verify(mMockCarWatchdogDaemonHelper,
-                timeout(MAX_WAIT_TIME_MILLS)).onTodayIoUsageStatsFetched(any());
+                timeout(MAX_DAEMON_CONNECTION_WAIT_TIME_MILLS)).onTodayIoUsageStatsFetched(any());
     }
 
     @Test

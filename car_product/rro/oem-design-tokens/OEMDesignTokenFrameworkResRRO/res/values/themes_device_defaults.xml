@@ -200,6 +200,7 @@
         <item name="oemColorSurfaceInverse">@color/color_surface_inverse</item>
         <item name="oemColorOnSurfaceInverse">@color/color_on_surface_inverse</item>
         <item name="oemColorOutline">@color/color_outline</item>
+        <item name="oemColorSurfaceContainerLow">@color/color_surface_container_low</item>
         <item name="oemColorSecondaryPalette80">@color/color_secondary_palette_80</item>
         <item name="oemColorNeutralPalette40">@color/color_neutral_palette_40</item>
         <item name="oemColorNeutralVariantPalette60">@color/color_neutral_variant_palette_60</item>
@@ -246,6 +247,7 @@
         <item name="oemColorSurfaceInverse">?com.android.oem.tokens:attr/colorSurfaceInverse</item>
         <item name="oemColorOnSurfaceInverse">?com.android.oem.tokens:attr/colorOnSurfaceInverse</item>
         <item name="oemColorOutline">?com.android.oem.tokens:attr/colorOutline</item>
+        <item name="oemColorSurfaceContainerLow">?com.android.oem.tokens:attr/colorSurfaceContainerLow</item>
         <item name="oemColorSecondaryPalette80">?com.android.oem.tokens:attr/colorSecondaryPalette80</item>
         <item name="oemColorNeutralPalette40">?com.android.oem.tokens:attr/colorNeutralPalette40</item>
         <item name="oemColorNeutralVariantPalette60">?com.android.oem.tokens:attr/colorNeutralVariantPalette60</item>
