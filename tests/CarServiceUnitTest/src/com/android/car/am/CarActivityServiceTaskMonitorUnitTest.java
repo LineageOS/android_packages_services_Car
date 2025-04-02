@@ -39,6 +39,7 @@ import android.app.ActivityManager;
 import android.app.ActivityOptions;
 import android.app.Instrumentation.ActivityMonitor;
 import android.app.TaskInfo;
+import android.car.test.NoActiveHandlerThreadCheckerRule;
 import android.car.test.util.DisplayUtils.VirtualDisplaySession;
 import android.content.ComponentName;
 import android.content.Context;
@@ -110,6 +111,9 @@ public class CarActivityServiceTaskMonitorUnitTest {
             getTestContext(), BlockingActivity.class);
 
     @Rule
+    public NoActiveHandlerThreadCheckerRule mNoActiveHandlerThreadCheckerRule =
+            new NoActiveHandlerThreadCheckerRule();
+    @Rule
     public final Expect expect = Expect.create();
     @Rule
     public TestName mTestName = new TestName();
@@ -140,6 +144,7 @@ public class CarActivityServiceTaskMonitorUnitTest {
         mService.unregisterTaskMonitor(mToken);
         // Any remaining ActivityListeners will be flushed in release().
         mService.release();
+        mService.destroy();
         mService = null;
     }
 
@@ -353,6 +358,8 @@ public class CarActivityServiceTaskMonitorUnitTest {
         Rect outBounds = new Rect();
         assertThrows(IllegalArgumentException.class,
                 () -> mService.getMirroredSurface(forgedToken, outBounds));
+
+        fakeService.destroy();
     }
 
     @Test

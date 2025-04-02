@@ -30,6 +30,7 @@ import static org.mockito.Mockito.when;
 
 import android.car.Car;
 import android.car.app.CarActivityManager;
+import android.car.test.NoActiveHandlerThreadCheckerRule;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.pm.PackageManager;
@@ -63,12 +64,17 @@ public class CarActivityServiceUnitTest {
     // Comes from android.window.DisplayAreaOrganizer.FEATURE_DEFAULT_TASK_CONTAINER
     private static final int FEATURE_DEFAULT_TASK_CONTAINER = 1;
 
+    private CarActivityService mRealCarActivityService;
     private CarActivityService mCarActivityService;
 
     private final ComponentName mTestActivity = new ComponentName("test.pkg", "test.activity");
 
     @Rule
+    public NoActiveHandlerThreadCheckerRule mNoActiveHandlerThreadCheckerRule =
+            new NoActiveHandlerThreadCheckerRule();
+    @Rule
     public TestName mTestName = new TestName();
+
     @Mock
     private Context mContext;
     @Mock
@@ -82,7 +88,8 @@ public class CarActivityServiceUnitTest {
         doReturn(false).when(mMockedResources)
                 .getBoolean(R.bool.config_isUsingAutoTaskStackWindowing);
 
-        mCarActivityService = spy(new CarActivityService(mContext));
+        mRealCarActivityService = new CarActivityService(mContext);
+        mCarActivityService = spy(mRealCarActivityService);
 
         int nonCurrentUserId = 9999990;
         boolean isNonCurrentUserTest = mTestName.getMethodName().contains("NonCurrentUser");
@@ -96,6 +103,7 @@ public class CarActivityServiceUnitTest {
     @After
     public void tearDown() {
         CarLocalServices.removeServiceForTest(CarServiceHelperWrapper.class);
+        mRealCarActivityService.destroy();
     }
 
     @Test
