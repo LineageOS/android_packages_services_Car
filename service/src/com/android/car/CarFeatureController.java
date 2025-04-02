@@ -180,6 +180,7 @@ public final class CarFeatureController implements CarServiceBase {
     private final Context mContext;
 
     private final List<String> mDefaultEnabledFeaturesFromConfig;
+    private final List<String> mNonUserDefaultEnabledFeaturesFromConfig;
     private final List<String> mDisabledFeaturesFromVhal;
 
     private final HandlerThread mHandlerThread = CarServiceUtils.getHandlerThread(
@@ -219,11 +220,17 @@ public final class CarFeatureController implements CarServiceBase {
         Resources res = mContext.getResources();
         String[] defaultEnabledFeatures = res.getStringArray(
                 R.array.config_allowed_optional_car_features);
+        String[] nonUserDefaultEnabledFeatures = res.getStringArray(
+                R.array.config_allowed_optional_car_features_non_user_builds);
         Arrays.sort(defaultEnabledFeatures);
+        Arrays.sort(nonUserDefaultEnabledFeatures);
         mDefaultEnabledFeaturesFromConfig = Arrays.asList(defaultEnabledFeatures);
+        mNonUserDefaultEnabledFeaturesFromConfig = Arrays.asList(nonUserDefaultEnabledFeatures);
         mDisabledFeaturesFromVhal = Arrays.asList(disabledFeaturesFromVhal);
         Slogf.i(TAG, "mDefaultEnabledFeaturesFromConfig:" + mDefaultEnabledFeaturesFromConfig
-                + ",mDisabledFeaturesFromVhal:" + mDisabledFeaturesFromVhal);
+                + ",mDisabledFeaturesFromVhal:" + mDisabledFeaturesFromVhal
+                + ", mNonUserDefaultEnabledFeaturesFromConfig:"
+                + mNonUserDefaultEnabledFeaturesFromConfig);
         mEnabledFeatures = new ArraySet<>(MANDATORY_FEATURES);
         mFeatureConfigFile = new AtomicFile(new File(dataDir, FEATURE_CONFIG_FILE_NAME));
         boolean shouldLoadDefaultConfig = !AtomicFileHelper.exists(mFeatureConfigFile);
@@ -240,6 +247,9 @@ public final class CarFeatureController implements CarServiceBase {
         // Separate if to use this as backup for failure in loadFromConfigFileLocked()
         if (shouldLoadDefaultConfig) {
             parseDefaultConfig();
+            if (!BuildHelper.isUserBuild()) {
+                parseNonUserAllowedConfigs();
+            }
             dispatchDefaultConfigUpdate();
         }
         addSupportFeatures(mEnabledFeatures);
@@ -266,6 +276,8 @@ public final class CarFeatureController implements CarServiceBase {
         writer.println("*CarFeatureController*");
         writer.println(" mEnabledFeatures:" + mEnabledFeatures);
         writer.println(" mDefaultEnabledFeaturesFromConfig:" + mDefaultEnabledFeaturesFromConfig);
+        writer.println(" mNonUserDefaultEnabledFeaturesFromConfig:"
+                + mNonUserDefaultEnabledFeaturesFromConfig);
         writer.println(" mDisabledFeaturesFromVhal:" + mDisabledFeaturesFromVhal);
         synchronized (mLock) {
             writer.println(" mAvailableExperimentalFeatures:" + mAvailableExperimentalFeatures);
@@ -319,6 +331,11 @@ public final class CarFeatureController implements CarServiceBase {
         for (int i = 0; i < mDefaultEnabledFeaturesFromConfig.size(); i++) {
             String defaultEnabledFeature = mDefaultEnabledFeaturesFromConfig.get(i);
             proto.write(CarFeatureControlDumpProto.DEFAULT_ENABLED_FEATURES_FROM_CONFIG,
+                    defaultEnabledFeature);
+        }
+        for (int i = 0; i < mNonUserDefaultEnabledFeaturesFromConfig.size(); i++) {
+            String defaultEnabledFeature = mNonUserDefaultEnabledFeaturesFromConfig.get(i);
+            proto.write(CarFeatureControlDumpProto.DEFAULT_ENABLED_FEATURES_FOR_NONUSER_FROM_CONFIG,
                     defaultEnabledFeature);
         }
         for (int i = 0; i < mDisabledFeaturesFromVhal.size(); i++) {
@@ -645,6 +662,22 @@ public final class CarFeatureController implements CarServiceBase {
             }
         }
         Slogf.i(TAG, "Loaded default features:" + mEnabledFeatures);
+    }
+
+    private void parseNonUserAllowedConfigs() {
+        for (int i = 0; i < mNonUserDefaultEnabledFeaturesFromConfig.size(); i++) {
+            String nonUserEnabledFeature = mNonUserDefaultEnabledFeaturesFromConfig.get(i);
+            if (mDisabledFeaturesFromVhal.contains(nonUserEnabledFeature)) {
+                continue;
+            }
+            if (OPTIONAL_FEATURES.contains(nonUserEnabledFeature)) {
+                mEnabledFeatures.add(nonUserEnabledFeature);
+            } else {
+                Slogf.w(TAG, "config_default_enabled_optional_car_features include "
+                        + "non-optional features:" + nonUserEnabledFeature);
+            }
+        }
+        Slogf.i(TAG, "Loaded default and non user features:" + mEnabledFeatures);
     }
 
     private static void addSupportFeatures(Collection<String> features) {

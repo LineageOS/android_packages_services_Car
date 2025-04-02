@@ -38,4 +38,7 @@ message CarFeatureControlDumpProto {
 
   // features that have been requested to be disabled, but the execution hasn't finished yet
   repeated string pending_disabled_features = 6;
+
+  // the allowed optional features for non-user build from RRO
+  repeated string default_enabled_features_for_nonuser_from_config = 7;
 }
