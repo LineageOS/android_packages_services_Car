@@ -112,6 +112,7 @@ import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Binder;
 import android.os.FileUtils;
+import android.os.Handler;
 import android.os.ServiceManager;
 import android.os.SystemProperties;
 import android.os.UserHandle;
@@ -162,6 +163,7 @@ import java.util.function.BiConsumer;
  */
 @RunWith(MockitoJUnitRunner.class)
 public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTestCase {
+    private static final String TAG = CarWatchdogService.TAG;
     private static final String SYSTEM_PACKAGE_NAME = "system_package";
     private static final int MAX_WAIT_TIME_MS = 3000;
     private static final long OVERUSE_HANDLING_DELAY_MILLS = 1000;
@@ -212,6 +214,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
     private CarUserManager.UserLifecycleListener mUserLifecycleListener;
     private CarWatchdogDaemonHelper.OnConnectionChangeListener mOnConnectionChangeListener;
     private File mTempSystemCarDir;
+    private Handler mServiceHandler;
     // Not used directly, but sets proper mockStatic() expectations on Settings
     @SuppressWarnings("UnusedVariable")
     private MockSettings mMockSettings;
@@ -316,8 +319,9 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         mockBuildStatsEventCalls();
 
         mTimeSource.updateNow(/* numDaysAgo= */ 0);
+        mServiceHandler = new Handler(CarServiceUtils.getHandlerThread(TAG).getLooper());
         mCarWatchdogService = new CarWatchdogService(mMockContext, mMockBuiltinPackageContext,
-                mSpiedWatchdogStorage, mTimeSource, mMockWatchdogProcessHandler,
+                mSpiedWatchdogStorage, mTimeSource, mServiceHandler, mMockWatchdogProcessHandler,
                 mMockWatchdogPerfHandler);
         mCarWatchdogService.setCarWatchdogDaemonHelper(mMockCarWatchdogDaemonHelper);
         initService(/* wantedInvocations= */ 1);
@@ -1165,7 +1169,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         captureCarPowerListeners(wantedInvocations);
         captureBroadcastReceiver(wantedInvocations);
         captureUserLifecycleListener(wantedInvocations);
-        captureAndVerifyRegistrationWithDaemon(/* waitOnMain= */ true);
+        captureAndVerifyRegistrationWithDaemon();
     }
 
     private void captureCarPowerListeners(int wantedInvocations) {
@@ -1210,12 +1214,10 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         assertWithMessage("User lifecycle listener").that(mUserLifecycleListener).isNotNull();
     }
 
-    private void captureAndVerifyRegistrationWithDaemon(boolean waitOnMain) throws Exception {
-        if (waitOnMain) {
-            // Registering to daemon is done on the main thread. To ensure the registration
-            // completes before verification, execute an empty block on the main thread.
-            CarServiceUtils.runOnMainSync(() -> {});
-        }
+    private void captureAndVerifyRegistrationWithDaemon() throws Exception {
+        // Registering to daemon is done on a handler thread. To ensure the registration
+        // completes before verification, execute an empty block on the handler thread.
+        CarServiceUtils.runEmptyRunnableOnLooperSync(TAG);
 
         verify(mMockCarWatchdogDaemonHelper).addOnConnectionChangeListener(
                 mOnConnectionChangeListenerArgumentCaptor.capture());

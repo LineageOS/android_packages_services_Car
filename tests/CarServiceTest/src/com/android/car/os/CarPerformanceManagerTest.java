@@ -80,7 +80,8 @@ public class CarPerformanceManagerTest extends MockedCarTestBase {
     @Override
     public void configureMockedHal() {
         mCarWatchdogService = new CarWatchdogService(
-                getContext(), mMockBuiltinPackageContext, mMockWatchdogStorage, mTimeSource);
+                getContext(), mMockBuiltinPackageContext, mMockWatchdogStorage,
+                mTimeSource, /*Handler=*/ null);
         mCarWatchdogService.setCarWatchdogDaemonHelper(mCarWatchdogDaemonHelper);
         setCarWatchDogService(mCarWatchdogService);
     }
