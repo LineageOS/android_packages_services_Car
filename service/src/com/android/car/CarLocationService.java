@@ -100,8 +100,9 @@ public class CarLocationService extends BroadcastReceiver implements CarServiceB
     private final Object mLocationManagerProxyLock = new Object();
 
     private final Context mContext;
+    private final String mClassName = getClass().getSimpleName();
     private final HandlerThread mHandlerThread = CarServiceUtils.getHandlerThread(
-            getClass().getSimpleName());
+            mClassName);
     private final Handler mHandler = new Handler(mHandlerThread.getLooper());
 
     private final CarPowerManager mCarPowerManager;
@@ -258,6 +259,15 @@ public class CarLocationService extends BroadcastReceiver implements CarServiceB
         mCarDrivingStateService = CarLocalServices.getService(CarDrivingStateService.class);
         if (mCarDrivingStateService == null) {
             Slogf.w(TAG, "Cannot find CarDrivingStateService.");
+        }
+    }
+
+    @Override
+    public void destroy() {
+        try {
+            CarServiceUtils.releaseHandlerThread(mClassName);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
         }
     }
 
