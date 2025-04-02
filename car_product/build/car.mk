@@ -28,9 +28,12 @@ PRODUCT_PACKAGES += \
     CarDeveloperOptions \
     CarSettingsIntelligence \
     CarManagedProvisioning \
-    CarProvision \
     StatementService \
     SystemUpdater
+
+ifneq ($(AOSP_CAR_EMULATOR),true)
+PRODUCT_PACKAGES += CarProvision
+endif
 
 PRODUCT_PACKAGES += \
     pppd \
