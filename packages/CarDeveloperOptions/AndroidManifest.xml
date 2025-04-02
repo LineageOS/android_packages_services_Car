@@ -3656,7 +3656,7 @@
         </service>
 
         <service
-          android:name="com.android.settings.service.PreferenceService"
+          android:name="com.android.settingslib.service.SettingsPreferenceService"
           android:enabled="false"
           android:exported="false"
           android:featureFlag="com.android.settingslib.flags.settings_catalyst"
