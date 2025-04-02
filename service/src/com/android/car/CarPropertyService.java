@@ -191,8 +191,8 @@ public class CarPropertyService extends ICarProperty.Stub
     @GuardedBy("mLock")
     private final SparseArray<SparseArray<CarPropertyServiceClient>> mSetOpClientByAreaIdByPropId =
             new SparseArray<>();
-    private final HandlerThread mHandlerThread =
-            CarServiceUtils.getHandlerThread(getClass().getSimpleName());
+    private final String mClassName = getClass().getSimpleName();
+    private final HandlerThread mHandlerThread = CarServiceUtils.getHandlerThread(mClassName);
     private final Handler mHandler = new Handler(mHandlerThread.getLooper());
     // Use SparseArray instead of map to save memory.
     @GuardedBy("mLock")
@@ -303,6 +303,15 @@ public class CarPropertyService extends ICarProperty.Stub
                 builder.mMinMaxSupportedPropertyValueHelper,
                 () -> new SystemMinMaxSupportedPropertyValueHelper());
         initializeHistogram();
+    }
+
+    @Override
+    public void destroy() {
+        try {
+            CarServiceUtils.releaseHandlerThread(mClassName);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
 
     @VisibleForTesting
