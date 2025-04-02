@@ -67,8 +67,9 @@ public class SystemActivityMonitoringService implements CarServiceBase {
 
     private final ProcessObserverCallback mProcessObserver = new ProcessObserver();
 
+    private final String mClassName = getClass().getSimpleName();
     private final HandlerThread mMonitorHandlerThread = CarServiceUtils.getHandlerThread(
-            getClass().getSimpleName());
+            mClassName);
     private final ActivityMonitorHandler mHandler = new ActivityMonitorHandler(
             mMonitorHandlerThread.getLooper(), this);
 
@@ -98,6 +99,15 @@ public class SystemActivityMonitoringService implements CarServiceBase {
     /*package*/ SystemActivityMonitoringService(Context context, Injector injector) {
         mContext = context;
         mInjector = injector;
+    }
+
+    @Override
+    public void destroy() {
+        try {
+            CarServiceUtils.releaseHandlerThread(mClassName);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
 
     @Override
