@@ -48,6 +48,19 @@ final class CarVolumeCallbackHandler extends RemoteCallbackList<ICarVolumeCallba
     void release() {
     }
 
+    /**
+     * Destroys this handler.
+     *
+     * Must be called before deleting the instance reference.
+     */
+    void destroy() {
+        try {
+            CarServiceUtils.releaseHandlerThread(REQUEST_HANDLER_THREAD_NAME);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+    }
+
     public void registerCallback(IBinder binder, int uid, boolean priority) {
         ICarVolumeCallback callback = ICarVolumeCallback.Stub.asInterface(binder);
         synchronized (mLock) {

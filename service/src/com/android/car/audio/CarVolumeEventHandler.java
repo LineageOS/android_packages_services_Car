@@ -47,6 +47,19 @@ final class CarVolumeEventHandler extends RemoteCallbackList<ICarVolumeEventCall
     @GuardedBy("mLock")
     private final Set<Integer> mUids = new HashSet<Integer>();
 
+    /**
+     * Destroys this handler.
+     *
+     * Must be called before deleting the instance reference.
+     */
+    void destroy() {
+        try {
+            CarServiceUtils.releaseHandlerThread(REQUEST_HANDLER_THREAD_NAME);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+    }
+
     void release() {
         synchronized (mLock) {
             mUids.clear();
