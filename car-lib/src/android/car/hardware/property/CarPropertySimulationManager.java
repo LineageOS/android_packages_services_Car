@@ -272,6 +272,11 @@ public final class CarPropertySimulationManager extends CarManagerBase {
      * Disables vehicle property injection mode. See
      * {@link CarPropertySimulationManager#enableInjectionMode}
      *
+     * <p>Stop injecting vehicle properties.
+     *
+     * <p><b>Note: </b>If a property injection is happening at the same time, the injected property
+     * may still be delivered to the clients after this method is called.
+     *
      * <p>This method is system-wide.
      *
      * <p>This method is idempotent. If the vehicle property injection is already

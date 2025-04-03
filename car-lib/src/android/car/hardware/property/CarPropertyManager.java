@@ -1880,9 +1880,14 @@ public class CarPropertyManager extends CarManagerBase {
     }
 
     /**
-     * Stop getting property updates for the given {@link CarPropertyEventCallback}. If there are
-     * multiple registrations for this {@link CarPropertyEventCallback}, all listening will be
-     * stopped.
+     * Stop getting property updates for the given {@link CarPropertyEventCallback}.
+     *
+     * <p>If there are multiple registrations for this {@link CarPropertyEventCallback}, all
+     * listening will be stopped.
+     *
+     * <p><b>Note:</b> If a property event is happening at the same time as the unsubscription, the
+     * event may still be delivered to the callback after this method returns. The client should
+     * ignore all property events received though the callback after this method is called.
      *
      * @param carPropertyEventCallback A previously subscribed callback to unsubscribe.
      * @throws SecurityException if the caller does not have read permission to the properties
@@ -1916,9 +1921,13 @@ public class CarPropertyManager extends CarManagerBase {
      * @deprecated Use
      * {@link CarPropertyManager#unsubscribePropertyEvents(CarPropertyEventCallback)} instead.
      *
-     * Stop getting property updates for the given {@link CarPropertyEventCallback}. If there are
+     * <p>Stop getting property updates for the given {@link CarPropertyEventCallback}. If there are
      * multiple registrations for this {@link CarPropertyEventCallback}, all listening will be
      * stopped.
+     *
+     * <p><b>Note:</b> If a property event is happening at the same time as the unsubscription, the
+     * event may still be delivered to the callback after this method returns. The client should
+     * ignore all property events received though the callback after this method is called.
      *
      * @param carPropertyEventCallback A previously subscribed callback to unsubscribe.
      * @throws SecurityException if the caller does not have read permission to the properties
@@ -1948,9 +1957,15 @@ public class CarPropertyManager extends CarManagerBase {
     }
 
     /**
-     * Stop getting update for {@code propertyId} to the given {@link CarPropertyEventCallback}. If
-     * the same {@link CarPropertyEventCallback} is used for other properties, those subscriptions
-     * will not be affected.
+     * <p>Stop getting update for {@code propertyId} to the given {@link CarPropertyEventCallback}.
+     *
+     * <p>If the same {@link CarPropertyEventCallback} is used for other properties, those
+     * subscriptions will not be affected.
+     *
+     * <p><b>Note:</b> If a property event is happening at the same time as the unsubscription, the
+     * event may still be delivered to the callback after this method returns. The client should
+     * ignore all property events received though the callback for {@code propertyId} after this
+     * method is called.
      *
      * @param propertyId The property ID to unsubscribe.
      * @param carPropertyEventCallback A previously subscribed callback to unsubscribe.
@@ -1967,9 +1982,14 @@ public class CarPropertyManager extends CarManagerBase {
      * @deprecated Use
      * {@link CarPropertyManager#unsubscribePropertyEvents(int, CarPropertyEventCallback)} instead.
      *
-     * Stop getting update for {@code propertyId} to the given {@link CarPropertyEventCallback}. If
-     * the same {@link CarPropertyEventCallback} is used for other properties, those subscriptions
-     * will not be affected.
+     * <p>Stop getting update for {@code propertyId} to the given {@link CarPropertyEventCallback}.
+     * If the same {@link CarPropertyEventCallback} is used for other properties, those
+     * subscriptions will not be affected.
+     *
+     * <p><b>Note:</b> If a property event is happening at the same time as the unsubscription, the
+     * event may still be delivered to the callback after this method returns. The client should
+     * ignore all property events received though the callback for {@code propertyId} after this
+     * method is called.
      *
      * @param carPropertyEventCallback A previously subscribed callback to unsubscribe.
      * @param propertyId The property ID to unsubscribe.
