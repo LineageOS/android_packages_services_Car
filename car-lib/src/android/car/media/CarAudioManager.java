@@ -144,12 +144,16 @@ public final class CarAudioManager extends CarManagerBase {
      * {@link #isAudioFeatureEnabled(int)}
      *
      * <p>If enabled, audio mirroring can be managed by using the following APIs:
-     * {@link #setAudioZoneMirrorStatusCallback(Executor, AudioZonesMirrorStatusCallback)},
-     * {@link #clearAudioZonesMirrorStatusCallback()}, {@link #canEnableAudioMirror()},
-     * {@link #enableMirrorForAudioZones(List)}, {@link #extendAudioMirrorRequest(long, List)},
-     * {@link #disableAudioMirrorForZone(int)}, {@link #disableAudioMirror(long)},
-     * {@link #getMirrorAudioZonesForAudioZone(int)},
-     * {@link #getMirrorAudioZonesForMirrorRequest(long)}
+     * {@code CarAudioManager#setAudioZoneMirrorStatusCallback(Executor,
+     *      AudioZonesMirrorStatusCallback)},
+     * {@code CarAudioManager#clearAudioZonesMirrorStatusCallback()},
+     * {@code CarAudioManager#canEnableAudioMirror()},
+     * {@code CarAudioManager##enableMirrorForAudioZones(List)},
+     * {@code CarAudioManager#extendAudioMirrorRequest(long, List)},
+     * {@code CarAudioManager#disableAudioMirrorForZone(int)},
+     * {@code CarAudioManager#disableAudioMirror(long)},
+     * {@code CarAudioManager#getMirrorAudioZonesForAudioZone(int)},
+     * {@code CarAudioManager#getMirrorAudioZonesForMirrorRequest(long)}
      */
     public static final int AUDIO_FEATURE_AUDIO_MIRRORING = 5;
 
