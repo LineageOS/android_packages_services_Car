@@ -69,6 +69,7 @@ import android.car.hardware.property.AreaIdConfig;
 import android.car.hardware.property.CarPropertyManager;
 import android.car.hardware.property.ICarPropertyEventListener;
 import android.car.test.AbstractExpectableTestCase;
+import android.car.test.NoActiveHandlerThreadCheckerRule;
 import android.hardware.automotive.vehicle.RawPropValues;
 import android.hardware.automotive.vehicle.VehicleAreaConfig;
 import android.hardware.automotive.vehicle.VehicleAreaSeat;
@@ -133,6 +134,10 @@ public class PropertyHalServiceTest extends AbstractExpectableTestCase{
     public MockitoRule mMockitoRule = MockitoJUnit.rule();
     @Rule
     public final SetFlagsRule mSetFlagsRule = new SetFlagsRule();
+
+    @Rule
+    public NoActiveHandlerThreadCheckerRule mNoActiveHandlerThreadCheckerRule =
+            new NoActiveHandlerThreadCheckerRule();
 
     @Mock
     private VehicleHal mVehicleHal;
@@ -229,7 +234,7 @@ public class PropertyHalServiceTest extends AbstractExpectableTestCase{
     }
 
     @Before
-    public void setUp() {
+    public void setUp() throws Exception {
         when(mVehicleHal.getHalPropValueBuilder()).thenReturn(mPropValueBuilder);
         mPropertyHalService = new PropertyHalService(mVehicleHal);
         mPropertyHalService.setPropertyHalServiceConfigs(PropertyHalServiceConfigs.newConfigs());
@@ -302,8 +307,9 @@ public class PropertyHalServiceTest extends AbstractExpectableTestCase{
     }
 
     @After
-    public void tearDown() {
+    public void tearDown() throws Exception {
         mPropertyHalService.release();
+        mPropertyHalService.destroy();
         mPropertyHalService = null;
     }
 
@@ -4031,6 +4037,7 @@ public class PropertyHalServiceTest extends AbstractExpectableTestCase{
         propertyHalService.init();
 
         verify(mVehicleHal).setCallbackExecutor(eq(propertyHalService), any());
+        propertyHalService.destroy();
     }
 
     /** Creates a {@code CarSubscription} with Vur off. */

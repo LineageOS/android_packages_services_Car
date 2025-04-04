@@ -989,8 +989,12 @@ public class PowerHalService extends HalServiceBase {
     @GuardedBy("mLock")
     private void addRecentlySetBrightnessChangeLocked(int brightness, int displayPort) {
         mRecentlySetBrightness.add(new BrightnessForDisplayPort(brightness, displayPort));
+        // TODO(b/408303884): remove the log here after we investigate the issue.
+        Slogf.v(CarLog.TAG_POWER, "post recently set brightness change message");
         mHandler.postDelayed(() -> {
+            Slogf.v(CarLog.TAG_POWER, "run recently set brightness change message");
             synchronized (mLock) {
+                Slogf.v(CarLog.TAG_POWER, "inside lock");
                 mRecentlySetBrightness.removeFirst();
             }
         }, PREVENT_LOOP_REQUEST_TIME_WINDOW_MS);
