@@ -48,7 +48,7 @@ public final class ActivityManagerHelper {
 
     /** Persistent process flag */
     public static final int PROCESS_INFO_PERSISTENT_FLAG =
-            ActivityManager.RunningAppProcessInfo.FLAG_PERSISTENT;
+            android.app.RunningAppProcessInfo.FLAG_PERSISTENT;
 
     private static final String TAG = "CAR.AM";  // CarLog.TAG_AM
 
