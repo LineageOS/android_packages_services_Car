@@ -51,6 +51,51 @@
         <item name="android:actionBarSize">@*android:dimen/car_app_bar_height</item>
         <item name="*android:disabledAlpha">@dimen/car_disabled_alpha</item>
         <item name="android:isLightTheme">false</item>
+
+        <item name="oemColorPrimary">@color/color_primary</item>
+        <item name="oemColorOnPrimary">@color/color_on_primary</item>
+        <item name="oemColorOnPrimaryContainer">@color/color_on_primary_container</item>
+        <item name="oemColorSecondary">@color/color_secondary</item>
+        <item name="oemColorOnSecondary">@color/color_on_secondary</item>
+        <item name="oemColorSecondaryContainer">@color/color_secondary_container</item>
+        <item name="oemColorOnSecondaryContainer">@color/color_on_secondary_container</item>
+        <item name="oemColorTertiary">@color/color_tertiary</item>
+        <item name="oemColorError">@color/color_error</item>
+        <item name="oemColorBackground">@color/color_background</item>
+        <item name="oemColorOnBackground">@color/color_on_background</item>
+        <item name="oemColorSurface">@color/color_surface</item>
+        <item name="oemColorOnSurface">@color/color_on_surface</item>
+        <item name="oemColorSurfaceVariant">@color/color_surface_variant</item>
+        <item name="oemColorOnSurfaceVariant">@color/color_on_surface_variant</item>
+        <item name="oemColorSurfaceInverse">@color/color_surface_inverse</item>
+        <item name="oemColorOnSurfaceInverse">@color/color_on_surface_inverse</item>
+        <item name="oemColorOutline">@color/color_outline</item>
+        <item name="oemColorSurfaceContainerLow">@color/color_surface_container_low</item>
+        <item name="oemColorSecondaryPalette80">@color/color_secondary_palette_80</item>
+        <item name="oemColorNeutralPalette40">@color/color_neutral_palette_40</item>
+        <item name="oemColorNeutralVariantPalette60">@color/color_neutral_variant_palette_60</item>
+        <item name="oemTextAppearanceDisplayLarge">@style/TextAppearance.Display.Large</item>
+        <item name="oemTextAppearanceDisplayMedium">@style/TextAppearance.Display.Medium</item>
+        <item name="oemTextAppearanceDisplaySmall">@style/TextAppearance.Display.Small</item>
+        <item name="oemTextAppearanceHeadlineLarge">@style/TextAppearance.Headline.Large</item>
+        <item name="oemTextAppearanceHeadlineMedium">@style/TextAppearance.Headline.Medium</item>
+        <item name="oemTextAppearanceHeadlineSmall">@style/TextAppearance.Headline.Small</item>
+        <item name="oemTextAppearanceTitleLarge">@style/TextAppearance.Title.Large</item>
+        <item name="oemTextAppearanceTitleMedium">@style/TextAppearance.Title.Medium</item>
+        <item name="oemTextAppearanceTitleSmall">@style/TextAppearance.Title.Small</item>
+        <item name="oemTextAppearanceLabelLarge">@style/TextAppearance.Label.Large</item>
+        <item name="oemTextAppearanceLabelMedium">@style/TextAppearance.Label.Medium</item>
+        <item name="oemTextAppearanceLabelSmall">@style/TextAppearance.Label.Small</item>
+        <item name="oemTextAppearanceBodyLarge">@style/TextAppearance.Body.Large</item>
+        <item name="oemTextAppearanceBodyMedium">@style/TextAppearance.Body.Medium</item>
+        <item name="oemTextAppearanceBodySmall">@style/TextAppearance.Body.Small</item>
+        <item name="oemShapeCornerNone">@dimen/shape_corner_none</item>
+        <item name="oemShapeCornerExtraSmall">@dimen/shape_corner_extra_small</item>
+        <item name="oemShapeCornerSmall">@dimen/shape_corner_small</item>
+        <item name="oemShapeCornerMedium">@dimen/shape_corner_medium</item>
+        <item name="oemShapeCornerLarge">@dimen/shape_corner_large</item>
+        <item name="oemShapeCornerExtraLarge">@dimen/shape_corner_extra_large</item>
+        <item name="oemShapeCornerFull">@dimen/shape_corner_full</item>
     </style>
 
     <style name="Theme.DeviceDefault" parent="Theme.DeviceDefaultBaseCar">
@@ -182,50 +227,6 @@
     theme. This makes it app facing, regardless if the app is directly using it or a theme that inherits from it.  -->
     <style name="Theme.DeviceDefault.Light.DarkActionBar"  parent="Theme.DeviceDefaultBaseCar">
         <item name="android:isLightTheme">false</item>
-        <item name="oemColorPrimary">@color/color_primary</item>
-        <item name="oemColorOnPrimary">@color/color_on_primary</item>
-        <item name="oemColorOnPrimaryContainer">@color/color_on_primary_container</item>
-        <item name="oemColorSecondary">@color/color_secondary</item>
-        <item name="oemColorOnSecondary">@color/color_on_secondary</item>
-        <item name="oemColorSecondaryContainer">@color/color_secondary_container</item>
-        <item name="oemColorOnSecondaryContainer">@color/color_on_secondary_container</item>
-        <item name="oemColorTertiary">@color/color_tertiary</item>
-        <item name="oemColorError">@color/color_error</item>
-        <item name="oemColorBackground">@color/color_background</item>
-        <item name="oemColorOnBackground">@color/color_on_background</item>
-        <item name="oemColorSurface">@color/color_surface</item>
-        <item name="oemColorOnSurface">@color/color_on_surface</item>
-        <item name="oemColorSurfaceVariant">@color/color_surface_variant</item>
-        <item name="oemColorOnSurfaceVariant">@color/color_on_surface_variant</item>
-        <item name="oemColorSurfaceInverse">@color/color_surface_inverse</item>
-        <item name="oemColorOnSurfaceInverse">@color/color_on_surface_inverse</item>
-        <item name="oemColorOutline">@color/color_outline</item>
-        <item name="oemColorSurfaceContainerLow">@color/color_surface_container_low</item>
-        <item name="oemColorSecondaryPalette80">@color/color_secondary_palette_80</item>
-        <item name="oemColorNeutralPalette40">@color/color_neutral_palette_40</item>
-        <item name="oemColorNeutralVariantPalette60">@color/color_neutral_variant_palette_60</item>
-        <item name="oemTextAppearanceDisplayLarge">@style/TextAppearance.Display.Large</item>
-        <item name="oemTextAppearanceDisplayMedium">@style/TextAppearance.Display.Medium</item>
-        <item name="oemTextAppearanceDisplaySmall">@style/TextAppearance.Display.Small</item>
-        <item name="oemTextAppearanceHeadlineLarge">@style/TextAppearance.Headline.Large</item>
-        <item name="oemTextAppearanceHeadlineMedium">@style/TextAppearance.Headline.Medium</item>
-        <item name="oemTextAppearanceHeadlineSmall">@style/TextAppearance.Headline.Small</item>
-        <item name="oemTextAppearanceTitleLarge">@style/TextAppearance.Title.Large</item>
-        <item name="oemTextAppearanceTitleMedium">@style/TextAppearance.Title.Medium</item>
-        <item name="oemTextAppearanceTitleSmall">@style/TextAppearance.Title.Small</item>
-        <item name="oemTextAppearanceLabelLarge">@style/TextAppearance.Label.Large</item>
-        <item name="oemTextAppearanceLabelMedium">@style/TextAppearance.Label.Medium</item>
-        <item name="oemTextAppearanceLabelSmall">@style/TextAppearance.Label.Small</item>
-        <item name="oemTextAppearanceBodyLarge">@style/TextAppearance.Body.Large</item>
-        <item name="oemTextAppearanceBodyMedium">@style/TextAppearance.Body.Medium</item>
-        <item name="oemTextAppearanceBodySmall">@style/TextAppearance.Body.Small</item>
-        <item name="oemShapeCornerNone">@dimen/shape_corner_none</item>
-        <item name="oemShapeCornerExtraSmall">@dimen/shape_corner_extra_small</item>
-        <item name="oemShapeCornerSmall">@dimen/shape_corner_small</item>
-        <item name="oemShapeCornerMedium">@dimen/shape_corner_medium</item>
-        <item name="oemShapeCornerLarge">@dimen/shape_corner_large</item>
-        <item name="oemShapeCornerExtraLarge">@dimen/shape_corner_extra_large</item>
-        <item name="oemShapeCornerFull">@dimen/shape_corner_full</item>
     </style>
 
     <style name="OemThemeOverlay">
