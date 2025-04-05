@@ -1389,7 +1389,15 @@ public class PropertyHalService extends HalServiceBase {
             mHalPropIdToPropConfig.clear();
             mPropertyHalListener = null;
         }
-        mHandlerThread.quitSafely();
+    }
+
+    @Override
+    public void destroy() {
+        try {
+            CarServiceUtils.releaseHandlerThread(getClass().getSimpleName());
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
 
     @Override

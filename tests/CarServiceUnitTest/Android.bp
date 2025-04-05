@@ -22,6 +22,8 @@ package {
 java_defaults {
     name: "CarServiceUnitTestDefaults",
     static_libs: [
+        "CarServiceTestRule",
+        "SettingsLib",
         "android.car.feature-aconfig-java",
         "android.car.testapi",
         "android.car.test.utils",
@@ -39,7 +41,6 @@ java_defaults {
         "mockito-target-extended",
         "platform-test-annotations",
         "ravenwood-junit",
-        "SettingsLib",
         "servicestests-utils",
         "truth",
         "vehicle-hal-support-lib",
@@ -538,6 +539,7 @@ android_ravenwood_test {
     ],
 
     static_libs: [
+        "CarServiceTestRule",
         // Use the car-lib with fake dependencies because some real dependencies are missing on
         // host.
         "android.car-with-fake-dep",
