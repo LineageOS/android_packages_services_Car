@@ -333,16 +333,16 @@ public final class CarUserNoticeService implements CarServiceBase {
             if (DBG) Slogf.d(TAG, "Notice UI not necessary: userId " + userId);
             return;
         }
-        if (!isNoticeScreenEnabledInSetting(userId)) {
-            if (DBG) {
-                Slogf.d(TAG, "Notice UI not necessary as notice screen not enabled in settings.");
-            }
-            return;
-        }
         if (userId != ActivityManager.getCurrentUser()) {
             if (DBG) {
                 Slogf.d(TAG, "Notice UI not necessary as user has switched. will be handled by user"
                                 + " switch callback.");
+            }
+            return;
+        }
+        if (!isNoticeScreenEnabledInSetting(userId)) {
+            if (DBG) {
+                Slogf.d(TAG, "Notice UI not necessary as notice screen not enabled in settings.");
             }
             return;
         }

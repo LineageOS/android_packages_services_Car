@@ -23,7 +23,6 @@ import static java.lang.Integer.toHexString;
 import android.annotation.NonNull;
 import android.car.VehiclePropertyIds;
 import android.car.builtin.util.Slogf;
-import android.car.feature.Flags;
 import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.CarPropertyValue;
 import android.car.hardware.property.AreaIdConfig;
@@ -109,22 +108,14 @@ public class VehiclePropertyPublisher extends AbstractPublisher {
         Preconditions.checkArgument(
                 config != null,
                 "Vehicle property " + VehiclePropertyIds.toString(propertyId) + " not found.");
-        if (Flags.areaIdConfigAccess()) {
-            for (AreaIdConfig<?> areaIdConfig : config.getAreaIdConfigs()) {
-                int accessLevel = areaIdConfig.getAccess();
-                Preconditions.checkArgument(
-                        accessLevel == CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ
-                                || accessLevel
-                                == CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ_WRITE,
-                        "No access. Cannot read " + VehiclePropertyIds.toString(propertyId)
-                                + " at areaId: " + areaIdConfig.getAreaId());
-            }
-        } else {
+        for (AreaIdConfig<?> areaIdConfig : config.getAreaIdConfigs()) {
+            int accessLevel = areaIdConfig.getAccess();
             Preconditions.checkArgument(
-                    config.getAccess() == CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ
-                            || config.getAccess()
+                    accessLevel == CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ
+                            || accessLevel
                             == CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ_WRITE,
-                    "No access. Cannot read " + VehiclePropertyIds.toString(propertyId) + ".");
+                    "No access. Cannot read " + VehiclePropertyIds.toString(propertyId)
+                            + " at areaId: " + areaIdConfig.getAreaId());
         }
         PropertyData propertyData = mPropertyDataLookup.get(propertyId);
         if (propertyData == null) {

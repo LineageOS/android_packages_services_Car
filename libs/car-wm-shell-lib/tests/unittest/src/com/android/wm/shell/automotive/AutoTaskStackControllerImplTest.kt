@@ -735,4 +735,65 @@ class AutoTaskStackControllerImplTest : CarWmShellTestCase() {
             AutoTaskStackState(Rect(), true, 1)
         )
     }
+
+    @Test
+    fun transitionFromCore_withAdditionalChangeForExistingTaskStack_taskStacksReconciled() {
+        // Arrange
+        val taskLeash = mock(SurfaceControl::class.java)
+        val (rootTaskInfo, taskListener1) = setupRootTask(taskId = 101, leash = taskLeash)
+        val rootTask1Child =
+            setupChildTask(taskId = 111, parentTaskId = 101, parentTaskListener = taskListener1)
+        val (rootTaskInfo2, taskListener2) = setupRootTask(taskId = 102, leash = taskLeash)
+        val rootTask2Child =
+            setupChildTask(taskId = 112, parentTaskId = 102, parentTaskListener = taskListener2)
+        val (rootTaskInfo3, taskListener3) = setupRootTask(taskId = 103, leash = taskLeash)
+        val rootTask3Child =
+            setupChildTask(taskId = 113, parentTaskId = 103, parentTaskListener = taskListener3)
+        val transaction = AutoTaskStackTransaction().setTaskStackState(
+            rootTaskInfo.taskId,
+            AutoTaskStackState(Rect(10, 10, 30, 30), true, 0)
+        ).setTaskStackState(
+            rootTaskInfo2.taskId,
+            AutoTaskStackState(Rect(10, 10, 40, 300), true, 0)
+        ).setTaskStackState(
+            rootTaskInfo3.taskId,
+            AutoTaskStackState(Rect(10, 10, 40, 300), false, 900)
+        )
+        delegate.handleRequestReturn = transaction
+        delegate.play = true
+
+        val transition = mock(IBinder::class.java)
+        val requestInfo = mock(TransitionRequestInfo::class.java)
+        controller.handleRequest(transition, requestInfo)
+        val info = TransitionInfoBuilder(1)
+            .addChange(TransitionInfo.Change(rootTaskInfo.token, taskLeash).apply {
+                taskInfo = rootTaskInfo
+            })
+            .addChange(TransitionInfo.Change(rootTaskInfo2.token, taskLeash).apply {
+                taskInfo = rootTaskInfo2
+            })
+            // Send an additional change for the rootTask3 child
+            .addChange(TransitionInfo.Change(rootTask3Child.token, taskLeash).apply {
+                taskInfo = rootTask3Child
+                mode = WindowManager.TRANSIT_OPEN
+            })
+            .build()
+
+        // Act
+        val result = controller.startAnimation(
+            transition,
+            info,
+            mock(SurfaceControl.Transaction::class.java),
+            mock(SurfaceControl.Transaction::class.java),
+            mock(TransitionFinishCallback::class.java)
+        )
+
+        // Assert
+        assertThat(result).isTrue()
+        assertThat(delegate.lastTaskStackStates).containsKey(rootTaskInfo3.taskId)
+        assertThat(delegate.lastTaskStackStates).containsEntry(
+            rootTaskInfo3.taskId,
+            AutoTaskStackState(Rect(10, 10, 40, 300), true, 900)
+        )
+    }
 }

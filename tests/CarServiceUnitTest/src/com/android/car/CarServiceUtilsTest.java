@@ -43,6 +43,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.hardware.automotive.vehicle.SubscribeOptions;
+import android.os.HandlerThread;
 import android.os.Process;
 import android.text.TextUtils;
 import android.util.ArraySet;
@@ -95,10 +96,13 @@ public class CarServiceUtilsTest extends AbstractExtendedMockitoTestCase {
     }
 
     @Before
-    public void setUp() {
+    public void setUp() throws Exception {
         mockAmGetCurrentUser(CURRENT_USER_ID);
         when(mContext.getPackageManager()).thenReturn(mPm);
         when(mContext.getSystemService(PackageManager.class)).thenReturn(mPm);
+
+        // Because handler thread pool is global static, clear the pool to prevent interference.
+        CarServiceUtils.quitHandlerThreads();
     }
 
     @After
@@ -445,5 +449,82 @@ public class CarServiceUtilsTest extends AbstractExtendedMockitoTestCase {
         CarServiceUtils.EncryptedData two = new CarServiceUtils.EncryptedData(dataTwo, ivTwo);
 
         expectWithMessage("The same encrypted data").that(one).isNotEqualTo(two);
+    }
+
+    @Test
+    public void testGetHandlerThread() throws Exception {
+        var testName = "myName";
+        try {
+            Thread thread = CarServiceUtils.getHandlerThread(testName);
+
+            assertThat(thread.isAlive()).isTrue();
+        } finally {
+            CarServiceUtils.quitHandlerThreads();
+        }
+    }
+
+    @Test
+    public void testGetHandlerThread_sameNameCached() throws Exception {
+        var testName1 = "myName";
+        var testName2 = "myName2";
+        try {
+            Thread thread1 = CarServiceUtils.getHandlerThread(testName1);
+            Thread thread2 = CarServiceUtils.getHandlerThread(testName1);
+            Thread thread3 = CarServiceUtils.getHandlerThread(testName2);
+
+            assertThat(thread1).isEqualTo(thread2);
+            assertThat(thread1).isNotEqualTo(thread3);
+        } finally {
+            CarServiceUtils.quitHandlerThreads();
+        }
+    }
+
+    @Test
+    public void testGetHandlerThread_threadDead() throws Exception {
+        var testName = "myName";
+        try {
+            HandlerThread thread = CarServiceUtils.getHandlerThread(testName);
+
+            // The client should use releaseHandlerThread but client may still stop the thread
+            // explicitly. This will cause a resource leak, but we should still guarantee a new
+            // getHandlerThread returns a valid thread.
+            thread.quitSafely();
+            thread.join();
+
+            // The stored thread is dead, must create a new thread.
+            Thread thread2 = CarServiceUtils.getHandlerThread(testName);
+
+            assertThat(thread2.isAlive()).isTrue();
+        } finally {
+            CarServiceUtils.quitHandlerThreads();
+        }
+    }
+
+    @Test
+    public void testReleaseHandleThread_refCount() throws Exception {
+        var testName = "myName";
+        try {
+            Thread thread1 = CarServiceUtils.getHandlerThread(testName);
+            CarServiceUtils.getHandlerThread(testName);
+
+            // Now ref count should be 1.
+            CarServiceUtils.releaseHandlerThread(testName);
+
+            assertThat(thread1.isAlive()).isTrue();
+
+            CarServiceUtils.releaseHandlerThread(testName);
+
+            assertThat(thread1.isAlive()).isFalse();
+
+            // Release again must do nothing.
+            CarServiceUtils.releaseHandlerThread(testName);
+
+            // This must create a new thread.
+            Thread thread2 = CarServiceUtils.getHandlerThread(testName);
+
+            assertThat(thread2.isAlive()).isTrue();
+        } finally {
+            CarServiceUtils.quitHandlerThreads();
+        }
     }
 }

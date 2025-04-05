@@ -22,7 +22,6 @@ import static java.lang.Integer.toHexString;
 
 import android.car.Car;
 import android.car.VehiclePropertyIds;
-import android.car.feature.Flags;
 import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.CarPropertyValue;
 import android.car.hardware.property.AreaIdConfig;
@@ -375,43 +374,8 @@ public class CarPropertyTest extends E2eCarTestBase {
             if ((cfg.getPropertyId() & VehiclePropertyGroup.MASK) == VehiclePropertyGroup.SYSTEM) {
                 String readPermission = propMgr.getReadPermission(cfg.getPropertyId());
                 String writePermission = propMgr.getWritePermission(cfg.getPropertyId());
-                if (Flags.areaIdConfigAccess()) {
-                    for (AreaIdConfig<?> areaIdConfig : cfg.getAreaIdConfigs()) {
-                        int accessModel = areaIdConfig.getAccess();
-                        switch (accessModel) {
-                            case CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_NONE:
-                                assertWithMessage("cfg: " + cfg + " must not have read permission")
-                                        .that(readPermission).isNull();
-                                assertWithMessage("cfg: " + cfg + " must not have write permission")
-                                        .that(writePermission).isNull();
-                                break;
-                            case CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ_WRITE:
-                                assertWithMessage("cfg: " + cfg + " must have read permission")
-                                        .that(readPermission).isNotNull();
-                                assertWithMessage("cfg: " + cfg + " must have write permission")
-                                        .that(writePermission).isNotNull();
-                                break;
-                            case CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_WRITE:
-                                assertWithMessage("cfg: " + cfg + " must not have read permission")
-                                        .that(readPermission).isNull();
-                                assertWithMessage("cfg: " + cfg + " must have write permission")
-                                        .that(writePermission).isNotNull();
-                                break;
-                            case CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ:
-                                assertWithMessage("cfg: " + cfg + " must have read permission")
-                                        .that(readPermission).isNotNull();
-                                assertWithMessage("cfg: " + cfg + " must not have write permission")
-                                        .that(writePermission).isNull();
-                                break;
-                            default:
-                                Assert.fail(
-                                        String.format(
-                                                "PropertyId: %d has an invalid access model: %d",
-                                                cfg.getPropertyId(), accessModel));
-                        }
-                    }
-                } else {
-                    int accessModel = cfg.getAccess();
+                for (AreaIdConfig<?> areaIdConfig : cfg.getAreaIdConfigs()) {
+                    int accessModel = areaIdConfig.getAccess();
                     switch (accessModel) {
                         case CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_NONE:
                             assertWithMessage("cfg: " + cfg + " must not have read permission")
@@ -438,9 +402,10 @@ public class CarPropertyTest extends E2eCarTestBase {
                                     .that(writePermission).isNull();
                             break;
                         default:
-                            Assert.fail(String.format(
-                                    "PropertyId: %d has an invalid access model: %d",
-                                    cfg.getPropertyId(), accessModel));
+                            Assert.fail(
+                                    String.format(
+                                            "PropertyId: %d has an invalid access model: %d",
+                                            cfg.getPropertyId(), accessModel));
                     }
                 }
             }

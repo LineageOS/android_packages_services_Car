@@ -3665,5 +3665,14 @@
           <intent-filter tools:node="removeAll" />
         </service>
 
+        <service
+          android:name="com.android.settings.appfunctions.DeviceStateAppFunctionService"
+          android:enabled="false"
+          android:exported="false"
+          tools:node="merge"
+          android:featureFlag="com.android.settings.flags.device_state"
+          tools:replace="android:exported,android:enabled,android:featureFlag">
+          <intent-filter tools:node="removeAll" />
+        </service>
     </application>
 </manifest>

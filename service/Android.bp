@@ -157,6 +157,8 @@ filegroup {
     exclude_srcs: [
         "src/com/android/car/power/NativePowerNotificationsOff.java",
         "src/com/android/car/power/NativePowerNotificationsOn.java",
+        "src/com/android/car/watchdog/WatchdogFlashMemoryRefactorFeatureEnabled.java",
+        "src/com/android/car/watchdog/WatchdogFlashMemoryRefactorFeatureDisabled.java",
     ],
 }
 
@@ -233,6 +235,9 @@ java_defaults {
     ] + select(release_flag("RELEASE_FRAMEWORK_NATIVE_POWER_NOTIFICATIONS"), {
         true: ["native_power_notifications_enabled"],
         default: ["native_power_notifications_disabled"],
+    }) + select(release_flag("RELEASE_CAR_FRAMEWORK_WATCHDOG_FLASHMEMORY_REFACTOR"), {
+        true: ["watchdog_flash_memory_refactor_feature_enabled"],
+        default: ["watchdog_flash_memory_refactor_feature_disabled"],
     }),
 
     proto: {
@@ -381,6 +386,30 @@ java_library {
     name: "native_power_notifications_disabled",
     srcs: [
         "src/com/android/car/power/NativePowerNotificationsOff.java",
+    ],
+    sdk_version: "module_current",
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.car.framework",
+    ],
+}
+
+java_library {
+    name: "watchdog_flash_memory_refactor_feature_enabled",
+    srcs: [
+        "src/com/android/car/watchdog/WatchdogFlashMemoryRefactorFeatureEnabled.java",
+    ],
+    sdk_version: "module_current",
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.car.framework",
+    ],
+}
+
+java_library {
+    name: "watchdog_flash_memory_refactor_feature_disabled",
+    srcs: [
+        "src/com/android/car/watchdog/WatchdogFlashMemoryRefactorFeatureDisabled.java",
     ],
     sdk_version: "module_current",
     apex_available: [

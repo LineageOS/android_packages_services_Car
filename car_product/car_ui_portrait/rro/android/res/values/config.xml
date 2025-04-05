@@ -56,9 +56,4 @@
     or > 1 it is ignored and for non-tabletop mode central position is used (0.5); for
      tabletop mode top (0.0) is used. -->
     <item name="config_letterboxVerticalPositionMultiplier" format="float" type="dimen">0.5</item>
-
-    <!-- Class name of the device specific implementation of DisplayAreaPolicy.Provider or empty if the default should be used. -->
-    <string translatable="false" name="config_deviceSpecificDisplayAreaPolicyProvider">
-        com.android.server.wm.CarDisplayAreaPolicyProvider
-    </string>
 </resources>

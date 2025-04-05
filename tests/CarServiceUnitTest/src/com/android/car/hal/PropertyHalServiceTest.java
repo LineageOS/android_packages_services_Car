@@ -26,6 +26,7 @@ import static android.car.VehiclePropertyIds.HVAC_TEMPERATURE_SET;
 import static android.car.VehiclePropertyIds.INFO_FUEL_DOOR_LOCATION;
 import static android.car.VehiclePropertyIds.PERF_VEHICLE_SPEED;
 import static android.car.VehiclePropertyIds.VEHICLE_SPEED_DISPLAY_UNITS;
+import static android.car.feature.Flags.FLAG_PROPERTY_VALUE_USE_DIRECT_EXECUTOR;
 import static android.car.hardware.CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ;
 import static android.car.hardware.property.VehicleHalStatusCode.STATUS_INTERNAL_ERROR;
 import static android.car.hardware.property.VehicleHalStatusCode.STATUS_NOT_AVAILABLE;
@@ -68,6 +69,7 @@ import android.car.hardware.property.AreaIdConfig;
 import android.car.hardware.property.CarPropertyManager;
 import android.car.hardware.property.ICarPropertyEventListener;
 import android.car.test.AbstractExpectableTestCase;
+import android.car.test.NoActiveHandlerThreadCheckerRule;
 import android.hardware.automotive.vehicle.RawPropValues;
 import android.hardware.automotive.vehicle.VehicleAreaConfig;
 import android.hardware.automotive.vehicle.VehicleAreaSeat;
@@ -81,6 +83,8 @@ import android.hardware.automotive.vehicle.VehicleVendorPermission;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.ServiceSpecificException;
+import android.platform.test.annotations.EnableFlags;
+import android.platform.test.flag.junit.SetFlagsRule;
 import android.util.ArraySet;
 
 import androidx.test.runner.AndroidJUnit4;
@@ -128,6 +132,12 @@ import java.util.Set;
 public class PropertyHalServiceTest extends AbstractExpectableTestCase{
     @Rule
     public MockitoRule mMockitoRule = MockitoJUnit.rule();
+    @Rule
+    public final SetFlagsRule mSetFlagsRule = new SetFlagsRule();
+
+    @Rule
+    public NoActiveHandlerThreadCheckerRule mNoActiveHandlerThreadCheckerRule =
+            new NoActiveHandlerThreadCheckerRule();
 
     @Mock
     private VehicleHal mVehicleHal;
@@ -224,7 +234,7 @@ public class PropertyHalServiceTest extends AbstractExpectableTestCase{
     }
 
     @Before
-    public void setUp() {
+    public void setUp() throws Exception {
         when(mVehicleHal.getHalPropValueBuilder()).thenReturn(mPropValueBuilder);
         mPropertyHalService = new PropertyHalService(mVehicleHal);
         mPropertyHalService.setPropertyHalServiceConfigs(PropertyHalServiceConfigs.newConfigs());
@@ -297,8 +307,9 @@ public class PropertyHalServiceTest extends AbstractExpectableTestCase{
     }
 
     @After
-    public void tearDown() {
+    public void tearDown() throws Exception {
         mPropertyHalService.release();
+        mPropertyHalService.destroy();
         mPropertyHalService = null;
     }
 
@@ -4014,6 +4025,19 @@ public class PropertyHalServiceTest extends AbstractExpectableTestCase{
         assertWithMessage("Get last injected vehicle property")
                 .that(mPropertyHalService.getLastInjectedVehicleProperty(52))
                 .isEqualTo(carPropertyValue);
+    }
+
+    @Test
+    @EnableFlags(FLAG_PROPERTY_VALUE_USE_DIRECT_EXECUTOR)
+    public void testSetDirectExecutor() {
+        clearInvocations(mVehicleHal);
+        var propertyHalService = new PropertyHalService(mVehicleHal);
+        propertyHalService.setPropertyHalServiceConfigs(PropertyHalServiceConfigs.newConfigs());
+
+        propertyHalService.init();
+
+        verify(mVehicleHal).setCallbackExecutor(eq(propertyHalService), any());
+        propertyHalService.destroy();
     }
 
     /** Creates a {@code CarSubscription} with Vur off. */

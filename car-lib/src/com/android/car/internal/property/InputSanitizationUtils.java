@@ -72,7 +72,7 @@ public final class InputSanitizationUtils {
      */
     public static float sanitizeResolution(FeatureFlags featureFlags,
             CarPropertyConfig<?> carPropertyConfig, float resolution) {
-        if (!featureFlags.subscriptionWithResolution() || carPropertyConfig.getChangeMode()
+        if (carPropertyConfig.getChangeMode()
                 != CarPropertyConfig.VEHICLE_PROPERTY_CHANGE_MODE_CONTINUOUS) {
             return 0.0f;
         }

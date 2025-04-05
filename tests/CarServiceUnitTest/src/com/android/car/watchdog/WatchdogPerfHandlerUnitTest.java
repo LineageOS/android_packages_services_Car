@@ -45,9 +45,9 @@ import static com.android.car.internal.NotificationHelperBase.CAR_WATCHDOG_ACTIO
 import static com.android.car.internal.NotificationHelperBase.RESOURCE_OVERUSE_NOTIFICATION_BASE_ID;
 import static com.android.car.internal.NotificationHelperBase.RESOURCE_OVERUSE_NOTIFICATION_MAX_OFFSET;
 import static com.android.car.watchdog.TimeSource.ZONE_OFFSET;
-import static com.android.car.watchdog.WatchdogPerfHandlerStable.MAX_WAIT_TIME_MILLS;
-import static com.android.car.watchdog.WatchdogPerfHandlerStable.PACKAGES_DISABLED_ON_RESOURCE_OVERUSE_SEPARATOR;
-import static com.android.car.watchdog.WatchdogPerfHandlerStable.USER_PACKAGE_SEPARATOR;
+import static com.android.car.watchdog.WatchdogPerfHandlerInterface.MAX_DAEMON_CONNECTION_WAIT_TIME_MILLS;
+import static com.android.car.watchdog.WatchdogPerfHandlerInterface.PACKAGES_DISABLED_ON_RESOURCE_OVERUSE_SEPARATOR;
+import static com.android.car.watchdog.WatchdogPerfHandlerInterface.USER_PACKAGE_SEPARATOR;
 import static com.android.car.watchdog.WatchdogStorage.RETENTION_PERIOD;
 import static com.android.car.watchdog.WatchdogStorage.WatchdogDbHelper.DATABASE_NAME;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doAnswer;
@@ -166,7 +166,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Executor;
 
-public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTestCase {
+public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase {
     private static final int UID_IO_USAGE_SUMMARY_TOP_COUNT = 3;
     private static final int RECURRING_OVERUSE_TIMES = 2;
     private static final int RECURRING_OVERUSE_PERIOD_IN_DAYS = 2;
@@ -178,7 +178,7 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
     private static final int CURRENT_USER_ID = 100;
     private static final String WATCHDOG_DIR_NAME = "watchdog";
     private static final String CANONICAL_NAME =
-            WatchdogPerfHandlerStableUnitTest.class.getCanonicalName();
+            WatchdogPerfHandlerUnitTest.class.getCanonicalName();
     private static final String CAR_WATCHDOG_SERVICE_NAME =
             CarWatchdogService.class.getSimpleName();
     private static final String SYSTEM_IO_USAGE_SUMMARY_REPORTED_DATE =
@@ -239,7 +239,7 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
     private ICarUxRestrictionsChangeListener mCarUxRestrictionsChangeListener;
     private StatsManager.StatsPullAtomCallback mStatsPullAtomCallback;
     private WatchdogStorage mSpiedWatchdogStorage;
-    private WatchdogPerfHandlerStable mWatchdogPerfHandlerStable;
+    private WatchdogPerfHandler mWatchdogPerfHandler;
     private File mTempSystemCarDir;
     // Not used directly, but sets proper mockStatic() expectations on Settings
     @SuppressWarnings("UnusedVariable")
@@ -263,7 +263,7 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
     private final List<AtomsProto.CarWatchdogUidIoUsageSummary> mPulledUidIoUsageSummaries =
             new ArrayList<>();
 
-    public WatchdogPerfHandlerStableUnitTest() {
+    public WatchdogPerfHandlerUnitTest() {
         super(CarWatchdogService.TAG);
     }
 
@@ -325,7 +325,7 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
         mSpiedWatchdogStorage =
                 spy(new WatchdogStorage(mMockContext, /* useDataSystemCarDir= */ false,
                         mTimeSource));
-        mWatchdogPerfHandlerStable = new WatchdogPerfHandlerStable(mMockContext,
+        mWatchdogPerfHandler = new WatchdogPerfHandler(mMockContext,
                 mMockBuiltinPackageContext, mMockCarWatchdogDaemonHelper,
                 new PackageInfoHandler(mMockContext.getPackageManager()),
                 mSpiedWatchdogStorage, mTimeSource);
@@ -353,7 +353,7 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
         IResourceOveruseListener mockListener = createMockResourceOveruseListener();
 
         assertThrows(IllegalArgumentException.class, () -> {
-            mWatchdogPerfHandlerStable.addResourceOveruseListener(/* resourceOveruseFlag= */ 0,
+            mWatchdogPerfHandler.addResourceOveruseListener(/* resourceOveruseFlag= */ 0,
                     mockListener);
         });
     }
@@ -367,9 +367,9 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
         Intent intent = new Intent(CAR_WATCHDOG_ACTION_RESOURCE_OVERUSE_DISABLE_APP)
                 .putExtra(Intent.EXTRA_PACKAGE_NAME, packageName)
                 .putExtra(Intent.EXTRA_USER, userHandle)
-                .putExtra(WatchdogPerfHandlerStable.INTENT_EXTRA_NOTIFICATION_ID, notificationId);
+                .putExtra(WatchdogPerfHandler.INTENT_EXTRA_NOTIFICATION_ID, notificationId);
 
-        mWatchdogPerfHandlerStable.processUserNotificationIntent(intent);
+        mWatchdogPerfHandler.processUserNotificationIntent(intent);
 
         verifyDisabledPackages(/* userPackagesCsv= */ "100:third_party_package");
 
@@ -388,9 +388,9 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
         Intent intent = new Intent(CAR_WATCHDOG_ACTION_RESOURCE_OVERUSE_DISABLE_APP)
                 .putExtra(Intent.EXTRA_PACKAGE_NAME, packageName)
                 .putExtra(Intent.EXTRA_USER, userHandle)
-                .putExtra(WatchdogPerfHandlerStable.INTENT_EXTRA_NOTIFICATION_ID, notificationId);
+                .putExtra(WatchdogPerfHandler.INTENT_EXTRA_NOTIFICATION_ID, notificationId);
 
-        mWatchdogPerfHandlerStable.processUserNotificationIntent(intent);
+        mWatchdogPerfHandler.processUserNotificationIntent(intent);
 
         verifyNoDisabledPackages();
 
@@ -407,7 +407,7 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
                 .putExtra(Intent.EXTRA_PACKAGE_NAME, packageName)
                 .putExtra(Intent.EXTRA_USER, userHandle);
 
-        mWatchdogPerfHandlerStable.processUserNotificationIntent(intent);
+        mWatchdogPerfHandler.processUserNotificationIntent(intent);
 
         verifyDisabledPackages(/* userPackagesCsv= */ "100:third_party_package");
 
@@ -423,9 +423,9 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
         Intent intent = new Intent(CAR_WATCHDOG_ACTION_DISMISS_RESOURCE_OVERUSE_NOTIFICATION)
                 .putExtra(Intent.EXTRA_PACKAGE_NAME, packageName)
                 .putExtra(Intent.EXTRA_USER, userHandle)
-                .putExtra(WatchdogPerfHandlerStable.INTENT_EXTRA_NOTIFICATION_ID, notificationId);
+                .putExtra(WatchdogPerfHandler.INTENT_EXTRA_NOTIFICATION_ID, notificationId);
 
-        mWatchdogPerfHandlerStable.processUserNotificationIntent(intent);
+        mWatchdogPerfHandler.processUserNotificationIntent(intent);
 
         verifyNoDisabledPackages();
 
@@ -442,7 +442,7 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
                 .putExtra(Intent.EXTRA_PACKAGE_NAME, packageName)
                 .putExtra(Intent.EXTRA_USER, userHandle);
 
-        mWatchdogPerfHandlerStable.processUserNotificationIntent(intent);
+        mWatchdogPerfHandler.processUserNotificationIntent(intent);
 
         verifyNoDisabledPackages();
 
@@ -458,9 +458,9 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
         Intent intent = new Intent(CAR_WATCHDOG_ACTION_LAUNCH_APP_SETTINGS)
                 .putExtra(Intent.EXTRA_PACKAGE_NAME, packageName)
                 .putExtra(Intent.EXTRA_USER, userHandle)
-                .putExtra(WatchdogPerfHandlerStable.INTENT_EXTRA_NOTIFICATION_ID, notificationId);
+                .putExtra(WatchdogPerfHandler.INTENT_EXTRA_NOTIFICATION_ID, notificationId);
 
-        mWatchdogPerfHandlerStable.processUserNotificationIntent(intent);
+        mWatchdogPerfHandler.processUserNotificationIntent(intent);
 
         verify(mMockBuiltinPackageContext).startActivityAsUser(
                 mStartActivityAsUserIntentCaptor.capture(), eq(userHandle));
@@ -486,7 +486,7 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
         injectPackageInfos(Collections.singletonList(
                 constructPackageManagerPackageInfo("third_party_package",
                         10103456, /* sharedUserId= */  null)));
-        mWatchdogPerfHandlerStable.setKillablePackageAsUser("third_party_package", userHandle,
+        mWatchdogPerfHandler.setKillablePackageAsUser("third_party_package", userHandle,
                 /* isKillable= */ false);
         List<WatchdogStorage.UserPackageSettingsEntry> expectedSavedUserPackageEntries =
                 List.of(
@@ -495,7 +495,7 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
                                 /* killableState= */ PackageKillableState.KILLABLE_STATE_NO,
                                 /* killableStateLastModifiedEpochSeconds= */ 123456789));
 
-        mWatchdogPerfHandlerStable.writeToDatabase();
+        mWatchdogPerfHandler.writeToDatabase();
 
         verify(mSpiedWatchdogStorage, times(1)).startWrite();
         verify(mSpiedWatchdogStorage, times(1)).saveUserPackageSettings(
@@ -544,7 +544,7 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
                                 /* forgivenWriteBytes= */ constructPerStateBytes(1050, 1100, 1200),
                                 /* forgivenOveruses= */ 0, /* totalTimesKilled= */ 0)));
 
-        mWatchdogPerfHandlerStable.writeToDatabase();
+        mWatchdogPerfHandler.writeToDatabase();
 
         // An attempt to write to the database is also triggered by checkAndHandleDateChange after
         // changing the date.
@@ -595,7 +595,7 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
                                 /* forgivenWriteBytes= */ constructPerStateBytes(1050, 1100, 1200),
                                 /* forgivenOveruses= */ 0, /* totalTimesKilled= */ 0)));
 
-        mWatchdogPerfHandlerStable.writeToDatabase();
+        mWatchdogPerfHandler.writeToDatabase();
 
         verify(mSpiedWatchdogStorage, times(1)).startWrite();
         verify(mSpiedWatchdogStorage, times(1)).saveIoUsageStats(
@@ -624,14 +624,14 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
                                 "third_party_package.A")),
                         /* shouldNotifyPackages= */ new ArraySet<>());
 
-        mWatchdogPerfHandlerStable.setKillablePackageAsUser(
+        mWatchdogPerfHandler.setKillablePackageAsUser(
                 "third_party_package.A", UserHandle.of(102), /* isKillable= */ false);
 
-        mWatchdogPerfHandlerStable.deleteUser(102);
+        mWatchdogPerfHandler.deleteUser(102);
 
-        List<ResourceOveruseStats> actualStats =
-                mWatchdogPerfHandlerStable.getAllResourceOveruseStats(FLAG_RESOURCE_OVERUSE_IO,
-                        /* minimumStatsFlag= */ 0, CarWatchdogManager.STATS_PERIOD_CURRENT_DAY);
+        List<ResourceOveruseStats> actualStats = mWatchdogPerfHandler.getAllResourceOveruseStats(
+                FLAG_RESOURCE_OVERUSE_IO, /* minimumStatsFlag= */ 0,
+                CarWatchdogManager.STATS_PERIOD_CURRENT_DAY);
 
         List<ResourceOveruseStats> expectedStats = Arrays.asList(
                 constructResourceOveruseStats(
@@ -648,7 +648,7 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
 
     @Test
     public void testRelease() {
-        mWatchdogPerfHandlerStable.release();
+        mWatchdogPerfHandler.release();
 
         verify(mMockCarUxRestrictionsManagerService).unregisterUxRestrictionsChangeListener(
                 mICarUxRestrictionsChangeListenerCaptor.capture());
@@ -667,7 +667,7 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
                 .that(mStatsPullAtomCallback.onPullAtom(CAR_WATCHDOG_SYSTEM_IO_USAGE_SUMMARY,
                         new ArrayList<>())).isEqualTo(PULL_SUCCESS);
 
-        mWatchdogPerfHandlerStable.writeMetadataFile();
+        mWatchdogPerfHandler.writeMetadataFile();
 
         File metadataFile = new File(mTempSystemCarDir.getAbsolutePath() + '/' + WATCHDOG_DIR_NAME,
                 METADATA_FILENAME);
@@ -708,7 +708,7 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
         IResourceOveruseListener mockListener = createMockResourceOveruseListener();
         IBinder mockBinder = mockListener.asBinder();
 
-        mWatchdogPerfHandlerStable.addResourceOveruseListener(FLAG_RESOURCE_OVERUSE_IO,
+        mWatchdogPerfHandler.addResourceOveruseListener(FLAG_RESOURCE_OVERUSE_IO,
                 mockListener);
 
         verify(mockBinder).linkToDeath(any(IBinder.DeathRecipient.class), anyInt());
@@ -720,7 +720,7 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
 
         verify(mockListener).onOveruse(any());
 
-        mWatchdogPerfHandlerStable.removeResourceOveruseListener(mockListener);
+        mWatchdogPerfHandler.removeResourceOveruseListener(mockListener);
 
         verify(mockListener, atLeastOnce()).asBinder();
         verify(mockBinder).unlinkToDeath(any(IBinder.DeathRecipient.class), anyInt());
@@ -740,16 +740,16 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
         IResourceOveruseListener mockListener = createMockResourceOveruseListener();
         IBinder mockBinder = mockListener.asBinder();
 
-        mWatchdogPerfHandlerStable.addResourceOveruseListener(FLAG_RESOURCE_OVERUSE_IO,
+        mWatchdogPerfHandler.addResourceOveruseListener(FLAG_RESOURCE_OVERUSE_IO,
                 mockListener);
 
         assertThrows(IllegalStateException.class,
-                () -> mWatchdogPerfHandlerStable.addResourceOveruseListener(
+                () -> mWatchdogPerfHandler.addResourceOveruseListener(
                         FLAG_RESOURCE_OVERUSE_IO, mockListener));
 
         verify(mockBinder).linkToDeath(any(IBinder.DeathRecipient.class), anyInt());
 
-        mWatchdogPerfHandlerStable.removeResourceOveruseListener(mockListener);
+        mWatchdogPerfHandler.removeResourceOveruseListener(mockListener);
 
         verify(mockListener, atLeastOnce()).asBinder();
         verify(mockBinder).unlinkToDeath(any(IBinder.DeathRecipient.class), anyInt());
@@ -766,9 +766,9 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
         IResourceOveruseListener secondMockListener = createMockResourceOveruseListener();
         IBinder secondMockBinder = secondMockListener.asBinder();
 
-        mWatchdogPerfHandlerStable.addResourceOveruseListener(FLAG_RESOURCE_OVERUSE_IO,
+        mWatchdogPerfHandler.addResourceOveruseListener(FLAG_RESOURCE_OVERUSE_IO,
                 firstMockListener);
-        mWatchdogPerfHandlerStable.addResourceOveruseListener(FLAG_RESOURCE_OVERUSE_IO,
+        mWatchdogPerfHandler.addResourceOveruseListener(FLAG_RESOURCE_OVERUSE_IO,
                 secondMockListener);
 
         verify(firstMockBinder).linkToDeath(any(IBinder.DeathRecipient.class), anyInt());
@@ -781,7 +781,7 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
 
         verify(firstMockListener).onOveruse(any());
 
-        mWatchdogPerfHandlerStable.removeResourceOveruseListener(firstMockListener);
+        mWatchdogPerfHandler.removeResourceOveruseListener(firstMockListener);
 
         verify(firstMockListener, atLeastOnce()).asBinder();
         verify(firstMockBinder).unlinkToDeath(any(IBinder.DeathRecipient.class), anyInt());
@@ -793,7 +793,7 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
 
         verify(secondMockListener, times(2)).onOveruse(any());
 
-        mWatchdogPerfHandlerStable.removeResourceOveruseListener(secondMockListener);
+        mWatchdogPerfHandler.removeResourceOveruseListener(secondMockListener);
 
         verify(secondMockListener, atLeastOnce()).asBinder();
         verify(secondMockBinder).unlinkToDeath(any(IBinder.DeathRecipient.class), anyInt());
@@ -812,8 +812,8 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
         IResourceOveruseListener mockListener = createMockResourceOveruseListener();
 
         assertThrows(IllegalArgumentException.class, () -> {
-            mWatchdogPerfHandlerStable.addResourceOveruseListenerForSystem(
-                    /* resourceOveruseFlag= */ 0, mockListener);
+            mWatchdogPerfHandler.addResourceOveruseListenerForSystem(/* resourceOveruseFlag= */ 0,
+                    mockListener);
         });
     }
 
@@ -823,7 +823,7 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
         mGenericPackageNameByUid.put(callingUid, "system_package.critical");
 
         IResourceOveruseListener mockListener = createMockResourceOveruseListener();
-        mWatchdogPerfHandlerStable.addResourceOveruseListenerForSystem(FLAG_RESOURCE_OVERUSE_IO,
+        mWatchdogPerfHandler.addResourceOveruseListenerForSystem(FLAG_RESOURCE_OVERUSE_IO,
                 mockListener);
 
         IBinder mockBinder = mockListener.asBinder();
@@ -844,7 +844,7 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
 
         verify(mockListener).onOveruse(any());
 
-        mWatchdogPerfHandlerStable.removeResourceOveruseListenerForSystem(mockListener);
+        mWatchdogPerfHandler.removeResourceOveruseListenerForSystem(mockListener);
 
         verify(mockListener, atLeastOnce()).asBinder();
         verify(mockBinder).unlinkToDeath(any(IBinder.DeathRecipient.class), anyInt());
@@ -856,7 +856,7 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
 
     @Test
     public void testSetResourceOveruseConfigurations() throws Exception {
-        assertThat(mWatchdogPerfHandlerStable.setResourceOveruseConfigurations(
+        assertThat(mWatchdogPerfHandler.setResourceOveruseConfigurations(
                 sampleResourceOveruseConfigurations(), FLAG_RESOURCE_OVERUSE_IO))
                 .isEqualTo(RETURN_CODE_SUCCESS);
 
@@ -878,17 +878,17 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
         doThrow(RemoteException.class)
                 .when(mMockCarWatchdogDaemonHelper).updateResourceOveruseConfigurations(anyList());
 
-        assertThat(mWatchdogPerfHandlerStable.setResourceOveruseConfigurations(
+        assertThat(mWatchdogPerfHandler.setResourceOveruseConfigurations(
                 sampleResourceOveruseConfigurations(), FLAG_RESOURCE_OVERUSE_IO))
                 .isEqualTo(CarWatchdogManager.RETURN_CODE_SUCCESS);
 
-        mWatchdogPerfHandlerStable.onDaemonConnectionChange(/* isConnected= */ true);
+        mWatchdogPerfHandler.onDaemonConnectionChange(/* isConnected= */ true);
 
         doNothing().when(mMockCarWatchdogDaemonHelper).updateResourceOveruseConfigurations(
                 anyList());
 
         /* The below final restart should set the resource overuse configurations successfully. */
-        mWatchdogPerfHandlerStable.onDaemonConnectionChange(/* isConnected= */ true);
+        mWatchdogPerfHandler.onDaemonConnectionChange(/* isConnected= */ true);
 
         InternalResourceOveruseConfigurationSubject
                 .assertThat(captureOnSetResourceOveruseConfigurations(/* wantedInvocations= */ 3))
@@ -901,13 +901,13 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
     @Test
     public void testSetResourceOveruseConfigurationsRetriedWithDisconnectedDaemon()
             throws Exception {
-        mWatchdogPerfHandlerStable.onDaemonConnectionChange(/* isConnected= */ false);
+        mWatchdogPerfHandler.onDaemonConnectionChange(/* isConnected= */ false);
 
-        assertThat(mWatchdogPerfHandlerStable.setResourceOveruseConfigurations(
+        assertThat(mWatchdogPerfHandler.setResourceOveruseConfigurations(
                 sampleResourceOveruseConfigurations(), FLAG_RESOURCE_OVERUSE_IO))
                 .isEqualTo(RETURN_CODE_SUCCESS);
 
-        mWatchdogPerfHandlerStable.onDaemonConnectionChange(/* isConnected= */ true);
+        mWatchdogPerfHandler.onDaemonConnectionChange(/* isConnected= */ true);
 
         InternalResourceOveruseConfigurationSubject
                 .assertThat(captureOnSetResourceOveruseConfigurations(/* wantedInvocations= */ 1))
@@ -917,25 +917,25 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
     @Test
     public void testFailsSetResourceOveruseConfigurationsWithPendingRequest()
             throws Exception {
-        mWatchdogPerfHandlerStable.onDaemonConnectionChange(/* isConnected= */ false);
+        mWatchdogPerfHandler.onDaemonConnectionChange(/* isConnected= */ false);
 
-        assertThat(mWatchdogPerfHandlerStable.setResourceOveruseConfigurations(
+        assertThat(mWatchdogPerfHandler.setResourceOveruseConfigurations(
                 sampleResourceOveruseConfigurations(), FLAG_RESOURCE_OVERUSE_IO))
                 .isEqualTo(RETURN_CODE_SUCCESS);
 
         assertThrows(IllegalStateException.class,
-                () -> mWatchdogPerfHandlerStable.setResourceOveruseConfigurations(
+                () -> mWatchdogPerfHandler.setResourceOveruseConfigurations(
                         sampleResourceOveruseConfigurations(), FLAG_RESOURCE_OVERUSE_IO));
     }
 
     @Test
     public void testFailsSetResourceOveruseConfigurationsOnInvalidArgs() throws Exception {
         assertThrows(NullPointerException.class,
-                () -> mWatchdogPerfHandlerStable.setResourceOveruseConfigurations(
+                () -> mWatchdogPerfHandler.setResourceOveruseConfigurations(
                         /* configurations= */ null, FLAG_RESOURCE_OVERUSE_IO));
 
         assertThrows(IllegalArgumentException.class,
-                () -> mWatchdogPerfHandlerStable.setResourceOveruseConfigurations(
+                () -> mWatchdogPerfHandler.setResourceOveruseConfigurations(
                         /* configurations= */ new ArrayList<>(), FLAG_RESOURCE_OVERUSE_IO));
 
         List<ResourceOveruseConfiguration> resourceOveruseConfigs = Collections.singletonList(
@@ -944,8 +944,8 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
                         .build());
 
         assertThrows(IllegalArgumentException.class,
-                () -> mWatchdogPerfHandlerStable.setResourceOveruseConfigurations(
-                        resourceOveruseConfigs, /* resourceOveruseFlag= */ 0));
+                () -> mWatchdogPerfHandler.setResourceOveruseConfigurations(resourceOveruseConfigs,
+                        /* resourceOveruseFlag= */ 0));
     }
 
     @Test
@@ -956,8 +956,8 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
         List<ResourceOveruseConfiguration> resourceOveruseConfigs = Arrays.asList(config, config);
 
         assertThrows(IllegalArgumentException.class,
-                () -> mWatchdogPerfHandlerStable.setResourceOveruseConfigurations(
-                        resourceOveruseConfigs, FLAG_RESOURCE_OVERUSE_IO));
+                () -> mWatchdogPerfHandler.setResourceOveruseConfigurations(resourceOveruseConfigs,
+                        FLAG_RESOURCE_OVERUSE_IO));
     }
 
     @Test
@@ -976,8 +976,8 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
                                 .build());
 
         assertThrows(IllegalArgumentException.class,
-                () -> mWatchdogPerfHandlerStable.setResourceOveruseConfigurations(
-                        resourceOveruseConfigs, FLAG_RESOURCE_OVERUSE_IO));
+                () -> mWatchdogPerfHandler.setResourceOveruseConfigurations(resourceOveruseConfigs,
+                        FLAG_RESOURCE_OVERUSE_IO));
     }
 
     @Test
@@ -988,8 +988,8 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
                         ComponentType.SYSTEM, /* ioOveruseConfig= */ null).build());
 
         assertThrows(IllegalArgumentException.class,
-                () -> mWatchdogPerfHandlerStable.setResourceOveruseConfigurations(
-                        resourceOveruseConfigs, FLAG_RESOURCE_OVERUSE_IO));
+                () -> mWatchdogPerfHandler.setResourceOveruseConfigurations(resourceOveruseConfigs,
+                        FLAG_RESOURCE_OVERUSE_IO));
     }
 
     @Test
@@ -1004,8 +1004,8 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
                                 .build());
 
         assertThrows(IllegalArgumentException.class,
-                () -> mWatchdogPerfHandlerStable.setResourceOveruseConfigurations(
-                        resourceOveruseConfigs, FLAG_RESOURCE_OVERUSE_IO));
+                () -> mWatchdogPerfHandler.setResourceOveruseConfigurations(resourceOveruseConfigs,
+                        FLAG_RESOURCE_OVERUSE_IO));
     }
 
     @Test
@@ -1022,7 +1022,7 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
                 .build());
 
         assertThrows(IllegalArgumentException.class,
-                () -> mWatchdogPerfHandlerStable.setResourceOveruseConfigurations(
+                () -> mWatchdogPerfHandler.setResourceOveruseConfigurations(
                         resourceOveruseConfigs, FLAG_RESOURCE_OVERUSE_IO));
 
         resourceOveruseConfigs.set(0,
@@ -1036,15 +1036,14 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
                         .build());
 
         assertThrows(IllegalArgumentException.class,
-                () -> mWatchdogPerfHandlerStable.setResourceOveruseConfigurations(
+                () -> mWatchdogPerfHandler.setResourceOveruseConfigurations(
                         resourceOveruseConfigs, FLAG_RESOURCE_OVERUSE_IO));
     }
 
     @Test
     public void testGetResourceOveruseConfigurations() throws Exception {
         List<ResourceOveruseConfiguration> actualConfigs =
-                mWatchdogPerfHandlerStable.getResourceOveruseConfigurations(
-                        FLAG_RESOURCE_OVERUSE_IO);
+                mWatchdogPerfHandler.getResourceOveruseConfigurations(FLAG_RESOURCE_OVERUSE_IO);
 
         ResourceOveruseConfigurationSubject.assertThat(actualConfigs)
                 .containsExactlyElementsIn(sampleResourceOveruseConfigurations());
@@ -1052,13 +1051,13 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
 
     @Test
     public void testGetResourceOveruseConfigurationsWithDisconnectedDaemon() throws Exception {
-        mWatchdogPerfHandlerStable.onDaemonConnectionChange(/* isConnected= */ false);
+        mWatchdogPerfHandler.onDaemonConnectionChange(/* isConnected= */ false);
 
         assertThrows(IllegalStateException.class,
-                () -> mWatchdogPerfHandlerStable.getResourceOveruseConfigurations(
+                () -> mWatchdogPerfHandler.getResourceOveruseConfigurations(
                         FLAG_RESOURCE_OVERUSE_IO));
 
-        /* Method initially called in WatchdogPerfHandlerStable init */
+        /* Method initially called in WatchdogPerfHandler init */
         verify(mMockCarWatchdogDaemonHelper).getResourceOveruseConfigurations();
     }
 
@@ -1067,8 +1066,7 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
         crashAndDelayReconnectDaemon();
 
         List<ResourceOveruseConfiguration> actualConfigs =
-                mWatchdogPerfHandlerStable.getResourceOveruseConfigurations(
-                        FLAG_RESOURCE_OVERUSE_IO);
+                mWatchdogPerfHandler.getResourceOveruseConfigurations(FLAG_RESOURCE_OVERUSE_IO);
 
         ResourceOveruseConfigurationSubject.assertThat(actualConfigs)
                 .containsExactlyElementsIn(sampleResourceOveruseConfigurations());
@@ -1093,13 +1091,12 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
 
         /* Start a set request that will become pending and a blocking get request. */
         List<ResourceOveruseConfiguration> setConfigs = sampleResourceOveruseConfigurations();
-        assertThat(mWatchdogPerfHandlerStable.setResourceOveruseConfigurations(
+        assertThat(mWatchdogPerfHandler.setResourceOveruseConfigurations(
                 setConfigs, FLAG_RESOURCE_OVERUSE_IO))
                 .isEqualTo(CarWatchdogManager.RETURN_CODE_SUCCESS);
 
         List<ResourceOveruseConfiguration> getConfigs =
-                mWatchdogPerfHandlerStable.getResourceOveruseConfigurations(
-                        FLAG_RESOURCE_OVERUSE_IO);
+                mWatchdogPerfHandler.getResourceOveruseConfigurations(FLAG_RESOURCE_OVERUSE_IO);
 
         ResourceOveruseConfigurationSubject.assertThat(getConfigs)
                 .containsExactlyElementsIn(setConfigs);
@@ -1108,15 +1105,15 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
     @Test
     public void testFailsGetResourceOveruseConfigurationsOnInvalidArgs() throws Exception {
         assertThrows(IllegalArgumentException.class,
-                () -> mWatchdogPerfHandlerStable.getResourceOveruseConfigurations(0));
+                () -> mWatchdogPerfHandler.getResourceOveruseConfigurations(0));
     }
 
     private void crashAndDelayReconnectDaemon() {
-        mWatchdogPerfHandlerStable.onDaemonConnectionChange(/* isConnected= */ false);
+        mWatchdogPerfHandler.onDaemonConnectionChange(/* isConnected= */ false);
 
         mMainHandler.postDelayed(
-                () -> mWatchdogPerfHandlerStable.onDaemonConnectionChange(/* isConnected= */ true),
-                MAX_WAIT_TIME_MILLS - 1000);
+                () -> mWatchdogPerfHandler.onDaemonConnectionChange(/* isConnected= */ true),
+                MAX_DAEMON_CONNECTION_WAIT_TIME_MILLS - 1000);
     }
 
     @Test
@@ -1140,12 +1137,12 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
                         /* totalTimesKilled= */ 10));
         when(mSpiedWatchdogStorage.getTodayIoUsageStats()).thenReturn(ioUsageStatsEntries);
 
-        mWatchdogPerfHandlerStable.asyncFetchTodayIoUsageStats();
+        mWatchdogPerfHandler.asyncFetchTodayIoUsageStats();
 
         ArgumentCaptor<List<UserPackageIoUsageStats>> userPackageIoUsageStatsCaptor =
                 ArgumentCaptor.forClass(List.class);
 
-        verify(mMockCarWatchdogDaemonHelper, timeout(MAX_WAIT_TIME_MILLS))
+        verify(mMockCarWatchdogDaemonHelper, timeout(MAX_DAEMON_CONNECTION_WAIT_TIME_MILLS))
                 .onTodayIoUsageStatsFetched(userPackageIoUsageStatsCaptor.capture());
 
         List<UserPackageIoUsageStats> expectedStats = Arrays.asList(
@@ -1188,10 +1185,10 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
         doThrow(RemoteException.class)
                 .when(mMockCarWatchdogDaemonHelper).onTodayIoUsageStatsFetched(any());
 
-        mWatchdogPerfHandlerStable.asyncFetchTodayIoUsageStats();
+        mWatchdogPerfHandler.asyncFetchTodayIoUsageStats();
 
         verify(mMockCarWatchdogDaemonHelper,
-                timeout(MAX_WAIT_TIME_MILLS)).onTodayIoUsageStatsFetched(any());
+                timeout(MAX_DAEMON_CONNECTION_WAIT_TIME_MILLS)).onTodayIoUsageStatsFetched(any());
     }
 
     @Test
@@ -1216,7 +1213,7 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
         when(mSpiedWatchdogStorage.getTodayIoUsageStats()).thenReturn(ioUsageStatsEntries);
 
         List<UserPackageIoUsageStats> actualStats =
-                mWatchdogPerfHandlerStable.getTodayIoUsageStats();
+                mWatchdogPerfHandler.getTodayIoUsageStats();
 
         List<UserPackageIoUsageStats> expectedStats = Arrays.asList(
                 constructUserPackageIoUsageStats(/* userId= */ 100, "system_package",
@@ -1237,7 +1234,7 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
     @Test
     public void testDisablePackageForUser() throws Exception {
         assertWithMessage("Performed resource overuse kill")
-                .that(mWatchdogPerfHandlerStable.disablePackageForUser("third_party_package",
+                .that(mWatchdogPerfHandler.disablePackageForUser("third_party_package",
                         /* userId= */ 100)).isTrue();
 
         verifyDisabledPackages(/* userPackagesCsv= */ "100:third_party_package");
@@ -1249,7 +1246,7 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
                 .getApplicationEnabledSettingForUser(anyString(), anyInt()));
 
         assertWithMessage("Performed resource overuse kill")
-                .that(mWatchdogPerfHandlerStable.disablePackageForUser("third_party_package",
+                .that(mWatchdogPerfHandler.disablePackageForUser("third_party_package",
                         /* userId= */ 100)).isFalse();
 
         verifyNoDisabledPackages();
@@ -1261,7 +1258,7 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
                 .getApplicationEnabledSetting(anyString(), anyInt());
 
         assertWithMessage("Performed resource overuse kill")
-                .that(mWatchdogPerfHandlerStable.disablePackageForUser("fake_package",
+                .that(mWatchdogPerfHandler.disablePackageForUser("fake_package",
                         /* userId= */ 100)).isFalse();
 
         verifyNoDisabledPackages();
@@ -1277,7 +1274,7 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
                 mGenericPackageNameByUid, /* killablePackages= */ new ArraySet<>(),
                 /* shouldNotifyPackages= */ new ArraySet<>());
 
-        mWatchdogPerfHandlerStable.resetResourceOveruseStats(Collections.singleton(packageName));
+        mWatchdogPerfHandler.resetResourceOveruseStats(Collections.singleton(packageName));
 
         // Resetting resource overuse stats is done on the CarWatchdogService service handler
         // thread. Wait until the below message is processed before returning, so the resource
@@ -1285,7 +1282,7 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
         CarServiceUtils.runEmptyRunnableOnLooperSync(CAR_WATCHDOG_SERVICE_NAME);
 
         ResourceOveruseStats actualStats =
-                mWatchdogPerfHandlerStable.getResourceOveruseStatsForUserPackage(
+                mWatchdogPerfHandler.getResourceOveruseStatsForUserPackage(
                         packageName, user,
                         CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO,
                         CarWatchdogManager.STATS_PERIOD_CURRENT_DAY);
@@ -1322,7 +1319,7 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
         disableUserPackage("vendor_package.critical.A", 100);
         disableUserPackage("vendor_package.critical.B", 100);
 
-        mWatchdogPerfHandlerStable.resetResourceOveruseStats(new ArraySet<>(
+        mWatchdogPerfHandler.resetResourceOveruseStats(new ArraySet<>(
                 Arrays.asList("third_party_package.A", "shared:vendor_shared_package.A",
                         "shared:system_shared_package.A", "third_party_package.B")));
 
@@ -1362,12 +1359,12 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
                 /* killablePackages= */ Set.of("third_party_package.A", "third_party_package.B"),
                 /* shouldNotifyPackages= */ new ArraySet<>());
 
-        mWatchdogPerfHandlerStable.setKillablePackageAsUser("third_party_package.A",
+        mWatchdogPerfHandler.setKillablePackageAsUser("third_party_package.A",
                 UserHandle.ALL, /* isKillable= */ false);
-        mWatchdogPerfHandlerStable.setKillablePackageAsUser("third_party_package.B",
+        mWatchdogPerfHandler.setKillablePackageAsUser("third_party_package.B",
                 UserHandle.ALL, /* isKillable= */ false);
 
-        mWatchdogPerfHandlerStable.resetResourceOveruseStats(
+        mWatchdogPerfHandler.resetResourceOveruseStats(
                 Collections.singleton("third_party_package.A"));
 
         // Resetting resource overuse stats is done on the CarWatchdogService service handler
@@ -1376,16 +1373,17 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
         CarServiceUtils.runEmptyRunnableOnLooperSync(CAR_WATCHDOG_SERVICE_NAME);
 
         PackageKillableStateSubject.assertThat(
-                mWatchdogPerfHandlerStable.getPackageKillableStatesAsUser(UserHandle.ALL))
-                .containsExactly(
-                        new PackageKillableState("third_party_package.A", 100,
-                                PackageKillableState.KILLABLE_STATE_YES),
-                        new PackageKillableState("third_party_package.A", 101,
-                                PackageKillableState.KILLABLE_STATE_YES),
-                        new PackageKillableState("third_party_package.B", 100,
-                                PackageKillableState.KILLABLE_STATE_NO),
-                        new PackageKillableState("third_party_package.B", 101,
-                                PackageKillableState.KILLABLE_STATE_NO));
+                mWatchdogPerfHandler.getPackageKillableStatesAsUser(
+                        UserHandle.ALL)).containsExactly(
+                new PackageKillableState("third_party_package.A", 100,
+                        PackageKillableState.KILLABLE_STATE_YES),
+                new PackageKillableState("third_party_package.A", 101,
+                        PackageKillableState.KILLABLE_STATE_YES),
+                new PackageKillableState("third_party_package.B", 100,
+                        PackageKillableState.KILLABLE_STATE_NO),
+                new PackageKillableState("third_party_package.B", 101,
+                        PackageKillableState.KILLABLE_STATE_NO)
+        );
 
         verify(mSpiedWatchdogStorage, times(2)).deleteUserPackage(anyInt(),
                 eq("third_party_package.A"));
@@ -1401,25 +1399,25 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
                 constructPackageManagerPackageInfo("vendor_package.critical", 10201278, null)));
 
         UserHandle userHandle = UserHandle.of(101);
-        mWatchdogPerfHandlerStable.setKillablePackageAsUser("third_party_package", userHandle,
+        mWatchdogPerfHandler.setKillablePackageAsUser("third_party_package", userHandle,
                 /* isKillable= */ false);
-        mWatchdogPerfHandlerStable.setKillablePackageAsUser("vendor_package.critical",
+        mWatchdogPerfHandler.setKillablePackageAsUser("vendor_package.critical",
                 userHandle, /* isKillable= */ false);
 
         PackageKillableStateSubject.assertThat(
-                mWatchdogPerfHandlerStable.getPackageKillableStatesAsUser(UserHandle.ALL))
-                .containsExactly(
-                        new PackageKillableState("third_party_package", 101,
-                                PackageKillableState.KILLABLE_STATE_NO),
-                        new PackageKillableState("vendor_package.critical", 101,
-                                PackageKillableState.KILLABLE_STATE_NEVER),
-                        new PackageKillableState("third_party_package", 102,
-                                PackageKillableState.KILLABLE_STATE_YES),
-                        new PackageKillableState("vendor_package.critical", 102,
-                                PackageKillableState.KILLABLE_STATE_NEVER));
+                mWatchdogPerfHandler.getPackageKillableStatesAsUser(
+                        UserHandle.ALL)).containsExactly(
+                new PackageKillableState("third_party_package", 101,
+                        PackageKillableState.KILLABLE_STATE_NO),
+                new PackageKillableState("vendor_package.critical", 101,
+                        PackageKillableState.KILLABLE_STATE_NEVER),
+                new PackageKillableState("third_party_package", 102,
+                        PackageKillableState.KILLABLE_STATE_YES),
+                new PackageKillableState("vendor_package.critical", 102,
+                        PackageKillableState.KILLABLE_STATE_NEVER));
 
         assertThrows(IllegalArgumentException.class,
-                () -> mWatchdogPerfHandlerStable.setKillablePackageAsUser("vendor_package.critical",
+                () -> mWatchdogPerfHandler.setKillablePackageAsUser("vendor_package.critical",
                         userHandle, /* isKillable= */ true));
 
         mockUmGetUserHandles(mMockUserManager, /* excludeDying= */ true, 101, 102, 103);
@@ -1427,18 +1425,18 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
                 constructPackageManagerPackageInfo("third_party_package", 10303456, null)));
 
         PackageKillableStateSubject.assertThat(
-                mWatchdogPerfHandlerStable.getPackageKillableStatesAsUser(UserHandle.ALL))
-                .containsExactly(
-                        new PackageKillableState("third_party_package", 101,
-                                PackageKillableState.KILLABLE_STATE_NO),
-                        new PackageKillableState("vendor_package.critical", 101,
-                                PackageKillableState.KILLABLE_STATE_NEVER),
-                        new PackageKillableState("third_party_package", 102,
-                                PackageKillableState.KILLABLE_STATE_YES),
-                        new PackageKillableState("vendor_package.critical", 102,
-                                PackageKillableState.KILLABLE_STATE_NEVER),
-                        new PackageKillableState("third_party_package", 103,
-                                PackageKillableState.KILLABLE_STATE_YES));
+                mWatchdogPerfHandler.getPackageKillableStatesAsUser(
+                        UserHandle.ALL)).containsExactly(
+                new PackageKillableState("third_party_package", 101,
+                        PackageKillableState.KILLABLE_STATE_NO),
+                new PackageKillableState("vendor_package.critical", 101,
+                        PackageKillableState.KILLABLE_STATE_NEVER),
+                new PackageKillableState("third_party_package", 102,
+                        PackageKillableState.KILLABLE_STATE_YES),
+                new PackageKillableState("vendor_package.critical", 102,
+                        PackageKillableState.KILLABLE_STATE_NEVER),
+                new PackageKillableState("third_party_package", 103,
+                        PackageKillableState.KILLABLE_STATE_YES));
 
         verify(mSpiedWatchdogStorage, times(11)).markDirty();
     }
@@ -1457,37 +1455,37 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
                         "third_party_package.D", 10101356, "third_party_shared_package.B")));
 
         UserHandle userHandle = UserHandle.of(101);
-        mWatchdogPerfHandlerStable.setKillablePackageAsUser("third_party_package.A", userHandle,
+        mWatchdogPerfHandler.setKillablePackageAsUser("third_party_package.A", userHandle,
                 /* isKillable= */ false);
 
         PackageKillableStateSubject.assertThat(
-                mWatchdogPerfHandlerStable.getPackageKillableStatesAsUser(UserHandle.ALL))
-                .containsExactly(
-                        new PackageKillableState("third_party_package.A", 101,
-                                PackageKillableState.KILLABLE_STATE_NO),
-                        new PackageKillableState("third_party_package.B", 101,
-                                PackageKillableState.KILLABLE_STATE_NO),
-                        new PackageKillableState("third_party_package.C", 101,
-                                PackageKillableState.KILLABLE_STATE_YES),
-                        new PackageKillableState("third_party_package.D", 101,
-                                PackageKillableState.KILLABLE_STATE_YES));
+                mWatchdogPerfHandler.getPackageKillableStatesAsUser(
+                        UserHandle.ALL)).containsExactly(
+                new PackageKillableState("third_party_package.A", 101,
+                        PackageKillableState.KILLABLE_STATE_NO),
+                new PackageKillableState("third_party_package.B", 101,
+                        PackageKillableState.KILLABLE_STATE_NO),
+                new PackageKillableState("third_party_package.C", 101,
+                        PackageKillableState.KILLABLE_STATE_YES),
+                new PackageKillableState("third_party_package.D", 101,
+                        PackageKillableState.KILLABLE_STATE_YES));
 
-        mWatchdogPerfHandlerStable.setKillablePackageAsUser("third_party_package.B", userHandle,
+        mWatchdogPerfHandler.setKillablePackageAsUser("third_party_package.B", userHandle,
                 /* isKillable= */ true);
-        mWatchdogPerfHandlerStable.setKillablePackageAsUser("third_party_package.C", userHandle,
+        mWatchdogPerfHandler.setKillablePackageAsUser("third_party_package.C", userHandle,
                 /* isKillable= */ false);
 
         PackageKillableStateSubject.assertThat(
-                mWatchdogPerfHandlerStable.getPackageKillableStatesAsUser(UserHandle.ALL))
-                .containsExactly(
-                        new PackageKillableState("third_party_package.A", 101,
-                                PackageKillableState.KILLABLE_STATE_YES),
-                        new PackageKillableState("third_party_package.B", 101,
-                                PackageKillableState.KILLABLE_STATE_YES),
-                        new PackageKillableState("third_party_package.C", 101,
-                                PackageKillableState.KILLABLE_STATE_NO),
-                        new PackageKillableState("third_party_package.D", 101,
-                                PackageKillableState.KILLABLE_STATE_NO));
+                mWatchdogPerfHandler.getPackageKillableStatesAsUser(
+                        UserHandle.ALL)).containsExactly(
+                new PackageKillableState("third_party_package.A", 101,
+                        PackageKillableState.KILLABLE_STATE_YES),
+                new PackageKillableState("third_party_package.B", 101,
+                        PackageKillableState.KILLABLE_STATE_YES),
+                new PackageKillableState("third_party_package.C", 101,
+                        PackageKillableState.KILLABLE_STATE_NO),
+                new PackageKillableState("third_party_package.D", 101,
+                        PackageKillableState.KILLABLE_STATE_NO));
 
         verify(mSpiedWatchdogStorage, times(7)).markDirty();
     }
@@ -1501,25 +1499,25 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
                 constructPackageManagerPackageInfo("third_party_package", 10203456, null),
                 constructPackageManagerPackageInfo("vendor_package.critical", 10201278, null)));
 
-        mWatchdogPerfHandlerStable.setKillablePackageAsUser("third_party_package", UserHandle.ALL,
+        mWatchdogPerfHandler.setKillablePackageAsUser("third_party_package", UserHandle.ALL,
                 /* isKillable= */ false);
-        mWatchdogPerfHandlerStable.setKillablePackageAsUser("vendor_package.critical",
+        mWatchdogPerfHandler.setKillablePackageAsUser("vendor_package.critical",
                 UserHandle.ALL, /* isKillable= */ false);
 
         PackageKillableStateSubject.assertThat(
-                mWatchdogPerfHandlerStable.getPackageKillableStatesAsUser(UserHandle.ALL))
-                .containsExactly(
-                        new PackageKillableState("third_party_package", 101,
-                                PackageKillableState.KILLABLE_STATE_NO),
-                        new PackageKillableState("vendor_package.critical", 101,
-                                PackageKillableState.KILLABLE_STATE_NEVER),
-                        new PackageKillableState("third_party_package", 102,
-                                PackageKillableState.KILLABLE_STATE_NO),
-                        new PackageKillableState("vendor_package.critical", 102,
-                                PackageKillableState.KILLABLE_STATE_NEVER));
+                mWatchdogPerfHandler.getPackageKillableStatesAsUser(
+                        UserHandle.ALL)).containsExactly(
+                new PackageKillableState("third_party_package", 101,
+                        PackageKillableState.KILLABLE_STATE_NO),
+                new PackageKillableState("vendor_package.critical", 101,
+                        PackageKillableState.KILLABLE_STATE_NEVER),
+                new PackageKillableState("third_party_package", 102,
+                        PackageKillableState.KILLABLE_STATE_NO),
+                new PackageKillableState("vendor_package.critical", 102,
+                        PackageKillableState.KILLABLE_STATE_NEVER));
 
         assertThrows(IllegalArgumentException.class,
-                () -> mWatchdogPerfHandlerStable.setKillablePackageAsUser("vendor_package.critical",
+                () -> mWatchdogPerfHandler.setKillablePackageAsUser("vendor_package.critical",
                         UserHandle.ALL, /* isKillable= */ true));
 
         mockUmGetUserHandles(mMockUserManager, /* excludeDying= */ true, 101, 102, 103);
@@ -1527,18 +1525,18 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
                 constructPackageManagerPackageInfo("third_party_package", 10303456, null)));
 
         PackageKillableStateSubject.assertThat(
-                mWatchdogPerfHandlerStable.getPackageKillableStatesAsUser(UserHandle.ALL))
-                .containsExactly(
-                        new PackageKillableState("third_party_package", 101,
-                                PackageKillableState.KILLABLE_STATE_NO),
-                        new PackageKillableState("vendor_package.critical", 101,
-                                PackageKillableState.KILLABLE_STATE_NEVER),
-                        new PackageKillableState("third_party_package", 102,
-                                PackageKillableState.KILLABLE_STATE_NO),
-                        new PackageKillableState("vendor_package.critical", 102,
-                                PackageKillableState.KILLABLE_STATE_NEVER),
-                        new PackageKillableState("third_party_package", 103,
-                                PackageKillableState.KILLABLE_STATE_NO));
+                mWatchdogPerfHandler.getPackageKillableStatesAsUser(
+                        UserHandle.ALL)).containsExactly(
+                new PackageKillableState("third_party_package", 101,
+                        PackageKillableState.KILLABLE_STATE_NO),
+                new PackageKillableState("vendor_package.critical", 101,
+                        PackageKillableState.KILLABLE_STATE_NEVER),
+                new PackageKillableState("third_party_package", 102,
+                        PackageKillableState.KILLABLE_STATE_NO),
+                new PackageKillableState("vendor_package.critical", 102,
+                        PackageKillableState.KILLABLE_STATE_NEVER),
+                new PackageKillableState("third_party_package", 103,
+                        PackageKillableState.KILLABLE_STATE_NO));
 
         verify(mSpiedWatchdogStorage, times(11)).markDirty();
     }
@@ -1560,24 +1558,24 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
                 constructPackageManagerPackageInfo(
                         "third_party_package.B", 10203456, "third_party_shared_package.A")));
 
-        mWatchdogPerfHandlerStable.setKillablePackageAsUser("third_party_package.A", UserHandle.ALL,
+        mWatchdogPerfHandler.setKillablePackageAsUser("third_party_package.A", UserHandle.ALL,
                 /* isKillable= */ false);
 
         PackageKillableStateSubject.assertThat(
-                mWatchdogPerfHandlerStable.getPackageKillableStatesAsUser(UserHandle.ALL))
-                .containsExactly(
-                        new PackageKillableState("third_party_package.A", 101,
-                                PackageKillableState.KILLABLE_STATE_NO),
-                        new PackageKillableState("third_party_package.B", 101,
-                                PackageKillableState.KILLABLE_STATE_NO),
-                        new PackageKillableState("third_party_package.C", 101,
-                                PackageKillableState.KILLABLE_STATE_YES),
-                        new PackageKillableState("third_party_package.D", 101,
-                                PackageKillableState.KILLABLE_STATE_YES),
-                        new PackageKillableState("third_party_package.A", 102,
-                                PackageKillableState.KILLABLE_STATE_NO),
-                        new PackageKillableState("third_party_package.B", 102,
-                                PackageKillableState.KILLABLE_STATE_NO));
+                mWatchdogPerfHandler.getPackageKillableStatesAsUser(
+                        UserHandle.ALL)).containsExactly(
+                new PackageKillableState("third_party_package.A", 101,
+                        PackageKillableState.KILLABLE_STATE_NO),
+                new PackageKillableState("third_party_package.B", 101,
+                        PackageKillableState.KILLABLE_STATE_NO),
+                new PackageKillableState("third_party_package.C", 101,
+                        PackageKillableState.KILLABLE_STATE_YES),
+                new PackageKillableState("third_party_package.D", 101,
+                        PackageKillableState.KILLABLE_STATE_YES),
+                new PackageKillableState("third_party_package.A", 102,
+                        PackageKillableState.KILLABLE_STATE_NO),
+                new PackageKillableState("third_party_package.B", 102,
+                        PackageKillableState.KILLABLE_STATE_NO));
 
         mockUmGetUserHandles(mMockUserManager, /* excludeDying= */ true, 101, 102, 103);
         injectPackageInfos(Arrays.asList(
@@ -1587,8 +1585,7 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
                         "third_party_package.B", 10303456, "third_party_shared_package.A")));
 
         PackageKillableStateSubject.assertThat(
-                        mWatchdogPerfHandlerStable.getPackageKillableStatesAsUser(
-                                UserHandle.of(103)))
+                        mWatchdogPerfHandler.getPackageKillableStatesAsUser(UserHandle.of(103)))
                 .containsExactly(
                         new PackageKillableState("third_party_package.A", 103,
                                 PackageKillableState.KILLABLE_STATE_NO),
@@ -1607,11 +1604,11 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
                 constructPackageManagerPackageInfo("third_party_package", 10103456, null)));
 
         UserHandle userHandle = UserHandle.of(101);
-        mWatchdogPerfHandlerStable.setKillablePackageAsUser("third_party_package", userHandle,
+        mWatchdogPerfHandler.setKillablePackageAsUser("third_party_package", userHandle,
                 /* isKillable= */ false);
 
         PackageKillableStateSubject.assertThat(
-                        mWatchdogPerfHandlerStable.getPackageKillableStatesAsUser(userHandle))
+                        mWatchdogPerfHandler.getPackageKillableStatesAsUser(userHandle))
                 .containsExactly(new PackageKillableState("third_party_package", 101,
                         PackageKillableState.KILLABLE_STATE_NO));
 
@@ -1635,12 +1632,11 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
                         "third_party_package.B", 10103456, "third_party_shared_package.A")));
 
         UserHandle userHandle = UserHandle.of(101);
-        mWatchdogPerfHandlerStable.setKillablePackageAsUser("third_party_package.A", userHandle,
+        mWatchdogPerfHandler.setKillablePackageAsUser("third_party_package.A", userHandle,
                 /* isKillable= */ false);
 
         PackageKillableStateSubject.assertThat(
-                mWatchdogPerfHandlerStable.getPackageKillableStatesAsUser(userHandle)
-        ).containsExactly(
+                mWatchdogPerfHandler.getPackageKillableStatesAsUser(userHandle)).containsExactly(
                 new PackageKillableState("third_party_package.A", 101,
                         PackageKillableState.KILLABLE_STATE_NO),
                 new PackageKillableState("third_party_package.B", 101,
@@ -1683,16 +1679,16 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
         // Push stats in order to create and cache the usages of the third_party_package
         pushLatestIoOveruseStatsAndWait(packageIoOveruseStats);
 
-        mWatchdogPerfHandlerStable.setKillablePackageAsUser("third_party_package", UserHandle.ALL,
+        mWatchdogPerfHandler.setKillablePackageAsUser("third_party_package", UserHandle.ALL,
                 /* isKillable= */ false);
 
         PackageKillableStateSubject.assertThat(
-                mWatchdogPerfHandlerStable.getPackageKillableStatesAsUser(UserHandle.ALL))
-                .containsExactly(
-                        new PackageKillableState("third_party_package", 101,
-                                PackageKillableState.KILLABLE_STATE_NO),
-                        new PackageKillableState("third_party_package", 102,
-                                PackageKillableState.KILLABLE_STATE_NO));
+                mWatchdogPerfHandler.getPackageKillableStatesAsUser(
+                        UserHandle.ALL)).containsExactly(
+                new PackageKillableState("third_party_package", 101,
+                        PackageKillableState.KILLABLE_STATE_NO),
+                new PackageKillableState("third_party_package", 102,
+                        PackageKillableState.KILLABLE_STATE_NO));
 
         verify(mSpiedPackageManager, times(2))
                 .getApplicationEnabledSetting("third_party_package", 101);
@@ -1739,20 +1735,20 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
         // Push stats in order to create and cache the usages of the third_party_shared_package
         pushLatestIoOveruseStatsAndWait(packageIoOveruseStats);
 
-        mWatchdogPerfHandlerStable.setKillablePackageAsUser("third_party_package.A", UserHandle.ALL,
+        mWatchdogPerfHandler.setKillablePackageAsUser("third_party_package.A", UserHandle.ALL,
                 /* isKillable= */ false);
 
         PackageKillableStateSubject.assertThat(
-                mWatchdogPerfHandlerStable.getPackageKillableStatesAsUser(UserHandle.ALL))
-                .containsExactly(
-                        new PackageKillableState("third_party_package.A", 101,
-                                PackageKillableState.KILLABLE_STATE_NO),
-                        new PackageKillableState("third_party_package.B", 101,
-                                PackageKillableState.KILLABLE_STATE_NO),
-                        new PackageKillableState("third_party_package.A", 102,
-                                PackageKillableState.KILLABLE_STATE_NO),
-                        new PackageKillableState("third_party_package.B", 102,
-                                PackageKillableState.KILLABLE_STATE_NO));
+                mWatchdogPerfHandler.getPackageKillableStatesAsUser(
+                        UserHandle.ALL)).containsExactly(
+                new PackageKillableState("third_party_package.A", 101,
+                        PackageKillableState.KILLABLE_STATE_NO),
+                new PackageKillableState("third_party_package.B", 101,
+                        PackageKillableState.KILLABLE_STATE_NO),
+                new PackageKillableState("third_party_package.A", 102,
+                        PackageKillableState.KILLABLE_STATE_NO),
+                new PackageKillableState("third_party_package.B", 102,
+                        PackageKillableState.KILLABLE_STATE_NO));
 
         verify(mSpiedPackageManager, times(2))
                 .getApplicationEnabledSetting("third_party_package.A", 101);
@@ -1783,11 +1779,11 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
         mTimeSource.updateNow(PACKAGE_KILLABLE_STATE_RESET_DAYS);
         UserHandle userHandle = UserHandle.of(101);
 
-        mWatchdogPerfHandlerStable.setKillablePackageAsUser("third_party_package", userHandle,
+        mWatchdogPerfHandler.setKillablePackageAsUser("third_party_package", userHandle,
                 /* isKillable= */ false);
 
         PackageKillableStateSubject
-                .assertThat(mWatchdogPerfHandlerStable.getPackageKillableStatesAsUser(userHandle))
+                .assertThat(mWatchdogPerfHandler.getPackageKillableStatesAsUser(userHandle))
                 .containsExactly(new PackageKillableState("third_party_package", 101,
                         PackageKillableState.KILLABLE_STATE_NO));
 
@@ -1796,7 +1792,7 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
                 /* isWriteIoStats= */ false);
 
         PackageKillableStateSubject
-                .assertThat(mWatchdogPerfHandlerStable.getPackageKillableStatesAsUser(userHandle))
+                .assertThat(mWatchdogPerfHandler.getPackageKillableStatesAsUser(userHandle))
                 .containsExactly(new PackageKillableState("third_party_package", 101,
                         PackageKillableState.KILLABLE_STATE_NO));
 
@@ -1805,7 +1801,7 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
                 /* isWriteIoStats= */ false);
 
         PackageKillableStateSubject
-                .assertThat(mWatchdogPerfHandlerStable.getPackageKillableStatesAsUser(userHandle))
+                .assertThat(mWatchdogPerfHandler.getPackageKillableStatesAsUser(userHandle))
                 .containsExactly(new PackageKillableState("third_party_package", 101,
                         PackageKillableState.KILLABLE_STATE_YES));
     }
@@ -1823,11 +1819,11 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
         mTimeSource.updateNow(PACKAGE_KILLABLE_STATE_RESET_DAYS);
         restartService(/* totalRestarts= */ 1, /* wantedDbWrites= */ 0, /* isWriteIoStats= */ true);
 
-        mWatchdogPerfHandlerStable.setKillablePackageAsUser("third_party_package", userHandle,
+        mWatchdogPerfHandler.setKillablePackageAsUser("third_party_package", userHandle,
                 /* isKillable= */ false);
 
         PackageKillableStateSubject
-                .assertThat(mWatchdogPerfHandlerStable.getPackageKillableStatesAsUser(userHandle))
+                .assertThat(mWatchdogPerfHandler.getPackageKillableStatesAsUser(userHandle))
                 .containsExactly(new PackageKillableState("third_party_package", 101,
                         PackageKillableState.KILLABLE_STATE_NO));
 
@@ -1850,7 +1846,7 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
         pushLatestIoOveruseStatsAndWait(packageIoOveruseStats);
 
         PackageKillableStateSubject
-                .assertThat(mWatchdogPerfHandlerStable.getPackageKillableStatesAsUser(userHandle))
+                .assertThat(mWatchdogPerfHandler.getPackageKillableStatesAsUser(userHandle))
                 .containsExactly(new PackageKillableState("third_party_package", 101,
                         PackageKillableState.KILLABLE_STATE_YES));
     }
@@ -1865,8 +1861,7 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
                 constructPackageManagerPackageInfo("vendor_package.critical", 10201278, null)));
 
         PackageKillableStateSubject.assertThat(
-                        mWatchdogPerfHandlerStable.getPackageKillableStatesAsUser(
-                                UserHandle.of(101)))
+                        mWatchdogPerfHandler.getPackageKillableStatesAsUser(UserHandle.of(101)))
                 .containsExactly(
                         new PackageKillableState("third_party_package", 101,
                                 PackageKillableState.KILLABLE_STATE_YES),
@@ -1888,7 +1883,7 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
                 constructPackageManagerPackageInfo("vendor_package.critical.B", 10101278, null)));
 
         PackageKillableStateSubject.assertThat(
-                        mWatchdogPerfHandlerStable.getPackageKillableStatesAsUser(UserHandle.ALL))
+                        mWatchdogPerfHandler.getPackageKillableStatesAsUser(UserHandle.ALL))
                 .containsExactly(
                         new PackageKillableState("system_package.non_critical.A", 100,
                                 PackageKillableState.KILLABLE_STATE_YES),
@@ -1914,7 +1909,7 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
                 ApplicationInfo.PRIVATE_FLAG_SYSTEM_EXT)));
 
         List<PackageKillableState> killableStates =
-                mWatchdogPerfHandlerStable.getPackageKillableStatesAsUser(UserHandle.of(100));
+                mWatchdogPerfHandler.getPackageKillableStatesAsUser(UserHandle.of(100));
 
         // The vendor package prefixes in the resource overuse configs help identify vendor
         // packages. The safe-to-kill list in the vendor configs helps identify safe-to-kill vendor
@@ -1946,8 +1941,7 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
                         "vendor_package.B", 10203456, "vendor_shared_package.A")));
 
         PackageKillableStateSubject.assertThat(
-                        mWatchdogPerfHandlerStable.getPackageKillableStatesAsUser(
-                                UserHandle.of(101)))
+                        mWatchdogPerfHandler.getPackageKillableStatesAsUser(UserHandle.of(101)))
                 .containsExactly(
                         new PackageKillableState("system_package.A", 101,
                                 PackageKillableState.KILLABLE_STATE_NEVER),
@@ -1978,8 +1972,7 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
                         "third_party_package.D", 10005678, "third_party_shared_package")));
 
         PackageKillableStateSubject.assertThat(
-                        mWatchdogPerfHandlerStable.getPackageKillableStatesAsUser(
-                                UserHandle.of(100)))
+                        mWatchdogPerfHandler.getPackageKillableStatesAsUser(UserHandle.of(100)))
                 .containsExactly(
                         new PackageKillableState("vendor_package.non_critical.A", 100,
                                 PackageKillableState.KILLABLE_STATE_YES),
@@ -2009,8 +2002,7 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
 
 
         PackageKillableStateSubject.assertThat(
-                        mWatchdogPerfHandlerStable.getPackageKillableStatesAsUser(
-                                UserHandle.of(100)))
+                        mWatchdogPerfHandler.getPackageKillableStatesAsUser(UserHandle.of(100)))
                 .containsExactly(
                         new PackageKillableState("vendor_package.A", 100,
                                 PackageKillableState.KILLABLE_STATE_YES),
@@ -2032,16 +2024,16 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
                 constructPackageManagerPackageInfo("vendor_package.critical", 10201278, null)));
 
         PackageKillableStateSubject.assertThat(
-                mWatchdogPerfHandlerStable.getPackageKillableStatesAsUser(UserHandle.ALL))
-                .containsExactly(
-                        new PackageKillableState("third_party_package", 101,
-                                PackageKillableState.KILLABLE_STATE_YES),
-                        new PackageKillableState("vendor_package.critical", 101,
-                                PackageKillableState.KILLABLE_STATE_NEVER),
-                        new PackageKillableState("third_party_package", 102,
-                                PackageKillableState.KILLABLE_STATE_YES),
-                        new PackageKillableState("vendor_package.critical", 102,
-                                PackageKillableState.KILLABLE_STATE_NEVER));
+                mWatchdogPerfHandler.getPackageKillableStatesAsUser(
+                        UserHandle.ALL)).containsExactly(
+                new PackageKillableState("third_party_package", 101,
+                        PackageKillableState.KILLABLE_STATE_YES),
+                new PackageKillableState("vendor_package.critical", 101,
+                        PackageKillableState.KILLABLE_STATE_NEVER),
+                new PackageKillableState("third_party_package", 102,
+                        PackageKillableState.KILLABLE_STATE_YES),
+                new PackageKillableState("vendor_package.critical", 102,
+                        PackageKillableState.KILLABLE_STATE_NEVER));
 
         verify(mSpiedWatchdogStorage, times(4)).markDirty();
     }
@@ -2064,7 +2056,7 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
                         "vendor_package.B", 10203456, "vendor_shared_package.A")));
 
         PackageKillableStateSubject.assertThat(
-                        mWatchdogPerfHandlerStable.getPackageKillableStatesAsUser(UserHandle.ALL))
+                        mWatchdogPerfHandler.getPackageKillableStatesAsUser(UserHandle.ALL))
                 .containsExactly(
                         new PackageKillableState("system_package.A", 101,
                                 PackageKillableState.KILLABLE_STATE_NEVER),
@@ -2111,10 +2103,9 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
                 constructResourceOveruseStats(1201278, "vendor_package.critical",
                         packageIoOveruseStats.get(1).ioOveruseStats));
 
-        List<ResourceOveruseStats> actualStats =
-                mWatchdogPerfHandlerStable.getAllResourceOveruseStats(
-                        CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO, /* minimumStatsFlag= */ 0,
-                        CarWatchdogManager.STATS_PERIOD_CURRENT_DAY);
+        List<ResourceOveruseStats> actualStats = mWatchdogPerfHandler.getAllResourceOveruseStats(
+                CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO, /* minimumStatsFlag= */ 0,
+                CarWatchdogManager.STATS_PERIOD_CURRENT_DAY);
 
         ResourceOveruseStatsSubject.assertThat(actualStats)
                 .containsExactlyElementsIn(expectedStats);
@@ -2160,10 +2151,9 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
         doReturn(vendorPkgOldStats).when(mSpiedWatchdogStorage)
                 .getHistoricalIoOveruseStats(12, "vendor_package.critical", 6);
 
-        List<ResourceOveruseStats> actualStats =
-                mWatchdogPerfHandlerStable.getAllResourceOveruseStats(
-                        CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO, /* minimumStatsFlag= */ 0,
-                        CarWatchdogManager.STATS_PERIOD_PAST_7_DAYS);
+        List<ResourceOveruseStats> actualStats = mWatchdogPerfHandler.getAllResourceOveruseStats(
+                CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO, /* minimumStatsFlag= */ 0,
+                CarWatchdogManager.STATS_PERIOD_PAST_7_DAYS);
 
         IoOveruseStats thirdPartyIoStats = new IoOveruseStats.Builder(
                 thirdPartyPkgOldStats.getStartTime(),
@@ -2237,10 +2227,9 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
                 constructResourceOveruseStats(1303456, "shared:vendor_shared_package",
                         packageIoOveruseStats.get(2).ioOveruseStats));
 
-        List<ResourceOveruseStats> actualStats =
-                mWatchdogPerfHandlerStable.getAllResourceOveruseStats(
-                        CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO, /* minimumStatsFlag= */ 0,
-                        CarWatchdogManager.STATS_PERIOD_CURRENT_DAY);
+        List<ResourceOveruseStats> actualStats = mWatchdogPerfHandler.getAllResourceOveruseStats(
+                CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO, /* minimumStatsFlag= */ 0,
+                CarWatchdogManager.STATS_PERIOD_CURRENT_DAY);
 
         ResourceOveruseStatsSubject.assertThat(actualStats)
                 .containsExactlyElementsIn(expectedStats);
@@ -2251,23 +2240,23 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
     @Test
     public void testFailsGetAllResourceOveruseStatsWithInvalidArgs() throws Exception {
         assertThrows(IllegalArgumentException.class,
-                () -> mWatchdogPerfHandlerStable.getAllResourceOveruseStats(0,
-                        /* minimumStatsFlag= */ 0, CarWatchdogManager.STATS_PERIOD_CURRENT_DAY));
+                () -> mWatchdogPerfHandler.getAllResourceOveruseStats(0, /* minimumStatsFlag= */ 0,
+                        CarWatchdogManager.STATS_PERIOD_CURRENT_DAY));
 
         assertThrows(IllegalArgumentException.class,
-                () -> mWatchdogPerfHandlerStable.getAllResourceOveruseStats(
+                () -> mWatchdogPerfHandler.getAllResourceOveruseStats(
                         CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO,
                         CarWatchdogManager.FLAG_MINIMUM_STATS_IO_1_MB
                                 | CarWatchdogManager.FLAG_MINIMUM_STATS_IO_100_MB,
                         CarWatchdogManager.STATS_PERIOD_CURRENT_DAY));
 
         assertThrows(IllegalArgumentException.class,
-                () -> mWatchdogPerfHandlerStable.getAllResourceOveruseStats(
+                () -> mWatchdogPerfHandler.getAllResourceOveruseStats(
                         CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO, /* minimumStatsFlag= */ 1 << 5,
                         CarWatchdogManager.STATS_PERIOD_CURRENT_DAY));
 
         assertThrows(IllegalArgumentException.class,
-                () -> mWatchdogPerfHandlerStable.getAllResourceOveruseStats(
+                () -> mWatchdogPerfHandler.getAllResourceOveruseStats(
                         CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO, /* minimumStatsFlag= */ 0,
                         /* maxStatsPeriod= */ 0));
     }
@@ -2297,11 +2286,10 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
                 constructResourceOveruseStats(1201278, "vendor_package.critical",
                         packageIoOveruseStats.get(1).ioOveruseStats));
 
-        List<ResourceOveruseStats> actualStats =
-                mWatchdogPerfHandlerStable.getAllResourceOveruseStats(
-                        CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO,
-                        CarWatchdogManager.FLAG_MINIMUM_STATS_IO_1_MB,
-                        CarWatchdogManager.STATS_PERIOD_CURRENT_DAY);
+        List<ResourceOveruseStats> actualStats = mWatchdogPerfHandler.getAllResourceOveruseStats(
+                CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO,
+                CarWatchdogManager.FLAG_MINIMUM_STATS_IO_1_MB,
+                CarWatchdogManager.STATS_PERIOD_CURRENT_DAY);
 
         ResourceOveruseStatsSubject.assertThat(actualStats)
                 .containsExactlyElementsIn(expectedStats);
@@ -2347,11 +2335,10 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
         doReturn(vendorPkgOldStats).when(mSpiedWatchdogStorage)
                 .getHistoricalIoOveruseStats(12, "vendor_package.critical", 6);
 
-        List<ResourceOveruseStats> actualStats =
-                mWatchdogPerfHandlerStable.getAllResourceOveruseStats(
-                        CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO,
-                        CarWatchdogManager.FLAG_MINIMUM_STATS_IO_1_MB,
-                        CarWatchdogManager.STATS_PERIOD_PAST_7_DAYS);
+        List<ResourceOveruseStats> actualStats = mWatchdogPerfHandler.getAllResourceOveruseStats(
+                CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO,
+                CarWatchdogManager.FLAG_MINIMUM_STATS_IO_1_MB,
+                CarWatchdogManager.STATS_PERIOD_PAST_7_DAYS);
 
         IoOveruseStats vendorIoStats = new IoOveruseStats.Builder(
                 vendorPkgOldStats.getStartTime(),
@@ -2384,7 +2371,7 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
                 constructResourceOveruseStats(uid, mMockContext.getPackageName(),
                         packageIoOveruseStatsByUid.get(uid).ioOveruseStats);
 
-        ResourceOveruseStats actualStats = mWatchdogPerfHandlerStable.getResourceOveruseStats(
+        ResourceOveruseStats actualStats = mWatchdogPerfHandler.getResourceOveruseStats(
                 FLAG_RESOURCE_OVERUSE_IO,
                 CarWatchdogManager.STATS_PERIOD_CURRENT_DAY);
 
@@ -2411,7 +2398,7 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
                 /* killablePackages= */ Collections.singleton(packageName),
                 /* shouldNotifyPackages= */ new ArraySet<>());
 
-        ResourceOveruseStats actualStats = mWatchdogPerfHandlerStable.getResourceOveruseStats(
+        ResourceOveruseStats actualStats = mWatchdogPerfHandler.getResourceOveruseStats(
                 FLAG_RESOURCE_OVERUSE_IO,
                 CarWatchdogManager.STATS_PERIOD_PAST_7_DAYS);
 
@@ -2442,7 +2429,7 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
                 /* killablePackages= */ Collections.singleton(packageName),
                 /* shouldNotifyPackages= */ new ArraySet<>());
 
-        ResourceOveruseStats actualStats = mWatchdogPerfHandlerStable.getResourceOveruseStats(
+        ResourceOveruseStats actualStats = mWatchdogPerfHandler.getResourceOveruseStats(
                 FLAG_RESOURCE_OVERUSE_IO,
                 CarWatchdogManager.STATS_PERIOD_PAST_7_DAYS);
 
@@ -2472,7 +2459,7 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
                 .when(mSpiedWatchdogStorage)
                 .getHistoricalIoOveruseStats(UserHandle.getUserId(uid), packageName, 6);
 
-        ResourceOveruseStats actualStats = mWatchdogPerfHandlerStable.getResourceOveruseStats(
+        ResourceOveruseStats actualStats = mWatchdogPerfHandler.getResourceOveruseStats(
                 FLAG_RESOURCE_OVERUSE_IO,
                 CarWatchdogManager.STATS_PERIOD_PAST_7_DAYS);
 
@@ -2500,7 +2487,7 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
                 constructResourceOveruseStats(sharedUid, "shared:system_shared_package",
                         packageIoOveruseStatsByUid.get(sharedUid).ioOveruseStats);
 
-        ResourceOveruseStats actualStats = mWatchdogPerfHandlerStable.getResourceOveruseStats(
+        ResourceOveruseStats actualStats = mWatchdogPerfHandler.getResourceOveruseStats(
                 FLAG_RESOURCE_OVERUSE_IO,
                 CarWatchdogManager.STATS_PERIOD_CURRENT_DAY);
 
@@ -2535,7 +2522,7 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
                         packageIoOveruseStats.get(1).ioOveruseStats);
 
         ResourceOveruseStats actualStats =
-                mWatchdogPerfHandlerStable.getResourceOveruseStatsForUserPackage(
+                mWatchdogPerfHandler.getResourceOveruseStatsForUserPackage(
                         "vendor_package.critical", UserHandle.of(12),
                         CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO,
                         CarWatchdogManager.STATS_PERIOD_CURRENT_DAY);
@@ -2576,7 +2563,7 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
                 .getHistoricalIoOveruseStats(12, "vendor_package.critical", 6);
 
         ResourceOveruseStats actualStats =
-                mWatchdogPerfHandlerStable.getResourceOveruseStatsForUserPackage(
+                mWatchdogPerfHandler.getResourceOveruseStatsForUserPackage(
                         "vendor_package.critical", UserHandle.of(12),
                         CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO,
                         CarWatchdogManager.STATS_PERIOD_PAST_7_DAYS);
@@ -2616,7 +2603,7 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
                         packageIoOveruseStatsByUid.get(1103456).ioOveruseStats);
 
         ResourceOveruseStats actualStats =
-                mWatchdogPerfHandlerStable.getResourceOveruseStatsForUserPackage(
+                mWatchdogPerfHandler.getResourceOveruseStatsForUserPackage(
                         "vendor_package", UserHandle.of(11),
                         CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO,
                         CarWatchdogManager.STATS_PERIOD_CURRENT_DAY);
@@ -2627,38 +2614,37 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
     @Test
     public void testFailsGetResourceOveruseStatsForUserPackageWithInvalidArgs() throws Exception {
         assertThrows(NullPointerException.class,
-                () -> mWatchdogPerfHandlerStable.getResourceOveruseStatsForUserPackage(
+                () -> mWatchdogPerfHandler.getResourceOveruseStatsForUserPackage(
                         /* packageName= */ null, UserHandle.of(100),
                         CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO,
                         CarWatchdogManager.STATS_PERIOD_CURRENT_DAY));
 
         assertThrows(NullPointerException.class,
-                () -> mWatchdogPerfHandlerStable.getResourceOveruseStatsForUserPackage(
-                        "some_package", /* userHandle= */ null,
-                        CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO,
+                () -> mWatchdogPerfHandler.getResourceOveruseStatsForUserPackage("some_package",
+                        /* userHandle= */ null, CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO,
                         CarWatchdogManager.STATS_PERIOD_CURRENT_DAY));
 
         assertThrows(IllegalArgumentException.class,
-                () -> mWatchdogPerfHandlerStable.getResourceOveruseStatsForUserPackage(
-                        "some_package", UserHandle.ALL, CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO,
+                () -> mWatchdogPerfHandler.getResourceOveruseStatsForUserPackage("some_package",
+                        UserHandle.ALL, CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO,
                         CarWatchdogManager.STATS_PERIOD_CURRENT_DAY));
 
         assertThrows(IllegalArgumentException.class,
-                () -> mWatchdogPerfHandlerStable.getResourceOveruseStatsForUserPackage(
-                        "some_package", UserHandle.of(100), /* resourceOveruseFlag= */ 0,
+                () -> mWatchdogPerfHandler.getResourceOveruseStatsForUserPackage("some_package",
+                        UserHandle.of(100), /* resourceOveruseFlag= */ 0,
                         CarWatchdogManager.STATS_PERIOD_CURRENT_DAY));
 
         assertThrows(IllegalArgumentException.class,
-                () -> mWatchdogPerfHandlerStable.getResourceOveruseStatsForUserPackage(
-                        "some_package", UserHandle.of(100),
-                        CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO, /* maxStatsPeriod= */ 0));
+                () -> mWatchdogPerfHandler.getResourceOveruseStatsForUserPackage("some_package",
+                        UserHandle.of(100), CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO,
+                        /* maxStatsPeriod= */ 0));
     }
 
     @Test
     public void testNoDisableRecurrentlyOverusingAppWhenDisplayEnabled() throws Exception {
         setUpSampleUserAndPackages();
         setRequiresDistractionOptimization(false);
-        mWatchdogPerfHandlerStable.onDisplayStateChanged(/* isEnabled= */ true);
+        mWatchdogPerfHandler.onDisplayStateChanged(/* isEnabled= */ true);
 
         List<PackageIoOveruseStats> packageIoOveruseStats =
                 sampleIoOveruseStats(/* requireRecurrentOveruseStats= */ true);
@@ -2677,7 +2663,7 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
     public void testDisableRecurrentlyOverusingAppAfterDisplayDisabled() throws Exception {
         setUpSampleUserAndPackages();
         setRequiresDistractionOptimization(true);
-        mWatchdogPerfHandlerStable.onDisplayStateChanged(/* isEnabled= */ true);
+        mWatchdogPerfHandler.onDisplayStateChanged(/* isEnabled= */ true);
 
         List<PackageIoOveruseStats> packageIoOveruseStats =
                 sampleIoOveruseStats(/* requireRecurrentOveruseStats= */ true);
@@ -2690,7 +2676,7 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
 
         verifyNoDisabledPackages();
 
-        mWatchdogPerfHandlerStable.onDisplayStateChanged(/* isEnabled= */ false);
+        mWatchdogPerfHandler.onDisplayStateChanged(/* isEnabled= */ false);
 
         captureAndVerifyIoOveruseStatsReported(sampleReportedOveruseStats());
 
@@ -2709,7 +2695,7 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
             throws Exception {
         setUpSampleUserAndPackages();
         setRequiresDistractionOptimization(false);
-        mWatchdogPerfHandlerStable.onDisplayStateChanged(/* isEnabled= */ false);
+        mWatchdogPerfHandler.onDisplayStateChanged(/* isEnabled= */ false);
 
         List<PackageIoOveruseStats> packageIoOveruseStats =
                 sampleIoOveruseStats(/* requireRecurrentOveruseStats= */ true);
@@ -2734,7 +2720,7 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
         mTimeSource.updateNow(/* numDaysAgo= */ 1);
         setUpSampleUserAndPackages();
         setRequiresDistractionOptimization(true);
-        mWatchdogPerfHandlerStable.onDisplayStateChanged(/* isEnabled= */ true);
+        mWatchdogPerfHandler.onDisplayStateChanged(/* isEnabled= */ true);
 
         List<PackageIoOveruseStats> packageIoOveruseStats =
                 sampleIoOveruseStats(/* requireRecurrentOveruseStats= */ true);
@@ -2746,7 +2732,7 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
         mTimeSource.updateNow(/* numDaysAgo= */ 0);
 
         setRequiresDistractionOptimization(false);
-        mWatchdogPerfHandlerStable.onDisplayStateChanged(/* isEnabled= */ false);
+        mWatchdogPerfHandler.onDisplayStateChanged(/* isEnabled= */ false);
 
         captureAndVerifyIoOveruseStatsReported(sampleReportedOveruseStats());
 
@@ -2764,11 +2750,11 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
     public void testNoDisableRecurrentlyOverusingPrePrioritizedApp() throws Exception {
         setUpSampleUserAndPackages();
         setRequiresDistractionOptimization(true);
-        mWatchdogPerfHandlerStable.onDisplayStateChanged(/* isEnabled= */ true);
+        mWatchdogPerfHandler.onDisplayStateChanged(/* isEnabled= */ true);
 
-        mWatchdogPerfHandlerStable.setKillablePackageAsUser(
+        mWatchdogPerfHandler.setKillablePackageAsUser(
                 "vendor_package.non_critical", new UserHandle(100), /* isKillable= */ false);
-        mWatchdogPerfHandlerStable.setKillablePackageAsUser(
+        mWatchdogPerfHandler.setKillablePackageAsUser(
                 "third_party_package.A", new UserHandle(101), /* isKillable= */ false);
 
         List<PackageIoOveruseStats> packageIoOveruseStats =
@@ -2779,7 +2765,7 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
         verifyNoDisabledPackages();
 
         setRequiresDistractionOptimization(false);
-        mWatchdogPerfHandlerStable.onDisplayStateChanged(/* isEnabled= */ false);
+        mWatchdogPerfHandler.onDisplayStateChanged(/* isEnabled= */ false);
 
         captureAndVerifyIoOveruseStatsReported(sampleReportedOveruseStats());
 
@@ -2795,7 +2781,7 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
     public void testNoDisableRecurrentlyOverusingPostPrioritizedApp() throws Exception {
         setUpSampleUserAndPackages();
         setRequiresDistractionOptimization(true);
-        mWatchdogPerfHandlerStable.onDisplayStateChanged(/* isEnabled= */ true);
+        mWatchdogPerfHandler.onDisplayStateChanged(/* isEnabled= */ true);
 
         List<PackageIoOveruseStats> packageIoOveruseStats =
                 sampleIoOveruseStats(/* requireRecurrentOveruseStats= */ true);
@@ -2804,13 +2790,13 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
 
         verifyNoDisabledPackages();
 
-        mWatchdogPerfHandlerStable.setKillablePackageAsUser(
+        mWatchdogPerfHandler.setKillablePackageAsUser(
                 "vendor_package.non_critical", new UserHandle(100), /* isKillable= */ false);
-        mWatchdogPerfHandlerStable.setKillablePackageAsUser(
+        mWatchdogPerfHandler.setKillablePackageAsUser(
                 "third_party_package.A", new UserHandle(101), /* isKillable= */ false);
 
         setRequiresDistractionOptimization(false);
-        mWatchdogPerfHandlerStable.onDisplayStateChanged(/* isEnabled= */ false);
+        mWatchdogPerfHandler.onDisplayStateChanged(/* isEnabled= */ false);
 
         captureAndVerifyIoOveruseStatsReported(sampleReportedOveruseStats());
 
@@ -2826,9 +2812,9 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
     public void testDisableRecurrentlyOverusingPriorityResettedApp() throws Exception {
         setUpSampleUserAndPackages();
         setRequiresDistractionOptimization(true);
-        mWatchdogPerfHandlerStable.onDisplayStateChanged(/* isEnabled= */ true);
+        mWatchdogPerfHandler.onDisplayStateChanged(/* isEnabled= */ true);
 
-        mWatchdogPerfHandlerStable.setKillablePackageAsUser(
+        mWatchdogPerfHandler.setKillablePackageAsUser(
                 "vendor_package.non_critical", new UserHandle(100), /* isKillable= */ false);
 
         List<PackageIoOveruseStats> packageIoOveruseStats =
@@ -2838,11 +2824,11 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
 
         verifyNoDisabledPackages();
 
-        mWatchdogPerfHandlerStable.setKillablePackageAsUser(
+        mWatchdogPerfHandler.setKillablePackageAsUser(
                 "vendor_package.non_critical", new UserHandle(100), /* isKillable= */ true);
 
         setRequiresDistractionOptimization(false);
-        mWatchdogPerfHandlerStable.onDisplayStateChanged(/* isEnabled= */ false);
+        mWatchdogPerfHandler.onDisplayStateChanged(/* isEnabled= */ false);
 
         captureAndVerifyIoOveruseStatsReported(sampleReportedOveruseStats());
 
@@ -2861,8 +2847,8 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
             throws Exception {
         setUpSampleUserAndPackages();
         setRequiresDistractionOptimization(false);
-        mWatchdogPerfHandlerStable.onDisplayStateChanged(/* isEnabled= */ false);
-        mWatchdogPerfHandlerStable.onGarageModeChange(GarageMode.GARAGE_MODE_ON);
+        mWatchdogPerfHandler.onDisplayStateChanged(/* isEnabled= */ false);
+        mWatchdogPerfHandler.onGarageModeChange(GarageMode.GARAGE_MODE_ON);
 
         List<PackageIoOveruseStats> packageIoOveruseStats =
                 sampleIoOveruseStats(/* requireRecurrentOveruseStats= */ true);
@@ -2890,7 +2876,7 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
         // Force CarWatchdogService to fetch historical not forgiven overuses.
         restartService(/* totalRestarts= */ 1, /* wantedDbWrites= */ 0);
         setRequiresDistractionOptimization(true);
-        mWatchdogPerfHandlerStable.onDisplayStateChanged(/* isEnabled= */ false);
+        mWatchdogPerfHandler.onDisplayStateChanged(/* isEnabled= */ false);
         int thirdPartyPkgUid = UserHandle.getUid(100, 10005);
 
         injectPackageInfos(Collections.singletonList(constructPackageManagerPackageInfo(
@@ -2951,7 +2937,7 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
 
         mTimeSource.updateNow(/* numDaysAgo= */ 1);
         setRequiresDistractionOptimization(true);
-        mWatchdogPerfHandlerStable.onDisplayStateChanged(/* isEnabled= */ false);
+        mWatchdogPerfHandler.onDisplayStateChanged(/* isEnabled= */ false);
         int thirdPartyPkgUid = UserHandle.getUid(100, 10005);
 
         injectPackageInfos(Collections.singletonList(constructPackageManagerPackageInfo(
@@ -2980,7 +2966,7 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
     @Test
     public void testLatestIoOveruseStats() throws Exception {
         setRequiresDistractionOptimization(/* isRequires= */ true);
-        mWatchdogPerfHandlerStable.onDisplayStateChanged(/* isEnabled= */ false);
+        mWatchdogPerfHandler.onDisplayStateChanged(/* isEnabled= */ false);
         int criticalSysPkgUid = Binder.getCallingUid();
         int nonCriticalSysPkgUid = 10001056;
         int nonCriticalVndrPkgUid = 10002564;
@@ -2997,11 +2983,11 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
                         "third_party_package", thirdPartyPkgUid, null)));
 
         IResourceOveruseListener mockSystemListener = createMockResourceOveruseListener();
-        mWatchdogPerfHandlerStable.addResourceOveruseListenerForSystem(
+        mWatchdogPerfHandler.addResourceOveruseListenerForSystem(
                 FLAG_RESOURCE_OVERUSE_IO, mockSystemListener);
 
         IResourceOveruseListener mockListener = createMockResourceOveruseListener();
-        mWatchdogPerfHandlerStable.addResourceOveruseListener(
+        mWatchdogPerfHandler.addResourceOveruseListener(
                 FLAG_RESOURCE_OVERUSE_IO, mockListener);
 
         List<PackageIoOveruseStats> packageIoOveruseStats = Arrays.asList(
@@ -3060,20 +3046,19 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
         List<AtomsProto.CarWatchdogIoOveruseStatsReported> expectedReportedOveruseStats =
                 new ArrayList<>();
         expectedReportedOveruseStats.add(constructIoOveruseStatsReported(criticalSysPkgUid,
-                WatchdogPerfHandlerStable.constructCarWatchdogPerStateBytes(10, 20, 30),
-                WatchdogPerfHandlerStable.constructCarWatchdogPerStateBytes(100, 200, 300)));
+                WatchdogPerfHandler.constructCarWatchdogPerStateBytes(10, 20, 30),
+                WatchdogPerfHandler.constructCarWatchdogPerStateBytes(100, 200, 300)));
         expectedReportedOveruseStats.add(constructIoOveruseStatsReported(thirdPartyPkgUid,
-                WatchdogPerfHandlerStable.constructCarWatchdogPerStateBytes(30, 60, 90),
-                WatchdogPerfHandlerStable.constructCarWatchdogPerStateBytes(300, 600, 900)));
+                WatchdogPerfHandler.constructCarWatchdogPerStateBytes(30, 60, 90),
+                WatchdogPerfHandler.constructCarWatchdogPerStateBytes(300, 600, 900)));
 
         captureAndVerifyIoOveruseStatsReported(expectedReportedOveruseStats);
 
         List<AtomsProto.CarWatchdogKillStatsReported> expectedReportedKillStats =
                 Collections.singletonList(constructIoOveruseKillStatsReported(thirdPartyPkgUid,
                         CAR_WATCHDOG_KILL_STATS_REPORTED__SYSTEM_STATE__USER_NO_INTERACTION_MODE,
-                        WatchdogPerfHandlerStable.constructCarWatchdogPerStateBytes(30, 60, 90),
-                        WatchdogPerfHandlerStable.constructCarWatchdogPerStateBytes(300, 600, 900))
-                );
+                        WatchdogPerfHandler.constructCarWatchdogPerStateBytes(30, 60, 90),
+                        WatchdogPerfHandler.constructCarWatchdogPerStateBytes(300, 600, 900)));
 
         captureAndVerifyKillStatsReported(expectedReportedKillStats);
     }
@@ -3081,7 +3066,7 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
     @Test
     public void testLatestIoOveruseStatsWithSharedUid() throws Exception {
         setRequiresDistractionOptimization(/* isRequires= */ true);
-        mWatchdogPerfHandlerStable.onDisplayStateChanged(/* isEnabled= */ false);
+        mWatchdogPerfHandler.onDisplayStateChanged(/* isEnabled= */ false);
         int criticalSysSharedUid = Binder.getCallingUid();
         int nonCriticalVndrSharedUid = 10002564;
         int thirdPartySharedUid = 10002044;
@@ -3100,11 +3085,11 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
         ));
 
         IResourceOveruseListener mockSystemListener = createMockResourceOveruseListener();
-        mWatchdogPerfHandlerStable.addResourceOveruseListenerForSystem(
+        mWatchdogPerfHandler.addResourceOveruseListenerForSystem(
                 FLAG_RESOURCE_OVERUSE_IO, mockSystemListener);
 
         IResourceOveruseListener mockListener = createMockResourceOveruseListener();
-        mWatchdogPerfHandlerStable.addResourceOveruseListener(
+        mWatchdogPerfHandler.addResourceOveruseListener(
                 FLAG_RESOURCE_OVERUSE_IO, mockListener);
 
         List<PackageIoOveruseStats> packageIoOveruseStats = Arrays.asList(
@@ -3157,20 +3142,19 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
         List<AtomsProto.CarWatchdogIoOveruseStatsReported> expectedReportedOveruseStats =
                 new ArrayList<>();
         expectedReportedOveruseStats.add(constructIoOveruseStatsReported(criticalSysSharedUid,
-                WatchdogPerfHandlerStable.constructCarWatchdogPerStateBytes(10, 20, 30),
-                WatchdogPerfHandlerStable.constructCarWatchdogPerStateBytes(100, 200, 300)));
+                WatchdogPerfHandler.constructCarWatchdogPerStateBytes(10, 20, 30),
+                WatchdogPerfHandler.constructCarWatchdogPerStateBytes(100, 200, 300)));
         expectedReportedOveruseStats.add(constructIoOveruseStatsReported(thirdPartySharedUid,
-                WatchdogPerfHandlerStable.constructCarWatchdogPerStateBytes(30, 60, 90),
-                WatchdogPerfHandlerStable.constructCarWatchdogPerStateBytes(300, 600, 900)));
+                WatchdogPerfHandler.constructCarWatchdogPerStateBytes(30, 60, 90),
+                WatchdogPerfHandler.constructCarWatchdogPerStateBytes(300, 600, 900)));
 
         captureAndVerifyIoOveruseStatsReported(expectedReportedOveruseStats);
 
         List<AtomsProto.CarWatchdogKillStatsReported> expectedReportedKillStats =
                 Collections.singletonList(constructIoOveruseKillStatsReported(thirdPartySharedUid,
                         CAR_WATCHDOG_KILL_STATS_REPORTED__SYSTEM_STATE__USER_NO_INTERACTION_MODE,
-                        WatchdogPerfHandlerStable.constructCarWatchdogPerStateBytes(30, 60, 90),
-                        WatchdogPerfHandlerStable.constructCarWatchdogPerStateBytes(300, 600, 900))
-                );
+                        WatchdogPerfHandler.constructCarWatchdogPerStateBytes(30, 60, 90),
+                        WatchdogPerfHandler.constructCarWatchdogPerStateBytes(300, 600, 900)));
 
         captureAndVerifyKillStatsReported(expectedReportedKillStats);
     }
@@ -3193,15 +3177,14 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
                                 "third_party_package.A")),
                         /* shouldNotifyPackages= */ new ArraySet<>());
 
-        mWatchdogPerfHandlerStable.setKillablePackageAsUser(
+        mWatchdogPerfHandler.setKillablePackageAsUser(
                 "third_party_package.A", UserHandle.of(102), /* isKillable= */ false);
 
         restartService(/* totalRestarts= */ 1, /* wantedDbWrites= */ 1);
 
-        List<ResourceOveruseStats> actualStats =
-                mWatchdogPerfHandlerStable.getAllResourceOveruseStats(
-                        FLAG_RESOURCE_OVERUSE_IO, /* minimumStatsFlag= */ 0,
-                        CarWatchdogManager.STATS_PERIOD_CURRENT_DAY);
+        List<ResourceOveruseStats> actualStats = mWatchdogPerfHandler.getAllResourceOveruseStats(
+                FLAG_RESOURCE_OVERUSE_IO, /* minimumStatsFlag= */ 0,
+                CarWatchdogManager.STATS_PERIOD_CURRENT_DAY);
 
         List<ResourceOveruseStats> expectedStats = Arrays.asList(
                 constructResourceOveruseStats(
@@ -3213,7 +3196,7 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
                         packageIoOveruseStatsByUid.get(10201100).ioOveruseStats));
 
         PackageKillableStateSubject.assertThat(
-                        mWatchdogPerfHandlerStable.getPackageKillableStatesAsUser(UserHandle.ALL))
+                        mWatchdogPerfHandler.getPackageKillableStatesAsUser(UserHandle.ALL))
                 .containsExactly(
                         new PackageKillableState("third_party_package", 101,
                                 PackageKillableState.KILLABLE_STATE_NEVER),
@@ -3240,7 +3223,7 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
                 constructPackageManagerPackageInfo("system_package", 10011200, null),
                 constructPackageManagerPackageInfo("third_party_package", 10001100, null)));
 
-        mWatchdogPerfHandlerStable.onDisplayStateChanged(/* isEnabled= */ false);
+        mWatchdogPerfHandler.onDisplayStateChanged(/* isEnabled= */ false);
         mTimeSource.updateNow(/* numDaysAgo= */ 1);
         List<PackageIoOveruseStats> prevDayStats = Arrays.asList(
                 constructPackageIoOveruseStats(10011200, /* shouldNotify= */ false,
@@ -3278,7 +3261,7 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
                                 /* forgivenWriteBytes= */ constructPerStateBytes(1050, 1100, 1200),
                                 /* forgivenOveruses= */ 0, /* totalTimesKilled= */ 0)));
 
-        mWatchdogPerfHandlerStable.onDisplayStateChanged(/* isEnabled= */ true);
+        mWatchdogPerfHandler.onDisplayStateChanged(/* isEnabled= */ true);
         mTimeSource.updateNow(/* numDaysAgo= */ 0);
         List<PackageIoOveruseStats> currentDayStats = Arrays.asList(
                 constructPackageIoOveruseStats(10011200, /* shouldNotify= */ false,
@@ -3303,7 +3286,7 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
                 .containsExactlyElementsIn(expectedSavedIoUsageEntries);
 
         List<ResourceOveruseStats> actualCurrentDayStats =
-                mWatchdogPerfHandlerStable.getAllResourceOveruseStats(
+                mWatchdogPerfHandler.getAllResourceOveruseStats(
                         FLAG_RESOURCE_OVERUSE_IO, /* minimumStatsFlag= */ 0,
                         CarWatchdogManager.STATS_PERIOD_CURRENT_DAY);
 
@@ -3337,7 +3320,7 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
     @Test
     public void testNoUserNotificationWithNoRecurrentOveruse() throws Exception {
         mockAmGetCurrentUser(CURRENT_USER_ID);
-        mWatchdogPerfHandlerStable.onDisplayStateChanged(/* isEnabled= */ true);
+        mWatchdogPerfHandler.onDisplayStateChanged(/* isEnabled= */ true);
         setRequiresDistractionOptimization(false);
 
         setUpSampleUserAndPackages();
@@ -3353,7 +3336,7 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
     public void testNoUserNotificationOnRecurrentOveruseWithDistractionOptimization()
             throws Exception {
         mockAmGetCurrentUser(CURRENT_USER_ID);
-        mWatchdogPerfHandlerStable.onDisplayStateChanged(/* isEnabled= */ true);
+        mWatchdogPerfHandler.onDisplayStateChanged(/* isEnabled= */ true);
         setRequiresDistractionOptimization(true);
 
         setUpSampleUserAndPackages();
@@ -3369,7 +3352,7 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
     public void testUserNotificationOnRecurrentOveruseAfterNoDistractionOptimization()
             throws Exception {
         mockAmGetCurrentUser(CURRENT_USER_ID);
-        mWatchdogPerfHandlerStable.onDisplayStateChanged(/* isEnabled= */ true);
+        mWatchdogPerfHandler.onDisplayStateChanged(/* isEnabled= */ true);
         setRequiresDistractionOptimization(true);
 
         setUpSampleUserAndPackages();
@@ -3393,7 +3376,7 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
     public void testNoDuplicateUserNotificationOnRepeatedRecurrentOveruse()
             throws Exception {
         mockAmGetCurrentUser(CURRENT_USER_ID);
-        mWatchdogPerfHandlerStable.onDisplayStateChanged(/* isEnabled= */ true);
+        mWatchdogPerfHandler.onDisplayStateChanged(/* isEnabled= */ true);
         setRequiresDistractionOptimization(false);
 
         setUpSampleUserAndPackages();
@@ -3419,7 +3402,7 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
     public void testImmediateUserNotificationOnRecurrentOveruseWhenNoDistractionOptimization()
             throws Exception {
         mockAmGetCurrentUser(CURRENT_USER_ID);
-        mWatchdogPerfHandlerStable.onDisplayStateChanged(/* isEnabled= */ true);
+        mWatchdogPerfHandler.onDisplayStateChanged(/* isEnabled= */ true);
         setRequiresDistractionOptimization(false);
 
         setUpSampleUserAndPackages();
@@ -3437,15 +3420,14 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
 
         List<UserNotificationReflectionCall>
                 userNotificationReflectionCalls = Arrays.asList(
-                        new UserNotificationReflectionCall(UserHandle.of(100),
-                                constructPackagesByNotificationId(/* idOffset= */ 0,
-                                        "vendor_package.non_critical", "third_party_package.A",
-                                        "third_party_package.B"),
-                                /* hasHeadsUpNotification= */ true),
-                        new UserNotificationReflectionCall(UserHandle.of(100),
-                                constructPackagesByNotificationId(/* idOffset= */ 3,
-                                        "system_package.non_critical"),
-                                /* hasHeadsUpNotification= */ false));
+                new UserNotificationReflectionCall(UserHandle.of(100),
+                        constructPackagesByNotificationId(/* idOffset= */ 0,
+                                "vendor_package.non_critical", "third_party_package.A",
+                                "third_party_package.B"), /* hasHeadsUpNotification= */ true),
+                new UserNotificationReflectionCall(UserHandle.of(100),
+                        constructPackagesByNotificationId(/* idOffset= */ 3,
+                                "system_package.non_critical"),
+                        /* hasHeadsUpNotification= */ false));
 
         captureAndVerifyUserNotifications(userNotificationReflectionCalls);
     }
@@ -3453,12 +3435,12 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
     @Test
     public void testNoUserNotificationOnRecurrentOveruseByPrePrioritizedApp() throws Exception {
         mockAmGetCurrentUser(CURRENT_USER_ID);
-        mWatchdogPerfHandlerStable.onDisplayStateChanged(/* isEnabled= */ true);
+        mWatchdogPerfHandler.onDisplayStateChanged(/* isEnabled= */ true);
         setRequiresDistractionOptimization(true);
 
         setUpSampleUserAndPackages();
 
-        mWatchdogPerfHandlerStable.setKillablePackageAsUser("third_party_package.A",
+        mWatchdogPerfHandler.setKillablePackageAsUser("third_party_package.A",
                 UserHandle.of(100), /* isKillable= */ false);
 
         pushLatestIoOveruseStatsAndWait(Collections.singletonList(
@@ -3478,7 +3460,7 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
     @Test
     public void testNoUserNotificationOnRecurrentOveruseByPostPrioritizedApp() throws Exception {
         mockAmGetCurrentUser(CURRENT_USER_ID);
-        mWatchdogPerfHandlerStable.onDisplayStateChanged(/* isEnabled= */ true);
+        mWatchdogPerfHandler.onDisplayStateChanged(/* isEnabled= */ true);
         setRequiresDistractionOptimization(true);
 
         setUpSampleUserAndPackages();
@@ -3491,7 +3473,7 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
                                 /* writtenBytes= */ constructPerStateBytes(300, 600, 900),
                                 /* totalOveruses= */ 3))));
 
-        mWatchdogPerfHandlerStable.setKillablePackageAsUser("third_party_package.A",
+        mWatchdogPerfHandler.setKillablePackageAsUser("third_party_package.A",
                 UserHandle.of(100), /* isKillable= */ false);
 
         setRequiresDistractionOptimization(false);
@@ -3503,13 +3485,13 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
     @Test
     public void testUserNotificationOnRecurrentOveruseByPriorityResettedApp() throws Exception {
         mockAmGetCurrentUser(CURRENT_USER_ID);
-        mWatchdogPerfHandlerStable.onDisplayStateChanged(/* isEnabled= */ true);
+        mWatchdogPerfHandler.onDisplayStateChanged(/* isEnabled= */ true);
         setRequiresDistractionOptimization(true);
 
         setUpSampleUserAndPackages();
 
-        mWatchdogPerfHandlerStable.setKillablePackageAsUser("third_party_package.A",
-                UserHandle.of(100), /* isKillable= */ false);
+        mWatchdogPerfHandler.setKillablePackageAsUser("third_party_package.A", UserHandle.of(100),
+                /* isKillable= */ false);
 
         pushLatestIoOveruseStatsAndWait(Collections.singletonList(
                 constructPackageIoOveruseStats(/* uid= */ 10010005, /* shouldNotify= */ true,
@@ -3519,8 +3501,8 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
                                 /* writtenBytes= */ constructPerStateBytes(300, 600, 900),
                                 /* totalOveruses= */ 3))));
 
-        mWatchdogPerfHandlerStable.setKillablePackageAsUser("third_party_package.A",
-                UserHandle.of(100), /* isKillable= */ true);
+        mWatchdogPerfHandler.setKillablePackageAsUser("third_party_package.A", UserHandle.of(100),
+                /* isKillable= */ true);
 
         setRequiresDistractionOptimization(false);
 
@@ -3541,7 +3523,7 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
         // Force CarWatchdogService to fetch historical not forgiven overuses.
         restartService(/* totalRestarts= */ 1, /* wantedDbWrites= */ 0);
         mockAmGetCurrentUser(CURRENT_USER_ID);
-        mWatchdogPerfHandlerStable.onDisplayStateChanged(/* isEnabled= */ true);
+        mWatchdogPerfHandler.onDisplayStateChanged(/* isEnabled= */ true);
         setRequiresDistractionOptimization(false);
 
         setUpSampleUserAndPackages();
@@ -3564,7 +3546,7 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
     @Test
     public void testUserNotificationWithDisabledDisplay() throws Exception {
         mockAmGetCurrentUser(CURRENT_USER_ID);
-        mWatchdogPerfHandlerStable.onDisplayStateChanged(/* isEnabled= */ false);
+        mWatchdogPerfHandler.onDisplayStateChanged(/* isEnabled= */ false);
         setRequiresDistractionOptimization(false);
 
         setUpSampleUserAndPackages();
@@ -3588,7 +3570,7 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
     public void testNoDisableWithNoRecurrentOveruse() throws Exception {
         setUpSampleUserAndPackages();
         setRequiresDistractionOptimization(false);
-        mWatchdogPerfHandlerStable.onDisplayStateChanged(/* isEnabled= */ false);
+        mWatchdogPerfHandler.onDisplayStateChanged(/* isEnabled= */ false);
 
         List<PackageIoOveruseStats> packageIoOveruseStats =
                 sampleIoOveruseStats(/* requireRecurrentOveruseStats= */ false);
@@ -3607,7 +3589,7 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
     public void testNoDisableRecurrentlyOverusingAppWithDistractionOptimization() throws Exception {
         setUpSampleUserAndPackages();
         setRequiresDistractionOptimization(true);
-        mWatchdogPerfHandlerStable.onDisplayStateChanged(/* isEnabled= */ true);
+        mWatchdogPerfHandler.onDisplayStateChanged(/* isEnabled= */ true);
 
         List<PackageIoOveruseStats> packageIoOveruseStats =
                 sampleIoOveruseStats(/* requireRecurrentOveruseStats= */ true);
@@ -3819,11 +3801,11 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
                 .getApplicationEnabledSetting(or(eq("system_package"),
                         eq("irrelevant_random_package")), eq(100));
 
-        mWatchdogPerfHandlerStable.processPackageChangedIntent(new Intent(ACTION_PACKAGE_CHANGED)
+        mWatchdogPerfHandler.processPackageChangedIntent(new Intent(ACTION_PACKAGE_CHANGED)
                 .putExtra(Intent.EXTRA_USER_HANDLE, userId)
                 .setData(Uri.parse("package:" + packageName)));
 
-        mWatchdogPerfHandlerStable.processPackageChangedIntent(new Intent(ACTION_PACKAGE_CHANGED)
+        mWatchdogPerfHandler.processPackageChangedIntent(new Intent(ACTION_PACKAGE_CHANGED)
                 .putExtra(Intent.EXTRA_USER_HANDLE, userId)
                 .setData(Uri.parse("package:irrelevant_random_package")));
 
@@ -3844,7 +3826,7 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
         doReturn(COMPONENT_ENABLED_STATE_DISABLED).when(mSpiedPackageManager)
                 .getApplicationEnabledSetting("system_package", 100);
 
-        mWatchdogPerfHandlerStable.processPackageChangedIntent(new Intent(ACTION_PACKAGE_CHANGED)
+        mWatchdogPerfHandler.processPackageChangedIntent(new Intent(ACTION_PACKAGE_CHANGED)
                 .putExtra(Intent.EXTRA_USER_HANDLE, userId)
                 .setData(Uri.parse("package:" + packageName)));
 
@@ -3939,13 +3921,13 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
     //TODO(b/296123438): Add test for remaining dump fields in dumpProto.
     @Test
     public void testDumpProto() throws Exception {
-        mWatchdogPerfHandlerStable.disablePackageForUser("testPackage", 101);
+        mWatchdogPerfHandler.disablePackageForUser("testPackage", 101);
         // Set mLastSystemIoUsageSummaryReportedDate and mLastUidIoUsageSummaryReportedDate.
         assertWithMessage("Stats pull atom callback status")
                 .that(mStatsPullAtomCallback.onPullAtom(CAR_WATCHDOG_SYSTEM_IO_USAGE_SUMMARY,
                         new ArrayList<>())).isEqualTo(PULL_SUCCESS);
         ProtoOutputStream proto = new ProtoOutputStream();
-        mWatchdogPerfHandlerStable.dumpProto(proto);
+        mWatchdogPerfHandler.dumpProto(proto);
 
         CarWatchdogDumpProto carWatchdogDumpProto = CarWatchdogDumpProto.parseFrom(
                 proto.getBytes());
@@ -4173,12 +4155,12 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
     }
 
     private void initService(int wantedInvocations) throws Exception {
-        mWatchdogPerfHandlerStable.setOveruseHandlingDelay(OVERUSE_HANDLING_DELAY_MILLS);
-        mWatchdogPerfHandlerStable.init();
+        mWatchdogPerfHandler.setOveruseHandlingDelay(OVERUSE_HANDLING_DELAY_MILLS);
+        mWatchdogPerfHandler.init();
         captureCarUxRestrictionsChangeListener(wantedInvocations);
         verifyDatabaseInit(wantedInvocations);
         captureStatsPullAtomCallback(wantedInvocations);
-        mWatchdogPerfHandlerStable.onDaemonConnectionChange(/* isConnected= */ true);
+        mWatchdogPerfHandler.onDaemonConnectionChange(/* isConnected= */ true);
         // Initialization of CarService fetches and syncs resource overuse configuration on the main
         // thread. Wait until this completes.
         CarServiceUtils.runOnMainSync(() -> {});
@@ -4190,9 +4172,9 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
 
     private void restartService(int totalRestarts, int wantedDbWrites, boolean isWriteIoStats)
             throws Exception {
-        mWatchdogPerfHandlerStable.writeMetadataFile();
-        mWatchdogPerfHandlerStable.writeToDatabase();
-        mWatchdogPerfHandlerStable.release();
+        mWatchdogPerfHandler.writeMetadataFile();
+        mWatchdogPerfHandler.writeToDatabase();
+        mWatchdogPerfHandler.release();
         mSpiedWatchdogStorage.release();
         verify(mSpiedWatchdogStorage, times(totalRestarts)).startWrite();
         verify(mSpiedWatchdogStorage, times(isWriteIoStats ? wantedDbWrites : 0))
@@ -4201,7 +4183,7 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
         verify(mSpiedWatchdogStorage, times(wantedDbWrites)).markWriteSuccessful();
         verify(mSpiedWatchdogStorage, times(wantedDbWrites)).endWrite();
         verify(mSpiedWatchdogStorage, times(Math.max(totalRestarts, 1))).release();
-        mWatchdogPerfHandlerStable = new WatchdogPerfHandlerStable(mMockContext,
+        mWatchdogPerfHandler = new WatchdogPerfHandler(mMockContext,
                 mMockBuiltinPackageContext, mMockCarWatchdogDaemonHelper,
                 new PackageInfoHandler(mMockContext.getPackageManager()),
                 mSpiedWatchdogStorage, mTimeSource);
@@ -4292,13 +4274,13 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
         // The below thresholds are from {@link sampleInternalResourceOveruseConfiguration} and
         // UID/stat are from {@link sampleIoOveruseStats}.
         AtomsProto.CarWatchdogPerStateBytes systemThreshold =
-                WatchdogPerfHandlerStable.constructCarWatchdogPerStateBytes(10, 20, 30);
+                WatchdogPerfHandler.constructCarWatchdogPerStateBytes(10, 20, 30);
         AtomsProto.CarWatchdogPerStateBytes vendorThreshold =
-                WatchdogPerfHandlerStable.constructCarWatchdogPerStateBytes(20, 40, 60);
+                WatchdogPerfHandler.constructCarWatchdogPerStateBytes(20, 40, 60);
         AtomsProto.CarWatchdogPerStateBytes thirdPartyThreshold =
-                WatchdogPerfHandlerStable.constructCarWatchdogPerStateBytes(30, 60, 90);
+                WatchdogPerfHandler.constructCarWatchdogPerStateBytes(30, 60, 90);
         AtomsProto.CarWatchdogPerStateBytes writtenBytes =
-                WatchdogPerfHandlerStable.constructCarWatchdogPerStateBytes(100, 200, 300);
+                WatchdogPerfHandler.constructCarWatchdogPerStateBytes(100, 200, 300);
         List<AtomsProto.CarWatchdogIoOveruseStatsReported> reportedOveruseStats = new ArrayList<>();
         reportedOveruseStats.add(constructIoOveruseStatsReported(
                 10010001, systemThreshold, writtenBytes));
@@ -4320,11 +4302,11 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
         // The below thresholds are from {@link sampleInternalResourceOveruseConfiguration} and
         // UID/stat are from {@link sampleIoOveruseStats}.
         AtomsProto.CarWatchdogPerStateBytes vendorThreshold =
-                WatchdogPerfHandlerStable.constructCarWatchdogPerStateBytes(20, 40, 60);
+                WatchdogPerfHandler.constructCarWatchdogPerStateBytes(20, 40, 60);
         AtomsProto.CarWatchdogPerStateBytes thirdPartyThreshold =
-                WatchdogPerfHandlerStable.constructCarWatchdogPerStateBytes(30, 60, 90);
+                WatchdogPerfHandler.constructCarWatchdogPerStateBytes(30, 60, 90);
         AtomsProto.CarWatchdogPerStateBytes writtenBytes =
-                WatchdogPerfHandlerStable.constructCarWatchdogPerStateBytes(100, 200, 300);
+                WatchdogPerfHandler.constructCarWatchdogPerStateBytes(100, 200, 300);
         List<AtomsProto.CarWatchdogKillStatsReported> reportedKillStats = new ArrayList<>();
         for (int uid : killedUids) {
             AtomsProto.CarWatchdogPerStateBytes threshold =
@@ -4339,7 +4321,7 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
             constructIoOveruseStatsReported(int uid, AtomsProto.CarWatchdogPerStateBytes threshold,
             AtomsProto.CarWatchdogPerStateBytes writtenBytes) {
         return constructCarWatchdogIoOveruseStatsReported(
-                uid, WatchdogPerfHandlerStable.constructCarWatchdogIoOveruseStats(
+                uid, WatchdogPerfHandler.constructCarWatchdogIoOveruseStats(
                         AtomsProto.CarWatchdogIoOveruseStats.Period.DAILY, threshold, writtenBytes)
         );
     }
@@ -4404,7 +4386,7 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
         return constructCarWatchdogKillStatsReported(uid,
                 CAR_WATCHDOG_KILL_STATS_REPORTED__UID_STATE__UNKNOWN_UID_STATE, systemState,
                 CAR_WATCHDOG_KILL_STATS_REPORTED__KILL_REASON__KILLED_ON_IO_OVERUSE,
-                WatchdogPerfHandlerStable.constructCarWatchdogIoOveruseStats(
+                WatchdogPerfHandler.constructCarWatchdogIoOveruseStats(
                         AtomsProto.CarWatchdogIoOveruseStats.Period.DAILY, threshold, writtenBytes)
         );
     }
@@ -4428,11 +4410,11 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
         UserHandle userHandle = UserHandle.of(userId);
 
         // Set package killable state to not killable, which enable the user package
-        mWatchdogPerfHandlerStable.setKillablePackageAsUser(packageName, userHandle,
+        mWatchdogPerfHandler.setKillablePackageAsUser(packageName, userHandle,
                 /* isKillable= */ false);
 
         if (isKillable) {
-            mWatchdogPerfHandlerStable.setKillablePackageAsUser(packageName, userHandle,
+            mWatchdogPerfHandler.setKillablePackageAsUser(packageName, userHandle,
                     /* isKillable= */ true);
         }
 
@@ -4453,7 +4435,7 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
         for (int i = 0; i < userIds.length; i++) {
             int userId = userIds[i];
 
-            mWatchdogPerfHandlerStable.disablePackageForUser(packageName, userId);
+            mWatchdogPerfHandler.disablePackageForUser(packageName, userId);
 
             verify(mSpiedPackageManager, atLeastOnce())
                     .getApplicationEnabledSetting(packageName, userId);
@@ -4763,7 +4745,7 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
     private static android.automotive.watchdog.internal.ResourceOveruseConfiguration
             sampleInternalResourceOveruseConfiguration(@ComponentType int componentType,
             android.automotive.watchdog.internal.IoOveruseConfiguration ioOveruseConfig) {
-        String prefix = WatchdogPerfHandlerStable.toComponentTypeStr(componentType)
+        String prefix = WatchdogPerfHandler.toComponentTypeStr(componentType)
                 .toLowerCase(Locale.US);
         android.automotive.watchdog.internal.ResourceOveruseConfiguration config =
                 new android.automotive.watchdog.internal.ResourceOveruseConfiguration();
@@ -4811,12 +4793,12 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
 
     private static android.automotive.watchdog.internal.IoOveruseConfiguration
             sampleInternalIoOveruseConfiguration(@ComponentType int componentType) {
-        String prefix = WatchdogPerfHandlerStable.toComponentTypeStr(componentType)
+        String prefix = WatchdogPerfHandler.toComponentTypeStr(componentType)
                 .toLowerCase(Locale.US);
         android.automotive.watchdog.internal.IoOveruseConfiguration config =
                 new android.automotive.watchdog.internal.IoOveruseConfiguration();
         config.componentLevelThresholds = constructPerStateIoOveruseThreshold(
-                WatchdogPerfHandlerStable.toComponentTypeStr(componentType),
+                WatchdogPerfHandler.toComponentTypeStr(componentType),
                 /* fgBytes= */ componentType * 10L, /* bgBytes= */ componentType *  20L,
                 /*gmBytes= */ componentType * 30L);
         config.packageSpecificThresholds = Collections.singletonList(
@@ -4825,11 +4807,11 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
                         /* gmBytes= */ componentType * 60L));
         config.categorySpecificThresholds = Arrays.asList(
                 constructPerStateIoOveruseThreshold(
-                        WatchdogPerfHandlerStable.INTERNAL_APPLICATION_CATEGORY_TYPE_MEDIA,
+                        WatchdogPerfHandler.INTERNAL_APPLICATION_CATEGORY_TYPE_MEDIA,
                         /* fgBytes= */ componentType * 100L, /* bgBytes= */ componentType * 200L,
                         /* gmBytes= */ componentType * 300L),
                 constructPerStateIoOveruseThreshold(
-                        WatchdogPerfHandlerStable.INTERNAL_APPLICATION_CATEGORY_TYPE_MAPS,
+                        WatchdogPerfHandler.INTERNAL_APPLICATION_CATEGORY_TYPE_MAPS,
                         /* fgBytes= */ componentType * 1100L, /* bgBytes= */ componentType * 2200L,
                         /* gmBytes= */ componentType * 3300L));
         config.systemWideThresholds = Collections.singletonList(
@@ -4879,7 +4861,7 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
 
     private static IoOveruseConfiguration.Builder sampleIoOveruseConfigurationBuilder(
             @ComponentType int componentType) {
-        String prefix = WatchdogPerfHandlerStable.toComponentTypeStr(componentType)
+        String prefix = WatchdogPerfHandler.toComponentTypeStr(componentType)
                 .toLowerCase(Locale.US);
         PerStateBytes componentLevelThresholds = new PerStateBytes(
                 /* foregroundModeBytes= */ componentType * 10L,
@@ -4913,7 +4895,7 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
 
     private static ResourceOveruseConfiguration.Builder sampleResourceOveruseConfigurationBuilder(
             @ComponentType int componentType, IoOveruseConfiguration ioOveruseConfig) {
-        String prefix = WatchdogPerfHandlerStable.toComponentTypeStr(componentType)
+        String prefix = WatchdogPerfHandler.toComponentTypeStr(componentType)
                 .toLowerCase(Locale.US);
         List<String> safeToKill = Arrays.asList(prefix + "_package.non_critical.A",
                 prefix + "_pkg.non_critical.B",
@@ -5050,7 +5032,7 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
 
     private void pushLatestIoOveruseStatsAndWait(List<PackageIoOveruseStats> packageIoOveruseStats)
             throws Exception {
-        mWatchdogPerfHandlerStable.latestIoOveruseStats(packageIoOveruseStats);
+        mWatchdogPerfHandler.latestIoOveruseStats(packageIoOveruseStats);
 
         // Handling latest I/O overuse stats is done on the CarWatchdogService service handler
         // thread. Wait until the below message is processed before returning, so the

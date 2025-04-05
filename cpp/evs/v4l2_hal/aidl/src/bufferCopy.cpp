@@ -143,7 +143,7 @@ void fillRGBAFromBGRA(const BufferDesc& tgtBuff, uint8_t* tgt, void* imgData[VID
                       unsigned imgStride) {
     const AHardwareBuffer_Desc* pDesc =
             reinterpret_cast<const AHardwareBuffer_Desc*>(&tgtBuff.buffer.description);
-    auto result = libyuv::ABGRToARGB((const uint8_t*)imgData[0], imgStride, tgt, imgStride,
+    auto result = libyuv::BGRAToARGB((const uint8_t*)imgData[0], imgStride, tgt, imgStride,
                                      pDesc->width, pDesc->height);
     if (result) {
         LOG(ERROR) << "Failed to convert BGRA to RGBA.";
