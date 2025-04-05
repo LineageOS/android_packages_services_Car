@@ -216,7 +216,6 @@ public final class FakeRefactoredCarPowerManagementDaemon extends
     public void applyPowerPolicyAsync(int requestId, String policyId, boolean force)
             throws RemoteException {
         Log.i(TAG, "Fake refactored CPPD is attempting to apply power policy " + policyId);
-        ICarPowerManagementDelegateCallback callback = getPowerManagementDelegateCallback();
 
         boolean deferred = isPreemptivePolicy(mCurrentPowerPolicyId)
                 && !isPreemptivePolicy(policyId);
@@ -226,11 +225,18 @@ public final class FakeRefactoredCarPowerManagementDaemon extends
         }
         mComponentHandler.applyPolicy(currentPolicy);
         CarPowerPolicy accumulatedPolicy = mComponentHandler.getAccumulatedPolicy(policyId);
-        callback.updatePowerComponents(accumulatedPolicy);
-        callback.onApplyPowerPolicySucceeded(requestId, accumulatedPolicy, deferred);
-        if (!deferred) {
-            mCurrentPowerPolicyId = policyId;
-        }
+        ICarPowerManagementDelegateCallback callback = getPowerManagementDelegateCallback();
+        mHandler.post(() -> {
+            try {
+                callback.updatePowerComponents(accumulatedPolicy);
+                callback.onApplyPowerPolicySucceeded(requestId, accumulatedPolicy, deferred);
+                if (!deferred) {
+                    mCurrentPowerPolicyId = policyId;
+                }
+            } catch (Exception e) {
+                Log.w(TAG, "Cannot call onApplyPowerPolicySucceeded", e);
+            }
+        });
     }
 
     @Override
@@ -240,17 +246,23 @@ public final class FakeRefactoredCarPowerManagementDaemon extends
         if (policy == null) {
             throw new IllegalArgumentException("No default policy defined for state " + state);
         }
+        ICarPowerManagementDelegateCallback callback = getPowerManagementDelegateCallback();
         if (mSilentModeOn) {
-            mPendingPowerPolicyId = policy.policyId;
-            Log.d(TAG, "Silent mode is on, so applying power policy for state " + state
-                    + " is deferred, setting pending power policy to " + mPendingPowerPolicyId);
-            ICarPowerManagementDelegateCallback callback = getPowerManagementDelegateCallback();
-            callback.onApplyPowerPolicySucceeded(requestId, policy, /* deferred= */ true);
+            mHandler.post(() -> {
+                mPendingPowerPolicyId = policy.policyId;
+
+                Log.d(TAG, "Silent mode is on, so applying power policy for state " + state
+                        + " is deferred, setting pending power policy to " + mPendingPowerPolicyId);
+                try {
+                    callback.onApplyPowerPolicySucceeded(requestId, policy, /* deferred= */ true);
+                } catch (Exception e) {
+                    Log.w(TAG, "Cannot call onApplyPowerPolicySucceeded", e);
+                }
+            });
             return;
         }
         mHandler.post(() -> {
             try {
-                ICarPowerManagementDelegateCallback callback = getPowerManagementDelegateCallback();
                 callback.updatePowerComponents(policy);
                 callback.onApplyPowerPolicySucceeded(requestId, policy, /* deferred= */ false);
                 synchronized (mLock) {
@@ -382,14 +394,16 @@ public final class FakeRefactoredCarPowerManagementDaemon extends
     private void applyPowerPolicyInternal(String policyId, String errMsg) {
         mComponentHandler.applyPolicy(mPolicies.get(policyId));
         CarPowerPolicy accumulatedPolicy = mComponentHandler.getAccumulatedPolicy(policyId);
-        try {
-            ICarPowerManagementDelegateCallback callback = getPowerManagementDelegateCallback();
-            callback.onPowerPolicyChanged(accumulatedPolicy);
-            callback.updatePowerComponents(accumulatedPolicy);
-            mCurrentPowerPolicyId = policyId;
-        } catch (RemoteException e) {
-            Log.d(TAG, errMsg, e);
-        }
+        mHandler.post(() -> {
+            try {
+                ICarPowerManagementDelegateCallback callback = getPowerManagementDelegateCallback();
+                callback.onPowerPolicyChanged(accumulatedPolicy);
+                callback.updatePowerComponents(accumulatedPolicy);
+                mCurrentPowerPolicyId = policyId;
+            } catch (RemoteException e) {
+                Log.d(TAG, errMsg, e);
+            }
+        });
     }
 
     private int[] convertIntIterableToArray(Iterable<Integer> iterable) {
