@@ -76,6 +76,9 @@ int main() {
         return EXIT_FAILURE;
     }
 
+    // Enumerate devices before starting the binder thread pool.
+    service->enumerateDevices();
+
     if (!ABinderProcess_setThreadPoolMaxThreadCount(kNumBinderThreads)) {
         LOG(ERROR) << "Failed to set thread pool";
         return EXIT_FAILURE;
