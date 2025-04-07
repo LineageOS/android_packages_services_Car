@@ -17,37 +17,37 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="car_permission_label" msgid="2215078736675564541">"נתוני הרכב"</string>
-    <string name="car_permission_desc" msgid="3584369074931334964">"גישה אל פרטי המכונית"</string>
+    <string name="car_permission_desc" msgid="4671139601357696916">"קריאת המידע על הרכב"</string>
     <string name="car_permission_label_camera" msgid="3725702064841827180">"גישה למצלמה של הרכב"</string>
     <string name="car_permission_desc_camera" msgid="917024932164501426">"גישה למצלמות הרכב."</string>
-    <string name="car_permission_label_energy" msgid="7409144323527821558">"גישה למידע על נתוני צריכת האנרגיה של הרכב"</string>
-    <string name="car_permission_desc_energy" msgid="3392963810053235407">"גישה למידע על אנרגיית הרכב"</string>
+    <string name="car_permission_label_energy" msgid="6529778912442705855">"קריאת מידע על צריכת האנרגיה של הרכב"</string>
+    <string name="car_permission_desc_energy" msgid="7024599188817722607">"קריאת מידע על צריכת האנרגיה של הרכב."</string>
     <string name="car_permission_label_control_car_energy" msgid="2788215385574313796">"שליטה בהגדרות הטעינה של הרכב החשמלי"</string>
     <string name="car_permission_desc_control_car_energy" msgid="8765015897869031807">"שליטה בהגדרות הטעינה של הרכב החשמלי."</string>
     <string name="car_permission_label_adjust_range_remaining" msgid="839033553999920138">"התאמה של הטווח הנותר של הרכב"</string>
     <string name="car_permission_desc_adjust_range_remaining" msgid="2369321650437370673">"התאמת הערך של הטווח הנותר של הרכב."</string>
-    <string name="car_permission_label_hvac" msgid="1499454192558727843">"גישה למערכת החימום, הקירור והאוורור של הרכב"</string>
-    <string name="car_permission_desc_hvac" msgid="3754229695589774195">"גישה למערכת החימום, האוורור ומיזוג האוויר (HVAC) של הרכב."</string>
-    <string name="car_permission_label_mileage" msgid="4661317074631150551">"גישה לנתוני הקילומטראז\' של הרכב"</string>
-    <string name="car_permission_desc_mileage" msgid="7179735693278681090">"גישה אל נתוני הקילומטראז\' של הרכב."</string>
-    <string name="car_permission_label_mileage_3p" msgid="7542459195663034759">"גישה למידע על מרחק הנסיעה המצטבר של הרכב"</string>
-    <string name="car_permission_desc_mileage_3p" msgid="9109350882748664570">"גישה למידע על מרחק הנסיעה המצטבר של הרכב."</string>
+    <string name="car_permission_label_hvac" msgid="6336214266904971950">"שליטה בבקרת האקלים של הרכב"</string>
+    <string name="car_permission_desc_hvac" msgid="7229917418217117426">"שליטה בבקרת האקלים של הרכב."</string>
+    <string name="car_permission_label_mileage" msgid="9194744289794795513">"קריאת מידע על מרחק הנסיעה המצטבר של הרכב"</string>
+    <string name="car_permission_desc_mileage" msgid="9068667477789716791">"קריאת מידע על מרחק הנסיעה המצטבר של הרכב."</string>
+    <string name="car_permission_label_mileage_3p" msgid="2852514373971903913">"קריאת מידע על מרחק הנסיעה המצטבר של הרכב"</string>
+    <string name="car_permission_desc_mileage_3p" msgid="1774910630404924463">"קריאת מידע על מרחק הנסיעה המצטבר של הרכב."</string>
     <string name="car_permission_label_read_car_horn" msgid="5940158571880705176">"קריאת מידע על הצופר של הרכב"</string>
     <string name="car_permission_desc_read_car_horn" msgid="1099929991964988027">"קריאת מידע על הצופר של הרכב."</string>
     <string name="car_permission_label_control_car_horn" msgid="6724124600587260102">"שליטה בצופר של הרכב"</string>
     <string name="car_permission_desc_control_car_horn" msgid="6054845567296317971">"שליטה בצופר של הרכב."</string>
-    <string name="car_permission_label_read_car_pedals" msgid="9053334935825814308">"גישה למידע על הדוושות של הרכב"</string>
-    <string name="car_permission_desc_read_car_pedals" msgid="3148710874350250453">"גישה למידע על הדוושות של הרכב."</string>
-    <string name="car_permission_label_read_brake_info" msgid="6649283162262754200">"גישה למידע על הבלמים של הרכב"</string>
-    <string name="car_permission_desc_read_brake_info" msgid="4641852049166846105">"גישה למידע על הבלמים של הרכב."</string>
+    <string name="car_permission_label_read_car_pedals" msgid="3043797722208092602">"קריאת מידע על הדוושות של הרכב"</string>
+    <string name="car_permission_desc_read_car_pedals" msgid="8245311380277704380">"קריאת מידע על הדוושות של הרכב."</string>
+    <string name="car_permission_label_read_brake_info" msgid="919608163703877876">"קריאת מידע על הבלמים של הרכב"</string>
+    <string name="car_permission_desc_read_brake_info" msgid="1422619922008154555">"קריאת מידע על הבלמים של הרכב."</string>
     <string name="car_permission_label_speed" msgid="1149027717860529745">"קריאת נתוני המהירות של הרכב"</string>
-    <string name="car_permission_desc_speed" msgid="2047965198165448241">"גישה לנתוני המהירות של הרכב."</string>
-    <string name="car_permission_label_vehicle_dynamics_state" msgid="313779267420048367">"גישה למצב הדינמי של המכונית"</string>
-    <string name="car_permission_desc_vehicle_dynamics_state" msgid="8891506193446375660">"גישה למצב הדינמי של הרכב."</string>
+    <string name="car_permission_desc_speed" msgid="5858258466024406366">"קריאת נתוני המהירות של הרכב."</string>
+    <string name="car_permission_label_vehicle_dynamics_state" msgid="2446589481717587166">"קריאת המצב הדינמי של רכב"</string>
+    <string name="car_permission_desc_vehicle_dynamics_state" msgid="4059749588215960011">"קריאת המצב הדינמי של רכב."</string>
     <string name="car_permission_label_control_vehicle_dynamics_state" msgid="1912154069363074986">"שליטה במצב הדינמי ברכב"</string>
     <string name="car_permission_desc_control_vehicle_dynamics_state" msgid="5603436779163086928">"שליטה במצב הדינמי ברכב."</string>
-    <string name="car_permission_label_vendor_extension" msgid="7141601811734127361">"גישה לערוץ הספק של הרכב"</string>
-    <string name="car_permission_desc_vendor_extension" msgid="2970718502334714035">"גישה אל ערוץ הספק של הרכב לצורך חילופי מידע הספציפי לרכב."</string>
+    <string name="car_permission_label_vendor_extension" msgid="4469386015153307485">"קריאה של ערוץ הספק של הרכב"</string>
+    <string name="car_permission_desc_vendor_extension" msgid="2429289362866854822">"קריאה של ערוץ הספק של הרכב לצורך חילופי מידע הספציפי לרכב."</string>
     <string name="car_permission_label_radio" msgid="6009465291685935112">"שליטה ברדיו שברכב"</string>
     <string name="car_permission_desc_radio" msgid="3385999027478186964">"גישה לרדיו של הרכב."</string>
     <string name="car_permission_label_projection" msgid="9107156380287576787">"הקרנה של ממשק מטלפון למסך התצוגה של הרכב"</string>
@@ -116,16 +116,16 @@
     <string name="car_permission_desc_use_evs_camera" msgid="1625845902221003985">"להירשם לשידורי הווידאו של מערכת התצוגה החיצונית (EVS)"</string>
     <string name="car_permission_label_monitor_evs_status" msgid="2091521314159379622">"לעקוב אחר הסטטוס של שירות מערכת התצוגה החיצונית (EVS)"</string>
     <string name="car_permission_desc_monitor_evs_status" msgid="2764278897143573535">"להתעדכן בשינויי הסטטוס של שירות מערכת התצוגה החיצונית (EVS)"</string>
-    <string name="car_permission_label_car_engine_detailed" msgid="8911992719173587337">"גישה למידע מפורט על מנוע הרכב"</string>
-    <string name="car_permission_desc_car_engine_detailed" msgid="1746863362811347700">"גישה למידע מפורט על מנוע הרכב."</string>
+    <string name="car_permission_label_car_engine_detailed" msgid="1418113527626468413">"קריאה של מידע מפורט על מנוע הרכב"</string>
+    <string name="car_permission_desc_car_engine_detailed" msgid="1839656966547909025">"קריאה של מידע מפורט על מנוע הרכב."</string>
     <string name="car_permission_label_car_engine_detailed_3p" msgid="2695036212735960169">"קריאה של מידע מפורט על מנוע הרכב"</string>
     <string name="car_permission_desc_car_engine_detailed_3p" msgid="7536940094077391015">"קריאה של מידע מפורט על מנוע הרכב."</string>
-    <string name="car_permission_label_car_energy_ports" msgid="8548990315169219454">"גישה לפתח מכל הדלק וליציאת הטעינה של הרכב"</string>
-    <string name="car_permission_desc_car_energy_ports" msgid="7771185999828794949">"גישה לפתח מכל הדלק וליציאת הטעינה של הרכב."</string>
+    <string name="car_permission_label_car_energy_ports" msgid="1466057895734201917">"קריאת מידע על פתח מכל הדלק ויציאת הטעינה של הרכב"</string>
+    <string name="car_permission_desc_car_energy_ports" msgid="4751253935543293174">"קריאת המידע על פתח מכל הדלק ויציאת הטעינה של הרכב."</string>
     <string name="car_permission_label_control_car_energy_ports" msgid="4375137311026313475">"שליטה בפתח מכל הדלק וביציאת הטעינה של המכונית"</string>
     <string name="car_permission_desc_control_car_energy_ports" msgid="7364633710492525387">"שליטה בפתח מכל הדלק וביציאת הטעינה של המכונית."</string>
     <string name="car_permission_label_car_identification" msgid="5896712510164020478">"קריאת פרטי הזיהוי של הרכב"</string>
-    <string name="car_permission_desc_car_identification" msgid="4132040867171275059">"גישה לפרטי הזיהוי של הרכב."</string>
+    <string name="car_permission_desc_car_identification" msgid="535838946811032155">"קריאת פרטי הזיהוי של הרכב."</string>
     <string name="car_permission_label_control_car_doors" msgid="3032058819250195700">"שליטה בדלתות הרכב"</string>
     <string name="car_permission_desc_control_car_doors" msgid="6287353311980590092">"שליטה בדלתות הרכב."</string>
     <string name="car_permission_label_control_car_windows" msgid="2452854429996653029">"שליטה בחלונות הרכב"</string>
@@ -152,36 +152,36 @@
     <string name="car_permission_desc_read_car_airbags" msgid="7961580013929420722">"קריאת הנתונים של כריות האוויר ברכב."</string>
     <string name="car_permission_label_control_car_airbags" msgid="6823727183218389617">"שליטה בכריות האוויר של הרכב"</string>
     <string name="car_permission_desc_control_car_airbags" msgid="6181671903761622348">"שליטה בכריות האוויר של הרכב."</string>
-    <string name="car_permission_label_car_info" msgid="4707513570676492315">"גישה לנתונים הבסיסיים של הרכב"</string>
-    <string name="car_permission_desc_car_info" msgid="2118081474543537653">"גישה לנתונים הבסיסיים של הרכב."</string>
-    <string name="car_permission_label_privileged_car_info" msgid="1304018073760220785">"גישה למידע המוגן של הרכב"</string>
-    <string name="car_permission_desc_privileged_car_info" msgid="2245117655328125350">"גישה למידע המוגן של הרכב."</string>
-    <string name="car_permission_label_vendor_permission_info" msgid="4471260460536888654">"מתן גישה למידע לגבי הרשאת הספק של המכונית"</string>
-    <string name="car_permission_desc_vendor_permission_info" msgid="8152113853528488398">"מתן גישה למידע לגבי הרשאת הספק של המכונית."</string>
-    <string name="car_permission_label_car_exterior_lights" msgid="541304469604902110">"קריאה של מצב הפנסים החיצוניים של הרכב"</string>
+    <string name="car_permission_label_car_info" msgid="1063184863204793829">"קריאת המידע הבסיסי על הרכב"</string>
+    <string name="car_permission_desc_car_info" msgid="5780681956513865291">"קריאת המידע הבסיסי על הרכב."</string>
+    <string name="car_permission_label_privileged_car_info" msgid="7056641626040863385">"קריאת המידע המסווג על הרכב"</string>
+    <string name="car_permission_desc_privileged_car_info" msgid="8443694410074384466">"קריאת המידע המסווג על הרכב."</string>
+    <string name="car_permission_label_vendor_permission_info" msgid="3285296684927879613">"קריאת מידע על הרשאת הספק של הרכב"</string>
+    <string name="car_permission_desc_vendor_permission_info" msgid="9208614308909994486">"קריאת מידע על הרשאת הספק של הרכב."</string>
+    <string name="car_permission_label_car_exterior_lights" msgid="3839661014756123708">"קריאה של מצב הפנסים החיצוניים של הרכב"</string>
     <string name="car_permission_desc_car_exterior_lights" msgid="4038037584100849318">"גישה למצב הפנסים החיצוניים של הרכב."</string>
     <string name="car_permission_label_read_car_exterior_lights" msgid="8206567055976888587">"קריאה של מצב הפנסים החיצוניים של הרכב"</string>
     <string name="car_permission_desc_read_car_exterior_lights" msgid="8611497191707405104">"קריאה של מצב הפנסים החיצוניים של הרכב."</string>
-    <string name="car_permission_label_control_glove_box" msgid="992118647212706782">"גישה למצב תא הכפפות של הרכב"</string>
-    <string name="car_permission_desc_control_glove_box" msgid="2888062136750123261">"גישה למצב תא הכפפות של הרכב."</string>
-    <string name="car_permission_label_car_epoch_time" msgid="6303397910662625112">"גישה לתקופה של זמן המערכת של המכונית"</string>
-    <string name="car_permission_desc_car_epoch_time" msgid="398907082895238558">"גישה לתקופה של זמן המערכת של המכונית."</string>
-    <string name="car_permission_label_control_car_exterior_lights" msgid="101357531386232141">"קריאת נתונים על הפנסים החיצוניים של הרכב"</string>
+    <string name="car_permission_label_control_glove_box" msgid="8893424527567257629">"שליטה במצב תא הכפפות של הרכב"</string>
+    <string name="car_permission_desc_control_glove_box" msgid="202603834328737918">"שליטה במצב תא הכפפות של הרכב."</string>
+    <string name="car_permission_label_car_epoch_time" msgid="8667615176555933314">"קריאת תקופה של זמן המערכת של הרכב"</string>
+    <string name="car_permission_desc_car_epoch_time" msgid="6776188390917658195">"קריאת תקופה של זמן המערכת של הרכב."</string>
+    <string name="car_permission_label_control_car_exterior_lights" msgid="2702353269564341362">"קריאת מידע על הפנסים החיצוניים של הרכב"</string>
     <string name="car_permission_desc_control_car_exterior_lights" msgid="6332252612685264180">"שליטה בפנסים החיצוניים של הרכב."</string>
-    <string name="car_permission_label_car_interior_lights" msgid="8506302199784427680">"קריאת נתונים של התאורה הפנימית של הרכב"</string>
-    <string name="car_permission_desc_car_interior_lights" msgid="6204775354692372506">"גישה למצב התאורה הפנימית של הרכב."</string>
+    <string name="car_permission_label_car_interior_lights" msgid="2802077280340054799">"קריאה של מצב התאורה הפנימית של הרכב"</string>
+    <string name="car_permission_desc_car_interior_lights" msgid="7229450087107255913">"קריאה של מצב התאורה הפנימית של הרכב."</string>
     <string name="car_permission_label_control_car_interior_lights" msgid="6685386372012664281">"שליטה בתאורה הפנימית של הרכב"</string>
     <string name="car_permission_desc_control_car_interior_lights" msgid="797201814109701538">"שליטה בתאורה הפנימית של הרכב."</string>
     <string name="car_permission_label_car_exterior_environment" msgid="3385924985991299436">"קריאת הטמפרטורה החיצונית של הרכב"</string>
-    <string name="car_permission_desc_car_exterior_environment" msgid="1716656004731603379">"גישה לטמפרטורה החיצונית של הרכב."</string>
-    <string name="car_permission_label_car_tires" msgid="4379255261197836840">"גישה לנתונים על צמיגי הרכב"</string>
-    <string name="car_permission_desc_car_tires" msgid="8134496466769810134">"גישה לנתונים על צמיגי הרכב."</string>
+    <string name="car_permission_desc_car_exterior_environment" msgid="7142489828485359480">"קריאת הטמפרטורה החיצונית של הרכב."</string>
+    <string name="car_permission_label_car_tires" msgid="4006745707051794987">"קריאה של מידע על צמיגי הרכב"</string>
+    <string name="car_permission_desc_car_tires" msgid="7767600991857109865">"קריאה של מידע על צמיגי הרכב."</string>
     <string name="car_permission_label_car_tires_3p" msgid="1360632319908226570">"קריאה של מידע על צמיגי הרכב"</string>
     <string name="car_permission_desc_car_tires_3p" msgid="820574543667371274">"קריאה של מידע על צמיגי הרכב."</string>
     <string name="car_permission_label_car_steering" msgid="7779530447441232479">"קריאת הנתונים על זווית ההיגוי של הרכב"</string>
-    <string name="car_permission_desc_car_steering" msgid="1357331844530708138">"גישה לנתונים על זווית ההיגוי של הרכב."</string>
+    <string name="car_permission_desc_car_steering" msgid="4986224671150304388">"קריאה של מידע על זווית ההיגוי של הרכב."</string>
     <string name="car_permission_label_read_car_steering_3p" msgid="1598866058085489462">"קריאה של מידע על זווית ההיגוי של הרכב"</string>
-    <string name="car_permission_desc_read_car_steering_3p" msgid="576361609663755171">"גישה למידע על זווית ההיגוי של הרכב."</string>
+    <string name="car_permission_desc_read_car_steering_3p" msgid="4205254436283351421">"קריאה של מידע על זווית ההיגוי של הרכב."</string>
     <string name="car_permission_label_read_car_display_units" msgid="7617008314862097183">"קריאה של יחידות התצוגה של הרכב"</string>
     <string name="car_permission_desc_read_car_display_units" msgid="6891898275208542385">"קריאה של יחידות התצוגה."</string>
     <string name="car_permission_label_control_car_display_units" msgid="4975303668183173076">"שליטה ביחידות התצוגה של הרכב"</string>
@@ -189,9 +189,9 @@
     <string name="car_permission_label_control_car_powertrain" msgid="234831541490237603">"שליטה במידע על חטיבת ההינע של הרכב"</string>
     <string name="car_permission_desc_control_car_powertrain" msgid="8205110385130069179">"שליטה במידע על חטיבת ההינע של הרכב."</string>
     <string name="car_permission_label_car_powertrain" msgid="4586122326622134886">"קריאת המידע על מערכת ההינע של הרכב"</string>
-    <string name="car_permission_desc_car_powertrain" msgid="1116007372551797796">"גישה למידע על מערכת ההינע של הרכב."</string>
+    <string name="car_permission_desc_car_powertrain" msgid="8578992320121984184">"קריאת המידע על מערכת ההינע של הרכב."</string>
     <string name="car_permission_label_car_power" msgid="8111448088314368268">"קריאת מצב הטעינה של הרכב"</string>
-    <string name="car_permission_desc_car_power" msgid="9202079903668652864">"גישה למצב הטעינה של הרכב."</string>
+    <string name="car_permission_desc_car_power" msgid="1937031836449813395">"קריאת מצב הטעינה של הרכב."</string>
     <string name="car_permission_label_enroll_trust" msgid="3512907900486690218">"רישום מכשיר מהימן"</string>
     <string name="car_permission_desc_enroll_trust" msgid="4148649994602185130">"הפעלת רישום של מכשירים מהימנים"</string>
     <string name="car_permission_label_car_test_service" msgid="9159328930558208708">"שליטה במצב הבדיקה של הרכב"</string>

@@ -17,37 +17,37 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="car_permission_label" msgid="2215078736675564541">"Avtomobil məlumatı"</string>
-    <string name="car_permission_desc" msgid="3584369074931334964">"avtomobil məlumatına giriş"</string>
+    <string name="car_permission_desc" msgid="4671139601357696916">"avtomobil məlumatlarının oxunması"</string>
     <string name="car_permission_label_camera" msgid="3725702064841827180">"avtomobilin kamerasına giriş"</string>
     <string name="car_permission_desc_camera" msgid="917024932164501426">"Avtomobilin kameralarına giriş."</string>
-    <string name="car_permission_label_energy" msgid="7409144323527821558">"avtomobilin enerji məlumatlarına giriş"</string>
-    <string name="car_permission_desc_energy" msgid="3392963810053235407">"Avtomobilin enerji məlumatlarına giriş."</string>
+    <string name="car_permission_label_energy" msgid="6529778912442705855">"avtomobilin enerji məlumatlarının oxunması"</string>
+    <string name="car_permission_desc_energy" msgid="7024599188817722607">"Avtomobilin enerji məlumatlarının oxunması."</string>
     <string name="car_permission_label_control_car_energy" msgid="2788215385574313796">"Avtomobilin EV şarj ayarlarına nəzarət etmək"</string>
     <string name="car_permission_desc_control_car_energy" msgid="8765015897869031807">"Avtomobilinizin EV şarj ayarlarına nəzarət etmək."</string>
     <string name="car_permission_label_adjust_range_remaining" msgid="839033553999920138">"avtomobilin yürüş məsafəsi qalığını nizamlamaq"</string>
     <string name="car_permission_desc_adjust_range_remaining" msgid="2369321650437370673">"Avtomobilin yürüş məsafəsi qalıq dəyərini nizamlamaq."</string>
-    <string name="car_permission_label_hvac" msgid="1499454192558727843">"avtomobilin HVAC məlumatlarına giriş"</string>
-    <string name="car_permission_desc_hvac" msgid="3754229695589774195">"Avtomobilin HVAC mexanizminə giriş."</string>
-    <string name="car_permission_label_mileage" msgid="4661317074631150551">"avtomobilin kilometraj məlumatlarına giriş"</string>
-    <string name="car_permission_desc_mileage" msgid="7179735693278681090">"Avtomobilin kilometraj məlumatlarına giriş."</string>
-    <string name="car_permission_label_mileage_3p" msgid="7542459195663034759">"avtomobilin kilometraj məlumatlarına daxil olun"</string>
-    <string name="car_permission_desc_mileage_3p" msgid="9109350882748664570">"Avtomobilin kilometraj məlumatlarına daxil olun."</string>
+    <string name="car_permission_label_hvac" msgid="6336214266904971950">"avtomobilin HVAC bölməsinə nəzarət"</string>
+    <string name="car_permission_desc_hvac" msgid="7229917418217117426">"Avtomobilin HVAC bölməsinə nəzarət."</string>
+    <string name="car_permission_label_mileage" msgid="9194744289794795513">"avtomobilin kilometraj məlumatlarının oxunması"</string>
+    <string name="car_permission_desc_mileage" msgid="9068667477789716791">"Avtomobilin kilometraj məlumatlarının oxunması."</string>
+    <string name="car_permission_label_mileage_3p" msgid="2852514373971903913">"avtomobilin kilometraj məlumatlarının oxunması"</string>
+    <string name="car_permission_desc_mileage_3p" msgid="1774910630404924463">"Avtomobilin kilometraj məlumatlarının oxunması."</string>
     <string name="car_permission_label_read_car_horn" msgid="5940158571880705176">"avtomobilin siqnal məlumatlarını oxuyun"</string>
     <string name="car_permission_desc_read_car_horn" msgid="1099929991964988027">"Avtomobilinizin siqnal məlumatlarını oxuyun."</string>
     <string name="car_permission_label_control_car_horn" msgid="6724124600587260102">"avtomobilin siqnalına nəzarət edin"</string>
     <string name="car_permission_desc_control_car_horn" msgid="6054845567296317971">"Avtomobilinizin siqnalına nəzarət edin."</string>
-    <string name="car_permission_label_read_car_pedals" msgid="9053334935825814308">"avtomobilin pedal məlumatlarına daxil olun"</string>
-    <string name="car_permission_desc_read_car_pedals" msgid="3148710874350250453">"Avtomobilinizin pedal məlumatlarına daxil olun."</string>
-    <string name="car_permission_label_read_brake_info" msgid="6649283162262754200">"avtomobilin əyləc məlumatlarına daxil olun"</string>
-    <string name="car_permission_desc_read_brake_info" msgid="4641852049166846105">"Avtomobilinizin əyləc məlumatlarına daxil olun."</string>
+    <string name="car_permission_label_read_car_pedals" msgid="3043797722208092602">"avtomobilin pedal məlumatlarının oxunması"</string>
+    <string name="car_permission_desc_read_car_pedals" msgid="8245311380277704380">"Avtomobilin pedal məlumatlarının oxunması."</string>
+    <string name="car_permission_label_read_brake_info" msgid="919608163703877876">"avtomobilin əyləc məlumatlarının oxunması"</string>
+    <string name="car_permission_desc_read_brake_info" msgid="1422619922008154555">"Avtomobilin əyləc məlumatlarının oxunması."</string>
     <string name="car_permission_label_speed" msgid="1149027717860529745">"avtomobilin sürətini oxumaq"</string>
-    <string name="car_permission_desc_speed" msgid="2047965198165448241">"Avtomobilin sürət məlumatlarına giriş."</string>
-    <string name="car_permission_label_vehicle_dynamics_state" msgid="313779267420048367">"avtomobilin dinamika vəziyyətinə giriş"</string>
-    <string name="car_permission_desc_vehicle_dynamics_state" msgid="8891506193446375660">"Avtomobilin dinamika vəziyyətinə giriş."</string>
+    <string name="car_permission_desc_speed" msgid="5858258466024406366">"Avtomobilin sürət məlumatlarının oxunması."</string>
+    <string name="car_permission_label_vehicle_dynamics_state" msgid="2446589481717587166">"avtomobilin dinamika vəziyyətinin oxunması"</string>
+    <string name="car_permission_desc_vehicle_dynamics_state" msgid="4059749588215960011">"Avtomobilin dinamika vəziyyətinin oxunması."</string>
     <string name="car_permission_label_control_vehicle_dynamics_state" msgid="1912154069363074986">"avtomobilin dinamika vəziyyətinin idarə edilməsi"</string>
     <string name="car_permission_desc_control_vehicle_dynamics_state" msgid="5603436779163086928">"Avtomobilin dinamika vəziyyətinin idarə edilməsi."</string>
-    <string name="car_permission_label_vendor_extension" msgid="7141601811734127361">"avtomobilin təchizatçı kanalına giriş"</string>
-    <string name="car_permission_desc_vendor_extension" msgid="2970718502334714035">"Avtomobilə aid məlumatların mübadiləsi üçün onun təchizatçı kanalına giriş."</string>
+    <string name="car_permission_label_vendor_extension" msgid="4469386015153307485">"avtomobilin təchizatçı kanalının oxunması"</string>
+    <string name="car_permission_desc_vendor_extension" msgid="2429289362866854822">"Avtomobilə aid məlumatların mübadiləsi üçün təchizatçı kanalının oxunması."</string>
     <string name="car_permission_label_radio" msgid="6009465291685935112">"avtomobilin radiosunu idarə etmək"</string>
     <string name="car_permission_desc_radio" msgid="3385999027478186964">"Avtomobilin radiosuna giriş."</string>
     <string name="car_permission_label_projection" msgid="9107156380287576787">"telefon interfeysini avtomobilin displeyində əks etdirmək"</string>
@@ -116,16 +116,16 @@
     <string name="car_permission_desc_use_evs_camera" msgid="1625845902221003985">"EVS kamera yayımlarına abunə olmaq"</string>
     <string name="car_permission_label_monitor_evs_status" msgid="2091521314159379622">"EVS xidmətinin vəziyyətini izləmək"</string>
     <string name="car_permission_desc_monitor_evs_status" msgid="2764278897143573535">"EVS xidmətinin vəziyyət dəyişikliklərini dinləmək"</string>
-    <string name="car_permission_label_car_engine_detailed" msgid="8911992719173587337">"avtomobilin mühərrik məlumatlarına giriş"</string>
-    <string name="car_permission_desc_car_engine_detailed" msgid="1746863362811347700">"Avtomobilin ətraflı mühərrik məlumatlarına giriş."</string>
+    <string name="car_permission_label_car_engine_detailed" msgid="1418113527626468413">"avtomobilin ətraflı mühərrik məlumatlarının oxunması"</string>
+    <string name="car_permission_desc_car_engine_detailed" msgid="1839656966547909025">"Avtomobilin ətraflı mühərrik məlumatlarının oxunması."</string>
     <string name="car_permission_label_car_engine_detailed_3p" msgid="2695036212735960169">"avtomobilin mühərriki haqqında ətraflı oxuyun"</string>
     <string name="car_permission_desc_car_engine_detailed_3p" msgid="7536940094077391015">"Avtomobilin ətraflı mühərrik məlumatlarını oxuyun."</string>
-    <string name="car_permission_label_car_energy_ports" msgid="8548990315169219454">"avtomobilin yanacaq bölməsinin qapağı və enerji doldurma portuna giriş"</string>
-    <string name="car_permission_desc_car_energy_ports" msgid="7771185999828794949">"Avtomobilin yanacaq bölməsinin qapağı və enerji doldurma portuna giriş."</string>
+    <string name="car_permission_label_car_energy_ports" msgid="1466057895734201917">"avtomobilin yanacaq bölməsinin qapağı və enerji doldurma portu məlumatlarının oxunması"</string>
+    <string name="car_permission_desc_car_energy_ports" msgid="4751253935543293174">"Avtomobilin yanacaq bölməsinin qapağı və enerji doldurma portu barədə məlumatların oxunması."</string>
     <string name="car_permission_label_control_car_energy_ports" msgid="4375137311026313475">"avtomobilin yanacaq bölməsinin qapağı və enerji doldurma portuna nəzarət"</string>
     <string name="car_permission_desc_control_car_energy_ports" msgid="7364633710492525387">"Avtomobilin yanacaq bölməsinin qapağı və enerji doldurma portuna nəzarət"</string>
     <string name="car_permission_label_car_identification" msgid="5896712510164020478">"avtomobilin identifikasiyasını oxumaq"</string>
-    <string name="car_permission_desc_car_identification" msgid="4132040867171275059">"Avtomobilin identifikasiyasına giriş."</string>
+    <string name="car_permission_desc_car_identification" msgid="535838946811032155">"Avtomobilin identifikasiyasının oxunması."</string>
     <string name="car_permission_label_control_car_doors" msgid="3032058819250195700">"avtomobilin qapılarını idarə etmək"</string>
     <string name="car_permission_desc_control_car_doors" msgid="6287353311980590092">"Avtomobilin qapılarını idarə etmək."</string>
     <string name="car_permission_label_control_car_windows" msgid="2452854429996653029">"avtomobil pəncərələrini idarə etmək"</string>
@@ -152,36 +152,36 @@
     <string name="car_permission_desc_read_car_airbags" msgid="7961580013929420722">"Avtomobilin hava yastıqlarının oxunması."</string>
     <string name="car_permission_label_control_car_airbags" msgid="6823727183218389617">"avtomobilin hava yastıqlarına nəzarət etmək"</string>
     <string name="car_permission_desc_control_car_airbags" msgid="6181671903761622348">"Avtomobilin hava yastıqlarına nəzarət etmək."</string>
-    <string name="car_permission_label_car_info" msgid="4707513570676492315">"avtomobilin əsas məlumatlarına giriş"</string>
-    <string name="car_permission_desc_car_info" msgid="2118081474543537653">"Avtomobilin əsas məlumatlarına giriş."</string>
-    <string name="car_permission_label_privileged_car_info" msgid="1304018073760220785">"avtomobilin məxfi məlumatlarına giriş"</string>
-    <string name="car_permission_desc_privileged_car_info" msgid="2245117655328125350">"Avtomobilin məxfi məlumatlarına giriş."</string>
-    <string name="car_permission_label_vendor_permission_info" msgid="4471260460536888654">"avtomobilin təchizatçı icazə məlumatına giriş"</string>
-    <string name="car_permission_desc_vendor_permission_info" msgid="8152113853528488398">"Avtomobilin təchizatçı icazə məlumatına giriş."</string>
-    <string name="car_permission_label_car_exterior_lights" msgid="541304469604902110">"avtomobilin eksteryer işıqlarının vəziyyətini oxumaq"</string>
+    <string name="car_permission_label_car_info" msgid="1063184863204793829">"avtomobil barədə əsas məlumatların oxunması"</string>
+    <string name="car_permission_desc_car_info" msgid="5780681956513865291">"Avtomobil barədə əsas məlumatların oxunması."</string>
+    <string name="car_permission_label_privileged_car_info" msgid="7056641626040863385">"avtomobilin məxfi məlumatlarının oxunması"</string>
+    <string name="car_permission_desc_privileged_car_info" msgid="8443694410074384466">"Avtomobilin məxfi məlumatlarının oxunması."</string>
+    <string name="car_permission_label_vendor_permission_info" msgid="3285296684927879613">"avtomobilin təchizatçı icazəsi məlumatlarının oxunması"</string>
+    <string name="car_permission_desc_vendor_permission_info" msgid="9208614308909994486">"Avtomobilin təchizatçı icazəsi məlumatlarının oxunması."</string>
+    <string name="car_permission_label_car_exterior_lights" msgid="3839661014756123708">"avtomobilin eksteryer işıqlarının vəziyyətinə giriş"</string>
     <string name="car_permission_desc_car_exterior_lights" msgid="4038037584100849318">"Avtomobilin eksteryer işıqlarının vəziyyətinə giriş."</string>
     <string name="car_permission_label_read_car_exterior_lights" msgid="8206567055976888587">"avtomobilin eksteryer işıqlarının vəziyyəti haqqında oxuyun"</string>
     <string name="car_permission_desc_read_car_exterior_lights" msgid="8611497191707405104">"Avtomobilin eksteryer işıqlarının vəziyyəti haqqında oxuyun."</string>
-    <string name="car_permission_label_control_glove_box" msgid="992118647212706782">"avtomobilin əlcək yeşiyi statusuna giriş"</string>
-    <string name="car_permission_desc_control_glove_box" msgid="2888062136750123261">"Avtomobilin əlcək yeşiyi statusuna giriş."</string>
-    <string name="car_permission_label_car_epoch_time" msgid="6303397910662625112">"avtomobilin dövr göstəricisinə giriş edin"</string>
-    <string name="car_permission_desc_car_epoch_time" msgid="398907082895238558">"Avtomobilin dövr göstəricisinə giriş edin."</string>
-    <string name="car_permission_label_control_car_exterior_lights" msgid="101357531386232141">"avtomobilin eksteryer işıqları məlumatlarını oxumaq"</string>
+    <string name="car_permission_label_control_glove_box" msgid="8893424527567257629">"avtomobilin əlcək qutusunun vəziyyətinə nəzarət"</string>
+    <string name="car_permission_desc_control_glove_box" msgid="202603834328737918">"Avtomobilin əlcək qutusunun vəziyyətinə nəzarət."</string>
+    <string name="car_permission_label_car_epoch_time" msgid="8667615176555933314">"avtomobilin dövr göstəricisinin oxunması"</string>
+    <string name="car_permission_desc_car_epoch_time" msgid="6776188390917658195">"Avtomobilin dövr göstəricisinin oxunması."</string>
+    <string name="car_permission_label_control_car_exterior_lights" msgid="2702353269564341362">"avtomobilin eksteryer işıqlarına nəzarət"</string>
     <string name="car_permission_desc_control_car_exterior_lights" msgid="6332252612685264180">"Avtomobilin eksteryer işıqlarını idarə etmək."</string>
-    <string name="car_permission_label_car_interior_lights" msgid="8506302199784427680">"avtomobilin interyer işıqları məlumatlarını oxumaq"</string>
-    <string name="car_permission_desc_car_interior_lights" msgid="6204775354692372506">"Avtomobilin interyer işıqlarının vəziyyətinə giriş."</string>
+    <string name="car_permission_label_car_interior_lights" msgid="2802077280340054799">"avtomobilin daxili işıqları barədə vəziyyətin oxunması"</string>
+    <string name="car_permission_desc_car_interior_lights" msgid="7229450087107255913">"Avtomobilin daxili işıqları barədə vəziyyətin oxunması."</string>
     <string name="car_permission_label_control_car_interior_lights" msgid="6685386372012664281">"avtomobilin interyer işıqlarını idarə etmək"</string>
     <string name="car_permission_desc_control_car_interior_lights" msgid="797201814109701538">"Avtomobilin interyer işıqlarını idarə etmək."</string>
     <string name="car_permission_label_car_exterior_environment" msgid="3385924985991299436">"avtomobilin xarici temperaturunu oxumaq"</string>
-    <string name="car_permission_desc_car_exterior_environment" msgid="1716656004731603379">"Avtomobilin xarici temperaturuna giriş."</string>
-    <string name="car_permission_label_car_tires" msgid="4379255261197836840">"avtomobilin şin məlumatlarına giriş"</string>
-    <string name="car_permission_desc_car_tires" msgid="8134496466769810134">"Avtomobilin şin məlumatlarına giriş."</string>
+    <string name="car_permission_desc_car_exterior_environment" msgid="7142489828485359480">"Avtomobilin xarici temperaturunun oxunması."</string>
+    <string name="car_permission_label_car_tires" msgid="4006745707051794987">"avtomobilin təkər məlumatlarının oxunması"</string>
+    <string name="car_permission_desc_car_tires" msgid="7767600991857109865">"Avtomobilin təkər məlumatlarının oxunması."</string>
     <string name="car_permission_label_car_tires_3p" msgid="1360632319908226570">"avtomobilin təkər məlumatlarını oxuyun"</string>
     <string name="car_permission_desc_car_tires_3p" msgid="820574543667371274">"Avtomobilin təkər məlumatlarını oxuyun."</string>
     <string name="car_permission_label_car_steering" msgid="7779530447441232479">"avtomobilin sükan bucağı məlumatlarını oxumaq"</string>
-    <string name="car_permission_desc_car_steering" msgid="1357331844530708138">"Avtomobilin sükan bucağı məlumatlarına giriş."</string>
+    <string name="car_permission_desc_car_steering" msgid="4986224671150304388">"Avtomobilin sükan bucağı məlumatlarının oxunması."</string>
     <string name="car_permission_label_read_car_steering_3p" msgid="1598866058085489462">"avtomobilin sükan bucağı məlumatlarını oxuyun"</string>
-    <string name="car_permission_desc_read_car_steering_3p" msgid="576361609663755171">"Avtomobilin sükan bucağı məlumatlarına daxil olun."</string>
+    <string name="car_permission_desc_read_car_steering_3p" msgid="4205254436283351421">"Avtomobilin sükan bucağı məlumatlarının oxunması."</string>
     <string name="car_permission_label_read_car_display_units" msgid="7617008314862097183">"avtomobilin displey göstəricilərini oxumaq"</string>
     <string name="car_permission_desc_read_car_display_units" msgid="6891898275208542385">"Displey göstəricilərini oxumaq."</string>
     <string name="car_permission_label_control_car_display_units" msgid="4975303668183173076">"avtomobilin displey göstəricilərini idarə etmək"</string>
@@ -189,9 +189,9 @@
     <string name="car_permission_label_control_car_powertrain" msgid="234831541490237603">"avtomobilin ötürücü mexanizm məlumatlarına nəzarət etmək"</string>
     <string name="car_permission_desc_control_car_powertrain" msgid="8205110385130069179">"Avtomobilin ötürücü mexanizm məlumatlarına nəzarət etmək."</string>
     <string name="car_permission_label_car_powertrain" msgid="4586122326622134886">"avtomobilin güc mexanizmi məlumatlarını oxumaq"</string>
-    <string name="car_permission_desc_car_powertrain" msgid="1116007372551797796">"Avtomobilin güc mexanizmi məlumatlarına giriş."</string>
+    <string name="car_permission_desc_car_powertrain" msgid="8578992320121984184">"Avtomobilin güc mexanizmi məlumatlarının oxunması."</string>
     <string name="car_permission_label_car_power" msgid="8111448088314368268">"avtomobilin güc vəziyyətini oxumaq"</string>
-    <string name="car_permission_desc_car_power" msgid="9202079903668652864">"Avtomobilin güc vəziyyətinə giriş."</string>
+    <string name="car_permission_desc_car_power" msgid="1937031836449813395">"Avtomobilin güc vəziyyətinin oxunması."</string>
     <string name="car_permission_label_enroll_trust" msgid="3512907900486690218">"Güvənli cihazı qeydiyyata alın"</string>
     <string name="car_permission_desc_enroll_trust" msgid="4148649994602185130">"Güvənli cihaz qeydiyyatına icazə verin"</string>
     <string name="car_permission_label_car_test_service" msgid="9159328930558208708">"avtomobilin sınaq rejimini idarə etmək"</string>

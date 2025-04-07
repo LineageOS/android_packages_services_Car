@@ -17,37 +17,37 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="car_permission_label" msgid="2215078736675564541">"የመኪና መረጃ"</string>
-    <string name="car_permission_desc" msgid="3584369074931334964">"የመኪናዎን መረጃ መድረስ"</string>
+    <string name="car_permission_desc" msgid="4671139601357696916">"የመኪናዎን መረጃ ያንብቡ"</string>
     <string name="car_permission_label_camera" msgid="3725702064841827180">"የመኪናውን ካሜራ ድረስበት"</string>
     <string name="car_permission_desc_camera" msgid="917024932164501426">"የእርስዎን ካሜራ(ዎች) ይደርሱበት(ባቸው)።"</string>
-    <string name="car_permission_label_energy" msgid="7409144323527821558">"የመኪናውን የኃይል መረጃ ድረስበት"</string>
-    <string name="car_permission_desc_energy" msgid="3392963810053235407">"የእርስዎን መኪና ኃይል መረጃ ይድረሱበት።"</string>
+    <string name="car_permission_label_energy" msgid="6529778912442705855">"የመኪናን ኃይል መረጃ ያንብቡ"</string>
+    <string name="car_permission_desc_energy" msgid="7024599188817722607">"የመኪናዎን ኃይል መረጃ ያንብቡ።"</string>
     <string name="car_permission_label_control_car_energy" msgid="2788215385574313796">"የመኪናውን የኢቪ ኃይል መሙያ ቅንብሮች መቆጣጠር"</string>
     <string name="car_permission_desc_control_car_energy" msgid="8765015897869031807">"የመኪናዎን የኢቪ ኃይል መሙያ ቅንብሮች መቆጣጠር።"</string>
     <string name="car_permission_label_adjust_range_remaining" msgid="839033553999920138">"የመኪና ክልልን ቀሪ አስተካክል"</string>
     <string name="car_permission_desc_adjust_range_remaining" msgid="2369321650437370673">"የመኪና ክልልን ቀሪ ዋጋ አስተካክል።"</string>
-    <string name="car_permission_label_hvac" msgid="1499454192558727843">"የመኪናውን hvac ድረስበት"</string>
-    <string name="car_permission_desc_hvac" msgid="3754229695589774195">"የእርስዎን መኪና hvac ይድረሱበት።"</string>
-    <string name="car_permission_label_mileage" msgid="4661317074631150551">"የመኪናውን የሄደበት ርቀት ብዛት መረጃ ድረስበት"</string>
-    <string name="car_permission_desc_mileage" msgid="7179735693278681090">"የመኪናዎን የጉዞ ርቀት መለኪያ መረጃ ይድረሱበት።"</string>
-    <string name="car_permission_label_mileage_3p" msgid="7542459195663034759">"የመኪናን የጉዞ ርቀት መረጃ ይድረሱ"</string>
-    <string name="car_permission_desc_mileage_3p" msgid="9109350882748664570">"የመኪናዎን የጉዞ ርቀት መለኪያ መረጃ ይድረሱ።"</string>
+    <string name="car_permission_label_hvac" msgid="6336214266904971950">"የመኪናን hvac ይቆጣጠሩ"</string>
+    <string name="car_permission_desc_hvac" msgid="7229917418217117426">"የመኪናዎን hvac ይቆጣጠሩ።"</string>
+    <string name="car_permission_label_mileage" msgid="9194744289794795513">"የመኪናን የጉዞ ርቀት መለኪያ መረጃ ያንብቡ"</string>
+    <string name="car_permission_desc_mileage" msgid="9068667477789716791">"የመኪናዎን የጉዞ ርቀት መረጃ ያንብቡ።"</string>
+    <string name="car_permission_label_mileage_3p" msgid="2852514373971903913">"የመኪናን የጉዞ ርቀት መለኪያ መረጃ ያንብቡ"</string>
+    <string name="car_permission_desc_mileage_3p" msgid="1774910630404924463">"የመኪናዎን የጉዞ ርቀት መረጃ ያንብቡ።"</string>
     <string name="car_permission_label_read_car_horn" msgid="5940158571880705176">"የመኪናን የጥሩንባ መረጃ ያንብቡ"</string>
     <string name="car_permission_desc_read_car_horn" msgid="1099929991964988027">"የመኪናዎን የጥሩንባ መረጃ ይቆጣጠሩ።"</string>
     <string name="car_permission_label_control_car_horn" msgid="6724124600587260102">"የመኪናን ጥሩንባ ይቆጣጠሩ"</string>
     <string name="car_permission_desc_control_car_horn" msgid="6054845567296317971">"የመኪናዎን ጥሩንባ ይቆጣጠሩ።"</string>
-    <string name="car_permission_label_read_car_pedals" msgid="9053334935825814308">"የመኪናን የነዳጅ መስጫ መረጃ ያንብቡ"</string>
-    <string name="car_permission_desc_read_car_pedals" msgid="3148710874350250453">"የመኪናዎን የነዳጅ መስጫ መረጃ ይቆጣጠሩ።"</string>
-    <string name="car_permission_label_read_brake_info" msgid="6649283162262754200">"የመኪናን የፍሬን መረጃ ይቆጣጠሩ"</string>
-    <string name="car_permission_desc_read_brake_info" msgid="4641852049166846105">"የመኪናውን የፍሬን መረጃ ይድረሱ።"</string>
+    <string name="car_permission_label_read_car_pedals" msgid="3043797722208092602">"የመኪናን ነዳጅ መስጫ መረጃ ያንብቡ"</string>
+    <string name="car_permission_desc_read_car_pedals" msgid="8245311380277704380">"የመኪናዎን የነዳጅ መስጫ መረጃ ያንብቡ።"</string>
+    <string name="car_permission_label_read_brake_info" msgid="919608163703877876">"የመኪናን የፍሬን መረጃ ያንብቡ"</string>
+    <string name="car_permission_desc_read_brake_info" msgid="1422619922008154555">"የመኪናዎን ፍሬን መረጃ ያንብቡ።"</string>
     <string name="car_permission_label_speed" msgid="1149027717860529745">"የመኪናውን ፍጥነት ያንብቡ"</string>
-    <string name="car_permission_desc_speed" msgid="2047965198165448241">"የመኪናዎን ፍጥነት ይድረሱበት።"</string>
-    <string name="car_permission_label_vehicle_dynamics_state" msgid="313779267420048367">"የመኪናውን ተለዋዋጭ ሁነታ ድረስበት"</string>
-    <string name="car_permission_desc_vehicle_dynamics_state" msgid="8891506193446375660">"የእርስዎን መኪና ተለዋዋጭ ሁኔታ ይድረሱባቸው።"</string>
+    <string name="car_permission_desc_speed" msgid="5858258466024406366">"የመኪናዎን ፍጥነት ያንብቡ።"</string>
+    <string name="car_permission_label_vehicle_dynamics_state" msgid="2446589481717587166">"የመኪናን ተለዋዋጮች ሁኔታ ያንብቡ"</string>
+    <string name="car_permission_desc_vehicle_dynamics_state" msgid="4059749588215960011">"የመኪናዎን ተለዋዋጮች ሁኔታ ያንብቡ።"</string>
     <string name="car_permission_label_control_vehicle_dynamics_state" msgid="1912154069363074986">"የመኪናን ተለዋዋጮች ሁኔታ ይቆጣጠሩ"</string>
     <string name="car_permission_desc_control_vehicle_dynamics_state" msgid="5603436779163086928">"የመኪናዎን ተለዋዋጮች ሁኔታ ይቆጣጠሩ።"</string>
-    <string name="car_permission_label_vendor_extension" msgid="7141601811734127361">"የመኪናውን የሻጭ ሰርጥ ድረስበት"</string>
-    <string name="car_permission_desc_vendor_extension" msgid="2970718502334714035">"መኪና ተኮር መረጃ ለመለዋወጥ የመኪናዎ አቅራቢ ሰርጥ ላይ ይድረሱበት።"</string>
+    <string name="car_permission_label_vendor_extension" msgid="4469386015153307485">"የመኪናን አቅራቢ ሰርጥ ያንብቡ"</string>
+    <string name="car_permission_desc_vendor_extension" msgid="2429289362866854822">"መኪና ተኮር መረጃ ለመለዋወጥ የመኪናዎን አቅራቢ ሰርጥ ያንብቡ።"</string>
     <string name="car_permission_label_radio" msgid="6009465291685935112">"የመኪናን ራዲዮ ተቆጣጠር"</string>
     <string name="car_permission_desc_radio" msgid="3385999027478186964">"የእርስዎን መኪና ሬዲዮ ይድረሱበት።"</string>
     <string name="car_permission_label_projection" msgid="9107156380287576787">"አንድ መተግበሪያ በይነገጽን ከአንድ ስልክ በመኪናው ማሳያ ላይ ላክና አሳይ"</string>
@@ -116,16 +116,16 @@
     <string name="car_permission_desc_use_evs_camera" msgid="1625845902221003985">"ለኢቪኤስ የካሜራ ዥረቶች ደንበኝነት መመዝገብ"</string>
     <string name="car_permission_label_monitor_evs_status" msgid="2091521314159379622">"የኢቪኤስ አገልግሎት ሁኔታን መከታተል"</string>
     <string name="car_permission_desc_monitor_evs_status" msgid="2764278897143573535">"የኢቪኤስ አገልግሎት ሁኔታ ለውጦችን ማዳመጥ"</string>
-    <string name="car_permission_label_car_engine_detailed" msgid="8911992719173587337">"የመኪና ሞተርን ዝርዝሮች ድረስባቸው"</string>
-    <string name="car_permission_desc_car_engine_detailed" msgid="1746863362811347700">"የእርስዎን መኪና በዝርዝር የቀረበ የሞተር መረጃ ይድረሱበት።"</string>
+    <string name="car_permission_label_car_engine_detailed" msgid="1418113527626468413">"በዝርዝር የተቀመጠ የመኪናን ሞተር ያንብቡ"</string>
+    <string name="car_permission_desc_car_engine_detailed" msgid="1839656966547909025">"የመኪናዎን በዝርዝር የተቀመጠ የሞተር መረጃ ያንብቡ።"</string>
     <string name="car_permission_label_car_engine_detailed_3p" msgid="2695036212735960169">"በዝርዝር የተቀመጠ የመኪናን ሞተር ያንብቡ"</string>
     <string name="car_permission_desc_car_engine_detailed_3p" msgid="7536940094077391015">"የመኪናዎን በዝርዝር የተቀመጠ የሞተር መረጃ ያንብቡ።"</string>
-    <string name="car_permission_label_car_energy_ports" msgid="8548990315169219454">"የመኪናውን የነዳጅ በር እና የኃይል መሙያ በር ድረስበት"</string>
-    <string name="car_permission_desc_car_energy_ports" msgid="7771185999828794949">"የመኪና ነዳጅን በር እና የኃይል መሙያ ወደብ ይድረሱባቸው።"</string>
+    <string name="car_permission_label_car_energy_ports" msgid="1466057895734201917">"የመኪናን የነዳጅ በር እና የኃይል መሙያ ወደብ ያንብቡ"</string>
+    <string name="car_permission_desc_car_energy_ports" msgid="4751253935543293174">"የመኪናን የነዳጅ በር እና የኃይል መሙያ ወደብ ያንብቡ።"</string>
     <string name="car_permission_label_control_car_energy_ports" msgid="4375137311026313475">"የመኪናውን የነዳጅ በር እና የኃይል መሙያ በር መድረስ"</string>
     <string name="car_permission_desc_control_car_energy_ports" msgid="7364633710492525387">"የመኪናውን የነዳጅ በር እና የኃይል መሙያ በር መድረስ።"</string>
     <string name="car_permission_label_car_identification" msgid="5896712510164020478">"የመኪናውን መለያ መታወቂያ አንብብ"</string>
-    <string name="car_permission_desc_car_identification" msgid="4132040867171275059">"የመኪና ለይቶ ማወቂያን ይድረሱበት።"</string>
+    <string name="car_permission_desc_car_identification" msgid="535838946811032155">"የመኪናን መታወቂያ ያንብቡ።"</string>
     <string name="car_permission_label_control_car_doors" msgid="3032058819250195700">"የመኪና በሮችን ተቆጣጠር"</string>
     <string name="car_permission_desc_control_car_doors" msgid="6287353311980590092">"የመኪና በሮችን ይቆጣጠሩ።"</string>
     <string name="car_permission_label_control_car_windows" msgid="2452854429996653029">"የመኪና መስኮቶችን ተቆጣጠር"</string>
@@ -152,36 +152,36 @@
     <string name="car_permission_desc_read_car_airbags" msgid="7961580013929420722">"የመኪናን በአየር የተሞሉ ከረጢቶች ያንብቡ።"</string>
     <string name="car_permission_label_control_car_airbags" msgid="6823727183218389617">"የመኪናውን የአየር ላይ ከረጢቶች ይቆጣጠራል።"</string>
     <string name="car_permission_desc_control_car_airbags" msgid="6181671903761622348">"የመኪናውን የአየር ላይ ከረጢቶች ይቆጣጠራል።"</string>
-    <string name="car_permission_label_car_info" msgid="4707513570676492315">"የመኪናን መሠረታዊ መረጃ ድረስበት"</string>
-    <string name="car_permission_desc_car_info" msgid="2118081474543537653">"የመኪና መሠረታዊ መረጃን ይድረሱበት።"</string>
-    <string name="car_permission_label_privileged_car_info" msgid="1304018073760220785">"የመኪናውን የልዩ መብት መረጃን መድረስ"</string>
-    <string name="car_permission_desc_privileged_car_info" msgid="2245117655328125350">"የመኪናውን የልዩ መብት መረጃን መድረስ።"</string>
-    <string name="car_permission_label_vendor_permission_info" msgid="4471260460536888654">"የመኪና አቅራቢ ፈቃድ መረጃን መድረስ"</string>
-    <string name="car_permission_desc_vendor_permission_info" msgid="8152113853528488398">"የመኪና አቅራቢ ፈቃድ መረጃን መድረስ።"</string>
-    <string name="car_permission_label_car_exterior_lights" msgid="541304469604902110">"የመኪናውን የውጭ መብራቶች ሁኔታ ድረስበት"</string>
+    <string name="car_permission_label_car_info" msgid="1063184863204793829">"የመኪናን መሠረታዊ መረጃ ያንብቡ"</string>
+    <string name="car_permission_desc_car_info" msgid="5780681956513865291">"የመኪናን መሠረታዊ መረጃ ያንብቡ።"</string>
+    <string name="car_permission_label_privileged_car_info" msgid="7056641626040863385">"የመኪናን ልዩ መብት ያለው መረጃ ያንብቡ"</string>
+    <string name="car_permission_desc_privileged_car_info" msgid="8443694410074384466">"የመኪናን ልዩ መብት ያለው መረጃ ያንብቡ።"</string>
+    <string name="car_permission_label_vendor_permission_info" msgid="3285296684927879613">"የመኪናን አቅራቢ ፈቃድ መረጃን ያንብቡ"</string>
+    <string name="car_permission_desc_vendor_permission_info" msgid="9208614308909994486">"የመኪናን አቅራቢ ፈቃድ መረጃ ያንብቡ።"</string>
+    <string name="car_permission_label_car_exterior_lights" msgid="3839661014756123708">"የመኪናን የውጭ መብራቶች ሁነታ ይድረሱ"</string>
     <string name="car_permission_desc_car_exterior_lights" msgid="4038037584100849318">"የመኪናውን የውጭ መብራቶች ሁነታ ይድረሱባቸው።"</string>
     <string name="car_permission_label_read_car_exterior_lights" msgid="8206567055976888587">"የመኪናን የውጭ መብራቶች ሁኔታ ያንብቡ"</string>
     <string name="car_permission_desc_read_car_exterior_lights" msgid="8611497191707405104">"የመኪናን የውጭ መብራቶች ሁኔታ ያንብቡ።"</string>
-    <string name="car_permission_label_control_glove_box" msgid="992118647212706782">"የመኪና የጓንት ሳጥን ሁኔታን ይድረሱ"</string>
-    <string name="car_permission_desc_control_glove_box" msgid="2888062136750123261">"የመኪና የጓንት ሳጥን ሁኔታን ይድረሱ።"</string>
-    <string name="car_permission_label_car_epoch_time" msgid="6303397910662625112">"የመኪናው ጥንተ ጊዜ ዘንድ ይድረሱ"</string>
-    <string name="car_permission_desc_car_epoch_time" msgid="398907082895238558">"የመኪናው ጥንተ ጊዜ ዘንድ ይድረሱ።"</string>
-    <string name="car_permission_label_control_car_exterior_lights" msgid="101357531386232141">"የመኪናውን የውጭ መብራቶች አንብብ"</string>
+    <string name="car_permission_label_control_glove_box" msgid="8893424527567257629">"የመኪናን የጓንት ሣጥን ሁኔታ ይቆጣጠሩ"</string>
+    <string name="car_permission_desc_control_glove_box" msgid="202603834328737918">"የመኪናን የጓንት ሣጥን ሁኔታ ይቆጣጠሩ።"</string>
+    <string name="car_permission_label_car_epoch_time" msgid="8667615176555933314">"የመኪናን ክፍለዘመን ጊዜ ያንብቡ"</string>
+    <string name="car_permission_desc_car_epoch_time" msgid="6776188390917658195">"የመኪናን ክፍለዘመን ጊዜ ያንብቡ።"</string>
+    <string name="car_permission_label_control_car_exterior_lights" msgid="2702353269564341362">"የመኪናን የውጭ መብራቶች ይቆጣጠሩ"</string>
     <string name="car_permission_desc_control_car_exterior_lights" msgid="6332252612685264180">"የመኪናውን የውጭ መብራቶች ይቆጣጠሩ።"</string>
-    <string name="car_permission_label_car_interior_lights" msgid="8506302199784427680">"የመኪናውን የውስጥ መብራቶች አንብብ"</string>
-    <string name="car_permission_desc_car_interior_lights" msgid="6204775354692372506">"የመኪናውን የውስጥ መብራቶች ሁኔታ ይድረሱበት።"</string>
+    <string name="car_permission_label_car_interior_lights" msgid="2802077280340054799">"የመኪናን የውስጥ መብራቶች ሁኔታ ያንብቡ"</string>
+    <string name="car_permission_desc_car_interior_lights" msgid="7229450087107255913">"የመኪናን የውስጥ መብራቶች ሁኔታ ያንብቡ።"</string>
     <string name="car_permission_label_control_car_interior_lights" msgid="6685386372012664281">"የመኪናውን የውስጥ መብራቶች ይቆጣጠሩ"</string>
     <string name="car_permission_desc_control_car_interior_lights" msgid="797201814109701538">"የመኪናውን የውስጥ መብራቶች ይቆጣጠሩ።"</string>
     <string name="car_permission_label_car_exterior_environment" msgid="3385924985991299436">"የመኪናውን ውጫዊ ሙቀት አንብብ"</string>
-    <string name="car_permission_desc_car_exterior_environment" msgid="1716656004731603379">"የመኪናውን ውጫዊ ሙቀት ይድረሱበት።"</string>
-    <string name="car_permission_label_car_tires" msgid="4379255261197836840">"የመኪናውን የጎማ መረጃ ድረስበት"</string>
-    <string name="car_permission_desc_car_tires" msgid="8134496466769810134">"የመኪናውን የጎማ መረጃ ይድረሱበት።"</string>
+    <string name="car_permission_desc_car_exterior_environment" msgid="7142489828485359480">"የመኪናን ውጫዊ ሙቀት ያንብቡ።"</string>
+    <string name="car_permission_label_car_tires" msgid="4006745707051794987">"የመኪናን የጎማዎች መረጃ ያንብቡ"</string>
+    <string name="car_permission_desc_car_tires" msgid="7767600991857109865">"የመኪናን የጎማ መረጃ ያንብቡ።"</string>
     <string name="car_permission_label_car_tires_3p" msgid="1360632319908226570">"የመኪናን የጎማዎች መረጃ ያንብቡ"</string>
     <string name="car_permission_desc_car_tires_3p" msgid="820574543667371274">"የመኪናን የጎማ መረጃ ያንብቡ።"</string>
     <string name="car_permission_label_car_steering" msgid="7779530447441232479">"የመኪናውን የመሪ አያያዝ ማዕዘን መረጃ ያንብቡ"</string>
-    <string name="car_permission_desc_car_steering" msgid="1357331844530708138">"የመኪናውን የመሪ አያያዝ ማዕዘን መረጃ ይድረሱበት።"</string>
+    <string name="car_permission_desc_car_steering" msgid="4986224671150304388">"የመኪናን የመሪ አያያዝ ማዕዘን መረጃ ያንብቡ።"</string>
     <string name="car_permission_label_read_car_steering_3p" msgid="1598866058085489462">"የመኪናን የመሪ አያያዝ ማዕዘን መረጃ ያንብቡ"</string>
-    <string name="car_permission_desc_read_car_steering_3p" msgid="576361609663755171">"የመኪናን የመሪ አያያዝ ማዕዘን መረጃ ይድረሱ።"</string>
+    <string name="car_permission_desc_read_car_steering_3p" msgid="4205254436283351421">"የመኪናን የመሪ አያያዝ ማዕዘን መረጃ ያንብቡ።"</string>
     <string name="car_permission_label_read_car_display_units" msgid="7617008314862097183">"የመኪናውን ማሳያ አሃዶች አንብብ"</string>
     <string name="car_permission_desc_read_car_display_units" msgid="6891898275208542385">"የማሳያ አሃዶችን ያንብቡ።"</string>
     <string name="car_permission_label_control_car_display_units" msgid="4975303668183173076">"የመኪናውን ማሳያ አሃዶች ተቆጣጠር"</string>
@@ -189,9 +189,9 @@
     <string name="car_permission_label_control_car_powertrain" msgid="234831541490237603">"የመኪናውን የኃይል ፉርጎ መረጃ ይቆጣጠሩ"</string>
     <string name="car_permission_desc_control_car_powertrain" msgid="8205110385130069179">"የመኪናውን የኃይል ፉርጎ መረጃ ይቆጣጠሩ።"</string>
     <string name="car_permission_label_car_powertrain" msgid="4586122326622134886">"የመኪናውን የኃይል ፉርጎ መረጃ አንብብ"</string>
-    <string name="car_permission_desc_car_powertrain" msgid="1116007372551797796">"የመኪናውን የኃይል ፉርጎ መረጃ ይድረሱበት።"</string>
+    <string name="car_permission_desc_car_powertrain" msgid="8578992320121984184">"የመኪናን የኃይል ፉርጎ መረጃ ያንብቡ።"</string>
     <string name="car_permission_label_car_power" msgid="8111448088314368268">"የመኪናውን የኃይል ሁነታ አንብብ"</string>
-    <string name="car_permission_desc_car_power" msgid="9202079903668652864">"የመኪናውን የኃይል ሁነታ ይድረሱበት።"</string>
+    <string name="car_permission_desc_car_power" msgid="1937031836449813395">"የመኪናን የኃይል ሁነታ ያንብቡ።"</string>
     <string name="car_permission_label_enroll_trust" msgid="3512907900486690218">"የታመነ መሣሪያ ያስመዝግቡ"</string>
     <string name="car_permission_desc_enroll_trust" msgid="4148649994602185130">"የታመነ መሣሪያ ምዝገባ ይፍቀዱ"</string>
     <string name="car_permission_label_car_test_service" msgid="9159328930558208708">"የመኪና ሙከራ ሁነታን ተቆጣጠር"</string>
