@@ -45,6 +45,9 @@
     <item target="id/icon" value="@id/icon"/>
     <item target="id/text" value="@id/text"/>
 
+    <item target="integer/config_systemBarPersistency" value="@integer/config_systemBarPersistency" />
+    <item target="integer/config_systemBarSuwBehavior" value="@integer/config_systemBarSuwBehavior" />
+
     <item target="layout/text_toast" value="@layout/text_toast"/>
 
     <item target="string/system_bar_app_drawer_intent" value="@string/system_bar_app_drawer_intent" />
