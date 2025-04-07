@@ -449,6 +449,14 @@ private:
 
     // For test-only.
     explicit CarPowerPolicyServer(uint64_t connectToVhalTimeoutMillis);
+    explicit CarPowerPolicyServer(
+            const std::function<
+                    std::shared_ptr<android::frameworks::automotive::vhal::IVhalClient>()>&
+                    vhalCreationFn);
+    CarPowerPolicyServer(
+            const std::function<std::shared_ptr<
+                    android::frameworks::automotive::vhal::IVhalClient>()>& vhalCreationFn,
+            uint64_t connectToVhalTimeoutMillis);
     void setLinkUnlinkImpl(std::unique_ptr<LinkUnlinkImpl> impl);
     std::vector<CallbackInfo> getPolicyChangeCallbacks() EXCLUDES(mMutex);
     std::vector<std::shared_ptr<
@@ -485,11 +493,16 @@ private:
     std::vector<CallbackInfo> mPolicyChangeCallbacks GUARDED_BY(mMutex);
     std::shared_ptr<android::frameworks::automotive::vhal::IVhalClient> mVhalService
             GUARDED_BY(mMutex);
+    // Used by testing to mock vhal service.
+    std::function<std::shared_ptr<android::frameworks::automotive::vhal::IVhalClient>()>
+            mVhalCreationFn;
     std::optional<int64_t> mLastApplyPowerPolicyUptimeMs GUARDED_BY(mMutex);
     std::optional<int64_t> mLastSetDefaultPowerPolicyGroupUptimeMs GUARDED_BY(mMutex);
     bool mIsCarServiceInOperation GUARDED_BY(mMutex);
     // No thread-safety guard is needed because only accessed through main thread handler.
     bool mIsFirstConnectionToVhal;
+    // A cv to indicate if power policy has been initialized, protected by mMutex.
+    std::condition_variable mPowerPolicyInitializedCv;
     std::unordered_map<int32_t, bool> mSupportedProperties;
     // Thread-safe because only initialized once.
     std::shared_ptr<PropertyChangeListener> mPropertyChangeListener;
