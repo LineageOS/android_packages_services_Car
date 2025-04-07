@@ -17,37 +17,37 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="car_permission_label" msgid="2215078736675564541">"Car information"</string>
-    <string name="car_permission_desc" msgid="3584369074931334964">"access your car’s information"</string>
+    <string name="car_permission_desc" msgid="4671139601357696916">"read your car’s information"</string>
     <string name="car_permission_label_camera" msgid="3725702064841827180">"access car’s camera"</string>
     <string name="car_permission_desc_camera" msgid="917024932164501426">"Access your car’s camera(s)."</string>
-    <string name="car_permission_label_energy" msgid="7409144323527821558">"access car’s energy information"</string>
-    <string name="car_permission_desc_energy" msgid="3392963810053235407">"Access your car’s energy information."</string>
+    <string name="car_permission_label_energy" msgid="6529778912442705855">"read car’s energy information"</string>
+    <string name="car_permission_desc_energy" msgid="7024599188817722607">"Read your car’s energy information."</string>
     <string name="car_permission_label_control_car_energy" msgid="2788215385574313796">"Control car’s EV charge settings"</string>
     <string name="car_permission_desc_control_car_energy" msgid="8765015897869031807">"Control your car’s EV charge settings."</string>
     <string name="car_permission_label_adjust_range_remaining" msgid="839033553999920138">"adjust car’s range remaining"</string>
     <string name="car_permission_desc_adjust_range_remaining" msgid="2369321650437370673">"Adjust car’s range remaining value."</string>
-    <string name="car_permission_label_hvac" msgid="1499454192558727843">"access car’s hvac"</string>
-    <string name="car_permission_desc_hvac" msgid="3754229695589774195">"Access your car’s HVAC."</string>
-    <string name="car_permission_label_mileage" msgid="4661317074631150551">"access car’s mileage information"</string>
-    <string name="car_permission_desc_mileage" msgid="7179735693278681090">"Access your car’s mileage information."</string>
-    <string name="car_permission_label_mileage_3p" msgid="7542459195663034759">"access car’s mileage information"</string>
-    <string name="car_permission_desc_mileage_3p" msgid="9109350882748664570">"Access your car’s mileage information."</string>
+    <string name="car_permission_label_hvac" msgid="6336214266904971950">"control car’s hvac"</string>
+    <string name="car_permission_desc_hvac" msgid="7229917418217117426">"Control your car’s HVAC."</string>
+    <string name="car_permission_label_mileage" msgid="9194744289794795513">"read car’s mileage information"</string>
+    <string name="car_permission_desc_mileage" msgid="9068667477789716791">"Read your car’s mileage information."</string>
+    <string name="car_permission_label_mileage_3p" msgid="2852514373971903913">"read car’s mileage information"</string>
+    <string name="car_permission_desc_mileage_3p" msgid="1774910630404924463">"Read your car’s mileage information."</string>
     <string name="car_permission_label_read_car_horn" msgid="5940158571880705176">"read the car’s horn information"</string>
     <string name="car_permission_desc_read_car_horn" msgid="1099929991964988027">"Read your car’s horn information."</string>
     <string name="car_permission_label_control_car_horn" msgid="6724124600587260102">"control the car’s horn"</string>
     <string name="car_permission_desc_control_car_horn" msgid="6054845567296317971">"Control your car’s horn."</string>
-    <string name="car_permission_label_read_car_pedals" msgid="9053334935825814308">"access car’s pedal information"</string>
-    <string name="car_permission_desc_read_car_pedals" msgid="3148710874350250453">"Access your car’s pedal information."</string>
-    <string name="car_permission_label_read_brake_info" msgid="6649283162262754200">"access the car’s brake information"</string>
-    <string name="car_permission_desc_read_brake_info" msgid="4641852049166846105">"Access your car’s brake information."</string>
+    <string name="car_permission_label_read_car_pedals" msgid="3043797722208092602">"read car’s pedal information"</string>
+    <string name="car_permission_desc_read_car_pedals" msgid="8245311380277704380">"Read your car’s pedal information."</string>
+    <string name="car_permission_label_read_brake_info" msgid="919608163703877876">"read car’s brake information"</string>
+    <string name="car_permission_desc_read_brake_info" msgid="1422619922008154555">"Read your car’s brake information."</string>
     <string name="car_permission_label_speed" msgid="1149027717860529745">"read car’s speed"</string>
-    <string name="car_permission_desc_speed" msgid="2047965198165448241">"Access your car’s speed."</string>
-    <string name="car_permission_label_vehicle_dynamics_state" msgid="313779267420048367">"access car’s dynamics state"</string>
-    <string name="car_permission_desc_vehicle_dynamics_state" msgid="8891506193446375660">"Access your car’s dynamics state."</string>
+    <string name="car_permission_desc_speed" msgid="5858258466024406366">"Read your car’s speed."</string>
+    <string name="car_permission_label_vehicle_dynamics_state" msgid="2446589481717587166">"read car’s dynamics state"</string>
+    <string name="car_permission_desc_vehicle_dynamics_state" msgid="4059749588215960011">"Read your car’s dynamics state."</string>
     <string name="car_permission_label_control_vehicle_dynamics_state" msgid="1912154069363074986">"control car\'s dynamics state"</string>
     <string name="car_permission_desc_control_vehicle_dynamics_state" msgid="5603436779163086928">"Control your car\'s dynamics state."</string>
-    <string name="car_permission_label_vendor_extension" msgid="7141601811734127361">"access car’s vendor channel"</string>
-    <string name="car_permission_desc_vendor_extension" msgid="2970718502334714035">"Access your car’s vendor channel to exchange car-specific information."</string>
+    <string name="car_permission_label_vendor_extension" msgid="4469386015153307485">"read car’s vendor channel"</string>
+    <string name="car_permission_desc_vendor_extension" msgid="2429289362866854822">"Read your car’s vendor channel to exchange car-specific information."</string>
     <string name="car_permission_label_radio" msgid="6009465291685935112">"manage car’s radio"</string>
     <string name="car_permission_desc_radio" msgid="3385999027478186964">"Access your car’s radio."</string>
     <string name="car_permission_label_projection" msgid="9107156380287576787">"project an interface from a phone on the car’s display"</string>
@@ -116,16 +116,16 @@
     <string name="car_permission_desc_use_evs_camera" msgid="1625845902221003985">"Subscribe to EVS camera streams"</string>
     <string name="car_permission_label_monitor_evs_status" msgid="2091521314159379622">"Monitor the status of the EVS service"</string>
     <string name="car_permission_desc_monitor_evs_status" msgid="2764278897143573535">"Listen to the status changes of the EVS service"</string>
-    <string name="car_permission_label_car_engine_detailed" msgid="8911992719173587337">"access car’s engine detailed"</string>
-    <string name="car_permission_desc_car_engine_detailed" msgid="1746863362811347700">"Access your car’s detailed engine information."</string>
+    <string name="car_permission_label_car_engine_detailed" msgid="1418113527626468413">"read car’s engine detailed"</string>
+    <string name="car_permission_desc_car_engine_detailed" msgid="1839656966547909025">"Read your car’s detailed engine information."</string>
     <string name="car_permission_label_car_engine_detailed_3p" msgid="2695036212735960169">"read car’s engine detailed"</string>
     <string name="car_permission_desc_car_engine_detailed_3p" msgid="7536940094077391015">"Read your car’s detailed engine information."</string>
-    <string name="car_permission_label_car_energy_ports" msgid="8548990315169219454">"access car’s fuel door and charge port"</string>
-    <string name="car_permission_desc_car_energy_ports" msgid="7771185999828794949">"Access car’s fuel door and charge port."</string>
+    <string name="car_permission_label_car_energy_ports" msgid="1466057895734201917">"read car’s fuel door and charge port"</string>
+    <string name="car_permission_desc_car_energy_ports" msgid="4751253935543293174">"Read car’s fuel door and charge port."</string>
     <string name="car_permission_label_control_car_energy_ports" msgid="4375137311026313475">"control car’s fuel door and charge port"</string>
     <string name="car_permission_desc_control_car_energy_ports" msgid="7364633710492525387">"Control car’s fuel door and charge port."</string>
     <string name="car_permission_label_car_identification" msgid="5896712510164020478">"read car’s identification"</string>
-    <string name="car_permission_desc_car_identification" msgid="4132040867171275059">"Access car’s identification."</string>
+    <string name="car_permission_desc_car_identification" msgid="535838946811032155">"Read car’s identification."</string>
     <string name="car_permission_label_control_car_doors" msgid="3032058819250195700">"control car’s doors"</string>
     <string name="car_permission_desc_control_car_doors" msgid="6287353311980590092">"Control car’s doors."</string>
     <string name="car_permission_label_control_car_windows" msgid="2452854429996653029">"control car’s windows"</string>
@@ -152,36 +152,36 @@
     <string name="car_permission_desc_read_car_airbags" msgid="7961580013929420722">"Read car\'s airbags."</string>
     <string name="car_permission_label_control_car_airbags" msgid="6823727183218389617">"control car’s airbags"</string>
     <string name="car_permission_desc_control_car_airbags" msgid="6181671903761622348">"Control car’s airbags."</string>
-    <string name="car_permission_label_car_info" msgid="4707513570676492315">"access car’s basic information"</string>
-    <string name="car_permission_desc_car_info" msgid="2118081474543537653">"Access car’s basic information."</string>
-    <string name="car_permission_label_privileged_car_info" msgid="1304018073760220785">"access car’s privileged information"</string>
-    <string name="car_permission_desc_privileged_car_info" msgid="2245117655328125350">"Access car’s privileged information."</string>
-    <string name="car_permission_label_vendor_permission_info" msgid="4471260460536888654">"access car’s vendor permission information"</string>
-    <string name="car_permission_desc_vendor_permission_info" msgid="8152113853528488398">"Access car’s vendor permission information."</string>
-    <string name="car_permission_label_car_exterior_lights" msgid="541304469604902110">"read car’s exterior lights state"</string>
+    <string name="car_permission_label_car_info" msgid="1063184863204793829">"read car’s basic information"</string>
+    <string name="car_permission_desc_car_info" msgid="5780681956513865291">"Read car’s basic information."</string>
+    <string name="car_permission_label_privileged_car_info" msgid="7056641626040863385">"read car’s privileged information"</string>
+    <string name="car_permission_desc_privileged_car_info" msgid="8443694410074384466">"Read car’s privileged information."</string>
+    <string name="car_permission_label_vendor_permission_info" msgid="3285296684927879613">"read car’s vendor permission information"</string>
+    <string name="car_permission_desc_vendor_permission_info" msgid="9208614308909994486">"Read car’s vendor permission information."</string>
+    <string name="car_permission_label_car_exterior_lights" msgid="3839661014756123708">"access car’s exterior lights state"</string>
     <string name="car_permission_desc_car_exterior_lights" msgid="4038037584100849318">"Access car’s exterior lights state."</string>
     <string name="car_permission_label_read_car_exterior_lights" msgid="8206567055976888587">"read car’s exterior lights state"</string>
     <string name="car_permission_desc_read_car_exterior_lights" msgid="8611497191707405104">"Read the car’s exterior lights state."</string>
-    <string name="car_permission_label_control_glove_box" msgid="992118647212706782">"access car’s glove box state"</string>
-    <string name="car_permission_desc_control_glove_box" msgid="2888062136750123261">"Access car’s glove box state."</string>
-    <string name="car_permission_label_car_epoch_time" msgid="6303397910662625112">"access car’s epoch time"</string>
-    <string name="car_permission_desc_car_epoch_time" msgid="398907082895238558">"Access car’s epoch time."</string>
-    <string name="car_permission_label_control_car_exterior_lights" msgid="101357531386232141">"read car’s exterior lights"</string>
+    <string name="car_permission_label_control_glove_box" msgid="8893424527567257629">"control car’s glove box state"</string>
+    <string name="car_permission_desc_control_glove_box" msgid="202603834328737918">"Control car’s glove box state."</string>
+    <string name="car_permission_label_car_epoch_time" msgid="8667615176555933314">"read car’s epoch time"</string>
+    <string name="car_permission_desc_car_epoch_time" msgid="6776188390917658195">"Read car’s epoch time."</string>
+    <string name="car_permission_label_control_car_exterior_lights" msgid="2702353269564341362">"control car’s exterior lights"</string>
     <string name="car_permission_desc_control_car_exterior_lights" msgid="6332252612685264180">"Control car’s exterior lights."</string>
-    <string name="car_permission_label_car_interior_lights" msgid="8506302199784427680">"read car’s interior lights"</string>
-    <string name="car_permission_desc_car_interior_lights" msgid="6204775354692372506">"Access car’s interior lights state."</string>
+    <string name="car_permission_label_car_interior_lights" msgid="2802077280340054799">"read car’s interior lights state"</string>
+    <string name="car_permission_desc_car_interior_lights" msgid="7229450087107255913">"Read car’s interior lights state."</string>
     <string name="car_permission_label_control_car_interior_lights" msgid="6685386372012664281">"control car’s interior lights"</string>
     <string name="car_permission_desc_control_car_interior_lights" msgid="797201814109701538">"Control car’s interior lights."</string>
     <string name="car_permission_label_car_exterior_environment" msgid="3385924985991299436">"read car’s exterior temperature"</string>
-    <string name="car_permission_desc_car_exterior_environment" msgid="1716656004731603379">"Access car’s exterior temperature."</string>
-    <string name="car_permission_label_car_tires" msgid="4379255261197836840">"access car’s tires information"</string>
-    <string name="car_permission_desc_car_tires" msgid="8134496466769810134">"Access car’s tyre information."</string>
+    <string name="car_permission_desc_car_exterior_environment" msgid="7142489828485359480">"Read car’s exterior temperature."</string>
+    <string name="car_permission_label_car_tires" msgid="4006745707051794987">"read car’s tyres information"</string>
+    <string name="car_permission_desc_car_tires" msgid="7767600991857109865">"Read car’s tyre information."</string>
     <string name="car_permission_label_car_tires_3p" msgid="1360632319908226570">"read car’s tyres information"</string>
     <string name="car_permission_desc_car_tires_3p" msgid="820574543667371274">"Read the car’s tyre information."</string>
     <string name="car_permission_label_car_steering" msgid="7779530447441232479">"read car’s steering angle information"</string>
-    <string name="car_permission_desc_car_steering" msgid="1357331844530708138">"Access car’s steering angle information."</string>
+    <string name="car_permission_desc_car_steering" msgid="4986224671150304388">"Read car’s steering angle information."</string>
     <string name="car_permission_label_read_car_steering_3p" msgid="1598866058085489462">"read car’s steering angle information"</string>
-    <string name="car_permission_desc_read_car_steering_3p" msgid="576361609663755171">"Access car’s steering angle information."</string>
+    <string name="car_permission_desc_read_car_steering_3p" msgid="4205254436283351421">"Read car’s steering angle information."</string>
     <string name="car_permission_label_read_car_display_units" msgid="7617008314862097183">"read car display units"</string>
     <string name="car_permission_desc_read_car_display_units" msgid="6891898275208542385">"Read display units."</string>
     <string name="car_permission_label_control_car_display_units" msgid="4975303668183173076">"control car’s display units"</string>
@@ -189,9 +189,9 @@
     <string name="car_permission_label_control_car_powertrain" msgid="234831541490237603">"control car’s powertrain information"</string>
     <string name="car_permission_desc_control_car_powertrain" msgid="8205110385130069179">"Control car’s powertrain information."</string>
     <string name="car_permission_label_car_powertrain" msgid="4586122326622134886">"read car’s powertrain information"</string>
-    <string name="car_permission_desc_car_powertrain" msgid="1116007372551797796">"Access car’s powertrain information."</string>
+    <string name="car_permission_desc_car_powertrain" msgid="8578992320121984184">"Read car’s powertrain information."</string>
     <string name="car_permission_label_car_power" msgid="8111448088314368268">"read car’s power state"</string>
-    <string name="car_permission_desc_car_power" msgid="9202079903668652864">"Access car’s power state."</string>
+    <string name="car_permission_desc_car_power" msgid="1937031836449813395">"Read car’s power state."</string>
     <string name="car_permission_label_enroll_trust" msgid="3512907900486690218">"Enrol Trusted Device"</string>
     <string name="car_permission_desc_enroll_trust" msgid="4148649994602185130">"Allow Trusted Device Enrollment"</string>
     <string name="car_permission_label_car_test_service" msgid="9159328930558208708">"Control car’s test mode"</string>

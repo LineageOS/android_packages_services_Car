@@ -17,37 +17,37 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="car_permission_label" msgid="2215078736675564541">"Інфармацыя пра аўтамабіль"</string>
-    <string name="car_permission_desc" msgid="3584369074931334964">"доступ да інфармацыі пра ваш аўтамабіль"</string>
+    <string name="car_permission_desc" msgid="4671139601357696916">"счытваць інфармацыю пра аўтамабіль"</string>
     <string name="car_permission_label_camera" msgid="3725702064841827180">"дазволіць доступ да камеры аўтамабіля"</string>
     <string name="car_permission_desc_camera" msgid="917024932164501426">"Доступ да камер аўтамабіля."</string>
-    <string name="car_permission_label_energy" msgid="7409144323527821558">"дазволіць доступ да інфармацыі пра энергарэсурсы аўтамабіля"</string>
-    <string name="car_permission_desc_energy" msgid="3392963810053235407">"Доступ да інфармацыі пра энергарэсурсы аўтамабіля."</string>
+    <string name="car_permission_label_energy" msgid="6529778912442705855">"счытваць інфармацыю пра энергарэсурсы аўтамабіля"</string>
+    <string name="car_permission_desc_energy" msgid="7024599188817722607">"Счытваць інфармацыю пра энергарэсурсы аўтамабіля."</string>
     <string name="car_permission_label_control_car_energy" msgid="2788215385574313796">"Кіраванне наладамі зарадкі электрамабіля"</string>
     <string name="car_permission_desc_control_car_energy" msgid="8765015897869031807">"Кіраванне наладамі зарадкі электрамабіля."</string>
     <string name="car_permission_label_adjust_range_remaining" msgid="839033553999920138">"карэктаваць аўтамабільны прабег без дазапраўкі, які застаўся"</string>
     <string name="car_permission_desc_adjust_range_remaining" msgid="2369321650437370673">"Карэктаваць значэнне аўтамабільнага прабегу без дазапраўкі, які застаўся."</string>
-    <string name="car_permission_label_hvac" msgid="1499454192558727843">"дазволіць доступ да сістэмы АВіК аўтамабіля"</string>
-    <string name="car_permission_desc_hvac" msgid="3754229695589774195">"Доступ да сістэмы АВіК аўтамабіля."</string>
-    <string name="car_permission_label_mileage" msgid="4661317074631150551">"дазволіць доступ да інфармацыі пра прабег аўтамабіля"</string>
-    <string name="car_permission_desc_mileage" msgid="7179735693278681090">"Доступ да інфармацыі пра прабег аўтамабіля."</string>
-    <string name="car_permission_label_mileage_3p" msgid="7542459195663034759">"доступ да інфармацыі пра прабег аўтамабіля"</string>
-    <string name="car_permission_desc_mileage_3p" msgid="9109350882748664570">"Доступ да інфармацыі пра прабег аўтамабіля."</string>
+    <string name="car_permission_label_hvac" msgid="6336214266904971950">"кіраваць сістэмай ацяплення, вентыляцыі і кандыцыяніравання аўтамабіля"</string>
+    <string name="car_permission_desc_hvac" msgid="7229917418217117426">"Кіраваць сістэмай ацяплення, вентыляцыі і кандыцыяніравання аўтамабіля."</string>
+    <string name="car_permission_label_mileage" msgid="9194744289794795513">"счытваць інфармацыю пра прабег аўтамабіля"</string>
+    <string name="car_permission_desc_mileage" msgid="9068667477789716791">"Счытваць інфармацыю пра прабег аўтамабіля."</string>
+    <string name="car_permission_label_mileage_3p" msgid="2852514373971903913">"счытваць інфармацыю пра прабег аўтамабіля"</string>
+    <string name="car_permission_desc_mileage_3p" msgid="1774910630404924463">"Счытваць інфармацыю пра прабег аўтамабіля."</string>
     <string name="car_permission_label_read_car_horn" msgid="5940158571880705176">"счытваць інфармацыю пра клаксан аўтамабіля"</string>
     <string name="car_permission_desc_read_car_horn" msgid="1099929991964988027">"Счытваць інфармацыю пра клаксан аўтамабіля."</string>
     <string name="car_permission_label_control_car_horn" msgid="6724124600587260102">"кантраляваць клаксан аўтамабіля"</string>
     <string name="car_permission_desc_control_car_horn" msgid="6054845567296317971">"Кантраляваць клаксан аўтамабіля."</string>
-    <string name="car_permission_label_read_car_pedals" msgid="9053334935825814308">"атрымліваць доступ да інфармацыі пра педалі аўтамабіля"</string>
-    <string name="car_permission_desc_read_car_pedals" msgid="3148710874350250453">"Атрымліваць доступ да інфармацыі пра педалі аўтамабіля."</string>
-    <string name="car_permission_label_read_brake_info" msgid="6649283162262754200">"атрымліваць доступ да інфармацыі пра тармазную сістэму аўтамабіля"</string>
-    <string name="car_permission_desc_read_brake_info" msgid="4641852049166846105">"Атрымліваць доступ да інфармацыі пра тармазную сістэму аўтамабіля."</string>
+    <string name="car_permission_label_read_car_pedals" msgid="3043797722208092602">"счытваць інфармацыю пра педалі аўтамабіля"</string>
+    <string name="car_permission_desc_read_car_pedals" msgid="8245311380277704380">"Счытваць інфармацыю пра педалі аўтамабіля."</string>
+    <string name="car_permission_label_read_brake_info" msgid="919608163703877876">"счытваць інфармацыю пра тармазную сістэму аўтамабіля"</string>
+    <string name="car_permission_desc_read_brake_info" msgid="1422619922008154555">"Счытваць інфармацыю пра тармазную сістэму аўтамабіля."</string>
     <string name="car_permission_label_speed" msgid="1149027717860529745">"атрымліваць інфармацыю пра хуткасць аўтамабіля"</string>
-    <string name="car_permission_desc_speed" msgid="2047965198165448241">"Доступ да інфармацыі пра хуткасць аўтамабіля."</string>
-    <string name="car_permission_label_vehicle_dynamics_state" msgid="313779267420048367">"дазволіць доступ да інфармацыі пра дынамічны стан аўтамабіля"</string>
-    <string name="car_permission_desc_vehicle_dynamics_state" msgid="8891506193446375660">"Доступ да інфармацыі пра дынамічны стан аўтамабіля."</string>
+    <string name="car_permission_desc_speed" msgid="5858258466024406366">"Счытваць хуткасць аўтамабіля."</string>
+    <string name="car_permission_label_vehicle_dynamics_state" msgid="2446589481717587166">"счытваць інфармацыю пра стан дынамікі аўтамабіля"</string>
+    <string name="car_permission_desc_vehicle_dynamics_state" msgid="4059749588215960011">"Счытваць інфармацыю пра стан дынамікі аўтамабіля."</string>
     <string name="car_permission_label_control_vehicle_dynamics_state" msgid="1912154069363074986">"кіраванне станам дынамікі аўтамабіля"</string>
     <string name="car_permission_desc_control_vehicle_dynamics_state" msgid="5603436779163086928">"Кіраванне станам дынамікі аўтамабіля."</string>
-    <string name="car_permission_label_vendor_extension" msgid="7141601811734127361">"дазволіць доступ да канала пастаўшчыка аўтамабіля"</string>
-    <string name="car_permission_desc_vendor_extension" msgid="2970718502334714035">"Доступ да канала пастаўшчыка аўтамабіля з мэтай абмену інфармацыяй, якая датычыцца аўтамабіля."</string>
+    <string name="car_permission_label_vendor_extension" msgid="4469386015153307485">"атрымліваць доступ да канала пастаўшчыка аўтамабіля"</string>
+    <string name="car_permission_desc_vendor_extension" msgid="2429289362866854822">"Атрымліваць доступ да канала пастаўшчыка аўтамабіля з мэтай абмену інфармацыяй, якая датычыцца аўтамабіля."</string>
     <string name="car_permission_label_radio" msgid="6009465291685935112">"кіраваць радыё ў аўтамабілі"</string>
     <string name="car_permission_desc_radio" msgid="3385999027478186964">"Доступ да радыё ў аўтамабілі."</string>
     <string name="car_permission_label_projection" msgid="9107156380287576787">"трансліраваць інтэрфейс тэлефона на экран аўтамабіля"</string>
@@ -116,16 +116,16 @@
     <string name="car_permission_desc_use_evs_camera" msgid="1625845902221003985">"Падпісвацца на плыневую перадачу відэа з камер EVS"</string>
     <string name="car_permission_label_monitor_evs_status" msgid="2091521314159379622">"Адсочваць стан сэрвісу EVS"</string>
     <string name="car_permission_desc_monitor_evs_status" msgid="2764278897143573535">"Ажыццяўляць маніторынг змен стану сэрвісу EVS"</string>
-    <string name="car_permission_label_car_engine_detailed" msgid="8911992719173587337">"дазволіць доступ да інфармацыі пра рухавік аўтамабіля"</string>
-    <string name="car_permission_desc_car_engine_detailed" msgid="1746863362811347700">"Доступ да падрабязнай інфармацыі пра рухавік аўтамабіля."</string>
+    <string name="car_permission_label_car_engine_detailed" msgid="1418113527626468413">"счытваць падрабязную інфармацыю пра рухавік аўтамабіля"</string>
+    <string name="car_permission_desc_car_engine_detailed" msgid="1839656966547909025">"Счытваць падрабязную інфармацыю пра рухавік аўтамабіля."</string>
     <string name="car_permission_label_car_engine_detailed_3p" msgid="2695036212735960169">"счытваць падрабязную інфармацыю пра стан рухавіка аўтамабіля"</string>
     <string name="car_permission_desc_car_engine_detailed_3p" msgid="7536940094077391015">"Счытваць падрабязную інфармацыю пра рухавік аўтамабіля."</string>
-    <string name="car_permission_label_car_energy_ports" msgid="8548990315169219454">"дазволіць доступ да лючка паліўнага бака і порта зарадкі аўтамабіля"</string>
-    <string name="car_permission_desc_car_energy_ports" msgid="7771185999828794949">"Доступ да лючка паліўнага бака і порта зарадкі аўтамабіля."</string>
+    <string name="car_permission_label_car_energy_ports" msgid="1466057895734201917">"счытваць інфармацыю пра стан лючка паліўнага бака і порта зарадкі аўтамабіля"</string>
+    <string name="car_permission_desc_car_energy_ports" msgid="4751253935543293174">"Счытваць інфармацыю пра стан лючка паліўнага бака і порта зарадкі аўтамабіля."</string>
     <string name="car_permission_label_control_car_energy_ports" msgid="4375137311026313475">"правяраць лючок паліўнага бака і порт зарадкі аўтамабіля"</string>
     <string name="car_permission_desc_control_car_energy_ports" msgid="7364633710492525387">"Правяраць лючок паліўнага бака і порт зарадкі аўтамабіля."</string>
     <string name="car_permission_label_car_identification" msgid="5896712510164020478">"счытваць ідэнтыфікацыйны нумар аўтамабіля"</string>
-    <string name="car_permission_desc_car_identification" msgid="4132040867171275059">"Доступ да ідэнтыфікацыйнага нумара аўтамабіля."</string>
+    <string name="car_permission_desc_car_identification" msgid="535838946811032155">"Счытваць ідэнтыфікацыйны нумар аўтамабіля."</string>
     <string name="car_permission_label_control_car_doors" msgid="3032058819250195700">"кіраваць дзвярыма аўтамабіля"</string>
     <string name="car_permission_desc_control_car_doors" msgid="6287353311980590092">"Кантроль дзвярэй аўтамабіля."</string>
     <string name="car_permission_label_control_car_windows" msgid="2452854429996653029">"кіраваць вокнамі аўтамабіля"</string>
@@ -152,36 +152,36 @@
     <string name="car_permission_desc_read_car_airbags" msgid="7961580013929420722">"Чытанне даных аб падушках бяспекі аўтамабіля."</string>
     <string name="car_permission_label_control_car_airbags" msgid="6823727183218389617">"кіраванне падушкамі бяспекі"</string>
     <string name="car_permission_desc_control_car_airbags" msgid="6181671903761622348">"Кіраванне падушкамі бяспекі."</string>
-    <string name="car_permission_label_car_info" msgid="4707513570676492315">"дазволіць доступ да асноўнай інфармацыі пра аўтамабіль"</string>
-    <string name="car_permission_desc_car_info" msgid="2118081474543537653">"Доступ да асноўнай інфармацыі пра аўтамабіль."</string>
-    <string name="car_permission_label_privileged_car_info" msgid="1304018073760220785">"доступ да канфідэнцыяльных звестак у аўтамабілі"</string>
-    <string name="car_permission_desc_privileged_car_info" msgid="2245117655328125350">"Доступ да канфідэнцыяльных звестак у аўтамабілі."</string>
-    <string name="car_permission_label_vendor_permission_info" msgid="4471260460536888654">"доступ да інфармацыі пра дазволы пастаўшчыка аўтамабіля"</string>
-    <string name="car_permission_desc_vendor_permission_info" msgid="8152113853528488398">"Доступ да інфармацыі пра дазволы пастаўшчыка аўтамабіля."</string>
-    <string name="car_permission_label_car_exterior_lights" msgid="541304469604902110">"атрымліваць інфармацыю пра стан знешніх асвятляльных прыбораў аўтамабіля"</string>
+    <string name="car_permission_label_car_info" msgid="1063184863204793829">"счытваць асноўную інфармацыю пра аўтамабіль"</string>
+    <string name="car_permission_desc_car_info" msgid="5780681956513865291">"Счытваць асноўную інфармацыю пра аўтамабіль."</string>
+    <string name="car_permission_label_privileged_car_info" msgid="7056641626040863385">"счытваць канфідэнцыяльную інфармацыю пра аўтамабіль"</string>
+    <string name="car_permission_desc_privileged_car_info" msgid="8443694410074384466">"Счытваць канфідэнцыяльную інфармацыю пра аўтамабіль."</string>
+    <string name="car_permission_label_vendor_permission_info" msgid="3285296684927879613">"счытваць інфармацыю пра дазволы для пастаўшчыка аўтамабіля"</string>
+    <string name="car_permission_desc_vendor_permission_info" msgid="9208614308909994486">"Счытваць інфармацыю пра дазволы для пастаўшчыка аўтамабіля."</string>
+    <string name="car_permission_label_car_exterior_lights" msgid="3839661014756123708">"атрымліваць доступ да інфармацыі пра стан знешніх асвятляльных прыбораў аўтамабіля"</string>
     <string name="car_permission_desc_car_exterior_lights" msgid="4038037584100849318">"Доступ да інфармацыі пра стан знешніх асвятляльных прыбораў аўтамабіля."</string>
     <string name="car_permission_label_read_car_exterior_lights" msgid="8206567055976888587">"счытваць інфармацыю пра стан знешніх асвятляльных прыбораў аўтамабіля"</string>
     <string name="car_permission_desc_read_car_exterior_lights" msgid="8611497191707405104">"Счытваць інфармацыю пра стан знешніх асвятляльных прыбораў аўтамабіля."</string>
-    <string name="car_permission_label_control_glove_box" msgid="992118647212706782">"атрымліваць доступ да інфармацыі пра стан скрынкі, размешчанай у аўтамабілі збоку ад руля"</string>
-    <string name="car_permission_desc_control_glove_box" msgid="2888062136750123261">"Атрымліваць доступ да інфармацыі пра стан скрынкі, размешчанай у аўтамабілі збоку ад руля."</string>
-    <string name="car_permission_label_car_epoch_time" msgid="6303397910662625112">"доступ да часу аўтамабіля ў фармаце \"эпахальны час\""</string>
-    <string name="car_permission_desc_car_epoch_time" msgid="398907082895238558">"Доступ да часу аўтамабіля ў фармаце \"эпахальны час\"."</string>
-    <string name="car_permission_label_control_car_exterior_lights" msgid="101357531386232141">"атрымліваць інфармацыю са знешніх асвятляльных прыбораў аўтамабіля"</string>
+    <string name="car_permission_label_control_glove_box" msgid="8893424527567257629">"кіраваць станам скрынкі, размешчанай у аўтамабілі збоку ад руля"</string>
+    <string name="car_permission_desc_control_glove_box" msgid="202603834328737918">"Кіраваць станам скрынкі, размешчанай у аўтамабілі збоку ад руля."</string>
+    <string name="car_permission_label_car_epoch_time" msgid="8667615176555933314">"счытваць пачатак адліку часу ў сістэме аўтамабіля"</string>
+    <string name="car_permission_desc_car_epoch_time" msgid="6776188390917658195">"Счытваць пачатак адліку часу ў сістэме аўтамабіля."</string>
+    <string name="car_permission_label_control_car_exterior_lights" msgid="2702353269564341362">"кіраваць знешнімі асвятляльнымі прыборамі аўтамабіля"</string>
     <string name="car_permission_desc_control_car_exterior_lights" msgid="6332252612685264180">"Кіраванне знешнімі асвятляльнымі прыборамі аўтамабіля."</string>
-    <string name="car_permission_label_car_interior_lights" msgid="8506302199784427680">"атрымліваць інфармацыю пра ўнутранае асвятленне аўтамабіля"</string>
-    <string name="car_permission_desc_car_interior_lights" msgid="6204775354692372506">"Доступ да інфармацыі пра ўнутранае асвятленне аўтамабіля."</string>
+    <string name="car_permission_label_car_interior_lights" msgid="2802077280340054799">"счытваць інфармацыю пра стан унутраных асвятляльных прыбораў аўтамабіля"</string>
+    <string name="car_permission_desc_car_interior_lights" msgid="7229450087107255913">"Счытваць інфармацыю пра стан унутраных асвятляльных прыбораў аўтамабіля."</string>
     <string name="car_permission_label_control_car_interior_lights" msgid="6685386372012664281">"кіраваць унутраным асвятленнем аўтамабіля"</string>
     <string name="car_permission_desc_control_car_interior_lights" msgid="797201814109701538">"Кіраванне ўнутраным асвятленнем аўтамабіля."</string>
     <string name="car_permission_label_car_exterior_environment" msgid="3385924985991299436">"атрымліваць звесткі пра тэмпературу звонку аўтамабіля"</string>
-    <string name="car_permission_desc_car_exterior_environment" msgid="1716656004731603379">"Доступ да звестак пра тэмпературу звонку аўтамабіля."</string>
-    <string name="car_permission_label_car_tires" msgid="4379255261197836840">"дазволіць доступ да інфармацыі пра шыны аўтамабіля"</string>
-    <string name="car_permission_desc_car_tires" msgid="8134496466769810134">"Доступ да інфармацыі пра шыны аўтамабіля."</string>
+    <string name="car_permission_desc_car_exterior_environment" msgid="7142489828485359480">"Счытваць тэмпературу звонку аўтамабіля."</string>
+    <string name="car_permission_label_car_tires" msgid="4006745707051794987">"счытваць інфармацыю пра стан шын аўтамабіля"</string>
+    <string name="car_permission_desc_car_tires" msgid="7767600991857109865">"Счытваць інфармацыю пра стан шын аўтамабіля."</string>
     <string name="car_permission_label_car_tires_3p" msgid="1360632319908226570">"счытваць інфармацыю пра стан шын аўтамабіля"</string>
     <string name="car_permission_desc_car_tires_3p" msgid="820574543667371274">"Счытваць інфармацыю пра стан шын аўтамабіля."</string>
     <string name="car_permission_label_car_steering" msgid="7779530447441232479">"счытваць даныя пра вугал павароту аўтамабіля"</string>
-    <string name="car_permission_desc_car_steering" msgid="1357331844530708138">"Доступ да інфармацыі пра вугал павароту аўтамабіля."</string>
+    <string name="car_permission_desc_car_steering" msgid="4986224671150304388">"Счытваць інфармацыю пра вугал павароту аўтамабіля."</string>
     <string name="car_permission_label_read_car_steering_3p" msgid="1598866058085489462">"счытваць даныя пра вугал павароту аўтамабіля"</string>
-    <string name="car_permission_desc_read_car_steering_3p" msgid="576361609663755171">"Доступ да інфармацыі пра вугал павароту аўтамабіля."</string>
+    <string name="car_permission_desc_read_car_steering_3p" msgid="4205254436283351421">"Счытваць інфармацыю пра вугал павароту аўтамабіля."</string>
     <string name="car_permission_label_read_car_display_units" msgid="7617008314862097183">"атрымліваць інфармацыю пра элементы кіравання дысплэем у аўтамабілі"</string>
     <string name="car_permission_desc_read_car_display_units" msgid="6891898275208542385">"Счытванне элементаў кіравання дысплэем."</string>
     <string name="car_permission_label_control_car_display_units" msgid="4975303668183173076">"кіраваць элементамі дысплэя аўтамабіля"</string>
@@ -189,9 +189,9 @@
     <string name="car_permission_label_control_car_powertrain" msgid="234831541490237603">"кантроль інфармацыі пра трансмісію аўтамабіля"</string>
     <string name="car_permission_desc_control_car_powertrain" msgid="8205110385130069179">"Кантроль інфармацыі пра трансмісію аўтамабіля."</string>
     <string name="car_permission_label_car_powertrain" msgid="4586122326622134886">"атрымліваць інфармацыю пра трансмісію аўтамабіля"</string>
-    <string name="car_permission_desc_car_powertrain" msgid="1116007372551797796">"Доступ да інфармацыі пра трансмісію аўтамабіля."</string>
+    <string name="car_permission_desc_car_powertrain" msgid="8578992320121984184">"Счытваць інфармацыю пра трансмісію аўтамабіля."</string>
     <string name="car_permission_label_car_power" msgid="8111448088314368268">"атрымліваць інфармацыю пра сілкаванне аўтамабіля"</string>
-    <string name="car_permission_desc_car_power" msgid="9202079903668652864">"Доступ да інфармацыі пра сілкаванне аўтамабіля."</string>
+    <string name="car_permission_desc_car_power" msgid="1937031836449813395">"Счытваць інфармацыю пра сілкаванне аўтамабіля."</string>
     <string name="car_permission_label_enroll_trust" msgid="3512907900486690218">"Зарэгістраваць давераную прыладу"</string>
     <string name="car_permission_desc_enroll_trust" msgid="4148649994602185130">"Дазволіць рэгістрацыю даверанай прылады"</string>
     <string name="car_permission_label_car_test_service" msgid="9159328930558208708">"Тэставы рэжым кіравання аўтамабілем"</string>

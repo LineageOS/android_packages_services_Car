@@ -17,37 +17,37 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="car_permission_label" msgid="2215078736675564541">"Autoari buruzko informazioa"</string>
-    <string name="car_permission_desc" msgid="3584369074931334964">"atzitu autoari buruzko informazioa"</string>
+    <string name="car_permission_desc" msgid="4671139601357696916">"Zure autoari buruzko informazioa irakurri."</string>
     <string name="car_permission_label_camera" msgid="3725702064841827180">"atzitu autoaren kamera"</string>
     <string name="car_permission_desc_camera" msgid="917024932164501426">"Atzitu autoaren kamerak."</string>
-    <string name="car_permission_label_energy" msgid="7409144323527821558">"atzitu autoaren energiari buruzko informazioa"</string>
-    <string name="car_permission_desc_energy" msgid="3392963810053235407">"Atzitu autoaren energiari buruzko informazioa"</string>
+    <string name="car_permission_label_energy" msgid="6529778912442705855">"Autoaren energiari buruzko informazioa irakurri."</string>
+    <string name="car_permission_desc_energy" msgid="7024599188817722607">"Autoaren energiari buruzko informazioa irakurri."</string>
     <string name="car_permission_label_control_car_energy" msgid="2788215385574313796">"Kontrolatu ibilgailu elektrikoa kargatzeko ezarpenak"</string>
     <string name="car_permission_desc_control_car_energy" msgid="8765015897869031807">"Kontrolatu ibilgailu elektrikoa kargatzeko ezarpenak."</string>
     <string name="car_permission_label_adjust_range_remaining" msgid="839033553999920138">"doitu autoari gelditzen zaion gaitasuna"</string>
     <string name="car_permission_desc_adjust_range_remaining" msgid="2369321650437370673">"Doitu autoari gelditzen zaion gaitasunaren balioa."</string>
-    <string name="car_permission_label_hvac" msgid="1499454192558727843">"atzitu autoaren berogailua, haizagailua eta aire-girogailua"</string>
-    <string name="car_permission_desc_hvac" msgid="3754229695589774195">"Atzitu autoaren berogailua, haizagailua eta aire-girogailua."</string>
-    <string name="car_permission_label_mileage" msgid="4661317074631150551">"atzitu autoaren kilometro kopuruari buruzko informazioa"</string>
-    <string name="car_permission_desc_mileage" msgid="7179735693278681090">"Atzitu autoaren kilometro kopuruari buruzko informazioa."</string>
-    <string name="car_permission_label_mileage_3p" msgid="7542459195663034759">"atzitu autoaren kilometro kopuruari buruzko informazioa"</string>
-    <string name="car_permission_desc_mileage_3p" msgid="9109350882748664570">"Atzitu autoaren kilometro kopuruari buruzko informazioa."</string>
+    <string name="car_permission_label_hvac" msgid="6336214266904971950">"Autoaren klimatizazio-sistema kontrolatu."</string>
+    <string name="car_permission_desc_hvac" msgid="7229917418217117426">"Autoaren klimatizazio-sistema kontrolatu."</string>
+    <string name="car_permission_label_mileage" msgid="9194744289794795513">"Autoaren kilometro kopuruari buruzko informazioa irakurri."</string>
+    <string name="car_permission_desc_mileage" msgid="9068667477789716791">"Autoaren kilometro kopuruari buruzko informazioa irakurri."</string>
+    <string name="car_permission_label_mileage_3p" msgid="2852514373971903913">"Autoaren kilometro kopuruari buruzko informazioa irakurri."</string>
+    <string name="car_permission_desc_mileage_3p" msgid="1774910630404924463">"Autoaren kilometro kopuruari buruzko informazioa irakurri."</string>
     <string name="car_permission_label_read_car_horn" msgid="5940158571880705176">"irakurri autoaren klaxonari buruzko informazioa"</string>
     <string name="car_permission_desc_read_car_horn" msgid="1099929991964988027">"Irakurri autoaren klaxonari buruzko informazioa."</string>
     <string name="car_permission_label_control_car_horn" msgid="6724124600587260102">"kontrolatu autoaren klaxona"</string>
     <string name="car_permission_desc_control_car_horn" msgid="6054845567296317971">"Kontrolatu autoaren klaxona."</string>
-    <string name="car_permission_label_read_car_pedals" msgid="9053334935825814308">"atzitu autoaren pedalei buruzko informazioa"</string>
-    <string name="car_permission_desc_read_car_pedals" msgid="3148710874350250453">"Atzitu autoaren pedalei buruzko informazioa."</string>
-    <string name="car_permission_label_read_brake_info" msgid="6649283162262754200">"atzitu autoaren frenoei buruzko informazioa"</string>
-    <string name="car_permission_desc_read_brake_info" msgid="4641852049166846105">"Atzitu autoaren frenoei buruzko informazioa."</string>
+    <string name="car_permission_label_read_car_pedals" msgid="3043797722208092602">"Autoaren pedalei buruzko informazioa irakurri."</string>
+    <string name="car_permission_desc_read_car_pedals" msgid="8245311380277704380">"Autoaren pedalei buruzko informazioa irakurri."</string>
+    <string name="car_permission_label_read_brake_info" msgid="919608163703877876">"Autoaren frenoei buruzko informazioa irakurri."</string>
+    <string name="car_permission_desc_read_brake_info" msgid="1422619922008154555">"Autoaren frenoei buruzko informazioa irakurri."</string>
     <string name="car_permission_label_speed" msgid="1149027717860529745">"irakurri autoaren abiadura"</string>
-    <string name="car_permission_desc_speed" msgid="2047965198165448241">"Atzitu autoaren abiadura."</string>
-    <string name="car_permission_label_vehicle_dynamics_state" msgid="313779267420048367">"atzitu autoaren egoera dinamikoa"</string>
-    <string name="car_permission_desc_vehicle_dynamics_state" msgid="8891506193446375660">"Atzitu autoaren egoera dinamikoa."</string>
+    <string name="car_permission_desc_speed" msgid="5858258466024406366">"Autoaren abiadura irakurri."</string>
+    <string name="car_permission_label_vehicle_dynamics_state" msgid="2446589481717587166">"Autoaren egoera dinamikoa irakurri."</string>
+    <string name="car_permission_desc_vehicle_dynamics_state" msgid="4059749588215960011">"Autoaren egoera dinamikoa irakurri."</string>
     <string name="car_permission_label_control_vehicle_dynamics_state" msgid="1912154069363074986">"kontrolatu autoaren egoera dinamikoa"</string>
     <string name="car_permission_desc_control_vehicle_dynamics_state" msgid="5603436779163086928">"Kontrolatu autoaren egoera dinamikoa."</string>
-    <string name="car_permission_label_vendor_extension" msgid="7141601811734127361">"atzitu auto-saltzailearen kanala"</string>
-    <string name="car_permission_desc_vendor_extension" msgid="2970718502334714035">"Atzitu auto-saltzailearen kanala autoari buruzko informazio zehatza trukatzeko."</string>
+    <string name="car_permission_label_vendor_extension" msgid="4469386015153307485">"Auto-saltzailearen kanala irakurri."</string>
+    <string name="car_permission_desc_vendor_extension" msgid="2429289362866854822">"Auto-saltzailearen kanala irakurri autoari buruzko informazio zehatza trukatzeko."</string>
     <string name="car_permission_label_radio" msgid="6009465291685935112">"kudeatu autoaren irratia"</string>
     <string name="car_permission_desc_radio" msgid="3385999027478186964">"Atzitu autoaren irratia."</string>
     <string name="car_permission_label_projection" msgid="9107156380287576787">"proiektatu telefonoaren interfazea autoaren pantailan"</string>
@@ -116,16 +116,16 @@
     <string name="car_permission_desc_use_evs_camera" msgid="1625845902221003985">"Harpidetu EVSaren kamera-igorpenetara"</string>
     <string name="car_permission_label_monitor_evs_status" msgid="2091521314159379622">"Gainbegiratu EVS zerbitzuaren egoera"</string>
     <string name="car_permission_desc_monitor_evs_status" msgid="2764278897143573535">"Gainbegiratu EVS zerbitzuaren egoera-aldaketak"</string>
-    <string name="car_permission_label_car_engine_detailed" msgid="8911992719173587337">"atzitu autoaren motorrari buruzko informazio xehatua"</string>
-    <string name="car_permission_desc_car_engine_detailed" msgid="1746863362811347700">"Atzitu autoaren motorrari buruzko informazio xehatua."</string>
+    <string name="car_permission_label_car_engine_detailed" msgid="1418113527626468413">"Autoaren motorrari buruzko informazio xehatua irakurri."</string>
+    <string name="car_permission_desc_car_engine_detailed" msgid="1839656966547909025">"Autoaren motorrari buruzko informazio xehatua irakurri."</string>
     <string name="car_permission_label_car_engine_detailed_3p" msgid="2695036212735960169">"irakurri autoaren motorrari buruzko informazio xehatua"</string>
     <string name="car_permission_desc_car_engine_detailed_3p" msgid="7536940094077391015">"Irakurri autoaren motorrari buruzko informazio xehatua."</string>
-    <string name="car_permission_label_car_energy_ports" msgid="8548990315169219454">"atzitu autoaren erregai-deposituaren ataka eta korrontera konektatzeko ataka"</string>
-    <string name="car_permission_desc_car_energy_ports" msgid="7771185999828794949">"Atzitu autoaren erregai-deposituaren ataka eta korrontera konektatzeko ataka."</string>
+    <string name="car_permission_label_car_energy_ports" msgid="1466057895734201917">"Autoaren erregai-deposituaren atakari eta korrontera konektatzeko atakari buruzko informazioa irakurri."</string>
+    <string name="car_permission_desc_car_energy_ports" msgid="4751253935543293174">"Autoaren erregai-deposituaren atakari eta kargatzeko atakari buruzko informazioa irakurri."</string>
     <string name="car_permission_label_control_car_energy_ports" msgid="4375137311026313475">"kontrolatu autoaren erregai-deposituaren ataka eta korrontera konektatzeko ataka"</string>
     <string name="car_permission_desc_control_car_energy_ports" msgid="7364633710492525387">"Kontrolatu autoaren erregai-deposituaren ataka eta korrontera konektatzeko ataka."</string>
     <string name="car_permission_label_car_identification" msgid="5896712510164020478">"irakurri autoaren identifikazioa"</string>
-    <string name="car_permission_desc_car_identification" msgid="4132040867171275059">"Atzitu autoaren identifikazioa."</string>
+    <string name="car_permission_desc_car_identification" msgid="535838946811032155">"Autoaren identifikazioa irakurri."</string>
     <string name="car_permission_label_control_car_doors" msgid="3032058819250195700">"kontrolatu autoaren ateak"</string>
     <string name="car_permission_desc_control_car_doors" msgid="6287353311980590092">"Kontrolatu autoaren ateak."</string>
     <string name="car_permission_label_control_car_windows" msgid="2452854429996653029">"kontrolatu autoaren leihoak"</string>
@@ -152,36 +152,36 @@
     <string name="car_permission_desc_read_car_airbags" msgid="7961580013929420722">"Irakurri autoko airbagak."</string>
     <string name="car_permission_label_control_car_airbags" msgid="6823727183218389617">"kontrolatu autoaren airbagak"</string>
     <string name="car_permission_desc_control_car_airbags" msgid="6181671903761622348">"Kontrolatu autoaren airbagak."</string>
-    <string name="car_permission_label_car_info" msgid="4707513570676492315">"atzitu autoaren oinarrizko informazioa"</string>
-    <string name="car_permission_desc_car_info" msgid="2118081474543537653">"Atzitu autoaren oinarrizko informazioa."</string>
-    <string name="car_permission_label_privileged_car_info" msgid="1304018073760220785">"atzitu autoaren informazio pribilegiatua"</string>
-    <string name="car_permission_desc_privileged_car_info" msgid="2245117655328125350">"Atzitu autoaren informazio pribilegiatua."</string>
-    <string name="car_permission_label_vendor_permission_info" msgid="4471260460536888654">"atzitu autoaren saltzailearen baimenari buruzko informazioa"</string>
-    <string name="car_permission_desc_vendor_permission_info" msgid="8152113853528488398">"Atzitu autoaren saltzailearen baimenari buruzko informazioa"</string>
-    <string name="car_permission_label_car_exterior_lights" msgid="541304469604902110">"irakurri autoaren kanpoaldeko argien egoera"</string>
+    <string name="car_permission_label_car_info" msgid="1063184863204793829">"Autoari buruzko oinarrizko informazioa irakurri."</string>
+    <string name="car_permission_desc_car_info" msgid="5780681956513865291">"Autoari buruzko oinarrizko informazioa irakurri."</string>
+    <string name="car_permission_label_privileged_car_info" msgid="7056641626040863385">"Autoaren informazio pribilegiatua irakurri."</string>
+    <string name="car_permission_desc_privileged_car_info" msgid="8443694410074384466">"Autoaren informazio pribilegiatua irakurri."</string>
+    <string name="car_permission_label_vendor_permission_info" msgid="3285296684927879613">"Autoaren saltzailearen baimenari buruzko informazioa irakurri."</string>
+    <string name="car_permission_desc_vendor_permission_info" msgid="9208614308909994486">"Autoaren saltzailearen baimenari buruzko informazioa irakurri."</string>
+    <string name="car_permission_label_car_exterior_lights" msgid="3839661014756123708">"Autoaren kanpoaldeko argien egoera irakurri."</string>
     <string name="car_permission_desc_car_exterior_lights" msgid="4038037584100849318">"Atzitu autoaren kanpoaldeko argien egoera."</string>
     <string name="car_permission_label_read_car_exterior_lights" msgid="8206567055976888587">"irakurri autoaren kanpoaldeko argien egoera"</string>
     <string name="car_permission_desc_read_car_exterior_lights" msgid="8611497191707405104">"Irakurri autoaren kanpoaldeko argien egoerari buruzko informazioa."</string>
-    <string name="car_permission_label_control_glove_box" msgid="992118647212706782">"atzitu autoaren eskularru-kutxaren egoera"</string>
-    <string name="car_permission_desc_control_glove_box" msgid="2888062136750123261">"Atzitu autoaren eskularru-kutxaren egoera."</string>
-    <string name="car_permission_label_car_epoch_time" msgid="6303397910662625112">"atzitu autoaren erreferentziazko denbora tartearen ordua"</string>
-    <string name="car_permission_desc_car_epoch_time" msgid="398907082895238558">"Atzitu autoaren erreferentziazko denbora tartearen ordua."</string>
-    <string name="car_permission_label_control_car_exterior_lights" msgid="101357531386232141">"irakurri autoaren kanpoaldeko argiak"</string>
+    <string name="car_permission_label_control_glove_box" msgid="8893424527567257629">"Autoaren eskularru-kutxaren egoera kontrolatu."</string>
+    <string name="car_permission_desc_control_glove_box" msgid="202603834328737918">"Autoaren eskularru-kutxaren egoera kontrolatu."</string>
+    <string name="car_permission_label_car_epoch_time" msgid="8667615176555933314">"Autoaren erreferentziazko denbora tartea irakurri."</string>
+    <string name="car_permission_desc_car_epoch_time" msgid="6776188390917658195">"Autoaren erreferentziazko denbora tartea irakurri."</string>
+    <string name="car_permission_label_control_car_exterior_lights" msgid="2702353269564341362">"Autoaren kanpoaldeko argiak kontrolatu."</string>
     <string name="car_permission_desc_control_car_exterior_lights" msgid="6332252612685264180">"Kontrolatu autoaren kanpoaldeko argiak."</string>
-    <string name="car_permission_label_car_interior_lights" msgid="8506302199784427680">"irakurri autoaren barnealdeko argiak"</string>
-    <string name="car_permission_desc_car_interior_lights" msgid="6204775354692372506">"Atzitu autoaren barnealdeko argien egoera."</string>
+    <string name="car_permission_label_car_interior_lights" msgid="2802077280340054799">"Autoaren barneko argien egoera irakurri."</string>
+    <string name="car_permission_desc_car_interior_lights" msgid="7229450087107255913">"Autoaren barneko argien egoera irakurri."</string>
     <string name="car_permission_label_control_car_interior_lights" msgid="6685386372012664281">"kontrolatu autoaren barnealdeko argiak"</string>
     <string name="car_permission_desc_control_car_interior_lights" msgid="797201814109701538">"Kontrolatu autoaren barnealdeko argiak."</string>
     <string name="car_permission_label_car_exterior_environment" msgid="3385924985991299436">"irakurri autoaren kanpoaldeko tenperatura"</string>
-    <string name="car_permission_desc_car_exterior_environment" msgid="1716656004731603379">"Atzitu autoaren kanpoaldeko tenperatura."</string>
-    <string name="car_permission_label_car_tires" msgid="4379255261197836840">"atzitu pneumatikoei buruzko informazioa"</string>
-    <string name="car_permission_desc_car_tires" msgid="8134496466769810134">"Atzitu autoaren pneumatikoei buruzko informazioa."</string>
+    <string name="car_permission_desc_car_exterior_environment" msgid="7142489828485359480">"Autoaren kanpoaldeko tenperatura irakurri."</string>
+    <string name="car_permission_label_car_tires" msgid="4006745707051794987">"Autoaren pneumatikoei buruzko informazioa irakurri."</string>
+    <string name="car_permission_desc_car_tires" msgid="7767600991857109865">"Autoaren pneumatikoei buruzko informazioa irakurri."</string>
     <string name="car_permission_label_car_tires_3p" msgid="1360632319908226570">"irakurri autoaren pneumatikoei buruzko informazioa"</string>
     <string name="car_permission_desc_car_tires_3p" msgid="820574543667371274">"Irakurri autoaren pneumatikoei buruzko informazioa."</string>
     <string name="car_permission_label_car_steering" msgid="7779530447441232479">"irakurri autoaren biratze-angeluari buruzko informazioa"</string>
-    <string name="car_permission_desc_car_steering" msgid="1357331844530708138">"Atzitu autoaren biratze-angeluari buruzko informazioa."</string>
+    <string name="car_permission_desc_car_steering" msgid="4986224671150304388">"Autoaren biratze-angeluari buruzko informazioa irakurri."</string>
     <string name="car_permission_label_read_car_steering_3p" msgid="1598866058085489462">"irakurri autoaren biratze-angeluari buruzko informazioa"</string>
-    <string name="car_permission_desc_read_car_steering_3p" msgid="576361609663755171">"atzitu autoaren biratze-angeluari buruzko informazioa"</string>
+    <string name="car_permission_desc_read_car_steering_3p" msgid="4205254436283351421">"Autoaren biratze-angeluari buruzko informazioa irakurri."</string>
     <string name="car_permission_label_read_car_display_units" msgid="7617008314862097183">"irakurri autoaren bistaratze-unitateak"</string>
     <string name="car_permission_desc_read_car_display_units" msgid="6891898275208542385">"Irakurri bistaratze-unitateak."</string>
     <string name="car_permission_label_control_car_display_units" msgid="4975303668183173076">"kontrolatu autoaren bistaratze-unitateak"</string>
@@ -189,9 +189,9 @@
     <string name="car_permission_label_control_car_powertrain" msgid="234831541490237603">"kontrolatu autoaren transmisio-sistemari buruzko informazioa"</string>
     <string name="car_permission_desc_control_car_powertrain" msgid="8205110385130069179">"Autoaren transmisio-sistemari buruzko informazioa kontrolatu."</string>
     <string name="car_permission_label_car_powertrain" msgid="4586122326622134886">"irakurri autoaren transmisio-sistemari buruzko informazioa"</string>
-    <string name="car_permission_desc_car_powertrain" msgid="1116007372551797796">"Atzitu autoaren transmisio-sistemari buruzko informazioa."</string>
+    <string name="car_permission_desc_car_powertrain" msgid="8578992320121984184">"Autoaren transmisio-sistemari buruzko informazioa irakurri."</string>
     <string name="car_permission_label_car_power" msgid="8111448088314368268">"irakurri autoaren energia-egoera"</string>
-    <string name="car_permission_desc_car_power" msgid="9202079903668652864">"Atzitu autoaren energia-egoera."</string>
+    <string name="car_permission_desc_car_power" msgid="1937031836449813395">"Autoaren energia-egoera irakurri."</string>
     <string name="car_permission_label_enroll_trust" msgid="3512907900486690218">"Erregistratu gailu fidagarria"</string>
     <string name="car_permission_desc_enroll_trust" msgid="4148649994602185130">"Eman gailu fidagarriak erregistratzeko baimena"</string>
     <string name="car_permission_label_car_test_service" msgid="9159328930558208708">"Kontrolatu autoaren proba modua"</string>
