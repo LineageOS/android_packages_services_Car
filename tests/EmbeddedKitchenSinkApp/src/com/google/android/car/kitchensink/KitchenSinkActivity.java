@@ -111,6 +111,7 @@ import com.google.android.car.kitchensink.vehiclectrl.VehicleCtrlFragment;
 import com.google.android.car.kitchensink.volume.VolumeTestFragment;
 import com.google.android.car.kitchensink.watchdog.CarWatchdogTestFragment;
 import com.google.android.car.kitchensink.weblinks.WebLinksTestFragment;
+import com.google.android.car.kitchensink.widgets.AppWidgetPickerFragment;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
@@ -368,7 +369,8 @@ public class KitchenSinkActivity extends FragmentActivity implements KitchenSink
                     WindowInsetsFullScreenFragment.class),
             new Pair<>("oem car service", OemCarServiceTestFragment.class),
             new Pair<>("Camera2", Camera2TestFragment.class),
-            new Pair<>(RadioTestFragment.FRAGMENT_NAME, RadioTestFragment.class));
+            new Pair<>(RadioTestFragment.FRAGMENT_NAME, RadioTestFragment.class),
+            new Pair<>("App Widgets", AppWidgetPickerFragment.class));
 
     public KitchenSinkActivity() {
         for (Pair<String, Class> entry : MENU_ENTRIES) {
