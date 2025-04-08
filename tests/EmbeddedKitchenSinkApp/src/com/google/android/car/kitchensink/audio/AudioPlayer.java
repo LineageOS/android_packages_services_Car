@@ -268,10 +268,12 @@ public class AudioPlayer {
             public void onCompletion(MediaPlayer mp) {
                 Log.i(TAG, "AudioPlayer onCompletion");
                 mPlaying.set(false);
-                if (!mRepeat && mHandleFocus) {
+                if (!mRepeat) {
                     mPlayer.stop();
                     mPlayer = null;
-                    mAudioManager.abandonAudioFocus(mFocusListener);
+                    if (mHandleFocus) {
+                        mAudioManager.abandonAudioFocus(mFocusListener);
+                    }
                     sendPlayerStateChanged(PLAYER_STATE_COMPLETED);
                 }
             }
