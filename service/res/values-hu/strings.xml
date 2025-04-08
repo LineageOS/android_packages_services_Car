@@ -17,37 +17,37 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="car_permission_label" msgid="2215078736675564541">"Az autó adatai"</string>
-    <string name="car_permission_desc" msgid="3584369074931334964">"hozzáférhet az autó adataihoz"</string>
+    <string name="car_permission_desc" msgid="4671139601357696916">"olvashatja az autó adatait"</string>
     <string name="car_permission_label_camera" msgid="3725702064841827180">"hozzáférhet az autó kamerájához"</string>
     <string name="car_permission_desc_camera" msgid="917024932164501426">"Hozzáférhet az autó kameráihoz."</string>
-    <string name="car_permission_label_energy" msgid="7409144323527821558">"hozzáférhet az autó energiafelhasználására vonatkozó adatokhoz"</string>
-    <string name="car_permission_desc_energy" msgid="3392963810053235407">"Hozzáférhet az autó energiafelhasználására vonatkozó adatokhoz."</string>
+    <string name="car_permission_label_energy" msgid="6529778912442705855">"olvashatja az autó energiafelhasználására vonatkozó adatokat"</string>
+    <string name="car_permission_desc_energy" msgid="7024599188817722607">"Az autó energiafelhasználási adatainak olvasása."</string>
     <string name="car_permission_label_control_car_energy" msgid="2788215385574313796">"Vezérelheti az autó EJ-meghajtásának töltési beállításait."</string>
     <string name="car_permission_desc_control_car_energy" msgid="8765015897869031807">"Vezérelheti autója EJ-meghajtásának töltési beállításait."</string>
     <string name="car_permission_label_adjust_range_remaining" msgid="839033553999920138">"az autó fennmaradó hatótávolságának módosítása"</string>
     <string name="car_permission_desc_adjust_range_remaining" msgid="2369321650437370673">"Az autó fennmaradó hatótávolságának módosítása."</string>
-    <string name="car_permission_label_hvac" msgid="1499454192558727843">"hozzáférhet az autó HVAC-adataihoz"</string>
-    <string name="car_permission_desc_hvac" msgid="3754229695589774195">"Hozzáférhet az autó HVAC-adataihoz."</string>
-    <string name="car_permission_label_mileage" msgid="4661317074631150551">"hozzáférhet az autó kilométeradataihoz"</string>
-    <string name="car_permission_desc_mileage" msgid="7179735693278681090">"Hozzáférhet az autó kilométeradataihoz."</string>
-    <string name="car_permission_label_mileage_3p" msgid="7542459195663034759">"hozzáférhet az autó kilométeradataihoz"</string>
-    <string name="car_permission_desc_mileage_3p" msgid="9109350882748664570">"Hozzáférés az autó kilométeradataihoz."</string>
+    <string name="car_permission_label_hvac" msgid="6336214266904971950">"vezérelheti az autó HVAC-rendszerét"</string>
+    <string name="car_permission_desc_hvac" msgid="7229917418217117426">"Az autó HVAC-rendszerének vezérlése."</string>
+    <string name="car_permission_label_mileage" msgid="9194744289794795513">"olvashatja az autó kilométeradatait"</string>
+    <string name="car_permission_desc_mileage" msgid="9068667477789716791">"Az autó kilométeradatainak olvasása."</string>
+    <string name="car_permission_label_mileage_3p" msgid="2852514373971903913">"olvashatja az autó kilométeradatait"</string>
+    <string name="car_permission_desc_mileage_3p" msgid="1774910630404924463">"Az autó kilométeradatainak olvasása."</string>
     <string name="car_permission_label_read_car_horn" msgid="5940158571880705176">"olvashatja az autó kürtjére vonatkozó információkat"</string>
     <string name="car_permission_desc_read_car_horn" msgid="1099929991964988027">"Az autó kürtjére vonatkozó információk olvasása."</string>
     <string name="car_permission_label_control_car_horn" msgid="6724124600587260102">"vezérelheti az autó kürtjét"</string>
     <string name="car_permission_desc_control_car_horn" msgid="6054845567296317971">"Az autó kürtjének vezérlése."</string>
-    <string name="car_permission_label_read_car_pedals" msgid="9053334935825814308">"hozzáférhet az autó pedáljaira vonatkozó információkhoz"</string>
-    <string name="car_permission_desc_read_car_pedals" msgid="3148710874350250453">"Hozzáférés az autó pedáljaira vonatkozó információkhoz."</string>
-    <string name="car_permission_label_read_brake_info" msgid="6649283162262754200">"hozzáférhet az autó fékrendszerére vonatkozó adatokhoz"</string>
-    <string name="car_permission_desc_read_brake_info" msgid="4641852049166846105">"Hozzáférés az autó fékrendszerére vonatkozó adatokhoz."</string>
+    <string name="car_permission_label_read_car_pedals" msgid="3043797722208092602">"olvashatja az autó pedáljaira vonatkozó információkat"</string>
+    <string name="car_permission_desc_read_car_pedals" msgid="8245311380277704380">"Az autó pedáljaira vonatkozó információk olvasása."</string>
+    <string name="car_permission_label_read_brake_info" msgid="919608163703877876">"olvashatja az autó fékrendszerére vonatkozó adatokat"</string>
+    <string name="car_permission_desc_read_brake_info" msgid="1422619922008154555">"Az autó fékrendszerére vonatkozó információk olvasása."</string>
     <string name="car_permission_label_speed" msgid="1149027717860529745">"olvashatja az autó sebességadatait"</string>
-    <string name="car_permission_desc_speed" msgid="2047965198165448241">"Hozzáférhet az autó sebességadataihoz."</string>
-    <string name="car_permission_label_vehicle_dynamics_state" msgid="313779267420048367">"hozzáférhet az autó dinamikai állapotához"</string>
-    <string name="car_permission_desc_vehicle_dynamics_state" msgid="8891506193446375660">"Hozzáférhet az autó dinamikai állapotához."</string>
+    <string name="car_permission_desc_speed" msgid="5858258466024406366">"Az autó sebességadatainak olvasása."</string>
+    <string name="car_permission_label_vehicle_dynamics_state" msgid="2446589481717587166">"olvashatja az autó dinamikai állapotát"</string>
+    <string name="car_permission_desc_vehicle_dynamics_state" msgid="4059749588215960011">"Az autó dinamikai állapotának olvasása."</string>
     <string name="car_permission_label_control_vehicle_dynamics_state" msgid="1912154069363074986">"az autó dinamikus állapotának vezérlése"</string>
     <string name="car_permission_desc_control_vehicle_dynamics_state" msgid="5603436779163086928">"Vezérelheti az autó dinamikai állapotát."</string>
-    <string name="car_permission_label_vendor_extension" msgid="7141601811734127361">"hozzáférhet az autó gyártói csatornájához"</string>
-    <string name="car_permission_desc_vendor_extension" msgid="2970718502334714035">"Hozzáférhet az autó gyártói csatornájához az autóval kapcsolatos információcsere céljából."</string>
+    <string name="car_permission_label_vendor_extension" msgid="4469386015153307485">"olvashatja az autó gyártói csatornáját"</string>
+    <string name="car_permission_desc_vendor_extension" msgid="2429289362866854822">"Az autó gyártói csatornájának olvasása az autóval kapcsolatos információcsere céljából."</string>
     <string name="car_permission_label_radio" msgid="6009465291685935112">"kezelheti az autó rádióját"</string>
     <string name="car_permission_desc_radio" msgid="3385999027478186964">"Hozzáférhet az autó rádiójához."</string>
     <string name="car_permission_label_projection" msgid="9107156380287576787">"kivetítheti a telefon kezelőfelületét az autó képernyőjére"</string>
@@ -116,16 +116,16 @@
     <string name="car_permission_desc_use_evs_camera" msgid="1625845902221003985">"Feliratkozás EVS-kamerastreamekre"</string>
     <string name="car_permission_label_monitor_evs_status" msgid="2091521314159379622">"Az EVS szolgáltatás állapotának figyelése"</string>
     <string name="car_permission_desc_monitor_evs_status" msgid="2764278897143573535">"Az EVS szolgáltatás állapotváltozásainak figyelése"</string>
-    <string name="car_permission_label_car_engine_detailed" msgid="8911992719173587337">"hozzáférhet az autó motorjával kapcsolatos részletes adatokhoz"</string>
-    <string name="car_permission_desc_car_engine_detailed" msgid="1746863362811347700">"Hozzáférhet az autó motorjának részletes adataihoz."</string>
+    <string name="car_permission_label_car_engine_detailed" msgid="1418113527626468413">"olvashatja az autó motorjával kapcsolatos részletes adatokat"</string>
+    <string name="car_permission_desc_car_engine_detailed" msgid="1839656966547909025">"Az autó motorjára vonatkozó részletes adatok olvasása."</string>
     <string name="car_permission_label_car_engine_detailed_3p" msgid="2695036212735960169">"olvashatja az autó motorjával kapcsolatos részletes adatokat"</string>
     <string name="car_permission_desc_car_engine_detailed_3p" msgid="7536940094077391015">"Az autó motorjára vonatkozó részletes adatok olvasása."</string>
-    <string name="car_permission_label_car_energy_ports" msgid="8548990315169219454">"hozzáférhet az autó tanksapkájához és töltőnyílásához"</string>
-    <string name="car_permission_desc_car_energy_ports" msgid="7771185999828794949">"Hozzáférhet az autó tanksapkájához és töltőnyílásához."</string>
+    <string name="car_permission_label_car_energy_ports" msgid="1466057895734201917">"olvashatja az autó tanksapkájára és töltőnyílására vonatkozó adatokat"</string>
+    <string name="car_permission_desc_car_energy_ports" msgid="4751253935543293174">"Az autó tanksapkájára és töltőnyílására vonatkozó adatok olvasása."</string>
     <string name="car_permission_label_control_car_energy_ports" msgid="4375137311026313475">"vezérelheti az autó tanksapkáját és töltőnyílását"</string>
     <string name="car_permission_desc_control_car_energy_ports" msgid="7364633710492525387">"Vezérelheti az autó tanksapkáját és töltőnyílását."</string>
     <string name="car_permission_label_car_identification" msgid="5896712510164020478">"olvashatja a jármű-azonosító számot"</string>
-    <string name="car_permission_desc_car_identification" msgid="4132040867171275059">"Hozzáférhet a jármű-azonosító számhoz."</string>
+    <string name="car_permission_desc_car_identification" msgid="535838946811032155">"A jármű-azonosító szám olvasása."</string>
     <string name="car_permission_label_control_car_doors" msgid="3032058819250195700">"vezérelheti az autó ajtóit"</string>
     <string name="car_permission_desc_control_car_doors" msgid="6287353311980590092">"Vezérelheti az autó ajtóit."</string>
     <string name="car_permission_label_control_car_windows" msgid="2452854429996653029">"vezérelheti az autó ablakait"</string>
@@ -152,36 +152,36 @@
     <string name="car_permission_desc_read_car_airbags" msgid="7961580013929420722">"Olvashatja az autó légzsákjainak állapotát."</string>
     <string name="car_permission_label_control_car_airbags" msgid="6823727183218389617">"az autó légzsákjainak vezérlése"</string>
     <string name="car_permission_desc_control_car_airbags" msgid="6181671903761622348">"Az autó légzsákjainak vezérlése."</string>
-    <string name="car_permission_label_car_info" msgid="4707513570676492315">"hozzáférhet az autó alapvető adataihoz"</string>
-    <string name="car_permission_desc_car_info" msgid="2118081474543537653">"Hozzáférhet az autó alapvető adataihoz."</string>
-    <string name="car_permission_label_privileged_car_info" msgid="1304018073760220785">"hozzáférés az autó korlátozott hozzáférésű információihoz"</string>
-    <string name="car_permission_desc_privileged_car_info" msgid="2245117655328125350">"Hozzáférés az autó korlátozott hozzáférésű információihoz."</string>
-    <string name="car_permission_label_vendor_permission_info" msgid="4471260460536888654">"hozzáférhet az autó gyártóengedélyeivel kapcsolatos adataihoz"</string>
-    <string name="car_permission_desc_vendor_permission_info" msgid="8152113853528488398">"Hozzáférhet az autó gyártóengedélyeivel kapcsolatos adataihoz."</string>
-    <string name="car_permission_label_car_exterior_lights" msgid="541304469604902110">"olvashatja az autó külső világításának állapotáról szóló adatokat"</string>
+    <string name="car_permission_label_car_info" msgid="1063184863204793829">"olvashatja az autó alapvető adatait"</string>
+    <string name="car_permission_desc_car_info" msgid="5780681956513865291">"Az autó alapvető adatainak olvasása."</string>
+    <string name="car_permission_label_privileged_car_info" msgid="7056641626040863385">"olvashatja az autó korlátozott hozzáférésű információit"</string>
+    <string name="car_permission_desc_privileged_car_info" msgid="8443694410074384466">"Az autó korlátozott hozzáférésű információinak olvasása."</string>
+    <string name="car_permission_label_vendor_permission_info" msgid="3285296684927879613">"olvashatja az autó gyártói engedélyével kapcsolatos adatokat"</string>
+    <string name="car_permission_desc_vendor_permission_info" msgid="9208614308909994486">"Az autó gyártói engedélyével kapcsolatos adatok olvasása."</string>
+    <string name="car_permission_label_car_exterior_lights" msgid="3839661014756123708">"hozzáférhet az autó külső világításának állapotához."</string>
     <string name="car_permission_desc_car_exterior_lights" msgid="4038037584100849318">"Hozzáférhet az autó külső világításának állapotához."</string>
     <string name="car_permission_label_read_car_exterior_lights" msgid="8206567055976888587">"olvashatja az autó külső világításának állapotáról szóló adatokat"</string>
     <string name="car_permission_desc_read_car_exterior_lights" msgid="8611497191707405104">"Az autó külső világításának állapotáról szóló adatok olvasása."</string>
-    <string name="car_permission_label_control_glove_box" msgid="992118647212706782">"hozzáférés az autó kesztyűtartó-állapotához"</string>
-    <string name="car_permission_desc_control_glove_box" msgid="2888062136750123261">"Hozzáférés az autó kesztyűtartójának állapotához."</string>
-    <string name="car_permission_label_car_epoch_time" msgid="6303397910662625112">"hozzáférés az autó alapidőpontjához"</string>
-    <string name="car_permission_desc_car_epoch_time" msgid="398907082895238558">"Hozzáférés az autó alapidőpontjához"</string>
-    <string name="car_permission_label_control_car_exterior_lights" msgid="101357531386232141">"olvashatja az autó külső világítására vonatkozó adatokat"</string>
+    <string name="car_permission_label_control_glove_box" msgid="8893424527567257629">"vezérelheti az autó kesztyűtartójának állapotát"</string>
+    <string name="car_permission_desc_control_glove_box" msgid="202603834328737918">"Az autóban lévő kesztyűtartó állapotának vezérlése."</string>
+    <string name="car_permission_label_car_epoch_time" msgid="8667615176555933314">"olvashatja az autó alapidőpontját"</string>
+    <string name="car_permission_desc_car_epoch_time" msgid="6776188390917658195">"Az autó alapidőpontjának olvasása."</string>
+    <string name="car_permission_label_control_car_exterior_lights" msgid="2702353269564341362">"vezérelheti az autó külső világítását"</string>
     <string name="car_permission_desc_control_car_exterior_lights" msgid="6332252612685264180">"Vezérelheti az autó külső világítását."</string>
-    <string name="car_permission_label_car_interior_lights" msgid="8506302199784427680">"olvashatja az autó belső világítására vonatkozó adatokat"</string>
-    <string name="car_permission_desc_car_interior_lights" msgid="6204775354692372506">"Hozzáférhet az autó belső világításának állapotához."</string>
+    <string name="car_permission_label_car_interior_lights" msgid="2802077280340054799">"olvashatja az autó belső világításának állapotáról szóló adatokat"</string>
+    <string name="car_permission_desc_car_interior_lights" msgid="7229450087107255913">"Az autó belső világításának állapotáról szóló adatok olvasása."</string>
     <string name="car_permission_label_control_car_interior_lights" msgid="6685386372012664281">"vezérelheti az autó belső világítását"</string>
     <string name="car_permission_desc_control_car_interior_lights" msgid="797201814109701538">"Vezérelheti az autó belső világítását."</string>
     <string name="car_permission_label_car_exterior_environment" msgid="3385924985991299436">"olvashatja az autó külső hőmérsékletét"</string>
-    <string name="car_permission_desc_car_exterior_environment" msgid="1716656004731603379">"Hozzáférhet az autó külső hőmérsékletéhez."</string>
-    <string name="car_permission_label_car_tires" msgid="4379255261197836840">"hozzáférhet az autó gumijaival kapcsolatos adatokhoz"</string>
-    <string name="car_permission_desc_car_tires" msgid="8134496466769810134">"Hozzáférhet a gumiabroncsok adataihoz."</string>
+    <string name="car_permission_desc_car_exterior_environment" msgid="7142489828485359480">"Az autó külső hőmérsékletének olvasása."</string>
+    <string name="car_permission_label_car_tires" msgid="4006745707051794987">"olvashatja az autó gumiabroncsaira vonatkozó adatokat"</string>
+    <string name="car_permission_desc_car_tires" msgid="7767600991857109865">"Az autó gumiabroncsadatainak olvasása."</string>
     <string name="car_permission_label_car_tires_3p" msgid="1360632319908226570">"olvashatja az autó gumiabroncsaira vonatkozó adatokat"</string>
     <string name="car_permission_desc_car_tires_3p" msgid="820574543667371274">"Az autó gumiabroncsadatainak olvasása."</string>
     <string name="car_permission_label_car_steering" msgid="7779530447441232479">"olvashatja az autó kormányzási szögére vonatkozó adatokat"</string>
-    <string name="car_permission_desc_car_steering" msgid="1357331844530708138">"Hozzáférhet az autó kormányzási szögére vonatkozó adatokhoz."</string>
+    <string name="car_permission_desc_car_steering" msgid="4986224671150304388">"Az autó kormányzási szögére vonatkozó adatok olvasása."</string>
     <string name="car_permission_label_read_car_steering_3p" msgid="1598866058085489462">"olvashatja az autó kormányzási szögére vonatkozó adatokat"</string>
-    <string name="car_permission_desc_read_car_steering_3p" msgid="576361609663755171">"Hozzáférés az autó kormányzási szögére vonatkozó adatokhoz."</string>
+    <string name="car_permission_desc_read_car_steering_3p" msgid="4205254436283351421">"Az autó kormányzási szögére vonatkozó adatok olvasása."</string>
     <string name="car_permission_label_read_car_display_units" msgid="7617008314862097183">"olvashatja az autó kijelzőegységeit"</string>
     <string name="car_permission_desc_read_car_display_units" msgid="6891898275208542385">"Olvashatja a kijelzőegységeket."</string>
     <string name="car_permission_label_control_car_display_units" msgid="4975303668183173076">"vezérelheti az autó kijelzőegységeit"</string>
@@ -189,9 +189,9 @@
     <string name="car_permission_label_control_car_powertrain" msgid="234831541490237603">"vezérelheti az autó hajtásláncával kapcsolatos adatokat"</string>
     <string name="car_permission_desc_control_car_powertrain" msgid="8205110385130069179">"Vezérelheti az autó hajtásláncával kapcsolatos adatokat."</string>
     <string name="car_permission_label_car_powertrain" msgid="4586122326622134886">"olvashatja az autó hajtásláncával kapcsolatos adatokat"</string>
-    <string name="car_permission_desc_car_powertrain" msgid="1116007372551797796">"Hozzáférhet az autó hajtásláncával kapcsolatos adatokhoz."</string>
+    <string name="car_permission_desc_car_powertrain" msgid="8578992320121984184">"Az autó hajtásláncával kapcsolatos adatok olvasása."</string>
     <string name="car_permission_label_car_power" msgid="8111448088314368268">"olvashatja az autó energiaszintjével kapcsolatos adatokat"</string>
-    <string name="car_permission_desc_car_power" msgid="9202079903668652864">"Hozzáférhet az autó energiaszintjével kapcsolatos adataihoz."</string>
+    <string name="car_permission_desc_car_power" msgid="1937031836449813395">"Az autó energiaszintjével kapcsolatos adatok olvasása."</string>
     <string name="car_permission_label_enroll_trust" msgid="3512907900486690218">"Megbízható eszköz regisztrálása"</string>
     <string name="car_permission_desc_enroll_trust" msgid="4148649994602185130">"Megbízható eszköz regisztrálásának engedélyezése"</string>
     <string name="car_permission_label_car_test_service" msgid="9159328930558208708">"Vezérelheti az autó tesztüzemmódját"</string>

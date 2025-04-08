@@ -17,37 +17,37 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="car_permission_label" msgid="2215078736675564541">"Informace o autě"</string>
-    <string name="car_permission_desc" msgid="3584369074931334964">"přístup k informacím o vašem autě"</string>
+    <string name="car_permission_desc" msgid="4671139601357696916">"čtení informací o autě"</string>
     <string name="car_permission_label_camera" msgid="3725702064841827180">"přístup ke kameře auta"</string>
     <string name="car_permission_desc_camera" msgid="917024932164501426">"Přístup ke kamerám auta."</string>
-    <string name="car_permission_label_energy" msgid="7409144323527821558">"přístup k údajům o energii auta"</string>
-    <string name="car_permission_desc_energy" msgid="3392963810053235407">"Přístup k údajům o energii auta."</string>
+    <string name="car_permission_label_energy" msgid="6529778912442705855">"čtení údajů o energii auta"</string>
+    <string name="car_permission_desc_energy" msgid="7024599188817722607">"Čtení údajů o energii auta."</string>
     <string name="car_permission_label_control_car_energy" msgid="2788215385574313796">"Ovládání nastavení nabíjení auta"</string>
     <string name="car_permission_desc_control_car_energy" msgid="8765015897869031807">"Ovládání nastavení nabíjení auta."</string>
     <string name="car_permission_label_adjust_range_remaining" msgid="839033553999920138">"úprava dojezdu auta – zbytek"</string>
     <string name="car_permission_desc_adjust_range_remaining" msgid="2369321650437370673">"Úprava zbývající hodnoty dojezdu auta."</string>
-    <string name="car_permission_label_hvac" msgid="1499454192558727843">"přístup k topení, větrání a klimatizaci auta"</string>
-    <string name="car_permission_desc_hvac" msgid="3754229695589774195">"Přístup k systému HVAC auta."</string>
-    <string name="car_permission_label_mileage" msgid="4661317074631150551">"přístup k ujetým kilometrům auta"</string>
-    <string name="car_permission_desc_mileage" msgid="7179735693278681090">"Přístup k údajům o spotřebě auta."</string>
-    <string name="car_permission_label_mileage_3p" msgid="7542459195663034759">"přístup k údajům o spotřebě auta"</string>
-    <string name="car_permission_desc_mileage_3p" msgid="9109350882748664570">"Přístup k údajům o spotřebě auta."</string>
+    <string name="car_permission_label_hvac" msgid="6336214266904971950">"ovládání systému HVAC auta"</string>
+    <string name="car_permission_desc_hvac" msgid="7229917418217117426">"Ovládání systému HVAC auta."</string>
+    <string name="car_permission_label_mileage" msgid="9194744289794795513">"čtení informací o počtu najetých kilometrů auta"</string>
+    <string name="car_permission_desc_mileage" msgid="9068667477789716791">"Čtení informací o počtu najetých kilometrů auta."</string>
+    <string name="car_permission_label_mileage_3p" msgid="2852514373971903913">"čtení informací o počtu najetých kilometrů auta"</string>
+    <string name="car_permission_desc_mileage_3p" msgid="1774910630404924463">"Čtení informací o počtu najetých kilometrů auta."</string>
     <string name="car_permission_label_read_car_horn" msgid="5940158571880705176">"čtení údajů o klaksonu auta"</string>
     <string name="car_permission_desc_read_car_horn" msgid="1099929991964988027">"Čtení údajů o klaksonu auta."</string>
     <string name="car_permission_label_control_car_horn" msgid="6724124600587260102">"ovládání klaksonu auta"</string>
     <string name="car_permission_desc_control_car_horn" msgid="6054845567296317971">"Ovládání klaksonu auta."</string>
-    <string name="car_permission_label_read_car_pedals" msgid="9053334935825814308">"přístup k údajům o pedálech auta"</string>
-    <string name="car_permission_desc_read_car_pedals" msgid="3148710874350250453">"Přístup k údajům o pedálech auta."</string>
-    <string name="car_permission_label_read_brake_info" msgid="6649283162262754200">"přístup k údajům o brzdách auta"</string>
-    <string name="car_permission_desc_read_brake_info" msgid="4641852049166846105">"Přístup k údajům o brzdách auta."</string>
+    <string name="car_permission_label_read_car_pedals" msgid="3043797722208092602">"čtení údajů o pedálech auta"</string>
+    <string name="car_permission_desc_read_car_pedals" msgid="8245311380277704380">"Čtení údajů o pedálech auta."</string>
+    <string name="car_permission_label_read_brake_info" msgid="919608163703877876">"čtení údajů o brzdách auta"</string>
+    <string name="car_permission_desc_read_brake_info" msgid="1422619922008154555">"Čtení údajů o brzdách auta."</string>
     <string name="car_permission_label_speed" msgid="1149027717860529745">"čtení rychlosti auta"</string>
-    <string name="car_permission_desc_speed" msgid="2047965198165448241">"Přístup k rychlosti auta."</string>
-    <string name="car_permission_label_vehicle_dynamics_state" msgid="313779267420048367">"přístup k dynamickému stavu auta"</string>
-    <string name="car_permission_desc_vehicle_dynamics_state" msgid="8891506193446375660">"Přístup k dynamickému stavu auta."</string>
+    <string name="car_permission_desc_speed" msgid="5858258466024406366">"Čtení rychlosti auta."</string>
+    <string name="car_permission_label_vehicle_dynamics_state" msgid="2446589481717587166">"čtení stavu dynamiky auta"</string>
+    <string name="car_permission_desc_vehicle_dynamics_state" msgid="4059749588215960011">"Čtení stavu dynamiky auta."</string>
     <string name="car_permission_label_control_vehicle_dynamics_state" msgid="1912154069363074986">"ovládání stavu dynamiky auta"</string>
     <string name="car_permission_desc_control_vehicle_dynamics_state" msgid="5603436779163086928">"Ovládání stavu dynamiky auta."</string>
-    <string name="car_permission_label_vendor_extension" msgid="7141601811734127361">"přístup ke kanálu dodavatele auta"</string>
-    <string name="car_permission_desc_vendor_extension" msgid="2970718502334714035">"Přístup do kanálu dodavatele auta za účelem výměny informací o autě."</string>
+    <string name="car_permission_label_vendor_extension" msgid="4469386015153307485">"čtení kanálu dodavatele auta"</string>
+    <string name="car_permission_desc_vendor_extension" msgid="2429289362866854822">"Čtení kanálu dodavatele auta za účelem výměny informací o autě."</string>
     <string name="car_permission_label_radio" msgid="6009465291685935112">"správa autorádia"</string>
     <string name="car_permission_desc_radio" msgid="3385999027478186964">"Přístup k autorádiu."</string>
     <string name="car_permission_label_projection" msgid="9107156380287576787">"promítání rozhraní z telefonu na displej auta"</string>
@@ -116,16 +116,16 @@
     <string name="car_permission_desc_use_evs_camera" msgid="1625845902221003985">"Odběr streamů z kamery EVS"</string>
     <string name="car_permission_label_monitor_evs_status" msgid="2091521314159379622">"Sledování stavu služby EVS"</string>
     <string name="car_permission_desc_monitor_evs_status" msgid="2764278897143573535">"Poslech změn stavu služby EVS"</string>
-    <string name="car_permission_label_car_engine_detailed" msgid="8911992719173587337">"přístup k podrobným informacím o motoru auta"</string>
-    <string name="car_permission_desc_car_engine_detailed" msgid="1746863362811347700">"Přístup k podrobným údajům o motoru auta."</string>
+    <string name="car_permission_label_car_engine_detailed" msgid="1418113527626468413">"čtení podrobných údajů o motoru auta"</string>
+    <string name="car_permission_desc_car_engine_detailed" msgid="1839656966547909025">"Čtení podrobných údajů o motoru auta."</string>
     <string name="car_permission_label_car_engine_detailed_3p" msgid="2695036212735960169">"přístup k podrobným údajům o motoru auta"</string>
     <string name="car_permission_desc_car_engine_detailed_3p" msgid="7536940094077391015">"Přístup k podrobným údajům o motoru auta."</string>
-    <string name="car_permission_label_car_energy_ports" msgid="8548990315169219454">"přístup ke vstupu do nádrže a nabíjecímu portu auta"</string>
-    <string name="car_permission_desc_car_energy_ports" msgid="7771185999828794949">"Přístup ke vstupu do nádrže a nabíjecímu portu auta."</string>
+    <string name="car_permission_label_car_energy_ports" msgid="1466057895734201917">"čtení dvířek palivové nádrže a nabíjecího portu auta"</string>
+    <string name="car_permission_desc_car_energy_ports" msgid="4751253935543293174">"Čtení dvířek palivové nádrže a nabíjecího portu auta."</string>
     <string name="car_permission_label_control_car_energy_ports" msgid="4375137311026313475">"přístup ke vstupu do nádrže a nabíjecímu portu auta"</string>
     <string name="car_permission_desc_control_car_energy_ports" msgid="7364633710492525387">"Přístup ke vstupu do nádrže a nabíjecímu portu auta."</string>
     <string name="car_permission_label_car_identification" msgid="5896712510164020478">"čtení identifikace auta"</string>
-    <string name="car_permission_desc_car_identification" msgid="4132040867171275059">"Přístup k identifikaci auta."</string>
+    <string name="car_permission_desc_car_identification" msgid="535838946811032155">"Čtení identifikace auta."</string>
     <string name="car_permission_label_control_car_doors" msgid="3032058819250195700">"ovládání dveří auta"</string>
     <string name="car_permission_desc_control_car_doors" msgid="6287353311980590092">"Ovládání dveří auta."</string>
     <string name="car_permission_label_control_car_windows" msgid="2452854429996653029">"ovládání okének auta"</string>
@@ -152,36 +152,36 @@
     <string name="car_permission_desc_read_car_airbags" msgid="7961580013929420722">"Kontrola airbagů auta."</string>
     <string name="car_permission_label_control_car_airbags" msgid="6823727183218389617">"ovládání airbagů auta"</string>
     <string name="car_permission_desc_control_car_airbags" msgid="6181671903761622348">"Ovládání airbagů auta."</string>
-    <string name="car_permission_label_car_info" msgid="4707513570676492315">"přístup k základním informacím o autu"</string>
-    <string name="car_permission_desc_car_info" msgid="2118081474543537653">"Přístup k základním informacím o autu."</string>
-    <string name="car_permission_label_privileged_car_info" msgid="1304018073760220785">"přístup k informacím o autě s omezenou přístupností"</string>
-    <string name="car_permission_desc_privileged_car_info" msgid="2245117655328125350">"Přístup k informacím o autě s omezenou přístupností."</string>
-    <string name="car_permission_label_vendor_permission_info" msgid="4471260460536888654">"přístup k informacím o oprávněních dodavatele auta"</string>
-    <string name="car_permission_desc_vendor_permission_info" msgid="8152113853528488398">"Přístup k informacím o oprávněních dodavatele auta."</string>
-    <string name="car_permission_label_car_exterior_lights" msgid="541304469604902110">"zjištění stavu vnějších světel auta"</string>
+    <string name="car_permission_label_car_info" msgid="1063184863204793829">"čtení základních informací o autě"</string>
+    <string name="car_permission_desc_car_info" msgid="5780681956513865291">"Čtení základních informací o autě."</string>
+    <string name="car_permission_label_privileged_car_info" msgid="7056641626040863385">"čtení informací o autě s omezenou přístupností"</string>
+    <string name="car_permission_desc_privileged_car_info" msgid="8443694410074384466">"Čtení informací o autě s omezenou přístupností."</string>
+    <string name="car_permission_label_vendor_permission_info" msgid="3285296684927879613">"čtení informací o oprávněních dodavatele auta"</string>
+    <string name="car_permission_desc_vendor_permission_info" msgid="9208614308909994486">"Čtení informací o oprávněních dodavatele auta."</string>
+    <string name="car_permission_label_car_exterior_lights" msgid="3839661014756123708">"přístup ke stavu vnějších světel auta"</string>
     <string name="car_permission_desc_car_exterior_lights" msgid="4038037584100849318">"Přístup ke stavu vnějších světel auta."</string>
     <string name="car_permission_label_read_car_exterior_lights" msgid="8206567055976888587">"přístup ke stavu vnějších světel auta"</string>
     <string name="car_permission_desc_read_car_exterior_lights" msgid="8611497191707405104">"Přístup ke stavu vnějších světel auta"</string>
-    <string name="car_permission_label_control_glove_box" msgid="992118647212706782">"přístup ke stavu přihrádky spolujezdce v autě"</string>
-    <string name="car_permission_desc_control_glove_box" msgid="2888062136750123261">"Přístup ke stavu přihrádky spolujezdce v autě."</string>
-    <string name="car_permission_label_car_epoch_time" msgid="6303397910662625112">"přístup k unixovému času v autě"</string>
-    <string name="car_permission_desc_car_epoch_time" msgid="398907082895238558">"Přístup k unixovému času v autě"</string>
-    <string name="car_permission_label_control_car_exterior_lights" msgid="101357531386232141">"ovládání vnějších světel auta"</string>
+    <string name="car_permission_label_control_glove_box" msgid="8893424527567257629">"ovládání stavu přihrádky spolujezdce v autě"</string>
+    <string name="car_permission_desc_control_glove_box" msgid="202603834328737918">"Ovládání stavu přihrádky spolujezdce v autě."</string>
+    <string name="car_permission_label_car_epoch_time" msgid="8667615176555933314">"čtení unixového času auta"</string>
+    <string name="car_permission_desc_car_epoch_time" msgid="6776188390917658195">"Čtení unixového času auta."</string>
+    <string name="car_permission_label_control_car_exterior_lights" msgid="2702353269564341362">"ovládání vnějších světel auta"</string>
     <string name="car_permission_desc_control_car_exterior_lights" msgid="6332252612685264180">"Ovládání vnějších světel auta."</string>
-    <string name="car_permission_label_car_interior_lights" msgid="8506302199784427680">"ovládání vnitřních světel auta"</string>
-    <string name="car_permission_desc_car_interior_lights" msgid="6204775354692372506">"Přístup ke stavu vnitřních světel v autě."</string>
+    <string name="car_permission_label_car_interior_lights" msgid="2802077280340054799">"čtení stavu vnitřních světel v autě"</string>
+    <string name="car_permission_desc_car_interior_lights" msgid="7229450087107255913">"Čtení stavu vnitřních světel v autě."</string>
     <string name="car_permission_label_control_car_interior_lights" msgid="6685386372012664281">"ovládání vnitřních světel auta"</string>
     <string name="car_permission_desc_control_car_interior_lights" msgid="797201814109701538">"Ovládání vnitřních světel auta."</string>
     <string name="car_permission_label_car_exterior_environment" msgid="3385924985991299436">"čtení vnější teploty auta"</string>
-    <string name="car_permission_desc_car_exterior_environment" msgid="1716656004731603379">"Přístup k vnější teplotě auta."</string>
-    <string name="car_permission_label_car_tires" msgid="4379255261197836840">"přístup k údajům o pneumatikách auta"</string>
-    <string name="car_permission_desc_car_tires" msgid="8134496466769810134">"Přístup k údajům o pneumatikách auta."</string>
+    <string name="car_permission_desc_car_exterior_environment" msgid="7142489828485359480">"Čtení vnější teploty auta."</string>
+    <string name="car_permission_label_car_tires" msgid="4006745707051794987">"čtení informací o pneumatikách auta"</string>
+    <string name="car_permission_desc_car_tires" msgid="7767600991857109865">"Čtení informací o pneumatikách auta."</string>
     <string name="car_permission_label_car_tires_3p" msgid="1360632319908226570">"přístup k informacím o pneumatikách auta"</string>
     <string name="car_permission_desc_car_tires_3p" msgid="820574543667371274">"Přístup k informacím o pneumatikách auta."</string>
     <string name="car_permission_label_car_steering" msgid="7779530447441232479">"čtení údajů o úhlu rejdu auta"</string>
-    <string name="car_permission_desc_car_steering" msgid="1357331844530708138">"Přístup k údajům o úhlu rejdu auta."</string>
+    <string name="car_permission_desc_car_steering" msgid="4986224671150304388">"Čtení údajů o úhlu rejdu auta."</string>
     <string name="car_permission_label_read_car_steering_3p" msgid="1598866058085489462">"přístup k údajům o úhlu rejdu auta"</string>
-    <string name="car_permission_desc_read_car_steering_3p" msgid="576361609663755171">"Přístup k údajům o úhlu rejdu auta."</string>
+    <string name="car_permission_desc_read_car_steering_3p" msgid="4205254436283351421">"Čtení údajů o úhlu rejdu auta."</string>
     <string name="car_permission_label_read_car_display_units" msgid="7617008314862097183">"čtení zobrazovaných jednotek v autě"</string>
     <string name="car_permission_desc_read_car_display_units" msgid="6891898275208542385">"Čtení zobrazovaných jednotek."</string>
     <string name="car_permission_label_control_car_display_units" msgid="4975303668183173076">"ovládání zobrazovaných jednotek v autě"</string>
@@ -189,9 +189,9 @@
     <string name="car_permission_label_control_car_powertrain" msgid="234831541490237603">"správa údajů o pohonném systému auta"</string>
     <string name="car_permission_desc_control_car_powertrain" msgid="8205110385130069179">"Správa údajů o pohonném systému auta."</string>
     <string name="car_permission_label_car_powertrain" msgid="4586122326622134886">"čtení údajů o pohonném systému auta"</string>
-    <string name="car_permission_desc_car_powertrain" msgid="1116007372551797796">"Přístup k údajům o pohonném systému auta."</string>
+    <string name="car_permission_desc_car_powertrain" msgid="8578992320121984184">"Čtení údajů o pohonném systému auta."</string>
     <string name="car_permission_label_car_power" msgid="8111448088314368268">"zjištění stavu nabití auta"</string>
-    <string name="car_permission_desc_car_power" msgid="9202079903668652864">"Přístup ke stavu nabití auta."</string>
+    <string name="car_permission_desc_car_power" msgid="1937031836449813395">"Čtení stavu nabití auta."</string>
     <string name="car_permission_label_enroll_trust" msgid="3512907900486690218">"Zaregistrovat důvěryhodné zařízení"</string>
     <string name="car_permission_desc_enroll_trust" msgid="4148649994602185130">"Povolit registraci důvěryhodného zařízení"</string>
     <string name="car_permission_label_car_test_service" msgid="9159328930558208708">"Ovládání testovacího režimu auta"</string>
