@@ -5,8 +5,7 @@
     <string name="message_not_supported" msgid="133939962837892495">"Ingen apper kan gjøre dette"</string>
     <string name="pip_not_supported" msgid="8681268258599412706">"Bilde-i-bilde støttes ikke på denne enheten"</string>
     <string name="manage_unknown_app_sources_not_supported" msgid="7368611099531260439">"Administrering av ukjente appkilder støttes ikke på denne enheten"</string>
-    <!-- no translation found for file_manager_not_supported (7246020599076461545) -->
-    <skip />
+    <string name="file_manager_not_supported" msgid="7246020599076461545">"Filbehandling støttes ikke på denne enheten"</string>
     <string name="dream_not_supported" msgid="2274365800432553936">"Skjermsparere støttes ikke på denne enheten"</string>
     <string name="stub_name" msgid="3987164490218189006">"Ingen"</string>
 </resources>
