@@ -100,7 +100,7 @@
 
     <style name="TextAppearance.CarUi.PreferenceCategoryTitle"
            parent="TextAppearance.Car.Subhead.Medium">
-        <item name="android:textColor">@color/car_on_surface_variant</item>
+        <item name="android:textColor">?android:colorAccent</item>
     </style>
 
     <style name="TextAppearance.CarUi.PreferenceSummary" parent="TextAppearance.Car.Body.Small">
@@ -123,7 +123,7 @@
 
     <style name="TextAppearance.CarUi.AlertDialog.Title" parent="TextAppearance.Car.Subhead.Large">
         <item name="android:textStyle">normal</item>
-        <item name="android:textColor">@color/car_on_surface</item>
+        <item name="android:textColor">?android:colorForeground</item>
         <item name="android:stateListAnimator">@null</item>
     </style>
 
