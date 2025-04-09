@@ -37,4 +37,7 @@
         <item>map_panel;com.android.car.portraitlauncher/.homeactivities.BackgroundPanelBaseActivity</item>
         <item>contextual_bar_panel;com.android.car.portraitlauncher/.controlbar.ControlBarActivity</item>
     </string-array>
+
+    <!-- Setup and add safe area and toolbar per display on for Display Compat apps . -->
+    <bool name="config_enableSafeAreaAndToolbarPerDisplay">false</bool>
 </resources>
