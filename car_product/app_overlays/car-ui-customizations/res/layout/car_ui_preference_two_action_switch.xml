@@ -104,8 +104,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:clickable="false"
-                android:focusable="false"
-                style="@style/Widget.CarUi.SwitchPreference.Switch"/>
+              android:focusable="false" />
         </com.android.car.ui.uxr.DrawableStateFrameLayout>
 
         <!-- The widget frame is required for androidx preferences, but we won't use it. -->

@@ -14,7 +14,17 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 -->
-<selector xmlns:android="http://schemas.android.com/apk/res/android">
+<selector
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:androidprv="http://schemas.android.com/apk/prv/res/android">
+    <item
+        android:state_checked="true" androidprv:state_ux_restricted="true"
+        android:alpha="?android:attr/disabledAlpha"
+        android:color="?oemColorPrimary" />
+    <item
+        android:state_enabled="false" androidprv:state_ux_restricted="true"
+        android:alpha="?android:attr/disabledAlpha"
+        android:color="?oemColorSecondary" />
     <item
         android:state_checked="true" android:state_enabled="false"
         android:alpha="?android:attr/disabledAlpha"
@@ -22,8 +32,8 @@
     <item
         android:state_enabled="false"
         android:alpha="?android:attr/disabledAlpha"
-        android:color="?oemColorSecondaryContainer" />
+        android:color="?oemColorSecondary" />
     <item
         android:state_checked="true" android:color="?oemColorPrimary" />
-    <item android:color="?oemColorSecondaryContainer" />
+    <item android:color="?oemColorSecondary" />
 </selector>
