@@ -16,12 +16,10 @@
 
 package android.car.wifi;
 
-import android.annotation.FlaggedApi;
 import android.annotation.RequiresPermission;
 import android.annotation.SystemApi;
 import android.car.Car;
 import android.car.CarManagerBase;
-import android.car.feature.Flags;
 import android.os.IBinder;
 import android.os.RemoteException;
 
@@ -33,7 +31,6 @@ import com.android.car.internal.ICarBase;
  * @hide
  */
 @SystemApi
-@FlaggedApi(Flags.FLAG_PERSIST_AP_SETTINGS)
 public final class CarWifiManager extends CarManagerBase {
     private final ICarWifi mService;
 
@@ -53,7 +50,6 @@ public final class CarWifiManager extends CarManagerBase {
      * @hide
      */
     @SystemApi
-    @FlaggedApi(Flags.FLAG_PERSIST_AP_SETTINGS)
     @RequiresPermission(Car.PERMISSION_READ_PERSIST_TETHERING_SETTINGS)
     public boolean canControlPersistTetheringSettings() {
         try {
