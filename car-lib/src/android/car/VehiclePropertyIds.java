@@ -5257,7 +5257,7 @@ public final class VehiclePropertyIds {
      *
      * <p>This property is not supported.
      *
-     * @deprecated use {@link android.car.vms.VmsClientManager} instead.
+     * @deprecated use {@code android.car.vms.VmsClientManager} instead.
      */
     @Deprecated
     @RequiresPermission(anyOf = {Car.PERMISSION_VMS_PUBLISHER, Car.PERMISSION_VMS_SUBSCRIBER})
@@ -5534,7 +5534,7 @@ public final class VehiclePropertyIds {
      *
      * <p>This property is not supported.
      *
-     * @deprecated use {@link android.car.diagnostic.CarDiagnosticManager} instead.
+     * @deprecated use {@code android.car.diagnostic.CarDiagnosticManager} instead.
      */
     @Deprecated
     @RequiresPermission(Car.PERMISSION_CAR_DIAGNOSTIC_READ_ALL)
@@ -5546,7 +5546,7 @@ public final class VehiclePropertyIds {
      *
      * <p>This property is not supported.
      *
-     * @deprecated use {@link android.car.diagnostic.CarDiagnosticManager} instead.
+     * @deprecated use {@code android.car.diagnostic.CarDiagnosticManager} instead.
      */
     @Deprecated
     @RequiresPermission(Car.PERMISSION_CAR_DIAGNOSTIC_READ_ALL)
@@ -5558,7 +5558,7 @@ public final class VehiclePropertyIds {
      *
      * <p>This property is not supported.
      *
-     * @deprecated use {@link android.car.diagnostic.CarDiagnosticManager} instead.
+     * @deprecated use {@code android.car.diagnostic.CarDiagnosticManager} instead.
      */
     @Deprecated
     @RequiresPermission(Car.PERMISSION_CAR_DIAGNOSTIC_READ_ALL)
@@ -5570,7 +5570,7 @@ public final class VehiclePropertyIds {
      *
      * <p>This property is not supported.
      *
-     * @deprecated use {@link android.car.diagnostic.CarDiagnosticManager} instead.
+     * @deprecated use {@code android.car.diagnostic.CarDiagnosticManager} instead.
      */
     @Deprecated
     @RequiresPermission(Car.PERMISSION_CAR_DIAGNOSTIC_CLEAR)
