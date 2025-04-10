@@ -27,7 +27,6 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import android.car.feature.Flags;
 import android.car.hardware.power.CarPowerManager;
 import android.car.hardware.power.ICarPowerStateListener;
 import android.car.settings.CarSettings;
@@ -42,7 +41,6 @@ import android.net.TetheringManager;
 import android.net.wifi.SoftApConfiguration;
 import android.net.wifi.WifiManager;
 import android.net.wifi.WifiManager.SoftApCallback;
-import android.platform.test.flag.junit.SetFlagsRule;
 import android.provider.Settings;
 
 import com.android.car.CarLocalServices;
@@ -53,7 +51,6 @@ import com.android.car.user.CarUserService;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -66,8 +63,6 @@ import java.util.concurrent.Executor;
 public class CarWifiServiceUnitTest extends AbstractExtendedMockitoTestCase {
     private static final SoftApConfiguration AP_CONFIG = new SoftApConfiguration.Builder()
             .build();
-    @Rule
-    public final SetFlagsRule mSetFlagsRule = new SetFlagsRule();
     @Mock
     private Context mContext;
     @Mock
@@ -119,7 +114,6 @@ public class CarWifiServiceUnitTest extends AbstractExtendedMockitoTestCase {
                 true);
         when(mWifiManager.getSoftApConfiguration()).thenReturn(AP_CONFIG);
         mMockSettings.putString(CarSettings.Global.ENABLE_PERSISTENT_TETHERING, "false");
-        mSetFlagsRule.enableFlags(Flags.FLAG_PERSIST_AP_SETTINGS);
 
         mCarWifiService = new CarWifiService(mContext);
     }

@@ -30,7 +30,7 @@ import static com.android.car.CarLog.TAG_WATCHDOG;
 import static com.android.car.CarServiceUtils.assertAnyPermission;
 import static com.android.car.CarServiceUtils.assertPermission;
 import static com.android.car.CarServiceUtils.isEventAnyOfTypes;
-import static com.android.car.CarServiceUtils.runOnMain;
+import static com.android.car.CarServiceUtils.getHandlerThread;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 import static com.android.car.internal.NotificationHelperBase.CAR_WATCHDOG_ACTION_DISMISS_RESOURCE_OVERUSE_NOTIFICATION;
 import static com.android.car.internal.NotificationHelperBase.CAR_WATCHDOG_ACTION_LAUNCH_APP_SETTINGS;
@@ -68,6 +68,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.Handler;
 import android.os.RemoteException;
 import android.os.ServiceSpecificException;
 import android.os.UserHandle;
@@ -132,6 +133,7 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
     private final WatchdogProcessHandler mWatchdogProcessHandler;
     private final WatchdogPerfHandlerInterface mWatchdogPerfHandler;
     private final CarWatchdogDaemonHelper.OnConnectionChangeListener mConnectionListener;
+    private final Handler mHandler;
 
     private CarWatchdogDaemonHelper mCarWatchdogDaemonHelper;
 
@@ -253,23 +255,25 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
 
     public CarWatchdogService(Context context, Context carServiceBuiltinPackageContext) {
         this(context, carServiceBuiltinPackageContext,
-                new WatchdogStorage(context, SYSTEM_INSTANCE), SYSTEM_INSTANCE);
+                new WatchdogStorage(context, SYSTEM_INSTANCE), SYSTEM_INSTANCE, /*handler=*/ null);
     }
 
     @VisibleForTesting
     public CarWatchdogService(Context context, Context carServiceBuiltinPackageContext,
-            WatchdogStorage watchdogStorage, TimeSource timeSource) {
+            WatchdogStorage watchdogStorage, TimeSource timeSource, Handler handler) {
         this(context, carServiceBuiltinPackageContext, watchdogStorage,
-                timeSource, /*watchdogProcessHandler=*/ null, /*watchdogPerfHandler=*/ null);
+                timeSource, handler, /*watchdogProcessHandler=*/ null, /*watchdogPerfHandler=*/
+                null);
     }
 
     @VisibleForTesting
     CarWatchdogService(Context context, Context carServiceBuiltinPackageContext,
-            WatchdogStorage watchdogStorage, TimeSource timeSource,
+            WatchdogStorage watchdogStorage, TimeSource timeSource, Handler handler,
             WatchdogProcessHandler watchdogProcessHandler,
             WatchdogPerfHandlerInterface watchdogPerfHandler) {
         mContext = context;
         mWatchdogStorage = watchdogStorage;
+        mHandler = handler != null ? handler : new Handler(getHandlerThread(TAG).getLooper());
         mPackageInfoHandler = new PackageInfoHandler(mContext.getPackageManager());
         mCarWatchdogDaemonHelper = new CarWatchdogDaemonHelper(TAG_WATCHDOG);
         mWatchdogServiceForSystem = new ICarWatchdogServiceForSystemImpl(this);
@@ -724,7 +728,7 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
     }
 
     private void postRegisterToDaemonMessage() {
-        runOnMain(() -> {
+        mHandler.post(() -> {
             synchronized (mLock) {
                 mReadyToRespond = true;
             }

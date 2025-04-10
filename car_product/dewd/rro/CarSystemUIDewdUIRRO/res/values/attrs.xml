@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright 2018 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<resources>
+    <attr name="icon" format="reference"/>
+    <attr name="mute_icon" format="reference"/>
+    <attr name="selectedIcon" format="reference"/>
+    <attr name="intent" format="string"/>
+    <attr name="longIntent" format="string"/>
+    <attr name="selectedAlpha" format="float" />
+    <attr name="unselectedAlpha" format="float" />
+    <attr name="hvacFanSpeedBarCornerRadius" format="dimension"/>
+
+    <declare-styleable name="AnimatedTemperatureView">
+        <attr name="hvacAreaId" format="integer"/>
+        <attr name="hvacPropertyId" format="integer"/>
+        <attr name="hvacTempFormat" format="string"/>
+        <!-- how far away the animations should center around -->
+        <attr name="hvacPivotOffset" format="dimension"/>
+        <attr name="hvacMinValue" format="float"/>
+        <attr name="hvacMaxValue" format="float"/>
+        <attr name="hvacMinText" format="string|reference"/>
+        <attr name="hvacMaxText" format="string|reference"/>
+    </declare-styleable>
+
+    <!-- Custom attribute for the CarSystemBarElement interface - implementing classes must opt in
+         to consuming these attributes within their constructor and applying appropriately. -->
+    <declare-styleable name="CarSystemBarElement">
+        <!-- Class name of the CarSystemBarElementController that should be attached to this view -->
+        <attr name="controller" format="string"/>
+        <!-- Attribute for specifying the system bar disable flag of a supporting element view.
+             This corresponds to the StatusBarManager.DisableFlags. -->
+        <attr name="systemBarDisableFlags" format="integer">
+            <flag name="none" value="0"/>
+            <flag name="expand" value="1"/>
+            <flag name="notificationIcons" value="2"/>
+            <flag name="notificationAlerts" value="4"/>
+            <flag name="systemInfo" value="8"/>
+            <flag name="home" value="16"/>
+            <flag name="recent" value="32"/>
+            <flag name="back" value="64"/>
+            <flag name="clock" value="128"/>
+            <flag name="search" value="256"/>
+            <flag name="ongoingCallChip" value="512"/>
+        </attr>
+        <!-- Attribute for specifying the system bar disable flag of a supporting element view.
+             This corresponds to the StatusBarManager.Disable2Flags. -->
+        <attr name="systemBarDisable2Flags" format="integer">
+            <flag name="none" value="0"/>
+            <flag name="quickSettings" value="1"/>
+            <flag name="systemIcons" value="2"/>
+            <flag name="notificationShade" value="4"/>
+            <flag name="globalActions" value="8"/>
+            <flag name="rotateSuggestions" value="16"/>
+        </attr>
+        <!-- Attribute for specifying if this element should be disabled when in the
+             LOCK_TASK_MODE_LOCKED state -->
+        <attr name="disableForLockTaskModeLocked" format="boolean"/>
+    </declare-styleable>
+
+    <!-- Allow for custom attribs to be added to a nav button -->
+    <declare-styleable name="CarSystemBarButton">
+        <!-- Intent to start when button is clicked -->
+        <attr name="intent" />
+        <!-- Intent to start when button is clicked in the selected state.
+             If not specified the "intent" attribute will be used. -->
+        <attr name="selectedIntent" format="string"/>
+        <!-- Intent to start when button is clicked in the unselected state.
+             If not specified the "intent" attribute will be used. -->
+        <attr name="unselectedIntent" format="string"/>
+        <!-- intent to start when a long press has happened -->
+        <attr name="longIntent" />
+        <!-- Event to fire when button is clicked -->
+        <attr name="event" format="string" />
+        <!-- Event to fire when button is clicked in the selected state.
+             If not specified the "event" attribute will be used. -->
+        <attr name="selectedEvent" format="string"/>
+        <!-- Event to fire when button is clicked in the unselected state.
+             If not specified the "event" attribute will be used. -->
+        <attr name="unselectedEvent" format="string"/>
+        <!-- start the intent as a broad cast instead of an activity if true-->
+        <attr name="broadcast" format="boolean"/>
+        <!-- Alpha value to used when in selected state.  Defaults 1f  -->
+        <attr name="selectedAlpha" />
+        <!-- Alpha value to used when in un-selected state.  Defaults 0.7f  -->
+        <attr name="unselectedAlpha" />
+        <!-- icon to be rendered when in selected state -->
+        <attr name="selectedIcon" />
+        <!-- icon to be rendered (drawable) -->
+        <attr name="icon"/>
+        <!-- categories that will be added as extras to the fired intents -->
+        <attr name="categories" format="string"/>
+        <!-- package names that will be added as extras to the fired intents -->
+        <attr name="packages" format="string" />
+        <!-- componentName names that will be used for detecting selected state -->
+        <attr name="componentNames" format="string" />
+        <!-- Panel names that will be used for detecting selected state -->
+        <attr name="panelNames" format="string" />
+        <!-- whether to highlight the button when selected. Defaults false -->
+        <attr name="showMoreWhenSelected" format="boolean" />
+        <!-- whether to highlight the button when selected. Defaults false -->
+        <attr name="highlightWhenSelected" format="boolean" />
+        <!-- whether to show the icon of the app currently associated this button's role. Only
+             relevant for buttons associated to specific roles (e.g.: AssistantButton).
+             Defaults false -->
+        <attr name="useDefaultAppIconForRole" format="boolean"/>
+        <!-- whether to clear the back stack when this button is pressed. Only relevant for buttons
+             that have declared an intent that isn't used as a broadcast
+             (i.e. CarSystemBarButton_intent is defined, CarSystemBarButton_broadcast is false).
+             Defaults false. -->
+        <attr name="clearBackStack" format="boolean"/>
+        <!-- whether to toggle selected state when button is clicked. Defaults false -->
+        <attr name="toggleSelected" format="boolean" />
+    </declare-styleable>
+</resources>

@@ -52,6 +52,7 @@ public final class CarFeatureTest extends CarApiTestBase {
             Car.CAR_USER_SERVICE,
             Car.CAR_UX_RESTRICTION_SERVICE,
             Car.CAR_WATCHDOG_SERVICE,
+            Car.CAR_WIFI_SERVICE,
             Car.INFO_SERVICE,
             Car.PACKAGE_SERVICE,
             Car.POWER_SERVICE,
@@ -66,13 +67,9 @@ public final class CarFeatureTest extends CarApiTestBase {
             Car.VENDOR_EXTENSION_SERVICE
     );
 
-    private static final ArraySet<String> FLAGGED_MANDATORY_FEATURES = new ArraySet<>(1);
+    private static final ArraySet<String> FLAGGED_MANDATORY_FEATURES = new ArraySet<>(0);
 
     static {
-        if (Flags.persistApSettings()) {
-            FLAGGED_MANDATORY_FEATURES.add(Car.CAR_WIFI_SERVICE);
-        }
-
         // Note: if a new entry is added here, the capacity of FLAGGED_MANDATORY_FEATURES
         // should also be increased.
     }

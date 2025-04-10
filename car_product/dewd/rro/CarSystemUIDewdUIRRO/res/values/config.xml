@@ -18,6 +18,8 @@
 <resources>
     <bool name="config_enableScalableUI" translatable="false">true</bool>
     <bool name="config_enableClearBackStack" translatable="false">false</bool>
+    <integer name="config_systemBarPersistency">0</integer>
+    <integer name="config_systemBarSuwBehavior">1</integer>
     <string name="system_bar_app_drawer_intent" translatable="false">intent:#Intent;action=com.android.car.carlauncher.ACTION_APP_GRID;package=com.android.car.portraitlauncher;launchFlags=0x24000000;end</string>
 
     <array name="window_states">
@@ -37,4 +39,7 @@
         <item>map_panel;com.android.car.portraitlauncher/.homeactivities.BackgroundPanelBaseActivity</item>
         <item>contextual_bar_panel;com.android.car.portraitlauncher/.controlbar.ControlBarActivity</item>
     </string-array>
+
+    <!-- Setup and add safe area and toolbar per display on for Display Compat apps . -->
+    <bool name="config_enableSafeAreaAndToolbarPerDisplay">false</bool>
 </resources>

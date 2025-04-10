@@ -17,9 +17,8 @@
 package android.car;
 
 import static android.car.Car.CAR_SERVICE_BINDER_SERVICE_NAME;
-import static android.car.feature.Flags.FLAG_DISPLAY_COMPATIBILITY;
-import static android.car.feature.Flags.FLAG_PERSIST_AP_SETTINGS;
 import static android.car.feature.Flags.FLAG_CREATE_CAR_USE_NOTIFICATIONS;
+import static android.car.feature.Flags.FLAG_DISPLAY_COMPATIBILITY;
 
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
@@ -86,7 +85,7 @@ import java.util.concurrent.CountDownLatch;
  * Unit test for Car API.
  */
 @RunWith(MockitoJUnitRunner.Silent.class)
-@EnableFlags({FLAG_PERSIST_AP_SETTINGS, FLAG_DISPLAY_COMPATIBILITY})
+@EnableFlags({FLAG_DISPLAY_COMPATIBILITY})
 public final class CarUnitTest {
 
     private static final String TAG = CarUnitTest.class.getSimpleName();

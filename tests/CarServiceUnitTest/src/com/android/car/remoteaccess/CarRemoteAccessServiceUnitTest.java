@@ -1141,7 +1141,11 @@ public final class CarRemoteAccessServiceUnitTest extends AbstractExpectableTest
 
         halCallback.onRemoteTaskRequested(clientId, /* data= */ null);
 
-        verify(clientCallback).onRemoteTaskRequested(eq(clientId), any(), eq(null), anyInt());
+        // It is possible that we have not registered the callback after onClientRegistrationUpdated
+        // is called so the remote task will be stored in the pending task queue and will be invoked
+        // asynchronously later.
+        verify(clientCallback, timeout(WAIT_TIMEOUT_MS))
+                .onRemoteTaskRequested(eq(clientId), any(), eq(null), anyInt());
         assertThat(mService.getActiveTaskCount()).isEqualTo(0);
     }
 

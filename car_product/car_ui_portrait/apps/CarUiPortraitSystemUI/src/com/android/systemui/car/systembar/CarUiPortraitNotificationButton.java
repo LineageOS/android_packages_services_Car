@@ -17,7 +17,6 @@
 package com.android.systemui.car.systembar;
 
 import android.content.Context;
-import android.content.Intent;
 import android.util.AttributeSet;
 
 /** The button used to show the notification in the system bar. */
@@ -36,13 +35,13 @@ public class CarUiPortraitNotificationButton extends CarUiPortraitSystemBarButto
     }
 
     @Override
-    protected OnClickListener getButtonClickListener(Intent toSend) {
+    protected OnClickListener getButtonClickListener() {
         return v -> {
             if (mIsSelected) {
                 collapseApplicationPanel();
                 return;
             }
-            super.getButtonClickListener(toSend).onClick(v);
+            super.getButtonClickListener().onClick(v);
         };
     }
 }

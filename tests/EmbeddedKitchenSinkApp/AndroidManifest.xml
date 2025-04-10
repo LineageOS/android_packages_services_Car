@@ -267,6 +267,9 @@
     <uses-permission android:name="android.permission.ACCESS_BROADCAST_RADIO"/>
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM"/>
 
+    <!-- Use for AppWidget test fragment -->
+    <uses-permission android:name="android.permission.BIND_APPWIDGET"/>
+
     <!-- Allow backup is set to false for KitchenSinkApp to avoid infinite loop during backup -->
     <application
         android:label="@string/app_title"
