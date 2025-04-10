@@ -4252,7 +4252,7 @@ public final class VehiclePropertyIds {
      * all areaIds.
      *
      * <p>{@link android.car.hardware.property.MinMaxSupportedValue#getMinValue()} represents the
-     * maximum movement speed of the seat's headrest while moving into a shallow position.
+     * maximum movement speed of the seat's headrest while reclining.
      *
      * <p>{@link android.car.hardware.property.MinMaxSupportedValue#getMaxValue()} represents the
      * maximum movement speed of the seat's headrest while moving into an upright/forward
@@ -4795,9 +4795,9 @@ public final class VehiclePropertyIds {
      *  parameter will work with negative values as follows:
      *    Max = sunroof completely open
      *    0 = sunroof closed.
-     *    Min = sunroof vent completely open
+     *    Min = sunroof vent completely vented
      *
-     *    Note that in this mode, 0 indicates the window is closed.
+     *    Note that in all modes, 0 indicates the window is closed.
      *
      * <p>Property Config:
      * <ul>
