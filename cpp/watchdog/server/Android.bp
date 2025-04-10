@@ -123,6 +123,7 @@ cc_library {
     srcs: [
         "src/IoOveruseConfigs.cpp",
         "src/IoOveruseMonitor.cpp",
+        "src/IoOveruseMonitorWrapper.cpp",
         "src/OveruseConfigurationXmlHelper.cpp",
         "src/PerformanceProfiler.cpp",
         "src/PressureMonitor.cpp",
@@ -188,6 +189,7 @@ cc_test {
     srcs: [
         "tests/IoOveruseConfigsTest.cpp",
         "tests/IoOveruseMonitorTest.cpp",
+        "tests/IoOveruseMonitorWrapperTest.cpp",
         "tests/PerformanceProfilerTest.cpp",
         "tests/PressureMonitorTest.cpp",
         "tests/LooperStub.cpp",

@@ -85,10 +85,10 @@ WatchdogBinderMediator::WatchdogBinderMediator(
         const android::sp<WatchdogProcessServiceInterface>& watchdogProcessService,
         const android::sp<WatchdogPerfServiceInterface>& watchdogPerfService,
         const android::sp<WatchdogServiceHelperInterface>& watchdogServiceHelper,
-        const android::sp<IoOveruseMonitorInterface>& ioOveruseMonitor,
+        const android::sp<IoOveruseMonitorWrapperInterface>& ioOveruseMonitorWrapper,
         const AddServiceFunction& addServiceHandler) :
       mWatchdogProcessService(watchdogProcessService),
-      mIoOveruseMonitor(ioOveruseMonitor),
+      mIoOveruseMonitorWrapper(ioOveruseMonitorWrapper),
       mAddServiceHandler(addServiceHandler) {
     if (mAddServiceHandler == nullptr) {
         mAddServiceHandler = &addToServiceManager;
@@ -98,21 +98,21 @@ WatchdogBinderMediator::WatchdogBinderMediator(
                 SharedRefBase::make<WatchdogInternalHandler>(watchdogServiceHelper,
                                                              mWatchdogProcessService,
                                                              watchdogPerfService,
-                                                             mIoOveruseMonitor);
+                                                             mIoOveruseMonitorWrapper);
     }
 }
 
 Result<void> WatchdogBinderMediator::init() {
-    if (mWatchdogProcessService == nullptr || mIoOveruseMonitor == nullptr ||
+    if (mWatchdogProcessService == nullptr || mIoOveruseMonitorWrapper == nullptr ||
         mWatchdogInternalHandler == nullptr) {
         std::string serviceList;
         if (mWatchdogProcessService == nullptr) {
             StringAppendF(&serviceList, "%s%s", (!serviceList.empty() ? ", " : ""),
                           "Watchdog process service");
         }
-        if (mIoOveruseMonitor == nullptr) {
+        if (mIoOveruseMonitorWrapper == nullptr) {
             StringAppendF(&serviceList, "%s%s", (!serviceList.empty() ? ", " : ""),
-                          "I/O overuse monitor service");
+                          "I/O overuse monitor wrapper service");
         }
         if (mWatchdogInternalHandler == nullptr) {
             StringAppendF(&serviceList, "%s%s", (!serviceList.empty() ? ", " : ""),
@@ -183,7 +183,8 @@ ScopedAStatus WatchdogBinderMediator::addResourceOveruseListener(
      * When more resource types are added, implement a new module to manage listeners for all
      * resources.
      */
-    if (const auto result = mIoOveruseMonitor->addIoOveruseListener(listener); !result.ok()) {
+    if (const auto result = mIoOveruseMonitorWrapper->addIoOveruseListener(listener);
+        !result.ok()) {
         return toScopedAStatus(result.error().code(),
                                StringPrintf("Failed to register resource overuse "
                                             "listener: %s ",
@@ -198,7 +199,8 @@ ScopedAStatus WatchdogBinderMediator::removeResourceOveruseListener(
         return toScopedAStatus(EX_ILLEGAL_ARGUMENT,
                                "Must provide a non-null resource overuse listener");
     }
-    if (const auto result = mIoOveruseMonitor->removeIoOveruseListener(listener); !result.ok()) {
+    if (const auto result = mIoOveruseMonitorWrapper->removeIoOveruseListener(listener);
+        !result.ok()) {
         return toScopedAStatus(result.error().code(),
                                StringPrintf("Failed to unregister resource overuse "
                                             "listener: %s",
@@ -219,7 +221,8 @@ ScopedAStatus WatchdogBinderMediator::getResourceOveruseStats(
         return toScopedAStatus(EX_ILLEGAL_ARGUMENT, "Must provide exactly one I/O resource type");
     }
     IoOveruseStats ioOveruseStats;
-    if (const auto result = mIoOveruseMonitor->getIoOveruseStats(&ioOveruseStats); !result.ok()) {
+    if (const auto result = mIoOveruseMonitorWrapper->getIoOveruseStats(&ioOveruseStats);
+        !result.ok()) {
         return toScopedAStatus(result.error().code(),
                                StringPrintf("Failed to get resource overuse stats: %s",
                                             result.error().message().c_str()));
