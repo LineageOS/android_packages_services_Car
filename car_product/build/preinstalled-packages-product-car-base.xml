@@ -451,7 +451,7 @@
     <!-- CredentialManager only consists of Activity components and requires user interaction -->
     <install-in-user-type package="com.android.credentialmanager">
         <install-in user-type="FULL" />
-			</install-in-user-type>
+    </install-in-user-type>
     <!-- Defines permissions for VirtualMachineManager -->
     <install-in-user-type package="com.android.virtualmachine.res">
         <install-in user-type="FULL" />
@@ -467,126 +467,6 @@
     <!-- Required by RotaryService-->
     <install-in-user-type package="com.android.car.rotary">
         <install-in user-type="FULL" />
-    </install-in-user-type>
-
-    <!-- RRO packages that config the app theme. the user-ype should be the same as target apps. -->
-    <install-in-user-type package="android.googlecarui.theme.orange.rro">
-        <install-in user-type="SYSTEM" />
-        <install-in user-type="FULL" />
-    </install-in-user-type>
-    <install-in-user-type package="android.googlecarui.theme.pink.rro">
-        <install-in user-type="SYSTEM" />
-        <install-in user-type="FULL" />
-    </install-in-user-type>
-    <install-in-user-type package="com.android.car.calendar.googlecarui.theme.orange.rro">
-        <install-in user-type="FULL" />
-    </install-in-user-type>
-    <install-in-user-type package="com.android.car.calendar.googlecarui.theme.pink.rro">
-        <install-in user-type="FULL" />
-    </install-in-user-type>
-    <install-in-user-type package="com.android.car.carlauncher.googlecarui.theme.orange.rro">
-        <install-in user-type="FULL" />
-    </install-in-user-type>
-    <install-in-user-type package="com.android.car.carlauncher.googlecarui.theme.pink.rro">
-        <install-in user-type="FULL" />
-    </install-in-user-type>
-    <install-in-user-type package="com.android.car.developeroptions.googlecarui.theme.orange.rro">
-        <install-in user-type="FULL" />
-    </install-in-user-type>
-    <install-in-user-type package="com.android.car.developeroptions.googlecarui.theme.pink.rro">
-        <install-in user-type="FULL" />
-    </install-in-user-type>
-    <install-in-user-type package="com.android.car.dialer.googlecarui.theme.orange.rro">
-        <install-in user-type="FULL" />
-    </install-in-user-type>
-    <install-in-user-type package="com.android.car.dialer.googlecarui.theme.pink.rro">
-        <install-in user-type="FULL" />
-    </install-in-user-type>
-    <install-in-user-type package="com.android.car.home.googlecarui.theme.pink.rro">
-        <install-in user-type="FULL" />
-    </install-in-user-type>
-    <install-in-user-type package="com.android.car.home.googlecarui.theme.orange.rro">
-        <install-in user-type="FULL" />
-    </install-in-user-type>
-    <install-in-user-type package="com.android.car.linkviewer.googlecarui.theme.orange.rro">
-        <install-in user-type="FULL" />
-    </install-in-user-type>
-    <install-in-user-type package="com.android.car.linkviewer.googlecarui.theme.pink.rro">
-        <install-in user-type="FULL" />
-    </install-in-user-type>
-    <install-in-user-type package="com.android.car.media.googlecarui.theme.orange.rro">
-        <install-in user-type="FULL" />
-    </install-in-user-type>
-    <install-in-user-type package="com.android.car.media.googlecarui.theme.pink.rro">
-        <install-in user-type="FULL" />
-    </install-in-user-type>
-    <install-in-user-type package="com.android.car.messenger.googlecarui.theme.orange.rro">
-        <install-in user-type="FULL" />
-    </install-in-user-type>
-    <install-in-user-type package="com.android.car.messenger.googlecarui.theme.pink.rro">
-        <install-in user-type="FULL" />
-    </install-in-user-type>
-    <install-in-user-type package="com.android.car.notification.googlecarui.theme.orange.rro">
-        <install-in user-type="FULL" />
-    </install-in-user-type>
-    <install-in-user-type package="com.android.car.notification.googlecarui.theme.pink.rro">
-        <install-in user-type="FULL" />
-    </install-in-user-type>
-    <install-in-user-type package="com.android.car.radio.googlecarui.theme.orange.rro">
-        <install-in user-type="FULL" />
-    </install-in-user-type>
-    <install-in-user-type package="com.android.car.radio.googlecarui.theme.pink.rro">
-        <install-in user-type="FULL" />
-    </install-in-user-type>
-    <install-in-user-type package="com.android.car.rotaryplayground.googlecarui.theme.orange.rro">
-        <install-in user-type="FULL" />
-    </install-in-user-type>
-    <install-in-user-type package="com.android.car.rotaryplayground.googlecarui.theme.pink.rro">
-        <install-in user-type="FULL" />
-    </install-in-user-type>
-    <install-in-user-type package="com.android.car.settings.googlecarui.theme.orange.rro">
-        <install-in user-type="FULL" />
-    </install-in-user-type>
-    <install-in-user-type package="com.android.car.settings.googlecarui.theme.pink.rro">
-        <install-in user-type="FULL" />
-    </install-in-user-type>
-    <install-in-user-type package="com.android.car.systemupdater.googlecarui.theme.orange.rro">
-        <install-in user-type="SYSTEM" />
-        <install-in user-type="FULL" />
-    </install-in-user-type>
-    <install-in-user-type package="com.android.car.systemupdater.googlecarui.theme.pink.rro">
-        <install-in user-type="SYSTEM" />
-        <install-in user-type="FULL" />
-    </install-in-user-type>
-    <install-in-user-type package="com.android.car.themeplayground.googlecarui.theme.orange.rro">
-        <install-in user-type="FULL" />
-    </install-in-user-type>
-    <install-in-user-type package="com.android.car.themeplayground.googlecarui.theme.pink.rro">
-        <install-in user-type="FULL" />
-    </install-in-user-type>
-    <install-in-user-type package="com.android.htmlviewer.googlecarui.theme.orange.rro">
-        <install-in user-type="FULL" />
-    </install-in-user-type>
-    <install-in-user-type package="com.android.htmlviewer.googlecarui.theme.pink.rro">
-        <install-in user-type="FULL" />
-    </install-in-user-type>
-    <install-in-user-type package="com.android.managedprovisioning.googlecarui.theme.orange.rro">
-        <install-in user-type="FULL" />
-    </install-in-user-type>
-    <install-in-user-type package="com.android.managedprovisioning.googlecarui.theme.pink.rro">
-        <install-in user-type="FULL" />
-    </install-in-user-type>
-    <install-in-user-type package="com.android.settings.intelligence.googlecarui.theme.orange.rro">
-        <install-in user-type="FULL" />
-    </install-in-user-type>
-    <install-in-user-type package="com.android.settings.intelligence.googlecarui.theme.pink.rro">
-        <install-in user-type="FULL" />
-    </install-in-user-type>
-    <install-in-user-type package="com.android.systemui.googlecarui.theme.orange.rro">
-        <install-in user-type="SYSTEM" />
-    </install-in-user-type>
-    <install-in-user-type package="com.android.systemui.googlecarui.theme.pink.rro">
-        <install-in user-type="SYSTEM" />
     </install-in-user-type>
 
     <!-- RRO packages that config the systemUi features.   -->
