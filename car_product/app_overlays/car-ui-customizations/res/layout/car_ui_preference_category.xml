@@ -37,7 +37,7 @@
         android:layout_marginEnd="16dp"
         android:layout_marginTop="16dp"
         android:scaleType="fitCenter"
-        android:tint="@color/car_ui_preference_icon_color"
+        android:tint="?android:colorForeground"
         tools:ignore="UseAppTint" />
 
     <LinearLayout
