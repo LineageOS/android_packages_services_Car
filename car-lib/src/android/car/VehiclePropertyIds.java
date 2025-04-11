@@ -1971,10 +1971,16 @@ public final class VehiclePropertyIds {
      * #HVAC_TEMPERATURE_VALUE_SUGGESTION} for converting the temperature from Celsius to Fahrenheit
      * and vice versa for this vehicle.
      *
-     * <p>Else if the {@link android.car.hardware.CarPropertyConfig#getConfigArray()} is defined,
-     * then it represents the list of valid temperature values that can be set. It also describes a
-     * lookup table to convert the temperature from Celsius to Fahrenheit and vice versa for this
-     * vehicle.
+     * <p>If {@link android.car.hardware.property.AreaIdConfig#hasSupportedValuesList()} is
+     * {@code true}, {@link android.car.hardware.property.CarPropertyManager#getSupportedValuesList}
+     * specifies the supported temperatures that the user may set in Celsius, e.g.,
+     * [16.0, 16.5, 17, ...]. If {@link #HVAC_TEMPERATURE_VALUE_SUGGESTION}, the supported
+     * temperatures match the result returned by {@link #HVAC_TEMPERATURE_VALUE_SUGGESTION}.
+     *
+     * <p>If the {@link android.car.hardware.CarPropertyConfig#getConfigArray()} is defined,
+     * it describes a lookup table to convert the temperature from Celsius to Fahrenheit and
+     * vice versa for this vehicle. If {@link #HVAC_TEMPERATURE_VALUE_SUGGESTION}, the config array
+     * matches the result returned by {@link #HVAC_TEMPERATURE_VALUE_SUGGESTION}.
      *
      * <p>The {@code configArray} is set as follows:
      * <ul>
@@ -1990,6 +1996,9 @@ public final class VehiclePropertyIds {
      *      <li>{@code configArray[5]} is [the increment in Fahrenheit] * 10.
      * </ul>
      *
+     * <p>The {@link android.car.hardware.property.CarPropertyManager#getSupportedValuesList} must
+     * be consistent with the config array.
+     *
      * <p>For example, if the vehicle supports temperature values as:
      * <pre>
      * [16.0, 16.5, 17.0 ,..., 28.0] in Celsius
@@ -2000,6 +2009,8 @@ public final class VehiclePropertyIds {
      * <pre>
      * {@code configArray = {160, 280, 5, 605, 845, 10}}
      * </pre>
+     *
+     * <p>The supported values list should be: [16, 16.5, 17, 17.5, ..., 27.5, 28]
      *
      * <p>If the {@code configArray} is defined, applications should not use any other method for
      * converting temperature values besides {@link #HVAC_TEMPERATURE_VALUE_SUGGESTION}, such as the
