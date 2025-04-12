@@ -45,33 +45,3 @@ android_library {
     ],
 }
 
-///////////////////////////////////////////// Experimental theme resources libraries /////////////
-android_library {
-    name: "car-resource-theme-pink-common",
-
-    sdk_version: "current",
-
-    manifest: "AndroidManifest.xml",
-
-    resource_dirs: [
-        "res",
-    ],
-    static_libs: [
-        "car-resource-theme-pink-color",
-    ],
-}
-
-android_library {
-    name: "car-resource-theme-orange-common",
-
-    sdk_version: "current",
-
-    manifest: "AndroidManifest.xml",
-
-    resource_dirs: [
-        "res",
-    ],
-    static_libs: [
-        "car-resource-theme-orange-color",
-    ],
-}

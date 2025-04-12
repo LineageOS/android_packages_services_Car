@@ -1252,7 +1252,11 @@ ScopedAStatus CarPowerPolicyServer::notifyCarServiceReadyInternal(
     aidlReturn->registeredCustomComponents = mPolicyManager.getCustomComponents();
     {
         std::lock_guard<std::mutex> lock(mMutex);
-        aidlReturn->currentPowerPolicy = *mCurrentPowerPolicyMeta.powerPolicy;
+        if (isPowerPolicyAppliedLocked()) {
+            aidlReturn->currentPowerPolicy = *mCurrentPowerPolicyMeta.powerPolicy;
+        } else {
+            ALOGW("Current policy is not set, so it's not copied to CPMS");
+        }
     }
     aidlReturn->registeredPolicies = mPolicyManager.getRegisteredPolicies();
     ALOGI("CarService registers ICarPowerManagementDelegateCallback");

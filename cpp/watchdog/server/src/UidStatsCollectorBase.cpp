@@ -16,7 +16,7 @@
 
 #define LOG_TAG "carwatchdogd"
 
-#include "UidStatsCollector.h"
+#include "UidStatsCollectorBase.h"
 
 #include <algorithm>
 #include <unordered_map>

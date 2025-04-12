@@ -1971,10 +1971,16 @@ public final class VehiclePropertyIds {
      * #HVAC_TEMPERATURE_VALUE_SUGGESTION} for converting the temperature from Celsius to Fahrenheit
      * and vice versa for this vehicle.
      *
-     * <p>Else if the {@link android.car.hardware.CarPropertyConfig#getConfigArray()} is defined,
-     * then it represents the list of valid temperature values that can be set. It also describes a
-     * lookup table to convert the temperature from Celsius to Fahrenheit and vice versa for this
-     * vehicle.
+     * <p>If {@link android.car.hardware.property.AreaIdConfig#hasSupportedValuesList()} is
+     * {@code true}, {@link android.car.hardware.property.CarPropertyManager#getSupportedValuesList}
+     * specifies the supported temperatures that the user may set in Celsius, e.g.,
+     * [16.0, 16.5, 17, ...]. If {@link #HVAC_TEMPERATURE_VALUE_SUGGESTION}, the supported
+     * temperatures match the result returned by {@link #HVAC_TEMPERATURE_VALUE_SUGGESTION}.
+     *
+     * <p>If the {@link android.car.hardware.CarPropertyConfig#getConfigArray()} is defined,
+     * it describes a lookup table to convert the temperature from Celsius to Fahrenheit and
+     * vice versa for this vehicle. If {@link #HVAC_TEMPERATURE_VALUE_SUGGESTION}, the config array
+     * matches the result returned by {@link #HVAC_TEMPERATURE_VALUE_SUGGESTION}.
      *
      * <p>The {@code configArray} is set as follows:
      * <ul>
@@ -1990,6 +1996,9 @@ public final class VehiclePropertyIds {
      *      <li>{@code configArray[5]} is [the increment in Fahrenheit] * 10.
      * </ul>
      *
+     * <p>The {@link android.car.hardware.property.CarPropertyManager#getSupportedValuesList} must
+     * be consistent with the config array.
+     *
      * <p>For example, if the vehicle supports temperature values as:
      * <pre>
      * [16.0, 16.5, 17.0 ,..., 28.0] in Celsius
@@ -2000,6 +2009,8 @@ public final class VehiclePropertyIds {
      * <pre>
      * {@code configArray = {160, 280, 5, 605, 845, 10}}
      * </pre>
+     *
+     * <p>The supported values list should be: [16, 16.5, 17, 17.5, ..., 27.5, 28]
      *
      * <p>If the {@code configArray} is defined, applications should not use any other method for
      * converting temperature values besides {@link #HVAC_TEMPERATURE_VALUE_SUGGESTION}, such as the
@@ -4252,7 +4263,7 @@ public final class VehiclePropertyIds {
      * all areaIds.
      *
      * <p>{@link android.car.hardware.property.MinMaxSupportedValue#getMinValue()} represents the
-     * maximum movement speed of the seat's headrest while moving into a shallow position.
+     * maximum movement speed of the seat's headrest while reclining.
      *
      * <p>{@link android.car.hardware.property.MinMaxSupportedValue#getMaxValue()} represents the
      * maximum movement speed of the seat's headrest while moving into an upright/forward
@@ -4795,9 +4806,9 @@ public final class VehiclePropertyIds {
      *  parameter will work with negative values as follows:
      *    Max = sunroof completely open
      *    0 = sunroof closed.
-     *    Min = sunroof vent completely open
+     *    Min = sunroof vent completely vented
      *
-     *    Note that in this mode, 0 indicates the window is closed.
+     *    Note that in all modes, 0 indicates the window is closed.
      *
      * <p>Property Config:
      * <ul>
@@ -5257,7 +5268,7 @@ public final class VehiclePropertyIds {
      *
      * <p>This property is not supported.
      *
-     * @deprecated use {@link android.car.vms.VmsClientManager} instead.
+     * @deprecated use {@code android.car.vms.VmsClientManager} instead.
      */
     @Deprecated
     @RequiresPermission(anyOf = {Car.PERMISSION_VMS_PUBLISHER, Car.PERMISSION_VMS_SUBSCRIBER})
@@ -5534,7 +5545,7 @@ public final class VehiclePropertyIds {
      *
      * <p>This property is not supported.
      *
-     * @deprecated use {@link android.car.diagnostic.CarDiagnosticManager} instead.
+     * @deprecated use {@code android.car.diagnostic.CarDiagnosticManager} instead.
      */
     @Deprecated
     @RequiresPermission(Car.PERMISSION_CAR_DIAGNOSTIC_READ_ALL)
@@ -5546,7 +5557,7 @@ public final class VehiclePropertyIds {
      *
      * <p>This property is not supported.
      *
-     * @deprecated use {@link android.car.diagnostic.CarDiagnosticManager} instead.
+     * @deprecated use {@code android.car.diagnostic.CarDiagnosticManager} instead.
      */
     @Deprecated
     @RequiresPermission(Car.PERMISSION_CAR_DIAGNOSTIC_READ_ALL)
@@ -5558,7 +5569,7 @@ public final class VehiclePropertyIds {
      *
      * <p>This property is not supported.
      *
-     * @deprecated use {@link android.car.diagnostic.CarDiagnosticManager} instead.
+     * @deprecated use {@code android.car.diagnostic.CarDiagnosticManager} instead.
      */
     @Deprecated
     @RequiresPermission(Car.PERMISSION_CAR_DIAGNOSTIC_READ_ALL)
@@ -5570,7 +5581,7 @@ public final class VehiclePropertyIds {
      *
      * <p>This property is not supported.
      *
-     * @deprecated use {@link android.car.diagnostic.CarDiagnosticManager} instead.
+     * @deprecated use {@code android.car.diagnostic.CarDiagnosticManager} instead.
      */
     @Deprecated
     @RequiresPermission(Car.PERMISSION_CAR_DIAGNOSTIC_CLEAR)

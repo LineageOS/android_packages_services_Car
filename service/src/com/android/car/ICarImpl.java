@@ -542,6 +542,8 @@ public class ICarImpl extends ICar.Stub {
         t.traceEnd(); // "ICarImpl.init"
     }
 
+
+    @MainThread
     void release() {
         // release done in opposite order from init
         for (int i = mAllServicesInInitOrder.length - 1; i >= 0; i--) {

@@ -71,6 +71,7 @@ enum SystemState {
     GARAGE_MODE = 1,
 };
 
+// TODO(b/409786932): Remove using statements from header files
 using time_point_millis =
         std::chrono::time_point<std::chrono::system_clock, std::chrono::milliseconds>;
 

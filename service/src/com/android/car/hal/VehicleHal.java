@@ -72,6 +72,8 @@ import com.android.car.hal.fakevhal.SimulationVehicleStub;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.common.DispatchList;
 import com.android.car.internal.property.PropIdAreaId;
+import com.android.car.internal.util.ImmutablePairSparseArray;
+import com.android.car.internal.util.ImmutableSparseArray;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.car.internal.util.Lists;
 import com.android.car.internal.util.PairSparseArray;
@@ -150,15 +152,11 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
     /** Stores handler for each HAL property. Property events are sent to handler. */
     @GuardedBy("mLock")
     private final SparseArray<HalServiceBase> mPropertyHandlers = new SparseArray<>();
-    /** This is for iterating all HalServices with fixed order. */
-    @GuardedBy("mLock")
+    // This is for iterating all HalServices with fixed order. Only initialized during
+    // constructor.
     private final List<HalServiceBase> mAllServices;
     @GuardedBy("mLock")
     private PairSparseArray<RateInfo> mRateInfoByPropIdAreaId = new PairSparseArray<>();
-    @GuardedBy("mLock")
-    private final SparseArray<HalPropConfig> mAllProperties = new SparseArray<>();
-    @GuardedBy("mLock")
-    private final PairSparseArray<Integer> mAccessByPropIdAreaId = new PairSparseArray<Integer>();
     @GuardedBy("mLock")
     private final ArrayMap<HalServiceBase, ArraySet<PropIdAreaId>>
             mSupportedValuesChangePropIdAreaIdsByService = new ArrayMap<>();
@@ -170,6 +168,10 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
     private static final String DATA_DELIMITER = ",";
     private final AtomicReference<RecordingListenerHandler> mListenerHandlerRef =
             new AtomicReference<>();
+    private final AtomicReference<ImmutableSparseArray<HalPropConfig>> mPropertyConfigsByPropIdRef =
+            new AtomicReference<>(new ImmutableSparseArray<>(new SparseArray<>()));
+    private final AtomicReference<ImmutablePairSparseArray<Integer>> mAccessByPropIdAreaIdRef =
+            new AtomicReference<>(new ImmutablePairSparseArray<>(new PairSparseArray<>()));
 
     /** A structure to store update rate in hz and whether to enable VUR. */
     private static final class RateInfo {
@@ -374,11 +376,10 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
 
     @VisibleForTesting
     void fetchAllPropConfigs() {
-        synchronized (mLock) {
-            if (mAllProperties.size() != 0) { // already set
-                Slogf.i(CarLog.TAG_HAL, "fetchAllPropConfigs already fetched");
-                return;
-            }
+        var propertyConfigsByPropId = mPropertyConfigsByPropIdRef.get();
+        if (propertyConfigsByPropId.size() != 0) { // already set
+            Slogf.i(CarLog.TAG_HAL, "fetchAllPropConfigs already fetched");
+            return;
         }
         HalPropConfig[] configs;
         try {
@@ -391,24 +392,29 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
             throw new RuntimeException("Unable to retrieve vehicle property configuration", e);
         }
 
-        synchronized (mLock) {
-            // Create map of all properties
-            for (HalPropConfig p : configs) {
-                if (DBG) {
-                    Slogf.d(CarLog.TAG_HAL, "Add config for prop: 0x%x config: %s", p.getPropId(),
-                            p.toString());
-                }
-                mAllProperties.put(p.getPropId(), p);
-                if (p.getAreaConfigs().length == 0) {
-                    mAccessByPropIdAreaId.put(p.getPropId(), /* areaId */ 0, p.getAccess());
-                } else {
-                    for (HalAreaConfig areaConfig : p.getAreaConfigs()) {
-                        mAccessByPropIdAreaId.put(p.getPropId(), areaConfig.getAreaId(),
-                                areaConfig.getAccess());
-                    }
+        SparseArray<HalPropConfig> allPropertyConfigsByPropId = new SparseArray<>();
+        PairSparseArray<Integer> accessByPropIdAreaId = new PairSparseArray<>();
+        // Create map of all properties
+        for (HalPropConfig p : configs) {
+            if (DBG) {
+                Slogf.d(CarLog.TAG_HAL, "Add config for prop: 0x%x config: %s", p.getPropId(),
+                        p.toString());
+            }
+            allPropertyConfigsByPropId.put(p.getPropId(), p);
+            if (p.getAreaConfigs().length == 0) {
+                accessByPropIdAreaId.put(p.getPropId(), /* areaId */ 0, p.getAccess());
+            } else {
+                for (HalAreaConfig areaConfig : p.getAreaConfigs()) {
+                    accessByPropIdAreaId.put(p.getPropId(), areaConfig.getAreaId(),
+                            areaConfig.getAccess());
                 }
             }
         }
+
+        mPropertyConfigsByPropIdRef.set(new ImmutableSparseArray<HalPropConfig>(
+                allPropertyConfigsByPropId));
+        mAccessByPropIdAreaIdRef.set(new ImmutablePairSparseArray<Integer>(
+                accessByPropIdAreaId));
     }
 
     private void handleOnPropertyEvent(List<HalPropValue> propValues) {
@@ -505,26 +511,27 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
         fetchAllPropConfigs();
 
         // PropertyHalService will take most properties, so make it big enough.
-        ArrayMap<HalServiceBase, ArrayList<HalPropConfig>> configsForAllServices;
+        ArrayMap<HalServiceBase, ArrayList<HalPropConfig>> configsForAllServices =
+                new ArrayMap<>(mAllServices.size());
+        var propertyConfigsByPropId = mPropertyConfigsByPropIdRef.get();
         synchronized (mLock) {
-            configsForAllServices = new ArrayMap<>(mAllServices.size());
             for (int i = 0; i < mAllServices.size(); i++) {
                 ArrayList<HalPropConfig> configsForService = new ArrayList();
                 HalServiceBase service = mAllServices.get(i);
                 configsForAllServices.put(service, configsForService);
                 int[] supportedProps = service.getAllSupportedProperties();
                 if (supportedProps.length == 0) {
-                    for (int j = 0; j < mAllProperties.size(); j++) {
-                        Integer propId = mAllProperties.keyAt(j);
+                    for (int j = 0; j < propertyConfigsByPropId.size(); j++) {
+                        Integer propId = propertyConfigsByPropId.keyAt(j);
                         if (service.isSupportedProperty(propId)) {
-                            HalPropConfig config = mAllProperties.valueAt(j);
+                            HalPropConfig config = propertyConfigsByPropId.valueAt(j);
                             mPropertyHandlers.append(propId, service);
                             configsForService.add(config);
                         }
                     }
                 } else {
                     for (int prop : supportedProps) {
-                        HalPropConfig config = mAllProperties.get(prop);
+                        HalPropConfig config = propertyConfigsByPropId.get(prop);
                         if (config == null) {
                             continue;
                         }
@@ -549,20 +556,20 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
      */
     @Override
     public void release() {
+        // release in reverse order from init
+        for (int i = mAllServices.size() - 1; i >= 0; i--) {
+            mAllServices.get(i).release();
+        }
         ArraySet<Integer> subscribedProperties = new ArraySet<>();
         synchronized (mLock) {
-            // release in reverse order from init
-            for (int i = mAllServices.size() - 1; i >= 0; i--) {
-                mAllServices.get(i).release();
-            }
             for (int i = 0; i < mRateInfoByPropIdAreaId.size(); i++) {
                 int propertyId = mRateInfoByPropIdAreaId.keyPairAt(i)[0];
                 subscribedProperties.add(propertyId);
             }
             mRateInfoByPropIdAreaId.clear();
-            mAllProperties.clear();
-            mAccessByPropIdAreaId.clear();
         }
+        mPropertyConfigsByPropIdRef.set(new ImmutableSparseArray<>(new SparseArray<>()));
+        mAccessByPropIdAreaIdRef.set(new ImmutablePairSparseArray<>(new PairSparseArray<>()));
         for (int i = 0; i < subscribedProperties.size(); i++) {
             try {
                 mSubscriptionClient.unsubscribe(subscribedProperties.valueAt(i));
@@ -756,6 +763,7 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
                     + halSubscribeOptions.size());
         }
         List<SubscribeOptions> subscribeOptionsList = new ArrayList<>();
+        var propertyConfigsByPropId = mPropertyConfigsByPropIdRef.get();
         for (int i = 0; i < halSubscribeOptions.size(); i++) {
             HalSubscribeOptions halSubscribeOption = halSubscribeOptions.get(i);
             int property = halSubscribeOption.getHalPropId();
@@ -765,7 +773,7 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
             float resolution = halSubscribeOption.getResolution();
 
             HalPropConfig config;
-            config = mAllProperties.get(property);
+            config = propertyConfigsByPropId.get(property);
 
             if (config == null) {
                 throw new IllegalArgumentException("subscribe error: "
@@ -809,8 +817,9 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
                 }
                 areaIds = getAllAreaIdsFromPropertyId(config);
             } else {
+                var accessByPropIdAreaId = mAccessByPropIdAreaIdRef.get();
                 for (int j = 0; j < areaIds.length; j++) {
-                    Integer access = mAccessByPropIdAreaId.get(config.getPropId(), areaIds[j]);
+                    Integer access = accessByPropIdAreaId.get(config.getPropId(), areaIds[j]);
                     if (access == null) {
                         throw new IllegalArgumentException(
                                 "Cannot subscribe to " + toPropertyIdString(property)
@@ -928,18 +937,19 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
             Slogf.d(CarLog.TAG_HAL, "unsubscribeProperty, service:" + service
                     + ", " + toPropertyIdString(property));
         }
+        var propertyConfigsByPropId = mPropertyConfigsByPropIdRef.get();
+        HalPropConfig config = propertyConfigsByPropId.get(property);
+        if (config == null) {
+            Slogf.w(CarLog.TAG_HAL, "unsubscribeProperty " + toPropertyIdString(property)
+                    + " does not exist");
+            return;
+        }
+        if (isStaticProperty(config)) {
+            Slogf.w(CarLog.TAG_HAL, "Unsubscribe to a static property: "
+                    + toPropertyIdString(property) + ", do nothing");
+            return;
+        }
         synchronized (mLock) {
-            HalPropConfig config = mAllProperties.get(property);
-            if (config == null) {
-                Slogf.w(CarLog.TAG_HAL, "unsubscribeProperty " + toPropertyIdString(property)
-                        + " does not exist");
-                return;
-            }
-            if (isStaticProperty(config)) {
-                Slogf.w(CarLog.TAG_HAL, "Unsubscribe to a static property: "
-                        + toPropertyIdString(property) + ", do nothing");
-                return;
-            }
             assertServiceOwnerLocked(service, property);
             HalAreaConfig[] halAreaConfigs = config.getAreaConfigs();
             boolean isSubscribed = false;
@@ -994,9 +1004,7 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
      * Indicates if the property passed as parameter is supported.
      */
     public boolean isPropertySupported(int propertyId) {
-        synchronized (mLock) {
-            return mAllProperties.contains(propertyId);
-        }
+        return mPropertyConfigsByPropIdRef.get().contains(propertyId);
     }
 
     /**
@@ -1329,15 +1337,15 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
     @Override
     @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     public void dump(IndentingPrintWriter writer) {
+        writer.println("**dump HAL services**");
+        for (int i = 0; i < mAllServices.size(); i++) {
+            mAllServices.get(i).dump(writer);
+        }
+        // Dump all VHAL property configure.
+        dumpPropertyConfigs(writer, -1);
+        writer.printf("**All Events, now ns:%d**\n",
+                SystemClock.elapsedRealtimeNanos());
         synchronized (mLock) {
-            writer.println("**dump HAL services**");
-            for (int i = 0; i < mAllServices.size(); i++) {
-                mAllServices.get(i).dump(writer);
-            }
-            // Dump all VHAL property configure.
-            dumpPropertyConfigs(writer, -1);
-            writer.printf("**All Events, now ns:%d**\n",
-                    SystemClock.elapsedRealtimeNanos());
             for (int i = 0; i < mEventLog.size(); i++) {
                 VehiclePropertyEventInfo info = mEventLog.valueAt(i);
                 writer.printf("event count:%d, lastEvent: ", info.mEventCount);
@@ -1400,20 +1408,19 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
         RecordingListenerHandler recordingListenerHandler = mListenerHandlerRef.get();
         if (recordingListenerHandler != null) {
             List<CarPropertyEvent> events = new ArrayList<>();
-            synchronized (mLock) {
-                for (int i = 0; i < halPropValues.size(); i++) {
-                    HalPropValue halPropValue = halPropValues.get(i);
-                    HalPropConfig halPropConfig = mAllProperties.get(halPropValue.getPropId());
-                    if (halPropConfig == null) {
-                        Slogf.w(CarLog.TAG_HAL, "No HalPropConfig associated with property %d",
-                                halPropValue.getPropId());
-                        continue;
-                    }
-                    CarPropertyValue<?> carPropertyvalue = halPropValues.get(i).toCarPropertyValue(
-                            halPropValue.getPropId(), halPropConfig, /* isVhalPropId= */ true);
-                    events.add(new CarPropertyEvent(
-                            CarPropertyEvent.PROPERTY_EVENT_PROPERTY_CHANGE, carPropertyvalue));
+            var propertyConfigsByPropId = mPropertyConfigsByPropIdRef.get();
+            for (int i = 0; i < halPropValues.size(); i++) {
+                HalPropValue halPropValue = halPropValues.get(i);
+                HalPropConfig halPropConfig = propertyConfigsByPropId.get(halPropValue.getPropId());
+                if (halPropConfig == null) {
+                    Slogf.w(CarLog.TAG_HAL, "No HalPropConfig associated with property %d",
+                            halPropValue.getPropId());
+                    continue;
                 }
+                CarPropertyValue<?> carPropertyvalue = halPropValues.get(i).toCarPropertyValue(
+                        halPropValue.getPropId(), halPropConfig, /* isVhalPropId= */ true);
+                events.add(new CarPropertyEvent(
+                        CarPropertyEvent.PROPERTY_EVENT_PROPERTY_CHANGE, carPropertyvalue));
             }
             if (events.isEmpty()) {
                 return halPropValues;
@@ -1432,23 +1439,22 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
      * @return A list of CarPropertyConfigs that are being recorded
      */
     public List<HalPropConfig> registerRecordingListener(ICarPropertyEventListener callback) {
-        synchronized (mLock) {
-            if (mListenerHandlerRef.get() != null) {
-                throw new IllegalStateException("Recording already in progress");
-            }
-
-            var listenerHandler = new RecordingListenerHandler(callback);
-            if (!listenerHandler.linkToDeath()) {
-                throw new IllegalStateException("Failed to link to death, the client is probably"
-                        + " already dead.");
-            }
-            mListenerHandlerRef.set(listenerHandler);
-            List<HalPropConfig> allHalPropConfigs = new ArrayList<>();
-            for (int i = 0; i < mAllProperties.size(); i++) {
-                allHalPropConfigs.add(mAllProperties.valueAt(i));
-            }
-            return allHalPropConfigs;
+        if (mListenerHandlerRef.get() != null) {
+            throw new IllegalStateException("Recording already in progress");
         }
+
+        var listenerHandler = new RecordingListenerHandler(callback);
+        if (!listenerHandler.linkToDeath()) {
+            throw new IllegalStateException("Failed to link to death, the client is probably"
+                    + " already dead.");
+        }
+        mListenerHandlerRef.set(listenerHandler);
+        List<HalPropConfig> allHalPropConfigs = new ArrayList<>();
+        var propertyConfigsByPropId = mPropertyConfigsByPropIdRef.get();
+        for (int i = 0; i < propertyConfigsByPropId.size(); i++) {
+            allHalPropConfigs.add(propertyConfigsByPropId.valueAt(i));
+        }
+        return allHalPropConfigs;
     }
 
     /**
@@ -1575,10 +1581,8 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
      * Dumps the list of HALs.
      */
     public void dumpListHals(PrintWriter writer) {
-        synchronized (mLock) {
-            for (int i = 0; i < mAllServices.size(); i++) {
-                writer.println(mAllServices.get(i).getClass().getName());
-            }
+        for (int i = 0; i < mAllServices.size(); i++) {
+            writer.println(mAllServices.get(i).getClass().getName());
         }
     }
 
@@ -1586,21 +1590,19 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
      * Dumps the given HALs.
      */
     public void dumpSpecificHals(PrintWriter writer, String... halNames) {
-        synchronized (mLock) {
-            ArrayMap<String, HalServiceBase> byName = new ArrayMap<>();
-            for (int index = 0; index < mAllServices.size(); index++) {
-                HalServiceBase halService = mAllServices.get(index);
-                byName.put(halService.getClass().getSimpleName(), halService);
+        ArrayMap<String, HalServiceBase> byName = new ArrayMap<>();
+        for (int index = 0; index < mAllServices.size(); index++) {
+            HalServiceBase halService = mAllServices.get(index);
+            byName.put(halService.getClass().getSimpleName(), halService);
+        }
+        for (String halName : halNames) {
+            HalServiceBase service = byName.get(halName);
+            if (service == null) {
+                writer.printf("No HAL named %s. Valid options are: %s\n",
+                        halName, byName.keySet());
+                continue;
             }
-            for (String halName : halNames) {
-                HalServiceBase service = byName.get(halName);
-                if (service == null) {
-                    writer.printf("No HAL named %s. Valid options are: %s\n",
-                            halName, byName.keySet());
-                    continue;
-                }
-                service.dump(writer);
-            }
+            service.dump(writer);
         }
     }
 
@@ -1612,24 +1614,21 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
      *               if it is {@code -1}
      */
     public void dumpPropertyValueByCommand(PrintWriter writer, int propertyId, int areaId) {
+        var propertyConfigsByPropId = mPropertyConfigsByPropIdRef.get();
         if (propertyId == -1) {
             writer.println("**All property values**");
-            synchronized (mLock) {
-                for (int i = 0; i < mAllProperties.size(); i++) {
-                    HalPropConfig config = mAllProperties.valueAt(i);
-                    dumpPropertyValueByConfig(writer, config);
-                }
-            }
-        } else if (areaId == -1) {
-            synchronized (mLock) {
-                HalPropConfig config = mAllProperties.get(propertyId);
-                if (config == null) {
-                    writer.printf("Property: %s not supported by HAL\n",
-                            toPropertyIdString(propertyId));
-                    return;
-                }
+            for (int i = 0; i < propertyConfigsByPropId.size(); i++) {
+                HalPropConfig config = propertyConfigsByPropId.valueAt(i);
                 dumpPropertyValueByConfig(writer, config);
             }
+        } else if (areaId == -1) {
+            HalPropConfig config = propertyConfigsByPropId.get(propertyId);
+            if (config == null) {
+                writer.printf("Property: %s not supported by HAL\n",
+                        toPropertyIdString(propertyId));
+                return;
+            }
+            dumpPropertyValueByConfig(writer, config);
         } else {
             try {
                 HalPropValue value = get(propertyId, areaId);
@@ -1652,9 +1651,7 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
      * Gets the property config for a property, returns {@code null} if not supported.
      */
     public @Nullable HalPropConfig getPropConfig(int propId) {
-        synchronized (mLock) {
-            return mAllProperties.get(propId);
-        }
+        return mPropertyConfigsByPropIdRef.get().get(propId);
     }
 
     /**
@@ -1707,11 +1704,10 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
      */
     public void dumpPropertyConfigs(PrintWriter writer, int propertyId) {
         HalPropConfig[] configs;
-        synchronized (mLock) {
-            configs = new HalPropConfig[mAllProperties.size()];
-            for (int i = 0; i < mAllProperties.size(); i++) {
-                configs[i] = mAllProperties.valueAt(i);
-            }
+        var propertyConfigsByPropId = mPropertyConfigsByPropIdRef.get();
+        configs = new HalPropConfig[propertyConfigsByPropId.size()];
+        for (int i = 0; i < propertyConfigsByPropId.size(); i++) {
+            configs[i] = propertyConfigsByPropId.valueAt(i);
         }
 
         if (propertyId == -1) {
