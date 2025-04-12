@@ -78,10 +78,10 @@
     <string name="car_permission_desc_access_private_display_id" msgid="8535974477610944721">"खाजगी डिस्प्ले आयडीला वाचनाचा अ‍ॅक्सेस देते"</string>
     <string name="car_permission_label_car_handle_usb_aoap_device" msgid="72783989504378036">"USB डिव्हाइसशी AOAP मोडमध्ये कनेक्ट करा"</string>
     <string name="car_permission_desc_car_handle_usb_aoap_device" msgid="273505990971317034">"अ‍ॅपला डिव्हाइसशी AOAP मोडमध्ये कनेक्ट करण्याची अनुमती देते"</string>
-    <string name="car_permission_label_read_car_occupant_awareness_state" msgid="125517953575032758">"ऑक्युपंट अवेअरनेस सिस्टम वाचन अ‍ॅक्सेस"</string>
-    <string name="car_permission_desc_read_car_occupant_awareness_state" msgid="188865882598414986">"ऑक्युपंट अवेअरनेस सिस्टम यासाठी वाचन स्थिती आणि डिटेक्‍शन डेटाला अनुमती देते"</string>
-    <string name="car_permission_label_control_car_occupant_awareness_system" msgid="7163330266691094542">"ऑक्युपंट अवेअरनेस सिस्टम आलेख नियंत्रित करा"</string>
-    <string name="car_permission_desc_control_car_occupant_awareness_system" msgid="7123482622084531911">"ऑक्युपंट अवेअरनेस सिस्टम डिटेक्शन आलेख सुरू करणे आणि थांबवणे नियंत्रित करण्यासाठी अनुमती देते"</string>
+    <string name="car_permission_label_read_car_occupant_awareness_state" msgid="125517953575032758">"ऑक्युपंट अवेअरनेस सिस्टीम वाचन ॲक्सेस"</string>
+    <string name="car_permission_desc_read_car_occupant_awareness_state" msgid="188865882598414986">"ऑक्युपंट अवेअरनेस सिस्टीम यासाठी वाचन स्थिती आणि डिटेक्शन डेटाला अनुमती देते"</string>
+    <string name="car_permission_label_control_car_occupant_awareness_system" msgid="7163330266691094542">"ऑक्युपंट अवेअरनेस सिस्टीम आलेख नियंत्रित करा"</string>
+    <string name="car_permission_desc_control_car_occupant_awareness_system" msgid="7123482622084531911">"ऑक्युपंट अवेअरनेस सिस्टीम डिटेक्शन आलेख सुरू करणे आणि थांबवणे नियंत्रित करण्यासाठी अनुमती देते"</string>
     <string name="car_permission_label_read_driver_monitoring_settings" msgid="5208935577581001710">"कारची ड्रायव्हर मॉनिटर करण्याची सेटिंग्जसंबंधित माहिती वाचा"</string>
     <string name="car_permission_desc_read_driver_monitoring_settings" msgid="3721117607024237175">"कारची ड्रायव्हर मॉनिटर करण्याची सेटिंग्जसंबंधित माहिती वाचा."</string>
     <string name="car_permission_label_control_driver_monitoring_settings" msgid="239453247872865455">"कारची ड्रायव्हर मॉनिटर करण्याची सेटिंग्जसंबंधित माहिती नियंत्रित करा"</string>
