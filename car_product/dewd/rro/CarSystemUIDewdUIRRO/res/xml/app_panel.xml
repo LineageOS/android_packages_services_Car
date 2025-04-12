@@ -13,18 +13,28 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-  <Panel id="app_panel" defaultVariant="@id/closed" role="@string/default_config" displayId="0">
+<Panel id="app_panel" defaultVariant="@id/closed" role="@string/default_config" displayId="0">
     <Variant id="@+id/opened">
         <Layer layer="@integer/app_panel_layer"/>
         <Visibility isVisible="true"/>
         <Alpha alpha="1.0" />
         <Bounds left="0" bottom="@dimen/app_bottom" width="100%" height="@dimen/app_height" />
+        <SafeBounds
+            bottom="@dimen/app_bottom"
+            left="0"
+            top="@dimen/safe_bounds_open_top"
+            width="100%" />
     </Variant>
     <Variant id="@+id/closed">
         <Layer layer="@integer/app_panel_layer"/>
         <Alpha alpha="0.0" />
         <Visibility isVisible="false"/>
         <Bounds left="0" top="@dimen/screen_height" width="100%" height="@dimen/app_height" />
+        <SafeBounds
+            bottom="@dimen/safe_bounds_close_bottom"
+            left="0"
+            top="@dimen/safe_bounds_close_top"
+            width="100%" />
     </Variant>
     <Variant id="@+id/immersive">
         <Layer layer="@integer/app_panel_layer"/>

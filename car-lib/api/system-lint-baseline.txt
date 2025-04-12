@@ -119,16 +119,38 @@ GenericException: android.car.view.MirroredSurfaceView#finalize():
     Methods must not throw generic exceptions (`java.lang.Throwable`)
 
 
+GetterSetterNullability: android.car.cluster.ClusterActivityState#getExtras():
+    Nullability of android.os.Bundle? in getter method android.car.cluster.ClusterActivityState.getExtras() does not match android.os.Bundle in corresponding setter method android.car.cluster.ClusterActivityState.setExtras(android.os.Bundle)
+GetterSetterNullability: android.car.cluster.ClusterActivityState#getUnobscuredBounds():
+    Nullability of android.graphics.Rect? in getter method android.car.cluster.ClusterActivityState.getUnobscuredBounds() does not match android.graphics.Rect in corresponding setter method android.car.cluster.ClusterActivityState.setUnobscuredBounds(android.graphics.Rect)
+
+
+HiddenSuperclass: android.car.Car:
+    Public class android.car.Car stripped of unavailable superclass com.android.car.internal.ICarBase
 HiddenSuperclass: android.car.CarAppFocusManager:
     Public class android.car.CarAppFocusManager stripped of unavailable superclass android.car.CarManagerBase
+HiddenSuperclass: android.car.CarBugreportManager:
+    Public class android.car.CarBugreportManager stripped of unavailable superclass android.car.CarManagerBase
 HiddenSuperclass: android.car.CarInfoManager:
     Public class android.car.CarInfoManager stripped of unavailable superclass android.car.CarManagerBase
 HiddenSuperclass: android.car.CarOccupantZoneManager:
     Public class android.car.CarOccupantZoneManager stripped of unavailable superclass android.car.CarManagerBase
 HiddenSuperclass: android.car.CarProjectionManager:
     Public class android.car.CarProjectionManager stripped of unavailable superclass android.car.CarManagerBase
+HiddenSuperclass: android.car.CarRemoteDeviceManager:
+    Public class android.car.CarRemoteDeviceManager stripped of unavailable superclass android.car.CarManagerBase
+HiddenSuperclass: android.car.admin.CarDevicePolicyManager:
+    Public class android.car.admin.CarDevicePolicyManager stripped of unavailable superclass android.car.CarManagerBase
+HiddenSuperclass: android.car.app.CarActivityManager:
+    Public class android.car.app.CarActivityManager stripped of unavailable superclass android.car.CarManagerBase
+HiddenSuperclass: android.car.app.CarDisplayCompatManager:
+    Public class android.car.app.CarDisplayCompatManager stripped of unavailable superclass android.car.CarManagerBase
+HiddenSuperclass: android.car.app.ControlledRemoteCarTaskView:
+    Public class android.car.app.ControlledRemoteCarTaskView stripped of unavailable superclass android.car.app.RemoteCarTaskView
 HiddenSuperclass: android.car.cluster.CarInstrumentClusterManager:
     Public class android.car.cluster.CarInstrumentClusterManager stripped of unavailable superclass android.car.CarManagerBase
+HiddenSuperclass: android.car.cluster.ClusterHomeManager:
+    Public class android.car.cluster.ClusterHomeManager stripped of unavailable superclass android.car.CarManagerBase
 HiddenSuperclass: android.car.content.pm.CarPackageManager:
     Public class android.car.content.pm.CarPackageManager stripped of unavailable superclass android.car.CarManagerBase
 HiddenSuperclass: android.car.diagnostic.CarDiagnosticManager:
@@ -137,6 +159,8 @@ HiddenSuperclass: android.car.drivingstate.CarDrivingStateManager:
     Public class android.car.drivingstate.CarDrivingStateManager stripped of unavailable superclass android.car.CarManagerBase
 HiddenSuperclass: android.car.drivingstate.CarUxRestrictionsManager:
     Public class android.car.drivingstate.CarUxRestrictionsManager stripped of unavailable superclass android.car.CarManagerBase
+HiddenSuperclass: android.car.evs.CarEvsManager:
+    Public class android.car.evs.CarEvsManager stripped of unavailable superclass android.car.CarManagerBase
 HiddenSuperclass: android.car.hardware.CarSensorManager:
     Public class android.car.hardware.CarSensorManager stripped of unavailable superclass android.car.CarManagerBase
 HiddenSuperclass: android.car.hardware.CarVendorExtensionManager:
@@ -149,22 +173,52 @@ HiddenSuperclass: android.car.hardware.power.CarPowerManager:
     Public class android.car.hardware.power.CarPowerManager stripped of unavailable superclass android.car.CarManagerBase
 HiddenSuperclass: android.car.hardware.property.CarPropertyManager:
     Public class android.car.hardware.property.CarPropertyManager stripped of unavailable superclass android.car.CarManagerBase
+HiddenSuperclass: android.car.hardware.property.CarPropertySimulationManager:
+    Public class android.car.hardware.property.CarPropertySimulationManager stripped of unavailable superclass android.car.CarManagerBase
+HiddenSuperclass: android.car.input.CarInputManager:
+    Public class android.car.input.CarInputManager stripped of unavailable superclass android.car.CarManagerBase
 HiddenSuperclass: android.car.media.CarAudioManager:
     Public class android.car.media.CarAudioManager stripped of unavailable superclass android.car.CarManagerBase
+HiddenSuperclass: android.car.media.CarMediaManager:
+    Public class android.car.media.CarMediaManager stripped of unavailable superclass android.car.CarManagerBase
 HiddenSuperclass: android.car.navigation.CarNavigationStatusManager:
     Public class android.car.navigation.CarNavigationStatusManager stripped of unavailable superclass android.car.CarManagerBase
+HiddenSuperclass: android.car.occupantconnection.CarOccupantConnectionManager:
+    Public class android.car.occupantconnection.CarOccupantConnectionManager stripped of unavailable superclass android.car.CarManagerBase
+HiddenSuperclass: android.car.occupantconnection.Payload:
+    Public class android.car.occupantconnection.Payload stripped of unavailable superclass com.android.car.internal.LargeParcelableBase
+HiddenSuperclass: android.car.os.CarPerformanceManager:
+    Public class android.car.os.CarPerformanceManager stripped of unavailable superclass android.car.CarManagerBase
+HiddenSuperclass: android.car.remoteaccess.CarRemoteAccessManager:
+    Public class android.car.remoteaccess.CarRemoteAccessManager stripped of unavailable superclass android.car.CarManagerBase
 HiddenSuperclass: android.car.settings.CarConfigurationManager:
     Public class android.car.settings.CarConfigurationManager stripped of unavailable superclass android.car.CarManagerBase
 HiddenSuperclass: android.car.storagemonitoring.CarStorageMonitoringManager:
     Public class android.car.storagemonitoring.CarStorageMonitoringManager stripped of unavailable superclass android.car.CarManagerBase
+HiddenSuperclass: android.car.telemetry.CarTelemetryManager:
+    Public class android.car.telemetry.CarTelemetryManager stripped of unavailable superclass android.car.CarManagerBase
 HiddenSuperclass: android.car.trust.CarTrustAgentEnrollmentManager:
     Public class android.car.trust.CarTrustAgentEnrollmentManager stripped of unavailable superclass android.car.CarManagerBase
 HiddenSuperclass: android.car.user.CarUserManager:
     Public class android.car.user.CarUserManager stripped of unavailable superclass android.car.CarManagerBase
+HiddenSuperclass: android.car.user.UserCreationResult:
+    Public class android.car.user.UserCreationResult stripped of unavailable superclass android.car.user.OperationResult
+HiddenSuperclass: android.car.user.UserRemovalResult:
+    Public class android.car.user.UserRemovalResult stripped of unavailable superclass android.car.user.OperationResult
+HiddenSuperclass: android.car.user.UserStartResponse:
+    Public class android.car.user.UserStartResponse stripped of unavailable superclass android.car.user.OperationResult
+HiddenSuperclass: android.car.user.UserStopResponse:
+    Public class android.car.user.UserStopResponse stripped of unavailable superclass android.car.user.OperationResult
+HiddenSuperclass: android.car.user.UserSwitchResult:
+    Public class android.car.user.UserSwitchResult stripped of unavailable superclass android.car.user.OperationResult
 HiddenSuperclass: android.car.vms.VmsClientManager:
     Public class android.car.vms.VmsClientManager stripped of unavailable superclass android.car.CarManagerBase
 HiddenSuperclass: android.car.vms.VmsSubscriberManager:
     Public class android.car.vms.VmsSubscriberManager stripped of unavailable superclass android.car.CarManagerBase
+HiddenSuperclass: android.car.watchdog.CarWatchdogManager:
+    Public class android.car.watchdog.CarWatchdogManager stripped of unavailable superclass android.car.CarManagerBase
+HiddenSuperclass: android.car.wifi.CarWifiManager:
+    Public class android.car.wifi.CarWifiManager stripped of unavailable superclass android.car.CarManagerBase
 
 
 IntentBuilderName: android.car.app.ControlledRemoteCarTaskViewConfig#getActivityIntent():
@@ -207,6 +261,10 @@ MinMaxConstant: android.car.diagnostic.IntegerSensorIndex#MAX_OXYGEN_SENSOR_VOLT
     If min/max could change in future, make them dynamic methods: android.car.diagnostic.IntegerSensorIndex#MAX_OXYGEN_SENSOR_VOLTAGE
 MinMaxConstant: android.car.occupantconnection.Payload#MAX_DIRECT_PAYLOAD_SIZE:
     If min/max could change in future, make them dynamic methods: android.car.occupantconnection.Payload#MAX_DIRECT_PAYLOAD_SIZE
+
+
+MissingBuildMethod: android.car.app.CarDisplayCompatContainer.Builder:
+    android.car.app.CarDisplayCompatContainer.Builder does not declare a `build()` method, but builder classes are expected to
 
 
 MissingGetterMatchingBuilder: android.car.app.ControlledRemoteCarTaskViewConfig.Builder#setShouldAutoRestartOnTaskRemoval(boolean):
@@ -871,26 +929,8 @@ PublicTypedef: android.car.diagnostic.CarDiagnosticManager.FrameType:
     Don't expose @IntDef: FrameType must be hidden.
 
 
-RegistrationName: android.car.CarProjectionManager#registerProjectionListener(android.car.CarProjectionManager.CarProjectionListener, int):
-    Listener methods should be named add/remove; was registerProjectionListener
-RegistrationName: android.car.CarProjectionManager#registerProjectionStatusListener(android.car.CarProjectionManager.ProjectionStatusListener):
-    Listener methods should be named add/remove; was registerProjectionStatusListener
-RegistrationName: android.car.CarProjectionManager#unregisterProjectionListener():
-    Listener methods should be named add/remove; was unregisterProjectionListener
-RegistrationName: android.car.CarProjectionManager#unregisterProjectionStatusListener(android.car.CarProjectionManager.ProjectionStatusListener):
-    Listener methods should be named add/remove; was unregisterProjectionStatusListener
-RegistrationName: android.car.diagnostic.CarDiagnosticManager#registerListener(android.car.diagnostic.CarDiagnosticManager.OnDiagnosticEventListener, int, int):
-    Listener methods should be named add/remove; was registerListener
-RegistrationName: android.car.diagnostic.CarDiagnosticManager#unregisterListener(android.car.diagnostic.CarDiagnosticManager.OnDiagnosticEventListener):
-    Listener methods should be named add/remove; was unregisterListener
-RegistrationName: android.car.drivingstate.CarDrivingStateManager#registerListener(android.car.drivingstate.CarDrivingStateManager.CarDrivingStateEventListener):
-    Listener methods should be named add/remove; was registerListener
-RegistrationName: android.car.drivingstate.CarDrivingStateManager#unregisterListener():
-    Listener methods should be named add/remove; was unregisterListener
-RegistrationName: android.car.storagemonitoring.CarStorageMonitoringManager#registerListener(android.car.storagemonitoring.CarStorageMonitoringManager.IoStatsListener):
-    Listener methods should be named add/remove; was registerListener
-RegistrationName: android.car.storagemonitoring.CarStorageMonitoringManager#unregisterListener(android.car.storagemonitoring.CarStorageMonitoringManager.IoStatsListener):
-    Listener methods should be named add/remove; was unregisterListener
+RequiresPermission: android.car.view.WindowManagerHelper#setInputFeatureSpy(android.view.WindowManager.LayoutParams):
+    Method 'setInputFeatureSpy' documentation mentions permissions without declaring @RequiresPermission
 
 
 RethrowRemoteException: android.car.occupantconnection.AbstractReceiverService#forwardPayload(android.car.CarOccupantZoneManager.OccupantZoneInfo, String, android.car.occupantconnection.Payload):
@@ -941,6 +981,12 @@ StaticFinalBuilder: android.car.hardware.CarPropertyConfig.Builder:
     Builder must be final: android.car.hardware.CarPropertyConfig.Builder
 
 
+Todo: android.car.evs.CarEvsManager#startVideoStream(int, android.os.IBinder, java.util.concurrent.Executor, android.car.evs.CarEvsManager.CarEvsStreamCallback):
+    Documentation mentions 'TODO'
+Todo: android.car.telemetry.CarTelemetryManager.MetricsReportCallback#onResult(String, android.os.PersistableBundle, byte[], int):
+    Documentation mentions 'TODO'
+
+
 UnflaggedApi: android.car.AoapService:
     New API must be flagged with @FlaggedApi: class android.car.AoapService
 UnflaggedApi: android.car.AoapService#AoapService():
@@ -989,6 +1035,8 @@ UnflaggedApi: android.car.Car#CAR_TELEMETRY_SERVICE:
     New API must be flagged with @FlaggedApi: field android.car.Car.CAR_TELEMETRY_SERVICE
 UnflaggedApi: android.car.Car#CAR_USER_SERVICE:
     New API must be flagged with @FlaggedApi: field android.car.Car.CAR_USER_SERVICE
+UnflaggedApi: android.car.Car#CAR_WIFI_SERVICE:
+    New API must be flagged with @FlaggedApi: field android.car.Car.CAR_WIFI_SERVICE
 UnflaggedApi: android.car.Car#DIAGNOSTIC_SERVICE:
     New API must be flagged with @FlaggedApi: field android.car.Car.DIAGNOSTIC_SERVICE
 UnflaggedApi: android.car.Car#FEATURE_REQUEST_ALREADY_IN_THE_STATE:
@@ -1109,6 +1157,8 @@ UnflaggedApi: android.car.Car#PERMISSION_READ_DRIVER_MONITORING_SETTINGS:
     New API must be flagged with @FlaggedApi: field android.car.Car.PERMISSION_READ_DRIVER_MONITORING_SETTINGS
 UnflaggedApi: android.car.Car#PERMISSION_READ_DRIVER_MONITORING_STATES:
     New API must be flagged with @FlaggedApi: field android.car.Car.PERMISSION_READ_DRIVER_MONITORING_STATES
+UnflaggedApi: android.car.Car#PERMISSION_READ_PERSIST_TETHERING_SETTINGS:
+    New API must be flagged with @FlaggedApi: field android.car.Car.PERMISSION_READ_PERSIST_TETHERING_SETTINGS
 UnflaggedApi: android.car.Car#PERMISSION_READ_WINDSHIELD_WIPERS:
     New API must be flagged with @FlaggedApi: field android.car.Car.PERMISSION_READ_WINDSHIELD_WIPERS
 UnflaggedApi: android.car.Car#PERMISSION_RECEIVE_CAR_AUDIO_DUCKING_EVENTS:
@@ -4051,6 +4101,8 @@ UnflaggedApi: android.car.settings.CarSettings.Global#DISPLAY_INPUT_LOCK:
     New API must be flagged with @FlaggedApi: field android.car.settings.CarSettings.Global.DISPLAY_INPUT_LOCK
 UnflaggedApi: android.car.settings.CarSettings.Global#DISPLAY_POWER_MODE:
     New API must be flagged with @FlaggedApi: field android.car.settings.CarSettings.Global.DISPLAY_POWER_MODE
+UnflaggedApi: android.car.settings.CarSettings.Global#ENABLE_PERSISTENT_TETHERING:
+    New API must be flagged with @FlaggedApi: field android.car.settings.CarSettings.Global.ENABLE_PERSISTENT_TETHERING
 UnflaggedApi: android.car.settings.CarSettings.Global#GLOBAL_VISIBLE_USER_ALLOCATION_PER_ZONE:
     New API must be flagged with @FlaggedApi: field android.car.settings.CarSettings.Global.GLOBAL_VISIBLE_USER_ALLOCATION_PER_ZONE
 UnflaggedApi: android.car.settings.CarSettings.Secure:
@@ -5033,6 +5085,10 @@ UnflaggedApi: android.car.watchdog.ResourceOveruseConfiguration.Builder#setSafeT
     New API must be flagged with @FlaggedApi: method android.car.watchdog.ResourceOveruseConfiguration.Builder.setSafeToKillPackages(java.util.List<java.lang.String>)
 UnflaggedApi: android.car.watchdog.ResourceOveruseConfiguration.Builder#setVendorPackagePrefixes(java.util.List<java.lang.String>):
     New API must be flagged with @FlaggedApi: method android.car.watchdog.ResourceOveruseConfiguration.Builder.setVendorPackagePrefixes(java.util.List<java.lang.String>)
+UnflaggedApi: android.car.wifi.CarWifiManager:
+    New API must be flagged with @FlaggedApi: class android.car.wifi.CarWifiManager
+UnflaggedApi: android.car.wifi.CarWifiManager#canControlPersistTetheringSettings():
+    New API must be flagged with @FlaggedApi: method android.car.wifi.CarWifiManager.canControlPersistTetheringSettings()
 
 
 UseParcelFileDescriptor: android.car.oem.OemCarServiceComponent#dump(java.io.FileDescriptor, java.io.PrintWriter, String[]) parameter #0:

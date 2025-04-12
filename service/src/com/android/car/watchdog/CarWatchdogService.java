@@ -30,7 +30,7 @@ import static com.android.car.CarLog.TAG_WATCHDOG;
 import static com.android.car.CarServiceUtils.assertAnyPermission;
 import static com.android.car.CarServiceUtils.assertPermission;
 import static com.android.car.CarServiceUtils.isEventAnyOfTypes;
-import static com.android.car.CarServiceUtils.runOnMain;
+import static com.android.car.CarServiceUtils.getHandlerThread;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 import static com.android.car.internal.NotificationHelperBase.CAR_WATCHDOG_ACTION_DISMISS_RESOURCE_OVERUSE_NOTIFICATION;
 import static com.android.car.internal.NotificationHelperBase.CAR_WATCHDOG_ACTION_LAUNCH_APP_SETTINGS;
@@ -68,6 +68,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.Handler;
 import android.os.RemoteException;
 import android.os.ServiceSpecificException;
 import android.os.UserHandle;
@@ -132,6 +133,7 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
     private final WatchdogProcessHandler mWatchdogProcessHandler;
     private final WatchdogPerfHandlerInterface mWatchdogPerfHandler;
     private final CarWatchdogDaemonHelper.OnConnectionChangeListener mConnectionListener;
+    private final Handler mServiceHandler;
 
     private CarWatchdogDaemonHelper mCarWatchdogDaemonHelper;
 
@@ -208,15 +210,21 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
             new ICarPowerStateListener.Stub() {
         @Override
         public void onStateChanged(int state, long expirationTimeMs) {
-            CarPowerManagementService powerService =
+            Trace.beginSection("CarWatchdogSvc.onStateChanged(state=" + state
+                + ", expirationTimeMs=" + expirationTimeMs + ")");
+            try {
+                CarPowerManagementService powerService =
                     CarLocalServices.getService(CarPowerManagementService.class);
-            if (powerService == null
-                || state == CarPowerManager.STATE_POST_SHUTDOWN_ENTER
-                || state == CarPowerManager.STATE_POST_SUSPEND_ENTER
-                || state == CarPowerManager.STATE_POST_HIBERNATION_ENTER) {
-                return;
+                if (powerService == null
+                    || state == CarPowerManager.STATE_POST_SHUTDOWN_ENTER
+                    || state == CarPowerManager.STATE_POST_SUSPEND_ENTER
+                    || state == CarPowerManager.STATE_POST_HIBERNATION_ENTER) {
+                    return;
+                }
+                onPowerState(powerService.getPowerState());
+            } finally {
+                Trace.endSection();
             }
-            onPowerState(powerService.getPowerState());
         }
     };
 
@@ -253,23 +261,26 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
 
     public CarWatchdogService(Context context, Context carServiceBuiltinPackageContext) {
         this(context, carServiceBuiltinPackageContext,
-                new WatchdogStorage(context, SYSTEM_INSTANCE), SYSTEM_INSTANCE);
+                new WatchdogStorage(context, SYSTEM_INSTANCE), SYSTEM_INSTANCE, /*handler=*/ null);
     }
 
     @VisibleForTesting
     public CarWatchdogService(Context context, Context carServiceBuiltinPackageContext,
-            WatchdogStorage watchdogStorage, TimeSource timeSource) {
+            WatchdogStorage watchdogStorage, TimeSource timeSource, Handler handler) {
         this(context, carServiceBuiltinPackageContext, watchdogStorage,
-                timeSource, /*watchdogProcessHandler=*/ null, /*watchdogPerfHandler=*/ null);
+                timeSource, handler, /*watchdogProcessHandler=*/ null, /*watchdogPerfHandler=*/
+                null);
     }
 
     @VisibleForTesting
     CarWatchdogService(Context context, Context carServiceBuiltinPackageContext,
-            WatchdogStorage watchdogStorage, TimeSource timeSource,
+            WatchdogStorage watchdogStorage, TimeSource timeSource, Handler handler,
             WatchdogProcessHandler watchdogProcessHandler,
             WatchdogPerfHandlerInterface watchdogPerfHandler) {
         mContext = context;
         mWatchdogStorage = watchdogStorage;
+        mServiceHandler = handler != null ? handler
+                : new Handler(getHandlerThread(TAG).getLooper());
         mPackageInfoHandler = new PackageInfoHandler(mContext.getPackageManager());
         mCarWatchdogDaemonHelper = new CarWatchdogDaemonHelper(TAG_WATCHDOG);
         mWatchdogServiceForSystem = new ICarWatchdogServiceForSystemImpl(this);
@@ -300,7 +311,9 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
 
     @VisibleForTesting
     public void setCarWatchdogDaemonHelper(CarWatchdogDaemonHelper helper) {
+        Trace.beginSection("CarWatchdogSvc.setCarWatchdogDaemonHelper");
         mCarWatchdogDaemonHelper = helper;
+        Trace.endSection();
     }
 
     @Override
@@ -345,6 +358,7 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
     @Override
     @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     public void dump(IndentingPrintWriter writer) {
+        Trace.beginSection("CarWatchdogSvc.dump");
         writer.println("*" + getClass().getSimpleName() + "*");
         writer.increaseIndent();
         synchronized (mLock) {
@@ -354,16 +368,19 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
         mWatchdogProcessHandler.dump(writer);
         mWatchdogPerfHandler.dump(writer);
         writer.decreaseIndent();
+        Trace.endSection();
     }
 
     @Override
     @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     public void dumpProto(ProtoOutputStream proto) {
+        Trace.beginSection("CarWatchdogSvc.dumpProto");
         synchronized (mLock) {
             proto.write(CarWatchdogDumpProto.CURRENT_GARAGE_MODE, mCurrentGarageMode);
         }
         mWatchdogProcessHandler.dumpProto(proto);
         mWatchdogPerfHandler.dumpProto(proto);
+        Trace.endSection();
     }
 
     /**
@@ -372,8 +389,10 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
      */
     @Override
     public void registerClient(ICarWatchdogServiceCallback client, int timeout) {
+        Trace.beginSection("CarWatchdogSvc.registerClient(timeout=" + timeout + ")");
         assertPermission(mContext, Car.PERMISSION_USE_CAR_WATCHDOG);
         mWatchdogProcessHandler.registerClient(client, timeout);
+        Trace.endSection();
     }
 
     /**
@@ -382,8 +401,10 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
      */
     @Override
     public void unregisterClient(ICarWatchdogServiceCallback client) {
+        Trace.beginSection("CarWatchdogSvc.unregisterClient");
         assertPermission(mContext, Car.PERMISSION_USE_CAR_WATCHDOG);
         mWatchdogProcessHandler.unregisterClient(client);
+        Trace.endSection();
     }
 
     /**
@@ -391,8 +412,10 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
      */
     @Override
     public void tellClientAlive(ICarWatchdogServiceCallback client, int sessionId) {
+        Trace.beginSection("CarWatchdogSvc.tellClientAlive(sessionId=" + sessionId + ")");
         assertPermission(mContext, Car.PERMISSION_USE_CAR_WATCHDOG);
         mWatchdogProcessHandler.tellClientAlive(client, sessionId);
+        Trace.endSection();
     }
 
     /** Returns {@link android.car.watchdog.ResourceOveruseStats} for the calling package. */
@@ -401,7 +424,14 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
     public ResourceOveruseStats getResourceOveruseStats(
             @CarWatchdogManager.ResourceOveruseFlag int resourceOveruseFlag,
             @CarWatchdogManager.StatsPeriod int maxStatsPeriod) {
-        return mWatchdogPerfHandler.getResourceOveruseStats(resourceOveruseFlag, maxStatsPeriod);
+        Trace.beginSection("CarWatchdogSvc.getResourceOveruseStats(resourceOveruseFlag="
+                + resourceOveruseFlag + ", maxStatsPeriod=" + maxStatsPeriod + ")");
+        try {
+            return mWatchdogPerfHandler.getResourceOveruseStats(resourceOveruseFlag,
+                maxStatsPeriod);
+        } finally {
+            Trace.endSection();
+        }
     }
 
     /**
@@ -415,9 +445,16 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
             @CarWatchdogManager.ResourceOveruseFlag int resourceOveruseFlag,
             @CarWatchdogManager.MinimumStatsFlag int minimumStatsFlag,
             @CarWatchdogManager.StatsPeriod int maxStatsPeriod) {
-        assertPermission(mContext, Car.PERMISSION_COLLECT_CAR_WATCHDOG_METRICS);
-        return mWatchdogPerfHandler.getAllResourceOveruseStats(resourceOveruseFlag,
-                minimumStatsFlag, maxStatsPeriod);
+        Trace.beginSection("CarWatchdogSvc.getAllResourceOveruseStats(resourceOveruseFlag="
+                + resourceOveruseFlag + ", minimumStatsFlag=" + minimumStatsFlag
+                + ", maxStatsPeriod=" + maxStatsPeriod + ")");
+        try {
+            assertPermission(mContext, Car.PERMISSION_COLLECT_CAR_WATCHDOG_METRICS);
+            return mWatchdogPerfHandler.getAllResourceOveruseStats(resourceOveruseFlag,
+                    minimumStatsFlag, maxStatsPeriod);
+        } finally {
+            Trace.endSection();
+        }
     }
 
     /** Returns {@link android.car.watchdog.ResourceOveruseStats} for the specified user package. */
@@ -427,9 +464,18 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
             @NonNull String packageName, @NonNull UserHandle userHandle,
             @CarWatchdogManager.ResourceOveruseFlag int resourceOveruseFlag,
             @CarWatchdogManager.StatsPeriod int maxStatsPeriod) {
-        assertPermission(mContext, Car.PERMISSION_COLLECT_CAR_WATCHDOG_METRICS);
-        return mWatchdogPerfHandler.getResourceOveruseStatsForUserPackage(packageName, userHandle,
-                resourceOveruseFlag, maxStatsPeriod);
+        Trace.beginSection("CarWatchdogSvc.getResourceOveruseStatsForUserPackage(packageName="
+                + packageName + ", userId=" + userHandle.getIdentifier()
+                + ", resourceOveruseFlag=" + resourceOveruseFlag + ", maxStatsPeriod="
+                + maxStatsPeriod + ")");
+        try {
+            assertPermission(mContext, Car.PERMISSION_COLLECT_CAR_WATCHDOG_METRICS);
+            return mWatchdogPerfHandler.getResourceOveruseStatsForUserPackage(packageName,
+                    userHandle,
+                    resourceOveruseFlag, maxStatsPeriod);
+        } finally {
+            Trace.endSection();
+        }
     }
 
     /**
@@ -440,7 +486,10 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
     public void addResourceOveruseListener(
             @CarWatchdogManager.ResourceOveruseFlag int resourceOveruseFlag,
             @NonNull IResourceOveruseListener listener) {
+        Trace.beginSection("CarWatchdogSvc.addResourceOveruseListener(resourceOveruseFlag="
+                + resourceOveruseFlag + ")");
         mWatchdogPerfHandler.addResourceOveruseListener(resourceOveruseFlag, listener);
+        Trace.endSection();
     }
 
     /**
@@ -449,7 +498,9 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
      */
     @Override
     public void removeResourceOveruseListener(@NonNull IResourceOveruseListener listener) {
+        Trace.beginSection("CarWatchdogSvc.removeResourceOveruseListener");
         mWatchdogPerfHandler.removeResourceOveruseListener(listener);
+        Trace.endSection();
     }
 
     /**
@@ -460,8 +511,11 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
     public void addResourceOveruseListenerForSystem(
             @CarWatchdogManager.ResourceOveruseFlag int resourceOveruseFlag,
             @NonNull IResourceOveruseListener listener) {
+        Trace.beginSection("CarWatchdogSvc.addResourceOveruseListenerForSystem(resourceOveruseFlag="
+                + resourceOveruseFlag + ")");
         assertPermission(mContext, Car.PERMISSION_COLLECT_CAR_WATCHDOG_METRICS);
         mWatchdogPerfHandler.addResourceOveruseListenerForSystem(resourceOveruseFlag, listener);
+        Trace.endSection();
     }
 
     /**
@@ -470,16 +524,21 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
      */
     @Override
     public void removeResourceOveruseListenerForSystem(@NonNull IResourceOveruseListener listener) {
+        Trace.beginSection("CarWatchdogSvc.removeResourceOveruseListenerForSystem");
         assertPermission(mContext, Car.PERMISSION_COLLECT_CAR_WATCHDOG_METRICS);
         mWatchdogPerfHandler.removeResourceOveruseListenerForSystem(listener);
+        Trace.endSection();
     }
 
     /** Sets whether or not a user package is killable on resource overuse. */
     @Override
     public void setKillablePackageAsUser(String packageName, UserHandle userHandle,
             boolean isKillable) {
+        Trace.beginSection("CarWatchdogSvc.setKillablePackageAsUser(packageName=" + packageName
+                + ", userId=" + userHandle.getIdentifier() + ", isKillable=" + isKillable + ")");
         assertPermission(mContext, Car.PERMISSION_CONTROL_CAR_WATCHDOG_CONFIG);
         mWatchdogPerfHandler.setKillablePackageAsUser(packageName, userHandle, isKillable);
+        Trace.endSection();
     }
 
     /**
@@ -489,8 +548,14 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
     @Override
     @NonNull
     public List<PackageKillableState> getPackageKillableStatesAsUser(UserHandle userHandle) {
-        assertPermission(mContext, Car.PERMISSION_CONTROL_CAR_WATCHDOG_CONFIG);
-        return mWatchdogPerfHandler.getPackageKillableStatesAsUser(userHandle);
+        Trace.beginSection("CarWatchdogSvc.getPackageKillableStatesAsUser(userId="
+                + userHandle.getIdentifier() + ")");
+        try {
+            assertPermission(mContext, Car.PERMISSION_CONTROL_CAR_WATCHDOG_CONFIG);
+            return mWatchdogPerfHandler.getPackageKillableStatesAsUser(userHandle);
+        } finally {
+            Trace.endSection();
+        }
     }
 
     /**
@@ -502,9 +567,16 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
             List<ResourceOveruseConfiguration> configurations,
             @CarWatchdogManager.ResourceOveruseFlag int resourceOveruseFlag)
             throws RemoteException {
-        assertPermission(mContext, Car.PERMISSION_CONTROL_CAR_WATCHDOG_CONFIG);
-        return mWatchdogPerfHandler.setResourceOveruseConfigurations(configurations,
+        Trace.beginSection(
+                "CarWatchdogSvc.setResourceOveruseConfigurations(resourceOveruseFlag="
+                    + resourceOveruseFlag + ")");
+        try {
+            assertPermission(mContext, Car.PERMISSION_CONTROL_CAR_WATCHDOG_CONFIG);
+            return mWatchdogPerfHandler.setResourceOveruseConfigurations(configurations,
                 resourceOveruseFlag);
+        } finally {
+            Trace.endSection();
+        }
     }
 
     /** Returns the available {@link android.car.watchdog.ResourceOveruseConfiguration}. */
@@ -512,17 +584,26 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
     @NonNull
     public List<ResourceOveruseConfiguration> getResourceOveruseConfigurations(
             @CarWatchdogManager.ResourceOveruseFlag int resourceOveruseFlag) {
-        assertAnyPermission(mContext, Car.PERMISSION_CONTROL_CAR_WATCHDOG_CONFIG,
+        Trace.beginSection(
+                "CarWatchdogSvc.getResourceOveruseConfigurations(resourceOveruseFlag="
+                    + resourceOveruseFlag + ")");
+        try {
+            assertAnyPermission(mContext, Car.PERMISSION_CONTROL_CAR_WATCHDOG_CONFIG,
                 Car.PERMISSION_COLLECT_CAR_WATCHDOG_METRICS);
-        return mWatchdogPerfHandler.getResourceOveruseConfigurations(resourceOveruseFlag);
+            return mWatchdogPerfHandler.getResourceOveruseConfigurations(resourceOveruseFlag);
+        } finally {
+            Trace.endSection();
+        }
     }
 
     /**
      * Enables/disables the watchdog daemon client health check process.
      */
     public void controlProcessHealthCheck(boolean enable) {
+        Trace.beginSection("CarWatchdogSvc.controlProcessHealthCheck(enable=" + enable + ")");
         assertPermission(mContext, Car.PERMISSION_USE_CAR_WATCHDOG);
         mWatchdogProcessHandler.controlProcessHealthCheck(enable);
+        Trace.endSection();
     }
 
     /**
@@ -533,8 +614,10 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
      * @param powerState Power state to inject.
      */
     public void injectPowerState(int powerState) {
+        Trace.beginSection("CarWatchdogSvc.injectPowerState(powerState=" + powerState + ")");
         assertPermission(mContext, Car.PERMISSION_USE_CAR_WATCHDOG);
         onPowerState(powerState);
+        Trace.endSection();
     }
 
     /**
@@ -582,27 +665,35 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
      * @return whether package was killed
      */
     public boolean performResourceOveruseKill(String packageName, @UserIdInt int userId) {
-        assertPermission(mContext, Car.PERMISSION_USE_CAR_WATCHDOG);
+        Trace.beginSection(
+                "CarWatchdogSvc.performResourceOveruseKill(packageName=" + packageName
+                    + ", userId=" + userId + ")");
+        try {
+            assertPermission(mContext, Car.PERMISSION_USE_CAR_WATCHDOG);
 
-        UserHandle userHandle = UserHandle.of(userId);
-        List<PackageKillableState> packageKillableStates =
+            UserHandle userHandle = UserHandle.of(userId);
+            List<PackageKillableState> packageKillableStates =
                 getPackageKillableStatesAsUser(userHandle);
 
-        for (int i = 0; i < packageKillableStates.size(); i++) {
-            PackageKillableState state = packageKillableStates.get(i);
-            if (packageName.equals(state.getPackageName())) {
-                int killableState = state.getKillableState();
-                if (killableState != PackageKillableState.KILLABLE_STATE_YES) {
-                    String stateName = PackageKillableState.killableStateToString(killableState);
-                    Slogf.d(TAG, "Failed to kill package '%s' for user %d because the "
+            for (int i = 0; i < packageKillableStates.size(); i++) {
+                PackageKillableState state = packageKillableStates.get(i);
+                if (packageName.equals(state.getPackageName())) {
+                    int killableState = state.getKillableState();
+                    if (killableState != PackageKillableState.KILLABLE_STATE_YES) {
+                        String stateName = PackageKillableState.killableStateToString(
+                                killableState);
+                        Slogf.d(TAG, "Failed to kill package '%s' for user %d because the "
                             + "package has state '%s'\n", packageName, userId, stateName);
-                    return false;
+                        return false;
+                    }
+                    break;
                 }
-                break;
             }
-        }
 
-        return mWatchdogPerfHandler.disablePackageForUser(packageName, userId);
+            return mWatchdogPerfHandler.disablePackageForUser(packageName, userId);
+        } finally {
+            Trace.endSection();
+        }
     }
 
     /**
@@ -618,7 +709,10 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
      */
     public void setThreadPriority(int pid, int tid, int uid, int policy, int priority)
             throws RemoteException {
+        Trace.beginSection("CarWatchdogSvc.setThreadPriority(pid=" + pid + ", tid=" + tid + ", uid="
+                + uid + ", policy=" + policy + ", priority=" + priority + ")");
         mCarWatchdogDaemonHelper.setThreadPriority(pid, tid, uid, policy, priority);
+        Trace.endSection();
     }
 
     /**
@@ -632,11 +726,15 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
      * @throws UnsupportedOperationException If the current android release doesn't support the API.
      */
     public int[] getThreadPriority(int pid, int tid, int uid) throws RemoteException {
+        Trace.beginSection("CarWatchdogSvc.getThreadPriority(pid=" + pid + ", tid=" + tid
+                + ", uid=" + uid + ")");
         try {
             return mCarWatchdogDaemonHelper.getThreadPriority(pid, tid, uid);
         } catch (ServiceSpecificException e) {
             // Car watchdog daemon failed to get the priority.
             throw new IllegalStateException(e);
+        } finally {
+            Trace.endSection();
         }
     }
 
@@ -724,7 +822,7 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
     }
 
     private void postRegisterToDaemonMessage() {
-        runOnMain(() -> {
+        mServiceHandler.post(() -> {
             synchronized (mLock) {
                 mReadyToRespond = true;
             }
@@ -888,7 +986,7 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
         filter.addAction(ACTION_SHUTDOWN);
 
         mContext.registerReceiverForAllUsers(mBroadcastReceiver, filter,
-                Car.PERMISSION_CONTROL_CAR_WATCHDOG_CONFIG, /* scheduler= */ null,
+                Car.PERMISSION_CONTROL_CAR_WATCHDOG_CONFIG, /* scheduler= */ mServiceHandler,
                 Context.RECEIVER_NOT_EXPORTED);
 
         // The package data scheme applies only for the ACTION_PACKAGE_CHANGED action. So, add a
@@ -899,7 +997,7 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
         packageChangedFilter.addDataScheme("package");
 
         mContext.registerReceiverForAllUsers(mBroadcastReceiver, packageChangedFilter,
-                /* broadcastPermission= */ null, /* scheduler= */ null,
+                /* broadcastPermission= */ null, /* scheduler= */ mServiceHandler,
                 Context.RECEIVER_NOT_EXPORTED);
     }
 
@@ -946,86 +1044,116 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
 
         @Override
         public void checkIfAlive(int sessionId, int timeout) {
-            CarWatchdogService service = mService.get();
-            if (service == null) {
-                Slogf.w(TAG, "CarWatchdogService is not available");
-                return;
+            Trace.beginSection("ICarWatchdogServiceForSystemImpl.checkIfAlive(sessionId="
+                    + sessionId + ", timeout=" + timeout + ")");
+            try {
+                CarWatchdogService service = mService.get();
+                if (service == null) {
+                    Slogf.w(TAG, "CarWatchdogService is not available");
+                    return;
+                }
+                service.mWatchdogProcessHandler.postHealthCheckMessage(sessionId);
+            } finally {
+                Trace.endSection();
             }
-            service.mWatchdogProcessHandler.postHealthCheckMessage(sessionId);
         }
 
         @Override
         public void prepareProcessTermination() {
+            Trace.beginSection("ICarWatchdogServiceForSystemImpl.prepareProcessTermination");
             Slogf.w(TAG, "CarWatchdogService is about to be killed by car watchdog daemon");
+            Trace.endSection();
         }
 
         @Override
         public List<PackageInfo> getPackageInfosForUids(
                 int[] uids, List<String> vendorPackagePrefixes) {
-            if (ArrayUtils.isEmpty(uids)) {
-                Slogf.w(TAG, "UID list is empty");
-                return Collections.emptyList();
+            Trace.beginSection("ICarWatchdogServiceForSystemImpl.getPackageInfosForUids");
+            try {
+                if (ArrayUtils.isEmpty(uids)) {
+                    Slogf.w(TAG, "UID list is empty");
+                    return Collections.emptyList();
+                }
+                CarWatchdogService service = mService.get();
+                if (service == null) {
+                    Slogf.w(TAG, "CarWatchdogService is not available");
+                    return Collections.emptyList();
+                }
+                return service.mPackageInfoHandler.getPackageInfosForUids(uids,
+                    vendorPackagePrefixes);
+            } finally {
+                Trace.endSection();
             }
-            CarWatchdogService service = mService.get();
-            if (service == null) {
-                Slogf.w(TAG, "CarWatchdogService is not available");
-                return Collections.emptyList();
-            }
-            return service.mPackageInfoHandler.getPackageInfosForUids(uids, vendorPackagePrefixes);
         }
 
         // TODO(b/269191275): This method was replaced by onLatestResourceStats in Android U.
         //  Make method no-op in Android W (N+2 releases).
         @Override
         public void latestIoOveruseStats(List<PackageIoOveruseStats> packageIoOveruseStats) {
-            if (packageIoOveruseStats.isEmpty()) {
-                Slogf.w(TAG, "Latest I/O overuse stats is empty");
-                return;
+            Trace.beginSection("ICarWatchdogServiceForSystemImpl.latestIoOveruseStats");
+            try {
+                if (packageIoOveruseStats.isEmpty()) {
+                    Slogf.w(TAG, "Latest I/O overuse stats is empty");
+                    return;
+                }
+                CarWatchdogService service = mService.get();
+                if (service == null) {
+                    Slogf.w(TAG, "CarWatchdogService is not available");
+                    return;
+                }
+                service.mWatchdogPerfHandler.latestIoOveruseStats(packageIoOveruseStats);
+            } finally {
+                Trace.endSection();
             }
-            CarWatchdogService service = mService.get();
-            if (service == null) {
-                Slogf.w(TAG, "CarWatchdogService is not available");
-                return;
-            }
-            service.mWatchdogPerfHandler.latestIoOveruseStats(packageIoOveruseStats);
         }
 
         @Override
         public void onLatestResourceStats(List<ResourceStats> resourceStats) {
-            // TODO(b/266008146): Handle the resourceUsageStats.
-            if (resourceStats.isEmpty()) {
-                Slogf.w(TAG, "Latest resource stats is empty");
-                return;
-            }
-            CarWatchdogService service = mService.get();
-            if (service == null) {
-                Slogf.w(TAG, "CarWatchdogService is not available");
-                return;
-            }
-            for (int i = 0; i < resourceStats.size(); i++) {
-                ResourceStats stats = resourceStats.get(i);
-                if (stats.resourceOveruseStats == null
-                        || stats.resourceOveruseStats.packageIoOveruseStats.isEmpty()) {
-                    Slogf.w(TAG, "Received latest I/O overuse stats is empty");
-                    continue;
+            Trace.beginSection("ICarWatchdogServiceForSystemImpl.onLatestResourceStats");
+            try {
+                // TODO(b/266008146): Handle the resourceUsageStats.
+                if (resourceStats.isEmpty()) {
+                    Slogf.w(TAG, "Latest resource stats is empty");
+                    return;
                 }
-                service.mWatchdogPerfHandler.latestIoOveruseStats(
+                CarWatchdogService service = mService.get();
+                if (service == null) {
+                    Slogf.w(TAG, "CarWatchdogService is not available");
+                    return;
+                }
+                for (int i = 0; i < resourceStats.size(); i++) {
+                    ResourceStats stats = resourceStats.get(i);
+                    if (stats.resourceOveruseStats == null
+                        || stats.resourceOveruseStats.packageIoOveruseStats.isEmpty()) {
+                        Slogf.w(TAG, "Received latest I/O overuse stats is empty");
+                        continue;
+                    }
+                    service.mWatchdogPerfHandler.latestIoOveruseStats(
                         stats.resourceOveruseStats.packageIoOveruseStats);
+                }
+            } finally {
+                Trace.endSection();
             }
         }
 
         @Override
         public void resetResourceOveruseStats(List<String> packageNames) {
-            if (packageNames.isEmpty()) {
-                Slogf.w(TAG, "Provided an empty package name to reset resource overuse stats");
-                return;
+            Trace.beginSection("ICarWatchdogServiceForSystemImpl.resetResourceOveruseStats");
+            try {
+                if (packageNames.isEmpty()) {
+                    Slogf.w(TAG, "Provided an empty package name to reset resource overuse stats");
+                    return;
+                }
+                CarWatchdogService service = mService.get();
+                if (service == null) {
+                    Slogf.w(TAG, "CarWatchdogService is not available");
+                    return;
+                }
+                service.mWatchdogPerfHandler.resetResourceOveruseStats(
+                    new ArraySet<>(packageNames));
+            } finally {
+                Trace.endSection();
             }
-            CarWatchdogService service = mService.get();
-            if (service == null) {
-                Slogf.w(TAG, "CarWatchdogService is not available");
-                return;
-            }
-            service.mWatchdogPerfHandler.resetResourceOveruseStats(new ArraySet<>(packageNames));
         }
 
         // TODO(b/273354756): This method was replaced by an async request/response pattern
@@ -1034,32 +1162,47 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
         // ICarWatchdog#onTodayIoUsageStats. Make method no-op in Android W (N+2 releases).
         @Override
         public List<UserPackageIoUsageStats> getTodayIoUsageStats() {
-            CarWatchdogService service = mService.get();
-            if (service == null) {
-                Slogf.w(TAG, "CarWatchdogService is not available");
-                return Collections.emptyList();
+            Trace.beginSection("ICarWatchdogServiceForSystemImpl.getTodayIoUsageStats");
+            try {
+                CarWatchdogService service = mService.get();
+                if (service == null) {
+                    Slogf.w(TAG, "CarWatchdogService is not available");
+                    return Collections.emptyList();
+                }
+                return service.mWatchdogPerfHandler.getTodayIoUsageStats();
+            } finally {
+                Trace.endSection();
             }
-            return service.mWatchdogPerfHandler.getTodayIoUsageStats();
         }
 
         @Override
         public void requestAidlVhalPid() {
-            CarWatchdogService service = mService.get();
-            if (service == null) {
-                Slogf.w(TAG, "CarWatchdogService is not available");
-                return;
+            Trace.beginSection("ICarWatchdogServiceForSystemImpl.requestAidlVhalPid");
+            try {
+                CarWatchdogService service = mService.get();
+                if (service == null) {
+                    Slogf.w(TAG, "CarWatchdogService is not available");
+                    return;
+                }
+                service.mWatchdogProcessHandler.asyncFetchAidlVhalPid();
+            } finally {
+                Trace.endSection();
             }
-            service.mWatchdogProcessHandler.asyncFetchAidlVhalPid();
         }
 
         @Override
         public void requestTodayIoUsageStats() {
-            CarWatchdogService service = mService.get();
-            if (service == null) {
-                Slogf.w(TAG, "CarWatchdogService is not available");
-                return;
+            Trace.beginSection("ICarWatchdogServiceForSystemImpl.requestTodayIoUsageStats");
+            try {
+                CarWatchdogService service = mService.get();
+                if (service == null) {
+                    Slogf.w(TAG, "CarWatchdogService is not available");
+                    return;
+                }
+                service.mWatchdogPerfHandler.asyncFetchTodayIoUsageStats();
+            } finally {
+                Trace.endSection();
             }
-            service.mWatchdogPerfHandler.asyncFetchTodayIoUsageStats();
         }
     }
 }

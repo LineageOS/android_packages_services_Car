@@ -17,37 +17,37 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="car_permission_label" msgid="2215078736675564541">"Auto teave"</string>
-    <string name="car_permission_desc" msgid="3584369074931334964">"Juurdepääs auto teabele"</string>
+    <string name="car_permission_desc" msgid="4671139601357696916">"auto teabe lugemine"</string>
     <string name="car_permission_label_camera" msgid="3725702064841827180">"juurdepääs auto kaamerale"</string>
     <string name="car_permission_desc_camera" msgid="917024932164501426">"Juurdepääs auto kaameratele."</string>
-    <string name="car_permission_label_energy" msgid="7409144323527821558">"juurdepääs auto energiateabele"</string>
-    <string name="car_permission_desc_energy" msgid="3392963810053235407">"Juurdepääs auto energiateabele."</string>
+    <string name="car_permission_label_energy" msgid="6529778912442705855">"auto energiateabe lugemine"</string>
+    <string name="car_permission_desc_energy" msgid="7024599188817722607">"Auto energiateabe lugemine"</string>
     <string name="car_permission_label_control_car_energy" msgid="2788215385574313796">"Elektrisõiduki laadija seadete haldamine"</string>
     <string name="car_permission_desc_control_car_energy" msgid="8765015897869031807">"Teie elektrisõiduki laadija seadete haldamine."</string>
     <string name="car_permission_label_adjust_range_remaining" msgid="839033553999920138">"kohandage auto järelejäänud kütusega kaetavat vahemaad"</string>
     <string name="car_permission_desc_adjust_range_remaining" msgid="2369321650437370673">"Kohandage auto järelejäänud kütusega kaetava vahemaa väärtust."</string>
-    <string name="car_permission_label_hvac" msgid="1499454192558727843">"juurdepääs auto kliimaseadmele"</string>
-    <string name="car_permission_desc_hvac" msgid="3754229695589774195">"Juurdepääs auto kliimatehnikale."</string>
-    <string name="car_permission_label_mileage" msgid="4661317074631150551">"juurdepääs auto läbisõiduteabele"</string>
-    <string name="car_permission_desc_mileage" msgid="7179735693278681090">"Juurdepääs auto läbisõidu andmetele."</string>
-    <string name="car_permission_label_mileage_3p" msgid="7542459195663034759">"andke juurdepääs auto läbisõiduteabele"</string>
-    <string name="car_permission_desc_mileage_3p" msgid="9109350882748664570">"Andke juurdepääs auto läbisõiduteabele."</string>
+    <string name="car_permission_label_hvac" msgid="6336214266904971950">"auto kütte-, ventilatsiooni- ja kliimaseadmete juhtimine"</string>
+    <string name="car_permission_desc_hvac" msgid="7229917418217117426">"Auto kütte-, ventilatsiooni- ja kliimaseadmete juhtimine"</string>
+    <string name="car_permission_label_mileage" msgid="9194744289794795513">"auto läbisõiduteabe lugemine"</string>
+    <string name="car_permission_desc_mileage" msgid="9068667477789716791">"Auto läbisõiduteabe lugemine"</string>
+    <string name="car_permission_label_mileage_3p" msgid="2852514373971903913">"auto läbisõiduteabe lugemine"</string>
+    <string name="car_permission_desc_mileage_3p" msgid="1774910630404924463">"Auto läbisõiduteabe lugemine"</string>
     <string name="car_permission_label_read_car_horn" msgid="5940158571880705176">"teie auto signaaliteabe lugemine"</string>
     <string name="car_permission_desc_read_car_horn" msgid="1099929991964988027">"Teie auto signaaliteabe lugemine."</string>
     <string name="car_permission_label_control_car_horn" msgid="6724124600587260102">"auto signaali juhtimine"</string>
     <string name="car_permission_desc_control_car_horn" msgid="6054845567296317971">"Teie auto signaali juhtimine."</string>
-    <string name="car_permission_label_read_car_pedals" msgid="9053334935825814308">"juurdepääs teabele auto pedaalide kohta"</string>
-    <string name="car_permission_desc_read_car_pedals" msgid="3148710874350250453">"Juurdepääs teabele teie auto pedaalide kohta."</string>
-    <string name="car_permission_label_read_brake_info" msgid="6649283162262754200">"juurdepääs teabele teie auto pidurite kohta"</string>
-    <string name="car_permission_desc_read_brake_info" msgid="4641852049166846105">"Juurdepääs teabele teie auto pidurite kohta."</string>
+    <string name="car_permission_label_read_car_pedals" msgid="3043797722208092602">"auto pedaaliteabe lugemine"</string>
+    <string name="car_permission_desc_read_car_pedals" msgid="8245311380277704380">"Auto pedaaliteabe lugemine"</string>
+    <string name="car_permission_label_read_brake_info" msgid="919608163703877876">"auto piduriteabe lugemine"</string>
+    <string name="car_permission_desc_read_brake_info" msgid="1422619922008154555">"Auto piduriteabe lugemine"</string>
     <string name="car_permission_label_speed" msgid="1149027717860529745">"auto kiiruse lugemine"</string>
-    <string name="car_permission_desc_speed" msgid="2047965198165448241">"Juurdepääs auto kiirusele."</string>
-    <string name="car_permission_label_vehicle_dynamics_state" msgid="313779267420048367">"juurdepääs auto dünaamika olekule"</string>
-    <string name="car_permission_desc_vehicle_dynamics_state" msgid="8891506193446375660">"Juurdepääs auto dünaamilisele olekule."</string>
+    <string name="car_permission_desc_speed" msgid="5858258466024406366">"Auto kiiruse lugemine"</string>
+    <string name="car_permission_label_vehicle_dynamics_state" msgid="2446589481717587166">"auto dünaamilise oleku lugemine"</string>
+    <string name="car_permission_desc_vehicle_dynamics_state" msgid="4059749588215960011">"Auto dünaamilise oleku lugemine"</string>
     <string name="car_permission_label_control_vehicle_dynamics_state" msgid="1912154069363074986">"auto dünaamilise oleku haldamine"</string>
     <string name="car_permission_desc_control_vehicle_dynamics_state" msgid="5603436779163086928">"Auto dünaamilise oleku haldamine."</string>
-    <string name="car_permission_label_vendor_extension" msgid="7141601811734127361">"juurdepääs auto edasimüüja kanalile"</string>
-    <string name="car_permission_desc_vendor_extension" msgid="2970718502334714035">"Juurdepääs auto edasimüüja kanalile, et autopõhist teavet vahetada."</string>
+    <string name="car_permission_label_vendor_extension" msgid="4469386015153307485">"auto edasimüüja kanali lugemine"</string>
+    <string name="car_permission_desc_vendor_extension" msgid="2429289362866854822">"Auto edasimüüja kanali lugemine autopõhise teabe vahetamiseks"</string>
     <string name="car_permission_label_radio" msgid="6009465291685935112">"autoraadio haldamine"</string>
     <string name="car_permission_desc_radio" msgid="3385999027478186964">"Juurdepääs auto raadiole."</string>
     <string name="car_permission_label_projection" msgid="9107156380287576787">"liidese projitseerimine telefonist auto kuvale"</string>
@@ -116,16 +116,16 @@
     <string name="car_permission_desc_use_evs_camera" msgid="1625845902221003985">"EVS-i kaameravoogude tellimine"</string>
     <string name="car_permission_label_monitor_evs_status" msgid="2091521314159379622">"EVS-i teenuse oleku jälgimine"</string>
     <string name="car_permission_desc_monitor_evs_status" msgid="2764278897143573535">"EVS-i teenuse olekumuudatuste kuulmine"</string>
-    <string name="car_permission_label_car_engine_detailed" msgid="8911992719173587337">"juurdepääs auto mootori üksikasjalikule teabele"</string>
-    <string name="car_permission_desc_car_engine_detailed" msgid="1746863362811347700">"Juurdepääs auto üksikasjalikule mootoriteabele."</string>
+    <string name="car_permission_label_car_engine_detailed" msgid="1418113527626468413">"auto mootori üksikasjaliku teabe lugemine"</string>
+    <string name="car_permission_desc_car_engine_detailed" msgid="1839656966547909025">"Auto üksikasjaliku mootoriteabe lugemine"</string>
     <string name="car_permission_label_car_engine_detailed_3p" msgid="2695036212735960169">"lubage lugeda auto mootori üksikasjalikku"</string>
     <string name="car_permission_desc_car_engine_detailed_3p" msgid="7536940094077391015">"Lubage lugeda auto üksikasjalikku mootoriteavet."</string>
-    <string name="car_permission_label_car_energy_ports" msgid="8548990315169219454">"juurdepääs auto kütusepaagi luugile ja avale"</string>
-    <string name="car_permission_desc_car_energy_ports" msgid="7771185999828794949">"Juurdepääs auto kütusepaagi luugile ja avale."</string>
+    <string name="car_permission_label_car_energy_ports" msgid="1466057895734201917">"auto kütusepaagi luugi ja laadimispordi lugemine"</string>
+    <string name="car_permission_desc_car_energy_ports" msgid="4751253935543293174">"Auto kütusepaagi luugi ja laadimispordi lugemine"</string>
     <string name="car_permission_label_control_car_energy_ports" msgid="4375137311026313475">"auto kütusepaagi luugi ja ava juhtimine"</string>
     <string name="car_permission_desc_control_car_energy_ports" msgid="7364633710492525387">"Auto kütusepaagi luugi ja ava juhtimine."</string>
     <string name="car_permission_label_car_identification" msgid="5896712510164020478">"auto tuvastamisteabe lugemine"</string>
-    <string name="car_permission_desc_car_identification" msgid="4132040867171275059">"Juurdepääs auto tuvastamisteabele."</string>
+    <string name="car_permission_desc_car_identification" msgid="535838946811032155">"Auto tuvastamisteabe lugemine"</string>
     <string name="car_permission_label_control_car_doors" msgid="3032058819250195700">"autouste juhtimine"</string>
     <string name="car_permission_desc_control_car_doors" msgid="6287353311980590092">"Autouste juhtimine."</string>
     <string name="car_permission_label_control_car_windows" msgid="2452854429996653029">"autoakende juhtimine"</string>
@@ -152,36 +152,36 @@
     <string name="car_permission_desc_read_car_airbags" msgid="7961580013929420722">"Auto turvapatjade oleku lugemine."</string>
     <string name="car_permission_label_control_car_airbags" msgid="6823727183218389617">"auto turvapatjade juhtimine"</string>
     <string name="car_permission_desc_control_car_airbags" msgid="6181671903761622348">"Auto turvapatjade juhtimine."</string>
-    <string name="car_permission_label_car_info" msgid="4707513570676492315">"juurdepääs auto põhiteabele"</string>
-    <string name="car_permission_desc_car_info" msgid="2118081474543537653">"Juurdepääs auto põhiteabele."</string>
-    <string name="car_permission_label_privileged_car_info" msgid="1304018073760220785">"juurdepääs auto konfidentsiaalsele teabele"</string>
-    <string name="car_permission_desc_privileged_car_info" msgid="2245117655328125350">"Juurdepääs auto konfidentsiaalsele teabele."</string>
-    <string name="car_permission_label_vendor_permission_info" msgid="4471260460536888654">"juurdepääs auto edasimüüja lubade teabele"</string>
-    <string name="car_permission_desc_vendor_permission_info" msgid="8152113853528488398">"Juurdepääs auto edasimüüja lubade teabele."</string>
-    <string name="car_permission_label_car_exterior_lights" msgid="541304469604902110">"auto salongitulede oleku lugemine"</string>
+    <string name="car_permission_label_car_info" msgid="1063184863204793829">"auto põhiteabe lugemine"</string>
+    <string name="car_permission_desc_car_info" msgid="5780681956513865291">"Auto põhiteabe lugemine"</string>
+    <string name="car_permission_label_privileged_car_info" msgid="7056641626040863385">"auto konfidentsiaalse teabe lugemine"</string>
+    <string name="car_permission_desc_privileged_car_info" msgid="8443694410074384466">"Auto konfidentsiaalse teabe lugemine"</string>
+    <string name="car_permission_label_vendor_permission_info" msgid="3285296684927879613">"auto edasimüüja lubasid käsitleva teabe lugemine"</string>
+    <string name="car_permission_desc_vendor_permission_info" msgid="9208614308909994486">"Auto edasimüüja lubasid käsitleva teabe lugemine"</string>
+    <string name="car_permission_label_car_exterior_lights" msgid="3839661014756123708">"juurdepääs auto välistulede olekule"</string>
     <string name="car_permission_desc_car_exterior_lights" msgid="4038037584100849318">"Juurdepääs auto välistulede olekule."</string>
     <string name="car_permission_label_read_car_exterior_lights" msgid="8206567055976888587">"lubage lugeda auto salongitulede olekut"</string>
     <string name="car_permission_desc_read_car_exterior_lights" msgid="8611497191707405104">"Lubage lugeda auto salongitulede olekut."</string>
-    <string name="car_permission_label_control_glove_box" msgid="992118647212706782">"juurdepääs auto kindalaeka olekule"</string>
-    <string name="car_permission_desc_control_glove_box" msgid="2888062136750123261">"Juurdepääs auto kindalaeka olekule."</string>
-    <string name="car_permission_label_car_epoch_time" msgid="6303397910662625112">"juurdepääs auto ajajärgu ajale"</string>
-    <string name="car_permission_desc_car_epoch_time" msgid="398907082895238558">"Juurdepääs auto ajajärgu ajale."</string>
-    <string name="car_permission_label_control_car_exterior_lights" msgid="101357531386232141">"auto välistulede lugemine"</string>
+    <string name="car_permission_label_control_glove_box" msgid="8893424527567257629">"auto kindalaeka oleku juhtimine"</string>
+    <string name="car_permission_desc_control_glove_box" msgid="202603834328737918">"Auto kindalaeka oleku juhtimine"</string>
+    <string name="car_permission_label_car_epoch_time" msgid="8667615176555933314">"auto ajajärgu aja lugemine"</string>
+    <string name="car_permission_desc_car_epoch_time" msgid="6776188390917658195">"Auto ajajärgu aja lugemine"</string>
+    <string name="car_permission_label_control_car_exterior_lights" msgid="2702353269564341362">"auto välistulede juhtimine"</string>
     <string name="car_permission_desc_control_car_exterior_lights" msgid="6332252612685264180">"Auto välistulede juhtimine."</string>
-    <string name="car_permission_label_car_interior_lights" msgid="8506302199784427680">"auto salongitulede lugemine"</string>
-    <string name="car_permission_desc_car_interior_lights" msgid="6204775354692372506">"Juurdepääs auto salongitulede olekule."</string>
+    <string name="car_permission_label_car_interior_lights" msgid="2802077280340054799">"auto sisetulede oleku lugemine"</string>
+    <string name="car_permission_desc_car_interior_lights" msgid="7229450087107255913">"Auto sisetulede oleku lugemine"</string>
     <string name="car_permission_label_control_car_interior_lights" msgid="6685386372012664281">"auto salongitulede juhtimine"</string>
     <string name="car_permission_desc_control_car_interior_lights" msgid="797201814109701538">"Auto salongitulede juhtimine."</string>
     <string name="car_permission_label_car_exterior_environment" msgid="3385924985991299436">"auto välistemperatuuri lugemine"</string>
-    <string name="car_permission_desc_car_exterior_environment" msgid="1716656004731603379">"Juurdepääs auto välistemperatuurile."</string>
-    <string name="car_permission_label_car_tires" msgid="4379255261197836840">"juurdepääs auto rehviteabele"</string>
-    <string name="car_permission_desc_car_tires" msgid="8134496466769810134">"Juurdepääs auto rehviteabele."</string>
+    <string name="car_permission_desc_car_exterior_environment" msgid="7142489828485359480">"Auto välistemperatuuri lugemine"</string>
+    <string name="car_permission_label_car_tires" msgid="4006745707051794987">"auto rehviteabe lugemine"</string>
+    <string name="car_permission_desc_car_tires" msgid="7767600991857109865">"Auto rehviteabe lugemine"</string>
     <string name="car_permission_label_car_tires_3p" msgid="1360632319908226570">"lubage lugeda auto rehviteavet"</string>
     <string name="car_permission_desc_car_tires_3p" msgid="820574543667371274">"Lubage lugeda auto rehviteavet."</string>
     <string name="car_permission_label_car_steering" msgid="7779530447441232479">"auto pöördenurga teabe lugemine"</string>
-    <string name="car_permission_desc_car_steering" msgid="1357331844530708138">"Juurdepääs auto pöördenurga teabele."</string>
+    <string name="car_permission_desc_car_steering" msgid="4986224671150304388">"Auto pöördenurga teabe lugemine"</string>
     <string name="car_permission_label_read_car_steering_3p" msgid="1598866058085489462">"lubage lugeda auto pöördenurga teavet"</string>
-    <string name="car_permission_desc_read_car_steering_3p" msgid="576361609663755171">"Andke juurdepääs auto pöördenurga teabele."</string>
+    <string name="car_permission_desc_read_car_steering_3p" msgid="4205254436283351421">"Auto pöördenurga teabe lugemine"</string>
     <string name="car_permission_label_read_car_display_units" msgid="7617008314862097183">"auto kuvaüksuste lugemine"</string>
     <string name="car_permission_desc_read_car_display_units" msgid="6891898275208542385">"Kuvaüksuste lugemine."</string>
     <string name="car_permission_label_control_car_display_units" msgid="4975303668183173076">"auto kuvaüksuste juhtimine"</string>
@@ -189,9 +189,9 @@
     <string name="car_permission_label_control_car_powertrain" msgid="234831541490237603">"auto jõuülekande teabe haldamine"</string>
     <string name="car_permission_desc_control_car_powertrain" msgid="8205110385130069179">"Auto jõuülekande teabe haldamine."</string>
     <string name="car_permission_label_car_powertrain" msgid="4586122326622134886">"auto jõuülekande teabe lugemine"</string>
-    <string name="car_permission_desc_car_powertrain" msgid="1116007372551797796">"Juurdepääs auto jõuülekande teabele."</string>
+    <string name="car_permission_desc_car_powertrain" msgid="8578992320121984184">"Auto jõuülekande teabe lugemine"</string>
     <string name="car_permission_label_car_power" msgid="8111448088314368268">"auto võimsuse oleku lugemine"</string>
-    <string name="car_permission_desc_car_power" msgid="9202079903668652864">"Juurdepääs auto võimsuse olekule."</string>
+    <string name="car_permission_desc_car_power" msgid="1937031836449813395">"Auto võimsuse oleku lugemine"</string>
     <string name="car_permission_label_enroll_trust" msgid="3512907900486690218">"Usaldusväärse seadme registreerimine"</string>
     <string name="car_permission_desc_enroll_trust" msgid="4148649994602185130">"Usaldusväärse seadme registreerimise lubamine"</string>
     <string name="car_permission_label_car_test_service" msgid="9159328930558208708">"Auto testrežiimi haldamine"</string>

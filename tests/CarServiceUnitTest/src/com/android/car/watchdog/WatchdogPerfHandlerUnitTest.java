@@ -45,6 +45,9 @@ import static com.android.car.internal.NotificationHelperBase.CAR_WATCHDOG_ACTIO
 import static com.android.car.internal.NotificationHelperBase.RESOURCE_OVERUSE_NOTIFICATION_BASE_ID;
 import static com.android.car.internal.NotificationHelperBase.RESOURCE_OVERUSE_NOTIFICATION_MAX_OFFSET;
 import static com.android.car.watchdog.TimeSource.ZONE_OFFSET;
+import static com.android.car.watchdog.WatchdogPerfHandlerInterface.INTERNAL_APPLICATION_CATEGORY_TYPE_MAPS;
+import static com.android.car.watchdog.WatchdogPerfHandlerInterface.INTERNAL_APPLICATION_CATEGORY_TYPE_MEDIA;
+import static com.android.car.watchdog.WatchdogPerfHandlerInterface.INTENT_EXTRA_NOTIFICATION_ID;
 import static com.android.car.watchdog.WatchdogPerfHandlerInterface.MAX_DAEMON_CONNECTION_WAIT_TIME_MILLS;
 import static com.android.car.watchdog.WatchdogPerfHandlerInterface.PACKAGES_DISABLED_ON_RESOURCE_OVERUSE_SEPARATOR;
 import static com.android.car.watchdog.WatchdogPerfHandlerInterface.USER_PACKAGE_SEPARATOR;
@@ -367,7 +370,7 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
         Intent intent = new Intent(CAR_WATCHDOG_ACTION_RESOURCE_OVERUSE_DISABLE_APP)
                 .putExtra(Intent.EXTRA_PACKAGE_NAME, packageName)
                 .putExtra(Intent.EXTRA_USER, userHandle)
-                .putExtra(WatchdogPerfHandler.INTENT_EXTRA_NOTIFICATION_ID, notificationId);
+                .putExtra(INTENT_EXTRA_NOTIFICATION_ID, notificationId);
 
         mWatchdogPerfHandler.processUserNotificationIntent(intent);
 
@@ -388,7 +391,7 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
         Intent intent = new Intent(CAR_WATCHDOG_ACTION_RESOURCE_OVERUSE_DISABLE_APP)
                 .putExtra(Intent.EXTRA_PACKAGE_NAME, packageName)
                 .putExtra(Intent.EXTRA_USER, userHandle)
-                .putExtra(WatchdogPerfHandler.INTENT_EXTRA_NOTIFICATION_ID, notificationId);
+                .putExtra(INTENT_EXTRA_NOTIFICATION_ID, notificationId);
 
         mWatchdogPerfHandler.processUserNotificationIntent(intent);
 
@@ -423,7 +426,7 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
         Intent intent = new Intent(CAR_WATCHDOG_ACTION_DISMISS_RESOURCE_OVERUSE_NOTIFICATION)
                 .putExtra(Intent.EXTRA_PACKAGE_NAME, packageName)
                 .putExtra(Intent.EXTRA_USER, userHandle)
-                .putExtra(WatchdogPerfHandler.INTENT_EXTRA_NOTIFICATION_ID, notificationId);
+                .putExtra(INTENT_EXTRA_NOTIFICATION_ID, notificationId);
 
         mWatchdogPerfHandler.processUserNotificationIntent(intent);
 
@@ -458,7 +461,7 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
         Intent intent = new Intent(CAR_WATCHDOG_ACTION_LAUNCH_APP_SETTINGS)
                 .putExtra(Intent.EXTRA_PACKAGE_NAME, packageName)
                 .putExtra(Intent.EXTRA_USER, userHandle)
-                .putExtra(WatchdogPerfHandler.INTENT_EXTRA_NOTIFICATION_ID, notificationId);
+                .putExtra(INTENT_EXTRA_NOTIFICATION_ID, notificationId);
 
         mWatchdogPerfHandler.processUserNotificationIntent(intent);
 
@@ -1372,18 +1375,16 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
         // overuse stats resetting is completed.
         CarServiceUtils.runEmptyRunnableOnLooperSync(CAR_WATCHDOG_SERVICE_NAME);
 
-        PackageKillableStateSubject.assertThat(
-                mWatchdogPerfHandler.getPackageKillableStatesAsUser(
-                        UserHandle.ALL)).containsExactly(
-                new PackageKillableState("third_party_package.A", 100,
-                        PackageKillableState.KILLABLE_STATE_YES),
-                new PackageKillableState("third_party_package.A", 101,
-                        PackageKillableState.KILLABLE_STATE_YES),
-                new PackageKillableState("third_party_package.B", 100,
-                        PackageKillableState.KILLABLE_STATE_NO),
-                new PackageKillableState("third_party_package.B", 101,
-                        PackageKillableState.KILLABLE_STATE_NO)
-        );
+        PackageKillableStateSubject.assertThat(mWatchdogPerfHandler.getPackageKillableStatesAsUser(
+                UserHandle.ALL)).containsExactly(
+                        new PackageKillableState("third_party_package.A", 100,
+                                PackageKillableState.KILLABLE_STATE_YES),
+                        new PackageKillableState("third_party_package.A", 101,
+                                PackageKillableState.KILLABLE_STATE_YES),
+                        new PackageKillableState("third_party_package.B", 100,
+                                PackageKillableState.KILLABLE_STATE_NO),
+                        new PackageKillableState("third_party_package.B", 101,
+                                PackageKillableState.KILLABLE_STATE_NO));
 
         verify(mSpiedWatchdogStorage, times(2)).deleteUserPackage(anyInt(),
                 eq("third_party_package.A"));
@@ -1404,17 +1405,16 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
         mWatchdogPerfHandler.setKillablePackageAsUser("vendor_package.critical",
                 userHandle, /* isKillable= */ false);
 
-        PackageKillableStateSubject.assertThat(
-                mWatchdogPerfHandler.getPackageKillableStatesAsUser(
-                        UserHandle.ALL)).containsExactly(
-                new PackageKillableState("third_party_package", 101,
-                        PackageKillableState.KILLABLE_STATE_NO),
-                new PackageKillableState("vendor_package.critical", 101,
-                        PackageKillableState.KILLABLE_STATE_NEVER),
-                new PackageKillableState("third_party_package", 102,
-                        PackageKillableState.KILLABLE_STATE_YES),
-                new PackageKillableState("vendor_package.critical", 102,
-                        PackageKillableState.KILLABLE_STATE_NEVER));
+        PackageKillableStateSubject.assertThat(mWatchdogPerfHandler.getPackageKillableStatesAsUser(
+                UserHandle.ALL)).containsExactly(
+                        new PackageKillableState("third_party_package", 101,
+                                PackageKillableState.KILLABLE_STATE_NO),
+                        new PackageKillableState("vendor_package.critical", 101,
+                                PackageKillableState.KILLABLE_STATE_NEVER),
+                        new PackageKillableState("third_party_package", 102,
+                                PackageKillableState.KILLABLE_STATE_YES),
+                        new PackageKillableState("vendor_package.critical", 102,
+                                PackageKillableState.KILLABLE_STATE_NEVER));
 
         assertThrows(IllegalArgumentException.class,
                 () -> mWatchdogPerfHandler.setKillablePackageAsUser("vendor_package.critical",
@@ -1424,19 +1424,18 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
         injectPackageInfos(Collections.singletonList(
                 constructPackageManagerPackageInfo("third_party_package", 10303456, null)));
 
-        PackageKillableStateSubject.assertThat(
-                mWatchdogPerfHandler.getPackageKillableStatesAsUser(
-                        UserHandle.ALL)).containsExactly(
-                new PackageKillableState("third_party_package", 101,
-                        PackageKillableState.KILLABLE_STATE_NO),
-                new PackageKillableState("vendor_package.critical", 101,
-                        PackageKillableState.KILLABLE_STATE_NEVER),
-                new PackageKillableState("third_party_package", 102,
-                        PackageKillableState.KILLABLE_STATE_YES),
-                new PackageKillableState("vendor_package.critical", 102,
-                        PackageKillableState.KILLABLE_STATE_NEVER),
-                new PackageKillableState("third_party_package", 103,
-                        PackageKillableState.KILLABLE_STATE_YES));
+        PackageKillableStateSubject.assertThat(mWatchdogPerfHandler.getPackageKillableStatesAsUser(
+                UserHandle.ALL)).containsExactly(
+                        new PackageKillableState("third_party_package", 101,
+                                PackageKillableState.KILLABLE_STATE_NO),
+                        new PackageKillableState("vendor_package.critical", 101,
+                                PackageKillableState.KILLABLE_STATE_NEVER),
+                        new PackageKillableState("third_party_package", 102,
+                                PackageKillableState.KILLABLE_STATE_YES),
+                        new PackageKillableState("vendor_package.critical", 102,
+                                PackageKillableState.KILLABLE_STATE_NEVER),
+                        new PackageKillableState("third_party_package", 103,
+                                PackageKillableState.KILLABLE_STATE_YES));
 
         verify(mSpiedWatchdogStorage, times(11)).markDirty();
     }
@@ -1458,34 +1457,32 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
         mWatchdogPerfHandler.setKillablePackageAsUser("third_party_package.A", userHandle,
                 /* isKillable= */ false);
 
-        PackageKillableStateSubject.assertThat(
-                mWatchdogPerfHandler.getPackageKillableStatesAsUser(
-                        UserHandle.ALL)).containsExactly(
-                new PackageKillableState("third_party_package.A", 101,
-                        PackageKillableState.KILLABLE_STATE_NO),
-                new PackageKillableState("third_party_package.B", 101,
-                        PackageKillableState.KILLABLE_STATE_NO),
-                new PackageKillableState("third_party_package.C", 101,
-                        PackageKillableState.KILLABLE_STATE_YES),
-                new PackageKillableState("third_party_package.D", 101,
-                        PackageKillableState.KILLABLE_STATE_YES));
+        PackageKillableStateSubject.assertThat(mWatchdogPerfHandler.getPackageKillableStatesAsUser(
+                UserHandle.ALL)).containsExactly(
+                        new PackageKillableState("third_party_package.A", 101,
+                                PackageKillableState.KILLABLE_STATE_NO),
+                        new PackageKillableState("third_party_package.B", 101,
+                                PackageKillableState.KILLABLE_STATE_NO),
+                        new PackageKillableState("third_party_package.C", 101,
+                                PackageKillableState.KILLABLE_STATE_YES),
+                        new PackageKillableState("third_party_package.D", 101,
+                                PackageKillableState.KILLABLE_STATE_YES));
 
         mWatchdogPerfHandler.setKillablePackageAsUser("third_party_package.B", userHandle,
                 /* isKillable= */ true);
         mWatchdogPerfHandler.setKillablePackageAsUser("third_party_package.C", userHandle,
                 /* isKillable= */ false);
 
-        PackageKillableStateSubject.assertThat(
-                mWatchdogPerfHandler.getPackageKillableStatesAsUser(
-                        UserHandle.ALL)).containsExactly(
-                new PackageKillableState("third_party_package.A", 101,
-                        PackageKillableState.KILLABLE_STATE_YES),
-                new PackageKillableState("third_party_package.B", 101,
-                        PackageKillableState.KILLABLE_STATE_YES),
-                new PackageKillableState("third_party_package.C", 101,
-                        PackageKillableState.KILLABLE_STATE_NO),
-                new PackageKillableState("third_party_package.D", 101,
-                        PackageKillableState.KILLABLE_STATE_NO));
+        PackageKillableStateSubject.assertThat(mWatchdogPerfHandler.getPackageKillableStatesAsUser(
+                UserHandle.ALL)).containsExactly(
+                        new PackageKillableState("third_party_package.A", 101,
+                                PackageKillableState.KILLABLE_STATE_YES),
+                        new PackageKillableState("third_party_package.B", 101,
+                                PackageKillableState.KILLABLE_STATE_YES),
+                        new PackageKillableState("third_party_package.C", 101,
+                                PackageKillableState.KILLABLE_STATE_NO),
+                        new PackageKillableState("third_party_package.D", 101,
+                                PackageKillableState.KILLABLE_STATE_NO));
 
         verify(mSpiedWatchdogStorage, times(7)).markDirty();
     }
@@ -1504,17 +1501,16 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
         mWatchdogPerfHandler.setKillablePackageAsUser("vendor_package.critical",
                 UserHandle.ALL, /* isKillable= */ false);
 
-        PackageKillableStateSubject.assertThat(
-                mWatchdogPerfHandler.getPackageKillableStatesAsUser(
-                        UserHandle.ALL)).containsExactly(
-                new PackageKillableState("third_party_package", 101,
-                        PackageKillableState.KILLABLE_STATE_NO),
-                new PackageKillableState("vendor_package.critical", 101,
-                        PackageKillableState.KILLABLE_STATE_NEVER),
-                new PackageKillableState("third_party_package", 102,
-                        PackageKillableState.KILLABLE_STATE_NO),
-                new PackageKillableState("vendor_package.critical", 102,
-                        PackageKillableState.KILLABLE_STATE_NEVER));
+        PackageKillableStateSubject.assertThat(mWatchdogPerfHandler.getPackageKillableStatesAsUser(
+                UserHandle.ALL)).containsExactly(
+                        new PackageKillableState("third_party_package", 101,
+                                PackageKillableState.KILLABLE_STATE_NO),
+                        new PackageKillableState("vendor_package.critical", 101,
+                                PackageKillableState.KILLABLE_STATE_NEVER),
+                        new PackageKillableState("third_party_package", 102,
+                                PackageKillableState.KILLABLE_STATE_NO),
+                        new PackageKillableState("vendor_package.critical", 102,
+                                PackageKillableState.KILLABLE_STATE_NEVER));
 
         assertThrows(IllegalArgumentException.class,
                 () -> mWatchdogPerfHandler.setKillablePackageAsUser("vendor_package.critical",
@@ -1524,19 +1520,18 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
         injectPackageInfos(Collections.singletonList(
                 constructPackageManagerPackageInfo("third_party_package", 10303456, null)));
 
-        PackageKillableStateSubject.assertThat(
-                mWatchdogPerfHandler.getPackageKillableStatesAsUser(
-                        UserHandle.ALL)).containsExactly(
-                new PackageKillableState("third_party_package", 101,
-                        PackageKillableState.KILLABLE_STATE_NO),
-                new PackageKillableState("vendor_package.critical", 101,
-                        PackageKillableState.KILLABLE_STATE_NEVER),
-                new PackageKillableState("third_party_package", 102,
-                        PackageKillableState.KILLABLE_STATE_NO),
-                new PackageKillableState("vendor_package.critical", 102,
-                        PackageKillableState.KILLABLE_STATE_NEVER),
-                new PackageKillableState("third_party_package", 103,
-                        PackageKillableState.KILLABLE_STATE_NO));
+        PackageKillableStateSubject.assertThat(mWatchdogPerfHandler.getPackageKillableStatesAsUser(
+                UserHandle.ALL)).containsExactly(
+                        new PackageKillableState("third_party_package", 101,
+                                PackageKillableState.KILLABLE_STATE_NO),
+                        new PackageKillableState("vendor_package.critical", 101,
+                                PackageKillableState.KILLABLE_STATE_NEVER),
+                        new PackageKillableState("third_party_package", 102,
+                                PackageKillableState.KILLABLE_STATE_NO),
+                        new PackageKillableState("vendor_package.critical", 102,
+                                PackageKillableState.KILLABLE_STATE_NEVER),
+                        new PackageKillableState("third_party_package", 103,
+                                PackageKillableState.KILLABLE_STATE_NO));
 
         verify(mSpiedWatchdogStorage, times(11)).markDirty();
     }
@@ -1561,21 +1556,20 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
         mWatchdogPerfHandler.setKillablePackageAsUser("third_party_package.A", UserHandle.ALL,
                 /* isKillable= */ false);
 
-        PackageKillableStateSubject.assertThat(
-                mWatchdogPerfHandler.getPackageKillableStatesAsUser(
-                        UserHandle.ALL)).containsExactly(
-                new PackageKillableState("third_party_package.A", 101,
-                        PackageKillableState.KILLABLE_STATE_NO),
-                new PackageKillableState("third_party_package.B", 101,
-                        PackageKillableState.KILLABLE_STATE_NO),
-                new PackageKillableState("third_party_package.C", 101,
-                        PackageKillableState.KILLABLE_STATE_YES),
-                new PackageKillableState("third_party_package.D", 101,
-                        PackageKillableState.KILLABLE_STATE_YES),
-                new PackageKillableState("third_party_package.A", 102,
-                        PackageKillableState.KILLABLE_STATE_NO),
-                new PackageKillableState("third_party_package.B", 102,
-                        PackageKillableState.KILLABLE_STATE_NO));
+        PackageKillableStateSubject.assertThat(mWatchdogPerfHandler.getPackageKillableStatesAsUser(
+                UserHandle.ALL)).containsExactly(
+                        new PackageKillableState("third_party_package.A", 101,
+                                PackageKillableState.KILLABLE_STATE_NO),
+                        new PackageKillableState("third_party_package.B", 101,
+                                PackageKillableState.KILLABLE_STATE_NO),
+                        new PackageKillableState("third_party_package.C", 101,
+                                PackageKillableState.KILLABLE_STATE_YES),
+                        new PackageKillableState("third_party_package.D", 101,
+                                PackageKillableState.KILLABLE_STATE_YES),
+                        new PackageKillableState("third_party_package.A", 102,
+                                PackageKillableState.KILLABLE_STATE_NO),
+                        new PackageKillableState("third_party_package.B", 102,
+                                PackageKillableState.KILLABLE_STATE_NO));
 
         mockUmGetUserHandles(mMockUserManager, /* excludeDying= */ true, 101, 102, 103);
         injectPackageInfos(Arrays.asList(
@@ -1584,9 +1578,8 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
                 constructPackageManagerPackageInfo(
                         "third_party_package.B", 10303456, "third_party_shared_package.A")));
 
-        PackageKillableStateSubject.assertThat(
-                        mWatchdogPerfHandler.getPackageKillableStatesAsUser(UserHandle.of(103)))
-                .containsExactly(
+        PackageKillableStateSubject.assertThat(mWatchdogPerfHandler.getPackageKillableStatesAsUser(
+                UserHandle.of(103))).containsExactly(
                         new PackageKillableState("third_party_package.A", 103,
                                 PackageKillableState.KILLABLE_STATE_NO),
                         new PackageKillableState("third_party_package.B", 103,
@@ -1635,12 +1628,12 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
         mWatchdogPerfHandler.setKillablePackageAsUser("third_party_package.A", userHandle,
                 /* isKillable= */ false);
 
-        PackageKillableStateSubject.assertThat(
-                mWatchdogPerfHandler.getPackageKillableStatesAsUser(userHandle)).containsExactly(
-                new PackageKillableState("third_party_package.A", 101,
-                        PackageKillableState.KILLABLE_STATE_NO),
-                new PackageKillableState("third_party_package.B", 101,
-                        PackageKillableState.KILLABLE_STATE_NO));
+        PackageKillableStateSubject.assertThat(mWatchdogPerfHandler.getPackageKillableStatesAsUser(
+                userHandle)).containsExactly(
+                        new PackageKillableState("third_party_package.A", 101,
+                                PackageKillableState.KILLABLE_STATE_NO),
+                        new PackageKillableState("third_party_package.B", 101,
+                                PackageKillableState.KILLABLE_STATE_NO));
 
         verify(mSpiedPackageManager, times(2))
                 .getApplicationEnabledSetting("third_party_package.A", 101);
@@ -1682,13 +1675,12 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
         mWatchdogPerfHandler.setKillablePackageAsUser("third_party_package", UserHandle.ALL,
                 /* isKillable= */ false);
 
-        PackageKillableStateSubject.assertThat(
-                mWatchdogPerfHandler.getPackageKillableStatesAsUser(
-                        UserHandle.ALL)).containsExactly(
-                new PackageKillableState("third_party_package", 101,
-                        PackageKillableState.KILLABLE_STATE_NO),
-                new PackageKillableState("third_party_package", 102,
-                        PackageKillableState.KILLABLE_STATE_NO));
+        PackageKillableStateSubject.assertThat(mWatchdogPerfHandler.getPackageKillableStatesAsUser(
+                UserHandle.ALL)).containsExactly(
+                        new PackageKillableState("third_party_package", 101,
+                                PackageKillableState.KILLABLE_STATE_NO),
+                        new PackageKillableState("third_party_package", 102,
+                                PackageKillableState.KILLABLE_STATE_NO));
 
         verify(mSpiedPackageManager, times(2))
                 .getApplicationEnabledSetting("third_party_package", 101);
@@ -1738,17 +1730,16 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
         mWatchdogPerfHandler.setKillablePackageAsUser("third_party_package.A", UserHandle.ALL,
                 /* isKillable= */ false);
 
-        PackageKillableStateSubject.assertThat(
-                mWatchdogPerfHandler.getPackageKillableStatesAsUser(
-                        UserHandle.ALL)).containsExactly(
-                new PackageKillableState("third_party_package.A", 101,
-                        PackageKillableState.KILLABLE_STATE_NO),
-                new PackageKillableState("third_party_package.B", 101,
-                        PackageKillableState.KILLABLE_STATE_NO),
-                new PackageKillableState("third_party_package.A", 102,
-                        PackageKillableState.KILLABLE_STATE_NO),
-                new PackageKillableState("third_party_package.B", 102,
-                        PackageKillableState.KILLABLE_STATE_NO));
+        PackageKillableStateSubject.assertThat(mWatchdogPerfHandler.getPackageKillableStatesAsUser(
+                UserHandle.ALL)).containsExactly(
+                        new PackageKillableState("third_party_package.A", 101,
+                                PackageKillableState.KILLABLE_STATE_NO),
+                        new PackageKillableState("third_party_package.B", 101,
+                                PackageKillableState.KILLABLE_STATE_NO),
+                        new PackageKillableState("third_party_package.A", 102,
+                                PackageKillableState.KILLABLE_STATE_NO),
+                        new PackageKillableState("third_party_package.B", 102,
+                                PackageKillableState.KILLABLE_STATE_NO));
 
         verify(mSpiedPackageManager, times(2))
                 .getApplicationEnabledSetting("third_party_package.A", 101);
@@ -1860,9 +1851,8 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
                 constructPackageManagerPackageInfo("third_party_package", 10203456, null),
                 constructPackageManagerPackageInfo("vendor_package.critical", 10201278, null)));
 
-        PackageKillableStateSubject.assertThat(
-                        mWatchdogPerfHandler.getPackageKillableStatesAsUser(UserHandle.of(101)))
-                .containsExactly(
+        PackageKillableStateSubject.assertThat(mWatchdogPerfHandler.getPackageKillableStatesAsUser(
+                UserHandle.of(101))).containsExactly(
                         new PackageKillableState("third_party_package", 101,
                                 PackageKillableState.KILLABLE_STATE_YES),
                         new PackageKillableState("vendor_package.critical", 101,
@@ -1882,9 +1872,8 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
                 constructPackageManagerPackageInfo("third_party_package", 10103456, null),
                 constructPackageManagerPackageInfo("vendor_package.critical.B", 10101278, null)));
 
-        PackageKillableStateSubject.assertThat(
-                        mWatchdogPerfHandler.getPackageKillableStatesAsUser(UserHandle.ALL))
-                .containsExactly(
+        PackageKillableStateSubject.assertThat(mWatchdogPerfHandler.getPackageKillableStatesAsUser(
+                UserHandle.ALL)).containsExactly(
                         new PackageKillableState("system_package.non_critical.A", 100,
                                 PackageKillableState.KILLABLE_STATE_YES),
                         new PackageKillableState("third_party_package", 100,
@@ -1940,9 +1929,8 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
                 constructPackageManagerPackageInfo(
                         "vendor_package.B", 10203456, "vendor_shared_package.A")));
 
-        PackageKillableStateSubject.assertThat(
-                        mWatchdogPerfHandler.getPackageKillableStatesAsUser(UserHandle.of(101)))
-                .containsExactly(
+        PackageKillableStateSubject.assertThat(mWatchdogPerfHandler.getPackageKillableStatesAsUser(
+                UserHandle.of(101))).containsExactly(
                         new PackageKillableState("system_package.A", 101,
                                 PackageKillableState.KILLABLE_STATE_NEVER),
                         new PackageKillableState("vendor_package.B", 101,
@@ -1971,9 +1959,8 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
                 constructPackageManagerPackageInfo(
                         "third_party_package.D", 10005678, "third_party_shared_package")));
 
-        PackageKillableStateSubject.assertThat(
-                        mWatchdogPerfHandler.getPackageKillableStatesAsUser(UserHandle.of(100)))
-                .containsExactly(
+        PackageKillableStateSubject.assertThat(mWatchdogPerfHandler.getPackageKillableStatesAsUser(
+                UserHandle.of(100))).containsExactly(
                         new PackageKillableState("vendor_package.non_critical.A", 100,
                                 PackageKillableState.KILLABLE_STATE_YES),
                         new PackageKillableState("system_package.A", 100,
@@ -2001,9 +1988,8 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
                         "vendor_package.B", 10003456, "vendor_shared_package.non_critical.B")));
 
 
-        PackageKillableStateSubject.assertThat(
-                        mWatchdogPerfHandler.getPackageKillableStatesAsUser(UserHandle.of(100)))
-                .containsExactly(
+        PackageKillableStateSubject.assertThat(mWatchdogPerfHandler.getPackageKillableStatesAsUser(
+                UserHandle.of(100))).containsExactly(
                         new PackageKillableState("vendor_package.A", 100,
                                 PackageKillableState.KILLABLE_STATE_YES),
                         new PackageKillableState("system_package.A", 100,
@@ -2023,17 +2009,16 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
                 constructPackageManagerPackageInfo("third_party_package", 10203456, null),
                 constructPackageManagerPackageInfo("vendor_package.critical", 10201278, null)));
 
-        PackageKillableStateSubject.assertThat(
-                mWatchdogPerfHandler.getPackageKillableStatesAsUser(
-                        UserHandle.ALL)).containsExactly(
-                new PackageKillableState("third_party_package", 101,
-                        PackageKillableState.KILLABLE_STATE_YES),
-                new PackageKillableState("vendor_package.critical", 101,
-                        PackageKillableState.KILLABLE_STATE_NEVER),
-                new PackageKillableState("third_party_package", 102,
-                        PackageKillableState.KILLABLE_STATE_YES),
-                new PackageKillableState("vendor_package.critical", 102,
-                        PackageKillableState.KILLABLE_STATE_NEVER));
+        PackageKillableStateSubject.assertThat(mWatchdogPerfHandler.getPackageKillableStatesAsUser(
+                UserHandle.ALL)).containsExactly(
+                        new PackageKillableState("third_party_package", 101,
+                                PackageKillableState.KILLABLE_STATE_YES),
+                        new PackageKillableState("vendor_package.critical", 101,
+                                PackageKillableState.KILLABLE_STATE_NEVER),
+                        new PackageKillableState("third_party_package", 102,
+                                PackageKillableState.KILLABLE_STATE_YES),
+                        new PackageKillableState("vendor_package.critical", 102,
+                                PackageKillableState.KILLABLE_STATE_NEVER));
 
         verify(mSpiedWatchdogStorage, times(4)).markDirty();
     }
@@ -2055,9 +2040,8 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
                 constructPackageManagerPackageInfo(
                         "vendor_package.B", 10203456, "vendor_shared_package.A")));
 
-        PackageKillableStateSubject.assertThat(
-                        mWatchdogPerfHandler.getPackageKillableStatesAsUser(UserHandle.ALL))
-                .containsExactly(
+        PackageKillableStateSubject.assertThat(mWatchdogPerfHandler.getPackageKillableStatesAsUser(
+                UserHandle.ALL)).containsExactly(
                         new PackageKillableState("system_package.A", 101,
                                 PackageKillableState.KILLABLE_STATE_NEVER),
                         new PackageKillableState("vendor_package.B", 101,
@@ -3195,9 +3179,8 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
                 constructResourceOveruseStats(/* uid= */ 10201100, "third_party_package.A",
                         packageIoOveruseStatsByUid.get(10201100).ioOveruseStats));
 
-        PackageKillableStateSubject.assertThat(
-                        mWatchdogPerfHandler.getPackageKillableStatesAsUser(UserHandle.ALL))
-                .containsExactly(
+        PackageKillableStateSubject.assertThat(mWatchdogPerfHandler.getPackageKillableStatesAsUser(
+                UserHandle.ALL)).containsExactly(
                         new PackageKillableState("third_party_package", 101,
                                 PackageKillableState.KILLABLE_STATE_NEVER),
                         new PackageKillableState("vendor_package", 101,
@@ -3420,14 +3403,14 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
 
         List<UserNotificationReflectionCall>
                 userNotificationReflectionCalls = Arrays.asList(
-                new UserNotificationReflectionCall(UserHandle.of(100),
-                        constructPackagesByNotificationId(/* idOffset= */ 0,
-                                "vendor_package.non_critical", "third_party_package.A",
-                                "third_party_package.B"), /* hasHeadsUpNotification= */ true),
-                new UserNotificationReflectionCall(UserHandle.of(100),
-                        constructPackagesByNotificationId(/* idOffset= */ 3,
-                                "system_package.non_critical"),
-                        /* hasHeadsUpNotification= */ false));
+                    new UserNotificationReflectionCall(UserHandle.of(100),
+                            constructPackagesByNotificationId(/* idOffset= */ 0,
+                                    "vendor_package.non_critical", "third_party_package.A",
+                                    "third_party_package.B"), /* hasHeadsUpNotification= */ true),
+                    new UserNotificationReflectionCall(UserHandle.of(100),
+                            constructPackagesByNotificationId(/* idOffset= */ 3,
+                                    "system_package.non_critical"),
+                            /* hasHeadsUpNotification= */ false));
 
         captureAndVerifyUserNotifications(userNotificationReflectionCalls);
     }
@@ -4807,11 +4790,11 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
                         /* gmBytes= */ componentType * 60L));
         config.categorySpecificThresholds = Arrays.asList(
                 constructPerStateIoOveruseThreshold(
-                        WatchdogPerfHandler.INTERNAL_APPLICATION_CATEGORY_TYPE_MEDIA,
+                        INTERNAL_APPLICATION_CATEGORY_TYPE_MEDIA,
                         /* fgBytes= */ componentType * 100L, /* bgBytes= */ componentType * 200L,
                         /* gmBytes= */ componentType * 300L),
                 constructPerStateIoOveruseThreshold(
-                        WatchdogPerfHandler.INTERNAL_APPLICATION_CATEGORY_TYPE_MAPS,
+                        INTERNAL_APPLICATION_CATEGORY_TYPE_MAPS,
                         /* fgBytes= */ componentType * 1100L, /* bgBytes= */ componentType * 2200L,
                         /* gmBytes= */ componentType * 3300L));
         config.systemWideThresholds = Collections.singletonList(

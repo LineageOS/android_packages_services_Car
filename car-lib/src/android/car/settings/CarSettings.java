@@ -17,7 +17,6 @@
 package android.car.settings;
 
 import static android.car.feature.Flags.FLAG_CAR_NIGHT_GLOBAL_SETTING;
-import static android.car.feature.Flags.FLAG_PERSIST_AP_SETTINGS;
 
 import android.annotation.FlaggedApi;
 import android.annotation.SystemApi;
@@ -193,7 +192,6 @@ public class CarSettings {
          *
          * @hide
          */
-        @FlaggedApi(FLAG_PERSIST_AP_SETTINGS)
         @SystemApi
         public static final String ENABLE_PERSISTENT_TETHERING =
                 "android.car.ENABLE_PERSISTENT_TETHERING";

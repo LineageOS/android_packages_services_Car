@@ -3146,6 +3146,15 @@
             <intent-filter tools:node="removeAll"/>
         </activity>
 
+        <activity
+            android:name="Settings$NotificationBundlesActivity"
+            android:enabled="false"
+            android:exported="false"
+            tools:node="merge"
+            tools:replace="android:exported, android:enabled">
+            <intent-filter tools:node="removeAll"/>
+        </activity>
+
         <activity-alias
             android:name="com.android.settings.ConfirmDeviceCredentialActivity"
             android:enabled="false"
@@ -3656,7 +3665,7 @@
         </service>
 
         <service
-          android:name="com.android.settings.service.PreferenceService"
+          android:name="com.android.settingslib.service.SettingsPreferenceService"
           android:enabled="false"
           android:exported="false"
           android:featureFlag="com.android.settingslib.flags.settings_catalyst"

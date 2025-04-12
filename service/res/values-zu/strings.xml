@@ -17,37 +17,37 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="car_permission_label" msgid="2215078736675564541">"Ulwazi lemoto"</string>
-    <string name="car_permission_desc" msgid="3584369074931334964">"finyelela kulwazi lwemoto yakho"</string>
+    <string name="car_permission_desc" msgid="4671139601357696916">"funda ulwazi lwemoto yakho"</string>
     <string name="car_permission_label_camera" msgid="3725702064841827180">"finyelela ikamera yemoto"</string>
     <string name="car_permission_desc_camera" msgid="917024932164501426">"Finyelela ikhamera yemoto yakho."</string>
-    <string name="car_permission_label_energy" msgid="7409144323527821558">"finyelela ulwazi lamandla lemoto"</string>
-    <string name="car_permission_desc_energy" msgid="3392963810053235407">"Finyelela ulwazi lwamandla lwemoto yakho."</string>
+    <string name="car_permission_label_energy" msgid="6529778912442705855">"funda ulwazi lwamandla emoto"</string>
+    <string name="car_permission_desc_energy" msgid="7024599188817722607">"Funda ulwazi lwamandla emoto yakho."</string>
     <string name="car_permission_label_control_car_energy" msgid="2788215385574313796">"Lawula amasethingi okushajwa kwe-EV yemoto"</string>
     <string name="car_permission_desc_control_car_energy" msgid="8765015897869031807">"Lawula amasethingi okushajwa kwe-EV yemoto yakho."</string>
     <string name="car_permission_label_adjust_range_remaining" msgid="839033553999920138">"lungisa ivelu elisele lebanga lemoto"</string>
     <string name="car_permission_desc_adjust_range_remaining" msgid="2369321650437370673">"Lungisa ivelu elisele lebanga lemoto."</string>
-    <string name="car_permission_label_hvac" msgid="1499454192558727843">"i-hvac yemoto"</string>
-    <string name="car_permission_desc_hvac" msgid="3754229695589774195">"Finyelela i-hvac yemoto yakho."</string>
-    <string name="car_permission_label_mileage" msgid="4661317074631150551">"finyelela ulwazi lwe-mileage lemoto"</string>
-    <string name="car_permission_desc_mileage" msgid="7179735693278681090">"Finyelela ulwazi lamamayela wemoto yakho."</string>
-    <string name="car_permission_label_mileage_3p" msgid="7542459195663034759">"finyelela ulwazi lwemayela lemoto"</string>
-    <string name="car_permission_desc_mileage_3p" msgid="9109350882748664570">"Finyelela ulwazi lamamayela wemoto yakho."</string>
+    <string name="car_permission_label_hvac" msgid="6336214266904971950">"lawula i-hvac yemoto"</string>
+    <string name="car_permission_desc_hvac" msgid="7229917418217117426">"Lawula i-hvac yemoto yakho."</string>
+    <string name="car_permission_label_mileage" msgid="9194744289794795513">"funda ulwazi lwemayela lemoto"</string>
+    <string name="car_permission_desc_mileage" msgid="9068667477789716791">"Funda ulwazi lwamamayela emoto yakho."</string>
+    <string name="car_permission_label_mileage_3p" msgid="2852514373971903913">"funda ulwazi lwemayela lemoto"</string>
+    <string name="car_permission_desc_mileage_3p" msgid="1774910630404924463">"Funda ulwazi lwamamayela emoto yakho."</string>
     <string name="car_permission_label_read_car_horn" msgid="5940158571880705176">"funda imininingwane yehutha yemoto"</string>
     <string name="car_permission_desc_read_car_horn" msgid="1099929991964988027">"Funda imininingwane yophondo lwemoto yakho."</string>
     <string name="car_permission_label_control_car_horn" msgid="6724124600587260102">"lawula ihutha yemoto"</string>
     <string name="car_permission_desc_control_car_horn" msgid="6054845567296317971">"Lawula ihutha yemoto yakho."</string>
-    <string name="car_permission_label_read_car_pedals" msgid="9053334935825814308">"finyelela imininingwane yamaphedali emoto"</string>
-    <string name="car_permission_desc_read_car_pedals" msgid="3148710874350250453">"Finyelela imininingwane yamaphedali emoto yakho."</string>
-    <string name="car_permission_label_read_brake_info" msgid="6649283162262754200">"finyelela imininingwane yamabhuleki emoto"</string>
-    <string name="car_permission_desc_read_brake_info" msgid="4641852049166846105">"Finyela imininingwane yamabhuleki emoto yakho."</string>
+    <string name="car_permission_label_read_car_pedals" msgid="3043797722208092602">"funda ulwazi lwe-pedal yemoto"</string>
+    <string name="car_permission_desc_read_car_pedals" msgid="8245311380277704380">"Funda imininingwane ye-pedal yemoto yakho."</string>
+    <string name="car_permission_label_read_brake_info" msgid="919608163703877876">"funda ulwazi lwamabhuleki emoto"</string>
+    <string name="car_permission_desc_read_brake_info" msgid="1422619922008154555">"Funda ulwazi lwamabhuleki emoto yakho."</string>
     <string name="car_permission_label_speed" msgid="1149027717860529745">"funda isivinini semoto"</string>
-    <string name="car_permission_desc_speed" msgid="2047965198165448241">"Finyelela isivinini semoto yakho."</string>
-    <string name="car_permission_label_vehicle_dynamics_state" msgid="313779267420048367">"finyelela isimo se-dynamics emoto"</string>
-    <string name="car_permission_desc_vehicle_dynamics_state" msgid="8891506193446375660">"Finyelela isimo sezinto zemoto yakho."</string>
+    <string name="car_permission_desc_speed" msgid="5858258466024406366">"Funda isivinini semoto yakho."</string>
+    <string name="car_permission_label_vehicle_dynamics_state" msgid="2446589481717587166">"funda isimo sokushintshashintsha kwemoto"</string>
+    <string name="car_permission_desc_vehicle_dynamics_state" msgid="4059749588215960011">"Funda isimo sokushintshashintsha kwemoto yakho."</string>
     <string name="car_permission_label_control_vehicle_dynamics_state" msgid="1912154069363074986">"lawula isimo skushintshashintshayo kwemoto"</string>
     <string name="car_permission_desc_control_vehicle_dynamics_state" msgid="5603436779163086928">"Lawula isimo sokushintshashintshayo kwemoto yakho."</string>
-    <string name="car_permission_label_vendor_extension" msgid="7141601811734127361">"finyelela ishaneli yomthengisi yemoto"</string>
-    <string name="car_permission_desc_vendor_extension" msgid="2970718502334714035">"Finyelela isiteshi somthengisi semoto yakho ukuze nishintshisane ngolwazi oluthile lemoto."</string>
+    <string name="car_permission_label_vendor_extension" msgid="4469386015153307485">"funda isiteshi somthengisi wemoto"</string>
+    <string name="car_permission_desc_vendor_extension" msgid="2429289362866854822">"Funda isiteshi somthengisi wemoto yakho ukuze nishintshisane ngolwazi oluthile lwemoto."</string>
     <string name="car_permission_label_radio" msgid="6009465291685935112">"phatha umsindo wemoto"</string>
     <string name="car_permission_desc_radio" msgid="3385999027478186964">"Finyelela irekhidiyo yemoto yakho."</string>
     <string name="car_permission_label_projection" msgid="9107156380287576787">"cabangela isibonisi kusuka efonini esibonisi semoto"</string>
@@ -116,16 +116,16 @@
     <string name="car_permission_desc_use_evs_camera" msgid="1625845902221003985">"Bhalisa ekusakazeni kwekhamera ye-EVS"</string>
     <string name="car_permission_label_monitor_evs_status" msgid="2091521314159379622">"Qapha isimo sesevisi ye-EVS"</string>
     <string name="car_permission_desc_monitor_evs_status" msgid="2764278897143573535">"Lalela isimo sezinguquko zesevisi ye-EVS"</string>
-    <string name="car_permission_label_car_engine_detailed" msgid="8911992719173587337">"finyelela injini yemoto enemininingwane"</string>
-    <string name="car_permission_desc_car_engine_detailed" msgid="1746863362811347700">"Finyelela ulwazi lwenjini olunemininingwane lwemoto yakho."</string>
+    <string name="car_permission_label_car_engine_detailed" msgid="1418113527626468413">"funda injini yemoto ngokuningiliziwe"</string>
+    <string name="car_permission_desc_car_engine_detailed" msgid="1839656966547909025">"Funda ulwazi lwenjini enemininingwane yemoto yakho."</string>
     <string name="car_permission_label_car_engine_detailed_3p" msgid="2695036212735960169">"funda injini yemoto ngokuningiliziwe"</string>
     <string name="car_permission_desc_car_engine_detailed_3p" msgid="7536940094077391015">"Funda ulwazi lwenjini enemininingwane yemoto yakho."</string>
-    <string name="car_permission_label_car_energy_ports" msgid="8548990315169219454">"iinyelela umnyango kaphethiloli nembobo yokushaja"</string>
-    <string name="car_permission_desc_car_energy_ports" msgid="7771185999828794949">"Finyelela umnyango kaphethiloli nembobo yokushaja."</string>
+    <string name="car_permission_label_car_energy_ports" msgid="1466057895734201917">"Funda umnyango kaphethiloli nembobo yokushaja"</string>
+    <string name="car_permission_desc_car_energy_ports" msgid="4751253935543293174">"Funda umnyango kaphethiloli wemoto kanye nembobo yokushaja."</string>
     <string name="car_permission_label_control_car_energy_ports" msgid="4375137311026313475">"lawula umnyango wesibaseli semoto kanye nembobo yokushaja"</string>
     <string name="car_permission_desc_control_car_energy_ports" msgid="7364633710492525387">"Lawula umnyango wesibaseli semoto kanye nembobo yokushaja."</string>
     <string name="car_permission_label_car_identification" msgid="5896712510164020478">"funda ubunikazi bemoto"</string>
-    <string name="car_permission_desc_car_identification" msgid="4132040867171275059">"Finyelela isihlonzi semoto."</string>
+    <string name="car_permission_desc_car_identification" msgid="535838946811032155">"Funda ubunikazi bemoto."</string>
     <string name="car_permission_label_control_car_doors" msgid="3032058819250195700">"lawula iminyango yemoto"</string>
     <string name="car_permission_desc_control_car_doors" msgid="6287353311980590092">"Lawula iminyango yemoto."</string>
     <string name="car_permission_label_control_car_windows" msgid="2452854429996653029">"lawula amawindi emoto"</string>
@@ -152,36 +152,36 @@
     <string name="car_permission_desc_read_car_airbags" msgid="7961580013929420722">"Funda ama-airbag emoto."</string>
     <string name="car_permission_label_control_car_airbags" msgid="6823727183218389617">"lawula ama-airbag emoto."</string>
     <string name="car_permission_desc_control_car_airbags" msgid="6181671903761622348">"Lawula ama-airbag emoto."</string>
-    <string name="car_permission_label_car_info" msgid="4707513570676492315">"finyelela ulwazi oluyisisekelo lwemoto"</string>
-    <string name="car_permission_desc_car_info" msgid="2118081474543537653">"Finyelela ulwazi oluyisisekelo."</string>
-    <string name="car_permission_label_privileged_car_info" msgid="1304018073760220785">"finyelela ulwazi olukhethekile lwemoto"</string>
-    <string name="car_permission_desc_privileged_car_info" msgid="2245117655328125350">"Finyelela ulwazi olukhethekile lwemoto."</string>
-    <string name="car_permission_label_vendor_permission_info" msgid="4471260460536888654">"finyelela ulwazi lwemvume lomthengisi wemoto"</string>
-    <string name="car_permission_desc_vendor_permission_info" msgid="8152113853528488398">"Finyelela ulwazi lwemvume lomthengisi wemoto."</string>
-    <string name="car_permission_label_car_exterior_lights" msgid="541304469604902110">"funda isimo somkhanyo wemoto sangaphakathi"</string>
+    <string name="car_permission_label_car_info" msgid="1063184863204793829">"funda ulwazi oluyisisekelo lwemoto"</string>
+    <string name="car_permission_desc_car_info" msgid="5780681956513865291">"Funda ulwazi oluyisisekelo lwemoto."</string>
+    <string name="car_permission_label_privileged_car_info" msgid="7056641626040863385">"funda ulwazi lwabakhethekile lwemoto"</string>
+    <string name="car_permission_desc_privileged_car_info" msgid="8443694410074384466">"Funda ulwazi lwabakhethekile lwemoto."</string>
+    <string name="car_permission_label_vendor_permission_info" msgid="3285296684927879613">"funda ulwazi lwemvume yomthengisi wemoto"</string>
+    <string name="car_permission_desc_vendor_permission_info" msgid="9208614308909994486">"Funda ulwazi lwemvume yomthengisi wemoto."</string>
+    <string name="car_permission_label_car_exterior_lights" msgid="3839661014756123708">"finyelela isimo sezibani zangaphandle zemoto"</string>
     <string name="car_permission_desc_car_exterior_lights" msgid="4038037584100849318">"Finyelela isimo sezibani sangaphandle semoto."</string>
     <string name="car_permission_label_read_car_exterior_lights" msgid="8206567055976888587">"funda isimo sezibani zangaphandle zemoto"</string>
     <string name="car_permission_desc_read_car_exterior_lights" msgid="8611497191707405104">"Funda isimo sezibani zangaphandle zemoto."</string>
-    <string name="car_permission_label_control_glove_box" msgid="992118647212706782">"finyelela isimo sebhokisi legilavu yemoto"</string>
-    <string name="car_permission_desc_control_glove_box" msgid="2888062136750123261">"Finyelela isimo sebhokisi lamagilavu emoto."</string>
-    <string name="car_permission_label_car_epoch_time" msgid="6303397910662625112">"finyelela isikhathi se-epoch semoto"</string>
-    <string name="car_permission_desc_car_epoch_time" msgid="398907082895238558">"Finyelela isikhathi se-epoch semoto."</string>
-    <string name="car_permission_label_control_car_exterior_lights" msgid="101357531386232141">"Funda isimo sezibani zangaphandle zemoto"</string>
+    <string name="car_permission_label_control_glove_box" msgid="8893424527567257629">"lawula isimo sebhokisi legilavu lemoto"</string>
+    <string name="car_permission_desc_control_glove_box" msgid="202603834328737918">"Lawula isimo sebhokisi legilavu lemoto."</string>
+    <string name="car_permission_label_car_epoch_time" msgid="8667615176555933314">"funda isikhathi se-epoch yemoto"</string>
+    <string name="car_permission_desc_car_epoch_time" msgid="6776188390917658195">"Funda isikhathi senkathi yemoto."</string>
+    <string name="car_permission_label_control_car_exterior_lights" msgid="2702353269564341362">"lawula izibani zangaphandle zemoto"</string>
     <string name="car_permission_desc_control_car_exterior_lights" msgid="6332252612685264180">"Izibani zangaphandle zokulawula imoto."</string>
-    <string name="car_permission_label_car_interior_lights" msgid="8506302199784427680">"funda izibani zemoto zangaphakathi"</string>
-    <string name="car_permission_desc_car_interior_lights" msgid="6204775354692372506">"Finyelela isimo somkhanyo wangaphakathi wemoto."</string>
+    <string name="car_permission_label_car_interior_lights" msgid="2802077280340054799">"funda isimo sezibani zangaphakathi kwemoto."</string>
+    <string name="car_permission_desc_car_interior_lights" msgid="7229450087107255913">"Funda isimo sezibani zangaphakathi kwemoto."</string>
     <string name="car_permission_label_control_car_interior_lights" msgid="6685386372012664281">"lawula izibani zemoto zangaphakathi"</string>
     <string name="car_permission_desc_control_car_interior_lights" msgid="797201814109701538">"Lawula izibani zangaphakathi zemoto."</string>
     <string name="car_permission_label_car_exterior_environment" msgid="3385924985991299436">"funda ithempelesha yangaphandle yemoto"</string>
-    <string name="car_permission_desc_car_exterior_environment" msgid="1716656004731603379">"Finyelela ithempelesha yangaphandle."</string>
-    <string name="car_permission_label_car_tires" msgid="4379255261197836840">"finyelela ulwazi lwamathaya emoto"</string>
-    <string name="car_permission_desc_car_tires" msgid="8134496466769810134">"Finyelela ulwaizi lethaya lemoto."</string>
+    <string name="car_permission_desc_car_exterior_environment" msgid="7142489828485359480">"funda izingakushisa langaphandle kwemoto."</string>
+    <string name="car_permission_label_car_tires" msgid="4006745707051794987">"funda ulwazi lwamasondo emoto"</string>
+    <string name="car_permission_desc_car_tires" msgid="7767600991857109865">"Funda ulwazi lwesondo lemoto."</string>
     <string name="car_permission_label_car_tires_3p" msgid="1360632319908226570">"funda ulwazi lwamasondo emoto"</string>
     <string name="car_permission_desc_car_tires_3p" msgid="820574543667371274">"Funda ulwazi lwesondo lemoto."</string>
     <string name="car_permission_label_car_steering" msgid="7779530447441232479">"funda ulwazi le-steering angle lemoto"</string>
-    <string name="car_permission_desc_car_steering" msgid="1357331844530708138">"Finyelela ulwazi lwe-steering angle yemoto"</string>
+    <string name="car_permission_desc_car_steering" msgid="4986224671150304388">"Funda ulwazi lwe-engeli yokuqondisa imoto."</string>
     <string name="car_permission_label_read_car_steering_3p" msgid="1598866058085489462">"funda ulwazi lwe-engeli yokuqondisa imoto"</string>
-    <string name="car_permission_desc_read_car_steering_3p" msgid="576361609663755171">"Finyelela ulwazi lwe-engeli yokuqondisa imoto."</string>
+    <string name="car_permission_desc_read_car_steering_3p" msgid="4205254436283351421">"Funda ulwazi lwe-engeli yokuqondisa imoto."</string>
     <string name="car_permission_label_read_car_display_units" msgid="7617008314862097183">"funda amayunithi esibonisi emoto"</string>
     <string name="car_permission_desc_read_car_display_units" msgid="6891898275208542385">"Funda amayunithi esibonisi."</string>
     <string name="car_permission_label_control_car_display_units" msgid="4975303668183173076">"lawula ama-yunithi wokubonisa wemoto"</string>
@@ -189,9 +189,9 @@
     <string name="car_permission_label_control_car_powertrain" msgid="234831541490237603">"lawula ulwazi olumayelana ne-powertrain yemoto"</string>
     <string name="car_permission_desc_control_car_powertrain" msgid="8205110385130069179">"Lawula ulwazi olumayelana ne-powertrain yemoto."</string>
     <string name="car_permission_label_car_powertrain" msgid="4586122326622134886">"funda ulwazi le-powertrain lemoto"</string>
-    <string name="car_permission_desc_car_powertrain" msgid="1116007372551797796">"Finyelela ulwazi lwamandla lemoto."</string>
+    <string name="car_permission_desc_car_powertrain" msgid="8578992320121984184">"Funda ulwazi lwe-powertrain yemoto."</string>
     <string name="car_permission_label_car_power" msgid="8111448088314368268">"funda isimo samandla semoto"</string>
-    <string name="car_permission_desc_car_power" msgid="9202079903668652864">"Finyelela amandla emoto."</string>
+    <string name="car_permission_desc_car_power" msgid="1937031836449813395">"Funda isimo samandla emoto."</string>
     <string name="car_permission_label_enroll_trust" msgid="3512907900486690218">"Bhalisa Amadivayisi Athenjwayo"</string>
     <string name="car_permission_desc_enroll_trust" msgid="4148649994602185130">"Vumela ukubhaliswa kwamadivayisi athenjwayo"</string>
     <string name="car_permission_label_car_test_service" msgid="9159328930558208708">"Lawula imodi yokuhlola yemoto"</string>

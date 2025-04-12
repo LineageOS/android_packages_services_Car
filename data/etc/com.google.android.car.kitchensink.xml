@@ -183,6 +183,7 @@
         <!-- use for allowlisting automotive driver assistance packages from camera privacy -->
         <permission name="android.permission.CAMERA_PRIVACY_ALLOWLIST" />
 	<!-- use for Camera2 TestFragment -->
-        <permission name="android.permission.SYSTEM_CAMERA"/>
+	<permission name="android.permission.SYSTEM_CAMERA"/>
+	<permission name="android.permission.BIND_APPWIDGET"/>
     </privapp-permissions>
 </permissions>

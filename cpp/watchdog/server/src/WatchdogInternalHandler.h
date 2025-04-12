@@ -16,7 +16,7 @@
 
 #pragma once
 
-#include "IoOveruseMonitor.h"
+#include "IoOveruseMonitorWrapper.h"
 #include "ThreadPriorityController.h"
 #include "WatchdogPerfService.h"
 #include "WatchdogProcessService.h"
@@ -63,11 +63,11 @@ public:
             const android::sp<WatchdogServiceHelperInterface>& watchdogServiceHelper,
             const android::sp<WatchdogProcessServiceInterface>& watchdogProcessService,
             const android::sp<WatchdogPerfServiceInterface>& watchdogPerfService,
-            const android::sp<IoOveruseMonitorInterface>& ioOveruseMonitor) :
+            const android::sp<IoOveruseMonitorWrapperInterface>& ioOveruseMonitorWrapper) :
           mWatchdogServiceHelper(watchdogServiceHelper),
           mWatchdogProcessService(watchdogProcessService),
           mWatchdogPerfService(watchdogPerfService),
-          mIoOveruseMonitor(ioOveruseMonitor),
+          mIoOveruseMonitorWrapper(ioOveruseMonitorWrapper),
           mThreadPriorityController(std::make_unique<ThreadPriorityController>()) {}
     ~WatchdogInternalHandler() { terminate(); }
 
@@ -129,7 +129,7 @@ public:
         mWatchdogServiceHelper.clear();
         mWatchdogProcessService.clear();
         mWatchdogPerfService.clear();
-        mIoOveruseMonitor.clear();
+        mIoOveruseMonitorWrapper.clear();
     }
 
 private:
@@ -147,7 +147,7 @@ private:
     android::sp<WatchdogServiceHelperInterface> mWatchdogServiceHelper;
     android::sp<WatchdogProcessServiceInterface> mWatchdogProcessService;
     android::sp<WatchdogPerfServiceInterface> mWatchdogPerfService;
-    android::sp<IoOveruseMonitorInterface> mIoOveruseMonitor;
+    android::sp<IoOveruseMonitorWrapperInterface> mIoOveruseMonitorWrapper;
     std::unique_ptr<ThreadPriorityControllerInterface> mThreadPriorityController;
 
     // For unit tests.

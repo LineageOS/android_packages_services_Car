@@ -53,7 +53,7 @@
     <color name="materialColorSurfaceBright">@*android:color/system_surface_bright_light</color>
     <color name="materialColorSurfaceContainer">@android:color/system_surface_container_light</color>
     <color name="materialColorSurfaceContainerHigh">@*android:color/system_surface_container_high_light</color>
-    <color name="materialColorSurfaceContainerHighest">@*android:color/system_surface_container_highest_light</color>
+    <color name="materialColorSurfaceContainerHighest">@color/car_background</color>
     <color name="materialColorSurfaceContainerLow">@*android:color/system_surface_container_low_light</color>
     <color name="materialColorSurfaceContainerLowest">@*android:color/system_surface_container_lowest_light</color>
     <color name="materialColorSurfaceDim">@color/car_surface</color>

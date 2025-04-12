@@ -17,37 +17,37 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="car_permission_label" msgid="2215078736675564541">"Informācija par automašīnu"</string>
-    <string name="car_permission_desc" msgid="3584369074931334964">"piekļūt automašīnas informācijai"</string>
+    <string name="car_permission_desc" msgid="4671139601357696916">"nolasīt informāciju par automašīnu"</string>
     <string name="car_permission_label_camera" msgid="3725702064841827180">"piekļūt automašīnas kamerai"</string>
     <string name="car_permission_desc_camera" msgid="917024932164501426">"Piekļūt automašīnas kamerai(-ām)."</string>
-    <string name="car_permission_label_energy" msgid="7409144323527821558">"piekļūt informācijai par automašīnas degvielas/uzlādes līmeni"</string>
-    <string name="car_permission_desc_energy" msgid="3392963810053235407">"Piekļūt informācijai par automašīnas enerģiju."</string>
+    <string name="car_permission_label_energy" msgid="6529778912442705855">"nolasīt informāciju par automašīnas degvielas/uzlādes līmeni"</string>
+    <string name="car_permission_desc_energy" msgid="7024599188817722607">"Nolasīt informāciju par automašīnas degvielas/uzlādes līmeni."</string>
     <string name="car_permission_label_control_car_energy" msgid="2788215385574313796">"Kontrolēt automašīnas ET uzlādes iestatījumus"</string>
     <string name="car_permission_desc_control_car_energy" msgid="8765015897869031807">"Kontrolēt jūsu automašīnas ET uzlādes iestatījumus."</string>
     <string name="car_permission_label_adjust_range_remaining" msgid="839033553999920138">"pielāgot automašīnas atlikušo attālumu"</string>
     <string name="car_permission_desc_adjust_range_remaining" msgid="2369321650437370673">"Pielāgojiet automašīnas atlikušā attāluma vērtību."</string>
-    <string name="car_permission_label_hvac" msgid="1499454192558727843">"piekļūt automašīnas gaisa kondicionētājam"</string>
-    <string name="car_permission_desc_hvac" msgid="3754229695589774195">"Piekļūt automašīnas gaisa kondicionēšanas sistēmai."</string>
-    <string name="car_permission_label_mileage" msgid="4661317074631150551">"piekļūt informācijai par automašīnas nobraukumu"</string>
-    <string name="car_permission_desc_mileage" msgid="7179735693278681090">"Piekļūt informācijai par automašīnas nobraukumu."</string>
-    <string name="car_permission_label_mileage_3p" msgid="7542459195663034759">"piekļuve informācijai par automašīnas nobraukumu"</string>
-    <string name="car_permission_desc_mileage_3p" msgid="9109350882748664570">"Piekļūt informācijai par automašīnas nobraukumu."</string>
+    <string name="car_permission_label_hvac" msgid="6336214266904971950">"kontrolēt automašīnas apsildes, ventilācijas un gaisa kondicionēšanas sistēmu"</string>
+    <string name="car_permission_desc_hvac" msgid="7229917418217117426">"Kontrolēt automašīnas apsildes, ventilācijas un gaisa kondicionēšanas sistēmu."</string>
+    <string name="car_permission_label_mileage" msgid="9194744289794795513">"nolasīt informāciju par automašīnas nobraukumu"</string>
+    <string name="car_permission_desc_mileage" msgid="9068667477789716791">"Nolasīt informāciju par automašīnas nobraukumu."</string>
+    <string name="car_permission_label_mileage_3p" msgid="2852514373971903913">"nolasīt informāciju par automašīnas nobraukumu"</string>
+    <string name="car_permission_desc_mileage_3p" msgid="1774910630404924463">"Nolasīt informāciju par automašīnas nobraukumu."</string>
     <string name="car_permission_label_read_car_horn" msgid="5940158571880705176">"informācijas nolasīšana par automašīnas signāltauri"</string>
     <string name="car_permission_desc_read_car_horn" msgid="1099929991964988027">"Nolasīt informāciju par automašīnas signāltauri."</string>
     <string name="car_permission_label_control_car_horn" msgid="6724124600587260102">"automašīnas signāltaures kontrolēšana"</string>
     <string name="car_permission_desc_control_car_horn" msgid="6054845567296317971">"Kontrolēt automašīnas signāltauri."</string>
-    <string name="car_permission_label_read_car_pedals" msgid="9053334935825814308">"piekļuve informācijai par automašīnas pedāļiem"</string>
-    <string name="car_permission_desc_read_car_pedals" msgid="3148710874350250453">"Piekļūt informācijai par automašīnas pedāļiem."</string>
-    <string name="car_permission_label_read_brake_info" msgid="6649283162262754200">"piekļuve informācijai par automašīnas bremzēm"</string>
-    <string name="car_permission_desc_read_brake_info" msgid="4641852049166846105">"Piekļūt informācijai par automašīnas bremzēm."</string>
+    <string name="car_permission_label_read_car_pedals" msgid="3043797722208092602">"nolasīt informāciju par automašīnas pedāļiem"</string>
+    <string name="car_permission_desc_read_car_pedals" msgid="8245311380277704380">"Nolasīt informāciju par automašīnas pedāļiem."</string>
+    <string name="car_permission_label_read_brake_info" msgid="919608163703877876">"nolasīt informāciju par automašīnas bremzēm"</string>
+    <string name="car_permission_desc_read_brake_info" msgid="1422619922008154555">"Nolasīt informāciju par automašīnas bremzēm."</string>
     <string name="car_permission_label_speed" msgid="1149027717860529745">"nolasīt automašīnas ātrumu"</string>
-    <string name="car_permission_desc_speed" msgid="2047965198165448241">"Piekļūt informācijai par automašīnas ātrumu."</string>
-    <string name="car_permission_label_vehicle_dynamics_state" msgid="313779267420048367">"piekļūt automašīnas dinamikas stāvoklim"</string>
-    <string name="car_permission_desc_vehicle_dynamics_state" msgid="8891506193446375660">"Piekļūt informācijai par automašīnas dinamikas stāvokli."</string>
+    <string name="car_permission_desc_speed" msgid="5858258466024406366">"Nolasīt informāciju par automašīnas ātrumu."</string>
+    <string name="car_permission_label_vehicle_dynamics_state" msgid="2446589481717587166">"nolasīt informāciju par automašīnas dinamikas stāvokli"</string>
+    <string name="car_permission_desc_vehicle_dynamics_state" msgid="4059749588215960011">"Nolasīt informāciju par automašīnas dinamikas stāvokli."</string>
     <string name="car_permission_label_control_vehicle_dynamics_state" msgid="1912154069363074986">"pārvaldīt automašīnas dinamikas stāvokli"</string>
     <string name="car_permission_desc_control_vehicle_dynamics_state" msgid="5603436779163086928">"Pārvaldīt automašīnas dinamikas stāvokli."</string>
-    <string name="car_permission_label_vendor_extension" msgid="7141601811734127361">"piekļūt automašīnas ražotāja kanālam"</string>
-    <string name="car_permission_desc_vendor_extension" msgid="2970718502334714035">"Piekļūt automašīnas ražotāja kanālam, lai veiktu ar automašīnu saistītas informācijas apmaiņu."</string>
+    <string name="car_permission_label_vendor_extension" msgid="4469386015153307485">"nolasīt informāciju par automašīnas ražotāja kanālu"</string>
+    <string name="car_permission_desc_vendor_extension" msgid="2429289362866854822">"Nolasīt informāciju par automašīnas ražotāja kanālu, lai veiktu ar automašīnu saistītas informācijas apmaiņu."</string>
     <string name="car_permission_label_radio" msgid="6009465291685935112">"pārvaldīt automašīnas radio"</string>
     <string name="car_permission_desc_radio" msgid="3385999027478186964">"Piekļūt automašīnas radio."</string>
     <string name="car_permission_label_projection" msgid="9107156380287576787">"automašīnas displejā projicēt saskarni no tālruņa"</string>
@@ -116,16 +116,16 @@
     <string name="car_permission_desc_use_evs_camera" msgid="1625845902221003985">"Abonēt EVS kameras straumes"</string>
     <string name="car_permission_label_monitor_evs_status" msgid="2091521314159379622">"Pārraudzīt EVS pakalpojuma darbību"</string>
     <string name="car_permission_desc_monitor_evs_status" msgid="2764278897143573535">"Pārraudzīt EVS pakalpojuma statusa izmaiņas"</string>
-    <string name="car_permission_label_car_engine_detailed" msgid="8911992719173587337">"piekļūt detalizētai informācijai par automašīnas dzinēju"</string>
-    <string name="car_permission_desc_car_engine_detailed" msgid="1746863362811347700">"Piekļūt detalizētai informācijai par automašīnas dzinēju."</string>
+    <string name="car_permission_label_car_engine_detailed" msgid="1418113527626468413">"nolasīt detalizētu informāciju par automašīnas dzinēju"</string>
+    <string name="car_permission_desc_car_engine_detailed" msgid="1839656966547909025">"Nolasīt detalizētu informāciju par automašīnas dzinēju."</string>
     <string name="car_permission_label_car_engine_detailed_3p" msgid="2695036212735960169">"detalizētas informācijas nolasīšana par automašīnas dzinēju"</string>
     <string name="car_permission_desc_car_engine_detailed_3p" msgid="7536940094077391015">"Nolasīt detalizētu informāciju par automašīnas dzinēju."</string>
-    <string name="car_permission_label_car_energy_ports" msgid="8548990315169219454">"piekļūt automašīnas degvielas tvertnes vāciņam un uzlādes pieslēgvietai"</string>
-    <string name="car_permission_desc_car_energy_ports" msgid="7771185999828794949">"Piekļūt automašīnas degvielas tvertnes vāciņam un uzlādes pieslēgvietai."</string>
+    <string name="car_permission_label_car_energy_ports" msgid="1466057895734201917">"nolasīt informāciju par automašīnas degvielas tvertnes vāciņu un uzlādes pieslēgvietu"</string>
+    <string name="car_permission_desc_car_energy_ports" msgid="4751253935543293174">"Nolasīt informāciju par automašīnas degvielas tvertnes vāciņu un uzlādes pieslēgvietu."</string>
     <string name="car_permission_label_control_car_energy_ports" msgid="4375137311026313475">"kontrolēt automašīnas degvielas tvertnes vāciņu un uzlādes pieslēgvietu"</string>
     <string name="car_permission_desc_control_car_energy_ports" msgid="7364633710492525387">"Kontrolēt automašīnas degvielas tvertnes vāciņu un uzlādes pieslēgvietu."</string>
     <string name="car_permission_label_car_identification" msgid="5896712510164020478">"nolasīt automašīnas identifikācijas numuru"</string>
-    <string name="car_permission_desc_car_identification" msgid="4132040867171275059">"Piekļūt automašīnas identifikācijas numuram."</string>
+    <string name="car_permission_desc_car_identification" msgid="535838946811032155">"Nolasīt automašīnas identifikācijas numuru."</string>
     <string name="car_permission_label_control_car_doors" msgid="3032058819250195700">"kontrolēt automašīnas durvis"</string>
     <string name="car_permission_desc_control_car_doors" msgid="6287353311980590092">"Kontrolēt automašīnas durvis."</string>
     <string name="car_permission_label_control_car_windows" msgid="2452854429996653029">"kontrolēt automašīnas logus"</string>
@@ -152,36 +152,36 @@
     <string name="car_permission_desc_read_car_airbags" msgid="7961580013929420722">"Lasīt automašīnas gaisa spilvenu informāciju."</string>
     <string name="car_permission_label_control_car_airbags" msgid="6823727183218389617">"pārvaldīt automašīnas drošības spilvenus"</string>
     <string name="car_permission_desc_control_car_airbags" msgid="6181671903761622348">"Pārvaldīt automašīnas drošības spilvenus."</string>
-    <string name="car_permission_label_car_info" msgid="4707513570676492315">"piekļūt pamatinformācijai par automašīnu"</string>
-    <string name="car_permission_desc_car_info" msgid="2118081474543537653">"Piekļūt pamatinformācijai par automašīnu."</string>
-    <string name="car_permission_label_privileged_car_info" msgid="1304018073760220785">"piekļūt ierobežotas piekļuves informācijai par automašīnu"</string>
-    <string name="car_permission_desc_privileged_car_info" msgid="2245117655328125350">"Piekļūt ierobežotas piekļuves informācijai par automašīnu."</string>
-    <string name="car_permission_label_vendor_permission_info" msgid="4471260460536888654">"piekļuve informācijai par automašīnas ražotāja atļaujām"</string>
-    <string name="car_permission_desc_vendor_permission_info" msgid="8152113853528488398">"Piekļūt informācijai par automašīnas ražotāja atļaujām."</string>
-    <string name="car_permission_label_car_exterior_lights" msgid="541304469604902110">"nolasīt automašīnas lukturu stāvokli"</string>
+    <string name="car_permission_label_car_info" msgid="1063184863204793829">"nolasīt pamatinformāciju par automašīnu"</string>
+    <string name="car_permission_desc_car_info" msgid="5780681956513865291">"Nolasīt pamatinformāciju par automašīnu."</string>
+    <string name="car_permission_label_privileged_car_info" msgid="7056641626040863385">"nolasīt iekšējo informāciju par automašīnu"</string>
+    <string name="car_permission_desc_privileged_car_info" msgid="8443694410074384466">"Nolasīt iekšējo informāciju par automašīnu."</string>
+    <string name="car_permission_label_vendor_permission_info" msgid="3285296684927879613">"nolasīt informāciju par automašīnas ražotāja atļaujām"</string>
+    <string name="car_permission_desc_vendor_permission_info" msgid="9208614308909994486">"Nolasīt informāciju par automašīnas ražotāja atļaujām."</string>
+    <string name="car_permission_label_car_exterior_lights" msgid="3839661014756123708">"nolasīt informāciju par automašīnas lukturu stāvokli"</string>
     <string name="car_permission_desc_car_exterior_lights" msgid="4038037584100849318">"Piekļūt automašīnas lukturu stāvoklim."</string>
     <string name="car_permission_label_read_car_exterior_lights" msgid="8206567055976888587">"automašīnas lukturu stāvokļa nolasīšana"</string>
     <string name="car_permission_desc_read_car_exterior_lights" msgid="8611497191707405104">"Nolasīt automašīnas lukturu stāvokli."</string>
-    <string name="car_permission_label_control_glove_box" msgid="992118647212706782">"piekļūt automašīnas cimdu nodalījuma statusam"</string>
-    <string name="car_permission_desc_control_glove_box" msgid="2888062136750123261">"Piekļūt automašīnas cimdu nodalījuma statusam."</string>
-    <string name="car_permission_label_car_epoch_time" msgid="6303397910662625112">"piekļūt automašīnas diskretizācijas perioda laikam"</string>
-    <string name="car_permission_desc_car_epoch_time" msgid="398907082895238558">"Piekļūt automašīnas diskretizācijas perioda laikam."</string>
-    <string name="car_permission_label_control_car_exterior_lights" msgid="101357531386232141">"nolasīt automašīnas lukturus"</string>
+    <string name="car_permission_label_control_glove_box" msgid="8893424527567257629">"kontrolēt automašīnas cimdu nodalījuma stāvokli"</string>
+    <string name="car_permission_desc_control_glove_box" msgid="202603834328737918">"Kontrolēt automašīnas cimdu nodalījuma statusu."</string>
+    <string name="car_permission_label_car_epoch_time" msgid="8667615176555933314">"nolasīt informāciju par automašīnas diskretizācijas perioda laiku"</string>
+    <string name="car_permission_desc_car_epoch_time" msgid="6776188390917658195">"Nolasīt informāciju par automašīnas diskretizācijas perioda laiku."</string>
+    <string name="car_permission_label_control_car_exterior_lights" msgid="2702353269564341362">"kontrolēt automašīnas lukturus"</string>
     <string name="car_permission_desc_control_car_exterior_lights" msgid="6332252612685264180">"Kontrolēt automašīnas lukturus."</string>
-    <string name="car_permission_label_car_interior_lights" msgid="8506302199784427680">"nolasīt automašīnas salona apgaismojumu"</string>
-    <string name="car_permission_desc_car_interior_lights" msgid="6204775354692372506">"Piekļūt automašīnas salona apgaismojuma stāvoklim."</string>
+    <string name="car_permission_label_car_interior_lights" msgid="2802077280340054799">"nolasīt informāciju par automašīnas salona apgaismojuma stāvokli"</string>
+    <string name="car_permission_desc_car_interior_lights" msgid="7229450087107255913">"Nolasīt informāciju par automašīnas salona apgaismojuma stāvokli."</string>
     <string name="car_permission_label_control_car_interior_lights" msgid="6685386372012664281">"kontrolēt automašīnas salona apgaismojumu"</string>
     <string name="car_permission_desc_control_car_interior_lights" msgid="797201814109701538">"Kontrolēt automašīnas salona apgaismojumu."</string>
     <string name="car_permission_label_car_exterior_environment" msgid="3385924985991299436">"nolasīt informāciju par temperatūru automašīnas ārpusē"</string>
-    <string name="car_permission_desc_car_exterior_environment" msgid="1716656004731603379">"Piekļūt informācijai par temperatūru automašīnas ārpusē."</string>
-    <string name="car_permission_label_car_tires" msgid="4379255261197836840">"piekļūt informācijai par automašīnas riepām"</string>
-    <string name="car_permission_desc_car_tires" msgid="8134496466769810134">"Piekļūt informācijai par automašīnas riepām."</string>
+    <string name="car_permission_desc_car_exterior_environment" msgid="7142489828485359480">"Nolasīt informāciju par temperatūru automašīnas ārpusē."</string>
+    <string name="car_permission_label_car_tires" msgid="4006745707051794987">"nolasīt informāciju par automašīnas riepām"</string>
+    <string name="car_permission_desc_car_tires" msgid="7767600991857109865">"Nolasīt informāciju par automašīnas riepām."</string>
     <string name="car_permission_label_car_tires_3p" msgid="1360632319908226570">"informācijas nolasīšana par automašīnas riepām"</string>
     <string name="car_permission_desc_car_tires_3p" msgid="820574543667371274">"Nolasīt informāciju par automašīnas riepām."</string>
     <string name="car_permission_label_car_steering" msgid="7779530447441232479">"nolasīt informāciju par automašīnas pagrieziena leņķi"</string>
-    <string name="car_permission_desc_car_steering" msgid="1357331844530708138">"Piekļūt informācijai par automašīnas pagrieziena leņķi."</string>
+    <string name="car_permission_desc_car_steering" msgid="4986224671150304388">"Nolasīt informāciju par automašīnas pagrieziena leņķi."</string>
     <string name="car_permission_label_read_car_steering_3p" msgid="1598866058085489462">"informācijas nolasīšana par automašīnas pagrieziena leņķi"</string>
-    <string name="car_permission_desc_read_car_steering_3p" msgid="576361609663755171">"Piekļūt informācijai par automašīnas pagrieziena leņķi."</string>
+    <string name="car_permission_desc_read_car_steering_3p" msgid="4205254436283351421">"Nolasīt informāciju par automašīnas pagrieziena leņķi."</string>
     <string name="car_permission_label_read_car_display_units" msgid="7617008314862097183">"nolasīt automašīnā parādītās mērvienības"</string>
     <string name="car_permission_desc_read_car_display_units" msgid="6891898275208542385">"Nolasīt parādītās mērvienības."</string>
     <string name="car_permission_label_control_car_display_units" msgid="4975303668183173076">"kontrolēt automašīnā parādītās mērvienības"</string>
@@ -189,9 +189,9 @@
     <string name="car_permission_label_control_car_powertrain" msgid="234831541490237603">"pārvaldīt informāciju par automašīnas spēka piedziņu"</string>
     <string name="car_permission_desc_control_car_powertrain" msgid="8205110385130069179">"Pārvaldīt informāciju par automašīnas spēka piedziņu."</string>
     <string name="car_permission_label_car_powertrain" msgid="4586122326622134886">"nolasīt informāciju par automašīnas spēka piedziņu"</string>
-    <string name="car_permission_desc_car_powertrain" msgid="1116007372551797796">"Piekļūt informācijai par automašīnas spēka piedziņu."</string>
+    <string name="car_permission_desc_car_powertrain" msgid="8578992320121984184">"Nolasīt informāciju par automašīnas spēka piedziņu."</string>
     <string name="car_permission_label_car_power" msgid="8111448088314368268">"nolasīt automašīnas aizdedzes stāvokli"</string>
-    <string name="car_permission_desc_car_power" msgid="9202079903668652864">"Piekļūt automašīnas aizdedzes stāvoklim."</string>
+    <string name="car_permission_desc_car_power" msgid="1937031836449813395">"Nolasīt informāciju par automašīnas aizdedzes stāvokli."</string>
     <string name="car_permission_label_enroll_trust" msgid="3512907900486690218">"Reģistrēt uzticamu ierīci"</string>
     <string name="car_permission_desc_enroll_trust" msgid="4148649994602185130">"Atļaut uzticamu ierīču reģistrāciju"</string>
     <string name="car_permission_label_car_test_service" msgid="9159328930558208708">"kontrolēt automašīnas testa režīmu"</string>

@@ -542,6 +542,8 @@ public class ICarImpl extends ICar.Stub {
         t.traceEnd(); // "ICarImpl.init"
     }
 
+
+    @MainThread
     void release() {
         // release done in opposite order from init
         for (int i = mAllServicesInInitOrder.length - 1; i >= 0; i--) {
@@ -733,17 +735,14 @@ public class ICarImpl extends ICar.Stub {
                 return mCarRemoteDeviceService;
             case Car.CAR_REMOTE_ACCESS_SERVICE:
                 return mCarRemoteAccessService;
+            case Car.CAR_WIFI_SERVICE:
+                return mCarWifiService;
             default:
                 // CarDisplayCompatManager does not need a new service but the Car class
                 // doesn't allow a new Manager class without a service.
                 if (mFeatureFlags.displayCompatibility()) {
                     if (serviceName.equals(CAR_DISPLAY_COMPAT_SERVICE)) {
                         return mCarActivityService;
-                    }
-                }
-                if (mFeatureFlags.persistApSettings()) {
-                    if (serviceName.equals(Car.CAR_WIFI_SERVICE)) {
-                        return mCarWifiService;
                     }
                 }
                 if (mFeatureFlags.carPropertySimulation()) {
