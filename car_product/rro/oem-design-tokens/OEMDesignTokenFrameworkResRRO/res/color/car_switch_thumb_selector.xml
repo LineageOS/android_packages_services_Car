@@ -17,13 +17,12 @@
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:state_checked="true" android:state_enabled="false"
-        android:alpha="?android:attr/disabledAlpha"
-        android:color="?oemColorOnPrimary" />
+        android:color="?oemColorSurface" />
     <item
         android:state_enabled="false"
         android:alpha="?android:attr/disabledAlpha"
-        android:color="?oemColorSecondary" />
+        android:color="?oemColorOutline" />
     <item
         android:state_checked="true" android:color="?oemColorOnPrimary" />
-    <item android:color="?oemColorSecondary" />
+    <item android:color="?oemColorOutline" />
 </selector>
