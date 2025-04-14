@@ -223,6 +223,8 @@
     <!-- Allowlisted packages for launch on a private display. -->
     <string-array name="config_defaultAllowlistLaunchOnPrivateDisplayPackages">
         <item>com.example.android.launchonprivatedisplay</item>
+        <item>com.google.android.apps.mediashell</item>
+        <item>org.chromium.chromecast.shell</item>
     </string-array>
 
     <!-- The number of the max cached processes in the system.
