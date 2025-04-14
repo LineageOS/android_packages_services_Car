@@ -381,11 +381,6 @@ public class CarWatchdogDaemonHelperTest {
         public void resetResourceOveruseStats(List<String> packageNames) {}
 
         @Override
-        public List<UserPackageIoUsageStats> getTodayIoUsageStats() {
-            return new ArrayList<>();
-        }
-
-        @Override
         public void onLatestResourceStats(List<ResourceStats> resourceStats) {}
 
         @Override

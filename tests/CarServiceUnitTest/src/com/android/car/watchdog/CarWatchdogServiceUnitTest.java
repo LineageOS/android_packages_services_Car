@@ -768,12 +768,6 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
 
         verify(mMockWatchdogPerfHandler).asyncFetchTodayIoUsageStats();
     }
-    @Test
-    public void testGetTodayIoUsageStats() throws Exception {
-        mWatchdogServiceForSystemImpl.getTodayIoUsageStats();
-
-        verify(mMockWatchdogPerfHandler).getTodayIoUsageStats();
-    }
 
     @Test
     public void testResetResourceOveruseStats() throws Exception {
