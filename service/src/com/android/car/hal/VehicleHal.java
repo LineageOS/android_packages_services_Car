@@ -88,14 +88,14 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 
@@ -122,6 +122,9 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
 
     // The timeout in seconds for the default executor to temrinate.
     private static final int EXECUTOR_TERMINATE_TIMEOUT_SECONDS = 10;
+
+    // Whether this VHAL is released, but not initialized again yet.
+    private final AtomicBoolean mReleased = new AtomicBoolean(true);
 
     private final SubscriptionClient mSubscriptionClient;
 
@@ -162,6 +165,8 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
     @GuardedBy("mLock")
     private final ArrayMap<HalServiceBase, ArraySet<PropIdAreaId>>
             mSupportedValuesChangePropIdAreaIdsByService = new ArrayMap<>();
+    @GuardedBy("mLock")
+    private ScheduledThreadPoolExecutor mInjectVhalExecutor;
 
     @GuardedBy("mLock")
     private final SparseArray<VehiclePropertyEventInfo> mEventLog = new SparseArray<>();
@@ -543,7 +548,11 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
      * PriorityInit for the vhal configurations.
      */
     public void priorityInit() {
+        mReleased.set(false);
         mDefaultExecutorRef.set(Executors.newSingleThreadExecutor());
+        synchronized (mLock) {
+            mInjectVhalExecutor = null;
+        }
 
         fetchAllPropConfigs();
 
@@ -594,6 +603,8 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
      */
     @Override
     public void release() {
+        mReleased.set(true);
+
         // release in reverse order from init
         for (int i = mAllServices.size() - 1; i >= 0; i--) {
             mAllServices.get(i).release();
@@ -619,22 +630,33 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
         }
         var defaultExecutor = mDefaultExecutorRef.getAndSet(null);
         if (defaultExecutor != null) {
-            Slogf.d(CarLog.TAG_HAL, "Shutting down VehicleHal default executor");
-            defaultExecutor.shutdown();
-            try {
-                // 10s should be more than enough for the posted tasks to finish.
-                boolean result = defaultExecutor.awaitTermination(
-                        EXECUTOR_TERMINATE_TIMEOUT_SECONDS, TimeUnit.SECONDS);
-                if (!result) {
-                    Slogf.e(CarLog.TAG_HAL, "VehicleHal default executor not finishing within 10s");
-                } else {
-                    Slogf.d(CarLog.TAG_HAL, "VehicleHal default executor shutdown complete");
-                }
-            } catch (InterruptedException e) {
-                Slogf.w(CarLog.TAG_HAL, "Interrupted while shutting down default executor");
-                defaultExecutor.shutdownNow();
-                Thread.currentThread().interrupt();
+            shutDownExecutorAndAwaitTermination(defaultExecutor, "default executor");
+        }
+        ExecutorService injectVhalExecutor;
+        synchronized (mLock) {
+            injectVhalExecutor = mInjectVhalExecutor;
+        }
+        if (injectVhalExecutor != null) {
+            shutDownExecutorAndAwaitTermination(injectVhalExecutor, "inject vhal executor");
+        }
+    }
+
+    private void shutDownExecutorAndAwaitTermination(ExecutorService executor, String name) {
+        Slogf.d(CarLog.TAG_HAL, "Shutting down VehicleHal %s", name);
+        executor.shutdown();
+        try {
+            // 10s should be more than enough for the posted tasks to finish.
+            boolean result = executor.awaitTermination(
+                    EXECUTOR_TERMINATE_TIMEOUT_SECONDS, TimeUnit.SECONDS);
+            if (!result) {
+                Slogf.e(CarLog.TAG_HAL, "VehicleHal %s not finishing within 10s", name);
+            } else {
+                Slogf.d(CarLog.TAG_HAL, "VehicleHal %s shutdown complete", name);
             }
+        } catch (InterruptedException e) {
+            Slogf.w(CarLog.TAG_HAL, "Interrupted while shutting down %s", name);
+            executor.shutdownNow();
+            Thread.currentThread().interrupt();
         }
     }
 
@@ -1839,8 +1861,15 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
      * @param sampleRate the sample rate for events in Hz
      * @param timeDurationInSec the duration for injecting events in seconds
      */
+    @SuppressWarnings("FutureReturnValueIgnored")
     public void injectContinuousVhalEvent(int property, int zone, String value,
             float sampleRate, long timeDurationInSec) {
+        if (mReleased.get()) {
+            // Check released to prevent creating a new thread after released is called.
+            Slogf.w(CarLog.TAG_HAL,
+                    "injectContinuousVhalEvent: VehicleHal is released, do nothing.");
+            return;
+        }
 
         HalPropValue v = createPropValueForInjecting(mPropValueBuilder, property, zone,
                 new ArrayList<>(Arrays.asList(value.split(DATA_DELIMITER))), 0);
@@ -1852,25 +1881,37 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
             Slogf.e(CarLog.TAG_HAL, "Inject events at an invalid sample rate: " + sampleRate);
             return;
         }
-        long period = (long) (1000 / sampleRate);
+        long delayInMs = (long) (1000 / sampleRate);
         long stopTime = timeDurationInSec * 1000 + SystemClock.elapsedRealtime();
-        Timer timer = new Timer();
-        timer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                if (stopTime < SystemClock.elapsedRealtime()) {
-                    timer.cancel();
-                    timer.purge();
-                } else {
-                    // Avoid the fake events be covered by real Event
-                    long timestamp = SystemClock.elapsedRealtimeNanos()
-                            + TimeUnit.SECONDS.toNanos(timeDurationInSec);
-                    HalPropValue v = createPropValueForInjecting(mPropValueBuilder, property, zone,
-                            new ArrayList<>(Arrays.asList(value.split(DATA_DELIMITER))), timestamp);
-                    handleOnPropertyEvent(Lists.newArrayList(v));
-                }
+
+        // We create a new thread only if this API is called. This is a test-only API and we do not
+        // want to keep a useless thread around if this API is not used.
+        ScheduledThreadPoolExecutor executor;
+        synchronized (mLock) {
+            if (mInjectVhalExecutor == null) {
+                mInjectVhalExecutor = new ScheduledThreadPoolExecutor(/* corePoolSize= */ 1);
             }
-        }, /* delay= */0, period);
+            executor = mInjectVhalExecutor;
+        }
+        executor.scheduleWithFixedDelay(() -> {
+            if (SystemClock.elapsedRealtime() > stopTime) {
+                // Generate an exception here to stop repeating. This is not very elegant but
+                // effective to stop repeating from inside the runnable. This will not crash
+                // the thread but will store the exception into the future returned from this
+                // function. We are not actually waiting on the future here so we will never
+                // see this exception.
+                throw new RuntimeException("Inject completed normally");
+            }
+
+            // Add timeDurationInSec to the timestamp to simulates the events come from the future,
+            // otherwise, the injected events might be covered by real events coming from VHAL which
+            // has newer timestamps.
+            long timestamp = SystemClock.elapsedRealtimeNanos()
+                    + TimeUnit.SECONDS.toNanos(timeDurationInSec);
+            HalPropValue newValue = createPropValueForInjecting(mPropValueBuilder, property, zone,
+                    new ArrayList<>(Arrays.asList(value.split(DATA_DELIMITER))), timestamp);
+            handleOnPropertyEvent(Lists.newArrayList(newValue));
+        }, /* initialDelay= */ 0, delayInMs, TimeUnit.MILLISECONDS);
     }
 
     // Returns null if the property type is unsupported.
