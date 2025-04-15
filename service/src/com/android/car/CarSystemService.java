@@ -30,8 +30,12 @@ public interface CarSystemService {
 
     /**
      * Initializes the service.
-     * <p>All necessary initialization should be done and service should be
-     * functional after this.
+     *
+     * <p>All necessary initialization should be done and service should be functional after this.
+     *
+     * <p>This is only invoked from the main thread. This might be called more than once but is only
+     * called after the constructor or after a release. e.g., a flow might be constructor(),
+     * init(), release(), init().
      */
     void init();
 
@@ -40,8 +44,26 @@ public interface CarSystemService {
      */
     default void onInitComplete() {}
 
-    /** Releases all reources to stop the service. */
+    /**
+     * Releases all resources to stop the service.
+     *
+     * <p>This is only invoked from the main thread.
+     *
+     * <p>It is possible that requests may still come to the service. It is okay to return error
+     * for all operations after release, but the service must not crash.
+     */
     void release();
+
+    /**
+     * Destroy the service.
+     *
+     * <p>This is only invoked from the main thread.
+     *
+     * <p>This is only invoked once before the instance is no longer used. This function should be
+     * used to clean up resources created during the constructor, for example, quit the handler
+     * thread and wait for it to finish.
+     */
+    default void destroy() {}
 
     /** Dumps its state. */
     void dump(IndentingPrintWriter writer);

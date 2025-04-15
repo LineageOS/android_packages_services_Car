@@ -227,6 +227,9 @@ public class VmsHalService extends HalServiceBase {
     }
 
     @Override
+    public void destroy() {}
+
+    @Override
     @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     public void dump(PrintWriter writer) {
         synchronized (mLock) {

@@ -602,6 +602,16 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
         }
     }
 
+    @Override
+    public void destroy() {
+        synchronized (mLock) {
+            // destroy in reverse order from init
+            for (int i = mAllServices.size() - 1; i >= 0; i--) {
+                mAllServices.get(i).destroy();
+            }
+        }
+    }
+
     public DiagnosticHalService getDiagnosticHal() {
         return mDiagnosticHal;
     }

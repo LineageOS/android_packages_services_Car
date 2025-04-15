@@ -651,6 +651,9 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
     }
 
     @Override
+    public void destroy() {}
+
+    @Override
     public void release() {
         if (!asyncAudioServiceInit()) {
             releaseCarAudioService();
