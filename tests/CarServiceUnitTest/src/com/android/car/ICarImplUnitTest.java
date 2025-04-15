@@ -108,6 +108,9 @@ import java.util.List;
 public final class ICarImplUnitTest {
     private static final String TAG = ICarImplUnitTest.class.getSimpleName();
 
+    // TODO(b/407826045): Add NoActiveHandlerThreadCheckerRule once we implement destroy for all
+    // hal services that is created inside VehicleHal.
+
     @Mock private ActivityManagerInterface mMockActivityManagerInterface;
     @Mock private DisplayInterface mMockDisplayInterface;
     @Mock private VehicleStub mMockVehicle;
@@ -266,6 +269,7 @@ public final class ICarImplUnitTest {
             assertThat(carImpl.getCarService(Car.AUDIO_SERVICE)).isEqualTo(mMockCarAudioService);
         } finally {
             carImpl.release();
+            carImpl.destroy();
         }
     }
 
@@ -282,6 +286,7 @@ public final class ICarImplUnitTest {
             assertThat(carImpl.getCarService(Car.AUDIO_SERVICE)).isNull();
         } finally {
             carImpl.release();
+            carImpl.destroy();
         }
     }
 
@@ -294,13 +299,19 @@ public final class ICarImplUnitTest {
 
         carImpl.init();
 
+        boolean interrupted;
+
         try {
             assertThat(carImpl.getCarService(Car.AUDIO_SERVICE)).isNull();
         } finally {
+            // This also clears the interrupt flag.
+            interrupted = Thread.interrupted();
+
             carImpl.release();
+            carImpl.destroy();
         }
 
-        assertThat(Thread.currentThread().isInterrupted()).isTrue();
+        assertThat(interrupted).isTrue();
     }
 
     @Test
@@ -314,8 +325,12 @@ public final class ICarImplUnitTest {
 
         carImpl.setSystemServerConnections(mICarServiceHelper, carResultReceiver);
 
-        // Verifies that our receiver receives null as bundle.
-        verify(carResultReceiver).send(eq(0), eq(null));
+        try {
+            // Verifies that our receiver receives null as bundle.
+            verify(carResultReceiver).send(eq(0), eq(null));
+        } finally {
+            carImpl.destroy();
+        }
     }
 
     @Test
@@ -331,7 +346,11 @@ public final class ICarImplUnitTest {
         when(mockCarExpFeatureServiceController.getCarManagerClassForFeature(testFeature))
                 .thenReturn(testClass);
 
-        assertThat(carImpl.getCarManagerClassForFeature(testFeature)).isEqualTo(testClass);
+        try {
+            assertThat(carImpl.getCarManagerClassForFeature(testFeature)).isEqualTo(testClass);
+        } finally {
+            carImpl.destroy();
+        }
     }
 
     @Test
@@ -347,7 +366,11 @@ public final class ICarImplUnitTest {
         when(mockCarExpFeatureServiceController.getCarManagerClassForFeature(testFeature))
                 .thenReturn(testClass);
 
-        assertThat(carImpl.getCarManagerClassForFeature(testFeature)).isNull();
+        try {
+            assertThat(carImpl.getCarManagerClassForFeature(testFeature)).isNull();
+        } finally {
+            carImpl.destroy();
+        }
     }
 
     @Test
@@ -376,8 +399,7 @@ public final class ICarImplUnitTest {
      * Simulates that system server is connected and we passes a {@link ICarSystemServerClient}
      * binder connection to system server.
      */
-    private ICarSystemServerClient prepareCarSystemServerClient() throws Exception {
-        ICarImpl carImpl = getBaseICarImplBuilder().build();
+    private ICarSystemServerClient prepareCarSystemServerClient(ICarImpl carImpl) throws Exception {
         ICarResultReceiver.Stub carResultReceiver = mock(ICarResultReceiver.Stub.class);
         var bundleCaptor = new Bundle[1];
         doAnswer((inv) -> {
@@ -396,7 +418,8 @@ public final class ICarImplUnitTest {
 
     @Test
     public void testCarSystemServerClientImpl_onUserLifecycleEvent() throws Exception {
-        ICarSystemServerClient carSystemServerClient = prepareCarSystemServerClient();
+        ICarImpl carImpl = getBaseICarImplBuilder().build();
+        ICarSystemServerClient carSystemServerClient = prepareCarSystemServerClient(carImpl);
 
         int eventType = CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING;
         int fromUserId = 1;
@@ -404,7 +427,11 @@ public final class ICarImplUnitTest {
 
         carSystemServerClient.onUserLifecycleEvent(eventType, fromUserId, toUserId);
 
-        verify(mMockCarUserService).onUserLifecycleEvent(eventType, fromUserId, toUserId);
+        try {
+            verify(mMockCarUserService).onUserLifecycleEvent(eventType, fromUserId, toUserId);
+        } finally {
+            carImpl.destroy();
+        }
     }
 
     /**
@@ -434,34 +461,49 @@ public final class ICarImplUnitTest {
 
     @Test
     public void testCarSystemServerClientImpl_onFactoryReset() throws Exception {
-        ICarSystemServerClient carSystemServerClient = prepareCarSystemServerClient();
+        ICarImpl carImpl = getBaseICarImplBuilder().build();
+        ICarSystemServerClient carSystemServerClient = prepareCarSystemServerClient(carImpl);
         ICarResultReceiver carResultReceiver = mock(ICarResultReceiver.class);
         when(mContext.getClassLoader()).thenReturn(new FakeClassLoader());
 
         carSystemServerClient.onFactoryReset(carResultReceiver);
 
-        verify(mMockCarPowerManagementService).setFactoryResetCallback(carResultReceiver);
+        try {
+            verify(mMockCarPowerManagementService).setFactoryResetCallback(carResultReceiver);
+        } finally {
+            carImpl.destroy();
+        }
     }
 
     @Test
     public void testCarSystemServerClientImpl_setInitialUser() throws Exception {
-        ICarSystemServerClient carSystemServerClient = prepareCarSystemServerClient();
+        ICarImpl carImpl = getBaseICarImplBuilder().build();
+        ICarSystemServerClient carSystemServerClient = prepareCarSystemServerClient(carImpl);
         var user = new UserHandle(UserManagerHelper.USER_SYSTEM);
 
         carSystemServerClient.setInitialUser(user);
 
-        verify(mMockCarUserService).setInitialUserFromSystemServer(user);
+        try {
+            verify(mMockCarUserService).setInitialUserFromSystemServer(user);
+        } finally {
+            carImpl.destroy();
+        }
     }
 
     @Test
     public void testCarSystemServerClientImpl_notifyFocusChanged() throws Exception {
-        ICarSystemServerClient carSystemServerClient = prepareCarSystemServerClient();
+        ICarImpl carImpl = getBaseICarImplBuilder().build();
+        ICarSystemServerClient carSystemServerClient = prepareCarSystemServerClient(carImpl);
         int testPid = 123;
         int testUid = 321;
 
         carSystemServerClient.notifyFocusChanged(testPid, testUid);
 
-        verify(mMockSAMService).handleFocusChanged(testPid, testUid);
+        try {
+            verify(mMockSAMService).handleFocusChanged(testPid, testUid);
+        } finally {
+            carImpl.destroy();
+        }
     }
 
     static final class TestCarService implements CarSystemService {

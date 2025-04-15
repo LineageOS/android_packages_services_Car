@@ -123,6 +123,9 @@ public class ICarImpl extends ICar.Stub {
 
     private static final int CAR_AUDIO_SERVICE_INIT_TIMEOUT_MS = 10_000;
 
+    // The initial capacity for services array. Currently there are ~40 services, hence using 64.
+    private static final int SERVICE_ARRAY_INITIAL_CAPACITY = 64;
+
     private final Context mContext;
     private final Context mCarServiceBuiltinPackageContext;
     private final VehicleHal mHal;
@@ -184,6 +187,9 @@ public class ICarImpl extends ICar.Stub {
 
     // Storing all the car services in the order of their init.
     private final CarSystemService[] mAllServicesInInitOrder;
+    // Services created by ICarImpl. ICarImpl owns the lifecycle for these services. This is only
+    // updated during constructor.
+    private final List<CarSystemService> mCreatedServices;
 
     private static final boolean DBG = Slogf.isLoggable(TAG, Log.DEBUG);
 
@@ -214,12 +220,14 @@ public class ICarImpl extends ICar.Stub {
     private static final class CarServiceCreator {
         private final Builder mBuilder;
         private final List<CarSystemService> mAllServices;
+        private final List<CarSystemService> mCreatedServices;
         private final TimingsTraceLog mTraceLog;
 
         CarServiceCreator(Builder builder, TimingsTraceLog traceLog,
-                List<CarSystemService> allServices) {
+                List<CarSystemService> allServices, List<CarSystemService> createdServices) {
             mBuilder = builder;
             mAllServices = allServices;
+            mCreatedServices = createdServices;
             mTraceLog = traceLog;
         }
 
@@ -237,7 +245,10 @@ public class ICarImpl extends ICar.Stub {
                 CarLocalServices.addService(serviceClazz, serviceFromBuilder);
                 return serviceFromBuilder;
             }
-            return constructWithTrace(mTraceLog, serviceClazz, constructFunc, mAllServices);
+            var newService = constructWithTrace(mTraceLog, serviceClazz, constructFunc,
+                    mAllServices);
+            mCreatedServices.add(newService);
+            return newService;
         }
 
         private @Nullable <T extends CarSystemService> T createServiceIfFeatureEnabled(
@@ -276,9 +287,10 @@ public class ICarImpl extends ICar.Stub {
 
         mCarServiceHelperWrapper = CarServiceHelperWrapper.create();
 
-        // Currently there are ~40 services, hence using 64 as the initial capacity.
-        List<CarSystemService> allServices = new ArrayList<>(64);
-        CarServiceCreator carServiceCreator = new CarServiceCreator(builder, t, allServices);
+        List<CarSystemService> allServices = new ArrayList<>(SERVICE_ARRAY_INITIAL_CAPACITY);
+        List<CarSystemService> createdServices = new ArrayList<>(SERVICE_ARRAY_INITIAL_CAPACITY);
+        CarServiceCreator carServiceCreator = new CarServiceCreator(builder, t, allServices,
+                createdServices);
         mCarOemService = carServiceCreator.createService(
                 CarOemProxyService.class,
                 () -> new CarOemProxyService(mContext));
@@ -503,6 +515,9 @@ public class ICarImpl extends ICar.Stub {
 
         mAllServicesInInitOrder = allServices.toArray(new CarSystemService[allServices.size()]);
         mICarSystemServerClientImpl = new ICarSystemServerClientImpl();
+        mCreatedServices = createdServices;
+        // Also add vehicleHal to createdServices.
+        mCreatedServices.add(mHal);
 
         t.traceEnd(); // "ICarImpl.constructor"
     }
@@ -548,6 +563,14 @@ public class ICarImpl extends ICar.Stub {
         // release done in opposite order from init
         for (int i = mAllServicesInInitOrder.length - 1; i >= 0; i--) {
             mAllServicesInInitOrder[i].release();
+        }
+    }
+
+    // Called during onDestroy.
+    void destroy() {
+        // For all services created by this class. destroy them.
+        for (int i = 0; i < mCreatedServices.size(); i++) {
+            mCreatedServices.get(i).destroy();
         }
     }
 

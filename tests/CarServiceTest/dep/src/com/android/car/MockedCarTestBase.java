@@ -431,6 +431,7 @@ public class MockedCarTestBase {
             }
             if (mCarImpl != null) {
                 mCarImpl.release();
+                mCarImpl.destroy();
                 mCarImpl = null;
             }
             CarServiceUtils.quitHandlerThreads();

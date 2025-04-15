@@ -95,6 +95,8 @@ public class CarServiceImpl extends ProxiedService {
         EventLogHelper.writeCarServiceDestroy(/* hasVhal= */ mVehicle.isValid());
         Slogf.i(CarLog.TAG_SERVICE, "Service onDestroy");
         mICarImpl.release();
+        mICarImpl.destroy();
+        mICarImpl = null;
 
         mVehicle.unlinkToDeath(mVehicleDeathRecipient);
         mVehicle = null;
