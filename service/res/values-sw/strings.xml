@@ -162,8 +162,8 @@
     <string name="car_permission_desc_car_exterior_lights" msgid="4038037584100849318">"Kufikia hali ya taa za nje ya gari."</string>
     <string name="car_permission_label_read_car_exterior_lights" msgid="8206567055976888587">"kusoma hali ya taa za nje za gari"</string>
     <string name="car_permission_desc_read_car_exterior_lights" msgid="8611497191707405104">"Kusoma hali ya taa za nje za gari."</string>
-    <string name="car_permission_label_control_glove_box" msgid="8893424527567257629">"kudhibiti hali ya kidawati cha gari"</string>
-    <string name="car_permission_desc_control_glove_box" msgid="202603834328737918">"Kudhibiti hali ya kidawati cha gari."</string>
+    <string name="car_permission_label_control_glove_box" msgid="8893424527567257629">"kudhibiti hali ya kisanduku cha glavu cha gari"</string>
+    <string name="car_permission_desc_control_glove_box" msgid="202603834328737918">"Kudhibiti hali ya kisanduku cha kuweka glavu cha gari."</string>
     <string name="car_permission_label_car_epoch_time" msgid="8667615176555933314">"kusoma maelezo ya kipindi cha gari"</string>
     <string name="car_permission_desc_car_epoch_time" msgid="6776188390917658195">"Kusoma maelezo ya kipindi cha gari."</string>
     <string name="car_permission_label_control_car_exterior_lights" msgid="2702353269564341362">"kudhibiti taa za nje za gari"</string>

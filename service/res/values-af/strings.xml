@@ -162,8 +162,8 @@
     <string name="car_permission_desc_car_exterior_lights" msgid="4038037584100849318">"Toegang tot motor se buiteligtestaat."</string>
     <string name="car_permission_label_read_car_exterior_lights" msgid="8206567055976888587">"motor se buiteligtestaat te lees"</string>
     <string name="car_permission_desc_read_car_exterior_lights" msgid="8611497191707405104">"Motor se buiteligtestaat te lees."</string>
-    <string name="car_permission_label_control_glove_box" msgid="8893424527567257629">"die motor se paneelkassiestatus beheer"</string>
-    <string name="car_permission_desc_control_glove_box" msgid="202603834328737918">"Die motor se paneelkassiestatus beheer."</string>
+    <string name="car_permission_label_control_glove_box" msgid="8893424527567257629">"die motor se paneelkissiestatus beheer"</string>
+    <string name="car_permission_desc_control_glove_box" msgid="202603834328737918">"Die motor se paneelkissiestatus beheer."</string>
     <string name="car_permission_label_car_epoch_time" msgid="8667615176555933314">"die motor se epogtyd lees"</string>
     <string name="car_permission_desc_car_epoch_time" msgid="6776188390917658195">"Die motor se epogtyd lees."</string>
     <string name="car_permission_label_control_car_exterior_lights" msgid="2702353269564341362">"die motor se buiteligte beheer"</string>
@@ -179,7 +179,7 @@
     <string name="car_permission_label_car_tires_3p" msgid="1360632319908226570">"motor se bandinligting te lees"</string>
     <string name="car_permission_desc_car_tires_3p" msgid="820574543667371274">"Motor se bandinligting te lees."</string>
     <string name="car_permission_label_car_steering" msgid="7779530447441232479">"lees motor se stuurhoekinligting"</string>
-    <string name="car_permission_desc_car_steering" msgid="4986224671150304388">"DIe motor se stuurhoekinligting lees."</string>
+    <string name="car_permission_desc_car_steering" msgid="4986224671150304388">"Die motor se stuurhoekinligting lees."</string>
     <string name="car_permission_label_read_car_steering_3p" msgid="1598866058085489462">"motor se stuurhoekinligting te lees"</string>
     <string name="car_permission_desc_read_car_steering_3p" msgid="4205254436283351421">"DIe motor se stuurhoekinligting lees."</string>
     <string name="car_permission_label_read_car_display_units" msgid="7617008314862097183">"lees motor se skermeenhede"</string>
