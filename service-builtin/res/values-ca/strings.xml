@@ -33,7 +33,7 @@
     <string name="importance_high" msgid="3393374688015554727">"Molt important"</string>
     <string name="android_system_label" msgid="9209428539477894959">"Sistema Android"</string>
     <string name="factory_reset_notification_title" msgid="6177770995437355965">"Cal restablir les dades de fàbrica"</string>
-    <string name="factory_reset_notification_text" msgid="6051393302193696102">"Totes les dades del sistema d\'informació i entreteniment s\'esborraran. Després del restabliment, podràs configurar un perfil nou."</string>
+    <string name="factory_reset_notification_text" msgid="6051393302193696102">"Totes les dades del sistema d\'infoentreteniment s\'esborraran. Després del restabliment, podràs configurar un perfil nou."</string>
     <string name="factory_reset_notification_button" msgid="6926734587145351076">"Més"</string>
     <string name="factory_reset_warning" msgid="8463356329619149262">"El contingut del dispositiu s\'esborrarà"</string>
     <string name="factory_reset_message" msgid="1972536809866779972">"No es pot utilitzar l\'aplicació d\'administració. Ara s\'esborraran les dades del dispositiu.\n\nSi tens cap dubte, contacta amb l\'administrador de la teva organització."</string>
