@@ -42,7 +42,7 @@
     <string name="car_permission_desc_read_brake_info" msgid="1422619922008154555">"Autoaren frenoei buruzko informazioa irakurri."</string>
     <string name="car_permission_label_speed" msgid="1149027717860529745">"irakurri autoaren abiadura"</string>
     <string name="car_permission_desc_speed" msgid="5858258466024406366">"Autoaren abiadura irakurri."</string>
-    <string name="car_permission_label_vehicle_dynamics_state" msgid="2446589481717587166">"Autoaren egoera dinamikoa irakurri."</string>
+    <string name="car_permission_label_vehicle_dynamics_state" msgid="2446589481717587166">"Autoaren dinamikaren egoera irakurri."</string>
     <string name="car_permission_desc_vehicle_dynamics_state" msgid="4059749588215960011">"Autoaren egoera dinamikoa irakurri."</string>
     <string name="car_permission_label_control_vehicle_dynamics_state" msgid="1912154069363074986">"kontrolatu autoaren egoera dinamikoa"</string>
     <string name="car_permission_desc_control_vehicle_dynamics_state" msgid="5603436779163086928">"Kontrolatu autoaren egoera dinamikoa."</string>
