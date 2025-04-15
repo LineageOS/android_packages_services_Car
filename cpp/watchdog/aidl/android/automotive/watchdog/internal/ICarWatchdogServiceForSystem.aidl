@@ -57,16 +57,6 @@ interface ICarWatchdogServiceForSystem {
   List<PackageInfo> getPackageInfosForUids(
             in int[] uids, in @utf8InCpp List<String> vendorPackagePrefixes);
 
-  // TODO(b/269191275): This method was replaced by onLatestResourceStats in Android U.
-  //  Deprecate method in Android W (N+2 releases).
-  /**
-   * Pushes the latest I/O overuse stats to the watchdog server.
-   *
-   * @param packageIoOveruseStats       Latest package I/O overuse stats, for all packages, from the
-   *                                    recent collection.
-   */
-  oneway void latestIoOveruseStats(in List<PackageIoOveruseStats> packageIoOveruseStats);
-
   /**
    * Resets resource overuse stats on the watchdog server side.
    *
