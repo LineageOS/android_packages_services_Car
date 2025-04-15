@@ -131,6 +131,19 @@ public final class FakeRefactoredCarPowerManagementDaemon extends
         mCustomComponents = Objects.requireNonNullElse(customComponents, new int[]{});
     }
 
+    /**
+     * Destroys the daemon.
+     *
+     * Must be called once before destroying the instance.
+     */
+    public void destroy() {
+        try {
+            CarServiceUtils.releaseHandlerThread(TAG);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+    }
+
     private static CarPowerPolicy createPolicy(
             String policyId, int[] enabledComponents, int[] disabledComponents) {
         CarPowerPolicy policy = new CarPowerPolicy();
