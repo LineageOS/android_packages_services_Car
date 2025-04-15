@@ -149,9 +149,6 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
     // Only changed for test.
     private int mSleepBetweenRetryMs = SLEEP_BETWEEN_RETRIABLE_INVOKES_MS;
 
-    /** Stores handler for each HAL property. Property events are sent to handler. */
-    @GuardedBy("mLock")
-    private final SparseArray<HalServiceBase> mPropertyHandlers = new SparseArray<>();
     // This is for iterating all HalServices with fixed order. Only initialized during
     // constructor.
     private final List<HalServiceBase> mAllServices;
@@ -172,6 +169,9 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
             new AtomicReference<>(new ImmutableSparseArray<>(new SparseArray<>()));
     private final AtomicReference<ImmutablePairSparseArray<Integer>> mAccessByPropIdAreaIdRef =
             new AtomicReference<>(new ImmutablePairSparseArray<>(new PairSparseArray<>()));
+    /** Stores handler for each HAL property. Property events are sent to handler. */
+    private final AtomicReference<ImmutableSparseArray<HalServiceBase>> mPropertyHandlersRef =
+            new AtomicReference<>(new ImmutableSparseArray<>(new SparseArray<>()));
 
     /** A structure to store update rate in hz and whether to enable VUR. */
     private static final class RateInfo {
@@ -429,11 +429,12 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
 
     private void dispatchPropertyEvents(List<HalPropValue> propValues) {
         var dispatchList = new HalEventsDispatchList();
+        var propertyHandlers = mPropertyHandlersRef.get();
         synchronized (mLock) {
             for (int i = 0; i < propValues.size(); i++) {
                 HalPropValue v = propValues.get(i);
                 int propId = v.getPropId();
-                HalServiceBase service = mPropertyHandlers.get(propId);
+                HalServiceBase service = propertyHandlers.get(propId);
                 if (service == null) {
                     Slogf.e(CarLog.TAG_HAL, "dispatchPropertyEvents: HalService not found for %s",
                             v);
@@ -514,33 +515,34 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
         ArrayMap<HalServiceBase, ArrayList<HalPropConfig>> configsForAllServices =
                 new ArrayMap<>(mAllServices.size());
         var propertyConfigsByPropId = mPropertyConfigsByPropIdRef.get();
-        synchronized (mLock) {
-            for (int i = 0; i < mAllServices.size(); i++) {
-                ArrayList<HalPropConfig> configsForService = new ArrayList();
-                HalServiceBase service = mAllServices.get(i);
-                configsForAllServices.put(service, configsForService);
-                int[] supportedProps = service.getAllSupportedProperties();
-                if (supportedProps.length == 0) {
-                    for (int j = 0; j < propertyConfigsByPropId.size(); j++) {
-                        Integer propId = propertyConfigsByPropId.keyAt(j);
-                        if (service.isSupportedProperty(propId)) {
-                            HalPropConfig config = propertyConfigsByPropId.valueAt(j);
-                            mPropertyHandlers.append(propId, service);
-                            configsForService.add(config);
-                        }
-                    }
-                } else {
-                    for (int prop : supportedProps) {
-                        HalPropConfig config = propertyConfigsByPropId.get(prop);
-                        if (config == null) {
-                            continue;
-                        }
-                        mPropertyHandlers.append(prop, service);
+        SparseArray<HalServiceBase> propertyHandlers = new SparseArray<>();
+        for (int i = 0; i < mAllServices.size(); i++) {
+            ArrayList<HalPropConfig> configsForService = new ArrayList();
+            HalServiceBase service = mAllServices.get(i);
+            configsForAllServices.put(service, configsForService);
+            int[] supportedProps = service.getAllSupportedProperties();
+            if (supportedProps.length == 0) {
+                for (int j = 0; j < propertyConfigsByPropId.size(); j++) {
+                    Integer propId = propertyConfigsByPropId.keyAt(j);
+                    if (service.isSupportedProperty(propId)) {
+                        HalPropConfig config = propertyConfigsByPropId.valueAt(j);
+                        propertyHandlers.append(propId, service);
                         configsForService.add(config);
                     }
                 }
+            } else {
+                for (int prop : supportedProps) {
+                    HalPropConfig config = propertyConfigsByPropId.get(prop);
+                    if (config == null) {
+                        continue;
+                    }
+                    propertyHandlers.append(prop, service);
+                    configsForService.add(config);
+                }
             }
         }
+
+        mPropertyHandlersRef.set(new ImmutableSparseArray<>(propertyHandlers));
 
         for (Map.Entry<HalServiceBase, ArrayList<HalPropConfig>> entry
                 : configsForAllServices.entrySet()) {
@@ -570,6 +572,7 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
         }
         mPropertyConfigsByPropIdRef.set(new ImmutableSparseArray<>(new SparseArray<>()));
         mAccessByPropIdAreaIdRef.set(new ImmutablePairSparseArray<>(new PairSparseArray<>()));
+        mPropertyHandlersRef.set(new ImmutableSparseArray<>(new SparseArray<>()));
         for (int i = 0; i < subscribedProperties.size(); i++) {
             try {
                 mSubscriptionClient.unsubscribe(subscribedProperties.valueAt(i));
@@ -639,9 +642,9 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
         return mPropValueBuilder;
     }
 
-    @GuardedBy("mLock")
-    private void assertServiceOwnerLocked(HalServiceBase service, int property) {
-        if (service != mPropertyHandlers.get(property)) {
+    private void assertServiceOwner(HalServiceBase service, int property,
+            ImmutableSparseArray<HalServiceBase> propertyHandlers) {
+        if (service != propertyHandlers.get(property)) {
             throw new IllegalArgumentException(String.format(
                     "Property 0x%x  is not owned by service: %s", property, service));
         }
@@ -764,6 +767,7 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
         }
         List<SubscribeOptions> subscribeOptionsList = new ArrayList<>();
         var propertyConfigsByPropId = mPropertyConfigsByPropIdRef.get();
+        var propertyHandlers = mPropertyHandlersRef.get();
         for (int i = 0; i < halSubscribeOptions.size(); i++) {
             HalSubscribeOptions halSubscribeOption = halSubscribeOptions.get(i);
             int property = halSubscribeOption.getHalPropId();
@@ -849,7 +853,7 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
                 }
                 continue;
             }
-            assertServiceOwnerLocked(service, property);
+            assertServiceOwner(service, property, propertyHandlers);
             for (int j = 0; j < filteredAreaIds.length; j++) {
                 if (DBG) {
                     Slogf.d(CarLog.TAG_HAL, "Update subscription rate for propertyId:"
@@ -949,8 +953,8 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
                     + toPropertyIdString(property) + ", do nothing");
             return;
         }
+        assertServiceOwner(service, property, mPropertyHandlersRef.get());
         synchronized (mLock) {
-            assertServiceOwnerLocked(service, property);
             HalAreaConfig[] halAreaConfigs = config.getAreaConfigs();
             boolean isSubscribed = false;
             PairSparseArray<RateInfo> previousState = cloneState(mRateInfoByPropIdAreaId);
@@ -1292,26 +1296,25 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
             return;
         }
         var dispatchList = new PropertySetErrorDispatchList();
-        synchronized (mLock) {
-            for (int i = 0; i < filteredErrors.size(); i++) {
-                VehiclePropError error = filteredErrors.get(i);
-                int errorCode = error.errorCode;
-                int propId = error.propId;
-                int areaId = error.areaId;
-                Slogf.w(CarLog.TAG_HAL, "onPropertySetError, errorCode: %d, prop: 0x%x, area: 0x%x",
-                        errorCode, propId, areaId);
-                if (propId == VehicleProperty.INVALID) {
-                    continue;
-                }
-                HalServiceBase service = mPropertyHandlers.get(propId);
-                if (service == null) {
-                    Slogf.e(CarLog.TAG_HAL,
-                            "onPropertySetError: HalService not found for prop: 0x%x", propId);
-                    continue;
-                }
-
-                dispatchList.addEvent(service, error);
+        var propertyHandlers = mPropertyHandlersRef.get();
+        for (int i = 0; i < filteredErrors.size(); i++) {
+            VehiclePropError error = filteredErrors.get(i);
+            int errorCode = error.errorCode;
+            int propId = error.propId;
+            int areaId = error.areaId;
+            Slogf.w(CarLog.TAG_HAL, "onPropertySetError, errorCode: %d, prop: 0x%x, area: 0x%x",
+                    errorCode, propId, areaId);
+            if (propId == VehicleProperty.INVALID) {
+                continue;
             }
+            HalServiceBase service = propertyHandlers.get(propId);
+            if (service == null) {
+                Slogf.e(CarLog.TAG_HAL,
+                        "onPropertySetError: HalService not found for prop: 0x%x", propId);
+                continue;
+            }
+
+            dispatchList.addEvent(service, error);
         }
 
         dispatchList.dispatchToClients();
@@ -1351,13 +1354,14 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
                 writer.printf("event count:%d, lastEvent: ", info.mEventCount);
                 dumpPropValue(writer, info.mLastEvent);
             }
-            writer.println("**Property handlers**");
-            for (int i = 0; i < mPropertyHandlers.size(); i++) {
-                int propId = mPropertyHandlers.keyAt(i);
-                HalServiceBase service = mPropertyHandlers.valueAt(i);
-                writer.printf("Property Id: %d // 0x%x name: %s, service: %s\n", propId, propId,
-                        VehiclePropertyIds.toString(propId), service);
-            }
+        }
+        writer.println("**Property handlers**");
+        var propertyHandlers = mPropertyHandlersRef.get();
+        for (int i = 0; i < propertyHandlers.size(); i++) {
+            int propId = propertyHandlers.keyAt(i);
+            HalServiceBase service = propertyHandlers.valueAt(i);
+            writer.printf("Property Id: %d // 0x%x name: %s, service: %s\n", propId, propId,
+                    VehiclePropertyIds.toString(propId), service);
         }
     }
 
@@ -2160,10 +2164,11 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
             return;
         }
         var dispatchList = new SupportedValuesChangeDispatchList();
+        var propertyHandlers = mPropertyHandlersRef.get();
         synchronized (mLock) {
             for (int i = 0; i < filteredPropIdAreaIds.size(); i++) {
                 var propIdAreaId = filteredPropIdAreaIds.get(i);
-                HalServiceBase service = mPropertyHandlers.get(propIdAreaId.propId);
+                HalServiceBase service = propertyHandlers.get(propIdAreaId.propId);
                 if (service == null) {
                     Slogf.e(CarLog.TAG_HAL, "onSupportedValuesChange: HalService not found for %s",
                             toHalPropIdAreaIdString(propIdAreaId));
@@ -2197,12 +2202,13 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
      */
     public void registerSupportedValuesChange(HalServiceBase service,
             List<PropIdAreaId> propIdAreaIds) {
-        synchronized (mLock) {
-            for (int i = 0; i < propIdAreaIds.size(); i++) {
-                int propertyId = propIdAreaIds.get(i).propId;
-                assertServiceOwnerLocked(service, propertyId);
-            }
+        var propertyHandlers = mPropertyHandlersRef.get();
+        for (int i = 0; i < propIdAreaIds.size(); i++) {
+            int propertyId = propIdAreaIds.get(i).propId;
+            assertServiceOwner(service, propertyId, propertyHandlers);
+        }
 
+        synchronized (mLock) {
             var registeredPropIdAreaIds = mSupportedValuesChangePropIdAreaIdsByService.get(service);
             if (registeredPropIdAreaIds == null) {
                 registeredPropIdAreaIds = new ArraySet<PropIdAreaId>();
@@ -2232,11 +2238,13 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
      */
     public void unregisterSupportedValuesChange(HalServiceBase service,
             List<PropIdAreaId> propIdAreaIds) {
+        var propertyHandlers = mPropertyHandlersRef.get();
+        for (int i = 0; i < propIdAreaIds.size(); i++) {
+            int propertyId = propIdAreaIds.get(i).propId;
+            assertServiceOwner(service, propertyId, propertyHandlers);
+        }
+
         synchronized (mLock) {
-            for (int i = 0; i < propIdAreaIds.size(); i++) {
-                int propertyId = propIdAreaIds.get(i).propId;
-                assertServiceOwnerLocked(service, propertyId);
-            }
             var registeredPropIdAreaIds = mSupportedValuesChangePropIdAreaIdsByService.get(service);
             if (registeredPropIdAreaIds == null) {
                 return;
