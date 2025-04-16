@@ -38,7 +38,6 @@ import static com.android.car.CarStatsLog.CAR_WATCHDOG_SYSTEM_IO_USAGE_SUMMARY;
 import static com.android.car.CarStatsLog.CAR_WATCHDOG_UID_IO_USAGE_SUMMARY;
 import static com.android.car.internal.NotificationHelperBase.CAR_WATCHDOG_ACTION_DISMISS_RESOURCE_OVERUSE_NOTIFICATION;
 import static com.android.car.internal.NotificationHelperBase.CAR_WATCHDOG_ACTION_LAUNCH_APP_SETTINGS;
-import static com.android.car.internal.NotificationHelperBase.CAR_WATCHDOG_ACTION_RESOURCE_OVERUSE_DISABLE_APP;
 import static com.android.car.internal.NotificationHelperBase.RESOURCE_OVERUSE_NOTIFICATION_BASE_ID;
 import static com.android.car.watchdog.CarWatchdogService.ACTION_GARAGE_MODE_OFF;
 import static com.android.car.watchdog.CarWatchdogService.ACTION_GARAGE_MODE_ON;
@@ -518,32 +517,6 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
     }
 
     @Test
-    public void testDisableAppBroadcast() throws Exception {
-        Intent intent = new Intent(
-                CAR_WATCHDOG_ACTION_RESOURCE_OVERUSE_DISABLE_APP).putExtra(
-                Intent.EXTRA_PACKAGE_NAME, SYSTEM_PACKAGE_NAME).putExtra(Intent.EXTRA_USER,
-                TEST_USER_HANDLE).putExtra(INTENT_EXTRA_NOTIFICATION_ID,
-                RESOURCE_OVERUSE_NOTIFICATION_BASE_ID);
-
-        mBroadcastReceiver.onReceive(mMockContext, intent);
-
-        verify(mMockWatchdogPerfHandler).processUserNotificationIntent(eq(intent));
-    }
-
-    @Test
-    public void testDisableAppBroadcastWithDisabledPackage() throws Exception {
-        Intent intent = new Intent(
-                CAR_WATCHDOG_ACTION_RESOURCE_OVERUSE_DISABLE_APP)
-                .putExtra(Intent.EXTRA_PACKAGE_NAME, SYSTEM_PACKAGE_NAME)
-                .putExtra(Intent.EXTRA_USER, TEST_USER_HANDLE)
-                .putExtra(INTENT_EXTRA_NOTIFICATION_ID, RESOURCE_OVERUSE_NOTIFICATION_BASE_ID);
-
-        mBroadcastReceiver.onReceive(mMockContext, intent);
-
-        verify(mMockWatchdogPerfHandler).processUserNotificationIntent(eq(intent));
-    }
-
-    @Test
     public void testLaunchAppSettingsBroadcast() throws Exception {
         Intent intent = new Intent(
                 CAR_WATCHDOG_ACTION_LAUNCH_APP_SETTINGS)
@@ -571,8 +544,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
 
     @Test
     public void testUserNotificationActionBroadcastsWithNullPackageName() throws Exception {
-        List<String> actions = Arrays.asList(CAR_WATCHDOG_ACTION_RESOURCE_OVERUSE_DISABLE_APP,
-                CAR_WATCHDOG_ACTION_LAUNCH_APP_SETTINGS,
+        List<String> actions = Arrays.asList(CAR_WATCHDOG_ACTION_LAUNCH_APP_SETTINGS,
                 CAR_WATCHDOG_ACTION_DISMISS_RESOURCE_OVERUSE_NOTIFICATION);
 
         for (String action : actions) {
@@ -588,8 +560,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
 
     @Test
     public void testUserNotificationActionBroadcastsWithInvalidUserId() throws Exception {
-        List<String> actions = Arrays.asList(CAR_WATCHDOG_ACTION_RESOURCE_OVERUSE_DISABLE_APP,
-                CAR_WATCHDOG_ACTION_LAUNCH_APP_SETTINGS,
+        List<String> actions = Arrays.asList(CAR_WATCHDOG_ACTION_LAUNCH_APP_SETTINGS,
                 CAR_WATCHDOG_ACTION_DISMISS_RESOURCE_OVERUSE_NOTIFICATION);
 
         for (String action : actions) {
@@ -607,8 +578,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
     @Test
     public void testUserNotificationActionBroadcastsWithMissingNotificationId() throws Exception {
 
-        List<String> actions = Arrays.asList(CAR_WATCHDOG_ACTION_RESOURCE_OVERUSE_DISABLE_APP,
-                CAR_WATCHDOG_ACTION_LAUNCH_APP_SETTINGS,
+        List<String> actions = Arrays.asList(CAR_WATCHDOG_ACTION_LAUNCH_APP_SETTINGS,
                 CAR_WATCHDOG_ACTION_DISMISS_RESOURCE_OVERUSE_NOTIFICATION);
 
         for (String action : actions) {
@@ -1200,8 +1170,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         IntentFilter filter = filters.get(totalFilters - 2);
         assertFilterHasActions(filter, CAR_WATCHDOG_ACTION_DISMISS_RESOURCE_OVERUSE_NOTIFICATION,
                 ACTION_GARAGE_MODE_ON, ACTION_GARAGE_MODE_OFF,
-                CAR_WATCHDOG_ACTION_LAUNCH_APP_SETTINGS,
-                CAR_WATCHDOG_ACTION_RESOURCE_OVERUSE_DISABLE_APP, ACTION_USER_REMOVED);
+                CAR_WATCHDOG_ACTION_LAUNCH_APP_SETTINGS, ACTION_USER_REMOVED);
         filter = filters.get(totalFilters - 1);
         assertFilterHasActions(filter, ACTION_PACKAGE_CHANGED);
         assertFilterHasDataScheme(filter, /* dataScheme= */ "package");
