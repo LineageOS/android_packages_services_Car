@@ -29,6 +29,7 @@ import static org.mockito.Mockito.when;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothProfile;
 import android.car.ICarBluetoothUserService;
+import android.car.test.NoActiveHandlerThreadCheckerRule;
 import android.content.Context;
 import android.os.Binder;
 import android.os.IBinder;
@@ -54,6 +55,9 @@ public class BluetoothProfileInhibitManagerTest {
 
     @Rule
     public MockitoRule mMockitoRule = MockitoJUnit.rule();
+    @Rule
+    public NoActiveHandlerThreadCheckerRule mNoActiveHandlerThreadCheckerRule =
+            new NoActiveHandlerThreadCheckerRule();
 
     @Mock
     private ICarBluetoothUserService mMockCarBluetoothUserService;

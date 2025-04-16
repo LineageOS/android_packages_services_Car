@@ -31,6 +31,7 @@ import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
 import android.bluetooth.BluetoothStatusCodes;
 import android.bluetooth.BluetoothUuid;
+import android.car.test.NoActiveHandlerThreadCheckerRule;
 import android.content.Intent;
 import android.os.ParcelUuid;
 import android.os.RemoteException;
@@ -41,6 +42,7 @@ import androidx.test.filters.RequiresDevice;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mock;
 
@@ -81,6 +83,10 @@ public class BluetoothConnectionRetryManagerTest
     //--------------------------------------------------------------------------------------------//
     // Setup/TearDown                                                                             //
     //--------------------------------------------------------------------------------------------//
+
+    @Rule
+    public NoActiveHandlerThreadCheckerRule mNoActiveHandlerThreadCheckerRule =
+            new NoActiveHandlerThreadCheckerRule();
 
     @Before
     public void setUp() {
