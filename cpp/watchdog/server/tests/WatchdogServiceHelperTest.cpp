@@ -32,30 +32,15 @@ namespace watchdog {
 namespace {
 
 using ::aidl::android::automotive::watchdog::TimeoutLength;
-using ::aidl::android::automotive::watchdog::internal::ApplicationCategoryType;
-using ::aidl::android::automotive::watchdog::internal::ComponentType;
-using ::aidl::android::automotive::watchdog::internal::ICarWatchdogServiceForSystem;
-using ::aidl::android::automotive::watchdog::internal::PackageInfo;
-using ::aidl::android::automotive::watchdog::internal::PackageIoOveruseStats;
-using ::aidl::android::automotive::watchdog::internal::ResourceOveruseStats;
-using ::aidl::android::automotive::watchdog::internal::ResourceStats;
-using ::aidl::android::automotive::watchdog::internal::ResourceUsageStats;
-using ::aidl::android::automotive::watchdog::internal::UidType;
-using ::aidl::android::automotive::watchdog::internal::UserPackageIoUsageStats;
 using ::android::RefBase;
 using ::android::sp;
-using ::android::base::Error;
 using ::android::base::Result;
 using ::ndk::ScopedAStatus;
 using ::ndk::SharedRefBase;
 using ::testing::_;
 using ::testing::ByMove;
-using ::testing::DoAll;
 using ::testing::Eq;
-using ::testing::IsEmpty;
 using ::testing::Return;
-using ::testing::SetArgPointee;
-using ::testing::UnorderedElementsAreArray;
 
 using InternalTimeoutLength = ::aidl::android::automotive::watchdog::internal::TimeoutLength;
 
@@ -128,10 +113,6 @@ protected:
 
         ASSERT_TRUE(status.isOk()) << status.getMessage();
         ASSERT_TRUE(mWatchdogServiceHelper->isServiceConnected());
-    }
-
-    void* getCarWatchdogServiceForSystemCookie() {
-        return static_cast<void*>(mMockCarWatchdogServiceForSystem->asBinder().get());
     }
 
     void expectLinkToDeath(AIBinder* aiBinder, ndk::ScopedAStatus expectedStatus) {
@@ -396,172 +377,6 @@ TEST_F(WatchdogServiceHelperTest,
                          ->prepareProcessTermination(mMockCarWatchdogServiceForSystem->asBinder())
                          .isOk())
             << "prepareProcessTermination " << kFailOnCarWatchdogServiceErrMessage;
-}
-
-TEST_F(WatchdogServiceHelperTest, TestGetPackageInfosForUids) {
-    ASSERT_NO_FATAL_FAILURE(registerCarWatchdogService());
-
-    std::vector<int32_t> uids = {1000};
-    std::vector<std::string> prefixesStr = {"vendor.package"};
-    std::vector<PackageInfo> expectedPackageInfo{
-            constructPackageInfo("vendor.package.A", 120000, UidType::NATIVE, ComponentType::VENDOR,
-                                 ApplicationCategoryType::OTHERS),
-            constructPackageInfo("third_party.package.B", 130000, UidType::APPLICATION,
-                                 ComponentType::THIRD_PARTY, ApplicationCategoryType::OTHERS),
-    };
-
-    EXPECT_CALL(*mMockCarWatchdogServiceForSystem, getPackageInfosForUids(uids, prefixesStr, _))
-            .WillOnce(DoAll(SetArgPointee<2>(expectedPackageInfo),
-                            Return(ByMove(ScopedAStatus::ok()))));
-
-    std::vector<PackageInfo> actualPackageInfo;
-    auto status =
-            mWatchdogServiceHelper->getPackageInfosForUids(uids, prefixesStr, &actualPackageInfo);
-
-    ASSERT_TRUE(status.isOk()) << status.getMessage();
-    EXPECT_THAT(actualPackageInfo, UnorderedElementsAreArray(expectedPackageInfo));
-}
-
-TEST_F(WatchdogServiceHelperTest,
-       TestErrorOnGetPackageInfosForUidsWithNoCarWatchdogServiceRegistered) {
-    EXPECT_CALL(*mMockCarWatchdogServiceForSystem, getPackageInfosForUids(_, _, _)).Times(0);
-
-    std::vector<int32_t> uids;
-    std::vector<std::string> prefixes;
-    std::vector<PackageInfo> actualPackageInfo;
-    auto status =
-            mWatchdogServiceHelper->getPackageInfosForUids(uids, prefixes, &actualPackageInfo);
-
-    ASSERT_FALSE(status.isOk()) << "getPackageInfosForUids " << kFailOnNoCarWatchdogServiceMessage;
-    EXPECT_THAT(actualPackageInfo, IsEmpty());
-}
-
-TEST_F(WatchdogServiceHelperTest,
-       TestErrorOnGetPackageInfosForUidsWithErrorStatusFromCarWatchdogService) {
-    ASSERT_NO_FATAL_FAILURE(registerCarWatchdogService());
-
-    EXPECT_CALL(*mMockCarWatchdogServiceForSystem, getPackageInfosForUids(_, _, _))
-            .WillOnce(Return(ByMove(ScopedAStatus::fromExceptionCodeWithMessage(EX_ILLEGAL_STATE,
-                                                                                "Illegal state"))));
-
-    std::vector<int32_t> uids;
-    std::vector<std::string> prefixes;
-    std::vector<PackageInfo> actualPackageInfo;
-    auto status =
-            mWatchdogServiceHelper->getPackageInfosForUids(uids, prefixes, &actualPackageInfo);
-
-    ASSERT_FALSE(status.isOk()) << "getPackageInfosForUids " << kFailOnCarWatchdogServiceErrMessage;
-    ASSERT_TRUE(actualPackageInfo.empty());
-}
-
-TEST_F(WatchdogServiceHelperTest, TestResetResourceOveruseStats) {
-    ASSERT_NO_FATAL_FAILURE(registerCarWatchdogService());
-
-    std::vector<std::string> packageNames = {"system.daemon"};
-    EXPECT_CALL(*mMockCarWatchdogServiceForSystem, resetResourceOveruseStats(packageNames))
-            .WillOnce(Return(ByMove(ScopedAStatus::ok())));
-
-    auto status = mWatchdogServiceHelper->resetResourceOveruseStats(packageNames);
-
-    ASSERT_TRUE(status.isOk()) << status.getMessage();
-}
-
-TEST_F(WatchdogServiceHelperTest,
-       TestErrorsOnResetResourceOveruseStatsWithNoCarWatchdogServiceRegistered) {
-    EXPECT_CALL(*mMockCarWatchdogServiceForSystem, resetResourceOveruseStats(_)).Times(0);
-
-    ASSERT_FALSE(mWatchdogServiceHelper->resetResourceOveruseStats({}).isOk())
-            << "resetResourceOveruseStats " << kFailOnNoCarWatchdogServiceMessage;
-}
-
-TEST_F(WatchdogServiceHelperTest,
-       TestErrorsOnResetResourceOveruseStatsWithErrorStatusFromCarWatchdogService) {
-    ASSERT_NO_FATAL_FAILURE(registerCarWatchdogService());
-
-    EXPECT_CALL(*mMockCarWatchdogServiceForSystem, resetResourceOveruseStats(_))
-            .WillOnce(Return(ByMove(ScopedAStatus::fromExceptionCodeWithMessage(EX_ILLEGAL_STATE,
-                                                                                "Illegal state"))));
-
-    ASSERT_FALSE(mWatchdogServiceHelper->resetResourceOveruseStats({}).isOk())
-            << "resetResourceOveruseStats " << kFailOnCarWatchdogServiceErrMessage;
-}
-
-TEST_F(WatchdogServiceHelperTest, TestRequestTodayIoUsageStats) {
-    ASSERT_NO_FATAL_FAILURE(registerCarWatchdogService());
-
-    EXPECT_CALL(*mMockCarWatchdogServiceForSystem, requestTodayIoUsageStats())
-            .WillOnce(Return(ByMove(ScopedAStatus::ok())));
-
-    auto status = mWatchdogServiceHelper->requestTodayIoUsageStats();
-
-    ASSERT_TRUE(status.isOk()) << status.getMessage();
-}
-
-TEST_F(WatchdogServiceHelperTest,
-       TestErrorOnRequestTodayIoUsageStatsWithNoCarWatchdogServiceRegistered) {
-    EXPECT_CALL(*mMockCarWatchdogServiceForSystem, requestTodayIoUsageStats()).Times(0);
-
-    ASSERT_FALSE(mWatchdogServiceHelper->requestTodayIoUsageStats().isOk())
-            << "requestTodayIoUsageStats " << kFailOnNoCarWatchdogServiceMessage;
-}
-
-TEST_F(WatchdogServiceHelperTest,
-       TestErrorOnRequestTodayIoUsageStatsWithErrorStatusFromCarWatchdogService) {
-    ASSERT_NO_FATAL_FAILURE(registerCarWatchdogService());
-
-    EXPECT_CALL(*mMockCarWatchdogServiceForSystem, requestTodayIoUsageStats())
-            .WillOnce(Return(ByMove(ScopedAStatus::fromExceptionCodeWithMessage(EX_ILLEGAL_STATE,
-                                                                                "Illegal state"))));
-
-    ASSERT_FALSE(mWatchdogServiceHelper->requestTodayIoUsageStats().isOk())
-            << "requestTodayIoUsageStats " << kFailOnCarWatchdogServiceErrMessage;
-}
-
-TEST_F(WatchdogServiceHelperTest, TestOnLatestResourceStats) {
-    ASSERT_NO_FATAL_FAILURE(registerCarWatchdogService());
-
-    PackageIoOveruseStats stats;
-    stats.uid = 101000;
-    stats.ioOveruseStats.killableOnOveruse = true;
-    stats.ioOveruseStats.startTime = 99898;
-    stats.ioOveruseStats.durationInSeconds = 12345;
-    stats.ioOveruseStats.totalOveruses = 10;
-    stats.shouldNotify = true;
-    std::vector<PackageIoOveruseStats> expectedIoOveruseStats = {stats};
-
-    std::vector<ResourceStats> expectedResourceStats;
-    expectedResourceStats.push_back({
-            .resourceOveruseStats = std::make_optional<ResourceOveruseStats>({
-                    .packageIoOveruseStats = expectedIoOveruseStats,
-            }),
-    });
-
-    EXPECT_CALL(*mMockCarWatchdogServiceForSystem, onLatestResourceStats(expectedResourceStats))
-            .WillOnce(Return(ByMove(ScopedAStatus::ok())));
-
-    auto status = mWatchdogServiceHelper->onLatestResourceStats(expectedResourceStats);
-
-    ASSERT_TRUE(status.isOk()) << status.getMessage();
-}
-
-TEST_F(WatchdogServiceHelperTest,
-       TestErrorsOnLatestResourceStatsWithNoCarWatchdogServiceRegistered) {
-    EXPECT_CALL(*mMockCarWatchdogServiceForSystem, onLatestResourceStats(_)).Times(0);
-
-    ASSERT_FALSE(mWatchdogServiceHelper->onLatestResourceStats({}).isOk())
-            << "onLatestResourceStats " << kFailOnNoCarWatchdogServiceMessage;
-}
-
-TEST_F(WatchdogServiceHelperTest,
-       TestErrorsOnLatestResourceStatsWithErrorStatusFromCarWatchdogService) {
-    ASSERT_NO_FATAL_FAILURE(registerCarWatchdogService());
-
-    EXPECT_CALL(*mMockCarWatchdogServiceForSystem, onLatestResourceStats(_))
-            .WillOnce(Return(ByMove(ScopedAStatus::fromExceptionCodeWithMessage(EX_ILLEGAL_STATE,
-                                                                                "Illegal state"))));
-
-    ASSERT_FALSE(mWatchdogServiceHelper->onLatestResourceStats({}).isOk())
-            << "onLatestResourceStats " << kFailOnCarWatchdogServiceErrMessage;
 }
 
 TEST_F(WatchdogServiceHelperTest, TestRequestAidlVhalPid) {

@@ -211,8 +211,8 @@ cc_test {
         "tests/WatchdogInternalHandlerTest.cpp",
         "tests/WatchdogPerfServiceTest.cpp",
         "tests/WatchdogProcessServiceTest.cpp",
+        "tests/WatchdogServiceHelperBaseTest.cpp",
         "tests/WatchdogServiceHelperTest.cpp",
-
     ],
     static_libs: [
         "android.hardware.automotive.vehicle@2.0",
@@ -272,6 +272,7 @@ cc_library {
         "src/WatchdogBinderMediator.cpp",
         "src/WatchdogInternalHandler.cpp",
         "src/WatchdogServiceHelper.cpp",
+        "src/WatchdogServiceHelperBase.cpp",
     ],
     shared_libs: [
         "android.hardware.automotive.vehicle@2.0",
