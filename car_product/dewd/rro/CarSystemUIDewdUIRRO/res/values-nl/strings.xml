@@ -20,4 +20,19 @@
     <string name="calmMode_componentName" msgid="5461291242950545091">"com.android.car.portraitlauncher/com.android.car.portraitlauncher.calmmode.PortraitCalmModeActivity"</string>
     <!-- no translation found for config_calmModeComponentName (6296144383781264585) -->
     <skip />
+    <string name="system_bar_home_label" msgid="1934187389451104948">"Startscherm"</string>
+    <string name="system_bar_phone_label" msgid="1460429983699192896">"Telefoon"</string>
+    <string name="system_bar_applications_label" msgid="7421961934853115692">"Apps"</string>
+    <string name="system_bar_climate_control_label" msgid="5061566502390250184">"Klimaatregeling"</string>
+    <string name="system_bar_notifications_label" msgid="3457421097860825141">"Meldingen"</string>
+    <string name="system_bar_maps_label" msgid="2480146451964185604">"Maps"</string>
+    <string name="system_bar_media_label" msgid="7394535470316752750">"Media"</string>
+    <string name="system_bar_control_center_label" msgid="2458173935637627339">"Controlecentrum"</string>
+    <string name="system_bar_assistant_label" msgid="4460911533074553231">"Assistent"</string>
+    <string name="hvac_decrease_button_label" msgid="464445948443092311">"Temperatuur verlagen"</string>
+    <string name="hvac_increase_button_label" msgid="2916700454449098099">"Temperatuur verhogen"</string>
+    <string name="confirm_pin_title" msgid="3056249215139065894">"Voer je pincode in"</string>
+    <string name="confirm_pattern_title" msgid="2932167296573391850">"Voer je patroon in"</string>
+    <string name="confirm_password_title" msgid="5525986943700624704">"Voer je wachtwoord in"</string>
+    <string name="cancel" msgid="1537605179056319857">"Annuleren"</string>
 </resources>

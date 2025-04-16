@@ -46,6 +46,7 @@ import android.car.hardware.CarPropertyValue;
 import android.car.hardware.property.CarPropertyManager;
 import android.car.hardware.property.ICarPropertyEventListener;
 import android.car.test.AbstractExpectableTestCase;
+import android.car.test.NoActiveHandlerThreadCheckerRule;
 import android.content.Context;
 import android.hardware.automotive.vehicle.StatusCode;
 import android.hardware.automotive.vehicle.SubscribeOptions;
@@ -147,8 +148,10 @@ public class VehicleHalTest extends AbstractExpectableTestCase {
     private final AsyncGetSetRequest mSetVehicleRequest =
             new AsyncGetSetRequest(REQUEST_ID_1, mHalPropValue, /* timeoutUptimeMs= */ 0);
 
+    @Rule
+    public NoActiveHandlerThreadCheckerRule mNoActiveHandlerThreadCheckerRule =
+            new NoActiveHandlerThreadCheckerRule();
     @Rule public final TestName mTestName = new TestName();
-    // Required for HandlerThread to work.
 
     private VehicleHal mVehicleHal;
 
@@ -292,6 +295,7 @@ public class VehicleHalTest extends AbstractExpectableTestCase {
     @After
     public void tearDown() {
         mVehicleHal.release();
+        mVehicleHal.destroy();
     }
 
     @Test
@@ -555,18 +559,6 @@ public class VehicleHalTest extends AbstractExpectableTestCase {
         verify(mUserHalService).release();
         verify(mDiagnosticHalService).release();
         verify(mSubscriptionClient).unsubscribe(SOME_READ_ON_CHANGE_PROPERTY);
-    }
-
-    @Test
-    public void testDestroy() throws Exception {
-        mVehicleHal.destroy();
-
-        verify(mPowerHalService).destroy();
-        verify(mPropertyHalService).destroy();
-        verify(mInputHalService).destroy();
-        verify(mVmsHalService).destroy();
-        verify(mUserHalService).destroy();
-        verify(mDiagnosticHalService).destroy();
     }
 
     @Test

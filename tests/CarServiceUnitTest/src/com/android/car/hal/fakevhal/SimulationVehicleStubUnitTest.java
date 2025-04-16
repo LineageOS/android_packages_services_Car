@@ -33,6 +33,7 @@ import static org.mockito.Mockito.when;
 import android.car.hardware.CarPropertyValue;
 import android.car.hardware.property.CarPropertyManager;
 import android.car.hardware.property.VehicleHalStatusCode;
+import android.car.test.NoActiveHandlerThreadCheckerRule;
 import android.hardware.automotive.vehicle.RawPropValues;
 import android.hardware.automotive.vehicle.VehiclePropError;
 import android.hardware.automotive.vehicle.VehiclePropValue;
@@ -50,7 +51,9 @@ import com.android.car.hal.HalPropValueBuilder;
 import com.android.car.hal.VehicleHalCallback;
 import com.android.car.internal.property.PropIdAreaId;
 
+import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -64,6 +67,10 @@ import java.util.concurrent.TimeUnit;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SimulationVehicleStubUnitTest {
+
+    @Rule
+    public NoActiveHandlerThreadCheckerRule mNoActiveHandlerThreadCheckerRule =
+            new NoActiveHandlerThreadCheckerRule();
 
     @Mock
     private VehicleStub mMockVehicleStub;
@@ -136,6 +143,11 @@ public class SimulationVehicleStubUnitTest {
 
         mSimulationVehicleStub = new SimulationVehicleStub(mMockVehicleStub,
                 List.of(PROP_ID_2), mVehicleHalCallback);
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        mSimulationVehicleStub.destroy();
     }
 
     @Test

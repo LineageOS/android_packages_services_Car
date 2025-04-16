@@ -367,6 +367,13 @@ public abstract class VehicleStub {
             throws RemoteException, ServiceSpecificException;
 
     /**
+     * Destroys the vehicle stub.
+     *
+     * <p>Cleans up the allocated resources. Called during car service onDestroy.
+     */
+    public void destroy() {}
+
+    /**
      * Checks if fake VHAL is enabled.
      *
      * @return {@code true} if a FakeVehicleStub instance is created.

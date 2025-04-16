@@ -26,7 +26,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 
-import android.automotive.power.internal.ICarPowerManagementDelegate;
 import android.car.Car;
 import android.car.ICarResultReceiver;
 import android.car.feature.Flags;
@@ -119,6 +118,7 @@ public class MockedCarTestBase {
     private CarPerformanceService mCarPerformanceService;
     private CarRemoteAccessServiceConstructor mCarRemoteAccessServiceConstructor;
     private AppFocusService mAppFocusService;
+    private VehicleStub mVehicleStub;
 
     private final CarUserService mCarUserService = mock(CarUserService.class);
     private final MockIOInterface mMockIOInterface = new MockIOInterface();
@@ -145,7 +145,7 @@ public class MockedCarTestBase {
     @GuardedBy("mLock")
     private final List<UserLifecycleListener> mUserLifecycleListeners = new ArrayList<>();
 
-    private ICarPowerManagementDelegate mRefactoredPowerManagementDaemon;
+    private FakeRefactoredCarPowerManagementDaemon mRefactoredPowerManagementDaemon;
     private MockitoSession mSession;
 
     protected HidlMockedVehicleHal createHidlMockedVehicleHal() {
@@ -362,11 +362,10 @@ public class MockedCarTestBase {
         // This should be done here as feature property is accessed inside the constructor.
         initMockedHal();
 
-        VehicleStub mockedVehicleStub;
         if (!mUseAidlVhal) {
-            mockedVehicleStub = new HidlVehicleStub(mHidlMockedVehicleHal);
+            mVehicleStub = new HidlVehicleStub(mHidlMockedVehicleHal);
         } else {
-            mockedVehicleStub = new AidlVehicleStub(mAidlMockedVehicleHal);
+            mVehicleStub = new AidlVehicleStub(mAidlMockedVehicleHal);
         }
 
         // Setup car
@@ -380,7 +379,7 @@ public class MockedCarTestBase {
         }
         ICarImpl carImpl = new ICarImpl.Builder()
                 .setServiceContext(mMockedCarTestContext)
-                .setVehicle(mockedVehicleStub)
+                .setVehicle(mVehicleStub)
                 .setVehicleInterfaceName("MockedCar")
                 .setSystemInterface(mFakeSystemInterface)
                 .setCarUserService(mCarUserService)
@@ -434,10 +433,17 @@ public class MockedCarTestBase {
                 mCarImpl.destroy();
                 mCarImpl = null;
             }
+            if (mVehicleStub != null) {
+                mVehicleStub.destroy();
+            }
             CarServiceUtils.quitHandlerThreads();
             mMockIOInterface.tearDown();
             mHidlMockedVehicleHal = null;
             mAidlMockedVehicleHal = null;
+
+            if (mRefactoredPowerManagementDaemon != null) {
+                mRefactoredPowerManagementDaemon.destroy();
+            }
         } finally {
             // Wait for the main looper to handle the current queued tasks before finishing the
             // mocking session since the task might use the mocked object.

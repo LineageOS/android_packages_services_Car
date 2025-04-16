@@ -190,7 +190,13 @@ public final class UserHalService extends HalServiceBase {
     }
 
     @Override
-    public void destroy() {}
+    public void destroy() {
+        try {
+            CarServiceUtils.releaseHandlerThread(CarUserService.HANDLER_THREAD_NAME);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+    }
 
     @Override
     public void onHalEvents(List<HalPropValue> values) {

@@ -24,6 +24,7 @@ android_test {
         "android.car.test.utils",
         "android.car.watchdoglib",
         "androidx.test.runner",
+        "car-service-common-util-static-lib",
         "mockito-target-extended",
         "truth",
     ],

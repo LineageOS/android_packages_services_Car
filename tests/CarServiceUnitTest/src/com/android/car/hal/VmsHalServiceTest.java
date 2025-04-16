@@ -29,6 +29,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import android.car.hardware.property.VehicleHalStatusCode;
+import android.car.test.NoActiveHandlerThreadCheckerRule;
 import android.car.test.util.TemporaryFile;
 import android.car.vms.VmsAssociatedLayer;
 import android.car.vms.VmsAvailableLayers;
@@ -48,7 +49,9 @@ import android.os.ServiceSpecificException;
 
 import com.android.car.R;
 
+import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InOrder;
@@ -83,6 +86,10 @@ public class VmsHalServiceTest {
 
     private final HalPropValueBuilder mPropValueBuilder = new HalPropValueBuilder(/*isAidl=*/true);
 
+    @Rule
+    public NoActiveHandlerThreadCheckerRule mNoActiveHandlerThreadCheckerRule =
+            new NoActiveHandlerThreadCheckerRule();
+
     @Mock
     private Context mContext;
     @Mock
@@ -101,10 +108,22 @@ public class VmsHalServiceTest {
         initHalService(true);
     }
 
+    @After
+    public void tearDown() {
+        if (mHalService == null) {
+            return;
+        }
+        mHalService.destroy();
+        mHalService = null;
+    }
+
     private void initHalService(boolean propagatePropertyException) throws Exception {
         mVmsInitCount = 0;
         when(mContext.getResources()).thenReturn(mResources);
         when(mVehicleHal.getHalPropValueBuilder()).thenReturn(mPropValueBuilder);
+        if (mHalService != null) {
+            mHalService.destroy();
+        }
         mHalService = new VmsHalService(mContext, mVehicleHal, () -> (long) CORE_ID,
                 this::initVmsClient, propagatePropertyException);
 
@@ -159,6 +178,9 @@ public class VmsHalServiceTest {
     @Test
     public void testCoreId_IntegerOverflow() throws Exception {
         when(mVehicleHal.getHalPropValueBuilder()).thenReturn(mPropValueBuilder);
+        if (mHalService != null) {
+            mHalService.destroy();
+        }
         mHalService = new VmsHalService(mContext, mVehicleHal,
                 () -> (long) Integer.MAX_VALUE + CORE_ID, this::initVmsClient, true);
 
