@@ -47,7 +47,7 @@
         <item name="android:textAppearanceListItem">?oemTextAppearanceBodyLarge</item>
         <item name="android:textAppearanceListItemSmall">?oemTextAppearanceBodyLarge</item>
         <item name="android:textAppearanceListItemSecondary">?oemTextAppearanceBodySmall</item>
-        <item name="android:textAppearanceButton">?oemTextAppearanceLabelMedium</item>
+        <item name="android:textAppearanceButton">?oemTextAppearanceLabelLarge</item>
         <item name="android:actionBarSize">@*android:dimen/car_app_bar_height</item>
         <item name="*android:disabledAlpha">@dimen/car_disabled_alpha</item>
         <item name="android:isLightTheme">false</item>
@@ -112,7 +112,7 @@
         <item name="android:textAppearanceListItem">?oemTextAppearanceBodyLarge</item>
         <item name="android:textAppearanceListItemSmall">?oemTextAppearanceBodyLarge</item>
         <item name="android:textAppearanceListItemSecondary">?oemTextAppearanceBodySmall</item>
-        <item name="android:textAppearanceButton">?oemTextAppearanceLabelMedium</item>
+        <item name="android:textAppearanceButton">?oemTextAppearanceLabelLarge</item>
         <item name="android:alertDialogStyle">@*android:style/AlertDialog.DeviceDefault</item>
         <item name="android:borderlessButtonStyle">@*android:style/Widget.DeviceDefault.Button.Borderless.Colored</item>
         <item name="android:buttonBarButtonStyle">@*android:style/Widget.DeviceDefault.Button.ButtonBar.AlertDialog</item>
@@ -150,7 +150,7 @@
         <item name="android:textAppearanceLarge">?oemTextAppearanceBodyLarge</item>
         <item name="android:textAppearanceMedium">?oemTextAppearanceBodyMedium</item>
         <item name="android:textAppearanceSmall">?oemTextAppearanceBodySmall</item>
-        <item name="android:textAppearanceButton">?oemTextAppearanceLabelMedium</item>
+        <item name="android:textAppearanceButton">?oemTextAppearanceLabelLarge</item>
         <item name="android:alertDialogStyle">@*android:style/AlertDialog.DeviceDefault</item>
         <item name="android:background">@android:color/transparent</item>
         <item name="android:borderlessButtonStyle">@*android:style/Widget.DeviceDefault.Button.Borderless.Colored</item>
@@ -350,7 +350,7 @@
         <item name="android:alertDialogTheme">@*android:style/Theme.DeviceDefault.Dialog.Alert</item>
 
         <!-- Text styles -->
-        <item name="android:textAppearanceButton">?oemTextAppearanceLabelMedium</item>
+        <item name="android:textAppearanceButton">?oemTextAppearanceLabelLarge</item>
 
         <!-- Button styles -->
         <item name="android:buttonCornerRadius">@*android:dimen/config_buttonCornerRadius</item>
@@ -382,7 +382,7 @@
         <item name="android:alertDialogTheme">@*android:style/Theme.DeviceDefault.Dialog.Alert</item>
 
         <!-- Text styles -->
-        <item name="android:textAppearanceButton">?oemTextAppearanceLabelMedium</item>
+        <item name="android:textAppearanceButton">?oemTextAppearanceLabelLarge</item>
 
         <!-- Button styles -->
         <item name="android:buttonCornerRadius">@*android:dimen/config_buttonCornerRadius</item>
@@ -414,7 +414,7 @@
         <item name="android:alertDialogTheme">@*android:style/Theme.DeviceDefault.Dialog.Alert</item>
 
         <!-- Text styles -->
-        <item name="android:textAppearanceButton">?oemTextAppearanceLabelMedium</item>
+        <item name="android:textAppearanceButton">?oemTextAppearanceLabelLarge</item>
 
         <!-- Button styles -->
         <item name="android:buttonCornerRadius">@*android:dimen/config_buttonCornerRadius</item>
