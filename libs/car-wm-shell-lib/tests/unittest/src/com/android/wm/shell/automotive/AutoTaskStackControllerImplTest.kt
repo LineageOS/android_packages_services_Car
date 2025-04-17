@@ -21,6 +21,8 @@ import android.app.WindowConfiguration.ACTIVITY_TYPE_ASSISTANT
 import android.app.WindowConfiguration.ACTIVITY_TYPE_RECENTS
 import android.app.WindowConfiguration.ACTIVITY_TYPE_STANDARD
 import android.app.WindowConfiguration.ACTIVITY_TYPE_UNDEFINED
+import android.app.WindowConfiguration.WINDOWING_MODE_FULLSCREEN
+import android.app.WindowConfiguration.WINDOWING_MODE_MULTI_WINDOW
 import android.app.WindowConfiguration.WINDOWING_MODE_UNDEFINED
 import android.graphics.Rect
 import android.os.Binder
@@ -372,7 +374,12 @@ class AutoTaskStackControllerImplTest : CarWmShellTestCase() {
             HIERARCHY_OP_TYPE_SET_LAUNCH_ROOT
         )
         assertThat(wctCaptor.firstValue.hierarchyOps[0].windowingModes).isEqualTo(
-            intArrayOf(WINDOWING_MODE_UNDEFINED)
+            intArrayOf(
+                WINDOWING_MODE_UNDEFINED,
+                WINDOWING_MODE_MULTI_WINDOW,
+                WINDOWING_MODE_FULLSCREEN
+            ),
+
         )
         assertThat(wctCaptor.firstValue.hierarchyOps[0].activityTypes).isEqualTo(
             intArrayOf(

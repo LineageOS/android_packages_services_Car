@@ -36,7 +36,6 @@ import com.android.wm.shell.dagger.WMSingleton;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 
@@ -57,7 +56,7 @@ public class AutoTaskRepository {
     private static final String TAG = "AutoTaskRepository";
     private static final boolean DBG = Log.isLoggable(TAG, Log.DEBUG);
 
-    private final HashMap<RootTaskStack, RootTaskStackInfo> mRootTaskStacks = new HashMap<>();
+    private final SparseArray<RootTaskStackInfo> mRootTaskStacks = new SparseArray<>();
 
     /**
      * Map of task id to surface control
@@ -108,6 +107,16 @@ public class AutoTaskRepository {
 
     void dump(PrintWriter pw, String prefix) {
         pw.println(prefix + "TaskRepository:");
+        for (int i = 0; i < mRootTaskStacks.size(); i++) {
+            int rootTaskStackId = mRootTaskStacks.keyAt(i);
+            RootTaskStackInfo info = mRootTaskStacks.valueAt(i);
+            pw.println(prefix + "  Root task Id: " + rootTaskStackId);
+            for (ActivityManager.RunningTaskInfo task : info.getTaskStack()) {
+                pw.println(prefix + "     task Id: " + task.taskId + " visible: " + task.isVisible
+                        + " name: " + (task.topActivity != null ? task.topActivity.getClassName()
+                        : ""));
+            }
+        }
     }
 
     @SuppressLint("MissingPermission")
@@ -158,8 +167,8 @@ public class AutoTaskRepository {
     }
 
     List<ActivityManager.RunningTaskInfo> getTaskStack(RootTaskStack rootTaskStack) {
-        if (!mRootTaskStacks.containsKey(rootTaskStack)) return null;
-        return mRootTaskStacks.get(rootTaskStack).getTaskStack();
+        if (!mRootTaskStacks.contains(rootTaskStack.getId())) return null;
+        return mRootTaskStacks.get(rootTaskStack.getId()).getTaskStack();
     }
 
     // TODO(b/401349206): Refactor it. Save a mapping of task id and taskInfo and use that.
@@ -168,7 +177,8 @@ public class AutoTaskRepository {
             return mTaskStackWithoutRootTask.get(taskId);
         }
 
-        for (RootTaskStackInfo rootTaskStackInfo : mRootTaskStacks.values()) {
+        for (int i = 0; i < mRootTaskStacks.size(); i++) {
+            RootTaskStackInfo rootTaskStackInfo = mRootTaskStacks.valueAt(i);
             if (rootTaskStackInfo.getTaskInfo(taskId) != null) {
                 return rootTaskStackInfo.getTaskInfo(taskId);
             }
@@ -181,10 +191,8 @@ public class AutoTaskRepository {
      * Returns RootTaskStack for root task stack Id.
      */
     RootTaskStack getRootTaskStack(int rootTaskStackId) {
-        for (RootTaskStack rootTaskStack : mRootTaskStacks.keySet()) {
-            if (rootTaskStack.getId() == rootTaskStackId) {
-                return rootTaskStack;
-            }
+        if (mRootTaskStacks.contains(rootTaskStackId)) {
+            return mRootTaskStacks.get(rootTaskStackId).mRootTaskStack;
         }
 
         return null;
@@ -196,14 +204,14 @@ public class AutoTaskRepository {
 
     void addOrUpdateTask(RootTaskStack rootTaskStack, ActivityManager.RunningTaskInfo taskInfo,
             SurfaceControl surfaceControl) {
-        RootTaskStackInfo rootTaskStackInfo = mRootTaskStacks.get(rootTaskStack);
+        RootTaskStackInfo rootTaskStackInfo = mRootTaskStacks.get(rootTaskStack.getId());
         if (rootTaskStackInfo == null) {
             // Should not happen
             Slogf.e(TAG,
                     "addOrUpdateTask called for task %s, while RootTaskStack %s is not "
                             + "populated.", taskInfo, rootTaskStack);
             rootTaskStackInfo = new RootTaskStackInfo(rootTaskStack);
-            mRootTaskStacks.put(rootTaskStack, rootTaskStackInfo);
+            mRootTaskStacks.put(rootTaskStack.getId(), rootTaskStackInfo);
         }
 
         rootTaskStackInfo.removeTask(taskInfo.taskId);
@@ -212,7 +220,7 @@ public class AutoTaskRepository {
     }
 
     void removeTask(RootTaskStack rootTaskStack, ActivityManager.RunningTaskInfo taskInfo) {
-        RootTaskStackInfo rootTaskStackInfo = mRootTaskStacks.get(rootTaskStack);
+        RootTaskStackInfo rootTaskStackInfo = mRootTaskStacks.get(rootTaskStack.getId());
         if (rootTaskStackInfo == null) {
             // Should not happen
             Slogf.e(TAG,
@@ -236,7 +244,7 @@ public class AutoTaskRepository {
             Slogf.d(TAG, "onRootTaskStackCreated. RootTask Id %d. RootTask Name %s",
                     rootTaskStack.getId(), rootTaskStack.getName());
         }
-        mRootTaskStacks.put(rootTaskStack, new RootTaskStackInfo(rootTaskStack));
+        mRootTaskStacks.put(rootTaskStack.getId(), new RootTaskStackInfo(rootTaskStack));
         if (mIsCarReady) {
             mCarActivityManager.onRootTaskAppeared(rootTaskStack.getName(),
                     rootTaskStack.getRootTaskInfo(),
@@ -258,7 +266,7 @@ public class AutoTaskRepository {
             Slogf.d(TAG, "onRootTaskStackDestroyed. RootTask Id %d. RootTask Name %s",
                     rootTaskStack.getId(), rootTaskStack.getName());
         }
-        mRootTaskStacks.remove(rootTaskStack);
+        mRootTaskStacks.remove(rootTaskStack.getId());
 
         if (mIsCarReady) {
             mCarActivityManager.onRootTaskVanished(rootTaskStack.getRootTaskInfo().taskId);

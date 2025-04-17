@@ -306,7 +306,9 @@ public class AutoCaptionController {
     private void attachCaptionBar(ActivityManager.RunningTaskInfo taskInfo,
             SafeRegionInfo safeRegionInfo) {
         if (safeRegionInfo == null) {
-            Slogf.e(TAG, "Safe area is not provided for task %d", taskInfo.taskId);
+            if (DBG) {
+                Slogf.d(TAG, "Safe area is not provided for task %d", taskInfo.taskId);
+            }
             return;
         }
 
