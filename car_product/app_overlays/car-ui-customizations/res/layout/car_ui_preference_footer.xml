@@ -51,12 +51,12 @@
             android:layout_marginTop="16dp"
             android:ellipsize="end"
             android:maxLines="2"
-            android:textAppearance="@style/TextAppearance.CarUi.PreferenceCategoryTitle"/>
+            style="@style/PreferenceCategoryTitle"/>
     </com.android.car.ui.uxr.DrawableStateLinearLayout>
 
     <com.android.car.ui.uxr.DrawableStateTextView
         android:id="@android:id/summary"
-        android:textAppearance="@style/TextAppearance.CarUi.PreferenceSummary"
+        style="@style/PreferenceSummary"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"/>

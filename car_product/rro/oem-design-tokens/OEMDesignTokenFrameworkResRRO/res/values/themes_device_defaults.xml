@@ -44,6 +44,9 @@
         <item name="android:textColorSecondaryInverse">?oemColorOnSecondary</item>
         <item name="android:textColorTertiary">?oemColorSecondary</item>
         <item name="android:textColorTertiaryInverse">?oemColorOnSecondary</item>
+        <item name="android:textAppearanceLarge">?oemTextAppearanceBodyLarge</item>
+        <item name="android:textAppearanceMedium">?oemTextAppearanceBodyMedium</item>
+        <item name="android:textAppearanceSmall">?oemTextAppearanceBodySmall</item>
         <item name="android:textAppearanceListItem">?oemTextAppearanceBodyLarge</item>
         <item name="android:textAppearanceListItemSmall">?oemTextAppearanceBodyLarge</item>
         <item name="android:textAppearanceListItemSecondary">?oemTextAppearanceBodySmall</item>
