@@ -155,7 +155,6 @@ PRODUCT_PACKAGES += \
     CarSettings \
     CarUsbHandler \
     RotaryIME \
-    CarRotaryImeRRO \
     CarRotaryController \
     RotaryPlayground \
     android.car.builtin \
