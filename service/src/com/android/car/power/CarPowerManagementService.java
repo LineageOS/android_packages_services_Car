@@ -620,6 +620,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
 
     @Override
     public void destroy() {
+        mPolicyCallbackHelper.stop();
         try {
             CarServiceUtils.releaseHandlerThread(mHandlerThreadName);
             CarServiceUtils.releaseHandlerThread(mBroadcastHandlerThreadName);
@@ -3060,6 +3061,8 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         private final Object mReadyLock = new Object();
         @GuardedBy("mReadyLock")
         private boolean mCallbackReady;
+        @GuardedBy("mReadyLock")
+        private boolean mStopped;
 
         public void setPolicyCallbackReady(boolean ready) {
             synchronized (mReadyLock) {
@@ -3077,7 +3080,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         public boolean waitForPolicyCallbackReady() throws InterruptedException {
             synchronized (mReadyLock) {
                 long waitStartTime = SystemClock.uptimeMillis();
-                while (!mCallbackReady && (SystemClock.uptimeMillis() - waitStartTime)
+                while (!mStopped && !mCallbackReady && (SystemClock.uptimeMillis() - waitStartTime)
                         < CAR_POWER_MANAGEMENT_DAEMON_CONNECTION_TIMEOUT_MS) {
                     mReadyLock.wait(CAR_POWER_MANAGEMENT_DAEMON_CONNECTION_TIMEOUT_MS);
                 }
@@ -3085,8 +3088,12 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             }
         }
 
-        // TODO(b/409798785): Create a cancelWait() method to notify and stop the wait for callback
-        //  to be ready, if currently waiting. To be called before handler thread is destroyed.
+        public void stop() {
+            synchronized (mReadyLock) {
+                mStopped = true;
+                mReadyLock.notifyAll();
+            }
+        }
     }
 
     private final class BinderHandler implements IBinder.DeathRecipient {
