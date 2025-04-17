@@ -265,7 +265,10 @@ public class CarRemoteAccessManagerTest extends MockedCarTestBase {
     }
 
     private static final class VhalPropertyHandler implements VehicleHalPropertyHandler {
+        private final Object mLock = new Object();
+        @GuardedBy("mLock")
         private final List<VehiclePropValue> mSetPropValues = new ArrayList<>();
+        @GuardedBy("mLock")
         private boolean mVehicleInUse = false;
 
         @Override
@@ -283,15 +286,21 @@ public class CarRemoteAccessManagerTest extends MockedCarTestBase {
 
         @Override
         public void onPropertySet(VehiclePropValue value) {
-            mSetPropValues.add(value);
+            synchronized (mLock) {
+                mSetPropValues.add(value);
+            }
         }
 
         public void setVehicleInUse(boolean vehicleInUse) {
-            mVehicleInUse = vehicleInUse;
+            synchronized (mLock) {
+                mVehicleInUse = vehicleInUse;
+            }
         }
 
         public List<VehiclePropValue> getSetPropValues() {
-            return mSetPropValues;
+            synchronized (mLock) {
+                return mSetPropValues;
+            }
         }
     }
 
