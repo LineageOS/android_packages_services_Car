@@ -289,7 +289,7 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
             .withDisplayInterface(mDisplayInterface)
             .withSystemStateInterface(mSystemStateInterface)
             .withIOInterface(mIOInterface).build();
-        HandlerThread handlerThread = CarServiceUtils.getHandlerThread(TAG);
+        var handlerThread = CarServiceUtils.getHandlerThread(TAG);
         mScreenOffHandler = new FakeScreenOffHandler(
                 mContext, mSystemInterface, handlerThread.getLooper());
 
@@ -303,14 +303,16 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
     public void tearDown() throws Exception {
         if (mService != null) {
             mService.release();
+            mService.setSwapChangeEnabled(true);
+            mService.destroy();
         }
-        mService.setSwapChangeEnabled(true);
-        CarServiceUtils.quitHandlerThreads();
         CarLocalServices.removeServiceForTest(CarPowerManagementService.class);
         mIOInterface.tearDown();
         if (mRefactoredCarPowerManagementDaemon != null) {
             mRefactoredCarPowerManagementDaemon.destroy();
         }
+        CarServiceUtils.releaseHandlerThread(TAG);
+        mPowerHal.destroy();
     }
 
     @Test
@@ -1149,6 +1151,7 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
                 mFileKernelSilentMode, new int[]{CUSTOM_COMPONENT_1000, CUSTOM_COMPONENT_1001,
                         CUSTOM_COMPONENT_1002, CUSTOM_COMPONENT_1003});
         setCarPowerPolicyRefactoringFeatureFlag(true);
+        mService.destroy();
         mService = new CarPowerManagementService.Builder()
                 .setContext(mContext).setResources(mResources)
                 .setPowerHalService(mPowerHal).setSystemInterface(mSystemInterface)
@@ -2113,6 +2116,7 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
                 .thenReturn(true);
         when(mWifiManager.isWifiEnabled()).thenReturn(true);
         when(mWifiManager.isWifiApEnabled()).thenReturn(true);
+        mService.destroy();
         mService = new CarPowerManagementService.Builder()
                 .setContext(mContext).setResources(mResources)
                 .setPowerHalService(mPowerHal).setSystemInterface(mSystemInterface)
@@ -2570,10 +2574,11 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         when(mockVehicleStub.isAidlVhal()).thenReturn(true);
 
         var vehicleHal = new VehicleHal(mContext, mockVehicleStub);
+        var powerHalService = new PowerHalService(mContext, mFeatureFlags, vehicleHal,
+                mDisplayHelper);
         var service = new CarPowerManagementService.Builder()
                 .setContext(mContext).setResources(mResources)
-                .setPowerHalService(new PowerHalService(mContext, mFeatureFlags, vehicleHal,
-                        mDisplayHelper))
+                .setPowerHalService(powerHalService)
                 .setSystemInterface(mSystemInterface).setUserManager(mUserManager)
                 .setCarUserService(mUserService).setPowerManagementDaemon(
                         mRefactoredCarPowerManagementDaemon)
@@ -2596,10 +2601,16 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
                 /* areaId= */ 0, VehicleApPowerBootupReason.SYSTEM_ENTER_GARAGE_MODE);
         when(mockVehicleStub.get(eq(bootupReasonRequest))).thenReturn(bootupReasonResponse);
 
-        service.onInitComplete();
+        try {
+            service.onInitComplete();
 
-        verify(mockVehicleStub).set(mHalPropValueBuilder.build(VehicleProperty.SHUTDOWN_REQUEST, 0,
-                VehicleApPowerStateShutdownParam.SHUTDOWN_ONLY));
+            verify(mockVehicleStub).set(mHalPropValueBuilder.build(VehicleProperty.SHUTDOWN_REQUEST,
+                    0,  VehicleApPowerStateShutdownParam.SHUTDOWN_ONLY));
+        } finally {
+            vehicleHal.destroy();
+            powerHalService.destroy();
+            service.destroy();
+        }
     }
 
     @Test
@@ -2612,10 +2623,11 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         when(mockVehicleStub.isAidlVhal()).thenReturn(true);
 
         var vehicleHal = new VehicleHal(mContext, mockVehicleStub);
+        var powerHalService = new PowerHalService(mContext, mFeatureFlags, vehicleHal,
+                mDisplayHelper);
         var service = new CarPowerManagementService.Builder()
                 .setContext(mContext).setResources(mResources)
-                .setPowerHalService(new PowerHalService(mContext, mFeatureFlags, vehicleHal,
-                        mDisplayHelper))
+                .setPowerHalService(powerHalService)
                 .setSystemInterface(mSystemInterface).setUserManager(mUserManager)
                 .setCarUserService(mUserService).setPowerManagementDaemon(
                         mRefactoredCarPowerManagementDaemon)
@@ -2625,7 +2637,13 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
                 .setSilentModeKernelStatePath(mFileKernelSilentMode.getPath())
                 .setBootReason(NORMAL_BOOT).build();
 
-        service.onInitComplete();
+        try {
+            service.onInitComplete();
+        } finally {
+            vehicleHal.destroy();
+            powerHalService.destroy();
+            service.destroy();
+        }
     }
 
     @Test
@@ -2638,10 +2656,11 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         when(mockVehicleStub.isAidlVhal()).thenReturn(true);
 
         var vehicleHal = new VehicleHal(mContext, mockVehicleStub);
+        var powerHalService = new PowerHalService(mContext, mFeatureFlags, vehicleHal,
+                mDisplayHelper);
         var service = new CarPowerManagementService.Builder()
                 .setContext(mContext).setResources(mResources)
-                .setPowerHalService(new PowerHalService(mContext, mFeatureFlags, vehicleHal,
-                        mDisplayHelper))
+                .setPowerHalService(powerHalService)
                 .setSystemInterface(mSystemInterface).setUserManager(mUserManager)
                 .setCarUserService(mUserService).setPowerManagementDaemon(
                         mRefactoredCarPowerManagementDaemon)
@@ -2658,9 +2677,15 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         when(mockVehicleStub.get(eq(bootupReasonRequest))).thenThrow(
                 new IllegalArgumentException());
 
-        service.onInitComplete();
+        try {
+            service.onInitComplete();
 
-        verify(mockVehicleStub, never()).set(any());
+            verify(mockVehicleStub, never()).set(any());
+        } finally {
+            vehicleHal.destroy();
+            powerHalService.destroy();
+            service.destroy();
+        }
     }
 
     @Test
@@ -2673,10 +2698,11 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         when(mockVehicleStub.isAidlVhal()).thenReturn(true);
 
         var vehicleHal = new VehicleHal(mContext, mockVehicleStub);
+        var powerHalService = new PowerHalService(mContext, mFeatureFlags, vehicleHal,
+                mDisplayHelper);
         var service = new CarPowerManagementService.Builder()
                 .setContext(mContext).setResources(mResources)
-                .setPowerHalService(new PowerHalService(mContext, mFeatureFlags, vehicleHal,
-                        mDisplayHelper))
+                .setPowerHalService(powerHalService)
                 .setSystemInterface(mSystemInterface).setUserManager(mUserManager)
                 .setCarUserService(mUserService).setPowerManagementDaemon(
                         mRefactoredCarPowerManagementDaemon)
@@ -2700,9 +2726,15 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
                 /* areaId= */ 0, VehicleApPowerBootupReason.USER_POWER_ON);
         when(mockVehicleStub.get(eq(bootupReasonRequest))).thenReturn(bootupReasonResponse);
 
-        service.onInitComplete();
+        try {
+            service.onInitComplete();
 
-        verify(mockVehicleStub, never()).set(any());
+            verify(mockVehicleStub, never()).set(any());
+        } finally {
+            vehicleHal.destroy();
+            powerHalService.destroy();
+            service.destroy();
+        }
     }
 
     @Test
@@ -2715,10 +2747,11 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         when(mockVehicleStub.isAidlVhal()).thenReturn(true);
 
         var vehicleHal = new VehicleHal(mContext, mockVehicleStub);
+        var powerHalService = new PowerHalService(mContext, mFeatureFlags, vehicleHal,
+                mDisplayHelper);
         var service = new CarPowerManagementService.Builder()
                 .setContext(mContext).setResources(mResources)
-                .setPowerHalService(new PowerHalService(mContext, mFeatureFlags, vehicleHal,
-                        mDisplayHelper))
+                .setPowerHalService(powerHalService)
                 .setSystemInterface(mSystemInterface).setUserManager(mUserManager)
                 .setCarUserService(mUserService).setPowerManagementDaemon(
                         mRefactoredCarPowerManagementDaemon)
@@ -2742,9 +2775,15 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
                 /* areaId= */ 0, VehicleApPowerBootupReason.SYSTEM_ENTER_GARAGE_MODE);
         when(mockVehicleStub.get(eq(bootupReasonRequest))).thenReturn(bootupReasonResponse);
 
-        service.onInitComplete();
+        try {
+            service.onInitComplete();
 
-        verify(mockVehicleStub, never()).set(any());
+            verify(mockVehicleStub, never()).set(any());
+        } finally {
+            vehicleHal.destroy();
+            powerHalService.destroy();
+            service.destroy();
+        }
     }
 
     @Test
@@ -2879,6 +2918,9 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
                 new AtomicFile(mComponentStateFile));
         mPowerPolicyDaemon = new FakeCarPowerPolicyDaemon();
         setCarPowerPolicyRefactoringFeatureFlag(false);
+        if (mService != null) {
+            mService.destroy();
+        }
         mService = new CarPowerManagementService.Builder()
                 .setContext(mContext).setResources(mResources)
                 .setPowerHalService(mPowerHal).setSystemInterface(mSystemInterface)
@@ -2906,6 +2948,9 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
                 mFileKernelSilentMode, new int[]{CUSTOM_COMPONENT_1000, CUSTOM_COMPONENT_1001,
                         CUSTOM_COMPONENT_1002, CUSTOM_COMPONENT_1003});
         setCarPowerPolicyRefactoringFeatureFlag(true);
+        if (mService != null) {
+            mService.destroy();
+        }
         mService = new CarPowerManagementService.Builder()
                 .setContext(mContext).setResources(mResources)
                 .setPowerHalService(mPowerHal).setSystemInterface(mSystemInterface)
