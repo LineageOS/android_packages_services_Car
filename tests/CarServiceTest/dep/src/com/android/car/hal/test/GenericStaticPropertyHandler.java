@@ -16,12 +16,12 @@
 
 package com.android.car.hal.test;
 
-import javax.annotation.concurrent.NotThreadSafe;
+import javax.annotation.concurrent.ThreadSafe;
 
 /**
  * A generic property handler that always returns a static value for get.
  */
-@NotThreadSafe
+@ThreadSafe
 public class GenericStaticPropertyHandler<ValueType>
         extends GenericFailingPropertyHandler<ValueType> {
     private final ValueType mValue;

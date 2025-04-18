@@ -33,6 +33,7 @@ import android.os.RemoteException;
 import android.os.ServiceSpecificException;
 import android.os.SystemClock;
 import android.util.Log;
+import android.util.SparseArray;
 
 import com.android.internal.annotations.GuardedBy;
 
@@ -40,8 +41,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
-import javax.annotation.concurrent.NotThreadSafe;
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
@@ -113,29 +115,31 @@ public class HidlMockedVehicleHal extends IVehicle.Stub {
     }
 
     public void injectEvent(VehiclePropValue value, boolean setProperty) {
+        VehicleHalPropertyHandler handler;
+        List<IVehicleCallback> callbacks;
         synchronized (mLock) {
-            List<IVehicleCallback> callbacks = mSubscribers.get(value.prop);
-            assertNotNull("Injecting event failed for property: " + value.prop
-                    + ". No listeners found", callbacks);
+            handler = mPropertyHandlerMap.get(value.prop);
+            callbacks = mSubscribers.get(value.prop);
+        }
+        assertNotNull("Injecting event failed for property: " + value.prop
+                + ". No listeners found", callbacks);
 
-            if (setProperty) {
-                // Update property if requested
-                VehicleHalPropertyHandler handler = mPropertyHandlerMap.get(value.prop);
-                if (handler != null) {
-                    handler.onPropertySet(value);
-                }
+        if (setProperty) {
+            // Update property if requested
+            if (handler != null) {
+                handler.onPropertySet(value);
             }
+        }
 
-            for (int i = 0; i < callbacks.size(); i++) {
-                IVehicleCallback callback = callbacks.get(i);
-                try {
-                    ArrayList<VehiclePropValue> values = new ArrayList<>(1);
-                    values.add(value);
-                    callback.onPropertyEvent(values);
-                } catch (RemoteException e) {
-                    Log.e(TAG, "Failed invoking callback", e);
-                    fail("Remote exception while injecting events.");
-                }
+        for (int i = 0; i < callbacks.size(); i++) {
+            IVehicleCallback callback = callbacks.get(i);
+            try {
+                ArrayList<VehiclePropValue> values = new ArrayList<>(1);
+                values.add(value);
+                callback.onPropertyEvent(values);
+            } catch (RemoteException e) {
+                Log.e(TAG, "Failed invoking callback", e);
+                fail("Remote exception while injecting events.");
             }
         }
     }
@@ -145,18 +149,19 @@ public class HidlMockedVehicleHal extends IVehicle.Stub {
     }
 
     public void injectError(int errorCode, int propertyId, int areaId) {
+        List<IVehicleCallback> callbacks;
         synchronized (mLock) {
-            List<IVehicleCallback> callbacks = mSubscribers.get(propertyId);
-            assertNotNull("Injecting error failed for property: " + propertyId
-                    + ". No listeners found", callbacks);
-            for (int i = 0; i < callbacks.size(); i++) {
-                IVehicleCallback callback = callbacks.get(i);
-                try {
-                    callback.onPropertySetError(errorCode, propertyId, areaId);
-                } catch (RemoteException e) {
-                    Log.e(TAG, "Failed invoking callback", e);
-                    fail("Remote exception while injecting errors.");
-                }
+            callbacks = mSubscribers.get(propertyId);
+        }
+        assertNotNull("Injecting error failed for property: " + propertyId
+                + ". No listeners found", callbacks);
+        for (int i = 0; i < callbacks.size(); i++) {
+            IVehicleCallback callback = callbacks.get(i);
+            try {
+                callback.onPropertySetError(errorCode, propertyId, areaId);
+            } catch (RemoteException e) {
+                Log.e(TAG, "Failed invoking callback", e);
+                fail("Remote exception while injecting errors.");
             }
         }
     }
@@ -186,52 +191,65 @@ public class HidlMockedVehicleHal extends IVehicle.Stub {
 
     @Override
     public void get(VehiclePropValue requestedPropValue, getCallback cb) {
+        VehicleHalPropertyHandler handler;
         synchronized (mLock) {
-            VehicleHalPropertyHandler handler = mPropertyHandlerMap.get(requestedPropValue.prop);
-            if (handler == null) {
-                cb.onValues(StatusCode.INVALID_ARG, null);
-            } else {
-                try {
-                    VehiclePropValue prop = handler.onPropertyGet(requestedPropValue);
-                    cb.onValues(StatusCode.OK, prop);
-                } catch (ServiceSpecificException e) {
-                    // Don't directly pass ServiceSpecificException through binder to client, pass
-                    // status code similar to how the c++ server does.
-                    cb.onValues(e.errorCode, null);
-                }
+            handler = mPropertyHandlerMap.get(requestedPropValue.prop);
+        }
+        if (handler == null) {
+            cb.onValues(StatusCode.INVALID_ARG, null);
+        } else {
+            try {
+                VehiclePropValue prop = handler.onPropertyGet(requestedPropValue);
+                cb.onValues(StatusCode.OK, prop);
+            } catch (ServiceSpecificException e) {
+                // Don't directly pass ServiceSpecificException through binder to client, pass
+                // status code similar to how the c++ server does.
+                cb.onValues(e.errorCode, null);
             }
         }
     }
 
     @Override
     public int set(VehiclePropValue propValue) {
+        VehicleHalPropertyHandler handler;
         synchronized (mLock) {
-            VehicleHalPropertyHandler handler = mPropertyHandlerMap.get(propValue.prop);
-            if (handler == null) {
-                return StatusCode.INVALID_ARG;
-            } else {
-                try {
-                    handler.onPropertySet(propValue);
-                    return StatusCode.OK;
-                } catch (ServiceSpecificException e) {
-                    // Don't directly pass ServiceSpecificException through binder to client, pass
-                    // status code similar to how the c++ server does.
-                    return e.errorCode;
-                }
+            handler = mPropertyHandlerMap.get(propValue.prop);
+        }
+        if (handler == null) {
+            return StatusCode.INVALID_ARG;
+        } else {
+            try {
+                handler.onPropertySet(propValue);
+                return StatusCode.OK;
+            } catch (ServiceSpecificException e) {
+                // Don't directly pass ServiceSpecificException through binder to client, pass
+                // status code similar to how the c++ server does.
+                return e.errorCode;
             }
         }
     }
 
     @Override
     public int subscribe(IVehicleCallback callback, ArrayList<SubscribeOptions> options) {
+        SparseArray<VehicleHalPropertyHandler> handlerForPropId = new SparseArray<>();
         synchronized (mLock) {
             for (SubscribeOptions opt : options) {
                 VehicleHalPropertyHandler handler = mPropertyHandlerMap.get(opt.propId);
                 if (handler == null) {
-                    return StatusCode.INVALID_ARG;
+                    continue;
                 }
+                handlerForPropId.put(opt.propId, handler);
+            }
+        }
+        for (SubscribeOptions opt : options) {
+            VehicleHalPropertyHandler handler = handlerForPropId.get(opt.propId);
+            if (handler == null) {
+                return StatusCode.INVALID_ARG;
+            }
 
-                handler.onPropertySubscribe(opt.propId, opt.sampleRate);
+            handler.onPropertySubscribe(opt.propId, opt.sampleRate);
+
+            synchronized (mLock) {
                 List<IVehicleCallback> subscribers = mSubscribers.get(opt.propId);
                 if (subscribers == null) {
                     subscribers = new ArrayList<>();
@@ -255,13 +273,17 @@ public class HidlMockedVehicleHal extends IVehicle.Stub {
 
     @Override
     public int unsubscribe(IVehicleCallback callback, int propId) {
+        VehicleHalPropertyHandler handler;
         synchronized (mLock) {
-            VehicleHalPropertyHandler handler = mPropertyHandlerMap.get(propId);
-            if (handler == null) {
-                return StatusCode.INVALID_ARG;
-            }
+            handler = mPropertyHandlerMap.get(propId);
+        }
+        if (handler == null) {
+            return StatusCode.INVALID_ARG;
+        }
 
-            handler.onPropertyUnsubscribe(propId);
+        handler.onPropertyUnsubscribe(propId);
+
+        synchronized (mLock) {
             List<IVehicleCallback> subscribers = mSubscribers.get(propId);
             if (subscribers != null) {
                 subscribers.remove(callback);
@@ -283,7 +305,7 @@ public class HidlMockedVehicleHal extends IVehicle.Stub {
             extends GenericFailingPropertyHandler<VehiclePropValue>
             implements VehicleHalPropertyHandler {}
 
-    @NotThreadSafe
+    @ThreadSafe
     public static final class StaticPropertyHandler
             extends GenericStaticPropertyHandler<VehiclePropValue>
             implements VehicleHalPropertyHandler {
@@ -297,16 +319,15 @@ public class HidlMockedVehicleHal extends IVehicle.Stub {
             extends GenericErrorCodeHandler<VehiclePropValue>
             implements VehicleHalPropertyHandler {}
 
-    @NotThreadSafe
     public static final class DefaultPropertyHandler implements VehicleHalPropertyHandler {
 
         private final VehiclePropConfig mConfig;
-        private VehiclePropValue mValue;
-        private boolean mSubscribed = false;
+        private final AtomicReference<VehiclePropValue> mValue = new AtomicReference<>();
+        private final AtomicBoolean mSubscribed = new AtomicBoolean(false);
 
         public DefaultPropertyHandler(VehiclePropConfig config, VehiclePropValue initialValue) {
             mConfig = config;
-            mValue = initialValue;
+            mValue.set(initialValue);
         }
 
         @Override
@@ -314,7 +335,7 @@ public class HidlMockedVehicleHal extends IVehicle.Stub {
             assertEquals(mConfig.prop, value.prop);
             assertEquals(VehiclePropertyAccess.WRITE,
                     mConfig.access & VehiclePropertyAccess.WRITE);
-            mValue = value;
+            mValue.set(value);
         }
 
         @Override
@@ -322,23 +343,23 @@ public class HidlMockedVehicleHal extends IVehicle.Stub {
             assertEquals(mConfig.prop, value.prop);
             assertEquals(VehiclePropertyAccess.READ,
                     mConfig.access & VehiclePropertyAccess.READ);
-            return mValue;
+            return mValue.get();
         }
 
         @Override
         public void onPropertySubscribe(int property, float sampleRate) {
             assertEquals(mConfig.prop, property);
-            mSubscribed = true;
+            mSubscribed.set(true);
         }
 
         @Override
         public void onPropertyUnsubscribe(int property) {
             assertEquals(mConfig.prop, property);
-            if (!mSubscribed) {
+            if (!mSubscribed.get()) {
                 throw new IllegalArgumentException("Property was not subscribed 0x"
                         + toHexString(property));
             }
-            mSubscribed = false;
+            mSubscribed.set(false);
         }
     }
 }
