@@ -3147,7 +3147,7 @@
         </activity>
 
         <activity
-            android:name="Settings$NotificationBundlesActivity"
+            android:name="com.android.settings.Settings$NotificationBundlesActivity"
             android:enabled="false"
             android:exported="false"
             tools:node="merge"
