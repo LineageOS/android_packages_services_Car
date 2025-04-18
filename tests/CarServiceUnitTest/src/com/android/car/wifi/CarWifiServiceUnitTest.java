@@ -30,6 +30,7 @@ import static org.mockito.Mockito.when;
 import android.car.hardware.power.CarPowerManager;
 import android.car.hardware.power.ICarPowerStateListener;
 import android.car.settings.CarSettings;
+import android.car.test.NoActiveHandlerThreadCheckerRule;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.car.test.mocks.MockSettings;
 import android.content.ContentResolver;
@@ -51,6 +52,7 @@ import com.android.car.user.CarUserService;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -63,6 +65,11 @@ import java.util.concurrent.Executor;
 public class CarWifiServiceUnitTest extends AbstractExtendedMockitoTestCase {
     private static final SoftApConfiguration AP_CONFIG = new SoftApConfiguration.Builder()
             .build();
+
+    @Rule
+    public NoActiveHandlerThreadCheckerRule mNoActiveHandlerThreadCheckerRule =
+            new NoActiveHandlerThreadCheckerRule();
+
     @Mock
     private Context mContext;
     @Mock
@@ -128,6 +135,8 @@ public class CarWifiServiceUnitTest extends AbstractExtendedMockitoTestCase {
         CarLocalServices.removeServiceForTest(CarPowerManagementService.class);
         CarLocalServices.addService(CarPowerManagementService.class,
                 mOriginalCarPowerManagementService);
+
+        mCarWifiService.destroy();
     }
 
     @Test
@@ -143,6 +152,7 @@ public class CarWifiServiceUnitTest extends AbstractExtendedMockitoTestCase {
         when(mResources.getBoolean(R.bool.config_enablePersistTetheringCapabilities)).thenReturn(
                 false);
 
+        mCarWifiService.destroy();
         mCarWifiService = new CarWifiService(mContext);
         mCarWifiService.init();
 
@@ -155,6 +165,7 @@ public class CarWifiServiceUnitTest extends AbstractExtendedMockitoTestCase {
         mMockSettings.putString(CarSettings.Global.ENABLE_PERSISTENT_TETHERING, "true");
         when(mSharedPreferences.getBoolean(anyString(), anyBoolean())).thenReturn(true);
 
+        mCarWifiService.destroy();
         mCarWifiService = new CarWifiService(mContext);
         mCarWifiService.init();
         getUserLifecycleListener().run();
@@ -172,6 +183,7 @@ public class CarWifiServiceUnitTest extends AbstractExtendedMockitoTestCase {
         mMockSettings.putString(CarSettings.Global.ENABLE_PERSISTENT_TETHERING, "true");
         when(mSharedPreferences.getBoolean(anyString(), anyBoolean())).thenReturn(false);
 
+        mCarWifiService.destroy();
         mCarWifiService = new CarWifiService(mContext);
         mCarWifiService.init();
         getUserLifecycleListener().run();
@@ -187,6 +199,7 @@ public class CarWifiServiceUnitTest extends AbstractExtendedMockitoTestCase {
         when(mSharedPreferences.getBoolean(anyString(), anyBoolean())).thenReturn(false);
         when(mWifiManager.isWifiApEnabled()).thenReturn(true);
 
+        mCarWifiService.destroy();
         mCarWifiService = new CarWifiService(mContext);
         mCarWifiService.init();
         getUserLifecycleListener().run();
@@ -202,6 +215,7 @@ public class CarWifiServiceUnitTest extends AbstractExtendedMockitoTestCase {
         when(mSharedPreferences.getBoolean(anyString(), anyBoolean())).thenReturn(true);
         when(mCarPowerManagementService.getPowerState()).thenReturn(CarPowerManager.STATE_ON);
 
+        mCarWifiService.destroy();
         mCarWifiService = new CarWifiService(mContext);
         mCarWifiService.init();
         getCarPowerStateListener().onStateChanged(CarPowerManager.STATE_ON, 0);
@@ -218,6 +232,7 @@ public class CarWifiServiceUnitTest extends AbstractExtendedMockitoTestCase {
     public void testPersistCarSettingOff_powerOnBeforeUserUnlock_noTethering() throws Exception {
         when(mCarPowerManagementService.getPowerState()).thenReturn(CarPowerManager.STATE_ON);
 
+        mCarWifiService.destroy();
         mCarWifiService = new CarWifiService(mContext);
         mCarWifiService.init();
         getCarPowerStateListener().onStateChanged(CarPowerManager.STATE_ON, 0);
@@ -241,6 +256,7 @@ public class CarWifiServiceUnitTest extends AbstractExtendedMockitoTestCase {
     public void testPersistCarSettingChange_withCapability_autoShutdownFalse() throws Exception {
         when(mSharedPreferences.getBoolean(anyString(), anyBoolean())).thenReturn(true);
 
+        mCarWifiService.destroy();
         mCarWifiService = new CarWifiService(mContext);
         mCarWifiService.init();
 

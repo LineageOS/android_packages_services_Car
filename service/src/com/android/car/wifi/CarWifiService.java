@@ -22,7 +22,6 @@ import static android.net.wifi.WifiManager.WIFI_AP_STATE_DISABLED;
 import static android.net.wifi.WifiManager.WIFI_AP_STATE_ENABLED;
 import static android.net.wifi.WifiManager.WIFI_AP_STATE_FAILED;
 
-import static com.android.car.CarServiceUtils.getHandlerThread;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
 import android.car.Car;
@@ -74,8 +73,9 @@ public final class CarWifiService extends ICarWifi.Stub implements CarServiceBas
     private final TetheringManager mTetheringManager;
     private final CarPowerManagementService mCarPowerManagementService;
     private final CarUserService mCarUserService;
-    private final HandlerThread mHandlerThread =
-            getHandlerThread(getClass().getSimpleName());
+    private final String mHandlerThreadName = getClass().getSimpleName();
+    private final HandlerThread mHandlerThread = CarServiceUtils.getHandlerThread(
+            mHandlerThreadName);
     private final Handler mHandler = new Handler(mHandlerThread.getLooper());
     private final FeatureFlags mFeatureFlags = new FeatureFlagsImpl();
 
@@ -173,6 +173,15 @@ public final class CarWifiService extends ICarWifi.Stub implements CarServiceBas
         mTetheringManager = context.getSystemService(TetheringManager.class);
         mCarPowerManagementService = CarLocalServices.getService(CarPowerManagementService.class);
         mCarUserService = CarLocalServices.getService(CarUserService.class);
+    }
+
+    @Override
+    public void destroy() {
+        try {
+            CarServiceUtils.releaseHandlerThread(mHandlerThreadName);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
 
     @Override
