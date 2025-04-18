@@ -22,6 +22,7 @@ import android.app.WindowConfiguration.ACTIVITY_TYPE_ASSISTANT
 import android.app.WindowConfiguration.ACTIVITY_TYPE_RECENTS
 import android.app.WindowConfiguration.ACTIVITY_TYPE_STANDARD
 import android.app.WindowConfiguration.ACTIVITY_TYPE_UNDEFINED
+import android.app.WindowConfiguration.WINDOWING_MODE_FULLSCREEN
 import android.app.WindowConfiguration.WINDOWING_MODE_MULTI_WINDOW
 import android.app.WindowConfiguration.WINDOWING_MODE_UNDEFINED
 import android.content.Context
@@ -348,7 +349,14 @@ class AutoTaskStackControllerImpl @Inject constructor(
             }
             wct.setLaunchRoot(
                 taskStack.rootTaskInfo.token,
-                intArrayOf(WINDOWING_MODE_UNDEFINED),
+                intArrayOf(
+                    WINDOWING_MODE_UNDEFINED,
+                    WINDOWING_MODE_MULTI_WINDOW,
+                    // This is required. Tasks will be reparent to default
+                    // TDA when back event in injected in the root task. Without this flag, the
+                    // same app/task may open in TDA instead of root task.
+                    WINDOWING_MODE_FULLSCREEN
+                ),
                 intArrayOf(
                     ACTIVITY_TYPE_STANDARD,
                     ACTIVITY_TYPE_UNDEFINED,
