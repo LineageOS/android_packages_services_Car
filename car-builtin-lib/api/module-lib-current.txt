@@ -388,7 +388,7 @@ package android.car.builtin.power {
     method public static void shutdown(android.content.Context, boolean, String, boolean);
     field public static final int BRIGHTNESS_DEFAULT = -1; // 0xffffffff
     field public static final int BRIGHTNESS_INVALID = -1; // 0xffffffff
-    field public static final float BRIGHTNESS_INVALID_FLOAT;
+    field public static final float BRIGHTNESS_INVALID_FLOAT = (0.0f/0.0f);
     field public static final float BRIGHTNESS_MAX = 1.0f;
     field public static final float BRIGHTNESS_MIN = 0.0f;
     field public static final int BRIGHTNESS_OFF = 0; // 0x0

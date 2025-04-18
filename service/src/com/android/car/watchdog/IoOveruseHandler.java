@@ -53,7 +53,6 @@ import static com.android.car.CarStatsLog.CAR_WATCHDOG_UID_IO_USAGE_SUMMARY;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 import static com.android.car.internal.NotificationHelperBase.CAR_WATCHDOG_ACTION_DISMISS_RESOURCE_OVERUSE_NOTIFICATION;
 import static com.android.car.internal.NotificationHelperBase.CAR_WATCHDOG_ACTION_LAUNCH_APP_SETTINGS;
-import static com.android.car.internal.NotificationHelperBase.CAR_WATCHDOG_ACTION_RESOURCE_OVERUSE_DISABLE_APP;
 import static com.android.car.watchdog.CarWatchdogService.DEBUG;
 import static com.android.car.watchdog.CarWatchdogService.TAG;
 import static com.android.car.watchdog.PackageInfoHandler.SHARED_PACKAGE_PREFIX;
@@ -1125,13 +1124,6 @@ public final class IoOveruseHandler {
         Trace.beginSection("IoOveruseHandler.processUserNotificationIntent(action=" + action + ")");
         try {
             switch (action) {
-                case CAR_WATCHDOG_ACTION_RESOURCE_OVERUSE_DISABLE_APP:
-                    disablePackageForUser(packageName, userHandle.getIdentifier());
-                    if (DEBUG) {
-                        Slogf.d(TAG, "Handled user notification action to disable package %s "
-                                        + "for user %s", packageName, userHandle);
-                    }
-                    break;
                 case CAR_WATCHDOG_ACTION_LAUNCH_APP_SETTINGS:
                     Intent settingsIntent = new Intent(ACTION_APPLICATION_DETAILS_SETTINGS)
                             .setData(Uri.parse("package:" + packageName))

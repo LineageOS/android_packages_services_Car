@@ -34,7 +34,6 @@ import static com.android.car.CarServiceUtils.getHandlerThread;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 import static com.android.car.internal.NotificationHelperBase.CAR_WATCHDOG_ACTION_DISMISS_RESOURCE_OVERUSE_NOTIFICATION;
 import static com.android.car.internal.NotificationHelperBase.CAR_WATCHDOG_ACTION_LAUNCH_APP_SETTINGS;
-import static com.android.car.internal.NotificationHelperBase.CAR_WATCHDOG_ACTION_RESOURCE_OVERUSE_DISABLE_APP;
 
 import android.annotation.NonNull;
 import android.annotation.UserIdInt;
@@ -152,7 +151,6 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
             switch (action) {
                 case CAR_WATCHDOG_ACTION_DISMISS_RESOURCE_OVERUSE_NOTIFICATION:
                 case CAR_WATCHDOG_ACTION_LAUNCH_APP_SETTINGS:
-                case CAR_WATCHDOG_ACTION_RESOURCE_OVERUSE_DISABLE_APP:
                     mWatchdogPerfHandler.processUserNotificationIntent(intent);
                     break;
                 case ACTION_GARAGE_MODE_ON:
@@ -980,7 +978,6 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
         filter.addAction(ACTION_GARAGE_MODE_ON);
         filter.addAction(ACTION_GARAGE_MODE_OFF);
         filter.addAction(CAR_WATCHDOG_ACTION_LAUNCH_APP_SETTINGS);
-        filter.addAction(CAR_WATCHDOG_ACTION_RESOURCE_OVERUSE_DISABLE_APP);
         filter.addAction(ACTION_USER_REMOVED);
         filter.addAction(ACTION_REBOOT);
         filter.addAction(ACTION_SHUTDOWN);
