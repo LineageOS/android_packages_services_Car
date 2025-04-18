@@ -41,6 +41,7 @@ import android.bluetooth.BluetoothStatusCodes;
 import android.bluetooth.BluetoothUuid;
 import android.car.builtin.bluetooth.BluetoothHeadsetClientHelper;
 import android.car.builtin.util.Slogf;
+import android.car.test.NoActiveHandlerThreadCheckerRule;
 import android.content.Context;
 import android.content.res.Resources;
 import android.os.ParcelUuid;
@@ -54,7 +55,9 @@ import androidx.test.filters.RequiresDevice;
 import com.android.car.CarPerUserServiceImpl;
 import com.android.car.R;
 
+import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
@@ -94,6 +97,10 @@ public class CarBluetoothUserServiceTest extends AbstractExtendedMockitoBluetoot
     private CarBluetoothUserService mCarBluetoothUserService;
 
     private MockContext mMockContext;
+
+    @Rule
+    public NoActiveHandlerThreadCheckerRule mNoActiveHandlerThreadCheckerRule =
+            new NoActiveHandlerThreadCheckerRule();
 
     @Mock private CarPerUserServiceImpl mMockCarPerUserServiceImpl;
     @Mock private BluetoothManager mMockBluetoothManager;
@@ -148,6 +155,11 @@ public class CarBluetoothUserServiceTest extends AbstractExtendedMockitoBluetoot
         doReturn(true).when(mMockBluetoothAdapter).getProfileProxy(
                 any(Context.class), mProfileServiceListenerCaptor.capture(), anyInt());
         mCarBluetoothUserService.setupBluetoothConnectionProxies();
+    }
+
+    @After
+    public void tearDown() {
+        mCarBluetoothUserService.destroy();
     }
 
     //-------------------------------------------------------------------------------------------//

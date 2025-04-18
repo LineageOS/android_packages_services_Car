@@ -44,6 +44,7 @@ import android.bluetooth.le.AdvertiseData;
 import android.bluetooth.le.AdvertisingSet;
 import android.bluetooth.le.AdvertisingSetCallback;
 import android.bluetooth.le.BluetoothLeAdvertiser;
+import android.car.test.NoActiveHandlerThreadCheckerRule;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -150,6 +151,10 @@ public class FastPairProviderTest {
     private FastPairProvider mFastPairProvider;
 
     @Rule
+    public NoActiveHandlerThreadCheckerRule mNoActiveHandlerThreadCheckerRule =
+            new NoActiveHandlerThreadCheckerRule();
+
+    @Rule
     public final TestRule mClearInlineMocksRule = new TestRule() {
         @Override
         public Statement apply(Statement base, Description description) {
@@ -226,6 +231,7 @@ public class FastPairProviderTest {
 
     @After
     public void tearDown() {
+        mFastPairProvider.destroy();
         mMockitoSession.finishMocking();
     }
 
@@ -289,6 +295,9 @@ public class FastPairProviderTest {
     }
 
     private void createProviderUnderTest() {
+        if (mFastPairProvider != null) {
+            mFastPairProvider.destroy();
+        }
         mFastPairProvider = new FastPairProvider(mMockContext);
         mAdvertiserCallbacks = mFastPairProvider.mAdvertiserCallbacks;
         mGattServerCallbacks = mFastPairProvider.mGattServerCallbacks;

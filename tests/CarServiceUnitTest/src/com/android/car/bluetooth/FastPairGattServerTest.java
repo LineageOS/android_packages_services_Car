@@ -42,16 +42,22 @@ import android.bluetooth.BluetoothGattServerCallback;
 import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
+import android.car.test.NoActiveHandlerThreadCheckerRule;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.ParcelUuid;
 
 import androidx.test.InstrumentationRegistry;
 import androidx.test.filters.RequiresDevice;
 
+import com.android.car.CarServiceUtils;
+
+import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -78,6 +84,8 @@ import javax.crypto.spec.SecretKeySpec;
 @RequiresDevice
 @RunWith(MockitoJUnitRunner.class)
 public class FastPairGattServerTest {
+
+    private static final String HANDLER_THREAD_NAME = FastPairGattServerTest.class.getSimpleName();
 
     static final ParcelUuid FAST_PAIR_SERVICE_UUID = ParcelUuid
             .fromString("0000FE2C-0000-1000-8000-00805f9b34fb");
@@ -166,6 +174,10 @@ public class FastPairGattServerTest {
     Context mTargetContext;
     BluetoothAdapter mTargetBluetoothAdapter;
 
+    @Rule
+    public NoActiveHandlerThreadCheckerRule mNoActiveHandlerThreadCheckerRule =
+            new NoActiveHandlerThreadCheckerRule();
+
     @Mock Context mMockContext;
     @Mock BluetoothManager mMockBluetoothManager;
     @Mock BluetoothAdapter mMockBluetoothAdapter;
@@ -193,9 +205,13 @@ public class FastPairGattServerTest {
     BluetoothGattCharacteristic mAccountKeyCharacteristic;
     BluetoothGattCharacteristic mDeviceNameCharacteristic;
 
+    private HandlerThread mHandlerThread;
+
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
+
+        mHandlerThread = CarServiceUtils.getHandlerThread(HANDLER_THREAD_NAME);
 
         mTargetContext = InstrumentationRegistry.getTargetContext();
         BluetoothManager btManager = mTargetContext.getSystemService(BluetoothManager.class);
@@ -252,7 +268,12 @@ public class FastPairGattServerTest {
 
         mTestGattServer = new FastPairGattServer(mMockContext, TEST_MODEL_ID,
                 TEST_PRIVATE_KEY_B_BASE64, mMockFastPairCallbacks, true,
-                mMockFastPairAccountKeyStorage);
+                mMockFastPairAccountKeyStorage, mHandlerThread.getLooper());
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        CarServiceUtils.releaseHandlerThread(HANDLER_THREAD_NAME);
     }
 
     private void setAvailableAccountKeys(List<AccountKey> keys) {
