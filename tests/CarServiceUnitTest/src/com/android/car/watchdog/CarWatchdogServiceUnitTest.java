@@ -126,11 +126,11 @@ import com.android.car.BuiltinPackageDependency;
 import com.android.car.CarLocalServices;
 import com.android.car.CarServiceHelperWrapper;
 import com.android.car.CarServiceUtils;
-import com.android.car.CarStatsLog;
 import com.android.car.CarUxRestrictionsManagerService;
 import com.android.car.admin.NotificationHelper;
 import com.android.car.internal.ICarServiceHelper;
 import com.android.car.power.CarPowerManagementService;
+import com.android.car.stats.CarStatsLogWrapper;
 import com.android.car.systeminterface.SystemInterface;
 import com.android.car.user.CarUserService;
 
@@ -197,6 +197,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
     @Mock private WatchdogProcessHandler mMockWatchdogProcessHandler;
     @Mock private WatchdogPerfHandlerInterface mMockWatchdogPerfHandler;
     @Mock private CarWatchdogDaemonHelper mMockCarWatchdogDaemonHelper;
+    @Mock private CarStatsLogWrapper mCarStatsLogWrapper;
 
     @Captor private ArgumentCaptor<ICarPowerStateListener> mICarPowerStateListenerCaptor;
     @Captor private ArgumentCaptor<ICarPowerPolicyListener> mICarPowerPolicyListenerCaptor;
@@ -252,7 +253,6 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
             .spyStatic(ActivityManager.class)
             .spyStatic(ActivityThread.class)
             .spyStatic(CarLocalServices.class)
-            .spyStatic(CarStatsLog.class)
             .spyStatic(CarServiceUtils.class)
             .spyStatic(BuiltinPackageDependency.class)
             .spyStatic(SystemProperties.class);
@@ -327,7 +327,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         mServiceHandler = new Handler(CarServiceUtils.getHandlerThread(TAG).getLooper());
         mCarWatchdogService = new CarWatchdogService(mMockContext, mMockBuiltinPackageContext,
                 mSpiedWatchdogStorage, mTimeSource, mServiceHandler, mMockWatchdogProcessHandler,
-                mMockWatchdogPerfHandler);
+                mMockWatchdogPerfHandler, mCarStatsLogWrapper);
         mCarWatchdogService.setCarWatchdogDaemonHelper(mMockCarWatchdogDaemonHelper);
         initService(/* wantedInvocations= */ 1);
     }
@@ -1206,7 +1206,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
     }
 
     private void mockBuildStatsEventCalls() {
-        when(CarStatsLog.buildStatsEvent(eq(CAR_WATCHDOG_SYSTEM_IO_USAGE_SUMMARY),
+        when(mCarStatsLogWrapper.buildStatsEvent(eq(CAR_WATCHDOG_SYSTEM_IO_USAGE_SUMMARY),
                 any(byte[].class), anyLong())).thenAnswer(args -> {
                     mPulledSystemIoUsageSummaries.add(AtomsProto.CarWatchdogSystemIoUsageSummary
                             .newBuilder()
@@ -1218,7 +1218,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
                     return StatsEvent.newBuilder().build();
                 });
 
-        when(CarStatsLog.buildStatsEvent(eq(CAR_WATCHDOG_UID_IO_USAGE_SUMMARY), anyInt(),
+        when(mCarStatsLogWrapper.buildStatsEvent(eq(CAR_WATCHDOG_UID_IO_USAGE_SUMMARY), anyInt(),
                 any(byte[].class), anyLong())).thenAnswer(args -> {
                     mPulledUidIoUsageSummaries.add(AtomsProto.CarWatchdogUidIoUsageSummary
                             .newBuilder()

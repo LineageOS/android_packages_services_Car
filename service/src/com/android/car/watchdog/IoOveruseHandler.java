@@ -129,7 +129,6 @@ import android.view.Display;
 
 import com.android.car.BuiltinPackageDependency;
 import com.android.car.CarLocalServices;
-import com.android.car.CarStatsLog;
 import com.android.car.CarUxRestrictionsManagerService;
 import com.android.car.R;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
@@ -137,6 +136,7 @@ import com.android.car.internal.NotificationHelperBase;
 import com.android.car.internal.dep.Trace;
 import com.android.car.internal.util.ConcurrentUtils;
 import com.android.car.internal.util.IndentingPrintWriter;
+import com.android.car.stats.CarStatsLogWrapper;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.Preconditions;
@@ -232,6 +232,7 @@ public final class IoOveruseHandler {
     private final int mResourceOveruseNotificationBaseId;
     private final int mResourceOveruseNotificationMaxOffset;
     private final TimeSource mTimeSource;
+    private final CarStatsLogWrapper mCarStatsLogWrapper;
     private final Object mLock = new Object();
     /**
      * Tracks user packages' resource usage. When cache is updated, call
@@ -313,7 +314,8 @@ public final class IoOveruseHandler {
 
     public IoOveruseHandler(Context context, Context builtinPackageContext,
             CarWatchdogDaemonHelper daemonHelper, PackageInfoHandler packageInfoHandler,
-            WatchdogStorage watchdogStorage, TimeSource timeSource, Handler serviceHandler) {
+            WatchdogStorage watchdogStorage, TimeSource timeSource, Handler serviceHandler,
+            CarStatsLogWrapper carStatsLogWrapper) {
         mContext = context;
         mBuiltinPackageContext = builtinPackageContext;
         mCarWatchdogDaemonHelper = daemonHelper;
@@ -323,6 +325,7 @@ public final class IoOveruseHandler {
         mWatchdogStorage = watchdogStorage;
         mOveruseConfigurationCache = new OveruseConfigurationCache();
         mTimeSource = timeSource;
+        mCarStatsLogWrapper = carStatsLogWrapper;
         Resources resources = mContext.getResources();
         mUidIoUsageSummaryTopCount = resources.getInteger(R.integer.uidIoUsageSummaryTopCount);
         mIoUsageSummaryMinSystemTotalWrittenBytes =
@@ -2174,7 +2177,7 @@ public final class IoOveruseHandler {
             }
         }
         for (int i = 0; i < statsByUid.size(); ++i) {
-            CarStatsLog.write(CAR_WATCHDOG_IO_OVERUSE_STATS_REPORTED, statsByUid.keyAt(i),
+            mCarStatsLogWrapper.write(CAR_WATCHDOG_IO_OVERUSE_STATS_REPORTED, statsByUid.keyAt(i),
                     statsByUid.valueAt(i).toByteArray());
         }
     }
@@ -2197,7 +2200,7 @@ public final class IoOveruseHandler {
         for (int i = 0; i < statsByUid.size(); ++i) {
             // TODO(b/200598815): After watchdog can classify foreground vs background apps,
             //  report the correct uid state.
-            CarStatsLog.write(CAR_WATCHDOG_KILL_STATS_REPORTED, statsByUid.keyAt(i),
+            mCarStatsLogWrapper.write(CAR_WATCHDOG_KILL_STATS_REPORTED, statsByUid.keyAt(i),
                     CAR_WATCHDOG_KILL_STATS_REPORTED__UID_STATE__UNKNOWN_UID_STATE,
                     systemState,
                     CAR_WATCHDOG_KILL_STATS_REPORTED__KILL_REASON__KILLED_ON_IO_OVERUSE,
@@ -2345,7 +2348,7 @@ public final class IoOveruseHandler {
         AtomsProto.CarWatchdogEventTimePeriod evenTimePeriod =
                 AtomsProto.CarWatchdogEventTimePeriod.newBuilder()
                         .setPeriod(AtomsProto.CarWatchdogEventTimePeriod.Period.WEEKLY).build();
-        data.add(CarStatsLog.buildStatsEvent(CAR_WATCHDOG_SYSTEM_IO_USAGE_SUMMARY,
+        data.add(mCarStatsLogWrapper.buildStatsEvent(CAR_WATCHDOG_SYSTEM_IO_USAGE_SUMMARY,
                 AtomsProto.CarWatchdogIoUsageSummary.newBuilder()
                         .setEventTimePeriod(evenTimePeriod)
                         .addAllDailyIoUsageSummary(dailyIoUsageSummaries).build()
@@ -2399,7 +2402,7 @@ public final class IoOveruseHandler {
                         + "reporting stats for this user package", entry.packageName, entry.userId);
                 continue;
             }
-            data.add(CarStatsLog.buildStatsEvent(CAR_WATCHDOG_UID_IO_USAGE_SUMMARY,
+            data.add(mCarStatsLogWrapper.buildStatsEvent(CAR_WATCHDOG_UID_IO_USAGE_SUMMARY,
                     uidsByGenericPackageName.get(entry.packageName),
                     AtomsProto.CarWatchdogIoUsageSummary.newBuilder()
                             .setEventTimePeriod(evenTimePeriodBuilder)

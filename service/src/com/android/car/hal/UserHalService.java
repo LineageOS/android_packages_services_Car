@@ -65,6 +65,7 @@ import com.android.car.internal.common.UserHelperLite;
 import com.android.car.internal.os.CarSystemProperties;
 import com.android.car.internal.util.DebugUtils;
 import com.android.car.internal.util.FunctionalUtils;
+import com.android.car.stats.CarStatsLogWrapper;
 import com.android.car.user.CarUserService;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
@@ -113,6 +114,8 @@ public final class UserHalService extends HalServiceBase {
 
     private final VehicleHal mHal;
 
+    private final CarStatsLogWrapper mCarStatsLog;
+
     @GuardedBy("mLock")
     @Nullable
     private SparseArray<HalPropConfig> mProperties;
@@ -143,19 +146,26 @@ public final class UserHalService extends HalServiceBase {
     private final SparseArray<PendingRequest<?, ?>> mPendingRequests = new SparseArray<>();
 
     public UserHalService(VehicleHal hal) {
-        this(hal, new Handler(CarServiceUtils.getHandlerThread(
-                CarUserService.HANDLER_THREAD_NAME).getLooper()));
+        this(hal, /* handler= */ null, /* carStatsLogWrapper= */ null);
     }
 
     @VisibleForTesting
-    UserHalService(VehicleHal hal, Handler handler) {
+    UserHalService(VehicleHal hal, CarStatsLogWrapper carStatsLog) {
+        this(hal, /* handler= */ null, carStatsLog);
+    }
+
+    @VisibleForTesting
+    UserHalService(VehicleHal hal, @Nullable Handler handler,
+            @Nullable CarStatsLogWrapper carStatsLogWrapper) {
         if (DBG) {
             Slogf.d(TAG, "DBG enabled");
         }
         mHal = hal;
-        mHandler = handler;
+        mHandler = handler != null ? handler : new Handler(CarServiceUtils.getHandlerThread(
+                CarUserService.HANDLER_THREAD_NAME).getLooper());
         mBaseRequestId = ThreadLocalRandom.current().nextInt(0, Integer.MAX_VALUE);
         mPropValueBuilder = hal.getHalPropValueBuilder();
+        mCarStatsLog = carStatsLogWrapper != null ? carStatsLogWrapper : new CarStatsLogWrapper();
     }
 
     @Override
@@ -340,7 +350,7 @@ public final class UserHalService extends HalServiceBase {
         }
 
         EventLogHelper.writeCarUserHalInitialUserInfoReq(requestId, requestType, timeoutMs);
-        CarStatsLog.write(CarStatsLog.CAR_USER_HAL_INITIAL_USER_INFO_REQUEST_REPORTED,
+        mCarStatsLog.write(CarStatsLog.CAR_USER_HAL_INITIAL_USER_INFO_REQUEST_REPORTED,
                 getRequestIdForStatsLog(requestId),
                 getInitialUserInfoRequestTypeForStatsd(requestType), timeoutMs);
 
@@ -411,7 +421,7 @@ public final class UserHalService extends HalServiceBase {
 
         EventLogHelper.writeCarUserHalSwitchUserReq(request.requestId, request.targetUser.userId,
                 request.targetUser.flags, timeoutMs);
-        CarStatsLog.write(CarStatsLog.CAR_USER_HAL_MODIFY_USER_REQUEST_REPORTED,
+        mCarStatsLog.write(CarStatsLog.CAR_USER_HAL_MODIFY_USER_REQUEST_REPORTED,
                 getRequestIdForStatsLog(request.requestId),
                 CarStatsLog
                 .CAR_USER_HAL_MODIFY_USER_REQUEST_REPORTED__REQUEST_TYPE__SWITCH_REQUEST_ANDROID,
@@ -437,7 +447,7 @@ public final class UserHalService extends HalServiceBase {
 
         EventLogHelper.writeCarUserHalRemoveUserReq(request.removedUserInfo.userId,
                 request.usersInfo.currentUser.userId);
-        CarStatsLog.write(CarStatsLog.CAR_USER_HAL_MODIFY_USER_REQUEST_REPORTED,
+        mCarStatsLog.write(CarStatsLog.CAR_USER_HAL_MODIFY_USER_REQUEST_REPORTED,
                 getRequestIdForStatsLog(request.requestId),
                 CarStatsLog
                 .CAR_USER_HAL_MODIFY_USER_REQUEST_REPORTED__REQUEST_TYPE__REMOVE_REQUEST,
@@ -480,7 +490,7 @@ public final class UserHalService extends HalServiceBase {
 
         EventLogHelper.writeCarUserHalCreateUserReq(request.requestId,
                 UserHelperLite.safeName(request.newUserName), request.newUserInfo.flags, timeoutMs);
-        CarStatsLog.write(CarStatsLog.CAR_USER_HAL_MODIFY_USER_REQUEST_REPORTED,
+        mCarStatsLog.write(CarStatsLog.CAR_USER_HAL_MODIFY_USER_REQUEST_REPORTED,
                 getRequestIdForStatsLog(request.requestId),
                 CarStatsLog
                 .CAR_USER_HAL_MODIFY_USER_REQUEST_REPORTED__REQUEST_TYPE__CREATE_REQUEST,
@@ -503,7 +513,7 @@ public final class UserHalService extends HalServiceBase {
 
         EventLogHelper.writeCarUserHalPostSwitchUserReq(request.requestId,
                 request.targetUser.userId, request.usersInfo.currentUser.userId);
-        CarStatsLog.write(CarStatsLog.CAR_USER_HAL_POST_SWITCH_RESPONSE_REPORTED,
+        mCarStatsLog.write(CarStatsLog.CAR_USER_HAL_POST_SWITCH_RESPONSE_REPORTED,
                 getRequestIdForStatsLog(request.requestId),
                 request.targetUser.userId == request.usersInfo.currentUser.userId
                 ? CarStatsLog.CAR_USER_HAL_POST_SWITCH_RESPONSE_REPORTED__SWITCH_STATUS__SUCCESS
@@ -534,7 +544,7 @@ public final class UserHalService extends HalServiceBase {
         EventLogHelper.writeCarUserHalLegacySwitchUserReq(request.requestId,
                 request.targetUser.userId, request.usersInfo.currentUser.userId);
         //CHECKSTYLE:OFF IndentationCheck
-        CarStatsLog.write(CarStatsLog.CAR_USER_HAL_MODIFY_USER_REQUEST_REPORTED,
+        mCarStatsLog.write(CarStatsLog.CAR_USER_HAL_MODIFY_USER_REQUEST_REPORTED,
                 getRequestIdForStatsLog(request.requestId), CarStatsLog
                 .CAR_USER_HAL_MODIFY_USER_REQUEST_REPORTED__REQUEST_TYPE__SWITCH_REQUEST_LEGACY,
                 request.usersInfo.currentUser.userId, request.usersInfo.currentUser.flags,
@@ -638,7 +648,7 @@ public final class UserHalService extends HalServiceBase {
             associationValues[i] = association.value;
         }
 
-        CarStatsLog.write(CarStatsLog.CAR_USER_HAL_USER_ASSOCIATION_REQUEST_REPORTED,
+        mCarStatsLog.write(CarStatsLog.CAR_USER_HAL_USER_ASSOCIATION_REQUEST_REPORTED,
                 getRequestIdForStatsLog(request.requestId),
                 CarStatsLog.CAR_USER_HAL_USER_ASSOCIATION_REQUEST_REPORTED__REQUEST_TYPE__GET,
                 request.userInfo.userId,
@@ -691,7 +701,7 @@ public final class UserHalService extends HalServiceBase {
             associationTypes[i] = association.type;
             associationValues[i] = association.value;
         }
-        CarStatsLog.write(CarStatsLog.CAR_USER_HAL_USER_ASSOCIATION_REQUEST_REPORTED,
+        mCarStatsLog.write(CarStatsLog.CAR_USER_HAL_USER_ASSOCIATION_REQUEST_REPORTED,
                 getRequestIdForStatsLog(request.requestId),
                 CarStatsLog.CAR_USER_HAL_USER_ASSOCIATION_REQUEST_REPORTED__REQUEST_TYPE__SET,
                 request.userInfo.userId, request.userInfo.flags, request.numberAssociations,
@@ -718,7 +728,7 @@ public final class UserHalService extends HalServiceBase {
         } catch (RuntimeException e) {
             Slogf.w(TAG, "error parsing UserIdentificationResponse (" + value + ")", e);
             callback.onResponse(HalCallback.STATUS_WRONG_HAL_RESPONSE, null);
-            CarStatsLog.write(CarStatsLog.CAR_USER_HAL_SET_USER_ASSOCIATION_RESPONSE_REPORTED,
+            mCarStatsLog.write(CarStatsLog.CAR_USER_HAL_SET_USER_ASSOCIATION_RESPONSE_REPORTED,
                     getRequestIdForStatsLog(requestId),
                     getHalCallbackStatusForStatsd(HalCallback.STATUS_WRONG_HAL_RESPONSE),
                     /* number_associations= */ 0, /* user_identification_association_types= */ "",
@@ -781,7 +791,7 @@ public final class UserHalService extends HalServiceBase {
             associationTypes[i] = association.type;
             associationValues[i] = association.value;
         }
-        CarStatsLog.write(CarStatsLog.CAR_USER_HAL_SET_USER_ASSOCIATION_RESPONSE_REPORTED,
+        mCarStatsLog.write(CarStatsLog.CAR_USER_HAL_SET_USER_ASSOCIATION_RESPONSE_REPORTED,
                 getRequestIdForStatsLog(requestId),
                 getHalCallbackStatusForStatsd(halCallbackStatus), response.numberAssociation,
                 Arrays.toString(associationTypes), Arrays.toString(associationValues));
@@ -893,7 +903,7 @@ public final class UserHalService extends HalServiceBase {
             EventLogHelper.writeCarUserHalInitialUserInfoResp(requestId,
                     HalCallback.STATUS_INVALID, /* action= */ 0, /* userId= */ 0,
                     /* flags= */ 0, /* safeName= */ "", /* userLocales- */ "");
-            CarStatsLog.write(CarStatsLog.CAR_USER_HAL_INITIAL_USER_INFO_RESPONSE_REPORTED,
+            mCarStatsLog.write(CarStatsLog.CAR_USER_HAL_INITIAL_USER_INFO_RESPONSE_REPORTED,
                     getRequestIdForStatsLog(requestId),
                     getHalCallbackStatusForStatsd(HalCallback.STATUS_INVALID),
                     getInitialUserInfoResponseActionForStatsd(
@@ -913,7 +923,7 @@ public final class UserHalService extends HalServiceBase {
             EventLogHelper.writeCarUserHalInitialUserInfoResp(requestId,
                     HalCallback.STATUS_WRONG_HAL_RESPONSE, /* action= */ 0, /* userId= */ 0,
                     /* flags= */ 0, /* safeName= */ "", /* userLocales- */ "");
-            CarStatsLog.write(CarStatsLog.CAR_USER_HAL_INITIAL_USER_INFO_RESPONSE_REPORTED,
+            mCarStatsLog.write(CarStatsLog.CAR_USER_HAL_INITIAL_USER_INFO_RESPONSE_REPORTED,
                     getRequestIdForStatsLog(requestId),
                     getHalCallbackStatusForStatsd(HalCallback.STATUS_WRONG_HAL_RESPONSE),
                     getInitialUserInfoResponseActionForStatsd(
@@ -928,7 +938,7 @@ public final class UserHalService extends HalServiceBase {
                 HalCallback.STATUS_OK, response.action,
                 response.userToSwitchOrCreate.userId, response.userToSwitchOrCreate.flags,
                 response.userNameToCreate, response.userLocales);
-        CarStatsLog.write(CarStatsLog.CAR_USER_HAL_INITIAL_USER_INFO_RESPONSE_REPORTED,
+        mCarStatsLog.write(CarStatsLog.CAR_USER_HAL_INITIAL_USER_INFO_RESPONSE_REPORTED,
                 getRequestIdForStatsLog(requestId),
                 getHalCallbackStatusForStatsd(HalCallback.STATUS_OK),
                 getInitialUserInfoResponseActionForStatsd(response.action),
@@ -987,7 +997,7 @@ public final class UserHalService extends HalServiceBase {
         // Index 1 is message type, which is not required in this call.
         int targetUserId = value.getInt32Value(2);
         EventLogHelper.writeCarUserHalOemSwitchUserReq(requestId, targetUserId);
-        CarStatsLog.write(CarStatsLog.CAR_USER_HAL_MODIFY_USER_REQUEST_REPORTED,
+        mCarStatsLog.write(CarStatsLog.CAR_USER_HAL_MODIFY_USER_REQUEST_REPORTED,
                 getRequestIdForStatsLog(requestId),
                 CarStatsLog
                     .CAR_USER_HAL_MODIFY_USER_REQUEST_REPORTED__REQUEST_TYPE__SWITCH_REQUEST_OEM,
@@ -1076,7 +1086,7 @@ public final class UserHalService extends HalServiceBase {
 
     private void logHalSwitchUserResponse(int requestId, int halCallbackStatus) {
         //CHECKSTYLE:OFF IndentationCheck
-        CarStatsLog.write(CarStatsLog.CAR_USER_HAL_MODIFY_USER_RESPONSE_REPORTED,
+        mCarStatsLog.write(CarStatsLog.CAR_USER_HAL_MODIFY_USER_RESPONSE_REPORTED,
                 getRequestIdForStatsLog(requestId),
                 getHalCallbackStatusForStatsd(halCallbackStatus),
                CarStatsLog.CAR_USER_HAL_MODIFY_USER_RESPONSE_REPORTED__REQUEST_STATUS__UNSPECIFIED);
@@ -1088,14 +1098,14 @@ public final class UserHalService extends HalServiceBase {
         int userSwitchstatusForStatsd = userSwitchstatus == SwitchUserStatus.SUCCESS
                 ? CarStatsLog.CAR_USER_HAL_MODIFY_USER_RESPONSE_REPORTED__REQUEST_STATUS__SUCCESS
                 : CarStatsLog.CAR_USER_HAL_MODIFY_USER_RESPONSE_REPORTED__REQUEST_STATUS__FAILURE;
-        CarStatsLog.write(CarStatsLog.CAR_USER_HAL_MODIFY_USER_RESPONSE_REPORTED,
+        mCarStatsLog.write(CarStatsLog.CAR_USER_HAL_MODIFY_USER_RESPONSE_REPORTED,
                 getRequestIdForStatsLog(requestId),
                 getHalCallbackStatusForStatsd(halCallbackStatus), userSwitchstatusForStatsd);
     }
 
     private void logHalCreateUserResponse(int requestId, int halCallbackStatus) {
         //CHECKSTYLE:OFF IndentationCheck
-        CarStatsLog.write(CarStatsLog.CAR_USER_HAL_MODIFY_USER_RESPONSE_REPORTED,
+        mCarStatsLog.write(CarStatsLog.CAR_USER_HAL_MODIFY_USER_RESPONSE_REPORTED,
                 getRequestIdForStatsLog(requestId),
                 getHalCallbackStatusForStatsd(halCallbackStatus),
                CarStatsLog.CAR_USER_HAL_MODIFY_USER_RESPONSE_REPORTED__REQUEST_STATUS__UNSPECIFIED);
@@ -1107,7 +1117,7 @@ public final class UserHalService extends HalServiceBase {
         int userCreatestatusForStatsd = userCreatestatus == CreateUserStatus.SUCCESS
                 ? CarStatsLog.CAR_USER_HAL_MODIFY_USER_RESPONSE_REPORTED__REQUEST_STATUS__SUCCESS
                 : CarStatsLog.CAR_USER_HAL_MODIFY_USER_RESPONSE_REPORTED__REQUEST_STATUS__FAILURE;
-        CarStatsLog.write(CarStatsLog.CAR_USER_HAL_MODIFY_USER_RESPONSE_REPORTED,
+        mCarStatsLog.write(CarStatsLog.CAR_USER_HAL_MODIFY_USER_RESPONSE_REPORTED,
                 getRequestIdForStatsLog(requestId),
                 getHalCallbackStatusForStatsd(halCallbackStatus), userCreatestatusForStatsd);
     }
