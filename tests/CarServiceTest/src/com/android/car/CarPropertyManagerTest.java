@@ -78,6 +78,7 @@ import androidx.test.filters.MediumTest;
 import com.android.car.hal.test.AidlMockedVehicleHal.VehicleHalPropertyHandler;
 import com.android.car.internal.util.PairSparseArray;
 import com.android.car.test.TestPropertyAsyncCallback;
+import com.android.internal.annotations.GuardedBy;
 
 import com.google.common.truth.Truth;
 
@@ -1845,67 +1846,81 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
     }
 
     private class SupportedValuePropertyHandler implements VehicleHalPropertyHandler {
+        private final Object mLock = new Object();
+        @GuardedBy("mLock")
         private PairSparseArray<Integer> mMinValueByPropIdAreaId = new PairSparseArray<>();
+        @GuardedBy("mLock")
         private PairSparseArray<Integer> mMaxValueByPropIdAreaId = new PairSparseArray<>();
+        @GuardedBy("mLock")
         private PairSparseArray<List<Integer>> mSupportedValuesListByPropIdAreaId =
                 new PairSparseArray<>();
 
         void setMinSupportedValue(int propertyId, int areaId, @Nullable Integer value) {
-            if (value == null) {
-                mMinValueByPropIdAreaId.remove(propertyId, areaId);
-                return;
+            synchronized (mLock) {
+                if (value == null) {
+                    mMinValueByPropIdAreaId.remove(propertyId, areaId);
+                    return;
+                }
+                mMinValueByPropIdAreaId.put(propertyId, areaId, value);
             }
-            mMinValueByPropIdAreaId.put(propertyId, areaId, value);
         }
 
         void setMaxSupportedValue(int propertyId, int areaId, @Nullable Integer value) {
-            if (value == null) {
-                mMaxValueByPropIdAreaId.remove(propertyId, areaId);
-                return;
+            synchronized (mLock) {
+                if (value == null) {
+                    mMaxValueByPropIdAreaId.remove(propertyId, areaId);
+                    return;
+                }
+                mMaxValueByPropIdAreaId.put(propertyId, areaId, value);
             }
-            mMaxValueByPropIdAreaId.put(propertyId, areaId, value);
         }
 
         void setSupportedValuesList(int propertyId, int areaId, List<Integer> values) {
-            mSupportedValuesListByPropIdAreaId.put(propertyId, areaId, values);
+            synchronized (mLock) {
+                mSupportedValuesListByPropIdAreaId.put(propertyId, areaId, values);
+            }
         }
 
         @Override
         public VehiclePropValue[] onGetMinMaxSupportedValue(int propertyId, int areaId) {
-            var returnValue = new VehiclePropValue[2];
-            var minValue = mMinValueByPropIdAreaId.get(propertyId, areaId);
-            var maxValue = mMaxValueByPropIdAreaId.get(propertyId, areaId);
-            if (minValue != null) {
-                VehiclePropValue minPropValue = new VehiclePropValue();
-                minPropValue.value = new RawPropValues();
-                minPropValue.value.int32Values = new int[]{minValue};
-                returnValue[0] = minPropValue;
+            synchronized (mLock) {
+                var returnValue = new VehiclePropValue[2];
+                var minValue = mMinValueByPropIdAreaId.get(propertyId, areaId);
+                var maxValue = mMaxValueByPropIdAreaId.get(propertyId, areaId);
+                if (minValue != null) {
+                    VehiclePropValue minPropValue = new VehiclePropValue();
+                    minPropValue.value = new RawPropValues();
+                    minPropValue.value.int32Values = new int[]{minValue};
+                    returnValue[0] = minPropValue;
+                }
+                if (maxValue != null) {
+                    VehiclePropValue maxPropValue = new VehiclePropValue();
+                    maxPropValue.value = new RawPropValues();
+                    maxPropValue.value.int32Values = new int[]{maxValue};
+                    returnValue[1] = maxPropValue;
+                }
+                return returnValue;
             }
-            if (maxValue != null) {
-                VehiclePropValue maxPropValue = new VehiclePropValue();
-                maxPropValue.value = new RawPropValues();
-                maxPropValue.value.int32Values = new int[]{maxValue};
-                returnValue[1] = maxPropValue;
-            }
-            return returnValue;
         }
 
         @Override
         public @Nullable List<VehiclePropValue> onGetSupportedValuesList(
                 int propertyId, int areaId) {
-            var supportedValues = mSupportedValuesListByPropIdAreaId.get(propertyId, areaId);
-            if (supportedValues == null) {
-                return null;
+            synchronized (mLock) {
+                var supportedValues = mSupportedValuesListByPropIdAreaId.get(propertyId, areaId);
+                if (supportedValues == null) {
+                    return null;
+                }
+                List<VehiclePropValue> results = new ArrayList<>();
+                for (int i = 0; i < supportedValues.size(); i++) {
+                    int supportedValue = supportedValues.get(i);
+                    VehiclePropValue propValue = new VehiclePropValue();
+                    propValue.value = new RawPropValues();
+                    propValue.value.int32Values = new int[]{supportedValue};
+                    results.add(propValue);
+                }
+                return results;
             }
-            List<VehiclePropValue> results = new ArrayList<>();
-            for (int i = 0; i < supportedValues.size(); i++) {
-                int supportedValue = supportedValues.get(i);
-                VehiclePropValue propValue = new VehiclePropValue();
-                propValue.value = new RawPropValues();
-                propValue.value.int32Values = new int[]{supportedValue};
-                results.add(propValue);
-            }
-            return results;
         }
     }
 

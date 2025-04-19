@@ -162,8 +162,8 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
     private final Handler mCommonThreadHandler = new Handler(
             getCommonHandlerThread().getLooper());
 
-    private final HandlerThread mHandlerThread  = getHandlerThread(
-            getClass().getSimpleName());
+    private final String mClassName = getClass().getSimpleName();
+    private final HandlerThread mHandlerThread  = getHandlerThread(mClassName);
     // Handler to receive PlaybackState callbacks from the active media controller.
     private final Handler mHandler = new Handler(mHandlerThread.getLooper());
     private final Object mLock = new Object();
@@ -414,6 +414,16 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
                 mContext.getResources().getInteger(R.integer.config_mediaSourceChangedAutoplay);
         mPlayOnBootConfig = mContext.getResources().getInteger(R.integer.config_mediaBootAutoplay);
         mUserHandleHelper = userHandleHelper;
+    }
+
+    @Override
+    public void destroy() {
+        try {
+            CarServiceUtils.releaseHandlerThread(mClassName);
+            CarServiceUtils.releaseCommonHandlerThread();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
 
     @Override

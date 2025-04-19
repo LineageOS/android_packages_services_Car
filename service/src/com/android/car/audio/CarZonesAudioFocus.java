@@ -35,6 +35,7 @@ import android.media.AudioFocusInfo;
 import android.media.AudioManager;
 import android.media.audiopolicy.AudioPolicy;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.ArraySet;
 import android.util.SparseArray;
 import android.util.proto.ProtoOutputStream;
@@ -73,7 +74,8 @@ final class CarZonesAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
     public static CarZonesAudioFocus createCarZonesAudioFocus(AudioManagerWrapper audioManager,
             PackageManager packageManager, SparseArray<CarAudioZone> carAudioZones,
             CarAudioSettings carAudioSettings, CarFocusCallback carFocusCallback,
-            CarVolumeInfoWrapper carVolumeInfoWrapper, @Nullable CarAudioFeaturesInfo features) {
+            CarVolumeInfoWrapper carVolumeInfoWrapper, @Nullable CarAudioFeaturesInfo features,
+            Handler handler) {
         Objects.requireNonNull(audioManager, "Audio manager cannot be null");
         Objects.requireNonNull(packageManager, "Package manager cannot be null");
         Objects.requireNonNull(carAudioZones, "Car audio zones cannot be null");
@@ -91,7 +93,8 @@ final class CarZonesAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
             CarAudioZone audioZone = carAudioZones.valueAt(i);
             int audioZoneId = audioZone.getId();
             Slogf.d(TAG, "Adding new zone %d", audioZoneId);
-            FocusInteraction interaction = new FocusInteraction(carAudioSettings, observerFactory);
+            FocusInteraction interaction = new FocusInteraction(carAudioSettings, observerFactory,
+                    handler);
             CarAudioFocus zoneFocusListener = new CarAudioFocus(audioManager, packageManager,
                     interaction, audioZone, carVolumeInfoWrapper, features);
             audioFocusPerZone.put(audioZoneId, zoneFocusListener);

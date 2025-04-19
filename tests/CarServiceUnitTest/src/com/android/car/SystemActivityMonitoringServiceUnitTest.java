@@ -26,6 +26,7 @@ import static org.mockito.Mockito.when;
 import android.app.ActivityManager;
 import android.car.builtin.app.ActivityManagerHelper.ProcessObserverCallback;
 import android.car.builtin.os.ProcessHelper;
+import android.car.test.NoActiveHandlerThreadCheckerRule;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.content.Context;
 import android.content.res.Resources;
@@ -36,6 +37,7 @@ import com.android.car.internal.ICarServiceHelper;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
@@ -45,6 +47,10 @@ import java.util.ArrayList;
 public class SystemActivityMonitoringServiceUnitTest extends AbstractExtendedMockitoTestCase {
 
     private static final long PASSENGER_PROCESS_GROUP_SET_RETRY_TIMEOUT_MS = 1;
+
+    @Rule
+    public NoActiveHandlerThreadCheckerRule mNoActiveHandlerThreadCheckerRule =
+            new NoActiveHandlerThreadCheckerRule();
 
     @Mock
     private Context mContext;
@@ -87,6 +93,7 @@ public class SystemActivityMonitoringServiceUnitTest extends AbstractExtendedMoc
     @After
     public void tearDown() {
         CarLocalServices.removeAllServices();
+        mService.destroy();
     }
 
     @Test
@@ -199,7 +206,7 @@ public class SystemActivityMonitoringServiceUnitTest extends AbstractExtendedMoc
     }
 
     @Test
-    public void testRegisterProcessRunningStateCallback() {
+    public void testRegisterProcessRunningStateCallback() throws Exception {
         setUpAssignPassengerActivityToFgGroup(/* enableResource= */ true, /* hasDriverZone= */ true,
                 /* hasPassengerZone= */ true);
 
@@ -235,7 +242,7 @@ public class SystemActivityMonitoringServiceUnitTest extends AbstractExtendedMoc
     }
 
     @Test
-    public void testUnregisterProcessRunningStateCallback() {
+    public void testUnregisterProcessRunningStateCallback() throws Exception {
         setUpAssignPassengerActivityToFgGroup(/* enableResource= */ true, /* hasDriverZone= */ true,
                 /* hasPassengerZone= */ true);
 
@@ -290,9 +297,10 @@ public class SystemActivityMonitoringServiceUnitTest extends AbstractExtendedMoc
                 ProcessHelper.THREAD_GROUP_DEFAULT);
     }
 
-    private void waitForHandlerThreadToComplete(long delay) {
+    private void waitForHandlerThreadToComplete(long delay) throws Exception {
         String threadName = mService.getClass().getSimpleName();
         HandlerThread thread = CarServiceUtils.getHandlerThread(threadName);
         CarServiceUtils.runOnLooperSyncDelayed(thread.getLooper(), () -> {}, delay);
+        CarServiceUtils.releaseHandlerThread(threadName);
     }
 }

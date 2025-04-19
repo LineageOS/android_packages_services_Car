@@ -40,6 +40,7 @@ import android.car.CarOccupantZoneManager.OccupantZoneInfo;
 import android.car.VehicleAreaSeat;
 import android.car.input.CarInputManager;
 import android.car.media.CarAudioManager;
+import android.car.test.NoActiveHandlerThreadCheckerRule;
 import android.car.user.CarUserManager;
 import android.car.user.CarUserManager.UserLifecycleEvent;
 import android.content.Context;
@@ -65,6 +66,7 @@ import com.android.car.user.UserHandleHelper;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -86,6 +88,10 @@ public class CarOccupantZoneServiceTest {
 
     private CarOccupantZoneService mService;
     private CarOccupantZoneManager mManager;
+
+    @Rule
+    public NoActiveHandlerThreadCheckerRule mNoActiveHandlerThreadCheckerRule =
+            new NoActiveHandlerThreadCheckerRule();
 
     @Mock
     private CarPropertyService mCarPropertyService;
@@ -287,6 +293,7 @@ public class CarOccupantZoneServiceTest {
         CarLocalServices.removeServiceForTest(CarUserService.class);
         CarLocalServices.removeServiceForTest(CarPropertyService.class);
         CarLocalServices.removeServiceForTest(CarServiceHelperWrapper.class);
+        mService.destroy();
     }
 
     @Test
@@ -391,6 +398,9 @@ public class CarOccupantZoneServiceTest {
     }
 
     private void setUpServiceWithProfileSupportEnabled() {
+        if (mService != null) {
+            mService.destroy();
+        }
         mService = new CarOccupantZoneService(mContext, mDisplayManager, mUserManager,
                 /* enableProfileUserAssignmentForMultiDisplay= */ true, mUserHandleHelper);
         spyOn(mService);

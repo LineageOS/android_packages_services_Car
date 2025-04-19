@@ -37,6 +37,7 @@ import android.car.drivingstate.CarDrivingStateEvent;
 import android.car.drivingstate.ICarDrivingStateChangeListener;
 import android.car.hardware.power.CarPowerManager;
 import android.car.hardware.power.CarPowerManager.CompletablePowerStateChangeFuture;
+import android.car.test.NoActiveHandlerThreadCheckerRule;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -53,6 +54,7 @@ import com.android.car.test.utils.TemporaryDirectory;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -90,6 +92,11 @@ public class CarLocationServiceTest {
     private CountDownLatch mLatch;
     private File mTempDirectory;
     private CarPerUserServiceHelper.ServiceCallback mUserServiceCallback;
+
+    @Rule
+    public NoActiveHandlerThreadCheckerRule mNoActiveHandlerThreadCheckerRule =
+            new NoActiveHandlerThreadCheckerRule();
+
     @Mock
     private Context mMockContext;
     @Mock
@@ -153,6 +160,7 @@ public class CarLocationServiceTest {
     public void tearDown() throws Exception {
         if (mCarLocationService != null) {
             mCarLocationService.release();
+            mCarLocationService.destroy();
         }
     }
 

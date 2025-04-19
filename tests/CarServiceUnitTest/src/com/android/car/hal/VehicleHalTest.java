@@ -61,6 +61,7 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.ServiceSpecificException;
 import android.os.SystemClock;
+import android.platform.test.annotations.DisabledOnRavenwood;
 
 import com.android.car.VehicleStub;
 import com.android.car.VehicleStub.AsyncGetSetRequest;
@@ -2466,7 +2467,9 @@ public class VehicleHalTest extends AbstractExpectableTestCase {
         verify(mVehicle, never()).isSupportedValuesImplemented(any());
     }
 
+    // TODO(b/411708314): Reenable this on host once we allow mocking record.
     @Test
+    @DisabledOnRavenwood(reason = "cannot mock record")
     public void testGetMinMaxSupportedValue() {
         MinMaxSupportedRawPropValues rawPropValues = mock(MinMaxSupportedRawPropValues.class);
         int propertyId = 123;

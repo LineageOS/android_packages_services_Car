@@ -17,11 +17,13 @@ package com.android.car.audio;
 
 import android.car.media.ICarVolumeCallback;
 import android.car.test.AbstractExpectableTestCase;
+import android.car.test.NoActiveHandlerThreadCheckerRule;
 import android.os.Binder;
 import android.os.RemoteException;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -39,6 +41,10 @@ public class CarVolumeCallbackHandlerTest extends AbstractExpectableTestCase {
     private TestCarVolumeCallback mCallback1;
     private TestCarVolumeCallback mCallback2;
 
+    @Rule
+    public NoActiveHandlerThreadCheckerRule mNoActiveHandlerThreadCheckerRule =
+            new NoActiveHandlerThreadCheckerRule();
+
     @Before
     public void setUp() {
         mHandler = new CarVolumeCallbackHandler();
@@ -54,6 +60,7 @@ public class CarVolumeCallbackHandlerTest extends AbstractExpectableTestCase {
         int uid = Binder.getCallingUid();
         mHandler.unregisterCallback(mCallback1.asBinder(), uid);
         mHandler.unregisterCallback(mCallback2.asBinder(), uid);
+        mHandler.destroy();
     }
 
     @Test

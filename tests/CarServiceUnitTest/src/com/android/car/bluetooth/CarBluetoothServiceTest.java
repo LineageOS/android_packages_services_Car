@@ -37,6 +37,7 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
 import android.car.ICarPerUserService;
+import android.car.test.NoActiveHandlerThreadCheckerRule;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
@@ -57,6 +58,7 @@ import com.android.car.user.CarUserService;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -100,6 +102,10 @@ public class CarBluetoothServiceTest {
     //--------------------------------------------------------------------------------------------//
     // Setup/TearDown                                                                             //
     //--------------------------------------------------------------------------------------------//
+
+    @Rule
+    public NoActiveHandlerThreadCheckerRule mNoActiveHandlerThreadCheckerRule =
+            new NoActiveHandlerThreadCheckerRule();
 
     @Before
     public void setUp() {

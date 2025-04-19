@@ -82,6 +82,19 @@ import java.util.Objects;
 
     private final RequestIdGenerator mRequestIdGenerator = new RequestIdGenerator();
 
+    /**
+     * Destroys this handler.
+     *
+     * Must be called before deleting the instance reference.
+     */
+    void destroy() {
+        try {
+            CarServiceUtils.releaseHandlerThread(REQUEST_HANDLER_THREAD_NAME);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+    }
+
     boolean registerAudioZonesMirrorStatusCallback(
             IAudioZonesMirrorStatusCallback callback) {
         Objects.requireNonNull(callback, "Audio zones mirror status callback can not be null");

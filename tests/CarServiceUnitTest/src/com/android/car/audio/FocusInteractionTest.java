@@ -37,16 +37,20 @@ import static org.mockito.Mockito.when;
 
 import android.car.media.CarAudioManager;
 import android.car.test.AbstractExpectableTestCase;
+import android.car.test.NoActiveHandlerThreadCheckerRule;
 import android.content.ContentResolver;
 import android.content.pm.PackageManager;
 import android.media.AudioAttributes;
 import android.media.AudioFocusInfo;
 import android.media.AudioManager;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.HandlerThread;
 import android.util.SparseArray;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -68,6 +72,9 @@ public final class FocusInteractionTest extends AbstractExpectableTestCase {
     private static final CarAudioContext TEST_CAR_AUDIO_CONTEXT =
             new CarAudioContext(CarAudioContext.getAllContextsInfo(),
                     /* useCoreAudioRouting= */ false);
+    @Rule
+    public NoActiveHandlerThreadCheckerRule mNoActiveHandlerThreadCheckerRule =
+            new NoActiveHandlerThreadCheckerRule();
 
     @Mock
     private CarAudioSettings mMockCarAudioSettings;
@@ -82,16 +89,27 @@ public final class FocusInteractionTest extends AbstractExpectableTestCase {
 
     private FocusInteraction mFocusInteraction;
     private PackageManager mMockPackageManager;
+    private HandlerThread mHandlerThread;
+    private Handler mHandler;
 
     @Before
     public void setUp() {
+        mHandlerThread = new HandlerThread(getClass().getSimpleName());
+        mHandlerThread.start();
+        mHandler = new Handler(mHandlerThread.getLooper());
         when(mMockCarAudioSettings.getContentResolverForUser(TEST_USER_ID))
                 .thenReturn(mMockContentResolver);
         mFocusInteraction = new FocusInteraction(mMockCarAudioSettings,
-                mMockContentObserverFactory);
+                mMockContentObserverFactory, mHandler);
         mMockPackageManager = mock(PackageManager.class);
         when(mMockPackageManager.checkPermission(anyString(), anyString()))
                 .thenReturn(PackageManager.PERMISSION_GRANTED);
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        mHandlerThread.quitSafely();
+        mHandlerThread.join();
     }
 
     @Test
@@ -99,7 +117,7 @@ public final class FocusInteractionTest extends AbstractExpectableTestCase {
         NullPointerException thrown =
                 assertThrows(NullPointerException.class,
                         () -> new FocusInteraction(/* carAudioSettings= */ null,
-                                mMockContentObserverFactory));
+                                mMockContentObserverFactory, mHandler));
 
         expectWithMessage("Null settings exception")
                 .that(thrown).hasMessageThat().contains("Settings");
@@ -110,7 +128,7 @@ public final class FocusInteractionTest extends AbstractExpectableTestCase {
         NullPointerException thrown =
                 assertThrows(NullPointerException.class,
                         () -> new FocusInteraction(mMockCarAudioSettings,
-                                /*  contentObserverFactory= */ null));
+                                /*  contentObserverFactory= */ null, mHandler));
 
         expectWithMessage("Null observer factory exception")
                 .that(thrown).hasMessageThat().contains("Content Observer Factory");

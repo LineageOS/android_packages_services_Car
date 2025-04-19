@@ -54,6 +54,7 @@ import android.car.hardware.property.CarPropertyEvent;
 import android.car.hardware.property.CarPropertyManager;
 import android.car.hardware.property.ICarPropertyEventListener;
 import android.car.test.AbstractExpectableTestCase;
+import android.car.test.NoActiveHandlerThreadCheckerRule;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.IBinder;
@@ -76,8 +77,10 @@ import com.android.car.internal.util.Lists;
 import com.android.car.logging.HistogramFactoryInterface;
 import com.android.modules.expresslog.Histogram;
 
+import org.junit.After;
 import org.junit.Assume;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
@@ -95,6 +98,10 @@ import java.util.concurrent.TimeUnit;
 public final class CarPropertyServiceUnitTest extends AbstractExpectableTestCase {
     private static final String TAG = CarLog.tagFor(CarPropertyServiceUnitTest.class);
     private static final int DEFAULT_CALLBACK_TIMEOUT = 5000;
+
+    @Rule
+    public NoActiveHandlerThreadCheckerRule mNoActiveHandlerThreadCheckerRule =
+            new NoActiveHandlerThreadCheckerRule();
 
     @Mock
     private Context mContext;
@@ -325,6 +332,11 @@ public final class CarPropertyServiceUnitTest extends AbstractExpectableTestCase
                 .setMinMaxSupportedPropertyValueHelper(mMinMaxSupportedPropertyValueHelper)
                 .build();
         mService.init();
+    }
+
+    @After
+    public void tearDown() {
+        mService.destroy();
     }
 
     @Test
