@@ -22,6 +22,7 @@ import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import android.car.test.NoActiveHandlerThreadCheckerRule;
 import android.content.ContentResolver;
 import android.content.Context;
 
@@ -30,6 +31,7 @@ import androidx.test.filters.SmallTest;
 
 import com.android.car.internal.util.IndentingPrintWriter;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -45,7 +47,12 @@ import java.util.List;
 @RunWith(AndroidJUnit4.class)
 @SmallTest
 public class GarageModeServiceTest {
-    @Rule public final MockitoRule rule = MockitoJUnit.rule();
+    @Rule
+    public final MockitoRule rule = MockitoJUnit.rule();
+    @Rule
+    public NoActiveHandlerThreadCheckerRule mNoActiveHandlerThreadCheckerRule =
+            new NoActiveHandlerThreadCheckerRule();
+
     @Mock private Context mMockContext;
     @Mock private GarageModeController mMockController;
     @Mock private ContentResolver mMockContentResolver;
@@ -58,6 +65,11 @@ public class GarageModeServiceTest {
     public void setUp() {
         when(mMockContext.getContentResolver()).thenReturn(mMockContentResolver);
         mService = new GarageModeService(mMockContext, mMockController);
+    }
+
+    @After
+    public void tearDown() {
+        mService.destroy();
     }
 
     @Test
