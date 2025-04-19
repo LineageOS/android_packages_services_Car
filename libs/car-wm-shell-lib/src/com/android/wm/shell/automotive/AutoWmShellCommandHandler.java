@@ -60,12 +60,36 @@ public final class AutoWmShellCommandHandler implements
         // More commands can be added here.
         switch (args[0]) {
             case "dump":
-                dump(pw, "");
+                dump(args, pw, "");
                 return true;
             default:
                 pw.println("Invalid command: " + args[0]);
                 return false;
         }
+    }
+
+    void dump(String[] args, PrintWriter pw, String prefix) {
+        if (args.length > 1) {
+            switch (args[1]) {
+                case "AutoTaskRepository":
+                    mTaskRepository.dump(pw, prefix);
+                    return;
+                case "AutoDecorManager":
+                    mAutoDecorManager.dump(pw, prefix);
+                    return;
+                case "AutoTaskStackController":
+                    ((AutoTaskStackControllerImpl) mAutoTaskStackController.get()).dump(pw, prefix);
+                    return;
+                case "AutoLayoutManager":
+                    mAutoLayoutManager.dump(pw, prefix);
+                    return;
+                case "AutoCaptionController":
+                    mAutoCaptionController.dump(pw, prefix);
+                    return;
+            }
+        }
+        // dump everything
+        dump(pw, prefix);
     }
 
     void dump(PrintWriter pw, String prefix) {
