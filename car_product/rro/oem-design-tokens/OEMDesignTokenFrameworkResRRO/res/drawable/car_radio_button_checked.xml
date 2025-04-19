@@ -21,7 +21,8 @@
         android:left="@dimen/car_radio_button_focus_ring_padding"
         android:right="@dimen/car_radio_button_focus_ring_padding"
         android:top="@dimen/car_radio_button_focus_ring_padding">
-        <shape android:shape="oval">
+        <shape android:shape="rectangle">
+            <corners android:radius="?oemShapeCornerFull"/>
             <size
                 android:width="@dimen/car_radio_button_outer_ring_size"
                 android:height="@dimen/car_radio_button_outer_ring_size" />
@@ -32,7 +33,8 @@
     </item>
     <item android:gravity="center">
         <shape
-            android:shape="oval">
+            android:shape="rectangle">
+            <corners android:radius="?oemShapeCornerFull"/>
             <size
                 android:width="@dimen/car_radio_button_inner_circle_size"
                 android:height="@dimen/car_radio_button_inner_circle_size" />

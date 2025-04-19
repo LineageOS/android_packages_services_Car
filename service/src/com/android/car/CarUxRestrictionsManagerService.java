@@ -152,8 +152,9 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
     private final CarDrivingStateService mDrivingStateService;
     private final CarPropertyService mCarPropertyService;
     private final CarOccupantZoneService mCarOccupantZoneService;
+    private final String mClassName = getClass().getSimpleName();
     private final HandlerThread mClientDispatchThread  = CarServiceUtils.getHandlerThread(
-            getClass().getSimpleName());
+            mClassName);
     private final Handler mClientDispatchHandler  = new Handler(mClientDispatchThread.getLooper());
     private final RemoteCallbackList<ICarUxRestrictionsChangeListener> mUxRClients =
             new RemoteCallbackList<>();
@@ -320,6 +321,15 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
         mDrivingStateService = drvService;
         mCarPropertyService = propertyService;
         mCarOccupantZoneService = carOccupantZoneService;
+    }
+
+    @Override
+    public void destroy() {
+        try {
+            CarServiceUtils.releaseHandlerThread(mClassName);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
 
     @Override

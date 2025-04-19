@@ -120,8 +120,8 @@
     <string name="car_permission_desc_car_engine_detailed" msgid="1839656966547909025">"Odczytywanie szczegółowych informacji o silniku."</string>
     <string name="car_permission_label_car_engine_detailed_3p" msgid="2695036212735960169">"odczytywanie szczegółowych informacji o silniku"</string>
     <string name="car_permission_desc_car_engine_detailed_3p" msgid="7536940094077391015">"Odczytywanie szczegółowych informacji o silniku."</string>
-    <string name="car_permission_label_car_energy_ports" msgid="1466057895734201917">"odczytywanie informacji dotyczących drzwiczek wlewu paliwa i portu ładowania samochodu"</string>
-    <string name="car_permission_desc_car_energy_ports" msgid="4751253935543293174">"Odczytywanie informacji dotyczących drzwiczek wlewu paliwa i portu ładowania samochodu."</string>
+    <string name="car_permission_label_car_energy_ports" msgid="1466057895734201917">"odczytywanie informacji dotyczących drzwiczek wlewu paliwa i gniazda ładowania samochodu"</string>
+    <string name="car_permission_desc_car_energy_ports" msgid="4751253935543293174">"Odczytywanie informacji dotyczących drzwiczek wlewu paliwa i gniazda ładowania samochodu."</string>
     <string name="car_permission_label_control_car_energy_ports" msgid="4375137311026313475">"sterowanie drzwiczkami wlewu paliwa i portu ładowania samochodu"</string>
     <string name="car_permission_desc_control_car_energy_ports" msgid="7364633710492525387">"Sterowanie drzwiczkami wlewu paliwa i portu ładowania samochodu."</string>
     <string name="car_permission_label_car_identification" msgid="5896712510164020478">"odczytywanie danych identyfikacyjnych samochodu"</string>

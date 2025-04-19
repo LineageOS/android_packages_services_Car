@@ -165,7 +165,7 @@
     <string name="car_permission_label_control_glove_box" msgid="8893424527567257629">"consente di controllare lo stato del vano portaoggetti dell\'automobile"</string>
     <string name="car_permission_desc_control_glove_box" msgid="202603834328737918">"Consente di controllare lo stato del vano portaoggetti dell\'automobile."</string>
     <string name="car_permission_label_car_epoch_time" msgid="8667615176555933314">"consente di leggere l\'ora del periodo dell\'automobile"</string>
-    <string name="car_permission_desc_car_epoch_time" msgid="6776188390917658195">"Consente di leggere l\'ora del periodo dell\'automobile."</string>
+    <string name="car_permission_desc_car_epoch_time" msgid="6776188390917658195">"Consente di leggere la data epoca dell\'automobile."</string>
     <string name="car_permission_label_control_car_exterior_lights" msgid="2702353269564341362">"consente di controllare le luci esterne dell\'automobile"</string>
     <string name="car_permission_desc_control_car_exterior_lights" msgid="6332252612685264180">"Consente di controllare le luci esterne dell\'automobile."</string>
     <string name="car_permission_label_car_interior_lights" msgid="2802077280340054799">"consente di leggere lo stato delle luci interne dell\'automobile"</string>

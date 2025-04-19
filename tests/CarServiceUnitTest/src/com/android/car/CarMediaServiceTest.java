@@ -50,6 +50,7 @@ import android.car.hardware.power.CarPowerPolicy;
 import android.car.hardware.power.ICarPowerPolicyListener;
 import android.car.hardware.power.PowerComponent;
 import android.car.media.ICarMediaSourceListener;
+import android.car.test.NoActiveHandlerThreadCheckerRule;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.car.test.mocks.AndroidMockitoHelper;
 import android.car.user.CarUserManager.UserLifecycleEvent;
@@ -80,6 +81,7 @@ import com.android.car.user.UserHandleHelper;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
@@ -110,6 +112,10 @@ public final class CarMediaServiceTest extends AbstractExtendedMockitoTestCase {
             new ComponentName(MEDIA_PACKAGE, MEDIA_CLASS);
     private static final ComponentName MEDIA_COMPONENT2 =
             new ComponentName(MEDIA_PACKAGE2, MEDIA_CLASS2);
+
+    @Rule
+    public NoActiveHandlerThreadCheckerRule mNoActiveHandlerThreadCheckerRule =
+            new NoActiveHandlerThreadCheckerRule();
 
     @Mock private Context mContext;
     @Mock private Resources mResources;
@@ -183,6 +189,7 @@ public final class CarMediaServiceTest extends AbstractExtendedMockitoTestCase {
     @After
     public void tearDown() {
         CarLocalServices.removeServiceForTest(CarInputService.class);
+        mCarMediaService.destroy();
     }
 
     @Test

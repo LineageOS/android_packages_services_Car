@@ -54,6 +54,7 @@ public class CarPerUserServiceHelper implements CarServiceBase {
 
     private static final String TAG = CarLog.tagFor(CarPerUserServiceHelper.class);
     private static final boolean DBG = Slogf.isLoggable(TAG, Log.DEBUG);
+    private static final String CLASS_NAME = CarPerUserServiceHelper.class.getSimpleName();
 
     private final Context mContext;
     private final CarUserService mUserService;
@@ -70,11 +71,19 @@ public class CarPerUserServiceHelper implements CarServiceBase {
         mContext = context;
         mServiceCallbacks = new ArrayList<>();
         mUserService = userService;
-        mHandler = new Handler(getHandlerThread(
-                CarPerUserServiceHelper.class.getSimpleName()).getLooper());
+        mHandler = new Handler(getHandlerThread(CLASS_NAME).getLooper());
         UserLifecycleEventFilter userSwitchingEventFilter = new UserLifecycleEventFilter.Builder()
                 .addEventType(USER_LIFECYCLE_EVENT_TYPE_SWITCHING).build();
         mUserService.addUserLifecycleListener(userSwitchingEventFilter, mUserLifecycleListener);
+    }
+
+    @Override
+    public void destroy() {
+        try {
+            CarServiceUtils.releaseHandlerThread(CLASS_NAME);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
 
     @Override

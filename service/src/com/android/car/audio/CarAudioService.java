@@ -217,9 +217,11 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
             CarAudioContext.getAudioAttributeFromUsage(USAGE_MEDIA);
     private static final int EVENT_LOGGER_QUEUE_SIZE = 50;
 
-    private final HandlerThread mHandlerThread = CarServiceUtils.getHandlerThread(
-            CarAudioService.class.getSimpleName());
-    private final Handler mHandler = new Handler(mHandlerThread.getLooper());
+    private static final String REQUEST_HANDLER_THREAD_NAME =
+            CarAudioService.class.getSimpleName();
+
+    private final HandlerThread mHandlerThread;
+    private final Handler mHandler;
 
     private final Object mImplLock = new Object();
 
@@ -368,6 +370,9 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
     @GuardedBy("mImplLock")
     private CarAudioContext mCarAudioContext;
     private final CarVolumeCallbackHandler mCarVolumeCallbackHandler;
+    // The CarVolumeCallbackHandler we create in this class if the caller does not pass it in
+    // through constructor.
+    private final CarVolumeCallbackHandler mCreatedCarVolumeCallbackHandler;
     private final SparseIntArray mAudioZoneIdToUserIdMapping;
     private final SystemClockWrapper mClock = new SystemClockWrapper();
 
@@ -425,7 +430,7 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
 
     public CarAudioService(Context context) {
         this(context, /* audioManagerWrapper = */ null, getAudioConfigurationPath(),
-                new CarVolumeCallbackHandler(), getAudioFadeConfigurationPath());
+                /* carVolumeCallbackHandler= */ null, getAudioFadeConfigurationPath());
     }
 
     @VisibleForTesting
@@ -433,50 +438,72 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
             @Nullable String audioConfigurationPath,
             CarVolumeCallbackHandler carVolumeCallbackHandler,
             @Nullable String audioFadeConfigurationPath) {
-        mContext = Objects.requireNonNull(context,
-                "Context to create car audio service can not be null");
-        mCarAudioConfigurationPath = audioConfigurationPath;
-        mCarAudioFadeConfigurationPath = audioFadeConfigurationPath;
-        mTelephonyManager = mContext.getSystemService(TelephonyManager.class);
-        mAudioManagerWrapper = audioManagerWrapper == null
-                ? new AudioManagerWrapper(mContext.getSystemService(AudioManager.class))
-                : audioManagerWrapper;
-        mUseDynamicRouting = mContext.getResources().getBoolean(R.bool.audioUseDynamicRouting);
-        mUseCoreAudioVolume = mContext.getResources().getBoolean(R.bool.audioUseCoreVolume);
-        mUseCoreAudioRouting = mContext.getResources().getBoolean(R.bool.audioUseCoreRouting);
-        mKeyEventTimeoutMs =
-                mContext.getResources().getInteger(R.integer.audioVolumeKeyEventTimeoutMs);
-        mUseHalDuckingSignals = mContext.getResources().getBoolean(
-                R.bool.audioUseHalDuckingSignals);
-
-        mUidToZoneMap = new HashMap<>();
-        mCarVolumeCallbackHandler = carVolumeCallbackHandler;
-        mCarAudioSettings = new CarAudioSettings(mContext);
-        mAudioZoneIdToUserIdMapping = new SparseIntArray();
-        mAudioVolumeAdjustmentContextsVersion =
-                mContext.getResources().getInteger(R.integer.audioVolumeAdjustmentContextsVersion);
-        boolean useCarVolumeGroupMuting = !runInLegacyMode() && mContext.getResources().getBoolean(
-                R.bool.audioUseCarVolumeGroupMuting);
-        mUseCarVolumeGroupEvents = !runInLegacyMode() && mContext.getResources().getBoolean(
-                R.bool.audioUseCarVolumeGroupEvent);
-        mUseCarVolumeGroupMuting = useCarVolumeGroupMuting;
-        mPersistMasterMuteState = mContext.getResources().getBoolean(
-                R.bool.audioPersistMasterMuteState);
-        mUseFadeManagerConfiguration = enableFadeManagerConfiguration()
-                && carAudioFadeManagerConfiguration()
-                && mContext.getResources().getBoolean(R.bool.audioUseFadeManagerConfiguration);
-        mUseMinMaxActivationVolume = Flags.carAudioMinMaxActivationVolume() && !runInLegacyMode()
-                && mContext.getResources().getBoolean(R.bool.audioUseMinMaxActivationVolume);
-        mUseIsolatedFocusForDynamicDevices = Flags.carAudioDynamicDevices() && !runInLegacyMode()
-                && mContext.getResources().getBoolean(
-                        R.bool.audioUseIsolatedAudioFocusForDynamicDevices);
-        mUseKeyEventsForDynamicDevices = Flags.carAudioDynamicDevices() && !runInLegacyMode()
-                && mContext.getResources().getBoolean(
-                        R.bool.audioEnableVolumeKeyEventsToDynamicDevices);
-        mPersistFadeBalanceLevels = Flags.audioFadeBalanceGetterApis() && !runInLegacyMode()
-                && mContext.getResources().getBoolean(R.bool.audioPersistFadeBalanceLevels);
-        validateFeatureFlagSettings();
-        mAudioServerStateCallback = new CarAudioServerStateCallback(this);
+        if (carVolumeCallbackHandler == null) {
+            mCreatedCarVolumeCallbackHandler = new CarVolumeCallbackHandler();
+            mCarVolumeCallbackHandler = mCreatedCarVolumeCallbackHandler;
+        } else {
+            mCreatedCarVolumeCallbackHandler = null;
+            mCarVolumeCallbackHandler = carVolumeCallbackHandler;
+        }
+        try {
+            mContext = Objects.requireNonNull(context,
+                    "Context to create car audio service can not be null");
+            mCarAudioConfigurationPath = audioConfigurationPath;
+            mCarAudioFadeConfigurationPath = audioFadeConfigurationPath;
+            mTelephonyManager = mContext.getSystemService(TelephonyManager.class);
+            mAudioManagerWrapper = audioManagerWrapper == null
+                    ? new AudioManagerWrapper(mContext.getSystemService(AudioManager.class))
+                    : audioManagerWrapper;
+            mUseDynamicRouting = mContext.getResources().getBoolean(R.bool.audioUseDynamicRouting);
+            mUseCoreAudioVolume = mContext.getResources().getBoolean(R.bool.audioUseCoreVolume);
+            mUseCoreAudioRouting = mContext.getResources().getBoolean(R.bool.audioUseCoreRouting);
+            mKeyEventTimeoutMs =
+                    mContext.getResources().getInteger(R.integer.audioVolumeKeyEventTimeoutMs);
+            mUseHalDuckingSignals = mContext.getResources().getBoolean(
+                    R.bool.audioUseHalDuckingSignals);
+            mUidToZoneMap = new HashMap<>();
+            mCarAudioSettings = new CarAudioSettings(mContext);
+            mAudioZoneIdToUserIdMapping = new SparseIntArray();
+            mAudioVolumeAdjustmentContextsVersion =
+                    mContext.getResources().getInteger(
+                            R.integer.audioVolumeAdjustmentContextsVersion);
+            boolean useCarVolumeGroupMuting = !runInLegacyMode() && mContext.getResources()
+                    .getBoolean(R.bool.audioUseCarVolumeGroupMuting);
+            mUseCarVolumeGroupEvents = !runInLegacyMode() && mContext.getResources().getBoolean(
+                    R.bool.audioUseCarVolumeGroupEvent);
+            mUseCarVolumeGroupMuting = useCarVolumeGroupMuting;
+            mPersistMasterMuteState = mContext.getResources().getBoolean(
+                    R.bool.audioPersistMasterMuteState);
+            mUseFadeManagerConfiguration = enableFadeManagerConfiguration()
+                    && carAudioFadeManagerConfiguration()
+                    && mContext.getResources().getBoolean(R.bool.audioUseFadeManagerConfiguration);
+            mUseMinMaxActivationVolume = Flags.carAudioMinMaxActivationVolume()
+                    && !runInLegacyMode()
+                    && mContext.getResources().getBoolean(R.bool.audioUseMinMaxActivationVolume);
+            mUseIsolatedFocusForDynamicDevices = Flags.carAudioDynamicDevices()
+                    && !runInLegacyMode()
+                    && mContext.getResources().getBoolean(
+                            R.bool.audioUseIsolatedAudioFocusForDynamicDevices);
+            mUseKeyEventsForDynamicDevices = Flags.carAudioDynamicDevices() && !runInLegacyMode()
+                    && mContext.getResources().getBoolean(
+                            R.bool.audioEnableVolumeKeyEventsToDynamicDevices);
+            mPersistFadeBalanceLevels = Flags.audioFadeBalanceGetterApis() && !runInLegacyMode()
+                    && mContext.getResources().getBoolean(R.bool.audioPersistFadeBalanceLevels);
+            validateFeatureFlagSettings();
+            mAudioServerStateCallback = new CarAudioServerStateCallback(this);
+        } catch (RuntimeException e) {
+            // If we throw exception during constructor, the client will never have a chance to
+            // call destroy, so we should cleanup the resource here.
+            mCarAudioMirrorRequestHandler.destroy();
+            mMediaRequestHandler.destroy();
+            mCarVolumeEventHandler.destroy();
+            if (mCreatedCarVolumeCallbackHandler != null) {
+                mCreatedCarVolumeCallbackHandler.destroy();
+            }
+            throw e;
+        }
+        mHandlerThread = CarServiceUtils.getHandlerThread(REQUEST_HANDLER_THREAD_NAME);
+        mHandler = new Handler(mHandlerThread.getLooper());
     }
 
     private void validateFeatureFlagSettings() {
@@ -647,6 +674,21 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
             // Reset mInitCompleted so that we could re-init.
             mInitSuccess = false;
             mInitCompleted = false;
+        }
+    }
+
+    @Override
+    public void destroy() {
+        mCarAudioMirrorRequestHandler.destroy();
+        mMediaRequestHandler.destroy();
+        mCarVolumeEventHandler.destroy();
+        if (mCreatedCarVolumeCallbackHandler != null) {
+            mCreatedCarVolumeCallbackHandler.destroy();
+        }
+        try {
+            CarServiceUtils.releaseHandlerThread(REQUEST_HANDLER_THREAD_NAME);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
         }
     }
 
@@ -2272,7 +2314,7 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
         // the framework ducking logic.
         mFocusHandler = CarZonesAudioFocus.createCarZonesAudioFocus(mAudioManagerWrapper,
                 mContext.getPackageManager(), mCarAudioZones, mCarAudioSettings, mCarDucking,
-                new CarVolumeInfoWrapper(this), getAudioFeaturesInfo());
+                new CarVolumeInfoWrapper(this), getAudioFeaturesInfo(), mHandler);
 
         AudioPolicy.Builder focusControlPolicyBuilder = new AudioPolicy.Builder(mContext);
         focusControlPolicyBuilder.setLooper(mHandlerThread.getLooper());

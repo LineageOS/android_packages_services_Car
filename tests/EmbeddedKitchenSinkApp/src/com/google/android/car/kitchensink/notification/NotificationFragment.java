@@ -420,6 +420,10 @@ public class NotificationFragment extends Fragment {
             Notification.CallStyle notificationStyle =
                     Notification.CallStyle.forIncomingCall(caller, declineIntent, answerIntent);
 
+            Intent intent = new Intent(mContext, KitchenSinkActivity.class);
+            PendingIntent pendingIntent = PendingIntent.getActivity(mContext, 0,
+                    intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE);
+
             Notification notification = new Notification.Builder(mContext, IMPORTANCE_HIGH_ID)
                     .setSmallIcon(R.drawable.car_ic_mode)
                     .setContentTitle("Incoming call")
@@ -427,6 +431,7 @@ public class NotificationFragment extends Fragment {
                     .setStyle(notificationStyle)
                     .setOngoing(true)
                     .setCategory(Notification.CATEGORY_CALL)
+                    .setFullScreenIntent(pendingIntent, true)
                     .build();
             notification.flags = notification.flags | FLAG_FOREGROUND_SERVICE;
             mManager.notify(mCurrentNotificationId++, notification);

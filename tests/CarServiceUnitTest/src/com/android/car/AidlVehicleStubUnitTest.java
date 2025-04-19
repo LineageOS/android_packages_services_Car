@@ -38,6 +38,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import android.car.hardware.property.CarPropertyManager;
+import android.car.test.NoActiveHandlerThreadCheckerRule;
 import android.car.test.mocks.JavaMockitoHelper;
 import android.hardware.automotive.vehicle.GetValueRequest;
 import android.hardware.automotive.vehicle.GetValueRequests;
@@ -88,6 +89,7 @@ import com.android.modules.expresslog.Histogram;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -120,6 +122,10 @@ public final class AidlVehicleStubUnitTest {
         TEST_PROP_VALUE = builder.build(TEST_PROP, /* areaId= */ 0, TEST_VALUE);
     }
 
+    @Rule
+    public NoActiveHandlerThreadCheckerRule mNoActiveHandlerThreadCheckerRule =
+            new NoActiveHandlerThreadCheckerRule();
+
     @Mock
     private IVehicle mAidlVehicle;
     @Mock
@@ -134,8 +140,7 @@ public final class AidlVehicleStubUnitTest {
 
     private AidlVehicleStub mAidlVehicleStub;
 
-    private final HandlerThread mHandlerThread = new HandlerThread(
-            AidlVehicleStubUnitTest.class.getSimpleName());
+    private HandlerThread mHandlerThread;
     private Handler mHandler;
 
     private int[] getTestIntValues(int length) {
@@ -153,6 +158,8 @@ public final class AidlVehicleStubUnitTest {
 
     @Before
     public void setUp() {
+        mHandlerThread = new HandlerThread(
+                AidlVehicleStubUnitTest.class.getSimpleName());
         mHandlerThread.start();
         mHandler = new Handler(mHandlerThread.getLooper());
 
@@ -166,9 +173,10 @@ public final class AidlVehicleStubUnitTest {
     }
 
     @After
-    public void tearDown() {
+    public void tearDown() throws Exception {
         // Remove all pending messages in the handler queue.
         mHandlerThread.quitSafely();
+        mHandlerThread.join();
     }
 
     @Test

@@ -179,9 +179,9 @@
     <string name="car_permission_label_car_tires_3p" msgid="1360632319908226570">"avtomobil shinalariga oid axborot bilan tanishish"</string>
     <string name="car_permission_desc_car_tires_3p" msgid="820574543667371274">"Avtomobil shinasiga oid axborot bilan tanishing."</string>
     <string name="car_permission_label_car_steering" msgid="7779530447441232479">"avtomobilni boshqarishga oid axborotni ochish"</string>
-    <string name="car_permission_desc_car_steering" msgid="4986224671150304388">"Avtomobilni boshqarishga oid axborotni oʻqish."</string>
+    <string name="car_permission_desc_car_steering" msgid="4986224671150304388">"Avtomobilning rul burilish burchagiga oid axborotni oʻqish."</string>
     <string name="car_permission_label_read_car_steering_3p" msgid="1598866058085489462">"avtomobilni boshqarishga oid axborot bilan tanishish"</string>
-    <string name="car_permission_desc_read_car_steering_3p" msgid="4205254436283351421">"Avtomobilni boshqarishga oid axborotni oʻqish."</string>
+    <string name="car_permission_desc_read_car_steering_3p" msgid="4205254436283351421">"Avtomobilning rul burilish burchagiga oid axborotni oʻqish."</string>
     <string name="car_permission_label_read_car_display_units" msgid="7617008314862097183">"avtomobil ekranidagi axborotlarni ochish"</string>
     <string name="car_permission_desc_read_car_display_units" msgid="6891898275208542385">"Ekrandagi axborotni ochish."</string>
     <string name="car_permission_label_control_car_display_units" msgid="4975303668183173076">"avtomobil ekraniga chiquvchi axborotlarni boshqarish"</string>

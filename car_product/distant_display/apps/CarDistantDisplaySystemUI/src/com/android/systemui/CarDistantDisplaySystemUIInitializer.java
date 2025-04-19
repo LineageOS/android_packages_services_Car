@@ -56,6 +56,7 @@ public class CarDistantDisplaySystemUIInitializer extends CarSystemUIInitializer
                         isSystemUser ? Optional.of(carWm.getRootTaskDisplayAreaOrganizer())
                                 : Optional.empty())
                 .setScalableUIWMInitializer(carWm.getScalableUIWMInitializer())
+                .setTaskPanelInfoRepository(carWm.getTaskPanelInfoRepository())
                 .setScalableUIEventDispatcher(carWm.getScalableUIEventDispatcher());
     }
 

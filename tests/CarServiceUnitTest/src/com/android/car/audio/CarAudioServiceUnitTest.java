@@ -166,6 +166,7 @@ import android.car.media.IMediaAudioRequestStatusCallback;
 import android.car.media.IPrimaryZoneMediaAudioRequestCallback;
 import android.car.media.ISwitchAudioZoneConfigCallback;
 import android.car.settings.CarSettings;
+import android.car.test.NoActiveHandlerThreadCheckerRule;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.car.test.mocks.MockSettings;
 import android.car.test.util.TemporaryFile;
@@ -456,6 +457,10 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     private HandlerThread mHandlerThread;
     private Handler mHandler;
 
+    @Rule
+    public NoActiveHandlerThreadCheckerRule mNoActiveHandlerThreadCheckerRule =
+            new NoActiveHandlerThreadCheckerRule();
+
     @Mock
     private Context mMockContext;
     @Mock
@@ -494,6 +499,8 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     private CarInputService mMockCarInputService;
     @Mock
     private CarPowerManagementService mMockPowerService;
+
+    List<CarAudioService> mCarAudioServices;
 
     // Not used directly, but sets proper mockStatic() expectations on Settings
     @SuppressWarnings("UnusedVariable")
@@ -559,6 +566,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
 
     @Before
     public void setUp() throws Exception {
+        mCarAudioServices = new ArrayList<>();
         mHandlerThread = CarServiceUtils.getHandlerThread(CarAudioService.class.getSimpleName());
         mHandler = new Handler(mHandlerThread.getLooper());
         mContext = ApplicationProvider.getApplicationContext();
@@ -587,6 +595,10 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         CarLocalServices.removeServiceForTest(CarOemProxyService.class);
         CarLocalServices.removeServiceForTest(CarOccupantZoneService.class);
         CarLocalServices.removeServiceForTest(CarPowerManagementService.class);
+        for (int i = 0; i < mCarAudioServices.size(); i++) {
+            mCarAudioServices.get(i).destroy();
+        }
+        CarServiceUtils.releaseHandlerThread(CarAudioService.class.getSimpleName());
     }
 
     private void setUpAudioControlHAL() {
@@ -822,12 +834,29 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
                 .thenReturn(enableVolumeKeyEvents);
     }
 
+    private CarAudioService createCarAudioService(Context context) {
+        var service = new CarAudioService(context);
+        mCarAudioServices.add(service);
+        return service;
+    }
+
+    private CarAudioService createCarAudioService(Context context,
+            AudioManagerWrapper audioManagerWrapper,
+            String audioConfigurationPath,
+            CarVolumeCallbackHandler carVolumeCallbackHandler,
+            String audioFadeConfigurationPath) {
+        var service = new CarAudioService(context, audioManagerWrapper, audioConfigurationPath,
+                carVolumeCallbackHandler, audioFadeConfigurationPath);
+        mCarAudioServices.add(service);
+        return service;
+    }
+
     @Test
     public void constructor_withValidContext() {
         AudioManager manager = mock(AudioManager.class);
         when(mMockContext.getSystemService(AudioManager.class)).thenReturn(manager);
 
-        new CarAudioService(mMockContext);
+        createCarAudioService(mMockContext);
 
         verify(mMockContext).getSystemService(AudioManager.class);
         verify(mMockContext).getSystemService(TelephonyManager.class);
@@ -836,7 +865,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     @Test
     public void constructor_withNullContext_fails() {
         NullPointerException thrown =
-                assertThrows(NullPointerException.class, () -> new CarAudioService(null));
+                assertThrows(NullPointerException.class, () -> createCarAudioService(null));
 
         expectWithMessage("Car Audio Service Construction Exception")
                 .that(thrown).hasMessageThat().contains("Context");
@@ -846,7 +875,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     public void constructor_withNullContextAndNullPath_fails() {
         NullPointerException thrown =
                 assertThrows(NullPointerException.class,
-                        () -> new CarAudioService(/* context= */null,
+                        () -> createCarAudioService(/* context= */null,
                                 /* audioManagerWrapper= */ null,
                                 /* audioConfigurationPath= */ null,
                                 /* carVolumeCallbackHandler= */ null,
@@ -1268,7 +1297,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         mSetFlagsRule.disableFlags(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
         setUpTempFileForAudioConfiguration(R.raw.car_audio_configuration);
         setUpTempFileForAudioFadeConfiguration(R.raw.car_audio_fade_configuration);
-        CarAudioService service = new CarAudioService(mMockContext, mAudioManager,
+        CarAudioService service = createCarAudioService(mMockContext, mAudioManager,
                 mTempCarAudioConfigFile.getFile().getAbsolutePath(), mCarVolumeCallbackHandler,
                 mTempCarAudioFadeConfigFile.getFile().getAbsolutePath());
         service.init();
@@ -3312,7 +3341,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     @Test
     public void getVolumeGroupInfosForZone_forOEMConfiguration() throws Exception {
         setUpTempFileForAudioConfiguration(R.raw.car_audio_configuration_using_oem_defined_context);
-        CarAudioService nonDynamicAudioService = new CarAudioService(mMockContext, mAudioManager,
+        CarAudioService nonDynamicAudioService = createCarAudioService(mMockContext, mAudioManager,
                 mTempCarAudioConfigFile.getFile().getAbsolutePath(), mCarVolumeCallbackHandler,
                 /* audioFadeConfigurationPath= */ null);
         initServiceAndWaitForComplete(nonDynamicAudioService);
@@ -7055,7 +7084,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         // File not use for configuration for to differentiate between HAL config and file config
         setUpTempFileForAudioConfiguration(R.raw.car_audio_configuration_without_zone_mapping);
         setUpTempFileForAudioFadeConfiguration(R.raw.car_audio_fade_configuration);
-        return new CarAudioService(mMockContext, mAudioManager,
+        return createCarAudioService(mMockContext, mAudioManager,
                 mTempCarAudioConfigFile.getFile().getAbsolutePath(), mCarVolumeCallbackHandler,
                 mTempCarAudioFadeConfigFile.getFile().getAbsolutePath());
     }
@@ -7065,7 +7094,8 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         setUpTempFileForAudioFadeConfiguration(R.raw.car_audio_fade_configuration);
         when(mMockAudioService.setUidDeviceAffinity(any(), anyInt(), any(), any()))
                 .thenReturn(SUCCESS);
-        CarAudioService noZoneMappingAudioService = new CarAudioService(mMockContext, mAudioManager,
+        CarAudioService noZoneMappingAudioService = createCarAudioService(
+                mMockContext, mAudioManager,
                 mTempCarAudioConfigFile.getFile().getAbsolutePath(), mCarVolumeCallbackHandler,
                 /* audioFadeConfigurationPath= */ null);
         initServiceAndWaitForComplete(noZoneMappingAudioService);
@@ -7075,7 +7105,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     private CarAudioService setUpAudioService() throws Exception {
         setUpTempFileForAudioConfiguration(R.raw.car_audio_configuration);
         setUpTempFileForAudioFadeConfiguration(R.raw.car_audio_fade_configuration);
-        CarAudioService service = new CarAudioService(mMockContext, mAudioManager,
+        CarAudioService service = createCarAudioService(mMockContext, mAudioManager,
                 mTempCarAudioConfigFile.getFile().getAbsolutePath(), mCarVolumeCallbackHandler,
                 mTempCarAudioFadeConfigFile.getFile().getAbsolutePath());
         initServiceAndWaitForComplete(service);
@@ -7085,7 +7115,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     private CarAudioService setUpAudioServiceWithoutInit() throws Exception {
         setUpTempFileForAudioConfiguration(R.raw.car_audio_configuration);
         setUpTempFileForAudioFadeConfiguration(R.raw.car_audio_fade_configuration);
-        CarAudioService service = new CarAudioService(mMockContext, mAudioManager,
+        CarAudioService service = createCarAudioService(mMockContext, mAudioManager,
                 mTempCarAudioConfigFile.getFile().getAbsolutePath(), mCarVolumeCallbackHandler,
                 mTempCarAudioFadeConfigFile.getFile().getAbsolutePath());
         return service;
@@ -7095,7 +7125,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         setUpTempFileForAudioConfiguration(R.raw.car_audio_configuration);
         setUpTempFileForAudioFadeConfiguration(R.raw.car_audio_fade_configuration);
         when(mMockResources.getBoolean(audioUseDynamicRouting)).thenReturn(false);
-        CarAudioService nonDynamicAudioService = new CarAudioService(mMockContext, mAudioManager,
+        CarAudioService nonDynamicAudioService = createCarAudioService(mMockContext, mAudioManager,
                 mTempCarAudioConfigFile.getFile().getAbsolutePath(), mCarVolumeCallbackHandler,
                 /* audioFadeConfigurationPath= */ null);
         initServiceAndWaitForComplete(nonDynamicAudioService);
@@ -7106,7 +7136,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         setUpTempFileForAudioConfiguration(R.raw.car_audio_configuration);
         setUpTempFileForAudioFadeConfiguration(R.raw.car_audio_fade_configuration);
         when(mMockResources.getBoolean(resource)).thenReturn(false);
-        CarAudioService nonDynamicAudioService = new CarAudioService(mMockContext, mAudioManager,
+        CarAudioService nonDynamicAudioService = createCarAudioService(mMockContext, mAudioManager,
                 mTempCarAudioConfigFile.getFile().getAbsolutePath(), mCarVolumeCallbackHandler,
                 mTempCarAudioFadeConfigFile.getFile().getAbsolutePath());
         initServiceAndWaitForComplete(nonDynamicAudioService);
@@ -7140,7 +7170,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
         when(mMockResources.getBoolean(audioUseCoreVolume)).thenReturn(true);
         when(mMockResources.getBoolean(audioUseCoreRouting)).thenReturn(false);
-        CarAudioService audioServiceWithDynamicDevices = new CarAudioService(mMockContext,
+        CarAudioService audioServiceWithDynamicDevices = createCarAudioService(mMockContext,
                 mAudioManager, fileAudio.getFile().getAbsolutePath(), mCarVolumeCallbackHandler,
                 fileFade.getFile().getAbsolutePath());
         return audioServiceWithDynamicDevices;
@@ -7152,7 +7182,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
                 R.raw.car_audio_configuration_with_min_max_activation_volume);
         setUpTempFileForAudioFadeConfiguration(R.raw.car_audio_fade_configuration);
         when(mMockResources.getBoolean(audioUseMinMaxActivationVolume)).thenReturn(enabled);
-        CarAudioService service = new CarAudioService(mMockContext, mAudioManager,
+        CarAudioService service = createCarAudioService(mMockContext, mAudioManager,
                 mTempCarAudioConfigFile.getFile().getAbsolutePath(), mCarVolumeCallbackHandler,
                 mTempCarAudioFadeConfigFile.getFile().getAbsolutePath());
         initServiceAndWaitForComplete(service);
@@ -7330,7 +7360,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         setUpTempFileForAudioFadeConfiguration(R.raw.car_audio_fade_configuration);
         AudioDeviceInfo[] outputDevices = mCarAudioDeviceUtils.generateOutputDeviceInfos();
         when(mAudioManager.getDevices(AudioManager.GET_DEVICES_OUTPUTS)).thenReturn(outputDevices);
-        CarAudioService service = new CarAudioService(mMockContext, mAudioManager,
+        CarAudioService service = createCarAudioService(mMockContext, mAudioManager,
                 mTempCarAudioConfigFile.getFile().getAbsolutePath(), mCarVolumeCallbackHandler,
                 mTempCarAudioFadeConfigFile.getFile().getAbsolutePath());
         initServiceAndWaitForComplete(service);
@@ -7342,7 +7372,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         setUpTempFileForAudioFadeConfiguration(R.raw.car_audio_fade_configuration);
         when(mMockResources.getInteger(audioVolumeAdjustmentContextsVersion))
                 .thenReturn(AUDIO_CONTEXT_PRIORITY_LIST_VERSION_TWO);
-        CarAudioService service = new CarAudioService(mMockContext, mAudioManager,
+        CarAudioService service = createCarAudioService(mMockContext, mAudioManager,
                 mTempCarAudioConfigFile.getFile().getAbsolutePath(), mCarVolumeCallbackHandler,
                 mTempCarAudioFadeConfigFile.getFile().getAbsolutePath());
         initServiceAndWaitForComplete(service);
@@ -7377,7 +7407,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
                 R.raw.car_audio_configuration_using_core_routing_and_volume);
         setUpTempFileForAudioFadeConfiguration(R.raw.car_audio_fade_configuration);
 
-        CarAudioService useCoreAudioCarAudioService = new CarAudioService(mMockContext,
+        CarAudioService useCoreAudioCarAudioService = createCarAudioService(mMockContext,
                 mAudioManager,
                 mTempCarAudioConfigFile.getFile().getAbsolutePath(), mCarVolumeCallbackHandler,
                 /* audioFadeConfigurationPath= */ null);
@@ -7391,7 +7421,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
                 R.raw.car_audio_configuration_with_core_audio_routing_and_volume_configs_enabled);
         setUpTempFileForAudioFadeConfiguration(R.raw.car_audio_fade_configuration);
 
-        CarAudioService useCoreAudioCarAudioService = new CarAudioService(mMockContext,
+        CarAudioService useCoreAudioCarAudioService = createCarAudioService(mMockContext,
                 mAudioManager,
                 mTempCarAudioConfigFile.getFile().getAbsolutePath(), mCarVolumeCallbackHandler,
                 /* audioFadeConfigurationPath= */ null);
@@ -7405,7 +7435,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
                 R.raw.car_audio_configuration_with_core_audio_routing_and_volume_configs_disabled);
         setUpTempFileForAudioFadeConfiguration(R.raw.car_audio_fade_configuration);
 
-        CarAudioService useCoreAudioCarAudioService = new CarAudioService(mMockContext,
+        CarAudioService useCoreAudioCarAudioService = createCarAudioService(mMockContext,
                 mAudioManager,
                 mTempCarAudioConfigFile.getFile().getAbsolutePath(), mCarVolumeCallbackHandler,
                 /* audioFadeConfigurationPath= */ null);
@@ -7419,7 +7449,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         setUpTempFileForAudioConfiguration(resourceId);
         when(mMockResources.getBoolean(audioUseCarVolumeGroupMuting)).thenReturn(useGroupMuting);
 
-        CarAudioService audioCarAudioService = new CarAudioService(mMockContext, mAudioManager,
+        CarAudioService audioCarAudioService = createCarAudioService(mMockContext, mAudioManager,
                 mTempCarAudioConfigFile.getFile().getAbsolutePath(), mCarVolumeCallbackHandler,
                 /* audioFadeConfigurationPath= */ null);
         initServiceAndWaitForComplete(audioCarAudioService);
@@ -7431,7 +7461,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         setUpTempFileForAudioConfiguration(resourceId);
         when(mMockResources.getBoolean(audioUseHalDuckingSignals)).thenReturn(useHALDucking);
 
-        CarAudioService audioCarAudioService = new CarAudioService(mMockContext, mAudioManager,
+        CarAudioService audioCarAudioService = createCarAudioService(mMockContext, mAudioManager,
                 mTempCarAudioConfigFile.getFile().getAbsolutePath(), mCarVolumeCallbackHandler,
                 /* audioFadeConfigurationPath= */ null);
         initServiceAndWaitForComplete(audioCarAudioService);

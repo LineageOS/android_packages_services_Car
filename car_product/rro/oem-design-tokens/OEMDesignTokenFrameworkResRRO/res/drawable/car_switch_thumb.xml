@@ -23,7 +23,8 @@
         android:left="@dimen/car_switch_thumb_stroke_width"
         android:right="@dimen/car_switch_thumb_stroke_width"
         android:top="@dimen/car_switch_thumb_stroke_width">
-        <shape android:shape="oval">
+        <shape android:shape="rectangle">
+            <corners android:radius="?oemShapeCornerFull"/>
             <size
                 android:width="@dimen/car_switch_thumb_size"
                 android:height="@dimen/car_switch_thumb_size" />

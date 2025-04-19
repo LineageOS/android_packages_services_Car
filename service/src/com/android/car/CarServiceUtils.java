@@ -624,6 +624,16 @@ public final class CarServiceUtils {
     }
 
     /**
+     * Releases the handler thread got from {@link getCommonHandlerThread}.
+     *
+     * <p>This reduce the ref count for the handler thread. If there are not other usage, this quits
+     * the thread and waits for it to join.
+     */
+    public static void releaseCommonHandlerThread() throws InterruptedException {
+        releaseHandlerThread(COMMON_HANDLER_THREAD_NAME);
+    }
+
+    /**
      * Quits all the {@code HandlerThread} created via
      * {@link#getHandlerThread(String)}. This is useful only for testing.
      */

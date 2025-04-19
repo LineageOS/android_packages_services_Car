@@ -33,6 +33,7 @@ import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
 import android.bluetooth.BluetoothStatusCodes;
 import android.bluetooth.BluetoothUuid;
+import android.car.test.NoActiveHandlerThreadCheckerRule;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
@@ -47,6 +48,7 @@ import androidx.test.filters.RequiresDevice;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
@@ -122,6 +124,10 @@ public class BluetoothDeviceManagerTest extends AbstractExtendedMockitoBluetooth
     //--------------------------------------------------------------------------------------------//
     // Setup/TearDown                                                                             //
     //--------------------------------------------------------------------------------------------//
+
+    @Rule
+    public NoActiveHandlerThreadCheckerRule mNoActiveHandlerThreadCheckerRule =
+            new NoActiveHandlerThreadCheckerRule();
 
     @Before
     public void setUp() {

@@ -22,5 +22,9 @@ PRODUCT_PACKAGES += \
 PRODUCT_PACKAGES_DEBUG += \
     LaunchOnPrivateDisplayTestAppRRO \
 
+ifneq ($(DO_NOT_INCLUDE_CAR_CAST_RECEIVER), true)
+PRODUCT_PACKAGES_DEBUG += MediashellRRO
+endif
+
 PRODUCT_PRODUCT_PROPERTIES += \
     car.ui.config=distantdisplay

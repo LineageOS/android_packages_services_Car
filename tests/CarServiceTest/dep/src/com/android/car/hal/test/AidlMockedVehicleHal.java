@@ -60,10 +60,13 @@ import com.android.car.internal.util.PairSparseArray;
 import com.android.internal.annotations.GuardedBy;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Function;
 
-import javax.annotation.concurrent.NotThreadSafe;
 import javax.annotation.concurrent.ThreadSafe;
 
 public class AidlMockedVehicleHal extends IVehicle.Stub {
@@ -72,6 +75,9 @@ public class AidlMockedVehicleHal extends IVehicle.Stub {
 
     /**
      * Interface for handler of each property.
+     *
+     * Note that this handler might be called concurrently from different threads, implementation
+     * must be thread-safe.
      */
     public interface VehicleHalPropertyHandler
             extends GenericVehicleHalPropertyHandler<VehiclePropValue> {
@@ -150,30 +156,33 @@ public class AidlMockedVehicleHal extends IVehicle.Stub {
     }
 
     public void injectEvent(VehiclePropValue value, boolean setProperty) {
+        VehicleHalPropertyHandler handler;
+        List<IVehicleCallback> callbacks;
         synchronized (mLock) {
-            List<IVehicleCallback> callbacks = mSubscribers.get(value.prop);
-            assertWithMessage("Injecting event failed for property: " + value.prop
+            int propId = value.prop;
+            handler = mPropertyHandlerMap.get(propId);
+            callbacks = mSubscribers.get(propId);
+            assertWithMessage("Injecting event failed for property: " + propId
                     + ". No listeners found").that(callbacks).isNotNull();
+        }
 
-            if (setProperty) {
-                // Update property if requested
-                var handler = mPropertyHandlerMap.get(value.prop);
-                if (handler != null) {
-                    handler.onPropertySet2(value);
-                }
+        if (setProperty) {
+            // Update property if requested
+            if (handler != null) {
+                handler.onPropertySet2(value);
             }
+        }
 
-            for (int i = 0; i < callbacks.size(); i++) {
-                IVehicleCallback callback = callbacks.get(i);
-                try {
-                    VehiclePropValues propValues = new VehiclePropValues();
-                    propValues.payloads = new VehiclePropValue[1];
-                    propValues.payloads[0] = value;
-                    callback.onPropertyEvent(propValues, /* sharedMemoryCount= */ 0);
-                } catch (RemoteException e) {
-                    Log.e(TAG, "Failed invoking callback", e);
-                    fail("Remote exception while injecting events.");
-                }
+        for (int i = 0; i < callbacks.size(); i++) {
+            IVehicleCallback callback = callbacks.get(i);
+            try {
+                VehiclePropValues propValues = new VehiclePropValues();
+                propValues.payloads = new VehiclePropValue[1];
+                propValues.payloads[0] = value;
+                callback.onPropertyEvent(propValues, /* sharedMemoryCount= */ 0);
+            } catch (RemoteException e) {
+                Log.e(TAG, "Failed invoking callback", e);
+                fail("Remote exception while injecting events.");
             }
         }
     }
@@ -183,24 +192,25 @@ public class AidlMockedVehicleHal extends IVehicle.Stub {
     }
 
     public void injectError(int errorCode, int propertyId, int areaId) {
+        List<IVehicleCallback> callbacks;
         synchronized (mLock) {
-            List<IVehicleCallback> callbacks = mSubscribers.get(propertyId);
+            callbacks = mSubscribers.get(propertyId);
             assertWithMessage("Injecting error failed for property: " + propertyId
                     + ". No listeners found").that(callbacks).isNotNull();
-            for (int i = 0; i < callbacks.size(); i++) {
-                IVehicleCallback callback = callbacks.get(i);
-                try {
-                    VehiclePropError error = new VehiclePropError();
-                    error.propId = propertyId;
-                    error.areaId = areaId;
-                    error.errorCode = errorCode;
-                    VehiclePropErrors propErrors = new VehiclePropErrors();
-                    propErrors.payloads = new VehiclePropError[]{error};
-                    callback.onPropertySetError(propErrors);
-                } catch (RemoteException e) {
-                    Log.e(TAG, "Failed invoking callback", e);
-                    fail("Remote exception while injecting errors.");
-                }
+        }
+        for (int i = 0; i < callbacks.size(); i++) {
+            IVehicleCallback callback = callbacks.get(i);
+            try {
+                VehiclePropError error = new VehiclePropError();
+                error.propId = propertyId;
+                error.areaId = areaId;
+                error.errorCode = errorCode;
+                VehiclePropErrors propErrors = new VehiclePropErrors();
+                propErrors.payloads = new VehiclePropError[]{error};
+                callback.onPropertySetError(propErrors);
+            } catch (RemoteException e) {
+                Log.e(TAG, "Failed invoking callback", e);
+                fail("Remote exception while injecting errors.");
             }
         }
     }
@@ -249,64 +259,70 @@ public class AidlMockedVehicleHal extends IVehicle.Stub {
     @Override
     public void getValues(IVehicleCallback callback, GetValueRequests requests)
             throws RemoteException {
-        synchronized (mLock) {
-            assertWithMessage("AidlMockedVehicleHal does not support large parcelable").that(
-                    requests.sharedMemoryFd).isNull();
-            GetValueResults results = new GetValueResults();
-            results.payloads = new GetValueResult[requests.payloads.length];
+        var handlerForPropId = getHandlerForPropIdMap(Arrays.asList(requests.payloads),
+                (request) -> request.prop.prop);
 
-            for (int i = 0; i < requests.payloads.length; i++) {
-                GetValueRequest request = requests.payloads[i];
-                GetValueResult result = new GetValueResult();
-                result.requestId = request.requestId;
-                VehiclePropValue requestedPropValue = request.prop;
-                var handler = mPropertyHandlerMap.get(requestedPropValue.prop);
-                if (handler == null) {
-                    result.status = StatusCode.INVALID_ARG;
-                } else {
-                    try {
-                        VehiclePropValue prop = handler.onPropertyGet(requestedPropValue);
-                        result.status = StatusCode.OK;
-                        if (prop == null) {
-                            result.prop = null;
-                        } else {
-                            // Make a copy of prop.
-                            result.prop = AidlVehiclePropValueBuilder.newBuilder(prop).build();
-                        }
-                    } catch (ServiceSpecificException e) {
-                        result.status = e.errorCode;
+        assertWithMessage("AidlMockedVehicleHal does not support large parcelable").that(
+                requests.sharedMemoryFd).isNull();
+        GetValueResults results = new GetValueResults();
+        results.payloads = new GetValueResult[requests.payloads.length];
+
+        for (int i = 0; i < requests.payloads.length; i++) {
+            GetValueRequest request = requests.payloads[i];
+            GetValueResult result = new GetValueResult();
+            result.requestId = request.requestId;
+            VehiclePropValue requestedPropValue = request.prop;
+            var handler = handlerForPropId.get(requestedPropValue.prop);
+            if (handler == null) {
+                result.status = StatusCode.INVALID_ARG;
+            } else {
+                try {
+                    VehiclePropValue prop = handler.onPropertyGet(requestedPropValue);
+                    result.status = StatusCode.OK;
+                    if (prop == null) {
+                        result.prop = null;
+                    } else {
+                        // Make a copy of prop.
+                        result.prop = AidlVehiclePropValueBuilder.newBuilder(prop).build();
                     }
+                } catch (ServiceSpecificException e) {
+                    result.status = e.errorCode;
                 }
-                results.payloads[i] = result;
             }
-
-            callback.onGetValues(results);
+            results.payloads[i] = result;
         }
+
+        callback.onGetValues(results);
     }
 
     @Override
     public void setValues(IVehicleCallback callback, SetValueRequests requests)
             throws RemoteException {
+        var handlerForPropId = getHandlerForPropIdMap(Arrays.asList(requests.payloads),
+                (request) -> request.value.prop);
+
         SetValueResults results = new SetValueResults();
         Map<IVehicleCallback, List<VehiclePropValue>> subCallbackToValues = new ArrayMap<>();
-        synchronized (mLock) {
-            assertWithMessage("AidlMockedVehicleHal does not support large parcelable").that(
-                    requests.sharedMemoryFd).isNull();
-            results.payloads = new SetValueResult[requests.payloads.length];
-            for (int i = 0; i < requests.payloads.length; i++) {
-                SetValueRequest request = requests.payloads[i];
-                SetValueResult result = new SetValueResult();
-                result.requestId = request.requestId;
-                VehiclePropValue requestedPropValue = request.value;
-                var handler = mPropertyHandlerMap.get(requestedPropValue.prop);
-                if (handler == null) {
-                    result.status = StatusCode.INVALID_ARG;
-                } else {
-                    try {
-                        requestedPropValue.timestamp = SystemClock.elapsedRealtimeNanos();
-                        boolean generateEvent = handler.onPropertySet2(requestedPropValue);
-                        result.status = StatusCode.OK;
-                        int propId = requestedPropValue.prop;
+
+        assertWithMessage("AidlMockedVehicleHal does not support large parcelable").that(
+                requests.sharedMemoryFd).isNull();
+        results.payloads = new SetValueResult[requests.payloads.length];
+
+        for (int i = 0; i < requests.payloads.length; i++) {
+            SetValueRequest request = requests.payloads[i];
+            SetValueResult result = new SetValueResult();
+            result.requestId = request.requestId;
+            VehiclePropValue requestedPropValue = request.value;
+            var handler = handlerForPropId.get(requestedPropValue.prop);
+            if (handler == null) {
+                result.status = StatusCode.INVALID_ARG;
+            } else {
+                try {
+                    requestedPropValue.timestamp = SystemClock.elapsedRealtimeNanos();
+                    boolean generateEvent = handler.onPropertySet2(requestedPropValue);
+                    result.status = StatusCode.OK;
+                    int propId = requestedPropValue.prop;
+                    synchronized (mLock) {
                         // VMS has special logic.
                         if (generateEvent && mSubscribers.get(propId) != null) {
                             for (IVehicleCallback subCallback: mSubscribers.get(propId)) {
@@ -316,12 +332,12 @@ public class AidlMockedVehicleHal extends IVehicle.Stub {
                                 subCallbackToValues.get(subCallback).add(requestedPropValue);
                             }
                         }
-                    } catch (ServiceSpecificException e) {
-                        result.status = e.errorCode;
                     }
+                } catch (ServiceSpecificException e) {
+                    result.status = e.errorCode;
                 }
-                results.payloads[i] = result;
             }
+            results.payloads[i] = result;
         }
         callback.onSetValues(results);
 
@@ -345,15 +361,19 @@ public class AidlMockedVehicleHal extends IVehicle.Stub {
     @Override
     public void subscribe(IVehicleCallback callback, SubscribeOptions[] options,
             int maxSharedMemoryFileCount) throws RemoteException {
-        synchronized (mLock) {
-            for (SubscribeOptions opt : options) {
-                var handler = mPropertyHandlerMap.get(opt.propId);
-                if (handler == null) {
-                    throw new ServiceSpecificException(StatusCode.INVALID_ARG,
-                            "no registered handler");
-                }
+        var handlerForPropId = getHandlerForPropIdMap(Arrays.asList(options),
+                (opt) -> opt.propId);
 
-                handler.onPropertySubscribe(opt.propId, opt.areaIds, opt.sampleRate);
+        for (SubscribeOptions opt : options) {
+            var handler = handlerForPropId.get(opt.propId);
+            if (handler == null) {
+                throw new ServiceSpecificException(StatusCode.INVALID_ARG,
+                        "no registered handler");
+            }
+
+            handler.onPropertySubscribe(opt.propId, opt.areaIds, opt.sampleRate);
+
+            synchronized (mLock) {
                 List<IVehicleCallback> subscribers = mSubscribers.get(opt.propId);
                 if (subscribers == null) {
                     subscribers = new ArrayList<>();
@@ -377,15 +397,22 @@ public class AidlMockedVehicleHal extends IVehicle.Stub {
     @Override
     public void unsubscribe(IVehicleCallback callback, int[] propIds)
             throws RemoteException {
-        synchronized (mLock) {
-            for (int propId : propIds) {
-                var handler = mPropertyHandlerMap.get(propId);
-                if (handler == null) {
-                    throw new ServiceSpecificException(StatusCode.INVALID_ARG,
-                            "no registered handler");
-                }
+        var propIdList = new ArrayList<Integer>();
+        for (int propId : propIds) {
+            propIdList.add(propId);
+        }
+        var handlerForPropId = getHandlerForPropIdMap(propIdList, (propId) -> propId);
 
-                handler.onPropertyUnsubscribe(propId);
+        for (int propId : propIds) {
+            var handler = handlerForPropId.get(propId);
+            if (handler == null) {
+                throw new ServiceSpecificException(StatusCode.INVALID_ARG,
+                        "no registered handler");
+            }
+
+            handler.onPropertyUnsubscribe(propId);
+
+            synchronized (mLock) {
                 List<IVehicleCallback> subscribers = mSubscribers.get(propId);
                 if (subscribers != null) {
                     subscribers.remove(callback);
@@ -395,17 +422,20 @@ public class AidlMockedVehicleHal extends IVehicle.Stub {
                 }
             }
         }
+
     }
 
     @Override
     public SupportedValuesListResults getSupportedValuesLists(List<PropIdAreaId> propIdAreaIds) {
         SupportedValuesListResults results = new SupportedValuesListResults();
         results.payloads = new SupportedValuesListResult[propIdAreaIds.size()];
+        var handlerForPropId = getHandlerForPropIdMap(propIdAreaIds,
+                (propIdAreaId) -> propIdAreaId.propId);
         for (int i = 0; i < propIdAreaIds.size(); i++) {
             var propIdAreaId = propIdAreaIds.get(i);
             int propId = propIdAreaId.propId;
             int areaId = propIdAreaId.areaId;
-            var handler = mPropertyHandlerMap.get(propId);
+            var handler = handlerForPropId.get(propId);
             if (handler == null) {
                 throw new ServiceSpecificException(StatusCode.INVALID_ARG,
                         "no registered handler");
@@ -427,11 +457,13 @@ public class AidlMockedVehicleHal extends IVehicle.Stub {
     public MinMaxSupportedValueResults getMinMaxSupportedValue(List<PropIdAreaId> propIdAreaIds) {
         MinMaxSupportedValueResults results = new MinMaxSupportedValueResults();
         results.payloads = new MinMaxSupportedValueResult[propIdAreaIds.size()];
+        var handlerForPropId = getHandlerForPropIdMap(propIdAreaIds,
+                (propIdAreaId) -> propIdAreaId.propId);
         for (int i = 0; i < propIdAreaIds.size(); i++) {
             var propIdAreaId = propIdAreaIds.get(i);
             int propId = propIdAreaId.propId;
             int areaId = propIdAreaId.areaId;
-            var handler = mPropertyHandlerMap.get(propId);
+            var handler = handlerForPropId.get(propId);
             if (handler == null) {
                 throw new ServiceSpecificException(StatusCode.INVALID_ARG,
                         "no registered handler");
@@ -553,7 +585,7 @@ public class AidlMockedVehicleHal extends IVehicle.Stub {
             extends GenericFailingPropertyHandler<VehiclePropValue>
             implements VehicleHalPropertyHandler {}
 
-    @NotThreadSafe
+    @ThreadSafe
     public static final class StaticPropertyHandler
             extends GenericStaticPropertyHandler<VehiclePropValue>
             implements VehicleHalPropertyHandler {
@@ -567,25 +599,25 @@ public class AidlMockedVehicleHal extends IVehicle.Stub {
             extends GenericErrorCodeHandler<VehiclePropValue>
             implements VehicleHalPropertyHandler {}
 
-    @NotThreadSafe
+    @ThreadSafe
     public static final class DefaultPropertyHandler implements VehicleHalPropertyHandler {
 
         private final VehiclePropConfig mConfig;
 
-        private boolean mSubscribed;
+        private final AtomicBoolean mSubscribed = new AtomicBoolean(false);
 
-        private VehiclePropValue mValue;
+        private final AtomicReference<VehiclePropValue> mValue = new AtomicReference<>();
 
         public DefaultPropertyHandler(VehiclePropConfig config, VehiclePropValue initialValue) {
             mConfig = config;
-            mValue = initialValue;
+            mValue.set(initialValue);
         }
 
         public void onPropertySet(VehiclePropValue value) {
             assertThat(mConfig.prop).isEqualTo(value.prop);
             assertThat(mConfig.access & VehiclePropertyAccess.WRITE).isEqualTo(
                     VehiclePropertyAccess.WRITE);
-            mValue = value;
+            mValue.set(value);
         }
 
         @Override
@@ -593,23 +625,38 @@ public class AidlMockedVehicleHal extends IVehicle.Stub {
             assertThat(mConfig.prop).isEqualTo(value.prop);
             assertThat(mConfig.access & VehiclePropertyAccess.READ).isEqualTo(
                     VehiclePropertyAccess.READ);
-            return mValue;
+            return mValue.get();
         }
 
         @Override
         public void onPropertySubscribe(int property, float sampleRate) {
             assertThat(mConfig.prop).isEqualTo(property);
-            mSubscribed = true;
+            mSubscribed.set(true);
         }
 
         @Override
         public void onPropertyUnsubscribe(int property) {
             assertThat(mConfig.prop).isEqualTo(property);
-            if (!mSubscribed) {
+            if (!mSubscribed.getAndSet(false)) {
                 throw new IllegalArgumentException("Property was not subscribed 0x"
                         + toHexString(property));
             }
-            mSubscribed = false;
+        }
+    }
+
+    private <T> SparseArray<VehicleHalPropertyHandler> getHandlerForPropIdMap(
+            List<T> items, Function<T, Integer> propIdExtractor) {
+        synchronized (mLock) {
+            var handlerForPropId = new SparseArray<VehicleHalPropertyHandler>();
+            for (int i = 0; i < items.size(); i++) {
+                int propId = propIdExtractor.apply(items.get(i));
+                var handler = mPropertyHandlerMap.get(propId);
+                if (handler == null) {
+                    continue;
+                }
+                handlerForPropId.put(propId, handler);
+            }
+            return handlerForPropId;
         }
     }
 }

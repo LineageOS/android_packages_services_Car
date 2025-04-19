@@ -22,6 +22,9 @@ import java.util.List;
 
 /**
  * An interface used to control fake VHAL behavior in tests.
+ *
+ * Note that this handler might be called concurrently from different threads, implementation
+ * must be thread-safe.
  */
 public interface GenericVehicleHalPropertyHandler<ValueType> {
     /**

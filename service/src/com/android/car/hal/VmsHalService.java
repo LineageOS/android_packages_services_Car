@@ -90,8 +90,8 @@ public class VmsHalService extends HalServiceBase {
     private static final byte[] DEFAULT_PUBLISHER_INFO = EMPTY_BYTE_ARRAY;
 
     private final VehicleHal mVehicleHal;
-    private final HandlerThread mHandlerThread = CarServiceUtils.getHandlerThread(
-            getClass().getSimpleName());
+    private final String mClassName = getClass().getSimpleName();
+    private final HandlerThread mHandlerThread = CarServiceUtils.getHandlerThread(mClassName);
     private final Handler mHandler = new Handler(mHandlerThread.getLooper());
     private final int mCoreId;
     private final BiFunction<Handler, VmsClientCallback, VmsClient> mInitVmsClient;
@@ -224,6 +224,15 @@ public class VmsHalService extends HalServiceBase {
             Slogf.d(TAG, "Releasing VmsHalService VHAL property");
         }
         mVehicleHal.unsubscribePropertySafe(this, HAL_PROPERTY_ID);
+    }
+
+    @Override
+    public void destroy() {
+        try {
+            CarServiceUtils.releaseHandlerThread(mClassName);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
 
     @Override

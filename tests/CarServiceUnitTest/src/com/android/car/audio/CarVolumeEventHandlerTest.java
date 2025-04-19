@@ -20,7 +20,11 @@ import static org.mockito.Mockito.mock;
 
 import android.car.media.CarVolumeGroupEvent;
 import android.car.test.AbstractExpectableTestCase;
+import android.car.test.NoActiveHandlerThreadCheckerRule;
 
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
@@ -33,34 +37,49 @@ public class CarVolumeEventHandlerTest extends AbstractExpectableTestCase {
     private static final int TEST_ZONE_ID = 1;
     private static final int TEST_FLAG = 0;
     private static final int TEST_UID = 10103;
-    private static final CarVolumeEventHandler EVENT_HANDLER = new CarVolumeEventHandler();
 
     private final TestCarVolumeEventCallback mCarVolumeEventCallback =
             new TestCarVolumeEventCallback(TEST_TIMEOUT_MS);
 
+    private CarVolumeEventHandler mEventHandler;
+
+    @Rule
+    public NoActiveHandlerThreadCheckerRule mNoActiveHandlerThreadCheckerRule =
+            new NoActiveHandlerThreadCheckerRule();
+
+    @Before
+    public void setUp() {
+        mEventHandler = new CarVolumeEventHandler();
+    }
+
+    @After
+    public void tearDown() {
+        mEventHandler.destroy();
+    }
+
     @Test
     public void registerCarVolumeEventCallback() {
-        EVENT_HANDLER.registerCarVolumeEventCallback(mCarVolumeEventCallback, TEST_UID);
+        mEventHandler.registerCarVolumeEventCallback(mCarVolumeEventCallback, TEST_UID);
 
         expectWithMessage("registered UID")
-                .that(EVENT_HANDLER.checkIfUidIsRegistered(TEST_UID)).isTrue();
+                .that(mEventHandler.checkIfUidIsRegistered(TEST_UID)).isTrue();
     }
 
     @Test
     public void unregisterCarVolumeEventCallback() {
-        EVENT_HANDLER.registerCarVolumeEventCallback(mCarVolumeEventCallback, TEST_UID);
+        mEventHandler.registerCarVolumeEventCallback(mCarVolumeEventCallback, TEST_UID);
 
-        EVENT_HANDLER.unregisterCarVolumeEventCallback(mCarVolumeEventCallback, TEST_UID);
+        mEventHandler.unregisterCarVolumeEventCallback(mCarVolumeEventCallback, TEST_UID);
 
         expectWithMessage("unregistered UID")
-                .that(EVENT_HANDLER.checkIfUidIsRegistered(TEST_UID)).isFalse();
+                .that(mEventHandler.checkIfUidIsRegistered(TEST_UID)).isFalse();
     }
 
     @Test
     public void onMasterMuteChanged() throws Exception {
-        EVENT_HANDLER.registerCarVolumeEventCallback(mCarVolumeEventCallback, TEST_UID);
+        mEventHandler.registerCarVolumeEventCallback(mCarVolumeEventCallback, TEST_UID);
 
-        EVENT_HANDLER.onMasterMuteChanged(TEST_ZONE_ID, TEST_FLAG);
+        mEventHandler.onMasterMuteChanged(TEST_ZONE_ID, TEST_FLAG);
 
         expectWithMessage("Invocation of callback for master mute change").that(
                 mCarVolumeEventCallback.waitForCallback()).isTrue();
@@ -69,9 +88,9 @@ public class CarVolumeEventHandlerTest extends AbstractExpectableTestCase {
     @Test
     public void onVolumeGroupEvent() throws Exception {
         CarVolumeGroupEvent eventMock = mock(CarVolumeGroupEvent.class);
-        EVENT_HANDLER.registerCarVolumeEventCallback(mCarVolumeEventCallback, TEST_UID);
+        mEventHandler.registerCarVolumeEventCallback(mCarVolumeEventCallback, TEST_UID);
 
-        EVENT_HANDLER.onVolumeGroupEvent(List.of(eventMock));
+        mEventHandler.onVolumeGroupEvent(List.of(eventMock));
 
         expectWithMessage("Invocation of callback for volume group event change").that(
                 mCarVolumeEventCallback.waitForCallback()).isTrue();
@@ -79,21 +98,21 @@ public class CarVolumeEventHandlerTest extends AbstractExpectableTestCase {
 
     @Test
     public void release() {
-        EVENT_HANDLER.registerCarVolumeEventCallback(mCarVolumeEventCallback, TEST_UID);
+        mEventHandler.registerCarVolumeEventCallback(mCarVolumeEventCallback, TEST_UID);
 
-        EVENT_HANDLER.release();
+        mEventHandler.release();
 
         expectWithMessage("Released UID")
-                .that(EVENT_HANDLER.checkIfUidIsRegistered(TEST_UID)).isFalse();
+                .that(mEventHandler.checkIfUidIsRegistered(TEST_UID)).isFalse();
     }
 
     @Test
     public void onCallbackDied() {
-        EVENT_HANDLER.registerCarVolumeEventCallback(mCarVolumeEventCallback, TEST_UID);
+        mEventHandler.registerCarVolumeEventCallback(mCarVolumeEventCallback, TEST_UID);
 
-        EVENT_HANDLER.onCallbackDied(mCarVolumeEventCallback, TEST_UID);
+        mEventHandler.onCallbackDied(mCarVolumeEventCallback, TEST_UID);
 
         expectWithMessage("UID with dead callback")
-                .that(EVENT_HANDLER.checkIfUidIsRegistered(TEST_UID)).isFalse();
+                .that(mEventHandler.checkIfUidIsRegistered(TEST_UID)).isFalse();
     }
 }
