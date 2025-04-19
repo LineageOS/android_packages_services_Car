@@ -48,7 +48,6 @@ import android.util.SparseArray;
 import android.util.proto.ProtoOutputStream;
 
 import com.android.car.CarLog;
-import com.android.car.CarServiceUtils;
 import com.android.car.audio.CarAudioContext.AudioContext;
 import com.android.car.audio.CarAudioDumpProto.CarAudioZoneFocusProto.CarAudioFocusProto;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
@@ -337,16 +336,20 @@ final class FocusInteraction {
     private final ContentObserverFactory mContentObserverFactory;
     private int mUserId;
 
+    private final Handler mHandler;
+
     /**
      * Constructs a focus interaction instance.
      */
     FocusInteraction(CarAudioSettings carAudioSettings,
-            ContentObserverFactory contentObserverFactory) {
+            ContentObserverFactory contentObserverFactory,
+            Handler handler) {
         mCarAudioFocusSettings = Objects.requireNonNull(carAudioSettings,
                 "Car Audio Settings can not be null.");
         mContentObserverFactory = Objects.requireNonNull(contentObserverFactory,
                 "Content Observer Factory can not be null.");
         mInteractionMatrix = INTERACTION_MATRIX.clone();
+        mHandler = handler;
     }
 
     private void navigationOnCallSettingChanged() {
@@ -462,11 +465,9 @@ final class FocusInteraction {
                 setRejectNavigationOnCallLocked(false);
                 return;
             }
-            var carHandlerThread = CarServiceUtils.getHandlerThread(
-                    CarAudioService.class.getSimpleName());
             mContentObserver = mContentObserverFactory.createObserver(
                     this::navigationOnCallSettingChanged,
-                    new Handler(carHandlerThread.getLooper()));
+                    mHandler);
             mCarAudioFocusSettings.getContentResolverForUser(mUserId)
                     .registerContentObserver(AUDIO_FOCUS_NAVIGATION_REJECTED_DURING_CALL_URI,
                             /* notifyForDescendants= */false, mContentObserver);

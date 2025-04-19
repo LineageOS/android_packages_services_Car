@@ -30,9 +30,12 @@ import android.car.media.CarAudioManager;
 import android.car.media.IMediaAudioRequestStatusCallback;
 import android.car.media.IPrimaryZoneMediaAudioRequestCallback;
 import android.car.test.AbstractExpectableTestCase;
+import android.car.test.NoActiveHandlerThreadCheckerRule;
 import android.os.RemoteException;
 
+import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 
 import java.util.List;
@@ -55,11 +58,20 @@ public final class MediaRequestHandlerTest extends AbstractExpectableTestCase {
     private TestPrimaryZoneMediaAudioRequestCallback mTestZoneAudioRequestCallback;
     private TestMediaRequestStatusCallback mTestMediaRequestStatusCallback;
 
+    @Rule
+    public NoActiveHandlerThreadCheckerRule mNoActiveHandlerThreadCheckerRule =
+            new NoActiveHandlerThreadCheckerRule();
+
     @Before
     public void setUp() {
         mMediaRequestHandler = new MediaRequestHandler();
         mTestZoneAudioRequestCallback = new TestPrimaryZoneMediaAudioRequestCallback();
         mTestMediaRequestStatusCallback = new TestMediaRequestStatusCallback();
+    }
+
+    @After
+    public void tearDown() {
+        mMediaRequestHandler.destroy();
     }
 
     @Test

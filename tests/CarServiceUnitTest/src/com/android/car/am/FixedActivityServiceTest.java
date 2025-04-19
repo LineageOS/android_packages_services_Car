@@ -40,6 +40,7 @@ import android.car.Car;
 import android.car.builtin.app.ActivityManagerHelper;
 import android.car.cluster.ClusterActivityState;
 import android.car.hardware.power.CarPowerManager;
+import android.car.test.NoActiveHandlerThreadCheckerRule;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.car.user.CarUserManager;
 import android.content.BroadcastReceiver;
@@ -60,12 +61,12 @@ import android.os.UserHandle;
 import android.view.Display;
 
 import com.android.car.CarLocalServices;
-import com.android.car.CarServiceUtils;
 import com.android.car.user.CarUserService;
 import com.android.car.user.UserHandleHelper;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
@@ -81,6 +82,10 @@ public final class FixedActivityServiceTest extends AbstractExtendedMockitoTestC
     private static final long RECHECK_INTERVAL_MARGIN_MS = 600;
 
     private static final int VALID_DISPLAY_ID = 1;
+
+    @Rule
+    public NoActiveHandlerThreadCheckerRule mNoActiveHandlerThreadCheckerRule =
+            new NoActiveHandlerThreadCheckerRule();
 
     @Mock
     private Context mContext;
@@ -128,8 +133,8 @@ public final class FixedActivityServiceTest extends AbstractExtendedMockitoTestC
     public void tearDown() throws Exception {
         if (mFixedActivityService != null) {
             mFixedActivityService.release();
+            mFixedActivityService.destroy();
         }
-        CarServiceUtils.quitHandlerThreads();
     }
 
     @Test

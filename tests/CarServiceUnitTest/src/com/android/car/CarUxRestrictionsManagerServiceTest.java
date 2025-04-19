@@ -49,6 +49,7 @@ import android.car.drivingstate.CarUxRestrictionsConfiguration;
 import android.car.drivingstate.ICarDrivingStateChangeListener;
 import android.car.hardware.CarPropertyValue;
 import android.car.hardware.property.CarPropertyEvent;
+import android.car.test.NoActiveHandlerThreadCheckerRule;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
@@ -97,6 +98,9 @@ public class CarUxRestrictionsManagerServiceTest {
 
     @Rule
     public final MockitoRule rule = MockitoJUnit.rule();
+    @Rule
+    public NoActiveHandlerThreadCheckerRule mNoActiveHandlerThreadCheckerRule =
+            new NoActiveHandlerThreadCheckerRule();
 
     @Mock
     private CarDrivingStateService mMockDrivingStateService;
@@ -133,6 +137,7 @@ public class CarUxRestrictionsManagerServiceTest {
 
     @After
     public void tearDown() throws Exception {
+        mService.destroy();
         mService = null;
         CarLocalServices.removeServiceForTest(SystemInterface.class);
         CarLocalServices.addService(SystemInterface.class, mOriginalSystemInterface);
@@ -463,6 +468,9 @@ public class CarUxRestrictionsManagerServiceTest {
         } catch (InterruptedException e) {
             Assert.fail("Thread failed to join");
         }
+
+        drivingStateService.destroy();
+        uxRestrictionsService.destroy();
     }
 
     // This test only involves calling a few methods and should finish very quickly. If it doesn't
@@ -553,6 +561,9 @@ public class CarUxRestrictionsManagerServiceTest {
         } catch (InterruptedException e) {
             Assert.fail("Thread failed to join");
         }
+
+        drivingStateService.destroy();
+        uxRestrictionService.destroy();
     }
 
     @Test(expected = SecurityException.class)

@@ -36,6 +36,7 @@ import static org.mockito.Mockito.when;
 
 import android.car.ICarBugreportCallback;
 import android.car.builtin.os.SystemPropertiesHelper;
+import android.car.test.NoActiveHandlerThreadCheckerRule;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
@@ -48,6 +49,7 @@ import com.android.dx.mockito.inline.extended.ExtendedMockito;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -68,6 +70,10 @@ public class CarBugreportManagerServiceUnitTest {
 
     private CarBugreportManagerService mService;
     private MockitoSession mSession;
+
+    @Rule
+    public NoActiveHandlerThreadCheckerRule mNoActiveHandlerThreadCheckerRule =
+            new NoActiveHandlerThreadCheckerRule();
 
     @Mock private Context mMockContext;
     @Mock private Resources mMockResources;
@@ -91,6 +97,7 @@ public class CarBugreportManagerServiceUnitTest {
     public void tearDown() {
         if (mService != null) {
             mService.release();
+            mService.destroy();
         }
         try {
             mSession.finishMocking();

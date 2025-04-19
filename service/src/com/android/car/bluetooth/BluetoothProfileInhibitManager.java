@@ -20,6 +20,7 @@ import static android.car.settings.CarSettings.Secure.KEY_BLUETOOTH_PROFILES_INH
 
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
+import android.annotation.Nullable;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
@@ -49,6 +50,7 @@ import java.util.Iterator;
 import java.util.Objects;
 import java.util.Set;
 import java.util.StringJoiner;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Manages the inhibiting of Bluetooth profile connections to and from specific devices.
@@ -59,6 +61,7 @@ public class BluetoothProfileInhibitManager {
     private static final String SETTINGS_DELIMITER = ",";
     private static final Binder RESTORED_PROFILE_INHIBIT_TOKEN = new Binder();
     private static final long RESTORE_BACKOFF_MILLIS = 1000L;
+    private static final String HANDLER_THREAD_NAME = CarBluetoothService.THREAD_NAME;
 
     private final Context mUserContext;
     private final BluetoothAdapter mBluetoothAdapter;
@@ -80,8 +83,8 @@ public class BluetoothProfileInhibitManager {
     @GuardedBy("mProfileInhibitsLock")
     private final HashSet<BluetoothConnection> mAlreadyDisabledProfiles = new HashSet<>();
 
-    private final Handler mHandler = new Handler(
-            CarServiceUtils.getHandlerThread(CarBluetoothService.THREAD_NAME).getLooper());
+    private final AtomicReference<Handler> mHandlerRef = new AtomicReference<>();
+
     /**
      * BluetoothConnection - encapsulates the information representing a connection to a device on a
      * given profile. This object is hashable, encodable and decodable.
@@ -305,6 +308,8 @@ public class BluetoothProfileInhibitManager {
      *
      */
     public void start() {
+        mHandlerRef.set(new Handler(
+                CarServiceUtils.getHandlerThread(HANDLER_THREAD_NAME).getLooper()));
         load();
         removeRestoredProfileInhibits();
     }
@@ -314,6 +319,12 @@ public class BluetoothProfileInhibitManager {
      */
     public void stop() {
         releaseAllInhibitsBeforeUnbind();
+        mHandlerRef.set(null);
+        try {
+            CarServiceUtils.releaseHandlerThread(HANDLER_THREAD_NAME);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
 
     /**
@@ -591,7 +602,11 @@ public class BluetoothProfileInhibitManager {
                             + "trying again in %dms",
                             mLogHeader, RESTORE_BACKOFF_MILLIS);
                 }
-                mHandler.postDelayed(
+                Handler handler = getHandler();
+                if (handler == null) {
+                    return;
+                }
+                handler.postDelayed(
                         this::removeRestoredProfileInhibits,
                         RESTORED_PROFILE_INHIBIT_TOKEN,
                         RESTORE_BACKOFF_MILLIS);
@@ -627,9 +642,13 @@ public class BluetoothProfileInhibitManager {
             // further handling when the user resumes.
             mAlreadyDisabledProfiles.clear();
 
+            Handler handler = getHandler();
+            if (handler == null) {
+                return;
+            }
             // Clean up bookkeeping for restored inhibits. (If any are still around, they'll be
             // restored again when this user restarts.)
-            mHandler.removeCallbacksAndMessages(RESTORED_PROFILE_INHIBIT_TOKEN);
+            handler.removeCallbacksAndMessages(RESTORED_PROFILE_INHIBIT_TOKEN);
             mRestoredInhibits.clear();
         }
     }
@@ -668,5 +687,14 @@ public class BluetoothProfileInhibitManager {
         writer.printf("Inhibited profiles: %s\n", inhibits);
 
         writer.decreaseIndent();
+    }
+
+    private @Nullable Handler getHandler() {
+        Handler handler = mHandlerRef.get();
+        if (handler == null) {
+            Slogf.w(TAG, "handler is null, the BluetoothProfileInhibitManager is "
+                    + "already released");
+        }
+        return handler;
     }
 }

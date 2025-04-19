@@ -22,6 +22,7 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
+import android.car.test.NoActiveHandlerThreadCheckerRule;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.content.Context;
 import android.hardware.automotive.vehicle.VehicleProperty;
@@ -37,6 +38,7 @@ import com.android.car.test.utils.TemporaryDirectory;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mock;
 
@@ -48,6 +50,11 @@ public final class CarFeatureControllerUnitTest extends AbstractExtendedMockitoT
     private final Context mContext = InstrumentationRegistry.getInstrumentation().getContext();
     private final HalPropValueBuilder mHalPropValueBuilder = new HalPropValueBuilder(
             /* isAidl= */ true);
+
+    @Rule
+    public NoActiveHandlerThreadCheckerRule mNoActiveHandlerThreadCheckerRule =
+            new NoActiveHandlerThreadCheckerRule();
+
     @Mock
     private VehicleHal mMockHal;
     private TemporaryDirectory mTestDir;
@@ -81,6 +88,8 @@ public final class CarFeatureControllerUnitTest extends AbstractExtendedMockitoT
         boolean isNavigationEnabled = service.isFeatureEnabled(CAR_NAVIGATION_SERVICE_FEATURE);
 
         assertWithMessage("Navigation feature enabled status").that(isNavigationEnabled).isTrue();
+
+        service.destroy();
     }
 
     @Test
@@ -97,5 +106,7 @@ public final class CarFeatureControllerUnitTest extends AbstractExtendedMockitoT
         boolean isNavigationEnabled = service.isFeatureEnabled(CAR_NAVIGATION_SERVICE_FEATURE);
 
         assertWithMessage("Navigation feature enabled status").that(isNavigationEnabled).isFalse();
+
+        service.destroy();
     }
 }

@@ -46,17 +46,22 @@ import android.car.media.CarAudioManager;
 import android.car.oem.AudioFocusEntry;
 import android.car.oem.CarAudioFeaturesInfo;
 import android.car.oem.OemCarAudioFocusResult;
+import android.car.test.NoActiveHandlerThreadCheckerRule;
 import android.content.ContentResolver;
 import android.content.pm.PackageManager;
 import android.media.AudioFocusInfo;
 import android.media.audiopolicy.AudioPolicy;
+import android.os.Handler;
+import android.os.HandlerThread;
 import android.util.SparseArray;
 
 import com.android.car.CarLocalServices;
+import com.android.car.CarServiceUtils;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.oem.CarOemAudioFocusProxyService;
 import com.android.car.oem.CarOemProxyService;
 
+import org.junit.Rule;
 import org.mockito.Mock;
 
 import java.util.List;
@@ -172,6 +177,10 @@ abstract class CarZonesAudioFocusTestBase {
     protected static final AudioClientInfo ANNOUNCEMENT_INFO_2 = new AudioClientInfo(
             USAGE_ANNOUNCEMENT, ANNOUNCEMENT_CLIENT_UID_2, ANNOUNCEMENT_CLIENT_ID_2);
 
+    @Rule
+    public NoActiveHandlerThreadCheckerRule mNoActiveHandlerThreadCheckerRule =
+            new NoActiveHandlerThreadCheckerRule();
+
     @Mock
     protected AudioManagerWrapper mMockAudioManager;
     @Mock
@@ -193,9 +202,14 @@ abstract class CarZonesAudioFocusTestBase {
     @Mock
     private CarVolumeInfoWrapper mMockCarVolumeInfoWrapper;
 
+    private HandlerThread mHandlerThread;
+    private Handler mHandler;
+
     protected SparseArray<CarAudioZone> mCarAudioZones;
 
     public void setUp() {
+        mHandlerThread = CarServiceUtils.getHandlerThread(CarAudioService.class.getSimpleName());
+        mHandler = new Handler(mHandlerThread.getLooper());
         mCarAudioZones = generateAudioZones();
         CarLocalServices.removeServiceForTest(CarOemProxyService.class);
         CarLocalServices.addService(CarOemProxyService.class, mMockCarOemProxyService);
@@ -205,6 +219,11 @@ abstract class CarZonesAudioFocusTestBase {
 
     public void tearDown() {
         CarLocalServices.removeServiceForTest(CarOemProxyService.class);
+        try {
+            CarServiceUtils.releaseHandlerThread(CarAudioService.class.getSimpleName());
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
 
     protected AudioFocusInfo generateCallRequestForPrimaryZone() {
@@ -271,7 +290,7 @@ abstract class CarZonesAudioFocusTestBase {
                 CarZonesAudioFocus.createCarZonesAudioFocus(mMockAudioManager,
                         mMockPackageManager, mCarAudioZones, mCarAudioSettings, carFocusCallback,
                         mMockCarVolumeInfoWrapper, new CarAudioFeaturesInfo.Builder(
-                                AUDIO_FEATURE_NO_FEATURE).build());
+                                AUDIO_FEATURE_NO_FEATURE).build(), mHandler);
         carZonesAudioFocus.setOwningPolicy(mCarAudioService, mAudioPolicy);
 
         return carZonesAudioFocus;

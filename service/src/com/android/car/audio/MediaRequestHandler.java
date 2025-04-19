@@ -74,6 +74,19 @@ final class MediaRequestHandler {
             mPrimaryZoneMediaAudioRequestCallbacks = new RemoteCallbackList<>();
     private final RequestIdGenerator mIdGenerator = new RequestIdGenerator();
 
+    /**
+     * Destroys this handler.
+     *
+     * Must be called before deleting the instance reference.
+     */
+    void destroy() {
+        try {
+            CarServiceUtils.releaseHandlerThread(REQUEST_HANDLER_THREAD_NAME);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+    }
+
     boolean registerPrimaryZoneMediaAudioRequestCallback(
             IPrimaryZoneMediaAudioRequestCallback callback) {
         Objects.requireNonNull(callback, "Media request callback can not be null");

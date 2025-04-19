@@ -63,6 +63,7 @@ import android.car.oem.CarAudioFeaturesInfo;
 import android.car.oem.OemCarAudioFocusEvaluationRequest;
 import android.car.oem.OemCarAudioFocusResult;
 import android.car.test.AbstractExpectableTestCase;
+import android.car.test.NoActiveHandlerThreadCheckerRule;
 import android.content.pm.PackageManager;
 import android.media.AudioAttributes;
 import android.media.AudioAttributes.AttributeUsage;
@@ -71,6 +72,8 @@ import android.media.AudioManager;
 import android.media.FadeManagerConfiguration;
 import android.media.audiopolicy.AudioPolicy;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.HandlerThread;
 import android.platform.test.flag.junit.SetFlagsRule;
 import android.util.ArrayMap;
 
@@ -96,6 +99,8 @@ import java.util.Map;
 @RunWith(AndroidJUnit4.class)
 public class CarAudioFocusUnitTest extends AbstractExpectableTestCase {
 
+    private static final String HANDLER_THREAD_NAME = CarAudioFocusUnitTest.class.getSimpleName();
+
     private static final int USER_10_ID = 10;
     private static final int USER_10_CLIENT_UID = 1010061;
     private static final int USER_11_ID = 11;
@@ -120,6 +125,9 @@ public class CarAudioFocusUnitTest extends AbstractExpectableTestCase {
     private static final int TEST_SECONDARY_ZONE = 2;
 
     @Rule
+    public NoActiveHandlerThreadCheckerRule mNoActiveHandlerThreadCheckerRule =
+            new NoActiveHandlerThreadCheckerRule();
+    @Rule
     public MockitoRule rule = MockitoJUnit.rule();
     @Mock
     private AudioManagerWrapper mMockAudioManager;
@@ -142,19 +150,28 @@ public class CarAudioFocusUnitTest extends AbstractExpectableTestCase {
 
     private FocusInteraction mFocusInteraction;
 
+    private HandlerThread mHandlerThread;
+    private Handler mHandler;
+
     @Rule
     public final SetFlagsRule mSetFlagsRule = new SetFlagsRule();
 
     @Before
     public void setUp() {
-        mFocusInteraction = new FocusInteraction(mCarAudioSettings, mMockContentObserverFactory);
+        mHandlerThread = new HandlerThread(HANDLER_THREAD_NAME);
+        mHandlerThread.start();
+        mHandler = new Handler(mHandlerThread.getLooper());
+        mFocusInteraction = new FocusInteraction(mCarAudioSettings, mMockContentObserverFactory,
+                mHandler);
         CarLocalServices.removeServiceForTest(CarOemProxyService.class);
         CarLocalServices.addService(CarOemProxyService.class, mMockCarOemProxyService);
     }
 
     @After
-    public void tearDown() {
+    public void tearDown() throws Exception {
         CarLocalServices.removeServiceForTest(CarOemProxyService.class);
+        mHandlerThread.quitSafely();
+        mHandlerThread.join();
     }
 
     @Test

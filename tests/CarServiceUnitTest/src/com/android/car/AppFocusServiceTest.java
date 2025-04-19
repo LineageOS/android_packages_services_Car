@@ -30,13 +30,16 @@ import android.car.Car;
 import android.car.CarAppFocusManager;
 import android.car.IAppFocusListener;
 import android.car.IAppFocusOwnershipCallback;
+import android.car.test.NoActiveHandlerThreadCheckerRule;
 import android.content.Context;
 import android.content.PermissionChecker;
 import android.content.pm.PackageManager;
 import android.os.Handler;
 import android.os.Looper;
 
+import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -51,6 +54,10 @@ public class AppFocusServiceTest {
     private static final long WAIT_TIMEOUT_MS = 500;
 
     private final Handler mMainHandler = new Handler(Looper.getMainLooper());
+
+    @Rule
+    public NoActiveHandlerThreadCheckerRule mNoActiveHandlerThreadCheckerRule =
+            new NoActiveHandlerThreadCheckerRule();
 
     @Mock
     private Context mContext;
@@ -74,6 +81,11 @@ public class AppFocusServiceTest {
         doReturn(mMainHandler).when(mCar).getEventHandler();
         mCarAppFocusManager1 = new CarAppFocusManager(mCar, mService.asBinder());
         mCarAppFocusManager2 = new CarAppFocusManager(mCar, mService.asBinder());
+    }
+
+    @After
+    public void tearDown() {
+        mService.destroy();
     }
 
     @Test

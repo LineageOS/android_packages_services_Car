@@ -88,6 +88,7 @@ public final class CarActivityService extends ICarActivityService.Stub
 
     private static final String TAG = CarLog.TAG_AM;
     private static final boolean DBG = Slogf.isLoggable(TAG, Log.DEBUG);
+    private static final String CLASS_NAME = SystemActivityMonitoringService.class.getSimpleName();
 
     private static final long MIRRORING_TOKEN_TIMEOUT_MS = 10 * 60 * 1000;  // 10 mins
 
@@ -147,7 +148,7 @@ public final class CarActivityService extends ICarActivityService.Stub
     private final ArrayList<ActivityListener> mActivityListeners = new ArrayList<>();
 
     private final HandlerThread mMonitorHandlerThread = CarServiceUtils.getHandlerThread(
-            SystemActivityMonitoringService.class.getSimpleName());
+            CLASS_NAME);
     private final Handler mHandler = new Handler(mMonitorHandlerThread.getLooper());
 
     public CarActivityService(Context context) {
@@ -161,6 +162,15 @@ public final class CarActivityService extends ICarActivityService.Stub
         mMirroringTokenTimeoutMs = mirroringTokenTimeout;
         mIsUsingAutoTaskStackWindowing = context.getResources().getBoolean(
                 R.bool.config_isUsingAutoTaskStackWindowing);
+    }
+
+    @Override
+    public void destroy() {
+        try {
+            CarServiceUtils.releaseHandlerThread(CLASS_NAME);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
 
     public boolean isUsingAutoTaskStackWindowing() {

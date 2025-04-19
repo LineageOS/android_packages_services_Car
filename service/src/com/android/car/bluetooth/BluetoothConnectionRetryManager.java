@@ -42,6 +42,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * BluetoothConnectionRetryManager: manages retry attempts for failed connections.
@@ -55,6 +56,7 @@ import java.util.Objects;
 public final class BluetoothConnectionRetryManager {
     private static final String TAG = CarLog.tagFor(BluetoothConnectionRetryManager.class);
     private static final boolean DBG = Slogf.isLoggable(TAG, Log.DEBUG);
+    private static final String HANDLER_THREAD_NAME = CarBluetoothService.THREAD_NAME;
 
     private static final int MAX_RETRY_ATTEMPTS = 3;
     // NOTE: the value is not "final" - it is modified in the unit tests
@@ -66,8 +68,7 @@ public final class BluetoothConnectionRetryManager {
     private Context mUserContext;
     private BluetoothAdapter mBluetoothAdapter;
     private final BluetoothBroadcastReceiver mBluetoothBroadcastReceiver;
-    private final Handler mHandler = new Handler(
-            CarServiceUtils.getHandlerThread(CarBluetoothService.THREAD_NAME).getLooper());
+    private final AtomicReference<Handler> mHandlerRef = new AtomicReference<>();
 
     private static final int[] MANAGED_PROFILES = BluetoothUtils.getManagedProfilesIds();
 
@@ -202,7 +203,11 @@ public final class BluetoothConnectionRetryManager {
                     // This ensures retries are posted at least {@link
                     // sRetryFirstConnectTimeoutMs} apart.
                     int countForLogs = counter.increment();
-                    mHandler.postDelayed(() -> {
+                    var handler = getHandler();
+                    if (handler == null) {
+                        return;
+                    }
+                    handler.postDelayed(() -> {
                         if (DBG) {
                             Slogf.d(TAG, "[%s, %s] retry attempt (%s/%s)", device,
                                     BluetoothUtils.getProfileName(profile),
@@ -211,7 +216,7 @@ public final class BluetoothConnectionRetryManager {
                         connect(device);
                     }, /* token */ counter, sRetryFirstConnectTimeoutMs);
                     // Only purpose is to help {@link isRetryPosted}.
-                    mHandler.sendMessage(mHandler.obtainMessage(RETRY_MSG_WHAT,
+                    handler.sendMessage(handler.obtainMessage(RETRY_MSG_WHAT,
                             /* token */ counter));
                 }
             }
@@ -254,8 +259,12 @@ public final class BluetoothConnectionRetryManager {
         private void untrackDevice(BluetoothDevice device) {
             SparseArray<RetryTokenAndCounter> profileTokens =
                     mBondedYetToConnect.get(device.getAddress());
+            var handler = getHandler();
+            if (handler == null) {
+                return;
+            }
             for (int i = 0; i < profileTokens.size(); i++) {
-                mHandler.removeCallbacksAndMessages(profileTokens.valueAt(i));
+                handler.removeCallbacksAndMessages(profileTokens.valueAt(i));
             }
             mBondedYetToConnect.remove(device.getAddress());
         }
@@ -267,7 +276,11 @@ public final class BluetoothConnectionRetryManager {
                         BluetoothUtils.getProfileName(profile), device);
                 return;
             }
-            mHandler.removeCallbacksAndMessages(token);
+            var handler = getHandler();
+            if (handler == null) {
+                return;
+            }
+            handler.removeCallbacksAndMessages(token);
             mBondedYetToConnect.get(device.getAddress()).delete(profile);
             if (mBondedYetToConnect.get(device.getAddress()).size() == 0) {
                 untrackDevice(device);
@@ -307,7 +320,11 @@ public final class BluetoothConnectionRetryManager {
                 return false;
             }
             RetryTokenAndCounter token = mBondedYetToConnect.get(device.getAddress()).get(profile);
-            return mHandler.hasMessages(RETRY_MSG_WHAT, token);
+            var handler = getHandler();
+            if (handler == null) {
+                return false;
+            }
+            return handler.hasMessages(RETRY_MSG_WHAT, token);
         }
     }
 
@@ -371,6 +388,8 @@ public final class BluetoothConnectionRetryManager {
                         BluetoothUtils.getProfileName(MANAGED_PROFILES[i]));
             }
         }
+        mHandlerRef.set(new Handler(
+                CarServiceUtils.getHandlerThread(HANDLER_THREAD_NAME).getLooper()));
 
         IntentFilter filter = new IntentFilter();
         filter.addAction(BluetoothDevice.ACTION_BOND_STATE_CHANGED);
@@ -404,6 +423,13 @@ public final class BluetoothConnectionRetryManager {
             }
             mUserContext = null;
         }
+
+        mHandlerRef.set(null);
+        try {
+            CarServiceUtils.releaseHandlerThread(HANDLER_THREAD_NAME);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
 
     /**
@@ -420,5 +446,14 @@ public final class BluetoothConnectionRetryManager {
             return BluetoothStatusCodes.ERROR_UNKNOWN;
         }
         return device.connect();
+    }
+
+    private @Nullable Handler getHandler() {
+        Handler handler = mHandlerRef.get();
+        if (handler == null) {
+            Slogf.w(TAG, "handler is null, the BluetoothConnectionRetryManager is "
+                    + "already released");
+        }
+        return handler;
     }
 }

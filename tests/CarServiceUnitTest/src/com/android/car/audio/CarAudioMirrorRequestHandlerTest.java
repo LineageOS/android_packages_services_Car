@@ -27,9 +27,12 @@ import static org.mockito.Mockito.when;
 import android.car.media.CarAudioManager;
 import android.car.media.IAudioZonesMirrorStatusCallback;
 import android.car.test.AbstractExpectableTestCase;
+import android.car.test.NoActiveHandlerThreadCheckerRule;
 import android.media.AudioDeviceAttributes;
 
+import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -48,6 +51,11 @@ public final class CarAudioMirrorRequestHandlerTest extends AbstractExpectableTe
     public static final int[] TEST_ZONE_IDS = new int[]{TEST_ZONE_1, TEST_ZONE_2};
     private CarAudioMirrorRequestHandler mCarAudioMirrorRequestHandler;
     private TestAudioZonesMirrorStatusCallbackCallback mTestCallback;
+
+    @Rule
+    public NoActiveHandlerThreadCheckerRule mNoActiveHandlerThreadCheckerRule =
+            new NoActiveHandlerThreadCheckerRule();
+
     @Mock
     private CarAudioDeviceInfo mCarAudioDeviceInfoOne;
     @Mock
@@ -66,6 +74,11 @@ public final class CarAudioMirrorRequestHandlerTest extends AbstractExpectableTe
         mCarAudioMirrorRequestHandler.setMirrorDeviceInfos(mTestCarAudioDeviceInfos);
         when(mCarAudioDeviceInfoOne.getAudioDevice()).thenReturn(mAudioDeviceOne);
         when(mCarAudioDeviceInfoTwo.getAudioDevice()).thenReturn(mAudioDeviceTwo);
+    }
+
+    @After
+    public void tearDown() {
+        mCarAudioMirrorRequestHandler.destroy();
     }
 
     @Test
@@ -105,6 +118,8 @@ public final class CarAudioMirrorRequestHandlerTest extends AbstractExpectableTe
 
         expectWithMessage("Invalid request id for request with no more output devices")
                 .that(requestId).isEqualTo(INVALID_REQUEST_ID);
+
+        audioMirrorRequestHandler.destroy();
     }
 
     @Test
@@ -148,6 +163,8 @@ public final class CarAudioMirrorRequestHandlerTest extends AbstractExpectableTe
 
         expectWithMessage("Register status with mirroring disabled")
                 .that(registered).isFalse();
+
+        carAudioMirrorRequestHandler.destroy();
     }
 
     @Test
@@ -208,6 +225,8 @@ public final class CarAudioMirrorRequestHandlerTest extends AbstractExpectableTe
 
         expectWithMessage("Null mirror device infos exception")
                 .that(thrown).hasMessageThat().contains("Mirror devices");
+
+        carAudioMirrorRequestHandler.destroy();
     }
 
     @Test
@@ -219,6 +238,8 @@ public final class CarAudioMirrorRequestHandlerTest extends AbstractExpectableTe
 
         expectWithMessage("Audio mirror enabled status")
                 .that(carAudioMirrorRequestHandler.isMirrorAudioEnabled()).isTrue();
+
+        carAudioMirrorRequestHandler.destroy();
     }
 
     @Test
@@ -230,6 +251,8 @@ public final class CarAudioMirrorRequestHandlerTest extends AbstractExpectableTe
         expectWithMessage("Audio mirror device infos")
                 .that(carAudioMirrorRequestHandler.getMirroringDeviceInfos())
                 .containsExactlyElementsIn(mTestCarAudioDeviceInfos);
+
+        carAudioMirrorRequestHandler.destroy();
     }
 
     @Test
@@ -240,6 +263,8 @@ public final class CarAudioMirrorRequestHandlerTest extends AbstractExpectableTe
 
         expectWithMessage("Empty audio mirror device infos")
                 .that(carAudioMirrorRequestHandler.getMirroringDeviceInfos()).isEmpty();
+
+        carAudioMirrorRequestHandler.destroy();
     }
 
     @Test
@@ -279,6 +304,8 @@ public final class CarAudioMirrorRequestHandlerTest extends AbstractExpectableTe
 
         expectWithMessage("Audio mirror enabled status, with no mirror device address")
                 .that(carAudioMirrorRequestHandler.isMirrorAudioEnabled()).isFalse();
+
+        carAudioMirrorRequestHandler.destroy();
     }
 
     @Test
@@ -499,6 +526,8 @@ public final class CarAudioMirrorRequestHandlerTest extends AbstractExpectableTe
         expectWithMessage("Default status for enabling mirroring")
                 .that(audioMirrorRequestHandler.canEnableAudioMirror())
                 .isEqualTo(AUDIO_MIRROR_OUT_OF_OUTPUT_DEVICES);
+
+        audioMirrorRequestHandler.destroy();
     }
 
     @Test

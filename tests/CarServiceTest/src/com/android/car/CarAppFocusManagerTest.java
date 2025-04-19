@@ -38,6 +38,7 @@ import androidx.test.runner.AndroidJUnit4;
 
 import com.android.car.internal.StaticBinderInterface;
 
+import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -96,6 +97,15 @@ public class CarAppFocusManagerTest extends MockedCarTestBase {
         // Simulate an unprivileged app.
         when(mContext.checkCallingOrSelfPermission(Car.PERMISSION_CAR_DISPLAY_IN_CLUSTER))
                 .thenReturn(1);
+    }
+
+    @Override
+    @After
+    public void tearDown() throws Exception {
+        if (mAppFocusService != null) {
+            mAppFocusService.destroy();
+        }
+        super.tearDown();
     }
 
     @Test
