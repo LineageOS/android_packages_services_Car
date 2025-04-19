@@ -61,6 +61,7 @@ import com.android.car.power.CarPowerManagementService;
 import com.android.car.systeminterface.SystemInterface;
 import com.android.car.user.CarUserService;
 
+import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -189,8 +190,14 @@ public class CarWatchdogServiceTest extends AbstractExtendedMockitoTestCase {
         mWatchdogServiceForSystemImpl = registerCarWatchdogService();
     }
 
+    @After
+    public void tearDown() throws InterruptedException {
+        mCarWatchdogService.destroy();
+        CarServiceUtils.releaseHandlerThread(TAG);
+    }
+
     @AfterClass
-    public static void tearDown() {
+    public static void tearDownAfterClass() {
         CarLocalServices.removeServiceForTest(SystemInterface.class);
         CarLocalServices.addService(SystemInterface.class, sSystemInterfaceOriginal);
         CarLocalServices.removeServiceForTest(CarUserService.class);

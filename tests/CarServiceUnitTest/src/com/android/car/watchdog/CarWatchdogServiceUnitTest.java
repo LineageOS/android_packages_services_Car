@@ -92,6 +92,7 @@ import android.car.drivingstate.CarUxRestrictions;
 import android.car.hardware.power.CarPowerManager;
 import android.car.hardware.power.ICarPowerPolicyListener;
 import android.car.hardware.power.ICarPowerStateListener;
+import android.car.test.NoActiveHandlerThreadCheckerRule;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.car.test.mocks.MockSettings;
 import android.car.user.CarUserManager;
@@ -137,6 +138,7 @@ import com.google.common.truth.Correspondence;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -174,6 +176,10 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
     private static final long SYSTEM_DAILY_IO_USAGE_SUMMARY_MULTIPLIER = 10_000;
     private static final int PACKAGE_KILLABLE_STATE_RESET_DAYS = 90;
     private static final UserHandle TEST_USER_HANDLE = UserHandle.of(100);
+
+    @Rule
+    public NoActiveHandlerThreadCheckerRule mNoActiveHandlerThreadCheckerRule =
+            new NoActiveHandlerThreadCheckerRule();
 
     @Mock private Context mMockContext;
     @Mock private Context mMockBuiltinPackageContext;
@@ -335,6 +341,8 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
             FileUtils.deleteContentsAndDir(mTempSystemCarDir);
         }
         CarLocalServices.removeServiceForTest(CarServiceHelperWrapper.class);
+        mCarWatchdogService.destroy();
+        CarServiceUtils.releaseHandlerThread(TAG);
     }
 
     @Test

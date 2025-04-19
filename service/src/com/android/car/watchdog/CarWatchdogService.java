@@ -29,8 +29,9 @@ import static android.content.Intent.ACTION_USER_REMOVED;
 import static com.android.car.CarLog.TAG_WATCHDOG;
 import static com.android.car.CarServiceUtils.assertAnyPermission;
 import static com.android.car.CarServiceUtils.assertPermission;
-import static com.android.car.CarServiceUtils.isEventAnyOfTypes;
 import static com.android.car.CarServiceUtils.getHandlerThread;
+import static com.android.car.CarServiceUtils.isEventAnyOfTypes;
+import static com.android.car.CarServiceUtils.releaseHandlerThread;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 import static com.android.car.internal.NotificationHelperBase.CAR_WATCHDOG_ACTION_DISMISS_RESOURCE_OVERUSE_NOTIFICATION;
 import static com.android.car.internal.NotificationHelperBase.CAR_WATCHDOG_ACTION_LAUNCH_APP_SETTINGS;
@@ -68,6 +69,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Handler;
+import android.os.HandlerThread;
 import android.os.RemoteException;
 import android.os.ServiceSpecificException;
 import android.os.UserHandle;
@@ -107,6 +109,8 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
     static final String ACTION_GARAGE_MODE_OFF =
             "com.android.server.jobscheduler.GARAGE_MODE_OFF";
 
+    private static final String HANDLER_THREAD_NAME = CarWatchdogService.class.getSimpleName();
+
     @VisibleForTesting
     static final int MISSING_ARG_VALUE = -1;
 
@@ -133,6 +137,7 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
     private final WatchdogPerfHandlerInterface mWatchdogPerfHandler;
     private final CarWatchdogDaemonHelper.OnConnectionChangeListener mConnectionListener;
     private final Handler mServiceHandler;
+    private final HandlerThread mCreatedServiceHandlerThread;
 
     private CarWatchdogDaemonHelper mCarWatchdogDaemonHelper;
 
@@ -277,24 +282,29 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
             WatchdogPerfHandlerInterface watchdogPerfHandler) {
         mContext = context;
         mWatchdogStorage = watchdogStorage;
-        mServiceHandler = handler != null ? handler
-                : new Handler(getHandlerThread(TAG).getLooper());
+        if (handler != null) {
+            mCreatedServiceHandlerThread = null;
+            mServiceHandler = handler;
+        } else {
+            mCreatedServiceHandlerThread = getHandlerThread(HANDLER_THREAD_NAME);
+            mServiceHandler = new Handler(mCreatedServiceHandlerThread.getLooper());
+        }
         mPackageInfoHandler = new PackageInfoHandler(mContext.getPackageManager());
         mCarWatchdogDaemonHelper = new CarWatchdogDaemonHelper(TAG_WATCHDOG);
         mWatchdogServiceForSystem = new ICarWatchdogServiceForSystemImpl(this);
         mWatchdogProcessHandler = watchdogProcessHandler != null ? watchdogProcessHandler
                 : new WatchdogProcessHandler(mWatchdogServiceForSystem, mCarWatchdogDaemonHelper,
-                        mPackageInfoHandler);
+                        mPackageInfoHandler, mServiceHandler);
         if (watchdogPerfHandler != null) {
             mWatchdogPerfHandler = watchdogPerfHandler;
         } else if (WatchdogFlashMemoryRefactorFeatureFlag.isFeatureSupported()) {
             mWatchdogPerfHandler = new WatchdogPerfHandler(mContext,
                     carServiceBuiltinPackageContext, mCarWatchdogDaemonHelper, mPackageInfoHandler,
-                    mWatchdogStorage, timeSource);
+                    mWatchdogStorage, timeSource, mServiceHandler);
         } else {
             mWatchdogPerfHandler = new WatchdogPerfHandlerStable(mContext,
                     carServiceBuiltinPackageContext, mCarWatchdogDaemonHelper, mPackageInfoHandler,
-                    mWatchdogStorage, timeSource);
+                    mWatchdogStorage, timeSource, mServiceHandler);
         }
         mConnectionListener = (isConnected) -> {
             mWatchdogPerfHandler.onDaemonConnectionChange(isConnected);
@@ -305,6 +315,18 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
         };
         mCurrentGarageMode = GarageMode.GARAGE_MODE_OFF;
         mIsDisplayEnabled = true;
+    }
+
+    @Override
+    public void destroy() {
+        if (mCreatedServiceHandlerThread == null) {
+            return;
+        }
+        try {
+            releaseHandlerThread(HANDLER_THREAD_NAME);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
 
     @VisibleForTesting
