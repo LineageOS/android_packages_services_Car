@@ -16,8 +16,11 @@
 
 package com.android.wm.shell.automotive;
 
+import static android.view.WindowManager.PROPERTY_COMPAT_ALLOW_SAFE_REGION_LETTERBOXING;
+
 import static com.android.window.flags.Flags.safeRegionLetterboxing;
 
+import android.annotation.NonNull;
 import android.annotation.NonNull;
 import android.annotation.SuppressLint;
 import android.app.ActivityManager;
@@ -72,6 +75,7 @@ public class AutoCaptionController {
     // To keep the AutoDecor added to the task as caption bar.
     private final SparseArray<AutoDecor> mTaskIdToCaptionBar = new SparseArray<>();
     private final AutoTaskRepository mAutoTaskRepository;
+    private final PackageManager mPackageManager;
 
     private CarPackageManager mCarPackageManager;
 
@@ -112,6 +116,7 @@ public class AutoCaptionController {
         mAutoDecorManager = autoDecorManager;
         mAutoSurfaceTransactionFactory = autoSurfaceTransactionFactory;
         autoTaskRepository.addAppTaskListener(mAutoAppTaskListener);
+        mPackageManager = context.getPackageManager();
         // TODO((b/401349206): Add a factory or provider for CarService connection.
         Car.createCar(context, /* handler= */ null, Car.CAR_WAIT_TIMEOUT_DO_NOT_WAIT,
                 (car, ready) -> {
@@ -124,6 +129,44 @@ public class AutoCaptionController {
                                 Car.PACKAGE_SERVICE);
                     }
                 });
+    }
+
+    private boolean allowSafeRegionLetterboxingApplicationProperty(
+            @NonNull ComponentName componentName, int userId) {
+        try {
+            return mPackageManager.getPropertyAsUser(
+                    PROPERTY_COMPAT_ALLOW_SAFE_REGION_LETTERBOXING,
+                    componentName.getPackageName(),
+                    /* className */ null,
+                    userId).getBoolean();
+        } catch (PackageManager.NameNotFoundException e) {
+            return false;
+        }
+    }
+
+    /**
+     * Whether the activity has allowed safe region letterboxing. If the application property is
+     * set to true, return true. If the application property is not defined or false, check for the
+     * property at the activity level. If the activity has set the property to true or has not
+     * defined it, return true. Else, return false.
+     *
+     * @see android.view.WindowManager#PROPERTY_COMPAT_ALLOW_SAFE_REGION_LETTERBOXING
+     */
+    private boolean allowSafeRegionLetterboxing(@NonNull ComponentName componentName, int userId) {
+        // Application level property.
+        if (allowSafeRegionLetterboxingApplicationProperty(componentName, userId)) {
+            return true;
+        }
+        // Activity level property.
+        try {
+            return mPackageManager.getPropertyAsUser(
+                    PROPERTY_COMPAT_ALLOW_SAFE_REGION_LETTERBOXING,
+                    componentName.getPackageName(),
+                    componentName.getClassName(),
+                    userId).getBoolean();
+        } catch (PackageManager.NameNotFoundException exception) {
+            return true;
+        }
     }
 
     /**
@@ -446,13 +489,20 @@ public class AutoCaptionController {
             boolean requiresDisplayCompat = mCarPackageManager.requiresDisplayCompatForUser(
                     componentName.getPackageName(), task.userId);
 
+            // If the application or activity has not allowed for safe region letterboxing, do
+            // not attach a caption bar.
+            boolean allowSafeRegionLetterboxing = allowSafeRegionLetterboxing(componentName,
+                    task.userId);
+
             if (DBG) {
                 Slogf.d(TAG,
-                        "Task id %d requires DisplayCompat %b for user %d and top activity: %s",
-                        task.taskId, requiresDisplayCompat, task.userId, componentName);
+                        "Task id %d requires DisplayCompat %b, WM safe region property %b, for "
+                                + "user %d and top activity: %s",
+                        task.taskId, requiresDisplayCompat, allowSafeRegionLetterboxing,
+                        task.userId, componentName);
             }
 
-            if (requiresDisplayCompat) {
+            if (requiresDisplayCompat && allowSafeRegionLetterboxing) {
                 return true;
             }
         } catch (PackageManager.NameNotFoundException e) {
