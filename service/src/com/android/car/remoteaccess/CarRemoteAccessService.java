@@ -143,11 +143,13 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
     // include waiting for the remote task client service to be started if it is not already bound.
     private static final int MAX_TASK_PENDING_MS = 60_000;
 
+    private static final String HANDLER_THREAD_NAME = CarRemoteAccessService.class.getSimpleName();
+
     private final Object mLock = new Object();
     private final Context mContext;
     private final PackageManager mPackageManager;
     private final HandlerThread mHandlerThread =
-            CarServiceUtils.getHandlerThread(getClass().getSimpleName());
+            CarServiceUtils.getHandlerThread(HANDLER_THREAD_NAME);
     private final RemoteTaskClientServiceHandler mHandler =
             new RemoteTaskClientServiceHandler(mHandlerThread.getLooper(), this);
     private long mAllowedTimeForRemoteTaskClientInitMs =
@@ -430,6 +432,15 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
                 onReceiveIntent(context, intent);
             }
         };
+    }
+
+    @Override
+    public void destroy() {
+        try {
+            CarServiceUtils.releaseHandlerThread(HANDLER_THREAD_NAME);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
 
     /**
