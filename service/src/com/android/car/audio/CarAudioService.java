@@ -183,6 +183,7 @@ import java.util.stream.Collectors;
 public final class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
 
     static final String TAG = CarLog.TAG_AUDIO;
+    static final String REQUEST_HANDLER_THREAD_NAME = CarAudioService.class.getSimpleName();
     private static final String MIRROR_COMMAND_SEPARATOR = ";";
     private static final String MIRROR_COMMAND_DESTINATION_SEPARATOR = ",";
     private static final String MIRROR_COMMAND_SOURCE = "mirroring_src=";
@@ -217,8 +218,6 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
             CarAudioContext.getAudioAttributeFromUsage(USAGE_MEDIA);
     private static final int EVENT_LOGGER_QUEUE_SIZE = 50;
 
-    private static final String REQUEST_HANDLER_THREAD_NAME =
-            CarAudioService.class.getSimpleName();
 
     private final HandlerThread mHandlerThread;
     private final Handler mHandler;
