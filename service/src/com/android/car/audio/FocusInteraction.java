@@ -328,28 +328,27 @@ final class FocusInteraction {
 
     @GuardedBy("mLock")
     private final SparseArray<SparseArray<Integer>> mInteractionMatrix;
+    @GuardedBy("mLock")
+    private int mUserId;
 
     private ContentObserver mContentObserver;
 
     private final CarAudioSettings mCarAudioFocusSettings;
-
-    private final ContentObserverFactory mContentObserverFactory;
-    private int mUserId;
-
     private final Handler mHandler;
+    private final ContentObserverFactory mContentObserverFactory;
+
 
     /**
      * Constructs a focus interaction instance.
      */
     FocusInteraction(CarAudioSettings carAudioSettings,
-            ContentObserverFactory contentObserverFactory,
-            Handler handler) {
+            ContentObserverFactory contentObserverFactory, Handler handler) {
         mCarAudioFocusSettings = Objects.requireNonNull(carAudioSettings,
                 "Car Audio Settings can not be null.");
         mContentObserverFactory = Objects.requireNonNull(contentObserverFactory,
                 "Content Observer Factory can not be null.");
+        mHandler = Objects.requireNonNull(handler, "Handler can not be null");
         mInteractionMatrix = INTERACTION_MATRIX.clone();
-        mHandler = handler;
     }
 
     private void navigationOnCallSettingChanged() {
@@ -466,8 +465,7 @@ final class FocusInteraction {
                 return;
             }
             mContentObserver = mContentObserverFactory.createObserver(
-                    this::navigationOnCallSettingChanged,
-                    mHandler);
+                    this::navigationOnCallSettingChanged, mHandler);
             mCarAudioFocusSettings.getContentResolverForUser(mUserId)
                     .registerContentObserver(AUDIO_FOCUS_NAVIGATION_REJECTED_DURING_CALL_URI,
                             /* notifyForDescendants= */false, mContentObserver);

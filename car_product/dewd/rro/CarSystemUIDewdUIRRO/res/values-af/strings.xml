@@ -20,8 +20,7 @@
     <string name="calmMode_componentName" msgid="5461291242950545091">"com.android.car.portraitlauncher/com.android.car.portraitlauncher.calmmode.PortraitCalmModeActivity"</string>
     <!-- no translation found for config_calmModeComponentName (6296144383781264585) -->
     <skip />
-    <!-- no translation found for system_bar_home_label (1934187389451104948) -->
-    <skip />
+    <string name="system_bar_home_label" msgid="1934187389451104948">"Tuisskerm"</string>
     <string name="system_bar_phone_label" msgid="1460429983699192896">"Foon"</string>
     <string name="system_bar_applications_label" msgid="7421961934853115692">"Programme"</string>
     <string name="system_bar_climate_control_label" msgid="5061566502390250184">"Klimaatbeheer"</string>

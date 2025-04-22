@@ -164,6 +164,9 @@ void EvsEnumerator::EvsHotplugThread(std::shared_ptr<EvsEnumerator> service,
         return;
     }
 
+    // Enumerate cameras before we start listening hotplug events.
+    enumerateCameras();
+
     LOG(INFO) << "Start monitoring new V4L2 devices";
 
     char eventBuf[kEventBufferSize] = {};
@@ -213,10 +216,6 @@ EvsEnumerator::EvsEnumerator(const std::shared_ptr<ICarDisplayProxy>& proxyServi
         /* sets a car-window service handle */
         sDisplayProxy = proxyService;
     }
-
-    // Enumerate existing devices
-    enumerateCameras();
-    mInternalDisplayId = enumerateDisplays();
 }
 
 bool EvsEnumerator::checkPermission() {
@@ -249,9 +248,9 @@ bool EvsEnumerator::addCaptureDevice(const std::string& deviceName) {
 
     {
         std::lock_guard lock(sLock);
-        // insert_or_assign() returns std::pair<std::unordered_map<>, bool>
-        auto result = sCameraList.insert_or_assign(deviceName, std::move(cam));
-        LOG(INFO) << deviceName << (std::get<1>(result) ? " is added" : " is modified");
+        // insert returns std::pair<std::unordered_map<>::iterator, bool>
+        auto result = sCameraList.insert(std::make_pair(deviceName, std::move(cam)));
+        LOG(INFO) << deviceName << (std::get<1>(result) ? " is added." : " exists already.");
     }
 
     return true;
@@ -265,6 +264,12 @@ bool EvsEnumerator::removeCaptureDevice(const std::string& deviceName) {
     }
 
     return false;
+}
+
+void EvsEnumerator::enumerateDevices() {
+    // Enumerate existing camera and display devices
+    enumerateCameras();
+    mInternalDisplayId = enumerateDisplays();
 }
 
 void EvsEnumerator::enumerateCameras() {
