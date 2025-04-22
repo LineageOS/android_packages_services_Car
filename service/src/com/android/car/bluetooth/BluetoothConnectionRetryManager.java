@@ -29,7 +29,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Handler;
-import android.os.ParcelUuid;
 import android.os.UserHandle;
 import android.util.Log;
 import android.util.SparseArray;
@@ -39,7 +38,6 @@ import com.android.car.CarServiceUtils;
 import com.android.internal.annotations.VisibleForTesting;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
@@ -233,12 +231,11 @@ public final class BluetoothConnectionRetryManager {
                 Slogf.d(TAG, "Tracking %s, supported profiles:", device);
                 // additional debug messages continued in for-loop below
             }
-            List<ParcelUuid> ourUuids = mBluetoothAdapter.getUuidsList();
             SparseArray<RetryTokenAndCounter> profileCounters =
                     new SparseArray<RetryTokenAndCounter>(MANAGED_PROFILES.length);
             for (int i = 0; i < MANAGED_PROFILES.length; i++) {
                 int profileId = MANAGED_PROFILES[i];
-                if (BluetoothUtils.isProfileSupported(ourUuids, device, profileId)) {
+                if (BluetoothUtils.isProfileSupported(mBluetoothAdapter, device, profileId)) {
                     if (DBG) {
                         // debug messaging continued from above
                         Slogf.d(TAG, "    %s", BluetoothUtils.getProfileName(profileId));
