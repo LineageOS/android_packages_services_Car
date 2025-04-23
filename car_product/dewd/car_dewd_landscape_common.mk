@@ -13,7 +13,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-PRODUCT_PACKAGES += CarFrameworkDewdRRO
+PRODUCT_PACKAGES += \
+    CarFrameworkDewdRRO \
+    CarLauncherEnableDewdRRO
 
 PRODUCT_COPY_FILES += \
     packages/services/Car/car_product/dewd/android.software.car.splitscreen_multitasking.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.software.car.splitscreen_multitasking.xml
