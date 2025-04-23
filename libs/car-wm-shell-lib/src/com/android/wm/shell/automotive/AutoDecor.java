@@ -18,6 +18,7 @@ package com.android.wm.shell.automotive;
 
 import static android.view.WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
 import static android.view.WindowManager.LayoutParams.FLAG_SPLIT_TOUCH;
+import static android.view.WindowManager.LayoutParams.INPUT_FEATURE_SPY;
 import static android.view.WindowManager.LayoutParams.TYPE_APPLICATION;
 
 import android.app.ActivityManager;
@@ -158,6 +159,11 @@ public final class AutoDecor {
      * @param parentSurface The parent surface.
      */
     void attachDecorToParentSurface(int displayId, SurfaceControl parentSurface) {
+        attachDecorToParentSurface(displayId, parentSurface, /*addSpyWindow*/ false);
+    }
+
+    private void attachDecorToParentSurface(int displayId, SurfaceControl parentSurface,
+            boolean addSpyWindow) {
         if (DBG) {
             Slogf.d(TAG, "Adding Decor %s to the parent surface %s for display %d", this,
                     parentSurface, displayId);
@@ -168,6 +174,12 @@ public final class AutoDecor {
         WindowManager.LayoutParams lp = new WindowManager.LayoutParams(mBounds.width(),
                 mBounds.height(), TYPE_APPLICATION, FLAG_NOT_FOCUSABLE | FLAG_SPLIT_TOUCH,
                 PixelFormat.TRANSPARENT);
+        if (addSpyWindow) {
+            // This flag is added to make the window a spy window. In that case, the touch will be
+            // passed to the underlying surface. In case of AutoCaptionController, this is used
+            // so that focus shifts to the task whose caption bar is clicked.
+            lp.inputFeatures = lp.inputFeatures | INPUT_FEATURE_SPY;
+        }
         lp.setTitle(mDecorName);
         lp.setTrustedOverlay();
 
@@ -196,8 +208,23 @@ public final class AutoDecor {
             return;
         }
 
-        attachDecorToParentSurface(displayId, taskSurface);
+        attachDecorToParentSurface(displayId, taskSurface, false);
     }
+
+    /**
+     * Attaches the decor to the task.
+     */
+    void attachDecorToTask(ActivityManager.RunningTaskInfo task, boolean addSpyWindow) {
+        int displayId = task.getDisplayId();
+        SurfaceControl taskSurface = mAutoTaskRepository.getSurfaceControl(task);
+        if (taskSurface == null) {
+            Slogf.e(TAG, "TaskSurface is not found. Not adding the decor. Task: %s", task);
+            return;
+        }
+
+        attachDecorToParentSurface(displayId, taskSurface, addSpyWindow);
+    }
+
 
     /**
      * Detaches the decor from the parent surface.
