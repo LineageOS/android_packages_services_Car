@@ -1992,14 +1992,6 @@ public class CarPowerManagementService extends ICarPower.Stub implements
 
     /**
      * Sends display brightness to VHAL.
-     * @param brightness value 0-100%
-     */
-    public void sendDisplayBrightnessLegacy(int brightness) {
-        mHal.sendDisplayBrightnessLegacy(brightness);
-    }
-
-    /**
-     * Sends display brightness to VHAL.
      * @param displayId the target display
      * @param brightness value 0-100%
      */

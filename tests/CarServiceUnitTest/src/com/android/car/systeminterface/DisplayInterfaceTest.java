@@ -16,7 +16,6 @@
 
 package com.android.car.systeminterface;
 
-import static android.car.feature.Flags.FLAG_MULTI_DISPLAY_BRIGHTNESS_CONTROL;
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING;
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_UNLOCKED;
 
@@ -42,14 +41,11 @@ import android.car.user.CarUserManager.UserLifecycleEvent;
 import android.car.user.CarUserManager.UserLifecycleListener;
 import android.content.ContentResolver;
 import android.content.Context;
-import android.database.ContentObserver;
 import android.hardware.display.DisplayManager;
 import android.hardware.display.DisplayManager.DisplayListener;
 import android.net.Uri;
 import android.os.PowerManager;
 import android.os.UserManager;
-import android.platform.test.annotations.DisableFlags;
-import android.platform.test.annotations.EnableFlags;
 import android.platform.test.flag.junit.SetFlagsRule;
 import android.platform.test.ravenwood.RavenwoodRule;
 import android.view.Display;
@@ -165,51 +161,6 @@ public final class DisplayInterfaceTest {
     }
 
     @Test
-    @DisableFlags(FLAG_MULTI_DISPLAY_BRIGHTNESS_CONTROL)
-    public void testStartDisplayStateMonitoring_visibleBgUsersSupported() {
-        when(mDisplayManager.getDisplays()).thenReturn(new Display[]{
-                mDisplay, mDistantDisplay, mVirtualDisplay, mOverlayDisplay});
-        when(mDisplay.getState()).thenReturn(Display.STATE_ON);
-        when(mDistantDisplay.getState()).thenReturn(Display.STATE_ON);
-        when(mDisplayManager.getBrightness(MAIN_DISPLAY_ID)).thenReturn(
-                DISPLAY_MANAGER_BRIGHTNESS_1);
-        when(mDisplayManager.getBrightness(DISTANT_DISPLAY_ID)).thenReturn(
-                DISPLAY_MANAGER_BRIGHTNESS_2);
-
-        createDisplayInterface(/* visibleBgUsersSupported= */ true);
-
-        mDisplayInterface.startDisplayStateMonitoring();
-
-        verify(mDisplayManager).registerDisplayListener(any(), isNull(), anyLong(), anyLong());
-        verify(mCarUserService).addUserLifecycleListener(any(), any());
-        var intCaptor = ArgumentCaptor.forClass(Integer.class);
-        verify(mCarPowerManagementService, times(2)).sendDisplayBrightness(
-                or(eq(MAIN_DISPLAY_ID), eq(DISTANT_DISPLAY_ID)), intCaptor.capture());
-        int brightness1 = intCaptor.getAllValues().get(0);
-        int brightness2 = intCaptor.getAllValues().get(1);
-        assertThat(brightness1).isNotEqualTo(0);
-        assertThat(brightness2).isNotEqualTo(0);
-        assertThat(brightness1).isNotEqualTo(brightness2);
-    }
-
-    @Test
-    @DisableFlags(FLAG_MULTI_DISPLAY_BRIGHTNESS_CONTROL)
-    public void testStartDisplayStateMonitoring_visibleBgUsersNotSupported() {
-        when(mDisplayManager.getDisplays()).thenReturn(new Display[]{mDisplay, mDistantDisplay});
-        when(mDisplay.getState()).thenReturn(Display.STATE_ON);
-        when(mDistantDisplay.getState()).thenReturn(Display.STATE_ON);
-
-        createDisplayInterface(/* visibleBgUsersSupported= */ false);
-
-        mDisplayInterface.startDisplayStateMonitoring();
-
-        verify(mContentResolver).registerContentObserver(any(), eq(false), any());
-        verify(mCarUserService).addUserLifecycleListener(any(), any());
-        verify(mCarPowerManagementService, times(2)).sendDisplayBrightnessLegacy(anyInt());
-    }
-
-    @Test
-    @EnableFlags(FLAG_MULTI_DISPLAY_BRIGHTNESS_CONTROL)
     public void testStartDisplayStateMonitoring_multiDisplayControlSupported() {
         when(mDisplayManager.getDisplays()).thenReturn(new Display[]{mDisplay, mDistantDisplay});
         when(mDisplay.getState()).thenReturn(Display.STATE_ON);
@@ -228,34 +179,6 @@ public final class DisplayInterfaceTest {
     }
 
     @Test
-    @DisableFlags(FLAG_MULTI_DISPLAY_BRIGHTNESS_CONTROL)
-    public void testStopDisplayStateMonitoring_visibleBgUsersSupported() {
-        when(mDisplayManager.getDisplays()).thenReturn(new Display[]{mDisplay});
-        when(mDisplayManager.getBrightness(anyInt())).thenReturn(DISPLAY_MANAGER_BRIGHTNESS_1);
-
-        createDisplayInterface(/* visibleBgUsersSupported= */ true);
-        mDisplayInterface.startDisplayStateMonitoring();
-        mDisplayInterface.stopDisplayStateMonitoring();
-
-        verify(mDisplayManager).unregisterDisplayListener(any());
-        verify(mCarUserService).removeUserLifecycleListener(any());
-    }
-
-    @Test
-    @DisableFlags(FLAG_MULTI_DISPLAY_BRIGHTNESS_CONTROL)
-    public void testStopDisplayStateMonitoring_visibleBgUsersNoSupported() {
-        when(mDisplayManager.getDisplays()).thenReturn(new Display[]{mDisplay});
-
-        createDisplayInterface(/* visibleBgUsersSupported= */ false);
-        mDisplayInterface.startDisplayStateMonitoring();
-        mDisplayInterface.stopDisplayStateMonitoring();
-
-        verify(mContentResolver).unregisterContentObserver(any());
-        verify(mCarUserService).removeUserLifecycleListener(any());
-    }
-
-    @Test
-    @EnableFlags(FLAG_MULTI_DISPLAY_BRIGHTNESS_CONTROL)
     public void testOnUserSwitchEvent_notUserSwitchingEvent() {
         when(mDisplayManager.getDisplays()).thenReturn(new Display[]{mDisplay});
 
@@ -274,7 +197,6 @@ public final class DisplayInterfaceTest {
     }
 
     @Test
-    @EnableFlags(FLAG_MULTI_DISPLAY_BRIGHTNESS_CONTROL)
     public void testOnUserSwitchEvent_newUserNotDriver() {
         when(mDisplayManager.getDisplays()).thenReturn(new Display[]{mDisplay});
 
@@ -293,7 +215,6 @@ public final class DisplayInterfaceTest {
     }
 
     @Test
-    @EnableFlags(FLAG_MULTI_DISPLAY_BRIGHTNESS_CONTROL)
     public void testOnUserSwitchEvent() {
         when(mDisplayManager.getDisplays()).thenReturn(new Display[]{mDisplay, mDistantDisplay});
 
@@ -313,7 +234,6 @@ public final class DisplayInterfaceTest {
     }
 
     @Test
-    @EnableFlags(FLAG_MULTI_DISPLAY_BRIGHTNESS_CONTROL)
     public void testOnDisplayBrightnessChangeFromVhal_ForMainDisplay() {
         when(mDisplayManager.getDisplays()).thenReturn(new Display[]{mDisplay, mDistantDisplay});
 
@@ -325,7 +245,6 @@ public final class DisplayInterfaceTest {
     }
 
     @Test
-    @EnableFlags(FLAG_MULTI_DISPLAY_BRIGHTNESS_CONTROL)
     public void testOnDisplayBrightnessChangeFromVhal_ForDistantDisplay() {
         when(mDisplayManager.getDisplays()).thenReturn(new Display[]{mDisplay, mDistantDisplay});
 
@@ -337,71 +256,6 @@ public final class DisplayInterfaceTest {
     }
 
     @Test
-    @DisableFlags(FLAG_MULTI_DISPLAY_BRIGHTNESS_CONTROL)
-    public void testDisplayBrightnessChangeFromSettings() throws Exception {
-        when(mDisplayManager.getDisplays()).thenReturn(new Display[]{mDisplay, mDistantDisplay});
-        when(mDisplay.getState()).thenReturn(Display.STATE_ON);
-        when(mDistantDisplay.getState()).thenReturn(Display.STATE_ON);
-
-        createDisplayInterface(/* visibleBgUsersSupported= */ false);
-
-        mDisplayInterface.startDisplayStateMonitoring();
-
-        var observerCaptor = ArgumentCaptor.forClass(ContentObserver.class);
-        verify(mContentResolver).registerContentObserver(any(), eq(false),
-                observerCaptor.capture());
-        clearInvocations(mCarPowerManagementService);
-
-        // Simulate user changes the global brightness setting to GLOBAL_BRIGHTNESS_2.
-        when(mSettings.getIntSystem(eq(mContentResolver), anyString())).thenReturn(
-                GLOBAL_BRIGHTNESS_2);
-
-        observerCaptor.getValue().onChange(true);
-
-        verify(mCarPowerManagementService).sendDisplayBrightnessLegacy(anyInt());
-    }
-
-    @Test
-    @DisableFlags(FLAG_MULTI_DISPLAY_BRIGHTNESS_CONTROL)
-    public void testDisplayBrightnessChangeFromSettings_ignoreRecentChange() throws Exception {
-        when(mDisplayManager.getDisplays()).thenReturn(new Display[]{mDisplay, mDistantDisplay});
-        when(mDisplay.getState()).thenReturn(Display.STATE_ON);
-        when(mDistantDisplay.getState()).thenReturn(Display.STATE_ON);
-
-        createDisplayInterface(/* visibleBgUsersSupported= */ false);
-
-        mDisplayInterface.startDisplayStateMonitoring();
-
-        var observerCaptor = ArgumentCaptor.forClass(ContentObserver.class);
-        verify(mContentResolver).registerContentObserver(any(), eq(false),
-                observerCaptor.capture());
-        clearInvocations(mCarPowerManagementService);
-
-        // This variable stores the global brightness settings. Need to use a list to be
-        // effective final.
-        ArrayList<Integer> brightness = new ArrayList<>();
-
-        doAnswer((inv) -> {
-            brightness.add(inv.getArgument(2));
-            return null;
-        }).when(mSettings).putIntSystem(eq(mContentResolver), anyString(), anyInt());
-        when(mSettings.getIntSystem(eq(mContentResolver), anyString())).thenAnswer((inv) -> {
-            return brightness.get(0);
-        });
-
-        // Simulate a brightness change from VHAL.
-        mDisplayInterface.onDisplayBrightnessChangeFromVhal(MAIN_DISPLAY_ID,
-                /* percentBright= */ 50);
-        // This should trigger an onChange event.
-        observerCaptor.getValue().onChange(true);
-
-        // Because the brightness event is caused by VHAL, so we must ignore it
-        // and not report back to VHAL again.
-        verify(mCarPowerManagementService, never()).sendDisplayBrightnessLegacy(anyInt());
-    }
-
-    @Test
-    @EnableFlags(FLAG_MULTI_DISPLAY_BRIGHTNESS_CONTROL)
     public void testDisplayBrightnessChangeFromDisplayManager() throws Exception {
         when(mDisplayManager.getDisplays()).thenReturn(new Display[]{mDisplay, mDistantDisplay});
         when(mDisplay.getState()).thenReturn(Display.STATE_ON);
@@ -424,7 +278,6 @@ public final class DisplayInterfaceTest {
     }
 
     @Test
-    @EnableFlags(FLAG_MULTI_DISPLAY_BRIGHTNESS_CONTROL)
     public void testDisplayBrightnessChangeFromDisplayManager_ignoreRecentChange()
             throws Exception {
         when(mDisplayManager.getDisplays()).thenReturn(new Display[]{mDisplay, mDistantDisplay});
@@ -464,7 +317,6 @@ public final class DisplayInterfaceTest {
     }
 
     @Test
-    @EnableFlags(FLAG_MULTI_DISPLAY_BRIGHTNESS_CONTROL)
     public void testIsAnyDisplayEnabled_on_beforeStartMonitoring() {
         when(mDisplayManager.getDisplays()).thenReturn(new Display[]{
                 mDisplay, mDistantDisplay, mVirtualDisplay, mOverlayDisplay});
@@ -481,7 +333,6 @@ public final class DisplayInterfaceTest {
     }
 
     @Test
-    @EnableFlags(FLAG_MULTI_DISPLAY_BRIGHTNESS_CONTROL)
     public void testIsAnyDisplayEnabled_off_beforeStartMonitoring() {
         when(mDisplayManager.getDisplays()).thenReturn(new Display[]{
                 mDisplay, mDistantDisplay, mVirtualDisplay, mOverlayDisplay});
@@ -498,7 +349,6 @@ public final class DisplayInterfaceTest {
     }
 
     @Test
-    @EnableFlags(FLAG_MULTI_DISPLAY_BRIGHTNESS_CONTROL)
     public void testSetAllDisplayState_beforeStartMonitoring() {
         when(mDisplayManager.getDisplays()).thenReturn(new Display[]{
                 mDisplay, mDistantDisplay, mVirtualDisplay, mOverlayDisplay});
