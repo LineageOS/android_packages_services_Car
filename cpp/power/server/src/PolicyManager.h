@@ -76,6 +76,8 @@ class PolicyManager {
 public:
     void init();
     android::base::Result<CarPowerPolicyMeta> getPowerPolicy(const std::string& policyId) const;
+    android::base::Result<std::string> getDefaultPowerPolicyIdForState(
+            aidl::android::hardware::automotive::vehicle::VehicleApPowerStateReport state) const;
     android::base::Result<CarPowerPolicyPtr> getDefaultPowerPolicyForState(
             const std::string& groupId,
             aidl::android::hardware::automotive::vehicle::VehicleApPowerStateReport state) const;
