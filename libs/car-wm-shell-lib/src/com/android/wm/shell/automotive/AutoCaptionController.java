@@ -16,11 +16,8 @@
 
 package com.android.wm.shell.automotive;
 
-import static android.view.WindowManager.PROPERTY_COMPAT_ALLOW_SAFE_REGION_LETTERBOXING;
-
 import static com.android.window.flags.Flags.safeRegionLetterboxing;
 
-import android.annotation.NonNull;
 import android.annotation.NonNull;
 import android.annotation.SuppressLint;
 import android.app.ActivityManager;
@@ -131,44 +128,6 @@ public class AutoCaptionController {
                 });
     }
 
-    private boolean allowSafeRegionLetterboxingApplicationProperty(
-            @NonNull ComponentName componentName, int userId) {
-        try {
-            return mPackageManager.getPropertyAsUser(
-                    PROPERTY_COMPAT_ALLOW_SAFE_REGION_LETTERBOXING,
-                    componentName.getPackageName(),
-                    /* className */ null,
-                    userId).getBoolean();
-        } catch (PackageManager.NameNotFoundException e) {
-            return false;
-        }
-    }
-
-    /**
-     * Whether the activity has allowed safe region letterboxing. If the application property is
-     * set to true, return true. If the application property is not defined or false, check for the
-     * property at the activity level. If the activity has set the property to true or has not
-     * defined it, return true. Else, return false.
-     *
-     * @see android.view.WindowManager#PROPERTY_COMPAT_ALLOW_SAFE_REGION_LETTERBOXING
-     */
-    private boolean allowSafeRegionLetterboxing(@NonNull ComponentName componentName, int userId) {
-        // Application level property.
-        if (allowSafeRegionLetterboxingApplicationProperty(componentName, userId)) {
-            return true;
-        }
-        // Activity level property.
-        try {
-            return mPackageManager.getPropertyAsUser(
-                    PROPERTY_COMPAT_ALLOW_SAFE_REGION_LETTERBOXING,
-                    componentName.getPackageName(),
-                    componentName.getClassName(),
-                    userId).getBoolean();
-        } catch (PackageManager.NameNotFoundException exception) {
-            return true;
-        }
-    }
-
     /**
      * Sets a safe region and caption region for the root task stack.
      *
@@ -200,7 +159,7 @@ public class AutoCaptionController {
 
         if (mSafeAreaInfoPerRootTask.contains(rootTaskStack.getId())) {
             Slogf.i(TAG,
-                    "Root task already have a safe regions. Updating it to new values. safe "
+                    "Root task already has a safe region. Updating it to new values. safe "
                             + "region [%s], caption region [%s], root task stack [%d]",
                     absoluteSafeRegion, relativeCaptionRegion, rootTaskStack.getId());
         } else {
@@ -270,7 +229,7 @@ public class AutoCaptionController {
         }
 
         if (mSafeAreaInfoPerDisplay.contains(displayId)) {
-            Slogf.i(TAG, "Display already have a safe regions. Updating it to new values. "
+            Slogf.i(TAG, "Display already has a safe region. Updating it to new values. "
                             + "safe region [%s] and caption region [%s] for display %d", safeRegion,
                     captionRegion, displayId);
         } else {
@@ -491,20 +450,19 @@ public class AutoCaptionController {
             boolean requiresDisplayCompat = mCarPackageManager.requiresDisplayCompatForUser(
                     componentName.getPackageName(), task.userId);
 
-            // If the application or activity has not allowed for safe region letterboxing, do
-            // not attach a caption bar.
-            boolean allowSafeRegionLetterboxing = allowSafeRegionLetterboxing(componentName,
-                    task.userId);
+            // If the activity is not safe region letterboxed, do not attach a caption bar.
+            boolean isTopActivitySafeRegionLetterboxed =
+                    task.appCompatTaskInfo.isTopActivitySafeRegionLetterboxed();
 
             if (DBG) {
                 Slogf.d(TAG,
-                        "Task id %d requires DisplayCompat %b, WM safe region property %b, for "
-                                + "user %d and top activity: %s",
-                        task.taskId, requiresDisplayCompat, allowSafeRegionLetterboxing,
+                        "Task id %d requires DisplayCompat %b, top activity safe region "
+                                + "letterboxed %b, for user %d and top activity: %s",
+                        task.taskId, requiresDisplayCompat, isTopActivitySafeRegionLetterboxed,
                         task.userId, componentName);
             }
 
-            if (requiresDisplayCompat && allowSafeRegionLetterboxing) {
+            if (requiresDisplayCompat && isTopActivitySafeRegionLetterboxed) {
                 return true;
             }
         } catch (PackageManager.NameNotFoundException e) {
