@@ -69,6 +69,8 @@ import static com.android.car.audio.CarAudioDeviceInfoTestUtils.TERTIARY_TEST_DE
 import static com.android.car.audio.CarAudioDeviceInfoTestUtils.VOICE_TEST_DEVICE;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
 
+import static org.mockito.Mockito.when;
+
 import android.car.builtin.media.AudioManagerHelper;
 import android.car.oem.CarAudioFadeConfiguration;
 import android.hardware.automotive.audiocontrol.AudioFadeConfiguration;
@@ -85,6 +87,7 @@ import android.hardware.automotive.audiocontrol.VolumeActivationConfiguration;
 import android.hardware.automotive.audiocontrol.VolumeActivationConfigurationEntry;
 import android.hardware.automotive.audiocontrol.VolumeGroupConfig;
 import android.media.AudioAttributes;
+import android.media.AudioDeviceAttributes;
 import android.media.AudioFocusInfo;
 import android.media.AudioManager;
 import android.media.FadeManagerConfiguration;
@@ -107,6 +110,8 @@ import android.os.Build;
 import android.util.ArrayMap;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
+
+import org.mockito.Mockito;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -856,5 +861,12 @@ public final class CarAudioTestUtils {
             configs.add(config);
         }
         return configs;
+    }
+
+    static AudioDeviceAttributes getMockDeviceAttributes(String address, int type) {
+        AudioDeviceAttributes attributeMock = Mockito.mock(AudioDeviceAttributes.class);
+        when(attributeMock.getAddress()).thenReturn(address);
+        when(attributeMock.getType()).thenReturn(type);
+        return attributeMock;
     }
 }
