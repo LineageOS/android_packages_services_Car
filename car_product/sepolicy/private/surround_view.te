@@ -1,6 +1,6 @@
 # Domain to run Surround View App (com.android.surroundview)
 # Defined outside `userdebug_or_eng` to ensure domain exists for seapp_contexts reference.
-type surroundview_app, domain;
+type surroundview_app, domain, coredomain;
 app_domain(surroundview_app)
 
 userdebug_or_eng(`
