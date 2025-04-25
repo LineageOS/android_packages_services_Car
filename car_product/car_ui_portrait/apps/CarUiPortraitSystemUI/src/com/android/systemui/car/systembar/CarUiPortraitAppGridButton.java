@@ -17,7 +17,6 @@
 package com.android.systemui.car.systembar;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.res.TypedArray;
 import android.util.AttributeSet;
 
@@ -63,14 +62,14 @@ public class CarUiPortraitAppGridButton extends CarUiPortraitSystemBarButton {
     }
 
     @Override
-    protected OnClickListener getButtonClickListener(Intent toSend) {
+    protected OnClickListener getButtonClickListener() {
         return v -> {
             if (mIsAppGridActive) {
                 collapseApplicationPanel();
                 return;
             }
-            mRecentsButtonStateProvider.getButtonClickListener(toSend,
-                    super::getButtonClickListener).onClick(v);
+            mRecentsButtonStateProvider.getButtonClickListener(super.getButtonClickListener())
+                    .onClick(v);
         };
     }
 
