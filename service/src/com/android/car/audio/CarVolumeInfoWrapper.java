@@ -56,16 +56,8 @@ final class CarVolumeInfoWrapper {
         return mCarAudioService.isVolumeGroupMuted(zoneId, groupId);
     }
 
-    public List<CarVolumeGroupInfo> getMutedVolumeGroups(int zoneId) {
-        return mCarAudioService.getMutedVolumeGroups(zoneId);
-    }
-
     public CarVolumeGroupInfo getVolumeGroupInfo(int zoneId, int groupId) {
         return mCarAudioService.getVolumeGroupInfo(zoneId, groupId);
-    }
-
-    public int getVolumeGroupIdForAudioAttribute(int audioZoneId, AudioAttributes attributes) {
-        return mCarAudioService.getVolumeGroupIdForAudioAttribute(audioZoneId, attributes);
     }
 
     public List<CarVolumeGroupInfo> getVolumeGroupInfosForZone(int zoneId) {

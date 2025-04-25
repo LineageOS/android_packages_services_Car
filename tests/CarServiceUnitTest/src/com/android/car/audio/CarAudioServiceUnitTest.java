@@ -2821,40 +2821,6 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     }
 
     @Test
-    public void getVolumeGroupIdForAudioAttribute() throws Exception {
-        CarAudioService service = setUpAudioService();
-
-        expectWithMessage("Volume group ID for primary audio zone")
-                .that(service.getVolumeGroupIdForAudioAttribute(PRIMARY_AUDIO_ZONE,
-                        CarAudioContext.getAudioAttributeFromUsage(USAGE_MEDIA)))
-                .isEqualTo(TEST_PRIMARY_ZONE_GROUP_0);
-    }
-
-    @Test
-    public void getVolumeGroupIdForAudioAttribute_withNullAttribute_fails() throws Exception {
-        CarAudioService service = setUpAudioService();
-
-        NullPointerException thrown = assertThrows(NullPointerException.class, () ->
-                service.getVolumeGroupIdForAudioAttribute(PRIMARY_AUDIO_ZONE,
-                /* attributes= */ null));
-
-        expectWithMessage("Null audio attribute exception").that(thrown).hasMessageThat()
-                .contains("Audio attributes");
-    }
-
-    @Test
-    public void getVolumeGroupIdForAudioAttribute_withInvalidZoneId_fails() throws Exception {
-        CarAudioService service = setUpAudioService();
-
-        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () ->
-                service.getVolumeGroupIdForAudioAttribute(INVALID_AUDIO_ZONE,
-                        CarAudioContext.getAudioAttributeFromUsage(USAGE_MEDIA)));
-
-        expectWithMessage("Invalid audio zone exception").that(thrown).hasMessageThat()
-                .contains("Invalid audio zone Id");
-    }
-
-    @Test
     public void getInputDevicesForZoneId_primaryZone() throws Exception {
         CarAudioService service = setUpAudioService();
 
@@ -3186,66 +3152,6 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         service.unregisterVolumeCallback(mVolumeCallbackBinder);
 
         verify(mCarVolumeCallbackHandler).unregisterCallback(mVolumeCallbackBinder, uid);
-    }
-
-    @Test
-    public void getMutedVolumeGroups_forInvalidZone() throws Exception {
-        CarAudioService service = setUpAudioService();
-
-        expectWithMessage("Muted volume groups for invalid zone")
-                .that(service.getMutedVolumeGroups(INVALID_AUDIO_ZONE))
-                .isEmpty();
-    }
-
-    @Test
-    public void getMutedVolumeGroups_whenVolumeGroupMuteNotSupported() throws Exception {
-        CarAudioService nonVolumeGroupMutingAudioService =
-                setUpAudioServiceWithDisabledResource(audioUseCarVolumeGroupMuting);
-
-        expectWithMessage("Muted volume groups with disable mute feature")
-                .that(nonVolumeGroupMutingAudioService.getMutedVolumeGroups(PRIMARY_AUDIO_ZONE))
-                .isEmpty();
-    }
-
-    @Test
-    public void getMutedVolumeGroups_withMutedGroups() throws Exception {
-        CarAudioService service = setUpAudioService();
-        service.setVolumeGroupMute(PRIMARY_AUDIO_ZONE, TEST_PRIMARY_ZONE_GROUP_0,
-                /* mute= */ true, TEST_FLAGS);
-        service.setVolumeGroupMute(PRIMARY_AUDIO_ZONE, TEST_PRIMARY_ZONE_GROUP_1,
-                /* mute= */ true, TEST_FLAGS);
-
-        expectWithMessage("Muted volume groups")
-                .that(service.getMutedVolumeGroups(PRIMARY_AUDIO_ZONE))
-                .containsExactly(mTestPrimaryZoneVolumeInfo0,
-                        mTestPrimaryZoneVolumeInfo1);
-    }
-
-    @Test
-    public void getMutedVolumeGroups_afterUnmuting() throws Exception {
-        CarAudioService service = setUpAudioService();
-        service.setVolumeGroupMute(PRIMARY_AUDIO_ZONE, TEST_PRIMARY_ZONE_GROUP_0,
-                /* mute= */ true, TEST_FLAGS);
-        service.setVolumeGroupMute(PRIMARY_AUDIO_ZONE, TEST_PRIMARY_ZONE_GROUP_1,
-                /* mute= */ true, TEST_FLAGS);
-        service.setVolumeGroupMute(PRIMARY_AUDIO_ZONE, TEST_PRIMARY_ZONE_GROUP_0,
-                /* mute= */ false, TEST_FLAGS);
-
-        expectWithMessage("Muted volume groups after unmuting one group")
-                .that(service.getMutedVolumeGroups(PRIMARY_AUDIO_ZONE))
-                .containsExactly(mTestPrimaryZoneVolumeInfo1);
-    }
-
-    @Test
-    public void getMutedVolumeGroups_withMutedGroupsForDifferentZone() throws Exception {
-        CarAudioService service = setUpAudioService();
-        service.setVolumeGroupMute(PRIMARY_AUDIO_ZONE, TEST_PRIMARY_ZONE_GROUP_0,
-                /* mute= */ true, TEST_FLAGS);
-        service.setVolumeGroupMute(PRIMARY_AUDIO_ZONE, TEST_PRIMARY_ZONE_GROUP_1,
-                /* mute= */ true, TEST_FLAGS);
-
-        expectWithMessage("Muted volume groups for secondary zone")
-                .that(service.getMutedVolumeGroups(TEST_REAR_LEFT_ZONE_ID)).isEmpty();
     }
 
     @Test

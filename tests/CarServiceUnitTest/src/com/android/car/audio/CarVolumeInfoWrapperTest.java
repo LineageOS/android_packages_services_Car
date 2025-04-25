@@ -89,8 +89,6 @@ public final class CarVolumeInfoWrapperTest {
                 .thenReturn(CALL);
         when(mMockCarAudioService.getVolumeGroupIdForAudioContext(PRIMARY_AUDIO_ZONE, CALL))
                 .thenReturn(TEST_GROUP_ID);
-        when(mMockCarAudioService.getVolumeGroupIdForAudioAttribute(PRIMARY_AUDIO_ZONE,
-                TEST_MEDIA_AUDIO_ATTRIBUTE)).thenReturn(TEST_GROUP_ID);
         when(mMockCarAudioService.getGroupVolume(PRIMARY_AUDIO_ZONE, TEST_GROUP_ID))
                 .thenReturn(TEST_GROUP_VOLUME);
         when(mMockCarAudioService.getGroupMinVolume(PRIMARY_AUDIO_ZONE, TEST_GROUP_ID))
@@ -99,8 +97,6 @@ public final class CarVolumeInfoWrapperTest {
                 .thenReturn(TEST_MAX_GROUP_VOLUME);
         when(mMockCarAudioService.isVolumeGroupMuted(PRIMARY_AUDIO_ZONE, TEST_GROUP_ID))
                 .thenReturn(TEST_VOLUME_GROUP_MUTE);
-        when(mMockCarAudioService.getMutedVolumeGroups(PRIMARY_AUDIO_ZONE))
-                .thenReturn(List.of(TEST_PRIMARY_GROUP_INFO));
         when(mMockCarAudioService.getVolumeGroupInfo(PRIMARY_AUDIO_ZONE, TEST_SECONDARY_GROUP))
                 .thenReturn(TEST_SECONDARY_VOLUME_INFO);
         when(mMockCarAudioService.getVolumeGroupInfosForZone(PRIMARY_AUDIO_ZONE))
@@ -140,15 +136,6 @@ public final class CarVolumeInfoWrapperTest {
     }
 
     @Test
-    public void getVolumeGroupIdForAudioAttribute_returnsGroupId() {
-        int groupId = mCarVolumeInfoWrapper
-                .getVolumeGroupIdForAudioAttribute(PRIMARY_AUDIO_ZONE, TEST_MEDIA_AUDIO_ATTRIBUTE);
-
-        assertWithMessage("Car Audio Group Id for Media Audio Attribute")
-                .that(groupId).isEqualTo(TEST_GROUP_ID);
-    }
-
-    @Test
     public void getGroupVolume_returnsVolumeGroup() {
         int groupVolume = mCarVolumeInfoWrapper.getGroupVolume(PRIMARY_AUDIO_ZONE, TEST_GROUP_ID);
 
@@ -181,13 +168,6 @@ public final class CarVolumeInfoWrapperTest {
 
         assertWithMessage("Car Audio Group Volume Mute")
                 .that(isVolumeGroupMuted).isEqualTo(TEST_VOLUME_GROUP_MUTE);
-    }
-
-    @Test
-    public void getMutedVolumeGroups_withMutedGroups() {
-        assertWithMessage("Muted volume groups")
-                .that(mCarVolumeInfoWrapper.getMutedVolumeGroups(PRIMARY_AUDIO_ZONE))
-                .containsExactly(TEST_PRIMARY_GROUP_INFO);
     }
 
     @Test

@@ -2313,7 +2313,7 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
         // the framework ducking logic.
         mFocusHandler = CarZonesAudioFocus.createCarZonesAudioFocus(mAudioManagerWrapper,
                 mContext.getPackageManager(), mCarAudioZones, mCarAudioSettings, mCarDucking,
-                new CarVolumeInfoWrapper(this), getAudioFeaturesInfo(), mHandler);
+                getAudioFeaturesInfo(), mHandler);
 
         AudioPolicy.Builder focusControlPolicyBuilder = new AudioPolicy.Builder(mContext);
         focusControlPolicyBuilder.setLooper(mHandlerThread.getLooper());
@@ -4252,42 +4252,12 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
         }
     }
 
-    List<CarVolumeGroupInfo> getMutedVolumeGroups(int zoneId) {
-        List<CarVolumeGroupInfo> mutedGroups = new ArrayList<>();
-
-        if (!useCarVolumeGroupMuting() || !isAudioZoneIdValid(zoneId)) {
-            return mutedGroups;
-        }
-
-        synchronized (mImplLock) {
-            int groupCount = getCarAudioZoneLocked(zoneId).getCurrentVolumeGroupCount();
-            for (int groupId = 0; groupId < groupCount; groupId++) {
-                CarVolumeGroup group = getCarVolumeGroupLocked(zoneId, groupId);
-                if (!group.isMuted()) {
-                    continue;
-                }
-
-                mutedGroups.add(group.getCarVolumeGroupInfo());
-            }
-        }
-
-        return mutedGroups;
-    }
-
     List<AudioAttributes> getActiveAudioAttributesForZone(int zoneId) {
         List<AudioAttributes> activeAudioAttributes = new ArrayList<>();
         activeAudioAttributes.addAll(getAllActiveAttributesForZone(zoneId));
         activeAudioAttributes.addAll(getActiveHalAudioAttributesForZone(zoneId));
 
         return activeAudioAttributes;
-    }
-
-    int getVolumeGroupIdForAudioAttribute(int audioZoneId, AudioAttributes attributes) {
-        Objects.requireNonNull(attributes, "Audio attributes can not be null");
-        checkAudioZoneId(audioZoneId);
-        synchronized (mImplLock) {
-            return getVolumeGroupIdForAudioAttributeLocked(audioZoneId, attributes);
-        }
     }
 
     void audioDevicesAdded(AudioDeviceInfo[] addedDevices) {
