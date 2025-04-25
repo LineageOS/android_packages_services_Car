@@ -94,7 +94,7 @@
                 <category android:name="android.intent.category.DEFAULT"/>
                 <data android:mimeType="audio/*"/>
                 <data android:mimeType="application/ogg"/>
-                <data android:mimeType="applicatoin/x-ogg"/>
+                <data android:mimeType="application/x-ogg"/>
             </intent-filter>
             <intent-filter android:priority="-1">
                 <action android:name="android.intent.action.PICK" />
@@ -199,7 +199,7 @@
             <intent-filter android:priority="-1">
                 <action android:name="android.intent.action.PICK" />
                 <category android:name="android.intent.category.DEFAULT"/>
-                <data android:mimeType="vnd.anroid.cursor.dir/image"/>
+                <data android:mimeType="vnd.android.cursor.dir/image"/>
                 <data android:mimeType="vnd.android.cursor.dir/video"/>
             </intent-filter>
 
@@ -264,7 +264,7 @@
                 <data android:mimeType="application/vnd.apple.mpegurl"/>
                 <data android:mimeType="audio/x-mpgeurl"/>
                 <data android:mimeType="audio/mpegurl"/>
-                <data android:mimeType="applicaion/x-mpegurl"/>
+                <data android:mimeType="application/x-mpegurl"/>
             </intent-filter>
 
             <intent-filter android:priority="-1">
