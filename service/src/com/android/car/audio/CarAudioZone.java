@@ -93,9 +93,7 @@ public class CarAudioZone {
     }
 
     CarAudioZoneConfig getCurrentCarAudioZoneConfig() {
-        synchronized (mLock) {
-            return mCarAudioZoneConfigs.get(mCurrentConfigId);
-        }
+        return mCarAudioZoneConfigs.get(getCurrentConfigId());
     }
 
     @Nullable
@@ -202,10 +200,8 @@ public class CarAudioZone {
     }
 
     boolean isCurrentZoneConfig(CarAudioZoneConfigInfo configInfoSwitchedTo) {
-        synchronized (mLock) {
-            return configInfoSwitchedTo.equals(mCarAudioZoneConfigs.get(mCurrentConfigId)
-                    .getCarAudioZoneConfigInfo());
-        }
+        return configInfoSwitchedTo.equals(mCarAudioZoneConfigs.get(getCurrentConfigId())
+                .getCarAudioZoneConfigInfo());
     }
 
     void setCurrentCarZoneConfig(CarAudioZoneConfigInfo configInfoSwitchedTo) {

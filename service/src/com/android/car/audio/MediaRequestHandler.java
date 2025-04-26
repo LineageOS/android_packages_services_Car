@@ -52,10 +52,9 @@ import java.util.Objects;
 final class MediaRequestHandler {
 
     private static final String TAG = CarLog.TAG_AUDIO;
-    private static final String REQUEST_HANDLER_THREAD_NAME = "CarAudioMediaRequest";
 
     private final HandlerThread mHandlerThread = CarServiceUtils.getHandlerThread(
-            REQUEST_HANDLER_THREAD_NAME);
+            CarAudioService.REQUEST_HANDLER_THREAD_NAME);
     private final Handler mHandler = new Handler(mHandlerThread.getLooper());
 
     private final Object mLock = new Object();
@@ -81,7 +80,7 @@ final class MediaRequestHandler {
      */
     void destroy() {
         try {
-            CarServiceUtils.releaseHandlerThread(REQUEST_HANDLER_THREAD_NAME);
+            CarServiceUtils.releaseHandlerThread(CarAudioService.REQUEST_HANDLER_THREAD_NAME);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }

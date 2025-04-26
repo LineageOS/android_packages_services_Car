@@ -33,5 +33,5 @@
     <string name="status_icon_display_status" msgid="8703788413735943940">"Ekran sozlamalari"</string>
     <string name="status_icon_debug_status" msgid="3968999768592060199">"Debag sozlamalari"</string>
     <string name="status_icon_sound_status" msgid="814152658790862843">"Tovush sozlamalari"</string>
-    <string name="status_icon_drive_mode" msgid="3768488232833133813">"Avtomobilda"</string>
+    <string name="status_icon_drive_mode" msgid="3768488232833133813">"Avtomobil rejimi"</string>
 </resources>

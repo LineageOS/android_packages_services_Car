@@ -54,14 +54,14 @@
             android:textAlignment="viewStart"
             android:ellipsize="end"
             android:maxLines="1"
-            android:textAppearance="@style/TextAppearance.CarUi.PreferenceCategoryTitle" />
+            style="@style/PreferenceCategoryTitle" />
 
         <TextView
             android:id="@android:id/summary"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:singleLine="true"
-            android:textAppearance="@style/TextAppearance.CarUi.PreferenceSummary"/>
+            style="@style/PreferenceSummary"/>
 
     </LinearLayout>
 

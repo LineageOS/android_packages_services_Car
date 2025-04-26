@@ -220,6 +220,20 @@ final class CarAudioUtils {
         return carInfos;
     }
 
+    static boolean audioAttributesContainsAudioAttribute(List<AudioAttributes> groupAttributes,
+            AudioAttributes attributes, CarAudioContext carAudioContext) {
+        var context = carAudioContext.getContextForAudioAttribute(attributes);
+        for (int index = 0; index < groupAttributes.size(); index++) {
+            var groupAttribute = groupAttributes.get(index);
+            var groupContext = carAudioContext.getContextForAttributes(groupAttribute);
+            if (context != groupContext) {
+                continue;
+            }
+            return true;
+        }
+        return false;
+    }
+
     /*
      * Currently only BUS and BUILT_SPEAKER devices are valid static devices.
      */

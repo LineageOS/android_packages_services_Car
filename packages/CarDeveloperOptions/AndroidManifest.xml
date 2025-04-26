@@ -478,6 +478,15 @@
         </activity>
 
         <activity
+            android:name="com.android.settings.Settings$ShadeSettingsActivity"
+            android:enabled="false"
+            android:exported="false"
+            tools:node="merge"
+            tools:replace="android:exported">
+            <intent-filter tools:node="removeAll"/>
+        </activity>
+
+        <activity
             android:name="com.android.settings.Settings$RegionalPreferencesActivity"
             android:enabled="false"
             android:exported="false"
@@ -2200,6 +2209,16 @@
         </activity>
 
         <activity
+            android:name="com.android.settings.Settings$VibrationIntensitySettingsActivity"
+            android:enabled="false"
+            android:exported="false"
+            android:featureFlag="com.android.settings.flags.device_state"
+            tools:node="merge"
+            tools:replace="android:exported">
+            <intent-filter tools:node="removeAll"/>
+        </activity>
+
+        <activity
             android:name="com.android.settings.Settings$NotificationAppListActivity"
             android:enabled="false"
             android:exported="false"
@@ -3512,6 +3531,14 @@
         </receiver>
 
         <receiver android:name="com.android.settings.accessibility.HighContrastTextMigrationReceiver"
+            android:exported="false"
+            android:enabled="false"
+            tools:node="merge"
+            tools:replace="android:exported">
+            <intent-filter tools:node="removeAll"/>
+        </receiver>
+
+        <receiver android:name="com.android.settings.accessibility.notification.SurveyNotificationReceiver"
             android:exported="false"
             android:enabled="false"
             tools:node="merge"

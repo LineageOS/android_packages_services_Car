@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 
-#ifndef CPP_EVS_SAMPLEDRIVER_AIDL_INCLUDE_EVSENUMERATOR_H
-#define CPP_EVS_SAMPLEDRIVER_AIDL_INCLUDE_EVSENUMERATOR_H
+#pragma once
 
 #include "ConfigManager.h"
 #include "EvsGlDisplay.h"
@@ -86,12 +85,15 @@ public:
     static void EvsHotplugThread(std::shared_ptr<EvsEnumerator> service,
                                  std::atomic<bool>& running);
 
+    // Enumerate camera and display devices
+    void enumerateDevices();
+
 private:
     struct CameraRecord {
         aidlevs::CameraDesc desc;
         std::weak_ptr<EvsV4lCamera> activeInstance;
 
-        CameraRecord(const char* cameraId) : desc() { desc.id = cameraId; }
+        explicit CameraRecord(const char* cameraId) : desc() { desc.id = cameraId; }
     };
 
     class ActiveDisplays {
@@ -158,4 +160,3 @@ private:
 
 }  // namespace aidl::android::hardware::automotive::evs::implementation
 
-#endif  // CPP_EVS_SAMPLEDRIVER_AIDL_INCLUDE_EVSENUMERATOR_H

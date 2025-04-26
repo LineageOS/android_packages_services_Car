@@ -72,6 +72,7 @@ public class AutoCaptionController {
     // To keep the AutoDecor added to the task as caption bar.
     private final SparseArray<AutoDecor> mTaskIdToCaptionBar = new SparseArray<>();
     private final AutoTaskRepository mAutoTaskRepository;
+    private final PackageManager mPackageManager;
 
     private CarPackageManager mCarPackageManager;
 
@@ -112,6 +113,7 @@ public class AutoCaptionController {
         mAutoDecorManager = autoDecorManager;
         mAutoSurfaceTransactionFactory = autoSurfaceTransactionFactory;
         autoTaskRepository.addAppTaskListener(mAutoAppTaskListener);
+        mPackageManager = context.getPackageManager();
         // TODO((b/401349206): Add a factory or provider for CarService connection.
         Car.createCar(context, /* handler= */ null, Car.CAR_WAIT_TIMEOUT_DO_NOT_WAIT,
                 (car, ready) -> {
@@ -157,7 +159,7 @@ public class AutoCaptionController {
 
         if (mSafeAreaInfoPerRootTask.contains(rootTaskStack.getId())) {
             Slogf.i(TAG,
-                    "Root task already have a safe regions. Updating it to new values. safe "
+                    "Root task already has a safe region. Updating it to new values. safe "
                             + "region [%s], caption region [%s], root task stack [%d]",
                     absoluteSafeRegion, relativeCaptionRegion, rootTaskStack.getId());
         } else {
@@ -227,7 +229,7 @@ public class AutoCaptionController {
         }
 
         if (mSafeAreaInfoPerDisplay.contains(displayId)) {
-            Slogf.i(TAG, "Display already have a safe regions. Updating it to new values. "
+            Slogf.i(TAG, "Display already has a safe region. Updating it to new values. "
                             + "safe region [%s] and caption region [%s] for display %d", safeRegion,
                     captionRegion, displayId);
         } else {
@@ -330,7 +332,9 @@ public class AutoCaptionController {
 
         AutoDecor captionDecor = mAutoDecorManager.createAutoDecor(captionView,
                 DEFAULT_Z_INDEX_CAPTION_BAR, captionBarBounds, captionBarName);
-        captionDecor.attachDecorToTask(taskInfo);
+        // Attach the caption bar with spy window so that touch also travel to the task surface.
+        // This is required if task is not in focus.
+        captionDecor.attachDecorToTask(taskInfo, /* addSpyWindow= */true);
         mTaskIdToCaptionBar.append(taskInfo.taskId, captionDecor);
     }
 
@@ -446,13 +450,19 @@ public class AutoCaptionController {
             boolean requiresDisplayCompat = mCarPackageManager.requiresDisplayCompatForUser(
                     componentName.getPackageName(), task.userId);
 
+            // If the activity is not safe region letterboxed, do not attach a caption bar.
+            boolean isTopActivitySafeRegionLetterboxed =
+                    task.appCompatTaskInfo.isTopActivitySafeRegionLetterboxed();
+
             if (DBG) {
                 Slogf.d(TAG,
-                        "Task id %d requires DisplayCompat %b for user %d and top activity: %s",
-                        task.taskId, requiresDisplayCompat, task.userId, componentName);
+                        "Task id %d requires DisplayCompat %b, top activity safe region "
+                                + "letterboxed %b, for user %d and top activity: %s",
+                        task.taskId, requiresDisplayCompat, isTopActivitySafeRegionLetterboxed,
+                        task.userId, componentName);
             }
 
-            if (requiresDisplayCompat) {
+            if (requiresDisplayCompat && isTopActivitySafeRegionLetterboxed) {
                 return true;
             }
         } catch (PackageManager.NameNotFoundException e) {
