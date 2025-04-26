@@ -75,8 +75,9 @@ final class CoreAudioHelper {
      */
     public static int getStrategyForAudioAttributes(AudioAttributes attributes) {
         Preconditions.checkNotNull(attributes, "Audio Attributes can not be null");
-        for (int index = 0; index < getAudioProductStrategies().size(); index++) {
-            AudioProductStrategy strategy = getAudioProductStrategies().get(index);
+        var productStrategies = getAudioProductStrategies();
+        for (int index = 0; index < productStrategies.size(); index++) {
+            AudioProductStrategy strategy = productStrategies.get(index);
             if (strategy.supportsAudioAttributes(attributes)) {
                 return strategy.getId();
             }
@@ -86,8 +87,9 @@ final class CoreAudioHelper {
 
     public static int getStrategyForContextName(String contextName) {
         Preconditions.checkNotNull(contextName, "Context name can not be null");
-        for (int index = 0; index < getAudioProductStrategies().size(); index++) {
-            AudioProductStrategy strategy = getAudioProductStrategies().get(index);
+        var productStrategies = getAudioProductStrategies();
+        for (int index = 0; index < productStrategies.size(); index++) {
+            AudioProductStrategy strategy = productStrategies.get(index);
             if (Objects.equals(strategy.getName(), contextName)) {
                 return strategy.getId();
             }
@@ -115,8 +117,9 @@ final class CoreAudioHelper {
     static AudioProductStrategy getProductStrategyForAudioAttributes(
             AudioAttributes attributes) {
         Preconditions.checkNotNull(attributes, "Audio attributes can not be null");
-        for (int index = 0; index < getAudioProductStrategies().size(); index++) {
-            AudioProductStrategy strategy = getAudioProductStrategies().get(index);
+        var productStrategies = getAudioProductStrategies();
+        for (int index = 0; index < productStrategies.size(); index++) {
+            AudioProductStrategy strategy = productStrategies.get(index);
             if (!strategy.supportsAudioAttributes(attributes)) {
                 continue;
             }
@@ -134,8 +137,9 @@ final class CoreAudioHelper {
      */
     @Nullable
     public static AudioProductStrategy getStrategy(int strategyId) {
-        for (int index = 0; index < getAudioProductStrategies().size(); index++) {
-            AudioProductStrategy strategy = getAudioProductStrategies().get(index);
+        var productStrategies = getAudioProductStrategies();
+        for (int index = 0; index < productStrategies.size(); index++) {
+            AudioProductStrategy strategy = productStrategies.get(index);
             if (strategy.getId() == strategyId) {
                 return strategy;
             }
@@ -151,8 +155,9 @@ final class CoreAudioHelper {
      * its id is the default, aka supports {@code DEFAULT_ATTRIBUTES}, {@code false} otherwise.
      */
     public static boolean isDefaultStrategy(int strategyId) {
-        for (int index = 0; index < getAudioProductStrategies().size(); index++) {
-            AudioProductStrategy strategy = getAudioProductStrategies().get(index);
+        var productStrategies = getAudioProductStrategies();
+        for (int index = 0; index < productStrategies.size(); index++) {
+            AudioProductStrategy strategy = productStrategies.get(index);
             if (strategy.getId() == strategyId) {
                 return strategy.supportsAudioAttributes(DEFAULT_ATTRIBUTES);
             }
@@ -169,8 +174,9 @@ final class CoreAudioHelper {
      */
     @Nullable
     public static AudioVolumeGroup getVolumeGroup(String groupName) {
-        for (int index = 0; index < getAudioVolumeGroups().size(); index++) {
-            AudioVolumeGroup group = getAudioVolumeGroups().get(index);
+        var volumeGroups = getAudioVolumeGroups();
+        for (int index = 0; index < volumeGroups.size(); index++) {
+            AudioVolumeGroup group = volumeGroups.get(index);
             if (DEBUG) {
                 Slogf.d(TAG, "requested %s has %s,", groupName, group);
             }
@@ -258,8 +264,9 @@ final class CoreAudioHelper {
      */
     public static int getVolumeGroupIdForAudioAttributes(AudioAttributes attributes) {
         Preconditions.checkNotNull(attributes, "Audio Attributes can not be null");
-        for (int index = 0; index < getAudioProductStrategies().size(); index++) {
-            AudioProductStrategy strategy = getAudioProductStrategies().get(index);
+        var productStrategies = getAudioProductStrategies();
+        for (int index = 0; index < productStrategies.size(); index++) {
+            AudioProductStrategy strategy = productStrategies.get(index);
             int volumeGroupId =
                     AudioManagerHelper.getVolumeGroupIdForAudioAttributes(strategy, attributes);
             Slogf.d(TAG, "getVolumeGroupIdForAudioAttributes %s %s,", volumeGroupId, strategy);

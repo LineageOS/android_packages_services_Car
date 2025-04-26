@@ -17,6 +17,7 @@ package com.android.car.audio;
 
 import static android.car.builtin.media.AudioManagerHelper.isCallFocusRequestClientId;
 import static android.car.builtin.media.AudioManagerHelper.usageToString;
+import static android.car.media.CarAudioManager.INVALID_VOLUME_GROUP_ID;
 import static android.car.oem.CarAudioFeaturesInfo.AUDIO_FEATURE_FADE_MANAGER_CONFIGS;
 import static android.media.AudioManager.AUDIOFOCUS_FLAG_DELAY_OK;
 import static android.media.AudioManager.AUDIOFOCUS_GAIN;
@@ -31,6 +32,7 @@ import static android.media.AudioManager.AUDIOFOCUS_REQUEST_FAILED;
 import static android.media.AudioManager.AUDIOFOCUS_REQUEST_GRANTED;
 
 import static com.android.car.audio.CarAudioContext.isCriticalAudioAudioAttribute;
+import static com.android.car.audio.CarAudioUtils.audioAttributesContainsAudioAttribute;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
@@ -58,6 +60,7 @@ import android.util.proto.ProtoOutputStream;
 
 import com.android.car.CarLocalServices;
 import com.android.car.CarLog;
+import com.android.car.audio.CarAudioContext.AudioAttributesWrapper;
 import com.android.car.audio.CarAudioDumpProto.CarAudioZoneFocusProto;
 import com.android.car.audio.CarAudioDumpProto.CarAudioZoneFocusProto.CarAudioFocusProto;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
@@ -80,7 +83,6 @@ class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
 
     private final AudioManagerWrapper mAudioManager;
     private final PackageManager mPackageManager;
-    private final CarVolumeInfoWrapper mCarVolumeInfoWrapper;
     @Nullable
     private final CarAudioFeaturesInfo mAudioFeaturesInfo;
     private AudioPolicy mAudioPolicy; // Dynamically assigned just after construction
@@ -92,7 +94,6 @@ class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
     private final CarAudioContext mCarAudioContext;
 
     private final CarAudioZone mCarAudioZone;
-
 
     private AudioFocusInfo mDelayedRequest;
 
@@ -119,7 +120,7 @@ class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
 
     CarAudioFocus(AudioManagerWrapper audioManager, PackageManager packageManager,
             FocusInteraction focusInteraction, CarAudioZone carAudioZone,
-            CarVolumeInfoWrapper volumeInfoWrapper, @Nullable CarAudioFeaturesInfo features) {
+            @Nullable CarAudioFeaturesInfo features) {
         mAudioManager = Objects.requireNonNull(audioManager, "Audio manager can not be null");
         mPackageManager = Objects.requireNonNull(packageManager, "Package manager can not null");
         mFocusEventLogger = new LocalLog(FOCUS_EVENT_LOGGER_QUEUE_SIZE);
@@ -128,8 +129,6 @@ class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
         mCarAudioZone = Objects.requireNonNull(carAudioZone, "Car audio zone can not be null");
         mCarAudioContext = Objects.requireNonNull(mCarAudioZone.getCarAudioContext(),
                 "Car audio context can not be null");
-        mCarVolumeInfoWrapper = Objects.requireNonNull(volumeInfoWrapper,
-                "Car volume info can not be null");
         mAudioFeaturesInfo = features;
     }
 
@@ -546,12 +545,7 @@ class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
         int results = delayFocus ? AUDIOFOCUS_REQUEST_DELAYED : AUDIOFOCUS_REQUEST_GRANTED;
 
         t.traceBegin("evaluate-focus-entry-build");
-        AudioFocusEntry focusEntry =
-                new AudioFocusEntry.Builder(audioFocusInfo,
-                        mCarAudioContext.getContextForAudioAttribute(
-                                audioFocusInfo.getAttributes()),
-                        getVolumeGroupForAttribute(audioFocusInfo.getAttributes()),
-                        AUDIOFOCUS_GAIN).build();
+        AudioFocusEntry focusEntry = getAudioFocusEntryLocked(audioFocusInfo, t);
         t.traceEnd();
 
         t.traceBegin("evaluate-focus-result-build");
@@ -562,6 +556,17 @@ class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
         t.traceEnd();
         t.traceEnd();
         return focusResult;
+    }
+
+    private AudioFocusEntry getAudioFocusEntryLocked(AudioFocusInfo audioFocusInfo,
+            TimingsTraceLog trace) {
+        trace.traceBegin("evaluate-focus-result-get-context");
+        var context = mCarAudioContext.getContextForAudioAttribute(audioFocusInfo.getAttributes());
+        trace.traceEnd();
+        trace.traceBegin("evaluate-focus-result-get-volume-id");
+        var group = getVolumeGroupForAttribute(audioFocusInfo.getAttributes());
+        trace.traceEnd();
+        return new AudioFocusEntry.Builder(audioFocusInfo, context, group, AUDIOFOCUS_GAIN).build();
     }
 
     @GuardedBy("mLock")
@@ -590,10 +595,14 @@ class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
     }
 
     private AudioFocusEntry convertAudioFocusInfo(AudioFocusInfo info) {
-        return new AudioFocusEntry.Builder(info,
-                mCarAudioContext.getContextForAudioAttribute(info.getAttributes()),
-                getVolumeGroupForAttribute(info.getAttributes()),
-                AUDIOFOCUS_LOSS_TRANSIENT).build();
+        TimingsTraceLog t = new TimingsTraceLog(TAG, TraceHelper.TRACE_TAG_CAR_SERVICE);
+        t.traceBegin("evaluate-focus-convert-get-context");
+        var context = mCarAudioContext.getContextForAudioAttribute(info.getAttributes());
+        t.traceEnd();
+        t.traceBegin("evaluate-focus-convert-get-context");
+        var group = getVolumeGroupForAttribute(info.getAttributes());
+        t.traceEnd();
+        return new AudioFocusEntry.Builder(info, context, group, AUDIOFOCUS_LOSS_TRANSIENT).build();
     }
 
     private List<AudioFocusEntry> getAudioFocusEntries(ArrayMap<String, FocusEntry> entryMap,
@@ -616,7 +625,17 @@ class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
     }
 
     private List<CarVolumeGroupInfo> getMutedVolumeGroups() {
-        return mCarVolumeInfoWrapper.getMutedVolumeGroups(mCarAudioZone.getId());
+        List<CarVolumeGroupInfo> mutedGroups = new ArrayList<>();
+        var groups = mCarAudioZone.getCurrentVolumeGroupInfos();
+        for (int index = 0; index < groups.size(); index++) {
+            var info = groups.get(index);
+            if (!info.isMuted()) {
+                continue;
+            }
+
+            mutedGroups.add(info);
+        }
+        return mutedGroups;
     }
 
     private boolean isExternalFocusEnabled() {
@@ -634,16 +653,36 @@ class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
     }
 
     private List<AudioFocusEntry> convertAudioFocusEntries(List<FocusEntry> changedEntries) {
+        TimingsTraceLog trace = new TimingsTraceLog(TAG, TraceHelper.TRACE_TAG_CAR_SERVICE);
+        trace.traceBegin("evaluate-focus-result-entries");
         List<AudioFocusEntry> audioFocusEntries = new ArrayList<>(changedEntries.size());
         for (int index = 0; index < changedEntries.size(); index++) {
+            trace.traceBegin("evaluate-focus-result-entry" + index);
             audioFocusEntries.add(convertFocusEntry(changedEntries.get(index)));
+            trace.traceEnd();
         }
+        trace.traceEnd();
         return audioFocusEntries;
     }
 
     private int getVolumeGroupForAttribute(AudioAttributes attributes) {
-        return mCarVolumeInfoWrapper.getVolumeGroupIdForAudioAttribute(mCarAudioZone.getId(),
-                attributes);
+        TimingsTraceLog trace = new TimingsTraceLog(TAG, TraceHelper.TRACE_TAG_CAR_SERVICE);
+        trace.traceBegin("evaluate-focus-result-get-volume-infos");
+        var groups = mCarAudioZone.getCurrentVolumeGroupInfos();
+        trace.traceEnd();
+        trace.traceBegin("evaluate-focus-result-find-id");
+        int groupId = INVALID_VOLUME_GROUP_ID;
+        for (int index = 0; index < groups.size(); index++) {
+            var info = groups.get(index);
+            if (!audioAttributesContainsAudioAttribute(info.getAudioAttributes(),
+                    attributes, mCarAudioContext)) {
+                continue;
+            }
+            groupId = info.getId();
+            break;
+        }
+        trace.traceEnd();
+        return groupId;
     }
 
     @GuardedBy("mLock")
@@ -1133,7 +1172,7 @@ class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
                     mFocusLosers);
 
             if (mDelayedRequest != null
-                    && CarAudioContext.AudioAttributesWrapper.audioAttributeMatches(
+                    && AudioAttributesWrapper.audioAttributeMatches(
                             audioAttributes, mDelayedRequest.getAttributes())) {
                 inactiveList.add(mDelayedRequest);
                 mDelayedRequest = null;
@@ -1197,7 +1236,7 @@ class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
         @Override
         public boolean matches(AudioFocusInfo afi) {
             return (UserHandle.getUserHandleForUid(afi.getClientUid()).getIdentifier() == mUserId)
-                    && CarAudioContext.AudioAttributesWrapper
+                    && AudioAttributesWrapper
                     .audioAttributeMatches(mAudioAttribute, afi.getAttributes());
         }
     }

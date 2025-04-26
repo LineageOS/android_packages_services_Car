@@ -199,8 +199,6 @@ abstract class CarZonesAudioFocusTestBase {
     private CarAudioSettings mCarAudioSettings;
     @Mock
     private PackageManager mMockPackageManager;
-    @Mock
-    private CarVolumeInfoWrapper mMockCarVolumeInfoWrapper;
 
     private HandlerThread mHandlerThread;
     private Handler mHandler;
@@ -289,7 +287,7 @@ abstract class CarZonesAudioFocusTestBase {
         CarZonesAudioFocus carZonesAudioFocus =
                 CarZonesAudioFocus.createCarZonesAudioFocus(mMockAudioManager,
                         mMockPackageManager, mCarAudioZones, mCarAudioSettings, carFocusCallback,
-                        mMockCarVolumeInfoWrapper, new CarAudioFeaturesInfo.Builder(
+                        new CarAudioFeaturesInfo.Builder(
                                 AUDIO_FEATURE_NO_FEATURE).build(), mHandler);
         carZonesAudioFocus.setOwningPolicy(mCarAudioService, mAudioPolicy);
 

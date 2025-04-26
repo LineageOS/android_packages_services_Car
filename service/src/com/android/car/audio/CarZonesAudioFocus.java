@@ -66,15 +66,13 @@ final class CarZonesAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
     private final Object mLock = new Object();
     @GuardedBy("mLock")
     private CarAudioService mCarAudioService; // Dynamically assigned just after construction
-    @GuardedBy("mLock")
-    private AudioPolicy mAudioPolicy; // Dynamically assigned just after construction
 
     private final SparseArray<CarAudioFocus> mFocusZones;
 
     public static CarZonesAudioFocus createCarZonesAudioFocus(AudioManagerWrapper audioManager,
             PackageManager packageManager, SparseArray<CarAudioZone> carAudioZones,
             CarAudioSettings carAudioSettings, CarFocusCallback carFocusCallback,
-            CarVolumeInfoWrapper carVolumeInfoWrapper, @Nullable CarAudioFeaturesInfo features,
+            @Nullable CarAudioFeaturesInfo features,
             Handler handler) {
         Objects.requireNonNull(audioManager, "Audio manager cannot be null");
         Objects.requireNonNull(packageManager, "Package manager cannot be null");
@@ -82,7 +80,6 @@ final class CarZonesAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
         Preconditions.checkArgument(carAudioZones.size() != 0,
                 "There must be a minimum of one audio zone");
         Objects.requireNonNull(carAudioSettings, "Car audio settings cannot be null");
-        Objects.requireNonNull(carVolumeInfoWrapper, "Car volume info cannot be null");
 
         SparseArray<CarAudioFocus> audioFocusPerZone = new SparseArray<>();
 
@@ -96,7 +93,7 @@ final class CarZonesAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
             FocusInteraction interaction = new FocusInteraction(carAudioSettings, observerFactory,
                     handler);
             CarAudioFocus zoneFocusListener = new CarAudioFocus(audioManager, packageManager,
-                    interaction, audioZone, carVolumeInfoWrapper, features);
+                    interaction, audioZone, features);
             audioFocusPerZone.put(audioZoneId, zoneFocusListener);
         }
         return new CarZonesAudioFocus(audioFocusPerZone, carFocusCallback);
@@ -220,7 +217,6 @@ final class CarZonesAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
      */
     void setOwningPolicy(CarAudioService carAudioService, AudioPolicy parentPolicy) {
         synchronized (mLock) {
-            mAudioPolicy = parentPolicy;
             mCarAudioService = carAudioService;
         }
 

@@ -59,6 +59,7 @@ import static com.android.car.audio.CarAudioDeviceInfoTestUtils.TEST_SPEAKER_DEV
 import static com.android.car.audio.CarAudioDeviceInfoTestUtils.VOICE_TEST_DEVICE;
 import static com.android.car.audio.CarAudioDeviceInfoTestUtils.generateCarAudioDeviceInfo;
 import static com.android.car.audio.CarAudioDeviceInfoTestUtils.generateInputAudioDeviceInfo;
+import static com.android.car.audio.CarAudioTestUtils.getMockDeviceAttributes;
 import static com.android.car.audio.CarAudioUtils.ACTIVATION_VOLUME_PERCENTAGE_MAX;
 import static com.android.car.audio.CarAudioUtils.ACTIVATION_VOLUME_PERCENTAGE_MIN;
 import static com.android.car.audio.CarAudioUtils.excludesDynamicDevices;
@@ -96,6 +97,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @RunWith(AndroidJUnit4.class)
@@ -111,11 +114,11 @@ public class CarAudioUtilsTest extends AbstractExpectableTestCase {
     private static final AudioAttributes TEST_ASSISTANT_AUDIO_ATTRIBUTE =
             new AudioAttributes.Builder().setUsage(USAGE_ASSISTANT).build();
     private static final AudioDeviceAttributes TEST_BT_DEVICE =
-            getMockDevice(/* address= */ "", TYPE_BLUETOOTH_A2DP);
+            getMockDeviceAttributes(/* address= */ "", TYPE_BLUETOOTH_A2DP);
     private static final AudioDeviceAttributes TEST_BUS_DEVICE_1 =
-            getMockDevice(TEST_ADDRESS_1, TYPE_BUS);
+            getMockDeviceAttributes(TEST_ADDRESS_1, TYPE_BUS);
     private static final AudioDeviceAttributes TEST_BUS_DEVICE_2 =
-            getMockDevice(TEST_ADDRESS_2, TYPE_BUS);
+            getMockDeviceAttributes(TEST_ADDRESS_2, TYPE_BUS);
 
     private static final AudioDeviceInfo TEST_BUS_DEVICE_1_INFO =
             getMockDeviceInfo(TEST_ADDRESS_1, TYPE_BUS);
@@ -457,6 +460,43 @@ public class CarAudioUtilsTest extends AbstractExpectableTestCase {
                         TEST_SPEAKER_DEVICE);
     }
 
+    @Test
+    public void audioAttributesContainsAudioAttribute() {
+        var audioInfos = CarAudioContext.getAllContextsInfo();
+        var carAudioContext = new CarAudioContext(audioInfos, /* useCarAudioContext= */ false);
+        List<AudioAttributes> audioAttributes = getAudioAttributesFromContextInfos(audioInfos);
+
+        expectWithMessage("Media audio attribute")
+                .that(CarAudioUtils.audioAttributesContainsAudioAttribute(audioAttributes,
+                        TEST_MEDIA_AUDIO_ATTRIBUTE, carAudioContext)).isTrue();
+        expectWithMessage("Nav audio attribute")
+                .that(CarAudioUtils.audioAttributesContainsAudioAttribute(audioAttributes,
+                        TEST_NAV_AUDIO_ATTRIBUTE, carAudioContext)).isTrue();
+        expectWithMessage("Assistant audio attribute")
+                .that(CarAudioUtils.audioAttributesContainsAudioAttribute(audioAttributes,
+                        TEST_ASSISTANT_AUDIO_ATTRIBUTE, carAudioContext)).isTrue();
+    }
+
+    @Test
+    public void audioAttributesContainsAudioAttribute_forInvalidAudioAttribute() {
+        var audioInfos = CarAudioContext.getAllContextsInfo();
+        var carAudioContext = new CarAudioContext(audioInfos, /* useCarAudioContext= */ false);
+        List<AudioAttributes> audioAttributes = List.of();
+
+        expectWithMessage("Non-existing media audio attribute")
+                .that(CarAudioUtils.audioAttributesContainsAudioAttribute(audioAttributes,
+                        TEST_MEDIA_AUDIO_ATTRIBUTE, carAudioContext)).isFalse();
+    }
+
+    private static List<AudioAttributes> getAudioAttributesFromContextInfos(
+            List<CarAudioContextInfo> infos) {
+        List<AudioAttributes> audioAttributes = new ArrayList<>();
+        for (int c = 0; c < infos.size(); c++) {
+            audioAttributes.addAll(Arrays.asList(infos.get(c).getAudioAttributes()));
+        }
+        return audioAttributes;
+    }
+
     private List<CarAudioDeviceInfo> generateCarDeviceInfos() {
         return ImmutableList.of(
                 generateCarAudioDeviceInfo(MEDIA_TEST_DEVICE),
@@ -506,13 +546,6 @@ public class CarAudioUtilsTest extends AbstractExpectableTestCase {
     private AudioDeviceInfo[] getMockOutputDevices() {
         return new AudioDeviceInfo[] { TEST_BUS_DEVICE_1_INFO, TEST_BUS_DEVICE_2_INFO,
                 TEST_BT_DEVICE_INFO};
-    }
-
-    private static AudioDeviceAttributes getMockDevice(String address, int type) {
-        AudioDeviceAttributes attributeMock = Mockito.mock(AudioDeviceAttributes.class);
-        when(attributeMock.getAddress()).thenReturn(address);
-        when(attributeMock.getType()).thenReturn(type);
-        return attributeMock;
     }
 
     private static AudioDeviceInfo getTestAudioDeviceInfo(String address) {
