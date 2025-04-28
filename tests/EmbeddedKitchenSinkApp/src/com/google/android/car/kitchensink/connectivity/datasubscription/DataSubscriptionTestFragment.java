@@ -28,8 +28,6 @@ import android.widget.TextView;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import com.android.car.datasubscription.DataSubscriptionStatus;
-
 import com.google.android.car.kitchensink.R;
 
 public class DataSubscriptionTestFragment extends Fragment {
@@ -37,7 +35,8 @@ public class DataSubscriptionTestFragment extends Fragment {
 
     public static final String FRAGMENT_NAME = "DataSubscription";
 
-    public static final String CAR_DATA_SUBSCRIPTION_STATUS = "car_data_subscription_status";
+    public static final String EXTENDED_CAR_DATA_SUBSCRIPTION_STATUS =
+            "extended_car_data_subscription_status";
 
     private TextView mMessage;
 
@@ -48,23 +47,24 @@ public class DataSubscriptionTestFragment extends Fragment {
         mMessage = view.findViewById(R.id.message);
         Button inactiveButton = view.findViewById(R.id.inactive);
         inactiveButton.setOnClickListener(v -> {
-            setDataSubscriptionStatus(DataSubscriptionStatus.INACTIVE);
+            setDataSubscriptionStatus(0);
         });
 
         Button trialButton = view.findViewById(R.id.trial);
         trialButton.setOnClickListener(v -> {
-            setDataSubscriptionStatus(DataSubscriptionStatus.TRIAL);
+            setDataSubscriptionStatus(1);
         });
 
         Button paidButton = view.findViewById(R.id.paid);
         paidButton.setOnClickListener(v -> {
-            setDataSubscriptionStatus(DataSubscriptionStatus.PAID);
+            setDataSubscriptionStatus(2);
         });
         return view;
     }
 
-    private void setDataSubscriptionStatus(@DataSubscriptionStatus int dataSubscription) {
-        Settings.Global.putInt(getContext().getContentResolver(), CAR_DATA_SUBSCRIPTION_STATUS,
+    private void setDataSubscriptionStatus(int dataSubscription) {
+        Settings.Global.putInt(getContext().getContentResolver(),
+                EXTENDED_CAR_DATA_SUBSCRIPTION_STATUS,
                 dataSubscription);
         setMessage(getDataSubscriptionStatus());
     }
@@ -72,14 +72,14 @@ public class DataSubscriptionTestFragment extends Fragment {
     private int getDataSubscriptionStatus() {
         try {
             return Settings.Global.getInt(getContext().getContentResolver(),
-                    CAR_DATA_SUBSCRIPTION_STATUS);
+                    EXTENDED_CAR_DATA_SUBSCRIPTION_STATUS);
         } catch (Settings.SettingNotFoundException e) {
             Log.e(TAG, "Can't get Data Subscription status");
         }
         return -1;
     }
 
-    private void setMessage(@DataSubscriptionStatus int dataSubscription) {
+    private void setMessage(int dataSubscription) {
         mMessage.setText(getContext().getResources().getString(R.string.data_subscription_message,
                 dataSubscription));
     }

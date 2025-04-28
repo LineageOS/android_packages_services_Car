@@ -112,7 +112,6 @@ import android.os.IBinder;
 import android.os.RemoteCallbackList;
 import android.os.RemoteException;
 import android.os.SystemClock;
-import android.os.SystemProperties;
 import android.os.UserHandle;
 import android.telephony.SubscriptionManager;
 import android.telephony.TelephonyManager;
@@ -195,9 +194,6 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
     static final AudioAttributes CAR_DEFAULT_AUDIO_ATTRIBUTE =
             CarAudioContext.getAudioAttributeFromUsage(USAGE_MEDIA);
 
-    private static final String PROPERTY_RO_ENABLE_AUDIO_PATCH =
-            "ro.android.car.audio.enableaudiopatch";
-
     // CarAudioService reads configuration from the following paths respectively.
     // If the first one is found, all others are ignored.
     // If no one is found, it fallbacks to car_volume_groups.xml resource file.
@@ -227,6 +223,7 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
     private final Context mContext;
     private final TelephonyManager mTelephonyManager;
     private final AudioManagerWrapper mAudioManagerWrapper;
+    private final SystemPropertiesWrapper mSystemProperties;
     private final boolean mUseDynamicRouting;
     private final boolean mUseCarVolumeGroupEvents;
     private final boolean mUseMinMaxActivationVolume;
@@ -428,12 +425,14 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
             };
 
     public CarAudioService(Context context) {
-        this(context, /* audioManagerWrapper = */ null, getAudioConfigurationPath(),
-                /* carVolumeCallbackHandler= */ null, getAudioFadeConfigurationPath());
+        this(context, /* audioManagerWrapper = */ null, /*systemProperties*/ null,
+                getAudioConfigurationPath(), /* carVolumeCallbackHandler= */ null,
+                getAudioFadeConfigurationPath());
     }
 
     @VisibleForTesting
     CarAudioService(Context context, @Nullable AudioManagerWrapper audioManagerWrapper,
+            @Nullable SystemPropertiesWrapper systemProperties,
             @Nullable String audioConfigurationPath,
             CarVolumeCallbackHandler carVolumeCallbackHandler,
             @Nullable String audioFadeConfigurationPath) {
@@ -453,6 +452,8 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
             mAudioManagerWrapper = audioManagerWrapper == null
                     ? new AudioManagerWrapper(mContext.getSystemService(AudioManager.class))
                     : audioManagerWrapper;
+            mSystemProperties = systemProperties == null
+                    ? new SystemPropertiesWrapper() : systemProperties;
             mUseDynamicRouting = mContext.getResources().getBoolean(R.bool.audioUseDynamicRouting);
             mUseCoreAudioVolume = mContext.getResources().getBoolean(R.bool.audioUseCoreVolume);
             mUseCoreAudioRouting = mContext.getResources().getBoolean(R.bool.audioUseCoreRouting);
@@ -2661,12 +2662,12 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
     private void enforceCanUseAudioPatchAPI() {
         if (!areAudioPatchAPIsEnabled()) {
             throw new IllegalStateException("Audio Patch APIs not enabled, see "
-                    + PROPERTY_RO_ENABLE_AUDIO_PATCH);
+                    + SystemPropertiesWrapper.PROPERTY_RO_ENABLE_AUDIO_PATCH);
         }
     }
 
     private boolean areAudioPatchAPIsEnabled() {
-        return SystemProperties.getBoolean(PROPERTY_RO_ENABLE_AUDIO_PATCH, /* default= */ false);
+        return mSystemProperties.areAudioPatchAPIsEnabled();
     }
 
     @GuardedBy("mImplLock")
