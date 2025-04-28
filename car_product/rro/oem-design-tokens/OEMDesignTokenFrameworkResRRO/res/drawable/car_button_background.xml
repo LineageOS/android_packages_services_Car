@@ -30,7 +30,7 @@
         </shape>
     </item>
     <item>
-        <ripple android:color="@color/car_control_highlight">
+        <ripple android:color="?android:attr/colorControlHighlight">
             <item>
                 <shape android:shape="rectangle">
                     <corners android:radius="?oemShapeCornerExtraLarge"/>

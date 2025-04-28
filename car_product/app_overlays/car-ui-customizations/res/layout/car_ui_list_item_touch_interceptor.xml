@@ -18,7 +18,7 @@
 <com.android.car.ui.SecureView
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/car_ui_list_item_touch_interceptor"
-    android:background="@drawable/car_ui_list_item_background"
+    android:background="?android:attr/selectableItemBackground"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
     <LinearLayout
