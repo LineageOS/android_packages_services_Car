@@ -142,7 +142,7 @@
         <item name="android:paddingStart">12dp</item>
         <item name="android:paddingEnd">12dp</item>
         <item name="android:gravity">center</item>
-        <item name="android:background">@drawable/car_ui_toolbar_tab_background</item>
+        <item name="android:background">?android:attr/selectableItemBackground</item>
     </style>
 
 </resources>

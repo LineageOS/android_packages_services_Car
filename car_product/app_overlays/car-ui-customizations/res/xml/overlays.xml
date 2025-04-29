@@ -60,7 +60,6 @@
 
     <item target="drawable/car_ui_icon_arrow_back" value="@drawable/car_ui_icon_arrow_back"/>
     <item target="drawable/car_ui_list_item_divider" value="@drawable/car_ui_list_item_divider"/>
-    <item target="drawable/car_ui_list_item_background" value="@drawable/car_ui_list_item_background"/>
     <item target="drawable/car_ui_list_item_avatar_icon_outline" value="@drawable/car_ui_list_item_avatar_icon_outline"/>
     <item target="drawable/car_ui_toolbar_background" value="@drawable/car_ui_toolbar_background" />
     <item target="drawable/car_ui_toolbar_menu_item_icon_background" value="@drawable/car_ui_toolbar_menu_item_icon_background"/>

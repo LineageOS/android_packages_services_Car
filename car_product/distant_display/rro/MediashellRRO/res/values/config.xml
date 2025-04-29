@@ -29,7 +29,7 @@
     </string-array>
     <!-- Ids of the distant display displays that support Cast -->
     <string-array name="distant_display_unique_ids">
-        <item>"local:4619827259835644672"</item>
+        <item>"0"</item>
         <item>"virtual:com.android.systemui:DistantDisplay"</item>
     </string-array>
     <!-- Touch capability of the distant display displays that support Cast -->
@@ -42,7 +42,7 @@
     <!-- 1: Android Logical Display -->
     <!-- 2: Android Automotive Private Display -->
     <integer-array name="distant_display_types">
-	<item>2</item>
+	<item>1</item>
 	<item>2</item>
     </integer-array>
 </resources>

@@ -20,6 +20,6 @@
     android:id="@+id/car_ui_list_item_reduced_touch_interceptor"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/car_ui_list_item_background">
+    android:background="?android:attr/selectableItemBackground">
     <include layout="@layout/car_ui_list_item_icon_title_body_container"/>
 </com.android.car.ui.SecureView>
