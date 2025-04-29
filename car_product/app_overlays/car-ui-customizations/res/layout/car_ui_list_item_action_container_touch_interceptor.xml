@@ -20,7 +20,7 @@
     android:id="@+id/car_ui_list_item_action_container_touch_interceptor"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/car_ui_list_item_background">
+    android:background="?android:attr/selectableItemBackground">
     <FrameLayout
         android:id="@+id/car_ui_list_item_action_container"
         android:layout_width="match_parent"

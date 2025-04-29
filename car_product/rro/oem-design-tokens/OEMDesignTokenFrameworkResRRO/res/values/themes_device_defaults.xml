@@ -27,6 +27,8 @@
         <item name="android:colorBackground">?oemColorBackground</item>
         <item name="android:colorBackgroundFloating">?oemColorBackground</item>
         <item name="android:colorButtonNormal">@color/btn_device_default</item>
+        <item name="android:colorActivatedHighlight">?oemColorPrimaryContainer</item>
+        <item name="android:colorControlActivated">?oemColorSecondaryContainer</item>
         <item name="android:colorControlHighlight">@color/car_control_highlight</item>
         <item name="android:colorControlNormal">@color/btn_device_default</item>
         <item name="android:colorPrimary">?oemColorPrimary</item>
@@ -40,8 +42,8 @@
         <item name="android:textColorPrimary">?oemColorOnBackground</item>
         <item name="android:textColorPrimaryDisableOnly">?oemColorOnBackground</item>
         <item name="android:textColorPrimaryInverse">?oemColorBackground</item>
-        <item name="android:textColorSecondary">?oemColorSecondary</item>
-        <item name="android:textColorSecondaryInverse">?oemColorOnSecondary</item>
+        <item name="android:textColorSecondary">?oemColorOnSurfaceVariant</item>
+        <item name="android:textColorSecondaryInverse">?oemColorSurfaceVariant</item>
         <item name="android:textColorTertiary">?oemColorSecondary</item>
         <item name="android:textColorTertiaryInverse">?oemColorOnSecondary</item>
         <item name="android:textAppearanceLarge">?oemTextAppearanceBodyLarge</item>
@@ -57,6 +59,7 @@
 
         <item name="oemColorPrimary">@color/color_primary</item>
         <item name="oemColorOnPrimary">@color/color_on_primary</item>
+        <item name="oemColorPrimaryContainer">@color/color_primary_container</item>
         <item name="oemColorOnPrimaryContainer">@color/color_on_primary_container</item>
         <item name="oemColorSecondary">@color/color_secondary</item>
         <item name="oemColorOnSecondary">@color/color_on_secondary</item>
@@ -166,7 +169,7 @@
         <item name="android:colorButtonNormal">@color/btn_device_default</item>
         <item name="android:colorControlHighlight">@color/car_control_highlight</item>
         <item name="android:colorControlNormal">@color/btn_device_default</item>
-        <item name="android:colorControlActivated">@color/car_control_highlight</item>
+        <item name="android:colorControlActivated">?oemColorSecondaryContainer</item>
         <item name="android:colorPrimary">?oemColorPrimary</item>
         <item name="android:colorPrimaryDark">?oemColorPrimary</item>
         <item name="android:colorForeground">?oemColorOnBackground</item>
@@ -236,6 +239,7 @@
     <style name="OemThemeOverlay">
         <item name="oemColorPrimary">?com.android.oem.tokens:attr/colorPrimary</item>
         <item name="oemColorOnPrimary">?com.android.oem.tokens:attr/colorOnPrimary</item>
+        <item name="oemColorPrimaryContainer">?com.android.oem.tokens:attr/colorPrimaryContainer</item>
         <item name="oemColorOnPrimaryContainer">?com.android.oem.tokens:attr/colorOnPrimaryContainer</item>
         <item name="oemColorSecondary">?com.android.oem.tokens:attr/colorSecondary</item>
         <item name="oemColorOnSecondary">?com.android.oem.tokens:attr/colorOnSecondary</item>
@@ -315,7 +319,7 @@
         <item name="android:colorError">@*android:color/error_color_device_default_light</item>
         <item name="android:colorBackgroundFloating">?oemColorBackground</item>
         <item name="android:colorButtonNormal">@color/btn_device_default</item>
-        <item name="android:colorControlHighlight">@color/car_control_highlight</item>
+        <item name="android:colorControlHighlight">?oemColorSecondaryContainer</item>
         <item name="android:colorControlNormal">@color/btn_device_default</item>
         <item name="android:colorForeground">?oemColorOnBackground</item>
         <item name="android:editTextColor">?oemColorOnSurface</item>
