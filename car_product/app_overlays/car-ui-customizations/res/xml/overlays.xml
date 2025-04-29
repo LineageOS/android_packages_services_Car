@@ -50,7 +50,6 @@
     <item target="color/car_ui_toolbar_menu_item_icon_background_color" value="@color/car_ui_toolbar_menu_item_icon_background_color"/>
     <item target="color/car_ui_toolbar_menu_item_icon_color" value="@color/car_ui_toolbar_menu_item_icon_color"/>
     <item target="color/car_ui_toolbar_tab_item_selector" value="@color/car_ui_toolbar_tab_item_selector"/>
-    <item target="color/car_ui_scrollbar_thumb" value="@color/car_ui_scrollbar_thumb"/>
 
     <item target="dimen/car_ui_toolbar_margin" value="@dimen/car_ui_toolbar_margin"/>
     <item target="dimen/car_ui_toolbar_menu_item_icon_size" value="@dimen/car_ui_toolbar_menu_item_icon_size"/>
