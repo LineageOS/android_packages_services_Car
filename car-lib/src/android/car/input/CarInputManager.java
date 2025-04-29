@@ -152,6 +152,13 @@ public final class CarInputManager extends CarManagerBase {
     public static final int INPUT_TYPE_ROTARY_VOLUME = 11;
 
     /**
+     * This is for {@code KeyEvent#KEYCODE_VOICE_ASSIST} key.
+     *
+     * @hide
+     */
+    public static final int INPUT_TYPE_VOICE_ASSIST = 12;
+
+    /**
      * This is the group of keys for DPAD.
      * Included key events are: {@link KeyEvent#KEYCODE_DPAD_UP},
      * {@link KeyEvent#KEYCODE_DPAD_DOWN}, {@link KeyEvent#KEYCODE_DPAD_LEFT},
@@ -192,6 +199,7 @@ public final class CarInputManager extends CarManagerBase {
             INPUT_TYPE_ALL_INPUTS,
             INPUT_TYPE_ROTARY_NAVIGATION,
             INPUT_TYPE_ROTARY_VOLUME,
+            INPUT_TYPE_VOICE_ASSIST,
             INPUT_TYPE_DPAD_KEYS,
             INPUT_TYPE_NAVIGATE_KEYS,
             INPUT_TYPE_SYSTEM_NAVIGATE_KEYS,
