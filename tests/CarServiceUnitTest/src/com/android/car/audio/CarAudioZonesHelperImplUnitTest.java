@@ -1627,48 +1627,7 @@ public final class CarAudioZonesHelperImplUnitTest extends AbstractExpectableTes
     }
 
     @Test
-    public void loadAudioZones_withMinMaxActivationVolumeAndNoActivationVolumeSupport()
-            throws Exception {
-        mSetFlagsRule.disableFlags(Flags.FLAG_CAR_AUDIO_MIN_MAX_ACTIVATION_VOLUME);
-        try (InputStream versionFourStream = mContext.getResources().openRawResource(
-                R.raw.car_audio_configuration_with_min_max_activation_volume)) {
-            CarAudioZonesHelperImpl cazh = new CarAudioZonesHelperImpl(mAudioManagerWrapper,
-                    mCarAudioSettings, versionFourStream, mCarAudioOutputDeviceInfos,
-                    mInputAudioDeviceInfos, mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
-                    /* useCoreAudioVolume= */ false, /* useCoreAudioRouting= */ false,
-                    /* useFadeManagerConfiguration= */ false,
-                    /* carAudioFadeConfigurationHelper= */ null);
-
-            SparseArray<CarAudioZone> zones = cazh.loadAudioZones();
-
-            CarAudioZoneConfig zoneConfig = zones.get(0).getCurrentCarAudioZoneConfig();
-            CarVolumeGroup[] volumeGroups = zoneConfig.getVolumeGroups();
-            expectWithMessage(
-                    "Primary zone volume group 0 min activation volume with disabled flag")
-                    .that(volumeGroups[0].getMinActivationGainIndex())
-                    .isEqualTo(volumeGroups[0].getMinGainIndex());
-            expectWithMessage(
-                    "Primary zone volume group 0 max activation volume with disabled flag")
-                    .that(volumeGroups[0].getMaxActivationGainIndex())
-                    .isEqualTo(volumeGroups[0].getMaxGainIndex());
-            expectWithMessage("Primary zone volume group min activation volume with disabled flag"
-                            + " and without activation config")
-                    .that(volumeGroups[PRIMARY_ZONE_GROUP_ID_WITHOUT_ACTIVATION_VOLUME]
-                            .getMinActivationGainIndex())
-                    .isEqualTo(volumeGroups[PRIMARY_ZONE_GROUP_ID_WITHOUT_ACTIVATION_VOLUME]
-                            .getMinGainIndex());
-            expectWithMessage("Primary zone volume group max activation volume with disabled flag"
-                    + " and without activation config")
-                    .that(volumeGroups[PRIMARY_ZONE_GROUP_ID_WITHOUT_ACTIVATION_VOLUME]
-                            .getMaxActivationGainIndex())
-                    .isEqualTo(volumeGroups[PRIMARY_ZONE_GROUP_ID_WITHOUT_ACTIVATION_VOLUME]
-                            .getMaxGainIndex());
-        }
-    }
-
-    @Test
     public void loadAudioZones_withMinMaxActivationVolume() throws Exception {
-        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_MIN_MAX_ACTIVATION_VOLUME);
         try (InputStream versionFourStream = mContext.getResources().openRawResource(
                 R.raw.car_audio_configuration_with_min_max_activation_volume)) {
             CarAudioZonesHelperImpl cazh = new CarAudioZonesHelperImpl(mAudioManagerWrapper,
@@ -1712,7 +1671,6 @@ public final class CarAudioZonesHelperImplUnitTest extends AbstractExpectableTes
     @Test
     public void loadAudioZones_withMinMaxActivationVolume_forVersionThree_fails()
             throws Exception {
-        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_MIN_MAX_ACTIVATION_VOLUME);
         try (InputStream versionFourStream = mContext.getResources().openRawResource(
                 R.raw.car_audio_configuration_with_min_max_activation_volume_in_v3)) {
             CarAudioZonesHelperImpl cazh = new CarAudioZonesHelperImpl(mAudioManagerWrapper,
@@ -1732,7 +1690,6 @@ public final class CarAudioZonesHelperImplUnitTest extends AbstractExpectableTes
 
     @Test
     public void loadAudioZones_withMinMaxActivationVolumeOutOfRange_fails() throws Exception {
-        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_MIN_MAX_ACTIVATION_VOLUME);
         try (InputStream versionFourStream = mContext.getResources().openRawResource(
                 R.raw.car_audio_configuration_with_min_max_activation_volume_out_of_range)) {
             CarAudioZonesHelperImpl cazh = new CarAudioZonesHelperImpl(mAudioManagerWrapper,
@@ -1752,7 +1709,6 @@ public final class CarAudioZonesHelperImplUnitTest extends AbstractExpectableTes
 
     @Test
     public void loadAudioZones_withMinGreaterThanMaxActivationVolume_fails() throws Exception {
-        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_MIN_MAX_ACTIVATION_VOLUME);
         try (InputStream versionFourStream = mContext.getResources().openRawResource(
                 R.raw.car_audio_configuration_with_min_greater_than_max_activation_volume)) {
             CarAudioZonesHelperImpl cazh = new CarAudioZonesHelperImpl(mAudioManagerWrapper,
@@ -1773,7 +1729,6 @@ public final class CarAudioZonesHelperImplUnitTest extends AbstractExpectableTes
     @Test
     public void loadAudioZones_withInvalidMinMaxActivationVolumeActivationType_fails()
             throws Exception {
-        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_MIN_MAX_ACTIVATION_VOLUME);
         try (InputStream versionFourStream = mContext.getResources().openRawResource(
                 R.raw.car_audio_configuration_with_invalid_activation_volume_type)) {
             CarAudioZonesHelperImpl cazh = new CarAudioZonesHelperImpl(mAudioManagerWrapper,
@@ -1795,7 +1750,6 @@ public final class CarAudioZonesHelperImplUnitTest extends AbstractExpectableTes
     @Test
     public void loadAudioZones_withMultipleActivationVolumeConfigEntriesInOneConfig_fails()
             throws Exception {
-        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_MIN_MAX_ACTIVATION_VOLUME);
         try (InputStream versionFourStream = mContext.getResources().openRawResource(
                 R.raw.car_audio_configuration_with_activation_volume_multiple_entries)) {
             CarAudioZonesHelperImpl cazh = new CarAudioZonesHelperImpl(mAudioManagerWrapper,
@@ -1816,7 +1770,6 @@ public final class CarAudioZonesHelperImplUnitTest extends AbstractExpectableTes
     @Test
     public void loadAudioZones_withRepeatedActivationVolumeConfigName_fails()
             throws Exception {
-        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_MIN_MAX_ACTIVATION_VOLUME);
         try (InputStream versionFourStream = mContext.getResources().openRawResource(
                 R.raw.car_audio_configuration_with_activation_volume_repeated_config_name)) {
             CarAudioZonesHelperImpl cazh = new CarAudioZonesHelperImpl(mAudioManagerWrapper,
@@ -1837,7 +1790,6 @@ public final class CarAudioZonesHelperImplUnitTest extends AbstractExpectableTes
     @Test
     public void loadAudioZones_withoutActivationVolumeConfigName_fails()
             throws Exception {
-        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_MIN_MAX_ACTIVATION_VOLUME);
         try (InputStream versionFourStream = mContext.getResources().openRawResource(
                 R.raw.car_audio_configuration_missing_activation_volume_config_name)) {
             CarAudioZonesHelperImpl cazh = new CarAudioZonesHelperImpl(mAudioManagerWrapper,
@@ -1858,7 +1810,6 @@ public final class CarAudioZonesHelperImplUnitTest extends AbstractExpectableTes
     @Test
     public void loadAudioZones_withInvalidActivationVolumeConfigName_fails()
             throws Exception {
-        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_MIN_MAX_ACTIVATION_VOLUME);
         try (InputStream versionFourStream = mContext.getResources().openRawResource(
                 R.raw.car_audio_configuration_with_invalid_activation_volume_config_name)) {
             CarAudioZonesHelperImpl cazh = new CarAudioZonesHelperImpl(mAudioManagerWrapper,

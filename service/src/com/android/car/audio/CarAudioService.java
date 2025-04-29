@@ -477,8 +477,7 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
             mUseFadeManagerConfiguration = enableFadeManagerConfiguration()
                     && carAudioFadeManagerConfiguration()
                     && mContext.getResources().getBoolean(R.bool.audioUseFadeManagerConfiguration);
-            mUseMinMaxActivationVolume = Flags.carAudioMinMaxActivationVolume()
-                    && !runInLegacyMode()
+            mUseMinMaxActivationVolume = !runInLegacyMode()
                     && mContext.getResources().getBoolean(R.bool.audioUseMinMaxActivationVolume);
             mUseIsolatedFocusForDynamicDevices = Flags.carAudioDynamicDevices()
                     && !runInLegacyMode()

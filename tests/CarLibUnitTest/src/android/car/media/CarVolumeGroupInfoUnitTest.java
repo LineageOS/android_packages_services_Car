@@ -152,8 +152,6 @@ public final class CarVolumeGroupInfoUnitTest extends AbstractExpectableTestCase
 
     @Test
     public void build_buildsGroupInfo_withMinMaxActivationVolume_succeeds() {
-        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_MIN_MAX_ACTIVATION_VOLUME);
-
         CarVolumeGroupInfo info = new CarVolumeGroupInfo
                 .Builder(TEST_GROUP_NAME, TEST_ZONE_ID, TEST_PRIMARY_GROUP_ID)
                 .setMaxVolumeGainIndex(TEST_MAX_GAIN_INDEX)
@@ -172,7 +170,6 @@ public final class CarVolumeGroupInfoUnitTest extends AbstractExpectableTestCase
 
     @Test
     public void build_buildsGroupInfo_withMinActivationVolumeOutOfMinMaxRange_fails() {
-        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_MIN_MAX_ACTIVATION_VOLUME);
         CarVolumeGroupInfo.Builder infoBuilder = mTestGroupInfoBuilder
                 .setMinActivationVolumeGainIndex(TEST_MIN_GAIN_INDEX - 1);
 
@@ -185,7 +182,6 @@ public final class CarVolumeGroupInfoUnitTest extends AbstractExpectableTestCase
 
     @Test
     public void build_buildsGroupInfo_withMaxActivationVolumeOutOfMinMaxRange_fails() {
-        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_MIN_MAX_ACTIVATION_VOLUME);
         CarVolumeGroupInfo.Builder infoBuilder = mTestGroupInfoBuilder
                 .setMaxActivationVolumeGainIndex(TEST_MAX_GAIN_INDEX + 1);
 
@@ -198,7 +194,6 @@ public final class CarVolumeGroupInfoUnitTest extends AbstractExpectableTestCase
 
     @Test
     public void build_buildsGroupInfo_withMinLargerThanMaxActivationVolume_fails() {
-        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_MIN_MAX_ACTIVATION_VOLUME);
         CarVolumeGroupInfo.Builder infoBuilder = mTestGroupInfoBuilder
                 .setMinActivationVolumeGainIndex(TEST_MAX_ACTIVATION_GAIN_INDEX)
                 .setMaxActivationVolumeGainIndex(TEST_MAX_ACTIVATION_GAIN_INDEX - 1);
@@ -350,7 +345,6 @@ public final class CarVolumeGroupInfoUnitTest extends AbstractExpectableTestCase
     @Test
     public void writeToParcel_withAllFlagsDisabled() {
         mSetFlagsRule.disableFlags(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
-        mSetFlagsRule.disableFlags(Flags.FLAG_CAR_AUDIO_MIN_MAX_ACTIVATION_VOLUME);
         Parcel parcel = Parcel.obtain();
 
         TEST_VOLUME_INFO.writeToParcel(parcel, TEST_PARCEL_FLAGS);
@@ -363,7 +357,6 @@ public final class CarVolumeGroupInfoUnitTest extends AbstractExpectableTestCase
     @Test
     public void writeToParcel_withAllFlagsEnabled() {
         mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
-        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_MIN_MAX_ACTIVATION_VOLUME);
         CarVolumeGroupInfo volumeGroupInfo = new CarVolumeGroupInfo.Builder(TEST_VOLUME_INFO)
                 .setMaxVolumeGainIndex(TEST_MAX_GAIN_INDEX)
                 .setMinVolumeGainIndex(TEST_MIN_GAIN_INDEX)
@@ -384,7 +377,6 @@ public final class CarVolumeGroupInfoUnitTest extends AbstractExpectableTestCase
     @Test
     public void createFromParcel_withAllFlagsDisabled() {
         mSetFlagsRule.disableFlags(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
-        mSetFlagsRule.disableFlags(Flags.FLAG_CAR_AUDIO_MIN_MAX_ACTIVATION_VOLUME);
         Parcel parcel = Parcel.obtain();
         TEST_VOLUME_INFO.writeToParcel(parcel, TEST_PARCEL_FLAGS);
         parcel.setDataPosition(/* pos= */ 0);
@@ -397,7 +389,6 @@ public final class CarVolumeGroupInfoUnitTest extends AbstractExpectableTestCase
     @Test
     public void createFromParcel_withAllFlagsEnabled() {
         mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
-        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_MIN_MAX_ACTIVATION_VOLUME);
         CarVolumeGroupInfo volumeGroupInfo = new CarVolumeGroupInfo.Builder(TEST_VOLUME_INFO)
                 .setMaxVolumeGainIndex(TEST_MAX_GAIN_INDEX)
                 .setMinVolumeGainIndex(TEST_MIN_GAIN_INDEX)
@@ -467,7 +458,6 @@ public final class CarVolumeGroupInfoUnitTest extends AbstractExpectableTestCase
     @Test
     public void hashCode_forSameContent_forAllFlagsDisabled() {
         mSetFlagsRule.disableFlags(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
-        mSetFlagsRule.disableFlags(Flags.FLAG_CAR_AUDIO_MIN_MAX_ACTIVATION_VOLUME);
         CarVolumeGroupInfo infoWithSameContent = new CarVolumeGroupInfo.Builder(TEST_VOLUME_INFO)
                 .setMaxVolumeGainIndex(TEST_MAX_GAIN_INDEX)
                 .setMinVolumeGainIndex(TEST_MIN_GAIN_INDEX)
@@ -482,7 +472,6 @@ public final class CarVolumeGroupInfoUnitTest extends AbstractExpectableTestCase
     @Test
     public void hashCode_forSameContent_forAllFlagsEnabled() {
         mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
-        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_MIN_MAX_ACTIVATION_VOLUME);
         CarVolumeGroupInfo originalInfo = new CarVolumeGroupInfo.Builder(TEST_VOLUME_INFO)
                 .setMaxVolumeGainIndex(TEST_MAX_GAIN_INDEX)
                 .setMinVolumeGainIndex(TEST_MIN_GAIN_INDEX)

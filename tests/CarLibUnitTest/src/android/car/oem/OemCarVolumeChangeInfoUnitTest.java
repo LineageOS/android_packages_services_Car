@@ -30,7 +30,6 @@ import org.junit.Rule;
 import org.junit.Test;
 
 @EnableFlags({
-        Flags.FLAG_CAR_AUDIO_MIN_MAX_ACTIVATION_VOLUME,
         Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES,
 })
 public final class OemCarVolumeChangeInfoUnitTest extends AbstractExpectableTestCase {
