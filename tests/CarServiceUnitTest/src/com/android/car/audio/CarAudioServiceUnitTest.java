@@ -4483,7 +4483,6 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
 
     @Test
     public void onAudioDeviceGainsChanged_withMute_setsSystemMute() throws Exception {
-        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_MUTE_AMBIGUITY);
         CarAudioService service = setUpAudioService();
         HalAudioGainCallback halAudioGainCallback = getHalAudioGainCallback();
         CarAudioGainConfigInfo primaryAudioZoneCarGain = createCarAudioGainConfigInfo(

@@ -280,9 +280,7 @@ public final class CarVolumeGroupInfo implements Parcelable {
                     .append(", min activation gain = ").append(mMinActivationVolumeGainIndex);
         }
         builder.append(", muted = ").append(mIsMuted);
-        if (Flags.carAudioMuteAmbiguity()) {
-            builder.append(", muted by system = ").append(mIsMutedBySystem);
-        }
+        builder.append(", muted by system = ").append(mIsMutedBySystem);
         builder.append(", blocked = ").append(mIsBlocked)
                 .append(", attenuated = ").append(mIsAttenuated).append(", audio attributes = ")
                 .append(mAudioAttributes);
@@ -355,9 +353,7 @@ public final class CarVolumeGroupInfo implements Parcelable {
         if (Flags.carAudioMinMaxActivationVolume()) {
             hash = Objects.hash(hash, mMaxActivationVolumeGainIndex, mMinActivationVolumeGainIndex);
         }
-        if (Flags.carAudioMuteAmbiguity()) {
-            hash = Objects.hash(hash, mIsMutedBySystem);
-        }
+        hash = Objects.hash(hash, mIsMutedBySystem);
         return hash;
     }
 
@@ -378,9 +374,6 @@ public final class CarVolumeGroupInfo implements Parcelable {
     }
 
     private boolean checkIsSameMutedBySystem(boolean isMutedBySystem) {
-        if (!Flags.carAudioMuteAmbiguity()) {
-            return true;
-        }
         return mIsMutedBySystem == isMutedBySystem;
     }
 
