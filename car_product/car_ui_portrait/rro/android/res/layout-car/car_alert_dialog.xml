@@ -14,41 +14,48 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<RelativeLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@*android:id/parentPanel"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:gravity="start|top"
+    android:orientation="vertical"
     android:background="@drawable/alert_dialog_bg"
-    android:padding="@dimen/car_alert_dialog_padding"
-    android:orientation="vertical">
+    android:padding="@dimen/car_alert_dialog_padding">
+
     <include layout="@layout/car_alert_dialog_title" />
+
     <FrameLayout
         android:id="@*android:id/contentPanel"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@*android:id/topPanel"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:minHeight="168dp"
         android:padding="@dimen/car_alert_dialog_padding">
+
         <ScrollView
             android:id="@*android:id/scrollView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:clipToPadding="false">
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
+
                 <Space
                     android:id="@*android:id/textSpacerNoTitle"
                     android:visibility="gone"
                     android:layout_width="match_parent"
                     android:layout_height="0dp"/>
+
                 <TextView
                     android:id="@android:id/message"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     style="@style/CarDialogMessage"/>
+
                 <!-- we don't need this spacer, but the id needs to be here for compatibility -->
                 <Space
                     android:id="@*android:id/textSpacerNoButtons"
@@ -58,22 +65,24 @@
             </LinearLayout>
         </ScrollView>
     </FrameLayout>
+
     <FrameLayout
         android:id="@*android:id/customPanel"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@*android:id/contentPanel"
         android:layout_margin="@dimen/car_alert_dialog_padding">
+
         <FrameLayout
             android:id="@android:id/custom"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
     </FrameLayout>
+
     <include
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@*android:id/customPanel"
         android:layout_marginTop="@dimen/car_alert_dialog_padding"
         android:layout_marginHorizontal="@dimen/car_alert_dialog_padding"
         layout="@layout/car_alert_dialog_button_bar" />
-</RelativeLayout>
+
+</LinearLayout>
