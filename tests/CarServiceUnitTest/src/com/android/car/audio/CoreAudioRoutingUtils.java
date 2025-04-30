@@ -174,6 +174,8 @@ public final class CoreAudioRoutingUtils {
         parcel.writeInt(MUSIC_GROUP_ID);
         // stream type
         parcel.writeInt(0);
+        // product strategy
+        parcel.writeInt(MUSIC_STRATEGY_ID);
         // nb attributes
         parcel.writeInt(2);
 
@@ -211,6 +213,8 @@ public final class CoreAudioRoutingUtils {
         parcel.writeInt(NAV_GROUP_ID);
         // stream type
         parcel.writeInt(0);
+        // product strategy
+        parcel.writeInt(NAV_STRATEGY_ID);
         // nb attributes
         parcel.writeInt(2);
 
@@ -248,6 +252,8 @@ public final class CoreAudioRoutingUtils {
         parcel.writeInt(OEM_GROUP_ID);
         // stream type
         parcel.writeInt(0);
+        // product strategy
+        parcel.writeInt(OEM_STRATEGY_ID);
         // nb attributes
         parcel.writeInt(1);
         parcel.writeInt(AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE);
