@@ -54,17 +54,6 @@ Result<void> PackageManagerProxy::init() {
         return {};
     }
 
-    sp<IServiceManager> serviceManager = android::defaultServiceManager();
-    if (serviceManager.get() == nullptr) {
-        return Error() << __func__ << ": unable to access native ServiceManager";
-    }
-
-    sp<IBinder> binder = serviceManager->waitForService(String16("package_native"));
-    mPackageManagerNativeService = interface_cast<IPackageManagerNative>(binder);
-    if (mPackageManagerNativeService == nullptr) {
-        return Error() << __func__ << ": unable to access native PackageManager";
-    }
-
     const auto instanceName = std::string(IPackageManagerProxy::descriptor) + "/default";
     const binder_exception_t err =
             AServiceManager_addService(this->asBinder().get(), instanceName.data());
@@ -72,12 +61,45 @@ Result<void> PackageManagerProxy::init() {
         return Error(err) << "Failed to add IPackageManagerProxy to ServiceManager";
     }
 
+    mInitialized = true;
     return {};
+}
+
+ndk::ScopedAStatus PackageManagerProxy::getPackageManagerNative(
+        android::sp<android::content::pm::IPackageManagerNative>* outPackageManagerNativeService) {
+    if (!mInitialized) {
+        return ScopedAStatus::fromServiceSpecificErrorWithMessage(-1000,
+                                                                  "IPackageManagerProxy not "
+                                                                  "initialized or disabled");
+    }
+
+    sp<IServiceManager> serviceManager = android::defaultServiceManager();
+    if (serviceManager.get() == nullptr) {
+        return ScopedAStatus::
+                fromServiceSpecificErrorWithMessage(-1001,
+                                                    "Unable to access native ServiceManager");
+    }
+
+    sp<IBinder> binder = serviceManager->waitForService(String16("package_native"));
+    *outPackageManagerNativeService = interface_cast<IPackageManagerNative>(binder);
+    if (*outPackageManagerNativeService == nullptr) {
+        return ScopedAStatus::
+                fromServiceSpecificErrorWithMessage(-1002,
+                                                    "Unable to access native PackageManager");
+    }
+
+    return ScopedAStatus::ok();
 }
 
 ndk::ScopedAStatus PackageManagerProxy::getNamesForUids(const std::vector<int32_t>& uids,
                                                         std::vector<std::string>* _aidl_return) {
-    const auto result = mPackageManagerNativeService->getNamesForUids(uids, _aidl_return);
+    android::sp<android::content::pm::IPackageManagerNative> packageManagerNativeService;
+    ScopedAStatus initStatus = getPackageManagerNative(&packageManagerNativeService);
+    if (!initStatus.isOk()) {
+        return initStatus;
+    }
+
+    const auto result = packageManagerNativeService->getNamesForUids(uids, _aidl_return);
 
     if (!result.isOk()) {
         return ScopedAStatus::fromServiceSpecificErrorWithMessage(result.exceptionCode(),
@@ -90,8 +112,14 @@ ndk::ScopedAStatus PackageManagerProxy::getNamesForUids(const std::vector<int32_
 
 ndk::ScopedAStatus PackageManagerProxy::getPackageUid(const std::string& packageName, int64_t flags,
                                                       int32_t userId, int32_t* _aidl_return) {
+    android::sp<android::content::pm::IPackageManagerNative> packageManagerNativeService;
+    ScopedAStatus initStatus = getPackageManagerNative(&packageManagerNativeService);
+    if (!initStatus.isOk()) {
+        return initStatus;
+    }
+
     const auto result =
-            mPackageManagerNativeService->getPackageUid(packageName, flags, userId, _aidl_return);
+            packageManagerNativeService->getPackageUid(packageName, flags, userId, _aidl_return);
 
     if (!result.isOk()) {
         return ScopedAStatus::fromServiceSpecificErrorWithMessage(result.exceptionCode(),
@@ -104,9 +132,15 @@ ndk::ScopedAStatus PackageManagerProxy::getPackageUid(const std::string& package
 
 ndk::ScopedAStatus PackageManagerProxy::getVersionCodeForPackage(const std::string& packageName,
                                                                  int64_t* _aidl_return) {
+    android::sp<android::content::pm::IPackageManagerNative> packageManagerNativeService;
+    ScopedAStatus initStatus = getPackageManagerNative(&packageManagerNativeService);
+    if (!initStatus.isOk()) {
+        return initStatus;
+    }
+
     const String16 packageNameString16(packageName.c_str(), packageName.length());
-    const auto result = mPackageManagerNativeService->getVersionCodeForPackage(packageNameString16,
-                                                                               _aidl_return);
+    const auto result = packageManagerNativeService->getVersionCodeForPackage(packageNameString16,
+                                                                              _aidl_return);
 
     if (!result.isOk()) {
         return ScopedAStatus::fromServiceSpecificErrorWithMessage(result.exceptionCode(),
