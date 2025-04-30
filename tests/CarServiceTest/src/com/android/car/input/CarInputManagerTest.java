@@ -684,7 +684,7 @@ public final class CarInputManagerTest extends MockedCarTestBase {
             CarInputManager carInputManager = createAnotherCarInputManager();
             int r = carInputManager.requestInputEventCapture(
                     CarOccupantZoneManager.DISPLAY_TYPE_MAIN,
-                    new int[]{CarInputManager.INPUT_TYPE_SYSTEM_NAVIGATE_KEYS}, 0, keyEventExecutor,
+                    new int[]{CarInputManager.INPUT_TYPE_VOICE_ASSIST}, 0, keyEventExecutor,
                     mCallback0);
             assertThat(r).isEqualTo(CarInputManager.INPUT_CAPTURE_RESPONSE_SUCCEEDED);
 
