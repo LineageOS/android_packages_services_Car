@@ -25,6 +25,7 @@ import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DU
 import android.annotation.Nullable;
 import android.car.VehiclePropertyIds;
 import android.car.builtin.util.Slogf;
+import android.car.feature.Flags;
 import android.car.hardware.CarPropertyValue;
 import android.hardware.automotive.vehicle.RawPropValues;
 import android.hardware.automotive.vehicle.VehiclePropValue;
@@ -473,16 +474,37 @@ public abstract class HalPropValue {
             case VehiclePropertyStatus.ERROR:
                 return CarPropertyValue.STATUS_ERROR;
             case VehiclePropertyStatus.NOT_AVAILABLE_GENERAL:
-                return CarPropertyValue.STATUS_UNAVAILABLE;
-            // TODO(b/381298607): Map these to individual CarPropertyValue status.
-            case VehiclePropertyStatus.NOT_AVAILABLE_DISABLED:  // Fallthrough
-            case VehiclePropertyStatus.NOT_AVAILABLE_SPEED_LOW:  // Fallthrough
-            case VehiclePropertyStatus.NOT_AVAILABLE_SPEED_HIGH:  // Fallthrough
-            case VehiclePropertyStatus.NOT_AVAILABLE_POOR_VISIBILITY:  // Fallthrough
-            case VehiclePropertyStatus.NOT_AVAILABLE_SAFETY:  // Fallthrough
+                return CarPropertyValue.STATUS_NOT_AVAILABLE_GENERAL;
+            case VehiclePropertyStatus.NOT_AVAILABLE_DISABLED:
+                return exposeDetailedNotAvailableStatus()
+                        ? CarPropertyValue.STATUS_NOT_AVAILABLE_DISABLED :
+                        CarPropertyValue.STATUS_NOT_AVAILABLE_GENERAL;
+            case VehiclePropertyStatus.NOT_AVAILABLE_SPEED_LOW:
+                return exposeDetailedNotAvailableStatus()
+                        ? CarPropertyValue.STATUS_NOT_AVAILABLE_SPEED_LOW :
+                        CarPropertyValue.STATUS_NOT_AVAILABLE_GENERAL;
+            case VehiclePropertyStatus.NOT_AVAILABLE_SPEED_HIGH:
+                return exposeDetailedNotAvailableStatus()
+                        ? CarPropertyValue.STATUS_NOT_AVAILABLE_SPEED_HIGH :
+                        CarPropertyValue.STATUS_NOT_AVAILABLE_GENERAL;
+            case VehiclePropertyStatus.NOT_AVAILABLE_POOR_VISIBILITY:
+                return exposeDetailedNotAvailableStatus()
+                        ? CarPropertyValue.STATUS_NOT_AVAILABLE_POOR_VISIBILITY :
+                        CarPropertyValue.STATUS_NOT_AVAILABLE_GENERAL;
+            case VehiclePropertyStatus.NOT_AVAILABLE_SAFETY:
+                return exposeDetailedNotAvailableStatus()
+                        ? CarPropertyValue.STATUS_NOT_AVAILABLE_SAFETY :
+                        CarPropertyValue.STATUS_NOT_AVAILABLE_GENERAL;
             case VehiclePropertyStatus.NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED:
-                return CarPropertyValue.STATUS_UNAVAILABLE;
+                return exposeDetailedNotAvailableStatus()
+                        ? CarPropertyValue.STATUS_NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED :
+                        CarPropertyValue.STATUS_NOT_AVAILABLE_GENERAL;
         }
         return CarPropertyValue.STATUS_ERROR;
+    }
+
+    private static boolean exposeDetailedNotAvailableStatus() {
+        // TODO(b/405477436): Add SDK version check once we have version code for 25Q4.
+        return Flags.carPropertyStatusDetailedNotAvailable();
     }
 }
