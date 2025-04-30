@@ -31,7 +31,7 @@ PRODUCT_PACKAGES += \
     StatementService \
     SystemUpdater
 
-ifneq ($(AOSP_CAR_EMULATOR),true)
+ifneq ($(DO_NOT_INCLUDE_DEFAULT_CAR_PROVISION),true)
 PRODUCT_PACKAGES += CarProvision
 endif
 
