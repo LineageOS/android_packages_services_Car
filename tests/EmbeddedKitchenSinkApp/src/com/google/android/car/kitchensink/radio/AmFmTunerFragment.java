@@ -16,7 +16,6 @@
 
 package com.google.android.car.kitchensink.radio;
 
-import android.hardware.radio.Flags;
 import android.hardware.radio.ProgramSelector;
 import android.hardware.radio.RadioManager;
 import android.hardware.radio.RadioTuner;
@@ -70,28 +69,18 @@ public final class AmFmTunerFragment extends RadioTunerFragment {
         view.findViewById(R.id.layout_tune).setVisibility(View.VISIBLE);
         view.findViewById(R.id.layout_step).setVisibility(View.VISIBLE);
 
-        if (Flags.hdRadioImproved()) {
-            if (mRadioTuner.isConfigFlagSupported(RadioManager.CONFIG_FORCE_ANALOG_AM)) {
-                mAmHdSwitch.setVisibility(View.VISIBLE);
-                view.findViewById(R.id.text_am_hd_state).setVisibility(View.VISIBLE);
-                mAmHdSwitch.setChecked(!mRadioTuner.isConfigFlagSet(
-                        RadioManager.CONFIG_FORCE_ANALOG_AM));
-            }
-            if (!mRadioTuner.isConfigFlagSupported(RadioManager.CONFIG_FORCE_ANALOG_FM)) {
-                mFmHdSwitch.setVisibility(View.INVISIBLE);
-                view.findViewById(R.id.text_fm_hd_state).setVisibility(View.INVISIBLE);
-            } else {
-                mFmHdSwitch.setChecked(!mRadioTuner.isConfigFlagSet(
-                        RadioManager.CONFIG_FORCE_ANALOG_FM));
-            }
+        if (mRadioTuner.isConfigFlagSupported(RadioManager.CONFIG_FORCE_ANALOG_AM)) {
+            mAmHdSwitch.setVisibility(View.VISIBLE);
+            view.findViewById(R.id.text_am_hd_state).setVisibility(View.VISIBLE);
+            mAmHdSwitch.setChecked(!mRadioTuner.isConfigFlagSet(
+                    RadioManager.CONFIG_FORCE_ANALOG_AM));
+        }
+        if (!mRadioTuner.isConfigFlagSupported(RadioManager.CONFIG_FORCE_ANALOG_FM)) {
+            mFmHdSwitch.setVisibility(View.INVISIBLE);
+            view.findViewById(R.id.text_fm_hd_state).setVisibility(View.INVISIBLE);
         } else {
-            if (!mRadioTuner.isConfigFlagSupported(RadioManager.CONFIG_FORCE_ANALOG)) {
-                mFmHdSwitch.setVisibility(View.INVISIBLE);
-                view.findViewById(R.id.text_fm_hd_state).setVisibility(View.INVISIBLE);
-            } else {
-                mFmHdSwitch.setChecked(!mRadioTuner.isConfigFlagSet(
-                        RadioManager.CONFIG_FORCE_ANALOG));
-            }
+            mFmHdSwitch.setChecked(!mRadioTuner.isConfigFlagSet(
+                    RadioManager.CONFIG_FORCE_ANALOG_FM));
         }
         mFmHdSwitch.setOnCheckedChangeListener(
                 (buttonView, isChecked) -> handleHdEnable(/* isFm= */ true, isChecked));
@@ -178,12 +167,8 @@ public final class AmFmTunerFragment extends RadioTunerFragment {
         }
         mTuningTextView.setText(getString(R.string.empty));
         int configFlag;
-        if (Flags.hdRadioImproved()) {
-            configFlag = isFm ? RadioManager.CONFIG_FORCE_ANALOG_FM
-                    : RadioManager.CONFIG_FORCE_ANALOG_AM;
-        } else {
-            configFlag = RadioManager.CONFIG_FORCE_ANALOG;
-        }
+        configFlag = isFm ? RadioManager.CONFIG_FORCE_ANALOG_FM
+                : RadioManager.CONFIG_FORCE_ANALOG_AM;
         try {
             mRadioTuner.setConfigFlag(configFlag, !hdEnabled);
         } catch (Exception e) {
@@ -230,12 +215,10 @@ public final class AmFmTunerFragment extends RadioTunerFragment {
         if (flag == RadioManager.CONFIG_FORCE_ANALOG) {
             mFmHdSwitch.setChecked(!value);
             mAmHdSwitch.setChecked(!value);
-        } else if (Flags.hdRadioImproved()) {
-            if (flag == RadioManager.CONFIG_FORCE_ANALOG_FM) {
-                mFmHdSwitch.setChecked(!value);
-            } else if (flag == RadioManager.CONFIG_FORCE_ANALOG_AM) {
-                mAmHdSwitch.setChecked(!value);
-            }
+        } else if (flag == RadioManager.CONFIG_FORCE_ANALOG_FM) {
+            mFmHdSwitch.setChecked(!value);
+        } else if (flag == RadioManager.CONFIG_FORCE_ANALOG_AM) {
+            mAmHdSwitch.setChecked(!value);
         }
     }
 }
