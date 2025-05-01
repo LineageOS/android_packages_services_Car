@@ -843,11 +843,6 @@ public class ICarImpl extends ICar.Stub {
                 String[] services = new String[length];
                 System.arraycopy(args, 1, services, 0, length);
                 if (dumpToProto) {
-                    if (!mFeatureFlags.carDumpToProto()) {
-                        writer.println("Cannot dump " + services[0]
-                                + " to proto since FLAG_CAR_DUMP_TO_PROTO is disabled");
-                        return;
-                    }
                     dumpServiceProto(writer, fd, services[0]);
                 } else {
                     dumpIndividualServices(writer, services);
