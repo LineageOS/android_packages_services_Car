@@ -46,21 +46,7 @@ public final class AudioControlFactory {
         if (binder != null) {
             return new AudioControlWrapperAidl(binder);
         }
-        Slogf.i(TAG, "AIDL AudioControl HAL not in the manifest");
-
-        android.hardware.automotive.audiocontrol.V2_0.IAudioControl audioControlV2 =
-                AudioControlWrapperV2.getService();
-        if (audioControlV2 != null) {
-            return new AudioControlWrapperV2(audioControlV2);
-        }
-        Slogf.i(TAG, "HIDL AudioControl@V2.0 not in the manifest");
-
-        android.hardware.automotive.audiocontrol.V1_0.IAudioControl audioControlV1 =
-                AudioControlWrapperV1.getService();
-        if (audioControlV1 != null) {
-            Slogf.w(TAG, "HIDL AudioControl V1.0 is deprecated. Consider upgrading to AIDL");
-            return new AudioControlWrapperV1(audioControlV1);
-        }
+        Slogf.e(TAG, "AIDL AudioControl HAL not in the manifest");
 
         throw new IllegalStateException("No version of AudioControl HAL in the manifest");
     }

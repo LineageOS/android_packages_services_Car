@@ -38,28 +38,18 @@ public final class AudioControlFactoryUnitTest extends AbstractExtendedMockitoTe
     @Mock
     private IBinder mBinder;
 
-    @Mock
-    private android.hardware.automotive.audiocontrol.V2_0.IAudioControl mIAudioControlV2;
-
-    @Mock
-    private android.hardware.automotive.audiocontrol.V1_0.IAudioControl mIAudioControlV1;
-
     public AudioControlFactoryUnitTest() {
         super(AudioControlFactory.TAG);
     }
 
     @Override
     protected void onSessionBuilder(CustomMockitoSessionBuilder session) {
-        session.spyStatic(AudioControlWrapperAidl.class)
-                .spyStatic(AudioControlWrapperV2.class)
-                .spyStatic(AudioControlWrapperV1.class);
+        session.spyStatic(AudioControlWrapperAidl.class);
     }
 
     @Test
     public void newAudioControl_forAudioControlWrapperAIDL_returnsInstance() {
         doReturn(mBinder).when(AudioControlWrapperAidl::getService);
-        doReturn(null).when(AudioControlWrapperV1::getService);
-        doReturn(null).when(AudioControlWrapperV2::getService);
 
         AudioControlWrapper wrapper = AudioControlFactory.newAudioControl();
 
@@ -68,34 +58,8 @@ public final class AudioControlFactoryUnitTest extends AbstractExtendedMockitoTe
     }
 
     @Test
-    public void newAudioControl_forAudioControlWrapperV2_returnsInstance() {
-        doReturn(null).when(AudioControlWrapperAidl::getService);
-        doReturn(null).when(AudioControlWrapperV1::getService);
-        doReturn(mIAudioControlV2).when(AudioControlWrapperV2::getService);
-
-        AudioControlWrapper wrapper = AudioControlFactory.newAudioControl();
-
-        assertThat(wrapper).isNotNull();
-        assertThat(wrapper).isInstanceOf(AudioControlWrapperV2.class);
-    }
-
-    @Test
-    public void newAudioControl_forAudioControlWrapperV1_returnsInstance() {
-        doReturn(null).when(AudioControlWrapperAidl::getService);
-        doReturn(mIAudioControlV1).when(AudioControlWrapperV1::getService);
-        doReturn(null).when(AudioControlWrapperV2::getService);
-
-        AudioControlWrapper wrapper = AudioControlFactory.newAudioControl();
-
-        assertThat(wrapper).isNotNull();
-        assertThat(wrapper).isInstanceOf(AudioControlWrapperV1.class);
-    }
-
-    @Test
     public void newAudioControl_forNullAudioControlWrappers_fails() {
         doReturn(null).when(AudioControlWrapperAidl::getService);
-        doReturn(null).when(AudioControlWrapperV1::getService);
-        doReturn(null).when(AudioControlWrapperV2::getService);
 
         assertThrows(IllegalStateException.class, AudioControlFactory::newAudioControl);
     }
