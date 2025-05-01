@@ -101,6 +101,7 @@ final class CoreAudioRoutingUtils {
         parcel.writeInt(/* nb attributes groups= */ 1);
         parcel.writeInt(/* volumeGroupId= */ MUSIC_GROUP_ID);
         parcel.writeInt(/* stream type= */ 0);
+        parcel.writeInt(/* strategyId= */ MUSIC_STRATEGY_ID);
         parcel.writeInt(/* nb attributes= */ 2);
 
         parcel.writeInt(/* mUsage= */ AudioAttributes.USAGE_MEDIA);
@@ -131,6 +132,7 @@ final class CoreAudioRoutingUtils {
         parcel.writeInt(/* nb attributes groups= */ 1);
         parcel.writeInt(/* volumeGroupId= */ NAV_GROUP_ID);
         parcel.writeInt(/* stream type= */ 0);
+        parcel.writeInt(/* strategyId= */ NAV_STRATEGY_ID);
         parcel.writeInt(/* nb attributes= */ 2);
 
         parcel.writeInt(/* mUsage= */ AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE);
@@ -161,6 +163,7 @@ final class CoreAudioRoutingUtils {
         parcel.writeInt(/* nb attributes groups= */ 1);
         parcel.writeInt(/* volumeGroupId= */ OEM_GROUP_ID);
         parcel.writeInt(/* stream type= */ 0);
+        parcel.writeInt(/* strategyId= */ OEM_STRATEGY_ID);
         parcel.writeInt(/* nb attributes= */ 1);
         parcel.writeInt(/* mUsage= */ AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE);
         parcel.writeInt(/* mContentType= */ AudioAttributes.CONTENT_TYPE_SPEECH);
