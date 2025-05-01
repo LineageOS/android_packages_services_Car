@@ -133,6 +133,30 @@ public final class HalPropValueUnitTest {
     }
 
     @Test
+    public void testBuildFromAidlValue_withVendorStatus() throws Exception {
+        android.hardware.automotive.vehicle.VehiclePropValue aidlValue =
+                new android.hardware.automotive.vehicle.VehiclePropValue();
+        aidlValue.timestamp = TEST_TIMESTAMP;
+        aidlValue.areaId = TEST_AREA_ID;
+        aidlValue.prop = TEST_PROP;
+        int testVendorStatus = 0xDEAD;
+        aidlValue.status = VehiclePropertyStatus.NOT_AVAILABLE_DISABLED | 0xDEAD0000;
+        aidlValue.value = new RawPropValues();
+        aidlValue.value.int32Values = new int[] {TEST_INT32_VALUE};
+
+        HalPropValueBuilder builder = new HalPropValueBuilder(/*isAidl=*/true);
+        HalPropValue value = builder.build(aidlValue);
+
+        assertThat(value.getTimestamp()).isEqualTo(TEST_TIMESTAMP);
+        assertThat(value.getAreaId()).isEqualTo(TEST_AREA_ID);
+        assertThat(value.getPropId()).isEqualTo(TEST_PROP);
+        assertThat(value.getStatus()).isEqualTo(VehiclePropertyStatus.NOT_AVAILABLE_DISABLED);
+        assertThat(value.getVendorStatus()).isEqualTo(testVendorStatus);
+        assertThat(value.getInt32ValuesSize()).isEqualTo(1);
+        assertThat(value.getInt32Value(0)).isEqualTo(TEST_INT32_VALUE);
+    }
+
+    @Test
     public void testBuildFromInt32Hidl() {
         HalPropValueBuilder builder = new HalPropValueBuilder(/*isAidl=*/false);
         HalPropValue value = builder.build(TEST_PROP, TEST_AREA_ID, TEST_INT32_VALUE);
