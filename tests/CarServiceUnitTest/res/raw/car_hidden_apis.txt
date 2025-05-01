@@ -509,6 +509,7 @@ android.car.hardware.property VehicleHalStatusCode int STATUS_NOT_AVAILABLE_SPEE
 android.car.hardware.property VehicleHalStatusCode int STATUS_NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED
 android.car.hardware.property VehicleHalStatusCode int STATUS_OK
 android.car.hardware.property VehicleHalStatusCode int STATUS_TRY_AGAIN
+android.car.input CarInputManager int INPUT_TYPE_VOICE_ASSIST
 android.car.input CarInputManager void onCarDisconnected()
 android.car.media CarAudioManager String AUDIOFOCUS_EXTRA_REQUEST_ZONE_ID
 android.car.media CarAudioManager boolean clearZoneIdForUid(int uid)

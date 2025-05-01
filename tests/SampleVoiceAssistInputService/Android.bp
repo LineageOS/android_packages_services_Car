@@ -26,18 +26,19 @@ filegroup {
 android_app {
     name: "SampleVoiceAssistInputService",
     srcs: [":SampleVoiceAssistInputService-srcs"],
-    sdk_version: "system_current",
 
     // This app should be platform signed because it requires
     // android.car.permission.CAR_MONITOR_INPUT permission, which is of type "signature".
     certificate: "platform",
 
+    // This app uses a hidden API CarInputManager.INPUT_TYPE_VOICE_ASSIST
+    platform_apis: true,
+
     optimize: {
         enabled: false,
     },
     libs: [
-        "android.car-system-stubs",
-        "androidx.annotation_annotation",
+        "android.car",
     ],
     static_libs: [
         "androidx.annotation_annotation",
@@ -64,7 +65,7 @@ android_test {
         "truth",
     ],
     libs: [
-        "android.car-system-stubs",
+        "android.car",
         "android.test.mock.stubs.system",
         "android.test.base.stubs.system",
         "android.test.runner.stubs.system",

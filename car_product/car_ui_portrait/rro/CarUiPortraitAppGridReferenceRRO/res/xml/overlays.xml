@@ -16,7 +16,6 @@
 <overlay>
 
     <item target="color/icon_tint" value="@color/icon_tint" />
-    <item target="color/page_indicator_bar_color" value="@color/page_indicator_bar_color"/>
 
     <item target="id/tos_banner" value="@id/tos_banner" />
 
