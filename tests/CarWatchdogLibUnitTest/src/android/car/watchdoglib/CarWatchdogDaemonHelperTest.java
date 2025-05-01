@@ -49,6 +49,7 @@ import android.automotive.watchdog.internal.StateType;
 import android.automotive.watchdog.internal.ThreadPolicyWithPriority;
 import android.automotive.watchdog.internal.UserPackageIoUsageStats;
 import android.os.Handler;
+import android.os.HandlerThread;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.ServiceManager;
@@ -88,6 +89,7 @@ public class CarWatchdogDaemonHelperTest {
     private CarWatchdogDaemonHelper mCarWatchdogDaemonHelper;
     private MockitoSession mMockSession;
     private IBinder.DeathRecipient mCarWatchdogDaemonBinderDeathRecipient;
+    private HandlerThread mHandlerThread;
     private Handler mHandler;
 
     @Before
@@ -102,7 +104,8 @@ public class CarWatchdogDaemonHelperTest {
         when(mFakeCarWatchdog.asBinder()).thenReturn(mBinder);
         mockQueryService(CAR_WATCHDOG_DAEMON_INTERFACE, mBinder, mFakeCarWatchdog);
 
-        mHandler = new Handler(getHandlerThread(TAG).getLooper());
+        mHandlerThread = getHandlerThread(TAG);
+        mHandler = new Handler(mHandlerThread.getLooper());
 
         mCarWatchdogDaemonHelper = new CarWatchdogDaemonHelper(mHandler);
         mCarWatchdogDaemonHelper.connect();
@@ -118,6 +121,7 @@ public class CarWatchdogDaemonHelperTest {
             // When using inline mock maker, clean up inline mocks to prevent OutOfMemory errors.
             // See https://github.com/mockito/mockito/issues/1614 and b/259280359.
             Mockito.framework().clearInlineMocks();
+            mHandlerThread.quitSafely();
         }
     }
 
