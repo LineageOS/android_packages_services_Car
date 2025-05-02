@@ -49,7 +49,10 @@ public:
                                                 int64_t* _aidl_return) override;
 
 private:
-    android::sp<android::content::pm::IPackageManagerNative> mPackageManagerNativeService;
+    bool mInitialized = false;
+    ndk::ScopedAStatus getPackageManagerNative(
+            android::sp<android::content::pm::IPackageManagerNative>*
+                    outPackageManagerNativeService);
 };
 
 }  // namespace packagemanagerproxy
