@@ -371,7 +371,6 @@ public class CarVolumeGroupUnitTest extends AbstractExpectableTestCase {
 
     @Test
     public void getMutedBySystem_withHalUnmuted() {
-        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_MUTE_AMBIGUITY);
         CarVolumeGroup carVolumeGroup = testVolumeGroupSetup();
         CarVolumeGroupInfo info = carVolumeGroup.getCarVolumeGroupInfo();
 
@@ -381,7 +380,6 @@ public class CarVolumeGroupUnitTest extends AbstractExpectableTestCase {
 
     @Test
     public void getMutedBySystem_withHalMuted() {
-        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_MUTE_AMBIGUITY);
         CarVolumeGroup carVolumeGroup = getCarVolumeGroupWithMusicBound();
         carVolumeGroup.setCurrentGainIndex(DEFAULT_GAIN_INDEX);
         List<Integer> muteReasons = List.of(Reasons.TCU_MUTE);
