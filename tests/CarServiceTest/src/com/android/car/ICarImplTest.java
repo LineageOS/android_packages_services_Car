@@ -29,10 +29,8 @@ import static org.mockito.Mockito.when;
 import android.automotive.power.internal.ICarPowerManagementDelegate;
 import android.car.Car;
 import android.car.ICarResultReceiver;
-import android.car.feature.Flags;
 import android.content.Context;
 import android.content.res.Resources;
-import android.frameworks.automotive.powerpolicy.internal.ICarPowerPolicySystemNotification;
 import android.os.Bundle;
 import android.os.HandlerThread;
 import android.os.IInterface;
@@ -97,9 +95,7 @@ import java.io.IOException;
  * <li>{@link CarRemoteAccessService}</li>
  * <li>{@link CarAudioService}</li>
  * <li>{@link CarUserService}</li>
- * <li>{@link ICarPowerPolicySystemNotification.Stub} car power policy daemon before
- * refactoring</li>
- * <li>{@link ICarPowerManagementDelegate.Stub} car power management daemon after refactoring.</li>
+ * <li>{@link ICarPowerManagementDelegate.Stub} car power management daemon.</li>
  * <li>{@link ICarServiceHelper}</li>
  * </ol>
  */
@@ -121,8 +117,7 @@ public final class ICarImplTest {
     @Mock private CarRemoteAccessService mMockCarRemoteAccessService;
     @Mock private CarAudioService mMockCarAudioService;
     @Mock private CarUserService mMockCarUserService;
-    @Mock private ICarPowerPolicySystemNotification.Stub mMockCarPowerPolicyDaemon;
-    @Mock private ICarPowerManagementDelegate.Stub mMockRefactoredCarPowerManagementDaemon;
+    @Mock private ICarPowerManagementDelegate.Stub mMockCarPowerManagementDaemon;
     @Mock private ICarServiceHelper mICarServiceHelper;
 
     private Context mContext;
@@ -208,11 +203,7 @@ public final class ICarImplTest {
     }
 
     private IInterface getMockPowerPolicyDaemon() {
-        if (Flags.carPowerPolicyRefactoring()) {
-            return mMockRefactoredCarPowerManagementDaemon;
-        } else {
-            return mMockCarPowerPolicyDaemon;
-        }
+        return mMockCarPowerManagementDaemon;
     }
 
     private ICarImpl.Builder getBaseICarImplBuilder() {

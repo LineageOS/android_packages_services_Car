@@ -221,23 +221,19 @@ public class RadioTunerFragment extends Fragment {
             }
             return;
         }
-        if (Flags.hdRadioImproved()) {
-            if (info.isSignalAcquired()) {
-                if (!info.isHdSisAvailable()) {
+        if (info.isSignalAcquired()) {
+            if (!info.isHdSisAvailable()) {
+                mTuningTextView.setText(getString(R.string.radio_status,
+                        "Signal is acquired"));
+            } else {
+                if (!info.isHdAudioAvailable()) {
                     mTuningTextView.setText(getString(R.string.radio_status,
-                            "Signal is acquired"));
+                            "HD SIS is available"));
                 } else {
-                    if (!info.isHdAudioAvailable()) {
-                        mTuningTextView.setText(getString(R.string.radio_status,
-                                "HD SIS is available"));
-                    } else {
-                        mTuningTextView.setText(getString(R.string.radio_status,
-                                TUNING_COMPLETION_TEXT));
-                    }
+                    mTuningTextView.setText(getString(R.string.radio_status,
+                            TUNING_COMPLETION_TEXT));
                 }
             }
-        } else {
-            mTuningTextView.setText(getString(R.string.radio_status, TUNING_COMPLETION_TEXT));
         }
     }
 

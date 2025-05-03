@@ -78,6 +78,7 @@ import static android.media.audio.common.AudioDeviceType.OUT_DEVICE;
 import static android.media.audio.common.AudioGainMode.JOINT;
 import static android.media.audiopolicy.Flags.FLAG_ENABLE_FADE_MANAGER_CONFIGURATION;
 import static android.os.Build.VERSION.SDK_INT;
+import static android.telephony.SubscriptionManager.MIN_SUBSCRIPTION_ID_VALUE;
 import static android.view.KeyEvent.ACTION_DOWN;
 import static android.view.KeyEvent.ACTION_UP;
 import static android.view.KeyEvent.KEYCODE_UNKNOWN;
@@ -207,7 +208,6 @@ import android.os.HandlerThread;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.ServiceManager;
-import android.os.SystemProperties;
 import android.os.UserHandle;
 import android.platform.test.annotations.DisableFlags;
 import android.platform.test.annotations.EnableFlags;
@@ -344,9 +344,6 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
             getOccupantInfo(TEST_REAR_ROW_3_OCCUPANT_ZONE_ID,
                     CarOccupantZoneManager.OCCUPANT_TYPE_REAR_PASSENGER,
                     VehicleAreaSeat.SEAT_ROW_3_LEFT);
-
-    private static final String PROPERTY_RO_ENABLE_AUDIO_PATCH =
-            "ro.android.car.audio.enableaudiopatch";
 
     private static final int MEDIA_APP_UID = 1086753;
     private static final int TEST_REAR_RIGHT_UID = 1286753;
@@ -490,6 +487,8 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     @Mock
     private IAudioService mMockAudioService;
     @Mock
+    private IBinder mMockBinder;
+    @Mock
     private Uri mNavSettingUri;
     @Mock
     private AudioControlWrapperAidl mAudioControlWrapperAidl;
@@ -505,6 +504,8 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     // Not used directly, but sets proper mockStatic() expectations on Settings
     @SuppressWarnings("UnusedVariable")
     private MockSettings mMockSettings;
+
+    private final FakeSystemPropertiesWrapper mSystemProperties = new FakeSystemPropertiesWrapper();
 
     private boolean mPersistMasterMute = true;
     private boolean mUseDynamicRouting = true;
@@ -558,7 +559,6 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
                 .spyStatic(AudioControlWrapperAidl.class)
                 .spyStatic(CoreAudioHelper.class)
                 .spyStatic(AudioControlFactory.class)
-                .spyStatic(SystemProperties.class)
                 .spyStatic(ServiceManager.class)
                 .spyStatic(Car.class)
                 .spyStatic(Binder.class);
@@ -571,6 +571,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         mHandler = new Handler(mHandlerThread.getLooper());
         mContext = ApplicationProvider.getApplicationContext();
 
+        setUpStaticCalls();
         mockCarGetPlatformVersion(UPSIDE_DOWN_CAKE_0);
 
         mockCoreAudioRoutingAndVolume();
@@ -578,10 +579,47 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
 
         setUpAudioControlHAL();
         setUpService();
+    }
 
+    private void setUpStaticCalls() {
+        doReturn(MIN_SUBSCRIPTION_ID_VALUE).when(SubscriptionManager::getDefaultDataSubscriptionId);
+        doReturn(mBinder).when(AudioControlWrapperAidl::getService);
+        doReturn(mAudioControlWrapperAidl).when(AudioControlFactory::newAudioControl);
         when(Settings.Secure.getUriFor(
                 CarSettings.Secure.KEY_AUDIO_FOCUS_NAVIGATION_REJECTED_DURING_CALL))
                 .thenReturn(mNavSettingUri);
+
+        doReturn(true).when(() -> AudioManagerHelper
+                .setAudioDeviceGain(any(), any(), anyInt(), anyBoolean()));
+
+        // Needed by audio policy when setting UID device affinity
+        when(mMockBinder.queryLocalInterface(any())).thenReturn(mMockAudioService);
+        doReturn(mMockBinder).when(() -> ServiceManager.getService(Context.AUDIO_SERVICE));
+        doReturn(CoreAudioRoutingUtils.getProductStrategies())
+                .when(AudioManagerWrapper::getAudioProductStrategies);
+        doReturn(CoreAudioRoutingUtils.getVolumeGroups())
+                .when(AudioManagerWrapper::getAudioVolumeGroups);
+
+        doReturn(CoreAudioRoutingUtils.MUSIC_GROUP_ID)
+                .when(() -> CoreAudioHelper.getVolumeGroupIdForAudioAttributes(
+                CoreAudioRoutingUtils.MUSIC_ATTRIBUTES));
+        doReturn(CoreAudioRoutingUtils.MUSIC_ATTRIBUTES)
+                .when(() -> CoreAudioHelper.selectAttributesForVolumeGroupName(
+                CoreAudioRoutingUtils.MUSIC_GROUP_NAME));
+
+        doReturn(CoreAudioRoutingUtils.NAV_GROUP_ID)
+                .when(() -> CoreAudioHelper.getVolumeGroupIdForAudioAttributes(
+                CoreAudioRoutingUtils.NAV_ATTRIBUTES));
+        doReturn(CoreAudioRoutingUtils.NAV_ATTRIBUTES)
+                .when(() -> CoreAudioHelper.selectAttributesForVolumeGroupName(
+                CoreAudioRoutingUtils.NAV_GROUP_NAME));
+
+        doReturn(CoreAudioRoutingUtils.OEM_GROUP_ID)
+                .when(() -> CoreAudioHelper.getVolumeGroupIdForAudioAttributes(
+                CoreAudioRoutingUtils.OEM_ATTRIBUTES));
+        doReturn(CoreAudioRoutingUtils.OEM_ATTRIBUTES)
+                .when(() -> CoreAudioHelper.selectAttributesForVolumeGroupName(
+                CoreAudioRoutingUtils.OEM_GROUP_NAME));
     }
 
     @After
@@ -603,7 +641,6 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
 
     private void setUpAudioControlHAL() {
         when(mBinder.queryLocalInterface(anyString())).thenReturn(mAudioControl);
-        doReturn(mBinder).when(AudioControlWrapperAidl::getService);
         when(mAudioControlWrapperAidl.supportsFeature(
                 AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_DUCKING)).thenReturn(true);
         when(mAudioControlWrapperAidl.supportsFeature(
@@ -614,12 +651,9 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
                 AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_GROUP_MUTING)).thenReturn(true);
         when(mAudioControlWrapperAidl.supportsFeature(
                 AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_MODULE_CALLBACK)).thenReturn(true);
-        doReturn(mAudioControlWrapperAidl)
-                .when(AudioControlFactory::newAudioControl);
     }
 
     private void setUpService() throws Exception {
-        doReturn(0).when(() -> SubscriptionManager.getDefaultDataSubscriptionId());
         when(mMockContext.getSystemService(TelephonyManager.class))
                 .thenReturn(mMockTelephonyManagerWithoutSubscriptionId);
         when(mMockTelephonyManagerWithoutSubscriptionId.createForSubscriptionId(anyInt()))
@@ -627,11 +661,8 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
 
         when(mMockContext.getPackageManager()).thenReturn(mMockPackageManager);
         when(mMockContext.getAttributionSource()).thenReturn(mMockAttributionSource);
-        doReturn(true)
-                .when(() -> AudioManagerHelper
-                        .setAudioDeviceGain(any(), any(), anyInt(), anyBoolean()));
-        doReturn(true)
-                .when(() -> SystemProperties.getBoolean(PROPERTY_RO_ENABLE_AUDIO_PATCH, false));
+
+        mSystemProperties.setAudioPatchAPIsEnabled(true);
 
         when(mMockOccupantZoneService.getUserForOccupant(TEST_DRIVER_OCCUPANT_ZONE_ID))
                 .thenReturn(TEST_DRIVER_USER_ID);
@@ -800,11 +831,6 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         when(mAudioManager.getStreamVolume(anyInt())).thenReturn(TEST_STREAM_VOLUME);
 
         when(mAudioManager.isAudioServerRunning()).thenReturn(true);
-
-        // Needed by audio policy when setting UID device affinity
-        IBinder mockBinder = mock(IBinder.class);
-        when(mockBinder.queryLocalInterface(any())).thenReturn(mMockAudioService);
-        doReturn(mockBinder).when(() -> ServiceManager.getService(Context.AUDIO_SERVICE));
     }
 
     private void setUpResources() {
@@ -845,8 +871,8 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
             String audioConfigurationPath,
             CarVolumeCallbackHandler carVolumeCallbackHandler,
             String audioFadeConfigurationPath) {
-        var service = new CarAudioService(context, audioManagerWrapper, audioConfigurationPath,
-                carVolumeCallbackHandler, audioFadeConfigurationPath);
+        var service = new CarAudioService(context, audioManagerWrapper, mSystemProperties,
+                audioConfigurationPath, carVolumeCallbackHandler, audioFadeConfigurationPath);
         mCarAudioServices.add(service);
         return service;
     }
@@ -1479,10 +1505,8 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     @Test
     public void createAudioPatch_onMediaOutputDevice_failsForConfigurationMissing()
             throws Exception {
+        mSystemProperties.setAudioPatchAPIsEnabled(false);
         CarAudioService service = setUpAudioService();
-
-        doReturn(false)
-                .when(() -> SystemProperties.getBoolean(PROPERTY_RO_ENABLE_AUDIO_PATCH, false));
 
         IllegalStateException thrown = assertThrows(IllegalStateException.class, () ->
                 service.createAudioPatch(PRIMARY_ZONE_FM_TUNER_ADDRESS, USAGE_MEDIA, DEFAULT_GAIN));
@@ -1508,14 +1532,12 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
 
     @Test
     public void createAudioPatch_onMediaOutputDevice_succeeds() throws Exception {
-        CarAudioService service = setUpAudioService();
-
         mockGrantCarControlAudioSettingsPermission();
-        doReturn(false)
-                .when(() -> SystemProperties.getBoolean(PROPERTY_RO_ENABLE_AUDIO_PATCH, true));
+        mSystemProperties.setAudioPatchAPIsEnabled(true);
         doReturn(new AudioPatchInfo(PRIMARY_ZONE_FM_TUNER_ADDRESS, MEDIA_TEST_DEVICE, 0))
                 .when(() -> AudioManagerHelper.createAudioPatch(mFmTunerInputDevice,
                         mCarAudioDeviceUtils.mMediaOutputDevice, DEFAULT_GAIN));
+        CarAudioService service = setUpAudioService();
 
         CarAudioPatchHandle audioPatch = service
                 .createAudioPatch(PRIMARY_ZONE_FM_TUNER_ADDRESS, USAGE_MEDIA, DEFAULT_GAIN);
@@ -1530,12 +1552,10 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
 
     @Test
     public void releaseAudioPatch_failsForConfigurationMissing() throws Exception {
-        CarAudioService service = setUpAudioService();
-
-        doReturn(false)
-                .when(() -> SystemProperties.getBoolean(PROPERTY_RO_ENABLE_AUDIO_PATCH, false));
+        mSystemProperties.setAudioPatchAPIsEnabled(false);
         CarAudioPatchHandle carAudioPatchHandle =
                 new CarAudioPatchHandle(0, PRIMARY_ZONE_FM_TUNER_ADDRESS, MEDIA_TEST_DEVICE);
+        CarAudioService service = setUpAudioService();
 
         IllegalStateException thrown = assertThrows(IllegalStateException.class,
                 () -> service.releaseAudioPatch(carAudioPatchHandle));
@@ -1567,7 +1587,6 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         doReturn(new AudioPatchInfo(PRIMARY_ZONE_FM_TUNER_ADDRESS, MEDIA_TEST_DEVICE, 0))
                 .when(() -> AudioManagerHelper.createAudioPatch(mFmTunerInputDevice,
                         mCarAudioDeviceUtils.mMediaOutputDevice, DEFAULT_GAIN));
-
         CarAudioPatchHandle audioPatch = mock(CarAudioPatchHandle.class);
         when(audioPatch.getSourceAddress()).thenReturn(null);
 
@@ -2458,7 +2477,6 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
 
     @Test
     public void isAudioFeatureEnabled_forMinMaxActivationVolume() throws Exception {
-        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_MIN_MAX_ACTIVATION_VOLUME);
         CarAudioService service = setUpAudioService();
 
         expectWithMessage("Min/max activation volume feature")
@@ -2468,23 +2486,12 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
 
     @Test
     public void isAudioFeatureEnabled_forDisabledMinMaxActivationVolume() throws Exception {
-        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_MIN_MAX_ACTIVATION_VOLUME);
         CarAudioService nonMinMaxActivationVolumeAudioService =
                 setUpAudioServiceWithDisabledResource(audioUseMinMaxActivationVolume);
 
         expectWithMessage("Disabled min/max activation volume feature")
                 .that(nonMinMaxActivationVolumeAudioService
                         .isAudioFeatureEnabled(AUDIO_FEATURE_MIN_MAX_ACTIVATION_VOLUME))
-                .isFalse();
-    }
-
-    @Test
-    public void isAudioFeatureEnabled_forMinMaxActivationVolumeWithDisabledFlag() throws Exception {
-        mSetFlagsRule.disableFlags(Flags.FLAG_CAR_AUDIO_MIN_MAX_ACTIVATION_VOLUME);
-        CarAudioService service = setUpAudioService();
-
-        expectWithMessage("Min/max activation volume feature with disabled feature flag")
-                .that(service.isAudioFeatureEnabled(AUDIO_FEATURE_MIN_MAX_ACTIVATION_VOLUME))
                 .isFalse();
     }
 
@@ -4464,7 +4471,6 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
 
     @Test
     public void onAudioDeviceGainsChanged_withMute_setsSystemMute() throws Exception {
-        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_MUTE_AMBIGUITY);
         CarAudioService service = setUpAudioService();
         HalAudioGainCallback halAudioGainCallback = getHalAudioGainCallback();
         CarAudioGainConfigInfo primaryAudioZoneCarGain = createCarAudioGainConfigInfo(
@@ -6327,7 +6333,6 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     @Test
     public void handleActivationVolumeWithAudioAttributes_withMultipleAudioAttributes()
             throws Exception {
-        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_MIN_MAX_ACTIVATION_VOLUME);
         CarAudioService service = setUpAudioServiceWithMinMaxActivationVolume(/* enabled= */ true);
         TestCarVolumeEventCallback volumeEventCallback =
                 new TestCarVolumeEventCallback(TEST_CALLBACK_TIMEOUT_MS);
@@ -6377,7 +6382,6 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     @Test
     public void handleActivationVolumeWithAudioAttributes_withNonCurrentZoneConfig()
             throws Exception {
-        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_MIN_MAX_ACTIVATION_VOLUME);
         CarAudioService service = setUpAudioServiceWithMinMaxActivationVolume(/* enabled= */ true);
         TestCarVolumeEventCallback volumeEventCallback =
                 new TestCarVolumeEventCallback(TEST_CALLBACK_TIMEOUT_MS);
@@ -6401,60 +6405,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     }
 
     @Test
-    public void onPlaybackConfigChanged_withActivationVolumeFlagDisabled() throws Exception {
-        mSetFlagsRule.disableFlags(Flags.FLAG_CAR_AUDIO_MIN_MAX_ACTIVATION_VOLUME);
-        CarAudioService service = setUpAudioServiceWithMinMaxActivationVolume(/* enabled= */ true);
-        AudioPlaybackCallback callback = getCarAudioPlaybackCallback();
-        TestCarVolumeEventCallback volumeEventCallback =
-                new TestCarVolumeEventCallback(TEST_CALLBACK_TIMEOUT_MS);
-        service.registerCarVolumeEventCallback(volumeEventCallback);
-        int gainIndex = service.getVolumeGroupInfo(PRIMARY_AUDIO_ZONE,
-                TEST_PRIMARY_ZONE_GROUP_0).getMaxActivationVolumeGainIndex() + 1;
-        setVolumeForGroup(service, volumeEventCallback, PRIMARY_AUDIO_ZONE,
-                TEST_PRIMARY_ZONE_GROUP_0, gainIndex);
-
-        callback.onPlaybackConfigChanged(List.of(new AudioPlaybackConfigurationBuilder()
-                .setUsage(USAGE_MEDIA).setDeviceAddress(MEDIA_TEST_DEVICE)
-                .setClientUid(TEST_PLAYBACK_UID).build()));
-
-        expectWithMessage("Playback group volume with activation volume flag disabled")
-                .that(service.getGroupVolume(PRIMARY_AUDIO_ZONE, TEST_PRIMARY_ZONE_GROUP_0))
-                .isEqualTo(gainIndex);
-        verify(mCarVolumeCallbackHandler, never()).onVolumeGroupChange(eq(PRIMARY_AUDIO_ZONE),
-                eq(TEST_PRIMARY_ZONE_GROUP_0), anyInt());
-        expectWithMessage("No volume event callback for activation volume flag disabled")
-                .that(volumeEventCallback.waitForCallback()).isFalse();
-    }
-
-    @Test
-    public void onPlaybackConfigChanged_withActivationVolumeFeatureDisabled() throws Exception {
-        mSetFlagsRule.disableFlags(Flags.FLAG_CAR_AUDIO_MIN_MAX_ACTIVATION_VOLUME);
-        CarAudioService service = setUpAudioServiceWithMinMaxActivationVolume(/* enabled= */ false);
-        AudioPlaybackCallback callback = getCarAudioPlaybackCallback();
-        TestCarVolumeEventCallback volumeEventCallback =
-                new TestCarVolumeEventCallback(TEST_CALLBACK_TIMEOUT_MS);
-        service.registerCarVolumeEventCallback(volumeEventCallback);
-        int gainIndex = service.getVolumeGroupInfo(PRIMARY_AUDIO_ZONE,
-                TEST_PRIMARY_ZONE_GROUP_0).getMaxActivationVolumeGainIndex() + 1;
-        setVolumeForGroup(service, volumeEventCallback, PRIMARY_AUDIO_ZONE,
-                TEST_PRIMARY_ZONE_GROUP_0, gainIndex);
-
-        callback.onPlaybackConfigChanged(List.of(new AudioPlaybackConfigurationBuilder()
-                .setUsage(USAGE_MEDIA).setDeviceAddress(MEDIA_TEST_DEVICE)
-                .setClientUid(TEST_PLAYBACK_UID).build()));
-
-        expectWithMessage("Playback group volume with activation volume feature disabled")
-                .that(service.getGroupVolume(PRIMARY_AUDIO_ZONE, TEST_PRIMARY_ZONE_GROUP_0))
-                .isEqualTo(gainIndex);
-        verify(mCarVolumeCallbackHandler, never()).onVolumeGroupChange(eq(PRIMARY_AUDIO_ZONE),
-                eq(TEST_PRIMARY_ZONE_GROUP_0), anyInt());
-        expectWithMessage("No volume event callback for activation volume feature disabled")
-                .that(volumeEventCallback.waitForCallback()).isFalse();
-    }
-
-    @Test
     public void onPlaybackConfigChanged_withVolumeAboveMaxActivationVolume() throws Exception {
-        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_MIN_MAX_ACTIVATION_VOLUME);
         CarAudioService service = setUpAudioServiceWithMinMaxActivationVolume(/* enabled= */ true);
         AudioPlaybackCallback callback = getCarAudioPlaybackCallback();
         TestCarVolumeEventCallback volumeEventCallback =
@@ -6489,7 +6440,6 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
 
     @Test
     public void onPlaybackConfigChanged_withVolumeBelowMinActivationVolume() throws Exception {
-        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_MIN_MAX_ACTIVATION_VOLUME);
         CarAudioService service = setUpAudioServiceWithMinMaxActivationVolume(/* enabled= */ true);
         AudioPlaybackCallback callback = getCarAudioPlaybackCallback();
         TestCarVolumeEventCallback volumeEventCallback =
@@ -6525,7 +6475,6 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
 
     @Test
     public void onPlaybackConfigChanged_withVolumeInActivationVolumeRange() throws Exception {
-        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_MIN_MAX_ACTIVATION_VOLUME);
         CarAudioService service = setUpAudioServiceWithMinMaxActivationVolume(/* enabled= */ true);
         AudioPlaybackCallback callback = getCarAudioPlaybackCallback();
         TestCarVolumeEventCallback volumeEventCallback =
@@ -6551,7 +6500,6 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
 
     @Test
     public void onPlaybackConfigChanged_withVolumeGroupMute() throws Exception {
-        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_MIN_MAX_ACTIVATION_VOLUME);
         CarAudioService service = setUpAudioServiceWithMinMaxActivationVolume(/* enabled= */ true);
         AudioPlaybackCallback callback = getCarAudioPlaybackCallback();
         TestCarVolumeEventCallback volumeEventCallback =
@@ -6582,7 +6530,6 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
 
     @Test
     public void onPlaybackConfigChanged_afterZoneConfigSwitched() throws Exception {
-        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_MIN_MAX_ACTIVATION_VOLUME);
         CarAudioService service = setUpAudioServiceWithMinMaxActivationVolume(/* enabled= */ true);
         SwitchAudioZoneConfigCallbackImpl zoneConfigSwitchCallback =
                 new SwitchAudioZoneConfigCallbackImpl();
@@ -6632,7 +6579,6 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
 
     @Test
     public void onPlaybackConfigChanged_afterOccupantZoneConfigChanged() throws Exception {
-        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_MIN_MAX_ACTIVATION_VOLUME);
         CarAudioService service = setUpAudioServiceWithMinMaxActivationVolume(/* enabled= */ true);
         AudioPlaybackCallback callback = getCarAudioPlaybackCallback();
         TestCarVolumeEventCallback volumeEventCallback =
@@ -6681,7 +6627,6 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
 
     @Test
     public void setVolumeGroupMute_withUnMuteAfterPlaybackConfigChangedWhenMute() throws Exception {
-        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_MIN_MAX_ACTIVATION_VOLUME);
         CarAudioService service = setUpAudioServiceWithMinMaxActivationVolume(/* enabled= */ true);
         AudioPlaybackCallback callback = getCarAudioPlaybackCallback();
         TestCarVolumeEventCallback volumeEventCallback =
@@ -6728,7 +6673,6 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     @Test
     public void requestHalAudioFocus_withVolumeAboveActivationVolume_adjustsToActivationVolume()
             throws Exception {
-        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_MIN_MAX_ACTIVATION_VOLUME);
         when(mAudioManager.requestAudioFocus(any())).thenReturn(
                 AudioManager.AUDIOFOCUS_REQUEST_GRANTED);
         CarAudioService service = setUpAudioServiceWithMinMaxActivationVolume(/* enabled= */ true);
@@ -6764,7 +6708,6 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     @Test
     public void requestHalAudioFocus_withVolumeInActivationVolumeRange()
             throws Exception {
-        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_MIN_MAX_ACTIVATION_VOLUME);
         when(mAudioManager.requestAudioFocus(any())).thenReturn(
                 AudioManager.AUDIOFOCUS_REQUEST_GRANTED);
         CarAudioService service = setUpAudioServiceWithMinMaxActivationVolume(/* enabled= */ true);
@@ -6790,7 +6733,6 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     @Test
     public void onCallStateChanged_withOffHookStateAndVolumeBelowMinActivationVolume()
             throws Exception {
-        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_MIN_MAX_ACTIVATION_VOLUME);
         CarAudioService service = setUpAudioServiceWithMinMaxActivationVolume(/* enabled= */ true);
         TelephonyCallback.CallStateListener callStateListener = getCallStateListener();
         TestCarVolumeEventCallback volumeEventCallback =
@@ -6826,7 +6768,6 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     @Test
     public void onCallStateChanged_withRingingStateAndVolumeBelowMinActivationVolume()
             throws Exception {
-        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_MIN_MAX_ACTIVATION_VOLUME);
         CarAudioService service = setUpAudioServiceWithMinMaxActivationVolume(/* enabled= */ true);
         TelephonyCallback.CallStateListener callStateListener = getCallStateListener();
         TestCarVolumeEventCallback volumeEventCallback =
@@ -6862,7 +6803,6 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     @Test
     public void onCallStateChanged_withRingingStateAndWithinActivationVolumeRange()
             throws Exception {
-        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_MIN_MAX_ACTIVATION_VOLUME);
         CarAudioService service = setUpAudioServiceWithMinMaxActivationVolume(/* enabled= */ true);
         TelephonyCallback.CallStateListener callStateListener = getCallStateListener();
         TestCarVolumeEventCallback volumeEventCallback =
@@ -7404,11 +7344,6 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     }
 
     private void mockCoreAudioRoutingAndVolume() {
-        doReturn(CoreAudioRoutingUtils.getProductStrategies())
-                .when(AudioManagerWrapper::getAudioProductStrategies);
-        doReturn(CoreAudioRoutingUtils.getVolumeGroups())
-                .when(AudioManagerWrapper::getAudioVolumeGroups);
-
         when(mAudioManager.getMinVolumeIndexForAttributes(
                 eq(CoreAudioRoutingUtils.MUSIC_ATTRIBUTES)))
                 .thenReturn(CoreAudioRoutingUtils.MUSIC_MIN_INDEX);
@@ -7435,27 +7370,6 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
                 .thenReturn(CoreAudioRoutingUtils.OEM_MAX_INDEX);
         when(mAudioManager.isVolumeGroupMuted(CoreAudioRoutingUtils.OEM_GROUP_ID))
                 .thenReturn(false);
-
-        doReturn(CoreAudioRoutingUtils.MUSIC_GROUP_ID)
-                .when(() -> CoreAudioHelper.getVolumeGroupIdForAudioAttributes(
-                        CoreAudioRoutingUtils.MUSIC_ATTRIBUTES));
-        doReturn(CoreAudioRoutingUtils.MUSIC_ATTRIBUTES)
-                .when(() -> CoreAudioHelper.selectAttributesForVolumeGroupName(
-                        CoreAudioRoutingUtils.MUSIC_GROUP_NAME));
-
-        doReturn(CoreAudioRoutingUtils.NAV_GROUP_ID)
-                .when(() -> CoreAudioHelper.getVolumeGroupIdForAudioAttributes(
-                        CoreAudioRoutingUtils.NAV_ATTRIBUTES));
-        doReturn(CoreAudioRoutingUtils.NAV_ATTRIBUTES)
-                .when(() -> CoreAudioHelper.selectAttributesForVolumeGroupName(
-                        CoreAudioRoutingUtils.NAV_GROUP_NAME));
-
-        doReturn(CoreAudioRoutingUtils.OEM_GROUP_ID)
-                .when(() -> CoreAudioHelper.getVolumeGroupIdForAudioAttributes(
-                        CoreAudioRoutingUtils.OEM_ATTRIBUTES));
-        doReturn(CoreAudioRoutingUtils.OEM_ATTRIBUTES)
-                .when(() -> CoreAudioHelper.selectAttributesForVolumeGroupName(
-                        CoreAudioRoutingUtils.OEM_GROUP_NAME));
     }
 
     private static AudioFocusInfo createAudioFocusInfoForMedia() {

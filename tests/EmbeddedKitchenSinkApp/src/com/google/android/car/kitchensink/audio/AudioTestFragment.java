@@ -82,6 +82,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.LinearLayout;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
@@ -153,6 +154,7 @@ public class AudioTestFragment extends Fragment {
     private ArrayAdapter<CarAudioZoneDeviceInfo> mDeviceAddressAdapter;
     private LinearLayout mDeviceAddressLayout;
     private boolean mDeviceAddressAvailable = false;
+    private CheckBox mRequestFocusCheckBox;
 
     private final Object mLock = new Object();
 
@@ -305,7 +307,7 @@ public class AudioTestFragment extends Fragment {
                 view.findViewById(R.id.button_audio_focus_request),
                 view.findViewById(R.id.text_audio_focus_state));
         view.findViewById(R.id.button_media_play_start).setOnClickListener(v -> {
-            boolean requestFocus = true;
+            boolean requestFocus = mRequestFocusCheckBox.isChecked();
             boolean repeat = true;
             mMusicPlayer.start(requestFocus, repeat, AUDIOFOCUS_GAIN);
         });
@@ -315,7 +317,7 @@ public class AudioTestFragment extends Fragment {
         });
         view.findViewById(R.id.button_media_play_stop).setOnClickListener(v -> mMusicPlayer.stop());
         view.findViewById(R.id.button_wav_play_start).setOnClickListener(
-                v -> mWavPlayer.start(true, true, AUDIOFOCUS_GAIN));
+                v -> mWavPlayer.start(mRequestFocusCheckBox.isChecked(), true, AUDIOFOCUS_GAIN));
         view.findViewById(R.id.button_wav_play_stop).setOnClickListener(v -> mWavPlayer.stop());
         view.findViewById(R.id.button_nav_play_once).setOnClickListener(v -> {
             if (mAppFocusManager == null) {
@@ -327,7 +329,7 @@ public class AudioTestFragment extends Fragment {
             }
             mAppFocusManager.requestAppFocus(APP_FOCUS_TYPE_NAVIGATION, mOwnershipCallbacks);
             if (!mNavGuidancePlayer.isPlaying()) {
-                mNavGuidancePlayer.start(true, false,
+                mNavGuidancePlayer.start(mRequestFocusCheckBox.isChecked(), false,
                         AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK, mNavigationStateListener);
             }
         });
@@ -341,7 +343,7 @@ public class AudioTestFragment extends Fragment {
             }
             mAppFocusManager.requestAppFocus(APP_FOCUS_TYPE_VOICE_COMMAND, mOwnershipCallbacks);
             if (!mVrPlayer.isPlaying()) {
-                mVrPlayer.start(true, false,
+                mVrPlayer.start(mRequestFocusCheckBox.isChecked(), false,
                         AUDIOFOCUS_GAIN_TRANSIENT, mNavigationStateListener);
             }
         });
@@ -403,8 +405,8 @@ public class AudioTestFragment extends Fragment {
                 .setOnClickListener(v -> handleDelayedMediaStop());
 
         view.findViewById(R.id.phone_audio_focus_start)
-                .setOnClickListener(v -> mPhoneAudioPlayer.start(true, true,
-                        AUDIOFOCUS_GAIN_TRANSIENT));
+                .setOnClickListener(v -> mPhoneAudioPlayer.start(mRequestFocusCheckBox.isChecked(),
+                        true, AUDIOFOCUS_GAIN_TRANSIENT));
         view.findViewById(R.id.phone_audio_focus_stop)
                 .setOnClickListener(v -> mPhoneAudioPlayer.stop());
 
@@ -433,7 +435,7 @@ public class AudioTestFragment extends Fragment {
         muteButton.setOnClickListener(
                 (v) -> mVolumeKeyEventHandler
                         .sendClickEvent(KeyEvent.KEYCODE_VOLUME_MUTE));
-
+        mRequestFocusCheckBox = view.findViewById(R.id.request_focus);
         return view;
     }
 

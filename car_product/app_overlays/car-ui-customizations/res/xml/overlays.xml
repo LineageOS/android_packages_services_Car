@@ -50,7 +50,6 @@
     <item target="color/car_ui_toolbar_menu_item_icon_background_color" value="@color/car_ui_toolbar_menu_item_icon_background_color"/>
     <item target="color/car_ui_toolbar_menu_item_icon_color" value="@color/car_ui_toolbar_menu_item_icon_color"/>
     <item target="color/car_ui_toolbar_tab_item_selector" value="@color/car_ui_toolbar_tab_item_selector"/>
-    <item target="color/car_ui_scrollbar_thumb" value="@color/car_ui_scrollbar_thumb"/>
 
     <item target="dimen/car_ui_toolbar_margin" value="@dimen/car_ui_toolbar_margin"/>
     <item target="dimen/car_ui_toolbar_menu_item_icon_size" value="@dimen/car_ui_toolbar_menu_item_icon_size"/>
@@ -60,7 +59,6 @@
 
     <item target="drawable/car_ui_icon_arrow_back" value="@drawable/car_ui_icon_arrow_back"/>
     <item target="drawable/car_ui_list_item_divider" value="@drawable/car_ui_list_item_divider"/>
-    <item target="drawable/car_ui_list_item_background" value="@drawable/car_ui_list_item_background"/>
     <item target="drawable/car_ui_list_item_avatar_icon_outline" value="@drawable/car_ui_list_item_avatar_icon_outline"/>
     <item target="drawable/car_ui_toolbar_background" value="@drawable/car_ui_toolbar_background" />
     <item target="drawable/car_ui_toolbar_menu_item_icon_background" value="@drawable/car_ui_toolbar_menu_item_icon_background"/>

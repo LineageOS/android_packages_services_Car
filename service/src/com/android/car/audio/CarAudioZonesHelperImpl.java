@@ -842,14 +842,7 @@ import java.util.Set;
                         + ATTR_ACTIVATION_VOLUME_CONFIG_NAME + " attribute of "
                         + activationVolumeConfigName + " does not exist");
             }
-            if (Flags.carAudioMinMaxActivationVolume()) {
-                return mConfigNameToActivationVolumeConfig.get(activationVolumeConfigName);
-            }
-        }
-        if (!Flags.carAudioMinMaxActivationVolume()) {
-            mCarServiceLocalLog.log("Found " + TAG_VOLUME_GROUP + " "
-                    + ATTR_ACTIVATION_VOLUME_CONFIG
-                    + " attribute while min/max activation volume is disabled");
+            return mConfigNameToActivationVolumeConfig.get(activationVolumeConfigName);
         }
         return DEFAULT_ACTIVATION_VOLUME;
     }
@@ -1073,9 +1066,6 @@ import java.util.Set;
 
     private void validateMinMaxActivationVolume(int maxActivationVolume,
                                                 int minActivationVolume) {
-        if (!Flags.carAudioMinMaxActivationVolume()) {
-            return;
-        }
         Preconditions.checkArgument(maxActivationVolume >= ACTIVATION_VOLUME_PERCENTAGE_MIN
                         && maxActivationVolume <= ACTIVATION_VOLUME_PERCENTAGE_MAX,
                 "%s %s attribute is %s but can not be outside the range (%s,%s)",
