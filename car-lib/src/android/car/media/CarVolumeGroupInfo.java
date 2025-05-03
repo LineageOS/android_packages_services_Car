@@ -27,6 +27,7 @@ import android.media.AudioAttributes;
 import android.media.AudioDeviceAttributes;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.ArraySet;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.internal.annotations.VisibleForTesting;
@@ -35,6 +36,7 @@ import com.android.internal.util.Preconditions;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * Class to encapsulate car volume group information.
@@ -43,6 +45,12 @@ import java.util.Objects;
  */
 @SystemApi
 public final class CarVolumeGroupInfo implements Parcelable {
+
+    /**
+     * Default index value for uninitialized restrictions.
+     */
+    @FlaggedApi(Flags.FLAG_AUDIO_SEND_RESTRICTIONS_TO_OEM_VOLUME_SERVICE)
+    public static final int INDEX_UNINITIALIZED = -1;
 
     private static final long IS_USED_FIELD_SET = 0x01;
 
@@ -59,9 +67,15 @@ public final class CarVolumeGroupInfo implements Parcelable {
     private final int mMaxActivationVolumeGainIndex;
     private final int mMinActivationVolumeGainIndex;
     private final boolean mIsMutedBySystem;
+    private final boolean mIsLimited;
 
     @NonNull
     private final List<AudioDeviceAttributes> mAudioDeviceAttributes;
+    @NonNull
+    private final List<Integer> mActiveExtraInfos;
+    private final int mBlockedGainIndex;
+    private final int mAttenuatedGainIndex;
+    private final int mLimitedGainIndex;
 
     private CarVolumeGroupInfo(
             String name,
@@ -77,7 +91,12 @@ public final class CarVolumeGroupInfo implements Parcelable {
             List<AudioDeviceAttributes> audioDeviceAttributes,
             int maxActivationVolumeGainIndex,
             int minActivationVolumeGainIndex,
-            boolean isMutedBySystem) {
+            boolean isMutedBySystem,
+            boolean isLimited,
+            int blockedGainIndex,
+            int attenuatedGainIndex,
+            int limmitedGainIndex,
+            List<Integer> activeExtraInfos) {
         mName = Objects.requireNonNull(name, "Volume info name can not be null");
         mZoneId = zoneId;
         mId = id;
@@ -94,6 +113,13 @@ public final class CarVolumeGroupInfo implements Parcelable {
         mMaxActivationVolumeGainIndex = maxActivationVolumeGainIndex;
         mMinActivationVolumeGainIndex = minActivationVolumeGainIndex;
         mIsMutedBySystem = isMutedBySystem;
+
+        mIsLimited = isLimited;
+        mBlockedGainIndex = blockedGainIndex;
+        mAttenuatedGainIndex = attenuatedGainIndex;
+        mLimitedGainIndex = limmitedGainIndex;
+        mActiveExtraInfos = Objects.requireNonNull(activeExtraInfos,
+                "Active extra infos can not be null");
     }
 
     /**
@@ -135,6 +161,22 @@ public final class CarVolumeGroupInfo implements Parcelable {
         this.mMaxActivationVolumeGainIndex = maxActivationVolumeGainIndex;
         this.mMinActivationVolumeGainIndex = minActivationVolumeGainIndex;
         this.mIsMutedBySystem = isMutedBySystem;
+
+        if (Flags.audioSendRestrictionsToOemVolumeService()) {
+            this.mIsLimited = in.readBoolean();
+            this.mBlockedGainIndex = in.readInt();
+            this.mAttenuatedGainIndex = in.readInt();
+            this.mLimitedGainIndex = in.readInt();
+            this.mActiveExtraInfos = new ArrayList<>();
+            in.readList(this.mActiveExtraInfos, Integer.class.getClassLoader(),
+                    java.lang.Integer.class);
+        } else {
+            this.mIsLimited = false;
+            this.mBlockedGainIndex = -1;
+            this.mAttenuatedGainIndex = -1;
+            this.mLimitedGainIndex = maxVolumeGainIndex;
+            this.mActiveExtraInfos = new ArrayList<>();
+        }
     }
 
     @NonNull
@@ -268,6 +310,70 @@ public final class CarVolumeGroupInfo implements Parcelable {
         return mMaxActivationVolumeGainIndex;
     }
 
+    /**
+     * Returns if the volume group is limited
+     *
+     * @return {@code true} if the volume group is limited
+     */
+    @FlaggedApi(Flags.FLAG_AUDIO_SEND_RESTRICTIONS_TO_OEM_VOLUME_SERVICE)
+    public boolean isLimited() {
+        return mIsLimited;
+    }
+
+    /**
+     * Returns the blocked gain index
+     *
+     * @return the blocked gain index if {@link #isBlocked()} is {@code true}, otherwise
+     * {@link #INDEX_UNINITIALIZED}
+     */
+    @FlaggedApi(Flags.FLAG_AUDIO_SEND_RESTRICTIONS_TO_OEM_VOLUME_SERVICE)
+    public int getBlockedGainIndex() {
+        return mBlockedGainIndex;
+    }
+
+    /**
+     * Returns the attenuated gain index
+     *
+     * @return the attenuated gain index if {@link #isAttenuated()} is {@code true}, otherwise
+     * {@link #INDEX_UNINITIALIZED}
+     */
+    @FlaggedApi(Flags.FLAG_AUDIO_SEND_RESTRICTIONS_TO_OEM_VOLUME_SERVICE)
+    public int getAttenuatedGainIndex() {
+        return mAttenuatedGainIndex;
+    }
+
+    /**
+     * Returns the limited gain index
+     *
+     * @return the limited gain index if {@link #isLimited()} is {@code true}, otherwise
+     * {@link #INDEX_UNINITIALIZED}
+     */
+    @FlaggedApi(Flags.FLAG_AUDIO_SEND_RESTRICTIONS_TO_OEM_VOLUME_SERVICE)
+    public int getLimitedGainIndex() {
+        return mLimitedGainIndex;
+    }
+
+    /**
+     * Returns the active extra infos of the volume group.
+     *
+     * <p>Here active refers to any ongoing restrictions on the volume group
+     *
+     * @return list of extra info. The returned value can be one or more of
+     *    {@link android.car.media.CarVolumeGroupEvent#EXTRA_INFO_ATTENUATION_ACTIVATION},
+     *    {@link android.car.media.CarVolumeGroupEvent#EXTRA_INFO_TRANSIENT_ATTENUATION_THERMAL},
+     *    {@link android.car.media.CarVolumeGroupEvent#EXTRA_INFO_TRANSIENT_ATTENUATION_DUCKED},
+     *    {@link android.car.media.CarVolumeGroupEvent#EXTRA_INFO_TRANSIENT_ATTENUATION_PROJECTION},
+     *    {@link android.car.media.CarVolumeGroupEvent#EXTRA_INFO_TRANSIENT_ATTENUATION_NAVIGATION},
+     *    {@link android.car.media.CarVolumeGroupEvent#EXTRA_INFO_TRANSIENT_ATTENUATION_EXTERNAL},
+     *    {@link android.car.media.CarVolumeGroupEvent#EXTRA_INFO_MUTE_TOGGLED_BY_EMERGENCY},
+     *    {@link android.car.media.CarVolumeGroupEvent#EXTRA_INFO_MUTE_TOGGLED_BY_AUDIO_SYSTEM},
+     *    {@link android.car.media.CarVolumeGroupEvent#EXTRA_INFO_MUTE_LOCKED}
+     */
+    @FlaggedApi(Flags.FLAG_AUDIO_SEND_RESTRICTIONS_TO_OEM_VOLUME_SERVICE)
+    public @NonNull List<Integer> getActiveExtraInfos() {
+        return mActiveExtraInfos;
+    }
+
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder().append("CarVolumeGroupId { name = ")
@@ -279,10 +385,23 @@ public final class CarVolumeGroupInfo implements Parcelable {
                 .append(", min activation gain = ").append(mMinActivationVolumeGainIndex);
         builder.append(", muted = ").append(mIsMuted);
         builder.append(", muted by system = ").append(mIsMutedBySystem);
-        builder.append(", blocked = ").append(mIsBlocked)
-                .append(", attenuated = ").append(mIsAttenuated).append(", audio attributes = ")
-                .append(mAudioAttributes);
-        builder.append(", audio device attributes = ").append(mAudioDeviceAttributes);
+        builder.append(", blocked = ").append(mIsBlocked);
+        if (Flags.audioSendRestrictionsToOemVolumeService()) {
+            builder.append(", blocked gain index = ").append(mBlockedGainIndex);
+        }
+        builder.append(", attenuated = ").append(mIsAttenuated);
+        if (Flags.audioSendRestrictionsToOemVolumeService()) {
+            builder.append(", attenuated gain index = ").append(mAttenuatedGainIndex);
+        }
+        if (Flags.audioSendRestrictionsToOemVolumeService()) {
+            builder.append(", limited = ").append(mIsLimited)
+                    .append(", limited gain index = ").append(mLimitedGainIndex);
+        }
+        builder.append(", audio attributes = ").append(mAudioAttributes)
+                .append(", audio device attributes = ").append(mAudioDeviceAttributes);
+        if (Flags.audioSendRestrictionsToOemVolumeService()) {
+            builder.append(", active extra infos = ").append(mActiveExtraInfos);
+        }
         return builder.append(" }").toString();
     }
 
@@ -302,6 +421,13 @@ public final class CarVolumeGroupInfo implements Parcelable {
         dest.writeInt(mMaxActivationVolumeGainIndex);
         dest.writeInt(mMinActivationVolumeGainIndex);
         dest.writeBoolean(mIsMutedBySystem);
+        if (Flags.audioSendRestrictionsToOemVolumeService()) {
+            dest.writeBoolean(mIsLimited);
+            dest.writeInt(mBlockedGainIndex);
+            dest.writeInt(mAttenuatedGainIndex);
+            dest.writeInt(mLimitedGainIndex);
+            dest.writeList(mActiveExtraInfos);
+        }
     }
 
     /**
@@ -336,7 +462,8 @@ public final class CarVolumeGroupInfo implements Parcelable {
                 && Objects.equals(mAudioDeviceAttributes, that.mAudioDeviceAttributes)
                 && checkIsSameActivationVolume(that.mMaxActivationVolumeGainIndex,
                 that.mMinActivationVolumeGainIndex)
-                && checkIsSameMutedBySystem(that.mIsMutedBySystem);
+                && checkIsSameMutedBySystem(that.mIsMutedBySystem)
+                && checkHasSameRestrictions(that);
     }
 
     @Override
@@ -345,6 +472,11 @@ public final class CarVolumeGroupInfo implements Parcelable {
                 mMinVolumeGainIndex, mIsMuted, mIsBlocked, mIsAttenuated, mAudioAttributes,
                 mAudioDeviceAttributes, mMaxActivationVolumeGainIndex,
                 mMinActivationVolumeGainIndex, mIsMutedBySystem);
+
+        if (Flags.audioSendRestrictionsToOemVolumeService()) {
+            hash = Objects.hash(hash, mIsLimited, mBlockedGainIndex, mAttenuatedGainIndex,
+                    mLimitedGainIndex, mActiveExtraInfos);
+        }
         return hash;
     }
 
@@ -356,6 +488,18 @@ public final class CarVolumeGroupInfo implements Parcelable {
 
     private boolean checkIsSameMutedBySystem(boolean isMutedBySystem) {
         return mIsMutedBySystem == isMutedBySystem;
+    }
+
+    private boolean checkHasSameRestrictions(CarVolumeGroupInfo group) {
+        if (!Flags.audioSendRestrictionsToOemVolumeService()) {
+            return true;
+        }
+
+        return mIsLimited == group.isLimited()
+                && mBlockedGainIndex == group.getBlockedGainIndex()
+                && mAttenuatedGainIndex == group.getAttenuatedGainIndex()
+                && mLimitedGainIndex == group.getLimitedGainIndex()
+                && Objects.equals(mActiveExtraInfos, group.getActiveExtraInfos());
     }
 
     /**
@@ -377,9 +521,26 @@ public final class CarVolumeGroupInfo implements Parcelable {
         private List<AudioDeviceAttributes> mAudioDeviceAttributes = new ArrayList<>();
         private int mMinActivationVolumeGainIndex;
         private int mMaxActivationVolumeGainIndex;
-        private boolean mIsMutedBySystem = false;
+        private boolean mIsMutedBySystem;
+        private boolean mIsLimited;
+        private int mBlockedGainIndex = -1;
+        private int mAttenuatedGainIndex = -1;
+        private int mLimitedGainIndex;
+        private List<Integer> mActiveExtraInfos = new ArrayList<>();
 
         private long mBuilderFieldsSet = 0L;
+
+        private static final Set<Integer> VALID_EXTRA_INFOS = new ArraySet<>(List.of(
+                CarVolumeGroupEvent.EXTRA_INFO_ATTENUATION_ACTIVATION,
+                CarVolumeGroupEvent.EXTRA_INFO_TRANSIENT_ATTENUATION_THERMAL,
+                CarVolumeGroupEvent.EXTRA_INFO_TRANSIENT_ATTENUATION_DUCKED,
+                CarVolumeGroupEvent.EXTRA_INFO_TRANSIENT_ATTENUATION_PROJECTION,
+                CarVolumeGroupEvent.EXTRA_INFO_TRANSIENT_ATTENUATION_NAVIGATION,
+                CarVolumeGroupEvent.EXTRA_INFO_TRANSIENT_ATTENUATION_EXTERNAL,
+                CarVolumeGroupEvent.EXTRA_INFO_MUTE_TOGGLED_BY_EMERGENCY,
+                CarVolumeGroupEvent.EXTRA_INFO_MUTE_TOGGLED_BY_AUDIO_SYSTEM,
+                CarVolumeGroupEvent.EXTRA_INFO_MUTE_LOCKED));
+
 
         public Builder(@NonNull String name, int zoneId, int id) {
             mName = Objects.requireNonNull(name, "Volume info name can not be null");
@@ -403,6 +564,13 @@ public final class CarVolumeGroupInfo implements Parcelable {
             mMaxActivationVolumeGainIndex = info.mMaxActivationVolumeGainIndex;
             mMinActivationVolumeGainIndex = info.mMinActivationVolumeGainIndex;
             mIsMutedBySystem = info.mIsMutedBySystem;
+            if (Flags.audioSendRestrictionsToOemVolumeService()) {
+                mIsLimited = info.mIsLimited;
+                mBlockedGainIndex = info.mBlockedGainIndex;
+                mAttenuatedGainIndex = info.mAttenuatedGainIndex;
+                mLimitedGainIndex = info.mLimitedGainIndex;
+                mActiveExtraInfos = info.mActiveExtraInfos;
+            }
         }
 
         /**
@@ -515,6 +683,78 @@ public final class CarVolumeGroupInfo implements Parcelable {
         }
 
         /**
+         * Sets the volume group limited state, {@code true} for limited
+         */
+        @FlaggedApi(Flags.FLAG_AUDIO_SEND_RESTRICTIONS_TO_OEM_VOLUME_SERVICE)
+        public @NonNull Builder setLimited(boolean isLimited) {
+            checkNotUsed();
+            mIsLimited = isLimited;
+            return this;
+        }
+
+        /**
+         * Sets the blocked gain index for the volume group.
+         *
+         * <p> This index must be set when {@link #setBlocked(boolean)} is {@code true}
+         */
+        @FlaggedApi(Flags.FLAG_AUDIO_SEND_RESTRICTIONS_TO_OEM_VOLUME_SERVICE)
+        public @NonNull Builder setBlockedGainIndex(int blockedGainIndex) {
+            checkNotUsed();
+            mBlockedGainIndex = blockedGainIndex;
+            return this;
+        }
+
+        /**
+         * Sets the attenuated gain index for the volume group.
+         *
+         * <p> This index must be set when {@link #setAttenuated(boolean)} is {@code true}
+         */
+        @FlaggedApi(Flags.FLAG_AUDIO_SEND_RESTRICTIONS_TO_OEM_VOLUME_SERVICE)
+        public @NonNull Builder setAttenuatedGainIndex(int attenuatedGainIndex) {
+            checkNotUsed();
+            mAttenuatedGainIndex = attenuatedGainIndex;
+            return this;
+        }
+
+        /**
+         * Sets the limited gain index for the volume group.
+         *
+         * <p> This index must be set when {@link #setLimited(boolean)} is {@code true}
+         */
+        @FlaggedApi(Flags.FLAG_AUDIO_SEND_RESTRICTIONS_TO_OEM_VOLUME_SERVICE)
+        public @NonNull Builder setLimitedGainIndex(int limitedGainIndex) {
+            checkNotUsed();
+            mLimitedGainIndex = limitedGainIndex;
+            return this;
+        }
+
+        /**
+         * Sets the list of active extra infos of the volume group.
+         *
+         * <p>Here active refers to any ongoing restrictions on the volume group and must be one or
+         * more of {@link android.car.media.CarVolumeGroupEvent#EXTRA_INFO_ATTENUATION_ACTIVATION},
+         * {@link android.car.media.CarVolumeGroupEvent#EXTRA_INFO_TRANSIENT_ATTENUATION_THERMAL},
+         * {@link android.car.media.CarVolumeGroupEvent#EXTRA_INFO_TRANSIENT_ATTENUATION_DUCKED},
+         * {@link android.car.media.CarVolumeGroupEvent#EXTRA_INFO_TRANSIENT_ATTENUATION_PROJECTION},
+         * {@link android.car.media.CarVolumeGroupEvent#EXTRA_INFO_TRANSIENT_ATTENUATION_NAVIGATION},
+         * {@link android.car.media.CarVolumeGroupEvent#EXTRA_INFO_TRANSIENT_ATTENUATION_EXTERNAL},
+         * {@link android.car.media.CarVolumeGroupEvent#EXTRA_INFO_MUTE_TOGGLED_BY_EMERGENCY},
+         * {@link android.car.media.CarVolumeGroupEvent#EXTRA_INFO_MUTE_TOGGLED_BY_AUDIO_SYSTEM},
+         * {@link android.car.media.CarVolumeGroupEvent#EXTRA_INFO_MUTE_LOCKED}
+         *
+         * @throws NullPointerException if extra info is null
+         * @throws  IllegalArgumentException if invalid extra info is provided
+         */
+        @FlaggedApi(Flags.FLAG_AUDIO_SEND_RESTRICTIONS_TO_OEM_VOLUME_SERVICE)
+        public @NonNull Builder setActiveExtraInfos(@NonNull List<Integer> activeExtraInfos) {
+            checkNotUsed();
+            mActiveExtraInfos = Objects.requireNonNull(activeExtraInfos,
+                    "Active extra infos can not be null");
+            validateExtraInfos(activeExtraInfos);
+            return this;
+        }
+
+        /**
          * Builds the instance.
          *
          * @throws IllegalArgumentException if min volume gain index is larger than max volume
@@ -522,18 +762,29 @@ public final class CarVolumeGroupInfo implements Parcelable {
          * gain index.
          *
          * @throws IllegalStateException if the constructor is re-used
+         *
+         * @throws  IllegalArgumentException if limited is set and limited gain index is outside the
+         * range of min and max volume gain index.
+         *
+         * @throws  IllegalArgumentException if blocked is set and blocked gain index is outside the
+         * range of min and max volume gain index.
+         *
+         * @throws  IllegalArgumentException if attenuated is set and attenuated gain index is
+         * outside the range of min and max volume gain index.
          */
         @NonNull
         public CarVolumeGroupInfo build() {
             checkNotUsed();
             validateGainIndexRange();
+            validateAndResetRestrictions();
 
             mBuilderFieldsSet |= IS_USED_FIELD_SET; // Mark builder used
 
             return new CarVolumeGroupInfo(mName, mZoneId, mId, mVolumeGainIndex,
                     mMaxVolumeGainIndex, mMinVolumeGainIndex, mIsMuted, mIsBlocked, mIsAttenuated,
                     mAudioAttributes, mAudioDeviceAttributes, mMaxActivationVolumeGainIndex,
-                    mMinActivationVolumeGainIndex, mIsMutedBySystem);
+                    mMinActivationVolumeGainIndex, mIsMutedBySystem, mIsLimited, mBlockedGainIndex,
+                    mAttenuatedGainIndex, mLimitedGainIndex, mActiveExtraInfos);
         }
 
         private void validateGainIndexRange() {
@@ -556,6 +807,50 @@ public final class CarVolumeGroupInfo implements Parcelable {
                             < mMaxActivationVolumeGainIndex, "Min activation volume gain index"
                             + " %d must be smaller than max activation volume gain index %d",
                     mMinActivationVolumeGainIndex, mMaxActivationVolumeGainIndex);
+        }
+
+        private void validateAndResetRestrictions() {
+            if (!Flags.audioSendRestrictionsToOemVolumeService()) {
+                // special case for limited gain index as its default depends on max volume gain
+                mLimitedGainIndex = mMaxVolumeGainIndex;
+                return;
+            }
+
+            if (mIsLimited) {
+                Preconditions.checkArgumentInRange(mLimitedGainIndex, mMinVolumeGainIndex,
+                        mMaxVolumeGainIndex,
+                        "Limited gain index must be in range when limited is set");
+            } else {
+                mLimitedGainIndex = mMaxVolumeGainIndex;
+            }
+            // for backward-compatibility, allow blocked and attenuated gain indices to be set to
+            // uninitialized value even when the restrictions are set.
+            if (mIsBlocked) {
+                Preconditions.checkArgumentInRange(mBlockedGainIndex, INDEX_UNINITIALIZED,
+                        mMaxVolumeGainIndex,
+                        "Blocked gain index must be in range when blocked is set");
+            } else {
+                mBlockedGainIndex = INDEX_UNINITIALIZED;
+            }
+
+            if (mIsAttenuated) {
+                Preconditions.checkArgumentInRange(mAttenuatedGainIndex, INDEX_UNINITIALIZED,
+                        mMaxVolumeGainIndex,
+                        "Attenuated gain index must be in range when attenuated is set");
+            } else {
+                mAttenuatedGainIndex = INDEX_UNINITIALIZED;
+            }
+        }
+
+        private void validateExtraInfos(@NonNull List<Integer> activeExtraInfos) {
+            if (!Flags.audioSendRestrictionsToOemVolumeService()) {
+                return;
+            }
+
+            for (int index = 0; index < activeExtraInfos.size(); index++) {
+                Preconditions.checkArgument(VALID_EXTRA_INFOS.contains(activeExtraInfos.get(index)),
+                        "Invalid extra info: %d", activeExtraInfos.get(index));
+            }
         }
 
         private void checkNotUsed() throws IllegalStateException {
