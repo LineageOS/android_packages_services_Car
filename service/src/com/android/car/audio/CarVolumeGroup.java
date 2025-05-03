@@ -16,8 +16,6 @@
 package com.android.car.audio;
 
 import static android.car.feature.Flags.carAudioDynamicDevices;
-import static android.car.feature.Flags.carAudioMinMaxActivationVolume;
-import static android.car.feature.Flags.carAudioMuteAmbiguity;
 import static android.car.media.CarVolumeGroupEvent.EVENT_TYPE_ATTENUATION_CHANGED;
 import static android.car.media.CarVolumeGroupEvent.EVENT_TYPE_MUTE_CHANGED;
 import static android.car.media.CarVolumeGroupEvent.EVENT_TYPE_VOLUME_BLOCKED_CHANGED;
@@ -551,8 +549,7 @@ import java.util.Set;
 
     boolean handleActivationVolume(
             @ActivationVolumeInvocationType int activationVolumeInvocationType) {
-        if (!carAudioMinMaxActivationVolume()
-                || (getActivationVolumeInvocationType() & activationVolumeInvocationType) == 0) {
+        if ((getActivationVolumeInvocationType() & activationVolumeInvocationType) == 0) {
             // Min/max activation volume is not invoked if the given invocation type is not allowed
             // for the volume group.
             return false;
@@ -987,14 +984,10 @@ import java.util.Set;
             builder.setAudioDeviceAttributes(getAudioDeviceAttributes());
         }
 
-        if (carAudioMinMaxActivationVolume()) {
-            builder.setMaxActivationVolumeGainIndex(getMaxActivationGainIndex())
-                    .setMinActivationVolumeGainIndex(getMinActivationGainIndex());
-        }
+        builder.setMaxActivationVolumeGainIndex(getMaxActivationGainIndex())
+                .setMinActivationVolumeGainIndex(getMinActivationGainIndex());
 
-        if (carAudioMuteAmbiguity()) {
-            builder.setMutedBySystem(isHalMuted);
-        }
+        builder.setMutedBySystem(isHalMuted);
 
         return builder.build();
     }
