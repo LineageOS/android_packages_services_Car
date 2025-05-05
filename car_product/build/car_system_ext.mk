@@ -30,6 +30,7 @@ PRODUCT_PACKAGES += \
     CarProvision \
     CarSystemUI \
     StatementService \
+    CarHotwordDetectionServiceOne \
 
 # Default dex optimization configurations
 PRODUCT_SYSTEM_EXT_PROPERTIES += \
