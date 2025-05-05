@@ -41,4 +41,13 @@ public class PortraitCarRecentsActivity extends CarRecentsActivity {
         mRecentTasksViewModel.removeHiddenTaskProvider(mPortraitHiddenTaskProvider);
         super.onDestroy();
     }
+
+    @Override
+    protected boolean handleOpenRecentTaskAction() {
+        if (OPEN_RECENT_TASK_ACTION.equals(getIntent().getAction())) {
+            launchHomeIntent();
+            return true;
+        }
+        return false;
+    }
 }
