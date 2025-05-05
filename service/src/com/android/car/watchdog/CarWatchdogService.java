@@ -44,7 +44,6 @@ import android.automotive.watchdog.internal.PackageIoOveruseStats;
 import android.automotive.watchdog.internal.PowerCycle;
 import android.automotive.watchdog.internal.ResourceStats;
 import android.automotive.watchdog.internal.StateType;
-import android.automotive.watchdog.internal.UserPackageIoUsageStats;
 import android.automotive.watchdog.internal.UserState;
 import android.car.Car;
 import android.car.builtin.util.Slogf;
@@ -1148,25 +1147,6 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
                 }
                 service.mWatchdogPerfHandler.resetResourceOveruseStats(
                     new ArraySet<>(packageNames));
-            } finally {
-                Trace.endSection();
-            }
-        }
-
-        // TODO(b/273354756): This method was replaced by an async request/response pattern
-        // Android U. Requests for the I/O stats are received through the requestTodayIoUsageStats
-        // method. And responses are sent through the carwatchdog daemon via
-        // ICarWatchdog#onTodayIoUsageStats. Make method no-op in Android W (N+2 releases).
-        @Override
-        public List<UserPackageIoUsageStats> getTodayIoUsageStats() {
-            Trace.beginSection("ICarWatchdogServiceForSystemImpl.getTodayIoUsageStats");
-            try {
-                CarWatchdogService service = mService.get();
-                if (service == null) {
-                    Slogf.w(TAG, "CarWatchdogService is not available");
-                    return Collections.emptyList();
-                }
-                return service.mWatchdogPerfHandler.getTodayIoUsageStats();
             } finally {
                 Trace.endSection();
             }
