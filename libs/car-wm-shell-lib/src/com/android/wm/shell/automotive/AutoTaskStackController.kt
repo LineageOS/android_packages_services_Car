@@ -237,4 +237,26 @@ data class AutoTaskStackTransaction internal constructor(
         }
         return states
     }
+
+    /**
+     * Adds a set task stack state operation to the transaction.
+     *
+     * If an operation with the same task stack ID already exists, nothing is changed.
+     *
+     * @param taskStackId The ID of the task stack.
+     * @param state The new state of the task stack.
+     * @return The transaction with the added operation if operation doesn't exist.
+     */
+    fun setTaskStackStateIfNotSet(
+        taskStackId: Int,
+        state: AutoTaskStackState
+    ): AutoTaskStackTransaction {
+        val existingOperation = operations.find {
+            it is TaskStackOperation.SetTaskStackState && it.taskStackId == taskStackId
+        }
+        if (existingOperation == null) {
+            operations.add(TaskStackOperation.SetTaskStackState(taskStackId, state))
+        }
+        return this
+    }
 }
