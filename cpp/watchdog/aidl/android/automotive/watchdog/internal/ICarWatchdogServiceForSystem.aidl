@@ -57,32 +57,12 @@ interface ICarWatchdogServiceForSystem {
   List<PackageInfo> getPackageInfosForUids(
             in int[] uids, in @utf8InCpp List<String> vendorPackagePrefixes);
 
-  // TODO(b/269191275): This method was replaced by onLatestResourceStats in Android U.
-  //  Deprecate method in Android W (N+2 releases).
-  /**
-   * Pushes the latest I/O overuse stats to the watchdog server.
-   *
-   * @param packageIoOveruseStats       Latest package I/O overuse stats, for all packages, from the
-   *                                    recent collection.
-   */
-  oneway void latestIoOveruseStats(in List<PackageIoOveruseStats> packageIoOveruseStats);
-
   /**
    * Resets resource overuse stats on the watchdog server side.
    *
    * @param packageNames       Package names for which to reset the stats.
    */
   oneway void resetResourceOveruseStats(in @utf8InCpp List<String> packageNames);
-
-  // TODO(b/273354756): This method was replaced by an async request/response pattern Android U.
-  // Requests for the I/O stats are made through the requestTodayIoUsageStats method. And responses
-  // are received by the carwatchdog daemon via ICarWatchdog#onTodayIoUsageStats. Deprecate method
-  // in Android W.
-  /**
-   * Fetches current UTC calendar day's I/O usage stats for all packages collected during the
-   * previous boot.
-   */
-  List<UserPackageIoUsageStats> getTodayIoUsageStats();
 
   /**
    * Pushes the latest resource usage and I/O overuse stats to the carwatchdog service.
