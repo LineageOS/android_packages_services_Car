@@ -54,7 +54,7 @@ import java.util.concurrent.TimeoutException;
  * than {@link MAX_CIRCULAR_CALL_TOTAL} circular calls overall, Car Service and OEM service
  * would be crashed.
  */
-public final class CarOemProxyServiceHelper {
+public final class CarOemProxyServiceHelper implements AutoCloseable {
 
     private static final String TAG = CarLog.tagFor(CarOemProxyServiceHelper.class);
     private static final boolean DBG = Slogf.isLoggable(TAG, Log.DEBUG);
@@ -142,6 +142,11 @@ public final class CarOemProxyServiceHelper {
         Slogf.i(TAG, "RegularCallTimeoutMs: %d, CrashCallTimeoutMs: %d, ThreadPoolSizeFromRRO: %d,"
                 + " ThreadPoolSize: %d.", mRegularCallTimeoutMs,
                 mCrashCallTimeoutMs, mThreadPoolSizeFromRRO, mBinderDispatchThreadPoolSize);
+    }
+
+    @Override
+    public void close() {
+        mThreadPool.close();
     }
 
     /**

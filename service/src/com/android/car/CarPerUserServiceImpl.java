@@ -83,8 +83,8 @@ public class CarPerUserServiceImpl extends ProxiedService {
     @Override
     public void onDestroy() {
         Slogf.i(TAG, "destroyed for user %s", getApplicationContext().getUser());
-
         mCarPerUserServiceBinder = null;
+        mCarBluetoothUserService.destroy();
     }
 
     @Override

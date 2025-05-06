@@ -90,6 +90,7 @@ import java.util.Set;
 public class CarTelemetryService extends ICarTelemetryService.Stub implements CarServiceBase {
 
     private static final String TAG = CarTelemetryService.class.getSimpleName();
+    private static final String HANDLER_THREAD_NAME = TAG;
 
     public static final boolean DEBUG = false; // STOPSHIP if true
 
@@ -113,7 +114,7 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
     private final CarPropertyService mCarPropertyService;
     private final Dependencies mDependencies;
     private final HandlerThread mTelemetryThread = CarServiceUtils.getHandlerThread(
-            CarTelemetryService.class.getSimpleName());
+            HANDLER_THREAD_NAME);
     private final Handler mTelemetryHandler = new Handler(mTelemetryThread.getLooper());
     private final UidPackageMapper mUidMapper;
 
@@ -224,6 +225,15 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
     }
 
     @Override
+    public void destroy() {
+        try {
+            CarServiceUtils.releaseHandlerThread(HANDLER_THREAD_NAME);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+    }
+
+    @Override
     public void init() {
         mTelemetryHandler.post(() -> {
             mTelemetryThreadTraceLog = new TimingsTraceLog(
@@ -245,8 +255,8 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
             mPublisherFactory = mDependencies.getPublisherFactory(mCarPropertyService,
                     mTelemetryHandler, mContext, mSessionController, mResultStore, mUidMapper);
             if (mDataBroker == null) {
-                mDataBroker = new DataBrokerImpl(mContext, mPublisherFactory, mResultStore,
-                        mTelemetryThreadTraceLog);
+                mDataBroker = new DataBrokerImpl(mContext, mTelemetryHandler.getLooper(),
+                        mPublisherFactory, mResultStore, mTelemetryThreadTraceLog);
             }
             mDataBroker.setDataBrokerListener(mDataBrokerListener);
             // TODO (b/233973826): Re-enable once SystemMonitor tune-up is complete.

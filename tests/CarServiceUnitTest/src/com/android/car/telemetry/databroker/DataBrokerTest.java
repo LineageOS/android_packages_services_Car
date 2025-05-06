@@ -40,6 +40,7 @@ import android.content.ServiceConnection;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Handler;
+import android.os.HandlerThread;
 import android.os.IBinder;
 import android.os.ParcelFileDescriptor;
 import android.os.PersistableBundle;
@@ -48,6 +49,7 @@ import android.os.SystemClock;
 import android.util.Log;
 
 import com.android.car.CarLog;
+import com.android.car.CarServiceUtils;
 import com.android.car.telemetry.ResultStore;
 import com.android.car.telemetry.publisher.AbstractPublisher;
 import com.android.car.telemetry.publisher.PublisherFactory;
@@ -79,6 +81,7 @@ import java.util.concurrent.TimeUnit;
 @RunWith(MockitoJUnitRunner.class)
 public final class DataBrokerTest extends AbstractExtendedMockitoCarServiceTestCase {
     private static final String TAG = DataBrokerTest.class.getSimpleName();
+    private static final String HANDLER_THREAD_NAME = DataBrokerTest.class.getSimpleName();
 
     private static final int PROP_ID = 100;
     private static final int PROP_AREA = 200;
@@ -124,6 +127,7 @@ public final class DataBrokerTest extends AbstractExtendedMockitoCarServiceTestC
     private AbstractPublisher.PublisherListener mPublisherListener;
     private ScriptExecutionTask mHighPriorityTask;
     private ScriptExecutionTask mLowPriorityTask;
+    private HandlerThread mHandlerThread;
 
     @Mock
     private Context mMockContext;
@@ -148,6 +152,7 @@ public final class DataBrokerTest extends AbstractExtendedMockitoCarServiceTestC
 
     @Before
     public void setUp() throws Exception {
+        mHandlerThread = CarServiceUtils.getHandlerThread(HANDLER_THREAD_NAME);
         mockPackageManager();
 
         mFakeScriptExecutor = new FakeScriptExecutor();
@@ -161,7 +166,8 @@ public final class DataBrokerTest extends AbstractExtendedMockitoCarServiceTestC
 
         when(mMockPublisherFactory.getPublisher(any())).thenReturn(mAbstractPublisher);
         mDataBroker = new DataBrokerImpl(
-                mMockContext, mMockPublisherFactory, mMockResultStore, mMockTimingsTraceLog);
+                mMockContext, mHandlerThread.getLooper(), mMockPublisherFactory, mMockResultStore,
+                mMockTimingsTraceLog);
         mDataBroker.setDataBrokerListener(mMockDataBrokerListener);
         // add IdleHandler to get notified when all messages and posts are handled
         mDataBroker.getTelemetryHandler().getLooper().getQueue().addIdleHandler(() -> {
@@ -205,6 +211,7 @@ public final class DataBrokerTest extends AbstractExtendedMockitoCarServiceTestC
             mDataBroker.getTelemetryHandler().removeMessages(
                     DataBrokerImpl.MSG_STOP_HANGING_SCRIPT);
         }
+        CarServiceUtils.releaseHandlerThread(HANDLER_THREAD_NAME);
         Log.i(TAG, "tearDown completed");
     }
 

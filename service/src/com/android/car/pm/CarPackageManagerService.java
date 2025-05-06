@@ -28,6 +28,7 @@ import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHIN
 import static com.android.car.CarServiceUtils.checkCalledByPackage;
 import static com.android.car.CarServiceUtils.getHandlerThread;
 import static com.android.car.CarServiceUtils.isEventOfType;
+import static com.android.car.CarServiceUtils.releaseHandlerThread;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
 import android.annotation.NonNull;
@@ -147,6 +148,8 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
     private static final String PACKAGE_ACTIVITY_DELIMITER = "/";
     private static final int LOG_SIZE = 20;
     private static final String[] WINDOW_DUMP_ARGUMENTS = new String[]{"windows"};
+    private static final String HANDLER_THREAD_NAME = CarPackageManagerService.class
+            .getSimpleName();
 
     private static final String PROPERTY_RO_DRIVING_SAFETY_REGION =
             "ro.android.car.drivingsafetyregion";
@@ -158,9 +161,8 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
     private final ActivityManager mActivityManager;
     private final IBinder mWindowManagerBinder;
 
-    private final HandlerThread mHandlerThread = getHandlerThread(
-            getClass().getSimpleName());
-    private final PackageHandler mHandler  = new PackageHandler(mHandlerThread.getLooper(), this);
+    private final HandlerThread mHandlerThread = getHandlerThread(HANDLER_THREAD_NAME);
+    private final PackageHandler mHandler = new PackageHandler(mHandlerThread.getLooper(), this);
     private final Object mLock = new Object();
 
     // For dumpsys logging.
@@ -294,6 +296,14 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
         mBlockingUiCommandListenerMediator = new BlockingUiCommandListenerMediator();
     }
 
+    @Override
+    public void destroy() {
+        try {
+            releaseHandlerThread(HANDLER_THREAD_NAME);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+    }
 
     @Override
     public void setAppBlockingPolicy(String packageName, CarAppBlockingPolicy policy, int flags) {
@@ -582,10 +592,6 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
         }
         return isActivityDistractionOptimized(info.baseActivity.getPackageName(),
                 info.baseActivity.getClassName());
-    }
-
-    public Looper getLooper() {
-        return mHandlerThread.getLooper();
     }
 
     private void assertPackageAndClassName(String packageName, String className) {
@@ -1236,7 +1242,7 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
                 }
                 Slogf.i(TAG, "found policy holding service:" + serviceInfo);
                 AppBlockingPolicyProxy proxy = new AppBlockingPolicyProxy(this, mContext,
-                        serviceInfo);
+                        mHandler.getLooper(), serviceInfo);
                 proxy.connect();
                 proxies.add(proxy);
             }

@@ -27,10 +27,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Resources;
+import android.os.HandlerThread;
 import android.text.TextUtils;
 import android.util.Log;
 
 import com.android.car.CarLog;
+import com.android.car.CarServiceUtils;
 import com.android.car.R;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
@@ -57,6 +59,7 @@ public class FastPairProvider {
     private final FastPairAdvertiser mFastPairAdvertiser;
     private FastPairGattServer mFastPairGattServer;
     private final FastPairAccountKeyStorage mFastPairAccountKeyStorage;
+    private final HandlerThread mHandlerThread;
 
     FastPairAdvertiser.Callbacks mAdvertiserCallbacks = new FastPairAdvertiser.Callbacks() {
         @Override
@@ -175,9 +178,24 @@ public class FastPairProvider {
 
         mBluetoothAdapter = mContext.getSystemService(BluetoothManager.class).getAdapter();
         mFastPairAccountKeyStorage = new FastPairAccountKeyStorage(mContext, 5);
-        mFastPairAdvertiser = new FastPairAdvertiser(mContext);
+        mHandlerThread = CarServiceUtils.getHandlerThread(THREAD_NAME);
+        mFastPairAdvertiser = new FastPairAdvertiser(mContext, mHandlerThread.getLooper());
         mFastPairGattServer = new FastPairGattServer(mContext, mModelId, mAntiSpoofKey,
-                mGattServerCallbacks, mAutomaticAcceptance, mFastPairAccountKeyStorage);
+                mGattServerCallbacks, mAutomaticAcceptance, mFastPairAccountKeyStorage,
+                mHandlerThread.getLooper());
+    }
+
+    /**
+     * Destroys the FastPairProvider instance.
+     *
+     * Cleans up resources.
+     */
+    public void destroy() {
+        try {
+            CarServiceUtils.releaseHandlerThread(THREAD_NAME);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
 
     /**

@@ -34,6 +34,7 @@ import android.os.RemoteException;
 import com.android.car.R;
 import com.android.car.oem.CarOemProxyServiceHelper.CallbackForDelayedResult;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -64,6 +65,11 @@ public final class CarOemProxyServiceHelperTest extends AbstractExtendedMockitoT
         mCarOemProxyServiceHelper = new CarOemProxyServiceHelper(mContext);
     }
 
+    @After
+    public void tearDown() throws Exception {
+        mCarOemProxyServiceHelper.close();
+    }
+
     @Override
     protected void onSessionBuilder(CustomMockitoSessionBuilder session) {
         session.spyStatic(Process.class);
@@ -85,6 +91,7 @@ public final class CarOemProxyServiceHelperTest extends AbstractExtendedMockitoT
             return "value";
         }, /* defaultValue= */ "default")).isEqualTo("default");
 
+        carOemProxyServiceHelper.close();
     }
 
     @Test
@@ -123,6 +130,8 @@ public final class CarOemProxyServiceHelperTest extends AbstractExtendedMockitoT
                 return 42;
             });
         });
+
+        carOemProxyServiceHelper.close();
     }
 
     @Test

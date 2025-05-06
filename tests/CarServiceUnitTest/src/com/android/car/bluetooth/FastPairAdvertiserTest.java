@@ -44,10 +44,12 @@ import android.car.Car;
 import android.car.PlatformVersion;
 import android.car.builtin.bluetooth.le.AdvertisingSetCallbackHelper;
 import android.car.builtin.bluetooth.le.AdvertisingSetHelper;
+import android.car.test.NoActiveHandlerThreadCheckerRule;
 import android.content.Context;
-import android.os.Looper;
+import android.os.HandlerThread;
 import android.os.ParcelUuid;
 
+import com.android.car.CarServiceUtils;
 import com.android.dx.mockito.inline.extended.ExtendedMockito;
 
 import org.junit.After;
@@ -79,8 +81,11 @@ import java.util.Map;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class FastPairAdvertiserTest {
+
     public static final ParcelUuid SERVICE_UUID = ParcelUuid
             .fromString("0000FE2C-0000-1000-8000-00805f9b34fb");
+
+    private static final String HANDLER_THREAD_NAME = FastPairAdvertiserTest.class.getSimpleName();
 
     private static final int TEST_MODEL_ID = 0x112233;
     private static final byte[] TEST_MODEL_ID_DATA = new byte[]{0x11, 0x22, 0x33};
@@ -126,6 +131,7 @@ public class FastPairAdvertiserTest {
     @Captor ArgumentCaptor<AdvertisingSetParameters> mAdvertisingSetParametersCaptor;
     @Captor ArgumentCaptor<AdvertiseData> mAdvertiseDataCaptor;
 
+    private HandlerThread mHandlerThread;
     private FastPairAdvertiser mFastPairAdvertiser;
     private final FastPairAdvertiser.Callbacks mCallback = new FastPairAdvertiser.Callbacks() {
         @Override
@@ -134,6 +140,10 @@ public class FastPairAdvertiserTest {
             // be uncommented.
         }
     };
+
+    @Rule
+    public NoActiveHandlerThreadCheckerRule mNoActiveHandlerThreadCheckerRule =
+            new NoActiveHandlerThreadCheckerRule();
 
     @Rule
     public final TestRule mClearInlineMocksRule = new TestRule() {
@@ -177,16 +187,14 @@ public class FastPairAdvertiserTest {
                 .spyStatic(AdvertisingSetHelper.class)
                 .startMocking();
 
-        Looper looper = Looper.myLooper();
-        if (looper == null) {
-            Looper.prepare();
-        }
+        mHandlerThread = CarServiceUtils.getHandlerThread(HANDLER_THREAD_NAME);
 
-        mFastPairAdvertiser = new FastPairAdvertiser(mMockContext);
+        mFastPairAdvertiser = new FastPairAdvertiser(mMockContext, mHandlerThread.getLooper());
     }
 
     @After
-    public void tearDown() {
+    public void tearDown() throws Exception {
+        CarServiceUtils.releaseHandlerThread(HANDLER_THREAD_NAME);
         mMockitoSession.finishMocking();
     }
 
@@ -596,7 +604,7 @@ public class FastPairAdvertiserTest {
         clearInvocations(staticMockMarker(AdvertisingSetCallbackHelper.class));
 
         // version check lies in constructor
-        new FastPairAdvertiser(mMockContext);
+        var advertiser = new FastPairAdvertiser(mMockContext, mHandlerThread.getLooper());
 
         verify(() -> AdvertisingSetCallbackHelper.createRealCallbackFromProxy(any()));
     }
@@ -616,7 +624,7 @@ public class FastPairAdvertiserTest {
         clearInvocations(staticMockMarker(AdvertisingSetCallbackHelper.class));
 
         // version check lies in constructor
-        new FastPairAdvertiser(mMockContext);
+        var advertiser = new FastPairAdvertiser(mMockContext, mHandlerThread.getLooper());
 
         verify(() -> AdvertisingSetCallbackHelper.createRealCallbackFromProxy(any()), never());
     }
