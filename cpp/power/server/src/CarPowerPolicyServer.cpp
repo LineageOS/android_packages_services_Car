@@ -1022,17 +1022,13 @@ ScopedAStatus CarPowerPolicyServer::applyPowerPolicyPerPowerStateChangeAsync(
         return status;
     }
     VehicleApPowerStateReport apPowerState;
-    std::string defaultPowerPolicyId;
     // TODO(b/318520417): Power policy should be updated according to SilentMode.
-    // TODO(b/321319532): Create a map for default power policy in PolicyManager.
     switch (state) {
         case ICarPowerManagementDelegate::PowerState::WAIT_FOR_VHAL:
             apPowerState = VehicleApPowerStateReport::WAIT_FOR_VHAL;
-            defaultPowerPolicyId = kSystemPolicyIdInitialOn;
             break;
         case ICarPowerManagementDelegate::PowerState::ON:
             apPowerState = VehicleApPowerStateReport::ON;
-            defaultPowerPolicyId = kSystemPolicyIdAllOn;
             break;
         default:
             return ScopedAStatus::
@@ -1057,7 +1053,16 @@ ScopedAStatus CarPowerPolicyServer::applyPowerPolicyPerPowerStateChangeAsync(
         ALOGI("Vendor-configured policy(%s) is about to be applied for power state(%s)",
               policyId.c_str(), powerStateName.c_str());
     } else {
-        policyId = defaultPowerPolicyId;
+        const auto& defaultPolicyId = mPolicyManager.getDefaultPowerPolicyIdForState(apPowerState);
+        if (!defaultPolicyId.ok()) {
+            return ScopedAStatus::
+                    fromServiceSpecificErrorWithMessage(EX_ILLEGAL_ARGUMENT,
+                                                        StringPrintf("No default power policy "
+                                                                     "defined for power state(%d)",
+                                                                     static_cast<int32_t>(state))
+                                                                .c_str());
+        }
+        policyId = *defaultPolicyId;
         ALOGI("Default policy(%s) is about to be applied for power state(%s)", policyId.c_str(),
               powerStateName.c_str());
     }
