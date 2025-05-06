@@ -137,7 +137,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyFloat;
 import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
@@ -180,7 +179,6 @@ import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.hardware.automotive.audiocontrol.AudioDeviceConfiguration;
 import android.hardware.automotive.audiocontrol.AudioGainConfigInfo;
-import android.hardware.automotive.audiocontrol.IAudioControl;
 import android.hardware.automotive.audiocontrol.Reasons;
 import android.hardware.automotive.audiocontrol.RoutingDeviceConfiguration;
 import android.media.AudioAttributes;
@@ -230,10 +228,8 @@ import com.android.car.CarLocalServices;
 import com.android.car.CarOccupantZoneService;
 import com.android.car.CarServiceUtils;
 import com.android.car.R;
-import com.android.car.audio.hal.AudioControlFactory;
 import com.android.car.audio.hal.AudioControlWrapper;
 import com.android.car.audio.hal.AudioControlWrapper.AudioControlDeathRecipient;
-import com.android.car.audio.hal.AudioControlWrapperAidl;
 import com.android.car.audio.hal.HalAudioDeviceInfo;
 import com.android.car.audio.hal.HalAudioGainCallback;
 import com.android.car.audio.hal.HalAudioModuleChangeCallback;
@@ -473,11 +469,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     @Mock
     private AttributionSource mMockAttributionSource;
     @Mock
-    IBinder mBinder;
-    @Mock
     IBinder mVolumeCallbackBinder;
-    @Mock
-    IAudioControl mAudioControl;
     @Mock
     private PackageManager mMockPackageManager;
     @Mock
@@ -491,7 +483,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     @Mock
     private Uri mNavSettingUri;
     @Mock
-    private AudioControlWrapperAidl mAudioControlWrapperAidl;
+    private AudioControlWrapper mAudioControlWrapperAidl;
     @Mock
     private CarVolumeCallbackHandler mCarVolumeCallbackHandler;
     @Mock
@@ -556,9 +548,8 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
                 .spyStatic(SubscriptionManager.class)
                 .spyStatic(AudioManagerWrapper.class)
                 .spyStatic(AudioManagerHelper.class)
-                .spyStatic(AudioControlWrapperAidl.class)
+                .spyStatic(AudioControlWrapper.class)
                 .spyStatic(CoreAudioHelper.class)
-                .spyStatic(AudioControlFactory.class)
                 .spyStatic(ServiceManager.class)
                 .spyStatic(Car.class)
                 .spyStatic(Binder.class);
@@ -583,8 +574,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
 
     private void setUpStaticCalls() {
         doReturn(MIN_SUBSCRIPTION_ID_VALUE).when(SubscriptionManager::getDefaultDataSubscriptionId);
-        doReturn(mBinder).when(AudioControlWrapperAidl::getService);
-        doReturn(mAudioControlWrapperAidl).when(AudioControlFactory::newAudioControl);
+        doReturn(mAudioControlWrapperAidl).when(AudioControlWrapper::newAudioControl);
         when(Settings.Secure.getUriFor(
                 CarSettings.Secure.KEY_AUDIO_FOCUS_NAVIGATION_REJECTED_DURING_CALL))
                 .thenReturn(mNavSettingUri);
@@ -640,7 +630,6 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     }
 
     private void setUpAudioControlHAL() {
-        when(mBinder.queryLocalInterface(anyString())).thenReturn(mAudioControl);
         when(mAudioControlWrapperAidl.supportsFeature(
                 AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_DUCKING)).thenReturn(true);
         when(mAudioControlWrapperAidl.supportsFeature(
