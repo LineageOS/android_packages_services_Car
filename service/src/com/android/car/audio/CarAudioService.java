@@ -59,7 +59,6 @@ import static com.android.car.audio.hal.AudioControlWrapper.AUDIOCONTROL_FEATURE
 import static com.android.car.audio.hal.AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_GAIN_CALLBACK;
 import static com.android.car.audio.hal.AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_MODULE_CALLBACK;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DEBUGGING_CODE;
-import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DEPRECATED_CODE;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 import static com.android.car.internal.common.CommonConstants.EMPTY_INT_ARRAY;
 
@@ -139,7 +138,6 @@ import com.android.car.audio.CarAudioDumpProto.UserIdToAudioZone;
 import com.android.car.audio.CarAudioPolicyVolumeCallback.AudioPolicyVolumeCallbackInternal;
 import com.android.car.audio.hal.AudioControlFactory;
 import com.android.car.audio.hal.AudioControlWrapper;
-import com.android.car.audio.hal.AudioControlWrapperV1;
 import com.android.car.audio.hal.HalAudioDeviceInfo;
 import com.android.car.audio.hal.HalAudioFocus;
 import com.android.car.audio.hal.HalAudioGainCallback;
@@ -2088,25 +2086,6 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
         }
     }
 
-    @GuardedBy("mImplLock")
-    @ExcludeFromCodeCoverageGeneratedReport(reason = DEPRECATED_CODE)
-    private SparseArray<CarAudioZone> loadVolumeGroupConfigurationWithAudioControlLocked(
-            List<CarAudioDeviceInfo> carAudioDeviceInfos, AudioDeviceInfo[] inputDevices) {
-        AudioControlWrapper audioControlWrapper = getAudioControlWrapperLocked();
-        if (!(audioControlWrapper instanceof AudioControlWrapperV1)) {
-            throw new IllegalStateException(
-                    "Updated version of IAudioControl no longer supports CarAudioZonesHelperLegacy."
-                    + " Please provide car_audio_configuration.xml.");
-        }
-        mCarAudioContext = new CarAudioContext(CarAudioContext.getAllContextsInfo(),
-                mUseCoreAudioVolume);
-        CarAudioZonesHelperLegacy legacyHelper = new CarAudioZonesHelperLegacy(mContext,
-                mCarAudioContext, R.xml.car_volume_groups, carAudioDeviceInfos,
-                (AudioControlWrapperV1) audioControlWrapper,
-                mCarAudioSettings, inputDevices);
-        return legacyHelper.loadAudioZones();
-    }
-
     // Required to be called before setting up audio routing, volume management, focus management
     @GuardedBy("mImplLock")
     private void loadAndInitCarAudioZonesLocked() {
@@ -2122,9 +2101,6 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
 
         if (mCarAudioZones == null && mCarAudioConfigurationPath != null) {
             mCarAudioZones = loadCarAudioConfigurationLocked(carAudioDeviceInfos, inputDevices);
-        } else if (mCarAudioZones == null) {
-            mCarAudioZones = loadVolumeGroupConfigurationWithAudioControlLocked(carAudioDeviceInfos,
-                            inputDevices);
         }
 
         CarAudioZonesValidator.validate(mCarAudioZones, mUseCoreAudioRouting);
