@@ -119,7 +119,6 @@ interface AutoTaskStackController {
      * @param name The name of the root task stack.
      * @param listener The listener for root task stack events.
      */
-    @ShellMainThread
     fun createRootTaskStack(
         displayId: Int,
         name: String,
@@ -130,7 +129,6 @@ interface AutoTaskStackController {
      * Destroys the already created task stack. It will be a no-op if no task stack exists with
      * given [taskStackId].
      */
-    @ShellMainThread
     fun destroyTaskStack(taskStackId: Int)
 
     /**
@@ -144,7 +142,6 @@ interface AutoTaskStackController {
      * @param displayId The ID of the display.
      * @param rootTaskStackId The ID of the root task stack, or null to clear the default.
      */
-    @ShellMainThread
     fun setDefaultRootTaskStackOnDisplay(displayId: Int, rootTaskStackId: Int?)
 
     /**

@@ -42,6 +42,7 @@ import com.android.wm.shell.RootTaskDisplayAreaOrganizer
 import com.android.wm.shell.ShellTaskOrganizer
 import com.android.wm.shell.ShellTaskOrganizer.TaskListener
 import com.android.wm.shell.automotive.utility.TestRunningTaskInfoBuilder
+import com.android.wm.shell.automotive.utility.TestShellExecutor
 import com.android.wm.shell.common.ShellExecutor
 import com.android.wm.shell.sysui.ShellInit
 import com.android.wm.shell.transition.TransitionInfoBuilder
@@ -73,8 +74,7 @@ class AutoTaskStackControllerImplTest : CarWmShellTestCase() {
     @Mock
     lateinit var taskOrganizer: ShellTaskOrganizer
 
-    @Mock
-    lateinit var shellMainThread: ShellExecutor
+    var shellMainThread: ShellExecutor = TestShellExecutor()
 
     @Mock
     lateinit var transitions: Transitions
