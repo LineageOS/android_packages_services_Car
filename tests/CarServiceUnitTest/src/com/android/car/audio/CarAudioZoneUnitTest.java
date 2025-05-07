@@ -37,7 +37,6 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import android.car.feature.Flags;
 import android.car.media.CarAudioManager;
 import android.car.media.CarAudioZoneConfigInfo;
 import android.car.media.CarVolumeGroupEvent;
@@ -48,7 +47,6 @@ import android.media.AudioAttributes;
 import android.media.AudioDeviceAttributes;
 import android.media.AudioDeviceInfo;
 import android.media.AudioPlaybackConfiguration;
-import android.platform.test.flag.junit.SetFlagsRule;
 import android.util.ArrayMap;
 import android.util.ArraySet;
 import android.util.SparseIntArray;
@@ -56,7 +54,6 @@ import android.util.SparseIntArray;
 import com.android.car.audio.hal.HalAudioDeviceInfo;
 
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -141,8 +138,6 @@ public final class CarAudioZoneUnitTest extends AbstractExpectableTestCase {
     @AudioContext
     private static final int TEST_NAVIGATION_CONTEXT =
             TEST_CAR_AUDIO_CONTEXT.getContextForAudioAttribute(TEST_NAVIGATION_ATTRIBUTE);
-    @Rule
-    public final SetFlagsRule mSetFlagsRule = new SetFlagsRule();
 
     @Before
     public void setUp() {
@@ -219,7 +214,6 @@ public final class CarAudioZoneUnitTest extends AbstractExpectableTestCase {
 
     @Test
     public void getDefaultAudioZoneConfigInfo() {
-        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
         CarAudioZoneConfigInfo defaultInfo = new CarAudioZoneConfigInfo(TEST_ZONE_CONFIG_NAME_0,
                 TEST_ZONE_ID, TEST_ZONE_CONFIG_ID_0);
         mTestAudioZone.addZoneConfig(mMockZoneConfig1);

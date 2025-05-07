@@ -282,9 +282,7 @@ public final class CarVolumeGroupInfo implements Parcelable {
         builder.append(", blocked = ").append(mIsBlocked)
                 .append(", attenuated = ").append(mIsAttenuated).append(", audio attributes = ")
                 .append(mAudioAttributes);
-        if (Flags.carAudioDynamicDevices()) {
-            builder.append(", audio device attributes = ").append(mAudioDeviceAttributes);
-        }
+        builder.append(", audio device attributes = ").append(mAudioDeviceAttributes);
         return builder.append(" }").toString();
     }
 
@@ -335,7 +333,7 @@ public final class CarVolumeGroupInfo implements Parcelable {
                 && mIsMuted == that.mIsMuted && mIsBlocked == that.mIsBlocked
                 && mIsAttenuated == that.mIsAttenuated
                 && Objects.equals(mAudioAttributes, that.mAudioAttributes)
-                && checkIsSameAudioAttributeDevices(that.mAudioDeviceAttributes)
+                && Objects.equals(mAudioDeviceAttributes, that.mAudioDeviceAttributes)
                 && checkIsSameActivationVolume(that.mMaxActivationVolumeGainIndex,
                 that.mMinActivationVolumeGainIndex)
                 && checkIsSameMutedBySystem(that.mIsMutedBySystem);
@@ -344,20 +342,10 @@ public final class CarVolumeGroupInfo implements Parcelable {
     @Override
     public int hashCode() {
         int hash = Objects.hash(mName, mZoneId, mId, mVolumeGainIndex, mMaxVolumeGainIndex,
-                mMinVolumeGainIndex, mIsMuted, mIsBlocked, mIsAttenuated, mAudioAttributes);
-        if (Flags.carAudioDynamicDevices()) {
-            hash = Objects.hash(hash, mAudioDeviceAttributes);
-        }
-        hash = Objects.hash(hash, mMaxActivationVolumeGainIndex, mMinActivationVolumeGainIndex);
-        hash = Objects.hash(hash, mIsMutedBySystem);
+                mMinVolumeGainIndex, mIsMuted, mIsBlocked, mIsAttenuated, mAudioAttributes,
+                mAudioDeviceAttributes, mMaxActivationVolumeGainIndex,
+                mMinActivationVolumeGainIndex, mIsMutedBySystem);
         return hash;
-    }
-
-    private boolean checkIsSameAudioAttributeDevices(List<AudioDeviceAttributes> other) {
-        if (Flags.carAudioDynamicDevices()) {
-            return Objects.equals(mAudioDeviceAttributes, other);
-        }
-        return true;
     }
 
     private boolean checkIsSameActivationVolume(int maxActivationVolumeGainIndex,

@@ -15,7 +15,6 @@
  */
 package com.android.car.audio;
 
-import static android.car.feature.Flags.carAudioDynamicDevices;
 import static android.car.media.CarVolumeGroupEvent.EVENT_TYPE_ATTENUATION_CHANGED;
 import static android.car.media.CarVolumeGroupEvent.EVENT_TYPE_MUTE_CHANGED;
 import static android.car.media.CarVolumeGroupEvent.EVENT_TYPE_VOLUME_BLOCKED_CHANGED;
@@ -980,11 +979,8 @@ import java.util.Set;
                 .setMinVolumeGainIndex(getMinGainIndex()).setMuted(isMuted).setBlocked(isBlocked)
                 .setAttenuated(isAttenuated).setAudioAttributes(getAudioAttributes());
 
-        if (carAudioDynamicDevices()) {
-            builder.setAudioDeviceAttributes(getAudioDeviceAttributes());
-        }
-
-        builder.setMaxActivationVolumeGainIndex(getMaxActivationGainIndex())
+        builder.setAudioDeviceAttributes(getAudioDeviceAttributes())
+                .setMaxActivationVolumeGainIndex(getMaxActivationGainIndex())
                 .setMinActivationVolumeGainIndex(getMinActivationGainIndex());
 
         builder.setMutedBySystem(isHalMuted);

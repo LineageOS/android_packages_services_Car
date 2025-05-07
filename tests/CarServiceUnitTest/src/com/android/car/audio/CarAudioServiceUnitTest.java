@@ -1067,19 +1067,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     }
 
     @Test
-    public void init_initializesAudioServiceCallbacks() throws Exception {
-        mSetFlagsRule.disableFlags(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
-        CarAudioService service = setUpAudioServiceWithoutInit();
-
-        initServiceAndWaitForComplete(service);
-
-        verify(mAudioManager).setAudioServerStateCallback(any(), any());
-        verify(mAudioManager, never()).registerAudioDeviceCallback(any(), any());
-    }
-
-    @Test
     public void init_initializesAudioServiceCallbacks_withDynamicDevices() throws Exception {
-        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
         CarAudioService service = setUpAudioServiceWithDynamicDevices();
 
         initServiceAndWaitForComplete(service);
@@ -1090,7 +1078,6 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
 
     @Test
     public void init_withDynamicDevices() throws Exception {
-        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
         CarAudioService audioServiceWithDynamicDevices = setUpAudioServiceWithDynamicDevices();
 
         initServiceAndWaitForComplete(audioServiceWithDynamicDevices);
@@ -1111,7 +1098,6 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     @Test
     @DisableFlags({Flags.FLAG_ASYNC_AUDIO_SERVICE_INIT})
     public void init_withAudioServerDown_noAsyncInit() throws Exception {
-        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
         when(mAudioManager.isAudioServerRunning()).thenReturn(false);
         CarAudioService service = setUpAudioServiceWithDynamicDevices();
 
@@ -1124,7 +1110,6 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     @Test
     @EnableFlags({Flags.FLAG_ASYNC_AUDIO_SERVICE_INIT})
     public void init_withAudioServerDown_asyncInit() throws Exception {
-        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
         when(mAudioManager.isAudioServerRunning()).thenReturn(false);
         CarAudioService service = setUpAudioServiceWithDynamicDevices();
 
@@ -1139,7 +1124,6 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     @Test
     @EnableFlags({Flags.FLAG_ASYNC_AUDIO_SERVICE_INIT})
     public void init_withAudioServerDown_asyncInit_audioServerUpLater() throws Exception {
-        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
         when(mAudioManager.isAudioServerRunning()).thenReturn(false);
         CarAudioService service = setUpAudioServiceWithDynamicDevices();
 
@@ -1235,18 +1219,6 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
 
     @Test
     public void release_releasesAudioServiceCallbacks() throws Exception {
-        mSetFlagsRule.disableFlags(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
-        CarAudioService service = setUpAudioService();
-
-        service.release();
-
-        verify(mAudioManager, never()).unregisterAudioDeviceCallback(any());
-        verify(mAudioManager).clearAudioServerStateCallback();
-        verify(mAudioControlWrapperAidl).clearModuleChangeCallback();
-    }
-
-    @Test
-    public void release_releasesAudioServiceCallbacks_withDynamicDevices() throws Exception {
         CarAudioService service = setUpAudioServiceWithDynamicDevices();
         initServiceAndWaitForComplete(service);
 
@@ -1266,23 +1238,6 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         service.release();
 
         verify(mAudioControlWrapperAidl, never()).clearModuleChangeCallback();
-    }
-
-    @Test
-    public void release_beforeInitComplete() throws Exception {
-        mSetFlagsRule.disableFlags(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
-        setUpTempFileForAudioConfiguration(R.raw.car_audio_configuration);
-        setUpTempFileForAudioFadeConfiguration(R.raw.car_audio_fade_configuration);
-        CarAudioService service = createCarAudioService(mMockContext, mAudioManager,
-                mTempCarAudioConfigFile.getFile().getAbsolutePath(), mCarVolumeCallbackHandler,
-                mTempCarAudioFadeConfigFile.getFile().getAbsolutePath());
-        service.init();
-
-        service.release();
-
-        verify(mAudioManager, never()).unregisterAudioDeviceCallback(any());
-        verify(mAudioManager).clearAudioServerStateCallback();
-        verify(mAudioControlWrapperAidl).clearModuleChangeCallback();
     }
 
     @Test
@@ -5254,8 +5209,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     }
 
     @Test
-    public void switchZoneToConfig_withDynamicDevicesFlagEnabled() throws Exception {
-        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
+    public void switchZoneToConfig_withDynamicDevices() throws Exception {
         CarAudioService service = setUpAudioService();
         SwitchAudioZoneConfigCallbackImpl callback = new SwitchAudioZoneConfigCallbackImpl();
         assignOccupantToAudioZones();
@@ -6951,7 +6905,6 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
 
     private CarAudioService setUpAudioServiceWithDynamicDevices(TemporaryFile fileAudio,
             TemporaryFile fileFade) {
-        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
         when(mMockResources.getBoolean(audioUseCoreVolume)).thenReturn(true);
         when(mMockResources.getBoolean(audioUseCoreRouting)).thenReturn(false);
         CarAudioService audioServiceWithDynamicDevices = createCarAudioService(mMockContext,
