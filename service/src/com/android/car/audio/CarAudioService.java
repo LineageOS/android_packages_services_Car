@@ -2039,10 +2039,6 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
 
     private SparseIntArray getValidAudioZoneIdToOccupantZoneId(
             SparseIntArray carAudioZoneIdToOccupantZoneIdMapping) {
-        if (!Flags.audioVendorFreezeImprovements()) {
-            return carAudioZoneIdToOccupantZoneIdMapping;
-        }
-
         SparseArray<CarOccupantZoneManager.OccupantZoneInfo> occupants =
                 getCarOccupantZoneService().getOccupantsConfig();
 
