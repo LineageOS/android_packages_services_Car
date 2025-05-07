@@ -48,7 +48,7 @@ public final class OemCarAudioFocusEvaluationRequest implements Parcelable {
     private @NonNull final List<AudioFocusEntry> mFocusHolders;
     private @NonNull final List<AudioFocusEntry> mFocusLosers;
     private final int mAudioZoneId;
-    private @Nullable final CarAudioFeaturesInfo mCarAudioFeaturesInfo;
+    private final CarAudioFeaturesInfo mCarAudioFeaturesInfo;
 
     /**
      * @hide
@@ -64,12 +64,8 @@ public final class OemCarAudioFocusEvaluationRequest implements Parcelable {
         in.readParcelableList(mFocusHolders, AudioFocusEntry.class.getClassLoader());
         mFocusLosers = new ArrayList<>();
         in.readParcelableList(mFocusLosers, AudioFocusEntry.class.getClassLoader());
-        if (Flags.carAudioDynamicDevices()) {
-            mCarAudioFeaturesInfo = in.readParcelable(CarAudioFeaturesInfo.class.getClassLoader(),
-                    CarAudioFeaturesInfo.class);
-        } else {
-            mCarAudioFeaturesInfo = null;
-        }
+        mCarAudioFeaturesInfo = in.readParcelable(CarAudioFeaturesInfo.class.getClassLoader(),
+                CarAudioFeaturesInfo.class);
         mAudioZoneId = in.readInt();
     }
 
@@ -108,9 +104,7 @@ public final class OemCarAudioFocusEvaluationRequest implements Parcelable {
         dest.writeParcelableList(mMutedVolumeGroups, flags);
         dest.writeParcelableList(mFocusHolders, flags);
         dest.writeParcelableList(mFocusLosers, flags);
-        if (Flags.carAudioDynamicDevices()) {
-            dest.writeParcelable(mCarAudioFeaturesInfo, flags);
-        }
+        dest.writeParcelable(mCarAudioFeaturesInfo, flags);
         dest.writeInt(mAudioZoneId);
     }
 
@@ -181,18 +175,13 @@ public final class OemCarAudioFocusEvaluationRequest implements Parcelable {
     }
 
     private boolean featuresMatches(OemCarAudioFocusEvaluationRequest that) {
-        return !Flags.carAudioDynamicDevices()
-                || Objects.equals(mCarAudioFeaturesInfo, that.mCarAudioFeaturesInfo);
+        return Objects.equals(mCarAudioFeaturesInfo, that.mCarAudioFeaturesInfo);
     }
 
     @Override
     public int hashCode() {
-        int hash = Objects.hash(mAudioFocusRequest, mFocusHolders, mFocusLosers, mMutedVolumeGroups,
-                mAudioZoneId);
-        if (Flags.carAudioDynamicDevices()) {
-            hash = Objects.hash(hash, mCarAudioFeaturesInfo);
-        }
-        return  hash;
+        return Objects.hash(mAudioFocusRequest, mFocusHolders, mFocusLosers, mMutedVolumeGroups,
+                mAudioZoneId, mCarAudioFeaturesInfo);
     }
 
     /**
@@ -222,15 +211,12 @@ public final class OemCarAudioFocusEvaluationRequest implements Parcelable {
 
     @Override
     public String toString() {
-        String string = "OemCarAudioFocusEvaluationRequest {audioZoneId = "
+        return "OemCarAudioFocusEvaluationRequest {audioZoneId = "
                 + mAudioZoneId + ", audioFocusInfo = " + mAudioFocusRequest
                 + ", mutedVolumeGroups = " + mMutedVolumeGroups
                 + ", focusHolders = " + mFocusHolders
-                + ", focusLosers = " + mFocusLosers;
-        if (Flags.carAudioDynamicDevices()) {
-            string += " carAudioFeatureInfo " + mCarAudioFeaturesInfo;
-        }
-        return string + " }";
+                + ", focusLosers = " + mFocusLosers
+                + ", carAudioFeatureInfo " + mCarAudioFeaturesInfo + " }";
     }
 
 
