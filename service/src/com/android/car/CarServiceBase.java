@@ -29,6 +29,5 @@ import android.util.proto.ProtoOutputStream;
 // for VehicleHal and CarStatsService.
 public interface CarServiceBase extends CarSystemService {
     /** Dumps its state to a proto buffer. */
-    // This method should not be called unless FLAG_CAR_DUMP_TO_PROTO is defined.
     void dumpProto(ProtoOutputStream proto);
 }
