@@ -230,16 +230,22 @@ public final class CarServiceUtils {
      * @param context The context of the package.
      * @param userId The id of the user which the content resolver is being requested for. It also
      * accepts {@link UserHandle#USER_CURRENT}.
+     * @return the context of the given user, or {@code null} if the user is invalid.
      */
+    @Nullable
     public static ContentResolver getContentResolverForUser(Context context,
             @UserIdInt int userId) {
         if (userId == UserHandle.CURRENT.getIdentifier()) {
             userId = ActivityManager.getCurrentUser();
         }
-        return context
-                .createContextAsUser(
-                        UserHandle.of(userId), /* flags= */ 0)
-                .getContentResolver();
+        Context userContext = null;
+        try {
+            userContext = context.createContextAsUser(UserHandle.of(userId), /* flags= */ 0);
+        } catch (Exception e) {
+            Slogf.e(TAG, "Failed to create context for user " + userId, e);
+        }
+
+        return userContext == null ? null : userContext.getContentResolver();
     }
 
     /**
