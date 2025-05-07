@@ -523,7 +523,8 @@ public:
 
     void testApplyPowerPolicyPerPowerStateChangeAsyncInternal(const std::string& policyGroupId,
                                                               const std::string& expectedPolicyId) {
-        sp<internal::CarPowerPolicyServerPeer> server = new internal::CarPowerPolicyServerPeer();
+        sp<internal::CarPowerPolicyServerPeer> server =
+                sp<internal::CarPowerPolicyServerPeer>::make();
         std::shared_ptr<MockPowerManagementDelegateCallback> callback =
                 ndk::SharedRefBase::make<MockPowerManagementDelegateCallback>();
         server->expectLinkToDeathStatus(callback->asBinder().get(), STATUS_OK);
@@ -580,7 +581,7 @@ private:
 };
 
 TEST_F(CarPowerPolicyServerTest, TestRegisterCallback) {
-    sp<internal::CarPowerPolicyServerPeer> server = new internal::CarPowerPolicyServerPeer();
+    sp<internal::CarPowerPolicyServerPeer> server = sp<internal::CarPowerPolicyServerPeer>::make();
     std::shared_ptr<ICarPowerPolicyChangeCallback> callbackOne = getPowerPolicyChangeCallback();
     server->expectLinkToDeathStatus(callbackOne->asBinder().get(), STATUS_OK);
 
@@ -601,7 +602,7 @@ TEST_F(CarPowerPolicyServerTest, TestRegisterCallback) {
 }
 
 TEST_F(CarPowerPolicyServerTest, TestRegisterCallback_BinderDied) {
-    sp<internal::CarPowerPolicyServerPeer> server = new internal::CarPowerPolicyServerPeer();
+    sp<internal::CarPowerPolicyServerPeer> server = sp<internal::CarPowerPolicyServerPeer>::make();
     std::shared_ptr<ICarPowerPolicyChangeCallback> callback = getPowerPolicyChangeCallback();
     server->expectLinkToDeathStatus(callback->asBinder().get(), STATUS_DEAD_OBJECT);
     CarPowerPolicyFilter filter;
@@ -611,7 +612,7 @@ TEST_F(CarPowerPolicyServerTest, TestRegisterCallback_BinderDied) {
 }
 
 TEST_F(CarPowerPolicyServerTest, TestOnBinderDied) {
-    sp<internal::CarPowerPolicyServerPeer> server = new internal::CarPowerPolicyServerPeer();
+    sp<internal::CarPowerPolicyServerPeer> server = sp<internal::CarPowerPolicyServerPeer>::make();
     std::shared_ptr<ICarPowerPolicyChangeCallback> callback = getPowerPolicyChangeCallback();
     server->expectLinkToDeathStatus(callback->asBinder().get(), STATUS_OK);
 
@@ -632,7 +633,7 @@ TEST_F(CarPowerPolicyServerTest, TestOnBinderDied) {
 }
 
 TEST_F(CarPowerPolicyServerTest, TestUnregisterCallback) {
-    sp<internal::CarPowerPolicyServerPeer> server = new internal::CarPowerPolicyServerPeer();
+    sp<internal::CarPowerPolicyServerPeer> server = sp<internal::CarPowerPolicyServerPeer>::make();
     std::shared_ptr<ICarPowerPolicyChangeCallback> callback = getPowerPolicyChangeCallback();
     server->expectLinkToDeathStatus(callback->asBinder().get(), STATUS_OK);
     CarPowerPolicyFilter filter;
@@ -645,7 +646,7 @@ TEST_F(CarPowerPolicyServerTest, TestUnregisterCallback) {
 }
 
 TEST_F(CarPowerPolicyServerTest, TestGetCurrentPowerPolicy) {
-    sp<internal::CarPowerPolicyServerPeer> server = new internal::CarPowerPolicyServerPeer();
+    sp<internal::CarPowerPolicyServerPeer> server = sp<internal::CarPowerPolicyServerPeer>::make();
     CarPowerPolicy currentPolicy;
 
     ScopedAStatus status = server->getCurrentPowerPolicy(&currentPolicy);
@@ -658,7 +659,7 @@ TEST_F(CarPowerPolicyServerTest, TestApplyPowerPolicyFromNativeClients) {
         GTEST_SKIP() << "car_power_policy_refactoring feature flag is not enabled";
     }
 
-    sp<internal::CarPowerPolicyServerPeer> server = new internal::CarPowerPolicyServerPeer();
+    sp<internal::CarPowerPolicyServerPeer> server = sp<internal::CarPowerPolicyServerPeer>::make();
     std::shared_ptr<MockPowerManagementDelegateCallback> callback =
             ndk::SharedRefBase::make<MockPowerManagementDelegateCallback>();
     server->expectLinkToDeathStatus(callback->asBinder().get(), STATUS_OK);
@@ -681,7 +682,7 @@ TEST_F(CarPowerPolicyServerTest, TestApplyPowerPolicyFromNativeClients_carServic
         GTEST_SKIP() << "car_power_policy_refactoring feature flag is not enabled";
     }
 
-    sp<internal::CarPowerPolicyServerPeer> server = new internal::CarPowerPolicyServerPeer();
+    sp<internal::CarPowerPolicyServerPeer> server = sp<internal::CarPowerPolicyServerPeer>::make();
     server->init();
     const std::string powerPolicyId = "policy_id_other_off";
 
@@ -699,7 +700,7 @@ TEST_F(CarPowerPolicyServerTest, TestApplyPowerPolicyFromNativeClients_invalidPo
         GTEST_SKIP() << "car_power_policy_refactoring feature flag is not enabled";
     }
 
-    sp<internal::CarPowerPolicyServerPeer> server = new internal::CarPowerPolicyServerPeer();
+    sp<internal::CarPowerPolicyServerPeer> server = sp<internal::CarPowerPolicyServerPeer>::make();
     server->init();
 
     ScopedAStatus status = server->applyPowerPolicy("policy_not_exist");
@@ -711,7 +712,7 @@ TEST_F(CarPowerPolicyServerTest, TestApplyPowerPolicyFromCarService) {
         GTEST_SKIP() << "car_power_policy_refactoring feature flag is not enabled";
     }
 
-    sp<internal::CarPowerPolicyServerPeer> server = new internal::CarPowerPolicyServerPeer();
+    sp<internal::CarPowerPolicyServerPeer> server = sp<internal::CarPowerPolicyServerPeer>::make();
     std::shared_ptr<MockPowerManagementDelegateCallback> callback =
             ndk::SharedRefBase::make<MockPowerManagementDelegateCallback>();
     server->expectLinkToDeathStatus(callback->asBinder().get(), STATUS_OK);
@@ -753,7 +754,7 @@ TEST_F(CarPowerPolicyServerTest, TestApplyPowerPolicyFromCarService_nonSystemUid
         GTEST_SKIP() << "car_power_policy_refactoring feature flag is not enabled";
     }
 
-    sp<internal::CarPowerPolicyServerPeer> server = new internal::CarPowerPolicyServerPeer();
+    sp<internal::CarPowerPolicyServerPeer> server = sp<internal::CarPowerPolicyServerPeer>::make();
     std::shared_ptr<MockPowerManagementDelegateCallback> callback =
             ndk::SharedRefBase::make<MockPowerManagementDelegateCallback>();
     server->expectLinkToDeathStatus(callback->asBinder().get(), STATUS_OK);
@@ -772,7 +773,7 @@ TEST_F(CarPowerPolicyServerTest, TestApplyPowerPolicyFromCarService_invalidPolic
         GTEST_SKIP() << "car_power_policy_refactoring feature flag is not enabled";
     }
 
-    sp<internal::CarPowerPolicyServerPeer> server = new internal::CarPowerPolicyServerPeer();
+    sp<internal::CarPowerPolicyServerPeer> server = sp<internal::CarPowerPolicyServerPeer>::make();
     std::shared_ptr<MockPowerManagementDelegateCallback> callback =
             ndk::SharedRefBase::make<MockPowerManagementDelegateCallback>();
     server->expectLinkToDeathStatus(callback->asBinder().get(), STATUS_OK);
@@ -813,7 +814,7 @@ TEST_F(CarPowerPolicyServerTest, TestApplyPowerPolicyFromCarService_duplicatedRe
         GTEST_SKIP() << "car_power_policy_refactoring feature flag is not enabled";
     }
 
-    sp<internal::CarPowerPolicyServerPeer> server = new internal::CarPowerPolicyServerPeer();
+    sp<internal::CarPowerPolicyServerPeer> server = sp<internal::CarPowerPolicyServerPeer>::make();
     std::shared_ptr<MockPowerManagementDelegateCallback> callback =
             ndk::SharedRefBase::make<MockPowerManagementDelegateCallback>();
     server->expectLinkToDeathStatus(callback->asBinder().get(), STATUS_OK);
@@ -858,7 +859,7 @@ TEST_F(CarPowerPolicyServerTest, TestApplyPowerPolicyPerPowerStateChangeAsync_no
         GTEST_SKIP() << "car_power_policy_refactoring feature flag is not enabled";
     }
 
-    sp<internal::CarPowerPolicyServerPeer> server = new internal::CarPowerPolicyServerPeer();
+    sp<internal::CarPowerPolicyServerPeer> server = sp<internal::CarPowerPolicyServerPeer>::make();
     std::shared_ptr<MockPowerManagementDelegateCallback> callback =
             ndk::SharedRefBase::make<MockPowerManagementDelegateCallback>();
     server->expectLinkToDeathStatus(callback->asBinder().get(), STATUS_OK);
@@ -881,7 +882,7 @@ TEST_F(CarPowerPolicyServerTest,
         GTEST_SKIP() << "car_power_policy_refactoring feature flag is not enabled";
     }
 
-    sp<internal::CarPowerPolicyServerPeer> server = new internal::CarPowerPolicyServerPeer();
+    sp<internal::CarPowerPolicyServerPeer> server = sp<internal::CarPowerPolicyServerPeer>::make();
     std::shared_ptr<MockPowerManagementDelegateCallback> callback =
             ndk::SharedRefBase::make<MockPowerManagementDelegateCallback>();
     server->expectLinkToDeathStatus(callback->asBinder().get(), STATUS_OK);
@@ -920,7 +921,7 @@ TEST_F(CarPowerPolicyServerTest, TestRegisterPowerStateChangeListener) {
     GTEST_SKIP() << "native_power_notifications feature flag is not enabled";
 #endif  // LAUNCH_CAR_POWER_SERVER
 
-    sp<internal::CarPowerPolicyServerPeer> server = new internal::CarPowerPolicyServerPeer();
+    sp<internal::CarPowerPolicyServerPeer> server = sp<internal::CarPowerPolicyServerPeer>::make();
     std::shared_ptr<ICarPowerStateChangeListener> listenerOne = getPowerStateChangeListener();
     server->expectLinkToDeathStatus(listenerOne->asBinder().get(), STATUS_OK);
 
@@ -941,7 +942,7 @@ TEST_F(CarPowerPolicyServerTest, TestRegisterPowerStateChangeListener_binderDied
     GTEST_SKIP() << "native_power_notifications feature flag is not enabled";
 #endif  // LAUNCH_CAR_POWER_SERVER
 
-    sp<internal::CarPowerPolicyServerPeer> server = new internal::CarPowerPolicyServerPeer();
+    sp<internal::CarPowerPolicyServerPeer> server = sp<internal::CarPowerPolicyServerPeer>::make();
     std::shared_ptr<ICarPowerStateChangeListener> listener = getPowerStateChangeListener();
     server->expectLinkToDeathStatus(listener->asBinder().get(), STATUS_DEAD_OBJECT);
 
@@ -954,7 +955,7 @@ TEST_F(CarPowerPolicyServerTest, TestOnBinderDied_powerStateListener) {
     GTEST_SKIP() << "native_power_notifications feature flag is not enabled";
 #endif  // LAUNCH_CAR_POWER_SERVER
 
-    sp<internal::CarPowerPolicyServerPeer> server = new internal::CarPowerPolicyServerPeer();
+    sp<internal::CarPowerPolicyServerPeer> server = sp<internal::CarPowerPolicyServerPeer>::make();
     std::shared_ptr<ICarPowerStateChangeListener> listener = getPowerStateChangeListener();
     server->expectLinkToDeathStatus(listener->asBinder().get(), STATUS_OK);
 
@@ -978,7 +979,7 @@ TEST_F(CarPowerPolicyServerTest, TestUnregisterPowerStateChangeListener) {
     GTEST_SKIP() << "native_power_notifications feature flag is not enabled";
 #endif  // LAUNCH_CAR_POWER_SERVER
 
-    sp<internal::CarPowerPolicyServerPeer> server = new internal::CarPowerPolicyServerPeer();
+    sp<internal::CarPowerPolicyServerPeer> server = sp<internal::CarPowerPolicyServerPeer>::make();
     std::shared_ptr<ICarPowerStateChangeListener> listener = getPowerStateChangeListener();
     server->expectLinkToDeathStatus(listener->asBinder().get(), STATUS_OK);
 
@@ -994,7 +995,7 @@ TEST_F(CarPowerPolicyServerTest, TestRegisterPowerStateChangeListenerWithComplet
     GTEST_SKIP() << "native_power_notifications feature flag is not enabled";
 #endif  // LAUNCH_CAR_POWER_SERVER
 
-    sp<internal::CarPowerPolicyServerPeer> server = new internal::CarPowerPolicyServerPeer();
+    sp<internal::CarPowerPolicyServerPeer> server = sp<internal::CarPowerPolicyServerPeer>::make();
     std::shared_ptr<ICarPowerStateChangeListenerWithCompletion> listenerOne =
             getPowerStateChangeListenerWithCompletion();
     server->expectLinkToDeathStatus(listenerOne->asBinder().get(), STATUS_OK);
@@ -1017,7 +1018,7 @@ TEST_F(CarPowerPolicyServerTest, TestRegisterPowerStateChangeListenerWithComplet
     GTEST_SKIP() << "native_power_notifications feature flag is not enabled";
 #endif  // LAUNCH_CAR_POWER_SERVER
 
-    sp<internal::CarPowerPolicyServerPeer> server = new internal::CarPowerPolicyServerPeer();
+    sp<internal::CarPowerPolicyServerPeer> server = sp<internal::CarPowerPolicyServerPeer>::make();
     std::shared_ptr<ICarPowerStateChangeListenerWithCompletion> listener =
             getPowerStateChangeListenerWithCompletion();
     server->expectLinkToDeathStatus(listener->asBinder().get(), STATUS_DEAD_OBJECT);
@@ -1032,7 +1033,7 @@ TEST_F(CarPowerPolicyServerTest, TestOnBinderDied_powerStateListenerWithCompleti
     GTEST_SKIP() << "native_power_notifications feature flag is not enabled";
 #endif  // LAUNCH_CAR_POWER_SERVER
 
-    sp<internal::CarPowerPolicyServerPeer> server = new internal::CarPowerPolicyServerPeer();
+    sp<internal::CarPowerPolicyServerPeer> server = sp<internal::CarPowerPolicyServerPeer>::make();
     std::shared_ptr<ICarPowerStateChangeListenerWithCompletion> listener =
             getPowerStateChangeListenerWithCompletion();
     server->expectLinkToDeathStatus(listener->asBinder().get(), STATUS_OK);
@@ -1057,7 +1058,7 @@ TEST_F(CarPowerPolicyServerTest, TestUnregisterPowerStateChangeListenerWithCompl
     GTEST_SKIP() << "native_power_notifications feature flag is not enabled";
 #endif  // LAUNCH_CAR_POWER_SERVER
 
-    sp<internal::CarPowerPolicyServerPeer> server = new internal::CarPowerPolicyServerPeer();
+    sp<internal::CarPowerPolicyServerPeer> server = sp<internal::CarPowerPolicyServerPeer>::make();
     std::shared_ptr<ICarPowerStateChangeListenerWithCompletion> listener =
             getPowerStateChangeListenerWithCompletion();
     server->expectLinkToDeathStatus(listener->asBinder().get(), STATUS_OK);
@@ -1075,7 +1076,7 @@ TEST_F(CarPowerPolicyServerTest, TestNotifyPowerStateChange_noListeners) {
     GTEST_SKIP() << "native_power_notifications feature flag is not enabled";
 #endif  // LAUNCH_CAR_POWER_SERVER
 
-    sp<internal::CarPowerPolicyServerPeer> server = new internal::CarPowerPolicyServerPeer();
+    sp<internal::CarPowerPolicyServerPeer> server = sp<internal::CarPowerPolicyServerPeer>::make();
     std::shared_ptr<MockPowerManagementDelegateCallback> callback =
             ndk::SharedRefBase::make<MockPowerManagementDelegateCallback>();
     setUpServerWithCallback(server, callback);
@@ -1104,7 +1105,7 @@ TEST_F(CarPowerPolicyServerTest, TestNotifyPowerStateChange_listenerWithoutCompl
     GTEST_SKIP() << "native_power_notifications feature flag is not enabled";
 #endif  // LAUNCH_CAR_POWER_SERVER
 
-    sp<internal::CarPowerPolicyServerPeer> server = new internal::CarPowerPolicyServerPeer();
+    sp<internal::CarPowerPolicyServerPeer> server = sp<internal::CarPowerPolicyServerPeer>::make();
     std::shared_ptr<MockPowerManagementDelegateCallback> callback =
             ndk::SharedRefBase::make<MockPowerManagementDelegateCallback>();
     std::shared_ptr<MockPowerStateChangeListener> listener = getMockPowerStateChangeListener();
@@ -1149,7 +1150,7 @@ TEST_F(CarPowerPolicyServerTest, TestNotifyPowerStateChange_listenerWithCompleti
     GTEST_SKIP() << "native_power_notifications feature flag is not enabled";
 #endif  // LAUNCH_CAR_POWER_SERVER
 
-    sp<internal::CarPowerPolicyServerPeer> server = new internal::CarPowerPolicyServerPeer();
+    sp<internal::CarPowerPolicyServerPeer> server = sp<internal::CarPowerPolicyServerPeer>::make();
     std::shared_ptr<MockPowerManagementDelegateCallback> callback =
             ndk::SharedRefBase::make<MockPowerManagementDelegateCallback>();
     std::shared_ptr<MockPowerStateChangeListenerWithCompletion> listener =
@@ -1218,7 +1219,7 @@ TEST_F(CarPowerPolicyServerTest, TestNotifyPowerStateChange_listenerWithCompleti
     GTEST_SKIP() << "native_power_notifications feature flag is not enabled";
 #endif  // LAUNCH_CAR_POWER_SERVER
 
-    sp<internal::CarPowerPolicyServerPeer> server = new internal::CarPowerPolicyServerPeer();
+    sp<internal::CarPowerPolicyServerPeer> server = sp<internal::CarPowerPolicyServerPeer>::make();
     std::shared_ptr<MockPowerManagementDelegateCallback> callback =
             ndk::SharedRefBase::make<MockPowerManagementDelegateCallback>();
     std::shared_ptr<MockPowerStateChangeListenerWithCompletion> listener =
@@ -1274,7 +1275,7 @@ TEST_F(CarPowerPolicyServerTest, TestNotifyPowerStateChange_nonCompletableState)
     GTEST_SKIP() << "native_power_notifications feature flag is not enabled";
 #endif  // LAUNCH_CAR_POWER_SERVER
 
-    sp<internal::CarPowerPolicyServerPeer> server = new internal::CarPowerPolicyServerPeer();
+    sp<internal::CarPowerPolicyServerPeer> server = sp<internal::CarPowerPolicyServerPeer>::make();
     std::shared_ptr<MockPowerManagementDelegateCallback> callback =
             ndk::SharedRefBase::make<MockPowerManagementDelegateCallback>();
     std::shared_ptr<MockPowerStateChangeListenerWithCompletion> listener =
@@ -1337,7 +1338,7 @@ TEST_F(CarPowerPolicyServerTest, TestNotifyPowerStateChange_serverDies) {
     GTEST_SKIP() << "native_power_notifications feature flag is not enabled";
 #endif  // LAUNCH_CAR_POWER_SERVER
 
-    sp<internal::CarPowerPolicyServerPeer> server = new internal::CarPowerPolicyServerPeer();
+    sp<internal::CarPowerPolicyServerPeer> server = sp<internal::CarPowerPolicyServerPeer>::make();
     std::shared_ptr<MockPowerManagementDelegateCallback> callback =
             ndk::SharedRefBase::make<MockPowerManagementDelegateCallback>();
     std::shared_ptr<MockPowerStateChangeListenerWithCompletion> listener =
@@ -1386,14 +1387,14 @@ TEST_F(CarPowerPolicyServerTest, TestNotifyPowerStateChange_serverDies) {
 }
 
 TEST_F(CarPowerPolicyServerTest, TestSetMaxConnectToVhalRetryCount) {
-    sp<internal::CarPowerPolicyServerPeer> server = new internal::CarPowerPolicyServerPeer(
+    sp<internal::CarPowerPolicyServerPeer> server = sp<internal::CarPowerPolicyServerPeer>::make(
             /*connectToVhalTimeoutMillis=*/5000);
 
     EXPECT_EQ(server->getMaxConnectToVhalRetryCount(), 25u);
 }
 
 TEST_F(CarPowerPolicyServerTest, TestSetMaxConnectToVhalRetryCount_roundUp) {
-    sp<internal::CarPowerPolicyServerPeer> server = new internal::CarPowerPolicyServerPeer(
+    sp<internal::CarPowerPolicyServerPeer> server = sp<internal::CarPowerPolicyServerPeer>::make(
             /*connectToVhalTimeoutMillis=*/1);
 
     EXPECT_EQ(server->getMaxConnectToVhalRetryCount(), 1u)
