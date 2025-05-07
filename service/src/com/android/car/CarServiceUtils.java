@@ -335,7 +335,16 @@ public final class CarServiceUtils {
      *             runnable.
      */
     public static void runEmptyRunnableOnLooperSync(String name) {
-        runOnLooperSync(getHandlerThread(name).getLooper(), () -> {});
+        var handlerThread = getHandlerThread(name);
+        try {
+            runOnLooperSync(handlerThread.getLooper(), () -> {});
+        } finally {
+            try {
+                releaseHandlerThread(name);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }
     }
 
     /**

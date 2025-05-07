@@ -90,6 +90,7 @@ import android.automotive.watchdog.internal.UserPackageIoUsageStats;
 import android.car.builtin.content.pm.PackageManagerHelper;
 import android.car.drivingstate.CarUxRestrictions;
 import android.car.drivingstate.ICarUxRestrictionsChangeListener;
+import android.car.test.NoActiveHandlerThreadCheckerRule;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.car.test.mocks.MockSettings;
 import android.car.watchdog.CarWatchdogManager;
@@ -113,6 +114,7 @@ import android.net.Uri;
 import android.os.Binder;
 import android.os.FileUtils;
 import android.os.Handler;
+import android.os.HandlerThread;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.RemoteException;
@@ -140,6 +142,7 @@ import com.google.common.truth.Correspondence;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
@@ -185,6 +188,10 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
     private static final String UID_IO_USAGE_SUMMARY_REPORTED_DATE =
             "uidIoUsageSummaryReportedDate";
     private static final String METADATA_FILENAME = "metadata.json";
+
+    @Rule
+    public NoActiveHandlerThreadCheckerRule mNoActiveHandlerThreadCheckerRule =
+            new NoActiveHandlerThreadCheckerRule();
 
     @Mock
     private Context mMockContext;
@@ -262,6 +269,9 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
     private final List<AtomsProto.CarWatchdogUidIoUsageSummary> mPulledUidIoUsageSummaries =
             new ArrayList<>();
 
+    private HandlerThread mHandlerThread;
+    private Handler mHandler;
+
     public WatchdogPerfHandlerStableUnitTest() {
         super(CarWatchdogService.TAG);
     }
@@ -281,6 +291,9 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
 
     @Before
     public void setUp() throws Exception {
+        mHandlerThread = CarServiceUtils.getHandlerThread(CAR_WATCHDOG_SERVICE_NAME);
+        mHandler = new Handler(mHandlerThread.getLooper());
+
         when(mMockContext.getPackageManager()).thenReturn(mMockPackageManager);
         when(mMockContext.getResources()).thenReturn(mMockResources);
         when(mMockContext.getSystemService(StatsManager.class)).thenReturn(mMockStatsManager);
@@ -327,7 +340,7 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
         mWatchdogPerfHandlerStable = new WatchdogPerfHandlerStable(mMockContext,
                 mMockBuiltinPackageContext, mMockCarWatchdogDaemonHelper,
                 new PackageInfoHandler(mMockContext.getPackageManager()),
-                mSpiedWatchdogStorage, mTimeSource);
+                mSpiedWatchdogStorage, mTimeSource, mHandler);
 
         setupUsers();
         mockSettingsStringCalls();
@@ -342,6 +355,7 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
      */
     @After
     public void tearDown() throws Exception {
+        CarServiceUtils.releaseHandlerThread(CAR_WATCHDOG_SERVICE_NAME);
         if (mTempSystemCarDir != null) {
             FileUtils.deleteContentsAndDir(mTempSystemCarDir);
         }
@@ -4147,7 +4161,7 @@ public class WatchdogPerfHandlerStableUnitTest extends AbstractExtendedMockitoTe
         mWatchdogPerfHandlerStable = new WatchdogPerfHandlerStable(mMockContext,
                 mMockBuiltinPackageContext, mMockCarWatchdogDaemonHelper,
                 new PackageInfoHandler(mMockContext.getPackageManager()),
-                mSpiedWatchdogStorage, mTimeSource);
+                mSpiedWatchdogStorage, mTimeSource, mHandler);
         initService(/* wantedInvocations= */ totalRestarts + 1);
     }
 

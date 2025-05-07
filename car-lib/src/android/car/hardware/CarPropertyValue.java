@@ -86,7 +86,7 @@ public final class CarPropertyValue<T> implements Parcelable {
         STATUS_NOT_AVAILABLE_DISABLED,
         STATUS_NOT_AVAILABLE_SPEED_LOW,
         STATUS_NOT_AVAILABLE_SPEED_HIGH,
-        STATUS_NOT_AVAILABLE_SPEED_POOR_VISIBILITY,
+        STATUS_NOT_AVAILABLE_POOR_VISIBILITY,
         STATUS_NOT_AVAILABLE_SAFETY,
         STATUS_NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED
     })
@@ -140,7 +140,7 @@ public final class CarPropertyValue<T> implements Parcelable {
      * ultrasonic sensor.
      */
     @FlaggedApi(Flags.FLAG_CAR_PROPERTY_STATUS_DETAILED_NOT_AVAILABLE)
-    public static final int STATUS_NOT_AVAILABLE_SPEED_POOR_VISIBILITY = 6;
+    public static final int STATUS_NOT_AVAILABLE_POOR_VISIBILITY = 6;
 
     /**
      * {@code CarPropertyValue} is not available because of safety reasons. Eg. System could be
@@ -369,6 +369,21 @@ public final class CarPropertyValue<T> implements Parcelable {
     }
 
     /**
+     * Returns the property status of {@code CarPropertyValue}.
+     *
+     * <p>Possible return values are one of:
+     *  <ul>
+     *      <li><code>STATUS_AVAILABLE</code></li>
+     *      <li><code>STATUS_ERROR</code></li>
+     *      <li><code>STATUS_NOT_AVAILABLE_GENERAL</code></li>
+     *      <li><code>STATUS_NOT_AVAILABLE_DISABLED</code> (Since Android 25Q4)</li>
+     *      <li><code>STATUS_NOT_AVAILABLE_SPEED_LOW</code> (Since Android 25Q4)</li>
+     *      <li><code>STATUS_NOT_AVAILABLE_SPEED_HIGH</code> (Since Android 25Q4)</li>
+     *      <li><code>STATUS_NOT_AVAILABLE_POOR_VISIBILITY</code> (Since Android 25Q4)</li>
+     *      <li><code>STATUS_NOT_AVAILABLE_SAFETY</code> (Since Android 25Q4)</li>
+     *      <li><code>STATUS_NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED</code> (Since Android 25Q4)</li>
+     *  </ul>
+     *
      * @return The property status of {@code CarPropertyValue}
      */
     @FlaggedApi(FLAG_CAR_PROPERTY_VALUE_PROPERTY_STATUS)

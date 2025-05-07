@@ -45,6 +45,7 @@ import android.car.telemetry.CarTelemetryManager;
 import android.car.telemetry.ICarTelemetryReportListener;
 import android.car.telemetry.ICarTelemetryReportReadyListener;
 import android.car.telemetry.TelemetryProto;
+import android.car.test.NoActiveHandlerThreadCheckerRule;
 import android.car.test.mocks.MockSettings;
 import android.content.Context;
 import android.os.Handler;
@@ -67,7 +68,9 @@ import com.android.car.telemetry.systemmonitor.SystemMonitor;
 import com.android.car.telemetry.util.MetricsReportProtoUtils;
 // import com.android.car.telemetry.systemmonitor.SystemMonitorEvent;
 
+import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
@@ -99,6 +102,10 @@ public class CarTelemetryServiceTest extends AbstractExtendedMockitoCarServiceTe
     // Not used directly, but sets proper mockStatic() expectations on Settings
     @SuppressWarnings("UnusedVariable")
     private MockSettings mMockSettings;
+
+    @Rule
+    public NoActiveHandlerThreadCheckerRule mNoActiveHandlerThreadCheckerRule =
+            new NoActiveHandlerThreadCheckerRule();
 
     @Mock private ActivityManager mMockActivityManager;
     @Mock private CarPowerManagementService mMockCarPowerManagementService;
@@ -169,6 +176,11 @@ public class CarTelemetryServiceTest extends AbstractExtendedMockitoCarServiceTe
 
         mMetricsConfigStore = mService.getMetricsConfigStore();
         mResultStore = mService.getResultStore();
+    }
+
+    @After
+    public void tearDown() {
+        mService.destroy();
     }
 
     @Test

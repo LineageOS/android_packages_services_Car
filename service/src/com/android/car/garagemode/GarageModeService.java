@@ -16,7 +16,6 @@
 
 package com.android.car.garagemode;
 
-import static com.android.car.CarServiceUtils.getHandlerThread;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
 import android.content.Context;
@@ -24,6 +23,7 @@ import android.os.HandlerThread;
 import android.util.proto.ProtoOutputStream;
 
 import com.android.car.CarServiceBase;
+import com.android.car.CarServiceUtils;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.internal.annotations.VisibleForTesting;
@@ -37,7 +37,8 @@ public class GarageModeService implements CarServiceBase {
     private static final String HANDLER_THREAD_NAME = "GarageModeService";
 
     private final GarageModeController mController;
-    private final HandlerThread mHandlerThread = getHandlerThread(HANDLER_THREAD_NAME);
+    private final HandlerThread mHandlerThread = CarServiceUtils.getHandlerThread(
+            HANDLER_THREAD_NAME);
 
     public GarageModeService(Context context) {
         this(context, /* controller= */ null);
@@ -47,6 +48,15 @@ public class GarageModeService implements CarServiceBase {
     protected GarageModeService(Context context, GarageModeController controller) {
         mController = (controller != null ? controller
                 : new GarageModeController(context, mHandlerThread.getLooper()));
+    }
+
+    @Override
+    public void destroy() {
+        try {
+            CarServiceUtils.releaseHandlerThread(HANDLER_THREAD_NAME);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
 
     /**
@@ -63,7 +73,6 @@ public class GarageModeService implements CarServiceBase {
     @Override
     public void release() {
         mController.release();
-        mHandlerThread.quitSafely();
     }
 
     /**

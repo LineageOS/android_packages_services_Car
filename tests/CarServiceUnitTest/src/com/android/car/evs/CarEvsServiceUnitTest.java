@@ -62,6 +62,7 @@ import android.car.evs.ICarEvsStreamCallback;
 import android.car.hardware.CarPropertyValue;
 import android.car.hardware.property.CarPropertyEvent;
 import android.car.hardware.property.ICarPropertyEventListener;
+import android.car.test.NoActiveHandlerThreadCheckerRule;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.car.test.mocks.JavaMockitoHelper;
 import android.car.user.CarUserManager.UserLifecycleEvent;
@@ -208,6 +209,9 @@ public final class CarEvsServiceUnitTest extends AbstractExtendedMockitoTestCase
     }
 
     @Rule
+    public NoActiveHandlerThreadCheckerRule mNoActiveHandlerThreadCheckerRule =
+            new NoActiveHandlerThreadCheckerRule();
+    @Rule
     public TestName mTestName = new TestName();
 
     @Before
@@ -266,6 +270,7 @@ public final class CarEvsServiceUnitTest extends AbstractExtendedMockitoTestCase
 
     @After
     public void tearDown() throws Exception {
+        mCarEvsService.destroy();
         mCarEvsService = null;
     }
 

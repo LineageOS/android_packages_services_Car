@@ -27,6 +27,7 @@ import android.content.ServiceConnection;
 import android.content.pm.ServiceInfo;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.os.RemoteException;
 import android.os.UserHandle;
 
@@ -68,12 +69,12 @@ public class AppBlockingPolicyProxy implements ServiceConnection {
     };
 
     public AppBlockingPolicyProxy(CarPackageManagerService service, Context context,
-            ServiceInfo serviceInfo) {
+            Looper looper, ServiceInfo serviceInfo) {
         mService = service;
         mContext = context;
         mServiceInfo = serviceInfo;
         mSetter = new ICarAppBlockingPolicySetterImpl();
-        mHandler = new Handler(mService.getLooper());
+        mHandler = new Handler(looper);
     }
 
     public String getPackageName() {

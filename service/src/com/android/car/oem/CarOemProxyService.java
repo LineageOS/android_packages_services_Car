@@ -79,6 +79,7 @@ public final class CarOemProxyService implements CarServiceBase {
     // mock component name for testing if system property is set.
     private static final String PROPERTY_EMULATED_OEM_CAR_SERVICE =
             "persist.com.android.car.internal.debug.oem_car_service";
+    private static final String HANDLER_THREAD_NAME = CarOemProxyService.class.getSimpleName();
 
     private final int mOemServiceConnectionTimeoutMs;
     private final int mOemServiceReadyTimeoutMs;
@@ -87,6 +88,7 @@ public final class CarOemProxyService implements CarServiceBase {
     private final Context mContext;
     private final boolean mIsOemServiceBound;
     private final CarOemProxyServiceHelper mHelper;
+    private final CarOemProxyServiceHelper mCreatedHelper;
     private final HandlerThread mHandlerThread;
     private final Handler mHandler;
     @GuardedBy("mLock")
@@ -190,6 +192,7 @@ public final class CarOemProxyService implements CarServiceBase {
             // feature disabled
             mIsFeatureEnabled = false;
             mIsOemServiceBound = false;
+            mCreatedHelper = null;
             mHelper = null;
             mHandlerThread = null;
             mHandler = null;
@@ -201,7 +204,7 @@ public final class CarOemProxyService implements CarServiceBase {
                 .setComponent(ComponentName.unflattenFromString(mComponentName));
 
         Slogf.i(TAG, "Binding to Oem Service with intent: %s", intent);
-        mHandlerThread = CarServiceUtils.getHandlerThread("car_oem_service");
+        mHandlerThread = CarServiceUtils.getHandlerThread(HANDLER_THREAD_NAME);
         mHandler = handler == null ? new Handler(mHandlerThread.getLooper()) : handler;
 
         mIsOemServiceBound = mContext.bindServiceAsUser(intent, mCarOemServiceConnection,
@@ -215,7 +218,25 @@ public final class CarOemProxyService implements CarServiceBase {
             Slogf.e(TAG,
                     "Couldn't bound to OemCarService. Oem service feature is marked disabled.");
         }
-        mHelper = helper ==  null ? new CarOemProxyServiceHelper(mContext) : helper;
+        if (helper == null) {
+            mCreatedHelper = new CarOemProxyServiceHelper(mContext);
+            mHelper = mCreatedHelper;
+        } else {
+            mCreatedHelper = null;
+            mHelper = helper;
+        }
+    }
+
+    @Override
+    public void destroy() {
+        if (mCreatedHelper != null) {
+            mCreatedHelper.close();
+        }
+        try {
+            CarServiceUtils.releaseHandlerThread(HANDLER_THREAD_NAME);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
 
     private boolean isInvalidComponentName(Context context, String componentName) {

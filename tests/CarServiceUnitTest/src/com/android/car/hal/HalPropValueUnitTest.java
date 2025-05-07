@@ -16,6 +16,8 @@
 
 package com.android.car.hal;
 
+import static android.car.feature.Flags.FLAG_CAR_PROPERTY_STATUS_DETAILED_NOT_AVAILABLE;
+
 import static com.google.common.truth.Truth.assertThat;
 
 import android.car.hardware.CarPropertyValue;
@@ -23,12 +25,15 @@ import android.hardware.automotive.vehicle.RawPropValues;
 import android.hardware.automotive.vehicle.VehiclePropConfig;
 import android.hardware.automotive.vehicle.VehiclePropertyStatus;
 import android.hardware.automotive.vehicle.VehiclePropertyType;
+import android.platform.test.annotations.EnableFlags;
+import android.platform.test.flag.junit.SetFlagsRule;
 
 import com.android.car.internal.property.RawPropertyValue;
 
+import org.junit.Rule;
 import org.junit.Test;
 
-public final class HalPropValueTest {
+public final class HalPropValueUnitTest {
 
     private static final long TEST_TIMESTAMP = 1;
     private static final int TEST_AREA_ID = 2;
@@ -50,6 +55,9 @@ public final class HalPropValueTest {
     private static final int TEST_STRING_PROP = VehiclePropertyType.STRING;
     private static final int TEST_MIXED_PROP = VehiclePropertyType.MIXED;
     private static final int TEST_MGR_PROP = 8;
+
+    @Rule
+    public final SetFlagsRule mSetFlagsRule = new SetFlagsRule();
 
     private android.hardware.automotive.vehicle.V2_0.VehiclePropValue getTestHidlPropValue() {
         android.hardware.automotive.vehicle.V2_0.VehiclePropValue hidlValue =
@@ -889,8 +897,9 @@ public final class HalPropValueTest {
 
         assertThat(value.toCarPropertyValue(TEST_MGR_PROP,
                 new AidlHalPropConfig(new VehiclePropConfig()))).isEqualTo(
-                new CarPropertyValue<>(TEST_MGR_PROP, TEST_AREA_ID,
-                        CarPropertyValue.STATUS_UNAVAILABLE, TEST_TIMESTAMP, Boolean.TRUE));
+                        new CarPropertyValue<>(TEST_MGR_PROP, TEST_AREA_ID,
+                                CarPropertyValue.STATUS_NOT_AVAILABLE_GENERAL, TEST_TIMESTAMP,
+                                Boolean.TRUE));
     }
 
     @Test
@@ -899,11 +908,12 @@ public final class HalPropValueTest {
 
         assertThat(value.toCarPropertyValue(TEST_MGR_PROP,
                 new AidlHalPropConfig(new VehiclePropConfig()))).isEqualTo(
-                new CarPropertyValue<>(TEST_MGR_PROP, TEST_AREA_ID, CarPropertyValue.STATUS_ERROR,
-                        TEST_TIMESTAMP, Boolean.TRUE));
+                        new CarPropertyValue<>(TEST_MGR_PROP, TEST_AREA_ID,
+                                CarPropertyValue.STATUS_ERROR,
+                                TEST_TIMESTAMP, Boolean.TRUE));
     }
 
-    // TODO(b/381298607): Change this test once we expose the specific not_available status.
+    @EnableFlags(FLAG_CAR_PROPERTY_STATUS_DETAILED_NOT_AVAILABLE)
     @Test
     public void testToCarPropertyValue_NOT_AVAILABLE_DISABLED() {
         HalPropValue value = createTestHalPropValueWithStatus(
@@ -912,10 +922,10 @@ public final class HalPropValueTest {
         assertThat(value.toCarPropertyValue(TEST_MGR_PROP,
                 new AidlHalPropConfig(new VehiclePropConfig()))
             ).isEqualTo(new CarPropertyValue<>(TEST_MGR_PROP, TEST_AREA_ID,
-                    CarPropertyValue.STATUS_UNAVAILABLE, TEST_TIMESTAMP, Boolean.TRUE));
+                    CarPropertyValue.STATUS_NOT_AVAILABLE_DISABLED, TEST_TIMESTAMP, Boolean.TRUE));
     }
 
-    // TODO(b/381298607): Change this test once we expose the specific not_available status.
+    @EnableFlags(FLAG_CAR_PROPERTY_STATUS_DETAILED_NOT_AVAILABLE)
     @Test
     public void testToCarPropertyValue_NOT_AVAILABLE_SPEED_LOW() {
         HalPropValue value = createTestHalPropValueWithStatus(
@@ -924,10 +934,11 @@ public final class HalPropValueTest {
         assertThat(value.toCarPropertyValue(TEST_MGR_PROP,
                 new AidlHalPropConfig(new VehiclePropConfig()))
             ).isEqualTo(new CarPropertyValue<>(TEST_MGR_PROP, TEST_AREA_ID,
-                    CarPropertyValue.STATUS_UNAVAILABLE, TEST_TIMESTAMP, Boolean.TRUE));
+                    CarPropertyValue.STATUS_NOT_AVAILABLE_SPEED_LOW, TEST_TIMESTAMP,
+                    Boolean.TRUE));
     }
 
-    // TODO(b/381298607): Change this test once we expose the specific not_available status.
+    @EnableFlags(FLAG_CAR_PROPERTY_STATUS_DETAILED_NOT_AVAILABLE)
     @Test
     public void testToCarPropertyValue_NOT_AVAILABLE_SPEED_HIGH() {
         HalPropValue value = createTestHalPropValueWithStatus(
@@ -936,10 +947,11 @@ public final class HalPropValueTest {
         assertThat(value.toCarPropertyValue(TEST_MGR_PROP,
                 new AidlHalPropConfig(new VehiclePropConfig()))
             ).isEqualTo(new CarPropertyValue<>(TEST_MGR_PROP, TEST_AREA_ID,
-                    CarPropertyValue.STATUS_UNAVAILABLE, TEST_TIMESTAMP, Boolean.TRUE));
+                    CarPropertyValue.STATUS_NOT_AVAILABLE_SPEED_HIGH, TEST_TIMESTAMP,
+                    Boolean.TRUE));
     }
 
-    // TODO(b/381298607): Change this test once we expose the specific not_available status.
+    @EnableFlags(FLAG_CAR_PROPERTY_STATUS_DETAILED_NOT_AVAILABLE)
     @Test
     public void testToCarPropertyValue_NOT_AVAILABLE_POOR_VISIBILITY() {
         HalPropValue value = createTestHalPropValueWithStatus(
@@ -948,10 +960,11 @@ public final class HalPropValueTest {
         assertThat(value.toCarPropertyValue(TEST_MGR_PROP,
                 new AidlHalPropConfig(new VehiclePropConfig()))
             ).isEqualTo(new CarPropertyValue<>(TEST_MGR_PROP, TEST_AREA_ID,
-                    CarPropertyValue.STATUS_UNAVAILABLE, TEST_TIMESTAMP, Boolean.TRUE));
+                    CarPropertyValue.STATUS_NOT_AVAILABLE_POOR_VISIBILITY, TEST_TIMESTAMP,
+                    Boolean.TRUE));
     }
 
-    // TODO(b/381298607): Change this test once we expose the specific not_available status.
+    @EnableFlags(FLAG_CAR_PROPERTY_STATUS_DETAILED_NOT_AVAILABLE)
     @Test
     public void testToCarPropertyValue_NOT_AVAILABLE_SAFETY() {
         HalPropValue value = createTestHalPropValueWithStatus(
@@ -960,10 +973,10 @@ public final class HalPropValueTest {
         assertThat(value.toCarPropertyValue(TEST_MGR_PROP,
                 new AidlHalPropConfig(new VehiclePropConfig()))
             ).isEqualTo(new CarPropertyValue<>(TEST_MGR_PROP, TEST_AREA_ID,
-                    CarPropertyValue.STATUS_UNAVAILABLE, TEST_TIMESTAMP, Boolean.TRUE));
+                    CarPropertyValue.STATUS_NOT_AVAILABLE_SAFETY, TEST_TIMESTAMP, Boolean.TRUE));
     }
 
-    // TODO(b/381298607): Change this test once we expose the specific not_available status.
+    @EnableFlags(FLAG_CAR_PROPERTY_STATUS_DETAILED_NOT_AVAILABLE)
     @Test
     public void testToCarPropertyValue_NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED() {
         HalPropValue value = createTestHalPropValueWithStatus(
@@ -972,7 +985,8 @@ public final class HalPropValueTest {
         assertThat(value.toCarPropertyValue(TEST_MGR_PROP,
                 new AidlHalPropConfig(new VehiclePropConfig()))
             ).isEqualTo(new CarPropertyValue<>(TEST_MGR_PROP, TEST_AREA_ID,
-                    CarPropertyValue.STATUS_UNAVAILABLE, TEST_TIMESTAMP, Boolean.TRUE));
+                    CarPropertyValue.STATUS_NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED, TEST_TIMESTAMP,
+                    Boolean.TRUE));
     }
 
     // Creates an empty HalPropValue that does not have any value.
@@ -990,8 +1004,9 @@ public final class HalPropValueTest {
 
         assertThat(value.toCarPropertyValue(TEST_MGR_PROP,
                 new AidlHalPropConfig(new VehiclePropConfig()))).isEqualTo(
-                new CarPropertyValue<>(TEST_MGR_PROP, /*areaId=*/0,
-                        CarPropertyValue.STATUS_ERROR, /*timestampNanos=*/0, Boolean.FALSE));
+                        new CarPropertyValue<>(TEST_MGR_PROP, /*areaId=*/0,
+                                CarPropertyValue.STATUS_ERROR, /*timestampNanos=*/0,
+                                Boolean.FALSE));
     }
 
     @Test
@@ -1000,8 +1015,9 @@ public final class HalPropValueTest {
 
         assertThat(value.toCarPropertyValue(TEST_MGR_PROP,
                 new AidlHalPropConfig(new VehiclePropConfig()))).isEqualTo(
-                new CarPropertyValue<>(TEST_MGR_PROP, /*areaId=*/0,
-                        CarPropertyValue.STATUS_ERROR, /*timestampNanos=*/0, Integer.valueOf(0)));
+                        new CarPropertyValue<>(TEST_MGR_PROP, /*areaId=*/0,
+                                CarPropertyValue.STATUS_ERROR, /*timestampNanos=*/0,
+                                Integer.valueOf(0)));
     }
 
     @Test
@@ -1010,8 +1026,9 @@ public final class HalPropValueTest {
 
         assertThat(value.toCarPropertyValue(TEST_MGR_PROP,
                 new AidlHalPropConfig(new VehiclePropConfig()))).isEqualTo(
-                new CarPropertyValue<>(TEST_MGR_PROP, /*areaId=*/0,
-                        CarPropertyValue.STATUS_ERROR, /*timestampNanos=*/0, Long.valueOf(0)));
+                        new CarPropertyValue<>(TEST_MGR_PROP, /*areaId=*/0,
+                                CarPropertyValue.STATUS_ERROR, /*timestampNanos=*/0,
+                                Long.valueOf(0)));
     }
 
     @Test
@@ -1020,8 +1037,9 @@ public final class HalPropValueTest {
 
         assertThat(value.toCarPropertyValue(TEST_MGR_PROP,
                 new AidlHalPropConfig(new VehiclePropConfig()))).isEqualTo(
-                new CarPropertyValue<>(TEST_MGR_PROP, /*areaId=*/0,
-                        CarPropertyValue.STATUS_ERROR, /*timestampNanos=*/0, Float.valueOf(0)));
+                        new CarPropertyValue<>(TEST_MGR_PROP, /*areaId=*/0,
+                                CarPropertyValue.STATUS_ERROR, /*timestampNanos=*/0,
+                                Float.valueOf(0)));
     }
 
     // For int32_vec property, an empty array is considered a valid return value.

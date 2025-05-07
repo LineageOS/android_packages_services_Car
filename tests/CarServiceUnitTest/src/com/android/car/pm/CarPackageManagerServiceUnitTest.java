@@ -45,6 +45,7 @@ import android.app.PendingIntent;
 import android.car.CarVersion;
 import android.car.builtin.app.ActivityManagerHelper;
 import android.car.content.pm.ICarBlockingUiCommandListener;
+import android.car.test.NoActiveHandlerThreadCheckerRule;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
@@ -65,7 +66,9 @@ import com.android.car.CarOccupantZoneService;
 import com.android.car.CarUxRestrictionsManagerService;
 import com.android.car.am.CarActivityService;
 
+import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -86,6 +89,10 @@ public class CarPackageManagerServiceUnitTest extends AbstractExtendedMockitoTes
     private PackageManager mSpiedPackageManager;
 
     private final UserHandle mUserHandle = UserHandle.of(666);
+
+    @Rule
+    public NoActiveHandlerThreadCheckerRule mNoActiveHandlerThreadCheckerRule =
+            new NoActiveHandlerThreadCheckerRule();
 
     @Mock
     private Context mUserContext;
@@ -124,6 +131,11 @@ public class CarPackageManagerServiceUnitTest extends AbstractExtendedMockitoTes
 
         mService = new CarPackageManagerService(mSpiedContext,
                 mMockUxrService, mMockActivityService, mMockCarOccupantZoneService);
+    }
+
+    @After
+    public void tearDown() {
+        mService.destroy();
     }
 
     @Test

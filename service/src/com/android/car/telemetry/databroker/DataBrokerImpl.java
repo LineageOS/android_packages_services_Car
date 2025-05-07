@@ -32,7 +32,6 @@ import android.content.ServiceConnection;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Handler;
-import android.os.HandlerThread;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
@@ -45,9 +44,7 @@ import android.util.Log;
 import android.util.SparseIntArray;
 
 import com.android.car.CarLog;
-import com.android.car.CarServiceUtils;
 import com.android.car.internal.LargeParcelable;
-import com.android.car.telemetry.CarTelemetryService;
 import com.android.car.telemetry.ResultStore;
 import com.android.car.telemetry.publisher.AbstractPublisher;
 import com.android.car.telemetry.publisher.PublisherFactory;
@@ -94,9 +91,7 @@ public class DataBrokerImpl implements DataBroker {
     private final PublisherFactory mPublisherFactory;
     private final ResultStore mResultStore;
     private final ScriptExecutorListener mScriptExecutorListener;
-    private final HandlerThread mTelemetryThread = CarServiceUtils.getHandlerThread(
-            CarTelemetryService.class.getSimpleName());
-    private final Handler mTelemetryHandler = new TaskHandler(mTelemetryThread.getLooper());
+    private final Handler mTelemetryHandler;
 
     /** Thread-safe priority queue for scheduling tasks. */
     private final PriorityBlockingQueue<ScriptExecutionTask> mTaskQueue =
@@ -193,10 +188,12 @@ public class DataBrokerImpl implements DataBroker {
 
     public DataBrokerImpl(
             @NonNull Context context,
+            @NonNull Looper looper,
             @NonNull PublisherFactory publisherFactory,
             @NonNull ResultStore resultStore,
             @NonNull TimingsTraceLog traceLog) {
         mContext = context;
+        mTelemetryHandler = new TaskHandler(looper);
         mPublisherFactory = publisherFactory;
         mResultStore = resultStore;
         mScriptExecutorListener = new ScriptExecutorListener(this);

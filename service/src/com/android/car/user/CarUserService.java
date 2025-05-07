@@ -118,6 +118,7 @@ import com.android.car.CarLog;
 import com.android.car.CarOccupantZoneService;
 import com.android.car.CarServiceBase;
 import com.android.car.CarServiceHelperWrapper;
+import com.android.car.CarServiceUtils;
 import com.android.car.CarUxRestrictionsManagerService;
 import com.android.car.R;
 import com.android.car.am.CarActivityService;
@@ -491,7 +492,14 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     }
 
     @Override
-    public void destroy() {}
+    public void destroy() {
+        try {
+            CarServiceUtils.releaseHandlerThread(HANDLER_THREAD_NAME);
+            CarServiceUtils.releaseHandlerThread(BG_HANDLER_THREAD_NAME);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+    }
 
     @Override
     @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)

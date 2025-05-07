@@ -34,12 +34,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.ParcelUuid;
 import android.util.Base64;
 import android.util.Log;
 
 import com.android.car.CarLog;
-import com.android.car.CarServiceUtils;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
 
@@ -186,8 +186,7 @@ public class FastPairGattServer {
         }
     };
 
-    private final Handler mHandler = new Handler(
-            CarServiceUtils.getHandlerThread(FastPairProvider.THREAD_NAME).getLooper());
+    private final Handler mHandler;
     private BluetoothGattCharacteristic mModelIdCharacteristic;
     private BluetoothGattCharacteristic mKeyBasedPairingCharacteristic;
     private BluetoothGattCharacteristic mPasskeyCharacteristic;
@@ -406,10 +405,12 @@ public class FastPairGattServer {
      */
     FastPairGattServer(Context context, int modelId, String antiSpoof,
             Callbacks callbacks, boolean automaticAcceptance,
-            FastPairAccountKeyStorage fastPairAccountKeyStorage) {
+            FastPairAccountKeyStorage fastPairAccountKeyStorage,
+            Looper looper) {
         mContext = Objects.requireNonNull(context);
         mFastPairAccountKeyStorage = Objects.requireNonNull(fastPairAccountKeyStorage);
         mCallbacks = Objects.requireNonNull(callbacks);
+        mHandler = new Handler(looper);
         mPrivateAntiSpoof = antiSpoof;
         mAutomaticPasskeyConfirmation = automaticAcceptance;
         mBluetoothManager = context.getSystemService(BluetoothManager.class);

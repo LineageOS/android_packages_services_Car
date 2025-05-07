@@ -54,6 +54,7 @@ import android.car.builtin.os.StorageManagerHelper;
 import android.car.builtin.os.UserManagerHelper;
 import android.car.drivingstate.CarUxRestrictions;
 import android.car.drivingstate.ICarUxRestrictionsChangeListener;
+import android.car.test.NoActiveHandlerThreadCheckerRule;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.car.test.mocks.BlockingAnswer;
 import android.car.testapi.BlockingUserLifecycleListener;
@@ -122,6 +123,7 @@ import com.android.internal.util.Preconditions;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatcher;
 import org.mockito.Captor;
@@ -160,6 +162,12 @@ abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCas
     protected static final int DEFAULT_TIMEOUT_MS = 15000;
 
     protected static final int ASYNC_CALL_TIMEOUT_MS = 100;
+
+    private final String mHandlerThreadName = getClass().getSimpleName();
+
+    @Rule
+    public NoActiveHandlerThreadCheckerRule mNoActiveHandlerThreadCheckerRule =
+            new NoActiveHandlerThreadCheckerRule();
 
     @Mock protected Context mMockContext;
     @Mock protected Context mApplicationContext;
@@ -240,9 +248,8 @@ abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCas
     protected int mRegularUserId;
     protected int mAnotherRegularUserId;
 
-    protected final HandlerThread mHandlerThread = CarServiceUtils.getHandlerThread(
-            getClass().getSimpleName());
-    protected final Handler mHandler = new Handler(mHandlerThread.getLooper());
+    protected HandlerThread mHandlerThread;
+    protected Handler mHandler;
 
     protected BaseCarUserServiceTestCase(String... logTags) {
         super(logTags);
@@ -269,6 +276,12 @@ abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCas
                 .spyStatic(Binder.class)
                 .spyStatic(UserManagerHelper.class)
                 .spyStatic(StorageManagerHelper.class);
+    }
+
+    @Before
+    public void setupHandlerThread() {
+        mHandlerThread = CarServiceUtils.getHandlerThread(mHandlerThreadName);
+        mHandler = new Handler(mHandlerThread.getLooper());
     }
 
     /**
@@ -355,8 +368,10 @@ abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCas
     }
 
     @After
-    public void tearDown() {
+    public void tearDown() throws InterruptedException {
         CarLocalServices.removeAllServices();
+        mCarUserService.destroy();
+        CarServiceUtils.releaseHandlerThread(mHandlerThreadName);
     }
 
     protected ICarUxRestrictionsChangeListener initService() {

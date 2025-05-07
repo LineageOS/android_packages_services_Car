@@ -36,6 +36,7 @@ import android.car.oem.IOemCarAudioFocusService;
 import android.car.oem.IOemCarAudioVolumeService;
 import android.car.oem.IOemCarService;
 import android.car.oem.IOemCarServiceCallback;
+import android.car.test.NoActiveHandlerThreadCheckerRule;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.car.test.mocks.JavaMockitoHelper;
 import android.content.ComponentName;
@@ -53,6 +54,7 @@ import com.android.car.R;
 import com.android.internal.annotations.GuardedBy;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
@@ -65,6 +67,10 @@ import java.util.concurrent.CountDownLatch;
 public final class CarOemProxyServiceTest extends AbstractExtendedMockitoTestCase {
 
     private static final String COMPONENT_NAME = "android.car.test/unittest";
+
+    @Rule
+    public NoActiveHandlerThreadCheckerRule mNoActiveHandlerThreadCheckerRule =
+            new NoActiveHandlerThreadCheckerRule();
 
     @Mock
     private Context mContext;
@@ -82,7 +88,6 @@ public final class CarOemProxyServiceTest extends AbstractExtendedMockitoTestCas
     private final TestOemCarService mTestOemCarService = new TestOemCarService();
 
     private final Handler mHandler = new Handler(Looper.getMainLooper());
-
     @Override
     protected void onSessionBuilder(CustomMockitoSessionBuilder session) {
         session.spyStatic(PackageManagerHelper.class);
@@ -100,6 +105,8 @@ public final class CarOemProxyServiceTest extends AbstractExtendedMockitoTestCas
         CarOemProxyService carOemProxyService = new CarOemProxyService(mContext);
 
         assertThat(carOemProxyService.isOemServiceEnabled()).isFalse();
+
+        carOemProxyService.destroy();
     }
 
     @Test
@@ -109,6 +116,8 @@ public final class CarOemProxyServiceTest extends AbstractExtendedMockitoTestCas
 
         assertThat(carOemProxyService.isOemServiceEnabled()).isTrue();
         assertThat(carOemProxyService.getOemServiceName()).isEqualTo(COMPONENT_NAME);
+
+        carOemProxyService.destroy();
     }
 
     @Test
@@ -119,6 +128,8 @@ public final class CarOemProxyServiceTest extends AbstractExtendedMockitoTestCas
 
         assertThrows(IllegalStateException.class,
                 () -> carOemProxyService.getCarOemAudioFocusService());
+
+        carOemProxyService.destroy();
     }
 
     @Test
@@ -132,6 +143,8 @@ public final class CarOemProxyServiceTest extends AbstractExtendedMockitoTestCas
 
         assertWithMessage("Oem audio volume service exception").that(thrown)
                 .hasMessageThat().contains("should not be call before CarService initialization");
+
+        carOemProxyService.destroy();
     }
 
     @Test
@@ -145,6 +158,8 @@ public final class CarOemProxyServiceTest extends AbstractExtendedMockitoTestCas
 
         assertWithMessage("Oem audio ducking service exception").that(thrown)
                 .hasMessageThat().contains("should not be call before CarService initialization");
+
+        carOemProxyService.destroy();
     }
 
     @Test
@@ -163,6 +178,8 @@ public final class CarOemProxyServiceTest extends AbstractExtendedMockitoTestCas
         verify(mCarOemProxyServiceHelper, times(2)).crashCarService(mReasonCapture.capture());
         assertThat(mReasonCapture.getAllValues()).containsExactly("OEM Service not connected",
                 "OEM Service not ready");
+
+        carOemProxyService.destroy();
     }
 
     @Test
@@ -178,6 +195,8 @@ public final class CarOemProxyServiceTest extends AbstractExtendedMockitoTestCas
         waitForHandlerThreadToFinish();
 
         verify(mCarOemProxyServiceHelper).crashCarService("OEM Service not ready");
+
+        carOemProxyService.destroy();
     }
 
     @Test
@@ -192,6 +211,8 @@ public final class CarOemProxyServiceTest extends AbstractExtendedMockitoTestCas
                 .that(carOemProxyService.isOemServiceReady()).isTrue());
 
         assertThat(carOemProxyService.getCarOemAudioFocusService()).isNull();
+
+        carOemProxyService.destroy();
     }
 
     @Test
@@ -207,6 +228,8 @@ public final class CarOemProxyServiceTest extends AbstractExtendedMockitoTestCas
 
         assertWithMessage("Oem audio volume service")
                 .that(carOemProxyService.getCarOemAudioVolumeService()).isNull();
+
+        carOemProxyService.destroy();
     }
 
     @Test
@@ -222,6 +245,8 @@ public final class CarOemProxyServiceTest extends AbstractExtendedMockitoTestCas
 
         assertWithMessage("Oem audio ducking service")
                 .that(carOemProxyService.getCarOemAudioDuckingService()).isNull();
+
+        carOemProxyService.destroy();
     }
 
     @Test
@@ -236,6 +261,8 @@ public final class CarOemProxyServiceTest extends AbstractExtendedMockitoTestCas
         carOemProxyService.onInitComplete();
 
         JavaMockitoHelper.await(latch, 5000);
+
+        carOemProxyService.destroy();
     }
 
     private void waitForHandlerThreadToFinish() {

@@ -32,6 +32,7 @@ import android.media.AudioAttributes;
 
 import com.android.car.R;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -63,6 +64,11 @@ public final class CarOemAudioDuckingProxyServiceTest extends AbstractExtendedMo
         when(mContext.getResources()).thenReturn(mResources);
         mockCallTimeout(/* timeoutMs= */ 5000);
         mCarOemProxyServiceHelper = new CarOemProxyServiceHelper(mContext);
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        mCarOemProxyServiceHelper.close();
     }
 
     @Test

@@ -281,6 +281,9 @@ public class CarInputRotaryServiceTest {
             mMockContext.release();
             mMockContext = null;
         }
+        if (mCarUserService != null) {
+            mCarUserService.destroy();
+        }
     }
 
     /**
