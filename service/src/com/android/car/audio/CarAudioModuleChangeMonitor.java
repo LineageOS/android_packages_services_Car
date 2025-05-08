@@ -21,9 +21,6 @@ import android.car.media.CarVolumeGroupEvent;
 import android.util.SparseArray;
 
 import com.android.car.CarLog;
-import com.android.car.audio.hal.AudioControlWrapper;
-import com.android.car.audio.hal.HalAudioDeviceInfo;
-import com.android.car.audio.hal.HalAudioModuleChangeCallback;
 
 import java.util.ArrayList;
 import java.util.List;

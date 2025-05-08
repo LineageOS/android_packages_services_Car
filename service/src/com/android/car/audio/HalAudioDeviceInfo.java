@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.car.audio.hal;
+package com.android.car.audio;
 
 import static android.media.audio.common.AudioDeviceDescription.CONNECTION_BUS;
 import static android.media.audio.common.AudioDeviceType.IN_DEVICE;
@@ -36,7 +36,7 @@ import java.util.Objects;
 /**
  * Audio Device info received from HAL as part of dynamic gain stage configration
  */
-public final class HalAudioDeviceInfo {
+final class HalAudioDeviceInfo {
     private final int mId;
     private final String mName;
     private final AudioGain mAudioGain;
@@ -45,7 +45,7 @@ public final class HalAudioDeviceInfo {
     private final String mAddress;
     private static final int AUDIO_PORT_EXT_DEVICE = 1;
 
-    public HalAudioDeviceInfo(AudioPort port) {
+    HalAudioDeviceInfo(AudioPort port) {
         Objects.requireNonNull(port, "Audio port can not be null");
 
         Preconditions.checkArgument(port.ext.getTag() == AUDIO_PORT_EXT_DEVICE,
@@ -62,47 +62,47 @@ public final class HalAudioDeviceInfo {
         mAddress = device.address.getId();
     }
 
-    public int getId() {
+    int getId() {
         return mId;
     }
 
-    public String getName() {
+    String getName() {
         return mName;
     }
 
-    public int getGainMinValue() {
+    int getGainMinValue() {
         return mAudioGain.minValue;
     }
 
-    public int getGainMaxValue() {
+    int getGainMaxValue() {
         return mAudioGain.maxValue;
     }
 
-    public int getGainDefaultValue() {
+    int getGainDefaultValue() {
         return mAudioGain.defaultValue;
     }
 
-    public int getGainStepValue() {
+    int getGainStepValue() {
         return mAudioGain.stepValue;
     }
 
-    public int getType() {
+    int getType() {
         return mType;
     }
 
-    public String getConnection() {
+    String getConnection() {
         return mConnection;
     }
 
-    public String getAddress() {
+    String getAddress() {
         return mAddress;
     }
 
-    public boolean isOutputDevice() {
+    boolean isOutputDevice() {
         return mType == OUT_DEVICE;
     }
 
-    public boolean isInputDevice() {
+    boolean isInputDevice() {
         return mType == IN_DEVICE;
     }
 

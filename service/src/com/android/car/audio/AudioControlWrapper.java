@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.car.audio.hal;
+package com.android.car.audio;
 
 import static android.car.builtin.media.AudioManagerHelper.usageToString;
 import static android.car.builtin.media.AudioManagerHelper.usageToXsdString;
@@ -49,9 +49,6 @@ import android.os.RemoteException;
 import android.util.Log;
 
 import com.android.car.CarLog;
-import com.android.car.audio.CarAudioGainConfigInfo;
-import com.android.car.audio.CarDuckingInfo;
-import com.android.car.audio.CarHalAudioUtils;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.annotation.AttributeUsage;
 import com.android.car.internal.util.IndentingPrintWriter;
@@ -69,16 +66,16 @@ import java.util.concurrent.Executors;
  * AudioControlWrapper wraps AIDL IAudioControl HAL interface, handling version specific support so
  * that the rest of CarAudioService doesn't need to know about it.
  */
-public final class AudioControlWrapper implements IBinder.DeathRecipient {
+final class AudioControlWrapper implements IBinder.DeathRecipient {
     static final String TAG = CarLog.tagFor(AudioControlWrapper.class);
 
-    public static final int AUDIOCONTROL_FEATURE_AUDIO_FOCUS = 0;
-    public static final int AUDIOCONTROL_FEATURE_AUDIO_DUCKING = 1;
-    public static final int AUDIOCONTROL_FEATURE_AUDIO_GROUP_MUTING = 2;
-    public static final int AUDIOCONTROL_FEATURE_AUDIO_FOCUS_WITH_METADATA = 3;
-    public static final int AUDIOCONTROL_FEATURE_AUDIO_GAIN_CALLBACK = 4;
-    public static final int AUDIOCONTROL_FEATURE_AUDIO_MODULE_CALLBACK = 5;
-    public static final int AUDIOCONTROL_FEATURE_AUDIO_CONFIGURATION = 6;
+    static final int AUDIOCONTROL_FEATURE_AUDIO_FOCUS = 0;
+    static final int AUDIOCONTROL_FEATURE_AUDIO_DUCKING = 1;
+    static final int AUDIOCONTROL_FEATURE_AUDIO_GROUP_MUTING = 2;
+    static final int AUDIOCONTROL_FEATURE_AUDIO_FOCUS_WITH_METADATA = 3;
+    static final int AUDIOCONTROL_FEATURE_AUDIO_GAIN_CALLBACK = 4;
+    static final int AUDIOCONTROL_FEATURE_AUDIO_MODULE_CALLBACK = 5;
+    static final int AUDIOCONTROL_FEATURE_AUDIO_CONFIGURATION = 6;
 
     @IntDef({
             AUDIOCONTROL_FEATURE_AUDIO_FOCUS,
@@ -112,7 +109,7 @@ public final class AudioControlWrapper implements IBinder.DeathRecipient {
 
     private Executor mExecutor = Executors.newSingleThreadExecutor();
 
-    public static @Nullable IBinder getService() {
+    static IBinder getService() {
         return ServiceManagerHelper.waitForDeclaredService(AUDIO_CONTROL_SERVICE);
     }
 
@@ -121,7 +118,7 @@ public final class AudioControlWrapper implements IBinder.DeathRecipient {
      *
      * @return {@link AudioControlWrapper} for registered IAudioControl service.
      */
-    public static AudioControlWrapper newAudioControl() {
+    static AudioControlWrapper newAudioControl() {
         return new AudioControlWrapper();
     }
 
@@ -140,7 +137,7 @@ public final class AudioControlWrapper implements IBinder.DeathRecipient {
      * Closes the focus listener that's registered on the AudioControl HAL
      */
     @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
-    public void unregisterFocusListener() {
+    void unregisterFocusListener() {
         // Focus listener will be unregistered by HAL automatically
     }
 
@@ -151,7 +148,7 @@ public final class AudioControlWrapper implements IBinder.DeathRecipient {
      * {@link AudioControlFeature}.
      * @return boolean indicating whether feature is supported
      */
-    public boolean supportsFeature(int feature) {
+    boolean supportsFeature(int feature) {
         switch (feature) {
             case AUDIOCONTROL_FEATURE_AUDIO_FOCUS:
             case AUDIOCONTROL_FEATURE_AUDIO_DUCKING:
@@ -197,7 +194,7 @@ public final class AudioControlWrapper implements IBinder.DeathRecipient {
      *
      * @param focusListener the listener to register on the IAudioControl HAL.
      */
-    public void registerFocusListener(HalFocusListener focusListener) {
+    void registerFocusListener(HalFocusListener focusListener) {
         if (Slogf.isLoggable(TAG, Log.DEBUG)) {
             Slogf.d(TAG, "Registering focus listener on AudioControl HAL");
         }
@@ -217,7 +214,7 @@ public final class AudioControlWrapper implements IBinder.DeathRecipient {
      *
      * @param gainCallback the callback to register on the IAudioControl HAL.
      */
-    public void registerAudioGainCallback(HalAudioGainCallback gainCallback) {
+    void registerAudioGainCallback(HalAudioGainCallback gainCallback) {
         if (Log.isLoggable(TAG, Log.DEBUG)) {
             Slogf.d(TAG, "Registering Audio Gain Callback on AudioControl HAL");
         }
@@ -240,18 +237,18 @@ public final class AudioControlWrapper implements IBinder.DeathRecipient {
     /**
      * Closes the audio gain callback registered on the AudioControl HAL
      */
-    public void unregisterAudioGainCallback() {
+    void unregisterAudioGainCallback() {
         // Audio Gain Callback will be unregistered by HAL automatically
     }
 
     /**
      * Notifies HAL of change in audio focus for a request it has made.
      *
-     * @param metadata {@link PlaybackTrackMetadata} that the request is associated with.
+     * @param metaData {@link PlaybackTrackMetadata} that the request is associated with.
      * @param zoneId for the audio zone that the request is associated with.
      * @param focusChange the new status of the request.
      */
-    public void onAudioFocusChange(PlaybackTrackMetadata metaData, int zoneId, int focusChange) {
+    void onAudioFocusChange(PlaybackTrackMetadata metaData, int zoneId, int focusChange) {
         if (Slogf.isLoggable(TAG, Log.DEBUG)) {
             Slogf.d(TAG, "onAudioFocusChange: metadata %s, zoneId %d, focusChanged %d", metaData,
                     zoneId, focusChange);
@@ -283,7 +280,7 @@ public final class AudioControlWrapper implements IBinder.DeathRecipient {
      * @param writer stream to write current state
      */
     @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
-    public void dump(IndentingPrintWriter writer) {
+    void dump(IndentingPrintWriter writer) {
         writer.println("*AudioControlWrapper*");
         writer.increaseIndent();
         try {
@@ -320,7 +317,7 @@ public final class AudioControlWrapper implements IBinder.DeathRecipient {
      *
      * @param value to set for the fade. Positive is towards front.
      */
-    public void setFadeTowardFront(float value) {
+    void setFadeTowardFront(float value) {
         try {
             mAudioControl.setFadeTowardFront(value);
         } catch (RemoteException e) {
@@ -333,7 +330,7 @@ public final class AudioControlWrapper implements IBinder.DeathRecipient {
      *
      * @param value to set for the balance. Positive is towards the right.
      */
-    public void setBalanceTowardRight(float value) {
+    void setBalanceTowardRight(float value) {
         try {
             mAudioControl.setBalanceTowardRight(value);
         } catch (RemoteException e) {
@@ -348,7 +345,7 @@ public final class AudioControlWrapper implements IBinder.DeathRecipient {
      * @param carDuckingInfos list of information about focus and addresses to duck for each
      * impacted zone to relay to the HAL.
      */
-    public void onDevicesToDuckChange(@NonNull List<CarDuckingInfo> carDuckingInfos) {
+    void onDevicesToDuckChange(@NonNull List<CarDuckingInfo> carDuckingInfos) {
         Objects.requireNonNull(carDuckingInfos);
         DuckingInfo[] duckingInfos = new DuckingInfo[carDuckingInfos.size()];
         for (int i = 0; i < carDuckingInfos.size(); i++) {
@@ -368,7 +365,7 @@ public final class AudioControlWrapper implements IBinder.DeathRecipient {
      *
      * @param carZonesMutingInfo list of information about addresses to mute to relay to the HAL.
      */
-    public void onDevicesToMuteChange(@NonNull List<MutingInfo> carZonesMutingInfo) {
+    void onDevicesToMuteChange(@NonNull List<MutingInfo> carZonesMutingInfo) {
         Objects.requireNonNull(carZonesMutingInfo, "Muting info can not be null");
         Preconditions.checkArgument(!carZonesMutingInfo.isEmpty(), "Muting info can not be empty");
         MutingInfo[] mutingInfoToHal = carZonesMutingInfo
@@ -386,7 +383,7 @@ public final class AudioControlWrapper implements IBinder.DeathRecipient {
      *
      * @param moduleChangeCallback the callback to register on the IAudioControl HAL.
      */
-    public void setModuleChangeCallback(HalAudioModuleChangeCallback moduleChangeCallback) {
+    void setModuleChangeCallback(HalAudioModuleChangeCallback moduleChangeCallback) {
         Objects.requireNonNull(moduleChangeCallback, "Module change callback can not be null");
 
         IModuleChangeCallback callback = new ModuleChangeCallbackWrapper(moduleChangeCallback);
@@ -429,7 +426,7 @@ public final class AudioControlWrapper implements IBinder.DeathRecipient {
     /**
      * Clears all module change callbacks that's registered on the AudioControl HAL
      */
-    public void clearModuleChangeCallback() {
+    void clearModuleChangeCallback() {
         mExecutor.execute(new Runnable() {
             @Override
             public void run() {
@@ -465,7 +462,7 @@ public final class AudioControlWrapper implements IBinder.DeathRecipient {
      * API must return valid audio zone(s) configuration(s) for the device.
      *
      */
-    public AudioDeviceConfiguration getAudioDeviceConfiguration() {
+    AudioDeviceConfiguration getAudioDeviceConfiguration() {
         if (!supportsFeature(AUDIOCONTROL_FEATURE_AUDIO_CONFIGURATION)) {
             return getDefaultAudioConfiguration();
         }
@@ -485,7 +482,7 @@ public final class AudioControlWrapper implements IBinder.DeathRecipient {
      * Returns the list of audio devices that can be used for mirroring between different audio
      * zones.
      */
-    public List<AudioPort> getOutputMirroringDevices() {
+    List<AudioPort> getOutputMirroringDevices() {
         if (!supportsFeature(AUDIOCONTROL_FEATURE_AUDIO_CONFIGURATION)) {
             return EMPTY_LIST;
         }
@@ -504,7 +501,7 @@ public final class AudioControlWrapper implements IBinder.DeathRecipient {
     /**
      * List of audio zones used to configure car audio service at bootup.
      */
-    public List<AudioZone> getCarAudioZones() {
+    List<AudioZone> getCarAudioZones() {
         if (!supportsFeature(AUDIOCONTROL_FEATURE_AUDIO_CONFIGURATION)) {
             return EMPTY_LIST;
         }
@@ -524,7 +521,7 @@ public final class AudioControlWrapper implements IBinder.DeathRecipient {
      *
      * @param deathRecipient to be notified upon HAL service death.
      */
-    public void linkToDeath(@Nullable AudioControlDeathRecipient deathRecipient) {
+    void linkToDeath(@Nullable AudioControlDeathRecipient deathRecipient) {
         try {
             mBinder.linkToDeath(this, 0);
             mDeathRecipient = deathRecipient;
@@ -536,7 +533,7 @@ public final class AudioControlWrapper implements IBinder.DeathRecipient {
     /**
      * Unregisters recipient for AudioControl HAL service death.
      */
-    public void unlinkToDeath() {
+    void unlinkToDeath() {
         mBinder.unlinkToDeath(this, 0);
         mDeathRecipient = null;
     }
@@ -724,7 +721,7 @@ public final class AudioControlWrapper implements IBinder.DeathRecipient {
     /**
      * Recipient to be notified upon death of AudioControl HAL.
      */
-    public interface AudioControlDeathRecipient {
+    interface AudioControlDeathRecipient {
         /**
          * Called if AudioControl HAL dies.
          */

@@ -27,7 +27,6 @@ import android.util.proto.ProtoOutputStream;
 
 import com.android.car.CarLocalServices;
 import com.android.car.audio.CarZonesAudioFocus.CarFocusCallback;
-import com.android.car.audio.hal.AudioControlWrapper;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.car.oem.CarOemProxyService;

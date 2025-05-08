@@ -39,7 +39,6 @@ import android.util.proto.ProtoOutputStream;
 import com.android.car.CarLog;
 import com.android.car.audio.CarAudioDumpProto.CarAudioZoneConfigProto;
 import com.android.car.audio.CarAudioDumpProto.CarAudioZoneProto;
-import com.android.car.audio.hal.HalAudioDeviceInfo;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;

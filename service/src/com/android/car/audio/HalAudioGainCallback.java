@@ -14,13 +14,11 @@
  * limitations under the License.
  */
 
-package com.android.car.audio.hal;
+package com.android.car.audio;
 
 import android.annotation.IntDef;
 import android.hardware.automotive.audiocontrol.AudioGainConfigInfo;
 import android.hardware.automotive.audiocontrol.Reasons;
-
-import com.android.car.audio.CarAudioGainConfigInfo;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -29,7 +27,7 @@ import java.util.List;
 /**
  * Audio Gain Callback interface to abstract away the specific HAL version
  */
-public interface HalAudioGainCallback {
+interface HalAudioGainCallback {
     @Retention(RetentionPolicy.SOURCE)
     @IntDef(
             value = {
@@ -44,7 +42,7 @@ public interface HalAudioGainCallback {
                 Reasons.EXTERNAL_AMP_VOL_FEEDBACK,
                 Reasons.OTHER
             })
-    public @interface HalReason {}
+    @interface HalReason {}
 
     /** Determines if the {@code HalReason} is valid */
     static boolean isReasonValid(@HalReason int reason) {

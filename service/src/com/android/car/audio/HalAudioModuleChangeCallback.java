@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package com.android.car.audio.hal;
+package com.android.car.audio;
 
 import java.util.List;
 
 /**
  * Audio Module Change Callback interface to abstract away the specific HAL version
  */
-public interface HalAudioModuleChangeCallback {
+interface HalAudioModuleChangeCallback {
 
     /**
      * Notifies changes to Audio Ports for the given {@code audioPorts}

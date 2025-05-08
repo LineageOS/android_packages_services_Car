@@ -35,7 +35,7 @@ import static android.media.AudioDeviceInfo.TYPE_WIRED_HEADPHONES;
 import static android.media.AudioDeviceInfo.TYPE_WIRED_HEADSET;
 
 import static com.android.car.audio.CarActivationVolumeConfig.ActivationVolumeInvocationType;
-import static com.android.car.audio.hal.HalAudioGainCallback.reasonToString;
+import static com.android.car.audio.HalAudioGainCallback.reasonToString;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
@@ -60,7 +60,6 @@ import com.android.car.audio.CarAudioDumpProto.CarAudioZoneConfigProto;
 import com.android.car.audio.CarAudioDumpProto.CarVolumeGroupProto;
 import com.android.car.audio.CarAudioDumpProto.CarVolumeGroupProto.ContextToAddress;
 import com.android.car.audio.CarAudioDumpProto.CarVolumeGroupProto.GainInfo;
-import com.android.car.audio.hal.HalAudioDeviceInfo;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.DebugUtils;
 import com.android.car.internal.util.IndentingPrintWriter;
@@ -133,7 +132,7 @@ import java.util.Set;
 
     /**
      * Attenuated gain is set to {@link #UNINITIALIZED} till attenuation explicitly reported by
-     * {@link com.android.car.audio.hal.HalAudioGainCallback#onAudioDeviceGainsChanged} for one or
+     * {@link HalAudioGainCallback#onAudioDeviceGainsChanged} for one or
      * more {@link android.hardware.automotive.audiocontrol.Reasons}. When the reason is cleared,
      * it returns back to {@link #UNINITIALIZED}.
      */
@@ -141,8 +140,8 @@ import java.util.Set;
     protected int mAttenuatedGainIndex = UNINITIALIZED;
 
     /**
-     * Limitation gain is set to max gain value till limitation explicitly reported by {@link
-     * com.android.car.audio.hal.HalAudioGainCallback#onAudioDeviceGainsChanged} for one or more
+     * Limitation gain is set to max gain value till limitation explicitly reported by {@code
+     * HalAudioGainCallback#onAudioDeviceGainsChanged} for one or more
      * {@link android.hardware.automotive.audiocontrol.Reasons}. When the reason is cleared, it
      * returns back to max.
      */
@@ -151,7 +150,7 @@ import java.util.Set;
 
     /**
      * Blocked gain is set to {@link #UNINITIALIZED} till blocking case explicitly reported by
-     * {@link com.android.car.audio.hal.HalAudioGainCallback#onAudioDeviceGainsChanged} for one or
+     * {@code HalAudioGainCallback#onAudioDeviceGainsChanged} for one or
      * more {@link android.hardware.automotive.audiocontrol.Reasons}. When the reason is cleared,
      * it returns back to {@link #UNINITIALIZED}.
      */
@@ -160,7 +159,7 @@ import java.util.Set;
 
     /**
      * The default state of HAL mute is {@code false} until HAL explicitly reports through
-     * {@link com.android.car.audio.hal.HalAudioGainCallback#onAudioDeviceGainsChanged} for one or
+     * {@code HalAudioGainCallback#onAudioDeviceGainsChanged} for one or
      * more {@link android.hardware.automotive.audiocontrol.Reasons}. When the reason
      * is cleared, it is reset. See {@link #mIsMuted} for state of requests coming from clients.
      */
@@ -168,8 +167,8 @@ import java.util.Set;
     private boolean mIsHalMuted = false;
 
     /**
-     * Reasons list currently reported for this port by {@link
-     * com.android.car.audio.hal.HalAudioGainCallback#onAudioDeviceGainsChanged}.
+     * Reasons list currently reported for this port by {@code
+     * HalAudioGainCallback#onAudioDeviceGainsChanged}.
      */
     protected List<Integer> mReasons = new ArrayList<>();
 

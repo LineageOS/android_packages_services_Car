@@ -24,8 +24,6 @@ import android.util.SparseArray;
 import android.util.SparseIntArray;
 
 import com.android.car.CarLog;
-import com.android.car.audio.hal.AudioControlWrapper;
-import com.android.car.audio.hal.HalAudioGainCallback;
 
 import java.util.ArrayList;
 import java.util.List;
