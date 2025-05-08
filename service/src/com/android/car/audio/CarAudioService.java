@@ -136,7 +136,6 @@ import com.android.car.audio.CarAudioDumpProto.CarAudioState;
 import com.android.car.audio.CarAudioDumpProto.UidToAudioZone;
 import com.android.car.audio.CarAudioDumpProto.UserIdToAudioZone;
 import com.android.car.audio.CarAudioPolicyVolumeCallback.AudioPolicyVolumeCallbackInternal;
-import com.android.car.audio.hal.AudioControlFactory;
 import com.android.car.audio.hal.AudioControlWrapper;
 import com.android.car.audio.hal.HalAudioDeviceInfo;
 import com.android.car.audio.hal.HalAudioFocus;
@@ -4036,7 +4035,7 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
     @GuardedBy("mImplLock")
     private AudioControlWrapper getAudioControlWrapperLocked() {
         if (mAudioControlWrapper == null) {
-            mAudioControlWrapper = AudioControlFactory.newAudioControl();
+            mAudioControlWrapper = AudioControlWrapper.newAudioControl();
             mAudioControlWrapper.linkToDeath(this::audioControlDied);
         }
         return mAudioControlWrapper;
