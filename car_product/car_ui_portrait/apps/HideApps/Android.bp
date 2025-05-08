@@ -28,6 +28,5 @@ android_app {
         "CarRotaryController",
         "RotaryPlayground",
         "RotaryIME",
-        "CarRotaryImeRRO",
     ],
 }
