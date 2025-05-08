@@ -60,8 +60,6 @@ import android.util.SparseArray;
 import android.util.SparseBooleanArray;
 import android.util.SparseIntArray;
 
-import com.android.car.audio.hal.HalAudioDeviceInfo;
-
 import com.google.common.truth.Expect;
 
 import org.junit.Before;

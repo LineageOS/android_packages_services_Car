@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.car.audio.hal;
+package com.android.car.audio;
 
 import static android.media.AudioAttributes.USAGE_MEDIA;
 import static android.media.AudioAttributes.USAGE_NOTIFICATION;
@@ -23,14 +23,14 @@ import static android.media.audio.common.AudioDeviceType.OUT_DEVICE;
 import static android.media.audio.common.AudioGainMode.JOINT;
 import static android.os.IBinder.DeathRecipient;
 
+import static com.android.car.audio.AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_CONFIGURATION;
+import static com.android.car.audio.AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_DUCKING;
+import static com.android.car.audio.AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_FOCUS;
+import static com.android.car.audio.AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_FOCUS_WITH_METADATA;
+import static com.android.car.audio.AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_GAIN_CALLBACK;
+import static com.android.car.audio.AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_GROUP_MUTING;
+import static com.android.car.audio.AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_MODULE_CALLBACK;
 import static com.android.car.audio.CarHalAudioUtils.usageToMetadata;
-import static com.android.car.audio.hal.AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_CONFIGURATION;
-import static com.android.car.audio.hal.AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_DUCKING;
-import static com.android.car.audio.hal.AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_FOCUS;
-import static com.android.car.audio.hal.AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_FOCUS_WITH_METADATA;
-import static com.android.car.audio.hal.AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_GAIN_CALLBACK;
-import static com.android.car.audio.hal.AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_GROUP_MUTING;
-import static com.android.car.audio.hal.AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_MODULE_CALLBACK;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
 
 import static com.google.common.truth.Truth.assertThat;
@@ -78,13 +78,7 @@ import android.platform.test.flag.junit.SetFlagsRule;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
-import com.android.car.audio.CarAudioContext;
-import com.android.car.audio.CarAudioGainConfigInfo;
-import com.android.car.audio.CarAudioTestUtils;
-import com.android.car.audio.CarAudioZone;
-import com.android.car.audio.CarDuckingInfo;
-import com.android.car.audio.CarHalAudioUtils;
-import com.android.car.audio.hal.AudioControlWrapper.AudioControlDeathRecipient;
+import com.android.car.audio.AudioControlWrapper.AudioControlDeathRecipient;
 import com.android.dx.mockito.inline.extended.ExtendedMockito;
 
 import com.google.common.collect.ImmutableList;
@@ -565,6 +559,7 @@ public final class AudioControlWrapperTest extends AbstractExtendedMockitoTestCa
 
     @Test
     public void binderDied_fetchesNewBinder() throws Exception {
+        ExtendedMockito.verify(() -> AudioControlWrapper.getService());
         mAudioControlWrapper.linkToDeath(null);
 
         ArgumentCaptor<DeathRecipient> captor = ArgumentCaptor.forClass(DeathRecipient.class);
@@ -573,7 +568,7 @@ public final class AudioControlWrapperTest extends AbstractExtendedMockitoTestCa
 
         deathRecipient.binderDied();
 
-        ExtendedMockito.verify(() -> AudioControlWrapper.getService());
+        ExtendedMockito.verify(() -> AudioControlWrapper.getService(), times(2));
     }
 
     @Test

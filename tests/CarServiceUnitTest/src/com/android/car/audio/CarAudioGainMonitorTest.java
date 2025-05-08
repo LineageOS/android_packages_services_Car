@@ -49,9 +49,6 @@ import android.util.SparseArray;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
-import com.android.car.audio.hal.AudioControlWrapper;
-import com.android.car.audio.hal.HalAudioGainCallback;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

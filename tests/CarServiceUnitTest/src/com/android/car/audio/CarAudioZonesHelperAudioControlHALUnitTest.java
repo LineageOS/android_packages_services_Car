@@ -48,7 +48,6 @@ import android.media.audio.common.AudioDeviceType;
 import android.media.audio.common.AudioPort;
 import android.media.audio.common.AudioPortDeviceExt;
 
-import com.android.car.audio.hal.AudioControlWrapper;
 import com.android.car.internal.util.LocalLog;
 
 import org.junit.Before;

@@ -34,8 +34,6 @@ import android.car.media.CarAudioManager;
 import android.hardware.automotive.audiocontrol.MutingInfo;
 import android.util.SparseArray;
 
-import com.android.car.audio.hal.AudioControlWrapper;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

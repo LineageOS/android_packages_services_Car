@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.car.audio.hal;
+package com.android.car.audio;
 
 
 import static android.media.audio.common.AudioDeviceDescription.CONNECTION_BUS;
@@ -35,8 +35,6 @@ import android.media.audio.common.AudioPortExt;
 import android.media.audio.common.AudioPortMixExt;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-
-import com.android.car.audio.CarAudioTestUtils;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

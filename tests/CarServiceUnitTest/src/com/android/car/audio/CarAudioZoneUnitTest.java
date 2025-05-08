@@ -53,8 +53,6 @@ import android.util.ArrayMap;
 import android.util.ArraySet;
 import android.util.SparseIntArray;
 
-import com.android.car.audio.hal.HalAudioDeviceInfo;
-
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
