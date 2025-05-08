@@ -66,7 +66,6 @@ import android.content.Context;
 import android.media.AudioAttributes;
 import android.media.AudioDeviceAttributes;
 import android.media.AudioDeviceInfo;
-import android.platform.test.annotations.DisableFlags;
 import android.platform.test.annotations.EnableFlags;
 import android.platform.test.flag.junit.SetFlagsRule;
 import android.util.SparseArray;
@@ -1347,28 +1346,6 @@ public final class CarAudioZonesHelperImplUnitTest extends AbstractExpectableTes
     }
 
     @Test
-    @DisableFlags({Flags.FLAG_AUDIO_VENDOR_FREEZE_IMPROVEMENTS})
-    public void loadAudioZones_usingCoreAudioVersionThree_failsOnEmptyGroupName()
-            throws Exception {
-        try (InputStream versionOneStream = mContext.getResources().openRawResource(
-                R.raw.car_audio_configuration_using_core_routing_and_volume_empty_group_name)) {
-            CarAudioZonesHelperImpl cazh = new CarAudioZonesHelperImpl(mAudioManagerWrapper,
-                    mCarAudioSettings, versionOneStream, mCarAudioOutputDeviceInfos,
-                    mInputAudioDeviceInfos, mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
-                    /* useCoreAudioVolume= */ true, /* useCoreAudioRouting= */ true,
-                    /* useFadeManagerConfiguration= */ false,
-                    /* carAudioFadeConfigurationHelper= */ null);
-
-            RuntimeException thrown =
-                    assertThrows(RuntimeException.class, () -> cazh.loadAudioZones());
-
-            assertWithMessage("Empty group name exception").that(thrown).hasMessageThat().contains(
-                    "group name attribute can not be empty when relying on core volume groups");
-        }
-    }
-
-    @Test
-    @EnableFlags({Flags.FLAG_AUDIO_VENDOR_FREEZE_IMPROVEMENTS})
     public void loadAudioZones_usingCoreVolumeAndWithoutVolumeGroupNames()
             throws Exception {
         try (InputStream versionOneStream = mContext.getResources().openRawResource(
@@ -2094,7 +2071,6 @@ public final class CarAudioZonesHelperImplUnitTest extends AbstractExpectableTes
     }
 
     @Test
-    @EnableFlags({Flags.FLAG_AUDIO_VENDOR_FREEZE_IMPROVEMENTS})
     public void loadAudioZones_withInvalidDeviceConfig()
             throws Exception {
         boolean useCoreVolume = true;
@@ -2117,7 +2093,6 @@ public final class CarAudioZonesHelperImplUnitTest extends AbstractExpectableTes
     }
 
     @Test
-    @EnableFlags({Flags.FLAG_AUDIO_VENDOR_FREEZE_IMPROVEMENTS})
     public void loadAudioZones_withUseCoreVolumeDeviceConfig()
             throws Exception {
         boolean useCoreVolume = false;
@@ -2140,30 +2115,6 @@ public final class CarAudioZonesHelperImplUnitTest extends AbstractExpectableTes
     }
 
     @Test
-    @DisableFlags({Flags.FLAG_AUDIO_VENDOR_FREEZE_IMPROVEMENTS})
-    public void loadAudioZones_withUseCoreVolumeDeviceConfigAndVendorFreezeFlagDisabled()
-            throws Exception {
-        boolean useCoreVolume = false;
-        try (InputStream inputStream = mContext.getResources().openRawResource(
-                R.raw.car_audio_configuration_with_use_core_volume)) {
-            CarAudioZonesHelperImpl cazh = new CarAudioZonesHelperImpl(mAudioManagerWrapper,
-                    mCarAudioSettings, inputStream, mCarAudioOutputDeviceInfos,
-                    mInputAudioDeviceInfos, mServiceEventLogger, /* useCarVolumeGroupMute= */ false,
-                    useCoreVolume, /* useCoreAudioRouting= */ false,
-                    /* useFadeManagerConfiguration= */ false,
-                    /* carAudioFadeConfigurationHelper= */ null);
-
-            SparseArray<CarAudioZone> zones = cazh.loadAudioZones();
-
-            expectWithMessage("Primary zone with invalid device config")
-                    .that(zones.size()).isEqualTo(1);
-            expectWithMessage("Use core volume config with invalid use core volume device config")
-                    .that(cazh.useCoreAudioVolume()).isEqualTo(useCoreVolume);
-        }
-    }
-
-    @Test
-    @EnableFlags({Flags.FLAG_AUDIO_VENDOR_FREEZE_IMPROVEMENTS})
     public void loadAudioZones_withEmptyUseCoreVolumeDeviceConfig()
             throws Exception {
         boolean useCoreVolume = true;
@@ -2186,7 +2137,6 @@ public final class CarAudioZonesHelperImplUnitTest extends AbstractExpectableTes
     }
 
     @Test
-    @EnableFlags({Flags.FLAG_AUDIO_VENDOR_FREEZE_IMPROVEMENTS})
     public void loadAudioZones_withMultipleDefinitionsOfUseCoreVolumeDeviceConfig()
             throws Exception {
         try (InputStream inputStream = mContext.getResources().openRawResource(
@@ -2208,7 +2158,6 @@ public final class CarAudioZonesHelperImplUnitTest extends AbstractExpectableTes
     }
 
     @Test
-    @EnableFlags({Flags.FLAG_AUDIO_VENDOR_FREEZE_IMPROVEMENTS})
     public void loadAudioZones_withUseCoreRoutingDeviceConfig()
             throws Exception {
         boolean useCoreRouting = false;
@@ -2231,7 +2180,6 @@ public final class CarAudioZonesHelperImplUnitTest extends AbstractExpectableTes
     }
 
     @Test
-    @EnableFlags({Flags.FLAG_AUDIO_VENDOR_FREEZE_IMPROVEMENTS})
     public void loadAudioZones_withInvalidUseCoreRoutingDeviceConfig()
             throws Exception {
         boolean useCoreRouting = false;
@@ -2254,7 +2202,6 @@ public final class CarAudioZonesHelperImplUnitTest extends AbstractExpectableTes
     }
 
     @Test
-    @EnableFlags({Flags.FLAG_AUDIO_VENDOR_FREEZE_IMPROVEMENTS})
     public void loadAudioZones_withUseCarVolumeGroupMutingConfig()
             throws Exception {
         try (InputStream inputStream = mContext.getResources().openRawResource(
@@ -2276,7 +2223,6 @@ public final class CarAudioZonesHelperImplUnitTest extends AbstractExpectableTes
     }
 
     @Test
-    @EnableFlags({Flags.FLAG_AUDIO_VENDOR_FREEZE_IMPROVEMENTS})
     public void loadAudioZones_withInvalidUseCarVolumeGroupMutingConfig()
             throws Exception {
         try (InputStream inputStream = mContext.getResources().openRawResource(
@@ -2298,7 +2244,6 @@ public final class CarAudioZonesHelperImplUnitTest extends AbstractExpectableTes
     }
 
     @Test
-    @EnableFlags({Flags.FLAG_AUDIO_VENDOR_FREEZE_IMPROVEMENTS})
     public void loadAudioZones_withUseHalDuckingSignalsConfig()
             throws Exception {
         boolean defaultUseHalDuckingSignal = false;
@@ -2321,7 +2266,6 @@ public final class CarAudioZonesHelperImplUnitTest extends AbstractExpectableTes
     }
 
     @Test
-    @EnableFlags({Flags.FLAG_AUDIO_VENDOR_FREEZE_IMPROVEMENTS})
     public void loadAudioZones_withInvalidUseHalDuckingSignalsConfig()
             throws Exception {
         boolean defaultUseHalDuckingSignal = false;

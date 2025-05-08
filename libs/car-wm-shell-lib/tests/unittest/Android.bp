@@ -13,6 +13,7 @@ android_test {
     ],
 
     static_libs: [
+        "WMShellTests-utils",
         "WindowManager-Shell",
         "Car-WindowManager-Shell",
         "junit",
