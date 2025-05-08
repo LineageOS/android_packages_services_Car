@@ -314,8 +314,7 @@ import java.util.Set;
         // Get all zones configured under <zones> tag
         while (parser.next() != XmlPullParser.END_TAG) {
             if (parser.getEventType() != XmlPullParser.START_TAG) continue;
-            if (Flags.audioVendorFreezeImprovements()
-                    && Objects.equals(parser.getName(), TAG_DEVICE_CONFIGURATIONS)) {
+            if (Objects.equals(parser.getName(), TAG_DEVICE_CONFIGURATIONS)) {
                 parseDeviceConfigurations(parser);
             } else if (Objects.equals(parser.getName(), TAG_OEM_CONTEXTS)) {
                 parseCarAudioContexts(parser);
@@ -810,12 +809,6 @@ import java.util.Set;
     }
 
     private void verifyGroupName(String groupName) {
-        if (!Flags.audioVendorFreezeImprovements()) {
-            Preconditions.checkArgument(!mUseCoreAudioVolume || groupName != null,
-                    "%s %s attribute can not be empty when relying on core volume groups",
-                    TAG_VOLUME_GROUP, VOLUME_GROUP_NAME);
-            return;
-        }
         if (!mUseCoreAudioVolume || groupName != null) {
             return;
         }
