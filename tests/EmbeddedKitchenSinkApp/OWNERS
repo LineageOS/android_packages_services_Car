@@ -25,7 +25,7 @@ per-file src/com/google/android/car/kitchensink/packageinfo/* = gargmayank@googl
 per-file src/com/google/android/car/kitchensink/power/* = ericjeong@google.com
 
 # Radio
-per-file src/com/google/android/car/kitchensink/radio/* = xuweilin@google.com, oscarazu@google.com, ericjeong@google.com
+per-file src/com/google/android/car/kitchensink/radio/* = oscarazu@google.com, ericjeong@google.com
 
 # Watchdog
 per-file src/com/google/android/car/kitchensink/CarWatchdogClient.java = lakshmana@google.com
@@ -38,4 +38,4 @@ per-file src/com/google/android/car/kitchensink/property/* = ericjeong@google.co
 per-file src/com/google/android/car/kitchensink/sensor/* = ericjeong@google.com, tylertrephan@google.com, evaschen@google.com
 
 # res folder
-per-file res/** = oscarazu@google.com, salsavage@google.com, chengandrew@google.com, twasilczyk@google.com, xuweilin@google.com, lakshmana@google.com, tylertrephan@google.com, shanyu@google.com, evaschen@google.com
+per-file res/** = oscarazu@google.com, salsavage@google.com, chengandrew@google.com, twasilczyk@google.com, lakshmana@google.com, tylertrephan@google.com, shanyu@google.com, evaschen@google.com
