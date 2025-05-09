@@ -230,7 +230,7 @@ public class AutoLayoutManager {
                 pw.println(prefix + "Insets:");
             }
             for (int j = 0; j < insetsFrameProviders.size(); j++) {
-                pw.println(prefix + insetPrefix + insetsFrameProviders.valueAt(i));
+                pw.println(prefix + insetPrefix + insetsFrameProviders.valueAt(j));
             }
 
         }
