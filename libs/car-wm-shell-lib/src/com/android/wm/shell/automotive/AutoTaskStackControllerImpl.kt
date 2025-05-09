@@ -26,6 +26,7 @@ import android.app.WindowConfiguration.WINDOWING_MODE_FULLSCREEN
 import android.app.WindowConfiguration.WINDOWING_MODE_MULTI_WINDOW
 import android.app.WindowConfiguration.WINDOWING_MODE_UNDEFINED
 import android.content.Context
+import android.content.Intent
 import android.graphics.Rect
 import android.os.IBinder
 import android.util.Log
@@ -407,15 +408,15 @@ class AutoTaskStackControllerImpl @Inject constructor(
             Slog.d(
                 TAG,
                 "handle request, id=${request.debugId}, type=${request.type}, " +
-                        "triggertask = ${request.triggerTask?.let { toStringTaskInfo(it) }}"
+                        "triggertask = ${request.triggerTask?.toShortString()}"
             )
         }
         var ast = autoTransitionHandlerDelegate?.handleRequest(transition, request)
         val action = request.triggerTask?.baseIntent?.action
         val category = request.triggerTask?.baseIntent?.categories
 
-        if (action?.equals("android.intent.action.MAIN") == true &&
-            category?.contains("android.intent.category.HOME") == true &&
+        if (action?.equals(Intent.ACTION_MAIN) == true &&
+            category?.contains(Intent.CATEGORY_HOME) == true &&
             TransitionUtil.isOpeningType(request.type)
         ) {
             Slog.i(
@@ -446,18 +447,18 @@ class AutoTaskStackControllerImpl @Inject constructor(
         return wct
     }
 
-    private fun toStringTaskInfo(task: ActivityManager.RunningTaskInfo): String {
+    fun ActivityManager.RunningTaskInfo.toShortString(): String {
         return "TaskInfo{" +
-                "taskId=" + task.taskId +
-                " userId=" + task.userId +
-                " displayId=" + task.displayId +
-                " isFocused=" + task.isFocused +
-                " isVisible=" + task.isVisible +
-                " isRunning=" + task.isRunning +
-                " isSleeping=" + task.isSleeping +
-                " topActivity=" + task.topActivity +
-                " baseIntent=" + task.baseIntent +
-                " baseActivity=" + task.baseActivity +
+                "taskId=" + this.taskId +
+                " userId=" + this.userId +
+                " displayId=" + this.displayId +
+                " isFocused=" + this.isFocused +
+                " isVisible=" + this.isVisible +
+                " isRunning=" + this.isRunning +
+                " isSleeping=" + this.isSleeping +
+                " topActivity=" + this.topActivity +
+                " baseIntent=" + this.baseIntent +
+                " baseActivity=" + this.baseActivity +
                 "}"
     }
 
