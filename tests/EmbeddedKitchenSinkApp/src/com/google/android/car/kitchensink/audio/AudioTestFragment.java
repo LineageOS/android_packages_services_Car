@@ -58,7 +58,6 @@ import android.car.CarAppFocusManager;
 import android.car.CarAppFocusManager.OnAppFocusChangedListener;
 import android.car.CarAppFocusManager.OnAppFocusOwnershipCallback;
 import android.car.CarOccupantZoneManager;
-import android.car.feature.Flags;
 import android.car.media.CarAudioManager;
 import android.car.media.CarAudioZoneConfigInfo;
 import android.car.media.CarVolumeGroupInfo;
@@ -232,8 +231,7 @@ public class AudioTestFragment extends Fragment {
     }
 
     private boolean configHasBluetoothDevice(CarAudioZoneConfigInfo info) {
-        return Flags.carAudioDynamicDevices()
-                && info.getConfigVolumeGroups().stream()
+        return info.getConfigVolumeGroups().stream()
                 .anyMatch(group -> groupHasBluetoothDevice(group));
     }
 

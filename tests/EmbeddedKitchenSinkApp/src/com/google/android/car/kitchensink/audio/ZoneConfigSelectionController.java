@@ -22,7 +22,6 @@ import static android.car.media.CarAudioManager.AUDIO_FEATURE_DYNAMIC_ROUTING;
 import static android.car.media.CarAudioManager.CONFIG_STATUS_CHANGED;
 
 import android.annotation.Nullable;
-import android.car.feature.Flags;
 import android.car.media.AudioZoneConfigurationsChangeCallback;
 import android.car.media.CarAudioManager;
 import android.car.media.CarAudioZoneConfigInfo;
@@ -118,13 +117,11 @@ final class ZoneConfigSelectionController {
                 View v = super.getDropDownView(position, /* convertView= */ null, parent);
                 CarAudioZoneConfigInfo info = getItem(position).getZoneConfigInfo();
                 CarAudioZoneConfigInfo updatedInfo = getUpdatedConfigInfo(info);
-                if (Flags.carAudioDynamicDevices()) {
-                    if (!updatedInfo.isActive()) {
-                        v.setBackgroundColor(Color.LTGRAY);
-                    }
-                    if (updatedInfo.isSelected()) {
-                        v.setBackgroundColor(Color.CYAN);
-                    }
+                if (!updatedInfo.isActive()) {
+                    v.setBackgroundColor(Color.LTGRAY);
+                }
+                if (updatedInfo.isSelected()) {
+                    v.setBackgroundColor(Color.CYAN);
                 }
                 return v;
             }
@@ -150,16 +147,14 @@ final class ZoneConfigSelectionController {
                 new CarAudioZoneConfigInfoWrapper(currentZoneConfigInfo));
         mZoneConfigurationSpinner.setSelection(selected);
 
-        if (Flags.carAudioDynamicDevices()) {
-            mCarAudioManager.setAudioZoneConfigsChangeCallback(mContext.getMainExecutor(),
-                    new AudioZoneConfigurationsChangeCallback() {
-                        @Override
-                        public void onAudioZoneConfigurationsChanged(
-                                List<CarAudioZoneConfigInfo> configs, int status) {
-                            handleAudioZoneConfigsUpdated(configs, status);
-                        }
-                    });
-        }
+        mCarAudioManager.setAudioZoneConfigsChangeCallback(mContext.getMainExecutor(),
+                new AudioZoneConfigurationsChangeCallback() {
+                    @Override
+                    public void onAudioZoneConfigurationsChanged(
+                            List<CarAudioZoneConfigInfo> configs, int status) {
+                        handleAudioZoneConfigsUpdated(configs, status);
+                    }
+                });
     }
 
     private void switchToZoneConfigSelected() {
@@ -175,15 +170,13 @@ final class ZoneConfigSelectionController {
 
     private void switchToAudioConfiguration(CarAudioZoneConfigInfo zoneConfigInfoSelected) {
         CarAudioZoneConfigInfo info = getUpdatedConfigInfo(zoneConfigInfoSelected);
-        if (Flags.carAudioDynamicDevices()) {
-            if (!info.isActive()) {
-                showToast(info.getName() + ": not active");
-                return;
-            }
-            if (info.isSelected()) {
-                showToast(info.getName() + ": already selected");
-                return;
-            }
+        if (!info.isActive()) {
+            showToast(info.getName() + ": not active");
+            return;
+        }
+        if (info.isSelected()) {
+            showToast(info.getName() + ": already selected");
+            return;
         }
         mCarAudioManager.switchAudioZoneToConfig(zoneConfigInfoSelected, mContext.getMainExecutor(),
                 mSwitchAudioZoneConfigCallback);
@@ -195,14 +188,12 @@ final class ZoneConfigSelectionController {
             mZoneConfigInfoSelected = mZoneConfigurationAdapter.getItem(
                     position).getZoneConfigInfo();
             CarAudioZoneConfigInfo updatedInfo = getUpdatedConfigInfo(mZoneConfigInfoSelected);
-            if (Flags.carAudioDynamicDevices()) {
-                if (!updatedInfo.isActive()) {
-                    showToast(updatedInfo.getName() + ": not active");
-                    return;
-                }
-                if (updatedInfo.isSelected()) {
-                    showToast(updatedInfo.getName() + ": already selected");
-                }
+            if (!updatedInfo.isActive()) {
+                showToast(updatedInfo.getName() + ": not active");
+                return;
+            }
+            if (updatedInfo.isSelected()) {
+                showToast(updatedInfo.getName() + ": already selected");
             }
         }
     }
@@ -244,9 +235,6 @@ final class ZoneConfigSelectionController {
     }
 
     public void release() {
-        if (!Flags.carAudioDynamicDevices()) {
-            return;
-        }
         mCarAudioManager.clearAudioZoneConfigsCallback();
     }
 
@@ -284,9 +272,7 @@ final class ZoneConfigSelectionController {
                 return false;
             }
             CarAudioZoneConfigInfoWrapper wrapper = (CarAudioZoneConfigInfoWrapper) o;
-            return Flags.carAudioDynamicDevices()
-                    ? mZoneConfigInfo.hasSameConfigInfo(wrapper.mZoneConfigInfo)
-                    : mZoneConfigInfo.equals(wrapper.mZoneConfigInfo);
+            return mZoneConfigInfo.hasSameConfigInfo(wrapper.mZoneConfigInfo);
         }
 
         @Override

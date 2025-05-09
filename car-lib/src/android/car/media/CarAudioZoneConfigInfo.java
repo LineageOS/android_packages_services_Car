@@ -157,20 +157,14 @@ public final class CarAudioZoneConfigInfo implements Parcelable {
     @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
     @Override
     public String toString() {
-        StringBuilder builder = new StringBuilder()
+        return new StringBuilder()
                 .append("CarAudioZoneConfigInfo { name = ").append(mName)
                 .append(", zone id = ").append(mZoneId)
-                .append(", config id = ").append(mConfigId);
-
-        if (Flags.carAudioDynamicDevices()) {
-            builder.append(", is active = ").append(mIsConfigActive)
-                    .append(", is selected = ").append(mIsConfigSelected)
-                    .append(", is default = ").append(mIsDefault)
-                    .append(", volume groups = ").append(mConfigVolumeGroups);
-        }
-
-        builder.append(" }");
-        return builder.toString();
+                .append(", config id = ").append(mConfigId)
+                .append(", is active = ").append(mIsConfigActive)
+                .append(", is selected = ").append(mIsConfigSelected)
+                .append(", is default = ").append(mIsDefault)
+                .append(", volume groups = ").append(mConfigVolumeGroups).append(" }").toString();
     }
 
     @Override
@@ -195,13 +189,10 @@ public final class CarAudioZoneConfigInfo implements Parcelable {
         }
 
         CarAudioZoneConfigInfo that = (CarAudioZoneConfigInfo) o;
-        if (Flags.carAudioDynamicDevices()) {
-            return hasSameConfigInfoInternal(that) && mIsConfigActive == that.mIsConfigActive
-                    && mIsConfigSelected == that.mIsConfigSelected && mIsDefault == that.mIsDefault
-                    && hasSameVolumeGroup(that.mConfigVolumeGroups);
-        }
 
-        return hasSameConfigInfoInternal(that);
+        return hasSameConfigInfoInternal(that) && mIsConfigActive == that.mIsConfigActive
+                && mIsConfigSelected == that.mIsConfigSelected && mIsDefault == that.mIsDefault
+                && hasSameVolumeGroup(that.mConfigVolumeGroups);
     }
 
     private boolean hasSameVolumeGroup(List<CarVolumeGroupInfo> carVolumeGroupInfos) {
@@ -232,11 +223,8 @@ public final class CarAudioZoneConfigInfo implements Parcelable {
 
     @Override
     public int hashCode() {
-        if (Flags.carAudioDynamicDevices()) {
-            return Objects.hash(mName, mZoneId, mConfigId, mIsConfigActive, mIsConfigSelected,
-                    mIsDefault, mConfigVolumeGroups);
-        }
-        return Objects.hash(mName, mZoneId, mConfigId);
+        return Objects.hash(mName, mZoneId, mConfigId, mIsConfigActive, mIsConfigSelected,
+                mIsDefault, mConfigVolumeGroups);
     }
 
     /**

@@ -43,7 +43,6 @@ import static com.android.car.audio.CarAudioUtils.isMicrophoneInputDevice;
 import static java.util.Locale.ROOT;
 
 import android.car.builtin.util.Slogf;
-import android.car.feature.Flags;
 import android.car.oem.CarAudioFadeConfiguration;
 import android.media.AudioAttributes;
 import android.media.AudioDeviceAttributes;
@@ -1053,10 +1052,6 @@ import java.util.Set;
         return mCurrentVersion < SUPPORTED_VERSION_4;
     }
 
-    private boolean isVersionFourOrGreater() {
-        return mCurrentVersion >= SUPPORTED_VERSION_4;
-    }
-
     private void validateMinMaxActivationVolume(int maxActivationVolume,
                                                 int minActivationVolume) {
         Preconditions.checkArgument(maxActivationVolume >= ACTIVATION_VOLUME_PERCENTAGE_MIN
@@ -1076,29 +1071,7 @@ import java.util.Set;
     }
 
     private boolean validateOutputAudioDevice(String address, int type) {
-        if (!Flags.carAudioDynamicDevices() && TextUtils.isEmpty(address)) {
-            // If the version is four or greater, we can only return that the output device is not
-            // valid since we can not crash. The configuration will only skip reading configuration.
-            if (isVersionFourOrGreater()) {
-                mCarServiceLocalLog.log("Found invalid device while dynamic device is disabled,"
-                        + " device address is empty for device type "
-                        + DebugUtils.constantToString(AudioDeviceInfo.class,
-                        /* prefix= */ "TYPE_", type));
-                return false;
-            }
-            throw new IllegalStateException("Output device address must be specified");
-        }
-
         if (!isValidAudioDeviceTypeOut(type)) {
-            // If the version is four or greater, we can only return that the output device is not
-            // valid since we can not crash. The configuration will only skip reading configuration.
-            if (isVersionFourOrGreater() && !Flags.carAudioDynamicDevices()) {
-                mCarServiceLocalLog.log("Found invalid device type while dynamic device is"
-                        + " disabled, device address " + address + " and device type "
-                        + DebugUtils.constantToString(AudioDeviceInfo.class,
-                        /* prefix= */ "TYPE_", type));
-                return false;
-            }
             throw new IllegalStateException("Output device type " + DebugUtils.constantToString(
                     AudioDeviceInfo.class, /* prefix= */ "TYPE_", type) + " is not valid");
         }
@@ -1191,10 +1164,6 @@ import java.util.Set;
      * devices, built in speaker, and bus devices.
      */
     private static boolean isValidAudioDeviceTypeOut(int type) {
-        if (!Flags.carAudioDynamicDevices()) {
-            return type == TYPE_BUS;
-        }
-
         switch (type) {
             case TYPE_BUILTIN_SPEAKER:
             case TYPE_WIRED_HEADSET:

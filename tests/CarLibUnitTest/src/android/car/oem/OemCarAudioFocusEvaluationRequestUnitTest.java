@@ -16,9 +16,8 @@
 
 package android.car.oem;
 
-import static android.car.feature.Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES;
-import static android.car.oem.CarAudioFeaturesInfo.AUDIO_FEATURE_ISOLATED_DEVICE_FOCUS;
 import static android.car.oem.CarAudioFeaturesInfo.AUDIO_FEATURE_FADE_MANAGER_CONFIGS;
+import static android.car.oem.CarAudioFeaturesInfo.AUDIO_FEATURE_ISOLATED_DEVICE_FOCUS;
 import static android.media.AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE;
 import static android.media.AudioAttributes.USAGE_ASSISTANT;
 import static android.media.AudioAttributes.USAGE_MEDIA;
@@ -30,10 +29,8 @@ import android.car.media.CarAudioManager;
 import android.car.media.CarVolumeGroupInfo;
 import android.car.test.AbstractExpectableTestCase;
 import android.os.Parcel;
-import android.platform.test.flag.junit.SetFlagsRule;
 
 import org.jetbrains.annotations.NotNull;
-import org.junit.Rule;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -69,9 +66,6 @@ public final class OemCarAudioFocusEvaluationRequestUnitTest extends AbstractExp
                     .setMinVolumeGainIndex(TEST_MIN_GAIN_INDEX)
                     .setMaxActivationVolumeGainIndex(TEST_MAX_ACTIVATION_GAIN_INDEX)
                     .setMinActivationVolumeGainIndex(TEST_MIN_ACTIVATION_GAIN_INDEX).build();
-
-    @Rule
-    public final SetFlagsRule mSetFlagsRule = new SetFlagsRule();
 
     @Test
     public void build() {
@@ -323,7 +317,6 @@ public final class OemCarAudioFocusEvaluationRequestUnitTest extends AbstractExp
 
     @Test
     public void getAudioFeaturesInfo() {
-        mSetFlagsRule.enableFlags(FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
         CarAudioFeaturesInfo featureInfo = new CarAudioFeaturesInfo.Builder(
                 AUDIO_FEATURE_ISOLATED_DEVICE_FOCUS).addAudioFeature(
                 AUDIO_FEATURE_FADE_MANAGER_CONFIGS).build();
@@ -346,7 +339,6 @@ public final class OemCarAudioFocusEvaluationRequestUnitTest extends AbstractExp
 
     @Test
     public void equals_withSameFeatureInfo() {
-        mSetFlagsRule.enableFlags(FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
         CarAudioFeaturesInfo featureInfo = new CarAudioFeaturesInfo.Builder(
                 AUDIO_FEATURE_ISOLATED_DEVICE_FOCUS).build();
         OemCarAudioFocusEvaluationRequest requestOne =
@@ -365,7 +357,6 @@ public final class OemCarAudioFocusEvaluationRequestUnitTest extends AbstractExp
 
     @Test
     public void equals_withDifferentFeatureInfo() {
-        mSetFlagsRule.enableFlags(FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
         CarAudioFeaturesInfo featureInfoOne = new CarAudioFeaturesInfo.Builder(
                 AUDIO_FEATURE_ISOLATED_DEVICE_FOCUS).build();
         CarAudioFeaturesInfo featureInfoTwo = new CarAudioFeaturesInfo.Builder(

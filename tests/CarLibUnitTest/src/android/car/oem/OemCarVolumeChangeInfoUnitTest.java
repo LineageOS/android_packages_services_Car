@@ -18,23 +18,13 @@ package android.car.oem;
 
 import static org.junit.Assert.assertThrows;
 
-import android.car.feature.Flags;
 import android.car.media.CarVolumeGroupInfo;
 import android.car.test.AbstractExpectableTestCase;
 import android.os.Parcel;
-import android.platform.test.annotations.EnableFlags;
-import android.platform.test.flag.junit.SetFlagsRule;
 
-import org.junit.ClassRule;
-import org.junit.Rule;
 import org.junit.Test;
 
-@EnableFlags({
-        Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES,
-})
 public final class OemCarVolumeChangeInfoUnitTest extends AbstractExpectableTestCase {
-    @ClassRule public static final SetFlagsRule.ClassRule mClassRule = new SetFlagsRule.ClassRule();
-    @Rule public final SetFlagsRule mSetFlagsRule = mClassRule.createSetFlagsRule();
 
     private static final int TEST_ZONE_ID = 8;
     private static final int TEST_PRIMARY_GROUP_ID = 7;
