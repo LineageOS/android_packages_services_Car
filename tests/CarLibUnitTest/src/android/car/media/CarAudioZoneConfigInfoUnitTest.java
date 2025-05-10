@@ -22,13 +22,10 @@ import static android.media.AudioAttributes.USAGE_MEDIA;
 
 import static org.junit.Assert.assertThrows;
 
-import android.car.feature.Flags;
 import android.car.test.AbstractExpectableTestCase;
 import android.media.AudioAttributes;
 import android.os.Parcel;
-import android.platform.test.flag.junit.SetFlagsRule;
 
-import org.junit.Rule;
 import org.junit.Test;
 
 import java.util.List;
@@ -72,9 +69,6 @@ public final class CarAudioZoneConfigInfoUnitTest extends AbstractExpectableTest
                     TEST_ZONE_ID, TEST_CONFIG_ID, TEST_ACTIVE_STATUS, TEST_SELECTED_STATUS,
                     TEST_DEFAULT_STATUS);
 
-    @Rule
-    public final SetFlagsRule mSetFlagsRule = new SetFlagsRule();
-
     @Test
     public void constructor_withNullName_fails() {
         NullPointerException thrown = assertThrows(NullPointerException.class, () ->
@@ -117,32 +111,24 @@ public final class CarAudioZoneConfigInfoUnitTest extends AbstractExpectableTest
 
     @Test
     public void isActive() {
-        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
-
         expectWithMessage("Config active status")
                 .that(TEST_ZONE_CONFIG_INFO.isActive()).isEqualTo(TEST_ACTIVE_STATUS);
     }
 
     @Test
     public void isSelected() {
-        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
-
         expectWithMessage("Config selected status")
                 .that(TEST_ZONE_CONFIG_INFO.isSelected()).isEqualTo(TEST_SELECTED_STATUS);
     }
 
     @Test
     public void isDefault() {
-        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
-
         expectWithMessage("Config default indicator").that(TEST_ZONE_CONFIG_INFO.isDefault())
                 .isEqualTo(TEST_DEFAULT_STATUS);
     }
 
     @Test
     public void getConfigVolumeGroups() {
-        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
-
         expectWithMessage("Config volume groups").that(
                 TEST_ZONE_CONFIG_INFO.getConfigVolumeGroups()).containsExactly(TEST_VOLUME_INFO);
     }
@@ -168,33 +154,21 @@ public final class CarAudioZoneConfigInfoUnitTest extends AbstractExpectableTest
 
     @Test
     public void equals_forSameContent() {
-        mSetFlagsRule.disableFlags(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
-        CarAudioZoneConfigInfo infoWithSameContent = new CarAudioZoneConfigInfo(TEST_CONFIG_NAME,
-                TEST_ZONE_ID, TEST_CONFIG_ID);
-
-        expectWithMessage("Zone configuration info with same content")
-                .that(infoWithSameContent).isEqualTo(TEST_ZONE_CONFIG_INFO);
-    }
-
-    @Test
-    public void equals_forSameContent_withDynamicFlagEnabled() {
-        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
         CarAudioZoneConfigInfo infoWithSameContent = new CarAudioZoneConfigInfo(TEST_CONFIG_NAME,
                 List.of(TEST_VOLUME_INFO), TEST_ZONE_ID, TEST_CONFIG_ID, TEST_ACTIVE_STATUS,
                 TEST_SELECTED_STATUS, TEST_DEFAULT_STATUS);
 
-        expectWithMessage("Zone config info with same content and dynamic flags enabled")
+        expectWithMessage("Zone config info with same content")
                 .that(infoWithSameContent).isEqualTo(TEST_ZONE_CONFIG_INFO);
     }
 
     @Test
-    public void equals_forDifferentContent_withDynamicFlagEnabled() {
-        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
+    public void equals_forDifferentContent() {
         CarAudioZoneConfigInfo infoWithSameContent = new CarAudioZoneConfigInfo(TEST_CONFIG_NAME,
                 List.of(TEST_VOLUME_INFO), TEST_ZONE_ID, TEST_CONFIG_ID_2, TEST_ACTIVE_STATUS,
                 TEST_SELECTED_STATUS, TEST_DEFAULT_STATUS);
 
-        expectWithMessage("Zone config info with same content and dynamic flags enabled")
+        expectWithMessage("Zone config info with same content")
                 .that(infoWithSameContent).isNotEqualTo(TEST_ZONE_CONFIG_INFO);
     }
 
@@ -206,7 +180,6 @@ public final class CarAudioZoneConfigInfoUnitTest extends AbstractExpectableTest
 
     @Test
     public void hasSameConfigInfo_forSameContent() {
-        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
         CarAudioZoneConfigInfo infoWithSameContent = new CarAudioZoneConfigInfo(TEST_CONFIG_NAME,
                 TEST_ZONE_ID, TEST_CONFIG_ID);
 
@@ -216,7 +189,6 @@ public final class CarAudioZoneConfigInfoUnitTest extends AbstractExpectableTest
 
     @Test
     public void hasSameConfigInfo_withNullInfo() {
-        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
         CarAudioZoneConfigInfo infoWithSameContent = new CarAudioZoneConfigInfo(TEST_CONFIG_NAME,
                 TEST_ZONE_ID, TEST_CONFIG_ID);
 
@@ -229,9 +201,9 @@ public final class CarAudioZoneConfigInfoUnitTest extends AbstractExpectableTest
 
     @Test
     public void hashCode_forSameContent() {
-        mSetFlagsRule.disableFlags(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
         CarAudioZoneConfigInfo infoWithSameContent = new CarAudioZoneConfigInfo(TEST_CONFIG_NAME,
-                TEST_ZONE_ID, TEST_CONFIG_ID);
+                List.of(TEST_VOLUME_INFO), TEST_ZONE_ID, TEST_CONFIG_ID, TEST_ACTIVE_STATUS,
+                TEST_SELECTED_STATUS, TEST_DEFAULT_STATUS);
 
         expectWithMessage("Zone Configuration info hash with same content")
                 .that(infoWithSameContent.hashCode()).isEqualTo(TEST_ZONE_CONFIG_INFO.hashCode());

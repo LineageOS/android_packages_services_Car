@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package com.android.car.audio.hal;
+package com.android.car.audio;
 
 import android.hardware.audio.common.PlaybackTrackMetadata;
 
 /**
  * Framework focus listener interface to abstract away the specific HAL version
  */
-public interface HalFocusListener {
+interface HalFocusListener {
     /**
      * Requests audio focus for the specified {@code metadata}, {@code zoneId},
      * and {@code focusGain}.

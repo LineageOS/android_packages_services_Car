@@ -15,7 +15,6 @@
  */
 package com.android.car.audio;
 
-import static android.car.feature.Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES;
 import static android.car.feature.Flags.FLAG_CAR_AUDIO_FADE_MANAGER_CONFIGURATION;
 import static android.car.media.CarAudioManager.AUDIOFOCUS_EXTRA_RECEIVE_DUCKING_EVENTS;
 import static android.car.media.CarAudioManager.PRIMARY_AUDIO_ZONE;
@@ -58,7 +57,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import android.car.feature.Flags;
 import android.car.media.CarVolumeGroupInfo;
 import android.car.oem.AudioFocusEntry;
 import android.car.oem.CarAudioFadeConfiguration;
@@ -364,7 +362,6 @@ public class CarAudioFocusUnitTest extends AbstractExpectableTestCase {
     public void onAudioFocusRequest_concurrentRequestWithoutDucking_holderLosesFocusWithFade() {
         mSetFlagsRule.enableFlags(FLAG_CAR_AUDIO_FADE_MANAGER_CONFIGURATION);
         mSetFlagsRule.enableFlags(FLAG_ENABLE_FADE_MANAGER_CONFIGURATION);
-        mSetFlagsRule.enableFlags(FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
         CarAudioFocus carAudioFocus = getCarAudioFocus(PRIMARY_AUDIO_ZONE,
                 /* defaultCarAudioFadeConfig= */ null, /* transientCarAudioFadeConfigs= */ null,
                 getCarAudioFeaturesInfo(/* supportsFadeManager= */ true,
@@ -382,7 +379,6 @@ public class CarAudioFocusUnitTest extends AbstractExpectableTestCase {
     public void onAudioFocusRequest_forPrimaryZone_holderLosesFocus_withNullFadeConfig() {
         mSetFlagsRule.enableFlags(FLAG_CAR_AUDIO_FADE_MANAGER_CONFIGURATION);
         mSetFlagsRule.enableFlags(FLAG_ENABLE_FADE_MANAGER_CONFIGURATION);
-        mSetFlagsRule.enableFlags(FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
         CarAudioFadeConfiguration cafcEnabled =
                 new CarAudioFadeConfiguration.Builder(TEST_FADE_MANAGER_CONFIG_ENABLED).build();
         CarAudioFocus carAudioFocus = getCarAudioFocus(PRIMARY_AUDIO_ZONE, cafcEnabled,
@@ -401,7 +397,6 @@ public class CarAudioFocusUnitTest extends AbstractExpectableTestCase {
     public void onAudioFocusRequest_forSecondaryZone_holderLosesFocus_withDefaultFadeConfig() {
         mSetFlagsRule.enableFlags(FLAG_CAR_AUDIO_FADE_MANAGER_CONFIGURATION);
         mSetFlagsRule.enableFlags(FLAG_ENABLE_FADE_MANAGER_CONFIGURATION);
-        mSetFlagsRule.enableFlags(FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
         CarAudioFadeConfiguration cafcEnabled =
                 new CarAudioFadeConfiguration.Builder(TEST_FADE_MANAGER_CONFIG_ENABLED).build();
         CarAudioFocus carAudioFocus = getCarAudioFocus(TEST_SECONDARY_ZONE, cafcEnabled,
@@ -421,7 +416,6 @@ public class CarAudioFocusUnitTest extends AbstractExpectableTestCase {
     public void onAudioFocusRequest_forPrimaryZone_holderLosesFocus_withTransientFadeConfig() {
         mSetFlagsRule.enableFlags(FLAG_CAR_AUDIO_FADE_MANAGER_CONFIGURATION);
         mSetFlagsRule.enableFlags(FLAG_ENABLE_FADE_MANAGER_CONFIGURATION);
-        mSetFlagsRule.enableFlags(FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
         AudioAttributes mediaAttributes = new AudioAttributes.Builder()
                 .setUsage(USAGE_MEDIA).build();
         AudioAttributes emergencyAttributes = new AudioAttributes.Builder()
@@ -488,7 +482,6 @@ public class CarAudioFocusUnitTest extends AbstractExpectableTestCase {
     public void onAudioFocusRequest_exclusiveRequest_holderLosesFocus_withNullTransient() {
         mSetFlagsRule.enableFlags(FLAG_CAR_AUDIO_FADE_MANAGER_CONFIGURATION);
         mSetFlagsRule.enableFlags(FLAG_ENABLE_FADE_MANAGER_CONFIGURATION);
-        mSetFlagsRule.enableFlags(FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
         CarAudioFadeConfiguration cafcEnabled =
                 new CarAudioFadeConfiguration.Builder(TEST_FADE_MANAGER_CONFIG_ENABLED).build();
         CarAudioFocus carAudioFocus = getCarAudioFocus(PRIMARY_AUDIO_ZONE, cafcEnabled,
@@ -507,7 +500,6 @@ public class CarAudioFocusUnitTest extends AbstractExpectableTestCase {
     public void onAudioFocusRequest_forSecondaryZone_exclusiveRequest_holderLosesFocusWithFade() {
         mSetFlagsRule.enableFlags(FLAG_CAR_AUDIO_FADE_MANAGER_CONFIGURATION);
         mSetFlagsRule.enableFlags(FLAG_ENABLE_FADE_MANAGER_CONFIGURATION);
-        mSetFlagsRule.enableFlags(FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
         CarAudioFadeConfiguration cafcEnabled =
                 new CarAudioFadeConfiguration.Builder(TEST_FADE_MANAGER_CONFIG_ENABLED).build();
         CarAudioFocus carAudioFocus = getCarAudioFocus(TEST_SECONDARY_ZONE, cafcEnabled,
@@ -590,7 +582,6 @@ public class CarAudioFocusUnitTest extends AbstractExpectableTestCase {
     public void onAudioFocus_withFadeMgrConfig_exclusiveWithSystemUsage_holderLosesFocus() {
         mSetFlagsRule.enableFlags(FLAG_CAR_AUDIO_FADE_MANAGER_CONFIGURATION);
         mSetFlagsRule.enableFlags(FLAG_ENABLE_FADE_MANAGER_CONFIGURATION);
-        mSetFlagsRule.enableFlags(FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
         CarAudioFocus carAudioFocus = getCarAudioFocus(PRIMARY_AUDIO_ZONE,
                 /* defaultCarAudioFadeConfig= */ null, /* transientCarAudioFadeConfigs= */ null,
                 getCarAudioFeaturesInfo(/* supportsFadeManager= */ true,
@@ -706,7 +697,6 @@ public class CarAudioFocusUnitTest extends AbstractExpectableTestCase {
     public void requestAudioFocusWithDelayed_whileInCallAndNav_thenCallStop_navLosesWithFade() {
         mSetFlagsRule.enableFlags(FLAG_CAR_AUDIO_FADE_MANAGER_CONFIGURATION);
         mSetFlagsRule.enableFlags(FLAG_ENABLE_FADE_MANAGER_CONFIGURATION);
-        mSetFlagsRule.enableFlags(FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
         CarAudioFocus carAudioFocus = getCarAudioFocus(PRIMARY_AUDIO_ZONE,
                 /* defaultCarAudioFadeConfig= */ null, /* transientCarAudioFadeConfigs= */ null,
                 getCarAudioFeaturesInfo(/* supportsFadeManager= */ true,
@@ -1049,7 +1039,6 @@ public class CarAudioFocusUnitTest extends AbstractExpectableTestCase {
             onAudioFocus_multipleRequestOnlyOneWithDelayedFocus_nonTransientReceivesLossWithFade() {
         mSetFlagsRule.enableFlags(FLAG_CAR_AUDIO_FADE_MANAGER_CONFIGURATION);
         mSetFlagsRule.enableFlags(FLAG_ENABLE_FADE_MANAGER_CONFIGURATION);
-        mSetFlagsRule.enableFlags(FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
         CarAudioFocus carAudioFocus = getCarAudioFocus(PRIMARY_AUDIO_ZONE,
                 /* defaultCarAudioFadeConfig= */ null, /* transientCarAudioFadeConfigs= */ null,
                 getCarAudioFeaturesInfo(/* supportsFadeManager= */ true,
@@ -1104,7 +1093,6 @@ public class CarAudioFocusUnitTest extends AbstractExpectableTestCase {
             onAudioFocus_multipleRequestOnlyOneWithDelayedFocus_duckedRequestReceiveLosswithFade() {
         mSetFlagsRule.enableFlags(FLAG_CAR_AUDIO_FADE_MANAGER_CONFIGURATION);
         mSetFlagsRule.enableFlags(FLAG_ENABLE_FADE_MANAGER_CONFIGURATION);
-        mSetFlagsRule.enableFlags(FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
         CarAudioFocus carAudioFocus = getCarAudioFocus(PRIMARY_AUDIO_ZONE,
                 /* defaultCarAudioFadeConfig= */ null, /* transientCarAudioFadeConfigs= */ null,
                 getCarAudioFeaturesInfo(/* supportsFadeManager= */ true,
@@ -1682,7 +1670,6 @@ public class CarAudioFocusUnitTest extends AbstractExpectableTestCase {
 
     @Test
     public void onAudioFocusRequest_withOemServiceEnabled_capturesFocusRequest() {
-        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
         when(mMockCarOemProxyService.isOemServiceEnabled()).thenReturn(true);
         when(mMockCarOemProxyService.isOemServiceReady()).thenReturn(true);
         when(mMockCarOemProxyService.getCarOemAudioFocusService())
@@ -1714,7 +1701,6 @@ public class CarAudioFocusUnitTest extends AbstractExpectableTestCase {
 
     @Test
     public void onAudioFocusRequest_withOemServiceEnabledAndEnabledFadeManager() {
-        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
         when(mMockCarOemProxyService.isOemServiceEnabled()).thenReturn(true);
         when(mMockCarOemProxyService.isOemServiceReady()).thenReturn(true);
         when(mMockCarOemProxyService.getCarOemAudioFocusService())
@@ -1754,7 +1740,6 @@ public class CarAudioFocusUnitTest extends AbstractExpectableTestCase {
 
     @Test
     public void onAudioFocusRequest_withOemServiceEnabledAndEnableIsolatedFocus() {
-        mSetFlagsRule.enableFlags(Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
         when(mMockCarOemProxyService.isOemServiceEnabled()).thenReturn(true);
         when(mMockCarOemProxyService.isOemServiceReady()).thenReturn(true);
         when(mMockCarOemProxyService.getCarOemAudioFocusService())
@@ -1845,7 +1830,6 @@ public class CarAudioFocusUnitTest extends AbstractExpectableTestCase {
     public void onAudioFocusRequest_multipleConcurrent_dispatchFocusLossWithFade() {
         mSetFlagsRule.enableFlags(FLAG_CAR_AUDIO_FADE_MANAGER_CONFIGURATION);
         mSetFlagsRule.enableFlags(FLAG_ENABLE_FADE_MANAGER_CONFIGURATION);
-        mSetFlagsRule.enableFlags(FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
         AudioAttributes ringtoneAttributes = new AudioAttributes.Builder()
                 .setUsage(USAGE_NOTIFICATION_RINGTONE).build();
         AudioAttributes vehicleStatusAttributes = new AudioAttributes.Builder()
@@ -1897,7 +1881,6 @@ public class CarAudioFocusUnitTest extends AbstractExpectableTestCase {
 
         if (attrToCarAudioFadeConfigMap != null) {
             mSetFlagsRule.enableFlags(FLAG_CAR_AUDIO_FADE_MANAGER_CONFIGURATION);
-            mSetFlagsRule.enableFlags(FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
             builder.setAudioAttributesToCarAudioFadeConfigurationMap(attrToCarAudioFadeConfigMap);
         }
 

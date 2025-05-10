@@ -33,7 +33,6 @@ import android.media.audio.common.AudioPort;
 import android.media.audio.common.AudioPortDeviceExt;
 import android.media.audio.common.AudioPortExt;
 
-import com.android.car.audio.hal.HalAudioDeviceInfo;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 
 @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)

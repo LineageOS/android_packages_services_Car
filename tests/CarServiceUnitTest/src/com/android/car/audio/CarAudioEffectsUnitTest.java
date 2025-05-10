@@ -33,8 +33,6 @@ import android.car.test.mocks.MockSettings;
 import android.content.ContentResolver;
 import android.content.Context;
 
-import com.android.car.audio.hal.AudioControlWrapper;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

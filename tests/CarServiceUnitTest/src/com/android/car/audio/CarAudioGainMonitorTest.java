@@ -49,9 +49,6 @@ import android.util.SparseArray;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
-import com.android.car.audio.hal.AudioControlWrapperAidl;
-import com.android.car.audio.hal.HalAudioGainCallback;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -128,18 +125,18 @@ public final class CarAudioGainMonitorTest extends AbstractExtendedMockitoTestCa
     @Mock
     CarVolumeInfoWrapper mMockVolumeInfoWrapper;
 
-    private AudioControlWrapperAidl mAudioControlWrapperAidl;
+    private AudioControlWrapper mAudioControlWrapperAidl;
 
     @Override
     protected void onSessionBuilder(CustomMockitoSessionBuilder session) {
-        session.spyStatic(AudioControlWrapperAidl.class);
+        session.spyStatic(AudioControlWrapper.class);
     }
 
     @Before
     public void setUp() {
         when(mBinder.queryLocalInterface(anyString())).thenReturn(mAudioControl);
-        doReturn(mBinder).when(AudioControlWrapperAidl::getService);
-        mAudioControlWrapperAidl = spy(new AudioControlWrapperAidl(mBinder));
+        doReturn(mBinder).when(AudioControlWrapper::getService);
+        mAudioControlWrapperAidl = spy(AudioControlWrapper.newAudioControl());
     }
 
     @Test

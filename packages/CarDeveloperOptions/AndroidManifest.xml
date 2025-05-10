@@ -3143,7 +3143,7 @@
         </activity>
 
         <activity
-            android:name="com.android.settings.spa.search.SpaSearchLandingActivity"
+            android:name="com.android.settings.spa.search.SettingsSpaSearchLandingActivity"
             android:enabled="false"
             android:exported="false"
             tools:node="merge"

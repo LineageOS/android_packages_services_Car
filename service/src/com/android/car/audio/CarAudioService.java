@@ -48,16 +48,16 @@ import static android.view.KeyEvent.KEYCODE_VOLUME_DOWN;
 import static android.view.KeyEvent.KEYCODE_VOLUME_MUTE;
 import static android.view.KeyEvent.KEYCODE_VOLUME_UP;
 
+import static com.android.car.audio.AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_CONFIGURATION;
+import static com.android.car.audio.AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_DUCKING;
+import static com.android.car.audio.AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_FOCUS;
+import static com.android.car.audio.AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_GAIN_CALLBACK;
+import static com.android.car.audio.AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_MODULE_CALLBACK;
 import static com.android.car.audio.CarAudioUtils.convertVolumeChangeToEvent;
 import static com.android.car.audio.CarAudioUtils.convertVolumeChangesToEvents;
 import static com.android.car.audio.CarAudioUtils.excludesDynamicDevices;
 import static com.android.car.audio.CarAudioUtils.generateCarAudioDeviceInfos;
 import static com.android.car.audio.CarAudioUtils.getDynamicDevicesInConfig;
-import static com.android.car.audio.hal.AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_CONFIGURATION;
-import static com.android.car.audio.hal.AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_DUCKING;
-import static com.android.car.audio.hal.AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_FOCUS;
-import static com.android.car.audio.hal.AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_GAIN_CALLBACK;
-import static com.android.car.audio.hal.AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_MODULE_CALLBACK;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DEBUGGING_CODE;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 import static com.android.car.internal.common.CommonConstants.EMPTY_INT_ARRAY;
@@ -136,12 +136,6 @@ import com.android.car.audio.CarAudioDumpProto.CarAudioState;
 import com.android.car.audio.CarAudioDumpProto.UidToAudioZone;
 import com.android.car.audio.CarAudioDumpProto.UserIdToAudioZone;
 import com.android.car.audio.CarAudioPolicyVolumeCallback.AudioPolicyVolumeCallbackInternal;
-import com.android.car.audio.hal.AudioControlFactory;
-import com.android.car.audio.hal.AudioControlWrapper;
-import com.android.car.audio.hal.HalAudioDeviceInfo;
-import com.android.car.audio.hal.HalAudioFocus;
-import com.android.car.audio.hal.HalAudioGainCallback;
-import com.android.car.audio.hal.HalAudioModuleChangeCallback;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.annotation.AttributeUsage;
 import com.android.car.internal.os.HandlerExecutor;
@@ -477,11 +471,10 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
                     && mContext.getResources().getBoolean(R.bool.audioUseFadeManagerConfiguration);
             mUseMinMaxActivationVolume = !runInLegacyMode()
                     && mContext.getResources().getBoolean(R.bool.audioUseMinMaxActivationVolume);
-            mUseIsolatedFocusForDynamicDevices = Flags.carAudioDynamicDevices()
-                    && !runInLegacyMode()
+            mUseIsolatedFocusForDynamicDevices = !runInLegacyMode()
                     && mContext.getResources().getBoolean(
                             R.bool.audioUseIsolatedAudioFocusForDynamicDevices);
-            mUseKeyEventsForDynamicDevices = Flags.carAudioDynamicDevices() && !runInLegacyMode()
+            mUseKeyEventsForDynamicDevices = !runInLegacyMode()
                     && mContext.getResources().getBoolean(
                             R.bool.audioEnableVolumeKeyEventsToDynamicDevices);
             mPersistFadeBalanceLevels = Flags.audioFadeBalanceGetterApis() && !runInLegacyMode()
@@ -625,18 +618,12 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
 
     @GuardedBy("mImplLock")
     private void setupAudioDeviceInfoCallbackLocked() {
-        if (!Flags.carAudioDynamicDevices()) {
-            return;
-        }
         mAudioDeviceInfoCallback = new CarAudioDeviceCallback(this);
         mAudioManagerWrapper.registerAudioDeviceCallback(mAudioDeviceInfoCallback, mHandler);
     }
 
     @GuardedBy("mImplLock")
     private void releaseAudioDeviceInfoCallbackLocked() {
-        if (!Flags.carAudioDynamicDevices()) {
-            return;
-        }
         mAudioManagerWrapper.unregisterAudioDeviceCallback(mAudioDeviceInfoCallback);
         mAudioDeviceInfoCallback = null;
     }
@@ -2304,9 +2291,6 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
     }
 
     private CarAudioFeaturesInfo getAudioFeaturesInfo() {
-        if (!Flags.carAudioDynamicDevices()) {
-            return null;
-        }
         CarAudioFeaturesInfo.Builder builder =
                 new CarAudioFeaturesInfo.Builder(CarAudioFeaturesInfo.AUDIO_FEATURE_NO_FEATURE);
         if (mUseIsolatedFocusForDynamicDevices) {
@@ -3576,9 +3560,6 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
     }
 
     private void enableDynamicDevicesInOtherZones(CarAudioZoneConfigInfo zoneConfig) {
-        if (!Flags.carAudioDynamicDevices()) {
-            return;
-        }
         if (excludesDynamicDevices(zoneConfig)) {
             return;
         }
@@ -3593,9 +3574,6 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
     }
 
     private void disableDynamicDevicesInOtherZones(CarAudioZoneConfigInfo zoneConfig) {
-        if (!Flags.carAudioDynamicDevices()) {
-            return;
-        }
         if (excludesDynamicDevices(zoneConfig)) {
             return;
         }
@@ -4036,7 +4014,7 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
     @GuardedBy("mImplLock")
     private AudioControlWrapper getAudioControlWrapperLocked() {
         if (mAudioControlWrapper == null) {
-            mAudioControlWrapper = AudioControlFactory.newAudioControl();
+            mAudioControlWrapper = AudioControlWrapper.newAudioControl();
             mAudioControlWrapper.linkToDeath(this::audioControlDied);
         }
         return mAudioControlWrapper;
