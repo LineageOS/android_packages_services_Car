@@ -16,29 +16,23 @@
 
 package android.car.oem;
 
-import static android.car.feature.Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES;
+import static android.car.oem.CarAudioFeaturesInfo.AUDIO_FEATURE_FADE_MANAGER_CONFIGS;
 import static android.car.oem.CarAudioFeaturesInfo.AUDIO_FEATURE_ISOLATED_DEVICE_FOCUS;
 import static android.car.oem.CarAudioFeaturesInfo.AUDIO_FEATURE_NO_FEATURE;
-import static android.car.oem.CarAudioFeaturesInfo.AUDIO_FEATURE_FADE_MANAGER_CONFIGS;
 
 import static org.junit.Assert.assertThrows;
 
 import android.car.test.AbstractExpectableTestCase;
 import android.os.Parcel;
-import android.platform.test.flag.junit.SetFlagsRule;
 
-import org.junit.Rule;
 import org.junit.Test;
 
 public final class CarAudioFeaturesInfoUnitTest extends AbstractExpectableTestCase {
 
     private static final int TEST_PARCEL_FLAGS = 0;
-    @Rule
-    public final SetFlagsRule mSetFlagsRule = new SetFlagsRule();
 
     @Test
     public void build_withDynamicDeviceFeature() {
-        mSetFlagsRule.enableFlags(FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
         CarAudioFeaturesInfo info = new CarAudioFeaturesInfo.Builder(
                 AUDIO_FEATURE_ISOLATED_DEVICE_FOCUS).build();
 
@@ -51,7 +45,6 @@ public final class CarAudioFeaturesInfoUnitTest extends AbstractExpectableTestCa
 
     @Test
     public void build_withFadeManagerFeature() {
-        mSetFlagsRule.enableFlags(FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
         CarAudioFeaturesInfo info = new CarAudioFeaturesInfo.Builder(
                 AUDIO_FEATURE_FADE_MANAGER_CONFIGS).build();
 
@@ -64,7 +57,6 @@ public final class CarAudioFeaturesInfoUnitTest extends AbstractExpectableTestCa
 
     @Test
     public void build_withNoFeatures() {
-        mSetFlagsRule.enableFlags(FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
         CarAudioFeaturesInfo info = new CarAudioFeaturesInfo.Builder(
                 AUDIO_FEATURE_NO_FEATURE).build();
 
@@ -77,7 +69,6 @@ public final class CarAudioFeaturesInfoUnitTest extends AbstractExpectableTestCa
 
     @Test
     public void build_afterReUse_fails() {
-        mSetFlagsRule.enableFlags(FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
         CarAudioFeaturesInfo.Builder builder = new CarAudioFeaturesInfo.Builder(
                 AUDIO_FEATURE_NO_FEATURE);
         builder.build();
@@ -91,7 +82,6 @@ public final class CarAudioFeaturesInfoUnitTest extends AbstractExpectableTestCa
     @Test
     public void build_withInvalidFeature_fails() {
         int invalidAudioFeature = -1;
-        mSetFlagsRule.enableFlags(FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
         IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class,
                 () -> new CarAudioFeaturesInfo.Builder(invalidAudioFeature));
 
@@ -101,7 +91,6 @@ public final class CarAudioFeaturesInfoUnitTest extends AbstractExpectableTestCa
 
     @Test
     public void addAudioFeatures_withDynamicDevicesFeature() {
-        mSetFlagsRule.enableFlags(FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
         CarAudioFeaturesInfo info = new CarAudioFeaturesInfo.Builder(AUDIO_FEATURE_NO_FEATURE)
                 .addAudioFeature(AUDIO_FEATURE_ISOLATED_DEVICE_FOCUS).build();
 
@@ -114,7 +103,6 @@ public final class CarAudioFeaturesInfoUnitTest extends AbstractExpectableTestCa
 
     @Test
     public void addAudioFeatures_withFadeManagerFeature() {
-        mSetFlagsRule.enableFlags(FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
         CarAudioFeaturesInfo info = new CarAudioFeaturesInfo.Builder(AUDIO_FEATURE_NO_FEATURE)
                 .addAudioFeature(AUDIO_FEATURE_FADE_MANAGER_CONFIGS).build();
 
@@ -127,7 +115,6 @@ public final class CarAudioFeaturesInfoUnitTest extends AbstractExpectableTestCa
 
     @Test
     public void addAudioFeatures_afterReUse_fails() {
-        mSetFlagsRule.enableFlags(FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
         CarAudioFeaturesInfo.Builder builder = new CarAudioFeaturesInfo.Builder(
                 AUDIO_FEATURE_NO_FEATURE);
         builder.build();
@@ -141,7 +128,6 @@ public final class CarAudioFeaturesInfoUnitTest extends AbstractExpectableTestCa
 
     @Test
     public void writeToParcel_readFromParcel_andFocusFeature() {
-        mSetFlagsRule.enableFlags(FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
         CarAudioFeaturesInfo info = new CarAudioFeaturesInfo.Builder(
                 AUDIO_FEATURE_ISOLATED_DEVICE_FOCUS).build();
         Parcel parcel = Parcel.obtain();
@@ -161,7 +147,6 @@ public final class CarAudioFeaturesInfoUnitTest extends AbstractExpectableTestCa
 
     @Test
     public void writeToParcel_readFromParcel_andFadeManagerFeature() {
-        mSetFlagsRule.enableFlags(FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
         CarAudioFeaturesInfo info = new CarAudioFeaturesInfo.Builder(
                 AUDIO_FEATURE_FADE_MANAGER_CONFIGS).build();
         Parcel parcel = Parcel.obtain();
@@ -182,7 +167,6 @@ public final class CarAudioFeaturesInfoUnitTest extends AbstractExpectableTestCa
 
     @Test
     public void equals_withFadeManagerFeature() {
-        mSetFlagsRule.enableFlags(FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
         CarAudioFeaturesInfo info1 = new CarAudioFeaturesInfo.Builder(
                 AUDIO_FEATURE_FADE_MANAGER_CONFIGS).build();
         CarAudioFeaturesInfo info2 = new CarAudioFeaturesInfo.Builder(
@@ -193,7 +177,6 @@ public final class CarAudioFeaturesInfoUnitTest extends AbstractExpectableTestCa
 
     @Test
     public void equals_withFocusFeature() {
-        mSetFlagsRule.enableFlags(FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
         CarAudioFeaturesInfo info1 = new CarAudioFeaturesInfo.Builder(
                 AUDIO_FEATURE_ISOLATED_DEVICE_FOCUS).build();
         CarAudioFeaturesInfo info2 = new CarAudioFeaturesInfo.Builder(
@@ -204,7 +187,6 @@ public final class CarAudioFeaturesInfoUnitTest extends AbstractExpectableTestCa
 
     @Test
     public void equals_withDifferentFeatures() {
-        mSetFlagsRule.enableFlags(FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
         CarAudioFeaturesInfo info1 = new CarAudioFeaturesInfo.Builder(
                 AUDIO_FEATURE_ISOLATED_DEVICE_FOCUS).build();
         CarAudioFeaturesInfo info2 = new CarAudioFeaturesInfo.Builder(
@@ -215,7 +197,6 @@ public final class CarAudioFeaturesInfoUnitTest extends AbstractExpectableTestCa
 
     @Test
     public void hashCode_withFocusFeature() {
-        mSetFlagsRule.enableFlags(FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
         CarAudioFeaturesInfo info1 = new CarAudioFeaturesInfo.Builder(
                 AUDIO_FEATURE_ISOLATED_DEVICE_FOCUS).build();
         CarAudioFeaturesInfo info2 = new CarAudioFeaturesInfo.Builder(
@@ -227,7 +208,6 @@ public final class CarAudioFeaturesInfoUnitTest extends AbstractExpectableTestCa
 
     @Test
     public void hashCode_withFadeManagerFeature() {
-        mSetFlagsRule.enableFlags(FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
         CarAudioFeaturesInfo info1 = new CarAudioFeaturesInfo.Builder(
                 AUDIO_FEATURE_FADE_MANAGER_CONFIGS).build();
         CarAudioFeaturesInfo info2 = new CarAudioFeaturesInfo.Builder(
@@ -239,7 +219,6 @@ public final class CarAudioFeaturesInfoUnitTest extends AbstractExpectableTestCa
 
     @Test
     public void toString_withFocusFeature() {
-        mSetFlagsRule.enableFlags(FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
         CarAudioFeaturesInfo info = new CarAudioFeaturesInfo.Builder(
                 AUDIO_FEATURE_ISOLATED_DEVICE_FOCUS).build();
 
@@ -249,7 +228,6 @@ public final class CarAudioFeaturesInfoUnitTest extends AbstractExpectableTestCa
 
     @Test
     public void toString_withFadeManagerFeature() {
-        mSetFlagsRule.enableFlags(FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
         CarAudioFeaturesInfo info = new CarAudioFeaturesInfo.Builder(
                 AUDIO_FEATURE_FADE_MANAGER_CONFIGS).build();
 
@@ -259,7 +237,6 @@ public final class CarAudioFeaturesInfoUnitTest extends AbstractExpectableTestCa
 
     @Test
     public void toString_withNoFeature() {
-        mSetFlagsRule.enableFlags(FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
         CarAudioFeaturesInfo info = new CarAudioFeaturesInfo.Builder(
                 AUDIO_FEATURE_NO_FEATURE).build();
 

@@ -39,6 +39,7 @@ import android.car.builtin.os.UserManagerHelper;
 import android.car.builtin.util.Slogf;
 import android.car.builtin.util.TimingsTraceLog;
 import android.car.settings.CarSettings;
+import android.content.ContentResolver;
 import android.database.ContentObserver;
 import android.media.AudioAttributes;
 import android.net.Uri;
@@ -455,8 +456,11 @@ final class FocusInteraction {
     void setUserIdForSettings(@UserIdInt int userId) {
         synchronized (mLock) {
             if (mContentObserver != null) {
-                mCarAudioFocusSettings.getContentResolverForUser(mUserId)
-                        .unregisterContentObserver(mContentObserver);
+                ContentResolver prevContentResolver =
+                        mCarAudioFocusSettings.getContentResolverForUser(mUserId);
+                if (prevContentResolver != null) {
+                    prevContentResolver.unregisterContentObserver(mContentObserver);
+                }
                 mContentObserver = null;
             }
             mUserId = userId;

@@ -407,22 +407,58 @@ class AutoTaskStackControllerImpl @Inject constructor(
             Slog.d(
                 TAG,
                 "handle request, id=${request.debugId}, type=${request.type}, " +
-                        "triggertask = ${request.triggerTask ?: "null"}"
+                        "triggertask = ${request.triggerTask?.let { toStringTaskInfo(it) }}"
             )
         }
-        val ast = autoTransitionHandlerDelegate?.handleRequest(transition, request)
-            ?: run { return@handleRequest null }
+        var ast = autoTransitionHandlerDelegate?.handleRequest(transition, request)
+        val action = request.triggerTask?.baseIntent?.action
+        val category = request.triggerTask?.baseIntent?.categories
 
-        if (ast.operations.isEmpty()) {
+        if (action?.equals("android.intent.action.MAIN") == true &&
+            category?.contains("android.intent.category.HOME") == true &&
+            TransitionUtil.isOpeningType(request.type)
+        ) {
+            Slog.i(
+                TAG,
+                "HOME transaction. Updating state for root tasks which are not " +
+                    "updated by client."
+            )
+            if (ast == null) {
+                ast = AutoTaskStackTransaction()
+            }
+            for ((key, value) in taskStackStateMap.entries) {
+                ast.setTaskStackStateIfNotSet(
+                    key,
+                    AutoTaskStackState(value.bounds, value.childrenTasksVisible, value.layer)
+                )
+            }
+        }
+
+        if (ast == null || ast.operations.isEmpty()) {
             return null
         }
-        var wct = WindowContainerTransaction()
+        val wct = WindowContainerTransaction()
         convertToWct(ast, wct)
 
         pendingTransitions.add(
             PendingTransition(request.type, wct, ast).apply { isClaimed = transition }
         )
         return wct
+    }
+
+    private fun toStringTaskInfo(task: ActivityManager.RunningTaskInfo): String {
+        return "TaskInfo{" +
+                "taskId=" + task.taskId +
+                " userId=" + task.userId +
+                " displayId=" + task.displayId +
+                " isFocused=" + task.isFocused +
+                " isVisible=" + task.isVisible +
+                " isRunning=" + task.isRunning +
+                " isSleeping=" + task.isSleeping +
+                " topActivity=" + task.topActivity +
+                " baseIntent=" + task.baseIntent +
+                " baseActivity=" + task.baseActivity +
+                "}"
     }
 
     fun updateTaskStackStates(taskStatStates: Map<Int, AutoTaskStackState>) {

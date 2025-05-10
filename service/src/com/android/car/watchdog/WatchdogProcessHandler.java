@@ -21,7 +21,6 @@ import static android.car.watchdog.CarWatchdogManager.TIMEOUT_MODERATE;
 import static android.car.watchdog.CarWatchdogManager.TIMEOUT_NORMAL;
 import static android.car.watchdog.CarWatchdogManager.TimeoutLengthEnum;
 
-import static com.android.car.CarServiceUtils.getHandlerThread;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
 import android.annotation.NonNull;
@@ -68,8 +67,7 @@ public final class WatchdogProcessHandler {
     private final CarWatchdogDaemonHelper mCarWatchdogDaemonHelper;
     private final PackageInfoHandler mPackageInfoHandler;
     private final Handler mMainHandler = new Handler(Looper.getMainLooper());
-    private final Handler mServiceHandler = new Handler(getHandlerThread(
-            CarWatchdogService.class.getSimpleName()).getLooper());
+    private final Handler mServiceHandler;
     private final Object mLock = new Object();
     /*
      * Keeps the list of car watchdog client according to timeout:
@@ -103,10 +101,12 @@ public final class WatchdogProcessHandler {
     private long mOverriddenClientHealthCheckWindowMs = MISSING_INT_PROPERTY_VALUE;
 
     public WatchdogProcessHandler(ICarWatchdogServiceForSystem serviceImpl,
-            CarWatchdogDaemonHelper daemonHelper, PackageInfoHandler packageInfoHandler) {
+            CarWatchdogDaemonHelper daemonHelper, PackageInfoHandler packageInfoHandler,
+            Handler serviceHandler) {
         mWatchdogServiceForSystem = serviceImpl;
         mCarWatchdogDaemonHelper = daemonHelper;
         mPackageInfoHandler = packageInfoHandler;
+        mServiceHandler = serviceHandler;
     }
 
     /** Initializes the handler. */

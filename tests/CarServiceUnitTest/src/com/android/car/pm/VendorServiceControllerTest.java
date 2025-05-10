@@ -225,6 +225,7 @@ public final class VendorServiceControllerTest extends AbstractExpectableTestCas
     public void tearDown() {
         CarLocalServices.removeServiceForTest(CarUserService.class);
         CarLocalServices.removeServiceForTest(CarPowerManagementService.class);
+        mCarUserService.destroy();
     }
 
     private void mockGetCurrentUser(int userHandle) {

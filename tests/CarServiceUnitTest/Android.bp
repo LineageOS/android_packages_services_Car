@@ -204,7 +204,7 @@ android_test {
     team: "trendy_team_connectivity_telemetry",
 
     srcs: [
-        "src/com/android/car/telemetry/*.java",
+        "src/com/android/car/telemetry/**/*.java",
     ],
 
     defaults: [

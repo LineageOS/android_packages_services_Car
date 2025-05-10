@@ -40,7 +40,6 @@ import android.automotive.watchdog.internal.ICarWatchdog;
 import android.automotive.watchdog.internal.ICarWatchdogMonitor;
 import android.automotive.watchdog.internal.ICarWatchdogServiceForSystem;
 import android.automotive.watchdog.internal.PackageInfo;
-import android.automotive.watchdog.internal.PackageIoOveruseStats;
 import android.automotive.watchdog.internal.PowerCycle;
 import android.automotive.watchdog.internal.ProcessIdentifier;
 import android.automotive.watchdog.internal.ResourceOveruseConfiguration;
@@ -393,15 +392,7 @@ public class CarWatchdogDaemonHelperTest {
         }
 
         @Override
-        public void latestIoOveruseStats(List<PackageIoOveruseStats> ioOveruseStats) {}
-
-        @Override
         public void resetResourceOveruseStats(List<String> packageNames) {}
-
-        @Override
-        public List<UserPackageIoUsageStats> getTodayIoUsageStats() {
-            return new ArrayList<>();
-        }
 
         @Override
         public void onLatestResourceStats(List<ResourceStats> resourceStats) {}

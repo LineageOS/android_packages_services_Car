@@ -37,11 +37,14 @@ import static org.mockito.Mockito.when;
 
 import android.automotive.watchdog.internal.ICarWatchdogServiceForSystem;
 import android.automotive.watchdog.internal.ProcessIdentifier;
+import android.car.test.NoActiveHandlerThreadCheckerRule;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.car.watchdog.ICarWatchdogServiceCallback;
 import android.car.watchdoglib.CarWatchdogDaemonHelper;
 import android.content.pm.PackageManager;
 import android.os.Binder;
+import android.os.Handler;
+import android.os.HandlerThread;
 import android.os.RemoteException;
 import android.os.UserHandle;
 import android.util.SparseArray;
@@ -54,6 +57,7 @@ import com.android.car.internal.ICarServiceHelper;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -74,6 +78,11 @@ public class WatchdogProcessHandlerUnitTest extends AbstractExtendedMockitoTestC
             WatchdogProcessHandlerUnitTest.class.getCanonicalName();
     private static final String CAR_WATCHDOG_SERVICE_NAME =
             CarWatchdogService.class.getSimpleName();
+
+    @Rule
+    public NoActiveHandlerThreadCheckerRule mNoActiveHandlerThreadCheckerRule =
+            new NoActiveHandlerThreadCheckerRule();
+
     @Mock
     private CarWatchdogDaemonHelper mMockCarWatchdogDaemonHelper;
     @Mock
@@ -89,6 +98,9 @@ public class WatchdogProcessHandlerUnitTest extends AbstractExtendedMockitoTestC
     private static final int TEST_CLIENT_UID = Binder.getCallingUid();
     private static final int TEST_CLIENT_USER_ID = 100;
 
+    private HandlerThread mHandlerThread;
+    private Handler mHandler;
+
     public WatchdogProcessHandlerUnitTest() {
         super(CarWatchdogService.TAG);
     }
@@ -103,10 +115,13 @@ public class WatchdogProcessHandlerUnitTest extends AbstractExtendedMockitoTestC
 
     @Before
     public void setUp() throws Exception {
+        mHandlerThread = CarServiceUtils.getHandlerThread(CAR_WATCHDOG_SERVICE_NAME);
+        mHandler = new Handler(mHandlerThread.getLooper());
+
         mockPackageManager();
         mWatchdogProcessHandler = new WatchdogProcessHandler(mWatchdogServiceForSystemImpl,
                 mMockCarWatchdogDaemonHelper,
-                new PackageInfoHandler(mMockPackageManager));
+                new PackageInfoHandler(mMockPackageManager), mHandler);
         mWatchdogProcessHandler.init();
         CarServiceHelperWrapper wrapper = CarServiceHelperWrapper.create();
         wrapper.setCarServiceHelper(mMockCarServiceHelper);
@@ -121,6 +136,7 @@ public class WatchdogProcessHandlerUnitTest extends AbstractExtendedMockitoTestC
     @After
     public void tearDown() throws Exception {
         CarLocalServices.removeServiceForTest(CarServiceHelperWrapper.class);
+        CarServiceUtils.releaseHandlerThread(CAR_WATCHDOG_SERVICE_NAME);
     }
 
     @Test

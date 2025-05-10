@@ -2866,6 +2866,8 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         verify(mInitialUserSetter).set(argThat((info) -> {
             return info.type == InitialUserSetter.TYPE_REPLACE_GUEST;
         }));
+
+        service.destroy();
     }
 
     @Test
@@ -2878,6 +2880,8 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         waitForHandlerThreadToFinish();
 
         verify(mInitialUserSetter, never()).set(any());
+
+        service.destroy();
     }
 
     @Test

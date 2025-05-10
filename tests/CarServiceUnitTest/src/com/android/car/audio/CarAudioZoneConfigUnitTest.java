@@ -16,7 +16,6 @@
 
 package com.android.car.audio;
 
-import static android.car.feature.Flags.FLAG_CAR_AUDIO_DYNAMIC_DEVICES;
 import static android.car.media.CarAudioManager.PRIMARY_AUDIO_ZONE;
 import static android.car.media.CarVolumeGroupEvent.EVENT_TYPE_ATTENUATION_CHANGED;
 import static android.car.media.CarVolumeGroupEvent.EVENT_TYPE_MUTE_CHANGED;
@@ -852,21 +851,7 @@ public final class CarAudioZoneConfigUnitTest extends AbstractExpectableTestCase
     }
 
     @Test
-    public void getCarAudioZoneConfigInfo_withDynamicDevicesDisabled() {
-        mSetFlagsRule.disableFlags(FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
-        CarAudioZoneConfig zoneConfig = mTestAudioZoneConfigBuilder.build();
-        CarAudioZoneConfigInfo zoneConfigInfoExpected = new CarAudioZoneConfigInfo(
-                TEST_ZONE_CONFIG_NAME, PRIMARY_AUDIO_ZONE, TEST_ZONE_CONFIG_ID);
-
-        CarAudioZoneConfigInfo zoneConfigInfo = zoneConfig.getCarAudioZoneConfigInfo();
-
-        expectWithMessage("Zone configuration info with dynamic devices disabled")
-                .that(zoneConfigInfo).isEqualTo(zoneConfigInfoExpected);
-    }
-
-    @Test
-    public void getCarAudioZoneConfigInfo_withDynamicDevicesEnabled() {
-        mSetFlagsRule.enableFlags(FLAG_CAR_AUDIO_DYNAMIC_DEVICES);
+    public void getCarAudioZoneConfigInfo() {
         CarAudioZoneConfig zoneConfig = mTestAudioZoneConfigBuilder.build();
         CarAudioZoneConfigInfo zoneConfigInfoExpected = new CarAudioZoneConfigInfo(
                 TEST_ZONE_CONFIG_NAME, EMPTY_LIST, PRIMARY_AUDIO_ZONE, TEST_ZONE_CONFIG_ID,
@@ -874,7 +859,7 @@ public final class CarAudioZoneConfigUnitTest extends AbstractExpectableTestCase
 
         CarAudioZoneConfigInfo zoneConfigInfo = zoneConfig.getCarAudioZoneConfigInfo();
 
-        expectWithMessage("Zone configuration info with dynamic devices enabled")
+        expectWithMessage("Zone configuration info")
                 .that(zoneConfigInfo).isEqualTo(zoneConfigInfoExpected);
     }
 

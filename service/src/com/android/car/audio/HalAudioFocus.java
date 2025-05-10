@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.car.audio.hal;
+package com.android.car.audio;
 
 import static android.media.AudioManager.AUDIOFOCUS_LOSS;
 import static android.media.AudioManager.AUDIOFOCUS_REQUEST_DELAYED;
@@ -45,11 +45,7 @@ import android.util.SparseArray;
 import android.util.proto.ProtoOutputStream;
 
 import com.android.car.CarLog;
-import com.android.car.audio.AudioManagerWrapper;
-import com.android.car.audio.CarAudioContext;
 import com.android.car.audio.CarAudioContext.AudioAttributesWrapper;
-import com.android.car.audio.CarAudioDumpProto;
-import com.android.car.audio.CarAudioPlaybackMonitor;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;
@@ -64,7 +60,7 @@ import java.util.Set;
 /**
  * Manages focus requests from the HAL on a per-zone per-usage basis
  */
-public final class HalAudioFocus implements HalFocusListener {
+final class HalAudioFocus implements HalFocusListener {
     private static final String TAG = CarLog.tagFor(HalAudioFocus.class);
 
     private final AudioManagerWrapper mAudioManager;
@@ -81,7 +77,7 @@ public final class HalAudioFocus implements HalFocusListener {
     private final SparseArray<Map<AudioAttributesWrapper, HalAudioFocusRequest>>
             mHalFocusRequestsByZoneAndAttributes;
 
-    public HalAudioFocus(AudioManagerWrapper audioManager,
+    HalAudioFocus(AudioManagerWrapper audioManager,
                          AudioControlWrapper audioControlWrapper,
                          @Nullable CarAudioPlaybackMonitor carAudioPlaybackMonitor,
                          CarAudioContext carAudioContext, int[] audioZoneIds) {
@@ -98,17 +94,17 @@ public final class HalAudioFocus implements HalFocusListener {
     }
 
     /**
-     * Registers {@code IFocusListener} on {@code AudioControlWrapper} to receive HAL audio focus
+     * Registers {@link IFocusListener} on {@link AudioControlWrapper} to receive HAL audio focus
      * request and abandon calls.
      */
-    public void registerFocusListener() {
+    void registerFocusListener() {
         mAudioControlWrapper.registerFocusListener(this);
     }
 
     /**
-     * Unregisters {@code IFocusListener} from {@code AudioControlWrapper}.
+     * Unregisters {@link IFocusListener} from {@link AudioControlWrapper}.
      */
-    public void unregisterFocusListener() {
+    void unregisterFocusListener() {
         mAudioControlWrapper.unregisterFocusListener();
     }
 
@@ -161,7 +157,7 @@ public final class HalAudioFocus implements HalFocusListener {
     /**
      * Clear out all existing focus requests. Called when HAL dies.
      */
-    public void reset() {
+    void reset() {
         Slogf.d(TAG, "Resetting HAL Audio Focus requests");
         synchronized (mLock) {
             for (int i = 0; i < mHalFocusRequestsByZoneAndAttributes.size(); i++) {
@@ -180,7 +176,7 @@ public final class HalAudioFocus implements HalFocusListener {
     /**
      * Returns the currently active {@link AudioAttributes}' for an audio zone
      */
-    public List<AudioAttributes> getActiveAudioAttributesForZone(int audioZoneId) {
+    List<AudioAttributes> getActiveAudioAttributesForZone(int audioZoneId) {
         synchronized (mLock) {
             Map<AudioAttributesWrapper, HalAudioFocusRequest> halFocusRequestsForZone =
                     mHalFocusRequestsByZoneAndAttributes.get(audioZoneId);
@@ -201,7 +197,7 @@ public final class HalAudioFocus implements HalFocusListener {
      * @param writer stream to write current state
      */
     @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
-    public void dump(IndentingPrintWriter writer) {
+    void dump(IndentingPrintWriter writer) {
         writer.println("*HalAudioFocus*");
 
         writer.increaseIndent();
@@ -231,7 +227,7 @@ public final class HalAudioFocus implements HalFocusListener {
      * @param proto proto stream to write current state
      */
     @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
-    public void dumpProto(ProtoOutputStream proto) {
+    void dumpProto(ProtoOutputStream proto) {
         long halAudioFocusToken = proto.start(CarAudioDumpProto.HAL_AUDIO_FOCUS);
         synchronized (mLock) {
             for (int i = 0; i < mHalFocusRequestsByZoneAndAttributes.size(); i++) {

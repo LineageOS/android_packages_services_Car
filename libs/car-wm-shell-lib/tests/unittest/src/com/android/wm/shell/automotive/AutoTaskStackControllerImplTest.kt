@@ -31,7 +31,7 @@ import android.os.IBinder
 import android.os.Looper
 import android.testing.AndroidTestingRunner
 import android.view.SurfaceControl
-import android.view.WindowManager
+import android.view.WindowManager.TRANSIT_OPEN
 import android.window.TransitionInfo
 import android.window.TransitionRequestInfo
 import android.window.WindowContainerToken
@@ -42,9 +42,9 @@ import com.android.wm.shell.RootTaskDisplayAreaOrganizer
 import com.android.wm.shell.ShellTaskOrganizer
 import com.android.wm.shell.ShellTaskOrganizer.TaskListener
 import com.android.wm.shell.automotive.utility.TestRunningTaskInfoBuilder
-import com.android.wm.shell.automotive.utility.TransitionInfoBuilder
 import com.android.wm.shell.common.ShellExecutor
 import com.android.wm.shell.sysui.ShellInit
+import com.android.wm.shell.transition.TransitionInfoBuilder
 import com.android.wm.shell.transition.Transitions
 import com.android.wm.shell.transition.Transitions.TransitionFinishCallback
 import com.google.common.truth.Truth.assertThat
@@ -666,7 +666,7 @@ class AutoTaskStackControllerImplTest : CarWmShellTestCase() {
         val transition = mock(IBinder::class.java)
         val requestInfo = mock(TransitionRequestInfo::class.java)
         controller.handleRequest(transition, requestInfo)
-        val info = TransitionInfoBuilder(1)
+        val info = TransitionInfoBuilder(TRANSIT_OPEN)
             .addChange(TransitionInfo.Change(rootTaskInfo.token, taskLeash).apply {
                 taskInfo = rootTaskInfo
             })
@@ -711,7 +711,7 @@ class AutoTaskStackControllerImplTest : CarWmShellTestCase() {
         val transition = mock(IBinder::class.java)
         val requestInfo = mock(TransitionRequestInfo::class.java)
         controller.handleRequest(transition, requestInfo)
-        val info = TransitionInfoBuilder(1)
+        val info = TransitionInfoBuilder(TRANSIT_OPEN)
             .addChange(TransitionInfo.Change(rootTaskInfo.token, taskLeash).apply {
                 taskInfo = rootTaskInfo
             })
@@ -721,7 +721,7 @@ class AutoTaskStackControllerImplTest : CarWmShellTestCase() {
             // Send an additional change for the rootTask3 child
             .addChange(TransitionInfo.Change(rootTask3Child.token, taskLeash).apply {
                 taskInfo = rootTask3Child
-                mode = WindowManager.TRANSIT_OPEN
+                mode = TRANSIT_OPEN
             })
             .build()
 
@@ -772,7 +772,7 @@ class AutoTaskStackControllerImplTest : CarWmShellTestCase() {
         val transition = mock(IBinder::class.java)
         val requestInfo = mock(TransitionRequestInfo::class.java)
         controller.handleRequest(transition, requestInfo)
-        val info = TransitionInfoBuilder(1)
+        val info = TransitionInfoBuilder(TRANSIT_OPEN)
             .addChange(TransitionInfo.Change(rootTaskInfo.token, taskLeash).apply {
                 taskInfo = rootTaskInfo
             })
@@ -782,7 +782,7 @@ class AutoTaskStackControllerImplTest : CarWmShellTestCase() {
             // Send an additional change for the rootTask3 child
             .addChange(TransitionInfo.Change(rootTask3Child.token, taskLeash).apply {
                 taskInfo = rootTask3Child
-                mode = WindowManager.TRANSIT_OPEN
+                mode = TRANSIT_OPEN
             })
             .build()
 

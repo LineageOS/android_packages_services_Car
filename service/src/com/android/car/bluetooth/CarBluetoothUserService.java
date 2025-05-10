@@ -104,6 +104,15 @@ public class CarBluetoothUserService extends ICarBluetoothUserService.Stub {
     }
 
     /**
+     * Destroys the CarBluetoothUserService instance.
+     *
+     * Cleans up resources.
+     */
+    public void destroy() {
+        mFastPairProvider.destroy();
+    }
+
+    /**
      * Setup connections to the profile proxy objects that talk to the Bluetooth profile services.
      *
      * Proxy references are held by the Bluetooth Framework on our behalf. We will be notified each

@@ -20,7 +20,6 @@ $(call inherit-product, packages/services/Car/car_product/build/car_system.mk)
 # Car rotary
 PRODUCT_PACKAGES += \
     CarRotaryController \
-    CarRotaryImeRRO \
     RotaryIME \
     RotaryPlayground \
 
@@ -35,7 +34,6 @@ PRODUCT_PACKAGES_DEBUG += \
     tinyplay \
     update_engine_client \
     AdasLocationTestApp \
-    CarHotwordDetectionServiceOne \
     CarTelemetryApp \
     DefaultStorageMonitoringCompanionApp \
     EmbeddedKitchenSinkApp \

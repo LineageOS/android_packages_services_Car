@@ -16,7 +16,7 @@
 
 package com.android.car.audio;
 
-import static com.android.car.audio.hal.AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_GROUP_MUTING;
+import static com.android.car.audio.AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_GROUP_MUTING;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
 import android.annotation.NonNull;
@@ -29,7 +29,6 @@ import android.util.proto.ProtoOutputStream;
 import com.android.car.CarLog;
 import com.android.car.audio.CarAudioDumpProto.CarVolumeGroupMutingProto;
 import com.android.car.audio.CarAudioDumpProto.CarVolumeGroupMutingProto.CarMutingInfo;
-import com.android.car.audio.hal.AudioControlWrapper;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;

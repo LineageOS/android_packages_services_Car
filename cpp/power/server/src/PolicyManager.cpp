@@ -616,6 +616,20 @@ Result<CarPowerPolicyMeta> PolicyManager::getPowerPolicy(const std::string& poli
     return Error() << StringPrintf("Power policy(id: %s) is not found", policyId.c_str());
 }
 
+Result<std::string> PolicyManager::getDefaultPowerPolicyIdForState(
+        VehicleApPowerStateReport state) const {
+    switch (state) {
+        case VehicleApPowerStateReport::WAIT_FOR_VHAL:
+            return kSystemPolicyIdInitialOn;
+        case VehicleApPowerStateReport::ON:
+            return kSystemPolicyIdAllOn;
+        default:
+            return Error()
+                    << StringPrintf("Default power policy is not defined for power state(%s)",
+                                    toString((state)).c_str());
+    }
+}
+
 Result<CarPowerPolicyPtr> PolicyManager::getDefaultPowerPolicyForState(
         const std::string& groupId, VehicleApPowerStateReport state) const {
     auto groupIdToUse = groupId.empty() ? mDefaultPolicyGroup : groupId;

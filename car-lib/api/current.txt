@@ -745,10 +745,10 @@ package android.car.hardware {
     field public static final int STATUS_ERROR = 2; // 0x2
     field @FlaggedApi("android.car.feature.car_property_status_detailed_not_available") public static final int STATUS_NOT_AVAILABLE_DISABLED = 3; // 0x3
     field @FlaggedApi("android.car.feature.car_property_status_detailed_not_available") public static final int STATUS_NOT_AVAILABLE_GENERAL = 1; // 0x1
+    field @FlaggedApi("android.car.feature.car_property_status_detailed_not_available") public static final int STATUS_NOT_AVAILABLE_POOR_VISIBILITY = 6; // 0x6
     field @FlaggedApi("android.car.feature.car_property_status_detailed_not_available") public static final int STATUS_NOT_AVAILABLE_SAFETY = 7; // 0x7
     field @FlaggedApi("android.car.feature.car_property_status_detailed_not_available") public static final int STATUS_NOT_AVAILABLE_SPEED_HIGH = 5; // 0x5
     field @FlaggedApi("android.car.feature.car_property_status_detailed_not_available") public static final int STATUS_NOT_AVAILABLE_SPEED_LOW = 4; // 0x4
-    field @FlaggedApi("android.car.feature.car_property_status_detailed_not_available") public static final int STATUS_NOT_AVAILABLE_SPEED_POOR_VISIBILITY = 6; // 0x6
     field @FlaggedApi("android.car.feature.car_property_status_detailed_not_available") public static final int STATUS_NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED = 8; // 0x8
     field public static final int STATUS_UNAVAILABLE = 1; // 0x1
   }

@@ -94,6 +94,7 @@ java_defaults {
         // Required for LarceParcelableBase
         "liblargeparcelablejni",
     ],
+    jarjar_prefix: "com.android.internal.hidden_from_bootclasspath",
 }
 
 java_library {

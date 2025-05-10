@@ -53,6 +53,7 @@ import android.car.remoteaccess.ICarRemoteAccessCallback;
 import android.car.remoteaccess.RemoteTaskClientRegistrationInfo;
 import android.car.remoteaccess.TaskScheduleInfo;
 import android.car.test.AbstractExpectableTestCase;
+import android.car.test.NoActiveHandlerThreadCheckerRule;
 import android.car.user.CarUserManager.UserLifecycleEvent;
 import android.car.user.CarUserManager.UserLifecycleListener;
 import android.content.BroadcastReceiver;
@@ -97,6 +98,7 @@ import com.android.internal.annotations.GuardedBy;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -195,6 +197,8 @@ public final class CarRemoteAccessServiceUnitTest extends AbstractExpectableTest
     private static final long TEST_START_TIME = 2345;
     private static final long TEST_PERIODIC = 3456;
 
+    private final List<CarRemoteAccessService> mCreatedServices = new ArrayList<>();
+
     private CarRemoteAccessService mService;
     private ICarRemoteAccessCallbackImpl mRemoteAccessCallback;
     private CarPowerManagementService mOldCarPowerManagementService;
@@ -205,6 +209,10 @@ public final class CarRemoteAccessServiceUnitTest extends AbstractExpectableTest
     private Runnable mBootComplete;
     private boolean mBootCompleted;
     private BroadcastReceiver mBroadcastReceiver;
+
+    @Rule
+    public NoActiveHandlerThreadCheckerRule mNoActiveHandlerThreadCheckerRule =
+            new NoActiveHandlerThreadCheckerRule();
 
     @Mock private Resources mResources;
     @Mock private PackageManager mPackageManager;
@@ -221,15 +229,17 @@ public final class CarRemoteAccessServiceUnitTest extends AbstractExpectableTest
     @Captor private ArgumentCaptor<ScheduleInfo> mHalScheduleInfoCaptor;
 
     private CarRemoteAccessService newServiceWithSystemUpTime(long systemUpTime) {
-        CarRemoteAccessService service =  new CarRemoteAccessService(mContext, mSystemInterface,
+        CarRemoteAccessService service = new CarRemoteAccessService(mContext, mSystemInterface,
                 mPowerHalService, mDep, /* remoteAccessHal= */ null, mRemoteAccessStorage,
                 systemUpTime, /* inMemoryStorage= */ true);
         service.setRemoteAccessHalWrapper(mRemoteAccessHalWrapper);
+        mCreatedServices.add(service);
         return service;
     }
 
     @Before
     public void setUp() throws Exception {
+        mCreatedServices.clear();
         mOldCarPowerManagementService = CarLocalServices.getService(
                 CarPowerManagementService.class);
         CarLocalServices.removeServiceForTest(CarPowerManagementService.class);
@@ -315,6 +325,10 @@ public final class CarRemoteAccessServiceUnitTest extends AbstractExpectableTest
 
         if (mDatabaseFile.exists() && !mDatabaseFile.delete()) {
             Log.e(TAG, "Failed to delete the database file: " + mDatabaseFile.getAbsolutePath());
+        }
+
+        for (CarRemoteAccessService service : mCreatedServices) {
+            service.destroy();
         }
     }
 
@@ -1109,6 +1123,8 @@ public final class CarRemoteAccessServiceUnitTest extends AbstractExpectableTest
         mService = new CarRemoteAccessService(mContext, mSystemInterface, mPowerHalService);
 
         assertThat(mService.getAllowedSystemUptimeMs()).isEqualTo(300_000L);
+
+        mService.destroy();
     }
 
     @Test
@@ -1120,6 +1136,8 @@ public final class CarRemoteAccessServiceUnitTest extends AbstractExpectableTest
         mService = new CarRemoteAccessService(mContext, mSystemInterface, mPowerHalService);
 
         assertThat(mService.getAllowedSystemUptimeMs()).isEqualTo(30_000L);
+
+        mService.destroy();
     }
 
     @Test

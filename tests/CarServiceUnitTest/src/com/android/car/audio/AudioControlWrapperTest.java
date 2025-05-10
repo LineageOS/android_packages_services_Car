@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.car.audio.hal;
+package com.android.car.audio;
 
 import static android.media.AudioAttributes.USAGE_MEDIA;
 import static android.media.AudioAttributes.USAGE_NOTIFICATION;
@@ -23,14 +23,14 @@ import static android.media.audio.common.AudioDeviceType.OUT_DEVICE;
 import static android.media.audio.common.AudioGainMode.JOINT;
 import static android.os.IBinder.DeathRecipient;
 
+import static com.android.car.audio.AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_CONFIGURATION;
+import static com.android.car.audio.AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_DUCKING;
+import static com.android.car.audio.AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_FOCUS;
+import static com.android.car.audio.AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_FOCUS_WITH_METADATA;
+import static com.android.car.audio.AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_GAIN_CALLBACK;
+import static com.android.car.audio.AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_GROUP_MUTING;
+import static com.android.car.audio.AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_MODULE_CALLBACK;
 import static com.android.car.audio.CarHalAudioUtils.usageToMetadata;
-import static com.android.car.audio.hal.AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_CONFIGURATION;
-import static com.android.car.audio.hal.AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_DUCKING;
-import static com.android.car.audio.hal.AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_FOCUS;
-import static com.android.car.audio.hal.AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_FOCUS_WITH_METADATA;
-import static com.android.car.audio.hal.AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_GAIN_CALLBACK;
-import static com.android.car.audio.hal.AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_GROUP_MUTING;
-import static com.android.car.audio.hal.AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_MODULE_CALLBACK;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
 
 import static com.google.common.truth.Truth.assertThat;
@@ -78,13 +78,7 @@ import android.platform.test.flag.junit.SetFlagsRule;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
-import com.android.car.audio.CarAudioContext;
-import com.android.car.audio.CarAudioGainConfigInfo;
-import com.android.car.audio.CarAudioTestUtils;
-import com.android.car.audio.CarAudioZone;
-import com.android.car.audio.CarDuckingInfo;
-import com.android.car.audio.CarHalAudioUtils;
-import com.android.car.audio.hal.AudioControlWrapper.AudioControlDeathRecipient;
+import com.android.car.audio.AudioControlWrapper.AudioControlDeathRecipient;
 import com.android.dx.mockito.inline.extended.ExtendedMockito;
 
 import com.google.common.collect.ImmutableList;
@@ -102,7 +96,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RunWith(AndroidJUnit4.class)
-public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTestCase {
+public final class AudioControlWrapperTest extends AbstractExtendedMockitoTestCase {
     private static final long TEST_CALLBACK_TIMEOUT_MS = 100;
     private static final float FADE_VALUE = 5;
     private static final float BALANCE_VALUE = 6;
@@ -170,25 +164,25 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
     @Mock
     HalAudioModuleChangeCallback mHalAudioModuleChangeCallback;
 
-    private AudioControlWrapperAidl mAudioControlWrapperAidl;
+    private AudioControlWrapper mAudioControlWrapper;
     private MutingInfo mPrimaryZoneMutingInfo;
     private MutingInfo mSecondaryZoneMutingInfo;
 
     @Rule
     public final SetFlagsRule mSetFlagsRule = new SetFlagsRule();
 
-    public AudioControlWrapperAidlTest() {
-        super(AudioControlWrapperAidl.TAG);
+    public AudioControlWrapperTest() {
+        super(AudioControlWrapper.TAG);
     }
 
     @Override
     protected void onSessionBuilder(CustomMockitoSessionBuilder session) {
-        session.spyStatic(AudioControlWrapperAidl.class);
+        session.spyStatic(AudioControlWrapper.class);
     }
 
     @Before
     public void setUp() throws RemoteException {
-        mAudioControlWrapperAidl = createAudioControlWrapperAidl();
+        mAudioControlWrapper = createAudioControlWrapper();
         mPrimaryZoneMutingInfo = new MutingInfoBuilder(PRIMARY_ZONE_ID)
                 .setMutedAddresses(PRIMARY_MUSIC_ADDRESS, PRIMARY_NAVIGATION_ADDRESS)
                 .setUnMutedAddresses(PRIMARY_CALL_ADDRESS, PRIMARY_NOTIFICATION_ADDRESS)
@@ -200,48 +194,59 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
                 .build();
     }
 
-    private AudioControlWrapperAidl createAudioControlWrapperAidl() throws RemoteException {
+    private AudioControlWrapper createAudioControlWrapper() throws RemoteException {
         when(mAudioControl.getInterfaceVersion()).thenReturn(AIDL_AUDIO_CONTROL_VERSION_3);
         when(mBinder.queryLocalInterface(anyString())).thenReturn(mAudioControl);
-        doReturn(mBinder).when(AudioControlWrapperAidl::getService);
-        return new AudioControlWrapperAidl(mBinder);
+        doReturn(mBinder).when(AudioControlWrapper::getService);
+        return AudioControlWrapper.newAudioControl();
+    }
+
+    @Test
+    public void newAudioControl_withAudioControlHalService_fails() {
+        doReturn(null).when(AudioControlWrapper::getService);
+
+        IllegalStateException exception = assertThrows(IllegalStateException.class,
+                () -> AudioControlWrapper.newAudioControl());
+
+        assertWithMessage("Exception for missing audio control HAL").that(exception.getMessage())
+                .contains("No version of AIDL AudioControl HAL");
     }
 
     @Test
     public void setFadeTowardFront_succeeds() throws Exception {
-        mAudioControlWrapperAidl.setFadeTowardFront(FADE_VALUE);
+        mAudioControlWrapper.setFadeTowardFront(FADE_VALUE);
 
         verify(mAudioControl).setFadeTowardFront(FADE_VALUE);
     }
 
     @Test
     public void setBalanceTowardRight_succeeds() throws Exception {
-        mAudioControlWrapperAidl.setBalanceTowardRight(BALANCE_VALUE);
+        mAudioControlWrapper.setBalanceTowardRight(BALANCE_VALUE);
 
         verify(mAudioControl).setBalanceTowardRight(BALANCE_VALUE);
     }
 
     @Test
     public void supportsFeature_forAudioFocus_returnsTrue() {
-        assertThat(mAudioControlWrapperAidl.supportsFeature(AUDIOCONTROL_FEATURE_AUDIO_FOCUS))
+        assertThat(mAudioControlWrapper.supportsFeature(AUDIOCONTROL_FEATURE_AUDIO_FOCUS))
                 .isTrue();
     }
 
     @Test
     public void supportsFeature_forAudioDucking_returnsTrue() {
-        assertThat(mAudioControlWrapperAidl.supportsFeature(AUDIOCONTROL_FEATURE_AUDIO_DUCKING))
+        assertThat(mAudioControlWrapper.supportsFeature(AUDIOCONTROL_FEATURE_AUDIO_DUCKING))
                 .isTrue();
     }
 
     @Test
     public void supportsFeature_forAudioMuting_returnsTrue() {
-        assertThat(mAudioControlWrapperAidl
+        assertThat(mAudioControlWrapper
                 .supportsFeature(AUDIOCONTROL_FEATURE_AUDIO_GROUP_MUTING)).isTrue();
     }
 
     @Test
     public void supportsFeature_forUnknownFeature_returnsFalse() {
-        assertThat(mAudioControlWrapperAidl.supportsFeature(-1)).isFalse();
+        assertThat(mAudioControlWrapper.supportsFeature(-1)).isFalse();
     }
 
     @Test
@@ -249,7 +254,7 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
         doThrow(new RemoteException()).when(mAudioControl).getInterfaceVersion();
 
         assertWithMessage("Gain callback support with failure for getting version")
-                .that(mAudioControlWrapperAidl.supportsFeature(
+                .that(mAudioControlWrapper.supportsFeature(
                         AUDIOCONTROL_FEATURE_AUDIO_GAIN_CALLBACK)).isFalse();
     }
 
@@ -259,7 +264,7 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
         doThrow(new RemoteException()).when(mAudioControl).getInterfaceVersion();
 
         assertWithMessage("Module callback support with failure for getting version")
-                .that(mAudioControlWrapperAidl.supportsFeature(
+                .that(mAudioControlWrapper.supportsFeature(
                         AUDIOCONTROL_FEATURE_AUDIO_MODULE_CALLBACK)).isFalse();
     }
 
@@ -267,7 +272,7 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
     @DisableFlags(Flags.FLAG_AUDIO_CONTROL_HAL_CONFIGURATION)
     public void supportsFeature_forAudioConfiguration_withFlagDisabled() throws Exception {
         assertWithMessage("Audio device configuration with flag disabled")
-                .that(mAudioControlWrapperAidl.supportsFeature(
+                .that(mAudioControlWrapper.supportsFeature(
                         AUDIOCONTROL_FEATURE_AUDIO_CONFIGURATION)).isFalse();
     }
 
@@ -277,7 +282,7 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
         when(mAudioControl.getInterfaceVersion()).thenReturn(AIDL_AUDIO_CONTROL_VERSION_3);
 
         assertWithMessage("Audio device configuration with unsupported version")
-                .that(mAudioControlWrapperAidl.supportsFeature(
+                .that(mAudioControlWrapper.supportsFeature(
                         AUDIOCONTROL_FEATURE_AUDIO_CONFIGURATION)).isFalse();
     }
 
@@ -288,7 +293,7 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
                 .thenThrow(new RemoteException("Remote exception"));
 
         assertWithMessage("Audio device configuration with remote exception")
-                .that(mAudioControlWrapperAidl.supportsFeature(
+                .that(mAudioControlWrapper.supportsFeature(
                         AUDIOCONTROL_FEATURE_AUDIO_CONFIGURATION)).isFalse();
     }
 
@@ -298,14 +303,14 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
         when(mAudioControl.getInterfaceVersion()).thenReturn(AIDL_AUDIO_CONTROL_VERSION_5);
 
         assertWithMessage("Audio device configuration with supported version")
-                .that(mAudioControlWrapperAidl.supportsFeature(
+                .that(mAudioControlWrapper.supportsFeature(
                         AUDIOCONTROL_FEATURE_AUDIO_CONFIGURATION)).isTrue();
     }
 
     @Test
     public void registerFocusListener_succeeds() throws Exception {
         HalFocusListener mockListener = mock(HalFocusListener.class);
-        mAudioControlWrapperAidl.registerFocusListener(mockListener);
+        mAudioControlWrapper.registerFocusListener(mockListener);
 
         verify(mAudioControl).registerFocusListener(any(IFocusListener.class));
     }
@@ -317,7 +322,7 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
         HalFocusListener mockListener = mock(HalFocusListener.class);
 
         IllegalStateException thrown = assertThrows(IllegalStateException.class,
-                () -> mAudioControlWrapperAidl.registerFocusListener(mockListener));
+                () -> mAudioControlWrapper.registerFocusListener(mockListener));
 
         assertWithMessage("Exception thrown when registerFocusListener failed")
                 .that(thrown).hasMessageThat()
@@ -329,7 +334,7 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
         HalFocusListener mockListener = mock(HalFocusListener.class);
         ArgumentCaptor<IFocusListener.Stub> captor =
                 ArgumentCaptor.forClass(IFocusListener.Stub.class);
-        mAudioControlWrapperAidl.registerFocusListener(mockListener);
+        mAudioControlWrapper.registerFocusListener(mockListener);
         verify(mAudioControl).registerFocusListener(captor.capture());
 
         captor.getValue().requestAudioFocus(USAGE_NAME, ZONE_ID, FOCUS_GAIN);
@@ -342,7 +347,7 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
         HalFocusListener mockListener = mock(HalFocusListener.class);
         ArgumentCaptor<IFocusListener.Stub> captor =
                 ArgumentCaptor.forClass(IFocusListener.Stub.class);
-        mAudioControlWrapperAidl.registerFocusListener(mockListener);
+        mAudioControlWrapper.registerFocusListener(mockListener);
         verify(mAudioControl).registerFocusListener(captor.capture());
 
         captor.getValue().requestAudioFocusWithMetaData(METADATA, ZONE_ID, FOCUS_GAIN);
@@ -355,7 +360,7 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
         HalFocusListener mockListener = mock(HalFocusListener.class);
         ArgumentCaptor<IFocusListener.Stub> captor =
                 ArgumentCaptor.forClass(IFocusListener.Stub.class);
-        mAudioControlWrapperAidl.registerFocusListener(mockListener);
+        mAudioControlWrapper.registerFocusListener(mockListener);
         verify(mAudioControl).registerFocusListener(captor.capture());
 
         captor.getValue().abandonAudioFocus(USAGE_NAME, ZONE_ID);
@@ -368,7 +373,7 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
         HalFocusListener mockListener = mock(HalFocusListener.class);
         ArgumentCaptor<IFocusListener.Stub> captor =
                 ArgumentCaptor.forClass(IFocusListener.Stub.class);
-        mAudioControlWrapperAidl.registerFocusListener(mockListener);
+        mAudioControlWrapper.registerFocusListener(mockListener);
         verify(mAudioControl).registerFocusListener(captor.capture());
 
         captor.getValue().abandonAudioFocusWithMetaData(METADATA, ZONE_ID);
@@ -378,7 +383,7 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
 
     @Test
     public void onAudioFocusChange_succeeds() throws Exception {
-        mAudioControlWrapperAidl.onAudioFocusChange(METADATA, ZONE_ID, FOCUS_GAIN);
+        mAudioControlWrapper.onAudioFocusChange(METADATA, ZONE_ID, FOCUS_GAIN);
 
         verify(mAudioControl).onAudioFocusChangeWithMetaData(METADATA, ZONE_ID, FOCUS_GAIN);
     }
@@ -391,7 +396,7 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
                 .onAudioFocusChangeWithMetaData(any(), anyInt(), anyInt());
 
         IllegalStateException thrown = assertThrows(IllegalStateException.class,
-                () -> mAudioControlWrapperAidl.onAudioFocusChange(METADATA, ZONE_ID, FOCUS_GAIN));
+                () -> mAudioControlWrapper.onAudioFocusChange(METADATA, ZONE_ID, FOCUS_GAIN));
 
         assertWithMessage("Exception thrown when onAudioFocusChange failed")
                 .that(thrown).hasMessageThat()
@@ -404,7 +409,7 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
         doThrow(new RemoteException()).when(mAudioControl).onAudioFocusChangeWithMetaData(any(),
                 anyInt(), anyInt());
 
-        mAudioControlWrapperAidl.onAudioFocusChange(METADATA, ZONE_ID, FOCUS_GAIN);
+        mAudioControlWrapper.onAudioFocusChange(METADATA, ZONE_ID, FOCUS_GAIN);
 
         verify(mAudioControl).onAudioFocusChange(USAGE_NAME, ZONE_ID, FOCUS_GAIN);
     }
@@ -412,7 +417,7 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
     @Test
     public void onDevicesToDuckChange_withNullDuckingInfo_throws() {
         assertThrows(NullPointerException.class,
-                () -> mAudioControlWrapperAidl.onDevicesToDuckChange(null));
+                () -> mAudioControlWrapper.onDevicesToDuckChange(null));
     }
 
     @Test
@@ -421,7 +426,7 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
                 new CarDuckingInfo(
                         ZONE_ID, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
 
-        mAudioControlWrapperAidl.onDevicesToDuckChange(List.of(carDuckingInfo));
+        mAudioControlWrapper.onDevicesToDuckChange(List.of(carDuckingInfo));
 
         ArgumentCaptor<DuckingInfo[]> captor = ArgumentCaptor.forClass(DuckingInfo[].class);
         verify(mAudioControl).onDevicesToDuckChange(captor.capture());
@@ -441,7 +446,7 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
                         CarHalAudioUtils.audioAttributesToMetadatas(audioAttributes,
                                 generateAudioZoneMock()));
 
-        mAudioControlWrapperAidl.onDevicesToDuckChange(List.of(carDuckingInfo));
+        mAudioControlWrapper.onDevicesToDuckChange(List.of(carDuckingInfo));
 
         ArgumentCaptor<DuckingInfo[]> captor = ArgumentCaptor.forClass(DuckingInfo[].class);
         verify(mAudioControl).onDevicesToDuckChange(captor.capture());
@@ -462,7 +467,7 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
                         new ArrayList<>(),
                         new ArrayList<>());
 
-        mAudioControlWrapperAidl.onDevicesToDuckChange(List.of(carDuckingInfo));
+        mAudioControlWrapper.onDevicesToDuckChange(List.of(carDuckingInfo));
 
         ArgumentCaptor<DuckingInfo[]> captor = ArgumentCaptor.forClass(DuckingInfo[].class);
         verify(mAudioControl).onDevicesToDuckChange(captor.capture());
@@ -482,7 +487,7 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
                         Arrays.asList(notificationAddress, callAddress),
                         new ArrayList<>());
 
-        mAudioControlWrapperAidl.onDevicesToDuckChange(List.of(carDuckingInfo));
+        mAudioControlWrapper.onDevicesToDuckChange(List.of(carDuckingInfo));
 
         ArgumentCaptor<DuckingInfo[]> captor = ArgumentCaptor.forClass(DuckingInfo[].class);
         verify(mAudioControl).onDevicesToDuckChange(captor.capture());
@@ -497,7 +502,7 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
                 new CarDuckingInfo(
                         ZONE_ID, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
 
-        mAudioControlWrapperAidl.onDevicesToDuckChange(List.of(carDuckingInfo));
+        mAudioControlWrapper.onDevicesToDuckChange(List.of(carDuckingInfo));
 
         ArgumentCaptor<DuckingInfo[]> captor = ArgumentCaptor.forClass(DuckingInfo[].class);
         verify(mAudioControl).onDevicesToDuckChange(captor.capture());
@@ -514,7 +519,7 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
                 new CarDuckingInfo(
                         SECONDARY_ZONE_ID, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
 
-        mAudioControlWrapperAidl.onDevicesToDuckChange(List.of(carDuckingInfo,
+        mAudioControlWrapper.onDevicesToDuckChange(List.of(carDuckingInfo,
                 secondaryCarDuckingInfo));
 
         ArgumentCaptor<DuckingInfo[]> captor = ArgumentCaptor.forClass(DuckingInfo[].class);
@@ -525,7 +530,7 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
 
     @Test
     public void linkToDeath_callsBinder() throws Exception {
-        mAudioControlWrapperAidl.linkToDeath(null);
+        mAudioControlWrapper.linkToDeath(null);
 
         verify(mBinder).linkToDeath(any(DeathRecipient.class), eq(0));
     }
@@ -536,7 +541,7 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
                 .linkToDeath(any(DeathRecipient.class), anyInt());
 
         IllegalStateException thrown = assertThrows(IllegalStateException.class,
-                () -> mAudioControlWrapperAidl.linkToDeath(null));
+                () -> mAudioControlWrapper.linkToDeath(null));
 
         assertWithMessage("Exception thrown when linkToDeath failed")
                 .that(thrown).hasMessageThat()
@@ -545,16 +550,17 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
 
     @Test
     public void unlinkToDeath_callsBinder() {
-        mAudioControlWrapperAidl.linkToDeath(null);
+        mAudioControlWrapper.linkToDeath(null);
 
-        mAudioControlWrapperAidl.unlinkToDeath();
+        mAudioControlWrapper.unlinkToDeath();
 
         verify(mBinder).unlinkToDeath(any(DeathRecipient.class), eq(0));
     }
 
     @Test
     public void binderDied_fetchesNewBinder() throws Exception {
-        mAudioControlWrapperAidl.linkToDeath(null);
+        ExtendedMockito.verify(() -> AudioControlWrapper.getService());
+        mAudioControlWrapper.linkToDeath(null);
 
         ArgumentCaptor<DeathRecipient> captor = ArgumentCaptor.forClass(DeathRecipient.class);
         verify(mBinder).linkToDeath(captor.capture(), eq(0));
@@ -562,12 +568,12 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
 
         deathRecipient.binderDied();
 
-        ExtendedMockito.verify(() -> AudioControlWrapperAidl.getService());
+        ExtendedMockito.verify(() -> AudioControlWrapper.getService(), times(2));
     }
 
     @Test
     public void binderDied_relinksToDeath() throws Exception {
-        mAudioControlWrapperAidl.linkToDeath(null);
+        mAudioControlWrapper.linkToDeath(null);
 
         ArgumentCaptor<DeathRecipient> captor = ArgumentCaptor.forClass(DeathRecipient.class);
         verify(mBinder).linkToDeath(captor.capture(), eq(0));
@@ -580,7 +586,7 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
 
     @Test
     public void binderDied_callsDeathRecipient() throws Exception {
-        mAudioControlWrapperAidl.linkToDeath(mDeathRecipient);
+        mAudioControlWrapper.linkToDeath(mDeathRecipient);
 
         ArgumentCaptor<DeathRecipient> captor = ArgumentCaptor.forClass(
                 IBinder.DeathRecipient.class);
@@ -595,7 +601,7 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
     @Test
     public void onDevicesToMuteChange_withNullMutingInformation_Throws() {
         NullPointerException thrown = assertThrows(NullPointerException.class,
-                () -> mAudioControlWrapperAidl.onDevicesToMuteChange(null));
+                () -> mAudioControlWrapper.onDevicesToMuteChange(null));
 
         assertWithMessage("NullPointerException thrown by onDevicesToMuteChange")
                 .that(thrown).hasMessageThat().contains("not be null");
@@ -604,7 +610,7 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
     @Test
     public void onDevicesToMuteChange_withEmptyMutingInformation_Throws() {
         IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class,
-                () -> mAudioControlWrapperAidl.onDevicesToMuteChange(new ArrayList<>()));
+                () -> mAudioControlWrapper.onDevicesToMuteChange(new ArrayList<>()));
 
         assertWithMessage("IllegalArgumentException thrown by onDevicesToMuteChange")
                 .that(thrown).hasMessageThat().contains("not be empty");
@@ -612,7 +618,7 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
 
     @Test
     public void onDevicesToMuteChange_passesAlongZoneId() throws Exception {
-        mAudioControlWrapperAidl.onDevicesToMuteChange(ImmutableList.of(mPrimaryZoneMutingInfo));
+        mAudioControlWrapper.onDevicesToMuteChange(ImmutableList.of(mPrimaryZoneMutingInfo));
 
         ArgumentCaptor<MutingInfo[]> captor = ArgumentCaptor.forClass(MutingInfo[].class);
         verify(mAudioControl).onDevicesToMuteChange(captor.capture());
@@ -623,7 +629,7 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
 
     @Test
     public void onDevicesToMuteChange_passesAlongAddressesToMute() throws Exception {
-        mAudioControlWrapperAidl.onDevicesToMuteChange(ImmutableList.of(mPrimaryZoneMutingInfo));
+        mAudioControlWrapper.onDevicesToMuteChange(ImmutableList.of(mPrimaryZoneMutingInfo));
 
         ArgumentCaptor<MutingInfo[]> captor = ArgumentCaptor.forClass(MutingInfo[].class);
         verify(mAudioControl).onDevicesToMuteChange(captor.capture());
@@ -635,7 +641,7 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
 
     @Test
     public void onDevicesToMuteChange_passesAlongAddressesToUnMute() throws Exception {
-        mAudioControlWrapperAidl.onDevicesToMuteChange(ImmutableList.of(mPrimaryZoneMutingInfo));
+        mAudioControlWrapper.onDevicesToMuteChange(ImmutableList.of(mPrimaryZoneMutingInfo));
 
         ArgumentCaptor<MutingInfo[]> captor = ArgumentCaptor.forClass(MutingInfo[].class);
         verify(mAudioControl).onDevicesToMuteChange(captor.capture());
@@ -648,7 +654,7 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
     @Test
     public void onDevicesToMuteChange_withMultipleZones_passesAlongCorrectSizeInfo()
             throws Exception {
-        mAudioControlWrapperAidl.onDevicesToMuteChange(ImmutableList.of(mPrimaryZoneMutingInfo,
+        mAudioControlWrapper.onDevicesToMuteChange(ImmutableList.of(mPrimaryZoneMutingInfo,
                 mSecondaryZoneMutingInfo));
 
         ArgumentCaptor<MutingInfo[]> captor = ArgumentCaptor.forClass(MutingInfo[].class);
@@ -660,7 +666,7 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
     @Test
     public void onDevicesToMuteChange_withMultipleZones_passesAlongCorrectZoneInfo()
             throws Exception {
-        mAudioControlWrapperAidl.onDevicesToMuteChange(ImmutableList.of(mPrimaryZoneMutingInfo,
+        mAudioControlWrapper.onDevicesToMuteChange(ImmutableList.of(mPrimaryZoneMutingInfo,
                 mSecondaryZoneMutingInfo));
 
         ArgumentCaptor<MutingInfo[]> captor = ArgumentCaptor.forClass(MutingInfo[].class);
@@ -675,7 +681,7 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
     public void
             onDevicesToMuteChange_withMultipleZones_passesAlongCorrectAddressToMuteForPrimaryZone()
             throws Exception {
-        mAudioControlWrapperAidl.onDevicesToMuteChange(ImmutableList.of(mPrimaryZoneMutingInfo,
+        mAudioControlWrapper.onDevicesToMuteChange(ImmutableList.of(mPrimaryZoneMutingInfo,
                 mSecondaryZoneMutingInfo));
 
         MutingInfo info = verifyOnDevicesToMuteChangeCalled(PRIMARY_ZONE_ID);
@@ -688,7 +694,7 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
     public void
             onDevicesToMuteChange_withMultiZones_passesAlongCorrectAddressToMuteForSecondaryZone()
             throws Exception {
-        mAudioControlWrapperAidl.onDevicesToMuteChange(ImmutableList.of(mPrimaryZoneMutingInfo,
+        mAudioControlWrapper.onDevicesToMuteChange(ImmutableList.of(mPrimaryZoneMutingInfo,
                 mSecondaryZoneMutingInfo));
 
         MutingInfo info = verifyOnDevicesToMuteChangeCalled(SECONDARY_ZONE_ID);
@@ -701,7 +707,7 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
     public void
             onDevicesToMuteChange_witMultipleZones_passesAlongCorrectAddressToUnMuteForPrimaryZone()
             throws Exception {
-        mAudioControlWrapperAidl.onDevicesToMuteChange(ImmutableList.of(mPrimaryZoneMutingInfo,
+        mAudioControlWrapper.onDevicesToMuteChange(ImmutableList.of(mPrimaryZoneMutingInfo,
                 mSecondaryZoneMutingInfo));
 
         MutingInfo info = verifyOnDevicesToMuteChangeCalled(PRIMARY_ZONE_ID);
@@ -714,7 +720,7 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
     public void
             onDevicesToMuteChange_witMultiZones_passesAlongCorrectAddressToUnMuteForSecondaryZone()
             throws Exception {
-        mAudioControlWrapperAidl.onDevicesToMuteChange(ImmutableList.of(mPrimaryZoneMutingInfo,
+        mAudioControlWrapper.onDevicesToMuteChange(ImmutableList.of(mPrimaryZoneMutingInfo,
                 mSecondaryZoneMutingInfo));
 
         MutingInfo info = verifyOnDevicesToMuteChangeCalled(SECONDARY_ZONE_ID);
@@ -728,13 +734,13 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
     public void supportsFeature_forAudioGainCallback_returnsTrue() throws Exception {
         when(mAudioControl.getInterfaceVersion()).thenReturn(AIDL_AUDIO_CONTROL_VERSION_1 + 1);
         assertThat(
-                        mAudioControlWrapperAidl.supportsFeature(
+                        mAudioControlWrapper.supportsFeature(
                                 AUDIOCONTROL_FEATURE_AUDIO_GAIN_CALLBACK))
                 .isTrue();
 
         when(mAudioControl.getInterfaceVersion()).thenReturn(AIDL_AUDIO_CONTROL_VERSION_1 + 4);
         assertThat(
-                        mAudioControlWrapperAidl.supportsFeature(
+                        mAudioControlWrapper.supportsFeature(
                                 AUDIOCONTROL_FEATURE_AUDIO_GAIN_CALLBACK))
                 .isTrue();
     }
@@ -743,13 +749,13 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
     public void supportsFeature_forAudioGainCallback_returnsFalse() throws Exception {
         when(mAudioControl.getInterfaceVersion()).thenReturn(AIDL_AUDIO_CONTROL_VERSION_1);
         assertThat(
-                        mAudioControlWrapperAidl.supportsFeature(
+                        mAudioControlWrapper.supportsFeature(
                                 AUDIOCONTROL_FEATURE_AUDIO_GAIN_CALLBACK))
                 .isFalse();
 
         when(mAudioControl.getInterfaceVersion()).thenReturn(0);
         assertThat(
-                        mAudioControlWrapperAidl.supportsFeature(
+                        mAudioControlWrapper.supportsFeature(
                                 AUDIOCONTROL_FEATURE_AUDIO_GAIN_CALLBACK))
                 .isFalse();
     }
@@ -759,13 +765,13 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
             throws Exception {
         doThrow(new RemoteException()).when(mAudioControl).getInterfaceVersion();
 
-        assertThat(mAudioControlWrapperAidl
+        assertThat(mAudioControlWrapper
                 .supportsFeature(AUDIOCONTROL_FEATURE_AUDIO_FOCUS_WITH_METADATA)).isFalse();
     }
 
     @Test
     public void registerAudioGainCallback_succeeds() throws Exception {
-        mAudioControlWrapperAidl.registerAudioGainCallback(mHalAudioGainCallback);
+        mAudioControlWrapper.registerAudioGainCallback(mHalAudioGainCallback);
         verify(mAudioControl).registerGainCallback(any());
     }
 
@@ -777,7 +783,7 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
                 assertThrows(
                         IllegalStateException.class,
                         () ->
-                                mAudioControlWrapperAidl.registerAudioGainCallback(
+                                mAudioControlWrapper.registerAudioGainCallback(
                                         mHalAudioGainCallback));
 
         assertWithMessage("IllegalStateException thrown by registerAudioGainCallback")
@@ -792,7 +798,7 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
                 assertThrows(
                         NullPointerException.class,
                         () ->
-                                mAudioControlWrapperAidl.registerAudioGainCallback(
+                                mAudioControlWrapper.registerAudioGainCallback(
                                         /* gainCallback= */ null));
 
         assertWithMessage("NullPointerException thrown by registerAudioGainCallback")
@@ -805,7 +811,7 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
     public void registerAudioGainCallback_withLowerVersion() throws Exception {
         when(mAudioControl.getInterfaceVersion()).thenReturn(AIDL_AUDIO_CONTROL_VERSION_1);
 
-        mAudioControlWrapperAidl.registerAudioGainCallback(mHalAudioGainCallback);
+        mAudioControlWrapper.registerAudioGainCallback(mHalAudioGainCallback);
 
         verify(mAudioControl, never()).registerGainCallback(any());
     }
@@ -815,7 +821,7 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
         ArgumentCaptor<IAudioGainCallback.Stub> captor =
                 ArgumentCaptor.forClass(IAudioGainCallback.Stub.class);
 
-        mAudioControlWrapperAidl.registerAudioGainCallback(mHalAudioGainCallback);
+        mAudioControlWrapper.registerAudioGainCallback(mHalAudioGainCallback);
         verify(mAudioControl).registerGainCallback(captor.capture());
 
         int[] halReasons = {Reasons.REMOTE_MUTE, Reasons.NAV_DUCKING};
@@ -850,7 +856,7 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
         ArgumentCaptor<IAudioGainCallback.Stub> captor =
                 ArgumentCaptor.forClass(IAudioGainCallback.Stub.class);
 
-        mAudioControlWrapperAidl.registerAudioGainCallback(mHalAudioGainCallback);
+        mAudioControlWrapper.registerAudioGainCallback(mHalAudioGainCallback);
         verify(mAudioControl).registerGainCallback(captor.capture());
 
         int[] halReasons = {-1, 1999, 666};
@@ -886,7 +892,7 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
         ArgumentCaptor<IAudioGainCallback.Stub> captor =
                 ArgumentCaptor.forClass(IAudioGainCallback.Stub.class);
 
-        mAudioControlWrapperAidl.registerAudioGainCallback(mHalAudioGainCallback);
+        mAudioControlWrapper.registerAudioGainCallback(mHalAudioGainCallback);
         verify(mAudioControl).registerGainCallback(captor.capture());
 
         int[] halReasons = {-1, Reasons.REMOTE_MUTE, 1999, 666, Reasons.NAV_DUCKING};
@@ -919,7 +925,7 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
 
     @Test
     public void setModuleChangeCallback() throws Exception {
-        mAudioControlWrapperAidl.setModuleChangeCallback(mHalAudioModuleChangeCallback);
+        mAudioControlWrapper.setModuleChangeCallback(mHalAudioModuleChangeCallback);
 
         verify(mAudioControl, timeout(TEST_CALLBACK_TIMEOUT_MS)).setModuleChangeCallback(any());
     }
@@ -928,7 +934,7 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
     public void setModuleChangeCallback_withLowerVersion() throws Exception {
         when(mAudioControl.getInterfaceVersion()).thenReturn(AIDL_AUDIO_CONTROL_VERSION_2);
 
-        mAudioControlWrapperAidl.setModuleChangeCallback(mHalAudioModuleChangeCallback);
+        mAudioControlWrapper.setModuleChangeCallback(mHalAudioModuleChangeCallback);
 
         verify(mAudioControl, after(TEST_CALLBACK_TIMEOUT_MS).never())
                 .setModuleChangeCallback(any());
@@ -938,7 +944,7 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
     public void setModuleChangeCallback_withIllegalStateException_retries() throws Exception {
         doThrow(new IllegalStateException()).when(mAudioControl).setModuleChangeCallback(any());
 
-        mAudioControlWrapperAidl.setModuleChangeCallback(mHalAudioModuleChangeCallback);
+        mAudioControlWrapper.setModuleChangeCallback(mHalAudioModuleChangeCallback);
 
         verify(mAudioControl, timeout(TEST_CALLBACK_TIMEOUT_MS)).clearModuleChangeCallback();
     }
@@ -955,7 +961,7 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
                 PORT_NAME_NAV, GAINS, navDeviceExt);
         HalAudioDeviceInfo mediaDeviceInfo = new HalAudioDeviceInfo(mediaAudioPort);
         HalAudioDeviceInfo navDeviceInfo = new HalAudioDeviceInfo(navAudioPort);
-        mAudioControlWrapperAidl.setModuleChangeCallback(mHalAudioModuleChangeCallback);
+        mAudioControlWrapper.setModuleChangeCallback(mHalAudioModuleChangeCallback);
         ArgumentCaptor<IModuleChangeCallback> callbackCaptor =
                 ArgumentCaptor.forClass(IModuleChangeCallback.class);
         verify(mAudioControl, timeout(TEST_CALLBACK_TIMEOUT_MS)).setModuleChangeCallback(
@@ -973,7 +979,7 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
 
     @Test
     public void clearModuleChangeCallback() throws Exception {
-        mAudioControlWrapperAidl.clearModuleChangeCallback();
+        mAudioControlWrapper.clearModuleChangeCallback();
 
         verify(mAudioControl, timeout(TEST_CALLBACK_TIMEOUT_MS)).clearModuleChangeCallback();
     }
@@ -982,7 +988,7 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
     public void clearModuleChangeCallback_withLowerVersion() throws Exception {
         when(mAudioControl.getInterfaceVersion()).thenReturn(AIDL_AUDIO_CONTROL_VERSION_2);
 
-        mAudioControlWrapperAidl.clearModuleChangeCallback();
+        mAudioControlWrapper.clearModuleChangeCallback();
 
         verify(mAudioControl, after(TEST_CALLBACK_TIMEOUT_MS).never())
                 .clearModuleChangeCallback();
@@ -994,7 +1000,7 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
         when(mAudioControl.getInterfaceVersion()).thenReturn(AIDL_AUDIO_CONTROL_VERSION_5);
 
         AudioDeviceConfiguration configuration =
-                mAudioControlWrapperAidl.getAudioDeviceConfiguration();
+                mAudioControlWrapper.getAudioDeviceConfiguration();
 
         assertWithMessage("Audio device configuration with flag disabled")
                 .that(configuration.routingConfig)
@@ -1007,7 +1013,7 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
         when(mAudioControl.getInterfaceVersion()).thenReturn(AIDL_AUDIO_CONTROL_VERSION_3);
 
         AudioDeviceConfiguration configuration =
-                mAudioControlWrapperAidl.getAudioDeviceConfiguration();
+                mAudioControlWrapper.getAudioDeviceConfiguration();
 
         assertWithMessage("Audio device configuration with unsupported version")
                 .that(configuration.routingConfig)
@@ -1021,7 +1027,7 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
                 setUpAudioDeviceConfiguration(RoutingDeviceConfiguration.DYNAMIC_AUDIO_ROUTING);
 
         AudioDeviceConfiguration configuration =
-                mAudioControlWrapperAidl.getAudioDeviceConfiguration();
+                mAudioControlWrapper.getAudioDeviceConfiguration();
 
         assertWithMessage("Audio device configuration with valid configuration")
                 .that(configuration).isEqualTo(testConfiguration);
@@ -1035,7 +1041,7 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
                 .thenThrow(new UnsupportedOperationException("Unsupported exception"));
 
         AudioDeviceConfiguration configuration =
-                mAudioControlWrapperAidl.getAudioDeviceConfiguration();
+                mAudioControlWrapper.getAudioDeviceConfiguration();
 
         assertWithMessage("Audio device config with unsupported exception")
                 .that(configuration.routingConfig)
@@ -1050,7 +1056,7 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
                 .thenThrow(new RemoteException("Remote exception"));
 
         AudioDeviceConfiguration configuration =
-                mAudioControlWrapperAidl.getAudioDeviceConfiguration();
+                mAudioControlWrapper.getAudioDeviceConfiguration();
 
         assertWithMessage("Audio device config with remote exception")
                 .that(configuration.routingConfig)
@@ -1063,7 +1069,7 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
         when(mAudioControl.getInterfaceVersion()).thenReturn(AIDL_AUDIO_CONTROL_VERSION_5);
 
         assertWithMessage("Audio mirroring devices with flag disabled")
-                .that(mAudioControlWrapperAidl.getOutputMirroringDevices()).isEmpty();
+                .that(mAudioControlWrapper.getOutputMirroringDevices()).isEmpty();
     }
 
     @Test
@@ -1072,7 +1078,7 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
         when(mAudioControl.getInterfaceVersion()).thenReturn(AIDL_AUDIO_CONTROL_VERSION_3);
 
         assertWithMessage("Audio mirroring devices with unsupported version")
-                .that(mAudioControlWrapperAidl.getOutputMirroringDevices()).isEmpty();
+                .that(mAudioControlWrapper.getOutputMirroringDevices()).isEmpty();
     }
 
     @Test
@@ -1083,7 +1089,7 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
                 .thenThrow(new RemoteException("Remote exception"));
 
         assertWithMessage("Audio mirroring devices with remote exception")
-                .that(mAudioControlWrapperAidl.getOutputMirroringDevices()).isEmpty();
+                .that(mAudioControlWrapper.getOutputMirroringDevices()).isEmpty();
     }
 
     @Test
@@ -1094,7 +1100,7 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
                 .thenThrow(new UnsupportedOperationException("Unsupported exception"));
 
         assertWithMessage("Audio mirroring devices with unsupported exception")
-                .that(mAudioControlWrapperAidl.getOutputMirroringDevices()).isEmpty();
+                .that(mAudioControlWrapper.getOutputMirroringDevices()).isEmpty();
     }
 
     @Test
@@ -1112,7 +1118,7 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
         when(mAudioControl.getOutputMirroringDevices())
                 .thenReturn(List.of(mediaAudioPort, navAudioPort));
 
-        var infos = mAudioControlWrapperAidl.getOutputMirroringDevices();
+        var infos = mAudioControlWrapper.getOutputMirroringDevices();
 
         assertWithMessage("Audio mirroring addresses with valid devices")
                 .that(infos)
@@ -1125,7 +1131,7 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
         setUpAudioDeviceConfiguration(RoutingDeviceConfiguration.DYNAMIC_AUDIO_ROUTING);
 
         assertWithMessage("Audio zones with flag disabled")
-                .that(mAudioControlWrapperAidl.getCarAudioZones()).isEmpty();
+                .that(mAudioControlWrapper.getCarAudioZones()).isEmpty();
     }
 
     @Test
@@ -1134,7 +1140,7 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
         when(mAudioControl.getInterfaceVersion()).thenReturn(AIDL_AUDIO_CONTROL_VERSION_3);
 
         assertWithMessage("Audio zones exception with unsupported version")
-                .that(mAudioControlWrapperAidl.getCarAudioZones()).isEmpty();
+                .that(mAudioControlWrapper.getCarAudioZones()).isEmpty();
     }
 
     @Test
@@ -1145,7 +1151,7 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
                 .thenThrow(new RemoteException("Remote exception"));
 
         assertWithMessage("Audio zones with remote exception")
-                .that(mAudioControlWrapperAidl.getCarAudioZones()).isEmpty();
+                .that(mAudioControlWrapper.getCarAudioZones()).isEmpty();
     }
 
     @Test
@@ -1156,7 +1162,7 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
                 .thenThrow(new UnsupportedOperationException("Unsupported exception"));
 
         assertWithMessage("Audio zones with unsupported exception")
-                .that(mAudioControlWrapperAidl.getCarAudioZones()).isEmpty();
+                .that(mAudioControlWrapper.getCarAudioZones()).isEmpty();
     }
 
     @Test
@@ -1172,7 +1178,7 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
         when(mAudioControl.getCarAudioZones()).thenReturn(List.of(primaryZone, secondaryZone));
 
         assertWithMessage("Audio zones with valid zones")
-                .that(mAudioControlWrapperAidl.getCarAudioZones())
+                .that(mAudioControlWrapper.getCarAudioZones())
                 .containsExactly(primaryZone, secondaryZone);
     }
 

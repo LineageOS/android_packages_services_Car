@@ -18,8 +18,8 @@ package com.android.car.audio;
 
 import static android.car.media.CarAudioManager.PRIMARY_AUDIO_ZONE;
 
+import static com.android.car.audio.AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_CONFIGURATION;
 import static com.android.car.audio.CarAudioUtils.isMicrophoneInputDevice;
-import static com.android.car.audio.hal.AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_CONFIGURATION;
 
 import android.hardware.automotive.audiocontrol.AudioDeviceConfiguration;
 import android.hardware.automotive.audiocontrol.AudioZone;
@@ -33,7 +33,6 @@ import android.util.SparseArray;
 import android.util.SparseIntArray;
 
 import com.android.car.CarLog;
-import com.android.car.audio.hal.AudioControlWrapper;
 import com.android.car.internal.util.LocalLog;
 import com.android.internal.annotations.GuardedBy;
 

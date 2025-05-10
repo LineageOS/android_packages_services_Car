@@ -35,7 +35,6 @@ import android.media.AudioFocusInfo;
 import android.util.SparseArray;
 
 import com.android.car.CarLocalServices;
-import com.android.car.audio.hal.AudioControlWrapper;
 import com.android.car.oem.CarOemAudioDuckingProxyService;
 import com.android.car.oem.CarOemProxyService;
 
