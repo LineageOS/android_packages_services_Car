@@ -16,12 +16,11 @@
 
 package android.car.hardware.property;
 
-import static android.car.feature.Flags.FLAG_ANDROID_VIC_VEHICLE_PROPERTIES;
+import static android.car.feature.Flags.FLAG_VEHICLE_PROPERTY_ENUMS_REMOVE_SYSTEM_API_TAGS;
 
 import android.annotation.FlaggedApi;
 import android.annotation.IntDef;
 import android.annotation.NonNull;
-import android.annotation.SystemApi;
 
 import com.android.car.internal.util.ConstantDebugUtils;
 
@@ -30,11 +29,8 @@ import java.lang.annotation.RetentionPolicy;
 
 /**
  * Used to enumerate the state of Cross Traffic Monitoring Warning system.
- *
- * @hide
  */
-@FlaggedApi(FLAG_ANDROID_VIC_VEHICLE_PROPERTIES)
-@SystemApi
+@FlaggedApi(FLAG_VEHICLE_PROPERTY_ENUMS_REMOVE_SYSTEM_API_TAGS)
 public final class CrossTrafficMonitoringWarningState {
 
     /**
