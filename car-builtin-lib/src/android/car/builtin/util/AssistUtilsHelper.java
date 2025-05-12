@@ -217,6 +217,11 @@ public final class AssistUtilsHelper {
                 throws RemoteException {
             Slogf.d(TAG, "onVoiceSessionWindowVisibilityChanged() not used");
         }
+
+        @Override
+        public void onSetInvocationEffectEnabled(boolean enabled) throws RemoteException {
+            Slogf.d(TAG, "onSetInvocationEffectEnabled() not used");
+        }
     }
 
     private AssistUtilsHelper() {
