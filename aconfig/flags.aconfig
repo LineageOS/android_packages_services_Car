@@ -447,8 +447,16 @@ flag {
 flag {
     name: "vehicle_property_25q2_3p_permissions"
     namespace: "car_perception"
-    description: "Introduce new 3p accessible permisisons for previously defined vehicle properties"
+    description: "Introduce new 3p accessible permissions for previously defined vehicle properties"
     bug: "357910697"
+}
+
+# 3P VHAL Property Strategy
+flag {
+    name: "vehicle_property_enums_remove_system_api_tags"
+    namespace: "car_perception"
+    description: "Expose vehicle property enum constants as public APIs instead of system APIs"
+    bug: "402626294"
 }
 
 # DisplayCompat density feature

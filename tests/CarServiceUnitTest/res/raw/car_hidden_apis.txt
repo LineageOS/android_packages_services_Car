@@ -133,9 +133,6 @@ android.car VehiclePropertyType int INT64_VEC
 android.car VehiclePropertyType int MASK
 android.car VehiclePropertyType int MIXED
 android.car VehiclePropertyType int STRING
-android.car VehicleSeatOccupancyState int OCCUPIED
-android.car VehicleSeatOccupancyState int UNKNOWN
-android.car VehicleSeatOccupancyState int VACANT
 android.car.admin CarDevicePolicyManager StartUserInBackgroundResult startUserInBackground(UserHandle user)
 android.car.admin CarDevicePolicyManager StopUserResult stopUser(UserHandle user)
 android.car.admin CarDevicePolicyManager String TAG
