@@ -618,6 +618,7 @@ package android.car {
   }
 
   @FlaggedApi("android.car.feature.vehicle_property_enums_remove_system_api_tags") public final class VehicleSeatOccupancyState {
+    method @NonNull public static String toString(int);
     field public static final int OCCUPIED = 2; // 0x2
     field public static final int UNKNOWN = 0; // 0x0
     field public static final int VACANT = 1; // 0x1
