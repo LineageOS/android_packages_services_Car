@@ -24,6 +24,7 @@
 
 #include <aidl/android/automotive/watchdog/IResourceOveruseListener.h>
 #include <aidl/android/automotive/watchdog/internal/ResourceOveruseConfiguration.h>
+#include <aidl/android/automotive/watchdog/internal/UserPackageIoUsageStats.h>
 #include <android-base/result.h>
 #include <android/util/ProtoOutputStream.h>
 #include <cutils/multiuser.h>

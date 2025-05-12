@@ -27,6 +27,7 @@
 #include <aidl/android/automotive/watchdog/internal/PackageInfo.h>
 #include <aidl/android/automotive/watchdog/internal/PackageIoOveruseStats.h>
 #include <aidl/android/automotive/watchdog/internal/ResourceOveruseConfiguration.h>
+#include <aidl/android/automotive/watchdog/internal/UserPackageIoUsageStats.h>
 #include <android-base/result.h>
 #include <android/binder_auto_utils.h>
 #include <cutils/multiuser.h>
