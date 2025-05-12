@@ -26,7 +26,6 @@ import android.content.Context;
 import android.hardware.automotive.vehicle.VehicleApPowerStateReq;
 import android.util.Log;
 import android.util.SparseIntArray;
-import android.view.Display;
 
 import com.android.car.VehicleStub;
 import com.android.car.hal.ClusterHalService;
@@ -189,11 +188,6 @@ public class MockedPowerHalService extends PowerHalService {
     public void sendHibernationExit() {
         Log.i(TAG, "sendHibernationExit");
         doSendState(SET_HIBERNATION_EXIT, 0);
-    }
-
-    @Override
-    public void sendDisplayBrightnessLegacy(int brightness) {
-        sendDisplayBrightness(Display.DEFAULT_DISPLAY, brightness);
     }
 
     @Override
