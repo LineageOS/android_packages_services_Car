@@ -347,6 +347,7 @@ public final class CarPropertyValueTest extends CarPropertyTestBase {
     @Test
     public void basicBuilderTest() {
         var carPropertyValue = getDefaultTestCarPropertyValue();
+        carPropertyValue.setHasPermissionToReadPropertyVendorStatus();
 
         assertThat(carPropertyValue.getPropertyId()).isEqualTo(PROPERTY_ID);
         assertThat(carPropertyValue.getAreaId()).isEqualTo(AREA_ID);
@@ -361,10 +362,12 @@ public final class CarPropertyValueTest extends CarPropertyTestBase {
     @Test
     public void basicBuilder_writeToParcel_readFromParcel() {
         var carPropertyValue = getDefaultTestCarPropertyValue();
+        carPropertyValue.setHasPermissionToReadPropertyVendorStatus();
 
         writeToParcel(carPropertyValue);
 
         CarPropertyValue<Float> gotCarPropertyValue = readFromParcel();
+        gotCarPropertyValue.setHasPermissionToReadPropertyVendorStatus();
 
         assertThat(gotCarPropertyValue.getPropertyId()).isEqualTo(PROPERTY_ID);
         assertThat(gotCarPropertyValue.getAreaId()).isEqualTo(AREA_ID);
@@ -405,9 +408,12 @@ public final class CarPropertyValueTest extends CarPropertyTestBase {
 
     @Test
     public void cloneWithVendorStatusFiltered() {
-        assertThat(CAR_PROPERTY_VALUE.getPropertyVendorStatus()).isNotEqualTo(0);
+        var carPropertyValue = getDefaultTestCarPropertyValueBuilder().build();
+        carPropertyValue.setHasPermissionToReadPropertyVendorStatus();
 
-        var carPropertyValue = CAR_PROPERTY_VALUE.cloneWithVendorStatusFiltered();
+        assertThat(carPropertyValue.getPropertyVendorStatus()).isNotEqualTo(0);
+
+        carPropertyValue = carPropertyValue.cloneWithVendorStatusFiltered();
 
         assertThat(carPropertyValue.getPropertyVendorStatus()).isEqualTo(0);
     }
