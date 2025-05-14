@@ -528,6 +528,14 @@ public class ClusterHalServiceTest {
     }
 
     @Test
+    public void testSendNavigationState_doesNotSendEmptyData() {
+        mClusterHalService.takeProperties(getFullProperties());
+        mClusterHalService.sendNavigationState(new byte[0]);
+
+        verify(mVehicleHal, times(0)).set(mPropCaptor.capture());
+    }
+
+    @Test
     public void testSendNavigationState_noProperties() {
         mClusterHalService.takeProperties(Arrays.asList());
 
