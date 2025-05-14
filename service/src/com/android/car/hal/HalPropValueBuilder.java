@@ -59,6 +59,13 @@ public final class HalPropValueBuilder {
     // Length of mixed type properties' configArray should always be 9.
     private static final int CONFIG_ARRAY_LENGTH = 9;
 
+    // The bitmask for system status (VehiclePropertyStatus) from VHAL VehiclePropValue status
+    // field.
+    private static final int SYSTEM_STATUS_MASK = 0xFFFF;
+    // Number of bits to shift right to get the vendor status code from VHAL VehiclePropValue status
+    // field.
+    private static final int VENDOR_STATUS_SHIFT = 16;
+
     private boolean mIsAidl;
 
     public HalPropValueBuilder(boolean isAidl) {
@@ -559,6 +566,7 @@ public final class HalPropValueBuilder {
          *
          * @return The timestamp.
          */
+        @Override
         public long getTimestamp() {
             return mVehiclePropValue.timestamp;
         }
@@ -568,6 +576,7 @@ public final class HalPropValueBuilder {
          *
          * @return The area ID.
          */
+        @Override
         public int getAreaId() {
             return mVehiclePropValue.areaId;
         }
@@ -577,17 +586,27 @@ public final class HalPropValueBuilder {
          *
          * @return The property ID.
          */
+        @Override
         public int getPropId() {
             return mVehiclePropValue.prop;
         }
 
         /**
-         * Get the property status.
+         * Get the property system status.
          *
-         * @return The property status.
+         * @return The property system status.
          */
+        @Override
         public int getStatus() {
-            return mVehiclePropValue.status;
+            return mVehiclePropValue.status & SYSTEM_STATUS_MASK;
+        }
+
+        /**
+         * Get the property vendor status.
+         */
+        @Override
+        public int getVendorStatus() {
+            return mVehiclePropValue.status >>> VENDOR_STATUS_SHIFT;
         }
 
         /**
@@ -595,6 +614,7 @@ public final class HalPropValueBuilder {
          *
          * @return The size for the stored int32 values.
          */
+        @Override
         public int getInt32ValuesSize() {
             return mVehiclePropValue.value.int32Values.length;
         }
@@ -605,6 +625,7 @@ public final class HalPropValueBuilder {
          * @param index The index.
          * @return The int32 value at index.
          */
+        @Override
         public int getInt32Value(int index) {
             return mVehiclePropValue.value.int32Values[index];
         }
@@ -614,6 +635,7 @@ public final class HalPropValueBuilder {
          *
          * @return A String representation of all int32 values.
          */
+        @Override
         public String dumpInt32Values() {
             return Arrays.toString(mVehiclePropValue.value.int32Values);
         }
@@ -623,6 +645,7 @@ public final class HalPropValueBuilder {
          *
          * @return The size for the stored float values.
          */
+        @Override
         public int getFloatValuesSize() {
             return mVehiclePropValue.value.floatValues.length;
         }
@@ -633,6 +656,7 @@ public final class HalPropValueBuilder {
          * @param index The index.
          * @return The float value at index.
          */
+        @Override
         public float getFloatValue(int index) {
             return mVehiclePropValue.value.floatValues[index];
         }
@@ -642,6 +666,7 @@ public final class HalPropValueBuilder {
          *
          * @return A String representation of all float values.
          */
+        @Override
         public String dumpFloatValues() {
             return Arrays.toString(mVehiclePropValue.value.floatValues);
         }
@@ -651,6 +676,7 @@ public final class HalPropValueBuilder {
          *
          * @return The size for the stored inn64 values.
          */
+        @Override
         public int getInt64ValuesSize() {
             return mVehiclePropValue.value.int64Values.length;
         }
@@ -660,6 +686,7 @@ public final class HalPropValueBuilder {
          *
          * @return A String representation of all int64 values.
          */
+        @Override
         public String dumpInt64Values() {
             return Arrays.toString(mVehiclePropValue.value.int64Values);
         }
@@ -670,6 +697,7 @@ public final class HalPropValueBuilder {
          * @param index The index.
          * @return The int64 value at index.
          */
+        @Override
         public long getInt64Value(int index) {
             return mVehiclePropValue.value.int64Values[index];
         }
@@ -679,6 +707,7 @@ public final class HalPropValueBuilder {
          *
          * @return The size for the stored byte values.
          */
+        @Override
         public int getByteValuesSize() {
             return mVehiclePropValue.value.byteValues.length;
         }
@@ -689,6 +718,7 @@ public final class HalPropValueBuilder {
          * @param index The index.
          * @return The byte value at index.
          */
+        @Override
         public byte getByteValue(int index) {
             return mVehiclePropValue.value.byteValues[index];
         }
@@ -698,6 +728,7 @@ public final class HalPropValueBuilder {
          *
          * @return The byte values.
          */
+        @Override
         public byte[] getByteArray() {
             return mVehiclePropValue.value.byteValues;
         }
@@ -707,6 +738,7 @@ public final class HalPropValueBuilder {
          *
          * @return The stored string value.
          */
+        @Override
         public String getStringValue() {
             return mVehiclePropValue.value.stringValue;
         }
