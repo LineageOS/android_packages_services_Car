@@ -35,6 +35,7 @@ import android.car.Car;
 import android.car.VehiclePropertyIds;
 import android.car.builtin.os.BuildHelper;
 import android.car.feature.Flags;
+import android.os.Build;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -591,8 +592,6 @@ public final class CarPropertyValue<T> implements Parcelable {
     @FlaggedApi(FLAG_CAR_PROPERTY_VALUE_PROPERTY_STATUS)
     @CarPropertyStatus
     public int getPropertyStatus() {
-        // TODO(b/416768353): Check sdk version against 25Q4 here and map detailed not available
-        // property status to general not available status.
         return mSystemStatus;
     }
 
@@ -634,8 +633,6 @@ public final class CarPropertyValue<T> implements Parcelable {
     @Deprecated
     @CarPropertyStatus
     public int getStatus() {
-        // TODO(b/416768353): Check sdk version against 25Q4 here and map detailed not available
-        // property status to general not available status.
         return mSystemStatus;
     }
 
@@ -750,5 +747,31 @@ public final class CarPropertyValue<T> implements Parcelable {
                 && mVendorStatus == carPropertyValue.mVendorStatus
                 && mHasPermissionToReadPropertyVendorStatus
                         == carPropertyValue.mHasPermissionToReadPropertyVendorStatus;
+    }
+
+    /**
+     * Maps detailed not_available system property status to general not_available status for
+     * app that has sdkVersion < 25Q4.
+     *
+     * @hide
+     */
+    public CarPropertyValue cloneWithSystemStatusConverted(int sdkVersion) {
+        // TODO(b/416768353): Change this to 25Q4 version code.
+        // The flag is already checked at car service HalPropValue.
+        if (sdkVersion >= Build.VERSION_CODES.CUR_DEVELOPMENT
+                || !Flags.carPropertyStatusDetailedNotAvailable()) {
+            return newBuilder(this).build();
+        }
+        switch (mSystemStatus) {
+            case STATUS_NOT_AVAILABLE_DISABLED:
+            case STATUS_NOT_AVAILABLE_SPEED_LOW:
+            case STATUS_NOT_AVAILABLE_SPEED_HIGH:
+            case STATUS_NOT_AVAILABLE_POOR_VISIBILITY:
+            case STATUS_NOT_AVAILABLE_SAFETY:
+            case STATUS_NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED:
+                return newBuilder(this).setSystemStatus(STATUS_NOT_AVAILABLE_GENERAL).build();
+            default:
+                return newBuilder(this).build();
+        }
     }
 }

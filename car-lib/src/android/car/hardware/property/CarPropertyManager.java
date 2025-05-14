@@ -1595,7 +1595,7 @@ public class CarPropertyManager extends CarManagerBase {
 
             if (cpeCallbackController == null) {
                 cpeCallbackController =
-                        new CarPropertyEventCallbackController(getContext(),
+                        new CarPropertyEventCallbackController(getContext(), mAppTargetSdk,
                                 carPropertyEventCallback, callbackExecutor);
                 mCpeCallbackToCpeCallbackController.put(carPropertyEventCallback,
                         cpeCallbackController);
@@ -2317,6 +2317,9 @@ public class CarPropertyManager extends CarManagerBase {
                 }
                 return mService.getProperty(propertyId, areaId);
             });
+            if (propValue != null) {
+                propValue = propValue.cloneWithSystemStatusConverted(mAppTargetSdk);
+            }
             return (propValue != null
                     && PropertyStatusUtils.isPropertyStatusAvailable(propValue.getStatus()));
         } catch (RemoteException e) {
@@ -2864,6 +2867,7 @@ public class CarPropertyManager extends CarManagerBase {
             if (carPropertyValue == null) {
                 return null;
             }
+            carPropertyValue = carPropertyValue.cloneWithSystemStatusConverted(mAppTargetSdk);
             if (mAppTargetSdk >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
                 int propertyStatus = carPropertyValue.getStatus();
                 if (PropertyStatusUtils.isPropertyStatusNotAvailable(propertyStatus)) {
