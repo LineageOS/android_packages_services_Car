@@ -333,10 +333,6 @@ public class SensorsTestFragment extends Fragment {
         return Double.toString(value.getTimestamp() / (1000L * 1000L * 1000L)) + " sec";
     }
 
-    private String getTimestampNow() {
-        return Double.toString(System.nanoTime() / (1000L * 1000L * 1000L)) + " sec";
-    }
-
     private String getStringOfPropertyValue(CarPropertyValue value) {
         String defaultString = mNaString;
         if (value != null) {
@@ -403,7 +399,7 @@ public class SensorsTestFragment extends Fragment {
 
         private void setTimestampedTextField(TextView text, String value) {
             synchronized (SensorsTestFragment.this) {
-                text.setText(getTimestampNow() + ": " + value);
+                text.setText(value);
                 Log.d(TAG, "setText: " + value);
             }
         }
