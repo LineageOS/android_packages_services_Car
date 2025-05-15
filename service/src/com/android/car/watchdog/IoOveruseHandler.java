@@ -40,7 +40,6 @@ import static android.os.Process.INVALID_UID;
 import static android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS;
 
 import static com.android.car.CarServiceUtils.getContentResolverForUser;
-import static com.android.car.CarServiceUtils.getHandlerThread;
 import static com.android.car.CarStatsLog.CAR_WATCHDOG_IO_OVERUSE_STATS_REPORTED;
 import static com.android.car.CarStatsLog.CAR_WATCHDOG_KILL_STATS_REPORTED;
 import static com.android.car.CarStatsLog.CAR_WATCHDOG_KILL_STATS_REPORTED__KILL_REASON__KILLED_ON_IO_OVERUSE;
@@ -314,14 +313,13 @@ public final class IoOveruseHandler {
 
     public IoOveruseHandler(Context context, Context builtinPackageContext,
             CarWatchdogDaemonHelper daemonHelper, PackageInfoHandler packageInfoHandler,
-            WatchdogStorage watchdogStorage, TimeSource timeSource) {
+            WatchdogStorage watchdogStorage, TimeSource timeSource, Handler serviceHandler) {
         mContext = context;
         mBuiltinPackageContext = builtinPackageContext;
         mCarWatchdogDaemonHelper = daemonHelper;
         mPackageInfoHandler = packageInfoHandler;
         mMainHandler = new Handler(Looper.getMainLooper());
-        mServiceHandler = new Handler(getHandlerThread(
-                CarWatchdogService.class.getSimpleName()).getLooper());
+        mServiceHandler = serviceHandler;
         mWatchdogStorage = watchdogStorage;
         mOveruseConfigurationCache = new OveruseConfigurationCache();
         mTimeSource = timeSource;
