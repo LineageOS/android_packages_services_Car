@@ -1035,7 +1035,7 @@ package android.car.hardware {
   }
 
   public final class CarPropertyValue<T> implements android.os.Parcelable {
-    method @FlaggedApi("android.car.feature.car_property_value_property_status") public int getPropertyVendorStatus();
+    method @FlaggedApi("android.car.feature.car_property_status_detailed_not_available") public int getPropertyVendorStatus();
     method @FlaggedApi("android.car.feature.car_property_simulation") public boolean isPropertyIdSimulationPropId();
   }
 
