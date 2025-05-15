@@ -753,9 +753,7 @@ public class PowerHalService extends HalServiceBase {
                     mMaxDisplayBrightness = 1;
                 }
 
-                if (mFeatureFlags.perDisplayMaxBrightness()) {
-                    getMaxPerDisplayBrightnessFromVhalLocked();
-                }
+                getMaxPerDisplayBrightnessFromVhalLocked();
             }
         }
     }
@@ -978,8 +976,7 @@ public class PowerHalService extends HalServiceBase {
     @GuardedBy("mLock")
     private int getMaxPerDisplayBrightnessLocked(int displayPort) {
         int maxBrightness;
-        if (!mFeatureFlags.perDisplayMaxBrightness()
-                || mMaxPerDisplayBrightness.size() == 0) {
+        if (mMaxPerDisplayBrightness.size() == 0) {
             maxBrightness = mMaxDisplayBrightness;
         } else {
             maxBrightness = mMaxPerDisplayBrightness.get(displayPort,
