@@ -28,8 +28,8 @@ import android.os.Bundle;
 import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.Locale;
 import java.util.function.Consumer;
-
 
 public class LocationListeners {
 
@@ -43,6 +43,7 @@ public class LocationListeners {
     private class SensorHelper implements SensorEventListener {
         private static final String TAG = "CAR.SENSOR.KS";
         private static final String LOC_SENSOR_FORMAT = "%12.8f";
+        private static final int SAMPLING_PERIOD_US = 100_000; // 10 Hz
 
         private final SensorManager mSensorMgr;
         private final int mSensorType;
@@ -77,8 +78,7 @@ public class LocationListeners {
                 mUpdate.accept(mSensorName + ": sensor not available");
                 return;
             }
-            if (!mSensorMgr.registerListener(this, mSensor,
-                    SensorManager.SENSOR_DELAY_FASTEST)) {
+            if (!mSensorMgr.registerListener(this, mSensor, SAMPLING_PERIOD_US)) {
                 mUpdate.accept(mSensorName + ": failed to register listener.");
                 Log.w(TAG, "sensor " + mSensorName + " cannot be listened to");
             } else {
@@ -101,11 +101,17 @@ public class LocationListeners {
                 Log.w(TAG, "unexpected event: " + event);
                 return;
             }
-
-            String es = String.format("%s %s: (" + LOC_SENSOR_FORMAT,
-                    mSensorName, mSensorUnits, event.values[0]);
+            double timestampSec = event.timestamp / 1.0e9;
+            String es =
+                    String.format(
+                            Locale.US,
+                            "%.1f sec: %s %s: (" + LOC_SENSOR_FORMAT,
+                            timestampSec,
+                            mSensorName,
+                            mSensorUnits,
+                            event.values[0]);
             for (int i = 1; i < event.values.length; i++) {
-                es = es + String.format(", " + LOC_SENSOR_FORMAT, event.values[i]);
+                es = es + String.format(Locale.US, ", " + LOC_SENSOR_FORMAT, event.values[i]);
             }
             es = es + ")";
 
@@ -191,41 +197,43 @@ public class LocationListeners {
         mSensors.forEach(SensorHelper::stopListening);
     }
 
+    private final LocationListener mLocationListener =
+            new LocationListener() {
+                @Override
+                public void onLocationChanged(Location location) {
+                    double timestampSec = location.getElapsedRealtimeNanos() / 1.0e9;
+                    String s =
+                            String.format(
+                                    Locale.US,
+                                    "%.1f sec: Location: lat=%10.6f, lon=%10.6f, altitude=%5.0f, "
+                                            + "speed=%5.1f, bearing=%3.0f, accuracy=%5.1f, "
+                                            + "hasBearingAccuracy=%B, bearingAccuracy=%f, "
+                                            + "hasSpeedAccuracy=%B, speedAccuracy=%f, "
+                                            + "hasVerticalAccuracy=%B, verticalAccuracy=%f",
+                                    timestampSec,
+                                    location.getLatitude(),
+                                    location.getLongitude(),
+                                    location.getAltitude(),
+                                    location.getSpeed(),
+                                    location.getBearing(),
+                                    location.getAccuracy(),
+                                    location.hasBearingAccuracy(),
+                                    location.getBearingAccuracyDegrees(),
+                                    location.hasSpeedAccuracy(),
+                                    location.getSpeedAccuracyMetersPerSecond(),
+                                    location.hasVerticalAccuracy(),
+                                    location.getVerticalAccuracyMeters());
 
-    private final LocationListener mLocationListener = new LocationListener() {
-        @Override
-        public void onLocationChanged(Location location) {
-            String s = String.format("Location: lat=%10.6f, lon=%10.6f, altitude=%5.0f, "
-                                   + "speed=%5.1f, bearing=%3.0f, accuracy=%5.1f, "
-                                   + "hasBearingAccuracy=%B, bearingAccuracy=%f, "
-                                   + "hasSpeedAccuracy=%B, speedAccuracy=%f, "
-                                   + "hasVerticalAccuracy=%B, verticalAccuracy=%f",
-                    location.getLatitude(),
-                    location.getLongitude(),
-                    location.getAltitude(),
-                    location.getSpeed(),
-                    location.getBearing(),
-                    location.getAccuracy(),
-                    location.hasBearingAccuracy(),
-                    location.getBearingAccuracyDegrees(),
-                    location.hasSpeedAccuracy(),
-                    location.getSpeedAccuracyMetersPerSecond(),
-                    location.hasVerticalAccuracy(),
-                    location.getVerticalAccuracyMeters());
+                    mTextUpdateHandler.setLocationField(s);
+                }
 
-            mTextUpdateHandler.setLocationField(s);
-        }
+                @Override
+                public void onProviderEnabled(String provider) {}
 
-        @Override
-        public void onProviderEnabled(String provider) {
-        }
+                @Override
+                public void onProviderDisabled(String provider) {}
 
-        @Override
-        public void onProviderDisabled(String provider) {
-        }
-
-        @Override
-        public void onStatusChanged(String provider, int status, Bundle extras) {
-        }
-    };
+                @Override
+                public void onStatusChanged(String provider, int status, Bundle extras) {}
+            };
 }

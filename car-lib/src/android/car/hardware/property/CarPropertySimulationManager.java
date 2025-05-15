@@ -38,7 +38,6 @@ import android.util.Log;
 
 import com.android.car.internal.ICarBase;
 import com.android.car.internal.os.HandlerExecutor;
-import com.android.car.internal.property.RawPropertyValue;
 import com.android.car.internal.util.IntArray;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
@@ -435,8 +434,11 @@ public final class CarPropertySimulationManager extends CarManagerBase {
         if (!BuildHelper.isDebuggableBuild()) {
             throw new IllegalStateException("not eng or user-debug build");
         }
-        return new CarPropertyValue<>(propertyId, areaId, status, timestampNanos,
-                new RawPropertyValue(value));
+        return new CarPropertyValue.Builder<T>(propertyId, areaId)
+                .setSystemStatus(status)
+                .setTimestampNanos(timestampNanos)
+                .setValue(value)
+                .build();
     }
 
     /** @hide */

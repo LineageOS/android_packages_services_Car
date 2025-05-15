@@ -1035,7 +1035,18 @@ package android.car.hardware {
   }
 
   public final class CarPropertyValue<T> implements android.os.Parcelable {
+    method @FlaggedApi("android.car.feature.car_property_value_property_status") public int getPropertyVendorStatus();
     method @FlaggedApi("android.car.feature.car_property_simulation") public boolean isPropertyIdSimulationPropId();
+  }
+
+  public static class CarPropertyValue.Builder<T> {
+    ctor public CarPropertyValue.Builder(int, int);
+    method public android.car.hardware.CarPropertyValue<T> build();
+    method public android.car.hardware.CarPropertyValue.Builder<T> setIsSimulationPropId(boolean);
+    method public android.car.hardware.CarPropertyValue.Builder<T> setSystemStatus(int);
+    method public android.car.hardware.CarPropertyValue.Builder<T> setTimestampNanos(long);
+    method public android.car.hardware.CarPropertyValue.Builder<T> setValue(T);
+    method public android.car.hardware.CarPropertyValue.Builder<T> setVendorStatus(int);
   }
 
   @Deprecated public final class CarVendorExtensionManager {
