@@ -14,9 +14,6 @@
 # limitations under the License.
 #
 
-# Enable Cluster2
-ENABLE_CLUSTER_OS_DOUBLE:=true
-
 # Include DriverUI app and enable it using RROs
 PRODUCT_PACKAGES += \
     CarServiceDriverUIRRO \
