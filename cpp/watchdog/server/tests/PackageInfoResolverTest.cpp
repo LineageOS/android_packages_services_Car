@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
-#include "MockWatchdogServiceHelper.h"
+#include "MockWatchdogServiceHelperBase.h"
 #include "PackageInfoResolver.h"
 #include "PackageInfoTestUtils.h"
 
 #include <aidl/android/automotive/watchdog/internal/ApplicationCategoryType.h>
 #include <aidl/android/automotive/watchdog/internal/ComponentType.h>
 #include <aidl/android/automotive/watchdog/internal/UidType.h>
+#include <android-base/chrono_utils.h>
 #include <android-base/stringprintf.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
@@ -81,12 +82,15 @@ public:
         clearMappingCache();
     }
 
-    void initWatchdogServiceHelper(
-            const sp<WatchdogServiceHelperInterface>& watchdogServiceHelper) {
-        ASSERT_RESULT_OK(mPackageInfoResolver->initWatchdogServiceHelper(watchdogServiceHelper));
+    void initWatchdogServiceHelperBase(
+            const sp<WatchdogServiceHelperBaseInterface>& watchdogServiceHelperBase) {
+        ASSERT_RESULT_OK(
+                mPackageInfoResolver->initWatchdogServiceHelperBase(watchdogServiceHelperBase));
     }
 
-    void resetWatchdogServiceHelper() { mPackageInfoResolver->mWatchdogServiceHelper = nullptr; }
+    void resetWatchdogServiceHelperBase() {
+        mPackageInfoResolver->mWatchdogServiceHelperBase = nullptr;
+    }
 
     void injectCacheMapping(const std::unordered_map<uid_t, PackageInfo>& mapping) {
         mPackageInfoResolver->mUidToPackageInfoMapping = mapping;
@@ -146,20 +150,20 @@ protected:
     virtual void SetUp() {
         mPackageInfoResolver = PackageInfoResolver::getInstance();
         mPackageInfoResolverPeer = std::make_unique<internal::PackageInfoResolverPeer>();
-        mMockWatchdogServiceHelper = sp<MockWatchdogServiceHelper>::make();
-        ASSERT_NO_FATAL_FAILURE(
-                mPackageInfoResolverPeer->initWatchdogServiceHelper(mMockWatchdogServiceHelper));
+        mMockWatchdogServiceHelperBase = sp<MockWatchdogServiceHelperBase>::make();
+        ASSERT_NO_FATAL_FAILURE(mPackageInfoResolverPeer->initWatchdogServiceHelperBase(
+                mMockWatchdogServiceHelperBase));
     }
 
     virtual void TearDown() {
         PackageInfoResolver::terminate();
         mPackageInfoResolverPeer.reset();
-        mMockWatchdogServiceHelper.clear();
+        mMockWatchdogServiceHelperBase.clear();
     }
 
     std::shared_ptr<PackageInfoResolverInterface> mPackageInfoResolver;
     std::unique_ptr<internal::PackageInfoResolverPeer> mPackageInfoResolverPeer;
-    sp<MockWatchdogServiceHelper> mMockWatchdogServiceHelper;
+    sp<MockWatchdogServiceHelperBase> mMockWatchdogServiceHelperBase;
 };
 
 TEST_F(PackageInfoResolverTest, TestGetPackageInfosForUidsViaGetpwuid) {
@@ -190,7 +194,7 @@ TEST_F(PackageInfoResolverTest, TestGetPackageInfosForUidsViaGetpwuid) {
                                             {5100, "vendor.package.A"},
                                             {6700, "vendor.package.B"},
                                             {9997, "vendor.pkg.C"}});
-    EXPECT_CALL(*mMockWatchdogServiceHelper, getPackageInfosForUids(_, _, _)).Times(0);
+    EXPECT_CALL(*mMockWatchdogServiceHelperBase, getPackageInfosForUids(_, _, _)).Times(0);
 
     auto actualMappings = mPackageInfoResolver->getPackageInfosForUids({7700, 5100, 6700, 9997});
 
@@ -250,8 +254,8 @@ TEST_F(PackageInfoResolverTest, TestGetPackageInfosForUidsViaWatchdogService) {
     expectedMappings.at(18100).appCategoryType = ApplicationCategoryType::MEDIA;
     expectedMappings.at(19100).appCategoryType = ApplicationCategoryType::MAPS;
 
-    EXPECT_CALL(*mMockWatchdogServiceHelper, isServiceConnected()).WillOnce(Return(true));
-    EXPECT_CALL(*mMockWatchdogServiceHelper,
+    EXPECT_CALL(*mMockWatchdogServiceHelperBase, isServiceConnected()).WillOnce(Return(true));
+    EXPECT_CALL(*mMockWatchdogServiceHelperBase,
                 getPackageInfosForUids(expectedUids, expectedPrefixes, _))
             .WillOnce(DoAll(SetArgPointee<2>(injectPackageInfos),
                             Return(ByMove(ScopedAStatus::ok()))));
@@ -264,7 +268,7 @@ TEST_F(PackageInfoResolverTest, TestGetPackageInfosForUidsViaWatchdogService) {
             << "\nActual: " << toString(actualMappings);
 }
 
-TEST_F(PackageInfoResolverTest, TestGetPackageInfosForUidsWithoutWatchdogServiceHelper) {
+TEST_F(PackageInfoResolverTest, TestGetPackageInfosForUidsWithoutWatchdogServiceHelperBase) {
     internal::PackageInfoResolverPeer peer;
     auto packageInfoResolver = PackageInfoResolver::getInstance();
     mPackageInfoResolverPeer->stubGetpwuid({{6100, "shared:system.package.A"}});
@@ -275,9 +279,9 @@ TEST_F(PackageInfoResolverTest, TestGetPackageInfosForUidsWithoutWatchdogService
                                   ComponentType::SYSTEM, ApplicationCategoryType::OTHERS, {})},
     };
 
-    mPackageInfoResolverPeer->resetWatchdogServiceHelper();
+    mPackageInfoResolverPeer->resetWatchdogServiceHelperBase();
 
-    EXPECT_CALL(*mMockWatchdogServiceHelper, getPackageInfosForUids(_, _, _)).Times(0);
+    EXPECT_CALL(*mMockWatchdogServiceHelperBase, getPackageInfosForUids(_, _, _)).Times(0);
 
     auto actualMappings =
             mPackageInfoResolver->getPackageInfosForUids({6100, 7700, 15100, 16700, 18100, 19100});
@@ -298,8 +302,8 @@ TEST_F(PackageInfoResolverTest, TestGetPackageInfosForUidsMissingWatchdogService
                                   ComponentType::SYSTEM, ApplicationCategoryType::OTHERS, {})},
     };
 
-    EXPECT_CALL(*mMockWatchdogServiceHelper, isServiceConnected()).WillOnce(Return(false));
-    EXPECT_CALL(*mMockWatchdogServiceHelper, getPackageInfosForUids(_, _, _)).Times(0);
+    EXPECT_CALL(*mMockWatchdogServiceHelperBase, isServiceConnected()).WillOnce(Return(false));
+    EXPECT_CALL(*mMockWatchdogServiceHelperBase, getPackageInfosForUids(_, _, _)).Times(0);
 
     auto actualMappings =
             mPackageInfoResolver->getPackageInfosForUids({6100, 7700, 15100, 16700, 18100, 19100});
@@ -320,7 +324,7 @@ TEST_F(PackageInfoResolverTest, TestResolvesApplicationUidFromLocalCache) {
 
     mPackageInfoResolverPeer->stubGetpwuid({});
 
-    EXPECT_CALL(*mMockWatchdogServiceHelper, getPackageInfosForUids(_, _, _)).Times(0);
+    EXPECT_CALL(*mMockWatchdogServiceHelperBase, getPackageInfosForUids(_, _, _)).Times(0);
 
     auto actualMappings = mPackageInfoResolver->getPackageInfosForUids({1003456});
 

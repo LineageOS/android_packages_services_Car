@@ -21,6 +21,7 @@
 #include "PackageInfoResolver.h"
 #include "ProcDiskStatsCollector.h"
 #include "UidStatsCollectorBase.h"
+#include "WatchdogServiceHelperBase.h"
 
 #include <aidl/android/automotive/watchdog/IResourceOveruseListener.h>
 #include <aidl/android/automotive/watchdog/PerStateBytes.h>
@@ -33,6 +34,7 @@
 #include <cutils/multiuser.h>
 #include <utils/Mutex.h>
 
+#include <inttypes.h>
 #include <time.h>
 
 #include <ostream>
@@ -137,7 +139,8 @@ public:
 class IoOveruseMonitor final : public IoOveruseMonitorInterface {
 public:
     explicit IoOveruseMonitor(
-            const android::sp<WatchdogServiceHelperInterface>& watchdogServiceHelper);
+            const android::sp<WatchdogServiceHelperBaseInterface>& watchdogServiceHelperBase,
+            AIBinder_DeathRecipient* binderRecipient = nullptr);
 
     ~IoOveruseMonitor() { terminate(); }
 
@@ -253,7 +256,7 @@ private:
     double mMinSyncWrittenBytes;
 
     // Helper to communicate with the CarWatchdogService.
-    android::sp<WatchdogServiceHelperInterface> mWatchdogServiceHelper;
+    android::sp<WatchdogServiceHelperBaseInterface> mWatchdogServiceHelperBase;
 
     // AIBinder death registration wrapper. Useful for mocking in tests.
     android::sp<AIBinderDeathRegistrationWrapperInterface> mDeathRegistrationWrapper;
