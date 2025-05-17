@@ -16,6 +16,7 @@
 package com.android.car;
 
 import static android.content.pm.PackageManager.PERMISSION_DENIED;
+import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.mockitoSession;
 
@@ -665,6 +666,7 @@ public class MockedCarTestBase {
 
         private final Resources mMockedResources;
         private final Set<String> mDeniedPermissions = new ArraySet<>();
+        private final Set<String> mAllowedPermissions = new ArraySet<>();
 
         protected MockedCarTestContext(Context base) {
             super(base);
@@ -673,10 +675,31 @@ public class MockedCarTestBase {
 
         /**
          * Sets the permissions that should be denied.
+         *
+         * This permissions must not overlap with permissions specified at
+         * {@link setAllowedPermissions}.
+         *
+         * The permissions will always be denied and the real permission controller will not be
+         * used for checking them.
          */
         public void setDeniedPermissions(String[] permissions) {
             for (String permission : permissions) {
                 mDeniedPermissions.add(permission);
+            }
+        }
+
+        /**
+         * Sets the permissions that should be allowed.
+         *
+         * This permissions must not overlap with permissions specified at
+         * {@link setDeniedPermissions}.
+         *
+         * The permissions will always be allowed and the real permission controller will not be
+         * used for checking them.
+         */
+        public void setAllowedPermissions(String[] permissions) {
+            for (String permission : permissions) {
+                mAllowedPermissions.add(permission);
             }
         }
 
@@ -686,7 +709,21 @@ public class MockedCarTestBase {
         }
 
         @Override
+        public int checkSelfPermission(String permission) {
+            if (mAllowedPermissions.contains(permission)) {
+                return PERMISSION_GRANTED;
+            }
+            if (mDeniedPermissions.contains(permission)) {
+                return PERMISSION_DENIED;
+            }
+            return super.checkSelfPermission(permission);
+        }
+
+        @Override
         public int checkCallingOrSelfPermission(String permission) {
+            if (mAllowedPermissions.contains(permission)) {
+                return PERMISSION_GRANTED;
+            }
             if (mDeniedPermissions.contains(permission)) {
                 return PERMISSION_DENIED;
             }
