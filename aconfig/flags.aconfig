@@ -101,26 +101,6 @@ flag {
 }
 
 flag {
-  name: "per_display_max_brightness"
-  namespace: "car_framework"
-  description: "Use per display max brightness defined by VHAL"
-  bug: "336831738"
-  metadata {
-    purpose: PURPOSE_BUGFIX
-  }
-}
-
-flag {
-  name: "multi_display_brightness_control"
-  namespace: "car_framework"
-  description: "Support multi display brightness control"
-  bug: "356419293"
-  metadata {
-    purpose: PURPOSE_BUGFIX
-  }
-}
-
-flag {
   name: "car_power_cancel_shell_command"
   is_exported: true
   namespace: "car_framework"

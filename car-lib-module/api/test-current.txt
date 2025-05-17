@@ -103,6 +103,20 @@ package android.car.drivingstate {
 
 }
 
+package android.car.hardware {
+
+  public static class CarPropertyValue.Builder<T> {
+    ctor public CarPropertyValue.Builder(int, int);
+    method public android.car.hardware.CarPropertyValue<T> build();
+    method public android.car.hardware.CarPropertyValue.Builder<T> setIsSimulationPropId(boolean);
+    method public android.car.hardware.CarPropertyValue.Builder<T> setSystemStatus(int);
+    method public android.car.hardware.CarPropertyValue.Builder<T> setTimestampNanos(long);
+    method public android.car.hardware.CarPropertyValue.Builder<T> setValue(T);
+    method public android.car.hardware.CarPropertyValue.Builder<T> setVendorStatus(int);
+  }
+
+}
+
 package android.car.hardware.power {
 
   public class CarPowerManager {

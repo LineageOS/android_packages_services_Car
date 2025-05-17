@@ -65,7 +65,9 @@ public final class AsyncPropertyServiceRequest implements Parcelable {
         int areaId = setPropertyRequest.getAreaId();
         AsyncPropertyServiceRequest request = new AsyncPropertyServiceRequest(
                 setPropertyRequest.getRequestId(), propertyId, areaId,
-                new CarPropertyValue(propertyId, areaId, setPropertyRequest.getValue()));
+                new CarPropertyValue.Builder(propertyId, areaId)
+                        .setValue(setPropertyRequest.getValue())
+                        .build());
         request.setUpdateRateHz(setPropertyRequest.getUpdateRateHz());
         request.setWaitForPropertyUpdate(setPropertyRequest.isWaitForPropertyUpdate());
         return request;

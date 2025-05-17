@@ -18,13 +18,12 @@
 
 #include "AIBinderDeathRegistrationWrapper.h"
 #include "WatchdogProcessService.h"
+#include "WatchdogServiceHelperBase.h"
 
 #include <aidl/android/automotive/watchdog/TimeoutLength.h>
 #include <aidl/android/automotive/watchdog/internal/ICarWatchdogServiceForSystem.h>
 #include <aidl/android/automotive/watchdog/internal/PackageInfo.h>
-#include <aidl/android/automotive/watchdog/internal/PackageIoOveruseStats.h>
 #include <aidl/android/automotive/watchdog/internal/ResourceStats.h>
-#include <aidl/android/automotive/watchdog/internal/UserPackageIoUsageStats.h>
 #include <android-base/result.h>
 #include <android/binder_auto_utils.h>
 #include <gtest/gtest_prod.h>
@@ -46,40 +45,18 @@ class WatchdogServiceHelperPeer;
 
 }  // namespace internal
 
-class WatchdogServiceHelperInterface : virtual public android::RefBase {
+class WatchdogServiceHelperInterface : virtual public WatchdogServiceHelperBaseInterface {
 public:
-    virtual bool isServiceConnected() = 0;
-    virtual ndk::ScopedAStatus registerService(
-            const std::shared_ptr<
-                    aidl::android::automotive::watchdog::internal::ICarWatchdogServiceForSystem>&
-                    service) = 0;
-    virtual ndk::ScopedAStatus unregisterService(
-            const std::shared_ptr<
-                    aidl::android::automotive::watchdog::internal::ICarWatchdogServiceForSystem>&
-                    service) = 0;
-    virtual void handleBinderDeath(void* cookie) = 0;
-
     // Helper methods for APIs in ICarWatchdogServiceForSystem.aidl.
     virtual ndk::ScopedAStatus checkIfAlive(
             const ndk::SpAIBinder& who, int32_t sessionId,
             aidl::android::automotive::watchdog::TimeoutLength timeout) const = 0;
     virtual ndk::ScopedAStatus prepareProcessTermination(const ndk::SpAIBinder& who) = 0;
-    virtual ndk::ScopedAStatus getPackageInfosForUids(
-            const std::vector<int32_t>& uids, const std::vector<std::string>& vendorPackagePrefixes,
-            std::vector<aidl::android::automotive::watchdog::internal::PackageInfo>* packageInfos)
-            const = 0;
-    virtual ndk::ScopedAStatus resetResourceOveruseStats(
-            const std::vector<std::string>& packageNames) const = 0;
-    virtual ndk::ScopedAStatus onLatestResourceStats(
-            const std::vector<aidl::android::automotive::watchdog::internal::ResourceStats>&
-                    resourceStats) const = 0;
     virtual ndk::ScopedAStatus requestAidlVhalPid() const = 0;
-    virtual ndk::ScopedAStatus requestTodayIoUsageStats() const = 0;
 
 protected:
     virtual android::base::Result<void> init(
             const android::sp<WatchdogProcessServiceInterface>& watchdogProcessService) = 0;
-    virtual void terminate() = 0;
 
 private:
     friend class ServiceManager;
@@ -88,14 +65,14 @@ private:
 // WatchdogServiceHelper implements the helper functions for the outbound API requests to
 // the CarWatchdogService. This class doesn't handle the inbound APIs requests from
 // CarWatchdogService except the registration APIs.
-class WatchdogServiceHelper final : public WatchdogServiceHelperInterface {
+class WatchdogServiceHelper final :
+      public WatchdogServiceHelperInterface,
+      public WatchdogServiceHelperBase {
 public:
     WatchdogServiceHelper();
 
-    bool isServiceConnected() {
-        std::shared_lock readLock(mRWMutex);
-        return mService != nullptr;
-    }
+    bool isServiceConnected() { return WatchdogServiceHelperBase::isServiceConnected(); }
+
     ndk::ScopedAStatus registerService(
             const std::shared_ptr<
                     aidl::android::automotive::watchdog::internal::ICarWatchdogServiceForSystem>&
@@ -111,17 +88,31 @@ public:
             const ndk::SpAIBinder& who, int32_t sessionId,
             aidl::android::automotive::watchdog::TimeoutLength timeout) const override;
     ndk::ScopedAStatus prepareProcessTermination(const ndk::SpAIBinder& who) override;
+
     ndk::ScopedAStatus getPackageInfosForUids(
             const std::vector<int32_t>& uids, const std::vector<std::string>& vendorPackagePrefixes,
             std::vector<aidl::android::automotive::watchdog::internal::PackageInfo>* packageInfos)
-            const override;
+            const override {
+        return WatchdogServiceHelperBase::getPackageInfosForUids(uids, vendorPackagePrefixes,
+                                                                 packageInfos);
+    }
+
     ndk::ScopedAStatus resetResourceOveruseStats(
-            const std::vector<std::string>& packageNames) const override;
+            const std::vector<std::string>& packageNames) const override {
+        return WatchdogServiceHelperBase::resetResourceOveruseStats(packageNames);
+    }
+
     ndk::ScopedAStatus onLatestResourceStats(
             const std::vector<aidl::android::automotive::watchdog::internal::ResourceStats>&
-                    resourceStats) const override;
+                    resourceStats) const override {
+        return WatchdogServiceHelperBase::onLatestResourceStats(resourceStats);
+    }
+
     ndk::ScopedAStatus requestAidlVhalPid() const override;
-    ndk::ScopedAStatus requestTodayIoUsageStats() const override;
+
+    ndk::ScopedAStatus requestTodayIoUsageStats() const override {
+        return WatchdogServiceHelperBase::requestTodayIoUsageStats();
+    }
 
 protected:
     android::base::Result<void> init(
@@ -129,11 +120,8 @@ protected:
     void terminate();
 
 private:
-    void unregisterServiceLocked(bool doUnregisterFromProcessService);
-
     android::sp<WatchdogProcessServiceInterface> mWatchdogProcessService;
-    ndk::ScopedAIBinder_DeathRecipient mWatchdogServiceDeathRecipient;
-    android::sp<AIBinderDeathRegistrationWrapperInterface> mDeathRegistrationWrapper;
+    std::function<ndk::ScopedAStatus(const ndk::SpAIBinder&)> mOnUnregisterServiceLocked;
 
     mutable std::shared_mutex mRWMutex;
     std::shared_ptr<aidl::android::automotive::watchdog::internal::ICarWatchdogServiceForSystem>

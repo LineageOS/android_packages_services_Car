@@ -343,6 +343,10 @@ public final class ClusterHalService extends HalServiceBase {
         if (!isNavigationStateSupported()) {
             return;
         }
+        if (navigateState.length < 1) {
+            Slogf.w(TAG, "Cannot send an empty value for CLUSTER_NAVIGATION_STATE.");
+            return;
+        }
         HalPropValue request = mPropValueBuilder.build(CLUSTER_NAVIGATION_STATE,
                 /* areaId= */ 0, SystemClock.elapsedRealtime(), VehiclePropertyStatus.AVAILABLE,
                 /* values= */ navigateState);
