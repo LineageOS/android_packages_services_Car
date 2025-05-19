@@ -51,6 +51,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.car.kitchensink.activityresolver.ActivityResolverFragment;
 import com.google.android.car.kitchensink.admin.DevicePolicyFragment;
 import com.google.android.car.kitchensink.alertdialog.AlertDialogTestFragment;
+import com.google.android.car.kitchensink.appshare.AppSharingFragment;
 import com.google.android.car.kitchensink.assistant.CarAssistantFragment;
 import com.google.android.car.kitchensink.audio.AudioConfigurationTestFragment;
 import com.google.android.car.kitchensink.audio.AudioMirrorTestFragment;
@@ -299,6 +300,7 @@ public class KitchenSinkActivity extends FragmentActivity implements KitchenSink
     public static final List<Pair<String, Class>> MENU_ENTRIES = Arrays.asList(
             new Pair<>("activity resolver", ActivityResolverFragment.class),
             new Pair<>("alert window", AlertDialogTestFragment.class),
+            new Pair<>("app sharing", AppSharingFragment.class),
             new Pair<>("assistant", CarAssistantFragment.class),
             new Pair<>(AudioTestFragment.FRAGMENT_NAME, AudioTestFragment.class),
             new Pair<>(AudioUserAssignmentFragment.FRAGMENT_NAME,
