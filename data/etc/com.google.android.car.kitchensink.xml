@@ -22,6 +22,8 @@
         <permission name="android.permission.BACKUP"/>
         <permission name="android.permission.BLUETOOTH_PRIVILEGED"/>
         <permission name="android.permission.INJECT_EVENTS"/>
+        <!-- Use for App Sharing -->
+        <permission name="android.permission.INSTALL_PACKAGES"/>
         <!-- use for CarServiceUnitTest and CarServiceTest -->
         <permission name="android.permission.INTERACT_ACROSS_USERS"/>
         <!-- use for CarServiceUnitTest -->
