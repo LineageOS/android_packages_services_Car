@@ -1255,7 +1255,7 @@
         </activity>
 
         <activity
-            android:name="com.android.settings.Settings$SupervisionDashboardActivity"
+            android:name="com.android.settings.supervision.SupervisionDashboardActivity"
             android:featureFlag="android.app.supervision.flags.enable_supervision_settings_screen"
             tools:node="remove" />
 
