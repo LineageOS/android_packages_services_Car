@@ -134,6 +134,8 @@
     <!-- Use for sensor access in Sensors fragment. -->
     <uses-permission android:name="android.permission.HIGH_SAMPLING_RATE_SENSORS"/>
     <uses-permission android:name="android.permission.INJECT_EVENTS"/>
+    <!-- Use for App Sharing -->
+    <uses-permission android:name="android.permission.INSTALL_PACKAGES"/>
     <!-- use for CarServiceUnitTest and CarServiceTest -->
     <uses-permission android:name="android.permission.INTERACT_ACROSS_USERS"/>
     <!-- use for CarServiceUnitTest -->

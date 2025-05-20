@@ -559,4 +559,8 @@
     <string name="data_subscription_trial" translatable="false">Trial</string>
     <string name="data_subscription_paid" translatable="false">Paid</string>
     <string name="data_subscription_message" translatable="false">"Data subscription status is %s</string>
+
+    <!-- App Sharing -->
+    <string name="select_package" translatable="false">Select package</string>
+    <string name="install_button" translatable="false">Install</string>
 </resources>
