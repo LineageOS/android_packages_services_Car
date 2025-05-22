@@ -101,6 +101,7 @@ class AutoTaskStackControllerImpl @Inject constructor(
     }
 
     /** Translates the [AutoTaskStackState] to relevant WM and surface transactions. */
+    // TODO(b/421471212): Move it to a separate class.
     inner class TaskStackStateTranslator {
         // TODO(b/384946072): Move to an interface with 2 implementations, one for root task and
         //  other for TDA
@@ -115,6 +116,21 @@ class AutoTaskStackControllerImpl @Inject constructor(
             }
             wct.setBounds(taskStack.rootTaskInfo.token, state.bounds)
             wct.reorder(taskStack.rootTaskInfo.token, state.childrenTasksVisible)
+        }
+
+        fun applyVisibility(
+            wct: WindowContainerTransaction,
+            taskStack: AutoTaskStack,
+        ) {
+            if (taskStack !is RootTaskStack) {
+                Slog.e(TAG, "Unsupported task stack, unable to convertToWct")
+                return
+            }
+            wct.reorder(
+                taskStack.rootTaskInfo.token,
+                /* onTop = */
+                true
+            )
         }
 
         fun reorderLeash(
@@ -669,6 +685,26 @@ class AutoTaskStackControllerImpl @Inject constructor(
                                     "not found."
                         )
                 }
+
+                is TaskStackOperation.SetFocusedTaskStack -> {
+                    // Do nothing here. Focus needs to be set in the last.
+                }
+            }
+        }
+
+        // process focus task in the end so that it would get the focus.
+        ast.operations.forEach { operation ->
+            if (operation is TaskStackOperation.SetFocusedTaskStack) {
+                    taskStackMap[operation.taskStackId]?.let { taskStack ->
+                        mTaskStackStateTranslator.applyVisibility(
+                            wct,
+                            taskStack,
+                        )
+                    }
+                        ?: Slog.w(
+                            TAG, "AutoTaskStack with id ${operation.taskStackId} " +
+                                    "not found."
+                        )
             }
         }
     }
