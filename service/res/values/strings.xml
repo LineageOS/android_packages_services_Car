@@ -804,6 +804,11 @@
     <!-- Permission text: apps can inject vehicle properties [CHAR LIMIT=NONE] -->
     <string name="car_permission_desc_inject_vehicle_properties">inject vehicle properties</string>
 
+    <!-- Permission text: apps can read vendor property status [CHAR LIMIT=NONE] -->
+    <string name="car_permission_label_read_property_vendor_status">read property vendor status</string>
+    <!-- Permission text: apps can read vendor property status [CHAR LIMIT=NONE] -->
+    <string name="car_permission_desc_read_property_vendor_status">read property vendor status</string>
+
     <!-- Notification messages -->
     <!-- Notification text: Notification shown to the user when vehicle CAN bus fails -->
     <string name="car_can_bus_failure">CAN bus failed</string>

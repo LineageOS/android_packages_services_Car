@@ -1335,6 +1335,16 @@
         android:description="@string/car_permission_desc_inject_vehicle_properties"
         android:featureFlag="android.car.feature.car_property_simulation" />
 
+    <!-- Allows an application to read the property vendor status.
+         <p>Protection level: signature|privileged
+    -->
+    <permission
+        android:name="android.car.permission.READ_PROPERTY_VENDOR_STATUS"
+        android:protectionLevel="signature|privileged"
+        android:label="@string/car_permission_label_read_property_vendor_status"
+        android:description="@string/car_permission_desc_read_property_vendor_status"
+        android:featureFlag="android.car.feature.car_property_status_detailed_not_available" />
+
     <!-- NOTE: when you're adding a new permission, you should edit
          packages/modules/Permission/tests/cts/permissionpolicy/res/raw/automotive_android_manifest.xml
          accordingly and run the test with 'atest android.permissionpolicy.cts.PermissionPolicyTest'

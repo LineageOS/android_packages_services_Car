@@ -1494,6 +1494,15 @@ public final class Car implements ICarBase {
             "android.car.permission.INJECT_VEHICLE_PROPERTIES";
 
     /**
+     * Signature|Privileged permission necessary to read property vendor status.
+     * @hide
+     */
+    @FlaggedApi(Flags.FLAG_CAR_PROPERTY_STATUS_DETAILED_NOT_AVAILABLE)
+    @SystemApi
+    public static final String PERMISSION_READ_PROPERTY_VENDOR_STATUS =
+            "android.car.permission.READ_PROPERTY_VENDOR_STATUS";
+
+    /**
      * Intent for connecting to the template renderer. Services that handle this intent must also
      * hold {@link #PERMISSION_TEMPLATE_RENDERER}. Applications would not bind to this service
      * directly, but instead they would use
