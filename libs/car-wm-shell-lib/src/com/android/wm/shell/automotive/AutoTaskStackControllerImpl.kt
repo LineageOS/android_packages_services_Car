@@ -167,6 +167,21 @@ class AutoTaskStackControllerImpl @Inject constructor(
                 rootTdaOrganizer.getDisplayAreaLeash(taskStack.displayId)
             )
         }
+
+        fun setSafeRegionBounds(
+            wct: WindowContainerTransaction,
+            taskStack: AutoTaskStack,
+            safeRegionBounds: Rect
+        ) {
+            if (taskStack !is RootTaskStack) {
+                Slog.e(TAG, "Unsupported task stack, unable to convertToWct")
+                return
+            }
+            if (DBG) {
+                Slog.d(TAG, "Setting safe region bounds $safeRegionBounds on ${taskStack.id}")
+            }
+            wct.setSafeRegionBounds(taskStack.rootTaskInfo.token, safeRegionBounds)
+        }
     }
 
     inner class RootTaskStackListenerAdapter(
@@ -699,22 +714,36 @@ class AutoTaskStackControllerImpl @Inject constructor(
                 is TaskStackOperation.SetFocusedTaskStack -> {
                     // Do nothing here. Focus needs to be set in the last.
                 }
-            }
-        }
 
-        // process focus task in the end so that it would get the focus.
-        ast.operations.forEach { operation ->
-            if (operation is TaskStackOperation.SetFocusedTaskStack) {
+                is TaskStackOperation.SetSafeRegionBounds -> {
                     taskStackMap[operation.taskStackId]?.let { taskStack ->
-                        mTaskStackStateTranslator.applyVisibility(
+                        mTaskStackStateTranslator.setSafeRegionBounds(
                             wct,
                             taskStack,
+                            operation.safeRegionBounds
                         )
                     }
                         ?: Slog.w(
                             TAG, "AutoTaskStack with id ${operation.taskStackId} " +
                                     "not found."
                         )
+                }
+            }
+        }
+
+        // process focus task in the end so that it would get the focus.
+        ast.operations.forEach { operation ->
+            if (operation is TaskStackOperation.SetFocusedTaskStack) {
+                taskStackMap[operation.taskStackId]?.let { taskStack ->
+                    mTaskStackStateTranslator.applyVisibility(
+                        wct,
+                        taskStack,
+                    )
+                }
+                    ?: Slog.w(
+                        TAG, "AutoTaskStack with id ${operation.taskStackId} " +
+                                "not found."
+                    )
             }
         }
     }
