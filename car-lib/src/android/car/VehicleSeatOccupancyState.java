@@ -15,13 +15,16 @@
  */
 package android.car;
 
+import static android.car.feature.Flags.FLAG_VEHICLE_PROPERTY_ENUMS_REMOVE_SYSTEM_API_TAGS;
+
+import android.annotation.FlaggedApi;
 
 /**
  * Used by seat occupancy to enumerate the current occupancy state of the seat.
- * Use getProperty and setProperty in {@link android.car.hardware.property.CarPropertyManager} to
+ * <p>Use getProperty and setProperty in {@link android.car.hardware.property.CarPropertyManager} to
  * set and get this VHAL property.
- * @hide
  */
+@FlaggedApi(FLAG_VEHICLE_PROPERTY_ENUMS_REMOVE_SYSTEM_API_TAGS)
 public final class VehicleSeatOccupancyState {
     public static final int UNKNOWN = 0;
     public static final int VACANT = 1;
