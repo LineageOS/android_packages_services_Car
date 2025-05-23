@@ -63,8 +63,9 @@ public final class ExistingUsersView extends LinearLayout {
     }
 
     public void updateState() {
-        List<UserInfo> users = mUserManager.getUsers(/*excludePartial= */ false,
-                /* excludeDying= */ false, /* excludePreCreated= */ false);
+        // TODO(b/419086491): method below doesn't return partial users, we'd need to call the
+        // method that takes a UserFilter (if such one is provided)
+        List<UserInfo> users = mUserManager.getUsers(/* excludeDying= */ false);
         mNumberUsers.setText(users.size() + " existing users");
         mExistingUsers.init(users);
         updateUser(mExistingUsers.getSelectedUser());
