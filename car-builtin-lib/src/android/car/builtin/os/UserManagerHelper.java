@@ -25,7 +25,6 @@ import android.os.SystemProperties;
 import android.os.UserHandle;
 import android.os.UserManager;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -73,7 +72,7 @@ public final class UserManagerHelper {
     }
 
     /**
-     * Returns all users based on the boolean flags.
+     * Returns all users based on {@code excludeDying} (the other booleans are ignored).
      *
      * @deprecated Use {@link #getUserHandles(UserManager, boolean)} instead.
      */
@@ -81,14 +80,7 @@ public final class UserManagerHelper {
     @NonNull
     public static List<UserHandle> getUserHandles(@NonNull UserManager userManager,
             boolean excludePartial, boolean excludeDying, boolean excludePreCreated) {
-        List<UserInfo> users = userManager.getUsers(excludePartial, excludeDying,
-                excludePreCreated);
-
-        List<UserHandle> result = new ArrayList<>(users.size());
-        for (UserInfo user : users) {
-            result.add(user.getUserHandle());
-        }
-        return result;
+        return getUserHandles(userManager, excludeDying);
     }
 
     /**

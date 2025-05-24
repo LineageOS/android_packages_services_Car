@@ -1255,11 +1255,20 @@
         </activity>
 
         <activity
-            android:name="com.android.settings.Settings$SupervisionDashboardActivity"
+            android:name="com.android.settings.supervision.SupervisionDashboardActivity"
             android:featureFlag="android.app.supervision.flags.enable_supervision_settings_screen"
             tools:node="remove" />
 
         <activity android:name="com.android.settings.supervision.ConfirmSupervisionCredentialsActivity"
+            android:enabled="false"
+            android:exported="false"
+            android:featureFlag="android.app.supervision.flags.supervision_manager_apis"
+            tools:node="merge"
+            tools:replace="android:exported">
+            <intent-filter tools:node="removeAll"/>
+        </activity>
+
+        <activity android:name="com.android.settings.supervision.EnableSupervisionActivity"
             android:enabled="false"
             android:exported="false"
             android:featureFlag="android.app.supervision.flags.supervision_manager_apis"
