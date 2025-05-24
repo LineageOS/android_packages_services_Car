@@ -16,9 +16,11 @@
 
 package android.car.hardware.property;
 
+import static android.car.feature.Flags.FLAG_VEHICLE_PROPERTY_ENUMS_REMOVE_SYSTEM_API_TAGS;
+
+import android.annotation.FlaggedApi;
 import android.annotation.IntDef;
 import android.annotation.NonNull;
-import android.annotation.SystemApi;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -28,9 +30,8 @@ import java.lang.annotation.RetentionPolicy;
  * android.car.VehiclePropertyIds#LANE_DEPARTURE_WARNING_STATE}.
  *
  * <p>This list of states may be extended in future releases to include additional states.
- * @hide
  */
-@SystemApi
+@FlaggedApi(FLAG_VEHICLE_PROPERTY_ENUMS_REMOVE_SYSTEM_API_TAGS)
 public final class LaneDepartureWarningState {
     /**
      * This state is used as an alternative for any {@code LaneDepartureWarningState} value that

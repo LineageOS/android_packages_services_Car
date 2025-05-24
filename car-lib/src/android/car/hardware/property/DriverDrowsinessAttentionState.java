@@ -16,12 +16,11 @@
 
 package android.car.hardware.property;
 
-import static android.car.feature.Flags.FLAG_ANDROID_VIC_VEHICLE_PROPERTIES;
+import static android.car.feature.Flags.FLAG_VEHICLE_PROPERTY_ENUMS_REMOVE_SYSTEM_API_TAGS;
 
 import android.annotation.FlaggedApi;
 import android.annotation.IntDef;
 import android.annotation.NonNull;
-import android.annotation.SystemApi;
 
 import com.android.car.internal.util.ConstantDebugUtils;
 
@@ -33,11 +32,8 @@ import java.lang.annotation.RetentionPolicy;
  * android.car.VehiclePropertyIds#DRIVER_DROWSINESS_ATTENTION_STATE}.
  *
  * <p>This list of states may be extended in future releases to include additional states.
- *
- * @hide
  */
-@FlaggedApi(FLAG_ANDROID_VIC_VEHICLE_PROPERTIES)
-@SystemApi
+@FlaggedApi(FLAG_VEHICLE_PROPERTY_ENUMS_REMOVE_SYSTEM_API_TAGS)
 public final class DriverDrowsinessAttentionState {
     /**
      * This state is used as an alternative for any {@code DriverDrowsinessAttentionState} value
