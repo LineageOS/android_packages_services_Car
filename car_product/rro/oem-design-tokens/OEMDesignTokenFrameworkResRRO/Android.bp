@@ -42,6 +42,31 @@ android_app {
 }
 
 android_app {
+    name: "OEMDesignTokenCwFrameworkResRRO",
+    resource_dirs: [
+        "res",
+    ],
+    certificate: "platform",
+    manifest: "AndroidManifest.xml",
+    sdk_version: "current",
+    aaptflags: [
+        "--no-resource-deduping",
+        "--no-resource-removal",
+    ],
+    libs: [
+        "token-shared-lib-prebuilt",
+    ],
+    static_libs: [
+        "CwBase",
+        "oem-token-lib",
+    ],
+    enforce_uses_libs: false,
+    dex_preopt: {
+        enabled: false,
+    },
+}
+
+android_app {
     name: "OEMNorthStarFrameworkResRRO",
     resource_dirs: [
         "res",
