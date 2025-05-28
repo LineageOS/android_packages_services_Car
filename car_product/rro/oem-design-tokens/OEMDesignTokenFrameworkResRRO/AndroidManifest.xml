@@ -19,6 +19,6 @@
     <application android:hasCode="false" />
     <overlay
         android:isStatic="true"
-        android:category="oem.token.framework"
         android:targetPackage="android"/>
 </manifest>
+
