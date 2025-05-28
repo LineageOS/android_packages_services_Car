@@ -260,10 +260,8 @@
     <string name="car_permission_desc_record_vehicle_properties" msgid="2560365700851584569">"차량 속성 기록"</string>
     <string name="car_permission_label_inject_vehicle_properties" msgid="2943134725643169428">"차량 속성 삽입"</string>
     <string name="car_permission_desc_inject_vehicle_properties" msgid="2616112105084870775">"차량 속성 삽입"</string>
-    <!-- no translation found for car_permission_label_read_property_vendor_status (2894773112281568618) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_read_property_vendor_status (7456031169256863531) -->
-    <skip />
+    <string name="car_permission_label_read_property_vendor_status" msgid="2894773112281568618">"속성 공급업체 상태 읽기"</string>
+    <string name="car_permission_desc_read_property_vendor_status" msgid="7456031169256863531">"속성 공급업체 상태 읽기"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN 버스 실패"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN 버스가 응답하지 않습니다. 헤드유닛 박스를 분리한 후 다시 연결한 다음 시동을 다시 걸어 보세요."</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"내 기기"</string>
