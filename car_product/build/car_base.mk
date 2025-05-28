@@ -27,7 +27,10 @@ endif
 
 ifeq ($(DISABLE_CAR_PRODUCT_VISUAL_OVERLAY),)
 PRODUCT_PACKAGE_OVERLAYS += packages/services/Car/car_product/overlay-visual
-PRODUCT_PACKAGES += CarFrameworkResVisualRRO
+PRODUCT_PACKAGES += \
+    CarFrameworkResVisualRRO \
+    OEMDesignTokenFrameworkResRRO
+endif
 
 PRODUCT_PACKAGES += \
     com.android.wifi \
