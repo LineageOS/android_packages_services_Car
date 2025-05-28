@@ -1,0 +1,101 @@
+<!--
+  ~ Copyright (C) 2024 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<resources>
+    <style name="BaseTextAppearance">
+        <item name="android:textColor">@color/color_on_background</item>
+        <item name="android:textColorHighlight">@color/color_on_surface_inverse</item>
+        <item name="android:textColorHint">@color/color_on_surface_inverse</item>
+        <item name="android:textColorLink">@color/color_on_surface_inverse</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:textStyle">normal</item>
+    </style>
+
+    <style name="TextAppearance.Display" parent="BaseTextAppearance" />
+
+    <style name="TextAppearance.Display.Large">
+        <item name="android:textSize">56sp</item>
+    </style>
+
+    <style name="TextAppearance.Display.Medium">
+        <item name="android:textSize">44sp</item>
+    </style>
+
+    <style name="TextAppearance.Display.Small">
+        <item name="android:textSize">36sp</item>
+    </style>
+
+    <style name="TextAppearance.Headline" parent="BaseTextAppearance" />
+
+    <style name="TextAppearance.Headline.Large">
+        <item name="android:textSize">46sp</item>
+    </style>
+
+    <style name="TextAppearance.Headline.Medium">
+        <item name="android:textSize">40sp</item>
+    </style>
+
+    <style name="TextAppearance.Headline.Small">
+        <item name="android:textSize">36sp</item>
+    </style>
+
+    <style name="TextAppearance.Title" parent="BaseTextAppearance" />
+
+    <style name="TextAppearance.Title.Large">
+        <item name="android:textSize">32sp</item>
+    </style>
+
+    <style name="TextAppearance.Title.Medium">
+        <item name="android:textSize">28sp</item>
+        <item name="android:textFontWeight">500</item>
+    </style>
+
+    <style name="TextAppearance.Title.Small">
+        <item name="android:textSize">24sp</item>
+        <item name="android:textFontWeight">500</item>
+    </style>
+
+    <style name="TextAppearance.Label" parent="BaseTextAppearance">
+        <item name="android:textFontWeight">500</item>
+    </style>
+
+    <style name="TextAppearance.Label.Large">
+        <item name="android:textSize">24sp</item>
+    </style>
+
+    <style name="TextAppearance.Label.Medium">
+        <item name="android:textSize">22sp</item>
+    </style>
+
+    <style name="TextAppearance.Label.Small">
+        <item name="android:textSize">20sp</item>
+    </style>
+
+    <style name="TextAppearance.Body" parent="BaseTextAppearance" />
+
+    <style name="TextAppearance.Body.Large">
+        <item name="android:textSize">32sp</item>
+    </style>
+
+    <style name="TextAppearance.Body.Medium">
+        <item name="android:textSize">28sp</item>
+    </style>
+
+    <style name="TextAppearance.Body.Small">
+        <item name="android:textSize">24sp</item>
+    </style>
+</resources>
+

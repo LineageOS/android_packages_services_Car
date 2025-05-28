@@ -83,6 +83,19 @@
     <item target="dimen/pin_view_container_maxHeight" value="@dimen/pin_view_container_maxHeight"/>
     <item target="dimen/pattern_view_container_maxHeight" value="@dimen/pattern_view_container_maxHeight"/>
 
+    <!-- Biometric prompt dimens -->
+    <item target="dimen/biometric_dialog_elevation" value="@dimen/biometric_dialog_elevation" />
+    <item target="dimen/biometric_car_auth_pattern_view_size" value="@dimen/biometric_car_auth_pattern_view_size" />
+    <item target="dimen/confirm_lock_message_vertical_spacing" value="@dimen/confirm_lock_message_vertical_spacing" />
+    <item target="dimen/biometric_horizontal_margin" value="@dimen/biometric_horizontal_margin" />
+    <item target="dimen/credential_input_width" value="@dimen/credential_input_width" />
+    <item target="dimen/credential_input_vertical_padding" value="@dimen/credential_input_vertical_padding" />
+    <item target="dimen/pin_pad_key_radius" value="@dimen/pin_pad_key_radius" />
+    <item target="dimen/pin_pad_key_width" value="@dimen/pin_pad_key_width" />
+    <item target="dimen/pin_pad_key_height" value="@dimen/pin_pad_key_height" />
+    <item target="dimen/pin_pad_key_margin" value="@dimen/pin_pad_key_margin" />
+    <item target="dimen/lock_pattern_dot_size" value="@dimen/lock_pattern_dot_size" />
+
     <!-- Toast IDs -->
     <item target="id/icon" value="@id/icon"/>
     <item target="id/text" value="@id/text"/>

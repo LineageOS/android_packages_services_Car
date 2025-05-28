@@ -15,10 +15,5 @@
   ~ limitations under the License.
   -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="oem.brand.model.android.rro">
-    <application android:hasCode="false" />
-    <overlay
-        android:isStatic="true"
-        android:category="oem.token.framework"
-        android:targetPackage="android"/>
+          package="oem.brand.model.base">
 </manifest>
