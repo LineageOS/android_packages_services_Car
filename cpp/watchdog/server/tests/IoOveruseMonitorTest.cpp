@@ -24,6 +24,7 @@
 #include "MockWatchdogServiceHelper.h"
 #include "PackageInfoTestUtils.h"
 
+#include <android-base/chrono_utils.h>
 #include <binder/IPCThreadState.h>
 #include <utils/RefBase.h>
 
