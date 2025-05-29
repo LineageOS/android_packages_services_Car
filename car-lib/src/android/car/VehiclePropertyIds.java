@@ -828,15 +828,16 @@ public final class VehiclePropertyIds {
     /**
      * Reports wheel ticks.
      *
-     * <p>The first element in the array is a reset count.  A reset indicates
-     * previous tick counts are not comparable with this and future ones.  Some
-     * sort of discontinuity in tick counting has occurred.
+     * <p>The first element in the array is a reset count. A reset indicates previous tick counts
+     * are not comparable with this and future ones - some sort of discontinuity in tick counting
+     * has occurred. Conversely, tick measurements must be comparable if their corresponding reset
+     * count is the same. This value is a monotonically increasing value where each time a reset
+     * happens, the value increases by 1.
      *
-     * <p>The next four elements represent ticks for individual wheels in the
-     * following order: front left, front right, rear right, rear left.  All
-     * tick counts are cumulative.  Tick counts increment when the vehicle
-     * moves forward, and decrement when vehicles moves in reverse.  The ticks
-     * should be reset to 0 when the vehicle is started by the user.
+     * <p>The next four elements represent ticks for individual wheels in the following order: front
+     * left, front right, rear right, rear left.  All tick counts are cumulative. Tick counts
+     * increment when the vehicle moves forward, and decrement when vehicles moves in reverse. The
+     * ticks should be reset to 0 when the vehicle is started by the user.
      *
      * <ul>
      *  <li>Long[0] = reset count
@@ -846,11 +847,11 @@ public final class VehiclePropertyIds {
      *  <li>Long[4] = rear left ticks
      * </ul>
      *
-     * <p>configArray is used to indicate the micrometers-per-wheel-tick values and
-     * which wheels are supported. Each micrometers-per-wheel-tick value is static (i.e. will not
-     * update based on wheel's status) and a best approximation. For example, if a vehicle has
-     * multiple rim/tire size options, the micrometers-per-wheel-tick values are set to those for
-     * the typically expected rim/tire size. configArray is set as follows:
+     * <p>configArray is used to indicate the micrometers-per-wheel-tick values and which wheels are
+     * supported. Each micrometers-per-wheel-tick value is static (i.e. will not update based on
+     * wheel's status) and a best approximation. For example, if a vehicle has multiple rim/tire
+     * size options, the micrometers-per-wheel-tick values are set to those for the typically
+     * expected rim/tire size. configArray is set as follows:
      *
      * <ul>
      *  <li>configArray[0], bits [0:3] = supported wheels. Uses {@link VehicleAreaWheel}. For

@@ -116,16 +116,16 @@ void PackageInfoResolver::terminate() {
     sInstance.reset();
 }
 
-Result<void> PackageInfoResolver::initWatchdogServiceHelper(
-        const sp<WatchdogServiceHelperInterface>& watchdogServiceHelper) {
+Result<void> PackageInfoResolver::initWatchdogServiceHelperBase(
+        const sp<WatchdogServiceHelperBaseInterface>& watchdogServiceHelperBase) {
     std::unique_lock writeLock(mRWMutex);
-    if (watchdogServiceHelper == nullptr) {
+    if (watchdogServiceHelperBase == nullptr) {
         return Error() << "Must provide a non-null watchdog service helper instance";
     }
-    if (mWatchdogServiceHelper != nullptr) {
+    if (mWatchdogServiceHelperBase != nullptr) {
         return Error() << "Duplicate initialization";
     }
-    mWatchdogServiceHelper = watchdogServiceHelper;
+    mWatchdogServiceHelperBase = watchdogServiceHelperBase;
     return {};
 }
 
@@ -169,15 +169,15 @@ void PackageInfoResolver::updatePackageInfos(const std::vector<uid_t>& uids) {
      * There is delay between creating package manager instance and initializing watchdog service
      * helper. Thus check the watchdog service helper instance before proceeding further.
      */
-    if (missingUids.empty() || mWatchdogServiceHelper == nullptr ||
-        !mWatchdogServiceHelper->isServiceConnected()) {
+    if (missingUids.empty() || mWatchdogServiceHelperBase == nullptr ||
+        !mWatchdogServiceHelperBase->isServiceConnected()) {
         return;
     }
 
     std::vector<PackageInfo> packageInfos;
     auto status =
-            mWatchdogServiceHelper->getPackageInfosForUids(missingUids, mVendorPackagePrefixes,
-                                                           &packageInfos);
+            mWatchdogServiceHelperBase->getPackageInfosForUids(missingUids, mVendorPackagePrefixes,
+                                                               &packageInfos);
     if (!status.isOk()) {
         ALOGE("Failed to fetch package infos from car watchdog service: %s", status.getMessage());
         return;

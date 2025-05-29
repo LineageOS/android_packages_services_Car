@@ -31,8 +31,8 @@ namespace watchdog {
 class MockPackageInfoResolver : public PackageInfoResolverInterface {
 public:
     MockPackageInfoResolver() {}
-    MOCK_METHOD(android::base::Result<void>, initWatchdogServiceHelper,
-                (const android::sp<WatchdogServiceHelperInterface>& watchdogServiceHelper),
+    MOCK_METHOD(android::base::Result<void>, initWatchdogServiceHelperBase,
+                (const android::sp<WatchdogServiceHelperBaseInterface>& watchdogServiceHelperBase),
                 (override));
     MOCK_METHOD(void, asyncFetchPackageNamesForUids,
                 (const std::vector<uid_t>&,

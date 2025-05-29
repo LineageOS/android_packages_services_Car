@@ -19,7 +19,7 @@
 
 #include "WatchdogServiceHelperBase.h"
 
-#include "ServiceManager.h"
+#include "IoServiceManager.h"
 
 #include <android/binder_ibinder.h>
 
@@ -44,9 +44,7 @@ ScopedAStatus fromExceptionCodeWithMessage(binder_exception_t exceptionCode,
 }
 
 void onBinderDied(void* cookie) {
-    // TODO(b/398044929): Use IoServiceManager here when it is implemented and
-    // return WatchdogServiceHelperBase
-    const auto& thiz = ServiceManager::getInstance()->getWatchdogServiceHelper();
+    const auto& thiz = IoServiceManager::getInstance()->getWatchdogServiceHelperBase();
     if (thiz == nullptr) {
         return;
     }

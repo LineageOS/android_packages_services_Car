@@ -28,6 +28,7 @@ import com.android.managedprovisioning.common.Utils;
 import com.android.managedprovisioning.model.CustomizationParams;
 import com.android.managedprovisioning.model.ProvisioningParams;
 
+import com.google.android.setupdesign.util.DeviceHelper;
 import com.google.auto.value.AutoValue;
 
 /**
@@ -46,12 +47,13 @@ abstract class CarLandingActivityBridgeImpl implements LandingActivityBridge {
 
     @Override
     public void initiateUi(Activity activity) {
-        int headerResId = R.string.brand_screen_header;
+        CharSequence deviceName = DeviceHelper.getDeviceName(activity.getApplicationContext());
+        CharSequence headerText = activity.getString(R.string.brand_screen_header, deviceName);
         int mainLayoutId = CarSetupWizardLayoutHelper.MAIN_LAYOUT_RES_ID;
         int subLayoutId = R.layout.empty_layout;
 
         getInitializeLayoutParamsConsumer()
-                .initializeLayoutParams(mainLayoutId, headerResId);
+                .initializeLayoutParams(mainLayoutId, headerText);
 
         CarSetupWizardLayoutHelper layoutHelper = getLayoutHelper();
         layoutHelper.setBaseLayout(subLayoutId, /* isDoubleColumnAllowed= */ false);
@@ -60,7 +62,7 @@ abstract class CarLandingActivityBridgeImpl implements LandingActivityBridge {
                 v -> getBridgeCallbacks().onNextButtonClicked());
 
         TextView descriptionTitle = activity.findViewById(R.id.description_title);
-        descriptionTitle.setText(headerResId);
+        descriptionTitle.setText(headerText);
         TextView description = activity.findViewById(R.id.description);
         CustomizationParams customizationParams =
                 CustomizationParams.createInstance(getParams(), activity, getUtils());
