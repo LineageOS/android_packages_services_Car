@@ -269,6 +269,11 @@ public class AutoCaptionController {
 
         mSafeAreaInfoPerDisplay.remove(displayId);
 
+        if (mRootTaskDisplayAreaOrganizer.getDisplayAreaInfo(displayId) == null) {
+            Slogf.e(TAG, "DisplayAreaInfo for Display [%d] is not available.", displayId);
+            return;
+        }
+
         // Remove safe region for the container
         WindowContainerTransaction wct = new WindowContainerTransaction();
         wct.setSafeRegionBounds(
