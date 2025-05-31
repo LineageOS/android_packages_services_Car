@@ -57,8 +57,12 @@ public final class BluetoothUtilsGetProfileNameTest {
                 {BluetoothProfile.HEADSET_CLIENT, "HFP Client"},
                 {BluetoothProfile.PBAP_CLIENT, "PBAP Client"},
                 {BluetoothProfile.MAP_CLIENT, "MAP Client"},
+                {BluetoothProfile.LE_AUDIO, "LE Audio"},
+                {BluetoothProfile.LE_AUDIO_BROADCAST_ASSISTANT, "Broadcast Assistant"},
+                {BluetoothProfile.CSIP_SET_COORDINATOR, "CSIP Set Coordinator"},
+                {BluetoothProfile.VOLUME_CONTROL, "VCP Controller"},
                 {0, "unknown"},
-                {22, "unknown"}
+                {99, "unknown"}
             });
     }
 }

@@ -19,13 +19,17 @@ package com.android.car.bluetooth;
 import android.bluetooth.BluetoothA2dp;
 import android.bluetooth.BluetoothA2dpSink;
 import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothCsipSetCoordinator;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothHeadsetClient;
+import android.bluetooth.BluetoothLeAudio;
+import android.bluetooth.BluetoothLeBroadcastAssistant;
 import android.bluetooth.BluetoothMapClient;
 import android.bluetooth.BluetoothPan;
 import android.bluetooth.BluetoothPbapClient;
 import android.bluetooth.BluetoothProfile;
 import android.bluetooth.BluetoothUuid;
+import android.bluetooth.BluetoothVolumeControl;
 import android.bluetooth.le.AdvertisingSetCallback;
 import android.os.ParcelUuid;
 import android.util.SparseArray;
@@ -53,6 +57,15 @@ public final class BluetoothUtils {
     public static final String PBAP_CLIENT_CONNECTION_STATE_CHANGED =
             BluetoothPbapClient.ACTION_CONNECTION_STATE_CHANGED;
 
+    public static final String LE_AUDIO_CONNECTION_STATE_CHANGED =
+            BluetoothLeAudio.ACTION_LE_AUDIO_CONNECTION_STATE_CHANGED;
+    public static final String VOLUME_CONTROL_CONNECTION_STATE_CHANGED =
+            BluetoothVolumeControl.ACTION_CONNECTION_STATE_CHANGED;
+    public static final String CSIP_SET_COORDINATOR_CONNECTION_STATE_CHANGED =
+            BluetoothCsipSetCoordinator.ACTION_CSIS_CONNECTION_STATE_CHANGED;
+    public static final String LE_AUDIO_BROADCAST_ASSISTANT_CONNECTION_STATE_CHANGED =
+            BluetoothLeBroadcastAssistant.ACTION_CONNECTION_STATE_CHANGED;
+
     private static final ParcelUuid[] A2DP_SOURCE_UUIDS =
             new ParcelUuid[]{BluetoothUuid.A2DP_SOURCE};
     private static final ParcelUuid[] A2DP_SINK_UUIDS =
@@ -71,6 +84,15 @@ public final class BluetoothUtils {
             new ParcelUuid[]{BluetoothUuid.PBAP_PCE};
     private static final ParcelUuid[] PBAP_SERVER_UUIDS =
             new ParcelUuid[]{BluetoothUuid.PBAP_PSE};
+
+    private static final ParcelUuid[] LE_AUDIO_UUIDS =
+            new ParcelUuid[]{BluetoothUuid.LE_AUDIO};
+    private static final ParcelUuid[] LE_AUDIO_BROADCAST_ASSISTANT_UUIDS =
+            new ParcelUuid[]{BluetoothUuid.BASS};
+    private static final ParcelUuid[] VOLUME_RENDERER_UUIDS =
+            new ParcelUuid[]{BluetoothUuid.VOLUME_CONTROL};
+    private static final ParcelUuid[] CSIP_SET_MEMBER_UUIDS =
+            new ParcelUuid[]{BluetoothUuid.COORDINATED_SET};
 
     /*
      * Maps of types and status to human readable strings
@@ -132,6 +154,10 @@ public final class BluetoothUtils {
         sProfileNames.put(BluetoothProfile.HEADSET_CLIENT, "HFP Client");
         sProfileNames.put(BluetoothProfile.PBAP_CLIENT, "PBAP Client");
         sProfileNames.put(BluetoothProfile.MAP_CLIENT, "MAP Client");
+        sProfileNames.put(BluetoothProfile.LE_AUDIO, "LE Audio");
+        sProfileNames.put(BluetoothProfile.LE_AUDIO_BROADCAST_ASSISTANT, "Broadcast Assistant");
+        sProfileNames.put(BluetoothProfile.CSIP_SET_COORDINATOR, "CSIP Set Coordinator");
+        sProfileNames.put(BluetoothProfile.VOLUME_CONTROL, "VCP Controller");
 
         // Profile actions to ints
         sProfileActions.put(A2DP_SOURCE_CONNECTION_STATE_CHANGED, BluetoothProfile.A2DP);
@@ -140,6 +166,7 @@ public final class BluetoothUtils {
         sProfileActions.put(MAP_CLIENT_CONNECTION_STATE_CHANGED, BluetoothProfile.MAP_CLIENT);
         sProfileActions.put(PAN_CONNECTION_STATE_CHANGED, BluetoothProfile.PAN);
         sProfileActions.put(PBAP_CLIENT_CONNECTION_STATE_CHANGED, BluetoothProfile.PBAP_CLIENT);
+        sProfileActions.put(LE_AUDIO_CONNECTION_STATE_CHANGED, BluetoothProfile.LE_AUDIO);
     }
 
     static byte[] getBytesFromAddress(String address) {
@@ -218,9 +245,27 @@ public final class BluetoothUtils {
         return profile != null ? profile.intValue() : -1;
     }
 
-    static boolean isProfileSupported(List<ParcelUuid> localUuids, BluetoothDevice device,
+    static boolean isProfileSupported(BluetoothAdapter adapter, BluetoothDevice device,
             int profile) {
-        if (device == null || localUuids == null || localUuids.isEmpty()) {
+        if (adapter == null) {
+            return false;
+        }
+
+        // The various BluetoothAdapter#isLeAudio*Supported() functions are mobile centric. This is
+        // a more robust way of determining individual profile support. Note that this method only
+        // works when the adapter is on, but this is true for _all_ the methods, include UUIDs too.
+        List<Integer> localProfiles = adapter.getSupportedProfiles();
+        boolean isLeAudioSupported = localProfiles.contains(BluetoothProfile.LE_AUDIO);
+        boolean isLeBroadcastAssistantSupported =
+                localProfiles.contains(BluetoothProfile.LE_AUDIO_BROADCAST_ASSISTANT);
+        boolean isCsipSetCoordinatorSupported =
+                localProfiles.contains(BluetoothProfile.CSIP_SET_COORDINATOR);
+        boolean isVcpControllerSupported = localProfiles.contains(BluetoothProfile.VOLUME_CONTROL);
+
+        List<ParcelUuid> localUuids = adapter.getUuidsList();
+        if (device == null || localUuids == null || (localUuids.isEmpty()
+                && !isLeAudioSupported && !isLeBroadcastAssistantSupported
+                && !isCsipSetCoordinatorSupported && !isVcpControllerSupported)) {
             return false;
         }
 
@@ -249,6 +294,18 @@ public final class BluetoothUtils {
             case BluetoothProfile.PBAP_CLIENT:
                 return BluetoothUuid.containsAnyUuid(ourUuids, PBAP_CLIENT_UUIDS)
                         && BluetoothUuid.containsAnyUuid(uuids, PBAP_SERVER_UUIDS);
+            case BluetoothProfile.LE_AUDIO:
+                return isLeAudioSupported
+                        && BluetoothUuid.containsAnyUuid(uuids, LE_AUDIO_UUIDS);
+            case BluetoothProfile.LE_AUDIO_BROADCAST_ASSISTANT:
+                return isLeBroadcastAssistantSupported
+                        && BluetoothUuid.containsAnyUuid(uuids, LE_AUDIO_BROADCAST_ASSISTANT_UUIDS);
+            case BluetoothProfile.CSIP_SET_COORDINATOR:
+                return isCsipSetCoordinatorSupported
+                        && BluetoothUuid.containsAnyUuid(uuids, CSIP_SET_MEMBER_UUIDS);
+            case BluetoothProfile.VOLUME_CONTROL:
+                return isVcpControllerSupported
+                        && BluetoothUuid.containsAnyUuid(uuids, VOLUME_RENDERER_UUIDS);
             default:
                 return false;
         }
