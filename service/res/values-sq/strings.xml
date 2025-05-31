@@ -260,10 +260,8 @@
     <string name="car_permission_desc_record_vehicle_properties" msgid="2560365700851584569">"të regjistrojë karakteristikat e automjetit"</string>
     <string name="car_permission_label_inject_vehicle_properties" msgid="2943134725643169428">"të injektojnë karakteristikat e automjetit"</string>
     <string name="car_permission_desc_inject_vehicle_properties" msgid="2616112105084870775">"të injektojnë karakteristikat e automjetit"</string>
-    <!-- no translation found for car_permission_label_read_property_vendor_status (2894773112281568618) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_read_property_vendor_status (7456031169256863531) -->
-    <skip />
+    <string name="car_permission_label_read_property_vendor_status" msgid="2894773112281568618">"të lexojë statusin e shitësit të pronës"</string>
+    <string name="car_permission_desc_read_property_vendor_status" msgid="7456031169256863531">"të lexojë statusin e shitësit të pronës"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"Kanali i komunikimit CAN dështoi"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"Kanali i komunikimit CAN nuk përgjigjet. Shkëput dhe lidh përsëri kutinë e njësisë kryesore dhe rindiz makinës"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"Pajisja ime"</string>
