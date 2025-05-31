@@ -1,8 +1,8 @@
 # Bug component: 1316886
 
 # Property
-per-file src/android/car/extendedapitest/CarProperty* = ericjeong@google.com, tylertrephan@google.com, shanyu@google.com
-per-file src/android/car/extendedapitest/VehiclePropertyIdsTest.java = ericjeong@google.com, tylertrephan@google.com, shanyu@google.com
+per-file src/android/car/extendedapitest/CarProperty* = ericjeong@google.com, tylertrephan@google.com
+per-file src/android/car/extendedapitest/VehiclePropertyIdsTest.java = ericjeong@google.com, tylertrephan@google.com
 
 # System
 per-file src/com/android/car/internal/* = ericjeong@google.com
