@@ -63,7 +63,7 @@ Result<void> ServiceManager::startServices(const sp<Looper>& mainLooper) {
     if (auto result = startWatchdogPerfService(mWatchdogServiceHelper); !result.ok()) {
         return result;
     }
-    if (auto result = packageInfoResolver->initWatchdogServiceHelper(mWatchdogServiceHelper);
+    if (auto result = packageInfoResolver->initWatchdogServiceHelperBase(mWatchdogServiceHelper);
         !result.ok()) {
         return Error() << "Failed to initialize package name resolver: " << result.error();
     }

@@ -33,7 +33,7 @@ namespace android {
 namespace automotive {
 namespace watchdog {
 
-class ServiceManager;
+class IoServiceManager;
 
 // Forward declaration for testing use only.
 namespace internal {
@@ -71,7 +71,7 @@ protected:
     virtual void terminate() = 0;
 
 private:
-    friend class ServiceManager;
+    friend class IoServiceManager;
 };
 
 // WatchdogServiceHelperBase implements the helper functions for the outbound API requests to
@@ -153,7 +153,7 @@ private:
     std::shared_ptr<aidl::android::automotive::watchdog::internal::ICarWatchdogServiceForSystem>
             mService GUARDED_BY(mRWMutex);
 
-    friend class ServiceManager;
+    friend class IoServiceManager;
 
     // For unit tests.
     friend class internal::WatchdogServiceHelperBasePeer;

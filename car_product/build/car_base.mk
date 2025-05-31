@@ -28,8 +28,7 @@ endif
 ifeq ($(DISABLE_CAR_PRODUCT_VISUAL_OVERLAY),)
 PRODUCT_PACKAGE_OVERLAYS += packages/services/Car/car_product/overlay-visual
 PRODUCT_PACKAGES += \
-    CarFrameworkResVisualRRO \
-    OEMDesignTokenFrameworkResRRO
+    CarFrameworkResVisualRRO
 endif
 
 PRODUCT_PACKAGES += \

@@ -19,8 +19,8 @@
 
 #include "IoOveruseMonitor.h"
 
+#include "IoServiceManager.h"
 #include "PackageInfoResolver.h"
-#include "ServiceManager.h"
 
 #include <WatchdogProperties.sysprop.h>
 #include <aidl/android/automotive/watchdog/IResourceOveruseListener.h>
@@ -155,7 +155,7 @@ std::tuple<int32_t, PerStateBytes> calculateOveruseAndForgivenBytes(PerStateByte
 }
 
 void onBinderDied(void* cookie) {
-    const auto& thiz = ServiceManager::getInstance()->getIoOveruseMonitorWrapper();
+    const auto& thiz = IoServiceManager::getInstance()->getIoOveruseMonitor();
     if (thiz == nullptr) {
         return;
     }
@@ -172,9 +172,10 @@ std::tuple<int64_t, int64_t> calculateStartAndDuration(const time_point_millis& 
 }
 
 IoOveruseMonitor::IoOveruseMonitor(
-        const android::sp<WatchdogServiceHelperInterface>& watchdogServiceHelper) :
+        const android::sp<WatchdogServiceHelperBaseInterface>& watchdogServiceHelperBase,
+        AIBinder_DeathRecipient* binderRecipient) :
       mMinSyncWrittenBytes(kMinSyncWrittenBytes),
-      mWatchdogServiceHelper(watchdogServiceHelper),
+      mWatchdogServiceHelperBase(watchdogServiceHelperBase),
       mDeathRegistrationWrapper(sp<AIBinderDeathRegistrationWrapper>::make()),
       mDidReadTodayPrevBootStats(false),
       mSystemWideWrittenBytes({}),
@@ -183,9 +184,14 @@ IoOveruseMonitor::IoOveruseMonitor(
       mUserPackageDailyIoUsageById({}),
       mIoOveruseWarnPercentage(0),
       mLastUserPackageIoMonitorTime(time_point_millis::min()),
-      mOveruseListenersByUid({}),
-      mBinderDeathRecipient(
-              ScopedAIBinder_DeathRecipient(AIBinder_DeathRecipient_new(onBinderDied))) {}
+      mOveruseListenersByUid({}) {
+    if (binderRecipient == nullptr) {
+        mBinderDeathRecipient =
+                ScopedAIBinder_DeathRecipient(AIBinder_DeathRecipient_new(onBinderDied));
+    } else {
+        mBinderDeathRecipient = ScopedAIBinder_DeathRecipient(binderRecipient);
+    }
+}
 
 Result<void> IoOveruseMonitor::init() {
     std::unique_lock writeLock(mRwMutex);
@@ -219,7 +225,7 @@ void IoOveruseMonitor::terminate() {
         ALOGI("Write to disk has completed. Proceeding with termination");
     }
     std::unique_lock writeLock(mRwMutex);
-    mWatchdogServiceHelper.clear();
+    mWatchdogServiceHelperBase.clear();
     mIoOveruseConfigs.clear();
     mSystemWideWrittenBytes.clear();
     mUserPackageDailyIoUsageById.clear();
@@ -450,7 +456,8 @@ bool IoOveruseMonitor::dumpHelpText(int fd) const {
 }
 
 void IoOveruseMonitor::requestTodayIoUsageStatsLocked() {
-    if (const auto status = mWatchdogServiceHelper->requestTodayIoUsageStats(); !status.isOk()) {
+    if (const auto status = mWatchdogServiceHelperBase->requestTodayIoUsageStats();
+        !status.isOk()) {
         // Request made only after CarWatchdogService connection is established. Logging the error
         // is enough in this case.
         ALOGE("Failed to request today I/O usage stats collected during previous boot: %s",
@@ -666,7 +673,7 @@ Result<void> IoOveruseMonitor::getIoOveruseStats(IoOveruseStats* ioOveruseStats)
 }
 
 Result<void> IoOveruseMonitor::resetIoOveruseStats(const std::vector<std::string>& packageNames) {
-    if (const auto status = mWatchdogServiceHelper->resetResourceOveruseStats(packageNames);
+    if (const auto status = mWatchdogServiceHelperBase->resetResourceOveruseStats(packageNames);
         !status.isOk()) {
         return Error() << "Failed to reset stats in watchdog service: " << status.getDescription();
     }
