@@ -307,6 +307,10 @@ public final class BluetoothDeviceManager {
         filter.addAction(BluetoothUtils.MAP_CLIENT_CONNECTION_STATE_CHANGED);
         filter.addAction(BluetoothUtils.PAN_CONNECTION_STATE_CHANGED);
         filter.addAction(BluetoothUtils.PBAP_CLIENT_CONNECTION_STATE_CHANGED);
+        filter.addAction(BluetoothUtils.LE_AUDIO_CONNECTION_STATE_CHANGED);
+        filter.addAction(BluetoothUtils.LE_AUDIO_BROADCAST_ASSISTANT_CONNECTION_STATE_CHANGED);
+        filter.addAction(BluetoothUtils.CSIP_SET_COORDINATOR_CONNECTION_STATE_CHANGED);
+        filter.addAction(BluetoothUtils.VOLUME_CONTROL_CONNECTION_STATE_CHANGED);
 
         UserHandle currentUser = UserHandle.of(ActivityManager.getCurrentUser());
         mUserContext = mContext.createContextAsUser(currentUser, /* flags= */ 0);
@@ -628,6 +632,10 @@ public final class BluetoothDeviceManager {
             addWatchedProfileIfSupported(BluetoothProfile.MAP_CLIENT);
             addWatchedProfileIfSupported(BluetoothProfile.PAN);
             addWatchedProfileIfSupported(BluetoothProfile.PBAP_CLIENT);
+            addWatchedProfileIfSupported(BluetoothProfile.LE_AUDIO);
+            addWatchedProfileIfSupported(BluetoothProfile.LE_AUDIO_BROADCAST_ASSISTANT);
+            addWatchedProfileIfSupported(BluetoothProfile.CSIP_SET_COORDINATOR);
+            addWatchedProfileIfSupported(BluetoothProfile.VOLUME_CONTROL);
         }
     }
 
@@ -642,11 +650,16 @@ public final class BluetoothDeviceManager {
             if (device == null) {
                 return;
             }
-            if (BluetoothUtils.isProfileSupported(ourUuids, device, profile)) {
+            if (BluetoothUtils.isProfileSupported(mBluetoothAdapter, device, profile)) {
                 mAutoConnectingDeviceProfiles.put(profile, -1);
                 if (DBG) {
                     Slogf.d(TAG, "Device %s supports %s. Expect a connection", device,
                             BluetoothUtils.getProfileName(profile));
+                }
+            } else {
+                if (DBG) {
+                    Slogf.d(TAG, "Device %s does not support %s. Do not expect a connection",
+                            device, BluetoothUtils.getProfileName(profile));
                 }
             }
         }
