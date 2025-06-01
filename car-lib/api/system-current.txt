@@ -1151,23 +1151,6 @@ package android.car.hardware.property {
     method public int getVendorErrorCode();
   }
 
-  @FlaggedApi("android.car.feature.car_property_simulation") public final class CarPropertySimulationManager {
-    method @FlaggedApi("android.car.feature.car_property_simulation") @NonNull @RequiresPermission(android.car.Car.PERMISSION_INJECT_VEHICLE_PROPERTIES) public <T> android.car.hardware.CarPropertyValue<T> createCarPropertyValue(int, int, int, long, @NonNull T);
-    method @FlaggedApi("android.car.feature.car_property_simulation") @RequiresPermission(android.car.Car.PERMISSION_INJECT_VEHICLE_PROPERTIES) public void disableInjectionMode();
-    method @FlaggedApi("android.car.feature.car_property_simulation") @RequiresPermission(android.car.Car.PERMISSION_INJECT_VEHICLE_PROPERTIES) public long enableInjectionMode(@NonNull java.util.List<java.lang.Integer>);
-    method @FlaggedApi("android.car.feature.car_property_simulation") @Nullable @RequiresPermission(android.car.Car.PERMISSION_INJECT_VEHICLE_PROPERTIES) public android.car.hardware.CarPropertyValue getLastInjectedVehicleProperty(int);
-    method @FlaggedApi("android.car.feature.car_property_simulation") @RequiresPermission(android.car.Car.PERMISSION_INJECT_VEHICLE_PROPERTIES) public void injectVehicleProperties(@NonNull java.util.List<android.car.hardware.CarPropertyValue>);
-    method @FlaggedApi("android.car.feature.car_property_simulation") @RequiresPermission(android.car.Car.PERMISSION_RECORD_VEHICLE_PROPERTIES) public boolean isRecordingVehicleProperties();
-    method @FlaggedApi("android.car.feature.car_property_simulation") @RequiresPermission(android.car.Car.PERMISSION_INJECT_VEHICLE_PROPERTIES) public boolean isVehiclePropertyInjectionModeEnabled();
-    method @FlaggedApi("android.car.feature.car_property_simulation") @NonNull @RequiresPermission(android.car.Car.PERMISSION_RECORD_VEHICLE_PROPERTIES) public java.util.List<android.car.hardware.CarPropertyConfig> startRecordingVehicleProperties(@Nullable java.util.concurrent.Executor, @NonNull android.car.hardware.property.CarPropertySimulationManager.CarRecorderListener);
-    method @FlaggedApi("android.car.feature.car_property_simulation") @RequiresPermission(android.car.Car.PERMISSION_RECORD_VEHICLE_PROPERTIES) public void stopRecordingVehicleProperties();
-  }
-
-  @FlaggedApi("android.car.feature.car_property_simulation") public static interface CarPropertySimulationManager.CarRecorderListener {
-    method @FlaggedApi("android.car.feature.car_property_simulation") public void onCarPropertyEvents(@NonNull java.util.List<android.car.hardware.CarPropertyValue<?>>);
-    method @FlaggedApi("android.car.feature.car_property_simulation") public void onRecordingFinished();
-  }
-
   public class PropertyNotAvailableException extends java.lang.IllegalStateException {
     method public int getVendorErrorCode();
   }
