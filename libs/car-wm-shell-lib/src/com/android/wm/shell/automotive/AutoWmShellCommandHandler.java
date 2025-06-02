@@ -22,6 +22,7 @@ import com.android.wm.shell.sysui.ShellCommandHandler;
 import dagger.Lazy;
 
 import java.io.PrintWriter;
+import java.util.List;
 
 import javax.inject.Inject;
 
@@ -55,12 +56,47 @@ public final class AutoWmShellCommandHandler implements
         mAutoCaptionController = autoCaptionController;
     }
 
+    private void setFocusedRootTask(String[] args, PrintWriter pw) {
+        if (args.length > 1) {
+            int rootTaskId = Integer.parseInt(args[1]);
+            AutoTaskStackTransaction ast = new AutoTaskStackTransaction().setFocusedTaskStack(
+                    rootTaskId);
+            AutoTaskStackControllerImpl impl =
+                    (AutoTaskStackControllerImpl) mAutoTaskStackController.get();
+            impl.startTransition(ast);
+            pw.println("Focus set to root task " + rootTaskId);
+            return;
+        }
+
+        pw.println("Invalid argument. Usage set-focus-root-task <Root-task-id>");
+    }
+
+    private void printRootTasks(String[] args, PrintWriter pw) {
+        AutoTaskStackControllerImpl impl =
+                (AutoTaskStackControllerImpl) mAutoTaskStackController.get();
+        List<AutoTaskStack> tasks = impl.getRootTasks();
+        pw.println("Root tasks: " + tasks.size());
+        for (AutoTaskStack task : tasks) {
+            RootTaskStack rootTaskStack = (RootTaskStack) task;
+            if (rootTaskStack != null) {
+                pw.println("ID: " + task.getId() + " Name: " + task.getName() + " Top Activity: "
+                        + rootTaskStack.getRootTaskInfo().topActivity);
+            }
+        }
+    }
+
     @Override
     public boolean onShellCommand(String[] args, PrintWriter pw) {
         // More commands can be added here.
         switch (args[0]) {
             case "dump":
                 dump(args, pw, "");
+                return true;
+            case "get-root-tasks":
+                printRootTasks(args, pw);
+                return true;
+            case "set-focus-root-task":
+                setFocusedRootTask(args, pw);
                 return true;
             default:
                 pw.println("Invalid command: " + args[0]);
@@ -104,5 +140,9 @@ public final class AutoWmShellCommandHandler implements
     public void printShellCommandHelp(PrintWriter pw, String prefix) {
         pw.println(prefix + "dump");
         pw.println(prefix + "  Dumps the Car window manager shell");
+        pw.println(prefix + "get-root-tasks");
+        pw.println(prefix + "  Provides the existing root tasks");
+        pw.println(prefix + "set-focus-root-task <Root-task-id>");
+        pw.println(prefix + "  Sets the provided root task as focused");
     }
 }

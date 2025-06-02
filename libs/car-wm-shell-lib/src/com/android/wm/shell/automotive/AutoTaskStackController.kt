@@ -169,6 +169,10 @@ internal sealed class TaskStackOperation {
         val taskStackId: Int,
         val state: AutoTaskStackState
     ) : TaskStackOperation()
+
+    data class SetFocusedTaskStack(
+        val taskStackId: Int,
+    ) : TaskStackOperation()
 }
 
 data class AutoTaskStackTransaction internal constructor(
@@ -253,6 +257,29 @@ data class AutoTaskStackTransaction internal constructor(
         }
         if (existingOperation == null) {
             operations.add(TaskStackOperation.SetTaskStackState(taskStackId, state))
+        }
+        return this
+    }
+
+    /**
+     * Adds a set task stack state operation to define focus root task.
+     *
+     * If an operation exists, it is replaced with the new one.
+     *
+     * @param taskStackId The ID of the task stack.
+     * @return The transaction with the added operation.
+     */
+    fun setFocusedTaskStack(
+        taskStackId: Int,
+    ): AutoTaskStackTransaction {
+        val existingOperation = operations.find {
+            it is TaskStackOperation.SetFocusedTaskStack
+        }
+        if (existingOperation != null) {
+            val index = operations.indexOf(existingOperation)
+            operations[index] = TaskStackOperation.SetFocusedTaskStack(taskStackId)
+        } else {
+            operations.add(TaskStackOperation.SetFocusedTaskStack(taskStackId))
         }
         return this
     }
