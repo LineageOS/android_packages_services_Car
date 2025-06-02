@@ -37,6 +37,7 @@ import static com.android.car.internal.NotificationHelperBase.CAR_WATCHDOG_ACTIO
 import static com.android.car.internal.NotificationHelperBase.CAR_WATCHDOG_ACTION_LAUNCH_APP_SETTINGS;
 
 import android.annotation.NonNull;
+import android.annotation.Nullable;
 import android.annotation.UserIdInt;
 import android.automotive.watchdog.internal.GarageMode;
 import android.automotive.watchdog.internal.ICarWatchdogServiceForSystem;
@@ -84,6 +85,7 @@ import com.android.car.internal.dep.Trace;
 import com.android.car.internal.util.ArrayUtils;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.car.power.CarPowerManagementService;
+import com.android.car.stats.CarStatsLogWrapper;
 import com.android.car.systeminterface.SystemInterface;
 import com.android.car.user.CarUserService;
 import com.android.internal.annotations.GuardedBy;
@@ -136,6 +138,7 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
     private final CarWatchdogDaemonHelper.OnConnectionChangeListener mConnectionListener;
     private final Handler mServiceHandler;
     private final HandlerThread mCreatedServiceHandlerThread;
+    private final CarStatsLogWrapper mCarStatsLogWrapper;
 
     private CarWatchdogDaemonHelper mCarWatchdogDaemonHelper;
 
@@ -270,14 +273,15 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
             WatchdogStorage watchdogStorage, TimeSource timeSource, Handler handler) {
         this(context, carServiceBuiltinPackageContext, watchdogStorage,
                 timeSource, handler, /*watchdogProcessHandler=*/ null, /*watchdogPerfHandler=*/
-                null);
+                null, /* carStatsLogWrapper= */ null);
     }
 
     @VisibleForTesting
     CarWatchdogService(Context context, Context carServiceBuiltinPackageContext,
             WatchdogStorage watchdogStorage, TimeSource timeSource, Handler handler,
             WatchdogProcessHandler watchdogProcessHandler,
-            WatchdogPerfHandlerInterface watchdogPerfHandler) {
+            @Nullable WatchdogPerfHandlerInterface watchdogPerfHandler,
+            @Nullable CarStatsLogWrapper carStatsLogWrapper) {
         mContext = context;
         mWatchdogStorage = watchdogStorage;
         if (handler != null) {
@@ -293,16 +297,18 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
         mWatchdogProcessHandler = watchdogProcessHandler != null ? watchdogProcessHandler
                 : new WatchdogProcessHandler(mWatchdogServiceForSystem, mCarWatchdogDaemonHelper,
                         mPackageInfoHandler, mServiceHandler);
+        mCarStatsLogWrapper = carStatsLogWrapper != null ? carStatsLogWrapper
+            : new CarStatsLogWrapper();
         if (watchdogPerfHandler != null) {
             mWatchdogPerfHandler = watchdogPerfHandler;
         } else if (WatchdogFlashMemoryRefactorFeatureFlag.isFeatureSupported()) {
             mWatchdogPerfHandler = new WatchdogPerfHandler(mContext,
                     carServiceBuiltinPackageContext, mCarWatchdogDaemonHelper, mPackageInfoHandler,
-                    mWatchdogStorage, timeSource, mServiceHandler);
+                    mWatchdogStorage, timeSource, mServiceHandler, mCarStatsLogWrapper);
         } else {
             mWatchdogPerfHandler = new WatchdogPerfHandlerStable(mContext,
                     carServiceBuiltinPackageContext, mCarWatchdogDaemonHelper, mPackageInfoHandler,
-                    mWatchdogStorage, timeSource, mServiceHandler);
+                    mWatchdogStorage, timeSource, mServiceHandler, mCarStatsLogWrapper);
         }
         mConnectionListener = (isConnected) -> {
             mWatchdogPerfHandler.onDaemonConnectionChange(isConnected);
