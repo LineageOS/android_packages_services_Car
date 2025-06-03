@@ -20,12 +20,14 @@ import android.app.PendingIntent
 import android.content.Intent
 import android.os.Bundle
 import android.os.IBinder
+import android.util.Slog
 import android.view.SurfaceControl
 import android.window.TransitionInfo
 import android.window.TransitionRequestInfo
 import com.android.wm.shell.shared.annotations.ShellMainThread
 import com.android.wm.shell.transition.Transitions
 import com.android.wm.shell.transition.Transitions.TransitionFinishCallback
+import java.lang.IllegalArgumentException
 
 /**
  * Delegate interface for handling auto task stack transitions.
@@ -95,6 +97,12 @@ interface AutoTaskStackTransitionHandlerDelegate {
  * Controller for managing auto task stacks.
  */
 interface AutoTaskStackController {
+
+    companion object {
+        // TODO(b/421154640): update unknown z layer value.
+        var UNKNOWN_Z_LAYER: Int = -1
+        var MIN_Z_LAYER: Int = 0
+    }
 
     var autoTransitionHandlerDelegate: AutoTaskStackTransitionHandlerDelegate?
         set
@@ -220,6 +228,16 @@ data class AutoTaskStackTransaction internal constructor(
             operations[index] = TaskStackOperation.SetTaskStackState(taskStackId, state)
         } else {
             operations.add(TaskStackOperation.SetTaskStackState(taskStackId, state))
+        }
+        if (state.layer < AutoTaskStackController.MIN_Z_LAYER) {
+            Slog.e(
+                TAG,
+                "Transaction layer set to less than Min layer supported. Min layer: " +
+                        AutoTaskStackController.MIN_Z_LAYER + ". state.layer: " + state.layer
+            )
+            throw IllegalArgumentException(
+                "Layer can't be less than " + AutoTaskStackController.MIN_Z_LAYER
+            )
         }
         return this
     }

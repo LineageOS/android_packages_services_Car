@@ -523,10 +523,18 @@ class AutoTaskStackControllerImpl @Inject constructor(
                 continue
             }
 
+            // Here want to reconcile those panels which are becoming visible and was not
+            // visible in original request.
+
+            // Check for the change request if the change is for being visible. If not, ignore the
+            // change
             if (!TransitionUtil.isOpeningMode(chg.mode)) {
                 if (DBG) Slog.v(TAG, "${taskInfo.taskId} is not opening type")
                 continue
             }
+
+            // Check if the change was visible in original request, if it is, then there is no
+            // conflict.
             if (requestedTaskStackChanges[taskInfo.parentTaskId] != null &&
                 requestedTaskStackChanges[taskInfo.parentTaskId]!!.childrenTasksVisible
             ) {
@@ -539,14 +547,16 @@ class AutoTaskStackControllerImpl @Inject constructor(
                 }
                 continue
             }
+
+            //  If the change was not visible in original request, but visible in change list,
+            //  it is a conflict, reconcile the unknown changes.
             if (DBG) {
                 Slog.v(TAG, "${taskInfo.taskId} found conflicting task change")
             }
             val taskStackLayer = (_taskStackStateMap[taskInfo.parentTaskId]
                 ?: requestedTaskStackChanges[taskInfo.parentTaskId])
-                ?.layer ?: 1
-            // Use a fixed layer 1 when state is unknown. This is just a placeholder and clients
-            // should anyway see this as a conflict and fire a new transition with the correct layer
+                ?.layer ?: AutoTaskStackController.UNKNOWN_Z_LAYER
+
             changedTaskStacks[taskInfo.parentTaskId] = AutoTaskStackState(
                 bounds = (_taskStackStateMap[taskInfo.parentTaskId]
                     ?: requestedTaskStackChanges[taskInfo.parentTaskId])?.bounds ?: Rect(),

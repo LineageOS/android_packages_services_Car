@@ -51,6 +51,7 @@ import com.android.wm.shell.transition.Transitions.TransitionFinishCallback
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import org.junit.Assert.assertThrows
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -802,5 +803,18 @@ class AutoTaskStackControllerImplTest : CarWmShellTestCase() {
             rootTaskInfo3.taskId,
             AutoTaskStackState(Rect(10, 10, 40, 300), true, 900)
         )
+    }
+
+    @Test
+    fun minLayerCheck_AutoTaskStackTransaction() {
+        // Arrange
+        val taskLeash = mock(SurfaceControl::class.java)
+        val (rootTaskInfo, listener) = setupRootTask(taskId = 18, leash = taskLeash)
+        assertThrows(IllegalArgumentException::class.java) {
+            AutoTaskStackTransaction().setTaskStackState(
+                rootTaskInfo.taskId,
+                AutoTaskStackState(Rect(10, 10, 30, 30), true, -1)
+            )
+        }
     }
 }
