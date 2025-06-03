@@ -266,7 +266,7 @@ data class AutoTaskStackTransaction internal constructor(
      * @param state The new state of the task stack.
      * @return The transaction with the added operation if operation doesn't exist.
      */
-    fun setTaskStackStateIfNotSet(
+    internal fun setTaskStackStateIfNotSet(
         taskStackId: Int,
         state: AutoTaskStackState
     ): AutoTaskStackTransaction {
