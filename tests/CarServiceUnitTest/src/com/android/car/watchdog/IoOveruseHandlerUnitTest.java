@@ -55,7 +55,6 @@ import static com.android.car.watchdog.WatchdogStorage.WatchdogDbHelper.DATABASE
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doAnswer;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doThrow;
-import static com.android.dx.mockito.inline.extended.ExtendedMockito.verify;
 
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
@@ -75,6 +74,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
@@ -140,6 +140,7 @@ import com.android.car.CarServiceUtils;
 import com.android.car.CarStatsLog;
 import com.android.car.CarUxRestrictionsManagerService;
 import com.android.car.admin.NotificationHelper;
+import com.android.car.stats.CarStatsLogWrapper;
 
 import com.google.common.truth.Correspondence;
 
@@ -217,6 +218,8 @@ public class IoOveruseHandlerUnitTest extends AbstractExtendedMockitoTestCase {
     private NotificationHelper mMockNotificationHelper;
     @Mock
     private ContentResolver mMockContentResolver;
+    @Mock
+    private CarStatsLogWrapper mCarStatsLogWrapper;
 
     @Captor
     private ArgumentCaptor<ICarUxRestrictionsChangeListener>
@@ -286,7 +289,6 @@ public class IoOveruseHandlerUnitTest extends AbstractExtendedMockitoTestCase {
                 .spyStatic(CarServiceUtils.class)
                 .spyStatic(ActivityManager.class)
                 .spyStatic(ActivityThread.class)
-                .spyStatic(CarStatsLog.class)
                 .spyStatic(BuiltinPackageDependency.class)
                 .spyStatic(CarWatchdogService.class)
                 .spyStatic(CarLocalServices.class);
@@ -343,7 +345,7 @@ public class IoOveruseHandlerUnitTest extends AbstractExtendedMockitoTestCase {
         mIoOveruseHandler = new IoOveruseHandler(mMockContext,
                 mMockBuiltinPackageContext, mMockCarWatchdogDaemonHelper,
                 new PackageInfoHandler(mMockContext.getPackageManager()),
-                mSpiedWatchdogStorage, mTimeSource, mHandler);
+                mSpiedWatchdogStorage, mTimeSource, mHandler, mCarStatsLogWrapper);
 
         setupUsers();
         mockSettingsStringCalls();
@@ -2601,8 +2603,8 @@ public class IoOveruseHandlerUnitTest extends AbstractExtendedMockitoTestCase {
 
         captureAndVerifyIoOveruseStatsReported(sampleReportedOveruseStats());
 
-        verify(() -> CarStatsLog.write(eq(CarStatsLog.CAR_WATCHDOG_KILL_STATS_REPORTED), anyInt(),
-                anyInt(), anyInt(), anyInt(), any(), any()), never());
+        verify(mCarStatsLogWrapper, never()).write(eq(CarStatsLog.CAR_WATCHDOG_KILL_STATS_REPORTED),
+                anyInt(), anyInt(), anyInt(), anyInt(), any(), any());
 
         verifyNoDisabledPackages();
     }
@@ -3528,8 +3530,8 @@ public class IoOveruseHandlerUnitTest extends AbstractExtendedMockitoTestCase {
 
         captureAndVerifyIoOveruseStatsReported(sampleReportedOveruseStats());
 
-        verify(() -> CarStatsLog.write(eq(CarStatsLog.CAR_WATCHDOG_KILL_STATS_REPORTED),
-                anyInt(), anyInt(), anyInt(), anyInt(), any(), any()), never());
+        verify(mCarStatsLogWrapper, never()).write(eq(CarStatsLog.CAR_WATCHDOG_KILL_STATS_REPORTED),
+                anyInt(), anyInt(), anyInt(), anyInt(), any(), any());
 
         verifyNoDisabledPackages();
     }
@@ -3547,8 +3549,8 @@ public class IoOveruseHandlerUnitTest extends AbstractExtendedMockitoTestCase {
 
         captureAndVerifyIoOveruseStatsReported(sampleReportedOveruseStats());
 
-        verify(() -> CarStatsLog.write(eq(CarStatsLog.CAR_WATCHDOG_KILL_STATS_REPORTED),
-                anyInt(), anyInt(), anyInt(), anyInt(), any(), any()), never());
+        verify(mCarStatsLogWrapper, never()).write(eq(CarStatsLog.CAR_WATCHDOG_KILL_STATS_REPORTED),
+                anyInt(), anyInt(), anyInt(), anyInt(), any(), any());
 
         verifyNoDisabledPackages();
     }
@@ -3807,7 +3809,7 @@ public class IoOveruseHandlerUnitTest extends AbstractExtendedMockitoTestCase {
     }
 
     private void mockBuildStatsEventCalls() {
-        when(CarStatsLog.buildStatsEvent(eq(CAR_WATCHDOG_SYSTEM_IO_USAGE_SUMMARY),
+        when(mCarStatsLogWrapper.buildStatsEvent(eq(CAR_WATCHDOG_SYSTEM_IO_USAGE_SUMMARY),
                 any(byte[].class), anyLong())).thenAnswer(args -> {
                     mPulledSystemIoUsageSummaries.add(AtomsProto.CarWatchdogSystemIoUsageSummary
                             .newBuilder()
@@ -3819,7 +3821,7 @@ public class IoOveruseHandlerUnitTest extends AbstractExtendedMockitoTestCase {
                     return StatsEvent.newBuilder().build();
                 });
 
-        when(CarStatsLog.buildStatsEvent(eq(CAR_WATCHDOG_UID_IO_USAGE_SUMMARY), anyInt(),
+        when(mCarStatsLogWrapper.buildStatsEvent(eq(CAR_WATCHDOG_UID_IO_USAGE_SUMMARY), anyInt(),
                 any(byte[].class), anyLong())).thenAnswer(args -> {
                     mPulledUidIoUsageSummaries.add(AtomsProto.CarWatchdogUidIoUsageSummary
                             .newBuilder()
@@ -4135,7 +4137,7 @@ public class IoOveruseHandlerUnitTest extends AbstractExtendedMockitoTestCase {
         mIoOveruseHandler = new IoOveruseHandler(mMockContext,
                 mMockBuiltinPackageContext, mMockCarWatchdogDaemonHelper,
                 new PackageInfoHandler(mMockContext.getPackageManager()),
-                mSpiedWatchdogStorage, mTimeSource, mHandler);
+                mSpiedWatchdogStorage, mTimeSource, mHandler, mCarStatsLogWrapper);
         initService(/* wantedInvocations= */ totalRestarts + 1);
     }
 
@@ -4277,9 +4279,9 @@ public class IoOveruseHandlerUnitTest extends AbstractExtendedMockitoTestCase {
 
     private void captureAndVerifyIoOveruseStatsReported(
             List<AtomsProto.CarWatchdogIoOveruseStatsReported> expected) throws Exception {
-        verify(() -> CarStatsLog.write(eq(CarStatsLog.CAR_WATCHDOG_IO_OVERUSE_STATS_REPORTED),
-                mOverusingUidCaptor.capture(), mOveruseStatsCaptor.capture()),
-                times(expected.size()));
+        verify(mCarStatsLogWrapper, times(expected.size()))
+                .write(eq(CarStatsLog.CAR_WATCHDOG_IO_OVERUSE_STATS_REPORTED),
+                        mOverusingUidCaptor.capture(), mOveruseStatsCaptor.capture());
 
         List<Integer> allUidValues = mOverusingUidCaptor.getAllValues();
         List<byte[]> allOveruseStatsValues = mOveruseStatsCaptor.getAllValues();
@@ -4298,10 +4300,11 @@ public class IoOveruseHandlerUnitTest extends AbstractExtendedMockitoTestCase {
         // uploading metrics. Wait for this task to complete.
         CarServiceUtils.runOnMainSync(() -> {});
 
-        verify(() -> CarStatsLog.write(eq(CarStatsLog.CAR_WATCHDOG_KILL_STATS_REPORTED),
-                mKilledUidCaptor.capture(), mUidStateCaptor.capture(),
-                mSystemStateCaptor.capture(), mKillReasonCaptor.capture(), eq(null),
-                mKilledStatsCaptor.capture()), times(expected.size()));
+        verify(mCarStatsLogWrapper, times(expected.size()))
+                .write(eq(CarStatsLog.CAR_WATCHDOG_KILL_STATS_REPORTED),
+                        mKilledUidCaptor.capture(), mUidStateCaptor.capture(),
+                        mSystemStateCaptor.capture(), mKillReasonCaptor.capture(), eq(null),
+                        mKilledStatsCaptor.capture());
 
         List<Integer> allUidValues = mKilledUidCaptor.getAllValues();
         List<Integer> allUidStateValues = mUidStateCaptor.getAllValues();
