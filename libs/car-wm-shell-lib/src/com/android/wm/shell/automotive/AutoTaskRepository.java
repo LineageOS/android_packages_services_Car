@@ -32,7 +32,9 @@ import android.view.SurfaceControl;
 
 import com.android.server.utils.Slogf;
 import com.android.wm.shell.ShellTaskOrganizer;
+import com.android.wm.shell.common.SyncTransactionQueue;
 import com.android.wm.shell.dagger.WMSingleton;
+import com.android.wm.shell.fullscreen.FullscreenTaskListener;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -83,9 +85,30 @@ public class AutoTaskRepository {
 
     private final SparseArray<RootTaskStack> mPendingRootTasks = new SparseArray<>();
 
+    private final ShellTaskOrganizer.TaskListener mMultiWindowTaskListener =
+            new ShellTaskOrganizer.TaskListener() {
+                @Override
+                public void onTaskAppeared(ActivityManager.RunningTaskInfo taskInfo,
+                        SurfaceControl leash) {
+                    AutoTaskRepository.this.onTaskAppeared(taskInfo, leash);
+                }
+
+                @Override
+                public void onTaskInfoChanged(ActivityManager.RunningTaskInfo taskInfo) {
+                    AutoTaskRepository.this.onTaskChanged(taskInfo);
+                }
+
+                @Override
+                public void onTaskVanished(ActivityManager.RunningTaskInfo taskInfo) {
+                    AutoTaskRepository.this.onTaskVanished(taskInfo);
+                }
+            };
+
     @Inject
     AutoTaskRepository(Context context, ShellTaskOrganizer shellTaskOrganizer) {
         mShellTaskOrganizer = shellTaskOrganizer;
+        mShellTaskOrganizer.addListenerForType(mMultiWindowTaskListener,
+                ShellTaskOrganizer.TASK_LISTENER_TYPE_MULTI_WINDOW);
         mContext = context;
         // register task monitor only for User 0. It is possible that AutoTaskRepository is created
         // for other users if system UI runs any process on any other users.
@@ -444,6 +467,32 @@ public class AutoTaskRepository {
         void onTaskAppeared(ActivityManager.RunningTaskInfo taskInfo);
         void onTaskChanged(ActivityManager.RunningTaskInfo taskInfo);
         void onTaskVanished(ActivityManager.RunningTaskInfo taskInfo);
+    }
+
+    public static class AutoFullscreenTaskListener extends FullscreenTaskListener {
+
+        private final AutoTaskRepository mAutoTaskRepository;
+
+        public AutoFullscreenTaskListener(SyncTransactionQueue syncQueue,
+                AutoTaskRepository autoTaskRepository) {
+            super(syncQueue);
+            mAutoTaskRepository = autoTaskRepository;
+        }
+
+        @Override
+        public void onTaskAppeared(ActivityManager.RunningTaskInfo taskInfo, SurfaceControl leash) {
+            mAutoTaskRepository.onTaskAppeared(taskInfo, leash);
+        }
+
+        @Override
+        public void onTaskInfoChanged(ActivityManager.RunningTaskInfo taskInfo) {
+            mAutoTaskRepository.onTaskChanged(taskInfo);
+        }
+
+        @Override
+        public void onTaskVanished(ActivityManager.RunningTaskInfo taskInfo) {
+            mAutoTaskRepository.onTaskVanished(taskInfo);
+        }
     }
 
     /**

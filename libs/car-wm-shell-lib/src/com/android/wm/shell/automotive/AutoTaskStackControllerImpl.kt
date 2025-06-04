@@ -22,7 +22,6 @@ import android.app.WindowConfiguration.ACTIVITY_TYPE_ASSISTANT
 import android.app.WindowConfiguration.ACTIVITY_TYPE_RECENTS
 import android.app.WindowConfiguration.ACTIVITY_TYPE_STANDARD
 import android.app.WindowConfiguration.ACTIVITY_TYPE_UNDEFINED
-import android.app.WindowConfiguration.WINDOWING_MODE_FULLSCREEN
 import android.app.WindowConfiguration.WINDOWING_MODE_MULTI_WINDOW
 import android.app.WindowConfiguration.WINDOWING_MODE_UNDEFINED
 import android.content.Context
@@ -166,6 +165,21 @@ class AutoTaskStackControllerImpl @Inject constructor(
                 taskStack.leash,
                 rootTdaOrganizer.getDisplayAreaLeash(taskStack.displayId)
             )
+        }
+
+        fun setSafeRegionBounds(
+            wct: WindowContainerTransaction,
+            taskStack: AutoTaskStack,
+            safeRegionBounds: Rect
+        ) {
+            if (taskStack !is RootTaskStack) {
+                Slog.e(TAG, "Unsupported task stack, unable to convertToWct")
+                return
+            }
+            if (DBG) {
+                Slog.d(TAG, "Setting safe region bounds $safeRegionBounds on ${taskStack.id}")
+            }
+            wct.setSafeRegionBounds(taskStack.rootTaskInfo.token, safeRegionBounds)
         }
     }
 
@@ -381,14 +395,7 @@ class AutoTaskStackControllerImpl @Inject constructor(
                     }
                     wct.setLaunchRoot(
                         taskStack.rootTaskInfo.token,
-                        intArrayOf(
-                            WINDOWING_MODE_UNDEFINED,
-                            WINDOWING_MODE_MULTI_WINDOW,
-                            // This is required. Tasks will be reparent to default
-                            // TDA when back event in injected in the root task. Without this flag, the
-                            // same app/task may open in TDA instead of root task.
-                            WINDOWING_MODE_FULLSCREEN
-                        ),
+                        intArrayOf(WINDOWING_MODE_UNDEFINED),
                         intArrayOf(
                             ACTIVITY_TYPE_STANDARD,
                             ACTIVITY_TYPE_UNDEFINED,
@@ -699,22 +706,36 @@ class AutoTaskStackControllerImpl @Inject constructor(
                 is TaskStackOperation.SetFocusedTaskStack -> {
                     // Do nothing here. Focus needs to be set in the last.
                 }
-            }
-        }
 
-        // process focus task in the end so that it would get the focus.
-        ast.operations.forEach { operation ->
-            if (operation is TaskStackOperation.SetFocusedTaskStack) {
+                is TaskStackOperation.SetSafeRegionBounds -> {
                     taskStackMap[operation.taskStackId]?.let { taskStack ->
-                        mTaskStackStateTranslator.applyVisibility(
+                        mTaskStackStateTranslator.setSafeRegionBounds(
                             wct,
                             taskStack,
+                            operation.safeRegionBounds
                         )
                     }
                         ?: Slog.w(
                             TAG, "AutoTaskStack with id ${operation.taskStackId} " +
                                     "not found."
                         )
+                }
+            }
+        }
+
+        // process focus task in the end so that it would get the focus.
+        ast.operations.forEach { operation ->
+            if (operation is TaskStackOperation.SetFocusedTaskStack) {
+                taskStackMap[operation.taskStackId]?.let { taskStack ->
+                    mTaskStackStateTranslator.applyVisibility(
+                        wct,
+                        taskStack,
+                    )
+                }
+                    ?: Slog.w(
+                        TAG, "AutoTaskStack with id ${operation.taskStackId} " +
+                                "not found."
+                    )
             }
         }
     }

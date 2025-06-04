@@ -598,6 +598,132 @@ class AutoTaskStackControllerImplTest : CarWmShellTestCase() {
     }
 
     @Test
+    fun startTransition_withSetSafeRegionBounds_leadsToCorrectTranslationToWct() {
+        // Arrange
+        val (taskInfo, _) = setupRootTask(taskId = 101)
+        val safeRegionBounds = Rect(10, 20, 30, 40)
+        val transitionId = Binder()
+        setupTransitionReply(transitionId)
+
+        // Act
+        val autoTransaction = AutoTaskStackTransaction()
+            .setSafeRegionBounds(taskInfo.taskId, safeRegionBounds)
+        controller.startTransition(autoTransaction)
+
+        // Assert
+        val wctCaptor = argumentCaptor<WindowContainerTransaction>()
+        verify(transitions).startTransition(anyInt(), wctCaptor.capture(), anyOrNull())
+        val wct = wctCaptor.firstValue
+        val expectedWct = WindowContainerTransaction()
+            .setSafeRegionBounds(taskInfo.token, safeRegionBounds)
+        assertThat(wct.toString()).isEqualTo(expectedWct.toString())
+    }
+
+    @Test
+    fun startTransition_withSetSafeRegionBounds_replacesExistingOpInTransaction() {
+        // Arrange
+        val (taskInfo, _) = setupRootTask(taskId = 102)
+        val originalSafeRegionBounds = Rect(1, 2, 3, 4)
+        val newSafeRegionBounds = Rect(10, 20, 30, 40)
+        val transitionId = Binder()
+        setupTransitionReply(transitionId)
+
+        // Act
+        val autoTransaction = AutoTaskStackTransaction()
+            .setSafeRegionBounds(taskInfo.taskId, originalSafeRegionBounds)
+            .setSafeRegionBounds(taskInfo.taskId, newSafeRegionBounds) // Replace for the same task
+        controller.startTransition(autoTransaction)
+
+        // Assert
+        val wctCaptor = argumentCaptor<WindowContainerTransaction>()
+        verify(transitions).startTransition(anyInt(), wctCaptor.capture(), anyOrNull())
+        val wct = wctCaptor.firstValue
+        val expectedWct = WindowContainerTransaction()
+            .setSafeRegionBounds(taskInfo.token, newSafeRegionBounds)
+        assertThat(wct.toString()).isEqualTo(expectedWct.toString())
+    }
+
+    @Test
+    fun startTransition_withMultipleSetSafeRegionBounds_forDifferentTasks_preservesAll() {
+        // Arrange
+        val (taskInfo1, _) = setupRootTask(taskId = 103, name = "task1")
+        val (taskInfo2, _) = setupRootTask(taskId = 104, name = "task2")
+        val safeRegionBounds1 = Rect(1, 2, 3, 4)
+        val safeRegionBounds2 = Rect(10, 20, 30, 40)
+        val transitionId = Binder()
+        setupTransitionReply(transitionId)
+
+        // Act
+        val autoTransaction = AutoTaskStackTransaction()
+            .setSafeRegionBounds(taskInfo1.taskId, safeRegionBounds1)
+            .setSafeRegionBounds(taskInfo2.taskId, safeRegionBounds2)
+        controller.startTransition(autoTransaction)
+
+        // Assert
+        val wctCaptor = argumentCaptor<WindowContainerTransaction>()
+        verify(transitions).startTransition(anyInt(), wctCaptor.capture(), anyOrNull())
+        val wct = wctCaptor.firstValue
+        val expectedWct = WindowContainerTransaction()
+            .setSafeRegionBounds(taskInfo1.token, safeRegionBounds1)
+            .setSafeRegionBounds(taskInfo2.token, safeRegionBounds2)
+        assertThat(wct.toString()).isEqualTo(expectedWct.toString())
+        assertThat(wct.hierarchyOps).hasSize(2)
+    }
+
+    @Test
+    fun transitionFromCore_delegateWithSafeRegionBounds_handleRequestReturnsCorrect() {
+        // Arrange
+        val (taskInfo, _) = setupRootTask(taskId = 106)
+        val safeRegionBounds = Rect(5, 15, 25, 35)
+        val autoTransaction = AutoTaskStackTransaction()
+            .setSafeRegionBounds(taskInfo.taskId, safeRegionBounds)
+        delegate.handleRequestReturn = autoTransaction
+        val transition = mock(IBinder::class.java)
+        val requestInfo = mock(TransitionRequestInfo::class.java)
+
+        // Act
+        val resultWct = controller.handleRequest(transition, requestInfo)
+
+        // Assert
+        assertThat(resultWct).isNotNull()
+        val expectedWct = WindowContainerTransaction()
+            .setSafeRegionBounds(taskInfo.token, safeRegionBounds)
+        assertThat(resultWct.toString()).isEqualTo(expectedWct.toString())
+    }
+
+    @Test
+    fun transitionFromCore_notPlayedByDelegate_containsSafeRegionBoundsChange_shouldBePlayed() {
+        // Arrange
+        val taskLeash = mock(SurfaceControl::class.java)
+        val (rootTaskInfo, _) = setupRootTask(taskId = 106)
+        val safeRegionBounds = Rect(5, 15, 25, 35)
+        val autoTransaction = AutoTaskStackTransaction()
+            .setSafeRegionBounds(rootTaskInfo.taskId, safeRegionBounds)
+        delegate.handleRequestReturn = autoTransaction
+        delegate.play = false
+        val transition = mock(IBinder::class.java)
+        val requestInfo = mock(TransitionRequestInfo::class.java)
+        val info = TransitionInfoBuilder(TRANSIT_OPEN)
+            .addChange(TransitionInfo.Change(rootTaskInfo.token, taskLeash).apply {
+                taskInfo = rootTaskInfo
+            })
+            .build()
+        val resultWct = controller.handleRequest(transition, requestInfo)
+
+        // Act
+        val result = controller.startAnimation(
+            transition,
+            info,
+            mock(SurfaceControl.Transaction::class.java),
+            mock(SurfaceControl.Transaction::class.java),
+            mock(TransitionFinishCallback::class.java)
+        )
+
+        // Assert
+        assertThat(result).isTrue()
+    }
+
+    @Test
     fun transitionFromCore_delegateWithTaskStackStates_handleRequestReturnsCorrect() {
         val leash = mock(SurfaceControl::class.java)
         val (taskInfo, listener) = setupRootTask(taskId = 18)
