@@ -314,7 +314,7 @@ public final class IoOveruseHandler {
             CarWatchdogDaemonHelper daemonHelper, PackageInfoHandler packageInfoHandler,
             WatchdogStorage watchdogStorage, TimeSource timeSource, int uidIoUsageSummaryTopCount,
             int ioUsageSummaryMinSystemTotalWrittenBytes, int packageKillableStateResetDays,
-            int recurringOverusePeriodInDays, int recurringOveruseTimes,  Handler serviceHandler,
+            int recurringOverusePeriodInDays, int recurringOveruseTimes, Handler serviceHandler,
             CarStatsLogWrapper carStatsLogWrapper) {
         mContext = context;
         mBuiltinPackageContext = builtinPackageContext;
@@ -1022,7 +1022,6 @@ public final class IoOveruseHandler {
         mServiceHandler.post(() -> {
             Trace.beginSection("IoOveruseHandler.resetResourceOveruseStats");
             synchronized (mLock) {
-                mIsHeadsUpNotificationSent = false;
                 for (int i = 0; i < mUsageByUserPackage.size(); ++i) {
                     PackageResourceUsage usage = mUsageByUserPackage.valueAt(i);
                     if (!genericPackageNames.contains(usage.genericPackageName)) {
@@ -1356,7 +1355,10 @@ public final class IoOveruseHandler {
         }
     }
 
-    private void readFromDatabase() {
+    // TODO(b/400460188): Revert this method to private once the readFromDatabase method is removed
+    // in WatchdogPerfHandler.
+    /** Reads the user package settings and stats from database. */
+    public void readFromDatabase() {
         Trace.beginSection("IoOveruseHandler.readFromDatabase");
         mWatchdogStorage.syncUsers(getAliveUserIds());
         List<WatchdogStorage.UserPackageSettingsEntry> settingsEntries =
@@ -2070,6 +2072,8 @@ public final class IoOveruseHandler {
                         .cancelNotificationAsUser(userHandle, notificationId);
     }
 
+    // TODO(b/400460188): Reuse the functionality in WatchdogPerfHandler via a callback because
+    // the functionality uses settings strings, which is different for TV & Automotive form-factors.
     private void appendToDisabledPackagesSettingsString(String packageName, @UserIdInt int userId) {
         ContentResolver contentResolverForUser = getContentResolverForUser(mContext, userId);
         // Appending and removing package names to/from the settings string
@@ -2092,6 +2096,8 @@ public final class IoOveruseHandler {
         }
     }
 
+    // TODO(b/400460188): Reuse the functionality in WatchdogPerfHandler via a callback because
+    // the functionality uses settings strings, which is different for TV & Automotive form-factors.
     /**
      * Removes {@code packageName} from {@link KEY_PACKAGES_DISABLED_ON_RESOURCE_OVERUSE}
      * {@code Settings} of the given user.
@@ -2173,6 +2179,9 @@ public final class IoOveruseHandler {
             }
         }
         for (int i = 0; i < statsByUid.size(); ++i) {
+            // TODO(b/400460188): After identifying whethere TV's implementation can replace this
+            //  with a java genrule or need a callback API to upload metrics, remove this comment
+            //  and add a callback if needed.
             mCarStatsLogWrapper.write(CAR_WATCHDOG_IO_OVERUSE_STATS_REPORTED, statsByUid.keyAt(i),
                     statsByUid.valueAt(i).toByteArray());
         }
@@ -2196,6 +2205,9 @@ public final class IoOveruseHandler {
         for (int i = 0; i < statsByUid.size(); ++i) {
             // TODO(b/200598815): After watchdog can classify foreground vs background apps,
             //  report the correct uid state.
+            // TODO(b/400460188): After identifying whethere TV's implementation can replace this
+            //  with a java genrule or need a callback API to upload metrics, remove this comment
+            //  and add a callback if needed.
             mCarStatsLogWrapper.write(CAR_WATCHDOG_KILL_STATS_REPORTED, statsByUid.keyAt(i),
                     CAR_WATCHDOG_KILL_STATS_REPORTED__UID_STATE__UNKNOWN_UID_STATE,
                     systemState,

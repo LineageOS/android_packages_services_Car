@@ -303,21 +303,6 @@ public class IoOveruseHandlerUnitTest extends AbstractExtendedMockitoTestCase {
         when(mMockContext.getResources()).thenReturn(mMockResources);
         when(mMockContext.getSystemService(StatsManager.class)).thenReturn(mMockStatsManager);
         when(mMockContext.getPackageName()).thenReturn(CANONICAL_NAME);
-        when(mMockResources.getInteger(
-                com.android.car.R.integer.watchdogUserPackageSettingsResetDays))
-                .thenReturn(PACKAGE_KILLABLE_STATE_RESET_DAYS);
-        when(mMockResources.getInteger(
-                com.android.car.R.integer.recurringResourceOverusePeriodInDays))
-                .thenReturn(RECURRING_OVERUSE_PERIOD_IN_DAYS);
-        when(mMockResources.getInteger(
-                com.android.car.R.integer.recurringResourceOveruseTimes))
-                .thenReturn(RECURRING_OVERUSE_TIMES);
-        when(mMockResources.getInteger(
-                com.android.car.R.integer.uidIoUsageSummaryTopCount))
-                .thenReturn(UID_IO_USAGE_SUMMARY_TOP_COUNT);
-        when(mMockResources.getInteger(
-                com.android.car.R.integer.ioUsageSummaryMinSystemTotalWrittenBytes))
-                .thenReturn(IO_USAGE_SUMMARY_MIN_SYSTEM_TOTAL_WRITTEN_BYTES);
         doReturn(mMockCarUxRestrictionsManagerService)
                 .when(() -> CarLocalServices.getService(CarUxRestrictionsManagerService.class));
         doReturn(mSpiedPackageManager).when(() -> ActivityThread.getPackageManager());
@@ -342,10 +327,13 @@ public class IoOveruseHandlerUnitTest extends AbstractExtendedMockitoTestCase {
         mSpiedWatchdogStorage =
                 spy(new WatchdogStorage(mMockContext, /* useDataSystemCarDir= */ false,
                         mTimeSource));
-        mIoOveruseHandler = new IoOveruseHandler(mMockContext,
-                mMockBuiltinPackageContext, mMockCarWatchdogDaemonHelper,
-                new PackageInfoHandler(mMockContext.getPackageManager()),
-                mSpiedWatchdogStorage, mTimeSource, mHandler, mCarStatsLogWrapper);
+        mIoOveruseHandler = new IoOveruseHandler(mMockContext, mMockBuiltinPackageContext,
+                mMockCarWatchdogDaemonHelper,
+                new PackageInfoHandler(mMockContext.getPackageManager()), mSpiedWatchdogStorage,
+                mTimeSource, UID_IO_USAGE_SUMMARY_TOP_COUNT,
+                IO_USAGE_SUMMARY_MIN_SYSTEM_TOTAL_WRITTEN_BYTES, PACKAGE_KILLABLE_STATE_RESET_DAYS,
+                RECURRING_OVERUSE_PERIOD_IN_DAYS, RECURRING_OVERUSE_TIMES, mHandler,
+                mCarStatsLogWrapper);
 
         setupUsers();
         mockSettingsStringCalls();
@@ -4137,7 +4125,10 @@ public class IoOveruseHandlerUnitTest extends AbstractExtendedMockitoTestCase {
         mIoOveruseHandler = new IoOveruseHandler(mMockContext,
                 mMockBuiltinPackageContext, mMockCarWatchdogDaemonHelper,
                 new PackageInfoHandler(mMockContext.getPackageManager()),
-                mSpiedWatchdogStorage, mTimeSource, mHandler, mCarStatsLogWrapper);
+                mSpiedWatchdogStorage, mTimeSource, UID_IO_USAGE_SUMMARY_TOP_COUNT,
+                IO_USAGE_SUMMARY_MIN_SYSTEM_TOTAL_WRITTEN_BYTES, PACKAGE_KILLABLE_STATE_RESET_DAYS,
+                RECURRING_OVERUSE_PERIOD_IN_DAYS, RECURRING_OVERUSE_TIMES, mHandler,
+                mCarStatsLogWrapper);
         initService(/* wantedInvocations= */ totalRestarts + 1);
     }
 

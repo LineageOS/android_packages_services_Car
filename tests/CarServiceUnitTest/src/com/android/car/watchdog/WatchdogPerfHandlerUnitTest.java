@@ -4688,7 +4688,7 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
     private static android.automotive.watchdog.internal.ResourceOveruseConfiguration
             sampleInternalResourceOveruseConfiguration(@ComponentType int componentType,
             android.automotive.watchdog.internal.IoOveruseConfiguration ioOveruseConfig) {
-        String prefix = WatchdogPerfHandler.toComponentTypeStr(componentType)
+        String prefix = IoOveruseHandler.toComponentTypeStr(componentType)
                 .toLowerCase(Locale.US);
         android.automotive.watchdog.internal.ResourceOveruseConfiguration config =
                 new android.automotive.watchdog.internal.ResourceOveruseConfiguration();
@@ -4736,12 +4736,12 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
 
     private static android.automotive.watchdog.internal.IoOveruseConfiguration
             sampleInternalIoOveruseConfiguration(@ComponentType int componentType) {
-        String prefix = WatchdogPerfHandler.toComponentTypeStr(componentType)
+        String prefix = IoOveruseHandler.toComponentTypeStr(componentType)
                 .toLowerCase(Locale.US);
         android.automotive.watchdog.internal.IoOveruseConfiguration config =
                 new android.automotive.watchdog.internal.IoOveruseConfiguration();
         config.componentLevelThresholds = constructPerStateIoOveruseThreshold(
-                WatchdogPerfHandler.toComponentTypeStr(componentType),
+                IoOveruseHandler.toComponentTypeStr(componentType),
                 /* fgBytes= */ componentType * 10L, /* bgBytes= */ componentType *  20L,
                 /*gmBytes= */ componentType * 30L);
         config.packageSpecificThresholds = Collections.singletonList(
@@ -4804,7 +4804,7 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
 
     private static IoOveruseConfiguration.Builder sampleIoOveruseConfigurationBuilder(
             @ComponentType int componentType) {
-        String prefix = WatchdogPerfHandler.toComponentTypeStr(componentType)
+        String prefix = IoOveruseHandler.toComponentTypeStr(componentType)
                 .toLowerCase(Locale.US);
         PerStateBytes componentLevelThresholds = new PerStateBytes(
                 /* foregroundModeBytes= */ componentType * 10L,
@@ -4838,7 +4838,7 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
 
     private static ResourceOveruseConfiguration.Builder sampleResourceOveruseConfigurationBuilder(
             @ComponentType int componentType, IoOveruseConfiguration ioOveruseConfig) {
-        String prefix = WatchdogPerfHandler.toComponentTypeStr(componentType)
+        String prefix = IoOveruseHandler.toComponentTypeStr(componentType)
                 .toLowerCase(Locale.US);
         List<String> safeToKill = Arrays.asList(prefix + "_package.non_critical.A",
                 prefix + "_pkg.non_critical.B",
