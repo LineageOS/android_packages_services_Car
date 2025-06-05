@@ -16,14 +16,10 @@
 
 package com.android.wm.shell.automotive;
 
-import com.android.wm.shell.common.SyncTransactionQueue;
-import com.android.wm.shell.dagger.DynamicOverride;
 import com.android.wm.shell.dagger.WMSingleton;
-import com.android.wm.shell.fullscreen.FullscreenTaskListener;
 
 import dagger.Binds;
 import dagger.Module;
-import dagger.Provides;
 
 
 @Module
@@ -31,12 +27,4 @@ public abstract class AutoShellModule {
     @WMSingleton
     @Binds
     abstract AutoTaskStackController provideTaskStackController(AutoTaskStackControllerImpl impl);
-
-    @WMSingleton
-    @Provides
-    @DynamicOverride
-    static FullscreenTaskListener provideFullScreenTaskListener(SyncTransactionQueue syncQueue,
-            AutoTaskRepository autoTaskRepository) {
-        return new AutoTaskRepository.AutoFullscreenTaskListener(syncQueue, autoTaskRepository);
-    }
 }
