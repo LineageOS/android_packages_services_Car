@@ -26,6 +26,7 @@ import static android.car.VehiclePropertyIds.HVAC_TEMPERATURE_SET;
 import static android.car.VehiclePropertyIds.INFO_FUEL_DOOR_LOCATION;
 import static android.car.VehiclePropertyIds.PERF_VEHICLE_SPEED;
 import static android.car.VehiclePropertyIds.VEHICLE_SPEED_DISPLAY_UNITS;
+import static android.car.feature.Flags.FLAG_CAR_PROPERTY_STATUS_DETAILED_NOT_AVAILABLE;
 import static android.car.feature.Flags.FLAG_PROPERTY_VALUE_USE_DIRECT_EXECUTOR;
 import static android.car.hardware.CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ;
 import static android.car.hardware.property.VehicleHalStatusCode.STATUS_INTERNAL_ERROR;
@@ -66,6 +67,7 @@ import android.car.VehiclePropertyIds;
 import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.CarPropertyValue;
 import android.car.hardware.property.AreaIdConfig;
+import android.car.hardware.property.CarPropertyEvent;
 import android.car.hardware.property.CarPropertyManager;
 import android.car.hardware.property.ICarPropertyEventListener;
 import android.car.test.AbstractExpectableTestCase;
@@ -914,6 +916,47 @@ public class PropertyHalServiceTest extends AbstractExpectableTestCase{
         assertThat(getValuesResults.get(1).getList().get(0).getRequestId()).isEqualTo(REQUEST_ID_2);
         assertThat(getValuesResults.get(1).getList().get(0).getCarPropertyValue().getValue())
                 .isEqualTo(SAMPLE_RATE_HZ);
+
+        verifyNoPendingRequest();
+    }
+
+    @EnableFlags(FLAG_CAR_PROPERTY_STATUS_DETAILED_NOT_AVAILABLE)
+    @Test
+    public void testGetCarPropertyValuesAsync_status_notAvailableDisabled()
+            throws RemoteException {
+        int status = VehiclePropertyStatus.NOT_AVAILABLE_DISABLED | 0x12340000;
+        var propValue = mPropValueBuilder.build(
+                HVAC_TEMPERATURE_SET, /* areaId= */ 0, TEST_UPDATE_TIMESTAMP_NANOS, status,
+                0.f);
+        doAnswer((invocation) -> {
+            Object[] args = invocation.getArguments();
+            List<AsyncGetSetRequest> getVehicleHalRequests = (List) args[0];
+            VehicleStubCallbackInterface getVehicleStubAsyncCallback =
+                    (VehicleStubCallbackInterface) args[1];
+
+            List<GetVehicleStubAsyncResult> getVehicleStubAsyncResults =
+                    new ArrayList<>();
+            getVehicleStubAsyncResults.add(
+                    new GetVehicleStubAsyncResult(RECEIVED_REQUEST_ID_1, propValue));
+            getVehicleStubAsyncCallback.onGetAsyncResults(getVehicleStubAsyncResults);
+            return null;
+        }).when(mVehicleHal).getAsync(anyList(), any(VehicleStubCallbackInterface.class));
+
+        List<AsyncPropertyServiceRequest> getPropertyServiceRequests = new ArrayList<>();
+        getPropertyServiceRequests.add(GET_PROPERTY_SERVICE_REQUEST_1);
+        doReturn(mGetAsyncPropertyResultBinder).when(mGetAsyncPropertyResultCallback).asBinder();
+
+        mPropertyHalService.getCarPropertyValuesAsync(getPropertyServiceRequests,
+                mGetAsyncPropertyResultCallback, /* timeoutInMs= */ 1000,
+                /* asyncRequestStartTime= */ 0);
+
+        verify(mGetAsyncPropertyResultCallback, timeout(1000)).onGetValueResults(
+                mAsyncResultCaptor.capture());
+        GetSetValueResult result1 = mAsyncResultCaptor.getValue().getList().get(0);
+        assertThat(result1.getRequestId()).isEqualTo(REQUEST_ID_1);
+        assertThat(result1.getCarPropertyValue()).isNull();
+        assertThat(result1.getCarPropertyErrorCodes()).isEqualTo(
+                CarPropertyErrorCodes.ERROR_CODES_NOT_AVAILABLE);
 
         verifyNoPendingRequest();
     }
@@ -2520,6 +2563,23 @@ public class PropertyHalServiceTest extends AbstractExpectableTestCase{
                         Integer.valueOf(0)));
     }
 
+    @EnableFlags(FLAG_CAR_PROPERTY_STATUS_DETAILED_NOT_AVAILABLE)
+    @Test
+    public void testGetPropertySync_notAvailableDisabled_vendorStatusFiltered() throws Exception {
+        int status = VehiclePropertyStatus.NOT_AVAILABLE_DISABLED | 0x12340000;
+        HalPropValue value = mPropValueBuilder.build(
+                AidlVehiclePropValueBuilder.newBuilder(INT32_PROP)
+                        .setStatus(status).addIntValues(0).build());
+        when(mVehicleHal.get(INT32_PROP, /* areaId= */ 0)).thenReturn(value);
+
+        assertThat(mPropertyHalService.getProperty(INT32_PROP, /*areaId=*/0)).isEqualTo(
+                new CarPropertyValue.Builder<Integer>(INT32_PROP, /*areaId=*/0)
+                        .setSystemStatus(CarPropertyValue.STATUS_NOT_AVAILABLE_DISABLED)
+                        .setTimestampNanos(0)
+                        .setValue(0)
+                        .build());
+    }
+
     @Test
     public void testGetPropertySyncInvalidProp() throws Exception {
         // This property has no valid int array element.
@@ -2709,6 +2769,36 @@ public class PropertyHalServiceTest extends AbstractExpectableTestCase{
                 speedHalSubscribeOption(40.0f));
 
         verifyNoPendingRequest();
+    }
+
+    @EnableFlags(FLAG_CAR_PROPERTY_STATUS_DETAILED_NOT_AVAILABLE)
+    @Test
+    public void testOnHalEvents_vendorStatusArePassedThroughEvent() {
+        mPropertyHalService.setPropertyHalListener(mPropertyHalListener);
+        // Subscribe to speed at 40hz.
+        mPropertyHalService.subscribeProperty(List.of(
+                createCarSubscriptionOption(
+                        PERF_VEHICLE_SPEED, new int[]{0}, /* updateRateHz= */ 40.0f,
+                        /* enableVur= */ true)));
+        int status = VehiclePropertyStatus.NOT_AVAILABLE_DISABLED | 0x12340000;
+        HalPropValue propValue = mPropValueBuilder.build(
+                PERF_VEHICLE_SPEED, /* areaId= */ 0, TEST_UPDATE_TIMESTAMP_NANOS,
+                status, /* value= */ 0.f);
+
+        // Send change value events for set requests.
+        mPropertyHalService.onHalEvents(List.of(propValue));
+
+        verify(mPropertyHalListener).onPropertyChange(mListArgumentCaptor.capture());
+
+        List<CarPropertyEvent> events = mListArgumentCaptor.getValue();
+        assertThat(events).containsExactly(new CarPropertyEvent(
+                CarPropertyEvent.PROPERTY_EVENT_PROPERTY_CHANGE,
+                new CarPropertyValue.Builder<Float>(PERF_VEHICLE_SPEED, /* areaId= */ 0)
+                        .setTimestampNanos(TEST_UPDATE_TIMESTAMP_NANOS)
+                        .setValue(0.f)
+                        .setSystemStatus(CarPropertyValue.STATUS_NOT_AVAILABLE_DISABLED)
+                        .setVendorStatus(0x1234)
+                        .build()));
     }
 
     @Test

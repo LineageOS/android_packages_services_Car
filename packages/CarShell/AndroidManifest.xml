@@ -169,6 +169,7 @@
     <uses-permission android:name="android.car.permission.SET_CAR_VENDOR_CATEGORY_9"/>
     <uses-permission android:name="android.car.permission.GET_CAR_VENDOR_CATEGORY_10"/>
     <uses-permission android:name="android.car.permission.SET_CAR_VENDOR_CATEGORY_10"/>
+    <uses-permission android:name="android.car.permission.READ_PROPERTY_VENDOR_STATUS"/>
     <!-- Permissions required for CTS test - CarPerformanceManagerTest -->
     <uses-permission android:name="android.car.permission.MANAGE_THREAD_PRIORITY" />
     <!-- Permissions required for CTS test - CarOccupantZoneManagerTest -->
