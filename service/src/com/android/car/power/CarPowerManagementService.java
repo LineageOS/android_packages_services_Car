@@ -2430,9 +2430,9 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                 try {
                     PowerPolicyCallback powerPolicyCallback = new PowerPolicyCallback();
                     powerPolicyInitData = daemon.notifyCarServiceReady(powerPolicyCallback);
-                } catch (RemoteException e) {
-                    Slogf.e(TAG, e, "Failed to tell car power management daemon that "
-                            + "CarService is ready");
+                } catch (IllegalArgumentException | RemoteException e) {
+                    Slogf.e(TAG, e, "Failed to tell car power management daemon that CarService is "
+                            + "ready");
                     return;
                 }
             } else {

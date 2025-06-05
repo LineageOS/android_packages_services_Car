@@ -99,6 +99,9 @@ cc_test {
         "automotive-general-tests",
     ],
     data: [":powerpolicyxmlfiles"],
+    cppflags: [
+        "-fexceptions",
+    ],
 }
 
 vintf_fragment {
