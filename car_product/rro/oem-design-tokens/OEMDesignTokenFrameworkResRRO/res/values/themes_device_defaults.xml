@@ -46,6 +46,7 @@
         <item name="android:textColorSecondaryInverse">?oemColorSurfaceVariant</item>
         <item name="android:textColorTertiary">?oemColorSecondary</item>
         <item name="android:textColorTertiaryInverse">?oemColorOnSecondary</item>
+        <item name="android:textColorLink">?oemColorOnSurfaceInverse</item>
         <item name="android:textAppearanceLarge">?oemTextAppearanceBodyLarge</item>
         <item name="android:textAppearanceMedium">?oemTextAppearanceBodyMedium</item>
         <item name="android:textAppearanceSmall">?oemTextAppearanceBodySmall</item>
@@ -225,6 +226,13 @@
         <item name="android:selectableItemBackground">@*android:drawable/item_background</item>
         <item name="android:textColorPrimary">?oemColorOnSurface</item>
         <item name="android:textColorSecondary">?oemColorOnSurfaceVariant</item>
+        <item name="android:textColorLink">?oemColorOnSurfaceVariant</item>
+
+        <!-- Add default mappings as theme may be used without default app theme -->
+        <item name="oemColorPrimary">@color/color_primary</item>
+        <item name="oemColorBackground">@color/color_background</item>
+        <item name="oemColorOnSurface">@color/color_on_surface</item>
+        <item name="oemColorOnSurfaceVariant">@color/color_on_surface_variant</item>
     </style>
 
     <style name="Theme.DeviceDefault.Settings" parent="android:Theme.DeviceDefault"/>
