@@ -18,7 +18,6 @@ package com.android.car.property;
 import static android.car.hardware.property.CarPropertyEvent.PROPERTY_EVENT_ERROR;
 import static android.car.hardware.property.CarPropertyEvent.PROPERTY_EVENT_PROPERTY_CHANGE;
 import static android.car.hardware.property.CarPropertyManager.CAR_SET_PROPERTY_ERROR_CODE_TRY_AGAIN;
-import static android.car.hardware.property.VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SAFETY;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -113,7 +112,7 @@ public class CarPropertyServiceClientUnitTest {
     public void setup() {
         when(mICarPropertyEventListener.asBinder()).thenReturn(mListenerBinder);
         mCarPropertyServiceClient = new CarPropertyServiceClient(mICarPropertyEventListener,
-                mUnregisterCallback, /* canReadVendorStatus= */ true);
+                mUnregisterCallback);
     }
 
     // Most of the logic in CarPropertyServiceClient is already tested in
@@ -438,64 +437,5 @@ public class CarPropertyServiceClientUnitTest {
         verify(mICarPropertyEventListener, times(1)).onEvent(
                 mCarPropertyEventListCaptor.capture());
         assertThat(mCarPropertyEventListCaptor.getAllValues()).containsExactly(sanitizedEvents);
-    }
-
-    @Test
-    public void testOnEvent_vendorStatusNotFilteredOut_ifCallerCanReadVendorStatus()
-            throws RemoteException {
-        int vendorStatus = 4321;
-        // mCarPropertyServiceClient sets canReadVendorStatus to true.
-        mCarPropertyServiceClient.addOnChangeProperty(FIRST_PROPERTY_ID, REGISTERED_AREA_IDS);
-        List<CarPropertyEvent> events = List.of(
-                new CarPropertyEvent(
-                        PROPERTY_EVENT_PROPERTY_CHANGE,
-                        new CarPropertyValue.Builder<Integer>(FIRST_PROPERTY_ID, AREA_ID_1)
-                                .setTimestampNanos(TIMESTAMP_NANOS)
-                                .setSystemStatus(STATUS_NOT_AVAILABLE_SAFETY)
-                                .setVendorStatus(vendorStatus)
-                                .setValue(0)
-                                .build()
-                )
-            );
-
-        mCarPropertyServiceClient.onEvent(events);
-
-        verify(mICarPropertyEventListener).onEvent(mCarPropertyEventListCaptor.capture());
-        assertThat(mCarPropertyEventListCaptor.getAllValues()).containsExactly(events);
-    }
-
-    @Test
-    public void testOnEvent_vendorStatusFilteredOut_ifCallerCanNotReadVendorStatus()
-            throws RemoteException {
-        int vendorStatus = 4321;
-        var client = new CarPropertyServiceClient(mICarPropertyEventListener,
-                mUnregisterCallback, /* canReadVendorStatus= */ false);
-        client.addOnChangeProperty(FIRST_PROPERTY_ID, REGISTERED_AREA_IDS);
-        List<CarPropertyEvent> events = List.of(
-                new CarPropertyEvent(
-                        PROPERTY_EVENT_PROPERTY_CHANGE,
-                        new CarPropertyValue.Builder<Integer>(FIRST_PROPERTY_ID, AREA_ID_1)
-                                .setTimestampNanos(TIMESTAMP_NANOS)
-                                .setSystemStatus(STATUS_NOT_AVAILABLE_SAFETY)
-                                .setVendorStatus(vendorStatus)
-                                .setValue(0)
-                                .build()
-                )
-            );
-
-        client.onEvent(events);
-
-        verify(mICarPropertyEventListener).onEvent(mCarPropertyEventListCaptor.capture());
-
-        var receivedEvent = mCarPropertyEventListCaptor.getAllValues().get(0).get(0);
-
-        assertThat(receivedEvent).isEqualTo(new CarPropertyEvent(
-                        PROPERTY_EVENT_PROPERTY_CHANGE,
-                        new CarPropertyValue.Builder<Integer>(FIRST_PROPERTY_ID, AREA_ID_1)
-                                .setTimestampNanos(TIMESTAMP_NANOS)
-                                .setSystemStatus(STATUS_NOT_AVAILABLE_SAFETY)
-                                .setValue(0)
-                                .build()
-                ));
     }
 }

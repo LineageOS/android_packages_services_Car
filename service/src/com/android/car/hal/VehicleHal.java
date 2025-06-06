@@ -148,9 +148,6 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
     // Only updated during constructor.
     private final List<HalServiceBase> mCreatedHalServices = new ArrayList<>();
 
-    // Only set during constructor or updated for testing.
-    private boolean mIsUserBuild;
-
     private final Object mLock = new Object();
 
     private FeatureFlags mFeatureFlags = new FeatureFlagsImpl();
@@ -348,7 +345,6 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
             ClusterHalService clusterHalService,
             TimeHalService timeHalService,
             VehicleStub vehicle) {
-        mIsUserBuild = BuildHelper.isUserBuild();
         // Must be initialized before HalService so that HalService could use this.
         mPropValueBuilder = vehicle.getHalPropValueBuilder();
         mPowerHal = getOrCreate(powerHal, () -> new PowerHalService(context, mFeatureFlags, this,
@@ -377,14 +373,6 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
                 mPropertyHal);
         mVehicleStub = new AtomicReference<>(vehicle);
         mSubscriptionClient = vehicle.newSubscriptionClient(this);
-    }
-
-    /**
-     * Overrides isUserBuild. For testing only.
-     */
-    @VisibleForTesting
-    public void setIsUserBuild(boolean isUserBuild) {
-        mIsUserBuild = isUserBuild;
     }
 
     private <T extends HalServiceBase> T getOrCreate(@Nullable T passedInService,
@@ -1490,7 +1478,7 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
     }
 
     private List<HalPropValue> maybeHandleRecordingAndInjection(List<HalPropValue> halPropValues) {
-        if (mIsUserBuild) {
+        if (BuildHelper.isUserBuild()) {
             return halPropValues;
         }
         RecordingListenerHandler recordingListenerHandler = mListenerHandlerRef.get();
@@ -1506,10 +1494,7 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
                     continue;
                 }
                 CarPropertyValue<?> carPropertyvalue = halPropValues.get(i).toCarPropertyValue(
-                        halPropValue.getPropId(), halPropConfig,
-                        /* isSimulationPropId= */ true,
-                        // Also record vendor property status.
-                        /* readVendorStatus= */ true);
+                        halPropValue.getPropId(), halPropConfig, /* isVhalPropId= */ true);
                 events.add(new CarPropertyEvent(
                         CarPropertyEvent.PROPERTY_EVENT_PROPERTY_CHANGE, carPropertyvalue));
             }

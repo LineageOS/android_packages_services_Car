@@ -79,7 +79,6 @@ import com.android.car.internal.property.ISupportedValuesChangeCallback;
 import com.android.car.internal.property.InputSanitizationUtils;
 import com.android.car.internal.property.MinMaxSupportedPropertyValue;
 import com.android.car.internal.property.PropIdAreaId;
-import com.android.car.internal.property.PropertyStatusUtils;
 import com.android.car.internal.property.RawPropertyValue;
 import com.android.car.internal.property.SubscriptionManager;
 import com.android.car.internal.util.IntArray;
@@ -2318,7 +2317,7 @@ public class CarPropertyManager extends CarManagerBase {
                 return mService.getProperty(propertyId, areaId);
             });
             return (propValue != null
-                    && PropertyStatusUtils.isPropertyStatusAvailable(propValue.getStatus()));
+                    && propValue.getStatus() == CarPropertyValue.STATUS_AVAILABLE);
         } catch (RemoteException e) {
             return handleRemoteExceptionFromCarService(e, false);
         } catch (ServiceSpecificException | IllegalArgumentException e) {
@@ -2555,24 +2554,20 @@ public class CarPropertyManager extends CarManagerBase {
 
         // Keeps the same behavior as android R.
         if (mAppTargetSdk < Build.VERSION_CODES.S) {
-            return PropertyStatusUtils.isPropertyStatusAvailable(propertyValue.getStatus())
+            return propertyValue.getStatus() == CarPropertyValue.STATUS_AVAILABLE
                     ? propertyValue.getValue() : defaultValue;
         }
 
-        int propertyStatus = propertyValue.getStatus();
-        if (PropertyStatusUtils.isPropertyStatusAvailable(propertyStatus)) {
-            return propertyValue.getValue();
+        // throws new exceptions in android S.
+        switch (propertyValue.getStatus()) {
+            case CarPropertyValue.STATUS_ERROR:
+                throw new CarInternalErrorException(propertyValue.getPropertyId(), areaId);
+            case CarPropertyValue.STATUS_UNAVAILABLE:
+                throw new PropertyNotAvailableException(propertyValue.getPropertyId(),
+                        areaId, /*vendorErrorCode=*/0);
+            default:
+                return propertyValue.getValue();
         }
-        if (PropertyStatusUtils.isPropertyStatusError(propertyStatus)) {
-            throw new CarInternalErrorException(propertyValue.getPropertyId(), areaId);
-        }
-        if (PropertyStatusUtils.isPropertyStatusNotAvailable(propertyStatus)) {
-            throw new PropertyNotAvailableException(propertyValue.getPropertyId(),
-                        areaId, /*vendorErrorCode=*/ 0);
-        }
-        Slogf.w(TAG, "Unknown property status: " + propertyStatus
-                + ", convert to CarInternalErrorException");
-        throw new CarInternalErrorException(propertyValue.getPropertyId(), areaId);
     }
 
     @FunctionalInterface
@@ -2865,21 +2860,14 @@ public class CarPropertyManager extends CarManagerBase {
                 return null;
             }
             if (mAppTargetSdk >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-                int propertyStatus = carPropertyValue.getStatus();
-                if (PropertyStatusUtils.isPropertyStatusNotAvailable(propertyStatus)) {
+                if (carPropertyValue.getStatus() == CarPropertyValue.STATUS_UNAVAILABLE) {
                     throw new ServiceSpecificException(VehicleHalStatusCode.STATUS_NOT_AVAILABLE,
                             "getProperty returned value with UNAVAILABLE status: "
                                     + carPropertyValue);
-                }
-                if (PropertyStatusUtils.isPropertyStatusError(propertyStatus)) {
+                } else if (carPropertyValue.getStatus() != CarPropertyValue.STATUS_AVAILABLE) {
                     throw new ServiceSpecificException(VehicleHalStatusCode.STATUS_INTERNAL_ERROR,
-                            "getProperty returned value with error status: "
+                            "getProperty returned value with error or unknown status: "
                                     + carPropertyValue);
-                }
-                if (!PropertyStatusUtils.isPropertyStatusAvailable(propertyStatus)) {
-                    throw new ServiceSpecificException(VehicleHalStatusCode.STATUS_INTERNAL_ERROR,
-                            "getProperty returned value with unknown status (" + propertyStatus
-                                    + ") : " + carPropertyValue);
                 }
             }
             return carPropertyValue;

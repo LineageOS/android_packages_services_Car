@@ -38,13 +38,11 @@ import android.os.Parcelable;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.property.RawPropertyValue;
-import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.Preconditions;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Objects;
 
 /**
@@ -66,6 +64,38 @@ public final class CarPropertyValue<T> implements Parcelable {
     private final RawPropertyValue<T> mValue;
     private final boolean mIsSimulationPropId;
     private final int mVendorStatus;
+
+    /**
+     * @removed accidentally exposed previously
+     *
+     * This is now deprecated and not used any more. Internally we use CarPropertyStatus instead.
+     */
+    @IntDef({
+        STATUS_AVAILABLE,
+        STATUS_UNAVAILABLE,
+        STATUS_ERROR
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface PropertyStatus {}
+
+    /**
+     * All possible status for a car property value.
+     *
+     * @hide
+     */
+    @IntDef({
+        STATUS_AVAILABLE,
+        STATUS_ERROR,
+        STATUS_NOT_AVAILABLE_GENERAL,
+        STATUS_NOT_AVAILABLE_DISABLED,
+        STATUS_NOT_AVAILABLE_SPEED_LOW,
+        STATUS_NOT_AVAILABLE_SPEED_HIGH,
+        STATUS_NOT_AVAILABLE_POOR_VISIBILITY,
+        STATUS_NOT_AVAILABLE_SAFETY,
+        STATUS_NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface CarPropertyStatus {}
 
     /**
      * {@code CarPropertyValue} is available.
@@ -132,62 +162,6 @@ public final class CarPropertyValue<T> implements Parcelable {
      */
     @FlaggedApi(Flags.FLAG_CAR_PROPERTY_STATUS_DETAILED_NOT_AVAILABLE)
     public static final int STATUS_NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED = 8;
-
-    /**
-     * @removed accidentally exposed previously
-     *
-     * This is now deprecated and not used any more. Internally we use CarPropertyStatus instead.
-     */
-    @IntDef({
-        STATUS_AVAILABLE,
-        STATUS_UNAVAILABLE,
-        STATUS_ERROR
-    })
-    @Retention(RetentionPolicy.SOURCE)
-    public @interface PropertyStatus {}
-
-    /**
-     * All possible status for a car property value.
-     *
-     * Note: If this is updated, {@link com.android.car.internal.property.PropertyStatusUtils}
-     * must be updated.
-     *
-     * @hide
-     */
-    @IntDef({
-        STATUS_AVAILABLE,
-        STATUS_ERROR,
-        STATUS_NOT_AVAILABLE_GENERAL,
-        STATUS_NOT_AVAILABLE_DISABLED,
-        STATUS_NOT_AVAILABLE_SPEED_LOW,
-        STATUS_NOT_AVAILABLE_SPEED_HIGH,
-        STATUS_NOT_AVAILABLE_POOR_VISIBILITY,
-        STATUS_NOT_AVAILABLE_SAFETY,
-        STATUS_NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED
-    })
-    @Retention(RetentionPolicy.SOURCE)
-    public @interface CarPropertyStatus {}
-
-    /**
-     * All possible status for a car property value.
-     *
-     * This exists because CarPropertyStatus is for compile time check and this is for runtime
-     * check.
-     *
-     * @hide
-     */
-    @VisibleForTesting
-    public static final List<Integer> ALL_CAR_PROPERTY_STATUS = List.of(
-            STATUS_AVAILABLE,
-            STATUS_ERROR,
-            STATUS_NOT_AVAILABLE_GENERAL,
-            STATUS_NOT_AVAILABLE_DISABLED,
-            STATUS_NOT_AVAILABLE_SPEED_LOW,
-            STATUS_NOT_AVAILABLE_SPEED_HIGH,
-            STATUS_NOT_AVAILABLE_POOR_VISIBILITY,
-            STATUS_NOT_AVAILABLE_SAFETY,
-            STATUS_NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED
-    );
 
     /**
      * Builder for CarPropertyValue.
@@ -483,22 +457,6 @@ public final class CarPropertyValue<T> implements Parcelable {
     }
 
     /**
-     * Returns a {@code CarPropertyValue} same as {@code this}, but with vendor status set to 0.
-     *
-     * @hide
-     */
-    public CarPropertyValue cloneWithVendorStatusFiltered() {
-        // Make a copy of input, except for the vendor status field.
-        return new Builder(mPropertyId, mAreaId)
-                .setSystemStatus(mSystemStatus)
-                .setTimestampNanos(mTimestampNanos)
-                .setRawPropertyValue(mValue)
-                .setIsSimulationPropId(mIsSimulationPropId)
-                .setVendorStatus(0)
-                .build();
-    }
-
-    /**
      * Returns the property identifier.
      *
      * @return The property identifier of {@code CarPropertyValue}. See constants in
@@ -548,8 +506,6 @@ public final class CarPropertyValue<T> implements Parcelable {
     @FlaggedApi(FLAG_CAR_PROPERTY_VALUE_PROPERTY_STATUS)
     @CarPropertyStatus
     public int getPropertyStatus() {
-        // TODO(b/416768353): Check sdk version against 25Q4 here and map detailed not available
-        // property status to general not available status.
         return mSystemStatus;
     }
 
@@ -577,8 +533,6 @@ public final class CarPropertyValue<T> implements Parcelable {
     @Deprecated
     @CarPropertyStatus
     public int getStatus() {
-        // TODO(b/416768353): Check sdk version against 25Q4 here and map detailed not available
-        // property status to general not available status.
         return mSystemStatus;
     }
 
@@ -643,7 +597,7 @@ public final class CarPropertyValue<T> implements Parcelable {
         String propertyIdToString = VehiclePropertyIds.toString(mPropertyId);
         if (Flags.carPropertySimulation()) {
             if (isPropertyIdSimulationPropId()) {
-                propertyIdToString = "0x" + Integer.toHexString(mPropertyId);
+                propertyIdToString = Integer.toHexString(mPropertyId);
             }
         }
         String propertyValueString = "CarPropertyValue{"

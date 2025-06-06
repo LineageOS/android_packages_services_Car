@@ -42,17 +42,15 @@ public final class CarPropertyServiceClient extends CarPropertyEventController
     private final ICarPropertyEventListener mListener;
     private final IBinder mListenerBinder;
     private final UnregisterCallback mUnregisterCallback;
-    private final boolean mCanReadVendorStatus;
     private final Object mLock = new Object();
     @GuardedBy("mLock")
     private boolean mIsDead;
 
     public CarPropertyServiceClient(ICarPropertyEventListener listener,
-            UnregisterCallback unregisterCallback, boolean canReadVendorStatus) {
+            UnregisterCallback unregisterCallback) {
         mListener = listener;
         mListenerBinder = listener.asBinder();
         mUnregisterCallback = unregisterCallback;
-        mCanReadVendorStatus = canReadVendorStatus;
 
         try {
             mListenerBinder.linkToDeath(this, /* flags= */ 0);
@@ -195,21 +193,9 @@ public final class CarPropertyServiceClient extends CarPropertyEventController
      * this function.
      */
     public void onFilteredEvents(List<CarPropertyEvent> events) throws RemoteException {
-        if (events.isEmpty()) {
-            return;
-        }
-        if (mCanReadVendorStatus) {
+        if (!events.isEmpty()) {
             mListener.onEvent(events);
-            return;
         }
-
-        // If the client cannot read vendor property status, we need to filter it out from the
-        // events.
-        List<CarPropertyEvent> eventsCopy = new ArrayList<>();
-        for (int i = 0; i < events.size(); i++) {
-            eventsCopy.add(events.get(i).cloneWithVendorStatusFiltered());
-        }
-        mListener.onEvent(eventsCopy);
     }
 
     /**

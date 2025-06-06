@@ -36,14 +36,8 @@ public final class CarPropertyEventTest {
     private static final int AREA_ID = 5678;
     private static final long TIMESTAMP_NANOS = 9294;
     private static final Float VALUE = 12.0F;
-    private static final int VENDOR_STATUS = 0xDEAD;
-    private static final int SYSTEM_STATUS = CarPropertyValue.STATUS_NOT_AVAILABLE_DISABLED;
-
-    private static final CarPropertyValue<Float> CAR_PROPERTY_VALUE =
-            new CarPropertyValue.Builder<Float>(PROPERTY_ID, AREA_ID)
-                    .setTimestampNanos(TIMESTAMP_NANOS)
-                    .setValue(VALUE)
-                    .build();
+    private static final CarPropertyValue<Float> CAR_PROPERTY_VALUE = new CarPropertyValue<>(
+            PROPERTY_ID, AREA_ID, TIMESTAMP_NANOS, VALUE);
     private static final int EVENT_TYPE = CarPropertyEvent.PROPERTY_EVENT_PROPERTY_CHANGE;
     private static final int ERROR_CODE =
             CarPropertyManager.CAR_SET_PROPERTY_ERROR_CODE_INVALID_ARG;
@@ -157,22 +151,5 @@ public final class CarPropertyEventTest {
         assertThat(CAR_PROPERTY_EVENT.hashCode()).isNotEqualTo(
                 new CarPropertyEvent(EVENT_TYPE, CAR_PROPERTY_VALUE,
                         differentErrorCode).hashCode());
-    }
-
-    @Test
-    public void cloneWithVendorStatusFiltered() {
-        var carPropertyValue = new CarPropertyValue.Builder<Float>(PROPERTY_ID, AREA_ID)
-                .setTimestampNanos(TIMESTAMP_NANOS)
-                .setValue(VALUE)
-                .setSystemStatus(SYSTEM_STATUS)
-                .setVendorStatus(VENDOR_STATUS)
-                .build();
-        var carPropertyEvent = new CarPropertyEvent(EVENT_TYPE, carPropertyValue,
-                /* errorCode= */ 0);
-
-        var filteredCarPropertyEvent = carPropertyEvent.cloneWithVendorStatusFiltered();
-
-        assertThat(filteredCarPropertyEvent.getCarPropertyValue().getPropertyVendorStatus())
-                .isEqualTo(0);
     }
 }
