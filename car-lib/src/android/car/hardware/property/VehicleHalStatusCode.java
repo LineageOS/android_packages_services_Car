@@ -116,19 +116,6 @@ public final class VehicleHalStatusCode {
     );
 
     /**
-     * All status codes that represents a not_available status.
-     */
-    public static final Set<Integer> NOT_AVAILABLE_STATUS_CODES = Set.of(
-            STATUS_NOT_AVAILABLE,
-            STATUS_NOT_AVAILABLE_DISABLED,
-            STATUS_NOT_AVAILABLE_SPEED_LOW,
-            STATUS_NOT_AVAILABLE_SPEED_HIGH,
-            STATUS_NOT_AVAILABLE_POOR_VISIBILITY,
-            STATUS_NOT_AVAILABLE_SAFETY,
-            STATUS_NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED
-    );
-
-    /**
      * Returns a user-friendly representation of a {@code VehicleHalStatusCode}.
      */
     @NonNull

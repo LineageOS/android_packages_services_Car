@@ -500,8 +500,7 @@ public final class HalPropValueUnitTest {
         HalPropValue value = builder.build(hidlValue);
 
         CarPropertyValue propValue = value.toCarPropertyValue(
-                TEST_MGR_PROP, new AidlHalPropConfig(new VehiclePropConfig()),
-                /* isSimulationPropId= */ false, /* readVendorStatus= */ false);
+                TEST_MGR_PROP, new AidlHalPropConfig(new VehiclePropConfig()));
 
         Boolean content = (Boolean) propValue.getValue();
 
@@ -523,8 +522,7 @@ public final class HalPropValueUnitTest {
         HalPropValue value = builder.build(hidlValue);
 
         CarPropertyValue propValue = value.toCarPropertyValue(
-                TEST_MGR_PROP, new AidlHalPropConfig(new VehiclePropConfig()),
-                /* isSimulationPropId= */ false, /* readVendorStatus= */ false);
+                TEST_MGR_PROP, new AidlHalPropConfig(new VehiclePropConfig()));
 
         Integer content = (Integer) propValue.getValue();
 
@@ -543,8 +541,7 @@ public final class HalPropValueUnitTest {
         HalPropValue value = builder.build(hidlValue);
 
         CarPropertyValue propValue = value.toCarPropertyValue(
-                TEST_MGR_PROP, new AidlHalPropConfig(new VehiclePropConfig()),
-                /* isSimulationPropId= */ false, /* readVendorStatus= */ false);
+                TEST_MGR_PROP, new AidlHalPropConfig(new VehiclePropConfig()));
 
         Integer[] content = (Integer[]) propValue.getValue();
 
@@ -562,8 +559,7 @@ public final class HalPropValueUnitTest {
         HalPropValue value = builder.build(hidlValue);
 
         CarPropertyValue propValue = value.toCarPropertyValue(
-                TEST_MGR_PROP, new AidlHalPropConfig(new VehiclePropConfig()),
-                /* isSimulationPropId= */ false, /* readVendorStatus= */ false);
+                TEST_MGR_PROP, new AidlHalPropConfig(new VehiclePropConfig()));
 
         Float content = (Float) propValue.getValue();
 
@@ -582,8 +578,7 @@ public final class HalPropValueUnitTest {
         HalPropValue value = builder.build(hidlValue);
 
         CarPropertyValue propValue = value.toCarPropertyValue(
-                TEST_MGR_PROP, new AidlHalPropConfig(new VehiclePropConfig()),
-                /* isSimulationPropId= */ false, /* readVendorStatus= */ false);
+                TEST_MGR_PROP, new AidlHalPropConfig(new VehiclePropConfig()));
 
         Float[] content = (Float[]) propValue.getValue();
 
@@ -601,8 +596,7 @@ public final class HalPropValueUnitTest {
         HalPropValue value = builder.build(hidlValue);
 
         CarPropertyValue propValue = value.toCarPropertyValue(
-                TEST_MGR_PROP, new AidlHalPropConfig(new VehiclePropConfig()),
-                /* isSimulationPropId= */ false, /* readVendorStatus= */ false);
+                TEST_MGR_PROP, new AidlHalPropConfig(new VehiclePropConfig()));
 
         Long content = (Long) propValue.getValue();
 
@@ -621,8 +615,7 @@ public final class HalPropValueUnitTest {
         HalPropValue value = builder.build(hidlValue);
 
         CarPropertyValue propValue = value.toCarPropertyValue(
-                TEST_MGR_PROP, new AidlHalPropConfig(new VehiclePropConfig()),
-                /* isSimulationPropId= */ false, /* readVendorStatus= */ false);
+                TEST_MGR_PROP, new AidlHalPropConfig(new VehiclePropConfig()));
 
         Long[] content = (Long[]) propValue.getValue();
 
@@ -641,8 +634,7 @@ public final class HalPropValueUnitTest {
         HalPropValue value = builder.build(hidlValue);
 
         CarPropertyValue propValue = value.toCarPropertyValue(
-                TEST_MGR_PROP, new AidlHalPropConfig(new VehiclePropConfig()),
-                /* isSimulationPropId= */ false, /* readVendorStatus= */ false);
+                TEST_MGR_PROP, new AidlHalPropConfig(new VehiclePropConfig()));
 
         byte[] content = (byte[]) propValue.getValue();
 
@@ -660,8 +652,7 @@ public final class HalPropValueUnitTest {
         HalPropValue value = builder.build(hidlValue);
 
         CarPropertyValue propValue = value.toCarPropertyValue(
-                TEST_MGR_PROP, new AidlHalPropConfig(new VehiclePropConfig()),
-                /* isSimulationPropId= */ false, /* readVendorStatus= */ false);
+                TEST_MGR_PROP, new AidlHalPropConfig(new VehiclePropConfig()));
 
         String content = (String) propValue.getValue();
 
@@ -689,8 +680,7 @@ public final class HalPropValueUnitTest {
         HalPropValue value = builder.build(hidlValue);
 
         CarPropertyValue propValue = value.toCarPropertyValue(TEST_MGR_PROP,
-                new AidlHalPropConfig(config),
-                /* isSimulationPropId= */ false, /* readVendorStatus= */ false);
+                new AidlHalPropConfig(config));
 
         Object[] content = (Object[]) propValue.getValue();
 
@@ -717,8 +707,7 @@ public final class HalPropValueUnitTest {
         HalPropValue value = builder.build(aidlValue);
 
         CarPropertyValue propValue = value.toCarPropertyValue(
-                TEST_MGR_PROP, new AidlHalPropConfig(new VehiclePropConfig()),
-                /* isSimulationPropId= */ false, /* readVendorStatus= */ false);
+                TEST_MGR_PROP, new AidlHalPropConfig(new VehiclePropConfig()));
 
         Boolean content = (Boolean) propValue.getValue();
 
@@ -741,8 +730,7 @@ public final class HalPropValueUnitTest {
         HalPropValue value = builder.build(aidlValue);
 
         CarPropertyValue propValue = value.toCarPropertyValue(
-                TEST_MGR_PROP, new AidlHalPropConfig(new VehiclePropConfig()),
-                /* isSimulationPropId= */ false, /* readVendorStatus= */ false);
+                TEST_MGR_PROP, new AidlHalPropConfig(new VehiclePropConfig()));
 
         Integer content = (Integer) propValue.getValue();
 
@@ -761,8 +749,7 @@ public final class HalPropValueUnitTest {
         HalPropValue value = builder.build(aidlValue);
 
         CarPropertyValue propValue = value.toCarPropertyValue(
-                TEST_MGR_PROP, new AidlHalPropConfig(new VehiclePropConfig()),
-                /* isSimulationPropId= */ false, /* readVendorStatus= */ false);
+                TEST_MGR_PROP, new AidlHalPropConfig(new VehiclePropConfig()));
 
         Integer[] content = (Integer[]) propValue.getValue();
 
@@ -781,8 +768,7 @@ public final class HalPropValueUnitTest {
         HalPropValue value = builder.build(aidlValue);
 
         CarPropertyValue propValue = value.toCarPropertyValue(
-                TEST_MGR_PROP, new AidlHalPropConfig(new VehiclePropConfig()),
-                /* isSimulationPropId= */ false, /* readVendorStatus= */ false);
+                TEST_MGR_PROP, new AidlHalPropConfig(new VehiclePropConfig()));
 
         Float content = (Float) propValue.getValue();
 
@@ -801,8 +787,7 @@ public final class HalPropValueUnitTest {
         HalPropValue value = builder.build(aidlValue);
 
         CarPropertyValue propValue = value.toCarPropertyValue(
-                TEST_MGR_PROP, new AidlHalPropConfig(new VehiclePropConfig()),
-                /* isSimulationPropId= */ false, /* readVendorStatus= */ false);
+                TEST_MGR_PROP, new AidlHalPropConfig(new VehiclePropConfig()));
 
         Float[] content = (Float[]) propValue.getValue();
 
@@ -821,8 +806,7 @@ public final class HalPropValueUnitTest {
         HalPropValue value = builder.build(aidlValue);
 
         CarPropertyValue propValue = value.toCarPropertyValue(
-                TEST_MGR_PROP, new AidlHalPropConfig(new VehiclePropConfig()),
-                /* isSimulationPropId= */ false, /* readVendorStatus= */ false);
+                TEST_MGR_PROP, new AidlHalPropConfig(new VehiclePropConfig()));
 
         Long content = (Long) propValue.getValue();
 
@@ -841,8 +825,7 @@ public final class HalPropValueUnitTest {
         HalPropValue value = builder.build(aidlValue);
 
         CarPropertyValue propValue = value.toCarPropertyValue(
-                TEST_MGR_PROP, new AidlHalPropConfig(new VehiclePropConfig()),
-                /* isSimulationPropId= */ false, /* readVendorStatus= */ false);
+                TEST_MGR_PROP, new AidlHalPropConfig(new VehiclePropConfig()));
 
         Long[] content = (Long[]) propValue.getValue();
 
@@ -861,8 +844,7 @@ public final class HalPropValueUnitTest {
         HalPropValue value = builder.build(aidlValue);
 
         CarPropertyValue propValue = value.toCarPropertyValue(
-                TEST_MGR_PROP, new AidlHalPropConfig(new VehiclePropConfig()),
-                /* isSimulationPropId= */ false, /* readVendorStatus= */ false);
+                TEST_MGR_PROP, new AidlHalPropConfig(new VehiclePropConfig()));
 
         byte[] content = (byte[]) propValue.getValue();
 
@@ -881,8 +863,7 @@ public final class HalPropValueUnitTest {
         HalPropValue value = builder.build(aidlValue);
 
         CarPropertyValue propValue = value.toCarPropertyValue(
-                TEST_MGR_PROP, new AidlHalPropConfig(new VehiclePropConfig()),
-                /* isSimulationPropId= */ false, /* readVendorStatus= */ false);
+                TEST_MGR_PROP, new AidlHalPropConfig(new VehiclePropConfig()));
 
         String content = (String) propValue.getValue();
 
@@ -910,8 +891,7 @@ public final class HalPropValueUnitTest {
         HalPropValue value = builder.build(aidlValue);
 
         CarPropertyValue propValue = value.toCarPropertyValue(TEST_MGR_PROP,
-                new AidlHalPropConfig(config),
-                /* isSimulationPropId= */ false, /* readVendorStatus= */ false);
+                new AidlHalPropConfig(config));
 
         Object[] content = (Object[]) propValue.getValue();
 
@@ -940,8 +920,7 @@ public final class HalPropValueUnitTest {
         HalPropValue value = createTestHalPropValueWithStatus(VehiclePropertyStatus.UNAVAILABLE);
 
         assertThat(value.toCarPropertyValue(TEST_MGR_PROP,
-                new AidlHalPropConfig(new VehiclePropConfig()),
-                /* isSimulationPropId= */ false, /* readVendorStatus= */ false)).isEqualTo(
+                new AidlHalPropConfig(new VehiclePropConfig()))).isEqualTo(
                         new CarPropertyValue<>(TEST_MGR_PROP, TEST_AREA_ID,
                                 CarPropertyValue.STATUS_NOT_AVAILABLE_GENERAL, TEST_TIMESTAMP,
                                 Boolean.TRUE));
@@ -952,8 +931,7 @@ public final class HalPropValueUnitTest {
         HalPropValue value = createTestHalPropValueWithStatus(VehiclePropertyStatus.ERROR);
 
         assertThat(value.toCarPropertyValue(TEST_MGR_PROP,
-                new AidlHalPropConfig(new VehiclePropConfig()),
-                /* isSimulationPropId= */ false, /* readVendorStatus= */ false)).isEqualTo(
+                new AidlHalPropConfig(new VehiclePropConfig()))).isEqualTo(
                         new CarPropertyValue<>(TEST_MGR_PROP, TEST_AREA_ID,
                                 CarPropertyValue.STATUS_ERROR,
                                 TEST_TIMESTAMP, Boolean.TRUE));
@@ -966,8 +944,7 @@ public final class HalPropValueUnitTest {
                 VehiclePropertyStatus.NOT_AVAILABLE_DISABLED);
 
         assertThat(value.toCarPropertyValue(TEST_MGR_PROP,
-                new AidlHalPropConfig(new VehiclePropConfig()),
-                /* isSimulationPropId= */ false, /* readVendorStatus= */ false)
+                new AidlHalPropConfig(new VehiclePropConfig()))
             ).isEqualTo(new CarPropertyValue<>(TEST_MGR_PROP, TEST_AREA_ID,
                     CarPropertyValue.STATUS_NOT_AVAILABLE_DISABLED, TEST_TIMESTAMP, Boolean.TRUE));
     }
@@ -979,8 +956,7 @@ public final class HalPropValueUnitTest {
                 VehiclePropertyStatus.NOT_AVAILABLE_SPEED_LOW);
 
         assertThat(value.toCarPropertyValue(TEST_MGR_PROP,
-                new AidlHalPropConfig(new VehiclePropConfig()),
-                /* isSimulationPropId= */ false, /* readVendorStatus= */ false)
+                new AidlHalPropConfig(new VehiclePropConfig()))
             ).isEqualTo(new CarPropertyValue<>(TEST_MGR_PROP, TEST_AREA_ID,
                     CarPropertyValue.STATUS_NOT_AVAILABLE_SPEED_LOW, TEST_TIMESTAMP,
                     Boolean.TRUE));
@@ -993,8 +969,7 @@ public final class HalPropValueUnitTest {
                 VehiclePropertyStatus.NOT_AVAILABLE_SPEED_HIGH);
 
         assertThat(value.toCarPropertyValue(TEST_MGR_PROP,
-                new AidlHalPropConfig(new VehiclePropConfig()),
-                /* isSimulationPropId= */ false, /* readVendorStatus= */ false)
+                new AidlHalPropConfig(new VehiclePropConfig()))
             ).isEqualTo(new CarPropertyValue<>(TEST_MGR_PROP, TEST_AREA_ID,
                     CarPropertyValue.STATUS_NOT_AVAILABLE_SPEED_HIGH, TEST_TIMESTAMP,
                     Boolean.TRUE));
@@ -1007,8 +982,7 @@ public final class HalPropValueUnitTest {
                 VehiclePropertyStatus.NOT_AVAILABLE_POOR_VISIBILITY);
 
         assertThat(value.toCarPropertyValue(TEST_MGR_PROP,
-                new AidlHalPropConfig(new VehiclePropConfig()),
-                /* isSimulationPropId= */ false, /* readVendorStatus= */ false)
+                new AidlHalPropConfig(new VehiclePropConfig()))
             ).isEqualTo(new CarPropertyValue<>(TEST_MGR_PROP, TEST_AREA_ID,
                     CarPropertyValue.STATUS_NOT_AVAILABLE_POOR_VISIBILITY, TEST_TIMESTAMP,
                     Boolean.TRUE));
@@ -1021,8 +995,7 @@ public final class HalPropValueUnitTest {
                 VehiclePropertyStatus.NOT_AVAILABLE_SAFETY);
 
         assertThat(value.toCarPropertyValue(TEST_MGR_PROP,
-                new AidlHalPropConfig(new VehiclePropConfig()),
-                /* isSimulationPropId= */ false, /* readVendorStatus= */ false)
+                new AidlHalPropConfig(new VehiclePropConfig()))
             ).isEqualTo(new CarPropertyValue<>(TEST_MGR_PROP, TEST_AREA_ID,
                     CarPropertyValue.STATUS_NOT_AVAILABLE_SAFETY, TEST_TIMESTAMP, Boolean.TRUE));
     }
@@ -1034,60 +1007,10 @@ public final class HalPropValueUnitTest {
                 VehiclePropertyStatus.NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED);
 
         assertThat(value.toCarPropertyValue(TEST_MGR_PROP,
-                new AidlHalPropConfig(new VehiclePropConfig()),
-                /* isSimulationPropId= */ false, /* readVendorStatus= */ false)
+                new AidlHalPropConfig(new VehiclePropConfig()))
             ).isEqualTo(new CarPropertyValue<>(TEST_MGR_PROP, TEST_AREA_ID,
                     CarPropertyValue.STATUS_NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED, TEST_TIMESTAMP,
                     Boolean.TRUE));
-    }
-
-    @EnableFlags(FLAG_CAR_PROPERTY_STATUS_DETAILED_NOT_AVAILABLE)
-    @Test
-    public void testToCarPropertyValue_readVendorStatus_true() {
-        int status = VehiclePropertyStatus.NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED | (0x12340000);
-        HalPropValue value = createTestHalPropValueWithStatus(status);
-
-        assertThat(value.toCarPropertyValue(TEST_MGR_PROP,
-                new AidlHalPropConfig(new VehiclePropConfig()),
-                /* isSimulationPropId= */ false, /* readVendorStatus= */ true)
-            ).isEqualTo(new CarPropertyValue.Builder<Boolean>(TEST_MGR_PROP, TEST_AREA_ID)
-                    .setTimestampNanos(TEST_TIMESTAMP)
-                    .setSystemStatus(CarPropertyValue.STATUS_NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED)
-                    .setVendorStatus(0x1234)
-                    .setValue(Boolean.TRUE)
-                    .build());
-    }
-
-    @EnableFlags(FLAG_CAR_PROPERTY_STATUS_DETAILED_NOT_AVAILABLE)
-    @Test
-    public void testToCarPropertyValue_readVendorStatus_false() {
-        int status = VehiclePropertyStatus.NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED | (0x12340000);
-        HalPropValue value = createTestHalPropValueWithStatus(status);
-
-        assertThat(value.toCarPropertyValue(TEST_MGR_PROP,
-                new AidlHalPropConfig(new VehiclePropConfig()),
-                /* isSimulationPropId= */ false, /* readVendorStatus= */ false)
-            ).isEqualTo(new CarPropertyValue.Builder<Boolean>(TEST_MGR_PROP, TEST_AREA_ID)
-                    .setTimestampNanos(TEST_TIMESTAMP)
-                    .setSystemStatus(CarPropertyValue.STATUS_NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED)
-                    .setValue(Boolean.TRUE)
-                    .build());
-    }
-
-    @Test
-    public void testToCarPropertyValue_isSimulationPropId() {
-        int status = VehiclePropertyStatus.NOT_AVAILABLE_GENERAL;
-        HalPropValue value = createTestHalPropValueWithStatus(status);
-
-        assertThat(value.toCarPropertyValue(TEST_MGR_PROP,
-                new AidlHalPropConfig(new VehiclePropConfig()),
-                /* isSimulationPropId= */ true, /* readVendorStatus= */ false)
-            ).isEqualTo(new CarPropertyValue.Builder<Boolean>(TEST_MGR_PROP, TEST_AREA_ID)
-                    .setTimestampNanos(TEST_TIMESTAMP)
-                    .setSystemStatus(status)
-                    .setIsSimulationPropId(true)
-                    .setValue(Boolean.TRUE)
-                    .build());
     }
 
     // Creates an empty HalPropValue that does not have any value.
@@ -1104,8 +1027,7 @@ public final class HalPropValueUnitTest {
         HalPropValue value = createTestHalPropValueWithNoValue(TEST_BOOL_PROP);
 
         assertThat(value.toCarPropertyValue(TEST_MGR_PROP,
-                new AidlHalPropConfig(new VehiclePropConfig()),
-                /* isSimulationPropId= */ false, /* readVendorStatus= */ false)).isEqualTo(
+                new AidlHalPropConfig(new VehiclePropConfig()))).isEqualTo(
                         new CarPropertyValue<>(TEST_MGR_PROP, /*areaId=*/0,
                                 CarPropertyValue.STATUS_ERROR, /*timestampNanos=*/0,
                                 Boolean.FALSE));
@@ -1116,8 +1038,7 @@ public final class HalPropValueUnitTest {
         HalPropValue value = createTestHalPropValueWithNoValue(TEST_INT32_PROP);
 
         assertThat(value.toCarPropertyValue(TEST_MGR_PROP,
-                new AidlHalPropConfig(new VehiclePropConfig()),
-                /* isSimulationPropId= */ false, /* readVendorStatus= */ false)).isEqualTo(
+                new AidlHalPropConfig(new VehiclePropConfig()))).isEqualTo(
                         new CarPropertyValue<>(TEST_MGR_PROP, /*areaId=*/0,
                                 CarPropertyValue.STATUS_ERROR, /*timestampNanos=*/0,
                                 Integer.valueOf(0)));
@@ -1128,8 +1049,7 @@ public final class HalPropValueUnitTest {
         HalPropValue value = createTestHalPropValueWithNoValue(TEST_INT64_PROP);
 
         assertThat(value.toCarPropertyValue(TEST_MGR_PROP,
-                new AidlHalPropConfig(new VehiclePropConfig()),
-                /* isSimulationPropId= */ false, /* readVendorStatus= */ false)).isEqualTo(
+                new AidlHalPropConfig(new VehiclePropConfig()))).isEqualTo(
                         new CarPropertyValue<>(TEST_MGR_PROP, /*areaId=*/0,
                                 CarPropertyValue.STATUS_ERROR, /*timestampNanos=*/0,
                                 Long.valueOf(0)));
@@ -1140,8 +1060,7 @@ public final class HalPropValueUnitTest {
         HalPropValue value = createTestHalPropValueWithNoValue(TEST_FLOAT_PROP);
 
         assertThat(value.toCarPropertyValue(TEST_MGR_PROP,
-                new AidlHalPropConfig(new VehiclePropConfig()),
-                /* isSimulationPropId= */ false, /* readVendorStatus= */ false)).isEqualTo(
+                new AidlHalPropConfig(new VehiclePropConfig()))).isEqualTo(
                         new CarPropertyValue<>(TEST_MGR_PROP, /*areaId=*/0,
                                 CarPropertyValue.STATUS_ERROR, /*timestampNanos=*/0,
                                 Float.valueOf(0)));
@@ -1153,8 +1072,7 @@ public final class HalPropValueUnitTest {
         HalPropValue value = createTestHalPropValueWithNoValue(TEST_INT32_VEC_PROP);
 
         CarPropertyValue carPropValue = value.toCarPropertyValue(
-                TEST_MGR_PROP, new AidlHalPropConfig(new VehiclePropConfig()),
-                /* isSimulationPropId= */ false, /* readVendorStatus= */ false);
+                TEST_MGR_PROP, new AidlHalPropConfig(new VehiclePropConfig()));
         assertThat(carPropValue.getValue()).isEqualTo(new Integer[0]);
     }
 
@@ -1164,8 +1082,7 @@ public final class HalPropValueUnitTest {
         HalPropValue value = createTestHalPropValueWithNoValue(TEST_INT64_VEC_PROP);
 
         CarPropertyValue carPropValue = value.toCarPropertyValue(
-                TEST_MGR_PROP, new AidlHalPropConfig(new VehiclePropConfig()),
-                /* isSimulationPropId= */ false, /* readVendorStatus= */ false);
+                TEST_MGR_PROP, new AidlHalPropConfig(new VehiclePropConfig()));
         assertThat(carPropValue.getValue()).isEqualTo(new Long[0]);
     }
 
@@ -1175,8 +1092,7 @@ public final class HalPropValueUnitTest {
         HalPropValue value = createTestHalPropValueWithNoValue(TEST_FLOAT_VEC_PROP);
 
         CarPropertyValue carPropValue = value.toCarPropertyValue(
-                TEST_MGR_PROP, new AidlHalPropConfig(new VehiclePropConfig()),
-                /* isSimulationPropId= */ false, /* readVendorStatus= */ false);
+                TEST_MGR_PROP, new AidlHalPropConfig(new VehiclePropConfig()));
         assertThat(carPropValue.getValue()).isEqualTo(new Float[0]);
     }
 
@@ -1186,8 +1102,7 @@ public final class HalPropValueUnitTest {
         HalPropValue value = createTestHalPropValueWithNoValue(TEST_STRING_PROP);
 
         CarPropertyValue carPropValue = value.toCarPropertyValue(
-                TEST_MGR_PROP, new AidlHalPropConfig(new VehiclePropConfig()),
-                /* isSimulationPropId= */ false, /* readVendorStatus= */ false);
+                TEST_MGR_PROP, new AidlHalPropConfig(new VehiclePropConfig()));
         assertThat(carPropValue.getValue()).isEqualTo(new String());
     }
 
@@ -1197,8 +1112,7 @@ public final class HalPropValueUnitTest {
         HalPropValue value = createTestHalPropValueWithNoValue(TEST_BYTES_PROP);
 
         CarPropertyValue carPropValue = value.toCarPropertyValue(
-                TEST_MGR_PROP, new AidlHalPropConfig(new VehiclePropConfig()),
-                /* isSimulationPropId= */ false, /* readVendorStatus= */ false);
+                TEST_MGR_PROP, new AidlHalPropConfig(new VehiclePropConfig()));
         assertThat(carPropValue.getValue()).isEqualTo(new byte[0]);
     }
 
@@ -1210,8 +1124,7 @@ public final class HalPropValueUnitTest {
         config.configArray = new int[] {1, 1, 1, 0, 1, 0, 1, 0, 1};
 
         CarPropertyValue<Object[]> carPropertyValue = value.toCarPropertyValue(
-                TEST_MGR_PROP, new AidlHalPropConfig(config),
-                /* isSimulationPropId= */ false, /* readVendorStatus= */ false);
+                TEST_MGR_PROP, new AidlHalPropConfig(config));
         assertThat(carPropertyValue.getPropertyId()).isEqualTo(TEST_MGR_PROP);
         assertThat(carPropertyValue.getStatus()).isEqualTo(CarPropertyValue.STATUS_ERROR);
     }

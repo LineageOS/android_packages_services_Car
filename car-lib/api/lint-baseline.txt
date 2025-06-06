@@ -205,6 +205,22 @@ PublicTypedef: android.car.hardware.CarPropertyValue.PropertyStatus:
     Don't expose @IntDef: PropertyStatus must be hidden.
 
 
+RegistrationName: android.car.CarOccupantZoneManager#registerOccupantZoneConfigChangeListener(android.car.CarOccupantZoneManager.OccupantZoneConfigChangeListener):
+    Listener methods should be named add/remove; was registerOccupantZoneConfigChangeListener
+RegistrationName: android.car.CarOccupantZoneManager#unregisterOccupantZoneConfigChangeListener(android.car.CarOccupantZoneManager.OccupantZoneConfigChangeListener):
+    Listener methods should be named add/remove; was unregisterOccupantZoneConfigChangeListener
+RegistrationName: android.car.drivingstate.CarUxRestrictionsManager#registerListener(android.car.drivingstate.CarUxRestrictionsManager.OnUxRestrictionsChangedListener):
+    Listener methods should be named add/remove; was registerListener
+RegistrationName: android.car.drivingstate.CarUxRestrictionsManager#unregisterListener():
+    Listener methods should be named add/remove; was unregisterListener
+RegistrationName: android.car.hardware.CarSensorManager#registerListener(android.car.hardware.CarSensorManager.OnSensorChangedListener, int, int):
+    Listener methods should be named add/remove; was registerListener
+RegistrationName: android.car.hardware.CarSensorManager#unregisterListener(android.car.hardware.CarSensorManager.OnSensorChangedListener):
+    Listener methods should be named add/remove; was unregisterListener
+RegistrationName: android.car.hardware.CarSensorManager#unregisterListener(android.car.hardware.CarSensorManager.OnSensorChangedListener, int):
+    Listener methods should be named add/remove; was unregisterListener
+
+
 SamShouldBeLast: android.car.CarAppFocusManager#addFocusListener(android.car.CarAppFocusManager.OnAppFocusChangedListener, int):
     SAM-compatible parameters (such as parameter 1, "listener", in android.car.CarAppFocusManager.addFocusListener) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions
 SamShouldBeLast: android.car.CarAppFocusManager#removeFocusListener(android.car.CarAppFocusManager.OnAppFocusChangedListener, int):

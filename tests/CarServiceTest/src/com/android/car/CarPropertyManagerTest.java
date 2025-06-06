@@ -16,7 +16,6 @@
 
 package com.android.car;
 
-import static android.car.feature.Flags.FLAG_CAR_PROPERTY_STATUS_DETAILED_NOT_AVAILABLE;
 import static android.car.hardware.property.CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR;
 import static android.car.hardware.property.CarPropertyManager.STATUS_ERROR_NOT_AVAILABLE;
 import static android.car.hardware.property.CarPropertyManager.STATUS_ERROR_TIMEOUT;
@@ -68,8 +67,6 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.ServiceSpecificException;
 import android.os.SystemClock;
-import android.platform.test.annotations.EnableFlags;
-import android.platform.test.flag.junit.SetFlagsRule;
 import android.util.ArraySet;
 import android.util.Log;
 import android.util.SparseArray;
@@ -96,7 +93,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
@@ -266,8 +262,6 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
 
     @Rule
     public TestName mTestName = new TestName();
-    @Rule
-    public final SetFlagsRule mSetFlagsRule = new SetFlagsRule();
 
     @Override
     public void setUp() throws Exception {
@@ -297,9 +291,6 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
         } else if (mTestName.getMethodName().endsWith("AfterU")) {
             getContext().getApplicationInfo().targetSdkVersion =
                     Build.VERSION_CODES.UPSIDE_DOWN_CAKE;
-        } else if (mTestName.getMethodName().endsWith("AtB")) {
-            getContext().getApplicationInfo().targetSdkVersion =
-                    Build.VERSION_CODES.BAKLAVA;
         }
     }
 
@@ -1668,189 +1659,6 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
         verify(callback, after(DEFAULT_TIMEOUT_MS).never()).onSupportedValuesChange(propId,
                 areaId1);
         verify(callback, timeout(DEFAULT_TIMEOUT_MS)).onSupportedValuesChange(propId, areaId2);
-    }
-
-    // TODO(b/416768353): Set the app sdk version for this test to 25Q4.
-    @EnableFlags(FLAG_CAR_PROPERTY_STATUS_DETAILED_NOT_AVAILABLE)
-    @Test
-    public void testOnChangeEvent_withDetailedPropertyStatus() throws Exception {
-        Map<Integer, Integer> vhalToCarPropValueStatusMap = Map.ofEntries(
-                Map.entry(VehiclePropertyStatus.AVAILABLE,
-                        CarPropertyValue.STATUS_AVAILABLE),
-                Map.entry(VehiclePropertyStatus.ERROR,
-                        CarPropertyValue.STATUS_ERROR),
-                Map.entry(VehiclePropertyStatus.NOT_AVAILABLE_GENERAL,
-                        CarPropertyValue.STATUS_NOT_AVAILABLE_GENERAL),
-                Map.entry(VehiclePropertyStatus.NOT_AVAILABLE_DISABLED,
-                        CarPropertyValue.STATUS_NOT_AVAILABLE_DISABLED),
-                Map.entry(VehiclePropertyStatus.NOT_AVAILABLE_SPEED_LOW,
-                        CarPropertyValue.STATUS_NOT_AVAILABLE_SPEED_LOW),
-                Map.entry(VehiclePropertyStatus.NOT_AVAILABLE_SPEED_HIGH,
-                        CarPropertyValue.STATUS_NOT_AVAILABLE_SPEED_HIGH),
-                Map.entry(VehiclePropertyStatus.NOT_AVAILABLE_POOR_VISIBILITY,
-                        CarPropertyValue.STATUS_NOT_AVAILABLE_POOR_VISIBILITY),
-                Map.entry(VehiclePropertyStatus.NOT_AVAILABLE_SAFETY,
-                        CarPropertyValue.STATUS_NOT_AVAILABLE_SAFETY),
-                Map.entry(VehiclePropertyStatus.NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED,
-                        CarPropertyValue.STATUS_NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED)
-        );
-
-        for (var entry : vhalToCarPropValueStatusMap.entrySet()) {
-            int vhalStatus = entry.getKey();
-            int carPropStatus = entry.getValue();
-
-            // Two initial values because CUSTOM_SEAT_INT_PROP_1 has 2 areaIds.
-            TestCallback callback = new TestCallback(
-                    /* initValueCount= */ 2, /* changeEventCount= */ 1, /* errorEventCount= */ 0);
-            mManager.registerCallback(callback, CUSTOM_SEAT_INT_PROP_1, /* sampleRate= */ 0);
-            callback.assertRegisterCompleted();
-
-            VehiclePropValue propValue = new VehiclePropValue();
-            propValue.prop = CUSTOM_SEAT_INT_PROP_1;
-            propValue.areaId = DRIVER_SIDE_AREA_ID;
-            propValue.value = new RawPropValues();
-            propValue.timestamp = SystemClock.elapsedRealtimeNanos();
-            propValue.status = vhalStatus;
-            if (vhalStatus == VehiclePropertyStatus.AVAILABLE) {
-                // For available event, we need to fill in value.
-                propValue.value.int32Values = new int[]{1};
-            }
-            getAidlMockedVehicleHal().injectEvent(propValue);
-
-            List<CarPropertyValue> events = callback.waitAndGetChangeEvents();
-
-            assertThat(events).hasSize(1);
-            var carPropertyValue = events.get(0);
-            assertWithMessage("A status change event with VHAL status: " + vhalStatus
-                    + " must be converted to car property value status: " + carPropStatus)
-                    .that(carPropertyValue.getPropertyStatus()).isEqualTo(carPropStatus);
-
-            mManager.unregisterCallback(callback, CUSTOM_SEAT_INT_PROP_1);
-        }
-    }
-
-    // Before 25Q4, detailed not available property status are mapped to general not_available.
-    @EnableFlags(FLAG_CAR_PROPERTY_STATUS_DETAILED_NOT_AVAILABLE)
-    @Test
-    public void testOnChangeEvent_withDetailedPropertyStatus_AtB() throws Exception {
-        Map<Integer, Integer> vhalToCarPropValueStatusMap = Map.ofEntries(
-                Map.entry(VehiclePropertyStatus.AVAILABLE,
-                        CarPropertyValue.STATUS_AVAILABLE),
-                Map.entry(VehiclePropertyStatus.ERROR,
-                        CarPropertyValue.STATUS_ERROR),
-                Map.entry(VehiclePropertyStatus.NOT_AVAILABLE_GENERAL,
-                        CarPropertyValue.STATUS_NOT_AVAILABLE_GENERAL),
-                Map.entry(VehiclePropertyStatus.NOT_AVAILABLE_DISABLED,
-                        CarPropertyValue.STATUS_NOT_AVAILABLE_GENERAL),
-                Map.entry(VehiclePropertyStatus.NOT_AVAILABLE_SPEED_LOW,
-                        CarPropertyValue.STATUS_NOT_AVAILABLE_GENERAL),
-                Map.entry(VehiclePropertyStatus.NOT_AVAILABLE_SPEED_HIGH,
-                        CarPropertyValue.STATUS_NOT_AVAILABLE_GENERAL),
-                Map.entry(VehiclePropertyStatus.NOT_AVAILABLE_POOR_VISIBILITY,
-                        CarPropertyValue.STATUS_NOT_AVAILABLE_GENERAL),
-                Map.entry(VehiclePropertyStatus.NOT_AVAILABLE_SAFETY,
-                        CarPropertyValue.STATUS_NOT_AVAILABLE_GENERAL),
-                Map.entry(VehiclePropertyStatus.NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED,
-                        CarPropertyValue.STATUS_NOT_AVAILABLE_GENERAL)
-        );
-
-        for (var entry : vhalToCarPropValueStatusMap.entrySet()) {
-            int vhalStatus = entry.getKey();
-            int carPropStatus = entry.getValue();
-
-            // Two initial values because CUSTOM_SEAT_INT_PROP_1 has 2 areaIds.
-            TestCallback callback = new TestCallback(
-                    /* initValueCount= */ 2, /* changeEventCount= */ 1, /* errorEventCount= */ 0);
-            mManager.registerCallback(callback, CUSTOM_SEAT_INT_PROP_1, /* sampleRate= */ 0);
-            callback.assertRegisterCompleted();
-
-            VehiclePropValue propValue = new VehiclePropValue();
-            propValue.prop = CUSTOM_SEAT_INT_PROP_1;
-            propValue.areaId = DRIVER_SIDE_AREA_ID;
-            propValue.value = new RawPropValues();
-            propValue.timestamp = SystemClock.elapsedRealtimeNanos();
-            propValue.status = vhalStatus;
-            if (vhalStatus == VehiclePropertyStatus.AVAILABLE) {
-                // For available event, we need to fill in value.
-                propValue.value.int32Values = new int[]{1};
-            }
-            getAidlMockedVehicleHal().injectEvent(propValue);
-
-            List<CarPropertyValue> events = callback.waitAndGetChangeEvents();
-
-            assertThat(events).hasSize(1);
-            var carPropertyValue = events.get(0);
-            assertWithMessage("A status change event with VHAL status: " + vhalStatus
-                    + " must be converted to car property value status: " + carPropStatus)
-                    .that(carPropertyValue.getPropertyStatus()).isEqualTo(carPropStatus);
-
-            mManager.unregisterCallback(callback, CUSTOM_SEAT_INT_PROP_1);
-        }
-    }
-
-    @EnableFlags(FLAG_CAR_PROPERTY_STATUS_DETAILED_NOT_AVAILABLE)
-    @Test
-    public void testOnChangeEvent_withVendorPropertyStatus_withPermission() throws Exception {
-        ((MockedCarTestContext) getContext()).setAllowedPermissions(new String[] {
-                Car.PERMISSION_READ_PROPERTY_VENDOR_STATUS
-        });
-
-        // Two initial values because CUSTOM_SEAT_INT_PROP_1 has 2 areaIds.
-        TestCallback callback = new TestCallback(
-                /* initValueCount= */ 2, /* changeEventCount= */ 1, /* errorEventCount= */ 0);
-        mManager.registerCallback(callback, CUSTOM_SEAT_INT_PROP_1, /* sampleRate= */ 0);
-        callback.assertRegisterCompleted();
-
-        int vendorPropertyStatus = 0xdead;
-
-        VehiclePropValue propValue = new VehiclePropValue();
-        propValue.prop = CUSTOM_SEAT_INT_PROP_1;
-        propValue.areaId = DRIVER_SIDE_AREA_ID;
-        propValue.value = new RawPropValues();
-        propValue.timestamp = SystemClock.elapsedRealtimeNanos();
-        propValue.status = VehiclePropertyStatus.NOT_AVAILABLE_SAFETY
-                | (vendorPropertyStatus << 16);
-        getAidlMockedVehicleHal().injectEvent(propValue);
-
-        List<CarPropertyValue> events = callback.waitAndGetChangeEvents();
-
-        assertThat(events).hasSize(1);
-        var carPropertyValue = events.get(0);
-
-        assertWithMessage("Return expected vendor property status").that(
-                carPropertyValue.getPropertyVendorStatus()).isEqualTo(vendorPropertyStatus);
-    }
-
-    @EnableFlags(FLAG_CAR_PROPERTY_STATUS_DETAILED_NOT_AVAILABLE)
-    @Test
-    public void testOnChangeEvent_withVendorPropertyStatus_withoutPermission() throws Exception {
-        ((MockedCarTestContext) getContext()).setDeniedPermissions(new String[] {
-                Car.PERMISSION_READ_PROPERTY_VENDOR_STATUS
-        });
-
-        // Two initial values because CUSTOM_SEAT_INT_PROP_1 has 2 areaIds.
-        TestCallback callback = new TestCallback(
-                /* initValueCount= */ 2, /* changeEventCount= */ 1, /* errorEventCount= */ 0);
-        mManager.registerCallback(callback, CUSTOM_SEAT_INT_PROP_1, /* sampleRate= */ 0);
-        callback.assertRegisterCompleted();
-
-        int vendorPropertyStatus = 0xdead;
-
-        VehiclePropValue propValue = new VehiclePropValue();
-        propValue.prop = CUSTOM_SEAT_INT_PROP_1;
-        propValue.areaId = DRIVER_SIDE_AREA_ID;
-        propValue.value = new RawPropValues();
-        propValue.timestamp = SystemClock.elapsedRealtimeNanos();
-        propValue.status = VehiclePropertyStatus.NOT_AVAILABLE_SAFETY
-                | (vendorPropertyStatus << 16);
-        getAidlMockedVehicleHal().injectEvent(propValue);
-
-        List<CarPropertyValue> events = callback.waitAndGetChangeEvents();
-
-        assertThat(events).hasSize(1);
-        var carPropertyValue = events.get(0);
-
-        assertThrows(SecurityException.class, () -> carPropertyValue.getPropertyVendorStatus());
     }
 
     @Override

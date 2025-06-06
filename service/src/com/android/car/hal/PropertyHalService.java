@@ -250,7 +250,6 @@ public class PropertyHalService extends HalServiceBase {
         private int mServiceRequestId;
         private float mUpdateRateHz;
         private int mRetryCount;
-        private boolean mReadVendorStatus;
         // The associated async set request for get_initial_value request.
         private @Nullable AsyncPropRequestInfo mAssocSetValueRequestInfo;
         // The associated get initial value request for async set request.
@@ -704,17 +703,18 @@ public class PropertyHalService extends HalServiceBase {
                         CarPropertyErrorCodes.ERROR_CODES_INTERNAL);
             }
             HalPropValue halPropValue = getVehicleStubAsyncResult.getHalPropValue();
-            var propertyStatus = halPropValue.getStatus();
-            if (propertyStatus != VehiclePropertyStatus.AVAILABLE) {
+            if (halPropValue.getStatus() == VehiclePropertyStatus.UNAVAILABLE) {
                 return clientRequestInfo.toErrorResult(
-                        propertyStatusToCarPropertyErrorCodes(propertyStatus));
+                        CarPropertyErrorCodes.ERROR_CODES_NOT_AVAILABLE);
+            }
+            if (halPropValue.getStatus() != VehiclePropertyStatus.AVAILABLE) {
+                return clientRequestInfo.toErrorResult(
+                        CarPropertyErrorCodes.ERROR_CODES_INTERNAL);
             }
 
             try {
-                // Vendor property status is only exposed through subscription.
-                var carPropertyValue = halPropValue.toCarPropertyValue(mgrPropId, halPropConfig,
-                        /* isSimulationPropId= */ false, /* readVendorStatus= */ false);
-                return clientRequestInfo.toGetValueResult(carPropertyValue);
+                return clientRequestInfo.toGetValueResult(
+                        halPropValue.toCarPropertyValue(mgrPropId, halPropConfig));
             } catch (IllegalStateException e) {
                 Slogf.e(TAG, e,
                         "Cannot convert halPropValue to carPropertyValue, property: %s, areaId: %d",
@@ -1218,11 +1218,15 @@ public class PropertyHalService extends HalServiceBase {
             }
         }
         halPropValue = mVehicleHal.get(halPropId, areaId);
-        CarPropertyValue result;
         try {
-            // Vendor property status is only exposed through subscription.
-            result = halPropValue.toCarPropertyValue(mgrPropId, halPropConfig,
-                    /* isSimulationPropId= */ false, /* readVendorStatus= */ false);
+            CarPropertyValue result = halPropValue.toCarPropertyValue(mgrPropId, halPropConfig);
+            synchronized (mLock) {
+                if (!isStaticAndSystemPropertyLocked(mgrPropId)) {
+                    return result;
+                }
+                mStaticPropertyIdAreaIdCache.put(mgrPropId, areaId, result);
+                return result;
+            }
         } catch (IllegalStateException e) {
             throw new ServiceSpecificException(STATUS_INTERNAL_ERROR,
                     "Cannot convert halPropValue to carPropertyValue, property: "
@@ -1230,13 +1234,6 @@ public class PropertyHalService extends HalServiceBase {
                     + toAreaIdString(halPropId, areaId)
                     + ", exception: " + e);
         }
-        synchronized (mLock) {
-            if (!isStaticAndSystemPropertyLocked(mgrPropId)) {
-                return result;
-            }
-            mStaticPropertyIdAreaIdCache.put(mgrPropId, areaId, result);
-        }
-        return result;
     }
 
     /**
@@ -2037,10 +2034,8 @@ public class PropertyHalService extends HalServiceBase {
                             halPropValue);
                 }
                 try {
-                    // Vendor property status might be exposed via property events.
                     CarPropertyValue<?> carPropertyValue = halPropValue.toCarPropertyValue(
-                            mgrPropId, halPropConfig, /* isSimulationPropId= */ false,
-                            /* readVendorStatus= */ true);
+                            mgrPropId, halPropConfig);
                     CarPropertyEvent carPropertyEvent = new CarPropertyEvent(
                             CarPropertyEvent.PROPERTY_EVENT_PROPERTY_CHANGE, carPropertyValue);
                     eventsToDispatch.add(carPropertyEvent);
@@ -2625,30 +2620,5 @@ public class PropertyHalService extends HalServiceBase {
         }
         return sortRawPropertyValueList(VehicleProperty.HVAC_FAN_DIRECTION,
                 supportedValues);
-    }
-
-    private static boolean isPropertyStatusNotAvailable(int vehiclePropertyStatus) {
-        return (vehiclePropertyStatus == VehiclePropertyStatus.NOT_AVAILABLE_GENERAL
-                || vehiclePropertyStatus == VehiclePropertyStatus.NOT_AVAILABLE_DISABLED
-                || vehiclePropertyStatus == VehiclePropertyStatus.NOT_AVAILABLE_SPEED_LOW
-                || vehiclePropertyStatus == VehiclePropertyStatus.NOT_AVAILABLE_SPEED_HIGH
-                || vehiclePropertyStatus == VehiclePropertyStatus.NOT_AVAILABLE_POOR_VISIBILITY
-                || vehiclePropertyStatus == VehiclePropertyStatus.NOT_AVAILABLE_SAFETY
-                || vehiclePropertyStatus
-                        == VehiclePropertyStatus.NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED);
-    }
-
-    private static CarPropertyErrorCodes propertyStatusToCarPropertyErrorCodes(
-            int propertyStatus) {
-        if (isPropertyStatusNotAvailable(propertyStatus)) {
-            return CarPropertyErrorCodes.ERROR_CODES_NOT_AVAILABLE;
-        }
-        if (propertyStatus == VehiclePropertyStatus.ERROR) {
-            return CarPropertyErrorCodes.ERROR_CODES_INTERNAL;
-        }
-
-        Slogf.w(TAG, "Unknown vehicle property status from VHAL: " + propertyStatus
-                + ", map to ERROR");
-        return CarPropertyErrorCodes.ERROR_CODES_INTERNAL;
     }
 }
