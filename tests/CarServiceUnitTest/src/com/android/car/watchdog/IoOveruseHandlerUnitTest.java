@@ -597,17 +597,6 @@ public class IoOveruseHandlerUnitTest extends AbstractExtendedMockitoTestCase {
     }
 
     @Test
-    public void testRelease() {
-        mIoOveruseHandler.release();
-
-        verify(mMockCarUxRestrictionsManagerService).unregisterUxRestrictionsChangeListener(
-                mICarUxRestrictionsChangeListenerCaptor.capture());
-
-        assertThat(mICarUxRestrictionsChangeListenerCaptor.getValue())
-                .isEqualTo(mCarUxRestrictionsChangeListener);
-    }
-
-    @Test
     public void testWriteMetadataFile() throws Exception {
         ZonedDateTime systemIoUsageReportedDate = null;
         ZonedDateTime uidIoUsageReportedDate = null;
@@ -4113,7 +4102,6 @@ public class IoOveruseHandlerUnitTest extends AbstractExtendedMockitoTestCase {
             throws Exception {
         mIoOveruseHandler.writeMetadataFile();
         mIoOveruseHandler.writeToDatabase();
-        mIoOveruseHandler.release();
         mSpiedWatchdogStorage.release();
         verify(mSpiedWatchdogStorage, times(totalRestarts)).startWrite();
         verify(mSpiedWatchdogStorage, times(isWriteIoStats ? wantedDbWrites : 0))

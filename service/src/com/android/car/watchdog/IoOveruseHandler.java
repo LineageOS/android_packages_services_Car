@@ -85,7 +85,6 @@ import android.car.builtin.content.pm.PackageManagerHelper;
 import android.car.builtin.util.EventLogHelper;
 import android.car.builtin.util.Slogf;
 import android.car.drivingstate.CarUxRestrictions;
-import android.car.drivingstate.ICarUxRestrictionsChangeListener;
 import android.car.watchdog.CarWatchdogManager;
 import android.car.watchdog.IResourceOveruseListener;
 import android.car.watchdog.IoOveruseAlertThreshold;
@@ -124,11 +123,8 @@ import android.util.Pair;
 import android.util.SparseArray;
 import android.util.StatsEvent;
 import android.util.proto.ProtoOutputStream;
-import android.view.Display;
 
 import com.android.car.BuiltinPackageDependency;
-import com.android.car.CarLocalServices;
-import com.android.car.CarUxRestrictionsManagerService;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.NotificationHelperBase;
 import com.android.car.internal.dep.Trace;
@@ -299,17 +295,6 @@ public final class IoOveruseHandler {
     @GuardedBy("mLock")
     private ZonedDateTime mLastUidIoUsageSummaryReportedDate;
 
-    private final ICarUxRestrictionsChangeListener mCarUxRestrictionsChangeListener =
-            new ICarUxRestrictionsChangeListener.Stub() {
-                @Override
-                public void onUxRestrictionsChanged(CarUxRestrictions restrictions) {
-                    synchronized (mLock) {
-                        mCurrentUxRestrictions = new CarUxRestrictions(restrictions);
-                        applyCurrentUxRestrictionsLocked();
-                    }
-                }
-            };
-
     public IoOveruseHandler(Context context, Context builtinPackageContext,
             CarWatchdogDaemonHelper daemonHelper, PackageInfoHandler packageInfoHandler,
             WatchdogStorage watchdogStorage, TimeSource timeSource, int uidIoUsageSummaryTopCount,
@@ -354,27 +339,9 @@ public final class IoOveruseHandler {
             Trace.endSection();
         });
 
-        CarUxRestrictionsManagerService carUxRestrictionsManagerService =
-                CarLocalServices.getService(CarUxRestrictionsManagerService.class);
-        CarUxRestrictions uxRestrictions =
-                carUxRestrictionsManagerService.getCurrentUxRestrictions();
-        synchronized (mLock) {
-            mCurrentUxRestrictions = uxRestrictions;
-            applyCurrentUxRestrictionsLocked();
-            syncDisabledUserPackagesLocked();
-        }
-        carUxRestrictionsManagerService.registerUxRestrictionsChangeListener(
-                mCarUxRestrictionsChangeListener, Display.DEFAULT_DISPLAY);
-
         if (DEBUG) {
             Slogf.d(TAG, "IoOveruseHandler is initialized");
         }
-    }
-
-    /** Releases resources. */
-    public void release() {
-        CarLocalServices.getService(CarUxRestrictionsManagerService.class)
-                .unregisterUxRestrictionsChangeListener(mCarUxRestrictionsChangeListener);
     }
 
     /** Dumps its state. */
@@ -1493,6 +1460,41 @@ public final class IoOveruseHandler {
         }
     }
 
+    /**
+     * Sets the list of disabled user packages mapped by user ID.
+     *
+     * <p>This disabled user packages are fetched from the settings app resource string and updated
+     * here.
+     *
+     * @param disabledUserPackagesByUserId A SparseArray mapping user IDs to their respective sets
+     *                                     of disabled package names.
+     */
+    public void setDisabledUserPackagesByUserId(
+            SparseArray<ArraySet<String>> disabledUserPackagesByUserId) {
+        synchronized (mLock) {
+            mDisabledUserPackagesByUserId.clear();
+            int totalPackages = 0;
+            for (int i = 0; i < disabledUserPackagesByUserId.size(); i++) {
+                int userId = disabledUserPackagesByUserId.keyAt(i);
+                ArraySet<String> disabledPackages = disabledUserPackagesByUserId.valueAt(i);
+                mDisabledUserPackagesByUserId.append(userId, disabledPackages);
+                totalPackages++;
+            }
+            Slogf.i(TAG, "Set %d disabled user packages", totalPackages);
+        }
+    }
+
+    static void dumpUserPackageInfo(ArraySet<String> userPackageInfo, long fieldId,
+                                    ProtoOutputStream proto) {
+        for (int i = 0; i < userPackageInfo.size(); i++) {
+            dumpUserPackageInfoFromUniqueId(userPackageInfo.valueAt(i), fieldId, proto);
+        }
+    }
+
+    static String getUserPackageUniqueId(@UserIdInt int userId, String genericPackageName) {
+        return userId + USER_PACKAGE_SEPARATOR + genericPackageName;
+    }
+
     @GuardedBy("mLock")
     private @KillableState int getDefaultKillableStateLocked(String genericPackageName) {
         return mDefaultNotKillableGenericPackages.contains(genericPackageName)
@@ -2111,34 +2113,6 @@ public final class IoOveruseHandler {
         }
     }
 
-    /**
-     * Syncs the {@link KEY_PACKAGES_DISABLED_ON_RESOURCE_OVERUSE} {@code Settings} of all users
-     * with the internal cache.
-     *
-     * <p> Appending and removing package names to/from the settings string
-     *     KEY_PACKAGES_DISABLED_ON_RESOURCE_OVERUSE is done only by this class. So, synchronize
-     *     these operations using the class wide lock.
-     */
-    @GuardedBy("mLock")
-    private void syncDisabledUserPackagesLocked() {
-        int[] userIds = getAliveUserIds();
-        for (int i = 0; i < userIds.length; i++) {
-            int userId = userIds[i];
-            ContentResolver contentResolverForUser = getContentResolverForUser(mContext, userId);
-            ArraySet<String> packages = extractPackages(
-                    Settings.Secure.getString(contentResolverForUser,
-                            KEY_PACKAGES_DISABLED_ON_RESOURCE_OVERUSE));
-            if (packages.isEmpty()) {
-                continue;
-            }
-            mDisabledUserPackagesByUserId.put(userId, packages);
-        }
-        if (DEBUG) {
-            Slogf.d(TAG, "Synced the %s settings to the disabled user packages cache.",
-                    KEY_PACKAGES_DISABLED_ON_RESOURCE_OVERUSE);
-        }
-    }
-
     private static ArraySet<String> extractPackages(String settingsString) {
         return TextUtils.isEmpty(settingsString) ? new ArraySet<>()
                 : new ArraySet<>(Arrays.asList(settingsString.split(
@@ -2550,13 +2524,6 @@ public final class IoOveruseHandler {
         }
     }
 
-    static void dumpUserPackageInfo(ArraySet<String> userPackageInfo, long fieldId,
-            ProtoOutputStream proto) {
-        for (int i = 0; i < userPackageInfo.size(); i++) {
-            dumpUserPackageInfoFromUniqueId(userPackageInfo.valueAt(i), fieldId, proto);
-        }
-    }
-
     private static void dumpUserPackageInfoFromUniqueId(String uniqueId, long fieldId,
             ProtoOutputStream proto) {
         long fieldIdToken = proto.start(fieldId);
@@ -2567,10 +2534,6 @@ public final class IoOveruseHandler {
 
     private static File getWatchdogMetadataFile() {
         return new File(CarWatchdogService.getWatchdogDirFile(), METADATA_FILENAME);
-    }
-
-    private static String getUserPackageUniqueId(@UserIdInt int userId, String genericPackageName) {
-        return userId + USER_PACKAGE_SEPARATOR + genericPackageName;
     }
 
     private static String getPackageNameFromUniqueId(String uniqueId) {
