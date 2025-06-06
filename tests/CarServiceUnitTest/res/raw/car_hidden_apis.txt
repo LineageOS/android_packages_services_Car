@@ -358,7 +358,6 @@ android.car.hardware CarPropertyConfig.AreaConfig T getMinValue()
 android.car.hardware CarPropertyConfig.AreaConfig int describeContents()
 android.car.hardware CarPropertyConfig.AreaConfig void writeToParcel(Parcel dest, int flags)
 android.car.hardware CarPropertyValue CarPropertyValue cloneWithPermissionToReadPropertyVendorStatus()
-android.car.hardware CarPropertyValue CarPropertyValue cloneWithSystemStatusConverted(int sdkVersion)
 android.car.hardware CarPropertyValue CarPropertyValue cloneWithVendorStatusFiltered()
 android.car.hardware CarPropertyValue List<Integer> ALL_CAR_PROPERTY_STATUS
 android.car.hardware CarPropertyValue RawPropertyValue getRawPropertyValue()

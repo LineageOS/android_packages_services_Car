@@ -41,12 +41,10 @@ public final class CarPropertyEventCallbackController extends CarPropertyEventCo
     private final Executor mExecutor;
     // Whether the client has the permission to call CarPropertyValue.getPropertyVendorStatus.
     private final boolean mHasPermissionToReadPropertyVendorStatus;
-    private final int mAppTargetSdk;
 
-    public CarPropertyEventCallbackController(Context context, int appTargetSdk,
+    public CarPropertyEventCallbackController(Context context,
             CarPropertyEventCallback carPropertyEventCallback, Executor executor) {
         requireNonNull(carPropertyEventCallback);
-        mAppTargetSdk = appTargetSdk;
         mCarPropertyEventCallback = carPropertyEventCallback;
         mExecutor = executor;
         mHasPermissionToReadPropertyVendorStatus = (

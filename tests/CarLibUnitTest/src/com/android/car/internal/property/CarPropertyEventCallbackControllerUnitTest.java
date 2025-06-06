@@ -21,7 +21,6 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -33,7 +32,7 @@ import android.car.hardware.property.CarPropertyEvent;
 import android.car.hardware.property.CarPropertyManager;
 import android.content.Context;
 import android.content.pm.PackageManager;
-import android.os.Build;
+
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -45,8 +44,8 @@ import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 
 import java.time.Duration;
-import java.util.List;
 import java.util.concurrent.Executor;
+
 
 public final class CarPropertyEventCallbackControllerUnitTest {
     private static final int FIRST_PROPERTY_ID = 1234;
@@ -93,8 +92,6 @@ public final class CarPropertyEventCallbackControllerUnitTest {
                     INTEGER_VALUE_1);
     private static final CarPropertyValue<Integer> ERROR_CAR_PROPERTY_VALUE =
             new CarPropertyValue<>(FIRST_PROPERTY_ID, AREA_ID_1, TIMESTAMP_NANOS, -1);
-    private static final int APP_TARGET_SDK = Build.VERSION_CODES.CUR_DEVELOPMENT;
-
     @Rule
     public final MockitoRule mockito = MockitoJUnit.rule();
     @Captor
@@ -112,7 +109,7 @@ public final class CarPropertyEventCallbackControllerUnitTest {
                 .thenReturn(PackageManager.PERMISSION_DENIED);
         mCarPropertyEventCallbackController =
                 new CarPropertyEventCallbackController(
-                        mContext, APP_TARGET_SDK, mCarPropertyEventCallback, DIRECT_EXECUTOR);
+                        mContext, mCarPropertyEventCallback, DIRECT_EXECUTOR);
     }
 
     @Test
@@ -507,7 +504,7 @@ public final class CarPropertyEventCallbackControllerUnitTest {
                 .thenReturn(PackageManager.PERMISSION_GRANTED);
         mCarPropertyEventCallbackController =
                 new CarPropertyEventCallbackController(
-                        mContext, APP_TARGET_SDK, mCarPropertyEventCallback, DIRECT_EXECUTOR);
+                        mContext, mCarPropertyEventCallback, DIRECT_EXECUTOR);
 
         mCarPropertyEventCallbackController.addOnChangeProperty(
                 FIRST_PROPERTY_ID, REGISTERED_AREA_IDS);
@@ -538,7 +535,7 @@ public final class CarPropertyEventCallbackControllerUnitTest {
                 .thenReturn(PackageManager.PERMISSION_DENIED);
         mCarPropertyEventCallbackController =
                 new CarPropertyEventCallbackController(
-                        mContext, APP_TARGET_SDK, mCarPropertyEventCallback, DIRECT_EXECUTOR);
+                        mContext, mCarPropertyEventCallback, DIRECT_EXECUTOR);
 
         mCarPropertyEventCallbackController.addOnChangeProperty(
                 FIRST_PROPERTY_ID, REGISTERED_AREA_IDS);
@@ -558,80 +555,6 @@ public final class CarPropertyEventCallbackControllerUnitTest {
                 mCarPropertyValueCaptor.getValue();
 
         assertThrows(SecurityException.class, () -> carPropertyValue.getPropertyVendorStatus());
-        assertThat(carPropertyValue.getPropertyStatus()).isEqualTo(systemStatus);
-    }
-
-    @Test
-    public void testOnEvent_getPropertyStatus_notAvailable_sdkVersionBefore25Q4() {
-        int vendorStatus = 0x1234;
-        int appTargetSdk = Build.VERSION_CODES.BAKLAVA;
-        when(mContext.checkSelfPermission(Car.PERMISSION_READ_PROPERTY_VENDOR_STATUS))
-                .thenReturn(PackageManager.PERMISSION_DENIED);
-        mCarPropertyEventCallbackController =
-                new CarPropertyEventCallbackController(
-                        mContext, appTargetSdk, mCarPropertyEventCallback, DIRECT_EXECUTOR);
-
-        for (int systemStatus : List.of(
-                CarPropertyValue.STATUS_NOT_AVAILABLE_DISABLED,
-                CarPropertyValue.STATUS_NOT_AVAILABLE_SPEED_LOW,
-                CarPropertyValue.STATUS_NOT_AVAILABLE_SPEED_HIGH,
-                CarPropertyValue.STATUS_NOT_AVAILABLE_POOR_VISIBILITY,
-                CarPropertyValue.STATUS_NOT_AVAILABLE_SAFETY,
-                CarPropertyValue.STATUS_NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED
-        )) {
-            clearInvocations(mCarPropertyEventCallback);
-
-            mCarPropertyEventCallbackController.addOnChangeProperty(
-                    FIRST_PROPERTY_ID, REGISTERED_AREA_IDS);
-
-            mCarPropertyEventCallbackController.onEvent(
-                    new CarPropertyEvent(CarPropertyEvent.PROPERTY_EVENT_PROPERTY_CHANGE,
-                            new CarPropertyValue.Builder<Integer>(FIRST_PROPERTY_ID, AREA_ID_1)
-                                    .setTimestampNanos(TIMESTAMP_NANOS)
-                                    .setValue(0)
-                                    .setSystemStatus(systemStatus)
-                                    .setVendorStatus(vendorStatus)
-                                    .build()));
-
-            verify(mCarPropertyEventCallback).onChangeEvent(mCarPropertyValueCaptor.capture());
-
-            CarPropertyValue<Integer> carPropertyValue = (CarPropertyValue<Integer>)
-                    mCarPropertyValueCaptor.getValue();
-
-            assertThat(carPropertyValue.getPropertyStatus()).isEqualTo(
-                    CarPropertyValue.STATUS_NOT_AVAILABLE_GENERAL);
-        }
-    }
-
-    @Test
-    public void testOnEvent_getPropertyStatus_error_sdkVersionBefore25Q4() {
-        int vendorStatus = 0x1234;
-        int appTargetSdk = Build.VERSION_CODES.BAKLAVA;
-        when(mContext.checkSelfPermission(Car.PERMISSION_READ_PROPERTY_VENDOR_STATUS))
-                .thenReturn(PackageManager.PERMISSION_DENIED);
-        mCarPropertyEventCallbackController =
-                new CarPropertyEventCallbackController(
-                        mContext, appTargetSdk, mCarPropertyEventCallback, DIRECT_EXECUTOR);
-
-        int systemStatus = CarPropertyValue.STATUS_ERROR;
-
-        mCarPropertyEventCallbackController.addOnChangeProperty(
-                FIRST_PROPERTY_ID, REGISTERED_AREA_IDS);
-
-        mCarPropertyEventCallbackController.onEvent(
-                new CarPropertyEvent(CarPropertyEvent.PROPERTY_EVENT_PROPERTY_CHANGE,
-                        new CarPropertyValue.Builder<Integer>(FIRST_PROPERTY_ID, AREA_ID_1)
-                                .setTimestampNanos(TIMESTAMP_NANOS)
-                                .setValue(0)
-                                .setSystemStatus(systemStatus)
-                                .setVendorStatus(vendorStatus)
-                                .build()));
-
-        verify(mCarPropertyEventCallback).onChangeEvent(mCarPropertyValueCaptor.capture());
-
-        CarPropertyValue<Integer> carPropertyValue = (CarPropertyValue<Integer>)
-                mCarPropertyValueCaptor.getValue();
-
         assertThat(carPropertyValue.getPropertyStatus()).isEqualTo(systemStatus);
     }
 }
