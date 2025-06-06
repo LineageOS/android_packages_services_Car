@@ -671,9 +671,6 @@ public class CarPropertyService extends ICarProperty.Stub
                 CarPropertyConfig<?> carPropertyConfig = getCarPropertyConfig(propertyId);
                 Object defaultValue = CarPropertyHelper.getDefaultValue(
                         carPropertyConfig.getPropertyType());
-                // TODO(b/417326671): convert e.errorCode into detailed not available system status.
-                // TODO(b/417325727): convert vendor status code from e.errorCode into a property
-                // vendor status.
                 if (CarPropertyErrorCodes.isNotAvailableVehicleHalStatusCode(errorCode)) {
                     carPropertyValue = new CarPropertyValue<>(propertyId, areaId,
                             CarPropertyValue.STATUS_UNAVAILABLE, timestampNanos, defaultValue);

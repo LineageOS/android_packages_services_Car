@@ -1595,8 +1595,8 @@ public class CarPropertyManager extends CarManagerBase {
 
             if (cpeCallbackController == null) {
                 cpeCallbackController =
-                        new CarPropertyEventCallbackController(getContext(),
-                                carPropertyEventCallback, callbackExecutor);
+                        new CarPropertyEventCallbackController(carPropertyEventCallback,
+                                callbackExecutor);
                 mCpeCallbackToCpeCallbackController.put(carPropertyEventCallback,
                         cpeCallbackController);
             }
