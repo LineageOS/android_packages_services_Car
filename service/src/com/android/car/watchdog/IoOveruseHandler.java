@@ -395,7 +395,6 @@ public final class IoOveruseHandler {
     @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     public void dumpProto(ProtoOutputStream proto) {
         synchronized (mLock) {
-            long performanceDumpToken = proto.start(CarWatchdogDumpProto.PERFORMANCE_DUMP);
             proto.write(PerformanceDump.CURRENT_UX_STATE, toProtoUxState(mCurrentUxState));
             for (int i = 0; i < mDisabledUserPackagesByUserId.size(); i++) {
                 for (int j = 0; j < mDisabledUserPackagesByUserId.valueAt(i).size(); j++) {
@@ -415,15 +414,7 @@ public final class IoOveruseHandler {
                     mPackageKillableStateResetDays);
             proto.write(PerformanceDump.RECURRING_OVERUSE_PERIOD_DAYS,
                     mRecurringOverusePeriodInDays);
-            proto.write(PerformanceDump.RESOURCE_OVERUSE_NOTIFICATION_BASE_ID,
-                    mResourceOveruseNotificationBaseId);
-            proto.write(PerformanceDump.RESOURCE_OVERUSE_NOTIFICATION_MAX_OFFSET,
-                    mResourceOveruseNotificationMaxOffset);
             proto.write(PerformanceDump.IS_CONNECTED_TO_DAEMON, mIsConnectedToDaemon);
-            proto.write(PerformanceDump.IS_HEADS_UP_NOTIFICATION_SENT, mIsHeadsUpNotificationSent);
-            proto.write(PerformanceDump.CURRENT_OVERUSE_NOTIFICATION_ID_OFFSET,
-                    mCurrentOveruseNotificationIdOffset);
-            proto.write(PerformanceDump.IS_GARAGE_MODE_ACTIVE, mCurrentGarageMode);
             proto.write(PerformanceDump.OVERUSE_HANDLING_DELAY_MILLIS, mOveruseHandlingDelayMills);
 
             long systemDateTimeToken = proto.start(
@@ -470,9 +461,6 @@ public final class IoOveruseHandler {
             dumpUserPackageInfo(mUserNotifiablePackages,
                     PerformanceDump.USER_NOTIFIABLE_PACKAGES, proto);
 
-            dumpUserPackageInfo(mActiveUserNotifications,
-                    PerformanceDump.ACTIVE_USER_NOTIFICATIONS, proto);
-
             dumpUserPackageInfo(mActionableUserPackages,
                     PerformanceDump.ACTIONABLE_USER_PACKAGES, proto);
 
@@ -480,8 +468,6 @@ public final class IoOveruseHandler {
                     mPendingSetResourceOveruseConfigurationsRequest != null);
 
             mOveruseConfigurationCache.dumpProto(proto);
-
-            proto.end(performanceDumpToken);
         }
     }
 
@@ -2564,7 +2550,7 @@ public final class IoOveruseHandler {
         }
     }
 
-    private static void dumpUserPackageInfo(ArraySet<String> userPackageInfo, long fieldId,
+    static void dumpUserPackageInfo(ArraySet<String> userPackageInfo, long fieldId,
             ProtoOutputStream proto) {
         for (int i = 0; i < userPackageInfo.size(); i++) {
             dumpUserPackageInfoFromUniqueId(userPackageInfo.valueAt(i), fieldId, proto);

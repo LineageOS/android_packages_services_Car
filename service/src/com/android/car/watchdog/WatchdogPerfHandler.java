@@ -140,7 +140,6 @@ public final class WatchdogPerfHandler implements WatchdogPerfHandlerInterface {
             "systemIoUsageSummaryReportedDate";
     private static final String UID_IO_USAGE_SUMMARY_REPORTED_DATE =
             "uidIoUsageSummaryReportedDate";
-    private static final long OVERUSE_HANDLING_DELAY_MILLS = 10_000;
 
     private static final PullAtomMetadata PULL_ATOM_METADATA =
             new PullAtomMetadata.Builder()
@@ -189,9 +188,6 @@ public final class WatchdogPerfHandler implements WatchdogPerfHandlerInterface {
     private final OveruseConfigurationCache mOveruseConfigurationCache;
     private final int mUidIoUsageSummaryTopCount;
     private final int mIoUsageSummaryMinSystemTotalWrittenBytes;
-    private final int mPackageKillableStateResetDays;
-    private final int mRecurringOverusePeriodInDays;
-    private final int mRecurringOveruseTimes;
     private final int mResourceOveruseNotificationBaseId;
     private final int mResourceOveruseNotificationMaxOffset;
     private final TimeSource mTimeSource;
@@ -204,17 +200,6 @@ public final class WatchdogPerfHandler implements WatchdogPerfHandlerInterface {
      */
     @GuardedBy("mLock")
     private final ArrayMap<String, PackageResourceUsage> mUsageByUserPackage = new ArrayMap<>();
-    /**
-     * Default killable state for packages. Updated only for {@link UserHandle#ALL} user handle.
-     * When cache is updated, call {@link WatchdogStorage#markDirty} to notify database is out of
-     * sync.
-     */
-    // TODO(b/235615155): Update database when a default not killable package is set to killable
-    //  Also, changes to mDefaultNotKillableGenericPackages should be tracked by the last modified
-    //  date. This date should be copied to any new user package settings that take the default
-    //  value. When this date is beyond reset days, the settings here should be reset.
-    @GuardedBy("mLock")
-    private final ArraySet<String> mDefaultNotKillableGenericPackages = new ArraySet<>();
     /** Keys in {@link mUsageByUserPackage} for user notification on resource overuse. */
     @GuardedBy("mLock")
     private final ArraySet<String> mUserNotifiablePackages = new ArraySet<>();
@@ -250,8 +235,6 @@ public final class WatchdogPerfHandler implements WatchdogPerfHandlerInterface {
     private int mCurrentOveruseNotificationIdOffset;
     @GuardedBy("mLock")
     private @GarageMode int mCurrentGarageMode = GarageMode.GARAGE_MODE_OFF;
-    @GuardedBy("mLock")
-    private long mOveruseHandlingDelayMills = OVERUSE_HANDLING_DELAY_MILLS;
     @GuardedBy("mLock")
     private ZonedDateTime mLastSystemIoUsageSummaryReportedDate;
     @GuardedBy("mLock")
@@ -290,15 +273,15 @@ public final class WatchdogPerfHandler implements WatchdogPerfHandlerInterface {
         mUidIoUsageSummaryTopCount = resources.getInteger(R.integer.uidIoUsageSummaryTopCount);
         mIoUsageSummaryMinSystemTotalWrittenBytes =
                 resources.getInteger(R.integer.ioUsageSummaryMinSystemTotalWrittenBytes);
-        mPackageKillableStateResetDays =
+        int packageKillableStateResetDays =
                 resources.getInteger(R.integer.watchdogUserPackageSettingsResetDays);
-        mRecurringOverusePeriodInDays =
+        int recurringOverusePeriodInDays =
                 resources.getInteger(R.integer.recurringResourceOverusePeriodInDays);
-        mRecurringOveruseTimes = resources.getInteger(R.integer.recurringResourceOveruseTimes);
+        int recurringOveruseTimes = resources.getInteger(R.integer.recurringResourceOveruseTimes);
         mIoOveruseHandler = new IoOveruseHandler(context, mBuiltinPackageContext, daemonHelper,
                 packageInfoHandler, watchdogStorage, timeSource, mUidIoUsageSummaryTopCount,
-                mIoUsageSummaryMinSystemTotalWrittenBytes, mPackageKillableStateResetDays,
-                mRecurringOverusePeriodInDays, mRecurringOveruseTimes, serviceHandler,
+                mIoUsageSummaryMinSystemTotalWrittenBytes, packageKillableStateResetDays,
+                recurringOverusePeriodInDays, recurringOveruseTimes, serviceHandler,
                 mCarStatsLogWrapper);
         mResourceOveruseNotificationBaseId =
                 NotificationHelperBase.RESOURCE_OVERUSE_NOTIFICATION_BASE_ID;
@@ -352,108 +335,29 @@ public final class WatchdogPerfHandler implements WatchdogPerfHandlerInterface {
     @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     @Override
     public void dump(IndentingPrintWriter writer) {
-        /*
-         * TODO(b/183436216): Implement this method.
-         */
-        synchronized (mLock) {
-            writer.println("Current UX state: " + toUxStateString(mCurrentUxState));
-            writer.println("List of disabled packages per user due to resource overuse: "
-                    + mDisabledUserPackagesByUserId);
-        }
-        mOveruseConfigurationCache.dump(writer);
+        mIoOveruseHandler.dump(writer);
     }
 
     /** Dumps its state in proto format */
     @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     @Override
     public void dumpProto(ProtoOutputStream proto) {
+        long performanceDumpToken = proto.start(CarWatchdogDumpProto.PERFORMANCE_DUMP);
+        mIoOveruseHandler.dumpProto(proto);
         synchronized (mLock) {
-            long performanceDumpToken = proto.start(CarWatchdogDumpProto.PERFORMANCE_DUMP);
-            proto.write(PerformanceDump.CURRENT_UX_STATE, toProtoUxState(mCurrentUxState));
-            for (int i = 0; i < mDisabledUserPackagesByUserId.size(); i++) {
-                for (int j = 0; j < mDisabledUserPackagesByUserId.valueAt(i).size(); j++) {
-                    long disabledUserPackagesToken = proto.start(
-                            PerformanceDump.DISABLED_USER_PACKAGES);
-                    proto.write(UserPackageInfo.USER_ID,
-                            mDisabledUserPackagesByUserId.keyAt(i));
-                    proto.write(UserPackageInfo.PACKAGE_NAME,
-                            mDisabledUserPackagesByUserId.valueAt(i).valueAt(j));
-                    proto.end(disabledUserPackagesToken);
-                }
-            }
-            proto.write(PerformanceDump.UID_IO_USAGE_SUMMARY_TOP_COUNT, mUidIoUsageSummaryTopCount);
-            proto.write(PerformanceDump.IO_USAGE_SUMMARY_MIN_SYSTEM_TOTAL_WRITTEN_BYTES,
-                    mIoUsageSummaryMinSystemTotalWrittenBytes);
-            proto.write(PerformanceDump.PACKAGE_KILLABLE_STATE_RESET_DAYS,
-                    mPackageKillableStateResetDays);
-            proto.write(PerformanceDump.RECURRING_OVERUSE_PERIOD_DAYS,
-                    mRecurringOverusePeriodInDays);
             proto.write(PerformanceDump.RESOURCE_OVERUSE_NOTIFICATION_BASE_ID,
                     mResourceOveruseNotificationBaseId);
             proto.write(PerformanceDump.RESOURCE_OVERUSE_NOTIFICATION_MAX_OFFSET,
                     mResourceOveruseNotificationMaxOffset);
-            proto.write(PerformanceDump.IS_CONNECTED_TO_DAEMON, mIsConnectedToDaemon);
             proto.write(PerformanceDump.IS_HEADS_UP_NOTIFICATION_SENT, mIsHeadsUpNotificationSent);
             proto.write(PerformanceDump.CURRENT_OVERUSE_NOTIFICATION_ID_OFFSET,
                     mCurrentOveruseNotificationIdOffset);
             proto.write(PerformanceDump.IS_GARAGE_MODE_ACTIVE, mCurrentGarageMode);
-            proto.write(PerformanceDump.OVERUSE_HANDLING_DELAY_MILLIS, mOveruseHandlingDelayMills);
 
-            long systemDateTimeToken = proto.start(
-                    PerformanceDump.LAST_SYSTEM_IO_USAGE_SUMMARY_REPORTED_UTC_DATETIME);
-            long systemDateToken = proto.start(DateTime.DATE);
-            proto.write(Date.YEAR, mLastSystemIoUsageSummaryReportedDate.getYear());
-            proto.write(Date.MONTH, mLastSystemIoUsageSummaryReportedDate.getMonthValue());
-            proto.write(Date.DAY, mLastSystemIoUsageSummaryReportedDate.getDayOfMonth());
-            proto.end(systemDateToken);
-            long systemTimeOfDayToken = proto.start(DateTime.TIME_OF_DAY);
-            proto.write(TimeOfDay.HOURS, mLastSystemIoUsageSummaryReportedDate.getHour());
-            proto.write(TimeOfDay.MINUTES, mLastSystemIoUsageSummaryReportedDate.getMinute());
-            proto.write(TimeOfDay.SECONDS, mLastSystemIoUsageSummaryReportedDate.getSecond());
-            proto.end(systemTimeOfDayToken);
-            proto.end(systemDateTimeToken);
-
-            long uidDateTimeToken = proto.start(
-                    PerformanceDump.LAST_UID_IO_USAGE_SUMMARY_REPORTED_UTC_DATETIME);
-            long uidDateToken = proto.start(DateTime.DATE);
-            proto.write(Date.YEAR, mLastUidIoUsageSummaryReportedDate.getYear());
-            proto.write(Date.MONTH, mLastUidIoUsageSummaryReportedDate.getMonthValue());
-            proto.write(Date.DAY, mLastUidIoUsageSummaryReportedDate.getDayOfMonth());
-            proto.end(uidDateToken);
-            long uidTimeOfDayToken = proto.start(DateTime.TIME_OF_DAY);
-            proto.write(TimeOfDay.HOURS, mLastUidIoUsageSummaryReportedDate.getHour());
-            proto.write(TimeOfDay.MINUTES, mLastUidIoUsageSummaryReportedDate.getMinute());
-            proto.write(TimeOfDay.SECONDS, mLastUidIoUsageSummaryReportedDate.getSecond());
-            proto.end(uidTimeOfDayToken);
-            proto.end(uidDateTimeToken);
-
-            dumpUsageByUserPackageLocked(proto);
-
-            // TODO(b/400460188): mOveruseListenerInfosByUid and mOveruseSystemListenerInfosByUid
-            // will be dumped from IoOveruseHandler.dump after the current method starts to forward
-            // the dump call to IoOveruseHandler.dump.
-
-            for (int i = 0; i < mDefaultNotKillableGenericPackages.size(); i++) {
-                proto.write(PerformanceDump.DEFAULT_NOT_KILLABLE_GENERIC_PACKAGES,
-                        mDefaultNotKillableGenericPackages.valueAt(i));
-            }
-
-            dumpUserPackageInfo(mUserNotifiablePackages,
-                    PerformanceDump.USER_NOTIFIABLE_PACKAGES, proto);
-
-            dumpUserPackageInfo(mActiveUserNotifications,
+            IoOveruseHandler.dumpUserPackageInfo(mActiveUserNotifications,
                     PerformanceDump.ACTIVE_USER_NOTIFICATIONS, proto);
-
-            dumpUserPackageInfo(mActionableUserPackages,
-                    PerformanceDump.ACTIONABLE_USER_PACKAGES, proto);
-
-            proto.write(PerformanceDump.IS_PENDING_RESOURCE_OVERUSE_CONFIGURATIONS_REQUEST,
-                    mPendingSetResourceOveruseConfigurationsRequest != null);
-
-            mOveruseConfigurationCache.dumpProto(proto);
-
-            proto.end(performanceDumpToken);
         }
+        proto.end(performanceDumpToken);
     }
 
     /** Retries any pending requests on re-connecting to the daemon */
@@ -1433,55 +1337,12 @@ public final class WatchdogPerfHandler implements WatchdogPerfHandlerInterface {
         }
     }
 
-    @GuardedBy("mLock")
-    private void dumpUsageByUserPackageLocked(ProtoOutputStream proto) {
-        for (int i = 0; i < mUsageByUserPackage.size(); i++) {
-            long usageByUserPackagesToken = proto.start(PerformanceDump.USAGE_BY_USER_PACKAGES);
-
-            dumpUserPackageInfoFromUniqueId(mUsageByUserPackage.keyAt(i),
-                    PerformanceDump.UsageByUserPackage.USER_PACKAGE_INFO, proto);
-
-            PackageResourceUsage packageResourceUsage = mUsageByUserPackage.valueAt(i);
-            PackageIoUsage packageIoUsage = packageResourceUsage.ioUsage;
-
-            proto.write(PerformanceDump.UsageByUserPackage.KILLABLE_STATE,
-                    toProtoKillableState(packageResourceUsage.mKillableState));
-
-            packageIoUsage.dumpProto(proto);
-
-            proto.end(usageByUserPackagesToken);
-        }
-    }
-
-    private static void dumpUserPackageInfo(ArraySet<String> userPackageInfo, long fieldId,
-            ProtoOutputStream proto) {
-        for (int i = 0; i < userPackageInfo.size(); i++) {
-            dumpUserPackageInfoFromUniqueId(userPackageInfo.valueAt(i), fieldId, proto);
-        }
-    }
-
-    private static void dumpUserPackageInfoFromUniqueId(String uniqueId, long fieldId,
-            ProtoOutputStream proto) {
-        long fieldIdToken = proto.start(fieldId);
-        proto.write(UserPackageInfo.USER_ID, getUserIdFromUniqueId(uniqueId));
-        proto.write(UserPackageInfo.PACKAGE_NAME, getPackageNameFromUniqueId(uniqueId));
-        proto.end(fieldIdToken);
-    }
-
     private static File getWatchdogMetadataFile() {
         return new File(CarWatchdogService.getWatchdogDirFile(), METADATA_FILENAME);
     }
 
     private static String getUserPackageUniqueId(@UserIdInt int userId, String genericPackageName) {
         return userId + USER_PACKAGE_SEPARATOR + genericPackageName;
-    }
-
-    private static String getPackageNameFromUniqueId(String uniqueId) {
-        return uniqueId.split(USER_PACKAGE_SEPARATOR)[0];
-    }
-
-    private static String getUserIdFromUniqueId(String uniqueId) {
-        return uniqueId.split(USER_PACKAGE_SEPARATOR)[1];
     }
 
     private static boolean isSharedPackage(String genericPackageName) {
@@ -1515,45 +1376,6 @@ public final class WatchdogPerfHandler implements WatchdogPerfHandlerInterface {
             perStateBytesBuilder.setGarageModeBytes(garageModeBytes);
         }
         return perStateBytesBuilder.build();
-    }
-
-    private static String toUxStateString(@UxStateType int uxState) {
-        switch (uxState) {
-            case UX_STATE_NO_DISTRACTION:
-                return "UX_STATE_NO_DISTRACTION";
-            case UX_STATE_USER_NOTIFICATION:
-                return "UX_STATE_USER_NOTIFICATION";
-            case UX_STATE_NO_INTERACTION:
-                return "UX_STATE_NO_INTERACTION";
-            default:
-                return "UNKNOWN UX STATE";
-        }
-    }
-
-    private static int toProtoUxState(@UxStateType int uxState) {
-        switch (uxState) {
-            case UX_STATE_NO_DISTRACTION:
-                return PerformanceDump.UX_STATE_NO_DISTRACTION;
-            case UX_STATE_USER_NOTIFICATION:
-                return PerformanceDump.UX_STATE_USER_NOTIFICATION;
-            case UX_STATE_NO_INTERACTION:
-                return PerformanceDump.UX_STATE_NO_INTERACTION;
-            default:
-                return PerformanceDump.UX_STATE_UNSPECIFIED;
-        }
-    }
-
-    private static int toProtoKillableState(@KillableState int killableState) {
-        switch (killableState) {
-            case KILLABLE_STATE_YES:
-                return PerformanceDump.KILLABLE_STATE_YES;
-            case KILLABLE_STATE_NO:
-                return PerformanceDump.KILLABLE_STATE_NO;
-            case KILLABLE_STATE_NEVER:
-                return PerformanceDump.KILLABLE_STATE_NEVER;
-            default:
-                return PerformanceDump.KILLABLE_STATE_UNSPECIFIED;
-        }
     }
 
     private final class PackageResourceUsage {
