@@ -1036,7 +1036,6 @@ package android.car.hardware {
   }
 
   public final class CarPropertyValue<T> implements android.os.Parcelable {
-    method public android.car.hardware.CarPropertyValue cloneWithPermissionToReadPropertyVendorStatus();
     method @FlaggedApi("android.car.feature.car_property_status_detailed_not_available") @RequiresPermission(android.car.Car.PERMISSION_READ_PROPERTY_VENDOR_STATUS) public int getPropertyVendorStatus();
     method @FlaggedApi("android.car.feature.car_property_simulation") public boolean isPropertyIdSimulationPropId();
   }
@@ -1044,7 +1043,6 @@ package android.car.hardware {
   public static class CarPropertyValue.Builder<T> {
     ctor public CarPropertyValue.Builder(int, int);
     method public android.car.hardware.CarPropertyValue<T> build();
-    method public android.car.hardware.CarPropertyValue.Builder<T> setHasPermissionToReadPropertyVendorStatus(boolean);
     method public android.car.hardware.CarPropertyValue.Builder<T> setIsSimulationPropId(boolean);
     method public android.car.hardware.CarPropertyValue.Builder<T> setSystemStatus(int);
     method public android.car.hardware.CarPropertyValue.Builder<T> setTimestampNanos(long);

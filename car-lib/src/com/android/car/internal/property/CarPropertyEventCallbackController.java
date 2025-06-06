@@ -76,20 +76,17 @@ public final class CarPropertyEventCallbackController extends CarPropertyEventCo
         switch (updatedCarPropertyEvent.getEventType()) {
             case CarPropertyEvent.PROPERTY_EVENT_PROPERTY_CHANGE:
                 if (mHasPermissionToReadPropertyVendorStatus) {
-                    carPropertyValue = carPropertyValue
-                            .cloneWithPermissionToReadPropertyVendorStatus();
+                    carPropertyValue.setHasPermissionToReadPropertyVendorStatus();
                 }
-                var valueToSend = carPropertyValue;
-                mExecutor.execute(() -> mCarPropertyEventCallback.onChangeEvent(valueToSend));
+                mExecutor.execute(() -> mCarPropertyEventCallback.onChangeEvent(carPropertyValue));
                 break;
             case CarPropertyEvent.PROPERTY_EVENT_ERROR:
                 if (DBG) {
                     Slog.d(TAG, "onErrorEvent for event: " + updatedCarPropertyEvent);
                 }
-                int propertyId = carPropertyValue.getPropertyId();
-                int areaId = carPropertyValue.getAreaId();
                 mExecutor.execute(() -> mCarPropertyEventCallback.onErrorEvent(
-                        propertyId, areaId, updatedCarPropertyEvent.getErrorCode()));
+                        carPropertyValue.getPropertyId(), carPropertyValue.getAreaId(),
+                        updatedCarPropertyEvent.getErrorCode()));
                 break;
             default:
                 Slog.e(TAG, "onEvent: unknown errorCode=" + updatedCarPropertyEvent.getErrorCode()

@@ -150,12 +150,6 @@ public final class CarPropertyValueTest extends CarPropertyTestBase {
     }
 
     @Test
-    public void hashCode_returnsDifferentValueForDifferentHasPermissionToRead() {
-        assertThat(CAR_PROPERTY_VALUE.hashCode()).isNotEqualTo(
-                CAR_PROPERTY_VALUE.cloneWithPermissionToReadPropertyVendorStatus().hashCode());
-    }
-
-    @Test
     public void equals_returnsTrueForSameInstance() {
         assertThat(CAR_PROPERTY_VALUE.equals(CAR_PROPERTY_VALUE)).isTrue();
     }
@@ -223,14 +217,6 @@ public final class CarPropertyValueTest extends CarPropertyTestBase {
     }
 
     @Test
-    public void equals_returnsFalseForVendorStatusFiltered() {
-        assertThat(CAR_PROPERTY_VALUE.equals(
-                CAR_PROPERTY_VALUE.cloneWithVendorStatusFiltered()
-            )
-        ).isFalse();
-    }
-
-    @Test
     public void equals_returnsFalseForDifferentTimestamps() {
         long differentTimestampNanos = 76845;
 
@@ -255,16 +241,6 @@ public final class CarPropertyValueTest extends CarPropertyTestBase {
     public void equals_returnsFalseForDifferentIsSimulationProp() {
         assertThat(CAR_PROPERTY_VALUE.equals(
                 getDefaultTestCarPropertyValueBuilder().setIsSimulationPropId(false).build()
-            )
-        ).isFalse();
-    }
-
-    @Test
-    public void equals_returnsFalseForDifferentHasPermissionToRead() {
-        int differentStatus = CarPropertyValue.STATUS_ERROR;
-
-        assertThat(CAR_PROPERTY_VALUE.equals(
-                CAR_PROPERTY_VALUE.cloneWithPermissionToReadPropertyVendorStatus()
             )
         ).isFalse();
     }
@@ -370,8 +346,8 @@ public final class CarPropertyValueTest extends CarPropertyTestBase {
     @EnableFlags({FLAG_CAR_PROPERTY_SIMULATION, FLAG_CAR_PROPERTY_VALUE_PROPERTY_STATUS})
     @Test
     public void basicBuilderTest() {
-        var carPropertyValue = getDefaultTestCarPropertyValue()
-                .cloneWithPermissionToReadPropertyVendorStatus();
+        var carPropertyValue = getDefaultTestCarPropertyValue();
+        carPropertyValue.setHasPermissionToReadPropertyVendorStatus();
 
         assertThat(carPropertyValue.getPropertyId()).isEqualTo(PROPERTY_ID);
         assertThat(carPropertyValue.getAreaId()).isEqualTo(AREA_ID);
@@ -386,11 +362,12 @@ public final class CarPropertyValueTest extends CarPropertyTestBase {
     @Test
     public void basicBuilder_writeToParcel_readFromParcel() {
         var carPropertyValue = getDefaultTestCarPropertyValue();
+        carPropertyValue.setHasPermissionToReadPropertyVendorStatus();
 
         writeToParcel(carPropertyValue);
 
-        CarPropertyValue<Float> gotCarPropertyValue = ((CarPropertyValue<Float>) readFromParcel())
-                .cloneWithPermissionToReadPropertyVendorStatus();
+        CarPropertyValue<Float> gotCarPropertyValue = readFromParcel();
+        gotCarPropertyValue.setHasPermissionToReadPropertyVendorStatus();
 
         assertThat(gotCarPropertyValue.getPropertyId()).isEqualTo(PROPERTY_ID);
         assertThat(gotCarPropertyValue.getAreaId()).isEqualTo(AREA_ID);
@@ -399,22 +376,6 @@ public final class CarPropertyValueTest extends CarPropertyTestBase {
         assertThat(gotCarPropertyValue.getPropertyVendorStatus()).isEqualTo(VENDOR_STATUS);
         assertThat(gotCarPropertyValue.isPropertyIdSimulationPropId()).isTrue();
         assertThat(gotCarPropertyValue.getValue()).isEqualTo(VALUE);
-    }
-
-    // We do not pass hasPermissionToReadPropertyVendorStatus across binder.
-    @EnableFlags({FLAG_CAR_PROPERTY_SIMULATION, FLAG_CAR_PROPERTY_VALUE_PROPERTY_STATUS})
-    @Test
-    public void basicBuilder_writeToParcel_readFromParcel_permissionToReadNotPassed() {
-        var carPropertyValue = getDefaultTestCarPropertyValue()
-                .cloneWithPermissionToReadPropertyVendorStatus();
-
-        writeToParcel(carPropertyValue);
-
-        CarPropertyValue<Float> gotCarPropertyValue = readFromParcel();
-
-        // Despite the original value from the other side can call getPropertyVendorStatus, this
-        // side cannot.
-        assertThrows(SecurityException.class, () -> gotCarPropertyValue.getPropertyVendorStatus());
     }
 
     @Test
@@ -446,39 +407,15 @@ public final class CarPropertyValueTest extends CarPropertyTestBase {
     }
 
     @Test
-    public void cloneWithPermissionToReadPropertyVendorStatus() {
-        var carPropertyValue = CAR_PROPERTY_VALUE;
-        var carPropertyValueCloned =
-                carPropertyValue.cloneWithPermissionToReadPropertyVendorStatus();
-
-        assertThrows(SecurityException.class, () -> carPropertyValue.getPropertyVendorStatus());
-        assertThat(carPropertyValueCloned.getPropertyVendorStatus()).isNotEqualTo(0);
-    }
-
-    @EnableFlags({FLAG_CAR_PROPERTY_SIMULATION, FLAG_CAR_PROPERTY_VALUE_PROPERTY_STATUS})
-    @Test
     public void cloneWithVendorStatusFiltered() {
-        var carPropertyValue = CAR_PROPERTY_VALUE.cloneWithPermissionToReadPropertyVendorStatus();
-        var carPropertyValueCloned = carPropertyValue.cloneWithVendorStatusFiltered();
+        var carPropertyValue = getDefaultTestCarPropertyValueBuilder().build();
+        carPropertyValue.setHasPermissionToReadPropertyVendorStatus();
 
-        expectThat(carPropertyValue.getPropertyVendorStatus()).isNotEqualTo(0);
-        expectThat(carPropertyValueCloned.getPropertyVendorStatus()).isEqualTo(0);
-        expectThat(carPropertyValueCloned.getPropertyId()).isEqualTo(
-                carPropertyValue.getPropertyId());
-        expectThat(carPropertyValueCloned.getAreaId()).isEqualTo(
-                carPropertyValue.getAreaId());
-        expectThat(carPropertyValueCloned.getPropertyStatus()).isEqualTo(
-                carPropertyValue.getPropertyStatus());
-        expectThat(carPropertyValueCloned.getStatus()).isEqualTo(
-                carPropertyValue.getStatus());
-        expectThat(carPropertyValueCloned.getTimestamp()).isEqualTo(
-                carPropertyValue.getTimestamp());
-        expectThat(carPropertyValueCloned.getValue()).isEqualTo(
-                carPropertyValue.getValue());
-        expectThat(carPropertyValueCloned.getRawPropertyValue()).isEqualTo(
-                carPropertyValue.getRawPropertyValue());
-        expectThat(carPropertyValueCloned.isPropertyIdSimulationPropId()).isEqualTo(
-                carPropertyValue.isPropertyIdSimulationPropId());
+        assertThat(carPropertyValue.getPropertyVendorStatus()).isNotEqualTo(0);
+
+        carPropertyValue = carPropertyValue.cloneWithVendorStatusFiltered();
+
+        assertThat(carPropertyValue.getPropertyVendorStatus()).isEqualTo(0);
     }
 
     @Test

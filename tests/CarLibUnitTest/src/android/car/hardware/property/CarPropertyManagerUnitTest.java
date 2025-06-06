@@ -51,7 +51,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import android.car.Car;
 import android.car.VehicleAreaSeat;
 import android.car.VehicleAreaType;
 import android.car.VehiclePropertyIds;
@@ -61,7 +60,6 @@ import android.car.hardware.CarPropertyValue;
 import android.car.test.AbstractExpectableTestCase;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.CancellationSignal;
 import android.os.Handler;
@@ -246,8 +244,6 @@ public final class CarPropertyManagerUnitTest extends AbstractExpectableTestCase
 
         mApplicationInfo.targetSdkVersion = Build.VERSION_CODES.CUR_DEVELOPMENT;
         when(mContext.getApplicationInfo()).thenReturn(mApplicationInfo);
-        when(mContext.checkSelfPermission(Car.PERMISSION_READ_PROPERTY_VENDOR_STATUS))
-                .thenReturn(PackageManager.PERMISSION_DENIED);
 
         mContinuousCarPropertyConfig = CarPropertyConfig.newBuilder(Integer.class,
                 VENDOR_CONTINUOUS_PROPERTY, VEHICLE_AREA_TYPE_GLOBAL)
