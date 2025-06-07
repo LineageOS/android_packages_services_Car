@@ -232,4 +232,8 @@
          the old value.
          TODO(b/375265023): Remove this config once the new default value is tested on AAOS. -->
     <integer name="config_customizedMaxCachedProcesses">32</integer>
+
+     <!-- True if the device requires AppWidgetService even if it does not have
+          the PackageManager.FEATURE_APP_WIDGETS feature. -->
+    <bool name="config_enableAppWidgetService">true</bool>
 </resources>

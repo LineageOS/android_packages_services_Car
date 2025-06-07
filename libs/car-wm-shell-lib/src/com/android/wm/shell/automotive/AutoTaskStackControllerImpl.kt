@@ -22,7 +22,6 @@ import android.app.WindowConfiguration.ACTIVITY_TYPE_ASSISTANT
 import android.app.WindowConfiguration.ACTIVITY_TYPE_RECENTS
 import android.app.WindowConfiguration.ACTIVITY_TYPE_STANDARD
 import android.app.WindowConfiguration.ACTIVITY_TYPE_UNDEFINED
-import android.app.WindowConfiguration.WINDOWING_MODE_FULLSCREEN
 import android.app.WindowConfiguration.WINDOWING_MODE_MULTI_WINDOW
 import android.app.WindowConfiguration.WINDOWING_MODE_UNDEFINED
 import android.content.Context
@@ -101,6 +100,7 @@ class AutoTaskStackControllerImpl @Inject constructor(
     }
 
     /** Translates the [AutoTaskStackState] to relevant WM and surface transactions. */
+    // TODO(b/421471212): Move it to a separate class.
     inner class TaskStackStateTranslator {
         // TODO(b/384946072): Move to an interface with 2 implementations, one for root task and
         //  other for TDA
@@ -115,6 +115,21 @@ class AutoTaskStackControllerImpl @Inject constructor(
             }
             wct.setBounds(taskStack.rootTaskInfo.token, state.bounds)
             wct.reorder(taskStack.rootTaskInfo.token, state.childrenTasksVisible)
+        }
+
+        fun applyVisibility(
+            wct: WindowContainerTransaction,
+            taskStack: AutoTaskStack,
+        ) {
+            if (taskStack !is RootTaskStack) {
+                Slog.e(TAG, "Unsupported task stack, unable to convertToWct")
+                return
+            }
+            wct.reorder(
+                taskStack.rootTaskInfo.token,
+                /* onTop = */
+                true
+            )
         }
 
         fun reorderLeash(
@@ -150,6 +165,21 @@ class AutoTaskStackControllerImpl @Inject constructor(
                 taskStack.leash,
                 rootTdaOrganizer.getDisplayAreaLeash(taskStack.displayId)
             )
+        }
+
+        fun setSafeRegionBounds(
+            wct: WindowContainerTransaction,
+            taskStack: AutoTaskStack,
+            safeRegionBounds: Rect
+        ) {
+            if (taskStack !is RootTaskStack) {
+                Slog.e(TAG, "Unsupported task stack, unable to convertToWct")
+                return
+            }
+            if (DBG) {
+                Slog.d(TAG, "Setting safe region bounds $safeRegionBounds on ${taskStack.id}")
+            }
+            wct.setSafeRegionBounds(taskStack.rootTaskInfo.token, safeRegionBounds)
         }
     }
 
@@ -365,14 +395,7 @@ class AutoTaskStackControllerImpl @Inject constructor(
                     }
                     wct.setLaunchRoot(
                         taskStack.rootTaskInfo.token,
-                        intArrayOf(
-                            WINDOWING_MODE_UNDEFINED,
-                            WINDOWING_MODE_MULTI_WINDOW,
-                            // This is required. Tasks will be reparent to default
-                            // TDA when back event in injected in the root task. Without this flag, the
-                            // same app/task may open in TDA instead of root task.
-                            WINDOWING_MODE_FULLSCREEN
-                        ),
+                        intArrayOf(WINDOWING_MODE_UNDEFINED),
                         intArrayOf(
                             ACTIVITY_TYPE_STANDARD,
                             ACTIVITY_TYPE_UNDEFINED,
@@ -507,10 +530,18 @@ class AutoTaskStackControllerImpl @Inject constructor(
                 continue
             }
 
+            // Here want to reconcile those panels which are becoming visible and was not
+            // visible in original request.
+
+            // Check for the change request if the change is for being visible. If not, ignore the
+            // change
             if (!TransitionUtil.isOpeningMode(chg.mode)) {
                 if (DBG) Slog.v(TAG, "${taskInfo.taskId} is not opening type")
                 continue
             }
+
+            // Check if the change was visible in original request, if it is, then there is no
+            // conflict.
             if (requestedTaskStackChanges[taskInfo.parentTaskId] != null &&
                 requestedTaskStackChanges[taskInfo.parentTaskId]!!.childrenTasksVisible
             ) {
@@ -523,14 +554,16 @@ class AutoTaskStackControllerImpl @Inject constructor(
                 }
                 continue
             }
+
+            //  If the change was not visible in original request, but visible in change list,
+            //  it is a conflict, reconcile the unknown changes.
             if (DBG) {
                 Slog.v(TAG, "${taskInfo.taskId} found conflicting task change")
             }
             val taskStackLayer = (_taskStackStateMap[taskInfo.parentTaskId]
                 ?: requestedTaskStackChanges[taskInfo.parentTaskId])
-                ?.layer ?: 1
-            // Use a fixed layer 1 when state is unknown. This is just a placeholder and clients
-            // should anyway see this as a conflict and fire a new transition with the correct layer
+                ?.layer ?: AutoTaskStackController.UNKNOWN_Z_LAYER
+
             changedTaskStacks[taskInfo.parentTaskId] = AutoTaskStackState(
                 bounds = (_taskStackStateMap[taskInfo.parentTaskId]
                     ?: requestedTaskStackChanges[taskInfo.parentTaskId])?.bounds ?: Rect(),
@@ -669,6 +702,40 @@ class AutoTaskStackControllerImpl @Inject constructor(
                                     "not found."
                         )
                 }
+
+                is TaskStackOperation.SetFocusedTaskStack -> {
+                    // Do nothing here. Focus needs to be set in the last.
+                }
+
+                is TaskStackOperation.SetSafeRegionBounds -> {
+                    taskStackMap[operation.taskStackId]?.let { taskStack ->
+                        mTaskStackStateTranslator.setSafeRegionBounds(
+                            wct,
+                            taskStack,
+                            operation.safeRegionBounds
+                        )
+                    }
+                        ?: Slog.w(
+                            TAG, "AutoTaskStack with id ${operation.taskStackId} " +
+                                    "not found."
+                        )
+                }
+            }
+        }
+
+        // process focus task in the end so that it would get the focus.
+        ast.operations.forEach { operation ->
+            if (operation is TaskStackOperation.SetFocusedTaskStack) {
+                taskStackMap[operation.taskStackId]?.let { taskStack ->
+                    mTaskStackStateTranslator.applyVisibility(
+                        wct,
+                        taskStack,
+                    )
+                }
+                    ?: Slog.w(
+                        TAG, "AutoTaskStack with id ${operation.taskStackId} " +
+                                "not found."
+                    )
             }
         }
     }
@@ -761,5 +828,9 @@ class AutoTaskStackControllerImpl @Inject constructor(
         val transaction: AutoTaskStackTransaction,
     ) {
         var isClaimed: IBinder? = null
+    }
+
+    fun getRootTasks(): List<AutoTaskStack> {
+        return taskStackMap.values.toList()
     }
 }

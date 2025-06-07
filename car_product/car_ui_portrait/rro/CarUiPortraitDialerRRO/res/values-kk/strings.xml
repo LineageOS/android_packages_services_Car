@@ -27,7 +27,7 @@
     <string name="call_history_title" msgid="2665386600747022608">"Соңғы қоңыраулар"</string>
     <string name="contacts_title" msgid="1240631807791315855">"Контактілер"</string>
     <string name="favorites_title" msgid="8714933097892306747">"Таңдаулылар"</string>
-    <string name="dialpad_title" msgid="8608224919862313238">"Нөмір теру тақтасы"</string>
+    <string name="dialpad_title" msgid="8608224919862313238">"Теру тақтасы"</string>
     <string name="search_title" msgid="148494519593103958">"Іздеу"</string>
     <string name="setting_title" msgid="3060304451826880116">"Параметрлер"</string>
 </resources>

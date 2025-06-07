@@ -99,6 +99,48 @@ public class AutoSurfaceTransaction {
     }
 
     /**
+     * Sets the task surface visibility.
+     *
+     * @param taskId The taskId whose surface needs to be updated.
+     * @param isVisible The task visibility
+     * @return This {@link AutoSurfaceTransaction} instance for chaining.
+     */
+    public AutoSurfaceTransaction setTaskSurfaceVisibility(int taskId, boolean isVisible) {
+        SurfaceControl surfaceControl = mAutoTaskRepository.getSurfaceControl(taskId);
+        mTransaction.setVisibility(surfaceControl, isVisible);
+        return this;
+    }
+
+    /**
+     * Sets the task surface alpha.
+     *
+     * @param taskId The taskId whose surface needs to be updated.
+     * @param alpha The task surface alpha
+     * @return This {@link AutoSurfaceTransaction} instance for chaining.
+     */
+    public AutoSurfaceTransaction setTaskSurfaceAlpha(int taskId, float alpha) {
+        SurfaceControl surfaceControl = mAutoTaskRepository.getSurfaceControl(taskId);
+        mTransaction.setAlpha(surfaceControl, alpha);
+        return this;
+    }
+
+    /**
+     * Sets the task surface layer.
+     *
+     * This API should only be used for animation during transition. The task surface final layer
+     * is determined based on {@link AutoTaskStackTransaction}
+     *
+     * @param taskId The taskId whose surface needs to be updated.
+     * @param layer The task surface layer
+     * @return This {@link AutoSurfaceTransaction} instance for chaining.
+     */
+    public AutoSurfaceTransaction setTaskSurfaceTransientLayer(int taskId, int layer) {
+        SurfaceControl surfaceControl = mAutoTaskRepository.getSurfaceControl(taskId);
+        mTransaction.setLayer(surfaceControl, layer);
+        return this;
+    }
+
+    /**
      * Sets the task surface position.
      *
      * @param taskId The taskId whose surface needs to be updated.
@@ -141,6 +183,21 @@ public class AutoSurfaceTransaction {
         Objects.requireNonNull(cropBounds);
         SurfaceControl surfaceControl = mAutoTaskRepository.getSurfaceControl(taskId);
         mTransaction.setCrop(surfaceControl, cropBounds);
+        return this;
+    }
+
+    /**
+     * Sets the alpha of an {@link AutoDecor}.
+     * @param autoDecor The {@link AutoDecor} to update.
+     * @param alpha The decor surface alpha.
+     * @return This {@link AutoSurfaceTransaction} instance for chaining.
+     */
+    public AutoSurfaceTransaction setAlpha(@NonNull AutoDecor autoDecor,
+            float alpha) {
+        Objects.requireNonNull(autoDecor);
+        SurfaceControlViewHost viewHost = autoDecor.getViewHost();
+        SurfaceControl surfaceControl = viewHost.getSurfacePackage().getSurfaceControl();
+        mTransaction.setAlpha(surfaceControl, alpha);
         return this;
     }
 

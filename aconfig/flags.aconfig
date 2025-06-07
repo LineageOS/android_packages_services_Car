@@ -194,6 +194,13 @@ flag {
     bug: "401266742"
 }
 
+flag {
+    name: "audio_send_restrictions_to_oem_volume_service"
+    namespace: "car_framework"
+    description: "Controls whether to send audio gain config restrictions to oem volume service"
+    bug: "415404935"
+}
+
 # CarPropertyManager
 flag {
   name: "batched_subscriptions"
