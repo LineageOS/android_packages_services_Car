@@ -16,8 +16,6 @@
 
 package com.android.car.audio;
 
-import static android.car.media.CarAudioManager.PRIMARY_AUDIO_ZONE;
-
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.mockitoSession;
 
@@ -145,8 +143,8 @@ public final class CoreAudioVolumeGroupCallbackTest  extends AbstractExpectableT
         mVolumeGroupCallbackObserver.getValue().onAudioVolumeGroupChanged(
                 VALID_VOLUME_GROUP_ID, TEST_EXPECTED_FLAGS);
 
-        verify(mMockVolumeInfoWrapper).onAudioVolumeGroupChanged(PRIMARY_AUDIO_ZONE,
-                VALID_VOLUME_GROUP_NAME, TEST_EXPECTED_FLAGS);
+        verify(mMockVolumeInfoWrapper).onAudioVolumeGroupChanged(VALID_VOLUME_GROUP_NAME,
+                TEST_EXPECTED_FLAGS);
     }
 
     @Test
@@ -161,8 +159,8 @@ public final class CoreAudioVolumeGroupCallbackTest  extends AbstractExpectableT
         mVolumeGroupCallbackObserver.getValue().onAudioVolumeGroupChanged(
                 VALID_VOLUME_GROUP_ID, flagsFromAudioManager);
 
-        verify(mMockVolumeInfoWrapper).onAudioVolumeGroupChanged(PRIMARY_AUDIO_ZONE,
-                VALID_VOLUME_GROUP_NAME, flagsFromAudioManager | AudioManager.FLAG_SHOW_UI);
+        verify(mMockVolumeInfoWrapper).onAudioVolumeGroupChanged(VALID_VOLUME_GROUP_NAME,
+                flagsFromAudioManager | AudioManager.FLAG_SHOW_UI);
     }
 
     @Test
@@ -176,7 +174,6 @@ public final class CoreAudioVolumeGroupCallbackTest  extends AbstractExpectableT
         mVolumeGroupCallbackObserver.getValue().onAudioVolumeGroupChanged(
                 INVALID_VOLUME_GROUP_ID, TEST_EXPECTED_FLAGS);
 
-        verify(mMockVolumeInfoWrapper, never()).onAudioVolumeGroupChanged(
-                anyInt(), any(), anyInt());
+        verify(mMockVolumeInfoWrapper, never()).onAudioVolumeGroupChanged(any(), anyInt());
     }
 }

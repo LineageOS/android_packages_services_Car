@@ -72,15 +72,28 @@ final class CoreAudioVolumeGroup extends CarVolumeGroup {
                 name, useCarVolumeGroupMute, carActivationVolumeConfig);
         mAudioManager = audioManager;
         mAudioAttributes = CoreAudioHelper.selectAttributesForVolumeGroupName(name);
-        mAmId = CoreAudioHelper.getVolumeGroupIdForAudioAttributes(mAudioAttributes);
+        mAmId = CoreAudioHelper.getVolumeGroupIdForAudioAttributes(mAudioAttributes, zoneId);
         mAmCurrentGainIndex = getAmCurrentGainIndex();
-        mMinGainIndex = mAudioManager.getMinVolumeIndexForAttributes(mAudioAttributes);
-        mMaxGainIndex = mAudioManager.getMaxVolumeIndexForAttributes(mAudioAttributes);
+        mMinGainIndex = mAudioManager.getVolumeGroupMinVolumeIndex(mAmId);
+        mMaxGainIndex = mAudioManager.getVolumeGroupMaxVolumeIndex(mAmId);
         mAmGroupMuted = isAmGroupMuted();
         mAmLastAudibleGainIndex = getAmLastAudibleIndex();
         // Unfortunately core groups do not have defaults
         mDefaultGainIndex = (mMaxGainIndex - mMinGainIndex) / 3 + mMinGainIndex;
         mLimitedGainIndex = mMaxGainIndex;
+    }
+
+    @Override
+    public String toString() {
+        return super.toString()
+                + " mAmId: " + mAmId
+                + " mMaxGainIndex: " + mMaxGainIndex
+                + " mMinGainIndex: " + mMinGainIndex
+                + " mAmLastAudibleGainIndex: " + mAmLastAudibleGainIndex
+                + " mDefaultGainIndex: " + mDefaultGainIndex
+                + " mLimitedGainIndex: " + mLimitedGainIndex
+                + " mAmGroupMuted: " + mAmGroupMuted
+                + " mAudioAttributes: " + mAudioAttributes;
     }
 
     @Override
@@ -97,7 +110,7 @@ final class CoreAudioVolumeGroup extends CarVolumeGroup {
 
     int getAmCurrentGainIndex() {
         synchronized (mLock) {
-            return mAudioManager.getVolumeIndexForAttributes(mAudioAttributes);
+            return mAudioManager.getVolumeGroupVolumeIndex(mAmId);
         }
     }
 
@@ -315,7 +328,7 @@ final class CoreAudioVolumeGroup extends CarVolumeGroup {
         ArraySet<Integer> strategiesSet = new ArraySet<>();
         for (int c = 0; c < audioAttributes.size(); c++) {
             AudioProductStrategy strategy =
-                    getProductStrategyForAudioAttributes(audioAttributes.get(c));
+                    getProductStrategyForAudioAttributes(audioAttributes.get(c), getZoneId());
             if (strategy == null) {
                 continue;
             }
@@ -336,6 +349,7 @@ final class CoreAudioVolumeGroup extends CarVolumeGroup {
     @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     @GuardedBy("mLock")
     protected void dumpLocked(IndentingPrintWriter writer) {
+        writer.printf("AudioManager group ID %d\n", mAmId);
         writer.printf("AudioManager Gain index (current): %d\n", mAmCurrentGainIndex);
     }
 }

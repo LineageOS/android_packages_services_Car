@@ -16,6 +16,8 @@
 
 package com.android.car.audio;
 
+import static android.car.media.CarAudioManager.PRIMARY_AUDIO_ZONE;
+
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
 import android.annotation.IntDef;
@@ -554,13 +556,25 @@ public final class CarAudioContext {
         return getContextForAudioAttribute(attributes);
     }
 
+    @AudioContext int getContextForAttributes(AudioAttributes attributes, int zoneId) {
+        return getContextForAudioAttribute(attributes, zoneId);
+    }
+
     /**
-     * @return Context number for a given audio usage, {@code INVALID} if the given usage is
-     * unrecognized.
+     * @return Context number for a given audio attribute, {@code INVALID} if the given audio
+     * attribute is unrecognized.
      */
     public @AudioContext int getContextForAudioAttribute(AudioAttributes attributes) {
+        return getContextForAudioAttribute(attributes, PRIMARY_AUDIO_ZONE);
+    }
+
+    /**
+     * @return Context number for a given audio attribute and zone, {@code INVALID} if the given
+     * audio attribute is unrecognized.
+     */
+    public @AudioContext int getContextForAudioAttribute(AudioAttributes attributes, int zoneId) {
         if (mUseCoreAudioRouting) {
-            int strategyId = CoreAudioHelper.getStrategyForAudioAttributes(attributes);
+            int strategyId = CoreAudioHelper.getStrategyForAudioAttributes(attributes, zoneId);
             if ((strategyId != CoreAudioHelper.INVALID_STRATEGY)
                     && (mContextToNames.indexOfKey(strategyId) >= 0)) {
                 return strategyId;
@@ -730,6 +744,19 @@ public final class CarAudioContext {
                 continue;
             }
             contextIds.add(mContextToAttributes.keyAt(index));
+        }
+        return contextIds;
+    }
+
+    List<Integer> getAllContextsIdsForZoneId(int zoneId) {
+        List<Integer> contextIds = new ArrayList<>(mContextToAttributes.size());
+        for (int index = 0; index < mContextToAttributes.size(); index++) {
+            int contextId = mContextToAttributes.keyAt(index);
+            if (isInvalidContextId(contextId)
+                    || CoreAudioHelper.getZoneIdForOemContextId(contextId) != zoneId) {
+                continue;
+            }
+            contextIds.add(contextId);
         }
         return contextIds;
     }

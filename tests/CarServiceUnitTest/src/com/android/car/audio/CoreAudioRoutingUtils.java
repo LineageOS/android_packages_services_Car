@@ -16,6 +16,7 @@
 
 package com.android.car.audio;
 
+import static android.car.media.CarAudioManager.PRIMARY_AUDIO_ZONE;
 import static android.hardware.automotive.audiocontrol.VolumeInvocationType.ON_BOOT;
 import static android.media.audio.common.AudioUsage.ALARM;
 import static android.media.audio.common.AudioUsage.ANNOUNCEMENT;
@@ -34,6 +35,7 @@ import static android.media.audio.common.AudioUsage.UNKNOWN;
 import static android.media.audio.common.AudioUsage.VEHICLE_STATUS;
 import static android.media.audio.common.AudioUsage.VOICE_COMMUNICATION;
 import static android.media.audio.common.AudioUsage.VOICE_COMMUNICATION_SIGNALLING;
+import static android.media.audiopolicy.AudioVolumeGroup.DEFAULT_VOLUME_GROUP;
 
 import static com.android.car.audio.CarAudioContext.getAudioAttributeFromUsage;
 import static com.android.car.audio.CarAudioDeviceInfoTestUtils.MEDIA_TEST_DEVICE;
@@ -61,9 +63,17 @@ import static com.android.car.audio.CarAudioTestUtils.createDeviceToContextEntry
 import static com.android.car.audio.CarAudioTestUtils.createListOfHALAudioAttributes;
 import static com.android.car.audio.CarAudioTestUtils.createVolumeActivationConfiguration;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
+import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
 
 import static com.google.common.collect.Sets.newHashSet;
 
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.when;
+
+import android.car.builtin.media.AudioManagerHelper;
+import android.content.Context;
 import android.hardware.automotive.audiocontrol.AudioZone;
 import android.hardware.automotive.audiocontrol.AudioZoneConfig;
 import android.hardware.automotive.audiocontrol.AudioZoneContext;
@@ -71,13 +81,16 @@ import android.hardware.automotive.audiocontrol.AudioZoneContextInfo;
 import android.hardware.automotive.audiocontrol.DeviceToContextEntry;
 import android.hardware.automotive.audiocontrol.VolumeGroupConfig;
 import android.media.AudioAttributes;
+import android.media.IAudioService;
 import android.media.MediaRecorder;
 import android.media.audio.common.AudioContentType;
 import android.media.audio.common.AudioHalProductStrategy;
 import android.media.audio.common.AudioUsage;
 import android.media.audiopolicy.AudioProductStrategy;
 import android.media.audiopolicy.AudioVolumeGroup;
+import android.os.IBinder;
 import android.os.Parcel;
+import android.os.ServiceManager;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 
@@ -168,6 +181,7 @@ public final class CoreAudioRoutingUtils {
         // marshall AudioProductStrategy data
         parcel.writeString(MUSIC_CONTEXT_NAME);
         parcel.writeInt(MUSIC_STRATEGY_ID);
+        parcel.writeInt(PRIMARY_AUDIO_ZONE);
 
         // nb attributes groups
         parcel.writeInt(1);
@@ -207,6 +221,7 @@ public final class CoreAudioRoutingUtils {
         // marshall AudioProductStrategy data
         parcel.writeString(NAV_CONTEXT_NAME);
         parcel.writeInt(NAV_STRATEGY_ID);
+        parcel.writeInt(PRIMARY_AUDIO_ZONE);
 
         // nb attributes groups
         parcel.writeInt(1);
@@ -246,6 +261,7 @@ public final class CoreAudioRoutingUtils {
         // marshall AudioProductStrategy data
         parcel.writeString(OEM_CONTEXT_NAME);
         parcel.writeInt(OEM_STRATEGY_ID);
+        parcel.writeInt(PRIMARY_AUDIO_ZONE);
 
         // nb attributes groups
         parcel.writeInt(1);
@@ -453,6 +469,28 @@ public final class CoreAudioRoutingUtils {
         AudioZoneContext context = new AudioZoneContext();
         context.audioContextInfos = List.of(musicInfo, navInfo, oemInfo);
         return context;
+    }
+
+    /**
+     * Setup core volume groups and product strategies information for core volume and routing
+     * management.
+     */
+    public static void setUpProductStrategies(IAudioService mockedService, IBinder mockedBinder)
+            throws Exception {
+        List<AudioVolumeGroup> groups = getVolumeGroups();
+        doReturn(groups).when(AudioManagerWrapper::getAudioVolumeGroups);
+        for (var group : groups) {
+            for (var attributes : group.getAudioAttributes()) {
+                doReturn(group.getId()).when(() -> AudioManagerHelper
+                        .getVolumeGroupIdForAudioAttributes(eq(attributes)));
+            }
+        }
+        doReturn(DEFAULT_VOLUME_GROUP).when(() -> AudioManagerHelper
+                .getVolumeGroupIdForAudioAttributes(eq(UNSUPPORTED_ATTRIBUTES)));
+        when(mockedBinder.queryLocalInterface(anyString())).thenReturn(mockedService);
+        when(mockedService.getAudioProductStrategies(anyBoolean()))
+                .thenReturn(getProductStrategies());
+        doReturn(mockedBinder).when(() -> ServiceManager.getService(Context.AUDIO_SERVICE));
     }
 
     /**

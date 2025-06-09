@@ -65,7 +65,7 @@ import static com.android.car.audio.CarAudioTestUtils.createVolumeGroupConfig;
 import static com.android.car.audio.CarAudioTestUtils.getTestCarFadeConfiguration;
 import static com.android.car.audio.CarAudioUtils.DEFAULT_ACTIVATION_VOLUME;
 import static com.android.car.audio.CoreAudioRoutingUtils.createCoreHALAudioContext;
-import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
+import static com.android.car.audio.CoreAudioRoutingUtils.setUpProductStrategies;
 
 import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.eq;
@@ -73,6 +73,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import android.car.builtin.media.AudioManagerHelper;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.hardware.automotive.audiocontrol.AudioDeviceConfiguration;
 import android.hardware.automotive.audiocontrol.AudioFadeConfiguration;
@@ -86,6 +87,7 @@ import android.hardware.automotive.audiocontrol.VolumeActivationConfiguration;
 import android.hardware.automotive.audiocontrol.VolumeGroupConfig;
 import android.media.AudioDeviceInfo;
 import android.media.FadeManagerConfiguration;
+import android.media.IAudioService;
 import android.media.audio.common.AudioAttributes;
 import android.media.audio.common.AudioDeviceDescription;
 import android.media.audio.common.AudioDeviceType;
@@ -93,6 +95,9 @@ import android.media.audio.common.AudioPort;
 import android.media.audio.common.AudioPortDeviceExt;
 import android.media.audio.common.AudioPortExt;
 import android.media.audio.common.AudioUsage;
+import android.media.audiopolicy.AudioProductStrategy;
+import android.os.IBinder;
+import android.os.ServiceManager;
 import android.util.ArrayMap;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -154,17 +159,23 @@ public class AudioControlZoneConverterUtilsUnitTest extends AbstractExtendedMock
 
     @Mock
     private AudioManagerWrapper mAudioManager;
+    @Mock
+    private IAudioService mAudioService;
+    @Mock
+    private IBinder mIBinder;
 
     @Override
     protected void onSessionBuilder(CustomMockitoSessionBuilder session) {
         session.spyStatic(CoreAudioHelper.class)
-                .spyStatic(AudioManagerWrapper.class);
+                .spyStatic(AudioManagerWrapper.class)
+                .spyStatic(AudioProductStrategy.class)
+                .spyStatic(AudioManagerHelper.class)
+                .spyStatic(ServiceManager.class);
     }
 
     @Before
-    public void setUp() {
-        doReturn(CoreAudioRoutingUtils.getProductStrategies())
-                .when(AudioManagerWrapper::getAudioProductStrategies);
+    public void setUp() throws Exception {
+        setUpProductStrategies(mAudioService, mIBinder);
         mAddressToCarAudioDeviceInfo = new ArrayMap<>();
         mAddressToCarAudioDeviceInfo.put(PORT_MEDIA_ADDRESS, MEDIA_BUS_DEVICE);
         mAddressToCarAudioDeviceInfo.put(PORT_NAV_ADDRESS, NAV_BUS_DEVICE);

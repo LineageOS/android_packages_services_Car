@@ -16,6 +16,8 @@
 
 package com.android.car.audio;
 
+import static android.car.media.CarAudioManager.PRIMARY_AUDIO_ZONE;
+
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.PRIVATE_CONSTRUCTOR;
 
 import android.annotation.Nullable;
@@ -24,6 +26,7 @@ import android.car.builtin.util.Slogf;
 import android.media.AudioAttributes;
 import android.media.audiopolicy.AudioProductStrategy;
 import android.media.audiopolicy.AudioVolumeGroup;
+import android.media.audiopolicy.Flags;
 import android.util.SparseArray;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
@@ -75,6 +78,9 @@ final class CoreAudioHelper {
      */
     public static int getStrategyForAudioAttributes(AudioAttributes attributes) {
         Preconditions.checkNotNull(attributes, "Audio Attributes can not be null");
+        if (Flags.multiZoneAudio()) {
+            return getStrategyForAudioAttributes(attributes, PRIMARY_AUDIO_ZONE);
+        }
         var productStrategies = getAudioProductStrategies();
         for (int index = 0; index < productStrategies.size(); index++) {
             AudioProductStrategy strategy = productStrategies.get(index);
@@ -83,6 +89,39 @@ final class CoreAudioHelper {
             }
         }
         return INVALID_STRATEGY;
+    }
+
+    public static int getZoneIdForOemContextId(int oemContextId) {
+        if (Flags.multiZoneAudio()) {
+            var productStrategies = getAudioProductStrategies();
+            for (int index = 0; index < productStrategies.size(); index++) {
+                AudioProductStrategy strategy = productStrategies.get(index);
+                if (strategy.getId() == oemContextId) {
+                    return strategy.getZoneId();
+                }
+            }
+        }
+        return PRIMARY_AUDIO_ZONE;
+    }
+
+    /**
+     * Identifies the {@link AudioProductStrategy} supporting the given {@link AudioAttributes}
+     * and zoneId.
+     * @param zoneId to be considered.
+     * @param attributes to be considered.
+     *
+     * @return the supporting product strategy id, or {@code INVALID_STRATEGY} if no valid product
+     * strategy is found for the audio attributes and zone
+     */
+    public static int getStrategyForAudioAttributes(AudioAttributes attributes, int zoneId) {
+        Preconditions.checkNotNull(attributes, "Audio Attributes can not be null");
+        if (Flags.multiZoneAudio()) {
+            AudioProductStrategy aps =
+                    AudioProductStrategy.getAudioProductStrategyForAudioAttributes(attributes,
+                            zoneId, /* fallbackOnDefault= */ false);
+            return aps != null ? aps.getId() : INVALID_STRATEGY;
+        }
+        return getStrategyForAudioAttributes(attributes);
     }
 
     public static int getStrategyForContextName(String contextName) {
@@ -108,24 +147,44 @@ final class CoreAudioHelper {
      * strategy supporting {@code DEFAULT_ATTRIBUTES}, {@code INVALID_STRATEGY} id otherwise.
      */
     public static int getStrategyForAudioAttributesOrDefault(AudioAttributes attributes) {
+        if (Flags.multiZoneAudio()) {
+            return getStrategyForAudioAttributesOrDefault(attributes, PRIMARY_AUDIO_ZONE);
+        }
         int strategyId = getStrategyForAudioAttributes(attributes);
         return strategyId == INVALID_STRATEGY
                 ? getStrategyForAudioAttributes(DEFAULT_ATTRIBUTES) : strategyId;
     }
 
+    /**
+     * Identifies the {@link AudioProductStrategy} supporting the given {@link AudioAttributes}
+     * and fallbacking on the default strategy supporting {@code DEFAULT_ATTRIBUTES} otherwise.
+     *
+     * @param attributes {@link AudioAttributes} supported by the
+     * {@link AudioProductStrategy} to look for.
+     * @return the id of the {@link AudioProductStrategy} supporting the
+     * given {@link AudioAttributes}, otherwise the id of the default strategy, aka the
+     * strategy supporting {@code DEFAULT_ATTRIBUTES}, {@code INVALID_STRATEGY} id otherwise.
+     */
+    public static int getStrategyForAudioAttributesOrDefault(AudioAttributes attributes,
+            int zoneId) {
+        if (Flags.multiZoneAudio()) {
+            AudioProductStrategy aps =
+                    AudioProductStrategy.getAudioProductStrategyForAudioAttributes(attributes,
+                            zoneId, /* fallbackOnDefault= */ true);
+            return aps != null ? aps.getId() : INVALID_STRATEGY;
+        }
+        return getStrategyForAudioAttributesOrDefault(attributes);
+    }
+
     @Nullable
     static AudioProductStrategy getProductStrategyForAudioAttributes(
-            AudioAttributes attributes) {
+            AudioAttributes attributes, int zoneId) {
         Preconditions.checkNotNull(attributes, "Audio attributes can not be null");
-        var productStrategies = getAudioProductStrategies();
-        for (int index = 0; index < productStrategies.size(); index++) {
-            AudioProductStrategy strategy = productStrategies.get(index);
-            if (!strategy.supportsAudioAttributes(attributes)) {
-                continue;
-            }
-            return strategy;
+        if (Flags.multiZoneAudio()) {
+            return AudioProductStrategy.getAudioProductStrategyForAudioAttributes(attributes,
+                    zoneId, /* fallbackOnDefault= */ false);
         }
-        return null;
+        return getStrategy(getStrategyForAudioAttributes(attributes));
     }
 
     /**
@@ -228,8 +287,23 @@ final class CoreAudioHelper {
      */
     @Nullable
     public static String getVolumeGroupNameForAudioAttributes(AudioAttributes attributes) {
+        return getVolumeGroupNameForAudioAttributes(attributes, PRIMARY_AUDIO_ZONE);
+    }
+
+    /**
+     * Gets the name of the {@link AudioVolumeGroup} supporting given {@link AudioAttributes},
+     * {@code null} is returned if none is found.
+     *
+     * @param attributes {@link AudioAttributes} supported by the group to look for.
+     *
+     * @return the name of the {@link AudioVolumeGroup} supporting the given audio attributes,
+     * {@code null} otherwise.
+     */
+    @Nullable
+    public static String getVolumeGroupNameForAudioAttributes(AudioAttributes attributes,
+                                                              int zoneId) {
         Preconditions.checkNotNull(attributes, "Audio Attributes can not be null");
-        int volumeGroupId = getVolumeGroupIdForAudioAttributes(attributes);
+        int volumeGroupId = getVolumeGroupIdForAudioAttributes(attributes, zoneId);
         return volumeGroupId != AudioVolumeGroup.DEFAULT_VOLUME_GROUP
                 ? getVolumeGroupNameFromCoreId(volumeGroupId) : null;
     }
@@ -263,17 +337,25 @@ final class CoreAudioHelper {
      * if found, {@link #INVALID_GROUP_ID} otherwise.
      */
     public static int getVolumeGroupIdForAudioAttributes(AudioAttributes attributes) {
+        return getVolumeGroupIdForAudioAttributes(attributes, PRIMARY_AUDIO_ZONE);
+    }
+
+    /**
+     * Gets the {@link AudioVolumeGroup} id associated to the given {@link AudioAttributes}.
+     *
+     * @param attributes {@link AudioAttributes} to be considered
+     * @return the id of the {@link AudioVolumeGroup} supporting the given {@link AudioAttributes}
+     * if found, {@link #INVALID_GROUP_ID} otherwise.
+     */
+    public static int getVolumeGroupIdForAudioAttributes(AudioAttributes attributes, int zoneId) {
         Preconditions.checkNotNull(attributes, "Audio Attributes can not be null");
-        var productStrategies = getAudioProductStrategies();
-        for (int index = 0; index < productStrategies.size(); index++) {
-            AudioProductStrategy strategy = productStrategies.get(index);
-            int volumeGroupId =
-                    AudioManagerHelper.getVolumeGroupIdForAudioAttributes(strategy, attributes);
-            Slogf.d(TAG, "getVolumeGroupIdForAudioAttributes %s %s,", volumeGroupId, strategy);
-            if (volumeGroupId != AudioVolumeGroup.DEFAULT_VOLUME_GROUP) {
-                return volumeGroupId;
-            }
+        int groupId;
+        if (Flags.multiZoneAudio()) {
+            groupId = AudioProductStrategy.getVolumeGroupIdForAudioAttributes(attributes, zoneId,
+                    /* fallbackOnDefault= */ false);
+        } else {
+            groupId = AudioManagerHelper.getVolumeGroupIdForAudioAttributes(attributes);
         }
-        return INVALID_GROUP_ID;
+        return groupId != AudioVolumeGroup.DEFAULT_VOLUME_GROUP ? groupId : INVALID_GROUP_ID;
     }
 }
