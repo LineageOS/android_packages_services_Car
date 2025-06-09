@@ -15,11 +15,16 @@ package {
     default_applicable_licenses: ["Android-Apache-2.0"],
 }
 
-runtime_resource_overlay {
+android_app {
     name: "CarNotificationDewdRRO",
     resource_dirs: ["res"],
     certificate: "platform",
+    platform_apis: true,
     static_libs: [
         "CarUiPortraitNotificationRROResLib",
     ],
+    libs: [
+        "token-shared-lib-prebuilt",
+    ],
+    enforce_uses_libs: false,
 }
