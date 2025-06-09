@@ -70,7 +70,6 @@
     <item target="dimen/action_button_min_width" value="@dimen/action_button_min_width" />
     <item target="dimen/action_button_padding_bottom" value="@dimen/action_button_padding_bottom"/>
     <item target="dimen/action_button_padding_top" value="@dimen/action_button_padding_top"/>
-    <item target="dimen/action_button_radius" value="@dimen/action_button_radius" />
     <item target="dimen/action_button_spacing_start" value="@dimen/action_button_spacing_start" />
     <item target="dimen/action_view_left_margin" value="@dimen/action_view_left_margin" />
     <item target="dimen/action_view_right_margin" value="@dimen/action_view_right_margin" />
@@ -97,7 +96,6 @@
     <item target="dimen/notification_card_footer_height" value="@dimen/notification_card_footer_height"/>
     <item target="dimen/notification_card_header_height" value="@dimen/notification_card_header_height"/>
     <item target="dimen/notification_card_margin_horizontal" value="@dimen/notification_card_margin_horizontal"/>
-    <item target="dimen/notification_card_radius" value="@dimen/notification_card_radius"/>
     <item target="dimen/notification_headsup_card_margin_horizontal" value="@dimen/notification_headsup_card_margin_horizontal" />
     <item target="dimen/notification_heads_up_icon_size" value="@dimen/notification_heads_up_icon_size" />
     <item target="dimen/notification_list_divider_height" value="@dimen/notification_list_divider_height" />
