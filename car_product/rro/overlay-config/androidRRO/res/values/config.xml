@@ -236,4 +236,7 @@
      <!-- True if the device requires AppWidgetService even if it does not have
           the PackageManager.FEATURE_APP_WIDGETS feature. -->
     <bool name="config_enableAppWidgetService">true</bool>
+
+    <!-- Whether to disallow the removal of the last admin user on device. -->
+    <bool name="config_disallowRemovingLastAdminUser">false</bool>
 </resources>
