@@ -26,6 +26,10 @@ android_app {
     static_libs: [
         "CarUiPortraitNotificationRROResLib",
     ],
+    libs: [
+        "token-shared-lib-prebuilt",
+    ],
+    enforce_uses_libs: false,
 }
 
 android_library {
@@ -39,5 +43,10 @@ android_library {
     static_libs: [
         "CarNotificationLib",
         "car-portrait-ui-common",
+        "oem-token-lib",
     ],
+    libs: [
+        "token-shared-lib-prebuilt",
+    ],
+    enforce_uses_libs: false,
 }
