@@ -103,7 +103,6 @@ import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Binder;
 import android.os.Handler;
@@ -130,7 +129,6 @@ import android.view.Display;
 import com.android.car.BuiltinPackageDependency;
 import com.android.car.CarLocalServices;
 import com.android.car.CarUxRestrictionsManagerService;
-import com.android.car.R;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.NotificationHelperBase;
 import com.android.car.internal.dep.Trace;
@@ -314,7 +312,9 @@ public final class IoOveruseHandler {
 
     public IoOveruseHandler(Context context, Context builtinPackageContext,
             CarWatchdogDaemonHelper daemonHelper, PackageInfoHandler packageInfoHandler,
-            WatchdogStorage watchdogStorage, TimeSource timeSource, Handler serviceHandler,
+            WatchdogStorage watchdogStorage, TimeSource timeSource, int uidIoUsageSummaryTopCount,
+            int ioUsageSummaryMinSystemTotalWrittenBytes, int packageKillableStateResetDays,
+            int recurringOverusePeriodInDays, int recurringOveruseTimes,  Handler serviceHandler,
             CarStatsLogWrapper carStatsLogWrapper) {
         mContext = context;
         mBuiltinPackageContext = builtinPackageContext;
@@ -326,15 +326,11 @@ public final class IoOveruseHandler {
         mOveruseConfigurationCache = new OveruseConfigurationCache();
         mTimeSource = timeSource;
         mCarStatsLogWrapper = carStatsLogWrapper;
-        Resources resources = mContext.getResources();
-        mUidIoUsageSummaryTopCount = resources.getInteger(R.integer.uidIoUsageSummaryTopCount);
-        mIoUsageSummaryMinSystemTotalWrittenBytes =
-                resources.getInteger(R.integer.ioUsageSummaryMinSystemTotalWrittenBytes);
-        mPackageKillableStateResetDays =
-                resources.getInteger(R.integer.watchdogUserPackageSettingsResetDays);
-        mRecurringOverusePeriodInDays =
-                resources.getInteger(R.integer.recurringResourceOverusePeriodInDays);
-        mRecurringOveruseTimes = resources.getInteger(R.integer.recurringResourceOveruseTimes);
+        mUidIoUsageSummaryTopCount = uidIoUsageSummaryTopCount;
+        mIoUsageSummaryMinSystemTotalWrittenBytes = ioUsageSummaryMinSystemTotalWrittenBytes;
+        mPackageKillableStateResetDays = packageKillableStateResetDays;
+        mRecurringOverusePeriodInDays = recurringOverusePeriodInDays;
+        mRecurringOveruseTimes = recurringOveruseTimes;
         mResourceOveruseNotificationBaseId =
                 NotificationHelperBase.RESOURCE_OVERUSE_NOTIFICATION_BASE_ID;
         mResourceOveruseNotificationMaxOffset =

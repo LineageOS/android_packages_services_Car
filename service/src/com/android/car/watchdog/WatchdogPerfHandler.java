@@ -40,7 +40,6 @@ import static android.os.Process.INVALID_UID;
 import static android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS;
 
 import static com.android.car.CarServiceUtils.getContentResolverForUser;
-import static com.android.car.CarStatsLog.CAR_WATCHDOG_IO_OVERUSE_STATS_REPORTED;
 import static com.android.car.CarStatsLog.CAR_WATCHDOG_KILL_STATS_REPORTED;
 import static com.android.car.CarStatsLog.CAR_WATCHDOG_KILL_STATS_REPORTED__KILL_REASON__KILLED_ON_IO_OVERUSE;
 import static com.android.car.CarStatsLog.CAR_WATCHDOG_KILL_STATS_REPORTED__SYSTEM_STATE__GARAGE_MODE;
@@ -107,7 +106,6 @@ import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Binder;
 import android.os.Handler;
-import android.os.IBinder;
 import android.os.Looper;
 import android.os.RemoteException;
 import android.os.SystemClock;
@@ -166,7 +164,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 
 /**
  * Handles system resource performance monitoring module.
@@ -233,6 +230,7 @@ public final class WatchdogPerfHandler implements WatchdogPerfHandlerInterface {
     private final int mResourceOveruseNotificationMaxOffset;
     private final TimeSource mTimeSource;
     private final CarStatsLogWrapper mCarStatsLogWrapper;
+    private final IoOveruseHandler mIoOveruseHandler;
     private final Object mLock = new Object();
     /**
      * Tracks user packages' resource usage. When cache is updated, call
@@ -240,12 +238,6 @@ public final class WatchdogPerfHandler implements WatchdogPerfHandlerInterface {
      */
     @GuardedBy("mLock")
     private final ArrayMap<String, PackageResourceUsage> mUsageByUserPackage = new ArrayMap<>();
-    @GuardedBy("mLock")
-    private final SparseArray<ArrayList<ResourceOveruseListenerInfo>> mOveruseListenerInfosByUid =
-            new SparseArray<>();
-    @GuardedBy("mLock")
-    private final SparseArray<ArrayList<ResourceOveruseListenerInfo>>
-            mOveruseSystemListenerInfosByUid = new SparseArray<>();
     /**
      * Default killable state for packages. Updated only for {@link UserHandle#ALL} user handle.
      * When cache is updated, call {@link WatchdogStorage#markDirty} to notify database is out of
@@ -327,6 +319,9 @@ public final class WatchdogPerfHandler implements WatchdogPerfHandlerInterface {
         mTimeSource = timeSource;
         mCarStatsLogWrapper = carStatsLogWrapper;
         Resources resources = mContext.getResources();
+        // TODO(b/400460188): Store the resource values in constructor local vars and pass them
+        //  only to the IoOveruseHandler constructor once all usages in WatchdogPerfHandler is
+        //  removed.
         mUidIoUsageSummaryTopCount = resources.getInteger(R.integer.uidIoUsageSummaryTopCount);
         mIoUsageSummaryMinSystemTotalWrittenBytes =
                 resources.getInteger(R.integer.ioUsageSummaryMinSystemTotalWrittenBytes);
@@ -335,6 +330,11 @@ public final class WatchdogPerfHandler implements WatchdogPerfHandlerInterface {
         mRecurringOverusePeriodInDays =
                 resources.getInteger(R.integer.recurringResourceOverusePeriodInDays);
         mRecurringOveruseTimes = resources.getInteger(R.integer.recurringResourceOveruseTimes);
+        mIoOveruseHandler = new IoOveruseHandler(context, mBuiltinPackageContext, daemonHelper,
+                packageInfoHandler, watchdogStorage, timeSource, mUidIoUsageSummaryTopCount,
+                mIoUsageSummaryMinSystemTotalWrittenBytes, mPackageKillableStateResetDays,
+                mRecurringOverusePeriodInDays, mRecurringOveruseTimes, serviceHandler,
+                mCarStatsLogWrapper);
         mResourceOveruseNotificationBaseId =
                 NotificationHelperBase.RESOURCE_OVERUSE_NOTIFICATION_BASE_ID;
         mResourceOveruseNotificationMaxOffset =
@@ -463,11 +463,9 @@ public final class WatchdogPerfHandler implements WatchdogPerfHandlerInterface {
 
             dumpUsageByUserPackageLocked(proto);
 
-            dumpResourceOveruseListenerInfosLocked(mOveruseListenerInfosByUid,
-                    PerformanceDump.OVERUSE_LISTENER_INFOS, proto);
-
-            dumpResourceOveruseListenerInfosLocked(mOveruseSystemListenerInfosByUid,
-                    PerformanceDump.SYSTEM_OVERUSE_LISTENER_INFOS, proto);
+            // TODO(b/400460188): mOveruseListenerInfosByUid and mOveruseSystemListenerInfosByUid
+            // will be dumped from IoOveruseHandler.dump after the current method starts to forward
+            // the dump call to IoOveruseHandler.dump.
 
             for (int i = 0; i < mDefaultNotKillableGenericPackages.size(); i++) {
                 proto.write(PerformanceDump.DEFAULT_NOT_KILLABLE_GENERIC_PACKAGES,
@@ -667,22 +665,13 @@ public final class WatchdogPerfHandler implements WatchdogPerfHandlerInterface {
     public void addResourceOveruseListener(
             @CarWatchdogManager.ResourceOveruseFlag int resourceOveruseFlag,
             @NonNull IResourceOveruseListener listener) {
-        Objects.requireNonNull(listener, "Listener must be non-null");
-        Preconditions.checkArgument((resourceOveruseFlag > 0),
-                "Must provide valid resource overuse flag");
-        synchronized (mLock) {
-            addResourceOveruseListenerLocked(resourceOveruseFlag, listener,
-                    mOveruseListenerInfosByUid);
-        }
+        mIoOveruseHandler.addResourceOveruseListener(resourceOveruseFlag, listener);
     }
 
     /** Removes the previously added resource overuse listener. */
     @Override
     public void removeResourceOveruseListener(@NonNull IResourceOveruseListener listener) {
-        Objects.requireNonNull(listener, "Listener must be non-null");
-        synchronized (mLock) {
-            removeResourceOveruseListenerLocked(listener, mOveruseListenerInfosByUid);
-        }
+        mIoOveruseHandler.removeResourceOveruseListener(listener);
     }
 
     /** Adds the resource overuse system listener. */
@@ -690,22 +679,13 @@ public final class WatchdogPerfHandler implements WatchdogPerfHandlerInterface {
     public void addResourceOveruseListenerForSystem(
             @CarWatchdogManager.ResourceOveruseFlag int resourceOveruseFlag,
             @NonNull IResourceOveruseListener listener) {
-        Objects.requireNonNull(listener, "Listener must be non-null");
-        Preconditions.checkArgument((resourceOveruseFlag > 0),
-                "Must provide valid resource overuse flag");
-        synchronized (mLock) {
-            addResourceOveruseListenerLocked(resourceOveruseFlag, listener,
-                    mOveruseSystemListenerInfosByUid);
-        }
+        mIoOveruseHandler.addResourceOveruseListenerForSystem(resourceOveruseFlag, listener);
     }
 
     /** Removes the previously added resource overuse system listener. */
     @Override
     public void removeResourceOveruseListenerForSystem(@NonNull IResourceOveruseListener listener) {
-        Objects.requireNonNull(listener, "Listener must be non-null");
-        synchronized (mLock) {
-            removeResourceOveruseListenerLocked(listener, mOveruseSystemListenerInfosByUid);
-        }
+        mIoOveruseHandler.removeResourceOveruseListenerForSystem(listener);
     }
 
     /** Sets whether or not a package is killable on resource overuse. */
@@ -966,77 +946,7 @@ public final class WatchdogPerfHandler implements WatchdogPerfHandlerInterface {
     /** Processes the latest I/O overuse stats */
     @Override
     public void latestIoOveruseStats(List<PackageIoOveruseStats> packageIoOveruseStats) {
-        // Long running operation, such as DB operations, must not be performed on binder threads,
-        // even if they are one way binder call, because it may block other one way binder threads.
-        // Hence, we handle the latest I/O overuse stats on the service handler thread.
-        mServiceHandler.post(() -> latestIoOveruseStatsInternal(packageIoOveruseStats));
-    }
-
-    private void latestIoOveruseStatsInternal(List<PackageIoOveruseStats> packageIoOveruseStats) {
-        Trace.beginSection("WdPerfHandler.latestIoOveruseStatsInternal");
-        int[] uids = new int[packageIoOveruseStats.size()];
-        for (int i = 0; i < packageIoOveruseStats.size(); ++i) {
-            uids[i] = packageIoOveruseStats.get(i).uid;
-        }
-        SparseArray<String> genericPackageNamesByUid = mPackageInfoHandler.getNamesForUids(uids);
-        ArraySet<String> overusingUserPackageKeys = new ArraySet<>();
-        checkAndHandleDateChange();
-        if (genericPackageNamesByUid.size() > 0) {
-            mWatchdogStorage.markDirty();
-        }
-        synchronized (mLock) {
-            for (int i = 0; i < packageIoOveruseStats.size(); ++i) {
-                PackageIoOveruseStats stats = packageIoOveruseStats.get(i);
-                String genericPackageName = genericPackageNamesByUid.get(stats.uid);
-                if (genericPackageName == null) {
-                    continue;
-                }
-                PackageResourceUsage usage = cacheAndFetchUsageLocked(stats.uid, genericPackageName,
-                        stats.ioOveruseStats, stats.forgivenWriteBytes);
-                if (stats.shouldNotify) {
-                    /*
-                     * Packages that exceed the warn threshold percentage should be notified as well
-                     * and only the daemon is aware of such packages. Thus the flag is used to
-                     * indicate which packages should be notified.
-                     */
-                    ResourceOveruseStats resourceOveruseStats =
-                            usage.getResourceOveruseStatsBuilder().setIoOveruseStats(
-                                    usage.getIoOveruseStats()).build();
-                    notifyResourceOveruseStatsLocked(stats.uid, resourceOveruseStats);
-                }
-                if (!usage.ioUsage.isExceedingThreshold()) {
-                    continue;
-                }
-                overusingUserPackageKeys.add(usage.getUniqueId());
-                if (usage.getKillableState() == KILLABLE_STATE_NEVER) {
-                    continue;
-                }
-                if (usage.ioUsage.getNotForgivenOveruses() > mRecurringOveruseTimes) {
-                    String id = usage.getUniqueId();
-                    mActionableUserPackages.add(id);
-                    mUserNotifiablePackages.add(id);
-                    usage.ioUsage.forgiveOveruses();
-                }
-            }
-            if ((mCurrentUxState != UX_STATE_NO_DISTRACTION && !mUserNotifiablePackages.isEmpty())
-                    // TODO(b/200599130): When resource overusing background apps are killed
-                    //  immediately, update the below check to allow posting
-                    //  {@code performOveruseHandlingLocked} immediately.
-                    || (mCurrentUxState == UX_STATE_NO_INTERACTION
-                    && !mActionableUserPackages.isEmpty())) {
-                mMainHandler.postDelayed(() -> {
-                    synchronized (mLock) {
-                        performOveruseHandlingLocked();
-                    }}, mOveruseHandlingDelayMills);
-            }
-        }
-        if (!overusingUserPackageKeys.isEmpty()) {
-            pushIoOveruseMetrics(overusingUserPackageKeys);
-        }
-        if (DEBUG) {
-            Slogf.d(TAG, "Processed latest I/O overuse stats");
-        }
-        Trace.endSection();
+        mIoOveruseHandler.latestIoOveruseStats(packageIoOveruseStats);
     }
 
     /** Resets the resource overuse settings and stats for the given generic package names. */
@@ -1603,87 +1513,6 @@ public final class WatchdogPerfHandler implements WatchdogPerfHandlerInterface {
         return killableState;
     }
 
-    @GuardedBy("mLock")
-    private void checkAndResetUserPackageKillableStatesLocked() {
-        ZonedDateTime currentDate = mTimeSource.getCurrentDate();
-        Instant killableStateResetDate =
-                currentDate.minusDays(mPackageKillableStateResetDays).toInstant();
-        for (int i = 0; i < mUsageByUserPackage.size(); i++) {
-            PackageResourceUsage usage = mUsageByUserPackage.valueAt(i);
-            Instant lastModifiedDate =
-                    usage.getKillableStateLastModifiedDate().toInstant();
-            if (usage.getKillableState() != KILLABLE_STATE_NO
-                    || lastModifiedDate.compareTo(killableStateResetDate) > 0) {
-                continue;
-            }
-            usage.verifyAndSetKillableState(/* isKillable= */ true, currentDate);
-            mWatchdogStorage.markDirty();
-            Slogf.i(TAG, "Reset killable state for package %s for user %d",
-                    usage.genericPackageName, usage.userId);
-        }
-    }
-
-    @GuardedBy("mLock")
-    private void notifyResourceOveruseStatsLocked(int uid,
-            ResourceOveruseStats resourceOveruseStats) {
-        String genericPackageName = resourceOveruseStats.getPackageName();
-        ArrayList<ResourceOveruseListenerInfo> listenerInfos = mOveruseListenerInfosByUid.get(uid);
-        if (listenerInfos != null) {
-            for (int i = 0; i < listenerInfos.size(); ++i) {
-                listenerInfos.get(i).notifyListener(
-                        FLAG_RESOURCE_OVERUSE_IO, uid, genericPackageName, resourceOveruseStats);
-            }
-        }
-        for (int i = 0; i < mOveruseSystemListenerInfosByUid.size(); ++i) {
-            ArrayList<ResourceOveruseListenerInfo> systemListenerInfos =
-                    mOveruseSystemListenerInfosByUid.valueAt(i);
-            for (int j = 0; j < systemListenerInfos.size(); ++j) {
-                systemListenerInfos.get(j).notifyListener(
-                        FLAG_RESOURCE_OVERUSE_IO, uid, genericPackageName, resourceOveruseStats);
-            }
-        }
-        if (DEBUG) {
-            Slogf.d(TAG, "Notified resource overuse stats to listening applications");
-        }
-    }
-
-    private void checkAndHandleDateChange() {
-        synchronized (mLock) {
-            ZonedDateTime currentDate = mTimeSource.getCurrentDate();
-            if (currentDate.equals(mLatestStatsReportDate)) {
-                return;
-            }
-            mLatestStatsReportDate = currentDate;
-            checkAndResetUserPackageKillableStatesLocked();
-        }
-        writeToDatabase();
-        synchronized (mLock) {
-            for (int i = 0; i < mUsageByUserPackage.size(); i++) {
-                mUsageByUserPackage.valueAt(i).resetStats();
-            }
-        }
-        syncHistoricalNotForgivenOveruses();
-        if (DEBUG) {
-            Slogf.d(TAG, "Handled date change successfully");
-        }
-    }
-
-    @GuardedBy("mLock")
-    private PackageResourceUsage cacheAndFetchUsageLocked(int uid, String genericPackageName,
-            android.automotive.watchdog.IoOveruseStats internalStats,
-            android.automotive.watchdog.PerStateBytes forgivenWriteBytes) {
-        int userId = UserHandle.getUserHandleForUid(uid).getIdentifier();
-        String key = getUserPackageUniqueId(userId, genericPackageName);
-        int defaultKillableState = getDefaultKillableStateLocked(genericPackageName);
-        PackageResourceUsage usage = mUsageByUserPackage.get(key);
-        if (usage == null) {
-            usage = new PackageResourceUsage(userId, genericPackageName, defaultKillableState);
-        }
-        usage.update(uid, internalStats, forgivenWriteBytes, defaultKillableState);
-        mUsageByUserPackage.put(key, usage);
-        return usage;
-    }
-
     private IoOveruseStats getIoOveruseStatsForPeriod(int userId, String genericPackageName,
             @CarWatchdogManager.StatsPeriod int maxStatsPeriod) {
         synchronized (mLock) {
@@ -1733,79 +1562,6 @@ public final class WatchdogPerfHandler implements WatchdogPerfHandlerInterface {
         statsBuilder.setKillableOnOveruse(currentStats.isKillableOnOveruse());
         statsBuilder.setRemainingWriteBytes(currentStats.getRemainingWriteBytes());
         return statsBuilder.build();
-    }
-
-    @GuardedBy("mLock")
-    private void addResourceOveruseListenerLocked(
-            @CarWatchdogManager.ResourceOveruseFlag int resourceOveruseFlag,
-            @NonNull IResourceOveruseListener listener,
-            SparseArray<ArrayList<ResourceOveruseListenerInfo>> listenerInfosByUid) {
-        int callingPid = Binder.getCallingPid();
-        int callingUid = Binder.getCallingUid();
-        boolean isListenerForSystem = listenerInfosByUid == mOveruseSystemListenerInfosByUid;
-        String listenerType = isListenerForSystem ? "resource overuse listener for system" :
-                "resource overuse listener";
-
-        IBinder binder = listener.asBinder();
-        ArrayList<ResourceOveruseListenerInfo> listenerInfos = listenerInfosByUid.get(callingUid);
-        if (listenerInfos == null) {
-            listenerInfos = new ArrayList<>();
-            listenerInfosByUid.put(callingUid, listenerInfos);
-        }
-        for (int i = 0; i < listenerInfos.size(); ++i) {
-            if (listenerInfos.get(i).listener.asBinder() == binder) {
-                throw new IllegalStateException(
-                        "Cannot add " + listenerType + " as it is already added");
-            }
-        }
-
-        ResourceOveruseListenerInfo listenerInfo = new ResourceOveruseListenerInfo(listener,
-                resourceOveruseFlag, callingPid, callingUid, isListenerForSystem);
-        try {
-            listenerInfo.linkToDeath();
-        } catch (RemoteException e) {
-            Slogf.w(TAG, "Cannot add %s: linkToDeath to listener failed", listenerType);
-            return;
-        }
-        listenerInfos.add(listenerInfo);
-        if (DEBUG) {
-            Slogf.d(TAG, "The %s (pid: %d, uid: %d) is added", listenerType,
-                    callingPid, callingUid);
-        }
-    }
-
-    @GuardedBy("mLock")
-    private void removeResourceOveruseListenerLocked(@NonNull IResourceOveruseListener listener,
-            SparseArray<ArrayList<ResourceOveruseListenerInfo>> listenerInfosByUid) {
-        int callingUid = Binder.getCallingUid();
-        String listenerType = listenerInfosByUid == mOveruseSystemListenerInfosByUid
-                ? "resource overuse system listener" : "resource overuse listener";
-        ArrayList<ResourceOveruseListenerInfo> listenerInfos = listenerInfosByUid.get(callingUid);
-        if (listenerInfos == null) {
-            Slogf.w(TAG, "Cannot remove the %s: it has not been registered before", listenerType);
-            return;
-        }
-        IBinder binder = listener.asBinder();
-        ResourceOveruseListenerInfo cachedListenerInfo = null;
-        for (int i = 0; i < listenerInfos.size(); ++i) {
-            if (listenerInfos.get(i).listener.asBinder() == binder) {
-                cachedListenerInfo = listenerInfos.get(i);
-                break;
-            }
-        }
-        if (cachedListenerInfo == null) {
-            Slogf.w(TAG, "Cannot remove the %s: it has not been registered before", listenerType);
-            return;
-        }
-        cachedListenerInfo.unlinkToDeath();
-        listenerInfos.remove(cachedListenerInfo);
-        if (listenerInfos.isEmpty()) {
-            listenerInfosByUid.remove(callingUid);
-        }
-        if (DEBUG) {
-            Slogf.d(TAG, "The %s (pid: %d, uid: %d) is removed", listenerType,
-                    cachedListenerInfo.pid, cachedListenerInfo.uid);
-        }
     }
 
     @GuardedBy("mLock")
@@ -2191,25 +1947,6 @@ public final class WatchdogPerfHandler implements WatchdogPerfHandlerInterface {
                 TextUtils.join(PACKAGES_DISABLED_ON_RESOURCE_OVERUSE_SEPARATOR, packages);
     }
 
-    private void pushIoOveruseMetrics(ArraySet<String> userPackageKeys) {
-        SparseArray<AtomsProto.CarWatchdogIoOveruseStats> statsByUid = new SparseArray<>();
-        synchronized (mLock) {
-            for (int i = 0; i < userPackageKeys.size(); ++i) {
-                String key = userPackageKeys.valueAt(i);
-                PackageResourceUsage usage = mUsageByUserPackage.get(key);
-                if (usage == null) {
-                    Slogf.w(TAG, "Missing usage stats for user package key %s", key);
-                    continue;
-                }
-                statsByUid.put(usage.getUid(), constructCarWatchdogIoOveruseStatsLocked(usage));
-            }
-        }
-        for (int i = 0; i < statsByUid.size(); ++i) {
-            mCarStatsLogWrapper.write(CAR_WATCHDOG_IO_OVERUSE_STATS_REPORTED, statsByUid.keyAt(i),
-                    statsByUid.valueAt(i).toByteArray());
-        }
-    }
-
     private void pushIoOveruseKillMetrics(ArraySet<String> userPackageKeys) {
         int systemState;
         SparseArray<AtomsProto.CarWatchdogIoOveruseStats> statsByUid = new SparseArray<>();
@@ -2533,34 +2270,6 @@ public final class WatchdogPerfHandler implements WatchdogPerfHandlerInterface {
         } catch (PackageManager.NameNotFoundException e) {
             Slogf.e(TAG, "Package %s for user %d is not found", packageName, userId);
             return INVALID_UID;
-        }
-    }
-
-    @GuardedBy("mLock")
-    private void dumpResourceOveruseListenerInfosLocked(
-            SparseArray<ArrayList<ResourceOveruseListenerInfo>> overuseListenerInfos,
-            long fieldId, ProtoOutputStream proto) {
-        for (int i = 0; i < overuseListenerInfos.size(); i++) {
-            ArrayList<ResourceOveruseListenerInfo> resourceOveruseListenerInfos =
-                    overuseListenerInfos.valueAt(i);
-            for (int j = 0; j < resourceOveruseListenerInfos.size(); j++) {
-                long overuseListenerInfosToken = proto.start(fieldId);
-                ResourceOveruseListenerInfo resourceOveruseListenerInfo =
-                        resourceOveruseListenerInfos.get(j);
-                proto.write(PerformanceDump.ResourceOveruseListenerInfo.FLAG,
-                        resourceOveruseListenerInfo.flag);
-                proto.write(PerformanceDump.ResourceOveruseListenerInfo.PID,
-                        resourceOveruseListenerInfo.pid);
-                long userPackageInfoToken = proto.start(
-                        PerformanceDump.ResourceOveruseListenerInfo.USER_PACKAGE_INFO);
-                int uid = overuseListenerInfos.keyAt(i);
-                proto.write(UserPackageInfo.USER_ID,
-                        UserHandle.getUserHandleForUid(uid).getIdentifier());
-                proto.write(UserPackageInfo.PACKAGE_NAME,
-                        mPackageInfoHandler.getNamesForUids(new int[]{uid}).get(uid, null));
-                proto.end(userPackageInfoToken);
-                proto.end(overuseListenerInfosToken);
-            }
         }
     }
 
@@ -3129,74 +2838,6 @@ public final class WatchdogPerfHandler implements WatchdogPerfHandlerInterface {
 
         public void resetStats() {
             ioUsage.resetStats();
-        }
-    }
-
-    private final class ResourceOveruseListenerInfo implements IBinder.DeathRecipient {
-        public final IResourceOveruseListener listener;
-        public final @CarWatchdogManager.ResourceOveruseFlag int flag;
-        public final int pid;
-        public final int uid;
-        public final boolean isListenerForSystem;
-
-        ResourceOveruseListenerInfo(IResourceOveruseListener listener,
-                @CarWatchdogManager.ResourceOveruseFlag int flag, int pid, int uid,
-                boolean isListenerForSystem) {
-            this.listener = listener;
-            this.flag = flag;
-            this.pid = pid;
-            this.uid = uid;
-            this.isListenerForSystem = isListenerForSystem;
-        }
-
-        @Override
-        public void binderDied() {
-            Slogf.w(TAG, "Resource overuse listener%s (pid: %d) died",
-                    isListenerForSystem ? " for system" : "", pid);
-            Consumer<SparseArray<ArrayList<ResourceOveruseListenerInfo>>> removeListenerInfo =
-                    listenerInfosByUid -> {
-                        ArrayList<ResourceOveruseListenerInfo> listenerInfos =
-                                listenerInfosByUid.get(uid);
-                        if (listenerInfos == null) {
-                            return;
-                        }
-                        listenerInfos.remove(this);
-                        if (listenerInfos.isEmpty()) {
-                            listenerInfosByUid.remove(uid);
-                        }
-                    };
-            synchronized (mLock) {
-                if (isListenerForSystem) {
-                    removeListenerInfo.accept(mOveruseSystemListenerInfosByUid);
-                } else {
-                    removeListenerInfo.accept(mOveruseListenerInfosByUid);
-                }
-            }
-            unlinkToDeath();
-        }
-
-        public void notifyListener(@CarWatchdogManager.ResourceOveruseFlag int resourceType,
-                int overusingUid, String overusingGenericPackageName,
-                ResourceOveruseStats resourceOveruseStats) {
-            if ((flag & resourceType) == 0) {
-                return;
-            }
-            try {
-                listener.onOveruse(resourceOveruseStats);
-            } catch (RemoteException e) {
-                Slogf.e(TAG, "Failed to notify %s (uid %d, pid: %d) of resource overuse by "
-                                + "package(uid %d, generic package name '%s'): %s",
-                        (isListenerForSystem ? "system listener" : "listener"), uid, pid,
-                        overusingUid, overusingGenericPackageName, e);
-            }
-        }
-
-        private void linkToDeath() throws RemoteException {
-            listener.asBinder().linkToDeath(this, 0);
-        }
-
-        private void unlinkToDeath() {
-            listener.asBinder().unlinkToDeath(this, 0);
         }
     }
 }
