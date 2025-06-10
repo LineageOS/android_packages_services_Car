@@ -49,7 +49,7 @@ import static com.android.car.audio.CarAudioDeviceInfoTestUtils.TEST_REAR_ROW_3_
 import static com.android.car.audio.CarAudioDeviceInfoTestUtils.VOICE_TEST_DEVICE;
 import static com.android.car.audio.CarAudioDeviceInfoTestUtils.generateCarAudioDeviceInfo;
 import static com.android.car.audio.CarAudioService.CAR_DEFAULT_AUDIO_ATTRIBUTE;
-import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
+import static com.android.car.audio.CoreAudioRoutingUtils.setUpProductStrategies;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.mockitoSession;
 
 import static com.google.common.truth.Truth.assertThat;
@@ -59,6 +59,7 @@ import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.mock;
 
 import android.car.Car;
+import android.car.builtin.media.AudioManagerHelper;
 import android.car.feature.Flags;
 import android.car.media.CarAudioZoneConfigInfo;
 import android.car.test.AbstractExpectableTestCase;
@@ -66,6 +67,10 @@ import android.content.Context;
 import android.media.AudioAttributes;
 import android.media.AudioDeviceAttributes;
 import android.media.AudioDeviceInfo;
+import android.media.IAudioService;
+import android.media.audiopolicy.AudioProductStrategy;
+import android.os.IBinder;
+import android.os.ServiceManager;
 import android.platform.test.flag.junit.SetFlagsRule;
 import android.util.SparseArray;
 import android.util.SparseIntArray;
@@ -215,6 +220,10 @@ public final class CarAudioZonesHelperImplUnitTest extends AbstractExpectableTes
     private CarAudioDeviceInfo mTestCarMirrorDevice;
     @Mock
     private LocalLog mServiceEventLogger;
+    @Mock
+    private IAudioService mAudioService;
+    @Mock
+    private IBinder mIBinder;
 
     @Rule
     public final SetFlagsRule mSetFlagsRule = new SetFlagsRule();
@@ -224,16 +233,18 @@ public final class CarAudioZonesHelperImplUnitTest extends AbstractExpectableTes
             new CarAudioDeviceInfoTestUtils();
 
     @Before
-    public void setUp() {
+    public void setUp() throws Exception {
         StaticMockitoSessionBuilder builder = mockitoSession()
                 .strictness(Strictness.LENIENT)
                 .spyStatic(AudioManagerWrapper.class)
+                .spyStatic(AudioProductStrategy.class)
                 .spyStatic(Car.class)
-                .spyStatic(CoreAudioHelper.class);
+                .spyStatic(AudioManagerHelper.class)
+                .spyStatic(ServiceManager.class);
 
         mSession = builder.initMocks(this).startMocking();
 
-        setupAudioManagerMock();
+        setUpProductStrategies(mAudioService, mIBinder);
 
         mCarAudioOutputDeviceInfos = generateCarDeviceInfos();
         mInputAudioDeviceInfos = mAudioDeviceInfoTestUtils.generateInputDeviceInfos();
@@ -2210,33 +2221,5 @@ public final class CarAudioZonesHelperImplUnitTest extends AbstractExpectableTes
         } catch (IOException | XmlPullParserException e) {
             throw new RuntimeException("Failed to parse audio fade configuration", e);
         }
-    }
-
-    private void setupAudioManagerMock() {
-        doReturn(CoreAudioRoutingUtils.getProductStrategies())
-                .when(AudioManagerWrapper::getAudioProductStrategies);
-        doReturn(CoreAudioRoutingUtils.getVolumeGroups())
-                .when(AudioManagerWrapper::getAudioVolumeGroups);
-
-        doReturn(CoreAudioRoutingUtils.MUSIC_GROUP_ID)
-                .when(() -> CoreAudioHelper.getVolumeGroupIdForAudioAttributes(
-                        CoreAudioRoutingUtils.MUSIC_ATTRIBUTES));
-        doReturn(CoreAudioRoutingUtils.MUSIC_ATTRIBUTES)
-                .when(() -> CoreAudioHelper.selectAttributesForVolumeGroupName(
-                        CoreAudioRoutingUtils.MUSIC_GROUP_NAME));
-
-        doReturn(CoreAudioRoutingUtils.NAV_GROUP_ID)
-                .when(() -> CoreAudioHelper.getVolumeGroupIdForAudioAttributes(
-                        CoreAudioRoutingUtils.NAV_ATTRIBUTES));
-        doReturn(CoreAudioRoutingUtils.NAV_ATTRIBUTES)
-                .when(() -> CoreAudioHelper.selectAttributesForVolumeGroupName(
-                        CoreAudioRoutingUtils.NAV_GROUP_NAME));
-
-        doReturn(CoreAudioRoutingUtils.OEM_GROUP_ID)
-                .when(() -> CoreAudioHelper.getVolumeGroupIdForAudioAttributes(
-                        CoreAudioRoutingUtils.OEM_ATTRIBUTES));
-        doReturn(CoreAudioRoutingUtils.OEM_ATTRIBUTES)
-                .when(() -> CoreAudioHelper.selectAttributesForVolumeGroupName(
-                        CoreAudioRoutingUtils.OEM_GROUP_NAME));
     }
 }

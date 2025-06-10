@@ -1636,8 +1636,15 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
 
     @GuardedBy("mImplLock")
     @Nullable
-    private CarVolumeGroup getCarVolumeGroupLocked(int zoneId, String groupName) {
-        return getCarAudioZoneLocked(zoneId).getCurrentVolumeGroup(groupName);
+    private CarVolumeGroup getCarVolumeGroupLocked(String groupName) {
+        for (int i = 0; i < mCarAudioZones.size(); i++) {
+            CarAudioZone zone = mCarAudioZones.valueAt(i);
+            CarVolumeGroup group = zone.getCurrentVolumeGroup(groupName);
+            if (group != null) {
+                return group;
+            }
+        }
+        return null;
     }
 
     private void verifyCanMirrorToAudioZones(int[] audioZones, boolean forExtension) {
@@ -4366,15 +4373,16 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
         callbackVolumeGroupEvent(events);
     }
 
-    void onAudioVolumeGroupChanged(int zoneId, String groupName, int flags) {
+    void onAudioVolumeGroupChanged(String groupName, int flags) {
         int callbackFlags = flags;
         synchronized (mImplLock) {
-            CarVolumeGroup group = getCarVolumeGroupLocked(zoneId, groupName);
+            CarVolumeGroup group = getCarVolumeGroupLocked(groupName);
             if (group == null) {
                 Slogf.w(TAG, "onAudioVolumeGroupChanged reported on unmanaged group (%s)",
                         groupName);
                 return;
             }
+            int zoneId = group.getZoneId();
             int eventTypes = group.onAudioVolumeGroupChanged(callbackFlags);
             if (eventTypes == 0) {
                 return;

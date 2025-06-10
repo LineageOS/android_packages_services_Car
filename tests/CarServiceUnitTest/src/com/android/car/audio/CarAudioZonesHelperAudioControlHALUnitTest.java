@@ -32,21 +32,26 @@ import static com.android.car.audio.CarAudioTestUtils.createAudioPortDeviceExt;
 import static com.android.car.audio.CarAudioTestUtils.createPrimaryAudioZone;
 import static com.android.car.audio.CarAudioTestUtils.createSecondaryAudioZone;
 import static com.android.car.audio.CoreAudioRoutingUtils.getCoreAudioZone;
-import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
+import static com.android.car.audio.CoreAudioRoutingUtils.setUpProductStrategies;
 
 import static com.google.common.truth.Truth.assertWithMessage;
 
 import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.when;
 
+import android.car.builtin.media.AudioManagerHelper;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.hardware.automotive.audiocontrol.AudioDeviceConfiguration;
 import android.hardware.automotive.audiocontrol.AudioZone;
 import android.hardware.automotive.audiocontrol.RoutingDeviceConfiguration;
 import android.media.AudioDeviceAttributes;
+import android.media.IAudioService;
 import android.media.audio.common.AudioDeviceType;
 import android.media.audio.common.AudioPort;
 import android.media.audio.common.AudioPortDeviceExt;
+import android.media.audiopolicy.AudioProductStrategy;
+import android.os.IBinder;
+import android.os.ServiceManager;
 
 import com.android.car.internal.util.LocalLog;
 
@@ -74,6 +79,11 @@ public final class CarAudioZonesHelperAudioControlHALUnitTest
     private LocalLog mServiceLog;
     @Mock
     private AudioControlWrapper mAudioControlWrapper;
+    @Mock
+    private IAudioService mAudioService;
+    @Mock
+    private IBinder mIBinder;
+
     private boolean mUseAudioFadeManager = true;
 
     private final List<AudioZone> mHALAudioZones = new ArrayList<>();
@@ -89,13 +99,15 @@ public final class CarAudioZonesHelperAudioControlHALUnitTest
 
     @Override
     protected void onSessionBuilder(CustomMockitoSessionBuilder session) {
-        session.spyStatic(AudioManagerWrapper.class);
+        session.spyStatic(AudioManagerWrapper.class)
+                .spyStatic(AudioProductStrategy.class)
+                .spyStatic(AudioManagerHelper.class)
+                .spyStatic(ServiceManager.class);
     }
 
     @Before
-    public void setUp() {
-        doReturn(CoreAudioRoutingUtils.getProductStrategies())
-                .when(AudioManagerWrapper::getAudioProductStrategies);
+    public void setUp() throws Exception {
+        setUpProductStrategies(mAudioService, mIBinder);
 
         var outputDevice = mDeviceTestUtils.generateOutputDeviceInfos();
         var inputDevices = mDeviceTestUtils.generateInputDeviceInfos();

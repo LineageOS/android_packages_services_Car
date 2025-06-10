@@ -44,6 +44,7 @@ java_defaults {
         // TODO(202212484): The following two allow car-builtin-lib access to @hide Bluetooth APIs
         "framework-bluetooth.impl",
         "framework",
+        "android.media.audiopolicy-aconfig-java",
     ],
 
     stub_only_libs: [

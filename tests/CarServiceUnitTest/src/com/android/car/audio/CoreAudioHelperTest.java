@@ -16,6 +16,8 @@
 
 package com.android.car.audio;
 
+import static android.car.media.CarAudioManager.PRIMARY_AUDIO_ZONE;
+
 import static com.android.car.audio.CoreAudioRoutingUtils.INVALID_CONTEXT_NAME;
 import static com.android.car.audio.CoreAudioRoutingUtils.INVALID_GROUP_ID;
 import static com.android.car.audio.CoreAudioRoutingUtils.INVALID_GROUP_NAME;
@@ -43,14 +45,17 @@ import static com.android.car.audio.CoreAudioRoutingUtils.OEM_GROUP_NAME;
 import static com.android.car.audio.CoreAudioRoutingUtils.OEM_STRATEGY;
 import static com.android.car.audio.CoreAudioRoutingUtils.OEM_STRATEGY_ID;
 import static com.android.car.audio.CoreAudioRoutingUtils.UNSUPPORTED_ATTRIBUTES;
-import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
+import static com.android.car.audio.CoreAudioRoutingUtils.setUpProductStrategies;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.mockitoSession;
 
 import static org.junit.Assert.assertThrows;
 
+import android.car.builtin.media.AudioManagerHelper;
 import android.car.test.AbstractExpectableTestCase;
+import android.media.IAudioService;
 import android.media.audiopolicy.AudioProductStrategy;
-import android.media.audiopolicy.AudioVolumeGroup;
+import android.os.IBinder;
+import android.os.ServiceManager;
 
 import com.android.dx.mockito.inline.extended.StaticMockitoSession;
 import com.android.dx.mockito.inline.extended.StaticMockitoSessionBuilder;
@@ -59,10 +64,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.quality.Strictness;
-
-import java.util.List;
 
 @RunWith(MockitoJUnitRunner.class)
 public final class CoreAudioHelperTest extends AbstractExpectableTestCase {
@@ -71,16 +75,21 @@ public final class CoreAudioHelperTest extends AbstractExpectableTestCase {
 
     private StaticMockitoSession mSession;
 
+    @Mock
+    private IAudioService mMockAudioService;
+    @Mock
+    private IBinder mIBinder;
+
     @Before
     public void setUp() throws Exception {
         StaticMockitoSessionBuilder builder = mockitoSession()
                 .strictness(Strictness.LENIENT)
-                .spyStatic(AudioManagerWrapper.class);
+                .spyStatic(AudioManagerWrapper.class)
+                .spyStatic(AudioManagerHelper.class)
+                .spyStatic(AudioProductStrategy.class)
+                .spyStatic(ServiceManager.class);
         mSession = builder.initMocks(this).startMocking();
-        List<AudioVolumeGroup> groups = CoreAudioRoutingUtils.getVolumeGroups();
-        List<AudioProductStrategy> strategies = CoreAudioRoutingUtils.getProductStrategies();
-        doReturn(strategies).when(AudioManagerWrapper::getAudioProductStrategies);
-        doReturn(groups).when(AudioManagerWrapper::getAudioVolumeGroups);
+        setUpProductStrategies(mMockAudioService, mIBinder);
     }
 
     @After
@@ -134,27 +143,31 @@ public final class CoreAudioHelperTest extends AbstractExpectableTestCase {
     @Test
     public void getProductStrategyForAudioAttributes_withValidAttributes_succeeds() {
         expectWithMessage("Music product strategy")
-                .that(CoreAudioHelper.getProductStrategyForAudioAttributes(MUSIC_ATTRIBUTES))
+                .that(CoreAudioHelper.getProductStrategyForAudioAttributes(MUSIC_ATTRIBUTES,
+                        PRIMARY_AUDIO_ZONE))
                 .isEqualTo(MUSIC_STRATEGY);
         expectWithMessage("Navigation product strategy")
-                .that(CoreAudioHelper.getProductStrategyForAudioAttributes(NAV_ATTRIBUTES))
+                .that(CoreAudioHelper.getProductStrategyForAudioAttributes(NAV_ATTRIBUTES,
+                        PRIMARY_AUDIO_ZONE))
                 .isEqualTo(NAV_STRATEGY);
         expectWithMessage("OEM product strategy")
-                .that(CoreAudioHelper.getProductStrategyForAudioAttributes(OEM_ATTRIBUTES))
+                .that(CoreAudioHelper.getProductStrategyForAudioAttributes(OEM_ATTRIBUTES,
+                        PRIMARY_AUDIO_ZONE))
                 .isEqualTo(OEM_STRATEGY);
     }
 
     @Test
     public void getProductStrategyForAudioAttributes_withInvalidAttributes_returnsNull() {
         expectWithMessage("Null product strategy for invalid audio attribute")
-                .that(CoreAudioHelper.getProductStrategyForAudioAttributes(UNSUPPORTED_ATTRIBUTES))
+                .that(CoreAudioHelper.getProductStrategyForAudioAttributes(UNSUPPORTED_ATTRIBUTES,
+                        PRIMARY_AUDIO_ZONE))
                 .isNull();
     }
 
     @Test
     public void getProductStrategyForAudioAttributes_withNullAttributes_fails() {
         NullPointerException exception = assertThrows(NullPointerException.class, () ->
-                CoreAudioHelper.getProductStrategyForAudioAttributes(null));
+                CoreAudioHelper.getProductStrategyForAudioAttributes(null, PRIMARY_AUDIO_ZONE));
 
         expectWithMessage("Null audio attributes exception").that(exception).hasMessageThat()
                 .contains("Audio attributes");

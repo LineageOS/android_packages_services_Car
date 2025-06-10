@@ -131,11 +131,7 @@ final class CarAudioZonesValidator {
                 throw new RuntimeException(
                         "Invalid zone configurations for zone " + zone.getId());
             }
-            // TODO(b/301391301) use fore routing for all zones.
-            // Currently force "useCoreAudioRouting" to be false for non primary zones as only
-            // primary zone supports core routing
-            if (!zone.validateCanUseDynamicMixRouting(
-                    zone.isPrimaryZone() && useCoreAudioRouting)) {
+            if (!zone.validateCanUseDynamicMixRouting(useCoreAudioRouting)) {
                 throw new RuntimeException(
                         "Invalid Configuration to use Dynamic Mix for zone " + zone.getId());
             }

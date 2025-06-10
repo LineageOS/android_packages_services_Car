@@ -568,6 +568,21 @@ public final class AudioManagerHelper {
     }
 
     /**
+     * Gets the {@link android.media.AudioProductStrategy} id associated with given
+     * {@link AudioAttributes}
+     *
+     * @param attributes {@link AudioAttributes} to be considered
+     * @return the {@link android.media.AudioProductStrategy} supporting the given
+     * {@link AudioAttributes} if found, {@link android.media.AudioVolumeGroup.DEFAULT_VOLUME_GROUP}
+     * otherwise..
+     */
+    public static int getVolumeGroupIdForAudioAttributes(@NonNull AudioAttributes attributes) {
+        Preconditions.checkNotNull(attributes, "Audio Attributes must not be null");
+        return AudioProductStrategy.getVolumeGroupIdForAudioAttributes(attributes,
+                /* fallbackOnDefault= */ false);
+    }
+
+    /**
      * Gets the last audible volume for a given {@link android.media.AudioVolumeGroup} id.
      * <p>The last audible index is the current index if not muted, or index applied before mute if
      * muted. If muted by volume 0, the last audible index is 0. See
