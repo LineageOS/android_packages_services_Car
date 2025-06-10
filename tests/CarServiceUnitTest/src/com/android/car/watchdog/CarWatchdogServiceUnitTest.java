@@ -1406,7 +1406,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
     static AtomsProto.CarWatchdogDailyIoUsageSummary constructCarWatchdogDailyIoUsageSummary(
             long fgWrBytes, long bgWrBytes, long gmWrBytes, int overuseCount) {
         return AtomsProto.CarWatchdogDailyIoUsageSummary.newBuilder()
-                .setWrittenBytes(WatchdogPerfHandler
+                .setWrittenBytes(IoOveruseHandler
                         .constructCarWatchdogPerStateBytes(fgWrBytes, bgWrBytes, gmWrBytes))
                 .setOveruseCount(overuseCount)
                 .build();

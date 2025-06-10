@@ -2989,19 +2989,19 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
         List<AtomsProto.CarWatchdogIoOveruseStatsReported> expectedReportedOveruseStats =
                 new ArrayList<>();
         expectedReportedOveruseStats.add(constructIoOveruseStatsReported(criticalSysPkgUid,
-                WatchdogPerfHandler.constructCarWatchdogPerStateBytes(10, 20, 30),
-                WatchdogPerfHandler.constructCarWatchdogPerStateBytes(100, 200, 300)));
+                IoOveruseHandler.constructCarWatchdogPerStateBytes(10, 20, 30),
+                IoOveruseHandler.constructCarWatchdogPerStateBytes(100, 200, 300)));
         expectedReportedOveruseStats.add(constructIoOveruseStatsReported(thirdPartyPkgUid,
-                WatchdogPerfHandler.constructCarWatchdogPerStateBytes(30, 60, 90),
-                WatchdogPerfHandler.constructCarWatchdogPerStateBytes(300, 600, 900)));
+                IoOveruseHandler.constructCarWatchdogPerStateBytes(30, 60, 90),
+                IoOveruseHandler.constructCarWatchdogPerStateBytes(300, 600, 900)));
 
         captureAndVerifyIoOveruseStatsReported(expectedReportedOveruseStats);
 
         List<AtomsProto.CarWatchdogKillStatsReported> expectedReportedKillStats =
                 Collections.singletonList(constructIoOveruseKillStatsReported(thirdPartyPkgUid,
                         CAR_WATCHDOG_KILL_STATS_REPORTED__SYSTEM_STATE__USER_NO_INTERACTION_MODE,
-                        WatchdogPerfHandler.constructCarWatchdogPerStateBytes(30, 60, 90),
-                        WatchdogPerfHandler.constructCarWatchdogPerStateBytes(300, 600, 900)));
+                        IoOveruseHandler.constructCarWatchdogPerStateBytes(30, 60, 90),
+                        IoOveruseHandler.constructCarWatchdogPerStateBytes(300, 600, 900)));
 
         captureAndVerifyKillStatsReported(expectedReportedKillStats);
     }
@@ -3085,19 +3085,19 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
         List<AtomsProto.CarWatchdogIoOveruseStatsReported> expectedReportedOveruseStats =
                 new ArrayList<>();
         expectedReportedOveruseStats.add(constructIoOveruseStatsReported(criticalSysSharedUid,
-                WatchdogPerfHandler.constructCarWatchdogPerStateBytes(10, 20, 30),
-                WatchdogPerfHandler.constructCarWatchdogPerStateBytes(100, 200, 300)));
+                IoOveruseHandler.constructCarWatchdogPerStateBytes(10, 20, 30),
+                IoOveruseHandler.constructCarWatchdogPerStateBytes(100, 200, 300)));
         expectedReportedOveruseStats.add(constructIoOveruseStatsReported(thirdPartySharedUid,
-                WatchdogPerfHandler.constructCarWatchdogPerStateBytes(30, 60, 90),
-                WatchdogPerfHandler.constructCarWatchdogPerStateBytes(300, 600, 900)));
+                IoOveruseHandler.constructCarWatchdogPerStateBytes(30, 60, 90),
+                IoOveruseHandler.constructCarWatchdogPerStateBytes(300, 600, 900)));
 
         captureAndVerifyIoOveruseStatsReported(expectedReportedOveruseStats);
 
         List<AtomsProto.CarWatchdogKillStatsReported> expectedReportedKillStats =
                 Collections.singletonList(constructIoOveruseKillStatsReported(thirdPartySharedUid,
                         CAR_WATCHDOG_KILL_STATS_REPORTED__SYSTEM_STATE__USER_NO_INTERACTION_MODE,
-                        WatchdogPerfHandler.constructCarWatchdogPerStateBytes(30, 60, 90),
-                        WatchdogPerfHandler.constructCarWatchdogPerStateBytes(300, 600, 900)));
+                        IoOveruseHandler.constructCarWatchdogPerStateBytes(30, 60, 90),
+                        IoOveruseHandler.constructCarWatchdogPerStateBytes(300, 600, 900)));
 
         captureAndVerifyKillStatsReported(expectedReportedKillStats);
     }
@@ -4216,13 +4216,13 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
         // The below thresholds are from {@link sampleInternalResourceOveruseConfiguration} and
         // UID/stat are from {@link sampleIoOveruseStats}.
         AtomsProto.CarWatchdogPerStateBytes systemThreshold =
-                WatchdogPerfHandler.constructCarWatchdogPerStateBytes(10, 20, 30);
+                IoOveruseHandler.constructCarWatchdogPerStateBytes(10, 20, 30);
         AtomsProto.CarWatchdogPerStateBytes vendorThreshold =
-                WatchdogPerfHandler.constructCarWatchdogPerStateBytes(20, 40, 60);
+                IoOveruseHandler.constructCarWatchdogPerStateBytes(20, 40, 60);
         AtomsProto.CarWatchdogPerStateBytes thirdPartyThreshold =
-                WatchdogPerfHandler.constructCarWatchdogPerStateBytes(30, 60, 90);
+                IoOveruseHandler.constructCarWatchdogPerStateBytes(30, 60, 90);
         AtomsProto.CarWatchdogPerStateBytes writtenBytes =
-                WatchdogPerfHandler.constructCarWatchdogPerStateBytes(100, 200, 300);
+                IoOveruseHandler.constructCarWatchdogPerStateBytes(100, 200, 300);
         List<AtomsProto.CarWatchdogIoOveruseStatsReported> reportedOveruseStats = new ArrayList<>();
         reportedOveruseStats.add(constructIoOveruseStatsReported(
                 10010001, systemThreshold, writtenBytes));
@@ -4244,11 +4244,11 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
         // The below thresholds are from {@link sampleInternalResourceOveruseConfiguration} and
         // UID/stat are from {@link sampleIoOveruseStats}.
         AtomsProto.CarWatchdogPerStateBytes vendorThreshold =
-                WatchdogPerfHandler.constructCarWatchdogPerStateBytes(20, 40, 60);
+                IoOveruseHandler.constructCarWatchdogPerStateBytes(20, 40, 60);
         AtomsProto.CarWatchdogPerStateBytes thirdPartyThreshold =
-                WatchdogPerfHandler.constructCarWatchdogPerStateBytes(30, 60, 90);
+                IoOveruseHandler.constructCarWatchdogPerStateBytes(30, 60, 90);
         AtomsProto.CarWatchdogPerStateBytes writtenBytes =
-                WatchdogPerfHandler.constructCarWatchdogPerStateBytes(100, 200, 300);
+                IoOveruseHandler.constructCarWatchdogPerStateBytes(100, 200, 300);
         List<AtomsProto.CarWatchdogKillStatsReported> reportedKillStats = new ArrayList<>();
         for (int uid : killedUids) {
             AtomsProto.CarWatchdogPerStateBytes threshold =
@@ -4263,7 +4263,7 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
             constructIoOveruseStatsReported(int uid, AtomsProto.CarWatchdogPerStateBytes threshold,
             AtomsProto.CarWatchdogPerStateBytes writtenBytes) {
         return constructCarWatchdogIoOveruseStatsReported(
-                uid, WatchdogPerfHandler.constructCarWatchdogIoOveruseStats(
+                uid, IoOveruseHandler.constructCarWatchdogIoOveruseStats(
                         AtomsProto.CarWatchdogIoOveruseStats.Period.DAILY, threshold, writtenBytes)
         );
     }
@@ -4329,7 +4329,7 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
         return constructCarWatchdogKillStatsReported(uid,
                 CAR_WATCHDOG_KILL_STATS_REPORTED__UID_STATE__UNKNOWN_UID_STATE, systemState,
                 CAR_WATCHDOG_KILL_STATS_REPORTED__KILL_REASON__KILLED_ON_IO_OVERUSE,
-                WatchdogPerfHandler.constructCarWatchdogIoOveruseStats(
+                IoOveruseHandler.constructCarWatchdogIoOveruseStats(
                         AtomsProto.CarWatchdogIoOveruseStats.Period.DAILY, threshold, writtenBytes)
         );
     }

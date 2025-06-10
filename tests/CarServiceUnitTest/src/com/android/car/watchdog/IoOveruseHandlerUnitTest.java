@@ -220,6 +220,8 @@ public class IoOveruseHandlerUnitTest extends AbstractExtendedMockitoTestCase {
     private ContentResolver mMockContentResolver;
     @Mock
     private CarStatsLogWrapper mCarStatsLogWrapper;
+    @Mock
+    private IoOveruseHandler.IoOveruseHelper mMockIoOveruseHelper;
 
     @Captor
     private ArgumentCaptor<ICarUxRestrictionsChangeListener>
@@ -327,8 +329,8 @@ public class IoOveruseHandlerUnitTest extends AbstractExtendedMockitoTestCase {
         mSpiedWatchdogStorage =
                 spy(new WatchdogStorage(mMockContext, /* useDataSystemCarDir= */ false,
                         mTimeSource));
-        mIoOveruseHandler = new IoOveruseHandler(mMockContext, mMockBuiltinPackageContext,
-                mMockCarWatchdogDaemonHelper,
+        mIoOveruseHandler = new IoOveruseHandler(mMockContext, mMockIoOveruseHelper,
+                mMockBuiltinPackageContext, mMockCarWatchdogDaemonHelper,
                 new PackageInfoHandler(mMockContext.getPackageManager()), mSpiedWatchdogStorage,
                 mTimeSource, UID_IO_USAGE_SUMMARY_TOP_COUNT,
                 IO_USAGE_SUMMARY_MIN_SYSTEM_TOTAL_WRITTEN_BYTES, PACKAGE_KILLABLE_STATE_RESET_DAYS,
@@ -4110,7 +4112,7 @@ public class IoOveruseHandlerUnitTest extends AbstractExtendedMockitoTestCase {
         verify(mSpiedWatchdogStorage, times(wantedDbWrites)).markWriteSuccessful();
         verify(mSpiedWatchdogStorage, times(wantedDbWrites)).endWrite();
         verify(mSpiedWatchdogStorage, times(Math.max(totalRestarts, 1))).release();
-        mIoOveruseHandler = new IoOveruseHandler(mMockContext,
+        mIoOveruseHandler = new IoOveruseHandler(mMockContext, mMockIoOveruseHelper,
                 mMockBuiltinPackageContext, mMockCarWatchdogDaemonHelper,
                 new PackageInfoHandler(mMockContext.getPackageManager()),
                 mSpiedWatchdogStorage, mTimeSource, UID_IO_USAGE_SUMMARY_TOP_COUNT,

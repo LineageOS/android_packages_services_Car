@@ -82,7 +82,6 @@ import android.automotive.watchdog.internal.PerStateIoOveruseThreshold;
 import android.automotive.watchdog.internal.ResourceSpecificConfiguration;
 import android.automotive.watchdog.internal.UserPackageIoUsageStats;
 import android.car.builtin.content.pm.PackageManagerHelper;
-import android.car.builtin.util.EventLogHelper;
 import android.car.builtin.util.Slogf;
 import android.car.drivingstate.CarUxRestrictions;
 import android.car.watchdog.CarWatchdogManager;
@@ -189,14 +188,14 @@ public final class IoOveruseHandler {
      * applications, repeatedly killing persistent background services, or disabling any
      * application.
      */
-    private static final int UX_STATE_NO_DISTRACTION = 1;
+    static final int UX_STATE_NO_DISTRACTION = 1;
     /** The user can safely receive user notifications or dialogs. */
-    private static final int UX_STATE_USER_NOTIFICATION = 2;
+    static final int UX_STATE_USER_NOTIFICATION = 2;
     /**
      * Any application or service can be safely killed/disabled. User notifications can be sent
      * only to the notification center.
      */
-    private static final int UX_STATE_NO_INTERACTION = 3;
+    static final int UX_STATE_NO_INTERACTION = 3;
 
     @Retention(RetentionPolicy.SOURCE)
     @IntDef(prefix = {"UX_STATE_"}, value = {
@@ -204,7 +203,7 @@ public final class IoOveruseHandler {
             UX_STATE_USER_NOTIFICATION,
             UX_STATE_NO_INTERACTION
     })
-    private @interface UxStateType{}
+    @interface UxStateType{}
 
     private final Context mContext;
     /**
@@ -212,6 +211,7 @@ public final class IoOveruseHandler {
      * facing services required for showing notifications.
      */
     private final Context mBuiltinPackageContext;
+    private final IoOveruseHelper mIoOveruseHelper;
     private final CarWatchdogDaemonHelper mCarWatchdogDaemonHelper;
     private final PackageInfoHandler mPackageInfoHandler;
     private final Handler mMainHandler;
@@ -295,13 +295,15 @@ public final class IoOveruseHandler {
     @GuardedBy("mLock")
     private ZonedDateTime mLastUidIoUsageSummaryReportedDate;
 
-    public IoOveruseHandler(Context context, Context builtinPackageContext,
-            CarWatchdogDaemonHelper daemonHelper, PackageInfoHandler packageInfoHandler,
-            WatchdogStorage watchdogStorage, TimeSource timeSource, int uidIoUsageSummaryTopCount,
+    public IoOveruseHandler(Context context, IoOveruseHelper ioOveruseHelper,
+            Context builtinPackageContext, CarWatchdogDaemonHelper daemonHelper,
+            PackageInfoHandler packageInfoHandler, WatchdogStorage watchdogStorage,
+            TimeSource timeSource, int uidIoUsageSummaryTopCount,
             int ioUsageSummaryMinSystemTotalWrittenBytes, int packageKillableStateResetDays,
             int recurringOverusePeriodInDays, int recurringOveruseTimes, Handler serviceHandler,
             CarStatsLogWrapper carStatsLogWrapper) {
         mContext = context;
+        mIoOveruseHelper = ioOveruseHelper;
         mBuiltinPackageContext = builtinPackageContext;
         mCarWatchdogDaemonHelper = daemonHelper;
         mPackageInfoHandler = packageInfoHandler;
@@ -473,33 +475,20 @@ public final class IoOveruseHandler {
         Trace.endSection();
     }
 
-    /** Updates the current UX state based on the display state. */
-    public void onDisplayStateChanged(boolean isEnabled) {
-        Trace.beginSection("IoOveruseHandler.onDisplayStateChanged(isEnabled=" + isEnabled + ")");
+    /**
+     * Handles UX state changes.
+     *
+     * <p>Performs overuse handling when user notifications are allowed or device is in
+     * no interaction mode.
+     */
+    public void processUxStateChange(@UxStateType int uxStateType) {
         synchronized (mLock) {
-            if (isEnabled) {
-                mCurrentUxState = UX_STATE_NO_DISTRACTION;
-                applyCurrentUxRestrictionsLocked();
-            } else {
-                mCurrentUxState = UX_STATE_NO_INTERACTION;
+            mCurrentUxState = uxStateType;
+            if (mCurrentUxState == UX_STATE_NO_INTERACTION
+                    || mCurrentUxState == UX_STATE_USER_NOTIFICATION) {
                 performOveruseHandlingLocked();
             }
         }
-        Trace.endSection();
-    }
-
-    /** Handles garage mode change. */
-    public void onGarageModeChange(@GarageMode int garageMode) {
-        Trace.beginSection("IoOveruseHandler.onGarageModeChange(garageMode="
-                + (garageMode == GarageMode.GARAGE_MODE_ON ? "ON" : "OFF") + ")");
-        synchronized (mLock) {
-            mCurrentGarageMode = garageMode;
-            if (mCurrentGarageMode == GarageMode.GARAGE_MODE_ON) {
-                mCurrentUxState = UX_STATE_NO_INTERACTION;
-                performOveruseHandlingLocked();
-            }
-        }
-        Trace.endSection();
     }
 
     /** Returns resource overuse stats for the calling package. */
@@ -1532,20 +1521,6 @@ public final class IoOveruseHandler {
     }
 
     @GuardedBy("mLock")
-    private void applyCurrentUxRestrictionsLocked() {
-        if (mCurrentUxRestrictions == null
-                || mCurrentUxRestrictions.isRequiresDistractionOptimization()) {
-            mCurrentUxState = UX_STATE_NO_DISTRACTION;
-            return;
-        }
-        if (mCurrentUxState == UX_STATE_NO_INTERACTION) {
-            return;
-        }
-        mCurrentUxState = UX_STATE_USER_NOTIFICATION;
-        performOveruseHandlingLocked();
-    }
-
-    @GuardedBy("mLock")
     private int getPackageKillableStateForUserPackageLocked(
             int userId, String genericPackageName, int componentType, boolean isSafeToKill) {
         String key = getUserPackageUniqueId(userId, genericPackageName);
@@ -1911,7 +1886,7 @@ public final class IoOveruseHandler {
                 android.automotive.watchdog.PerStateBytes thresholdBytes =
                         mOveruseConfigurationCache.fetchThreshold(usage.genericPackageName,
                                                                   componentType);
-                EventLogHelper.writeCarWatchdogServiceIoOveruseKill(packageName, usage.userId,
+                mIoOveruseHelper.writeKillEventLog(packageName, usage.userId,
                         writtenBytes.foregroundBytes, writtenBytes.backgroundBytes,
                         writtenBytes.garageModeBytes, thresholdBytes.foregroundBytes,
                         thresholdBytes.backgroundBytes, thresholdBytes.garageModeBytes,
@@ -2178,7 +2153,7 @@ public final class IoOveruseHandler {
 
     @GuardedBy("mLock")
     private int inferSystemStateLocked() {
-        if (mCurrentGarageMode == GarageMode.GARAGE_MODE_ON) {
+        if (mIoOveruseHelper.isInIdleMode()) {
             return CAR_WATCHDOG_KILL_STATS_REPORTED__SYSTEM_STATE__GARAGE_MODE;
         }
         return mCurrentUxState == UX_STATE_NO_INTERACTION
@@ -2949,6 +2924,35 @@ public final class IoOveruseHandler {
             default:
                 return PerformanceDump.KILLABLE_STATE_UNSPECIFIED;
         }
+    }
+
+    interface IoOveruseHelper {
+        /**
+         * Returns {@code true} iff the device is in idle mode.
+         *
+         * <p>On non-automotive form-factor, this returns true when the device is in idle mode.
+         * <p>On automotive form-factor, this returns true when the device is in garage mode.
+         */
+        boolean isInIdleMode();
+
+        /**
+         * Records a kill event to the log with {@link android.util.EventLog}.
+         *
+         * @param packageName Package name of the killed application.
+         * @param userId User ID of the killed application.
+         * @param foregroundBytes Total bytes written to disk while the app was in foregorund.
+         * @param backgroundBytes Total bytes written to disk while the app was in background.
+         * @param garageModeBytes Total bytes written to disk while the app was in garage mode.
+         * @param thresholdForegroundBytes Total foreground write threshold bytes.
+         * @param thresholdBackgroundBytes Total background write threshold bytes.
+         * @param thresholdGarageModeBytes Total garage mode write threshold bytes.
+         * @param totalTimesKilled Total times the app was killed since installation.
+         * @param isPackageDisabled True if the package is disabled.
+         */
+        void writeKillEventLog(String packageName, int userId, long foregroundBytes,
+                long backgroundBytes, long garageModeBytes, long thresholdForegroundBytes,
+                long thresholdBackgroundBytes, long thresholdGarageModeBytes, int totalTimesKilled,
+                boolean isPackageDisabled);
     }
 
     private final class PackageResourceUsage {
