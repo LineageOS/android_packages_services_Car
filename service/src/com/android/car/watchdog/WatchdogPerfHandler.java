@@ -168,7 +168,7 @@ public final class WatchdogPerfHandler implements WatchdogPerfHandlerInterface {
         int recurringOverusePeriodInDays =
                 resources.getInteger(R.integer.recurringResourceOverusePeriodInDays);
         int recurringOveruseTimes = resources.getInteger(R.integer.recurringResourceOveruseTimes);
-        mIoOveruseHandler = new IoOveruseHandler(context, new IoOveruseHelperImpl(this),
+        mIoOveruseHandler = new IoOveruseHandler(context, new IoOveruseHelperImpl(context, this),
                 mBuiltinPackageContext, daemonHelper, packageInfoHandler, watchdogStorage,
                 timeSource, uidIoUsageSummaryTopCount, ioUsageSummaryMinSystemTotalWrittenBytes,
                 packageKillableStateResetDays, recurringOverusePeriodInDays, recurringOveruseTimes,
@@ -470,8 +470,8 @@ public final class WatchdogPerfHandler implements WatchdogPerfHandlerInterface {
 
     /** Handles when system broadcast package changed action */
     @Override
-    public void processPackageChangedIntent(Intent intent) {
-        mIoOveruseHandler.processPackageChangedIntent(intent);
+    public void processActionPackageChanged(Intent intent) {
+        mIoOveruseHandler.processActionPackageChanged(intent);
     }
 
     /** Disables a package for specific user until used. */
@@ -620,59 +620,6 @@ public final class WatchdogPerfHandler implements WatchdogPerfHandlerInterface {
     private void cancelNotificationAsUser(int notificationId, UserHandle userHandle) {
         BuiltinPackageDependency.createNotificationHelper(mBuiltinPackageContext)
                         .cancelNotificationAsUser(userHandle, notificationId);
-    }
-
-    // TODO(b/400460188): Make the below function as a callback, which will be called from
-    // IoOveruseMonitor.
-    private void appendToDisabledPackagesSettingsString(String packageName, @UserIdInt int userId) {
-        ContentResolver contentResolverForUser = getContentResolverForUser(mContext, userId);
-        // Appending and removing package names to/from the settings string
-        // KEY_PACKAGES_DISABLED_ON_RESOURCE_OVERUSE is done only by this class. So, synchronize
-        // these operations using the class wide lock.
-        synchronized (mLock) {
-            ArraySet<String> packages = extractPackages(
-                    Settings.Secure.getString(contentResolverForUser,
-                            KEY_PACKAGES_DISABLED_ON_RESOURCE_OVERUSE));
-            if (!packages.add(packageName)) {
-                return;
-            }
-            String settingsString = constructSettingsString(packages);
-            Settings.Secure.putString(contentResolverForUser,
-                    KEY_PACKAGES_DISABLED_ON_RESOURCE_OVERUSE, settingsString);
-            if (DEBUG) {
-                Slogf.d(TAG, "Appended %s to %s. New value is '%s'", packageName,
-                        KEY_PACKAGES_DISABLED_ON_RESOURCE_OVERUSE, settingsString);
-            }
-        }
-    }
-
-    // TODO(b/400460188): Make the below function as a callback, which will be called from
-    // IoOveruseMonitor.
-    /**
-     * Removes {@code packageName} from {@link KEY_PACKAGES_DISABLED_ON_RESOURCE_OVERUSE}
-     * {@code Settings} of the given user.
-     *
-     * <p> Appending and removing package names to/from the settings string
-     *     KEY_PACKAGES_DISABLED_ON_RESOURCE_OVERUSE is done only by this class. So, synchronize
-     *     these operations using the class wide lock.
-     */
-    @GuardedBy("mLock")
-    private void removeFromDisabledPackagesSettingsStringLocked(String packageName,
-            @UserIdInt int userId) {
-        ContentResolver contentResolverForUser = getContentResolverForUser(mContext, userId);
-        ArraySet<String> packages = extractPackages(
-                Settings.Secure.getString(contentResolverForUser,
-                        KEY_PACKAGES_DISABLED_ON_RESOURCE_OVERUSE));
-        if (!packages.remove(packageName)) {
-            return;
-        }
-        String settingsString = constructSettingsString(packages);
-        Settings.Secure.putString(contentResolverForUser,
-                KEY_PACKAGES_DISABLED_ON_RESOURCE_OVERUSE, settingsString);
-        if (DEBUG) {
-            Slogf.d(TAG, "Removed %s from %s. New value is '%s'", packageName,
-                    KEY_PACKAGES_DISABLED_ON_RESOURCE_OVERUSE, settingsString);
-        }
     }
 
     /**
@@ -828,9 +775,11 @@ public final class WatchdogPerfHandler implements WatchdogPerfHandlerInterface {
     }
 
     private final class IoOveruseHelperImpl implements IoOveruseHandler.IoOveruseHelper {
+        private final Context mContext;
         private final WatchdogPerfHandler mWatchdogPerfHandler;
 
-        IoOveruseHelperImpl(WatchdogPerfHandler watchdogPerfHandler) {
+        IoOveruseHelperImpl(Context context, WatchdogPerfHandler watchdogPerfHandler) {
+            mContext = context;
             mWatchdogPerfHandler = watchdogPerfHandler;
         }
 
@@ -852,6 +801,42 @@ public final class WatchdogPerfHandler implements WatchdogPerfHandlerInterface {
                     foregroundBytes, backgroundBytes, garageModeBytes, thresholdForegroundBytes,
                     thresholdBackgroundBytes, thresholdGarageModeBytes, totalTimesKilled,
                     isPackageDisabled);
+        }
+
+        @Override
+        public void onPackageEnabledLocked(String packageName, int userId) {
+            ContentResolver contentResolverForUser = getContentResolverForUser(mContext, userId);
+            ArraySet<String> packages = WatchdogPerfHandler.extractPackages(
+                    Settings.Secure.getString(contentResolverForUser,
+                            KEY_PACKAGES_DISABLED_ON_RESOURCE_OVERUSE));
+            if (!packages.remove(packageName)) {
+                return;
+            }
+            String settingsString = WatchdogPerfHandler.constructSettingsString(packages);
+            Settings.Secure.putString(contentResolverForUser,
+                    KEY_PACKAGES_DISABLED_ON_RESOURCE_OVERUSE, settingsString);
+            if (DEBUG) {
+                Slogf.d(TAG, "Removed %s from %s. New value is '%s'", packageName,
+                        KEY_PACKAGES_DISABLED_ON_RESOURCE_OVERUSE, settingsString);
+            }
+        }
+
+        @Override
+        public void onPackageDisabledLocked(String packageName, int userId) {
+            ContentResolver contentResolverForUser = getContentResolverForUser(mContext, userId);
+            ArraySet<String> packages = WatchdogPerfHandler.extractPackages(
+                    Settings.Secure.getString(contentResolverForUser,
+                            KEY_PACKAGES_DISABLED_ON_RESOURCE_OVERUSE));
+            if (!packages.add(packageName)) {
+                return;
+            }
+            String settingsString = WatchdogPerfHandler.constructSettingsString(packages);
+            Settings.Secure.putString(contentResolverForUser,
+                    KEY_PACKAGES_DISABLED_ON_RESOURCE_OVERUSE, settingsString);
+            if (DEBUG) {
+                Slogf.d(TAG, "Appended %s to %s. New value is '%s'", packageName,
+                        KEY_PACKAGES_DISABLED_ON_RESOURCE_OVERUSE, settingsString);
+            }
         }
     }
 }

@@ -19,7 +19,6 @@ package com.android.car.watchdog;
 import static android.app.StatsManager.PULL_SKIP;
 import static android.app.StatsManager.PULL_SUCCESS;
 import static android.car.builtin.os.UserManagerHelper.USER_NULL;
-import static android.car.settings.CarSettings.Secure.KEY_PACKAGES_DISABLED_ON_RESOURCE_OVERUSE;
 import static android.car.watchdog.CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO;
 import static android.car.watchdog.CarWatchdogManager.STATS_PERIOD_CURRENT_DAY;
 import static android.car.watchdog.CarWatchdogManager.STATS_PERIOD_PAST_15_DAYS;
@@ -39,7 +38,6 @@ import static android.content.pm.PackageManager.COMPONENT_ENABLED_STATE_ENABLED;
 import static android.os.Process.INVALID_UID;
 import static android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS;
 
-import static com.android.car.CarServiceUtils.getContentResolverForUser;
 import static com.android.car.CarStatsLog.CAR_WATCHDOG_IO_OVERUSE_STATS_REPORTED;
 import static com.android.car.CarStatsLog.CAR_WATCHDOG_KILL_STATS_REPORTED;
 import static com.android.car.CarStatsLog.CAR_WATCHDOG_KILL_STATS_REPORTED__KILL_REASON__KILLED_ON_IO_OVERUSE;
@@ -95,7 +93,6 @@ import android.car.watchdog.PerStateBytes;
 import android.car.watchdog.ResourceOveruseConfiguration;
 import android.car.watchdog.ResourceOveruseStats;
 import android.car.watchdoglib.CarWatchdogDaemonHelper;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
@@ -111,7 +108,6 @@ import android.os.SystemClock;
 import android.os.TransactionTooLargeException;
 import android.os.UserHandle;
 import android.os.UserManager;
-import android.provider.Settings;
 import android.text.TextUtils;
 import android.util.ArrayMap;
 import android.util.ArraySet;
@@ -1116,7 +1112,7 @@ public final class IoOveruseHandler {
     }
 
     /** Handles when system broadcast package changed action */
-    public void processPackageChangedIntent(Intent intent) {
+    public void processActionPackageChanged(Intent intent) {
         int userId = intent.getIntExtra(Intent.EXTRA_USER_HANDLE, USER_NULL);
         if (userId == USER_NULL) {
             Slogf.w(TAG, "Skipping package changed action with USER_NULL user");
@@ -1146,11 +1142,11 @@ public final class IoOveruseHandler {
                 if (disabledPackages == null || !disabledPackages.contains(packageName)) {
                     return;
                 }
-                removeFromDisabledPackagesSettingsStringLocked(packageName, userId);
                 disabledPackages.remove(packageName);
                 if (disabledPackages.isEmpty()) {
                     mDisabledUserPackagesByUserId.remove(userId);
                 }
+                mIoOveruseHelper.onPackageEnabledLocked(packageName, userId);
             }
             if (DEBUG) {
                 Slogf.d(TAG, "Successfully enabled package due to package changed action");
@@ -1194,9 +1190,9 @@ public final class IoOveruseHandler {
                     if (disabledPackages == null) {
                         disabledPackages = new ArraySet<>(1);
                     }
-                    appendToDisabledPackagesSettingsString(packageName, userId);
                     disabledPackages.add(packageName);
                     mDisabledUserPackagesByUserId.put(userId, disabledPackages);
+                    mIoOveruseHelper.onPackageDisabledLocked(packageName, userId);
                 }
                 Slogf.i(TAG, "Disabled package '%s' on user %d until used due to resource overuse",
                         packageName, userId);
@@ -1999,11 +1995,11 @@ public final class IoOveruseHandler {
                     if (disabledPackages == null || !disabledPackages.contains(packageName)) {
                         continue;
                     }
-                    removeFromDisabledPackagesSettingsStringLocked(packageName, userId);
                     disabledPackages.remove(packageName);
                     if (disabledPackages.isEmpty()) {
                         mDisabledUserPackagesByUserId.remove(userId);
                     }
+                    mIoOveruseHelper.onPackageEnabledLocked(packageName, userId);
                 }
                 PackageManagerHelper.setApplicationEnabledSettingForUser(
                         packageName, COMPONENT_ENABLED_STATE_ENABLED, /* flags= */ 0, userId,
@@ -2033,59 +2029,6 @@ public final class IoOveruseHandler {
     private void cancelNotificationAsUser(int notificationId, UserHandle userHandle) {
         BuiltinPackageDependency.createNotificationHelper(mBuiltinPackageContext)
                         .cancelNotificationAsUser(userHandle, notificationId);
-    }
-
-    // TODO(b/400460188): Reuse the functionality in WatchdogPerfHandler via a callback because
-    // the functionality uses settings strings, which is different for TV & Automotive form-factors.
-    private void appendToDisabledPackagesSettingsString(String packageName, @UserIdInt int userId) {
-        ContentResolver contentResolverForUser = getContentResolverForUser(mContext, userId);
-        // Appending and removing package names to/from the settings string
-        // KEY_PACKAGES_DISABLED_ON_RESOURCE_OVERUSE is done only by this class. So, synchronize
-        // these operations using the class wide lock.
-        synchronized (mLock) {
-            ArraySet<String> packages = extractPackages(
-                    Settings.Secure.getString(contentResolverForUser,
-                            KEY_PACKAGES_DISABLED_ON_RESOURCE_OVERUSE));
-            if (!packages.add(packageName)) {
-                return;
-            }
-            String settingsString = constructSettingsString(packages);
-            Settings.Secure.putString(contentResolverForUser,
-                    KEY_PACKAGES_DISABLED_ON_RESOURCE_OVERUSE, settingsString);
-            if (DEBUG) {
-                Slogf.d(TAG, "Appended %s to %s. New value is '%s'", packageName,
-                        KEY_PACKAGES_DISABLED_ON_RESOURCE_OVERUSE, settingsString);
-            }
-        }
-    }
-
-    // TODO(b/400460188): Reuse the functionality in WatchdogPerfHandler via a callback because
-    // the functionality uses settings strings, which is different for TV & Automotive form-factors.
-    /**
-     * Removes {@code packageName} from {@link KEY_PACKAGES_DISABLED_ON_RESOURCE_OVERUSE}
-     * {@code Settings} of the given user.
-     *
-     * <p> Appending and removing package names to/from the settings string
-     *     KEY_PACKAGES_DISABLED_ON_RESOURCE_OVERUSE is done only by this class. So, synchronize
-     *     these operations using the class wide lock.
-     */
-    @GuardedBy("mLock")
-    private void removeFromDisabledPackagesSettingsStringLocked(String packageName,
-            @UserIdInt int userId) {
-        ContentResolver contentResolverForUser = getContentResolverForUser(mContext, userId);
-        ArraySet<String> packages = extractPackages(
-                Settings.Secure.getString(contentResolverForUser,
-                        KEY_PACKAGES_DISABLED_ON_RESOURCE_OVERUSE));
-        if (!packages.remove(packageName)) {
-            return;
-        }
-        String settingsString = constructSettingsString(packages);
-        Settings.Secure.putString(contentResolverForUser,
-                KEY_PACKAGES_DISABLED_ON_RESOURCE_OVERUSE, settingsString);
-        if (DEBUG) {
-            Slogf.d(TAG, "Removed %s from %s. New value is '%s'", packageName,
-                    KEY_PACKAGES_DISABLED_ON_RESOURCE_OVERUSE, settingsString);
-        }
     }
 
     private static ArraySet<String> extractPackages(String settingsString) {
@@ -2953,6 +2896,36 @@ public final class IoOveruseHandler {
                 long backgroundBytes, long garageModeBytes, long thresholdForegroundBytes,
                 long thresholdBackgroundBytes, long thresholdGarageModeBytes, int totalTimesKilled,
                 boolean isPackageDisabled);
+
+        /**
+         * Called when a user package is enabled.
+         *
+         * <p>This callback is called under lock so the implementation must offload any long-running
+         * operations or acquiring another lock to another thread. So, the implementation doesn't
+         * hold the lock for longer than necessary and avoids deadlock situations.
+         *
+         * <p>This callback is typically used to update internal cache or settings app strings to
+         * reflect latest set of packages disabled due to I/O overuse.
+         *
+         * @param packageName Name of the package that is enabled.
+         * @param userId User ID of the package that is enabled.
+         */
+        void onPackageEnabledLocked(String packageName, int userId);
+
+        /**
+         * Called when a user package is disabled.
+         *
+         * <p>This callback is called under lock so the implementation must offload any long-running
+         * operations or acquiring another lock to another thread. So, the implementation doesn't
+         * hold the lock for longer than necessary and avoids deadlock situations.
+         *
+         * This callback is typically used to update internal cache or settings app strings to
+         * reflect latest set of packages disabled due to I/O overuse.
+         *
+         * @param packageName Name of the package that is disabled.
+         * @param userId User ID of the package that is disabled.
+         */
+        void onPackageDisabledLocked(String packageName, int userId);
     }
 
     private final class PackageResourceUsage {

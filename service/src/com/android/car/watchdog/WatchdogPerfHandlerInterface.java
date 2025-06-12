@@ -152,7 +152,7 @@ public interface WatchdogPerfHandlerInterface {
     void processUserNotificationIntent(Intent intent);
 
     /** Handles when system broadcast package changed action */
-    void processPackageChangedIntent(Intent intent);
+    void processActionPackageChanged(Intent intent);
 
     /** Disables a package for specific user until used. */
     boolean disablePackageForUser(String packageName, @UserIdInt int userId);

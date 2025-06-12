@@ -3731,7 +3731,7 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
     }
 
     @Test
-    public void testProcessPackageChangedIntentForEnabledPackage() throws Exception {
+    public void testProcessActionPackageChangedForEnabledPackage() throws Exception {
         String packageName = "system_package";
         int userId = 100;
 
@@ -3743,11 +3743,11 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
                 .getApplicationEnabledSetting(or(eq("system_package"),
                         eq("irrelevant_random_package")), eq(100));
 
-        mWatchdogPerfHandler.processPackageChangedIntent(new Intent(ACTION_PACKAGE_CHANGED)
+        mWatchdogPerfHandler.processActionPackageChanged(new Intent(ACTION_PACKAGE_CHANGED)
                 .putExtra(Intent.EXTRA_USER_HANDLE, userId)
                 .setData(Uri.parse("package:" + packageName)));
 
-        mWatchdogPerfHandler.processPackageChangedIntent(new Intent(ACTION_PACKAGE_CHANGED)
+        mWatchdogPerfHandler.processActionPackageChanged(new Intent(ACTION_PACKAGE_CHANGED)
                 .putExtra(Intent.EXTRA_USER_HANDLE, userId)
                 .setData(Uri.parse("package:irrelevant_random_package")));
 
@@ -3758,7 +3758,7 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
     }
 
     @Test
-    public void testProcessPackageChangedIntentForDisabledPackage() throws Exception {
+    public void testProcessActionPackageChangedForDisabledPackage() throws Exception {
         String packageName = "system_package";
         int userId = 100;
 
@@ -3768,7 +3768,7 @@ public class WatchdogPerfHandlerUnitTest extends AbstractExtendedMockitoTestCase
         doReturn(COMPONENT_ENABLED_STATE_DISABLED).when(mSpiedPackageManager)
                 .getApplicationEnabledSetting("system_package", 100);
 
-        mWatchdogPerfHandler.processPackageChangedIntent(new Intent(ACTION_PACKAGE_CHANGED)
+        mWatchdogPerfHandler.processActionPackageChanged(new Intent(ACTION_PACKAGE_CHANGED)
                 .putExtra(Intent.EXTRA_USER_HANDLE, userId)
                 .setData(Uri.parse("package:" + packageName)));
 

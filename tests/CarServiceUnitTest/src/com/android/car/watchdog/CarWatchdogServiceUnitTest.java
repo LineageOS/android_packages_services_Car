@@ -605,7 +605,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
                 .setData(Uri.parse("package:" + SYSTEM_PACKAGE_NAME));
         mBroadcastReceiver.onReceive(mMockContext, intent);
 
-        verify(mMockWatchdogPerfHandler).processPackageChangedIntent(eq(intent));
+        verify(mMockWatchdogPerfHandler).processActionPackageChanged(eq(intent));
     }
 
     @Test

@@ -1206,7 +1206,7 @@ public final class WatchdogPerfHandlerStable implements WatchdogPerfHandlerInter
 
     /** Handles when system broadcast package changed action */
     @Override
-    public void processPackageChangedIntent(Intent intent) {
+    public void processActionPackageChanged(Intent intent) {
         int userId = intent.getIntExtra(Intent.EXTRA_USER_HANDLE, USER_NULL);
         if (userId == USER_NULL) {
             Slogf.w(TAG, "Skipping package changed action with USER_NULL user");
