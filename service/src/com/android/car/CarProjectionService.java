@@ -907,9 +907,15 @@ class CarProjectionService extends ICarProjection.Stub implements CarServiceBase
                 NetworkInterface iface = NetworkInterface.getByName(ifaceName);
                 if (iface == null) {
                     Slogf.e(TAG, "Can't find NetworkInterface: " + ifaceName);
-                } else {
-                    setAccessPointBssid(MacAddress.fromBytes(iface.getHardwareAddress()));
+                    return;
                 }
+                byte[] hardwareAddress = iface.getHardwareAddress();
+                if (hardwareAddress == null) {
+                    Slogf.e(TAG,
+                            "Can't get hardware address for NetworkInterface: " + ifaceName);
+                    return;
+                }
+                setAccessPointBssid(MacAddress.fromBytes(hardwareAddress));
             } catch (SocketException e) {
                 Slogf.e(TAG, e.toString(), e);
             }
