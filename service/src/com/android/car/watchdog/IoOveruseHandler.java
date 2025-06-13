@@ -38,8 +38,6 @@ import static android.content.pm.PackageManager.COMPONENT_ENABLED_STATE_ENABLED;
 import static android.os.Process.INVALID_UID;
 import static android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS;
 
-import static com.android.car.CarStatsLog.CAR_WATCHDOG_IO_OVERUSE_STATS_REPORTED;
-import static com.android.car.CarStatsLog.CAR_WATCHDOG_KILL_STATS_REPORTED;
 import static com.android.car.CarStatsLog.CAR_WATCHDOG_KILL_STATS_REPORTED__KILL_REASON__KILLED_ON_IO_OVERUSE;
 import static com.android.car.CarStatsLog.CAR_WATCHDOG_KILL_STATS_REPORTED__SYSTEM_STATE__GARAGE_MODE;
 import static com.android.car.CarStatsLog.CAR_WATCHDOG_KILL_STATS_REPORTED__SYSTEM_STATE__USER_INTERACTION_MODE;
@@ -125,7 +123,6 @@ import com.android.car.internal.NotificationHelperBase;
 import com.android.car.internal.dep.Trace;
 import com.android.car.internal.util.ConcurrentUtils;
 import com.android.car.internal.util.IndentingPrintWriter;
-import com.android.car.stats.CarStatsLogWrapper;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.Preconditions;
@@ -222,7 +219,6 @@ public final class IoOveruseHandler {
     private final int mResourceOveruseNotificationBaseId;
     private final int mResourceOveruseNotificationMaxOffset;
     private final TimeSource mTimeSource;
-    private final CarStatsLogWrapper mCarStatsLogWrapper;
     private final Object mLock = new Object();
     /**
      * Tracks user packages' resource usage. When cache is updated, call
@@ -296,8 +292,7 @@ public final class IoOveruseHandler {
             PackageInfoHandler packageInfoHandler, WatchdogStorage watchdogStorage,
             TimeSource timeSource, int uidIoUsageSummaryTopCount,
             int ioUsageSummaryMinSystemTotalWrittenBytes, int packageKillableStateResetDays,
-            int recurringOverusePeriodInDays, int recurringOveruseTimes, Handler serviceHandler,
-            CarStatsLogWrapper carStatsLogWrapper) {
+            int recurringOverusePeriodInDays, int recurringOveruseTimes, Handler serviceHandler) {
         mContext = context;
         mIoOveruseHelper = ioOveruseHelper;
         mBuiltinPackageContext = builtinPackageContext;
@@ -308,7 +303,6 @@ public final class IoOveruseHandler {
         mWatchdogStorage = watchdogStorage;
         mOveruseConfigurationCache = new OveruseConfigurationCache();
         mTimeSource = timeSource;
-        mCarStatsLogWrapper = carStatsLogWrapper;
         mUidIoUsageSummaryTopCount = uidIoUsageSummaryTopCount;
         mIoUsageSummaryMinSystemTotalWrittenBytes = ioUsageSummaryMinSystemTotalWrittenBytes;
         mPackageKillableStateResetDays = packageKillableStateResetDays;
@@ -2057,10 +2051,7 @@ public final class IoOveruseHandler {
             }
         }
         for (int i = 0; i < statsByUid.size(); ++i) {
-            // TODO(b/400460188): After identifying whethere TV's implementation can replace this
-            //  with a java genrule or need a callback API to upload metrics, remove this comment
-            //  and add a callback if needed.
-            mCarStatsLogWrapper.write(CAR_WATCHDOG_IO_OVERUSE_STATS_REPORTED, statsByUid.keyAt(i),
+            mIoOveruseHelper.logIoOveruseStatsReported(statsByUid.keyAt(i),
                     statsByUid.valueAt(i).toByteArray());
         }
     }
@@ -2083,10 +2074,7 @@ public final class IoOveruseHandler {
         for (int i = 0; i < statsByUid.size(); ++i) {
             // TODO(b/200598815): After watchdog can classify foreground vs background apps,
             //  report the correct uid state.
-            // TODO(b/400460188): After identifying whethere TV's implementation can replace this
-            //  with a java genrule or need a callback API to upload metrics, remove this comment
-            //  and add a callback if needed.
-            mCarStatsLogWrapper.write(CAR_WATCHDOG_KILL_STATS_REPORTED, statsByUid.keyAt(i),
+            mIoOveruseHelper.logKillStatsReported(statsByUid.keyAt(i),
                     CAR_WATCHDOG_KILL_STATS_REPORTED__UID_STATE__UNKNOWN_UID_STATE,
                     systemState,
                     CAR_WATCHDOG_KILL_STATS_REPORTED__KILL_REASON__KILLED_ON_IO_OVERUSE,
@@ -2234,7 +2222,7 @@ public final class IoOveruseHandler {
         AtomsProto.CarWatchdogEventTimePeriod evenTimePeriod =
                 AtomsProto.CarWatchdogEventTimePeriod.newBuilder()
                         .setPeriod(AtomsProto.CarWatchdogEventTimePeriod.Period.WEEKLY).build();
-        data.add(mCarStatsLogWrapper.buildStatsEvent(CAR_WATCHDOG_SYSTEM_IO_USAGE_SUMMARY,
+        data.add(mIoOveruseHelper.buildSystemIoUsageSummaryStatsEvent(
                 AtomsProto.CarWatchdogIoUsageSummary.newBuilder()
                         .setEventTimePeriod(evenTimePeriod)
                         .addAllDailyIoUsageSummary(dailyIoUsageSummaries).build()
@@ -2288,7 +2276,7 @@ public final class IoOveruseHandler {
                         + "reporting stats for this user package", entry.packageName, entry.userId);
                 continue;
             }
-            data.add(mCarStatsLogWrapper.buildStatsEvent(CAR_WATCHDOG_UID_IO_USAGE_SUMMARY,
+            data.add(mIoOveruseHelper.buildUidIoUsageSummaryStatsEvent(
                     uidsByGenericPackageName.get(entry.packageName),
                     AtomsProto.CarWatchdogIoUsageSummary.newBuilder()
                             .setEventTimePeriod(evenTimePeriodBuilder)
@@ -2926,6 +2914,47 @@ public final class IoOveruseHandler {
          * @param userId User ID of the package that is disabled.
          */
         void onPackageDisabledLocked(String packageName, int userId);
+
+        /**
+         * Logs I/O overuse stats metrics with {@link android.util.StatsLog}.
+         *
+         * @param uid UID of the user package that overused disk I/O.
+         * @param ioOveruseStats Metrics for I/O overuse.
+         */
+        void logIoOveruseStatsReported(int uid, byte[] ioOveruseStats);
+
+        /**
+         * Logs I/O overuse kill stats metrics with {@link android.util.StatsLog}.
+         *
+         * @param uid UID of the user package that overused disk I/O.
+         * @param uidState State of the user package that overused disk I/O.
+         * @param systemState State of the system when the app is killed.
+         * @param killReason Reason for the app being killed.
+         * @param processStats Stats of the processes owned by the killed application.
+         * @param ioOveruseStats Metrics for I/O overuse.
+         */
+        void logKillStatsReported(int uid, int uidState, int systemState, int killReason,
+                                         byte[] processStats, byte[] ioOveruseStats);
+
+        /**
+         * Builds system-wide I/O usage summary stats event with {@link android.util.StatsEvent}.
+         *
+         * @param ioUsageSummary Metrics for I/O usage.
+         * @param startTimeMillis Start time of the I/O usage event.
+         * @return System-wide I/O usage stats event.
+         */
+        StatsEvent buildSystemIoUsageSummaryStatsEvent(byte[] ioUsageSummary, long startTimeMillis);
+
+        /**
+         * Builds per-UiD I/O usage summary stats events with {@link android.util.StatsEvent}.
+         *
+         * @param uid UID of the user package that used disk I/O.
+         * @param ioUsageSummary Metrics for I/O usage.
+         * @param startTimeMillis Start time of the I/O usage event.
+         * @return Per-UID I/O usage stats event.
+         */
+        StatsEvent buildUidIoUsageSummaryStatsEvent(int uid, byte[] ioUsageSummary,
+                                                    long startTimeMillis);
     }
 
     private final class PackageResourceUsage {

@@ -26,6 +26,10 @@ import static android.os.Process.INVALID_UID;
 import static android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS;
 
 import static com.android.car.CarServiceUtils.getContentResolverForUser;
+import static com.android.car.CarStatsLog.CAR_WATCHDOG_IO_OVERUSE_STATS_REPORTED;
+import static com.android.car.CarStatsLog.CAR_WATCHDOG_KILL_STATS_REPORTED;
+import static com.android.car.CarStatsLog.CAR_WATCHDOG_SYSTEM_IO_USAGE_SUMMARY;
+import static com.android.car.CarStatsLog.CAR_WATCHDOG_UID_IO_USAGE_SUMMARY;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 import static com.android.car.internal.NotificationHelperBase.CAR_WATCHDOG_ACTION_DISMISS_RESOURCE_OVERUSE_NOTIFICATION;
 import static com.android.car.internal.NotificationHelperBase.CAR_WATCHDOG_ACTION_LAUNCH_APP_SETTINGS;
@@ -69,6 +73,7 @@ import android.text.TextUtils;
 import android.util.ArrayMap;
 import android.util.ArraySet;
 import android.util.SparseArray;
+import android.util.StatsEvent;
 import android.util.proto.ProtoOutputStream;
 import android.view.Display;
 
@@ -103,8 +108,6 @@ public final class WatchdogPerfHandler implements WatchdogPerfHandlerInterface {
     private final int mResourceOveruseNotificationBaseId;
     private final int mResourceOveruseNotificationMaxOffset;
     private final TimeSource mTimeSource;
-    // TODO(b/400460188): Use this to push / pull metrics via IoOveruseHelper.
-    private final CarStatsLogWrapper mCarStatsLogWrapper;
     private final IoOveruseHandler mIoOveruseHandler;
     private final Object mLock = new Object();
     /**
@@ -156,7 +159,6 @@ public final class WatchdogPerfHandler implements WatchdogPerfHandlerInterface {
         mBuiltinPackageContext = builtinPackageContext;
         mPackageInfoHandler = packageInfoHandler;
         mTimeSource = timeSource;
-        mCarStatsLogWrapper = carStatsLogWrapper;
         mIsDisplayOn = true;
         Resources resources = mContext.getResources();
 
@@ -168,11 +170,12 @@ public final class WatchdogPerfHandler implements WatchdogPerfHandlerInterface {
         int recurringOverusePeriodInDays =
                 resources.getInteger(R.integer.recurringResourceOverusePeriodInDays);
         int recurringOveruseTimes = resources.getInteger(R.integer.recurringResourceOveruseTimes);
-        mIoOveruseHandler = new IoOveruseHandler(context, new IoOveruseHelperImpl(context, this),
+        mIoOveruseHandler = new IoOveruseHandler(context,
+                new IoOveruseHelperImpl(context, this, carStatsLogWrapper),
                 mBuiltinPackageContext, daemonHelper, packageInfoHandler, watchdogStorage,
                 timeSource, uidIoUsageSummaryTopCount, ioUsageSummaryMinSystemTotalWrittenBytes,
                 packageKillableStateResetDays, recurringOverusePeriodInDays, recurringOveruseTimes,
-                serviceHandler, mCarStatsLogWrapper);
+                serviceHandler);
         mResourceOveruseNotificationBaseId =
                 NotificationHelperBase.RESOURCE_OVERUSE_NOTIFICATION_BASE_ID;
         mResourceOveruseNotificationMaxOffset =
@@ -777,10 +780,13 @@ public final class WatchdogPerfHandler implements WatchdogPerfHandlerInterface {
     private final class IoOveruseHelperImpl implements IoOveruseHandler.IoOveruseHelper {
         private final Context mContext;
         private final WatchdogPerfHandler mWatchdogPerfHandler;
+        private final CarStatsLogWrapper mCarStatsLogWrapper;
 
-        IoOveruseHelperImpl(Context context, WatchdogPerfHandler watchdogPerfHandler) {
+        IoOveruseHelperImpl(Context context, WatchdogPerfHandler watchdogPerfHandler,
+                            CarStatsLogWrapper carStatsLogWrapper) {
             mContext = context;
             mWatchdogPerfHandler = watchdogPerfHandler;
+            mCarStatsLogWrapper = carStatsLogWrapper;
         }
 
         @Override
@@ -837,6 +843,33 @@ public final class WatchdogPerfHandler implements WatchdogPerfHandlerInterface {
                 Slogf.d(TAG, "Appended %s to %s. New value is '%s'", packageName,
                         KEY_PACKAGES_DISABLED_ON_RESOURCE_OVERUSE, settingsString);
             }
+        }
+
+        @Override
+        public void logIoOveruseStatsReported(int uid, byte[] ioOveruseStats) {
+            mCarStatsLogWrapper.write(CAR_WATCHDOG_IO_OVERUSE_STATS_REPORTED, uid,
+                    ioOveruseStats);
+        }
+
+        @Override
+        public void logKillStatsReported(int uid, int uidState, int systemState, int killReason,
+                                         byte[] processStats, byte[] ioOveruseStats) {
+            mCarStatsLogWrapper.write(CAR_WATCHDOG_KILL_STATS_REPORTED, uid, uidState, systemState,
+                    killReason, processStats, ioOveruseStats);
+        }
+
+        @Override
+        public StatsEvent buildSystemIoUsageSummaryStatsEvent(byte[] ioUsageSummary,
+                                                              long startTimeMillis) {
+            return mCarStatsLogWrapper.buildStatsEvent(CAR_WATCHDOG_SYSTEM_IO_USAGE_SUMMARY,
+                    ioUsageSummary, startTimeMillis);
+        }
+
+        @Override
+        public StatsEvent buildUidIoUsageSummaryStatsEvent(int uid, byte[] ioUsageSummary,
+                                                            long startTimeMillis) {
+            return mCarStatsLogWrapper.buildStatsEvent(CAR_WATCHDOG_UID_IO_USAGE_SUMMARY, uid,
+                    ioUsageSummary, startTimeMillis);
         }
     }
 }

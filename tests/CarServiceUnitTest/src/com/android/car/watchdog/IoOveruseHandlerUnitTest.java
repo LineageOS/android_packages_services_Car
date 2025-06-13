@@ -137,10 +137,8 @@ import android.view.Display;
 import com.android.car.BuiltinPackageDependency;
 import com.android.car.CarLocalServices;
 import com.android.car.CarServiceUtils;
-import com.android.car.CarStatsLog;
 import com.android.car.CarUxRestrictionsManagerService;
 import com.android.car.admin.NotificationHelper;
-import com.android.car.stats.CarStatsLogWrapper;
 
 import com.google.common.truth.Correspondence;
 
@@ -218,8 +216,6 @@ public class IoOveruseHandlerUnitTest extends AbstractExtendedMockitoTestCase {
     private NotificationHelper mMockNotificationHelper;
     @Mock
     private ContentResolver mMockContentResolver;
-    @Mock
-    private CarStatsLogWrapper mCarStatsLogWrapper;
     @Mock
     private IoOveruseHandler.IoOveruseHelper mMockIoOveruseHelper;
 
@@ -334,8 +330,7 @@ public class IoOveruseHandlerUnitTest extends AbstractExtendedMockitoTestCase {
                 new PackageInfoHandler(mMockContext.getPackageManager()), mSpiedWatchdogStorage,
                 mTimeSource, UID_IO_USAGE_SUMMARY_TOP_COUNT,
                 IO_USAGE_SUMMARY_MIN_SYSTEM_TOTAL_WRITTEN_BYTES, PACKAGE_KILLABLE_STATE_RESET_DAYS,
-                RECURRING_OVERUSE_PERIOD_IN_DAYS, RECURRING_OVERUSE_TIMES, mHandler,
-                mCarStatsLogWrapper);
+                RECURRING_OVERUSE_PERIOD_IN_DAYS, RECURRING_OVERUSE_TIMES, mHandler);
 
         setupUsers();
         mockSettingsStringCalls();
@@ -2582,8 +2577,8 @@ public class IoOveruseHandlerUnitTest extends AbstractExtendedMockitoTestCase {
 
         captureAndVerifyIoOveruseStatsReported(sampleReportedOveruseStats());
 
-        verify(mCarStatsLogWrapper, never()).write(eq(CarStatsLog.CAR_WATCHDOG_KILL_STATS_REPORTED),
-                anyInt(), anyInt(), anyInt(), anyInt(), any(), any());
+        verify(mMockIoOveruseHelper, never()).logKillStatsReported(anyInt(), anyInt(), anyInt(),
+                anyInt(), any(), any());
 
         verifyNoDisabledPackages();
     }
@@ -3509,8 +3504,8 @@ public class IoOveruseHandlerUnitTest extends AbstractExtendedMockitoTestCase {
 
         captureAndVerifyIoOveruseStatsReported(sampleReportedOveruseStats());
 
-        verify(mCarStatsLogWrapper, never()).write(eq(CarStatsLog.CAR_WATCHDOG_KILL_STATS_REPORTED),
-                anyInt(), anyInt(), anyInt(), anyInt(), any(), any());
+        verify(mMockIoOveruseHelper, never()).logKillStatsReported(anyInt(), anyInt(), anyInt(),
+                anyInt(), any(), any());
 
         verifyNoDisabledPackages();
     }
@@ -3528,8 +3523,8 @@ public class IoOveruseHandlerUnitTest extends AbstractExtendedMockitoTestCase {
 
         captureAndVerifyIoOveruseStatsReported(sampleReportedOveruseStats());
 
-        verify(mCarStatsLogWrapper, never()).write(eq(CarStatsLog.CAR_WATCHDOG_KILL_STATS_REPORTED),
-                anyInt(), anyInt(), anyInt(), anyInt(), any(), any());
+        verify(mMockIoOveruseHelper, never()).logKillStatsReported(anyInt(), anyInt(), anyInt(),
+                anyInt(), any(), any());
 
         verifyNoDisabledPackages();
     }
@@ -3788,8 +3783,8 @@ public class IoOveruseHandlerUnitTest extends AbstractExtendedMockitoTestCase {
     }
 
     private void mockBuildStatsEventCalls() {
-        when(mCarStatsLogWrapper.buildStatsEvent(eq(CAR_WATCHDOG_SYSTEM_IO_USAGE_SUMMARY),
-                any(byte[].class), anyLong())).thenAnswer(args -> {
+        when(mMockIoOveruseHelper.buildSystemIoUsageSummaryStatsEvent(any(byte[].class),
+                anyLong())).thenAnswer(args -> {
                     mPulledSystemIoUsageSummaries.add(AtomsProto.CarWatchdogSystemIoUsageSummary
                             .newBuilder()
                             .setIoUsageSummary(AtomsProto.CarWatchdogIoUsageSummary.parseFrom(
@@ -3800,8 +3795,8 @@ public class IoOveruseHandlerUnitTest extends AbstractExtendedMockitoTestCase {
                     return StatsEvent.newBuilder().build();
                 });
 
-        when(mCarStatsLogWrapper.buildStatsEvent(eq(CAR_WATCHDOG_UID_IO_USAGE_SUMMARY), anyInt(),
-                any(byte[].class), anyLong())).thenAnswer(args -> {
+        when(mMockIoOveruseHelper.buildUidIoUsageSummaryStatsEvent(anyInt(), any(byte[].class),
+                anyLong())).thenAnswer(args -> {
                     mPulledUidIoUsageSummaries.add(AtomsProto.CarWatchdogUidIoUsageSummary
                             .newBuilder()
                             .setUid(args.getArgument(1))
@@ -4117,8 +4112,7 @@ public class IoOveruseHandlerUnitTest extends AbstractExtendedMockitoTestCase {
                 new PackageInfoHandler(mMockContext.getPackageManager()),
                 mSpiedWatchdogStorage, mTimeSource, UID_IO_USAGE_SUMMARY_TOP_COUNT,
                 IO_USAGE_SUMMARY_MIN_SYSTEM_TOTAL_WRITTEN_BYTES, PACKAGE_KILLABLE_STATE_RESET_DAYS,
-                RECURRING_OVERUSE_PERIOD_IN_DAYS, RECURRING_OVERUSE_TIMES, mHandler,
-                mCarStatsLogWrapper);
+                RECURRING_OVERUSE_PERIOD_IN_DAYS, RECURRING_OVERUSE_TIMES, mHandler);
         initService(/* wantedInvocations= */ totalRestarts + 1);
     }
 
@@ -4260,9 +4254,9 @@ public class IoOveruseHandlerUnitTest extends AbstractExtendedMockitoTestCase {
 
     private void captureAndVerifyIoOveruseStatsReported(
             List<AtomsProto.CarWatchdogIoOveruseStatsReported> expected) throws Exception {
-        verify(mCarStatsLogWrapper, times(expected.size()))
-                .write(eq(CarStatsLog.CAR_WATCHDOG_IO_OVERUSE_STATS_REPORTED),
-                        mOverusingUidCaptor.capture(), mOveruseStatsCaptor.capture());
+        verify(mMockIoOveruseHelper, times(expected.size()))
+                .logIoOveruseStatsReported(mOverusingUidCaptor.capture(),
+                        mOveruseStatsCaptor.capture());
 
         List<Integer> allUidValues = mOverusingUidCaptor.getAllValues();
         List<byte[]> allOveruseStatsValues = mOveruseStatsCaptor.getAllValues();
@@ -4281,9 +4275,8 @@ public class IoOveruseHandlerUnitTest extends AbstractExtendedMockitoTestCase {
         // uploading metrics. Wait for this task to complete.
         CarServiceUtils.runOnMainSync(() -> {});
 
-        verify(mCarStatsLogWrapper, times(expected.size()))
-                .write(eq(CarStatsLog.CAR_WATCHDOG_KILL_STATS_REPORTED),
-                        mKilledUidCaptor.capture(), mUidStateCaptor.capture(),
+        verify(mMockIoOveruseHelper, times(expected.size()))
+                .logKillStatsReported(mKilledUidCaptor.capture(), mUidStateCaptor.capture(),
                         mSystemStateCaptor.capture(), mKillReasonCaptor.capture(), eq(null),
                         mKilledStatsCaptor.capture());
 
