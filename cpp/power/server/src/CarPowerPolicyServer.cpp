@@ -78,6 +78,9 @@ using ::android::base::StringAppendF;
 using ::android::base::StringPrintf;
 using ::android::base::WriteStringToFd;
 using ::android::car::feature::car_power_policy_refactoring;
+using ::android::frameworks::automotive::powerpolicy::PolicyRequestEvaluation::POLICY_REQUEST_APPLICABLE;
+using ::android::frameworks::automotive::powerpolicy::PolicyRequestEvaluation::POLICY_REQUEST_ALREADY_APPLIED;
+using ::android::frameworks::automotive::powerpolicy::PolicyRequestEvaluation::POLICY_REQUEST_DEFERRED;
 using ::android::frameworks::automotive::vhal::HalPropError;
 using ::android::frameworks::automotive::vhal::IHalPropValue;
 using ::android::frameworks::automotive::vhal::ISubscriptionClient;
@@ -1601,7 +1604,9 @@ Result<void> CarPowerPolicyServer::applyPowerPolicy(const std::string& policyId,
                                    : "Before CarService starts serving, power policy cannot be "
                                      "applied from CarService");
     } else {
-        if (!canApplyPowerPolicyLocked(*policyMeta, force, /*out*/ clients)) {
+        PolicyRequestEvaluation result =
+            canApplyPowerPolicyLocked(*policyMeta, force, /*out*/ clients);
+        if (result == POLICY_REQUEST_DEFERRED || result == POLICY_REQUEST_ALREADY_APPLIED) {
             return {};
         }
     }
@@ -1609,16 +1614,16 @@ Result<void> CarPowerPolicyServer::applyPowerPolicy(const std::string& policyId,
     return {};
 }
 
-bool CarPowerPolicyServer::canApplyPowerPolicyLocked(const CarPowerPolicyMeta& policyMeta,
-                                                     const bool force,
-                                                     std::vector<CallbackInfo>& outClients) {
+PolicyRequestEvaluation CarPowerPolicyServer::canApplyPowerPolicyLocked(
+        const CarPowerPolicyMeta& policyMeta, const bool force,
+        std::vector<CallbackInfo>& outClients) {
     const std::string& policyId = policyMeta.powerPolicy->policyId;
     ALOGI("Checking if power policy(%s) can be applied", policyId.c_str());
     bool isPolicyApplied = isPowerPolicyAppliedLocked();
     if (isPolicyApplied && mCurrentPowerPolicyMeta.powerPolicy->policyId == policyId) {
         ALOGI("Applying policy skipped: the given policy(ID: %s) is the current policy",
               policyId.c_str());
-        return false;
+        return POLICY_REQUEST_ALREADY_APPLIED;
     }
     if (policyMeta.isPreemptive) {
         if (isPolicyApplied && !mCurrentPowerPolicyMeta.isPreemptive) {
@@ -1633,13 +1638,13 @@ bool CarPowerPolicyServer::canApplyPowerPolicyLocked(const CarPowerPolicyMeta& p
             ALOGI("%s is queued and will be applied after power policy get unlocked",
                   policyId.c_str());
             mPendingPowerPolicyId = policyId;
-            return false;
+            return POLICY_REQUEST_DEFERRED;
         }
     }
     mCurrentPowerPolicyMeta = policyMeta;
     outClients = mPolicyChangeCallbacks;
     mLastApplyPowerPolicyUptimeMs = uptimeMillis();
-    return true;
+    return POLICY_REQUEST_APPLICABLE;
 }
 
 void CarPowerPolicyServer::applyAndNotifyPowerPolicy(const CarPowerPolicyMeta& policyMeta,
@@ -1705,8 +1710,12 @@ Result<bool> CarPowerPolicyServer::applyPowerPolicyInternal(const std::string& p
     std::vector<CallbackInfo> clients;
     {
         std::lock_guard<std::mutex> lock(mMutex);
-        if (!canApplyPowerPolicyLocked(*policyMeta, force, /*out*/ clients)) {
+        PolicyRequestEvaluation result =
+            canApplyPowerPolicyLocked(*policyMeta, force, /*out*/ clients);
+        if (result == POLICY_REQUEST_DEFERRED) {
             return false;
+        } else if (result == POLICY_REQUEST_ALREADY_APPLIED) {
+            return true;
         }
     }
     applyAndNotifyPowerPolicy(*policyMeta, clients, notifyCarService);
