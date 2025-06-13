@@ -61,6 +61,13 @@ struct CallbackInfo {
     pid_t pid;
 };
 
+enum class PolicyRequestEvaluation {
+    POLICY_REQUEST_UNKNOWN = 0,
+    POLICY_REQUEST_APPLICABLE,
+    POLICY_REQUEST_ALREADY_APPLIED,
+    POLICY_REQUEST_DEFERRED,
+};
+
 // Forward declaration for testing use only.
 namespace internal {
 
@@ -407,8 +414,10 @@ private:
                     processor) EXCLUDES(mMutex);
     bool isPropertySupported(const int32_t prop) EXCLUDES(mMutex);
     bool isPowerPolicyAppliedLocked() const REQUIRES(mMutex);
-    bool canApplyPowerPolicyLocked(const CarPowerPolicyMeta& policyMeta, const bool force,
-                                   std::vector<CallbackInfo>& outClients) REQUIRES(mMutex);
+    PolicyRequestEvaluation canApplyPowerPolicyLocked(const CarPowerPolicyMeta& policyMeta,
+                                                      const bool force,
+                                                      std::vector<CallbackInfo>& outClients)
+            REQUIRES(mMutex);
     void applyInitialPowerPolicy() EXCLUDES(mMutex);
     void applyAndNotifyPowerPolicy(const CarPowerPolicyMeta& policyMeta,
                                    const std::vector<CallbackInfo>& clients,
