@@ -21,7 +21,7 @@
 #include "MockProcDiskStatsCollector.h"
 #include "MockResourceOveruseListener.h"
 #include "MockUidStatsCollectorBase.h"
-#include "MockWatchdogServiceHelper.h"
+#include "MockWatchdogServiceHelperBase.h"
 #include "PackageInfoTestUtils.h"
 
 #include <android-base/chrono_utils.h>
@@ -212,12 +212,12 @@ private:
 class IoOveruseMonitorTest : public ::testing::Test {
 protected:
     virtual void SetUp() {
-        mMockWatchdogServiceHelper = sp<MockWatchdogServiceHelper>::make();
+        mMockWatchdogServiceHelperBase = sp<MockWatchdogServiceHelperBase>::make();
         mMockDeathRegistrationWrapper = sp<MockAIBinderDeathRegistrationWrapper>::make();
         mMockIoOveruseConfigs = sp<MockIoOveruseConfigs>::make();
         mMockPackageInfoResolver = std::make_shared<MockPackageInfoResolver>();
         mMockUidStatsCollectorBase = sp<MockUidStatsCollectorBase>::make();
-        mIoOveruseMonitor = sp<IoOveruseMonitor>::make(mMockWatchdogServiceHelper);
+        mIoOveruseMonitor = sp<IoOveruseMonitor>::make(mMockWatchdogServiceHelperBase);
         mIoOveruseMonitorPeer = sp<internal::IoOveruseMonitorPeer>::make(mIoOveruseMonitor);
         mIoOveruseMonitorPeer->init(mMockDeathRegistrationWrapper, mMockIoOveruseConfigs,
                                     mMockPackageInfoResolver);
@@ -225,7 +225,7 @@ protected:
     }
 
     virtual void TearDown() {
-        mMockWatchdogServiceHelper.clear();
+        mMockWatchdogServiceHelperBase.clear();
         mMockIoOveruseConfigs.clear();
         mMockPackageInfoResolver.reset();
         mMockUidStatsCollectorBase.clear();
@@ -297,7 +297,7 @@ protected:
                 .Times(0);
     }
 
-    sp<MockWatchdogServiceHelper> mMockWatchdogServiceHelper;
+    sp<MockWatchdogServiceHelperBase> mMockWatchdogServiceHelperBase;
     sp<MockAIBinderDeathRegistrationWrapper> mMockDeathRegistrationWrapper;
     sp<MockIoOveruseConfigs> mMockIoOveruseConfigs;
     std::shared_ptr<MockPackageInfoResolver> mMockPackageInfoResolver;
@@ -335,7 +335,7 @@ const std::unordered_map<uid_t, PackageInfo> IoOveruseMonitorTest::kPackageInfos
                   /*uid=*/1312345, UidType::APPLICATION)}};
 
 TEST_F(IoOveruseMonitorTest, TestOnCarWatchdogServiceRegistered) {
-    EXPECT_CALL(*mMockWatchdogServiceHelper, requestTodayIoUsageStats())
+    EXPECT_CALL(*mMockWatchdogServiceHelperBase, requestTodayIoUsageStats())
             .Times(1)
             .WillOnce(Return(ByMove(ScopedAStatus::ok())));
 
@@ -349,7 +349,7 @@ TEST_F(IoOveruseMonitorTest, TestOnPeriodicCollection) {
         ASSERT_RESULT_OK(mIoOveruseMonitor->addIoOveruseListener(mockResourceOveruseListener));
     }));
 
-    EXPECT_CALL(*mMockWatchdogServiceHelper, requestTodayIoUsageStats())
+    EXPECT_CALL(*mMockWatchdogServiceHelperBase, requestTodayIoUsageStats())
             .WillOnce(Return(ByMove(ScopedAStatus::ok())));
 
     /*
@@ -512,7 +512,7 @@ TEST_F(IoOveruseMonitorTest, TestOnPeriodicCollectionWithGarageMode) {
         ASSERT_RESULT_OK(mIoOveruseMonitor->addIoOveruseListener(mockResourceOveruseListener));
     }));
 
-    EXPECT_CALL(*mMockWatchdogServiceHelper, requestTodayIoUsageStats())
+    EXPECT_CALL(*mMockWatchdogServiceHelperBase, requestTodayIoUsageStats())
             .WillOnce(Return(ByMove(ScopedAStatus::ok())));
 
     /*
@@ -578,7 +578,7 @@ TEST_F(IoOveruseMonitorTest, TestOnPeriodicCollectionWithGarageMode) {
 }
 
 TEST_F(IoOveruseMonitorTest, TestOnPeriodicCollectionWithZeroWriteBytes) {
-    EXPECT_CALL(*mMockWatchdogServiceHelper, requestTodayIoUsageStats())
+    EXPECT_CALL(*mMockWatchdogServiceHelperBase, requestTodayIoUsageStats())
             .WillOnce(Return(ByMove(ScopedAStatus::ok())));
 
     EXPECT_CALL(*mMockUidStatsCollectorBase, deltaBaseStats())
@@ -605,7 +605,7 @@ TEST_F(IoOveruseMonitorTest, TestOnPeriodicCollectionWithZeroWriteBytes) {
 }
 
 TEST_F(IoOveruseMonitorTest, TestOnPeriodicCollectionWithExtremeOveruse) {
-    EXPECT_CALL(*mMockWatchdogServiceHelper, requestTodayIoUsageStats())
+    EXPECT_CALL(*mMockWatchdogServiceHelperBase, requestTodayIoUsageStats())
             .WillOnce(Return(ByMove(ScopedAStatus::ok())));
 
     EXPECT_CALL(*mMockUidStatsCollectorBase, deltaBaseStats())
@@ -644,7 +644,7 @@ TEST_F(IoOveruseMonitorTest, TestOnPeriodicCollectionWithExtremeOveruse) {
 }
 
 TEST_F(IoOveruseMonitorTest, TestOnPeriodicCollectionWithExtremeOveruseInGarageMode) {
-    EXPECT_CALL(*mMockWatchdogServiceHelper, requestTodayIoUsageStats())
+    EXPECT_CALL(*mMockWatchdogServiceHelperBase, requestTodayIoUsageStats())
             .WillOnce(Return(ByMove(ScopedAStatus::ok())));
 
     EXPECT_CALL(*mMockUidStatsCollectorBase, deltaBaseStats())
@@ -683,7 +683,7 @@ TEST_F(IoOveruseMonitorTest, TestOnPeriodicCollectionWithExtremeOveruseInGarageM
 }
 
 TEST_F(IoOveruseMonitorTest, TestOnPeriodicCollectionWithSmallWrittenBytes) {
-    EXPECT_CALL(*mMockWatchdogServiceHelper, requestTodayIoUsageStats())
+    EXPECT_CALL(*mMockWatchdogServiceHelperBase, requestTodayIoUsageStats())
             .WillOnce(Return(ByMove(ScopedAStatus::ok())));
 
     /*
@@ -785,7 +785,7 @@ TEST_F(IoOveruseMonitorTest, TestOnPeriodicCollectionWithSmallWrittenBytes) {
 }
 
 TEST_F(IoOveruseMonitorTest, TestOnPeriodicCollectionWithNoPackageInfo) {
-    EXPECT_CALL(*mMockWatchdogServiceHelper, requestTodayIoUsageStats())
+    EXPECT_CALL(*mMockWatchdogServiceHelperBase, requestTodayIoUsageStats())
             .WillOnce(Return(ByMove(ScopedAStatus::ok())));
 
     EXPECT_CALL(*mMockUidStatsCollectorBase, deltaBaseStats())
@@ -814,7 +814,7 @@ TEST_F(IoOveruseMonitorTest, TestOnPeriodicCollectionWithNoPackageInfo) {
 // service is registered.
 
 TEST_F(IoOveruseMonitorTest, TestOnPeriodicCollectionWithPrevBootStats) {
-    EXPECT_CALL(*mMockWatchdogServiceHelper, requestTodayIoUsageStats())
+    EXPECT_CALL(*mMockWatchdogServiceHelperBase, requestTodayIoUsageStats())
             .WillOnce(Return(ByMove(ScopedAStatus::ok())));
 
     EXPECT_CALL(*mMockUidStatsCollectorBase, deltaBaseStats())
@@ -897,7 +897,7 @@ TEST_F(IoOveruseMonitorTest, TestOnPeriodicCollectionWithPrevBootStats) {
 }
 
 TEST_F(IoOveruseMonitorTest, TestOnPeriodicCollectionWithErrorFetchingPrevBootStats) {
-    EXPECT_CALL(*mMockWatchdogServiceHelper, requestTodayIoUsageStats())
+    EXPECT_CALL(*mMockWatchdogServiceHelperBase, requestTodayIoUsageStats())
             .WillOnce(Return(ByMove(ScopedAStatus::fromExceptionCodeWithMessage(EX_ILLEGAL_STATE,
                                                                                 "Illegal state"))));
 
@@ -1086,7 +1086,7 @@ TEST_F(IoOveruseMonitorTest, TestRemoveDeadIoOveruseListener) {
 }
 
 TEST_F(IoOveruseMonitorTest, TestGetIoOveruseStats) {
-    EXPECT_CALL(*mMockWatchdogServiceHelper, requestTodayIoUsageStats())
+    EXPECT_CALL(*mMockWatchdogServiceHelperBase, requestTodayIoUsageStats())
             .WillOnce(Return(ByMove(ScopedAStatus::ok())));
     EXPECT_CALL(*mMockUidStatsCollectorBase, deltaBaseStats())
             .WillOnce(Return(constructUidBaseStats(
@@ -1117,7 +1117,7 @@ TEST_F(IoOveruseMonitorTest, TestGetIoOveruseStats) {
 }
 
 TEST_F(IoOveruseMonitorTest, TestResetIoOveruseStats) {
-    EXPECT_CALL(*mMockWatchdogServiceHelper, requestTodayIoUsageStats())
+    EXPECT_CALL(*mMockWatchdogServiceHelperBase, requestTodayIoUsageStats())
             .WillOnce(Return(ByMove(ScopedAStatus::ok())));
     EXPECT_CALL(*mMockUidStatsCollectorBase, deltaBaseStats())
             .WillOnce(Return(constructUidBaseStats(
@@ -1142,7 +1142,7 @@ TEST_F(IoOveruseMonitorTest, TestResetIoOveruseStats) {
     EXPECT_NE(actual.writtenBytes.backgroundBytes, 0);
 
     std::vector<std::string> packageNames = {"system.daemon"};
-    EXPECT_CALL(*mMockWatchdogServiceHelper, resetResourceOveruseStats(packageNames))
+    EXPECT_CALL(*mMockWatchdogServiceHelperBase, resetResourceOveruseStats(packageNames))
             .WillOnce(Return(ByMove(ScopedAStatus::ok())));
 
     ASSERT_RESULT_OK(mIoOveruseMonitor->resetIoOveruseStats(packageNames));
@@ -1156,13 +1156,13 @@ TEST_F(IoOveruseMonitorTest, TestResetIoOveruseStats) {
     EXPECT_EQ(actual.writtenBytes.backgroundBytes, 0);
 }
 
-TEST_F(IoOveruseMonitorTest, TestErrorsResetIoOveruseStatsOnWatchdogServiceHelperError) {
+TEST_F(IoOveruseMonitorTest, TestErrorsResetIoOveruseStatsOnWatchdogServiceHelperBaseError) {
     std::vector<std::string> packageNames = {"system.daemon"};
-    EXPECT_CALL(*mMockWatchdogServiceHelper, resetResourceOveruseStats(packageNames))
+    EXPECT_CALL(*mMockWatchdogServiceHelperBase, resetResourceOveruseStats(packageNames))
             .WillOnce(Return(ByMove(ScopedAStatus::fromExceptionCode(EX_ILLEGAL_STATE))));
 
     ASSERT_FALSE(mIoOveruseMonitor->resetIoOveruseStats(packageNames).ok())
-            << "Must return error when WatchdogServiceHelper fails to reset stats";
+            << "Must return error when WatchdogServiceHelperBase fails to reset stats";
 }
 
 TEST_F(IoOveruseMonitorTest, TestErrorsGetIoOveruseStatsOnNoStats) {
