@@ -26,12 +26,9 @@ import static android.car.test.mocks.AndroidMockitoHelper.mockUmGetUserHandles;
 import static android.car.watchdog.CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO;
 import static android.car.watchdog.CarWatchdogManager.RETURN_CODE_SUCCESS;
 import static android.content.Intent.ACTION_PACKAGE_CHANGED;
-import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK;
-import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static android.content.pm.PackageManager.COMPONENT_ENABLED_STATE_DISABLED;
 import static android.content.pm.PackageManager.COMPONENT_ENABLED_STATE_DISABLED_UNTIL_USED;
 import static android.content.pm.PackageManager.COMPONENT_ENABLED_STATE_ENABLED;
-import static android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS;
 
 import static com.android.car.CarStatsLog.CAR_WATCHDOG_KILL_STATS_REPORTED__KILL_REASON__KILLED_ON_IO_OVERUSE;
 import static com.android.car.CarStatsLog.CAR_WATCHDOG_KILL_STATS_REPORTED__SYSTEM_STATE__GARAGE_MODE;
@@ -39,14 +36,11 @@ import static com.android.car.CarStatsLog.CAR_WATCHDOG_KILL_STATS_REPORTED__SYST
 import static com.android.car.CarStatsLog.CAR_WATCHDOG_KILL_STATS_REPORTED__UID_STATE__UNKNOWN_UID_STATE;
 import static com.android.car.CarStatsLog.CAR_WATCHDOG_SYSTEM_IO_USAGE_SUMMARY;
 import static com.android.car.CarStatsLog.CAR_WATCHDOG_UID_IO_USAGE_SUMMARY;
-import static com.android.car.internal.NotificationHelperBase.CAR_WATCHDOG_ACTION_DISMISS_RESOURCE_OVERUSE_NOTIFICATION;
-import static com.android.car.internal.NotificationHelperBase.CAR_WATCHDOG_ACTION_LAUNCH_APP_SETTINGS;
 import static com.android.car.internal.NotificationHelperBase.RESOURCE_OVERUSE_NOTIFICATION_BASE_ID;
 import static com.android.car.internal.NotificationHelperBase.RESOURCE_OVERUSE_NOTIFICATION_MAX_OFFSET;
 import static com.android.car.watchdog.TimeSource.ZONE_OFFSET;
 import static com.android.car.watchdog.WatchdogPerfHandlerInterface.INTERNAL_APPLICATION_CATEGORY_TYPE_MAPS;
 import static com.android.car.watchdog.WatchdogPerfHandlerInterface.INTERNAL_APPLICATION_CATEGORY_TYPE_MEDIA;
-import static com.android.car.watchdog.WatchdogPerfHandlerInterface.INTENT_EXTRA_NOTIFICATION_ID;
 import static com.android.car.watchdog.WatchdogPerfHandlerInterface.MAX_DAEMON_CONNECTION_WAIT_TIME_MILLS;
 import static com.android.car.watchdog.WatchdogPerfHandlerInterface.PACKAGES_DISABLED_ON_RESOURCE_OVERUSE_SEPARATOR;
 import static com.android.car.watchdog.WatchdogPerfHandlerInterface.USER_PACKAGE_SEPARATOR;
@@ -326,7 +320,7 @@ public class IoOveruseHandlerUnitTest extends AbstractExtendedMockitoTestCase {
                 spy(new WatchdogStorage(mMockContext, /* useDataSystemCarDir= */ false,
                         mTimeSource));
         mIoOveruseHandler = new IoOveruseHandler(mMockContext, mMockIoOveruseHelper,
-                mMockBuiltinPackageContext, mMockCarWatchdogDaemonHelper,
+                mMockCarWatchdogDaemonHelper,
                 new PackageInfoHandler(mMockContext.getPackageManager()), mSpiedWatchdogStorage,
                 mTimeSource, UID_IO_USAGE_SUMMARY_TOP_COUNT,
                 IO_USAGE_SUMMARY_MIN_SYSTEM_TOTAL_WRITTEN_BYTES, PACKAGE_KILLABLE_STATE_RESET_DAYS,
@@ -359,72 +353,6 @@ public class IoOveruseHandlerUnitTest extends AbstractExtendedMockitoTestCase {
             mIoOveruseHandler.addResourceOveruseListener(/* resourceOveruseFlag= */ 0,
                     mockListener);
         });
-    }
-
-    @Test
-    public void testProcessUserNotificationIntentDismissNotification() {
-        String packageName = "third_party_package";
-        UserHandle userHandle = UserHandle.of(100);
-        int notificationId = 150;
-
-        Intent intent = new Intent(CAR_WATCHDOG_ACTION_DISMISS_RESOURCE_OVERUSE_NOTIFICATION)
-                .putExtra(Intent.EXTRA_PACKAGE_NAME, packageName)
-                .putExtra(Intent.EXTRA_USER, userHandle)
-                .putExtra(INTENT_EXTRA_NOTIFICATION_ID, notificationId);
-
-        mIoOveruseHandler.processUserNotificationIntent(intent);
-
-        verifyNoDisabledPackages();
-
-        verify(mMockNotificationHelper).cancelNotificationAsUser(eq(userHandle),
-                eq(notificationId));
-    }
-
-    @Test
-    public void testProcessUserNotificationIntentDismissNotificationWithMissingNotificationId() {
-        String packageName = "third_party_package";
-        UserHandle userHandle = UserHandle.of(100);
-
-        Intent intent = new Intent(CAR_WATCHDOG_ACTION_DISMISS_RESOURCE_OVERUSE_NOTIFICATION)
-                .putExtra(Intent.EXTRA_PACKAGE_NAME, packageName)
-                .putExtra(Intent.EXTRA_USER, userHandle);
-
-        mIoOveruseHandler.processUserNotificationIntent(intent);
-
-        verifyNoDisabledPackages();
-
-        verify(mMockNotificationHelper, never()).cancelNotificationAsUser(any(), anyInt());
-    }
-
-    @Test
-    public void testProcessUserNotificationIntentLaunchAppSettings() {
-        String packageName = "third_party_package";
-        UserHandle userHandle = UserHandle.of(100);
-        int notificationId = 150;
-
-        Intent intent = new Intent(CAR_WATCHDOG_ACTION_LAUNCH_APP_SETTINGS)
-                .putExtra(Intent.EXTRA_PACKAGE_NAME, packageName)
-                .putExtra(Intent.EXTRA_USER, userHandle)
-                .putExtra(INTENT_EXTRA_NOTIFICATION_ID, notificationId);
-
-        mIoOveruseHandler.processUserNotificationIntent(intent);
-
-        verify(mMockBuiltinPackageContext).startActivityAsUser(
-                mStartActivityAsUserIntentCaptor.capture(), eq(userHandle));
-
-        Intent startActivityAsUserIntent = mStartActivityAsUserIntentCaptor.getValue();
-
-        expectWithMessage("Start Activity Intent Action").that(
-                startActivityAsUserIntent.getAction()).isEqualTo(
-                ACTION_APPLICATION_DETAILS_SETTINGS);
-        expectWithMessage("Start Activity Intent Data").that(
-                startActivityAsUserIntent.getData()).isEqualTo(Uri.parse("package:" + packageName));
-        expectWithMessage("Start Activity Intent Flag").that(
-                startActivityAsUserIntent.getFlags()).isEqualTo(
-                FLAG_ACTIVITY_CLEAR_TASK | FLAG_ACTIVITY_NEW_TASK);
-
-        verify(mMockNotificationHelper).cancelNotificationAsUser(eq(userHandle),
-                eq(notificationId));
     }
 
     @Test
@@ -4108,7 +4036,7 @@ public class IoOveruseHandlerUnitTest extends AbstractExtendedMockitoTestCase {
         verify(mSpiedWatchdogStorage, times(wantedDbWrites)).endWrite();
         verify(mSpiedWatchdogStorage, times(Math.max(totalRestarts, 1))).release();
         mIoOveruseHandler = new IoOveruseHandler(mMockContext, mMockIoOveruseHelper,
-                mMockBuiltinPackageContext, mMockCarWatchdogDaemonHelper,
+                mMockCarWatchdogDaemonHelper,
                 new PackageInfoHandler(mMockContext.getPackageManager()),
                 mSpiedWatchdogStorage, mTimeSource, UID_IO_USAGE_SUMMARY_TOP_COUNT,
                 IO_USAGE_SUMMARY_MIN_SYSTEM_TOTAL_WRITTEN_BYTES, PACKAGE_KILLABLE_STATE_RESET_DAYS,
