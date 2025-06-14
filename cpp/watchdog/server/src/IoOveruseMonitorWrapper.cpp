@@ -19,6 +19,8 @@
 
 #include "IoOveruseMonitorWrapper.h"
 
+#include "ServiceManager.h"
+
 #include <aidl/android/automotive/watchdog/IResourceOveruseListener.h>
 #include <android/util/ProtoOutputStream.h>
 
@@ -38,11 +40,25 @@ using ::android::sp;
 using ::android::base::Result;
 using ::android::util::ProtoOutputStream;
 
+void onBinderDied(void* cookie) {
+    const auto& thiz = ServiceManager::getInstance()->getIoOveruseMonitorWrapper();
+    if (thiz == nullptr) {
+        return;
+    }
+    thiz->handleBinderDeath(cookie);
+}
+
 }  // namespace
 
 IoOveruseMonitorWrapper::IoOveruseMonitorWrapper(
         const android::sp<WatchdogServiceHelperInterface>& watchdogServiceHelper) :
-      mIoOveruseMonitor(sp<IoOveruseMonitor>::make(watchdogServiceHelper)) {}
+      mIoOveruseMonitor(
+              sp<IoOveruseMonitor>::make(watchdogServiceHelper,
+                                         // In carwatchdogd on Automotive, the IoServiceManager
+                                         // instance is not available. Pass a new DeathRecipient
+                                         // explicitly to facilitate invoking the ServiceManager
+                                         // instance instead.
+                                         AIBinder_DeathRecipient_new(onBinderDied))) {}
 
 IoOveruseMonitorWrapper::~IoOveruseMonitorWrapper() {
     terminate();
