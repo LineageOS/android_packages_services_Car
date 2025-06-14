@@ -41,6 +41,7 @@ import android.app.ActivityManager;
 import android.automotive.watchdog.internal.GarageMode;
 import android.automotive.watchdog.internal.PackageIoOveruseStats;
 import android.automotive.watchdog.internal.UserPackageIoUsageStats;
+import android.car.builtin.content.pm.PackageManagerHelper;
 import android.car.builtin.util.EventLogHelper;
 import android.car.builtin.util.Slogf;
 import android.car.drivingstate.CarUxRestrictions;
@@ -59,7 +60,6 @@ import android.net.Uri;
 import android.os.Handler;
 import android.os.RemoteException;
 import android.os.UserHandle;
-import android.os.UserManager;
 import android.provider.Settings;
 import android.text.TextUtils;
 import android.util.ArraySet;
@@ -494,19 +494,6 @@ public final class WatchdogPerfHandler implements WatchdogPerfHandlerInterface {
         }
     }
 
-    private int[] getAliveUserIds() {
-        Trace.beginSection("WdPerfHandler.getAliveUserIds");
-        UserManager userManager = mContext.getSystemService(UserManager.class);
-        List<UserHandle> aliveUsers = userManager.getUserHandles(/* excludeDying= */ true);
-        int userSize = aliveUsers.size();
-        int[] userIds = new int[userSize];
-        for (int i = 0; i < userSize; ++i) {
-            userIds[i] = aliveUsers.get(i).getIdentifier();
-        }
-        Trace.endSection();
-        return userIds;
-    }
-
     @Nullable
     private List<String> sendUserNotifications(@UserIdInt int userId, List<String> packages) {
         Trace.beginSection("WdPerfHandler.sendUserNotifications");
@@ -586,7 +573,7 @@ public final class WatchdogPerfHandler implements WatchdogPerfHandlerInterface {
      */
     @GuardedBy("mLock")
     private void syncDisabledUserPackagesLocked() {
-        int[] userIds = getAliveUserIds();
+        int[] userIds = mIoOveruseHandler.getAliveUserIds();
         SparseArray<ArraySet<String>> disabledUserPackagesByUserId = new SparseArray<>();
         for (int i = 0; i < userIds.length; i++) {
             int userId = userIds[i];
@@ -717,6 +704,23 @@ public final class WatchdogPerfHandler implements WatchdogPerfHandlerInterface {
         @Nullable
         public List<String> sendUserNotifications(@UserIdInt int userId, List<String> packages) {
             return mWatchdogPerfHandler.sendUserNotifications(userId, packages);
+        }
+
+        @Override
+        public int getApplicationEnabledSettingForUser(@NonNull String packageName,
+                                                       @UserIdInt int userId)
+                throws RemoteException {
+            return PackageManagerHelper.getApplicationEnabledSettingForUser(packageName, userId);
+        }
+
+        @Override
+        public void setApplicationEnabledSettingForUser(@NonNull String packageName,
+                                                        int newState, int flags,
+                                                        @UserIdInt int userId,
+                                                        @NonNull String callingPackage)
+                throws RemoteException {
+            PackageManagerHelper.setApplicationEnabledSettingForUser(packageName, newState, flags,
+                    userId, callingPackage);
         }
     }
 }

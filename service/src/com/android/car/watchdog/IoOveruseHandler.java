@@ -1028,7 +1028,7 @@ public final class IoOveruseHandler {
                 + ", userId=" + userId + ")");
         try {
             try {
-                if (PackageManagerHelper.getApplicationEnabledSettingForUser(packageName, userId)
+                if (mIoOveruseHelper.getApplicationEnabledSettingForUser(packageName, userId)
                         != COMPONENT_ENABLED_STATE_ENABLED) {
                     return;
                 }
@@ -1073,7 +1073,7 @@ public final class IoOveruseHandler {
                 }
             }
             try {
-                int currentEnabledState = PackageManagerHelper.getApplicationEnabledSettingForUser(
+                int currentEnabledState = mIoOveruseHelper.getApplicationEnabledSettingForUser(
                         packageName, userId);
                 switch (currentEnabledState) {
                     case COMPONENT_ENABLED_STATE_DISABLED:
@@ -1087,7 +1087,7 @@ public final class IoOveruseHandler {
                         // COMPONENT_ENABLED_STATE_DEFAULT or other non-disabled states.
                         break;
                 }
-                PackageManagerHelper.setApplicationEnabledSettingForUser(packageName,
+                mIoOveruseHelper.setApplicationEnabledSettingForUser(packageName,
                         COMPONENT_ENABLED_STATE_DISABLED_UNTIL_USED, /* flags= */ 0, userId,
                         mContext.getPackageName());
                 synchronized (mLock) {
@@ -1371,6 +1371,22 @@ public final class IoOveruseHandler {
                 totalPackages++;
             }
             Slogf.i(TAG, "Set %d disabled user packages", totalPackages);
+        }
+    }
+
+    int[] getAliveUserIds() {
+        Trace.beginSection("IoOveruseHandler.getAliveUserIds");
+        try {
+            UserManager userManager = mContext.getSystemService(UserManager.class);
+            List<UserHandle> aliveUsers = userManager.getUserHandles(/* excludeDying= */ true);
+            int userSize = aliveUsers.size();
+            int[] userIds = new int[userSize];
+            for (int i = 0; i < userSize; ++i) {
+                userIds[i] = aliveUsers.get(i).getIdentifier();
+            }
+            return userIds;
+        } finally {
+            Trace.endSection();
         }
     }
 
@@ -1728,19 +1744,6 @@ public final class IoOveruseHandler {
         }
     }
 
-    private int[] getAliveUserIds() {
-        Trace.beginSection("IoOveruseHandler.getAliveUserIds");
-        UserManager userManager = mContext.getSystemService(UserManager.class);
-        List<UserHandle> aliveUsers = userManager.getUserHandles(/* excludeDying= */ true);
-        int userSize = aliveUsers.size();
-        int[] userIds = new int[userSize];
-        for (int i = 0; i < userSize; ++i) {
-            userIds[i] = aliveUsers.get(i).getIdentifier();
-        }
-        Trace.endSection();
-        return userIds;
-    }
-
     @GuardedBy("mLock")
     private void performOveruseHandlingLocked() {
         if (mCurrentUxState == UX_STATE_NO_DISTRACTION) {
@@ -1866,7 +1869,7 @@ public final class IoOveruseHandler {
         for (int i = 0; i < packages.size(); i++) {
             String packageName = packages.get(i);
             try {
-                if (PackageManagerHelper.getApplicationEnabledSettingForUser(packageName,
+                if (mIoOveruseHelper.getApplicationEnabledSettingForUser(packageName,
                         userId) != COMPONENT_ENABLED_STATE_DISABLED_UNTIL_USED) {
                     continue;
                 }
@@ -1881,7 +1884,7 @@ public final class IoOveruseHandler {
                     }
                     mIoOveruseHelper.onPackageEnabledLocked(packageName, userId);
                 }
-                PackageManagerHelper.setApplicationEnabledSettingForUser(
+                mIoOveruseHelper.setApplicationEnabledSettingForUser(
                         packageName, COMPONENT_ENABLED_STATE_ENABLED, /* flags= */ 0, userId,
                         mContext.getPackageName());
                 Slogf.i(TAG, "Enabled user '%d' package '%s'", userId, packageName);
@@ -2841,6 +2844,24 @@ public final class IoOveruseHandler {
          */
         @Nullable
         List<String> sendUserNotifications(@UserIdInt int userId, List<String> packages);
+
+        /**
+         * Check {@link PackageManager#getApplicationEnabledSetting(String, int)}.
+         *
+         * Forwards the call to PackageManager.
+         */
+        int getApplicationEnabledSettingForUser(@NonNull String packageName,
+                                                @UserIdInt int userId) throws RemoteException;
+
+        /**
+         * Check {@link PackageManager#setApplicationEnabledSetting(String, int, int, int)}.
+         *
+         * Forwards the call to PackageManager.
+         */
+        void setApplicationEnabledSettingForUser(@NonNull String packageName, int newState,
+                                                 int flags, @UserIdInt int userId,
+                                                 @NonNull String callingPackage)
+                throws RemoteException;
     }
 
     private final class PackageResourceUsage {
