@@ -16,19 +16,19 @@
 
 package android.car.hardware.property;
 
+import static android.car.feature.Flags.FLAG_VEHICLE_PROPERTY_ENUMS_REMOVE_SYSTEM_API_TAGS;
+
+import android.annotation.FlaggedApi;
 import android.annotation.IntDef;
 import android.annotation.NonNull;
-import android.annotation.SystemApi;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 /**
  * Used to enumerate the current state of {@link android.car.VehiclePropertyIds#TRAILER_PRESENT}.
- *
- * @hide
  */
-@SystemApi
+@FlaggedApi(FLAG_VEHICLE_PROPERTY_ENUMS_REMOVE_SYSTEM_API_TAGS)
 public final class TrailerState {
 
     /**

@@ -15,9 +15,11 @@
  */
 package android.car.hardware.property;
 
+import static android.car.feature.Flags.FLAG_VEHICLE_PROPERTY_ENUMS_REMOVE_SYSTEM_API_TAGS;
+
+import android.annotation.FlaggedApi;
 import android.annotation.IntDef;
 import android.annotation.NonNull;
-import android.annotation.SystemApi;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -27,9 +29,8 @@ import java.lang.annotation.RetentionPolicy;
  * Use {@link android.car.hardware.property.CarPropertyManager#getProperty(int, int)} and {@link
  * android.car.hardware.property.CarPropertyManager#setProperty(Class, int, int, java.lang.Object)}
  * to set and get related vehicle properties.
- * @hide
  */
-@SystemApi
+@FlaggedApi(FLAG_VEHICLE_PROPERTY_ENUMS_REMOVE_SYSTEM_API_TAGS)
 public final class VehicleLightState {
 
     /**

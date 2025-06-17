@@ -1155,45 +1155,6 @@ package android.car.hardware.property {
     method public int getVendorErrorCode();
   }
 
-  public final class TrailerState {
-    method @NonNull public static String toString(int);
-    field public static final int STATE_ERROR = 3; // 0x3
-    field public static final int STATE_NOT_PRESENT = 1; // 0x1
-    field public static final int STATE_PRESENT = 2; // 0x2
-    field public static final int STATE_UNKNOWN = 0; // 0x0
-  }
-
-  public final class VehicleLightState {
-    method @NonNull public static String toString(int);
-    field public static final int STATE_DAYTIME_RUNNING = 2; // 0x2
-    field public static final int STATE_OFF = 0; // 0x0
-    field public static final int STATE_ON = 1; // 0x1
-  }
-
-  public final class VehicleLightSwitch {
-    method @NonNull public static String toString(int);
-    field public static final int STATE_AUTOMATIC = 256; // 0x100
-    field public static final int STATE_DAYTIME_RUNNING = 2; // 0x2
-    field public static final int STATE_OFF = 0; // 0x0
-    field public static final int STATE_ON = 1; // 0x1
-  }
-
-  public final class VehicleOilLevel {
-    method @NonNull public static String toString(int);
-    field public static final int LEVEL_CRITICALLY_LOW = 0; // 0x0
-    field public static final int LEVEL_ERROR = 4; // 0x4
-    field public static final int LEVEL_HIGH = 3; // 0x3
-    field public static final int LEVEL_LOW = 1; // 0x1
-    field public static final int LEVEL_NORMAL = 2; // 0x2
-  }
-
-  public final class VehicleTurnSignal {
-    method @NonNull public static String toString(int);
-    field public static final int STATE_LEFT = 2; // 0x2
-    field public static final int STATE_NONE = 0; // 0x0
-    field public static final int STATE_RIGHT = 1; // 0x1
-  }
-
   public final class VehicleVendorPermission {
     field public static final String PERMISSION_GET_CAR_VENDOR_CATEGORY_1 = "android.car.permission.GET_CAR_VENDOR_CATEGORY_1";
     field public static final String PERMISSION_GET_CAR_VENDOR_CATEGORY_10 = "android.car.permission.GET_CAR_VENDOR_CATEGORY_10";
