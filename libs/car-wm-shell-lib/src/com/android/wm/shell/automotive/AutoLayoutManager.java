@@ -17,7 +17,7 @@
 package com.android.wm.shell.automotive;
 
 import static com.android.wm.shell.Flags.enableAutoTaskStackController;
-import static com.android.window.flags.Flags.safeRegionLetterboxing;
+import static com.android.window.flags.Flags.safeRegionLetterboxingV1;
 
 import android.annotation.NonNull;
 import android.app.ActivityManager;
@@ -77,8 +77,8 @@ public class AutoLayoutManager {
         Objects.requireNonNull(windowContainerToken);
         Objects.requireNonNull(safeRegion);
 
-        if (!safeRegionLetterboxing()) {
-            Slogf.e(TAG, "safe_region_letterboxing TS flag is disabled.");
+        if (!safeRegionLetterboxingV1()) {
+            Slogf.e(TAG, "safe_region_letterboxing_v1 TS flag is disabled.");
             return;
         }
 
