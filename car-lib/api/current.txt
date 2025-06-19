@@ -1356,6 +1356,14 @@ package android.car.hardware.property {
     method @FlaggedApi("android.car.feature.variable_update_rate") @NonNull public android.car.hardware.property.Subscription.Builder setVariableUpdateRateEnabled(boolean);
   }
 
+  @FlaggedApi("android.car.feature.vehicle_property_enums_remove_system_api_tags") public final class TrailerState {
+    method @NonNull public static String toString(int);
+    field public static final int STATE_ERROR = 3; // 0x3
+    field public static final int STATE_NOT_PRESENT = 1; // 0x1
+    field public static final int STATE_PRESENT = 2; // 0x2
+    field public static final int STATE_UNKNOWN = 0; // 0x0
+  }
+
   @FlaggedApi("android.car.feature.vehicle_property_enums_remove_system_api_tags") public final class VehicleAirbagLocation {
     method @NonNull public static String toString(int);
     field public static final int CURTAIN = 32; // 0x20
@@ -1387,6 +1395,30 @@ package android.car.hardware.property {
     field public static final int JP_ELECTRONIC_TOLL_COLLECTION_CARD = 1; // 0x1
     field public static final int JP_ELECTRONIC_TOLL_COLLECTION_CARD_V2 = 2; // 0x2
     field public static final int UNKNOWN = 0; // 0x0
+  }
+
+  @FlaggedApi("android.car.feature.vehicle_property_enums_remove_system_api_tags") public final class VehicleLightState {
+    method @NonNull public static String toString(int);
+    field public static final int STATE_DAYTIME_RUNNING = 2; // 0x2
+    field public static final int STATE_OFF = 0; // 0x0
+    field public static final int STATE_ON = 1; // 0x1
+  }
+
+  @FlaggedApi("android.car.feature.vehicle_property_enums_remove_system_api_tags") public final class VehicleLightSwitch {
+    method @NonNull public static String toString(int);
+    field public static final int STATE_AUTOMATIC = 256; // 0x100
+    field public static final int STATE_DAYTIME_RUNNING = 2; // 0x2
+    field public static final int STATE_OFF = 0; // 0x0
+    field public static final int STATE_ON = 1; // 0x1
+  }
+
+  @FlaggedApi("android.car.feature.vehicle_property_enums_remove_system_api_tags") public final class VehicleOilLevel {
+    method @NonNull public static String toString(int);
+    field public static final int LEVEL_CRITICALLY_LOW = 0; // 0x0
+    field public static final int LEVEL_ERROR = 4; // 0x4
+    field public static final int LEVEL_HIGH = 3; // 0x3
+    field public static final int LEVEL_LOW = 1; // 0x1
+    field public static final int LEVEL_NORMAL = 2; // 0x2
   }
 
   @FlaggedApi("android.car.feature.android_b_vehicle_properties") public final class VehicleSizeClass {
@@ -1426,6 +1458,13 @@ package android.car.hardware.property {
     field public static final int US_GVWR_CLASS_6_CV = 1029; // 0x405
     field public static final int US_GVWR_CLASS_7_CV = 1030; // 0x406
     field public static final int US_GVWR_CLASS_8_CV = 1031; // 0x407
+  }
+
+  @FlaggedApi("android.car.feature.vehicle_property_enums_remove_system_api_tags") public final class VehicleTurnSignal {
+    method @NonNull public static String toString(int);
+    field public static final int STATE_LEFT = 2; // 0x2
+    field public static final int STATE_NONE = 0; // 0x0
+    field public static final int STATE_RIGHT = 1; // 0x1
   }
 
   @FlaggedApi("android.car.feature.vehicle_property_enums_remove_system_api_tags") public final class WindshieldWipersState {
