@@ -16,7 +16,7 @@
 
 package com.android.wm.shell.automotive;
 
-import static com.android.window.flags.Flags.safeRegionLetterboxing;
+import static com.android.window.flags.Flags.safeRegionLetterboxingV1;
 
 import android.annotation.NonNull;
 import android.annotation.SuppressLint;
@@ -152,8 +152,8 @@ public class AutoCaptionController {
         Objects.requireNonNull(relativeCaptionRegion);
         Objects.requireNonNull(autoCaptionBarViewFactory);
 
-        if (!safeRegionLetterboxing()) {
-            Slogf.e(TAG, "safe_region_letterboxing TS flag is disabled.");
+        if (!safeRegionLetterboxingV1()) {
+            Slogf.e(TAG, "safe_region_letterboxing_v1 TS flag is disabled.");
             return;
         }
 
@@ -186,8 +186,8 @@ public class AutoCaptionController {
     public void removeSafeRegionAndCaptionRegion(@NonNull RootTaskStack rootTaskStack) {
         Objects.requireNonNull(rootTaskStack);
 
-        if (!safeRegionLetterboxing()) {
-            Slogf.e(TAG, "safe_region_letterboxing TS flag is disabled.");
+        if (!safeRegionLetterboxingV1()) {
+            Slogf.e(TAG, "safe_region_letterboxing_v1 TS flag is disabled.");
             return;
         }
 
@@ -223,8 +223,8 @@ public class AutoCaptionController {
         Objects.requireNonNull(captionRegion);
         Objects.requireNonNull(autoCaptionBarViewFactory);
 
-        if (!safeRegionLetterboxing()) {
-            Slogf.e(TAG, "safe_region_letterboxing TS flag is disabled.");
+        if (!safeRegionLetterboxingV1()) {
+            Slogf.e(TAG, "safe_region_letterboxing_v1 TS flag is disabled.");
             return;
         }
 
@@ -259,8 +259,8 @@ public class AutoCaptionController {
      * @param displayId The display Id.
      */
     public void removeSafeRegionAndCaptionRegion(int displayId) {
-        if (!safeRegionLetterboxing()) {
-            Slogf.e(TAG, "safe_region_letterboxing TS flag is disabled.");
+        if (!safeRegionLetterboxingV1()) {
+            Slogf.e(TAG, "safe_region_letterboxing_v1 TS flag is disabled.");
             return;
         }
 
@@ -433,8 +433,8 @@ public class AutoCaptionController {
 
     @SuppressLint("MissingPermission")
     private boolean requiresCaptionBar(ActivityManager.RunningTaskInfo task) {
-        if (!safeRegionLetterboxing()) {
-            Slogf.i(TAG, "safe_region_letterboxing TS flag is disabled.");
+        if (!safeRegionLetterboxingV1()) {
+            Slogf.i(TAG, "safe_region_letterboxing_v1 TS flag is disabled.");
             return false;
         }
 
