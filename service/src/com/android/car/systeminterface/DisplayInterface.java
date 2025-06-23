@@ -354,8 +354,9 @@ public interface DisplayInterface {
                     carPowerManagementService.getHandler(),
                     DisplayManagerHelper.EVENT_TYPE_DISPLAY_ADDED
                             | DisplayManagerHelper.EVENT_TYPE_DISPLAY_REMOVED
-                            | DisplayManagerHelper.EVENT_TYPE_DISPLAY_CHANGED,
-                    DisplayManagerHelper.EVENT_TYPE_DISPLAY_BRIGHTNESS);
+                            | DisplayManagerHelper.EVENT_TYPE_DISPLAY_CHANGED
+                            | DisplayManagerHelper.EVENT_TYPE_DISPLAY_BRIGHTNESS,
+                    /* privateEventFilter= */ 0);
 
             initDisplayStateOnce();
             refreshAllDisplaysBrightness();
