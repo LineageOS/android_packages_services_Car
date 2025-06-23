@@ -63,7 +63,7 @@ public final class DisplayManagerHelper {
      * @see #registerDisplayListener(DisplayListener, Handler, long)
      */
     public static final long EVENT_TYPE_DISPLAY_BRIGHTNESS =
-            DisplayManager.PRIVATE_EVENT_TYPE_DISPLAY_BRIGHTNESS;
+            DisplayManager.EVENT_TYPE_DISPLAY_BRIGHTNESS;
 
     private DisplayManagerHelper() {
         throw new UnsupportedOperationException("contains only static members");
