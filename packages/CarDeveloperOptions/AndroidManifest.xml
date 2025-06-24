@@ -589,7 +589,6 @@
             android:name="com.android.settings.Settings$PhysicalKeyboardLayoutPickerActivity"
             android:enabled="false"
             android:exported="false"
-            android:featureFlag="com.android.settings.keyboard.keyboard_and_touchpad_a11y_new_page_enabled"
             tools:node="merge"
             tools:replace="android:exported">
             <intent-filter tools:node="removeAll"/>
