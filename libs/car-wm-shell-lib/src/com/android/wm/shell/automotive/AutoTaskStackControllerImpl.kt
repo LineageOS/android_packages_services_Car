@@ -210,6 +210,10 @@ class AutoTaskStackControllerImpl @Inject constructor(
                 rootTaskStack = rootTask
                 autoTaskRepository.onRootTaskStackCreated(rootTask)
                 rootTaskStackListener.onRootTaskStackCreated(rootTask)
+                taskOrganizer.setInterceptBackPressedOnTaskRoot(
+                    rootTaskStack!!.rootTaskInfo.token,
+                    true
+                )
                 return
             }
             appTasksMap[taskInfo.taskId] = taskInfo
@@ -272,6 +276,15 @@ class AutoTaskStackControllerImpl @Inject constructor(
             }
             super.onBackPressedOnTaskRoot(taskInfo)
             rootTaskStackListener.onBackPressedOnTaskRoot(taskInfo)
+
+            // Handle back event and close the task.
+            Slog.i(TAG, "Received onBackPressedOnTaskRoot, closing the task: " + taskInfo)
+            val taskId = taskInfo.taskId
+            try {
+                ActivityManager.getService().removeTask(taskId)
+            } catch (e: Exception) {
+                Slog.e(TAG, "Failed to remove task$taskId. Exception: " + e)
+            }
         }
 
         override fun attachChildSurfaceToTask(taskId: Int, b: SurfaceControl.Builder) {
