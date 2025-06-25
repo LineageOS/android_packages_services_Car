@@ -3237,7 +3237,7 @@
 
 
         <activity
-            android:name="Settings$AdaptiveConnectivitySettingsActivity"
+            android:name="com.android.settings.Settings$AdaptiveConnectivitySettingsActivity"
             android:enabled="false"
             android:exported="false"
             android:featureFlag="com.android.settings.flags.catalyst_adaptive_connectivity"
