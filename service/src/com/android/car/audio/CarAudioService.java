@@ -213,6 +213,7 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
     private final Object mImplLock = new Object();
 
     private final Context mContext;
+    private final CarOccupantZoneService mCarOccupantZoneService;
     private final TelephonyManager mTelephonyManager;
     private final AudioManagerWrapper mAudioManagerWrapper;
     private final SystemPropertiesWrapper mSystemProperties;
@@ -416,14 +417,15 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
                 }
             };
 
-    public CarAudioService(Context context) {
-        this(context, /* audioManagerWrapper = */ null, /*systemProperties*/ null,
-                getAudioConfigurationPath(), /* carVolumeCallbackHandler= */ null,
-                getAudioFadeConfigurationPath());
+    public CarAudioService(Context context, CarOccupantZoneService carOccupantZoneService) {
+        this(context, carOccupantZoneService, /* audioManagerWrapper = */ null,
+                /*systemProperties*/ null, getAudioConfigurationPath(),
+                /* carVolumeCallbackHandler= */ null, getAudioFadeConfigurationPath());
     }
 
     @VisibleForTesting
-    CarAudioService(Context context, @Nullable AudioManagerWrapper audioManagerWrapper,
+    CarAudioService(Context context, CarOccupantZoneService carOccupantZoneService,
+            @Nullable AudioManagerWrapper audioManagerWrapper,
             @Nullable SystemPropertiesWrapper systemProperties,
             @Nullable String audioConfigurationPath,
             CarVolumeCallbackHandler carVolumeCallbackHandler,
@@ -438,6 +440,8 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
         try {
             mContext = Objects.requireNonNull(context,
                     "Context to create car audio service can not be null");
+            mCarOccupantZoneService = Objects.requireNonNull(carOccupantZoneService,
+                    "Car occupant zone service can not be null");
             mCarAudioConfigurationPath = audioConfigurationPath;
             mCarAudioFadeConfigurationPath = audioFadeConfigurationPath;
             mTelephonyManager = mContext.getSystemService(TelephonyManager.class);
@@ -742,7 +746,7 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
     }
 
     private CarOccupantZoneService getCarOccupantZoneService() {
-        return CarLocalServices.getService(CarOccupantZoneService.class);
+        return mCarOccupantZoneService;
     }
 
     @GuardedBy("mImplLock")
