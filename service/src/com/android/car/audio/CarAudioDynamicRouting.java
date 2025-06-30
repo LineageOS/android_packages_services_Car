@@ -20,7 +20,6 @@ import static android.media.AudioAttributes.USAGE_MEDIA;
 import static com.android.car.audio.CarAudioUtils.getAudioDeviceInfo;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.PRIVATE_CONSTRUCTOR;
 
-import android.car.builtin.util.Slogf;
 import android.media.AudioAttributes;
 import android.media.AudioDeviceInfo;
 import android.media.AudioFormat;
@@ -29,19 +28,17 @@ import android.media.audiopolicy.AudioMix;
 import android.media.audiopolicy.AudioMixingRule;
 import android.media.audiopolicy.AudioPolicy;
 import android.os.UserHandle;
-import android.util.Log;
 import android.util.SparseArray;
 
-import com.android.car.CarLog;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 
-import java.util.Arrays;
 import java.util.List;
 
 /**
  * Builds dynamic audio routing in a car from audio zone configuration.
  */
 final class CarAudioDynamicRouting {
+
     // For legacy stream type based volume control.
     // Values in STREAM_TYPES and STREAM_TYPE_USAGES should be aligned.
     static final int[] STREAM_TYPES = new int[] {
@@ -123,10 +120,6 @@ final class CarAudioDynamicRouting {
             boolean hasContext = false;
             CarAudioDeviceInfo info = group.getCarAudioDeviceInfoForAddress(address);
             if (!info.canBeRoutedWithDynamicPolicyMix()) {
-                if (Slogf.isLoggable(CarLog.TAG_AUDIO, Log.DEBUG)) {
-                    Slogf.d(CarLog.TAG_AUDIO, "Address: %s AudioContext: %s cannot be routed with "
-                            + "Dynamic Policy Mixing", address, carAudioContext);
-                }
                 continue;
             }
             AudioFormat mixFormat = createMixFormatFromDevice(info);
@@ -142,12 +135,6 @@ final class CarAudioDynamicRouting {
                     AudioAttributes attributes = allAudioAttributes[attrIndex];
                     mixingRuleBuilder.addRule(attributes,
                             AudioMixingRule.RULE_MATCH_ATTRIBUTE_USAGE);
-                }
-                if (Slogf.isLoggable(CarLog.TAG_AUDIO, Log.DEBUG)) {
-                    Slogf.d(CarLog.TAG_AUDIO, "Address: %s AudioContext: %s sampleRate: %d "
-                            + "channels: %d attributes: %s", address, carAudioContext,
-                            info.getSampleRate(), info.getChannelCount(),
-                            Arrays.toString(allAudioAttributes));
                 }
             }
             if (hasContext) {
