@@ -394,7 +394,7 @@ public class ICarImpl extends ICar.Stub {
                 () -> new AppFocusService(mContext, mSystemActivityMonitoringService));
         mCarAudioService = carServiceCreator.createService(
                 CarAudioService.class,
-                () -> new CarAudioService(mContext));
+                () -> new CarAudioService(mContext, mCarOccupantZoneService));
         mCarNightService = carServiceCreator.createService(
                 CarNightService.class,
                 () -> new CarNightService(mContext, mCarPropertyService));

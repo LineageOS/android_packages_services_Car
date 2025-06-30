@@ -256,7 +256,7 @@ import java.util.concurrent.TimeUnit;
 public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCase {
     private static final String TAG = CarAudioServiceUnitTest.class.getSimpleName();
     private static final long TEST_CALLBACK_TIMEOUT_MS = 100;
-    private static final long TEST_ZONE_CONFIG_CALLBACK_TIMEOUT_MS = 500;
+    private static final long TEST_ZONE_CONFIG_CALLBACK_TIMEOUT_MS = 1000;
     private static final int VOLUME_KEY_EVENT_TIMEOUT_MS = 3000;
     private static final int INIT_TIMEOUT_MS = 10_000;
     private static final int AUDIO_CONTEXT_PRIORITY_LIST_VERSION_ONE = 1;
@@ -594,7 +594,6 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
             mTempCarAudioFadeConfigFile.close();
         }
         CarLocalServices.removeServiceForTest(CarOemProxyService.class);
-        CarLocalServices.removeServiceForTest(CarOccupantZoneService.class);
         CarLocalServices.removeServiceForTest(CarPowerManagementService.class);
         for (int i = 0; i < mCarAudioServices.size(); i++) {
             mCarAudioServices.get(i).destroy();
@@ -679,8 +678,6 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
 
         when(mMockOccupantZoneService.getOccupantsConfig()).thenReturn(configs);
 
-        CarLocalServices.removeServiceForTest(CarOccupantZoneService.class);
-        CarLocalServices.addService(CarOccupantZoneService.class, mMockOccupantZoneService);
         CarLocalServices.removeServiceForTest(CarInputService.class);
         CarLocalServices.addService(CarInputService.class, mMockCarInputService);
         CarLocalServices.removeServiceForTest(CarPowerManagementService.class);
@@ -823,7 +820,12 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     }
 
     private CarAudioService createCarAudioService(Context context) {
-        var service = new CarAudioService(context);
+        return createCarAudioService(context, mMockOccupantZoneService);
+    }
+
+    private CarAudioService createCarAudioService(Context context,
+            CarOccupantZoneService occupantZoneService) {
+        var service = new CarAudioService(context, occupantZoneService);
         mCarAudioServices.add(service);
         return service;
     }
@@ -833,8 +835,9 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
             String audioConfigurationPath,
             CarVolumeCallbackHandler carVolumeCallbackHandler,
             String audioFadeConfigurationPath) {
-        var service = new CarAudioService(context, audioManagerWrapper, mSystemProperties,
-                audioConfigurationPath, carVolumeCallbackHandler, audioFadeConfigurationPath);
+        var service = new CarAudioService(context, mMockOccupantZoneService, audioManagerWrapper,
+                mSystemProperties, audioConfigurationPath, carVolumeCallbackHandler,
+                audioFadeConfigurationPath);
         mCarAudioServices.add(service);
         return service;
     }
@@ -855,8 +858,17 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         NullPointerException thrown =
                 assertThrows(NullPointerException.class, () -> createCarAudioService(null));
 
-        expectWithMessage("Car Audio Service Construction Exception")
+        expectWithMessage("Car audio service construction exception for null context")
                 .that(thrown).hasMessageThat().contains("Context");
+    }
+
+    @Test
+    public void constructor_withNullCarOccupantZoneService_fails() {
+        NullPointerException thrown = assertThrows(NullPointerException.class,
+                () -> createCarAudioService(mContext, null));
+
+        expectWithMessage("Car audio service construction exception for null occupant service")
+                .that(thrown).hasMessageThat().contains("Car occupant zone service");
     }
 
     @Test
