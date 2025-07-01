@@ -55,6 +55,8 @@ constexpr const char* kResetResourceOveruseStatsFlag = "--reset_resource_overuse
 using time_point_millis =
         std::chrono::time_point<std::chrono::system_clock, std::chrono::milliseconds>;
 
+class WatchdogPerfServiceBase;
+
 // Forward declaration for testing use only.
 namespace internal {
 
@@ -112,7 +114,7 @@ public:
     // Callback to process the data collected periodically post boot complete.
     virtual android::base::Result<void> onPeriodicCollection(
             time_point_millis time, bool isGarageModeActive,
-            const android::wp<UidStatsCollectorBaseInterface>& uidStatsCollector,
+            const android::wp<UidStatsCollectorBaseInterface>& uidStatsCollectorBase,
             aidl::android::automotive::watchdog::internal::ResourceStats* resourceStats) = 0;
 
     /**
@@ -134,6 +136,10 @@ public:
     // Removes stats for the given user from the internal cache.
     virtual void removeStatsForUser(userid_t userId) = 0;
     virtual void terminate() = 0;
+
+    // TODO(b/433290487): Implement onDump and onDumpProto to dump resource
+    // overuse configurations, the latest I/O usage stats, and the list of
+    // registered I/O overuse listeners.
 };
 
 class IoOveruseMonitor final : public IoOveruseMonitorInterface {
@@ -156,7 +162,7 @@ public:
 
     android::base::Result<void> onPeriodicCollection(
             time_point_millis time, bool isGarageModeActive,
-            const android::wp<UidStatsCollectorBaseInterface>& uidStatsCollector,
+            const android::wp<UidStatsCollectorBaseInterface>& uidStatsCollectorBase,
             aidl::android::automotive::watchdog::internal::ResourceStats* resourceStats) override;
 
     android::base::Result<void> onPeriodicMonitor(
@@ -303,6 +309,8 @@ private:
 
     ListenersByUidMap mOveruseListenersByUid GUARDED_BY(mRwMutex);
     ndk::ScopedAIBinder_DeathRecipient mBinderDeathRecipient;
+
+    friend class WatchdogPerfServiceBase;
 
     // For unit tests.
     friend class internal::IoOveruseMonitorPeer;

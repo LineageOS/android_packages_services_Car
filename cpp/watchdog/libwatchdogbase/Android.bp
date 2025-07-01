@@ -148,6 +148,7 @@ cc_library {
         "src/IoOveruseMonitor.cpp",
         "src/OveruseConfigurationXmlHelper.cpp",
         "src/ProcDiskStatsCollector.cpp",
+        "src/WatchdogPerfServiceBase.cpp",
     ],
     static_libs: [
         "libwatchdogbase_binder_utils",
@@ -226,6 +227,7 @@ cc_test {
         "tests/ProcDiskStatsCollectorTest.cpp",
         "tests/UidIoStatsCollectorTest.cpp",
         "tests/UidStatsCollectorBaseTest.cpp",
+        "tests/WatchdogPerfServiceBaseTest.cpp",
         "tests/WatchdogServiceHelperBaseTest.cpp",
     ],
     data: [":watchdogbase_test_xml_files"],
