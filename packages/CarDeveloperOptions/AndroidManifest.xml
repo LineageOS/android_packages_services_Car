@@ -3822,5 +3822,20 @@
           tools:replace="android:exported,android:enabled,android:featureFlag">
           <intent-filter tools:node="removeAll" />
         </service>
+
+        <activity android:name="com.android.settings.biometrics.IdentityCheckPromoCardActivity"
+            android:enabled="false"
+            android:exported="false"
+            tools:node="merge"
+            tools:replace="android:exported,android:enabled"/>
+
+        <receiver
+            android:name="com.android.settings.safetycenter.IdentityCheckSafetySource"
+            android:enabled="false"
+            android:exported="false"
+            tools:node="merge"
+            tools:replace="android:exported">
+        <intent-filter tools:node="removeAll"/>
+        </receiver>
     </application>
 </manifest>
