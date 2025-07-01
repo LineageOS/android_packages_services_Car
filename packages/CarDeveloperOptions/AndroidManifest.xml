@@ -3265,6 +3265,17 @@
             <intent-filter tools:node="removeAll"/>
         </activity>
 
+
+        <activity
+            android:name="com.android.settings.Settings$SpecialAccessSettingsActivity"
+            android:enabled="false"
+            android:exported="false"
+            android:featureFlag="com.android.settings.flags.deeplink_apps_25q4"
+            tools:node="merge"
+            tools:replace="android:exported, android:enabled">
+            <intent-filter tools:node="removeAll"/>
+        </activity>
+
         <activity
             android:name="com.android.settings.Settings$SoftwareUpdateActivity"
             android:enabled="false"
