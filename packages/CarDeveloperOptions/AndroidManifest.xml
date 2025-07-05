@@ -2241,6 +2241,16 @@
         </activity>
 
         <activity
+            android:name="com.android.settings.Settings$BubbleNotificationSettingsActivity"
+            android:enabled="false"
+            android:exported="false"
+            android:featureFlag="com.android.settings.flags.deeplink_notifications_25q4"
+            tools:node="merge"
+            tools:replace="android:exported">
+            <intent-filter tools:node="removeAll"/>
+        </activity>
+
+        <activity
             android:name="com.android.settings.Settings$AppBubbleNotificationSettingsActivity"
             android:enabled="false"
             android:exported="false"
@@ -2578,6 +2588,16 @@
             android:name="com.android.settings.Settings$AccountDashboardActivity"
             android:enabled="false"
             android:exported="false"
+            tools:node="merge"
+            tools:replace="android:exported">
+            <intent-filter tools:node="removeAll"/>
+        </activity>
+
+        <activity
+            android:name="com.android.settings.Settings$EmergencyDashboardActivity"
+            android:enabled="false"
+            android:exported="false"
+            android:featureFlag="com.android.settings.flags.deeplink_others_25q4"
             tools:node="merge"
             tools:replace="android:exported">
             <intent-filter tools:node="removeAll"/>
