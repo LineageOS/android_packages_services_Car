@@ -20,6 +20,7 @@ import static com.android.wm.shell.Flags.enableAutoTaskStackController;
 import static com.android.window.flags.Flags.safeRegionLetterboxingV1;
 
 import android.annotation.NonNull;
+import android.annotation.Nullable;
 import android.app.ActivityManager;
 import android.graphics.Rect;
 import android.os.Binder;
@@ -27,11 +28,11 @@ import android.util.ArraySet;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.InsetsFrameProvider;
-import android.window.WindowContainerToken;
 import android.window.WindowContainerTransaction;
 
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.server.utils.Slogf;
+import com.android.wm.shell.RootTaskDisplayAreaOrganizer;
 import com.android.wm.shell.ShellTaskOrganizer;
 import com.android.wm.shell.dagger.WMSingleton;
 
@@ -57,36 +58,41 @@ public class AutoLayoutManager {
     final SparseArray<ArraySet<InsetsFrameProvider>> mTaskIdToInsetFrameProviderMap =
             new SparseArray<>();
     private final Binder mInsetToken = new Binder();
+    private final RootTaskDisplayAreaOrganizer mRootTaskDisplayAreaOrganizer;
 
     @Inject
     AutoLayoutManager(
-            ShellTaskOrganizer shellTaskOrganizer, AutoTaskRepository autoTaskRepository) {
+            ShellTaskOrganizer shellTaskOrganizer,
+            AutoTaskRepository autoTaskRepository,
+            RootTaskDisplayAreaOrganizer rootTaskDisplayAreaOrganizer) {
         mShellTaskOrganizer = shellTaskOrganizer;
         mAutoTaskRepository = autoTaskRepository;
+        mRootTaskDisplayAreaOrganizer = rootTaskDisplayAreaOrganizer;
     }
 
     /**
-     * Sets safe region for a window container.
+     * Sets safe region for a given display ID.
      *
-     * <p>Calling this API for same window container would update the safe region. If activities
+     * <p>Calling this API for same display ID again would update the safe region. If activities
      * using the safe region are present, they will receive a config change. Pass safeRegion null
      * for resetting the safe region.
      */
-    public void setOrUpdateSafeRegion(@NonNull WindowContainerToken windowContainerToken,
-            @NonNull  Rect safeRegion) {
-        Objects.requireNonNull(windowContainerToken);
-        Objects.requireNonNull(safeRegion);
-
+    public void setOrUpdateSafeRegion(int displayId, @Nullable Rect safeRegion) {
         if (!safeRegionLetterboxingV1()) {
             Slogf.e(TAG, "safe_region_letterboxing_v1 TS flag is disabled.");
             return;
         }
 
-        Slogf.i(TAG, "Defining safe region [%s] for WindowContainerToken [%s]", safeRegion,
-                windowContainerToken);
+        Slogf.i(TAG, "Defining safe region [%s] for display [%d]", safeRegion, displayId);
+
+        if (mRootTaskDisplayAreaOrganizer.getDisplayAreaInfo(displayId) == null) {
+            Slogf.e(TAG, "DisplayAreaInfo for Display [%d] is not available.", displayId);
+            return;
+        }
 
         WindowContainerTransaction wct = new WindowContainerTransaction();
-        wct.setSafeRegionBounds(windowContainerToken, safeRegion);
+        wct.setSafeRegionBounds(mRootTaskDisplayAreaOrganizer.getDisplayAreaInfo(displayId).token,
+                safeRegion);
         mShellTaskOrganizer.applyTransaction(wct);
     }
 

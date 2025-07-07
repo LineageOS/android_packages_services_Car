@@ -23,8 +23,6 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import android.app.ActivityManager;
@@ -112,48 +110,37 @@ public class AutoCaptionControllerTest {
         when(rootTaskStack.getRootTaskInfo()).thenReturn(taskInfo);
         taskInfo.token = mock(WindowContainerToken.class);
 
-        Rect safeRegion = new Rect(0, 0, 100, 100);
         Rect captionRegion = new Rect(0, 0, 100, 20);
 
-        mController.setSafeRegionAndCaptionRegion(rootTaskStack, safeRegion, captionRegion,
+        mController.setCaptionRegion(rootTaskStack, captionRegion,
                 mAutoCaptionBarViewFactory);
 
-        verify(mShellTaskOrganizer).applyTransaction(any());
-        assertThat(mController.mSafeAreaInfoPerRootTask.size()).isEqualTo(1);
-        assertThat(mController.mSafeAreaInfoPerRootTask.get(
-                rootTaskId).getSafeRegionBounds()).isEqualTo(safeRegion);
-        assertThat(mController.mSafeAreaInfoPerRootTask.get(
+        assertThat(mController.mCaptionRegionInfoPerRootTask.size()).isEqualTo(1);
+        assertThat(mController.mCaptionRegionInfoPerRootTask.get(
                 rootTaskId).getCaptionRegionBounds()).isEqualTo(captionRegion);
 
-        mController.removeSafeRegionAndCaptionRegion(rootTaskStack);
+        mController.removeCaptionRegion(rootTaskStack);
 
-        verify(mShellTaskOrganizer, times(2)).applyTransaction(any());
-        assertThat(mController.mSafeAreaInfoPerRootTask.size()).isEqualTo(0);
+        assertThat(mController.mCaptionRegionInfoPerRootTask.size()).isEqualTo(0);
     }
 
     @Test
     public void testSetAndRemoveSafeRegionForDisplay() {
         int displayId = 1;
-        Rect safeRegion = new Rect(0, 0, 100, 100);
         Rect captionRegion = new Rect(0, 0, 100, 20);
         when(mRootTaskDisplayAreaOrganizer.getDisplayAreaInfo(displayId)).thenReturn(
                 new DisplayAreaInfo(mock(WindowContainerToken.class), displayId, 0));
 
-        mController.setSafeRegionAndCaptionRegion(displayId, safeRegion, captionRegion,
+        mController.setCaptionRegion(displayId, captionRegion,
                 mAutoCaptionBarViewFactory);
 
-        verify(mShellTaskOrganizer).applyTransaction(any());
-        assertThat(mController.mSafeAreaInfoPerDisplay.size()).isEqualTo(1);
-        assertThat(
-                mController.mSafeAreaInfoPerDisplay.get(displayId).getSafeRegionBounds()).isEqualTo(
-                safeRegion);
-        assertThat(mController.mSafeAreaInfoPerDisplay.get(
+        assertThat(mController.mCaptionRegionInfoPerDisplay.size()).isEqualTo(1);
+        assertThat(mController.mCaptionRegionInfoPerDisplay.get(
                 displayId).getCaptionRegionBounds()).isEqualTo(captionRegion);
 
-        mController.removeSafeRegionAndCaptionRegion(displayId);
+        mController.removeCaptionRegion(displayId);
 
-        verify(mShellTaskOrganizer, times(2)).applyTransaction(any());
-        assertThat(mController.mSafeAreaInfoPerRootTask.size()).isEqualTo(0);
+        assertThat(mController.mCaptionRegionInfoPerRootTask.size()).isEqualTo(0);
     }
 }
 
