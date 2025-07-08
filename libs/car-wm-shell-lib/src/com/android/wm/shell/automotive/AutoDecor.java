@@ -237,6 +237,9 @@ public final class AutoDecor {
         SurfaceControl.Transaction t = new SurfaceControl.Transaction();
         t.reparent(viewSurface, null);
         t.apply();
+        mViewHost.release();
+        // remove reference
+        mViewHost = null;
         mIsCurrentlyAttached = false;
     }
 
