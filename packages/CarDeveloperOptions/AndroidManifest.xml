@@ -3630,6 +3630,16 @@
         </receiver>
 
         <receiver
+            android:name="com.android.settings.dream.BootBroadcastReceiver"
+            android:featureFlag="com.android.settings.flags.resolve_missing_when_to_dream"
+            android:enabled="false"
+            android:exported="false"
+            tools:node="merge"
+            tools:replace="android:exported">
+            <intent-filter tools:node="removeAll"/>
+        </receiver>
+
+        <receiver
             android:name="com.android.settings.development.Enable16KBootReceiver"
             android:enabled="false"
             android:exported="false"
