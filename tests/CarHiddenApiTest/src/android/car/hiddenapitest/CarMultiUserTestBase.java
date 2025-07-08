@@ -88,7 +88,7 @@ abstract class CarMultiUserTestBase extends CarApiTestBase {
      */
     private UserInfo mInitialUser;
 
-    private final CountDownLatch mUserRemoveLatch = new CountDownLatch(1);
+    private CountDownLatch mUserRemoveLatch;
     private final List<Integer> mUsersToRemove = new ArrayList<>();
 
     private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
@@ -112,6 +112,7 @@ abstract class CarMultiUserTestBase extends CarApiTestBase {
 
         IntentFilter filter = new IntentFilter(Intent.ACTION_USER_REMOVED);
         getContext().registerReceiver(mReceiver, filter, Context.RECEIVER_NOT_EXPORTED);
+        mUserRemoveLatch = new CountDownLatch(1);
         Log.d(TAG, "Registered a broadcast receiver: " + mReceiver
                 + " with filter: " + filter);
 
