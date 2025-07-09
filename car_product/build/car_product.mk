@@ -95,3 +95,6 @@ $(call inherit-product-if-exists, packages/services/Car/car_product/rro/ThemeSam
 
 # SystemUI RROs that are used to control the CarSystemUI features on the runtime.
 $(call inherit-product-if-exists, packages/apps/Car/SystemUI/samples/systemui_sample_rros.mk)
+
+# Displaycompat
+$(call inherit-product, packages/services/Car/car_product/displaycompat/product.mk)
