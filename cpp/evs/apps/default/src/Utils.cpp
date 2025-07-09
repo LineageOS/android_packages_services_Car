@@ -20,6 +20,8 @@
 #include <aidlcommonsupport/NativeHandle.h>
 #include <android-base/logging.h>
 
+#include <algorithm>
+
 namespace {
 
 using aidl::android::hardware::automotive::evs::BufferDesc;
