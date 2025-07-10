@@ -123,6 +123,14 @@ public final class FakeCar {
     }
 
     /**
+     * Returns the test controller to change the behavior of the underlying
+     * {@link android.car.media.CarMediaManager}
+     */
+    public CarMediaController getCarMediaController() {
+        return mService.mCarMedia;
+    }
+
+    /**
      * Returns a test controller that can modify and query the underlying service for the {@link
      * android.car.drivingstate.CarUxRestrictionsManager}.
      */
@@ -144,6 +152,7 @@ public final class FakeCar {
         private final FakeCarProjectionService mCarProjection;
         private final FakeInstrumentClusterNavigation mInstrumentClusterNavigation;
         private final FakeCarUxRestrictionsService mCarUxRestrictionService;
+        private final FakeCarMediaService mCarMedia;
 
         FakeCarService(Context context) {
             MockitoAnnotations.initMocks(this);
@@ -153,6 +162,7 @@ public final class FakeCar {
             mCarProjection = new FakeCarProjectionService(context);
             mInstrumentClusterNavigation = new FakeInstrumentClusterNavigation();
             mCarUxRestrictionService = new FakeCarUxRestrictionsService();
+            mCarMedia = new FakeCarMediaService();
         }
 
         @Override
@@ -195,6 +205,8 @@ public final class FakeCar {
                     return mCarDrivingState;
                 case Car.CAR_UX_RESTRICTION_SERVICE:
                     return mCarUxRestrictionService;
+                case Car.CAR_MEDIA_SERVICE:
+                    return mCarMedia;
                 default:
                     Log.w(TAG, "getCarService for unknown service:" + serviceName);
                     return null;
