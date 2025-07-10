@@ -22,7 +22,6 @@
         <permission name="android.car.permission.CONTROL_APP_BLOCKING"/>
         <permission name="android.car.permission.READ_PERSIST_TETHERING_SETTINGS"/>
         <permission name="android.permission.ACCESS_CHECKIN_PROPERTIES"/>
-        <permission name="android.permission.ACCESS_LOCATION_BYPASS_ALLOWLIST"/>
         <permission name="android.permission.ACCESS_NOTIFICATIONS"/>
         <permission name="android.permission.BACKUP"/>
         <permission name="android.permission.BATTERY_STATS"/>
@@ -47,6 +46,7 @@
         <permission name="android.permission.MOVE_PACKAGE"/>
         <permission name="android.permission.OVERRIDE_WIFI_CONFIG"/>
         <permission name="android.permission.PACKAGE_USAGE_STATS"/>
+        <permission name="android.permission.READ_LOCATION_BYPASS_ALLOWLIST"/>
         <permission name="android.permission.READ_SEARCH_INDEXABLES"/>
         <permission name="android.permission.REBOOT"/>
         <permission name="android.permission.SET_TIME"/>
