@@ -28,6 +28,7 @@ java_library {
     ],
     libs: [
         "android.car",
+        "guava",
         "mockito",
     ],
     installable: false,
