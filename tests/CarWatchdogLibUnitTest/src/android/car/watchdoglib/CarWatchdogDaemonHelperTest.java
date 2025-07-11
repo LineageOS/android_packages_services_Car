@@ -19,6 +19,7 @@ package android.car.watchdoglib;
 import static android.car.test.mocks.AndroidMockitoHelper.mockQueryService;
 
 import static com.android.car.CarServiceUtils.getHandlerThread;
+import static com.android.car.CarServiceUtils.releaseHandlerThread;
 import static com.android.car.CarServiceUtils.runEmptyRunnableOnLooperSync;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.mockitoSession;
@@ -113,14 +114,14 @@ public class CarWatchdogDaemonHelperTest {
     }
 
     @After
-    public void tearDown() {
+    public void tearDown() throws Exception {
         try {
             mMockSession.finishMocking();
         } finally {
             // When using inline mock maker, clean up inline mocks to prevent OutOfMemory errors.
             // See https://github.com/mockito/mockito/issues/1614 and b/259280359.
             Mockito.framework().clearInlineMocks();
-            mHandlerThread.quitSafely();
+            releaseHandlerThread(TAG);
         }
     }
 
