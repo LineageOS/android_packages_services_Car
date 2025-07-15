@@ -124,6 +124,13 @@ flag {
 
 # CarAudioManager
 flag {
+  name: "audio_focus_enforcement"
+  namespace: "car_framework"
+  description: "Controls whether to enforce audio focus in car audio service"
+  bug: "409332426"
+}
+
+flag {
   name: "car_audio_dynamic_devices"
   is_exported: true
   namespace: "car_framework"
