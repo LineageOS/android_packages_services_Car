@@ -16,9 +16,12 @@
 
 package com.android.car.audio;
 
+import static android.media.AudioAttributes.USAGE_ANNOUNCEMENT;
 import static android.media.AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE;
 import static android.media.AudioAttributes.USAGE_ASSISTANT;
+import static android.media.AudioAttributes.USAGE_GAME;
 import static android.media.AudioAttributes.USAGE_MEDIA;
+import static android.media.AudioAttributes.USAGE_UNKNOWN;
 import static android.media.AudioDeviceInfo.TYPE_AUX_LINE;
 import static android.media.AudioDeviceInfo.TYPE_BLE_BROADCAST;
 import static android.media.AudioDeviceInfo.TYPE_BLE_HEADSET;
@@ -416,6 +419,186 @@ public class CarAudioUtilsTest extends AbstractExpectableTestCase {
         expectWithMessage("Non-existing media audio attribute")
                 .that(CarAudioUtils.audioAttributesContainsAudioAttribute(audioAttributes,
                         TEST_MEDIA_AUDIO_ATTRIBUTE, carAudioContext)).isFalse();
+    }
+
+    @Test
+    public void getAudioAttributesForUsages_withNullArray_returnsEmptyList() {
+        List<AudioAttributes> attributes = CarAudioUtils.getAudioAttributesForUsages(null);
+
+        expectWithMessage("Empty attributes for null array").that(attributes).isEmpty();
+    }
+
+    @Test
+    public void getAudioAttributesForUsages_withEmptyArray_returnsEmptyList() {
+        List<AudioAttributes> attributes = CarAudioUtils.getAudioAttributesForUsages(new String[0]);
+
+        expectWithMessage("Empty attributes for empty array").that(attributes).isEmpty();
+    }
+
+    @Test
+    public void getAudioAttributesForUsages_withValidUsages_returnsAttributes() {
+        String[] usageStrings = {
+                "USAGE_MEDIA",
+                "USAGE_GAME",
+                "USAGE_ANNOUNCEMENT"
+        };
+
+        List<AudioAttributes> attributes = CarAudioUtils.getAudioAttributesForUsages(usageStrings);
+
+        expectWithMessage("Valid usages").that(attributes).containsExactly(
+                CarAudioContext.getAudioAttributeFromUsage(USAGE_MEDIA),
+                CarAudioContext.getAudioAttributeFromUsage(USAGE_GAME),
+                CarAudioContext.getAudioAttributeFromUsage(USAGE_ANNOUNCEMENT));
+    }
+
+    @Test
+    public void getAudioAttributesForUsages_withAllInvalidUsages_throws() {
+        String[] usageStrings = {"USAGE_INVALID_1", "USAGE_INVALID_2"};
+
+        var exception = assertThrows(IllegalArgumentException.class, () ->
+                CarAudioUtils.getAudioAttributesForUsages(usageStrings));
+
+        expectWithMessage("Invalid usage exception").that(exception).hasMessageThat()
+                .contains("Invalid usage");
+    }
+
+    @Test
+    public void getAudioAttributesForUsages_withDuplicateUsages_returnsUniqueAttributes() {
+        String[] usageStrings = {
+                "USAGE_MEDIA",
+                "USAGE_GAME",
+                "USAGE_MEDIA"
+        };
+
+        List<AudioAttributes> attributes = CarAudioUtils.getAudioAttributesForUsages(usageStrings);
+
+        expectWithMessage("Reduced duplicate usages").that(attributes)
+                .containsExactly(
+                        CarAudioContext.getAudioAttributeFromUsage(USAGE_MEDIA),
+                        CarAudioContext.getAudioAttributeFromUsage(USAGE_GAME));
+    }
+
+    @Test
+    public void getAudioAttributesForUsages_withUnknownUsage_returnsUnknownAttribute() {
+        String[] usageStrings = {"USAGE_UNKNOWN"};
+
+        List<AudioAttributes> attributes = CarAudioUtils.getAudioAttributesForUsages(usageStrings);
+
+        expectWithMessage("Unknown usage attribute").that(attributes).containsExactly(
+                CarAudioContext.getAudioAttributeFromUsage(USAGE_UNKNOWN));
+    }
+
+    @Test
+    public void parseAudioAttributes_withSingleFlag_returnsAttributes() {
+        String[] attributeStrings = {
+                "usage=USAGE_MEDIA,content_type=CONTENT_TYPE_MUSIC,flags=FLAG_AUDIBILITY_ENFORCED"
+        };
+        AudioAttributes expectedAttributes = new AudioAttributes.Builder()
+                .setUsage(AudioAttributes.USAGE_MEDIA)
+                .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                .setFlags(AudioAttributes.FLAG_AUDIBILITY_ENFORCED)
+                .build();
+
+        List<AudioAttributes> parsedAttributes =
+                CarAudioUtils.parseAudioAttributes(attributeStrings);
+
+        expectWithMessage("Parsed audio attributes with single flag")
+                .that(parsedAttributes.get(0)).isEqualTo(expectedAttributes);
+    }
+
+    @Test
+    public void parseAudioAttributes_withMultipleFlags_returnsAttributes() {
+        String[] attributeStrings = {"usage=USAGE_MEDIA,content_type=CONTENT_TYPE_MUSIC,"
+                + "flags=FLAG_AUDIBILITY_ENFORCED|FLAG_HW_AV_SYNC"};
+        AudioAttributes expectedAttributes = new AudioAttributes.Builder()
+                .setUsage(AudioAttributes.USAGE_MEDIA)
+                .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                .setFlags(AudioAttributes.FLAG_AUDIBILITY_ENFORCED
+                        | AudioAttributes.FLAG_HW_AV_SYNC)
+                .build();
+
+        List<AudioAttributes> parsedAttributes =
+                CarAudioUtils.parseAudioAttributes(attributeStrings);
+
+        expectWithMessage("Parsed audio attributes with multiple flags")
+                .that(parsedAttributes.get(0)).isEqualTo(expectedAttributes);
+    }
+
+    @Test
+    public void parseAudioAttributes_withTags_returnsAttributes() {
+        String[] attributeStrings = {"usage=USAGE_MEDIA,content_type=CONTENT_TYPE_MUSIC,"
+                + "flags=FLAG_AUDIBILITY_ENFORCED,tags=tag1:tag2"};
+        AudioAttributes expectedAttributes = new AudioAttributes.Builder()
+                .setUsage(AudioAttributes.USAGE_MEDIA)
+                .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                .setFlags(AudioAttributes.FLAG_AUDIBILITY_ENFORCED)
+                .addTag("tag1")
+                .addTag("tag2")
+                .build();
+
+        List<AudioAttributes> parsedAttributes =
+                CarAudioUtils.parseAudioAttributes(attributeStrings);
+
+        expectWithMessage("Parsed audio attributes with tags")
+                .that(parsedAttributes.get(0)).isEqualTo(expectedAttributes);
+    }
+
+    @Test
+    public void parseAudioAttributes_withInvalidUsage_throwsIllegalArgumentException() {
+        String[] attributeStrings = {
+                "usage=INVALID_USAGE,content_type=CONTENT_TYPE_MUSIC,flags=FLAG_AUDIBILITY_ENFORCED"
+        };
+
+        assertThrows(IllegalArgumentException.class,
+                () -> CarAudioUtils.parseAudioAttributes(attributeStrings));
+    }
+
+    @Test
+    public void parseAudioAttributes_withInvalidContentType_throwsIllegalArgumentException() {
+        String[] attributeStrings = {
+                "usage=USAGE_MEDIA,content_type=INVALID_CONTENT_TYPE,flags=FLAG_AUDIBILITY_ENFORCED"
+        };
+
+        assertThrows(IllegalArgumentException.class,
+                () -> CarAudioUtils.parseAudioAttributes(attributeStrings));
+    }
+
+    @Test
+    public void parseAudioAttributes_withInvalidFlag_throws() {
+        String[] attributeStrings = {
+                "usage=USAGE_MEDIA,content_type=CONTENT_TYPE_MUSIC,flags=INVALID_FLAG|FLAG_SCO"
+        };
+
+        var exception = assertThrows(IllegalArgumentException.class, () ->
+                CarAudioUtils.parseAudioAttributes(attributeStrings));
+
+        expectWithMessage("Parsed audio attributes with invalid flag exception")
+                .that(exception).hasMessageThat().contains("Invalid audio attribute flag");
+    }
+
+    @Test
+    public void parseAudioAttributes_withInvalidAttributeKey_throwsIllegalArgumentException() {
+        String[] attributeStrings =
+                {"usage=USAGE_MEDIA,invalid_key=CONTENT_TYPE_MUSIC"};
+
+        assertThrows(IllegalArgumentException.class,
+                () -> CarAudioUtils.parseAudioAttributes(attributeStrings));
+    }
+
+    @Test
+    public void parseAudioAttributes_withInvalidFormat_throwsIllegalArgumentException() {
+        String[] attributeStrings = {"usage:USAGE_MEDIA"};
+
+        assertThrows(IllegalArgumentException.class,
+                () -> CarAudioUtils.parseAudioAttributes(attributeStrings));
+    }
+
+    @Test
+    public void parseAudioAttributes_withNullArray_returnsEmptyList() {
+        List<AudioAttributes> parsedAttributes = CarAudioUtils.parseAudioAttributes(null);
+
+        expectWithMessage("Parsed audio attributes for null array")
+                .that(parsedAttributes).isEmpty();
     }
 
     private static List<AudioAttributes> getAudioAttributesFromContextInfos(
