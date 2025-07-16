@@ -107,7 +107,6 @@ PRODUCT_USE_DYNAMIC_PARTITION_SIZE := true
 PRODUCT_ENFORCE_RRO_TARGETS := *
 
 PRODUCT_PACKAGES += \
-    Bluetooth \
     CarActivityResolver \
     CarManagedProvisioning \
     SystemUpdater \
