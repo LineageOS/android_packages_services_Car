@@ -38,9 +38,9 @@ import com.github.javaparser.javadoc.description.JavadocDescriptionElement;
 import com.github.javaparser.javadoc.description.JavadocInlineTag;
 import com.github.javaparser.resolution.declarations.ResolvedFieldDeclaration;
 import com.github.javaparser.resolution.declarations.ResolvedReferenceTypeDeclaration;
+import com.github.javaparser.resolution.TypeSolver;
 import com.github.javaparser.symbolsolver.JavaSymbolSolver;
 import com.github.javaparser.symbolsolver.javaparsermodel.declarations.JavaParserFieldDeclaration;
-import com.github.javaparser.symbolsolver.model.resolution.TypeSolver;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.CombinedTypeSolver;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.JavaParserTypeSolver;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeSolver;
@@ -351,7 +351,7 @@ public final class VehiclePropertyIdsParser {
         ClassOrInterfaceType type = StaticJavaParser.parseClassOrInterfaceType(className);
         // Must associate the type with a compilation unit.
         type.setParentNode(mCu);
-        return type.resolve().getTypeDeclaration();
+        return type.resolve().asReferenceType().getTypeDeclaration().get();
     }
 
     /**
