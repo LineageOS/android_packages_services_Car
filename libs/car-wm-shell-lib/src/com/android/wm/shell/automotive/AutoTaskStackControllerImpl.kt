@@ -665,16 +665,6 @@ class AutoTaskStackControllerImpl @Inject constructor(
             }
         }
 
-        // If for an animation which is not played by the delegate, contains a change in a known
-        // task stack, it should be leveraged to correct the leashes. So, handle the animation in
-        // this case.
-        if (info.changes.any { taskStackMap.containsKey(it.taskInfo?.taskId) }) {
-            startTransaction.apply()
-            finishCallback.onTransitionFinished(null)
-            startNextTransition()
-            if (DBG) Slog.d(TAG, "${info.debugId} played")
-            return true
-        }
         return false
     }
 
