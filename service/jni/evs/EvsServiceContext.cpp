@@ -31,6 +31,8 @@
 #include <nativehelper/JNIHelp.h>
 #include <vndk/hardware_buffer.h>  // for AHARDWAREBUFFER_CREATE_FROM_HANDLE_METHOD_CLONE
 
+#include <algorithm>
+
 namespace {
 
 using ::aidl::android::hardware::automotive::evs::BufferDesc;

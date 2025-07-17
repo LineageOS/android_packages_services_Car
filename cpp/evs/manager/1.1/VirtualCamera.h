@@ -24,6 +24,7 @@
 #include <utils/Mutex.h>
 
 #include <deque>
+#include <mutex>
 #include <set>
 #include <thread>  // NOLINT
 #include <unordered_map>
