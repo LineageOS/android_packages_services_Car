@@ -92,6 +92,39 @@ public final class CarActivityManager extends CarManagerBase {
      */
     public static final int ERROR_CODE_ACTIVITY_NOT_FOUND = -101;
 
+    /**
+     * For a root task with no special behavior, new tasks are routed to the default root task.
+     * @hide
+     */
+    public static final int LAUNCH_BEHAVIOR_DEFAULT = 0;
+
+    /**
+     * For a root task using this behavior, the new tasks launched from within this root task
+     * remain in this root task.
+     * @hide
+     */
+    public static final int LAUNCH_BEHAVIOR_REMAIN_IN_SOURCE_ROOT_TASK = 1;
+
+    /**
+     * For a root task using this behavior,
+     * 1. all the new tasks launched form within this root task remain in this root task.
+     * <p>1. if a launch from this root task leads to opening of an existing task in some other
+     * root task, that task is reparented (moved) to this root task.
+     *
+     * @hide
+     */
+    public static final int LAUNCH_BEHAVIOR_REPARENT_TO_SOURCE_ROOT_TASK = 2;
+
+    /** @hide */
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef(prefix = { "LAUNCH_BEHAVIOR_" }, value = {
+            LAUNCH_BEHAVIOR_DEFAULT,
+            LAUNCH_BEHAVIOR_REMAIN_IN_SOURCE_ROOT_TASK,
+            LAUNCH_BEHAVIOR_REPARENT_TO_SOURCE_ROOT_TASK
+    })
+    public @interface LaunchBehavior {}
+
+
     private final ICarActivityService mService;
     private IBinder mTaskMonitorToken;
     private CarTaskViewControllerSupervisor mCarTaskViewControllerSupervisor;
@@ -537,6 +570,27 @@ public final class CarActivityManager extends CarManagerBase {
             IBinder rootTaskToken) {
         try {
             mService.onRootTaskAppeared(name, taskInfo, rootTaskToken);
+        } catch (RemoteException e) {
+            handleRemoteExceptionFromCarService(e);
+        }
+    }
+
+    /**
+     * Sets the behavior on the root task.
+     *
+     * <p>To remove any special launch behavior this method can be called with {@code behavior} set
+     * to {@link #LAUNCH_BEHAVIOR_DEFAULT}
+     *
+     * @param rootTaskToken the token of the root task.
+     * @param behavior the launch behavior of the root task.
+     *
+     * @hide
+     */
+    @RequiresPermission(Car.PERMISSION_CONTROL_CAR_APP_LAUNCH)
+    public void setLaunchBehaviorForRootTask(@NonNull IBinder rootTaskToken,
+            @LaunchBehavior int behavior) {
+        try {
+            mService.setLaunchBehaviorForRootTask(rootTaskToken, behavior);
         } catch (RemoteException e) {
             handleRemoteExceptionFromCarService(e);
         }

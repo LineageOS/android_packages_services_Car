@@ -173,4 +173,31 @@ public class CarActivityServiceUnitTest {
                 mTestActivity, DEFAULT_DISPLAY, FEATURE_DEFAULT_TASK_CONTAINER);
         assertThat(ret).isEqualTo(CarActivityManager.RESULT_INVALID_USER);
     }
+
+    @Test
+    public void setLaunchBehaviorForRootTask_withoutPermission_throwsException() {
+        when(mContext.checkCallingOrSelfPermission(eq(Car.PERMISSION_CONTROL_CAR_APP_LAUNCH)))
+                .thenReturn(PackageManager.PERMISSION_DENIED);
+        IBinder token = new Binder();
+
+        assertThrows(SecurityException.class,
+                () -> mCarActivityService.setLaunchBehaviorForRootTask(token,
+                        CarActivityManager.LAUNCH_BEHAVIOR_REMAIN_IN_SOURCE_ROOT_TASK));
+    }
+
+    @Test
+    public void setLaunchBehaviorForRootTask_invokesCarServiceHelper() throws RemoteException {
+        IBinder token = new Binder();
+        int behavior = CarActivityManager.LAUNCH_BEHAVIOR_REMAIN_IN_SOURCE_ROOT_TASK;
+
+        mCarActivityService.setLaunchBehaviorForRootTask(token, behavior);
+
+        ArgumentCaptor<IBinder> tokenCaptor = ArgumentCaptor.forClass(IBinder.class);
+        ArgumentCaptor<Integer> behaviorCaptor = ArgumentCaptor.forClass(Integer.class);
+        verify(mICarServiceHelper).setLaunchBehaviorForRootTask(
+                tokenCaptor.capture(), behaviorCaptor.capture());
+
+        assertThat(tokenCaptor.getValue()).isEqualTo(token);
+        assertThat(behaviorCaptor.getValue()).isEqualTo(behavior);
+    }
 }
