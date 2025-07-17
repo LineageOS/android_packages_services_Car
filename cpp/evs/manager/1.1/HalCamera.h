@@ -27,6 +27,7 @@
 
 #include <deque>
 #include <list>
+#include <mutex>
 #include <thread>  // NOLINT
 #include <unordered_map>
 
