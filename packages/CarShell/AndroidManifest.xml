@@ -203,4 +203,6 @@
     <!-- permissions required for CarPropertySimulationManagerTest -->
     <uses-permission android:name="android.car.permission.INJECT_VEHICLE_PROPERTIES" />
     <uses-permission android:name="android.car.permission.RECORD_VEHICLE_PROPERTIES" />
+    <!-- permissions required for cts test PowerManagerTest -->
+    <uses-permission android:name="android.permission.ACQUIRE_SLEEPLOCK" />
 </manifest>
