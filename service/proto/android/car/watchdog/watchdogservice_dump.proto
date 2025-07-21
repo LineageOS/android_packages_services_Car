@@ -44,6 +44,14 @@ message CarWatchdogDumpProto {
   }
 }
 
+// IMPORTANT: This proto is functionally coupled with the UserPackageInfo and PerformanceDump
+// messages in the TvWatchdogService proto. Any changes made below (e.g., adding, removing, or
+// modifying fields) MUST be mirrored in the corresponding file and vice-versa to maintain
+// compatibility and consistent behavior.
+//
+// TvWatchdogService Proto:
+// frameworks/base/core/proto/android/server/tv/watchdogservice_dump.proto
+
 message UserPackageInfo {
   optional int32 user_id = 1;
   optional string package_name = 2;
