@@ -167,7 +167,6 @@ PRODUCT_PACKAGES += \
     PacProcessor \
     PrintSpooler \
     ProxyHandler \
-    Settings \
     SharedStorageBackup \
     VpnDialogs \
     MmsService \
