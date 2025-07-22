@@ -55,7 +55,7 @@ using ::testing::UnorderedElementsAreArray;
 constexpr const char kSamplePsiData[] = "some avg10=0.00 avg60=0.00 avg300=0.00 total=51013728\n"
                                         "full avg10=0.00 avg60=0.00 avg300=0.00 total=25154435";
 constexpr std::chrono::milliseconds kTestPollingIntervalMillis = 100ms;
-constexpr std::chrono::milliseconds kMaxWaitForResponsesConsumed = 5s;
+constexpr std::chrono::milliseconds kMaxWaitForDurationMillis = 5s;
 
 enum PsiMonitorState {
     INITIALIZED = 0,
@@ -179,6 +179,11 @@ protected:
         ASSERT_TRUE(
                 mPressureMonitor->registerPressureChangeCallback(mMockPressureChangeCallback).ok())
                 << "Failed to register pressure change callback";
+        ON_CALL(*mMockPressureChangeCallback, onPressureChanged(_)).WillByDefault([this](auto) {
+            std::lock_guard<std::mutex> lock(mCallbackMutex);
+            mCallbackCount++;
+            mCallbackCv.notify_one();
+        });
         MockPsiApis();
     }
 
@@ -193,6 +198,7 @@ protected:
         mMockPressureChangeCallback.clear();
         mPressureMonitor.clear();
         mCachedPsiMonitorInfos.clear();
+        mCallbackCount = 0;
     }
 
     void createPressureFiles() {
@@ -331,12 +337,26 @@ protected:
 
     void waitUntilResponsesConsumed() {
         std::unique_lock lock(mMutex);
-        mPollCondition.wait_for(lock, kMaxWaitForResponsesConsumed,
+        mPollCondition.wait_for(lock, kMaxWaitForDurationMillis,
                                 [this]() { return mEpollResponses.empty(); });
-        // Wait for additional polling interval duration before returning to ensure that any
-        // notification message posted at the end of the lopper queue is processed before the test
-        // ends.
-        std::this_thread::sleep_for(std::chrono::milliseconds(kTestPollingIntervalMillis));
+    }
+
+    void waitUntilCallbacksReceived(int expectedCallbacks) {
+        std::unique_lock lock(mCallbackMutex);
+        ASSERT_TRUE(mCallbackCv.wait_for(lock, kMaxWaitForDurationMillis,
+                                         [&] { return mCallbackCount >= expectedCallbacks; }))
+                << "Timed out waiting for " << expectedCallbacks << " callbacks. Only "
+                << mCallbackCount << " were received.";
+    }
+
+    void waitUntilMonitorInactive() {
+        auto start = std::chrono::steady_clock::now();
+        while (mPressureMonitor->isMonitorActive()) {
+            if (std::chrono::steady_clock::now() - start > kMaxWaitForDurationMillis) {
+                FAIL() << "Timed out waiting for monitor to become inactive.";
+            }
+            std::this_thread::sleep_for(10ms);
+        }
     }
 
 protected:
@@ -353,6 +373,11 @@ protected:
     std::unordered_set<int> mEpollFds;
 
     std::vector<PsiMonitorInfo> mCachedPsiMonitorInfos;
+
+    // For callback synchronization.
+    std::mutex mCallbackMutex;
+    std::condition_variable mCallbackCv;
+    int mCallbackCount = 0;
 
 private:
     mutable std::mutex mMutex;
@@ -490,6 +515,7 @@ TEST_F(PressureMonitorTest, TestPressureEvents) {
                              << result.error();
 
     waitUntilResponsesConsumed();
+    waitUntilCallbacksReceived(3);
 
     ASSERT_TRUE(mPressureMonitor->isMonitorActive());
 }
@@ -521,6 +547,7 @@ TEST_F(PressureMonitorTest, TestHighPressureEvents) {
                              << result.error();
 
     waitUntilResponsesConsumed();
+    waitUntilCallbacksReceived(3);
 
     ASSERT_TRUE(mPressureMonitor->isMonitorActive());
 }
@@ -538,6 +565,7 @@ TEST_F(PressureMonitorTest, TestFailEpollError) {
                              << result.error();
 
     waitUntilResponsesConsumed();
+    waitUntilMonitorInactive();
 
     ASSERT_FALSE(mPressureMonitor->isMonitorActive()) << "Monitor should stop on epoll error";
 }
@@ -555,6 +583,7 @@ TEST_F(PressureMonitorTest, TestFailEpollHup) {
                              << result.error();
 
     waitUntilResponsesConsumed();
+    waitUntilMonitorInactive();
 
     ASSERT_FALSE(mPressureMonitor->isMonitorActive()) << "Monitor should stop on epoll hang up";
 }
