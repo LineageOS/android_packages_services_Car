@@ -30,6 +30,7 @@ import android.os.Looper
 import android.testing.AndroidTestingRunner
 import android.view.SurfaceControl
 import android.view.WindowManager.TRANSIT_OPEN
+import android.window.TaskOrganizer
 import android.window.TransitionInfo
 import android.window.TransitionRequestInfo
 import android.window.WindowContainerToken
@@ -165,10 +166,11 @@ class AutoTaskStackControllerImplTest : CarWmShellTestCase() {
         var listener: TaskListener? = null
         whenever(
             taskOrganizer.createRootTask(
-                eq(displayId),
-                anyOrNull(),
-                any(TaskListener::class.java),
-                eq(true)
+                TaskOrganizer.CreateRootTaskRequest()
+                    .setDisplayId(eq(displayId))
+                    .setWindowingMode(anyOrNull())
+                    .setRemoveWithTaskOrganizer(eq(true)),
+            any(TaskListener::class.java)
             )
         ).thenAnswer {
             listener = it.arguments[2] as ShellTaskOrganizer.TaskListener
@@ -223,10 +225,11 @@ class AutoTaskStackControllerImplTest : CarWmShellTestCase() {
         var listener: TaskListener? = null
         whenever(
             taskOrganizer.createRootTask(
-                eq(displayId),
-                anyOrNull(),
-                any(TaskListener::class.java),
-                eq(true)
+                TaskOrganizer.CreateRootTaskRequest()
+                    .setDisplayId(eq(displayId))
+                    .setWindowingMode(anyOrNull())
+                    .setRemoveWithTaskOrganizer(eq(true)),
+                any(TaskListener::class.java)
             )
         ).thenAnswer {
             listener = it.arguments[2] as ShellTaskOrganizer.TaskListener
