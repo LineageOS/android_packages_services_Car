@@ -200,7 +200,7 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
                     break;
                 }
                 case ACTION_PACKAGE_CHANGED: {
-                    mWatchdogPerfHandler.processPackageChangedIntent(intent);
+                    mWatchdogPerfHandler.processActionPackageChanged(intent);
                     break;
                 }
                 default:

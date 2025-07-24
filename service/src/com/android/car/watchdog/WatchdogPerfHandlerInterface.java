@@ -40,14 +40,7 @@ import java.util.Set;
  * Interface for the system resource performance monitoring.
  */
 public interface WatchdogPerfHandlerInterface {
-    String INTERNAL_APPLICATION_CATEGORY_TYPE_MAPS = "MAPS";
-    String INTERNAL_APPLICATION_CATEGORY_TYPE_MEDIA = "MEDIA";
-    String INTERNAL_APPLICATION_CATEGORY_TYPE_UNKNOWN = "UNKNOWN";
-
     String INTENT_EXTRA_NOTIFICATION_ID = "notification_id";
-    String USER_PACKAGE_SEPARATOR = ":";
-    String PACKAGES_DISABLED_ON_RESOURCE_OVERUSE_SEPARATOR = ";";
-    long MAX_DAEMON_CONNECTION_WAIT_TIME_MILLS = 3_000;
 
     /** Initializes the handler by registering required listeners/callbacks and setting up DB. */
     void init();
@@ -152,7 +145,7 @@ public interface WatchdogPerfHandlerInterface {
     void processUserNotificationIntent(Intent intent);
 
     /** Handles when system broadcast package changed action */
-    void processPackageChangedIntent(Intent intent);
+    void processActionPackageChanged(Intent intent);
 
     /** Disables a package for specific user until used. */
     boolean disablePackageForUser(String packageName, @UserIdInt int userId);
