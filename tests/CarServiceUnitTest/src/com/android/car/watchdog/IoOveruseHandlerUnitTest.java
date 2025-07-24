@@ -18,38 +18,28 @@ package com.android.car.watchdog;
 
 import static android.app.StatsManager.PULL_SKIP;
 import static android.app.StatsManager.PULL_SUCCESS;
-import static android.car.drivingstate.CarUxRestrictions.UX_RESTRICTIONS_BASELINE;
-import static android.car.settings.CarSettings.Secure.KEY_PACKAGES_DISABLED_ON_RESOURCE_OVERUSE;
 import static android.car.test.mocks.AndroidMockitoHelper.mockAmGetCurrentUser;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmGetAllUsers;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmGetUserHandles;
 import static android.car.watchdog.CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO;
 import static android.car.watchdog.CarWatchdogManager.RETURN_CODE_SUCCESS;
 import static android.content.Intent.ACTION_PACKAGE_CHANGED;
-import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK;
-import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static android.content.pm.PackageManager.COMPONENT_ENABLED_STATE_DISABLED;
 import static android.content.pm.PackageManager.COMPONENT_ENABLED_STATE_DISABLED_UNTIL_USED;
 import static android.content.pm.PackageManager.COMPONENT_ENABLED_STATE_ENABLED;
-import static android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS;
 
 import static com.android.car.CarStatsLog.CAR_WATCHDOG_KILL_STATS_REPORTED__KILL_REASON__KILLED_ON_IO_OVERUSE;
-import static com.android.car.CarStatsLog.CAR_WATCHDOG_KILL_STATS_REPORTED__SYSTEM_STATE__GARAGE_MODE;
 import static com.android.car.CarStatsLog.CAR_WATCHDOG_KILL_STATS_REPORTED__SYSTEM_STATE__USER_NO_INTERACTION_MODE;
 import static com.android.car.CarStatsLog.CAR_WATCHDOG_KILL_STATS_REPORTED__UID_STATE__UNKNOWN_UID_STATE;
 import static com.android.car.CarStatsLog.CAR_WATCHDOG_SYSTEM_IO_USAGE_SUMMARY;
 import static com.android.car.CarStatsLog.CAR_WATCHDOG_UID_IO_USAGE_SUMMARY;
-import static com.android.car.internal.NotificationHelperBase.CAR_WATCHDOG_ACTION_DISMISS_RESOURCE_OVERUSE_NOTIFICATION;
-import static com.android.car.internal.NotificationHelperBase.CAR_WATCHDOG_ACTION_LAUNCH_APP_SETTINGS;
 import static com.android.car.internal.NotificationHelperBase.RESOURCE_OVERUSE_NOTIFICATION_BASE_ID;
 import static com.android.car.internal.NotificationHelperBase.RESOURCE_OVERUSE_NOTIFICATION_MAX_OFFSET;
+import static com.android.car.watchdog.IoOveruseHandler.INTERNAL_APPLICATION_CATEGORY_TYPE_MAPS;
+import static com.android.car.watchdog.IoOveruseHandler.INTERNAL_APPLICATION_CATEGORY_TYPE_MEDIA;
+import static com.android.car.watchdog.IoOveruseHandler.MAX_DAEMON_CONNECTION_WAIT_TIME_MILLS;
+import static com.android.car.watchdog.IoOveruseHandler.USER_PACKAGE_SEPARATOR;
 import static com.android.car.watchdog.TimeSource.ZONE_OFFSET;
-import static com.android.car.watchdog.WatchdogPerfHandlerInterface.INTERNAL_APPLICATION_CATEGORY_TYPE_MAPS;
-import static com.android.car.watchdog.WatchdogPerfHandlerInterface.INTERNAL_APPLICATION_CATEGORY_TYPE_MEDIA;
-import static com.android.car.watchdog.WatchdogPerfHandlerInterface.INTENT_EXTRA_NOTIFICATION_ID;
-import static com.android.car.watchdog.WatchdogPerfHandlerInterface.MAX_DAEMON_CONNECTION_WAIT_TIME_MILLS;
-import static com.android.car.watchdog.WatchdogPerfHandlerInterface.PACKAGES_DISABLED_ON_RESOURCE_OVERUSE_SEPARATOR;
-import static com.android.car.watchdog.WatchdogPerfHandlerInterface.USER_PACKAGE_SEPARATOR;
 import static com.android.car.watchdog.WatchdogStorage.RETENTION_PERIOD;
 import static com.android.car.watchdog.WatchdogStorage.WatchdogDbHelper.DATABASE_NAME;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doAnswer;
@@ -78,12 +68,11 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+import android.annotation.UserIdInt;
 import android.app.ActivityManager;
-import android.app.ActivityThread;
 import android.app.StatsManager;
 import android.automotive.watchdog.internal.ApplicationCategoryType;
 import android.automotive.watchdog.internal.ComponentType;
-import android.automotive.watchdog.internal.GarageMode;
 import android.automotive.watchdog.internal.IoUsageStats;
 import android.automotive.watchdog.internal.PackageIoOveruseStats;
 import android.automotive.watchdog.internal.PackageMetadata;
@@ -91,8 +80,6 @@ import android.automotive.watchdog.internal.PerStateIoOveruseThreshold;
 import android.automotive.watchdog.internal.ResourceSpecificConfiguration;
 import android.automotive.watchdog.internal.UserPackageIoUsageStats;
 import android.car.builtin.content.pm.PackageManagerHelper;
-import android.car.drivingstate.CarUxRestrictions;
-import android.car.drivingstate.ICarUxRestrictionsChangeListener;
 import android.car.test.NoActiveHandlerThreadCheckerRule;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.car.test.mocks.MockSettings;
@@ -106,11 +93,9 @@ import android.car.watchdog.PerStateBytes;
 import android.car.watchdog.ResourceOveruseConfiguration;
 import android.car.watchdog.ResourceOveruseStats;
 import android.car.watchdoglib.CarWatchdogDaemonHelper;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
-import android.content.pm.IPackageManager;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.net.Uri;
@@ -123,8 +108,6 @@ import android.os.Looper;
 import android.os.RemoteException;
 import android.os.UserHandle;
 import android.os.UserManager;
-import android.provider.Settings;
-import android.text.TextUtils;
 import android.util.ArrayMap;
 import android.util.ArraySet;
 import android.util.AtomicFile;
@@ -132,15 +115,11 @@ import android.util.JsonReader;
 import android.util.SparseArray;
 import android.util.StatsEvent;
 import android.util.proto.ProtoOutputStream;
-import android.view.Display;
 
 import com.android.car.BuiltinPackageDependency;
 import com.android.car.CarLocalServices;
 import com.android.car.CarServiceUtils;
-import com.android.car.CarStatsLog;
-import com.android.car.CarUxRestrictionsManagerService;
 import com.android.car.admin.NotificationHelper;
-import com.android.car.stats.CarStatsLogWrapper;
 
 import com.google.common.truth.Correspondence;
 
@@ -204,8 +183,6 @@ public class IoOveruseHandlerUnitTest extends AbstractExtendedMockitoTestCase {
     @Mock
     private CarWatchdogDaemonHelper mMockCarWatchdogDaemonHelper;
     @Mock
-    private CarUxRestrictionsManagerService mMockCarUxRestrictionsManagerService;
-    @Mock
     private Resources mMockResources;
     @Mock
     private PackageManager mMockPackageManager;
@@ -215,15 +192,8 @@ public class IoOveruseHandlerUnitTest extends AbstractExtendedMockitoTestCase {
     @Mock
     private StatsManager mMockStatsManager;
     @Mock
-    private NotificationHelper mMockNotificationHelper;
-    @Mock
-    private ContentResolver mMockContentResolver;
-    @Mock
-    private CarStatsLogWrapper mCarStatsLogWrapper;
+    private IoOveruseHandler.IoOveruseHelper mMockIoOveruseHelper;
 
-    @Captor
-    private ArgumentCaptor<ICarUxRestrictionsChangeListener>
-            mICarUxRestrictionsChangeListenerCaptor;
     @Captor
     private ArgumentCaptor<StatsManager.StatsPullAtomCallback> mStatsPullAtomCallbackCaptor;
     @Captor
@@ -238,17 +208,13 @@ public class IoOveruseHandlerUnitTest extends AbstractExtendedMockitoTestCase {
     @Captor private ArgumentCaptor<Integer> mUidStateCaptor;
     @Captor private ArgumentCaptor<Integer> mSystemStateCaptor;
     @Captor private ArgumentCaptor<Integer> mKillReasonCaptor;
-    @Captor private ArgumentCaptor<UserHandle> mUserHandleCaptor;
-    @Captor private ArgumentCaptor<SparseArray<String>> mHeadsUpPackagesCaptor;
-    @Captor private ArgumentCaptor<SparseArray<String>> mNotificationCenterPackagesCaptor;
-    @Captor private ArgumentCaptor<Intent> mStartActivityAsUserIntentCaptor;
+    @Captor private ArgumentCaptor<List<String>> mPackagesCaptor;
     @Captor
     private ArgumentCaptor<List<WatchdogStorage.UserPackageSettingsEntry>>
             mUserPackageSettingsEntryCaptor;
     @Captor
     private ArgumentCaptor<List<WatchdogStorage.IoUsageStatsEntry>> mIoUsageStatsEntryCaptor;
 
-    private ICarUxRestrictionsChangeListener mCarUxRestrictionsChangeListener;
     private StatsManager.StatsPullAtomCallback mStatsPullAtomCallback;
     private WatchdogStorage mSpiedWatchdogStorage;
     private IoOveruseHandler mIoOveruseHandler;
@@ -264,9 +230,8 @@ public class IoOveruseHandlerUnitTest extends AbstractExtendedMockitoTestCase {
     private final SparseArray<List<String>> mPackagesBySharedUid = new SparseArray<>();
     private final ArrayMap<String, android.content.pm.PackageInfo> mPmPackageInfoByUserPackage =
             new ArrayMap<>();
-    private final ArraySet<String> mDisabledUserPackages = new ArraySet<>();
-    private final SparseArray<String> mDisabledPackagesSettingsStringByUserid = new SparseArray<>();
-    private final IPackageManager mSpiedPackageManager = spy(ActivityThread.getPackageManager());
+    private final ArraySet<String> mDisabledUserPackagesWithPm = new ArraySet<>();
+    private final ArraySet<String> mDisabledUserPackageCallbacks = new ArraySet<>();
     private final Set<WatchdogStorage.UserPackageSettingsEntry> mUserPackageSettingsEntries =
             new ArraySet<>();
     private final List<WatchdogStorage.IoUsageStatsEntry> mIoUsageStatsEntries = new ArrayList<>();
@@ -288,7 +253,6 @@ public class IoOveruseHandlerUnitTest extends AbstractExtendedMockitoTestCase {
         builder.spyStatic(PackageManagerHelper.class)
                 .spyStatic(CarServiceUtils.class)
                 .spyStatic(ActivityManager.class)
-                .spyStatic(ActivityThread.class)
                 .spyStatic(BuiltinPackageDependency.class)
                 .spyStatic(CarWatchdogService.class)
                 .spyStatic(CarLocalServices.class);
@@ -303,34 +267,10 @@ public class IoOveruseHandlerUnitTest extends AbstractExtendedMockitoTestCase {
         when(mMockContext.getResources()).thenReturn(mMockResources);
         when(mMockContext.getSystemService(StatsManager.class)).thenReturn(mMockStatsManager);
         when(mMockContext.getPackageName()).thenReturn(CANONICAL_NAME);
-        when(mMockResources.getInteger(
-                com.android.car.R.integer.watchdogUserPackageSettingsResetDays))
-                .thenReturn(PACKAGE_KILLABLE_STATE_RESET_DAYS);
-        when(mMockResources.getInteger(
-                com.android.car.R.integer.recurringResourceOverusePeriodInDays))
-                .thenReturn(RECURRING_OVERUSE_PERIOD_IN_DAYS);
-        when(mMockResources.getInteger(
-                com.android.car.R.integer.recurringResourceOveruseTimes))
-                .thenReturn(RECURRING_OVERUSE_TIMES);
-        when(mMockResources.getInteger(
-                com.android.car.R.integer.uidIoUsageSummaryTopCount))
-                .thenReturn(UID_IO_USAGE_SUMMARY_TOP_COUNT);
-        when(mMockResources.getInteger(
-                com.android.car.R.integer.ioUsageSummaryMinSystemTotalWrittenBytes))
-                .thenReturn(IO_USAGE_SUMMARY_MIN_SYSTEM_TOTAL_WRITTEN_BYTES);
-        doReturn(mMockCarUxRestrictionsManagerService)
-                .when(() -> CarLocalServices.getService(CarUxRestrictionsManagerService.class));
-        doReturn(mSpiedPackageManager).when(() -> ActivityThread.getPackageManager());
-        when(mMockCarUxRestrictionsManagerService.getCurrentUxRestrictions())
-                .thenReturn(new CarUxRestrictions.Builder(/* reqOpt= */ false,
-                        UX_RESTRICTIONS_BASELINE, /* time= */ 0).build());
         when(mMockCarWatchdogDaemonHelper.getResourceOveruseConfigurations()).thenReturn(
                 sampleInternalResourceOveruseConfigurations());
         when(mMockBuiltinPackageContext.getClassLoader()).thenReturn(mMockClassLoader);
         doReturn(NotificationHelper.class).when(mMockClassLoader).loadClass(any());
-        doReturn(mMockNotificationHelper)
-                .when(() -> BuiltinPackageDependency.createNotificationHelper(
-                        mMockBuiltinPackageContext));
 
         mTempSystemCarDir = Files.createTempDirectory("watchdog_test").toFile();
         doReturn(new File(mTempSystemCarDir.getAbsolutePath(), WATCHDOG_DIR_NAME)).when(
@@ -342,13 +282,14 @@ public class IoOveruseHandlerUnitTest extends AbstractExtendedMockitoTestCase {
         mSpiedWatchdogStorage =
                 spy(new WatchdogStorage(mMockContext, /* useDataSystemCarDir= */ false,
                         mTimeSource));
-        mIoOveruseHandler = new IoOveruseHandler(mMockContext,
-                mMockBuiltinPackageContext, mMockCarWatchdogDaemonHelper,
-                new PackageInfoHandler(mMockContext.getPackageManager()),
-                mSpiedWatchdogStorage, mTimeSource, mHandler, mCarStatsLogWrapper);
+        mIoOveruseHandler = new IoOveruseHandler(mMockContext, mMockIoOveruseHelper,
+                mMockCarWatchdogDaemonHelper,
+                new PackageInfoHandler(mMockContext.getPackageManager()), mSpiedWatchdogStorage,
+                mTimeSource, UID_IO_USAGE_SUMMARY_TOP_COUNT,
+                IO_USAGE_SUMMARY_MIN_SYSTEM_TOTAL_WRITTEN_BYTES, PACKAGE_KILLABLE_STATE_RESET_DAYS,
+                RECURRING_OVERUSE_PERIOD_IN_DAYS, RECURRING_OVERUSE_TIMES, mHandler);
 
         setupUsers();
-        mockSettingsStringCalls();
         mockBuildStatsEventCalls();
         mockPackageManager();
         mockWatchdogStorage();
@@ -374,72 +315,6 @@ public class IoOveruseHandlerUnitTest extends AbstractExtendedMockitoTestCase {
             mIoOveruseHandler.addResourceOveruseListener(/* resourceOveruseFlag= */ 0,
                     mockListener);
         });
-    }
-
-    @Test
-    public void testProcessUserNotificationIntentDismissNotification() {
-        String packageName = "third_party_package";
-        UserHandle userHandle = UserHandle.of(100);
-        int notificationId = 150;
-
-        Intent intent = new Intent(CAR_WATCHDOG_ACTION_DISMISS_RESOURCE_OVERUSE_NOTIFICATION)
-                .putExtra(Intent.EXTRA_PACKAGE_NAME, packageName)
-                .putExtra(Intent.EXTRA_USER, userHandle)
-                .putExtra(INTENT_EXTRA_NOTIFICATION_ID, notificationId);
-
-        mIoOveruseHandler.processUserNotificationIntent(intent);
-
-        verifyNoDisabledPackages();
-
-        verify(mMockNotificationHelper).cancelNotificationAsUser(eq(userHandle),
-                eq(notificationId));
-    }
-
-    @Test
-    public void testProcessUserNotificationIntentDismissNotificationWithMissingNotificationId() {
-        String packageName = "third_party_package";
-        UserHandle userHandle = UserHandle.of(100);
-
-        Intent intent = new Intent(CAR_WATCHDOG_ACTION_DISMISS_RESOURCE_OVERUSE_NOTIFICATION)
-                .putExtra(Intent.EXTRA_PACKAGE_NAME, packageName)
-                .putExtra(Intent.EXTRA_USER, userHandle);
-
-        mIoOveruseHandler.processUserNotificationIntent(intent);
-
-        verifyNoDisabledPackages();
-
-        verify(mMockNotificationHelper, never()).cancelNotificationAsUser(any(), anyInt());
-    }
-
-    @Test
-    public void testProcessUserNotificationIntentLaunchAppSettings() {
-        String packageName = "third_party_package";
-        UserHandle userHandle = UserHandle.of(100);
-        int notificationId = 150;
-
-        Intent intent = new Intent(CAR_WATCHDOG_ACTION_LAUNCH_APP_SETTINGS)
-                .putExtra(Intent.EXTRA_PACKAGE_NAME, packageName)
-                .putExtra(Intent.EXTRA_USER, userHandle)
-                .putExtra(INTENT_EXTRA_NOTIFICATION_ID, notificationId);
-
-        mIoOveruseHandler.processUserNotificationIntent(intent);
-
-        verify(mMockBuiltinPackageContext).startActivityAsUser(
-                mStartActivityAsUserIntentCaptor.capture(), eq(userHandle));
-
-        Intent startActivityAsUserIntent = mStartActivityAsUserIntentCaptor.getValue();
-
-        expectWithMessage("Start Activity Intent Action").that(
-                startActivityAsUserIntent.getAction()).isEqualTo(
-                ACTION_APPLICATION_DETAILS_SETTINGS);
-        expectWithMessage("Start Activity Intent Data").that(
-                startActivityAsUserIntent.getData()).isEqualTo(Uri.parse("package:" + packageName));
-        expectWithMessage("Start Activity Intent Flag").that(
-                startActivityAsUserIntent.getFlags()).isEqualTo(
-                FLAG_ACTIVITY_CLEAR_TASK | FLAG_ACTIVITY_NEW_TASK);
-
-        verify(mMockNotificationHelper).cancelNotificationAsUser(eq(userHandle),
-                eq(notificationId));
     }
 
     @Test
@@ -606,17 +481,6 @@ public class IoOveruseHandlerUnitTest extends AbstractExtendedMockitoTestCase {
                 .containsExactlyElementsIn(expectedStats);
 
         verify(mSpiedWatchdogStorage, times(2)).syncUsers(any());
-    }
-
-    @Test
-    public void testRelease() {
-        mIoOveruseHandler.release();
-
-        verify(mMockCarUxRestrictionsManagerService).unregisterUxRestrictionsChangeListener(
-                mICarUxRestrictionsChangeListenerCaptor.capture());
-
-        assertThat(mICarUxRestrictionsChangeListenerCaptor.getValue())
-                .isEqualTo(mCarUxRestrictionsChangeListener);
     }
 
     @Test
@@ -1204,26 +1068,35 @@ public class IoOveruseHandlerUnitTest extends AbstractExtendedMockitoTestCase {
 
     @Test
     public void testDisablePackageForUserWithDisabledPackage() throws Exception {
-        doReturn(COMPONENT_ENABLED_STATE_DISABLED_UNTIL_USED).when(() -> PackageManagerHelper
-                .getApplicationEnabledSettingForUser(anyString(), anyInt()));
+        when(mMockIoOveruseHelper.getApplicationEnabledSettingForUser(anyString(), anyInt()))
+                .thenReturn(COMPONENT_ENABLED_STATE_DISABLED_UNTIL_USED);
 
         assertWithMessage("Performed resource overuse kill")
                 .that(mIoOveruseHandler.disablePackageForUser("third_party_package",
                         /* userId= */ 100)).isFalse();
 
-        verifyNoDisabledPackages();
+        verify(mMockIoOveruseHelper, never()).setApplicationEnabledSettingForUser(
+                eq("third_party_package"), eq(COMPONENT_ENABLED_STATE_DISABLED_UNTIL_USED), eq(0),
+                eq(100), anyString());
+
+        verify(mMockIoOveruseHelper, never()).onPackageDisabledLocked(
+                eq("third_party_package"), eq(100));
     }
 
     @Test
     public void testDisablePackageForUserWithNonexistentPackage() throws Exception {
-        doThrow(IllegalArgumentException.class).when(mSpiedPackageManager)
-                .getApplicationEnabledSetting(anyString(), anyInt());
+        when(mMockIoOveruseHelper.getApplicationEnabledSettingForUser(anyString(), anyInt()))
+                .thenThrow(IllegalArgumentException.class);
 
         assertWithMessage("Performed resource overuse kill")
                 .that(mIoOveruseHandler.disablePackageForUser("fake_package",
                         /* userId= */ 100)).isFalse();
 
-        verifyNoDisabledPackages();
+        verify(mMockIoOveruseHelper, never()).setApplicationEnabledSettingForUser(
+                eq("fake_package"), eq(COMPONENT_ENABLED_STATE_DISABLED_UNTIL_USED), eq(0),
+                eq(100), anyString());
+
+        verify(mMockIoOveruseHelper, never()).onPackageDisabledLocked(eq("fake_package"), eq(100));
     }
 
     @Test
@@ -1290,23 +1163,20 @@ public class IoOveruseHandlerUnitTest extends AbstractExtendedMockitoTestCase {
         // overuse stats resetting is completed.
         CarServiceUtils.runEmptyRunnableOnLooperSync(CAR_WATCHDOG_SERVICE_NAME);
 
-        verify(mSpiedPackageManager, times(2))
-                .getApplicationEnabledSetting("third_party_package.A", 100);
-        verify(mSpiedPackageManager, times(2))
-                .getApplicationEnabledSetting("vendor_package.critical.A", 100);
-        verify(mSpiedPackageManager, times(2))
-                .getApplicationEnabledSetting("vendor_package.critical.B", 100);
-        verify(mSpiedPackageManager, never())
-                .getApplicationEnabledSetting("system_package.critical.A", 100);
-        verify(mSpiedPackageManager, never())
-                .getApplicationEnabledSetting("third_party_package.B", 100);
+        verify(mMockIoOveruseHelper, times(2))
+                .getApplicationEnabledSettingForUser("third_party_package.A", 100);
+        verify(mMockIoOveruseHelper, times(2))
+                .getApplicationEnabledSettingForUser("vendor_package.critical.A", 100);
+        verify(mMockIoOveruseHelper, times(2))
+                .getApplicationEnabledSettingForUser("vendor_package.critical.B", 100);
+        verify(mMockIoOveruseHelper, never())
+                .getApplicationEnabledSettingForUser("system_package.critical.A", 100);
+        verify(mMockIoOveruseHelper, never())
+                .getApplicationEnabledSettingForUser("third_party_package.B", 100);
 
-        verify(mSpiedPackageManager).setApplicationEnabledSetting(eq("third_party_package.A"),
-                eq(COMPONENT_ENABLED_STATE_ENABLED), anyInt(), eq(100), anyString());
-        verify(mSpiedPackageManager).setApplicationEnabledSetting(eq("vendor_package.critical.A"),
-                eq(COMPONENT_ENABLED_STATE_ENABLED), anyInt(), eq(100), anyString());
-        verify(mSpiedPackageManager).setApplicationEnabledSetting(eq("vendor_package.critical.B"),
-                eq(COMPONENT_ENABLED_STATE_ENABLED), anyInt(), eq(100), anyString());
+        verifyUserPackageEnabled("third_party_package.A", 100);
+        verifyUserPackageEnabled("vendor_package.critical.A", 100);
+        verifyUserPackageEnabled("vendor_package.critical.B", 100);
     }
 
     @Test
@@ -1565,11 +1435,10 @@ public class IoOveruseHandlerUnitTest extends AbstractExtendedMockitoTestCase {
                 .containsExactly(new PackageKillableState("third_party_package", 101,
                         PackageKillableState.KILLABLE_STATE_NO));
 
-        verify(mSpiedPackageManager, times(2))
-                .getApplicationEnabledSetting("third_party_package", 101);
+        verify(mMockIoOveruseHelper, times(2))
+                .getApplicationEnabledSettingForUser("third_party_package", 101);
 
-        verify(mSpiedPackageManager).setApplicationEnabledSetting(eq("third_party_package"),
-                eq(COMPONENT_ENABLED_STATE_ENABLED), anyInt(), eq(101), anyString());
+        verifyUserPackageEnabled("third_party_package", 101);
     }
 
     @Test
@@ -1595,15 +1464,13 @@ public class IoOveruseHandlerUnitTest extends AbstractExtendedMockitoTestCase {
                         new PackageKillableState("third_party_package.B", 101,
                                 PackageKillableState.KILLABLE_STATE_NO));
 
-        verify(mSpiedPackageManager, times(2))
-                .getApplicationEnabledSetting("third_party_package.A", 101);
-        verify(mSpiedPackageManager, times(2))
-                .getApplicationEnabledSetting("third_party_package.B", 101);
+        verify(mMockIoOveruseHelper, times(2))
+                .getApplicationEnabledSettingForUser("third_party_package.A", 101);
+        verify(mMockIoOveruseHelper, times(2))
+                .getApplicationEnabledSettingForUser("third_party_package.B", 101);
 
-        verify(mSpiedPackageManager).setApplicationEnabledSetting(eq("third_party_package.A"),
-                eq(COMPONENT_ENABLED_STATE_ENABLED), anyInt(), eq(101), anyString());
-        verify(mSpiedPackageManager).setApplicationEnabledSetting(eq("third_party_package.B"),
-                eq(COMPONENT_ENABLED_STATE_ENABLED), anyInt(), eq(101), anyString());
+        verifyUserPackageEnabled("third_party_package.A", 101);
+        verifyUserPackageEnabled("third_party_package.B", 101);
     }
 
     @Test
@@ -1642,15 +1509,13 @@ public class IoOveruseHandlerUnitTest extends AbstractExtendedMockitoTestCase {
                         new PackageKillableState("third_party_package", 102,
                                 PackageKillableState.KILLABLE_STATE_NO));
 
-        verify(mSpiedPackageManager, times(2))
-                .getApplicationEnabledSetting("third_party_package", 101);
-        verify(mSpiedPackageManager, times(2))
-                .getApplicationEnabledSetting("third_party_package", 102);
+        verify(mMockIoOveruseHelper, times(2))
+                .getApplicationEnabledSettingForUser("third_party_package", 101);
+        verify(mMockIoOveruseHelper, times(2))
+                .getApplicationEnabledSettingForUser("third_party_package", 102);
 
-        verify(mSpiedPackageManager).setApplicationEnabledSetting(eq("third_party_package"),
-                eq(COMPONENT_ENABLED_STATE_ENABLED), anyInt(), eq(101), anyString());
-        verify(mSpiedPackageManager).setApplicationEnabledSetting(eq("third_party_package"),
-                eq(COMPONENT_ENABLED_STATE_ENABLED), anyInt(), eq(102), anyString());
+        verifyUserPackageEnabled("third_party_package", 101);
+        verifyUserPackageEnabled("third_party_package", 102);
     }
 
     @Test
@@ -1701,23 +1566,19 @@ public class IoOveruseHandlerUnitTest extends AbstractExtendedMockitoTestCase {
                         new PackageKillableState("third_party_package.B", 102,
                                 PackageKillableState.KILLABLE_STATE_NO));
 
-        verify(mSpiedPackageManager, times(2))
-                .getApplicationEnabledSetting("third_party_package.A", 101);
-        verify(mSpiedPackageManager, times(2))
-                .getApplicationEnabledSetting("third_party_package.B", 101);
-        verify(mSpiedPackageManager, times(2))
-                .getApplicationEnabledSetting("third_party_package.A", 102);
-        verify(mSpiedPackageManager, times(2))
-                .getApplicationEnabledSetting("third_party_package.B", 102);
+        verify(mMockIoOveruseHelper, times(2))
+                .getApplicationEnabledSettingForUser("third_party_package.A", 101);
+        verify(mMockIoOveruseHelper, times(2))
+                .getApplicationEnabledSettingForUser("third_party_package.B", 101);
+        verify(mMockIoOveruseHelper, times(2))
+                .getApplicationEnabledSettingForUser("third_party_package.A", 102);
+        verify(mMockIoOveruseHelper, times(2))
+                .getApplicationEnabledSettingForUser("third_party_package.B", 102);
 
-        verify(mSpiedPackageManager).setApplicationEnabledSetting(eq("third_party_package.A"),
-                eq(COMPONENT_ENABLED_STATE_ENABLED), anyInt(), eq(101), anyString());
-        verify(mSpiedPackageManager).setApplicationEnabledSetting(eq("third_party_package.B"),
-                eq(COMPONENT_ENABLED_STATE_ENABLED), anyInt(), eq(101), anyString());
-        verify(mSpiedPackageManager).setApplicationEnabledSetting(eq("third_party_package.A"),
-                eq(COMPONENT_ENABLED_STATE_ENABLED), anyInt(), eq(102), anyString());
-        verify(mSpiedPackageManager).setApplicationEnabledSetting(eq("third_party_package.B"),
-                eq(COMPONENT_ENABLED_STATE_ENABLED), anyInt(), eq(102), anyString());
+        verifyUserPackageEnabled("third_party_package.A", 101);
+        verifyUserPackageEnabled("third_party_package.B", 101);
+        verifyUserPackageEnabled("third_party_package.A", 102);
+        verifyUserPackageEnabled("third_party_package.B", 102);
     }
 
     @Test
@@ -2591,10 +2452,9 @@ public class IoOveruseHandlerUnitTest extends AbstractExtendedMockitoTestCase {
     }
 
     @Test
-    public void testNoDisableRecurrentlyOverusingAppWhenDisplayEnabled() throws Exception {
+    public void testNoDisableRecurrentlyOverusingAppOnUxStateUserNotification() throws Exception {
         setUpSampleUserAndPackages();
-        setRequiresDistractionOptimization(false);
-        mIoOveruseHandler.onDisplayStateChanged(/* isEnabled= */ true);
+        mIoOveruseHandler.processUxStateChange(IoOveruseHandler.UX_STATE_USER_NOTIFICATION);
 
         List<PackageIoOveruseStats> packageIoOveruseStats =
                 sampleIoOveruseStats(/* requireRecurrentOveruseStats= */ true);
@@ -2603,17 +2463,16 @@ public class IoOveruseHandlerUnitTest extends AbstractExtendedMockitoTestCase {
 
         captureAndVerifyIoOveruseStatsReported(sampleReportedOveruseStats());
 
-        verify(mCarStatsLogWrapper, never()).write(eq(CarStatsLog.CAR_WATCHDOG_KILL_STATS_REPORTED),
-                anyInt(), anyInt(), anyInt(), anyInt(), any(), any());
+        verify(mMockIoOveruseHelper, never()).logKillStatsReported(anyInt(), anyInt(), anyInt(),
+                anyInt(), any(), any());
 
         verifyNoDisabledPackages();
     }
 
     @Test
-    public void testDisableRecurrentlyOverusingAppAfterDisplayDisabled() throws Exception {
+    public void testDisableRecurrentlyOverusingAppOnUxStateNoInteraction() throws Exception {
         setUpSampleUserAndPackages();
-        setRequiresDistractionOptimization(true);
-        mIoOveruseHandler.onDisplayStateChanged(/* isEnabled= */ true);
+        mIoOveruseHandler.processUxStateChange(IoOveruseHandler.UX_STATE_NO_DISTRACTION);
 
         List<PackageIoOveruseStats> packageIoOveruseStats =
                 sampleIoOveruseStats(/* requireRecurrentOveruseStats= */ true);
@@ -2622,11 +2481,11 @@ public class IoOveruseHandlerUnitTest extends AbstractExtendedMockitoTestCase {
 
         verifyNoDisabledPackages();
 
-        setRequiresDistractionOptimization(false);
+        mIoOveruseHandler.processUxStateChange(IoOveruseHandler.UX_STATE_USER_NOTIFICATION);
 
         verifyNoDisabledPackages();
 
-        mIoOveruseHandler.onDisplayStateChanged(/* isEnabled= */ false);
+        mIoOveruseHandler.processUxStateChange(IoOveruseHandler.UX_STATE_NO_INTERACTION);
 
         captureAndVerifyIoOveruseStatsReported(sampleReportedOveruseStats());
 
@@ -2641,11 +2500,10 @@ public class IoOveruseHandlerUnitTest extends AbstractExtendedMockitoTestCase {
     }
 
     @Test
-    public void testImmediateDisableRecurrentlyOverusingAppDuringDisabledDisplay()
+    public void testImmediateDisableRecurrentlyOverusingAppOnUxStateNoInteraction()
             throws Exception {
         setUpSampleUserAndPackages();
-        setRequiresDistractionOptimization(false);
-        mIoOveruseHandler.onDisplayStateChanged(/* isEnabled= */ false);
+        mIoOveruseHandler.processUxStateChange(IoOveruseHandler.UX_STATE_NO_INTERACTION);
 
         List<PackageIoOveruseStats> packageIoOveruseStats =
                 sampleIoOveruseStats(/* requireRecurrentOveruseStats= */ true);
@@ -2665,12 +2523,11 @@ public class IoOveruseHandlerUnitTest extends AbstractExtendedMockitoTestCase {
     }
 
     @Test
-    public void testDisableRecurrentlyOverusingAppWhenDisplayDisabledAfterDateChange()
+    public void testDisableRecurrentlyOverusingAppOnUxStateNoInteractionAfterDateChange()
             throws Exception {
         mTimeSource.updateNow(/* numDaysAgo= */ 1);
         setUpSampleUserAndPackages();
-        setRequiresDistractionOptimization(true);
-        mIoOveruseHandler.onDisplayStateChanged(/* isEnabled= */ true);
+        mIoOveruseHandler.processUxStateChange(IoOveruseHandler.UX_STATE_NO_DISTRACTION);
 
         List<PackageIoOveruseStats> packageIoOveruseStats =
                 sampleIoOveruseStats(/* requireRecurrentOveruseStats= */ true);
@@ -2681,8 +2538,7 @@ public class IoOveruseHandlerUnitTest extends AbstractExtendedMockitoTestCase {
 
         mTimeSource.updateNow(/* numDaysAgo= */ 0);
 
-        setRequiresDistractionOptimization(false);
-        mIoOveruseHandler.onDisplayStateChanged(/* isEnabled= */ false);
+        mIoOveruseHandler.processUxStateChange(IoOveruseHandler.UX_STATE_NO_INTERACTION);
 
         captureAndVerifyIoOveruseStatsReported(sampleReportedOveruseStats());
 
@@ -2699,8 +2555,7 @@ public class IoOveruseHandlerUnitTest extends AbstractExtendedMockitoTestCase {
     @Test
     public void testNoDisableRecurrentlyOverusingPrePrioritizedApp() throws Exception {
         setUpSampleUserAndPackages();
-        setRequiresDistractionOptimization(true);
-        mIoOveruseHandler.onDisplayStateChanged(/* isEnabled= */ true);
+        mIoOveruseHandler.processUxStateChange(IoOveruseHandler.UX_STATE_NO_DISTRACTION);
 
         mIoOveruseHandler.setKillablePackageAsUser(
                 "vendor_package.non_critical", new UserHandle(100), /* isKillable= */ false);
@@ -2714,8 +2569,7 @@ public class IoOveruseHandlerUnitTest extends AbstractExtendedMockitoTestCase {
 
         verifyNoDisabledPackages();
 
-        setRequiresDistractionOptimization(false);
-        mIoOveruseHandler.onDisplayStateChanged(/* isEnabled= */ false);
+        mIoOveruseHandler.processUxStateChange(IoOveruseHandler.UX_STATE_NO_INTERACTION);
 
         captureAndVerifyIoOveruseStatsReported(sampleReportedOveruseStats());
 
@@ -2730,8 +2584,7 @@ public class IoOveruseHandlerUnitTest extends AbstractExtendedMockitoTestCase {
     @Test
     public void testNoDisableRecurrentlyOverusingPostPrioritizedApp() throws Exception {
         setUpSampleUserAndPackages();
-        setRequiresDistractionOptimization(true);
-        mIoOveruseHandler.onDisplayStateChanged(/* isEnabled= */ true);
+        mIoOveruseHandler.processUxStateChange(IoOveruseHandler.UX_STATE_NO_DISTRACTION);
 
         List<PackageIoOveruseStats> packageIoOveruseStats =
                 sampleIoOveruseStats(/* requireRecurrentOveruseStats= */ true);
@@ -2745,8 +2598,7 @@ public class IoOveruseHandlerUnitTest extends AbstractExtendedMockitoTestCase {
         mIoOveruseHandler.setKillablePackageAsUser(
                 "third_party_package.A", new UserHandle(101), /* isKillable= */ false);
 
-        setRequiresDistractionOptimization(false);
-        mIoOveruseHandler.onDisplayStateChanged(/* isEnabled= */ false);
+        mIoOveruseHandler.processUxStateChange(IoOveruseHandler.UX_STATE_NO_INTERACTION);
 
         captureAndVerifyIoOveruseStatsReported(sampleReportedOveruseStats());
 
@@ -2761,8 +2613,7 @@ public class IoOveruseHandlerUnitTest extends AbstractExtendedMockitoTestCase {
     @Test
     public void testDisableRecurrentlyOverusingPriorityResettedApp() throws Exception {
         setUpSampleUserAndPackages();
-        setRequiresDistractionOptimization(true);
-        mIoOveruseHandler.onDisplayStateChanged(/* isEnabled= */ true);
+        mIoOveruseHandler.processUxStateChange(IoOveruseHandler.UX_STATE_NO_DISTRACTION);
 
         mIoOveruseHandler.setKillablePackageAsUser(
                 "vendor_package.non_critical", new UserHandle(100), /* isKillable= */ false);
@@ -2777,38 +2628,12 @@ public class IoOveruseHandlerUnitTest extends AbstractExtendedMockitoTestCase {
         mIoOveruseHandler.setKillablePackageAsUser(
                 "vendor_package.non_critical", new UserHandle(100), /* isKillable= */ true);
 
-        setRequiresDistractionOptimization(false);
-        mIoOveruseHandler.onDisplayStateChanged(/* isEnabled= */ false);
+        mIoOveruseHandler.processUxStateChange(IoOveruseHandler.UX_STATE_NO_INTERACTION);
 
         captureAndVerifyIoOveruseStatsReported(sampleReportedOveruseStats());
 
         captureAndVerifyKillStatsReported(sampleReportedKillStats(
                 CAR_WATCHDOG_KILL_STATS_REPORTED__SYSTEM_STATE__USER_NO_INTERACTION_MODE,
-                /* killedUids= */ new int[]{10010004, 10110004, 10010005, 10110005}));
-
-        verifyDisabledPackages(/* userPackagesCsv= */ "100:vendor_package.non_critical,"
-                + "101:vendor_package.non_critical,100:third_party_package.A,"
-                + "101:third_party_package.A,100:third_party_package.B,"
-                + "101:third_party_package.B");
-    }
-
-    @Test
-    public void testImmediateDisableRecurrentlyOverusingAppDuringGarageMode()
-            throws Exception {
-        setUpSampleUserAndPackages();
-        setRequiresDistractionOptimization(false);
-        mIoOveruseHandler.onDisplayStateChanged(/* isEnabled= */ false);
-        mIoOveruseHandler.onGarageModeChange(GarageMode.GARAGE_MODE_ON);
-
-        List<PackageIoOveruseStats> packageIoOveruseStats =
-                sampleIoOveruseStats(/* requireRecurrentOveruseStats= */ true);
-
-        pushLatestIoOveruseStatsAndWait(packageIoOveruseStats);
-
-        captureAndVerifyIoOveruseStatsReported(sampleReportedOveruseStats());
-
-        captureAndVerifyKillStatsReported(sampleReportedKillStats(
-                CAR_WATCHDOG_KILL_STATS_REPORTED__SYSTEM_STATE__GARAGE_MODE,
                 /* killedUids= */ new int[]{10010004, 10110004, 10010005, 10110005}));
 
         verifyDisabledPackages(/* userPackagesCsv= */ "100:vendor_package.non_critical,"
@@ -2825,8 +2650,7 @@ public class IoOveruseHandlerUnitTest extends AbstractExtendedMockitoTestCase {
 
         // Force CarWatchdogService to fetch historical not forgiven overuses.
         restartService(/* totalRestarts= */ 1, /* wantedDbWrites= */ 0);
-        setRequiresDistractionOptimization(true);
-        mIoOveruseHandler.onDisplayStateChanged(/* isEnabled= */ false);
+        mIoOveruseHandler.processUxStateChange(IoOveruseHandler.UX_STATE_NO_INTERACTION);
         int thirdPartyPkgUid = UserHandle.getUid(100, 10005);
 
         injectPackageInfos(Collections.singletonList(constructPackageManagerPackageInfo(
@@ -2841,8 +2665,8 @@ public class IoOveruseHandlerUnitTest extends AbstractExtendedMockitoTestCase {
                 /* userPackagesCsv= */ "100:third_party_package");
 
         // Package was enabled again.
-        doReturn(COMPONENT_ENABLED_STATE_DISABLED_UNTIL_USED).when(mSpiedPackageManager)
-                .getApplicationEnabledSetting("third_party_package", 100);
+        when(mMockIoOveruseHelper.getApplicationEnabledSettingForUser("third_party_package", 100))
+                .thenReturn(COMPONENT_ENABLED_STATE_DISABLED_UNTIL_USED);
         enableUserPackage("third_party_package", 100, true);
 
         PackageIoOveruseStats packageIoOveruseStats =
@@ -2886,8 +2710,7 @@ public class IoOveruseHandlerUnitTest extends AbstractExtendedMockitoTestCase {
                 .getNotForgivenHistoricalIoOveruses(RECURRING_OVERUSE_PERIOD_IN_DAYS);
 
         mTimeSource.updateNow(/* numDaysAgo= */ 1);
-        setRequiresDistractionOptimization(true);
-        mIoOveruseHandler.onDisplayStateChanged(/* isEnabled= */ false);
+        mIoOveruseHandler.processUxStateChange(IoOveruseHandler.UX_STATE_NO_INTERACTION);
         int thirdPartyPkgUid = UserHandle.getUid(100, 10005);
 
         injectPackageInfos(Collections.singletonList(constructPackageManagerPackageInfo(
@@ -2915,8 +2738,7 @@ public class IoOveruseHandlerUnitTest extends AbstractExtendedMockitoTestCase {
 
     @Test
     public void testLatestIoOveruseStats() throws Exception {
-        setRequiresDistractionOptimization(/* isRequires= */ true);
-        mIoOveruseHandler.onDisplayStateChanged(/* isEnabled= */ false);
+        mIoOveruseHandler.processUxStateChange(IoOveruseHandler.UX_STATE_NO_INTERACTION);
         int criticalSysPkgUid = Binder.getCallingUid();
         int nonCriticalSysPkgUid = 10001056;
         int nonCriticalVndrPkgUid = 10002564;
@@ -3015,8 +2837,7 @@ public class IoOveruseHandlerUnitTest extends AbstractExtendedMockitoTestCase {
 
     @Test
     public void testLatestIoOveruseStatsWithSharedUid() throws Exception {
-        setRequiresDistractionOptimization(/* isRequires= */ true);
-        mIoOveruseHandler.onDisplayStateChanged(/* isEnabled= */ false);
+        mIoOveruseHandler.processUxStateChange(IoOveruseHandler.UX_STATE_NO_INTERACTION);
         int criticalSysSharedUid = Binder.getCallingUid();
         int nonCriticalVndrSharedUid = 10002564;
         int thirdPartySharedUid = 10002044;
@@ -3173,7 +2994,7 @@ public class IoOveruseHandlerUnitTest extends AbstractExtendedMockitoTestCase {
                 constructPackageManagerPackageInfo("system_package", 10011200, null),
                 constructPackageManagerPackageInfo("third_party_package", 10001100, null)));
 
-        mIoOveruseHandler.onDisplayStateChanged(/* isEnabled= */ false);
+        mIoOveruseHandler.processUxStateChange(IoOveruseHandler.UX_STATE_NO_INTERACTION);
         mTimeSource.updateNow(/* numDaysAgo= */ 1);
         List<PackageIoOveruseStats> prevDayStats = Arrays.asList(
                 constructPackageIoOveruseStats(10011200, /* shouldNotify= */ false,
@@ -3211,7 +3032,7 @@ public class IoOveruseHandlerUnitTest extends AbstractExtendedMockitoTestCase {
                                 /* forgivenWriteBytes= */ constructPerStateBytes(1050, 1100, 1200),
                                 /* forgivenOveruses= */ 0, /* totalTimesKilled= */ 0)));
 
-        mIoOveruseHandler.onDisplayStateChanged(/* isEnabled= */ true);
+        mIoOveruseHandler.processUxStateChange(IoOveruseHandler.UX_STATE_USER_NOTIFICATION);
         mTimeSource.updateNow(/* numDaysAgo= */ 0);
         List<PackageIoOveruseStats> currentDayStats = Arrays.asList(
                 constructPackageIoOveruseStats(10011200, /* shouldNotify= */ false,
@@ -3270,90 +3091,53 @@ public class IoOveruseHandlerUnitTest extends AbstractExtendedMockitoTestCase {
     @Test
     public void testNoUserNotificationWithNoRecurrentOveruse() throws Exception {
         mockAmGetCurrentUser(CURRENT_USER_ID);
-        mIoOveruseHandler.onDisplayStateChanged(/* isEnabled= */ true);
-        setRequiresDistractionOptimization(false);
+        mIoOveruseHandler.processUxStateChange(IoOveruseHandler.UX_STATE_USER_NOTIFICATION);
 
         setUpSampleUserAndPackages();
 
         pushLatestIoOveruseStatsAndWait(
                 sampleIoOveruseStats(/* requireRecurrentOveruseStats= */ false));
 
-        // Verify no notification is sent
-        captureAndVerifyUserNotifications(Collections.emptyList());
+        verify(mMockIoOveruseHelper, never()).sendUserNotifications(anyInt(), anyList());
     }
 
     @Test
     public void testNoUserNotificationOnRecurrentOveruseWithDistractionOptimization()
             throws Exception {
         mockAmGetCurrentUser(CURRENT_USER_ID);
-        mIoOveruseHandler.onDisplayStateChanged(/* isEnabled= */ true);
-        setRequiresDistractionOptimization(true);
+        mIoOveruseHandler.processUxStateChange(IoOveruseHandler.UX_STATE_NO_DISTRACTION);
 
         setUpSampleUserAndPackages();
 
         pushLatestIoOveruseStatsAndWait(
                 sampleIoOveruseStats(/* requireRecurrentOveruseStats= */ true));
 
-        // Verify no notification is sent
-        captureAndVerifyUserNotifications(Collections.emptyList());
+        verify(mMockIoOveruseHelper, never()).sendUserNotifications(anyInt(), anyList());
     }
 
     @Test
     public void testUserNotificationOnRecurrentOveruseAfterNoDistractionOptimization()
             throws Exception {
         mockAmGetCurrentUser(CURRENT_USER_ID);
-        mIoOveruseHandler.onDisplayStateChanged(/* isEnabled= */ true);
-        setRequiresDistractionOptimization(true);
+        mIoOveruseHandler.processUxStateChange(IoOveruseHandler.UX_STATE_NO_DISTRACTION);
 
         setUpSampleUserAndPackages();
 
         pushLatestIoOveruseStatsAndWait(
                 sampleIoOveruseStats(/* requireRecurrentOveruseStats= */ true));
 
-        setRequiresDistractionOptimization(false);
+        mIoOveruseHandler.processUxStateChange(IoOveruseHandler.UX_STATE_USER_NOTIFICATION);
 
-        captureAndVerifyUserNotifications(
-                Collections.singletonList(
-                        new UserNotificationReflectionCall(
-                                UserHandle.of(100),
-                                constructPackagesByNotificationId(/* idOffset= */ 0,
-                                        "vendor_package.non_critical", "third_party_package.A",
-                                        "third_party_package.B"), /* hasHeadsUpNotification= */
-                                true)));
-    }
-
-    @Test
-    public void testNoDuplicateUserNotificationOnRepeatedRecurrentOveruse()
-            throws Exception {
-        mockAmGetCurrentUser(CURRENT_USER_ID);
-        mIoOveruseHandler.onDisplayStateChanged(/* isEnabled= */ true);
-        setRequiresDistractionOptimization(false);
-
-        setUpSampleUserAndPackages();
-
-        List<PackageIoOveruseStats> ioOveruseStats =
-                sampleIoOveruseStats(/* requireRecurrentOveruseStats= */ true);
-
-        pushLatestIoOveruseStatsAndWait(ioOveruseStats);
-        // Should not produce resource overuse notifications.
-        pushLatestIoOveruseStatsAndWait(ioOveruseStats);
-
-        captureAndVerifyUserNotifications(
-                Collections.singletonList(
-                        new UserNotificationReflectionCall(
-                                UserHandle.of(100),
-                                constructPackagesByNotificationId(/* idOffset= */ 0,
-                                        "vendor_package.non_critical", "third_party_package.A",
-                                        "third_party_package.B"), /* hasHeadsUpNotification= */
-                                true)));
+        captureAndVerifyUserNotificationCallbacks(CURRENT_USER_ID,
+                Arrays.asList("vendor_package.non_critical", "third_party_package.A",
+                        "third_party_package.B"));
     }
 
     @Test
     public void testImmediateUserNotificationOnRecurrentOveruseWhenNoDistractionOptimization()
             throws Exception {
         mockAmGetCurrentUser(CURRENT_USER_ID);
-        mIoOveruseHandler.onDisplayStateChanged(/* isEnabled= */ true);
-        setRequiresDistractionOptimization(false);
+        mIoOveruseHandler.processUxStateChange(IoOveruseHandler.UX_STATE_USER_NOTIFICATION);
 
         setUpSampleUserAndPackages();
 
@@ -3368,26 +3152,16 @@ public class IoOveruseHandlerUnitTest extends AbstractExtendedMockitoTestCase {
                                 /* writtenBytes= */ constructPerStateBytes(300, 600, 900),
                                 /* totalOveruses= */ 3))));
 
-        List<UserNotificationReflectionCall>
-                userNotificationReflectionCalls = Arrays.asList(
-                        new UserNotificationReflectionCall(UserHandle.of(100),
-                                constructPackagesByNotificationId(/* idOffset= */ 0,
-                                        "vendor_package.non_critical", "third_party_package.A",
-                                        "third_party_package.B"),
-                                        /* hasHeadsUpNotification= */ true),
-                        new UserNotificationReflectionCall(UserHandle.of(100),
-                                constructPackagesByNotificationId(/* idOffset= */ 3,
-                                        "system_package.non_critical"),
-                                /* hasHeadsUpNotification= */ false));
-
-        captureAndVerifyUserNotifications(userNotificationReflectionCalls);
+        captureAndVerifyUserNotificationCallbacks(CURRENT_USER_ID,
+                Arrays.asList("system_package.non_critical", "vendor_package.non_critical",
+                        "third_party_package.A", "third_party_package.B"),
+                /* wantedInvocations= */ 2);
     }
 
     @Test
     public void testNoUserNotificationOnRecurrentOveruseByPrePrioritizedApp() throws Exception {
         mockAmGetCurrentUser(CURRENT_USER_ID);
-        mIoOveruseHandler.onDisplayStateChanged(/* isEnabled= */ true);
-        setRequiresDistractionOptimization(true);
+        mIoOveruseHandler.processUxStateChange(IoOveruseHandler.UX_STATE_NO_DISTRACTION);
 
         setUpSampleUserAndPackages();
 
@@ -3402,17 +3176,15 @@ public class IoOveruseHandlerUnitTest extends AbstractExtendedMockitoTestCase {
                                 /* writtenBytes= */ constructPerStateBytes(300, 600, 900),
                                 /* totalOveruses= */ 3))));
 
-        setRequiresDistractionOptimization(false);
+        mIoOveruseHandler.processUxStateChange(IoOveruseHandler.UX_STATE_USER_NOTIFICATION);
 
-        // Verify no notification is sent
-        captureAndVerifyUserNotifications(Collections.emptyList());
+        verify(mMockIoOveruseHelper, never()).sendUserNotifications(anyInt(), anyList());
     }
 
     @Test
     public void testNoUserNotificationOnRecurrentOveruseByPostPrioritizedApp() throws Exception {
         mockAmGetCurrentUser(CURRENT_USER_ID);
-        mIoOveruseHandler.onDisplayStateChanged(/* isEnabled= */ true);
-        setRequiresDistractionOptimization(true);
+        mIoOveruseHandler.processUxStateChange(IoOveruseHandler.UX_STATE_NO_DISTRACTION);
 
         setUpSampleUserAndPackages();
 
@@ -3427,17 +3199,15 @@ public class IoOveruseHandlerUnitTest extends AbstractExtendedMockitoTestCase {
         mIoOveruseHandler.setKillablePackageAsUser("third_party_package.A",
                 UserHandle.of(100), /* isKillable= */ false);
 
-        setRequiresDistractionOptimization(false);
+        mIoOveruseHandler.processUxStateChange(IoOveruseHandler.UX_STATE_USER_NOTIFICATION);
 
-        // Verify no notification is sent
-        captureAndVerifyUserNotifications(Collections.emptyList());
+        verify(mMockIoOveruseHelper, never()).sendUserNotifications(anyInt(), anyList());
     }
 
     @Test
     public void testUserNotificationOnRecurrentOveruseByPriorityResettedApp() throws Exception {
         mockAmGetCurrentUser(CURRENT_USER_ID);
-        mIoOveruseHandler.onDisplayStateChanged(/* isEnabled= */ true);
-        setRequiresDistractionOptimization(true);
+        mIoOveruseHandler.processUxStateChange(IoOveruseHandler.UX_STATE_NO_DISTRACTION);
 
         setUpSampleUserAndPackages();
 
@@ -3455,13 +3225,10 @@ public class IoOveruseHandlerUnitTest extends AbstractExtendedMockitoTestCase {
         mIoOveruseHandler.setKillablePackageAsUser("third_party_package.A", UserHandle.of(100),
                 /* isKillable= */ true);
 
-        setRequiresDistractionOptimization(false);
+        mIoOveruseHandler.processUxStateChange(IoOveruseHandler.UX_STATE_USER_NOTIFICATION);
 
-        captureAndVerifyUserNotifications(Collections.singletonList(
-                new UserNotificationReflectionCall(UserHandle.of(100),
-                        constructPackagesByNotificationId(/* idOffset= */ 0,
-                                "third_party_package.A", "third_party_package.B"),
-                        /* hasHeadsUpNotification= */ true)));
+        captureAndVerifyUserNotificationCallbacks(CURRENT_USER_ID,
+                Arrays.asList("third_party_package.A", "third_party_package.B"));
     }
 
     @Test
@@ -3474,8 +3241,7 @@ public class IoOveruseHandlerUnitTest extends AbstractExtendedMockitoTestCase {
         // Force CarWatchdogService to fetch historical not forgiven overuses.
         restartService(/* totalRestarts= */ 1, /* wantedDbWrites= */ 0);
         mockAmGetCurrentUser(CURRENT_USER_ID);
-        mIoOveruseHandler.onDisplayStateChanged(/* isEnabled= */ true);
-        setRequiresDistractionOptimization(false);
+        mIoOveruseHandler.processUxStateChange(IoOveruseHandler.UX_STATE_USER_NOTIFICATION);
 
         setUpSampleUserAndPackages();
 
@@ -3487,18 +3253,14 @@ public class IoOveruseHandlerUnitTest extends AbstractExtendedMockitoTestCase {
                                 /* writtenBytes= */ constructPerStateBytes(300, 600, 900),
                                 /* totalOveruses= */ 1))));
 
-        captureAndVerifyUserNotifications(Collections.singletonList(
-                new UserNotificationReflectionCall(UserHandle.of(100),
-                        constructPackagesByNotificationId(/* idOffset= */ 0,
-                                "system_package.non_critical"),
-                        /* hasHeadsUpNotification= */ true)));
+        captureAndVerifyUserNotificationCallbacks(CURRENT_USER_ID,
+                Arrays.asList("system_package.non_critical"));
     }
 
     @Test
-    public void testUserNotificationWithDisabledDisplay() throws Exception {
+    public void testUserNotificationOnUxStateNoInteraction() throws Exception {
         mockAmGetCurrentUser(CURRENT_USER_ID);
-        mIoOveruseHandler.onDisplayStateChanged(/* isEnabled= */ false);
-        setRequiresDistractionOptimization(false);
+        mIoOveruseHandler.processUxStateChange(IoOveruseHandler.UX_STATE_NO_INTERACTION);
 
         setUpSampleUserAndPackages();
 
@@ -3510,18 +3272,14 @@ public class IoOveruseHandlerUnitTest extends AbstractExtendedMockitoTestCase {
                                 /* writtenBytes= */ constructPerStateBytes(300, 600, 900),
                                 /* totalOveruses= */ 3))));
 
-        captureAndVerifyUserNotifications(Collections.singletonList(
-                new UserNotificationReflectionCall(UserHandle.of(100),
-                        constructPackagesByNotificationId(/* idOffset= */ 0,
-                                "system_package.non_critical"),
-                        /* hasHeadsUpNotification= */ false)));
+        captureAndVerifyUserNotificationCallbacks(CURRENT_USER_ID,
+                Arrays.asList("system_package.non_critical"));
     }
 
     @Test
     public void testNoDisableWithNoRecurrentOveruse() throws Exception {
         setUpSampleUserAndPackages();
-        setRequiresDistractionOptimization(false);
-        mIoOveruseHandler.onDisplayStateChanged(/* isEnabled= */ false);
+        mIoOveruseHandler.processUxStateChange(IoOveruseHandler.UX_STATE_NO_INTERACTION);
 
         List<PackageIoOveruseStats> packageIoOveruseStats =
                 sampleIoOveruseStats(/* requireRecurrentOveruseStats= */ false);
@@ -3530,8 +3288,8 @@ public class IoOveruseHandlerUnitTest extends AbstractExtendedMockitoTestCase {
 
         captureAndVerifyIoOveruseStatsReported(sampleReportedOveruseStats());
 
-        verify(mCarStatsLogWrapper, never()).write(eq(CarStatsLog.CAR_WATCHDOG_KILL_STATS_REPORTED),
-                anyInt(), anyInt(), anyInt(), anyInt(), any(), any());
+        verify(mMockIoOveruseHelper, never()).logKillStatsReported(anyInt(), anyInt(), anyInt(),
+                anyInt(), any(), any());
 
         verifyNoDisabledPackages();
     }
@@ -3539,8 +3297,7 @@ public class IoOveruseHandlerUnitTest extends AbstractExtendedMockitoTestCase {
     @Test
     public void testNoDisableRecurrentlyOverusingAppWithDistractionOptimization() throws Exception {
         setUpSampleUserAndPackages();
-        setRequiresDistractionOptimization(true);
-        mIoOveruseHandler.onDisplayStateChanged(/* isEnabled= */ true);
+        mIoOveruseHandler.processUxStateChange(IoOveruseHandler.UX_STATE_NO_DISTRACTION);
 
         List<PackageIoOveruseStats> packageIoOveruseStats =
                 sampleIoOveruseStats(/* requireRecurrentOveruseStats= */ true);
@@ -3549,8 +3306,8 @@ public class IoOveruseHandlerUnitTest extends AbstractExtendedMockitoTestCase {
 
         captureAndVerifyIoOveruseStatsReported(sampleReportedOveruseStats());
 
-        verify(mCarStatsLogWrapper, never()).write(eq(CarStatsLog.CAR_WATCHDOG_KILL_STATS_REPORTED),
-                anyInt(), anyInt(), anyInt(), anyInt(), any(), any());
+        verify(mMockIoOveruseHelper, never()).logKillStatsReported(anyInt(), anyInt(), anyInt(),
+                anyInt(), any(), any());
 
         verifyNoDisabledPackages();
     }
@@ -3740,7 +3497,7 @@ public class IoOveruseHandlerUnitTest extends AbstractExtendedMockitoTestCase {
     }
 
     @Test
-    public void testProcessPackageChangedIntentForEnabledPackage() throws Exception {
+    public void testProcessActionPackageChangedForEnabledPackage() throws Exception {
         String packageName = "system_package";
         int userId = 100;
 
@@ -3748,42 +3505,42 @@ public class IoOveruseHandlerUnitTest extends AbstractExtendedMockitoTestCase {
         disableUserPackage("vendor_package", 100);
         disableUserPackage("third_party_package", 100);
 
-        doReturn(COMPONENT_ENABLED_STATE_ENABLED).when(mSpiedPackageManager)
-                .getApplicationEnabledSetting(or(eq("system_package"),
-                        eq("irrelevant_random_package")), eq(100));
+        when(mMockIoOveruseHelper.getApplicationEnabledSettingForUser(or(eq("system_package"),
+                eq("irrelevant_random_package")), eq(100))).thenReturn(
+                        COMPONENT_ENABLED_STATE_ENABLED);
 
-        mIoOveruseHandler.processPackageChangedIntent(new Intent(ACTION_PACKAGE_CHANGED)
+        mIoOveruseHandler.processActionPackageChanged(new Intent(ACTION_PACKAGE_CHANGED)
                 .putExtra(Intent.EXTRA_USER_HANDLE, userId)
                 .setData(Uri.parse("package:" + packageName)));
 
-        mIoOveruseHandler.processPackageChangedIntent(new Intent(ACTION_PACKAGE_CHANGED)
+        verify(mMockIoOveruseHelper).onPackageEnabledLocked(packageName, userId);
+
+        mIoOveruseHandler.processActionPackageChanged(new Intent(ACTION_PACKAGE_CHANGED)
                 .putExtra(Intent.EXTRA_USER_HANDLE, userId)
                 .setData(Uri.parse("package:irrelevant_random_package")));
 
-        verifyDisabledPackagesSettingsKey(
-                /* message= */ " after enabling system_package for user 100",
-                /* userPackagesCsv= */
-                "100:vendor_package,100:third_party_package,101:system_package");
+        verify(mMockIoOveruseHelper, never()).onPackageEnabledLocked("irrelevant_random_package",
+                userId);
     }
 
     @Test
-    public void testProcessPackageChangedIntentForDisabledPackage() throws Exception {
+    public void testProcessActionPackageChangedForDisabledPackage() throws Exception {
         String packageName = "system_package";
         int userId = 100;
 
         disableUserPackage("system_package", 100, 101);
         disableUserPackage("vendor_package", 100);
 
-        doReturn(COMPONENT_ENABLED_STATE_DISABLED).when(mSpiedPackageManager)
-                .getApplicationEnabledSetting("system_package", 100);
+        verify(mMockIoOveruseHelper).onPackageDisabledLocked("vendor_package", 100);
 
-        mIoOveruseHandler.processPackageChangedIntent(new Intent(ACTION_PACKAGE_CHANGED)
+        when(mMockIoOveruseHelper.getApplicationEnabledSettingForUser("system_package", 100))
+                .thenReturn(COMPONENT_ENABLED_STATE_DISABLED);
+
+        mIoOveruseHandler.processActionPackageChanged(new Intent(ACTION_PACKAGE_CHANGED)
                 .putExtra(Intent.EXTRA_USER_HANDLE, userId)
                 .setData(Uri.parse("package:" + packageName)));
 
-        verifyDisabledPackagesSettingsKey(
-                /* message= */ "",
-                /* userPackagesCsv= */ "100:vendor_package,100:system_package,101:system_package");
+        verify(mMockIoOveruseHelper, never()).onPackageEnabledLocked("system_package", 100);
     }
 
     private List<AtomsProto.CarWatchdogSystemIoUsageSummary> verifyAndGetSystemIoUsageSummaries(
@@ -3809,26 +3566,26 @@ public class IoOveruseHandlerUnitTest extends AbstractExtendedMockitoTestCase {
     }
 
     private void mockBuildStatsEventCalls() {
-        when(mCarStatsLogWrapper.buildStatsEvent(eq(CAR_WATCHDOG_SYSTEM_IO_USAGE_SUMMARY),
-                any(byte[].class), anyLong())).thenAnswer(args -> {
+        when(mMockIoOveruseHelper.buildSystemIoUsageSummaryStatsEvent(any(byte[].class),
+                anyLong())).thenAnswer(args -> {
                     mPulledSystemIoUsageSummaries.add(AtomsProto.CarWatchdogSystemIoUsageSummary
                             .newBuilder()
                             .setIoUsageSummary(AtomsProto.CarWatchdogIoUsageSummary.parseFrom(
-                                    (byte[]) args.getArgument(1)))
-                            .setStartTimeMillis(args.getArgument(2))
+                                    (byte[]) args.getArgument(0)))
+                            .setStartTimeMillis(args.getArgument(1))
                             .build());
                     // Returned event is not used in tests, so return an empty event.
                     return StatsEvent.newBuilder().build();
                 });
 
-        when(mCarStatsLogWrapper.buildStatsEvent(eq(CAR_WATCHDOG_UID_IO_USAGE_SUMMARY), anyInt(),
-                any(byte[].class), anyLong())).thenAnswer(args -> {
+        when(mMockIoOveruseHelper.buildUidIoUsageSummaryStatsEvent(anyInt(), any(byte[].class),
+                anyLong())).thenAnswer(args -> {
                     mPulledUidIoUsageSummaries.add(AtomsProto.CarWatchdogUidIoUsageSummary
                             .newBuilder()
-                            .setUid(args.getArgument(1))
+                            .setUid(args.getArgument(0))
                             .setIoUsageSummary(AtomsProto.CarWatchdogIoUsageSummary.parseFrom(
-                                    (byte[]) args.getArgument(2)))
-                            .setStartTimeMillis(args.getArgument(3))
+                                    (byte[]) args.getArgument(1)))
+                            .setStartTimeMillis(args.getArgument(2))
                             .build());
                     // Returned event is not used in tests, so return an empty event.
                     return StatsEvent.newBuilder().build();
@@ -3872,7 +3629,7 @@ public class IoOveruseHandlerUnitTest extends AbstractExtendedMockitoTestCase {
     //TODO(b/296123438): Add test for remaining dump fields in dumpProto.
     @Test
     public void testDumpProto() throws Exception {
-        mIoOveruseHandler.disablePackageForUser("testPackage", 101);
+        disableUserPackage("testPackage", 101);
         // Set mLastSystemIoUsageSummaryReportedDate and mLastUidIoUsageSummaryReportedDate.
         assertWithMessage("Stats pull atom callback status")
                 .that(mStatsPullAtomCallback.onPullAtom(CAR_WATCHDOG_SYSTEM_IO_USAGE_SUMMARY,
@@ -3880,12 +3637,10 @@ public class IoOveruseHandlerUnitTest extends AbstractExtendedMockitoTestCase {
         ProtoOutputStream proto = new ProtoOutputStream();
         mIoOveruseHandler.dumpProto(proto);
 
-        CarWatchdogDumpProto carWatchdogDumpProto = CarWatchdogDumpProto.parseFrom(
-                proto.getBytes());
-        PerformanceDump performanceDump = carWatchdogDumpProto.getPerformanceDump();
+        PerformanceDump performanceDump = PerformanceDump.parseFrom(proto.getBytes());
         expectWithMessage("Current UX State")
                 .that(performanceDump.getCurrentUxState())
-                .isEqualTo(PerformanceDump.UxState.UX_STATE_USER_NOTIFICATION);
+                .isEqualTo(PerformanceDump.UxState.UX_STATE_NO_DISTRACTION);
 
         expectWithMessage("Disabled Packages By User Id")
                 .that(performanceDump.getDisabledUserPackagesCount()).isEqualTo(1);
@@ -4024,68 +3779,23 @@ public class IoOveruseHandlerUnitTest extends AbstractExtendedMockitoTestCase {
         return packagesById;
     }
 
-    private void captureAndVerifyUserNotifications(
-            List<UserNotificationReflectionCall> expectedNotifications) {
+    private void captureAndVerifyUserNotificationCallbacks(@UserIdInt int expectedUserId,
+                                                           List<String> expectedPackages) {
+        captureAndVerifyUserNotificationCallbacks(expectedUserId, expectedPackages,
+                /* wantedInvocations= */ 1);
+    }
+
+    private void captureAndVerifyUserNotificationCallbacks(@UserIdInt int expectedUserId,
+                                                           List<String> expectedPackages,
+                                                           int wantedInvocations) {
         // Recurring overuse notification handling task is posted on a separate handler thread and
         // this task sends the user notifications. Wait for this task to complete.
         CarServiceUtils.runEmptyRunnableOnLooperSync(CarWatchdogService.class.getSimpleName());
 
-        verify(mMockNotificationHelper, times(expectedNotifications.size()))
-                .showResourceOveruseNotificationsAsUser(mUserHandleCaptor.capture(),
-                        mHeadsUpPackagesCaptor.capture(),
-                        mNotificationCenterPackagesCaptor.capture());
-
-        if (expectedNotifications.isEmpty()) {
-            return;
-        }
-
-        assertWithMessage("Number of notification does not match").that(
-                mUserHandleCaptor.getAllValues().size()).isEqualTo(expectedNotifications.size());
-        for (int i = 0; i < expectedNotifications.size(); i++) {
-            UserNotificationReflectionCall expectedNotification =
-                    expectedNotifications.get(i);
-
-            UserHandle userHandle = mUserHandleCaptor.getAllValues().get(i);
-            SparseArray<String> actualHeadsUpNotificationPackagesById = mHeadsUpPackagesCaptor
-                    .getAllValues().get(i);
-            SparseArray<String> actualPackagesById = mNotificationCenterPackagesCaptor
-                    .getAllValues().get(i);
-
-            assertWithMessage("Current user id for resource overuse notifications")
-                    .that(userHandle).isEqualTo(expectedNotification.userHandle);
-
-            int expectedHeadsUpSize = expectedNotification.hasHeadsUpNotification ? 1 : 0;
-
-            assertWithMessage("Resource overuse heads up packages size")
-                    .that(actualHeadsUpNotificationPackagesById.size())
-                    .isEqualTo(expectedHeadsUpSize);
-
-            if (expectedNotification.hasHeadsUpNotification) {
-                int headsUpNotificationId = actualHeadsUpNotificationPackagesById.keyAt(0);
-                actualPackagesById.put(headsUpNotificationId,
-                        actualHeadsUpNotificationPackagesById.valueAt(0));
-            }
-
-            int expectedSize = expectedNotification.packagesById.size();
-
-            assertWithMessage("Resource overuse notification size")
-                    .that(actualPackagesById.size()).isEqualTo(expectedSize);
-
-            ArraySet<String> expectedPackages = new ArraySet<>(expectedSize);
-            ArraySet<String> actualPackages = new ArraySet<>(expectedSize);
-            for (int j = 0; j < expectedNotification.packagesById.size(); j++) {
-                int expectedNotificationId = expectedNotification.packagesById.keyAt(j);
-
-                assertWithMessage("Resource overuse notification id")
-                        .that(actualPackagesById.get(expectedNotificationId)).isNotNull();
-
-                expectedPackages.add(expectedNotification.packagesById.valueAt(j));
-                actualPackages.add(actualPackagesById.valueAt(j));
-            }
-
-            assertWithMessage("Resource overuse notification package names")
-                    .that(actualPackages).isEqualTo(expectedPackages);
-        }
+        verify(mMockIoOveruseHelper, times(wantedInvocations)).sendUserNotifications(
+                eq(expectedUserId), mPackagesCaptor.capture());
+        assertWithMessage("User notificaon packages for userId " + expectedUserId)
+                .that(mPackagesCaptor.getValue()).containsExactlyElementsIn(expectedPackages);
     }
 
     private static void verifyOnOveruseCalled(List<ResourceOveruseStats> expectedStats,
@@ -4108,7 +3818,6 @@ public class IoOveruseHandlerUnitTest extends AbstractExtendedMockitoTestCase {
     private void initService(int wantedInvocations) throws Exception {
         mIoOveruseHandler.setOveruseHandlingDelay(OVERUSE_HANDLING_DELAY_MILLS);
         mIoOveruseHandler.init();
-        captureCarUxRestrictionsChangeListener(wantedInvocations);
         verifyDatabaseInit(wantedInvocations);
         captureStatsPullAtomCallback(wantedInvocations);
         mIoOveruseHandler.onDaemonConnectionChange(/* isConnected= */ true);
@@ -4125,7 +3834,6 @@ public class IoOveruseHandlerUnitTest extends AbstractExtendedMockitoTestCase {
             throws Exception {
         mIoOveruseHandler.writeMetadataFile();
         mIoOveruseHandler.writeToDatabase();
-        mIoOveruseHandler.release();
         mSpiedWatchdogStorage.release();
         verify(mSpiedWatchdogStorage, times(totalRestarts)).startWrite();
         verify(mSpiedWatchdogStorage, times(isWriteIoStats ? wantedDbWrites : 0))
@@ -4134,17 +3842,13 @@ public class IoOveruseHandlerUnitTest extends AbstractExtendedMockitoTestCase {
         verify(mSpiedWatchdogStorage, times(wantedDbWrites)).markWriteSuccessful();
         verify(mSpiedWatchdogStorage, times(wantedDbWrites)).endWrite();
         verify(mSpiedWatchdogStorage, times(Math.max(totalRestarts, 1))).release();
-        mIoOveruseHandler = new IoOveruseHandler(mMockContext,
-                mMockBuiltinPackageContext, mMockCarWatchdogDaemonHelper,
+        mIoOveruseHandler = new IoOveruseHandler(mMockContext, mMockIoOveruseHelper,
+                mMockCarWatchdogDaemonHelper,
                 new PackageInfoHandler(mMockContext.getPackageManager()),
-                mSpiedWatchdogStorage, mTimeSource, mHandler, mCarStatsLogWrapper);
+                mSpiedWatchdogStorage, mTimeSource, UID_IO_USAGE_SUMMARY_TOP_COUNT,
+                IO_USAGE_SUMMARY_MIN_SYSTEM_TOTAL_WRITTEN_BYTES, PACKAGE_KILLABLE_STATE_RESET_DAYS,
+                RECURRING_OVERUSE_PERIOD_IN_DAYS, RECURRING_OVERUSE_TIMES, mHandler);
         initService(/* wantedInvocations= */ totalRestarts + 1);
-    }
-
-    private void setRequiresDistractionOptimization(boolean isRequires) throws Exception {
-        CarUxRestrictions.Builder builder = new CarUxRestrictions.Builder(
-                isRequires, UX_RESTRICTIONS_BASELINE, /* time= */ 0);
-        mCarUxRestrictionsChangeListener.onUxRestrictionsChanged(builder.build());
     }
 
     private List<PackageIoOveruseStats> sampleIoOveruseStats(boolean requireRecurrentOveruseStats)
@@ -4279,9 +3983,9 @@ public class IoOveruseHandlerUnitTest extends AbstractExtendedMockitoTestCase {
 
     private void captureAndVerifyIoOveruseStatsReported(
             List<AtomsProto.CarWatchdogIoOveruseStatsReported> expected) throws Exception {
-        verify(mCarStatsLogWrapper, times(expected.size()))
-                .write(eq(CarStatsLog.CAR_WATCHDOG_IO_OVERUSE_STATS_REPORTED),
-                        mOverusingUidCaptor.capture(), mOveruseStatsCaptor.capture());
+        verify(mMockIoOveruseHelper, times(expected.size()))
+                .logIoOveruseStatsReported(mOverusingUidCaptor.capture(),
+                        mOveruseStatsCaptor.capture());
 
         List<Integer> allUidValues = mOverusingUidCaptor.getAllValues();
         List<byte[]> allOveruseStatsValues = mOveruseStatsCaptor.getAllValues();
@@ -4300,9 +4004,8 @@ public class IoOveruseHandlerUnitTest extends AbstractExtendedMockitoTestCase {
         // uploading metrics. Wait for this task to complete.
         CarServiceUtils.runOnMainSync(() -> {});
 
-        verify(mCarStatsLogWrapper, times(expected.size()))
-                .write(eq(CarStatsLog.CAR_WATCHDOG_KILL_STATS_REPORTED),
-                        mKilledUidCaptor.capture(), mUidStateCaptor.capture(),
+        verify(mMockIoOveruseHelper, times(expected.size()))
+                .logKillStatsReported(mKilledUidCaptor.capture(), mUidStateCaptor.capture(),
                         mSystemStateCaptor.capture(), mKillReasonCaptor.capture(), eq(null),
                         mKilledStatsCaptor.capture());
 
@@ -4370,17 +4073,14 @@ public class IoOveruseHandlerUnitTest extends AbstractExtendedMockitoTestCase {
                     /* isKillable= */ true);
         }
 
-        verify(mSpiedPackageManager, atLeastOnce())
-                .getApplicationEnabledSetting(packageName, userId);
+        verify(mMockIoOveruseHelper, atLeastOnce())
+                .getApplicationEnabledSettingForUser(packageName, userId);
 
-        verify(mSpiedPackageManager).setApplicationEnabledSetting(eq(packageName),
-                eq(COMPONENT_ENABLED_STATE_ENABLED), eq(0),
-                eq(userId), anyString());
+        assertThat(mDisabledUserPackagesWithPm).doesNotContain(userId + ":" + packageName);
+        assertThat(mDisabledUserPackageCallbacks).doesNotContain(userId + ":" + packageName);
 
-        assertThat(mDisabledUserPackages).doesNotContain(userId + ":" + packageName);
-
-        doReturn(COMPONENT_ENABLED_STATE_ENABLED).when(mSpiedPackageManager)
-                .getApplicationEnabledSetting(eq(packageName), eq(userId));
+        when(mMockIoOveruseHelper.getApplicationEnabledSettingForUser(eq(packageName), eq(userId)))
+                .thenReturn(COMPONENT_ENABLED_STATE_ENABLED);
     }
 
     private void disableUserPackage(String packageName, int... userIds) throws Exception {
@@ -4389,18 +4089,22 @@ public class IoOveruseHandlerUnitTest extends AbstractExtendedMockitoTestCase {
 
             mIoOveruseHandler.disablePackageForUser(packageName, userId);
 
-            verify(mSpiedPackageManager, atLeastOnce())
-                    .getApplicationEnabledSetting(packageName, userId);
+            verify(mMockIoOveruseHelper, atLeastOnce())
+                    .getApplicationEnabledSettingForUser(packageName, userId);
 
-            verify(mSpiedPackageManager).setApplicationEnabledSetting(eq(packageName),
-                    eq(COMPONENT_ENABLED_STATE_DISABLED_UNTIL_USED), eq(0),
-                    eq(userId), anyString());
+            assertThat(mDisabledUserPackagesWithPm).contains(userId + ":" + packageName);
+            assertThat(mDisabledUserPackageCallbacks).contains(userId + ":" + packageName);
 
-            assertThat(mDisabledUserPackages).contains(userId + ":" + packageName);
-
-            doReturn(COMPONENT_ENABLED_STATE_DISABLED_UNTIL_USED).when(mSpiedPackageManager)
-                    .getApplicationEnabledSetting(eq(packageName), eq(userId));
+            when(mMockIoOveruseHelper.getApplicationEnabledSettingForUser(eq(packageName),
+                    eq(userId))).thenReturn(COMPONENT_ENABLED_STATE_DISABLED_UNTIL_USED);
         }
+    }
+
+    private void verifyUserPackageEnabled(String packageName, int userId) throws Exception {
+        verify(mMockIoOveruseHelper).setApplicationEnabledSettingForUser(eq(packageName),
+                eq(COMPONENT_ENABLED_STATE_ENABLED), eq(0), eq(userId), anyString());
+
+        verify(mMockIoOveruseHelper).onPackageEnabledLocked(packageName, userId);
     }
 
     static android.content.pm.PackageInfo constructPackageManagerPackageInfo(
@@ -4462,27 +4166,11 @@ public class IoOveruseHandlerUnitTest extends AbstractExtendedMockitoTestCase {
     }
 
     private void verifyDisabledPackages(String message, String userPackagesCsv) {
-        assertWithMessage("Disabled user packages %s", message).that(mDisabledUserPackages)
+        assertWithMessage("Disabled user packages with pm: %s", message)
+                .that(mDisabledUserPackagesWithPm)
                 .containsExactlyElementsIn(userPackagesCsv.split(","));
-
-        verifyDisabledPackagesSettingsKey(message, userPackagesCsv);
-    }
-
-    private void verifyDisabledPackagesSettingsKey(String message, String userPackagesCsv) {
-        List<String> userPackagesFromSettingsString = new ArrayList<>();
-        for (int i = 0; i < mDisabledPackagesSettingsStringByUserid.size(); ++i) {
-            int userId = mDisabledPackagesSettingsStringByUserid.keyAt(i);
-            String value = mDisabledPackagesSettingsStringByUserid.valueAt(i);
-            List<String> packages = TextUtils.isEmpty(value) ? new ArrayList<>()
-                    : new ArrayList<>(Arrays.asList(value.split(
-                            PACKAGES_DISABLED_ON_RESOURCE_OVERUSE_SEPARATOR)));
-            packages.forEach(element ->
-                    userPackagesFromSettingsString.add(userId + USER_PACKAGE_SEPARATOR + element));
-        }
-
-        assertWithMessage(
-                "KEY_PACKAGES_DISABLED_ON_RESOURCE_OVERUSE settings string user packages %s",
-                message).that(userPackagesFromSettingsString)
+        assertWithMessage("Disabled user package callbacks: %s", message)
+                .that(mDisabledUserPackageCallbacks)
                 .containsExactlyElementsIn(userPackagesCsv.split(","));
     }
 
@@ -4491,40 +4179,10 @@ public class IoOveruseHandlerUnitTest extends AbstractExtendedMockitoTestCase {
     }
 
     private void verifyNoDisabledPackages(String message) {
-        assertWithMessage("Disabled user packages %s", message).that(mDisabledUserPackages)
-                .isEmpty();
-        assertWithMessage(
-                "KEY_PACKAGES_DISABLED_ON_RESOURCE_OVERUSE settings string user packages %s",
-                message).that(mDisabledPackagesSettingsStringByUserid.size()).isEqualTo(0);
-    }
-
-    private void mockSettingsStringCalls() {
-        doAnswer(args -> {
-            when(mMockContentResolver.getUserId()).thenReturn(args.getArgument(1));
-            return mMockContentResolver;
-        }).when(() -> CarServiceUtils.getContentResolverForUser(any(), anyInt()));
-
-        when(Settings.Secure.getString(any(ContentResolver.class),
-                eq(KEY_PACKAGES_DISABLED_ON_RESOURCE_OVERUSE))).thenAnswer(
-                    args -> {
-                        ContentResolver contentResolver = args.getArgument(0);
-                        int userId = contentResolver.getUserId();
-                        return mDisabledPackagesSettingsStringByUserid.get(userId);
-                    });
-
-        // Use any() instead of anyString() to consider when string arg is null.
-        when(Settings.Secure.putString(any(ContentResolver.class),
-                eq(KEY_PACKAGES_DISABLED_ON_RESOURCE_OVERUSE), any())).thenAnswer(args -> {
-                    ContentResolver contentResolver = args.getArgument(0);
-                    int userId = contentResolver.getUserId();
-                    String packageSettings = args.getArgument(2);
-                    if (packageSettings == null) {
-                        mDisabledPackagesSettingsStringByUserid.remove(userId);
-                    } else {
-                        mDisabledPackagesSettingsStringByUserid.put(userId, args.getArgument(2));
-                    }
-                    return null;
-                });
+        assertWithMessage("Disabled user packages with pm: %s", message)
+                .that(mDisabledUserPackagesWithPm).isEmpty();
+        assertWithMessage("Disabled user package callbacks: %s", message)
+                .that(mDisabledUserPackageCallbacks).isEmpty();
     }
 
     // TODO(b/262301082): Move to PackageInfoHandlerUnitTest.
@@ -4593,21 +4251,33 @@ public class IoOveruseHandlerUnitTest extends AbstractExtendedMockitoTestCase {
         doAnswer((args) -> {
             String value = args.getArgument(3) + USER_PACKAGE_SEPARATOR
                     + args.getArgument(0);
-            mDisabledUserPackages.add(value);
+            mDisabledUserPackagesWithPm.add(value);
             return null;
-        }).when(mSpiedPackageManager).setApplicationEnabledSetting(
+        }).when(mMockIoOveruseHelper).setApplicationEnabledSettingForUser(
                 anyString(), eq(COMPONENT_ENABLED_STATE_DISABLED_UNTIL_USED), anyInt(),
                 anyInt(), anyString());
         doAnswer((args) -> {
+            String value = args.getArgument(1) + USER_PACKAGE_SEPARATOR
+                    + args.getArgument(0);
+            mDisabledUserPackageCallbacks.add(value);
+            return null;
+        }).when(mMockIoOveruseHelper).onPackageDisabledLocked(anyString(), anyInt());
+        doAnswer((args) -> {
             String value = args.getArgument(3) + USER_PACKAGE_SEPARATOR
                     + args.getArgument(0);
-            mDisabledUserPackages.remove(value);
+            mDisabledUserPackagesWithPm.remove(value);
             return null;
-        }).when(mSpiedPackageManager).setApplicationEnabledSetting(
+        }).when(mMockIoOveruseHelper).setApplicationEnabledSettingForUser(
                 anyString(), eq(COMPONENT_ENABLED_STATE_ENABLED), anyInt(),
                 anyInt(), anyString());
-        doReturn(COMPONENT_ENABLED_STATE_ENABLED).when(mSpiedPackageManager)
-                .getApplicationEnabledSetting(anyString(), anyInt());
+        doAnswer((args) -> {
+            String value = args.getArgument(1) + USER_PACKAGE_SEPARATOR
+                    + args.getArgument(0);
+            mDisabledUserPackageCallbacks.remove(value);
+            return null;
+        }).when(mMockIoOveruseHelper).onPackageEnabledLocked(anyString(), anyInt());
+        when(mMockIoOveruseHelper.getApplicationEnabledSettingForUser(anyString(), anyInt()))
+                .thenReturn(COMPONENT_ENABLED_STATE_ENABLED);
     }
 
     private void mockWatchdogStorage() {
@@ -4866,18 +4536,6 @@ public class IoOveruseHandlerUnitTest extends AbstractExtendedMockitoTestCase {
                         vendorPrefixes, pkgToAppCategory);
         configBuilder.setIoOveruseConfiguration(ioOveruseConfig);
         return configBuilder;
-    }
-
-    private void captureCarUxRestrictionsChangeListener(int wantedInvocations) {
-        verify(mMockCarUxRestrictionsManagerService, times(wantedInvocations))
-                .getCurrentUxRestrictions();
-        verify(mMockCarUxRestrictionsManagerService, times(wantedInvocations))
-                .registerUxRestrictionsChangeListener(
-                        mICarUxRestrictionsChangeListenerCaptor.capture(),
-                        eq(Display.DEFAULT_DISPLAY));
-        mCarUxRestrictionsChangeListener = mICarUxRestrictionsChangeListenerCaptor.getValue();
-        assertWithMessage("UX restrictions change listener").that(mCarUxRestrictionsChangeListener)
-                .isNotNull();
     }
 
     private void captureStatsPullAtomCallback(int wantedInvocations) {

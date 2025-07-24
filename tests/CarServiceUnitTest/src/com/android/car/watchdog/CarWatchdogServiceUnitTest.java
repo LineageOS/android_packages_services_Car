@@ -42,9 +42,9 @@ import static com.android.car.internal.NotificationHelperBase.RESOURCE_OVERUSE_N
 import static com.android.car.watchdog.CarWatchdogService.ACTION_GARAGE_MODE_OFF;
 import static com.android.car.watchdog.CarWatchdogService.ACTION_GARAGE_MODE_ON;
 import static com.android.car.watchdog.CarWatchdogService.MISSING_ARG_VALUE;
+import static com.android.car.watchdog.IoOveruseHandler.USER_PACKAGE_SEPARATOR;
 import static com.android.car.watchdog.TimeSource.ZONE_OFFSET;
 import static com.android.car.watchdog.WatchdogPerfHandlerInterface.INTENT_EXTRA_NOTIFICATION_ID;
-import static com.android.car.watchdog.WatchdogPerfHandlerInterface.USER_PACKAGE_SEPARATOR;
 import static com.android.car.watchdog.WatchdogPerfHandlerUnitTest.constructPackageIoOveruseStats;
 import static com.android.car.watchdog.WatchdogPerfHandlerUnitTest.createMockResourceOveruseListener;
 import static com.android.car.watchdog.WatchdogPerfHandlerUnitTest.sampleInternalResourceOveruseConfigurations;
@@ -605,7 +605,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
                 .setData(Uri.parse("package:" + SYSTEM_PACKAGE_NAME));
         mBroadcastReceiver.onReceive(mMockContext, intent);
 
-        verify(mMockWatchdogPerfHandler).processPackageChangedIntent(eq(intent));
+        verify(mMockWatchdogPerfHandler).processActionPackageChanged(eq(intent));
     }
 
     @Test
@@ -1406,7 +1406,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
     static AtomsProto.CarWatchdogDailyIoUsageSummary constructCarWatchdogDailyIoUsageSummary(
             long fgWrBytes, long bgWrBytes, long gmWrBytes, int overuseCount) {
         return AtomsProto.CarWatchdogDailyIoUsageSummary.newBuilder()
-                .setWrittenBytes(WatchdogPerfHandler
+                .setWrittenBytes(IoOveruseHandler
                         .constructCarWatchdogPerStateBytes(fgWrBytes, bgWrBytes, gmWrBytes))
                 .setOveruseCount(overuseCount)
                 .build();

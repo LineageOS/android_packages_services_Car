@@ -1165,7 +1165,7 @@ public final class WatchdogStorage {
                 }
                 while (cursor.moveToNext()) {
                     summaries.add(AtomsProto.CarWatchdogDailyIoUsageSummary.newBuilder()
-                            .setWrittenBytes(WatchdogPerfHandler.constructCarWatchdogPerStateBytes(
+                            .setWrittenBytes(IoOveruseHandler.constructCarWatchdogPerStateBytes(
                                     /* foregroundBytes= */ cursor.getLong(1),
                                     /* backgroundBytes= */ cursor.getLong(2),
                                     /* garageModeBytes= */ cursor.getLong(3)))
@@ -1255,7 +1255,7 @@ public final class WatchdogStorage {
                         summaries = new ArrayList<>();
                     }
                     summaries.add(AtomsProto.CarWatchdogDailyIoUsageSummary.newBuilder()
-                            .setWrittenBytes(WatchdogPerfHandler.constructCarWatchdogPerStateBytes(
+                            .setWrittenBytes(IoOveruseHandler.constructCarWatchdogPerStateBytes(
                                     /* foregroundBytes= */ cursor.getLong(2),
                                     /* backgroundBytes= */ cursor.getLong(3),
                                     /* garageModeBytes= */ cursor.getLong(4)))
