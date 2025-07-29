@@ -159,7 +159,7 @@ TexWrapper* createTextureFromPng(const char* filename) {
     glBindTexture(GL_TEXTURE_2D, textureId);
 
     // Send the image data to GL
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
+    glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, buffer);
 
     // Initialize the sampling properties (it seems the sample may not work if this isn't done)
     // The user of this texture may very well want to set their own filtering, but we're going
