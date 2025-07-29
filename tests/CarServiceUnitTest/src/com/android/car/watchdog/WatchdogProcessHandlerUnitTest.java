@@ -164,12 +164,7 @@ public class WatchdogProcessHandlerUnitTest extends AbstractExtendedMockitoTestC
     @Test
     public void testUpdateUserState() throws Exception {
         TestClient client = new TestClient();
-        mWatchdogProcessHandler.registerClient(client, TIMEOUT_CRITICAL);
-
-        // Setting the ClientInfo packageName in registerClient is done on the CarWatchdogService
-        // service handler thread. Wait until the below message is processed before
-        // returning, to the packageName is resolved in ClientInfo.
-        CarServiceUtils.runEmptyRunnableOnLooperSync(CAR_WATCHDOG_SERVICE_NAME);
+        registerClientAndWait(client, TIMEOUT_CRITICAL);
 
         mWatchdogProcessHandler.updateUserState(100, true);
 
@@ -211,7 +206,7 @@ public class WatchdogProcessHandlerUnitTest extends AbstractExtendedMockitoTestC
     public void testRegisterClient() throws Exception {
         TestClient client = new TestClient();
 
-        mWatchdogProcessHandler.registerClient(client, TIMEOUT_CRITICAL);
+        registerClientAndWait(client, TIMEOUT_CRITICAL);
 
         assertWithMessage("Critical timeout client count").that(
                 mWatchdogProcessHandler.getClientCount(TIMEOUT_CRITICAL)).isEqualTo(1);
@@ -228,7 +223,7 @@ public class WatchdogProcessHandlerUnitTest extends AbstractExtendedMockitoTestC
     public void testDoubleRegisterClient() throws Exception {
         TestClient client = new TestClient();
 
-        mWatchdogProcessHandler.registerClient(client, TIMEOUT_CRITICAL);
+        registerClientAndWait(client, TIMEOUT_CRITICAL);
 
         assertThrows(IllegalStateException.class,
                 () -> mWatchdogProcessHandler.registerClient(client, TIMEOUT_CRITICAL));
@@ -238,7 +233,7 @@ public class WatchdogProcessHandlerUnitTest extends AbstractExtendedMockitoTestC
     public void testUnregisterClient() throws Exception {
         TestClient client = new TestClient();
 
-        mWatchdogProcessHandler.registerClient(client, TIMEOUT_CRITICAL);
+        registerClientAndWait(client, TIMEOUT_CRITICAL);
 
         assertWithMessage("Critical timeout client count").that(
                 mWatchdogProcessHandler.getClientCount(TIMEOUT_CRITICAL)).isEqualTo(1);
@@ -326,12 +321,8 @@ public class WatchdogProcessHandlerUnitTest extends AbstractExtendedMockitoTestC
     @Test
     public void testDumpProto() throws Exception {
         TestClient client = new TestClient();
-        mWatchdogProcessHandler.registerClient(client, TIMEOUT_NORMAL);
+        registerClientAndWait(client, TIMEOUT_NORMAL);
 
-        // Setting the ClientInfo packageName in registerClient is done on the CarWatchdogService
-        // service handler thread. Wait until the below message is processed before
-        // returning, to the packageName is resolved in ClientInfo.
-        CarServiceUtils.runEmptyRunnableOnLooperSync(CAR_WATCHDOG_SERVICE_NAME);
         mWatchdogProcessHandler.updateUserState(100, true);
 
         ProtoOutputStream proto = new ProtoOutputStream();
@@ -362,7 +353,7 @@ public class WatchdogProcessHandlerUnitTest extends AbstractExtendedMockitoTestC
     }
 
     private void testClientHealthCheck(TestClient client, int badClientCount) throws Exception {
-        mWatchdogProcessHandler.registerClient(client, TIMEOUT_CRITICAL);
+        registerClientAndWait(client, TIMEOUT_CRITICAL);
 
         postHealthCheckMessageAndWait(123456);
 
@@ -399,6 +390,14 @@ public class WatchdogProcessHandlerUnitTest extends AbstractExtendedMockitoTestC
         mWatchdogProcessHandler.postHealthCheckMessage(sessionId);
         // Wait for asynchronous postHealthCheckMessage call to return to prevent race conditions
         CarServiceUtils.runOnMainSync(() -> {});
+    }
+
+    private void registerClientAndWait(TestClient client, int timeout) {
+        mWatchdogProcessHandler.registerClient(client, timeout);
+
+        // packageName is resolved asynchronously on the service handler thread. Block until the
+        // operation is complete to ensure the package name is populated in ClientInfo.
+        CarServiceUtils.runEmptyRunnableOnLooperSync(CAR_WATCHDOG_SERVICE_NAME);
     }
 
     private class TestClient extends ICarWatchdogServiceCallback.Stub {
