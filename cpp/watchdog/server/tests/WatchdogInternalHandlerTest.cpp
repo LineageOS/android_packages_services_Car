@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
+#include "MockIoOveruseMonitor.h"
 #include "MockIoOveruseMonitorWrapper.h"
 #include "MockWatchdogPerfService.h"
 #include "MockWatchdogProcessService.h"
-#include "MockWatchdogServiceHelper.h"
+#include "MockWatchdogServiceHelperBase.h"
 #include "ThreadPriorityController.h"
-#include "WatchdogBinderMediator.h"
 #include "WatchdogInternalHandler.h"
 #include "WatchdogServiceHelper.h"
 
@@ -57,12 +57,10 @@ using ::aidl::android::automotive::watchdog::internal::ThreadPolicyWithPriority;
 using ::aidl::android::automotive::watchdog::internal::UserPackageIoUsageStats;
 using ::aidl::android::automotive::watchdog::internal::UserState;
 using ::android::sp;
-using ::android::String16;
 using ::android::base::Result;
 using ::android::car::feature::car_watchdog_anr_metrics;
 using ::ndk::ScopedAStatus;
 using ::ndk::SharedRefBase;
-using ::ndk::SpAIBinder;
 using ::testing::_;
 using ::testing::ByMove;
 using ::testing::DoAll;
@@ -140,10 +138,10 @@ protected:
     virtual void SetUp() {
         mMockWatchdogProcessService = sp<MockWatchdogProcessService>::make();
         mMockWatchdogPerfService = sp<MockWatchdogPerfService>::make();
-        mMockWatchdogServiceHelper = sp<MockWatchdogServiceHelper>::make();
+        mMockWatchdogServiceHelperBase = sp<MockWatchdogServiceHelperBase>::make();
         mMockIoOveruseMonitorWrapper = sp<MockIoOveruseMonitorWrapper>::make();
         mWatchdogInternalHandler =
-                SharedRefBase::make<WatchdogInternalHandler>(mMockWatchdogServiceHelper,
+                SharedRefBase::make<WatchdogInternalHandler>(mMockWatchdogServiceHelperBase,
                                                              mMockWatchdogProcessService,
                                                              mMockWatchdogPerfService,
                                                              mMockIoOveruseMonitorWrapper);
@@ -154,7 +152,7 @@ protected:
         peer.setThreadPriorityController(std::move(threadPriorityController));
     }
     virtual void TearDown() {
-        mMockWatchdogServiceHelper.clear();
+        mMockWatchdogServiceHelperBase.clear();
         mMockWatchdogProcessService.clear();
         mMockWatchdogPerfService.clear();
         mMockIoOveruseMonitorWrapper.clear();
@@ -167,7 +165,7 @@ protected:
         mScopedChangeCallingUid = sp<ScopedChangeCallingUid>::make(AID_SYSTEM);
     }
 
-    sp<MockWatchdogServiceHelper> mMockWatchdogServiceHelper;
+    sp<MockWatchdogServiceHelperBase> mMockWatchdogServiceHelperBase;
     sp<MockWatchdogProcessService> mMockWatchdogProcessService;
     sp<MockWatchdogPerfService> mMockWatchdogPerfService;
     sp<MockIoOveruseMonitorWrapper> mMockIoOveruseMonitorWrapper;
@@ -178,7 +176,7 @@ protected:
 
 TEST_F(WatchdogInternalHandlerTest, TestInit) {
     std::shared_ptr<WatchdogInternalHandler> internalHandler =
-            SharedRefBase::make<WatchdogInternalHandler>(sp<MockWatchdogServiceHelper>::make(),
+            SharedRefBase::make<WatchdogInternalHandler>(sp<MockWatchdogServiceHelperBase>::make(),
                                                          sp<MockWatchdogProcessService>::make(),
                                                          sp<MockWatchdogPerfService>::make(),
                                                          sp<MockIoOveruseMonitorWrapper>::make());
@@ -186,7 +184,8 @@ TEST_F(WatchdogInternalHandlerTest, TestInit) {
     ASSERT_RESULT_OK(internalHandler->init());
 
     ASSERT_NE(internalHandler->mWatchdogProcessService, nullptr);
-    ASSERT_NE(internalHandler->mWatchdogServiceHelper, nullptr);
+    ASSERT_NE(internalHandler->mWatchdogServiceHelperBase, nullptr);
+    ASSERT_NE(internalHandler->mIoOveruseMonitor, nullptr);
     ASSERT_NE(internalHandler->mIoOveruseMonitorWrapper, nullptr);
     ASSERT_NE(internalHandler->mWatchdogPerfService, nullptr);
 }
@@ -194,35 +193,36 @@ TEST_F(WatchdogInternalHandlerTest, TestInit) {
 TEST_F(WatchdogInternalHandlerTest, TestErrorOnInitWithNullServiceInstances) {
     auto mockWatchdogProcessService = sp<MockWatchdogProcessService>::make();
     auto mockWatchdogPerfservice = sp<MockWatchdogPerfService>::make();
-    auto mockWatchdogServiceHelper = sp<MockWatchdogServiceHelper>::make();
-    auto mockIoOveruseMonitor = sp<MockIoOveruseMonitorWrapper>::make();
+    auto mockWatchdogServiceHelperBase = sp<MockWatchdogServiceHelperBase>::make();
+    auto mockIoOveruseMonitorWrapper = sp<MockIoOveruseMonitorWrapper>::make();
     std::shared_ptr<WatchdogInternalHandler> internalHandler =
             SharedRefBase::make<WatchdogInternalHandler>(nullptr, mockWatchdogProcessService,
                                                          mockWatchdogPerfservice,
-                                                         mockIoOveruseMonitor);
+                                                         mockIoOveruseMonitorWrapper);
 
     EXPECT_FALSE(internalHandler->init().ok())
             << "No error returned on nullptr watchdog service helper";
     internalHandler.reset();
 
-    internalHandler = SharedRefBase::make<WatchdogInternalHandler>(mockWatchdogServiceHelper,
+    internalHandler = SharedRefBase::make<WatchdogInternalHandler>(mockWatchdogServiceHelperBase,
                                                                    nullptr, mockWatchdogPerfservice,
-                                                                   mockIoOveruseMonitor);
+                                                                   mockIoOveruseMonitorWrapper);
 
     EXPECT_FALSE(internalHandler->init().ok())
             << "No error returned on nullptr watchdog process service";
     internalHandler.reset();
 
-    internalHandler = SharedRefBase::make<WatchdogInternalHandler>(mockWatchdogServiceHelper,
-                                                                   mockWatchdogProcessService,
-                                                                   nullptr, mockIoOveruseMonitor);
+    internalHandler =
+            SharedRefBase::make<WatchdogInternalHandler>(mockWatchdogServiceHelperBase,
+                                                         mockWatchdogProcessService, nullptr,
+                                                         mockIoOveruseMonitorWrapper);
 
     EXPECT_FALSE(internalHandler->init().ok())
             << "No error returned on nullptr watchdog performance service";
     internalHandler.reset();
 
     internalHandler =
-            SharedRefBase::make<WatchdogInternalHandler>(mockWatchdogServiceHelper,
+            SharedRefBase::make<WatchdogInternalHandler>(mockWatchdogServiceHelperBase,
                                                          mockWatchdogProcessService,
                                                          mockWatchdogPerfservice, nullptr);
 
@@ -238,17 +238,17 @@ TEST_F(WatchdogInternalHandlerTest, TestErrorOnInitWithNullServiceInstances) {
 }
 
 TEST_F(WatchdogInternalHandlerTest, TestTerminate) {
-    ASSERT_NE(mWatchdogInternalHandler->mWatchdogServiceHelper, nullptr);
+    ASSERT_NE(mWatchdogInternalHandler->mWatchdogServiceHelperBase, nullptr);
     ASSERT_NE(mWatchdogInternalHandler->mWatchdogProcessService, nullptr);
     ASSERT_NE(mWatchdogInternalHandler->mWatchdogPerfService, nullptr);
-    ASSERT_NE(mWatchdogInternalHandler->mIoOveruseMonitorWrapper, nullptr);
+    ASSERT_NE(mWatchdogInternalHandler->mIoOveruseMonitor, nullptr);
 
     mWatchdogInternalHandler->terminate();
 
-    ASSERT_EQ(mWatchdogInternalHandler->mWatchdogServiceHelper, nullptr);
+    ASSERT_EQ(mWatchdogInternalHandler->mWatchdogServiceHelperBase, nullptr);
     ASSERT_EQ(mWatchdogInternalHandler->mWatchdogProcessService, nullptr);
     ASSERT_EQ(mWatchdogInternalHandler->mWatchdogPerfService, nullptr);
-    ASSERT_EQ(mWatchdogInternalHandler->mIoOveruseMonitorWrapper, nullptr);
+    ASSERT_EQ(mWatchdogInternalHandler->mIoOveruseMonitor, nullptr);
 }
 
 TEST_F(WatchdogInternalHandlerTest, TestDump) {
@@ -259,13 +259,13 @@ TEST_F(WatchdogInternalHandlerTest, TestRegisterCarWatchdogService) {
     setSystemCallingUid();
 
     EXPECT_CALL(*mMockIoOveruseMonitorWrapper, isInitialized()).WillOnce(Return(false));
-    EXPECT_CALL(*mMockWatchdogPerfService, registerDataProcessor(Eq(mMockIoOveruseMonitorWrapper)))
+    EXPECT_CALL(*mMockWatchdogPerfService, registerDataProcessor(_))
             .WillOnce(Return(Result<void>()));
     EXPECT_CALL(*mMockWatchdogPerfService, onCarWatchdogServiceRegistered()).Times(1);
 
     std::shared_ptr<ICarWatchdogServiceForSystem> service =
             SharedRefBase::make<ICarWatchdogServiceForSystemDefault>();
-    EXPECT_CALL(*mMockWatchdogServiceHelper, registerService(service))
+    EXPECT_CALL(*mMockWatchdogServiceHelperBase, registerService(service))
             .WillOnce(Return(ByMove(ScopedAStatus::ok())));
 
     auto status = mWatchdogInternalHandler->registerCarWatchdogService(service);
@@ -274,7 +274,7 @@ TEST_F(WatchdogInternalHandlerTest, TestRegisterCarWatchdogService) {
 }
 
 TEST_F(WatchdogInternalHandlerTest, TestErrorOnRegisterCarWatchdogServiceWithNonSystemCallingUid) {
-    EXPECT_CALL(*mMockWatchdogServiceHelper, registerService(_)).Times(0);
+    EXPECT_CALL(*mMockWatchdogServiceHelperBase, registerService(_)).Times(0);
 
     std::shared_ptr<ICarWatchdogServiceForSystem> service =
             SharedRefBase::make<ICarWatchdogServiceForSystemDefault>();
@@ -288,7 +288,7 @@ TEST_F(WatchdogInternalHandlerTest,
 
     std::shared_ptr<ICarWatchdogServiceForSystem> service =
             SharedRefBase::make<ICarWatchdogServiceForSystemDefault>();
-    EXPECT_CALL(*mMockWatchdogServiceHelper, registerService(service))
+    EXPECT_CALL(*mMockWatchdogServiceHelperBase, registerService(service))
             .WillOnce(Return(ByMove(ScopedAStatus::fromExceptionCodeWithMessage(EX_ILLEGAL_STATE,
                                                                                 "Illegal state"))));
 
@@ -301,7 +301,7 @@ TEST_F(WatchdogInternalHandlerTest, TestUnregisterCarWatchdogService) {
 
     std::shared_ptr<ICarWatchdogServiceForSystem> service =
             SharedRefBase::make<ICarWatchdogServiceForSystemDefault>();
-    EXPECT_CALL(*mMockWatchdogServiceHelper, unregisterService(service))
+    EXPECT_CALL(*mMockWatchdogServiceHelperBase, unregisterService(service))
             .WillOnce(Return(ByMove(ScopedAStatus::ok())));
 
     auto status = mWatchdogInternalHandler->unregisterCarWatchdogService(service);
@@ -313,7 +313,7 @@ TEST_F(WatchdogInternalHandlerTest,
        TestErrorOnUnregisterCarWatchdogServiceWithNonSystemCallingUid) {
     std::shared_ptr<ICarWatchdogServiceForSystem> service =
             SharedRefBase::make<ICarWatchdogServiceForSystemDefault>();
-    EXPECT_CALL(*mMockWatchdogServiceHelper, unregisterService(service)).Times(0);
+    EXPECT_CALL(*mMockWatchdogServiceHelperBase, unregisterService(service)).Times(0);
 
     ASSERT_FALSE(mWatchdogInternalHandler->unregisterCarWatchdogService(service).isOk())
             << "unregisterCarWatchdogService " << kFailOnNonSystemCallingUidMessage;
@@ -324,7 +324,7 @@ TEST_F(WatchdogInternalHandlerTest,
 
     std::shared_ptr<ICarWatchdogServiceForSystem> service =
             SharedRefBase::make<ICarWatchdogServiceForSystemDefault>();
-    EXPECT_CALL(*mMockWatchdogServiceHelper, unregisterService(service))
+    EXPECT_CALL(*mMockWatchdogServiceHelperBase, unregisterService(service))
             .WillOnce(Return(
                     ByMove(ScopedAStatus::fromExceptionCodeWithMessage(EX_ILLEGAL_ARGUMENT,
                                                                        "Illegal argument"))));
