@@ -40,6 +40,10 @@ Language: Proto
 BasedOnStyle: Google
 ColumnLimit: 100
 ---
+Language: TextProto
+BasedOnStyle: Google
+ColumnLimit: 100
+---
 Language: Json
 BasedOnStyle: llvm
 ---
