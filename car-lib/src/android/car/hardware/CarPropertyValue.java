@@ -28,8 +28,10 @@ import static java.lang.Integer.toHexString;
 import android.annotation.FlaggedApi;
 import android.annotation.IntDef;
 import android.annotation.NonNull;
+import android.annotation.RequiresPermission;
 import android.annotation.SystemApi;
 import android.annotation.TestApi;
+import android.car.Car;
 import android.car.VehiclePropertyIds;
 import android.car.builtin.os.BuildHelper;
 import android.car.feature.Flags;
@@ -66,6 +68,14 @@ public final class CarPropertyValue<T> implements Parcelable {
     private final RawPropertyValue<T> mValue;
     private final boolean mIsSimulationPropId;
     private final int mVendorStatus;
+
+    /**
+     * Whether the client has permission to read property vendor status.
+     *
+     * This variable is only set at CarPropertyEventCallbackController (car-lib). It is not passed
+     * through binder.
+     */
+    private boolean mHasPermissionToReadPropertyVendorStatus;
 
     /**
      * {@code CarPropertyValue} is available.
@@ -491,13 +501,26 @@ public final class CarPropertyValue<T> implements Parcelable {
      */
     public CarPropertyValue cloneWithVendorStatusFiltered() {
         // Make a copy of input, except for the vendor status field.
-        return new Builder(mPropertyId, mAreaId)
+        var carPropertyValue = new Builder(mPropertyId, mAreaId)
                 .setSystemStatus(mSystemStatus)
                 .setTimestampNanos(mTimestampNanos)
                 .setRawPropertyValue(mValue)
                 .setIsSimulationPropId(mIsSimulationPropId)
                 .setVendorStatus(UNSET_VENDOR_PROPERTY_STATUS)
                 .build();
+        if (mHasPermissionToReadPropertyVendorStatus) {
+            carPropertyValue.setHasPermissionToReadPropertyVendorStatus();
+        }
+        return carPropertyValue;
+    }
+
+    /**
+     * Sets that the client has the permission to call {@link getPropertyVendorStatus}.
+     *
+     * @hide
+     */
+    public void setHasPermissionToReadPropertyVendorStatus() {
+        mHasPermissionToReadPropertyVendorStatus = true;
     }
 
     /**
@@ -562,13 +585,27 @@ public final class CarPropertyValue<T> implements Parcelable {
      * returned from VHAL. For example, if VHAL returns 0x00011001, 0x1001 is the system status
      * (NOT_AVAILABLE_DISABLED), 0x0001 is the vendor status.
      *
+     * This must only be called for {@link CarPropertyValue} obtained through
+     * {@link CarPropertyEventCallback#onChangeEvent}.
+     *
      * @return The vendor status code.
      *
      * @hide
      */
     @FlaggedApi(FLAG_CAR_PROPERTY_STATUS_DETAILED_NOT_AVAILABLE)
     @SystemApi
+    @RequiresPermission(Car.PERMISSION_READ_PROPERTY_VENDOR_STATUS)
     public int getPropertyVendorStatus() {
+        // Note that we have already filtered out the vendor property status at the car service
+        // layer if the client does not have the permission. We are checking here to throw
+        // SecurityException but this is not a security enforcement. Even if the client bypass
+        // this check here, the vendor property status still would be 0 if the client does not
+        // have the permission.
+        if (!mHasPermissionToReadPropertyVendorStatus) {
+            throw new SecurityException("Client does not have the required permission: "
+                    + Car.PERMISSION_READ_PROPERTY_VENDOR_STATUS
+                    + " to call getPropertyVendorStatus");
+        }
         return mVendorStatus;
     }
 

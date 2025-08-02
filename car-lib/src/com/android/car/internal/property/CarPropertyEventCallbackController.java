@@ -16,11 +16,15 @@
 
 package com.android.car.internal.property;
 
+import static android.content.pm.PackageManager.PERMISSION_GRANTED;
+
 import static java.util.Objects.requireNonNull;
 
+import android.car.Car;
 import android.car.hardware.CarPropertyValue;
 import android.car.hardware.property.CarPropertyEvent;
 import android.car.hardware.property.CarPropertyManager.CarPropertyEventCallback;
+import android.content.Context;
 import android.util.Log;
 import android.util.Slog;
 
@@ -36,12 +40,19 @@ public final class CarPropertyEventCallbackController extends CarPropertyEventCo
     private static final boolean DBG = Log.isLoggable(TAG, Log.DEBUG);
     private final CarPropertyEventCallback mCarPropertyEventCallback;
     private final Executor mExecutor;
+    // Whether the client has the permission to call CarPropertyValue.getPropertyVendorStatus.
+    private final boolean mHasPermissionToReadPropertyVendorStatus;
 
-    public CarPropertyEventCallbackController(CarPropertyEventCallback carPropertyEventCallback,
-            Executor executor) {
+    public CarPropertyEventCallbackController(
+            Context context,
+            Executor executor,
+            CarPropertyEventCallback carPropertyEventCallback) {
         requireNonNull(carPropertyEventCallback);
-        mCarPropertyEventCallback = carPropertyEventCallback;
         mExecutor = executor;
+        mCarPropertyEventCallback = carPropertyEventCallback;
+        mHasPermissionToReadPropertyVendorStatus =
+                context.checkSelfPermission(Car.PERMISSION_READ_PROPERTY_VENDOR_STATUS)
+                        == PERMISSION_GRANTED;
     }
 
     /**
@@ -66,21 +77,23 @@ public final class CarPropertyEventCallbackController extends CarPropertyEventCo
             updatedCarPropertyEvent = carPropertyEvent;
         }
         switch (updatedCarPropertyEvent.getEventType()) {
-            case CarPropertyEvent.PROPERTY_EVENT_PROPERTY_CHANGE:
+            case CarPropertyEvent.PROPERTY_EVENT_PROPERTY_CHANGE -> {
+                if (mHasPermissionToReadPropertyVendorStatus) {
+                    carPropertyValue.setHasPermissionToReadPropertyVendorStatus();
+                }
                 mExecutor.execute(() -> mCarPropertyEventCallback.onChangeEvent(carPropertyValue));
-                break;
-            case CarPropertyEvent.PROPERTY_EVENT_ERROR:
+            }
+            case CarPropertyEvent.PROPERTY_EVENT_ERROR -> {
                 if (DBG) {
                     Slog.d(TAG, "onErrorEvent for event: " + updatedCarPropertyEvent);
                 }
                 mExecutor.execute(() -> mCarPropertyEventCallback.onErrorEvent(
                         carPropertyValue.getPropertyId(), carPropertyValue.getAreaId(),
                         updatedCarPropertyEvent.getErrorCode()));
-                break;
-            default:
-                Slog.e(TAG, "onEvent: unknown errorCode=" + updatedCarPropertyEvent.getErrorCode()
-                        + ", for event: " + updatedCarPropertyEvent);
-                break;
+            }
+            default -> Slog.e(TAG,
+                    "onEvent: unknown errorCode=" + updatedCarPropertyEvent.getErrorCode()
+                            + ", for event: " + updatedCarPropertyEvent);
         }
     }
 

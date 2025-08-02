@@ -364,6 +364,7 @@ android.car.hardware CarPropertyValue CarPropertyValue cloneWithVendorStatusFilt
 android.car.hardware CarPropertyValue List<Integer> ALL_CAR_PROPERTY_STATUS
 android.car.hardware CarPropertyValue RawPropertyValue getRawPropertyValue()
 android.car.hardware CarPropertyValue String toString()
+android.car.hardware CarPropertyValue void setHasPermissionToReadPropertyVendorStatus()
 android.car.hardware CarPropertyValue.Builder Builder<T> setIsSimulationPropId(boolean isSimulationPropId)
 android.car.hardware CarPropertyValue.Builder Builder<T> setRawPropertyValue(RawPropertyValue rawPropertyValue)
 android.car.hardware CarPropertyValue.Builder Builder<T> setSystemStatus(int systemStatus)
