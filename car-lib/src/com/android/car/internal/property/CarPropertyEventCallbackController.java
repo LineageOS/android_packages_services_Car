@@ -42,12 +42,15 @@ public final class CarPropertyEventCallbackController extends CarPropertyEventCo
     private final Executor mExecutor;
     // Whether the client has the permission to call CarPropertyValue.getPropertyVendorStatus.
     private final boolean mHasPermissionToReadPropertyVendorStatus;
+    private final int mAppTargetSdk;
 
     public CarPropertyEventCallbackController(
             Context context,
+            int appTargetSdk,
             Executor executor,
             CarPropertyEventCallback carPropertyEventCallback) {
         requireNonNull(carPropertyEventCallback);
+        mAppTargetSdk = appTargetSdk;
         mExecutor = executor;
         mCarPropertyEventCallback = carPropertyEventCallback;
         mHasPermissionToReadPropertyVendorStatus =
@@ -78,6 +81,7 @@ public final class CarPropertyEventCallbackController extends CarPropertyEventCo
         }
         switch (updatedCarPropertyEvent.getEventType()) {
             case CarPropertyEvent.PROPERTY_EVENT_PROPERTY_CHANGE -> {
+                carPropertyValue = carPropertyValue.cloneWithSystemStatusConverted(mAppTargetSdk);
                 if (mHasPermissionToReadPropertyVendorStatus) {
                     carPropertyValue = carPropertyValue
                             .cloneWithPermissionToReadPropertyVendorStatus();

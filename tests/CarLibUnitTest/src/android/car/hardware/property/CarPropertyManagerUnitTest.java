@@ -23,6 +23,7 @@ import static android.car.VehiclePropertyIds.INFO_EV_CONNECTOR_TYPE;
 import static android.car.VehiclePropertyIds.INFO_FUEL_DOOR_LOCATION;
 import static android.car.VehiclePropertyIds.INITIAL_USER_INFO;
 import static android.car.VehiclePropertyIds.INVALID;
+import static android.car.feature.Flags.FLAG_CAR_PROPERTY_STATUS_DETAILED_NOT_AVAILABLE;
 import static android.car.hardware.property.CarPropertyManager.GetPropertyResult;
 import static android.car.hardware.property.CarPropertyManager.PropertyAsyncError;
 import static android.car.hardware.property.CarPropertyManager.SENSOR_RATE_ONCHANGE;
@@ -69,6 +70,7 @@ import android.os.Looper;
 import android.os.RemoteException;
 import android.os.ServiceSpecificException;
 import android.platform.test.annotations.DisabledOnRavenwood;
+import android.platform.test.annotations.EnableFlags;
 import android.platform.test.flag.junit.SetFlagsRule;
 import android.util.ArraySet;
 import android.util.SparseArray;
@@ -91,6 +93,7 @@ import com.android.car.internal.property.RawPropertyValue;
 import com.android.car.internal.util.IntArray;
 
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -110,7 +113,9 @@ import java.util.concurrent.Executor;
  */
 @RunWith(MockitoJUnitRunner.class)
 public final class CarPropertyManagerUnitTest extends AbstractExpectableTestCase {
-    @Rule public final SetFlagsRule mSetFlagsRule = new SetFlagsRule();
+    @ClassRule public static final SetFlagsRule.ClassRule mSetFlagsClassRule =
+            new SetFlagsRule.ClassRule();
+    @Rule public final SetFlagsRule mSetFlagsRule = mSetFlagsClassRule.createSetFlagsRule();
 
     // Defined as vendor property.
     private static final int VENDOR_CONTINUOUS_PROPERTY = 0x21100111;
@@ -307,6 +312,7 @@ public final class CarPropertyManagerUnitTest extends AbstractExpectableTestCase
         when(mFeatureFlags.variableUpdateRate()).thenReturn(true);
         when(mFeatureFlags.handlePropertyEventsInBinderThread()).thenReturn(true);
         when(mFeatureFlags.alwaysSendInitialValueEvent()).thenReturn(true);
+        when(mFeatureFlags.carPropertyStatusDetailedNotAvailable()).thenReturn(true);
 
         mCarPropertyManager.setFeatureFlags(mFeatureFlags);
     }
@@ -512,12 +518,13 @@ public final class CarPropertyManagerUnitTest extends AbstractExpectableTestCase
 
             when(mICarProperty.getProperty(HVAC_TEMPERATURE_SET, 0)).thenReturn(value);
 
-            // TODO(b/416768353): The property status to check here should be
-            // CarPropertyValue.STATUS_UNAVAILABLE once we map detailed not available status to
-            // general not available status after we check app sdk version.
             assertThat(mCarPropertyManager.getProperty(HVAC_TEMPERATURE_SET, /*areaId=*/ 0))
-                    .isEqualTo(new CarPropertyValue<>(HVAC_TEMPERATURE_SET, /*areaId=*/0,
-                            propertyStatus, TEST_TIMESTAMP, 17.0f));
+                    .isEqualTo(new CarPropertyValue.Builder<Float>(
+                                    HVAC_TEMPERATURE_SET, /*areaId=*/0)
+                            .setValue(17.0f)
+                            .setTimestampNanos(TEST_TIMESTAMP)
+                            .setSystemStatus(CarPropertyValue.STATUS_NOT_AVAILABLE_GENERAL)
+                            .build());
         }
     }
 
@@ -2905,6 +2912,111 @@ public final class CarPropertyManagerUnitTest extends AbstractExpectableTestCase
         verify(mCarPropertyEventCallback, timeout(5000)).onChangeEvent(value.capture());
         assertThat(value.getValue().getPropertyId()).isEqualTo(HVAC_TEMPERATURE_SET);
         assertThat(value.getValue().getValue()).isEqualTo(17.0f);
+    }
+
+    @Test
+    @EnableFlags(FLAG_CAR_PROPERTY_STATUS_DETAILED_NOT_AVAILABLE)
+    public void testOnChangeEvent_callbackIsCalledWithEvent_detailedUnavailable_after26Q2()
+            throws RemoteException {
+        when(mContext.checkSelfPermission(Car.PERMISSION_READ_PROPERTY_VENDOR_STATUS)).thenReturn(
+                PackageManager.PERMISSION_GRANTED);
+        // TODO(b/416768353): Change this to 26Q2.
+        setAppTargetSdk(Build.VERSION_CODES.CUR_DEVELOPMENT);
+
+        int systemStatus = CarPropertyValue.STATUS_NOT_AVAILABLE_DISABLED;
+        int vendorStatus = 0x1234;
+
+        CarPropertyValue<Float> value = new CarPropertyValue.Builder<Float>(HVAC_TEMPERATURE_SET, 0)
+                .setValue(0.f)
+                .setSystemStatus(systemStatus)
+                .setVendorStatus(vendorStatus)
+                .build();
+        CarPropertyEvent carPropertyEvent = new CarPropertyEvent(
+                CarPropertyEvent.PROPERTY_EVENT_PROPERTY_CHANGE, value);
+
+        List<CarPropertyEvent> eventList = List.of(carPropertyEvent);
+        CarPropertyConfig config = CarPropertyConfig.newBuilder(Float.class, HVAC_TEMPERATURE_SET,
+                VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL)
+                .addAreaIdConfig(new AreaIdConfig.Builder<Float>(0).build()).build();
+        addCarPropertyConfig(config);
+        ICarPropertyEventListener listener = getCarPropertyEventListener();
+        ArgumentCaptor<CarPropertyValue> captor = ArgumentCaptor.forClass(CarPropertyValue.class);
+
+        listener.onEvent(eventList);
+
+        verify(mCarPropertyEventCallback, timeout(5000)).onChangeEvent(captor.capture());
+        var gotValue = captor.getValue();
+        assertThat(gotValue.getPropertyStatus()).isEqualTo(systemStatus);
+        assertThat(gotValue.getPropertyVendorStatus()).isEqualTo(vendorStatus);
+    }
+
+    @Test
+    public void testOnChangeEvent_callbackIsCalledWithEvent_noVendorStatusPermission_after26Q2()
+            throws RemoteException {
+        // No permission to read property vendor status.
+        when(mContext.checkSelfPermission(Car.PERMISSION_READ_PROPERTY_VENDOR_STATUS)).thenReturn(
+                PackageManager.PERMISSION_DENIED);
+        // TODO(b/416768353): Change this to 26Q2.
+        setAppTargetSdk(Build.VERSION_CODES.CUR_DEVELOPMENT);
+
+        int systemStatus = CarPropertyValue.STATUS_NOT_AVAILABLE_DISABLED;
+        int vendorStatus = 0x1234;
+
+        CarPropertyValue<Float> value = new CarPropertyValue.Builder<Float>(HVAC_TEMPERATURE_SET, 0)
+                .setValue(0.f)
+                .setSystemStatus(systemStatus)
+                .setVendorStatus(vendorStatus)
+                .build();
+        CarPropertyEvent carPropertyEvent = new CarPropertyEvent(
+                CarPropertyEvent.PROPERTY_EVENT_PROPERTY_CHANGE, value);
+
+        List<CarPropertyEvent> eventList = List.of(carPropertyEvent);
+        CarPropertyConfig config = CarPropertyConfig.newBuilder(Float.class, HVAC_TEMPERATURE_SET,
+                VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL)
+                .addAreaIdConfig(new AreaIdConfig.Builder<Float>(0).build()).build();
+        addCarPropertyConfig(config);
+        ICarPropertyEventListener listener = getCarPropertyEventListener();
+        ArgumentCaptor<CarPropertyValue> captor = ArgumentCaptor.forClass(CarPropertyValue.class);
+
+        listener.onEvent(eventList);
+
+        verify(mCarPropertyEventCallback, timeout(5000)).onChangeEvent(captor.capture());
+        var gotValue = captor.getValue();
+        assertThrows(SecurityException.class, () -> gotValue.getPropertyVendorStatus());
+    }
+
+    @Test
+    public void testOnChangeEvent_callbackIsCalledWithEvent_noVendorStatusPermission_before26Q2()
+            throws RemoteException {
+        // No permission to read property vendor status.
+        when(mContext.checkSelfPermission(Car.PERMISSION_READ_PROPERTY_VENDOR_STATUS)).thenReturn(
+                PackageManager.PERMISSION_DENIED);
+        setAppTargetSdk(Build.VERSION_CODES.BAKLAVA);
+
+        int systemStatus = CarPropertyValue.STATUS_NOT_AVAILABLE_DISABLED;
+
+        CarPropertyValue<Float> value = new CarPropertyValue.Builder<Float>(HVAC_TEMPERATURE_SET, 0)
+                .setValue(0.f)
+                .setSystemStatus(systemStatus)
+                .build();
+        CarPropertyEvent carPropertyEvent = new CarPropertyEvent(
+                CarPropertyEvent.PROPERTY_EVENT_PROPERTY_CHANGE, value);
+
+        List<CarPropertyEvent> eventList = List.of(carPropertyEvent);
+        CarPropertyConfig config = CarPropertyConfig.newBuilder(Float.class, HVAC_TEMPERATURE_SET,
+                VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL)
+                .addAreaIdConfig(new AreaIdConfig.Builder<Float>(0).build()).build();
+        addCarPropertyConfig(config);
+        ICarPropertyEventListener listener = getCarPropertyEventListener();
+        ArgumentCaptor<CarPropertyValue> captor = ArgumentCaptor.forClass(CarPropertyValue.class);
+
+        listener.onEvent(eventList);
+
+        verify(mCarPropertyEventCallback, timeout(5000)).onChangeEvent(captor.capture());
+        var gotValue = captor.getValue();
+        // Must map the detailed not available status to a general one.
+        assertThat(gotValue.getPropertyStatus()).isEqualTo(
+                CarPropertyValue.STATUS_NOT_AVAILABLE_GENERAL);
     }
 
     private ICarPropertyEventListener getCarPropertyEventListener() throws RemoteException {

@@ -17,6 +17,7 @@
 package android.car.hardware.property;
 
 import static android.car.feature.Flags.FLAG_CAR_PROPERTY_SUPPORTED_VALUE;
+import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 import static com.android.car.internal.property.CarPropertyErrorCodes.STATUS_OK;
@@ -121,6 +122,8 @@ public class CarPropertyManager extends CarManagerBase {
     private final ICarProperty mService;
     private final int mAppTargetSdk;
     private final Executor mExecutor;
+    // Whether the client has the permission to call CarPropertyValue.getPropertyVendorStatus.
+    private final boolean mHasPermissionToReadPropertyVendorStatus;
     private final AtomicInteger mRequestIdCounter = new AtomicInteger(0);
     @GuardedBy("mLock")
     private final SparseArray<AsyncPropertyRequestInfo<?, ?>> mRequestIdToAsyncRequestInfo =
@@ -1078,6 +1081,9 @@ public class CarPropertyManager extends CarManagerBase {
         super(car);
         mService = service;
         mAppTargetSdk = getContext().getApplicationInfo().targetSdkVersion;
+        mHasPermissionToReadPropertyVendorStatus =
+                getContext().checkSelfPermission(Car.PERMISSION_READ_PROPERTY_VENDOR_STATUS)
+                        == PERMISSION_GRANTED;
 
         Handler eventHandler = getEventHandler();
         if (eventHandler == null) {
@@ -1596,7 +1602,10 @@ public class CarPropertyManager extends CarManagerBase {
             if (cpeCallbackController == null) {
                 cpeCallbackController =
                         new CarPropertyEventCallbackController(
-                                getContext(), callbackExecutor, carPropertyEventCallback);
+                                getContext(),
+                                mAppTargetSdk,
+                                callbackExecutor,
+                                carPropertyEventCallback);
                 mCpeCallbackToCpeCallbackController.put(carPropertyEventCallback,
                         cpeCallbackController);
             }
@@ -2317,6 +2326,9 @@ public class CarPropertyManager extends CarManagerBase {
                 }
                 return mService.getProperty(propertyId, areaId);
             });
+            if (propValue != null) {
+                propValue = propValue.cloneWithSystemStatusConverted(mAppTargetSdk);
+            }
             return (propValue != null
                     && PropertyStatusUtils.isPropertyStatusAvailable(propValue.getStatus()));
         } catch (RemoteException e) {
@@ -2858,6 +2870,11 @@ public class CarPropertyManager extends CarManagerBase {
             }));
             if (carPropertyValue == null) {
                 return null;
+            }
+            carPropertyValue = carPropertyValue.cloneWithSystemStatusConverted(mAppTargetSdk);
+            if (mHasPermissionToReadPropertyVendorStatus) {
+                carPropertyValue = carPropertyValue
+                        .cloneWithPermissionToReadPropertyVendorStatus();
             }
             if (mAppTargetSdk >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
                 int propertyStatus = carPropertyValue.getStatus();

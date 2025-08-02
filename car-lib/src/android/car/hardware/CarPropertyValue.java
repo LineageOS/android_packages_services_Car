@@ -35,6 +35,7 @@ import android.car.Car;
 import android.car.VehiclePropertyIds;
 import android.car.builtin.os.BuildHelper;
 import android.car.feature.Flags;
+import android.os.Build;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -580,12 +581,12 @@ public final class CarPropertyValue<T> implements Parcelable {
      *      <li><code>STATUS_AVAILABLE</code></li>
      *      <li><code>STATUS_ERROR</code></li>
      *      <li><code>STATUS_NOT_AVAILABLE_GENERAL</code></li>
-     *      <li><code>STATUS_NOT_AVAILABLE_DISABLED</code> (Since Android 25Q4)</li>
-     *      <li><code>STATUS_NOT_AVAILABLE_SPEED_LOW</code> (Since Android 25Q4)</li>
-     *      <li><code>STATUS_NOT_AVAILABLE_SPEED_HIGH</code> (Since Android 25Q4)</li>
-     *      <li><code>STATUS_NOT_AVAILABLE_POOR_VISIBILITY</code> (Since Android 25Q4)</li>
-     *      <li><code>STATUS_NOT_AVAILABLE_SAFETY</code> (Since Android 25Q4)</li>
-     *      <li><code>STATUS_NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED</code> (Since Android 25Q4)</li>
+     *      <li><code>STATUS_NOT_AVAILABLE_DISABLED</code> (Since Android 26Q2)</li>
+     *      <li><code>STATUS_NOT_AVAILABLE_SPEED_LOW</code> (Since Android 26Q2)</li>
+     *      <li><code>STATUS_NOT_AVAILABLE_SPEED_HIGH</code> (Since Android 26Q2)</li>
+     *      <li><code>STATUS_NOT_AVAILABLE_POOR_VISIBILITY</code> (Since Android 26Q2)</li>
+     *      <li><code>STATUS_NOT_AVAILABLE_SAFETY</code> (Since Android 26Q2)</li>
+     *      <li><code>STATUS_NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED</code> (Since Android 26Q2)</li>
      *  </ul>
      *
      * @return The property status of {@code CarPropertyValue}
@@ -593,8 +594,6 @@ public final class CarPropertyValue<T> implements Parcelable {
     @FlaggedApi(FLAG_CAR_PROPERTY_VALUE_PROPERTY_STATUS)
     @CarPropertyStatus
     public int getPropertyStatus() {
-        // TODO(b/416768353): Check sdk version against 26Q2 here and map detailed not available
-        // property status to general not available status.
         return mSystemStatus;
     }
 
@@ -636,8 +635,6 @@ public final class CarPropertyValue<T> implements Parcelable {
     @Deprecated
     @CarPropertyStatus
     public int getStatus() {
-        // TODO(b/416768353): Check sdk version against 26Q2 here and map detailed not available
-        // property status to general not available status.
         return mSystemStatus;
     }
 
@@ -752,5 +749,27 @@ public final class CarPropertyValue<T> implements Parcelable {
                 && mVendorStatus == carPropertyValue.mVendorStatus
                 && mHasPermissionToReadPropertyVendorStatus
                         == carPropertyValue.mHasPermissionToReadPropertyVendorStatus;
+    }
+
+    /**
+     * Maps detailed not_available system property status to general not_available status for
+     * app that has sdkVersion < 26Q2.
+     *
+     * @hide
+     */
+    public CarPropertyValue cloneWithSystemStatusConverted(int sdkVersion) {
+        // TODO(b/416768353): Change this to 26Q2 version code.
+        // The flag is already checked at car service HalPropValue.
+        if (sdkVersion >= Build.VERSION_CODES.CUR_DEVELOPMENT
+                && Flags.carPropertyStatusDetailedNotAvailable()) {
+            return newBuilder(this).build();
+        }
+        return switch (mSystemStatus) {
+            case STATUS_NOT_AVAILABLE_DISABLED, STATUS_NOT_AVAILABLE_SPEED_LOW,
+                    STATUS_NOT_AVAILABLE_SPEED_HIGH, STATUS_NOT_AVAILABLE_POOR_VISIBILITY,
+                    STATUS_NOT_AVAILABLE_SAFETY, STATUS_NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED ->
+                    newBuilder(this).setSystemStatus(STATUS_NOT_AVAILABLE_GENERAL).build();
+            default -> newBuilder(this).build();
+        };
     }
 }
