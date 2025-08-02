@@ -105,6 +105,13 @@ public class CarPropertyEvent implements Parcelable {
         mCarPropertyValue = carPropertyValue;
     }
 
+    /**
+     * Returns a copy of this {@link CarPropertyEvent}, but with vendor status filtered out.
+     */
+    public CarPropertyEvent cloneWithVendorStatusFiltered() {
+        return new CarPropertyEvent(mEventType, mCarPropertyValue.cloneWithVendorStatusFiltered(),
+                mErrorCode);
+    }
 
     /**
      * Constructor for {@link CarPropertyEvent} when it is an error event.

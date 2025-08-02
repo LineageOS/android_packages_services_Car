@@ -223,23 +223,14 @@ public abstract class HalPropValue {
      *
      * @param mgrPropId The property ID used in {@link android.car.VehiclePropertyIds}.
      * @param config The config for the property.
-     * @return A CarPropertyValue that could be passed to upper layer
-     * @throws IllegalStateException If property has unsupported type
-     */
-    public CarPropertyValue toCarPropertyValue(int mgrPropId, HalPropConfig config) {
-        return toCarPropertyValue(mgrPropId, config, /* isVhalPropId= */ false);
-    }
-
-    /**
-     * Turns this class to a {@link CarPropertyValue}.
-     *
-     * @param mgrPropId The property ID used in {@link android.car.VehiclePropertyIds}.
-     * @param config The config for the property.
+     * @param isSimulationPropId Whether this property ID is a simulation property (It is an
+     *      internal VHAL property that does not map to a valid VehiclePropertyIds)
+     * @param readVendorStatus Whether to read vendor property status.
      * @return A CarPropertyValue that could be passed to upper layer
      * @throws IllegalStateException If property has unsupported type
      */
     public CarPropertyValue toCarPropertyValue(int mgrPropId, HalPropConfig config,
-            boolean isVhalPropId) {
+            boolean isSimulationPropId, boolean readVendorStatus) {
         Class<?> clazz = CarPropertyUtils.getJavaClass(getPropId() & VehiclePropertyType.MASK);
         int areaId = getAreaId();
         int status = vehiclePropertyStatusToCarPropertyStatus(getStatus());
@@ -254,12 +245,15 @@ public abstract class HalPropValue {
             // Fill in the default value, rawPropertyValue must not be null.
             rawPropertyValue = new RawPropertyValue(CarPropertyHelper.getDefaultValue(clazz));
         }
-        return new CarPropertyValue.Builder<>(mgrPropId, areaId)
+        var builder = new CarPropertyValue.Builder<>(mgrPropId, areaId)
                 .setSystemStatus(status)
-                .setVendorStatus(getVendorStatus())
                 .setTimestampNanos(timestampNanos)
-                .setRawPropertyValue(rawPropertyValue)
-                .setIsSimulationPropId(isVhalPropId).build();
+                .setIsSimulationPropId(isSimulationPropId)
+                .setRawPropertyValue(rawPropertyValue);
+        if (readVendorStatus) {
+            builder.setVendorStatus(getVendorStatus());
+        }
+        return builder.build();
     }
 
     private @Nullable RawPropertyValue<?> toRawPropertyValue(int mgrPropId, HalPropConfig config) {
@@ -527,7 +521,6 @@ public abstract class HalPropValue {
     }
 
     private static boolean exposeDetailedNotAvailableStatus() {
-        // TODO(b/405477436): Add SDK version check once we have version code for 25Q4.
         return Flags.carPropertyStatusDetailedNotAvailable();
     }
 }

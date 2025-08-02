@@ -16,6 +16,7 @@
 
 package android.car.hardware;
 
+import static android.car.hardware.CarPropertyValue.ALL_CAR_PROPERTY_STATUS;
 import static android.car.feature.Flags.FLAG_CAR_PROPERTY_SIMULATION;
 import static android.car.feature.Flags.FLAG_CAR_PROPERTY_VALUE_PROPERTY_STATUS;
 
@@ -26,6 +27,8 @@ import static org.junit.Assert.assertThrows;
 import android.car.VehicleAreaType;
 import android.platform.test.annotations.EnableFlags;
 import android.platform.test.flag.junit.SetFlagsRule;
+
+import com.android.car.internal.property.PropertyStatusUtils;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -400,4 +403,29 @@ public final class CarPropertyValueTest extends CarPropertyTestBase {
         });
     }
 
+    @Test
+    public void cloneWithVendorStatusFiltered() {
+        assertThat(CAR_PROPERTY_VALUE.getPropertyVendorStatus()).isNotEqualTo(0);
+
+        var carPropertyValue = CAR_PROPERTY_VALUE.cloneWithVendorStatusFiltered();
+
+        assertThat(carPropertyValue.getPropertyVendorStatus()).isEqualTo(0);
+    }
+
+    @Test
+    public void carPropertyStatus_IsOneOf_Error_NotAvailable_Available() {
+        for (int carPropertyStatus : ALL_CAR_PROPERTY_STATUS) {
+            if (PropertyStatusUtils.isPropertyStatusError(carPropertyStatus)) {
+                continue;
+            }
+            if (PropertyStatusUtils.isPropertyStatusNotAvailable(carPropertyStatus)) {
+                continue;
+            }
+            if (PropertyStatusUtils.isPropertyStatusAvailable(carPropertyStatus)) {
+                continue;
+            }
+            expectWithMessage("CarPropertyStatus: " + carPropertyStatus + " must be one of: "
+                    + "available, not_available (detailed), error").that(false).isTrue();
+        }
+    }
 }
