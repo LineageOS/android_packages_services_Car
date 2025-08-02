@@ -172,8 +172,8 @@ public final class CarPropertyEventTest {
 
         var filteredCarPropertyEvent = carPropertyEvent.cloneWithVendorStatusFiltered();
 
-        var filteredCarPropertyValue = filteredCarPropertyEvent.getCarPropertyValue();
-        filteredCarPropertyValue.setHasPermissionToReadPropertyVendorStatus();
+        var filteredCarPropertyValue = filteredCarPropertyEvent.getCarPropertyValue()
+                .cloneWithPermissionToReadPropertyVendorStatus();
 
         assertThat(filteredCarPropertyValue.getPropertyVendorStatus()).isEqualTo(0);
     }

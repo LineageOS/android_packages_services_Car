@@ -75,7 +75,7 @@ public final class CarPropertyValue<T> implements Parcelable {
      * This variable is only set at CarPropertyEventCallbackController (car-lib). It is not passed
      * through binder.
      */
-    private boolean mHasPermissionToReadPropertyVendorStatus;
+    private final boolean mHasPermissionToReadPropertyVendorStatus;
 
     /**
      * {@code CarPropertyValue} is available.
@@ -222,6 +222,7 @@ public final class CarPropertyValue<T> implements Parcelable {
         private int mSystemStatus = CarPropertyValue.STATUS_AVAILABLE;
         private boolean mIsSimulationPropId;
         private int mVendorStatus;
+        private boolean mHasPermissionToReadPropertyVendorStatus;
         private boolean mBuilt;
 
         /**
@@ -336,6 +337,17 @@ public final class CarPropertyValue<T> implements Parcelable {
         }
 
         /**
+         * Sets that the client has the permission to call {@link getPropertyVendorStatus}.
+         *
+         * @hide
+         */
+        @TestApi
+        public Builder<T> setHasPermissionToReadPropertyVendorStatus(boolean hasPermission) {
+            mHasPermissionToReadPropertyVendorStatus = hasPermission;
+            return this;
+        }
+
+        /**
          * Builds the {@link CarPropertyValue}.
          *
          * Only allowed to be built once. Property value must be set via {@link setValue} or
@@ -354,6 +366,20 @@ public final class CarPropertyValue<T> implements Parcelable {
         }
     }
 
+    /**
+     * Creates a new builder based on an existing {@link CarPropertyValue}.
+     */
+    private static <K> Builder<K> newBuilder(CarPropertyValue<K> value) {
+        return new Builder<K>(value.mPropertyId, value.mAreaId)
+                .setSystemStatus(value.mSystemStatus)
+                .setTimestampNanos(value.mTimestampNanos)
+                .setRawPropertyValue(value.mValue)
+                .setIsSimulationPropId(value.mIsSimulationPropId)
+                .setVendorStatus(value.mVendorStatus)
+                .setHasPermissionToReadPropertyVendorStatus(
+                        value.mHasPermissionToReadPropertyVendorStatus);
+    }
+
     private CarPropertyValue(Builder builder) {
         builder.mBuilt = true;
         mPropertyId = builder.mPropertyId;
@@ -363,6 +389,7 @@ public final class CarPropertyValue<T> implements Parcelable {
         mValue = builder.mRawPropertyValue;
         mIsSimulationPropId = builder.mIsSimulationPropId;
         mVendorStatus = builder.mVendorStatus;
+        mHasPermissionToReadPropertyVendorStatus = builder.mHasPermissionToReadPropertyVendorStatus;
     }
 
     /**
@@ -463,6 +490,7 @@ public final class CarPropertyValue<T> implements Parcelable {
                 RawPropertyValue.class);
         mIsSimulationPropId = in.readBoolean();
         mVendorStatus = in.readInt();
+        mHasPermissionToReadPropertyVendorStatus = false;
     }
 
     public static final Creator<CarPropertyValue> CREATOR = new Creator<CarPropertyValue>() {
@@ -501,17 +529,7 @@ public final class CarPropertyValue<T> implements Parcelable {
      */
     public CarPropertyValue cloneWithVendorStatusFiltered() {
         // Make a copy of input, except for the vendor status field.
-        var carPropertyValue = new Builder(mPropertyId, mAreaId)
-                .setSystemStatus(mSystemStatus)
-                .setTimestampNanos(mTimestampNanos)
-                .setRawPropertyValue(mValue)
-                .setIsSimulationPropId(mIsSimulationPropId)
-                .setVendorStatus(UNSET_VENDOR_PROPERTY_STATUS)
-                .build();
-        if (mHasPermissionToReadPropertyVendorStatus) {
-            carPropertyValue.setHasPermissionToReadPropertyVendorStatus();
-        }
-        return carPropertyValue;
+        return newBuilder(this).setVendorStatus(UNSET_VENDOR_PROPERTY_STATUS).build();
     }
 
     /**
@@ -519,8 +537,10 @@ public final class CarPropertyValue<T> implements Parcelable {
      *
      * @hide
      */
-    public void setHasPermissionToReadPropertyVendorStatus() {
-        mHasPermissionToReadPropertyVendorStatus = true;
+    @TestApi
+    public CarPropertyValue cloneWithPermissionToReadPropertyVendorStatus() {
+        return newBuilder(this)
+                .setHasPermissionToReadPropertyVendorStatus(true).build();
     }
 
     /**
@@ -693,7 +713,9 @@ public final class CarPropertyValue<T> implements Parcelable {
                 + constantToString(CarPropertyValue.class, "STATUS_", mSystemStatus)
                 + ", mVendorStatus=" + mVendorStatus
                 + ", mTimestampNanos=" + mTimestampNanos
-                + ", mValue=" + mValue;
+                + ", mValue=" + mValue
+                + ", mHasPermissionToReadPropertyVendorStatus="
+                + mHasPermissionToReadPropertyVendorStatus;
         if (Flags.carPropertySimulation()) {
             if (isPropertyIdSimulationPropId()) {
                 return propertyValueString
@@ -709,7 +731,7 @@ public final class CarPropertyValue<T> implements Parcelable {
     public int hashCode() {
         return Arrays.hashCode(new Object[]{
                 mPropertyId, mAreaId, mSystemStatus, mTimestampNanos, mValue,
-                mIsSimulationPropId, mVendorStatus});
+                mIsSimulationPropId, mVendorStatus, mHasPermissionToReadPropertyVendorStatus});
     }
 
     /** Checks equality with passed {@code object}. */
@@ -727,6 +749,8 @@ public final class CarPropertyValue<T> implements Parcelable {
                 && mTimestampNanos == carPropertyValue.mTimestampNanos
                 && Objects.equals(mValue, carPropertyValue.mValue)
                 && mIsSimulationPropId == carPropertyValue.mIsSimulationPropId
-                && mVendorStatus == carPropertyValue.mVendorStatus;
+                && mVendorStatus == carPropertyValue.mVendorStatus
+                && mHasPermissionToReadPropertyVendorStatus
+                        == carPropertyValue.mHasPermissionToReadPropertyVendorStatus;
     }
 }

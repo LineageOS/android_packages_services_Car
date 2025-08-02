@@ -105,6 +105,8 @@ public final class CarPropertyEventCallbackControllerUnitTest {
 
     @Before
     public void setUp() {
+        when(mContext.checkSelfPermission(Car.PERMISSION_READ_PROPERTY_VENDOR_STATUS))
+                .thenReturn(PackageManager.PERMISSION_DENIED);
         mCarPropertyEventCallbackController =
                 new CarPropertyEventCallbackController(
                         mContext, DIRECT_EXECUTOR, mCarPropertyEventCallback);
