@@ -53,6 +53,8 @@ import android.hardware.automotive.audiocontrol.Reasons;
 import android.media.AudioAttributes;
 import android.media.AudioDeviceAttributes;
 import android.os.UserHandle;
+import android.platform.test.annotations.DisableFlags;
+import android.platform.test.annotations.EnableFlags;
 import android.platform.test.flag.junit.SetFlagsRule;
 import android.util.ArraySet;
 import android.util.SparseBooleanArray;
@@ -2139,6 +2141,110 @@ public class CarVolumeGroupUnitTest extends AbstractExpectableTestCase {
 
         expectWithMessage("Device address for context not found in volume group")
                 .that(carVolumeGroup.getAddressForContext(safetyContextId)).isNull();
+    }
+
+    @Test
+    @EnableFlags(Flags.FLAG_AUDIO_SEND_RESTRICTIONS_TO_OEM_VOLUME_SERVICE)
+    public void getCarVolumeGroupInfo_withBlockedRestriction_returnsBlockedInfo() {
+        CarVolumeGroup carVolumeGroup = testVolumeGroupSetup();
+        int blockedGain = 3;
+        carVolumeGroup.setBlocked(blockedGain);
+
+        CarVolumeGroupInfo info = carVolumeGroup.getCarVolumeGroupInfo();
+
+        expectWithMessage("Blocked state").that(info.isBlocked()).isTrue();
+        expectWithMessage("Blocked gain index").that(info.getBlockedGainIndex())
+                .isEqualTo(blockedGain);
+    }
+
+    @Test
+    @EnableFlags(Flags.FLAG_AUDIO_SEND_RESTRICTIONS_TO_OEM_VOLUME_SERVICE)
+    public void getCarVolumeGroupInfo_withAttenuatedRestriction_returnsAttenuatedInfo() {
+        CarVolumeGroup carVolumeGroup = testVolumeGroupSetup();
+        int attenuatedGain = 4;
+        carVolumeGroup.setAttenuatedGain(attenuatedGain);
+
+        CarVolumeGroupInfo info = carVolumeGroup.getCarVolumeGroupInfo();
+
+        expectWithMessage("Attenuated state").that(info.isAttenuated()).isTrue();
+        expectWithMessage("Attenuated gain index").that(info.getAttenuatedGainIndex())
+                .isEqualTo(attenuatedGain);
+    }
+
+    @Test
+    @EnableFlags(Flags.FLAG_AUDIO_SEND_RESTRICTIONS_TO_OEM_VOLUME_SERVICE)
+    public void getCarVolumeGroupInfo_withLimitedRestriction_returnsLimitedInfo() {
+        CarVolumeGroup carVolumeGroup = testVolumeGroupSetup();
+        int limitedGain = MIN_ACTIVATION_GAIN_INDEX + 1;
+        carVolumeGroup.setCurrentGainIndex(MAX_GAIN_INDEX);
+        carVolumeGroup.setLimit(limitedGain);
+
+        CarVolumeGroupInfo info = carVolumeGroup.getCarVolumeGroupInfo();
+
+        expectWithMessage("Limited state").that(info.isLimited()).isTrue();
+        expectWithMessage("Limited gain index").that(info.getLimitedGainIndex())
+                .isEqualTo(limitedGain);
+    }
+
+    @Test
+    @EnableFlags(Flags.FLAG_AUDIO_SEND_RESTRICTIONS_TO_OEM_VOLUME_SERVICE)
+    public void getCarVolumeGroupInfo_withAllRestrictions_returnsAllRestrictionsInfo() {
+        CarVolumeGroup carVolumeGroup = testVolumeGroupSetup();
+        int blockedGain = 3;
+        int attenuatedGain = 4;
+        int limitedGain = MIN_ACTIVATION_GAIN_INDEX + 1;
+        carVolumeGroup.setCurrentGainIndex(MAX_GAIN_INDEX);
+        carVolumeGroup.setBlocked(blockedGain);
+        carVolumeGroup.setAttenuatedGain(attenuatedGain);
+        carVolumeGroup.setLimit(limitedGain);
+
+        CarVolumeGroupInfo info = carVolumeGroup.getCarVolumeGroupInfo();
+
+        expectWithMessage("Blocked state").that(info.isBlocked()).isTrue();
+        expectWithMessage("Blocked gain index").that(info.getBlockedGainIndex())
+                .isEqualTo(blockedGain);
+        expectWithMessage("Attenuated state").that(info.isAttenuated()).isTrue();
+        expectWithMessage("Attenuated gain index").that(info.getAttenuatedGainIndex())
+                .isEqualTo(attenuatedGain);
+        expectWithMessage("Limited state").that(info.isLimited()).isTrue();
+        expectWithMessage("Limited gain index").that(info.getLimitedGainIndex())
+                .isEqualTo(limitedGain);
+    }
+
+    @Test
+    @EnableFlags(Flags.FLAG_AUDIO_SEND_RESTRICTIONS_TO_OEM_VOLUME_SERVICE)
+    public void getCarVolumeGroupInfo_withReasons_returnsActiveExtraInfos() {
+        CarVolumeGroup carVolumeGroup = testVolumeGroupSetup();
+        List<Integer> reasons = List.of(Reasons.THERMAL_LIMITATION, Reasons.ADAS_DUCKING);
+        carVolumeGroup.mReasons.addAll(reasons);
+
+        CarVolumeGroupInfo info = carVolumeGroup.getCarVolumeGroupInfo();
+
+        List<Integer> expectedExtraInfos = CarAudioGainMonitor.convertReasonsToExtraInfo(reasons);
+        expectWithMessage("Active extra infos").that(info.getActiveExtraInfos())
+                .containsExactlyElementsIn(expectedExtraInfos).inOrder();
+    }
+
+    @Test
+    @DisableFlags(Flags.FLAG_AUDIO_SEND_RESTRICTIONS_TO_OEM_VOLUME_SERVICE)
+    public void getCarVolumeGroupInfo_withRestrictions_flagDisabled_returnsNoRestrictionDetails() {
+        CarVolumeGroup carVolumeGroup = testVolumeGroupSetup();
+        carVolumeGroup.setBlocked(3);
+        carVolumeGroup.setAttenuatedGain(4);
+        carVolumeGroup.setLimit(8);
+
+        CarVolumeGroupInfo info = carVolumeGroup.getCarVolumeGroupInfo();
+
+        expectWithMessage("Blocked state").that(info.isBlocked()).isTrue();
+        expectWithMessage("Attenuated state").that(info.isAttenuated()).isTrue();
+        expectWithMessage("Limited state").that(info.isLimited()).isFalse();
+        expectWithMessage("Blocked gain index")
+                .that(info.getBlockedGainIndex()).isEqualTo(CarVolumeGroup.UNINITIALIZED);
+        expectWithMessage("Attenuated gain index")
+                .that(info.getAttenuatedGainIndex()).isEqualTo(CarVolumeGroup.UNINITIALIZED);
+        expectWithMessage("Limited gain index")
+                .that(info.getLimitedGainIndex()).isEqualTo(carVolumeGroup.getMaxGainIndex());
+        expectWithMessage("Active extra infos").that(info.getActiveExtraInfos()).isEmpty();
     }
 
     private CarVolumeGroup getCarVolumeGroupWithMusicBound() {
