@@ -16,7 +16,7 @@
 
 #define LOG_TAG "carwatchdogd"
 
-#include "WatchdogBinderMediator.h"
+#include "WatchdogBinderMediatorBase.h"
 
 #include <aidl/android/automotive/watchdog/IoOveruseStats.h>
 #include <android-base/parseint.h>
