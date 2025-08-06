@@ -246,7 +246,7 @@ public:
     android::base::Result<void> onDumpProto(
             android::util::ProtoOutputStream& outProto) const override;
 
-    bool dumpHelpText(int fd) const override { return WatchdogPerfServiceBase::dumpHelpText(fd); }
+    bool dumpHelpText(int fd) const override;
 
 private:
     struct UserSwitchEventMetadata : EventMetadata {
@@ -292,6 +292,10 @@ private:
 
     // Invokes onCustomCollectionDump methods in data processors. Called by the base class.
     android::base::Result<void> onDataProcessorCustomCollectionDumpLocked(int fd) override;
+
+    // Handles the filterPackagesFlag during custom collection. Called by the base class.
+    android::base::Result<std::unordered_set<std::string>> onFilterPackagesFlag(
+            const char** args, uint32_t valuePos, uint32_t numArgs) override;
 
     std::function<int64_t()> kGetElapsedTimeSinceBootMillisFunc;
 
