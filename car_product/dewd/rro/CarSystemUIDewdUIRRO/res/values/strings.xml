@@ -29,6 +29,7 @@
     <!-- A list of packages that are excluded from being shown on Dock -->
     <string-array name="config_packagesExcludedFromDock" translatable="false">
       <item>com.android.car.portraitlauncher</item>
+      <item>com.android.car.stub.launcher</item>
       <item>android.car.usb.handler</item>
     </string-array>
 
