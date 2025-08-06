@@ -16,41 +16,29 @@
 
 #pragma once
 
-#include "WatchdogPerfService.h"
-#include "WatchdogServiceHelper.h"
+#include "WatchdogPerfServiceBase.h"
+#include "WatchdogServiceHelperBase.h"
 
-#include <aidl/android/automotive/watchdog/internal/UserState.h>
 #include <android-base/result.h>
-#include <android/util/ProtoOutputStream.h>
 #include <gmock/gmock.h>
-#include <utils/String16.h>
-#include <utils/Vector.h>
 
 namespace android {
 namespace automotive {
 namespace watchdog {
 
-class MockWatchdogPerfService : public WatchdogPerfServiceInterface {
+class MockWatchdogPerfServiceBase : public WatchdogPerfServiceBaseInterface {
 public:
-    MockWatchdogPerfService() {}
-    ~MockWatchdogPerfService() {}
-    MOCK_METHOD(android::base::Result<void>, registerDataProcessor,
-                (android::sp<DataProcessorInterface>), (override));
+    MockWatchdogPerfServiceBase() {}
+    ~MockWatchdogPerfServiceBase() {}
+    MOCK_METHOD(android::base::Result<void>, registerIoOveruseMonitor,
+                (android::sp<IoOveruseMonitorInterface>), (override));
     MOCK_METHOD(android::base::Result<void>, start, (), (override));
     MOCK_METHOD(void, terminate, (), (override));
     MOCK_METHOD(void, setSystemState, (SystemState), (override));
     MOCK_METHOD(void, onCarWatchdogServiceRegistered, (), (override));
-    MOCK_METHOD(android::base::Result<void>, onBootFinished, (), (override));
-    MOCK_METHOD(android::base::Result<void>, onUserStateChange,
-                (userid_t userId, const aidl::android::automotive::watchdog::internal::UserState&),
-                (override));
-    MOCK_METHOD(android::base::Result<void>, onSuspendExit, (), (override));
-    MOCK_METHOD(android::base::Result<void>, onShutdownEnter, (), (override));
     MOCK_METHOD(android::base::Result<void>, onCustomCollection, (int fd, const char**, uint32_t),
                 (override));
     MOCK_METHOD(android::base::Result<void>, onDump, (int), (const, override));
-    MOCK_METHOD(android::base::Result<void>, onDumpProto, (android::util::ProtoOutputStream&),
-                (const, override));
     MOCK_METHOD(bool, dumpHelpText, (int fd), (const, override));
     MOCK_METHOD(void, handleMessage, (const Message&), (override));
 };

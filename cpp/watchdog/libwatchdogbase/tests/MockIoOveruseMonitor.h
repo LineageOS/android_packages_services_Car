@@ -73,6 +73,7 @@ public:
                 (override));
     MOCK_METHOD(void, removeStatsForUser, (userid_t), (override));
     MOCK_METHOD(void, terminate, (), (override));
+    MOCK_METHOD(android::base::Result<void>, onDump, (int), (const, override));
 };
 
 }  // namespace watchdog
