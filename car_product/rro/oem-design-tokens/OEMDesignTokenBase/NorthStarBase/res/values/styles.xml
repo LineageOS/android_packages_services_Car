@@ -21,7 +21,7 @@
         <item name="android:textColorHint">@color/color_on_surface_inverse</item>
         <item name="android:textColorLink">@color/color_on_surface_inverse</item>
         <item name="android:textSize">16sp</item>
-        <item name="android:fontFamily">"@font/moderustic</item>
+        <item name="android:fontFamily">@font/moderustic</item>
         <item name="android:textStyle">normal</item>
     </style>
 
