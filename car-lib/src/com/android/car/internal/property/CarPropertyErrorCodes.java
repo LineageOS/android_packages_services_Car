@@ -308,15 +308,19 @@ public final class CarPropertyErrorCodes implements Parcelable {
      * @throws PropertyNotAvailableException If the error code is one of NOT_AVAILABLE error.
      * @throws CarInternalErrorException If the error code is INTERNAL_ERROR.
      */
-    public void checkAndMaybeThrowException(int propertyId, int areaId) {
+    public void checkAndMaybeThrowException(
+            int propertyId, int areaId, boolean canReadVendorErrorCode) {
         if (isOkay()) {
             return;
         }
 
         if (mCarPropertyManagerErrorCode == CarPropertyManager.STATUS_ERROR_NOT_AVAILABLE) {
-            throw new PropertyNotAvailableException(propertyId, areaId,
+            throw new PropertyNotAvailableException(
+                    propertyId,
+                    areaId,
                     getPropertyNotAvailableErrorCodeFromStatusCode(mSystemErrorCode),
-                    mVendorErrorCode);
+                    mVendorErrorCode,
+                    canReadVendorErrorCode);
         }
 
         switch (mSystemErrorCode) {
@@ -327,11 +331,15 @@ public final class CarPropertyErrorCodes implements Parcelable {
                 // Vendor error code is ignored for STATUS_ACCESS_DENIED error
                 throw new PropertyAccessDeniedSecurityException(propertyId, areaId);
             case VehicleHalStatusCode.STATUS_INTERNAL_ERROR:
-                throw new CarInternalErrorException(propertyId, areaId, mVendorErrorCode);
+                throw new CarInternalErrorException(
+                        propertyId, areaId, mVendorErrorCode, canReadVendorErrorCode);
             default:
-                Slog.e(TAG, "Invalid VAHL error code: " + mSystemErrorCode
-                        + ", convert to CarInternalErrorException");
-                throw new CarInternalErrorException(propertyId, areaId);
+                Slog.e(
+                        TAG,
+                        "Invalid VHAL error code: "
+                                + mSystemErrorCode
+                                + ", convert to CarInternalErrorException");
+                throw new CarInternalErrorException(propertyId, areaId, canReadVendorErrorCode);
         }
     }
 

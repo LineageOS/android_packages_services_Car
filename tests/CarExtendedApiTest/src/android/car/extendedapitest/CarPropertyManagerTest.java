@@ -110,6 +110,8 @@ public final class CarPropertyManagerTest extends CarApiTestBase {
         mHandlerThread.quitSafely();
     }
 
+    @RequiresFlagsEnabled(Flags.FLAG_CAR_PROPERTY_VENDOR_ERROR_CODE_PERMISSION)
+    @EnsureHasPermission(Car.PERMISSION_READ_PROPERTY_VENDOR_ERROR_CODE)
     @ApiTest(apis = {"android.car.hardware.property.CarInternalErrorException#getVendorErrorCode"})
     @Test
     public void testGetProperty_withVendorPropertyId_throws() {
@@ -124,6 +126,8 @@ public final class CarPropertyManagerTest extends CarApiTestBase {
         assertThat(thrown.getVendorErrorCode()).isEqualTo(EXPECTED_VENDOR_ERROR_CODE);
     }
 
+    @RequiresFlagsEnabled(Flags.FLAG_CAR_PROPERTY_VENDOR_ERROR_CODE_PERMISSION)
+    @EnsureHasPermission(Car.PERMISSION_READ_PROPERTY_VENDOR_ERROR_CODE)
     @ApiTest(apis = {"android.car.hardware.property.CarInternalErrorException#getVendorErrorCode"})
     @Test
     public void testSetProperty_withVendorPropertyId_throws() {

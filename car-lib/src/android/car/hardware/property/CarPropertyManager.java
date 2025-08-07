@@ -34,6 +34,7 @@ import android.annotation.FloatRange;
 import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
+import android.annotation.RequiresPermission;
 import android.annotation.SuppressLint;
 import android.annotation.SystemApi;
 import android.car.Car;
@@ -562,6 +563,7 @@ public class CarPropertyManager extends CarManagerBase {
         private final int mPropertyId;
         private final int mAreaId;
         private final CarPropertyErrorCodes mCarPropertyErrorCodes;
+        private final boolean mCanReadVendorErrorCode;
 
         public int getRequestId() {
             return mRequestId;
@@ -588,7 +590,21 @@ public class CarPropertyManager extends CarManagerBase {
          * @hide
          */
         @SystemApi
+        @RequiresPermission(Car.PERMISSION_READ_PROPERTY_VENDOR_ERROR_CODE)
         public int getVendorErrorCode() {
+            // Note that we have already filtered out the vendor error code at the car service
+            // layer if the client does not have the permission. We are checking here to throw
+            // SecurityException but this is not a security enforcement. Even if the client bypass
+            // this check here, the vendor error code still would be 0 if the client does not
+            // have the permission.
+            // TODO(b/455051947): Validate car service filtering in CTS.
+            // TODO(b/415128639): Filter vendor error code in CarService.
+            if (!mCanReadVendorErrorCode) {
+                throw new SecurityException(
+                        "Client does not have the required permission: "
+                                + Car.PERMISSION_READ_PROPERTY_VENDOR_ERROR_CODE
+                                + " to call getVendorErrorCode");
+            }
             return mCarPropertyErrorCodes.getVendorErrorCode();
         }
 
@@ -613,13 +629,19 @@ public class CarPropertyManager extends CarManagerBase {
          * @param propertyId the property ID in the request
          * @param areaId the area ID for the property in the request
          * @param carPropertyErrorCodes the codes indicating the error
+         * @param canReadVendorErrorCode whether the client can read the vendor error code
          */
-        PropertyAsyncError(int requestId, int propertyId, int areaId,
-                CarPropertyErrorCodes carPropertyErrorCodes) {
+        PropertyAsyncError(
+                int requestId,
+                int propertyId,
+                int areaId,
+                CarPropertyErrorCodes carPropertyErrorCodes,
+                boolean canReadVendorErrorCode) {
             mRequestId = requestId;
             mPropertyId = propertyId;
             mAreaId = areaId;
             mCarPropertyErrorCodes = carPropertyErrorCodes;
+            mCanReadVendorErrorCode = canReadVendorErrorCode;
         }
 
         /**
@@ -955,10 +977,17 @@ public class CarPropertyManager extends CarManagerBase {
                     runOnExecutor(callbackExecutor, () -> propertyResultCallback.onSuccess(
                             clientCallback, clientResult));
                 } else {
-                    runOnExecutor(callbackExecutor, () ->
-                            propertyResultCallback.onFailure(clientCallback,
-                                    new PropertyAsyncError(requestId, propertyId, areaId,
-                                            errorCodes)));
+                    runOnExecutor(
+                            callbackExecutor,
+                            () ->
+                                    propertyResultCallback.onFailure(
+                                            clientCallback,
+                                            new PropertyAsyncError(
+                                                    requestId,
+                                                    propertyId,
+                                                    areaId,
+                                                    errorCodes,
+                                                    canReadVendorErrorCode())));
                 }
             }
         }
@@ -2574,11 +2603,15 @@ public class CarPropertyManager extends CarManagerBase {
 
         int propertyStatus = propertyValue.getStatus();
         if (PropertyStatusUtils.isPropertyStatusError(propertyStatus)) {
-            throw new CarInternalErrorException(propertyValue.getPropertyId(), areaId);
+            throw new CarInternalErrorException(
+                    propertyValue.getPropertyId(), areaId, canReadVendorErrorCode());
         }
         if (PropertyStatusUtils.isPropertyStatusNotAvailable(propertyStatus)) {
-            throw new PropertyNotAvailableException(propertyValue.getPropertyId(),
-                        areaId, /*vendorErrorCode=*/ 0);
+            throw new PropertyNotAvailableException(
+                    propertyValue.getPropertyId(),
+                    areaId,
+                    /* vendorErrorCode= */ 0,
+                    canReadVendorErrorCode());
         }
         return propertyValue.getValue();
     }
@@ -3146,7 +3179,7 @@ public class CarPropertyManager extends CarManagerBase {
         // PropertyNotAvailableException.
         CarPropertyErrorCodes.createFromVhalStatusCode(e.errorCode)
                 .cloneWithAppTargetSdk(mAppTargetSdk)
-                .checkAndMaybeThrowException(propertyId, areaId);
+                .checkAndMaybeThrowException(propertyId, areaId, canReadVendorErrorCode());
     }
 
     private void clearRequestIdToAsyncRequestInfo(
@@ -3512,7 +3545,7 @@ public class CarPropertyManager extends CarManagerBase {
                     /* minValue= */ null, /* maxValue= */ null));
         } catch (ServiceSpecificException e) {
             Slog.e(TAG, "Failed to get min max supported value", e);
-            throw new CarInternalErrorException(propertyId, areaId);
+            throw new CarInternalErrorException(propertyId, areaId, canReadVendorErrorCode());
         }
 
         T minValue = null;
@@ -3574,7 +3607,7 @@ public class CarPropertyManager extends CarManagerBase {
             return handleRemoteExceptionFromCarService(e, null);
         } catch (ServiceSpecificException e) {
             Slog.e(TAG, "Failed to get supported values list", e);
-            throw new CarInternalErrorException(propertyId, areaId);
+            throw new CarInternalErrorException(propertyId, areaId, canReadVendorErrorCode());
         }
 
         if (supportedRawPropertyValues == null) {
@@ -4214,6 +4247,13 @@ public class CarPropertyManager extends CarManagerBase {
             return handleRemoteExceptionFromCarService(e, null);
         }
         return new CarPropertyConfigs(result, unsupportedPropertyIds);
+    }
+
+    private boolean canReadVendorErrorCode() {
+        return !mFeatureFlags.carPropertyVendorErrorCodePermission()
+                || mAppTargetSdk < Build.VERSION_CODES.CINNAMON_BUN
+                || getContext().checkSelfPermission(Car.PERMISSION_READ_PROPERTY_VENDOR_ERROR_CODE)
+                        == PERMISSION_GRANTED;
     }
 
     @Nullable
