@@ -153,6 +153,7 @@
         <permission name="android.car.permission.INJECT_VEHICLE_PROPERTIES" />
         <permission name="android.car.permission.RECORD_VEHICLE_PROPERTIES" />
         <permission name="android.car.permission.READ_PROPERTY_VENDOR_STATUS" />
+        <permission name="android.car.permission.READ_PROPERTY_VENDOR_ERROR_CODE" />
         <permission name="android.permission.ACQUIRE_SLEEPLOCK" />
 
     </privapp-permissions>
