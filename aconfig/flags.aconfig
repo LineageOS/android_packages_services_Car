@@ -293,6 +293,13 @@ flag {
   bug: "343489611"
 }
 
+flag {
+  name: "car_property_vendor_error_code_permission"
+  namespace: "car_perception"
+  description: "The getVendorErrorCode is a system API but it's missing a permission to guard it."
+  bug: "415128639"
+}
+
 # ClusterHomeManager
 flag {
   name: "cluster_health_monitoring"
