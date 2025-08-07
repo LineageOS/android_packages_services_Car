@@ -177,21 +177,26 @@ void WatchdogPerfServiceBase::init() {
             .eventType = EventType::PERIODIC_MONITOR,
             .pollingIntervalNs = periodicMonitorInterval,
     };
-    mUidStatsCollectorBase->init();
     mProcDiskStatsCollector->init();
+    initInternalLocked();
+}
+
+void WatchdogPerfServiceBase::initInternalLocked() {
+    mUidStatsCollectorBase->init();
 }
 
 Result<void> WatchdogPerfServiceBase::start() {
+    Mutex::Autolock lock(mMutex);
     if (mCurrCollectionEvent != EventType::INIT || mCollectionThread.joinable()) {
         return Error(INVALID_OPERATION) << "Cannot start " << kServiceName << " more than once";
     }
     if (mWatchdogServiceHelperBase == nullptr) {
-        return Error(INVALID_OPERATION) << "No watchdog service helper base is registered";
+        return Error(INVALID_OPERATION) << "No watchdog service helper is registered";
     }
-    if (mIoOveruseMonitor == nullptr) {
-        ALOGE("Terminating %s: IoOveruseMonitor is not registered", kServiceName);
+    if (!isDataProcessorRegisteredLocked()) {
+        ALOGE("Terminating %s: No data processor is registered", kServiceName);
         mCurrCollectionEvent = EventType::TERMINATED;
-        return Error() << "IoOveruseMonitor is not registered";
+        return Error() << "No data processor is registered";
     }
     mCollectionThread = std::thread([&]() {
         {
@@ -202,13 +207,12 @@ Result<void> WatchdogPerfServiceBase::start() {
                       toString(mCurrCollectionEvent), toString(expected));
                 return;
             }
-            mHandlerLooper->setLooper(Looper::prepare(/*opts=*/0));
-            switchToPeriodicLocked(/*startNow=*/true);
+            startFirstCollectionEventLocked();
         }
         if (set_sched_policy(0, SP_BACKGROUND) != 0) {
             ALOGW("Failed to set background scheduling priority to %s thread", kServiceName);
         }
-        if (int result = pthread_setname_np(pthread_self(), "WatchdogPerfSvcBase"); result != 0) {
+        if (int result = pthread_setname_np(pthread_self(), "WatchdogPerfSvc"); result != 0) {
             ALOGE("Failed to set %s thread name: %d", kServiceName, result);
         }
         ALOGI("Starting %s performance data collection", toString(mCurrCollectionEvent));
@@ -224,6 +228,15 @@ Result<void> WatchdogPerfServiceBase::start() {
         }
     });
     return {};
+}
+
+bool WatchdogPerfServiceBase::isDataProcessorRegisteredLocked() {
+    return mIoOveruseMonitor != nullptr;
+}
+
+void WatchdogPerfServiceBase::startFirstCollectionEventLocked() {
+    mHandlerLooper->setLooper(Looper::prepare(/*opts=*/0));
+    switchToPeriodicLocked(/*startNow=*/true);
 }
 
 void WatchdogPerfServiceBase::terminate() {
@@ -367,9 +380,12 @@ Result<void> WatchdogPerfServiceBase::onDump(int fd) const {
         return Error(FAILED_TRANSACTION) << result.error();
     }
 
-    if (!WriteStringToFd(StringPrintf("\n%s%s report:\n%sSystem information:\n%s\n",
-                                      kDumpMajorDelimiter.c_str(), kServiceName,
-                                      kDumpMajorDelimiter.c_str(), std::string(33, '=').c_str()),
+    return onDumpInternalLocked(fd);
+}
+
+Result<void> WatchdogPerfServiceBase::onDumpInternalLocked(int fd) const {
+    if (!WriteStringToFd(StringPrintf("\n%s%s report:\n%s", kDumpMajorDelimiter.c_str(),
+                                      kServiceName, kDumpMajorDelimiter.c_str()),
                          fd) ||
         !WriteStringToFd(StringPrintf("\nPeriodic collection information:\n%s\n",
                                       std::string(32, '=').c_str()),
@@ -519,6 +535,7 @@ void WatchdogPerfServiceBase::handleMessage(const Message& message) {
                 return;
             }
             mCustomCollection = {};
+            clearCustomCollectionCacheLocked();
             switchToPeriodicLocked(/*startNow=*/true);
             return;
         }
@@ -526,7 +543,7 @@ void WatchdogPerfServiceBase::handleMessage(const Message& message) {
             result = sendResourceStats();
             break;
         default:
-            result = Error() << "Unknown message: " << message.what;
+            result = handleMessageExtension(message);
     }
 
     if (!result.ok()) {
@@ -540,6 +557,10 @@ void WatchdogPerfServiceBase::handleMessage(const Message& message) {
         mHandlerLooper->removeMessages(sp<WatchdogPerfServiceBase>::fromExisting(this));
         mHandlerLooper->wake();
     }
+}
+
+Result<void> WatchdogPerfServiceBase::handleMessageExtension(const Message& message) {
+    return Error() << "Unknown message: " << message.what;
 }
 
 Result<void> WatchdogPerfServiceBase::processCollectionEvent(
@@ -617,6 +638,10 @@ Result<void> WatchdogPerfServiceBase::collectLocked(
         cacheUnsentResourceStatsLocked(std::move(resourceStats));
     }
 
+    return handleUnsentResourceStatsLocked();
+}
+
+Result<void> WatchdogPerfServiceBase::handleUnsentResourceStatsLocked() {
     if (mUnsentResourceStats.empty() || !mWatchdogServiceHelperBase->isServiceConnected()) {
         if (DEBUG && !mUnsentResourceStats.empty() &&
             !mWatchdogServiceHelperBase->isServiceConnected()) {

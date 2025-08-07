@@ -211,12 +211,12 @@ public:
                                          " derived class' instance.";
     }
 
-    void init() override { return; };
-
     android::base::Result<void> registerDataProcessor(
             android::sp<DataProcessorInterface> processor) override;
 
-    android::base::Result<void> start() override;
+    void init() override { WatchdogPerfServiceBase::init(); }
+
+    android::base::Result<void> start() override { return WatchdogPerfServiceBase::start(); }
 
     void terminate() override { WatchdogPerfServiceBase::terminate(); }
 
@@ -243,7 +243,9 @@ public:
         return WatchdogPerfServiceBase::onCustomCollection(fd, args, numArgs);
     }
 
-    android::base::Result<void> onDump(int fd) const override;
+    android::base::Result<void> onDump(int fd) const override {
+        return WatchdogPerfServiceBase::onDump(fd);
+    };
     android::base::Result<void> onDumpProto(
             android::util::ProtoOutputStream& outProto) const override;
 
@@ -264,7 +266,12 @@ private:
     android::base::Result<void> startUserSwitchCollection();
 
     // Handles the messages received by the looper.
-    void handleMessage(const Message& message) override;
+    void handleMessage(const Message& message) override {
+        return WatchdogPerfServiceBase::handleMessage(message);
+    }
+
+    // Handles extra message logic.
+    android::base::Result<void> handleMessageExtension(const Message& message) override;
 
     // Collects/processes the performance data for the current collection event.
     android::base::Result<void> collectLocked(EventMetadata* metadata) override;
@@ -279,6 +286,21 @@ private:
      * nullptr on invalid collection event.
      */
     EventMetadata* getCurrentCollectionMetadataLocked() override;
+
+    // Initialize collection intervals and I/O collectors.
+    void initInternalLocked() override;
+
+    // Check if the data processors were registered.
+    bool isDataProcessorRegisteredLocked() override;
+
+    // Start the first collection event in mCollectionThread.
+    void startFirstCollectionEventLocked() override;
+
+    // Clear any custom collection caches.
+    void clearCustomCollectionCacheLocked() override;
+
+    // Handle onDump timestamp and printing logic.
+    android::base::Result<void> onDumpInternalLocked(int fd) const override;
 
     // Invokes periodic monitor methods in data processors. Called by the base class.
     android::base::Result<void> onDataProcessorPeriodicMonitorLocked(

@@ -281,6 +281,7 @@ protected:
         EXPECT_CALL(*mMockProcStatCollector, init()).Times(1);
         EXPECT_CALL(*mMockProcDiskStatsCollector, init()).Times(1);
 
+        mService->init();
         ASSERT_RESULT_OK(mService->start());
 
         mServicePeer->updateIntervals();
@@ -385,6 +386,7 @@ TEST_F(WatchdogPerfServiceTest, TestServiceStartAndTerminate) {
     EXPECT_CALL(*mMockProcStatCollector, init()).Times(1);
     EXPECT_CALL(*mMockProcDiskStatsCollector, init()).Times(1);
 
+    mService->init();
     ASSERT_RESULT_OK(mService->start());
 
     ASSERT_TRUE(mService->mCollectionThread.joinable()) << "Collection thread not created";
