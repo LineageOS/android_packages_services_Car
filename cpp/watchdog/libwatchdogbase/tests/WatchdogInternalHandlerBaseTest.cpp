@@ -15,7 +15,7 @@
  */
 
 #include "MockIoOveruseMonitorWrapper.h"
-#include "MockWatchdogPerfService.h"
+#include "MockWatchdogPerfServiceBase.h"
 #include "MockWatchdogProcessService.h"
 #include "MockWatchdogServiceHelper.h"
 #include "ThreadPriorityController.h"

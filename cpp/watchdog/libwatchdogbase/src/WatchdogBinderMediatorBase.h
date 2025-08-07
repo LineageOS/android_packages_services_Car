@@ -17,7 +17,7 @@
 #pragma once
 
 #include "IoOveruseMonitorWrapper.h"
-#include "WatchdogInternalHandler.h"
+#include "WatchdogInternalHandlerBase.h"
 #include "WatchdogPerfService.h"
 #include "WatchdogProcessService.h"
 #include "WatchdogServiceHelper.h"

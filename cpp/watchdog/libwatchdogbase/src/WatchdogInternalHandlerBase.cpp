@@ -16,7 +16,7 @@
 
 #define LOG_TAG "carwatchdogd"
 
-#include "WatchdogInternalHandler.h"
+#include "WatchdogInternalHandlerBase.h"
 
 #include "UidProcStatsCollector.h"
 
