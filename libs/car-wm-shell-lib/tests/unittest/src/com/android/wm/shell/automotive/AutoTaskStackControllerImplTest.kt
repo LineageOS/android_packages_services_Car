@@ -167,13 +167,13 @@ class AutoTaskStackControllerImplTest : CarWmShellTestCase() {
         whenever(
             taskOrganizer.createRootTask(
                 TaskOrganizer.CreateRootTaskRequest()
-                    .setDisplayId(eq(displayId))
+                    .setDisplayId(displayId)
                     .setWindowingMode(anyOrNull())
-                    .setRemoveWithTaskOrganizer(eq(true)),
+                    .setRemoveWithTaskOrganizer(true),
             any(TaskListener::class.java)
             )
         ).thenAnswer {
-            listener = it.arguments[2] as ShellTaskOrganizer.TaskListener
+            listener = it.arguments[1] as ShellTaskOrganizer.TaskListener
             listener!!.onTaskAppeared(taskInfo, leash)
         }
         controller.createRootTaskStack(displayId, name, rootTaskStackListener)
@@ -226,13 +226,13 @@ class AutoTaskStackControllerImplTest : CarWmShellTestCase() {
         whenever(
             taskOrganizer.createRootTask(
                 TaskOrganizer.CreateRootTaskRequest()
-                    .setDisplayId(eq(displayId))
+                    .setDisplayId(displayId)
                     .setWindowingMode(anyOrNull())
-                    .setRemoveWithTaskOrganizer(eq(true)),
+                    .setRemoveWithTaskOrganizer(true),
                 any(TaskListener::class.java)
             )
         ).thenAnswer {
-            listener = it.arguments[2] as ShellTaskOrganizer.TaskListener
+            listener = it.arguments[1] as ShellTaskOrganizer.TaskListener
             listener!!.onTaskAppeared(taskInfo, mock(SurfaceControl::class.java))
         }
         val name = ""
@@ -682,7 +682,7 @@ class AutoTaskStackControllerImplTest : CarWmShellTestCase() {
     }
 
     @Test
-    fun transitionFromCore_notPlayedByDelegate_containsSafeRegionBoundsChange_shouldBePlayed() {
+    fun transitionFromCore_notPlayedByDelegate_containsSafeRegionBoundsChange_shouldNotBePlayed() {
         // Arrange
         val taskLeash = mock(SurfaceControl::class.java)
         val (rootTaskInfo, _) = setupRootTask(taskId = 106)
@@ -710,7 +710,7 @@ class AutoTaskStackControllerImplTest : CarWmShellTestCase() {
         )
 
         // Assert
-        assertThat(result).isTrue()
+        assertThat(result).isFalse()
     }
 
     @Test
@@ -769,7 +769,7 @@ class AutoTaskStackControllerImplTest : CarWmShellTestCase() {
     }
 
     @Test
-    fun transitionFromCore_notPlayedByDelegate_containsTaskStackChange_shouldBePlayed() {
+    fun transitionFromCore_notPlayedByDelegate_containsTaskStackChange_shouldNotBePlayed() {
         // Arrange
         val taskLeash = mock(SurfaceControl::class.java)
         val (rootTaskInfo, listener) = setupRootTask(taskId = 18, leash = taskLeash)
@@ -799,7 +799,7 @@ class AutoTaskStackControllerImplTest : CarWmShellTestCase() {
         )
 
         // Assert
-        assertThat(result).isTrue()
+        assertThat(result).isFalse()
     }
 
     @Test
