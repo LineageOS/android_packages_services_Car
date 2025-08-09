@@ -15,7 +15,8 @@
 
 PRODUCT_PACKAGES += \
     CarFrameworkDewdRRO \
-    CarLauncherEnableDewdRRO
+    CarLauncherEnableDewdRRO \
+    StubCarLauncher // TODO(b/432217693) remove once dedicated visibility barrier is present
 
 PRODUCT_COPY_FILES += \
     packages/services/Car/car_product/dewd/android.software.car.splitscreen_multitasking.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.software.car.splitscreen_multitasking.xml
