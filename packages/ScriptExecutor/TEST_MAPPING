@@ -1,0 +1,25 @@
+{
+  "auto-presubmit": [
+    {
+      "name": "ScriptExecutorFunctionalTests",
+      "file_patterns": [
+        "src/.*",
+        "tests/functional/.*"
+      ]
+    },
+    {
+      "name": "ScriptExecutorNonSystemUserTests",
+      "file_patterns": [
+        "src/.*",
+        "tests/nonsystemuser/.*"
+      ]
+    },
+    {
+      "name": "ScriptExecutorUnitTests",
+      "file_patterns": [
+        "src/.*",
+        "tests/unit/.*"
+      ]
+    }
+  ]
+}

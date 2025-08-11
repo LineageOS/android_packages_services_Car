@@ -2,6 +2,12 @@
   "auto-presubmit": [
     {
       "name": "CtsCarTestCases"
+    },
+    {
+      "name": "CarExtendedApiTest"
+    },
+    {
+      "name": "CarHiddenApiTest"
     }
   ]
 }

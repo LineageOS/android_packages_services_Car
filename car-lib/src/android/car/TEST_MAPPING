@@ -1,0 +1,27 @@
+{
+  "auto-presubmit": [
+    {
+      "name": "CarLibCarUnitTest",
+      "file_patterns": [
+        "Car\\.java",
+        "CarManagerBase\\.java"
+      ]
+    },
+    {
+      "name": "CarLibProjectionUnitTest",
+      "file_patterns": [
+        "CarProjectionManager\\.java"
+      ]
+    },
+    {
+      "name": "CarLibPropertyUnitTest",
+      "file_patterns": [
+        "EvConnectorType\\.java",
+        "FuelType\\.java",
+        "GsrComplianceType\\.java",
+        "PortLocationType\\.java",
+        "Vehicle[^/]+\\.java"
+      ]
+    }
+  ]
+}
