@@ -1,0 +1,13 @@
+{
+  "auto-presubmit": [
+    {
+      "name": "VtsAidlWatchdogTargetTest",
+      "file_patterns": [
+        "src/.*"
+      ]
+    },
+    {
+      "name": "libwatchdog_test"
+    }
+  ]
+}

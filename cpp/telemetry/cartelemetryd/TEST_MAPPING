@@ -1,7 +1,7 @@
 {
   "auto-presubmit": [
     {
-      "name": "carpowerpolicyserver_test"
+      "name": "cartelemetryd_impl_test"
     }
   ]
 }
