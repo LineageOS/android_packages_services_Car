@@ -18,3 +18,5 @@ PRODUCT_PACKAGES += \
     CarSystemUIDewdUIRRO \
     CarUpdatableDewdRRO \
     CarNotificationDewdRRO \
+
+$(call inherit-product-if-exists, packages/apps/Car/References/scalable-ui/dewd_reference.mk)
