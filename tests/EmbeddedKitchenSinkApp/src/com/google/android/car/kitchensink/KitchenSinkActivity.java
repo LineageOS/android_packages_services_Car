@@ -78,6 +78,7 @@ import com.google.android.car.kitchensink.display.DisplayMirroringFragment;
 import com.google.android.car.kitchensink.display.VirtualDisplayFragment;
 import com.google.android.car.kitchensink.drivemode.DriveModeSwitchFragment;
 import com.google.android.car.kitchensink.experimental.ExperimentalFeatureTestFragment;
+import com.google.android.car.kitchensink.fullscreen.RequestFullScreenFragment;
 import com.google.android.car.kitchensink.hotword.CarMultiConcurrentHotwordTestFragment;
 import com.google.android.car.kitchensink.hvac.HvacTestFragment;
 import com.google.android.car.kitchensink.input.DisplayInputLockTestFragment;
@@ -369,6 +370,7 @@ public class KitchenSinkActivity extends FragmentActivity implements KitchenSink
             new Pair<>("inject key", InjectKeyTestFragment.class),
             new Pair<>("window insets full screen",
                     WindowInsetsFullScreenFragment.class),
+            new Pair<>("request full screen", RequestFullScreenFragment.class),
             new Pair<>("oem car service", OemCarServiceTestFragment.class),
             new Pair<>("Camera2", Camera2TestFragment.class),
             new Pair<>(RadioTestFragment.FRAGMENT_NAME, RadioTestFragment.class),

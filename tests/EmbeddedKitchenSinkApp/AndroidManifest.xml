@@ -488,6 +488,18 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".fullscreen.RequestFullScreenActivity"
+             android:label="@string/request_full_screen_activity"
+             android:exported="true"/>
+
+        <activity android:name=".fullscreen.RequestFullScreenSafeRegionOptOutActivity"
+             android:label="@string/request_full_screen_safe_region_opt_out_activity"
+             android:exported="true">
+            <property
+                android:name="android.window.PROPERTY_COMPAT_ALLOW_SAFE_REGION_LETTERBOXING"
+                android:value="false" />
+        </activity>
+
         <service android:name=".bluetooth.InCallServiceImpl"
                  android:exported="false"
                  android:permission="android.permission.BIND_INCALL_SERVICE">
