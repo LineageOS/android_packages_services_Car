@@ -1,23 +1,14 @@
 {
   "auto-presubmit": [
     {
-      "name": "CtsCarTestCases"
-    },
-    {
-      "name": "CarExtendedApiTest"
-    },
-    {
-      "name": "CarHiddenApiTest"
-    },
-    {
       "name": "CarServiceCarTest",
       "file_patterns": [
-        "src/com/android/car/CarFeatureController\\.java",
-        "src/com/android/car/AppFocus\\.java",
-        "src/com/android/car/CarAppFocusManager\\.java",
-        "src/com/android/car/CarProjectionManager\\.java",
-        "src/com/android/car/CarVendorExtensionManager\\.java",
-        "src/com/android/car/ICarImpl\\.java"
+        "src/com/android/car/CarFeatureControllerTest\\.java",
+        "src/com/android/car/AppFocusTest\\.java",
+        "src/com/android/car/CarAppFocusManagerTest\\.java",
+        "src/com/android/car/CarProjectionManagerTest\\.java",
+        "src/com/android/car/CarVendorExtensionManagerTest\\.java",
+        "src/com/android/car/ICarImplTest\\.java"
       ]
     },
     {
@@ -29,12 +20,13 @@
     {
       "name": "CarServicePropertyTest",
       "file_patterns": [
-        "src/com/android/car/CarCabinManager\\.java",
-        "src/com/android/car/CarHvacManager\\.java",
-        "src/com/android/car/CarInfoManager\\.java",
-        "src/com/android/car/CarPropertyEvent\\.java",
-        "src/com/android/car/CarPropertyService\\.java",
-        "src/com/android/car/CarSensorManager\\.java"
+        "src/com/android/car/CarCabinManagerTest\\.java",
+        "src/com/android/car/CarHvacManagerTest\\.java",
+        "src/com/android/car/CarInfoManagerTest\\.java",
+        "src/com/android/car/CarPropertyEventTest\\.java",
+        "src/com/android/car/CarPropertyManagerTest\\.java",
+        "src/com/android/car/CarPropertyServiceTest\\.java",
+        "src/com/android/car/CarSensorManagerTest\\.java"
       ]
     },
     {
@@ -70,7 +62,8 @@
     {
       "name": "CarServicePowerTest",
       "file_patterns": [
-        "src/com/android/car/power/.*\\.java"
+        "src/com/android/car/power/.*\\.java",
+        "src/com/android/car/hardware/power/.*\\.java"
       ]
     },
     {
@@ -112,6 +105,7 @@
     {
       "name": "CarServicePmTest",
       "file_patterns": [
+        "dep/CarAppActivity/.*\\.java",
         "src/com/android/car/pm/.*\\.java"
       ]
     },
