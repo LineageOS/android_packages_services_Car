@@ -1,7 +1,7 @@
 {
   "auto-presubmit": [
     {
-      "name": "libwatchdog_test"
+      "name": "CarLibPmUnitTest"
     }
   ]
 }

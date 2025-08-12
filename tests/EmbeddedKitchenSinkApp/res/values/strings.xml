@@ -461,6 +461,9 @@
     <string name="dismiss_btn_text" translatable="false">Dismiss</string>
     <string name="edit_text_hint" translatable="false">Placeholder</string>
 
+    <string name="request_full_screen_activity" translatable="false">Request Full Screen Activity</string>
+    <string name="request_full_screen_safe_region_opt_out_activity" translatable="false">Request Full Screen Safe Region Opt Out Activity</string>
+
     <!-- CarTelemetryService Test -->
     <string name="gear_change_config" translatable="false">on_gear_change:</string>
     <string name="process_memory_config" translatable="false">process_memory_state:</string>

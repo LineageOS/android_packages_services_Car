@@ -1,0 +1,13 @@
+{
+  "auto-presubmit": [
+    {
+      "name": "EvsEnumeratorTest"
+    },
+    {
+      "name": "EnumeratorProxyTest"
+    },
+    {
+      "name": "StatsCollectorTest"
+    }
+  ]
+}

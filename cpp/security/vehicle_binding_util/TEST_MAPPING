@@ -1,0 +1,10 @@
+{
+  "auto-presubmit": [
+    {
+      "name": "libvehicle_binding_util_test"
+    },
+    {
+      "name": "vehicle_binding_integration_test"
+    }
+  ]
+}
