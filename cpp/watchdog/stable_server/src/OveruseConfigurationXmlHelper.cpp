@@ -574,7 +574,7 @@ Result<void> writePackageSpecificThresholds(
         return Error() << "Failed to insert new child element with tag '"
                        << kTagPackageSpecificThresholds << "'";
     }
-    for (const auto threshold : thresholds) {
+    for (const auto& threshold : thresholds) {
         if (const auto result = writePerStateThresholds(threshold, childElement); !result.ok()) {
             return Error() << "Failed to write per-state thresholds for '" << threshold.name
                            << "': " << result.error();
@@ -591,7 +591,7 @@ Result<void> writeAppCategorySpecificThresholds(
         return Error() << "Failed to insert new child element with tag '"
                        << kTagAppCategorySpecificThresholds << "'";
     }
-    for (const auto threshold : thresholds) {
+    for (const auto& threshold : thresholds) {
         if (const auto result = writePerStateThresholds(threshold, childElement); !result.ok()) {
             return Error() << "Failed to write per-state thresholds for '" << threshold.name
                            << "': " << result.error();
