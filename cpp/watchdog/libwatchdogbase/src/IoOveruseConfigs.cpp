@@ -651,7 +651,7 @@ std::optional<ResourceOveruseConfiguration> IoOveruseConfigs::get(
 Result<void> IoOveruseConfigs::writeToDisk() {
     std::vector<ResourceOveruseConfiguration> resourceOveruseConfigs;
     get(&resourceOveruseConfigs);
-    for (const auto resourceOveruseConfig : resourceOveruseConfigs) {
+    for (const auto& resourceOveruseConfig : resourceOveruseConfigs) {
         switch (resourceOveruseConfig.componentType) {
             case ComponentType::SYSTEM:
                 if (const auto result =

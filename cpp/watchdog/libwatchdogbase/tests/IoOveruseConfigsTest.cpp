@@ -93,7 +93,7 @@ std::string toString(std::vector<ResourceOveruseConfiguration> configs) {
 std::vector<Matcher<const ResourceOveruseConfiguration&>> ResourceOveruseConfigurationsMatchers(
         const std::vector<ResourceOveruseConfiguration>& configs) {
     std::vector<Matcher<const ResourceOveruseConfiguration&>> matchers;
-    for (const auto config : configs) {
+    for (const auto& config : configs) {
         matchers.push_back(ResourceOveruseConfigurationMatcher(config));
     }
     return matchers;
@@ -1113,7 +1113,7 @@ TEST_F(IoOveruseConfigsTest, TestWriteToDiskFailure) {
 
     mPeer->injectErrorOnWriteXmlFile();
 
-    for (const auto config : resourceOvuerseConfigs) {
+    for (const auto& config : resourceOvuerseConfigs) {
         IoOveruseConfigs ioOveruseConfigs;
 
         ASSERT_RESULT_OK(ioOveruseConfigs.update({config}));
