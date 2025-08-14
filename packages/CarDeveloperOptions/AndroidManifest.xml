@@ -3923,7 +3923,13 @@
             android:exported="false"
             tools:node="merge"
             tools:replace="android:exported">
-        <intent-filter tools:node="removeAll"/>
+            <intent-filter tools:node="removeAll"/>
         </receiver>
+
+        <activity android:name="com.android.settings.biometrics.IdentityCheckNotificationPromoCardActivity"
+            android:enabled="false"
+            android:exported="false"
+            tools:node="merge"
+            tools:replace="android:exported,android:enabled"/>
     </application>
 </manifest>
