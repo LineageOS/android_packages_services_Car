@@ -20,10 +20,19 @@ import android.app.StatsManager;
 import android.content.Context;
 import android.util.IndentingPrintWriter;
 import android.util.Log;
+import android.util.LongSparseArray;
 
 import androidx.annotation.Nullable;
 
+import com.android.internal.os.StatsdConfigProto.Alarm;
+import com.android.internal.os.StatsdConfigProto.PerfettoDetails;
 import com.android.internal.os.StatsdConfigProto.StatsdConfig;
+import com.android.internal.os.StatsdConfigProto.Subscription;
+
+import com.google.common.hash.HashFunction;
+import com.google.common.hash.Hashing;
+import com.google.protobuf.ByteString;
+import com.google.protobuf.InvalidProtocolBufferException;
 
 import perfetto.protos.TraceConfigOuterClass.TraceConfig;
 
@@ -31,6 +40,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -49,16 +59,32 @@ import java.util.concurrent.TimeUnit;
  */
 public class PerfettoController {
     private static final String TAG = "PerfettoController";
+    private static final String TRACE_UNIQUE_SESSION_NAME =
+            "com.google.android.car.kitchensink.perfetto-session";
+    private static final String REPORT_SERVICE_CLASS_NAME =
+            PerfettoReportService.class.getCanonicalName();
     private static final String SAMPLE_KITCHENSINK_TRIGGER_NAME =
             "com.google.android.car.kitchensink.perfetto-sample.trigger.1";
+    private static final String BUGREPORT_FILENAME = "kitchensink_perfetto_aot_trace.pftrace";
     private static final String TRIGGER_COMMAND = "/system/bin/trigger_perfetto";
+
+    private static final long TRACE_RESTART_PERIOD_MS = TimeUnit.MINUTES.toMillis(10);
+    private static final long TRACE_RESTART_OFFSET_MS = TimeUnit.MINUTES.toMillis(1);
+    private static final int TRIGGER_TIMEOUT_MS = (int) TimeUnit.DAYS.toMillis(1);
+    private static final int FLUSH_TIMEOUT_MS = 3000;
+    private static final int INCREMENTAL_STATE_CLEAR_PERIOD_MS = 1000;
+
+    private static final HashFunction HASH_FUNCTION = Hashing.sha256();
+    private static final long CONFIG_ID =
+            HASH_FUNCTION.hashUnencodedChars("kitchensink_perfetto_aot_config").asLong();
+    private static final long ALARM_ID =
+            HASH_FUNCTION.hashUnencodedChars("kitchensink_perfetto_aot_alarm").asLong();
+    private static final long SUBSCRIPTION_ID =
+            HASH_FUNCTION.hashUnencodedChars("kitchensink_perfetto_aot_subscription").asLong();
 
     private final Context mContext;
 
     private static final int TRIGGER_PERFETTO_TIMEOUT_MS = 10000;
-    private long mConfigId;
-    private long mAlarmId;
-    private long mSubscriptionId;
     private StatsdConfig mLastPushedStatsdConfig;
 
     public PerfettoController(Context context) {
@@ -149,13 +175,13 @@ public class PerfettoController {
             return false;
         }
         try {
-            statsManager.removeConfig(mConfigId);
+            statsManager.removeConfig(CONFIG_ID);
         } catch (StatsManager.StatsUnavailableException | NullPointerException e) {
             Log.e(TAG, "Removing statsd config failed", e);
             return false;
         }
 
-        Log.d(TAG, "Removed perfetto field trace config with id: " + mConfigId);
+        Log.d(TAG, "Removed perfetto field trace config with id: " + CONFIG_ID);
         return true;
     }
 
@@ -183,8 +209,32 @@ public class PerfettoController {
 
     private boolean pushPerfettoFieldTraceConfigInternal(TraceConfig.Builder baseConfigBuilder,
             int bufferSizeMultiplier) {
-        // TODO(b/406520911): Implement in a following commit.
-        return false;
+        if (baseConfigBuilder == null) {
+            Log.e(TAG, "Trace config builder is null");
+            return false;
+        }
+        TraceConfig traceConfig =
+                baseConfigBuilder
+                        .mergeFrom(
+                                buildTraceConfigForTriggerPerfetto(
+                                        getMaxBufferSizeKb(baseConfigBuilder,
+                                                bufferSizeMultiplier), mContext.getPackageName()))
+                        .build();
+        if (!pushTraceConfig(traceConfig)) {
+            return false;
+        }
+        return true;
+    }
+
+    private int getMaxBufferSizeKb(TraceConfig.Builder traceConfigBuilder,
+            int bufferSizeMultiplier) {
+        int maxBufferSizeKb = 0;
+        for (TraceConfig.BufferConfig bufferConfig : traceConfigBuilder.getBuffersList()) {
+            if (bufferConfig.getFillPolicy() != TraceConfig.BufferConfig.FillPolicy.UNSPECIFIED) {
+                maxBufferSizeKb += bufferConfig.getSizeKb();
+            }
+        }
+        return maxBufferSizeKb * bufferSizeMultiplier;
     }
 
     private TraceConfig.Builder getDefaultPerfettoFieldTraceConfig() {
@@ -192,8 +242,157 @@ public class PerfettoController {
         return null;
     }
 
+    private boolean pushTraceConfig(TraceConfig traceConfig) {
+        StatsManager statsManager =  mContext.getSystemService(StatsManager.class);
+        if (statsManager == null) {
+            Log.e(TAG, "Could not retrieve StatsManager");
+            return false;
+        }
+
+        // TODO: Next steps:
+        // 1. Test the functionality by shipping a sample trace config.
+        // 2. Touch up:
+        //     * Add UI for the above use cases.
+        //     * Add extensive code documentation and examples (in a README.md) for OEMs use.
+        StatsdConfig statsdConfig =
+                StatsdConfig.newBuilder()
+                        .setId(CONFIG_ID)
+                        .addAlarm(
+                                Alarm.newBuilder()
+                                        .setId(ALARM_ID)
+                                        // Regularly try (re)starting the trace. If a KitchenSink
+                                        // triggered trace is already running, this will correctly
+                                        // fail gracefully because only one trace with a given
+                                        // `TraceConfig.unique_session_name` can be running at
+                                        // any time.
+                                        .setPeriodMillis(TRACE_RESTART_PERIOD_MS)
+                                        // Add an offset to avoid starting the trace immediately
+                                        // after the previous trace is stopped.
+                                        // Otherwise, the second session may be invoked too quickly
+                                        // leading to the trace is not started.
+                                        .setOffsetMillis(TRACE_RESTART_OFFSET_MS))
+                        .addSubscription(
+                                Subscription.newBuilder()
+                                        .setId(SUBSCRIPTION_ID)
+                                        .setRuleType(Subscription.RuleType.ALARM)
+                                        .setRuleId(ALARM_ID)
+                                        // Attach the TraceConfig.
+                                        .setPerfettoDetails(
+                                                PerfettoDetails.newBuilder()
+                                                        .setTraceConfig(
+                                                                ByteString.copyFrom(
+                                                                        traceConfig
+                                                                                .toByteArray()))))
+                        .addAllowedLogSource("AID_SYSTEM")
+                        .build();
+
+        try {
+            // 1. This will result in "ConfigManager This is a duplicate config" if we have already
+            // set the config and we are not making any changes to it, but that is not a problem.
+            // 2. This API call requires the caller to have android.permission.DUMP and
+            // android.permission.PACKAGE_USAGE_STATS permission. These permissions are granted
+            // to KitchenSink.
+            statsManager.addConfig(CONFIG_ID, statsdConfig.toByteArray());
+        } catch (StatsManager.StatsUnavailableException | NullPointerException e) {
+            // In addition to StatsUnavailableException, StatsManager can also throw
+            // NullPointerException internally. This seems to be caused by SELinux blocking access
+            // to statsd when the app is *not* installed as a system-privileged app.
+            Log.e(TAG, "Setting statsd config failed", e);
+            return false;
+        }
+        mLastPushedStatsdConfig = statsdConfig;
+        Log.d(TAG, "Pushed perfetto field trace config with id: " + CONFIG_ID);
+        return true;
+    }
+
+    // Configuration for the integration of Perfetto with statsd and trigger_perfetto.
+    private static TraceConfig buildTraceConfigForTriggerPerfetto(int maxBufferSizeKb,
+                                                                  String reporterPackageName) {
+        return TraceConfig.newBuilder()
+                .setUniqueSessionName(TRACE_UNIQUE_SESSION_NAME)
+                // Configure this trace to be stopped by trigger_perfetto.
+                .setTriggerConfig(
+                        TraceConfig.TriggerConfig.newBuilder()
+                                // This will stop the trace session on receiving the trigger.
+                                // However, the trace collection is restarted once every 10 minutes
+                                // {@link TRACE_RESTART_PERIOD_MS}.
+                                .setTriggerMode(TraceConfig.TriggerConfig.TriggerMode.STOP_TRACING)
+                                // This is an arbitrary large timeout. The trace collection is
+                                // restarted once every 10 minutes {@link TRACE_RESTART_PERIOD_MS}.
+                                // This is a large timeout to avoid the current trace session from
+                                // being stopped before it is restarted.
+                                .setTriggerTimeoutMs(TRIGGER_TIMEOUT_MS)
+                                .addTriggers(
+                                        TraceConfig.TriggerConfig.Trigger.newBuilder()
+                                                .setName(SAMPLE_KITCHENSINK_TRIGGER_NAME))
+                                .setUseCloneSnapshotIfAvailable(true))
+                .setCompressionType(TraceConfig.CompressionType.COMPRESSION_TYPE_DEFLATE)
+                // Reduce the global tracing buffer memory footprint, so the overall memory overhead
+                // is minimal. The actual trace config should consider this limit when setting
+                // the data sources and their buffer sizes. Otherwise, the trace may be truncated
+                // and may not contain any useful data.
+                .setGuardrailOverrides(
+                        TraceConfig.GuardrailOverrides.newBuilder()
+                                .setMaxTracingBufferSizeKb(maxBufferSizeKb))
+                .setFlushTimeoutMs(FLUSH_TIMEOUT_MS)
+                .setBuiltinDataSources(
+                        TraceConfig.BuiltinDataSource.newBuilder()
+                                .setPreferSuspendClockForSnapshot(true))
+                .setIncrementalStateConfig(
+                        TraceConfig.IncrementalStateConfig.newBuilder()
+                                .setClearPeriodMs(INCREMENTAL_STATE_CLEAR_PERIOD_MS))
+                .setBugreportScore(5)
+                .setBugreportFilename(BUGREPORT_FILENAME)
+                .setAndroidReportConfig(
+                        TraceConfig.AndroidReportConfig.newBuilder()
+                                .setReporterServicePackage(reporterPackageName)
+                                .setReporterServiceClass(REPORT_SERVICE_CLASS_NAME))
+                .build();
+    }
+
     private void printStatsdConfig(
             StatsdConfig.Builder statsdConfigBuilder, IndentingPrintWriter writer) {
-        // TODO(b/406520911): Implement in a following commit.
+        List<Subscription> subscriptions = statsdConfigBuilder.getSubscriptionList();
+        statsdConfigBuilder.clearSubscription();
+
+        LongSparseArray<TraceConfig> traceConfigs = new LongSparseArray<>(subscriptions.size());
+        for (Subscription subscription : subscriptions) {
+            Subscription.Builder subscriptionBuilder = subscription.toBuilder();
+            PerfettoDetails.Builder perfettoDetailsBuilder =
+                    subscriptionBuilder.getPerfettoDetails().toBuilder();
+            try {
+                traceConfigs.append(
+                        subscriptionBuilder.getId(),
+                        TraceConfig.parseFrom(perfettoDetailsBuilder.getTraceConfig()));
+            } catch (InvalidProtocolBufferException e) {
+                Log.e(
+                        TAG,
+                        "Failed to parse trace config for subscription id "
+                                + subscriptionBuilder.getId(),
+                        e);
+            }
+            perfettoDetailsBuilder.clearTraceConfig();
+            subscriptionBuilder.setPerfettoDetails(perfettoDetailsBuilder);
+            statsdConfigBuilder.addSubscription(subscriptionBuilder);
+        }
+
+        writer.increaseIndent();
+        writer.println("=======================================================================");
+        writer.println("StatsdConfig: \n" + statsdConfigBuilder.build().toString());
+
+        writer.increaseIndent();
+        writer.println("------------------------------------");
+        writer.println("TraceConfigs from all subscriptions");
+        writer.println("------------------------------------");
+        for (int i = 0; i < traceConfigs.size(); i++) {
+            writer.println(
+                    "TraceConfig from subscription id '"
+                            + traceConfigs.keyAt(i)
+                            + "'\n"
+                            + traceConfigs.valueAt(i).toString());
+        }
+        writer.decreaseIndent();
+        writer.println("=======================================================================\n");
+        writer.decreaseIndent();
     }
 }
