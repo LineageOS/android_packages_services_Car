@@ -256,8 +256,10 @@
     <!-- use for BiometricPromptTestFragment to test the API -->
     <uses-permission android:name="android.permission.USE_BIOMETRIC"/>
 
-    <!-- To view dumpsys output -->
+    <!-- To view dumpsys output & access statsd APIs-->
     <uses-permission android:name="android.permission.DUMP"/>
+    <!-- To access statsd APIs -->
+    <uses-permission android:name="android.permission.PACKAGE_USAGE_STATS"/>
 
     <!-- To access Camera2 -->
     <uses-permission android:name="android.permission.CAMERA"/>
@@ -519,6 +521,12 @@
                 <action android:name="android.car.remoteaccess.RemoteTaskClientService" />
             </intent-filter>
         </service>
+
+        <service android:name=".perfetto.PerfettoReportService"
+                 android:exported="true"
+                 android:singleUser="false"
+                 android:permission="android.permission.BIND_TRACE_REPORT_SERVICE"/>
+
         <receiver
             android:name=".radio.AlertNotificationReceiver"
             android:exported="false">
