@@ -18,6 +18,7 @@ package com.google.android.car.kitchensink.perfetto;
 
 import android.app.StatsManager;
 import android.content.Context;
+import android.os.Build;
 import android.util.IndentingPrintWriter;
 import android.util.Log;
 import android.util.LongSparseArray;
@@ -67,6 +68,10 @@ public class PerfettoController {
             "com.google.android.car.kitchensink.perfetto-sample.trigger.1";
     private static final String BUGREPORT_FILENAME = "kitchensink_perfetto_aot_trace.pftrace";
     private static final String TRIGGER_COMMAND = "/system/bin/trigger_perfetto";
+    private static final String BASE_TRIGGER_CONFIG = "base_perfetto_trigger_config.pb";
+    private static final String DEFAULT_TRACE_CONFIG = "default_perfetto_trace_config.pb";
+    private static final String DEFAULT_A13_TRACE_CONFIG = "default_perfetto_trace_config_a13.pb";
+    private static final String DEFAULT_A14_TRACE_CONFIG = "default_perfetto_trace_config_a14.pb";
 
     private static final long TRACE_RESTART_PERIOD_MS = TimeUnit.MINUTES.toMillis(10);
     private static final long TRACE_RESTART_OFFSET_MS = TimeUnit.MINUTES.toMillis(1);
@@ -238,8 +243,36 @@ public class PerfettoController {
     }
 
     private TraceConfig.Builder getDefaultPerfettoFieldTraceConfig() {
-        // TODO(b/406520911): Implement in a following commit.
-        return null;
+        TraceConfig traceConfig = getTraceConfigFromAsset(getDefaultTraceConfigFileName());
+        if (traceConfig == null) {
+            Log.e(TAG, "Failed to read default perfetto trace config from resource");
+            return null;
+        }
+        TraceConfig triggerConfig = getTraceConfigFromAsset(BASE_TRIGGER_CONFIG);
+        if (triggerConfig == null) {
+            Log.e(TAG, "Failed to read perfetto trigger config from resource");
+            return null;
+        }
+        return traceConfig.toBuilder().mergeFrom(triggerConfig);
+    }
+
+    private TraceConfig getTraceConfigFromAsset(String assetName) {
+        try (InputStream inputStream = mContext.getAssets().open(assetName)) {
+            return TraceConfig.parseFrom(inputStream);
+        } catch (IOException e) {
+            Log.e(TAG, "Failed to read perfetto trace config from asset: " + assetName, e);
+            return null;
+        }
+    }
+
+    private String getDefaultTraceConfigFileName() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+            return DEFAULT_TRACE_CONFIG;
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            return DEFAULT_A14_TRACE_CONFIG;
+        } else {
+            return DEFAULT_A13_TRACE_CONFIG;
+        }
     }
 
     private boolean pushTraceConfig(TraceConfig traceConfig) {

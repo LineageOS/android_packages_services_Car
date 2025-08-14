@@ -1,0 +1,239 @@
+# Copyright (C) 2025 The Android Open Source Project
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# proto-file: external/perfetto/protos/perfetto/config/trace_config.proto
+# proto-message: TraceConfig
+
+# This config is intended to be used on android version 13 and above.
+
+# Note: This config only contains data sources that support multiple concurrent tracing sessions.
+# This ensures that the perfetto tracing session started with this config won't lead to the current
+# session or another concurrent session missing data from data sources that don't support
+# multiple concurrent tracing sessions. For more information on this, please refer to
+# https://perfetto.dev/docs/concepts/concurrent-tracing-sessions.
+buffers {
+  size_kb: 512
+  fill_policy: RING_BUFFER
+}
+buffers {
+  size_kb: 4096
+  fill_policy: RING_BUFFER
+}
+buffers {
+  size_kb: 128
+  fill_policy: RING_BUFFER
+}
+buffers {
+  size_kb: 28608
+  fill_policy: RING_BUFFER
+}
+data_sources {
+  config {
+    name: "android.packages_list"
+    target_buffer: 0
+  }
+}
+data_sources {
+  config {
+    name: "linux.process_stats"
+    target_buffer: 1
+    process_stats_config {
+      scan_all_processes_on_start: true
+    }
+  }
+}
+data_sources {
+  config {
+    name: "linux.sys_stats"
+    target_buffer: 2
+    sys_stats_config {
+      meminfo_period_ms: 1000
+      meminfo_counters: MEMINFO_ACTIVE_ANON
+      meminfo_counters: MEMINFO_ACTIVE_FILE
+      meminfo_counters: MEMINFO_INACTIVE_ANON
+      meminfo_counters: MEMINFO_INACTIVE_FILE
+      meminfo_counters: MEMINFO_KERNEL_STACK
+      meminfo_counters: MEMINFO_MLOCKED
+      meminfo_counters: MEMINFO_SHMEM
+      meminfo_counters: MEMINFO_SLAB
+      meminfo_counters: MEMINFO_SLAB_UNRECLAIMABLE
+      meminfo_counters: MEMINFO_VMALLOC_USED
+      meminfo_counters: MEMINFO_MEM_FREE
+      meminfo_counters: MEMINFO_SWAP_FREE
+      vmstat_period_ms: 1000
+      vmstat_counters: VMSTAT_PGFAULT
+      vmstat_counters: VMSTAT_PGMAJFAULT
+      vmstat_counters: VMSTAT_PGFREE
+      vmstat_counters: VMSTAT_PGPGIN
+      vmstat_counters: VMSTAT_PGPGOUT
+      vmstat_counters: VMSTAT_PSWPIN
+      vmstat_counters: VMSTAT_PSWPOUT
+      vmstat_counters: VMSTAT_PGSCAN_DIRECT
+      vmstat_counters: VMSTAT_PGSTEAL_DIRECT
+      vmstat_counters: VMSTAT_PGSCAN_KSWAPD
+      vmstat_counters: VMSTAT_PGSTEAL_KSWAPD
+      vmstat_counters: VMSTAT_WORKINGSET_REFAULT
+    }
+  }
+}
+data_sources {
+  config {
+    name: "linux.process_stats"
+    target_buffer: 2
+    process_stats_config {
+      quirks: DISABLE_ON_DEMAND
+      proc_stats_poll_ms: 30000
+    }
+  }
+}
+data_sources {
+  config {
+    name: "android.surfaceflinger.frametimeline"
+    target_buffer: 3
+  }
+}
+data_sources {
+  config {
+    name: "linux.ftrace"
+    target_buffer: 3
+    ftrace_config {
+      ftrace_events: "ftrace/print"
+      ftrace_events: "lowmemorykiller/lowmemory_kill"
+      ftrace_events: "oom/oom_score_adj_update"
+      ftrace_events: "oom/mark_victim"
+      ftrace_events: "gpu_mem/gpu_mem_total"
+      ftrace_events: "dmabuf_heap/dma_heap_stat"
+      ftrace_events: "ion/ion_stat"
+      ftrace_events: "kmem/ion_heap_grow"
+      ftrace_events: "kmem/ion_heap_shrink"
+      ftrace_events: "rss_stat"
+      ftrace_events: "fastrpc/fastrpc_dma_stat"
+      ftrace_events: "power/suspend_resume"
+      ftrace_events: "sched/sched_blocked_reason"
+      ftrace_events: "sched/sched_process_free"
+      ftrace_events: "sched/sched_switch"
+      ftrace_events: "task/task_newtask"
+      ftrace_events: "task/task_rename"
+      ftrace_events: "power/wakeup_source_activate"
+      ftrace_events: "power/wakeup_source_deactivate"
+      ftrace_events: "sched/sched_waking"
+      ftrace_events: "sched/sched_wakeup_new"
+      ftrace_events: "workqueue/workqueue_activate_work"
+      ftrace_events: "workqueue/workqueue_execute_end"
+      ftrace_events: "workqueue/workqueue_execute_start"
+      ftrace_events: "workqueue/workqueue_queue_work"
+      ftrace_events: "vmscan/mm_vmscan_kswapd_wake"
+      ftrace_events: "vmscan/mm_vmscan_kswapd_sleep"
+      ftrace_events: "vmscan/mm_vmscan_direct_reclaim_begin"
+      ftrace_events: "vmscan/mm_vmscan_direct_reclaim_end"
+      ftrace_events: "compaction/mm_compaction_begin"
+      ftrace_events: "compaction/mm_compaction_end"
+      ftrace_events: "cma/cma_alloc_start"
+      ftrace_events: "cma/cma_alloc_info"
+      ftrace_events: "f2fs/f2fs_iostat"
+      ftrace_events: "f2fs/f2fs_iostat_latency"
+      ftrace_events: "f2fs/f2fs_background_gc"
+      ftrace_events: "f2fs/f2fs_gc_begin"
+      ftrace_events: "f2fs/f2fs_gc_end"
+      ftrace_events: "f2fs/f2fs_sync_fs"
+      ftrace_events: "binder/binder_command"
+      ftrace_events: "binder/binder_return"
+      atrace_categories: "am"
+      atrace_categories: "camera"
+      atrace_categories: "ss"
+      atrace_categories: "dalvik"
+      atrace_categories: "bionic"
+      atrace_categories: "aidl"
+      atrace_categories: "audio"
+      atrace_categories: "binder_driver"
+      atrace_categories: "disk"
+      atrace_categories: "freq"
+      atrace_categories: "gfx"
+      atrace_categories: "hal"
+      atrace_categories: "input"
+      atrace_categories: "res"
+      atrace_categories: "sched"
+      atrace_categories: "view"
+      atrace_categories: "wm"
+      atrace_categories: "thermal"
+      atrace_apps: "lmkd"
+      atrace_apps: "android.car.cluster"
+      atrace_apps: "android.car.usb.handler"
+      atrace_apps: "android.process.acore"
+      atrace_apps: "android:ui"
+      atrace_apps: "com.android.systemui"
+      atrace_apps: "com.android.camera2"
+      atrace_apps: "lmkd"
+      atrace_apps: "system_server"
+      atrace_apps: "com.android.car.carlauncher"
+      atrace_apps: "com.android.car.cartelemetryapp"
+      atrace_apps: "com.android.car.castreceiver"
+      atrace_apps: "com.android.car.dialer"
+      atrace_apps: "com.android.car.media"
+      atrace_apps: "com.android.car.messenger"
+      atrace_apps: "com.android.car.radio"
+      atrace_apps: "com.android.car.rotary"
+      atrace_apps: "com.android.car.settings"
+      atrace_apps: "com.android.chrome"
+      atrace_apps: "com.android.companiondevicemanager"
+      atrace_apps: "com.android.managedprovisioning"
+      atrace_apps: "com.android.networkstack.process"
+      atrace_apps: "com.android.vending"
+      atrace_apps: "com.google.android.apps.automotive.youtube"
+      atrace_apps: "com.google.android.apps.automotive.inputmethod"
+      atrace_apps: "com.google.android.apps.automotive.sensing.sensorreplay.recordingapp"
+      atrace_apps: "com.google.android.apps.automotive.templates.host"
+      atrace_apps: "com.google.android.apps.books"
+      atrace_apps: "com.google.android.apps.geo.autograph.vms.client.console.car"
+      atrace_apps: "com.google.android.apps.geo.autograph.vms.client.playback"
+      atrace_apps: "com.google.android.apps.geo.automotive.adas"
+      atrace_apps: "com.google.android.apps.geo.vms.analyzer"
+      atrace_apps: "com.google.android.apps.maps"
+      atrace_apps: "com.google.android.apps.mediashell"
+      atrace_apps: "com.google.android.apps.youtube.music"
+      atrace_apps: "com.google.android.bluetooth"
+      atrace_apps: "com.google.android.car.adaslocation"
+      atrace_apps: "com.google.android.car.defaultstoragemonitoringcompanionapp"
+      atrace_apps: "com.google.android.car.evs"
+      atrace_apps: "com.google.android.car.netdbug"
+      atrace_apps: "com.google.android.car.networking"
+      atrace_apps: "com.google.android.car.setupwizard"
+      atrace_apps: "com.google.android.carassistant"
+      atrace_apps: "com.google.android.cellbroadcastservice"
+      atrace_apps: "com.google.android.companiondevicesupport"
+      atrace_apps: "com.google.android.embedded.projection"
+      atrace_apps: "com.google.android.gms"
+      atrace_apps: "com.google.android.gms.persistent"
+      atrace_apps: "com.google.android.gsf"
+      atrace_apps: "com.google.android.packageinstaller"
+      atrace_apps: "com.google.android.permissioncontroller"
+      atrace_apps: "com.google.android.providers.media.module"
+      atrace_apps: "com.google.android.software.cast_receiver"
+      atrace_apps: "com.google.android.tts"
+      atrace_apps: "com.google.android.webview"
+      atrace_apps: "com.waze"
+      buffer_size_kb: 4096
+      compact_sched {
+        enabled: true
+      }
+      symbolize_ksyms: true
+      throttle_rss_stat: true
+      disable_generic_events: true
+    }
+  }
+}
+
+trace_filter {
+  bytecode: "\v\001\022\004\000\vN\023\002\031#\a3\t;\nAK\005Q[\rcei\212\002\004\253\0020\263\002\004\303\0024\312\002\002\333\002K\343\002L\353\0025\363\002\004\373\0026\213\003#\233\0037\263\003\b\303\003:\321\003\333\003g\343\003J\353\003F\203\004H\223\004<\233\004=\253\004?\263\004\v\343\004A\371\004\203\005C\241\005\263\005D\271\005\303\005;\313\005\v\333\005E\343\005V\363\005W\203\006^\213\006_\221\006\303\006#\313\006`\333\006a\363\006\v\213\a\004\223\a\f\233\ac\243\ad\273\a\b\000\v\003\023\004\031\000\n\003#\004*\005\000\n\004\000\v\006\021\000\n\n[\004\252\001\002\000\n\002\033\b\000\n\003\000\v\004\021\000\v\v\023\v\033\f\"\0023\v9C\vIS\vYs\v\000\n\002\000\n\b\000\n\003+\0163\033B\005\202\001\002\241\001\262\001\002\303\001\017\313\001\030\323\001\016\333\001\v\343\001\031\362\001\002\203\002\032\213\002\004\221\002\233\002\v\263\002\025\273\002\016\303\002\b\333\002\016\372\002\002\213\003\016\313>\v\323>\b\333>\v\343>\034\353>\035\363>\016\373>\016\203?\004\213?\v\223?\036\233?\037\243? \253?\021\263?\016\273?\b\303?\016\313?\034\323?\030\333?!\343?\021\353?#\363?$\373?\016\203@\v\213@\b\243@&\273@\021\303@\'\313@\v\323@\"\341@\363@\v\373@(\203A\v\213A\b\263A\b\273A)\303A\032\313A)\323A\025\333A\021\343A,\373A*\233B+\323B#\333B.\343B/\373B\v\243C\016\212}\003\243}\004\000\t\000\v\020\022\fs\023{\026\203\001\027\213\001\025\000\v\021\023\022\000\n\005\000\n.\000\n\003#\024+\0243\025\000\n\tS\004\000\n\a\000\t\023\024\000\n\003#\024\000\021\000\t\031\000\n\v\000\n\0041B\b\222\001\002\000\n\002\"\003\000\022\003\000\n\0031\000\t\031*\002\000\t\031#\v\000\n\006;\"\000\n\002\033 \000\n\006\000\v%\000\t\023#\000\0311a\000\n\002\"\006\000\n\n\000\n\016\000\v\v\023\v\033\v\"\003\000\n\002*\006\000\t\023\v\031#-*\002B\003\000\n\002\033\v\000\n\002\033\v!+\v\000\n\003#\v*\006\000\v\v\023\004\033\v#\f+12\002\000\t\023#\032\002+22\t\000\n\003#3*\002\000\v\b\000\v\004\023\b\000\v\004\022\016\000\v\021\022\002\000\v8\022\002#\v\000\v9\0239\000\t\023\b\033\016\000\t\023;\033\v#\v*\002;\vC\vK\f\000\n\t\000\n\006\202\001\003\233\001\016\000\v>\000\n\003#\021)\000\n\006;@C@J\003\000\v\v\000\v\b\023;\033\021#B+\016\000\n\f\000\n\rs\004\000\v\v\000\v\004\023\021\000\n\002\033G\000\t\023\b\000\n\002\033I\000\n\002\033\v#\v\000\t\033K#L)3\021;\vCMJ\002i\000\t\032\0039\000\n\0042\003\000\t\032\003\000\t\023O\031#BC\vJ\002\201 \000\n\002\033\030#\025[\vc\bk\vs\b{\b\203\001\b\213\001\021\223\001\b\233\001\b\243\001\021\233\002\021\313\002\021\323\002\021\333\002\004\343\002\b\353\002\025\363\002\b\373\002\016\203\003\v\213\003\016\223\003\025\233\003\016\243\003\021\253\003P\263\003P\273\003P\303\003\016\313\003\016\323\003\v\333\003\021\233\004\021\243\004\b\253\004\v\263\004\b\273\004\004\303\004\v\313\004\b\323\004\b\333\004\v\343\004\v\353\004\004\373\004Q\203\005\b\213\005\004\223\005\f\233\005\021\253\005\v\273\005\025\303\005\b\323\005\016\353\005\v\373\005\b\233\006\021\273\006#\213\a\b\223\a\021\353\a#\313\t\b\323\t\025\363\v\v\333\016\004\343\016\004\353\016\b\363\016\004\373\016\004\203\017\b\213\017\v\223\017\b\263\017#\303\017\f\373\017\f\203\020\021\213\020\b\373\020\021\213\021\021\313\023\004\323\023\b\333\023\b\203\024\016\213\024\016\223\024\v\233\024\b\263\024\b\333\024\004\343\024\v\353\024\021\363\024\016\373\024\b\223\025\b\243\025\b\253\025\004\273\025\004\313\025\004\333\025\b\343\025#\353\025R\363\025\004\373\025\b\203\026\004\213\026\004\223\026\b\233\026\f\243\026B\253\026#\263\026\004\273\026\004\303\026\b\313\026\004\243\031\v\253\031\v\263\031(\233\032S\243\032T\333\033\032\343\033\025\353\033\004\363\033\016\213\034\b\223\034\021\213\035\b\223\035(\233\035\021\213\036\016\253\036\016\263\036\016\303\036\021\323\036#\333\036\025\373\036\004\203\037U\213\037\032\303\037\021\313\037\b\323!\016\333!\v\343!\021\363!\v\373!\b\203$#\213$#\000\000\n\020\000\t\"\003\000\n\027\000\n\034\000\n\r\000\t\023;\032\005\000\n\002\033X#\025)3\\:\003S]\000\n\006;YC\\I\000\n\n[\004b\005\213\001\b\223\001Z\232\001\002\253\001\004\263\001\f\272\001\002\313\001\016\323\001(\333\001[\342\001\f\303\002\004\313\002\004\321\002\000\023\004\000\n\002\033Z\"\006S\004[#a\000\n\0053\004;\004B\002\000\n\004+#3#:\006\000\n\rs\004z\003\000\v\v\000\v\021\023\b\000\vb\000\023\t\033\t\000\v\b\022\003\000\n\002\033#!\000\v\v\023\v#\004+\v3\004;\v\203\001\v\213\001\v\223\001\v\233\001\f\323\001\v\343\001\b\363\001f\323\002#\000\t\023;\000[hci\321\003\000Y\371\001\000\vj\022\002#k\000\n\002\033\v!+\0041R\002\000\t\023\v\033\004!\000\323\217\347\310\r"
+}

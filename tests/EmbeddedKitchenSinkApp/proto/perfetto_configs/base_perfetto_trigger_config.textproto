@@ -1,0 +1,626 @@
+# Copyright (C) 2025 The Android Open Source Project
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# proto-file: external/perfetto/protos/perfetto/config/trace_config.proto
+# proto-message: TraceConfig
+
+# This config only contains the trigger_config message from the TraceConfig proto. This config is
+# intended to be merged with another TraceConfig message containing data sources
+# and buffer messages.
+
+trigger_config {
+  trigger_mode: STOP_TRACING
+  triggers {
+    name: "com.android.telemetry.interaction-jank-monitor-0"
+    stop_delay_ms: 0
+    max_per_24_h: 5
+    skip_probability: 0.5
+  }
+  triggers {
+    name: "com.android.telemetry.interaction-jank-monitor-1"
+    stop_delay_ms: 0
+    max_per_24_h: 5
+    skip_probability: 0.5
+  }
+  triggers {
+    name: "com.android.telemetry.interaction-jank-monitor-2"
+    stop_delay_ms: 0
+    max_per_24_h: 5
+    skip_probability: 0.5
+  }
+  triggers {
+    name: "com.android.telemetry.interaction-jank-monitor-3"
+    stop_delay_ms: 0
+    max_per_24_h: 5
+    skip_probability: 0.5
+  }
+  triggers {
+    name: "com.android.telemetry.interaction-jank-monitor-4"
+    stop_delay_ms: 0
+    max_per_24_h: 5
+    skip_probability: 0.5
+  }
+  triggers {
+    name: "com.android.telemetry.interaction-jank-monitor-5"
+    stop_delay_ms: 0
+    max_per_24_h: 10
+  }
+  triggers {
+    name: "com.android.telemetry.interaction-jank-monitor-6"
+    stop_delay_ms: 0
+    max_per_24_h: 5
+    skip_probability: 0.5
+  }
+  triggers {
+    name: "com.android.telemetry.interaction-jank-monitor-7"
+    stop_delay_ms: 0
+    max_per_24_h: 5
+    skip_probability: 0.5
+  }
+  triggers {
+    name: "com.android.telemetry.interaction-jank-monitor-8"
+    stop_delay_ms: 0
+    max_per_24_h: 5
+    skip_probability: 0.5
+  }
+  triggers {
+    name: "com.android.telemetry.interaction-jank-monitor-9"
+    stop_delay_ms: 0
+    max_per_24_h: 5
+    skip_probability: 0.5
+  }
+  triggers {
+    name: "com.android.telemetry.interaction-jank-monitor-10"
+    stop_delay_ms: 0
+    max_per_24_h: 5
+    skip_probability: 0.5
+  }
+  triggers {
+    name: "com.android.telemetry.interaction-jank-monitor-11"
+    stop_delay_ms: 0
+    max_per_24_h: 5
+    skip_probability: 0.5
+  }
+  triggers {
+    name: "com.android.telemetry.interaction-jank-monitor-12"
+    stop_delay_ms: 0
+    max_per_24_h: 5
+    skip_probability: 0.5
+  }
+  triggers {
+    name: "com.android.telemetry.interaction-jank-monitor-13"
+    stop_delay_ms: 0
+    max_per_24_h: 5
+    skip_probability: 0.5
+  }
+  triggers {
+    name: "com.android.telemetry.interaction-jank-monitor-14"
+    stop_delay_ms: 0
+    max_per_24_h: 5
+    skip_probability: 0.5
+  }
+  triggers {
+    name: "com.android.telemetry.interaction-jank-monitor-15"
+    stop_delay_ms: 0
+    max_per_24_h: 5
+    skip_probability: 0.5
+  }
+  triggers {
+    name: "com.android.telemetry.interaction-jank-monitor-16"
+    stop_delay_ms: 0
+    max_per_24_h: 10
+  }
+  triggers {
+    name: "com.android.telemetry.interaction-jank-monitor-17"
+    stop_delay_ms: 0
+    max_per_24_h: 5
+    skip_probability: 0.5
+  }
+  triggers {
+    name: "com.android.telemetry.interaction-jank-monitor-18"
+    stop_delay_ms: 0
+    max_per_24_h: 5
+    skip_probability: 0.5
+  }
+  triggers {
+    name: "com.android.telemetry.interaction-jank-monitor-19"
+    stop_delay_ms: 0
+    max_per_24_h: 5
+    skip_probability: 0.5
+  }
+  triggers {
+    name: "com.android.telemetry.interaction-jank-monitor-20"
+    stop_delay_ms: 0
+    max_per_24_h: 10
+  }
+  triggers {
+    name: "com.android.telemetry.interaction-jank-monitor-21"
+    stop_delay_ms: 0
+    max_per_24_h: 5
+    skip_probability: 0.5
+  }
+  triggers {
+    name: "com.android.telemetry.interaction-jank-monitor-22"
+    stop_delay_ms: 0
+    max_per_24_h: 5
+    skip_probability: 0.5
+  }
+  triggers {
+    name: "com.android.telemetry.interaction-jank-monitor-23"
+    stop_delay_ms: 0
+    max_per_24_h: 5
+    skip_probability: 0.5
+  }
+  triggers {
+    name: "com.android.telemetry.interaction-jank-monitor-24"
+    stop_delay_ms: 0
+    max_per_24_h: 5
+    skip_probability: 0.5
+  }
+  triggers {
+    name: "com.android.telemetry.interaction-jank-monitor-25"
+    stop_delay_ms: 0
+    max_per_24_h: 5
+    skip_probability: 0.5
+  }
+  triggers {
+    name: "com.android.telemetry.interaction-jank-monitor-26"
+    stop_delay_ms: 0
+    max_per_24_h: 5
+    skip_probability: 0.5
+  }
+  triggers {
+    name: "com.android.telemetry.interaction-jank-monitor-27"
+    stop_delay_ms: 0
+    max_per_24_h: 5
+    skip_probability: 0.5
+  }
+  triggers {
+    name: "com.android.telemetry.interaction-jank-monitor-28"
+    stop_delay_ms: 0
+    max_per_24_h: 5
+    skip_probability: 0.5
+  }
+  triggers {
+    name: "com.android.telemetry.interaction-jank-monitor-29"
+    stop_delay_ms: 0
+    max_per_24_h: 5
+    skip_probability: 0.5
+  }
+  triggers {
+    name: "com.android.telemetry.interaction-jank-monitor-30"
+    stop_delay_ms: 0
+    max_per_24_h: 5
+    skip_probability: 0.5
+  }
+  triggers {
+    name: "com.android.telemetry.interaction-jank-monitor-31"
+    stop_delay_ms: 0
+    max_per_24_h: 5
+    skip_probability: 0.5
+  }
+  triggers {
+    name: "com.android.telemetry.interaction-jank-monitor-32"
+    stop_delay_ms: 0
+    max_per_24_h: 5
+    skip_probability: 0.5
+  }
+  triggers {
+    name: "com.android.telemetry.interaction-jank-monitor-33"
+    stop_delay_ms: 0
+    max_per_24_h: 5
+    skip_probability: 0.5
+  }
+  triggers {
+    name: "com.android.telemetry.interaction-jank-monitor-34"
+    stop_delay_ms: 0
+    max_per_24_h: 5
+    skip_probability: 0.5
+  }
+  triggers {
+    name: "com.android.telemetry.interaction-jank-monitor-35"
+    stop_delay_ms: 0
+    max_per_24_h: 5
+    skip_probability: 0.5
+  }
+  triggers {
+    name: "com.android.telemetry.interaction-jank-monitor-36"
+    stop_delay_ms: 0
+    max_per_24_h: 5
+    skip_probability: 0.5
+  }
+  triggers {
+    name: "com.android.telemetry.interaction-jank-monitor-37"
+    stop_delay_ms: 0
+    max_per_24_h: 5
+    skip_probability: 0.5
+  }
+  triggers {
+    name: "com.android.telemetry.interaction-jank-monitor-38"
+    stop_delay_ms: 0
+    max_per_24_h: 5
+    skip_probability: 0.5
+  }
+  triggers {
+    name: "com.android.telemetry.interaction-jank-monitor-39"
+    stop_delay_ms: 0
+    max_per_24_h: 5
+    skip_probability: 0.5
+  }
+  triggers {
+    name: "com.android.telemetry.interaction-jank-monitor-40"
+    stop_delay_ms: 0
+    max_per_24_h: 5
+    skip_probability: 0.5
+  }
+  triggers {
+    name: "com.android.telemetry.interaction-jank-monitor-41"
+    stop_delay_ms: 0
+    max_per_24_h: 5
+    skip_probability: 0.5
+  }
+  triggers {
+    name: "com.android.telemetry.interaction-jank-monitor-42"
+    stop_delay_ms: 0
+    max_per_24_h: 5
+    skip_probability: 0.5
+  }
+  triggers {
+    name: "com.android.telemetry.interaction-jank-monitor-43"
+    stop_delay_ms: 0
+    max_per_24_h: 5
+    skip_probability: 0.5
+  }
+  triggers {
+    name: "com.android.telemetry.interaction-jank-monitor-44"
+    stop_delay_ms: 0
+    max_per_24_h: 5
+    skip_probability: 0.5
+  }
+  triggers {
+    name: "com.android.telemetry.interaction-jank-monitor-45"
+    stop_delay_ms: 0
+    max_per_24_h: 5
+    skip_probability: 0.5
+  }
+  triggers {
+    name: "com.android.telemetry.interaction-jank-monitor-46"
+    stop_delay_ms: 0
+    max_per_24_h: 5
+    skip_probability: 0.5
+  }
+  triggers {
+    name: "com.android.telemetry.interaction-jank-monitor-47"
+    stop_delay_ms: 0
+    max_per_24_h: 5
+    skip_probability: 0.5
+  }
+  triggers {
+    name: "com.android.telemetry.interaction-jank-monitor-48"
+    stop_delay_ms: 0
+    max_per_24_h: 5
+    skip_probability: 0.5
+  }
+  triggers {
+    name: "com.android.telemetry.interaction-jank-monitor-49"
+    stop_delay_ms: 0
+    max_per_24_h: 5
+    skip_probability: 0.5
+  }
+  triggers {
+    name: "com.android.telemetry.interaction-jank-monitor-50"
+    stop_delay_ms: 0
+    max_per_24_h: 5
+    skip_probability: 0.5
+  }
+  triggers {
+    name: "com.android.telemetry.interaction-jank-monitor-51"
+    stop_delay_ms: 0
+    max_per_24_h: 5
+    skip_probability: 0.5
+  }
+  triggers {
+    name: "com.android.telemetry.interaction-jank-monitor-52"
+    stop_delay_ms: 0
+    max_per_24_h: 5
+    skip_probability: 0.5
+  }
+  triggers {
+    name: "com.android.telemetry.interaction-jank-monitor-53"
+    stop_delay_ms: 0
+    max_per_24_h: 5
+    skip_probability: 0.5
+  }
+  triggers {
+    name: "com.android.telemetry.interaction-jank-monitor-54"
+    stop_delay_ms: 0
+    max_per_24_h: 5
+    skip_probability: 0.5
+  }
+  triggers {
+    name: "com.android.telemetry.interaction-jank-monitor-55"
+    stop_delay_ms: 0
+    max_per_24_h: 5
+    skip_probability: 0.5
+  }
+  triggers {
+    name: "com.android.telemetry.interaction-jank-monitor-56"
+    stop_delay_ms: 0
+    max_per_24_h: 5
+    skip_probability: 0.5
+  }
+  triggers {
+    name: "com.android.telemetry.interaction-jank-monitor-57"
+    stop_delay_ms: 0
+    max_per_24_h: 5
+    skip_probability: 0.5
+  }
+  triggers {
+    name: "com.android.telemetry.interaction-jank-monitor-58"
+    stop_delay_ms: 0
+    max_per_24_h: 5
+    skip_probability: 0.5
+  }
+  triggers {
+    name: "com.android.telemetry.interaction-jank-monitor-59"
+    stop_delay_ms: 0
+    max_per_24_h: 5
+    skip_probability: 0.5
+  }
+  triggers {
+    name: "com.android.telemetry.interaction-jank-monitor-60"
+    stop_delay_ms: 0
+    max_per_24_h: 5
+    skip_probability: 0.5
+  }
+  triggers {
+    name: "com.android.telemetry.interaction-jank-monitor-61"
+    stop_delay_ms: 0
+    max_per_24_h: 5
+    skip_probability: 0.5
+  }
+  triggers {
+    name: "com.android.telemetry.interaction-jank-monitor-62"
+    stop_delay_ms: 0
+    max_per_24_h: 5
+    skip_probability: 0.5
+  }
+  triggers {
+    name: "com.android.telemetry.interaction-jank-monitor-63"
+    stop_delay_ms: 0
+    max_per_24_h: 5
+    skip_probability: 0.5
+  }
+  triggers {
+    name: "com.android.telemetry.interaction-jank-monitor-64"
+    stop_delay_ms: 0
+    max_per_24_h: 5
+    skip_probability: 0.5
+  }
+  triggers {
+    name: "com.android.telemetry.interaction-jank-monitor-65"
+    stop_delay_ms: 0
+    max_per_24_h: 5
+    skip_probability: 0.5
+  }
+  triggers {
+    name: "com.android.telemetry.interaction-jank-monitor-66"
+    stop_delay_ms: 0
+    max_per_24_h: 5
+    skip_probability: 0.5
+  }
+  triggers {
+    name: "com.android.telemetry.interaction-jank-monitor-67"
+    stop_delay_ms: 0
+    max_per_24_h: 5
+    skip_probability: 0.5
+  }
+  triggers {
+    name: "com.android.telemetry.interaction-jank-monitor-68"
+    stop_delay_ms: 0
+    max_per_24_h: 5
+    skip_probability: 0.5
+  }
+  triggers {
+    name: "com.android.telemetry.interaction-jank-monitor-69"
+    stop_delay_ms: 0
+    max_per_24_h: 5
+    skip_probability: 0.5
+  }
+  triggers {
+    name: "com.android.telemetry.interaction-jank-monitor-70"
+    stop_delay_ms: 0
+    max_per_24_h: 5
+    skip_probability: 0.5
+  }
+  triggers {
+    name: "com.android.telemetry.interaction-jank-monitor-71"
+    stop_delay_ms: 0
+    max_per_24_h: 5
+    skip_probability: 0.5
+  }
+  triggers {
+    name: "com.android.telemetry.interaction-jank-monitor-72"
+    stop_delay_ms: 0
+    max_per_24_h: 5
+    skip_probability: 0.5
+  }
+  triggers {
+    name: "com.android.telemetry.interaction-jank-monitor-73"
+    stop_delay_ms: 0
+    max_per_24_h: 5
+    skip_probability: 0.5
+  }
+  triggers {
+    name: "com.android.telemetry.interaction-jank-monitor-74"
+    stop_delay_ms: 0
+    max_per_24_h: 5
+    skip_probability: 0.5
+  }
+  triggers {
+    name: "com.android.telemetry.interaction-jank-monitor-75"
+    stop_delay_ms: 0
+    max_per_24_h: 5
+    skip_probability: 0.5
+  }
+  triggers {
+    name: "com.android.telemetry.interaction-jank-monitor-76"
+    stop_delay_ms: 0
+    max_per_24_h: 5
+    skip_probability: 0.5
+  }
+  triggers {
+    name: "com.android.telemetry.interaction-jank-monitor-77"
+    stop_delay_ms: 0
+    max_per_24_h: 5
+    skip_probability: 0.5
+  }
+  triggers {
+    name: "com.android.telemetry.interaction-jank-monitor-78"
+    stop_delay_ms: 0
+    max_per_24_h: 5
+    skip_probability: 0.5
+  }
+  triggers {
+    name: "com.android.telemetry.interaction-jank-monitor-79"
+    stop_delay_ms: 0
+    max_per_24_h: 5
+    skip_probability: 0.5
+  }
+  triggers {
+    name: "com.android.telemetry.interaction-jank-monitor-80"
+    stop_delay_ms: 0
+    max_per_24_h: 5
+    skip_probability: 0.5
+  }
+  triggers {
+    name: "com.android.telemetry.latency-tracker-ACTION_EXPAND_PANEL"
+    stop_delay_ms: 0
+    max_per_24_h: 5
+  }
+  triggers {
+    name: "com.android.telemetry.latency-tracker-ACTION_CHECK_CREDENTIAL"
+    stop_delay_ms: 0
+    max_per_24_h: 5
+  }
+  triggers {
+    name: "com.android.telemetry.latency-tracker-ACTION_CHECK_CREDENTIAL_UNLOCKED"
+    stop_delay_ms: 0
+    max_per_24_h: 5
+  }
+  triggers {
+    name: "com.android.telemetry.latency-tracker-ACTION_TURN_ON_SCREEN"
+    stop_delay_ms: 0
+    max_per_24_h: 5
+  }
+  triggers {
+    name: "com.android.telemetry.latency-tracker-ACTION_LOCKSCREEN_UNLOCK"
+    stop_delay_ms: 0
+    max_per_24_h: 5
+  }
+  triggers {
+    name: "com.android.telemetry.latency-tracker-ACTION_USER_SWITCH"
+    stop_delay_ms: 0
+    max_per_24_h: 5
+  }
+  triggers {
+    name: "com.android.telemetry.latency-tracker-ACTION_SHOW_BACK_ARROW"
+    stop_delay_ms: 0
+    max_per_24_h: 5
+  }
+  triggers {
+    name: "com.android.telemetry.latency-tracker-ACTION_LOAD_SHARE_SHEET"
+    stop_delay_ms: 0
+    max_per_24_h: 5
+  }
+  triggers {
+    name: "com.android.telemetry.latency-tracker-ACTION_SHOW_SELECTION_TOOLBAR"
+    stop_delay_ms: 0
+    max_per_24_h: 5
+  }
+  triggers {
+    name: "com.android.telemetry.latency-tracker-ACTION_SHOW_VOICE_INTERACTION"
+    stop_delay_ms: 0
+    max_per_24_h: 5
+  }
+  triggers {
+    name: "com.android.telemetry.latency-tracker-ACTION_REQUEST_IME_SHOWN"
+    stop_delay_ms: 0
+    max_per_24_h: 5
+  }
+  triggers {
+    name: "com.android.telemetry.latency-tracker-ACTION_REQUEST_IME_HIDDEN"
+    stop_delay_ms: 0
+    max_per_24_h: 5
+  }
+  triggers {
+    name: "com.android.telemetry.latency-tracker-statsd-trigger"
+    stop_delay_ms: 0
+    max_per_24_h: 1
+    skip_probability: 0.672131148
+  }
+  triggers {
+    name: "com.android.surfaceflinger.client-misses-in-frame"
+    stop_delay_ms: 0
+    max_per_24_h: 5
+  }
+  triggers {
+    name: "com.android.surfaceflinger.frame-grace"
+    stop_delay_ms: 0
+    max_per_24_h: 5
+  }
+  triggers {
+    name: "com.android.telemetry.lmk-user-perceptible"
+    stop_delay_ms: 500
+    max_per_24_h: 10
+  }
+  triggers {
+    name: "com.android.telemetry.watchdog-monitor"
+    stop_delay_ms: 0
+  }
+  triggers {
+    name: "com.android.telemetry.pre-watchdog-monitor"
+    stop_delay_ms: 0
+  }
+  triggers {
+    name: "com.android.slow-start-hot"
+    stop_delay_ms: 1000
+    max_per_24_h: 10
+    skip_probability: 0.854269892
+  }
+  triggers {
+    name: "com.android.slow-start-warm"
+    stop_delay_ms: 1000
+    max_per_24_h: 10
+    skip_probability: 0.785591767
+  }
+  triggers {
+    name: "com.android.slow-start-cold"
+    stop_delay_ms: 1000
+    max_per_24_h: 10
+    skip_probability: 0.0
+  }
+  triggers {
+    name: "com.android.telemetry.anr-monitor"
+    stop_delay_ms: 0
+    max_per_24_h: 10
+    skip_probability: 0.0
+  }
+  triggers {
+    name: "com.android.automotive.watchdog-anr-kill"
+    stop_delay_ms: 0
+    max_per_24_h: 10
+    skip_probability: 0.0
+  }
+}
