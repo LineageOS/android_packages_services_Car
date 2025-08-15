@@ -106,4 +106,18 @@ final class CarAudioPlaybackCallback extends AudioManager.AudioPlaybackCallback 
             mCarAudioZonesToZonePlaybackCallback.valueAt(i).resetStillActiveContexts();
         }
     }
+
+    /**
+     * Callback to get notified of the active playback players
+     */
+    public interface CarPlaybackCallback {
+        /**
+         * Called after a playback callback is launched.
+         *
+         * @param activePlaybackByZoneId sparse array by zone ID, where each value is a list of
+         * {@link AudioPlaybackConfiguration}s holding focus in specified audio zone
+         */
+        void onAudioPlaybackChange(
+                SparseArray<List<AudioPlaybackConfiguration>> activePlaybackByZoneId);
+    }
 }
