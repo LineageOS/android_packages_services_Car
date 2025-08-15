@@ -23,6 +23,8 @@ import static android.media.AudioAttributes.USAGE_SAFETY;
 import static android.media.AudioAttributes.USAGE_VOICE_COMMUNICATION;
 import static android.media.AudioAttributes.USAGE_VOICE_COMMUNICATION_SIGNALLING;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
+
 import android.car.builtin.os.TraceHelper;
 import android.car.builtin.util.Slogf;
 import android.car.builtin.util.TimingsTraceLog;
@@ -34,7 +36,9 @@ import android.util.ArraySet;
 import android.util.SparseArray;
 
 import com.android.car.CarLog;
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.DebugUtils;
+import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.car.internal.util.LocalLog;
 import com.android.internal.annotations.GuardedBy;
 
@@ -373,5 +377,92 @@ final class CarAudioFocusEnforcement {
         evaluateAndEnforceFocusState(tracer, currentPlaybacks, currentFocusHolders, enable,
                 hasCriticalAudioFocusRequest);
         tracer.traceEnd();
+    }
+
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    void dump(IndentingPrintWriter writer) {
+        synchronized (mLock) {
+            writer.increaseIndent();
+            writer.printf("Relaxed Park Mode Enabled: %b\n", mRelaxedParkModeEnabled);
+            writer.printf("Has Critical Audio Focus Request: %b\n",
+                    mHasCriticalAudioFocusRequest);
+            dumpEnforceableAttributesLocked(writer);
+            dumpDoNotSilenceAttributesLocked(writer);
+            dumpSilencedPlayersLocked(writer);
+            dumpFocusHoldersByZonesLocked(writer);
+            dumpActivePlaybackByZonesLocked(writer);
+            dumpEnforcementEventsLocked(writer);
+            writer.decreaseIndent();
+        }
+    }
+
+    @GuardedBy("mLock")
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    private void dumpSilencedPlayersLocked(IndentingPrintWriter writer) {
+        writer.println("Silenced players:");
+        writer.increaseIndent();
+        for (int index = 0; index < mCurrentlySilencedPlayerIDs.size(); index++) {
+            writer.printf("%s\n", mCurrentlySilencedPlayerIDs.valueAt(index));
+        }
+        writer.decreaseIndent();
+    }
+
+    @GuardedBy("mLock")
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    private void dumpEnforceableAttributesLocked(IndentingPrintWriter writer) {
+        writer.println("Enforceable audio attributes:");
+        writer.increaseIndent();
+        for (int i = 0; i < mEnforceableAttributes.size(); i++) {
+            writer.printf("%s\n", mEnforceableAttributes.valueAt(i));
+        }
+        writer.decreaseIndent();
+    }
+
+    @GuardedBy("mLock")
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    private void dumpDoNotSilenceAttributesLocked(IndentingPrintWriter writer) {
+        writer.println("Do not silence audio attributes:");
+        writer.increaseIndent();
+        for (int i = 0; i < mDoNotSilenceAttributes.size(); i++) {
+            writer.printf("%s\n", mDoNotSilenceAttributes.valueAt(i));
+        }
+        writer.decreaseIndent();
+    }
+
+    @GuardedBy("mLock")
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    private void dumpEnforcementEventsLocked(IndentingPrintWriter writer) {
+        writer.println("Enforcement Events:");
+        writer.increaseIndent();
+        mFocusEnforcementLogger.dump(writer);
+        writer.decreaseIndent();
+    }
+
+    @GuardedBy("mLock")
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    private void dumpFocusHoldersByZonesLocked(IndentingPrintWriter writer) {
+        writer.println("Primary Zone Focus holders:");
+        writer.increaseIndent();
+        for (int index = 0; index < mPrimaryZoneFocusHolders.size(); index++) {
+            var holder = mPrimaryZoneFocusHolders.get(index);
+            writer.printf("Focus holders[UID=%d]: %s\n",
+                    holder.getClientUid(), holder.getAttributes());
+        }
+        writer.decreaseIndent();
+    }
+
+    @GuardedBy("mLock")
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    private void dumpActivePlaybackByZonesLocked(IndentingPrintWriter writer) {
+        writer.println("Primary Zone Active playback:");
+        writer.increaseIndent();
+        for (int c = 0; c < mPrimaryZoneActivePlaybacks.size(); c++) {
+            var playback = mPrimaryZoneActivePlaybacks.get(c);
+            var canManage = audioPlaybackCanBeSilenced(playback,
+                    new ArrayList<>(mEnforceableAttributes));
+            writer.printf("%s Playback: %s\n", canManage ? "Manageable" : "Unmanageable",
+                    playback);
+        }
+        writer.decreaseIndent();
     }
 }
