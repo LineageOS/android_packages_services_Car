@@ -30,6 +30,8 @@ import android.media.AudioPlaybackConfiguration;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 
+import java.util.List;
+
 @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
 final class AudioPlaybackConfigurationBuilder {
     private @AudioAttributes.AttributeUsage int mUsage = USAGE_MEDIA;
@@ -63,6 +65,7 @@ final class AudioPlaybackConfigurationBuilder {
         AudioDeviceInfo outputDevice = generateOutAudioDeviceInfo(mDeviceAddress);
         when(configuration.getAudioAttributes()).thenReturn(attributes);
         when(configuration.getAudioDeviceInfo()).thenReturn(outputDevice);
+        when(configuration.getAudioDeviceInfos()).thenReturn(List.of(outputDevice));
         when(configuration.isActive()).thenReturn(mIsActive);
         when(configuration.getClientUid()).thenReturn(mClientUid);
         return configuration;
