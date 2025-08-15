@@ -36,11 +36,15 @@ import java.util.Objects;
 
 final class CarAudioPlaybackCallback extends AudioManager.AudioPlaybackCallback {
     private final SparseArray<ZoneAudioPlaybackCallback> mCarAudioZonesToZonePlaybackCallback;
+    private final CarPlaybackCallback mCarAudioPlaybackCallback;
 
     CarAudioPlaybackCallback(@NonNull SparseArray<CarAudioZone> carAudioZones,
             @Nullable CarAudioPlaybackMonitor carAudioPlaybackMonitor,
+            CarPlaybackCallback carAudioPlaybackCallback,
             SystemClockWrapper clock, int volumeKeyEventTimeoutMs) {
         Objects.requireNonNull(carAudioZones, "Car audio zone cannot be null");
+        mCarAudioPlaybackCallback = Objects.requireNonNull(carAudioPlaybackCallback,
+                "Car audio playback callback cannot be null");
         Preconditions.checkArgument(carAudioZones.size() > 0,
                 "Car audio zones must not be empty");
         mCarAudioZonesToZonePlaybackCallback = createCallbackMapping(carAudioZones,
@@ -92,9 +96,14 @@ final class CarAudioPlaybackCallback extends AudioManager.AudioPlaybackCallback 
 
     @Override
     public void onPlaybackConfigChanged(List<AudioPlaybackConfiguration> configurations) {
+        SparseArray<List<AudioPlaybackConfiguration>> zoneConfigurations = new SparseArray<>();
         for (int i = 0; i < mCarAudioZonesToZonePlaybackCallback.size(); i++) {
-            mCarAudioZonesToZonePlaybackCallback.valueAt(i).onPlaybackConfigChanged(configurations);
+            var zoneId = mCarAudioZonesToZonePlaybackCallback.keyAt(i);
+            var playbackCallback = mCarAudioZonesToZonePlaybackCallback.valueAt(i);
+            playbackCallback.onPlaybackConfigChanged(configurations);
+            zoneConfigurations.append(zoneId, playbackCallback.getZoneConfigurations());
         }
+        mCarAudioPlaybackCallback.onAudioPlaybackChange(zoneConfigurations);
     }
 
     public List<AudioAttributes> getAllActiveAudioAttributesForZone(int audioZone) {

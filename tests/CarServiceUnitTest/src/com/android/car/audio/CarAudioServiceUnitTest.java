@@ -86,7 +86,9 @@ import static android.view.KeyEvent.KEYCODE_VOLUME_DOWN;
 import static android.view.KeyEvent.KEYCODE_VOLUME_MUTE;
 import static android.view.KeyEvent.KEYCODE_VOLUME_UP;
 
+import static com.android.car.R.bool.audioEnableAudioFocusEnforcement;
 import static com.android.car.R.bool.audioEnableVolumeKeyEventsToDynamicDevices;
+import static com.android.car.R.bool.audioFocusEnforcementRelaxedWhileParked;
 import static com.android.car.R.bool.audioPersistFadeBalanceLevels;
 import static com.android.car.R.bool.audioPersistMasterMuteState;
 import static com.android.car.R.bool.audioUseCarVolumeGroupEvent;
@@ -152,10 +154,16 @@ import android.car.Car;
 import android.car.CarOccupantZoneManager;
 import android.car.ICarOccupantZoneCallback;
 import android.car.VehicleAreaSeat;
+import android.car.VehicleGear;
+import android.car.VehiclePropertyIds;
 import android.car.builtin.media.AudioManagerHelper;
 import android.car.builtin.media.AudioManagerHelper.AudioPatchInfo;
 import android.car.builtin.os.UserManagerHelper;
 import android.car.feature.Flags;
+import android.car.hardware.CarPropertyValue;
+import android.car.hardware.property.CarPropertyEvent;
+import android.car.hardware.property.CarPropertyManager;
+import android.car.hardware.property.ICarPropertyEventListener;
 import android.car.media.CarAudioManager;
 import android.car.media.CarAudioPatchHandle;
 import android.car.media.CarAudioZoneConfigInfo;
@@ -182,6 +190,7 @@ import android.hardware.automotive.audiocontrol.AudioDeviceConfiguration;
 import android.hardware.automotive.audiocontrol.AudioGainConfigInfo;
 import android.hardware.automotive.audiocontrol.Reasons;
 import android.hardware.automotive.audiocontrol.RoutingDeviceConfiguration;
+import android.hardware.automotive.vehicle.VehicleProperty;
 import android.media.AudioAttributes;
 import android.media.AudioDeviceAttributes;
 import android.media.AudioDeviceCallback;
@@ -192,6 +201,7 @@ import android.media.AudioManager.AudioPlaybackCallback;
 import android.media.AudioManager.AudioServerStateCallback;
 import android.media.AudioPlaybackConfiguration;
 import android.media.IAudioService;
+import android.media.PlayerProxy;
 import android.media.audio.common.AudioDevice;
 import android.media.audio.common.AudioDeviceAddress;
 import android.media.audio.common.AudioDeviceDescription;
@@ -228,6 +238,7 @@ import com.android.car.CarInputService;
 import com.android.car.CarInputService.KeyEventListener;
 import com.android.car.CarLocalServices;
 import com.android.car.CarOccupantZoneService;
+import com.android.car.CarPropertyService;
 import com.android.car.CarServiceUtils;
 import com.android.car.R;
 import com.android.car.audio.AudioControlWrapper.AudioControlDeathRecipient;
@@ -486,6 +497,8 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     @Mock
     private CarInputService mMockCarInputService;
     @Mock
+    private CarPropertyService mMockPropertyService;
+    @Mock
     private CarPowerManagementService mMockPowerService;
 
     List<CarAudioService> mCarAudioServices;
@@ -595,6 +608,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         }
         CarLocalServices.removeServiceForTest(CarOemProxyService.class);
         CarLocalServices.removeServiceForTest(CarPowerManagementService.class);
+        CarLocalServices.removeServiceForTest(CarPropertyService.class);
         for (int i = 0; i < mCarAudioServices.size(); i++) {
             mCarAudioServices.get(i).destroy();
         }
@@ -682,6 +696,8 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         CarLocalServices.addService(CarInputService.class, mMockCarInputService);
         CarLocalServices.removeServiceForTest(CarPowerManagementService.class);
         CarLocalServices.addService(CarPowerManagementService.class, mMockPowerService);
+        CarLocalServices.removeServiceForTest(CarPropertyService.class);
+        CarLocalServices.addService(CarPropertyService.class, mMockPropertyService);
 
         CarLocalServices.removeServiceForTest(CarOemProxyService.class);
         CarLocalServices.addService(CarOemProxyService.class, mMockCarOemProxyService);
@@ -809,6 +825,12 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         when(mMockResources.getInteger(audioVolumeAdjustmentContextsVersion))
                 .thenReturn(AUDIO_CONTEXT_PRIORITY_LIST_VERSION_ONE);
         when(mMockResources.getBoolean(audioPersistMasterMuteState)).thenReturn(mPersistMasterMute);
+        when(mMockResources.getBoolean(audioEnableAudioFocusEnforcement)).thenReturn(true);
+        when(mMockResources.getBoolean(audioFocusEnforcementRelaxedWhileParked)).thenReturn(true);
+        when(mMockResources.getStringArray(R.array.audioFocusEnforcementUsages))
+                .thenReturn(new String[]{"USAGE_MEDIA", "USAGE_GAME", "USAGE_ANNOUNCEMENT"});
+        when(mMockResources.getStringArray(R.array.audioFocusEnforcementDoNotSilenceAttributes))
+                .thenReturn(new String[]{"usage=USAGE_MEDIA,tags=oem_orange_play"});
         enableVolumeKeyEventsToDynamicDevices(mEnableVolumeKeyEventsToDynamicDevices);
         when(mMockResources.getBoolean(audioPersistFadeBalanceLevels))
                 .thenReturn(mPersistFadeBalanceValues);
@@ -6784,6 +6806,206 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         verify(mAudioControlWrapperAidl, never()).onDevicesToDuckChange(any());
     }
 
+    @Test
+    @EnableFlags({Flags.FLAG_AUDIO_FOCUS_ENFORCEMENT})
+    public void onPlaybackConfigChanged_whileParkedWithOutFocus_doesNotSilencesAudio()
+            throws Exception {
+        setUpAudioService();
+        setUpCurrentDriveMode(getParkedEvent());
+        AudioPlaybackCallback callback = getCarAudioPlaybackCallback();
+        PlayerProxy playerProxy = mock(PlayerProxy.class);
+
+        callback.onPlaybackConfigChanged(List.of(getPlaybackConfig(playerProxy)));
+
+        verify(playerProxy, never()).setVolume(anyInt());
+    }
+
+    @Test
+    @EnableFlags({Flags.FLAG_AUDIO_FOCUS_ENFORCEMENT})
+    public void onPlaybackConfigChanged_whileNotParkedWithOutFocus_silencesAudio()
+            throws Exception {
+        setUpAudioService();
+        setUpCurrentDriveMode(getDrivingEvent());
+        AudioPlaybackCallback callback = getCarAudioPlaybackCallback();
+        PlayerProxy playerProxy = mock(PlayerProxy.class);
+        var playbackConfig = getPlaybackConfig(playerProxy);
+
+        callback.onPlaybackConfigChanged(List.of(playbackConfig));
+
+        verify(playerProxy).setVolume(0.0f);
+    }
+
+    @Test
+    @EnableFlags({Flags.FLAG_AUDIO_FOCUS_ENFORCEMENT})
+    public void onAudioPlaybackChange_withFocusEnforcementDisable_doesNotSilences()
+            throws Exception {
+        when(mMockResources.getBoolean(audioEnableAudioFocusEnforcement)).thenReturn(false);
+        setUpAudioService();
+        AudioPlaybackCallback callback = getCarAudioPlaybackCallback();
+        PlayerProxy playerProxy = mock(PlayerProxy.class);
+        var playbackConfig = getPlaybackConfig(playerProxy);
+
+        callback.onPlaybackConfigChanged(List.of(playbackConfig));
+
+        verify(mMockPropertyService, never())
+                .registerListener(eq(VehiclePropertyIds.GEAR_SELECTION),
+                        eq(CarPropertyManager.SENSOR_RATE_ONCHANGE), any());
+        verify(playerProxy, never()).setVolume(anyFloat());
+    }
+
+    @Test
+    @EnableFlags({Flags.FLAG_AUDIO_FOCUS_ENFORCEMENT})
+    public void onEvent_afterSwitchToParkWithOutFocus_unSilencesAudio() throws Exception {
+        setUpAudioService();
+        ICarPropertyEventListener carPropertyEventListener =
+                setUpCurrentDriveMode(getDrivingEvent());
+        AudioPlaybackCallback callback = getCarAudioPlaybackCallback();
+        PlayerProxy playerProxy = mock(PlayerProxy.class);
+        var playbackConfig = getPlaybackConfig(playerProxy);
+        callback.onPlaybackConfigChanged(List.of(playbackConfig));
+
+        carPropertyEventListener.onEvent(List.of(getParkedEvent()));
+
+        ArgumentCaptor<Float> volumeCaptor = ArgumentCaptor.forClass(Float.class);
+        verify(playerProxy, times(2)).setVolume(volumeCaptor.capture());
+        expectWithMessage("Audio player volumes while switching from drive to park")
+                .that(volumeCaptor.getAllValues()).containsExactly(0.0f, 1.0f).inOrder();
+    }
+
+    @Test
+    @EnableFlags({Flags.FLAG_AUDIO_FOCUS_ENFORCEMENT})
+    public void onAudioPlaybackChange_withRelaxedModeDisableAndParked_silences()
+            throws Exception {
+        when(mMockResources.getBoolean(audioFocusEnforcementRelaxedWhileParked)).thenReturn(false);
+        setUpAudioService();
+        setUpCurrentDriveMode(getParkedEvent());
+        AudioPlaybackCallback callback = getCarAudioPlaybackCallback();
+        PlayerProxy playerProxy = mock(PlayerProxy.class);
+        var playbackConfig = getPlaybackConfig(playerProxy);
+
+        callback.onPlaybackConfigChanged(List.of(playbackConfig));
+
+        verify(playerProxy).setVolume(0.0f);
+    }
+
+    @Test
+    @EnableFlags({Flags.FLAG_AUDIO_FOCUS_ENFORCEMENT})
+    public void onPlaybackConfigChanged_withFocusAndInDriveMode_doesNotSilenceAudio()
+            throws Exception {
+        CarAudioService service = setUpAudioService();
+        setUpCurrentDriveMode(getDrivingEvent());
+        AudioFocusInfo audioFocusInfo = createAudioFocusInfoForMedia();
+        service.requestAudioFocusForTest(audioFocusInfo, AUDIOFOCUS_REQUEST_GRANTED);
+        AudioPlaybackCallback callback = getCarAudioPlaybackCallback();
+        PlayerProxy playerProxy = mock(PlayerProxy.class);
+        var playbackConfig = getPlaybackConfig(playerProxy);
+
+        callback.onPlaybackConfigChanged(List.of(playbackConfig));
+
+        verify(playerProxy, never()).setVolume(anyFloat());
+    }
+
+    @Test
+    @EnableFlags({Flags.FLAG_AUDIO_FOCUS_ENFORCEMENT})
+    public void abandonAudioFocusForTest_whileUnsilencedAndInDriveMode_silencesAudio()
+            throws Exception {
+        CarAudioService service = setUpAudioService();
+        setUpCurrentDriveMode(getDrivingEvent());
+        AudioFocusInfo audioFocusInfo = createAudioFocusInfoForMedia();
+        service.requestAudioFocusForTest(audioFocusInfo, AUDIOFOCUS_REQUEST_GRANTED);
+        AudioPlaybackCallback callback = getCarAudioPlaybackCallback();
+        PlayerProxy playerProxy = mock(PlayerProxy.class);
+        var playbackConfig = getPlaybackConfig(playerProxy);
+        callback.onPlaybackConfigChanged(List.of(playbackConfig));
+
+        service.abandonAudioFocusForTest(audioFocusInfo);
+
+        verify(playerProxy).setVolume(0.0f);
+    }
+
+    @Test
+    @EnableFlags({Flags.FLAG_AUDIO_FOCUS_ENFORCEMENT})
+    public void onAudioPlaybackChange_withCriticalAudioInRelaxedMode_doesNotSilence()
+            throws Exception {
+        setUpAudioService();
+        PlayerProxy emergencyProxy = mock(PlayerProxy.class);
+        var emergencyConfig = getPlaybackConfig(emergencyProxy, ATTRIBUTES_EMERGENCY,
+                TEST_PLAYBACK_UID);
+        setUpCurrentDriveMode(getDrivingEvent());
+        var playbackCallback = getCarAudioPlaybackCallback();
+
+        playbackCallback.onPlaybackConfigChanged(List.of(emergencyConfig));
+
+        verify(emergencyProxy, never()).setVolume(anyFloat());
+    }
+
+    @Test
+    @EnableFlags({Flags.FLAG_AUDIO_FOCUS_ENFORCEMENT})
+    public void onAudioPlaybackChange_withCriticalAudioAndOtherCriticalFocus_silencesRespectively()
+            throws Exception {
+        setUpAudioService();
+        PlayerProxy emergencyProxy = mock(PlayerProxy.class);
+        PlayerProxy mediaProxy = mock(PlayerProxy.class);
+        var emergencyConfig = getPlaybackConfig(emergencyProxy, ATTRIBUTES_EMERGENCY, 10000);
+        var mediaConfig = getPlaybackConfig(mediaProxy);
+        setUpCurrentDriveMode(getDrivingEvent());
+        var playbackCallback = getCarAudioPlaybackCallback();
+
+        playbackCallback.onPlaybackConfigChanged(List.of(emergencyConfig, mediaConfig));
+
+        verify(mediaProxy).setVolume(eq(0.0f));
+        verify(emergencyProxy, never()).setVolume(anyFloat());
+    }
+
+    @Test
+    @EnableFlags({Flags.FLAG_AUDIO_FOCUS_ENFORCEMENT})
+    public void onAudioPlaybackChange_withCriticalAudioAndNonCriticalFocus_doesNotSilence()
+            throws Exception {
+        setUpAudioService();
+        PlayerProxy emergencyProxy = mock(PlayerProxy.class);
+        PlayerProxy safetyProxy = mock(PlayerProxy.class);
+        var emergencyConfig = getPlaybackConfig(emergencyProxy, ATTRIBUTES_EMERGENCY, 10000);
+        var safetyConfig = getPlaybackConfig(safetyProxy, ATTRIBUTES_SAFETY, 100001);
+        setUpCurrentDriveMode(getDrivingEvent());
+        var playbackCallback = getCarAudioPlaybackCallback();
+
+        playbackCallback.onPlaybackConfigChanged(List.of(emergencyConfig, safetyConfig));
+
+        verify(emergencyProxy, never()).setVolume(anyFloat());
+        verify(safetyProxy, never()).setVolume(anyFloat());
+    }
+
+    private ICarPropertyEventListener setUpCurrentDriveMode(CarPropertyEvent currentDriveModeEvent)
+            throws RemoteException {
+        ICarPropertyEventListener carPropertyEventListener = captureCarPropertyListener();
+        carPropertyEventListener.onEvent(List.of(currentDriveModeEvent));
+        return carPropertyEventListener;
+    }
+
+    private CarPropertyEvent getDrivingEvent() {
+        CarPropertyValue<Integer> gearSelectionParked =
+                new CarPropertyValue<>(VehicleProperty.GEAR_SELECTION, /* areaId= */ 0,
+                        VehicleGear.GEAR_DRIVE);
+        return new CarPropertyEvent(CarPropertyEvent.PROPERTY_EVENT_PROPERTY_CHANGE,
+                gearSelectionParked);
+    }
+
+    private CarPropertyEvent getParkedEvent() {
+        CarPropertyValue<Integer> gearSelectionParked =
+                new CarPropertyValue<>(VehicleProperty.GEAR_SELECTION, /* areaId= */ 0,
+                        VehicleGear.GEAR_PARK);
+        return new CarPropertyEvent(CarPropertyEvent.PROPERTY_EVENT_PROPERTY_CHANGE,
+                        gearSelectionParked);
+    }
+
+    private ICarPropertyEventListener captureCarPropertyListener() {
+        ArgumentCaptor<ICarPropertyEventListener> captor =
+                ArgumentCaptor.forClass(ICarPropertyEventListener.class);
+        verify(mMockPropertyService).registerListener(eq(VehiclePropertyIds.GEAR_SELECTION),
+                eq(CarPropertyManager.SENSOR_RATE_ONCHANGE), captor.capture());
+        return captor.getValue();
+    }
+
     private void waitForInternalCallback() throws Exception {
         CountDownLatch latch = new CountDownLatch(1);
         mHandler.post(latch::countDown);
@@ -7066,12 +7288,36 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         callback.onPlaybackConfigChanged(List.of(getPlaybackConfig()));
     }
 
+    private AudioPlaybackConfiguration getPlaybackConfig(PlayerProxy playerProxy,
+            AudioAttributes audioAttributes, int uid) {
+        AudioPlaybackConfiguration config = mock(AudioPlaybackConfiguration.class);
+        when(config.getAudioAttributes()).thenReturn(audioAttributes);
+        when(config.getAudioDeviceInfo())
+                .thenReturn(mCarAudioDeviceUtils.mMediaOutputDevice);
+        when(config.getAudioDeviceInfos())
+                .thenReturn(List.of(mCarAudioDeviceUtils.mMediaOutputDevice));
+        when(config.getClientUid()).thenReturn(uid);
+        when(config.isActive()).thenReturn(true);
+        when(config.getPlayerProxy()).thenReturn(playerProxy);
+        when(config.getPlayerInterfaceId()).thenReturn(uid);
+        return config;
+    }
+
+    private AudioPlaybackConfiguration getPlaybackConfig(PlayerProxy playerProxy) {
+        AudioAttributes audioAttributes = new AudioAttributes.Builder()
+                .setUsage(USAGE_MEDIA).build();
+        return getPlaybackConfig(playerProxy, audioAttributes, MEDIA_APP_UID);
+    }
+
     private AudioPlaybackConfiguration getPlaybackConfig() {
         AudioAttributes audioAttributes = new AudioAttributes.Builder()
                 .setUsage(USAGE_MEDIA).build();
         AudioPlaybackConfiguration config = mock(AudioPlaybackConfiguration.class);
         when(config.getAudioAttributes()).thenReturn(audioAttributes);
-        when(config.getAudioDeviceInfo()).thenReturn(mCarAudioDeviceUtils.mMediaOutputDevice);
+        when(config.getAudioDeviceInfo())
+                .thenReturn(mCarAudioDeviceUtils.mMediaOutputDevice);
+        when(config.getAudioDeviceInfos())
+                .thenReturn(List.of(mCarAudioDeviceUtils.mMediaOutputDevice));
         when(config.isActive()).thenReturn(true);
 
         return config;
