@@ -639,6 +639,7 @@ package android.car.builtin.widget {
 
   public final class LockPatternHelper {
     method public static boolean isSecure(@NonNull android.content.Context, int);
+    method public static void setLockScreenDisabled(@NonNull android.content.Context, int, boolean);
   }
 
 }
