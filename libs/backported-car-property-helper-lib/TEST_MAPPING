@@ -1,7 +1,0 @@
-{
-  "auto-presubmit": [
-    {
-      "name": "com.android.car.property.backported-unit-test"
-    }
-  ]
-}
