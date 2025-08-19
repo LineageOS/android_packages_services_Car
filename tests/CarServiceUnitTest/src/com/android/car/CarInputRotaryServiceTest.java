@@ -77,6 +77,7 @@ public class CarInputRotaryServiceTest {
     private static final String CAR_ACCESSIBILITY_SERVICE_COMPONENT_NAME =
             BuiltinPackageDependency.getComponentName(
                     BuiltinPackageDependency.CAR_ACCESSIBILITY_SERVICE_CLASS);
+    private static final int USER_ID = 101;
 
     @Mock private InputHalService mInputHalService;
     @Mock private TelecomManager mTelecomManager;
@@ -161,34 +162,33 @@ public class CarInputRotaryServiceTest {
 
         init(rotaryService);
         assertThat(mMockContext.getString(R.string.rotaryService)).isEqualTo(rotaryService);
-        final int userId = 11;
         Settings.Secure.putStringForUser(
                 mMockContext.getContentResolver(),
                 Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES,
                 existingService,
-                userId);
+                USER_ID);
 
 
         // By default RotaryService is not enabled.
         String enabledServices = Settings.Secure.getStringForUser(
                 mMockContext.getContentResolver(),
                 Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES,
-                userId);
+                USER_ID);
         assertThat(enabledServices == null ? "" : enabledServices).doesNotContain(rotaryService);
 
         String enabled = Settings.Secure.getStringForUser(
                 mMockContext.getContentResolver(),
                 Settings.Secure.ACCESSIBILITY_ENABLED,
-                userId);
+                USER_ID);
         assertThat(enabled).isNull();
 
         // Enable RotaryService by sending user switch event.
-        sendUserLifecycleEvent(CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING, userId);
+        sendUserLifecycleEvent(CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING, USER_ID);
 
         enabledServices = Settings.Secure.getStringForUser(
                 mMockContext.getContentResolver(),
                 Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES,
-                userId);
+                USER_ID);
         assertThat(enabledServices).isEqualTo(
                 existingService
                         + ENABLED_ACCESSIBILITY_SERVICES_SEPARATOR
@@ -199,7 +199,7 @@ public class CarInputRotaryServiceTest {
         enabled = Settings.Secure.getStringForUser(
                 mMockContext.getContentResolver(),
                 Settings.Secure.ACCESSIBILITY_ENABLED,
-                userId);
+                USER_ID);
         assertThat(enabled).isEqualTo("1");
     }
 
@@ -210,28 +210,26 @@ public class CarInputRotaryServiceTest {
         init(rotaryService);
         assertThat(mMockContext.getString(R.string.rotaryService)).isEqualTo(rotaryService);
 
-        final int userId = 11;
-
         // By default the Accessibility is disabled.
         String enabled = Settings.Secure.getStringForUser(
                 mMockContext.getContentResolver(),
                 Settings.Secure.ACCESSIBILITY_ENABLED,
-                userId);
+                USER_ID);
         assertThat(enabled).isNull();
 
-        sendUserLifecycleEvent(CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING, userId);
+        sendUserLifecycleEvent(CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING, USER_ID);
 
         // Sending user switch event shouldn't enable the Accessibility because RotaryService is
         // empty.
         enabled = Settings.Secure.getStringForUser(
                 mMockContext.getContentResolver(),
                 Settings.Secure.ACCESSIBILITY_ENABLED,
-                userId);
+                USER_ID);
         assertThat(enabled).isEqualTo("1");
         String enabledServices = Settings.Secure.getStringForUser(
                 mMockContext.getContentResolver(),
                 Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES,
-                userId);
+                USER_ID);
         assertThat(enabledServices).isEqualTo(CAR_ACCESSIBILITY_SERVICE_COMPONENT_NAME);
     }
 
@@ -241,28 +239,27 @@ public class CarInputRotaryServiceTest {
         final String rotaryService = "com.android.car.rotary/com.android.car.rotary.RotaryService";
         init(rotaryService);
         assertThat(mMockContext.getString(R.string.rotaryService)).isEqualTo(rotaryService);
-        final int userId = 11;
         Settings.Secure.putStringForUser(
                 mMockContext.getContentResolver(),
                 Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES,
                 CAR_ACCESSIBILITY_SERVICE_COMPONENT_NAME
                         + ENABLED_ACCESSIBILITY_SERVICES_SEPARATOR
                         + rotaryService,
-                userId);
+                USER_ID);
 
         String enabled = Settings.Secure.getStringForUser(
                 mMockContext.getContentResolver(),
                 Settings.Secure.ACCESSIBILITY_ENABLED,
-                userId);
+                USER_ID);
         assertThat(enabled).isNull();
 
         // Enable RotaryService by sending user switch event.
-        sendUserLifecycleEvent(CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING, userId);
+        sendUserLifecycleEvent(CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING, USER_ID);
 
         String enabledServices = Settings.Secure.getStringForUser(
                 mMockContext.getContentResolver(),
                 Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES,
-                userId);
+                USER_ID);
         assertThat(enabledServices).isEqualTo(
                 CAR_ACCESSIBILITY_SERVICE_COMPONENT_NAME
                         + ENABLED_ACCESSIBILITY_SERVICES_SEPARATOR
@@ -271,7 +268,7 @@ public class CarInputRotaryServiceTest {
         enabled = Settings.Secure.getStringForUser(
                 mMockContext.getContentResolver(),
                 Settings.Secure.ACCESSIBILITY_ENABLED,
-                userId);
+                USER_ID);
         assertThat(enabled).isEqualTo("1");
     }
 
@@ -291,6 +288,7 @@ public class CarInputRotaryServiceTest {
      */
     private void init(String rotaryService) {
         mMockContext = new MockContext(mContext, rotaryService);
+        when(mMockContext.getUserId()).thenReturn(USER_ID);
         UserInfo userInfo = mock(UserInfo.class);
         UserManager userManager = mock(UserManager.class);
         doReturn(userInfo).when(userManager).getUserInfo(anyInt());
