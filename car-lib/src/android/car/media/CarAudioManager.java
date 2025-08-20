@@ -186,6 +186,14 @@ public final class CarAudioManager extends CarManagerBase {
     @FlaggedApi(Flags.FLAG_AUDIO_FADE_BALANCE_GETTER_APIS)
     public static final int AUDIO_FEATURE_PERSIST_FADE_BALANCE_VALUES = 7;
 
+    /**
+     * This is used to determine if car audio focus enforcement is enabled via
+     * {@link #isAudioFeatureEnabled(int)}
+     *
+     */
+    @FlaggedApi(Flags.FLAG_AUDIO_FOCUS_ENFORCEMENT)
+    public static final int AUDIO_FEATURE_FOCUS_ENFORCEMENT = 8;
+
     /** @hide */
     @IntDef(flag = false, prefix = "AUDIO_FEATURE", value = {
             AUDIO_FEATURE_DYNAMIC_ROUTING,
@@ -194,7 +202,8 @@ public final class CarAudioManager extends CarManagerBase {
             AUDIO_FEATURE_VOLUME_GROUP_EVENTS,
             AUDIO_FEATURE_AUDIO_MIRRORING,
             AUDIO_FEATURE_MIN_MAX_ACTIVATION_VOLUME,
-            AUDIO_FEATURE_PERSIST_FADE_BALANCE_VALUES
+            AUDIO_FEATURE_PERSIST_FADE_BALANCE_VALUES,
+            AUDIO_FEATURE_FOCUS_ENFORCEMENT
     })
     @Retention(RetentionPolicy.SOURCE)
     public @interface CarAudioFeature {}
@@ -391,6 +400,8 @@ public final class CarAudioManager extends CarManagerBase {
     private final EventHandler mEventHandler;
 
     private final Object mLock = new Object();
+    @GuardedBy("mLock")
+    private EnforceableAudioFocusCallbackWrapper mFocusEnforcementCallback;
     @GuardedBy("mLock")
     private PrimaryZoneMediaAudioRequestCallback mPrimaryZoneMediaAudioRequestCallback;
     @GuardedBy("mLock")
@@ -1839,6 +1850,128 @@ public final class CarAudioManager extends CarManagerBase {
         }
     }
 
+    /**
+     * Gets the current list of audio attributes usages that are enforced for
+     * audio focus.
+     *
+     * <p>This method retrieves the array of {@link AudioAttributes} usage
+     * values that are currently configured to be enforced.
+     *
+     * <p>Note: This API is only effective if the {@link #AUDIO_FEATURE_FOCUS_ENFORCEMENT}
+     * feature is enabled.
+     *
+     * @return current list of focus enforceable audio attributes usages
+     *
+     * @hide
+     */
+    @TestApi
+    @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
+    @FlaggedApi(Flags.FLAG_AUDIO_FOCUS_ENFORCEMENT)
+    @NonNull
+    public int[] getEnforceableAudioAttributeUsages() {
+        try {
+            return mService.getEnforceableAudioAttributeUsages();
+        } catch (RemoteException e) {
+            return handleRemoteExceptionFromCarService(e, EMPTY_INT_ARRAY);
+        }
+    }
+
+    /**
+     * Enables or disables audio focus enforcement.
+     *
+     * <p>While focus enforcement may be disabled while parked gear
+     * (i.e {@code VehicleGear#GEAR_PARK}), calling this with {@code true} will enabled the focus
+     * enforcement.
+     *
+     * @param enabled Whether focus enforcement should be enabled or disabled. Will enable the
+     * focus enforcement if {@code true} is passed.
+     *
+     * @hide
+     */
+    @TestApi
+    @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
+    @FlaggedApi(Flags.FLAG_AUDIO_FOCUS_ENFORCEMENT)
+    public void setEnforceableAudioFocusEnabled(boolean enabled) {
+        try {
+            mService.setEnforceableAudioFocusEnabled(enabled);
+        } catch (RemoteException e) {
+            handleRemoteExceptionFromCarService(e);
+        }
+    }
+
+    /**
+     *  Set a callback to be notified when there is change in focus enforcement
+     *
+     * <p>Note this callback will only be triggered for focus enforcement
+     * changes. Either because an app was silence or app was unsilence after
+     * being silenced. There will be no callback if the application is not
+     * silenced.
+     *
+     * <p>Note: This API is only effective if the {@link #AUDIO_FEATURE_FOCUS_ENFORCEMENT}
+     * feature is enabled.
+     *
+     *  @param executor The {@link Executor} on which the callback will be
+     *  invoked.
+     *  @param callback The {@link EnforceableAudioFocusCallback} to register.
+     *  @throws IllegalStateException if a callback is already registered.
+     *
+     * @hide
+     */
+    @TestApi
+    @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
+    @FlaggedApi(Flags.FLAG_AUDIO_FOCUS_ENFORCEMENT)
+    public void setEnforceableAudioFocusCallback(@NonNull @CallbackExecutor Executor executor,
+            @NonNull EnforceableAudioFocusCallback callback) {
+        Objects.requireNonNull(executor, "Executor can not be null");
+        Objects.requireNonNull(callback, "Enforceable audio focus callback can not be null");
+        EnforceableAudioFocusCallbackWrapper wrapper;
+        synchronized (mLock) {
+            if (mFocusEnforcementCallback != null) {
+                throw new IllegalStateException("Callback is already set");
+            }
+            wrapper = new EnforceableAudioFocusCallbackWrapper(executor, callback);
+            mFocusEnforcementCallback = wrapper;
+        }
+        try {
+            mService.registerEnforceableAudioFocusCallback(wrapper);
+        } catch (RemoteException e) {
+            synchronized (mLock) {
+                mFocusEnforcementCallback = null;
+            }
+            handleRemoteExceptionFromCarService(e);
+        }
+    }
+
+    /**
+     * Unregisters a callback from receiving focus enforcement changes
+     *
+     * <p>Note: This API is only effective if the {@link #AUDIO_FEATURE_FOCUS_ENFORCEMENT}
+     * feature is enabled.
+     *
+     * @hide
+     */
+    @TestApi
+    @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
+    @FlaggedApi(Flags.FLAG_AUDIO_FOCUS_ENFORCEMENT)
+    public void clearEnforceableAudioFocusCallback() {
+        EnforceableAudioFocusCallbackWrapper wrapper;
+        synchronized (mLock) {
+            if (mFocusEnforcementCallback == null) {
+                return;
+            }
+            wrapper = mFocusEnforcementCallback;
+        }
+        try {
+            mService.unregisterEnforceableAudioFocusCallback(wrapper);
+        } catch (RemoteException e) {
+            handleRemoteExceptionFromCarService(e);
+            return;
+        }
+        synchronized (mLock) {
+            mFocusEnforcementCallback = null;
+        }
+    }
+
     /** @hide */
     @Override
     public void onCarDisconnected() {
@@ -2363,6 +2496,28 @@ public final class CarAudioManager extends CarManagerBase {
             try {
                 mExecutor.execute(() -> mCallback.onAudioZoneConfigurationsChanged(configs,
                         status));
+            } finally {
+                Binder.restoreCallingIdentity(identity);
+            }
+        }
+    }
+
+    private static final class EnforceableAudioFocusCallbackWrapper extends
+            IEnforceableAudioFocusCallback.Stub {
+        private final Executor mExecutor;
+        private final EnforceableAudioFocusCallback mCallback;
+
+        EnforceableAudioFocusCallbackWrapper(Executor executor,
+                EnforceableAudioFocusCallback callback) {
+            mExecutor = executor;
+            mCallback = callback;
+        }
+
+        @Override
+        public void onEnforcedAudioFocusChanged(List<EnforcedAudioFocusInfo> info) {
+            long identity = Binder.clearCallingIdentity();
+            try {
+                mExecutor.execute(() -> mCallback.onEnforcedAudioFocusChanged(info));
             } finally {
                 Binder.restoreCallingIdentity(identity);
             }

@@ -20,6 +20,7 @@ import static android.car.feature.Flags.asyncAudioServiceInit;
 import static android.car.feature.Flags.carAudioFadeManagerConfiguration;
 import static android.car.media.CarAudioManager.AUDIO_FEATURE_AUDIO_MIRRORING;
 import static android.car.media.CarAudioManager.AUDIO_FEATURE_DYNAMIC_ROUTING;
+import static android.car.media.CarAudioManager.AUDIO_FEATURE_FOCUS_ENFORCEMENT;
 import static android.car.media.CarAudioManager.AUDIO_FEATURE_MIN_MAX_ACTIVATION_VOLUME;
 import static android.car.media.CarAudioManager.AUDIO_FEATURE_OEM_AUDIO_SERVICE;
 import static android.car.media.CarAudioManager.AUDIO_FEATURE_PERSIST_FADE_BALANCE_VALUES;
@@ -1171,6 +1172,8 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
                 return mUseMinMaxActivationVolume;
             case AUDIO_FEATURE_PERSIST_FADE_BALANCE_VALUES:
                 return mPersistFadeBalanceLevels;
+            case AUDIO_FEATURE_FOCUS_ENFORCEMENT:
+                return mAudioEnableAudioFocusEnforcement;
             default:
                 throw new IllegalArgumentException("Unknown Audio Feature type: "
                         + audioFeatureType);

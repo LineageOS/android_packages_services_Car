@@ -149,7 +149,11 @@ package android.car.hardware.property {
 package android.car.media {
 
   public final class CarAudioManager {
+    method @FlaggedApi("android.car.feature.audio_focus_enforcement") @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS) public void clearEnforceableAudioFocusCallback();
+    method @FlaggedApi("android.car.feature.audio_focus_enforcement") @NonNull @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS) public int[] getEnforceableAudioAttributeUsages();
     method @Deprecated public boolean isDynamicRoutingEnabled();
+    method @FlaggedApi("android.car.feature.audio_focus_enforcement") @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS) public void setEnforceableAudioFocusCallback(@NonNull java.util.concurrent.Executor, @NonNull android.car.media.EnforceableAudioFocusCallback);
+    method @FlaggedApi("android.car.feature.audio_focus_enforcement") @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS) public void setEnforceableAudioFocusEnabled(boolean);
   }
 
   public final class CarMediaManager {
