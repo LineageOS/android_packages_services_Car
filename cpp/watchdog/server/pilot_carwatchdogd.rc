@@ -72,4 +72,4 @@ on init
     setprop ro.carwatchdog.periodic_monitor_buffer_size 360
 
     # Start the service only after initializing the properties.
-    # start carwatchdogd
+    start carwatchdogd

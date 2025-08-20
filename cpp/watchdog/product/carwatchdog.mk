@@ -13,7 +13,11 @@
 # limitations under the License.
 
 # Add carwatchdogd to product package
+ifeq ($(RELEASE_CAR_FRAMEWORK_WATCHDOG_FLASHMEMORY_REFACTOR),true)
+PRODUCT_PACKAGES += pilot_carwatchdogd
+else
 PRODUCT_PACKAGES += carwatchdogd
+endif
 
 # SELinux public policies for car watchdog services
 PRODUCT_PUBLIC_SEPOLICY_DIRS += packages/services/Car/cpp/watchdog/sepolicy/public
