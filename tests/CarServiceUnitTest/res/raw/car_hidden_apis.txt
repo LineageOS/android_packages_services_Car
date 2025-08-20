@@ -549,6 +549,7 @@ android.car.media CarMediaManager boolean isIndependentPlaybackConfig()
 android.car.media CarMediaManager void onCarDisconnected()
 android.car.media CarMediaManager void setIndependentPlaybackConfig(boolean independent)
 android.car.media CarVolumeGroupInfo.Builder Builder setMutedBySystem(boolean isMutedBySystem)
+android.car.media EnforceableAudioFocusCallback void onEnforcedAudioFocusChanged(List<EnforcedAudioFocusInfo> info)
 android.car.media EnforcedAudioFocusInfo AudioAttributes getAudioAttributes()
 android.car.media EnforcedAudioFocusInfo Creator<EnforcedAudioFocusInfo> CREATOR
 android.car.media EnforcedAudioFocusInfo String toString()

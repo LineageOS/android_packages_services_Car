@@ -157,6 +157,10 @@ package android.car.media {
     method @RequiresPermission(android.Manifest.permission.MEDIA_CONTENT_CONTROL) public void setIndependentPlaybackConfig(boolean);
   }
 
+  @FlaggedApi("android.car.feature.audio_focus_enforcement") public interface EnforceableAudioFocusCallback {
+    method public void onEnforcedAudioFocusChanged(@NonNull java.util.List<android.car.media.EnforcedAudioFocusInfo>);
+  }
+
   @FlaggedApi("android.car.feature.audio_focus_enforcement") public final class EnforcedAudioFocusInfo implements android.os.Parcelable {
     ctor public EnforcedAudioFocusInfo(int, @NonNull android.media.AudioAttributes, boolean);
     method public int describeContents();
