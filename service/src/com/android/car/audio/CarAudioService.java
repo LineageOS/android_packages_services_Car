@@ -89,6 +89,7 @@ import android.car.media.IAudioZonesMirrorStatusCallback;
 import android.car.media.ICarAudio;
 import android.car.media.ICarVolumeCallback;
 import android.car.media.ICarVolumeEventCallback;
+import android.car.media.IEnforceableAudioFocusCallback;
 import android.car.media.IMediaAudioRequestStatusCallback;
 import android.car.media.IPrimaryZoneMediaAudioRequestCallback;
 import android.car.media.ISwitchAudioZoneConfigCallback;
@@ -346,6 +347,8 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
     private final boolean mAudioEnableAudioFocusEnforcement;
     private final boolean mRelaxedFocusEnforcementWhileParked;
 
+    @GuardedBy("mImplLock")
+    private boolean mForceEnableAudioFocusEnforcement;
     @GuardedBy("mImplLock")
     @Nullable private CarAudioParkedStateMonitor mCarAudioParkedStateMonitor;
     @GuardedBy("mImplLock")
@@ -653,6 +656,10 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
     private void handleParkedModeChanged(boolean isParked) {
         boolean enableRelaxParkedMode = mRelaxedFocusEnforcementWhileParked && isParked;
         Slogf.d(TAG, "Enable relax park mode %s, is parked %s.", enableRelaxParkedMode, isParked);
+        // Force enable audio focus enforcement even if relax park mode is enabled
+        synchronized (mImplLock) {
+            enableRelaxParkedMode = enableRelaxParkedMode && !mForceEnableAudioFocusEnforcement;
+        }
         mCarAudioFocusEnforcement.enableRelaxedParkMode(enableRelaxParkedMode);
     }
 
@@ -772,6 +779,7 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
         // to audio control HAL (ACH), since AFH holds a reference to ACH
         releaseHalAudioFocusLocked();
         releaseCoreVolumeGroupCallbackLocked();
+        mCarAudioFocusEnforcement.release();
         releaseAudioPlaybackMonitorLocked();
         releasePowerListenerLocked();
         releaseAudioDeviceInfoCallbackLocked();
@@ -1038,6 +1046,8 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
             writer.increaseIndent();
             writer.printf("Relaxed focus enforcement while parked? %s\n",
                     mRelaxedFocusEnforcementWhileParked);
+            writer.printf("Forced enable audio focus enforcement? %s\n",
+                    mForceEnableAudioFocusEnforcement);
             mCarAudioFocusEnforcement.dump(writer);
             writer.decreaseIndent();
 
@@ -3484,6 +3494,42 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
         Objects.requireNonNull(callback, "Car audio zone configs callback can not be null");
 
         return mConfigsCallbacks.unregister(callback);
+    }
+
+    @Override
+    public void setEnforceableAudioFocusEnabled(boolean enable) {
+        enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS);
+        synchronized (mImplLock) {
+            mForceEnableAudioFocusEnforcement = enable;
+            // Force update to park mode state if it is enabled
+            if (mCarAudioParkedStateMonitor != null) {
+                handleParkedModeChanged(mCarAudioParkedStateMonitor.isParked());
+            }
+        }
+    }
+
+    @Override
+    public int[] getEnforceableAudioAttributeUsages() {
+        enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS);
+        var audioAttributes = mCarAudioFocusEnforcement.getEnforceableAttributes();
+        int[] usages = new int[audioAttributes.size()];
+        for (int i = 0; i < audioAttributes.size(); i++) {
+            usages[i] = audioAttributes.get(i).getSystemUsage();
+        }
+        return usages;
+    }
+
+    @Override
+    public boolean registerEnforceableAudioFocusCallback(IEnforceableAudioFocusCallback callback) {
+        enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS);
+        return mCarAudioFocusEnforcement.registerCallback(callback);
+    }
+
+    @Override
+    public boolean unregisterEnforceableAudioFocusCallback(
+            IEnforceableAudioFocusCallback callback) {
+        enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS);
+        return mCarAudioFocusEnforcement.unregisterCallback(callback);
     }
 
     @Nullable
