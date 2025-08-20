@@ -13,7 +13,7 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-  <Panel id="panel_app_grid" defaultVariant="@id/closed" role="@string/appgrid_componentName" displayId="0">
+  <TaskPanel id="panel_app_grid" defaultVariant="@id/closed" role="@string/appgrid_componentName" displayId="0">
     <Variant id="@+id/opened">
         <Layer layer="@integer/app_grid_panel_layer"/>
         <Visibility isVisible="true"/>
@@ -33,4 +33,4 @@
         <Transition onEvent="_System_EnterSuwEvent" toVariant="@id/closed"/>
         <Transition onEvent="close_app_grid" toVariant="@id/closed"/>
     </Transitions>
-</Panel>
+</TaskPanel>

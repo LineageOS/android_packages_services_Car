@@ -13,7 +13,7 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<Panel id="app_panel" defaultVariant="@id/closed" role="@string/default_config" displayId="0">
+<TaskPanel id="app_panel" defaultVariant="@id/closed" role="@string/default_config" displayId="0">
     <Variant id="@+id/opened">
         <Layer layer="@integer/app_panel_layer"/>
         <Visibility isVisible="true"/>
@@ -50,4 +50,4 @@
         <Transition onEvent="_System_OnHomeEvent" toVariant="@id/closed"/>
         <Transition onEvent="_System_EnterSuwEvent" toVariant="@id/immersive"/>
     </Transitions>
-</Panel>
+</TaskPanel>
