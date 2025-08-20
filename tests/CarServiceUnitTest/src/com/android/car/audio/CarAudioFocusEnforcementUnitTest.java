@@ -37,26 +37,34 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import android.car.builtin.media.AudioManagerHelper;
+import android.car.media.EnforcedAudioFocusInfo;
+import android.car.media.IEnforceableAudioFocusCallback;
 import android.media.AudioAttributes;
 import android.media.AudioFocusInfo;
 import android.media.AudioManager;
 import android.media.AudioPlaybackConfiguration;
 import android.media.PlayerProxy;
+import android.os.RemoteException;
 import android.util.SparseArray;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CarAudioFocusEnforcementUnitTest {
 
     private static final int TEST_UID = 12345;
     private static final int TEST_OTHER_UID = 54321;
-
+    private static final long TIMEOUT_MS = 1000;
     private static final AudioAttributes MEDIA_ATTRIBUTES =
             new AudioAttributes.Builder().setUsage(USAGE_MEDIA).build();
     private static final AudioAttributes GAME_ATTRIBUTES =
@@ -74,12 +82,24 @@ public class CarAudioFocusEnforcementUnitTest {
     private static final AudioAttributes VOICE_COMMUNICATION_SIGNALLING_ATTRIBUTES =
             new AudioAttributes.Builder().setUsage(USAGE_VOICE_COMMUNICATION_SIGNALLING).build();
 
+    private CarAudioFocusEnforcement mCarAudioFocusEnforcement;
+
+    @Before
+    public void setUp() {
+        mCarAudioFocusEnforcement = new CarAudioFocusEnforcement();
+    }
+
+    @After
+    public void tearDown() {
+        mCarAudioFocusEnforcement.release();
+        mCarAudioFocusEnforcement = null;
+    }
+
     @Test
     public void setEnforceableAttributes_withNullSilenceList_throws() {
-        var enforcement = new CarAudioFocusEnforcement();
-
         NullPointerException thrown = assertThrows(NullPointerException.class,
-                () -> enforcement.setEnforceableAttributes(/* audioAttributesToSilence= */ null));
+                () -> mCarAudioFocusEnforcement.setEnforceableAttributes(
+                        /* audioAttributesToSilence= */ null));
 
         assertWithMessage("Null audio attributes exception").that(thrown)
                 .hasMessageThat().contains("audio attributes can not be null");
@@ -87,10 +107,8 @@ public class CarAudioFocusEnforcementUnitTest {
 
     @Test
     public void setEnforceableAttributes_withEmergencyUsageInSilenceList_throws() {
-        var enforcement = new CarAudioFocusEnforcement();
-
         IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class,
-                () -> enforcement.setEnforceableAttributes(
+                () -> mCarAudioFocusEnforcement.setEnforceableAttributes(
                         List.of(GAME_ATTRIBUTES, EMERGENCY_ATTRIBUTES)));
 
         assertWithMessage("Invalid audio attributes exception").that(
@@ -99,10 +117,8 @@ public class CarAudioFocusEnforcementUnitTest {
 
     @Test
     public void setEnforceableAttributes_withSafetyUsageInSilenceList_throws() {
-        var enforcement = new CarAudioFocusEnforcement();
-
         IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class,
-                () -> enforcement.setEnforceableAttributes(
+                () -> mCarAudioFocusEnforcement.setEnforceableAttributes(
                         List.of(GAME_ATTRIBUTES, SAFETY_ATTRIBUTES)));
 
         assertWithMessage("Invalid audio attributes exception for safety usage").that(
@@ -111,10 +127,8 @@ public class CarAudioFocusEnforcementUnitTest {
 
     @Test
     public void setEnforceableAttributes_withVoiceComUsageInSilenceList_throws() {
-        var enforcement = new CarAudioFocusEnforcement();
-
         IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class,
-                () -> enforcement.setEnforceableAttributes(
+                () -> mCarAudioFocusEnforcement.setEnforceableAttributes(
                         List.of(GAME_ATTRIBUTES, VOICE_COMMUNICATION_ATTRIBUTES)));
 
         assertWithMessage("Invalid audio attributes exception for voice communication usage").that(
@@ -123,10 +137,8 @@ public class CarAudioFocusEnforcementUnitTest {
 
     @Test
     public void setEnforceableAttributes_withCallAssistantUsageInSilenceList_throws() {
-        var enforcement = new CarAudioFocusEnforcement();
-
         IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class,
-                () -> enforcement.setEnforceableAttributes(
+                () -> mCarAudioFocusEnforcement.setEnforceableAttributes(
                         List.of(GAME_ATTRIBUTES, CALL_ASSISTANT_ATTRIBUTES)));
 
         assertWithMessage("Invalid audio attributes exception for call assistant usage").that(
@@ -135,10 +147,8 @@ public class CarAudioFocusEnforcementUnitTest {
 
     @Test
     public void setEnforceableAttributes_withVoiceComSignallingInSilenceList_throws() {
-        var enforcement = new CarAudioFocusEnforcement();
-
         IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class,
-                () -> enforcement.setEnforceableAttributes(
+                () -> mCarAudioFocusEnforcement.setEnforceableAttributes(
                         List.of(GAME_ATTRIBUTES, VOICE_COMMUNICATION_SIGNALLING_ATTRIBUTES)));
 
         assertWithMessage(
@@ -149,43 +159,38 @@ public class CarAudioFocusEnforcementUnitTest {
 
     @Test
     public void setEnforceableAttributes_withValidAttributesInSilenceList() {
-        var enforcement = new CarAudioFocusEnforcement();
-
-        enforcement.setEnforceableAttributes(List.of(MEDIA_ATTRIBUTES, GAME_ATTRIBUTES));
+        mCarAudioFocusEnforcement.setEnforceableAttributes(
+                List.of(MEDIA_ATTRIBUTES, GAME_ATTRIBUTES));
 
         assertWithMessage("Enforceable audio attributes")
-                .that(enforcement.getEnforceableAttributes())
+                .that(mCarAudioFocusEnforcement.getEnforceableAttributes())
                 .containsExactly(MEDIA_ATTRIBUTES, GAME_ATTRIBUTES);
     }
 
     @Test
     public void setEnforceableAttributes_withDuplicateAttributesInSilenceList() {
-        var enforcement = new CarAudioFocusEnforcement();
-
-        enforcement.setEnforceableAttributes(
+        mCarAudioFocusEnforcement.setEnforceableAttributes(
                 List.of(MEDIA_ATTRIBUTES, GAME_ATTRIBUTES, MEDIA_ATTRIBUTES));
 
         assertWithMessage("Enforceable audio attributes with duplicates")
-                .that(enforcement.getEnforceableAttributes())
+                .that(mCarAudioFocusEnforcement.getEnforceableAttributes())
                 .containsExactly(MEDIA_ATTRIBUTES, GAME_ATTRIBUTES);
     }
 
     @Test
     public void setEnforceableAttributes_withEmptyAttributesInSilenceList() {
-        var enforcement = new CarAudioFocusEnforcement();
-
-        enforcement.setEnforceableAttributes(List.of());
+        mCarAudioFocusEnforcement.setEnforceableAttributes(List.of());
 
         assertWithMessage("Enforceable audio attributes with empty list")
-                .that(enforcement.getEnforceableAttributes()).isEmpty();
+                .that(mCarAudioFocusEnforcement.getEnforceableAttributes()).isEmpty();
     }
 
     @Test
     public void setDoNotSilenceAttributes_withNullList_throws() {
-        var enforcement = new CarAudioFocusEnforcement();
-
         NullPointerException thrown = assertThrows(NullPointerException.class,
-                () -> enforcement.setDoNotSilenceAttributes(/* doNotSilenceAttributes= */ null));
+                () -> mCarAudioFocusEnforcement.setDoNotSilenceAttributes(/*
+                doNotSilenceAttributes= */
+                        null));
 
         assertWithMessage("Null do not silence audio attributes exception").that(
                 thrown).hasMessageThat().contains("Do not silence audio attributes");
@@ -193,48 +198,44 @@ public class CarAudioFocusEnforcementUnitTest {
 
     @Test
     public void setDoNotSilenceAttributes_withDuplicateAttributesInDoNotSilenceList() {
-        var enforcement = new CarAudioFocusEnforcement();
-
-        enforcement.setDoNotSilenceAttributes(List.of(MEDIA_ATTRIBUTES, GAME_ATTRIBUTES,
-                MEDIA_ATTRIBUTES));
+        mCarAudioFocusEnforcement.setDoNotSilenceAttributes(
+                List.of(MEDIA_ATTRIBUTES, GAME_ATTRIBUTES,
+                        MEDIA_ATTRIBUTES));
 
         assertWithMessage("Do not silence audio attributes with duplicates")
-                .that(enforcement.getDoNotSilenceAttributes())
+                .that(mCarAudioFocusEnforcement.getDoNotSilenceAttributes())
                 .containsExactly(MEDIA_ATTRIBUTES, GAME_ATTRIBUTES);
     }
 
     @Test
     public void setDoNotSilenceAttributes_withEmptyAttributesInDoNotSilenceList() {
-        var enforcement = new CarAudioFocusEnforcement();
-
-        enforcement.setDoNotSilenceAttributes(List.of());
+        mCarAudioFocusEnforcement.setDoNotSilenceAttributes(List.of());
 
         assertWithMessage("Do not silence audio attributes with empty list")
-                .that(enforcement.getDoNotSilenceAttributes()).isEmpty();
+                .that(mCarAudioFocusEnforcement.getDoNotSilenceAttributes()).isEmpty();
     }
 
     @Test
     public void setDoNotSilenceAttributes_withValidAttributesInDoNotSilenceList() {
-        var enforcement = new CarAudioFocusEnforcement();
-
-        enforcement.setDoNotSilenceAttributes(List.of(MEDIA_ATTRIBUTES, GAME_ATTRIBUTES));
+        mCarAudioFocusEnforcement.setDoNotSilenceAttributes(
+                List.of(MEDIA_ATTRIBUTES, GAME_ATTRIBUTES));
 
         assertWithMessage("Do not silence audio attributes with empty list")
-                .that(enforcement.getDoNotSilenceAttributes())
+                .that(mCarAudioFocusEnforcement.getDoNotSilenceAttributes())
                 .containsExactly(MEDIA_ATTRIBUTES, GAME_ATTRIBUTES);
     }
 
     @Test
     public void onFocusChange_withGainedFocus_unsilencesPlayback() {
-        CarAudioFocusEnforcement enforcement = new CarAudioFocusEnforcement();
-        enforcement.setEnforceableAttributes(List.of(MEDIA_ATTRIBUTES));
+        mCarAudioFocusEnforcement.setEnforceableAttributes(List.of(MEDIA_ATTRIBUTES));
         AudioFocusInfo mediaFocusInfo = createMockFocusInfo(USAGE_MEDIA, TEST_UID);
         SparseArray<List<AudioFocusInfo>> focusHolders = createFocusHolderMap(mediaFocusInfo);
         AudioPlaybackConfiguration mediaConfig = createMockPlaybackConfig(MEDIA_ATTRIBUTES,
                 TEST_UID);
-        enforcement.onAudioPlaybackChange(createActivePlaybackConfigsMap(mediaConfig));
+        mCarAudioFocusEnforcement.onAudioPlaybackChange(
+                createActivePlaybackConfigsMap(mediaConfig));
 
-        enforcement.onFocusChange(focusHolders);
+        mCarAudioFocusEnforcement.onFocusChange(focusHolders);
 
         ArgumentCaptor<Float> volumeCaptor = captureVolumeChanged(mediaConfig, 2);
         assertWithMessage("Player volume with focus changes")
@@ -245,9 +246,9 @@ public class CarAudioFocusEnforcementUnitTest {
 
     @Test
     public void onFocusChange_withNullFocusHolders_throws() {
-        CarAudioFocusEnforcement enforcement = new CarAudioFocusEnforcement();
         NullPointerException thrown =
-                assertThrows(NullPointerException.class, () -> enforcement.onFocusChange(null));
+                assertThrows(NullPointerException.class,
+                        () -> mCarAudioFocusEnforcement.onFocusChange(null));
 
         assertWithMessage("Null focus holders exception")
                 .that(thrown)
@@ -257,19 +258,19 @@ public class CarAudioFocusEnforcementUnitTest {
 
     @Test
     public void onFocusChange_withRelaxedParkedModeAndCriticalFocusChanges_unsilences() {
-        CarAudioFocusEnforcement enforcement = new CarAudioFocusEnforcement();
-        enforcement.setEnforceableAttributes(List.of(MEDIA_ATTRIBUTES));
+        mCarAudioFocusEnforcement.setEnforceableAttributes(List.of(MEDIA_ATTRIBUTES));
         AudioPlaybackConfiguration mediaConfig = createMockPlaybackConfig(MEDIA_ATTRIBUTES,
                 TEST_UID);
-        enforcement.enableRelaxedParkMode(true);
-        enforcement.onAudioPlaybackChange(createActivePlaybackConfigsMap(mediaConfig));
+        mCarAudioFocusEnforcement.enableRelaxedParkMode(true);
+        mCarAudioFocusEnforcement.onAudioPlaybackChange(
+                createActivePlaybackConfigsMap(mediaConfig));
         AudioFocusInfo emergencyFocusInfo = createMockFocusInfo(USAGE_EMERGENCY, TEST_OTHER_UID);
         SparseArray<List<AudioFocusInfo>> focusHoldersWithEmergency =
                 createFocusHolderMap(emergencyFocusInfo);
-        enforcement.onFocusChange(focusHoldersWithEmergency);
+        mCarAudioFocusEnforcement.onFocusChange(focusHoldersWithEmergency);
         SparseArray<List<AudioFocusInfo>> emptyFocusHolders = createFocusHolderMap();
 
-        enforcement.onFocusChange(emptyFocusHolders);
+        mCarAudioFocusEnforcement.onFocusChange(emptyFocusHolders);
 
         ArgumentCaptor<Float> volumeCaptor = captureVolumeChanged(mediaConfig, 2);
         assertWithMessage("Player volume during critical focus lifecycle in relaxed mode")
@@ -280,17 +281,17 @@ public class CarAudioFocusEnforcementUnitTest {
 
     @Test
     public void onFocusChange_withMultipleZones_onlyActsOnPrimaryZone() {
-        CarAudioFocusEnforcement enforcement = new CarAudioFocusEnforcement();
-        enforcement.setEnforceableAttributes(List.of(MEDIA_ATTRIBUTES));
+        mCarAudioFocusEnforcement.setEnforceableAttributes(List.of(MEDIA_ATTRIBUTES));
         AudioPlaybackConfiguration mediaConfig = createMockPlaybackConfig(MEDIA_ATTRIBUTES,
                 TEST_UID);
-        enforcement.onAudioPlaybackChange(createActivePlaybackConfigsMap(mediaConfig));
+        mCarAudioFocusEnforcement.onAudioPlaybackChange(
+                createActivePlaybackConfigsMap(mediaConfig));
         AudioFocusInfo mediaFocusInfo = createMockFocusInfo(USAGE_MEDIA, TEST_UID);
         SparseArray<List<AudioFocusInfo>> focusHolders = createFocusHolderMap(mediaFocusInfo);
         int otherZoneId = PRIMARY_AUDIO_ZONE + 1;
         focusHolders.put(otherZoneId, List.of(createMockFocusInfo(USAGE_GAME, TEST_OTHER_UID)));
 
-        enforcement.onFocusChange(focusHolders);
+        mCarAudioFocusEnforcement.onFocusChange(focusHolders);
 
         ArgumentCaptor<Float> volumeCaptor = captureVolumeChanged(mediaConfig, 2);
         assertWithMessage("Player volume with multiple zones")
@@ -301,15 +302,15 @@ public class CarAudioFocusEnforcementUnitTest {
 
     @Test
     public void onAudioPlaybackChange_withFocusHolder_doesNotSilence() {
-        CarAudioFocusEnforcement enforcement = new CarAudioFocusEnforcement();
-        enforcement.setEnforceableAttributes(List.of(MEDIA_ATTRIBUTES));
+        mCarAudioFocusEnforcement.setEnforceableAttributes(List.of(MEDIA_ATTRIBUTES));
         AudioFocusInfo mediaFocusInfo = createMockFocusInfo(USAGE_MEDIA, TEST_UID);
         SparseArray<List<AudioFocusInfo>> focusHolders = createFocusHolderMap(mediaFocusInfo);
         AudioPlaybackConfiguration mediaConfig = createMockPlaybackConfig(MEDIA_ATTRIBUTES,
                 TEST_UID);
-        enforcement.onFocusChange(focusHolders);
+        mCarAudioFocusEnforcement.onFocusChange(focusHolders);
 
-        enforcement.onAudioPlaybackChange(createActivePlaybackConfigsMap(mediaConfig));
+        mCarAudioFocusEnforcement.onAudioPlaybackChange(
+                createActivePlaybackConfigsMap(mediaConfig));
 
         ArgumentCaptor<Float> volumeCaptor = captureVolumeChanged(mediaConfig, 0);
         assertWithMessage("Player volume on matching focus usage")
@@ -319,15 +320,16 @@ public class CarAudioFocusEnforcementUnitTest {
 
     @Test
     public void onAudioPlaybackChange_withMismatchedFocusHolderAttributes_silences() {
-        CarAudioFocusEnforcement enforcement = new CarAudioFocusEnforcement();
-        enforcement.setEnforceableAttributes(List.of(MEDIA_ATTRIBUTES, GAME_ATTRIBUTES));
+        mCarAudioFocusEnforcement.setEnforceableAttributes(
+                List.of(MEDIA_ATTRIBUTES, GAME_ATTRIBUTES));
         AudioFocusInfo mediaFocusInfo = createMockFocusInfo(USAGE_GAME, TEST_UID);
         SparseArray<List<AudioFocusInfo>> focusHolders = createFocusHolderMap(mediaFocusInfo);
         AudioPlaybackConfiguration mediaConfig = createMockPlaybackConfig(MEDIA_ATTRIBUTES,
                 TEST_UID);
-        enforcement.onFocusChange(focusHolders);
+        mCarAudioFocusEnforcement.onFocusChange(focusHolders);
 
-        enforcement.onAudioPlaybackChange(createActivePlaybackConfigsMap(mediaConfig));
+        mCarAudioFocusEnforcement.onAudioPlaybackChange(
+                createActivePlaybackConfigsMap(mediaConfig));
 
         ArgumentCaptor<Float> volumeCaptor = captureVolumeChanged(mediaConfig, 1);
         assertWithMessage("Player volume on non-matching focus usage")
@@ -337,15 +339,15 @@ public class CarAudioFocusEnforcementUnitTest {
 
     @Test
     public void onAudioPlaybackChange_withMismatchedFocusHolderUid_silences() {
-        CarAudioFocusEnforcement enforcement = new CarAudioFocusEnforcement();
-        enforcement.setEnforceableAttributes(List.of(MEDIA_ATTRIBUTES));
+        mCarAudioFocusEnforcement.setEnforceableAttributes(List.of(MEDIA_ATTRIBUTES));
         AudioFocusInfo mediaFocusInfo = createMockFocusInfo(USAGE_MEDIA, TEST_UID);
         SparseArray<List<AudioFocusInfo>> focusHolders = createFocusHolderMap(mediaFocusInfo);
         AudioPlaybackConfiguration mediaConfig =
                 createMockPlaybackConfig(MEDIA_ATTRIBUTES, TEST_OTHER_UID);
-        enforcement.onFocusChange(focusHolders);
+        mCarAudioFocusEnforcement.onFocusChange(focusHolders);
 
-        enforcement.onAudioPlaybackChange(createActivePlaybackConfigsMap(mediaConfig));
+        mCarAudioFocusEnforcement.onAudioPlaybackChange(
+                createActivePlaybackConfigsMap(mediaConfig));
 
         ArgumentCaptor<Float> volumeCaptor = captureVolumeChanged(mediaConfig, 1);
         assertWithMessage("Player volume on mismatched uid")
@@ -355,14 +357,13 @@ public class CarAudioFocusEnforcementUnitTest {
 
     @Test
     public void onAudioPlaybackChange_withoutFocusHolder_silences() {
-        CarAudioFocusEnforcement enforcement = new CarAudioFocusEnforcement();
-        enforcement.setEnforceableAttributes(List.of(MEDIA_ATTRIBUTES));
+        mCarAudioFocusEnforcement.setEnforceableAttributes(List.of(MEDIA_ATTRIBUTES));
         AudioPlaybackConfiguration mediaConfig = createMockPlaybackConfig(MEDIA_ATTRIBUTES,
                 TEST_UID);
         SparseArray<List<AudioPlaybackConfiguration>> activePlaybacks =
                 createActivePlaybackConfigsMap(mediaConfig);
 
-        enforcement.onAudioPlaybackChange(activePlaybacks);
+        mCarAudioFocusEnforcement.onAudioPlaybackChange(activePlaybacks);
 
         ArgumentCaptor<Float> volumeCaptor = captureVolumeChanged(mediaConfig, 1);
         assertWithMessage("Player volume with no focus holder")
@@ -372,14 +373,13 @@ public class CarAudioFocusEnforcementUnitTest {
 
     @Test
     public void onAudioPlaybackChange_forUnenforceableUsage_doesNotSilence() {
-        CarAudioFocusEnforcement enforcement = new CarAudioFocusEnforcement();
-        enforcement.setEnforceableAttributes(List.of(MEDIA_ATTRIBUTES));
+        mCarAudioFocusEnforcement.setEnforceableAttributes(List.of(MEDIA_ATTRIBUTES));
         AudioPlaybackConfiguration mediaConfig =
                 createMockPlaybackConfig(ASSISTANT_ATTRIBUTES, TEST_UID);
         SparseArray<List<AudioPlaybackConfiguration>> activePlaybacks =
                 createActivePlaybackConfigsMap(mediaConfig);
 
-        enforcement.onAudioPlaybackChange(activePlaybacks);
+        mCarAudioFocusEnforcement.onAudioPlaybackChange(activePlaybacks);
 
         ArgumentCaptor<Float> volumeCaptor = captureVolumeChanged(mediaConfig, 0);
         assertWithMessage("Player volume with no focus holder and exempt usage")
@@ -389,23 +389,21 @@ public class CarAudioFocusEnforcementUnitTest {
 
     @Test
     public void onAudioPlaybackChange_withNullPlayerProxy_doesNotThrow() {
-        CarAudioFocusEnforcement enforcement = new CarAudioFocusEnforcement();
-        enforcement.setEnforceableAttributes(List.of(MEDIA_ATTRIBUTES));
+        mCarAudioFocusEnforcement.setEnforceableAttributes(List.of(MEDIA_ATTRIBUTES));
         AudioPlaybackConfiguration mediaConfig = createMockPlaybackConfig(MEDIA_ATTRIBUTES,
                 TEST_UID);
         when(mediaConfig.getPlayerProxy()).thenReturn(null);
         SparseArray<List<AudioPlaybackConfiguration>> activePlaybacks =
                 createActivePlaybackConfigsMap(mediaConfig);
 
-        enforcement.onAudioPlaybackChange(activePlaybacks);
+        mCarAudioFocusEnforcement.onAudioPlaybackChange(activePlaybacks);
 
         verify(mediaConfig).getPlayerProxy();
     }
 
     @Test
     public void onAudioPlaybackChange_whenSetVolumeFails_revertsSilencedState() {
-        CarAudioFocusEnforcement enforcement = new CarAudioFocusEnforcement();
-        enforcement.setEnforceableAttributes(List.of(MEDIA_ATTRIBUTES));
+        mCarAudioFocusEnforcement.setEnforceableAttributes(List.of(MEDIA_ATTRIBUTES));
         AudioPlaybackConfiguration mediaConfig = createMockPlaybackConfig(MEDIA_ATTRIBUTES,
                 TEST_UID);
         PlayerProxy playerProxy = mediaConfig.getPlayerProxy();
@@ -413,7 +411,7 @@ public class CarAudioFocusEnforcementUnitTest {
         SparseArray<List<AudioPlaybackConfiguration>> activePlaybacks =
                 createActivePlaybackConfigsMap(mediaConfig);
 
-        enforcement.onAudioPlaybackChange(activePlaybacks);
+        mCarAudioFocusEnforcement.onAudioPlaybackChange(activePlaybacks);
 
         ArgumentCaptor<Float> volumeCaptor = captureVolumeChanged(mediaConfig, 1);
         assertWithMessage("Player volume after failed binder call")
@@ -422,10 +420,106 @@ public class CarAudioFocusEnforcementUnitTest {
     }
 
     @Test
+    public void onAudioPlaybackChange_withTwoPlayersOneFocus_silencesOne() {
+        mCarAudioFocusEnforcement.setEnforceableAttributes(
+                List.of(MEDIA_ATTRIBUTES, GAME_ATTRIBUTES));
+        AudioPlaybackConfiguration mediaConfig = createMockPlaybackConfig(MEDIA_ATTRIBUTES,
+                TEST_UID);
+        AudioPlaybackConfiguration gameConfig = createMockPlaybackConfig(GAME_ATTRIBUTES,
+                TEST_OTHER_UID);
+        AudioFocusInfo mediaFocusInfo = createMockFocusInfo(USAGE_MEDIA, TEST_UID);
+        mCarAudioFocusEnforcement.onFocusChange(createFocusHolderMap(mediaFocusInfo));
+
+        mCarAudioFocusEnforcement.onAudioPlaybackChange(
+                createActivePlaybackConfigsMap(mediaConfig, gameConfig));
+
+        ArgumentCaptor<Float> mediaVolume = captureVolumeChanged(mediaConfig, 0);
+        ArgumentCaptor<Float> gameVolume = captureVolumeChanged(gameConfig, 1);
+        assertWithMessage("Media player volume").that(mediaVolume.getAllValues()).isEmpty();
+        assertWithMessage("Game player volume").that(gameVolume.getValue()).isEqualTo(0.0f);
+    }
+
+    @Test
+    public void onFocusChange_withCallback_isNotifiedOfSilence()
+            throws RemoteException, InterruptedException {
+        mCarAudioFocusEnforcement.setEnforceableAttributes(List.of(MEDIA_ATTRIBUTES));
+        TestEnforceableAudioFocusCallback callback = new TestEnforceableAudioFocusCallback(1);
+        mCarAudioFocusEnforcement.registerCallback(callback);
+        AudioPlaybackConfiguration mediaConfig = createMockPlaybackConfig(MEDIA_ATTRIBUTES,
+                TEST_UID);
+
+        mCarAudioFocusEnforcement.onAudioPlaybackChange(
+                createActivePlaybackConfigsMap(mediaConfig));
+        callback.waitForCallback();
+
+        List<EnforcedAudioFocusInfo> infos = callback.getEnforcedInfos();
+        assertWithMessage("Enforced audio focus info count").that(infos).hasSize(1);
+        EnforcedAudioFocusInfo info = infos.get(0);
+        assertWithMessage("Enforced audio focus info UID").that(info.getUid())
+                .isEqualTo(TEST_UID);
+        assertWithMessage("Enforced audio focus info attributes")
+                .that(info.getAudioAttributes()).isEqualTo(MEDIA_ATTRIBUTES);
+        assertWithMessage("Enforced audio focus info silenced status")
+                .that(info.isSilenced()).isTrue();
+    }
+
+    @Test
+    public void onFocusChange_withCallback_isNotifiedOfUnsilence()
+            throws RemoteException, InterruptedException {
+        mCarAudioFocusEnforcement.setEnforceableAttributes(List.of(MEDIA_ATTRIBUTES));
+        TestEnforceableAudioFocusCallback callback = new TestEnforceableAudioFocusCallback(2);
+        mCarAudioFocusEnforcement.registerCallback(callback);
+        AudioPlaybackConfiguration mediaConfig = createMockPlaybackConfig(MEDIA_ATTRIBUTES,
+                TEST_UID);
+        mCarAudioFocusEnforcement.onAudioPlaybackChange(
+                createActivePlaybackConfigsMap(mediaConfig));
+        AudioFocusInfo mediaFocusInfo = createMockFocusInfo(USAGE_MEDIA, TEST_UID);
+
+        mCarAudioFocusEnforcement.onFocusChange(createFocusHolderMap(mediaFocusInfo));
+        callback.waitForCallback();
+
+        List<EnforcedAudioFocusInfo> infos = callback.getEnforcedInfos();
+        assertWithMessage("Enforced audio focus info count").that(infos).hasSize(2);
+        EnforcedAudioFocusInfo info = infos.get(1);
+        assertWithMessage("Enforced audio focus info UID").that(info.getUid())
+                .isEqualTo(TEST_UID);
+        assertWithMessage("Enforced audio focus info attributes")
+                .that(info.getAudioAttributes()).isEqualTo(MEDIA_ATTRIBUTES);
+        assertWithMessage("Enforced audio focus info silenced status")
+                .that(info.isSilenced()).isFalse();
+    }
+
+    @Test
+    public void release_killsCallbacks() throws RemoteException {
+        TestEnforceableAudioFocusCallback callback = new TestEnforceableAudioFocusCallback(0);
+        mCarAudioFocusEnforcement.registerCallback(callback);
+
+        mCarAudioFocusEnforcement.release();
+
+        AudioPlaybackConfiguration mediaConfig = createMockPlaybackConfig(MEDIA_ATTRIBUTES,
+                TEST_UID);
+        mCarAudioFocusEnforcement.onAudioPlaybackChange(
+                createActivePlaybackConfigsMap(mediaConfig));
+        assertWithMessage("Enforced audio focus info after release")
+                .that(callback.getEnforcedInfos()).isEmpty();
+    }
+
+    @Test
+    public void registerCallback_withNullCallback_returnsFalse() {
+        assertWithMessage("Register null callback result")
+                .that(mCarAudioFocusEnforcement.registerCallback(null)).isFalse();
+    }
+
+    @Test
+    public void unregisterCallback_withNullCallback_returnsFalse() {
+        assertWithMessage("Unregister null callback result")
+                .that(mCarAudioFocusEnforcement.unregisterCallback(null)).isFalse();
+    }
+
+    @Test
     public void onAudioPlaybackChange_withNullActivePlayback_throws() {
-        CarAudioFocusEnforcement enforcement = new CarAudioFocusEnforcement();
         NullPointerException thrown = assertThrows(NullPointerException.class,
-                () -> enforcement.onAudioPlaybackChange(null));
+                () -> mCarAudioFocusEnforcement.onAudioPlaybackChange(null));
 
         assertWithMessage("Null active playback exception")
                 .that(thrown)
@@ -435,15 +529,14 @@ public class CarAudioFocusEnforcementUnitTest {
 
     @Test
     public void onAudioPlaybackChange_whenInDoNotSilenceList_doesNotSilence() {
-        CarAudioFocusEnforcement enforcement = new CarAudioFocusEnforcement();
-        enforcement.setEnforceableAttributes(List.of(MEDIA_ATTRIBUTES));
-        enforcement.setDoNotSilenceAttributes(List.of(ASSISTANT_ATTRIBUTES));
+        mCarAudioFocusEnforcement.setEnforceableAttributes(List.of(MEDIA_ATTRIBUTES));
+        mCarAudioFocusEnforcement.setDoNotSilenceAttributes(List.of(ASSISTANT_ATTRIBUTES));
         AudioPlaybackConfiguration mediaConfig =
                 createMockPlaybackConfig(ASSISTANT_ATTRIBUTES, TEST_UID);
         SparseArray<List<AudioPlaybackConfiguration>> activePlaybacks =
                 createActivePlaybackConfigsMap(mediaConfig);
 
-        enforcement.onAudioPlaybackChange(activePlaybacks);
+        mCarAudioFocusEnforcement.onAudioPlaybackChange(activePlaybacks);
 
         ArgumentCaptor<Float> volumeCaptor = captureVolumeChanged(mediaConfig, 0);
         assertWithMessage("Player volume with no focus holder and do not silence list")
@@ -458,15 +551,15 @@ public class CarAudioFocusEnforcementUnitTest {
                         .setUsage(USAGE_ASSISTANT)
                         .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
                         .build();
-        CarAudioFocusEnforcement enforcement = new CarAudioFocusEnforcement();
-        enforcement.setEnforceableAttributes(List.of(MEDIA_ATTRIBUTES, ASSISTANT_ATTRIBUTES));
-        enforcement.setDoNotSilenceAttributes(List.of(partialAssistant));
+        mCarAudioFocusEnforcement.setEnforceableAttributes(
+                List.of(MEDIA_ATTRIBUTES, ASSISTANT_ATTRIBUTES));
+        mCarAudioFocusEnforcement.setDoNotSilenceAttributes(List.of(partialAssistant));
         AudioPlaybackConfiguration mediaConfig =
                 createMockPlaybackConfig(ASSISTANT_ATTRIBUTES, TEST_UID);
         SparseArray<List<AudioPlaybackConfiguration>> activePlaybacks =
                 createActivePlaybackConfigsMap(mediaConfig);
 
-        enforcement.onAudioPlaybackChange(activePlaybacks);
+        mCarAudioFocusEnforcement.onAudioPlaybackChange(activePlaybacks);
 
         ArgumentCaptor<Float> volumeCaptor = captureVolumeChanged(mediaConfig, 1);
         assertWithMessage(
@@ -480,18 +573,18 @@ public class CarAudioFocusEnforcementUnitTest {
         AudioAttributes.Builder builder = new AudioAttributes.Builder().setUsage(USAGE_MEDIA);
         AudioManagerHelper.addTagToAudioAttributes(builder, "tag1");
         AudioAttributes mediaWithTag = builder.build();
-        CarAudioFocusEnforcement enforcement = new CarAudioFocusEnforcement();
-        enforcement.setEnforceableAttributes(List.of(MEDIA_ATTRIBUTES));
-        enforcement.setDoNotSilenceAttributes(List.of(mediaWithTag));
+        mCarAudioFocusEnforcement.setEnforceableAttributes(List.of(MEDIA_ATTRIBUTES));
+        mCarAudioFocusEnforcement.setDoNotSilenceAttributes(List.of(mediaWithTag));
         AudioPlaybackConfiguration mediaConfig = createMockPlaybackConfig(MEDIA_ATTRIBUTES,
                 TEST_UID);
         SparseArray<List<AudioPlaybackConfiguration>> activePlaybacks =
                 createActivePlaybackConfigsMap(mediaConfig);
 
-        enforcement.onAudioPlaybackChange(activePlaybacks);
+        mCarAudioFocusEnforcement.onAudioPlaybackChange(activePlaybacks);
 
         ArgumentCaptor<Float> volumeCaptor = captureVolumeChanged(mediaConfig, 1);
-        assertWithMessage("Player volume with no focus and no matching tags in do not silence list")
+        assertWithMessage(
+                "Player volume with no focus and no matching tags in do not silence list")
                 .that(volumeCaptor.getValue())
                 .isEqualTo(0.0f);
     }
@@ -501,32 +594,31 @@ public class CarAudioFocusEnforcementUnitTest {
         AudioAttributes.Builder builder = new AudioAttributes.Builder().setUsage(USAGE_MEDIA);
         AudioManagerHelper.addTagToAudioAttributes(builder, "tag1");
         AudioAttributes mediaWithTag = builder.build();
-        CarAudioFocusEnforcement enforcement = new CarAudioFocusEnforcement();
-        enforcement.setEnforceableAttributes(List.of(MEDIA_ATTRIBUTES));
-        enforcement.setDoNotSilenceAttributes(List.of(mediaWithTag));
+        mCarAudioFocusEnforcement.setEnforceableAttributes(List.of(MEDIA_ATTRIBUTES));
+        mCarAudioFocusEnforcement.setDoNotSilenceAttributes(List.of(mediaWithTag));
         AudioPlaybackConfiguration mediaConfig = createMockPlaybackConfig(mediaWithTag, TEST_UID);
         SparseArray<List<AudioPlaybackConfiguration>> activePlaybacks =
                 createActivePlaybackConfigsMap(mediaConfig);
 
-        enforcement.onAudioPlaybackChange(activePlaybacks);
+        mCarAudioFocusEnforcement.onAudioPlaybackChange(activePlaybacks);
 
         ArgumentCaptor<Float> volumeCaptor = captureVolumeChanged(mediaConfig, 0);
-        assertWithMessage("Player volume with no focus and matching tags in do not silence list")
+        assertWithMessage(
+                "Player volume with no focus and matching tags in do not silence list")
                 .that(volumeCaptor.getAllValues())
                 .isEmpty();
     }
 
     @Test
     public void onAudioPlaybackChange_forNonPrimaryZone_doesNotSilence() {
-        CarAudioFocusEnforcement enforcement = new CarAudioFocusEnforcement();
-        enforcement.setEnforceableAttributes(List.of(MEDIA_ATTRIBUTES));
+        mCarAudioFocusEnforcement.setEnforceableAttributes(List.of(MEDIA_ATTRIBUTES));
         AudioPlaybackConfiguration mediaConfig = createMockPlaybackConfig(MEDIA_ATTRIBUTES,
                 TEST_UID);
         SparseArray<List<AudioPlaybackConfiguration>> activePlaybacks = new SparseArray<>();
         int nonPrimaryZoneId = PRIMARY_AUDIO_ZONE + 1;
         activePlaybacks.put(nonPrimaryZoneId, List.of(mediaConfig));
 
-        enforcement.onAudioPlaybackChange(activePlaybacks);
+        mCarAudioFocusEnforcement.onAudioPlaybackChange(activePlaybacks);
 
         ArgumentCaptor<Float> volumeCaptor = captureVolumeChanged(mediaConfig, 0);
         assertWithMessage("Player volume for non-primary zone")
@@ -536,13 +628,13 @@ public class CarAudioFocusEnforcementUnitTest {
 
     @Test
     public void onAudioPlaybackChange_withCriticalAudioInRelaxedMode_doesNotSilence() {
-        CarAudioFocusEnforcement enforcement = new CarAudioFocusEnforcement();
-        enforcement.setEnforceableAttributes(List.of(MEDIA_ATTRIBUTES));
+        mCarAudioFocusEnforcement.setEnforceableAttributes(List.of(MEDIA_ATTRIBUTES));
         AudioPlaybackConfiguration emergencyConfig =
                 createMockPlaybackConfig(EMERGENCY_ATTRIBUTES, TEST_UID);
-        enforcement.enableRelaxedParkMode(true);
+        mCarAudioFocusEnforcement.enableRelaxedParkMode(true);
 
-        enforcement.onAudioPlaybackChange(createActivePlaybackConfigsMap(emergencyConfig));
+        mCarAudioFocusEnforcement.onAudioPlaybackChange(
+                createActivePlaybackConfigsMap(emergencyConfig));
 
         ArgumentCaptor<Float> volumeCaptor = captureVolumeChanged(emergencyConfig, 0);
         assertWithMessage("Critical audio volume in relaxed mode")
@@ -552,14 +644,14 @@ public class CarAudioFocusEnforcementUnitTest {
 
     @Test
     public void onAudioPlaybackChange_withCriticalAudioAndOtherCriticalFocus_doesNotSilence() {
-        CarAudioFocusEnforcement enforcement = new CarAudioFocusEnforcement();
-        enforcement.setEnforceableAttributes(List.of(MEDIA_ATTRIBUTES));
+        mCarAudioFocusEnforcement.setEnforceableAttributes(List.of(MEDIA_ATTRIBUTES));
         AudioPlaybackConfiguration emergencyConfig =
                 createMockPlaybackConfig(EMERGENCY_ATTRIBUTES, TEST_UID);
         AudioFocusInfo safetyFocusInfo = createMockFocusInfo(USAGE_SAFETY, TEST_OTHER_UID);
-        enforcement.onFocusChange(createFocusHolderMap(safetyFocusInfo));
+        mCarAudioFocusEnforcement.onFocusChange(createFocusHolderMap(safetyFocusInfo));
 
-        enforcement.onAudioPlaybackChange(createActivePlaybackConfigsMap(emergencyConfig));
+        mCarAudioFocusEnforcement.onAudioPlaybackChange(
+                createActivePlaybackConfigsMap(emergencyConfig));
 
         ArgumentCaptor<Float> volumeCaptor = captureVolumeChanged(emergencyConfig, 0);
         assertWithMessage("Critical audio volume with other critical focus")
@@ -569,14 +661,14 @@ public class CarAudioFocusEnforcementUnitTest {
 
     @Test
     public void onAudioPlaybackChange_withCriticalAudioAndNonCriticalFocus_doesNotSilence() {
-        CarAudioFocusEnforcement enforcement = new CarAudioFocusEnforcement();
-        enforcement.setEnforceableAttributes(List.of(MEDIA_ATTRIBUTES));
+        mCarAudioFocusEnforcement.setEnforceableAttributes(List.of(MEDIA_ATTRIBUTES));
         AudioPlaybackConfiguration emergencyConfig =
                 createMockPlaybackConfig(EMERGENCY_ATTRIBUTES, TEST_UID);
         AudioFocusInfo mediaFocusInfo = createMockFocusInfo(USAGE_MEDIA, TEST_OTHER_UID);
-        enforcement.onFocusChange(createFocusHolderMap(mediaFocusInfo));
+        mCarAudioFocusEnforcement.onFocusChange(createFocusHolderMap(mediaFocusInfo));
 
-        enforcement.onAudioPlaybackChange(createActivePlaybackConfigsMap(emergencyConfig));
+        mCarAudioFocusEnforcement.onAudioPlaybackChange(
+                createActivePlaybackConfigsMap(emergencyConfig));
 
         ArgumentCaptor<Float> volumeCaptor = captureVolumeChanged(emergencyConfig, 0);
         assertWithMessage("Critical audio volume with non-critical focus")
@@ -586,8 +678,7 @@ public class CarAudioFocusEnforcementUnitTest {
 
     @Test
     public void onAudioPlaybackChange_withMultipleZones_onlyActsOnPrimaryZone() {
-        CarAudioFocusEnforcement enforcement = new CarAudioFocusEnforcement();
-        enforcement.setEnforceableAttributes(List.of(MEDIA_ATTRIBUTES));
+        mCarAudioFocusEnforcement.setEnforceableAttributes(List.of(MEDIA_ATTRIBUTES));
         AudioPlaybackConfiguration mediaConfig = createMockPlaybackConfig(MEDIA_ATTRIBUTES,
                 TEST_UID);
         AudioPlaybackConfiguration gameConfig = createMockPlaybackConfig(GAME_ATTRIBUTES,
@@ -597,7 +688,7 @@ public class CarAudioFocusEnforcementUnitTest {
         int otherZoneId = PRIMARY_AUDIO_ZONE + 1;
         activePlaybacks.put(otherZoneId, List.of(gameConfig));
 
-        enforcement.onAudioPlaybackChange(activePlaybacks);
+        mCarAudioFocusEnforcement.onAudioPlaybackChange(activePlaybacks);
 
         ArgumentCaptor<Float> volumeCaptor = captureVolumeChanged(mediaConfig, 1);
         assertWithMessage("Player volume with multiple zones")
@@ -607,13 +698,13 @@ public class CarAudioFocusEnforcementUnitTest {
 
     @Test
     public void enableRelaxedParkMode_whileSilenced_unsilences() {
-        CarAudioFocusEnforcement enforcement = new CarAudioFocusEnforcement();
-        enforcement.setEnforceableAttributes(List.of(MEDIA_ATTRIBUTES));
+        mCarAudioFocusEnforcement.setEnforceableAttributes(List.of(MEDIA_ATTRIBUTES));
         AudioPlaybackConfiguration mediaConfig = createMockPlaybackConfig(MEDIA_ATTRIBUTES,
                 TEST_UID);
-        enforcement.onAudioPlaybackChange(createActivePlaybackConfigsMap(mediaConfig));
+        mCarAudioFocusEnforcement.onAudioPlaybackChange(
+                createActivePlaybackConfigsMap(mediaConfig));
 
-        enforcement.enableRelaxedParkMode(true);
+        mCarAudioFocusEnforcement.enableRelaxedParkMode(true);
 
         ArgumentCaptor<Float> volumeCaptor = captureVolumeChanged(mediaConfig, 2);
         assertWithMessage("Player volume after entering parked mode")
@@ -624,14 +715,14 @@ public class CarAudioFocusEnforcementUnitTest {
 
     @Test
     public void enableRelaxedParkMode_whileUnsilencedInRelaxedParkMode_silences() {
-        CarAudioFocusEnforcement enforcement = new CarAudioFocusEnforcement();
-        enforcement.setEnforceableAttributes(List.of(MEDIA_ATTRIBUTES));
+        mCarAudioFocusEnforcement.setEnforceableAttributes(List.of(MEDIA_ATTRIBUTES));
         AudioPlaybackConfiguration mediaConfig = createMockPlaybackConfig(MEDIA_ATTRIBUTES,
                 TEST_UID);
-        enforcement.onAudioPlaybackChange(createActivePlaybackConfigsMap(mediaConfig));
-        enforcement.enableRelaxedParkMode(true);
+        mCarAudioFocusEnforcement.onAudioPlaybackChange(
+                createActivePlaybackConfigsMap(mediaConfig));
+        mCarAudioFocusEnforcement.enableRelaxedParkMode(true);
 
-        enforcement.enableRelaxedParkMode(false);
+        mCarAudioFocusEnforcement.enableRelaxedParkMode(false);
 
         ArgumentCaptor<Float> volumeCaptor = captureVolumeChanged(mediaConfig, 3);
         assertWithMessage("Player volume after exiting parked mode")
@@ -642,14 +733,14 @@ public class CarAudioFocusEnforcementUnitTest {
 
     @Test
     public void enableRelaxedParkMode_withNoChangeInState_doesNothing() {
-        CarAudioFocusEnforcement enforcement = new CarAudioFocusEnforcement();
-        enforcement.setEnforceableAttributes(List.of(MEDIA_ATTRIBUTES));
+        mCarAudioFocusEnforcement.setEnforceableAttributes(List.of(MEDIA_ATTRIBUTES));
         AudioPlaybackConfiguration mediaConfig = createMockPlaybackConfig(MEDIA_ATTRIBUTES,
                 TEST_UID);
-        enforcement.onAudioPlaybackChange(createActivePlaybackConfigsMap(mediaConfig));
-        enforcement.enableRelaxedParkMode(true);
+        mCarAudioFocusEnforcement.onAudioPlaybackChange(
+                createActivePlaybackConfigsMap(mediaConfig));
+        mCarAudioFocusEnforcement.enableRelaxedParkMode(true);
 
-        enforcement.enableRelaxedParkMode(true);
+        mCarAudioFocusEnforcement.enableRelaxedParkMode(true);
 
         ArgumentCaptor<Float> volumeCaptor = captureVolumeChanged(mediaConfig, 2);
         assertWithMessage("Player volume with no change in relaxed mode")
@@ -659,16 +750,16 @@ public class CarAudioFocusEnforcementUnitTest {
     }
 
     @Test
-    public void onAudioPlaybackChange_withRelaxedModeAndCriticalRequest_silences() {
-        CarAudioFocusEnforcement enforcement = new CarAudioFocusEnforcement();
-        enforcement.setEnforceableAttributes(List.of(MEDIA_ATTRIBUTES));
+    public void evaluateAndEnforceFocusState_withRelaxedModeAndCriticalRequest_silences() {
+        mCarAudioFocusEnforcement.setEnforceableAttributes(List.of(MEDIA_ATTRIBUTES));
         AudioPlaybackConfiguration mediaConfig = createMockPlaybackConfig(MEDIA_ATTRIBUTES,
                 TEST_UID);
-        enforcement.enableRelaxedParkMode(true);
+        mCarAudioFocusEnforcement.enableRelaxedParkMode(true);
         AudioFocusInfo emergencyFocusInfo = createMockFocusInfo(USAGE_EMERGENCY, TEST_OTHER_UID);
-        enforcement.onFocusChange(createFocusHolderMap(emergencyFocusInfo));
+        mCarAudioFocusEnforcement.onFocusChange(createFocusHolderMap(emergencyFocusInfo));
 
-        enforcement.onAudioPlaybackChange(createActivePlaybackConfigsMap(mediaConfig));
+        mCarAudioFocusEnforcement.onAudioPlaybackChange(
+                createActivePlaybackConfigsMap(mediaConfig));
 
         ArgumentCaptor<Float> volumeCaptor = captureVolumeChanged(mediaConfig, 1);
         assertWithMessage("Player volume in relaxed mode with critical request")
@@ -677,14 +768,15 @@ public class CarAudioFocusEnforcementUnitTest {
     }
 
     @Test
-    public void onAudioPlaybackChange_withNoChangeInState_doesNotSetVolume() {
-        CarAudioFocusEnforcement enforcement = new CarAudioFocusEnforcement();
-        enforcement.setEnforceableAttributes(List.of(MEDIA_ATTRIBUTES));
+    public void enforceAudioFocus_withNoChangeInState_doesNotSetVolume() {
+        mCarAudioFocusEnforcement.setEnforceableAttributes(List.of(MEDIA_ATTRIBUTES));
         AudioPlaybackConfiguration mediaConfig = createMockPlaybackConfig(MEDIA_ATTRIBUTES,
                 TEST_UID);
-        enforcement.onAudioPlaybackChange(createActivePlaybackConfigsMap(mediaConfig));
+        mCarAudioFocusEnforcement.onAudioPlaybackChange(
+                createActivePlaybackConfigsMap(mediaConfig));
 
-        enforcement.onAudioPlaybackChange(createActivePlaybackConfigsMap(mediaConfig));
+        mCarAudioFocusEnforcement.onAudioPlaybackChange(
+                createActivePlaybackConfigsMap(mediaConfig));
 
         ArgumentCaptor<Float> volumeCaptor = captureVolumeChanged(mediaConfig, 1);
         assertWithMessage("Player volume with no change in state")
@@ -693,21 +785,20 @@ public class CarAudioFocusEnforcementUnitTest {
     }
 
     @Test
-    public void onAudioPlaybackChange_withNullFocusInfos_silences() {
-        CarAudioFocusEnforcement enforcement = new CarAudioFocusEnforcement();
-        enforcement.setEnforceableAttributes(List.of(MEDIA_ATTRIBUTES));
+    public void shouldSilence_withNullFocusInfos_silences() {
+        mCarAudioFocusEnforcement.setEnforceableAttributes(List.of(MEDIA_ATTRIBUTES));
         AudioPlaybackConfiguration mediaConfig = createMockPlaybackConfig(MEDIA_ATTRIBUTES,
                 TEST_UID);
-        enforcement.onFocusChange(createFocusHolderMap());
 
-        enforcement.onAudioPlaybackChange(createActivePlaybackConfigsMap(mediaConfig));
+        mCarAudioFocusEnforcement.onFocusChange(createFocusHolderMap());
+        mCarAudioFocusEnforcement.onAudioPlaybackChange(
+                createActivePlaybackConfigsMap(mediaConfig));
 
         ArgumentCaptor<Float> volumeCaptor = captureVolumeChanged(mediaConfig, 1);
         assertWithMessage("Player volume with null focus infos")
                 .that(volumeCaptor.getValue())
                 .isEqualTo(0.0f);
     }
-
 
     private static ArgumentCaptor<Float> captureVolumeChanged(
             AudioPlaybackConfiguration mediaConfig, int count) {
@@ -745,5 +836,29 @@ public class CarAudioFocusEnforcementUnitTest {
         return new AudioFocusInfoBuilder().setUsage(usage).setClientUid(uid)
                 .setClientId("clientId").setPackageName("test.package")
                 .setGainRequest(AudioManager.AUDIOFOCUS_GAIN).createAudioFocusInfo();
+    }
+
+    private static final class TestEnforceableAudioFocusCallback
+            extends IEnforceableAudioFocusCallback.Stub {
+        private final List<EnforcedAudioFocusInfo> mEnforcedAudioFocusInfos = new ArrayList<>();
+        private CountDownLatch mLatch;
+
+        TestEnforceableAudioFocusCallback(int count) {
+            mLatch = new CountDownLatch(count);
+        }
+
+        @Override
+        public void onEnforcedAudioFocusChanged(List<EnforcedAudioFocusInfo> infos) {
+            mEnforcedAudioFocusInfos.addAll(infos);
+            mLatch.countDown();
+        }
+
+        List<EnforcedAudioFocusInfo> getEnforcedInfos() {
+            return new ArrayList<>(mEnforcedAudioFocusInfos);
+        }
+
+        void waitForCallback() throws InterruptedException {
+            mLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS);
+        }
     }
 }

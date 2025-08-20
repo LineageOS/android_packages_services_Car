@@ -25,13 +25,19 @@ import static android.media.AudioAttributes.USAGE_VOICE_COMMUNICATION_SIGNALLING
 
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
+import android.annotation.Nullable;
 import android.car.builtin.os.TraceHelper;
 import android.car.builtin.util.Slogf;
 import android.car.builtin.util.TimingsTraceLog;
+import android.car.media.EnforcedAudioFocusInfo;
+import android.car.media.IEnforceableAudioFocusCallback;
 import android.media.AudioAttributes;
 import android.media.AudioFocusInfo;
 import android.media.AudioPlaybackConfiguration;
 import android.media.PlayerProxy;
+import android.os.Binder;
+import android.os.RemoteCallbackList;
+import android.os.RemoteException;
 import android.util.ArraySet;
 import android.util.SparseArray;
 
@@ -57,6 +63,8 @@ final class CarAudioFocusEnforcement {
 
     private final LocalLog mFocusEnforcementLogger =
             new LocalLog(FOCUS_ENFORCEMENT_LOGGER_QUEUE_SIZE);
+    private final RemoteCallbackList<IEnforceableAudioFocusCallback>
+            mFocusEnforcementCallbacks = new RemoteCallbackList<>();
 
     private final Object mLock = new Object();
     @GuardedBy("mLock")
@@ -103,7 +111,6 @@ final class CarAudioFocusEnforcement {
                 }
             }
         }
-
     }
 
     List<AudioAttributes> getEnforceableAttributes() {
@@ -127,6 +134,29 @@ final class CarAudioFocusEnforcement {
         }
     }
 
+    void release() {
+        mFocusEnforcementCallbacks.kill();
+    }
+
+    boolean registerCallback(IEnforceableAudioFocusCallback callback) {
+        if (callback == null) {
+            Slogf.w(TAG, "Enforceable audio focus callback can not be null");
+            return false;
+        }
+        var pid = Binder.getCallingPid();
+        var uid = Binder.getCallingUid();
+        var callingIdentity = new CallbackIdentity(pid, uid);
+        return mFocusEnforcementCallbacks.register(callback, callingIdentity);
+    }
+
+    boolean unregisterCallback(IEnforceableAudioFocusCallback callback) {
+        if (callback == null) {
+            Slogf.w(TAG, "Enforceable audio focus callback can not be null");
+            return false;
+        }
+        return mFocusEnforcementCallbacks.unregister(callback);
+    }
+
     List<AudioAttributes> getDoNotSilenceAttributes() {
         synchronized (mLock) {
             return new CopyOnWriteArrayList<>(mDoNotSilenceAttributes);
@@ -138,6 +168,7 @@ final class CarAudioFocusEnforcement {
             List<AudioFocusInfo> focusHolders, boolean relaxedParkModeEnabled,
             boolean hasCriticalAudioFocusRequest) {
         tracer.traceBegin("evaluateAndEnforceFocusState");
+        List<EnforcedAudioFocusInfo> enforcedAudioFocusInfos = new ArrayList<>();
         if (relaxedParkModeEnabled && !hasCriticalAudioFocusRequest) {
             List<AudioPlaybackConfiguration> playbacksToUnsilence = new ArrayList<>();
             synchronized (mLock) {
@@ -149,8 +180,13 @@ final class CarAudioFocusEnforcement {
                 }
             }
             for (int i = 0; i < playbacksToUnsilence.size(); i++) {
-                enforceAudioFocus(playbacksToUnsilence.get(i), /* silence= */ false, tracer);
+                var info = enforceAudioFocus(playbacksToUnsilence.get(i),
+                        /* silence= */ false, tracer);
+                if (info != null) {
+                    enforcedAudioFocusInfos.add(info);
+                }
             }
+            handleInformCallbacks(enforcedAudioFocusInfos);
             tracer.traceEnd();
             return;
         }
@@ -169,8 +205,12 @@ final class CarAudioFocusEnforcement {
                 continue;
             }
             boolean silence = shouldSilence(playback, focusHolders, doNotSilenceAttributes);
-            enforceAudioFocus(playback, silence, tracer);
+            var info = enforceAudioFocus(playback, silence, tracer);
+            if (info != null) {
+                enforcedAudioFocusInfos.add(info);
+            }
         }
+        handleInformCallbacks(enforcedAudioFocusInfos);
         tracer.traceEnd();
     }
 
@@ -195,8 +235,9 @@ final class CarAudioFocusEnforcement {
         return false;
     }
 
-    private void enforceAudioFocus(AudioPlaybackConfiguration playback, boolean silence,
-            TimingsTraceLog tracer) {
+    @Nullable
+    private EnforcedAudioFocusInfo enforceAudioFocus(AudioPlaybackConfiguration playback,
+            boolean silence, TimingsTraceLog tracer) {
         tracer.traceBegin("enforceAudioFocus-" + playback.getPlayerInterfaceId());
         String silenceMessage = silence ? "silence" : "unsilence";
         PlayerProxy proxy = playback.getPlayerProxy();
@@ -206,7 +247,7 @@ final class CarAudioFocusEnforcement {
             Slogf.e(TAG, message);
             mFocusEnforcementLogger.log(message);
             tracer.traceEnd();
-            return;
+            return null;
         }
 
         synchronized (mLock) {
@@ -221,7 +262,7 @@ final class CarAudioFocusEnforcement {
                         + " by car focus enforcement";
                 Slogf.i(TAG, info);
                 tracer.traceEnd();
-                return;
+                return null;
             }
 
             if (silence) {
@@ -253,9 +294,12 @@ final class CarAudioFocusEnforcement {
                     mCurrentlySilencedPlayerIDs.add(playback.getPlayerInterfaceId());
                 }
             }
+            return null;
         }
         mFocusEnforcementLogger.log(message);
         tracer.traceEnd();
+        return new EnforcedAudioFocusInfo(playback.getClientUid(),
+                playback.getAudioAttributes(), silence);
     }
 
     private boolean shouldSilence(AudioPlaybackConfiguration playback, List<AudioFocusInfo> infos,
@@ -379,6 +423,30 @@ final class CarAudioFocusEnforcement {
         tracer.traceEnd();
     }
 
+    private void handleInformCallbacks(List<EnforcedAudioFocusInfo> enforcedAudioFocusInfos) {
+        var tracer = new TimingsTraceLog(TAG, TraceHelper.TRACE_TAG_CAR_SERVICE);
+        tracer.traceBegin("enforceAudioFocus-informCallbacks");
+        if (enforcedAudioFocusInfos.isEmpty()) {
+            tracer.traceEnd();
+            return;
+        }
+        int n = mFocusEnforcementCallbacks.beginBroadcast();
+        for (int c = 0; c < n; c++) {
+            var callback = mFocusEnforcementCallbacks.getBroadcastItem(c);
+            Object cookie = mFocusEnforcementCallbacks.getBroadcastCookie(c);
+            CallbackIdentity identity = (CallbackIdentity) cookie;
+            tracer.traceBegin("enforceAudioFocus-informCallbacks-" + identity);
+            try {
+                callback.onEnforcedAudioFocusChanged(enforcedAudioFocusInfos);
+            } catch (RemoteException e) {
+                Slogf.e(TAG, e, "Could not inform focus enforcement %s", identity);
+            }
+            tracer.traceEnd();
+        }
+        mFocusEnforcementCallbacks.finishBroadcast();
+        tracer.traceEnd();
+    }
+
     @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     void dump(IndentingPrintWriter writer) {
         synchronized (mLock) {
@@ -464,5 +532,13 @@ final class CarAudioFocusEnforcement {
                     playback);
         }
         writer.decreaseIndent();
+    }
+
+    private record CallbackIdentity(int pid, int uid) {
+
+        @Override
+        public String toString() {
+            return " callback {pid=" + pid + ", uid=" + uid + "}";
+        }
     }
 }
