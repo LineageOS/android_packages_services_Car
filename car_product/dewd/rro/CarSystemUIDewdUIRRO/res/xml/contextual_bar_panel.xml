@@ -13,7 +13,7 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-  <Panel id="contextual_bar_panel" defaultVariant="@id/opened" role="@string/contextual_bar_component" displayId="0">
+  <TaskPanel id="contextual_bar_panel" defaultVariant="@id/opened" role="@string/contextual_bar_component" displayId="0">
     <Variant id="@+id/base">
         <Layer layer="@integer/contextual_bar_panel_layer"/>
     </Variant>
@@ -30,4 +30,4 @@
         <Transition onEvent="_System_OnHomeEvent" toVariant="@id/opened"/>
         <Transition onEvent="_System_EnterSuwEvent" toVariant="@id/closed"/>
     </Transitions>
-</Panel>
+</TaskPanel>
