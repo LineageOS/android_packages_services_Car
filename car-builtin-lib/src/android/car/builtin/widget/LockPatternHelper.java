@@ -40,6 +40,14 @@ public final class LockPatternHelper {
         return new LockPatternUtils(context).isSecure(userId);
     }
 
+    /**
+     * Sets the lock screen disable state for a user
+     */
+    public static void setLockScreenDisabled(@NonNull Context context, @UserIdInt int userId,
+            boolean disabled) {
+        new LockPatternUtils(context).setLockScreenDisabled(disabled, userId);
+    }
+
     private LockPatternHelper() {
         throw new UnsupportedOperationException("contains only static members");
     }
