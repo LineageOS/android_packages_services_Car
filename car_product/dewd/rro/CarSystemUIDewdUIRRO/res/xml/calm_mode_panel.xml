@@ -13,7 +13,7 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-  <Panel id="panel_calm_mode" defaultVariant="@id/closed" role="@string/config_calmModeComponentName" displayId="0">
+  <TaskPanel id="panel_calm_mode" defaultVariant="@id/closed" role="@string/config_calmModeComponentName" displayId="0">
     <Variant id="@+id/calm_mode_base">
         <Layer layer="@integer/calm_mode_panel_layer"/>
     </Variant>
@@ -34,4 +34,4 @@
         <Transition onEvent="_System_OnHomeEvent" toVariant="@id/closed"/>
         <Transition onEvent="_System_EnterSuwEvent" toVariant="@id/closed"/>
     </Transitions>
-</Panel>
+</TaskPanel>
