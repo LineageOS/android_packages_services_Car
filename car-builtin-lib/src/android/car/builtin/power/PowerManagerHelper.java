@@ -87,7 +87,9 @@ public final class PowerManagerHelper {
      * @param on Whether to turn the display on or off.
      * @param upTime The time when the request was issued, in the {@link SystemClock#uptimeMillis}
      *               time base.
+     * @deprecated Use {@link DisplayInterface#setDisplayState}.
      */
+    @Deprecated
     public static void setDisplayState(Context context, boolean on, long upTime) {
         PowerManager powerManager = context.getSystemService(PowerManager.class);
         if (on) {

@@ -45,7 +45,6 @@ import com.android.wm.shell.common.ShellExecutor
 import com.android.wm.shell.dagger.WMSingleton
 import com.android.wm.shell.shared.TransitionUtil
 import com.android.wm.shell.shared.annotations.ShellMainThread
-import com.android.wm.shell.sysui.ShellInit
 import com.android.wm.shell.transition.Transitions
 import com.android.wm.shell.transition.Transitions.TransitionFinishCallback
 import java.io.PrintWriter
@@ -59,12 +58,11 @@ class AutoTaskStackControllerImpl @Inject constructor(
     val taskOrganizer: ShellTaskOrganizer,
     @ShellMainThread private val shellMainThread: ShellExecutor,
     val transitions: Transitions,
-    val shellInit: ShellInit,
     val rootTdaOrganizer: RootTaskDisplayAreaOrganizer,
     val context: Context,
     val autoTaskRepository: AutoTaskRepository,
     val unused: AutoWmShellCommandHandler
-) : AutoTaskStackController, Transitions.TransitionHandler {
+) : AutoTaskStackController, Transitions.TransitionHandler, AutoShellInitializable {
     override var autoTransitionHandlerDelegate: AutoTaskStackTransitionHandlerDelegate? = null
 
     private val _taskStackStateMap: ConcurrentHashMap<Int, AutoTaskStackState> = ConcurrentHashMap()
@@ -84,19 +82,7 @@ class AutoTaskStackControllerImpl @Inject constructor(
     private val appTasksMap = mutableMapOf<Int, ActivityManager.RunningTaskInfo>()
     private val defaultRootTaskPerDisplay = mutableMapOf<Int, Int>()
 
-    init {
-        if (!enableAutoTaskStackController()) {
-            throw IllegalStateException(
-                "Failed to initialize" +
-                        "AutoTaskStackController as the auto_task_stack_windowing TS flag is " +
-                        "disabled."
-            )
-        } else {
-            shellInit.addInitCallback(this::onInit, this)
-        }
-    }
-
-    fun onInit() {
+    override fun initialize() {
         transitions.addHandler(this)
     }
 
