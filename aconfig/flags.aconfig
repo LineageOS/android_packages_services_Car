@@ -476,3 +476,11 @@ flag {
     description: "Use JNI native code for Parcel.marshall and Parcel.unmarshall to avoid memory copy"
     bug: "188781089"
 }
+
+# car-wm-shell visibility barrier
+flag {
+    name: "auto_visibility_barrier"
+    namespace: "car_framework"
+    description: "Enables a dedicated visibility barrier in car-wm-shell-lib"
+    bug: "432217693"
+}
