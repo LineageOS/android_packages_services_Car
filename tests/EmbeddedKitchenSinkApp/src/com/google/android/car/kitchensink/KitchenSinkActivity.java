@@ -48,6 +48,7 @@ import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.car.kitchensink.activitylaunch.ActivityLaunchFragment;
 import com.google.android.car.kitchensink.activityresolver.ActivityResolverFragment;
 import com.google.android.car.kitchensink.admin.DevicePolicyFragment;
 import com.google.android.car.kitchensink.alertdialog.AlertDialogTestFragment;
@@ -300,6 +301,7 @@ public class KitchenSinkActivity extends FragmentActivity implements KitchenSink
 
     public static final List<Pair<String, Class>> MENU_ENTRIES = Arrays.asList(
             new Pair<>("activity resolver", ActivityResolverFragment.class),
+            new Pair<>("activity launch", ActivityLaunchFragment.class),
             new Pair<>("alert window", AlertDialogTestFragment.class),
             new Pair<>("app sharing", AppSharingFragment.class),
             new Pair<>("assistant", CarAssistantFragment.class),
