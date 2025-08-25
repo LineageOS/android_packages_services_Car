@@ -28,9 +28,9 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
-
 import android.text.TextUtils;
 import android.util.Log;
+
 import com.android.internal.util.UserIcons;
 
 /**
@@ -81,6 +81,12 @@ class CarUserIconProvider {
         Bitmap userIconBitmap = UserIcons.convertToBitmap(icon);
 
         String name = userInfo.name;
+        if (name == null) {
+            Log.w(TAG, "User name is null.");
+            return userIconBitmap;
+        }
+        // Trim any leading spaces as the first real character should be used for the icon
+        name = name.trim();
         if (TextUtils.isEmpty(name)) {
             Log.w(TAG, "User name is empty.");
             return userIconBitmap;
