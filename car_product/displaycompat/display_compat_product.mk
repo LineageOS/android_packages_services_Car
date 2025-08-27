@@ -14,5 +14,6 @@
 # limitations under the License.
 #
 
-include packages/services/Car/car_product/displaycompat/display_compat_product.mk
-include packages/services/Car/car_product/displaycompat/display_compat_system.mk
+# Default density overrides for DisplayCompat
+PRODUCT_PACKAGES += \
+    display_compat_config
