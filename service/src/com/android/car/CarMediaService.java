@@ -205,6 +205,11 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
                                     // source.
                                     for (ComponentName component
                                             : getLastMediaSourcesInternal(j, userId)) {
+                                        if (component == null) {
+                                            Slogf.w(CarLog.TAG_MEDIA, "component is null, "
+                                                    + "skip comparison");
+                                            continue;
+                                        }
                                         if (!primaryComponents[j].getPackageName()
                                                 .equals(component.getPackageName())) {
                                             userMediaContext.mRemovedMediaSourceComponents[j] =
