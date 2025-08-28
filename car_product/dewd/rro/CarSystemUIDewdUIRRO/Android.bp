@@ -29,8 +29,10 @@ android_app {
     static_libs: [
         "car-portrait-ui-common",
         "car-ui-lib",
-        "oem-token-lib"
+        "oem-token-lib",
+        "com_android_car_scalableui_flags_lib",
     ],
+    flags_packages: ["com_android_car_scalableui_flags"],
     libs: [
         "token-shared-lib-prebuilt",
     ],

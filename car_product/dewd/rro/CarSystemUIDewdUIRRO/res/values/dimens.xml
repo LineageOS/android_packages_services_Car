@@ -79,4 +79,7 @@
     <dimen name="safe_bounds_open_top">747px</dimen>
     <dimen name="safe_bounds_close_top">2156px</dimen>
     <dimen name="safe_bounds_close_bottom">2837px</dimen>
+
+    <dimen name="status_bar_height">80px</dimen>
+    <dimen name="navigation_bar_height">140px</dimen>
 </resources>
