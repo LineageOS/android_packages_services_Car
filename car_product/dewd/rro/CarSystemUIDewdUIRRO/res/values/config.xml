@@ -54,7 +54,9 @@
     <bool name="config_enableSafeAreaAndToolbarPerDisplay">false</bool>
 
     <!-- Configure which system bars should be displayed. -->
+    <bool name="config_enableTopSystemBar">true</bool>
     <bool name="config_enableTopSystemBar" android:featureFlag="com.android.car.scalableui.enable_ext_panel_updates">false</bool>
+    <bool name="config_enableBottomSystemBar">true</bool>
     <bool name="config_enableBottomSystemBar" android:featureFlag="com.android.car.scalableui.enable_ext_panel_updates">false</bool>
 
     <!-- Location of the system bar privacy indicator. This value should be consistent with the
