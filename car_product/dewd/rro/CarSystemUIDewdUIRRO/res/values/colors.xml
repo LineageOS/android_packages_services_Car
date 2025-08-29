@@ -16,4 +16,5 @@
   -->
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
     <color name="privacy_chip_light_icon_color">@color/car_nav_icon_fill_color_selected</color>
+    <color name="car_hun_scrim_start_color">@color/car_surface</color>
 </resources>
