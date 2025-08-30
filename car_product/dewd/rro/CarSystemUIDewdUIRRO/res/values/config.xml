@@ -15,7 +15,7 @@
   ~ limitations under the License.
   -->
 
-<resources>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
     <bool name="config_enableScalableUI" translatable="false">true</bool>
     <bool name="config_enableClearBackStack" translatable="false">false</bool>
     <integer name="config_systemBarPersistency">0</integer>
@@ -30,6 +30,16 @@
         <item>@xml/calm_mode_panel</item>
     </array>
 
+    <array name="window_states" android:featureFlag="com.android.car.scalableui.enable_ext_panel_updates">
+        <item>@xml/app_panel</item>
+        <item>@xml/app_grid_panel</item>
+        <item>@xml/map_panel</item>
+        <item>@xml/contextual_bar_panel</item>
+        <item>@xml/calm_mode_panel</item>
+        <item>@xml/status_bar</item>
+        <item>@xml/nav_bar</item>
+    </array>
+
     <string-array name="config_untrimmable_activities" translatable="false">
         <item>@string/contextual_bar_component</item>
     </string-array>
@@ -42,4 +52,14 @@
 
     <!-- Setup and add safe area and toolbar per display on for Display Compat apps . -->
     <bool name="config_enableSafeAreaAndToolbarPerDisplay">false</bool>
+
+    <!-- Configure which system bars should be displayed. -->
+    <bool name="config_enableTopSystemBar">true</bool>
+    <bool name="config_enableTopSystemBar" android:featureFlag="com.android.car.scalableui.enable_ext_panel_updates">false</bool>
+    <bool name="config_enableBottomSystemBar">true</bool>
+    <bool name="config_enableBottomSystemBar" android:featureFlag="com.android.car.scalableui.enable_ext_panel_updates">false</bool>
+
+    <!-- Location of the system bar privacy indicator. This value should be consistent with the
+         system bar where the view for system bar privacy indicator is put. -->
+    <string name="config_privacyIndicatorLocation" android:featureFlag="com.android.car.scalableui.enable_ext_panel_updates">status</string>
 </resources>

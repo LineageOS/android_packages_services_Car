@@ -141,4 +141,8 @@
     <item target="string/contextual_bar_component" value="@string/contextual_bar_component"/>
     <item target="string/default_config" value="@string/default_config"/>
     <item target="string/config_appGridComponentName" value="@string/config_appGridComponentName"/>
+
+    <item target="bool/config_enableTopSystemBar" value="@bool/config_enableTopSystemBar" />
+    <item target="bool/config_enableBottomSystemBar" value="@bool/config_enableBottomSystemBar" />
+    <item target="string/config_privacyIndicatorLocation" value="@string/config_privacyIndicatorLocation" />
 </overlay>
