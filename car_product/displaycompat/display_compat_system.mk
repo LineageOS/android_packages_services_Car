@@ -14,5 +14,11 @@
 # limitations under the License.
 #
 
-include packages/services/Car/car_product/displaycompat/display_compat_product.mk
-include packages/services/Car/car_product/displaycompat/display_compat_system.mk
+# Device supports DisplayCompat
+PRODUCT_COPY_FILES += \
+    packages/services/Car/car_product/displaycompat/android.software.car.display_compatibility.xml:system/etc/permissions/android.software.car.display_compatibility.xml
+
+# Debug packages for DisplayCompat
+PRODUCT_PACKAGES_DEBUG += \
+    DisplayCompatTestApp \
+    DisplayCompatIntentApp
