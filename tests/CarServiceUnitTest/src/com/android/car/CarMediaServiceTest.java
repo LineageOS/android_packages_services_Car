@@ -226,6 +226,51 @@ public final class CarMediaServiceTest extends AbstractExtendedMockitoTestCase {
     }
 
     @Test
+    public void testPowerPolicyListener_mediaDisabled_whenPauseSupported_pausesPlayback()
+            throws Exception {
+        MediaController mockController = mock(MediaController.class);
+        TransportControls mockTransportControls = mock(TransportControls.class);
+        when(mockController.getTransportControls()).thenReturn(mockTransportControls);
+        when(mockController.getPackageName()).thenReturn(MEDIA_PACKAGE);
+        when(mockController.getPlaybackState()).thenReturn(
+                createPlaybackState(PlaybackState.STATE_PLAYING, PlaybackState.ACTION_PAUSE));
+        when(mMediaSessionManager.getActiveSessionsForUser(any(), eq(UserHandle.of(TEST_USER_ID))))
+                .thenReturn(List.of(mockController));
+        initMediaService();
+        // Set an active media source to establish the mockController as active
+        mCarMediaService.setMediaSource(MEDIA_COMPONENT, MEDIA_SOURCE_MODE_PLAYBACK, TEST_USER_ID);
+        mockPowerPolicyEvents();
+
+        sendPowerPolicyEvent(POWER_POLICY_MEDIA_DISABLED);
+
+        verify(mockTransportControls).pause();
+        verify(mockTransportControls, never()).stop();
+    }
+
+    @Test
+    public void testPowerPolicyListener_mediaDisabled_whenPauseNotSupported_stopsPlayback()
+            throws Exception {
+        MediaController mockController = mock(MediaController.class);
+        TransportControls mockTransportControls = mock(TransportControls.class);
+        when(mockController.getTransportControls()).thenReturn(mockTransportControls);
+        when(mockController.getPackageName()).thenReturn(MEDIA_PACKAGE);
+        // Create a playback state that does NOT support pause
+        when(mockController.getPlaybackState()).thenReturn(
+                createPlaybackState(PlaybackState.STATE_PLAYING, /* actions= */ 0));
+        when(mMediaSessionManager.getActiveSessionsForUser(any(), eq(UserHandle.of(TEST_USER_ID))))
+                .thenReturn(List.of(mockController));
+        initMediaService();
+        // Set an active media source to establish the mockController as active
+        mCarMediaService.setMediaSource(MEDIA_COMPONENT, MEDIA_SOURCE_MODE_PLAYBACK, TEST_USER_ID);
+        mockPowerPolicyEvents();
+
+        sendPowerPolicyEvent(POWER_POLICY_MEDIA_DISABLED);
+
+        verify(mockTransportControls, never()).pause();
+        verify(mockTransportControls).stop();
+    }
+
+    @Test
     public void testSetMediaSource_ModePlaybackIndependent() {
         mCarMediaService.setIndependentPlaybackConfig(true, TEST_USER_ID);
         initMediaService();
@@ -303,6 +348,29 @@ public final class CarMediaServiceTest extends AbstractExtendedMockitoTestCase {
 
         verify(mockController).unregisterCallback(any());
         verify(mockTransportControls).pause();
+        verify(mockTransportControls).stop();
+    }
+
+    @Test
+    public void testSetMediaSource_whenPauseNotSupported_stopsPreviousMediaWithoutPausing() {
+        MediaController mockController = mock(MediaController.class);
+        TransportControls mockTransportControls = mock(TransportControls.class);
+        when(mockController.getTransportControls()).thenReturn(mockTransportControls);
+        when(mockController.getPackageName()).thenReturn(MEDIA_PACKAGE);
+        // Create a playback state that does NOT support pause
+        when(mockController.getPlaybackState()).thenReturn(
+                createPlaybackState(PlaybackState.STATE_PLAYING, /* actions= */ 0));
+        when(mMediaSessionManager.getActiveSessionsForUser(any(), eq(UserHandle.of(TEST_USER_ID))))
+                .thenReturn(List.of(mockController));
+        initMediaService();
+
+        // Set the playback media source to MEDIA_COMPONENT, and then to MEDIA_COMPONENT2
+        mCarMediaService.setMediaSource(MEDIA_COMPONENT, MEDIA_SOURCE_MODE_PLAYBACK, TEST_USER_ID);
+        mCarMediaService.setMediaSource(MEDIA_COMPONENT2, MEDIA_SOURCE_MODE_PLAYBACK,
+                TEST_USER_ID);
+
+        verify(mockController).unregisterCallback(any());
+        verify(mockTransportControls, never()).pause();
         verify(mockTransportControls).stop();
     }
 
