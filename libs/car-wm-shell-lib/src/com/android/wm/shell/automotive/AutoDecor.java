@@ -21,11 +21,13 @@ import static android.view.WindowManager.LayoutParams.FLAG_SPLIT_TOUCH;
 import static android.view.WindowManager.LayoutParams.INPUT_FEATURE_SPY;
 import static android.view.WindowManager.LayoutParams.TYPE_APPLICATION;
 
+import android.annotation.Nullable;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.graphics.PixelFormat;
 import android.graphics.Rect;
 import android.util.Log;
+import android.view.Display;
 import android.view.SurfaceControl;
 import android.view.SurfaceControlViewHost;
 import android.view.View;
@@ -51,6 +53,7 @@ public final class AutoDecor {
     private final View mView;
     private final String mDecorName;
     private final AutoTaskRepository mAutoTaskRepository;
+    @Nullable
     private SurfaceControlViewHost mViewHost;
     private int mZOrder;
     private Rect mBounds;
@@ -168,7 +171,12 @@ public final class AutoDecor {
             Slogf.d(TAG, "Adding Decor %s to the parent surface %s for display %d", this,
                     parentSurface, displayId);
         }
-        mViewHost = new SurfaceControlViewHost(mContext, mDisplayController.getDisplay(displayId),
+        Display display = mDisplayController.getDisplay(displayId);
+        if (display == null) {
+            Slogf.e(TAG, "Display with id " + displayId + " not found. Not adding the decor.");
+            return;
+        }
+        mViewHost = new SurfaceControlViewHost(mContext, display,
                 (InputTransferToken) null, "AutoDecor");
 
         WindowManager.LayoutParams lp = new WindowManager.LayoutParams(mBounds.width(),
@@ -233,6 +241,10 @@ public final class AutoDecor {
         if (DBG) {
             Slogf.d(TAG, "Detaching Decor %s", this);
         }
+        if (mViewHost == null) {
+            Slogf.e(TAG, "ViewHost is null. Not detaching the decor.");
+            return;
+        }
         SurfaceControl viewSurface = mViewHost.getSurfacePackage().getSurfaceControl();
         SurfaceControl.Transaction t = new SurfaceControl.Transaction();
         t.reparent(viewSurface, null);
@@ -247,6 +259,8 @@ public final class AutoDecor {
      * Returns the {@link SurfaceControlViewHost} associated with the decor.
      * @return The SurfaceControlViewHost.
      */
+    // TODO(b/442578643) root cause NPEs and make this non-nullable
+    @Nullable
     SurfaceControlViewHost getViewHost() {
         return mViewHost;
     }

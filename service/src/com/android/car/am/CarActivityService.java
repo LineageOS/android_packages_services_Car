@@ -39,6 +39,7 @@ import android.car.builtin.app.TaskInfoHelper;
 import android.car.builtin.os.UserManagerHelper;
 import android.car.builtin.util.Slogf;
 import android.car.builtin.view.SurfaceControlHelper;
+import android.car.feature.Flags;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -212,6 +213,16 @@ public final class CarActivityService extends ICarActivityService.Stub
         ensurePermission(Car.PERMISSION_CONTROL_CAR_APP_LAUNCH);
         CarServiceHelperWrapper.getInstance().setPersistentActivitiesOnRootTask(activities,
                 rootTaskToken);
+    }
+
+    @Override
+    public void setLaunchBehaviorForRootTask(IBinder rootTaskToken, int behavior) {
+        if (!Flags.rootTaskStickyRoutingBehaviors()) {
+            Slogf.e(TAG, "Unable to set behavior, flag disabled");
+            return;
+        }
+        ensurePermission(Car.PERMISSION_CONTROL_CAR_APP_LAUNCH);
+        CarServiceHelperWrapper.getInstance().setLaunchBehaviorForRootTask(rootTaskToken, behavior);
     }
 
     @VisibleForTesting
