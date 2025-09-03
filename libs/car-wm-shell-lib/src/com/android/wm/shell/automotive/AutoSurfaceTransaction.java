@@ -196,6 +196,10 @@ public class AutoSurfaceTransaction {
             float alpha) {
         Objects.requireNonNull(autoDecor);
         SurfaceControlViewHost viewHost = autoDecor.getViewHost();
+        if (viewHost == null) {
+            Slogf.e(TAG, "ViewHost is null. Not setting alpha.");
+            return this;
+        }
         SurfaceControl surfaceControl = viewHost.getSurfacePackage().getSurfaceControl();
         mTransaction.setAlpha(surfaceControl, alpha);
         return this;
@@ -211,6 +215,10 @@ public class AutoSurfaceTransaction {
             float cornerRadius) {
         Objects.requireNonNull(autoDecor);
         SurfaceControlViewHost viewHost = autoDecor.getViewHost();
+        if (viewHost == null) {
+            Slogf.e(TAG, "ViewHost is null. Not setting corner radius.");
+            return this;
+        }
         SurfaceControl surfaceControl = viewHost.getSurfacePackage().getSurfaceControl();
         // Crop is required for setCornerRadius API to work.
         mTransaction.setCrop(surfaceControl,
@@ -230,6 +238,10 @@ public class AutoSurfaceTransaction {
         Objects.requireNonNull(autoDecor);
         Objects.requireNonNull(cropBounds);
         SurfaceControlViewHost viewHost = autoDecor.getViewHost();
+        if (viewHost == null) {
+            Slogf.e(TAG, "ViewHost is null. Not setting crop.");
+            return this;
+        }
         SurfaceControl surfaceControl = viewHost.getSurfacePackage().getSurfaceControl();
         mTransaction.setCrop(surfaceControl, cropBounds);
         return this;
@@ -256,6 +268,10 @@ public class AutoSurfaceTransaction {
         lp.setTrustedOverlay();
 
         SurfaceControlViewHost viewHost = autoDecor.getViewHost();
+        if (viewHost == null) {
+            Slogf.e(TAG, "ViewHost is null. Not setting bounds.");
+            return this;
+        }
         SurfaceControlViewHost.SurfacePackage surfacePackage = viewHost.getSurfacePackage();
         SurfaceControl surfaceControl = viewHost.getSurfacePackage().getSurfaceControl();
         mTransaction.setPosition(surfaceControl, bounds.left, bounds.top);
@@ -282,6 +298,10 @@ public class AutoSurfaceTransaction {
         }
 
         SurfaceControlViewHost viewHost = autoDecor.getViewHost();
+        if (viewHost == null) {
+            Slogf.e(TAG, "ViewHost is null. Not setting zOrder.");
+            return this;
+        }
         SurfaceControl surfaceControl = viewHost.getSurfacePackage().getSurfaceControl();
         mTransaction.setLayer(surfaceControl, zOrder);
         if (!mPendingAutoDecors.containsKey(autoDecor)) {
@@ -305,6 +325,10 @@ public class AutoSurfaceTransaction {
         }
 
         SurfaceControlViewHost viewHost = autoDecor.getViewHost();
+        if (viewHost == null) {
+            Slogf.e(TAG, "ViewHost is null. Not updating visibility.");
+            return this;
+        }
         SurfaceControl surfaceControl = viewHost.getSurfacePackage().getSurfaceControl();
         mTransaction.setVisibility(surfaceControl, isVisible);
         if (!mPendingAutoDecors.containsKey(autoDecor)) {
