@@ -27,7 +27,7 @@
         android:height="@dimen/corner_radius"
         android:gravity="bottom">
         <shape>
-            <solid android:color="@color/car_neutral_0" />
+            <solid android:color="?oemColorSurface" />
         </shape>
     </item>
 </layer-list>
