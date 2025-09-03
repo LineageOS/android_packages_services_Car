@@ -37,6 +37,10 @@ PRODUCT_PRODUCT_PROPERTIES += \
     ro.config.notification_sound=Tethys.ogg \
     ro.config.alarm_alert=Oxygen.ogg \
 
+# Enable dual pane activity embedding by default on automotive
+PRODUCT_PRODUCT_PROPERTIES += \
+    persist.settings.large_screen_opt.enabled=true
+
 # More AOSP packages
 PRODUCT_PACKAGES += \
     messaging \
