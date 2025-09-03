@@ -21,6 +21,7 @@
         <permission name="android.permission.ACTIVITY_EMBEDDING"/>
         <permission name="android.permission.BACKUP"/>
         <permission name="android.permission.BLUETOOTH_PRIVILEGED"/>
+        <permission name="android.permission.EXECUTE_APP_FUNCTIONS"/>
         <permission name="android.permission.INJECT_EVENTS"/>
         <!-- Use for App Sharing -->
         <permission name="android.permission.INSTALL_PACKAGES"/>
