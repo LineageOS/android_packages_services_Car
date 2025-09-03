@@ -23,7 +23,6 @@ import static androidx.car.app.activity.CarAppActivity.SECOND_INSTANCE_TITLE;
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assume.assumeTrue;
 
 import android.app.Activity;
 import android.app.ActivityOptions;
@@ -92,7 +91,6 @@ public class CarPackageManagerServiceTest {
         Configurator.getInstance()
                 .setUiAutomationFlags(UiAutomation.FLAG_DONT_SUPPRESS_ACCESSIBILITY_SERVICES);
         mDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation());
-        ensureHomeIsDisplayed();
         setDrivingStateMoving();
     }
 
@@ -398,16 +396,6 @@ public class CarPackageManagerServiceTest {
             intent.putExtra(extra, true);
         }
         startActivity(intent);
-    }
-
-    private void ensureHomeIsDisplayed() {
-        mDevice.pressHome();
-        final String launcherPackage = mDevice.getLauncherPackageName();
-        assertNotNull(launcherPackage);
-
-        assumeTrue("Home is not displayed even after " + HOME_DISPLAYED_TIMEOUT_MS + "ms.",
-                mDevice.wait(Until.hasObject(By.pkg(launcherPackage).depth(0)),
-                        HOME_DISPLAYED_TIMEOUT_MS));
     }
 
     private void setDrivingStateMoving() {

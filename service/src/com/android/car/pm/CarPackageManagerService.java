@@ -209,6 +209,7 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
     private final CarUxRestrictionsManagerService mCarUxRestrictionsService;
     private final CarOccupantZoneService mCarOccupantZoneService;
     private final boolean mEnableActivityBlocking;
+    private final boolean mIsUsingAutoTaskStackWindowing;
 
     private final ComponentName mActivityBlockingActivity;
     // Memorize the target of ABA to defend bypassing it with launching two Activities continuously.
@@ -294,6 +295,8 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
                 res.getBoolean(R.bool.config_preventTemplatedAppsFromShowingDialog);
         mTemplateActivityClassName = res.getString(R.string.config_template_activity_class_name);
         mBlockingUiCommandListenerMediator = new BlockingUiCommandListenerMediator();
+        mIsUsingAutoTaskStackWindowing = context.getResources().getBoolean(
+                R.bool.config_isUsingAutoTaskStackWindowing);
     }
 
     @Override
@@ -1454,6 +1457,16 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
                 if (DBG) {
                     Slogf.d(TAG, "Root task %d has already been blocked.",
                             TaskInfoHelper.geParentTaskId(topTask));
+                }
+                continue;
+            }
+
+            if (mIsUsingAutoTaskStackWindowing && TaskInfoHelper.geParentTaskId(topTask) == -1) {
+                // Only monitor tasks visible within a root task
+                if (DBG) {
+                    Slogf.d(TAG,
+                            "Auto task stack windowing enabled and task %d not within a root task.",
+                            topTask.taskId);
                 }
                 continue;
             }
