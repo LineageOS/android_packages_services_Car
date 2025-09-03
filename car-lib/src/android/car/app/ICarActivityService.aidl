@@ -113,4 +113,7 @@ interface ICarActivityService {
     * Reports that a Root Task is created.
     */
     void onRootTaskAppeared(String name, in RunningTaskInfo taskInfo, IBinder rootTaskToken);
+
+     /** See {@link CarActivityManager#setLaunchBehaviorForRootTask(IBinder, int)} */
+    void setLaunchBehaviorForRootTask(in IBinder rootTaskToken, int behavior);
 }

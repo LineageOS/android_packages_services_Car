@@ -161,6 +161,9 @@ android.car.admin StopUserResult int getStatus()
 android.car.app CarActivityManager Pair<SurfaceControl,Rect> getMirroredSurface(IBinder token)
 android.car.app CarActivityManager boolean registerTaskMonitor()
 android.car.app CarActivityManager int ERROR_CODE_ACTIVITY_NOT_FOUND
+android.car.app CarActivityManager int LAUNCH_BEHAVIOR_REMAIN_IN_SOURCE_ROOT_TASK
+android.car.app CarActivityManager int LAUNCH_BEHAVIOR_REPARENT_TO_SOURCE_ROOT_TASK
+android.car.app CarActivityManager int LAUNCH_BEHAVIOR_DEFAULT
 android.car.app CarActivityManager void onCarDisconnected()
 android.car.app CarActivityManager void onRootTaskAppeared(String name, ActivityManager.RunningTaskInfo taskInfo, IBinder rootTaskToken)
 android.car.app CarActivityManager void onRootTaskVanished(int taskId)
@@ -168,6 +171,7 @@ android.car.app CarActivityManager void onTaskAppeared(ActivityManager.RunningTa
 android.car.app CarActivityManager void onTaskAppeared(ActivityManager.RunningTaskInfo taskInfo, SurfaceControl leash)
 android.car.app CarActivityManager void onTaskInfoChanged(ActivityManager.RunningTaskInfo taskInfo)
 android.car.app CarActivityManager void onTaskVanished(ActivityManager.RunningTaskInfo taskInfo)
+android.car.app CarActivityManager void setLaunchBehaviorForRootTask(IBinder rootTaskToken, int behavior)
 android.car.app CarActivityManager void unregisterTaskMonitor()
 android.car.app CarDisplayCompatManager void onCarDisconnected()
 android.car.app CarSystemUIProxy CarTaskViewHost createCarTaskView(CarTaskViewClient carTaskViewClient)
