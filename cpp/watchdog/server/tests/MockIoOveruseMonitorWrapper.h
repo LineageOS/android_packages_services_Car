@@ -34,6 +34,8 @@ public:
         ON_CALL(*this, name()).WillByDefault(::testing::Return("MockIoOveruseMonitorWrapper"));
     }
     ~MockIoOveruseMonitorWrapper() {}
+    MOCK_METHOD(std::string, name, (), (const, override));
+    MOCK_METHOD(android::base::Result<void>, init, (), (override));
     MOCK_METHOD(bool, isInitialized, (), (const, override));
     MOCK_METHOD(bool, dumpHelpText, (int), (const, override));
     MOCK_METHOD(void, onCarWatchdogServiceRegistered, (), (override));
@@ -64,7 +66,22 @@ public:
                 (aidl::android::automotive::watchdog::IoOveruseStats*), (const, override));
     MOCK_METHOD(android::base::Result<void>, resetIoOveruseStats, (const std::vector<std::string>&),
                 (override));
+    MOCK_METHOD(android::base::Result<void>, onPeriodicCollection,
+                (time_point_millis, bool, const android::wp<UidStatsCollectorBaseInterface>&,
+                 aidl::android::automotive::watchdog::internal::ResourceStats*),
+                (override));
+    MOCK_METHOD(android::base::Result<void>, onPeriodicCollection,
+                (time_point_millis, SystemState, const wp<UidStatsCollectorInterface>&,
+                 const wp<ProcStatCollectorInterface>&,
+                 aidl::android::automotive::watchdog::internal::ResourceStats*),
+                (override));
+    MOCK_METHOD(android::base::Result<void>, onPeriodicMonitor,
+                (time_t, const android::wp<ProcDiskStatsCollectorInterface>&,
+                 const std::function<void()>&),
+                (override));
     MOCK_METHOD(void, removeStatsForUser, (userid_t), (override));
+    MOCK_METHOD(void, terminate, (), (override));
+    MOCK_METHOD(android::base::Result<void>, onDump, (int), (const, override));
 };
 
 }  // namespace watchdog

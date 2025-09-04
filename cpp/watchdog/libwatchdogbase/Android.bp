@@ -124,6 +124,7 @@ cc_library {
 cc_library {
     name: "libwatchdogbase_service_helper",
     srcs: [
+        "src/WatchdogInternalHandlerBase.cpp",
         "src/WatchdogServiceHelperBase.cpp",
     ],
     defaults: [
@@ -227,6 +228,7 @@ cc_test {
         "tests/ProcDiskStatsCollectorTest.cpp",
         "tests/UidIoStatsCollectorTest.cpp",
         "tests/UidStatsCollectorBaseTest.cpp",
+        "tests/WatchdogInternalHandlerBaseTest.cpp",
         "tests/WatchdogPerfServiceBaseTest.cpp",
         "tests/WatchdogServiceHelperBaseTest.cpp",
     ],
