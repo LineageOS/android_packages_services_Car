@@ -39,18 +39,13 @@ namespace android {
 namespace automotive {
 namespace watchdog {
 
-// Forward declaration for testing use only.
-namespace internal {
-
-class IoOveruseMonitorWrapperPeer;
-
-}  // namespace internal
-
 /**
  * IoOveruseMonitorWrapperInterface interface defines the methods that the I/O overuse monitoring
  * wrapper module should implement.
  */
-class IoOveruseMonitorWrapperInterface : virtual public DataProcessorInterface {
+class IoOveruseMonitorWrapperInterface :
+      virtual public DataProcessorInterface,
+      virtual public IoOveruseMonitorInterface {
 public:
     // Returns whether or not the monitor is initialized.
     virtual bool isInitialized() const = 0;
@@ -81,8 +76,6 @@ public:
             const std::shared_ptr<aidl::android::automotive::watchdog::IResourceOveruseListener>&
                     listener) = 0;
 
-    virtual void handleBinderDeath(void* cookie) = 0;
-
     virtual android::base::Result<void> getIoOveruseStats(
             aidl::android::automotive::watchdog::IoOveruseStats* ioOveruseStats) const = 0;
 
@@ -91,24 +84,30 @@ public:
 
     // Removes stats for the given user from the internal cache.
     virtual void removeStatsForUser(userid_t userId) = 0;
+
+    virtual void handleBinderDeath(void* cookie) = 0;
 };
 
 /**
  * IoOveruseMonitorWrapper forwards method calls to IoOveruseMonitor.
  */
-class IoOveruseMonitorWrapper final : public IoOveruseMonitorWrapperInterface {
+// TODO(b/439660763): Rename IoOveruseMonitorWrapper to IoOveruseMonitor
+class IoOveruseMonitorWrapper final :
+      public IoOveruseMonitorWrapperInterface,
+      public IoOveruseMonitor {
 public:
     explicit IoOveruseMonitorWrapper(
-            const android::sp<WatchdogServiceHelperInterface>& watchdogServiceHelper);
+            const android::sp<WatchdogServiceHelperBaseInterface>& watchdogServiceHelperBase);
 
     virtual ~IoOveruseMonitorWrapper();
 
-    bool isInitialized() const override;
+    bool isInitialized() const override { return IoOveruseMonitor::isInitialized(); }
 
-    void onCarWatchdogServiceRegistered() override;
+    void onCarWatchdogServiceRegistered() override {
+        IoOveruseMonitor::onCarWatchdogServiceRegistered();
+    }
 
-    // Below methods implement DataProcessorInterface.
-    std::string name() const override;
+    std::string name() const override { return IoOveruseMonitor::name(); }
 
     android::base::Result<void> onSystemStartup() {
         // No tracking of boot-time and wake-up events in I/O overuse monitoring.
@@ -147,26 +146,51 @@ public:
     android::base::Result<void> onPeriodicCollection(
             time_point_millis time, SystemState systemState,
             const android::wp<UidStatsCollectorInterface>& uidStatsCollector,
-            const android::wp<ProcStatCollectorInterface>& procStatCollector,
-            aidl::android::automotive::watchdog::internal::ResourceStats* resourceStats) override;
+            [[maybe_unused]] const android::wp<ProcStatCollectorInterface>& procStatCollector,
+            aidl::android::automotive::watchdog::internal::ResourceStats* resourceStats) override {
+        return IoOveruseMonitor::onPeriodicCollection(time, systemState == SystemState::GARAGE_MODE,
+                                                      uidStatsCollector, resourceStats);
+    }
+
+    android::base::Result<void> onPeriodicCollection(
+            time_point_millis time, bool isGarageModeActive,
+            const android::wp<UidStatsCollectorBaseInterface>& uidStatsCollectorBase,
+            aidl::android::automotive::watchdog::internal::ResourceStats* resourceStats) override {
+        return IoOveruseMonitor::onPeriodicCollection(time, isGarageModeActive,
+                                                      uidStatsCollectorBase, resourceStats);
+    }
 
     android::base::Result<void> onCustomCollection(
             time_point_millis time, SystemState systemState,
-            const std::unordered_set<std::string>& filterPackages,
+            [[maybe_unused]] const std::unordered_set<std::string>& filterPackages,
             const android::wp<UidStatsCollectorInterface>& uidStatsCollector,
-            const android::wp<ProcStatCollectorInterface>& procStatCollector,
-            aidl::android::automotive::watchdog::internal::ResourceStats* resourceStats) override;
+            [[maybe_unused]] const android::wp<ProcStatCollectorInterface>& procStatCollector,
+            aidl::android::automotive::watchdog::internal::ResourceStats* resourceStats) override {
+        return IoOveruseMonitor::onPeriodicCollection(time, systemState == SystemState::GARAGE_MODE,
+                                                      uidStatsCollector, resourceStats);
+    }
 
     android::base::Result<void> onPeriodicMonitor(
             time_t time, const android::wp<ProcDiskStatsCollectorInterface>& procDiskStatsCollector,
-            const std::function<void()>& alertHandler) override;
+            const std::function<void()>& alertHandler) override {
+        return IoOveruseMonitor::onPeriodicMonitor(time, procDiskStatsCollector, alertHandler);
+    }
 
-    android::base::Result<void> onDump(int fd) const override;
+    android::base::Result<void> onDump([[maybe_unused]] int fd) const override {
+        // TODO(b/183436216): Dump the list of killed/disabled packages. Dump the list of packages
+        // that
+        //  exceed xx% of their threshold.
+        return {};
+    }
+
     android::base::Result<void> onDumpProto(
-            const CollectionIntervals& collectionIntervals,
-            android::util::ProtoOutputStream& outProto) const override;
+            [[maybe_unused]] const CollectionIntervals& collectionIntervals,
+            [[maybe_unused]] android::util::ProtoOutputStream& outProto) const override {
+        // TODO(b/296123577): Dump the list of killed/disabled packages in proto format.
+        return {};
+    }
 
-    bool dumpHelpText(int fd) const override;
+    bool dumpHelpText(int fd) const override { return IoOveruseMonitor::dumpHelpText(fd); }
 
     android::base::Result<void> onCustomCollectionDump([[maybe_unused]] int fd) override {
         // No special processing for custom collection. Thus no custom collection dump.
@@ -177,49 +201,56 @@ public:
     android::base::Result<void> updateResourceOveruseConfigurations(
             const std::vector<
                     aidl::android::automotive::watchdog::internal::ResourceOveruseConfiguration>&
-                    configs) override;
+                    configs) override {
+        return IoOveruseMonitor::updateResourceOveruseConfigurations(configs);
+    }
 
     android::base::Result<void> getResourceOveruseConfigurations(
             std::vector<
                     aidl::android::automotive::watchdog::internal::ResourceOveruseConfiguration>*
-                    configs) const override;
+                    configs) const override {
+        return IoOveruseMonitor::getResourceOveruseConfigurations(configs);
+    }
 
     android::base::Result<void> onTodayIoUsageStatsFetched(
             const std::vector<
                     aidl::android::automotive::watchdog::internal::UserPackageIoUsageStats>&
-                    userPackageIoUsageStats) override;
+                    userPackageIoUsageStats) override {
+        return IoOveruseMonitor::onTodayIoUsageStatsFetched(userPackageIoUsageStats);
+    }
 
     android::base::Result<void> addIoOveruseListener(
             const std::shared_ptr<aidl::android::automotive::watchdog::IResourceOveruseListener>&
-                    listener) override;
+                    listener) override {
+        return IoOveruseMonitor::addIoOveruseListener(listener);
+    }
 
     android::base::Result<void> removeIoOveruseListener(
             const std::shared_ptr<aidl::android::automotive::watchdog::IResourceOveruseListener>&
-                    listener) override;
-
-    void handleBinderDeath(void* cookie) override;
+                    listener) override {
+        return IoOveruseMonitor::removeIoOveruseListener(listener);
+    }
 
     android::base::Result<void> getIoOveruseStats(
-            aidl::android::automotive::watchdog::IoOveruseStats* ioOveruseStats) const override;
+            aidl::android::automotive::watchdog::IoOveruseStats* ioOveruseStats) const override {
+        return IoOveruseMonitor::getIoOveruseStats(ioOveruseStats);
+    }
 
     android::base::Result<void> resetIoOveruseStats(
-            const std::vector<std::string>& packageName) override;
+            const std::vector<std::string>& packageNames) override {
+        return IoOveruseMonitor::resetIoOveruseStats(packageNames);
+    }
 
-    void removeStatsForUser(userid_t userId) override;
+    void removeStatsForUser(userid_t userId) override {
+        IoOveruseMonitor::removeStatsForUser(userId);
+    }
+
+    void handleBinderDeath(void* cookie) override { IoOveruseMonitor::handleBinderDeath(cookie); }
 
 protected:
-    android::base::Result<void> init();
+    android::base::Result<void> init() override { return IoOveruseMonitor::init(); }
 
-    void terminate();
-
-private:
-    // Local IoOveruseMonitor instance to forward method calls to.
-    android::sp<IoOveruseMonitorInterface> mIoOveruseMonitor;
-
-    // For unit tests.
-    friend class internal::IoOveruseMonitorWrapperPeer;
-    FRIEND_TEST(IoOveruseMonitorWrapperTest, TestInit);
-    FRIEND_TEST(IoOveruseMonitorWrapperTest, TestTerminate);
+    void terminate() override { IoOveruseMonitor::terminate(); }
 };
 
 }  // namespace watchdog

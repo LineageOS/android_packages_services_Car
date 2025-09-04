@@ -16,17 +16,13 @@
 
 #pragma once
 
-#include "IoOveruseMonitorWrapper.h"
-#include "ThreadPriorityController.h"
-#include "WatchdogPerfService.h"
-#include "WatchdogProcessService.h"
-#include "WatchdogServiceHelper.h"
+#include "IoOveruseMonitor.h"
+#include "WatchdogPerfServiceBase.h"
+#include "WatchdogServiceHelperBase.h"
 
 #include <aidl/android/automotive/watchdog/internal/BnCarWatchdog.h>
-#include <aidl/android/automotive/watchdog/internal/ComponentType.h>
 #include <aidl/android/automotive/watchdog/internal/ICarWatchdogMonitor.h>
 #include <aidl/android/automotive/watchdog/internal/ICarWatchdogServiceForSystem.h>
-#include <aidl/android/automotive/watchdog/internal/PowerCycle.h>
 #include <aidl/android/automotive/watchdog/internal/ProcessIdentifier.h>
 #include <aidl/android/automotive/watchdog/internal/ResourceOveruseConfiguration.h>
 #include <aidl/android/automotive/watchdog/internal/StateType.h>
@@ -35,20 +31,14 @@
 #include <android/binder_auto_utils.h>
 #include <gtest/gtest_prod.h>
 #include <utils/Errors.h>
-#include <utils/RefBase.h>
-#include <utils/String16.h>
 #include <utils/Vector.h>
 
 namespace android {
 namespace automotive {
 namespace watchdog {
 
-// Forward declaration for testing use only.
-namespace internal {
-
-class WatchdogInternalHandlerPeer;
-
-}  // namespace internal
+constexpr const char* kNullCarWatchdogServiceError =
+        "Must provide a non-null car watchdog service instance";
 
 class WatchdogInternalHandlerInterface :
       public aidl::android::automotive::watchdog::internal::BnCarWatchdog {
@@ -57,19 +47,16 @@ public:
     virtual void terminate() = 0;
 };
 
-class WatchdogInternalHandler final : public WatchdogInternalHandlerInterface {
+class WatchdogInternalHandlerBase : public WatchdogInternalHandlerInterface {
 public:
-    WatchdogInternalHandler(
-            const android::sp<WatchdogServiceHelperInterface>& watchdogServiceHelper,
-            const android::sp<WatchdogProcessServiceInterface>& watchdogProcessService,
-            const android::sp<WatchdogPerfServiceInterface>& watchdogPerfService,
-            const android::sp<IoOveruseMonitorWrapperInterface>& ioOveruseMonitorWrapper) :
-          mWatchdogServiceHelper(watchdogServiceHelper),
-          mWatchdogProcessService(watchdogProcessService),
-          mWatchdogPerfService(watchdogPerfService),
-          mIoOveruseMonitorWrapper(ioOveruseMonitorWrapper),
-          mThreadPriorityController(std::make_unique<ThreadPriorityController>()) {}
-    ~WatchdogInternalHandler() { terminate(); }
+    WatchdogInternalHandlerBase(
+            const android::sp<WatchdogServiceHelperBaseInterface>& watchdogServiceHelperBase,
+            const android::sp<WatchdogPerfServiceBaseInterface>& watchdogPerfServiceBase,
+            const android::sp<IoOveruseMonitorInterface>& ioOveruseMonitor) :
+          mWatchdogServiceHelperBase(watchdogServiceHelperBase),
+          mIoOveruseMonitor(ioOveruseMonitor),
+          mWatchdogPerfServiceBase(watchdogPerfServiceBase) {}
+    ~WatchdogInternalHandlerBase() { terminate(); }
 
     android::base::Result<void> init() override;
     binder_status_t dump(int fd, const char** args, uint32_t numArgs) override;
@@ -82,25 +69,39 @@ public:
                     aidl::android::automotive::watchdog::internal::ICarWatchdogServiceForSystem>&
                     service) override;
     ndk::ScopedAStatus registerMonitor(
-            const std::shared_ptr<
+            [[maybe_unused]] const std::shared_ptr<
                     aidl::android::automotive::watchdog::internal::ICarWatchdogMonitor>& monitor)
-            override;
+            override {
+        return ndk::ScopedAStatus::fromExceptionCodeWithMessage(EX_UNSUPPORTED_OPERATION,
+                                                                "Unused in base implementation.");
+    }
     ndk::ScopedAStatus unregisterMonitor(
-            const std::shared_ptr<
+            [[maybe_unused]] const std::shared_ptr<
                     aidl::android::automotive::watchdog::internal::ICarWatchdogMonitor>& monitor)
-            override;
+            override {
+        return ndk::ScopedAStatus::fromExceptionCodeWithMessage(EX_UNSUPPORTED_OPERATION,
+                                                                "Unused in base implementation.");
+    }
     ndk::ScopedAStatus tellCarWatchdogServiceAlive(
-            const std::shared_ptr<
+            [[maybe_unused]] const std::shared_ptr<
                     aidl::android::automotive::watchdog::internal::ICarWatchdogServiceForSystem>&
                     service,
-            const std::vector<aidl::android::automotive::watchdog::internal::ProcessIdentifier>&
+            [[maybe_unused]] const std::vector<
+                    aidl::android::automotive::watchdog::internal::ProcessIdentifier>&
                     clientsNotResponding,
-            int32_t sessionId) override;
+            [[maybe_unused]] int32_t sessionId) override {
+        return ndk::ScopedAStatus::fromExceptionCodeWithMessage(EX_UNSUPPORTED_OPERATION,
+                                                                "Unused in base implementation.");
+    }
     ndk::ScopedAStatus tellDumpFinished(
-            const std::shared_ptr<
+            [[maybe_unused]] const std::shared_ptr<
                     aidl::android::automotive::watchdog::internal::ICarWatchdogMonitor>& monitor,
-            const std::vector<aidl::android::automotive::watchdog::internal::ProcessIdentifier>&
-                    processIdentifiers) override;
+            [[maybe_unused]] const std::vector<
+                    aidl::android::automotive::watchdog::internal::ProcessIdentifier>&
+                    processIdentifiers) override {
+        return ndk::ScopedAStatus::fromExceptionCodeWithMessage(EX_UNSUPPORTED_OPERATION,
+                                                                "Unused in base implementation.");
+    }
     ndk::ScopedAStatus notifySystemStateChange(
             aidl::android::automotive::watchdog::internal::StateType type, int32_t arg1,
             int32_t arg2) override;
@@ -112,48 +113,58 @@ public:
             std::vector<
                     aidl::android::automotive::watchdog::internal::ResourceOveruseConfiguration>*
                     configs) override;
-    ndk::ScopedAStatus controlProcessHealthCheck(bool enable) override;
-    ndk::ScopedAStatus setThreadPriority(int pid, int tid, int uid, int policy,
-                                         int priority) override;
+    ndk::ScopedAStatus controlProcessHealthCheck([[maybe_unused]] bool enable) override {
+        return ndk::ScopedAStatus::fromExceptionCodeWithMessage(EX_UNSUPPORTED_OPERATION,
+                                                                "Unused in base implementation.");
+    }
+    ndk::ScopedAStatus setThreadPriority([[maybe_unused]] int pid, [[maybe_unused]] int tid,
+                                         [[maybe_unused]] int uid, [[maybe_unused]] int policy,
+                                         [[maybe_unused]] int priority) override {
+        return ndk::ScopedAStatus::fromExceptionCodeWithMessage(EX_UNSUPPORTED_OPERATION,
+                                                                "Unused in base implementation.");
+    }
     ndk::ScopedAStatus getThreadPriority(
-            int pid, int tid, int uid,
-            aidl::android::automotive::watchdog::internal::ThreadPolicyWithPriority*
-                    threadPolicyWithPriority) override;
-    ndk::ScopedAStatus onAidlVhalPidFetched(int pid) override;
+            [[maybe_unused]] int pid, [[maybe_unused]] int tid, [[maybe_unused]] int uid,
+            [[maybe_unused]] aidl::android::automotive::watchdog::internal::
+                    ThreadPolicyWithPriority* threadPolicyWithPriority) override {
+        return ndk::ScopedAStatus::fromExceptionCodeWithMessage(EX_UNSUPPORTED_OPERATION,
+                                                                "Unused in base implementation.");
+    }
+    ndk::ScopedAStatus onAidlVhalPidFetched([[maybe_unused]] int pid) override {
+        return ndk::ScopedAStatus::fromExceptionCodeWithMessage(EX_UNSUPPORTED_OPERATION,
+                                                                "Unused in base implementation.");
+    }
     ndk::ScopedAStatus onTodayIoUsageStatsFetched(
             const std::vector<
                     aidl::android::automotive::watchdog::internal::UserPackageIoUsageStats>&
                     userPackageIoUsageStats) override;
 
     void terminate() override {
-        mWatchdogServiceHelper.clear();
-        mWatchdogProcessService.clear();
-        mWatchdogPerfService.clear();
-        mIoOveruseMonitorWrapper.clear();
+        mWatchdogServiceHelperBase.clear();
+        mWatchdogPerfServiceBase.clear();
+        mIoOveruseMonitor.clear();
     }
 
-private:
-    status_t dumpServices(int fd);
-    status_t dumpProto(int fd);
-    status_t dumpHelpText(const int fd, const std::string& errorMsg);
-    void checkAndRegisterIoOveruseMonitor();
-    ndk::ScopedAStatus handlePowerCycleChange(
-            aidl::android::automotive::watchdog::internal::PowerCycle powerCycle);
-    ndk::ScopedAStatus handleUserStateChange(
+protected:
+    virtual status_t dumpServices(int fd);
+    // TODO(b/433290487): Implement onDumpProto to dump resource overuse configurations,
+    // the latest I/O usage stats, and the list of registered I/O overuse listeners.
+    virtual status_t dumpProto([[maybe_unused]] int fd) { return BAD_VALUE; }
+    virtual status_t dumpHelpText(const int fd, const std::string& errorMsg);
+    virtual void checkAndRegisterIoOveruseMonitor();
+    virtual ndk::ScopedAStatus handleUserStateChange(
             userid_t userId,
             const aidl::android::automotive::watchdog::internal::UserState& userState);
-    void setThreadPriorityController(std::unique_ptr<ThreadPriorityControllerInterface> controller);
 
-    android::sp<WatchdogServiceHelperInterface> mWatchdogServiceHelper;
-    android::sp<WatchdogProcessServiceInterface> mWatchdogProcessService;
-    android::sp<WatchdogPerfServiceInterface> mWatchdogPerfService;
-    android::sp<IoOveruseMonitorWrapperInterface> mIoOveruseMonitorWrapper;
-    std::unique_ptr<ThreadPriorityControllerInterface> mThreadPriorityController;
+    android::sp<WatchdogServiceHelperBaseInterface> mWatchdogServiceHelperBase;
+    android::sp<IoOveruseMonitorInterface> mIoOveruseMonitor;
+
+private:
+    android::sp<WatchdogPerfServiceBaseInterface> mWatchdogPerfServiceBase;
 
     // For unit tests.
-    friend class internal::WatchdogInternalHandlerPeer;
-    FRIEND_TEST(WatchdogInternalHandlerTest, TestInit);
-    FRIEND_TEST(WatchdogInternalHandlerTest, TestTerminate);
+    FRIEND_TEST(WatchdogInternalHandlerBaseTest, TestInit);
+    FRIEND_TEST(WatchdogInternalHandlerBaseTest, TestTerminate);
 };
 
 }  // namespace watchdog

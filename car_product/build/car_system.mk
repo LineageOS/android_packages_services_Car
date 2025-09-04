@@ -124,10 +124,6 @@ PRODUCT_SYSTEM_PROPERTIES += \
 ### Suggested values for multi-user properties - can be overridden
 ###
 
-# Enable headless system user mode
-PRODUCT_SYSTEM_PROPERTIES += \
-    ro.fw.mu.headless_system_user?=true
-
 # Enable User HAL integration
 # NOTE: when set to true, VHAL must also implement the user-related properties,
 # otherwise CarService will ignore it
@@ -147,10 +143,6 @@ PRODUCT_SYSTEM_PROPERTIES += \
 
 # Update with PLATFORM_VERSION_MINOR_INT update
 PRODUCT_SYSTEM_PROPERTIES += ro.android.car.version.platform_minor=0
-
-# Enable dual pane activity embedding by default on automotive
-PRODUCT_SYSTEM_PROPERTIES += \
-    persist.settings.large_screen_opt.enabled=true
 
 PRODUCT_PACKAGES += \
     com.android.wifi \
