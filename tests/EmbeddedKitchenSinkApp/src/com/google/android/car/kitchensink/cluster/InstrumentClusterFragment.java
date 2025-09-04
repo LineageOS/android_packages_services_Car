@@ -50,6 +50,8 @@ import androidx.fragment.app.Fragment;
 
 import com.google.android.car.kitchensink.R;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -65,7 +67,7 @@ public class InstrumentClusterFragment extends Fragment {
     private CarAppFocusManager mCarAppFocusManager;
     private Car mCarApi;
     private Timer mTimer;
-    private NavigationStateProto[] mNavStateData;
+    private List<NavigationStateProto> mNavStateData;
     private Button mTurnByTurnButton;
 
     private CarServiceLifecycleListener mCarServiceLifecycleListener = (car, ready) -> {
@@ -116,15 +118,12 @@ public class InstrumentClusterFragment extends Fragment {
                 Car.CAR_WAIT_TIMEOUT_WAIT_FOREVER, mCarServiceLifecycleListener);
     }
 
-    @NonNull
-    private NavigationStateProto[] getNavStateData() {
-        NavigationStateProto[] navigationStateArray = new NavigationStateProto[1];
-
-        navigationStateArray[0] = NavigationStateProto.newBuilder()
+    private NavigationStateProto getNavStateData(Maneuver.Type maneuverType) {
+        return NavigationStateProto.newBuilder()
                 .setServiceStatus(NavigationStateProto.ServiceStatus.NORMAL)
                 .addSteps(Step.newBuilder()
                         .setManeuver(Maneuver.newBuilder()
-                                .setType(Maneuver.Type.DEPART)
+                                .setType(maneuverType)
                                 .build())
                         .setDistance(Distance.newBuilder()
                                 .setMeters(300)
@@ -177,8 +176,6 @@ public class InstrumentClusterFragment extends Fragment {
                         .setTraffic(Traffic.HIGH)
                         .build())
                 .build();
-
-        return navigationStateArray;
     }
 
     @Nullable
@@ -253,9 +250,24 @@ public class InstrumentClusterFragment extends Fragment {
      * Enables/disables sending turn-by-turn data through the {@link CarNavigationStatusManager}
      */
     private void toggleSendTurn() {
-        // If we haven't yet load the sample navigation state data, do so.
         if (mNavStateData == null) {
-            mNavStateData = getNavStateData();
+            mNavStateData = new ArrayList<>();
+            try {
+                for (Maneuver.Type maneuverType : Maneuver.Type.values()) {
+                    if (maneuverType == Maneuver.Type.UNKNOWN) {
+                        continue;
+                    }
+                    NavigationStateProto tmp = getNavStateData(maneuverType);
+                    if (tmp != null) {
+                        mNavStateData.add(tmp);
+                    }
+                }
+            } catch (Exception e) {
+                Log.e(TAG, "Error generating nav state data", e);
+                Toast.makeText(getContext(), "Error generating nav data: " + e.getMessage(),
+                        Toast.LENGTH_LONG).show();
+                return;
+            }
         }
 
         // Toggle a timer to send update periodically.
@@ -281,8 +293,8 @@ public class InstrumentClusterFragment extends Fragment {
 
             @Override
             public void run() {
-                sendTurn(mNavStateData[mPos]);
-                mPos = (mPos + 1) % mNavStateData.length;
+                sendTurn(mNavStateData.get(mPos));
+                mPos = (mPos + 1) % mNavStateData.size();
             }
         }, 0, 1000);
         mTurnByTurnButton.setText(R.string.cluster_stop_guidance);
