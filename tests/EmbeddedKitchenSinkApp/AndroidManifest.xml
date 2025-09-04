@@ -350,9 +350,10 @@
         </activity>
 
         <activity android:name=".camera2.CameraSystemActivity"
-             android:label="@string/camera2_user0"
-             android:showForAllUsers="true"
-             android:exported="true">
+            android:theme="@style/KitchenSinkActivityTheme"
+            android:label="@string/camera2_user0"
+            android:showForAllUsers="true"
+            android:exported="true">
             <intent-filter>
               <action android:name="android.intent.action.MAIN"/>
             </intent-filter>
@@ -360,6 +361,7 @@
 
         <activity android:name=".camera2.MultiCameraPreviewActivity"
             android:label="@string/camera2_multi_camera_preview"
+            android:theme="@style/KitchenSinkActivityTheme"
             android:showForAllUsers="true"
             android:exported="true">
             <intent-filter>
