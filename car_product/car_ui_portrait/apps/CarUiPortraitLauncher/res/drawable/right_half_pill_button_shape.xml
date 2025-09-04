@@ -19,9 +19,9 @@
         <shape
             android:shape="rectangle">
             <corners
-                android:bottomRightRadius="@dimen/control_bar_media_card_half_pill_button_radius"
-                android:topRightRadius="@dimen/control_bar_media_card_half_pill_button_radius" />
-            <solid android:color="@color/car_surface_container_highest" />
+                android:bottomRightRadius="?mediaCardPillRadius"
+                android:topRightRadius="?mediaCardPillRadius" />
+            <solid android:color="?oemColorSurfaceContainerHighest" />
         </shape>
     </item>
     <item android:drawable="@drawable/button_ripple"/>

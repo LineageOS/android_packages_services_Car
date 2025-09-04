@@ -48,13 +48,10 @@
     <dimen name="control_bar_media_card_seek_bar_height">56dp</dimen>
     <dimen name="control_bar_media_card_view_separation_margin">32dp</dimen>
     <dimen name="control_bar_media_card_half_pill_button_width">120dp</dimen>
-    <dimen name="control_bar_media_card_half_pill_button_radius">120dp</dimen>
     <dimen name="control_bar_media_card_pill_button_width">160dp</dimen>
     <dimen name="control_bar_media_card_app_icon_size">26dp</dimen>
     <dimen name="control_bar_media_card_album_art_size">240dp</dimen>
-    <item name="control_bar_media_card_album_art_drawable_corner_ratio" format="float" type="dimen">0.1</item>
     <dimen name="control_bar_media_card_custom_action_layout_horizontal_padding">38dp</dimen>
-    <dimen name="control_bar_media_card_item_card_radius">16dp</dimen>
     <dimen name="control_bar_media_card_queue_item_thumbnail_size">112dp</dimen>
     <dimen name="control_bar_media_card_queue_margin">24dp</dimen>
     <dimen name="control_bar_media_card_queue_item_card_width">320dp</dimen>
