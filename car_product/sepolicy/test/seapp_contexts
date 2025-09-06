@@ -1,2 +1,9 @@
 user=system seinfo=platform name=com.android.experimentalcar domain=experimentalcarservice_app type=system_app_data_file
 user=_app isIsolatedComputeApp=true seinfo=platform name=com.android.car.test.one.hotworddetectionservice:trusted domain=isolated_compute_app type=app_data_file
+# Kitchensink app is installed under /system/priv-app directory, which is verified during runtime
+# with the `isPrivApp=true` selector in the below rule. So, it must be treated as privileged
+# app. But the default selinux classification defined under system/sepolicy/private/seapp_contexts
+# categorizes this app as platform app because the app uses platform certificate in it's
+# Android.bp rules. To ensure the correct SEpolicy domain assignment, explictily assign the
+# priv_app domain to Kitchensink app.
+user=_app isPrivApp=true seinfo=platform name=com.google.android.car.kitchensink domain=priv_app type=privapp_data_file levelFrom=all
