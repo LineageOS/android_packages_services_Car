@@ -27,8 +27,11 @@ import static org.mockito.Mockito.when;
 import android.media.AudioAttributes;
 import android.media.AudioDeviceInfo;
 import android.media.AudioPlaybackConfiguration;
+import android.media.PlayerProxy;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
+
+import java.util.List;
 
 @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
 final class AudioPlaybackConfigurationBuilder {
@@ -36,6 +39,8 @@ final class AudioPlaybackConfigurationBuilder {
     private boolean mIsActive = true;
     private String mDeviceAddress = "";
     private int mClientUid = 0;
+    private PlayerProxy mPlayerProxy;
+    private int mPlayerID;
 
     AudioPlaybackConfigurationBuilder setUsage(@AudioAttributes.AttributeUsage int usage) {
         mUsage = usage;
@@ -57,14 +62,27 @@ final class AudioPlaybackConfigurationBuilder {
         return this;
     }
 
+    AudioPlaybackConfigurationBuilder setPlayerProxy(PlayerProxy playerProxy) {
+        mPlayerProxy = playerProxy;
+        return this;
+    }
+
+    AudioPlaybackConfigurationBuilder setPlayerID(int playerID) {
+        mPlayerID = playerID;
+        return this;
+    }
+
     AudioPlaybackConfiguration build() {
         AudioPlaybackConfiguration configuration = mock(AudioPlaybackConfiguration.class);
         AudioAttributes attributes = new AudioAttributes.Builder().setUsage(mUsage).build();
         AudioDeviceInfo outputDevice = generateOutAudioDeviceInfo(mDeviceAddress);
         when(configuration.getAudioAttributes()).thenReturn(attributes);
         when(configuration.getAudioDeviceInfo()).thenReturn(outputDevice);
+        when(configuration.getAudioDeviceInfos()).thenReturn(List.of(outputDevice));
         when(configuration.isActive()).thenReturn(mIsActive);
         when(configuration.getClientUid()).thenReturn(mClientUid);
+        when(configuration.getPlayerProxy()).thenReturn(mPlayerProxy);
+        when(configuration.getPlayerInterfaceId()).thenReturn(mPlayerID);
         return configuration;
     }
 

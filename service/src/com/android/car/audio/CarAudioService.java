@@ -20,6 +20,7 @@ import static android.car.feature.Flags.asyncAudioServiceInit;
 import static android.car.feature.Flags.carAudioFadeManagerConfiguration;
 import static android.car.media.CarAudioManager.AUDIO_FEATURE_AUDIO_MIRRORING;
 import static android.car.media.CarAudioManager.AUDIO_FEATURE_DYNAMIC_ROUTING;
+import static android.car.media.CarAudioManager.AUDIO_FEATURE_FOCUS_ENFORCEMENT;
 import static android.car.media.CarAudioManager.AUDIO_FEATURE_MIN_MAX_ACTIVATION_VOLUME;
 import static android.car.media.CarAudioManager.AUDIO_FEATURE_OEM_AUDIO_SERVICE;
 import static android.car.media.CarAudioManager.AUDIO_FEATURE_PERSIST_FADE_BALANCE_VALUES;
@@ -89,6 +90,7 @@ import android.car.media.IAudioZonesMirrorStatusCallback;
 import android.car.media.ICarAudio;
 import android.car.media.ICarVolumeCallback;
 import android.car.media.ICarVolumeEventCallback;
+import android.car.media.IEnforceableAudioFocusCallback;
 import android.car.media.IMediaAudioRequestStatusCallback;
 import android.car.media.IPrimaryZoneMediaAudioRequestCallback;
 import android.car.media.ISwitchAudioZoneConfigCallback;
@@ -126,6 +128,7 @@ import com.android.car.CarInputService.KeyEventListener;
 import com.android.car.CarLocalServices;
 import com.android.car.CarLog;
 import com.android.car.CarOccupantZoneService;
+import com.android.car.CarPropertyService;
 import com.android.car.CarServiceBase;
 import com.android.car.CarServiceUtils;
 import com.android.car.R;
@@ -242,7 +245,8 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
     private boolean mInitSuccess;
     @GuardedBy("mImplLock")
     private @Nullable AudioControlWrapper mAudioControlWrapper;
-    private CarDucking mCarDucking;
+    @GuardedBy("mImplLock")
+    private @Nullable CarDucking mCarDucking;
     private CarVolumeGroupMuting mCarVolumeGroupMuting;
     @GuardedBy("mImplLock")
     private @Nullable HalAudioFocus mHalAudioFocus;
@@ -339,6 +343,15 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
         }
     };
 
+    private final CarAudioFocusEnforcement mCarAudioFocusEnforcement =
+            new CarAudioFocusEnforcement();
+    private final boolean mAudioEnableAudioFocusEnforcement;
+    private final boolean mRelaxedFocusEnforcementWhileParked;
+
+    @GuardedBy("mImplLock")
+    private boolean mForceEnableAudioFocusEnforcement;
+    @GuardedBy("mImplLock")
+    @Nullable private CarAudioParkedStateMonitor mCarAudioParkedStateMonitor;
     @GuardedBy("mImplLock")
     @Nullable private AudioPolicy mVolumeControlAudioPolicy;
     @GuardedBy("mImplLock")
@@ -485,6 +498,16 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
                     && mContext.getResources().getBoolean(R.bool.audioPersistFadeBalanceLevels);
             validateFeatureFlagSettings();
             mAudioServerStateCallback = new CarAudioServerStateCallback(this);
+            mAudioEnableAudioFocusEnforcement = Flags.audioFocusEnforcement() && !runInLegacyMode()
+                    && mContext.getResources().getBoolean(R.bool.audioEnableAudioFocusEnforcement);
+            var enforceableFocusAttributes = CarAudioUtils.getAudioAttributesForUsages(mContext
+                    .getResources().getStringArray(R.array.audioFocusEnforcementUsages));
+            var doNotSilenceAttributes = CarAudioUtils.parseAudioAttributes(mContext.getResources()
+                    .getStringArray(R.array.audioFocusEnforcementDoNotSilenceAttributes));
+            mRelaxedFocusEnforcementWhileParked = mAudioEnableAudioFocusEnforcement && mContext
+                    .getResources().getBoolean(R.bool.audioFocusEnforcementRelaxedWhileParked);
+            mCarAudioFocusEnforcement.setEnforceableAttributes(enforceableFocusAttributes);
+            mCarAudioFocusEnforcement.setDoNotSilenceAttributes(doNotSilenceAttributes);
         } catch (RuntimeException e) {
             // If we throw exception during constructor, the client will never have a chance to
             // call destroy, so we should cleanup the resource here.
@@ -603,6 +626,7 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
                         KEYCODES_OF_INTEREST);
                 setupAudioDeviceInfoCallbackLocked();
                 setupCarAudioEffectsLocked();
+                setupAudioParkedStateMonitorLocked();
             } else {
                 Slogf.i(TAG, "Audio dynamic routing not enabled, run in legacy mode");
                 setupLegacyVolumeChangedListener();
@@ -614,6 +638,30 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
         synchronized (mImplLock) {
             mInitSuccess = true;
         }
+    }
+
+    @GuardedBy("mImplLock")
+    private void setupAudioParkedStateMonitorLocked() {
+        if (!mAudioEnableAudioFocusEnforcement) {
+            return;
+        }
+        if (mCarAudioParkedStateMonitor != null) {
+            mCarAudioParkedStateMonitor.release();
+        }
+        var carPropertyService = CarLocalServices.getService(CarPropertyService.class);
+        mCarAudioParkedStateMonitor = new CarAudioParkedStateMonitor(carPropertyService,
+                this::handleParkedModeChanged);
+        handleParkedModeChanged(mCarAudioParkedStateMonitor.isParked());
+    }
+
+    private void handleParkedModeChanged(boolean isParked) {
+        boolean enableRelaxParkedMode = mRelaxedFocusEnforcementWhileParked && isParked;
+        Slogf.d(TAG, "Enable relax park mode %s, is parked %s.", enableRelaxParkedMode, isParked);
+        // Force enable audio focus enforcement even if relax park mode is enabled
+        synchronized (mImplLock) {
+            enableRelaxParkedMode = enableRelaxParkedMode && !mForceEnableAudioFocusEnforcement;
+        }
+        mCarAudioFocusEnforcement.enableRelaxedParkMode(enableRelaxParkedMode);
     }
 
     private void setSupportedUsages() {
@@ -659,6 +707,9 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
         synchronized (mImplLock) {
             releaseAudioCallbacksLocked(/* isAudioServerDown= */ false);
             mCarVolumeCallbackHandler.release();
+            if (mCarAudioParkedStateMonitor != null) {
+                mCarAudioParkedStateMonitor.release();
+            }
             // Reset mInitCompleted so that we could re-init.
             mInitSuccess = false;
             mInitCompleted = false;
@@ -729,6 +780,7 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
         // to audio control HAL (ACH), since AFH holds a reference to ACH
         releaseHalAudioFocusLocked();
         releaseCoreVolumeGroupCallbackLocked();
+        mCarAudioFocusEnforcement.release();
         releaseAudioPlaybackMonitorLocked();
         releasePowerListenerLocked();
         releaseAudioDeviceInfoCallbackLocked();
@@ -987,6 +1039,19 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
                 }
             }
 
+            if (mCarAudioParkedStateMonitor != null) {
+                mCarAudioParkedStateMonitor.dump(writer);
+            }
+
+            writer.printf("CarAudioFocusEnforcement[%s]\n", mAudioEnableAudioFocusEnforcement);
+            writer.increaseIndent();
+            writer.printf("Relaxed focus enforcement while parked? %s\n",
+                    mRelaxedFocusEnforcementWhileParked);
+            writer.printf("Forced enable audio focus enforcement? %s\n",
+                    mForceEnableAudioFocusEnforcement);
+            mCarAudioFocusEnforcement.dump(writer);
+            writer.decreaseIndent();
+
             writer.println("Service Events:");
             writer.increaseIndent();
             mServiceEventLogger.dump(writer);
@@ -1107,6 +1172,8 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
                 return mUseMinMaxActivationVolume;
             case AUDIO_FEATURE_PERSIST_FADE_BALANCE_VALUES:
                 return mPersistFadeBalanceLevels;
+            case AUDIO_FEATURE_FOCUS_ENFORCEMENT:
+                return mAudioEnableAudioFocusEnforcement;
             default:
                 throw new IllegalArgumentException("Unknown Audio Feature type: "
                         + audioFeatureType);
@@ -2281,8 +2348,17 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
         // Used to configure our audio policy to handle focus events.
         // This gives us the ability to decide which audio focus requests to accept and bypasses
         // the framework ducking logic.
+        CarZonesAudioFocus.CarFocusCallback audioFocusCallback =
+                (audioZoneIds, focusHoldersByZoneId) -> {
+                    if (mCarDucking != null) {
+                        mCarDucking.onFocusChange(audioZoneIds, focusHoldersByZoneId);
+                    }
+                    if (mAudioEnableAudioFocusEnforcement) {
+                        mCarAudioFocusEnforcement.onFocusChange(focusHoldersByZoneId);
+                    }
+                };
         mFocusHandler = CarZonesAudioFocus.createCarZonesAudioFocus(mAudioManagerWrapper,
-                mContext.getPackageManager(), mCarAudioZones, mCarAudioSettings, mCarDucking,
+                mContext.getPackageManager(), mCarAudioZones, mCarAudioSettings, audioFocusCallback,
                 getAudioFeaturesInfo(), mHandler);
 
         AudioPolicy.Builder focusControlPolicyBuilder = new AudioPolicy.Builder(mContext);
@@ -2395,7 +2471,11 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
     @GuardedBy("mImplLock")
     private void setupAudioConfigurationCallbackLocked() {
         mCarAudioPlaybackCallback = new CarAudioPlaybackCallback(mCarAudioZones,
-                mCarAudioPlaybackMonitor, mClock, mKeyEventTimeoutMs);
+                mCarAudioPlaybackMonitor, playbacksByZones -> {
+                    if (mAudioEnableAudioFocusEnforcement) {
+                        mCarAudioFocusEnforcement.onAudioPlaybackChange(playbacksByZones);
+                    }
+                }, mClock, mKeyEventTimeoutMs);
         mAudioManagerWrapper.registerAudioPlaybackCallback(mCarAudioPlaybackCallback, null);
     }
 
@@ -3419,6 +3499,42 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
         return mConfigsCallbacks.unregister(callback);
     }
 
+    @Override
+    public void setEnforceableAudioFocusEnabled(boolean enable) {
+        enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS);
+        synchronized (mImplLock) {
+            mForceEnableAudioFocusEnforcement = enable;
+            // Force update to park mode state if it is enabled
+            if (mCarAudioParkedStateMonitor != null) {
+                handleParkedModeChanged(mCarAudioParkedStateMonitor.isParked());
+            }
+        }
+    }
+
+    @Override
+    public int[] getEnforceableAudioAttributeUsages() {
+        enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS);
+        var audioAttributes = mCarAudioFocusEnforcement.getEnforceableAttributes();
+        int[] usages = new int[audioAttributes.size()];
+        for (int i = 0; i < audioAttributes.size(); i++) {
+            usages[i] = audioAttributes.get(i).getSystemUsage();
+        }
+        return usages;
+    }
+
+    @Override
+    public boolean registerEnforceableAudioFocusCallback(IEnforceableAudioFocusCallback callback) {
+        enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS);
+        return mCarAudioFocusEnforcement.registerCallback(callback);
+    }
+
+    @Override
+    public boolean unregisterEnforceableAudioFocusCallback(
+            IEnforceableAudioFocusCallback callback) {
+        enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS);
+        return mCarAudioFocusEnforcement.unregisterCallback(callback);
+    }
+
     @Nullable
     private CarAudioZoneConfigInfo getAudioZoneConfigInfo(CarAudioZoneConfigInfo zoneConfig) {
         List<CarAudioZoneConfigInfo> infos = getAudioZoneConfigInfos(zoneConfig.getZoneId());
@@ -4164,6 +4280,11 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
     @VisibleForTesting
     void requestAudioFocusForTest(AudioFocusInfo audioFocusInfo, int audioFocusResult) {
         mFocusHandler.onAudioFocusRequest(audioFocusInfo, audioFocusResult);
+    }
+
+    @VisibleForTesting
+    void abandonAudioFocusForTest(AudioFocusInfo audioFocusInfo) {
+        mFocusHandler.onAudioFocusAbandon(audioFocusInfo);
     }
 
     int getZoneIdForAudioFocusInfo(AudioFocusInfo focusInfo) {

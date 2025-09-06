@@ -149,12 +149,30 @@ package android.car.hardware.property {
 package android.car.media {
 
   public final class CarAudioManager {
+    method @FlaggedApi("android.car.feature.audio_focus_enforcement") @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS) public void clearEnforceableAudioFocusCallback();
+    method @FlaggedApi("android.car.feature.audio_focus_enforcement") @NonNull @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS) public int[] getEnforceableAudioAttributeUsages();
     method @Deprecated public boolean isDynamicRoutingEnabled();
+    method @FlaggedApi("android.car.feature.audio_focus_enforcement") @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS) public void setEnforceableAudioFocusCallback(@NonNull java.util.concurrent.Executor, @NonNull android.car.media.EnforceableAudioFocusCallback);
+    method @FlaggedApi("android.car.feature.audio_focus_enforcement") @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS) public void setEnforceableAudioFocusEnabled(boolean);
   }
 
   public final class CarMediaManager {
     method @RequiresPermission(android.Manifest.permission.MEDIA_CONTENT_CONTROL) public boolean isIndependentPlaybackConfig();
     method @RequiresPermission(android.Manifest.permission.MEDIA_CONTENT_CONTROL) public void setIndependentPlaybackConfig(boolean);
+  }
+
+  @FlaggedApi("android.car.feature.audio_focus_enforcement") public interface EnforceableAudioFocusCallback {
+    method public void onEnforcedAudioFocusChanged(@NonNull java.util.List<android.car.media.EnforcedAudioFocusInfo>);
+  }
+
+  @FlaggedApi("android.car.feature.audio_focus_enforcement") public final class EnforcedAudioFocusInfo implements android.os.Parcelable {
+    ctor public EnforcedAudioFocusInfo(int, @NonNull android.media.AudioAttributes, boolean);
+    method public int describeContents();
+    method @NonNull public android.media.AudioAttributes getAudioAttributes();
+    method public int getUid();
+    method public boolean isSilenced();
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.car.media.EnforcedAudioFocusInfo> CREATOR;
   }
 
 }

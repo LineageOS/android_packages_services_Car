@@ -28,7 +28,7 @@
         android:layout_gravity="center"
         android:text="@string/base_layer_failure_recovery_title_string"
         android:textAppearance="@style/TextAppearance.Car.Display"
-        android:textColor="@color/car_on_surface"
+        android:textColor="?carTextPrimary"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"

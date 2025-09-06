@@ -47,6 +47,8 @@ final class ZoneAudioPlaybackCallback {
     @GuardedBy("mLock")
     private final ArrayMap<String, AudioPlaybackConfiguration> mLastActiveConfigs =
             new ArrayMap<>();
+    @GuardedBy("mLock")
+    private final ArrayList<AudioPlaybackConfiguration> mZoneConfigurations = new ArrayList<>();
     private final CarAudioZone mCarAudioZone;
     private final @Nullable  CarAudioPlaybackMonitor mCarAudioPlaybackMonitor;
     private final SystemClockWrapper mClock;
@@ -78,6 +80,9 @@ final class ZoneAudioPlaybackCallback {
             mLastActiveConfigs.clear();
             mLastActiveConfigs.putAll(newActiveConfigs);
 
+            mZoneConfigurations.clear();
+            mZoneConfigurations.addAll(filterZoneConfigurations(configurations));
+
             startTimersForContextThatBecameInactiveLocked(newlyInactiveConfigurations);
         }
 
@@ -85,6 +90,19 @@ final class ZoneAudioPlaybackCallback {
             mCarAudioPlaybackMonitor.onActiveAudioPlaybackAttributesAdded(
                     newlyActiveAudioAttributesWithUid, mCarAudioZone.getId());
         }
+    }
+
+    private List<AudioPlaybackConfiguration> filterZoneConfigurations(
+            List<AudioPlaybackConfiguration> configurations) {
+        ArrayList<AudioPlaybackConfiguration> zoneConfigs = new ArrayList<>();
+        for (int index = 0; index < configurations.size(); index++) {
+            var configuration = configurations.get(index);
+            if (!configurationContainsZoneDevice(configuration)) {
+                continue;
+            }
+            zoneConfigs.add(configuration);
+        }
+        return zoneConfigs;
     }
 
     /**
@@ -95,10 +113,23 @@ final class ZoneAudioPlaybackCallback {
     public List<AudioAttributes> getAllActiveAudioAttributes() {
         synchronized (mLock) {
             List<AudioAttributes> activeContexts = getCurrentlyActiveAttributesLocked();
-            activeContexts
-                    .addAll(getStillActiveContextAndRemoveExpiredContextsLocked());
+            activeContexts.addAll(getStillActiveContextAndRemoveExpiredContextsLocked());
             return activeContexts;
         }
+    }
+
+    List<AudioPlaybackConfiguration> getZoneConfigurations() {
+        return new ArrayList<>(mZoneConfigurations);
+    }
+
+    private boolean configurationContainsZoneDevice(AudioPlaybackConfiguration configuration) {
+        var devices = configuration.getAudioDeviceInfos();
+        for (int i = 0; i < devices.size(); i++) {
+            if (mCarAudioZone.isAudioDeviceInfoValidForZone(devices.get(i))) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @GuardedBy("mLock")
@@ -160,13 +191,23 @@ final class ZoneAudioPlaybackCallback {
             if (!configuration.isActive()) {
                 continue;
             }
-            if (mCarAudioZone
-                    .isAudioDeviceInfoValidForZone(configuration.getAudioDeviceInfo())) {
-                newActiveConfigs.put(
-                        configuration.getAudioDeviceInfo().getAddress(), configuration);
+            String address = getAudioDeviceAddressFromConfig(configuration);
+            if (address == null) {
+                continue;
             }
+            newActiveConfigs.put(address, configuration);
         }
         return newActiveConfigs;
+    }
+
+    private String getAudioDeviceAddressFromConfig(AudioPlaybackConfiguration configuration) {
+        var devices = configuration.getAudioDeviceInfos();
+        for (int c = 0; c < devices.size(); c++) {
+            if (mCarAudioZone.isAudioDeviceInfoValidForZone(devices.get(c))) {
+                return devices.get(c).getAddress();
+            }
+        }
+        return null;
     }
 
     @GuardedBy("mLock")

@@ -43,6 +43,10 @@
           <item type="bool" name="audioEnableVolumeKeyEventsToDynamicDevices"/>
           <item type="bool" name="audioPersistFadeBalanceLevels"/>
           <item type="bool" name="displayOffMuteLockAllAudio"/>
+          <item type="bool" name="audioEnableAudioFocusEnforcement"/>
+          <item type="bool" name="audioFocusEnforcementRelaxedWhileParked"/>
+          <item type="array" name="audioFocusEnforcementUsages" translatable="false"/>
+          <item type="array" name="audioFocusEnforcementDoNotSilenceAttributes" translatable="false"/>
           <item type="bool" name="useDefaultBluetoothConnectionPolicy"/>
           <item type="bool" name="useDefaultBluetoothPowerPolicy"/>
           <item type="string" name="instrumentClusterRendererService" translatable="false"/>

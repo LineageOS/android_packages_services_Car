@@ -31,12 +31,14 @@ import android.car.media.IAudioZoneConfigurationsChangeCallback;
 import android.car.media.IAudioZonesMirrorStatusCallback;
 import android.car.media.ICarAudio;
 import android.car.media.ICarVolumeEventCallback;
+import android.car.media.IEnforceableAudioFocusCallback;
 import android.car.media.IMediaAudioRequestStatusCallback;
 import android.car.media.IPrimaryZoneMediaAudioRequestCallback;
 import android.car.media.ISwitchAudioZoneConfigCallback;
 import android.media.AudioAttributes;
 import android.media.AudioDeviceAttributes;
 import android.os.IBinder;
+import android.os.RemoteException;
 
 import java.util.Collections;
 import java.util.List;
@@ -275,6 +277,27 @@ final class FakeCarAudioService extends ICarAudio.Stub {
 
     @Override
     public boolean isPlaybackOnVolumeGroupActive(int volumeGroupId, int audioZoneId) {
+        return false;
+    }
+
+    @Override
+    public int[] getEnforceableAudioAttributeUsages() throws RemoteException {
+        return new int[0];
+    }
+
+    @Override
+    public void setEnforceableAudioFocusEnabled(boolean enable) {
+    }
+
+    @Override
+    public boolean registerEnforceableAudioFocusCallback(IEnforceableAudioFocusCallback callback)
+            throws RemoteException {
+        return false;
+    }
+
+    @Override
+    public boolean unregisterEnforceableAudioFocusCallback(IEnforceableAudioFocusCallback callback)
+            throws RemoteException {
         return false;
     }
 
