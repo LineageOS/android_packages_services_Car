@@ -336,13 +336,13 @@ cc_binary {
 }
 
 prebuilt_etc {
-    name: "system_resource_overuse_configuration.xml",
+    name: "legacy_system_resource_overuse_configuration.xml",
     src: "data/system_resource_overuse_configuration.xml",
     sub_dir: "automotive/watchdog/",
 }
 
 prebuilt_etc {
-    name: "third_party_resource_overuse_configuration.xml",
+    name: "legacy_third_party_resource_overuse_configuration.xml",
     src: "data/third_party_resource_overuse_configuration.xml",
     sub_dir: "automotive/watchdog/",
 }

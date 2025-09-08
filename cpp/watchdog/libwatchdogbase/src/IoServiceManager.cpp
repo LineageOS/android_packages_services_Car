@@ -56,15 +56,16 @@ Result<void> IoServiceManager::startServices() {
         return Error() << "Failed to initialize package name resolver: " << result.error();
     }
 
+    mIoOveruseMonitor = sp<IoOveruseMonitor>::make(mWatchdogServiceHelperBase, packageInfoResolver);
     mWatchdogPerfServiceBase =
             sp<WatchdogPerfServiceBase>::make(mWatchdogServiceHelperBase, packageInfoResolver);
     mWatchdogPerfServiceBase->init();
+    mWatchdogPerfServiceBase->registerIoOveruseMonitor(mIoOveruseMonitor);
     if (auto result = mWatchdogPerfServiceBase->start(); !result.ok()) {
         return Error(result.error().code())
                 << "Failed to start watchdog performance service: " << result.error();
     }
 
-    mIoOveruseMonitor = sp<IoOveruseMonitor>::make(mWatchdogServiceHelperBase, packageInfoResolver);
     mWatchdogBinderMediatorBase =
             SharedRefBase::make<WatchdogBinderMediatorBase>(mWatchdogPerfServiceBase,
                                                             mWatchdogServiceHelperBase,

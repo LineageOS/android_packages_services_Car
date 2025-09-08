@@ -1,2 +1,2 @@
-# Car watchdog server
-/system/bin/carwatchdogd  u:object_r:carwatchdogd_exec:s0
+# I/O watchdog server
+/system/bin/iowatchdogd  u:object_r:iowatchdogd_exec:s0

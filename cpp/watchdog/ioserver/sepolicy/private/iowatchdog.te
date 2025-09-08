@@ -1,47 +1,31 @@
-# Car watchdog server.
-typeattribute carwatchdogd coredomain;
-typeattribute carwatchdogd mlstrustedsubject;
+# I/O watchdog server.
+typeattribute iowatchdogd coredomain;
+typeattribute iowatchdogd mlstrustedsubject;
 
-type carwatchdogd_exec, exec_type, file_type, system_file_type;
+type iowatchdogd_exec, exec_type, file_type, system_file_type;
 
-init_daemon_domain(carwatchdogd)
-add_service(carwatchdogd, carwatchdogd_service)
-binder_use(carwatchdogd)
-binder_service(carwatchdogd)
+init_daemon_domain(iowatchdogd)
+add_service(iowatchdogd, iowatchdogd_service)
+binder_use(iowatchdogd)
+binder_service(iowatchdogd)
 
-# Read carwatchdog configuration properties
-get_prop(carwatchdogd, carwatchdog_config_prop)
-
-# Configration to communicate with VHAL.
-hwbinder_use(carwatchdogd)
-get_prop(carwatchdogd, hwservicemanager_prop)
-hal_client_domain(carwatchdogd, hal_vehicle)
+# Read iowatchdog configuration properties
+get_prop(iowatchdogd, iowatchdog_config_prop)
 
 # Scan through /proc/pid for all processes.
-r_dir_file(carwatchdogd, domain)
+r_dir_file(iowatchdogd, domain)
 
 # Read /proc/uid_io/stats.
-allow carwatchdogd proc_uid_io_stats:file r_file_perms;
-
-# Read /proc/stat file.
-allow carwatchdogd proc_stat:file r_file_perms;
+allow iowatchdogd proc_uid_io_stats:file r_file_perms;
 
 # Read /proc/diskstats file.
-allow carwatchdogd proc_diskstats:file r_file_perms;
+allow iowatchdogd proc_diskstats:file r_file_perms;
 
-# Read /proc/uid_cputime/show_uid_stat file.
-allow carwatchdogd proc_uid_cputime_showstat:file r_file_perms;
-
-# Read/Write /proc/pressure/memory file.
-allow carwatchdogd proc_pressure_mem:file rw_file_perms;
-
-# List HALs to get pid of vehicle HAL.
-allow carwatchdogd hwservicemanager:hwservice_manager list;
-
+# TODO(b/452740644): Find where iowatchdogd files should live on TV
 # R/W /data/system/car for resource overuse configurations.
-allow carwatchdogd system_car_data_file:dir create_dir_perms;
-allow carwatchdogd system_car_data_file:{ file lnk_file } create_file_perms;
+allow iowatchdogd system_car_data_file:dir create_dir_perms;
+allow iowatchdogd system_car_data_file:{ file lnk_file } create_file_perms;
 
-# Allow carwatchdogd to set thread scheduling policy and priority.
-allow carwatchdogd self:capability sys_nice;
-allow carwatchdogd appdomain:process { setsched getsched };
+# Allow iowatchdogd to set thread scheduling policy and priority.
+allow iowatchdogd self:capability sys_nice;
+allow iowatchdogd appdomain:process { setsched getsched };

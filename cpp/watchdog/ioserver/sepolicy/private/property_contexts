@@ -1,2 +1,0 @@
-# CarWatchdog property contexts
-carwatchdog.sync_resource_usage_stats_with_carservice.enabled    u:object_r:carwatchdog_config_prop:s0 exact bool

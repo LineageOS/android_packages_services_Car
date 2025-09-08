@@ -1,11 +1,11 @@
-# Car watchdog server.
-type carwatchdogd, domain;
+# I/O watchdog server.
+type iowatchdogd, domain;
 
-binder_call(carwatchdogd, carwatchdogclient_domain)
-binder_call(carwatchdogclient_domain, carwatchdogd)
+binder_call(iowatchdogd, iowatchdogclient_domain)
+binder_call(iowatchdogclient_domain, iowatchdogd)
 
 # Configuration for system_server.
-allow system_server carwatchdogd_service:service_manager find;
-binder_call(carwatchdogd, system_server)
+allow system_server iowatchdogd_service:service_manager find;
+binder_call(iowatchdogd, system_server)
 
-allow carwatchdogd servicemanager:service_manager list;
+allow iowatchdogd servicemanager:service_manager list;

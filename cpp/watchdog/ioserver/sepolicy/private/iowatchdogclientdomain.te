@@ -1,4 +1,4 @@
-# Car watchdog client domain
-binder_use(carwatchdogclient_domain)
+# I/O watchdog client domain
+binder_use(iowatchdogclient_domain)
 
-allow carwatchdogclient_domain carwatchdogd_service:service_manager find;
+allow iowatchdogclient_domain iowatchdogd_service:service_manager find;

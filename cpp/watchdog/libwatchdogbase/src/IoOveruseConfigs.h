@@ -37,6 +37,7 @@
 namespace android {
 namespace automotive {
 namespace watchdog {
+// TODO(b/446241301): Get directory name from IoOveruseMonitor(Wrapper)
 constexpr const char kBuildSystemConfigXmlPath[] =
         "/system/etc/automotive/watchdog/system_resource_overuse_configuration.xml";
 constexpr const char kBuildThirdPartyConfigXmlPath[] =

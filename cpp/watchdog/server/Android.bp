@@ -229,7 +229,7 @@ cc_binary {
     ],
     vintf_fragment_modules: ["pilot_carwatchdogd.xml"],
     required: [
-        "pilot_system_resource_overuse_configuration.xml",
-        "pilot_third_party_resource_overuse_configuration.xml",
+        "system_resource_overuse_configuration.xml",
+        "third_party_resource_overuse_configuration.xml",
     ],
 }

@@ -186,6 +186,11 @@ status_t WatchdogInternalHandlerBase::dumpHelpText(const int fd, const std::stri
 }
 
 void WatchdogInternalHandlerBase::checkAndRegisterIoOveruseMonitor() {
+    // In the base implementation, IoOveruseMonitor is registered with WatchdogPerfServiceBase
+    // in IoServiceManager, whereas the derived implementation registers IoOveruseMonitor for the
+    // first time using this method. This check confirms the registration for the base
+    // implementation and returns immediately. The registration logic in this method is intended for
+    // the derived implementation.
     if (mIoOveruseMonitor->isInitialized()) {
         return;
     }

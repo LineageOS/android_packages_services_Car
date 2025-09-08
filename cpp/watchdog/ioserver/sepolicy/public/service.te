@@ -1,2 +1,2 @@
-# Car watchdog server
-type carwatchdogd_service, service_manager_type;
+# I/O watchdog server
+type iowatchdogd_service, service_manager_type;
