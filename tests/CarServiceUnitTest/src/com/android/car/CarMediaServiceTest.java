@@ -33,6 +33,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.notNull;
 import static org.mockito.Mockito.doAnswer;
@@ -55,8 +56,10 @@ import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.car.test.mocks.AndroidMockitoHelper;
 import android.car.user.CarUserManager.UserLifecycleEvent;
 import android.car.user.CarUserManager.UserLifecycleListener;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
@@ -67,6 +70,7 @@ import android.media.session.MediaController.TransportControls;
 import android.media.session.MediaSession;
 import android.media.session.MediaSessionManager;
 import android.media.session.PlaybackState;
+import android.net.Uri;
 import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -112,6 +116,8 @@ public final class CarMediaServiceTest extends AbstractExtendedMockitoTestCase {
             new ComponentName(MEDIA_PACKAGE, MEDIA_CLASS);
     private static final ComponentName MEDIA_COMPONENT2 =
             new ComponentName(MEDIA_PACKAGE2, MEDIA_CLASS2);
+    private static final ComponentName BACKUP_COMPONENT =
+            new ComponentName("backup.package", "backup.class");
 
     @Rule
     public NoActiveHandlerThreadCheckerRule mNoActiveHandlerThreadCheckerRule =
@@ -136,6 +142,7 @@ public final class CarMediaServiceTest extends AbstractExtendedMockitoTestCase {
     private ICarPowerPolicyListener mPowerPolicyListener;
     private KeyEventListener mKeyEventListener;
     private UserLifecycleListener mUserLifecycleListener;
+    private BroadcastReceiver mPackageUpdateReceiver;
 
     public CarMediaServiceTest() {
         super(CarLog.TAG_MEDIA);
@@ -152,6 +159,10 @@ public final class CarMediaServiceTest extends AbstractExtendedMockitoTestCase {
                 .thenReturn(PackageManager.PERMISSION_GRANTED);
         when(mContext.getPackageManager()).thenReturn(mPackageManager);
         when(mContext.createContextAsUser(any(), anyInt())).thenReturn(mContext);
+        doAnswer(invocation -> {
+            mPackageUpdateReceiver = invocation.getArgument(0);
+            return null;
+        }).when(mContext).registerReceiver(any(BroadcastReceiver.class), any(), anyInt());
         when(mContext.getSharedPreferences(anyString(), anyInt()))
                 .thenReturn(mMockSharedPreferences);
         when(mMockSharedPreferences.getString(anyString(), anyString())).thenReturn(
@@ -888,6 +899,44 @@ public final class CarMediaServiceTest extends AbstractExtendedMockitoTestCase {
         verify(mockController1).dispatchMediaButtonEvent(MEDIA_KEY_EVENT);
         verify(mockController2).dispatchMediaButtonEvent(MEDIA_KEY_EVENT);
         verify(mockController3, never()).dispatchMediaButtonEvent(any());
+    }
+
+    @Test
+    public void onPackageReplacing_withNullBackupComponent_doesNotCrash() {
+        // Arrange
+        initMediaService(MEDIA_CLASS);
+        mCarMediaService.setMediaSource(MEDIA_COMPONENT, MEDIA_SOURCE_MODE_PLAYBACK, TEST_USER_ID);
+        // This serialized string will result in getLastMediaSourcesInternal returning a list
+        // containing a null component, simulating the crash condition.
+        String serializedSourcesWithNull = MEDIA_COMPONENT.flattenToString()
+                + ",," + BACKUP_COMPONENT.flattenToString();
+        when(mMockSharedPreferences.getString(
+                eq("media_source_component" + MEDIA_SOURCE_MODE_PLAYBACK + "_" + TEST_USER_ID),
+                anyString()))
+                .thenReturn(serializedSourcesWithNull);
+
+        // Mock package manager for the backup component to be valid
+        ResolveInfo backupResolveInfo = new ResolveInfo();
+        ServiceInfo backupServiceInfo = new ServiceInfo();
+        backupServiceInfo.name = BACKUP_COMPONENT.getClassName();
+        backupResolveInfo.serviceInfo = backupServiceInfo;
+        when(mPackageManager.queryIntentServicesAsUser(
+                argThat(intent -> intent.getPackage() != null && intent.getPackage().equals(
+                        BACKUP_COMPONENT.getPackageName())),
+                anyInt(), eq(UserHandle.of(TEST_USER_ID))))
+                .thenReturn(List.of(backupResolveInfo));
+
+        Intent intent = new Intent(Intent.ACTION_PACKAGE_REMOVED);
+        intent.setData(Uri.parse("package:" + MEDIA_PACKAGE));
+        intent.putExtra(Intent.EXTRA_REPLACING, true);
+
+        // Act: This should not throw a NullPointerException
+        mPackageUpdateReceiver.onReceive(mContext, intent);
+
+        // Assert
+        // The media source should be switched to the valid backup component.
+        assertThat(mCarMediaService.getMediaSource(MEDIA_SOURCE_MODE_PLAYBACK, TEST_USER_ID))
+                .isEqualTo(BACKUP_COMPONENT);
     }
 
     private void initMediaService(String... classesToResolve) {
