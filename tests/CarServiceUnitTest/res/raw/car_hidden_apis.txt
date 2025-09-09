@@ -27,7 +27,6 @@ android.car Car String PROPERTY_EMULATED_PLATFORM_VERSION_MAJOR
 android.car Car String PROPERTY_EMULATED_PLATFORM_VERSION_MINOR
 android.car Car T handleRemoteExceptionFromCarService(RemoteException e, T returnValue)
 android.car Car T handleRemoteExceptionFromCarService(Service service, RemoteException e, T returnValue)
-android.car Car record Deps(ServiceManager serviceManager, Process process, long carServiceBindRetryIntervalMs, long carServiceBindMaxRetry, long createCarDefaultTimeoutMs)
 android.car Car void handleRemoteExceptionFromCarService(RemoteException e)
 android.car Car void handleRemoteExceptionFromCarService(Service service, RemoteException e)
 android.car Car.CarBuilder Car createCar(Context context)
@@ -161,9 +160,9 @@ android.car.admin StopUserResult int getStatus()
 android.car.app CarActivityManager Pair<SurfaceControl,Rect> getMirroredSurface(IBinder token)
 android.car.app CarActivityManager boolean registerTaskMonitor()
 android.car.app CarActivityManager int ERROR_CODE_ACTIVITY_NOT_FOUND
+android.car.app CarActivityManager int LAUNCH_BEHAVIOR_DEFAULT
 android.car.app CarActivityManager int LAUNCH_BEHAVIOR_REMAIN_IN_SOURCE_ROOT_TASK
 android.car.app CarActivityManager int LAUNCH_BEHAVIOR_REPARENT_TO_SOURCE_ROOT_TASK
-android.car.app CarActivityManager int LAUNCH_BEHAVIOR_DEFAULT
 android.car.app CarActivityManager void onCarDisconnected()
 android.car.app CarActivityManager void onRootTaskAppeared(String name, ActivityManager.RunningTaskInfo taskInfo, IBinder rootTaskToken)
 android.car.app CarActivityManager void onRootTaskVanished(int taskId)
@@ -537,10 +536,10 @@ android.car.media CarAudioManager boolean setZoneIdForUid(int zoneId, int uid)
 android.car.media CarAudioManager int INVALID_VOLUME_GROUP_ID
 android.car.media CarAudioManager int getZoneIdForUid(int uid)
 android.car.media CarAudioManager int[] getEnforceableAudioAttributeUsages()
-android.car.media CarAudioManager void setEnforceableAudioFocusEnabled(boolean enabled)
 android.car.media CarAudioManager void clearEnforceableAudioFocusCallback()
 android.car.media CarAudioManager void onCarDisconnected()
 android.car.media CarAudioManager void setEnforceableAudioFocusCallback(Executor executor, EnforceableAudioFocusCallback callback)
+android.car.media CarAudioManager void setEnforceableAudioFocusEnabled(boolean enabled)
 android.car.media CarAudioPatchHandle String getSinkAddress()
 android.car.media CarAudioPatchHandle String getSourceAddress()
 android.car.media CarAudioPatchHandle int getHandleId()
