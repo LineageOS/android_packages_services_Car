@@ -29,9 +29,11 @@ namespace watchdog {
 using ::android::sp;
 using ::android::base::Error;
 using ::android::base::Result;
+using ::ndk::SharedRefBase;
 
 Result<void> IoServiceManager::startServices() {
-    if (mWatchdogServiceHelperBase != nullptr || mIoOveruseMonitor != nullptr) {
+    if (mWatchdogBinderMediatorBase != nullptr || mWatchdogServiceHelperBase != nullptr ||
+        mIoOveruseMonitor != nullptr || mWatchdogPerfServiceBase != nullptr) {
         return Error(INVALID_OPERATION) << "Cannot start services more than once";
     }
     /*
@@ -50,16 +52,40 @@ Result<void> IoServiceManager::startServices() {
         return Error() << "Failed to initialize package name resolver: " << result.error();
     }
 
+    mWatchdogPerfServiceBase = sp<WatchdogPerfServiceBase>::make(mWatchdogServiceHelperBase);
+    mWatchdogPerfServiceBase->init();
+    if (auto result = mWatchdogPerfServiceBase->start(); !result.ok()) {
+        return Error(result.error().code())
+                << "Failed to start watchdog performance service: " << result.error();
+    }
+
     mIoOveruseMonitor = sp<IoOveruseMonitor>::make(mWatchdogServiceHelperBase);
+    mWatchdogBinderMediatorBase =
+            SharedRefBase::make<WatchdogBinderMediatorBase>(mWatchdogPerfServiceBase,
+                                                            mWatchdogServiceHelperBase,
+                                                            mIoOveruseMonitor);
+    if (auto result = mWatchdogBinderMediatorBase->init(); !result.ok()) {
+        return Error(result.error().code())
+                << "Failed to initialize watchdog binder mediator: " << result.error();
+    }
     return {};
 }
 
 void IoServiceManager::terminateService() {
+    mIoOveruseMonitor.clear();
+    if (mWatchdogBinderMediatorBase != nullptr) {
+        mWatchdogBinderMediatorBase->terminate();
+        mWatchdogBinderMediatorBase.reset();
+    }
+    if (mWatchdogPerfServiceBase != nullptr) {
+        mWatchdogPerfServiceBase->terminate();
+        mWatchdogPerfServiceBase.clear();
+    }
     if (mWatchdogServiceHelperBase != nullptr) {
         mWatchdogServiceHelperBase->terminate();
         mWatchdogServiceHelperBase.clear();
     }
-    mIoOveruseMonitor.clear();
+    PackageInfoResolver::terminate();
 }
 
 }  // namespace watchdog

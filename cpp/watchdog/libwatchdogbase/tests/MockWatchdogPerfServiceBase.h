@@ -32,6 +32,7 @@ public:
     ~MockWatchdogPerfServiceBase() {}
     MOCK_METHOD(android::base::Result<void>, registerIoOveruseMonitor,
                 (android::sp<IoOveruseMonitorInterface>), (override));
+    MOCK_METHOD(void, init, (), (override));
     MOCK_METHOD(android::base::Result<void>, start, (), (override));
     MOCK_METHOD(void, terminate, (), (override));
     MOCK_METHOD(void, setSystemState, (SystemState), (override));

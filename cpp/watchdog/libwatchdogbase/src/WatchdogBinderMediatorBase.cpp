@@ -19,7 +19,6 @@
 #include "WatchdogBinderMediatorBase.h"
 
 #include <aidl/android/automotive/watchdog/IoOveruseStats.h>
-#include <android-base/parseint.h>
 #include <android-base/stringprintf.h>
 #include <android-base/strings.h>
 #include <android/binder_interface_utils.h>
@@ -58,8 +57,6 @@ constexpr const char* kCarWatchdogServerInterface =
         "android.automotive.watchdog.ICarWatchdog/default";
 constexpr const char* kCarWatchdogInternalServerInterface =
         "android.automotive.watchdog.internal.ICarWatchdog/default";
-constexpr const char* kNullCarWatchdogClientError =
-        "Must provide a non-null car watchdog client instance";
 
 ScopedAStatus toScopedAStatus(const int32_t exceptionCode, const std::string& message) {
     ALOGW("%s", message.c_str());
@@ -81,38 +78,29 @@ Result<void> addToServiceManager(const char* name, ICInterface* service, bool al
 
 }  // namespace
 
-WatchdogBinderMediator::WatchdogBinderMediator(
-        const android::sp<WatchdogProcessServiceInterface>& watchdogProcessService,
-        const android::sp<WatchdogPerfServiceInterface>& watchdogPerfService,
-        const android::sp<WatchdogServiceHelperInterface>& watchdogServiceHelper,
-        const android::sp<IoOveruseMonitorWrapperInterface>& ioOveruseMonitorWrapper,
+WatchdogBinderMediatorBase::WatchdogBinderMediatorBase(
+        const android::sp<WatchdogPerfServiceBaseInterface>& watchdogPerfServiceBase,
+        const android::sp<WatchdogServiceHelperBaseInterface>& watchdogServiceHelperBase,
+        const android::sp<IoOveruseMonitorInterface>& ioOveruseMonitor,
         const AddServiceFunction& addServiceHandler) :
-      mWatchdogProcessService(watchdogProcessService),
-      mIoOveruseMonitorWrapper(ioOveruseMonitorWrapper),
-      mAddServiceHandler(addServiceHandler) {
+      mIoOveruseMonitor(ioOveruseMonitor), mAddServiceHandler(addServiceHandler) {
     if (mAddServiceHandler == nullptr) {
         mAddServiceHandler = &addToServiceManager;
     }
-    if (watchdogServiceHelper != nullptr) {
+    if (watchdogServiceHelperBase != nullptr) {
         mWatchdogInternalHandler =
-                SharedRefBase::make<WatchdogInternalHandler>(watchdogServiceHelper,
-                                                             mWatchdogProcessService,
-                                                             watchdogPerfService,
-                                                             mIoOveruseMonitorWrapper);
+                SharedRefBase::make<WatchdogInternalHandlerBase>(watchdogServiceHelperBase,
+                                                                 watchdogPerfServiceBase,
+                                                                 mIoOveruseMonitor);
     }
 }
 
-Result<void> WatchdogBinderMediator::init() {
-    if (mWatchdogProcessService == nullptr || mIoOveruseMonitorWrapper == nullptr ||
-        mWatchdogInternalHandler == nullptr) {
+Result<void> WatchdogBinderMediatorBase::init() {
+    if (mIoOveruseMonitor == nullptr || mWatchdogInternalHandler == nullptr) {
         std::string serviceList;
-        if (mWatchdogProcessService == nullptr) {
+        if (mIoOveruseMonitor == nullptr) {
             StringAppendF(&serviceList, "%s%s", (!serviceList.empty() ? ", " : ""),
-                          "Watchdog process service");
-        }
-        if (mIoOveruseMonitorWrapper == nullptr) {
-            StringAppendF(&serviceList, "%s%s", (!serviceList.empty() ? ", " : ""),
-                          "I/O overuse monitor wrapper service");
+                          "I/O overuse monitor service");
         }
         if (mWatchdogInternalHandler == nullptr) {
             StringAppendF(&serviceList, "%s%s", (!serviceList.empty() ? ", " : ""),
@@ -141,35 +129,34 @@ Result<void> WatchdogBinderMediator::init() {
     return {};
 }
 
-binder_status_t WatchdogBinderMediator::dump(int fd, const char** args, uint32_t numArgs) {
+ScopedAStatus WatchdogBinderMediatorBase::registerClient(
+        [[maybe_unused]] const std::shared_ptr<
+                aidl::android::automotive::watchdog::ICarWatchdogClient>& client,
+        [[maybe_unused]] aidl::android::automotive::watchdog::TimeoutLength timeout) {
+    return toScopedAStatus(EX_UNSUPPORTED_OPERATION,
+                           "Unsupported operation in I/O watchdog daemon.");
+}
+
+ScopedAStatus WatchdogBinderMediatorBase::unregisterClient(
+        [[maybe_unused]] const std::shared_ptr<
+                aidl::android::automotive::watchdog::ICarWatchdogClient>& client) {
+    return toScopedAStatus(EX_UNSUPPORTED_OPERATION,
+                           "Unsupported operation in I/O watchdog daemon.");
+}
+
+ScopedAStatus WatchdogBinderMediatorBase::tellClientAlive(
+        [[maybe_unused]] const std::shared_ptr<
+                aidl::android::automotive::watchdog::ICarWatchdogClient>& client,
+        [[maybe_unused]] int32_t sessionId) {
+    return toScopedAStatus(EX_UNSUPPORTED_OPERATION,
+                           "Unsupported operation in I/O watchdog daemon.");
+}
+
+binder_status_t WatchdogBinderMediatorBase::dump(int fd, const char** args, uint32_t numArgs) {
     return mWatchdogInternalHandler->dump(fd, args, numArgs);
 }
 
-ScopedAStatus WatchdogBinderMediator::registerClient(
-        const std::shared_ptr<ICarWatchdogClient>& client, TimeoutLength timeout) {
-    if (client == nullptr) {
-        return toScopedAStatus(EX_ILLEGAL_ARGUMENT, kNullCarWatchdogClientError);
-    }
-    return mWatchdogProcessService->registerClient(client, timeout);
-}
-
-ScopedAStatus WatchdogBinderMediator::unregisterClient(
-        const std::shared_ptr<ICarWatchdogClient>& client) {
-    if (client == nullptr) {
-        return toScopedAStatus(EX_ILLEGAL_ARGUMENT, kNullCarWatchdogClientError);
-    }
-    return mWatchdogProcessService->unregisterClient(client);
-}
-
-ScopedAStatus WatchdogBinderMediator::tellClientAlive(
-        const std::shared_ptr<ICarWatchdogClient>& client, int32_t sessionId) {
-    if (client == nullptr) {
-        return toScopedAStatus(EX_ILLEGAL_ARGUMENT, kNullCarWatchdogClientError);
-    }
-    return mWatchdogProcessService->tellClientAlive(client, sessionId);
-}
-
-ScopedAStatus WatchdogBinderMediator::addResourceOveruseListener(
+ScopedAStatus WatchdogBinderMediatorBase::addResourceOveruseListener(
         const std::vector<ResourceType>& resourceTypes,
         const std::shared_ptr<IResourceOveruseListener>& listener) {
     if (listener == nullptr) {
@@ -183,8 +170,7 @@ ScopedAStatus WatchdogBinderMediator::addResourceOveruseListener(
      * When more resource types are added, implement a new module to manage listeners for all
      * resources.
      */
-    if (const auto result = mIoOveruseMonitorWrapper->addIoOveruseListener(listener);
-        !result.ok()) {
+    if (const auto result = mIoOveruseMonitor->addIoOveruseListener(listener); !result.ok()) {
         return toScopedAStatus(result.error().code(),
                                StringPrintf("Failed to register resource overuse "
                                             "listener: %s ",
@@ -193,14 +179,13 @@ ScopedAStatus WatchdogBinderMediator::addResourceOveruseListener(
     return ScopedAStatus::ok();
 }
 
-ScopedAStatus WatchdogBinderMediator::removeResourceOveruseListener(
+ScopedAStatus WatchdogBinderMediatorBase::removeResourceOveruseListener(
         const std::shared_ptr<IResourceOveruseListener>& listener) {
     if (listener == nullptr) {
         return toScopedAStatus(EX_ILLEGAL_ARGUMENT,
                                "Must provide a non-null resource overuse listener");
     }
-    if (const auto result = mIoOveruseMonitorWrapper->removeIoOveruseListener(listener);
-        !result.ok()) {
+    if (const auto result = mIoOveruseMonitor->removeIoOveruseListener(listener); !result.ok()) {
         return toScopedAStatus(result.error().code(),
                                StringPrintf("Failed to unregister resource overuse "
                                             "listener: %s",
@@ -209,7 +194,7 @@ ScopedAStatus WatchdogBinderMediator::removeResourceOveruseListener(
     return ScopedAStatus::ok();
 }
 
-ScopedAStatus WatchdogBinderMediator::getResourceOveruseStats(
+ScopedAStatus WatchdogBinderMediatorBase::getResourceOveruseStats(
         const std::vector<ResourceType>& resourceTypes,
         std::vector<ResourceOveruseStats>* resourceOveruseStats) {
     if (resourceOveruseStats == nullptr) {
@@ -221,8 +206,7 @@ ScopedAStatus WatchdogBinderMediator::getResourceOveruseStats(
         return toScopedAStatus(EX_ILLEGAL_ARGUMENT, "Must provide exactly one I/O resource type");
     }
     IoOveruseStats ioOveruseStats;
-    if (const auto result = mIoOveruseMonitorWrapper->getIoOveruseStats(&ioOveruseStats);
-        !result.ok()) {
+    if (const auto result = mIoOveruseMonitor->getIoOveruseStats(&ioOveruseStats); !result.ok()) {
         return toScopedAStatus(result.error().code(),
                                StringPrintf("Failed to get resource overuse stats: %s",
                                             result.error().message().c_str()));
@@ -233,39 +217,40 @@ ScopedAStatus WatchdogBinderMediator::getResourceOveruseStats(
     return ScopedAStatus::ok();
 }
 
-ScopedAStatus WatchdogBinderMediator::registerMediator(
+ScopedAStatus WatchdogBinderMediatorBase::registerMediator(
         const std::shared_ptr<ICarWatchdogClient>& /*mediator*/) {
     return toScopedAStatus(EX_UNSUPPORTED_OPERATION, "Deprecated method registerMediator");
 }
 
-ScopedAStatus WatchdogBinderMediator::unregisterMediator(
+ScopedAStatus WatchdogBinderMediatorBase::unregisterMediator(
         const std::shared_ptr<ICarWatchdogClient>& /*mediator*/) {
     return toScopedAStatus(EX_UNSUPPORTED_OPERATION, "Deprecated method unregisterMediator");
 }
 
-ScopedAStatus WatchdogBinderMediator::registerMonitor(
+ScopedAStatus WatchdogBinderMediatorBase::registerMonitor(
         const std::shared_ptr<ICarWatchdogMonitor>& /*monitor*/) {
     return toScopedAStatus(EX_UNSUPPORTED_OPERATION, "Deprecated method registerMonitor");
 }
 
-ScopedAStatus WatchdogBinderMediator::unregisterMonitor(
+ScopedAStatus WatchdogBinderMediatorBase::unregisterMonitor(
         const std::shared_ptr<ICarWatchdogMonitor>& /*monitor*/) {
     return toScopedAStatus(EX_UNSUPPORTED_OPERATION, "Deprecated method unregisterMonitor");
 }
 
-ScopedAStatus WatchdogBinderMediator::tellMediatorAlive(
+ScopedAStatus WatchdogBinderMediatorBase::tellMediatorAlive(
         const std::shared_ptr<ICarWatchdogClient>& /*mediator*/,
         const std::vector<int32_t>& /*clientsNotResponding*/, int32_t /*sessionId*/) {
     return toScopedAStatus(EX_UNSUPPORTED_OPERATION, "Deprecated method tellMediatorAlive");
 }
 
-ScopedAStatus WatchdogBinderMediator::tellDumpFinished(
+ScopedAStatus WatchdogBinderMediatorBase::tellDumpFinished(
         const std::shared_ptr<ICarWatchdogMonitor>& /*monitor*/, int32_t /*pid*/) {
     return toScopedAStatus(EX_UNSUPPORTED_OPERATION, "Deprecated method tellDumpFinished");
 }
 
-ScopedAStatus WatchdogBinderMediator::notifySystemStateChange(StateType /*type*/, int32_t /*arg1*/,
-                                                              int32_t /*arg2*/) {
+ScopedAStatus WatchdogBinderMediatorBase::notifySystemStateChange(StateType /*type*/,
+                                                                  int32_t /*arg1*/,
+                                                                  int32_t /*arg2*/) {
     return toScopedAStatus(EX_UNSUPPORTED_OPERATION, "Deprecated method notifySystemStateChange");
 }
 

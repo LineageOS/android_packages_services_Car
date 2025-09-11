@@ -16,11 +16,10 @@
 
 #pragma once
 
-#include "IoOveruseMonitorWrapper.h"
+#include "IoOveruseMonitor.h"
 #include "WatchdogInternalHandlerBase.h"
-#include "WatchdogPerfService.h"
-#include "WatchdogProcessService.h"
-#include "WatchdogServiceHelper.h"
+#include "WatchdogPerfServiceBase.h"
+#include "WatchdogServiceHelperBase.h"
 
 #include <aidl/android/automotive/watchdog/BnCarWatchdog.h>
 #include <aidl/android/automotive/watchdog/ICarWatchdogClient.h>
@@ -52,7 +51,7 @@ class ServiceManager;
 // Forward declaration for testing use only.
 namespace internal {
 
-class WatchdogBinderMediatorPeer;
+class WatchdogBinderMediatorBasePeer;
 
 }  // namespace internal
 
@@ -62,18 +61,17 @@ public:
     virtual void terminate() = 0;
 };
 
-// WatchdogBinderMediator implements the public carwatchdog binder APIs such that it forwards
-// the calls either to process ANR or performance services.
-class WatchdogBinderMediator final : public WatchdogBinderMediatorInterface {
+// WatchdogBinderMediatorBase implements the public carwatchdog binder APIs such that it forwards
+// the calls to I/O overuse monitor services.
+class WatchdogBinderMediatorBase : public WatchdogBinderMediatorInterface {
 public:
-    WatchdogBinderMediator(
-            const android::sp<WatchdogProcessServiceInterface>& watchdogProcessService,
-            const android::sp<WatchdogPerfServiceInterface>& watchdogPerfService,
-            const android::sp<WatchdogServiceHelperInterface>& watchdogServiceHelper,
-            const android::sp<IoOveruseMonitorWrapperInterface>& ioOveruseMonitorWrapper,
+    WatchdogBinderMediatorBase(
+            const android::sp<WatchdogPerfServiceBaseInterface>& watchdogPerfServiceBase,
+            const android::sp<WatchdogServiceHelperBaseInterface>& watchdogServiceHelperBase,
+            const android::sp<IoOveruseMonitorInterface>& ioOveruseMonitor,
             const std::function<android::base::Result<void>(const char*, ndk::ICInterface*, bool,
                                                             int)>& addServiceHandler = nullptr);
-    ~WatchdogBinderMediator() { terminate(); }
+    ~WatchdogBinderMediatorBase() { terminate(); }
 
     // Implements ICarWatchdog.aidl APIs.
     binder_status_t dump(int fd, const char** args, uint32_t numArgs) override;
@@ -126,18 +124,17 @@ protected:
     android::base::Result<void> init();
 
     void terminate() {
-        mWatchdogProcessService.clear();
-        mIoOveruseMonitorWrapper.clear();
+        mIoOveruseMonitor.clear();
         if (mWatchdogInternalHandler != nullptr) {
             mWatchdogInternalHandler->terminate();
             mWatchdogInternalHandler.reset();
         }
     }
 
-private:
-    android::sp<WatchdogProcessServiceInterface> mWatchdogProcessService;
-    android::sp<IoOveruseMonitorWrapperInterface> mIoOveruseMonitorWrapper;
     std::shared_ptr<WatchdogInternalHandlerInterface> mWatchdogInternalHandler;
+
+private:
+    android::sp<IoOveruseMonitorInterface> mIoOveruseMonitor;
 
     // Used by tests to stub the call to IServiceManager.
     std::function<android::base::Result<void>(const char*, ndk::ICInterface*, bool, int)>
@@ -146,9 +143,9 @@ private:
     friend class ServiceManager;
 
     // For unit tests.
-    friend class internal::WatchdogBinderMediatorPeer;
-    FRIEND_TEST(WatchdogBinderMediatorTest, TestInit);
-    FRIEND_TEST(WatchdogBinderMediatorTest, TestErrorOnInitWithNullServiceInstances);
+    friend class internal::WatchdogBinderMediatorBasePeer;
+    FRIEND_TEST(WatchdogBinderMediatorBaseTest, TestInit);
+    FRIEND_TEST(WatchdogBinderMediatorBaseTest, TestErrorOnInitWithNullServiceInstances);
 };
 
 }  // namespace watchdog

@@ -210,6 +210,8 @@ public:
                                          " derived class' instance.";
     }
 
+    void init() override { return; };
+
     android::base::Result<void> registerDataProcessor(
             android::sp<DataProcessorInterface> processor) override;
 
