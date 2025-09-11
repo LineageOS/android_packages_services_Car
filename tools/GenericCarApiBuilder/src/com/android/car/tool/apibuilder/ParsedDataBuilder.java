@@ -24,7 +24,8 @@ import com.android.car.tool.data.MethodData;
 import com.android.car.tool.data.PackageData;
 import com.android.car.tool.data.ParsedData;
 
-import com.github.javaparser.StaticJavaParser;
+import com.github.javaparser.JavaParser;
+import com.github.javaparser.ParserConfiguration;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
@@ -57,7 +58,15 @@ public final class ParsedDataBuilder {
     }
 
     public static void populateParsedDataForFile(File file, ParsedData data) throws Exception {
-        CompilationUnit cu = StaticJavaParser.parse(file);
+        // We create a JavaParser with a ParserConfiguration that works for Java 17, which is
+        // (at the time this comment is being written) the currently supported version of Java in
+        // Android. Update the LanguageLevel if and when the Java version supported by Android is
+        // updated.
+        JavaParser javaParser = new JavaParser(
+                new ParserConfiguration().setLanguageLevel(
+                        ParserConfiguration.LanguageLevel.JAVA_17));
+
+        CompilationUnit cu = javaParser.parse(file).getResult().get();
         String packageName = cu.getPackageDeclaration().get().getNameAsString();
 
         PackageData packageData = data.getPackageData(packageName);
