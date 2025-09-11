@@ -38,7 +38,6 @@
         <item>@xml/calm_mode_panel</item>
         <item>@xml/status_bar</item>
         <item>@xml/nav_bar</item>
-        <item>@xml/hun_panel</item>
     </array>
 
     <string-array name="config_untrimmable_activities" translatable="false">
