@@ -90,6 +90,7 @@ import com.google.android.car.kitchensink.notification.NotificationFragment;
 import com.google.android.car.kitchensink.orientation.OrientationTestFragment;
 import com.google.android.car.kitchensink.os.CarPerformanceTestFragment;
 import com.google.android.car.kitchensink.packageinfo.PackageInfoFragment;
+import com.google.android.car.kitchensink.perfetto.PerfettoFragment;
 import com.google.android.car.kitchensink.power.PowerTestFragment;
 import com.google.android.car.kitchensink.privacy.PrivacyIndicatorFragment;
 import com.google.android.car.kitchensink.projection.ProjectionFragment;
@@ -342,6 +343,7 @@ public class KitchenSinkActivity extends FragmentActivity implements KitchenSink
             new Pair<>("orientation test", OrientationTestFragment.class),
             new Pair<>("package info", PackageInfoFragment.class),
             new Pair<>("performance", CarPerformanceTestFragment.class),
+            new Pair<>("perfetto", PerfettoFragment.class),
             new Pair<>("power test", PowerTestFragment.class),
             new Pair<>(PrivacyIndicatorFragment.FRAGMENT_NAME,
                     PrivacyIndicatorFragment.class),

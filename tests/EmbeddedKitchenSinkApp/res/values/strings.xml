@@ -563,4 +563,21 @@
     <!-- App Sharing -->
     <string name="select_package" translatable="false">Select package</string>
     <string name="install_button" translatable="false">Install</string>
+
+    <!-- Perfetto Test -->
+    <string name="perfetto_control_panel_title" translatable="false">Perfetto Field Trace Control Panel</string>
+    <string name="perfetto_push_default_config" translatable="false">Push Default Config</string>
+    <string name="perfetto_trigger_trace" translatable="false">Trigger sample event</string>
+    <string name="perfetto_query_config" translatable="false">Query Config</string>
+    <string name="perfetto_remove_config" translatable="false">Remove Configs</string>
+    <string name="perfetto_status_idle" translatable="false">Status: Idle</string>
+    <string name="perfetto_push_success" translatable="false">Default config pushed successfully.\n</string>
+    <string name="perfetto_push_fail" translatable="false">Failed to push default config.</string>
+    <string name="perfetto_trigger_success" translatable="false">Perfetto triggered successfully.</string>
+    <string name="perfetto_trigger_fail" translatable="false">Failed to trigger Perfetto.</string>
+    <string name="perfetto_query_success" translatable="false">Config queried successfully:\n</string>
+    <string name="perfetto_query_fail_not_implemented" translatable="false">Failed to query config. Not yet implemented.</string>
+    <string name="perfetto_remove_success" translatable="false">Config removed successfully.</string>
+    <string name="perfetto_remove_fail" translatable="false">Failed to remove config.</string>
+    <string name="perfetto_status_prefix" translatable="false">Status:</string>
 </resources>
