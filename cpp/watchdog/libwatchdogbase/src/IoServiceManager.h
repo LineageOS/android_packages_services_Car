@@ -17,6 +17,8 @@
 #pragma once
 
 #include "IoOveruseMonitor.h"
+#include "WatchdogBinderMediatorBase.h"
+#include "WatchdogPerfServiceBase.h"
 #include "WatchdogServiceHelperBase.h"
 
 #include <android-base/result.h>
@@ -31,7 +33,11 @@ namespace watchdog {
 // Manages the flash memory services that are run by the car watchdog daemon.
 class IoServiceManager : virtual public android::RefBase {
 public:
-    IoServiceManager() : mIoOveruseMonitor(nullptr), mWatchdogServiceHelperBase(nullptr) {}
+    IoServiceManager() :
+          mIoOveruseMonitor(nullptr),
+          mWatchdogBinderMediatorBase(nullptr),
+          mWatchdogPerfServiceBase(nullptr),
+          mWatchdogServiceHelperBase(nullptr) {}
 
     // Returns the singleton IoServiceManager instance.
     static std::shared_ptr<IoServiceManager> getInstance() {
@@ -69,6 +75,8 @@ private:
     void terminateService();
 
     android::sp<IoOveruseMonitorInterface> mIoOveruseMonitor;
+    std::shared_ptr<WatchdogBinderMediatorInterface> mWatchdogBinderMediatorBase;
+    android::sp<WatchdogPerfServiceBaseInterface> mWatchdogPerfServiceBase;
     android::sp<WatchdogServiceHelperBaseInterface> mWatchdogServiceHelperBase;
 };
 

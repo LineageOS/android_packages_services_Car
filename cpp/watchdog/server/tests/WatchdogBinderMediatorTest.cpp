@@ -131,7 +131,6 @@ TEST_F(WatchdogBinderMediatorTest, TestInit) {
     ASSERT_RESULT_OK(mediator->init());
 
     ASSERT_NE(mediator->mWatchdogProcessService, nullptr);
-    ASSERT_NE(mediator->mIoOveruseMonitorWrapper, nullptr);
     ASSERT_NE(mediator->mWatchdogInternalHandler, nullptr);
 }
 
@@ -139,11 +138,11 @@ TEST_F(WatchdogBinderMediatorTest, TestErrorOnInitWithNullServiceInstances) {
     auto mockWatchdogProcessService = sp<MockWatchdogProcessService>::make();
     auto mockWatchdogPerfservice = sp<MockWatchdogPerfService>::make();
     auto mockWatchdogServiceHelper = sp<MockWatchdogServiceHelper>::make();
-    auto mockIoOveruseMonitor = sp<MockIoOveruseMonitorWrapper>::make();
+    auto mockIoOveruseMonitorWrapper = sp<MockIoOveruseMonitorWrapper>::make();
     std::shared_ptr<WatchdogBinderMediator> mediator =
             SharedRefBase::make<WatchdogBinderMediator>(nullptr, mockWatchdogPerfservice,
                                                         mockWatchdogServiceHelper,
-                                                        mockIoOveruseMonitor,
+                                                        mockIoOveruseMonitorWrapper,
                                                         kAddServiceFunctionStub);
 
     EXPECT_FALSE(mediator->init().ok()) << "No error returned on nullptr watchdog process service";
@@ -151,7 +150,7 @@ TEST_F(WatchdogBinderMediatorTest, TestErrorOnInitWithNullServiceInstances) {
 
     mediator = SharedRefBase::make<WatchdogBinderMediator>(mockWatchdogProcessService,
                                                            mockWatchdogPerfservice, nullptr,
-                                                           mockIoOveruseMonitor,
+                                                           mockIoOveruseMonitorWrapper,
                                                            kAddServiceFunctionStub);
 
     EXPECT_FALSE(mediator->init().ok()) << "No error returned on null watchdog "
@@ -164,7 +163,8 @@ TEST_F(WatchdogBinderMediatorTest, TestErrorOnInitWithNullServiceInstances) {
                                                            mockWatchdogServiceHelper, nullptr,
                                                            kAddServiceFunctionStub);
 
-    EXPECT_FALSE(mediator->init().ok()) << "No error returned on nullptr I/O overuse monitor";
+    EXPECT_FALSE(mediator->init().ok())
+            << "No error returned on nullptr I/O overuse monitor wrapper";
     mediator.reset();
 
     mediator = SharedRefBase::make<WatchdogBinderMediator>(nullptr, nullptr, nullptr, nullptr,

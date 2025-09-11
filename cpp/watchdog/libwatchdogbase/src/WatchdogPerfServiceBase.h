@@ -128,6 +128,7 @@ public:
     // Register IoOveruseMonitor to process the data collected by |WatchdogPerfServiceBase|.
     virtual android::base::Result<void> registerIoOveruseMonitor(
             android::sp<IoOveruseMonitorInterface> ioOveruseMonitor) = 0;
+    virtual void init() = 0;
     /**
      * Starts the periodic collection in the looper handler on a new thread and returns
      * immediately. Must be called only once. Otherwise, returns an error.
@@ -173,7 +174,7 @@ public:
     android::base::Result<void> registerIoOveruseMonitor(
             android::sp<IoOveruseMonitorInterface> ioOveruseMonitor) override;
 
-    void init();
+    void init() override;
 
     android::base::Result<void> start() override;
 
