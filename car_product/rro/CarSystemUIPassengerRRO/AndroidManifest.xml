@@ -20,5 +20,6 @@
     <overlay android:targetName="CarSystemUI"
              android:targetPackage="com.android.systemui"
              android:resourcesMap="@xml/overlays"
+             android:priority="200"
              android:isStatic="false" />
 </manifest>

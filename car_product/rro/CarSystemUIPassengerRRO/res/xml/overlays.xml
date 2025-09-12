@@ -18,6 +18,7 @@
     <item target="layout/car_bottom_system_bar" value="@layout/car_passenger_bottom_system_bar"/>
 
     <item target="bool/config_enableTopSystemBar" value="false"/>
+    <item target="bool/config_enableScalableUI" value="false"/>
     <item target="string/config_notificationPanelViewMediator" value="@string/config_notificationPanelViewMediator" />
 
     <item target="id/notifications" value="@id/notifications" />
