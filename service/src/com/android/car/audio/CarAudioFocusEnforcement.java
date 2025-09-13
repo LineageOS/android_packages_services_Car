@@ -28,7 +28,6 @@ import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DU
 import android.annotation.Nullable;
 import android.car.builtin.os.TraceHelper;
 import android.car.builtin.util.Slogf;
-import android.car.builtin.util.TimingsTraceLog;
 import android.car.media.EnforcedAudioFocusInfo;
 import android.car.media.IEnforceableAudioFocusCallback;
 import android.media.AudioAttributes;
@@ -38,6 +37,7 @@ import android.media.PlayerProxy;
 import android.os.Binder;
 import android.os.RemoteCallbackList;
 import android.os.RemoteException;
+import android.os.Trace;
 import android.util.ArraySet;
 import android.util.SparseArray;
 
@@ -163,55 +163,58 @@ final class CarAudioFocusEnforcement {
         }
     }
 
-    private void evaluateAndEnforceFocusState(TimingsTraceLog tracer,
+    private void evaluateAndEnforceFocusState(
             List<AudioPlaybackConfiguration> activePlaybacks,
             List<AudioFocusInfo> focusHolders, boolean relaxedParkModeEnabled,
             boolean hasCriticalAudioFocusRequest) {
-        tracer.traceBegin("evaluateAndEnforceFocusState");
-        List<EnforcedAudioFocusInfo> enforcedAudioFocusInfos = new ArrayList<>();
-        if (relaxedParkModeEnabled && !hasCriticalAudioFocusRequest) {
-            List<AudioPlaybackConfiguration> playbacksToUnsilence = new ArrayList<>();
-            synchronized (mLock) {
-                for (int c = 0; c < activePlaybacks.size(); c++) {
-                    var playback = activePlaybacks.get(c);
-                    if (mCurrentlySilencedPlayerIDs.contains(playback.getPlayerInterfaceId())) {
-                        playbacksToUnsilence.add(playback);
+        Trace.traceBegin(TraceHelper.TRACE_TAG_CAR_SERVICE,
+                "CarAudioFocusEnforcement.evaluateAndEnforceFocusState");
+        try {
+            List<EnforcedAudioFocusInfo> enforcedAudioFocusInfos = new ArrayList<>();
+            if (relaxedParkModeEnabled && !hasCriticalAudioFocusRequest) {
+                List<AudioPlaybackConfiguration> playbacksToUnsilence = new ArrayList<>();
+                synchronized (mLock) {
+                    for (int c = 0; c < activePlaybacks.size(); c++) {
+                        var playback = activePlaybacks.get(c);
+                        if (mCurrentlySilencedPlayerIDs.contains(playback.getPlayerInterfaceId())) {
+                            playbacksToUnsilence.add(playback);
+                        }
                     }
                 }
+                for (int i = 0; i < playbacksToUnsilence.size(); i++) {
+                    var info = enforceAudioFocus(playbacksToUnsilence.get(i),
+                            /* silence= */ false);
+                    if (info != null) {
+                        enforcedAudioFocusInfos.add(info);
+                    }
+                }
+                handleInformCallbacks(enforcedAudioFocusInfos);
+                return;
             }
-            for (int i = 0; i < playbacksToUnsilence.size(); i++) {
-                var info = enforceAudioFocus(playbacksToUnsilence.get(i),
-                        /* silence= */ false, tracer);
+
+            List<AudioAttributes> enforceableAttributes;
+            List<AudioAttributes> doNotSilenceAttributes;
+            synchronized (mLock) {
+                enforceableAttributes = new ArrayList<>(mEnforceableAttributes);
+                doNotSilenceAttributes = new ArrayList<>(mDoNotSilenceAttributes);
+            }
+
+            for (int c = 0; c < activePlaybacks.size(); c++) {
+                var playback = activePlaybacks.get(c);
+                // Skip unmanaged playbacks
+                if (!audioPlaybackCanBeSilenced(playback, enforceableAttributes)) {
+                    continue;
+                }
+                boolean silence = shouldSilence(playback, focusHolders, doNotSilenceAttributes);
+                var info = enforceAudioFocus(playback, silence);
                 if (info != null) {
                     enforcedAudioFocusInfos.add(info);
                 }
             }
             handleInformCallbacks(enforcedAudioFocusInfos);
-            tracer.traceEnd();
-            return;
+        } finally {
+            Trace.traceEnd(TraceHelper.TRACE_TAG_CAR_SERVICE);
         }
-
-        List<AudioAttributes> enforceableAttributes;
-        List<AudioAttributes> doNotSilenceAttributes;
-        synchronized (mLock) {
-            enforceableAttributes = new ArrayList<>(mEnforceableAttributes);
-            doNotSilenceAttributes = new ArrayList<>(mDoNotSilenceAttributes);
-        }
-
-        for (int c = 0; c < activePlaybacks.size(); c++) {
-            var playback = activePlaybacks.get(c);
-            // Skip unmanaged playbacks
-            if (!audioPlaybackCanBeSilenced(playback, enforceableAttributes)) {
-                continue;
-            }
-            boolean silence = shouldSilence(playback, focusHolders, doNotSilenceAttributes);
-            var info = enforceAudioFocus(playback, silence, tracer);
-            if (info != null) {
-                enforcedAudioFocusInfos.add(info);
-            }
-        }
-        handleInformCallbacks(enforcedAudioFocusInfos);
-        tracer.traceEnd();
     }
 
     private boolean audioPlaybackCanBeSilenced(AudioPlaybackConfiguration playback,
@@ -237,69 +240,73 @@ final class CarAudioFocusEnforcement {
 
     @Nullable
     private EnforcedAudioFocusInfo enforceAudioFocus(AudioPlaybackConfiguration playback,
-            boolean silence, TimingsTraceLog tracer) {
-        tracer.traceBegin("enforceAudioFocus-" + playback.getPlayerInterfaceId());
-        String silenceMessage = silence ? "silence" : "unsilence";
-        PlayerProxy proxy = playback.getPlayerProxy();
-        if (proxy == null) {
-            var message = "Could not enforce " + silenceMessage + " for "
-                    + playback + " proxy player missing";
-            Slogf.e(TAG, message);
-            mFocusEnforcementLogger.log(message);
-            tracer.traceEnd();
-            return null;
-        }
-
-        synchronized (mLock) {
-            boolean isCurrentlySilenced = mCurrentlySilencedPlayerIDs.contains(
-                    playback.getPlayerInterfaceId());
-            boolean shouldAct = silence != isCurrentlySilenced;
-
-            if (!shouldAct) {
-                String info = "Should " + silenceMessage  + " player "
-                        + playback.getPlayerInterfaceId() + " but "
-                        + (isCurrentlySilenced ? "already silenced" : "not silenced")
-                        + " by car focus enforcement";
-                Slogf.i(TAG, info);
-                tracer.traceEnd();
+            boolean silence) {
+        Trace.traceBegin(TraceHelper.TRACE_TAG_CAR_SERVICE,
+                "CarAudioFocusEnforcement.enforceAudioFocus-" + playback.getPlayerInterfaceId());
+        try {
+            String silenceMessage = silence ? "silence" : "unsilence";
+            PlayerProxy proxy = playback.getPlayerProxy();
+            if (proxy == null) {
+                var message = "Could not enforce " + silenceMessage + " for "
+                        + playback + " proxy player missing";
+                Slogf.e(TAG, message);
+                mFocusEnforcementLogger.log(message);
                 return null;
             }
 
-            if (silence) {
-                mCurrentlySilencedPlayerIDs.add(playback.getPlayerInterfaceId());
-            } else {
-                mCurrentlySilencedPlayerIDs.remove(playback.getPlayerInterfaceId());
-            }
-        }
-
-        var message = "Enforced " + silenceMessage + " for " + playback;
-        try {
-            tracer.traceBegin("enforceAudioFocus.setVolume-" + playback.getPlayerInterfaceId());
-            if (silence) {
-                proxy.setVolume(0.0f);
-            } else {
-                proxy.setVolume(1.0f);
-            }
-            tracer.traceEnd();
-        } catch (Exception e) {
-            tracer.traceEnd();
-            message = "Failed to enforce audio focus for " + playback + " with exception "
-                    + e.getMessage();
-            Slogf.e(CarLog.TAG_AUDIO, message, e);
-            // Revert the state if the binder call fails
             synchronized (mLock) {
+                boolean isCurrentlySilenced = mCurrentlySilencedPlayerIDs.contains(
+                        playback.getPlayerInterfaceId());
+                boolean shouldAct = silence != isCurrentlySilenced;
+
+                if (!shouldAct) {
+                    String info = "Should " + silenceMessage  + " player "
+                            + playback.getPlayerInterfaceId() + " but "
+                            + (isCurrentlySilenced ? "already silenced" : "not silenced")
+                            + " by car focus enforcement";
+                    Slogf.i(TAG, info);
+                    return null;
+                }
+
                 if (silence) {
-                    mCurrentlySilencedPlayerIDs.remove(playback.getPlayerInterfaceId());
-                } else {
                     mCurrentlySilencedPlayerIDs.add(playback.getPlayerInterfaceId());
+                } else {
+                    mCurrentlySilencedPlayerIDs.remove(playback.getPlayerInterfaceId());
                 }
             }
-            return null;
+
+            var message = "Enforced " + silenceMessage + " for " + playback;
+            try {
+                Trace.traceBegin(TraceHelper.TRACE_TAG_CAR_SERVICE,
+                        "CarAudioFocusEnforcement.enforceAudioFocus.setVolume-"
+                        + playback.getPlayerInterfaceId());
+                if (silence) {
+                    proxy.setVolume(0.0f);
+                } else {
+                    proxy.setVolume(1.0f);
+                }
+            } catch (Exception e) {
+                message = "Failed to enforce audio focus for " + playback + " with exception "
+                        + e.getMessage();
+                Slogf.e(CarLog.TAG_AUDIO, message, e);
+                // Revert the state if the binder call fails
+                synchronized (mLock) {
+                    if (silence) {
+                        mCurrentlySilencedPlayerIDs.remove(playback.getPlayerInterfaceId());
+                    } else {
+                        mCurrentlySilencedPlayerIDs.add(playback.getPlayerInterfaceId());
+                    }
+                }
+                return null;
+            } finally {
+                Trace.traceEnd(TraceHelper.TRACE_TAG_CAR_SERVICE);
+            }
+            mFocusEnforcementLogger.log(message);
+            return new EnforcedAudioFocusInfo(playback.getClientUid(),
+                    playback.getAudioAttributes(), silence);
+        } finally {
+            Trace.traceEnd(TraceHelper.TRACE_TAG_CAR_SERVICE);
         }
-        mFocusEnforcementLogger.log(message);
-        tracer.traceEnd();
-        return new EnforcedAudioFocusInfo(playback.getClientUid(),
-                playback.getAudioAttributes(), silence);
     }
 
     private boolean shouldSilence(AudioPlaybackConfiguration playback, List<AudioFocusInfo> infos,
@@ -328,21 +335,25 @@ final class CarAudioFocusEnforcement {
         return true;
     }
 
-    private void onAudioFocusChange(List<AudioFocusInfo> focusInfos, TimingsTraceLog tracer) {
-        tracer.traceBegin("onAudioFocusChange");
-        List<AudioPlaybackConfiguration> currentPlaybacks;
-        boolean relaxedParkModeEnabled;
-        boolean hasCriticalAudioFocus;
-        synchronized (mLock) {
-            mPrimaryZoneFocusHolders = new CopyOnWriteArrayList<>(focusInfos);
-            mHasCriticalAudioFocusRequest = hasCriticalAudioFocusRequest(focusInfos);
-            currentPlaybacks = mPrimaryZoneActivePlaybacks;
-            relaxedParkModeEnabled = mRelaxedParkModeEnabled;
-            hasCriticalAudioFocus = mHasCriticalAudioFocusRequest;
+    private void onAudioFocusChange(List<AudioFocusInfo> focusInfos) {
+        Trace.traceBegin(TraceHelper.TRACE_TAG_CAR_SERVICE,
+                "CarAudioFocusEnforcement.onAudioFocusChange");
+        try {
+            List<AudioPlaybackConfiguration> currentPlaybacks;
+            boolean relaxedParkModeEnabled;
+            boolean hasCriticalAudioFocus;
+            synchronized (mLock) {
+                mPrimaryZoneFocusHolders = new CopyOnWriteArrayList<>(focusInfos);
+                mHasCriticalAudioFocusRequest = hasCriticalAudioFocusRequest(focusInfos);
+                currentPlaybacks = mPrimaryZoneActivePlaybacks;
+                relaxedParkModeEnabled = mRelaxedParkModeEnabled;
+                hasCriticalAudioFocus = mHasCriticalAudioFocusRequest;
+            }
+            evaluateAndEnforceFocusState(currentPlaybacks, focusInfos, relaxedParkModeEnabled,
+                    hasCriticalAudioFocus);
+        } finally {
+            Trace.traceEnd(TraceHelper.TRACE_TAG_CAR_SERVICE);
         }
-        evaluateAndEnforceFocusState(tracer, currentPlaybacks, focusInfos, relaxedParkModeEnabled,
-                hasCriticalAudioFocus);
-        tracer.traceEnd();
     }
 
     private boolean hasCriticalAudioFocusRequest(List<AudioFocusInfo> focusHolders) {
@@ -355,96 +366,109 @@ final class CarAudioFocusEnforcement {
     }
 
     void onFocusChange(SparseArray<List<AudioFocusInfo>> focusHoldersByZoneId) {
-        TimingsTraceLog tracer = new TimingsTraceLog(TAG, TraceHelper.TRACE_TAG_CAR_SERVICE);
-        tracer.traceBegin("onFocusChange");
-        Objects.requireNonNull(focusHoldersByZoneId,
-                "Focus holders by zone id's can not be null");
-        for (int i = 0; i < focusHoldersByZoneId.size(); i++) {
-            int zoneId = focusHoldersByZoneId.keyAt(i);
-            if (zoneId != PRIMARY_AUDIO_ZONE) {
-                continue;
+        Trace.traceBegin(TraceHelper.TRACE_TAG_CAR_SERVICE,
+                "CarAudioFocusEnforcement.onFocusChange");
+        try {
+            Objects.requireNonNull(focusHoldersByZoneId,
+                    "Focus holders by zone id's can not be null");
+            for (int i = 0; i < focusHoldersByZoneId.size(); i++) {
+                int zoneId = focusHoldersByZoneId.keyAt(i);
+                if (zoneId != PRIMARY_AUDIO_ZONE) {
+                    continue;
+                }
+                var holdersInZone = focusHoldersByZoneId.get(zoneId);
+                Objects.requireNonNull(holdersInZone, "Focus holders in zone can not be null");
+                onAudioFocusChange(holdersInZone);
             }
-            var holdersInZone = focusHoldersByZoneId.get(zoneId);
-            Objects.requireNonNull(holdersInZone, "Focus holders in zone can not be null");
-            onAudioFocusChange(holdersInZone, tracer);
+        } finally {
+            Trace.traceEnd(TraceHelper.TRACE_TAG_CAR_SERVICE);
         }
-        tracer.traceEnd();
     }
 
     void onAudioPlaybackChange(
             SparseArray<List<AudioPlaybackConfiguration>> activePlaybackByZoneId) {
-        TimingsTraceLog tracer = new TimingsTraceLog(TAG, TraceHelper.TRACE_TAG_CAR_SERVICE);
-        tracer.traceBegin("onAudioPlaybackChange");
-        Objects.requireNonNull(activePlaybackByZoneId,
-                "Active playbacks by zone id's can not be null");
-        boolean relaxedParkModeEnabled;
-        boolean hasCriticalAudioFocus;
-        synchronized (mLock) {
-            relaxedParkModeEnabled = mRelaxedParkModeEnabled;
-            hasCriticalAudioFocus = mHasCriticalAudioFocusRequest;
-        }
-        for (int i = 0; i < activePlaybackByZoneId.size(); i++) {
-            int zoneId = activePlaybackByZoneId.keyAt(i);
-            if (zoneId != PRIMARY_AUDIO_ZONE) {
-                continue;
-            }
-            var playbackByZoneId = activePlaybackByZoneId.get(zoneId);
-            Objects.requireNonNull(playbackByZoneId, "Active playback in zone can not be null");
-            List<AudioFocusInfo> currentFocusHolders;
+        Trace.traceBegin(TraceHelper.TRACE_TAG_CAR_SERVICE,
+                "CarAudioFocusEnforcement.onAudioPlaybackChange");
+        try {
+            Objects.requireNonNull(activePlaybackByZoneId,
+                    "Active playbacks by zone id's can not be null");
+            boolean relaxedParkModeEnabled;
+            boolean hasCriticalAudioFocus;
             synchronized (mLock) {
-                mPrimaryZoneActivePlaybacks = new CopyOnWriteArrayList<>(playbackByZoneId);
-                currentFocusHolders = mPrimaryZoneFocusHolders;
+                relaxedParkModeEnabled = mRelaxedParkModeEnabled;
+                hasCriticalAudioFocus = mHasCriticalAudioFocusRequest;
             }
-            evaluateAndEnforceFocusState(tracer, playbackByZoneId, currentFocusHolders,
-                    relaxedParkModeEnabled, hasCriticalAudioFocus);
+            for (int i = 0; i < activePlaybackByZoneId.size(); i++) {
+                int zoneId = activePlaybackByZoneId.keyAt(i);
+                if (zoneId != PRIMARY_AUDIO_ZONE) {
+                    continue;
+                }
+                var playbackByZoneId = activePlaybackByZoneId.get(zoneId);
+                Objects.requireNonNull(playbackByZoneId,
+                        "Active playback in zone can not be null");
+                List<AudioFocusInfo> currentFocusHolders;
+                synchronized (mLock) {
+                    mPrimaryZoneActivePlaybacks = new CopyOnWriteArrayList<>(playbackByZoneId);
+                    currentFocusHolders = mPrimaryZoneFocusHolders;
+                }
+                evaluateAndEnforceFocusState(playbackByZoneId, currentFocusHolders,
+                        relaxedParkModeEnabled, hasCriticalAudioFocus);
+            }
+        } finally {
+            Trace.traceEnd(TraceHelper.TRACE_TAG_CAR_SERVICE);
         }
-        tracer.traceEnd();
     }
 
     void enableRelaxedParkMode(boolean enable) {
-        TimingsTraceLog tracer = new TimingsTraceLog(TAG, TraceHelper.TRACE_TAG_CAR_SERVICE);
-        tracer.traceBegin("enableRelaxedParkMode");
-        List<AudioPlaybackConfiguration> currentPlaybacks;
-        List<AudioFocusInfo> currentFocusHolders;
-        boolean hasCriticalAudioFocusRequest;
-        synchronized (mLock) {
-            if (mRelaxedParkModeEnabled == enable) {
-                tracer.traceEnd();
-                return;
+        Trace.traceBegin(TraceHelper.TRACE_TAG_CAR_SERVICE,
+                "CarAudioFocusEnforcement.enableRelaxedParkMode");
+        try {
+            List<AudioPlaybackConfiguration> currentPlaybacks;
+            List<AudioFocusInfo> currentFocusHolders;
+            boolean hasCriticalAudioFocusRequest;
+            synchronized (mLock) {
+                if (mRelaxedParkModeEnabled == enable) {
+                    return;
+                }
+                mRelaxedParkModeEnabled = enable;
+                currentPlaybacks = mPrimaryZoneActivePlaybacks;
+                currentFocusHolders = mPrimaryZoneFocusHolders;
+                hasCriticalAudioFocusRequest = mHasCriticalAudioFocusRequest;
             }
-            mRelaxedParkModeEnabled = enable;
-            currentPlaybacks = mPrimaryZoneActivePlaybacks;
-            currentFocusHolders = mPrimaryZoneFocusHolders;
-            hasCriticalAudioFocusRequest = mHasCriticalAudioFocusRequest;
-        }
 
-        evaluateAndEnforceFocusState(tracer, currentPlaybacks, currentFocusHolders, enable,
-                hasCriticalAudioFocusRequest);
-        tracer.traceEnd();
+            evaluateAndEnforceFocusState(currentPlaybacks, currentFocusHolders, enable,
+                    hasCriticalAudioFocusRequest);
+        } finally {
+            Trace.traceEnd(TraceHelper.TRACE_TAG_CAR_SERVICE);
+        }
     }
 
     private void handleInformCallbacks(List<EnforcedAudioFocusInfo> enforcedAudioFocusInfos) {
-        var tracer = new TimingsTraceLog(TAG, TraceHelper.TRACE_TAG_CAR_SERVICE);
-        tracer.traceBegin("enforceAudioFocus-informCallbacks");
-        if (enforcedAudioFocusInfos.isEmpty()) {
-            tracer.traceEnd();
-            return;
-        }
-        int n = mFocusEnforcementCallbacks.beginBroadcast();
-        for (int c = 0; c < n; c++) {
-            var callback = mFocusEnforcementCallbacks.getBroadcastItem(c);
-            Object cookie = mFocusEnforcementCallbacks.getBroadcastCookie(c);
-            CallbackIdentity identity = (CallbackIdentity) cookie;
-            tracer.traceBegin("enforceAudioFocus-informCallbacks-" + identity);
-            try {
-                callback.onEnforcedAudioFocusChanged(enforcedAudioFocusInfos);
-            } catch (RemoteException e) {
-                Slogf.e(TAG, e, "Could not inform focus enforcement %s", identity);
+        Trace.traceBegin(TraceHelper.TRACE_TAG_CAR_SERVICE,
+                "CarAudioFocusEnforcement.enforceAudioFocus-informCallbacks");
+        try {
+            if (enforcedAudioFocusInfos.isEmpty()) {
+                return;
             }
-            tracer.traceEnd();
+            int n = mFocusEnforcementCallbacks.beginBroadcast();
+            for (int c = 0; c < n; c++) {
+                var callback = mFocusEnforcementCallbacks.getBroadcastItem(c);
+                Object cookie = mFocusEnforcementCallbacks.getBroadcastCookie(c);
+                CallbackIdentity identity = (CallbackIdentity) cookie;
+                Trace.traceBegin(TraceHelper.TRACE_TAG_CAR_SERVICE,
+                        "CarAudioFocusEnforcement.enforceAudioFocus-informCallbacks-" + identity);
+                try {
+                    callback.onEnforcedAudioFocusChanged(enforcedAudioFocusInfos);
+                } catch (RemoteException e) {
+                    Slogf.e(TAG, e, "Could not inform focus enforcement %s", identity);
+                } finally {
+                    Trace.traceEnd(TraceHelper.TRACE_TAG_CAR_SERVICE);
+                }
+            }
+            mFocusEnforcementCallbacks.finishBroadcast();
+        } finally {
+            Trace.traceEnd(TraceHelper.TRACE_TAG_CAR_SERVICE);
         }
-        mFocusEnforcementCallbacks.finishBroadcast();
-        tracer.traceEnd();
     }
 
     @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
