@@ -19,6 +19,6 @@
     <integer name="app_panel_layer">50</integer>
     <integer name="app_grid_panel_layer">100</integer>
     <integer name="calm_mode_panel_layer">150</integer>
-    <integer name="contextual_bar_panel_layer">101</integer>
+    <integer name="widget_panel_layer">101</integer>
     <integer name="map_panel_layer">2</integer>
 </resources>
