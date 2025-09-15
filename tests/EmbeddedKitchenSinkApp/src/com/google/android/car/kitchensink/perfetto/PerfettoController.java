@@ -76,8 +76,8 @@ public class PerfettoController {
     private static final long TRACE_RESTART_PERIOD_MS = TimeUnit.MINUTES.toMillis(10);
     private static final long TRACE_RESTART_OFFSET_MS = TimeUnit.MINUTES.toMillis(1);
     private static final int TRIGGER_TIMEOUT_MS = (int) TimeUnit.DAYS.toMillis(1);
-    private static final int FLUSH_TIMEOUT_MS = 3000;
-    private static final int INCREMENTAL_STATE_CLEAR_PERIOD_MS = 1000;
+    private static final int FLUSH_TIMEOUT_MS = (int) TimeUnit.SECONDS.toMillis(3);
+    private static final int INCREMENTAL_STATE_CLEAR_PERIOD_MS = (int) TimeUnit.SECONDS.toMillis(1);
 
     private static final HashFunction HASH_FUNCTION = Hashing.sha256();
     private static final long CONFIG_ID =
@@ -89,7 +89,7 @@ public class PerfettoController {
 
     private final Context mContext;
 
-    private static final int TRIGGER_PERFETTO_TIMEOUT_MS = 10000;
+    private static final int TRIGGER_PERFETTO_TIMEOUT_MS = (int) TimeUnit.SECONDS.toMillis(10);
     private StatsdConfig mLastPushedStatsdConfig;
 
     public PerfettoController(Context context) {
@@ -104,13 +104,13 @@ public class PerfettoController {
      * @param bufferSizeMultiplier Mulitplier to increase the in-memory buffer size.
      * @return {@code true} if the config was pushed successfully, {@code false} otherwise.
      */
-    public boolean pushPerfettoFieldTraceConfig(String configPath, int bufferSizeMultiplier) {
+    public boolean pushFieldTraceConfig(String configPath, int bufferSizeMultiplier) {
         TraceConfig.Builder baseConfigBuilder = configPath.equals("default")
-                ? getDefaultPerfettoFieldTraceConfig() : getTraceConfigFromFile(configPath);
+                ? getDefaultFieldTraceConfig() : getTraceConfigFromFile(configPath);
         if (baseConfigBuilder == null) {
             return false;
         }
-        return pushPerfettoFieldTraceConfigInternal(baseConfigBuilder, bufferSizeMultiplier);
+        return pushFieldTraceConfigInternal(baseConfigBuilder, bufferSizeMultiplier);
     }
 
     /**
@@ -134,7 +134,7 @@ public class PerfettoController {
      *
      * @return {@code true} if the trigger command was issued successfully, {@code false} otherwise.
      */
-    public boolean triggerPerfetto() {
+    public boolean triggerEvent() {
         try {
             ProcessBuilder pb =
                     new ProcessBuilder(TRIGGER_COMMAND, SAMPLE_KITCHENSINK_TRIGGER_NAME);
@@ -163,17 +163,17 @@ public class PerfettoController {
      * @param writer An {@link IndentingPrintWriter} to write the output to.
      * @return {@code true} if the query was successful, {@code false} otherwise.
      */
-    public boolean queryPerfettoFieldTraceConfig(IndentingPrintWriter writer) {
+    public boolean queryFieldTraceConfig(IndentingPrintWriter writer) {
         // TODO(b/406520911): Implement the query functionality in a separate CL.
         return false;
     }
 
     /**
-     * Removes the Perfetto field trace configs.
+     * Removes the Perfetto field trace config.
      *
      * @return {@code true} if the config was removed successfully, {@code false} otherwise.
      */
-    public boolean removePerfettoFieldTraceConfigs() {
+    public boolean removeFieldTraceConfig() {
         StatsManager statsManager =  mContext.getSystemService(StatsManager.class);
         if (statsManager == null) {
             Log.e(TAG, "Could not retrieve StatsManager");
@@ -212,7 +212,7 @@ public class PerfettoController {
         return baseConfig.toBuilder();
     }
 
-    private boolean pushPerfettoFieldTraceConfigInternal(TraceConfig.Builder baseConfigBuilder,
+    private boolean pushFieldTraceConfigInternal(TraceConfig.Builder baseConfigBuilder,
             int bufferSizeMultiplier) {
         if (baseConfigBuilder == null) {
             Log.e(TAG, "Trace config builder is null");
@@ -221,9 +221,8 @@ public class PerfettoController {
         TraceConfig traceConfig =
                 baseConfigBuilder
                         .mergeFrom(
-                                buildTraceConfigForTriggerPerfetto(
-                                        getMaxBufferSizeKb(baseConfigBuilder,
-                                                bufferSizeMultiplier), mContext.getPackageName()))
+                                buildBaseFieldTraceConfig(getMaxBufferSizeKb(baseConfigBuilder,
+                                    bufferSizeMultiplier), mContext.getPackageName()))
                         .build();
         if (!pushTraceConfig(traceConfig)) {
             return false;
@@ -242,7 +241,7 @@ public class PerfettoController {
         return maxBufferSizeKb * bufferSizeMultiplier;
     }
 
-    private TraceConfig.Builder getDefaultPerfettoFieldTraceConfig() {
+    private TraceConfig.Builder getDefaultFieldTraceConfig() {
         TraceConfig traceConfig = getTraceConfigFromAsset(getDefaultTraceConfigFileName());
         if (traceConfig == null) {
             Log.e(TAG, "Failed to read default perfetto trace config from resource");
@@ -282,11 +281,6 @@ public class PerfettoController {
             return false;
         }
 
-        // TODO: Next steps:
-        // 1. Test the functionality by shipping a sample trace config.
-        // 2. Touch up:
-        //     * Add UI for the above use cases.
-        //     * Add extensive code documentation and examples (in a README.md) for OEMs use.
         StatsdConfig statsdConfig =
                 StatsdConfig.newBuilder()
                         .setId(CONFIG_ID)
@@ -338,9 +332,9 @@ public class PerfettoController {
         return true;
     }
 
-    // Configuration for the integration of Perfetto with statsd and trigger_perfetto.
-    private static TraceConfig buildTraceConfigForTriggerPerfetto(int maxBufferSizeKb,
-                                                                  String reporterPackageName) {
+    // Base configuration for the integration of Perfetto with statsd and trigger_perfetto.
+    private static TraceConfig buildBaseFieldTraceConfig(int maxBufferSizeKb,
+                                                         String reporterPackageName) {
         return TraceConfig.newBuilder()
                 .setUniqueSessionName(TRACE_UNIQUE_SESSION_NAME)
                 // Configure this trace to be stopped by trigger_perfetto.

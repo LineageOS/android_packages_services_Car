@@ -352,7 +352,7 @@ final class KitchenSinkShellCommand {
             }
         }
         PerfettoController perfettoController = new PerfettoController(mContext);
-        if (!perfettoController.pushPerfettoFieldTraceConfig(configPath, bufferSizeMultiplier)) {
+        if (!perfettoController.pushFieldTraceConfig(configPath, bufferSizeMultiplier)) {
             logError("Failed to push Perfetto field trace config: '" + configPath + "'");
             return;
         }
@@ -363,7 +363,7 @@ final class KitchenSinkShellCommand {
 
     private void triggerPerfetto() {
         PerfettoController perfettoController = new PerfettoController(mContext);
-        if (!perfettoController.triggerPerfetto()) {
+        if (!perfettoController.triggerEvent()) {
             logError("Failed to trigger Perfetto");
         } else {
             logDebug("Successfully triggered Perfetto");
@@ -372,7 +372,7 @@ final class KitchenSinkShellCommand {
 
     private void queryPerfettoFieldTraceConfig() {
         PerfettoController perfettoController = new PerfettoController(mContext);
-        if (!perfettoController.queryPerfettoFieldTraceConfig(mWriter)) {
+        if (!perfettoController.queryFieldTraceConfig(mWriter)) {
             logError("Failed to query Perfetto field trace config");
         } else {
             logDebug("Successfully queried Perfetto field trace config");
@@ -381,7 +381,7 @@ final class KitchenSinkShellCommand {
 
     private void removePerfettoFieldTraceConfigs() {
         PerfettoController perfettoController = new PerfettoController(mContext);
-        if (!perfettoController.removePerfettoFieldTraceConfigs()) {
+        if (!perfettoController.removeFieldTraceConfig()) {
             logError("Failed to remove Perfetto field trace configs");
         } else {
             logDebug("Successfully removed Perfetto field trace configs");
