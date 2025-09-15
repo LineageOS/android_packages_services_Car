@@ -511,6 +511,14 @@
     -->
     <string name="config_userPickerActivity" translatable="false">com.android.systemui/.car.userpicker.UserPickerActivity</string>
 
+    <!-- Specifies the component that is home for driver users - this will be disabled for passenger
+         users (unless it's the same as config_passengerHomeComponent) -->
+    <string name="config_driverHomeComponent" translatable="false">com.android.car.carlauncher/.CarLauncher</string>
+
+    <!-- Specifies the component that is home for passenger users - this will be disabled for driver
+         users (unless it's the same as config_driverHomeComponent) -->
+    <string name="config_passengerHomeComponent" translatable="false">com.android.car.carlauncher/.CarLauncher</string>
+
     <!-- Configuration to enable media center to autoplay when the media source is changed.
          There are 3 supported configurations:
          0 - never play on change

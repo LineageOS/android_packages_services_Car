@@ -152,6 +152,8 @@ abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCas
     private static final String FAKE_USER_PICKER_PACKAGE = "fake-user-picker-package";
     private static final String FAKE_SYSTEM_UI_SERVICE_PACKAGE =
             "com.android.systemui/com.android.systemui.SystemUIService";
+    private static final String FAKE_DRIVER_HOME_COMPONENT = "com.android.car/.TestHome1";
+    private static final String FAKE_PASSENGER_HOME_COMPONENT = "com.android.car/.TestHome2";
 
     protected static final int NO_USER_INFO_FLAGS = 0;
     protected static final int NON_EXISTING_USER = 55; // must not be on mExistingUsers
@@ -630,9 +632,21 @@ abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCas
 
     protected class TestCarUserServiceBuilder {
         private boolean mSwitchGuestUserBeforeGoingSleep = false;
+        private String mDriverHomeComponent = FAKE_DRIVER_HOME_COMPONENT;
+        private String mPassengerHomeComponent = FAKE_PASSENGER_HOME_COMPONENT;
 
         protected TestCarUserServiceBuilder setSwitchGuestUserBeforeGoingSleep(boolean enabled) {
             mSwitchGuestUserBeforeGoingSleep = enabled;
+            return this;
+        }
+
+        protected TestCarUserServiceBuilder setDriverHomeComponent(@NonNull String component) {
+            mDriverHomeComponent = component;
+            return this;
+        }
+
+        protected TestCarUserServiceBuilder setPassengerHomeComponent(@NonNull String component) {
+            mPassengerHomeComponent = component;
             return this;
         }
 
@@ -648,6 +662,14 @@ abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCas
             when(mMockedResources
                     .getString(com.android.internal.R.string.config_systemUIServiceComponent))
                     .thenReturn(FAKE_SYSTEM_UI_SERVICE_PACKAGE);
+
+            when(mMockedResources
+                    .getString(com.android.car.R.string.config_driverHomeComponent))
+                    .thenReturn(mDriverHomeComponent);
+
+            when(mMockedResources
+                    .getString(com.android.car.R.string.config_passengerHomeComponent))
+                    .thenReturn(mPassengerHomeComponent);
 
             return new CarUserService(
                     mMockContext,
