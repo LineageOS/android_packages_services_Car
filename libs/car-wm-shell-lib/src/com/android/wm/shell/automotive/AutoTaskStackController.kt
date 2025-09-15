@@ -21,10 +21,11 @@ import android.content.Intent
 import android.graphics.Rect
 import android.os.Bundle
 import android.os.IBinder
-import android.util.Slog
 import android.view.SurfaceControl
 import android.window.TransitionInfo
 import android.window.TransitionRequestInfo
+import com.android.internal.protolog.ProtoLog
+import com.android.wm.shell.automotive.CarWmShellProtoLogGroups.CAR_WM_SHELL_TASK_STACK_CONTROLLER
 import com.android.wm.shell.shared.annotations.ShellMainThread
 import com.android.wm.shell.transition.Transitions
 import com.android.wm.shell.transition.Transitions.TransitionFinishCallback
@@ -236,10 +237,12 @@ data class AutoTaskStackTransaction internal constructor(
             operations.add(TaskStackOperation.SetTaskStackState(taskStackId, state))
         }
         if (state.layer < AutoTaskStackController.MIN_Z_LAYER) {
-            Slog.e(
-                TAG,
-                "Transaction layer set to less than Min layer supported. Min layer: " +
-                        AutoTaskStackController.MIN_Z_LAYER + ". state.layer: " + state.layer
+            ProtoLog.e(
+                CAR_WM_SHELL_TASK_STACK_CONTROLLER,
+                "Transaction layer set to less than Min layer supported. Min layer: %d, " +
+                        "state.layer: %d",
+                AutoTaskStackController.MIN_Z_LAYER,
+                state.layer
             )
             throw IllegalArgumentException(
                 "Layer can't be less than " + AutoTaskStackController.MIN_Z_LAYER
