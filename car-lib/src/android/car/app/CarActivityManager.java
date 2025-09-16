@@ -504,6 +504,11 @@ public final class CarActivityManager extends CarManagerBase {
             @NonNull Executor callbackExecutor,
             @NonNull CarTaskViewControllerCallback carTaskViewControllerCallback) {
         try {
+            if (mService.isUsingAutoTaskStackWindowing()) {
+                throw new IllegalStateException("CarTaskViewController is not available when "
+                        + "config_isUsingAutoTaskStackWindowing is enabled. Use the new "
+                        + "Car-WindowManager-Shell library for windowing.");
+            }
             if (mCarTaskViewControllerSupervisor == null) {
                 // Same supervisor is used for multiple activities.
                 mCarTaskViewControllerSupervisor = new CarTaskViewControllerSupervisor(mService,

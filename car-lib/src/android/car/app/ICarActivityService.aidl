@@ -101,6 +101,12 @@ interface ICarActivityService {
      */
     boolean isCarSystemUIProxyRegistered() ;
 
+    /**
+     * Returns true if the car service is using auto task stack windowing functionality for
+     * windowing.
+     */
+    boolean isUsingAutoTaskStackWindowing();
+
     void setPersistentActivitiesOnRootTask(in List<ComponentName> activities,
         in IBinder launchCookie);
 

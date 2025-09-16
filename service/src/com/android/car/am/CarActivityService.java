@@ -174,6 +174,7 @@ public final class CarActivityService extends ICarActivityService.Stub
         }
     }
 
+    @Override
     public boolean isUsingAutoTaskStackWindowing() {
         return mIsUsingAutoTaskStackWindowing;
     }
@@ -883,6 +884,8 @@ public final class CarActivityService extends ICarActivityService.Stub
             }
             writer.println(" Surfaces: " + mTaskToSurfaceMap.toString());
             writer.println(" ActivityListeners: " + mActivityListeners.toString());
+            // This IsAutoTaskStackUsed from the dump is used to read status in CTS test. Please be
+            // cautious when modifying it.
             writer.println(" IsAutoTaskStackUsed: " + mIsUsingAutoTaskStackWindowing);
         }
     }
