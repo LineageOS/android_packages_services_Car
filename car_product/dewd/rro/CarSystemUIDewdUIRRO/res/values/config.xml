@@ -26,7 +26,7 @@
         <item>@xml/app_panel</item>
         <item>@xml/app_grid_panel</item>
         <item>@xml/map_panel</item>
-        <item>@xml/contextual_bar_panel</item>
+        <item>@xml/widget_panel</item>
         <item>@xml/calm_mode_panel</item>
     </array>
 
@@ -34,20 +34,20 @@
         <item>@xml/app_panel</item>
         <item>@xml/app_grid_panel</item>
         <item>@xml/map_panel</item>
-        <item>@xml/contextual_bar_panel</item>
+        <item>@xml/widget_panel</item>
         <item>@xml/calm_mode_panel</item>
         <item>@xml/status_bar</item>
         <item>@xml/nav_bar</item>
     </array>
 
     <string-array name="config_untrimmable_activities" translatable="false">
-        <item>@string/contextual_bar_component</item>
+        <item>@string/widget_component</item>
     </string-array>
 
     <string-array name="config_default_activities" translatable="false">
         <item>app_grid_panel;com.android.car.portraitlauncher/com.android.car.carlauncher.AppGridActivity</item>
         <item>map_panel;com.android.car.portraitlauncher/.homeactivities.BackgroundPanelBaseActivity</item>
-        <item>contextual_bar_panel;com.android.car.portraitlauncher/.controlbar.ControlBarActivity</item>
+        <item>widget_panel;com.android.car.portraitlauncher/.controlbar.ControlBarActivity</item>
     </string-array>
 
     <!-- Setup and add safe area and toolbar per display on for Display Compat apps . -->

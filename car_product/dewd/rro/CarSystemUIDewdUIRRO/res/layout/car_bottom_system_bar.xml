@@ -36,7 +36,7 @@
             android:id="@+id/home"
             android:contentDescription="@string/system_bar_home_label"
             style="@style/SystemBarButton"
-            systemui:panelNames="-panel_app_grid;-app_panel;-assistant_panel;-panel_calm_mode;contextual_bar_panel;map_panel"
+            systemui:panelNames="-panel_app_grid;-app_panel;-assistant_panel;-panel_calm_mode;widget_panel;map_panel"
             systemui:highlightWhenSelected="true"
             systemui:icon="@drawable/car_ic_home"
             systemui:intent="intent:#Intent;action=android.intent.action.MAIN;category=android.intent.category.HOME;launchFlags=0x14000000;end"

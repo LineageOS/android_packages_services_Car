@@ -13,21 +13,21 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-  <TaskPanel id="contextual_bar_panel" defaultVariant="@id/opened" role="@string/contextual_bar_component" displayId="0">
+  <TaskPanel id="widget_panel" defaultVariant="@id/opened" role="@string/widget_component" displayId="0">
     <Variant id="@+id/base">
-        <Layer layer="@integer/contextual_bar_panel_layer"/>
+        <Layer layer="@integer/widget_panel_layer"/>
     </Variant>
     <Variant id="@+id/opened" parent="@id/base">
         <Visibility isVisible="true"/>
         <Bounds left="0" bottom="@dimen/contextual_bar_bottom" width="100%" height="@dimen/contextual_bar_height" />
     </Variant>
-    <Variant id="@+id/closed" parent="@id/base">
+    <Variant id="@+id/suw" parent="@id/base">
         <Visibility isVisible="false"/>
         <Bounds left="0" bottom="@dimen/contextual_bar_bottom" width="100%" height="@dimen/contextual_bar_height" />
     </Variant>
 
     <Transitions>
-        <Transition onEvent="_System_OnHomeEvent" toVariant="@id/opened"/>
-        <Transition onEvent="_System_EnterSuwEvent" toVariant="@id/closed"/>
+        <Transition onEvent="_System_EnterSuwEvent" toVariant="@id/suw"/>
+        <Transition onEvent="_System_ExitSuwEvent" toVariant="@id/opened"/>
     </Transitions>
 </TaskPanel>
