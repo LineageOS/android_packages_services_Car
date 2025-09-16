@@ -333,6 +333,12 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
                             }
                             ComponentName source = userMediaContext.mPrimaryMediaComponents[
                                     MEDIA_SOURCE_MODE_PLAYBACK];
+                            if (source == null) {
+                                Slogf.w(TAG, "Media source is null for user %d, skip starting "
+                                        + "media connector service from power policy listener",
+                                        userId);
+                                return;
+                            }
                             try {
                                 if (DEBUG) {
                                     Slogf.d(TAG, "Starting media connector service from power "
