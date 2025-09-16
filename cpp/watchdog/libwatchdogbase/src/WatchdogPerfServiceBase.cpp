@@ -44,7 +44,6 @@ using ::android::base::Error;
 using ::android::base::Join;
 using ::android::base::ParseUint;
 using ::android::base::Result;
-using ::android::base::Split;
 using ::android::base::StringAppendF;
 using ::android::base::StringPrintf;
 using ::android::base::WriteStringToFd;
@@ -56,23 +55,11 @@ const std::chrono::seconds kDefaultPeriodicCollectionInterval = 20s;
 const std::chrono::seconds kDefaultPeriodicMonitorInterval = 5s;
 
 constexpr const char* kServiceName = "WatchdogPerfServiceBase";
-static const std::string kDumpMajorDelimiter = std::string(100, '-') + "\n";  // NOLINT
-constexpr const char* kHelpText =
-        "\n%s dump options:\n"
-        "%s: Starts custom performance data collection. Customize the collection behavior with "
-        "the following optional arguments:\n"
-        "\t%s <seconds>: Modifies the collection interval. Default behavior is to collect once "
-        "every %lld seconds.\n"
-        "\t%s <seconds>: Modifies the maximum collection duration. Default behavior is to collect "
-        "until %ld minutes before automatically stopping the custom collection and discarding "
-        "the collected data.\n"
-        "\t%s <package name>,<package name>,...: Comma-separated value containing package names. "
-        "When provided, the results are filtered only to the provided package names. Default "
-        "behavior is to list the results for the top N packages.\n"
-        "%s: Stops custom performance data collection and generates a dump of "
-        "the collection report.\n\n"
+constexpr const char* kCustomCollectionStopText =
+        "%s: Stops custom performance data collection and generates a dump of the collection "
+        "report.\n\n"
         "When no options are specified, the car watchdog report contains the performance data "
-        "collected during boot-time and over the last few minutes before the report generation.\n";
+        "collected over the last few minutes before the report generation.\n";
 
 Result<std::chrono::seconds> parseSecondsFlag(const char** args, uint32_t numArgs, size_t pos) {
     if (numArgs <= pos) {
@@ -327,14 +314,15 @@ Result<void> WatchdogPerfServiceBase::onCustomCollection(int fd, const char** ar
                 continue;
             }
             if (EqualsIgnoreCase(args[i], kFilterPackagesFlag)) {
-                if (numArgs < i + 1) {
-                    return Error(BAD_VALUE)
-                            << "Must provide value for '" << kFilterPackagesFlag << "' flag";
+                // On derived implementation, the code flow should filter the custom collection
+                // results to only the passed packages. On base implementation, the code flow should
+                // continue.
+                const auto& result = onFilterPackagesFlag(args, /*valuePos=*/i + 1, numArgs);
+                if (!result.ok()) {
+                    return result.error();
                 }
-                std::vector<std::string> packages = Split(std::string(args[i + 1]), ",");
-                std::copy(packages.begin(), packages.end(),
-                          std::inserter(filterPackages, filterPackages.end()));
                 ++i;
+                filterPackages = std::move(*result);
                 continue;
             }
             return Error(BAD_VALUE) << "Unknown flag " << args[i]
@@ -391,7 +379,7 @@ Result<void> WatchdogPerfServiceBase::onDump(int fd) const {
 }
 
 bool WatchdogPerfServiceBase::dumpHelpText(int fd) const {
-    return WriteStringToFd(StringPrintf(kHelpText, kServiceName, kStartCustomCollectionFlag,
+    return WriteStringToFd(StringPrintf(kDumpHelpTextBase, kServiceName, kStartCustomCollectionFlag,
                                         kIntervalFlag,
                                         std::chrono::duration_cast<std::chrono::seconds>(
                                                 kCustomCollectionInterval)
@@ -400,7 +388,10 @@ bool WatchdogPerfServiceBase::dumpHelpText(int fd) const {
                                         std::chrono::duration_cast<std::chrono::minutes>(
                                                 kCustomCollectionDuration)
                                                 .count(),
-                                        kFilterPackagesFlag, kEndCustomCollectionFlag),
+                                        /*No filter packages flag in base implementation*/ "",
+                                        StringPrintf(kCustomCollectionStopText,
+                                                     kEndCustomCollectionFlag)
+                                                .c_str()),
                            fd);
 }
 

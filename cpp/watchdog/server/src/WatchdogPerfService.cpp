@@ -44,6 +44,7 @@ using ::android::sp;
 using ::android::base::Error;
 using ::android::base::Join;
 using ::android::base::Result;
+using ::android::base::Split;
 using ::android::base::StringPrintf;
 using ::android::base::WriteStringToFd;
 using ::android::util::ProtoOutputStream;
@@ -54,7 +55,15 @@ const std::chrono::seconds kDefaultPeriodicCollectionInterval = 20s;
 const std::chrono::seconds kDefaultPeriodicMonitorInterval = 5s;
 
 constexpr const char* kServiceName = "WatchdogPerfService";
-static const std::string kDumpMajorDelimiter = std::string(100, '-') + "\n";  // NOLINT
+constexpr const char* kCustomCollectionFilterFlagText =
+        "\t%s <package name>,<package name>,...: Comma-separated value containing package names. "
+        "When provided, the results are filtered only to the provided package names. Default "
+        "behavior is to list the results for the top N packages.\n";
+constexpr const char* kCustomCollectionStopText =
+        "%s: Stops custom performance data collection and generates a dump of the collection "
+        "report.\n\n"
+        "When no options are specified, the car watchdog report contains the performance data "
+        "collected during boot-time and over the last few minutes before the report generation.\n";
 
 constexpr const char* toString(std::variant<EventType, SwitchMessage> what) {
     return std::visit(
@@ -506,6 +515,25 @@ Result<void> WatchdogPerfService::onDumpProto(ProtoOutputStream& outProto) const
     return {};
 }
 
+bool WatchdogPerfService::dumpHelpText(int fd) const {
+    return WriteStringToFd(StringPrintf(kDumpHelpTextBase, kServiceName, kStartCustomCollectionFlag,
+                                        kIntervalFlag,
+                                        std::chrono::duration_cast<std::chrono::seconds>(
+                                                kCustomCollectionInterval)
+                                                .count(),
+                                        kMaxDurationFlag,
+                                        std::chrono::duration_cast<std::chrono::minutes>(
+                                                kCustomCollectionDuration)
+                                                .count(),
+                                        StringPrintf(kCustomCollectionFilterFlagText,
+                                                     kFilterPackagesFlag)
+                                                .c_str(),
+                                        StringPrintf(kCustomCollectionStopText,
+                                                     kEndCustomCollectionFlag)
+                                                .c_str()),
+                           fd);
+}
+
 Result<void> WatchdogPerfService::dumpCollectorsStatusLocked(int fd) const {
     if (!mUidStatsCollector->enabled() &&
         !WriteStringToFd(StringPrintf("UidStatsCollector failed to access proc and I/O files"),
@@ -531,6 +559,18 @@ Result<void> WatchdogPerfService::onDataProcessorCustomCollectionDumpLocked(int 
     }
 
     return {};
+}
+
+Result<std::unordered_set<std::string>> WatchdogPerfService::onFilterPackagesFlag(
+        const char** args, uint32_t valuePos, uint32_t numArgs) {
+    if (numArgs <= valuePos) {
+        return Error(BAD_VALUE) << "Must provide value for '" << kFilterPackagesFlag << "' flag";
+    }
+    std::unordered_set<std::string> filterPackages;
+    std::vector<std::string> packages = Split(std::string(args[valuePos]), ",");
+    std::copy(packages.begin(), packages.end(),
+              std::inserter(filterPackages, filterPackages.end()));
+    return filterPackages;
 }
 
 void WatchdogPerfService::handleMessage(const Message& message) {

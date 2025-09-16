@@ -59,6 +59,16 @@ constexpr const char* kMaxDurationFlag = "--max_duration";
 constexpr const char* kFilterPackagesFlag = "--filter_packages";
 const std::chrono::nanoseconds kCustomCollectionInterval = 10s;
 const std::chrono::nanoseconds kCustomCollectionDuration = 30min;
+static const std::string kDumpMajorDelimiter = std::string(100, '-') + "\n";  // NOLINT
+constexpr const char* kDumpHelpTextBase =
+        "\n%s dump options:\n"
+        "%s: Starts custom performance data collection. Customize the collection behavior with "
+        "the following optional arguments:\n"
+        "\t%s <seconds>: Modifies the collection interval. Default behavior is to collect once "
+        "every %lld seconds.\n"
+        "\t%s <seconds>: Modifies the maximum collection duration. Default behavior is to collect "
+        "until %ld minutes before automatically stopping the custom collection and discarding "
+        "the collected data.\n%s%s";
 
 enum SystemState {
     NORMAL_MODE = 0,
@@ -271,6 +281,14 @@ protected:
     virtual android::base::Result<void> onDataProcessorCustomCollectionDumpLocked(
             [[maybe_unused]] int fd) {
         return {};
+    }
+
+    // Handles the filterPackagesFlag during custom collection.
+    virtual android::base::Result<std::unordered_set<std::string>> onFilterPackagesFlag(
+            [[maybe_unused]] const char** args, [[maybe_unused]] uint32_t valuePos,
+            [[maybe_unused]] uint32_t numArgs) {
+        return android::base::Error(BAD_VALUE)
+                << "Unknown flag provided to start custom performance data collection";
     }
 
     // Thread on which the actual collection happens.
