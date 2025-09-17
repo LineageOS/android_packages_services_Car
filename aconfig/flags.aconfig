@@ -29,6 +29,13 @@ flag {
   bug: "367787957"
 }
 
+flag {
+  name: "visible_background_user_toggle_home_components"
+  namespace: "car_framework"
+  description: "Selectively enable home components for visible background users"
+  bug: "441579704"
+}
+
 # CarPackageManager
 flag {
   name: "display_compatibility"
