@@ -776,9 +776,10 @@ public class PropertyTestFragment extends Fragment implements OnItemSelectedList
                     : value.getValue().toString();
 
             mTvLogEvent.append(String.format("Event %1$s: elapsedRealtimeNanos=%2$s propId=0x%3$s "
-                    + "areaId=0x%4$s name=%5$s status=%6$s value=%7$s", mNumEvents.get(propId),
-                    value.getTimestamp(), toHexString(propId), toHexString(areaId),
-                    PropertyInfo.getPropertyName(propId), value.getStatus(), valueString));
+                    + "areaId=0x%4$s name=%5$s systemStatus=%6$s vendorStatus=%7$s value=%8$s",
+                    mNumEvents.get(propId), value.getTimestamp(), toHexString(propId),
+                    toHexString(areaId), PropertyInfo.getPropertyName(propId),
+                    value.getPropertyStatus(), value.getPropertyVendorStatus(), valueString));
             if (mPropSubscriptionRateHz.contains(propId)) {
                 mTvLogEvent.append(
                         String.format(" selected subscription rate (Hz)=%1$s "
