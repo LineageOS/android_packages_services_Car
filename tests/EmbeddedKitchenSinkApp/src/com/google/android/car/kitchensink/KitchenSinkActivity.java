@@ -77,7 +77,6 @@ import com.google.android.car.kitchensink.diagnostic.DiagnosticTestFragment;
 import com.google.android.car.kitchensink.display.DisplayInfoFragment;
 import com.google.android.car.kitchensink.display.DisplayMirroringFragment;
 import com.google.android.car.kitchensink.display.VirtualDisplayFragment;
-import com.google.android.car.kitchensink.drivemode.DriveModeSwitchFragment;
 import com.google.android.car.kitchensink.experimental.ExperimentalFeatureTestFragment;
 import com.google.android.car.kitchensink.fullscreen.RequestFullScreenFragment;
 import com.google.android.car.kitchensink.hotword.CarMultiConcurrentHotwordTestFragment;
@@ -334,7 +333,6 @@ public class KitchenSinkActivity extends FragmentActivity implements KitchenSink
             new Pair<>("display info", DisplayInfoFragment.class),
             new Pair<>("display input lock", DisplayInputLockTestFragment.class),
             new Pair<>("display mirroring", DisplayMirroringFragment.class),
-            new Pair<>("drive mode switch", DriveModeSwitchFragment.class),
             new Pair<>("experimental feature", ExperimentalFeatureTestFragment.class),
             new Pair<>("hvac", HvacTestFragment.class),
             new Pair<>("inst cluster", InstrumentClusterFragment.class),

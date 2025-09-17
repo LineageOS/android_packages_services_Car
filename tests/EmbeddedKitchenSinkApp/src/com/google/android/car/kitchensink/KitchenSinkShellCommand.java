@@ -32,7 +32,6 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.google.android.car.kitchensink.customizationtool.CustomizationToolController;
-import com.google.android.car.kitchensink.drivemode.DriveModeSwitchController;
 import com.google.android.car.kitchensink.perfetto.PerfettoController;
 
 import java.io.FileDescriptor;
@@ -70,7 +69,6 @@ final class KitchenSinkShellCommand {
             "generate-device-attestation-key-pair";
     private static final String CMD_POST_NOTIFICATION = "post-notification";
     private static final String CMD_POST_TOAST = "post-toast";
-    private static final String CMD_SET_DRIVE_MODE_SWITCH = "set-drive-mode-switch";
     private static final String CMD_SET_CUSTOMIZATION_TOOL = "set-customization-tool";
     private static final String CMD_PUSH_PERFETTO_FIELD_TRACE_CONFIG =
             "push-perfetto-field-trace-config";
@@ -133,9 +131,6 @@ final class KitchenSinkShellCommand {
             case CMD_POST_TOAST:
                 postToast();
                 break;
-            case CMD_SET_DRIVE_MODE_SWITCH:
-                setDriveModeSwitch();
-                break;
             case CMD_SET_CUSTOMIZATION_TOOL:
                 setCustomizationTool();
                 break;
@@ -180,8 +175,6 @@ final class KitchenSinkShellCommand {
                 CMD_POST_TOAST, "[" + ARG_VERBOSE + "|" + ARG_VERBOSE_FULL + "]",
                 "[" + ARG_USES_APP_CONTEXT + "]", "[" + ARG_LONG_TOAST + "]",
                 "<MESSAGE>");
-        showCommandHelp("Enables / Disables the DriveMode Switch in the System UI.",
-                CMD_SET_DRIVE_MODE_SWITCH, "<true|false>");
         showCommandHelp("Enables / Disables the Customization Tool service.",
                 CMD_SET_CUSTOMIZATION_TOOL, "<true|false>");
         showCommandHelp("Pushes either the given perfetto trace config in binary proto format or "
@@ -321,14 +314,6 @@ final class KitchenSinkShellCommand {
         String message = messageBuilder.append(messageArg).toString();
         Log.i(TAG, "Posting toast: " + message);
         Toast.makeText(context, message, longToast ? Toast.LENGTH_LONG : Toast.LENGTH_SHORT).show();
-    }
-
-    private void setDriveModeSwitch() {
-        boolean value = getNextBooleanArg();
-        DriveModeSwitchController driveModeSwitchController = new DriveModeSwitchController(
-                mContext
-        );
-        driveModeSwitchController.setDriveMode(value);
     }
 
     private void setCustomizationTool() {

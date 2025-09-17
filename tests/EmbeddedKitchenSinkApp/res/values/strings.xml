@@ -504,9 +504,6 @@
         <item>Round-Robin</item>
     </string-array>
 
-    <!-- Drive Mode Switch -->
-    <string name="drive_mode_state" translatable="false">Drive Mode State</string>
-
     <!-- Oem Car Service Test -->
     <string name="oem_car_service_audio_focus" translatable="false">Car Oem Audio Focus Proxy Service </string>
     <string name="oem_car_service_audio_volume" translatable="false">Car Oem Audio Volume Proxy Service</string>
