@@ -58,8 +58,8 @@ public final class UsbHostController
     }
 
     private static final String TAG = UsbHostController.class.getSimpleName();
-    private static final boolean LOCAL_LOGD = true;
-    private static final boolean LOCAL_LOGV = true;
+    private static final boolean LOCAL_LOGD = false;
+    private static final boolean LOCAL_LOGV = false;
 
     private static final int DISPATCH_RETRY_DELAY_MS = 1000;
     private static final int DISPATCH_RETRY_ATTEMPTS = 5;
