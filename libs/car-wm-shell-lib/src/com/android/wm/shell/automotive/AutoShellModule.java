@@ -51,6 +51,11 @@ public abstract class AutoShellModule {
     @IntoSet
     abstract AutoShellInitializable bindHomeTaskMonitor(AutoHomeTaskMonitor homeTaskMonitor);
 
+    @Binds
+    @IntoSet
+    abstract AutoShellInitializable bindProtoLogInitializer(
+            CarWmShellProtoLogInitializer protoLogInitializer);
+
     @WMSingleton
     @ShellCreateTriggerOverride
     @Provides
