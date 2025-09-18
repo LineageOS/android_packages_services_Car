@@ -16,6 +16,9 @@
 
 #pragma once
 
+#include "ICameraManager.h"
+#include "android/binder_auto_utils.h"
+
 #include <aidl/android/hardware/automotive/evs/BnEvsEnumerator.h>
 #include <aidl/android/hardware/automotive/evs/CameraDesc.h>
 #include <aidl/android/hardware/automotive/evs/DisplayState.h>
@@ -26,13 +29,31 @@
 #include <aidl/android/hardware/automotive/evs/Stream.h>
 #include <aidl/android/hardware/automotive/evs/UltrasonicsArrayDesc.h>
 
+#include <unordered_map>
+
 namespace android::hardware::automotive::evs::compat {
 
 namespace aidlevs = ::aidl::android::hardware::automotive::evs;
 
+struct CameraGroup {
+    std::string groupId;
+    std::vector<std::string> physicalIds;
+    // other fields can be added here as needed in the future.
+};
+using CameraGroupMap = std::unordered_map<std::string, CameraGroup>;
+
 class CompatEnumerator final : public aidlevs::BnEvsEnumerator {
+    #ifdef EVS_COMPAT_TEST
+    // Grant access to private members for testing.
+    friend class CompatEnumeratorTest_setCameraGroupMap_Test;
+    #endif
+
 public:
     CompatEnumerator();
+    #ifdef EVS_COMPAT_TEST
+    // Constructor for dependency injection in tests
+    explicit CompatEnumerator(std::unique_ptr<ICameraManager> cameraManager);
+    #endif
     ~CompatEnumerator() override;
 
     ::ndk::ScopedAStatus closeCamera(
@@ -41,6 +62,8 @@ public:
             const std::shared_ptr<aidlevs::IEvsDisplay>& display) override;
     ::ndk::ScopedAStatus closeUltrasonicsArray(
             const std::shared_ptr<aidlevs::IEvsUltrasonicsArray>& evsUltrasonicsArray) override;
+    /* Clients should ignore CameraDesc.vendorFlags, as it is not supported in the compat library.
+     */
     ::ndk::ScopedAStatus getCameraList(std::vector<aidlevs::CameraDesc>* _aidl_return) override;
     ::ndk::ScopedAStatus getDisplayIdList(std::vector<uint8_t>* _aidl_return) override;
     ::ndk::ScopedAStatus getDisplayState(aidlevs::DisplayState* _aidl_return) override;
@@ -60,6 +83,15 @@ public:
             const std::shared_ptr<aidlevs::IEvsEnumeratorStatusCallback>& callback) override;
     ::ndk::ScopedAStatus getDisplayStateById(int32_t id,
                                            aidlevs::DisplayState* _aidl_return) override;
+    ::ndk::ScopedAStatus setCameraGroupMap(const CameraGroupMap& cameraGroupMap);
+
+private:
+    std::unique_ptr<ICameraManager> mCameraManager;
+    bool mIsReady;
+    // only virtual cameras are in this map.
+    std::unique_ptr<CameraGroupMap> mCameraGroupMap;
+    // only physical cameras are in this map.
+    std::unordered_map<std::string, aidlevs::CameraDesc> mCameraDesc;
 };
 
 }  // namespace android::hardware::automotive::evs::compat

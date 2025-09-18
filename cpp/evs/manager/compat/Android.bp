@@ -17,6 +17,13 @@ package {
     default_team: "trendy_team_aaos_vac_triage",
 }
 
+filegroup {
+    name: "evs_compat_sources",
+    srcs: [
+        "src/*.cpp",
+    ],
+}
+
 cc_library_static {
     name: "libevs_compat",
     defaults: [
@@ -31,7 +38,7 @@ cc_library_static {
         "packages/services/Car/cpp/evs/manager/compat/include",
     ],
     srcs: [
-        "src/*.cpp",
+        ":evs_compat_sources",
     ],
     static_libs: [
         "android.car.feature-aconfig-cpp",
@@ -41,6 +48,46 @@ cc_library_static {
     shared_libs: [
         "libbase",
         "libbinder_ndk",
+        "libcamera2ndk",
+        "libcamera_metadata",
         "liblog",
     ],
+}
+
+cc_test {
+    name: "evs_compat_test",
+    defaults: [
+        "aconfig_lib_cc_shared_link.defaults",
+        "android.hardware.graphics.common-ndk_static",
+    ],
+    cflags: [
+        "-Werror",
+        "-Wno-unused-parameter",
+        "-DEVS_COMPAT_TEST",
+    ],
+    include_dirs: [
+        "packages/services/Car/cpp/evs/manager/compat/include",
+        "packages/services/Car/cpp/evs/manager/compat/test",
+    ],
+    srcs: [
+        ":evs_compat_sources",
+        "test/Converter_test.cpp",
+        "test/CompatEnumerator_test.cpp",
+    ],
+    static_libs: [
+        "android.car.feature-aconfig-cpp",
+        "android.hardware.automotive.evs-V2-ndk",
+        "android.hardware.common-V2-ndk",
+        "libevs_compat",
+        "libgtest_main",
+        "libgmock",
+    ],
+    shared_libs: [
+        "libbase",
+        "libbinder_ndk",
+        "libcamera2ndk",
+        "libcamera_metadata",
+        "liblog",
+    ],
+
 }
