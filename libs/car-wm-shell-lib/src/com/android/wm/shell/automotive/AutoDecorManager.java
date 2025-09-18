@@ -17,17 +17,17 @@
 package com.android.wm.shell.automotive;
 
 import static com.android.wm.shell.Flags.enableAutoTaskStackController;
+import static com.android.wm.shell.automotive.CarWmShellProtoLogGroups.CAR_WM_SHELL_DECOR;
 
 import android.annotation.NonNull;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.graphics.Rect;
 import android.util.ArraySet;
-import android.util.Log;
 import android.view.SurfaceControl;
 import android.view.View;
 
-import com.android.server.utils.Slogf;
+import com.android.internal.protolog.ProtoLog;
 import com.android.wm.shell.RootTaskDisplayAreaOrganizer;
 import com.android.wm.shell.common.DisplayController;
 import com.android.wm.shell.dagger.WMSingleton;
@@ -46,8 +46,6 @@ import javax.inject.Inject;
  */
 @WMSingleton
 public class AutoDecorManager {
-    private static final String TAG = "AutoDecorManager";
-    private static final boolean DBG = Log.isLoggable(TAG, Log.DEBUG);
     private final Context mContext;
     private final DisplayController mDisplayController;
     private final ArraySet<AutoDecor> mDecors = new ArraySet<>();
@@ -89,24 +87,23 @@ public class AutoDecorManager {
         Objects.requireNonNull(initialBounds);
 
         if (!enableAutoTaskStackController()) {
-            Slogf.e(TAG,
+            ProtoLog.e(CAR_WM_SHELL_DECOR,
                     "Failed to create root task stack as the auto_task_stack_windowing TS flag is"
                             + " disabled.");
             return null;
         }
 
         if (initialBounds.width() <= 0 || initialBounds.height() <= 0) {
-            Slogf.e(TAG, "initialBounds [%s] are not correct. Can't create AutoDecor",
-                    initialBounds);
+            ProtoLog.e(CAR_WM_SHELL_DECOR,
+                    "initialBounds [%s] are not correct. Can't create AutoDecor",
+                    String.valueOf(initialBounds));
             return null;
         }
 
         AutoDecor autoDecor = new AutoDecor(mContext, mDisplayController, mAutoTaskRepository,
-                 view, initialZOrder, initialBounds, decorName);
+                view, initialZOrder, initialBounds, decorName);
 
-        if (DBG) {
-            Slogf.d(TAG, "Creating auto decor %s", autoDecor);
-        }
+        ProtoLog.d(CAR_WM_SHELL_DECOR, "Creating auto decor %s", autoDecor);
 
         mDecors.add(autoDecor);
         return autoDecor;
@@ -124,15 +121,14 @@ public class AutoDecorManager {
         Objects.requireNonNull(autoDecor);
 
         if (!enableAutoTaskStackController()) {
-            Slogf.e(TAG,
+            ProtoLog.e(CAR_WM_SHELL_DECOR,
                     "Failed to create root task stack as the auto_task_stack_windowing TS flag is"
                             + " disabled.");
             return;
         }
 
-        if (DBG) {
-            Slogf.d(TAG, "Adding global decor %s to the display %d", autoDecor, displayId);
-        }
+        ProtoLog.d(CAR_WM_SHELL_DECOR, "Adding global decor %s to the display %d", autoDecor,
+                displayId);
 
         validateAutoDecor(autoDecor);
 
@@ -147,22 +143,20 @@ public class AutoDecorManager {
      * <p>The Decor surface is re-parented to the task. No inset is passed to the task.
      *
      * @param autoDecor The AutoDecor to add.
-     * @param taskId task where decor needs to be added. The task could be root task.
+     * @param taskId    task where decor needs to be added. The task could be root task.
      */
     @ShellMainThread
     public void attachAutoDecorToTask(@NonNull AutoDecor autoDecor, int taskId) {
         Objects.requireNonNull(autoDecor);
 
         if (!enableAutoTaskStackController()) {
-            Slogf.e(TAG,
+            ProtoLog.e(CAR_WM_SHELL_DECOR,
                     "Failed to create root task stack as the auto_task_stack_windowing TS flag is"
                             + " disabled.");
             return;
         }
 
-        if (DBG) {
-            Slogf.d(TAG, "Adding local decor %s to the task %d", autoDecor, taskId);
-        }
+        ProtoLog.d(CAR_WM_SHELL_DECOR, "Adding local decor %s to the task %d", autoDecor, taskId);
 
         ActivityManager.RunningTaskInfo taskInfo = mAutoTaskRepository.getTaskInfo(taskId);
         validateAutoDecor(autoDecor);
@@ -194,15 +188,13 @@ public class AutoDecorManager {
         Objects.requireNonNull(autoDecor);
 
         if (!enableAutoTaskStackController()) {
-            Slogf.e(TAG,
+            ProtoLog.e(CAR_WM_SHELL_DECOR,
                     "Failed to create root task stack as the auto_task_stack_windowing TS flag is"
                             + " disabled.");
             return;
         }
 
-        if (DBG) {
-            Slogf.d(TAG, "Deleting decor %s", autoDecor);
-        }
+        ProtoLog.d(CAR_WM_SHELL_DECOR, "Deleting decor %s", autoDecor);
         autoDecor.detachDecorFromParentSurface();
         mDecors.remove(autoDecor);
     }
