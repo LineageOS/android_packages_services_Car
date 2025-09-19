@@ -63,12 +63,16 @@ final class CarAudioParkedStateMonitor {
                         }
                         boolean isParked = (Integer) event.getCarPropertyValue().getValue()
                                 == VehicleGear.GEAR_PARK;
+                        boolean parkedStateChanged;
                         synchronized (mLock) {
-                            if (mIsParked == isParked) {
-                                continue;
+                            parkedStateChanged = mIsParked != isParked;
+                            if (parkedStateChanged) {
+                                mIsParked = isParked;
                             }
-                            mIsParked = isParked;
-                            mListener.onParkedStateChanged(mIsParked);
+                        }
+                        if (parkedStateChanged) {
+                            mListener.onParkedStateChanged(isParked);
+                            break;
                         }
                     }
                 }
@@ -78,13 +82,13 @@ final class CarAudioParkedStateMonitor {
             ParkedStateListener listener) {
         mCarPropertyService = carPropertyService;
         mListener = listener;
-        mCarPropertyService.registerListener(VehiclePropertyIds.GEAR_SELECTION,
-                CarPropertyManager.SENSOR_RATE_ONCHANGE, mCarPropertyEventCallback);
         CarPropertyValue<Integer> gearSelection = mCarPropertyService.getProperty(
                 VehiclePropertyIds.GEAR_SELECTION, /* areaId= */0);
         if (gearSelection != null) {
             mIsParked = gearSelection.getValue() == VehicleGear.GEAR_PARK;
         }
+        mCarPropertyService.registerListener(VehiclePropertyIds.GEAR_SELECTION,
+                CarPropertyManager.SENSOR_RATE_ONCHANGE, mCarPropertyEventCallback);
     }
 
     boolean isParked() {
