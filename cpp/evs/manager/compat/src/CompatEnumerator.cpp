@@ -16,7 +16,13 @@
 
 #include "CompatEnumerator.h"
 
+#include "Converter.h"
+#include "NdkCameraManager.h"
+
 #include <android-base/logging.h>
+#include <memory>
+#include <camera/NdkCameraMetadata.h>
+#include <unordered_set>
 
 #include <android_car_feature.h>
 
@@ -33,8 +39,26 @@ using ::aidl::android::hardware::automotive::evs::UltrasonicsArrayDesc;
 using ::ndk::ScopedAStatus;
 
 CompatEnumerator::CompatEnumerator() {
-    // Constructor stub
+    if (!android::car::feature::car_evs_compat_lib()) {
+        LOG(INFO) << "EVS compat library feature is not enabled.";
+        mIsReady = false;
+        return;
+    }
+    mCameraManager = std::make_unique<NdkCameraManager>();
+    if (!mCameraManager->isAvailable()) {
+        LOG(ERROR) << "Camera manager is not available.";
+        mIsReady = false;
+    }
+    mIsReady = true;
 }
+
+#ifdef EVS_COMPAT_TEST
+// Constructor for dependency injection.
+CompatEnumerator::CompatEnumerator(std::unique_ptr<ICameraManager> cameraManager) :
+      mCameraManager(std::move(cameraManager)) {
+        mIsReady = android::car::feature::car_evs_compat_lib();
+}
+#endif
 
 CompatEnumerator::~CompatEnumerator() {
     // Destructor stub
@@ -56,12 +80,42 @@ ScopedAStatus CompatEnumerator::closeUltrasonicsArray(
 }
 
 ScopedAStatus CompatEnumerator::getCameraList(std::vector<CameraDesc>* _aidl_return) {
-    if (android::car::feature::car_evs_compat_lib()) {
-        // TODO(b/441577862): Implement the function.
-        return ScopedAStatus::ok();
-    } else {
-        return ScopedAStatus::fromExceptionCode(EX_UNSUPPORTED_OPERATION);
+    if (!mIsReady) {
+        return ::ndk::ScopedAStatus::fromExceptionCode(EX_SERVICE_SPECIFIC);
     }
+    if (_aidl_return == nullptr) {
+        LOG(ERROR) << "Received a null pointer for the return value.";
+        return ::ndk::ScopedAStatus::fromExceptionCode(EX_ILLEGAL_ARGUMENT);
+    }
+
+    std::vector<std::string> cameraIds;
+    camera_status_t status = mCameraManager->getCameraIdList(&cameraIds);
+    if (status != ACAMERA_OK) {
+        // TODO (b/441577862): implement a conversion from camera_status_t to EvsResult.aidl and
+        // return it here.
+        return ScopedAStatus::fromExceptionCode(EX_SERVICE_SPECIFIC);
+    }
+
+    if (cameraIds.empty()) {
+        LOG(WARNING) << "No camera devices were found.";
+        return ::ndk::ScopedAStatus::ok();
+    }
+
+    for (const auto& cameraId : cameraIds) {
+        ACameraMetadata* metadata = nullptr;
+        camera_status_t status =
+                mCameraManager->getCameraCharacteristics(cameraId.c_str(), &metadata);
+        if (status != ACAMERA_OK) {
+            continue;  // Skip this camera
+        }
+        // Camera NDK does not support vendorFlags, so we pass a placeholder value.
+        CameraDesc desc = Converter::toCameraDesc(cameraId.c_str(), metadata,
+                                                  /* vendorFlags= */ -1);
+        _aidl_return->push_back(desc);
+        mCameraDesc.insert_or_assign(desc.id, desc);
+        ACameraMetadata_free(metadata);
+    }
+    return ScopedAStatus::ok();
 }
 
 ScopedAStatus CompatEnumerator::getDisplayIdList(
@@ -114,5 +168,33 @@ ScopedAStatus CompatEnumerator::registerStatusCallback(
 ScopedAStatus CompatEnumerator::getDisplayStateById(
         [[maybe_unused]] int32_t id, [[maybe_unused]] DisplayState* _aidl_return) {
     return ScopedAStatus::fromExceptionCode(EX_UNSUPPORTED_OPERATION);
+}
+
+ScopedAStatus CompatEnumerator::setCameraGroupMap(const CameraGroupMap& cameraGroupMap) {
+    if (!mIsReady) {
+        return ::ndk::ScopedAStatus::fromExceptionCode(EX_SERVICE_SPECIFIC);
+    }
+    std::vector<std::string> availableCameraIds;
+    camera_status_t status = mCameraManager->getCameraIdList(&availableCameraIds);
+    if (status != ACAMERA_OK) {
+        // TODO (b/441577862): implement a conversion from camera_status_t to EvsResult.aidl and
+        // return it here.
+        LOG(ERROR) << "Failed to get camera ID list. error status (camera_status_t): " << status;
+        return ScopedAStatus::fromExceptionCode(EX_SERVICE_SPECIFIC);
+    }
+
+    std::unordered_set<std::string> availableCameraIdSet(availableCameraIds.begin(),
+                                                     availableCameraIds.end());
+    for (const auto& groupEntry : cameraGroupMap) {
+        for (const auto& cameraId : groupEntry.second.physicalIds) {
+            if (availableCameraIdSet.find(cameraId) == availableCameraIdSet.end()) {
+                LOG(ERROR) << "Camera ID " << cameraId << " in group " << groupEntry.first
+                           << " does not exist.";
+                return ::ndk::ScopedAStatus::fromExceptionCode(EX_ILLEGAL_ARGUMENT);
+            }
+        }
+    }
+    mCameraGroupMap = std::make_unique<CameraGroupMap>(cameraGroupMap);
+    return ::ndk::ScopedAStatus::ok();
 }
 }  // namespace android::hardware::automotive::evs::compat
