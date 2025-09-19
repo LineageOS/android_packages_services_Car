@@ -28,21 +28,26 @@ import static java.lang.Integer.toHexString;
 import android.annotation.FlaggedApi;
 import android.annotation.IntDef;
 import android.annotation.NonNull;
+import android.annotation.RequiresPermission;
 import android.annotation.SystemApi;
 import android.annotation.TestApi;
+import android.car.Car;
 import android.car.VehiclePropertyIds;
 import android.car.builtin.os.BuildHelper;
 import android.car.feature.Flags;
+import android.os.Build;
 import android.os.Parcel;
 import android.os.Parcelable;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.property.RawPropertyValue;
+import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.Preconditions;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -66,36 +71,12 @@ public final class CarPropertyValue<T> implements Parcelable {
     private final int mVendorStatus;
 
     /**
-     * @removed accidentally exposed previously
+     * Whether the client has permission to read property vendor status.
      *
-     * This is now deprecated and not used any more. Internally we use CarPropertyStatus instead.
+     * This variable is only set at CarPropertyEventCallbackController (car-lib). It is not passed
+     * through binder.
      */
-    @IntDef({
-        STATUS_AVAILABLE,
-        STATUS_UNAVAILABLE,
-        STATUS_ERROR
-    })
-    @Retention(RetentionPolicy.SOURCE)
-    public @interface PropertyStatus {}
-
-    /**
-     * All possible status for a car property value.
-     *
-     * @hide
-     */
-    @IntDef({
-        STATUS_AVAILABLE,
-        STATUS_ERROR,
-        STATUS_NOT_AVAILABLE_GENERAL,
-        STATUS_NOT_AVAILABLE_DISABLED,
-        STATUS_NOT_AVAILABLE_SPEED_LOW,
-        STATUS_NOT_AVAILABLE_SPEED_HIGH,
-        STATUS_NOT_AVAILABLE_POOR_VISIBILITY,
-        STATUS_NOT_AVAILABLE_SAFETY,
-        STATUS_NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED
-    })
-    @Retention(RetentionPolicy.SOURCE)
-    public @interface CarPropertyStatus {}
+    private final boolean mHasPermissionToReadPropertyVendorStatus;
 
     /**
      * {@code CarPropertyValue} is available.
@@ -164,6 +145,64 @@ public final class CarPropertyValue<T> implements Parcelable {
     public static final int STATUS_NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED = 8;
 
     /**
+     * @removed accidentally exposed previously
+     *
+     * This is now deprecated and not used any more. Internally we use CarPropertyStatus instead.
+     */
+    @IntDef({
+        STATUS_AVAILABLE,
+        STATUS_UNAVAILABLE,
+        STATUS_ERROR
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface PropertyStatus {}
+
+    /**
+     * All possible status for a car property value.
+     *
+     * Note: If this is updated, {@link com.android.car.internal.property.PropertyStatusUtils}
+     * must be updated.
+     *
+     * @hide
+     */
+    @IntDef({
+        STATUS_AVAILABLE,
+        STATUS_ERROR,
+        STATUS_NOT_AVAILABLE_GENERAL,
+        STATUS_NOT_AVAILABLE_DISABLED,
+        STATUS_NOT_AVAILABLE_SPEED_LOW,
+        STATUS_NOT_AVAILABLE_SPEED_HIGH,
+        STATUS_NOT_AVAILABLE_POOR_VISIBILITY,
+        STATUS_NOT_AVAILABLE_SAFETY,
+        STATUS_NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface CarPropertyStatus {}
+
+    /**
+     * All possible status for a car property value.
+     *
+     * This exists because CarPropertyStatus is for compile time check and this is for runtime
+     * check.
+     *
+     * @hide
+     */
+    @VisibleForTesting
+    public static final List<Integer> ALL_CAR_PROPERTY_STATUS = List.of(
+            STATUS_AVAILABLE,
+            STATUS_ERROR,
+            STATUS_NOT_AVAILABLE_GENERAL,
+            STATUS_NOT_AVAILABLE_DISABLED,
+            STATUS_NOT_AVAILABLE_SPEED_LOW,
+            STATUS_NOT_AVAILABLE_SPEED_HIGH,
+            STATUS_NOT_AVAILABLE_POOR_VISIBILITY,
+            STATUS_NOT_AVAILABLE_SAFETY,
+            STATUS_NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED
+    );
+
+    private static final int UNSET_VENDOR_PROPERTY_STATUS = 0;
+
+    /**
      * Builder for CarPropertyValue.
      *
      * This is preferred over directly using CarPropertyValue constructor.
@@ -184,6 +223,7 @@ public final class CarPropertyValue<T> implements Parcelable {
         private int mSystemStatus = CarPropertyValue.STATUS_AVAILABLE;
         private boolean mIsSimulationPropId;
         private int mVendorStatus;
+        private boolean mHasPermissionToReadPropertyVendorStatus;
         private boolean mBuilt;
 
         /**
@@ -298,6 +338,17 @@ public final class CarPropertyValue<T> implements Parcelable {
         }
 
         /**
+         * Sets that the client has the permission to call {@link getPropertyVendorStatus}.
+         *
+         * @hide
+         */
+        @TestApi
+        public Builder<T> setHasPermissionToReadPropertyVendorStatus(boolean hasPermission) {
+            mHasPermissionToReadPropertyVendorStatus = hasPermission;
+            return this;
+        }
+
+        /**
          * Builds the {@link CarPropertyValue}.
          *
          * Only allowed to be built once. Property value must be set via {@link setValue} or
@@ -316,6 +367,20 @@ public final class CarPropertyValue<T> implements Parcelable {
         }
     }
 
+    /**
+     * Creates a new builder based on an existing {@link CarPropertyValue}.
+     */
+    private static <K> Builder<K> newBuilder(CarPropertyValue<K> value) {
+        return new Builder<K>(value.mPropertyId, value.mAreaId)
+                .setSystemStatus(value.mSystemStatus)
+                .setTimestampNanos(value.mTimestampNanos)
+                .setRawPropertyValue(value.mValue)
+                .setIsSimulationPropId(value.mIsSimulationPropId)
+                .setVendorStatus(value.mVendorStatus)
+                .setHasPermissionToReadPropertyVendorStatus(
+                        value.mHasPermissionToReadPropertyVendorStatus);
+    }
+
     private CarPropertyValue(Builder builder) {
         builder.mBuilt = true;
         mPropertyId = builder.mPropertyId;
@@ -325,6 +390,7 @@ public final class CarPropertyValue<T> implements Parcelable {
         mValue = builder.mRawPropertyValue;
         mIsSimulationPropId = builder.mIsSimulationPropId;
         mVendorStatus = builder.mVendorStatus;
+        mHasPermissionToReadPropertyVendorStatus = builder.mHasPermissionToReadPropertyVendorStatus;
     }
 
     /**
@@ -425,6 +491,7 @@ public final class CarPropertyValue<T> implements Parcelable {
                 RawPropertyValue.class);
         mIsSimulationPropId = in.readBoolean();
         mVendorStatus = in.readInt();
+        mHasPermissionToReadPropertyVendorStatus = false;
     }
 
     public static final Creator<CarPropertyValue> CREATOR = new Creator<CarPropertyValue>() {
@@ -454,6 +521,27 @@ public final class CarPropertyValue<T> implements Parcelable {
         dest.writeParcelable(mValue, /* parcelableFlags= */ 0);
         dest.writeBoolean(mIsSimulationPropId);
         dest.writeInt(mVendorStatus);
+    }
+
+    /**
+     * Returns a {@code CarPropertyValue} same as {@code this}, but with vendor status set to 0.
+     *
+     * @hide
+     */
+    public CarPropertyValue cloneWithVendorStatusFiltered() {
+        // Make a copy of input, except for the vendor status field.
+        return newBuilder(this).setVendorStatus(UNSET_VENDOR_PROPERTY_STATUS).build();
+    }
+
+    /**
+     * Sets that the client has the permission to call {@link getPropertyVendorStatus}.
+     *
+     * @hide
+     */
+    @TestApi
+    public CarPropertyValue cloneWithPermissionToReadPropertyVendorStatus() {
+        return newBuilder(this)
+                .setHasPermissionToReadPropertyVendorStatus(true).build();
     }
 
     /**
@@ -493,12 +581,12 @@ public final class CarPropertyValue<T> implements Parcelable {
      *      <li><code>STATUS_AVAILABLE</code></li>
      *      <li><code>STATUS_ERROR</code></li>
      *      <li><code>STATUS_NOT_AVAILABLE_GENERAL</code></li>
-     *      <li><code>STATUS_NOT_AVAILABLE_DISABLED</code> (Since Android 25Q4)</li>
-     *      <li><code>STATUS_NOT_AVAILABLE_SPEED_LOW</code> (Since Android 25Q4)</li>
-     *      <li><code>STATUS_NOT_AVAILABLE_SPEED_HIGH</code> (Since Android 25Q4)</li>
-     *      <li><code>STATUS_NOT_AVAILABLE_POOR_VISIBILITY</code> (Since Android 25Q4)</li>
-     *      <li><code>STATUS_NOT_AVAILABLE_SAFETY</code> (Since Android 25Q4)</li>
-     *      <li><code>STATUS_NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED</code> (Since Android 25Q4)</li>
+     *      <li><code>STATUS_NOT_AVAILABLE_DISABLED</code> (Since Android 26Q2)</li>
+     *      <li><code>STATUS_NOT_AVAILABLE_SPEED_LOW</code> (Since Android 26Q2)</li>
+     *      <li><code>STATUS_NOT_AVAILABLE_SPEED_HIGH</code> (Since Android 26Q2)</li>
+     *      <li><code>STATUS_NOT_AVAILABLE_POOR_VISIBILITY</code> (Since Android 26Q2)</li>
+     *      <li><code>STATUS_NOT_AVAILABLE_SAFETY</code> (Since Android 26Q2)</li>
+     *      <li><code>STATUS_NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED</code> (Since Android 26Q2)</li>
      *  </ul>
      *
      * @return The property status of {@code CarPropertyValue}
@@ -516,13 +604,27 @@ public final class CarPropertyValue<T> implements Parcelable {
      * returned from VHAL. For example, if VHAL returns 0x00011001, 0x1001 is the system status
      * (NOT_AVAILABLE_DISABLED), 0x0001 is the vendor status.
      *
+     * This must only be called for {@link CarPropertyValue} obtained through
+     * {@link CarPropertyEventCallback#onChangeEvent}.
+     *
      * @return The vendor status code.
      *
      * @hide
      */
     @FlaggedApi(FLAG_CAR_PROPERTY_STATUS_DETAILED_NOT_AVAILABLE)
     @SystemApi
+    @RequiresPermission(Car.PERMISSION_READ_PROPERTY_VENDOR_STATUS)
     public int getPropertyVendorStatus() {
+        // Note that we have already filtered out the vendor property status at the car service
+        // layer if the client does not have the permission. We are checking here to throw
+        // SecurityException but this is not a security enforcement. Even if the client bypass
+        // this check here, the vendor property status still would be 0 if the client does not
+        // have the permission.
+        if (!mHasPermissionToReadPropertyVendorStatus) {
+            throw new SecurityException("Client does not have the required permission: "
+                    + Car.PERMISSION_READ_PROPERTY_VENDOR_STATUS
+                    + " to call getPropertyVendorStatus");
+        }
         return mVendorStatus;
     }
 
@@ -597,7 +699,7 @@ public final class CarPropertyValue<T> implements Parcelable {
         String propertyIdToString = VehiclePropertyIds.toString(mPropertyId);
         if (Flags.carPropertySimulation()) {
             if (isPropertyIdSimulationPropId()) {
-                propertyIdToString = Integer.toHexString(mPropertyId);
+                propertyIdToString = "0x" + Integer.toHexString(mPropertyId);
             }
         }
         String propertyValueString = "CarPropertyValue{"
@@ -608,7 +710,9 @@ public final class CarPropertyValue<T> implements Parcelable {
                 + constantToString(CarPropertyValue.class, "STATUS_", mSystemStatus)
                 + ", mVendorStatus=" + mVendorStatus
                 + ", mTimestampNanos=" + mTimestampNanos
-                + ", mValue=" + mValue;
+                + ", mValue=" + mValue
+                + ", mHasPermissionToReadPropertyVendorStatus="
+                + mHasPermissionToReadPropertyVendorStatus;
         if (Flags.carPropertySimulation()) {
             if (isPropertyIdSimulationPropId()) {
                 return propertyValueString
@@ -624,7 +728,7 @@ public final class CarPropertyValue<T> implements Parcelable {
     public int hashCode() {
         return Arrays.hashCode(new Object[]{
                 mPropertyId, mAreaId, mSystemStatus, mTimestampNanos, mValue,
-                mIsSimulationPropId, mVendorStatus});
+                mIsSimulationPropId, mVendorStatus, mHasPermissionToReadPropertyVendorStatus});
     }
 
     /** Checks equality with passed {@code object}. */
@@ -642,6 +746,30 @@ public final class CarPropertyValue<T> implements Parcelable {
                 && mTimestampNanos == carPropertyValue.mTimestampNanos
                 && Objects.equals(mValue, carPropertyValue.mValue)
                 && mIsSimulationPropId == carPropertyValue.mIsSimulationPropId
-                && mVendorStatus == carPropertyValue.mVendorStatus;
+                && mVendorStatus == carPropertyValue.mVendorStatus
+                && mHasPermissionToReadPropertyVendorStatus
+                        == carPropertyValue.mHasPermissionToReadPropertyVendorStatus;
+    }
+
+    /**
+     * Maps detailed not_available system property status to general not_available status for
+     * app that has sdkVersion < 26Q2.
+     *
+     * @hide
+     */
+    public CarPropertyValue cloneWithSystemStatusConverted(int sdkVersion) {
+        // TODO(b/416768353): Change this to 26Q2 version code.
+        // The flag is already checked at car service HalPropValue.
+        if (sdkVersion >= Build.VERSION_CODES.CUR_DEVELOPMENT
+                && Flags.carPropertyStatusDetailedNotAvailable()) {
+            return newBuilder(this).build();
+        }
+        return switch (mSystemStatus) {
+            case STATUS_NOT_AVAILABLE_DISABLED, STATUS_NOT_AVAILABLE_SPEED_LOW,
+                    STATUS_NOT_AVAILABLE_SPEED_HIGH, STATUS_NOT_AVAILABLE_POOR_VISIBILITY,
+                    STATUS_NOT_AVAILABLE_SAFETY, STATUS_NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED ->
+                    newBuilder(this).setSystemStatus(STATUS_NOT_AVAILABLE_GENERAL).build();
+            default -> newBuilder(this).build();
+        };
     }
 }

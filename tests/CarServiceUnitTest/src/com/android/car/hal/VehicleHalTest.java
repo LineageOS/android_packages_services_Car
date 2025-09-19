@@ -17,6 +17,7 @@
 package com.android.car.hal;
 
 import static android.car.VehiclePropertyIds.HVAC_TEMPERATURE_SET;
+import static android.car.feature.Flags.FLAG_CAR_PROPERTY_STATUS_DETAILED_NOT_AVAILABLE;
 
 import static com.android.car.internal.property.CarPropertyHelper.newPropIdAreaId;
 
@@ -43,6 +44,7 @@ import static org.mockito.Mockito.when;
 
 import android.car.feature.FeatureFlags;
 import android.car.hardware.CarPropertyValue;
+import android.car.hardware.property.CarPropertyEvent;
 import android.car.hardware.property.CarPropertyManager;
 import android.car.hardware.property.ICarPropertyEventListener;
 import android.car.test.AbstractExpectableTestCase;
@@ -56,12 +58,15 @@ import android.hardware.automotive.vehicle.VehiclePropError;
 import android.hardware.automotive.vehicle.VehicleProperty;
 import android.hardware.automotive.vehicle.VehiclePropertyAccess;
 import android.hardware.automotive.vehicle.VehiclePropertyChangeMode;
+import android.hardware.automotive.vehicle.VehiclePropertyStatus;
 import android.hardware.automotive.vehicle.VehiclePropertyType;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.ServiceSpecificException;
 import android.os.SystemClock;
 import android.platform.test.annotations.DisabledOnRavenwood;
+import android.platform.test.annotations.EnableFlags;
+import android.platform.test.flag.junit.SetFlagsRule;
 
 import com.android.car.VehicleStub;
 import com.android.car.VehicleStub.AsyncGetSetRequest;
@@ -100,7 +105,9 @@ public class VehicleHalTest extends AbstractExpectableTestCase {
     private static final int SOME_READ_ON_CHANGE_PROPERTY = 0x01;
     private static final int SOME_READ_WRITE_STATIC_PROPERTY = 0x02;
     private static final int SOME_BOOL_PROPERTY = VehiclePropertyType.BOOLEAN | 0x03;
-    private static final int SOME_INT32_PROPERTY = VehiclePropertyType.INT32 | 0x04;
+    // SYSTEM, GLOBAL, INT32
+    private static final int SOME_INT32_PROPERTY =
+            0x10000000 | 0x01000000 | VehiclePropertyType.INT32 | 0x04;
     private static final int SOME_INT32_VEC_PROPERTY = VehiclePropertyType.INT32_VEC | 0x05;
     private static final int SOME_FLOAT_PROPERTY = VehiclePropertyType.FLOAT | 0x06;
     private static final int SOME_FLOAT_VEC_PROPERTY = VehiclePropertyType.FLOAT_VEC | 0x07;
@@ -149,6 +156,8 @@ public class VehicleHalTest extends AbstractExpectableTestCase {
     private final AsyncGetSetRequest mSetVehicleRequest =
             new AsyncGetSetRequest(REQUEST_ID_1, mHalPropValue, /* timeoutUptimeMs= */ 0);
 
+    @Rule
+    public final SetFlagsRule mSetFlagsRule = new SetFlagsRule();
     @Rule
     public NoActiveHandlerThreadCheckerRule mNoActiveHandlerThreadCheckerRule =
             new NoActiveHandlerThreadCheckerRule();
@@ -2688,6 +2697,73 @@ public class VehicleHalTest extends AbstractExpectableTestCase {
         verify(mListenerBinder).linkToDeath(any(), eq(0));
         assertWithMessage("Register recording listener returned values").that(configPropIds)
                 .containsExactlyElementsIn(expectedConfigPropIds);
+    }
+
+    @EnableFlags(FLAG_CAR_PROPERTY_STATUS_DETAILED_NOT_AVAILABLE)
+    @Test
+    public void testRegisterRecordingListener_eventsRecorded_skipSetupInit()
+            throws Exception {
+        int propId = SOME_INT32_PROPERTY;
+        int areaId = 0;
+
+        List<HalPropValue> values = new ArrayList<HalPropValue>();
+        setupInjectEventTest(propId, values);
+        mVehicleHal.setIsUserBuild(false);
+        when(mCallback.asBinder()).thenReturn(mListenerBinder);
+
+        mVehicleHal.registerRecordingListener(mCallback);
+
+        HalPropValue propValue = mPropValueBuilder.build(propId, areaId,
+                TEST_TIMESTAMP, /* status= */ 0, 123);
+
+        mVehicleHal.onPropertyEvent(List.of(propValue));
+
+        ArgumentCaptor<List> captor = ArgumentCaptor.forClass(List.class);
+        verify(mCallback).onEvent(captor.capture());
+
+        List<CarPropertyEvent> recordedEventList = captor.getValue();
+        assertThat(recordedEventList).containsExactly(new CarPropertyEvent(
+                CarPropertyEvent.PROPERTY_EVENT_PROPERTY_CHANGE,
+                new CarPropertyValue.Builder<Integer>(propId, areaId)
+                        .setTimestampNanos(TEST_TIMESTAMP)
+                        .setValue(123)
+                        .setIsSimulationPropId(true)
+                        .build()));
+    }
+
+    @EnableFlags(FLAG_CAR_PROPERTY_STATUS_DETAILED_NOT_AVAILABLE)
+    @Test
+    public void testRegisterRecordingListener_notAvailableVendorStatus_recorded_skipSetupInit()
+            throws Exception {
+        int propId = SOME_INT32_PROPERTY;
+        int areaId = 0;
+        int status = VehiclePropertyStatus.NOT_AVAILABLE_DISABLED | 0x12340000;
+
+        List<HalPropValue> values = new ArrayList<HalPropValue>();
+        setupInjectEventTest(propId, values);
+        mVehicleHal.setIsUserBuild(false);
+        when(mCallback.asBinder()).thenReturn(mListenerBinder);
+
+        mVehicleHal.registerRecordingListener(mCallback);
+
+        HalPropValue propValue = mPropValueBuilder.build(propId, areaId,
+                TEST_TIMESTAMP, status);
+
+        mVehicleHal.onPropertyEvent(List.of(propValue));
+
+        ArgumentCaptor<List> captor = ArgumentCaptor.forClass(List.class);
+        verify(mCallback).onEvent(captor.capture());
+
+        List<CarPropertyEvent> recordedEventList = captor.getValue();
+        assertThat(recordedEventList).containsExactly(new CarPropertyEvent(
+                CarPropertyEvent.PROPERTY_EVENT_PROPERTY_CHANGE,
+                new CarPropertyValue.Builder<Integer>(propId, areaId)
+                        .setTimestampNanos(TEST_TIMESTAMP)
+                        .setValue(0)
+                        .setSystemStatus(CarPropertyValue.STATUS_NOT_AVAILABLE_DISABLED)
+                        .setVendorStatus(0x1234)
+                        .setIsSimulationPropId(true)
+                        .build()));
     }
 
     @Test

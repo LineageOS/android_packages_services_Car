@@ -17,6 +17,7 @@
 package android.car.hardware.property;
 
 import static android.car.feature.Flags.FLAG_CAR_PROPERTY_SUPPORTED_VALUE;
+import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 import static com.android.car.internal.property.CarPropertyErrorCodes.STATUS_OK;
@@ -79,6 +80,7 @@ import com.android.car.internal.property.ISupportedValuesChangeCallback;
 import com.android.car.internal.property.InputSanitizationUtils;
 import com.android.car.internal.property.MinMaxSupportedPropertyValue;
 import com.android.car.internal.property.PropIdAreaId;
+import com.android.car.internal.property.PropertyStatusUtils;
 import com.android.car.internal.property.RawPropertyValue;
 import com.android.car.internal.property.SubscriptionManager;
 import com.android.car.internal.util.IntArray;
@@ -120,6 +122,8 @@ public class CarPropertyManager extends CarManagerBase {
     private final ICarProperty mService;
     private final int mAppTargetSdk;
     private final Executor mExecutor;
+    // Whether the client has the permission to call CarPropertyValue.getPropertyVendorStatus.
+    private final boolean mHasPermissionToReadPropertyVendorStatus;
     private final AtomicInteger mRequestIdCounter = new AtomicInteger(0);
     @GuardedBy("mLock")
     private final SparseArray<AsyncPropertyRequestInfo<?, ?>> mRequestIdToAsyncRequestInfo =
@@ -1077,6 +1081,9 @@ public class CarPropertyManager extends CarManagerBase {
         super(car);
         mService = service;
         mAppTargetSdk = getContext().getApplicationInfo().targetSdkVersion;
+        mHasPermissionToReadPropertyVendorStatus =
+                getContext().checkSelfPermission(Car.PERMISSION_READ_PROPERTY_VENDOR_STATUS)
+                        == PERMISSION_GRANTED;
 
         Handler eventHandler = getEventHandler();
         if (eventHandler == null) {
@@ -1594,8 +1601,11 @@ public class CarPropertyManager extends CarManagerBase {
 
             if (cpeCallbackController == null) {
                 cpeCallbackController =
-                        new CarPropertyEventCallbackController(carPropertyEventCallback,
-                                callbackExecutor);
+                        new CarPropertyEventCallbackController(
+                                getContext(),
+                                mAppTargetSdk,
+                                callbackExecutor,
+                                carPropertyEventCallback);
                 mCpeCallbackToCpeCallbackController.put(carPropertyEventCallback,
                         cpeCallbackController);
             }
@@ -2316,8 +2326,11 @@ public class CarPropertyManager extends CarManagerBase {
                 }
                 return mService.getProperty(propertyId, areaId);
             });
+            if (propValue != null) {
+                propValue = propValue.cloneWithSystemStatusConverted(mAppTargetSdk);
+            }
             return (propValue != null
-                    && propValue.getStatus() == CarPropertyValue.STATUS_AVAILABLE);
+                    && PropertyStatusUtils.isPropertyStatusAvailable(propValue.getStatus()));
         } catch (RemoteException e) {
             return handleRemoteExceptionFromCarService(e, false);
         } catch (ServiceSpecificException | IllegalArgumentException e) {
@@ -2554,20 +2567,19 @@ public class CarPropertyManager extends CarManagerBase {
 
         // Keeps the same behavior as android R.
         if (mAppTargetSdk < Build.VERSION_CODES.S) {
-            return propertyValue.getStatus() == CarPropertyValue.STATUS_AVAILABLE
+            return PropertyStatusUtils.isPropertyStatusAvailable(propertyValue.getStatus())
                     ? propertyValue.getValue() : defaultValue;
         }
 
-        // throws new exceptions in android S.
-        switch (propertyValue.getStatus()) {
-            case CarPropertyValue.STATUS_ERROR:
-                throw new CarInternalErrorException(propertyValue.getPropertyId(), areaId);
-            case CarPropertyValue.STATUS_UNAVAILABLE:
-                throw new PropertyNotAvailableException(propertyValue.getPropertyId(),
-                        areaId, /*vendorErrorCode=*/0);
-            default:
-                return propertyValue.getValue();
+        int propertyStatus = propertyValue.getStatus();
+        if (PropertyStatusUtils.isPropertyStatusError(propertyStatus)) {
+            throw new CarInternalErrorException(propertyValue.getPropertyId(), areaId);
         }
+        if (PropertyStatusUtils.isPropertyStatusNotAvailable(propertyStatus)) {
+            throw new PropertyNotAvailableException(propertyValue.getPropertyId(),
+                        areaId, /*vendorErrorCode=*/ 0);
+        }
+        return propertyValue.getValue();
     }
 
     @FunctionalInterface
@@ -2859,14 +2871,21 @@ public class CarPropertyManager extends CarManagerBase {
             if (carPropertyValue == null) {
                 return null;
             }
+            carPropertyValue = carPropertyValue.cloneWithSystemStatusConverted(mAppTargetSdk);
+            if (mHasPermissionToReadPropertyVendorStatus) {
+                carPropertyValue = carPropertyValue
+                        .cloneWithPermissionToReadPropertyVendorStatus();
+            }
             if (mAppTargetSdk >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-                if (carPropertyValue.getStatus() == CarPropertyValue.STATUS_UNAVAILABLE) {
+                int propertyStatus = carPropertyValue.getStatus();
+                if (PropertyStatusUtils.isPropertyStatusNotAvailable(propertyStatus)) {
                     throw new ServiceSpecificException(VehicleHalStatusCode.STATUS_NOT_AVAILABLE,
                             "getProperty returned value with UNAVAILABLE status: "
                                     + carPropertyValue);
-                } else if (carPropertyValue.getStatus() != CarPropertyValue.STATUS_AVAILABLE) {
+                }
+                if (PropertyStatusUtils.isPropertyStatusError(propertyStatus)) {
                     throw new ServiceSpecificException(VehicleHalStatusCode.STATUS_INTERNAL_ERROR,
-                            "getProperty returned value with error or unknown status: "
+                            "getProperty returned value with error status: "
                                     + carPropertyValue);
                 }
             }

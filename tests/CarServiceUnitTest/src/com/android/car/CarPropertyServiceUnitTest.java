@@ -795,13 +795,8 @@ public final class CarPropertyServiceUnitTest extends AbstractExpectableTestCase
 
     @Test
     public void testRegisterUnregisterForContinuousProperty() throws Exception {
-        ICarPropertyEventListener mMockHandler1 = mock(ICarPropertyEventListener.class);
-        ICarPropertyEventListener mMockHandler2 = mock(ICarPropertyEventListener.class);
-        // Must use two different binders because listener is uniquely identified by binder.
-        IBinder mBinder1 = mock(IBinder.class);
-        IBinder mBinder2 = mock(IBinder.class);
-        when(mMockHandler1.asBinder()).thenReturn(mBinder1);
-        when(mMockHandler2.asBinder()).thenReturn(mBinder2);
+        ICarPropertyEventListener mMockHandler1 = createMockEventListener();
+        ICarPropertyEventListener mMockHandler2 = createMockEventListener();
         long timestampNanos = Duration.ofSeconds(1).toNanos();
         CarPropertyValue<Float> mValue =
                 new CarPropertyValue<>(SPEED_ID, 0, timestampNanos, 0f);
@@ -850,10 +845,7 @@ public final class CarPropertyServiceUnitTest extends AbstractExpectableTestCase
 
     @Test
     public void testRegisterForMultipleProperties() throws Exception {
-        ICarPropertyEventListener mMockHandler1 = mock(ICarPropertyEventListener.class);
-        // Must use two different binders because listener is uniquely identified by binder.
-        IBinder mBinder1 = mock(IBinder.class);
-        when(mMockHandler1.asBinder()).thenReturn(mBinder1);
+        ICarPropertyEventListener mockHandler = createMockEventListener();
         long timestampNanos = Duration.ofSeconds(1).toNanos();
         CarPropertyValue<Float> mValue =
                 new CarPropertyValue<>(HVAC_TEMP, 0, timestampNanos, 0f);
@@ -864,8 +856,8 @@ public final class CarPropertyServiceUnitTest extends AbstractExpectableTestCase
         mService.registerListener(List.of(
                 createCarSubscriptionOption(SPEED_ID, new int[]{0}, 20f),
                         createCarSubscriptionOption(HVAC_TEMP, new int[]{0}, 0f)),
-                mMockHandler1);
-        verify(mMockHandler1, timeout(5000)).onEvent(any());
+                mockHandler);
+        verify(mockHandler, timeout(5000)).onEvent(any());
 
         verify(mHalService).subscribeProperty(List.of(
                 createCarSubscriptionOption(SPEED_ID, new int[]{0}, 20f),
@@ -877,25 +869,20 @@ public final class CarPropertyServiceUnitTest extends AbstractExpectableTestCase
         clearInvocations(mHalService);
 
         // Unregister the second listener, the first listener must still be registered.
-        mService.unregisterListener(HVAC_TEMP, mMockHandler1);
+        mService.unregisterListener(HVAC_TEMP, mockHandler);
         verify(mHalService).unsubscribeProperty(HVAC_TEMP);
 
         // Clean up invocation state.
         clearInvocations(mHalService);
 
-        mService.unregisterListener(SPEED_ID, mMockHandler1);
+        mService.unregisterListener(SPEED_ID, mockHandler);
         verify(mHalService).unsubscribeProperty(SPEED_ID);
     }
 
     @Test
     public void testRegisterUnregisterForOnChangeProperty() throws Exception {
-        ICarPropertyEventListener mMockHandler1 = mock(ICarPropertyEventListener.class);
-        ICarPropertyEventListener mMockHandler2 = mock(ICarPropertyEventListener.class);
-        // Must use two different binders because listener is uniquely identified by binder.
-        IBinder mBinder1 = mock(IBinder.class);
-        IBinder mBinder2 = mock(IBinder.class);
-        when(mMockHandler1.asBinder()).thenReturn(mBinder1);
-        when(mMockHandler2.asBinder()).thenReturn(mBinder2);
+        ICarPropertyEventListener mMockHandler1 = createMockEventListener();
+        ICarPropertyEventListener mMockHandler2 = createMockEventListener();
         long timestampNanos = Duration.ofSeconds(1).toNanos();
         CarPropertyValue<Float> mValue =
                 new CarPropertyValue<>(HVAC_TEMP, 0, timestampNanos, 0f);
@@ -943,9 +930,7 @@ public final class CarPropertyServiceUnitTest extends AbstractExpectableTestCase
 
     @Test
     public void testRegisterListenerWithSubscription() throws Exception {
-        ICarPropertyEventListener mockHandler = mock(ICarPropertyEventListener.class);
-        IBinder mockBinder = mock(IBinder.class);
-        when(mockHandler.asBinder()).thenReturn(mockBinder);
+        ICarPropertyEventListener mockHandler = createMockEventListener();
         long timestampNanos = Duration.ofSeconds(1).toNanos();
         CarPropertyValue<Float> speedValue = new CarPropertyValue<>(
                 SPEED_ID, 0, timestampNanos, 0f);
@@ -977,9 +962,7 @@ public final class CarPropertyServiceUnitTest extends AbstractExpectableTestCase
 
     @Test
     public void testRegisterListenerWithSubscription_enableVurAndResolution() throws Exception {
-        ICarPropertyEventListener mockHandler = mock(ICarPropertyEventListener.class);
-        IBinder mockBinder = mock(IBinder.class);
-        when(mockHandler.asBinder()).thenReturn(mockBinder);
+        ICarPropertyEventListener mockHandler = createMockEventListener();
         long timestampNanos = Duration.ofSeconds(1).toNanos();
         CarPropertyValue<Float> speedValue = new CarPropertyValue<>(
                 SPEED_ID, 0, timestampNanos, 0f);
@@ -1011,9 +994,7 @@ public final class CarPropertyServiceUnitTest extends AbstractExpectableTestCase
     public void testRegisterListenerWithSubscription_VurFeatureOff() throws Exception {
         when(mFeatureFlags.variableUpdateRate()).thenReturn(false);
 
-        ICarPropertyEventListener mockHandler = mock(ICarPropertyEventListener.class);
-        IBinder mockBinder = mock(IBinder.class);
-        when(mockHandler.asBinder()).thenReturn(mockBinder);
+        ICarPropertyEventListener mockHandler = createMockEventListener();
         long timestampNanos = Duration.ofSeconds(1).toNanos();
         CarPropertyValue<Float> speedValue = new CarPropertyValue<>(
                 SPEED_ID, 0, timestampNanos, 0f);
@@ -1036,9 +1017,7 @@ public final class CarPropertyServiceUnitTest extends AbstractExpectableTestCase
     @Test
     public void testRegisterListenerWithSubscription_exceptionFromPropertyHalService()
             throws Exception {
-        ICarPropertyEventListener mockHandler = mock(ICarPropertyEventListener.class);
-        IBinder mockBinder = mock(IBinder.class);
-        when(mockHandler.asBinder()).thenReturn(mockBinder);
+        ICarPropertyEventListener mockHandler = createMockEventListener();
         doThrow(new ServiceSpecificException(0)).when(mHalService).subscribeProperty(any());
 
         List<CarSubscription> subscribeOptions = List.of(
@@ -1052,9 +1031,7 @@ public final class CarPropertyServiceUnitTest extends AbstractExpectableTestCase
     @Test
     public void testRegisterListenerWithSubscription_exceptionFromPropertyHalService_retry()
             throws Exception {
-        ICarPropertyEventListener mockHandler = mock(ICarPropertyEventListener.class);
-        IBinder mockBinder = mock(IBinder.class);
-        when(mockHandler.asBinder()).thenReturn(mockBinder);
+        ICarPropertyEventListener mockHandler = createMockEventListener();
         doThrow(new ServiceSpecificException(0)).when(mHalService).subscribeProperty(any());
         CarPropertyValue mockValue = mock(CarPropertyValue.class);
         when(mHalService.getProperty(anyInt(), anyInt())).thenReturn(mockValue);
@@ -1234,9 +1211,7 @@ public final class CarPropertyServiceUnitTest extends AbstractExpectableTestCase
 
     @Test
     public void testregisterListener_emptyAreaIds() throws Exception {
-        ICarPropertyEventListener mockHandler = mock(ICarPropertyEventListener.class);
-        IBinder mockBinder = mock(IBinder.class);
-        when(mockHandler.asBinder()).thenReturn(mockBinder);
+        ICarPropertyEventListener mockHandler = createMockEventListener();
 
         assertThrows(IllegalArgumentException.class, () ->
                 mService.registerListener(List.of(
@@ -1246,9 +1221,7 @@ public final class CarPropertyServiceUnitTest extends AbstractExpectableTestCase
 
     @Test
     public void testregisterListener_nullAreaIds() throws Exception {
-        ICarPropertyEventListener mockHandler = mock(ICarPropertyEventListener.class);
-        IBinder mockBinder = mock(IBinder.class);
-        when(mockHandler.asBinder()).thenReturn(mockBinder);
+        ICarPropertyEventListener mockHandler = createMockEventListener();
 
         assertThrows(IllegalArgumentException.class, () ->
                 mService.registerListener(List.of(
@@ -1260,9 +1233,7 @@ public final class CarPropertyServiceUnitTest extends AbstractExpectableTestCase
     @Test
     public void testUnregisterListener_exceptionFromPropertyHalService()
             throws Exception {
-        ICarPropertyEventListener mockHandler = mock(ICarPropertyEventListener.class);
-        IBinder mockBinder = mock(IBinder.class);
-        when(mockHandler.asBinder()).thenReturn(mockBinder);
+        ICarPropertyEventListener mockHandler = createMockEventListener();
         CarPropertyValue mockValue = mock(CarPropertyValue.class);
         when(mHalService.getProperty(anyInt(), anyInt())).thenReturn(mockValue);
         doThrow(new ServiceSpecificException(0)).when(mHalService).unsubscribeProperty(anyInt());
@@ -1280,9 +1251,7 @@ public final class CarPropertyServiceUnitTest extends AbstractExpectableTestCase
     @Test
     public void testUnregisterListener_exceptionFromPropertyHalService_retry()
             throws Exception {
-        ICarPropertyEventListener mockHandler = mock(ICarPropertyEventListener.class);
-        IBinder mockBinder = mock(IBinder.class);
-        when(mockHandler.asBinder()).thenReturn(mockBinder);
+        ICarPropertyEventListener mockHandler = createMockEventListener();
         CarPropertyValue mockValue = mock(CarPropertyValue.class);
         when(mHalService.getProperty(anyInt(), anyInt())).thenReturn(mockValue);
         doThrow(new ServiceSpecificException(0)).when(mHalService).unsubscribeProperty(anyInt());
@@ -1431,6 +1400,86 @@ public final class CarPropertyServiceUnitTest extends AbstractExpectableTestCase
             assertThat(actualCarPropertyValue.getValue()).isEqualTo(
                     expectedCarPropertyValue.getValue());
         }
+    }
+
+    @Test
+    public void testOnPropertyEventChange_vendorStatusFilteredOut_withoutPermission()
+            throws Exception {
+        when(mFeatureFlags.carPropertyStatusDetailedNotAvailable()).thenReturn(true);
+        doReturn(PackageManager.PERMISSION_DENIED).when(mContext)
+                .checkCallingOrSelfPermission(Car.PERMISSION_READ_PROPERTY_VENDOR_STATUS);
+
+        mService.init();
+
+        int vendorStatus = 1234;
+        CarPropertyValue<Float> value = new CarPropertyValue.Builder<Float>(HVAC_TEMP, 0)
+                .setTimestampNanos(0)
+                .setSystemStatus(CarPropertyValue.STATUS_NOT_AVAILABLE_DISABLED)
+                .setVendorStatus(vendorStatus)
+                .setValue(0.f)
+                .build();
+
+        when(mHalService.getProperty(HVAC_TEMP, 0)).thenReturn(value);
+
+        ICarPropertyEventListener listener = createMockEventListener();
+        mService.registerListener(HVAC_TEMP, /* updateRateHz= */ SENSOR_RATE_ONCHANGE, listener);
+
+        // Wait until we get the on property change event for the initial value.
+        verify(listener, timeout(DEFAULT_CALLBACK_TIMEOUT)).onEvent(any());
+        clearInvocations(listener);
+
+        List<CarPropertyEvent> events = List.of(new CarPropertyEvent(
+                CarPropertyEvent.PROPERTY_EVENT_PROPERTY_CHANGE, value));
+        mService.onPropertyChange(events);
+
+        verify(listener, timeout(DEFAULT_CALLBACK_TIMEOUT)).onEvent(mPropertyEventCaptor.capture());
+
+        List<CarPropertyEvent> eventList = mPropertyEventCaptor.getValue();
+        assertWithMessage("Must receive 1 value event").that(eventList).hasSize(1);
+        CarPropertyValue carPropertyValue = eventList.get(0).getCarPropertyValue();
+
+        assertWithMessage("Received expected property value").that(carPropertyValue)
+                .isEqualTo(value.cloneWithVendorStatusFiltered());
+    }
+
+    @Test
+    public void testOnPropertyEventChange_vendorStatusNotFilteredOut_withPermission()
+            throws Exception {
+        when(mFeatureFlags.carPropertyStatusDetailedNotAvailable()).thenReturn(true);
+        doReturn(PackageManager.PERMISSION_GRANTED).when(mContext)
+                .checkCallingOrSelfPermission(Car.PERMISSION_READ_PROPERTY_VENDOR_STATUS);
+
+        mService.init();
+
+        int vendorStatus = 1234;
+        CarPropertyValue<Float> value = new CarPropertyValue.Builder<Float>(HVAC_TEMP, 0)
+                .setTimestampNanos(0)
+                .setSystemStatus(CarPropertyValue.STATUS_NOT_AVAILABLE_DISABLED)
+                .setVendorStatus(vendorStatus)
+                .setValue(0.f)
+                .build();
+
+        when(mHalService.getProperty(HVAC_TEMP, 0)).thenReturn(value);
+
+        ICarPropertyEventListener listener = createMockEventListener();
+        mService.registerListener(HVAC_TEMP, /* updateRateHz= */ SENSOR_RATE_ONCHANGE, listener);
+
+        // Wait until we get the on property change event for the initial value.
+        verify(listener, timeout(DEFAULT_CALLBACK_TIMEOUT)).onEvent(any());
+        clearInvocations(listener);
+
+        List<CarPropertyEvent> events = List.of(new CarPropertyEvent(
+                CarPropertyEvent.PROPERTY_EVENT_PROPERTY_CHANGE, value));
+        mService.onPropertyChange(events);
+
+        verify(listener, timeout(DEFAULT_CALLBACK_TIMEOUT)).onEvent(mPropertyEventCaptor.capture());
+
+        List<CarPropertyEvent> eventList = mPropertyEventCaptor.getValue();
+        assertWithMessage("Must receive 1 value event").that(eventList).hasSize(1);
+        CarPropertyValue carPropertyValue = eventList.get(0).getCarPropertyValue();
+
+        assertWithMessage("Received expected property value").that(carPropertyValue)
+                .isEqualTo(value);
     }
 
     @Test
@@ -2002,9 +2051,7 @@ public final class CarPropertyServiceUnitTest extends AbstractExpectableTestCase
 
     @Test
     public void testGetAndDispatchInitialValue() throws Exception {
-        ICarPropertyEventListener mockHandler = mock(ICarPropertyEventListener.class);
-        IBinder mockBinder = mock(IBinder.class);
-        when(mockHandler.asBinder()).thenReturn(mockBinder);
+        ICarPropertyEventListener mockHandler = createMockEventListener();
         long timestampNanos = Duration.ofSeconds(1).toNanos();
         CarPropertyValue<Float> speedValue = new CarPropertyValue<>(
                 SPEED_ID, 0, timestampNanos, 0f);
@@ -2032,9 +2079,7 @@ public final class CarPropertyServiceUnitTest extends AbstractExpectableTestCase
 
     @Test
     public void testGetAndDispatchInitialValue_mustNotFilterEvents() throws Exception {
-        ICarPropertyEventListener mockHandler = mock(ICarPropertyEventListener.class);
-        IBinder mockBinder = mock(IBinder.class);
-        when(mockHandler.asBinder()).thenReturn(mockBinder);
+        ICarPropertyEventListener mockHandler = createMockEventListener();
         long timestampNanos = Duration.ofSeconds(1).toNanos();
         CarPropertyValue<Float> speedValue = new CarPropertyValue<>(
                 SPEED_ID, 0, timestampNanos, 0f);
@@ -2437,5 +2482,12 @@ public final class CarPropertyServiceUnitTest extends AbstractExpectableTestCase
 
         assertWithMessage("InjectVehicleProperties non-debuggable build").that(thrown)
                 .hasMessageThat().contains("Build is not eng or user-debug");
+    }
+
+    private ICarPropertyEventListener createMockEventListener() {
+        ICarPropertyEventListener mockHandler = mock(ICarPropertyEventListener.class);
+        IBinder mockBinder = mock(IBinder.class);
+        when(mockHandler.asBinder()).thenReturn(mockBinder);
+        return mockHandler;
     }
 }

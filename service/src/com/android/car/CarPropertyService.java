@@ -17,6 +17,7 @@
 package com.android.car;
 
 import static android.car.hardware.CarPropertyConfig.VEHICLE_PROPERTY_CHANGE_MODE_CONTINUOUS;
+import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 import static com.android.car.internal.common.CommonConstants.EMPTY_INT_ARRAY;
@@ -474,13 +475,25 @@ public class CarPropertyService extends ICarProperty.Stub
             return client;
         }
         client = new CarPropertyServiceClient(carPropertyEventListener,
-                this::unregisterListenerBinderForProps);
+                this::unregisterListenerBinderForProps,
+                canReadVendorStatus());
         if (client.isDead()) {
             Slogf.w(TAG, "the ICarPropertyEventListener is already dead");
             return null;
         }
         mClientMap.put(listenerBinder, client);
         return client;
+    }
+
+    /**
+     * Gets whether the current context can read vendor property status.
+     *
+     * This must be called within a binder call context.
+     */
+    private boolean canReadVendorStatus() {
+        return mFeatureFlags.carPropertyStatusDetailedNotAvailable()
+                && mContext.checkCallingOrSelfPermission(Car.PERMISSION_READ_PROPERTY_VENDOR_STATUS)
+                == PERMISSION_GRANTED;
     }
 
     @Override
@@ -658,6 +671,9 @@ public class CarPropertyService extends ICarProperty.Stub
                 CarPropertyConfig<?> carPropertyConfig = getCarPropertyConfig(propertyId);
                 Object defaultValue = CarPropertyHelper.getDefaultValue(
                         carPropertyConfig.getPropertyType());
+                // TODO(b/417326671): convert e.errorCode into detailed not available system status.
+                // TODO(b/417325727): convert vendor status code from e.errorCode into a property
+                // vendor status.
                 if (CarPropertyErrorCodes.isNotAvailableVehicleHalStatusCode(errorCode)) {
                     carPropertyValue = new CarPropertyValue<>(propertyId, areaId,
                             CarPropertyValue.STATUS_UNAVAILABLE, timestampNanos, defaultValue);
@@ -949,8 +965,11 @@ public class CarPropertyService extends ICarProperty.Stub
         synchronized (mLock) {
             CarPropertyServiceClient client = mClientMap.get(listenerBinder);
             if (client == null) {
+                // For the subscription client to listen to property update events, we do not
+                // care about vendor property status.
                 client = new CarPropertyServiceClient(iCarPropertyEventListener,
-                        this::unregisterListenerBinderForProps);
+                        this::unregisterListenerBinderForProps,
+                        /* canReadVendorStatus= */ false);
             }
             if (client.isDead()) {
                 Slogf.w(TAG, "the ICarPropertyEventListener is already dead");
