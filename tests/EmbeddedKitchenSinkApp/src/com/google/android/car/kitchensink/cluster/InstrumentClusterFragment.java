@@ -43,6 +43,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.RadioButton;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -69,6 +70,7 @@ public class InstrumentClusterFragment extends Fragment {
     private Timer mTimer;
     private List<NavigationStateProto> mNavStateData;
     private Button mTurnByTurnButton;
+    private TextView mSentDataLogTextView;
 
     private CarServiceLifecycleListener mCarServiceLifecycleListener = (car, ready) -> {
         if (!ready) {
@@ -119,6 +121,11 @@ public class InstrumentClusterFragment extends Fragment {
     }
 
     private NavigationStateProto getNavStateData(Maneuver.Type maneuverType) {
+        Log.d(TAG, "ManeuverType: " + maneuverType.name());
+        if (maneuverType == Maneuver.Type.UNRECOGNIZED) {
+            Log.d(TAG, "ManeuverType is not valid");
+            return null;
+        }
         return NavigationStateProto.newBuilder()
                 .setServiceStatus(NavigationStateProto.ServiceStatus.NORMAL)
                 .addSteps(Step.newBuilder()
@@ -192,7 +199,9 @@ public class InstrumentClusterFragment extends Fragment {
                 changeClusterActivityState(PackageManager.COMPONENT_ENABLED_STATE_ENABLED));
         view.findViewById(R.id.cluster_activity_state_disabled).setOnClickListener(v ->
                 changeClusterActivityState(PackageManager.COMPONENT_ENABLED_STATE_DISABLED));
+        mSentDataLogTextView = view.findViewById(R.id.sent_data_log);
         updateInitialClusterActivityState(view);
+        initializeNavStateData(); // Initialize data when view is created
 
         mTurnByTurnButton = view.findViewById(R.id.cluster_turn_left_button);
         mTurnByTurnButton.setOnClickListener(v -> toggleSendTurn());
@@ -246,30 +255,33 @@ public class InstrumentClusterFragment extends Fragment {
         super.onDestroy();
     }
 
+    private void initializeNavStateData() {
+        if (mNavStateData != null) {
+            return; // Already initialized
+        }
+
+        List<NavigationStateProto> data = new ArrayList<>();
+        try {
+            for (Maneuver.Type maneuverType : Maneuver.Type.values()) {
+                NavigationStateProto tmp = getNavStateData(maneuverType);
+                if (tmp != null) {
+                    data.add(tmp);
+                }
+            }
+            mNavStateData = data; // Assign only after successful population
+            Log.i(TAG, "Navigation state data initialized successfully.");
+        } catch (IllegalArgumentException e) { // Example of a more specific exception
+            Log.e(TAG, "Error generating nav state data", e);
+            Toast.makeText(getContext(), "Error generating nav data: " + e.getMessage(),
+                Toast.LENGTH_LONG).show();
+            // mNavStateData remains null if initialization fails
+        }
+    }
+
     /**
      * Enables/disables sending turn-by-turn data through the {@link CarNavigationStatusManager}
      */
     private void toggleSendTurn() {
-        if (mNavStateData == null) {
-            mNavStateData = new ArrayList<>();
-            try {
-                for (Maneuver.Type maneuverType : Maneuver.Type.values()) {
-                    if (maneuverType == Maneuver.Type.UNKNOWN) {
-                        continue;
-                    }
-                    NavigationStateProto tmp = getNavStateData(maneuverType);
-                    if (tmp != null) {
-                        mNavStateData.add(tmp);
-                    }
-                }
-            } catch (Exception e) {
-                Log.e(TAG, "Error generating nav state data", e);
-                Toast.makeText(getContext(), "Error generating nav data: " + e.getMessage(),
-                        Toast.LENGTH_LONG).show();
-                return;
-            }
-        }
-
         // Toggle a timer to send update periodically.
         if (mTimer == null) {
             startSendTurn();
@@ -305,7 +317,6 @@ public class InstrumentClusterFragment extends Fragment {
             mTimer.cancel();
             mTimer = null;
         }
-        sendTurn(NavigationStateProto.newBuilder().build());
         mTurnByTurnButton.setText(R.string.cluster_start_guidance);
     }
 
@@ -317,6 +328,19 @@ public class InstrumentClusterFragment extends Fragment {
             Bundle bundle = new Bundle();
             bundle.putByteArray("navstate2", state.toByteArray());
             mCarNavigationStatusManager.sendNavigationStateChange(bundle);
+
+            String status = "";
+
+            if (state.getStepsCount() > 0 && state.getSteps(0).hasManeuver()) {
+                status = "Maneuver:\n" + state.getSteps(0).getManeuver().getType().name();
+            }
+
+            String statusText = status;
+
+            if (getActivity() != null && mSentDataLogTextView != null) {
+                getActivity().runOnUiThread(() -> mSentDataLogTextView.setText(statusText));
+            }
+
             Log.i(TAG, "Sending nav state: " + state);
         }
     }
