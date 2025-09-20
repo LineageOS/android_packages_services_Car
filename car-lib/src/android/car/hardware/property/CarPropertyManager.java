@@ -2888,6 +2888,11 @@ public class CarPropertyManager extends CarManagerBase {
                             "getProperty returned value with error status: "
                                     + carPropertyValue);
                 }
+                if (!PropertyStatusUtils.isPropertyStatusAvailable(propertyStatus)) {
+                    throw new ServiceSpecificException(VehicleHalStatusCode.STATUS_INTERNAL_ERROR,
+                            "getProperty returned value with unknown status (" + propertyStatus
+                                    + ") : " + carPropertyValue);
+                }
             }
             return carPropertyValue;
         } catch (IllegalArgumentException e) {
