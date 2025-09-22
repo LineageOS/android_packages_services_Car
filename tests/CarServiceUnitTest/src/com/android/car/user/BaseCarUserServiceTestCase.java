@@ -294,6 +294,7 @@ abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCas
         doReturn(mApplicationContext).when(mMockContext).getApplicationContext();
         doReturn(mMockContext).when(mMockContext).createContextAsUser(any(), anyInt());
         doReturn(mLocationManager).when(mMockContext).getSystemService(Context.LOCATION_SERVICE);
+        doReturn(mPackageManager).when(mMockContext).getPackageManager();
         doReturn(InstrumentationRegistry.getTargetContext().getContentResolver())
                 .when(mMockContext).getContentResolver();
         doReturn(false).when(mMockedUserManager).isUserUnlockingOrUnlocked(any());
@@ -809,7 +810,6 @@ abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCas
         String className = "className";
         when(mMockedResources.getString(anyInt())).thenReturn(packageName + "/" + className);
         when(mMockContext.createContextAsUser(any(), anyInt())).thenReturn(mMockContext);
-        when(mMockContext.getPackageManager()).thenReturn(mPackageManager);
 
         if (returnCorrectUid) {
             when(mPackageManager.getPackageUid(any(), anyInt())).thenReturn(uid);

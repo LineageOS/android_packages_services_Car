@@ -2208,9 +2208,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             return;
         }
 
-        int displayId = getMainDisplayAssignedToUser(userId);
-        if (mCarOccupantZoneService.getDisplayIdForDriver(CarOccupantZoneManager.DISPLAY_TYPE_MAIN)
-                == displayId) {
+        if (userId == mCurrentUserFetcher.getCurrentUser()) {
             if (DBG) {
                 Slogf.d(TAG, "Disabling passenger home for driver user %d", userId);
             }

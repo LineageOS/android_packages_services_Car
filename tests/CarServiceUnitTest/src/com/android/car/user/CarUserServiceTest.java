@@ -492,6 +492,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         // Arrange.
         mockContextCreateContextAsUser(mMockContext, mMockUserContext, TEST_USER_ID);
         when(mMockUserContext.getSystemService(UserManager.class)).thenReturn(mMockedUserManager);
+        when(mMockUserContext.getPackageManager()).thenReturn(mPackageManager);
         mockUmIsUserVisible(mMockedUserManager, false);
         when(mMockedUserManager.isUserRunning(UserHandle.of(TEST_USER_ID))).thenReturn(false);
 
@@ -545,9 +546,8 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
     public void testOnUserVisible_sameHome_noComponentStateChange() throws Exception {
         ComponentName homeComponent = new ComponentName("com.android.car",
                 "com.android.car.TestHome");
-        when(mMockContext.getPackageManager()).thenReturn(mPackageManager);
         mockUmIsVisibleBackgroundUsersSupported(mMockedUserManager, true);
-        mockCarServiceHelperGetMainDisplayAssignedToUser(TEST_USER_ID, TEST_DISPLAY_ID);
+        mockCurrentUser(UserHandle.of(TEST_USER_ID + 1));
         when(mCarOccupantZoneService.getDisplayIdForDriver(anyInt())).thenReturn(
                 TEST_DISPLAY_ID + 1);
         CarUserService service = new TestCarUserServiceBuilder()
@@ -571,10 +571,9 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
                 "com.android.car.TestHome");
         ComponentName passengerHomeComponent = new ComponentName("com.android.car",
                 "com.android.car.TestHome2");
-        when(mMockContext.getPackageManager()).thenReturn(mPackageManager);
         mockUmIsVisibleBackgroundUsersSupported(mMockedUserManager, true);
         mockCarServiceHelperGetMainDisplayAssignedToUser(TEST_USER_ID, TEST_DISPLAY_ID);
-        when(mCarOccupantZoneService.getDisplayIdForDriver(anyInt())).thenReturn(TEST_DISPLAY_ID);
+        mockCurrentUser(UserHandle.of(TEST_USER_ID));
         CarUserService service =  new TestCarUserServiceBuilder()
                 .setDriverHomeComponent(driverHomeComponent.flattenToString())
                 .setPassengerHomeComponent(passengerHomeComponent.flattenToString())
@@ -598,11 +597,9 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
                 "com.android.car.TestHome");
         ComponentName passengerHomeComponent = new ComponentName("com.android.car",
                 "com.android.car.TestHome2");
-        when(mMockContext.getPackageManager()).thenReturn(mPackageManager);
         mockUmIsVisibleBackgroundUsersSupported(mMockedUserManager, true);
         mockCarServiceHelperGetMainDisplayAssignedToUser(TEST_USER_ID, TEST_DISPLAY_ID);
-        when(mCarOccupantZoneService.getDisplayIdForDriver(anyInt())).thenReturn(
-                TEST_DISPLAY_ID + 1);
+        mockCurrentUser(UserHandle.of(TEST_USER_ID + 1));
         CarUserService service = new TestCarUserServiceBuilder()
                 .setDriverHomeComponent(driverHomeComponent.flattenToString())
                 .setPassengerHomeComponent(passengerHomeComponent.flattenToString())
@@ -3041,7 +3038,6 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
     @Test
     public void testInitialUserInfoRequestType_FirstBoot() throws Exception {
         when(mInitialUserSetter.hasInitialUser()).thenReturn(false);
-        when(mMockContext.getPackageManager()).thenReturn(mPackageManager);
         when(mPackageManager.isDeviceUpgrading()).thenReturn(true);
 
         assertThat(mCarUserService.getInitialUserInfoRequestType())
@@ -3051,7 +3047,6 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
     @Test
     public void testInitialUserInfoRequestType_FirstBootAfterOTA() throws Exception {
         when(mInitialUserSetter.hasInitialUser()).thenReturn(true);
-        when(mMockContext.getPackageManager()).thenReturn(mPackageManager);
         when(mPackageManager.isDeviceUpgrading()).thenReturn(true);
 
         assertThat(mCarUserService.getInitialUserInfoRequestType())
@@ -3061,7 +3056,6 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
     @Test
     public void testInitialUserInfoRequestType_ColdBoot() throws Exception {
         when(mInitialUserSetter.hasInitialUser()).thenReturn(true);
-        when(mMockContext.getPackageManager()).thenReturn(mPackageManager);
         when(mPackageManager.isDeviceUpgrading()).thenReturn(false);
 
         assertThat(mCarUserService.getInitialUserInfoRequestType())
