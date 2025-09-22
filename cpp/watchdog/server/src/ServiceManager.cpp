@@ -68,12 +68,11 @@ Result<void> ServiceManager::startServices(const sp<Looper>& mainLooper) {
         !result.ok()) {
         return Error() << "Failed to initialize package name resolver: " << result.error();
     }
-    mIoOveruseMonitorWrapper =
-            sp<IoOveruseMonitorWrapper>::make(mWatchdogServiceHelper, packageInfoResolver);
-    mWatchdogBinderMediator = SharedRefBase::make<WatchdogBinderMediator>(mWatchdogProcessService,
-                                                                          mWatchdogPerfService,
-                                                                          mWatchdogServiceHelper,
-                                                                          mIoOveruseMonitorWrapper);
+    mIoOveruseMonitor = sp<IoOveruseMonitor>::make(mWatchdogServiceHelper, packageInfoResolver);
+    mWatchdogBinderMediator =
+            SharedRefBase::make<WatchdogBinderMediator>(mWatchdogProcessService,
+                                                        mWatchdogPerfService,
+                                                        mWatchdogServiceHelper, mIoOveruseMonitor);
     if (auto result = mWatchdogBinderMediator->init(); !result.ok()) {
         return Error(result.error().code())
                 << "Failed to initialize watchdog binder mediator: " << result.error();
@@ -102,7 +101,7 @@ void ServiceManager::terminateServices() {
         mPressureMonitor->terminate();
         mPressureMonitor.clear();
     }
-    mIoOveruseMonitorWrapper.clear();
+    mIoOveruseMonitor.clear();
     PackageInfoResolver::terminate();
 }
 

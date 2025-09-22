@@ -16,7 +16,7 @@
 
 #pragma once
 
-#include "IoOveruseMonitor.h"
+#include "IoOveruseMonitorBase.h"
 #include "WatchdogPerfServiceBase.h"
 #include "WatchdogServiceHelperBase.h"
 
@@ -62,9 +62,9 @@ public:
     WatchdogInternalHandlerBase(
             const android::sp<WatchdogServiceHelperBaseInterface>& watchdogServiceHelperBase,
             const android::sp<WatchdogPerfServiceBaseInterface>& watchdogPerfServiceBase,
-            const android::sp<IoOveruseMonitorInterface>& ioOveruseMonitor) :
+            const android::sp<IoOveruseMonitorBaseInterface>& ioOveruseMonitorBase) :
           mWatchdogServiceHelperBase(watchdogServiceHelperBase),
-          mIoOveruseMonitor(ioOveruseMonitor),
+          mIoOveruseMonitorBase(ioOveruseMonitorBase),
           mWatchdogPerfServiceBase(watchdogPerfServiceBase) {}
     ~WatchdogInternalHandlerBase() { terminate(); }
 
@@ -152,7 +152,7 @@ public:
     void terminate() override {
         mWatchdogServiceHelperBase.clear();
         mWatchdogPerfServiceBase.clear();
-        mIoOveruseMonitor.clear();
+        mIoOveruseMonitorBase.clear();
     }
 
 protected:
@@ -167,7 +167,7 @@ protected:
             const aidl::android::automotive::watchdog::internal::UserState& userState);
 
     android::sp<WatchdogServiceHelperBaseInterface> mWatchdogServiceHelperBase;
-    android::sp<IoOveruseMonitorInterface> mIoOveruseMonitor;
+    android::sp<IoOveruseMonitorBaseInterface> mIoOveruseMonitorBase;
 
 private:
     android::sp<WatchdogPerfServiceBaseInterface> mWatchdogPerfServiceBase;

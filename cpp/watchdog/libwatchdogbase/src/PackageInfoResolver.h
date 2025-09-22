@@ -43,7 +43,7 @@ namespace automotive {
 namespace watchdog {
 
 class ServiceManager;
-class IoOveruseMonitor;
+class IoOveruseMonitorBase;
 class IoOveruseConfigs;
 class IoServiceManager;
 
@@ -74,7 +74,7 @@ protected:
 
 private:
     friend class ServiceManager;
-    friend class IoOveruseMonitor;
+    friend class IoOveruseMonitorBase;
     friend class IoOveruseConfigs;
     friend class IoServiceManager;
 };

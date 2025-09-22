@@ -143,18 +143,18 @@ std::string WatchdogPerfServiceBase::EventMetadata::toString() const {
     return buffer;
 }
 
-Result<void> WatchdogPerfServiceBase::registerIoOveruseMonitor(
-        sp<IoOveruseMonitorInterface> ioOveruseMonitor) {
-    if (ioOveruseMonitor == nullptr) {
-        return Error() << "Must provide a non-null IoOveruseMonitor";
+Result<void> WatchdogPerfServiceBase::registerIoOveruseMonitorBase(
+        sp<IoOveruseMonitorBaseInterface> ioOveruseMonitorBase) {
+    if (ioOveruseMonitorBase == nullptr) {
+        return Error() << "Must provide a non-null IoOveruseMonitorBase";
     }
-    if (const auto result = ioOveruseMonitor->init(); !result.ok()) {
-        return Error() << "Failed to initialize IoOveruseMonitor";
+    if (const auto result = ioOveruseMonitorBase->init(); !result.ok()) {
+        return Error() << "Failed to initialize IoOveruseMonitorBase";
     }
     Mutex::Autolock lock(mMutex);
-    mIoOveruseMonitor = ioOveruseMonitor;
+    mIoOveruseMonitorBase = ioOveruseMonitorBase;
     if (DEBUG) {
-        ALOGD("Successfully registered IoOveruseMonitor to %s", kServiceName);
+        ALOGD("Successfully registered IoOveruseMonitorBase to %s", kServiceName);
     }
     return {};
 }
@@ -231,7 +231,7 @@ Result<void> WatchdogPerfServiceBase::start() {
 }
 
 bool WatchdogPerfServiceBase::isDataProcessorRegisteredLocked() {
-    return mIoOveruseMonitor != nullptr;
+    return mIoOveruseMonitorBase != nullptr;
 }
 
 void WatchdogPerfServiceBase::startFirstCollectionEventLocked() {
@@ -269,7 +269,7 @@ void WatchdogPerfServiceBase::terminate() {
 }
 
 void WatchdogPerfServiceBase::onDataProcessorTerminateLocked() {
-    mIoOveruseMonitor->terminate();
+    mIoOveruseMonitorBase->terminate();
 }
 
 void WatchdogPerfServiceBase::setSystemState(SystemState systemState) {
@@ -292,7 +292,7 @@ void WatchdogPerfServiceBase::onCarWatchdogServiceRegistered() {
 }
 
 void WatchdogPerfServiceBase::onDataProcessorCarWatchdogServiceRegisteredLocked() {
-    mIoOveruseMonitor->onCarWatchdogServiceRegistered();
+    mIoOveruseMonitorBase->onCarWatchdogServiceRegistered();
 }
 
 Result<void> WatchdogPerfServiceBase::onCustomCollection(int fd, const char** args,
@@ -620,17 +620,17 @@ Result<void> WatchdogPerfServiceBase::collectLocked(
     switch (mCurrCollectionEvent) {
         case EventType::PERIODIC_COLLECTION:
         case EventType::CUSTOM_COLLECTION:
-            result =
-                    mIoOveruseMonitor->onPeriodicCollection(now,
-                                                            mSystemState ==
-                                                                    SystemState::GARAGE_MODE,
-                                                            mUidStatsCollectorBase, &resourceStats);
+            result = mIoOveruseMonitorBase->onPeriodicCollection(now,
+                                                                 mSystemState ==
+                                                                         SystemState::GARAGE_MODE,
+                                                                 mUidStatsCollectorBase,
+                                                                 &resourceStats);
             break;
         default:
             result = Error() << "Invalid collection event " << toString(mCurrCollectionEvent);
     }
     if (!result.ok()) {
-        return Error() << "IoOveruseMonitor failed on " << toString(mCurrCollectionEvent)
+        return Error() << "IoOveruseMonitorBase failed on " << toString(mCurrCollectionEvent)
                        << " collection: " << result.error();
     }
 
@@ -727,10 +727,10 @@ Result<void> WatchdogPerfServiceBase::processMonitorEvent(
 
 Result<void> WatchdogPerfServiceBase::onDataProcessorPeriodicMonitorLocked(
         time_t now, const std::function<void()>& requestCollection, const char* eventTypeString) {
-    if (const auto result = mIoOveruseMonitor->onPeriodicMonitor(now, mProcDiskStatsCollector,
-                                                                 requestCollection);
+    if (const auto result = mIoOveruseMonitorBase->onPeriodicMonitor(now, mProcDiskStatsCollector,
+                                                                     requestCollection);
         !result.ok()) {
-        return Error() << "IoOveruseMonitor failed on " << eventTypeString << ": "
+        return Error() << "IoOveruseMonitorBase failed on " << eventTypeString << ": "
                        << result.error();
     }
     return {};

@@ -16,7 +16,7 @@
 
 #pragma once
 
-#include "IoOveruseMonitorWrapper.h"
+#include "IoOveruseMonitor.h"
 #include "PressureMonitor.h"
 #include "WatchdogBinderMediator.h"
 #include "WatchdogPerfService.h"
@@ -40,7 +40,7 @@ public:
           mWatchdogPerfService(nullptr),
           mWatchdogBinderMediator(nullptr),
           mWatchdogServiceHelper(nullptr),
-          mIoOveruseMonitorWrapper(nullptr),
+          mIoOveruseMonitor(nullptr),
           mPressureMonitor(nullptr) {}
 
     // Returns the singleton ServiceManager instance.
@@ -73,9 +73,9 @@ public:
         return mWatchdogServiceHelper;
     }
 
-    // Returns the IoOveruseMonitorWrapper instance.
-    const android::sp<IoOveruseMonitorWrapperInterface>& getIoOveruseMonitorWrapper() {
-        return mIoOveruseMonitorWrapper;
+    // Returns the IoOveruseMonitor instance.
+    const android::sp<IoOveruseMonitorInterface>& getIoOveruseMonitor() {
+        return mIoOveruseMonitor;
     }
 
 private:
@@ -94,7 +94,7 @@ private:
     android::sp<WatchdogPerfServiceInterface> mWatchdogPerfService;
     std::shared_ptr<WatchdogBinderMediatorInterface> mWatchdogBinderMediator;
     android::sp<WatchdogServiceHelperInterface> mWatchdogServiceHelper;
-    android::sp<IoOveruseMonitorWrapperInterface> mIoOveruseMonitorWrapper;
+    android::sp<IoOveruseMonitorInterface> mIoOveruseMonitor;
     android::sp<PressureMonitorInterface> mPressureMonitor;
 };
 

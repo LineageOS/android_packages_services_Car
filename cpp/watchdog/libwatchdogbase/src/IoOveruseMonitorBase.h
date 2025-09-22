@@ -60,7 +60,7 @@ class WatchdogPerfServiceBase;
 // Forward declaration for testing use only.
 namespace internal {
 
-class IoOveruseMonitorPeer;
+class IoOveruseMonitorBasePeer;
 
 }  // namespace internal
 
@@ -68,16 +68,15 @@ class IoOveruseMonitorPeer;
 std::tuple<int64_t, int64_t> calculateStartAndDuration(const time_point_millis& currentTime);
 
 /**
- * IoOveruseMonitorInterface interface defines the methods that the I/O overuse monitoring module
- * should implement.
+ * IoOveruseMonitorBaseInterface interface defines the methods that the I/O overuse monitoring
+ * module should implement.
  */
-// TODO(b/439660763): Rename IoOveruseMonitor to IoOveruseMonitorBase
-class IoOveruseMonitorInterface : virtual public RefBase {
+class IoOveruseMonitorBaseInterface : virtual public RefBase {
 public:
-    // Returns the name of IoOveruseMonitor.
+    // Returns the name of IoOveruseMonitorBase.
     virtual std::string name() const = 0;
 
-    // Callback to initialize IoOveruseMonitor.
+    // Callback to initialize IoOveruseMonitorBase.
     virtual android::base::Result<void> init() = 0;
 
     // Returns whether or not the monitor is initialized.
@@ -144,14 +143,14 @@ public:
     virtual android::base::Result<void> onDump(int fd) const = 0;
 };
 
-class IoOveruseMonitor : public IoOveruseMonitorInterface {
+class IoOveruseMonitorBase : public IoOveruseMonitorBaseInterface {
 public:
-    explicit IoOveruseMonitor(
+    explicit IoOveruseMonitorBase(
             const android::sp<WatchdogServiceHelperBaseInterface>& watchdogServiceHelperBase,
             const std::shared_ptr<PackageInfoResolverInterface>& packageInfoResolver,
             AIBinder_DeathRecipient* binderRecipient = nullptr);
 
-    ~IoOveruseMonitor() { terminate(); }
+    ~IoOveruseMonitorBase() { terminate(); }
 
     bool isInitialized() const override {
         std::shared_lock readLock(mRwMutex);
@@ -160,8 +159,8 @@ public:
 
     void onCarWatchdogServiceRegistered() override;
 
-    std::string name() const override { return "IoOveruseMonitor"; }
-    friend std::ostream& operator<<(std::ostream& os, const IoOveruseMonitor& monitor);
+    std::string name() const override { return "IoOveruseMonitorBase"; }
+    friend std::ostream& operator<<(std::ostream& os, const IoOveruseMonitorBase& monitor);
 
     android::base::Result<void> onPeriodicCollection(
             time_point_millis time, bool isGarageModeActive,
@@ -318,7 +317,7 @@ private:
     friend class WatchdogPerfServiceBase;
 
     // For unit tests.
-    friend class internal::IoOveruseMonitorPeer;
+    friend class internal::IoOveruseMonitorBasePeer;
 };
 
 }  // namespace watchdog

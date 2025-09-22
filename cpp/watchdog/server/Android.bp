@@ -47,7 +47,7 @@ cc_library {
         "libwatchdogbase_io_overuse_monitor_defaults",
     ],
     srcs: [
-        "src/IoOveruseMonitorWrapper.cpp",
+        "src/IoOveruseMonitor.cpp",
         "src/PerformanceProfiler.cpp",
         "src/PressureMonitor.cpp",
         "src/ProcStatCollector.cpp",

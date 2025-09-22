@@ -16,7 +16,7 @@
 
 #pragma once
 
-#include "IoOveruseMonitor.h"
+#include "IoOveruseMonitorBase.h"
 #include "LooperWrapper.h"
 #include "ProcDiskStatsCollector.h"
 #include "UidStatsCollectorBase.h"
@@ -135,9 +135,9 @@ enum TaskMessage {
  */
 class WatchdogPerfServiceBaseInterface : virtual public MessageHandler {
 public:
-    // Register IoOveruseMonitor to process the data collected by |WatchdogPerfServiceBase|.
-    virtual android::base::Result<void> registerIoOveruseMonitor(
-            android::sp<IoOveruseMonitorInterface> ioOveruseMonitor) = 0;
+    // Register IoOveruseMonitorBase to process the data collected by |WatchdogPerfServiceBase|.
+    virtual android::base::Result<void> registerIoOveruseMonitorBase(
+            android::sp<IoOveruseMonitorBaseInterface> ioOveruseMonitorBase) = 0;
     // Initialize collection intervals and I/O collectors.
     virtual void init() = 0;
     /**
@@ -181,10 +181,10 @@ public:
           mProcDiskStatsCollector(android::sp<ProcDiskStatsCollector>::make()),
           mWatchdogServiceHelperBase(watchdogServiceHelperBase),
           mUidStatsCollectorBase(android::sp<UidStatsCollectorBase>::make(packageInfoResolver)),
-          mIoOveruseMonitor({}) {}
+          mIoOveruseMonitorBase({}) {}
 
-    android::base::Result<void> registerIoOveruseMonitor(
-            android::sp<IoOveruseMonitorInterface> ioOveruseMonitor) override;
+    android::base::Result<void> registerIoOveruseMonitorBase(
+            android::sp<IoOveruseMonitorBaseInterface> ioOveruseMonitorBase) override;
 
     void init() override;
 
@@ -361,7 +361,7 @@ private:
     android::sp<UidStatsCollectorBaseInterface> mUidStatsCollectorBase GUARDED_BY(mMutex);
 
     // Data processor for flash memory data.
-    android::sp<IoOveruseMonitorInterface> mIoOveruseMonitor GUARDED_BY(mMutex);
+    android::sp<IoOveruseMonitorBaseInterface> mIoOveruseMonitorBase GUARDED_BY(mMutex);
 
     // For unit tests.
     friend class internal::WatchdogPerfServiceBasePeer;

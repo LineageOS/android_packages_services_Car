@@ -72,14 +72,14 @@ ScopedAStatus checkSystemUser(const std::string& methodName) {
 }  // namespace
 
 Result<void> WatchdogInternalHandlerBase::init() {
-    if (mWatchdogPerfServiceBase == nullptr || mIoOveruseMonitor == nullptr ||
+    if (mWatchdogPerfServiceBase == nullptr || mIoOveruseMonitorBase == nullptr ||
         mWatchdogServiceHelperBase == nullptr) {
         std::string serviceList;
         if (mWatchdogPerfServiceBase == nullptr) {
             StringAppendF(&serviceList, "%s%s", (!serviceList.empty() ? ", " : ""),
                           "Watchdog performance service");
         }
-        if (mIoOveruseMonitor == nullptr) {
+        if (mIoOveruseMonitorBase == nullptr) {
             StringAppendF(&serviceList, "%s%s", (!serviceList.empty() ? ", " : ""),
                           "I/O overuse monitor service");
         }
@@ -132,7 +132,7 @@ binder_status_t WatchdogInternalHandlerBase::dump(int fd, const char** args, uin
                          StringPrintf("Must provide valid package names: [%s]\n", value.c_str()));
             return BAD_VALUE;
         }
-        if (auto result = mIoOveruseMonitor->resetIoOveruseStats(packageNames); !result.ok()) {
+        if (auto result = mIoOveruseMonitorBase->resetIoOveruseStats(packageNames); !result.ok()) {
             ALOGW("Failed to reset stats for packages: [%s]", value.c_str());
             return FAILED_TRANSACTION;
         }
@@ -161,7 +161,7 @@ status_t WatchdogInternalHandlerBase::dumpServices(int fd) {
         ALOGW("Failed to dump car watchdog perf service: %s", result.error().message().c_str());
         return result.error().code();
     }
-    if (auto result = mIoOveruseMonitor->onDump(fd); !result.ok()) {
+    if (auto result = mIoOveruseMonitorBase->onDump(fd); !result.ok()) {
         ALOGW("Failed to dump I/O overuse monitor: %s", result.error().message().c_str());
         return result.error().code();
     }
@@ -178,7 +178,7 @@ status_t WatchdogInternalHandlerBase::dumpHelpText(const int fd, const std::stri
     }
     if (!WriteStringToFd(StringPrintf(kHelpTextBase, kHelpFlag, kHelpShortFlag), fd) ||
         !WriteStringToFd(StringPrintf("%s", kNoOptionsHelpText), fd) ||
-        !mWatchdogPerfServiceBase->dumpHelpText(fd) || !mIoOveruseMonitor->dumpHelpText(fd)) {
+        !mWatchdogPerfServiceBase->dumpHelpText(fd) || !mIoOveruseMonitorBase->dumpHelpText(fd)) {
         ALOGW("Failed to write help text to fd");
         return FAILED_TRANSACTION;
     }
@@ -191,10 +191,11 @@ void WatchdogInternalHandlerBase::checkAndRegisterIoOveruseMonitor() {
     // first time using this method. This check confirms the registration for the base
     // implementation and returns immediately. The registration logic in this method is intended for
     // the derived implementation.
-    if (mIoOveruseMonitor->isInitialized()) {
+    if (mIoOveruseMonitorBase->isInitialized()) {
         return;
     }
-    if (const auto result = mWatchdogPerfServiceBase->registerIoOveruseMonitor(mIoOveruseMonitor);
+    if (const auto result =
+                mWatchdogPerfServiceBase->registerIoOveruseMonitorBase(mIoOveruseMonitorBase);
         !result.ok()) {
         ALOGE("Failed to register I/O overuse monitor to watchdog performance service: %s",
               result.error().message().c_str());
@@ -268,7 +269,7 @@ ScopedAStatus WatchdogInternalHandlerBase::handleUserStateChange(userid_t userId
     switch (userState) {
         case UserState::USER_STATE_REMOVED:
             stateDesc = "removed";
-            mIoOveruseMonitor->removeStatsForUser(userId);
+            mIoOveruseMonitorBase->removeStatsForUser(userId);
             break;
         default:
             // UserState::USER_STATE_UNLOCKED is not sent by CarService to the daemon. If signal is
@@ -286,9 +287,9 @@ ScopedAStatus WatchdogInternalHandlerBase::updateResourceOveruseConfigurations(
         !status.isOk()) {
         return status;
     }
-    // Maybe retry registring I/O overuse monitor if failed to initialize previously.
+    // Maybe retry registering I/O overuse monitor if failed to initialize previously.
     checkAndRegisterIoOveruseMonitor();
-    if (auto result = mIoOveruseMonitor->updateResourceOveruseConfigurations(configs);
+    if (auto result = mIoOveruseMonitorBase->updateResourceOveruseConfigurations(configs);
         !result.ok()) {
         return toScopedAStatus(result);
     }
@@ -303,7 +304,8 @@ ScopedAStatus WatchdogInternalHandlerBase::getResourceOveruseConfigurations(
     }
     // Maybe retry registring I/O overuse monitor if failed to initialize previously.
     checkAndRegisterIoOveruseMonitor();
-    if (auto result = mIoOveruseMonitor->getResourceOveruseConfigurations(configs); !result.ok()) {
+    if (auto result = mIoOveruseMonitorBase->getResourceOveruseConfigurations(configs);
+        !result.ok()) {
         return toScopedAStatus(result);
     }
     return ScopedAStatus::ok();
@@ -315,7 +317,7 @@ ScopedAStatus WatchdogInternalHandlerBase::onTodayIoUsageStatsFetched(
         !status.isOk()) {
         return status;
     }
-    if (auto result = mIoOveruseMonitor->onTodayIoUsageStatsFetched(userPackageIoUsageStats);
+    if (auto result = mIoOveruseMonitorBase->onTodayIoUsageStatsFetched(userPackageIoUsageStats);
         !result.ok()) {
         return toScopedAStatus(result);
     }
