@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.android.car.watchdog;
+package android.car.watchdog;
 
 import static android.car.watchdog.CarWatchdogManager.FLAG_MINIMUM_STATS_IO_1_MB;
 import static android.car.watchdog.CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO;
@@ -21,14 +21,13 @@ import static android.car.watchdog.CarWatchdogManager.STATS_PERIOD_CURRENT_DAY;
 import static android.car.watchdog.CarWatchdogManager.TIMEOUT_CRITICAL;
 import static android.car.watchdog.ResourceOveruseConfiguration.COMPONENT_TYPE_SYSTEM;
 
-import static com.android.dx.mockito.inline.extended.ExtendedMockito.doAnswer;
-
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assume.assumeTrue;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -39,17 +38,6 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import android.car.Car;
-import android.car.watchdog.CarWatchdogManager;
-import android.car.watchdog.ICarWatchdogService;
-import android.car.watchdog.ICarWatchdogServiceCallback;
-import android.car.watchdog.IResourceOveruseListener;
-import android.car.watchdog.IoOveruseAlertThreshold;
-import android.car.watchdog.IoOveruseConfiguration;
-import android.car.watchdog.IoOveruseStats;
-import android.car.watchdog.PackageKillableState;
-import android.car.watchdog.PerStateBytes;
-import android.car.watchdog.ResourceOveruseConfiguration;
-import android.car.watchdog.ResourceOveruseStats;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.os.Build;
@@ -62,6 +50,8 @@ import android.os.UserHandle;
 import android.util.ArrayMap;
 
 import androidx.test.platform.app.InstrumentationRegistry;
+
+import com.android.car.watchdog.ResourceOveruseStatsSubject;
 
 import com.google.common.util.concurrent.SettableFuture;
 
@@ -703,8 +693,8 @@ public class CarWatchdogManagerUnitTest {
     public void testResourceOveruseConfigurationToStringAndDescribeContent() {
         ResourceOveruseConfiguration resourceOveruseConfiguration =
                 new ResourceOveruseConfiguration.Builder(
-                    ResourceOveruseConfiguration.COMPONENT_TYPE_SYSTEM, new ArrayList<>(),
-                    new ArrayList<>(), new HashMap<>())
+                        ResourceOveruseConfiguration.COMPONENT_TYPE_SYSTEM, new ArrayList<>(),
+                        new ArrayList<>(), new HashMap<>())
                 .addPackagesToAppCategoryTypes("key", "value")
                 .addSafeToKillPackages("safeToKillApp")
                 .addVendorPackagePrefixes("vendorPackagePrefix")

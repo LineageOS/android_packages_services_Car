@@ -102,6 +102,22 @@ java_defaults {
     ],
 }
 
+java_library_static {
+    name: "CarWatchdogUnitTestLib",
+    srcs: [
+        "src/com/android/car/watchdog/IoOveruseStatsSubject.java",
+        "src/com/android/car/watchdog/PerStateBytesSubject.java",
+        "src/com/android/car/watchdog/ResourceOveruseStatsSubject.java",
+    ],
+    libs: [
+        "android.car",
+    ],
+    static_libs: [
+        "platform-test-annotations",
+        "truth",
+    ],
+}
+
 android_test {
     name: "CarServiceCarUnitTest",
     team: "trendy_team_aaos_framework",
