@@ -48,13 +48,11 @@ public final class DisplayHelper {
      */
     public static int getPhysicalPort(Display display) {
         DisplayAddress address = display.getAddress();
-        if (address instanceof DisplayAddress.Physical) {
-            DisplayAddress.Physical physicalAddress = (DisplayAddress.Physical) address;
-            if (physicalAddress != null) {
-                return physicalAddress.getPort();
-            }
+        if (address != null) {
+            return address.getPort();
+        } else {
+            return INVALID_PORT;
         }
-        return INVALID_PORT;
     }
 
     /**

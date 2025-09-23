@@ -896,7 +896,7 @@ public final class ScreenOffHandlerUnitTest extends AbstractExtendedMockitoTestC
 
     private Display createMockDisplay(int displayId, int displayPort) {
         Display display = mock(Display.class);
-        DisplayAddress.Physical displayAddress = mock(DisplayAddress.Physical.class);
+        DisplayAddress.StablePhysical displayAddress = mock(DisplayAddress.StablePhysical.class);
         when(displayAddress.getPort()).thenReturn(displayPort);
         when(display.getDisplayId()).thenReturn(displayId);
         when(display.getAddress()).thenReturn(displayAddress);
@@ -974,7 +974,8 @@ public final class ScreenOffHandlerUnitTest extends AbstractExtendedMockitoTestC
         }
 
         private int getDisplayPort(Display display) {
-            DisplayAddress.Physical address = (DisplayAddress.Physical) display.getAddress();
+            DisplayAddress.StablePhysical address =
+                    (DisplayAddress.StablePhysical) display.getAddress();
             return address.getPort();
         }
     }
