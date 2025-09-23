@@ -2,9 +2,6 @@
   "auto-presubmit": [
     {
       "name": "CarServiceGarageModeUnitTest"
-    },
-    {
-      "name": "CarServiceGarageModeTest"
     }
   ]
 }

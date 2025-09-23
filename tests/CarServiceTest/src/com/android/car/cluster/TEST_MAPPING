@@ -1,9 +1,6 @@
 {
   "auto-presubmit": [
     {
-      "name": "CarServiceClusterUnitTest"
-    },
-    {
       "name": "CarServiceClusterTest"
     }
   ]

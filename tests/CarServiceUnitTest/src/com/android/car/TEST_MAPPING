@@ -1,0 +1,10 @@
+{
+  "auto-presubmit": [
+    {
+      "name": "CarServiceCarUnitTest",
+      "file_patterns": [
+        "[^/]+\\.java"
+      ]
+    }
+  ]
+}
