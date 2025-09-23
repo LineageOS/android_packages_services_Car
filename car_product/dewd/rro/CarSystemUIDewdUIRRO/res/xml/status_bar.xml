@@ -24,7 +24,7 @@
         <Visibility isVisible="false"/>
     </Variant>
     <Transitions>
-        <Transition onEvent="_System_Show_Status_Bars" toVariant="@id/open"/>
-        <Transition onEvent="_System_Hide_Status_Bars" toVariant="@id/closed"/>
+        <Transition onEvent="_System_Show_Panel" onEventTokens="panelId=status" toVariant="@id/open"/>
+        <Transition onEvent="_System_Hide_Panel" onEventTokens="panelId=status" toVariant="@id/closed"/>
     </Transitions>
 </SystemBar>
