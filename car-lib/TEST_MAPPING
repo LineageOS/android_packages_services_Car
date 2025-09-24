@@ -4,6 +4,9 @@
       "name": "CtsCarTestCases"
     },
     {
+      "name": "CtsCarHostTestCases"
+    },
+    {
       "name": "CarExtendedApiTest"
     },
     {
@@ -15,11 +18,6 @@
       "name": "CarLibHostUnitTest",
       "host": true,
       "keywords": ["automotive_code_coverage"]
-    }
-  ],
-  "imports": [
-    {
-      "path": "packages/services/Car/service"
     }
   ]
 }

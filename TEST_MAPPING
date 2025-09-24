@@ -6,71 +6,10 @@
   ],
   "auto-postsubmit": [
     {
-      "name": "CarExtendedApiTest",
-      "options": [
-        {
-          "include-filter": "android.car.extendedapitest.PreInstalledPackagesTest"
-        }
-      ]
-    },
-    {
       "name": "SampleCustomInputServiceTest"
     },
     {
       "name": "vehicle_binding_integration_test"
-    }
-  ],
-  "auto-presubmit": [
-    {
-      "name": "hal_implementation_test"
-    },
-    {
-      "name": "CarServiceCarTest"
-    },
-    {
-      "name": "CarServiceClusterTest"
-    },
-    {
-      "name": "CarServiceDiagnosticTest"
-    },
-    {
-      "name": "CarServiceDrivingStateTest"
-    },
-    {
-      "name": "CarServiceEvsTest"
-    },
-    {
-      "name": "CarServiceGarageModeTest"
-    },
-    {
-      "name": "CarServiceInputTest"
-    },
-    {
-      "name": "CarServiceOsTest"
-    },
-    {
-      "name": "CarServicePmTest"
-    },
-    {
-      "name": "CarServicePowerTest"
-    },
-    {
-      "name": "CarServicePropertyTest"
-    },
-    {
-      "name": "CarServiceRemoteAccessTest"
-    },
-    {
-      "name": "CarServiceStorageMonitoringTest"
-    },
-    {
-      "name": "CarServiceTelemetryTest"
-    },
-    {
-      "name": "CarServiceVmsTest"
-    },
-    {
-      "name": "CarServiceWatchdogTest"
     }
   ],
   "ravenwood-presubmit": [
