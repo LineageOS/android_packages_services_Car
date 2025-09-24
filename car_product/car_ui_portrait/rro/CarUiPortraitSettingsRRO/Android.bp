@@ -24,7 +24,6 @@ runtime_resource_overlay {
         "--no-resource-removal",
     ],
     static_libs: [
-        "car-portrait-ui-common",
         "car-ui-lib",
     ],
 }
