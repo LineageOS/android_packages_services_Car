@@ -43,6 +43,7 @@ import android.util.SparseIntArray;
 
 import com.android.car.internal.util.AnnotationValidations;
 import com.android.car.internal.util.DataClass;
+import com.android.internal.annotations.VisibleForTesting;
 
 import java.util.StringJoiner;
 
@@ -352,15 +353,15 @@ public final class CarPropertyErrorCodes implements Parcelable {
      * @throws IllegalArgumentException if an invalid status code is passed in.
      * @hide
      */
-    private static @PropertyNotAvailableErrorCodeInt int
+    @VisibleForTesting
+    public static @PropertyNotAvailableErrorCodeInt int
             getPropertyNotAvailableErrorCodeFromStatusCode(int statusCode) {
-        Integer propertyNotAvailableErrorCode =
-                PROP_NOT_AVAILABLE_ERROR_CODE_BY_STATUS.get(statusCode);
-        if (propertyNotAvailableErrorCode == null) {
+        int errorCodeIndex = PROP_NOT_AVAILABLE_ERROR_CODE_BY_STATUS.indexOfKey(statusCode);
+        if (errorCodeIndex < 0) {
             throw new IllegalArgumentException(
                     "Not an not_available error status code: " + statusCode);
         }
-        return propertyNotAvailableErrorCode;
+        return PROP_NOT_AVAILABLE_ERROR_CODE_BY_STATUS.valueAt(errorCodeIndex);
     }
 
     /**
@@ -480,10 +481,10 @@ public final class CarPropertyErrorCodes implements Parcelable {
     };
 
     @DataClass.Generated(
-            time = 1758778046430L,
+            time = 1758832252152L,
             codegenVersion = "1.0.23",
             sourceFile = "packages/services/Car/car-lib/src/com/android/car/internal/property/CarPropertyErrorCodes.java",
-            inputSignatures = "private static final  java.lang.String TAG\nprivate static final  android.util.SparseIntArray DETAILED_ERROR_CODE_BY_STATUS\nprivate static final  android.util.SparseIntArray PROP_NOT_AVAILABLE_ERROR_CODE_BY_STATUS\npublic static final  int STATUS_OK\npublic static final  int STATUS_TRY_AGAIN\nprivate static final  int SYSTEM_ERROR_CODE_MASK\nprivate static final  int VENDOR_ERROR_CODE_SHIFT\npublic static  com.android.car.internal.property.CarPropertyErrorCodes STATUS_OK_NO_ERROR\npublic static  com.android.car.internal.property.CarPropertyErrorCodes ERROR_CODES_NOT_AVAILABLE\npublic static  com.android.car.internal.property.CarPropertyErrorCodes ERROR_CODES_TRY_AGAIN\npublic static  com.android.car.internal.property.CarPropertyErrorCodes ERROR_CODES_INTERNAL\npublic static  com.android.car.internal.property.CarPropertyErrorCodes ERROR_CODES_TIMEOUT\nprivate @com.android.car.internal.property.CarPropertyErrorCodes.CarPropMgrErrorCode int mCarPropertyManagerErrorCode\nprivate  int mVendorErrorCode\nprivate  int mSystemErrorCode\npublic static  com.android.car.internal.property.CarPropertyErrorCodes createFromVhalStatusCode(int)\npublic  com.android.car.internal.property.CarPropertyErrorCodes cloneWithAppTargetSdk(int)\npublic  boolean isOkay()\npublic  boolean isTryAgain()\npublic  int getVendorErrorCode()\npublic @android.car.hardware.property.VehicleHalStatusCode.VehicleHalStatusCodeInt int getSystemErrorCode()\npublic @android.car.hardware.property.CarPropertyManager.CarPropertyAsyncErrorCode int toCarPropertyAsyncErrorCode()\npublic @android.annotation.FlaggedApi @android.car.hardware.property.DetailedErrorCode.DetailedErrorCodeInt int toDetailedErrorCode()\npublic  void checkAndMaybeThrowException(int,int)\npublic static  boolean isNotAvailableVehicleHalStatusCode(int)\nprivate static @android.car.hardware.property.PropertyNotAvailableErrorCode.PropertyNotAvailableErrorCodeInt int getPropertyNotAvailableErrorCodeFromStatusCode(int)\npublic static @android.annotation.SuppressLint @android.car.hardware.property.VehicleHalStatusCode.VehicleHalStatusCodeInt int getVhalSystemErrorCode(int)\npublic static  int getVhalVendorErrorCode(int)\npublic @java.lang.Override java.lang.String toString()\npublic static @android.annotation.NonNull java.lang.String carPropertyErrorCodestoString(com.android.car.internal.property.CarPropertyErrorCodes)\nclass CarPropertyErrorCodes extends java.lang.Object implements [android.os.Parcelable]\n@com.android.car.internal.util.DataClass(genConstructor=false, genSetters=false, genGetters=false)")
+            inputSignatures = "private static final  java.lang.String TAG\nprivate static final  android.util.SparseIntArray DETAILED_ERROR_CODE_BY_STATUS\nprivate static final  android.util.SparseIntArray PROP_NOT_AVAILABLE_ERROR_CODE_BY_STATUS\npublic static final  int STATUS_OK\npublic static final  int STATUS_TRY_AGAIN\nprivate static final  int SYSTEM_ERROR_CODE_MASK\nprivate static final  int VENDOR_ERROR_CODE_SHIFT\npublic static  com.android.car.internal.property.CarPropertyErrorCodes STATUS_OK_NO_ERROR\npublic static  com.android.car.internal.property.CarPropertyErrorCodes ERROR_CODES_NOT_AVAILABLE\npublic static  com.android.car.internal.property.CarPropertyErrorCodes ERROR_CODES_TRY_AGAIN\npublic static  com.android.car.internal.property.CarPropertyErrorCodes ERROR_CODES_INTERNAL\npublic static  com.android.car.internal.property.CarPropertyErrorCodes ERROR_CODES_TIMEOUT\nprivate @com.android.car.internal.property.CarPropertyErrorCodes.CarPropMgrErrorCode int mCarPropertyManagerErrorCode\nprivate  int mVendorErrorCode\nprivate  int mSystemErrorCode\npublic static  com.android.car.internal.property.CarPropertyErrorCodes createFromVhalStatusCode(int)\npublic  com.android.car.internal.property.CarPropertyErrorCodes cloneWithAppTargetSdk(int)\npublic  boolean isOkay()\npublic  boolean isTryAgain()\npublic  int getVendorErrorCode()\npublic @android.car.hardware.property.VehicleHalStatusCode.VehicleHalStatusCodeInt int getSystemErrorCode()\npublic @android.car.hardware.property.CarPropertyManager.CarPropertyAsyncErrorCode int toCarPropertyAsyncErrorCode()\npublic @android.annotation.FlaggedApi @android.car.hardware.property.DetailedErrorCode.DetailedErrorCodeInt int toDetailedErrorCode()\npublic  void checkAndMaybeThrowException(int,int)\npublic static  boolean isNotAvailableVehicleHalStatusCode(int)\npublic static @com.android.internal.annotations.VisibleForTesting @android.car.hardware.property.PropertyNotAvailableErrorCode.PropertyNotAvailableErrorCodeInt int getPropertyNotAvailableErrorCodeFromStatusCode(int)\npublic static @android.annotation.SuppressLint @android.car.hardware.property.VehicleHalStatusCode.VehicleHalStatusCodeInt int getVhalSystemErrorCode(int)\npublic static  int getVhalVendorErrorCode(int)\npublic @java.lang.Override java.lang.String toString()\npublic static @android.annotation.NonNull java.lang.String carPropertyErrorCodestoString(com.android.car.internal.property.CarPropertyErrorCodes)\nclass CarPropertyErrorCodes extends java.lang.Object implements [android.os.Parcelable]\n@com.android.car.internal.util.DataClass(genConstructor=false, genSetters=false, genGetters=false)")
     @Deprecated
     private void __metadata() {}
 

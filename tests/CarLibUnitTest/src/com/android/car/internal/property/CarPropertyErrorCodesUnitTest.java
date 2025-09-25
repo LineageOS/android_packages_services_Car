@@ -261,4 +261,46 @@ public final class CarPropertyErrorCodesUnitTest extends AbstractExpectableTestC
                         /* propertyId= */ 0, /* areaId= */ 0));
         assertThat(exception.getVendorErrorCode()).isEqualTo(0);
     }
+
+    @Test
+    public void
+            testGetPropertyNotAvailableErrorCodeFromStatusCode_invalidStatusCode_throwsException() {
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> {
+                    CarPropertyErrorCodes.getPropertyNotAvailableErrorCodeFromStatusCode(-1);
+                });
+    }
+
+    @Test
+    public void testGetPropertyNotAvailableErrorCodeFromStatusCode_validStatusCode() {
+        expectThat(
+                        CarPropertyErrorCodes.getPropertyNotAvailableErrorCodeFromStatusCode(
+                                VehicleHalStatusCode.STATUS_NOT_AVAILABLE))
+                .isEqualTo(PropertyNotAvailableErrorCode.NOT_AVAILABLE);
+        expectThat(
+                        CarPropertyErrorCodes.getPropertyNotAvailableErrorCodeFromStatusCode(
+                                VehicleHalStatusCode.STATUS_NOT_AVAILABLE_DISABLED))
+                .isEqualTo(PropertyNotAvailableErrorCode.NOT_AVAILABLE_DISABLED);
+        expectThat(
+                        CarPropertyErrorCodes.getPropertyNotAvailableErrorCodeFromStatusCode(
+                                VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SPEED_LOW))
+                .isEqualTo(PropertyNotAvailableErrorCode.NOT_AVAILABLE_SPEED_LOW);
+        expectThat(
+                        CarPropertyErrorCodes.getPropertyNotAvailableErrorCodeFromStatusCode(
+                                VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SPEED_HIGH))
+                .isEqualTo(PropertyNotAvailableErrorCode.NOT_AVAILABLE_SPEED_HIGH);
+        expectThat(
+                        CarPropertyErrorCodes.getPropertyNotAvailableErrorCodeFromStatusCode(
+                                VehicleHalStatusCode.STATUS_NOT_AVAILABLE_POOR_VISIBILITY))
+                .isEqualTo(PropertyNotAvailableErrorCode.NOT_AVAILABLE_POOR_VISIBILITY);
+        expectThat(
+                        CarPropertyErrorCodes.getPropertyNotAvailableErrorCodeFromStatusCode(
+                                VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SAFETY))
+                .isEqualTo(PropertyNotAvailableErrorCode.NOT_AVAILABLE_SAFETY);
+        expectThat(
+                        CarPropertyErrorCodes.getPropertyNotAvailableErrorCodeFromStatusCode(
+                                VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED))
+                .isEqualTo(PropertyNotAvailableErrorCode.NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED);
+    }
 }
