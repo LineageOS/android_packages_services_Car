@@ -97,7 +97,8 @@ class IoOveruseMonitorWrapper final :
       public IoOveruseMonitor {
 public:
     explicit IoOveruseMonitorWrapper(
-            const android::sp<WatchdogServiceHelperBaseInterface>& watchdogServiceHelperBase);
+            const android::sp<WatchdogServiceHelperBaseInterface>& watchdogServiceHelperBase,
+            std::shared_ptr<PackageInfoResolverInterface> packageInfoResolver);
 
     virtual ~IoOveruseMonitorWrapper();
 

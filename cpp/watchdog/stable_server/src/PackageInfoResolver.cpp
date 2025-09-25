@@ -107,13 +107,15 @@ std::shared_ptr<PackageInfoResolverInterface> PackageInfoResolver::getInstance()
 }
 
 void PackageInfoResolver::terminate() {
-    sInstance->mShouldTerminateLooper.store(true);
-    sInstance->mHandlerLooper->removeMessages(sInstance->mMessageHandler);
-    sInstance->mHandlerLooper->wake();
-    if (sInstance->mHandlerThread.joinable()) {
-        sInstance->mHandlerThread.join();
+    if (sInstance != nullptr) {
+        sInstance->mShouldTerminateLooper.store(true);
+        sInstance->mHandlerLooper->removeMessages(sInstance->mMessageHandler);
+        sInstance->mHandlerLooper->wake();
+        if (sInstance->mHandlerThread.joinable()) {
+            sInstance->mHandlerThread.join();
+        }
+        sInstance.reset();
     }
-    sInstance.reset();
 }
 
 Result<void> PackageInfoResolver::initWatchdogServiceHelper(

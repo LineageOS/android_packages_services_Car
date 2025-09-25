@@ -245,7 +245,7 @@ protected:
         mMockProcDiskStatsCollector = sp<NiceMock<MockProcDiskStatsCollector>>::make();
         mMockProcStatCollector = sp<NiceMock<MockProcStatCollector>>::make();
         mService = sp<WatchdogPerfService>::
-                make(mMockWatchdogServiceHelper,
+                make(mMockWatchdogServiceHelper, nullptr,
                      std::bind(&WatchdogPerfServiceTest::incrementAndGetElapsedRealtimeSinceBootMs,
                                this));
         mServicePeer = sp<internal::WatchdogPerfServicePeer>::make(mService);

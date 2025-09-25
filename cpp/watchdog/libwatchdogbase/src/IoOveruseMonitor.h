@@ -148,6 +148,7 @@ class IoOveruseMonitor : public IoOveruseMonitorInterface {
 public:
     explicit IoOveruseMonitor(
             const android::sp<WatchdogServiceHelperBaseInterface>& watchdogServiceHelperBase,
+            std::shared_ptr<PackageInfoResolverInterface> packageInfoResolver,
             AIBinder_DeathRecipient* binderRecipient = nullptr);
 
     ~IoOveruseMonitor() { terminate(); }

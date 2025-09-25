@@ -67,8 +67,9 @@ public:
 
 class UidStatsCollectorBase : public UidStatsCollectorBaseInterface {
 public:
-    UidStatsCollectorBase() :
-          mPackageInfoResolver(PackageInfoResolver::getInstance()),
+    explicit UidStatsCollectorBase(
+            std::shared_ptr<PackageInfoResolverInterface> packageInfoResolver) :
+          mPackageInfoResolver(packageInfoResolver),
           mUidIoStatsCollector(android::sp<UidIoStatsCollector>::make()) {}
 
     void init() override {

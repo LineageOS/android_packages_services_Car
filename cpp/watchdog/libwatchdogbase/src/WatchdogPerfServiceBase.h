@@ -168,7 +168,8 @@ public:
 class WatchdogPerfServiceBase : public WatchdogPerfServiceBaseInterface {
 public:
     WatchdogPerfServiceBase(
-            const android::sp<WatchdogServiceHelperBaseInterface>& watchdogServiceHelperBase) :
+            const android::sp<WatchdogServiceHelperBaseInterface>& watchdogServiceHelperBase,
+            std::shared_ptr<PackageInfoResolverInterface> packageInfoResolver) :
           mHandlerLooper(android::sp<LooperWrapper>::make()),
           mSystemState(NORMAL_MODE),
           mUnsentResourceStats({}),
@@ -178,7 +179,7 @@ public:
           mCurrCollectionEvent(EventType::INIT),
           mProcDiskStatsCollector(android::sp<ProcDiskStatsCollector>::make()),
           mWatchdogServiceHelperBase(watchdogServiceHelperBase),
-          mUidStatsCollectorBase(android::sp<UidStatsCollectorBase>::make()),
+          mUidStatsCollectorBase(android::sp<UidStatsCollectorBase>::make(packageInfoResolver)),
           mIoOveruseMonitor({}) {}
 
     android::base::Result<void> registerIoOveruseMonitor(

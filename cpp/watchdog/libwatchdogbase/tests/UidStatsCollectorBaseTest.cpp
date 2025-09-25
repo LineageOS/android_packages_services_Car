@@ -57,11 +57,6 @@ public:
           mCollectorBase(collector) {}
     ~UidStatsCollectorBasePeer() { mCollectorBase.clear(); }
 
-    void setPackageInfoResolver(
-            const std::shared_ptr<PackageInfoResolverInterface>& packageInfoResolver) {
-        mCollectorBase->mPackageInfoResolver = packageInfoResolver;
-    }
-
     void setUidIoStatsCollector(const sp<UidIoStatsCollectorInterface>& uidIoStatsCollector) {
         mCollectorBase->mUidIoStatsCollector = uidIoStatsCollector;
     }
@@ -75,12 +70,11 @@ private:
 class UidStatsCollectorBaseTest : public ::testing::Test {
 protected:
     virtual void SetUp() {
-        mUidStatsCollectorBase = sp<UidStatsCollectorBase>::make();
+        mMockPackageInfoResolver = std::make_shared<MockPackageInfoResolver>();
+        mUidStatsCollectorBase = sp<UidStatsCollectorBase>::make(mMockPackageInfoResolver);
         mUidStatsCollectorBasePeer =
                 sp<internal::UidStatsCollectorBasePeer>::make(mUidStatsCollectorBase);
-        mMockPackageInfoResolver = std::make_shared<MockPackageInfoResolver>();
         mMockUidIoStatsCollector = sp<MockUidIoStatsCollector>::make();
-        mUidStatsCollectorBasePeer->setPackageInfoResolver(mMockPackageInfoResolver);
         mUidStatsCollectorBasePeer->setUidIoStatsCollector(mMockUidIoStatsCollector);
     }
 

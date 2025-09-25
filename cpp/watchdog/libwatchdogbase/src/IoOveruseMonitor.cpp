@@ -173,7 +173,9 @@ std::tuple<int64_t, int64_t> calculateStartAndDuration(const time_point_millis& 
 
 IoOveruseMonitor::IoOveruseMonitor(
         const android::sp<WatchdogServiceHelperBaseInterface>& watchdogServiceHelperBase,
+        std::shared_ptr<PackageInfoResolverInterface> packageInfoResolver,
         AIBinder_DeathRecipient* binderRecipient) :
+      mPackageInfoResolver(packageInfoResolver),
       mMinSyncWrittenBytes(kMinSyncWrittenBytes),
       mWatchdogServiceHelperBase(watchdogServiceHelperBase),
       mDeathRegistrationWrapper(sp<AIBinderDeathRegistrationWrapper>::make()),
@@ -209,7 +211,6 @@ Result<void> IoOveruseMonitor::init() {
     mIoOveruseWarnPercentage = static_cast<double>(
             sysprop::ioOveruseWarnPercentage().value_or(kDefaultIoOveruseWarnPercentage));
     mIoOveruseConfigs = sp<IoOveruseConfigs>::make();
-    mPackageInfoResolver = PackageInfoResolver::getInstance();
     mPackageInfoResolver->setPackageConfigurations(mIoOveruseConfigs->vendorPackagePrefixes(),
                                                    mIoOveruseConfigs->packagesToAppCategories());
     if (DEBUG) {
