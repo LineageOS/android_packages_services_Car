@@ -46,18 +46,6 @@ using ::ndk::ScopedAStatus;
 
 namespace {
 
-constexpr const char* kDumpAllFlag = "-a";
-constexpr const char* kHelpFlag = "--help";
-constexpr const char* kHelpShortFlag = "-h";
-constexpr const char* kDumpProtoFlag = "--proto";
-// TODO(b/439033569): Update help text to mention arguments supported by carwatchdog and to remove
-// kDumpProtoFlag from base help text
-constexpr const char* kHelpText =
-        "Car watchdog daemon dumpsys help page:\n"
-        "Format: dumpsys android.automotive.watchdog.ICarWatchdog/default [options]\n\n"
-        "%s or %s: Displays this help text.\n"
-        "When no options are specified, car watchdog report is generated.\n";
-
 ScopedAStatus toScopedAStatus(int32_t exceptionCode, const std::string& message) {
     ALOGW("%s", message.c_str());
     return ScopedAStatus::fromExceptionCodeWithMessage(exceptionCode, message.c_str());
@@ -184,7 +172,8 @@ status_t WatchdogInternalHandlerBase::dumpHelpText(const int fd, const std::stri
             return FAILED_TRANSACTION;
         }
     }
-    if (!WriteStringToFd(StringPrintf(kHelpText, kHelpFlag, kHelpShortFlag), fd) ||
+    if (!WriteStringToFd(StringPrintf(kHelpTextBase, kHelpFlag, kHelpShortFlag), fd) ||
+        !WriteStringToFd(StringPrintf("%s", kNoOptionsHelpText), fd) ||
         !mWatchdogPerfServiceBase->dumpHelpText(fd) || !mIoOveruseMonitor->dumpHelpText(fd)) {
         ALOGW("Failed to write help text to fd");
         return FAILED_TRANSACTION;

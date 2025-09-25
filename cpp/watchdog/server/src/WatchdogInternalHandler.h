@@ -146,9 +146,7 @@ private:
         return WatchdogInternalHandlerBase::dumpServices(fd);
     };
     status_t dumpProto(int fd) override;
-    status_t dumpHelpText(const int fd, const std::string& errorMsg) override {
-        return WatchdogInternalHandlerBase::dumpHelpText(fd, errorMsg);
-    };
+    status_t dumpHelpText(const int fd, const std::string& errorMsg) override;
     void checkAndRegisterIoOveruseMonitor() override;
     ndk::ScopedAStatus handlePowerCycleChange(
             aidl::android::automotive::watchdog::internal::PowerCycle powerCycle);

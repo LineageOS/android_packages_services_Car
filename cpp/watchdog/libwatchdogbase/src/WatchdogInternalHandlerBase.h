@@ -39,6 +39,16 @@ namespace watchdog {
 
 constexpr const char* kNullCarWatchdogServiceError =
         "Must provide a non-null car watchdog service instance";
+constexpr const char* kDumpAllFlag = "-a";
+constexpr const char* kHelpFlag = "--help";
+constexpr const char* kHelpShortFlag = "-h";
+constexpr const char* kDumpProtoFlag = "--proto";
+constexpr const char* kHelpTextBase =
+        "Car watchdog daemon dumpsys help page:\n"
+        "Format: dumpsys android.automotive.watchdog.ICarWatchdog/default [options]\n\n"
+        "%s or %s: Displays this help text.\n";
+constexpr const char* kNoOptionsHelpText =
+        "When no options are specified, car watchdog report is generated as text.\n";
 
 class WatchdogInternalHandlerInterface :
       public aidl::android::automotive::watchdog::internal::BnCarWatchdog {

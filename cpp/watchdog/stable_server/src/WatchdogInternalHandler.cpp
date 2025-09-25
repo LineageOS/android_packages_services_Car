@@ -67,7 +67,8 @@ constexpr const char* kHelpText =
         "Car watchdog daemon dumpsys help page:\n"
         "Format: dumpsys android.automotive.watchdog.ICarWatchdog/default [options]\n\n"
         "%s or %s: Displays this help text.\n"
-        "When no options are specified, car watchdog report is generated.\n";
+        "%s: Generates car watchdog report in proto format.\n"
+        "When no options are specified, car watchdog report is generated as text.\n";
 constexpr const char* kNullCarWatchdogServiceError =
         "Must provide a non-null car watchdog service instance";
 constexpr const char* kNullCarWatchdogMonitorError =
@@ -212,7 +213,7 @@ status_t WatchdogInternalHandler::dumpHelpText(const int fd, const std::string& 
             return FAILED_TRANSACTION;
         }
     }
-    if (!WriteStringToFd(StringPrintf(kHelpText, kHelpFlag, kHelpShortFlag), fd) ||
+    if (!WriteStringToFd(StringPrintf(kHelpText, kHelpFlag, kHelpShortFlag, kDumpProtoFlag), fd) ||
         !mWatchdogPerfService->dumpHelpText(fd) || !mIoOveruseMonitor->dumpHelpText(fd)) {
         ALOGW("Failed to write help text to fd");
         return FAILED_TRANSACTION;
