@@ -916,7 +916,8 @@ public class CarPropertyManager extends CarManagerBase {
                 }
                 Executor callbackExecutor = requestInfo.getCallbackExecutor();
                 CallbackType clientCallback = requestInfo.getCallback();
-                var errorCodes = result.getCarPropertyErrorCodes();
+                var errorCodes =
+                        result.getCarPropertyErrorCodes().cloneWithAppTargetSdk(mAppTargetSdk);
                 int propertyId = requestInfo.getRequest().getPropertyId();
                 String propertyName = VehiclePropertyIds.toString(propertyId);
                 int areaId = requestInfo.getRequest().getAreaId();
@@ -3139,6 +3140,7 @@ public class CarPropertyManager extends CarManagerBase {
         // The e.errorCode here is not 0. This always throws a CarInternalErrorException or
         // PropertyNotAvailableException.
         CarPropertyErrorCodes.createFromVhalStatusCode(e.errorCode)
+                .cloneWithAppTargetSdk(mAppTargetSdk)
                 .checkAndMaybeThrowException(propertyId, areaId);
     }
 

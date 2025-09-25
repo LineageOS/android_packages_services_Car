@@ -849,6 +849,78 @@ public final class CarPropertyManagerUnitTest extends AbstractExpectableTestCase
     }
 
     @Test
+    @EnableFlags(FLAG_CAR_PROPERTY_STATUS_DETAILED_NOT_AVAILABLE)
+    public void testGetProperty_notAvailableSubsystemNotConnectedBeforeU() throws Exception {
+        setAppTargetSdk(Build.VERSION_CODES.TIRAMISU);
+        when(mICarProperty.getProperty(HVAC_TEMPERATURE_SET, 0))
+                .thenThrow(
+                        new ServiceSpecificException(
+                                VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED));
+
+        assertThrows(
+                PropertyNotAvailableException.class,
+                () -> mCarPropertyManager.getProperty(HVAC_TEMPERATURE_SET, 0));
+    }
+
+    @Test
+    @EnableFlags(FLAG_CAR_PROPERTY_STATUS_DETAILED_NOT_AVAILABLE)
+    public void testGetProperty_notAvailableSubsystemNotConnectedAfterU() throws Exception {
+        setAppTargetSdk(Build.VERSION_CODES.UPSIDE_DOWN_CAKE);
+        when(mICarProperty.getProperty(HVAC_TEMPERATURE_SET, 0))
+                .thenThrow(
+                        new ServiceSpecificException(
+                                VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED));
+
+        PropertyNotAvailableException exception =
+                assertThrows(
+                        PropertyNotAvailableException.class,
+                        () -> mCarPropertyManager.getProperty(HVAC_TEMPERATURE_SET, 0));
+        assertThat(exception.getDetailedErrorCode())
+                .isEqualTo(PropertyNotAvailableErrorCode.NOT_AVAILABLE);
+    }
+
+    @Test
+    @EnableFlags(FLAG_CAR_PROPERTY_STATUS_DETAILED_NOT_AVAILABLE)
+    public void testGetProperty_notAvailableSubsystemNotConnectedAfterU_withVendorErrorCode()
+            throws Exception {
+        setAppTargetSdk(Build.VERSION_CODES.UPSIDE_DOWN_CAKE);
+        when(mICarProperty.getProperty(HVAC_TEMPERATURE_SET, 0))
+                .thenThrow(
+                        new ServiceSpecificException(
+                                combineErrors(
+                                        VehicleHalStatusCode
+                                                .STATUS_NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED,
+                                        VENDOR_ERROR_CODE)));
+
+        PropertyNotAvailableException exception =
+                assertThrows(
+                        PropertyNotAvailableException.class,
+                        () -> mCarPropertyManager.getProperty(HVAC_TEMPERATURE_SET, 0));
+
+        assertThat(exception.getDetailedErrorCode())
+                .isEqualTo(PropertyNotAvailableErrorCode.NOT_AVAILABLE);
+        assertThat(exception.getVendorErrorCode()).isEqualTo(VENDOR_ERROR_CODE);
+    }
+
+    @Test
+    @EnableFlags(FLAG_CAR_PROPERTY_STATUS_DETAILED_NOT_AVAILABLE)
+    public void testGetProperty_notAvailableSubsystemNotConnectedAfter26Q2() throws Exception {
+        // TODO(b/416768353): Change this to 26Q2 version code.
+        setAppTargetSdk(Build.VERSION_CODES.CUR_DEVELOPMENT);
+        when(mICarProperty.getProperty(HVAC_TEMPERATURE_SET, 0))
+                .thenThrow(
+                        new ServiceSpecificException(
+                                VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED));
+
+        PropertyNotAvailableException exception =
+                assertThrows(
+                        PropertyNotAvailableException.class,
+                        () -> mCarPropertyManager.getProperty(HVAC_TEMPERATURE_SET, 0));
+        assertThat(exception.getDetailedErrorCode())
+                .isEqualTo(PropertyNotAvailableErrorCode.NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED);
+    }
+
+    @Test
     public void testGetBooleanProperty_tryAgainBeforeR() throws Exception {
         setAppTargetSdk(Build.VERSION_CODES.Q);
         when(mICarProperty.getProperty(BOOLEAN_PROP, 0)).thenThrow(
@@ -1355,6 +1427,61 @@ public final class CarPropertyManagerUnitTest extends AbstractExpectableTestCase
     }
 
     @Test
+    @EnableFlags(FLAG_CAR_PROPERTY_STATUS_DETAILED_NOT_AVAILABLE)
+    public void testPropertyAsyncError_subsystemNotConnected_before26Q2() throws RemoteException {
+        setAppTargetSdk(Build.VERSION_CODES.BAKLAVA);
+        doAnswer((invocation) -> {
+            Object[] args = invocation.getArguments();
+            IAsyncPropertyResultCallback getAsyncPropertyResultCallback =
+                    (IAsyncPropertyResultCallback) args[1];
+
+            GetSetValueResult getValueResult = GetSetValueResult.newErrorResult(
+                    /* requestId= */ 0, CarPropertyErrorCodes.createFromVhalStatusCode(
+                            VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED));
+
+            getAsyncPropertyResultCallback.onGetValueResults(
+                    new GetSetValueResultList(List.of(getValueResult)));
+            return null;
+        }).when(mICarProperty).getPropertiesAsync(any(), any(), anyLong());
+
+        mCarPropertyManager.getPropertiesAsync(
+                List.of(createGetPropertyRequest()), null, null, mGetPropertyCallback);
+
+        verify(mGetPropertyCallback, timeout(1000)).onFailure(mPropertyAsyncErrorCaptor.capture());
+        PropertyAsyncError error = mPropertyAsyncErrorCaptor.getValue();
+        assertThat(error.getDetailedErrorCode())
+                .isEqualTo(DetailedErrorCode.NO_DETAILED_ERROR_CODE);
+    }
+
+    @Test
+    @EnableFlags(FLAG_CAR_PROPERTY_STATUS_DETAILED_NOT_AVAILABLE)
+    public void testPropertyAsyncError_subsystemNotConnected_after26Q2() throws RemoteException {
+        // TODO(b/416768353): Change this to 26Q2 version code.
+        setAppTargetSdk(Build.VERSION_CODES.CUR_DEVELOPMENT);
+        doAnswer((invocation) -> {
+            Object[] args = invocation.getArguments();
+            IAsyncPropertyResultCallback getAsyncPropertyResultCallback =
+                    (IAsyncPropertyResultCallback) args[1];
+
+            GetSetValueResult getValueResult = GetSetValueResult.newErrorResult(
+                    /* requestId= */ 0, CarPropertyErrorCodes.createFromVhalStatusCode(
+                            VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED));
+
+            getAsyncPropertyResultCallback.onGetValueResults(
+                    new GetSetValueResultList(List.of(getValueResult)));
+            return null;
+        }).when(mICarProperty).getPropertiesAsync(any(), any(), anyLong());
+
+        mCarPropertyManager.getPropertiesAsync(
+                List.of(createGetPropertyRequest()), null, null, mGetPropertyCallback);
+
+        verify(mGetPropertyCallback, timeout(1000)).onFailure(mPropertyAsyncErrorCaptor.capture());
+        PropertyAsyncError error = mPropertyAsyncErrorCaptor.getValue();
+        assertThat(error.getDetailedErrorCode())
+                .isEqualTo(DetailedErrorCode.NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED);
+    }
+
+    @Test
     public void testSetProperty_setsValue() throws RemoteException {
         mCarPropertyManager.setProperty(Float.class, HVAC_TEMPERATURE_SET, 0, 17.0f);
 
@@ -1720,6 +1847,95 @@ public final class CarPropertyManagerUnitTest extends AbstractExpectableTestCase
         assertThat(exception.getDetailedErrorCode())
                 .isEqualTo(PropertyNotAvailableErrorCode.NOT_AVAILABLE_SPEED_LOW);
         assertThat(exception.getVendorErrorCode()).isEqualTo(VENDOR_ERROR_CODE);
+    }
+
+    @Test
+    @EnableFlags(FLAG_CAR_PROPERTY_STATUS_DETAILED_NOT_AVAILABLE)
+    public void testSetProperty_notAvailableSubsystemNotConnectedBeforeU() throws Exception {
+        setAppTargetSdk(Build.VERSION_CODES.TIRAMISU);
+        CarPropertyValue<Float> carPropertyValue =
+                new CarPropertyValue<>(HVAC_TEMPERATURE_SET, 0, 17.0f);
+        doThrow(
+                        new ServiceSpecificException(
+                                VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED))
+                .when(mICarProperty)
+                .setProperty(eq(carPropertyValue), any());
+
+        assertThrows(
+                PropertyNotAvailableException.class,
+                () -> mCarPropertyManager.setProperty(Float.class, HVAC_TEMPERATURE_SET, 0, 17.0f));
+    }
+
+    @Test
+    @EnableFlags(FLAG_CAR_PROPERTY_STATUS_DETAILED_NOT_AVAILABLE)
+    public void testSetProperty_notAvailableSubsystemNotConnectedAfterU() throws Exception {
+        setAppTargetSdk(Build.VERSION_CODES.UPSIDE_DOWN_CAKE);
+        CarPropertyValue<Float> carPropertyValue =
+                new CarPropertyValue<>(HVAC_TEMPERATURE_SET, 0, 17.0f);
+        doThrow(
+                        new ServiceSpecificException(
+                                VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED))
+                .when(mICarProperty)
+                .setProperty(eq(carPropertyValue), any());
+
+        PropertyNotAvailableException exception =
+                assertThrows(
+                        PropertyNotAvailableException.class,
+                        () ->
+                                mCarPropertyManager.setProperty(
+                                        Float.class, HVAC_TEMPERATURE_SET, 0, 17.0f));
+        assertThat(exception.getDetailedErrorCode())
+                .isEqualTo(PropertyNotAvailableErrorCode.NOT_AVAILABLE);
+    }
+
+    @Test
+    @EnableFlags(FLAG_CAR_PROPERTY_STATUS_DETAILED_NOT_AVAILABLE)
+    public void testSetProperty_notAvailableSubsystemNotConnectedAfterU_withVendorErrorCode()
+            throws Exception {
+        setAppTargetSdk(Build.VERSION_CODES.UPSIDE_DOWN_CAKE);
+        CarPropertyValue<Float> carPropertyValue =
+                new CarPropertyValue<>(HVAC_TEMPERATURE_SET, 0, 17.0f);
+        doThrow(
+                        new ServiceSpecificException(
+                                combineErrors(
+                                        VehicleHalStatusCode
+                                                .STATUS_NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED,
+                                        VENDOR_ERROR_CODE)))
+                .when(mICarProperty)
+                .setProperty(eq(carPropertyValue), any());
+
+        PropertyNotAvailableException exception =
+                assertThrows(
+                        PropertyNotAvailableException.class,
+                        () ->
+                                mCarPropertyManager.setProperty(
+                                        Float.class, HVAC_TEMPERATURE_SET, 0, 17.0f));
+        assertThat(exception.getDetailedErrorCode())
+                .isEqualTo(PropertyNotAvailableErrorCode.NOT_AVAILABLE);
+        assertThat(exception.getVendorErrorCode()).isEqualTo(VENDOR_ERROR_CODE);
+    }
+
+    @Test
+    @EnableFlags(FLAG_CAR_PROPERTY_STATUS_DETAILED_NOT_AVAILABLE)
+    public void testSetProperty_notAvailableSubsystemNotConnectedAfter26Q2() throws Exception {
+        // TODO(b/416768353): Change this to 26Q2 version code.
+        setAppTargetSdk(Build.VERSION_CODES.CUR_DEVELOPMENT);
+        CarPropertyValue<Float> carPropertyValue =
+                new CarPropertyValue<>(HVAC_TEMPERATURE_SET, 0, 17.0f);
+        doThrow(
+                        new ServiceSpecificException(
+                                VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED))
+                .when(mICarProperty)
+                .setProperty(eq(carPropertyValue), any());
+
+        PropertyNotAvailableException exception =
+                assertThrows(
+                        PropertyNotAvailableException.class,
+                        () ->
+                                mCarPropertyManager.setProperty(
+                                        Float.class, HVAC_TEMPERATURE_SET, 0, 17.0f));
+        assertThat(exception.getDetailedErrorCode())
+                .isEqualTo(PropertyNotAvailableErrorCode.NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED);
     }
 
     @Test

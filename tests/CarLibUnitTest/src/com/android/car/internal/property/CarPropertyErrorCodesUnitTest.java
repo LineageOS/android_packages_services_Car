@@ -15,6 +15,8 @@
  */
 package com.android.car.internal.property;
 
+import static android.car.feature.Flags.FLAG_CAR_PROPERTY_STATUS_DETAILED_NOT_AVAILABLE;
+
 import static com.android.car.internal.property.CarPropertyErrorCodes.createFromVhalStatusCode;
 
 import static com.google.common.truth.Truth.assertThat;
@@ -28,6 +30,8 @@ import android.car.hardware.property.PropertyNotAvailableException;
 import android.car.hardware.property.VehicleHalStatusCode;
 import android.car.test.AbstractExpectableTestCase;
 import android.hardware.automotive.vehicle.StatusCode;
+import android.os.Build;
+import android.platform.test.annotations.EnableFlags;
 import android.platform.test.flag.junit.SetFlagsRule;
 import android.util.SparseIntArray;
 
@@ -134,6 +138,9 @@ public final class CarPropertyErrorCodesUnitTest extends AbstractExpectableTestC
                 CarPropertyManager.STATUS_ERROR_NOT_AVAILABLE);
         mgrErrorCodeByVhalStatusCode.put(StatusCode.NOT_AVAILABLE_SAFETY,
                 CarPropertyManager.STATUS_ERROR_NOT_AVAILABLE);
+        mgrErrorCodeByVhalStatusCode.put(
+                StatusCode.NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED,
+                CarPropertyManager.STATUS_ERROR_NOT_AVAILABLE);
         mgrErrorCodeByVhalStatusCode.put(StatusCode.INTERNAL_ERROR,
                 CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR);
 
@@ -199,16 +206,46 @@ public final class CarPropertyErrorCodesUnitTest extends AbstractExpectableTestC
     }
 
     @Test
-    public void testToDetailedErrorCode_SubsystemNotConnected() {
-        var errorCodes = createFromVhalStatusCode(
-                VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED);
+    @EnableFlags(FLAG_CAR_PROPERTY_STATUS_DETAILED_NOT_AVAILABLE)
+    public void testToDetailedErrorCode_SubsystemNotConnected_before26Q2() {
+        var errorCodes =
+                createFromVhalStatusCode(
+                                VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED)
+                        .cloneWithAppTargetSdk(Build.VERSION_CODES.BAKLAVA);
 
+        PropertyNotAvailableException exception =
+                assertThrows(
+                        PropertyNotAvailableException.class,
+                        () ->
+                                errorCodes.checkAndMaybeThrowException(
+                                        /* propertyId= */ 0, /* areaId= */ 0));
         assertThat(errorCodes.toDetailedErrorCode()).isEqualTo(
                 DetailedErrorCode.NO_DETAILED_ERROR_CODE);
+        assertThat(exception.getDetailedErrorCode())
+                .isEqualTo(PropertyNotAvailableErrorCode.NOT_AVAILABLE);
     }
 
-    // TODO(b/381298607): Update this test once we expose SUBSYSTEM_NOT_CONNECTED to
-    // CarPropertyManager.
+    @Test
+    @EnableFlags(FLAG_CAR_PROPERTY_STATUS_DETAILED_NOT_AVAILABLE)
+    public void testToDetailedErrorCode_SubsystemNotConnected_after26Q2() {
+        // TODO(b/416768353): Change this to 26Q2 version code.
+        var errorCodes =
+                createFromVhalStatusCode(
+                                VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED)
+                        .cloneWithAppTargetSdk(Build.VERSION_CODES.CUR_DEVELOPMENT);
+
+        PropertyNotAvailableException exception =
+                assertThrows(
+                        PropertyNotAvailableException.class,
+                        () ->
+                                errorCodes.checkAndMaybeThrowException(
+                                        /* propertyId= */ 0, /* areaId= */ 0));
+        assertThat(errorCodes.toDetailedErrorCode())
+                .isEqualTo(DetailedErrorCode.NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED);
+        assertThat(exception.getDetailedErrorCode())
+                .isEqualTo(PropertyNotAvailableErrorCode.NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED);
+    }
+
     @Test
     public void testSubsystemNotConnected() {
         var errorCodes = createFromVhalStatusCode(
@@ -219,13 +256,9 @@ public final class CarPropertyErrorCodesUnitTest extends AbstractExpectableTestC
                 VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED);
         assertThat(errorCodes.toCarPropertyAsyncErrorCode()).isEqualTo(
                 CarPropertyManager.STATUS_ERROR_NOT_AVAILABLE);
-        assertThat(errorCodes.toDetailedErrorCode()).isEqualTo(
-                DetailedErrorCode.NO_DETAILED_ERROR_CODE);
         PropertyNotAvailableException exception = assertThrows(
                 PropertyNotAvailableException.class, () -> errorCodes.checkAndMaybeThrowException(
                         /* propertyId= */ 0, /* areaId= */ 0));
-        assertThat(exception.getDetailedErrorCode()).isEqualTo(
-                PropertyNotAvailableErrorCode.NOT_AVAILABLE);
         assertThat(exception.getVendorErrorCode()).isEqualTo(0);
     }
 }
