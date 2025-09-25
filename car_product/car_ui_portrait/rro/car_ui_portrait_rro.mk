@@ -34,7 +34,6 @@ PRODUCT_PACKAGES += \
     CarUiPortraitLauncherReferenceRRO \
     CarUiPortraitMediaCommonRRO \
     CarUiPortraitMediaRRO \
-    CarUiPortraitMessengerRRO \
     CarUiPortraitNotificationRRO \
     CarUiPortraitRadioRRO \
     CarUiPortraitSettingsRRO \
