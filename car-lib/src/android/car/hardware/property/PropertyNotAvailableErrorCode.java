@@ -16,8 +16,10 @@
 
 package android.car.hardware.property;
 
+import android.annotation.FlaggedApi;
 import android.annotation.IntDef;
 import android.annotation.NonNull;
+import android.car.feature.Flags;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -58,6 +60,14 @@ public final class PropertyNotAvailableErrorCode {
      * operation such as closing a trunk door, etc..
      */
     public static final int NOT_AVAILABLE_SAFETY = 5;
+    /**
+     * The feature cannot be accessed because the sub-system for the feature is
+     * not connected.
+     *
+     * E.g. trailer light state is not available when the trailer is detached.
+     */
+    @FlaggedApi(Flags.FLAG_CAR_PROPERTY_STATUS_DETAILED_NOT_AVAILABLE)
+    public static final int NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED = 6;
 
     /**
      * Returns a user-friendly representation of a {@code PropertyNotAvailableErrorCode}.
@@ -79,6 +89,10 @@ public final class PropertyNotAvailableErrorCode {
             case NOT_AVAILABLE_SAFETY:
                 return "NOT_AVAILABLE_SAFETY";
             default:
+                if (Flags.carPropertyStatusDetailedNotAvailable()
+                        && propertyNotAvailableErrorCode == NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED) {
+                    return "NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED";
+                }
                 return Integer.toString(propertyNotAvailableErrorCode);
         }
     }
@@ -86,7 +100,8 @@ public final class PropertyNotAvailableErrorCode {
     /** @hide */
     @IntDef({NOT_AVAILABLE, NOT_AVAILABLE_DISABLED,
         NOT_AVAILABLE_SPEED_LOW, NOT_AVAILABLE_SPEED_HIGH,
-        NOT_AVAILABLE_POOR_VISIBILITY, NOT_AVAILABLE_SAFETY})
+        NOT_AVAILABLE_POOR_VISIBILITY, NOT_AVAILABLE_SAFETY,
+        NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED})
     @Retention(RetentionPolicy.SOURCE)
     public @interface PropertyNotAvailableErrorCodeInt {}
 

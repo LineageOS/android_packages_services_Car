@@ -1103,6 +1103,7 @@ package android.car.hardware.property {
     field @FlaggedApi("android.car.feature.car_property_detailed_error_codes") public static final int NOT_AVAILABLE_SAFETY = 5; // 0x5
     field @FlaggedApi("android.car.feature.car_property_detailed_error_codes") public static final int NOT_AVAILABLE_SPEED_HIGH = 3; // 0x3
     field @FlaggedApi("android.car.feature.car_property_detailed_error_codes") public static final int NOT_AVAILABLE_SPEED_LOW = 2; // 0x2
+    field @FlaggedApi("android.car.feature.car_property_status_detailed_not_available") public static final int NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED = 6; // 0x6
     field @FlaggedApi("android.car.feature.car_property_detailed_error_codes") public static final int NO_DETAILED_ERROR_CODE = 0; // 0x0
   }
 
@@ -1325,6 +1326,7 @@ package android.car.hardware.property {
     field public static final int NOT_AVAILABLE_SAFETY = 5; // 0x5
     field public static final int NOT_AVAILABLE_SPEED_HIGH = 3; // 0x3
     field public static final int NOT_AVAILABLE_SPEED_LOW = 2; // 0x2
+    field @FlaggedApi("android.car.feature.car_property_status_detailed_not_available") public static final int NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED = 6; // 0x6
   }
 
   public class PropertyNotAvailableException extends java.lang.IllegalStateException {
