@@ -32,6 +32,7 @@ import static android.car.hardware.property.VehicleHalStatusCode.STATUS_NOT_AVAI
 import static android.car.hardware.property.VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SAFETY;
 import static android.car.hardware.property.VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SPEED_HIGH;
 import static android.car.hardware.property.VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SPEED_LOW;
+import static android.car.hardware.property.VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED;
 import static android.car.hardware.property.VehicleHalStatusCode.STATUS_TRY_AGAIN;
 
 import static com.android.car.hal.property.HalPropertyDebugUtils.toAreaIdString;
@@ -2152,7 +2153,8 @@ public class PropertyHalService extends HalServiceBase {
             case STATUS_NOT_AVAILABLE_SPEED_LOW: // fallthrough
             case STATUS_NOT_AVAILABLE_SPEED_HIGH: // fallthrough
             case STATUS_NOT_AVAILABLE_POOR_VISIBILITY: // fallthrough
-            case STATUS_NOT_AVAILABLE_SAFETY:
+            case STATUS_NOT_AVAILABLE_SAFETY: // fallthrough
+            case STATUS_NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED:
                 return CAR_SET_PROPERTY_ERROR_CODE_PROPERTY_NOT_AVAILABLE;
             case STATUS_ACCESS_DENIED:
                 return CAR_SET_PROPERTY_ERROR_CODE_ACCESS_DENIED;
