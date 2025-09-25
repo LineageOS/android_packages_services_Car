@@ -13,8 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package android.car.hardware.property;
+package com.android.car.internal.property;
 
 import static com.android.car.internal.property.CarPropertyErrorCodes.createFromVhalStatusCode;
 
@@ -22,12 +21,15 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
 
+import android.car.hardware.property.CarPropertyManager;
+import android.car.hardware.property.DetailedErrorCode;
+import android.car.hardware.property.PropertyNotAvailableErrorCode;
+import android.car.hardware.property.PropertyNotAvailableException;
+import android.car.hardware.property.VehicleHalStatusCode;
 import android.car.test.AbstractExpectableTestCase;
 import android.hardware.automotive.vehicle.StatusCode;
 import android.platform.test.flag.junit.SetFlagsRule;
 import android.util.SparseIntArray;
-
-import com.android.car.internal.property.CarPropertyErrorCodes;
 
 import org.junit.ClassRule;
 import org.junit.Rule;
