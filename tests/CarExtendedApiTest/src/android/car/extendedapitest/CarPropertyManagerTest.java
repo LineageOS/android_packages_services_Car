@@ -32,6 +32,7 @@ import android.car.hardware.CarPropertyValue;
 import android.car.hardware.property.CarInternalErrorException;
 import android.car.hardware.property.CarPropertyManager;
 import android.car.hardware.property.CarPropertyManager.CarPropertyEventCallback;
+import android.car.hardware.property.PropertyNotAvailableException;
 import android.car.test.CarTestManager;
 import android.car.test.PermissionsCheckerRule;
 import android.car.test.PermissionsCheckerRule.EnsureHasPermission;
@@ -137,6 +138,90 @@ public final class CarPropertyManagerTest extends CarApiTestBase {
         assertThat(thrown.getVendorErrorCode()).isEqualTo(EXPECTED_VENDOR_ERROR_CODE);
     }
 
+    @RequiresFlagsEnabled(Flags.FLAG_CAR_PROPERTY_STATUS_DETAILED_NOT_AVAILABLE)
+    @ApiTest(
+            apis = {
+                "android.car.hardware.property.CarPropertyManager#subscribePropertyEvents",
+                "android.car.hardware.CarPropertyValue#getPropertyStatus"
+            })
+    @Test
+    public void testSubscribePropertyEvents_getPropertyStatus() throws Exception {
+        List<CarPropertyConfig> carPropertyConfigs =
+                mCarPropertyManager.getPropertyList(
+                        new ArraySet(List.of(VENDOR_PROPERTY_FOR_PROPERTY_STATUS_TESTING)));
+
+        assumeTrue(
+                "VENDOR_PROPERTY_FOR_PROPERTY_STATUS_TESTING is not supported",
+                !carPropertyConfigs.isEmpty());
+
+        Integer value = 0;
+        ArrayList<Integer> possibleInitialStatuses = new ArrayList<>();
+        try {
+            CarPropertyValue<Integer> carPropertyValue =
+                    mCarPropertyManager.getProperty(VENDOR_PROPERTY_FOR_PROPERTY_STATUS_TESTING, 0);
+            possibleInitialStatuses.add(CarPropertyValue.STATUS_AVAILABLE);
+            value = carPropertyValue.getValue();
+        } catch (PropertyNotAvailableException e) {
+            // The system status codes are not mapped to getDetailedErrorCode so it can be any one
+            // of these.
+            possibleInitialStatuses.add(CarPropertyValue.STATUS_NOT_AVAILABLE_GENERAL);
+            possibleInitialStatuses.add(CarPropertyValue.STATUS_NOT_AVAILABLE_DISABLED);
+            possibleInitialStatuses.add(CarPropertyValue.STATUS_NOT_AVAILABLE_SPEED_LOW);
+            possibleInitialStatuses.add(CarPropertyValue.STATUS_NOT_AVAILABLE_SPEED_HIGH);
+            possibleInitialStatuses.add(CarPropertyValue.STATUS_NOT_AVAILABLE_POOR_VISIBILITY);
+            possibleInitialStatuses.add(CarPropertyValue.STATUS_NOT_AVAILABLE_SAFETY);
+        } catch (CarInternalErrorException e) {
+            possibleInitialStatuses.add(CarPropertyValue.STATUS_ERROR);
+        }
+
+        int areaId = 0;
+        int numEvents = 3;
+        TestCallback callback =
+                new TestCallback(VENDOR_PROPERTY_FOR_PROPERTY_STATUS_TESTING, areaId, numEvents);
+
+        assertThat(
+                        mCarPropertyManager.subscribePropertyEvents(
+                                VENDOR_PROPERTY_FOR_PROPERTY_STATUS_TESTING, callback))
+                .isTrue();
+
+        CarPropertyValue initialValue = callback.waitAndGetInitialEvent();
+
+        expectThat(initialValue.getPropertyId())
+                .isEqualTo(VENDOR_PROPERTY_FOR_PROPERTY_STATUS_TESTING);
+        expectThat(initialValue.getAreaId()).isEqualTo(areaId);
+        expectThat(initialValue.getValue()).isEqualTo(value);
+        // The initial event is created via getProperty call in CarPropertyService.
+        // The system error codes are not mapped to the system status codes.
+        expectThat(initialValue.getPropertyStatus()).isIn(possibleInitialStatuses);
+
+        value = 0;
+        injectEventFromVehicleSide(
+                VENDOR_PROPERTY_FOR_PROPERTY_STATUS_TESTING,
+                areaId,
+                value,
+                VehiclePropertyStatus.NOT_AVAILABLE_SAFETY,
+                SystemClock.elapsedRealtimeNanos());
+        injectEventFromVehicleSide(
+                VENDOR_PROPERTY_FOR_PROPERTY_STATUS_TESTING,
+                areaId,
+                value,
+                VehiclePropertyStatus.ERROR,
+                SystemClock.elapsedRealtimeNanos());
+        List<CarPropertyValue> carPropertyValues = callback.waitAndGetChangeEvents();
+        mCarPropertyManager.unsubscribePropertyEvents(callback);
+
+        assertThat(carPropertyValues).hasSize(2);
+        for (CarPropertyValue carPropertyValue : carPropertyValues) {
+            expectThat(carPropertyValue.getPropertyId())
+                    .isEqualTo(VENDOR_PROPERTY_FOR_PROPERTY_STATUS_TESTING);
+            expectThat(carPropertyValue.getAreaId()).isEqualTo(areaId);
+            expectThat(carPropertyValue.getValue()).isEqualTo(value);
+        }
+        expectThat(carPropertyValues.get(0).getPropertyStatus())
+                .isEqualTo(CarPropertyValue.STATUS_NOT_AVAILABLE_SAFETY);
+        expectThat(carPropertyValues.get(1).getPropertyStatus())
+                .isEqualTo(CarPropertyValue.STATUS_ERROR);
+    }
 
     @RequiresFlagsEnabled(Flags.FLAG_CAR_PROPERTY_STATUS_DETAILED_NOT_AVAILABLE)
     @EnsureHasPermission(Car.PERMISSION_READ_PROPERTY_VENDOR_STATUS)
