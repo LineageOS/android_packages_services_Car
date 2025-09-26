@@ -26,7 +26,7 @@
     <Visibility isVisible="true"/>
   </Variant>
   <Transitions>
-    <Transition onEvent="_System_Show_Hun_Panel" toVariant="@id/opened"/>
-    <Transition onEvent="_System_Hide_Hun_Panel" toVariant="@id/closed"/>
+    <Transition onEvent="_System_Show_Panel" onEventTokens="panelId=_Hun_Panel" toVariant="@id/opened"/>
+    <Transition onEvent="_System_Hide_Panel" onEventTokens="panelId=_Hun_Panel" toVariant="@id/closed"/>
   </Transitions>
 </HunPanel>
