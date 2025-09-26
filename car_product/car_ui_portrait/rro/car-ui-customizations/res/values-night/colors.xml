@@ -15,5 +15,5 @@
   ~ limitations under the License.
   -->
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
-    <color name="car_ui_preference_primary_switch_background_color">@color/car_secondary_container</color>
+    <color name="app_styled_view_background_color">#282A2D</color>
 </resources>
