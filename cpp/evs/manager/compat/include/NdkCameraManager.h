@@ -38,6 +38,8 @@ public:
     camera_status_t getCameraCharacteristics(const char* cameraId,
                                              ACameraMetadata** metadata) override;
 
+    ACameraManager* get() override;
+
 private:
     ACameraManager* mManager;
 };

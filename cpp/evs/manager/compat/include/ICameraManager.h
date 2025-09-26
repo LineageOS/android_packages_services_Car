@@ -52,6 +52,12 @@ public:
      */
     virtual camera_status_t getCameraCharacteristics(const char* cameraId,
                                                      ACameraMetadata** metadata) = 0;
+
+    /**
+     * Gets the raw ACameraManager pointer.
+     * @return The raw ACameraManager pointer, or nullptr if not available.
+     */
+    virtual ACameraManager* get() = 0;
 };
 
 }  // namespace android::hardware::automotive::evs::compat

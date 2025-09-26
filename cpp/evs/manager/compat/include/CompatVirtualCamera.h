@@ -24,13 +24,17 @@
 #include <aidl/android/hardware/automotive/evs/IEvsDisplay.h>
 #include <aidl/android/hardware/automotive/evs/ParameterRange.h>
 
+#include <vector>
+
 namespace android::hardware::automotive::evs::compat {
 
 namespace aidlevs = ::aidl::android::hardware::automotive::evs;
 
+class CompatHalCamera;  // Forward declaration to avoid circular dependency.
+
 class CompatVirtualCamera final : public aidlevs::BnEvsCamera {
 public:
-    CompatVirtualCamera();
+    explicit CompatVirtualCamera(const std::vector<std::shared_ptr<CompatHalCamera>>& halCameras);
     ~CompatVirtualCamera() override;
 
     ::ndk::ScopedAStatus doneWithFrame(const std::vector<aidlevs::BufferDesc>& buffer) override;
@@ -38,28 +42,31 @@ public:
             const std::shared_ptr<aidlevs::IEvsDisplay>& display) override;
     ::ndk::ScopedAStatus getCameraInfo(aidlevs::CameraDesc* _aidl_return) override;
     ::ndk::ScopedAStatus getExtendedInfo(int32_t opaqueIdentifier,
-                                       std::vector<uint8_t>* _aidl_return) override;
+                                         std::vector<uint8_t>* _aidl_return) override;
     ::ndk::ScopedAStatus getIntParameter(aidlevs::CameraParam id,
-                                       std::vector<int32_t>* _aidl_return) override;
+                                         std::vector<int32_t>* _aidl_return) override;
     ::ndk::ScopedAStatus getIntParameterRange(aidlevs::CameraParam id,
-                                            aidlevs::ParameterRange* _aidl_return) override;
+                                              aidlevs::ParameterRange* _aidl_return) override;
     ::ndk::ScopedAStatus getParameterList(std::vector<aidlevs::CameraParam>* _aidl_return) override;
     ::ndk::ScopedAStatus getPhysicalCameraInfo(const std::string& deviceId,
-                                             aidlevs::CameraDesc* _aidl_return) override;
+                                               aidlevs::CameraDesc* _aidl_return) override;
     ::ndk::ScopedAStatus importExternalBuffers(const std::vector<aidlevs::BufferDesc>& buffers,
-                                             int32_t* _aidl_return) override;
+                                               int32_t* _aidl_return) override;
     ::ndk::ScopedAStatus pauseVideoStream() override;
     ::ndk::ScopedAStatus resumeVideoStream() override;
     ::ndk::ScopedAStatus setExtendedInfo(int32_t opaqueIdentifier,
-                                       const std::vector<uint8_t>& opaqueValue) override;
+                                         const std::vector<uint8_t>& opaqueValue) override;
     ::ndk::ScopedAStatus setIntParameter(aidlevs::CameraParam id, int32_t value,
-                                       std::vector<int32_t>* _aidl_return) override;
+                                         std::vector<int32_t>* _aidl_return) override;
     ::ndk::ScopedAStatus setPrimaryClient() override;
     ::ndk::ScopedAStatus setMaxFramesInFlight(int32_t bufferCount) override;
     ::ndk::ScopedAStatus startVideoStream(
             const std::shared_ptr<aidlevs::IEvsCameraStream>& receiver) override;
     ::ndk::ScopedAStatus stopVideoStream() override;
     ::ndk::ScopedAStatus unsetPrimaryClient() override;
+
+private:
+    std::unordered_map<std::string, std::weak_ptr<CompatHalCamera>> mHalCameras;
 };
 
 }  // namespace android::hardware::automotive::evs::compat

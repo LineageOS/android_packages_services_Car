@@ -24,7 +24,7 @@ namespace android::hardware::automotive::evs::compat {
 
 using aidl::android::hardware::automotive::evs::CameraDesc;
 
-TEST(ConverterTest, toCameraDesc) {
+TEST(ConverterTest, toCameraDesc_WithValidMetadata) {
     const char* cameraId = "test_camera";
     const int vendorFlags = 123;
 
@@ -33,6 +33,7 @@ TEST(ConverterTest, toCameraDesc) {
     ASSERT_NE(raw_metadata, nullptr);
     int32_t lens_facing = ACAMERA_LENS_FACING_FRONT;
     add_camera_metadata_entry(raw_metadata, ACAMERA_LENS_FACING, &lens_facing, 1);
+    ASSERT_EQ(validate_camera_metadata_structure(raw_metadata, nullptr), 0);
     const ACameraMetadata* metadata = reinterpret_cast<const ACameraMetadata*>(raw_metadata);
 
     CameraDesc desc = Converter::toCameraDesc(cameraId, metadata, vendorFlags);
@@ -46,6 +47,17 @@ TEST(ConverterTest, toCameraDesc) {
     EXPECT_EQ(memcmp(desc.metadata.data(), raw_metadata, expected_size), 0);
 
     free_camera_metadata(raw_metadata);
+}
+
+TEST(ConverterTest, toCameraDesc_WithNullMetadata) {
+    const char* cameraId = "test_camera_null";
+    const int vendorFlags = 789;
+
+    CameraDesc desc = Converter::toCameraDesc(cameraId, nullptr, vendorFlags);
+
+    EXPECT_EQ(desc.id, cameraId);
+    EXPECT_EQ(desc.vendorFlags, vendorFlags);
+    EXPECT_TRUE(desc.metadata.empty());
 }
 
 }  // namespace android::hardware::automotive::evs::compat

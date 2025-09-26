@@ -16,9 +16,13 @@
 
 #pragma once
 
+#include "CompatVirtualCamera.h"
+
 #include <aidl/android/hardware/automotive/evs/BnEvsCameraStream.h>
 #include <aidl/android/hardware/automotive/evs/BufferDesc.h>
 #include <aidl/android/hardware/automotive/evs/EvsEventDesc.h>
+#include <aidl/android/hardware/automotive/evs/Stream.h>
+#include <camera/NdkCameraDevice.h>
 
 namespace android::hardware::automotive::evs::compat {
 
@@ -26,11 +30,25 @@ namespace aidlevs = ::aidl::android::hardware::automotive::evs;
 
 class CompatHalCamera final : public aidlevs::BnEvsCameraStream {
 public:
-    CompatHalCamera();
+    CompatHalCamera(ACameraDevice* device, const std::string& cameraId,
+                    const aidlevs::Stream& streamConfig);
     ~CompatHalCamera() override;
 
     ::ndk::ScopedAStatus deliverFrame(const std::vector<aidlevs::BufferDesc>& buffer) override;
     ::ndk::ScopedAStatus notify(const aidlevs::EvsEventDesc& event) override;
+
+    inline aidlevs::Stream getStreamConfig() const { return mStreamConfig; }
+
+    ACameraDevice* getDevice() const { return mDevice; }
+
+    std::string getId() const { return mCameraId; }
+
+    bool ownVirtualCamera(const std::shared_ptr<CompatVirtualCamera>& virtualCamera);
+
+private:
+    ACameraDevice* mDevice;
+    std::string mCameraId;
+    aidlevs::Stream mStreamConfig;
 };
 
 }  // namespace android::hardware::automotive::evs::compat

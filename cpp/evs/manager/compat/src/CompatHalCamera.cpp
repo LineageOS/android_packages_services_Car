@@ -24,7 +24,9 @@ using ::aidl::android::hardware::automotive::evs::BufferDesc;
 using ::aidl::android::hardware::automotive::evs::EvsEventDesc;
 using ::ndk::ScopedAStatus;
 
-CompatHalCamera::CompatHalCamera() {
+CompatHalCamera::CompatHalCamera(ACameraDevice* device, const std::string& cameraId,
+                                 const aidlevs::Stream& streamConfig) :
+      mDevice(device), mCameraId(cameraId), mStreamConfig(streamConfig) {
     // Constructor stub
 }
 
@@ -39,6 +41,11 @@ ScopedAStatus CompatHalCamera::deliverFrame(
 
 ScopedAStatus CompatHalCamera::notify([[maybe_unused]] const EvsEventDesc& event) {
     return ScopedAStatus::fromExceptionCode(EX_UNSUPPORTED_OPERATION);
+}
+
+bool CompatHalCamera::ownVirtualCamera(const std::shared_ptr<CompatVirtualCamera>& virtualCamera) {
+    // TODO (b/441577862): Implement the logic to associate this HalCamera with the VirtualCamera
+    return true;
 }
 
 }  // namespace android::hardware::automotive::evs::compat

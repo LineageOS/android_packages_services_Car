@@ -62,4 +62,8 @@ camera_status_t NdkCameraManager::getCameraCharacteristics(const char* cameraId,
     return status;
 }
 
+ACameraManager* NdkCameraManager::get() {
+    return mManager;
+}
+
 }  // namespace android::hardware::automotive::evs::compat

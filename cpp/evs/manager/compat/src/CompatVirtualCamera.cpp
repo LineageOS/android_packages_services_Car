@@ -16,6 +16,8 @@
 
 #include "CompatVirtualCamera.h"
 
+#include "CompatHalCamera.h"
+
 #include <android-base/logging.h>
 
 namespace android::hardware::automotive::evs::compat {
@@ -28,8 +30,11 @@ using ::aidl::android::hardware::automotive::evs::IEvsDisplay;
 using ::aidl::android::hardware::automotive::evs::ParameterRange;
 using ::ndk::ScopedAStatus;
 
-CompatVirtualCamera::CompatVirtualCamera() {
-    // Constructor stub
+CompatVirtualCamera::CompatVirtualCamera(
+        const std::vector<std::shared_ptr<CompatHalCamera>>& halCameras) {
+    for (auto&& halCamera : halCameras) {
+        mHalCameras.insert_or_assign(halCamera->getId(), std::weak_ptr<CompatHalCamera>(halCamera));
+    }
 }
 
 CompatVirtualCamera::~CompatVirtualCamera() {
@@ -106,8 +111,7 @@ ScopedAStatus CompatVirtualCamera::setPrimaryClient() {
     return ScopedAStatus::fromExceptionCode(EX_UNSUPPORTED_OPERATION);
 }
 
-ScopedAStatus CompatVirtualCamera::setMaxFramesInFlight(
-        [[maybe_unused]] int32_t bufferCount) {
+ScopedAStatus CompatVirtualCamera::setMaxFramesInFlight([[maybe_unused]] int32_t bufferCount) {
     return ScopedAStatus::fromExceptionCode(EX_UNSUPPORTED_OPERATION);
 }
 

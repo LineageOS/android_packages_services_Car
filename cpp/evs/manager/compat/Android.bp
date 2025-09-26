@@ -73,6 +73,7 @@ cc_test {
         ":evs_compat_sources",
         "test/Converter_test.cpp",
         "test/CompatEnumerator_test.cpp",
+        "test/CompatEnumeratorIntegrationTest.cpp",
     ],
     static_libs: [
         "android.car.feature-aconfig-cpp",

@@ -29,19 +29,20 @@ using aidl::android::hardware::automotive::evs::CameraDesc;
 
 namespace {
 std::vector<uint8_t> serializeNdkMetadata(const ACameraMetadata* ndkMetadata) {
-    if (!ndkMetadata) {
-        return {};
-    }
-    const camera_metadata_t* metadataBuffer =
-            reinterpret_cast<const camera_metadata_t*>(ndkMetadata);
-    size_t bufferSize = get_camera_metadata_size(metadataBuffer);
-    if (bufferSize == 0) {
+    const camera_metadata_t* rawMetadata = reinterpret_cast<const camera_metadata_t*>(ndkMetadata);
+    if (!rawMetadata) {
         return {};
     }
 
-    std::vector<uint8_t> rawData(bufferSize);
-    memcpy(rawData.data(), metadataBuffer, bufferSize);
-    return rawData;
+    // Validate the metadata structure before trusting it.
+    if (validate_camera_metadata_structure(rawMetadata, nullptr) != 0) {
+        LOG(ERROR) << "Camera metadata validation failed.";
+        return {};
+    }
+
+    size_t size = get_camera_metadata_size(rawMetadata);
+    const uint8_t* data = reinterpret_cast<const uint8_t*>(rawMetadata);
+    return std::vector<uint8_t>(data, data + size);
 }
 }  // namespace
 
