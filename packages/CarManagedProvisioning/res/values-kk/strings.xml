@@ -29,13 +29,13 @@
     <string name="contact_your_admin_for_help" msgid="1741496631607502730">"Көмек алу үшін ұйым басқарушысына хабарласыңыз."</string>
     <string name="fully_managed_device_provisioning_accept_header" msgid="8767138982035307813">"Басқарылатын көлікті реттеу"</string>
     <string name="fully_managed_device_provisioning_step_1_header" msgid="8704166635032524345">"Ұйымның қолданбаларын пайдалану"</string>
-    <string name="fully_managed_device_provisioning_step_1_description" msgid="5960961281295355254">"Ақпараттық-сауықтық жүйе реттелуде..."</string>
-    <string name="fully_managed_device_provisioning_step_2_header" msgid="5888602026900289468">"Ақпараттық-сауықтық жүйе дерегі қорғалмаған"</string>
+    <string name="fully_managed_device_provisioning_step_1_description" msgid="5960961281295355254">"Ақпарат және ойын-сауық жүйесі реттеліп жатыр…"</string>
+    <string name="fully_managed_device_provisioning_step_2_header" msgid="5888602026900289468">"Ақпарат және ойын-сауық жүйесі дерегі қорғалмаған"</string>
     <string name="fully_managed_device_provisioning_step_2_subheader_title" msgid="1421575203782743214">"Әрекетіңіз және дерегіңіз"</string>
     <string name="fully_managed_device_provisioning_step_2_subheader" msgid="4881961368653838979">"Ұйым басқарушысы көліктегі әрекетіңізді және дерегіңізді көре алады."</string>
     <string name="fully_managed_device_provisioning_permissions_secondary_subheader" msgid="8955791361423166123">"Ұйым басқарушысы осы көліктегі қолданбалар үшін микрофон, камера және геодерек рұқсаттары сияқты рұқсаттарды орната алады."</string>
-    <string name="fully_managed_device_with_permission_control_provisioning_summary" msgid="2503568673345133100">"Жұмыс қолданбаларына оңай кіру үшін осы көліктің ақпараттық-сауықтық жүйесін пайдаланыңыз. Бұл көлік қорғалмаған. Ұйым басқарушысы көліктегі әрекетіңізді және дерегіңізді көре алады. Ұйым басқарушысы осы көліктегі қолданбалар үшін микрофон, камера және геодерек рұқсаттары сияқты рұқсаттарды орната алады."</string>
-    <string name="fully_managed_device_provisioning_summary" msgid="4323948058344613817">"Жұмыс қолданбаларына оңай кіру үшін осы көліктің ақпараттық-сауықтық жүйесін пайдаланыңыз. Бұл көлік қорғалмаған. Ұйым басқарушысы көліктегі дерегіңізді және әрекетіңізді көре алады."</string>
+    <string name="fully_managed_device_with_permission_control_provisioning_summary" msgid="2503568673345133100">"Жұмыс қолданбаларына оңай кіру үшін осы көліктің ақпарат және ойын-сауық жүйесін пайдаланыңыз. Бұл көлік қорғалмаған. Ұйым басқарушысы көліктегі әрекетіңізді және дерегіңізді көре алады. Ұйым басқарушысы осы көліктегі қолданбалар үшін микрофон, камера және геодерек рұқсаттары сияқты рұқсаттарды орната алады."</string>
+    <string name="fully_managed_device_provisioning_summary" msgid="4323948058344613817">"Жұмыс қолданбаларына оңай кіру үшін осы көліктің ақпарат және ойын-сауық жүйесін пайдаланыңыз. Бұл көлік қорғалмаған. Ұйым басқарушысы көліктегі дерегіңізді және әрекетіңізді көре алады."</string>
     <string name="fully_managed_device_provisioning_progress_label" msgid="988594700479673633">"Басқарылатын көлікті реттеу"</string>
     <string name="fully_managed_device_provisioning_return_device_title" msgid="1578111657911434819">"Реттеуден бас тартып, көлікке оралу"</string>
     <string name="fully_managed_device_provisioning_return_device_subheader" msgid="5809488930429106172">"Көлікті ұйым басқарушысына қайтарыңыз немесе реттеуді жалғастыру үшін алдыңғы экранға оралыңыз."</string>
