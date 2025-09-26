@@ -28,6 +28,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
+import com.android.car.oem.tokens.Token;
 import com.android.car.portraitlauncher.R;
 
 /**
@@ -87,7 +88,7 @@ public class TaskViewPanelOverlay extends ConstraintLayout {
 
     /** Refreshes the overlay according to current theme. */
     void refresh() {
-        int backgroundColor = getResources().getColor(R.color.car_background, mContext.getTheme());
+        int backgroundColor = Token.getColor(getContext(), R.attr.oemColorSurface);
         setBackgroundColor(backgroundColor);
         Drawable iconBackgroundDrawable = getResources().getDrawable(R.drawable.app_icon_background,
                 mContext.getTheme());

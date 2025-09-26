@@ -34,6 +34,7 @@ import android.view.View;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 
+import com.android.car.oem.tokens.Token;
 import com.android.car.portraitlauncher.R;
 
 /** The grip bar used to drag a TaskViewPanel */
@@ -95,7 +96,8 @@ public class GripBarView extends RelativeLayout {
         Drawable background = getResources().getDrawable(R.drawable.grip_bar_background, theme);
         findViewById(R.id.grip_bar_handle).setBackground(background);
 
-        int displayCompatToolbarBackground = getResources().getColor(R.color.car_background, theme);
+        int displayCompatToolbarBackground = Token.getColor(getContext(),
+                R.attr.oemColorSurface);
         findViewById(R.id.displaycompat_toolbar)
                 .setBackgroundColor(displayCompatToolbarBackground);
 

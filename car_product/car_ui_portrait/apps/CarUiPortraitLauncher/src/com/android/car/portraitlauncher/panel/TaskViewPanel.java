@@ -44,6 +44,7 @@ import android.widget.RelativeLayout;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.android.car.oem.tokens.Token;
 import com.android.car.portraitlauncher.R;
 import com.android.car.portraitlauncher.panel.animation.ClosePanelAnimator;
 import com.android.car.portraitlauncher.panel.animation.ExpandPanelAnimator;
@@ -388,7 +389,7 @@ public class TaskViewPanel extends RelativeLayout {
 
     /** Refreshes the panel according to the given {@code Theme}. */
     public void refresh(Resources.Theme theme) {
-        int backgroundColor = getResources().getColor(R.color.car_background, theme);
+        int backgroundColor = Token.getColor(getContext(), R.attr.oemColorSurface);
         mTaskViewContainer.setBackgroundColor(backgroundColor);
         mTaskViewOverlay.refresh();
         mGripBar.refresh(theme);
