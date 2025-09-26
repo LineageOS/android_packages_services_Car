@@ -14,19 +14,7 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<selector xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
-    <item android:state_activated="true" app:state_ux_restricted="true"
-        android:alpha="?android:attr/disabledAlpha"
-        android:color="?android:attr/colorActivatedHighlight"/>
-    <item android:state_activated="false" app:state_ux_restricted="true"
-        android:color="?android:attr/colorBackground"/>
-    <item android:state_activated="true" android:state_enabled="false"
-        android:alpha="?android:attr/disabledAlpha"
-        android:color="?android:attr/colorActivatedHighlight"/>
-    <item android:state_activated="false" android:state_enabled="false"
-        android:color="?android:attr/colorBackground"/>
-    <item android:state_activated="false"
-        android:color="?android:attr/colorBackground"/>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:color="?android:attr/colorActivatedHighlight"/>
 </selector>
+
