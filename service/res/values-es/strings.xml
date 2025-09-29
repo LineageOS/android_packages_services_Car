@@ -262,6 +262,10 @@
     <string name="car_permission_desc_inject_vehicle_properties" msgid="2616112105084870775">"inyectar propiedades del vehículo"</string>
     <string name="car_permission_label_read_property_vendor_status" msgid="2894773112281568618">"leer el estado del proveedor de la propiedad"</string>
     <string name="car_permission_desc_read_property_vendor_status" msgid="7456031169256863531">"leer el estado del proveedor de la propiedad"</string>
+    <!-- no translation found for car_permission_label_read_property_vendor_error_code (9161295062734171179) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_read_property_vendor_error_code (4243058153289166218) -->
+    <skip />
     <string name="car_can_bus_failure" msgid="2334035748788283914">"Fallo de bus CAN"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"El bus CAN no responde. Desconecta el cabezal, conéctalo de nuevo y reinicia el coche"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"Mi dispositivo"</string>

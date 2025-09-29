@@ -262,6 +262,10 @@
     <string name="car_permission_desc_inject_vehicle_properties" msgid="2616112105084870775">"แทรกพร็อพเพอร์ตี้ต่างๆ ของรถ"</string>
     <string name="car_permission_label_read_property_vendor_status" msgid="2894773112281568618">"อ่านสถานะตัวแทนจำหน่ายพร็อพเพอร์ตี้"</string>
     <string name="car_permission_desc_read_property_vendor_status" msgid="7456031169256863531">"อ่านสถานะตัวแทนจำหน่ายพร็อพเพอร์ตี้"</string>
+    <!-- no translation found for car_permission_label_read_property_vendor_error_code (9161295062734171179) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_read_property_vendor_error_code (4243058153289166218) -->
+    <skip />
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN Bus ล้มเหลว"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN Bus ไม่ตอบสนอง ถอดปลั๊กกล่องเครื่องเล่นวิทยุ (Headunit) แล้วเสียบกลับเข้าไป สตาร์ทรถอีกครั้ง"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"อุปกรณ์ของฉัน"</string>
