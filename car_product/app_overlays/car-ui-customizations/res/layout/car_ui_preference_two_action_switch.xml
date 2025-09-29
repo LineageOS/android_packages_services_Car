@@ -93,7 +93,7 @@
 
         <com.android.car.ui.uxr.DrawableStateFrameLayout
             android:id="@+id/car_ui_secondary_action"
-            android:layout_width="?android:attr/listPreferredItemHeightSmall"
+            android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_alignParentStart="true"
             android:background="?android:attr/selectableItemBackground">
