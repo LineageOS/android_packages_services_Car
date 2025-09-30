@@ -163,13 +163,8 @@ namespace internal {
 
 class WatchdogProcessServicePeer final {
 public:
-    explicit WatchdogProcessServicePeer(
-            const sp<WatchdogProcessService>& watchdogProcessService,
-            const std::shared_ptr<PackageInfoResolverInterface>& packageInfoResolver) :
-          mWatchdogProcessService(watchdogProcessService) {
-        Mutex::Autolock lock(mWatchdogProcessService->mMutex);
-        mWatchdogProcessService->mPackageInfoResolver = packageInfoResolver;
-    }
+    explicit WatchdogProcessServicePeer(const sp<WatchdogProcessService>& watchdogProcessService) :
+          mWatchdogProcessService(watchdogProcessService) {}
 
     void expectVhalProcessIdentifier(const Matcher<const ProcessIdentifier&> matcher) {
         Mutex::Autolock lock(mWatchdogProcessService->mMutex);
@@ -201,7 +196,7 @@ public:
                 /*client=*/nullptr,
                 /*pid=*/1, kTestAidlClientUid,
                 /*processName=*/"",
-                /*startTimeMillis=*/1000, WatchdogProcessService(nullptr));
+                /*startTimeMillis=*/1000, WatchdogProcessService(nullptr, nullptr));
 
         clientInfo.packageName = "shell";
         clientInfoMap.insert({100, clientInfo});
@@ -313,10 +308,10 @@ protected:
                                                  kTestVhalPidCachingRetryDelayNs, mHandlerLooper,
                                                  mMockDeathRegistrationWrapper,
                                                  kTestVhalHealthCheckIntervalMillis,
-                                                 kTestVhalHealthCheckDelayMillis);
+                                                 kTestVhalHealthCheckDelayMillis,
+                                                 mMockPackageInfoResolver);
         mWatchdogProcessServicePeer =
-                std::make_unique<internal::WatchdogProcessServicePeer>(mWatchdogProcessService,
-                                                                       mMockPackageInfoResolver);
+                std::make_unique<internal::WatchdogProcessServicePeer>(mWatchdogProcessService);
 
         expectGetPropConfigs(mSupportedVehicleProperties, mNotSupportedVehicleProperties);
 

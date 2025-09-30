@@ -264,6 +264,7 @@ public:
 class WatchdogPerfService final : public WatchdogPerfServiceInterface {
 public:
     WatchdogPerfService(const android::sp<WatchdogServiceHelperInterface>& watchdogServiceHelper,
+                        std::shared_ptr<PackageInfoResolverInterface> packageInfoResolver,
                         const std::function<int64_t()>& getElapsedTimeSinceBootMsFunc) :
           kGetElapsedTimeSinceBootMillisFunc(std::move(getElapsedTimeSinceBootMsFunc)),
           mPostSystemEventDurationNs(std::chrono::duration_cast<std::chrono::nanoseconds>(
@@ -287,7 +288,7 @@ public:
           mBootCompletedTimeEpochSeconds(0),
           mKernelStartTimeEpochSeconds(0),
           mCurrCollectionEvent(EventType::INIT),
-          mUidStatsCollector(android::sp<UidStatsCollector>::make()),
+          mUidStatsCollector(android::sp<UidStatsCollector>::make(packageInfoResolver)),
           mProcStatCollector(android::sp<ProcStatCollector>::make()),
           mProcDiskStatsCollector(android::sp<ProcDiskStatsCollector>::make()),
           mDataProcessors({}),

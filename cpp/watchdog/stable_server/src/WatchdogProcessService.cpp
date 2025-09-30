@@ -256,7 +256,9 @@ std::string timeoutToString(TimeoutLength timeout) {
     }
 }
 
-WatchdogProcessService::WatchdogProcessService(const sp<Looper>& handlerLooper) :
+WatchdogProcessService::WatchdogProcessService(
+        const sp<Looper>& handlerLooper,
+        std::shared_ptr<PackageInfoResolverInterface> packageInfoResolver) :
       WatchdogProcessService((std::shared_ptr<IVhalClient> (*)())IVhalClient::tryCreate,
                              kDefaultTryGetHidlServiceManager, getPidStatForPid, getUidForPid,
                              kDefaultVhalPidCachingRetryDelayNs, handlerLooper,
@@ -265,7 +267,7 @@ WatchdogProcessService::WatchdogProcessService(const sp<Looper>& handlerLooper) 
                                      std::max(GetIntProperty(kPropertyVhalCheckInterval,
                                                              kDefaultVhalCheckIntervalSec),
                                               kDefaultVhalCheckIntervalSec)),
-                             kHealthCheckDelayMillis) {}
+                             kHealthCheckDelayMillis, packageInfoResolver) {}
 
 WatchdogProcessService::WatchdogProcessService(
         const std::function<std::shared_ptr<IVhalClient>()>& tryCreateVhalClientFunc,
@@ -275,7 +277,8 @@ WatchdogProcessService::WatchdogProcessService(
         const std::chrono::nanoseconds& vhalPidCachingRetryDelayNs, const sp<Looper>& handlerLooper,
         const sp<AIBinderDeathRegistrationWrapperInterface>& deathRegistrationWrapper,
         const std::chrono::milliseconds& vhalHealthCheckIntervalMillis,
-        const std::chrono::milliseconds& vhalHealthCheckDelayMillis) :
+        const std::chrono::milliseconds& vhalHealthCheckDelayMillis,
+        std::shared_ptr<PackageInfoResolverInterface> packageInfoResolver) :
       kTryCreateVhalClientFunc(tryCreateVhalClientFunc),
       kTryGetHidlServiceManagerFunc(tryGetHidlServiceManagerFunc),
       kGetPidStatForPidFunc(getPidStatForPidFunc),
@@ -287,6 +290,7 @@ WatchdogProcessService::WatchdogProcessService(
       mLastSessionId(0),
       mServiceStarted(false),
       mDeathRegistrationWrapper(deathRegistrationWrapper),
+      mPackageInfoResolver(packageInfoResolver),
       mIsEnabled(true),
       mVhalService(nullptr),
       mTotalVhalPidCachingAttempts(0),
@@ -823,10 +827,6 @@ Result<void> WatchdogProcessService::registerClient(const ClientInfo& clientInfo
     }
     uid_t callingUid = IPCThreadState::self()->getCallingUid();
 
-    // Lazy initialization of PackageInfoResolver.
-    if (mPackageInfoResolver == nullptr) {
-        mPackageInfoResolver = PackageInfoResolver::getInstance();
-    }
     mPackageInfoResolver
             ->asyncFetchPackageNamesForUids({callingUid},
                                             [&](std::unordered_map<uid_t, std::string>

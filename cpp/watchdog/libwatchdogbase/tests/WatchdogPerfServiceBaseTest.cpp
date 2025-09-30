@@ -164,7 +164,7 @@ protected:
         mMockWatchdogServiceHelperBase = sp<MockWatchdogServiceHelperBase>::make();
         mMockIoOveruseMonitor = sp<MockIoOveruseMonitor>::make();
         mMockProcDiskStatsCollector = sp<NiceMock<MockProcDiskStatsCollector>>::make();
-        mService = sp<WatchdogPerfServiceBase>::make(mMockWatchdogServiceHelperBase);
+        mService = sp<WatchdogPerfServiceBase>::make(mMockWatchdogServiceHelperBase, nullptr);
         mServicePeer = sp<internal::WatchdogPerfServiceBasePeer>::make(mService);
         mLooperStub = sp<LooperStub>::make();
     }

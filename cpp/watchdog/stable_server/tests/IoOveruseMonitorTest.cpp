@@ -190,8 +190,7 @@ public:
           mIoOveruseMonitor(ioOveruseMonitor) {}
 
     Result<void> init(const sp<AIBinderDeathRegistrationWrapperInterface>& deathRegistrationWrapper,
-                      const sp<IoOveruseConfigsInterface>& ioOveruseConfigs,
-                      const std::shared_ptr<PackageInfoResolverInterface>& packageInfoResolver) {
+                      const sp<IoOveruseConfigsInterface>& ioOveruseConfigs) {
         if (const auto result = mIoOveruseMonitor->init(); !result.ok()) {
             return result;
         }
@@ -200,7 +199,6 @@ public:
         mIoOveruseMonitor->mIoOveruseWarnPercentage = kTestIoOveruseWarnPercentage;
         mIoOveruseMonitor->mDeathRegistrationWrapper = deathRegistrationWrapper;
         mIoOveruseMonitor->mIoOveruseConfigs = ioOveruseConfigs;
-        mIoOveruseMonitor->mPackageInfoResolver = packageInfoResolver;
         return {};
     }
 
@@ -218,10 +216,10 @@ protected:
         mMockIoOveruseConfigs = sp<MockIoOveruseConfigs>::make();
         mMockPackageInfoResolver = std::make_shared<MockPackageInfoResolver>();
         mMockUidStatsCollector = sp<MockUidStatsCollector>::make();
-        mIoOveruseMonitor = sp<IoOveruseMonitor>::make(mMockWatchdogServiceHelper);
+        mIoOveruseMonitor =
+                sp<IoOveruseMonitor>::make(mMockWatchdogServiceHelper, mMockPackageInfoResolver);
         mIoOveruseMonitorPeer = sp<internal::IoOveruseMonitorPeer>::make(mIoOveruseMonitor);
-        mIoOveruseMonitorPeer->init(mMockDeathRegistrationWrapper, mMockIoOveruseConfigs,
-                                    mMockPackageInfoResolver);
+        mIoOveruseMonitorPeer->init(mMockDeathRegistrationWrapper, mMockIoOveruseConfigs);
         setUpPackagesAndConfigurations();
     }
 
