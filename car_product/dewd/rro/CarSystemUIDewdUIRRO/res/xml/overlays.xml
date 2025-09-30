@@ -16,6 +16,7 @@
 <overlay>
     <item target="array/nav_components" value="@array/nav_components"/>
     <item target="array/window_states" value="@array/window_states"/>
+    <item target="array/window_states_enable_ext_panel_updates" value="@array/window_states_enable_ext_panel_updates"/>
     <item target="array/config_untrimmable_activities" value="@array/config_untrimmable_activities"/>
     <item target="array/config_default_activities" value="@array/config_default_activities"/>
     <item target="array/config_packagesExcludedFromDock" value="@array/config_packagesExcludedFromDock"/>
@@ -142,7 +143,5 @@
     <item target="string/default_config" value="@string/default_config"/>
     <item target="string/config_appGridComponentName" value="@string/config_appGridComponentName"/>
 
-    <item target="bool/config_enableTopSystemBar" value="@bool/config_enableTopSystemBar" />
-    <item target="bool/config_enableBottomSystemBar" value="@bool/config_enableBottomSystemBar" />
-    <item target="string/config_privacyIndicatorLocation" value="@string/config_privacyIndicatorLocation" />
+    <item target="string/config_privacyIndicatorLocation_enable_ext_panel_updates" value="@string/config_privacyIndicatorLocation_enable_ext_panel_updates" />
 </overlay>
