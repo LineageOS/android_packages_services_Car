@@ -47,9 +47,9 @@ import java.util.List;
  *
  * <ul>
  *   <li>The gesture interception will only occur when the corresponding {@link
- *       ControlledRemoteCarTaskViewConfig#mShouldCaptureGestures} is set.
+ *       ControlledRemoteCarTaskView#shouldCaptureGestures()} is set.
  *   <li>The long press interception will only occur when the corresponding {@link
- *       ControlledRemoteCarTaskViewConfig#mShouldCaptureLongPress} is set.
+ *       ControlledRemoteCarTaskViewConfig#shouldCaptureLongPress()} is set.
  * </ul>
  */
 final class CarTaskViewInputInterceptor {
@@ -208,8 +208,8 @@ final class CarTaskViewInputInterceptor {
                 for (int i = 0, length = taskViewList.size(); i < length; i++) {
                     RemoteCarTaskView tv = taskViewList.get(i);
                     if (tv instanceof ControlledRemoteCarTaskView
-                            && ((ControlledRemoteCarTaskView) tv).getConfig()
-                            .mShouldCaptureGestures && isIn(event, tv)) {
+                            && ((ControlledRemoteCarTaskView) tv).shouldCaptureGestures()
+                            && isIn(event, tv)) {
                         mTouchDownX = event.getX();
                         mTouchDownY = event.getY();
                         mActionDownInsideTaskView = tv;
@@ -274,7 +274,7 @@ final class CarTaskViewInputInterceptor {
             for (int i = 0, length = taskViewList.size(); i < length; i++) {
                 RemoteCarTaskView tv = taskViewList.get(i);
                 if (tv instanceof ControlledRemoteCarTaskView
-                        && ((ControlledRemoteCarTaskView) tv).getConfig().mShouldCaptureGestures
+                        && ((ControlledRemoteCarTaskView) tv).shouldCaptureLongPress()
                         && isIn(e, tv)) {
                     if (DBG) {
                         Slog.d(TAG, "Long press captured for taskView: " + tv);

@@ -26,6 +26,7 @@ import android.app.ActivityManager;
 import android.app.ActivityOptions;
 import android.app.PendingIntent;
 import android.car.Car;
+import android.car.builtin.app.ActivityManagerHelper;
 import android.car.builtin.util.Slogf;
 import android.car.builtin.view.ViewHelper;
 import android.content.Context;
@@ -52,6 +53,10 @@ import java.util.concurrent.Executor;
  *     <li>The underlying task is meant to be started by the host and be there forever.</li>
  * </ul>
  *
+ * <p> The activity in the task view can be replaced by calling
+ * {@link #replaceActivityIntent(Intent)}. When the activity is replaced, the existing task
+ * in the task view will be removed and a new task will be started.
+ *
  * @hide
  */
 @SystemApi
@@ -64,6 +69,7 @@ public final class ControlledRemoteCarTaskView extends RemoteCarTaskView {
     private final CarTaskViewController mCarTaskViewController;
     private final Context mContext;
     private final ControlledRemoteCarTaskViewConfig mConfig;
+    private Intent mActivityIntent;
     private final Rect mTmpRect = new Rect();
 
     private ActivityManager.RunningTaskInfo mTaskInfo;
@@ -133,6 +139,7 @@ public final class ControlledRemoteCarTaskView extends RemoteCarTaskView {
         super(context);
         mContext = context;
         mConfig = config;
+        mActivityIntent = mConfig.mActivityIntent;
         mCallbackExecutor = callbackExecutor;
         mCallback = callback;
         mCarTaskViewController = carTaskViewController;
@@ -204,16 +211,16 @@ public final class ControlledRemoteCarTaskView extends RemoteCarTaskView {
         ViewHelper.getBoundsOnScreen(this, launchBounds);
         launchBounds.set(launchBounds);
         if (CarTaskViewController.DBG) {
-            Slogf.d(TAG, "Starting (" + mConfig.mActivityIntent.getComponent() + ") on "
+            Slogf.d(TAG, "Starting (" + mActivityIntent.getComponent() + ") on "
                     + launchBounds);
         }
         Intent fillInIntent = null;
-        if ((mConfig.mActivityIntent.getFlags() & Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS) != 0) {
+        if ((mActivityIntent.getFlags() & Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS) != 0) {
             fillInIntent = new Intent().addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
         }
         startActivity(
                 PendingIntent.getActivity(mContext, /* requestCode= */ 0,
-                        mConfig.mActivityIntent,
+                        mActivityIntent,
                         PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT),
                 fillInIntent, options, launchBounds);
     }
@@ -308,8 +315,25 @@ public final class ControlledRemoteCarTaskView extends RemoteCarTaskView {
         return mTaskInfo;
     }
 
-    ControlledRemoteCarTaskViewConfig getConfig() {
-        return mConfig;
+    /**
+     * @hide
+     */
+    @RequiresPermission(Car.PERMISSION_REGISTER_CAR_SYSTEM_UI_PROXY)
+    @MainThread
+    public void replaceActivityIntent(@NonNull Intent intent) {
+        mActivityIntent = intent;
+        if (mTaskInfo != null) {
+            ActivityManagerHelper.removeTask(mTaskInfo.taskId);
+        }
+        startActivity();
+    }
+
+    boolean shouldCaptureGestures() {
+        return mConfig.shouldCaptureGestures();
+    }
+
+    boolean shouldCaptureLongPress() {
+        return mConfig.shouldCaptureLongPress();
     }
 
     @Override
@@ -323,6 +347,7 @@ public final class ControlledRemoteCarTaskView extends RemoteCarTaskView {
         }
         return TAG + " {\n"
                 + "  config=" + mConfig + "\n"
+                + "  activityIntent=" + mActivityIntent + "\n"
                 + "  taskId=" + (getTaskInfo() == null ? "null" : getTaskInfo().taskId) + "\n"
                 + (withBounds ? ("  boundsOnScreen=" + mTmpRect) : "")
                 + "}\n";
