@@ -20,9 +20,11 @@
 #include <aidl/android/hardware/automotive/evs/BufferDesc.h>
 #include <aidl/android/hardware/automotive/evs/CameraDesc.h>
 #include <aidl/android/hardware/automotive/evs/CameraParam.h>
+#include <aidl/android/hardware/automotive/evs/EvsResult.h>
 #include <aidl/android/hardware/automotive/evs/IEvsCameraStream.h>
 #include <aidl/android/hardware/automotive/evs/IEvsDisplay.h>
 #include <aidl/android/hardware/automotive/evs/ParameterRange.h>
+#include <utils/Mutex.h>
 
 #include <vector>
 
@@ -33,6 +35,12 @@ namespace aidlevs = ::aidl::android::hardware::automotive::evs;
 class CompatHalCamera;  // Forward declaration to avoid circular dependency.
 
 class CompatVirtualCamera final : public aidlevs::BnEvsCamera {
+#ifdef EVS_COMPAT_TEST
+    // Grant access to private members for testing.
+    friend class CompatVirtualCameraTest_setMaxFramesInFlight_Valid_Test;
+    friend class CompatVirtualCameraTest_setMaxFramesInFlight_Invalid_Test;
+#endif
+
 public:
     explicit CompatVirtualCamera(const std::vector<std::shared_ptr<CompatHalCamera>>& halCameras);
     ~CompatVirtualCamera() override;
@@ -59,6 +67,14 @@ public:
     ::ndk::ScopedAStatus setIntParameter(aidlevs::CameraParam id, int32_t value,
                                          std::vector<int32_t>* _aidl_return) override;
     ::ndk::ScopedAStatus setPrimaryClient() override;
+    /**
+     * This function should be called prior to calling startVideoStream. Any subsequent calls after
+     * startVideoStream will be ignored. When virtual cameras share a physical camera, ensure all
+     * virtual cameras have their frames set before calling startVideoStream on any of them.
+     *
+     * @param bufferCount The maximum number of images the user will want to access simultaneously.
+     * @return A status object indicating the result of the operation.
+     */
     ::ndk::ScopedAStatus setMaxFramesInFlight(int32_t bufferCount) override;
     ::ndk::ScopedAStatus startVideoStream(
             const std::shared_ptr<aidlevs::IEvsCameraStream>& receiver) override;
@@ -67,6 +83,13 @@ public:
 
 private:
     std::unordered_map<std::string, std::weak_ptr<CompatHalCamera>> mHalCameras;
+    unsigned int mMaxFramesInFlight GUARDED_BY(mMutex) = 1;
+    enum {
+        STOPPED,
+        RUNNING,
+        STOPPING,
+    } mStreamState GUARDED_BY(mMutex) = STOPPED;
+    mutable std::mutex mMutex;
 };
 
 }  // namespace android::hardware::automotive::evs::compat

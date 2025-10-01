@@ -74,6 +74,7 @@ cc_test {
         "test/Converter_test.cpp",
         "test/CompatEnumerator_test.cpp",
         "test/CompatEnumeratorIntegrationTest.cpp",
+        "test/CompatVirtualCamera_test.cpp",
     ],
     static_libs: [
         "android.car.feature-aconfig-cpp",

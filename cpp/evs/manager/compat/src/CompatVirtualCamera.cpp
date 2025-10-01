@@ -25,6 +25,7 @@ namespace android::hardware::automotive::evs::compat {
 using ::aidl::android::hardware::automotive::evs::BufferDesc;
 using ::aidl::android::hardware::automotive::evs::CameraDesc;
 using ::aidl::android::hardware::automotive::evs::CameraParam;
+using ::aidl::android::hardware::automotive::evs::EvsResult;
 using ::aidl::android::hardware::automotive::evs::IEvsCameraStream;
 using ::aidl::android::hardware::automotive::evs::IEvsDisplay;
 using ::aidl::android::hardware::automotive::evs::ParameterRange;
@@ -111,8 +112,30 @@ ScopedAStatus CompatVirtualCamera::setPrimaryClient() {
     return ScopedAStatus::fromExceptionCode(EX_UNSUPPORTED_OPERATION);
 }
 
-ScopedAStatus CompatVirtualCamera::setMaxFramesInFlight([[maybe_unused]] int32_t bufferCount) {
-    return ScopedAStatus::fromExceptionCode(EX_UNSUPPORTED_OPERATION);
+ScopedAStatus CompatVirtualCamera::setMaxFramesInFlight(int32_t bufferCount) {
+    if (bufferCount <= 0) {
+        LOG(ERROR) << "bufferCount must be positive, but got " << bufferCount;
+        return ScopedAStatus::fromServiceSpecificError(
+                static_cast<int32_t>(EvsResult::INVALID_ARG));
+    }
+
+    std::lock_guard<std::mutex> lock(mMutex);
+    if (bufferCount == mMaxFramesInFlight) {
+        return ScopedAStatus::ok();
+    }
+
+    for (auto& [id, weak_hal_cam] : mHalCameras) {
+        if (auto hal_cam = weak_hal_cam.lock()) {
+            if (!hal_cam->isStopped()) {
+                LOG(ERROR) << "Camera " << id << " is not stopped.";
+                return ScopedAStatus::fromServiceSpecificError(
+                        static_cast<int32_t>(EvsResult::STREAM_ALREADY_RUNNING));
+            }
+        }
+    }
+
+    mMaxFramesInFlight = bufferCount;
+    return ScopedAStatus::ok();
 }
 
 ScopedAStatus CompatVirtualCamera::startVideoStream(
