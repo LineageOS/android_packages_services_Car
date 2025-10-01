@@ -31,6 +31,12 @@ namespace android::hardware::automotive::evs::compat {
 namespace aidlevs = ::aidl::android::hardware::automotive::evs;
 
 class CompatHalCamera final : public aidlevs::BnEvsCameraStream {
+#ifdef EVS_COMPAT_TEST
+    // Grant access to private members for testing.
+    friend class CompatHalCameraTest_ownVirtualCamera_ValidCamera_Test;
+    friend class CompatHalCameraTest_disownVirtualCamera_ValidCamera_Test;
+    friend class CompatHalCameraTest_disownVirtualCamera_NotOwnedCamera_Test;
+#endif
 public:
     CompatHalCamera(ACameraDevice* device, const std::string& cameraId,
                     const aidlevs::Stream& streamConfig);
@@ -43,12 +49,16 @@ public:
     ACameraDevice* getDevice() const { return mDevice; }
     std::string getId() const { return mCameraId; }
     bool ownVirtualCamera(const std::shared_ptr<CompatVirtualCamera>& virtualCamera);
+    void disownVirtualCamera(const CompatVirtualCamera* virtualCamera);
     bool isStopped() const { return mStreamState.load(std::memory_order_acquire) == STOPPED; }
 
 private:
     ACameraDevice* mDevice;
     std::string mCameraId;
     aidlevs::Stream mStreamConfig;
+    mutable std::mutex mMutex;
+    std::list<std::weak_ptr<CompatVirtualCamera>> mVirtualCameras GUARDED_BY(mMutex);
+
 
     enum StreamStateEnum {
         STOPPED,

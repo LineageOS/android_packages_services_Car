@@ -44,7 +44,33 @@ ScopedAStatus CompatHalCamera::notify([[maybe_unused]] const EvsEventDesc& event
 }
 
 bool CompatHalCamera::ownVirtualCamera(const std::shared_ptr<CompatVirtualCamera>& virtualCamera) {
-    // TODO (b/441577862): Implement the logic to associate this HalCamera with the VirtualCamera
+    if (!virtualCamera) {
+        LOG(ERROR) << "Virtual camera is null";
+        return false;
+    }
+    std::lock_guard<std::mutex> lock(mMutex);
+    mVirtualCameras.push_back(virtualCamera);
     return true;
 }
+
+void CompatHalCamera::disownVirtualCamera(const CompatVirtualCamera* virtualCamera) {
+    if (!virtualCamera) {
+        LOG(ERROR) << "Virtual camera is null";
+        return;
+    }
+
+    std::lock_guard<std::mutex> lock(mMutex);
+    size_t sizeBefore = mVirtualCameras.size();
+    mVirtualCameras.remove_if(
+            [virtualCamera](const std::weak_ptr<CompatVirtualCamera>& weakCurrentCam) {
+                const auto currentCam = weakCurrentCam.lock();
+                return currentCam == nullptr || currentCam.get() == virtualCamera;
+            });
+
+    if (mVirtualCameras.size() == sizeBefore) {
+        LOG(WARNING) << "Virtual camera " << virtualCamera
+                     << " not found in mVirtualCameras for camera " << mCameraId;
+    }
+}
+
 }  // namespace android::hardware::automotive::evs::compat
