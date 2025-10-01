@@ -29,17 +29,15 @@ import static android.car.VehiclePropertyIds.VEHICLE_SPEED_DISPLAY_UNITS;
 import static android.car.feature.Flags.FLAG_CAR_PROPERTY_STATUS_DETAILED_NOT_AVAILABLE;
 import static android.car.feature.Flags.FLAG_PROPERTY_VALUE_USE_DIRECT_EXECUTOR;
 import static android.car.hardware.CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ;
-import static android.car.hardware.property.VehicleHalStatusCode.STATUS_INTERNAL_ERROR;
-import static android.car.hardware.property.VehicleHalStatusCode.STATUS_NOT_AVAILABLE;
 import static android.car.hardware.property.VehicleVendorPermission.PERMISSION_GET_CAR_VENDOR_CATEGORY_ENGINE;
 import static android.car.hardware.property.VehicleVendorPermission.PERMISSION_GET_CAR_VENDOR_CATEGORY_INFO;
 import static android.car.hardware.property.VehicleVendorPermission.PERMISSION_SET_CAR_VENDOR_CATEGORY_ENGINE;
 import static android.hardware.automotive.vehicle.VehicleProperty.SUPPORT_CUSTOMIZE_VENDOR_PERMISSION;
 
+import static com.android.car.internal.property.CarPropertyErrorCodes.ERROR_CODES_INTERNAL;
+import static com.android.car.internal.property.CarPropertyErrorCodes.ERROR_CODES_TRY_AGAIN;
 import static com.android.car.internal.property.CarPropertyErrorCodes.STATUS_OK;
 import static com.android.car.internal.property.CarPropertyErrorCodes.STATUS_OK_NO_ERROR;
-import static com.android.car.internal.property.CarPropertyErrorCodes.ERROR_CODES_TRY_AGAIN;
-import static com.android.car.internal.property.CarPropertyErrorCodes.ERROR_CODES_INTERNAL;
 import static com.android.car.internal.property.CarPropertyHelper.newPropIdAreaId;
 
 import static com.google.common.truth.Truth.assertThat;
@@ -70,6 +68,7 @@ import android.car.hardware.property.AreaIdConfig;
 import android.car.hardware.property.CarPropertyEvent;
 import android.car.hardware.property.CarPropertyManager;
 import android.car.hardware.property.ICarPropertyEventListener;
+import android.car.hardware.property.VehicleHalStatusCode;
 import android.car.test.AbstractExpectableTestCase;
 import android.car.test.NoActiveHandlerThreadCheckerRule;
 import android.hardware.automotive.vehicle.RawPropValues;
@@ -88,6 +87,7 @@ import android.os.ServiceSpecificException;
 import android.platform.test.annotations.EnableFlags;
 import android.platform.test.flag.junit.SetFlagsRule;
 import android.util.ArraySet;
+import android.util.SparseIntArray;
 
 import androidx.test.runner.AndroidJUnit4;
 
@@ -187,6 +187,7 @@ public class PropertyHalServiceTest extends AbstractExpectableTestCase{
     private static final int INT32_PROP = VehiclePropertyIds.INFO_FUEL_DOOR_LOCATION;
     private static final int PROPERTY_VALUE = 123;
     private static final int VENDOR_ERROR_CODE = 1234;
+    private static final int VENDOR_ERROR_CODE_SHIFT = 16;
     private static final int SYSTEM_ERROR_CODE = 4321;
     private static final int VENDOR_PROPERTY_1 = 0x21e01111;
     private static final int VENDOR_PROPERTY_2 = 0x21e01112;
@@ -2259,12 +2260,14 @@ public class PropertyHalServiceTest extends AbstractExpectableTestCase{
         VehiclePropError error1 = new VehiclePropError();
         error1.propId = HVAC_TEMPERATURE_SET;
         error1.areaId = 1;
-        error1.errorCode = STATUS_NOT_AVAILABLE | (0x1234 << 16);
+        error1.errorCode =
+                VehicleHalStatusCode.STATUS_NOT_AVAILABLE
+                        | (VENDOR_ERROR_CODE << VENDOR_ERROR_CODE_SHIFT);
         // Error 2 has the wrong area ID and must be ignored.
         VehiclePropError error2 = new VehiclePropError();
         error2.propId = HVAC_TEMPERATURE_SET;
         error2.areaId = 2;
-        error2.errorCode = STATUS_INTERNAL_ERROR;
+        error2.errorCode = VehicleHalStatusCode.STATUS_INTERNAL_ERROR;
         vehiclePropErrors.add(error1);
         vehiclePropErrors.add(error2);
         assertThat(serviceWrap).hasSize(1);
@@ -2277,12 +2280,21 @@ public class PropertyHalServiceTest extends AbstractExpectableTestCase{
                         .toCarPropertyAsyncErrorCode())
                 .isEqualTo(CarPropertyManager.STATUS_ERROR_NOT_AVAILABLE);
         assertThat(
-                mAsyncResultCaptor.getValue().getList().get(0).getCarPropertyErrorCodes()
-                        .getVendorErrorCode())
-                .isEqualTo(0x1234);
-        assertThat(mAsyncResultCaptor.getValue().getList().get(0).getCarPropertyErrorCodes()
-                        .getSystemErrorCode())
-                .isEqualTo(STATUS_NOT_AVAILABLE);
+                        mAsyncResultCaptor
+                                .getValue()
+                                .getList()
+                                .get(0)
+                                .getCarPropertyErrorCodes()
+                                .getVendorErrorCode())
+                .isEqualTo(VENDOR_ERROR_CODE);
+        assertThat(
+                        mAsyncResultCaptor
+                                .getValue()
+                                .getList()
+                                .get(0)
+                                .getCarPropertyErrorCodes()
+                                .getSystemErrorCode())
+                .isEqualTo(VehicleHalStatusCode.STATUS_NOT_AVAILABLE);
         verify(mVehicleHal).unsubscribeProperty(any(), eq(HVAC_TEMPERATURE_SET));
 
         verifyNoPendingRequest();
@@ -2592,26 +2604,56 @@ public class PropertyHalServiceTest extends AbstractExpectableTestCase{
     }
 
     @Test
-    public void testOnPropertySetError() throws Exception {
-        ArrayList<VehiclePropError> vehiclePropErrors = new ArrayList<>();
-        VehiclePropError error1 = new VehiclePropError();
-        error1.propId = HVAC_TEMPERATURE_SET;
-        error1.areaId = 1;
-        error1.errorCode = STATUS_NOT_AVAILABLE | (0x1234 << 16);
-        VehiclePropError error2 = new VehiclePropError();
-        error2.propId = PERF_VEHICLE_SPEED;
-        error2.areaId = 0;
-        error2.errorCode = STATUS_INTERNAL_ERROR;
-        vehiclePropErrors.add(error1);
-        vehiclePropErrors.add(error2);
+    public void testOnPropertySetError_statusCodeMapping() throws Exception {
+        SparseIntArray statusCodeToCarSetPropertyErrorCode = new SparseIntArray();
+        statusCodeToCarSetPropertyErrorCode.put(
+                VehicleHalStatusCode.STATUS_TRY_AGAIN,
+                CarPropertyManager.CAR_SET_PROPERTY_ERROR_CODE_TRY_AGAIN);
+        statusCodeToCarSetPropertyErrorCode.put(
+                VehicleHalStatusCode.STATUS_INVALID_ARG,
+                CarPropertyManager.CAR_SET_PROPERTY_ERROR_CODE_INVALID_ARG);
+        statusCodeToCarSetPropertyErrorCode.put(
+                VehicleHalStatusCode.STATUS_ACCESS_DENIED,
+                CarPropertyManager.CAR_SET_PROPERTY_ERROR_CODE_ACCESS_DENIED);
+        statusCodeToCarSetPropertyErrorCode.put(
+                VehicleHalStatusCode.STATUS_INTERNAL_ERROR,
+                CarPropertyManager.CAR_SET_PROPERTY_ERROR_CODE_UNKNOWN);
+        statusCodeToCarSetPropertyErrorCode.put(
+                VehicleHalStatusCode.STATUS_NOT_AVAILABLE,
+                CarPropertyManager.CAR_SET_PROPERTY_ERROR_CODE_PROPERTY_NOT_AVAILABLE);
+        statusCodeToCarSetPropertyErrorCode.put(
+                VehicleHalStatusCode.STATUS_NOT_AVAILABLE_DISABLED,
+                CarPropertyManager.CAR_SET_PROPERTY_ERROR_CODE_PROPERTY_NOT_AVAILABLE);
+        statusCodeToCarSetPropertyErrorCode.put(
+                VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SPEED_LOW,
+                CarPropertyManager.CAR_SET_PROPERTY_ERROR_CODE_PROPERTY_NOT_AVAILABLE);
+        statusCodeToCarSetPropertyErrorCode.put(
+                VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SPEED_HIGH,
+                CarPropertyManager.CAR_SET_PROPERTY_ERROR_CODE_PROPERTY_NOT_AVAILABLE);
+        statusCodeToCarSetPropertyErrorCode.put(
+                VehicleHalStatusCode.STATUS_NOT_AVAILABLE_POOR_VISIBILITY,
+                CarPropertyManager.CAR_SET_PROPERTY_ERROR_CODE_PROPERTY_NOT_AVAILABLE);
+        statusCodeToCarSetPropertyErrorCode.put(
+                VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SAFETY,
+                CarPropertyManager.CAR_SET_PROPERTY_ERROR_CODE_PROPERTY_NOT_AVAILABLE);
+        statusCodeToCarSetPropertyErrorCode.put(
+                VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED,
+                CarPropertyManager.CAR_SET_PROPERTY_ERROR_CODE_PROPERTY_NOT_AVAILABLE);
 
         mPropertyHalService.setPropertyHalListener(mPropertyHalListener);
-        mPropertyHalService.onPropertySetError(vehiclePropErrors);
+        for (int i = 0; i < statusCodeToCarSetPropertyErrorCode.size(); i++) {
+            int statusCode = statusCodeToCarSetPropertyErrorCode.keyAt(i);
+            int carSetPropertyErrorCode = statusCodeToCarSetPropertyErrorCode.valueAt(i);
+            VehiclePropError error = new VehiclePropError();
+            error.propId = HVAC_TEMPERATURE_SET;
+            error.areaId = 1;
+            error.errorCode = statusCode | (VENDOR_ERROR_CODE << VENDOR_ERROR_CODE_SHIFT);
+            mPropertyHalService.onPropertySetError(List.of(error));
 
-        verify(mPropertyHalListener).onPropertySetError(HVAC_TEMPERATURE_SET, 1,
-                CarPropertyManager.CAR_SET_PROPERTY_ERROR_CODE_PROPERTY_NOT_AVAILABLE);
-        verify(mPropertyHalListener).onPropertySetError(PERF_VEHICLE_SPEED, 0,
-                CarPropertyManager.CAR_SET_PROPERTY_ERROR_CODE_UNKNOWN);
+            verify(mPropertyHalListener)
+                    .onPropertySetError(HVAC_TEMPERATURE_SET, 1, carSetPropertyErrorCode);
+            clearInvocations(mPropertyHalListener);
+        }
     }
 
     @Test

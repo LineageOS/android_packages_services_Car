@@ -71,6 +71,15 @@ public final class DetailedErrorCode {
     @FlaggedApi(Flags.FLAG_CAR_PROPERTY_DETAILED_ERROR_CODES)
     public static final int NOT_AVAILABLE_SAFETY =
             PropertyNotAvailableErrorCode.NOT_AVAILABLE_SAFETY;
+    /**
+     * The feature cannot be accessed because the sub-system for the feature is
+     * not connected.
+     *
+     * E.g. trailer light state is not available when the trailer is detached.
+     */
+    @FlaggedApi(Flags.FLAG_CAR_PROPERTY_STATUS_DETAILED_NOT_AVAILABLE)
+    public static final int NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED =
+            PropertyNotAvailableErrorCode.NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED;
 
     /**
      * Returns a user-friendly representation of a {@code DetailedErrorCode}.
@@ -93,6 +102,10 @@ public final class DetailedErrorCode {
             case NOT_AVAILABLE_SAFETY:
                 return "NOT_AVAILABLE_SAFETY";
             default:
+                if (Flags.carPropertyStatusDetailedNotAvailable()
+                        && detailedErrorCode == NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED) {
+                    return "NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED";
+                }
                 return Integer.toString(detailedErrorCode);
         }
     }
@@ -100,7 +113,8 @@ public final class DetailedErrorCode {
     /** @hide */
     @IntDef({NO_DETAILED_ERROR_CODE, NOT_AVAILABLE_DISABLED,
         NOT_AVAILABLE_SPEED_LOW, NOT_AVAILABLE_SPEED_HIGH,
-        NOT_AVAILABLE_POOR_VISIBILITY, NOT_AVAILABLE_SAFETY})
+        NOT_AVAILABLE_POOR_VISIBILITY, NOT_AVAILABLE_SAFETY,
+        NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED})
     @Retention(RetentionPolicy.SOURCE)
     public @interface DetailedErrorCodeInt {}
 
