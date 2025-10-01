@@ -28,6 +28,8 @@ public:
     MOCK_METHOD(camera_status_t, getCameraIdList, (std::vector<std::string>* idList), (override));
     MOCK_METHOD(camera_status_t, getCameraCharacteristics,
                 (const char* cameraId, ACameraMetadata** metadata), (override));
+    MOCK_METHOD(camera_status_t, openSharedCamera,
+                (const char* cameraId, ACameraDevice** device), ());
     MOCK_METHOD(ACameraManager*, get, (), (override));
 };
 

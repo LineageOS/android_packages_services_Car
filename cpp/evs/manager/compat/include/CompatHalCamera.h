@@ -24,6 +24,8 @@
 #include <aidl/android/hardware/automotive/evs/Stream.h>
 #include <camera/NdkCameraDevice.h>
 
+#include <list>
+
 namespace android::hardware::automotive::evs::compat {
 
 namespace aidlevs = ::aidl::android::hardware::automotive::evs;
@@ -38,17 +40,21 @@ public:
     ::ndk::ScopedAStatus notify(const aidlevs::EvsEventDesc& event) override;
 
     inline aidlevs::Stream getStreamConfig() const { return mStreamConfig; }
-
     ACameraDevice* getDevice() const { return mDevice; }
-
     std::string getId() const { return mCameraId; }
-
     bool ownVirtualCamera(const std::shared_ptr<CompatVirtualCamera>& virtualCamera);
+    bool isStopped() const { return mStreamState.load(std::memory_order_acquire) == STOPPED; }
 
 private:
     ACameraDevice* mDevice;
     std::string mCameraId;
     aidlevs::Stream mStreamConfig;
-};
 
+    enum StreamStateEnum {
+        STOPPED,
+        RUNNING,
+        STOPPING,
+    };
+    std::atomic<StreamStateEnum> mStreamState = STOPPED;
+};
 }  // namespace android::hardware::automotive::evs::compat

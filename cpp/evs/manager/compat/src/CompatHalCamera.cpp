@@ -47,5 +47,4 @@ bool CompatHalCamera::ownVirtualCamera(const std::shared_ptr<CompatVirtualCamera
     // TODO (b/441577862): Implement the logic to associate this HalCamera with the VirtualCamera
     return true;
 }
-
 }  // namespace android::hardware::automotive::evs::compat
