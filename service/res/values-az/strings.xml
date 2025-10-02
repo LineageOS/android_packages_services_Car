@@ -262,10 +262,8 @@
     <string name="car_permission_desc_inject_vehicle_properties" msgid="2616112105084870775">"avtomobilin xüsusiyyətlərini daxil edin"</string>
     <string name="car_permission_label_read_property_vendor_status" msgid="2894773112281568618">"əmlak satıcısının statusunu oxumaq"</string>
     <string name="car_permission_desc_read_property_vendor_status" msgid="7456031169256863531">"əmlak satıcısının statusunu oxumaq"</string>
-    <!-- no translation found for car_permission_label_read_property_vendor_error_code (9161295062734171179) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_read_property_vendor_error_code (4243058153289166218) -->
-    <skip />
+    <string name="car_permission_label_read_property_vendor_error_code" msgid="9161295062734171179">"əmlak satıcısı üzrə xəta kodunu oxumaq"</string>
+    <string name="car_permission_desc_read_property_vendor_error_code" msgid="4243058153289166218">"əmlak satıcısı üzrə xəta kodunu oxumaq"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN idarəetmə mexanizmi uğursuz oldu"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN mexanizmi cavab vermir. Əsas cihaz panelini ayırın və yenidən qoşun, sonra avtomobili yenidən işə salın"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"Cihazım"</string>
