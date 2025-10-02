@@ -262,10 +262,8 @@
     <string name="car_permission_desc_inject_vehicle_properties" msgid="2616112105084870775">"插入汽車屬性"</string>
     <string name="car_permission_label_read_property_vendor_status" msgid="2894773112281568618">"讀取資產供應商狀態"</string>
     <string name="car_permission_desc_read_property_vendor_status" msgid="7456031169256863531">"讀取資產供應商狀態"</string>
-    <!-- no translation found for car_permission_label_read_property_vendor_error_code (9161295062734171179) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_read_property_vendor_error_code (4243058153289166218) -->
-    <skip />
+    <string name="car_permission_label_read_property_vendor_error_code" msgid="9161295062734171179">"讀取資產供應商錯誤代碼"</string>
+    <string name="car_permission_desc_read_property_vendor_error_code" msgid="4243058153289166218">"讀取資產供應商錯誤代碼"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"控制器區域網路操作失敗"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"控制器區域網路未有回覆。請拔除並重新插上汽車音響主機，然後重新啟動汽車"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"我的裝置"</string>
