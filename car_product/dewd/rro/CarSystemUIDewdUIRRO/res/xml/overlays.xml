@@ -128,7 +128,6 @@
     <item target="id/title" value="@id/title" />
     <item target="id/customized_view_container" value="@id/customized_view_container" />
 
-    <item target="integer/config_systemBarPersistency" value="@integer/config_systemBarPersistency" />
     <item target="integer/config_systemBarSuwBehavior" value="@integer/config_systemBarSuwBehavior" />
 
     <item target="layout/text_toast" value="@layout/text_toast"/>
