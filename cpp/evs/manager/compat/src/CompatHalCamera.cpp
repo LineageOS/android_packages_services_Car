@@ -25,9 +25,12 @@ using ::aidl::android::hardware::automotive::evs::EvsEventDesc;
 using ::ndk::ScopedAStatus;
 
 CompatHalCamera::CompatHalCamera(ACameraDevice* device, const std::string& cameraId,
+                                 const aidlevs::CameraDesc* desc,
                                  const aidlevs::Stream& streamConfig) :
       mDevice(device), mCameraId(cameraId), mStreamConfig(streamConfig) {
-    // Constructor stub
+    if (desc) {
+        mCameraDesc = *desc;
+    }
 }
 
 CompatHalCamera::~CompatHalCamera() {

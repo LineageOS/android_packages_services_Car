@@ -49,7 +49,8 @@ protected:
         mMockCameraManager->openSharedCamera("mockCam0", &device);
 
         aidlevs::Stream streamConfig;
-        mHalCamera = ::ndk::SharedRefBase::make<CompatHalCamera>(device, "mockCam0", streamConfig);
+        mHalCamera = ::ndk::SharedRefBase::make<CompatHalCamera>(device, "mockCam0", nullptr,
+                                                                 streamConfig);
     }
 
     void TearDown() override {}

@@ -77,9 +77,28 @@ ScopedAStatus CompatVirtualCamera::getParameterList(
     return ScopedAStatus::fromExceptionCode(EX_UNSUPPORTED_OPERATION);
 }
 
-ScopedAStatus CompatVirtualCamera::getPhysicalCameraInfo(
-        [[maybe_unused]] const std::string& deviceId, [[maybe_unused]] CameraDesc* _aidl_return) {
-    return ScopedAStatus::fromExceptionCode(EX_UNSUPPORTED_OPERATION);
+ScopedAStatus CompatVirtualCamera::getPhysicalCameraInfo(const std::string& deviceId,
+                                                         CameraDesc* _aidl_return) {
+    auto it = mHalCameras.find(deviceId);
+    if (it == mHalCameras.end()) {
+        LOG(ERROR) << "Camera " << deviceId << " not found.";
+        return ScopedAStatus::fromServiceSpecificError(static_cast<int>(EvsResult::INVALID_ARG));
+    }
+    std::shared_ptr<CompatHalCamera> halCamera = it->second.lock();
+    if (!halCamera) {
+        LOG(ERROR) << "Camera " << deviceId << " is no longer available.";
+        return ScopedAStatus::fromServiceSpecificError(
+                static_cast<int>(EvsResult::RESOURCE_NOT_AVAILABLE));
+    }
+    // Check if CameraDesc is valid. The id field is mandatory.
+    aidlevs::CameraDesc desc = halCamera->getCameraDesc();
+    if (desc.id.empty()) {
+        LOG(ERROR) << "CameraDesc for " << deviceId << " is not properly initialized.";
+        return ScopedAStatus::fromServiceSpecificError(
+                static_cast<int>(EvsResult::RESOURCE_NOT_AVAILABLE));
+    }
+    *_aidl_return = desc;
+    return ScopedAStatus::ok();
 }
 
 ScopedAStatus CompatVirtualCamera::importExternalBuffers(

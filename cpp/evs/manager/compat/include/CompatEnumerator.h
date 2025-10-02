@@ -104,7 +104,7 @@ private:
     // only virtual cameras are in this map.
     std::unique_ptr<CameraGroupMap> mCameraGroupMap;
     // only physical cameras are in this map.
-    std::unordered_map<std::string, aidlevs::CameraDesc> mCameraDesc;
+    std::unordered_map<std::string, aidlevs::CameraDesc> mCameraDescs;
 
     mutable std::shared_mutex mLock;  // Mutex to protect mActiveCameras, mActiveVirtualCameras
     std::unordered_map<std::string, std::shared_ptr<CompatHalCamera>> mActiveCameras
