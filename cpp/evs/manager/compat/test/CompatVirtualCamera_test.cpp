@@ -52,7 +52,8 @@ protected:
 
         aidlevs::Stream streamConfig;
         std::shared_ptr<CompatHalCamera> mockHalCamera =
-                ::ndk::SharedRefBase::make<CompatHalCamera>(device, "mockCam0", streamConfig);
+                ::ndk::SharedRefBase::make<CompatHalCamera>(device, "mockCam0", nullptr,
+                                                            streamConfig);
         mHalCameras.push_back(mockHalCamera);
 
         mVirtualCamera = ::ndk::SharedRefBase::make<CompatVirtualCamera>(mHalCameras);
@@ -83,6 +84,40 @@ TEST_F(CompatVirtualCameraTest, setMaxFramesInFlight_Invalid) {
 
 TEST_F(CompatVirtualCameraTest, setMaxFramesInFlight_StreamRunning) {
     // TODO: Add test for `setMaxFramesInFlight_StreamRunning`
+}
+
+TEST_F(CompatVirtualCameraTest, getPhysicalCameraInfo_DeviceIdNotFound) {
+    aidlevs::CameraDesc desc;
+    ndk::ScopedAStatus status = mVirtualCamera->getPhysicalCameraInfo("nonExistentId", &desc);
+    EXPECT_EQ(status.getServiceSpecificError(), static_cast<int>(EvsResult::INVALID_ARG));
+}
+
+TEST_F(CompatVirtualCameraTest, getPhysicalCameraInfo_CameraDescNotSet) {
+    // The default mockHalCamera in SetUp is created with a null CameraDesc
+    aidlevs::CameraDesc desc;
+    ndk::ScopedAStatus status = mVirtualCamera->getPhysicalCameraInfo("mockCam0", &desc);
+    EXPECT_EQ(status.getServiceSpecificError(),
+              static_cast<int>(EvsResult::RESOURCE_NOT_AVAILABLE));
+}
+
+TEST_F(CompatVirtualCameraTest, getPhysicalCameraInfo_Success) {
+    // Create a new virtual camera with a HalCamera that has a valid CameraDesc
+    ACameraDevice* dummyDevice = reinterpret_cast<ACameraDevice*>(0x87654321);
+    aidlevs::Stream streamConfig;
+    aidlevs::CameraDesc validDesc;
+    validDesc.id = "mockCam1";
+    std::shared_ptr<CompatHalCamera> halCameraWithDesc =
+            ::ndk::SharedRefBase::make<CompatHalCamera>(dummyDevice, "mockCam1", &validDesc,
+                                                        streamConfig);
+    std::vector<std::shared_ptr<CompatHalCamera>> halCameras = {halCameraWithDesc};
+    std::shared_ptr<CompatVirtualCamera> virtualCamera =
+            ::ndk::SharedRefBase::make<CompatVirtualCamera>(halCameras);
+
+    aidlevs::CameraDesc desc;
+    ndk::ScopedAStatus status = virtualCamera->getPhysicalCameraInfo("mockCam1", &desc);
+    ASSERT_TRUE(status.isOk()) << "getPhysicalCameraInfo failed with status: "
+                               << status.getDescription();
+    EXPECT_EQ(desc.id, "mockCam1");
 }
 
 }  // namespace android::hardware::automotive::evs::compat

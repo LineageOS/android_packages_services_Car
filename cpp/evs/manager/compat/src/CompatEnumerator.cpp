@@ -23,11 +23,12 @@
 
 #include <android-base/logging.h>
 #include <camera/NdkCameraMetadata.h>
-#include <memory>
-#include <unordered_set>
 
 #include <android_car_feature.h>
 #include <dlfcn.h>
+
+#include <memory>
+#include <unordered_set>
 
 namespace android::hardware::automotive::evs::compat {
 
@@ -54,9 +55,8 @@ CompatEnumerator::CompatEnumerator() {
         mIsReady = false;
         return;
     }
-    mOpenSharedCameraFn =
-            reinterpret_cast<ACameraManager_openSharedCamera_fn>(
-                    dlsym(mLibHandle, "ACameraManager_openSharedCamera"));
+    mOpenSharedCameraFn = reinterpret_cast<ACameraManager_openSharedCamera_fn>(
+            dlsym(mLibHandle, "ACameraManager_openSharedCamera"));
     if (!mOpenSharedCameraFn) {
         LOG(ERROR) << "Failed to dlsym ACameraManager_openSharedCamera: " << dlerror();
         dlclose(mLibHandle);
@@ -78,7 +78,7 @@ CompatEnumerator::CompatEnumerator() {
 // Constructor for dependency injection.
 CompatEnumerator::CompatEnumerator(std::unique_ptr<ICameraManager> cameraManager) :
       mCameraManager(std::move(cameraManager)) {
-        mIsReady = android::car::feature::car_evs_compat_lib();
+    mIsReady = android::car::feature::car_evs_compat_lib();
 }
 #endif
 
@@ -137,7 +137,7 @@ ScopedAStatus CompatEnumerator::getCameraList(std::vector<CameraDesc>* _aidl_ret
         CameraDesc desc = Converter::toCameraDesc(cameraId.c_str(), metadata,
                                                   /* vendorFlags= */ -1);
         _aidl_return->push_back(desc);
-        mCameraDesc.insert_or_assign(desc.id, desc);
+        mCameraDescs.insert_or_assign(desc.id, desc);
         ACameraMetadata_free(metadata);
     }
     return ScopedAStatus::ok();
@@ -202,8 +202,7 @@ void CompatEnumerator::cleanupOpenedCameras(const std::vector<std::string>& came
     }
 }
 
-ScopedAStatus CompatEnumerator::openCamera(const std::string& cameraId,
-                                           const Stream& streamCfg,
+ScopedAStatus CompatEnumerator::openCamera(const std::string& cameraId, const Stream& streamCfg,
                                            std::shared_ptr<IEvsCamera>* _aidl_return) {
     if (!mIsReady) {
         LOG(ERROR) << "Enumerator is not ready. This is likely due to a failure during "
@@ -237,7 +236,7 @@ ScopedAStatus CompatEnumerator::openCamera(const std::string& cameraId,
                 };
                 bool isPrimaryClient = false;
                 camera_status_t status = mOpenSharedCameraFn(mCameraManager->get(), id.c_str(),
-                                                           &callbacks, &device, &isPrimaryClient);
+                                                             &callbacks, &device, &isPrimaryClient);
 
                 if (status != ACAMERA_OK || device == nullptr) {
                     LOG(ERROR) << "Failed to open hardware camera " << id
@@ -249,8 +248,18 @@ ScopedAStatus CompatEnumerator::openCamera(const std::string& cameraId,
                 LOG(INFO) << "Successfully opened physical camera " << id
                           << (isPrimaryClient ? " as primary" : " as secondary");
 
+                auto desc_it = mCameraDescs.find(id);
+                const CameraDesc* desc_ptr = nullptr;
+                if (desc_it == mCameraDescs.end()) {
+                    LOG(WARNING) << "CameraDesc not found for camera ID " << id
+                                 << ". Proceeding with null CameraDesc.";
+                } else {
+                    desc_ptr = &desc_it->second;
+                }
+
                 std::shared_ptr<CompatHalCamera> halCamera =
-                        ::ndk::SharedRefBase::make<CompatHalCamera>(device, id, streamCfg);
+                        ::ndk::SharedRefBase::make<CompatHalCamera>(device, id, desc_ptr,
+                                                                    streamCfg);
                 if (!halCamera) {
                     LOG(ERROR) << "Failed to allocate CompatHalCamera object for " << id;
                     ACameraDevice_close(device);
@@ -342,7 +351,7 @@ ScopedAStatus CompatEnumerator::setCameraGroupMap(const CameraGroupMap& cameraGr
     }
 
     std::unordered_set<std::string> availableCameraIdSet(availableCameraIds.begin(),
-                                                     availableCameraIds.end());
+                                                         availableCameraIds.end());
     for (const auto& groupEntry : cameraGroupMap) {
         for (const auto& cameraId : groupEntry.second.physicalIds) {
             if (availableCameraIdSet.find(cameraId) == availableCameraIdSet.end()) {
@@ -367,9 +376,9 @@ std::unordered_set<std::string> CompatEnumerator::getPhysicalCameraIds(
         }
     }
 
-    // Not in the group map, check if it's a known physical camera ID in mCameraDesc
-    auto it = mCameraDesc.find(cameraId);
-    if (it != mCameraDesc.end()) {
+    // Not in the group map, check if it's a known physical camera ID in mCameraDescs
+    auto it = mCameraDescs.find(cameraId);
+    if (it != mCameraDescs.end()) {
         // It's a physical camera
         return {cameraId};
     }

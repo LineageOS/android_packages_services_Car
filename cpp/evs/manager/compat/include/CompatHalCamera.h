@@ -20,6 +20,7 @@
 
 #include <aidl/android/hardware/automotive/evs/BnEvsCameraStream.h>
 #include <aidl/android/hardware/automotive/evs/BufferDesc.h>
+#include <aidl/android/hardware/automotive/evs/CameraDesc.h>
 #include <aidl/android/hardware/automotive/evs/EvsEventDesc.h>
 #include <aidl/android/hardware/automotive/evs/Stream.h>
 #include <camera/NdkCameraDevice.h>
@@ -39,7 +40,7 @@ class CompatHalCamera final : public aidlevs::BnEvsCameraStream {
 #endif
 public:
     CompatHalCamera(ACameraDevice* device, const std::string& cameraId,
-                    const aidlevs::Stream& streamConfig);
+                    const aidlevs::CameraDesc* desc, const aidlevs::Stream& streamConfig);
     ~CompatHalCamera() override;
 
     ::ndk::ScopedAStatus deliverFrame(const std::vector<aidlevs::BufferDesc>& buffer) override;
@@ -48,6 +49,7 @@ public:
     inline aidlevs::Stream getStreamConfig() const { return mStreamConfig; }
     ACameraDevice* getDevice() const { return mDevice; }
     std::string getId() const { return mCameraId; }
+    aidlevs::CameraDesc getCameraDesc() const { return mCameraDesc; }
     bool ownVirtualCamera(const std::shared_ptr<CompatVirtualCamera>& virtualCamera);
     void disownVirtualCamera(const CompatVirtualCamera* virtualCamera);
     bool isStopped() const { return mStreamState.load(std::memory_order_acquire) == STOPPED; }
@@ -55,6 +57,7 @@ public:
 private:
     ACameraDevice* mDevice;
     std::string mCameraId;
+    aidlevs::CameraDesc mCameraDesc;
     aidlevs::Stream mStreamConfig;
     mutable std::mutex mMutex;
     std::list<std::weak_ptr<CompatVirtualCamera>> mVirtualCameras GUARDED_BY(mMutex);
