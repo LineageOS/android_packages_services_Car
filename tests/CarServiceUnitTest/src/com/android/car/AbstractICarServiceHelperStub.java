@@ -150,6 +150,7 @@ abstract class AbstractICarServiceHelperStub extends ICarServiceHelper.Stub {
         return INVALID_PID;
     }
 
+    @Deprecated
     @Override
     public boolean requiresDisplayCompat(String packageName) {
         return false;
