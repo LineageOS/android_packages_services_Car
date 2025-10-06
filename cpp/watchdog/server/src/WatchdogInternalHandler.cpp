@@ -44,6 +44,7 @@ using ::android::base::Error;
 using ::android::base::Result;
 using ::android::base::StringAppendF;
 using ::android::base::StringPrintf;
+using ::android::base::WriteStringToFd;
 using ::android::car::feature::car_watchdog_anr_metrics;
 using ::ndk::ScopedAStatus;
 
@@ -51,6 +52,7 @@ namespace {
 
 constexpr const char* kNullCarWatchdogMonitorError =
         "Must provide a non-null car watchdog monitor instance";
+constexpr const char* kDumpProtoHelpText = "%s: Generates car watchdog report in proto format.\n";
 
 ScopedAStatus toScopedAStatus(int32_t exceptionCode, const std::string& message) {
     ALOGW("%s", message.c_str());
@@ -82,6 +84,24 @@ Result<void> WatchdogInternalHandler::init() {
                 << serviceList << " must be initialized with non-null instance";
     }
     return WatchdogInternalHandlerBase::init();
+}
+
+status_t WatchdogInternalHandler::dumpHelpText(const int fd, const std::string& errorMsg) {
+    if (!errorMsg.empty()) {
+        ALOGW("Error: %s", errorMsg.c_str());
+        if (!WriteStringToFd(StringPrintf("Error: %s\n\n", errorMsg.c_str()), fd)) {
+            ALOGW("Failed to write error message to fd");
+            return FAILED_TRANSACTION;
+        }
+    }
+    if (!WriteStringToFd(StringPrintf(kHelpTextBase, kHelpFlag, kHelpShortFlag), fd) ||
+        !WriteStringToFd(StringPrintf(kDumpProtoHelpText, kDumpProtoFlag), fd) ||
+        !WriteStringToFd(StringPrintf("%s", kNoOptionsHelpText), fd) ||
+        !mWatchdogPerfService->dumpHelpText(fd) || !mIoOveruseMonitor->dumpHelpText(fd)) {
+        ALOGW("Failed to write help text to fd");
+        return FAILED_TRANSACTION;
+    }
+    return OK;
 }
 
 status_t WatchdogInternalHandler::dumpProto(int fd) {
