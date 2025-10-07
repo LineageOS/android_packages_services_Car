@@ -19,7 +19,11 @@ package com.android.car.stub.launcher;
 import android.annotation.Nullable;
 import android.app.Activity;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.FrameLayout;
+
+import com.android.car.oem.tokens.R;
+import com.android.car.oem.tokens.Token;
 
 /**
  * Simple, static visibility barrier home activity.
@@ -27,7 +31,11 @@ import android.widget.FrameLayout;
 public class StubHome extends Activity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
+        Token.applyOemTokenStyle(this);
         super.onCreate(savedInstanceState);
-        setContentView(new FrameLayout(this));
+        View background = new FrameLayout(this);
+        background.setBackgroundColor(Token.getColor(this, R.attr.oemColorSurface));
+        setContentView(background);
     }
 }
+
