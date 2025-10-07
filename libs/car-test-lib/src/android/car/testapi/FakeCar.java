@@ -190,6 +190,7 @@ public final class FakeCar {
                 case Car.HVAC_SERVICE:
                 case Car.INFO_SERVICE:
                 case Car.PROPERTY_SERVICE:
+                case Car.CAR_PROPERTY_SIMULATION_SERVICE:
                 case Car.SENSOR_SERVICE:
                 case Car.VENDOR_EXTENSION_SERVICE:
                     return mCarProperty;
