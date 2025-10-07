@@ -84,11 +84,11 @@ private:
     void terminateServices();
     android::base::Result<void> startWatchdogProcessService(
             const android::sp<Looper>& mainLooper,
-            std::shared_ptr<PackageInfoResolverInterface> packageInfoResolver);
+            const std::shared_ptr<PackageInfoResolverInterface>& packageInfoResolver);
     android::base::Result<void> startPressureMonitor();
     android::base::Result<void> startWatchdogPerfService(
             const sp<WatchdogServiceHelperInterface>& watchdogServiceHelper,
-            std::shared_ptr<PackageInfoResolverInterface> packageInfoResolver);
+            const std::shared_ptr<PackageInfoResolverInterface>& packageInfoResolver);
 
     android::sp<WatchdogProcessServiceInterface> mWatchdogProcessService;
     android::sp<WatchdogPerfServiceInterface> mWatchdogPerfService;

@@ -169,7 +169,7 @@ class WatchdogPerfServiceBase : public WatchdogPerfServiceBaseInterface {
 public:
     WatchdogPerfServiceBase(
             const android::sp<WatchdogServiceHelperBaseInterface>& watchdogServiceHelperBase,
-            std::shared_ptr<PackageInfoResolverInterface> packageInfoResolver) :
+            const std::shared_ptr<PackageInfoResolverInterface>& packageInfoResolver) :
           mHandlerLooper(android::sp<LooperWrapper>::make()),
           mSystemState(NORMAL_MODE),
           mUnsentResourceStats({}),

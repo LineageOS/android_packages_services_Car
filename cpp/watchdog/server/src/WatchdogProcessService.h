@@ -112,7 +112,7 @@ class WatchdogProcessService final : public WatchdogProcessServiceInterface {
 public:
     explicit WatchdogProcessService(
             const android::sp<Looper>& handlerLooper,
-            std::shared_ptr<PackageInfoResolverInterface> packageInfoResolver);
+            const std::shared_ptr<PackageInfoResolverInterface>& packageInfoResolver);
     WatchdogProcessService(
             const std::function<std::shared_ptr<
                     android::frameworks::automotive::vhal::IVhalClient>()>& tryCreateVhalClientFunc,
@@ -125,7 +125,7 @@ public:
             const sp<AIBinderDeathRegistrationWrapperInterface>& deathRegistrationWrapper,
             const std::chrono::milliseconds& vhalHealthCheckIntervalMillis,
             const std::chrono::milliseconds& vhalHealthCheckDelayMillis,
-            std::shared_ptr<PackageInfoResolverInterface> packageInfoResolver);
+            const std::shared_ptr<PackageInfoResolverInterface>& packageInfoResolver);
     ~WatchdogProcessService();
 
     android::base::Result<void> start() override;

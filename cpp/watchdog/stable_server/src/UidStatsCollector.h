@@ -71,7 +71,7 @@ public:
 
 class UidStatsCollector final : public UidStatsCollectorInterface {
 public:
-    UidStatsCollector(std::shared_ptr<PackageInfoResolverInterface> packageInfoResolver) :
+    UidStatsCollector(const std::shared_ptr<PackageInfoResolverInterface>& packageInfoResolver) :
           mPackageInfoResolver(packageInfoResolver),
           mUidCpuStatsCollector(android::sp<UidCpuStatsCollector>::make()),
           mUidIoStatsCollector(android::sp<UidIoStatsCollector>::make()),

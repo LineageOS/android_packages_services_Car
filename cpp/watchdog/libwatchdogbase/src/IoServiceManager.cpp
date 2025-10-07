@@ -42,7 +42,7 @@ Result<void> IoServiceManager::startServices() {
      * PackageInfoResolver by calling the PackageInfoResolver::getInstance method before starting
      * other services as they may access PackageInfoResolver's instance during initialization.
      */
-    std::shared_ptr<PackageInfoResolverInterface> packageInfoResolver =
+    const std::shared_ptr<PackageInfoResolverInterface>& packageInfoResolver =
             PackageInfoResolver::getInstance();
 
     mWatchdogServiceHelperBase = sp<WatchdogServiceHelperBase>::make();

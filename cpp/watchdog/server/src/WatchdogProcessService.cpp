@@ -258,7 +258,7 @@ std::string timeoutToString(TimeoutLength timeout) {
 
 WatchdogProcessService::WatchdogProcessService(
         const sp<Looper>& handlerLooper,
-        std::shared_ptr<PackageInfoResolverInterface> packageInfoResolver) :
+        const std::shared_ptr<PackageInfoResolverInterface>& packageInfoResolver) :
       WatchdogProcessService((std::shared_ptr<IVhalClient> (*)())IVhalClient::tryCreate,
                              kDefaultTryGetHidlServiceManager, getPidStatForPid, getUidForPid,
                              kDefaultVhalPidCachingRetryDelayNs, handlerLooper,
@@ -278,7 +278,7 @@ WatchdogProcessService::WatchdogProcessService(
         const sp<AIBinderDeathRegistrationWrapperInterface>& deathRegistrationWrapper,
         const std::chrono::milliseconds& vhalHealthCheckIntervalMillis,
         const std::chrono::milliseconds& vhalHealthCheckDelayMillis,
-        std::shared_ptr<PackageInfoResolverInterface> packageInfoResolver) :
+        const std::shared_ptr<PackageInfoResolverInterface>& packageInfoResolver) :
       kTryCreateVhalClientFunc(tryCreateVhalClientFunc),
       kTryGetHidlServiceManagerFunc(tryGetHidlServiceManagerFunc),
       kGetPidStatForPidFunc(getPidStatForPidFunc),
