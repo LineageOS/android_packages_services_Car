@@ -15,6 +15,7 @@
  */
 
 #define LOG_TAG "carwatchdogd"
+#define CARWATCHDOGD_BINARY
 
 #include "ServiceManager.h"
 
