@@ -162,8 +162,9 @@ ScopedAStatus CompatEnumerator::getUltrasonicsArrayList(
     return ScopedAStatus::fromExceptionCode(EX_UNSUPPORTED_OPERATION);
 }
 
-ScopedAStatus CompatEnumerator::isHardware([[maybe_unused]] bool* _aidl_return) {
-    return ScopedAStatus::fromExceptionCode(EX_UNSUPPORTED_OPERATION);
+ScopedAStatus CompatEnumerator::isHardware(bool* _aidl_return) {
+    *_aidl_return = false;
+    return ScopedAStatus::ok();
 }
 
 void CompatEnumerator::onDeviceDisconnected(void* context, ACameraDevice* device) {
