@@ -497,6 +497,18 @@ public class CarPropertyService extends ICarProperty.Stub
                 == PERMISSION_GRANTED;
     }
 
+    /**
+     * Gets whether the current context can read the vendor error code.
+     *
+     * <p>This must be called within a binder call context.
+     */
+    private boolean canReadVendorErrorCode() {
+        return !mFeatureFlags.carPropertyVendorErrorCodePermission()
+                || mContext.checkCallingOrSelfPermission(
+                                Car.PERMISSION_READ_PROPERTY_VENDOR_ERROR_CODE)
+                        == PERMISSION_GRANTED;
+    }
+
     @Override
     public void registerListener(List<CarSubscription> carSubscriptions,
             ICarPropertyEventListener carPropertyEventListener)
@@ -906,6 +918,11 @@ public class CarPropertyService extends ICarProperty.Stub
             return runSyncOperationCheckLimit(() -> {
                 return mPropertyHalService.getProperty(propertyId, areaId);
             });
+        } catch (ServiceSpecificException e) {
+            if (!canReadVendorErrorCode()) {
+                throwWithFilteredVendorErrorCode(e);
+            }
+            throw e;
         } finally {
             if (DBG) {
                 Slogf.d(TAG, "Latency of getPropertySync is: %f", (float) (System
@@ -969,10 +986,18 @@ public class CarPropertyService extends ICarProperty.Stub
         validateSetParameters(carPropertyValue);
         long currentTimeMs = System.currentTimeMillis();
 
-        runSyncOperationCheckLimit(() -> {
-            mPropertyHalService.setProperty(carPropertyValue);
-            return null;
-        });
+        try {
+            runSyncOperationCheckLimit(
+                    () -> {
+                        mPropertyHalService.setProperty(carPropertyValue);
+                        return null;
+                    });
+        } catch (ServiceSpecificException e) {
+            if (!canReadVendorErrorCode()) {
+                throwWithFilteredVendorErrorCode(e);
+            }
+            throw e;
+        }
 
         IBinder listenerBinder = iCarPropertyEventListener.asBinder();
         synchronized (mLock) {
@@ -1145,8 +1170,12 @@ public class CarPropertyService extends ICarProperty.Stub
             validateGetParameters(getPropertyServiceRequests.get(i).getPropertyId(),
                     getPropertyServiceRequests.get(i).getAreaId());
         }
-        mPropertyHalService.getCarPropertyValuesAsync(getPropertyServiceRequests,
-                asyncPropertyResultCallback, timeoutInMs, currentTime);
+        mPropertyHalService.getCarPropertyValuesAsync(
+                getPropertyServiceRequests,
+                asyncPropertyResultCallback,
+                timeoutInMs,
+                currentTime,
+                canReadVendorErrorCode());
         if (DBG) {
             Slogf.d(TAG, "Latency of getPropertyAsync is: %f", (float) (System
                     .currentTimeMillis() - currentTime));
@@ -1195,8 +1224,12 @@ public class CarPropertyService extends ICarProperty.Stub
                 validateGetParameters(propertyId, areaId);
             }
         }
-        mPropertyHalService.setCarPropertyValuesAsync(setPropertyServiceRequestList,
-                asyncPropertyResultCallback, timeoutInMs, currentTime);
+        mPropertyHalService.setCarPropertyValuesAsync(
+                setPropertyServiceRequestList,
+                asyncPropertyResultCallback,
+                timeoutInMs,
+                currentTime,
+                canReadVendorErrorCode());
         if (DBG) {
             Slogf.d(TAG, "Latency of setPropertyAsync is: %f", (float) (System
                     .currentTimeMillis() - currentTime));
@@ -1662,5 +1695,14 @@ public class CarPropertyService extends ICarProperty.Stub
         }
         // We don't check for other type of properties.
         return true;
+    }
+
+    private static void throwWithFilteredVendorErrorCode(ServiceSpecificException e)
+            throws ServiceSpecificException {
+        int vhalErrorCode = CarPropertyErrorCodes.getVhalSystemErrorCode(e.errorCode);
+        ServiceSpecificException filteredException =
+                new ServiceSpecificException(vhalErrorCode, e.getMessage());
+        filteredException.setStackTrace(e.getStackTrace());
+        throw filteredException;
     }
 }

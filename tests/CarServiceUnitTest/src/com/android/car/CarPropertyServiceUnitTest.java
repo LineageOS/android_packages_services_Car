@@ -26,6 +26,7 @@ import static com.google.common.truth.Truth.assertWithMessage;
 
 import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyFloat;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -69,6 +70,7 @@ import com.android.car.hal.PropertyHalService;
 import com.android.car.internal.property.AsyncPropertyServiceRequest;
 import com.android.car.internal.property.AsyncPropertyServiceRequestList;
 import com.android.car.internal.property.CarPropertyConfigList;
+import com.android.car.internal.property.CarPropertyErrorCodes;
 import com.android.car.internal.property.CarSubscription;
 import com.android.car.internal.property.IAsyncPropertyResultCallback;
 import com.android.car.internal.property.ISupportedValuesChangeCallback;
@@ -165,6 +167,8 @@ public final class CarPropertyServiceUnitTest extends AbstractExpectableTestCase
     private static final float TEST_SPEED_MIN_VALUE = 1.23f;
     private static final CarPropertyValue TEST_PROPERTY_VALUE = new CarPropertyValue(
             READ_WRITE_INT_PROPERTY_ID, /* areaId= */ 0, TEST_VALUE);
+    private static final int NO_ERROR = 0;
+    private static final int VENDOR_ERROR_CODE = 0x1234;
 
     @Before
     public void setUp() {
@@ -386,8 +390,9 @@ public final class CarPropertyServiceUnitTest extends AbstractExpectableTestCase
         mService.getPropertiesAsync(new AsyncPropertyServiceRequestList(requests),
                 mAsyncPropertyResultCallback, ASYNC_TIMEOUT_MS);
 
-        verify(mHalService).getCarPropertyValuesAsync(eq(requests), any(), eq(ASYNC_TIMEOUT_MS),
-                anyLong());
+        verify(mHalService)
+                .getCarPropertyValuesAsync(
+                        eq(requests), any(), eq(ASYNC_TIMEOUT_MS), anyLong(), anyBoolean());
     }
 
     @Test
@@ -465,8 +470,9 @@ public final class CarPropertyServiceUnitTest extends AbstractExpectableTestCase
         mService.setPropertiesAsync(new AsyncPropertyServiceRequestList(requests),
                 mAsyncPropertyResultCallback, ASYNC_TIMEOUT_MS);
 
-        verify(mHalService).setCarPropertyValuesAsync(eq(requests), any(), eq(ASYNC_TIMEOUT_MS),
-                anyLong());
+        verify(mHalService)
+                .setCarPropertyValuesAsync(
+                        eq(requests), any(), eq(ASYNC_TIMEOUT_MS), anyLong(), anyBoolean());
     }
 
     @Test
@@ -480,8 +486,9 @@ public final class CarPropertyServiceUnitTest extends AbstractExpectableTestCase
         mService.setPropertiesAsync(new AsyncPropertyServiceRequestList(requests),
                 mAsyncPropertyResultCallback, ASYNC_TIMEOUT_MS);
 
-        verify(mHalService).setCarPropertyValuesAsync(eq(requests), any(), eq(ASYNC_TIMEOUT_MS),
-                anyLong());
+        verify(mHalService)
+                .setCarPropertyValuesAsync(
+                        eq(requests), any(), eq(ASYNC_TIMEOUT_MS), anyLong(), anyBoolean());
     }
 
     @Test
@@ -1520,6 +1527,42 @@ public final class CarPropertyServiceUnitTest extends AbstractExpectableTestCase
     }
 
     @Test
+    public void testGetProperty_vendorErrorCode_withoutPermission() {
+        when(mFeatureFlags.carPropertyVendorErrorCodePermission()).thenReturn(true);
+        doReturn(PackageManager.PERMISSION_DENIED)
+                .when(mContext)
+                .checkCallingOrSelfPermission(Car.PERMISSION_READ_PROPERTY_VENDOR_ERROR_CODE);
+        int vhalStatusCode = VehicleHalStatusCode.STATUS_NOT_AVAILABLE | (VENDOR_ERROR_CODE << 16);
+        doThrow(new ServiceSpecificException(vhalStatusCode))
+                .when(mHalService)
+                .getProperty(SPEED_ID, 0);
+
+        ServiceSpecificException exception =
+                assertThrows(
+                        ServiceSpecificException.class, () -> mService.getProperty(SPEED_ID, 0));
+        assertThat(CarPropertyErrorCodes.getVhalVendorErrorCode(exception.errorCode))
+                .isEqualTo(NO_ERROR);
+    }
+
+    @Test
+    public void testGetProperty_vendorErrorCode_withPermission() {
+        when(mFeatureFlags.carPropertyVendorErrorCodePermission()).thenReturn(true);
+        doReturn(PackageManager.PERMISSION_GRANTED)
+                .when(mContext)
+                .checkCallingOrSelfPermission(Car.PERMISSION_READ_PROPERTY_VENDOR_ERROR_CODE);
+        int vhalStatusCode = VehicleHalStatusCode.STATUS_NOT_AVAILABLE | (VENDOR_ERROR_CODE << 16);
+        doThrow(new ServiceSpecificException(vhalStatusCode))
+                .when(mHalService)
+                .getProperty(SPEED_ID, 0);
+
+        ServiceSpecificException exception =
+                assertThrows(
+                        ServiceSpecificException.class, () -> mService.getProperty(SPEED_ID, 0));
+        assertThat(CarPropertyErrorCodes.getVhalVendorErrorCode(exception.errorCode))
+                .isEqualTo(VENDOR_ERROR_CODE);
+    }
+
+    @Test
     public void setProperty_throwsExceptionBecauseOfNullCarPropertyValue() {
         assertThrows(NullPointerException.class,
                 () -> mService.setProperty(null, mICarPropertyEventListener));
@@ -1803,6 +1846,52 @@ public final class CarPropertyServiceUnitTest extends AbstractExpectableTestCase
         assertThrows(IllegalArgumentException.class, () -> mService.setProperty(
                 new CarPropertyValue(WRITE_ONLY_OTHER_ENUM_PROPERTY_ID, GLOBAL_AREA_ID,
                         SUPPORTED_OTHER_STATE_ENUM_VALUE), mICarPropertyEventListener));
+    }
+
+    @Test
+    public void testSetProperty_vendorErrorCode_withoutPermission() {
+        when(mFeatureFlags.carPropertyVendorErrorCodePermission()).thenReturn(true);
+        doReturn(PackageManager.PERMISSION_DENIED)
+                .when(mContext)
+                .checkCallingOrSelfPermission(Car.PERMISSION_READ_PROPERTY_VENDOR_ERROR_CODE);
+        int vhalStatusCode = VehicleHalStatusCode.STATUS_NOT_AVAILABLE | (VENDOR_ERROR_CODE << 16);
+        doThrow(new ServiceSpecificException(vhalStatusCode)).when(mHalService).setProperty(any());
+
+        ServiceSpecificException exception =
+                assertThrows(
+                        ServiceSpecificException.class,
+                        () ->
+                                mService.setProperty(
+                                        new CarPropertyValue(
+                                                WRITE_ONLY_INT_PROPERTY_ID,
+                                                GLOBAL_AREA_ID,
+                                                Integer.valueOf(11)),
+                                        mICarPropertyEventListener));
+        assertThat(CarPropertyErrorCodes.getVhalVendorErrorCode(exception.errorCode))
+                .isEqualTo(NO_ERROR);
+    }
+
+    @Test
+    public void testSetProperty_vendorErrorCode_withPermission() {
+        when(mFeatureFlags.carPropertyVendorErrorCodePermission()).thenReturn(true);
+        doReturn(PackageManager.PERMISSION_GRANTED)
+                .when(mContext)
+                .checkCallingOrSelfPermission(Car.PERMISSION_READ_PROPERTY_VENDOR_ERROR_CODE);
+        int vhalStatusCode = VehicleHalStatusCode.STATUS_NOT_AVAILABLE | (VENDOR_ERROR_CODE << 16);
+        doThrow(new ServiceSpecificException(vhalStatusCode)).when(mHalService).setProperty(any());
+
+        ServiceSpecificException exception =
+                assertThrows(
+                        ServiceSpecificException.class,
+                        () ->
+                                mService.setProperty(
+                                        new CarPropertyValue(
+                                                WRITE_ONLY_INT_PROPERTY_ID,
+                                                GLOBAL_AREA_ID,
+                                                Integer.valueOf(11)),
+                                        mICarPropertyEventListener));
+        assertThat(CarPropertyErrorCodes.getVhalVendorErrorCode(exception.errorCode))
+                .isEqualTo(VENDOR_ERROR_CODE);
     }
 
     @Test
