@@ -187,6 +187,7 @@ android.car.app CarTaskViewHost void createLaunchRootTask(int displayId, boolean
 android.car.app CarTaskViewHost void createRootTask(int displayId)
 android.car.app CarTaskViewHost void reorderTask(boolean onTop)
 android.car.app CarTaskViewHost void setTaskVisibility(boolean visibility)
+android.car.app ControlledRemoteCarTaskView void replaceActivityIntent(Intent intent)
 android.car.app RemoteCarDefaultRootTaskView ActivityManager.RunningTaskInfo getTaskInfo()
 android.car.app RemoteCarDefaultRootTaskView ActivityManager.RunningTaskInfo getTopTaskInfo()
 android.car.app RemoteCarDefaultRootTaskView String toString()
