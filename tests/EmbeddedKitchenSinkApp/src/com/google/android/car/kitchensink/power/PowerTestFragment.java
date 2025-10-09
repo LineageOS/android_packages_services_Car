@@ -231,7 +231,7 @@ public class PowerTestFragment extends Fragment {
     private int getDisplayPort(int displayId) {
         Display display = mDisplayManager.getDisplay(displayId);
         if (display != null && display.getAddress() != null
-                && display.getAddress().getPort() != DisplayAddress.INVALID_DISPLAY_ID) {
+                && display.getAddress().getPort() != DisplayAddress.INVALID_PORT) {
             return display.getAddress().getPort();
         }
         return Display.INVALID_DISPLAY;
