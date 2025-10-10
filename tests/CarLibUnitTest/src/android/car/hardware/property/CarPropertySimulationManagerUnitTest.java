@@ -27,13 +27,11 @@ import static org.junit.Assume.assumeFalse;
 import static org.junit.Assume.assumeTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -86,7 +84,6 @@ public class CarPropertySimulationManagerUnitTest extends AbstractExpectableTest
     @Captor private ArgumentCaptor<Runnable> mRunnableCaptor;
 
     private Handler mMainHandler;
-    private Handler mMainHandlerSpy;
     private CarPropertySimulationManager mCarPropertySimulationManager;
 
     private static final Executor DIRECT_EXECUTOR = Runnable::run;
@@ -101,9 +98,8 @@ public class CarPropertySimulationManagerUnitTest extends AbstractExpectableTest
         when(mCar.getContext()).thenReturn(mContextMock);
 
         mMainHandler = new Handler(Looper.getMainLooper());
-        mMainHandlerSpy = spy(mMainHandler);
 
-        when(mCar.getEventHandler()).thenReturn(mMainHandlerSpy);
+        when(mCar.getEventHandler()).thenReturn(mMainHandler);
         when(mCar.handleRemoteExceptionFromCarService(any(RemoteException.class), any()))
                 .thenAnswer(
                         (inv) -> {
@@ -590,13 +586,13 @@ public class CarPropertySimulationManagerUnitTest extends AbstractExpectableTest
             throws Exception {
         when(mICarProperty.registerRecordingListener(mListenerCaptor.capture()))
                 .thenReturn(new CarPropertyConfigList(List.of(mCarPropertyConfig)));
-        doNothing().when(mCarRecorderListener).onCarPropertyEvents(anyList());
 
         mCarPropertySimulationManager.startRecordingVehicleProperties(null, mCarRecorderListener);
         mListenerCaptor.getValue().onEvent(List.of(new CarPropertyEvent(0, mCarPropertyValue)));
 
-        verify(mMainHandlerSpy).post(mRunnableCaptor.capture());
-        verify(mCarRecorderListener).onCarPropertyEvents(mCarPropertyValueCaptor.capture());
+        // The event is posted to the handler, so we need to wait for it.
+        verify(mCarRecorderListener, timeout(3000))
+                .onCarPropertyEvents(mCarPropertyValueCaptor.capture());
         assertThat(mCarPropertyValueCaptor.getValue()).containsExactly(mCarPropertyValue);
     }
 
