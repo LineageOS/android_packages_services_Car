@@ -63,6 +63,9 @@ public class MainActivity extends Activity {
     private Button mImmersiveButton = null;
     private Button mNonDcActivity = null;
     private Button mLetterboxButton = null;
+    private boolean mHasStatusBar = true;
+    private boolean mHasNavBar = true;
+    private boolean mInsetsChecked = false;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -173,42 +176,81 @@ public class MainActivity extends Activity {
     }
 
     private void listenForImmersive() {
-        mWindowInsetsController =
-                WindowCompat.getInsetsController(getWindow(), getWindow().getDecorView());
+        mWindowInsetsController = WindowCompat.getInsetsController(
+                getWindow(), getWindow().getDecorView());
 
         mWindowInsetsController.setSystemBarsBehavior(
-                WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-        );
+                WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
 
-        ViewCompat.setOnApplyWindowInsetsListener(
-                getWindow().getDecorView(),
-                (view, windowInsets) -> {
-                    if (!windowInsets.isVisible(WindowInsetsCompat.Type.statusBars())
-                            || !windowInsets.isVisible(WindowInsetsCompat.Type.navigationBars())) {
-                        mIsImmersive = true;
-                        mImmersiveButton.setText("Exit fullscreen");
-                        mContainer.setBackgroundColor(getResources().getColor(R.color.green));
-                        mImmersiveButton.setOnClickListener(v -> {
-                            exitImmersive();
-                        });
-                    } else {
-                        mIsImmersive = false;
-                        mImmersiveButton.setText("Fullscreen");
-                        mContainer.setBackgroundColor(getResources().getColor(R.color.purple));
-                        mImmersiveButton.setOnClickListener(v -> {
-                            goImmersive();
-                        });
-                    }
-                    return ViewCompat.onApplyWindowInsets(view, windowInsets);
-                });
+        View decorView = getWindow().getDecorView();
+
+        ViewCompat.setOnApplyWindowInsetsListener(decorView, (view, windowInsets) -> {
+            // Detect supported bars once (position-independent)
+            if (!mInsetsChecked) {
+                androidx.core.graphics.Insets statusInsets
+                        = windowInsets.getInsets(WindowInsetsCompat.Type.statusBars());
+                androidx.core.graphics.Insets navInsets
+                        = windowInsets.getInsets(WindowInsetsCompat.Type.navigationBars());
+
+                mHasStatusBar = hasBar(statusInsets);
+                mHasNavBar = hasBar(navInsets);
+
+                // Debug logging for verification
+                Log.d("Immersive", "StatusBar: " + mHasStatusBar + ", NavBar: " + mHasNavBar);
+
+                mInsetsChecked = true;
+            }
+
+            return ViewCompat.onApplyWindowInsets(view, windowInsets);
+        });
+
+        // Initialize button state
+        setImmersiveMode(false);
+    }
+
+    /** Returns true if any side of the insets is non-zero, meaning the bar exists somewhere */
+    private boolean hasBar(androidx.core.graphics.Insets insets) {
+        return insets.top > 0 || insets.bottom > 0 || insets.left > 0 || insets.right > 0;
+    }
+
+    /** Returns a bitmask of supported system bars */
+    private int getSupportedBars() {
+        int bars = 0;
+        if (mHasStatusBar) bars |= WindowInsetsCompat.Type.statusBars();
+        if (mHasNavBar) bars |= WindowInsetsCompat.Type.navigationBars();
+        return bars;
     }
 
     private void goImmersive() {
-        mWindowInsetsController.hide(WindowInsetsCompat.Type.systemBars());
+        int barsToHide = getSupportedBars();
+        if (barsToHide != 0) {
+            mWindowInsetsController.hide(barsToHide);
+        }
+
+        setImmersiveMode(true);
     }
 
     private void exitImmersive() {
-        mWindowInsetsController.show(WindowInsetsCompat.Type.systemBars());
+        int barsToShow = getSupportedBars();
+        if (barsToShow != 0) {
+            mWindowInsetsController.show(barsToShow);
+        }
+
+        setImmersiveMode(false);
+    }
+
+    /** Updates UI and state for immersive mode */
+    private void setImmersiveMode(boolean immersive) {
+        mIsImmersive = immersive;
+        if (immersive) {
+            mImmersiveButton.setText("Exit fullscreen");
+            mContainer.setBackgroundColor(getResources().getColor(R.color.green));
+            mImmersiveButton.setOnClickListener(v -> exitImmersive());
+        } else {
+            mImmersiveButton.setText("Fullscreen");
+            mContainer.setBackgroundColor(getResources().getColor(R.color.purple));
+            mImmersiveButton.setOnClickListener(v -> goImmersive());
+        }
     }
 
     private static class Scale {
