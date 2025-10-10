@@ -21,7 +21,7 @@
 
     <application
         android:label="Stub Car Launcher">
-
+        <uses-library android:name="com.android.oem.tokens" android:required="false"/>
         <activity
             android:name=".StubHome"
             android:exported="true"

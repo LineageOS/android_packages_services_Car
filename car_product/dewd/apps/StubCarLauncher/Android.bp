@@ -21,7 +21,12 @@ android_app {
     srcs: ["src/**/*.java"],
 
     manifest: "AndroidManifest.xml",
-
+    libs: [
+        "token-shared-lib-prebuilt",
+    ],
+    static_libs: [
+        "oem-token-lib",
+    ],
     platform_apis: true,
     privileged: true,
     certificate: "platform",
