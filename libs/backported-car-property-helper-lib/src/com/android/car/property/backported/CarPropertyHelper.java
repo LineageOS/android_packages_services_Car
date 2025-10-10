@@ -89,8 +89,9 @@ public final class CarPropertyHelper {
         mCarPropertyManager = carPropertyManager;
     }
 
-    private static int getVendorPropertyId(int systemPropertyId) {
-        return (systemPropertyId | VEHICLE_PROPERTY_GROUP_MASK) & VEHICLE_PROPERTY_GROUP_BACKPORTED;
+    private static int getBackportedPropertyId(int systemPropertyId) {
+        return (systemPropertyId & ~VEHICLE_PROPERTY_GROUP_MASK)
+                | VEHICLE_PROPERTY_GROUP_BACKPORTED;
     }
 
     private boolean isPropertySupported(int propertyId) {
@@ -132,9 +133,9 @@ public final class CarPropertyHelper {
         if (isPropertySupported(systemPropertyId)) {
             return systemPropertyId;
         }
-        int vendorPropertyId = getVendorPropertyId(systemPropertyId);
-        if (isPropertySupported(vendorPropertyId)) {
-            return vendorPropertyId;
+        int backportedPropertyId = getBackportedPropertyId(systemPropertyId);
+        if (isPropertySupported(backportedPropertyId)) {
+            return backportedPropertyId;
         }
         return null;
     }
@@ -162,8 +163,8 @@ public final class CarPropertyHelper {
         if (isPropertySupported(systemPropertyId)) {
             return propertyInfo.systemReadPermission;
         }
-        int vendorPropertyId = getVendorPropertyId(systemPropertyId);
-        if (isPropertySupported(vendorPropertyId)) {
+        int backportedPropertyId = getBackportedPropertyId(systemPropertyId);
+        if (isPropertySupported(backportedPropertyId)) {
             return propertyInfo.vendorReadPermission;
         }
         return null;
@@ -192,8 +193,8 @@ public final class CarPropertyHelper {
         if (isPropertySupported(systemPropertyId)) {
             return propertyInfo.systemWritePermission;
         }
-        int vendorPropertyId = getVendorPropertyId(systemPropertyId);
-        if (isPropertySupported(vendorPropertyId)) {
+        int backportedPropertyId = getBackportedPropertyId(systemPropertyId);
+        if (isPropertySupported(backportedPropertyId)) {
             return propertyInfo.vendorWritePermission;
         }
         return null;
