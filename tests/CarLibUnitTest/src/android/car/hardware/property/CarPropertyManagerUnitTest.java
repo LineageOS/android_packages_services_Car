@@ -904,9 +904,8 @@ public final class CarPropertyManagerUnitTest extends AbstractExpectableTestCase
 
     @Test
     @EnableFlags(FLAG_CAR_PROPERTY_STATUS_DETAILED_NOT_AVAILABLE)
-    public void testGetProperty_notAvailableSubsystemNotConnectedAfter26Q2() throws Exception {
-        // TODO(b/416768353): Change this to 26Q2 version code.
-        setAppTargetSdk(Build.VERSION_CODES.CUR_DEVELOPMENT);
+    public void testGetProperty_notAvailableSubsystemNotConnectedAfterC() throws Exception {
+        setAppTargetSdk(Build.VERSION_CODES.CINNAMON_BUN);
         when(mICarProperty.getProperty(HVAC_TEMPERATURE_SET, 0))
                 .thenThrow(
                         new ServiceSpecificException(
@@ -1428,7 +1427,7 @@ public final class CarPropertyManagerUnitTest extends AbstractExpectableTestCase
 
     @Test
     @EnableFlags(FLAG_CAR_PROPERTY_STATUS_DETAILED_NOT_AVAILABLE)
-    public void testPropertyAsyncError_subsystemNotConnected_before26Q2() throws RemoteException {
+    public void testPropertyAsyncError_subsystemNotConnected_beforeC() throws RemoteException {
         setAppTargetSdk(Build.VERSION_CODES.BAKLAVA);
         doAnswer((invocation) -> {
             Object[] args = invocation.getArguments();
@@ -1455,9 +1454,8 @@ public final class CarPropertyManagerUnitTest extends AbstractExpectableTestCase
 
     @Test
     @EnableFlags(FLAG_CAR_PROPERTY_STATUS_DETAILED_NOT_AVAILABLE)
-    public void testPropertyAsyncError_subsystemNotConnected_after26Q2() throws RemoteException {
-        // TODO(b/416768353): Change this to 26Q2 version code.
-        setAppTargetSdk(Build.VERSION_CODES.CUR_DEVELOPMENT);
+    public void testPropertyAsyncError_subsystemNotConnected_afterC() throws RemoteException {
+        setAppTargetSdk(Build.VERSION_CODES.CINNAMON_BUN);
         doAnswer((invocation) -> {
             Object[] args = invocation.getArguments();
             IAsyncPropertyResultCallback getAsyncPropertyResultCallback =
@@ -1917,9 +1915,8 @@ public final class CarPropertyManagerUnitTest extends AbstractExpectableTestCase
 
     @Test
     @EnableFlags(FLAG_CAR_PROPERTY_STATUS_DETAILED_NOT_AVAILABLE)
-    public void testSetProperty_notAvailableSubsystemNotConnectedAfter26Q2() throws Exception {
-        // TODO(b/416768353): Change this to 26Q2 version code.
-        setAppTargetSdk(Build.VERSION_CODES.CUR_DEVELOPMENT);
+    public void testSetProperty_notAvailableSubsystemNotConnectedAfterC() throws Exception {
+        setAppTargetSdk(Build.VERSION_CODES.CINNAMON_BUN);
         CarPropertyValue<Float> carPropertyValue =
                 new CarPropertyValue<>(HVAC_TEMPERATURE_SET, 0, 17.0f);
         doThrow(
@@ -3132,12 +3129,11 @@ public final class CarPropertyManagerUnitTest extends AbstractExpectableTestCase
 
     @Test
     @EnableFlags(FLAG_CAR_PROPERTY_STATUS_DETAILED_NOT_AVAILABLE)
-    public void testOnChangeEvent_callbackIsCalledWithEvent_detailedUnavailable_after26Q2()
+    public void testOnChangeEvent_callbackIsCalledWithEvent_detailedUnavailable_afterC()
             throws RemoteException {
         when(mContext.checkSelfPermission(Car.PERMISSION_READ_PROPERTY_VENDOR_STATUS)).thenReturn(
                 PackageManager.PERMISSION_GRANTED);
-        // TODO(b/416768353): Change this to 26Q2.
-        setAppTargetSdk(Build.VERSION_CODES.CUR_DEVELOPMENT);
+        setAppTargetSdk(Build.VERSION_CODES.CINNAMON_BUN);
 
         int systemStatus = CarPropertyValue.STATUS_NOT_AVAILABLE_DISABLED;
         int vendorStatus = 0x1234;
@@ -3167,13 +3163,12 @@ public final class CarPropertyManagerUnitTest extends AbstractExpectableTestCase
     }
 
     @Test
-    public void testOnChangeEvent_callbackIsCalledWithEvent_noVendorStatusPermission_after26Q2()
+    public void testOnChangeEvent_callbackIsCalledWithEvent_noVendorStatusPermission_afterC()
             throws RemoteException {
         // No permission to read property vendor status.
         when(mContext.checkSelfPermission(Car.PERMISSION_READ_PROPERTY_VENDOR_STATUS)).thenReturn(
                 PackageManager.PERMISSION_DENIED);
-        // TODO(b/416768353): Change this to 26Q2.
-        setAppTargetSdk(Build.VERSION_CODES.CUR_DEVELOPMENT);
+        setAppTargetSdk(Build.VERSION_CODES.CINNAMON_BUN);
 
         int systemStatus = CarPropertyValue.STATUS_NOT_AVAILABLE_DISABLED;
         int vendorStatus = 0x1234;
@@ -3202,7 +3197,7 @@ public final class CarPropertyManagerUnitTest extends AbstractExpectableTestCase
     }
 
     @Test
-    public void testOnChangeEvent_callbackIsCalledWithEvent_noVendorStatusPermission_before26Q2()
+    public void testOnChangeEvent_callbackIsCalledWithEvent_noVendorStatusPermission_beforeC()
             throws RemoteException {
         // No permission to read property vendor status.
         when(mContext.checkSelfPermission(Car.PERMISSION_READ_PROPERTY_VENDOR_STATUS)).thenReturn(

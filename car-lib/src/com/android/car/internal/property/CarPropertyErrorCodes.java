@@ -184,10 +184,9 @@ public final class CarPropertyErrorCodes implements Parcelable {
     /** Creates a backwards compatible {@link CarPropertyErrorCodes} structure. */
     public CarPropertyErrorCodes cloneWithAppTargetSdk(int appTargetSdk) {
         int systemErrorCodeCompat = mSystemErrorCode;
-        // TODO(b/416768353): Change this to 26Q2 version code.
         if (systemErrorCodeCompat
                         == VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED
-                && (appTargetSdk < Build.VERSION_CODES.CUR_DEVELOPMENT
+                && (appTargetSdk < Build.VERSION_CODES.CINNAMON_BUN
                         || !Flags.carPropertyStatusDetailedNotAvailable())) {
             systemErrorCodeCompat = VehicleHalStatusCode.STATUS_NOT_AVAILABLE;
         }

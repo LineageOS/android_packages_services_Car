@@ -306,6 +306,8 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
         } else if (mTestName.getMethodName().endsWith("AtB")) {
             getContext().getApplicationInfo().targetSdkVersion =
                     Build.VERSION_CODES.BAKLAVA;
+        } else if (mTestName.getMethodName().endsWith("AtC")) {
+            getContext().getApplicationInfo().targetSdkVersion = Build.VERSION_CODES.CINNAMON_BUN;
         }
     }
 
@@ -1676,10 +1678,9 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
         verify(callback, timeout(DEFAULT_TIMEOUT_MS)).onSupportedValuesChange(propId, areaId2);
     }
 
-    // TODO(b/416768353): Set the app sdk version for this test to 26Q2.
     @EnableFlags(FLAG_CAR_PROPERTY_STATUS_DETAILED_NOT_AVAILABLE)
     @Test
-    public void testOnChangeEvent_withDetailedPropertyStatus() throws Exception {
+    public void testOnChangeEvent_withDetailedPropertyStatus_AtC() throws Exception {
         Map<Integer, Integer> vhalToCarPropValueStatusMap = Map.ofEntries(
                 Map.entry(VehiclePropertyStatus.AVAILABLE,
                         CarPropertyValue.STATUS_AVAILABLE),
@@ -1735,7 +1736,8 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
         }
     }
 
-    // Before 26Q2, detailed not available property status are mapped to general not_available.
+    // Before CINNAMON_BUN, detailed not available property status are mapped to general
+    // not_available.
     @EnableFlags(FLAG_CAR_PROPERTY_STATUS_DETAILED_NOT_AVAILABLE)
     @Test
     public void testOnChangeEvent_withDetailedPropertyStatus_AtB() throws Exception {

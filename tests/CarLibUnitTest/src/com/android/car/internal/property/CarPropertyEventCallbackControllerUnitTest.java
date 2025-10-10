@@ -572,7 +572,7 @@ public final class CarPropertyEventCallbackControllerUnitTest {
     }
 
     @Test
-    public void testOnEvent_getPropertyStatus_notAvailable_sdkVersionBefore26Q2() {
+    public void testOnEvent_getPropertyStatus_notAvailable_sdkVersionBeforeC() {
         int vendorStatus = 0x1234;
         int appTargetSdk = Build.VERSION_CODES.BAKLAVA;
         when(mContext.checkSelfPermission(Car.PERMISSION_READ_PROPERTY_VENDOR_STATUS))
@@ -614,7 +614,7 @@ public final class CarPropertyEventCallbackControllerUnitTest {
     }
 
     @Test
-    public void testOnEvent_getPropertyStatus_error_sdkVersionBefore26Q2() {
+    public void testOnEvent_getPropertyStatus_error_sdkVersionBeforeC() {
         int vendorStatus = 0x1234;
         int appTargetSdk = Build.VERSION_CODES.BAKLAVA;
         when(mContext.checkSelfPermission(Car.PERMISSION_READ_PROPERTY_VENDOR_STATUS))
