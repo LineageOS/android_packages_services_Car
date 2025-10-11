@@ -81,6 +81,11 @@ public:
     ::ndk::ScopedAStatus stopVideoStream() override;
     ::ndk::ScopedAStatus unsetPrimaryClient() override;
 
+    unsigned int getMaxFramesInFlight() const {
+        std::lock_guard<std::mutex> lock(mMutex);
+        return mMaxFramesInFlight;
+    }
+
 private:
     std::unordered_map<std::string, std::weak_ptr<CompatHalCamera>> mHalCameras;
     unsigned int mMaxFramesInFlight GUARDED_BY(mMutex) = 1;
