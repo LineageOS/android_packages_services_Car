@@ -145,10 +145,18 @@ ScopedAStatus CompatVirtualCamera::setMaxFramesInFlight(int32_t bufferCount) {
 
     for (auto& [id, weak_hal_cam] : mHalCameras) {
         if (auto hal_cam = weak_hal_cam.lock()) {
-            if (!hal_cam->isStopped()) {
-                LOG(ERROR) << "Camera " << id << " is not stopped.";
+            bool is_stopped;
+            if (hal_cam->tryIsStopped(is_stopped)) {
+                if (!is_stopped) {
+                    LOG(ERROR) << "Camera " << id << " is not stopped.";
+                    return ScopedAStatus::fromServiceSpecificError(
+                            static_cast<int32_t>(EvsResult::STREAM_ALREADY_RUNNING));
+                }
+            } else {
+                // Could not acquire lock, treat as busy
+                LOG(WARNING) << "Could not determine state of Camera " << id << ", assuming busy.";
                 return ScopedAStatus::fromServiceSpecificError(
-                        static_cast<int32_t>(EvsResult::STREAM_ALREADY_RUNNING));
+                        static_cast<int32_t>(EvsResult::RESOURCE_BUSY));
             }
         }
     }

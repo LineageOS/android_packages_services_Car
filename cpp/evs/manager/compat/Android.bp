@@ -44,6 +44,7 @@ cc_library_static {
         "android.car.feature-aconfig-cpp",
         "android.hardware.automotive.evs-V2-ndk",
         "android.hardware.common-V2-ndk",
+        "libaidlcommonsupport",
     ],
     shared_libs: [
         "libbase",
@@ -51,6 +52,7 @@ cc_library_static {
         "libcamera2ndk",
         "libcamera_metadata",
         "liblog",
+        "libmediandk",
     ],
 }
 
@@ -76,21 +78,26 @@ cc_test {
         "test/CompatEnumeratorIntegrationTest.cpp",
         "test/CompatHalCamera_test.cpp",
         "test/CompatVirtualCamera_test.cpp",
+        "test/MockNdkCamera.cpp",
     ],
     static_libs: [
         "android.car.feature-aconfig-cpp",
         "android.hardware.automotive.evs-V2-ndk",
         "android.hardware.common-V2-ndk",
+        "libaidlcommonsupport",
         "libevs_compat",
         "libgtest_main",
         "libgmock",
     ],
     shared_libs: [
+        "libandroid",
         "libbase",
         "libbinder_ndk",
         "libcamera2ndk",
         "libcamera_metadata",
+        "libcutils",
         "liblog",
+        "libmediandk",
     ],
 
 }

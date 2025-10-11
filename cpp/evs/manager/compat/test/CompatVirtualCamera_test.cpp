@@ -70,8 +70,7 @@ TEST_F(CompatVirtualCameraTest, setMaxFramesInFlight_Valid) {
     ndk::ScopedAStatus status = mVirtualCamera->setMaxFramesInFlight(5);
     ASSERT_TRUE(status.isOk()) << "setMaxFramesInFlight failed with status: "
                                << status.getDescription();
-    std::lock_guard<std::mutex> lock(mVirtualCamera->mMutex);
-    EXPECT_EQ(mVirtualCamera->mMaxFramesInFlight, 5);
+    EXPECT_EQ(mVirtualCamera->getMaxFramesInFlight(), 5);
 }
 
 TEST_F(CompatVirtualCameraTest, setMaxFramesInFlight_Invalid) {

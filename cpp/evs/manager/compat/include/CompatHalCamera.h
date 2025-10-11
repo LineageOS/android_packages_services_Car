@@ -24,8 +24,12 @@
 #include <aidl/android/hardware/automotive/evs/EvsEventDesc.h>
 #include <aidl/android/hardware/automotive/evs/Stream.h>
 #include <camera/NdkCameraDevice.h>
+#include <camera/NdkCameraError.h>
+#include <camera/NdkCaptureRequest.h>
+#include <media/NdkImageReader.h>
 
 #include <list>
+#include <unordered_map>
 
 namespace android::hardware::automotive::evs::compat {
 
@@ -37,6 +41,9 @@ class CompatHalCamera final : public aidlevs::BnEvsCameraStream {
     friend class CompatHalCameraTest_ownVirtualCamera_ValidCamera_Test;
     friend class CompatHalCameraTest_disownVirtualCamera_ValidCamera_Test;
     friend class CompatHalCameraTest_disownVirtualCamera_NotOwnedCamera_Test;
+    friend class CompatHalCameraTest_clientStreamStarting_Success_Test;
+    friend class CompatHalCameraTest_clientStreamStarting_AlreadyRunning_Test;
+    friend class CompatHalCameraTest_clientStreamStarting_StartStreamFail_Test;
 #endif
 public:
     CompatHalCamera(ACameraDevice* device, const std::string& cameraId,
@@ -52,9 +59,16 @@ public:
     aidlevs::CameraDesc getCameraDesc() const { return mCameraDesc; }
     bool ownVirtualCamera(const std::shared_ptr<CompatVirtualCamera>& virtualCamera);
     void disownVirtualCamera(const CompatVirtualCamera* virtualCamera);
-    bool isStopped() const { return mStreamState.load(std::memory_order_acquire) == STOPPED; }
+    ::ndk::ScopedAStatus clientStreamStarting();
+    void clientStreamEnding(const CompatVirtualCamera* virtualCamera);
+    bool tryIsStopped(bool& result) const;
 
 private:
+    ::ndk::ScopedAStatus startNdkCameraStream(int32_t maxImages);
+    void cleanUpNdkResources();
+    static void onImageAvailable(void* context, AImageReader* reader);
+    static void onSessionClosed(void* context, ACameraCaptureSession* session);
+
     ACameraDevice* mDevice;
     std::string mCameraId;
     aidlevs::CameraDesc mCameraDesc;
@@ -62,12 +76,29 @@ private:
     mutable std::mutex mMutex;
     std::list<std::weak_ptr<CompatVirtualCamera>> mVirtualCameras GUARDED_BY(mMutex);
 
-
-    enum StreamStateEnum {
+    enum {
         STOPPED,
         RUNNING,
         STOPPING,
-    };
-    std::atomic<StreamStateEnum> mStreamState = STOPPED;
+    } mStreamState GUARDED_BY(mMutex) = STOPPED;
+
+    AImageReader* mImageReader = nullptr;
+    AImageReader_ImageListener mImageListener;
+    ANativeWindow* mWindow = nullptr;
+    ACameraOutputTarget* mOutputTarget = nullptr;
+    ACaptureSessionOutput* mSessionOutput = nullptr;
+    ACaptureSessionOutputContainer* mOutputs = nullptr;
+    ACameraCaptureSession* mSession = nullptr;
+    ACaptureRequest* mCaptureRequest = nullptr;
+    ACameraDevice_StateCallbacks mDeviceStateCallbacks;
+    ACameraCaptureSession_stateCallbacks mSessionStateCallbacks;
+    ACameraCaptureSession_captureCallbacks mCaptureCallbacks;
+
+    std::unordered_map<uint64_t, uint32_t> mBufferIdMap GUARDED_BY(mMutex);
+
+    mutable std::mutex mSessionMutex;
+    bool mSessionClosed GUARDED_BY(mSessionMutex) = false;
+    std::condition_variable mSessionCondVar;
 };
+
 }  // namespace android::hardware::automotive::evs::compat

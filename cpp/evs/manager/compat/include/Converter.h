@@ -16,8 +16,11 @@
 
 #pragma once
 
+#include <aidl/android/hardware/automotive/evs/BufferDesc.h>
 #include <aidl/android/hardware/automotive/evs/CameraDesc.h>
+#include <aidl/android/hardware/automotive/evs/Stream.h>
 #include <camera/NdkCameraMetadata.h>
+#include <media/NdkImageReader.h>
 
 namespace android::hardware::automotive::evs::compat {
 
@@ -25,6 +28,14 @@ class Converter {
 public:
     static ::aidl::android::hardware::automotive::evs::CameraDesc toCameraDesc(
             const char* cameraId, const ACameraMetadata* metadata, int vendorFlags);
+
+    static media_status_t toAImageReader(
+            const ::aidl::android::hardware::automotive::evs::Stream& config, int32_t maxImages,
+            AImageReader** reader);
+
+    static media_status_t toBufferDesc(
+            AImage* image, uint32_t bufferId, const std::string& deviceId,
+            ::aidl::android::hardware::automotive::evs::BufferDesc& outBufferDesc);
 };
 
 }  // namespace android::hardware::automotive::evs::compat
