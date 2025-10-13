@@ -65,13 +65,13 @@
     <string name="car_permission_label_control_app_blocking" msgid="9112678596919993386">"యాప్ బ్లాక్ చేయడం"</string>
     <string name="car_permission_desc_control_app_blocking" msgid="7539378161760696190">"డ్రైవింగ్‌లో ఉన్నప్పుడు అప్లికేషన్‌లను బ్లాక్ చేయండి"</string>
     <string name="car_permission_car_navigation_manager" msgid="5895461364007854077">"నావిగేషన్ మేనేజర్"</string>
-    <string name="car_permission_desc_car_navigation_manager" msgid="6188751054665471537">"పరికర గ్రూపునకు నావిగేషన్ డేటాను రిపోర్ట్ చేయండి"</string>
-    <string name="car_permission_car_display_in_cluster" msgid="4005987646292458684">"పరికర గ్రూపునకు ప్రత్యక్ష రెండరింగ్"</string>
-    <string name="car_permission_desc_car_display_in_cluster" msgid="2668300546822672927">"పరికర గ్రూపులో ప్రదర్శించాల్సిన కార్యకలాపలని తెలియచెప్పడానికి అప్లికేషన్‌ను అనుమతించండి."</string>
-    <string name="car_permission_car_cluster_control" msgid="1382247204230165674">"పరికర గుంపు నియంత్రణ"</string>
-    <string name="car_permission_desc_car_cluster_control" msgid="9222776665281176031">"పరికర గుంపు యాప్‌లను ప్రారంభించండి"</string>
-    <string name="car_permission_car_monitor_cluster_navigation_state" msgid="7025307242306902441">"పరికర క్లస్టర్ నావిగేషన్ స్టేట్"</string>
-    <string name="car_permission_desc_car_monitor_cluster_navigation_state" msgid="8745047153878713339">"పరికర క్లస్టర్ నావిగేషన్ స్టేట్ మార్పులను వినండి"</string>
+    <string name="car_permission_desc_car_navigation_manager" msgid="6188751054665471537">"ఇన్‌స్ట్రుమెంట్‌ క్లస్టర్‌కు నావిగేషన్ డేటాను రిపోర్ట్ చేయండి"</string>
+    <string name="car_permission_car_display_in_cluster" msgid="4005987646292458684">"ఇన్‌స్ట్రుమెంట్ క్లస్టర్‌కు ప్రత్యక్ష రెండరింగ్"</string>
+    <string name="car_permission_desc_car_display_in_cluster" msgid="2668300546822672927">"ఇన్‌స్ట్రుమెంట్ క్లస్టర్‌లో డిస్ ప్లే చేయాల్సిన యాక్టివిటీలను నిర్ధారించడానికి అప్లికేషన్‌ను అనుమతించండి."</string>
+    <string name="car_permission_car_cluster_control" msgid="1382247204230165674">"ఇన్‌స్ట్రుమెంట్ క్లస్టర్ నియంత్రణ"</string>
+    <string name="car_permission_desc_car_cluster_control" msgid="9222776665281176031">"ఇన్‌స్ట్రుమెంట్ క్లస్టర్‌లో యాప్‌లను లాంచ్ చేయండి"</string>
+    <string name="car_permission_car_monitor_cluster_navigation_state" msgid="7025307242306902441">"ఇన్‌స్ట్రుమెంట్ క్లస్టర్‌నావిగేషన్ స్థితి"</string>
+    <string name="car_permission_desc_car_monitor_cluster_navigation_state" msgid="8745047153878713339">"ఇన్‌స్ట్రుమెంట్ క్లస్టర్ నావిగేషన్ స్థితిలో వచ్చే మార్పులను గుర్తించండి"</string>
     <string name="car_permission_label_car_ux_restrictions_configuration" msgid="6801393970411049725">"UX పరిమితుల కాన్ఫిగరేషన్"</string>
     <string name="car_permission_desc_car_ux_restrictions_configuration" msgid="5711926927484813777">"UX పరిమితులను కాన్ఫిగర్ చేయండి"</string>
     <string name="car_permission_label_access_private_display_id" msgid="6712116114341634316">"ప్రైవేట్ డిస్‌ప్లే idకి చదివే యాక్సెస్"</string>
@@ -193,7 +193,7 @@
     <string name="car_permission_label_car_power" msgid="8111448088314368268">"కారు పవర్ స్థితిని తెలుసుకోగలవు"</string>
     <string name="car_permission_desc_car_power" msgid="1937031836449813395">"కారు పవర్ స్టేట్‌ను తెలుసుకోగలవు."</string>
     <string name="car_permission_label_enroll_trust" msgid="3512907900486690218">"విశ్వసనీయ పరికరాన్ని నమోదు చేయండి"</string>
-    <string name="car_permission_desc_enroll_trust" msgid="4148649994602185130">"విశ్వసనీయ పరికర నమోదును అనుమతించండి"</string>
+    <string name="car_permission_desc_enroll_trust" msgid="4148649994602185130">"విశ్వసనీయ డివైజ్‌ నమోదును అనుమతించండి"</string>
     <string name="car_permission_label_car_test_service" msgid="9159328930558208708">"కారు యొక్క పరీక్ష మోడ్‌ను నియంత్రించండి"</string>
     <string name="car_permission_desc_car_test_service" msgid="7426844534110145843">"కారు యొక్క పరీక్ష మోడ్‌ను నియంత్రించండి"</string>
     <string name="car_permission_label_control_car_features" msgid="3905791560378888286">"కార్ ఫీచర్‌లను ఎనేబుల్ లేదా డిజేబుల్ చేయడం"</string>
