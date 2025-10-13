@@ -32,10 +32,12 @@
 #include <aidl/android/hardware/automotive/evs/UltrasonicsArrayDesc.h>
 #include <utils/Mutex.h>
 
+#include <cstdint>
 #include <list>
 #include <shared_mutex>
 #include <unordered_map>
 #include <unordered_set>
+#include <vector>
 
 namespace android::hardware::automotive::evs::compat {
 
@@ -44,6 +46,7 @@ namespace aidlevs = ::aidl::android::hardware::automotive::evs;
 struct CameraGroup {
     std::string groupId;
     std::vector<std::string> physicalIds;
+    std::vector<uint8_t> logicalCameraMetadata;
     // other fields can be added here as needed in the future.
 };
 using CameraGroupMap = std::unordered_map<std::string, CameraGroup>;
