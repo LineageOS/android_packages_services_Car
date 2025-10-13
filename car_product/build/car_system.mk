@@ -205,7 +205,6 @@ PRODUCT_PACKAGES += \
     CarDialerApp \
     CarRadioApp \
     OverviewApp \
-    CarLauncher \
     LocalMediaPlayer \
     CarMediaApp \
     CarMessengerApp \
@@ -219,6 +218,18 @@ PRODUCT_PACKAGES += \
     car-frameworks-service \
     com.android.car.procfsinspector \
     com.android.permission \
+
+ifeq ($(HAS_SCALABLEUI),true)
+    $(call inherit-product, packages/services/Car/car_product/dewd/car_dewd_common.mk)
+else # HAS_SCALABLEUI is not set
+    PRODUCT_PACKAGES += \
+        CarLauncher
+endif # HAS_SCALABLEUI
+
+ifeq ($(GSI_SKIP_PROVISIONED),true)
+    PRODUCT_PACKAGES += \
+        ProvidersSettingsGsiOverlay
+endif # GSI_SKIP_PROVISIONED
 
 # CAN bus
 PRODUCT_PACKAGES += \
