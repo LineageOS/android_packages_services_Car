@@ -83,7 +83,7 @@ TEST_F(CompatEnumeratorTest, setCameraGroupMap_Invalid) {
 
     CameraGroupMap cameraGroupMap;
     std::string groupId = "test_group";
-    std::vector<std::string> physicalIds = {"cam2"}; // cam2 does not exist
+    std::vector<std::string> physicalIds = {"cam2"};  // cam2 does not exist
     cameraGroupMap.insert({groupId, {groupId, physicalIds}});
 
     ndk::ScopedAStatus status = mEnumerator->setCameraGroupMap(cameraGroupMap);
@@ -129,6 +129,13 @@ TEST_F(CompatEnumeratorTest, getCameraList_NoCameras) {
     // Verify the results
     ASSERT_TRUE(status.isOk());
     EXPECT_TRUE(cameraListResult.empty());
+}
+
+TEST_F(CompatEnumeratorTest, isHardware) {
+    bool isHardware = true;
+    ndk::ScopedAStatus status = mEnumerator->isHardware(&isHardware);
+    ASSERT_TRUE(status.isOk());
+    EXPECT_FALSE(isHardware);
 }
 
 }  // namespace android::hardware::automotive::evs::compat
