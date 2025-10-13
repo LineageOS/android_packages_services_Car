@@ -55,6 +55,8 @@ TEST_F(CompatEnumeratorTest, setCameraGroupMap) {
     std::vector<std::string> cameraIds = {"cam0", "cam1", "cam2", "cam3"};
     EXPECT_CALL(*mMockCameraManager, getCameraIdList(_))
             .WillOnce(testing::DoAll(SetArgPointee<0>(cameraIds), Return(ACAMERA_OK)));
+    EXPECT_CALL(*mMockCameraManager, getCameraCharacteristics(_, _))
+            .WillRepeatedly(testing::DoAll(SetArgPointee<1>(nullptr), Return(ACAMERA_OK)));
 
     CameraGroupMap cameraGroupMap;
     std::string groupId1 = "test_group";
@@ -70,21 +72,29 @@ TEST_F(CompatEnumeratorTest, setCameraGroupMap) {
     ASSERT_TRUE(status.isOk()) << "setCameraGroupMap failed with status: "
                                << status.getDescription();
 
-    // Access the private member directly via the friend declaration
+    // Verify mCameraGroupMap is updated correctly
     ASSERT_NE(mEnumerator->mCameraGroupMap, nullptr);
     EXPECT_EQ(mEnumerator->mCameraGroupMap->size(), 2);
+    auto groupIt1 = mEnumerator->mCameraGroupMap->find(groupId1);
+    ASSERT_NE(groupIt1, mEnumerator->mCameraGroupMap->end());
+    EXPECT_EQ(groupIt1->second.groupId, groupId1);
+    EXPECT_EQ(groupIt1->second.physicalIds, physicalIds1);
+    ASSERT_TRUE(groupIt1->second.logicalCameraMetadata.empty());
+    auto groupIt2 = mEnumerator->mCameraGroupMap->find(groupId2);
+    ASSERT_NE(groupIt2, mEnumerator->mCameraGroupMap->end());
+    EXPECT_EQ(groupIt2->second.groupId, groupId2);
+    EXPECT_EQ(groupIt2->second.physicalIds, physicalIds2);
+    EXPECT_EQ(groupIt2->second.logicalCameraMetadata, metadata);
 
-    auto it = mEnumerator->mCameraGroupMap->find(groupId1);
-    ASSERT_NE(it, mEnumerator->mCameraGroupMap->end());
-    EXPECT_EQ(it->second.groupId, groupId1);
-    EXPECT_EQ(it->second.physicalIds, physicalIds1);
-    ASSERT_TRUE(it->second.logicalCameraMetadata.empty());
-
-    it = mEnumerator->mCameraGroupMap->find(groupId2);
-    ASSERT_NE(it, mEnumerator->mCameraGroupMap->end());
-    EXPECT_EQ(it->second.groupId, groupId2);
-    EXPECT_EQ(it->second.physicalIds, physicalIds2);
-    EXPECT_EQ(it->second.logicalCameraMetadata, metadata);
+    ASSERT_EQ(mEnumerator->mCameraDescs.size(), 6);
+    auto descIt1 = mEnumerator->mCameraDescs.find(groupId1);
+    ASSERT_NE(descIt1, mEnumerator->mCameraDescs.end());
+    EXPECT_EQ(descIt1->second.id, groupId1);
+    ASSERT_TRUE(descIt1->second.metadata.empty());
+    auto descIt2 = mEnumerator->mCameraDescs.find(groupId2);
+    ASSERT_NE(descIt2, mEnumerator->mCameraDescs.end());
+    EXPECT_EQ(descIt2->second.id, groupId2);
+    EXPECT_EQ(descIt2->second.metadata, metadata);
 }
 
 TEST_F(CompatEnumeratorTest, setCameraGroupMap_Invalid) {
@@ -123,8 +133,16 @@ TEST_F(CompatEnumeratorTest, getCameraList) {
     // Verify the results
     ASSERT_TRUE(status.isOk()) << "getCameraList failed with status: " << status.getDescription();
     ASSERT_EQ(cameraListResult.size(), 2);
-    EXPECT_EQ(cameraListResult[0].id, "cam0");
-    EXPECT_EQ(cameraListResult[1].id, "cam1");
+
+    // Collect the returned camera IDs into a set to ignore order
+    std::set<std::string> resultSet;
+    for (const auto& desc : cameraListResult) {
+        resultSet.insert(desc.id);
+    }
+
+    // Check that the set contains the expected camera IDs
+    EXPECT_TRUE(resultSet.count("cam0"));
+    EXPECT_TRUE(resultSet.count("cam1"));
 }
 
 TEST_F(CompatEnumeratorTest, getCameraList_NoCameras) {

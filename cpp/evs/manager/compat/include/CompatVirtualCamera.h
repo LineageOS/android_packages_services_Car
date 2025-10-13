@@ -102,6 +102,8 @@ public:
         return mMaxFramesInFlight;
     }
 
+    void setDescriptor(aidlevs::CameraDesc* desc) { mDesc = desc; }
+
 private:
     void shutdown();
 
@@ -113,6 +115,7 @@ private:
         STOPPING,
     } mStreamState GUARDED_BY(mMutex) = STOPPED;
     mutable std::mutex mMutex;
+
     std::shared_ptr<aidlevs::IEvsCameraStream> mStream GUARDED_BY(mMutex);
     std::unordered_map<std::string, std::deque<aidlevs::BufferDesc>> mFramesHeld GUARDED_BY(mMutex);
     std::unordered_map<std::string, std::deque<aidlevs::BufferDesc>> mFramesUsed GUARDED_BY(mMutex);
@@ -121,6 +124,8 @@ private:
     std::condition_variable mReturnFramesSignal;
     std::thread mCaptureThread;
     std::thread mReturnThread;
+
+    aidlevs::CameraDesc* mDesc = nullptr;
 };
 
 }  // namespace android::hardware::automotive::evs::compat

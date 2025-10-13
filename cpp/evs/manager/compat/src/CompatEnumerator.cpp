@@ -104,6 +104,31 @@ ScopedAStatus CompatEnumerator::closeUltrasonicsArray(
     return ScopedAStatus::fromExceptionCode(EX_UNSUPPORTED_OPERATION);
 }
 
+ScopedAStatus CompatEnumerator::initCameraDescs() {
+    std::vector<std::string> cameraIds;
+    camera_status_t status = mCameraManager->getCameraIdList(&cameraIds);
+    if (status != ACAMERA_OK) {
+        // TODO (b/441577862): implement a conversion from camera_status_t to EvsResult.aidl and
+        // return it here.
+        LOG(ERROR) << "Failed to get camera ID list. Status: " << status;
+        return ScopedAStatus::fromExceptionCode(EX_SERVICE_SPECIFIC);
+    }
+
+    for (const auto& cameraId : cameraIds) {
+        ACameraMetadata* metadata = nullptr;
+        status = mCameraManager->getCameraCharacteristics(cameraId.c_str(), &metadata);
+        if (status != ACAMERA_OK) {
+            continue;  // Skip this camera
+        }
+        // Camera NDK does not support vendorFlags, so we pass a placeholder value.
+        mCameraDescs.insert_or_assign(cameraId,
+                                      Converter::toCameraDesc(cameraId.c_str(), metadata,
+                                                              /* vendorFlags= */ -1));
+        ACameraMetadata_free(metadata);
+    }
+    return ScopedAStatus::ok();
+}
+
 ScopedAStatus CompatEnumerator::getCameraList(std::vector<CameraDesc>* _aidl_return) {
     if (!mIsReady) {
         return ::ndk::ScopedAStatus::fromExceptionCode(EX_SERVICE_SPECIFIC);
@@ -113,33 +138,15 @@ ScopedAStatus CompatEnumerator::getCameraList(std::vector<CameraDesc>* _aidl_ret
         return ::ndk::ScopedAStatus::fromExceptionCode(EX_ILLEGAL_ARGUMENT);
     }
 
-    std::vector<std::string> cameraIds;
-    camera_status_t status = mCameraManager->getCameraIdList(&cameraIds);
-    if (status != ACAMERA_OK) {
-        // TODO (b/441577862): implement a conversion from camera_status_t to EvsResult.aidl and
-        // return it here.
-        return ScopedAStatus::fromExceptionCode(EX_SERVICE_SPECIFIC);
+    ScopedAStatus status = initCameraDescs();
+    if (!status.isOk()) {
+        return status;
     }
 
-    if (cameraIds.empty()) {
-        LOG(WARNING) << "No camera devices were found.";
-        return ::ndk::ScopedAStatus::ok();
-    }
-
-    for (const auto& cameraId : cameraIds) {
-        ACameraMetadata* metadata = nullptr;
-        camera_status_t status =
-                mCameraManager->getCameraCharacteristics(cameraId.c_str(), &metadata);
-        if (status != ACAMERA_OK) {
-            continue;  // Skip this camera
-        }
-        // Camera NDK does not support vendorFlags, so we pass a placeholder value.
-        CameraDesc desc = Converter::toCameraDesc(cameraId.c_str(), metadata,
-                                                  /* vendorFlags= */ -1);
+    for (const auto& [id, desc] : mCameraDescs) {
         _aidl_return->push_back(desc);
-        mCameraDescs.insert_or_assign(desc.id, desc);
-        ACameraMetadata_free(metadata);
     }
+
     return ScopedAStatus::ok();
 }
 
@@ -306,11 +313,18 @@ ScopedAStatus CompatEnumerator::openCamera(const std::string& cameraId, const St
                 LOG(ERROR) << halCamera->getId() << " failed to own virtual camera " << cameraId;
             }
         }
-        // In the EVS manager, if a logical camera is opened,
-        // clientCamera->setDescriptor(&mCameraDevices[id]); is called. This is missing in
-        // CompatEnumerator because the CameraDesc for the logical camera ID isn't directly
-        // available from the NDK in the same way. The mCameraGroupMap provides the physical IDs,
-        // but not a full CameraDesc for the logical entity.
+
+        // If this is a logical camera, set its descriptor.
+        if (physicalCameraIds.size() > 1) {
+            auto it = mCameraDescs.find(cameraId);
+            if (it == mCameraDescs.end()) {
+                LOG(ERROR) << "Logical camera " << cameraId << " not found in cache.";
+                cleanupOpenedCameras(openedInThisCall);
+                return ::ndk::ScopedAStatus::fromExceptionCode(EX_SERVICE_SPECIFIC);
+            }
+            virtualCamera->setDescriptor(&it->second);
+        }
+
         mActiveVirtualCameras.push_back(virtualCamera);
         *_aidl_return = std::move(virtualCamera);
         return ::ndk::ScopedAStatus::ok();
@@ -342,26 +356,47 @@ ScopedAStatus CompatEnumerator::setCameraGroupMap(const CameraGroupMap& cameraGr
     if (!mIsReady) {
         return ::ndk::ScopedAStatus::fromExceptionCode(EX_SERVICE_SPECIFIC);
     }
-    std::vector<std::string> availableCameraIds;
-    camera_status_t status = mCameraManager->getCameraIdList(&availableCameraIds);
-    if (status != ACAMERA_OK) {
-        // TODO (b/441577862): implement a conversion from camera_status_t to EvsResult.aidl and
-        // return it here.
-        LOG(ERROR) << "Failed to get camera ID list. error status (camera_status_t): " << status;
-        return ScopedAStatus::fromExceptionCode(EX_SERVICE_SPECIFIC);
+
+    if (mCameraDescs.empty()) {
+        ScopedAStatus status = initCameraDescs();
+        if (!status.isOk()) {
+            return status;
+        }
     }
 
-    std::unordered_set<std::string> availableCameraIdSet(availableCameraIds.begin(),
-                                                         availableCameraIds.end());
-    for (const auto& groupEntry : cameraGroupMap) {
-        for (const auto& cameraId : groupEntry.second.physicalIds) {
-            if (availableCameraIdSet.find(cameraId) == availableCameraIdSet.end()) {
-                LOG(ERROR) << "Camera ID " << cameraId << " in group " << groupEntry.first
-                           << " does not exist.";
+    for (const auto& [logicalId, group] : cameraGroupMap) {
+        for (const auto& physicalId : group.physicalIds) {
+            if (mCameraDescs.find(physicalId) == mCameraDescs.end()) {
+                LOG(ERROR) << "Physical camera ID " << physicalId << " for logical camera "
+                           << logicalId << " not found.";
                 return ::ndk::ScopedAStatus::fromExceptionCode(EX_ILLEGAL_ARGUMENT);
             }
         }
+
+        CameraDesc logicalDesc;
+        logicalDesc.id = logicalId;
+        if (!group.logicalCameraMetadata.empty()) {
+            logicalDesc.metadata = group.logicalCameraMetadata;
+            logicalDesc.vendorFlags = -1;  // Not supported
+        } else if (!group.physicalIds.empty()) {
+            const std::string& representativeId = group.physicalIds.front();
+            auto it = mCameraDescs.find(representativeId);
+            if (it != mCameraDescs.end()) {
+                logicalDesc.metadata = it->second.metadata;
+                logicalDesc.vendorFlags = it->second.vendorFlags;
+            } else {
+                LOG(WARNING) << "Could not find representative camera " << representativeId
+                             << " for logical camera " << logicalId;
+                continue;
+            }
+        } else {
+            LOG(WARNING) << "Logical camera " << logicalId
+                         << " has no physical cameras and no metadata.";
+            continue;
+        }
+        mCameraDescs.insert_or_assign(logicalId, std::move(logicalDesc));
     }
+
     mCameraGroupMap = std::make_unique<CameraGroupMap>(cameraGroupMap);
     return ::ndk::ScopedAStatus::ok();
 }
