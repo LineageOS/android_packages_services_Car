@@ -348,18 +348,6 @@ public final class CarServiceHelperWrapper {
     }
 
     /**
-     * @return true if a package requires launching in automotive compatibility mode.
-     */
-    public boolean requiresDisplayCompat(String packageName) {
-        try {
-            return waitForCarServiceHelper().requiresDisplayCompat(packageName);
-        } catch (RemoteException e) {
-            Slogf.e(TAG, REMOTE_EXCEPTION_STR, e);
-        }
-        return false;
-    }
-
-    /**
      * @return true if a package requires launching in automotive compatibility mode for the given
      * user id.
      */

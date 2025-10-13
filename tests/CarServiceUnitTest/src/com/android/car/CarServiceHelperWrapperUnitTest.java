@@ -212,40 +212,26 @@ public final class CarServiceHelperWrapperUnitTest extends AbstractExtendedMocki
     }
 
     @Test
-    public void testRequiresDisplayCompat() throws Exception {
-        mDefaultWrapper.setCarServiceHelper(mICarServiceHelper);
-        when(mICarServiceHelper.requiresDisplayCompat("com.example.app")).thenReturn(true);
-
-        assertThat(mDefaultWrapper.requiresDisplayCompat("com.example.app")).isTrue();
-        verify(mICarServiceHelper).requiresDisplayCompat("com.example.app");
-    }
-
-    @Test
-    public void testRequiresDisplayCompat_remoteExceptionFromService() throws Exception {
-        mDefaultWrapper.setCarServiceHelper(mICarServiceHelper);
-        when(mICarServiceHelper.requiresDisplayCompat("com.example.app")).thenThrow(
-                new RemoteException());
-
-        assertThat(mDefaultWrapper.requiresDisplayCompat("com.example.app")).isFalse();
-    }
-
-    @Test
     public void testRequiresDisplayCompatForUser() throws Exception {
+        int userId = 20;
         mDefaultWrapper.setCarServiceHelper(mICarServiceHelper);
-        when(mICarServiceHelper.requiresDisplayCompatForUser("com.example.app", 10))
+        when(mICarServiceHelper.requiresDisplayCompatForUser("com.example.app", userId))
                 .thenReturn(true);
 
-        assertThat(mDefaultWrapper.requiresDisplayCompatForUser("com.example.app", 10)).isTrue();
-        verify(mICarServiceHelper).requiresDisplayCompatForUser("com.example.app", 10);
+        assertThat(
+                mDefaultWrapper.requiresDisplayCompatForUser("com.example.app", userId)).isTrue();
+        verify(mICarServiceHelper).requiresDisplayCompatForUser("com.example.app", userId);
     }
 
     @Test
     public void testRequiresDisplayCompatForUser_remoteExceptionFromService() throws Exception {
+        int userId = 20;
         mDefaultWrapper.setCarServiceHelper(mICarServiceHelper);
-        when(mICarServiceHelper.requiresDisplayCompatForUser("com.example.app", 10))
+        when(mICarServiceHelper.requiresDisplayCompatForUser("com.example.app", userId))
                 .thenThrow(new RemoteException());
 
-        assertThat(mDefaultWrapper.requiresDisplayCompatForUser("com.example.app", 10)).isFalse();
+        assertThat(
+                mDefaultWrapper.requiresDisplayCompatForUser("com.example.app", userId)).isFalse();
     }
 
     @Test
