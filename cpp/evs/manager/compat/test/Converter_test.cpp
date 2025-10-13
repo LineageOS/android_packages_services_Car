@@ -95,7 +95,7 @@ TEST_F(ConverterTest, toAImageReader_ValidConfig) {
     config.height = 480;
 
     EXPECT_CALL(mMockNdkCamera,
-                AImageReader_newWithUsage(640, 480, AIMAGE_FORMAT_YUV_420_888,
+                AImageReader_newWithUsage(640, 480, AIMAGE_FORMAT_RGBA_8888,
                                           GRALLOC_USAGE_HW_TEXTURE | GRALLOC_USAGE_SW_READ_OFTEN |
                                                   GRALLOC_USAGE_SW_WRITE_OFTEN,
                                           3, _))
@@ -131,7 +131,7 @@ TEST_F(ConverterTest, toAImageReader_AImageReaderNewFails) {
     config.height = 480;
 
     EXPECT_CALL(mMockNdkCamera,
-                AImageReader_newWithUsage(640, 480, AIMAGE_FORMAT_YUV_420_888,
+                AImageReader_newWithUsage(640, 480, AIMAGE_FORMAT_RGBA_8888,
                                           GRALLOC_USAGE_HW_TEXTURE | GRALLOC_USAGE_SW_READ_OFTEN |
                                                   GRALLOC_USAGE_SW_WRITE_OFTEN,
                                           3, _))
