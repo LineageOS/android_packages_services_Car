@@ -3959,5 +3959,30 @@
             android:exported="false"
             tools:node="merge"
             tools:replace="android:exported,android:enabled"/>
+
+        <receiver
+            android:name="com.android.settings.network.telephony.satellite.quicksettings.SatelliteTileStateReceiver"
+            android:enabled="false"
+            android:exported="false"
+            tools:node="merge"
+            tools:replace="android:exported,android:enabled">
+            <intent-filter tools:node="removeAll"/>
+        </receiver>
+
+        <service
+            android:name="com.android.settings.network.telephony.satellite.quicksettings.SatelliteTileService"
+            android:enabled="false"
+            android:exported="false"
+            tools:node="merge"
+            tools:replace="android:exported,android:enabled">
+            <intent-filter tools:node="removeAll"/>
+        </service>
+
+        <activity
+            android:name="com.android.settings.network.telephony.satellite.quicksettings.SatelliteLandingPageActivity"
+            android:enabled="false"
+            android:exported="false"
+            tools:node="merge"
+            tools:replace="android:exported,android:enabled" />
     </application>
 </manifest>
