@@ -34,7 +34,7 @@ namespace aidlevs = ::aidl::android::hardware::automotive::evs;
 
 class CompatHalCamera;  // Forward declaration to avoid circular dependency.
 
-class CompatVirtualCamera final : public aidlevs::BnEvsCamera {
+class CompatVirtualCamera : public aidlevs::BnEvsCamera {
 #ifdef EVS_COMPAT_TEST
     // Grant access to private members for testing.
     friend class CompatVirtualCameraTest_setMaxFramesInFlight_Valid_Test;
@@ -81,6 +81,7 @@ public:
     ::ndk::ScopedAStatus stopVideoStream() override;
     ::ndk::ScopedAStatus unsetPrimaryClient() override;
 
+    virtual bool deliverFrame(const aidlevs::BufferDesc& bufDesc);
     unsigned int getMaxFramesInFlight() const {
         std::lock_guard<std::mutex> lock(mMutex);
         return mMaxFramesInFlight;

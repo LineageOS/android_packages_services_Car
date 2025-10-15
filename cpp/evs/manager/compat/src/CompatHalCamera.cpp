@@ -61,8 +61,6 @@ void CompatHalCamera::onImageAvailable(void* context, AImageReader* reader) {
         return;
     }
 
-    BufferDesc bufferDesc;
-    uint32_t bufferId = 0;
     AHardwareBuffer* hardwareBuffer = nullptr;
     status = AImage_getHardwareBuffer(image, &hardwareBuffer);
     if (status != AMEDIA_OK || !hardwareBuffer) {
@@ -71,10 +69,12 @@ void CompatHalCamera::onImageAvailable(void* context, AImageReader* reader) {
         return;
     }
 
-    // Get the buffer address of the hardware buffer.
-    uint64_t bufferAddr = reinterpret_cast<uint64_t>(hardwareBuffer);
+    BufferDesc bufferDesc;
     {
         std::lock_guard lock(halCamera->mMutex);
+        // Get the buffer address of the hardware buffer.
+        uint64_t bufferAddr = reinterpret_cast<uint64_t>(hardwareBuffer);
+        uint32_t bufferId = 0;
         auto it = halCamera->mBufferIdMap.find(bufferAddr);
         if (it != halCamera->mBufferIdMap.end()) {
             bufferId = it->second;
@@ -82,14 +82,15 @@ void CompatHalCamera::onImageAvailable(void* context, AImageReader* reader) {
             bufferId = halCamera->mBufferIdMap.size();
             halCamera->mBufferIdMap[bufferAddr] = bufferId;
         }
+        status = Converter::toBufferDesc(image, bufferId, halCamera->getId(), bufferDesc);
+        if (status != AMEDIA_OK) {
+            LOG(ERROR) << "Failed to convert AImage to BufferDesc, status: " << status;
+            AImage_delete(image);
+            return;
+        }
+        halCamera->mLiveImages[bufferId] = image;
     }
 
-    status = Converter::toBufferDesc(image, bufferId, halCamera->getId(), bufferDesc);
-    AImage_delete(image);
-    if (status != AMEDIA_OK) {
-        LOG(ERROR) << "Failed to convert AImage to BufferDesc, status: " << status;
-        return;
-    }
     LOG(DEBUG) << "Image available to deliver to deliverFrame";
     std::vector<aidlevs::BufferDesc> frameVec;
     frameVec.emplace_back(std::move(bufferDesc));
@@ -153,11 +154,164 @@ CompatHalCamera::CompatHalCamera(ACameraDevice* device, const std::string& camer
 
 CompatHalCamera::~CompatHalCamera() {
     // Destructor stub
+    std::lock_guard lock(mMutex);
+    for (auto const& [key, val] : mLiveImages) {
+        if (val) {
+            AImage_delete(val);
+        }
+    }
+    mLiveImages.clear();
 }
 
-ScopedAStatus CompatHalCamera::deliverFrame(
-        [[maybe_unused]] const std::vector<BufferDesc>& buffer) {
-    return ScopedAStatus::fromExceptionCode(EX_UNSUPPORTED_OPERATION);
+ScopedAStatus CompatHalCamera::deliverFrame(const std::vector<BufferDesc>& buffers) {
+    LOG(DEBUG) << "Received a frame on " << mCameraId;
+
+    if (buffers.empty()) {
+        LOG(WARNING) << "deliverFrame called with no buffers on " << mCameraId;
+        return ScopedAStatus::ok();
+    }
+
+    const auto timestamp = buffers[0].timestamp;
+    const uint32_t bufferId = buffers[0].bufferId;
+    // TODO(b/145750636): For now, we are using a approximately half of 1 seconds / 30 frames = 33ms
+    //           but this must be derived from current framerate.
+    constexpr int64_t kThreshold = 16'000;  // ms
+    unsigned frameDeliveries = 0;
+    std::deque<FrameRequest> currentRequests;
+    std::deque<FrameRequest> puntedRequests;
+    {
+        std::lock_guard<std::mutex> lock(mMutex);
+        currentRequests.insert(currentRequests.end(),
+                               std::make_move_iterator(mNextRequests.begin()),
+                               std::make_move_iterator(mNextRequests.end()));
+        mNextRequests.clear();
+        mFrameOpInProgress = true;
+    }
+
+    while (!currentRequests.empty()) {
+        auto req = currentRequests.front();
+        currentRequests.pop_front();
+        std::shared_ptr<CompatVirtualCamera> vCam = req.client.lock();
+        if (!vCam) {
+            // Ignore a client already dead.
+            continue;
+        }
+
+        if (timestamp - req.timestamp < kThreshold) {
+            // Skip current frame because it arrives too soon.
+            LOG(DEBUG) << "Skips a frame from " << getId();
+            puntedRequests.push_back(req);
+            continue;
+        }
+
+        if (!vCam->deliverFrame(buffers[0])) {
+            LOG(WARNING) << getId() << " failed to forward the buffer to " << vCam.get();
+        } else {
+            LOG(DEBUG) << getId() << " forwarded the buffer #" << bufferId << " to " << vCam.get()
+                       << " from " << this;
+            ++frameDeliveries;
+        }
+    }
+
+    if (frameDeliveries < 1) {
+        // If none of our clients could accept the frame, then return it
+        // right away.
+        LOG(INFO) << "Trivially rejecting frame (" << bufferId << ") from " << getId()
+                  << " with no acceptance";
+        AImage* imageToDel = nullptr;
+        {
+            std::lock_guard lock(mMutex);
+            auto it = mLiveImages.find(bufferId);
+            if (it != mLiveImages.end()) {
+                imageToDel = it->second;
+                mLiveImages.erase(it);
+            } else {
+                LOG(WARNING) << "Buffer ID " << bufferId
+                             << " not found in mLiveImages for trivial rejection.";
+            }
+        }
+        if (imageToDel) {
+            AImage_delete(imageToDel);
+        }
+
+        // Adding skipped capture requests back to the queue.
+        std::lock_guard<std::mutex> lock(mMutex);
+        mNextRequests.insert(mNextRequests.end(), std::make_move_iterator(puntedRequests.begin()),
+                             std::make_move_iterator(puntedRequests.end()));
+        mFrameOpInProgress = false;
+        mFrameOpDone.notify_all();
+    } else {
+        std::lock_guard lock(mMutex);
+
+        // Add an entry for this frame in our tracking list.
+        unsigned i;
+        for (i = 0; i < mFrameRecords.size(); ++i) {
+            if (mFrameRecords[i].refCount == 0) {
+                break;
+            }
+        }
+
+        if (i == mFrameRecords.size()) {
+            mFrameRecords.emplace_back(bufferId, frameDeliveries);
+        } else {
+            mFrameRecords[i].frameId = bufferId;
+            mFrameRecords[i].refCount = frameDeliveries;
+        }
+
+        // Adding skipped capture requests back to the queue.
+        mNextRequests.insert(mNextRequests.end(), std::make_move_iterator(puntedRequests.begin()),
+                             std::make_move_iterator(puntedRequests.end()));
+        mFrameOpInProgress = false;
+        mFrameOpDone.notify_all();
+    }
+
+    return ScopedAStatus::ok();
+}
+
+ScopedAStatus CompatHalCamera::doneWithFrame(BufferDesc buffer) {
+    std::unique_lock lock(mMutex);
+    mFrameOpDone.wait(lock, [this]() REQUIRES(mMutex) { return mFrameOpInProgress != true; });
+
+    const uint32_t bufferId = buffer.bufferId;
+    // Find this frame in our list of outstanding frames
+    auto it = std::find_if(mFrameRecords.begin(), mFrameRecords.end(),
+                           [id = bufferId](const FrameRecord& rec) { return rec.frameId == id; });
+    if (it == mFrameRecords.end()) {
+        LOG(WARNING) << "We got a frame back with an ID we don't recognize: " << bufferId;
+        return ScopedAStatus::ok();
+    }
+
+    if (it->refCount < 1) {
+        LOG(WARNING) << "Buffer " << bufferId << " is returned with a zero reference counter.";
+        return ScopedAStatus::ok();
+    }
+
+    // Are there still clients using this buffer?
+    it->refCount = it->refCount - 1;
+    if (it->refCount > 0) {
+        LOG(DEBUG) << "Buffer " << bufferId << " is still being used by " << it->refCount
+                   << " other client(s).";
+        return ScopedAStatus::ok();
+    }
+
+    // Since all our clients are done with this buffer, we can release the buffer.
+    LOG(DEBUG) << "All clients done with buffer " << bufferId << " for camera " << mCameraId;
+    AImage* imageToDel = nullptr;
+    {
+        // mMutex is already locked by unique_lock
+        auto liveIt = mLiveImages.find(bufferId);
+        if (liveIt != mLiveImages.end()) {
+            imageToDel = liveIt->second;
+            mLiveImages.erase(liveIt);
+        } else {
+            LOG(WARNING) << "Buffer ID " << bufferId << " not found in mLiveImages for deletion.";
+        }
+    }
+    if (imageToDel) {
+        AImage_delete(imageToDel);
+    }
+
+    return ScopedAStatus::ok();
 }
 
 ScopedAStatus CompatHalCamera::notify([[maybe_unused]] const EvsEventDesc& event) {
@@ -215,6 +369,7 @@ ScopedAStatus CompatHalCamera::clientStreamStarting() {
 
             ScopedAStatus status = startNdkCameraStream(maxImages);
             if (status.isOk()) {
+                mFrameRecords.resize(maxImages);
                 mStreamState = RUNNING;
             }
             return status;

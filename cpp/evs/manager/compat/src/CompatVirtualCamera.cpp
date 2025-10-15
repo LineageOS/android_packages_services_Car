@@ -178,4 +178,9 @@ ScopedAStatus CompatVirtualCamera::unsetPrimaryClient() {
     return ScopedAStatus::fromExceptionCode(EX_UNSUPPORTED_OPERATION);
 }
 
+bool CompatVirtualCamera::deliverFrame([[maybe_unused]] const aidlevs::BufferDesc& bufDesc) {
+    // TODO(b/372312166): Add implementation.
+    return false;
+}
+
 }  // namespace android::hardware::automotive::evs::compat
