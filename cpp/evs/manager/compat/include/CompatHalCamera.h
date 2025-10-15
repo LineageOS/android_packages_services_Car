@@ -26,10 +26,14 @@
 #include <camera/NdkCameraDevice.h>
 #include <camera/NdkCameraError.h>
 #include <camera/NdkCaptureRequest.h>
+#include <media/NdkImage.h>
 #include <media/NdkImageReader.h>
 
+#include <condition_variable>
+#include <deque>
 #include <list>
 #include <unordered_map>
+#include <vector>
 
 namespace android::hardware::automotive::evs::compat {
 
@@ -44,6 +48,9 @@ class CompatHalCamera final : public aidlevs::BnEvsCameraStream {
     friend class CompatHalCameraTest_clientStreamStarting_Success_Test;
     friend class CompatHalCameraTest_clientStreamStarting_AlreadyRunning_Test;
     friend class CompatHalCameraTest_clientStreamStarting_StartStreamFail_Test;
+    friend class CompatHalCameraTest_doneWithFrame_InvalidBufferId_Test;
+    friend class CompatHalCameraTest_doneWithFrame_ValidBufferId_Test;
+    friend class CompatHalCameraTest_deliverFrame_NonEmptyBuffer_Test;
 #endif
 public:
     CompatHalCamera(ACameraDevice* device, const std::string& cameraId,
@@ -68,6 +75,8 @@ private:
     void cleanUpNdkResources();
     static void onImageAvailable(void* context, AImageReader* reader);
     static void onSessionClosed(void* context, ACameraCaptureSession* session);
+
+    ::ndk::ScopedAStatus doneWithFrame(aidlevs::BufferDesc buffer);
 
     ACameraDevice* mDevice;
     std::string mCameraId;
@@ -99,6 +108,25 @@ private:
     mutable std::mutex mSessionMutex;
     bool mSessionClosed GUARDED_BY(mSessionMutex) = false;
     std::condition_variable mSessionCondVar;
+
+    struct FrameRecord {
+        uint32_t frameId;
+        uint32_t refCount;
+        FrameRecord() : frameId(0), refCount(0) {} // needed for resizing mFrameRecords.
+        FrameRecord(uint32_t id, uint32_t count) : frameId(id), refCount(count) {}
+    };
+    std::vector<FrameRecord> mFrameRecords GUARDED_BY(mMutex);
+
+    struct FrameRequest {
+        std::weak_ptr<CompatVirtualCamera> client;
+        int64_t timestamp = -1;
+    };
+    std::deque<FrameRequest> mNextRequests GUARDED_BY(mMutex);
+
+    std::unordered_map<uint32_t, AImage*> mLiveImages GUARDED_BY(mMutex);
+
+    bool mFrameOpInProgress GUARDED_BY(mMutex) = false;
+    std::condition_variable mFrameOpDone;
 };
 
 }  // namespace android::hardware::automotive::evs::compat

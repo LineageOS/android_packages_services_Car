@@ -42,6 +42,14 @@ auto* dummyOutputContainer = reinterpret_cast<ACaptureSessionOutputContainer*>(0
 auto* dummySession = reinterpret_cast<ACameraCaptureSession*>(0x1006);
 auto* dummyCaptureRequest = reinterpret_cast<ACaptureRequest*>(0x1007);
 
+class MockVirtualCamera : public CompatVirtualCamera {
+public:
+    MockVirtualCamera(const std::vector<std::shared_ptr<CompatHalCamera>>& halCameras) :
+          CompatVirtualCamera(halCameras) {}
+
+    MOCK_METHOD(bool, deliverFrame, (const aidlevs::BufferDesc&), (override));
+};
+
 class CompatHalCameraTest : public ::testing::Test {
 protected:
     void SetUp() override {
@@ -81,8 +89,8 @@ TEST_F(CompatHalCameraTest, ownVirtualCamera_NullCamera) {
 TEST_F(CompatHalCameraTest, ownVirtualCamera_ValidCamera) {
     std::vector<std::shared_ptr<CompatHalCamera>> halCameras;
     halCameras.push_back(mHalCamera);
-    std::shared_ptr<CompatVirtualCamera> virtualCamera =
-            ::ndk::SharedRefBase::make<CompatVirtualCamera>(halCameras);
+    std::shared_ptr<MockVirtualCamera> virtualCamera =
+            ::ndk::SharedRefBase::make<MockVirtualCamera>(halCameras);
     EXPECT_TRUE(mHalCamera->ownVirtualCamera(virtualCamera));
     EXPECT_EQ(mHalCamera->mVirtualCameras.size(), 1);
 }
@@ -95,8 +103,8 @@ TEST_F(CompatHalCameraTest, disownVirtualCamera_NullCamera) {
 TEST_F(CompatHalCameraTest, disownVirtualCamera_ValidCamera) {
     std::vector<std::shared_ptr<CompatHalCamera>> halCameras;
     halCameras.push_back(mHalCamera);
-    std::shared_ptr<CompatVirtualCamera> virtualCamera =
-            ::ndk::SharedRefBase::make<CompatVirtualCamera>(halCameras);
+    std::shared_ptr<MockVirtualCamera> virtualCamera =
+            ::ndk::SharedRefBase::make<MockVirtualCamera>(halCameras);
     EXPECT_TRUE(mHalCamera->ownVirtualCamera(virtualCamera));
     EXPECT_EQ(mHalCamera->mVirtualCameras.size(), 1);
 
@@ -107,13 +115,13 @@ TEST_F(CompatHalCameraTest, disownVirtualCamera_ValidCamera) {
 TEST_F(CompatHalCameraTest, disownVirtualCamera_NotOwnedCamera) {
     std::vector<std::shared_ptr<CompatHalCamera>> halCameras;
     halCameras.push_back(mHalCamera);
-    std::shared_ptr<CompatVirtualCamera> virtualCamera1 =
-            ::ndk::SharedRefBase::make<CompatVirtualCamera>(halCameras);
+    std::shared_ptr<MockVirtualCamera> virtualCamera1 =
+            ::ndk::SharedRefBase::make<MockVirtualCamera>(halCameras);
     EXPECT_TRUE(mHalCamera->ownVirtualCamera(virtualCamera1));
     EXPECT_EQ(mHalCamera->mVirtualCameras.size(), 1);
 
-    std::shared_ptr<CompatVirtualCamera> virtualCamera2 =
-            ::ndk::SharedRefBase::make<CompatVirtualCamera>(halCameras);
+    std::shared_ptr<MockVirtualCamera> virtualCamera2 =
+            ::ndk::SharedRefBase::make<MockVirtualCamera>(halCameras);
     mHalCamera->disownVirtualCamera(virtualCamera2.get());
     EXPECT_EQ(mHalCamera->mVirtualCameras.size(), 1);
 }
@@ -209,6 +217,80 @@ TEST_F(CompatHalCameraTest, clientStreamStarting_StartStreamFail) {
     EXPECT_EQ(status.getServiceSpecificError(),
               static_cast<int32_t>(aidlevs::EvsResult::UNDERLYING_SERVICE_ERROR));
     EXPECT_EQ(mHalCamera->mStreamState, CompatHalCamera::STOPPED);
+}
+
+TEST_F(CompatHalCameraTest, deliverFrame_EmptyBuffer) {
+    std::vector<std::shared_ptr<CompatHalCamera>> halCameras;
+    halCameras.push_back(mHalCamera);
+    std::shared_ptr<MockVirtualCamera> virtualCamera =
+            ::ndk::SharedRefBase::make<MockVirtualCamera>(halCameras);
+    EXPECT_TRUE(mHalCamera->ownVirtualCamera(virtualCamera));
+
+    EXPECT_CALL(*virtualCamera, deliverFrame(_)).Times(0);
+
+    std::vector<aidlevs::BufferDesc> buffers;
+    ::ndk::ScopedAStatus status = mHalCamera->deliverFrame(buffers);
+    EXPECT_TRUE(status.isOk());
+}
+
+TEST_F(CompatHalCameraTest, deliverFrame_NonEmptyBuffer) {
+    std::vector<std::shared_ptr<CompatHalCamera>> halCameras;
+    halCameras.push_back(mHalCamera);
+    std::shared_ptr<MockVirtualCamera> virtualCamera =
+            ::ndk::SharedRefBase::make<MockVirtualCamera>(halCameras);
+    EXPECT_TRUE(mHalCamera->ownVirtualCamera(virtualCamera));
+
+    // Add a frame request
+    mHalCamera->mNextRequests.push_back({virtualCamera, 0});
+
+    EXPECT_CALL(*virtualCamera, deliverFrame(_)).Times(1).WillOnce(Return(true));
+
+    std::vector<aidlevs::BufferDesc> buffers;
+    aidlevs::BufferDesc buffer;
+    buffer.bufferId = 123;
+    buffer.timestamp = 20000;
+    buffers.emplace_back(std::move(buffer));
+    ::ndk::ScopedAStatus status = mHalCamera->deliverFrame(buffers);
+    EXPECT_TRUE(status.isOk());
+}
+
+TEST_F(CompatHalCameraTest, doneWithFrame_InvalidBufferId) {
+    aidlevs::BufferDesc buffer;
+    buffer.bufferId = 999;  // Invalid buffer ID
+    // Expect AImage_delete NOT to be called for this unknown bufferId
+    EXPECT_CALL(mMockNdkCamera, AImage_delete(_)).Times(0);
+
+    ::ndk::ScopedAStatus status = mHalCamera->doneWithFrame(std::move(buffer));
+    EXPECT_TRUE(status.isOk());
+}
+
+TEST_F(CompatHalCameraTest, doneWithFrame_ValidBufferId) {
+    const uint32_t bufferId = 123;
+    AImage* dummyImage = reinterpret_cast<AImage*>(0x9999);
+
+    {
+        std::lock_guard lock(mHalCamera->mMutex);
+        // Simulate that a frame was delivered and is being tracked
+        mHalCamera->mFrameRecords.emplace_back(bufferId, 1);
+        mHalCamera->mLiveImages[bufferId] = dummyImage;
+    }
+
+    // Expect AImage_delete to be called when the last reference is released
+    EXPECT_CALL(mMockNdkCamera, AImage_delete(dummyImage)).Times(1);
+
+    aidlevs::BufferDesc buffer;
+    buffer.bufferId = bufferId;
+    ::ndk::ScopedAStatus status = mHalCamera->doneWithFrame(std::move(buffer));
+    EXPECT_TRUE(status.isOk());
+
+    // Verify that the buffer is removed from mLiveImages and mFrameRecords
+    {
+        std::lock_guard lock(mHalCamera->mMutex);
+        EXPECT_EQ(mHalCamera->mLiveImages.find(bufferId), mHalCamera->mLiveImages.end());
+        auto it = std::find_if(mHalCamera->mFrameRecords.begin(), mHalCamera->mFrameRecords.end(),
+                               [bufferId](const auto& rec) { return rec.frameId == bufferId; });
+        EXPECT_TRUE(it == mHalCamera->mFrameRecords.end() || it->refCount == 0);
+    }
 }
 
 }  // namespace android::hardware::automotive::evs::compat
