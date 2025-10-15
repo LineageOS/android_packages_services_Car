@@ -138,6 +138,7 @@ Result<void> ServiceManager::startWatchdogPerfService(
         !result.ok()) {
         return Error() << "Failed to register performance profiler: " << result.error();
     }
+    mWatchdogPerfService->init();
     if (auto result = mWatchdogPerfService->start(); !result.ok()) {
         return Error(result.error().code())
                 << "Failed to start watchdog performance service: " << result.error();

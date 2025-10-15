@@ -146,95 +146,38 @@ Result<void> WatchdogPerfService::registerDataProcessor(sp<DataProcessorInterfac
     return {};
 }
 
-// TODO(b/435747622): Add an init method
-Result<void> WatchdogPerfService::start() {
-    {
-        Mutex::Autolock lock(mMutex);
-        if (mCurrCollectionEvent != EventType::INIT || mCollectionThread.joinable()) {
-            return Error(INVALID_OPERATION) << "Cannot start " << kServiceName << " more than once";
-        }
-        // All methods called by WatchdogPerfService are present in
-        // WatchdogServiceHelperBase, so its derived class is not needed.
-        if (mWatchdogServiceHelperBase == nullptr) {
-            return Error(INVALID_OPERATION) << "No watchdog service helper is registered";
-        }
-        std::chrono::nanoseconds systemEventCollectionInterval =
-                std::chrono::duration_cast<std::chrono::nanoseconds>(
-                        std::chrono::seconds(sysprop::systemEventCollectionInterval().value_or(
-                                kDefaultSystemEventCollectionInterval.count())));
-        std::chrono::nanoseconds periodicCollectionInterval =
-                std::chrono::duration_cast<std::chrono::nanoseconds>(
-                        std::chrono::seconds(sysprop::periodicCollectionInterval().value_or(
-                                kDefaultPeriodicCollectionInterval.count())));
-        std::chrono::nanoseconds periodicMonitorInterval =
-                std::chrono::duration_cast<std::chrono::nanoseconds>(
-                        std::chrono::seconds(sysprop::periodicMonitorInterval().value_or(
-                                kDefaultPeriodicMonitorInterval.count())));
-        mBoottimeCollection = {
-                .eventType = EventType::BOOT_TIME_COLLECTION,
-                .pollingIntervalNs = systemEventCollectionInterval,
-        };
-        mPeriodicCollection = {
-                .eventType = EventType::PERIODIC_COLLECTION,
-                .pollingIntervalNs = periodicCollectionInterval,
-        };
-        mUserSwitchCollection = {{
-                .eventType = EventType::USER_SWITCH_COLLECTION,
-                .pollingIntervalNs = systemEventCollectionInterval,
-        }};
-        mWakeUpCollection = {
-                .eventType = EventType::WAKE_UP_COLLECTION,
-                .pollingIntervalNs = systemEventCollectionInterval,
-        };
-        mPeriodicMonitor = {
-                .eventType = EventType::PERIODIC_MONITOR,
-                .pollingIntervalNs = periodicMonitorInterval,
-        };
-        if (mDataProcessors.empty()) {
-            ALOGE("Terminating %s: No data processor is registered", kServiceName);
-            mCurrCollectionEvent = EventType::TERMINATED;
-            return Error() << "No data processor is registered";
-        }
-        mUidStatsCollector->init();
-        mProcStatCollector->init();
-        mProcDiskStatsCollector->init();
-    }
+void WatchdogPerfService::initInternalLocked() {
+    std::chrono::nanoseconds systemEventCollectionInterval =
+            std::chrono::duration_cast<std::chrono::nanoseconds>(
+                    std::chrono::seconds(sysprop::systemEventCollectionInterval().value_or(
+                            kDefaultSystemEventCollectionInterval.count())));
+    mBoottimeCollection = {
+            .eventType = EventType::BOOT_TIME_COLLECTION,
+            .pollingIntervalNs = systemEventCollectionInterval,
+    };
+    mUserSwitchCollection = {{
+            .eventType = EventType::USER_SWITCH_COLLECTION,
+            .pollingIntervalNs = systemEventCollectionInterval,
+    }};
+    mWakeUpCollection = {
+            .eventType = EventType::WAKE_UP_COLLECTION,
+            .pollingIntervalNs = systemEventCollectionInterval,
+    };
+    mUidStatsCollector->init();
+    mProcStatCollector->init();
+}
 
-    mCollectionThread = std::thread([&]() {
-        {
-            Mutex::Autolock lock(mMutex);
-            if (EventType expected = EventType::INIT; mCurrCollectionEvent != expected) {
-                ALOGE("Skipping performance data collection as the current collection event "
-                      "%s != %s",
-                      toString(mCurrCollectionEvent), toString(expected));
-                return;
-            }
-            notifySystemStartUpLocked();
-            mCurrCollectionEvent = EventType::BOOT_TIME_COLLECTION;
-            mBoottimeCollection.lastPollElapsedRealTimeNs = mHandlerLooper->now();
-            mHandlerLooper->setLooper(Looper::prepare(/*opts=*/0));
-            mHandlerLooper->sendMessage(sp<WatchdogPerfService>::fromExisting(this),
-                                        EventType::BOOT_TIME_COLLECTION);
-        }
-        if (set_sched_policy(0, SP_BACKGROUND) != 0) {
-            ALOGW("Failed to set background scheduling priority to %s thread", kServiceName);
-        }
-        if (int result = pthread_setname_np(pthread_self(), "WatchdogPerfSvc"); result != 0) {
-            ALOGE("Failed to set %s thread name: %d", kServiceName, result);
-        }
-        ALOGI("Starting %s performance data collection", toString(mCurrCollectionEvent));
-        bool isCollectionActive = true;
-        /*
-         * Loop until the collection is not active -- performance collection runs on this thread in
-         * a handler.
-         */
-        while (isCollectionActive) {
-            mHandlerLooper->pollAll(/*timeoutMillis=*/-1);
-            Mutex::Autolock lock(mMutex);
-            isCollectionActive = mCurrCollectionEvent != EventType::TERMINATED;
-        }
-    });
-    return {};
+bool WatchdogPerfService::isDataProcessorRegisteredLocked() {
+    return !mDataProcessors.empty();
+}
+
+void WatchdogPerfService::startFirstCollectionEventLocked() {
+    notifySystemStartUpLocked();
+    mCurrCollectionEvent = EventType::BOOT_TIME_COLLECTION;
+    mBoottimeCollection.lastPollElapsedRealTimeNs = mHandlerLooper->now();
+    mHandlerLooper->setLooper(Looper::prepare(/*opts=*/0));
+    mHandlerLooper->sendMessage(sp<WatchdogPerfService>::fromExisting(this),
+                                EventType::BOOT_TIME_COLLECTION);
 }
 
 void WatchdogPerfService::onDataProcessorTerminateLocked() {
@@ -410,20 +353,7 @@ Result<void> WatchdogPerfService::onShutdownEnter() {
     return {};
 }
 
-Result<void> WatchdogPerfService::onDump(int fd) const {
-    Mutex::Autolock lock(mMutex);
-    if (mCurrCollectionEvent == EventType::TERMINATED) {
-        ALOGW("%s not active. Dumping cached data", kServiceName);
-        if (!WriteStringToFd(StringPrintf("%s not active. Dumping cached data.", kServiceName),
-                             fd)) {
-            return Error(FAILED_TRANSACTION) << "Failed to write " << kServiceName << " status";
-        }
-    }
-
-    if (const auto& result = dumpCollectorsStatusLocked(fd); !result.ok()) {
-        return Error(FAILED_TRANSACTION) << result.error();
-    }
-
+Result<void> WatchdogPerfService::onDumpInternalLocked(int fd) const {
     std::stringstream kernelStartTimestamp;
     if (mKernelStartTimeEpochSeconds != 0) {
         kernelStartTimestamp << std::put_time(std::localtime(&mKernelStartTimeEpochSeconds),
@@ -573,7 +503,7 @@ Result<std::unordered_set<std::string>> WatchdogPerfService::onFilterPackagesFla
     return filterPackages;
 }
 
-void WatchdogPerfService::handleMessage(const Message& message) {
+Result<void> WatchdogPerfService::handleMessageExtension(const Message& message) {
     Result<void> result;
 
     switch (message.what) {
@@ -586,9 +516,6 @@ void WatchdogPerfService::handleMessage(const Message& message) {
                 Mutex::Autolock lock(mMutex);
                 switchToPeriodicLocked(/*startNow=*/false);
             }
-            break;
-        case static_cast<int>(EventType::PERIODIC_COLLECTION):
-            result = processCollectionEvent(&mPeriodicCollection);
             break;
         case static_cast<int>(EventType::USER_SWITCH_COLLECTION):
             result = processCollectionEvent(&mUserSwitchCollection);
@@ -609,48 +536,20 @@ void WatchdogPerfService::handleMessage(const Message& message) {
             }
             break;
         }
-        case static_cast<int>(EventType::CUSTOM_COLLECTION):
-            result = processCollectionEvent(&mCustomCollection);
-            break;
-        case static_cast<int>(EventType::PERIODIC_MONITOR):
-            result = processMonitorEvent(&mPeriodicMonitor);
-            break;
-        case static_cast<int>(SwitchMessage::END_CUSTOM_COLLECTION): {
-            Mutex::Autolock lock(mMutex);
-            if (EventType expected = EventType::CUSTOM_COLLECTION;
-                mCurrCollectionEvent != expected) {
-                ALOGW("Skipping END_CUSTOM_COLLECTION message as the current collection %s != %s",
-                      toString(mCurrCollectionEvent), toString(expected));
-                return;
-            }
-            mCustomCollection = {};
-            for (const auto& processor : mDataProcessors) {
-                /*
-                 * Clear custom collection cache on the data processors when the custom collection
-                 * ends.
-                 */
-                processor->onCustomCollectionDump(-1);
-            }
-            switchToPeriodicLocked(/*startNow=*/true);
-            return;
-        }
-        case static_cast<int>(TaskMessage::SEND_RESOURCE_STATS):
-            result = sendResourceStats();
-            break;
         default:
             result = Error() << "Unknown message: " << message.what;
     }
 
-    if (!result.ok()) {
-        Mutex::Autolock lock(mMutex);
-        ALOGE("Terminating %s: %s", kServiceName, result.error().message().c_str());
+    return result;
+}
+
+void WatchdogPerfService::clearCustomCollectionCacheLocked() {
+    for (const auto& processor : mDataProcessors) {
         /*
-         * DO NOT CALL terminate() as it tries to join the collection thread but this code is
-         * executed on the collection thread. Thus it will result in a deadlock.
+         * Clear custom collection cache on the data processors when the custom collection
+         * ends.
          */
-        mCurrCollectionEvent = EventType::TERMINATED;
-        mHandlerLooper->removeMessages(sp<WatchdogPerfService>::fromExisting(this));
-        mHandlerLooper->wake();
+        processor->onCustomCollectionDump(-1);
     }
 }
 
@@ -727,19 +626,7 @@ Result<void> WatchdogPerfService::collectLocked(EventMetadata* metadata) {
 
     mLastCollectionTimeMillis = timeSinceBootMillis;
 
-    if (mUnsentResourceStats.empty() || !mWatchdogServiceHelperBase->isServiceConnected()) {
-        if (DEBUG && !mUnsentResourceStats.empty() &&
-            !mWatchdogServiceHelperBase->isServiceConnected()) {
-            ALOGD("Cannot send resource stats since CarWatchdogService not connected.");
-        }
-        return {};
-    }
-
-    // Send message to send resource stats
-    mHandlerLooper->sendMessage(sp<WatchdogPerfService>::fromExisting(this),
-                                TaskMessage::SEND_RESOURCE_STATS);
-
-    return {};
+    return handleUnsentResourceStatsLocked();
 }
 
 Result<void> WatchdogPerfService::onDataProcessorPeriodicMonitorLocked(
@@ -769,16 +656,12 @@ WatchdogPerfServiceBase::EventMetadata* WatchdogPerfService::getCurrentCollectio
     switch (mCurrCollectionEvent) {
         case EventType::BOOT_TIME_COLLECTION:
             return &mBoottimeCollection;
-        case EventType::PERIODIC_COLLECTION:
-            return &mPeriodicCollection;
         case EventType::USER_SWITCH_COLLECTION:
             return &mUserSwitchCollection;
         case EventType::WAKE_UP_COLLECTION:
             return &mWakeUpCollection;
-        case EventType::CUSTOM_COLLECTION:
-            return &mCustomCollection;
         default:
-            return nullptr;
+            return WatchdogPerfServiceBase::getCurrentCollectionMetadataLocked();
     }
 }
 
