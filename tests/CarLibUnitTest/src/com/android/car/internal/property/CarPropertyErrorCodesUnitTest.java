@@ -207,7 +207,7 @@ public final class CarPropertyErrorCodesUnitTest extends AbstractExpectableTestC
 
     @Test
     @EnableFlags(FLAG_CAR_PROPERTY_STATUS_DETAILED_NOT_AVAILABLE)
-    public void testToDetailedErrorCode_SubsystemNotConnected_before26Q2() {
+    public void testToDetailedErrorCode_SubsystemNotConnected_beforeC() {
         var errorCodes =
                 createFromVhalStatusCode(
                                 VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED)
@@ -227,12 +227,11 @@ public final class CarPropertyErrorCodesUnitTest extends AbstractExpectableTestC
 
     @Test
     @EnableFlags(FLAG_CAR_PROPERTY_STATUS_DETAILED_NOT_AVAILABLE)
-    public void testToDetailedErrorCode_SubsystemNotConnected_after26Q2() {
-        // TODO(b/416768353): Change this to 26Q2 version code.
+    public void testToDetailedErrorCode_SubsystemNotConnected_afterC() {
         var errorCodes =
                 createFromVhalStatusCode(
                                 VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED)
-                        .cloneWithAppTargetSdk(Build.VERSION_CODES.CUR_DEVELOPMENT);
+                        .cloneWithAppTargetSdk(Build.VERSION_CODES.CINNAMON_BUN);
 
         PropertyNotAvailableException exception =
                 assertThrows(

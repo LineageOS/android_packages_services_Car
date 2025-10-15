@@ -577,17 +577,20 @@ public final class CarPropertyValue<T> implements Parcelable {
      * Returns the property status of {@code CarPropertyValue}.
      *
      * <p>Possible return values are one of:
-     *  <ul>
-     *      <li><code>STATUS_AVAILABLE</code></li>
-     *      <li><code>STATUS_ERROR</code></li>
-     *      <li><code>STATUS_NOT_AVAILABLE_GENERAL</code></li>
-     *      <li><code>STATUS_NOT_AVAILABLE_DISABLED</code> (Since Android 26Q2)</li>
-     *      <li><code>STATUS_NOT_AVAILABLE_SPEED_LOW</code> (Since Android 26Q2)</li>
-     *      <li><code>STATUS_NOT_AVAILABLE_SPEED_HIGH</code> (Since Android 26Q2)</li>
-     *      <li><code>STATUS_NOT_AVAILABLE_POOR_VISIBILITY</code> (Since Android 26Q2)</li>
-     *      <li><code>STATUS_NOT_AVAILABLE_SAFETY</code> (Since Android 26Q2)</li>
-     *      <li><code>STATUS_NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED</code> (Since Android 26Q2)</li>
-     *  </ul>
+     *
+     * <ul>
+     *   <li><code>STATUS_AVAILABLE</code></li>
+     *   <li><code>STATUS_ERROR</code></li>
+     *   <li><code>STATUS_NOT_AVAILABLE_GENERAL</code></li>
+     *   <li><code>STATUS_NOT_AVAILABLE_DISABLED</code> (Since Android CINNAMON_BUN)</li>
+     *   <li><code>STATUS_NOT_AVAILABLE_SPEED_LOW</code> (Since Android CINNAMON_BUN)</li>
+     *   <li><code>STATUS_NOT_AVAILABLE_SPEED_HIGH</code> (Since Android CINNAMON_BUN)</li>
+     *   <li><code>STATUS_NOT_AVAILABLE_POOR_VISIBILITY</code> (Since Android CINNAMON_BUN)</li>
+     *   <li><code>STATUS_NOT_AVAILABLE_SAFETY</code> (Since Android CINNAMON_BUN)</li>
+     *   <li>
+     *     <code>STATUS_NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED</code> (Since Android CINNAMON_BUN)
+     *   </li>
+     * </ul>
      *
      * @return The property status of {@code CarPropertyValue}
      */
@@ -752,15 +755,14 @@ public final class CarPropertyValue<T> implements Parcelable {
     }
 
     /**
-     * Maps detailed not_available system property status to general not_available status for
-     * app that has sdkVersion < 26Q2.
+     * Maps detailed not_available system property status to general not_available status for app
+     * that has sdkVersion < CINNAMON_BUN.
      *
      * @hide
      */
     public CarPropertyValue cloneWithSystemStatusConverted(int sdkVersion) {
-        // TODO(b/416768353): Change this to 26Q2 version code.
         // The flag is already checked at car service HalPropValue.
-        if (sdkVersion >= Build.VERSION_CODES.CUR_DEVELOPMENT
+        if (sdkVersion >= Build.VERSION_CODES.CINNAMON_BUN
                 && Flags.carPropertyStatusDetailedNotAvailable()) {
             return newBuilder(this).build();
         }
