@@ -613,4 +613,17 @@ public class CarPropertySimulationManagerUnitTest extends AbstractExpectableTest
         // The listener should not be called as the manager is garbage collected
         verify(mCarRecorderListener, never()).onCarPropertyEvents(any());
     }
+
+    @Test
+    public void testOnCarDisconnected() throws Exception {
+        when(mICarProperty.registerRecordingListener(any())).thenReturn(new
+                CarPropertyConfigList(List.of(mCarPropertyConfig)));
+
+        mCarPropertySimulationManager.startRecordingVehicleProperties(
+                DIRECT_EXECUTOR, mCarRecorderListener);
+        mCarPropertySimulationManager.onCarDisconnected();
+
+        expectThat(mCarPropertySimulationManager.getCarRecorderListener()).isNull();
+        expectThat(mCarPropertySimulationManager.getCallbackExecutor()).isNull();
+    }
 }
