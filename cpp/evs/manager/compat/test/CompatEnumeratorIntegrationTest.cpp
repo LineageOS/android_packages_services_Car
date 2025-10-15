@@ -198,4 +198,34 @@ TEST_F(CompatEnumeratorIntegrationTest, OpenLogicalCameraWithExplicitDescAndGetI
     // status = enumerator->closeCamera(camera);
     // EXPECT_TRUE(status.isOk()) << "Failed to close camera " << logicalCameraId;
 }
+
+TEST_F(CompatEnumeratorIntegrationTest, GetStreamListForAllAvailableCameras) {
+    std::vector<CameraDesc> cameraList;
+    ScopedAStatus status = enumerator->getCameraList(&cameraList);
+    ASSERT_TRUE(status.isOk()) << status.getDescription();
+
+    if (cameraList.empty()) {
+        LOG(WARNING) << "No cameras found, skipping getStreamList test.";
+        GTEST_SKIP();
+    }
+
+    for (const auto& desc : cameraList) {
+        LOG(INFO) << "Getting stream list for camera: " << desc.id;
+        std::vector<Stream> streamList;
+        status = enumerator->getStreamList(desc, &streamList);
+        EXPECT_TRUE(status.isOk()) << "Failed to get stream list for camera " << desc.id << ": "
+                                   << status.getDescription();
+        EXPECT_FALSE(streamList.empty()) << "Stream list is empty for camera " << desc.id;
+    }
+}
+
+TEST_F(CompatEnumeratorIntegrationTest, GetStreamListForInvalidCamera) {
+    CameraDesc invalidDesc;
+    invalidDesc.id = "invalid-camera-id";
+    std::vector<Stream> streamList;
+    ScopedAStatus status = enumerator->getStreamList(invalidDesc, &streamList);
+    EXPECT_FALSE(status.isOk());
+    EXPECT_EQ(status.getExceptionCode(), EX_SERVICE_SPECIFIC);
+}
+
 }  // namespace android::hardware::automotive::evs::compat

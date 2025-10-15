@@ -56,8 +56,8 @@ cc_library_static {
     ],
 }
 
-cc_test {
-    name: "evs_compat_test",
+cc_defaults {
+    name: "evs_compat_test_defaults",
     defaults: [
         "aconfig_lib_cc_shared_link.defaults",
         "android.hardware.graphics.common-ndk_static",
@@ -71,23 +71,12 @@ cc_test {
         "packages/services/Car/cpp/evs/manager/compat/include",
         "packages/services/Car/cpp/evs/manager/compat/test",
     ],
-    srcs: [
-        ":evs_compat_sources",
-        "test/Converter_test.cpp",
-        "test/CompatEnumerator_test.cpp",
-        "test/CompatEnumeratorIntegrationTest.cpp",
-        "test/CompatHalCamera_test.cpp",
-        "test/CompatVirtualCamera_test.cpp",
-        "test/MockNdkCamera.cpp",
-    ],
     static_libs: [
         "android.car.feature-aconfig-cpp",
         "android.hardware.automotive.evs-V2-ndk",
         "android.hardware.common-V2-ndk",
         "libaidlcommonsupport",
-        "libevs_compat",
         "libgtest_main",
-        "libgmock",
     ],
     shared_libs: [
         "libandroid",
@@ -99,5 +88,31 @@ cc_test {
         "liblog",
         "libmediandk",
     ],
+}
 
+cc_test {
+    name: "evs_compat_unit_tests",
+    defaults: ["evs_compat_test_defaults"],
+    srcs: [
+        ":evs_compat_sources",
+        "test/Converter_test.cpp",
+        "test/CompatEnumerator_test.cpp",
+        "test/CompatHalCamera_test.cpp",
+        "test/CompatVirtualCamera_test.cpp",
+        "test/MockNdkCamera.cpp",
+    ],
+    static_libs: [
+        "libgmock",
+    ],
+}
+
+cc_test {
+    name: "evs_compat_integration_tests",
+    defaults: ["evs_compat_test_defaults"],
+    srcs: [
+        "test/CompatEnumeratorIntegrationTest.cpp",
+    ],
+    static_libs: [
+        "libevs_compat",
+    ],
 }

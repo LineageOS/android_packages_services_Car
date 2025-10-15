@@ -27,7 +27,9 @@
 #include <android_car_feature.h>
 #include <dlfcn.h>
 
+#include <map>
 #include <memory>
+#include <tuple>
 #include <unordered_set>
 
 namespace android::hardware::automotive::evs::compat {
@@ -159,9 +161,129 @@ ScopedAStatus CompatEnumerator::getDisplayState([[maybe_unused]] DisplayState* _
     return ScopedAStatus::fromExceptionCode(EX_UNSUPPORTED_OPERATION);
 }
 
-ScopedAStatus CompatEnumerator::getStreamList([[maybe_unused]] const CameraDesc& description,
-                                              [[maybe_unused]] std::vector<Stream>* _aidl_return) {
-    return ScopedAStatus::fromExceptionCode(EX_UNSUPPORTED_OPERATION);
+ScopedAStatus CompatEnumerator::getStreamList(const CameraDesc& desc,
+                                              std::vector<Stream>* _aidl_return) {
+    if (!mIsReady) {
+        return ::ndk::ScopedAStatus::fromExceptionCode(EX_SERVICE_SPECIFIC);
+    }
+    if (_aidl_return == nullptr) {
+        LOG(ERROR) << "Received a null pointer for the return value.";
+        return ::ndk::ScopedAStatus::fromExceptionCode(EX_ILLEGAL_ARGUMENT);
+    }
+
+    ACameraMetadata* metadata = nullptr;
+    camera_status_t status = mCameraManager->getCameraCharacteristics(desc.id.c_str(), &metadata);
+    if (status != ACAMERA_OK) {
+        LOG(ERROR) << "Failed to get camera characteristics for " << desc.id;
+        return ScopedAStatus::fromExceptionCode(EX_SERVICE_SPECIFIC);
+    }
+
+    // Get available stream configurations
+    ACameraMetadata_const_entry streamConfigs;
+    status = ACameraMetadata_getConstEntry(metadata, ACAMERA_SCALER_AVAILABLE_STREAM_CONFIGURATIONS,
+                                           &streamConfigs);
+    if (status != ACAMERA_OK) {
+        LOG(ERROR) << "Failed to get available stream configurations for " << desc.id;
+        ACameraMetadata_free(metadata);
+        return ScopedAStatus::fromExceptionCode(EX_SERVICE_SPECIFIC);
+    }
+
+    // Get available minimum frame durations, which is required.
+    ACameraMetadata_const_entry minFrameDurations;
+    status = ACameraMetadata_getConstEntry(metadata, ACAMERA_SCALER_AVAILABLE_MIN_FRAME_DURATIONS,
+                                           &minFrameDurations);
+    if (status != ACAMERA_OK) {
+        LOG(ERROR) << "Failed to get available min frame durations for " << desc.id;
+        ACameraMetadata_free(metadata);
+        return ScopedAStatus::fromExceptionCode(EX_SERVICE_SPECIFIC);
+    }
+
+    // Pre-process frame durations into a map for efficient lookup
+    std::map<std::tuple<int32_t, int32_t, int32_t>, int64_t> durationMap;
+    for (uint32_t i = 0; i < minFrameDurations.count; i += 4) {
+        int32_t format = static_cast<int32_t>(minFrameDurations.data.i64[i]);
+        int32_t width = static_cast<int32_t>(minFrameDurations.data.i64[i + 1]);
+        int32_t height = static_cast<int32_t>(minFrameDurations.data.i64[i + 2]);
+        int64_t duration = minFrameDurations.data.i64[i + 3];
+        durationMap[std::make_tuple(format, width, height)] = duration;
+    }
+
+    // Get sensor orientation
+    ACameraMetadata_const_entry orientationEntry;
+    int32_t orientation = -1;
+    status = ACameraMetadata_getConstEntry(metadata, ACAMERA_SENSOR_ORIENTATION, &orientationEntry);
+    if (status == ACAMERA_OK && orientationEntry.count > 0) {
+        orientation = orientationEntry.data.i32[0];
+    } else {
+        LOG(WARNING) << "Failed to get sensor orientation for " << desc.id;
+        return ScopedAStatus::fromExceptionCode(EX_SERVICE_SPECIFIC);
+    }
+
+    aidlevs::Rotation rotation;
+    switch (orientation) {
+        case 0:
+            rotation = aidlevs::Rotation::ROTATION_0;
+            break;
+        case 90:
+            rotation = aidlevs::Rotation::ROTATION_90;
+            break;
+        case 180:
+            rotation = aidlevs::Rotation::ROTATION_180;
+            break;
+        case 270:
+            rotation = aidlevs::Rotation::ROTATION_270;
+            break;
+        default:
+            LOG(WARNING) << "Invalid sensor orientation " << orientation;
+            ACameraMetadata_free(metadata);
+            return ScopedAStatus::fromExceptionCode(EX_SERVICE_SPECIFIC);
+    }
+
+    std::vector<Stream> streams;
+    // The data is in tuples of (format, width, height, input?)
+    for (uint32_t i = 0; i < streamConfigs.count; i += 4) {
+        int32_t format = streamConfigs.data.i32[i];
+        int32_t width = streamConfigs.data.i32[i + 1];
+        int32_t height = streamConfigs.data.i32[i + 2];
+        aidlevs::StreamType streamType = streamConfigs.data.i32[i + 3] ==
+                        ACAMERA_SCALER_AVAILABLE_STREAM_CONFIGURATIONS_INPUT
+                ? aidlevs::StreamType::INPUT
+                : aidlevs::StreamType::OUTPUT;
+
+        auto it = durationMap.find(std::make_tuple(format, width, height));
+        if (it == durationMap.end()) {
+            LOG(ERROR) << "No minimum frame duration found for required stream configuration: "
+                       << width << "x" << height << " format " << format;
+            ACameraMetadata_free(metadata);
+            return ScopedAStatus::fromExceptionCode(EX_SERVICE_SPECIFIC);
+        }
+
+        int64_t duration = it->second;
+        if (duration <= 0) {
+            LOG(ERROR) << "Invalid frame duration " << duration << " for " << width << "x" << height
+                       << " format " << format;
+            ACameraMetadata_free(metadata);
+            return ScopedAStatus::fromExceptionCode(EX_SERVICE_SPECIFIC);
+        }
+        int32_t framerate = 1000000000 / duration;
+
+        Stream stream = {
+                .id = static_cast<int32_t>(i / 4),
+                .streamType = streamType,
+                .width = width,
+                .height = height,
+                .format = static_cast<::aidl::android::hardware::graphics::common::PixelFormat>(
+                        format),
+                .framerate = framerate,
+                .usage = ::aidl::android::hardware::graphics::common::BufferUsage::CAMERA_INPUT,
+                .rotation = rotation,
+        };
+        streams.push_back(stream);
+    }
+
+    *_aidl_return = std::move(streams);
+    ACameraMetadata_free(metadata);
+    return ScopedAStatus::ok();
 }
 
 ScopedAStatus CompatEnumerator::getUltrasonicsArrayList(

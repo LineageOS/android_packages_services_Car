@@ -80,6 +80,11 @@ public:
     MOCK_METHOD(camera_status_t, ACameraCaptureSession_stopRepeating,
                 (ACameraCaptureSession * session));
 
+    MOCK_METHOD(camera_status_t, ACameraMetadata_getConstEntry,
+                (const ACameraMetadata* metadata, uint32_t tag,
+                 ACameraMetadata_const_entry* entry));
+    MOCK_METHOD(void, ACameraMetadata_free, (ACameraMetadata * metadata));
+
     static void setMockInstance(MockNdkCamera* mock) { sMockInstance = mock; }
 
     static MockNdkCamera* getMockInstance() { return sMockInstance; }
