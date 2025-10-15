@@ -17,6 +17,7 @@
 #include "CompatVirtualCamera.h"
 
 #include "CompatHalCamera.h"
+#include "Utils.h"
 
 #include <android-base/logging.h>
 
@@ -43,8 +44,29 @@ CompatVirtualCamera::~CompatVirtualCamera() {
 }
 
 ScopedAStatus CompatVirtualCamera::doneWithFrame(
-        [[maybe_unused]] const std::vector<BufferDesc>& buffer) {
-    return ScopedAStatus::fromExceptionCode(EX_UNSUPPORTED_OPERATION);
+        const std::vector<BufferDesc>& buffers) {
+    std::lock_guard lock(mMutex);
+    for (auto&& buffer : buffers) {
+        // Find this buffer in our "held" list
+        auto it = std::find_if(mFramesHeld[buffer.deviceId].begin(),
+                               mFramesHeld[buffer.deviceId].end(),
+                               [id = buffer.bufferId](const BufferDesc& buffer) {
+                                   return id == buffer.bufferId;
+                               });
+        if (it == mFramesHeld[buffer.deviceId].end()) {
+            // We should always find the frame in our "held" list
+            LOG(WARNING) << "Ignoring doneWithFrame called with unrecognized frame id "
+                         << buffer.bufferId;
+            continue;
+        }
+
+        // Move this frame out of our "held" list
+        mFramesUsed[buffer.deviceId].push_back(std::move(*it));
+        mFramesHeld[buffer.deviceId].erase(it);
+    }
+
+    mReturnFramesSignal.notify_all();
+    return ScopedAStatus::ok();
 }
 
 ScopedAStatus CompatVirtualCamera::forcePrimaryClient(
@@ -178,9 +200,49 @@ ScopedAStatus CompatVirtualCamera::unsetPrimaryClient() {
     return ScopedAStatus::fromExceptionCode(EX_UNSUPPORTED_OPERATION);
 }
 
-bool CompatVirtualCamera::deliverFrame([[maybe_unused]] const aidlevs::BufferDesc& bufDesc) {
-    // TODO(b/372312166): Add implementation.
-    return false;
+bool CompatVirtualCamera::deliverFrame(const aidlevs::BufferDesc& bufferDesc) {
+    std::lock_guard lock(mMutex);
+
+    if (mStreamState == STOPPED) {
+        // A stopped stream gets no frames
+        LOG(ERROR) << "A stopped stream should not get any frames";
+        return false;
+    }
+
+    if (mFramesHeld[bufferDesc.deviceId].size() >= mMaxFramesInFlight) {
+        // Indicate that we declined to send the frame to the client because they're at quota
+        LOG(INFO) << "Skipping new frame as we hold " << mFramesHeld[bufferDesc.deviceId].size()
+                  << " of [maxFramesInFlight]" << mMaxFramesInFlight;
+
+        if (mStream) {
+            // Report a frame drop to the client.
+            aidlevs::EvsEventDesc event;
+            event.deviceId = bufferDesc.deviceId;
+            event.aType = aidlevs::EvsEventType::FRAME_DROPPED;
+            if (!mStream->notify(event).isOk()) {
+                LOG(WARNING) << "Error delivering end of stream event";
+            }
+        }
+
+        // Marks that a new frame has arrived though it was not accepted
+        mSourceCameras.erase(bufferDesc.deviceId);
+        mFramesReadySignal.notify_all();
+
+        return false;
+    }
+
+    // Keep a record of this frame so we can clean up if we have to in case of client death
+    mFramesHeld[bufferDesc.deviceId].push_back(dupBufferDesc(bufferDesc, /* doDup= */ true));
+
+    // v1.0 client uses an old frame-delivery mechanism.
+    if (mCaptureThread.joinable()) {
+        // Keep forwarding frames as long as a capture thread is alive
+        // Notify a new frame receipt
+        mSourceCameras.erase(bufferDesc.deviceId);
+        mFramesReadySignal.notify_all();
+    }
+
+    return true;
 }
 
 }  // namespace android::hardware::automotive::evs::compat
