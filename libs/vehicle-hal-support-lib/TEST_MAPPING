@@ -1,0 +1,211 @@
+{
+  "auto-presubmit": [
+    {
+      "name": "VehicleHalE2eTest"
+    },
+    {
+      "name": "com.android.car.obd2.test"
+    },
+    // packages/services/Car/tests/CarLibUnitTest/Android.bp
+    {
+      "name": "CarLibAdminUnitTest"
+    },
+    {
+      "name": "CarLibAppUnitTest"
+    },
+    {
+      "name": "CarLibCarUnitTest"
+    },
+    {
+      "name": "CarLibProjectionUnitTest"
+    },
+    {
+      "name": "CarLibClusterUnitTest"
+    },
+    {
+      "name": "CarLibPmUnitTest"
+    },
+    {
+      "name": "CarLibUxRestrictionsUnitTest"
+    },
+    {
+      "name": "CarLibEvsUnitTest"
+    },
+    {
+      "name": "CarLibPropertyUnitTest"
+    },
+    {
+      "name": "CarLibMediaUnitTest"
+    },
+    {
+      "name": "CarLibNavigationUnitTest"
+    },
+    {
+      "name": "CarLibOccupantConnectionUnitTest"
+    },
+    {
+      "name": "CarLibOemUnitTest"
+    },
+    {
+      "name": "CarLibOsUnitTest"
+    },
+    {
+      "name": "CarLibRemoteAccessUnitTest"
+    },
+    {
+      "name": "CarLibUserUnitTest"
+    },
+    {
+      "name": "CarLibUtilConcurrentUnitTest"
+    },
+    {
+      "name": "CarLibVmsUnitTest"
+    },
+    {
+      "name": "CarLibWifiUnitTest"
+    },
+    {
+      "name": "CarLibInternalUnitTest"
+    },
+    // packages/services/Car/tests/CarServiceTest/Android.bp
+    {
+      "name": "CarServiceCarTest"
+    },
+    {
+      "name": "CarServiceDrivingStateTest"
+    },
+    {
+      "name": "CarServicePropertyTest"
+    },
+    {
+      "name": "CarServiceDiagnosticTest"
+    },
+    {
+      "name": "CarServiceStorageMonitoringTest"
+    },
+    {
+      "name": "CarServiceVmsTest"
+    },
+    {
+      "name": "CarServiceTelemetryTest"
+    },
+    {
+      "name": "CarServiceAudioTest"
+    },
+    {
+      "name": "CarServicePowerTest"
+    },
+    {
+      "name": "CarServiceInputTest"
+    },
+    {
+      "name": "CarServiceRemoteAccessTest"
+    },
+    {
+      "name": "CarServiceGarageModeTest"
+    },
+    {
+      "name": "CarServiceOsTest"
+    },
+    {
+      "name": "CarServiceClusterTest"
+    },
+    {
+      "name": "CarServiceWatchdogTest"
+    },
+    {
+      "name": "CarServicePmTest"
+    },
+    {
+      "name": "CarServiceEvsTest"
+    },
+    // packages/services/Car/tests/CarServiceUnitTest/Android.bp
+    {
+      "name": "CarServiceCarUnitTest"
+    },
+    {
+      "name": "CarServiceWifiUnitTest"
+    },
+    {
+      "name": "CarServiceWatchdogUnitTest"
+    },
+    {
+      "name": "CarServiceVmsUnitTest"
+    },
+    {
+      "name": "CarServiceUtilUnitTest"
+    },
+    {
+      "name": "CarServiceUserUnitTest"
+    },
+    {
+      "name": "CarServiceTelemetryUnitTest"
+    },
+    {
+      "name": "CarServiceSystemUiUnitTest"
+    },
+    {
+      "name": "CarServiceSystemInterfaceUnitTest"
+    },
+    {
+      "name": "CarServiceStorageMonitoringUnitTest"
+    },
+    {
+      "name": "CarServiceStatsUnitTest"
+    },
+    {
+      "name": "CarServiceRemoteAccessUnitTest"
+    },
+    {
+      "name": "CarServicePropertyUnitTest"
+    },
+    {
+      "name": "CarServicePowerUnitTest"
+    },
+    {
+      "name": "CarServicePmUnitTest"
+    },
+    {
+      "name": "CarServiceOsUnitTest"
+    },
+    {
+      "name": "CarServiceOemUnitTest"
+    },
+    {
+      "name": "CarServiceOccupantConnectionUnitTest"
+    },
+    {
+      "name": "CarServiceHalUnitTest"
+    },
+    {
+      "name": "CarServiceGarageModeUnitTest"
+    },
+    {
+      "name": "CarServiceEvsUnitTest"
+    },
+    {
+      "name": "CarServiceClusterUnitTest"
+    },
+    {
+      "name": "CarServiceBluetoothUnitTest"
+    },
+    {
+      "name": "CarServiceAudioUnitTest"
+    },
+    {
+      "name": "CarServiceAmUnitTest"
+    },
+    {
+      "name": "CarServiceAdminUnitTest"
+    }
+  ],
+  "ravenwood-presubmit": [
+    {
+      "name": "CarLibHostUnitTest",
+      "host": true,
+      "keywords": [
+        "automotive_code_coverage"
+      ]
+    }
+  ]
+}
