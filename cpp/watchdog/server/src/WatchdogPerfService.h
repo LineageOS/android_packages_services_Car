@@ -181,7 +181,7 @@ class WatchdogPerfService final :
       public WatchdogPerfServiceBase {
 public:
     WatchdogPerfService(const android::sp<WatchdogServiceHelperInterface>& watchdogServiceHelper,
-                        std::shared_ptr<PackageInfoResolverInterface> packageInfoResolver,
+                        const std::shared_ptr<PackageInfoResolverInterface>& packageInfoResolver,
                         const std::function<int64_t()>& getElapsedTimeSinceBootMsFunc) :
           WatchdogPerfServiceBase(watchdogServiceHelper, packageInfoResolver),
           kGetElapsedTimeSinceBootMillisFunc(std::move(getElapsedTimeSinceBootMsFunc)),

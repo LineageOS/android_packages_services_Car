@@ -41,7 +41,7 @@ void onBinderDied(void* cookie) {
 
 IoOveruseMonitorWrapper::IoOveruseMonitorWrapper(
         const android::sp<WatchdogServiceHelperBaseInterface>& watchdogServiceHelperBase,
-        std::shared_ptr<PackageInfoResolverInterface> packageInfoResolver) :
+        const std::shared_ptr<PackageInfoResolverInterface>& packageInfoResolver) :
       IoOveruseMonitor(watchdogServiceHelperBase, packageInfoResolver,
                        // In carwatchdogd on Automotive, the IoServiceManager
                        // instance is not available. Pass a new DeathRecipient

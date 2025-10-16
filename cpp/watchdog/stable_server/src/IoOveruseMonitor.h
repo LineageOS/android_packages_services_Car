@@ -114,7 +114,7 @@ class IoOveruseMonitor final : public IoOveruseMonitorInterface {
 public:
     explicit IoOveruseMonitor(
             const android::sp<WatchdogServiceHelperInterface>& watchdogServiceHelper,
-            std::shared_ptr<PackageInfoResolverInterface> packageInfoResolver);
+            const std::shared_ptr<PackageInfoResolverInterface>& packageInfoResolver);
 
     ~IoOveruseMonitor() { terminate(); }
 

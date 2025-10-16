@@ -46,7 +46,7 @@ Result<void> ServiceManager::startServices(const sp<Looper>& mainLooper) {
      * PackageInfoResolver by calling the PackageInfoResolver::getInstance method before starting
      * other services as they may access PackageInfoResolver's instance during initialization.
      */
-    std::shared_ptr<PackageInfoResolverInterface> packageInfoResolver =
+    const std::shared_ptr<PackageInfoResolverInterface>& packageInfoResolver =
             PackageInfoResolver::getInstance();
     if (auto result = startWatchdogProcessService(mainLooper, packageInfoResolver); !result.ok()) {
         return result;
@@ -107,7 +107,7 @@ void ServiceManager::terminateServices() {
 
 Result<void> ServiceManager::startWatchdogProcessService(
         const sp<Looper>& mainLooper,
-        std::shared_ptr<PackageInfoResolverInterface> packageInfoResolver) {
+        const std::shared_ptr<PackageInfoResolverInterface>& packageInfoResolver) {
     mWatchdogProcessService = sp<WatchdogProcessService>::make(mainLooper, packageInfoResolver);
     if (auto result = mWatchdogProcessService->start(); !result.ok()) {
         return Error(result.error().code())
@@ -129,7 +129,7 @@ Result<void> ServiceManager::startPressureMonitor() {
 
 Result<void> ServiceManager::startWatchdogPerfService(
         const sp<WatchdogServiceHelperInterface>& watchdogServiceHelper,
-        std::shared_ptr<PackageInfoResolverInterface> packageInfoResolver) {
+        const std::shared_ptr<PackageInfoResolverInterface>& packageInfoResolver) {
     mWatchdogPerfService = sp<WatchdogPerfService>::make(watchdogServiceHelper, packageInfoResolver,
                                                          elapsedRealtime);
     if (auto result = mWatchdogPerfService->registerDataProcessor(

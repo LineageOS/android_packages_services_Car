@@ -68,7 +68,7 @@ public:
 class UidStatsCollectorBase : public UidStatsCollectorBaseInterface {
 public:
     explicit UidStatsCollectorBase(
-            std::shared_ptr<PackageInfoResolverInterface> packageInfoResolver) :
+            const std::shared_ptr<PackageInfoResolverInterface>& packageInfoResolver) :
           mPackageInfoResolver(packageInfoResolver),
           mUidIoStatsCollector(android::sp<UidIoStatsCollector>::make()) {}
 

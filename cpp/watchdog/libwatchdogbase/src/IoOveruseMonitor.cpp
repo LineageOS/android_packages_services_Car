@@ -177,7 +177,7 @@ std::tuple<int64_t, int64_t> calculateStartAndDuration(const time_point_millis& 
 
 IoOveruseMonitor::IoOveruseMonitor(
         const android::sp<WatchdogServiceHelperBaseInterface>& watchdogServiceHelperBase,
-        std::shared_ptr<PackageInfoResolverInterface> packageInfoResolver,
+        const std::shared_ptr<PackageInfoResolverInterface>& packageInfoResolver,
         AIBinder_DeathRecipient* binderRecipient) :
       mPackageInfoResolver(packageInfoResolver),
       mMinSyncWrittenBytes(kMinSyncWrittenBytes),
