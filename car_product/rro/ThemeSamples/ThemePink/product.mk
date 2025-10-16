@@ -16,7 +16,6 @@
 
 # Include generated RROs with theme pink.
 PRODUCT_PACKAGES += \
-    googlecarui.theme.pink-com-android-car-ui-paintbooth \
     googlecarui.theme.pink-com-android-car-rotaryplayground \
     googlecarui.theme.pink-com-android-car-themeplayground \
     googlecarui.theme.pink-com-android-car-carlauncher \

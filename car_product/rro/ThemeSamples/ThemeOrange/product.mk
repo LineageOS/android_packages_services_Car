@@ -16,7 +16,6 @@
 
 # Include generated RROs with theme orange.
 PRODUCT_PACKAGES += \
-    googlecarui.theme.orange-com-android-car-ui-paintbooth \
     googlecarui.theme.orange-com-android-car-rotaryplayground \
     googlecarui.theme.orange-com-android-car-themeplayground \
     googlecarui.theme.orange-com-android-car-carlauncher \
