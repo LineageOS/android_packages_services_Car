@@ -242,4 +242,8 @@
 
     <!-- When true, the {@link Display#FLAG_PRESENTATION} flag is set to internal displays. -->
     <bool name="config_allowPresentationOnInternalDisplay">false</bool>
+
+    <!-- Whether Activity.requestFullscreenMode() is enabled.
+         This is disabled on Automotive because it does not support this feature. -->
+    <bool name="config_fullscreenRequestSupported">false</bool>
 </resources>
