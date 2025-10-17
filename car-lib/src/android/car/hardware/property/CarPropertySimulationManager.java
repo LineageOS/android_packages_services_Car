@@ -443,8 +443,11 @@ public final class CarPropertySimulationManager extends CarManagerBase {
 
     /** @hide */
     @Override
-    protected void onCarDisconnected() {
-        // Not yet implemented
+    public void onCarDisconnected() {
+        synchronized (mLock) {
+            mListener = null;
+            mCallbackExecutor = null;
+        }
     }
 
     private void handleEvents(List<CarPropertyEvent> carPropertyEvents) {
