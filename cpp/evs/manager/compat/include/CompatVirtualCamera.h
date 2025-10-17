@@ -26,6 +26,9 @@
 #include <aidl/android/hardware/automotive/evs/ParameterRange.h>
 #include <utils/Mutex.h>
 
+#include <deque>
+#include <set>
+#include <thread>
 #include <vector>
 
 namespace android::hardware::automotive::evs::compat {
@@ -37,8 +40,12 @@ class CompatHalCamera;  // Forward declaration to avoid circular dependency.
 class CompatVirtualCamera : public aidlevs::BnEvsCamera {
 #ifdef EVS_COMPAT_TEST
     // Grant access to private members for testing.
-    friend class CompatVirtualCameraTest_setMaxFramesInFlight_Valid_Test;
-    friend class CompatVirtualCameraTest_setMaxFramesInFlight_Invalid_Test;
+    friend class CompatVirtualCameraTest_deliverFrame_StreamStopped_Test;
+    friend class CompatVirtualCameraTest_deliverFrame_FrameQuotaExceeded_Test;
+    friend class CompatVirtualCameraTest_deliverFrame_FrameQuotaExceededClientStreamNotSet_Test;
+    friend class CompatVirtualCameraTest_deliverFrame_Success_Test;
+    friend class CompatVirtualCameraTest_doneWithFrame_BufferNotFound_Test;
+    friend class CompatVirtualCameraTest_doneWithFrame_Success_Test;
 #endif
 
 public:
@@ -81,7 +88,8 @@ public:
     ::ndk::ScopedAStatus stopVideoStream() override;
     ::ndk::ScopedAStatus unsetPrimaryClient() override;
 
-    virtual bool deliverFrame(const aidlevs::BufferDesc& bufDesc);
+    virtual bool deliverFrame(const aidlevs::BufferDesc& bufferDesc);
+
     unsigned int getMaxFramesInFlight() const {
         std::lock_guard<std::mutex> lock(mMutex);
         return mMaxFramesInFlight;
@@ -96,6 +104,14 @@ private:
         STOPPING,
     } mStreamState GUARDED_BY(mMutex) = STOPPED;
     mutable std::mutex mMutex;
+    std::shared_ptr<aidlevs::IEvsCameraStream> mStream GUARDED_BY(mMutex);
+    std::unordered_map<std::string, std::deque<aidlevs::BufferDesc>> mFramesHeld GUARDED_BY(mMutex);
+    std::unordered_map<std::string, std::deque<aidlevs::BufferDesc>> mFramesUsed GUARDED_BY(mMutex);
+    std::set<std::string> mSourceCameras GUARDED_BY(mMutex);
+    std::condition_variable mFramesReadySignal;
+    std::condition_variable mReturnFramesSignal;
+    std::thread mCaptureThread;
+    std::thread mReturnThread;
 };
 
 }  // namespace android::hardware::automotive::evs::compat

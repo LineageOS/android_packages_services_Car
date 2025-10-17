@@ -18,6 +18,7 @@
 
 #include "CompatHalCamera.h"
 #include "MockCameraManager.h"
+#include "MockEvsCameraStream.h"
 
 #include <aidl/android/hardware/automotive/evs/EvsResult.h>
 #include <gmock/gmock.h>
@@ -31,6 +32,8 @@ using ::testing::SetArgPointee;
 
 namespace android::hardware::automotive::evs::compat {
 
+using ::aidl::android::hardware::automotive::evs::BufferDesc;
+using ::aidl::android::hardware::automotive::evs::EvsEventType;
 using ::aidl::android::hardware::automotive::evs::EvsResult;
 
 class CompatVirtualCameraTest : public ::testing::Test {
@@ -119,4 +122,118 @@ TEST_F(CompatVirtualCameraTest, getPhysicalCameraInfo_Success) {
     EXPECT_EQ(desc.id, "mockCam1");
 }
 
+TEST_F(CompatVirtualCameraTest, deliverFrame_StreamStopped) {
+    {
+        std::lock_guard lock(mVirtualCamera->mMutex);
+        mVirtualCamera->mStreamState = CompatVirtualCamera::STOPPED;
+    }
+    BufferDesc buffer;
+    buffer.deviceId = "mockCam0";
+    EXPECT_FALSE(mVirtualCamera->deliverFrame(buffer));
+}
+
+TEST_F(CompatVirtualCameraTest, deliverFrame_FrameQuotaExceeded) {
+    auto mockStream = ::ndk::SharedRefBase::make<MockEvsCameraStream>();
+    EXPECT_CALL(*mockStream, notify(_)).WillOnce([](const aidlevs::EvsEventDesc& event) {
+        EXPECT_EQ(event.aType, EvsEventType::FRAME_DROPPED);
+        return ndk::ScopedAStatus::ok();
+    });
+
+    {
+        std::lock_guard lock(mVirtualCamera->mMutex);
+        mVirtualCamera->mStreamState = CompatVirtualCamera::RUNNING;
+        mVirtualCamera->mMaxFramesInFlight = 1;
+        mVirtualCamera->mStream = mockStream;
+
+        BufferDesc buffer;
+        buffer.deviceId = "mockCam0";
+        mVirtualCamera->mFramesHeld["mockCam0"].push_back(std::move(buffer));
+    }
+
+    BufferDesc buffer;
+    buffer.deviceId = "mockCam0";
+    EXPECT_FALSE(mVirtualCamera->deliverFrame(buffer));
+}
+
+TEST_F(CompatVirtualCameraTest, deliverFrame_FrameQuotaExceededClientStreamNotSet) {
+    {
+        std::lock_guard lock(mVirtualCamera->mMutex);
+        mVirtualCamera->mStreamState = CompatVirtualCamera::RUNNING;
+        mVirtualCamera->mMaxFramesInFlight = 1;
+        mVirtualCamera->mStream = nullptr;
+
+        BufferDesc buffer;
+        buffer.deviceId = "mockCam0";
+        mVirtualCamera->mFramesHeld["mockCam0"].push_back(std::move(buffer));
+    }
+
+    BufferDesc buffer;
+    buffer.deviceId = "mockCam0";
+    EXPECT_FALSE(mVirtualCamera->deliverFrame(buffer));
+}
+
+TEST_F(CompatVirtualCameraTest, deliverFrame_Success) {
+    auto mockStream = ::ndk::SharedRefBase::make<MockEvsCameraStream>();
+    {
+        std::lock_guard lock(mVirtualCamera->mMutex);
+        mVirtualCamera->mStreamState = CompatVirtualCamera::RUNNING;
+        mVirtualCamera->mMaxFramesInFlight = 2;
+        mVirtualCamera->mStream = mockStream;
+    }
+
+    BufferDesc buffer;
+    buffer.deviceId = "mockCam0";
+
+    EXPECT_TRUE(mVirtualCamera->deliverFrame(buffer));
+
+    {
+        std::lock_guard lock(mVirtualCamera->mMutex);
+        EXPECT_EQ(mVirtualCamera->mFramesHeld["mockCam0"].size(), 1);
+    }
+}
+\
+TEST_F(CompatVirtualCameraTest, doneWithFrame_EmptyInput) {
+    std::vector<BufferDesc> buffers;
+    ndk::ScopedAStatus status = mVirtualCamera->doneWithFrame(buffers);
+    ASSERT_TRUE(status.isOk()) << "doneWithFrame failed with status: " << status.getDescription();
+}
+
+TEST_F(CompatVirtualCameraTest, doneWithFrame_BufferNotFound) {
+    std::vector<BufferDesc> buffers;
+    BufferDesc buffer;
+    buffer.deviceId = "mockCam0";
+    buffer.bufferId = 123;
+    buffers.push_back(std::move(buffer));
+
+    ndk::ScopedAStatus status = mVirtualCamera->doneWithFrame(buffers);
+    ASSERT_TRUE(status.isOk()) << "doneWithFrame failed with status: " << status.getDescription();
+
+    std::lock_guard lock(mVirtualCamera->mMutex);
+    EXPECT_TRUE(mVirtualCamera->mFramesUsed["mockCam0"].empty());
+}
+
+TEST_F(CompatVirtualCameraTest, doneWithFrame_Success) {
+    BufferDesc buffer;
+    buffer.deviceId = "mockCam0";
+    buffer.bufferId = 456;
+    {
+        std::lock_guard lock(mVirtualCamera->mMutex);
+        mVirtualCamera->mStreamState = CompatVirtualCamera::RUNNING;
+    }
+    // Deliver the frame to add it to mFramesHeld
+    EXPECT_TRUE(mVirtualCamera->deliverFrame(buffer));
+
+
+    std::vector<BufferDesc> buffers;
+    buffers.push_back(std::move(buffer));
+
+    ndk::ScopedAStatus status = mVirtualCamera->doneWithFrame(buffers);
+    ASSERT_TRUE(status.isOk()) << "doneWithFrame failed with status: " << status.getDescription();
+
+    std::lock_guard lock(mVirtualCamera->mMutex);
+    EXPECT_TRUE(mVirtualCamera->mFramesHeld["mockCam0"].empty());
+    EXPECT_EQ(mVirtualCamera->mFramesUsed["mockCam0"].size(), 1);
+    EXPECT_EQ(mVirtualCamera->mFramesUsed["mockCam0"][0].bufferId, 456);
+}
 }  // namespace android::hardware::automotive::evs::compat
+
