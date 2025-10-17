@@ -1,0 +1,25 @@
+{
+  "auto-presubmit": [
+    {
+      "name": "CarFrameworkPackageStubsTest",
+      // TODO(b/440604946): Should be re-enabled once the test is fixed.
+      "options": [
+        {
+          "exclude-filter": "com.android.car.frameworkpackagestubs.test.StubsTest#testViewDocumentRoot"
+        },
+        {
+          "exclude-filter": "com.android.car.frameworkpackagestubs.test.StubsTest#testViewDocumentDirectory"
+        }
+      ]
+    },
+    {
+      "name": "android.content.cts.AvailableIntentsTest"
+    },
+    {
+      "name": "CtsProviderUiTestCases"
+    },
+    {
+      "name": "android.app.cts.DownloadManagerTest"
+    }
+  ]
+}
