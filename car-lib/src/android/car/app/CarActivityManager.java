@@ -160,7 +160,7 @@ public final class CarActivityManager extends CarManagerBase {
      *         {@code DisplayAreaOrganizer.FEATURE_UNDEFINED}, then it'll remove the existing one.
      * @return {@code ResultTypeEnum}. {@code RESULT_SUCCESS} if the operation is successful,
      *         otherwise, {@code RESULT_XXX} depending on the type of the error.
-     * @throws {@link IllegalArgumentException} if {@code displayId} or {@code featureId} is
+     * @throws IllegalArgumentException if {@code displayId} or {@code featureId} is
      *         invalid. {@link ActivityNotFoundException} if {@code activity} is not found
      *         when it tries to remove.
      */
