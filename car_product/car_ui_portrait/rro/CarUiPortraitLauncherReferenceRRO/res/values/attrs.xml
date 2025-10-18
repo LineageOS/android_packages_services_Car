@@ -15,6 +15,17 @@
   -->
 
 <resources>
+    <attr name="oemColorPrimary" format="color" />
+    <attr name="oemOnSurfaceVariant" format="color" />
+    <attr name="oemColorOnSurfaceVariant" format="color" />
+    <attr name="oemColorSurfaceContainerHigh" format="color" />
+    <attr name="oemColorSecondaryPalette80" format="color" />
+    <attr name="oemTextAppearanceBodyLarge" format="reference" />
+    <attr name="oemTextAppearanceTitleMedium" format="reference" />
+    <attr name="oemTextAppearanceLabelMedium" format="reference" />
+    <attr name="oemShapeCornerSmall" format="dimension" />
+    <attr name="oemShapeCornerExtraLarge" format="dimension" />
+
     <attr name="cornerFamily" format="enum" >
         <enum name="rounded" value="0"/>
         <enum name="cut" value="1"/>
