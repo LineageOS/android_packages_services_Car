@@ -50,4 +50,9 @@ android_test {
         "android.test.runner.stubs.system",
         "android.test.base.stubs.system",
     ],
+
+    test_suites: [
+        "device-tests",
+        "automotive-tests",
+    ],
 }
