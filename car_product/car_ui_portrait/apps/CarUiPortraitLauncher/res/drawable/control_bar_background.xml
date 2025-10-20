@@ -17,17 +17,17 @@
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
     <item>
         <shape>
-            <solid android:color="@color/car_panel_border"/>
-            <corners android:topLeftRadius="@dimen/corner_radius"
-                android:topRightRadius="@dimen/corner_radius"
+            <solid android:color="?oemColorSurfaceContainerLow"/>
+            <corners android:topLeftRadius="?mediaCardCornerRadius"
+                android:topRightRadius="?mediaCardCornerRadius"
                 android:bottomLeftRadius="0dp" android:bottomRightRadius="0dp"/>
         </shape>
     </item>
     <item
-        android:height="@dimen/corner_radius"
+        android:height="?mediaCardCornerRadius"
         android:gravity="bottom">
         <shape>
-            <solid android:color="@color/car_neutral_0" />
+            <solid android:color="?oemColorSurface" />
         </shape>
     </item>
 </layer-list>

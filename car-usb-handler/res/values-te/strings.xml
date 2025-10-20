@@ -18,7 +18,7 @@
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="app_name" msgid="6963366455471441257">"USB హ్యాండ్లర్‌"</string>
     <string name="usb_saved_devices" msgid="2829442070749964872">"సేవ్ చేసిన డివైజ్‌లు"</string>
-    <string name="usb_pref_delete_title" msgid="3885061814853467483">"USB పరికర కొరకు హాండీలింగ్ యాప్‌ని తొలగించండి"</string>
+    <string name="usb_pref_delete_title" msgid="3885061814853467483">"USB డివైజ్‌కు సంబంధించిన హ్యాండ్లింగ్ యాప్‌ను తీసివేయండి"</string>
     <string name="usb_pref_delete_message" msgid="5849493572520646218">"%1$s‌ను ఆటోమేటిక్‌గా హ్యాండిల్ చేసే యాప్‌ను ఖచ్చితంగా తొలగించాలని మీరు అనుకుంటున్నారా?"</string>
     <string name="usb_pref_delete_yes" msgid="7803356145103146036">"అవును"</string>
     <string name="usb_pref_delete_cancel" msgid="5999791462730255929">"రద్దు చేయండి"</string>

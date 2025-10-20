@@ -181,8 +181,9 @@ class WatchdogPerfService final :
       public WatchdogPerfServiceBase {
 public:
     WatchdogPerfService(const android::sp<WatchdogServiceHelperInterface>& watchdogServiceHelper,
+                        const std::shared_ptr<PackageInfoResolverInterface>& packageInfoResolver,
                         const std::function<int64_t()>& getElapsedTimeSinceBootMsFunc) :
-          WatchdogPerfServiceBase(watchdogServiceHelper),
+          WatchdogPerfServiceBase(watchdogServiceHelper, packageInfoResolver),
           kGetElapsedTimeSinceBootMillisFunc(std::move(getElapsedTimeSinceBootMsFunc)),
           mPostSystemEventDurationNs(std::chrono::duration_cast<std::chrono::nanoseconds>(
                   std::chrono::seconds(sysprop::postSystemEventDuration().value_or(
@@ -198,7 +199,7 @@ public:
           mUserSwitchCollection({}),
           mBootCompletedTimeEpochSeconds(0),
           mKernelStartTimeEpochSeconds(0),
-          mUidStatsCollector(android::sp<UidStatsCollector>::make()),
+          mUidStatsCollector(android::sp<UidStatsCollector>::make(packageInfoResolver)),
           mProcStatCollector(android::sp<ProcStatCollector>::make()),
           mDataProcessors({}) {}
 
@@ -213,7 +214,9 @@ public:
     android::base::Result<void> registerDataProcessor(
             android::sp<DataProcessorInterface> processor) override;
 
-    android::base::Result<void> start() override;
+    void init() override { WatchdogPerfServiceBase::init(); }
+
+    android::base::Result<void> start() override { return WatchdogPerfServiceBase::start(); }
 
     void terminate() override { WatchdogPerfServiceBase::terminate(); }
 
@@ -240,11 +243,13 @@ public:
         return WatchdogPerfServiceBase::onCustomCollection(fd, args, numArgs);
     }
 
-    android::base::Result<void> onDump(int fd) const override;
+    android::base::Result<void> onDump(int fd) const override {
+        return WatchdogPerfServiceBase::onDump(fd);
+    };
     android::base::Result<void> onDumpProto(
             android::util::ProtoOutputStream& outProto) const override;
 
-    bool dumpHelpText(int fd) const override { return WatchdogPerfServiceBase::dumpHelpText(fd); }
+    bool dumpHelpText(int fd) const override;
 
 private:
     struct UserSwitchEventMetadata : EventMetadata {
@@ -261,7 +266,12 @@ private:
     android::base::Result<void> startUserSwitchCollection();
 
     // Handles the messages received by the looper.
-    void handleMessage(const Message& message) override;
+    void handleMessage(const Message& message) override {
+        return WatchdogPerfServiceBase::handleMessage(message);
+    }
+
+    // Handles extra message logic.
+    android::base::Result<void> handleMessageExtension(const Message& message) override;
 
     // Collects/processes the performance data for the current collection event.
     android::base::Result<void> collectLocked(EventMetadata* metadata) override;
@@ -277,6 +287,21 @@ private:
      */
     EventMetadata* getCurrentCollectionMetadataLocked() override;
 
+    // Initialize collection intervals and I/O collectors.
+    void initInternalLocked() override;
+
+    // Check if the data processors were registered.
+    bool isDataProcessorRegisteredLocked() override;
+
+    // Start the first collection event in mCollectionThread.
+    void startFirstCollectionEventLocked() override;
+
+    // Clear any custom collection caches.
+    void clearCustomCollectionCacheLocked() override;
+
+    // Handle onDump timestamp and printing logic.
+    android::base::Result<void> onDumpInternalLocked(int fd) const override;
+
     // Invokes periodic monitor methods in data processors. Called by the base class.
     android::base::Result<void> onDataProcessorPeriodicMonitorLocked(
             time_t now, const std::function<void()>& requestCollection,
@@ -290,6 +315,10 @@ private:
 
     // Invokes onCustomCollectionDump methods in data processors. Called by the base class.
     android::base::Result<void> onDataProcessorCustomCollectionDumpLocked(int fd) override;
+
+    // Handles the filterPackagesFlag during custom collection. Called by the base class.
+    android::base::Result<std::unordered_set<std::string>> onFilterPackagesFlag(
+            const char** args, uint32_t valuePos, uint32_t numArgs) override;
 
     std::function<int64_t()> kGetElapsedTimeSinceBootMillisFunc;
 

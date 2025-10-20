@@ -152,6 +152,8 @@ abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCas
     private static final String FAKE_USER_PICKER_PACKAGE = "fake-user-picker-package";
     private static final String FAKE_SYSTEM_UI_SERVICE_PACKAGE =
             "com.android.systemui/com.android.systemui.SystemUIService";
+    private static final String FAKE_DRIVER_HOME_COMPONENT = "com.android.car/.TestHome1";
+    private static final String FAKE_PASSENGER_HOME_COMPONENT = "com.android.car/.TestHome2";
 
     protected static final int NO_USER_INFO_FLAGS = 0;
     protected static final int NON_EXISTING_USER = 55; // must not be on mExistingUsers
@@ -292,6 +294,7 @@ abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCas
         doReturn(mApplicationContext).when(mMockContext).getApplicationContext();
         doReturn(mMockContext).when(mMockContext).createContextAsUser(any(), anyInt());
         doReturn(mLocationManager).when(mMockContext).getSystemService(Context.LOCATION_SERVICE);
+        doReturn(mPackageManager).when(mMockContext).getPackageManager();
         doReturn(InstrumentationRegistry.getTargetContext().getContentResolver())
                 .when(mMockContext).getContentResolver();
         doReturn(false).when(mMockedUserManager).isUserUnlockingOrUnlocked(any());
@@ -630,9 +633,21 @@ abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCas
 
     protected class TestCarUserServiceBuilder {
         private boolean mSwitchGuestUserBeforeGoingSleep = false;
+        private String mDriverHomeComponent = FAKE_DRIVER_HOME_COMPONENT;
+        private String mPassengerHomeComponent = FAKE_PASSENGER_HOME_COMPONENT;
 
         protected TestCarUserServiceBuilder setSwitchGuestUserBeforeGoingSleep(boolean enabled) {
             mSwitchGuestUserBeforeGoingSleep = enabled;
+            return this;
+        }
+
+        protected TestCarUserServiceBuilder setDriverHomeComponent(@NonNull String component) {
+            mDriverHomeComponent = component;
+            return this;
+        }
+
+        protected TestCarUserServiceBuilder setPassengerHomeComponent(@NonNull String component) {
+            mPassengerHomeComponent = component;
             return this;
         }
 
@@ -648,6 +663,14 @@ abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCas
             when(mMockedResources
                     .getString(com.android.internal.R.string.config_systemUIServiceComponent))
                     .thenReturn(FAKE_SYSTEM_UI_SERVICE_PACKAGE);
+
+            when(mMockedResources
+                    .getString(com.android.car.R.string.config_driverHomeComponent))
+                    .thenReturn(mDriverHomeComponent);
+
+            when(mMockedResources
+                    .getString(com.android.car.R.string.config_passengerHomeComponent))
+                    .thenReturn(mPassengerHomeComponent);
 
             return new CarUserService(
                     mMockContext,
@@ -787,7 +810,6 @@ abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCas
         String className = "className";
         when(mMockedResources.getString(anyInt())).thenReturn(packageName + "/" + className);
         when(mMockContext.createContextAsUser(any(), anyInt())).thenReturn(mMockContext);
-        when(mMockContext.getPackageManager()).thenReturn(mPackageManager);
 
         if (returnCorrectUid) {
             when(mPackageManager.getPackageUid(any(), anyInt())).thenReturn(uid);
@@ -1128,6 +1150,11 @@ abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCas
             @UserLifecycleEventType int eventType) {
         mCarUserService.onUserLifecycleEvent(eventType, fromUserId,
                 toUserId);
+    }
+
+    protected void sendUserCreatedEvent(@UserIdInt int userId) {
+        sendUserLifecycleEvent(/* fromUserId= */ 0, userId,
+                CarUserManager.USER_LIFECYCLE_EVENT_TYPE_CREATED);
     }
 
     protected void sendUserUnlockedEvent(@UserIdInt int userId) {

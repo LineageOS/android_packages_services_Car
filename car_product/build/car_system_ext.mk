@@ -43,6 +43,10 @@ PRODUCT_SYSTEM_EXT_PROPERTIES += \
     pm.dexopt.disable_bg_dexopt=false \
     pm.dexopt.downgrade_after_inactive_days=10 \
 
+# Enable headless system user mode
+PRODUCT_SYSTEM_EXT_PROPERTIES += \
+    ro.fw.mu.headless_system_user?=true
+
 # Disable Prime Shader Cache in SurfaceFlinger to make it available faster
 PRODUCT_SYSTEM_EXT_PROPERTIES += \
     service.sf.prime_shader_cache=0

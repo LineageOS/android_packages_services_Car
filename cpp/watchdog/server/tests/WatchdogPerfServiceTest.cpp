@@ -221,6 +221,12 @@ public:
         });
     }
 
+    Result<std::unordered_set<std::string>> onFilterPackagesFlag(const char** args,
+                                                                 uint32_t valuePos,
+                                                                 uint32_t numArgs) {
+        return mService->onFilterPackagesFlag(args, valuePos, numArgs);
+    }
+
 protected:
     sp<WatchdogPerfService> mService;
 };
@@ -239,7 +245,7 @@ protected:
         mMockProcDiskStatsCollector = sp<NiceMock<MockProcDiskStatsCollector>>::make();
         mMockProcStatCollector = sp<NiceMock<MockProcStatCollector>>::make();
         mService = sp<WatchdogPerfService>::
-                make(mMockWatchdogServiceHelper,
+                make(mMockWatchdogServiceHelper, nullptr,
                      std::bind(&WatchdogPerfServiceTest::incrementAndGetElapsedRealtimeSinceBootMs,
                                this));
         mServicePeer = sp<internal::WatchdogPerfServicePeer>::make(mService);
@@ -275,6 +281,7 @@ protected:
         EXPECT_CALL(*mMockProcStatCollector, init()).Times(1);
         EXPECT_CALL(*mMockProcDiskStatsCollector, init()).Times(1);
 
+        mService->init();
         ASSERT_RESULT_OK(mService->start());
 
         mServicePeer->updateIntervals();
@@ -379,6 +386,7 @@ TEST_F(WatchdogPerfServiceTest, TestServiceStartAndTerminate) {
     EXPECT_CALL(*mMockProcStatCollector, init()).Times(1);
     EXPECT_CALL(*mMockProcDiskStatsCollector, init()).Times(1);
 
+    mService->init();
     ASSERT_RESULT_OK(mService->start());
 
     ASSERT_TRUE(mService->mCollectionThread.joinable()) << "Collection thread not created";
@@ -1903,6 +1911,16 @@ TEST_F(WatchdogPerfServiceTest, TestOnDumpProto) {
     // values for boot_completed_time_epoch_seconds.
     EXPECT_GT(performanceProfilerDump.boot_completed_time_epoch_seconds(), 0);
     EXPECT_GT(performanceProfilerDump.kernel_start_time_epoch_seconds(), 0);
+}
+
+TEST_F(WatchdogPerfServiceTest, TestOnFilterPackagesFlag) {
+    const char* test_flags[] = {"flag1", "flag2", "flag3"};
+    const char** args = test_flags;
+    std::unordered_set<std::string> filterPackages;
+
+    ASSERT_RESULT_OK(mServicePeer->onFilterPackagesFlag(test_flags, /*valuePos=*/1, /*numArgs=*/3));
+    ASSERT_FALSE(
+            mServicePeer->onFilterPackagesFlag(test_flags, /*valuePos=*/3, /*numArgs=*/3).ok());
 }
 
 }  // namespace watchdog

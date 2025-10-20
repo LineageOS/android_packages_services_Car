@@ -153,12 +153,12 @@ public class ClusterHomeManagerTest extends MockedCarTestBase {
     private int getClusterDisplayPort() {
         DisplayManager displayManager = getTestContext().getSystemService(DisplayManager.class);
         Display defaultDisplay = displayManager.getDisplay(CLUSTER_DISPLAY_ID);
-        DisplayAddress address = (DisplayAddress.Physical) defaultDisplay.getAddress();
-        if (!(address instanceof DisplayAddress.Physical)) {
-            throw new IllegalStateException("Default display is not a physical display");
+        DisplayAddress address = defaultDisplay.getAddress();
+        if (address != null && address.getPort() != DisplayAddress.INVALID_PORT) {
+            return address.getPort();
+        } else {
+            throw new IllegalStateException("Default display is not a type of physical display");
         }
-        DisplayAddress.Physical physicalAddress = (DisplayAddress.Physical) address;
-        return physicalAddress.getPort();
     }
 
     @Override

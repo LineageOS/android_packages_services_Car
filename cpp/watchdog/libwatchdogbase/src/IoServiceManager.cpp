@@ -14,7 +14,11 @@
  * limitations under the License.
  */
 
+#ifdef CARWATCHDOGD_BINARY
 #define LOG_TAG "carwatchdogd"
+#else
+#define LOG_TAG "iowatchdogd"
+#endif
 
 #include "IoServiceManager.h"
 
@@ -29,9 +33,11 @@ namespace watchdog {
 using ::android::sp;
 using ::android::base::Error;
 using ::android::base::Result;
+using ::ndk::SharedRefBase;
 
 Result<void> IoServiceManager::startServices() {
-    if (mWatchdogServiceHelperBase != nullptr || mIoOveruseMonitor != nullptr) {
+    if (mWatchdogBinderMediatorBase != nullptr || mWatchdogServiceHelperBase != nullptr ||
+        mIoOveruseMonitor != nullptr || mWatchdogPerfServiceBase != nullptr) {
         return Error(INVALID_OPERATION) << "Cannot start services more than once";
     }
     /*
@@ -40,7 +46,7 @@ Result<void> IoServiceManager::startServices() {
      * PackageInfoResolver by calling the PackageInfoResolver::getInstance method before starting
      * other services as they may access PackageInfoResolver's instance during initialization.
      */
-    std::shared_ptr<PackageInfoResolverInterface> packageInfoResolver =
+    const std::shared_ptr<PackageInfoResolverInterface>& packageInfoResolver =
             PackageInfoResolver::getInstance();
 
     mWatchdogServiceHelperBase = sp<WatchdogServiceHelperBase>::make();
@@ -50,16 +56,42 @@ Result<void> IoServiceManager::startServices() {
         return Error() << "Failed to initialize package name resolver: " << result.error();
     }
 
-    mIoOveruseMonitor = sp<IoOveruseMonitor>::make(mWatchdogServiceHelperBase);
+    mIoOveruseMonitor = sp<IoOveruseMonitor>::make(mWatchdogServiceHelperBase, packageInfoResolver);
+    mWatchdogPerfServiceBase =
+            sp<WatchdogPerfServiceBase>::make(mWatchdogServiceHelperBase, packageInfoResolver);
+    mWatchdogPerfServiceBase->init();
+    mWatchdogPerfServiceBase->registerIoOveruseMonitor(mIoOveruseMonitor);
+    if (auto result = mWatchdogPerfServiceBase->start(); !result.ok()) {
+        return Error(result.error().code())
+                << "Failed to start watchdog performance service: " << result.error();
+    }
+
+    mWatchdogBinderMediatorBase =
+            SharedRefBase::make<WatchdogBinderMediatorBase>(mWatchdogPerfServiceBase,
+                                                            mWatchdogServiceHelperBase,
+                                                            mIoOveruseMonitor);
+    if (auto result = mWatchdogBinderMediatorBase->init(); !result.ok()) {
+        return Error(result.error().code())
+                << "Failed to initialize watchdog binder mediator: " << result.error();
+    }
     return {};
 }
 
 void IoServiceManager::terminateService() {
+    mIoOveruseMonitor.clear();
+    if (mWatchdogBinderMediatorBase != nullptr) {
+        mWatchdogBinderMediatorBase->terminate();
+        mWatchdogBinderMediatorBase.reset();
+    }
+    if (mWatchdogPerfServiceBase != nullptr) {
+        mWatchdogPerfServiceBase->terminate();
+        mWatchdogPerfServiceBase.clear();
+    }
     if (mWatchdogServiceHelperBase != nullptr) {
         mWatchdogServiceHelperBase->terminate();
         mWatchdogServiceHelperBase.clear();
     }
-    mIoOveruseMonitor.clear();
+    PackageInfoResolver::terminate();
 }
 
 }  // namespace watchdog

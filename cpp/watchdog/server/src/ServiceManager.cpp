@@ -48,7 +48,7 @@ Result<void> ServiceManager::startServices(const sp<Looper>& mainLooper) {
      */
     std::shared_ptr<PackageInfoResolverInterface> packageInfoResolver =
             PackageInfoResolver::getInstance();
-    if (auto result = startWatchdogProcessService(mainLooper); !result.ok()) {
+    if (auto result = startWatchdogProcessService(mainLooper, packageInfoResolver); !result.ok()) {
         return result;
     }
     mWatchdogServiceHelper = sp<WatchdogServiceHelper>::make();
@@ -60,14 +60,16 @@ Result<void> ServiceManager::startServices(const sp<Looper>& mainLooper) {
             ALOGE("%s", result.error().message().c_str());
         }
     }
-    if (auto result = startWatchdogPerfService(mWatchdogServiceHelper); !result.ok()) {
+    if (auto result = startWatchdogPerfService(mWatchdogServiceHelper, packageInfoResolver);
+        !result.ok()) {
         return result;
     }
     if (auto result = packageInfoResolver->initWatchdogServiceHelperBase(mWatchdogServiceHelper);
         !result.ok()) {
         return Error() << "Failed to initialize package name resolver: " << result.error();
     }
-    mIoOveruseMonitorWrapper = sp<IoOveruseMonitorWrapper>::make(mWatchdogServiceHelper);
+    mIoOveruseMonitorWrapper =
+            sp<IoOveruseMonitorWrapper>::make(mWatchdogServiceHelper, packageInfoResolver);
     mWatchdogBinderMediator = SharedRefBase::make<WatchdogBinderMediator>(mWatchdogProcessService,
                                                                           mWatchdogPerfService,
                                                                           mWatchdogServiceHelper,
@@ -104,8 +106,10 @@ void ServiceManager::terminateServices() {
     PackageInfoResolver::terminate();
 }
 
-Result<void> ServiceManager::startWatchdogProcessService(const sp<Looper>& mainLooper) {
-    mWatchdogProcessService = sp<WatchdogProcessService>::make(mainLooper);
+Result<void> ServiceManager::startWatchdogProcessService(
+        const sp<Looper>& mainLooper,
+        const std::shared_ptr<PackageInfoResolverInterface>& packageInfoResolver) {
+    mWatchdogProcessService = sp<WatchdogProcessService>::make(mainLooper, packageInfoResolver);
     if (auto result = mWatchdogProcessService->start(); !result.ok()) {
         return Error(result.error().code())
                 << "Failed to start watchdog process monitoring service: " << result.error();
@@ -125,13 +129,16 @@ Result<void> ServiceManager::startPressureMonitor() {
 }
 
 Result<void> ServiceManager::startWatchdogPerfService(
-        const sp<WatchdogServiceHelperInterface>& watchdogServiceHelper) {
-    mWatchdogPerfService = sp<WatchdogPerfService>::make(watchdogServiceHelper, elapsedRealtime);
+        const sp<WatchdogServiceHelperInterface>& watchdogServiceHelper,
+        const std::shared_ptr<PackageInfoResolverInterface>& packageInfoResolver) {
+    mWatchdogPerfService = sp<WatchdogPerfService>::make(watchdogServiceHelper, packageInfoResolver,
+                                                         elapsedRealtime);
     if (auto result = mWatchdogPerfService->registerDataProcessor(
                 sp<PerformanceProfiler>::make(mPressureMonitor));
         !result.ok()) {
         return Error() << "Failed to register performance profiler: " << result.error();
     }
+    mWatchdogPerfService->init();
     if (auto result = mWatchdogPerfService->start(); !result.ok()) {
         return Error(result.error().code())
                 << "Failed to start watchdog performance service: " << result.error();

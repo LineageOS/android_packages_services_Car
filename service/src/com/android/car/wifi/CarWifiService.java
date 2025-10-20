@@ -220,9 +220,11 @@ public final class CarWifiService extends ICarWifi.Stub implements CarServiceBas
                 mIsPersistTetheringCapabilitiesEnabled);
         proto.write(CarWifiDumpProto.PERSIST_TETHERING_SETTING_ENABLED,
                 mIsPersistTetheringSettingEnabled);
-        proto.write(CarWifiDumpProto.TETHERING_ENABLED, mWifiManager.isWifiApEnabled());
-        proto.write(CarWifiDumpProto.AUTO_SHUTDOWN_ENABLED,
-                mWifiManager.getSoftApConfiguration().isAutoShutdownEnabled());
+        if (mWifiManager != null) {
+            proto.write(CarWifiDumpProto.TETHERING_ENABLED, mWifiManager.isWifiApEnabled());
+            proto.write(CarWifiDumpProto.AUTO_SHUTDOWN_ENABLED,
+                    mWifiManager.getSoftApConfiguration().isAutoShutdownEnabled());
+        }
     }
 
     @Override
@@ -234,9 +236,11 @@ public final class CarWifiService extends ICarWifi.Stub implements CarServiceBas
         writer.println("mIsPersistTetheringCapabilitiesEnabled: "
                 + mIsPersistTetheringCapabilitiesEnabled);
         writer.println("mIsPersistTetheringSettingEnabled: " + mIsPersistTetheringSettingEnabled);
-        writer.println("Tethering enabled: " + mWifiManager.isWifiApEnabled());
-        writer.println("Auto shutdown enabled: "
-                + mWifiManager.getSoftApConfiguration().isAutoShutdownEnabled());
+        if (mWifiManager != null) {
+            writer.println("Tethering enabled: " + mWifiManager.isWifiApEnabled());
+            writer.println("Auto shutdown enabled: "
+                    + mWifiManager.getSoftApConfiguration().isAutoShutdownEnabled());
+        }
     }
 
     /**

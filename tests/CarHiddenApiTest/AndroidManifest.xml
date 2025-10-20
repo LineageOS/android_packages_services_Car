@@ -28,6 +28,8 @@
     <uses-permission android:name="android.car.permission.CONTROL_APP_BLOCKING"/>
     <uses-permission android:name="android.permission.LOCATION_HARDWARE"/>
     <uses-permission android:name="android.permission.MANAGE_USERS"/>
+    <!-- Required by android.car.hiddenapitest.DeviceConfigTest -->
+    <uses-permission android:name="android.permission.WRITE_DEVICE_CONFIG"/>
 
     <!-- Used on DEVICE POLICY screen to lock screen -->
     <uses-permission android:name="android.permission.LOCK_DEVICE"/>

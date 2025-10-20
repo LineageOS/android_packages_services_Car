@@ -101,6 +101,12 @@ interface ICarActivityService {
      */
     boolean isCarSystemUIProxyRegistered() ;
 
+    /**
+     * Returns true if the car service is using auto task stack windowing functionality for
+     * windowing.
+     */
+    boolean isUsingAutoTaskStackWindowing();
+
     void setPersistentActivitiesOnRootTask(in List<ComponentName> activities,
         in IBinder launchCookie);
 
@@ -113,4 +119,7 @@ interface ICarActivityService {
     * Reports that a Root Task is created.
     */
     void onRootTaskAppeared(String name, in RunningTaskInfo taskInfo, IBinder rootTaskToken);
+
+     /** See {@link CarActivityManager#setLaunchBehaviorForRootTask(IBinder, int)} */
+    void setLaunchBehaviorForRootTask(in IBinder rootTaskToken, int behavior);
 }

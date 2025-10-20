@@ -20,7 +20,7 @@
     android:id="@+id/toolbar"
     android:layout_width="match_parent"
     android:layout_height="@*android:dimen/status_bar_height"
-    android:background="@color/car_shadow"
+    android:background="@android:color/black"
     android:visibility="gone">
 
     <ImageView
@@ -37,7 +37,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
-        android:textAppearance="@style/TextAppearance.Car.Subhead.Large"
-        android:textColor="@color/car_neutral_variant_100"/>
+        android:textAppearance="?oemTextAppearanceHeadlineSmall"
+        android:textColor="@android:color/white"/>
 
 </com.android.car.portraitlauncher.panel.ToolBarView>

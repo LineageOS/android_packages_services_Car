@@ -15,6 +15,7 @@
   ~ limitations under the License.
   -->
 
-<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="oval">
-    <solid android:color="@color/car_surface_2"/>
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <corners android:radius="?oemShapeCornerFull"/>
+    <solid android:color="?oemColorSurfaceContainer"/>
 </shape>

@@ -17,4 +17,6 @@
 <overlay>
     <item target="string/config_userNoticeUiService" value="@string/config_userNoticeUiService" />
     <item target="bool/config_isUsingAutoTaskStackWindowing" value="@bool/config_isUsingAutoTaskStackWindowing" />
+    <item target="string/config_driverHomeComponent" value="@string/config_driverHomeComponent" />
+    <item target="string/config_passengerHomeComponent" value="@string/config_passengerHomeComponent" />
 </overlay>

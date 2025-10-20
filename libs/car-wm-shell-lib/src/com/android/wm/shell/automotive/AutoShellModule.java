@@ -16,15 +16,61 @@
 
 package com.android.wm.shell.automotive;
 
+import androidx.annotation.NonNull;
+
+import com.android.wm.shell.compatui.letterbox.DelegateLetterboxTransitionObserver;
+import com.android.wm.shell.compatui.letterbox.LetterboxCommandHandler;
+import com.android.wm.shell.compatui.letterbox.config.IgnoreLetterboxDependenciesHelper;
+import com.android.wm.shell.compatui.letterbox.config.LetterboxDependenciesHelper;
+import com.android.wm.shell.compatui.letterbox.lifecycle.LetterboxCleanupAdapter;
+import com.android.wm.shell.compatui.letterbox.state.LetterboxTaskListenerAdapter;
+import com.android.wm.shell.dagger.LetterboxModule;
+import com.android.wm.shell.dagger.ShellCreateTriggerOverride;
 import com.android.wm.shell.dagger.WMSingleton;
 
 import dagger.Binds;
 import dagger.Module;
+import dagger.Provides;
+import dagger.multibindings.IntoSet;
 
 
-@Module
+@Module(includes = {LetterboxModule.class})
 public abstract class AutoShellModule {
+    public static final String AUTO_WM_SHELL = "AutoWmShell";
+
     @WMSingleton
     @Binds
     abstract AutoTaskStackController provideTaskStackController(AutoTaskStackControllerImpl impl);
+
+    @Binds
+    @IntoSet
+    abstract AutoShellInitializable bindAutoTaskStackControllerInitializer(
+            AutoTaskStackControllerImpl autoTaskStackController);
+
+    @Binds
+    @IntoSet
+    abstract AutoShellInitializable bindHomeTaskMonitor(AutoHomeTaskMonitor homeTaskMonitor);
+
+    @Binds
+    @IntoSet
+    abstract AutoShellInitializable bindProtoLogInitializer(
+            CarWmShellProtoLogInitializer protoLogInitializer);
+
+    @WMSingleton
+    @ShellCreateTriggerOverride
+    @Provides
+    static Object provideIndependentShellComponentsToCreate(
+            AutoShellInitializer initializer,
+            @NonNull DelegateLetterboxTransitionObserver letterboxTransitionObserver,
+            @NonNull LetterboxCommandHandler letterboxCommandHandler,
+            @NonNull LetterboxTaskListenerAdapter letterboxTaskListenerAdapter,
+            @NonNull LetterboxCleanupAdapter letterboxCleanupAdapter) {
+        return new Object();
+    }
+
+    @WMSingleton
+    @Provides
+    static LetterboxDependenciesHelper provideLetterboxDependenciesHelper() {
+        return new IgnoreLetterboxDependenciesHelper();
+    }
 }

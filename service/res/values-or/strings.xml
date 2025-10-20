@@ -262,6 +262,8 @@
     <string name="car_permission_desc_inject_vehicle_properties" msgid="2616112105084870775">"ଗାଡ଼ିର ପ୍ରପର୍ଟିକୁ ଇନଜେକ୍ଟ କରନ୍ତୁ"</string>
     <string name="car_permission_label_read_property_vendor_status" msgid="2894773112281568618">"ପ୍ରପର୍ଟି ଭେଣ୍ଡର ଷ୍ଟାଟସ ପଢନ୍ତୁ"</string>
     <string name="car_permission_desc_read_property_vendor_status" msgid="7456031169256863531">"ପ୍ରପର୍ଟି ଭେଣ୍ଡର ଷ୍ଟାଟସ ପଢନ୍ତୁ"</string>
+    <string name="car_permission_label_read_property_vendor_error_code" msgid="9161295062734171179">"ପ୍ରପର୍ଟି ଭେଣ୍ଡର ତ୍ରୁଟି କୋଡ ପଢ଼ନ୍ତୁ"</string>
+    <string name="car_permission_desc_read_property_vendor_error_code" msgid="4243058153289166218">"ପ୍ରପର୍ଟି ଭେଣ୍ଡର ତ୍ରୁଟି କୋଡ ପଢ଼ନ୍ତୁ"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN ବସ୍ ବିଫଳ ହେଲା"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN ବସ୍ ପ୍ରତିକ୍ରିୟା ଦେଉନାହିଁ। ହେଡୟୁନିଟ୍ ବାକ୍ସର ପ୍ଲଗ୍ କାଢ଼ି ପୁଣି ଲଗାନ୍ତୁ ଏବଂ କାର୍‍କୁ ରିଷ୍ଟାର୍ଟ କରନ୍ତୁ"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"ମୋ ଡିଭାଇସ୍"</string>

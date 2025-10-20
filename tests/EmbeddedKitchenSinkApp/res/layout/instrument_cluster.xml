@@ -82,6 +82,13 @@
                             android:id="@+id/cluster_activity_state_disabled"
                             android:text="@string/cluster_activity_state_disabled"/>
                     </RadioGroup>
-            </LinearLayout>
+                  </LinearLayout>
+                  <TextView
+                      android:id="@+id/sent_data_log"
+                      android:layout_width="match_parent"
+                      android:layout_height="wrap_content"
+                      android:lines="3"
+                      android:scrollbars="vertical"
+                      android:text="" />
     </LinearLayout>
 </LinearLayout>

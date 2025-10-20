@@ -15,6 +15,7 @@
  */
 
 #include "MockAIBinderDeathRegistrationWrapper.h"
+#include "MockCarWatchdogClient.h"
 #include "MockCarWatchdogMonitor.h"
 #include "MockCarWatchdogServiceForSystem.h"
 #include "MockHidlServiceManager.h"
@@ -29,6 +30,7 @@
 #include <android/binder_interface_utils.h>
 #include <android/hidl/manager/1.0/IServiceManager.h>
 #include <android/util/ProtoOutputStream.h>
+#include <binder/IPCThreadState.h>
 #include <gmock/gmock.h>
 #include <utils/SystemClock.h>
 
@@ -146,19 +148,23 @@ MATCHER_P(ClientsNotRespondingInfoEq, expected, "") {
                               arg, result_listener);
 }
 
+std::shared_ptr<MockCarWatchdogClient> createMockCarWatchdogClient() {
+    std::shared_ptr<MockCarWatchdogClient> client = SharedRefBase::make<MockCarWatchdogClient>();
+    ON_CALL(*client, checkIfAlive(_, _)).WillByDefault([]() { return ScopedAStatus::ok(); });
+    ON_CALL(*client, prepareProcessTermination()).WillByDefault([]() {
+        return ScopedAStatus::ok();
+    });
+    return client;
+}
+
 }  // namespace
 
 namespace internal {
 
 class WatchdogProcessServicePeer final {
 public:
-    explicit WatchdogProcessServicePeer(
-            const sp<WatchdogProcessService>& watchdogProcessService,
-            const std::shared_ptr<PackageInfoResolverInterface>& packageInfoResolver) :
-          mWatchdogProcessService(watchdogProcessService) {
-        Mutex::Autolock lock(mWatchdogProcessService->mMutex);
-        mWatchdogProcessService->mPackageInfoResolver = packageInfoResolver;
-    }
+    explicit WatchdogProcessServicePeer(const sp<WatchdogProcessService>& watchdogProcessService) :
+          mWatchdogProcessService(watchdogProcessService) {}
 
     void expectVhalProcessIdentifier(const Matcher<const ProcessIdentifier&> matcher) {
         Mutex::Autolock lock(mWatchdogProcessService->mMutex);
@@ -190,7 +196,7 @@ public:
                 /*client=*/nullptr,
                 /*pid=*/1, kTestAidlClientUid,
                 /*processName=*/"",
-                /*startTimeMillis=*/1000, WatchdogProcessService(nullptr));
+                /*startTimeMillis=*/1000, WatchdogProcessService(nullptr, nullptr));
 
         clientInfo.packageName = "shell";
         clientInfoMap.insert({100, clientInfo});
@@ -199,13 +205,13 @@ public:
                 {TimeoutLength::TIMEOUT_CRITICAL, clientInfoMap});
     }
 
-    void clearClientsByTimeout() { mWatchdogProcessService->mClientsByTimeout.clear(); }
-
-    base::Result<void> dumpAndKillAllProcesses(
-            const std::vector<ProcessIdentifier>& processesNotResponding, bool reportToVhal) {
-        return mWatchdogProcessService->dumpAndKillAllProcesses(processesNotResponding,
-                                                                reportToVhal);
+    void setOverriddenClientHealthCheckWindowNs(
+            std::chrono::nanoseconds overriddenClientHealthCheckWindowNs) {
+        mWatchdogProcessService->mOverriddenClientHealthCheckWindowNs =
+                overriddenClientHealthCheckWindowNs;
     }
+
+    void clearClientsByTimeout() { mWatchdogProcessService->mClientsByTimeout.clear(); }
 
     bool hasClientInfoWithPackageName(TimeoutLength timeoutLength, std::string packageName) {
         auto clientInfoMap = mWatchdogProcessService->mClientsByTimeout[timeoutLength];
@@ -225,6 +231,14 @@ public:
             }
         }
         return false;
+    }
+
+    base::Result<void> constructAndRegisterClientInfo(
+            const std::shared_ptr<ICarWatchdogClient>& client, int32_t pid, int32_t uid,
+            std::string processName, int32_t startTimeMillis, TimeoutLength timeoutLength) {
+        WatchdogProcessService::ClientInfo clientInfo(client, pid, uid, processName,
+                                                      startTimeMillis, *mWatchdogProcessService);
+        return mWatchdogProcessService->registerClient(clientInfo, timeoutLength);
     }
 
 private:
@@ -294,10 +308,10 @@ protected:
                                                  kTestVhalPidCachingRetryDelayNs, mHandlerLooper,
                                                  mMockDeathRegistrationWrapper,
                                                  kTestVhalHealthCheckIntervalMillis,
-                                                 kTestVhalHealthCheckDelayMillis);
+                                                 kTestVhalHealthCheckDelayMillis,
+                                                 mMockPackageInfoResolver);
         mWatchdogProcessServicePeer =
-                std::make_unique<internal::WatchdogProcessServicePeer>(mWatchdogProcessService,
-                                                                       mMockPackageInfoResolver);
+                std::make_unique<internal::WatchdogProcessServicePeer>(mWatchdogProcessService);
 
         expectGetPropConfigs(mSupportedVehicleProperties, mNotSupportedVehicleProperties);
 
@@ -1060,17 +1074,15 @@ TEST_F(WatchdogProcessServiceTest, TestDumpAndKillAllProcessesDuringGarageMode) 
 
     ASSERT_TRUE(status.isOk()) << status.getMessage();
 
+    mWatchdogProcessServicePeer->setOverriddenClientHealthCheckWindowNs(
+            std::chrono::nanoseconds(1));
+
     mWatchdogProcessService->setGarageMode(GarageMode::GARAGE_MODE_ON);
 
-    std::vector<ProcessIdentifier> processIdentifiers;
-    processIdentifiers.push_back(constructProcessIdentifier(/*pid=*/111, /*uid=*/1,
-                                                            /*processName=*/"process1",
-                                                            /*startTimeMillis=*/0));
-    processIdentifiers.push_back(constructProcessIdentifier(/*pid=*/222, /*uid=*/2,
-                                                            /*processName=*/"process2",
-                                                            /*startTimeMillis=*/0));
     ClientsNotRespondingInfo clientsNotRespondingInfo = {
-            .processIdentifiers = processIdentifiers,
+            .processIdentifiers = {constructProcessIdentifier(/*pid=*/111, /*uid=*/1,
+                                                              /*processName=*/"process1",
+                                                              /*startTimeMillis=*/0)},
             .garageMode = GarageMode::GARAGE_MODE_ON,
     };
 
@@ -1079,9 +1091,20 @@ TEST_F(WatchdogProcessServiceTest, TestDumpAndKillAllProcessesDuringGarageMode) 
                         ClientsNotRespondingInfoEq(clientsNotRespondingInfo)))
             .Times(1);
 
-    // TODO(b/388042850): Update to use end-to-end implementation
-    mWatchdogProcessServicePeer->dumpAndKillAllProcesses(processIdentifiers,
-                                                         /*reportToVhal=*/false);
+    std::shared_ptr<MockCarWatchdogClient> client1 = createMockCarWatchdogClient();
+    expectLinkToDeath(client1->asBinder().get(), ScopedAStatus::ok());
+
+    EXPECT_CALL(*client1, checkIfAlive(_, TimeoutLength::TIMEOUT_CRITICAL)).Times(1);
+    EXPECT_CALL(*client1, prepareProcessTermination()).Times(1);
+
+    base::Result<void> result =
+            mWatchdogProcessServicePeer
+                    ->constructAndRegisterClientInfo(client1, 111, 1, "process1", 0,
+                                                     TimeoutLength::TIMEOUT_CRITICAL);
+
+    ASSERT_TRUE(result.ok()) << result.error().message();
+    ASSERT_TRUE(syncLooper(2ns))
+            << "Looper not finished handling pending tasks before timeout, probably stuck";
 }
 
 TEST_F(WatchdogProcessServiceTest, TestDumpAndKillAllProcesses) {
@@ -1093,17 +1116,15 @@ TEST_F(WatchdogProcessServiceTest, TestDumpAndKillAllProcesses) {
 
     ASSERT_TRUE(status.isOk()) << status.getMessage();
 
+    mWatchdogProcessServicePeer->setOverriddenClientHealthCheckWindowNs(
+            std::chrono::nanoseconds(1));
+
     mWatchdogProcessService->setGarageMode(GarageMode::GARAGE_MODE_OFF);
 
-    std::vector<ProcessIdentifier> processIdentifiers;
-    processIdentifiers.push_back(constructProcessIdentifier(/*pid=*/111, /*uid=*/1,
-                                                            /*processName=*/"process1",
-                                                            /*startTimeMillis=*/0));
-    processIdentifiers.push_back(constructProcessIdentifier(/*pid=*/222, /*uid=*/2,
-                                                            /*processName=*/"process2",
-                                                            /*startTimeMillis=*/0));
     ClientsNotRespondingInfo clientsNotRespondingInfo = {
-            .processIdentifiers = processIdentifiers,
+            .processIdentifiers = {constructProcessIdentifier(/*pid=*/111, /*uid=*/1,
+                                                              /*processName=*/"process1",
+                                                              /*startTimeMillis=*/0)},
             .garageMode = GarageMode::GARAGE_MODE_OFF,
     };
 
@@ -1112,9 +1133,20 @@ TEST_F(WatchdogProcessServiceTest, TestDumpAndKillAllProcesses) {
                         ClientsNotRespondingInfoEq(clientsNotRespondingInfo)))
             .Times(1);
 
-    // TODO(b/388042850): Update to use end-to-end implementation
-    mWatchdogProcessServicePeer->dumpAndKillAllProcesses(processIdentifiers,
-                                                         /*reportToVhal=*/false);
+    std::shared_ptr<MockCarWatchdogClient> client1 = createMockCarWatchdogClient();
+    expectLinkToDeath(client1->asBinder().get(), ScopedAStatus::ok());
+
+    EXPECT_CALL(*client1, checkIfAlive(_, TimeoutLength::TIMEOUT_CRITICAL)).Times(1);
+    EXPECT_CALL(*client1, prepareProcessTermination()).Times(1);
+
+    base::Result<void> result =
+            mWatchdogProcessServicePeer
+                    ->constructAndRegisterClientInfo(client1, 111, 1, "process1", 0,
+                                                     TimeoutLength::TIMEOUT_CRITICAL);
+
+    ASSERT_TRUE(result.ok()) << result.error().message();
+    ASSERT_TRUE(syncLooper(2ns))
+            << "Looper not finished handling pending tasks before timeout, probably stuck";
 }
 
 TEST_F(WatchdogProcessServiceTest, TestDumpAndKillAllProcessesWithAnrMetricsFeatureDisabled) {
@@ -1126,22 +1158,30 @@ TEST_F(WatchdogProcessServiceTest, TestDumpAndKillAllProcessesWithAnrMetricsFeat
 
     ASSERT_TRUE(status.isOk()) << status.getMessage();
 
-    std::vector<ProcessIdentifier> processIdentifiers;
-    processIdentifiers.push_back(constructProcessIdentifier(/*pid=*/111, /*uid=*/1,
-                                                            /*processName=*/"process1",
-                                                            /*startTimeMillis=*/0));
-    processIdentifiers.push_back(constructProcessIdentifier(/*pid=*/222, /*uid=*/2,
-                                                            /*processName=*/"process2",
-                                                            /*startTimeMillis=*/0));
+    mWatchdogProcessServicePeer->setOverriddenClientHealthCheckWindowNs(
+            std::chrono::nanoseconds(1));
 
     EXPECT_CALL(*mMockWatchdogMonitor,
-                onClientsNotResponding(UnorderedElementsAreArray(
-                        constructProcessIdentifierMatchers(processIdentifiers))))
+                onClientsNotResponding(UnorderedElementsAreArray(constructProcessIdentifierMatchers(
+                        {constructProcessIdentifier(/*pid=*/111, /*uid=*/1,
+                                                    /*processName=*/"process1",
+                                                    /*startTimeMillis=*/0)}))))
             .Times(1);
 
-    // TODO(b/388042850): Update to use end-to-end implementation
-    mWatchdogProcessServicePeer->dumpAndKillAllProcesses(processIdentifiers,
-                                                         /*reportToVhal=*/false);
+    std::shared_ptr<MockCarWatchdogClient> client1 = createMockCarWatchdogClient();
+    expectLinkToDeath(client1->asBinder().get(), ScopedAStatus::ok());
+
+    EXPECT_CALL(*client1, checkIfAlive(_, TimeoutLength::TIMEOUT_CRITICAL)).Times(1);
+    EXPECT_CALL(*client1, prepareProcessTermination()).Times(1);
+
+    base::Result<void> result =
+            mWatchdogProcessServicePeer
+                    ->constructAndRegisterClientInfo(client1, 111, 1, "process1", 0,
+                                                     TimeoutLength::TIMEOUT_CRITICAL);
+
+    ASSERT_TRUE(result.ok()) << result.error().message();
+    ASSERT_TRUE(syncLooper(2ns))
+            << "Looper not finished handling pending tasks before timeout, probably stuck";
 }
 
 class TestCarWatchdogMonitor : public BnCarWatchdogMonitor {

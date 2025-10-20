@@ -1,0 +1,103 @@
+// Copyright (C) 2025 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+    default_team: "trendy_team_aaos_vac_triage",
+}
+
+filegroup {
+    name: "evs_compat_sources",
+    srcs: [
+        "src/*.cpp",
+    ],
+}
+
+cc_library_static {
+    name: "libevs_compat",
+    defaults: [
+        "aconfig_lib_cc_shared_link.defaults",
+        "android.hardware.graphics.common-ndk_static",
+    ],
+    cflags: [
+        "-Werror",
+        "-Wno-unused-parameter",
+    ],
+    include_dirs: [
+        "packages/services/Car/cpp/evs/manager/compat/include",
+    ],
+    srcs: [
+        ":evs_compat_sources",
+    ],
+    static_libs: [
+        "android.car.feature-aconfig-cpp",
+        "android.hardware.automotive.evs-V2-ndk",
+        "android.hardware.common-V2-ndk",
+        "libaidlcommonsupport",
+    ],
+    shared_libs: [
+        "libbase",
+        "libbinder_ndk",
+        "libcamera2ndk",
+        "libcamera_metadata",
+        "liblog",
+        "libmediandk",
+    ],
+}
+
+cc_test {
+    name: "evs_compat_test",
+    defaults: [
+        "aconfig_lib_cc_shared_link.defaults",
+        "android.hardware.graphics.common-ndk_static",
+    ],
+    cflags: [
+        "-Werror",
+        "-Wno-unused-parameter",
+        "-DEVS_COMPAT_TEST",
+    ],
+    include_dirs: [
+        "packages/services/Car/cpp/evs/manager/compat/include",
+        "packages/services/Car/cpp/evs/manager/compat/test",
+    ],
+    srcs: [
+        ":evs_compat_sources",
+        "test/Converter_test.cpp",
+        "test/CompatEnumerator_test.cpp",
+        "test/CompatEnumeratorIntegrationTest.cpp",
+        "test/CompatHalCamera_test.cpp",
+        "test/CompatVirtualCamera_test.cpp",
+        "test/MockNdkCamera.cpp",
+    ],
+    static_libs: [
+        "android.car.feature-aconfig-cpp",
+        "android.hardware.automotive.evs-V2-ndk",
+        "android.hardware.common-V2-ndk",
+        "libaidlcommonsupport",
+        "libevs_compat",
+        "libgtest_main",
+        "libgmock",
+    ],
+    shared_libs: [
+        "libandroid",
+        "libbase",
+        "libbinder_ndk",
+        "libcamera2ndk",
+        "libcamera_metadata",
+        "libcutils",
+        "liblog",
+        "libmediandk",
+    ],
+
+}

@@ -14,7 +14,11 @@
  * limitations under the License.
  */
 
+#ifdef CARWATCHDOGD_BINARY
 #define LOG_TAG "carwatchdogd"
+#else
+#define LOG_TAG "iowatchdogd"
+#endif
 
 #include "PackageInfoResolver.h"
 
@@ -107,13 +111,15 @@ std::shared_ptr<PackageInfoResolverInterface> PackageInfoResolver::getInstance()
 }
 
 void PackageInfoResolver::terminate() {
-    sInstance->mShouldTerminateLooper.store(true);
-    sInstance->mHandlerLooper->removeMessages(sInstance->mMessageHandler);
-    sInstance->mHandlerLooper->wake();
-    if (sInstance->mHandlerThread.joinable()) {
-        sInstance->mHandlerThread.join();
+    if (sInstance != nullptr) {
+        sInstance->mShouldTerminateLooper.store(true);
+        sInstance->mHandlerLooper->removeMessages(sInstance->mMessageHandler);
+        sInstance->mHandlerLooper->wake();
+        if (sInstance->mHandlerThread.joinable()) {
+            sInstance->mHandlerThread.join();
+        }
+        sInstance.reset();
     }
-    sInstance.reset();
 }
 
 Result<void> PackageInfoResolver::initWatchdogServiceHelperBase(

@@ -27,6 +27,7 @@ import android.view.SurfaceView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.android.car.oem.tokens.Token;
 import com.android.car.portraitlauncher.R;
 
 /**
@@ -72,9 +73,7 @@ public class BackgroundSurfaceView extends SurfaceView {
     }
 
     private void setupSurfaceView() {
-        mColor = getResources().getColor(R.color.car_background, getContext().getTheme());
-        mTextColor = getResources().getColor(R.color.car_on_background, getContext().getTheme());
-
+        updateColors();
         getHolder().addCallback(new SurfaceHolder.Callback() {
             @Override
             public void surfaceCreated(@NonNull SurfaceHolder holder) {
@@ -92,6 +91,11 @@ public class BackgroundSurfaceView extends SurfaceView {
 
             }
         });
+    }
+
+    private void updateColors() {
+        mColor = Token.getColor(getContext(), R.attr.oemColorSurface);
+        mTextColor = Token.getColor(getContext(), R.attr.oemColorOnSurface);
     }
 
     private void drawSurface(SurfaceHolder holder) {
@@ -136,9 +140,7 @@ public class BackgroundSurfaceView extends SurfaceView {
     /** refreshes the color of the surface view if needed. */
     public void refresh(Resources.Theme theme) {
         if (!mUseFixedColor) {
-            mColor = getResources().getColor(R.color.car_background, theme);
-            mTextColor = getResources().getColor(R.color.car_on_background,
-                    getContext().getTheme());
+            updateColors();
             drawSurface(getHolder());
         }
     }

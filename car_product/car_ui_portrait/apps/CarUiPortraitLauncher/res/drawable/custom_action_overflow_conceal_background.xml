@@ -21,7 +21,7 @@
     android:width="405.30978dp">
 
     <path
-        android:fillColor="@color/car_surface_container_high"
+        android:fillColor="?attr/oemColorSurfaceContainerHigh"
         android:pathData="M0,0L344.26,0L344.26,0.05C325.58,0.46 310.57,15.43 310.57,33.85C310.57,
         52.26 325.58,67.24 344.26,67.64L344.26,67.95L0,67.95Z" />
 </vector>

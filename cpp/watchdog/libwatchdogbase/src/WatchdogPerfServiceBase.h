@@ -59,6 +59,16 @@ constexpr const char* kMaxDurationFlag = "--max_duration";
 constexpr const char* kFilterPackagesFlag = "--filter_packages";
 const std::chrono::nanoseconds kCustomCollectionInterval = 10s;
 const std::chrono::nanoseconds kCustomCollectionDuration = 30min;
+static const std::string kDumpMajorDelimiter = std::string(100, '-') + "\n";  // NOLINT
+constexpr const char* kDumpHelpTextBase =
+        "\n%s dump options:\n"
+        "%s: Starts custom performance data collection. Customize the collection behavior with "
+        "the following optional arguments:\n"
+        "\t%s <seconds>: Modifies the collection interval. Default behavior is to collect once "
+        "every %lld seconds.\n"
+        "\t%s <seconds>: Modifies the maximum collection duration. Default behavior is to collect "
+        "until %ld minutes before automatically stopping the custom collection and discarding "
+        "the collected data.\n%s%s";
 
 enum SystemState {
     NORMAL_MODE = 0,
@@ -128,6 +138,8 @@ public:
     // Register IoOveruseMonitor to process the data collected by |WatchdogPerfServiceBase|.
     virtual android::base::Result<void> registerIoOveruseMonitor(
             android::sp<IoOveruseMonitorInterface> ioOveruseMonitor) = 0;
+    // Initialize collection intervals and I/O collectors.
+    virtual void init() = 0;
     /**
      * Starts the periodic collection in the looper handler on a new thread and returns
      * immediately. Must be called only once. Otherwise, returns an error.
@@ -157,7 +169,8 @@ public:
 class WatchdogPerfServiceBase : public WatchdogPerfServiceBaseInterface {
 public:
     WatchdogPerfServiceBase(
-            const android::sp<WatchdogServiceHelperBaseInterface>& watchdogServiceHelperBase) :
+            const android::sp<WatchdogServiceHelperBaseInterface>& watchdogServiceHelperBase,
+            const std::shared_ptr<PackageInfoResolverInterface>& packageInfoResolver) :
           mHandlerLooper(android::sp<LooperWrapper>::make()),
           mSystemState(NORMAL_MODE),
           mUnsentResourceStats({}),
@@ -167,13 +180,13 @@ public:
           mCurrCollectionEvent(EventType::INIT),
           mProcDiskStatsCollector(android::sp<ProcDiskStatsCollector>::make()),
           mWatchdogServiceHelperBase(watchdogServiceHelperBase),
-          mUidStatsCollectorBase(android::sp<UidStatsCollectorBase>::make()),
+          mUidStatsCollectorBase(android::sp<UidStatsCollectorBase>::make(packageInfoResolver)),
           mIoOveruseMonitor({}) {}
 
     android::base::Result<void> registerIoOveruseMonitor(
             android::sp<IoOveruseMonitorInterface> ioOveruseMonitor) override;
 
-    void init();
+    void init() override;
 
     android::base::Result<void> start() override;
 
@@ -254,6 +267,27 @@ protected:
      */
     virtual EventMetadata* getCurrentCollectionMetadataLocked();
 
+    /**
+     * Initialize collection intervals and I/O collectors specific to base or derived
+     * implementations.
+     */
+    virtual void initInternalLocked();
+
+    // Check if IoOveruseMonitor was registered.
+    virtual bool isDataProcessorRegisteredLocked();
+
+    // Start the first collection event in mCollectionThread.
+    virtual void startFirstCollectionEventLocked();
+
+    // Handles unsent resource stats.
+    android::base::Result<void> handleUnsentResourceStatsLocked();
+
+    // Clear any custom collection caches. Unused in base implementation.
+    virtual void clearCustomCollectionCacheLocked() { return; }
+
+    // Handle onDump printing logic.
+    virtual android::base::Result<void> onDumpInternalLocked(int fd) const;
+
     // Invokes periodic monitor methods in data processors.
     virtual android::base::Result<void> onDataProcessorPeriodicMonitorLocked(
             time_t now, const std::function<void()>& requestCollection,
@@ -271,6 +305,20 @@ protected:
             [[maybe_unused]] int fd) {
         return {};
     }
+
+    // Handles the filterPackagesFlag during custom collection.
+    virtual android::base::Result<std::unordered_set<std::string>> onFilterPackagesFlag(
+            [[maybe_unused]] const char** args, [[maybe_unused]] uint32_t valuePos,
+            [[maybe_unused]] uint32_t numArgs) {
+        return android::base::Error(BAD_VALUE)
+                << "Unknown flag provided to start custom performance data collection";
+    }
+
+    // Handles the messages received by the looper.
+    void handleMessage(const Message& message) override;
+
+    // Handles extra message logic.
+    virtual android::base::Result<void> handleMessageExtension(const Message& message);
 
     // Thread on which the actual collection happens.
     std::thread mCollectionThread;
@@ -309,9 +357,6 @@ protected:
     android::sp<WatchdogServiceHelperBaseInterface> mWatchdogServiceHelperBase GUARDED_BY(mMutex);
 
 private:
-    // Handles the messages received by the looper.
-    void handleMessage(const Message& message) override;
-
     // Collector for UID I/O stats.
     android::sp<UidStatsCollectorBaseInterface> mUidStatsCollectorBase GUARDED_BY(mMutex);
 

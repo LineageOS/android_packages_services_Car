@@ -27,7 +27,6 @@ android.car Car String PROPERTY_EMULATED_PLATFORM_VERSION_MAJOR
 android.car Car String PROPERTY_EMULATED_PLATFORM_VERSION_MINOR
 android.car Car T handleRemoteExceptionFromCarService(RemoteException e, T returnValue)
 android.car Car T handleRemoteExceptionFromCarService(Service service, RemoteException e, T returnValue)
-android.car Car record Deps(ServiceManager serviceManager, Process process, long carServiceBindRetryIntervalMs, long carServiceBindMaxRetry, long createCarDefaultTimeoutMs)
 android.car Car void handleRemoteExceptionFromCarService(RemoteException e)
 android.car Car void handleRemoteExceptionFromCarService(Service service, RemoteException e)
 android.car Car.CarBuilder Car createCar(Context context)
@@ -161,6 +160,9 @@ android.car.admin StopUserResult int getStatus()
 android.car.app CarActivityManager Pair<SurfaceControl,Rect> getMirroredSurface(IBinder token)
 android.car.app CarActivityManager boolean registerTaskMonitor()
 android.car.app CarActivityManager int ERROR_CODE_ACTIVITY_NOT_FOUND
+android.car.app CarActivityManager int LAUNCH_BEHAVIOR_DEFAULT
+android.car.app CarActivityManager int LAUNCH_BEHAVIOR_REMAIN_IN_SOURCE_ROOT_TASK
+android.car.app CarActivityManager int LAUNCH_BEHAVIOR_REPARENT_TO_SOURCE_ROOT_TASK
 android.car.app CarActivityManager void onCarDisconnected()
 android.car.app CarActivityManager void onRootTaskAppeared(String name, ActivityManager.RunningTaskInfo taskInfo, IBinder rootTaskToken)
 android.car.app CarActivityManager void onRootTaskVanished(int taskId)
@@ -168,6 +170,7 @@ android.car.app CarActivityManager void onTaskAppeared(ActivityManager.RunningTa
 android.car.app CarActivityManager void onTaskAppeared(ActivityManager.RunningTaskInfo taskInfo, SurfaceControl leash)
 android.car.app CarActivityManager void onTaskInfoChanged(ActivityManager.RunningTaskInfo taskInfo)
 android.car.app CarActivityManager void onTaskVanished(ActivityManager.RunningTaskInfo taskInfo)
+android.car.app CarActivityManager void setLaunchBehaviorForRootTask(IBinder rootTaskToken, int behavior)
 android.car.app CarActivityManager void unregisterTaskMonitor()
 android.car.app CarDisplayCompatManager void onCarDisconnected()
 android.car.app CarSystemUIProxy CarTaskViewHost createCarTaskView(CarTaskViewClient carTaskViewClient)
@@ -184,6 +187,7 @@ android.car.app CarTaskViewHost void createLaunchRootTask(int displayId, boolean
 android.car.app CarTaskViewHost void createRootTask(int displayId)
 android.car.app CarTaskViewHost void reorderTask(boolean onTop)
 android.car.app CarTaskViewHost void setTaskVisibility(boolean visibility)
+android.car.app ControlledRemoteCarTaskView void replaceActivityIntent(Intent intent)
 android.car.app RemoteCarDefaultRootTaskView ActivityManager.RunningTaskInfo getTaskInfo()
 android.car.app RemoteCarDefaultRootTaskView ActivityManager.RunningTaskInfo getTopTaskInfo()
 android.car.app RemoteCarDefaultRootTaskView String toString()
@@ -357,8 +361,13 @@ android.car.hardware CarPropertyConfig.AreaConfig T getMaxValue()
 android.car.hardware CarPropertyConfig.AreaConfig T getMinValue()
 android.car.hardware CarPropertyConfig.AreaConfig int describeContents()
 android.car.hardware CarPropertyConfig.AreaConfig void writeToParcel(Parcel dest, int flags)
+android.car.hardware CarPropertyValue CarPropertyValue cloneWithPermissionToReadPropertyVendorStatus()
+android.car.hardware CarPropertyValue CarPropertyValue cloneWithSystemStatusConverted(int sdkVersion)
+android.car.hardware CarPropertyValue CarPropertyValue cloneWithVendorStatusFiltered()
+android.car.hardware CarPropertyValue List<Integer> ALL_CAR_PROPERTY_STATUS
 android.car.hardware CarPropertyValue RawPropertyValue getRawPropertyValue()
 android.car.hardware CarPropertyValue String toString()
+android.car.hardware CarPropertyValue.Builder Builder<T> setHasPermissionToReadPropertyVendorStatus(boolean hasPermission)
 android.car.hardware CarPropertyValue.Builder Builder<T> setIsSimulationPropId(boolean isSimulationPropId)
 android.car.hardware CarPropertyValue.Builder Builder<T> setRawPropertyValue(RawPropertyValue rawPropertyValue)
 android.car.hardware CarPropertyValue.Builder Builder<T> setSystemStatus(int systemStatus)
@@ -480,6 +489,7 @@ android.car.hardware.property AreaIdConfig.Builder Builder<T> setHasMaxSupported
 android.car.hardware.property AreaIdConfig.Builder Builder<T> setHasMinSupportedValue(boolean hasMinSupportedValue)
 android.car.hardware.property AreaIdConfig.Builder Builder<T> setHasSupportedValuesList(boolean hasSupportedValuesList)
 android.car.hardware.property AreaIdConfig.Builder Builder<T> setSupportVariableUpdateRate(boolean supportVariableUpdateRate)
+android.car.hardware.property CarPropertyEvent CarPropertyEvent cloneWithVendorStatusFiltered()
 android.car.hardware.property CarPropertyEvent CarPropertyEvent createErrorEventWithErrorCode(int propertyId, int areaId, int errorCode)
 android.car.hardware.property CarPropertyEvent CarPropertyValue<?> getCarPropertyValue()
 android.car.hardware.property CarPropertyEvent Parcelable.Creator<CarPropertyEvent> CREATOR
@@ -510,6 +520,7 @@ android.car.hardware.property CarPropertySimulationManager void onCarDisconnecte
 android.car.hardware.property CarPropertySimulationManager void stopRecordingVehicleProperties()
 android.car.hardware.property CarPropertySimulationManager.CarRecorderListener void onCarPropertyEvents(List<CarPropertyValue<?>> carPropertyValues)
 android.car.hardware.property CarPropertySimulationManager.CarRecorderListener void onRecordingFinished()
+android.car.hardware.property VehicleHalStatusCode Set<Integer> NOT_AVAILABLE_STATUS_CODES
 android.car.hardware.property VehicleHalStatusCode Set<Integer> VEHICLE_HAL_STATUS_CODES
 android.car.hardware.property VehicleHalStatusCode String toString(int vehicleHalStatusCode)
 android.car.hardware.property VehicleHalStatusCode int STATUS_ACCESS_DENIED
@@ -532,7 +543,11 @@ android.car.media CarAudioManager boolean isDynamicRoutingEnabled()
 android.car.media CarAudioManager boolean setZoneIdForUid(int zoneId, int uid)
 android.car.media CarAudioManager int INVALID_VOLUME_GROUP_ID
 android.car.media CarAudioManager int getZoneIdForUid(int uid)
+android.car.media CarAudioManager int[] getEnforceableAudioAttributeUsages()
+android.car.media CarAudioManager void clearEnforceableAudioFocusCallback()
 android.car.media CarAudioManager void onCarDisconnected()
+android.car.media CarAudioManager void setEnforceableAudioFocusCallback(Executor executor, EnforceableAudioFocusCallback callback)
+android.car.media CarAudioManager void setEnforceableAudioFocusEnabled(boolean enabled)
 android.car.media CarAudioPatchHandle String getSinkAddress()
 android.car.media CarAudioPatchHandle String getSourceAddress()
 android.car.media CarAudioPatchHandle int getHandleId()
@@ -545,6 +560,16 @@ android.car.media CarMediaManager boolean isIndependentPlaybackConfig()
 android.car.media CarMediaManager void onCarDisconnected()
 android.car.media CarMediaManager void setIndependentPlaybackConfig(boolean independent)
 android.car.media CarVolumeGroupInfo.Builder Builder setMutedBySystem(boolean isMutedBySystem)
+android.car.media EnforceableAudioFocusCallback void onEnforcedAudioFocusChanged(List<EnforcedAudioFocusInfo> info)
+android.car.media EnforcedAudioFocusInfo AudioAttributes getAudioAttributes()
+android.car.media EnforcedAudioFocusInfo Creator<EnforcedAudioFocusInfo> CREATOR
+android.car.media EnforcedAudioFocusInfo String toString()
+android.car.media EnforcedAudioFocusInfo boolean equals(Object o)
+android.car.media EnforcedAudioFocusInfo boolean isSilenced()
+android.car.media EnforcedAudioFocusInfo int describeContents()
+android.car.media EnforcedAudioFocusInfo int getUid()
+android.car.media EnforcedAudioFocusInfo int hashCode()
+android.car.media EnforcedAudioFocusInfo void writeToParcel(Parcel dest, int flags)
 android.car.navigation CarNavigationInstrumentCluster Bundle getExtra()
 android.car.navigation CarNavigationStatusManager void onCarDisconnected()
 android.car.occupantawareness DriverMonitoringDetection Parcelable.Creator<DriverMonitoringDetection> CREATOR

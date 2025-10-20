@@ -29,6 +29,13 @@ flag {
   bug: "367787957"
 }
 
+flag {
+  name: "visible_background_user_toggle_home_components"
+  namespace: "car_framework"
+  description: "Selectively enable home components for visible background users"
+  bug: "441579704"
+}
+
 # CarPackageManager
 flag {
   name: "display_compatibility"
@@ -293,6 +300,13 @@ flag {
   bug: "343489611"
 }
 
+flag {
+  name: "car_property_vendor_error_code_permission"
+  namespace: "car_perception"
+  description: "The getVendorErrorCode is a system API but it's missing a permission to guard it."
+  bug: "415128639"
+}
+
 # ClusterHomeManager
 flag {
   name: "cluster_health_monitoring"
@@ -360,6 +374,13 @@ flag {
   namespace: "car_framework"
   description: "Retrieves current status of each CarEvsService type individually"
   bug: "320766863"
+}
+
+flag {
+  name: "car_evs_compat_lib"
+  namespace: "car_perception"
+  description: "Add an EVS compatible library to simplify the migration from EVS to Camera2."
+  bug: "441577862"
 }
 
 # CarPropertyErrorCodes
@@ -469,6 +490,14 @@ flag {
     bug: "401584551"
 }
 
+# Root task sticky routing behaviors
+flag {
+    name: "root_task_sticky_routing_behaviors"
+    namespace: "car_framework"
+    description: "Enables the CarActivityService support for changing the launch behaviors for root tasks."
+    bug: "441759232"
+}
+
 # LargeParcelable
 flag {
     name: "largeparcelable_use_native_parcel"
@@ -476,3 +505,12 @@ flag {
     description: "Use JNI native code for Parcel.marshall and Parcel.unmarshall to avoid memory copy"
     bug: "188781089"
 }
+
+# car-wm-shell visibility barrier
+flag {
+    name: "auto_visibility_barrier"
+    namespace: "car_framework"
+    description: "Enables a dedicated visibility barrier in car-wm-shell-lib"
+    bug: "432217693"
+}
+

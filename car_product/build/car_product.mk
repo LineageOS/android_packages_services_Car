@@ -37,6 +37,10 @@ PRODUCT_PRODUCT_PROPERTIES += \
     ro.config.notification_sound=Tethys.ogg \
     ro.config.alarm_alert=Oxygen.ogg \
 
+# Enable dual pane activity embedding by default on automotive
+PRODUCT_PRODUCT_PROPERTIES += \
+    persist.settings.large_screen_opt.enabled=true
+
 # More AOSP packages
 PRODUCT_PACKAGES += \
     messaging \
@@ -97,4 +101,4 @@ $(call inherit-product-if-exists, packages/services/Car/car_product/rro/ThemeSam
 $(call inherit-product-if-exists, packages/apps/Car/SystemUI/samples/systemui_sample_rros.mk)
 
 # Displaycompat
-$(call inherit-product, packages/services/Car/car_product/displaycompat/product.mk)
+$(call inherit-product, packages/services/Car/car_product/displaycompat/display_compat_product.mk)

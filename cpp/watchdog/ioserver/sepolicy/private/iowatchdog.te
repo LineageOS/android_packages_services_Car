@@ -1,0 +1,31 @@
+# I/O watchdog server.
+typeattribute iowatchdogd coredomain;
+typeattribute iowatchdogd mlstrustedsubject;
+
+type iowatchdogd_exec, exec_type, file_type, system_file_type;
+
+init_daemon_domain(iowatchdogd)
+add_service(iowatchdogd, iowatchdogd_service)
+binder_use(iowatchdogd)
+binder_service(iowatchdogd)
+
+# Read iowatchdog configuration properties
+get_prop(iowatchdogd, iowatchdog_config_prop)
+
+# Scan through /proc/pid for all processes.
+r_dir_file(iowatchdogd, domain)
+
+# Read /proc/uid_io/stats.
+allow iowatchdogd proc_uid_io_stats:file r_file_perms;
+
+# Read /proc/diskstats file.
+allow iowatchdogd proc_diskstats:file r_file_perms;
+
+# TODO(b/452740644): Find where iowatchdogd files should live on TV
+# R/W /data/system/car for resource overuse configurations.
+allow iowatchdogd system_car_data_file:dir create_dir_perms;
+allow iowatchdogd system_car_data_file:{ file lnk_file } create_file_perms;
+
+# Allow iowatchdogd to set thread scheduling policy and priority.
+allow iowatchdogd self:capability sys_nice;
+allow iowatchdogd appdomain:process { setsched getsched };

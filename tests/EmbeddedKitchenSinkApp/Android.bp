@@ -26,13 +26,42 @@ prebuilt_etc {
     filename_from_src: true,
 }
 
+// Generate proto binaries from the default textproto configs. The app supports only proto lite,
+// which doesn't support textproto parsing. Thus ship configs in binary format.
+java_genrule {
+    name: "gen_perfetto_trace_config_pb",
+    out: ["perfetto_configs.jar"],
+    tools: ["aprotoc"],
+    srcs: [
+        ":perfetto_config_filegroup_proto",
+        "proto/perfetto_configs/*.textproto",
+    ],
+    cmd: "out_dir=$$(dirname $(out)) && assets_dir=\"assets\" && mkdir -p $$out_dir/$$assets_dir" +
+        "&& src_protos=($(locations proto/perfetto_configs/*.textproto)) " +
+        "&& for file in $${src_protos[@]}; do " +
+        "fname=$$(basename $$file) && if ! ($(location aprotoc) " +
+        "--encode=perfetto.protos.TraceConfig --proto_path=external/perfetto " +
+        "$(locations :perfetto_config_filegroup_proto)  " +
+        "< $$file > $$out_dir/$$assets_dir/$${fname//.textproto/.pb}) ; " +
+        "then echo \"Failed to parse config $$file\" && exit 1 ; fi ; done " +
+        "&& jar --date=2000-01-01T00:00:00-00:00 -c -f $(out) -C $$(dirname $(out)) $$assets_dir",
+}
+
 android_app {
     name: "EmbeddedKitchenSinkApp",
+
+    proto: {
+        type: "lite",
+        include_dirs: [
+            "external/protobuf/src",
+        ],
+    },
 
     srcs: [
         "src/**/*.java",
         "src/**/*.kt",
         ":cartelemetryservice-proto-srcs",
+        ":libstats_config_protos",
         ":VhalTestVendorProperties",
     ],
 
@@ -67,6 +96,9 @@ android_app {
         "car-experimental-api-static-lib",
         "concurrent.hotword.lib",
         "car-broadcastradio-support",
+        "libprotobuf-java-lite",
+        "perfetto_config_java_protos",
+        "gen_perfetto_trace_config_pb",
     ],
 
     libs: [

@@ -143,6 +143,12 @@ public:
         });
     }
 
+    Result<std::unordered_set<std::string>> onFilterPackagesFlag(const char** args,
+                                                                 uint32_t valuePos,
+                                                                 uint32_t numArgs) {
+        return mService->onFilterPackagesFlag(args, valuePos, numArgs);
+    }
+
 protected:
     sp<WatchdogPerfServiceBase> mService;
 };
@@ -158,7 +164,7 @@ protected:
         mMockWatchdogServiceHelperBase = sp<MockWatchdogServiceHelperBase>::make();
         mMockIoOveruseMonitor = sp<MockIoOveruseMonitor>::make();
         mMockProcDiskStatsCollector = sp<NiceMock<MockProcDiskStatsCollector>>::make();
-        mService = sp<WatchdogPerfServiceBase>::make(mMockWatchdogServiceHelperBase);
+        mService = sp<WatchdogPerfServiceBase>::make(mMockWatchdogServiceHelperBase, nullptr);
         mServicePeer = sp<internal::WatchdogPerfServiceBasePeer>::make(mService);
         mLooperStub = sp<LooperStub>::make();
     }
@@ -826,6 +832,15 @@ TEST_F(WatchdogPerfServiceBaseTest, TestUnsentResourceStatsMaxCacheSize) {
     ASSERT_EQ(actualResourceStats, expectedResourceStats)
             << "Expected: " << toString(expectedResourceStats)
             << "\nActual: " << toString(actualResourceStats);
+}
+
+TEST_F(WatchdogPerfServiceBaseTest, TestOnFilterPackagesFlag) {
+    const char* test_flags[] = {"flag1", "flag2", "flag3"};
+    const char** args = test_flags;
+    std::unordered_set<std::string> filterPackages;
+
+    ASSERT_FALSE(mServicePeer->onFilterPackagesFlag(test_flags, /*valuePos=*/1, /*numArgs=*/3).ok())
+            << "Base implementation doesn't support filter packages flag";
 }
 
 }  // namespace watchdog

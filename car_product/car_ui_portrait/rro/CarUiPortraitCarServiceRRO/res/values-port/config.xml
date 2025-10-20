@@ -57,7 +57,7 @@
     -->
     <string-array translatable="false" name="config_allowed_optional_car_features">
         <item>car_navigation_service</item>
-        <item>cluster_service</item>
+        <item>cluster_home_service</item>
         <item>com.android.car.user.CarUserNoticeService</item>
         <item>diagnostic</item>
         <item>storage_monitoring</item>
@@ -65,4 +65,11 @@
         <item>car_evs_service</item>
         <item>car_telemetry_service</item>
     </string-array>
+
+    <!-- Configures the mode in which ClusterHomeService operates. -->
+    <integer name="config_clusterHomeServiceMode">1</integer>
+
+    <!--  The name of Activity who is in charge of ClusterHome. -->
+    <string name="config_clusterHomeActivity" translatable="false">com.android.car.cluster.home/.ClusterHomeActivityLightMode</string>
+
 </resources>

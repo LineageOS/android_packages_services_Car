@@ -1,0 +1,4 @@
+# I/O watchdog client domain
+binder_use(iowatchdogclient_domain)
+
+allow iowatchdogclient_domain iowatchdogd_service:service_manager find;

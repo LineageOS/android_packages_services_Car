@@ -25,6 +25,7 @@ import static com.google.common.truth.Truth.assertWithMessage;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -45,6 +46,7 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -85,6 +87,10 @@ public class CarAudioPlaybackCallbackTest extends AbstractExtendedMockitoTestCas
     private CarAudioPlaybackMonitor mCarAudioPlaybackMonitor;
     @Captor
     private ArgumentCaptor<List<Pair<AudioAttributes, Integer>>> mAudioAttributesCaptor;
+    @Captor
+    private ArgumentCaptor<SparseArray<List<AudioPlaybackConfiguration>>> mZoneConfigsCaptor;
+    @Mock
+    private CarAudioPlaybackCallback.CarPlaybackCallback mCarAudioPlaybackCallback;
 
     @Before
     public void setUp() {
@@ -93,15 +99,16 @@ public class CarAudioPlaybackCallbackTest extends AbstractExtendedMockitoTestCas
         when(mClock.uptimeMillis()).thenReturn(TIMER_START_TIME_MS);
         mCarAudioZones.put(PRIMARY_ZONE_ID, mPrimaryZone);
         mCarAudioZones.put(SECONDARY_ZONE_ID, mSecondaryZone);
-        mCallback = new CarAudioPlaybackCallback(mCarAudioZones, mCarAudioPlaybackMonitor, mClock,
-                KEY_EVENT_TIMEOUT_MS);
+        mCallback = new CarAudioPlaybackCallback(mCarAudioZones, mCarAudioPlaybackMonitor,
+                mCarAudioPlaybackCallback, mClock, KEY_EVENT_TIMEOUT_MS);
     }
 
     @Test
     public void constructor_withNullAudioZones_fails() throws Exception {
         NullPointerException thrown = assertThrows(NullPointerException.class,
                 () -> new CarAudioPlaybackCallback(/* carAudioZones= */ null,
-                        mCarAudioPlaybackMonitor, mClock, KEY_EVENT_TIMEOUT_MS));
+                        mCarAudioPlaybackMonitor, mCarAudioPlaybackCallback, mClock,
+                        KEY_EVENT_TIMEOUT_MS));
 
         expectWithMessage("Car audio playback callback construction exception")
                 .that(thrown).hasMessageThat().contains("Car audio zone cannot be null");
@@ -111,10 +118,22 @@ public class CarAudioPlaybackCallbackTest extends AbstractExtendedMockitoTestCas
     public void constructor_withEmptyAudioZones_fails() throws Exception {
         IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class,
                 () -> new CarAudioPlaybackCallback(new SparseArray<>(), mCarAudioPlaybackMonitor,
-                        mClock, KEY_EVENT_TIMEOUT_MS));
+                        mCarAudioPlaybackCallback, mClock, KEY_EVENT_TIMEOUT_MS));
 
         expectWithMessage("Car audio playback callback construction exception")
                 .that(thrown).hasMessageThat().contains("Car audio zones must not be empty");
+    }
+
+    @Test
+    public void constructor_withNullCarPlaybackCallback_fails() {
+        NullPointerException thrown = assertThrows(NullPointerException.class,
+                () -> new CarAudioPlaybackCallback(mCarAudioZones, mCarAudioPlaybackMonitor,
+                        /* carAudioPlaybackCallback= */ null, mClock, KEY_EVENT_TIMEOUT_MS));
+
+        expectWithMessage("Car audio playback callback construction with null callback exception")
+                .that(thrown)
+                .hasMessageThat()
+                .contains("Car audio playback callback cannot be null");
     }
 
     @Test
@@ -122,7 +141,7 @@ public class CarAudioPlaybackCallbackTest extends AbstractExtendedMockitoTestCas
             throws Exception {
         NullPointerException thrown = assertThrows(NullPointerException.class,
                 () -> new CarAudioPlaybackCallback(mCarAudioZones, mCarAudioPlaybackMonitor,
-                        /* clock= */ null, KEY_EVENT_TIMEOUT_MS));
+                        mCarAudioPlaybackCallback, /* clock= */ null, KEY_EVENT_TIMEOUT_MS));
 
         expectWithMessage("Car audio playback callback construction exception")
                 .that(thrown).hasMessageThat().contains("Clock cannot be null");
@@ -132,8 +151,8 @@ public class CarAudioPlaybackCallbackTest extends AbstractExtendedMockitoTestCas
     public void constructor_withNegativeKeyEventTimeout_fails()
             throws Exception {
         IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class,
-                () -> new CarAudioPlaybackCallback(mCarAudioZones, mCarAudioPlaybackMonitor, mClock,
-                        NEGATIVE_KEY_EVENT_TIMEOUT_MS));
+                () -> new CarAudioPlaybackCallback(mCarAudioZones, mCarAudioPlaybackMonitor,
+                        mCarAudioPlaybackCallback, mClock, NEGATIVE_KEY_EVENT_TIMEOUT_MS));
 
         expectWithMessage("Car audio playback callback construction exception")
                 .that(thrown).hasMessageThat()
@@ -171,7 +190,8 @@ public class CarAudioPlaybackCallbackTest extends AbstractExtendedMockitoTestCas
     @Test
     public void onPlaybackConfigChanged_withNullPlaybackMonitor() {
         CarAudioPlaybackCallback callback = new CarAudioPlaybackCallback(mCarAudioZones,
-                /* carAudioPlaybackMonitor= */ null, mClock, KEY_EVENT_TIMEOUT_MS);
+                /* carAudioPlaybackMonitor= */ null, mCarAudioPlaybackCallback, mClock,
+                KEY_EVENT_TIMEOUT_MS);
         List<AudioPlaybackConfiguration> configurations = ImmutableList.of(
                 new AudioPlaybackConfigurationBuilder()
                         .setUsage(USAGE_MEDIA)
@@ -396,6 +416,126 @@ public class CarAudioPlaybackCallbackTest extends AbstractExtendedMockitoTestCas
         expectWithMessage("Secondary zone active attributes")
                 .that(secondaryZoneActiveAttributes)
                 .isEmpty();
+    }
+
+    @Test
+    public void onPlaybackConfigChanged_notifiesCarPlaybackCallbackWithZoneIds() {
+        AudioPlaybackConfiguration primaryConfig = new AudioPlaybackConfigurationBuilder()
+                .setUsage(USAGE_MEDIA)
+                .setDeviceAddress(PRIMARY_MEDIA_ADDRESS)
+                .setClientUid(PLAYBACK_UID_1)
+                .build();
+        List<AudioPlaybackConfiguration> configurations = ImmutableList.of(primaryConfig);
+
+        mCallback.onPlaybackConfigChanged(configurations);
+
+        verify(mCarAudioPlaybackCallback).onAudioPlaybackChange(mZoneConfigsCaptor.capture());
+        var zonesIds = getZoneIds(mZoneConfigsCaptor.getValue());
+        assertWithMessage("Zone IDs").that(zonesIds)
+                .containsExactly(PRIMARY_ZONE_ID, SECONDARY_ZONE_ID);
+    }
+
+    @Test
+    public void onPlaybackConfigChanged_withEmptyConfigs_notifiesWithEmptyLists() {
+        mCallback.onPlaybackConfigChanged(ImmutableList.of());
+
+        verify(mCarAudioPlaybackCallback).onAudioPlaybackChange(mZoneConfigsCaptor.capture());
+        SparseArray<List<AudioPlaybackConfiguration>> zoneConfigs = mZoneConfigsCaptor.getValue();
+        assertWithMessage("Primary zone configs for empty configs")
+                .that(zoneConfigs.get(PRIMARY_ZONE_ID)).isEmpty();
+        assertWithMessage("Secondary zone configs for empty configs")
+                .that(zoneConfigs.get(SECONDARY_ZONE_ID)).isEmpty();
+    }
+
+    @Test
+    public void onPlaybackConfigChanged_notifiesCarPlaybackCallbackWithPrimaryZoneConfigs() {
+        AudioPlaybackConfiguration primaryConfig = new AudioPlaybackConfigurationBuilder()
+                .setUsage(USAGE_MEDIA)
+                .setDeviceAddress(PRIMARY_MEDIA_ADDRESS)
+                .setClientUid(PLAYBACK_UID_1)
+                .build();
+        List<AudioPlaybackConfiguration> configurations = ImmutableList.of(primaryConfig);
+
+        mCallback.onPlaybackConfigChanged(configurations);
+
+        verify(mCarAudioPlaybackCallback).onAudioPlaybackChange(mZoneConfigsCaptor.capture());
+        SparseArray<List<AudioPlaybackConfiguration>> zoneConfigs = mZoneConfigsCaptor.getValue();
+        assertWithMessage("Primary zone configs").that(zoneConfigs.get(PRIMARY_ZONE_ID))
+                .containsExactly(primaryConfig);
+    }
+
+    @Test
+    public void onPlaybackConfigChanged_notifiesCarPlaybackCallbackWithSecondaryZoneConfigs() {
+        AudioPlaybackConfiguration secondaryConfig = new AudioPlaybackConfigurationBuilder()
+                .setUsage(USAGE_MEDIA)
+                .setDeviceAddress(SECONDARY_MEDIA_ADDRESS)
+                .setClientUid(PLAYBACK_UID_2)
+                .build();
+        List<AudioPlaybackConfiguration> configurations = ImmutableList.of(secondaryConfig);
+
+        mCallback.onPlaybackConfigChanged(configurations);
+
+        verify(mCarAudioPlaybackCallback).onAudioPlaybackChange(mZoneConfigsCaptor.capture());
+        SparseArray<List<AudioPlaybackConfiguration>> zoneConfigs = mZoneConfigsCaptor.getValue();
+        assertWithMessage("Secondary zone configs").that(zoneConfigs.get(SECONDARY_ZONE_ID))
+                .containsExactly(secondaryConfig);
+    }
+
+    @Test
+    public void onPlaybackConfigChanged_withMultipleConfigs_notifiesCarPlaybackCallback() {
+        AudioPlaybackConfiguration primaryConfig = new AudioPlaybackConfigurationBuilder()
+                .setUsage(USAGE_MEDIA)
+                .setDeviceAddress(PRIMARY_MEDIA_ADDRESS)
+                .setClientUid(PLAYBACK_UID_1)
+                .build();
+        AudioPlaybackConfiguration secondaryConfig = new AudioPlaybackConfigurationBuilder()
+                .setUsage(USAGE_MEDIA)
+                .setDeviceAddress(SECONDARY_MEDIA_ADDRESS)
+                .setClientUid(PLAYBACK_UID_2)
+                .build();
+        List<AudioPlaybackConfiguration> configurations = ImmutableList.of(
+                primaryConfig, secondaryConfig
+        );
+
+        mCallback.onPlaybackConfigChanged(configurations);
+
+        verify(mCarAudioPlaybackCallback).onAudioPlaybackChange(mZoneConfigsCaptor.capture());
+        SparseArray<List<AudioPlaybackConfiguration>> zoneConfigs = mZoneConfigsCaptor.getValue();
+        assertWithMessage("Primary zone configs for multiple active configs")
+                .that(zoneConfigs.get(PRIMARY_ZONE_ID)).containsExactly(primaryConfig);
+        assertWithMessage("Secondary zone configs for multiple active configs")
+                .that(zoneConfigs.get(SECONDARY_ZONE_ID)).containsExactly(secondaryConfig);
+    }
+
+    @Test
+    public void onPlaybackConfigChanged_afterTimeout_notifiesWithEmptyLists() {
+        AudioPlaybackConfiguration primaryConfig = new AudioPlaybackConfigurationBuilder()
+                .setUsage(USAGE_MEDIA)
+                .setDeviceAddress(PRIMARY_MEDIA_ADDRESS)
+                .setInactive()
+                .setClientUid(PLAYBACK_UID_1)
+                .build();
+        List<AudioPlaybackConfiguration> configurations = ImmutableList.of(primaryConfig);
+        mCallback.onPlaybackConfigChanged(configurations);
+        when(mClock.uptimeMillis()).thenReturn(TIMER_AFTER_TIMEOUT_MS);
+
+        mCallback.onPlaybackConfigChanged(ImmutableList.of());
+
+        verify(mCarAudioPlaybackCallback, atLeast(1))
+                .onAudioPlaybackChange(mZoneConfigsCaptor.capture());
+        SparseArray<List<AudioPlaybackConfiguration>> zoneConfigs = mZoneConfigsCaptor.getValue();
+        assertWithMessage("Primary zone configs for no active configs")
+                .that(zoneConfigs.get(PRIMARY_ZONE_ID)).isEmpty();
+        assertWithMessage("Secondary zone configs for no active configs")
+                .that(zoneConfigs.get(SECONDARY_ZONE_ID)).isEmpty();
+    }
+
+    private List<Integer> getZoneIds(SparseArray<List<AudioPlaybackConfiguration>> configs) {
+        List<Integer> zones = new ArrayList<>(configs.size());
+        for (int c = 0; c < configs.size(); c++) {
+            zones.add(configs.keyAt(c));
+        }
+        return zones;
     }
 
     private CarAudioZone generatePrimaryZone() {

@@ -23,6 +23,7 @@ import android.car.media.CarVolumeGroupInfo;
 import android.car.media.IAudioZoneConfigurationsChangeCallback;
 import android.car.media.IAudioZonesMirrorStatusCallback;
 import android.car.media.ICarVolumeEventCallback;
+import android.car.media.IEnforceableAudioFocusCallback;
 import android.car.media.IMediaAudioRequestStatusCallback;
 import android.car.media.IPrimaryZoneMediaAudioRequestCallback;
 import android.car.media.ISwitchAudioZoneConfigCallback;
@@ -71,6 +72,11 @@ interface ICarAudio {
     List<AudioDeviceAttributes> getInputDevicesForZoneId(int zoneId);
 
     boolean isPlaybackOnVolumeGroupActive(int volumeGroupId, int audioZoneId);
+
+    int[] getEnforceableAudioAttributeUsages();
+    void setEnforceableAudioFocusEnabled(boolean enable);
+    boolean registerEnforceableAudioFocusCallback(in IEnforceableAudioFocusCallback callback);
+    boolean unregisterEnforceableAudioFocusCallback(in IEnforceableAudioFocusCallback callback);
 
     boolean registerPrimaryZoneMediaAudioRequestCallback(
         in IPrimaryZoneMediaAudioRequestCallback callback);

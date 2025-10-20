@@ -4,122 +4,64 @@
       "name": "CtsCarTestCases"
     },
     {
+      "name": "CtsCarHostTestCases"
+    },
+    {
       "name": "CarExtendedApiTest"
     },
     {
       "name": "CarHiddenApiTest"
     },
     {
-      "name": "CarServiceCarTest",
-      "file_patterns": [
-        "src/com/android/car/CarFeatureController\\.java",
-        "src/com/android/car/AppFocus\\.java",
-        "src/com/android/car/CarAppFocusManager\\.java",
-        "src/com/android/car/CarProjectionManager\\.java",
-        "src/com/android/car/CarVendorExtensionManager\\.java",
-        "src/com/android/car/ICarImpl\\.java"
-      ]
+      "name": "CarServiceAudioTest"
     },
     {
-      "name": "CarServiceDrivingStateTest",
-      "file_patterns": [
-        "src/com/android/car/drivingstate/.*\\.java"
-      ]
+      "name": "CarServiceCarTest"
     },
     {
-      "name": "CarServicePropertyTest",
-      "file_patterns": [
-        "src/com/android/car/CarCabinManager\\.java",
-        "src/com/android/car/CarHvacManager\\.java",
-        "src/com/android/car/CarInfoManager\\.java",
-        "src/com/android/car/CarPropertyEvent\\.java",
-        "src/com/android/car/CarPropertyService\\.java",
-        "src/com/android/car/CarSensorManager\\.java"
-      ]
+      "name": "CarServiceClusterTest"
     },
     {
-      "name": "CarServiceDiagnosticTest",
-      "file_patterns": [
-        "src/com/android/car/diagnostic/.*\\.java"
-      ]
+      "name": "CarServiceDiagnosticTest"
     },
     {
-      "name": "CarServiceStorageMonitoringTest",
-      "file_patterns": [
-        "src/com/android/car/storagemonitoring/.*\\.java"
-      ]
+      "name": "CarServiceDrivingStateTest"
     },
     {
-      "name": "CarServiceVmsTest",
-      "file_patterns": [
-        "src/com/android/car/vms/.*\\.java"
-      ]
+      "name": "CarServiceEvsTest"
     },
     {
-      "name": "CarServiceTelemetryTest",
-      "file_patterns": [
-        "src/com/android/car/telemetry/.*\\.java"
-      ]
+      "name": "CarServiceGarageModeTest"
     },
     {
-      "name": "CarServiceAudioTest",
-      "file_patterns": [
-        "src/com/android/car/audio/.*\\.java"
-      ]
+      "name": "CarServiceInputTest"
     },
     {
-      "name": "CarServicePowerTest",
-      "file_patterns": [
-        "src/com/android/car/power/.*\\.java"
-      ]
+      "name": "CarServiceOsTest"
     },
     {
-      "name": "CarServiceInputTest",
-      "file_patterns": [
-        "src/com/android/car/input/.*\\.java"
-      ]
+      "name": "CarServicePmTest"
     },
     {
-      "name": "CarServiceRemoteAccessTest",
-      "file_patterns": [
-        "src/com/android/car/remoteaccess/.*\\.java"
-      ]
+      "name": "CarServicePowerTest"
     },
     {
-      "name": "CarServiceGarageModeTest",
-      "file_patterns": [
-        "src/com/android/car/garagemode/.*\\.java"
-      ]
+      "name": "CarServicePropertyTest"
     },
     {
-      "name": "CarServiceOsTest",
-      "file_patterns": [
-        "src/com/android/car/os/.*\\.java"
-      ]
+      "name": "CarServiceRemoteAccessTest"
     },
     {
-      "name": "CarServiceClusterTest",
-      "file_patterns": [
-        "src/com/android/car/cluster/.*\\.java"
-      ]
+      "name": "CarServiceStorageMonitoringTest"
     },
     {
-      "name": "CarServiceWatchdogTest",
-      "file_patterns": [
-        "src/com/android/car/watchdog/.*\\.java"
-      ]
+      "name": "CarServiceTelemetryTest"
     },
     {
-      "name": "CarServicePmTest",
-      "file_patterns": [
-        "src/com/android/car/pm/.*\\.java"
-      ]
+      "name": "CarServiceVmsTest"
     },
     {
-      "name": "CarServiceEvsTest",
-      "file_patterns": [
-        "src/com/android/car/evs/.*\\.java"
-      ]
+      "name": "CarServiceWatchdogTest"
     }
   ]
 }

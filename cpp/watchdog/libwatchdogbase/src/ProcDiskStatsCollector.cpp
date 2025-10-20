@@ -14,7 +14,11 @@
  * limitations under the License.
  */
 
+#ifdef CARWATCHDOGD_BINARY
 #define LOG_TAG "carwatchdogd"
+#else
+#define LOG_TAG "iowatchdogd"
+#endif
 
 #include "ProcDiskStatsCollector.h"
 

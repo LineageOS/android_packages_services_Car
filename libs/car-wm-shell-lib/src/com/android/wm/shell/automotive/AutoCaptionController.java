@@ -17,6 +17,7 @@
 package com.android.wm.shell.automotive;
 
 import static com.android.window.flags.Flags.safeRegionLetterboxingV1;
+import static com.android.wm.shell.automotive.CarWmShellProtoLogGroups.CAR_WM_SHELL_CAPTION_CONTROLLER;
 
 import android.annotation.NonNull;
 import android.annotation.SuppressLint;
@@ -27,12 +28,11 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Rect;
-import android.util.Log;
 import android.util.SparseArray;
 import android.view.View;
 
 import com.android.internal.annotations.VisibleForTesting;
-import com.android.server.utils.Slogf;
+import com.android.internal.protolog.ProtoLog;
 import com.android.wm.shell.RootTaskDisplayAreaOrganizer;
 import com.android.wm.shell.ShellTaskOrganizer;
 import com.android.wm.shell.dagger.WMSingleton;
@@ -53,8 +53,6 @@ import javax.inject.Inject;
 @WMSingleton
 public class AutoCaptionController {
 
-    private static final String TAG = "AutoCaptionController";
-    private static final boolean DBG = Log.isLoggable(TAG, Log.DEBUG);
     private static final int DEFAULT_Z_INDEX_CAPTION_BAR = 100001;
     private static final String CAPTION_BAR_NAME_FORMAT = "AutoCaptionControllerBar:%d";
     private static final String TRANSACTION_NAME_FORMAT = "AutoCaptionControllerTransaction:%d";
@@ -149,19 +147,21 @@ public class AutoCaptionController {
         Objects.requireNonNull(autoCaptionBarViewFactory);
 
         if (!safeRegionLetterboxingV1()) {
-            Slogf.e(TAG, "safe_region_letterboxing_v1 TS flag is disabled.");
+            ProtoLog.e(CAR_WM_SHELL_CAPTION_CONTROLLER,
+                    "safe_region_letterboxing_v1 TS flag is disabled.");
             return;
         }
 
         // TODO (b/430955826): Ensure caption bar updates happen when changes occur.
         if (mCaptionRegionInfoPerRootTask.contains(rootTaskStack.getId())) {
-            Slogf.i(TAG,
+            ProtoLog.i(CAR_WM_SHELL_CAPTION_CONTROLLER,
                     "Root task already has a caption region. Updating it to new values. caption "
                             + "region [%s], root task stack [%d]",
-                    relativeCaptionRegion, rootTaskStack.getId());
+                    String.valueOf(relativeCaptionRegion), rootTaskStack.getId());
         } else {
-            Slogf.i(TAG, "Defining caption region [%s] for root task" + " stack %d",
-                    relativeCaptionRegion, rootTaskStack.getId());
+            ProtoLog.i(CAR_WM_SHELL_CAPTION_CONTROLLER, "Defining caption region [%s] for root task"
+                            + " stack %d",
+                    String.valueOf(relativeCaptionRegion), rootTaskStack.getId());
         }
 
         mCaptionRegionInfoPerRootTask.append(rootTaskStack.getId(),
@@ -178,11 +178,13 @@ public class AutoCaptionController {
         Objects.requireNonNull(rootTaskStack);
 
         if (!safeRegionLetterboxingV1()) {
-            Slogf.e(TAG, "safe_region_letterboxing_v1 TS flag is disabled.");
+            ProtoLog.e(CAR_WM_SHELL_CAPTION_CONTROLLER,
+                    "safe_region_letterboxing_v1 TS flag is disabled.");
             return;
         }
 
-        Slogf.i(TAG, "Removing caption region for root task stack %d",
+        ProtoLog.i(CAR_WM_SHELL_CAPTION_CONTROLLER,
+                "Removing caption region for root task stack %d",
                 rootTaskStack.getId());
 
         mCaptionRegionInfoPerRootTask.remove(rootTaskStack.getId());
@@ -207,19 +209,25 @@ public class AutoCaptionController {
         Objects.requireNonNull(autoCaptionBarViewFactory);
 
         if (!safeRegionLetterboxingV1()) {
-            Slogf.e(TAG, "safe_region_letterboxing_v1 TS flag is disabled.");
+            ProtoLog.e(CAR_WM_SHELL_CAPTION_CONTROLLER,
+                    "safe_region_letterboxing_v1 TS flag is disabled.");
             return;
         }
 
         if (mCaptionRegionInfoPerDisplay.contains(displayId)) {
-            Slogf.i(TAG, "Display already has a caption region. Updating it to new values. "
-                    + "caption region [%s] for display %d", captionRegion, displayId);
+            ProtoLog.i(CAR_WM_SHELL_CAPTION_CONTROLLER,
+                    "Display already has a caption region. Updating "
+                            + "it to new values. caption region [%s] for display %d",
+                    String.valueOf(captionRegion), displayId);
         } else {
-            Slogf.i(TAG, "Defining caption region [%s] for display %d", captionRegion, displayId);
+            ProtoLog.i(CAR_WM_SHELL_CAPTION_CONTROLLER,
+                    "Defining caption region [%s] for display %d",
+                    String.valueOf(captionRegion), displayId);
         }
 
         if (mRootTaskDisplayAreaOrganizer.getDisplayAreaInfo(displayId) == null) {
-            Slogf.e(TAG, "DisplayAreaInfo for Display [%d] is not available.", displayId);
+            ProtoLog.e(CAR_WM_SHELL_CAPTION_CONTROLLER, "DisplayAreaInfo for Display [%d] is not "
+                    + "available.", displayId);
             return;
         }
 
@@ -235,11 +243,13 @@ public class AutoCaptionController {
      */
     public void removeCaptionRegion(int displayId) {
         if (!safeRegionLetterboxingV1()) {
-            Slogf.e(TAG, "safe_region_letterboxing_v1 TS flag is disabled.");
+            ProtoLog.e(CAR_WM_SHELL_CAPTION_CONTROLLER,
+                    "safe_region_letterboxing_v1 TS flag is disabled.");
             return;
         }
 
-        Slogf.i(TAG, "Removing caption region for display %d", displayId);
+        ProtoLog.i(CAR_WM_SHELL_CAPTION_CONTROLLER, "Removing caption region for display %d",
+                displayId);
         mCaptionRegionInfoPerDisplay.remove(displayId);
     }
 
@@ -269,21 +279,20 @@ public class AutoCaptionController {
     /**
      * Attaches a caption bar to a task using the provided caption region information.
      *
-     * @param taskInfo       The running task information.
+     * @param taskInfo          The running task information.
      * @param captionRegionInfo The caption region information containing caption bar details.
      */
     private void attachCaptionBar(ActivityManager.RunningTaskInfo taskInfo,
             CaptionRegionInfo captionRegionInfo) {
         if (captionRegionInfo == null) {
-            if (DBG) {
-                Slogf.d(TAG, "Caption region is not provided for task %d", taskInfo.taskId);
-            }
+            ProtoLog.d(CAR_WM_SHELL_CAPTION_CONTROLLER,
+                    "Caption region is not provided for task %d",
+                    taskInfo.taskId);
             return;
         }
 
-        if (DBG) {
-            Slogf.d(TAG, "Adding caption to task. TaskId: %d", taskInfo.taskId);
-        }
+        ProtoLog.d(CAR_WM_SHELL_CAPTION_CONTROLLER, "Adding caption to task. TaskId: %d",
+                taskInfo.taskId);
 
         AutoCaptionBarViewFactory autoCaptionBarViewFactory =
                 captionRegionInfo.getAutoCaptionBarViewFactory();
@@ -291,7 +300,8 @@ public class AutoCaptionController {
         View captionView = autoCaptionBarViewFactory.createView(taskInfo);
 
         if (captionView == null) {
-            Slogf.e(TAG, "Caption view is not provided for task %d", taskInfo.taskId);
+            ProtoLog.e(CAR_WM_SHELL_CAPTION_CONTROLLER, "Caption view is not provided for task %d",
+                    taskInfo.taskId);
             return;
         }
 
@@ -308,15 +318,15 @@ public class AutoCaptionController {
     /**
      * Updates the visibility of the caption bar attached to a task
      *
-     * @param taskInfo   The running task information.
-     * @param visible to be updated.
+     * @param taskInfo The running task information.
+     * @param visible  to be updated.
      */
     void updateCaptionBarVisibility(ActivityManager.RunningTaskInfo taskInfo, boolean visible) {
         AutoDecor captionDecor = mTaskIdToCaptionBar.get(taskInfo.taskId);
-        if (DBG) {
-            Slogf.d(TAG, "updateCaptionBarVisibility. TaskId: %d, visible %b, captionDecor %s",
-                    taskInfo.taskId, visible, captionDecor);
-        }
+        ProtoLog.d(CAR_WM_SHELL_CAPTION_CONTROLLER,
+                "updateCaptionBarVisibility. TaskId: %d, visible %b, "
+                        + "captionDecor %s",
+                taskInfo.taskId, visible, String.valueOf(captionDecor));
 
         if (captionDecor != null) {
             String transactionName = String.format(TRANSACTION_NAME_FORMAT, taskInfo.taskId);
@@ -344,8 +354,9 @@ public class AutoCaptionController {
                 addCaptionBar(rootTaskStack, taskInfo);
             } else {
                 // Should not happen
-                Slogf.e(TAG, "updateCaptionBarVisibility. RootTaskStack is null. TaskId: %d",
-                        taskInfo.taskId);
+                ProtoLog.e(CAR_WM_SHELL_CAPTION_CONTROLLER,
+                        "updateCaptionBarVisibility. RootTaskStack is "
+                                + "null. TaskId: %d", taskInfo.taskId);
             }
         }
     }
@@ -361,9 +372,7 @@ public class AutoCaptionController {
         if (captionDecor != null) {
             mAutoDecorManager.removeAutoDecor(captionDecor);
         }
-        if (DBG) {
-            Slogf.d(TAG, "Caption removed. TaskId: %d", taskInfo.taskId);
-        }
+        ProtoLog.d(CAR_WM_SHELL_CAPTION_CONTROLLER, "Caption removed. TaskId: %d", taskInfo.taskId);
     }
 
     private void handleCaptionBarOnTaskAppeared(RootTaskStack rootTaskStack,
@@ -394,21 +403,21 @@ public class AutoCaptionController {
     @SuppressLint("MissingPermission")
     private boolean requiresCaptionBar(ActivityManager.RunningTaskInfo task) {
         if (!safeRegionLetterboxingV1()) {
-            Slogf.i(TAG, "safe_region_letterboxing_v1 TS flag is disabled.");
+            ProtoLog.i(CAR_WM_SHELL_CAPTION_CONTROLLER,
+                    "safe_region_letterboxing_v1 TS flag is disabled.");
             return false;
         }
 
         if (!mIsCarReady) {
-            Slogf.i(TAG, "Car Service is not yet connected.");
+            ProtoLog.i(CAR_WM_SHELL_CAPTION_CONTROLLER, "Car Service is not yet connected.");
             return false;
         }
 
         try {
             ComponentName componentName = task.topActivity;
             if (componentName == null) {
-                if (DBG) {
-                    Slogf.d(TAG, "componentName is null. TaskId: %d", task.taskId);
-                }
+                ProtoLog.d(CAR_WM_SHELL_CAPTION_CONTROLLER, "componentName is null. TaskId: %d",
+                        task.taskId);
                 return false;
             }
 
@@ -419,20 +428,19 @@ public class AutoCaptionController {
             boolean isTopActivitySafeRegionLetterboxed =
                     task.appCompatTaskInfo.isTopActivitySafeRegionLetterboxed();
 
-            if (DBG) {
-                Slogf.d(TAG,
-                        "Task id %d requires DisplayCompat %b, top activity safe region "
-                                + "letterboxed %b, for user %d and top activity: %s",
-                        task.taskId, requiresDisplayCompat, isTopActivitySafeRegionLetterboxed,
-                        task.userId, componentName);
-            }
+            ProtoLog.d(CAR_WM_SHELL_CAPTION_CONTROLLER,
+                    "Task id %d requires DisplayCompat %b, top activity safe region "
+                            + "letterboxed %b, for user %d and top activity: %s",
+                    task.taskId, requiresDisplayCompat, isTopActivitySafeRegionLetterboxed,
+                    task.userId, String.valueOf(componentName));
 
             if (requiresDisplayCompat && isTopActivitySafeRegionLetterboxed) {
                 return true;
             }
         } catch (PackageManager.NameNotFoundException e) {
-            Slogf.e(TAG, "Package name found. TaskId %d. PackageName: %s", task.getTaskId(),
-                    task.topActivity.getPackageName());
+            ProtoLog.e(CAR_WM_SHELL_CAPTION_CONTROLLER,
+                    "Package name not found. TaskId %d. PackageName: %s",
+                    task.getTaskId(), task.topActivity.getPackageName());
         }
         return false;
     }

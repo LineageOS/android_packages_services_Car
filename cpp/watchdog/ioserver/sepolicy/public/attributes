@@ -1,0 +1,3 @@
+# All I/O watchdog clients
+attribute iowatchdogclient_domain;
+expandattribute iowatchdogclient_domain true;

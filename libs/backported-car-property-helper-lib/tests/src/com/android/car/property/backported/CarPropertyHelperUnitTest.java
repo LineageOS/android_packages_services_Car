@@ -20,8 +20,6 @@ import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 import static android.car.VehiclePropertyIds.LOCATION_CHARACTERIZATION;
 import static android.car.hardware.property.VehicleVendorPermission.PERMISSION_GET_CAR_VENDOR_CATEGORY_INFO;
 
-import static com.android.dx.mockito.inline.extended.ExtendedMockito.mockitoSession;
-
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.mockito.Mockito.when;
@@ -29,22 +27,17 @@ import static org.mockito.Mockito.when;
 import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.property.CarPropertyManager;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.MockitoSession;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.mockito.quality.Strictness;
 
 @RunWith(MockitoJUnitRunner.class)
 public final class CarPropertyHelperUnitTest {
 
-    private static final int VENDOR_LOCATION_CHARACTERIZATION = 0x31400c10;
+    private static final int BACKPORTED_LOCATION_CHARACTERIZATION = 0x31400c10;
     private static final String PROPERTY_NAME = "LOCATION_CHARACTERIZATION";
-
-    private MockitoSession mMockitoSession;
 
     @Mock
     private CarPropertyManager mMockCarPropertyManager;
@@ -56,16 +49,7 @@ public final class CarPropertyHelperUnitTest {
 
     @Before
     public void setUp() {
-        mMockitoSession = mockitoSession()
-            .strictness(Strictness.LENIENT)
-            .initMocks(this)
-            .startMocking();
         mCarPropertyHelper = new CarPropertyHelper(mMockCarPropertyManager);
-    }
-
-    @After
-    public void tearDown() {
-        mMockitoSession.finishMocking();
     }
 
     @Test
@@ -78,21 +62,21 @@ public final class CarPropertyHelperUnitTest {
     }
 
     @Test
-    public void testGetPropertyId_vendorPropertyIdSupported() {
+    public void testGetPropertyId_backportedPropertyIdSupported() {
         when(mMockCarPropertyManager.getCarPropertyConfig(LOCATION_CHARACTERIZATION))
                 .thenReturn(null);
-        when(mMockCarPropertyManager.getCarPropertyConfig(VENDOR_LOCATION_CHARACTERIZATION))
+        when(mMockCarPropertyManager.getCarPropertyConfig(BACKPORTED_LOCATION_CHARACTERIZATION))
                 .thenReturn(mMockCarPropertyConfig);
 
         assertThat(mCarPropertyHelper.getPropertyId(PROPERTY_NAME))
-                .isEqualTo(VENDOR_LOCATION_CHARACTERIZATION);
+                .isEqualTo(BACKPORTED_LOCATION_CHARACTERIZATION);
     }
 
     @Test
-    public void testGetPropertyId_vendorPropertyNotSupported() {
+    public void testGetPropertyId_backportedPropertyIdNotSupported() {
         when(mMockCarPropertyManager.getCarPropertyConfig(LOCATION_CHARACTERIZATION))
                 .thenReturn(null);
-        when(mMockCarPropertyManager.getCarPropertyConfig(VENDOR_LOCATION_CHARACTERIZATION))
+        when(mMockCarPropertyManager.getCarPropertyConfig(BACKPORTED_LOCATION_CHARACTERIZATION))
                 .thenReturn(null);
 
         assertThat(mCarPropertyHelper.getPropertyId(PROPERTY_NAME)).isNull();
@@ -104,7 +88,7 @@ public final class CarPropertyHelperUnitTest {
     }
 
     @Test
-    public void testGetReadPermissions_systemPermission() {
+    public void testGetReadPermissions_systemPropertyId_systemReadPermission() {
         when(mMockCarPropertyManager.getCarPropertyConfig(LOCATION_CHARACTERIZATION))
                 .thenReturn(mMockCarPropertyConfig);
 
@@ -113,10 +97,10 @@ public final class CarPropertyHelperUnitTest {
     }
 
     @Test
-    public void testGetReadPermissions_vendorPermission() {
+    public void testGetReadPermissions_backportedPropertyId_vendorReadPermission() {
         when(mMockCarPropertyManager.getCarPropertyConfig(LOCATION_CHARACTERIZATION))
                 .thenReturn(null);
-        when(mMockCarPropertyManager.getCarPropertyConfig(VENDOR_LOCATION_CHARACTERIZATION))
+        when(mMockCarPropertyManager.getCarPropertyConfig(BACKPORTED_LOCATION_CHARACTERIZATION))
                 .thenReturn(mMockCarPropertyConfig);
 
         assertThat(mCarPropertyHelper.getReadPermission(PROPERTY_NAME))
@@ -124,7 +108,7 @@ public final class CarPropertyHelperUnitTest {
     }
 
     @Test
-    public void testGetWritePermissions_onlyReadable() {
+    public void testGetWritePermissions_notWritable() {
         when(mMockCarPropertyManager.getCarPropertyConfig(LOCATION_CHARACTERIZATION))
                 .thenReturn(mMockCarPropertyConfig);
 

@@ -1,0 +1,4 @@
+# I/O watchdog server for public services
+android.automotive.watchdog.ICarWatchdog/default  u:object_r:iowatchdogd_service:s0
+# I/O watchdog server for system services
+android.automotive.watchdog.internal.ICarWatchdog/default u:object_r:iowatchdogd_service:s0

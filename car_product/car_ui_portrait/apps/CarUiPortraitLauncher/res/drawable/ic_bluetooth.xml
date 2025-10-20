@@ -22,6 +22,6 @@
         android:viewportHeight="48">
     <path
         android:pathData="M35.42,15.42L24,4H22V19.18L12.82,10L10,12.82L21.18,24L10,35.18L12.82,38L22,28.82V44H24L35.42,32.58L26.82,24L35.42,15.42ZM26,11.66L29.76,15.42L26,19.18V11.66ZM26,36.34L29.76,32.58L26,28.82V36.34ZM10,27C11.657,27 13,25.657 13,24C13,22.343 11.657,21 10,21C8.343,21 7,22.343 7,24C7,25.657 8.343,27 10,27ZM41,24C41,25.657 39.657,27 38,27C36.343,27 35,25.657 35,24C35,22.343 36.343,21 38,21C39.657,21 41,22.343 41,24Z"
-        android:fillColor="@color/car_on_surface"
+        android:fillColor="?attr/oemColorOnSurface"
         android:fillType="evenOdd"/>
 </vector>

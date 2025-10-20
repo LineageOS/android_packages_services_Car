@@ -18,24 +18,24 @@
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
     <item>
         <shape>
-            <solid android:color="@color/car_panel_border"/>
-            <corners android:topLeftRadius="@dimen/corner_radius"
-                android:topRightRadius="@dimen/corner_radius"
+            <solid android:color="?attr/oemColorOnSurface"/>
+            <corners android:topLeftRadius="?attr/oemShapeCornerExtraLarge"
+                android:topRightRadius="?attr/oemShapeCornerExtraLarge"
                 android:bottomLeftRadius="0dp" android:bottomRightRadius="0dp"/>
         </shape>
     </item>
     <item android:top="@dimen/car_panel_border_width">
         <shape>
-            <solid android:color="@color/car_background"/>
-            <corners android:topLeftRadius="@dimen/corner_radius"
-                android:topRightRadius="@dimen/corner_radius"
+            <solid android:color="?oemColorSurface"/>
+            <corners android:topLeftRadius="?attr/oemShapeCornerExtraLarge"
+                android:topRightRadius="?attr/oemShapeCornerExtraLarge"
                 android:bottomLeftRadius="0dp" android:bottomRightRadius="0dp"/>
         </shape>
     </item>
     <item android:height="@dimen/grip_bar_height" android:width="@dimen/grip_bar_width"
         android:gravity="center">
         <shape>
-            <solid android:color="@color/car_surface_variant"/>
+            <solid android:color="?attr/oemColorSurfaceVariant"/>
         </shape>
     </item>
 </layer-list>

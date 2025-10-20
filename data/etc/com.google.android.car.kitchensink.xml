@@ -21,6 +21,7 @@
         <permission name="android.permission.ACTIVITY_EMBEDDING"/>
         <permission name="android.permission.BACKUP"/>
         <permission name="android.permission.BLUETOOTH_PRIVILEGED"/>
+        <permission name="android.permission.EXECUTE_APP_FUNCTIONS"/>
         <permission name="android.permission.INJECT_EVENTS"/>
         <!-- Use for App Sharing -->
         <permission name="android.permission.INSTALL_PACKAGES"/>
@@ -161,6 +162,7 @@
         <permission name="android.car.permission.GET_CAR_VENDOR_CATEGORY_10"/>
         <permission name="android.car.permission.SET_CAR_VENDOR_CATEGORY_10"/>
         <permission name="android.car.permission.READ_ULTRASONICS_SENSOR_DATA"/>
+        <permission name="android.car.permission.READ_PROPERTY_VENDOR_STATUS" />
 
         <!-- use for CarWatchdogReliabilityTest -->
         <permission name="android.car.permission.USE_CAR_WATCHDOG"/>
@@ -184,8 +186,10 @@
         <permission name="android.permission.SCHEDULE_EXACT_ALARM" />
         <!-- use for allowlisting automotive driver assistance packages from camera privacy -->
         <permission name="android.permission.CAMERA_PRIVACY_ALLOWLIST" />
-	<!-- use for Camera2 TestFragment -->
-	<permission name="android.permission.SYSTEM_CAMERA"/>
-	<permission name="android.permission.BIND_APPWIDGET"/>
+        <!-- use for Camera2 TestFragment -->
+        <permission name="android.permission.SYSTEM_CAMERA"/>
+        <permission name="android.permission.BIND_APPWIDGET"/>
+        <!-- use for PerfettoController -->
+        <permission name="android.permission.PACKAGE_USAGE_STATS"/>
     </privapp-permissions>
 </permissions>

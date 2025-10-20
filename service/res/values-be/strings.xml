@@ -262,6 +262,8 @@
     <string name="car_permission_desc_inject_vehicle_properties" msgid="2616112105084870775">"дадаваць уласцівасці аўтамабіля"</string>
     <string name="car_permission_label_read_property_vendor_status" msgid="2894773112281568618">"счытваць стан аб’екта ад пастаўшчыка"</string>
     <string name="car_permission_desc_read_property_vendor_status" msgid="7456031169256863531">"счытваць стан аб’екта ад пастаўшчыка"</string>
+    <string name="car_permission_label_read_property_vendor_error_code" msgid="9161295062734171179">"счытваць код памылкі аб’екта ад пастаўшчыка"</string>
+    <string name="car_permission_desc_read_property_vendor_error_code" msgid="4243058153289166218">"счытваць код памылкі аб’екта ад пастаўшчыка"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN-шына парушана"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN-шына не адказвае. Перападключыце канектар, а затым выключыце запальванне і паўторна завядзіце аўтамабіль"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"Мая прылада"</string>

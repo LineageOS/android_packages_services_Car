@@ -71,6 +71,7 @@ std::tuple<int64_t, int64_t> calculateStartAndDuration(const time_point_millis& 
  * IoOveruseMonitorInterface interface defines the methods that the I/O overuse monitoring module
  * should implement.
  */
+// TODO(b/439660763): Rename IoOveruseMonitor to IoOveruseMonitorBase
 class IoOveruseMonitorInterface : virtual public RefBase {
 public:
     // Returns the name of IoOveruseMonitor.
@@ -140,12 +141,14 @@ public:
     // TODO(b/433290487): Implement onDump and onDumpProto to dump resource
     // overuse configurations, the latest I/O usage stats, and the list of
     // registered I/O overuse listeners.
+    virtual android::base::Result<void> onDump(int fd) const = 0;
 };
 
-class IoOveruseMonitor final : public IoOveruseMonitorInterface {
+class IoOveruseMonitor : public IoOveruseMonitorInterface {
 public:
     explicit IoOveruseMonitor(
             const android::sp<WatchdogServiceHelperBaseInterface>& watchdogServiceHelperBase,
+            const std::shared_ptr<PackageInfoResolverInterface>& packageInfoResolver,
             AIBinder_DeathRecipient* binderRecipient = nullptr);
 
     ~IoOveruseMonitor() { terminate(); }
@@ -206,6 +209,8 @@ public:
     void removeStatsForUser(userid_t userId) override;
 
     void terminate() override;
+
+    android::base::Result<void> onDump([[maybe_unused]] int fd) const override { return {}; }
 
 protected:
     android::base::Result<void> init();

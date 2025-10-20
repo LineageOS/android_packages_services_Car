@@ -18,11 +18,82 @@ package {
     default_applicable_licenses: ["Android-Apache-2.0"],
 }
 
+// Begin ProtoLog
+java_library {
+    name: "car_wm_shell_protolog-groups",
+    srcs: [
+        "src/com/android/wm/shell/automotive/CarWmShellProtoLogGroups.java",
+    ],
+    static_libs: [
+        "protolog-common-lib",
+    ],
+}
+
+filegroup {
+    name: "car_wm_shell-sources",
+    srcs: [
+        "src/**/*.java",
+    ],
+    path: "src",
+}
+
+// TODO(b/168581922) protologtool do not support kotlin(*.kt)
+filegroup {
+    name: "car_wm_shell-sources-kt",
+    srcs: [
+        "src/**/*.kt",
+    ],
+    path: "src",
+}
+
+java_genrule {
+    name: "car_wm_shell_protolog_src",
+    srcs: [
+        ":protolog-impl",
+        ":car_wm_shell-sources",
+        ":car_wm_shell_protolog-groups",
+    ],
+    tools: ["protologtool"],
+    cmd: "$(location protologtool) transform-protolog-calls " +
+        "--protolog-class com.android.internal.protolog.ProtoLog " +
+        "--loggroups-class com.android.wm.shell.automotive.CarWmShellProtoLogGroups " +
+        "--loggroups-jar $(location :car_wm_shell_protolog-groups) " +
+        "--viewer-config-file-path /system_ext/etc/carwmshell.protolog.pb " +
+        "--output-srcjar $(out) " +
+        "$(locations :car_wm_shell-sources)",
+    out: ["car_wm_shell_protolog.srcjar"],
+}
+
+java_genrule {
+    name: "gen-carwmshell.protolog.pb",
+    srcs: [
+        ":car_wm_shell-sources",
+        ":car_wm_shell_protolog-groups",
+    ],
+    tools: ["protologtool"],
+    cmd: "$(location protologtool) generate-viewer-config " +
+        "--protolog-class com.android.internal.protolog.ProtoLog " +
+        "--loggroups-class com.android.wm.shell.automotive.CarWmShellProtoLogGroups " +
+        "--loggroups-jar $(location :car_wm_shell_protolog-groups) " +
+        "--viewer-config $(out) " +
+        "$(locations :car_wm_shell-sources)",
+    out: ["carwmshell.protolog.pb"],
+}
+
+prebuilt_etc {
+    name: "carwmshell.protolog.pb",
+    system_ext_specific: true,
+    src: ":gen-carwmshell.protolog.pb",
+    filename_from_src: true,
+}
+
+// End ProtoLog
+
 android_library {
     name: "Car-WindowManager-Shell",
     srcs: [
-        "src/**/*.kt",
-        "src/**/*.java",
+        ":car_wm_shell-sources-kt",
+        ":car_wm_shell_protolog_src",
     ],
     static_libs: [
         "Slogf",

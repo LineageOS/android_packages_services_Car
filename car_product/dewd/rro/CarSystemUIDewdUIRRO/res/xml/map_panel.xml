@@ -13,7 +13,7 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-  <Panel id="map_panel" defaultVariant="@id/opened" role="@array/nav_components" displayId="0">
+  <TaskPanel id="map_panel" defaultVariant="@id/opened" role="@array/nav_components" displayId="0">
     <Variant id="@+id/map_base">
         <Layer layer="@integer/map_panel_layer"/>
     </Variant>
@@ -29,4 +29,4 @@
     <Transitions>
         <Transition onEvent="_System_OnHomeEvent" toVariant="@id/opened"/>
     </Transitions>
-</Panel>
+</TaskPanel>

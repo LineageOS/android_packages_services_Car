@@ -16,10 +16,16 @@ package {
     default_applicable_licenses: ["Android-Apache-2.0"],
 }
 
+android_library {
+    name: "GoogleCarUiBaseLib",
+    manifest: "AndroidManifest.xml",
+    resource_dirs: ["res"],
+}
+
 runtime_resource_overlay {
     name: "GoogleCarUiBase",
     manifest: "AndroidManifest.xml",
-    resource_dirs: ["res"],
+    static_libs: ["GoogleCarUiBaseLib"],
 }
 
 override_runtime_resource_overlay {

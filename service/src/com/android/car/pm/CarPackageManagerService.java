@@ -181,7 +181,10 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
     private final List<String> mAllowedAppInstallSources;
 
     @GuardedBy("mLock")
-    private final SparseArray<ComponentName> mTopActivityWithDialogPerDisplay = new SparseArray<>();
+    private final SparseArray<TaskInfo> mTopTaskWithDialogPerDisplay = new SparseArray<>();
+
+    @GuardedBy("mLock")
+    private final SparseArray<TaskInfo> mTaskWithDialogPerRootTask = new SparseArray<>();
 
     /**
      * Hold policy set from policy service or client.
@@ -209,6 +212,7 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
     private final CarUxRestrictionsManagerService mCarUxRestrictionsService;
     private final CarOccupantZoneService mCarOccupantZoneService;
     private final boolean mEnableActivityBlocking;
+    private final boolean mIsUsingAutoTaskStackWindowing;
 
     private final ComponentName mActivityBlockingActivity;
     // Memorize the target of ABA to defend bypassing it with launching two Activities continuously.
@@ -294,6 +298,8 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
                 res.getBoolean(R.bool.config_preventTemplatedAppsFromShowingDialog);
         mTemplateActivityClassName = res.getString(R.string.config_template_activity_class_name);
         mBlockingUiCommandListenerMediator = new BlockingUiCommandListenerMediator();
+        mIsUsingAutoTaskStackWindowing = context.getResources().getBoolean(
+                R.bool.config_isUsingAutoTaskStackWindowing);
     }
 
     @Override
@@ -451,20 +457,33 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
                 Slogf.d(TAG, "isActivityDistractionOptimized" + dumpPoliciesLocked(false));
             }
 
-            if (mTempAllowedActivities.contains(getComponentNameString(packageName,
-                    className))) {
+            if (mTempAllowedActivities.contains(getComponentNameString(packageName, className))) {
                 return true;
             }
 
-            for (int i = mTopActivityWithDialogPerDisplay.size() - 1; i >= 0; i--) {
-                ComponentName activityWithDialog = mTopActivityWithDialogPerDisplay.get(
-                        mTopActivityWithDialogPerDisplay.keyAt(i));
-                if (activityWithDialog.getClassName().equals(className)
-                        && activityWithDialog.getPackageName().equals(packageName)) {
-                    return false;
+            if (mIsUsingAutoTaskStackWindowing) {
+                for (int i = mTaskWithDialogPerRootTask.size() - 1; i >= 0; i--) {
+                    TaskInfo taskWithDialog = mTaskWithDialogPerRootTask.valueAt(i);
+                    if (taskWithDialog.topActivity.getClassName().equals(className)
+                            && taskWithDialog.topActivity.getPackageName().equals(packageName)) {
+                        if (DBG) {
+                            Slogf.d(TAG, "Found dialog in root task, blocking: %s", taskWithDialog);
+                        }
+                        return false;
+                    }
+                }
+            } else {
+                for (int i = mTopTaskWithDialogPerDisplay.size() - 1; i >= 0; i--) {
+                    TaskInfo taskWithDialog = mTopTaskWithDialogPerDisplay.valueAt(i);
+                    if (taskWithDialog.topActivity.getClassName().equals(className)
+                            && taskWithDialog.topActivity.getPackageName().equals(packageName)) {
+                        if (DBG) {
+                            Slogf.d(TAG, "Found dialog on display, blocking: %s", taskWithDialog);
+                        }
+                        return false;
+                    }
                 }
             }
-
             if (searchFromClientPolicyBlocklistsLocked(packageName)) {
                 return false;
             }
@@ -1480,13 +1499,7 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
     private boolean blockTopActivityIfNecessary(TaskInfo topTask) {
         int displayId = TaskInfoHelper.getDisplayId(topTask);
         synchronized (mLock) {
-            if (!Objects.equals(mActivityBlockingActivity, topTask.topActivity)
-                    && mTopActivityWithDialogPerDisplay.contains(displayId)
-                    && !topTask.topActivity.equals(
-                            mTopActivityWithDialogPerDisplay.get(displayId))) {
-                // Clear top activity-with-dialog if the activity has changed on this display.
-                mTopActivityWithDialogPerDisplay.remove(displayId);
-            }
+            clearDialogStateIfTopTaskChangedLocked(topTask);
         }
         if (isUxRestrictedOnDisplay(displayId)) {
             return doBlockTopActivityIfNotAllowed(displayId, topTask);
@@ -1502,16 +1515,38 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
     private boolean blockTopActivity(TaskInfo topTask) {
         int displayId = TaskInfoHelper.getDisplayId(topTask);
         synchronized (mLock) {
-            if (!Objects.equals(mActivityBlockingActivity, topTask.topActivity)
-                    && mTopActivityWithDialogPerDisplay.contains(displayId)
-                    && !topTask.topActivity.equals(
-                            mTopActivityWithDialogPerDisplay.get(displayId))) {
-                // Clear top activity-with-dialog if the activity has changed on this display.
-                mTopActivityWithDialogPerDisplay.remove(displayId);
-            }
+            clearDialogStateIfTopTaskChangedLocked(topTask);
+        }
+        return doBlockTopActivityIfNotAllowed(displayId, topTask);
+    }
+
+    @GuardedBy("mLock")
+    private void clearDialogStateIfTopTaskChangedLocked(TaskInfo topTask) {
+        if (Objects.equals(mActivityBlockingActivity, topTask.topActivity)) {
+            return;
         }
 
-        return doBlockTopActivityIfNotAllowed(displayId, topTask);
+        if (mIsUsingAutoTaskStackWindowing) {
+            int rootTaskId = TaskInfoHelper.geParentTaskId(topTask);
+            TaskInfo taskWithDialog = mTaskWithDialogPerRootTask.get(rootTaskId);
+            if (taskWithDialog != null && taskWithDialog.taskId != topTask.taskId) {
+                if (DBG) {
+                    Slogf.d(TAG, "Top task changed, removing dialog state for root task %d",
+                            rootTaskId);
+                }
+                mTaskWithDialogPerRootTask.remove(rootTaskId);
+            }
+        } else {
+            int displayId = TaskInfoHelper.getDisplayId(topTask);
+            TaskInfo taskWithDialog = mTopTaskWithDialogPerDisplay.get(displayId);
+            if (taskWithDialog != null && taskWithDialog.taskId != topTask.taskId) {
+                if (DBG) {
+                    Slogf.d(TAG, "Top task changed, removing dialog state for display %d",
+                            displayId);
+                }
+                mTopTaskWithDialogPerDisplay.remove(displayId);
+            }
+        }
     }
 
     /**
@@ -1587,7 +1622,7 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
         }
         return !(mPreventTemplatedAppsFromShowingDialog
                 && isTemplateActivity(activityName)
-                && isActivityShowingADialogOnDisplay(activityName,
+                && isActivityShowingADialogOnDisplay(topTaskInfoContainer,
                         TaskInfoHelper.getDisplayId(topTaskInfoContainer)));
     }
 
@@ -1596,10 +1631,10 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
         return activityName.getClassName().equals(mTemplateActivityClassName);
     }
 
-    private boolean isActivityShowingADialogOnDisplay(ComponentName activityName, int displayId) {
+    private boolean isActivityShowingADialogOnDisplay(TaskInfo topTask, int displayId) {
         String output = dumpWindows();
         List<WindowDumpParser.Window> appWindows =
-                WindowDumpParser.getParsedAppWindows(output, activityName.getPackageName());
+                WindowDumpParser.getParsedAppWindows(output, topTask.topActivity.getPackageName());
         // TODO(b/192354699): Handle case where an activity can have multiple instances on the same
         //  display.
         int totalAppWindows = appWindows.size();
@@ -1620,14 +1655,20 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
                 numTopActivityAppWindowsOnDisplay++;
             }
         }
-        Slogf.d(TAG, "Top activity =  " + activityName);
+        Slogf.d(TAG, "Top activity =  " + topTask.topActivity);
         Slogf.d(TAG, "Number of app widows of top activity = " + numTopActivityAppWindowsOnDisplay);
         boolean isShowingADialog = numTopActivityAppWindowsOnDisplay > 1;
         synchronized (mLock) {
             if (isShowingADialog) {
-                mTopActivityWithDialogPerDisplay.put(displayId, activityName);
+                mTopTaskWithDialogPerDisplay.put(displayId, topTask);
+                if (mIsUsingAutoTaskStackWindowing) {
+                    mTaskWithDialogPerRootTask.put(TaskInfoHelper.geParentTaskId(topTask), topTask);
+                }
             } else {
-                mTopActivityWithDialogPerDisplay.remove(displayId);
+                mTopTaskWithDialogPerDisplay.remove(displayId);
+                if (mIsUsingAutoTaskStackWindowing) {
+                    mTaskWithDialogPerRootTask.remove(TaskInfoHelper.geParentTaskId(topTask));
+                }
             }
         }
         return isShowingADialog;
@@ -1771,16 +1812,8 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
 
     @Override
     public boolean requiresDisplayCompat(String packageName) {
-        if (!callerCanQueryPackage(packageName)) {
-            throw new SecurityException("requires permission " + QUERY_ALL_PACKAGES);
-        }
-        int callingUid = Binder.getCallingUid();
-        if (!hasPermissionGranted(PERMISSION_MANAGE_DISPLAY_COMPATIBILITY, callingUid)) {
-            throw new SecurityException("requires permission "
-                    + PERMISSION_MANAGE_DISPLAY_COMPATIBILITY);
-        }
-        return CarServiceHelperWrapper.getInstance().requiresDisplayCompat(
-                Objects.requireNonNull(packageName, "packageName cannot be Null"));
+        return requiresDisplayCompatForUser(packageName,
+                Binder.getCallingUserHandle().getIdentifier());
     }
 
     @Override

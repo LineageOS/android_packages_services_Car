@@ -16,6 +16,7 @@
 <overlay>
     <item target="array/nav_components" value="@array/nav_components"/>
     <item target="array/window_states" value="@array/window_states"/>
+    <item target="array/window_states_enable_ext_panel_updates" value="@array/window_states_enable_ext_panel_updates"/>
     <item target="array/config_untrimmable_activities" value="@array/config_untrimmable_activities"/>
     <item target="array/config_default_activities" value="@array/config_default_activities"/>
     <item target="array/config_packagesExcludedFromDock" value="@array/config_packagesExcludedFromDock"/>
@@ -127,7 +128,6 @@
     <item target="id/title" value="@id/title" />
     <item target="id/customized_view_container" value="@id/customized_view_container" />
 
-    <item target="integer/config_systemBarPersistency" value="@integer/config_systemBarPersistency" />
     <item target="integer/config_systemBarSuwBehavior" value="@integer/config_systemBarSuwBehavior" />
 
     <item target="layout/text_toast" value="@layout/text_toast"/>
@@ -138,7 +138,9 @@
 
     <item target="string/system_bar_app_drawer_intent" value="@string/system_bar_app_drawer_intent" />
     <item target="string/appgrid_componentName" value="@string/appgrid_componentName"/>
-    <item target="string/contextual_bar_component" value="@string/contextual_bar_component"/>
+    <item target="string/widget_component" value="@string/widget_component"/>
     <item target="string/default_config" value="@string/default_config"/>
     <item target="string/config_appGridComponentName" value="@string/config_appGridComponentName"/>
+
+    <item target="string/config_privacyIndicatorLocation_enable_ext_panel_updates" value="@string/config_privacyIndicatorLocation_enable_ext_panel_updates" />
 </overlay>

@@ -33,9 +33,9 @@ android_library {
         "car-ui-lib",
         "CarLauncher-core",
         "WindowManager-Shell",
-        "car-portrait-ui-common",
         "car-media-common",
         "oem-token-lib",
+        "CarUiPortraitService"
     ],
 
     libs: [

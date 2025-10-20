@@ -124,6 +124,8 @@ cc_library {
 cc_library {
     name: "libwatchdogbase_service_helper",
     srcs: [
+        "src/WatchdogBinderMediatorBase.cpp",
+        "src/WatchdogInternalHandlerBase.cpp",
         "src/WatchdogServiceHelperBase.cpp",
     ],
     defaults: [
@@ -227,6 +229,8 @@ cc_test {
         "tests/ProcDiskStatsCollectorTest.cpp",
         "tests/UidIoStatsCollectorTest.cpp",
         "tests/UidStatsCollectorBaseTest.cpp",
+        "tests/WatchdogBinderMediatorBaseTest.cpp",
+        "tests/WatchdogInternalHandlerBaseTest.cpp",
         "tests/WatchdogPerfServiceBaseTest.cpp",
         "tests/WatchdogServiceHelperBaseTest.cpp",
     ],
@@ -268,13 +272,13 @@ cc_library {
 }
 
 prebuilt_etc {
-    name: "pilot_system_resource_overuse_configuration.xml",
+    name: "system_resource_overuse_configuration.xml",
     src: "data/system_resource_overuse_configuration.xml",
     sub_dir: "automotive/watchdog/",
 }
 
 prebuilt_etc {
-    name: "pilot_third_party_resource_overuse_configuration.xml",
+    name: "third_party_resource_overuse_configuration.xml",
     src: "data/third_party_resource_overuse_configuration.xml",
     sub_dir: "automotive/watchdog/",
 }

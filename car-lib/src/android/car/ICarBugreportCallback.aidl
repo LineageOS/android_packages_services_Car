@@ -18,7 +18,7 @@ package android.car;
 
 /**
   * Callback for carbugreport service
-  * {@hide}
+  * @hide
   */
 oneway interface ICarBugreportCallback {
 

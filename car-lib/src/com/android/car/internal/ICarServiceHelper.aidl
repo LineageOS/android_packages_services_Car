@@ -96,9 +96,7 @@ interface ICarServiceHelper {
     void setPersistentActivitiesOnRootTask(in List<ComponentName> activity,
         in IBinder rootTaskToken) = 14;
 
-    /**
-     * Returns true if the given package requires launching in automotive compatibility mode.
-     */
+    /** @deprecated use requiresDisplayCompatForUser() instead */
     boolean requiresDisplayCompat(String packageName) = 15;
 
     /**
@@ -118,12 +116,17 @@ interface ICarServiceHelper {
     boolean requiresDisplayCompatForUser(String packageName, int userId) = 18;
 
     /**
-    * Reports that a Root Task is created.
-    */
+     * Reports that a Root Task is created.
+     */
     void onRootTaskAppeared(String name, in IBinder rootTaskToken) = 19;
 
     /**
-    * Reports that a Root Task has vanished.
-    */
+     * Reports that a Root Task has vanished.
+     */
     void onRootTaskVanished(String name) = 20;
+
+    /**
+     * Sets the launch behavior for a Root Task.
+     */
+    void setLaunchBehaviorForRootTask(in IBinder rootTaskToken, int behavior) = 21;
 }

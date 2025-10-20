@@ -20,6 +20,8 @@
 -->
 <resources>
     <style name="Theme.DeviceDefaultBaseCar" parent="*android:Theme.DeviceDefaultBase">
+        <item name="android:windowBackgroundFallback">?oemColorSurface</item>
+        <item name="android:windowBackground">?oemColorSurface</item>
         <item name="android:borderlessButtonStyle">@*android:style/Widget.DeviceDefault.Button.Borderless.Colored</item>
         <item name="android:buttonBarButtonStyle">@*android:style/Widget.DeviceDefault.Button.ButtonBar.AlertDialog</item>
         <item name="android:buttonStyle">@*android:style/Widget.DeviceDefault.Button</item>

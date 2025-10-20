@@ -54,6 +54,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.ref.WeakReference;
 import java.util.Objects;
 import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
@@ -482,6 +483,7 @@ public final class CarEvsManager extends CarManagerBase {
         private final Semaphore mStreamEventOccurred = new Semaphore(/* permits= */ 0);
         private final SparseIntArray mLastStreamEvent = new SparseIntArray();
         private final Object mLock = new Object();
+        private final Executor mEventExecutor = Executors.newSingleThreadExecutor();
 
         CarEvsStreamListenerToService(CarEvsManager manager) {
             mManager = new WeakReference<>(manager);
@@ -499,20 +501,24 @@ public final class CarEvsManager extends CarManagerBase {
                 mStreamEventOccurred.release();
             }
 
-            CarEvsManager manager = mManager.get();
-            if (manager != null) {
-                manager.handleStreamEvent(origin, event);
-            }
+            mEventExecutor.execute(() -> {
+                CarEvsManager manager = mManager.get();
+                if (manager != null) {
+                    manager.handleStreamEvent(origin, event);
+                }
+            });
             Trace.asyncTraceEnd(TraceHelper.TRACE_TAG_CAR_EVS_SERVICE,
                     "CarEvsManager#onStreamEvent", origin);
         }
 
         @Override
         public void onNewFrame(CarEvsBufferDescriptor buffer) {
-            CarEvsManager manager = mManager.get();
-            if (manager != null) {
-                manager.handleNewFrame(buffer);
-            }
+            mEventExecutor.execute(() -> {
+                CarEvsManager manager = mManager.get();
+                if (manager != null) {
+                    manager.handleNewFrame(buffer);
+                }
+            });
         }
 
         public boolean waitForStreamEvent(@CarEvsServiceType int from,

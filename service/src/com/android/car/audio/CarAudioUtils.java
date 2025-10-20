@@ -16,6 +16,7 @@
 
 package com.android.car.audio;
 
+import static android.media.AudioAttributes.USAGE_UNKNOWN;
 import static android.media.AudioDeviceInfo.TYPE_AUX_LINE;
 import static android.media.AudioDeviceInfo.TYPE_BLE_BROADCAST;
 import static android.media.AudioDeviceInfo.TYPE_BLE_HEADSET;
@@ -35,6 +36,7 @@ import static android.media.AudioManager.GET_DEVICES_OUTPUTS;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.PRIVATE_CONSTRUCTOR;
 
 import android.annotation.Nullable;
+import android.car.builtin.media.AudioManagerHelper;
 import android.car.media.CarAudioZoneConfigInfo;
 import android.car.media.CarVolumeGroupEvent;
 import android.car.media.CarVolumeGroupInfo;
@@ -44,8 +46,10 @@ import android.media.AudioDeviceInfo;
 import android.media.AudioManager;
 import android.text.TextUtils;
 import android.util.ArrayMap;
+import android.util.ArraySet;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
+import com.android.car.internal.util.ConstantDebugUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -59,10 +63,10 @@ final class CarAudioUtils {
             CarActivationVolumeConfig.ACTIVATION_VOLUME_ON_BOOT
                     | CarActivationVolumeConfig.ACTIVATION_VOLUME_ON_SOURCE_CHANGED
                     | CarActivationVolumeConfig.ACTIVATION_VOLUME_ON_PLAYBACK_CHANGED;
-
     static final CarActivationVolumeConfig DEFAULT_ACTIVATION_VOLUME =
             new CarActivationVolumeConfig(ACTIVATION_VOLUME_INVOCATION_TYPE,
                     ACTIVATION_VOLUME_PERCENTAGE_MIN, ACTIVATION_VOLUME_PERCENTAGE_MAX);
+    private static final String USAGE_UNKNOWN_STRING = "USAGE_UNKNOWN";
 
     @ExcludeFromCodeCoverageGeneratedReport(reason = PRIVATE_CONSTRUCTOR)
     private CarAudioUtils() {
@@ -85,8 +89,8 @@ final class CarAudioUtils {
     }
 
     static CarVolumeGroupEvent convertVolumeChangesToEvents(List<CarVolumeGroupInfo> infoList,
-                                                            int eventTypes,
-                                                            List<Integer> extraInfos) {
+            int eventTypes,
+            List<Integer> extraInfos) {
         return new CarVolumeGroupEvent.Builder(infoList, eventTypes, extraInfos).build();
     }
 
@@ -222,6 +226,105 @@ final class CarAudioUtils {
             return true;
         }
         return false;
+    }
+
+    /**
+     * Gets audio attribute usages from strings.
+     *
+     * @param usageStrings array of audio attribute usage strings
+     * @return unique set of audio attribute usages
+     */
+    static List<AudioAttributes> getAudioAttributesForUsages(String[] usageStrings) {
+        if (usageStrings == null || usageStrings.length == 0) {
+            return new ArrayList<>();
+        }
+        ArraySet<AudioAttributes> attributes = new ArraySet<>(usageStrings.length);
+        for (String usageString : usageStrings) {
+            if (USAGE_UNKNOWN_STRING.equals(usageString)) {
+                attributes.add(CarAudioContext.getAudioAttributeFromUsage(USAGE_UNKNOWN));
+                continue;
+            }
+            Integer usageValue = ConstantDebugUtils.toValue(AudioAttributes.class, usageString);
+            if (usageValue == null) {
+                throw new IllegalArgumentException("Invalid usage: " + usageString);
+            }
+            attributes.add(CarAudioContext.getAudioAttributeFromUsage(usageValue));
+        }
+        return new ArrayList<>(attributes);
+    }
+
+    static List<AudioAttributes> parseAudioAttributes(String[] audioAttributesStrings) {
+        if (audioAttributesStrings == null) {
+            return new ArrayList<>();
+        }
+        List<AudioAttributes> results = new ArrayList<>(audioAttributesStrings.length);
+        for (int i = 0; i < audioAttributesStrings.length; i++) {
+            results.add(parseAudioAttribute(audioAttributesStrings[i]));
+        }
+        return results;
+    }
+
+    private static AudioAttributes parseAudioAttribute(String audioAttributeString) {
+        AudioAttributes.Builder builder = new AudioAttributes.Builder();
+        String[] attributes = audioAttributeString.split(",");
+        for (String attribute : attributes) {
+            String[] keyValue = attribute.split("=");
+            if (keyValue.length != 2) {
+                throw new IllegalArgumentException("Invalid audio attribute string: "
+                        + audioAttributeString);
+            }
+            String key = keyValue[0].trim();
+            String value = keyValue[1].trim();
+            switch (key) {
+                case "usage" -> builder.setUsage(getUsage(value));
+                case "content_type" -> builder.setContentType(getContentType(value));
+                case "flags" -> builder.setFlags(getFlags(value));
+                case "tags" -> addTags(builder, value);
+                default -> throw new IllegalArgumentException(
+                        "Unknown audio attribute key: " + key);
+            }
+        }
+        return builder.build();
+    }
+
+    private static int getUsage(String usage) {
+        Integer usageValue = ConstantDebugUtils.toValue(AudioAttributes.class, usage);
+        if (usageValue == null) {
+            throw new IllegalArgumentException("Invalid usage: " + usage);
+        }
+        return usageValue;
+    }
+
+    private static int getContentType(String contentType) {
+        Integer contentTypeValue = ConstantDebugUtils.toValue(AudioAttributes.class, contentType);
+        if (contentTypeValue == null) {
+            throw new IllegalArgumentException("Invalid content type: " + contentType);
+        }
+        return contentTypeValue;
+    }
+
+    private static int getFlags(String flagsString) {
+        int flags = 0;
+        String[] flagStrings = flagsString.split("\\|");
+        for (String flagString : flagStrings) {
+            flags |= getFlag(flagString.trim());
+        }
+        return flags;
+    }
+
+    private static int getFlag(String flag) {
+        Integer flagValue = ConstantDebugUtils.toValue(AudioAttributes.class, flag);
+        if (flagValue == null) {
+            throw new IllegalArgumentException("Invalid audio attribute flag: " + flag);
+        }
+        return flagValue;
+    }
+
+    private static void addTags(AudioAttributes.Builder builder, String tags) {
+        String tagsSeparator = ":";
+        for (String tag : tags.split(tagsSeparator)) {
+            AudioManagerHelper.addTagToAudioAttributes(builder, tag);
+        }
     }
 
     /*

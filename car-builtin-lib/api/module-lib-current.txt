@@ -385,7 +385,7 @@ package android.car.builtin.power {
     method public static int getMinimumScreenBrightnessSetting(android.content.Context);
     method public static void goToSleep(android.content.Context, int, long);
     method public static android.os.PowerManager.WakeLock newWakeLock(android.content.Context, int, String, int);
-    method public static void setDisplayState(android.content.Context, boolean, long);
+    method @Deprecated public static void setDisplayState(android.content.Context, boolean, long);
     method public static void shutdown(android.content.Context, boolean, String, boolean);
     field public static final int BRIGHTNESS_DEFAULT = -1; // 0xffffffff
     field public static final int BRIGHTNESS_INVALID = -1; // 0xffffffff
@@ -639,6 +639,7 @@ package android.car.builtin.widget {
 
   public final class LockPatternHelper {
     method public static boolean isSecure(@NonNull android.content.Context, int);
+    method public static void setLockScreenDisabled(@NonNull android.content.Context, int, boolean);
   }
 
 }

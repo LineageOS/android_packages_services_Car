@@ -18,8 +18,8 @@
     android:shape="oval">
 
     <gradient
-        android:startColor="@color/car_secondary_container"
-        android:endColor="@color/car_secondary_container"
+        android:startColor="?attr/oemColorSecondaryContainer"
+        android:endColor="?attr/oemColorSecondaryContainer"
         android:angle="0"/>
 
     <size

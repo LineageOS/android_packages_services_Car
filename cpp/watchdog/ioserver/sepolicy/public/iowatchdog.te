@@ -1,0 +1,11 @@
+# I/O watchdog server.
+type iowatchdogd, domain;
+
+binder_call(iowatchdogd, iowatchdogclient_domain)
+binder_call(iowatchdogclient_domain, iowatchdogd)
+
+# Configuration for system_server.
+allow system_server iowatchdogd_service:service_manager find;
+binder_call(iowatchdogd, system_server)
+
+allow iowatchdogd servicemanager:service_manager list;

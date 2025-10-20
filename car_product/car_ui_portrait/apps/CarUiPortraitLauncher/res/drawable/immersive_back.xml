@@ -20,6 +20,6 @@
         android:viewportWidth="960"
         android:viewportHeight="960">
     <path
-        android:fillColor="@color/car_neutral_variant_100"
+        android:fillColor="@android:color/white"
         android:pathData="M480,800 L160,480l320,-320 42,42 -248,248h526v60L274,510l248,248 -42,42Z"/>
 </vector>

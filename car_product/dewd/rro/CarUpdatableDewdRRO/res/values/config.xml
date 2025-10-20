@@ -24,4 +24,6 @@
      Setting this string to empty will disable the feature. -->
     <string name="config_userNoticeUiService" translatable="false"></string>
     <bool name="config_isUsingAutoTaskStackWindowing">true</bool>
+    <string name="config_driverHomeComponent" translatable="false">com.android.car.stub.launcher/.StubHome</string>
+    <string name="config_passengerHomeComponent" translatable="false">com.android.car.carlauncher/.CarLauncher</string>
 </resources>

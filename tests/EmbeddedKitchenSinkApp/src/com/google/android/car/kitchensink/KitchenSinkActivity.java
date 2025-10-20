@@ -48,6 +48,7 @@ import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.car.kitchensink.activitylaunch.ActivityLaunchFragment;
 import com.google.android.car.kitchensink.activityresolver.ActivityResolverFragment;
 import com.google.android.car.kitchensink.admin.DevicePolicyFragment;
 import com.google.android.car.kitchensink.alertdialog.AlertDialogTestFragment;
@@ -76,7 +77,6 @@ import com.google.android.car.kitchensink.diagnostic.DiagnosticTestFragment;
 import com.google.android.car.kitchensink.display.DisplayInfoFragment;
 import com.google.android.car.kitchensink.display.DisplayMirroringFragment;
 import com.google.android.car.kitchensink.display.VirtualDisplayFragment;
-import com.google.android.car.kitchensink.drivemode.DriveModeSwitchFragment;
 import com.google.android.car.kitchensink.experimental.ExperimentalFeatureTestFragment;
 import com.google.android.car.kitchensink.fullscreen.RequestFullScreenFragment;
 import com.google.android.car.kitchensink.hotword.CarMultiConcurrentHotwordTestFragment;
@@ -90,6 +90,7 @@ import com.google.android.car.kitchensink.notification.NotificationFragment;
 import com.google.android.car.kitchensink.orientation.OrientationTestFragment;
 import com.google.android.car.kitchensink.os.CarPerformanceTestFragment;
 import com.google.android.car.kitchensink.packageinfo.PackageInfoFragment;
+import com.google.android.car.kitchensink.perfetto.PerfettoFragment;
 import com.google.android.car.kitchensink.power.PowerTestFragment;
 import com.google.android.car.kitchensink.privacy.PrivacyIndicatorFragment;
 import com.google.android.car.kitchensink.projection.ProjectionFragment;
@@ -300,6 +301,7 @@ public class KitchenSinkActivity extends FragmentActivity implements KitchenSink
 
     public static final List<Pair<String, Class>> MENU_ENTRIES = Arrays.asList(
             new Pair<>("activity resolver", ActivityResolverFragment.class),
+            new Pair<>("activity launch", ActivityLaunchFragment.class),
             new Pair<>("alert window", AlertDialogTestFragment.class),
             new Pair<>("app sharing", AppSharingFragment.class),
             new Pair<>("assistant", CarAssistantFragment.class),
@@ -332,7 +334,6 @@ public class KitchenSinkActivity extends FragmentActivity implements KitchenSink
             new Pair<>("display info", DisplayInfoFragment.class),
             new Pair<>("display input lock", DisplayInputLockTestFragment.class),
             new Pair<>("display mirroring", DisplayMirroringFragment.class),
-            new Pair<>("drive mode switch", DriveModeSwitchFragment.class),
             new Pair<>("experimental feature", ExperimentalFeatureTestFragment.class),
             new Pair<>("hvac", HvacTestFragment.class),
             new Pair<>("inst cluster", InstrumentClusterFragment.class),
@@ -342,6 +343,7 @@ public class KitchenSinkActivity extends FragmentActivity implements KitchenSink
             new Pair<>("orientation test", OrientationTestFragment.class),
             new Pair<>("package info", PackageInfoFragment.class),
             new Pair<>("performance", CarPerformanceTestFragment.class),
+            new Pair<>("perfetto", PerfettoFragment.class),
             new Pair<>("power test", PowerTestFragment.class),
             new Pair<>(PrivacyIndicatorFragment.FRAGMENT_NAME,
                     PrivacyIndicatorFragment.class),

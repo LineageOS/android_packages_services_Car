@@ -139,6 +139,9 @@ android_ravenwood_test {
         // The following cannot be enabled because UserManager is not supported on host.
         "src/android/car/drivingstate/CarUxRestrictionsManagerUnitTest.java",
     ],
+    static_libs: [
+        "CarWatchdogUnitTestLib",
+    ],
 }
 
 android_test {

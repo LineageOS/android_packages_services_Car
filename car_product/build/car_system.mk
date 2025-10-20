@@ -124,10 +124,6 @@ PRODUCT_SYSTEM_PROPERTIES += \
 ### Suggested values for multi-user properties - can be overridden
 ###
 
-# Enable headless system user mode
-PRODUCT_SYSTEM_PROPERTIES += \
-    ro.fw.mu.headless_system_user?=true
-
 # Enable User HAL integration
 # NOTE: when set to true, VHAL must also implement the user-related properties,
 # otherwise CarService will ignore it
@@ -147,10 +143,6 @@ PRODUCT_SYSTEM_PROPERTIES += \
 
 # Update with PLATFORM_VERSION_MINOR_INT update
 PRODUCT_SYSTEM_PROPERTIES += ro.android.car.version.platform_minor=0
-
-# Enable dual pane activity embedding by default on automotive
-PRODUCT_SYSTEM_PROPERTIES += \
-    persist.settings.large_screen_opt.enabled=true
 
 PRODUCT_PACKAGES += \
     com.android.wifi \
@@ -213,7 +205,6 @@ PRODUCT_PACKAGES += \
     CarDialerApp \
     CarRadioApp \
     OverviewApp \
-    CarLauncher \
     LocalMediaPlayer \
     CarMediaApp \
     CarMessengerApp \
@@ -227,6 +218,18 @@ PRODUCT_PACKAGES += \
     car-frameworks-service \
     com.android.car.procfsinspector \
     com.android.permission \
+
+ifeq ($(HAS_SCALABLEUI),true)
+    $(call inherit-product, packages/services/Car/car_product/dewd/car_dewd_common.mk)
+else # HAS_SCALABLEUI is not set
+    PRODUCT_PACKAGES += \
+        CarLauncher
+endif # HAS_SCALABLEUI
+
+ifeq ($(GSI_SKIP_PROVISIONED),true)
+    PRODUCT_PACKAGES += \
+        ProvidersSettingsGsiOverlay
+endif # GSI_SKIP_PROVISIONED
 
 # CAN bus
 PRODUCT_PACKAGES += \
@@ -279,3 +282,6 @@ PRODUCT_NO_DYNAMIC_SYSTEM_UPDATE := true
 PRODUCT_PROPERTY_OVERRIDES += \
     persist.log.tag.ContCarPropertyEventTracker=D \
     persist.log.tag.SubscriptionManager=D
+
+# Displaycompat
+$(call inherit-product, packages/services/Car/car_product/displaycompat/display_compat_system.mk)

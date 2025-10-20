@@ -18,6 +18,7 @@ PRODUCT_PACKAGES += \
     DriverUiRRO \
     CarServiceRRO \
     DistantDisplayFrameworkResRRO \
+    DDPanelRRO \
 
 PRODUCT_PACKAGES_DEBUG += \
     LaunchOnPrivateDisplayTestAppRRO \

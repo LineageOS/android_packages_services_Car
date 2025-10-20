@@ -23,6 +23,7 @@ import static android.car.VehiclePropertyIds.INFO_EV_CONNECTOR_TYPE;
 import static android.car.VehiclePropertyIds.INFO_FUEL_DOOR_LOCATION;
 import static android.car.VehiclePropertyIds.INITIAL_USER_INFO;
 import static android.car.VehiclePropertyIds.INVALID;
+import static android.car.feature.Flags.FLAG_CAR_PROPERTY_STATUS_DETAILED_NOT_AVAILABLE;
 import static android.car.hardware.property.CarPropertyManager.GetPropertyResult;
 import static android.car.hardware.property.CarPropertyManager.PropertyAsyncError;
 import static android.car.hardware.property.CarPropertyManager.SENSOR_RATE_ONCHANGE;
@@ -51,6 +52,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import android.car.Car;
 import android.car.VehicleAreaSeat;
 import android.car.VehicleAreaType;
 import android.car.VehiclePropertyIds;
@@ -60,6 +62,7 @@ import android.car.hardware.CarPropertyValue;
 import android.car.test.AbstractExpectableTestCase;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.CancellationSignal;
 import android.os.Handler;
@@ -67,6 +70,7 @@ import android.os.Looper;
 import android.os.RemoteException;
 import android.os.ServiceSpecificException;
 import android.platform.test.annotations.DisabledOnRavenwood;
+import android.platform.test.annotations.EnableFlags;
 import android.platform.test.flag.junit.SetFlagsRule;
 import android.util.ArraySet;
 import android.util.SparseArray;
@@ -84,10 +88,12 @@ import com.android.car.internal.property.IAsyncPropertyResultCallback;
 import com.android.car.internal.property.ISupportedValuesChangeCallback;
 import com.android.car.internal.property.MinMaxSupportedPropertyValue;
 import com.android.car.internal.property.PropIdAreaId;
+import com.android.car.internal.property.PropertyStatusUtils;
 import com.android.car.internal.property.RawPropertyValue;
 import com.android.car.internal.util.IntArray;
 
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -107,7 +113,9 @@ import java.util.concurrent.Executor;
  */
 @RunWith(MockitoJUnitRunner.class)
 public final class CarPropertyManagerUnitTest extends AbstractExpectableTestCase {
-    @Rule public final SetFlagsRule mSetFlagsRule = new SetFlagsRule();
+    @ClassRule public static final SetFlagsRule.ClassRule mSetFlagsClassRule =
+            new SetFlagsRule.ClassRule();
+    @Rule public final SetFlagsRule mSetFlagsRule = mSetFlagsClassRule.createSetFlagsRule();
 
     // Defined as vendor property.
     private static final int VENDOR_CONTINUOUS_PROPERTY = 0x21100111;
@@ -243,6 +251,8 @@ public final class CarPropertyManagerUnitTest extends AbstractExpectableTestCase
 
         mApplicationInfo.targetSdkVersion = Build.VERSION_CODES.CUR_DEVELOPMENT;
         when(mContext.getApplicationInfo()).thenReturn(mApplicationInfo);
+        when(mContext.checkSelfPermission(Car.PERMISSION_READ_PROPERTY_VENDOR_STATUS))
+                .thenReturn(PackageManager.PERMISSION_DENIED);
 
         mContinuousCarPropertyConfig = CarPropertyConfig.newBuilder(Integer.class,
                 VENDOR_CONTINUOUS_PROPERTY, VEHICLE_AREA_TYPE_GLOBAL)
@@ -302,6 +312,7 @@ public final class CarPropertyManagerUnitTest extends AbstractExpectableTestCase
         when(mFeatureFlags.variableUpdateRate()).thenReturn(true);
         when(mFeatureFlags.handlePropertyEventsInBinderThread()).thenReturn(true);
         when(mFeatureFlags.alwaysSendInitialValueEvent()).thenReturn(true);
+        when(mFeatureFlags.carPropertyStatusDetailedNotAvailable()).thenReturn(true);
 
         mCarPropertyManager.setFeatureFlags(mFeatureFlags);
     }
@@ -382,21 +393,27 @@ public final class CarPropertyManagerUnitTest extends AbstractExpectableTestCase
     @Test
     public void testGetProperty_notAvailableBeforeR() throws Exception {
         setAppTargetSdk(Build.VERSION_CODES.Q);
-        when(mICarProperty.getProperty(HVAC_TEMPERATURE_SET, 0)).thenThrow(
-                new ServiceSpecificException(VehicleHalStatusCode.STATUS_NOT_AVAILABLE));
 
-        assertThrows(IllegalStateException.class,
-                () -> mCarPropertyManager.getProperty(HVAC_TEMPERATURE_SET, 0));
+        for (int statusCode : VehicleHalStatusCode.NOT_AVAILABLE_STATUS_CODES) {
+            doThrow(new ServiceSpecificException(statusCode)).when(mICarProperty)
+                    .getProperty(HVAC_TEMPERATURE_SET, 0);
+
+            assertThrows(IllegalStateException.class,
+                    () -> mCarPropertyManager.getProperty(HVAC_TEMPERATURE_SET, 0));
+        }
     }
 
     @Test
     public void testGetProperty_notAvailableEqualAfterR() throws Exception {
         setAppTargetSdk(Build.VERSION_CODES.R);
-        when(mICarProperty.getProperty(HVAC_TEMPERATURE_SET, 0)).thenThrow(
-                new ServiceSpecificException(VehicleHalStatusCode.STATUS_NOT_AVAILABLE));
 
-        assertThrows(PropertyNotAvailableException.class,
-                () -> mCarPropertyManager.getProperty(HVAC_TEMPERATURE_SET, 0));
+        for (int statusCode : VehicleHalStatusCode.NOT_AVAILABLE_STATUS_CODES) {
+            doThrow(new ServiceSpecificException(statusCode)).when(mICarProperty)
+                    .getProperty(HVAC_TEMPERATURE_SET, 0);
+
+            assertThrows(PropertyNotAvailableException.class,
+                    () -> mCarPropertyManager.getProperty(HVAC_TEMPERATURE_SET, 0));
+        }
     }
 
     @Test
@@ -494,26 +511,60 @@ public final class CarPropertyManagerUnitTest extends AbstractExpectableTestCase
     @Test
     public void testGetProperty_returnsValueWithUnavailableStatusBeforeU() throws RemoteException {
         setAppTargetSdk(Build.VERSION_CODES.TIRAMISU);
-        CarPropertyValue<Float> value = new CarPropertyValue<>(HVAC_TEMPERATURE_SET, 0,
-                CarPropertyValue.STATUS_UNAVAILABLE, TEST_TIMESTAMP, 17.0f);
 
-        when(mICarProperty.getProperty(HVAC_TEMPERATURE_SET, 0)).thenReturn(value);
+        for (int propertyStatus : PropertyStatusUtils.NOT_AVAILABLE_PROPERTY_STATUS_LIST) {
+            CarPropertyValue<Float> value = new CarPropertyValue<>(HVAC_TEMPERATURE_SET, 0,
+                    propertyStatus, TEST_TIMESTAMP, 17.0f);
 
-        assertThat(mCarPropertyManager.getProperty(HVAC_TEMPERATURE_SET, /*areaId=*/ 0)).isEqualTo(
-                new CarPropertyValue<>(HVAC_TEMPERATURE_SET, /*areaId=*/0,
-                        CarPropertyValue.STATUS_UNAVAILABLE, TEST_TIMESTAMP, 17.0f));
+            when(mICarProperty.getProperty(HVAC_TEMPERATURE_SET, 0)).thenReturn(value);
+
+            assertThat(mCarPropertyManager.getProperty(HVAC_TEMPERATURE_SET, /*areaId=*/ 0))
+                    .isEqualTo(new CarPropertyValue.Builder<Float>(
+                                    HVAC_TEMPERATURE_SET, /*areaId=*/0)
+                            .setValue(17.0f)
+                            .setTimestampNanos(TEST_TIMESTAMP)
+                            .setSystemStatus(CarPropertyValue.STATUS_NOT_AVAILABLE_GENERAL)
+                            .build());
+        }
     }
 
     @Test
     public void testGetProperty_valueWithUnavailableStatusThrowsAfterU() throws RemoteException {
         setAppTargetSdk(Build.VERSION_CODES.UPSIDE_DOWN_CAKE);
-        CarPropertyValue<Float> value = new CarPropertyValue<>(HVAC_TEMPERATURE_SET, 0,
-                CarPropertyValue.STATUS_UNAVAILABLE, TEST_TIMESTAMP, 17.0f);
+
+        for (int propertyStatus : PropertyStatusUtils.NOT_AVAILABLE_PROPERTY_STATUS_LIST) {
+            CarPropertyValue<Float> value = new CarPropertyValue<>(HVAC_TEMPERATURE_SET, 0,
+                    propertyStatus, TEST_TIMESTAMP, 17.0f);
+
+            when(mICarProperty.getProperty(HVAC_TEMPERATURE_SET, 0)).thenReturn(value);
+
+            var exception = assertThrows(PropertyNotAvailableException.class,
+                    () -> mCarPropertyManager.getProperty(HVAC_TEMPERATURE_SET, 0));
+
+            assertThat(exception.getVendorErrorCode()).isEqualTo(0);
+            assertThat(exception.getDetailedErrorCode()).isEqualTo(0);
+        }
+    }
+
+    @Test
+    public void testGetProperty_vendorStatusFilteredOut_afterU() throws RemoteException {
+        setAppTargetSdk(Build.VERSION_CODES.UPSIDE_DOWN_CAKE);
+
+        CarPropertyValue<Float> value = new CarPropertyValue.Builder<Float>(
+                HVAC_TEMPERATURE_SET, 0)
+                .setSystemStatus(CarPropertyValue.STATUS_NOT_AVAILABLE_DISABLED)
+                .setVendorStatus(0x1234)
+                .setTimestampNanos(TEST_TIMESTAMP)
+                .setValue(17.0f)
+                .build();
 
         when(mICarProperty.getProperty(HVAC_TEMPERATURE_SET, 0)).thenReturn(value);
 
-        assertThrows(PropertyNotAvailableException.class,
+        var exception = assertThrows(PropertyNotAvailableException.class,
                 () -> mCarPropertyManager.getProperty(HVAC_TEMPERATURE_SET, 0));
+
+        assertThat(exception.getVendorErrorCode()).isEqualTo(0);
+        assertThat(exception.getDetailedErrorCode()).isEqualTo(0);
     }
 
     @Test
@@ -798,6 +849,77 @@ public final class CarPropertyManagerUnitTest extends AbstractExpectableTestCase
     }
 
     @Test
+    @EnableFlags(FLAG_CAR_PROPERTY_STATUS_DETAILED_NOT_AVAILABLE)
+    public void testGetProperty_notAvailableSubsystemNotConnectedBeforeU() throws Exception {
+        setAppTargetSdk(Build.VERSION_CODES.TIRAMISU);
+        when(mICarProperty.getProperty(HVAC_TEMPERATURE_SET, 0))
+                .thenThrow(
+                        new ServiceSpecificException(
+                                VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED));
+
+        assertThrows(
+                PropertyNotAvailableException.class,
+                () -> mCarPropertyManager.getProperty(HVAC_TEMPERATURE_SET, 0));
+    }
+
+    @Test
+    @EnableFlags(FLAG_CAR_PROPERTY_STATUS_DETAILED_NOT_AVAILABLE)
+    public void testGetProperty_notAvailableSubsystemNotConnectedAfterU() throws Exception {
+        setAppTargetSdk(Build.VERSION_CODES.UPSIDE_DOWN_CAKE);
+        when(mICarProperty.getProperty(HVAC_TEMPERATURE_SET, 0))
+                .thenThrow(
+                        new ServiceSpecificException(
+                                VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED));
+
+        PropertyNotAvailableException exception =
+                assertThrows(
+                        PropertyNotAvailableException.class,
+                        () -> mCarPropertyManager.getProperty(HVAC_TEMPERATURE_SET, 0));
+        assertThat(exception.getDetailedErrorCode())
+                .isEqualTo(PropertyNotAvailableErrorCode.NOT_AVAILABLE);
+    }
+
+    @Test
+    @EnableFlags(FLAG_CAR_PROPERTY_STATUS_DETAILED_NOT_AVAILABLE)
+    public void testGetProperty_notAvailableSubsystemNotConnectedAfterU_withVendorErrorCode()
+            throws Exception {
+        setAppTargetSdk(Build.VERSION_CODES.UPSIDE_DOWN_CAKE);
+        when(mICarProperty.getProperty(HVAC_TEMPERATURE_SET, 0))
+                .thenThrow(
+                        new ServiceSpecificException(
+                                combineErrors(
+                                        VehicleHalStatusCode
+                                                .STATUS_NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED,
+                                        VENDOR_ERROR_CODE)));
+
+        PropertyNotAvailableException exception =
+                assertThrows(
+                        PropertyNotAvailableException.class,
+                        () -> mCarPropertyManager.getProperty(HVAC_TEMPERATURE_SET, 0));
+
+        assertThat(exception.getDetailedErrorCode())
+                .isEqualTo(PropertyNotAvailableErrorCode.NOT_AVAILABLE);
+        assertThat(exception.getVendorErrorCode()).isEqualTo(VENDOR_ERROR_CODE);
+    }
+
+    @Test
+    @EnableFlags(FLAG_CAR_PROPERTY_STATUS_DETAILED_NOT_AVAILABLE)
+    public void testGetProperty_notAvailableSubsystemNotConnectedAfterC() throws Exception {
+        setAppTargetSdk(Build.VERSION_CODES.CINNAMON_BUN);
+        when(mICarProperty.getProperty(HVAC_TEMPERATURE_SET, 0))
+                .thenThrow(
+                        new ServiceSpecificException(
+                                VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED));
+
+        PropertyNotAvailableException exception =
+                assertThrows(
+                        PropertyNotAvailableException.class,
+                        () -> mCarPropertyManager.getProperty(HVAC_TEMPERATURE_SET, 0));
+        assertThat(exception.getDetailedErrorCode())
+                .isEqualTo(PropertyNotAvailableErrorCode.NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED);
+    }
+
+    @Test
     public void testGetBooleanProperty_tryAgainBeforeR() throws Exception {
         setAppTargetSdk(Build.VERSION_CODES.Q);
         when(mICarProperty.getProperty(BOOLEAN_PROP, 0)).thenThrow(
@@ -902,6 +1024,42 @@ public final class CarPropertyManagerUnitTest extends AbstractExpectableTestCase
 
         assertThrows(PropertyNotAvailableAndRetryException.class,
                 () -> mCarPropertyManager.getIntProperty(INT32_PROP, 0));
+    }
+
+    @Test
+    public void testGetIntProperty_notAvailableStatus_beforeR() throws Exception {
+        setAppTargetSdk(Build.VERSION_CODES.R);
+
+        when(mICarProperty.getProperty(INT32_PROP, 0)).thenReturn(
+                new CarPropertyValue.Builder<Integer>(INT32_PROP, 0)
+                        .setTimestampNanos(TEST_TIMESTAMP)
+                        .setValue(0)
+                        .setSystemStatus(CarPropertyValue.STATUS_NOT_AVAILABLE_DISABLED)
+                        .setVendorStatus(1234)
+                        .build());
+
+        assertThat(mCarPropertyManager.getIntProperty(INT32_PROP, 0)).isEqualTo(0);
+    }
+
+    @Test
+    public void testGetIntProperty_notAvailableStatus_afterR() throws Exception {
+        setAppTargetSdk(Build.VERSION_CODES.S);
+
+        when(mICarProperty.getProperty(INT32_PROP, 0)).thenReturn(
+                new CarPropertyValue.Builder<Integer>(INT32_PROP, 0)
+                        .setTimestampNanos(TEST_TIMESTAMP)
+                        .setValue(0)
+                        .setSystemStatus(CarPropertyValue.STATUS_NOT_AVAILABLE_DISABLED)
+                        .setVendorStatus(1234)
+                        .build());
+
+        var exception = assertThrows(PropertyNotAvailableException.class, () ->
+                mCarPropertyManager.getIntProperty(INT32_PROP, 0));
+
+        // Vendor error code is filtered out for getProperty. It is only exposed via property
+        // events.
+        assertThat(exception.getVendorErrorCode()).isEqualTo(0);
+        assertThat(exception.getDetailedErrorCode()).isEqualTo(0);
     }
 
     @Test
@@ -1265,6 +1423,60 @@ public final class CarPropertyManagerUnitTest extends AbstractExpectableTestCase
         PropertyAsyncError error = mPropertyAsyncErrorCaptor.getValue();
         assertThat(error.getDetailedErrorCode()).isEqualTo(
                 DetailedErrorCode.NOT_AVAILABLE_SPEED_HIGH);
+    }
+
+    @Test
+    @EnableFlags(FLAG_CAR_PROPERTY_STATUS_DETAILED_NOT_AVAILABLE)
+    public void testPropertyAsyncError_subsystemNotConnected_beforeC() throws RemoteException {
+        setAppTargetSdk(Build.VERSION_CODES.BAKLAVA);
+        doAnswer((invocation) -> {
+            Object[] args = invocation.getArguments();
+            IAsyncPropertyResultCallback getAsyncPropertyResultCallback =
+                    (IAsyncPropertyResultCallback) args[1];
+
+            GetSetValueResult getValueResult = GetSetValueResult.newErrorResult(
+                    /* requestId= */ 0, CarPropertyErrorCodes.createFromVhalStatusCode(
+                            VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED));
+
+            getAsyncPropertyResultCallback.onGetValueResults(
+                    new GetSetValueResultList(List.of(getValueResult)));
+            return null;
+        }).when(mICarProperty).getPropertiesAsync(any(), any(), anyLong());
+
+        mCarPropertyManager.getPropertiesAsync(
+                List.of(createGetPropertyRequest()), null, null, mGetPropertyCallback);
+
+        verify(mGetPropertyCallback, timeout(1000)).onFailure(mPropertyAsyncErrorCaptor.capture());
+        PropertyAsyncError error = mPropertyAsyncErrorCaptor.getValue();
+        assertThat(error.getDetailedErrorCode())
+                .isEqualTo(DetailedErrorCode.NO_DETAILED_ERROR_CODE);
+    }
+
+    @Test
+    @EnableFlags(FLAG_CAR_PROPERTY_STATUS_DETAILED_NOT_AVAILABLE)
+    public void testPropertyAsyncError_subsystemNotConnected_afterC() throws RemoteException {
+        setAppTargetSdk(Build.VERSION_CODES.CINNAMON_BUN);
+        doAnswer((invocation) -> {
+            Object[] args = invocation.getArguments();
+            IAsyncPropertyResultCallback getAsyncPropertyResultCallback =
+                    (IAsyncPropertyResultCallback) args[1];
+
+            GetSetValueResult getValueResult = GetSetValueResult.newErrorResult(
+                    /* requestId= */ 0, CarPropertyErrorCodes.createFromVhalStatusCode(
+                            VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED));
+
+            getAsyncPropertyResultCallback.onGetValueResults(
+                    new GetSetValueResultList(List.of(getValueResult)));
+            return null;
+        }).when(mICarProperty).getPropertiesAsync(any(), any(), anyLong());
+
+        mCarPropertyManager.getPropertiesAsync(
+                List.of(createGetPropertyRequest()), null, null, mGetPropertyCallback);
+
+        verify(mGetPropertyCallback, timeout(1000)).onFailure(mPropertyAsyncErrorCaptor.capture());
+        PropertyAsyncError error = mPropertyAsyncErrorCaptor.getValue();
+        assertThat(error.getDetailedErrorCode())
+                .isEqualTo(DetailedErrorCode.NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED);
     }
 
     @Test
@@ -1633,6 +1845,94 @@ public final class CarPropertyManagerUnitTest extends AbstractExpectableTestCase
         assertThat(exception.getDetailedErrorCode())
                 .isEqualTo(PropertyNotAvailableErrorCode.NOT_AVAILABLE_SPEED_LOW);
         assertThat(exception.getVendorErrorCode()).isEqualTo(VENDOR_ERROR_CODE);
+    }
+
+    @Test
+    @EnableFlags(FLAG_CAR_PROPERTY_STATUS_DETAILED_NOT_AVAILABLE)
+    public void testSetProperty_notAvailableSubsystemNotConnectedBeforeU() throws Exception {
+        setAppTargetSdk(Build.VERSION_CODES.TIRAMISU);
+        CarPropertyValue<Float> carPropertyValue =
+                new CarPropertyValue<>(HVAC_TEMPERATURE_SET, 0, 17.0f);
+        doThrow(
+                        new ServiceSpecificException(
+                                VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED))
+                .when(mICarProperty)
+                .setProperty(eq(carPropertyValue), any());
+
+        assertThrows(
+                PropertyNotAvailableException.class,
+                () -> mCarPropertyManager.setProperty(Float.class, HVAC_TEMPERATURE_SET, 0, 17.0f));
+    }
+
+    @Test
+    @EnableFlags(FLAG_CAR_PROPERTY_STATUS_DETAILED_NOT_AVAILABLE)
+    public void testSetProperty_notAvailableSubsystemNotConnectedAfterU() throws Exception {
+        setAppTargetSdk(Build.VERSION_CODES.UPSIDE_DOWN_CAKE);
+        CarPropertyValue<Float> carPropertyValue =
+                new CarPropertyValue<>(HVAC_TEMPERATURE_SET, 0, 17.0f);
+        doThrow(
+                        new ServiceSpecificException(
+                                VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED))
+                .when(mICarProperty)
+                .setProperty(eq(carPropertyValue), any());
+
+        PropertyNotAvailableException exception =
+                assertThrows(
+                        PropertyNotAvailableException.class,
+                        () ->
+                                mCarPropertyManager.setProperty(
+                                        Float.class, HVAC_TEMPERATURE_SET, 0, 17.0f));
+        assertThat(exception.getDetailedErrorCode())
+                .isEqualTo(PropertyNotAvailableErrorCode.NOT_AVAILABLE);
+    }
+
+    @Test
+    @EnableFlags(FLAG_CAR_PROPERTY_STATUS_DETAILED_NOT_AVAILABLE)
+    public void testSetProperty_notAvailableSubsystemNotConnectedAfterU_withVendorErrorCode()
+            throws Exception {
+        setAppTargetSdk(Build.VERSION_CODES.UPSIDE_DOWN_CAKE);
+        CarPropertyValue<Float> carPropertyValue =
+                new CarPropertyValue<>(HVAC_TEMPERATURE_SET, 0, 17.0f);
+        doThrow(
+                        new ServiceSpecificException(
+                                combineErrors(
+                                        VehicleHalStatusCode
+                                                .STATUS_NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED,
+                                        VENDOR_ERROR_CODE)))
+                .when(mICarProperty)
+                .setProperty(eq(carPropertyValue), any());
+
+        PropertyNotAvailableException exception =
+                assertThrows(
+                        PropertyNotAvailableException.class,
+                        () ->
+                                mCarPropertyManager.setProperty(
+                                        Float.class, HVAC_TEMPERATURE_SET, 0, 17.0f));
+        assertThat(exception.getDetailedErrorCode())
+                .isEqualTo(PropertyNotAvailableErrorCode.NOT_AVAILABLE);
+        assertThat(exception.getVendorErrorCode()).isEqualTo(VENDOR_ERROR_CODE);
+    }
+
+    @Test
+    @EnableFlags(FLAG_CAR_PROPERTY_STATUS_DETAILED_NOT_AVAILABLE)
+    public void testSetProperty_notAvailableSubsystemNotConnectedAfterC() throws Exception {
+        setAppTargetSdk(Build.VERSION_CODES.CINNAMON_BUN);
+        CarPropertyValue<Float> carPropertyValue =
+                new CarPropertyValue<>(HVAC_TEMPERATURE_SET, 0, 17.0f);
+        doThrow(
+                        new ServiceSpecificException(
+                                VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED))
+                .when(mICarProperty)
+                .setProperty(eq(carPropertyValue), any());
+
+        PropertyNotAvailableException exception =
+                assertThrows(
+                        PropertyNotAvailableException.class,
+                        () ->
+                                mCarPropertyManager.setProperty(
+                                        Float.class, HVAC_TEMPERATURE_SET, 0, 17.0f));
+        assertThat(exception.getDetailedErrorCode())
+                .isEqualTo(PropertyNotAvailableErrorCode.NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED);
     }
 
     @Test
@@ -2825,6 +3125,109 @@ public final class CarPropertyManagerUnitTest extends AbstractExpectableTestCase
         verify(mCarPropertyEventCallback, timeout(5000)).onChangeEvent(value.capture());
         assertThat(value.getValue().getPropertyId()).isEqualTo(HVAC_TEMPERATURE_SET);
         assertThat(value.getValue().getValue()).isEqualTo(17.0f);
+    }
+
+    @Test
+    @EnableFlags(FLAG_CAR_PROPERTY_STATUS_DETAILED_NOT_AVAILABLE)
+    public void testOnChangeEvent_callbackIsCalledWithEvent_detailedUnavailable_afterC()
+            throws RemoteException {
+        when(mContext.checkSelfPermission(Car.PERMISSION_READ_PROPERTY_VENDOR_STATUS)).thenReturn(
+                PackageManager.PERMISSION_GRANTED);
+        setAppTargetSdk(Build.VERSION_CODES.CINNAMON_BUN);
+
+        int systemStatus = CarPropertyValue.STATUS_NOT_AVAILABLE_DISABLED;
+        int vendorStatus = 0x1234;
+
+        CarPropertyValue<Float> value = new CarPropertyValue.Builder<Float>(HVAC_TEMPERATURE_SET, 0)
+                .setValue(0.f)
+                .setSystemStatus(systemStatus)
+                .setVendorStatus(vendorStatus)
+                .build();
+        CarPropertyEvent carPropertyEvent = new CarPropertyEvent(
+                CarPropertyEvent.PROPERTY_EVENT_PROPERTY_CHANGE, value);
+
+        List<CarPropertyEvent> eventList = List.of(carPropertyEvent);
+        CarPropertyConfig config = CarPropertyConfig.newBuilder(Float.class, HVAC_TEMPERATURE_SET,
+                VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL)
+                .addAreaIdConfig(new AreaIdConfig.Builder<Float>(0).build()).build();
+        addCarPropertyConfig(config);
+        ICarPropertyEventListener listener = getCarPropertyEventListener();
+        ArgumentCaptor<CarPropertyValue> captor = ArgumentCaptor.forClass(CarPropertyValue.class);
+
+        listener.onEvent(eventList);
+
+        verify(mCarPropertyEventCallback, timeout(5000)).onChangeEvent(captor.capture());
+        var gotValue = captor.getValue();
+        assertThat(gotValue.getPropertyStatus()).isEqualTo(systemStatus);
+        assertThat(gotValue.getPropertyVendorStatus()).isEqualTo(vendorStatus);
+    }
+
+    @Test
+    public void testOnChangeEvent_callbackIsCalledWithEvent_noVendorStatusPermission_afterC()
+            throws RemoteException {
+        // No permission to read property vendor status.
+        when(mContext.checkSelfPermission(Car.PERMISSION_READ_PROPERTY_VENDOR_STATUS)).thenReturn(
+                PackageManager.PERMISSION_DENIED);
+        setAppTargetSdk(Build.VERSION_CODES.CINNAMON_BUN);
+
+        int systemStatus = CarPropertyValue.STATUS_NOT_AVAILABLE_DISABLED;
+        int vendorStatus = 0x1234;
+
+        CarPropertyValue<Float> value = new CarPropertyValue.Builder<Float>(HVAC_TEMPERATURE_SET, 0)
+                .setValue(0.f)
+                .setSystemStatus(systemStatus)
+                .setVendorStatus(vendorStatus)
+                .build();
+        CarPropertyEvent carPropertyEvent = new CarPropertyEvent(
+                CarPropertyEvent.PROPERTY_EVENT_PROPERTY_CHANGE, value);
+
+        List<CarPropertyEvent> eventList = List.of(carPropertyEvent);
+        CarPropertyConfig config = CarPropertyConfig.newBuilder(Float.class, HVAC_TEMPERATURE_SET,
+                VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL)
+                .addAreaIdConfig(new AreaIdConfig.Builder<Float>(0).build()).build();
+        addCarPropertyConfig(config);
+        ICarPropertyEventListener listener = getCarPropertyEventListener();
+        ArgumentCaptor<CarPropertyValue> captor = ArgumentCaptor.forClass(CarPropertyValue.class);
+
+        listener.onEvent(eventList);
+
+        verify(mCarPropertyEventCallback, timeout(5000)).onChangeEvent(captor.capture());
+        var gotValue = captor.getValue();
+        assertThrows(SecurityException.class, () -> gotValue.getPropertyVendorStatus());
+    }
+
+    @Test
+    public void testOnChangeEvent_callbackIsCalledWithEvent_noVendorStatusPermission_beforeC()
+            throws RemoteException {
+        // No permission to read property vendor status.
+        when(mContext.checkSelfPermission(Car.PERMISSION_READ_PROPERTY_VENDOR_STATUS)).thenReturn(
+                PackageManager.PERMISSION_DENIED);
+        setAppTargetSdk(Build.VERSION_CODES.BAKLAVA);
+
+        int systemStatus = CarPropertyValue.STATUS_NOT_AVAILABLE_DISABLED;
+
+        CarPropertyValue<Float> value = new CarPropertyValue.Builder<Float>(HVAC_TEMPERATURE_SET, 0)
+                .setValue(0.f)
+                .setSystemStatus(systemStatus)
+                .build();
+        CarPropertyEvent carPropertyEvent = new CarPropertyEvent(
+                CarPropertyEvent.PROPERTY_EVENT_PROPERTY_CHANGE, value);
+
+        List<CarPropertyEvent> eventList = List.of(carPropertyEvent);
+        CarPropertyConfig config = CarPropertyConfig.newBuilder(Float.class, HVAC_TEMPERATURE_SET,
+                VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL)
+                .addAreaIdConfig(new AreaIdConfig.Builder<Float>(0).build()).build();
+        addCarPropertyConfig(config);
+        ICarPropertyEventListener listener = getCarPropertyEventListener();
+        ArgumentCaptor<CarPropertyValue> captor = ArgumentCaptor.forClass(CarPropertyValue.class);
+
+        listener.onEvent(eventList);
+
+        verify(mCarPropertyEventCallback, timeout(5000)).onChangeEvent(captor.capture());
+        var gotValue = captor.getValue();
+        // Must map the detailed not available status to a general one.
+        assertThat(gotValue.getPropertyStatus()).isEqualTo(
+                CarPropertyValue.STATUS_NOT_AVAILABLE_GENERAL);
     }
 
     private ICarPropertyEventListener getCarPropertyEventListener() throws RemoteException {

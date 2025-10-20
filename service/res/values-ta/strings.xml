@@ -262,6 +262,8 @@
     <string name="car_permission_desc_inject_vehicle_properties" msgid="2616112105084870775">"வாகனப் பண்புகளைச் சேர்த்தல்"</string>
     <string name="car_permission_label_read_property_vendor_status" msgid="2894773112281568618">"விற்பனையாளரின் பிராப்பர்ட்டி நிலையைத் தெரிந்துகொள்ளுதல்"</string>
     <string name="car_permission_desc_read_property_vendor_status" msgid="7456031169256863531">"விற்பனையாளரின் பிராப்பர்ட்டி நிலையைத் தெரிந்துகொள்ளும்"</string>
+    <string name="car_permission_label_read_property_vendor_error_code" msgid="9161295062734171179">"விற்பனையாளரின் பிராப்பர்ட்டி பிழைக் குறியீட்டைத் தெரிந்துகொள்ளும்"</string>
+    <string name="car_permission_desc_read_property_vendor_error_code" msgid="4243058153289166218">"விற்பனையாளரின் பிராப்பர்ட்டி பிழைக் குறியீட்டைத் தெரிந்துகொள்ளும்"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN bus அமைப்பு தோல்வியடைந்தது"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN bus அமைப்பு இயங்கவில்லை. ஹெட்யூனிட் பாக்ஸைப் பிளக்கில் இருந்து அகற்றிச் செருகியபின் காரை மீண்டும் தொடங்கவும்"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"எனது சாதனம்"</string>

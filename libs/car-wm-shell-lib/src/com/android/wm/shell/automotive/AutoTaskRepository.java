@@ -110,7 +110,8 @@ public class AutoTaskRepository {
         for (int i = 0; i < mRootTaskStacks.size(); i++) {
             int rootTaskStackId = mRootTaskStacks.keyAt(i);
             RootTaskStackInfo info = mRootTaskStacks.valueAt(i);
-            pw.println(prefix + "  Root task Id: " + rootTaskStackId);
+            pw.println(prefix + "  Root task Id: " + rootTaskStackId
+                    + ", Name:" + info.mRootTaskStack.getName());
             for (ActivityManager.RunningTaskInfo task : info.getTaskStack()) {
                 pw.println(prefix + "     task Id: " + task.taskId + " visible: " + task.isVisible
                         + " name: " + (task.topActivity != null ? task.topActivity.getClassName()

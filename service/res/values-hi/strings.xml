@@ -262,6 +262,8 @@
     <string name="car_permission_desc_inject_vehicle_properties" msgid="2616112105084870775">"वाहन की प्रॉपर्टी से जुड़ी जानकारी डालने की अनुमति दें"</string>
     <string name="car_permission_label_read_property_vendor_status" msgid="2894773112281568618">"प्रॉपर्टी के वेंडर का स्टेटस देखने की अनुमति दें"</string>
     <string name="car_permission_desc_read_property_vendor_status" msgid="7456031169256863531">"प्रॉपर्टी के वेंडर का स्टेटस देखने की अनुमति दें"</string>
+    <string name="car_permission_label_read_property_vendor_error_code" msgid="9161295062734171179">"प्रॉपर्टी के वेंडर का गड़बड़ी वाला कोड देखने की अनुमति दें"</string>
+    <string name="car_permission_desc_read_property_vendor_error_code" msgid="4243058153289166218">"प्रॉपर्टी के वेंडर का गड़बड़ी वाला कोड देखने की अनुमति दें"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"\'CAN बस\' काम नहीं कर पा रहा है"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"\'CAN बस\' जवाब नहीं दे रहा है. हेडयूनिट बॉक्स का प्लग निकालकर वापस लगाएं और कार को रीस्टार्ट करें"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"मेरा डिवाइस"</string>

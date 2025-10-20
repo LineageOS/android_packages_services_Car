@@ -26,7 +26,6 @@ import com.android.wm.shell.dagger.WMComponent;
 
 import java.util.Optional;
 
-
 /**
  * Class factory to provide AAECarSystemUI specific SystemUI components.
  */
@@ -57,7 +56,8 @@ public class CarDistantDisplaySystemUIInitializer extends CarSystemUIInitializer
                                 : Optional.empty())
                 .setScalableUIWMInitializer(carWm.getScalableUIWMInitializer())
                 .setTaskPanelInfoRepository(carWm.getTaskPanelInfoRepository())
-                .setScalableUIEventDispatcher(carWm.getScalableUIEventDispatcher());
+                .setScalableUIEventDispatcher(carWm.getScalableUIEventDispatcher())
+                .setSystemUiWindowProvider(carWm.getSystemUiWindowProvider())
+                .setSystemUiConfigurationProvider(carWm.getSystemUiConfigurationProvider());
     }
-
 }

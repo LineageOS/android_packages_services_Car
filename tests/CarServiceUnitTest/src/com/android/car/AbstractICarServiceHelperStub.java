@@ -150,6 +150,7 @@ abstract class AbstractICarServiceHelperStub extends ICarServiceHelper.Stub {
         return INVALID_PID;
     }
 
+    @Deprecated
     @Override
     public boolean requiresDisplayCompat(String packageName) {
         return false;
@@ -168,5 +169,11 @@ abstract class AbstractICarServiceHelperStub extends ICarServiceHelper.Stub {
     @Override
     public void onRootTaskVanished(String name) {
         Log.d(TAG, "onRootTaskVanished for root task " + name);
+    }
+
+    @Override
+    public void setLaunchBehaviorForRootTask(IBinder rootTaskToken, int launchBehavior) {
+        Log.d(TAG, "setLaunchBehaviorForRootTask = " + rootTaskToken + " , behavior = "
+                + launchBehavior);
     }
 }

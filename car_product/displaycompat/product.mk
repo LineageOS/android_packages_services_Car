@@ -14,15 +14,5 @@
 # limitations under the License.
 #
 
-# Device supports DisplayCompat
-PRODUCT_COPY_FILES += \
-    packages/services/Car/car_product/displaycompat/android.software.car.display_compatibility.xml:system/etc/permissions/android.software.car.display_compatibility.xml
-
-# Default density overrides for DisplayCompat
-PRODUCT_PACKAGES += \
-    display_compat_config
-
-# Debug packages for DisplayCompat
-PRODUCT_PACKAGES_DEBUG += \
-    DisplayCompatTestApp \
-    DisplayCompatIntentApp \
+include packages/services/Car/car_product/displaycompat/display_compat_product.mk
+include packages/services/Car/car_product/displaycompat/display_compat_system.mk

@@ -28,8 +28,6 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Rect
 import android.os.IBinder
-import android.util.Log
-import android.util.Slog
 import android.view.SurfaceControl
 import android.view.SurfaceControl.Transaction
 import android.view.WindowManager
@@ -38,33 +36,31 @@ import android.window.TaskOrganizer
 import android.window.TransitionInfo
 import android.window.TransitionRequestInfo
 import android.window.WindowContainerTransaction
+import com.android.internal.protolog.ProtoLog
 import com.android.wm.shell.Flags.enableAutoTaskStackController
 import com.android.wm.shell.RootTaskDisplayAreaOrganizer
 import com.android.wm.shell.ShellTaskOrganizer
+import com.android.wm.shell.automotive.CarWmShellProtoLogGroups.CAR_WM_SHELL_TASK_STACK_CONTROLLER
 import com.android.wm.shell.common.ShellExecutor
 import com.android.wm.shell.dagger.WMSingleton
 import com.android.wm.shell.shared.TransitionUtil
 import com.android.wm.shell.shared.annotations.ShellMainThread
-import com.android.wm.shell.sysui.ShellInit
 import com.android.wm.shell.transition.Transitions
 import com.android.wm.shell.transition.Transitions.TransitionFinishCallback
 import java.io.PrintWriter
 import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
 
-const val TAG = "AutoTaskStackController"
-
 @WMSingleton
 class AutoTaskStackControllerImpl @Inject constructor(
     val taskOrganizer: ShellTaskOrganizer,
     @ShellMainThread private val shellMainThread: ShellExecutor,
     val transitions: Transitions,
-    val shellInit: ShellInit,
     val rootTdaOrganizer: RootTaskDisplayAreaOrganizer,
     val context: Context,
     val autoTaskRepository: AutoTaskRepository,
     val unused: AutoWmShellCommandHandler
-) : AutoTaskStackController, Transitions.TransitionHandler {
+) : AutoTaskStackController, Transitions.TransitionHandler, AutoShellInitializable {
     override var autoTransitionHandlerDelegate: AutoTaskStackTransitionHandlerDelegate? = null
 
     private val _taskStackStateMap: ConcurrentHashMap<Int, AutoTaskStackState> = ConcurrentHashMap()
@@ -75,8 +71,6 @@ class AutoTaskStackControllerImpl @Inject constructor(
             return _taskStackStateMap
         }
 
-    private val DBG = Log.isLoggable(TAG, Log.DEBUG)
-
     // Map of task stack id to the corresponding AutoTaskStack object.
     private val taskStackMap = mutableMapOf<Int, AutoTaskStack>()
     private val pendingTransitions = ArrayList<PendingTransition>()
@@ -84,19 +78,7 @@ class AutoTaskStackControllerImpl @Inject constructor(
     private val appTasksMap = mutableMapOf<Int, ActivityManager.RunningTaskInfo>()
     private val defaultRootTaskPerDisplay = mutableMapOf<Int, Int>()
 
-    init {
-        if (!enableAutoTaskStackController()) {
-            throw IllegalStateException(
-                "Failed to initialize" +
-                        "AutoTaskStackController as the auto_task_stack_windowing TS flag is " +
-                        "disabled."
-            )
-        } else {
-            shellInit.addInitCallback(this::onInit, this)
-        }
-    }
-
-    fun onInit() {
+    override fun initialize() {
         transitions.addHandler(this)
     }
 
@@ -111,7 +93,10 @@ class AutoTaskStackControllerImpl @Inject constructor(
             state: AutoTaskStackState
         ) {
             if (taskStack !is RootTaskStack) {
-                Slog.e(TAG, "Unsupported task stack, unable to convertToWct")
+                ProtoLog.e(
+                    CAR_WM_SHELL_TASK_STACK_CONTROLLER,
+                    "Unsupported task stack, unable to convertToWct"
+                )
                 return
             }
             wct.setBounds(taskStack.rootTaskInfo.token, state.bounds)
@@ -123,7 +108,10 @@ class AutoTaskStackControllerImpl @Inject constructor(
             taskStack: AutoTaskStack,
         ) {
             if (taskStack !is RootTaskStack) {
-                Slog.e(TAG, "Unsupported task stack, unable to convertToWct")
+                ProtoLog.e(
+                    CAR_WM_SHELL_TASK_STACK_CONTROLLER,
+                    "Unsupported task stack, unable to convertToWct"
+                )
                 return
             }
             wct.reorder(
@@ -139,16 +127,26 @@ class AutoTaskStackControllerImpl @Inject constructor(
             transaction: Transaction
         ) {
             if (taskStack !is RootTaskStack) {
-                Slog.e(TAG, "Unsupported task stack, unable to reorder leash")
+                ProtoLog.e(
+                    CAR_WM_SHELL_TASK_STACK_CONTROLLER,
+                    "Unsupported task stack, unable to reorder leash"
+                )
                 return
             }
-            Slog.d(TAG, "Setting the layer ${state.layer}")
+            ProtoLog.d(
+                CAR_WM_SHELL_TASK_STACK_CONTROLLER,
+                "Setting the layer %d",
+                state.layer
+            )
             transaction.setLayer(taskStack.leash, state.layer)
         }
 
         fun restoreLeash(taskStack: AutoTaskStack, transaction: Transaction) {
             if (taskStack !is RootTaskStack) {
-                Slog.e(TAG, "Unsupported task stack, unable to restore leash")
+                ProtoLog.e(
+                    CAR_WM_SHELL_TASK_STACK_CONTROLLER,
+                    "Unsupported task stack, unable to restore leash"
+                )
                 return
             }
 
@@ -156,12 +154,19 @@ class AutoTaskStackControllerImpl @Inject constructor(
             if (rootTdaInfo == null ||
                 rootTdaInfo.featureId != taskStack.rootTaskInfo.displayAreaFeatureId
             ) {
-                Slog.e(TAG, "Cannot find the rootTDA for the root task stack ${taskStack.id}")
+                ProtoLog.e(
+                    CAR_WM_SHELL_TASK_STACK_CONTROLLER,
+                    "Cannot find the rootTDA for the root task stack %d",
+                    taskStack.id
+                )
                 return
             }
-            if (DBG) {
-                Slog.d(TAG, "Reparenting ${taskStack.id} leash to DA ${rootTdaInfo.featureId}")
-            }
+            ProtoLog.d(
+                CAR_WM_SHELL_TASK_STACK_CONTROLLER,
+                "Reparenting %d leash to DA %d",
+                taskStack.id,
+                rootTdaInfo.featureId
+            )
             transaction.reparent(
                 taskStack.leash,
                 rootTdaOrganizer.getDisplayAreaLeash(taskStack.displayId)
@@ -174,12 +179,18 @@ class AutoTaskStackControllerImpl @Inject constructor(
             safeRegionBounds: Rect
         ) {
             if (taskStack !is RootTaskStack) {
-                Slog.e(TAG, "Unsupported task stack, unable to convertToWct")
+                ProtoLog.e(
+                    CAR_WM_SHELL_TASK_STACK_CONTROLLER,
+                    "Unsupported task stack, unable to convertToWct"
+                )
                 return
             }
-            if (DBG) {
-                Slog.d(TAG, "Setting safe region bounds $safeRegionBounds on ${taskStack.id}")
-            }
+            ProtoLog.d(
+                CAR_WM_SHELL_TASK_STACK_CONTROLLER,
+                "Setting safe region bounds %s on %d",
+                safeRegionBounds.toString(),
+                taskStack.id
+            )
             wct.setSafeRegionBounds(taskStack.rootTaskInfo.token, safeRegionBounds)
         }
     }
@@ -201,7 +212,11 @@ class AutoTaskStackControllerImpl @Inject constructor(
             if (leash == null) {
                 throw IllegalArgumentException("leash can't be null in onTaskAppeared")
             }
-            if (DBG) Slog.d(TAG, "onTaskAppeared = ${taskInfo.taskId}")
+            ProtoLog.d(
+                CAR_WM_SHELL_TASK_STACK_CONTROLLER,
+                "onTaskAppeared = %d",
+                taskInfo.taskId
+            )
 
             if (rootTaskStack == null) {
                 val rootTask =
@@ -226,9 +241,14 @@ class AutoTaskStackControllerImpl @Inject constructor(
             if (taskInfo == null) {
                 throw IllegalArgumentException("taskInfo can't be null in onTaskInfoChanged")
             }
-            if (DBG) Slog.d(TAG, "onTaskInfoChanged = ${taskInfo.taskId}")
+            ProtoLog.d(
+                CAR_WM_SHELL_TASK_STACK_CONTROLLER,
+                "onTaskInfoChanged = %d",
+                taskInfo.taskId
+            )
             var previousRootTaskStackInfo = rootTaskStack ?: run {
-                Slog.e(TAG, "Received onTaskInfoChanged, when root task stack is null")
+                ProtoLog.e(CAR_WM_SHELL_TASK_STACK_CONTROLLER,
+                    "Received onTaskInfoChanged, when root task stack is null")
                 return@onTaskInfoChanged
             }
             rootTaskStack?.let {
@@ -251,9 +271,14 @@ class AutoTaskStackControllerImpl @Inject constructor(
             if (taskInfo == null) {
                 throw IllegalArgumentException("taskInfo can't be null in onTaskVanished")
             }
-            if (DBG) Slog.d(TAG, "onTaskVanished  = ${taskInfo.taskId}")
+            ProtoLog.d(
+                CAR_WM_SHELL_TASK_STACK_CONTROLLER,
+                "onTaskVanished  = %d",
+                taskInfo.taskId
+            )
             var rootTask = rootTaskStack ?: run {
-                Slog.e(TAG, "Received onTaskVanished, when root task stack is null")
+                ProtoLog.e(CAR_WM_SHELL_TASK_STACK_CONTROLLER,
+                    "Received onTaskVanished, when root task stack is null")
                 return@onTaskVanished
             }
             if (taskInfo.taskId == rootTask.id) {
@@ -279,12 +304,21 @@ class AutoTaskStackControllerImpl @Inject constructor(
             rootTaskStackListener.onBackPressedOnTaskRoot(taskInfo)
 
             // Handle back event and close the task.
-            Slog.i(TAG, "Received onBackPressedOnTaskRoot, closing the task: " + taskInfo)
+            ProtoLog.i(
+                CAR_WM_SHELL_TASK_STACK_CONTROLLER,
+                "Received onBackPressedOnTaskRoot, closing the task: %s",
+                taskInfo.toString()
+            )
             val taskId = taskInfo.taskId
             try {
                 ActivityManager.getService().removeTask(taskId)
             } catch (e: Exception) {
-                Slog.e(TAG, "Failed to remove task$taskId. Exception: " + e)
+                ProtoLog.e(
+                    CAR_WM_SHELL_TASK_STACK_CONTROLLER,
+                    "Failed to remove task%d. Exception: %s",
+                    taskId,
+                    e.toString()
+                )
             }
         }
 
@@ -293,9 +327,10 @@ class AutoTaskStackControllerImpl @Inject constructor(
             if (parentLeash != null) {
                 b.setParent(parentLeash)
             } else {
-                Slog.e(
-                    TAG,
-                    "Failed to attach child surface to task#$taskId: Parent surface not found."
+                ProtoLog.e(
+                    CAR_WM_SHELL_TASK_STACK_CONTROLLER,
+                    "Failed to attach child surface to task#%d: Parent surface not found.",
+                    taskId
                 )
             }
         }
@@ -309,9 +344,10 @@ class AutoTaskStackControllerImpl @Inject constructor(
             if (parentLeash != null) {
                 t.reparent(sc, parentLeash)
             } else {
-                Slog.e(
-                    TAG,
-                    "Failed to attach child surface to task#$taskId: Parent surface not found."
+                ProtoLog.e(
+                    CAR_WM_SHELL_TASK_STACK_CONTROLLER,
+                    "Failed to attach child surface to task#%d: Parent surface not found.",
+                    taskId
                 )
             }
         }
@@ -323,17 +359,20 @@ class AutoTaskStackControllerImpl @Inject constructor(
             autoTaskRepository.getSurfaceControl(appTask)?.let {
                 return it // Found in autoTaskRepository
             } ?: run {
-                Slog.w(TAG, "SurfaceControl not found in autoTaskRepository for task#$taskId")
+                ProtoLog.w(CAR_WM_SHELL_TASK_STACK_CONTROLLER,
+                    "SurfaceControl not found in autoTaskRepository for task#%d", taskId)
             }
         } ?: run {
-            Slog.w(TAG, "Task not found in appTasksMap for task#$taskId")
+            ProtoLog.w(CAR_WM_SHELL_TASK_STACK_CONTROLLER,
+                "Task not found in appTasksMap for task#%d", taskId)
         }
 
         // If not found, attempt to retrieve from taskStackMap
         (taskStackMap[taskId] as? RootTaskStack)?.leash?.let {
             return it // Found in taskStackMap
         } ?: run {
-            Slog.w(TAG, "RootTaskStack or Leash not found for task#$taskId")
+            ProtoLog.w(CAR_WM_SHELL_TASK_STACK_CONTROLLER,
+                "RootTaskStack or Leash not found for task#%d", taskId)
         }
 
         return null // Parent surface not found in either source
@@ -346,8 +385,8 @@ class AutoTaskStackControllerImpl @Inject constructor(
     ) {
         shellMainThread.execute {
             if (!enableAutoTaskStackController()) {
-                Slog.e(
-                    TAG,
+                ProtoLog.e(
+                    CAR_WM_SHELL_TASK_STACK_CONTROLLER,
                     "Failed to create root task stack as the " +
                             "auto_task_stack_windowing TS flag is disabled."
                 )
@@ -369,7 +408,11 @@ class AutoTaskStackControllerImpl @Inject constructor(
             // TODO(b/384946072): Add support for DisplayAreaTaskStack
             val taskStack = taskStackMap[taskStackId] as? RootTaskStack
             if (taskStack == null) {
-                Slog.e(TAG, "Task stack with id $taskStackId doesn't exist")
+                ProtoLog.e(
+                    CAR_WM_SHELL_TASK_STACK_CONTROLLER,
+                    "Task stack with id %d doesn't exist",
+                    taskStackId
+                )
             } else {
                 val deleted: Boolean = taskOrganizer.deleteRootTask(taskStack.rootTaskInfo.token)
             }
@@ -380,8 +423,8 @@ class AutoTaskStackControllerImpl @Inject constructor(
         shellMainThread.execute {
             run(outer@{
                 if (!enableAutoTaskStackController()) {
-                    Slog.e(
-                        TAG,
+                    ProtoLog.e(
+                        CAR_WM_SHELL_TASK_STACK_CONTROLLER,
                         "Failed to set default root task stack as the " +
                                 "auto_task_stack_windowing TS flag is disabled."
                     )
@@ -400,7 +443,11 @@ class AutoTaskStackControllerImpl @Inject constructor(
                 if (rootTaskStackId != null) {
                     var taskStack =
                         taskStackMap[rootTaskStackId] ?: run { return@outer }
-                    if (DBG) Slog.d(TAG, "setting launch root for  = ${taskStack.id}")
+                    ProtoLog.d(
+                        CAR_WM_SHELL_TASK_STACK_CONTROLLER,
+                        "setting launch root for  = %d",
+                        taskStack.id
+                    )
                     if (taskStack !is RootTaskStack) {
                         throw IllegalArgumentException(
                             "Cannot set a non root task stack as default root task " +
@@ -434,18 +481,25 @@ class AutoTaskStackControllerImpl @Inject constructor(
         // on main thread and still be able to able to return.
         shellMainThread.assertCurrentThread()
         if (!enableAutoTaskStackController()) {
-            Slog.e(
-                TAG,
+            ProtoLog.e(
+                CAR_WM_SHELL_TASK_STACK_CONTROLLER,
                 "Failed to start transaction as the " +
                         "auto_task_stack_windowing TS flag is disabled."
             )
             return null
         }
         if (transaction.operations.isEmpty()) {
-            Slog.e(TAG, "Operations empty, no transaction started")
+            ProtoLog.e(
+                CAR_WM_SHELL_TASK_STACK_CONTROLLER,
+                "Operations empty, no transaction started"
+            )
             return null
         }
-        if (DBG) Slog.d(TAG, "startTransaction ${transaction.operations}")
+        ProtoLog.d(
+            CAR_WM_SHELL_TASK_STACK_CONTROLLER,
+            "startTransaction %s",
+            transaction.operations.toString()
+        )
 
         var wct = WindowContainerTransaction()
         convertToWct(transaction, wct)
@@ -461,13 +515,13 @@ class AutoTaskStackControllerImpl @Inject constructor(
         transition: IBinder,
         request: TransitionRequestInfo
     ): WindowContainerTransaction? {
-        if (DBG) {
-            Slog.d(
-                TAG,
-                "handle request, id=${request.debugId}, type=${request.type}, " +
-                        "triggertask = ${request.triggerTask?.toShortString()}"
-            )
-        }
+        ProtoLog.d(
+            CAR_WM_SHELL_TASK_STACK_CONTROLLER,
+            "handle request, id=%s, type=%d, triggertask = %s",
+            request.debugId,
+            request.type,
+            request.triggerTask?.toShortString()
+        )
         var ast = autoTransitionHandlerDelegate?.handleRequest(transition, request)
         val action = request.triggerTask?.baseIntent?.action
         val category = request.triggerTask?.baseIntent?.categories
@@ -476,8 +530,8 @@ class AutoTaskStackControllerImpl @Inject constructor(
             category?.contains(Intent.CATEGORY_HOME) == true &&
             TransitionUtil.isOpeningType(request.type)
         ) {
-            Slog.i(
-                TAG,
+            ProtoLog.i(
+                CAR_WM_SHELL_TASK_STACK_CONTROLLER,
                 "HOME transaction. Updating state for root tasks which are not " +
                     "updated by client."
             )
@@ -494,10 +548,10 @@ class AutoTaskStackControllerImpl @Inject constructor(
 
         val wct = WindowContainerTransaction()
         if (ast == null) {
-            Slog.i(
-                TAG,
-                "A transition ${request.debugId} not being handled by Delegate. " +
-                    "CarWmShell will take control"
+            ProtoLog.i(
+                CAR_WM_SHELL_TASK_STACK_CONTROLLER,
+                "A transition %s not being handled by Delegate. CarWmShell will take control",
+                request.debugId
             )
             ast = AutoTaskStackTransaction()
             pendingTransitions.add(
@@ -546,12 +600,12 @@ class AutoTaskStackControllerImpl @Inject constructor(
             val taskInfo = chg.taskInfo ?: continue
             if (taskInfo.parentTaskId == INVALID_TASK_ID) continue
             if (taskStackMap[taskInfo.parentTaskId] == null) {
-                if (DBG) {
-                    Slog.v(
-                        TAG,
-                        "${taskInfo.taskId}'s parent ${taskInfo.parentTaskId} is not known"
-                    )
-                }
+                ProtoLog.v(
+                    CAR_WM_SHELL_TASK_STACK_CONTROLLER,
+                    "%d's parent %d is not known",
+                    taskInfo.taskId,
+                    taskInfo.parentTaskId
+                )
                 continue
             }
 
@@ -561,7 +615,11 @@ class AutoTaskStackControllerImpl @Inject constructor(
             // Check for the change request if the change is for being visible. If not, ignore the
             // change
             if (!TransitionUtil.isOpeningMode(chg.mode)) {
-                if (DBG) Slog.v(TAG, "${taskInfo.taskId} is not opening type")
+                ProtoLog.v(
+                    CAR_WM_SHELL_TASK_STACK_CONTROLLER,
+                    "%d is not opening type",
+                    taskInfo.taskId
+                )
                 continue
             }
 
@@ -570,21 +628,22 @@ class AutoTaskStackControllerImpl @Inject constructor(
             if (requestedTaskStackChanges[taskInfo.parentTaskId] != null &&
                 requestedTaskStackChanges[taskInfo.parentTaskId]!!.childrenTasksVisible
             ) {
-                if (DBG) {
-                    Slog.v(
-                        TAG,
-                        "${taskInfo.taskId}'s parent ${taskInfo.parentTaskId} is already " +
-                                "being changed to visible"
-                    )
-                }
+                ProtoLog.v(
+                    CAR_WM_SHELL_TASK_STACK_CONTROLLER,
+                    "%d's parent %d is already being changed to visible",
+                    taskInfo.taskId,
+                    taskInfo.parentTaskId
+                )
                 continue
             }
 
             //  If the change was not visible in original request, but visible in change list,
             //  it is a conflict, reconcile the unknown changes.
-            if (DBG) {
-                Slog.v(TAG, "${taskInfo.taskId} found conflicting task change")
-            }
+            ProtoLog.v(
+                CAR_WM_SHELL_TASK_STACK_CONTROLLER,
+                "%d found conflicting task change",
+                taskInfo.taskId
+            )
             val taskStackLayer = (_taskStackStateMap[taskInfo.parentTaskId]
                 ?: requestedTaskStackChanges[taskInfo.parentTaskId])
                 ?.layer ?: AutoTaskStackController.UNKNOWN_Z_LAYER
@@ -606,7 +665,12 @@ class AutoTaskStackControllerImpl @Inject constructor(
         finishTransaction: Transaction,
         finishCallback: TransitionFinishCallback
     ): Boolean {
-        if (DBG) Slog.d(TAG, "  startAnimation, id=${info.debugId} = changes=" + info.changes)
+        ProtoLog.d(
+            CAR_WM_SHELL_TASK_STACK_CONTROLLER,
+            "  startAnimation, id=%s = changes=%s",
+            info.debugId,
+            info.changes.toString()
+        )
         val pending: PendingTransition? = findPending(transition)
         var changedTaskStacks = mutableMapOf<Int, AutoTaskStackState>()
         if (pending != null) {
@@ -661,7 +725,11 @@ class AutoTaskStackControllerImpl @Inject constructor(
             ) ?: false
 
             if (isPlayedByDelegate) {
-                if (DBG) Slog.d(TAG, "${info.debugId} played")
+                ProtoLog.d(
+                    CAR_WM_SHELL_TASK_STACK_CONTROLLER,
+                    "%s played",
+                    info.debugId
+                )
                 return true
             }
         }
@@ -676,18 +744,18 @@ class AutoTaskStackControllerImpl @Inject constructor(
                     val appTask = appTasksMap[operation.taskId]
 
                     if (appTask == null) {
-                        Slog.e(
-                            TAG,
-                            "task with id=$operation.taskId not found, failed to " +
-                                    "reparent."
+                        ProtoLog.e(
+                            CAR_WM_SHELL_TASK_STACK_CONTROLLER,
+                            "task with id=%d not found, failed to reparent.",
+                            operation.taskId
                         )
                         return@forEach
                     }
                     if (!taskStackMap.containsKey(operation.parentTaskStackId)) {
-                        Slog.e(
-                            TAG,
-                            "task stack with id=${operation.parentTaskStackId} not " +
-                                    "found, failed to reparent"
+                        ProtoLog.e(
+                            CAR_WM_SHELL_TASK_STACK_CONTROLLER,
+                            "task stack with id=%d not found, failed to reparent",
+                            operation.parentTaskStackId
                         )
                         return@forEach
                     }
@@ -714,9 +782,10 @@ class AutoTaskStackControllerImpl @Inject constructor(
                             operation.state
                         )
                     }
-                        ?: Slog.w(
-                            TAG, "AutoTaskStack with id ${operation.taskStackId} " +
-                                    "not found."
+                        ?: ProtoLog.w(
+                            CAR_WM_SHELL_TASK_STACK_CONTROLLER,
+                            "AutoTaskStack with id %d not found.",
+                            operation.taskStackId
                         )
                 }
 
@@ -732,9 +801,10 @@ class AutoTaskStackControllerImpl @Inject constructor(
                             operation.safeRegionBounds
                         )
                     }
-                        ?: Slog.w(
-                            TAG, "AutoTaskStack with id ${operation.taskStackId} " +
-                                    "not found."
+                        ?: ProtoLog.w(
+                            CAR_WM_SHELL_TASK_STACK_CONTROLLER,
+                            "AutoTaskStack with id %d not found.",
+                            operation.taskStackId
                         )
                 }
             }
@@ -749,9 +819,10 @@ class AutoTaskStackControllerImpl @Inject constructor(
                         taskStack,
                     )
                 }
-                    ?: Slog.w(
-                        TAG, "AutoTaskStack with id ${operation.taskStackId} " +
-                                "not found."
+                    ?: ProtoLog.w(
+                        CAR_WM_SHELL_TASK_STACK_CONTROLLER,
+                        "AutoTaskStack with id %d not found.",
+                        operation.taskStackId
                     )
             }
         }
@@ -796,7 +867,11 @@ class AutoTaskStackControllerImpl @Inject constructor(
         aborted: Boolean,
         finishTransaction: Transaction?
     ) {
-        if (DBG) Slog.d(TAG, "onTransitionConsumed, aborted=$aborted")
+        ProtoLog.d(
+            CAR_WM_SHELL_TASK_STACK_CONTROLLER,
+            "onTransitionConsumed, aborted=%b",
+            aborted
+        )
         val pending: PendingTransition? = findPending(transition)
         if (pending != null) {
             pendingTransitions.remove(pending)
@@ -807,7 +882,7 @@ class AutoTaskStackControllerImpl @Inject constructor(
             }
 
             if (!pending.delegateToClient) {
-                if (DBG) Slog.d(TAG, "prevent client delegation")
+                ProtoLog.d(CAR_WM_SHELL_TASK_STACK_CONTROLLER, "prevent client delegation")
                 return
             }
         }
@@ -823,7 +898,8 @@ class AutoTaskStackControllerImpl @Inject constructor(
         _taskStackStateMap.forEach { (taskId, taskStackState) ->
             taskStackMap[taskId]?.let { taskStack ->
                 mTaskStackStateTranslator.reorderLeash(taskStack, taskStackState, transaction)
-            } ?: Slog.w(TAG, "Warning: AutoTaskStack with id $taskId not found.")
+            } ?: ProtoLog.w(CAR_WM_SHELL_TASK_STACK_CONTROLLER,
+                "Warning: AutoTaskStack with id %d not found.", taskId)
         }
     }
 

@@ -21,6 +21,8 @@ import static android.Manifest.permission.INTERACT_ACROSS_USERS;
 import static android.Manifest.permission.MANAGE_USERS;
 import static android.car.builtin.os.UserManagerHelper.USER_NULL;
 import static android.car.drivingstate.CarUxRestrictions.UX_RESTRICTIONS_NO_SETUP;
+import static android.content.pm.PackageManager.COMPONENT_ENABLED_STATE_DEFAULT;
+import static android.content.pm.PackageManager.COMPONENT_ENABLED_STATE_DISABLED;
 
 import static com.android.car.CarServiceUtils.getHandlerThread;
 import static com.android.car.CarServiceUtils.isMultipleUsersOnMultipleDisplaysSupported;
@@ -76,6 +78,7 @@ import android.car.user.UserStopResponse;
 import android.car.user.UserStopResult;
 import android.car.user.UserSwitchResult;
 import android.car.util.concurrent.AndroidFuture;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
@@ -338,6 +341,8 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     @GuardedBy("mLockUser")
     private boolean mStartBackgroundUsersOnGarageMode = true;
     private String mUserPickerName;
+    private ComponentName mDriverHomeComponent;
+    private ComponentName mPassengerHomeComponent;
 
     // Whether visible background users are supported on the default display, a.k.a. passenger only
     // systems.
@@ -427,6 +432,8 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         mCreateUserQueue = new ArrayDeque<>(UserManagerHelper.getMaxRunningUsers(context));
         mCarOccupantZoneService = carOccupantZoneService;
         mUserPickerName = mContext.getResources().getString(R.string.config_userPickerActivity);
+        // Store the home component names for driver/passenger for reference during user start
+        initHomeComponentNames();
     }
 
     /**
@@ -2070,6 +2077,12 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             return;
         }
 
+        if (Flags.visibleBackgroundUserToggleHomeComponents()) {
+            // Update the home component enablement on user visible. Because only visible users
+            // require home, this will cover both the passenger start and the driver switch.
+            setHomeComponentEnabledStates(userId);
+        }
+
         // Non-current user only
         // TODO(b/270719791): Keep track of the current user to avoid IPC to AM.
         if (userId == mCurrentUserFetcher.getCurrentUser()) {
@@ -2169,6 +2182,54 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                 DevicePolicyManagerHelper.clearUserRestriction(
                         mDpm, mContext.getPackageName(), restrictionKey, userHandle);
             }
+        }
+    }
+
+    private void initHomeComponentNames() {
+        String driverComponentString = mContext.getResources().getString(
+                R.string.config_driverHomeComponent);
+        if (!TextUtils.isEmpty(driverComponentString)) {
+            mDriverHomeComponent = ComponentName.unflattenFromString(driverComponentString);
+        }
+        String passengerComponentString = mContext.getResources().getString(
+                R.string.config_passengerHomeComponent);
+        if (!TextUtils.isEmpty(passengerComponentString)) {
+            mPassengerHomeComponent = ComponentName.unflattenFromString(passengerComponentString);
+        }
+    }
+
+    private void setHomeComponentEnabledStates(@UserIdInt int userId) {
+        if (!isMultipleUsersOnMultipleDisplaysSupported(mUserManager)) {
+            return;
+        }
+
+        if (mDriverHomeComponent == null || mPassengerHomeComponent == null
+                || mDriverHomeComponent.equals(mPassengerHomeComponent)) {
+            return;
+        }
+
+        if (userId == mCurrentUserFetcher.getCurrentUser()) {
+            if (DBG) {
+                Slogf.d(TAG, "Disabling passenger home for driver user %d", userId);
+            }
+            toggleComponentEnableStatesForUser(userId, mDriverHomeComponent,
+                    mPassengerHomeComponent);
+            return;
+        }
+        if (DBG) {
+            Slogf.d(TAG, "Disabling driver home for visible background user %d", userId);
+        }
+        toggleComponentEnableStatesForUser(userId, mPassengerHomeComponent, mDriverHomeComponent);
+    }
+
+    private void toggleComponentEnableStatesForUser(@UserIdInt int userId,
+            @NonNull ComponentName componentToEnable, @NonNull ComponentName componentToDisable) {
+        synchronized (mLockUser) {
+            UserHandle userHandle = UserHandle.of(userId);
+            PackageManager pm = mContext.createContextAsUser(userHandle, /* flags= */ 0)
+                    .getPackageManager();
+            pm.setComponentEnabledSetting(componentToEnable, COMPONENT_ENABLED_STATE_DEFAULT, 0);
+            pm.setComponentEnabledSetting(componentToDisable, COMPONENT_ENABLED_STATE_DISABLED, 0);
         }
     }
 
@@ -2539,6 +2600,9 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
 
         // Handle special cases first...
         switch (eventType) {
+            case CarUserManager.USER_LIFECYCLE_EVENT_TYPE_CREATED:
+                onUserCreated(userId);
+                break;
             case CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING:
                 onUserSwitching(fromUserId, toUserId);
                 break;
@@ -2874,6 +2938,14 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             }
         }
         t.traceEnd(); // notify-listeners-user-USERID-event-EVENT_TYPE
+    }
+
+    private void onUserCreated(@UserIdInt int userId) {
+        if (DBG) {
+            Slogf.d(TAG, "onUserCreated(userId=%d)", userId);
+        }
+        // By default, Automotive users do not have a lock screen - set to disabled
+        LockPatternHelper.setLockScreenDisabled(mContext, userId, /* disabled= */ true);
     }
 
     private void onUserSwitching(@UserIdInt int fromUserId, @UserIdInt int toUserId) {

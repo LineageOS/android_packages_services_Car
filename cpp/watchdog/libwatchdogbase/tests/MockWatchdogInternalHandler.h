@@ -16,7 +16,7 @@
 
 #pragma once
 
-#include "WatchdogInternalHandler.h"
+#include "WatchdogInternalHandlerBase.h"
 
 #include <android-base/result.h>
 #include <gmock/gmock.h>

@@ -29,3 +29,10 @@ android_library {
         "res",
     ],
 }
+
+android_library {
+    name: "CarUiPortraitService",
+    sdk_version: "current",
+    manifest: "AndroidManifest.xml",
+    srcs: ["src/**/*.java"],
+}

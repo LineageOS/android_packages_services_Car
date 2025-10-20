@@ -17,6 +17,7 @@
 package com.android.car.user;
 
 import static android.car.feature.Flags.FLAG_SUPPORTS_SECURE_PASSENGER_USERS;
+import static android.car.feature.Flags.FLAG_VISIBLE_BACKGROUND_USER_TOGGLE_HOME_COMPONENTS;
 import static android.car.test.mocks.AndroidMockitoHelper.mockAmStartUserInBackground;
 import static android.car.test.mocks.AndroidMockitoHelper.mockAmStartUserInBackgroundVisibleOnDisplay;
 import static android.car.test.mocks.AndroidMockitoHelper.mockAmSwitchUser;
@@ -36,6 +37,8 @@ import static android.car.test.mocks.AndroidMockitoHelper.mockUmIsUserVisible;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmIsVisibleBackgroundUsersOnDefaultDisplaySupported;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmIsVisibleBackgroundUsersSupported;
 import static android.car.test.mocks.JavaMockitoHelper.getResult;
+import static android.content.pm.PackageManager.COMPONENT_ENABLED_STATE_DEFAULT;
+import static android.content.pm.PackageManager.COMPONENT_ENABLED_STATE_DISABLED;
 
 import static com.android.car.user.MockedUserHandleBuilder.expectEphemeralUserExists;
 import static com.android.car.user.MockedUserHandleBuilder.expectGuestUserExists;
@@ -93,6 +96,7 @@ import android.car.user.UserStopResponse;
 import android.car.user.UserStopResult;
 import android.car.user.UserSwitchResult;
 import android.car.util.concurrent.AndroidFuture;
+import android.content.ComponentName;
 import android.content.Context;
 import android.hardware.automotive.vehicle.CreateUserRequest;
 import android.hardware.automotive.vehicle.CreateUserResponse;
@@ -107,6 +111,7 @@ import android.os.Process;
 import android.os.RemoteException;
 import android.os.UserHandle;
 import android.os.UserManager;
+import android.platform.test.annotations.EnableFlags;
 import android.platform.test.flag.junit.SetFlagsRule;
 import android.util.Log;
 import android.view.Display;
@@ -165,7 +170,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         mMockSettings = new MockSettings(builder);
         super.onSessionBuilder(builder);
 
-        builder.spyStatic(Car.class).spyStatic(LockPatternHelper.class);
+        builder.spyStatic(Car.class).mockStatic(LockPatternHelper.class);
     }
 
     @Before
@@ -389,6 +394,14 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
     }
 
     @Test
+    public void testOnUserCreated_lockScreenDisabled() {
+        sendUserCreatedEvent(mRegularUserId);
+
+        ExtendedMockito.verify(() -> LockPatternHelper.setLockScreenDisabled(any(Context.class),
+                eq(mRegularUserId), eq(true)));
+    }
+
+    @Test
     public void testOnUserStarting_systemUser_noop() throws Exception {
         // Arrange.
         mockUmIsVisibleBackgroundUsersSupported(mMockedUserManager, true);
@@ -479,6 +492,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         // Arrange.
         mockContextCreateContextAsUser(mMockContext, mMockUserContext, TEST_USER_ID);
         when(mMockUserContext.getSystemService(UserManager.class)).thenReturn(mMockedUserManager);
+        when(mMockUserContext.getPackageManager()).thenReturn(mPackageManager);
         mockUmIsUserVisible(mMockedUserManager, false);
         when(mMockedUserManager.isUserRunning(UserHandle.of(TEST_USER_ID))).thenReturn(false);
 
@@ -525,6 +539,81 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
 
         // Verify.
         verify(mMockContext, never()).bindServiceAsUser(any(), any(), anyInt(), any());
+    }
+
+    @Test
+    @EnableFlags({FLAG_VISIBLE_BACKGROUND_USER_TOGGLE_HOME_COMPONENTS})
+    public void testOnUserVisible_sameHome_noComponentStateChange() throws Exception {
+        ComponentName homeComponent = new ComponentName("com.android.car",
+                "com.android.car.TestHome");
+        mockUmIsVisibleBackgroundUsersSupported(mMockedUserManager, true);
+        mockCurrentUser(UserHandle.of(TEST_USER_ID + 1));
+        when(mCarOccupantZoneService.getDisplayIdForDriver(anyInt())).thenReturn(
+                TEST_DISPLAY_ID + 1);
+        CarUserService service = new TestCarUserServiceBuilder()
+                .setDriverHomeComponent(homeComponent.flattenToString())
+                .setPassengerHomeComponent(homeComponent.flattenToString())
+                .build();
+
+        service.onUserLifecycleEvent(CarUserManager.USER_LIFECYCLE_EVENT_TYPE_VISIBLE,
+                /* fromUserId= */ 0, TEST_USER_ID);
+
+        verify(mPackageManager, never()).setComponentEnabledSetting(eq(homeComponent), anyInt(),
+                anyInt());
+
+        service.destroy();
+    }
+
+    @Test
+    @EnableFlags({FLAG_VISIBLE_BACKGROUND_USER_TOGGLE_HOME_COMPONENTS})
+    public void testOnUserVisible_differentHome_driver_componentStateChange() throws Exception {
+        ComponentName driverHomeComponent = new ComponentName("com.android.car",
+                "com.android.car.TestHome");
+        ComponentName passengerHomeComponent = new ComponentName("com.android.car",
+                "com.android.car.TestHome2");
+        mockUmIsVisibleBackgroundUsersSupported(mMockedUserManager, true);
+        mockCarServiceHelperGetMainDisplayAssignedToUser(TEST_USER_ID, TEST_DISPLAY_ID);
+        mockCurrentUser(UserHandle.of(TEST_USER_ID));
+        CarUserService service =  new TestCarUserServiceBuilder()
+                .setDriverHomeComponent(driverHomeComponent.flattenToString())
+                .setPassengerHomeComponent(passengerHomeComponent.flattenToString())
+                .build();
+
+        service.onUserLifecycleEvent(CarUserManager.USER_LIFECYCLE_EVENT_TYPE_VISIBLE,
+                /* fromUserId= */ 0, TEST_USER_ID);
+
+        verify(mPackageManager).setComponentEnabledSetting(eq(driverHomeComponent),
+                eq(COMPONENT_ENABLED_STATE_DEFAULT), anyInt());
+        verify(mPackageManager).setComponentEnabledSetting(eq(passengerHomeComponent),
+                eq(COMPONENT_ENABLED_STATE_DISABLED), anyInt());
+
+        service.destroy();
+    }
+
+    @Test
+    @EnableFlags({FLAG_VISIBLE_BACKGROUND_USER_TOGGLE_HOME_COMPONENTS})
+    public void testOnUserVisible_differentHome_passenger_componentStateChange() throws Exception {
+        ComponentName driverHomeComponent = new ComponentName("com.android.car",
+                "com.android.car.TestHome");
+        ComponentName passengerHomeComponent = new ComponentName("com.android.car",
+                "com.android.car.TestHome2");
+        mockUmIsVisibleBackgroundUsersSupported(mMockedUserManager, true);
+        mockCarServiceHelperGetMainDisplayAssignedToUser(TEST_USER_ID, TEST_DISPLAY_ID);
+        mockCurrentUser(UserHandle.of(TEST_USER_ID + 1));
+        CarUserService service = new TestCarUserServiceBuilder()
+                .setDriverHomeComponent(driverHomeComponent.flattenToString())
+                .setPassengerHomeComponent(passengerHomeComponent.flattenToString())
+                .build();
+
+        service.onUserLifecycleEvent(CarUserManager.USER_LIFECYCLE_EVENT_TYPE_VISIBLE,
+                /* fromUserId= */ 0, TEST_USER_ID);
+
+        verify(mPackageManager).setComponentEnabledSetting(eq(driverHomeComponent),
+                eq(COMPONENT_ENABLED_STATE_DISABLED), anyInt());
+        verify(mPackageManager).setComponentEnabledSetting(eq(passengerHomeComponent),
+                eq(COMPONENT_ENABLED_STATE_DEFAULT), anyInt());
+
+        service.destroy();
     }
 
     @Test
@@ -2949,7 +3038,6 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
     @Test
     public void testInitialUserInfoRequestType_FirstBoot() throws Exception {
         when(mInitialUserSetter.hasInitialUser()).thenReturn(false);
-        when(mMockContext.getPackageManager()).thenReturn(mPackageManager);
         when(mPackageManager.isDeviceUpgrading()).thenReturn(true);
 
         assertThat(mCarUserService.getInitialUserInfoRequestType())
@@ -2959,7 +3047,6 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
     @Test
     public void testInitialUserInfoRequestType_FirstBootAfterOTA() throws Exception {
         when(mInitialUserSetter.hasInitialUser()).thenReturn(true);
-        when(mMockContext.getPackageManager()).thenReturn(mPackageManager);
         when(mPackageManager.isDeviceUpgrading()).thenReturn(true);
 
         assertThat(mCarUserService.getInitialUserInfoRequestType())
@@ -2969,7 +3056,6 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
     @Test
     public void testInitialUserInfoRequestType_ColdBoot() throws Exception {
         when(mInitialUserSetter.hasInitialUser()).thenReturn(true);
-        when(mMockContext.getPackageManager()).thenReturn(mPackageManager);
         when(mPackageManager.isDeviceUpgrading()).thenReturn(false);
 
         assertThat(mCarUserService.getInitialUserInfoRequestType())

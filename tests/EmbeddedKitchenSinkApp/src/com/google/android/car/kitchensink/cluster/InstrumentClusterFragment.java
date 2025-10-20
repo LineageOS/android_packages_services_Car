@@ -43,6 +43,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.RadioButton;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -50,6 +51,8 @@ import androidx.fragment.app.Fragment;
 
 import com.google.android.car.kitchensink.R;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -65,8 +68,9 @@ public class InstrumentClusterFragment extends Fragment {
     private CarAppFocusManager mCarAppFocusManager;
     private Car mCarApi;
     private Timer mTimer;
-    private NavigationStateProto[] mNavStateData;
+    private List<NavigationStateProto> mNavStateData;
     private Button mTurnByTurnButton;
+    private TextView mSentDataLogTextView;
 
     private CarServiceLifecycleListener mCarServiceLifecycleListener = (car, ready) -> {
         if (!ready) {
@@ -116,15 +120,17 @@ public class InstrumentClusterFragment extends Fragment {
                 Car.CAR_WAIT_TIMEOUT_WAIT_FOREVER, mCarServiceLifecycleListener);
     }
 
-    @NonNull
-    private NavigationStateProto[] getNavStateData() {
-        NavigationStateProto[] navigationStateArray = new NavigationStateProto[1];
-
-        navigationStateArray[0] = NavigationStateProto.newBuilder()
+    private NavigationStateProto getNavStateData(Maneuver.Type maneuverType) {
+        Log.d(TAG, "ManeuverType: " + maneuverType.name());
+        if (maneuverType == Maneuver.Type.UNRECOGNIZED) {
+            Log.d(TAG, "ManeuverType is not valid");
+            return null;
+        }
+        return NavigationStateProto.newBuilder()
                 .setServiceStatus(NavigationStateProto.ServiceStatus.NORMAL)
                 .addSteps(Step.newBuilder()
                         .setManeuver(Maneuver.newBuilder()
-                                .setType(Maneuver.Type.DEPART)
+                                .setType(maneuverType)
                                 .build())
                         .setDistance(Distance.newBuilder()
                                 .setMeters(300)
@@ -177,8 +183,6 @@ public class InstrumentClusterFragment extends Fragment {
                         .setTraffic(Traffic.HIGH)
                         .build())
                 .build();
-
-        return navigationStateArray;
     }
 
     @Nullable
@@ -195,7 +199,9 @@ public class InstrumentClusterFragment extends Fragment {
                 changeClusterActivityState(PackageManager.COMPONENT_ENABLED_STATE_ENABLED));
         view.findViewById(R.id.cluster_activity_state_disabled).setOnClickListener(v ->
                 changeClusterActivityState(PackageManager.COMPONENT_ENABLED_STATE_DISABLED));
+        mSentDataLogTextView = view.findViewById(R.id.sent_data_log);
         updateInitialClusterActivityState(view);
+        initializeNavStateData(); // Initialize data when view is created
 
         mTurnByTurnButton = view.findViewById(R.id.cluster_turn_left_button);
         mTurnByTurnButton.setOnClickListener(v -> toggleSendTurn());
@@ -249,15 +255,33 @@ public class InstrumentClusterFragment extends Fragment {
         super.onDestroy();
     }
 
+    private void initializeNavStateData() {
+        if (mNavStateData != null) {
+            return; // Already initialized
+        }
+
+        List<NavigationStateProto> data = new ArrayList<>();
+        try {
+            for (Maneuver.Type maneuverType : Maneuver.Type.values()) {
+                NavigationStateProto tmp = getNavStateData(maneuverType);
+                if (tmp != null) {
+                    data.add(tmp);
+                }
+            }
+            mNavStateData = data; // Assign only after successful population
+            Log.i(TAG, "Navigation state data initialized successfully.");
+        } catch (IllegalArgumentException e) { // Example of a more specific exception
+            Log.e(TAG, "Error generating nav state data", e);
+            Toast.makeText(getContext(), "Error generating nav data: " + e.getMessage(),
+                Toast.LENGTH_LONG).show();
+            // mNavStateData remains null if initialization fails
+        }
+    }
+
     /**
      * Enables/disables sending turn-by-turn data through the {@link CarNavigationStatusManager}
      */
     private void toggleSendTurn() {
-        // If we haven't yet load the sample navigation state data, do so.
-        if (mNavStateData == null) {
-            mNavStateData = getNavStateData();
-        }
-
         // Toggle a timer to send update periodically.
         if (mTimer == null) {
             startSendTurn();
@@ -281,8 +305,8 @@ public class InstrumentClusterFragment extends Fragment {
 
             @Override
             public void run() {
-                sendTurn(mNavStateData[mPos]);
-                mPos = (mPos + 1) % mNavStateData.length;
+                sendTurn(mNavStateData.get(mPos));
+                mPos = (mPos + 1) % mNavStateData.size();
             }
         }, 0, 1000);
         mTurnByTurnButton.setText(R.string.cluster_stop_guidance);
@@ -293,7 +317,6 @@ public class InstrumentClusterFragment extends Fragment {
             mTimer.cancel();
             mTimer = null;
         }
-        sendTurn(NavigationStateProto.newBuilder().build());
         mTurnByTurnButton.setText(R.string.cluster_start_guidance);
     }
 
@@ -305,6 +328,19 @@ public class InstrumentClusterFragment extends Fragment {
             Bundle bundle = new Bundle();
             bundle.putByteArray("navstate2", state.toByteArray());
             mCarNavigationStatusManager.sendNavigationStateChange(bundle);
+
+            String status = "";
+
+            if (state.getStepsCount() > 0 && state.getSteps(0).hasManeuver()) {
+                status = "Maneuver:\n" + state.getSteps(0).getManeuver().getType().name();
+            }
+
+            String statusText = status;
+
+            if (getActivity() != null && mSentDataLogTextView != null) {
+                getActivity().runOnUiThread(() -> mSentDataLogTextView.setText(statusText));
+            }
+
             Log.i(TAG, "Sending nav state: " + state);
         }
     }

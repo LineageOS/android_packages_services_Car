@@ -1503,6 +1503,15 @@ public final class Car implements ICarBase {
             "android.car.permission.READ_PROPERTY_VENDOR_STATUS";
 
     /**
+     * Signature|Privileged permission necessary to read property vendor error code.
+     * @hide
+     */
+    @FlaggedApi(Flags.FLAG_CAR_PROPERTY_VENDOR_ERROR_CODE_PERMISSION)
+    @SystemApi
+    public static final String PERMISSION_READ_PROPERTY_VENDOR_ERROR_CODE =
+            "android.car.permission.READ_PROPERTY_VENDOR_ERROR_CODE";
+
+    /**
      * Intent for connecting to the template renderer. Services that handle this intent must also
      * hold {@link #PERMISSION_TEMPLATE_RENDERER}. Applications would not bind to this service
      * directly, but instead they would use

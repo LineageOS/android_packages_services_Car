@@ -1,13 +1,6 @@
 {
   "auto-presubmit": [
     {
-      "name": "ScriptExecutorFunctionalTests",
-      "file_patterns": [
-        "src/.*",
-        "tests/functional/.*"
-      ]
-    },
-    {
       "name": "ScriptExecutorNonSystemUserTests",
       "file_patterns": [
         "src/.*",
@@ -19,6 +12,16 @@
       "file_patterns": [
         "src/.*",
         "tests/unit/.*"
+      ]
+    }
+  ],
+  // TODO(b/447222542): Move to presubmit once the test becomes stable.
+  "auto-postsubmit": [
+    {
+    "name": "ScriptExecutorFunctionalTests",
+      "file_patterns": [
+        "src/.*",
+        "tests/functional/.*"
       ]
     }
   ]

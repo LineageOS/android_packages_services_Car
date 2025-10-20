@@ -31,8 +31,8 @@ import android.util.IndentingPrintWriter;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.google.android.car.kitchensink.drivemode.DriveModeSwitchController;
 import com.google.android.car.kitchensink.customizationtool.CustomizationToolController;
+import com.google.android.car.kitchensink.perfetto.PerfettoController;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
@@ -69,13 +69,20 @@ final class KitchenSinkShellCommand {
             "generate-device-attestation-key-pair";
     private static final String CMD_POST_NOTIFICATION = "post-notification";
     private static final String CMD_POST_TOAST = "post-toast";
-    private static final String CMD_SET_DRIVE_MODE_SWITCH= "set-drive-mode-switch";
-    private static final String CMD_SET_CUSTOMIZATION_TOOL= "set-customization-tool";
+    private static final String CMD_SET_CUSTOMIZATION_TOOL = "set-customization-tool";
+    private static final String CMD_PUSH_PERFETTO_FIELD_TRACE_CONFIG =
+            "push-perfetto-field-trace-config";
+    private static final String CMD_TRIGGER_PERFETTO = "trigger-perfetto";
+    private static final String CMD_QUERY_PERFETTO_FIELD_TRACE_CONFIG =
+            "query-perfetto-field-trace-config";
+    private static final String CMD_REMOVE_PERFETTO_FIELD_TRACE_CONFIG =
+            "remove-perfetto-field-trace-config";
 
     private static final String ARG_VERBOSE = "-v";
     private static final String ARG_VERBOSE_FULL = "--verbose";
     private static final String ARG_USES_APP_CONTEXT = "--app-context";
     private static final String ARG_LONG_TOAST = "--long-toast";
+    private static final String ARG_BUFFER_SIZE_MULTIPLIER = "--buffer-size-multiplier";
 
     private final Context mContext;
     private final @Nullable DevicePolicyManager mDpm;
@@ -124,11 +131,20 @@ final class KitchenSinkShellCommand {
             case CMD_POST_TOAST:
                 postToast();
                 break;
-            case CMD_SET_DRIVE_MODE_SWITCH:
-                setDriveModeSwitch();
-                break;
             case CMD_SET_CUSTOMIZATION_TOOL:
                 setCustomizationTool();
+                break;
+            case CMD_PUSH_PERFETTO_FIELD_TRACE_CONFIG:
+                pushPerfettoFieldTraceConfig();
+                break;
+            case CMD_TRIGGER_PERFETTO:
+                triggerPerfetto();
+                break;
+            case CMD_QUERY_PERFETTO_FIELD_TRACE_CONFIG:
+                queryPerfettoFieldTraceConfig();
+                break;
+            case CMD_REMOVE_PERFETTO_FIELD_TRACE_CONFIG:
+                removePerfettoFieldTraceConfigs();
                 break;
             default:
                 showHelp("Invalid command: %s", cmd);
@@ -159,10 +175,21 @@ final class KitchenSinkShellCommand {
                 CMD_POST_TOAST, "[" + ARG_VERBOSE + "|" + ARG_VERBOSE_FULL + "]",
                 "[" + ARG_USES_APP_CONTEXT + "]", "[" + ARG_LONG_TOAST + "]",
                 "<MESSAGE>");
-        showCommandHelp("Enables / Disables the DriveMode Switch in the System UI.",
-                CMD_SET_DRIVE_MODE_SWITCH, "<true|false>");
         showCommandHelp("Enables / Disables the Customization Tool service.",
                 CMD_SET_CUSTOMIZATION_TOOL, "<true|false>");
+        showCommandHelp("Pushes either the given perfetto trace config in binary proto format or "
+                        + "the default config to the statsd service. Optionally, specify "
+                        + "the buffer size multiplier to increase the in-memory buffer size. "
+                        + "The default buffer size is the sum of all buffers.size_kb values from "
+                        + "the config.",
+                CMD_PUSH_PERFETTO_FIELD_TRACE_CONFIG,
+                "<binary_config_file_path> | default", "[ " + ARG_BUFFER_SIZE_MULTIPLIER
+                + " <int multiplier> ]");
+        showCommandHelp("Triggers the Perfetto trace.", CMD_TRIGGER_PERFETTO);
+        showCommandHelp("Queries the Perfetto field trace config from the statsd service.",
+                CMD_QUERY_PERFETTO_FIELD_TRACE_CONFIG);
+        showCommandHelp("Removes the Perfetto field trace config from the statsd service.",
+                CMD_REMOVE_PERFETTO_FIELD_TRACE_CONFIG);
         mWriter.decreaseIndent();
     }
 
@@ -251,7 +278,7 @@ final class KitchenSinkShellCommand {
         String messageArg = null;
         String nextArg = null;
 
-        while ((nextArg = getNextOptioanlArg()) != null) {
+        while ((nextArg = getNextOptionalArg()) != null) {
             switch (nextArg) {
                 case ARG_VERBOSE:
                 case ARG_VERBOSE_FULL:
@@ -289,20 +316,71 @@ final class KitchenSinkShellCommand {
         Toast.makeText(context, message, longToast ? Toast.LENGTH_LONG : Toast.LENGTH_SHORT).show();
     }
 
-    private void setDriveModeSwitch() {
-        boolean value = getNextBooleanArg();
-        DriveModeSwitchController driveModeSwitchController = new DriveModeSwitchController(
-                mContext
-        );
-        driveModeSwitchController.setDriveMode(value);
-    }
-
     private void setCustomizationTool() {
         boolean value = getNextBooleanArg();
         CustomizationToolController customizationToolController = new CustomizationToolController(
                 mContext
         );
         customizationToolController.toggleCustomizationTool(value);
+    }
+
+    private void pushPerfettoFieldTraceConfig() {
+        String configPath = getNextArg();
+        int bufferSizeMultiplier = 1;
+        String nextArg;
+        while ((nextArg = getNextOptionalArg()) != null) {
+            if (nextArg.equals(ARG_BUFFER_SIZE_MULTIPLIER)) {
+                bufferSizeMultiplier = getNextOptionalIntArg(1);
+            } else {
+                showHelp("Unknown argument: %s", nextArg);
+                return;
+            }
+        }
+        PerfettoController perfettoController = new PerfettoController(mContext);
+        if (!perfettoController.pushFieldTraceConfig(configPath, bufferSizeMultiplier)) {
+            logError("Failed to push Perfetto field trace config: '" + configPath + "'");
+            return;
+        }
+
+        logDebug("Successfully pushed Perfetto field trace config: '" + configPath + "'");
+        perfettoController.printLastPushedStatsdConfig(mWriter);
+    }
+
+    private void triggerPerfetto() {
+        PerfettoController perfettoController = new PerfettoController(mContext);
+        if (!perfettoController.triggerEvent()) {
+            logError("Failed to trigger Perfetto");
+        } else {
+            logDebug("Successfully triggered Perfetto");
+        }
+    }
+
+    private void queryPerfettoFieldTraceConfig() {
+        PerfettoController perfettoController = new PerfettoController(mContext);
+        if (!perfettoController.queryFieldTraceConfig(mWriter)) {
+            logError("Failed to query Perfetto field trace config");
+        } else {
+            logDebug("Successfully queried Perfetto field trace config");
+        }
+    }
+
+    private void removePerfettoFieldTraceConfigs() {
+        PerfettoController perfettoController = new PerfettoController(mContext);
+        if (!perfettoController.removeFieldTraceConfig()) {
+            logError("Failed to remove Perfetto field trace configs");
+        } else {
+            logDebug("Successfully removed Perfetto field trace configs");
+        }
+    }
+
+    private void logDebug(String msg) {
+        Log.d(TAG, msg);
+        mWriter.println(msg);
+    }
+
+    private void logError(String msg) {
+        Log.e(TAG, msg);
+        mWriter.println(msg);
     }
 
     private void warnAboutAsyncCall() {
@@ -334,7 +412,7 @@ final class KitchenSinkShellCommand {
     }
 
     @Nullable
-    private String getNextOptioanlArg() {
+    private String getNextOptionalArg() {
         if (++mNextArgIndex >= mArgs.length) {
             return null;
         }

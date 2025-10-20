@@ -79,6 +79,7 @@ package android.car {
     field public static final String PERMISSION_READ_CAR_OCCUPANT_AWARENESS_STATE = "android.car.permission.READ_CAR_OCCUPANT_AWARENESS_STATE";
     field public static final String PERMISSION_READ_CAR_VENDOR_PERMISSION_INFO = "android.car.permission.READ_CAR_VENDOR_PERMISSION_INFO";
     field public static final String PERMISSION_READ_PERSIST_TETHERING_SETTINGS = "android.car.permission.READ_PERSIST_TETHERING_SETTINGS";
+    field @FlaggedApi("android.car.feature.car_property_vendor_error_code_permission") public static final String PERMISSION_READ_PROPERTY_VENDOR_ERROR_CODE = "android.car.permission.READ_PROPERTY_VENDOR_ERROR_CODE";
     field @FlaggedApi("android.car.feature.car_property_status_detailed_not_available") public static final String PERMISSION_READ_PROPERTY_VENDOR_STATUS = "android.car.permission.READ_PROPERTY_VENDOR_STATUS";
     field public static final String PERMISSION_RECEIVE_CAR_AUDIO_DUCKING_EVENTS = "android.car.permission.RECEIVE_CAR_AUDIO_DUCKING_EVENTS";
     field @FlaggedApi("android.car.feature.car_property_simulation") public static final String PERMISSION_RECORD_VEHICLE_PROPERTIES = "android.car.permission.RECORD_VEHICLE_PROPERTIES";
@@ -963,7 +964,7 @@ package android.car.hardware {
   }
 
   public final class CarPropertyValue<T> implements android.os.Parcelable {
-    method @FlaggedApi("android.car.feature.car_property_status_detailed_not_available") public int getPropertyVendorStatus();
+    method @FlaggedApi("android.car.feature.car_property_status_detailed_not_available") @RequiresPermission(android.car.Car.PERMISSION_READ_PROPERTY_VENDOR_STATUS) public int getPropertyVendorStatus();
     method @FlaggedApi("android.car.feature.car_property_simulation") public boolean isPropertyIdSimulationPropId();
   }
 

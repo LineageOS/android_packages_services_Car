@@ -27,10 +27,12 @@ namespace watchdog {
 class MockAIBinderDeathRegistrationWrapper : public AIBinderDeathRegistrationWrapperInterface {
 public:
     MockAIBinderDeathRegistrationWrapper() {
-        EXPECT_CALL(*this, linkToDeath(testing::_, testing::_, testing::_))
-                .WillRepeatedly(testing::Return(testing::ByMove(ndk::ScopedAStatus::ok())));
-        EXPECT_CALL(*this, unlinkToDeath(testing::_, testing::_, testing::_))
-                .WillRepeatedly(testing::Return(testing::ByMove(ndk::ScopedAStatus::ok())));
+        EXPECT_CALL(*this, linkToDeath(testing::_, testing::_, testing::_)).WillRepeatedly([]() {
+            return ndk::ScopedAStatus::ok();
+        });
+        EXPECT_CALL(*this, unlinkToDeath(testing::_, testing::_, testing::_)).WillRepeatedly([]() {
+            return ndk::ScopedAStatus::ok();
+        });
     }
 
     MOCK_METHOD(ndk::ScopedAStatus, linkToDeath, (AIBinder*, AIBinder_DeathRecipient*, void*),
