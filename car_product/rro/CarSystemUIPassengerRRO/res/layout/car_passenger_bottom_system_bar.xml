@@ -110,7 +110,7 @@
             app:systemBarDisable2Flags="quickSettings"
             app:showAsDropDown="false"
             app:gravity="bottom|end">
-            <com.android.systemui.car.systembar.element.layout.CarSystemBarImageView
+            <com.android.systemui.car.flexibleui.layout.CarSystemBarImageView
                 android:id="@+id/user_icon"
                 android:layout_width="@dimen/car_quick_controls_entry_points_icon_width"
                 android:layout_height="match_parent"

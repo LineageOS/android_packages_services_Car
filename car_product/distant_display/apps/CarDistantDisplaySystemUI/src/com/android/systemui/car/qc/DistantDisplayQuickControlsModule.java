@@ -17,9 +17,9 @@
 package com.android.systemui.car.qc;
 
 import com.android.car.qc.provider.BaseLocalQCProvider;
+import com.android.systemui.car.flexibleui.CarSystemBarElementController;
 import com.android.systemui.car.statusicon.ui.DistantDisplayStatusIconController;
 import com.android.systemui.car.statusicon.ui.DistantDisplayStatusIconPanelController;
-import com.android.systemui.car.systembar.element.CarSystemBarElementController;
 
 import dagger.Binds;
 import dagger.Module;

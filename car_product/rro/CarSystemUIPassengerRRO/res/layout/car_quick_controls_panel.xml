@@ -143,7 +143,7 @@
                     app:layout_constraintHorizontal_weight="9"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toStartOf="@+id/settings_button">
-                    <com.android.systemui.car.systembar.element.layout.CarSystemBarImageView
+                    <com.android.systemui.car.flexibleui.layout.CarSystemBarImageView
                         android:id="@+id/user_icon"
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
@@ -153,7 +153,7 @@
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintEnd_toStartOf="@+id/user_name_text"
                         app:controller="com.android.systemui.car.systembar.UserNameImageViewController"/>
-                    <com.android.systemui.car.systembar.element.layout.CarSystemBarTextView
+                    <com.android.systemui.car.flexibleui.layout.CarSystemBarTextView
                         android:id="@+id/user_name_text"
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
