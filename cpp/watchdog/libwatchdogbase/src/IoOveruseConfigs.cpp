@@ -31,6 +31,7 @@
 #include <inttypes.h>
 
 #include <limits>
+#include <system_error>
 
 namespace android {
 namespace automotive {
@@ -297,6 +298,16 @@ Result<void> ComponentSpecificConfig::updateSafeToKillPackages(
     return errorMsgs.empty() ? Result<void>{} : Error() << errorMsgs;
 }
 
+void renameFile(const char* filename, const char* newFilename) {
+    // Pass an error_code to prevent exceptions from being thrown in tests, which don't have the
+    // required permissions.
+    std::error_code ec;
+    if (std::filesystem::exists(filename, ec) && !std::filesystem::exists(newFilename, ec)) {
+        std::filesystem::rename(filename, newFilename, ec);
+        ALOGI("Attempted to rename %s to %s: %s", filename, newFilename, ec.message().c_str());
+    }
+}
+
 IoOveruseConfigs::IoOveruseConfigs() :
       mSystemConfig({}),
       mVendorConfig({}),
@@ -305,6 +316,12 @@ IoOveruseConfigs::IoOveruseConfigs() :
       mPackagesToAppCategoryMappingUpdateMode(OVERWRITE),
       mPerCategoryThresholds({}),
       mVendorPackagePrefixes({}) {
+    // carwatchdogd now uses the /data/system/io-watchdog directory. In case xml files exist in
+    // /data/system/car/watchdog, move those files to the new data partition.
+    // TODO(b/459527957): Remove migration logic after 4 years
+    renameFile(kLegacyLatestSystemConfigXmlPath, kLatestSystemConfigXmlPath);
+    renameFile(kLegacyLatestVendorConfigXmlPath, kLatestVendorConfigXmlPath);
+    renameFile(kLegacyLatestThirdPartyConfigXmlPath, kLatestThirdPartyConfigXmlPath);
     const auto updateFromXmlPerType = [&](const char* filename, const char* configType) -> bool {
         if (const auto result = this->updateFromXml(filename); !result.ok()) {
             ALOGE("Failed to parse %s resource overuse configuration from '%s': %s", configType,

@@ -38,17 +38,17 @@ namespace android {
 namespace automotive {
 namespace watchdog {
 constexpr const char kBuildSystemConfigXmlPath[] =
-        "/system/etc/automotive/watchdog/legacy_system_resource_overuse_configuration.xml";
+        "/system/etc/io-watchdog/system_resource_overuse_configuration.xml";
 constexpr const char kBuildThirdPartyConfigXmlPath[] =
-        "/system/etc/automotive/watchdog/legacy_third_party_resource_overuse_configuration.xml";
+        "/system/etc/io-watchdog/third_party_resource_overuse_configuration.xml";
 constexpr const char kBuildVendorConfigXmlPath[] =
-        "/vendor/etc/automotive/watchdog/resource_overuse_configuration.xml";
+        "/vendor/etc/io-watchdog/resource_overuse_configuration.xml";
 constexpr const char kLatestSystemConfigXmlPath[] =
-        "/data/system/car/watchdog/legacy_system_resource_overuse_configuration.xml";
+        "/data/system/car/watchdog/system_resource_overuse_configuration.xml";
 constexpr const char kLatestVendorConfigXmlPath[] =
         "/data/system/car/watchdog/vendor_resource_overuse_configuration.xml";
 constexpr const char kLatestThirdPartyConfigXmlPath[] =
-        "/data/system/car/watchdog/legacy_third_party_resource_overuse_configuration.xml";
+        "/data/system/car/watchdog/third_party_resource_overuse_configuration.xml";
 constexpr const char kDefaultThresholdName[] = "default";
 
 inline const aidl::android::automotive::watchdog::internal::PerStateIoOveruseThreshold
