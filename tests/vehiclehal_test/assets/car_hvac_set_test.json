@@ -1,21 +1,25 @@
 [
   {
-    "areaId": 117,
+    "timestamp": 15260639345044129,
+    "areaId": 1,
     "value": 0,
     "prop": 354419984
   },
   {
-    "areaId": 117,
+    "timestamp": 15260639356060418,
+    "areaId": 1,
     "value": 1,
     "prop": 354419984
   },
   {
-    "areaId": 117,
+    "timestamp": 15260639368076108,
+    "areaId": 1,
     "value": 0,
     "prop": 354419984
   },
   {
-    "areaId": 117,
+    "timestamp": 15260639370081300,
+    "areaId": 1,
     "value": 1,
     "prop": 354419984
   }
