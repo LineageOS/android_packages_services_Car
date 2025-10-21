@@ -37,24 +37,24 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:splitTrack="false"
-            android:progressTint="@color/seek_bar_color"
-            android:progressBackgroundTint="@color/seek_bar_background_tint_color"
+            android:progressTint="?oemColorPrimary"
+            android:progressBackgroundTint="?oemColorSecondaryPalette80"
             android:thumbOffset="@dimen/seekbar_thumb_offset"
             android:thumb="@drawable/seekbar_thumb"
             android:paddingStart="@dimen/seekbar_padding"
             android:paddingEnd="@dimen/seekbar_padding"
-            android:max="@integer/optional_seekbar_max"
+            android:max="1000"
             android:visibility="gone"/>
         <ProgressBar
             android:id="@+id/optional_progress_bar"
             android:layout_width="match_parent"
             android:layout_height="@dimen/progress_bar_height"
             android:splitTrack="false"
-            android:progressTint="@color/seek_bar_color"
-            android:progressBackgroundTint="@color/seek_bar_background_tint_color"
+            android:progressTint="?oemColorPrimary"
+            android:progressBackgroundTint="?oemColorSecondaryPalette80"
             android:paddingStart="@dimen/seekbar_padding"
             android:paddingEnd="@dimen/seekbar_padding"
-            android:max="@integer/optional_seekbar_max"
+            android:max="1000"
             style="@android:style/Widget.ProgressBar.Horizontal"/>
     </LinearLayout>
     <TextView
@@ -64,6 +64,6 @@
         android:minWidth="@dimen/seekbar_times_width"
         android:layout_marginStart="@dimen/seekbar_margin_end"
         android:gravity="center_vertical|end"
-        android:textColor="@color/car_on_surface_variant"
-        style="@style/TextAppearance.Car.Sub.Medium"/>
+        android:textColor="?oemColorOnSurfaceVariant"
+        style="?oemTextAppearanceLabelMedium"/>
 </LinearLayout>

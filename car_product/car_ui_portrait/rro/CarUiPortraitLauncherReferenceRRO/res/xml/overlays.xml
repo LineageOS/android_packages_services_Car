@@ -14,6 +14,17 @@
   ~ limitations under the License.
   -->
 <overlay>
+    <item target="attr/oemColorPrimary" value="@attr/oemColorPrimary" />
+    <item target="attr/oemOnSurfaceVariant" value="@attr/oemOnSurfaceVariant" />
+    <item target="attr/oemColorOnSurfaceVariant" value="@attr/oemColorOnSurfaceVariant" />
+    <item target="attr/oemColorSurfaceContainerHigh" value="@attr/oemColorSurfaceContainerHigh" />
+    <item target="attr/oemColorSecondaryPalette80" value="@attr/oemColorSecondaryPalette80" />
+    <item target="attr/oemTextAppearanceBodyLarge" value="@attr/oemTextAppearanceBodyLarge" />
+    <item target="attr/oemTextAppearanceTitleMedium" value="@attr/oemTextAppearanceTitleMedium" />
+    <item target="attr/oemTextAppearanceLabelMedium" value="@attr/oemTextAppearanceLabelMedium" />
+    <item target="attr/oemShapeCornerSmall" value="@attr/oemShapeCornerSmall" />
+    <item target="attr/oemShapeCornerExtraLarge" value="@attr/oemShapeCornerExtraLarge" />
+
     <item target="attr/cardCornerRadius" value="@attr/cardCornerRadius" />
     <item target="attr/cornerFamily" value="@attr/cornerFamily" />
     <item target="attr/cornerSize" value="@attr/cornerSize" />
@@ -21,15 +32,9 @@
     <item target="attr/strokeColor" value="@attr/strokeColor" />
     <item target="attr/strokeWidth" value="@attr/strokeWidth" />
 
-    <item target="color/dialer_button_icon_color" value="@color/dialer_button_icon_color" />
-    <item target="color/dialer_icon_tint_state_list" value="@color/dialer_icon_tint_state_list" />
     <item target="color/icon_tint" value="@color/icon_tint" />
     <item target="color/media_button_tint" value="@color/media_button_tint" />
     <item target="color/media_button_tint_disabled" value="@color/media_button_tint_disabled" />
-    <item target="color/seek_bar_color" value="@color/seek_bar_color" />
-    <item target="color/recents_background_color" value="@color/recents_background_color"/>
-    <item target="color/default_recents_thumbnail_color"
-          value="@color/default_recents_thumbnail_color"/>
 
     <item target="id/card_background" value="@id/card_background" />
     <item target="id/card_background_image" value="@id/card_background_image" />
@@ -73,27 +78,7 @@
     <item target="dimen/recent_task_width_first" value="@dimen/recent_task_width_first"/>
     <item target="dimen/recent_task_width" value="@dimen/recent_task_width"/>
 
-    <item target="style/RecentTasksList" value="@style/RecentTasksList"/>
-    <item target="style/ClearAllRecentTasksButton" value="@style/ClearAllRecentTasksButton"/>
-    <item target="style/RecentTaskIcon" value="@style/RecentTaskIcon"/>
-    <item target="style/RecentTaskThumbnail" value="@style/RecentTaskThumbnail"/>
-    <item target="style/HiddenRecentTaskThumbnail" value="@style/HiddenRecentTaskThumbnail"/>
-
-    <item target="drawable/control_bar_contact_image_background"
-        value="@drawable/control_bar_contact_image_background" />
-    <item target="drawable/control_bar_image_background"
-        value="@drawable/control_bar_image_background" />
-    <item target="drawable/default_audio_background" value="@drawable/default_audio_background" />
-    <item target="drawable/ic_call_end" value="@drawable/ic_call_end" />
-    <item target="drawable/ic_call_end_button" value="@drawable/ic_call_end_button" />
-    <item target="drawable/dialer_button_active_state_circle" value="@drawable/dialer_button_active_state_circle" />
-
-    <item target="string/default_media_song_title" value="@string/default_media_song_title" />
-    <item target="string/times_separator" value="@string/times_separator" />
-
     <item target="bool/show_seek_bar" value="@bool/show_seek_bar" />
     <item target="bool/use_media_source_color_for_seek_bar"
           value="@bool/use_media_source_color_for_seek_bar" />
-
-    <item target="integer/optional_seekbar_max" value="@integer/optional_seekbar_max" />
 </overlay>
