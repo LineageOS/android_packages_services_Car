@@ -51,6 +51,9 @@ class CompatHalCamera final : public aidlevs::BnEvsCameraStream {
     friend class CompatHalCameraTest_doneWithFrame_InvalidBufferId_Test;
     friend class CompatHalCameraTest_doneWithFrame_ValidBufferId_Test;
     friend class CompatHalCameraTest_deliverFrame_NonEmptyBuffer_Test;
+    friend class CompatHalCameraTest_clientStreamEnding_NotRunning_Test;
+    friend class CompatHalCameraTest_clientStreamEnding_OneClientStops_Test;
+    friend class CompatHalCameraTest_clientStreamEnding_ClientStopsWithOthersRunning_Test;
 #endif
 public:
     CompatHalCamera(ACameraDevice* device, const std::string& cameraId,
