@@ -14,8 +14,21 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-
 <resources>
+    <dimen name="app_grid_width">1224dp</dimen>
+    <dimen name="app_grid_height">1154dp</dimen>
+    <dimen name="car_app_selector_column_min_width">250dp</dimen>
+    <dimen name="car_app_selector_column_min_height">165dp</dimen>
+    <dimen name="app_grid_row_margin">57dp</dimen>
+    <dimen name="app_grid_touch_target_size">104dp</dimen>
+    <dimen name="app_grid_margin_horizontal">48dp</dimen>
+    <dimen name="app_touch_target_padding">32dp</dimen>
+    <dimen name="app_touch_target_margin">16dp</dimen>
+    <dimen name="app_icon_background_padding">8dp</dimen>
+    <dimen name="app_icon_description_margin">16dp</dimen>
+    <dimen name="app_icon_margin_top">40dp</dimen>
+    <dimen name="app_icon_size">104dp</dimen>
+
     <dimen name="car_panel_border_width">3dp</dimen>
     <dimen name="panel_grip_bar_height">56dp</dimen>
     <dimen name="grip_bar_height">6dp</dimen>
