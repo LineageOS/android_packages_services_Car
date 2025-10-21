@@ -180,9 +180,172 @@ ScopedAStatus CompatVirtualCamera::getIntParameterRange(
     return ScopedAStatus::fromExceptionCode(EX_UNSUPPORTED_OPERATION);
 }
 
-ScopedAStatus CompatVirtualCamera::getParameterList(
-        [[maybe_unused]] std::vector<CameraParam>* _aidl_return) {
-    return ScopedAStatus::fromExceptionCode(EX_UNSUPPORTED_OPERATION);
+ScopedAStatus CompatVirtualCamera::getParameterList(std::vector<CameraParam>* _aidl_return) {
+    // EVS Manager does not support parameter programming for a logical camera.
+    if (mHalCameras.size() > 1) {
+        LOG(INFO) << "Logical camera does not support parameter programming.";
+        return ScopedAStatus::ok();
+    }
+
+    // The HAL camera object must be valid.
+    auto halCamera = mHalCameras.begin()->second.lock();
+    if (!halCamera) {
+        LOG(ERROR) << "Underlying hardware camera is not available.";
+        return ScopedAStatus::fromServiceSpecificError(
+                static_cast<int>(EvsResult::RESOURCE_NOT_AVAILABLE));
+    }
+
+    CameraDesc desc;
+    auto status = getCameraInfo(&desc);
+    if (!status.isOk()) {
+        LOG(ERROR) << "Failed to get camera info.";
+        return status;
+    }
+
+    if (desc.metadata.empty()) {
+        LOG(WARNING) << "No camera metadata available.";
+        return ScopedAStatus::ok();
+    }
+
+    const camera_metadata_t* metadata =
+            reinterpret_cast<const camera_metadata_t*>(desc.metadata.data());
+
+    std::vector<CameraParam> supportedParams;
+
+    // BRIGHTNESS
+    camera_metadata_ro_entry_t aeCompRange;
+    if (find_camera_metadata_ro_entry(metadata, ACAMERA_CONTROL_AE_COMPENSATION_RANGE,
+                                      &aeCompRange) == 0 &&
+            aeCompRange.count == 2 &&
+            (aeCompRange.data.i32[0] != 0 || aeCompRange.data.i32[1] != 0)) {
+        supportedParams.push_back(CameraParam::BRIGHTNESS);
+    }
+
+    // TODO: For now CONTRAST will be left unsupported because of the disparity between EVS
+    // CONTRAST implementation (usually a slider from 0-255) and camera2 implementation of CONTRAST
+    // (represented by a curve). At this point, this is too complicated to translate, so will leave
+    // it unimplemented until explicitly requested for.
+
+    // camera_metadata_ro_entry_t tonemapModes;
+    // if (find_camera_metadata_ro_entry(metadata, ACAMERA_TONEMAP_AVAILABLE_TONE_MAP_MODES,
+    //                                   &tonemapModes) == 0) {
+    //     for (size_t i = 0; i < tonemapModes.count; ++i) {
+    //         if (tonemapModes.data.u8[i] == ACAMERA_TONEMAP_MODE_CONTRAST_CURVE) {
+    //             supportedParams.push_back(CameraParam::CONTRAST);
+    //             break;
+    //         }
+    //     }
+    // }
+
+    // GAIN, AUTOGAIN
+    camera_metadata_ro_entry_t sensitivityRange;
+    if (find_camera_metadata_ro_entry(metadata, ACAMERA_SENSOR_INFO_SENSITIVITY_RANGE,
+                                      &sensitivityRange) == 0 &&
+            sensitivityRange.count == 2 &&
+            sensitivityRange.data.i32[0] < sensitivityRange.data.i32[1]) {
+        supportedParams.push_back(CameraParam::GAIN);
+        supportedParams.push_back(CameraParam::AUTOGAIN);
+    }
+
+    // WHITE_BALANCE_TEMPERATURE, AUTO_WHITE_BALANCE
+    camera_metadata_ro_entry_t awbModes;
+    if (find_camera_metadata_ro_entry(metadata, ACAMERA_CONTROL_AWB_AVAILABLE_MODES,
+                                      &awbModes) == 0) {
+        bool awbOffAvailable = false;
+        bool awbAutoAvailable = false;
+        for (size_t i = 0; i < awbModes.count; ++i) {
+            if (awbModes.data.u8[i] == ACAMERA_CONTROL_AWB_MODE_OFF) {
+                awbOffAvailable = true;
+            } else if (awbModes.data.u8[i] == ACAMERA_CONTROL_AWB_MODE_AUTO) {
+                awbAutoAvailable = true;
+            }
+        }
+
+        if (awbAutoAvailable) {
+            supportedParams.push_back(CameraParam::AUTO_WHITE_BALANCE);
+        }
+        if (awbOffAvailable) {
+            camera_metadata_ro_entry_t tempRange;
+            if (find_camera_metadata_ro_entry(metadata,
+                                              ACAMERA_COLOR_CORRECTION_COLOR_TEMPERATURE_RANGE,
+                                              &tempRange) == 0 &&
+                    tempRange.count == 2 && tempRange.data.i32[0] < tempRange.data.i32[1]) {
+                supportedParams.push_back(CameraParam::WHITE_BALANCE_TEMPERATURE);
+            }
+        }
+    }
+
+    // SHARPNESS
+    camera_metadata_ro_entry_t edgeModes;
+    if (find_camera_metadata_ro_entry(metadata, ACAMERA_EDGE_AVAILABLE_EDGE_MODES,
+                                      &edgeModes) == 0) {
+        for (size_t i = 0; i < edgeModes.count; ++i) {
+            if (edgeModes.data.u8[i] != ACAMERA_EDGE_MODE_OFF) {
+                supportedParams.push_back(CameraParam::SHARPNESS);
+                break;
+            }
+        }
+    }
+
+    // AUTO_EXPOSURE, ABSOLUTE_EXPOSURE
+    camera_metadata_ro_entry_t aeModes;
+    if (find_camera_metadata_ro_entry(metadata, ACAMERA_CONTROL_AE_AVAILABLE_MODES,
+                                      &aeModes) == 0) {
+        bool aeOffAvailable = false;
+        bool aeOnAvailable = false;
+        for (size_t i = 0; i < aeModes.count; ++i) {
+            if (aeModes.data.u8[i] == ACAMERA_CONTROL_AE_MODE_OFF) {
+                aeOffAvailable = true;
+            } else if (aeModes.data.u8[i] != ACAMERA_CONTROL_AE_MODE_OFF) {
+                aeOnAvailable = true;
+            }
+        }
+
+        if (aeOnAvailable) {
+            supportedParams.push_back(CameraParam::AUTO_EXPOSURE);
+        }
+        if (aeOffAvailable) {
+            camera_metadata_ro_entry_t exposureTimeRange;
+            if (find_camera_metadata_ro_entry(metadata, ACAMERA_SENSOR_INFO_EXPOSURE_TIME_RANGE,
+                                              &exposureTimeRange) == 0 &&
+                    exposureTimeRange.count == 2 &&
+                    exposureTimeRange.data.i64[0] < exposureTimeRange.data.i64[1]) {
+                supportedParams.push_back(CameraParam::ABSOLUTE_EXPOSURE);
+            }
+        }
+    }
+
+    // AUTO_FOCUS
+    camera_metadata_ro_entry_t afModes;
+    if (find_camera_metadata_ro_entry(metadata, ACAMERA_CONTROL_AF_AVAILABLE_MODES,
+                                      &afModes) == 0) {
+        for (size_t i = 0; i < afModes.count; ++i) {
+            if (afModes.data.u8[i] != ACAMERA_CONTROL_AF_MODE_OFF) {
+                supportedParams.push_back(CameraParam::AUTO_FOCUS);
+                break;
+            }
+        }
+    }
+
+    // ABSOLUTE_FOCUS
+    camera_metadata_ro_entry_t minFocusDist;
+    if (find_camera_metadata_ro_entry(metadata, ACAMERA_LENS_INFO_MINIMUM_FOCUS_DISTANCE,
+                                      &minFocusDist) == 0 &&
+            minFocusDist.count > 0 && minFocusDist.data.f[0] > 0) {
+        supportedParams.push_back(CameraParam::ABSOLUTE_FOCUS);
+    }
+
+    // ABSOLUTE_ZOOM
+    camera_metadata_ro_entry_t zoomRatioRange;
+    if (find_camera_metadata_ro_entry(metadata, ACAMERA_CONTROL_ZOOM_RATIO_RANGE,
+                                      &zoomRatioRange) == 0 &&
+            zoomRatioRange.count == 2 &&
+            (zoomRatioRange.data.f[0] < 1.0f || zoomRatioRange.data.f[1] > 1.0f)) {
+        supportedParams.push_back(CameraParam::ABSOLUTE_ZOOM);
+    }
+
+    *_aidl_return = supportedParams;
+    return ScopedAStatus::ok();
 }
 
 ScopedAStatus CompatVirtualCamera::getPhysicalCameraInfo(const std::string& deviceId,
