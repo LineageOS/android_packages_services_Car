@@ -52,14 +52,19 @@ protected:
 
 TEST_F(CompatEnumeratorTest, setCameraGroupMap) {
     EXPECT_CALL(*mMockCameraManager, isAvailable()).WillRepeatedly(Return(true));
-    std::vector<std::string> cameraIds = {"cam0", "cam1"};
+    std::vector<std::string> cameraIds = {"cam0", "cam1", "cam2", "cam3"};
     EXPECT_CALL(*mMockCameraManager, getCameraIdList(_))
             .WillOnce(testing::DoAll(SetArgPointee<0>(cameraIds), Return(ACAMERA_OK)));
 
     CameraGroupMap cameraGroupMap;
-    std::string groupId = "test_group";
-    std::vector<std::string> physicalIds = {"cam0", "cam1"};
-    cameraGroupMap.insert({groupId, {groupId, physicalIds}});
+    std::string groupId1 = "test_group";
+    std::vector<std::string> physicalIds1 = {"cam0", "cam1"};
+    cameraGroupMap.insert({groupId1, {groupId1, physicalIds1, {}}});
+
+    std::string groupId2 = "test_group2";
+    std::vector<std::string> physicalIds2 = {"cam2", "cam3"};
+    std::vector<uint8_t> metadata = {0, 1, 2};
+    cameraGroupMap.insert({groupId2, {groupId2, physicalIds2, metadata}});
 
     ndk::ScopedAStatus status = mEnumerator->setCameraGroupMap(cameraGroupMap);
     ASSERT_TRUE(status.isOk()) << "setCameraGroupMap failed with status: "
@@ -67,11 +72,19 @@ TEST_F(CompatEnumeratorTest, setCameraGroupMap) {
 
     // Access the private member directly via the friend declaration
     ASSERT_NE(mEnumerator->mCameraGroupMap, nullptr);
-    EXPECT_EQ(mEnumerator->mCameraGroupMap->size(), 1);
-    auto it = mEnumerator->mCameraGroupMap->find(groupId);
+    EXPECT_EQ(mEnumerator->mCameraGroupMap->size(), 2);
+
+    auto it = mEnumerator->mCameraGroupMap->find(groupId1);
     ASSERT_NE(it, mEnumerator->mCameraGroupMap->end());
-    EXPECT_EQ(it->second.groupId, groupId);
-    EXPECT_EQ(it->second.physicalIds, physicalIds);
+    EXPECT_EQ(it->second.groupId, groupId1);
+    EXPECT_EQ(it->second.physicalIds, physicalIds1);
+    ASSERT_TRUE(it->second.logicalCameraMetadata.empty());
+
+    it = mEnumerator->mCameraGroupMap->find(groupId2);
+    ASSERT_NE(it, mEnumerator->mCameraGroupMap->end());
+    EXPECT_EQ(it->second.groupId, groupId2);
+    EXPECT_EQ(it->second.physicalIds, physicalIds2);
+    EXPECT_EQ(it->second.logicalCameraMetadata, metadata);
 }
 
 TEST_F(CompatEnumeratorTest, setCameraGroupMap_Invalid) {
@@ -84,7 +97,7 @@ TEST_F(CompatEnumeratorTest, setCameraGroupMap_Invalid) {
     CameraGroupMap cameraGroupMap;
     std::string groupId = "test_group";
     std::vector<std::string> physicalIds = {"cam2"};  // cam2 does not exist
-    cameraGroupMap.insert({groupId, {groupId, physicalIds}});
+    cameraGroupMap.insert({groupId, {groupId, physicalIds, {}}});
 
     ndk::ScopedAStatus status = mEnumerator->setCameraGroupMap(cameraGroupMap);
     EXPECT_EQ(status.getExceptionCode(), EX_ILLEGAL_ARGUMENT);
