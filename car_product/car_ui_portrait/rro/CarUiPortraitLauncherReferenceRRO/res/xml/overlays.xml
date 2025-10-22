@@ -15,7 +15,6 @@
   -->
 <overlay>
     <item target="attr/oemColorPrimary" value="@attr/oemColorPrimary" />
-    <item target="attr/oemOnSurfaceVariant" value="@attr/oemOnSurfaceVariant" />
     <item target="attr/oemColorOnSurfaceVariant" value="@attr/oemColorOnSurfaceVariant" />
     <item target="attr/oemColorSurfaceContainerHigh" value="@attr/oemColorSurfaceContainerHigh" />
     <item target="attr/oemColorSecondaryPalette80" value="@attr/oemColorSecondaryPalette80" />
