@@ -57,7 +57,10 @@ public:
     }
 
     // Starts early-init services.
-    android::base::Result<void> startServices();
+    android::base::Result<void> startServices(const sp<LooperWrapper>& mainLooper);
+
+    // Calls WatchdogPerfServiceBase's pollLooper method.
+    void pollLooper();
 
     // Returns the IoOveruseMonitorBase instance.
     const android::sp<IoOveruseMonitorBaseInterface>& getIoOveruseMonitorBase() {

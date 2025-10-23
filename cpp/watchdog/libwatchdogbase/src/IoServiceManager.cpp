@@ -35,7 +35,7 @@ using ::android::base::Error;
 using ::android::base::Result;
 using ::ndk::SharedRefBase;
 
-Result<void> IoServiceManager::startServices() {
+Result<void> IoServiceManager::startServices(const sp<LooperWrapper>& mainLooper) {
     if (mWatchdogBinderMediatorBase != nullptr || mWatchdogServiceHelperBase != nullptr ||
         mIoOveruseMonitorBase != nullptr || mWatchdogPerfServiceBase != nullptr) {
         return Error(INVALID_OPERATION) << "Cannot start services more than once";
@@ -59,7 +59,8 @@ Result<void> IoServiceManager::startServices() {
     mIoOveruseMonitorBase =
             sp<IoOveruseMonitorBase>::make(mWatchdogServiceHelperBase, packageInfoResolver);
     mWatchdogPerfServiceBase =
-            sp<WatchdogPerfServiceBase>::make(mWatchdogServiceHelperBase, packageInfoResolver);
+            sp<WatchdogPerfServiceBase>::make(mainLooper, mWatchdogServiceHelperBase,
+                                              packageInfoResolver);
     mWatchdogPerfServiceBase->init();
     mWatchdogPerfServiceBase->registerIoOveruseMonitorBase(mIoOveruseMonitorBase);
     if (auto result = mWatchdogPerfServiceBase->start(); !result.ok()) {
@@ -76,6 +77,10 @@ Result<void> IoServiceManager::startServices() {
                 << "Failed to initialize watchdog binder mediator: " << result.error();
     }
     return {};
+}
+
+void IoServiceManager::pollLooper() {
+    mWatchdogPerfServiceBase->pollLooper();
 }
 
 void IoServiceManager::terminateService() {

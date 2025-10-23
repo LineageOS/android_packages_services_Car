@@ -30,8 +30,6 @@
 #include <log/log.h>
 #include <processgroup/sched_policy.h>
 
-#include <pthread.h>
-
 #include <iterator>
 #include <vector>
 
@@ -187,7 +185,7 @@ void WatchdogPerfServiceBase::initInternalLocked() {
 
 Result<void> WatchdogPerfServiceBase::start() {
     Mutex::Autolock lock(mMutex);
-    if (mCurrCollectionEvent != EventType::INIT || mCollectionThread.joinable()) {
+    if (mCurrCollectionEvent != EventType::INIT) {
         return Error(INVALID_OPERATION) << "Cannot start " << kServiceName << " more than once";
     }
     if (mWatchdogServiceHelperBase == nullptr) {
@@ -198,35 +196,7 @@ Result<void> WatchdogPerfServiceBase::start() {
         mCurrCollectionEvent = EventType::TERMINATED;
         return Error() << "No data processor is registered";
     }
-    mCollectionThread = std::thread([&]() {
-        {
-            Mutex::Autolock lock(mMutex);
-            if (EventType expected = EventType::INIT; mCurrCollectionEvent != expected) {
-                ALOGE("Skipping performance data collection as the current collection event "
-                      "%s != %s",
-                      toString(mCurrCollectionEvent), toString(expected));
-                return;
-            }
-            startFirstCollectionEventLocked();
-        }
-        if (set_sched_policy(0, SP_BACKGROUND) != 0) {
-            ALOGW("Failed to set background scheduling priority to %s thread", kServiceName);
-        }
-        if (int result = pthread_setname_np(pthread_self(), "WatchdogPerfSvc"); result != 0) {
-            ALOGE("Failed to set %s thread name: %d", kServiceName, result);
-        }
-        ALOGI("Starting %s performance data collection", toString(mCurrCollectionEvent));
-        bool isCollectionActive = true;
-        /*
-         * Loop until the collection is not active -- performance collection runs on this thread in
-         * a handler.
-         */
-        while (isCollectionActive) {
-            mHandlerLooper->pollAll(/*timeoutMillis=*/-1);
-            Mutex::Autolock lock(mMutex);
-            isCollectionActive = mCurrCollectionEvent != EventType::TERMINATED;
-        }
-    });
+    startCollectionLocked();
     return {};
 }
 
@@ -234,9 +204,31 @@ bool WatchdogPerfServiceBase::isDataProcessorRegisteredLocked() {
     return mIoOveruseMonitorBase != nullptr;
 }
 
-void WatchdogPerfServiceBase::startFirstCollectionEventLocked() {
-    mHandlerLooper->setLooper(Looper::prepare(/*opts=*/0));
+void WatchdogPerfServiceBase::startCollectionLocked() {
+    if (EventType expected = EventType::INIT; mCurrCollectionEvent != expected) {
+        ALOGE("Skipping performance data collection as the current collection event "
+              "%s != %s",
+              toString(mCurrCollectionEvent), toString(expected));
+        return;
+    }
     switchToPeriodicLocked(/*startNow=*/true);
+}
+
+void WatchdogPerfServiceBase::pollLooper() {
+    if (set_sched_policy(0, SP_BACKGROUND) != 0) {
+        ALOGW("Failed to set background scheduling priority to %s thread", kServiceName);
+    }
+    ALOGI("Starting %s performance data collection", toString(mCurrCollectionEvent));
+    bool isCollectionActive = true;
+    /*
+     * Loop until the collection is not active -- performance collection runs on this thread in
+     * a handler.
+     */
+    while (isCollectionActive) {
+        mHandlerLooper->pollAll(/*timeoutMillis=*/-1);
+        Mutex::Autolock lock(mMutex);
+        isCollectionActive = mCurrCollectionEvent != EventType::TERMINATED;
+    }
 }
 
 void WatchdogPerfServiceBase::terminate() {
@@ -260,16 +252,12 @@ void WatchdogPerfServiceBase::terminate() {
         mCurrCollectionEvent = EventType::TERMINATED;
         mUnsentResourceStats.clear();
     }
-    if (mCollectionThread.joinable()) {
-        mCollectionThread.join();
-        if (DEBUG) {
-            ALOGD("%s collection thread terminated", kServiceName);
-        }
-    }
 }
 
 void WatchdogPerfServiceBase::onDataProcessorTerminateLocked() {
-    mIoOveruseMonitorBase->terminate();
+    if (mIoOveruseMonitorBase != nullptr) {
+        mIoOveruseMonitorBase->terminate();
+    }
 }
 
 void WatchdogPerfServiceBase::setSystemState(SystemState systemState) {
@@ -550,8 +538,9 @@ void WatchdogPerfServiceBase::handleMessage(const Message& message) {
         Mutex::Autolock lock(mMutex);
         ALOGE("Terminating %s: %s", kServiceName, result.error().message().c_str());
         /*
-         * DO NOT CALL terminate() as it tries to join the collection thread but this code is
-         * executed on the collection thread. Thus it will result in a deadlock.
+         * DO NOT CALL terminate() as it tries to join the collection thread but in the
+         * derived implementation this code is executed on the collection thread. Thus
+         * it will result in a deadlock.
          */
         mCurrCollectionEvent = EventType::TERMINATED;
         mHandlerLooper->removeMessages(sp<WatchdogPerfServiceBase>::fromExisting(this));
