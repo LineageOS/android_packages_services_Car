@@ -68,7 +68,11 @@ public class AutoCaptionController {
     // display area.
     private final SparseArray<CaptionRegionInfo> mCaptionRegionInfoPerDisplay = new SparseArray<>();
     // To keep the AutoDecor added to the task as caption bar.
-    private final SparseArray<AutoDecor> mTaskIdToCaptionBar = new SparseArray<>();
+    @VisibleForTesting
+    final SparseArray<AutoDecor> mTaskIdToCaptionBar = new SparseArray<>();
+    // To save the task info for all the tasks.
+    @VisibleForTesting
+    final SparseArray<ActivityManager.RunningTaskInfo> mTaskInfos = new SparseArray<>();
     private final AutoTaskRepository mAutoTaskRepository;
     private final PackageManager mPackageManager;
 
@@ -76,7 +80,8 @@ public class AutoCaptionController {
 
     private boolean mIsCarReady = false;
 
-    private AutoTaskRepository.AutoAppTaskListener mAutoAppTaskListener =
+    @VisibleForTesting
+    AutoTaskRepository.AutoAppTaskListener mAutoAppTaskListener =
             new AutoTaskRepository.AutoAppTaskListener() {
                 public void onTaskAppeared(ActivityManager.RunningTaskInfo taskInfo) {
                     if (taskInfo.parentTaskId != -1) {
@@ -151,12 +156,13 @@ public class AutoCaptionController {
             return;
         }
 
-        // TODO (b/430955826): Ensure caption bar updates happen when changes occur.
         if (mCaptionRegionInfoPerRootTask.contains(rootTaskStack.getId())) {
             ProtoLog.i(CAR_WM_SHELL_CAPTION_CONTROLLER,
                     "Root task already has a caption region. Updating it to new values. caption "
                             + "region [%s], root task stack [%d]",
                     String.valueOf(relativeCaptionRegion), rootTaskStack.getId());
+            mCaptionRegionInfoPerRootTask.remove(rootTaskStack.getId());
+            removeCaptionBars(rootTaskStack.getId(), /* isRootTask= */ true);
         } else {
             ProtoLog.i(CAR_WM_SHELL_CAPTION_CONTROLLER, "Defining caption region [%s] for root task"
                             + " stack %d",
@@ -218,6 +224,8 @@ public class AutoCaptionController {
                     "Display already has a caption region. Updating "
                             + "it to new values. caption region [%s] for display %d",
                     String.valueOf(captionRegion), displayId);
+            mCaptionRegionInfoPerDisplay.remove(displayId);
+            removeCaptionBars(displayId, /* isRootTask= */ false);
         } else {
             ProtoLog.i(CAR_WM_SHELL_CAPTION_CONTROLLER,
                     "Defining caption region [%s] for display %d",
@@ -250,6 +258,20 @@ public class AutoCaptionController {
         ProtoLog.i(CAR_WM_SHELL_CAPTION_CONTROLLER, "Removing caption region for display %d",
                 displayId);
         mCaptionRegionInfoPerDisplay.remove(displayId);
+    }
+
+    private void removeCaptionBars(int containerId, boolean isRootTask) {
+        SparseArray<ActivityManager.RunningTaskInfo> tasks = mAutoTaskRepository
+                .getRunningTasks();
+        for (int i = 0; i < tasks.size(); i++) {
+            ActivityManager.RunningTaskInfo taskInfo = tasks.valueAt(i);
+            boolean shouldRemove = isRootTask
+                    ? (taskInfo.parentTaskId == containerId)
+                    : (taskInfo.displayId == containerId && taskInfo.parentTaskId == -1);
+            if (shouldRemove) {
+                removeCaptionBar(taskInfo);
+            }
+        }
     }
 
     /**
