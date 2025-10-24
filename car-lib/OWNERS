@@ -29,12 +29,12 @@ per-file src/android/car/content/pm/* = gauravbhola@google.com, gargmayank@googl
 per-file src/android/car/hardware/power/* = ericjeong@google.com
 
 # Property
-per-file src/android/car/Vehicle* = tylertrephan@google.com
-per-file src/android/car/hardware/Car* = tylertrephan@google.com
-per-file src/android/car/hardware/property/* = tylertrephan@google.com
-per-file generated-prop-config/* = tylertrephan@google.com
-per-file src/com/android/car/internal/property/* = tylertrephan@google.com
-per-file src/com/android/car/internal/util/PairSparseArray.java = aaqibismail@google.com, tylertrephan@google.com
+per-file src/android/car/Vehicle* = file:platform/hardware/interfaces:/automotive/vehicle/OWNERS
+per-file src/android/car/hardware/Car* = file:platform/hardware/interfaces:/automotive/vehicle/OWNERS
+per-file src/android/car/hardware/property/* = file:platform/hardware/interfaces:/automotive/vehicle/OWNERS
+per-file generated-prop-config/* = file:platform/hardware/interfaces:/automotive/vehicle/OWNERS
+per-file src/com/android/car/internal/property/* = file:platform/hardware/interfaces:/automotive/vehicle/OWNERS
+per-file src/com/android/car/internal/util/*SparseArray*.java = file:platform/hardware/interfaces:/automotive/vehicle/OWNERS
 
 # RemoteAccess
 per-file src/android/car/remoteaccess/* = ericjeong@google.com
