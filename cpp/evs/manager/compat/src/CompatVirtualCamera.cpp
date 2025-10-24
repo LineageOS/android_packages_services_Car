@@ -43,8 +43,7 @@ CompatVirtualCamera::~CompatVirtualCamera() {
     // Destructor stub
 }
 
-ScopedAStatus CompatVirtualCamera::doneWithFrame(
-        const std::vector<BufferDesc>& buffers) {
+ScopedAStatus CompatVirtualCamera::doneWithFrame(const std::vector<BufferDesc>& buffers) {
     std::lock_guard lock(mMutex);
     for (auto&& buffer : buffers) {
         // Find this buffer in our "held" list
