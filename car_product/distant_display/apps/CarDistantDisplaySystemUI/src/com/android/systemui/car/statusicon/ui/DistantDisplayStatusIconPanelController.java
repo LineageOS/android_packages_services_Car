@@ -21,12 +21,12 @@ import static com.android.systemui.car.distantdisplay.util.Logging.logIfDebuggab
 import android.view.View;
 
 import com.android.systemui.car.distantdisplay.common.DistantDisplayController;
+import com.android.systemui.car.flexibleui.CarSystemBarElementController;
+import com.android.systemui.car.flexibleui.CarSystemBarElementStateController;
+import com.android.systemui.car.flexibleui.CarSystemBarElementStatusBarDisableController;
 import com.android.systemui.car.statusicon.StatusIconPanelViewController;
 import com.android.systemui.car.systembar.CarSystemBarPanelButtonView;
 import com.android.systemui.car.systembar.CarSystemBarPanelButtonViewController;
-import com.android.systemui.car.systembar.element.CarSystemBarElementController;
-import com.android.systemui.car.systembar.element.CarSystemBarElementStateController;
-import com.android.systemui.car.systembar.element.CarSystemBarElementStatusBarDisableController;
 
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
