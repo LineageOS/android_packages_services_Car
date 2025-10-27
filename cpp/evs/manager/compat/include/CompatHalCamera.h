@@ -63,6 +63,7 @@ public:
     ::ndk::ScopedAStatus deliverFrame(const std::vector<aidlevs::BufferDesc>& buffer) override;
     ::ndk::ScopedAStatus notify(const aidlevs::EvsEventDesc& event) override;
 
+    ::ndk::ScopedAStatus doneWithFrame(aidlevs::BufferDesc buffer);
     inline aidlevs::Stream getStreamConfig() const { return mStreamConfig; }
     ACameraDevice* getDevice() const { return mDevice; }
     std::string getId() const { return mCameraId; }
@@ -72,14 +73,13 @@ public:
     ::ndk::ScopedAStatus clientStreamStarting();
     void clientStreamEnding(const CompatVirtualCamera* virtualCamera);
     bool tryIsStopped(bool& result) const;
+    void requestNewFrame(std::shared_ptr<CompatVirtualCamera> virtualCamera, int64_t timestamp);
 
 private:
     ::ndk::ScopedAStatus startNdkCameraStream(int32_t maxImages);
     void cleanUpNdkResources();
     static void onImageAvailable(void* context, AImageReader* reader);
     static void onSessionClosed(void* context, ACameraCaptureSession* session);
-
-    ::ndk::ScopedAStatus doneWithFrame(aidlevs::BufferDesc buffer);
 
     ACameraDevice* mDevice;
     std::string mCameraId;
@@ -115,7 +115,7 @@ private:
     struct FrameRecord {
         uint32_t frameId;
         uint32_t refCount;
-        FrameRecord() : frameId(0), refCount(0) {} // needed for resizing mFrameRecords.
+        FrameRecord() : frameId(0), refCount(0) {}  // needed for resizing mFrameRecords.
         FrameRecord(uint32_t id, uint32_t count) : frameId(id), refCount(count) {}
     };
     std::vector<FrameRecord> mFrameRecords GUARDED_BY(mMutex);

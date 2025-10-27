@@ -17,6 +17,7 @@
 #include "CompatHalCamera.h"
 
 #include "CompatVirtualCamera.h"
+#include "DummyNdkObjects.h"
 #include "MockCameraManager.h"
 #include "MockNdkCamera.h"
 
@@ -32,15 +33,6 @@ using ::testing::Return;
 using ::testing::SetArgPointee;
 
 namespace android::hardware::automotive::evs::compat {
-
-// Dummy NDK object pointers
-auto* dummyReader = reinterpret_cast<AImageReader*>(0x1001);
-auto* dummyWindow = reinterpret_cast<ANativeWindow*>(0x1002);
-auto* dummyOutputTarget = reinterpret_cast<ACameraOutputTarget*>(0x1003);
-auto* dummySessionOutput = reinterpret_cast<ACaptureSessionOutput*>(0x1004);
-auto* dummyOutputContainer = reinterpret_cast<ACaptureSessionOutputContainer*>(0x1005);
-auto* dummySession = reinterpret_cast<ACameraCaptureSession*>(0x1006);
-auto* dummyCaptureRequest = reinterpret_cast<ACaptureRequest*>(0x1007);
 
 class MockVirtualCamera : public CompatVirtualCamera {
 public:

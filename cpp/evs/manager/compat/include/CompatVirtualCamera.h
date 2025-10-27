@@ -46,6 +46,8 @@ class CompatVirtualCamera : public aidlevs::BnEvsCamera {
     friend class CompatVirtualCameraTest_deliverFrame_Success_Test;
     friend class CompatVirtualCameraTest_doneWithFrame_BufferNotFound_Test;
     friend class CompatVirtualCameraTest_doneWithFrame_Success_Test;
+    friend class CompatVirtualCameraTest_startVideoStream_StreamAlreadyRunning_Test;
+    friend class CompatVirtualCameraTest_startVideoStream_Success_Test;
 #endif
 
 public:
@@ -101,6 +103,8 @@ public:
     }
 
 private:
+    void shutdown();
+
     std::unordered_map<std::string, std::weak_ptr<CompatHalCamera>> mHalCameras;
     unsigned int mMaxFramesInFlight GUARDED_BY(mMutex) = 1;
     enum {

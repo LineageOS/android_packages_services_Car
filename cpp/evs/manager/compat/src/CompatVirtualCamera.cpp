@@ -20,6 +20,7 @@
 #include "Utils.h"
 
 #include <android-base/logging.h>
+#include <android-base/thread_annotations.h>
 
 namespace android::hardware::automotive::evs::compat {
 
@@ -40,7 +41,68 @@ CompatVirtualCamera::CompatVirtualCamera(
 }
 
 CompatVirtualCamera::~CompatVirtualCamera() {
-    // Destructor stub
+    shutdown();
+}
+
+void CompatVirtualCamera::shutdown() {
+    {
+        std::lock_guard lock(mMutex);
+
+        // In normal operation, the stream should already be stopped by the time we get here
+        if (mStreamState != RUNNING) {
+            return;
+        }
+
+        // Note that if we hit this case, no terminating frame will be sent to the client,
+        // but they're probably already dead anyway.
+        LOG(WARNING) << "Virtual camera being shutdown while stream is running";
+
+        // Tell the frame delivery pipeline we don't want any more frames
+        mStreamState = STOPPING;
+
+        // Returns buffers held by this client
+        for (auto&& [key, hwCamera] : mHalCameras) {
+            auto pHwCamera = hwCamera.lock();
+            if (!pHwCamera) {
+                LOG(WARNING) << "Camera device " << key << " is not alive.";
+                continue;
+            }
+
+            if (!mFramesHeld[key].empty()) {
+                LOG(WARNING) << "CompatVirtualCamera destructing with frames in flight.";
+
+                // Return to the underlying hardware camera any buffers the client was holding
+                while (!mFramesHeld[key].empty()) {
+                    auto it = mFramesHeld[key].begin();
+                    pHwCamera->doneWithFrame(std::move(*it));
+                    mFramesHeld[key].erase(it);
+                }
+            }
+
+            // Give the underlying hardware camera the heads up that it might be time to stop
+            pHwCamera->clientStreamEnding(this);
+            pHwCamera->disownVirtualCamera(this);
+        }
+
+        mFramesHeld.clear();
+        mFramesUsed.clear();
+
+        // Awake the capture and buffer-return threads; they will be terminated.
+        mFramesReadySignal.notify_all();
+        mReturnFramesSignal.notify_all();
+    }
+
+    // Join a capture and buffer-return threads.
+    if (mCaptureThread.joinable()) {
+        mCaptureThread.join();
+    }
+
+    if (mReturnThread.joinable()) {
+        mReturnThread.join();
+    }
+
+    // Drop our reference to our associated hardware camera
+    mHalCameras.clear();
 }
 
 ScopedAStatus CompatVirtualCamera::doneWithFrame(const std::vector<BufferDesc>& buffers) {
@@ -187,12 +249,249 @@ ScopedAStatus CompatVirtualCamera::setMaxFramesInFlight(int32_t bufferCount) {
 }
 
 ScopedAStatus CompatVirtualCamera::startVideoStream(
-        [[maybe_unused]] const std::shared_ptr<IEvsCameraStream>& receiver) {
-    return ScopedAStatus::fromExceptionCode(EX_UNSUPPORTED_OPERATION);
+        const std::shared_ptr<IEvsCameraStream>& receiver) {
+    std::lock_guard lock(mMutex);
+    if (!receiver) {
+        LOG(ERROR) << "Given IEvsCameraStream object is invalid.";
+        return ScopedAStatus::fromServiceSpecificError(
+                static_cast<int32_t>(EvsResult::INVALID_ARG));
+    }
+    // Only support starting a stream when the stream is stopped.
+    if (mStreamState != STOPPED) {
+        LOG(ERROR) << "Ignoring startVideoStream call when a stream is already running.";
+        return ScopedAStatus::fromServiceSpecificError(
+                static_cast<int32_t>(EvsResult::STREAM_ALREADY_RUNNING));
+    }
+    // No frames should be held when starting a stream.
+    assert(mFramesHeld.empty());
+
+    // Record the user's callback for use when we have a frame ready
+    mStream = receiver;
+    mStreamState = RUNNING;
+
+    // Tell the underlying camera hardware that we want to stream
+    bool cleanUpAndReturn = true;
+    auto iter = mHalCameras.begin();
+    while (iter != mHalCameras.end()) {
+        std::shared_ptr<CompatHalCamera> halCamera = iter->second.lock();
+        if (!halCamera) {
+            LOG(WARNING) << "Failed to start a video stream on " << iter->first;
+            ++iter;
+            continue;
+        }
+
+        LOG(INFO) << __FUNCTION__ << " starts a video stream on " << iter->first;
+        if (!halCamera->clientStreamStarting().isOk()) {
+            LOG(ERROR) << "Failed to start a video stream on " << iter->first;
+            cleanUpAndReturn = true;
+            break;
+        }
+
+        cleanUpAndReturn = false;
+        ++iter;
+    }
+
+    if (cleanUpAndReturn) {
+        // If we failed to start the underlying stream, then we're not actually running
+        mStream = nullptr;
+        mStreamState = STOPPED;
+
+        // Request to stop streams started by this client.
+        auto rb = mHalCameras.begin();
+        while (rb != iter) {
+            auto ptr = rb->second.lock();
+            if (ptr) {
+                ptr->clientStreamEnding(this);
+            }
+            ++rb;
+        }
+
+        return ScopedAStatus::fromServiceSpecificError(
+                static_cast<int32_t>(EvsResult::UNDERLYING_SERVICE_ERROR));
+    }
+
+    mCaptureThread = std::thread([this]() {
+        // TODO(b/145466570): With a proper camera hang handler, we may want
+        // to reduce an amount of timeout.
+        constexpr auto kFrameTimeout = std::chrono::seconds(5);  // timeout in seconds.
+        int64_t lastFrameTimestamp = -1;
+        EvsResult status = EvsResult::OK;
+        while (true) {
+            std::unique_lock lock(mMutex);
+            ::android::base::ScopedLockAssertion assume_lock(mMutex);
+            if (mStreamState != RUNNING) {
+                LOG(DEBUG) << "Requested to stop capturing frames";
+                break;
+            }
+
+            unsigned count = 0;
+            for (auto&& [key, hwCamera] : mHalCameras) {
+                std::shared_ptr<CompatHalCamera> halCamera = hwCamera.lock();
+                if (!halCamera) {
+                    LOG(WARNING) << "Invalid camera " << key << " is ignored.";
+                    continue;
+                }
+
+                halCamera->requestNewFrame(ref<CompatVirtualCamera>(), lastFrameTimestamp);
+                mSourceCameras.insert(halCamera->getId());
+                ++count;
+            }
+
+            if (count < 1) {
+                LOG(ERROR) << "No camera is available.";
+                status = EvsResult::RESOURCE_NOT_AVAILABLE;
+                break;
+            }
+
+            if (!mFramesReadySignal.wait_for(lock, kFrameTimeout, [this]() REQUIRES(mMutex) {
+                    return mStreamState != RUNNING || mSourceCameras.empty();
+                })) {
+                LOG(DEBUG) << "Timer for a new frame expires";
+                status = EvsResult::UNDERLYING_SERVICE_ERROR;
+                break;
+            }
+
+            if (mStreamState != RUNNING || !mStream) {
+                LOG(DEBUG) << "Requested to stop capturing frames or lost a client";
+                break;
+            }
+
+            if (mFramesHeld.empty()) {
+                continue;
+            }
+
+            std::vector<BufferDesc> frames;
+            frames.resize(count);
+            unsigned i = 0;
+            for (auto&& [key, hwCamera] : mHalCameras) {
+                std::shared_ptr<CompatHalCamera> halCamera = hwCamera.lock();
+                if (!halCamera || mFramesHeld[key].empty()) {
+                    continue;
+                }
+
+                auto frame = dupBufferDesc(mFramesHeld[key].back(), /* doDup= */ true);
+                if (frame.timestamp > lastFrameTimestamp) {
+                    lastFrameTimestamp = frame.timestamp;
+                }
+                frames[i++] = std::move(frame);
+            }
+
+            if (!mStream->deliverFrame(frames).isOk()) {
+                LOG(WARNING) << "Failed to forward frames";
+            }
+        }
+
+        LOG(DEBUG) << "Exiting a capture thread";
+        if (status != EvsResult::OK && mStream) {
+            aidlevs::EvsEventDesc event = {
+                    .aType = status == EvsResult::RESOURCE_NOT_AVAILABLE
+                            ? aidlevs::EvsEventType::STREAM_ERROR
+                            : aidlevs::EvsEventType::TIMEOUT,
+                    .payload = {static_cast<int32_t>(status)},
+            };
+            if (!mStream->notify(event).isOk()) {
+                LOG(WARNING) << "Error delivering a stream event"
+                             << static_cast<int32_t>(event.aType);
+            }
+        }
+    });
+
+    mReturnThread = std::thread([this]() {
+        while (true) {
+            std::unordered_map<std::string, std::vector<BufferDesc>> framesUsed;
+            {
+                std::unique_lock lock(mMutex);
+                ::android::base::ScopedLockAssertion assume_lock(mMutex);
+                mReturnFramesSignal.wait(lock, [this]() REQUIRES(mMutex) {
+                    return mStreamState != RUNNING || !mFramesUsed.empty();
+                });
+
+                if (mStreamState != RUNNING) {
+                    LOG(DEBUG) << "Requested to stop capturing frames or lost a client";
+                    break;
+                }
+
+                for (auto&& [hwCameraId, buffers] : mFramesUsed) {
+                    std::vector<BufferDesc> bufferToReturn(std::make_move_iterator(buffers.begin()),
+                                                           std::make_move_iterator(buffers.end()));
+                    framesUsed.insert_or_assign(hwCameraId, std::move(bufferToReturn));
+                }
+
+                mFramesUsed.clear();
+            }
+
+            for (auto&& [hwCameraId, buffers] : framesUsed) {
+                std::shared_ptr<CompatHalCamera> halCamera = mHalCameras[hwCameraId].lock();
+                if (!halCamera) {
+                    LOG(WARNING) << "Possible memory leak; " << hwCameraId << " is not valid.";
+                    continue;
+                }
+
+                for (auto&& buffer : buffers) {
+                    const auto bufferId = buffer.bufferId;
+                    if (!halCamera->doneWithFrame(std::move(buffer)).isOk()) {
+                        LOG(WARNING)
+                                << "Failed to return a buffer " << bufferId << " to " << hwCameraId;
+                    }
+                }
+            }
+        }
+
+        LOG(DEBUG) << "Exiting a return thread";
+    });
+
+    return ScopedAStatus::ok();
 }
 
 ScopedAStatus CompatVirtualCamera::stopVideoStream() {
-    return ScopedAStatus::fromExceptionCode(EX_UNSUPPORTED_OPERATION);
+    {
+        std::lock_guard lock(mMutex);
+        if (mStreamState != RUNNING) {
+            // No action is required.
+            return ScopedAStatus::ok();
+        }
+
+        // Tell the frame delivery pipeline we don't want any more frames
+        mStreamState = STOPPING;
+
+        // Awake the capture and buffer-return threads; they will be terminated.
+        mSourceCameras.clear();
+        mFramesReadySignal.notify_all();
+        mReturnFramesSignal.notify_all();
+
+        // Deliver the stream-ending notification
+        aidlevs::EvsEventDesc event{
+                .aType = aidlevs::EvsEventType::STREAM_STOPPED,
+        };
+        if (mStream && !mStream->notify(event).isOk()) {
+            LOG(WARNING) << "Error delivering end of stream event";
+        }
+
+        // Since we are single threaded, no frame can be delivered while this function is running,
+        // so we can go directly to the STOPPED state here on the server.
+        // Note, however, that there still might be frames already queued that client will see
+        // after returning from the client side of this call.
+        mStreamState = STOPPED;
+    }
+
+    // Give the underlying hardware camera the heads up that it might be time to stop
+    for (auto&& [_, halCamera] : mHalCameras) {
+        auto pHalCamera = halCamera.lock();
+        if (pHalCamera) {
+            pHalCamera->clientStreamEnding(this);
+        }
+    }
+
+    // Join a capture and buffer-return threads.
+    if (mCaptureThread.joinable()) {
+        mCaptureThread.join();
+    }
+
+    if (mReturnThread.joinable()) {
+        mReturnThread.join();
+    }
+
+    return ScopedAStatus::ok();
 }
 
 ScopedAStatus CompatVirtualCamera::unsetPrimaryClient() {
