@@ -32,10 +32,10 @@ per-file src/com/google/android/car/kitchensink/CarWatchdogClient.java = lakshma
 per-file src/com/google/android/car/kitchensink/watchdog/* = lakshmana@google.com
 
 # Property
-per-file src/com/google/android/car/kitchensink/property/* = ericjeong@google.com, tylertrephan@google.com
+per-file src/com/google/android/car/kitchensink/property/* = file:platform/hardware/interfaces:/automotive/vehicle/OWNERS
 
 # Sensor
-per-file src/com/google/android/car/kitchensink/sensor/* = ericjeong@google.com, tylertrephan@google.com, evaschen@google.com
+per-file src/com/google/android/car/kitchensink/sensor/* = file:platform/hardware/interfaces:/automotive/vehicle/OWNERS
 
 # res folder
-per-file res/** = oscarazu@google.com, salsavage@google.com, chengandrew@google.com, twasilczyk@google.com, lakshmana@google.com, tylertrephan@google.com, evaschen@google.com
+per-file res/** = oscarazu@google.com, salsavage@google.com, chengandrew@google.com, twasilczyk@google.com, lakshmana@google.com, aaqibismail@google.com, evaschen@google.com

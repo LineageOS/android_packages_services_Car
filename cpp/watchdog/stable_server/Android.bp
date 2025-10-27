@@ -330,8 +330,8 @@ cc_binary {
     ],
     vintf_fragment_modules: ["carwatchdogd.xml"],
     required: [
-        "system_resource_overuse_configuration.xml",
-        "third_party_resource_overuse_configuration.xml",
+        "legacy_system_resource_overuse_configuration.xml",
+        "legacy_third_party_resource_overuse_configuration.xml",
     ],
 }
 

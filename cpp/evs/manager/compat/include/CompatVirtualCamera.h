@@ -90,6 +90,11 @@ public:
 
     virtual bool deliverFrame(const aidlevs::BufferDesc& bufferDesc);
 
+    virtual bool isStreaming() const {
+        std::lock_guard<std::mutex> lock(mMutex);
+        return mStreamState == RUNNING;
+    }
+
     unsigned int getMaxFramesInFlight() const {
         std::lock_guard<std::mutex> lock(mMutex);
         return mMaxFramesInFlight;

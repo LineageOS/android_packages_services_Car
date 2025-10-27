@@ -1,6 +1,6 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- 
-  ~ Copyright (C) 2021 The Android Open Source Project
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2025 The Android Open Source Project
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -13,11 +13,12 @@
   ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
-   -->
+  -->
+<resources>
+    <!-- Hide the app grid recent applications row -->
+    <bool name="car_app_show_recent_apps">false</bool>
 
-<resources xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="ongoing_call_duration_text_separator" msgid="8996759915424216116">" • "</string>
-    <string name="default_media_song_title" msgid="7110552500092050695">"Piliin ang media"</string>
-    <string name="times_separator" msgid="4190956123011294906">" / "</string>
+    <!-- Whether the app grid should use vertical pagination (up and down swipe) in app grid
+    instead of horizontal pagination (left and right)-->
+    <bool name="use_vertical_app_grid">true</bool>
 </resources>

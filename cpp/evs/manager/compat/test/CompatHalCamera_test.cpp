@@ -48,6 +48,7 @@ public:
           CompatVirtualCamera(halCameras) {}
 
     MOCK_METHOD(bool, deliverFrame, (const aidlevs::BufferDesc&), (override));
+    MOCK_METHOD(bool, isStreaming, (), (const, override));
 };
 
 class CompatHalCameraTest : public ::testing::Test {
@@ -291,6 +292,96 @@ TEST_F(CompatHalCameraTest, doneWithFrame_ValidBufferId) {
                                [bufferId](const auto& rec) { return rec.frameId == bufferId; });
         EXPECT_TRUE(it == mHalCamera->mFrameRecords.end() || it->refCount == 0);
     }
+}
+
+TEST_F(CompatHalCameraTest, clientStreamEnding_NotRunning) {
+    // Ensure stream is not RUNNING
+    {
+        std::lock_guard<std::mutex> lock(mHalCamera->mMutex);
+        mHalCamera->mStreamState = CompatHalCamera::STOPPED;
+    }
+
+    std::vector<std::shared_ptr<CompatHalCamera>> halCameras;
+    halCameras.push_back(mHalCamera);
+    std::shared_ptr<MockVirtualCamera> virtualCamera =
+            ::ndk::SharedRefBase::make<MockVirtualCamera>(halCameras);
+
+    // Expect no cleanup calls
+    EXPECT_CALL(mMockNdkCamera, ACameraCaptureSession_stopRepeating(_)).Times(0);
+    EXPECT_CALL(mMockNdkCamera, ACameraCaptureSession_close(_)).Times(0);
+
+    mHalCamera->clientStreamEnding(virtualCamera.get());
+    EXPECT_EQ(mHalCamera->mStreamState, CompatHalCamera::STOPPED);
+}
+
+TEST_F(CompatHalCameraTest, clientStreamEnding_OneClientStops) {
+    // Set state to RUNNING
+    {
+        std::lock_guard<std::mutex> lock(mHalCamera->mMutex);
+        mHalCamera->mStreamState = CompatHalCamera::RUNNING;
+    }
+
+    std::vector<std::shared_ptr<CompatHalCamera>> halCameras;
+    halCameras.push_back(mHalCamera);
+    std::shared_ptr<MockVirtualCamera> virtualCamera =
+            ::ndk::SharedRefBase::make<MockVirtualCamera>(halCameras);
+    EXPECT_TRUE(mHalCamera->ownVirtualCamera(virtualCamera));
+
+    // Mock the virtual camera to return false for isStreaming
+    EXPECT_CALL(*virtualCamera, isStreaming()).WillOnce(Return(false));
+
+    // Set up dummy NDK objects to be "cleaned up"
+    mHalCamera->mImageReader = dummyReader;
+    mHalCamera->mWindow = dummyWindow;
+    mHalCamera->mOutputTarget = dummyOutputTarget;
+    mHalCamera->mSessionOutput = dummySessionOutput;
+    mHalCamera->mOutputs = dummyOutputContainer;
+    mHalCamera->mSession = dummySession;
+    mHalCamera->mCaptureRequest = dummyCaptureRequest;
+
+    // Expect clean up calls
+    EXPECT_CALL(mMockNdkCamera, ACameraCaptureSession_stopRepeating(dummySession)).Times(1);
+    EXPECT_CALL(mMockNdkCamera, ACameraCaptureSession_close(dummySession)).Times(1);
+    EXPECT_CALL(mMockNdkCamera, ACaptureRequest_free(dummyCaptureRequest)).Times(1);
+    EXPECT_CALL(mMockNdkCamera, ACaptureSessionOutputContainer_free(dummyOutputContainer)).Times(1);
+    EXPECT_CALL(mMockNdkCamera, ACaptureSessionOutput_free(dummySessionOutput)).Times(1);
+    EXPECT_CALL(mMockNdkCamera, ACameraOutputTarget_free(dummyOutputTarget)).Times(1);
+    EXPECT_CALL(mMockNdkCamera, AImageReader_delete(dummyReader)).Times(1);
+
+    mHalCamera->clientStreamEnding(virtualCamera.get());
+    EXPECT_EQ(mHalCamera->mStreamState, CompatHalCamera::STOPPING);
+
+    // Simulate onSessionClosed callback
+    mHalCamera->onSessionClosed(mHalCamera.get(), dummySession);
+    EXPECT_EQ(mHalCamera->mStreamState, CompatHalCamera::STOPPED);
+}
+
+TEST_F(CompatHalCameraTest, clientStreamEnding_ClientStopsWithOthersRunning) {
+    // Set state to RUNNING
+    {
+        std::lock_guard<std::mutex> lock(mHalCamera->mMutex);
+        mHalCamera->mStreamState = CompatHalCamera::RUNNING;
+    }
+
+    std::vector<std::shared_ptr<CompatHalCamera>> halCameras;
+    halCameras.push_back(mHalCamera);
+    std::shared_ptr<MockVirtualCamera> virtualCamera1 =
+            ::ndk::SharedRefBase::make<MockVirtualCamera>(halCameras);
+    std::shared_ptr<MockVirtualCamera> virtualCamera2 =
+            ::ndk::SharedRefBase::make<MockVirtualCamera>(halCameras);
+    EXPECT_TRUE(mHalCamera->ownVirtualCamera(virtualCamera1));
+    EXPECT_TRUE(mHalCamera->ownVirtualCamera(virtualCamera2));
+
+    // virtualCamera1 stops, virtualCamera2 is still running
+    EXPECT_CALL(*virtualCamera1, isStreaming()).WillOnce(Return(false));
+    EXPECT_CALL(*virtualCamera2, isStreaming()).WillOnce(Return(true));
+
+    // Expect no cleanup calls as one client is still running
+    EXPECT_CALL(mMockNdkCamera, ACameraCaptureSession_stopRepeating(_)).Times(0);
+    EXPECT_CALL(mMockNdkCamera, ACameraCaptureSession_close(_)).Times(0);
+
+    mHalCamera->clientStreamEnding(virtualCamera1.get());
+    EXPECT_EQ(mHalCamera->mStreamState, CompatHalCamera::RUNNING);
 }
 
 }  // namespace android::hardware::automotive::evs::compat

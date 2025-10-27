@@ -18,21 +18,26 @@ package com.android.car.bluetooth;
 
 import static android.bluetooth.BluetoothProfile.A2DP_SINK;
 
-import static androidx.test.platform.app.InstrumentationRegistry.getInstrumentation;
-
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
+import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
 import android.car.ICarBluetoothUserService;
 import android.car.test.NoActiveHandlerThreadCheckerRule;
 import android.content.Context;
 import android.os.Binder;
+import android.os.Bundle;
 import android.os.IBinder;
+import android.provider.Settings;
+import android.test.mock.MockContentProvider;
+import android.test.mock.MockContentResolver;
 
 import org.junit.After;
 import org.junit.Before;
@@ -59,11 +64,16 @@ public class BluetoothProfileInhibitManagerTest {
     public NoActiveHandlerThreadCheckerRule mNoActiveHandlerThreadCheckerRule =
             new NoActiveHandlerThreadCheckerRule();
 
-    @Mock
-    private ICarBluetoothUserService mMockCarBluetoothUserService;
+    private static final int TEST_USER_ID = 10;
 
-    @Mock
-    private BluetoothDevice mMockBluetoothDevice;
+    @Mock private Context mMockContext;
+    private MockContentResolver mMockContentResolver;
+    private MockContentProvider mMockContentProvider;
+    @Mock private ICarBluetoothUserService mMockCarBluetoothUserService;
+    @Mock private BluetoothManager mMockBluetoothManager;
+    @Mock private BluetoothAdapter mMockBluetoothAdapter;
+    @Mock private BluetoothDevice mMockBluetoothDevice;
+
     private BluetoothProfileInhibitManager mBluetoothProfileInhibitManager;
 
     private IBinder mToken = new Binder();
@@ -74,14 +84,37 @@ public class BluetoothProfileInhibitManagerTest {
 
     @Before
     public void setUp() throws Exception {
-        Context context = getInstrumentation().getTargetContext();
-        mBluetoothProfileInhibitManager = new BluetoothProfileInhibitManager(context,
-                /* userId= */ 10,
-                mMockCarBluetoothUserService);
+        // Mock Context
+        when(mMockContext.createContextAsUser(any(), anyInt())).thenReturn(mMockContext);
+
+        // Mock ContentResolver calls so Settings Provider can be used
+        mMockContentResolver = new MockContentResolver(null);
+        mMockContentProvider = new MockContentProvider() {
+            @Override
+            public Bundle call(String method, String request, Bundle args) {
+                return new Bundle();
+            }
+        };
+        mMockContentResolver.addProvider(Settings.AUTHORITY, mMockContentProvider);
+        when(mMockContext.getContentResolver()).thenReturn(mMockContentResolver);
+
+        // Mock Bluetooth Manager, Adapter and Device
+        when(mMockContext.getSystemService(BluetoothManager.class))
+                .thenReturn(mMockBluetoothManager);
+        when(mMockBluetoothManager.getAdapter()).thenReturn(mMockBluetoothAdapter);
+        when(mMockBluetoothAdapter.getRemoteDevice(anyString())).thenReturn(mMockBluetoothDevice);
+
+        // Mock CarBluetoothUserService for ConnectionPolicy calls
         when(mMockCarBluetoothUserService.isBluetoothConnectionProxyAvailable(anyInt()))
                 .thenReturn(true);
         when(mMockCarBluetoothUserService.getConnectionPolicy(anyInt(), any()))
                 .thenReturn(BluetoothProfile.CONNECTION_POLICY_ALLOWED);
+
+        mBluetoothProfileInhibitManager = new BluetoothProfileInhibitManager(
+                mMockContext,
+                TEST_USER_ID,
+                mMockCarBluetoothUserService);
+
         mBluetoothProfileInhibitManager.start();
     }
 

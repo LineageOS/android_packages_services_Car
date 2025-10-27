@@ -15,7 +15,7 @@
  */
 
 package {
-    default_team: "trendy_team_aaos_framework",
+    default_team: "trendy_team_aaos_vac_triage",
     default_applicable_licenses: ["Android-Apache-2.0"],
 }
 

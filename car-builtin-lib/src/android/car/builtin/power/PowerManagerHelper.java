@@ -53,6 +53,57 @@ public final class PowerManagerHelper {
     /** See {@code PowerManager.BRIGHTNESS_INVALID_FLOAT} */
     public static final float BRIGHTNESS_INVALID_FLOAT = PowerManager.BRIGHTNESS_INVALID_FLOAT;
 
+    /**
+     * A specialized, non-reference-counted wake lock that keeps the CPU running
+     * and keeps the display(s) off.
+     * <p>
+     * An instance of this class can be obtained by calling
+     * {@link PowerManagerHelper#newSleepLock(Context, int, String)}.
+     * </p><p>
+     * When a sleep lock is held, it supersedes all other wake locks, meaning they will be ignored.
+     * Since this is a non-reference-counted lock, a single call to {@link #release()}
+     * is sufficient to release it.
+     * </p><p>
+     * Use {@link #acquire(long)} to acquire the lock and {@link #release()} to release it.
+     * Use {@link #release()} to check whether the wakelock is currently held.
+     */
+    public static final class CarSleepLock {
+        private final PowerManager.SleepLock mSleepLock;
+
+        CarSleepLock(PowerManager.SleepLock sleepLock) {
+            mSleepLock = sleepLock;
+        }
+
+        /** Acquires the sleep lock for a given timeout. This will prevent the screen from turning
+         * on, and keeps the CPU awake during this period.
+         * <p>
+         * The lock is automatically released after the specified timeout expires.
+         * </p><p>
+         * The requested timeout may be capped at a system-defined maximum value to
+         * prevent the lock from being held indefinitely.
+         * </p>
+         */
+        public void acquire(long timeoutMillis) {
+            mSleepLock.acquire(timeoutMillis);
+        }
+
+        /**
+         * Releases the sleep lock. Call this to release it earlier than the timeout.
+         */
+        public void release() {
+            mSleepLock.release();
+        }
+
+        /**
+         * Returns whether the sleep lock has been acquired but not yet released.
+         *
+         * @return {@code true} if the lock is held, {@code false} otherwise.
+         */
+        public boolean isHeld() {
+            return mSleepLock.isHeld();
+        }
+    }
+
     private PowerManagerHelper() {
         throw new UnsupportedOperationException("contains only static members");
     }
@@ -128,7 +179,7 @@ public final class PowerManagerHelper {
     }
 
     /**
-     * Acquires a wake lock for the givien display.
+     * Acquires a wake lock for the given display.
      *
      * <p>This wraps {@link PowerManager#newWakeLock(int, String, int)}.
      *
@@ -151,4 +202,23 @@ public final class PowerManagerHelper {
         PowerManager powerManager = context.getSystemService(PowerManager.class);
         return powerManager.newWakeLock(levelAndFlags, tag, displayId);
     }
+
+    /**
+     * Creates a new sleep lock, which is a wake lock that holds a specialized,
+     * non-reference-counted wake lock that keeps the CPU running and keeps the display(s) off.
+     * <p>
+     *
+     * @param displayId The ID of the display with which this sleep lock is associated. The lock
+     *                  will apply to the display group of this display. Use
+     *                  {@link android.view.Display#DEFAULT_DISPLAY} for the default display.
+     * @param tag A tag for debugging purposes.
+     * @return A new {@link CarSleepLock} object.
+     * @throws RuntimeException if partial sleep wake locks are not enabled on the device.
+     */
+    public static CarSleepLock newSleepLock(Context context, int displayId, String tag)
+            throws RuntimeException {
+        return new CarSleepLock(
+                context.getSystemService(PowerManager.class).newSleepLock(displayId, tag));
+    }
+
 }

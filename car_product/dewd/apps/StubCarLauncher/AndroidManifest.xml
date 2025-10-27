@@ -20,7 +20,8 @@
     coreApp="true">
 
     <application
-        android:label="Stub Car Launcher">
+        android:label="Stub Car Launcher"
+        android:featureFlag="!com.android.systemui.car.scalable_ui_no_suw_home">
         <uses-library android:name="com.android.oem.tokens" android:required="false"/>
         <activity
             android:name=".StubHome"
@@ -32,6 +33,29 @@
             <meta-data android:name="distractionOptimized" android:value="true"/>
             <!-- Set home priority to be above typical home (0) and GcarSetup (3) but below SUW priority (5) -->
             <intent-filter android:priority="4">
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.HOME"/>
+                <category android:name="android.intent.category.LAUNCHER_APP"/>
+            </intent-filter>
+        </activity>
+    </application>
+
+    <application
+        android:label="Stub Car Launcher"
+        android:directBootAware="true"
+        android:featureFlag="com.android.systemui.car.scalable_ui_no_suw_home">
+        <uses-library android:name="com.android.oem.tokens" android:required="false"/>
+        <activity
+            android:name=".StubHome"
+            android:exported="true"
+            android:configChanges="density|fontScale|keyboard|keyboardHidden|layoutDirection|locale|mcc|mnc|navigation|orientation|screenLayout|screenSize|smallestScreenSize|touchscreen|uiMode"
+            android:launchMode="singleTask"
+            android:theme="@android:style/Theme.DeviceDefault.NoActionBar"
+            android:excludeFromRecents="true">
+            <meta-data android:name="distractionOptimized" android:value="true"/>
+            <!-- Set home priority to be above typical home and SUW -->
+            <intent-filter android:priority="20">
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.DEFAULT"/>
                 <category android:name="android.intent.category.HOME"/>

@@ -20,14 +20,14 @@
     android:id="@+id/card_view"
     android:layout_width="match_parent"
     android:layout_height="@dimen/card_fragment_height"
-    app:cardCornerRadius="@dimen/car_portrait_ui_window_rounded_corner_radius"
+    app:cardCornerRadius="?oemShapeCornerExtraLarge"
     android:visibility="gone">
 
     <FrameLayout
         android:id="@+id/card_background"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/car_surface_2"/>
+        android:background="?oemColorSurfaceContainerHigh"/>
 
     <RelativeLayout
         android:layout_width="match_parent"

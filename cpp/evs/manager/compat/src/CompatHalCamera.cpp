@@ -115,8 +115,9 @@ void CompatHalCamera::onSessionClosed(void* context, ACameraCaptureSession* sess
         LOG(ERROR) << "CompatHalCamera context is null";
         return;
     }
-    std::lock_guard<std::mutex> lock(halCamera->mSessionMutex);
+    std::lock_guard<std::mutex> lock(halCamera->mMutex);
     halCamera->mSessionClosed = true;
+    halCamera->mStreamState = STOPPED;
     halCamera->mSessionCondVar.notify_all();
 }
 
@@ -383,8 +384,41 @@ ScopedAStatus CompatHalCamera::clientStreamStarting() {
 }
 
 void CompatHalCamera::clientStreamEnding(const CompatVirtualCamera* virtualCamera) {
-    // TODO: Implement this function.
-    // Clear the buffer ID map (mBufferIdMap.clear()) if no virtual camera is streaming.
+    {
+        std::lock_guard<std::mutex> lock(mMutex);
+        if (mStreamState != RUNNING) {
+            // We are being stopped or stopped already.
+            return;
+        }
+
+        mNextRequests.erase(std::remove_if(mNextRequests.begin(), mNextRequests.end(),
+                                           [virtualCamera](const auto& r) {
+                                               return r.client.lock().get() == virtualCamera;
+                                           }),
+                            mNextRequests.end());
+    }
+
+    // Do we still have a running client?
+    bool stillRunning = false;
+    for (auto&& client : mVirtualCameras) {
+        std::shared_ptr<CompatVirtualCamera> virtCam = client.lock();
+        if (virtCam) {
+            stillRunning |= virtCam->isStreaming();
+        }
+    }
+
+    // If not, then stop the stream.
+    if (!stillRunning) {
+        {
+            std::lock_guard lock(mMutex);
+            mStreamState = STOPPING;
+        }
+        cleanUpNdkResources();
+        {
+            std::lock_guard lock(mMutex);
+            mBufferIdMap.clear();
+        }
+    }
 }
 
 void CompatHalCamera::cleanUpNdkResources() {
@@ -401,7 +435,7 @@ void CompatHalCamera::cleanUpNdkResources() {
             LOG(ERROR) << "Failed to stop repeating request, status: " << status;
         }
 
-        std::unique_lock<std::mutex> lock(mSessionMutex);
+        std::unique_lock<std::mutex> lock(mMutex);
         mSessionClosed = false;
         // ACameraCaptureSession_close initiates an asynchronous shutdown. Although the session
         // handle becomes unusable immediately, the full teardown (including completing any

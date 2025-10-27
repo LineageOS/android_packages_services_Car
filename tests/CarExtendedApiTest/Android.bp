@@ -66,6 +66,7 @@ android_test {
         "android.car.apitest-aidl-binder-java",
         "android.car.testapi.testbase",
         "bedstead-multiuser",
+        "bedstead-permissions",
         "com.android.car.test.lib",
         "platform-parametric-runner-lib",
     ],

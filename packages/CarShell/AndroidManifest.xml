@@ -170,6 +170,7 @@
     <uses-permission android:name="android.car.permission.GET_CAR_VENDOR_CATEGORY_10"/>
     <uses-permission android:name="android.car.permission.SET_CAR_VENDOR_CATEGORY_10"/>
     <uses-permission android:name="android.car.permission.READ_PROPERTY_VENDOR_STATUS"/>
+    <uses-permission android:name="android.car.permission.READ_PROPERTY_VENDOR_ERROR_CODE"/>
     <!-- Permissions required for CTS test - CarPerformanceManagerTest -->
     <uses-permission android:name="android.car.permission.MANAGE_THREAD_PRIORITY" />
     <!-- Permissions required for CTS test - CarOccupantZoneManagerTest -->
@@ -203,4 +204,6 @@
     <!-- permissions required for CarPropertySimulationManagerTest -->
     <uses-permission android:name="android.car.permission.INJECT_VEHICLE_PROPERTIES" />
     <uses-permission android:name="android.car.permission.RECORD_VEHICLE_PROPERTIES" />
+    <!-- permissions required for cts test PowerManagerTest -->
+    <uses-permission android:name="android.permission.ACQUIRE_SLEEPLOCK" />
 </manifest>
