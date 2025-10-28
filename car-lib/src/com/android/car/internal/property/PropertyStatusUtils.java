@@ -17,30 +17,56 @@
 package com.android.car.internal.property;
 
 import android.car.hardware.CarPropertyValue;
+import android.car.hardware.CarPropertyValue.CarPropertyStatus;
+import android.car.hardware.property.VehicleHalStatusCode;
+import android.util.SparseIntArray;
 
 import java.util.Set;
 
-/**
- * Utils class for {@link CarPropertyValue.CarPropertyStatus}.
- */
+/** Utils class for {@link CarPropertyStatus}. */
 public class PropertyStatusUtils {
 
     private PropertyStatusUtils() {
         throw new UnsupportedOperationException("PropertyStatusUtils is a static class");
     }
 
-    /**
-     * All property status that represents a not_available status.
-     */
-    public static Set<Integer> NOT_AVAILABLE_PROPERTY_STATUS_LIST = Set.of(
-            CarPropertyValue.STATUS_NOT_AVAILABLE_GENERAL,
-            CarPropertyValue.STATUS_NOT_AVAILABLE_DISABLED,
-            CarPropertyValue.STATUS_NOT_AVAILABLE_SPEED_LOW,
-            CarPropertyValue.STATUS_NOT_AVAILABLE_SPEED_HIGH,
-            CarPropertyValue.STATUS_NOT_AVAILABLE_POOR_VISIBILITY,
-            CarPropertyValue.STATUS_NOT_AVAILABLE_SAFETY,
-            CarPropertyValue.STATUS_NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED
-    );
+    private static final SparseIntArray NOT_AVAILABLE_STATUS_CODE_TO_PROPERTY_STATUS =
+            new SparseIntArray();
+
+    static {
+        NOT_AVAILABLE_STATUS_CODE_TO_PROPERTY_STATUS.put(
+                VehicleHalStatusCode.STATUS_NOT_AVAILABLE,
+                CarPropertyValue.STATUS_NOT_AVAILABLE_GENERAL);
+        NOT_AVAILABLE_STATUS_CODE_TO_PROPERTY_STATUS.put(
+                VehicleHalStatusCode.STATUS_NOT_AVAILABLE_DISABLED,
+                CarPropertyValue.STATUS_NOT_AVAILABLE_DISABLED);
+        NOT_AVAILABLE_STATUS_CODE_TO_PROPERTY_STATUS.put(
+                VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SPEED_LOW,
+                CarPropertyValue.STATUS_NOT_AVAILABLE_SPEED_LOW);
+        NOT_AVAILABLE_STATUS_CODE_TO_PROPERTY_STATUS.put(
+                VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SPEED_HIGH,
+                CarPropertyValue.STATUS_NOT_AVAILABLE_SPEED_HIGH);
+        NOT_AVAILABLE_STATUS_CODE_TO_PROPERTY_STATUS.put(
+                VehicleHalStatusCode.STATUS_NOT_AVAILABLE_POOR_VISIBILITY,
+                CarPropertyValue.STATUS_NOT_AVAILABLE_POOR_VISIBILITY);
+        NOT_AVAILABLE_STATUS_CODE_TO_PROPERTY_STATUS.put(
+                VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SAFETY,
+                CarPropertyValue.STATUS_NOT_AVAILABLE_SAFETY);
+        NOT_AVAILABLE_STATUS_CODE_TO_PROPERTY_STATUS.put(
+                VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED,
+                CarPropertyValue.STATUS_NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED);
+    }
+
+    /** All property status that represents a not_available status. */
+    public static final Set<Integer> NOT_AVAILABLE_PROPERTY_STATUS_LIST =
+            Set.of(
+                    CarPropertyValue.STATUS_NOT_AVAILABLE_GENERAL,
+                    CarPropertyValue.STATUS_NOT_AVAILABLE_DISABLED,
+                    CarPropertyValue.STATUS_NOT_AVAILABLE_SPEED_LOW,
+                    CarPropertyValue.STATUS_NOT_AVAILABLE_SPEED_HIGH,
+                    CarPropertyValue.STATUS_NOT_AVAILABLE_POOR_VISIBILITY,
+                    CarPropertyValue.STATUS_NOT_AVAILABLE_SAFETY,
+                    CarPropertyValue.STATUS_NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED);
 
     /**
      * Returns whether the property status is an error status.
@@ -61,5 +87,16 @@ public class PropertyStatusUtils {
      */
     public static boolean isPropertyStatusAvailable(int propertyStatus) {
         return propertyStatus == CarPropertyValue.STATUS_AVAILABLE;
+    }
+
+    /** Returns the equivalent not available property status given a VHAL StatusCode. */
+    public static @CarPropertyStatus int getNotAvailablePropertyStatusFromStatusCode(
+            int statusCode) {
+        int propertyStatusIndex =
+                NOT_AVAILABLE_STATUS_CODE_TO_PROPERTY_STATUS.indexOfKey(statusCode);
+        if (propertyStatusIndex < 0) {
+            throw new IllegalArgumentException("Not a not-available StatusCode: " + statusCode);
+        }
+        return NOT_AVAILABLE_STATUS_CODE_TO_PROPERTY_STATUS.valueAt(propertyStatusIndex);
     }
 }

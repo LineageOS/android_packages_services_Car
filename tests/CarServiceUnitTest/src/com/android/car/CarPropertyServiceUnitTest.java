@@ -53,6 +53,7 @@ import android.car.hardware.property.AreaIdConfig;
 import android.car.hardware.property.CarPropertyEvent;
 import android.car.hardware.property.CarPropertyManager;
 import android.car.hardware.property.ICarPropertyEventListener;
+import android.car.hardware.property.VehicleHalStatusCode;
 import android.car.test.AbstractExpectableTestCase;
 import android.car.test.NoActiveHandlerThreadCheckerRule;
 import android.content.Context;
@@ -62,6 +63,7 @@ import android.os.RemoteException;
 import android.os.ServiceSpecificException;
 import android.util.Log;
 import android.util.SparseArray;
+import android.util.SparseIntArray;
 
 import com.android.car.hal.PropertyHalService;
 import com.android.car.internal.property.AsyncPropertyServiceRequest;
@@ -2092,6 +2094,92 @@ public final class CarPropertyServiceUnitTest extends AbstractExpectableTestCase
 
         // Verify the two initial value responses arrive.
         verify(mockHandler, timeout(DEFAULT_CALLBACK_TIMEOUT).times(2)).onEvent(any());
+    }
+
+    @Test
+    public void testGetAndDispatchInitialValue_serviceSpecificException_flagDisabled()
+            throws Exception {
+        when(mFeatureFlags.carPropertyStatusDetailedNotAvailable()).thenReturn(false);
+
+        List<Integer> statusCodes =
+                List.of(
+                        VehicleHalStatusCode.STATUS_NOT_AVAILABLE,
+                        VehicleHalStatusCode.STATUS_NOT_AVAILABLE_DISABLED,
+                        VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SPEED_LOW,
+                        VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SPEED_HIGH,
+                        VehicleHalStatusCode.STATUS_NOT_AVAILABLE_POOR_VISIBILITY,
+                        VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SAFETY,
+                        VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED);
+
+        for (int statusCode : statusCodes) {
+            ICarPropertyEventListener mockHandler = createMockEventListener();
+            doThrow(new ServiceSpecificException(statusCode))
+                    .when(mHalService)
+                    .getProperty(SPEED_ID, 0);
+
+            mService.getAndDispatchInitialValue(List.of(newPropIdAreaId(SPEED_ID, 0)), mockHandler);
+
+            verify(mockHandler, timeout(DEFAULT_CALLBACK_TIMEOUT))
+                    .onEvent(mPropertyEventCaptor.capture());
+
+            List<CarPropertyEvent> eventList = mPropertyEventCaptor.getValue();
+
+            assertThat(eventList).hasSize(1);
+            assertThat(eventList.get(0).getCarPropertyValue().getPropertyStatus())
+                    .isEqualTo(CarPropertyValue.STATUS_UNAVAILABLE);
+        }
+    }
+
+    @Test
+    public void testGetAndDispatchInitialValue_serviceSpecificException_flagEnabled()
+            throws Exception {
+        when(mFeatureFlags.carPropertyStatusDetailedNotAvailable()).thenReturn(true);
+
+        SparseIntArray statusCodeToCarPropertyStatus = new SparseIntArray();
+        statusCodeToCarPropertyStatus.put(
+                VehicleHalStatusCode.STATUS_INTERNAL_ERROR,
+                CarPropertyValue.STATUS_ERROR);
+        statusCodeToCarPropertyStatus.put(
+                VehicleHalStatusCode.STATUS_NOT_AVAILABLE,
+                CarPropertyValue.STATUS_NOT_AVAILABLE_GENERAL);
+        statusCodeToCarPropertyStatus.put(
+                VehicleHalStatusCode.STATUS_NOT_AVAILABLE_DISABLED,
+                CarPropertyValue.STATUS_NOT_AVAILABLE_DISABLED);
+        statusCodeToCarPropertyStatus.put(
+                VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SPEED_LOW,
+                CarPropertyValue.STATUS_NOT_AVAILABLE_SPEED_LOW);
+        statusCodeToCarPropertyStatus.put(
+                VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SPEED_HIGH,
+                CarPropertyValue.STATUS_NOT_AVAILABLE_SPEED_HIGH);
+        statusCodeToCarPropertyStatus.put(
+                VehicleHalStatusCode.STATUS_NOT_AVAILABLE_POOR_VISIBILITY,
+                CarPropertyValue.STATUS_NOT_AVAILABLE_POOR_VISIBILITY);
+        statusCodeToCarPropertyStatus.put(
+                VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SAFETY,
+                CarPropertyValue.STATUS_NOT_AVAILABLE_SAFETY);
+        statusCodeToCarPropertyStatus.put(
+                VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED,
+                CarPropertyValue.STATUS_NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED);
+
+        for (int i = 0; i < statusCodeToCarPropertyStatus.size(); i++) {
+            int statusCode = statusCodeToCarPropertyStatus.keyAt(i);
+            int carPropertyStatus = statusCodeToCarPropertyStatus.valueAt(i);
+            ICarPropertyEventListener mockHandler = createMockEventListener();
+            doThrow(new ServiceSpecificException(statusCode))
+                    .when(mHalService)
+                    .getProperty(SPEED_ID, 0);
+
+            mService.getAndDispatchInitialValue(List.of(newPropIdAreaId(SPEED_ID, 0)), mockHandler);
+
+            verify(mockHandler, timeout(DEFAULT_CALLBACK_TIMEOUT))
+                    .onEvent(mPropertyEventCaptor.capture());
+
+            List<CarPropertyEvent> eventList = mPropertyEventCaptor.getValue();
+
+            assertThat(eventList).hasSize(1);
+            assertThat(eventList.get(0).getCarPropertyValue().getPropertyStatus())
+                    .isEqualTo(carPropertyStatus);
+        }
     }
 
     @Test
