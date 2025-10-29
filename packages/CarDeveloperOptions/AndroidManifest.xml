@@ -865,7 +865,6 @@
             android:enabled="false"
             android:exported="false"
             tools:node="merge"
-            android:featureFlag="android.security.aapm_api"
             tools:replace="android:exported">
             <intent-filter tools:node="removeAll"/>
         </activity>
