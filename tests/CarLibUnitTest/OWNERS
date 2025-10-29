@@ -1,4 +1,5 @@
 # Property
 per-file src/android/car/hardware/* = file:platform/hardware/interfaces:/automotive/vehicle/OWNERS
+per-file src/android/car/hardware/property/* = file:platform/hardware/interfaces:/automotive/vehicle/OWNERS
 per-file src/com/android/car/internal/property/* = file:platform/hardware/interfaces:/automotive/vehicle/OWNERS
 per-file src/com/android/car/internal/util/*SparseArray*.java = file:platform/hardware/interfaces:/automotive/vehicle/OWNERS
