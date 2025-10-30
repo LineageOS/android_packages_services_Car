@@ -28,10 +28,10 @@
     <string name="car_permission_desc_adjust_range_remaining" msgid="2369321650437370673">"Wert für die Strecke anpassen, die das Auto noch fahren kann."</string>
     <string name="car_permission_label_hvac" msgid="6336214266904971950">"Klimaanlage des Autos steuern"</string>
     <string name="car_permission_desc_hvac" msgid="7229917418217117426">"Klimaanlage deines Autos steuern."</string>
-    <string name="car_permission_label_mileage" msgid="9194744289794795513">"Informationen zum Kilometerstand des Autos lesen"</string>
-    <string name="car_permission_desc_mileage" msgid="9068667477789716791">"Informationen zum Kilometerstand deines Autos lesen."</string>
-    <string name="car_permission_label_mileage_3p" msgid="2852514373971903913">"Informationen zum Kilometerstand des Autos lesen"</string>
-    <string name="car_permission_desc_mileage_3p" msgid="1774910630404924463">"Informationen zum Kilometerstand deines Autos lesen."</string>
+    <string name="car_permission_label_mileage" msgid="9194744289794795513">"Informationen zur Laufleistung des Autos lesen"</string>
+    <string name="car_permission_desc_mileage" msgid="9068667477789716791">"Informationen zur Laufleistung deines Autos lesen."</string>
+    <string name="car_permission_label_mileage_3p" msgid="2852514373971903913">"Informationen zur Laufleistung des Autos lesen"</string>
+    <string name="car_permission_desc_mileage_3p" msgid="1774910630404924463">"Informationen zur Laufleistung deines Autos lesen."</string>
     <string name="car_permission_label_read_car_horn" msgid="5940158571880705176">"Informationen zur Hupe des Autos lesen"</string>
     <string name="car_permission_desc_read_car_horn" msgid="1099929991964988027">"Informationen zur Hupe deines Autos lesen."</string>
     <string name="car_permission_label_control_car_horn" msgid="6724124600587260102">"die Hupe des Autos steuern"</string>
