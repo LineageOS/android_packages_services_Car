@@ -159,6 +159,7 @@ package android.car.media {
     method @Deprecated public boolean isDynamicRoutingEnabled();
     method @FlaggedApi("android.car.feature.audio_focus_enforcement") @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS) public void setEnforceableAudioFocusCallback(@NonNull java.util.concurrent.Executor, @NonNull android.car.media.EnforceableAudioFocusCallback);
     method @FlaggedApi("android.car.feature.audio_focus_enforcement") @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS) public void setEnforceableAudioFocusEnabled(boolean);
+    method @FlaggedApi("android.car.feature.audio_send_restrictions_to_oem_volume_service") @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME) public void setVolumeGroupRestrictions(int, int, @NonNull java.util.List<java.lang.Integer>, int);
   }
 
   public final class CarMediaManager {

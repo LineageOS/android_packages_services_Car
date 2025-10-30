@@ -132,27 +132,35 @@ import java.util.Objects;
         return reasons.contains(Reasons.EXTERNAL_AMP_VOL_FEEDBACK);
     }
 
+    private static final int[][] REASON_TO_EXTRA_INFO_MAPPINGS = {
+            {Reasons.REMOTE_MUTE,
+                    CarVolumeGroupEvent.EXTRA_INFO_MUTE_TOGGLED_BY_AUDIO_SYSTEM},
+            {Reasons.TCU_MUTE,
+                    CarVolumeGroupEvent.EXTRA_INFO_MUTE_TOGGLED_BY_EMERGENCY},
+            {Reasons.ADAS_DUCKING,
+                    CarVolumeGroupEvent.EXTRA_INFO_TRANSIENT_ATTENUATION_EXTERNAL},
+            {Reasons.NAV_DUCKING,
+                    CarVolumeGroupEvent.EXTRA_INFO_TRANSIENT_ATTENUATION_NAVIGATION},
+            {Reasons.PROJECTION_DUCKING,
+                    CarVolumeGroupEvent.EXTRA_INFO_TRANSIENT_ATTENUATION_PROJECTION},
+            {Reasons.THERMAL_LIMITATION,
+                    CarVolumeGroupEvent.EXTRA_INFO_TRANSIENT_ATTENUATION_THERMAL},
+            {Reasons.SUSPEND_EXIT_VOL_LIMITATION,
+                    CarVolumeGroupEvent.EXTRA_INFO_ATTENUATION_ACTIVATION},
+            {Reasons.EXTERNAL_AMP_VOL_FEEDBACK,
+                    CarVolumeGroupEvent.EXTRA_INFO_VOLUME_INDEX_CHANGED_BY_AUDIO_SYSTEM}
+    };
+
     private static final SparseIntArray REASONS_TO_EXTRA_INFO = new SparseIntArray();
+    private static final SparseIntArray EXTRA_INFO_TO_REASONS = new SparseIntArray();
 
     // note: Reasons.FORCED_MASTER_MUTE, Reasons.OTHER are not supported by CarVolumeGroupEvent
     //       extra-infos. Builder will automatically append EXTRA_INFO_NONE for these cases.
     static {
-        REASONS_TO_EXTRA_INFO.put(Reasons.REMOTE_MUTE,
-                CarVolumeGroupEvent.EXTRA_INFO_MUTE_TOGGLED_BY_AUDIO_SYSTEM);
-        REASONS_TO_EXTRA_INFO.put(Reasons.TCU_MUTE,
-                CarVolumeGroupEvent.EXTRA_INFO_MUTE_TOGGLED_BY_EMERGENCY);
-        REASONS_TO_EXTRA_INFO.put(Reasons.ADAS_DUCKING,
-                CarVolumeGroupEvent.EXTRA_INFO_TRANSIENT_ATTENUATION_EXTERNAL);
-        REASONS_TO_EXTRA_INFO.put(Reasons.NAV_DUCKING,
-                CarVolumeGroupEvent.EXTRA_INFO_TRANSIENT_ATTENUATION_NAVIGATION);
-        REASONS_TO_EXTRA_INFO.put(Reasons.PROJECTION_DUCKING,
-                CarVolumeGroupEvent.EXTRA_INFO_TRANSIENT_ATTENUATION_PROJECTION);
-        REASONS_TO_EXTRA_INFO.put(Reasons.THERMAL_LIMITATION,
-                CarVolumeGroupEvent.EXTRA_INFO_TRANSIENT_ATTENUATION_THERMAL);
-        REASONS_TO_EXTRA_INFO.put(Reasons.SUSPEND_EXIT_VOL_LIMITATION,
-                CarVolumeGroupEvent.EXTRA_INFO_ATTENUATION_ACTIVATION);
-        REASONS_TO_EXTRA_INFO.put(Reasons.EXTERNAL_AMP_VOL_FEEDBACK,
-                CarVolumeGroupEvent.EXTRA_INFO_VOLUME_INDEX_CHANGED_BY_AUDIO_SYSTEM);
+        for (int[] mapping : REASON_TO_EXTRA_INFO_MAPPINGS) {
+            REASONS_TO_EXTRA_INFO.put(mapping[0], mapping[1]);
+            EXTRA_INFO_TO_REASONS.put(mapping[1], mapping[0]);
+        }
     }
 
     static List<Integer> convertReasonsToExtraInfo(List<Integer> reasons) {
@@ -166,5 +174,20 @@ import java.util.Objects;
             }
         }
         return extraInfos;
+    }
+
+    static List<Integer> convertExtraInfoToReasons(int[] extraInfos) {
+        if (extraInfos == null) {
+            return new ArrayList<>();
+        }
+
+        List<Integer> reasons = new ArrayList<>();
+        for (int index = 0; index < extraInfos.length; index++) {
+            int reason = EXTRA_INFO_TO_REASONS.get(extraInfos[index], INVALID_INFO);
+            if (reason != INVALID_INFO) {
+                reasons.add(reason);
+            }
+        }
+        return reasons;
     }
 }

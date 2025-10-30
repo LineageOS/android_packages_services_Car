@@ -99,6 +99,7 @@ import android.car.oem.CarAudioFeaturesInfo;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.media.AudioAttributes;
+import android.hardware.automotive.audiocontrol.AudioGainConfigInfo;
 import android.media.AudioDeviceAttributes;
 import android.media.AudioDeviceInfo;
 import android.media.AudioFocusInfo;
@@ -2801,6 +2802,37 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
         }
         synchronized (mImplLock) {
             return getCarVolumeGroupLocked(zoneId, groupId).getCarVolumeGroupInfo();
+        }
+    }
+
+    @Override
+    public void setVolumeGroupRestrictions(int zoneId, int groupId,
+            int[] restrictions, int volumeIndex) {
+        enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
+        if (!Flags.audioSendRestrictionsToOemVolumeService()) {
+            return;
+        }
+
+        requireNonLegacyRouting();
+        requireVolumeGroupEvents();
+        Preconditions.checkArgument(isAudioZoneIdValid(zoneId),
+                "Invalid audio zone id %d", zoneId);
+
+        synchronized (mImplLock) {
+            CarVolumeGroup group = getCarVolumeGroupLocked(zoneId, groupId);
+            List<String> addresses = group.getAddresses();
+            List<CarAudioGainConfigInfo> gains = new ArrayList<>();
+            for (int i = 0; i < addresses.size(); i++) {
+                AudioGainConfigInfo gainInfo = new AudioGainConfigInfo();
+                gainInfo.zoneId = zoneId;
+                gainInfo.devicePortAddress = addresses.get(i);
+                gainInfo.volumeIndex = volumeIndex;
+                gains.add(new CarAudioGainConfigInfo(gainInfo));
+            }
+
+            List<Integer> halReasons = CarAudioGainMonitor.convertExtraInfoToReasons(restrictions);
+
+            handleAudioDeviceGainsChangedLocked(halReasons, gains);
         }
     }
 
