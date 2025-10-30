@@ -135,8 +135,33 @@ ScopedAStatus CompatVirtualCamera::forcePrimaryClient(
     return ScopedAStatus::fromExceptionCode(EX_UNSUPPORTED_OPERATION);
 }
 
-ScopedAStatus CompatVirtualCamera::getCameraInfo([[maybe_unused]] CameraDesc* _aidl_return) {
-    return ScopedAStatus::fromExceptionCode(EX_UNSUPPORTED_OPERATION);
+ScopedAStatus CompatVirtualCamera::getCameraInfo(CameraDesc* _aidl_return) {
+    if (mHalCameras.empty()) {
+        LOG(ERROR) << "No hardware camera is available.";
+        return ScopedAStatus::fromServiceSpecificError(
+                static_cast<int>(EvsResult::RESOURCE_NOT_AVAILABLE));
+    }
+
+    if (mHalCameras.size() > 1) {
+        *_aidl_return = *mDesc;
+        return ScopedAStatus::ok();
+    }
+
+    // Physical camera case
+    auto halCamera = mHalCameras.begin()->second.lock();
+    if (!halCamera) {
+        return ScopedAStatus::fromServiceSpecificError(
+                static_cast<int>(EvsResult::RESOURCE_NOT_AVAILABLE));
+    }
+
+    CameraDesc desc = halCamera->getCameraDesc();
+    if (desc.id.empty()) {
+        LOG(ERROR) << "CameraDesc for device is not properly initialized.";
+        return ScopedAStatus::fromServiceSpecificError(
+                static_cast<int>(EvsResult::RESOURCE_NOT_AVAILABLE));
+    }
+    *_aidl_return = desc;
+    return ScopedAStatus::ok();
 }
 
 ScopedAStatus CompatVirtualCamera::getExtendedInfo(

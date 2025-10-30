@@ -238,6 +238,89 @@ TEST_F(CompatVirtualCameraTest, doneWithFrame_Success) {
     EXPECT_EQ(mVirtualCamera->mFramesUsed["mockCam0"][0].bufferId, 456);
 }
 
+TEST_F(CompatVirtualCameraTest, getCameraInfo_PhysicalCamera) {
+    // Create a new virtual camera with a single HalCamera to simulate a physical camera
+    ACameraDevice* dummyDevice = reinterpret_cast<ACameraDevice*>(0xABCDEF12);
+    aidlevs::Stream streamConfig;
+    aidlevs::CameraDesc expectedDesc;
+    expectedDesc.id = "mockCam_physical";
+    std::shared_ptr<CompatHalCamera> halCamera =
+            ::ndk::SharedRefBase::make<CompatHalCamera>(dummyDevice, "mockCam_physical",
+                                                        &expectedDesc, streamConfig);
+    std::vector<std::shared_ptr<CompatHalCamera>> halCameras = {halCamera};
+    auto virtualCamera = ::ndk::SharedRefBase::make<CompatVirtualCamera>(halCameras);
+
+    aidlevs::CameraDesc actualDesc;
+    ndk::ScopedAStatus status = virtualCamera->getCameraInfo(&actualDesc);
+
+    ASSERT_TRUE(status.isOk());
+    EXPECT_EQ(actualDesc.id, expectedDesc.id);
+}
+
+TEST_F(CompatVirtualCameraTest, getCameraInfo_LogicalCamera) {
+    // Create a new virtual camera with two HalCameras to simulate a logical camera
+    ACameraDevice* dummyDevice2 = reinterpret_cast<ACameraDevice*>(0x87654321);
+    aidlevs::Stream streamConfig;
+    std::shared_ptr<CompatHalCamera> mockHalCamera2 =
+            ::ndk::SharedRefBase::make<CompatHalCamera>(dummyDevice2, "mockCam1", nullptr,
+                                                        streamConfig);
+    std::vector<std::shared_ptr<CompatHalCamera>> logicalHalCameras = {mHalCameras[0],
+                                                                       mockHalCamera2};
+    auto logicalVirtualCamera = ::ndk::SharedRefBase::make<CompatVirtualCamera>(logicalHalCameras);
+
+    // For a logical camera, getCameraInfo should return the descriptor
+    // that was set via setDescriptor.
+    aidlevs::CameraDesc logicalDesc;
+    logicalDesc.id = "logical_cam";
+    logicalVirtualCamera->setDescriptor(&logicalDesc);
+
+    aidlevs::CameraDesc actualDesc;
+    ndk::ScopedAStatus status = logicalVirtualCamera->getCameraInfo(&actualDesc);
+
+    ASSERT_TRUE(status.isOk());
+    EXPECT_EQ(actualDesc.id, logicalDesc.id);
+}
+
+TEST_F(CompatVirtualCameraTest, getCameraInfo_NoHalCamera) {
+    // Create a virtual camera with no underlying HAL cameras
+    std::vector<std::shared_ptr<CompatHalCamera>> emptyList;
+    auto virtualCamWithNoHal = ::ndk::SharedRefBase::make<CompatVirtualCamera>(emptyList);
+
+    aidlevs::CameraDesc desc;
+    ndk::ScopedAStatus status = virtualCamWithNoHal->getCameraInfo(&desc);
+
+    // Expect an error because there is no camera to get info from
+    EXPECT_EQ(status.getServiceSpecificError(),
+              static_cast<int>(EvsResult::RESOURCE_NOT_AVAILABLE));
+}
+
+TEST_F(CompatVirtualCameraTest, getCameraInfo_ExpiredHalCamera) {
+    // Create a HalCamera that will go out of scope
+    std::shared_ptr<CompatVirtualCamera> virtualCamera;
+    {
+        ACameraDevice* dummyDevice = reinterpret_cast<ACameraDevice*>(0xDEADBEEF);
+        aidlevs::Stream streamConfig;
+        auto halCamera = ::ndk::SharedRefBase::make<CompatHalCamera>(dummyDevice, "expiredCam",
+                                                                     nullptr, streamConfig);
+        std::vector<std::shared_ptr<CompatHalCamera>> halCameras = {halCamera};
+        virtualCamera = ::ndk::SharedRefBase::make<CompatVirtualCamera>(halCameras);
+    }  // halCamera is destroyed here, weak_ptr in virtualCamera should be expired
+
+    aidlevs::CameraDesc desc;
+    ndk::ScopedAStatus status = virtualCamera->getCameraInfo(&desc);
+    EXPECT_EQ(status.getServiceSpecificError(),
+              static_cast<int>(EvsResult::RESOURCE_NOT_AVAILABLE));
+}
+
+TEST_F(CompatVirtualCameraTest, getCameraInfo_UninitializedCameraDesc) {
+    // The HalCamera created in SetUp has a null CameraDesc, which results in an empty id.
+    // This test verifies that getCameraInfo handles this case correctly.
+    aidlevs::CameraDesc desc;
+    ndk::ScopedAStatus status = mVirtualCamera->getCameraInfo(&desc);
+    EXPECT_EQ(status.getServiceSpecificError(),
+              static_cast<int>(EvsResult::RESOURCE_NOT_AVAILABLE));
+}
+
 TEST_F(CompatVirtualCameraTest, startVideoStream_NullReceiver) {
     ndk::ScopedAStatus status = mVirtualCamera->startVideoStream(nullptr);
     EXPECT_EQ(status.getServiceSpecificError(), static_cast<int>(EvsResult::INVALID_ARG));
