@@ -553,8 +553,15 @@
 
         <service android:name=".perfetto.PerfettoReportService"
                  android:exported="true"
-                 android:singleUser="false"
+                 android:singleUser="true"
                  android:permission="android.permission.BIND_TRACE_REPORT_SERVICE"/>
+
+        <activity android:name=".perfetto.PerfettoTraceListActivity"
+            android:theme="@style/KitchenSinkActivityTheme"
+            android:label="@string/perfetto_trace_list_activity"
+            android:exported="true"
+            android:excludeFromRecents="true"
+            android:showForAllUsers="true"/>
 
         <receiver
             android:name=".radio.AlertNotificationReceiver"
@@ -564,5 +571,6 @@
             android:name=".radio.AlertSnoozeReceiver"
             android:exported="false">
         </receiver>
-    </application>
+
+     </application>
 </manifest>
