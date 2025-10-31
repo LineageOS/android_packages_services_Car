@@ -905,7 +905,7 @@ class AutoTaskStackControllerImpl @Inject constructor(
 
     private fun findPending(claimed: IBinder) = pendingTransitions.find { it.isClaimed == claimed }
 
-    private fun startTransitionNow(pending: PendingTransition): IBinder {
+    private fun startTransitionNow(pending: PendingTransition): IBinder? {
         val claimedTransition = transitions.startTransition(pending.mType, pending.wct, this)
         pending.isClaimed = claimedTransition
         pendingTransitions.add(pending)
