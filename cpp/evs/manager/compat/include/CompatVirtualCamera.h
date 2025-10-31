@@ -110,6 +110,10 @@ public:
 private:
     void shutdown();
 
+    std::vector<aidlevs::CameraParam> mSupportedParams;
+    bool mSupportedParamsPopulated GUARDED_BY(mMutex) = false;
+    ::ndk::ScopedAStatus populateSupportedParametersLocked() REQUIRES(mMutex);
+
     std::unordered_map<std::string, std::weak_ptr<CompatHalCamera>> mHalCameras;
     unsigned int mMaxFramesInFlight GUARDED_BY(mMutex) = 1;
     enum {
