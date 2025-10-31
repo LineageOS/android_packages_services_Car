@@ -459,7 +459,7 @@ public class IoOveruseHandlerUnitTest extends AbstractExtendedMockitoTestCase {
                         mGenericPackageNameByUid,
                         /* killablePackages= */ new ArraySet<>(Collections.singletonList(
                                 "third_party_package.A")),
-                        /* shouldNotifyPackages= */ new ArraySet<>());
+                        /* shouldNotifyPackages= */ new ArraySet<>(), 20);
 
         mIoOveruseHandler.setKillablePackageAsUser(
                 "third_party_package.A", UserHandle.of(102), /* isKillable= */ false);
@@ -542,7 +542,7 @@ public class IoOveruseHandlerUnitTest extends AbstractExtendedMockitoTestCase {
         injectIoOveruseStatsForPackages(
                 mGenericPackageNameByUid, /* killablePackages= */ new ArraySet<>(),
                 /* shouldNotifyPackages= */ new ArraySet<>(
-                        Collections.singleton(CANONICAL_NAME)));
+                        Collections.singleton(CANONICAL_NAME)), 20);
 
         verify(mockListener).onOveruse(any());
 
@@ -554,7 +554,7 @@ public class IoOveruseHandlerUnitTest extends AbstractExtendedMockitoTestCase {
         injectIoOveruseStatsForPackages(
                 mGenericPackageNameByUid, /* killablePackages= */ new ArraySet<>(),
                 /* shouldNotifyPackages= */ new ArraySet<>(
-                        Collections.singletonList(CANONICAL_NAME)));
+                        Collections.singletonList(CANONICAL_NAME)), 20);
 
         verifyNoMoreInteractions(mockListener);
     }
@@ -603,7 +603,7 @@ public class IoOveruseHandlerUnitTest extends AbstractExtendedMockitoTestCase {
         injectIoOveruseStatsForPackages(
                 mGenericPackageNameByUid, /* killablePackages= */ new ArraySet<>(),
                 /* shouldNotifyPackages= */ new ArraySet<>(
-                        Collections.singleton(CANONICAL_NAME)));
+                        Collections.singleton(CANONICAL_NAME)), 20);
 
         verify(firstMockListener).onOveruse(any());
 
@@ -615,7 +615,7 @@ public class IoOveruseHandlerUnitTest extends AbstractExtendedMockitoTestCase {
         injectIoOveruseStatsForPackages(
                 mGenericPackageNameByUid, /* killablePackages= */ new ArraySet<>(),
                 /* shouldNotifyPackages= */ new ArraySet<>(
-                        Collections.singletonList(CANONICAL_NAME)));
+                        Collections.singletonList(CANONICAL_NAME)), 20);
 
         verify(secondMockListener, times(2)).onOveruse(any());
 
@@ -627,7 +627,7 @@ public class IoOveruseHandlerUnitTest extends AbstractExtendedMockitoTestCase {
         injectIoOveruseStatsForPackages(
                 mGenericPackageNameByUid, /* killablePackages= */ new ArraySet<>(),
                 /* shouldNotifyPackages= */ new ArraySet<>(
-                        Collections.singletonList(CANONICAL_NAME)));
+                        Collections.singletonList(CANONICAL_NAME)), 20);
 
         verifyNoMoreInteractions(firstMockListener);
         verifyNoMoreInteractions(secondMockListener);
@@ -1107,7 +1107,7 @@ public class IoOveruseHandlerUnitTest extends AbstractExtendedMockitoTestCase {
         mGenericPackageNameByUid.put(10101278, "vendor_package.critical");
         injectIoOveruseStatsForPackages(
                 mGenericPackageNameByUid, /* killablePackages= */ new ArraySet<>(),
-                /* shouldNotifyPackages= */ new ArraySet<>());
+                /* shouldNotifyPackages= */ new ArraySet<>(), 20);
 
         mIoOveruseHandler.resetResourceOveruseStats(Collections.singleton(packageName));
 
@@ -1148,7 +1148,7 @@ public class IoOveruseHandlerUnitTest extends AbstractExtendedMockitoTestCase {
 
         injectIoOveruseStatsForPackages(
                 mGenericPackageNameByUid, /* killablePackages= */ new ArraySet<>(),
-                /* shouldNotifyPackages= */ new ArraySet<>());
+                /* shouldNotifyPackages= */ new ArraySet<>(), 20);
 
         disableUserPackage("third_party_package.A", 100);
         disableUserPackage("vendor_package.critical.A", 100);
@@ -1189,7 +1189,7 @@ public class IoOveruseHandlerUnitTest extends AbstractExtendedMockitoTestCase {
                 constructPackageManagerPackageInfo("third_party_package.B", 10103346, null)));
         injectIoOveruseStatsForPackages(mGenericPackageNameByUid,
                 /* killablePackages= */ Set.of("third_party_package.A", "third_party_package.B"),
-                /* shouldNotifyPackages= */ new ArraySet<>());
+                /* shouldNotifyPackages= */ new ArraySet<>(), 20);
 
         mIoOveruseHandler.setKillablePackageAsUser("third_party_package.A",
                 UserHandle.ALL, /* isKillable= */ false);
@@ -2176,7 +2176,7 @@ public class IoOveruseHandlerUnitTest extends AbstractExtendedMockitoTestCase {
         SparseArray<PackageIoOveruseStats> packageIoOveruseStatsByUid =
                 injectIoOveruseStatsForPackages(
                         mGenericPackageNameByUid, /* killablePackages= */ new ArraySet<>(),
-                        /* shouldNotifyPackages= */ new ArraySet<>());
+                        /* shouldNotifyPackages= */ new ArraySet<>(), 20);
 
         ResourceOveruseStats expectedStats =
                 constructResourceOveruseStats(uid, mMockContext.getPackageName(),
@@ -2207,7 +2207,7 @@ public class IoOveruseHandlerUnitTest extends AbstractExtendedMockitoTestCase {
 
         injectIoOveruseStatsForPackages(mGenericPackageNameByUid,
                 /* killablePackages= */ Collections.singleton(packageName),
-                /* shouldNotifyPackages= */ new ArraySet<>());
+                /* shouldNotifyPackages= */ new ArraySet<>(), 20);
 
         ResourceOveruseStats actualStats = mIoOveruseHandler.getResourceOveruseStats(
                 FLAG_RESOURCE_OVERUSE_IO,
@@ -2238,7 +2238,7 @@ public class IoOveruseHandlerUnitTest extends AbstractExtendedMockitoTestCase {
 
         injectIoOveruseStatsForPackages(mGenericPackageNameByUid,
                 /* killablePackages= */ Collections.singleton(packageName),
-                /* shouldNotifyPackages= */ new ArraySet<>());
+                /* shouldNotifyPackages= */ new ArraySet<>(), 20);
 
         ResourceOveruseStats actualStats = mIoOveruseHandler.getResourceOveruseStats(
                 FLAG_RESOURCE_OVERUSE_IO,
@@ -2292,7 +2292,7 @@ public class IoOveruseHandlerUnitTest extends AbstractExtendedMockitoTestCase {
         SparseArray<PackageIoOveruseStats> packageIoOveruseStatsByUid =
                 injectIoOveruseStatsForPackages(
                         mGenericPackageNameByUid, /* killablePackages= */ new ArraySet<>(),
-                        /* shouldNotifyPackages= */ new ArraySet<>());
+                        /* shouldNotifyPackages= */ new ArraySet<>(), 20);
 
         ResourceOveruseStats expectedStats =
                 constructResourceOveruseStats(sharedUid, "shared:system_shared_package",
@@ -2407,7 +2407,7 @@ public class IoOveruseHandlerUnitTest extends AbstractExtendedMockitoTestCase {
                 injectIoOveruseStatsForPackages(
                         mGenericPackageNameByUid, /* killablePackages= */ new ArraySet<>(
                                 Collections.singleton("shared:vendor_shared_package")),
-                        /* shouldNotifyPackages= */ new ArraySet<>());
+                        /* shouldNotifyPackages= */ new ArraySet<>(), 20);
 
         ResourceOveruseStats expectedStats =
                 constructResourceOveruseStats(1103456, "shared:vendor_shared_package",
@@ -2946,7 +2946,7 @@ public class IoOveruseHandlerUnitTest extends AbstractExtendedMockitoTestCase {
                         mGenericPackageNameByUid,
                         /* killablePackages= */ new ArraySet<>(Collections.singletonList(
                                 "third_party_package.A")),
-                        /* shouldNotifyPackages= */ new ArraySet<>());
+                        /* shouldNotifyPackages= */ new ArraySet<>(), 20);
 
         mIoOveruseHandler.setKillablePackageAsUser(
                 "third_party_package.A", UserHandle.of(102), /* isKillable= */ false);
@@ -3626,10 +3626,24 @@ public class IoOveruseHandlerUnitTest extends AbstractExtendedMockitoTestCase {
                 .build();
     }
 
-    //TODO(b/296123438): Add test for remaining dump fields in dumpProto.
     @Test
     public void testDumpProto() throws Exception {
         disableUserPackage("testPackage", 101);
+
+        mockUmGetUserHandles(mMockUserManager, /* excludeDying= */ true, 100);
+        injectPackageInfos(Arrays.asList(
+                constructPackageManagerPackageInfo("third_party_package.A", 10001100, null)));
+
+        doReturn(Arrays.asList(new WatchdogStorage.NotForgivenOverusesEntry(100,
+                "third_party_package.A", RECURRING_OVERUSE_TIMES + 1))).when(mSpiedWatchdogStorage)
+                .getNotForgivenHistoricalIoOveruses(RECURRING_OVERUSE_PERIOD_IN_DAYS);
+
+        injectIoOveruseStatsForPackages(
+                mGenericPackageNameByUid,
+                /* killablePackages= */ new ArraySet<>(Collections.singletonList(
+                        "third_party_package.A")),
+                /* shouldNotifyPackages= */ new ArraySet<>(), 0);
+
         // Set mLastSystemIoUsageSummaryReportedDate and mLastUidIoUsageSummaryReportedDate.
         assertWithMessage("Stats pull atom callback status")
                 .that(mStatsPullAtomCallback.onPullAtom(CAR_WATCHDOG_SYSTEM_IO_USAGE_SUMMARY,
@@ -3650,6 +3664,30 @@ public class IoOveruseHandlerUnitTest extends AbstractExtendedMockitoTestCase {
                 .that(userPackageInfo.getUserId()).isEqualTo(101);
         expectWithMessage("UserPackageInfo.packageName")
                 .that(userPackageInfo.getPackageName()).isEqualTo("testPackage");
+
+        expectWithMessage("User Notifiable Packages By User Id")
+                .that(performanceDump.getUserNotifiablePackagesCount()).isEqualTo(1);
+        userPackageInfo = performanceDump.getUserNotifiablePackages(0);
+        expectWithMessage("UserPackageInfo.userId")
+                .that(userPackageInfo.getUserId()).isEqualTo(100);
+        expectWithMessage("UserPackageInfo.packageName")
+                .that(userPackageInfo.getPackageName()).isEqualTo("third_party_package.A");
+
+        expectWithMessage("Actionable User Packages By User Id")
+                .that(performanceDump.getActionableUserPackagesCount()).isEqualTo(1);
+        userPackageInfo = performanceDump.getActionableUserPackages(0);
+        expectWithMessage("UserPackageInfo.userId")
+                .that(userPackageInfo.getUserId()).isEqualTo(100);
+        expectWithMessage("UserPackageInfo.packageName")
+                .that(userPackageInfo.getPackageName()).isEqualTo("third_party_package.A");
+
+        expectWithMessage("Usage By User Package")
+                .that(performanceDump.getUsageByUserPackagesCount()).isEqualTo(1);
+        userPackageInfo = performanceDump.getUsageByUserPackages(0).getUserPackageInfo();
+        expectWithMessage("UserPackageInfo.userId")
+                .that(userPackageInfo.getUserId()).isEqualTo(100);
+        expectWithMessage("UserPackageInfo.packageName")
+                .that(userPackageInfo.getPackageName()).isEqualTo("third_party_package.A");
 
         PerformanceDump.OveruseConfigurationCacheDump overuseConfigurationCacheDump =
                 performanceDump.getOveruseConfigurationCacheDump();
@@ -4572,7 +4610,7 @@ public class IoOveruseHandlerUnitTest extends AbstractExtendedMockitoTestCase {
 
     private SparseArray<PackageIoOveruseStats> injectIoOveruseStatsForPackages(
             SparseArray<String> genericPackageNameByUid, Set<String> killablePackages,
-            Set<String> shouldNotifyPackages) throws Exception {
+            Set<String> shouldNotifyPackages, int remainingWriteBytes) throws Exception {
         SparseArray<PackageIoOveruseStats> packageIoOveruseStatsByUid = new SparseArray<>();
         List<PackageIoOveruseStats> packageIoOveruseStats = new ArrayList<>();
         for (int i = 0; i < genericPackageNameByUid.size(); ++i) {
@@ -4583,8 +4621,9 @@ public class IoOveruseHandlerUnitTest extends AbstractExtendedMockitoTestCase {
                     constructPerStateBytes(80, 147, 213),
                     constructInternalIoOveruseStats(killablePackages.contains(name),
                             /* remainingWriteBytes= */
-                            constructPerStateBytes(/* fgBytes= */ 20, /* bgBytes= */
-                                    20, /* gmBytes= */ 20),
+                            constructPerStateBytes(/* fgBytes= */ remainingWriteBytes,
+                                    /* bgBytes= */ remainingWriteBytes,
+                                    /* gmBytes= */ remainingWriteBytes),
                             /* writtenBytes= */
                             constructPerStateBytes(/* fgBytes= */ 100, /* bgBytes= */
                                     200, /* gmBytes= */ 300),

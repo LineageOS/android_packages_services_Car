@@ -2314,11 +2314,11 @@ public final class IoOveruseHandler {
         return new File(CarWatchdogService.getWatchdogDirFile(), METADATA_FILENAME);
     }
 
-    private static String getPackageNameFromUniqueId(String uniqueId) {
-        return uniqueId.split(USER_PACKAGE_SEPARATOR)[0];
+    private static int getUserIdFromUniqueId(String uniqueId) {
+        return Integer.valueOf(uniqueId.split(USER_PACKAGE_SEPARATOR)[0]);
     }
 
-    private static String getUserIdFromUniqueId(String uniqueId) {
+    private static String getPackageNameFromUniqueId(String uniqueId) {
         return uniqueId.split(USER_PACKAGE_SEPARATOR)[1];
     }
 
