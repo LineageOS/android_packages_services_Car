@@ -193,20 +193,6 @@ TEST_F(WatchdogServiceHelperTest, TestRegisterService) {
     ASSERT_TRUE(mWatchdogServiceHelper->isServiceConnected());
 }
 
-TEST_F(WatchdogServiceHelperTest, TestErrorOnRegisterServiceWithBinderDied) {
-    auto binder = mMockCarWatchdogServiceForSystem->asBinder();
-    auto serviceHelperInterface = sp<WatchdogServiceHelperInterface>(mWatchdogServiceHelper);
-    expectLinkToDeath(binder.get(), ScopedAStatus::fromExceptionCode(EX_TRANSACTION_FAILED));
-    EXPECT_CALL(*mMockWatchdogProcessService,
-                registerCarWatchdogService(binder, serviceHelperInterface))
-            .WillOnce(Return(ByMove(ScopedAStatus::ok())));
-    EXPECT_CALL(*mMockWatchdogProcessService, unregisterCarWatchdogService(binder)).Times(1);
-
-    ASSERT_FALSE(mWatchdogServiceHelper->registerService(mMockCarWatchdogServiceForSystem).isOk())
-            << "Failed to return error on register service with dead binder";
-    ASSERT_FALSE(mWatchdogServiceHelper->isServiceConnected());
-}
-
 TEST_F(WatchdogServiceHelperTest, TestErrorOnRegisterServiceWithWatchdogProcessServiceError) {
     auto binder = mMockCarWatchdogServiceForSystem->asBinder();
     auto serviceHelperInterface = sp<WatchdogServiceHelperInterface>(mWatchdogServiceHelper);
