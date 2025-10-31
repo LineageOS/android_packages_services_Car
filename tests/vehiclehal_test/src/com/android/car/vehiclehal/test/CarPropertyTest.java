@@ -62,7 +62,7 @@ public class CarPropertyTest extends E2eCarTestBase {
     private static final String TAG = Utils.concatTag(CarPropertyTest.class);
 
     private static final String CAR_HVAC_TEST_JSON = "car_hvac_test.json";
-    private static final String CAR_HVAC_TEST_SET_JSON = "car_hvac_test.json";
+    private static final String CAR_HVAC_TEST_SET_JSON = "car_hvac_set_test.json";
     private static final String CAR_INFO_TEST_JSON = "car_info_test.json";
     // kMixedTypePropertyForTest property ID
     private static final int MIXED_TYPE_PROPERTY = 0x21e01111;
@@ -71,8 +71,8 @@ public class CarPropertyTest extends E2eCarTestBase {
     private static final Object[] DEFAULT_VALUE = {"MIXED property", true, 2, 3, 4.5f};
     private static final String OUT_OF_ORDER_TEST_JSON = "car_property_out_of_order_test.json";
 
-    private static final int HVAC_ALL = 117;
-    private static final int HVAC_LEFT = 49;
+    private static final int HVAC_RIGHT = 4;
+    private static final int HVAC_LEFT = 1;
 
     private static final int PROP_CHANGE_TIMEOUT_MS = 1000;
 
@@ -173,10 +173,10 @@ public class CarPropertyTest extends E2eCarTestBase {
     @Before
     public void setUp() throws Exception {
         checkRefAidlVHal();
-        saveProperty(VehicleProperty.HVAC_POWER_ON, HVAC_ALL);
-        saveProperty(VehicleProperty.HVAC_FAN_DIRECTION, HVAC_ALL);
+        saveProperty(VehicleProperty.HVAC_POWER_ON, HVAC_RIGHT);
+        saveProperty(VehicleProperty.HVAC_FAN_DIRECTION, HVAC_RIGHT);
         saveProperty(VehicleProperty.HVAC_TEMPERATURE_SET, HVAC_LEFT);
-        saveProperty(VehicleProperty.HVAC_FAN_SPEED, HVAC_ALL);
+        saveProperty(VehicleProperty.HVAC_FAN_SPEED, HVAC_RIGHT);
         saveProperty(VehicleProperty.GEAR_SELECTION, 0);
         saveProperty(MIXED_TYPE_PROPERTY, 0);
         mPropertySaved = true;
@@ -185,10 +185,10 @@ public class CarPropertyTest extends E2eCarTestBase {
     @After
     public void tearDown() throws Exception {
         if (mPropertySaved) {
-            restoreProperty(VehicleProperty.HVAC_POWER_ON, HVAC_ALL);
-            restoreProperty(VehicleProperty.HVAC_FAN_DIRECTION, HVAC_ALL);
+            restoreProperty(VehicleProperty.HVAC_POWER_ON, HVAC_RIGHT);
+            restoreProperty(VehicleProperty.HVAC_FAN_DIRECTION, HVAC_RIGHT);
             restoreProperty(VehicleProperty.HVAC_TEMPERATURE_SET, HVAC_LEFT);
-            restoreProperty(VehicleProperty.HVAC_FAN_SPEED, HVAC_ALL);
+            restoreProperty(VehicleProperty.HVAC_FAN_SPEED, HVAC_RIGHT);
             restoreProperty(VehicleProperty.GEAR_SELECTION, 0);
             restoreProperty(MIXED_TYPE_PROPERTY, 0);
         }
@@ -246,6 +246,7 @@ public class CarPropertyTest extends E2eCarTestBase {
         int eventReplayTimeoutInMs = 1000;
         boolean result = verifier.waitForEnd(eventReplayTimeoutInMs);
         propMgr.unregisterCallback(receiver);
+        generator.stop();
 
         assertWithMessage("Detected mismatched events: " + verifier.getResultString()).that(result)
                 .isTrue();
