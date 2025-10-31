@@ -130,10 +130,30 @@ static void onCaptureProgressed(void* context, ACameraCaptureSession* session,
                                 ACaptureRequest* request, const ACameraMetadata* result) {
     LOG(DEBUG) << "NDK Camera capture progressed";
 }
-static void onCaptureCompleted(void* context, ACameraCaptureSession* session,
-                               ACaptureRequest* request, const ACameraMetadata* result) {
-    LOG(DEBUG) << "NDK Camera capture completed";
+
+void CompatHalCamera::handleCaptureCompleted(const ACameraMetadata* result) {
+    std::lock_guard lock(mMetadataLock);
+    if (mLatestMetadata) {
+        ACameraMetadata_free(mLatestMetadata);
+    }
+    mLatestMetadata = ACameraMetadata_copy(result);
 }
+
+void CompatHalCamera::onCaptureCompleted(void* context, ACameraCaptureSession* session,
+                                         ACaptureRequest* request, const ACameraMetadata* result) {
+    LOG(DEBUG) << "NDK Camera capture completed";
+    if (!context) {
+        LOG(ERROR) << "Context is null in onCaptureCompleted";
+        return;
+    }
+    CompatHalCamera* halCamera = static_cast<CompatHalCamera*>(context);
+    if (!halCamera) {
+        LOG(ERROR) << "CompatHalCamera context is null";
+        return;
+    }
+    halCamera->handleCaptureCompleted(result);
+}
+
 static void onCaptureFailed(void* context, ACameraCaptureSession* session, ACaptureRequest* request,
                             ACameraCaptureFailure* failure) {
     LOG(ERROR) << "NDK Camera capture failed";
@@ -162,6 +182,10 @@ CompatHalCamera::~CompatHalCamera() {
         }
     }
     mLiveImages.clear();
+    if (mLatestMetadata) {
+        ACameraMetadata_free(mLatestMetadata);
+        mLatestMetadata = nullptr;
+    }
 }
 
 void CompatHalCamera::requestNewFrame(std::shared_ptr<CompatVirtualCamera> client,
@@ -602,7 +626,7 @@ ScopedAStatus CompatHalCamera::startNdkCameraStream(int32_t maxImages) {
     mCaptureCallbacks.context = this;
     mCaptureCallbacks.onCaptureStarted = onCaptureStarted;
     mCaptureCallbacks.onCaptureProgressed = onCaptureProgressed;
-    mCaptureCallbacks.onCaptureCompleted = onCaptureCompleted;
+    mCaptureCallbacks.onCaptureCompleted = CompatHalCamera::onCaptureCompleted;
     mCaptureCallbacks.onCaptureFailed = onCaptureFailed;
     mCaptureCallbacks.onCaptureBufferLost = onCaptureBufferLost;
 
@@ -641,4 +665,13 @@ bool CompatHalCamera::releaseACameraDevice() {
     }
     return false;
 }
+
+ACameraMetadata* CompatHalCamera::getLatestMetadata() const {
+    std::lock_guard lock(mMetadataLock);
+    if (!mLatestMetadata) {
+        return nullptr;
+    }
+    return ACameraMetadata_copy(mLatestMetadata);
+}
+
 }  // namespace android::hardware::automotive::evs::compat

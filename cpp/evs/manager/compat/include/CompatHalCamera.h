@@ -54,7 +54,9 @@ class CompatHalCamera final : public aidlevs::BnEvsCameraStream {
     friend class CompatHalCameraTest_clientStreamEnding_NotRunning_Test;
     friend class CompatHalCameraTest_clientStreamEnding_OneClientStops_Test;
     friend class CompatHalCameraTest_clientStreamEnding_ClientStopsWithOthersRunning_Test;
+    friend class CompatHalCameraTest_MetadataHandling_Test;
 #endif
+
 public:
     CompatHalCamera(ACameraDevice* device, const std::string& cameraId,
                     const aidlevs::CameraDesc* desc, const aidlevs::Stream& streamConfig);
@@ -80,6 +82,7 @@ public:
     // Closes the underlying ACameraDevice if open and marks it as closed.
     // Returns true if the device was open and closed, false otherwise.
     bool releaseACameraDevice();
+    ACameraMetadata* getLatestMetadata() const;
 
 private:
     ::ndk::ScopedAStatus startNdkCameraStream(int32_t maxImages);
@@ -88,6 +91,9 @@ private:
     void cleanUpNdkStreamResources();
     static void onImageAvailable(void* context, AImageReader* reader);
     static void onSessionClosed(void* context, ACameraCaptureSession* session);
+    void handleCaptureCompleted(const ACameraMetadata* result);
+    static void onCaptureCompleted(void* context, ACameraCaptureSession* session,
+                                   ACaptureRequest* request, const ACameraMetadata* result);
 
     ACameraDevice* mDevice GUARDED_BY(mMutex);
     std::string mCameraId;
@@ -138,6 +144,9 @@ private:
 
     bool mFrameOpInProgress GUARDED_BY(mMutex) = false;
     std::condition_variable mFrameOpDone;
+
+    mutable std::mutex mMetadataLock;
+    ACameraMetadata* mLatestMetadata GUARDED_BY(mMetadataLock) = nullptr;
 };
 
 }  // namespace android::hardware::automotive::evs::compat
