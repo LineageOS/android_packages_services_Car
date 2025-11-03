@@ -91,6 +91,7 @@ public:
     ::ndk::ScopedAStatus unsetPrimaryClient() override;
 
     virtual bool deliverFrame(const aidlevs::BufferDesc& bufferDesc);
+    std::vector<std::shared_ptr<CompatHalCamera>> getHalCameras() const;
 
     virtual bool isStreaming() const {
         std::lock_guard<std::mutex> lock(mMutex);
