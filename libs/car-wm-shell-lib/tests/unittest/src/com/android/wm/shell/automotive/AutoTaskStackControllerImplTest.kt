@@ -1057,4 +1057,31 @@ class AutoTaskStackControllerImplTest : CarWmShellTestCase() {
             )
         }
     }
+
+    @Test
+    fun startTransition_whenTransitionsReturnsNull_returnsNull() {
+        // Arrange
+        // Mock transitions.startTransition to return null, simulating a failed transition start.
+        whenever(
+            transitions.startTransition(
+                anyInt(),
+                any(WindowContainerTransaction::class.java),
+                any(Transitions.TransitionHandler::class.java)
+            )
+        ).thenReturn(null)
+
+        val (taskInfo, _) = setupRootTask(taskId = 1)
+        val transaction = AutoTaskStackTransaction().setTaskStackState(
+            taskInfo.taskId,
+            AutoTaskStackState(Rect(10, 10, 10, 10), true, 0)
+        )
+
+        // Act
+        // Call the method under test.
+        val result = controller.startTransition(transaction)
+
+        // Assert
+        // Verify that the result is null, as expected when the transition fails to start.
+        assertThat(result).isNull()
+    }
 }
