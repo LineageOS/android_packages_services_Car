@@ -85,6 +85,12 @@ public final class Stubs {
     }
 
     /**
+     * Stub activity for Camera events.
+     */
+    public static class CameraStub extends BaseActivity {
+    }
+
+    /**
      * Stub activity for Contacts events.
      */
     public static class ContactsStub extends BaseActivity {

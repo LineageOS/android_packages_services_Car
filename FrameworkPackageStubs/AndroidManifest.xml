@@ -10,9 +10,32 @@
     <application android:label="@string/app_name"
                  android:theme="@android:style/Theme.Translucent.NoTitleBar.Fullscreen">
 
+        <!-- Camera stubs -->
+        <activity android:name=".Stubs$CameraStub"
+             android:label="@string/stub_name"
+             android:excludeFromRecents="true"
+             android:exported="true">
+            <intent-filter android:priority="-1">
+                <action android:name="android.media.action.IMAGE_CAPTURE"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+            <intent-filter android:priority="-1">
+                <action android:name="android.media.action.VIDEO_CAPTURE"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+            <intent-filter android:priority="-1">
+                <action android:name="android.media.action.STILL_IMAGE_CAMERA"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+            <intent-filter android:priority="-1">
+                <action android:name="android.media.action.VIDEO_CAMERA"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </activity>
+
         <!-- Dialer stubs -->
         <activity android:name=".Stubs$DialerStub"
-                  android:label="@string/stub_name"
+             android:label="@string/stub_name"
                   android:excludeFromRecents="true"
                   android:exported="true">
             <intent-filter android:priority="-1">
