@@ -107,6 +107,7 @@ import com.google.android.car.kitchensink.systemfeatures.SystemFeaturesFragment;
 import com.google.android.car.kitchensink.telemetry.CarTelemetryTestFragment;
 import com.google.android.car.kitchensink.touch.InjectMotionTestFragment;
 import com.google.android.car.kitchensink.touch.TouchTestFragment;
+import com.google.android.car.kitchensink.trampoline.TrampolineFragment;
 import com.google.android.car.kitchensink.users.ProfileUserFragment;
 import com.google.android.car.kitchensink.users.UserFragment;
 import com.google.android.car.kitchensink.users.UserRestrictionsFragment;
@@ -360,6 +361,7 @@ public class KitchenSinkActivity extends FragmentActivity implements KitchenSink
             new Pair<>("system features", SystemFeaturesFragment.class),
             new Pair<>("telemetry", CarTelemetryTestFragment.class),
             new Pair<>("touch test", TouchTestFragment.class),
+            new Pair<>("Trampoline", TrampolineFragment.class),
             new Pair<>("users", UserFragment.class),
             new Pair<>("user restrictions", UserRestrictionsFragment.class),
             new Pair<>("vehicle ctrl", VehicleCtrlFragment.class),
