@@ -164,6 +164,16 @@ CompatHalCamera::~CompatHalCamera() {
     mLiveImages.clear();
 }
 
+void CompatHalCamera::requestNewFrame(std::shared_ptr<CompatVirtualCamera> client,
+                                      int64_t lastTimestamp) {
+    FrameRequest req;
+    req.client = client;
+    req.timestamp = lastTimestamp;
+
+    std::lock_guard<std::mutex> lock(mMutex);
+    mNextRequests.push_back(req);
+}
+
 ScopedAStatus CompatHalCamera::deliverFrame(const std::vector<BufferDesc>& buffers) {
     LOG(DEBUG) << "Received a frame on " << mCameraId;
 

@@ -485,6 +485,24 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
     }
 
     /**
+     * Test {@link CarPropertyManager#getProperty(int, int)} when the client's return type generic
+     * mismatches the property's true type.
+     */
+    @Test
+    public void testGetProperty_mismatchTypeParameter() {
+        mManager.setProperty(
+                Integer[].class, CUSTOM_GLOBAL_INT_ARRAY_PROP, 0, FAKE_INT_ARRAY_VALUE);
+        CarPropertyValue<String> result = mManager.getProperty(CUSTOM_GLOBAL_INT_ARRAY_PROP, 0);
+
+        assertThrows(
+                ClassCastException.class,
+                () -> {
+                    @SuppressWarnings("unused")
+                    String value = result.getValue();
+                });
+    }
+
+    /**
      * Test {@link CarPropertyManager#getProperty(Class, int, int)}
      */
     @Test

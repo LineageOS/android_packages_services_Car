@@ -95,6 +95,7 @@ public:
     ::ndk::ScopedAStatus setCameraGroupMap(const CameraGroupMap& cameraGroupMap);
 
 private:
+    ::ndk::ScopedAStatus initCameraDescs();
     static void onDeviceDisconnected(void* context, ACameraDevice* device);
     static void onDeviceError(void* context, ACameraDevice* device, int error);
 
@@ -106,7 +107,7 @@ private:
     bool mIsReady;
     // only virtual cameras are in this map.
     std::unique_ptr<CameraGroupMap> mCameraGroupMap;
-    // only physical cameras are in this map.
+    // physical and logical cameras are in this map.
     std::unordered_map<std::string, aidlevs::CameraDesc> mCameraDescs;
 
     mutable std::shared_mutex mLock;  // Mutex to protect mActiveCameras, mActiveVirtualCameras

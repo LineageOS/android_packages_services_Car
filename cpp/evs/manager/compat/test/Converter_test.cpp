@@ -16,6 +16,7 @@
 
 #include "Converter.h"
 
+#include "DummyNdkObjects.h"
 #include "MockNdkCamera.h"
 
 #include <aidl/android/hardware/automotive/evs/BufferDesc.h>
@@ -37,9 +38,6 @@ namespace android::hardware::automotive::evs::compat {
 
 using aidl::android::hardware::automotive::evs::BufferDesc;
 using aidl::android::hardware::automotive::evs::CameraDesc;
-
-// Dummy NDK object pointers from CompatHalCamera_test.cpp
-extern AImageReader* dummyReader;
 
 class ConverterTest : public ::testing::Test {
 protected:

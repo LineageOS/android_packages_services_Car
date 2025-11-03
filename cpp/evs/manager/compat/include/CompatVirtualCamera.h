@@ -46,6 +46,8 @@ class CompatVirtualCamera : public aidlevs::BnEvsCamera {
     friend class CompatVirtualCameraTest_deliverFrame_Success_Test;
     friend class CompatVirtualCameraTest_doneWithFrame_BufferNotFound_Test;
     friend class CompatVirtualCameraTest_doneWithFrame_Success_Test;
+    friend class CompatVirtualCameraTest_startVideoStream_StreamAlreadyRunning_Test;
+    friend class CompatVirtualCameraTest_startVideoStream_Success_Test;
 #endif
 
 public:
@@ -100,7 +102,11 @@ public:
         return mMaxFramesInFlight;
     }
 
+    void setDescriptor(aidlevs::CameraDesc* desc) { mDesc = desc; }
+
 private:
+    void shutdown();
+
     std::unordered_map<std::string, std::weak_ptr<CompatHalCamera>> mHalCameras;
     unsigned int mMaxFramesInFlight GUARDED_BY(mMutex) = 1;
     enum {
@@ -109,6 +115,7 @@ private:
         STOPPING,
     } mStreamState GUARDED_BY(mMutex) = STOPPED;
     mutable std::mutex mMutex;
+
     std::shared_ptr<aidlevs::IEvsCameraStream> mStream GUARDED_BY(mMutex);
     std::unordered_map<std::string, std::deque<aidlevs::BufferDesc>> mFramesHeld GUARDED_BY(mMutex);
     std::unordered_map<std::string, std::deque<aidlevs::BufferDesc>> mFramesUsed GUARDED_BY(mMutex);
@@ -117,6 +124,8 @@ private:
     std::condition_variable mReturnFramesSignal;
     std::thread mCaptureThread;
     std::thread mReturnThread;
+
+    aidlevs::CameraDesc* mDesc = nullptr;
 };
 
 }  // namespace android::hardware::automotive::evs::compat

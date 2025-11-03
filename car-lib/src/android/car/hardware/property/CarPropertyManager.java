@@ -2838,7 +2838,7 @@ public class CarPropertyManager extends CarManagerBase {
      * @throws PropertyNotAvailableException when [propertyId, areaId] is not available and might be
      * unavailable for a while for R and later clients.
      * @throws IllegalArgumentException when the [propertyId, areaId] is not supported for U and
-     * later client, or when the specified class does not match the property type.
+     * later client.
      * @throws SecurityException when the client does not have the required read permission to
      * access the [propertyId, areaId].
      *

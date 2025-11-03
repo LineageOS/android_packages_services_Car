@@ -17,8 +17,10 @@
 #include "CompatVirtualCamera.h"
 
 #include "CompatHalCamera.h"
+#include "DummyNdkObjects.h"
 #include "MockCameraManager.h"
 #include "MockEvsCameraStream.h"
+#include "MockNdkCamera.h"
 
 #include <aidl/android/hardware/automotive/evs/EvsResult.h>
 #include <gmock/gmock.h>
@@ -46,7 +48,6 @@ protected:
         mMockCameraManager = mockCameraManager.get();
 
         // Create a mock CompatHalCamera
-        ACameraDevice* dummyDevice = reinterpret_cast<ACameraDevice*>(0x12345678);
         EXPECT_CALL(*mMockCameraManager, openSharedCamera(_, _))
                 .WillOnce(testing::DoAll(SetArgPointee<1>(dummyDevice), Return(ACAMERA_OK)));
 
@@ -54,18 +55,20 @@ protected:
         mMockCameraManager->openSharedCamera("mockCam0", &device);
 
         aidlevs::Stream streamConfig;
-        std::shared_ptr<CompatHalCamera> mockHalCamera =
-                ::ndk::SharedRefBase::make<CompatHalCamera>(device, "mockCam0", nullptr,
-                                                            streamConfig);
-        mHalCameras.push_back(mockHalCamera);
+        mMockHalCamera = ::ndk::SharedRefBase::make<CompatHalCamera>(device, "mockCam0", nullptr,
+                                                                     streamConfig);
+        mHalCameras.push_back(mMockHalCamera);
 
         mVirtualCamera = ::ndk::SharedRefBase::make<CompatVirtualCamera>(mHalCameras);
+        MockNdkCamera::setMockInstance(&mMockNdkCamera);
     }
 
     void TearDown() override {}
 
     std::shared_ptr<CompatVirtualCamera> mVirtualCamera;
     MockCameraManager* mMockCameraManager;
+    MockNdkCamera mMockNdkCamera;
+    std::shared_ptr<CompatHalCamera> mMockHalCamera;
     std::vector<std::shared_ptr<CompatHalCamera>> mHalCameras;
 };
 
@@ -191,7 +194,7 @@ TEST_F(CompatVirtualCameraTest, deliverFrame_Success) {
         EXPECT_EQ(mVirtualCamera->mFramesHeld["mockCam0"].size(), 1);
     }
 }
-\
+
 TEST_F(CompatVirtualCameraTest, doneWithFrame_EmptyInput) {
     std::vector<BufferDesc> buffers;
     ndk::ScopedAStatus status = mVirtualCamera->doneWithFrame(buffers);
@@ -223,7 +226,6 @@ TEST_F(CompatVirtualCameraTest, doneWithFrame_Success) {
     // Deliver the frame to add it to mFramesHeld
     EXPECT_TRUE(mVirtualCamera->deliverFrame(buffer));
 
-
     std::vector<BufferDesc> buffers;
     buffers.push_back(std::move(buffer));
 
@@ -235,5 +237,166 @@ TEST_F(CompatVirtualCameraTest, doneWithFrame_Success) {
     EXPECT_EQ(mVirtualCamera->mFramesUsed["mockCam0"].size(), 1);
     EXPECT_EQ(mVirtualCamera->mFramesUsed["mockCam0"][0].bufferId, 456);
 }
-}  // namespace android::hardware::automotive::evs::compat
 
+TEST_F(CompatVirtualCameraTest, getCameraInfo_PhysicalCamera) {
+    // Create a new virtual camera with a single HalCamera to simulate a physical camera
+    ACameraDevice* dummyDevice = reinterpret_cast<ACameraDevice*>(0xABCDEF12);
+    aidlevs::Stream streamConfig;
+    aidlevs::CameraDesc expectedDesc;
+    expectedDesc.id = "mockCam_physical";
+    std::shared_ptr<CompatHalCamera> halCamera =
+            ::ndk::SharedRefBase::make<CompatHalCamera>(dummyDevice, "mockCam_physical",
+                                                        &expectedDesc, streamConfig);
+    std::vector<std::shared_ptr<CompatHalCamera>> halCameras = {halCamera};
+    auto virtualCamera = ::ndk::SharedRefBase::make<CompatVirtualCamera>(halCameras);
+
+    aidlevs::CameraDesc actualDesc;
+    ndk::ScopedAStatus status = virtualCamera->getCameraInfo(&actualDesc);
+
+    ASSERT_TRUE(status.isOk());
+    EXPECT_EQ(actualDesc.id, expectedDesc.id);
+}
+
+TEST_F(CompatVirtualCameraTest, getCameraInfo_LogicalCamera) {
+    // Create a new virtual camera with two HalCameras to simulate a logical camera
+    ACameraDevice* dummyDevice2 = reinterpret_cast<ACameraDevice*>(0x87654321);
+    aidlevs::Stream streamConfig;
+    std::shared_ptr<CompatHalCamera> mockHalCamera2 =
+            ::ndk::SharedRefBase::make<CompatHalCamera>(dummyDevice2, "mockCam1", nullptr,
+                                                        streamConfig);
+    std::vector<std::shared_ptr<CompatHalCamera>> logicalHalCameras = {mHalCameras[0],
+                                                                       mockHalCamera2};
+    auto logicalVirtualCamera = ::ndk::SharedRefBase::make<CompatVirtualCamera>(logicalHalCameras);
+
+    // For a logical camera, getCameraInfo should return the descriptor
+    // that was set via setDescriptor.
+    aidlevs::CameraDesc logicalDesc;
+    logicalDesc.id = "logical_cam";
+    logicalVirtualCamera->setDescriptor(&logicalDesc);
+
+    aidlevs::CameraDesc actualDesc;
+    ndk::ScopedAStatus status = logicalVirtualCamera->getCameraInfo(&actualDesc);
+
+    ASSERT_TRUE(status.isOk());
+    EXPECT_EQ(actualDesc.id, logicalDesc.id);
+}
+
+TEST_F(CompatVirtualCameraTest, getCameraInfo_NoHalCamera) {
+    // Create a virtual camera with no underlying HAL cameras
+    std::vector<std::shared_ptr<CompatHalCamera>> emptyList;
+    auto virtualCamWithNoHal = ::ndk::SharedRefBase::make<CompatVirtualCamera>(emptyList);
+
+    aidlevs::CameraDesc desc;
+    ndk::ScopedAStatus status = virtualCamWithNoHal->getCameraInfo(&desc);
+
+    // Expect an error because there is no camera to get info from
+    EXPECT_EQ(status.getServiceSpecificError(),
+              static_cast<int>(EvsResult::RESOURCE_NOT_AVAILABLE));
+}
+
+TEST_F(CompatVirtualCameraTest, getCameraInfo_ExpiredHalCamera) {
+    // Create a HalCamera that will go out of scope
+    std::shared_ptr<CompatVirtualCamera> virtualCamera;
+    {
+        ACameraDevice* dummyDevice = reinterpret_cast<ACameraDevice*>(0xDEADBEEF);
+        aidlevs::Stream streamConfig;
+        auto halCamera = ::ndk::SharedRefBase::make<CompatHalCamera>(dummyDevice, "expiredCam",
+                                                                     nullptr, streamConfig);
+        std::vector<std::shared_ptr<CompatHalCamera>> halCameras = {halCamera};
+        virtualCamera = ::ndk::SharedRefBase::make<CompatVirtualCamera>(halCameras);
+    }  // halCamera is destroyed here, weak_ptr in virtualCamera should be expired
+
+    aidlevs::CameraDesc desc;
+    ndk::ScopedAStatus status = virtualCamera->getCameraInfo(&desc);
+    EXPECT_EQ(status.getServiceSpecificError(),
+              static_cast<int>(EvsResult::RESOURCE_NOT_AVAILABLE));
+}
+
+TEST_F(CompatVirtualCameraTest, getCameraInfo_UninitializedCameraDesc) {
+    // The HalCamera created in SetUp has a null CameraDesc, which results in an empty id.
+    // This test verifies that getCameraInfo handles this case correctly.
+    aidlevs::CameraDesc desc;
+    ndk::ScopedAStatus status = mVirtualCamera->getCameraInfo(&desc);
+    EXPECT_EQ(status.getServiceSpecificError(),
+              static_cast<int>(EvsResult::RESOURCE_NOT_AVAILABLE));
+}
+
+TEST_F(CompatVirtualCameraTest, startVideoStream_NullReceiver) {
+    ndk::ScopedAStatus status = mVirtualCamera->startVideoStream(nullptr);
+    EXPECT_EQ(status.getServiceSpecificError(), static_cast<int>(EvsResult::INVALID_ARG));
+}
+
+TEST_F(CompatVirtualCameraTest, startVideoStream_StreamAlreadyRunning) {
+    auto mockStream = ::ndk::SharedRefBase::make<MockEvsCameraStream>();
+    {
+        std::lock_guard lock(mVirtualCamera->mMutex);
+        mVirtualCamera->mStreamState = CompatVirtualCamera::RUNNING;
+    }
+    ndk::ScopedAStatus status = mVirtualCamera->startVideoStream(mockStream);
+    EXPECT_EQ(status.getServiceSpecificError(),
+              static_cast<int>(EvsResult::STREAM_ALREADY_RUNNING));
+}
+
+TEST_F(CompatVirtualCameraTest, startVideoStream_Success) {
+    // Mock NDK calls for successful stream start
+    EXPECT_CALL(mMockNdkCamera, AImageReader_newWithUsage(_, _, _, _, _, _))
+            .WillOnce(testing::Invoke([](int32_t, int32_t, int32_t, uint64_t, int32_t,
+                                         AImageReader** reader) -> media_status_t {
+                *reader = dummyReader;
+                return AMEDIA_OK;
+            }));
+    EXPECT_CALL(mMockNdkCamera, AImageReader_getWindow(dummyReader, _))
+            .WillOnce(testing::Invoke([](AImageReader*, ANativeWindow** window) -> media_status_t {
+                *window = dummyWindow;
+                return AMEDIA_OK;
+            }));
+    EXPECT_CALL(mMockNdkCamera, AImageReader_setImageListener(dummyReader, _))
+            .WillOnce(Return(AMEDIA_OK));
+
+    EXPECT_CALL(mMockNdkCamera, ACameraOutputTarget_create(dummyWindow, _))
+            .WillOnce(testing::Invoke([](ANativeWindow*, ACameraOutputTarget** outputTarget) {
+                *outputTarget = dummyOutputTarget;
+                return ACAMERA_OK;
+            }));
+    EXPECT_CALL(mMockNdkCamera, ACaptureSessionOutput_create(dummyWindow, _))
+            .WillOnce(testing::Invoke([](ANativeWindow*, ACaptureSessionOutput** output) {
+                *output = dummySessionOutput;
+                return ACAMERA_OK;
+            }));
+    EXPECT_CALL(mMockNdkCamera, ACaptureSessionOutputContainer_create(_))
+            .WillOnce(testing::Invoke([](ACaptureSessionOutputContainer** container) {
+                *container = dummyOutputContainer;
+                return ACAMERA_OK;
+            }));
+    EXPECT_CALL(mMockNdkCamera,
+                ACaptureSessionOutputContainer_add(dummyOutputContainer, dummySessionOutput))
+            .WillOnce(Return(ACAMERA_OK));
+    EXPECT_CALL(mMockNdkCamera, ACameraDevice_createCaptureSession(_, dummyOutputContainer, _, _))
+            .WillOnce(testing::Invoke([](ACameraDevice*, const ACaptureSessionOutputContainer*,
+                                         const ACameraCaptureSession_stateCallbacks*,
+                                         ACameraCaptureSession** session) {
+                *session = dummySession;
+                return ACAMERA_OK;
+            }));
+    EXPECT_CALL(mMockNdkCamera, ACameraDevice_createCaptureRequest(_, _, _))
+            .WillOnce(testing::Invoke([](const ACameraDevice*, ACameraDevice_request_template,
+                                         ACaptureRequest** request) {
+                *request = dummyCaptureRequest;
+                return ACAMERA_OK;
+            }));
+    EXPECT_CALL(mMockNdkCamera, ACaptureRequest_addTarget(dummyCaptureRequest, dummyOutputTarget))
+            .WillOnce(Return(ACAMERA_OK));
+    EXPECT_CALL(mMockNdkCamera, ACameraCaptureSession_setRepeatingRequest(dummySession, _, 1, _, _))
+            .WillOnce(Return(ACAMERA_OK));
+
+    auto mockStream = ::ndk::SharedRefBase::make<MockEvsCameraStream>();
+    EXPECT_CALL(*mockStream, notify(_)).WillRepeatedly([](const aidlevs::EvsEventDesc& /*event*/) {
+        return ndk::ScopedAStatus::ok();
+    });
+    ndk::ScopedAStatus status = mVirtualCamera->startVideoStream(mockStream);
+    ASSERT_TRUE(status.isOk()) << "startVideoStream failed with status: "
+                               << status.getDescription();
+    status = mVirtualCamera->stopVideoStream();
+    ASSERT_TRUE(status.isOk()) << "stopVideoStream failed with status: " << status.getDescription();
+}
+}  // namespace android::hardware::automotive::evs::compat

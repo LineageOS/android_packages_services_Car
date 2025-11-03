@@ -23,10 +23,10 @@ import android.graphics.drawable.Drawable;
 
 import com.android.systemui.R;
 import com.android.systemui.car.distantdisplay.common.DistantDisplayController;
+import com.android.systemui.car.flexibleui.CarSystemBarElementStateController;
+import com.android.systemui.car.flexibleui.CarSystemBarElementStatusBarDisableController;
 import com.android.systemui.car.statusicon.StatusIconView;
 import com.android.systemui.car.statusicon.StatusIconViewController;
-import com.android.systemui.car.systembar.element.CarSystemBarElementStateController;
-import com.android.systemui.car.systembar.element.CarSystemBarElementStatusBarDisableController;
 import com.android.systemui.dagger.qualifiers.Main;
 
 import dagger.assisted.Assisted;
