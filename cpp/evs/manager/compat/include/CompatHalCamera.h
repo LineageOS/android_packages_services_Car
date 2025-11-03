@@ -65,7 +65,6 @@ public:
 
     ::ndk::ScopedAStatus doneWithFrame(aidlevs::BufferDesc buffer);
     inline aidlevs::Stream getStreamConfig() const { return mStreamConfig; }
-    ACameraDevice* getDevice() const { return mDevice; }
     std::string getId() const { return mCameraId; }
     aidlevs::CameraDesc getCameraDesc() const { return mCameraDesc; }
     bool ownVirtualCamera(const std::shared_ptr<CompatVirtualCamera>& virtualCamera);
@@ -73,15 +72,24 @@ public:
     ::ndk::ScopedAStatus clientStreamStarting();
     void clientStreamEnding(const CompatVirtualCamera* virtualCamera);
     bool tryIsStopped(bool& result) const;
+    unsigned getOwnedVirtualCameraCount() const {
+        std::lock_guard<std::mutex> lock(mMutex);
+        return mVirtualCameras.size();
+    };
     void requestNewFrame(std::shared_ptr<CompatVirtualCamera> virtualCamera, int64_t timestamp);
+    // Closes the underlying ACameraDevice if open and marks it as closed.
+    // Returns true if the device was open and closed, false otherwise.
+    bool releaseACameraDevice();
 
 private:
     ::ndk::ScopedAStatus startNdkCameraStream(int32_t maxImages);
-    void cleanUpNdkResources();
+    // Cleans up NDK resources related to the camera stream (Session, ImageReader, etc.).
+    // This method does NOT close the underlying ACameraDevice.
+    void cleanUpNdkStreamResources();
     static void onImageAvailable(void* context, AImageReader* reader);
     static void onSessionClosed(void* context, ACameraCaptureSession* session);
 
-    ACameraDevice* mDevice;
+    ACameraDevice* mDevice GUARDED_BY(mMutex);
     std::string mCameraId;
     aidlevs::CameraDesc mCameraDesc;
     aidlevs::Stream mStreamConfig;

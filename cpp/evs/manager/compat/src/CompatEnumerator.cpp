@@ -91,9 +91,45 @@ CompatEnumerator::~CompatEnumerator() {
     }
 }
 
-ScopedAStatus CompatEnumerator::closeCamera(
-        [[maybe_unused]] const std::shared_ptr<IEvsCamera>& carCamera) {
-    return ScopedAStatus::fromExceptionCode(EX_UNSUPPORTED_OPERATION);
+ScopedAStatus CompatEnumerator::closeCamera(const std::shared_ptr<IEvsCamera>& carCamera) {
+    LOG(DEBUG) << __FUNCTION__;
+    if (!carCamera) {
+        LOG(WARNING) << "closeCamera called with a null camera. Ignoring.";
+        return ScopedAStatus::fromServiceSpecificError(
+                static_cast<int32_t>(aidlevs::EvsResult::INVALID_ARG));
+    }
+    {
+        std::lock_guard lock(mLock);
+        CompatVirtualCamera* virtualCamera =
+                reinterpret_cast<CompatVirtualCamera*>(carCamera.get());
+        auto it = std::find_if(mActiveVirtualCameras.begin(), mActiveVirtualCameras.end(),
+                               [virtualCamera](std::weak_ptr<CompatVirtualCamera>& pVirtualCamera) {
+                                   auto vc = pVirtualCamera.lock();
+                                   return vc.get() == virtualCamera;
+                               });
+        if (it == mActiveVirtualCameras.end()) {
+            LOG(ERROR) << "Failed to find a virtual camera to close. ignoring.";
+            return ScopedAStatus::fromServiceSpecificError(
+                    static_cast<int32_t>(aidlevs::EvsResult::INVALID_ARG));
+        }
+        // Stop the stream first. This calls halCamera->clientStreamEnding ->
+        // cleanUpNdkStreamResources,which cleans up stream resources but does NOT close the
+        // ACameraDevice.
+        virtualCamera->stopVideoStream();
+
+        // Remove the virtual camera from the active list
+        mActiveVirtualCameras.erase(it);
+
+        // Disown and check if HAL cameras need to be closed
+        for (auto&& halCamera : virtualCamera->getHalCameras()) {
+            halCamera->disownVirtualCamera(virtualCamera);
+            if (halCamera->getOwnedVirtualCameraCount() == 0) {
+                LOG(INFO) << "Camera " << halCamera->getId() << " has no more virtual cameras.";
+                removeActiveCamera(halCamera->getId().c_str());
+            }
+        }
+        return ScopedAStatus::ok();
+    }
 }
 
 ScopedAStatus CompatEnumerator::closeDisplay(
@@ -296,39 +332,60 @@ ScopedAStatus CompatEnumerator::isHardware(bool* _aidl_return) {
     return ScopedAStatus::ok();
 }
 
-void CompatEnumerator::onDeviceDisconnected(void* context, ACameraDevice* device) {
-    if (!context || !device) return;
-    CompatEnumerator* self = static_cast<CompatEnumerator*>(context);
+void CompatEnumerator::handleDeviceStatusChange(void* context, ACameraDevice* device,
+                                                const char* functionName,
+                                                const int* error) {
+    if (device == nullptr) {
+        LOG(ERROR) << functionName << " called with a null device. Ignoring.";
+        return;
+    }
     const char* cameraId = ACameraDevice_getId(device);
-    LOG(WARNING) << "Camera device " << cameraId << " disconnected. Removing from active list.";
-    self->removeActiveCamera(cameraId);
+    if (context == nullptr) {
+        ACameraDevice_close(device);
+        LOG(ERROR) << functionName << " called with a null context for camera " << cameraId
+                   << ". Closing the camera device.";
+        return;
+    }
+    CompatEnumerator* self = static_cast<CompatEnumerator*>(context);
+    if (error == nullptr) {
+        LOG(WARNING) << "Camera device " << cameraId << " disconnected. Removing from active list.";
+    } else {
+        LOG(ERROR) << "Camera device " << cameraId << " error: " << *error
+                   << ". Removing from active list.";
+    }
+    {
+        std::lock_guard lock(self->mLock);
+        self->removeActiveCamera(cameraId);
+    }
+}
+
+void CompatEnumerator::onDeviceDisconnected(void* context, ACameraDevice* device) {
+    handleDeviceStatusChange(context, device, __FUNCTION__);
 }
 
 void CompatEnumerator::onDeviceError(void* context, ACameraDevice* device, int error) {
-    if (!context || !device) return;
-    CompatEnumerator* self = static_cast<CompatEnumerator*>(context);
-    const char* cameraId = ACameraDevice_getId(device);
-    LOG(ERROR) << "Camera device " << cameraId << " error: " << error
-               << ". Removing from active list.";
-    self->removeActiveCamera(cameraId);
+    handleDeviceStatusChange(context, device, __FUNCTION__, &error);
 }
 
 void CompatEnumerator::removeActiveCamera(const char* cameraId) {
     if (!cameraId) return;
-    std::lock_guard lock(mLock);
-    if (mActiveCameras.erase(cameraId) > 0) {
+    // mLock is already held by the caller
+    auto it = mActiveCameras.find(cameraId);
+    if (it != mActiveCameras.end()) {
+        if (it->second) {
+            it->second->releaseACameraDevice();
+        }
+        mActiveCameras.erase(it);
         LOG(INFO) << "Removed camera " << cameraId << " from active list.";
+    } else {
+        LOG(WARNING) << "Camera " << cameraId << " not found in active list for removal.";
     }
 }
 
 void CompatEnumerator::cleanupOpenedCameras(const std::vector<std::string>& cameraIds) {
+    std::lock_guard lock(mLock);
     for (const auto& idToClose : cameraIds) {
-        auto camIt = mActiveCameras.find(idToClose);
-        if (camIt != mActiveCameras.end()) {
-            ACameraDevice_close(camIt->second->getDevice());
-            mActiveCameras.erase(camIt);
-            LOG(INFO) << "Cleaned up and closed camera " << idToClose;
-        }
+        removeActiveCamera(idToClose.c_str());
     }
 }
 

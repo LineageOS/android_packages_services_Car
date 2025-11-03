@@ -568,4 +568,15 @@ bool CompatVirtualCamera::deliverFrame(const aidlevs::BufferDesc& bufferDesc) {
     return true;
 }
 
+std::vector<std::shared_ptr<CompatHalCamera>> CompatVirtualCamera::getHalCameras() const {
+    std::vector<std::shared_ptr<CompatHalCamera>> halCameras;
+    for (auto&& [_, halCamera] : mHalCameras) {
+        std::shared_ptr<CompatHalCamera> pHalCamera = halCamera.lock();
+        if (pHalCamera) {
+            halCameras.push_back(std::move(pHalCamera));
+        }
+    }
+    return halCameras;
+}
+
 }  // namespace android::hardware::automotive::evs::compat

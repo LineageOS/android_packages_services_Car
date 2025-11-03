@@ -52,17 +52,17 @@ struct CameraGroup {
 using CameraGroupMap = std::unordered_map<std::string, CameraGroup>;
 
 class CompatEnumerator final : public aidlevs::BnEvsEnumerator {
-    #ifdef EVS_COMPAT_TEST
+#ifdef EVS_COMPAT_TEST
     // Grant access to private members for testing.
     friend class CompatEnumeratorTest_setCameraGroupMap_Test;
-    #endif
+#endif
 
 public:
     CompatEnumerator();
-    #ifdef EVS_COMPAT_TEST
+#ifdef EVS_COMPAT_TEST
     // Constructor for dependency injection in tests
     explicit CompatEnumerator(std::unique_ptr<ICameraManager> cameraManager);
-    #endif
+#endif
     ~CompatEnumerator() override;
 
     ::ndk::ScopedAStatus closeCamera(
@@ -98,8 +98,10 @@ private:
     ::ndk::ScopedAStatus initCameraDescs();
     static void onDeviceDisconnected(void* context, ACameraDevice* device);
     static void onDeviceError(void* context, ACameraDevice* device, int error);
+    static void handleDeviceStatusChange(void* context, ACameraDevice* device,
+                                         const char* functionName, const int* error = nullptr);
 
-    void removeActiveCamera(const char* cameraId);
+    void removeActiveCamera(const char* cameraId) REQUIRES(mLock);
     void cleanupOpenedCameras(const std::vector<std::string>& cameraIds) REQUIRES(mLock);
     std::unordered_set<std::string> getPhysicalCameraIds(const std::string& cameraId);
 

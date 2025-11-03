@@ -362,6 +362,11 @@ void CompatHalCamera::disownVirtualCamera(const CompatVirtualCamera* virtualCame
 ScopedAStatus CompatHalCamera::clientStreamStarting() {
     {
         std::lock_guard lock(mMutex);
+        if (!mDevice) {
+            LOG(ERROR) << "Camera device is not available for camera " << mCameraId;
+            return ScopedAStatus::fromServiceSpecificError(
+                    static_cast<int32_t>(aidlevs::EvsResult::RESOURCE_NOT_AVAILABLE));
+        }
         if (mStreamState == RUNNING) {
             // This camera device is already active.
             return ScopedAStatus::ok();
@@ -423,7 +428,7 @@ void CompatHalCamera::clientStreamEnding(const CompatVirtualCamera* virtualCamer
             std::lock_guard lock(mMutex);
             mStreamState = STOPPING;
         }
-        cleanUpNdkResources();
+        cleanUpNdkStreamResources();
         {
             std::lock_guard lock(mMutex);
             mBufferIdMap.clear();
@@ -431,8 +436,8 @@ void CompatHalCamera::clientStreamEnding(const CompatVirtualCamera* virtualCamer
     }
 }
 
-void CompatHalCamera::cleanUpNdkResources() {
-    LOG(INFO) << "Cleaning up NDK resources for camera " << mCameraId;
+void CompatHalCamera::cleanUpNdkStreamResources() {
+    LOG(INFO) << "Cleaning up NDK stream resources for camera " << mCameraId;
 
     if (mCaptureRequest) {
         ACaptureRequest_free(mCaptureRequest);
@@ -505,7 +510,7 @@ ScopedAStatus CompatHalCamera::startNdkCameraStream(int32_t maxImages) {
     status = AImageReader_setImageListener(mImageReader, &mImageListener);
     if (status != AMEDIA_OK) {
         LOG(ERROR) << "Failed to set ImageListener, status: " << status;
-        cleanUpNdkResources();
+        cleanUpNdkStreamResources();
         return ScopedAStatus::fromServiceSpecificError(
                 static_cast<int32_t>(aidlevs::EvsResult::UNDERLYING_SERVICE_ERROR));
     }
@@ -514,7 +519,7 @@ ScopedAStatus CompatHalCamera::startNdkCameraStream(int32_t maxImages) {
     media_status_t mediaStatus = AImageReader_getWindow(mImageReader, &mWindow);
     if (mediaStatus != AMEDIA_OK || !mWindow) {
         LOG(ERROR) << "Failed to get window from AImageReader, status: " << mediaStatus;
-        cleanUpNdkResources();
+        cleanUpNdkStreamResources();
         return ScopedAStatus::fromServiceSpecificError(
                 static_cast<int32_t>(aidlevs::EvsResult::UNDERLYING_SERVICE_ERROR));
     }
@@ -523,7 +528,7 @@ ScopedAStatus CompatHalCamera::startNdkCameraStream(int32_t maxImages) {
     camera_status_t cameraStatus = ACameraOutputTarget_create(mWindow, &mOutputTarget);
     if (cameraStatus != ACAMERA_OK || !mOutputTarget) {
         LOG(ERROR) << "Failed to create ACameraOutputTarget, status: " << cameraStatus;
-        cleanUpNdkResources();
+        cleanUpNdkStreamResources();
         return ScopedAStatus::fromServiceSpecificError(
                 static_cast<int32_t>(aidlevs::EvsResult::UNDERLYING_SERVICE_ERROR));
     }
@@ -532,7 +537,7 @@ ScopedAStatus CompatHalCamera::startNdkCameraStream(int32_t maxImages) {
     cameraStatus = ACaptureSessionOutput_create(mWindow, &mSessionOutput);
     if (cameraStatus != ACAMERA_OK || !mSessionOutput) {
         LOG(ERROR) << "Failed to create ACameraCaptureSessionOutput, status: " << cameraStatus;
-        cleanUpNdkResources();
+        cleanUpNdkStreamResources();
         return ScopedAStatus::fromServiceSpecificError(
                 static_cast<int32_t>(aidlevs::EvsResult::UNDERLYING_SERVICE_ERROR));
     }
@@ -542,7 +547,7 @@ ScopedAStatus CompatHalCamera::startNdkCameraStream(int32_t maxImages) {
     if (cameraStatus != ACAMERA_OK || !mOutputs) {
         LOG(ERROR) << "Failed to create ACameraCaptureSessionOutputContainer, status: "
                    << cameraStatus;
-        cleanUpNdkResources();
+        cleanUpNdkStreamResources();
         return ScopedAStatus::fromServiceSpecificError(
                 static_cast<int32_t>(aidlevs::EvsResult::UNDERLYING_SERVICE_ERROR));
     }
@@ -551,7 +556,7 @@ ScopedAStatus CompatHalCamera::startNdkCameraStream(int32_t maxImages) {
     cameraStatus = ACaptureSessionOutputContainer_add(mOutputs, mSessionOutput);
     if (cameraStatus != ACAMERA_OK) {
         LOG(ERROR) << "Failed to add output to container, status: " << cameraStatus;
-        cleanUpNdkResources();
+        cleanUpNdkStreamResources();
         return ScopedAStatus::fromServiceSpecificError(
                 static_cast<int32_t>(aidlevs::EvsResult::UNDERLYING_SERVICE_ERROR));
     }
@@ -567,7 +572,7 @@ ScopedAStatus CompatHalCamera::startNdkCameraStream(int32_t maxImages) {
                                                       &mSession);
     if (cameraStatus != ACAMERA_OK || !mSession) {
         LOG(ERROR) << "Failed to create ACameraCaptureSession, status: " << cameraStatus;
-        cleanUpNdkResources();
+        cleanUpNdkStreamResources();
         return ScopedAStatus::fromServiceSpecificError(
                 static_cast<int32_t>(aidlevs::EvsResult::UNDERLYING_SERVICE_ERROR));
     }
@@ -579,7 +584,7 @@ ScopedAStatus CompatHalCamera::startNdkCameraStream(int32_t maxImages) {
     cameraStatus = ACameraDevice_createCaptureRequest(mDevice, TEMPLATE_PREVIEW, &mCaptureRequest);
     if (cameraStatus != ACAMERA_OK || !mCaptureRequest) {
         LOG(ERROR) << "Failed to create ACaptureRequest, status: " << cameraStatus;
-        cleanUpNdkResources();
+        cleanUpNdkStreamResources();
         return ScopedAStatus::fromServiceSpecificError(
                 static_cast<int32_t>(aidlevs::EvsResult::UNDERLYING_SERVICE_ERROR));
     }
@@ -588,7 +593,7 @@ ScopedAStatus CompatHalCamera::startNdkCameraStream(int32_t maxImages) {
     cameraStatus = ACaptureRequest_addTarget(mCaptureRequest, mOutputTarget);
     if (cameraStatus != ACAMERA_OK) {
         LOG(ERROR) << "Failed to add target to capture request, status: " << cameraStatus;
-        cleanUpNdkResources();
+        cleanUpNdkStreamResources();
         return ScopedAStatus::fromServiceSpecificError(
                 static_cast<int32_t>(aidlevs::EvsResult::UNDERLYING_SERVICE_ERROR));
     }
@@ -606,7 +611,7 @@ ScopedAStatus CompatHalCamera::startNdkCameraStream(int32_t maxImages) {
                                                              &mCaptureRequest, nullptr);
     if (cameraStatus != ACAMERA_OK) {
         LOG(ERROR) << "Failed to start repeating request, status: " << cameraStatus;
-        cleanUpNdkResources();
+        cleanUpNdkStreamResources();
         return ScopedAStatus::fromServiceSpecificError(
                 static_cast<int32_t>(aidlevs::EvsResult::UNDERLYING_SERVICE_ERROR));
     }
@@ -621,6 +626,17 @@ bool CompatHalCamera::tryIsStopped(bool& result) const {
     std::unique_lock<std::mutex> lock(mMutex, std::try_to_lock);
     if (lock.owns_lock()) {
         result = (mStreamState == STOPPED);
+        return true;
+    }
+    return false;
+}
+
+bool CompatHalCamera::releaseACameraDevice() {
+    std::lock_guard<std::mutex> lock(mMutex);
+    if (mDevice) {
+        LOG(INFO) << "Closing NDK device for " << mCameraId;
+        ACameraDevice_close(mDevice);
+        mDevice = nullptr;
         return true;
     }
     return false;

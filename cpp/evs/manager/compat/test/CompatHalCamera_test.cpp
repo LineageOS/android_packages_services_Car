@@ -184,8 +184,8 @@ TEST_F(CompatHalCameraTest, clientStreamStarting_Success) {
     EXPECT_CALL(mMockNdkCamera, ACameraOutputTarget_free(dummyOutputTarget)).Times(1);
     EXPECT_CALL(mMockNdkCamera, AImageReader_delete(dummyReader)).Times(1);
 
-    // Call cleanUpNdkResources to trigger the mocked clean up functions
-    mHalCamera->cleanUpNdkResources();
+    // Call cleanUpNdkStreamResources to trigger the mocked clean up functions
+    mHalCamera->cleanUpNdkStreamResources();
 }
 
 TEST_F(CompatHalCameraTest, clientStreamStarting_AlreadyRunning) {
