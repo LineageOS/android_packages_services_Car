@@ -455,8 +455,9 @@ TEST_F(CompatVirtualCameraTest, getParameterList_logicalCamera) {
     std::vector<aidlevs::CameraParam> params;
     ndk::ScopedAStatus status = virtualCamera->getParameterList(&params);
 
-    ASSERT_TRUE(status.isOk());
-    EXPECT_TRUE(params.empty());
+    ASSERT_FALSE(status.isOk());
+    EXPECT_EQ(status.getExceptionCode(), EX_SERVICE_SPECIFIC);
+    EXPECT_EQ(status.getServiceSpecificError(), static_cast<int>(EvsResult::NOT_SUPPORTED));
 }
 
 TEST_F(CompatVirtualCameraTest, getParameterList_halCameraNotAvailable) {
@@ -501,8 +502,9 @@ TEST_F(CompatVirtualCameraTest, getParameterList_emptyMetadata) {
     std::vector<aidlevs::CameraParam> params;
     ndk::ScopedAStatus status = virtualCamera->getParameterList(&params);
 
-    ASSERT_TRUE(status.isOk());
-    EXPECT_TRUE(params.empty());
+    ASSERT_FALSE(status.isOk());
+    EXPECT_EQ(status.getExceptionCode(), EX_SERVICE_SPECIFIC);
+    EXPECT_EQ(status.getServiceSpecificError(), static_cast<int>(EvsResult::NOT_SUPPORTED));
 }
 
 TEST_F(CompatVirtualCameraTest, getParameterList_supportsBrightness_validRange) {
@@ -1059,6 +1061,196 @@ TEST_F(CompatVirtualCameraTest, getParameterList_doesNotSupportAbsoluteZoom_fixe
 
     ASSERT_TRUE(status.isOk());
     EXPECT_TRUE(params.empty());
+}
+
+TEST_F(CompatVirtualCameraTest, getIntParameterRange_unsupportedParam) {
+    // Setup with metadata that does not support BRIGHTNESS
+    std::vector<uint8_t> modes = {ACAMERA_STATISTICS_FACE_DETECT_MODE_SIMPLE};
+    setupCameraWithMetadata(ACAMERA_STATISTICS_INFO_AVAILABLE_FACE_DETECT_MODES, modes);
+
+    aidlevs::CameraParam param = aidlevs::CameraParam::BRIGHTNESS;
+    aidlevs::ParameterRange range;
+    ndk::ScopedAStatus status = mVirtualCamera->getIntParameterRange(param, &range);
+    ASSERT_FALSE(status.isOk());
+    EXPECT_EQ(status.getServiceSpecificError(), static_cast<int>(EvsResult::NOT_SUPPORTED));
+}
+
+TEST_F(CompatVirtualCameraTest, getIntParameterRange_brightness) {
+    std::vector<int32_t> range = {-5, 5};
+    setupCameraWithMetadata(ACAMERA_CONTROL_AE_COMPENSATION_RANGE, range);
+    aidlevs::ParameterRange outRange;
+    ndk::ScopedAStatus status =
+            mVirtualCamera->getIntParameterRange(aidlevs::CameraParam::BRIGHTNESS, &outRange);
+    ASSERT_TRUE(status.isOk());
+    EXPECT_EQ(outRange.min, -5);
+    EXPECT_EQ(outRange.max, 5);
+    EXPECT_EQ(outRange.step, 1);
+}
+
+TEST_F(CompatVirtualCameraTest, getIntParameterRange_gain) {
+    std::vector<int32_t> range = {100, 1600};
+    setupCameraWithMetadata(ACAMERA_SENSOR_INFO_SENSITIVITY_RANGE, range);
+    aidlevs::ParameterRange outRange;
+    ndk::ScopedAStatus status =
+            mVirtualCamera->getIntParameterRange(aidlevs::CameraParam::GAIN, &outRange);
+    ASSERT_TRUE(status.isOk());
+    EXPECT_EQ(outRange.min, 100);
+    EXPECT_EQ(outRange.max, 1600);
+    EXPECT_EQ(outRange.step, 1);
+}
+
+TEST_F(CompatVirtualCameraTest, getIntParameterRange_whiteBalanceTemperature) {
+    // Metadata setup for only manual white balance
+    mRawMetadata = allocate_camera_metadata(2, sizeof(uint8_t) * 1 + sizeof(int32_t) * 2);
+    ASSERT_NE(mRawMetadata, nullptr);
+    std::vector<uint8_t> awbModes = {ACAMERA_CONTROL_AWB_MODE_OFF};
+    ASSERT_EQ(add_camera_metadata_entry(mRawMetadata, ACAMERA_CONTROL_AWB_AVAILABLE_MODES,
+                                        awbModes.data(), awbModes.size()), 0);
+    std::vector<int32_t> tempRange = {2000, 8000};
+    ASSERT_EQ(add_camera_metadata_entry(mRawMetadata,
+                                        ACAMERA_COLOR_CORRECTION_COLOR_TEMPERATURE_RANGE,
+                                        tempRange.data(), tempRange.size()), 0);
+    ASSERT_EQ(validate_camera_metadata_structure(mRawMetadata, nullptr), 0);
+
+    // Create camera with this metadata
+    size_t size = get_camera_metadata_size(mRawMetadata);
+    std::vector<uint8_t> metadataVector(size);
+    memcpy(metadataVector.data(), mRawMetadata, size);
+    aidlevs::CameraDesc desc;
+    desc.id = "testCam";
+    desc.metadata = metadataVector;
+    auto halCamera = ::ndk::SharedRefBase::make<CompatHalCamera>(nullptr, "testCam", &desc,
+                                                                 aidlevs::Stream());
+    mTestHalCameras.push_back(halCamera);
+    mVirtualCamera = ::ndk::SharedRefBase::make<CompatVirtualCamera>(mTestHalCameras);
+
+    aidlevs::ParameterRange outRange;
+    ndk::ScopedAStatus status =
+            mVirtualCamera->getIntParameterRange(aidlevs::CameraParam::WHITE_BALANCE_TEMPERATURE,
+                                                 &outRange);
+    ASSERT_TRUE(status.isOk());
+    EXPECT_EQ(outRange.min, 2000);
+    EXPECT_EQ(outRange.max, 8000);
+    EXPECT_EQ(outRange.step, 1);
+}
+
+TEST_F(CompatVirtualCameraTest, getIntParameterRange_sharpness) {
+    std::vector<uint8_t> modes = {ACAMERA_EDGE_MODE_OFF, ACAMERA_EDGE_MODE_FAST};
+    setupCameraWithMetadata(ACAMERA_EDGE_AVAILABLE_EDGE_MODES, modes);
+    aidlevs::ParameterRange outRange;
+    ndk::ScopedAStatus status =
+            mVirtualCamera->getIntParameterRange(aidlevs::CameraParam::SHARPNESS, &outRange);
+    ASSERT_TRUE(status.isOk());
+    EXPECT_EQ(outRange.min, ACAMERA_EDGE_MODE_OFF);
+    EXPECT_EQ(outRange.max, ACAMERA_EDGE_MODE_ZERO_SHUTTER_LAG);
+    EXPECT_EQ(outRange.step, 1);
+}
+
+TEST_F(CompatVirtualCameraTest, getIntParameterRange_absoluteExposure) {
+    // Metadata setup for only manual exposure
+    mRawMetadata = allocate_camera_metadata(2, sizeof(uint8_t) * 1 + sizeof(int64_t) * 2);
+    ASSERT_NE(mRawMetadata, nullptr);
+    std::vector<uint8_t> aeModes = {ACAMERA_CONTROL_AE_MODE_OFF};
+    ASSERT_EQ(add_camera_metadata_entry(mRawMetadata, ACAMERA_CONTROL_AE_AVAILABLE_MODES,
+                                        aeModes.data(), aeModes.size()), 0);
+    std::vector<int64_t> exposureRange = {1000, 100000000};
+    ASSERT_EQ(add_camera_metadata_entry(mRawMetadata, ACAMERA_SENSOR_INFO_EXPOSURE_TIME_RANGE,
+                                        exposureRange.data(), exposureRange.size()), 0);
+    ASSERT_EQ(validate_camera_metadata_structure(mRawMetadata, nullptr), 0);
+
+    // Create camera with this metadata
+    size_t size = get_camera_metadata_size(mRawMetadata);
+    std::vector<uint8_t> metadataVector(size);
+    memcpy(metadataVector.data(), mRawMetadata, size);
+    aidlevs::CameraDesc desc;
+    desc.id = "testCam";
+    desc.metadata = metadataVector;
+    auto halCamera = ::ndk::SharedRefBase::make<CompatHalCamera>(nullptr, "testCam", &desc,
+                                                                 aidlevs::Stream());
+    mTestHalCameras.push_back(halCamera);
+    mVirtualCamera = ::ndk::SharedRefBase::make<CompatVirtualCamera>(mTestHalCameras);
+
+    aidlevs::ParameterRange outRange;
+    ndk::ScopedAStatus status =
+            mVirtualCamera->getIntParameterRange(aidlevs::CameraParam::ABSOLUTE_EXPOSURE,
+                                                 &outRange);
+    ASSERT_TRUE(status.isOk());
+    EXPECT_EQ(outRange.min, 1);
+    EXPECT_EQ(outRange.max, 100000);
+    EXPECT_EQ(outRange.step, 1);
+}
+
+TEST_F(CompatVirtualCameraTest, getIntParameterRange_absoluteFocus) {
+    std::vector<float> dist = {10.0f};
+    setupCameraWithMetadata(ACAMERA_LENS_INFO_MINIMUM_FOCUS_DISTANCE, dist);
+    aidlevs::ParameterRange outRange;
+    ndk::ScopedAStatus status =
+            mVirtualCamera->getIntParameterRange(aidlevs::CameraParam::ABSOLUTE_FOCUS, &outRange);
+    ASSERT_TRUE(status.isOk());
+    EXPECT_EQ(outRange.min, 0);
+    EXPECT_EQ(outRange.max, 1000);
+    EXPECT_EQ(outRange.step, 1);
+}
+
+TEST_F(CompatVirtualCameraTest, getIntParameterRange_absoluteZoom) {
+    std::vector<float> range = {1.0f, 100.0f};
+    setupCameraWithMetadata(ACAMERA_CONTROL_ZOOM_RATIO_RANGE, range);
+    aidlevs::ParameterRange outRange;
+    ndk::ScopedAStatus status =
+            mVirtualCamera->getIntParameterRange(aidlevs::CameraParam::ABSOLUTE_ZOOM, &outRange);
+    ASSERT_TRUE(status.isOk());
+    EXPECT_EQ(outRange.min, 100);
+    EXPECT_EQ(outRange.max, 10000);
+    EXPECT_EQ(outRange.step, 1);
+}
+
+TEST_F(CompatVirtualCameraTest, getIntParameterRange_autoGain) {
+    std::vector<int32_t> range = {100, 1600};
+    setupCameraWithMetadata(ACAMERA_SENSOR_INFO_SENSITIVITY_RANGE, range);
+    aidlevs::ParameterRange outRange;
+    ndk::ScopedAStatus status =
+            mVirtualCamera->getIntParameterRange(aidlevs::CameraParam::AUTOGAIN, &outRange);
+    ASSERT_TRUE(status.isOk());
+    EXPECT_EQ(outRange.min, 0);
+    EXPECT_EQ(outRange.max, 1);
+    EXPECT_EQ(outRange.step, 1);
+}
+
+TEST_F(CompatVirtualCameraTest, getIntParameterRange_autoExposure) {
+    std::vector<uint8_t> modes = {ACAMERA_CONTROL_AE_MODE_ON};
+    setupCameraWithMetadata(ACAMERA_CONTROL_AE_AVAILABLE_MODES, modes);
+    aidlevs::ParameterRange outRange;
+    ndk::ScopedAStatus status =
+            mVirtualCamera->getIntParameterRange(aidlevs::CameraParam::AUTO_EXPOSURE, &outRange);
+    ASSERT_TRUE(status.isOk());
+    EXPECT_EQ(outRange.min, 0);
+    EXPECT_EQ(outRange.max, 1);
+    EXPECT_EQ(outRange.step, 1);
+}
+
+TEST_F(CompatVirtualCameraTest, getIntParameterRange_autoWhiteBalance) {
+    std::vector<uint8_t> modes = {ACAMERA_CONTROL_AWB_MODE_AUTO};
+    setupCameraWithMetadata(ACAMERA_CONTROL_AWB_AVAILABLE_MODES, modes);
+    aidlevs::ParameterRange outRange;
+    ndk::ScopedAStatus status =
+            mVirtualCamera->getIntParameterRange(aidlevs::CameraParam::AUTO_WHITE_BALANCE,
+                                                 &outRange);
+    ASSERT_TRUE(status.isOk());
+    EXPECT_EQ(outRange.min, 0);
+    EXPECT_EQ(outRange.max, 1);
+    EXPECT_EQ(outRange.step, 1);
+}
+
+TEST_F(CompatVirtualCameraTest, getIntParameterRange_autoFocus) {
+    std::vector<uint8_t> modes = {ACAMERA_CONTROL_AF_MODE_OFF, ACAMERA_CONTROL_AF_MODE_AUTO};
+    setupCameraWithMetadata(ACAMERA_CONTROL_AF_AVAILABLE_MODES, modes);
+    aidlevs::ParameterRange outRange;
+    ndk::ScopedAStatus status =
+            mVirtualCamera->getIntParameterRange(aidlevs::CameraParam::AUTO_FOCUS, &outRange);
+    ASSERT_TRUE(status.isOk());
+    EXPECT_EQ(outRange.min, 0);
+    EXPECT_EQ(outRange.max, 1);
+    EXPECT_EQ(outRange.step, 1);
 }
 
 }  // namespace android::hardware::automotive::evs::compat

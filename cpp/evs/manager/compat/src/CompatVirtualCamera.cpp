@@ -175,16 +175,140 @@ ScopedAStatus CompatVirtualCamera::getIntParameter(
     return ScopedAStatus::fromExceptionCode(EX_UNSUPPORTED_OPERATION);
 }
 
-ScopedAStatus CompatVirtualCamera::getIntParameterRange(
-        [[maybe_unused]] CameraParam id, [[maybe_unused]] ParameterRange* _aidl_return) {
-    return ScopedAStatus::fromExceptionCode(EX_UNSUPPORTED_OPERATION);
+ScopedAStatus CompatVirtualCamera::getIntParameterRange(CameraParam id,
+                                                        ParameterRange* _aidl_return) {
+    {
+        std::lock_guard lock(mMutex);
+        if (!mSupportedParamsPopulated) {
+            LOG(INFO) << "Supported parameter cache is not populated. Populating now.";
+            auto status = populateSupportedParametersLocked();
+            if (!status.isOk()) {
+                return status;
+            }
+        }
+    }
+
+    auto it = std::find(mSupportedParams.begin(), mSupportedParams.end(), id);
+    if (it == mSupportedParams.end()) {
+        return ScopedAStatus::fromServiceSpecificError(static_cast<int>(EvsResult::NOT_SUPPORTED));
+    }
+
+    CameraDesc desc;
+    auto status = getCameraInfo(&desc);
+    if (!status.isOk()) {
+        LOG(ERROR) << "Failed to get camera info.";
+        return status;
+    }
+
+    const camera_metadata_t* metadata =
+            reinterpret_cast<const camera_metadata_t*>(desc.metadata.data());
+
+    switch (id) {
+        case CameraParam::BRIGHTNESS: {
+            // The Camera2 API provides a range of exposure compensation values.
+            // We expose this directly to the client.
+            camera_metadata_ro_entry_t entry;
+            find_camera_metadata_ro_entry(metadata, ACAMERA_CONTROL_AE_COMPENSATION_RANGE, &entry);
+            _aidl_return->min = entry.data.i32[0];
+            _aidl_return->max = entry.data.i32[1];
+            _aidl_return->step = 1;
+            break;
+        }
+        case CameraParam::GAIN: {
+            // The reference EVS HAL does not provide an implementation for GAIN.
+            // In the absence of a standard EVS pattern, we expose the raw ISO
+            // range provided by the underlying Camera2 API, as this is the most
+            // direct and informative approach for the client.
+            camera_metadata_ro_entry_t entry;
+            find_camera_metadata_ro_entry(metadata, ACAMERA_SENSOR_INFO_SENSITIVITY_RANGE, &entry);
+            _aidl_return->min = entry.data.i32[0];
+            _aidl_return->max = entry.data.i32[1];
+            _aidl_return->step = 1;
+            break;
+        }
+        case CameraParam::WHITE_BALANCE_TEMPERATURE: {
+            // The Camera2 API provides a raw color temperature range in Kelvin.
+            // We expose this directly to the client, as this is consistent with
+            // the behavior of existing EVS HALs, which expect clients to work
+            // with Kelvin values.
+            camera_metadata_ro_entry_t entry;
+            find_camera_metadata_ro_entry(metadata,
+                                          ACAMERA_COLOR_CORRECTION_COLOR_TEMPERATURE_RANGE, &entry);
+            _aidl_return->min = entry.data.i32[0];
+            _aidl_return->max = entry.data.i32[1];
+            _aidl_return->step = 1;
+            break;
+        }
+        case CameraParam::SHARPNESS: {
+            // The Camera2 API's sharpness control is done via an enum ACAMERA_EDGE_MODE.
+            // We expose the range of this enum directly to the client.
+            _aidl_return->min = ACAMERA_EDGE_MODE_OFF;
+            _aidl_return->max = ACAMERA_EDGE_MODE_ZERO_SHUTTER_LAG;
+            _aidl_return->step = 1;
+            break;
+        }
+        case CameraParam::ABSOLUTE_EXPOSURE: {
+            // The EVS API does not specify a unit for exposure, and reference HALs
+            // do not implement this parameter. We choose microseconds as the unit
+            // to provide a sensible and robust range. The Camera2 API provides an
+            // exposure time range in nanoseconds (int64_t), which can exceed the
+            // limits of the EVS API's int32_t. Converting to microseconds prevents
+            // overflow for long exposures while retaining sufficient precision.
+            camera_metadata_ro_entry_t entry;
+            find_camera_metadata_ro_entry(metadata, ACAMERA_SENSOR_INFO_EXPOSURE_TIME_RANGE,
+                                          &entry);
+            _aidl_return->min = static_cast<int32_t>(entry.data.i64[0] / 1000);
+            _aidl_return->max = static_cast<int32_t>(
+                    std::min(entry.data.i64[1] / 1000, static_cast<int64_t>(INT32_MAX)));
+            _aidl_return->step = 1;
+            break;
+        }
+        case CameraParam::ABSOLUTE_FOCUS: {
+            // The Camera2 API's focus distance is a float in diopters. To represent
+            // this as an integer for the EVS API, we scale the range by 100.
+            // The `setIntParameter` method will scale the value back down.
+            camera_metadata_ro_entry_t entry;
+            find_camera_metadata_ro_entry(metadata, ACAMERA_LENS_INFO_MINIMUM_FOCUS_DISTANCE,
+                                          &entry);
+            _aidl_return->min = 0;
+            _aidl_return->max = static_cast<int32_t>(entry.data.f[0] * 100);
+            _aidl_return->step = 1;
+            break;
+        }
+        case CameraParam::ABSOLUTE_ZOOM: {
+            // The Camera2 API provides a float zoom ratio. To align with the EVS
+            // API's integer-based control and match reference HAL behavior, we
+            // scale the float ratio by 100 (e.g., 1.0f -> 100).
+            camera_metadata_ro_entry_t entry;
+            find_camera_metadata_ro_entry(metadata, ACAMERA_CONTROL_ZOOM_RATIO_RANGE, &entry);
+            _aidl_return->min = static_cast<int32_t>(entry.data.f[0] * 100);
+            _aidl_return->max = static_cast<int32_t>(entry.data.f[1] * 100);
+            _aidl_return->step = 1;
+            break;
+        }
+        case CameraParam::AUTOGAIN:
+        case CameraParam::AUTO_EXPOSURE:
+        case CameraParam::AUTO_WHITE_BALANCE:
+        case CameraParam::AUTO_FOCUS: {
+            // These parameters represent on/off switches.
+            _aidl_return->min = 0;
+            _aidl_return->max = 1;
+            _aidl_return->step = 1;
+            break;
+        }
+        default:
+            return ScopedAStatus::fromServiceSpecificError(
+                    static_cast<int>(EvsResult::NOT_SUPPORTED));
+    }
+
+    return ScopedAStatus::ok();
 }
 
-ScopedAStatus CompatVirtualCamera::getParameterList(std::vector<CameraParam>* _aidl_return) {
+::ndk::ScopedAStatus CompatVirtualCamera::populateSupportedParametersLocked() {
     // EVS Manager does not support parameter programming for a logical camera.
     if (mHalCameras.size() > 1) {
         LOG(INFO) << "Logical camera does not support parameter programming.";
-        return ScopedAStatus::ok();
+        return ScopedAStatus::fromServiceSpecificError(static_cast<int>(EvsResult::NOT_SUPPORTED));
     }
 
     // The HAL camera object must be valid.
@@ -204,21 +328,18 @@ ScopedAStatus CompatVirtualCamera::getParameterList(std::vector<CameraParam>* _a
 
     if (desc.metadata.empty()) {
         LOG(WARNING) << "No camera metadata available.";
-        return ScopedAStatus::ok();
+        return ScopedAStatus::fromServiceSpecificError(static_cast<int>(EvsResult::NOT_SUPPORTED));
     }
 
     const camera_metadata_t* metadata =
             reinterpret_cast<const camera_metadata_t*>(desc.metadata.data());
 
-    std::vector<CameraParam> supportedParams;
-
     // BRIGHTNESS
     camera_metadata_ro_entry_t aeCompRange;
     if (find_camera_metadata_ro_entry(metadata, ACAMERA_CONTROL_AE_COMPENSATION_RANGE,
                                       &aeCompRange) == 0 &&
-            aeCompRange.count == 2 &&
-            (aeCompRange.data.i32[0] != 0 || aeCompRange.data.i32[1] != 0)) {
-        supportedParams.push_back(CameraParam::BRIGHTNESS);
+        aeCompRange.count == 2 && (aeCompRange.data.i32[0] != 0 || aeCompRange.data.i32[1] != 0)) {
+        mSupportedParams.push_back(CameraParam::BRIGHTNESS);
     }
 
     // TODO: For now CONTRAST will be left unsupported because of the disparity between EVS
@@ -241,16 +362,16 @@ ScopedAStatus CompatVirtualCamera::getParameterList(std::vector<CameraParam>* _a
     camera_metadata_ro_entry_t sensitivityRange;
     if (find_camera_metadata_ro_entry(metadata, ACAMERA_SENSOR_INFO_SENSITIVITY_RANGE,
                                       &sensitivityRange) == 0 &&
-            sensitivityRange.count == 2 &&
-            sensitivityRange.data.i32[0] < sensitivityRange.data.i32[1]) {
-        supportedParams.push_back(CameraParam::GAIN);
-        supportedParams.push_back(CameraParam::AUTOGAIN);
+        sensitivityRange.count == 2 &&
+        sensitivityRange.data.i32[0] < sensitivityRange.data.i32[1]) {
+        mSupportedParams.push_back(CameraParam::GAIN);
+        mSupportedParams.push_back(CameraParam::AUTOGAIN);
     }
 
     // WHITE_BALANCE_TEMPERATURE, AUTO_WHITE_BALANCE
     camera_metadata_ro_entry_t awbModes;
-    if (find_camera_metadata_ro_entry(metadata, ACAMERA_CONTROL_AWB_AVAILABLE_MODES,
-                                      &awbModes) == 0) {
+    if (find_camera_metadata_ro_entry(metadata, ACAMERA_CONTROL_AWB_AVAILABLE_MODES, &awbModes) ==
+        0) {
         bool awbOffAvailable = false;
         bool awbAutoAvailable = false;
         for (size_t i = 0; i < awbModes.count; ++i) {
@@ -262,26 +383,26 @@ ScopedAStatus CompatVirtualCamera::getParameterList(std::vector<CameraParam>* _a
         }
 
         if (awbAutoAvailable) {
-            supportedParams.push_back(CameraParam::AUTO_WHITE_BALANCE);
+            mSupportedParams.push_back(CameraParam::AUTO_WHITE_BALANCE);
         }
         if (awbOffAvailable) {
             camera_metadata_ro_entry_t tempRange;
             if (find_camera_metadata_ro_entry(metadata,
                                               ACAMERA_COLOR_CORRECTION_COLOR_TEMPERATURE_RANGE,
                                               &tempRange) == 0 &&
-                    tempRange.count == 2 && tempRange.data.i32[0] < tempRange.data.i32[1]) {
-                supportedParams.push_back(CameraParam::WHITE_BALANCE_TEMPERATURE);
+                tempRange.count == 2 && tempRange.data.i32[0] < tempRange.data.i32[1]) {
+                mSupportedParams.push_back(CameraParam::WHITE_BALANCE_TEMPERATURE);
             }
         }
     }
 
     // SHARPNESS
     camera_metadata_ro_entry_t edgeModes;
-    if (find_camera_metadata_ro_entry(metadata, ACAMERA_EDGE_AVAILABLE_EDGE_MODES,
-                                      &edgeModes) == 0) {
+    if (find_camera_metadata_ro_entry(metadata, ACAMERA_EDGE_AVAILABLE_EDGE_MODES, &edgeModes) ==
+        0) {
         for (size_t i = 0; i < edgeModes.count; ++i) {
             if (edgeModes.data.u8[i] != ACAMERA_EDGE_MODE_OFF) {
-                supportedParams.push_back(CameraParam::SHARPNESS);
+                mSupportedParams.push_back(CameraParam::SHARPNESS);
                 break;
             }
         }
@@ -289,8 +410,8 @@ ScopedAStatus CompatVirtualCamera::getParameterList(std::vector<CameraParam>* _a
 
     // AUTO_EXPOSURE, ABSOLUTE_EXPOSURE
     camera_metadata_ro_entry_t aeModes;
-    if (find_camera_metadata_ro_entry(metadata, ACAMERA_CONTROL_AE_AVAILABLE_MODES,
-                                      &aeModes) == 0) {
+    if (find_camera_metadata_ro_entry(metadata, ACAMERA_CONTROL_AE_AVAILABLE_MODES, &aeModes) ==
+        0) {
         bool aeOffAvailable = false;
         bool aeOnAvailable = false;
         for (size_t i = 0; i < aeModes.count; ++i) {
@@ -302,26 +423,26 @@ ScopedAStatus CompatVirtualCamera::getParameterList(std::vector<CameraParam>* _a
         }
 
         if (aeOnAvailable) {
-            supportedParams.push_back(CameraParam::AUTO_EXPOSURE);
+            mSupportedParams.push_back(CameraParam::AUTO_EXPOSURE);
         }
         if (aeOffAvailable) {
             camera_metadata_ro_entry_t exposureTimeRange;
             if (find_camera_metadata_ro_entry(metadata, ACAMERA_SENSOR_INFO_EXPOSURE_TIME_RANGE,
                                               &exposureTimeRange) == 0 &&
-                    exposureTimeRange.count == 2 &&
-                    exposureTimeRange.data.i64[0] < exposureTimeRange.data.i64[1]) {
-                supportedParams.push_back(CameraParam::ABSOLUTE_EXPOSURE);
+                exposureTimeRange.count == 2 &&
+                exposureTimeRange.data.i64[0] < exposureTimeRange.data.i64[1]) {
+                mSupportedParams.push_back(CameraParam::ABSOLUTE_EXPOSURE);
             }
         }
     }
 
     // AUTO_FOCUS
     camera_metadata_ro_entry_t afModes;
-    if (find_camera_metadata_ro_entry(metadata, ACAMERA_CONTROL_AF_AVAILABLE_MODES,
-                                      &afModes) == 0) {
+    if (find_camera_metadata_ro_entry(metadata, ACAMERA_CONTROL_AF_AVAILABLE_MODES, &afModes) ==
+        0) {
         for (size_t i = 0; i < afModes.count; ++i) {
             if (afModes.data.u8[i] != ACAMERA_CONTROL_AF_MODE_OFF) {
-                supportedParams.push_back(CameraParam::AUTO_FOCUS);
+                mSupportedParams.push_back(CameraParam::AUTO_FOCUS);
                 break;
             }
         }
@@ -331,20 +452,41 @@ ScopedAStatus CompatVirtualCamera::getParameterList(std::vector<CameraParam>* _a
     camera_metadata_ro_entry_t minFocusDist;
     if (find_camera_metadata_ro_entry(metadata, ACAMERA_LENS_INFO_MINIMUM_FOCUS_DISTANCE,
                                       &minFocusDist) == 0 &&
-            minFocusDist.count > 0 && minFocusDist.data.f[0] > 0) {
-        supportedParams.push_back(CameraParam::ABSOLUTE_FOCUS);
+        minFocusDist.count > 0 && minFocusDist.data.f[0] > 0) {
+        mSupportedParams.push_back(CameraParam::ABSOLUTE_FOCUS);
     }
 
     // ABSOLUTE_ZOOM
     camera_metadata_ro_entry_t zoomRatioRange;
     if (find_camera_metadata_ro_entry(metadata, ACAMERA_CONTROL_ZOOM_RATIO_RANGE,
                                       &zoomRatioRange) == 0 &&
-            zoomRatioRange.count == 2 &&
-            (zoomRatioRange.data.f[0] < 1.0f || zoomRatioRange.data.f[1] > 1.0f)) {
-        supportedParams.push_back(CameraParam::ABSOLUTE_ZOOM);
+        zoomRatioRange.count == 2 &&
+        (zoomRatioRange.data.f[0] < 1.0f || zoomRatioRange.data.f[1] > 1.0f)) {
+        mSupportedParams.push_back(CameraParam::ABSOLUTE_ZOOM);
     }
 
-    *_aidl_return = supportedParams;
+    mSupportedParamsPopulated = true;
+    return ScopedAStatus::ok();
+}
+
+ScopedAStatus CompatVirtualCamera::getParameterList(std::vector<CameraParam>* _aidl_return) {
+    {
+        std::lock_guard lock(mMutex);
+        if (!mSupportedParamsPopulated) {
+            LOG(INFO) << "Supported parameter cache is not populated. Populating now.";
+            auto status = populateSupportedParametersLocked();
+            if (!status.isOk()) {
+                return status;
+            }
+        }
+    }
+
+    if (_aidl_return == nullptr) {
+        LOG(ERROR) << "Received a null pointer for the return value.";
+        return ScopedAStatus::fromServiceSpecificError(static_cast<int>(EvsResult::INVALID_ARG));
+    }
+
+    *_aidl_return = mSupportedParams;
     return ScopedAStatus::ok();
 }
 
