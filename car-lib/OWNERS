@@ -4,11 +4,6 @@ per-file src/android/car/app/* = gauravbhola@google.com
 # AppFocus
 per-file src/android/car/app/IAppFocus* = bkchoi@google.com
 
-# Audio
-per-file src/android/car/media/CarAudio*.java = oscarazu@google.com, ericjeong@google.com
-per-file src/android/car/media/ICarAudio.aidl = oscarazu@google.com, ericjeong@google.com
-per-file src/android/car/media/ICarVolumeCallback.aidl = oscarazu@google.com, ericjeong@google.com
-
 # Car framework
 per-file src/android/car/Car.java = hubertmis@google.com
 per-file src/android/car/CarFeatures.java = hubertmis@google.com
