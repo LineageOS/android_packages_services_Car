@@ -24,6 +24,8 @@
 #include <aidl/android/hardware/automotive/evs/IEvsCameraStream.h>
 #include <aidl/android/hardware/automotive/evs/IEvsDisplay.h>
 #include <aidl/android/hardware/automotive/evs/ParameterRange.h>
+#include <camera/NdkCameraMetadataTags.h>
+#include <system/camera_metadata.h>
 #include <utils/Mutex.h>
 
 #include <deque>
