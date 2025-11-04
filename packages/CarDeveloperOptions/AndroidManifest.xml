@@ -742,6 +742,24 @@
             <intent-filter tools:node="removeAll"/>
         </activity-alias>
 
+        <activity-alias
+            android:name="com.android.settings.ScreenAutomationAppListIntent"
+            android:enabled="false"
+            android:exported="false"
+            tools:node="merge"
+            tools:replace="android:exported">
+            <intent-filter tools:node="removeAll"/>
+        </activity-alias>
+
+        <activity-alias
+            android:name="com.android.settings.ScreenAutomationAppDetailIntent"
+            android:enabled="false"
+            android:exported="false"
+            tools:node="merge"
+            tools:replace="android:exported">
+            <intent-filter tools:node="removeAll"/>
+        </activity-alias>
+
         <activity
             android:name="com.android.settings.Settings$WallpaperSettingsActivity"
             android:enabled="false"
