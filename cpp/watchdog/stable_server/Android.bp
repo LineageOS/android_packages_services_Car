@@ -311,6 +311,7 @@ vintf_fragment {
     src: "carwatchdogd.xml",
 }
 
+// TODO(b/446201877): Rename to legacy_carwatchdogd
 cc_binary {
     name: "carwatchdogd",
     defaults: [
@@ -320,6 +321,10 @@ cc_binary {
     srcs: [
         "src/main.cpp",
     ],
+    enabled: select(release_flag("RELEASE_CAR_FRAMEWORK_WATCHDOG_FLASHMEMORY_REFACTOR"), {
+        true: false,
+        default: true,
+    }),
     init_rc: ["carwatchdogd.rc"],
     shared_libs: [
         "android.hardware.automotive.vehicle@2.0",

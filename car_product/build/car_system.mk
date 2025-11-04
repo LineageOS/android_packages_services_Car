@@ -190,7 +190,11 @@ PRODUCT_COPY_FILES += \
     frameworks/native/data/etc/android.software.device_admin.xml:system/etc/permissions/android.software.device_admin.xml
 
 # Enable car watchdog
+ifeq ($(RELEASE_CAR_FRAMEWORK_WATCHDOG_FLASHMEMORY_REFACTOR),true)
+PRODUCT_PACKAGES += pilot_carwatchdogd
+else
 PRODUCT_PACKAGES += carwatchdogd
+endif
 
 # Enable car power policy
 PRODUCT_PACKAGES += carpowerpolicyd

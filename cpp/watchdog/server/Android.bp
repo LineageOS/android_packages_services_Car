@@ -211,9 +211,10 @@ vintf_fragment {
     src: "pilot_carwatchdogd.xml",
 }
 
+// TODO(b/446201877): Rename to carwatchdogd
 cc_binary {
-    // TODO(b/402205801): Add a feature flag to build carwatchdogd
     name: "pilot_carwatchdogd",
+    stem: "carwatchdogd",
     defaults: [
         "pilot_carwatchdogd_defaults",
         "libpilotwatchdog_service_manager_defaults",
@@ -221,6 +222,11 @@ cc_binary {
     srcs: [
         "src/main.cpp",
     ],
+    enabled: select(release_flag("RELEASE_CAR_FRAMEWORK_WATCHDOG_FLASHMEMORY_REFACTOR"), {
+        true: true,
+        default: false,
+    }),
+    init_rc: ["pilot_carwatchdogd.rc"],
     shared_libs: [
         "android.hardware.automotive.vehicle@2.0",
     ],
