@@ -58,6 +58,22 @@ public:
      * @return The raw ACameraManager pointer, or nullptr if not available.
      */
     virtual ACameraManager* get() = 0;
+
+    /**
+     * Wraps the ACameraManager_registerAvailabilityCallback function.
+     * @param callback The callbacks to register.
+     * @return The status of the operation.
+     */
+    virtual camera_status_t registerAvailabilityCallback(
+            const ACameraManager_AvailabilityCallbacks* callback) = 0;
+
+    /**
+     * Wraps the ACameraManager_unregisterAvailabilityCallback function.
+     * @param callback The callbacks to unregister.
+     * @return The status of the operation.
+     */
+    virtual camera_status_t unregisterAvailabilityCallback(
+            const ACameraManager_AvailabilityCallbacks* callback) = 0;
 };
 
 }  // namespace android::hardware::automotive::evs::compat

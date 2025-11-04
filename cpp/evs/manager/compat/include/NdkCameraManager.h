@@ -40,6 +40,11 @@ public:
 
     ACameraManager* get() override;
 
+    camera_status_t registerAvailabilityCallback(
+            const ACameraManager_AvailabilityCallbacks* callback) override;
+    camera_status_t unregisterAvailabilityCallback(
+            const ACameraManager_AvailabilityCallbacks* callback) override;
+
 private:
     ACameraManager* mManager;
 };

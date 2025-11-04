@@ -25,12 +25,16 @@ namespace android::hardware::automotive::evs::compat {
 class MockCameraManager : public ICameraManager {
 public:
     MOCK_METHOD(bool, isAvailable, (), (override));
-    MOCK_METHOD(camera_status_t, getCameraIdList, (std::vector<std::string>* idList), (override));
+    MOCK_METHOD(camera_status_t, getCameraIdList, (std::vector<std::string> * idList), (override));
     MOCK_METHOD(camera_status_t, getCameraCharacteristics,
                 (const char* cameraId, ACameraMetadata** metadata), (override));
-    MOCK_METHOD(camera_status_t, openSharedCamera,
-                (const char* cameraId, ACameraDevice** device), ());
+    MOCK_METHOD(camera_status_t, openSharedCamera, (const char* cameraId, ACameraDevice** device),
+                ());
     MOCK_METHOD(ACameraManager*, get, (), (override));
+    MOCK_METHOD(camera_status_t, registerAvailabilityCallback,
+                (const ACameraManager_AvailabilityCallbacks* callback), (override));
+    MOCK_METHOD(camera_status_t, unregisterAvailabilityCallback,
+                (const ACameraManager_AvailabilityCallbacks* callback), (override));
 };
 
 }  // namespace android::hardware::automotive::evs::compat

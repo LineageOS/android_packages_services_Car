@@ -55,6 +55,8 @@ class CompatEnumerator final : public aidlevs::BnEvsEnumerator {
 #ifdef EVS_COMPAT_TEST
     // Grant access to private members for testing.
     friend class CompatEnumeratorTest_setCameraGroupMap_Test;
+    friend class CompatEnumeratorTest_CameraAvailabilityCallbacks_Test;
+    friend class CompatEnumeratorTest;
 #endif
 
 public:
@@ -101,11 +103,21 @@ private:
     static void handleDeviceStatusChange(void* context, ACameraDevice* device,
                                          const char* functionName, const int* error = nullptr);
 
+    static void onCameraAvailable(void* context, const char* cameraId);
+    static void onCameraUnavailable(void* context, const char* cameraId);
+    void notifyDeviceStatusChange(const char* cameraId, aidlevs::DeviceStatusType statusType);
+
     void removeActiveCamera(const char* cameraId) REQUIRES(mLock);
     void cleanupOpenedCameras(const std::vector<std::string>& cameraIds) REQUIRES(mLock);
     std::unordered_set<std::string> getPhysicalCameraIds(const std::string& cameraId);
+    void broadcastDeviceStatusChange(const std::vector<aidlevs::DeviceStatus>& list);
+
+    // Initializes and registers the camera availability callbacks.
+    // Caller must ensure mCameraManager is not null and mCameraManager->isAvailable() is true.
+    void initializeAvailabilityCallbacks();
 
     std::unique_ptr<ICameraManager> mCameraManager;
+    ACameraManager_AvailabilityCallbacks mAvailabilityCallbacks;
     bool mIsReady;
     // only virtual cameras are in this map.
     std::unique_ptr<CameraGroupMap> mCameraGroupMap;
@@ -122,6 +134,8 @@ private:
             ACameraManager* manager, const char* cameraId, ACameraDevice_StateCallbacks* callback,
             /*out*/ ACameraDevice** device, /*out*/ bool* primaryClient);
     ACameraManager_openSharedCamera_fn mOpenSharedCameraFn = nullptr;
+
+    std::set<std::shared_ptr<aidlevs::IEvsEnumeratorStatusCallback>> mDeviceStatusCallbacks;
 };
 
 }  // namespace android::hardware::automotive::evs::compat
