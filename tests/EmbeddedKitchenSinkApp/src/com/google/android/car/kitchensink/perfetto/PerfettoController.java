@@ -17,7 +17,9 @@
 package com.google.android.car.kitchensink.perfetto;
 
 import android.app.StatsManager;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Build;
 import android.util.IndentingPrintWriter;
 import android.util.Log;
@@ -30,6 +32,7 @@ import com.android.internal.os.StatsdConfigProto.PerfettoDetails;
 import com.android.internal.os.StatsdConfigProto.StatsdConfig;
 import com.android.internal.os.StatsdConfigProto.Subscription;
 
+import com.google.android.car.kitchensink.R;
 import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
 import com.google.protobuf.ByteString;
@@ -72,6 +75,9 @@ public class PerfettoController {
     private static final String DEFAULT_TRACE_CONFIG = "default_perfetto_trace_config.pb";
     private static final String DEFAULT_A13_TRACE_CONFIG = "default_perfetto_trace_config_a13.pb";
     private static final String DEFAULT_A14_TRACE_CONFIG = "default_perfetto_trace_config_a14.pb";
+    private static final String TRACE_FILES_ROOT_DIR = "perfetto_traces";
+    private static final String TRACE_FILES_PREFIX = "perfetto_";
+    private static final String TRACE_FILES_SUFFIX = ".trace";
 
     private static final long TRACE_RESTART_PERIOD_MS = TimeUnit.MINUTES.toMillis(10);
     private static final long TRACE_RESTART_OFFSET_MS = TimeUnit.MINUTES.toMillis(1);
@@ -91,6 +97,59 @@ public class PerfettoController {
 
     private static final int TRIGGER_PERFETTO_TIMEOUT_MS = (int) TimeUnit.SECONDS.toMillis(10);
     private StatsdConfig mLastPushedStatsdConfig;
+
+    /**
+     * Creates a trace file path with the given UUID for storing a new trace.
+     */
+    public static File createTraceFile(Context context, String uuid) throws IOException {
+        File traceDir = new File(context.getFilesDir(), TRACE_FILES_ROOT_DIR);
+        if (!traceDir.exists()) {
+            traceDir.mkdirs();
+        }
+        String fileName = TRACE_FILES_PREFIX + uuid + TRACE_FILES_SUFFIX;
+        File traceFile = new File(traceDir, fileName);
+        boolean created = traceFile.createNewFile();
+        if (!created) {
+            throw new IllegalStateException("Failed to create file");
+        }
+        return traceFile;
+    }
+
+    /**
+     * Lists all available trace files.
+     */
+    @Nullable
+    public static File[] listTraceFiles(Context context) {
+        File traceDir = new File(context.getFilesDir(), TRACE_FILES_ROOT_DIR);
+        if (!traceDir.exists()) {
+            return null;
+        }
+        return traceDir.listFiles((dir, name) -> name.startsWith("perfetto_")
+                && name.endsWith(".trace"));
+    }
+
+    /**
+     * Deletes old Perfetto traces from the disk.
+     */
+    public static void deleteOldTraces(Context context) {
+        Log.d(TAG, "Checking for old traces");
+        File[] traceFiles = listTraceFiles(context);
+        if (traceFiles == null || traceFiles.length == 0) {
+            return;
+        }
+        long retentionPeriodMs = TimeUnit.DAYS.toMillis(
+                context.getResources().getInteger(R.integer.perfetto_trace_retention_days));
+
+        for (File traceFile : traceFiles) {
+            if (traceFile.lastModified() < (System.currentTimeMillis() - retentionPeriodMs)) {
+                if (traceFile.delete()) {
+                    Log.d(TAG, "Deleted old trace file: " + traceFile.getName());
+                } else {
+                    Log.w(TAG, "Failed to delete old trace file: " + traceFile.getName());
+                }
+            }
+        }
+    }
 
     public PerfettoController(Context context) {
         mContext = context;
@@ -421,5 +480,18 @@ public class PerfettoController {
         writer.decreaseIndent();
         writer.println("=======================================================================\n");
         writer.decreaseIndent();
+    }
+
+    /**
+     * A {@link BroadcastReceiver} that deletes old Perfetto traces on boot.
+     */
+    public static class BootCompletedReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (Intent.ACTION_BOOT_COMPLETED.equals(intent.getAction())) {
+                Log.d(TAG, "Boot completed, deleting old traces");
+                deleteOldTraces(context);
+            }
+        }
     }
 }
