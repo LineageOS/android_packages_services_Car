@@ -83,8 +83,13 @@ public:
     MOCK_METHOD(camera_status_t, ACameraMetadata_getConstEntry,
                 (const ACameraMetadata* metadata, uint32_t tag,
                  ACameraMetadata_const_entry* entry));
+    MOCK_METHOD(camera_status_t, ACameraMetadata_getAllTags,
+                (const ACameraMetadata* metadata, int32_t* numEntries, const uint32_t** tags));
     MOCK_METHOD(ACameraMetadata*, ACameraMetadata_copy, (const ACameraMetadata* src));
     MOCK_METHOD(void, ACameraMetadata_free, (ACameraMetadata * metadata));
+
+    MOCK_METHOD(camera_status_t, ACaptureRequest_setEntry_u8,
+                (ACaptureRequest * request, uint32_t tag, uint32_t count, const uint8_t* data));
 
     static void setMockInstance(MockNdkCamera* mock) { sMockInstance = mock; }
 
