@@ -128,6 +128,11 @@ final class FakeCarAudioService extends ICarAudio.Stub {
     }
 
     @Override
+    public void setVolumeGroupRestrictions(int zoneId, int groupId, int[] restrictions,
+            int volumeIndex) {
+    }
+
+    @Override
     public int[] getAudioZoneIds() {
         return new int[] {};
     }

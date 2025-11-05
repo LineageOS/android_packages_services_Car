@@ -27,6 +27,7 @@ import static android.media.AudioDeviceInfo.TYPE_FM_TUNER;
 
 import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.clearInvocations;
@@ -50,6 +51,7 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.IBinder;
 import android.os.RemoteException;
+import android.platform.test.annotations.DisableFlags;
 import android.platform.test.annotations.EnableFlags;
 import android.platform.test.flag.junit.SetFlagsRule;
 
@@ -314,6 +316,39 @@ public final class CarAudioManagerUnitTest extends AbstractExpectableTestCase {
         expectWithMessage("Rear right zone volume when service throws remote exception")
                 .that(mCarAudioManager.getGroupVolume(TEST_REAR_RIGHT_ZONE_ID,
                         TEST_VOLUME_GROUP_ID)).isEqualTo(0);
+    }
+
+    @Test
+    @EnableFlags(Flags.FLAG_AUDIO_SEND_RESTRICTIONS_TO_OEM_VOLUME_SERVICE)
+    public void setVolumeGroupRestrictions_succeeds() throws Exception {
+        List<Integer> restrictions = List.of(
+                CarVolumeGroupEvent.EXTRA_INFO_MUTE_TOGGLED_BY_AUDIO_SYSTEM);
+
+        mCarAudioManager.setVolumeGroupRestrictions(TEST_REAR_RIGHT_ZONE_ID, TEST_VOLUME_GROUP_ID,
+                restrictions, TEST_VOLUME_GROUP_INDEX);
+
+        ArgumentCaptor<int[]> restrictionsCaptor = ArgumentCaptor.forClass(int[].class);
+        verify(mServiceMock).setVolumeGroupRestrictions(eq(TEST_REAR_RIGHT_ZONE_ID),
+                eq(TEST_VOLUME_GROUP_ID), restrictionsCaptor.capture(),
+                eq(TEST_VOLUME_GROUP_INDEX));
+
+        expectWithMessage("Restrictions sent to service")
+                .that(restrictionsCaptor.getValue()).asList().containsExactlyElementsIn(
+                restrictions);
+    }
+
+    @Test
+    @EnableFlags(Flags.FLAG_AUDIO_SEND_RESTRICTIONS_TO_OEM_VOLUME_SERVICE)
+    public void setVolumeGroupRestrictions_withServiceRemoteException() throws Exception {
+        List<Integer> restrictions = List.of(
+                CarVolumeGroupEvent.EXTRA_INFO_MUTE_TOGGLED_BY_AUDIO_SYSTEM);
+        doThrow(mRemoteException).when(mServiceMock).setVolumeGroupRestrictions(
+                eq(TEST_REAR_RIGHT_ZONE_ID), eq(TEST_VOLUME_GROUP_ID), any(int[].class), anyInt());
+
+        mCarAudioManager.setVolumeGroupRestrictions(TEST_REAR_RIGHT_ZONE_ID, TEST_VOLUME_GROUP_ID,
+                restrictions, TEST_VOLUME_GROUP_INDEX);
+
+        verify(mCar).handleRemoteExceptionFromCarService(mRemoteException);
     }
 
     @Test

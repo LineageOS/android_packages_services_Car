@@ -21,6 +21,7 @@ import static android.car.test.mocks.JavaMockitoHelper.silentAwait;
 import android.car.media.CarAudioManager;
 import android.car.media.CarVolumeGroupEvent;
 import android.car.media.CarVolumeGroupEventCallback;
+import android.car.media.CarVolumeGroupInfo;
 import android.util.Log;
 
 import java.util.List;
@@ -81,15 +82,48 @@ public final class CarAudioManagerTestUtils {
             CarVolumeGroupEventCallback {
 
         private CountDownLatch mVolumeGroupEventLatch = new CountDownLatch(1);
-        List<CarVolumeGroupEvent> mEvents;
+        private List<CarVolumeGroupEvent> mEvents;
+        private int mEventTypes;
+
+        public void waitForVolumeGroupEvent() throws InterruptedException {
+            silentAwait(mVolumeGroupEventLatch, WAIT_TIMEOUT_MS);
+        }
 
         public boolean receivedVolumeGroupEvents() throws InterruptedException {
             return silentAwait(mVolumeGroupEventLatch, WAIT_TIMEOUT_MS);
         }
 
+        public int getEventTypes() {
+            return mEventTypes;
+        }
+
+        public CarVolumeGroupInfo getCarVolumeGroupInfo(int zoneId, int groupId) {
+            for (int i = 0; i < mEvents.size(); i++) {
+                CarVolumeGroupEvent event = mEvents.get(i);
+                List<CarVolumeGroupInfo> infos = event.getCarVolumeGroupInfos();
+                for (int j = 0; j < infos.size(); j++) {
+                    CarVolumeGroupInfo info = infos.get(j);
+                    if (info.getZoneId() == zoneId && info.getId() == groupId) {
+                        return info;
+                    }
+                }
+            }
+            return null;
+        }
+
+        public void reset() {
+            mVolumeGroupEventLatch = new CountDownLatch(1);
+            mEvents = null;
+            mEventTypes = 0;
+        }
+
         @Override
         public void onVolumeGroupEvent(List<CarVolumeGroupEvent> volumeGroupEvents) {
             mEvents = volumeGroupEvents;
+            for (int i = 0; i < volumeGroupEvents.size(); i++) {
+                CarVolumeGroupEvent currentEvent = volumeGroupEvents.get(i);
+                mEventTypes |= currentEvent.getEventTypes();
+            }
             Log.v(TAG, "onVolumeGroupEvent events " + volumeGroupEvents);
             mVolumeGroupEventLatch.countDown();
         }
