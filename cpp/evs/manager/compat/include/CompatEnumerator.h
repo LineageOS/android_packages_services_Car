@@ -100,9 +100,8 @@ private:
     ::ndk::ScopedAStatus initCameraDescs();
     static void onDeviceDisconnected(void* context, ACameraDevice* device);
     static void onDeviceError(void* context, ACameraDevice* device, int error);
-    static void handleDeviceStatusChange(void* context, ACameraDevice* device,
-                                         const char* functionName, const int* error = nullptr);
-
+    void handleDeviceStatusChange(ACameraDevice* device, const char* functionName,
+                                  const int* error = nullptr);
     static void onCameraAvailable(void* context, const char* cameraId);
     static void onCameraUnavailable(void* context, const char* cameraId);
     void notifyDeviceStatusChange(const char* cameraId, aidlevs::DeviceStatusType statusType);
