@@ -137,6 +137,7 @@
     <item target="color/car_ui_toolbar_menu_item_icon_background_color" value="@color/car_ui_toolbar_menu_item_icon_background_color"/>
     <item target="color/car_ui_toolbar_menu_item_icon_color" value="@color/car_ui_toolbar_menu_item_icon_color"/>
     <item target="color/car_ui_toolbar_tab_item_selector" value="@color/car_ui_toolbar_tab_item_selector"/>
+    <item target="color/car_ui_app_styled_view_nav_icon_color" value="@color/car_ui_app_styled_view_nav_icon_color"/>
 
     <item target="style/TextAppearance.CarUi.AlertDialog.Title" value="@style/TextAppearance.CarUi.AlertDialog.Title"/>
     <item target="style/TextAppearance.CarUi.Body1" value="@style/TextAppearance.CarUi.Body1"/>

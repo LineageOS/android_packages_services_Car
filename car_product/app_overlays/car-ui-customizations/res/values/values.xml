@@ -12,4 +12,6 @@
     <dimen name="car_ui_toolbar_nav_icon_size">44dp</dimen>
 
     <bool name="car_ui_toolbar_menuitem_individual_click_listeners">true</bool>
+
+    <color name="car_ui_app_styled_view_nav_icon_color">#E0E3E3</color>
 </resources>
