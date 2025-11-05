@@ -352,20 +352,14 @@ ScopedAStatus CompatEnumerator::isHardware(bool* _aidl_return) {
     return ScopedAStatus::ok();
 }
 
-void CompatEnumerator::handleDeviceStatusChange(void* context, ACameraDevice* device,
-                                                const char* functionName, const int* error) {
+void CompatEnumerator::handleDeviceStatusChange(ACameraDevice* device, const char* functionName,
+                                                const int* error) {
     if (device == nullptr) {
         LOG(ERROR) << functionName << " called with a null device. Ignoring.";
         return;
     }
     const char* cameraId = ACameraDevice_getId(device);
-    if (context == nullptr) {
-        ACameraDevice_close(device);
-        LOG(ERROR) << functionName << " called with a null context for camera " << cameraId
-                   << ". Closing the camera device.";
-        return;
-    }
-    CompatEnumerator* self = static_cast<CompatEnumerator*>(context);
+
     if (error == nullptr) {
         LOG(WARNING) << "Camera device " << cameraId << " disconnected. Removing from active list.";
     } else {
@@ -373,17 +367,29 @@ void CompatEnumerator::handleDeviceStatusChange(void* context, ACameraDevice* de
                    << ". Removing from active list.";
     }
     {
-        std::lock_guard lock(self->mLock);
-        self->removeActiveCamera(cameraId);
+        std::lock_guard lock(mLock);
+        removeActiveCamera(cameraId);
     }
 }
 
 void CompatEnumerator::onDeviceDisconnected(void* context, ACameraDevice* device) {
-    handleDeviceStatusChange(context, device, __FUNCTION__);
+    if (!context) {
+        LOG(ERROR) << __FUNCTION__ << " called with a null context.";
+        if (device) ACameraDevice_close(device);
+        return;
+    }
+    CompatEnumerator* self = static_cast<CompatEnumerator*>(context);
+    self->handleDeviceStatusChange(device, __FUNCTION__);
 }
 
 void CompatEnumerator::onDeviceError(void* context, ACameraDevice* device, int error) {
-    handleDeviceStatusChange(context, device, __FUNCTION__, &error);
+    if (!context) {
+        LOG(ERROR) << __FUNCTION__ << " called with a null context.";
+        if (device) ACameraDevice_close(device);
+        return;
+    }
+    CompatEnumerator* self = static_cast<CompatEnumerator*>(context);
+    self->handleDeviceStatusChange(device, __FUNCTION__, &error);
 }
 
 void CompatEnumerator::removeActiveCamera(const char* cameraId) {
