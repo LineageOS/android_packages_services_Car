@@ -66,4 +66,22 @@ ACameraManager* NdkCameraManager::get() {
     return mManager;
 }
 
+camera_status_t NdkCameraManager::registerAvailabilityCallback(
+        const ACameraManager_AvailabilityCallbacks* callback) {
+    camera_status_t status = ACameraManager_registerAvailabilityCallback(mManager, callback);
+    if (status != ACAMERA_OK) {
+        LOG(ERROR) << "ACameraManager_registerAvailabilityCallback failed: " << status;
+    }
+    return status;
+}
+
+camera_status_t NdkCameraManager::unregisterAvailabilityCallback(
+        const ACameraManager_AvailabilityCallbacks* callback) {
+    camera_status_t status = ACameraManager_unregisterAvailabilityCallback(mManager, callback);
+    if (status != ACAMERA_OK) {
+        LOG(ERROR) << "ACameraManager_unregisterAvailabilityCallback failed: " << status;
+    }
+    return status;
+}
+
 }  // namespace android::hardware::automotive::evs::compat
