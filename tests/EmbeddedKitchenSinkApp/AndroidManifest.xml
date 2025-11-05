@@ -519,6 +519,21 @@
             android:taskAffinity="com.google.android.car.kitchensink.LTB"
             />
 
+        <activity android:name=".trampoline.TrampolineTestActivity1"
+            android:label="Trampoline Test Activity 1"
+            android:exported="true"
+            android:taskAffinity="com.google.android.car.kitchensink.LTAA"/>
+
+        <activity android:name=".trampoline.TrampolineTestActivity2"
+            android:label="Trampoline Test Activity 2"
+            android:exported="true"
+            android:taskAffinity="com.google.android.car.kitchensink.LTAB"/>
+
+        <activity android:name=".trampoline.TrampolineTestActivity3"
+            android:label="Trampoline Test Activity 3"
+            android:exported="true"
+            android:taskAffinity="com.google.android.car.kitchensink.LTAC"/>
+
         <service android:name=".bluetooth.InCallServiceImpl"
                  android:exported="false"
                  android:permission="android.permission.BIND_INCALL_SERVICE">
