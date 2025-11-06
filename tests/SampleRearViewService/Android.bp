@@ -1,0 +1,68 @@
+// Copyright (C) 2026 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+prebuilt_etc {
+    name: "default-permissions-com.google.android.car.samplerearviewservice",
+    sub_dir: "default-permissions",
+    src: "default-permissions-com.google.android.car.samplerearviewservice.xml",
+    filename_from_src: true,
+}
+
+prebuilt_etc {
+    name: "rear_view_service-sysconfig.xml",
+    sub_dir: "sysconfig",
+    src: "rear_view_service-sysconfig.xml",
+}
+
+prebuilt_etc {
+    name: "privapp-permissions-com.google.android.car.samplerearviewservice",
+    sub_dir: "permissions",
+    src: "privapp-permissions-com.google.android.car.samplerearviewservice.xml",
+    filename_from_src: true,
+}
+
+android_app {
+    name: "SampleRearViewService",
+    // Only compile source java files in this apk.
+    srcs: ["src/**/*.java"],
+
+    platform_apis: true,
+    privileged: true,
+    certificate: "platform",
+
+    libs: [
+        "android.car",
+    ],
+
+    static_libs: [
+        "android.car.feature-aconfig-java",
+    ],
+
+    flags_packages: [
+        "android.car.feature-aconfig",
+    ],
+
+    dex_preopt: {
+        enabled: false,
+    },
+    required: [
+        "privapp-permissions-com.google.android.car.samplerearviewservice",
+        "default-permissions-com.google.android.car.samplerearviewservice",
+        "rear_view_service-sysconfig.xml",
+    ],
+}
