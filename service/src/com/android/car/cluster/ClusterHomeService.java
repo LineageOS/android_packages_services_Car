@@ -92,6 +92,8 @@ public final class ClusterHomeService extends IClusterHomeService.Stub
     private Intent mLastIntent;
     private int mLastIntentUserId = UserManagerHelper.USER_SYSTEM;
 
+    private final Object mNavStateLock = new Object();
+
     private final RemoteCallbackList<IClusterStateListener> mClientListeners =
             new RemoteCallbackList<>();
 
@@ -278,23 +280,25 @@ public final class ClusterHomeService extends IClusterHomeService.Stub
     }
 
     private void sendNavigationState(byte[] protoBytes) {
-        final int n = mClientNavigationListeners.beginBroadcast();
-        for (int i = 0; i < n; i++) {
-            IClusterNavigationStateListener callback =
-                    mClientNavigationListeners.getBroadcastItem(i);
-            try {
-                callback.onNavigationStateChanged(protoBytes);
-            } catch (RemoteException ignores) {
-                // ignore
+        synchronized (mNavStateLock) {
+            final int n = mClientNavigationListeners.beginBroadcast();
+            for (int i = 0; i < n; i++) {
+                IClusterNavigationStateListener callback =
+                        mClientNavigationListeners.getBroadcastItem(i);
+                try {
+                    callback.onNavigationStateChanged(protoBytes);
+                } catch (RemoteException ignores) {
+                    // ignore
+                }
             }
-        }
-        mClientNavigationListeners.finishBroadcast();
+            mClientNavigationListeners.finishBroadcast();
 
-        if (!mClusterHalService.isNavigationStateSupported()) {
-            Slogf.d(TAG, "No Cluster NavigationState HAL property");
-            return;
+            if (!mClusterHalService.isNavigationStateSupported()) {
+                Slogf.d(TAG, "No Cluster NavigationState HAL property");
+                return;
+            }
+            mClusterHalService.sendNavigationState(protoBytes);
         }
-        mClusterHalService.sendNavigationState(protoBytes);
     }
 
     @Override
@@ -387,8 +391,9 @@ public final class ClusterHomeService extends IClusterHomeService.Stub
     public void registerClusterNavigationStateListener(IClusterNavigationStateListener listener) {
         enforcePermission(Car.PERMISSION_CAR_MONITOR_CLUSTER_NAVIGATION_STATE);
         if (!mServiceEnabled) throw new IllegalStateException("Service is not enabled");
-
-        mClientNavigationListeners.register(listener);
+        synchronized (mNavStateLock) {
+            mClientNavigationListeners.register(listener);
+        }
     }
 
     @Override
@@ -396,7 +401,9 @@ public final class ClusterHomeService extends IClusterHomeService.Stub
         enforcePermission(Car.PERMISSION_CAR_MONITOR_CLUSTER_NAVIGATION_STATE);
         if (!mServiceEnabled) throw new IllegalStateException("Service is not enabled");
 
-        mClientNavigationListeners.unregister(listener);
+        synchronized (mNavStateLock) {
+            mClientNavigationListeners.unregister(listener);
+        }
     }
 
     @Override
