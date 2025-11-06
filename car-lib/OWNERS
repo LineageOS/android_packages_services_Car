@@ -9,6 +9,15 @@ per-file src/android/car/media/CarAudio*.java = oscarazu@google.com, ericjeong@g
 per-file src/android/car/media/ICarAudio.aidl = oscarazu@google.com, ericjeong@google.com
 per-file src/android/car/media/ICarVolumeCallback.aidl = oscarazu@google.com, ericjeong@google.com
 
+# Car framework
+per-file src/android/car/Car.java = hubertmis@google.com
+per-file src/android/car/CarFeatures.java = hubertmis@google.com
+per-file src/android/car/CarManagerBase.java = hubertmis@google.com
+per-file src/android/car/CarNotConnectedException.java = hubertmis@google.com
+per-file src/android/car/CarTransactionException.java = hubertmis@google.com
+per-file src/android/car/ICar.aidl = hubertmis@google.com
+per-file src/android/car/ICarConnection.aidl = hubertmis@google.com
+
 # Cluster
 per-file src/android/car/cluster/* = bkchoi@google.com
 
@@ -19,14 +28,14 @@ per-file src/android/car/input/* = kanant@google.com
 per-file src/android/car/navigation/* = bkchoi@google.com
 
 # OccupantZone
-per-file src/android/car/CarOccupantZoneManager.* = xiangw@google.com, oscarazu@google.com, ericjeong@google.com
-per-file src/android/car/ICarOccupantZone* = xiangw@google.com, oscarazu@google.com, ericjeong@google.com
+per-file src/android/car/CarOccupantZoneManager.* = xiangw@google.com
+per-file src/android/car/ICarOccupantZone* = xiangw@google.com
 
 # PackageManager
-per-file src/android/car/content/pm/* = gauravbhola@google.com, gargmayank@google.com
+per-file src/android/car/content/pm/* = gauravbhola@google.com
 
 # Power
-per-file src/android/car/hardware/power/* = ericjeong@google.com
+per-file src/android/car/hardware/power/* = hubertmis@google.com
 
 # Property
 per-file src/android/car/Vehicle* = file:platform/hardware/interfaces:/automotive/vehicle/OWNERS
@@ -37,7 +46,7 @@ per-file src/com/android/car/internal/property/* = file:platform/hardware/interf
 per-file src/com/android/car/internal/util/*SparseArray*.java = file:platform/hardware/interfaces:/automotive/vehicle/OWNERS
 
 # RemoteAccess
-per-file src/android/car/remoteaccess/* = ericjeong@google.com
+per-file src/android/car/remoteaccess/* = hubertmis@google.com
 
 # StorageMonitoring
 per-file src/android/car/storagemonitoring/* = lakshmana@google.com

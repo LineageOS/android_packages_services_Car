@@ -17,8 +17,8 @@ per-file src/com/android/car/CarPackageManagerTest.java = gauravbhola@google.com
 per-file src/com/android/car/pm/* = gargmayank@google.com, gauravbhola@google.com
 
 # Power
-per-file src/com/android/car/garagemode/* = ericjeong@google.com
-per-file src/com/android/car/power/* = ericjeong@google.com
+per-file src/com/android/car/garagemode/* = hubertmis@google.com
+per-file src/com/android/car/power/* = hubertmis@google.com
 
 # Property
 per-file src/com/android/car/CarProperty* = file:platform/hardware/interfaces:/automotive/vehicle/OWNERS
