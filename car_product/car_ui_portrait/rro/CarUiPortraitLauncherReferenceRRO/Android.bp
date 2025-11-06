@@ -25,9 +25,5 @@ android_app {
     ],
     static_libs: [
         "androidx.cardview_cardview",
-        "androidx-constraintlayout_constraintlayout",
-        "car-media-common",
-        "car-apps-common",
-        "car-ui-lib",
     ],
 }
