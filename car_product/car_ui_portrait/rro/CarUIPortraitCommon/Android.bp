@@ -18,21 +18,11 @@ package {
 
 android_library {
     name: "car-portrait-ui-common",
-
     sdk_version: "current",
-
     manifest: "AndroidManifest.xml",
-
     srcs: ["src/**/*.java"],
-
     resource_dirs: [
         "res",
     ],
 }
 
-android_library {
-    name: "CarUiPortraitService",
-    sdk_version: "current",
-    manifest: "AndroidManifest.xml",
-    srcs: ["src/**/*.java"],
-}
