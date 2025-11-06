@@ -483,14 +483,28 @@ public class PerfettoController {
     }
 
     /**
-     * A {@link BroadcastReceiver} that deletes old Perfetto traces on boot.
+     * {@link BroadcastReceiver} to delete old Perfetto traces and push trace config on boot.
+     *
+     * <p>When {@code R.string.config_perfettoTraceConfigFileOnBoot} is set to "default" or a
+     * custom trace config path, the corresponding config is pushed on boot complete.
      */
     public static class BootCompletedReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
             if (Intent.ACTION_BOOT_COMPLETED.equals(intent.getAction())) {
-                Log.d(TAG, "Boot completed, deleting old traces");
+                Log.d(TAG, "Deleting old traces on boot complete");
                 deleteOldTraces(context);
+                String configFile = context.getResources().getString(
+                        R.string.config_perfettoTraceConfigFileOnBoot);
+                if (!configFile.isEmpty()) {
+                    Log.d(TAG, "Pushing '" + configFile
+                            + "' perfetto trace config on boot complete");
+                    PerfettoController controller = new PerfettoController(context);
+                    int bufferSizeMultiplier = context.getResources().getInteger(
+                            R.integer.config_perfettoTraceConfigBufferSizeMultiplierOnBoot);
+                    controller.pushFieldTraceConfig(configFile,
+                            bufferSizeMultiplier > 0 ? bufferSizeMultiplier : 1);
+                }
             }
         }
     }

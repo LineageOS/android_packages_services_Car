@@ -595,4 +595,6 @@
     <string name="perfetto_notification_channel_label" translatable="false">Perfetto Report Service Channel</string>
     <string name="perfetto_issue_detected_notification_title" translatable="false">Detected performance/stability issue</string>
     <string name="perfetto_issue_detected_notification_content" translatable="false">Perfetto trace saved to disk. Tap to view trace list</string>
+    <string name="config_perfettoTraceConfigFileOnBoot" translatable="false"></string>
+    <string name="perfetto_tip_auto_push_config" translatable="false">Tip: Auto-push Perfetto config on boot by setting `config_perfettoTraceConfigFileOnBoot` to \"default\" or a config path in your device overlay.</string>
 </resources>
