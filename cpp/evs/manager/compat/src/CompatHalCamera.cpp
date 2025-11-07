@@ -477,6 +477,24 @@ void CompatHalCamera::clientStreamEnding(const CompatVirtualCamera* virtualCamer
     }
 }
 
+ScopedAStatus CompatHalCamera::pauseStream() {
+    std::lock_guard<std::mutex> lock(mMutex);
+    if (mStreamState != RUNNING) {
+        return ScopedAStatus::ok();
+    }
+
+    if (mSession) {
+        camera_status_t status = ACameraCaptureSession_stopRepeating(mSession);
+        if (status != ACAMERA_OK) {
+            LOG(ERROR) << "Failed to stop repeating request, status: " << status;
+            return ScopedAStatus::fromServiceSpecificError(
+                    static_cast<int32_t>(aidlevs::EvsResult::UNDERLYING_SERVICE_ERROR));
+        }
+    }
+
+    return ScopedAStatus::ok();
+}
+
 void CompatHalCamera::cleanUpNdkStreamResources() {
     LOG(INFO) << "Cleaning up NDK stream resources for camera " << mCameraId;
 

@@ -50,6 +50,8 @@ class CompatVirtualCamera : public aidlevs::BnEvsCamera {
     friend class CompatVirtualCameraTest_doneWithFrame_Success_Test;
     friend class CompatVirtualCameraTest_startVideoStream_StreamAlreadyRunning_Test;
     friend class CompatVirtualCameraTest_startVideoStream_Success_Test;
+    friend class CompatVirtualCameraTest_pauseVideoStream_StreamNotRunning_Test;
+    friend class CompatVirtualCameraTest_pauseVideoStream_Success_Test;
 #endif
 
 public:

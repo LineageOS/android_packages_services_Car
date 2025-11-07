@@ -80,6 +80,8 @@ class CompatHalCamera final : public aidlevs::BnEvsCameraStream {
     friend class CompatHalCameraTest_clientStreamEnding_ClientStopsWithOthersRunning_Test;
     friend class CompatHalCameraTest_MetadataHandling_Test;
     friend class CompatHalCameraTest_updateRequest_Success_Test;
+    friend class CompatHalCameraTest_pauseStream_StreamNotRunning_Test;
+    friend class CompatHalCameraTest_pauseStream_Success_Test;
 #endif
 
 public:
@@ -99,6 +101,7 @@ public:
     void disownVirtualCamera(const CompatVirtualCamera* virtualCamera);
     ::ndk::ScopedAStatus clientStreamStarting();
     void clientStreamEnding(const CompatVirtualCamera* virtualCamera);
+    ::ndk::ScopedAStatus pauseStream();
     bool tryIsStopped(bool& result) const;
     unsigned getOwnedVirtualCameraCount() const {
         std::lock_guard<std::mutex> lock(mMutex);
