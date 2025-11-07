@@ -118,6 +118,7 @@ void CompatHalCamera::onSessionClosed(void* context, ACameraCaptureSession* sess
     std::lock_guard<std::mutex> lock(halCamera->mMutex);
     halCamera->mSessionClosed = true;
     halCamera->mStreamState = STOPPED;
+
     halCamera->mSessionCondVar.notify_all();
 }
 
@@ -161,14 +162,62 @@ void CompatHalCamera::onCaptureCompleted(void* context, ACameraCaptureSession* s
     halCamera->handleCaptureCompleted(result);
 }
 
-static void onCaptureFailed(void* context, ACameraCaptureSession* session, ACaptureRequest* request,
-                            ACameraCaptureFailure* failure) {
+void CompatHalCamera::onCaptureFailed(void* context, ACameraCaptureSession* session,
+                                      ACaptureRequest* request, ACameraCaptureFailure* failure) {
     LOG(ERROR) << "NDK Camera capture failed";
+    if (!context) {
+        LOG(ERROR) << "Context is null in onCaptureFailed";
+        return;
+    }
+    CompatHalCamera* halCamera = static_cast<CompatHalCamera*>(context);
+    if (!halCamera) {
+        LOG(ERROR) << "CompatHalCamera context is null";
+        return;
+    }
+
+    EvsEventDesc event;
+    event.aType = aidlevs::EvsEventType::STREAM_ERROR;
+    event.deviceId = halCamera->getId();
+    halCamera->notify(event);
 }
-static void onCaptureBufferLost(void* context, ACameraCaptureSession* session,
-                                ACaptureRequest* request, ANativeWindow* window,
-                                int64_t frameNumber) {
+
+void CompatHalCamera::onCaptureBufferLost(void* context, ACameraCaptureSession* session,
+                                          ACaptureRequest* request, ANativeWindow* window,
+                                          int64_t frameNumber) {
     LOG(ERROR) << "NDK Camera capture buffer lost";
+    if (!context) {
+        LOG(ERROR) << "Context is null in onCaptureBufferLost";
+        return;
+    }
+    CompatHalCamera* halCamera = static_cast<CompatHalCamera*>(context);
+    if (!halCamera) {
+        LOG(ERROR) << "CompatHalCamera context is null";
+        return;
+    }
+
+    EvsEventDesc event;
+    event.aType = aidlevs::EvsEventType::FRAME_DROPPED;
+    event.deviceId = halCamera->getId();
+    halCamera->notify(event);
+}
+
+void CompatHalCamera::onCaptureSequenceAborted(void* context, ACameraCaptureSession* session,
+                                               int sequenceId) {
+    LOG(DEBUG) << "NDK Camera capture sequence aborted";
+    if (!context) {
+        LOG(ERROR) << "Context is null in onCaptureSequenceAborted";
+        return;
+    }
+    CompatHalCamera* halCamera = static_cast<CompatHalCamera*>(context);
+    if (!halCamera) {
+        LOG(ERROR) << "CompatHalCamera context is null";
+        return;
+    }
+
+    EvsEventDesc event;
+    event.aType = aidlevs::EvsEventType::STREAM_STOPPED;
+    event.deviceId = halCamera->getId();
+    halCamera->notify(event);
 }
 
 CompatHalCamera::CompatHalCamera(ACameraDevice* device, const std::string& cameraId,
@@ -202,6 +251,13 @@ CompatHalCamera::~CompatHalCamera() {
 
 void CompatHalCamera::setPrimaryClient(bool isPrimaryClient) {
     std::lock_guard<std::mutex> lock(mMutex);
+    if (mIsPrimaryClient && !isPrimaryClient) {
+        // The primary client role is released.
+        EvsEventDesc event;
+        event.aType = aidlevs::EvsEventType::MASTER_RELEASED;
+        event.deviceId = mCameraId;
+        notify(event);
+    }
     mIsPrimaryClient = isPrimaryClient;
 }
 
@@ -366,8 +422,14 @@ ScopedAStatus CompatHalCamera::doneWithFrame(BufferDesc buffer) {
     return ScopedAStatus::ok();
 }
 
-ScopedAStatus CompatHalCamera::notify([[maybe_unused]] const EvsEventDesc& event) {
-    return ScopedAStatus::fromExceptionCode(EX_UNSUPPORTED_OPERATION);
+ScopedAStatus CompatHalCamera::notify(const EvsEventDesc& event) {
+    for (auto&& client : mVirtualCameras) {
+        std::shared_ptr<CompatVirtualCamera> virtualCamera = client.lock();
+        if (virtualCamera) {
+            virtualCamera->notify(event);
+        }
+    }
+    return ScopedAStatus::ok();
 }
 
 bool CompatHalCamera::ownVirtualCamera(const std::shared_ptr<CompatVirtualCamera>& virtualCamera) {
@@ -675,6 +737,7 @@ ScopedAStatus CompatHalCamera::startNdkCameraStream(int32_t maxImages) {
     mCaptureCallbacksV2.onCaptureProgressed = onCaptureProgressed;
     mCaptureCallbacksV2.onCaptureCompleted = onCaptureCompleted;
     mCaptureCallbacksV2.onCaptureFailed = onCaptureFailed;
+    mCaptureCallbacksV2.onCaptureSequenceAborted = onCaptureSequenceAborted;
     mCaptureCallbacksV2.onCaptureBufferLost = onCaptureBufferLost;
     if (mIsPrimaryClient) {
         // Create Capture Request

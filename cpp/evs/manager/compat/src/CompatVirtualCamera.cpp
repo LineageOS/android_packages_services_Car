@@ -1348,6 +1348,13 @@ ScopedAStatus CompatVirtualCamera::setIntParameter(CameraParam id, int32_t value
 
     ACameraMetadata_free(latestMetadata);
     _aidl_return->push_back(value);
+
+    // Notify that a parameter has changed.
+    aidlevs::EvsEventDesc event;
+    event.aType = aidlevs::EvsEventType::PARAMETER_CHANGED;
+    event.deviceId = desc.id;
+    notify(event);
+
     return ScopedAStatus::ok();
 }
 
@@ -1693,6 +1700,18 @@ std::vector<std::shared_ptr<CompatHalCamera>> CompatVirtualCamera::getHalCameras
         }
     }
     return halCameras;
+}
+
+bool CompatVirtualCamera::notify(const aidlevs::EvsEventDesc& event) {
+    std::lock_guard lock(mMutex);
+    if (mStream) {
+        if (!mStream->notify(event).isOk()) {
+            LOG(WARNING) << "Failed to forward a camera event, "
+                         << static_cast<int32_t>(event.aType);
+            return false;
+        }
+    }
+    return true;
 }
 
 }  // namespace android::hardware::automotive::evs::compat

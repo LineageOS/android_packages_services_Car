@@ -84,6 +84,9 @@ class CompatHalCamera final : public aidlevs::BnEvsCameraStream {
     friend class CompatHalCameraTest_pauseStream_Success_Test;
     friend class CompatHalCameraTest_resumeStream_StreamNotPaused_Test;
     friend class CompatHalCameraTest_resumeStream_Success_Test;
+    friend class CompatVirtualCameraTest_setIntParameter_sendsNotification_Test;
+    friend class CompatHalCameraTest_CaptureError_NotifiesStreamError_Test;
+    friend class CompatHalCameraTest_BufferLost_NotifiesStreamError_Test;
 #endif
 
 public:
@@ -128,6 +131,13 @@ private:
     static void onSessionClosed(void* context, ACameraCaptureSession* session);
     static void onCaptureCompleted(void* context, ACameraCaptureSession* session,
                                    ACaptureRequest* request, const ACameraMetadata* result);
+    static void onCaptureFailed(void* context, ACameraCaptureSession* session,
+                                ACaptureRequest* request, ACameraCaptureFailure* failure);
+    static void onCaptureBufferLost(void* context, ACameraCaptureSession* session,
+                                    ACaptureRequest* request, ANativeWindow* window,
+                                    int64_t frameNumber);
+    static void onCaptureSequenceAborted(void* context, ACameraCaptureSession* session,
+                                         int sequenceId);
 
     ACameraDevice* mDevice GUARDED_BY(mMutex);
     std::string mCameraId;

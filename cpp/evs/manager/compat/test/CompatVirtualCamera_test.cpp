@@ -228,6 +228,21 @@ TEST_F(CompatVirtualCameraTest, getPhysicalCameraInfo_Success) {
     EXPECT_EQ(desc.id, "mockCam1");
 }
 
+TEST_F(CompatVirtualCameraTest, Notify_Success) {
+    auto mockStream = ::ndk::SharedRefBase::make<MockEvsCameraStream>();
+    {
+        std::lock_guard lock(mVirtualCamera->mMutex);
+        mVirtualCamera->mStream = mockStream;
+    }
+
+    aidlevs::EvsEventDesc event;
+    event.aType = EvsEventType::STREAM_STARTED;
+
+    EXPECT_CALL(*mockStream, notify(event)).Times(1).WillOnce(Return(ndk::ScopedAStatus::ok()));
+
+    mVirtualCamera->notify(event);
+}
+
 TEST_F(CompatVirtualCameraTest, deliverFrame_StreamStopped) {
     {
         std::lock_guard lock(mVirtualCamera->mMutex);
@@ -3588,6 +3603,56 @@ TEST_F(CompatVirtualCameraTest, setIntParameter_absoluteZoom_fails_controlModeNo
     // 4. Verify failure
     ASSERT_FALSE(status.isOk());
     EXPECT_EQ(status.getServiceSpecificError(), static_cast<int>(EvsResult::NOT_SUPPORTED));
+}
+
+TEST_F(CompatVirtualCameraTest, setIntParameter_sendsNotification) {
+    // 1. Setup with metadata that supports BRIGHTNESS
+    std::vector<int32_t> range = {-5, 5};
+    camera_metadata_entry_t entry;
+    entry.tag = ACAMERA_CONTROL_AE_COMPENSATION_RANGE;
+    entry.count = range.size();
+    entry.data.i32 = range.data();
+    setupCameraWithMultipleMetadata({entry});
+
+    // 2. Define the desired capture result and setup mocks
+    uint8_t aeMode = ACAMERA_CONTROL_AE_MODE_ON;
+    camera_metadata_entry_t aeModeResultEntry;
+    aeModeResultEntry.tag = ACAMERA_CONTROL_AE_MODE;
+    aeModeResultEntry.count = 1;
+    aeModeResultEntry.data.u8 = &aeMode;
+    setupMockCaptureResult({aeModeResultEntry});
+
+    // 3. Set up the mock HalCamera to be in the RUNNING state
+    mTestHalCameras[0]->mStreamState = CompatHalCamera::RUNNING;
+    mTestHalCameras[0]->mSession = dummySession;
+    mTestHalCameras[0]->mCaptureRequest = dummyCaptureRequest;
+
+    // 4. Set up the mock stream and expect the notification
+    auto mockStream = ::ndk::SharedRefBase::make<MockEvsCameraStream>();
+    mVirtualCamera->mStream = mockStream;
+    aidlevs::EvsEventDesc expectedEvent;
+    expectedEvent.aType = aidlevs::EvsEventType::PARAMETER_CHANGED;
+    expectedEvent.deviceId = "testCam";
+    EXPECT_CALL(*mockStream, notify(expectedEvent)).Times(1);
+
+    // 5. Expect the NDK call to update the request
+    int32_t valueToSet = 3;
+    EXPECT_CALL(mMockNdkCamera,
+                ACaptureRequest_setEntry_i32(dummyCaptureRequest,
+                                             ACAMERA_CONTROL_AE_EXPOSURE_COMPENSATION, 1,
+                                             ::testing::Pointee(valueToSet)))
+            .WillOnce(Return(ACAMERA_OK));
+    EXPECT_CALL(mMockNdkCamera,
+                ACameraCaptureSession_setRepeatingRequestV2(dummySession, _, 1, _, _))
+            .WillOnce(Return(ACAMERA_OK));
+
+    // 6. Call setIntParameter
+    std::vector<int32_t> result;
+    ndk::ScopedAStatus status =
+            mVirtualCamera->setIntParameter(aidlevs::CameraParam::BRIGHTNESS, valueToSet, &result);
+
+    // 7. Verify success
+    ASSERT_TRUE(status.isOk());
 }
 
 TEST_F(CompatVirtualCameraTest, pauseVideoStream_StreamNotRunning) {
