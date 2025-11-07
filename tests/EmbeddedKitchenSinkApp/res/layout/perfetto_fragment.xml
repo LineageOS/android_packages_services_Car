@@ -44,41 +44,60 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
+                android:orientation="vertical"
                 android:padding="16dp">
 
-                <!-- Button to push a default Perfetto configuration -->
-                <Button
-                    android:id="@+id/btn_push_default_config"
-                    android:layout_width="0dp"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/perfetto_push_default_config" />
+                    android:orientation="horizontal">
 
-                <!-- Button to trigger a Perfetto trace -->
-                <Button
-                    android:id="@+id/btn_trigger_perfetto"
-                    android:layout_width="0dp"
+                    <!-- Button to push a default Perfetto configuration -->
+                    <Button
+                        android:id="@+id/btn_push_default_config"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/perfetto_push_default_config" />
+
+                    <!-- Button to query the current Perfetto configuration -->
+                    <Button
+                        android:id="@+id/btn_query_config"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/perfetto_query_config" />
+
+                    <!-- Button to remove the Perfetto configuration -->
+                    <Button
+                        android:id="@+id/btn_remove_config"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/perfetto_remove_config" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/perfetto_trigger_trace" />
+                    android:orientation="horizontal">
 
-                <!-- Button to query the current Perfetto configuration -->
-                <Button
-                    android:id="@+id/btn_query_config"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/perfetto_query_config" />
+                    <!-- Button to trigger a Perfetto trace -->
+                    <Button
+                        android:id="@+id/btn_trigger_perfetto"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/perfetto_trigger_trace" />
 
-                <!-- Button to remove the Perfetto configuration -->
-                <Button
-                    android:id="@+id/btn_remove_config"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/perfetto_remove_config" />
-
+                    <!-- Button to open the Perfetto trace list -->
+                    <Button
+                        android:id="@+id/btn_open_trace_list"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/perfetto_open_trace_list" />
+                </LinearLayout>
             </LinearLayout>
 
             <!-- TextView to display the status of Perfetto operations -->
