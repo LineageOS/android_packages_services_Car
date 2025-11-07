@@ -19,6 +19,7 @@ package com.android.wm.shell.automotive;
 
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.when;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.verify;
+import static com.android.dx.mockito.inline.extended.ExtendedMockito.verifyNoMoreInteractions;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -110,6 +111,35 @@ public class AutoSurfaceTransactionTest {
     }
 
     @Test
+    public void testSetCornerRadiusPerSide() {
+        Rect bounds = new Rect(0, 0, 100, 50);
+        when(mDecor.getBounds()).thenReturn(bounds);
+        float topLeft = 5;
+        float topRight = 10;
+        float bottomLeft = 15;
+        float bottomRight = 20;
+
+        mTransaction.setCornerRadius(mDecor, topLeft, topRight, bottomLeft, bottomRight);
+        mTransaction.apply();
+
+        verify(mSurfaceTransaction).setCrop(mSurface, bounds);
+        verify(mSurfaceTransaction).setCornerRadius(mSurface, topLeft, topRight, bottomLeft,
+                bottomRight);
+    }
+
+    @Test
+    public void testSetCornerRadius_nullViewHost() {
+        when(mDecor.getViewHost()).thenReturn(null);
+        float cornerRadius = 5;
+
+        mTransaction.setCornerRadius(mDecor, cornerRadius);
+        mTransaction.apply();
+
+        verify(mDecor).getViewHost();
+        verifyNoMoreInteractions(mSurfaceTransaction);
+    }
+
+    @Test
     public void testSetCrop() {
         Rect bounds = new Rect(0, 0, 100, 50);
 
@@ -127,6 +157,21 @@ public class AutoSurfaceTransactionTest {
         mTransaction.apply();
 
         verify(mSurfaceTransaction).setCornerRadius(mSurface, cornerRadius);
+    }
+
+    @Test
+    public void testSetTaskCornerRadiusPerSide() {
+        float topLeft = 5;
+        float topRight = 10;
+        float bottomLeft = 15;
+        float bottomRight = 20;
+
+        mTransaction.setTaskSurfaceCornerRadius(TEST_TASK_ID, topLeft, topRight, bottomLeft,
+                bottomRight);
+        mTransaction.apply();
+
+        verify(mSurfaceTransaction).setCornerRadius(mSurface, topLeft, topRight, bottomLeft,
+                bottomRight);
     }
 
     @Test

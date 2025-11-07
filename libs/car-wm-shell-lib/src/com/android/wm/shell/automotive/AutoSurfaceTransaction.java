@@ -21,6 +21,7 @@ import static android.view.WindowManager.LayoutParams.FLAG_SPLIT_TOUCH;
 import static android.view.WindowManager.LayoutParams.TYPE_APPLICATION;
 
 import android.annotation.NonNull;
+import android.annotation.Nullable;
 import android.graphics.PixelFormat;
 import android.graphics.Rect;
 import android.util.Log;
@@ -173,6 +174,25 @@ public class AutoSurfaceTransaction {
     }
 
     /**
+     * Sets the task surface per-corner radius.
+     *
+     * <p>See {@link #setTaskSurfaceCornerRadius(int, float)} for important usage restrictions.
+     *
+     * @param taskId The taskId whose surface needs to be updated.
+     * @param topLeft The radius for the top-left corner.
+     * @param topRight The radius for the top-right corner.
+     * @param bottomLeft The radius for the bottom-left corner.
+     * @param bottomRight The radius for the bottom-right corner.
+     * @return This {@link AutoSurfaceTransaction} instance for chaining.
+     */
+    public AutoSurfaceTransaction setTaskSurfaceCornerRadius(int taskId, float topLeft,
+            float topRight, float bottomLeft, float bottomRight) {
+        SurfaceControl surfaceControl = mAutoTaskRepository.getSurfaceControl(taskId);
+        mTransaction.setCornerRadius(surfaceControl, topLeft, topRight, bottomLeft, bottomRight);
+        return this;
+    }
+
+    /**
      * Sets the task surface crop
      *
      * @param taskId The taskId whose surface needs to be updated.
@@ -194,15 +214,23 @@ public class AutoSurfaceTransaction {
      */
     public AutoSurfaceTransaction setAlpha(@NonNull AutoDecor autoDecor,
             float alpha) {
+        SurfaceControl surfaceControl = getSurfaceControl(autoDecor);
+        if (surfaceControl == null) {
+            Slogf.e(TAG, "surfaceControl is null. Not setting alpha.");
+            return this;
+        }
+        mTransaction.setAlpha(surfaceControl, alpha);
+        return this;
+    }
+
+    @Nullable
+    private SurfaceControl getSurfaceControl(@NonNull AutoDecor autoDecor) {
         Objects.requireNonNull(autoDecor);
         SurfaceControlViewHost viewHost = autoDecor.getViewHost();
         if (viewHost == null) {
-            Slogf.e(TAG, "ViewHost is null. Not setting alpha.");
-            return this;
+            return null;
         }
-        SurfaceControl surfaceControl = viewHost.getSurfacePackage().getSurfaceControl();
-        mTransaction.setAlpha(surfaceControl, alpha);
-        return this;
+        return viewHost.getSurfacePackage().getSurfaceControl();
     }
 
     /**
@@ -213,17 +241,40 @@ public class AutoSurfaceTransaction {
      */
     public AutoSurfaceTransaction setCornerRadius(@NonNull AutoDecor autoDecor,
             float cornerRadius) {
-        Objects.requireNonNull(autoDecor);
-        SurfaceControlViewHost viewHost = autoDecor.getViewHost();
-        if (viewHost == null) {
-            Slogf.e(TAG, "ViewHost is null. Not setting corner radius.");
+        SurfaceControl surfaceControl = getSurfaceControl(autoDecor);
+        if (surfaceControl == null) {
+            Slogf.e(TAG, "surfaceControl is null. Not setting cornerRadius.");
             return this;
         }
-        SurfaceControl surfaceControl = viewHost.getSurfacePackage().getSurfaceControl();
         // Crop is required for setCornerRadius API to work.
         mTransaction.setCrop(surfaceControl,
                 new Rect(0, 0, autoDecor.getBounds().width(), autoDecor.getBounds().height()));
         mTransaction.setCornerRadius(surfaceControl, cornerRadius);
+        return this;
+    }
+
+    /**
+     * Sets per-corner radius of an {@link AutoDecor}
+     *
+     * @param autoDecor The {@link AutoDecor} to update.
+     * @param topLeft The radius for the top-left corner.
+     * @param topRight The radius for the top-right corner.
+     * @param bottomLeft The radius for the bottom-left corner.
+     * @param bottomRight The radius for the bottom-right corner.
+     * @return This {@link AutoSurfaceTransaction} instance for chaining.
+     */
+    public AutoSurfaceTransaction setCornerRadius(@NonNull AutoDecor autoDecor, float topLeft,
+            float topRight, float bottomLeft, float bottomRight) {
+        SurfaceControl surfaceControl = getSurfaceControl(autoDecor);
+        if (surfaceControl == null) {
+            Slogf.e(TAG, "surfaceControl is null. Not setting cornerRadius.");
+            return this;
+        }
+        // Crop is required for setCornerRadius API to work.
+        mTransaction.setCrop(surfaceControl,
+                new Rect(0, 0, autoDecor.getBounds().width(), autoDecor.getBounds().height()));
+        mTransaction.setCornerRadius(surfaceControl, topLeft, topRight, bottomLeft,
+                bottomRight);
         return this;
     }
 
@@ -235,14 +286,12 @@ public class AutoSurfaceTransaction {
      * @return This {@link AutoSurfaceTransaction} instance for chaining.
      */
     public AutoSurfaceTransaction setCrop(@NonNull AutoDecor autoDecor, @NonNull Rect cropBounds) {
-        Objects.requireNonNull(autoDecor);
         Objects.requireNonNull(cropBounds);
-        SurfaceControlViewHost viewHost = autoDecor.getViewHost();
-        if (viewHost == null) {
-            Slogf.e(TAG, "ViewHost is null. Not setting crop.");
+        SurfaceControl surfaceControl = getSurfaceControl(autoDecor);
+        if (surfaceControl == null) {
+            Slogf.e(TAG, "surfaceControl is null. Not setting crop.");
             return this;
         }
-        SurfaceControl surfaceControl = viewHost.getSurfacePackage().getSurfaceControl();
         mTransaction.setCrop(surfaceControl, cropBounds);
         return this;
     }
@@ -292,17 +341,14 @@ public class AutoSurfaceTransaction {
      * @return This {@link AutoSurfaceTransaction} instance for chaining.
      */
     public AutoSurfaceTransaction setZOrder(@NonNull AutoDecor autoDecor, int zOrder) {
-        Objects.requireNonNull(autoDecor);
         if (DBG) {
             Slogf.d(TAG, "Updating zOrder for decor %s to the new z order %d", autoDecor, zOrder);
         }
-
-        SurfaceControlViewHost viewHost = autoDecor.getViewHost();
-        if (viewHost == null) {
-            Slogf.e(TAG, "ViewHost is null. Not setting zOrder.");
+        SurfaceControl surfaceControl = getSurfaceControl(autoDecor);
+        if (surfaceControl == null) {
+            Slogf.e(TAG, "SurfaceControl is null. Not setting zOrder.");
             return this;
         }
-        SurfaceControl surfaceControl = viewHost.getSurfacePackage().getSurfaceControl();
         mTransaction.setLayer(surfaceControl, zOrder);
         if (!mPendingAutoDecors.containsKey(autoDecor)) {
             mPendingAutoDecors.put(autoDecor, new AutoDecorPendingChanges(autoDecor));
@@ -319,17 +365,14 @@ public class AutoSurfaceTransaction {
      * @return This {@link AutoSurfaceTransaction} instance for chaining.
      */
     public AutoSurfaceTransaction setVisibility(@NonNull AutoDecor autoDecor, boolean isVisible) {
-        Objects.requireNonNull(autoDecor);
         if (DBG) {
             Slogf.d(TAG, "Updating Decor Visibility for decor %s to %s", this, isVisible);
         }
-
-        SurfaceControlViewHost viewHost = autoDecor.getViewHost();
-        if (viewHost == null) {
-            Slogf.e(TAG, "ViewHost is null. Not updating visibility.");
+        SurfaceControl surfaceControl = getSurfaceControl(autoDecor);
+        if (surfaceControl == null) {
+            Slogf.e(TAG, "SurfaceControl is null. Not setting visibility.");
             return this;
         }
-        SurfaceControl surfaceControl = viewHost.getSurfacePackage().getSurfaceControl();
         mTransaction.setVisibility(surfaceControl, isVisible);
         if (!mPendingAutoDecors.containsKey(autoDecor)) {
             mPendingAutoDecors.put(autoDecor, new AutoDecorPendingChanges(autoDecor));
