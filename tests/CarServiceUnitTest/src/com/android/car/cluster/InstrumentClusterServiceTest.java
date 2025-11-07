@@ -210,9 +210,7 @@ public final class InstrumentClusterServiceTest extends AbstractExtendedMockitoT
         initService(/* connect= */ true);
         mInstrumentClusterNavigation.mThrowExceptionInGetInstrumentClusterInfo = true;
 
-        assertThrows(IllegalStateException.class, () -> {
-            mService.getInstrumentClusterInfo();
-        });
+        assertThat(mService.getInstrumentClusterInfo()).isNull();
     }
 
     @Test
@@ -258,11 +256,9 @@ public final class InstrumentClusterServiceTest extends AbstractExtendedMockitoT
     }
 
     @Test
-    public void testNoConnection_throwsIllegalStateException() throws Exception {
+    public void testNoConnection_returnsNull() throws Exception {
         initService(/* connect= */ false);
-        assertThrows(IllegalStateException.class, () -> {
-            mService.getInstrumentClusterInfo();
-        });
+        assertThat(mService.getInstrumentClusterInfo()).isNull();
     }
 
     @Test
