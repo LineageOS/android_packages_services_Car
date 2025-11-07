@@ -138,6 +138,8 @@ android_ravenwood_test {
         "src/android/car/projection/CarProjectionManagerUnitTest.java",
         // The following cannot be enabled because UserManager is not supported on host.
         "src/android/car/drivingstate/CarUxRestrictionsManagerUnitTest.java",
+        // TODO(b/458776010): Enable EnforcedAudioFocusInfoUnitTest on host.
+        "src/android/car/media/EnforcedAudioFocusInfoUnitTest.java",
     ],
     static_libs: [
         "CarWatchdogUnitTestLib",
