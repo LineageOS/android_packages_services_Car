@@ -18,7 +18,6 @@
           package="com.android.car.portraitlauncher.rro">
     <application android:hasCode="false"/>
     <overlay android:priority="21"
-             android:targetName="CarLauncher"
              android:targetPackage="com.android.car.portraitlauncher"
              android:resourcesMap="@xml/overlays"
              android:requiredSystemPropertyName="car.ui.config"

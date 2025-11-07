@@ -30,12 +30,12 @@ android_library {
         "androidx-constraintlayout_constraintlayout",
         "androidx.lifecycle_lifecycle-extensions",
         "androidx.car.app_app",
-        "car-ui-lib",
+        "car-ui-lib-no-overlayable",
         "CarLauncher-core",
         "WindowManager-Shell",
-        "car-media-common",
+        "car-media-common-no-overlayable",
         "oem-token-lib",
-        "CarUiPortraitService"
+        "CarUiPortraitService",
     ],
 
     libs: [
