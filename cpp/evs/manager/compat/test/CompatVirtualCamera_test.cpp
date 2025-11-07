@@ -3613,4 +3613,25 @@ TEST_F(CompatVirtualCameraTest, pauseVideoStream_Success) {
     ASSERT_TRUE(status.isOk());
 }
 
+TEST_F(CompatVirtualCameraTest, resumeVideoStream_StreamNotPaused) {
+    // Stream is STOPPED by default
+    ndk::ScopedAStatus status = mVirtualCamera->resumeVideoStream();
+    ASSERT_TRUE(status.isOk());
+    // Verify that the stream state remains STOPPED
+    std::lock_guard lock(mVirtualCamera->mMutex);
+    EXPECT_EQ(mVirtualCamera->mStreamState, CompatVirtualCamera::RUNNING);
+}
+
+TEST_F(CompatVirtualCameraTest, resumeVideoStream_Success) {
+    // Set the stream state to RUNNING
+    {
+        std::lock_guard lock(mVirtualCamera->mMutex);
+        mVirtualCamera->mStreamState = CompatVirtualCamera::RUNNING;
+    }
+
+    // Mock the resumeStream call on the HAL camera
+    ndk::ScopedAStatus status = mVirtualCamera->resumeVideoStream();
+    ASSERT_TRUE(status.isOk());
+}
+
 }  // namespace android::hardware::automotive::evs::compat

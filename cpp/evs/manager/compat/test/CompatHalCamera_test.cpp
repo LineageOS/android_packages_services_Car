@@ -645,4 +645,29 @@ TEST_F(CompatHalCameraTest, pauseStream_Success) {
     ASSERT_TRUE(status.isOk());
 }
 
+TEST_F(CompatHalCameraTest, resumeStream_StreamNotPaused) {
+    // Stream is STOPPED by default
+    ::ndk::ScopedAStatus status = mHalCamera->resumeStream();
+    ASSERT_TRUE(status.isOk());
+    // Verify that the stream state remains STOPPED
+    EXPECT_EQ(mHalCamera->mStreamState, CompatHalCamera::STOPPED);
+}
+
+TEST_F(CompatHalCameraTest, resumeStream_Success) {
+    // Set the stream state to RUNNING
+    {
+        std::lock_guard<std::mutex> lock(mHalCamera->mMutex);
+        mHalCamera->mStreamState = CompatHalCamera::RUNNING;
+    }
+
+    // Mock the NDK call to resume the repeating request
+    mHalCamera->mSession = dummySession;
+    EXPECT_CALL(mMockNdkCamera,
+                ACameraCaptureSession_setRepeatingRequestV2(dummySession, _, 1, _, _))
+            .Times(1);
+
+    ::ndk::ScopedAStatus status = mHalCamera->resumeStream();
+    ASSERT_TRUE(status.isOk());
+}
+
 }  // namespace android::hardware::automotive::evs::compat
