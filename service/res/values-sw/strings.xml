@@ -265,7 +265,7 @@
     <string name="car_permission_label_read_property_vendor_error_code" msgid="9161295062734171179">"kusoma msimbo wa hitilafu wa thamani iliyotolewa na mtengenezaji"</string>
     <string name="car_permission_desc_read_property_vendor_error_code" msgid="4243058153289166218">"kusoma msimbo wa hitilafu wa thamani iliyotolewa na mtengenezaji"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"Imeshindwa kuleta maelezo ya kebo CAN"</string>
-    <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"Kebo ya CAN haifanyi kazi. Ondoa kisha urudishe tena kisanduku cha sehemu kuu na uzime kisha uwashe gari"</string>
+    <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"Kebo ya CAN haifanyi kazi. Ondoa kisha urudishe tena redio ya gari halafu uzime na kuwasha gari tena"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"Kifaa Changu"</string>
     <string name="default_guest_name" msgid="2912812799433131476">"Mgeni"</string>
 </resources>
