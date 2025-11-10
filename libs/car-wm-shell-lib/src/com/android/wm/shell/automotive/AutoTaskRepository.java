@@ -114,16 +114,22 @@ public class AutoTaskRepository {
                     + ", Name:" + info.mRootTaskStack.getName());
             for (ActivityManager.RunningTaskInfo task : info.getTaskStack()) {
                 pw.println(prefix + "     task Id: " + task.taskId + " visible: " + task.isVisible
-                        + " name: " + (task.topActivity != null ? task.topActivity.getClassName()
-                        : ""));
+                        + " user: " + task.userId + " name: "
+                        + (task.topActivity != null ? task.topActivity.getClassName() : ""));
             }
+        }
+        pw.println(prefix + "  Tasks without RootTask:");
+        for (ActivityManager.RunningTaskInfo task : getTaskStackWithoutRootTask()) {
+            pw.println(prefix + "     task Id: " + task.taskId + " visible: " + task.isVisible
+                    + " user: " + task.userId + " name: "
+                    + (task.topActivity != null ? task.topActivity.getClassName() : ""));
         }
     }
 
     @SuppressLint("MissingPermission")
     private void onCarServiceConnectedLocked() {
-        Slogf.i(TAG, "onCarServiceConnectedLocked. mPendingTasks count %d. mPendingTasks count %d",
-                mPendingTasks.size(), mPendingRootTasks.size());
+        Slogf.i(TAG, "onCarServiceConnectedLocked. mPendingTasks count %d. "
+                + "mPendingRootTasks count %d", mPendingTasks.size(), mPendingRootTasks.size());
 
         mCarActivityManager.registerTaskMonitor();
 
@@ -288,8 +294,8 @@ public class AutoTaskRepository {
     void onTaskAppeared(RootTaskStack rootTaskStack, ActivityManager.RunningTaskInfo task,
             SurfaceControl leash) {
         if (DBG) {
-            Slogf.d(TAG, "onTaskAppeared. RootTask Id %d. TaskId %d. Name %s",
-                    rootTaskStack.getId(), task.getTaskId(), rootTaskStack.getName());
+            Slogf.d(TAG, "onTaskAppeared. RootTask Id %d. TaskId %d. Name %s. user %d",
+                    rootTaskStack.getId(), task.getTaskId(), rootTaskStack.getName(), task.userId);
         }
         addOrUpdateTask(rootTaskStack, task, leash);
 
@@ -313,8 +319,8 @@ public class AutoTaskRepository {
     @SuppressLint("MissingPermission")
     void onTaskChanged(RootTaskStack rootTaskStack, ActivityManager.RunningTaskInfo task) {
         if (DBG) {
-            Slogf.d(TAG, "onTaskChanged. RootTask Id %d. TaskId %d. Name %s",
-                    rootTaskStack.getId(), task.getTaskId(), rootTaskStack.getName());
+            Slogf.d(TAG, "onTaskChanged. RootTask Id %d. TaskId %d. Name %s. user %d",
+                    rootTaskStack.getId(), task.getTaskId(), rootTaskStack.getName(), task.userId);
         }
         addOrUpdateTask(rootTaskStack, task, mSurfaceControlMap.get(task.taskId));
 
@@ -363,7 +369,7 @@ public class AutoTaskRepository {
     @SuppressLint("MissingPermission")
     public void onTaskAppeared(ActivityManager.RunningTaskInfo task, SurfaceControl leash) {
         if (DBG) {
-            Slogf.d(TAG, "onTaskAppeared. TaskId %d.", task.getTaskId());
+            Slogf.d(TAG, "onTaskAppeared. TaskId %d. user %d", task.getTaskId(), task.userId);
         }
         mTaskStackWithoutRootTask.put(task.taskId, task);
         mSurfaceControlMap.put(task.taskId, leash);
@@ -387,7 +393,7 @@ public class AutoTaskRepository {
     @SuppressLint("MissingPermission")
     public void onTaskChanged(ActivityManager.RunningTaskInfo task) {
         if (DBG) {
-            Slogf.d(TAG, "onTaskChanged. TaskId %d.", task.getTaskId());
+            Slogf.d(TAG, "onTaskChanged. TaskId %d. user %d", task.getTaskId(), task.userId);
         }
 
         mTaskStackWithoutRootTask.remove(task.taskId);
