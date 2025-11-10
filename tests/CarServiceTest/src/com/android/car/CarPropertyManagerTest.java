@@ -1216,6 +1216,9 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
 
     @Test
     public void testGetPropertiesAsync() throws Exception {
+        ((MockedCarTestContext) getContext()).setAllowedPermissions(
+                new String[] {Car.PERMISSION_READ_PROPERTY_VENDOR_ERROR_CODE});
+
         List<GetPropertyRequest> getPropertyRequests = new ArrayList<>();
         Executor callbackExecutor = new HandlerExecutor(mHandler);
         Set<Integer> requestIds = new ArraySet();
@@ -1335,6 +1338,9 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
 
     @Test
     public void testSetPropertiesAsync() throws Exception {
+        ((MockedCarTestContext) getContext()).setAllowedPermissions(
+                new String[] {Car.PERMISSION_READ_PROPERTY_VENDOR_ERROR_CODE});
+
         List<SetPropertyRequest<?>> setPropertyRequests = new ArrayList<>();
         Executor callbackExecutor = new HandlerExecutor(mHandler);
         Set<Integer> requestIds = new ArraySet();

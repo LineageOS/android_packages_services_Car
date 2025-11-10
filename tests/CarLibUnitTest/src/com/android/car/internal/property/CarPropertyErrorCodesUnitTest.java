@@ -218,7 +218,9 @@ public final class CarPropertyErrorCodesUnitTest extends AbstractExpectableTestC
                         PropertyNotAvailableException.class,
                         () ->
                                 errorCodes.checkAndMaybeThrowException(
-                                        /* propertyId= */ 0, /* areaId= */ 0));
+                                        /* propertyId= */ 0,
+                                        /* areaId= */ 0,
+                                        /* canReadVendorErrorCode= */ true));
         assertThat(errorCodes.toDetailedErrorCode()).isEqualTo(
                 DetailedErrorCode.NO_DETAILED_ERROR_CODE);
         assertThat(exception.getDetailedErrorCode())
@@ -238,7 +240,9 @@ public final class CarPropertyErrorCodesUnitTest extends AbstractExpectableTestC
                         PropertyNotAvailableException.class,
                         () ->
                                 errorCodes.checkAndMaybeThrowException(
-                                        /* propertyId= */ 0, /* areaId= */ 0));
+                                        /* propertyId= */ 0,
+                                        /* areaId= */ 0,
+                                        /* canReadVendorErrorCode= */ true));
         assertThat(errorCodes.toDetailedErrorCode())
                 .isEqualTo(DetailedErrorCode.NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED);
         assertThat(exception.getDetailedErrorCode())
@@ -255,9 +259,14 @@ public final class CarPropertyErrorCodesUnitTest extends AbstractExpectableTestC
                 VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SUBSYSTEM_NOT_CONNECTED);
         assertThat(errorCodes.toCarPropertyAsyncErrorCode()).isEqualTo(
                 CarPropertyManager.STATUS_ERROR_NOT_AVAILABLE);
-        PropertyNotAvailableException exception = assertThrows(
-                PropertyNotAvailableException.class, () -> errorCodes.checkAndMaybeThrowException(
-                        /* propertyId= */ 0, /* areaId= */ 0));
+        PropertyNotAvailableException exception =
+                assertThrows(
+                        PropertyNotAvailableException.class,
+                        () ->
+                                errorCodes.checkAndMaybeThrowException(
+                                        /* propertyId= */ 0,
+                                        /* areaId= */ 0,
+                                        /* canReadVendorErrorCode= */ true));
         assertThat(exception.getVendorErrorCode()).isEqualTo(0);
     }
 

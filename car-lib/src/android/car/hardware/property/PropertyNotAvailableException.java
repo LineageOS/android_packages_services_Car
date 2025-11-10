@@ -18,7 +18,9 @@ package android.car.hardware.property;
 
 import static com.android.car.internal.util.DebugUtils.toAreaIdString;
 
+import android.annotation.RequiresPermission;
 import android.annotation.SystemApi;
+import android.car.Car;
 import android.car.VehiclePropertyIds;
 
 /**
@@ -29,30 +31,38 @@ import android.car.VehiclePropertyIds;
  * {@link android.car.VehiclePropertyIds#HVAC_POWER_ON} is {@code false}.
  */
 public class PropertyNotAvailableException extends IllegalStateException {
-    private int mDetailedErrorCode = PropertyNotAvailableErrorCode.NOT_AVAILABLE;
-    private int mVendorErrorCode;
+    private final int mDetailedErrorCode;
+    private final int mVendorErrorCode;
+    private final boolean mCanReadVendorErrorCode;
 
-    /**
-     * @hide
-     */
-    public PropertyNotAvailableException(int propertyId, int areaId, int vendorErrorCode) {
+    /** @hide */
+    public PropertyNotAvailableException(
+            int propertyId,
+            int areaId,
+            int vendorErrorCode,
+            boolean canReadVendorErrorCode) {
         super("Property ID: " + VehiclePropertyIds.toString(propertyId) + " area ID: "
                 + toAreaIdString(propertyId, areaId)
                 + " - is not available because of vendor error code: " + vendorErrorCode);
+        mDetailedErrorCode = PropertyNotAvailableErrorCode.NOT_AVAILABLE;
         mVendorErrorCode = vendorErrorCode;
+        mCanReadVendorErrorCode = canReadVendorErrorCode;
     }
 
-    /**
-     * @hide
-     */
-    public PropertyNotAvailableException(int propertyId, int areaId, int detailedErrorCode,
-            int vendorErrorCode) {
+    /** @hide */
+    public PropertyNotAvailableException(
+            int propertyId,
+            int areaId,
+            int detailedErrorCode,
+            int vendorErrorCode,
+            boolean canReadVendorErrorCode) {
         super("Property ID: " + VehiclePropertyIds.toString(propertyId) + " area ID: "
                 + toAreaIdString(propertyId, areaId)
                 + " - is not available because of status code: "
                 + PropertyNotAvailableErrorCode.toString(detailedErrorCode));
         mDetailedErrorCode = detailedErrorCode;
         mVendorErrorCode = vendorErrorCode;
+        mCanReadVendorErrorCode = canReadVendorErrorCode;
     }
 
     /**
@@ -74,7 +84,21 @@ public class PropertyNotAvailableException extends IllegalStateException {
      * @hide
      */
     @SystemApi
+    @RequiresPermission(Car.PERMISSION_READ_PROPERTY_VENDOR_ERROR_CODE)
     public int getVendorErrorCode() {
+        // Note that we have already filtered out the vendor error code at the car service
+        // layer if the client does not have the permission. We are checking here to throw
+        // SecurityException but this is not a security enforcement. Even if the client bypass
+        // this check here, the vendor error code still would be 0 if the client does not
+        // have the permission.
+        // TODO(b/455051947): Validate car service filtering in CTS.
+        // TODO(b/415128639): Filter vendor error code in CarService.
+        if (!mCanReadVendorErrorCode) {
+            throw new SecurityException(
+                    "Client does not have the required permission: "
+                            + Car.PERMISSION_READ_PROPERTY_VENDOR_ERROR_CODE
+                            + " to call getVendorErrorCode");
+        }
         return mVendorErrorCode;
     }
 }
