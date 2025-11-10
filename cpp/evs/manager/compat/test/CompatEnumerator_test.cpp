@@ -17,6 +17,7 @@
 #include "CompatEnumerator.h"
 
 #include "MockCameraManager.h"
+#include "MockEvsEnumeratorStatusCallback.h"
 #include "MockNdkCamera.h"
 
 #include <gmock/gmock.h>
@@ -42,19 +43,31 @@ protected:
         auto mockCameraManager = std::make_unique<MockCameraManager>();
         // Keep a raw pointer to the mock for setting expectations
         mMockCameraManager = mockCameraManager.get();
-        mEnumerator = ::ndk::SharedRefBase::make<CompatEnumerator>(std::move(mockCameraManager));
         MockNdkCamera::setMockInstance(&mMockNdkCamera);
+        mMockCallback = ndk::SharedRefBase::make<MockIEvsEnumeratorStatusCallback>();
+
+        // Expect that the callback is registered in the constructor
+        EXPECT_CALL(*mMockCameraManager, registerAvailabilityCallback(_)).Times(1);
+        mEnumerator = ::ndk::SharedRefBase::make<CompatEnumerator>(std::move(mockCameraManager));
+        EXPECT_CALL(*mMockCameraManager, isAvailable()).WillRepeatedly(Return(true));
     }
 
-    void TearDown() override { MockNdkCamera::setMockInstance(nullptr); }
+    void TearDown() override {
+        if (mEnumerator && mMockCameraManager) {
+            EXPECT_CALL(*mMockCameraManager,
+                        unregisterAvailabilityCallback(&mEnumerator->mAvailabilityCallbacks))
+                    .Times(1);
+        }
+        MockNdkCamera::setMockInstance(nullptr);
+    }
 
     std::shared_ptr<CompatEnumerator> mEnumerator;
     MockCameraManager* mMockCameraManager;
     MockNdkCamera mMockNdkCamera;
+    std::shared_ptr<MockIEvsEnumeratorStatusCallback> mMockCallback;
 };
 
 TEST_F(CompatEnumeratorTest, setCameraGroupMap) {
-    EXPECT_CALL(*mMockCameraManager, isAvailable()).WillRepeatedly(Return(true));
     std::vector<std::string> cameraIds = {"cam0", "cam1", "cam2", "cam3"};
     EXPECT_CALL(*mMockCameraManager, getCameraIdList(_))
             .WillOnce(testing::DoAll(SetArgPointee<0>(cameraIds), Return(ACAMERA_OK)));
@@ -101,7 +114,6 @@ TEST_F(CompatEnumeratorTest, setCameraGroupMap) {
 }
 
 TEST_F(CompatEnumeratorTest, setCameraGroupMap_Invalid) {
-    EXPECT_CALL(*mMockCameraManager, isAvailable()).WillRepeatedly(Return(true));
     std::vector<std::string> cameraIds = {"cam0", "cam1"};
 
     EXPECT_CALL(*mMockCameraManager, getCameraIdList(_))
@@ -121,7 +133,6 @@ TEST_F(CompatEnumeratorTest, getCameraList) {
     std::vector<std::string> cameraIds = {"cam0", "cam1"};
 
     // Set up mock calls
-    EXPECT_CALL(*mMockCameraManager, isAvailable()).WillRepeatedly(Return(true));
     EXPECT_CALL(*mMockCameraManager, getCameraIdList(_))
             .WillOnce(testing::DoAll(SetArgPointee<0>(cameraIds), Return(ACAMERA_OK)));
     EXPECT_CALL(*mMockCameraManager, getCameraCharacteristics(testing::StrEq("cam0"), _))
@@ -152,7 +163,6 @@ TEST_F(CompatEnumeratorTest, getCameraList_NoCameras) {
     // Prepare mock data for the case where no cameras are found
     std::vector<std::string> cameraIds;  // Empty list
     // Set up mock calls
-    EXPECT_CALL(*mMockCameraManager, isAvailable()).WillRepeatedly(Return(true));
     EXPECT_CALL(*mMockCameraManager, getCameraIdList(_))
             .WillOnce(testing::DoAll(SetArgPointee<0>(cameraIds), Return(ACAMERA_OK)));
 
@@ -599,6 +609,32 @@ TEST_F(CompatEnumeratorTest, GetStreamList_InvalidDuration) {
 
     EXPECT_FALSE(status.isOk());
     EXPECT_EQ(status.getExceptionCode(), EX_SERVICE_SPECIFIC);
+}
+
+TEST_F(CompatEnumeratorTest, CameraAvailabilityCallbacks) {
+    // Prepare mock data
+    std::string cameraId = "cam0";
+
+    // Register callback
+    ndk::ScopedAStatus status = mEnumerator->registerStatusCallback(mMockCallback);
+    ASSERT_TRUE(status.isOk());
+
+    // Simulate camera available
+    aidlevs::DeviceStatus availableStatus{.id = cameraId,
+                                          .status = aidlevs::DeviceStatusType::CAMERA_AVAILABLE};
+    EXPECT_CALL(*mMockCallback, deviceStatusChanged(testing::ElementsAre(availableStatus)))
+            .Times(1)
+            .WillOnce(Return(ndk::ScopedAStatus::ok()));
+    mEnumerator->mAvailabilityCallbacks.onCameraAvailable(mEnumerator.get(), cameraId.c_str());
+
+    // Simulate camera unavailable
+    aidlevs::DeviceStatus
+            unavailableStatus{.id = cameraId,
+                              .status = aidlevs::DeviceStatusType::CAMERA_NOT_AVAILABLE};
+    EXPECT_CALL(*mMockCallback, deviceStatusChanged(testing::ElementsAre(unavailableStatus)))
+            .Times(1)
+            .WillOnce(Return(ndk::ScopedAStatus::ok()));
+    mEnumerator->mAvailabilityCallbacks.onCameraUnavailable(mEnumerator.get(), cameraId.c_str());
 }
 
 }  // namespace android::hardware::automotive::evs::compat

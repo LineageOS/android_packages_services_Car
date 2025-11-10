@@ -25,13 +25,4 @@
     <attr name="oemTextAppearanceLabelMedium" format="reference" />
     <attr name="oemShapeCornerSmall" format="dimension" />
     <attr name="oemShapeCornerExtraLarge" format="dimension" />
-
-    <attr name="cornerFamily" format="enum" >
-        <enum name="rounded" value="0"/>
-        <enum name="cut" value="1"/>
-    </attr>
-    <attr name="cornerSize" format="dimension|fraction" />
-    <attr name="shapeAppearanceOverlay" format="reference" />
-    <attr name="strokeColor" format="color" />
-    <attr name="strokeWidth" format="dimension" />
 </resources>

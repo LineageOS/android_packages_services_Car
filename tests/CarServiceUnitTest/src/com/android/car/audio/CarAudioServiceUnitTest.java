@@ -25,7 +25,9 @@ import static android.car.media.CarAudioManager.AUDIO_FEATURE_MIN_MAX_ACTIVATION
 import static android.car.media.CarAudioManager.AUDIO_FEATURE_OEM_AUDIO_SERVICE;
 import static android.car.media.CarAudioManager.AUDIO_FEATURE_PERSIST_FADE_BALANCE_VALUES;
 import static android.car.media.CarAudioManager.AUDIO_FEATURE_VOLUME_GROUP_EVENTS;
+import static android.car.media.CarVolumeGroupEvent.EXTRA_INFO_TRANSIENT_ATTENUATION_THERMAL;
 import static android.car.media.CarAudioManager.AUDIO_FEATURE_VOLUME_GROUP_MUTING;
+import static android.car.media.CarVolumeGroupEvent.EXTRA_INFO_MUTE_TOGGLED_BY_AUDIO_SYSTEM;
 import static android.car.media.CarAudioManager.AUDIO_MIRROR_CAN_ENABLE;
 import static android.car.media.CarAudioManager.AUDIO_MIRROR_OUT_OF_OUTPUT_DEVICES;
 import static android.car.media.CarAudioManager.CONFIG_STATUS_AUTO_SWITCHED;
@@ -3319,6 +3321,115 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         expectWithMessage("Volume group info in legacy mode")
                 .that(testVolumeGroupInfo)
                 .isEqualTo(expectedVolumeGroupInfo);
+    }
+
+    @Test
+    @EnableFlags(Flags.FLAG_AUDIO_SEND_RESTRICTIONS_TO_OEM_VOLUME_SERVICE)
+    public void setVolumeGroupRestrictions_mutesGroup() throws Exception {
+        CarAudioService service = setUpAudioService();
+        service.setVolumeGroupMute(PRIMARY_AUDIO_ZONE, TEST_PRIMARY_ZONE_GROUP_0,
+                /* mute= */ false, TEST_FLAGS);
+
+        service.setVolumeGroupRestrictions(PRIMARY_AUDIO_ZONE, TEST_PRIMARY_ZONE_GROUP_0,
+                new int[]{EXTRA_INFO_MUTE_TOGGLED_BY_AUDIO_SYSTEM}, TEST_STREAM_VOLUME);
+
+        expectWithMessage("Volume group muted by restriction")
+                .that(service.isVolumeGroupMuted(PRIMARY_AUDIO_ZONE,
+                        TEST_PRIMARY_ZONE_GROUP_0)).isTrue();
+    }
+
+    @Test
+    @EnableFlags(Flags.FLAG_AUDIO_SEND_RESTRICTIONS_TO_OEM_VOLUME_SERVICE)
+    public void setVolumeGroupRestrictions_withoutPermission_fails() throws Exception {
+        CarAudioService service = setUpAudioService();
+        mockDenyCarControlAudioVolumePermission();
+
+        SecurityException thrown = assertThrows(SecurityException.class,
+                () -> service.setVolumeGroupRestrictions(PRIMARY_AUDIO_ZONE,
+                        TEST_PRIMARY_ZONE_GROUP_0,
+                        new int[]{EXTRA_INFO_MUTE_TOGGLED_BY_AUDIO_SYSTEM}, TEST_STREAM_VOLUME));
+
+        expectWithMessage("Volume group restrictions permission exception")
+                .that(thrown).hasMessageThat()
+                .contains(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
+    }
+
+    @Test
+    @EnableFlags(Flags.FLAG_AUDIO_SEND_RESTRICTIONS_TO_OEM_VOLUME_SERVICE)
+    public void setVolumeGroupRestrictions_forInvalidGroup_fails() throws Exception {
+        CarAudioService service = setUpAudioService();
+        int invalidGroupId = service.getVolumeGroupCount(PRIMARY_AUDIO_ZONE);
+
+       IllegalArgumentException thrown =
+                assertThrows(IllegalArgumentException.class,
+                () -> service.setVolumeGroupRestrictions(PRIMARY_AUDIO_ZONE,
+                        invalidGroupId,
+                        new int[]{EXTRA_INFO_MUTE_TOGGLED_BY_AUDIO_SYSTEM}, TEST_STREAM_VOLUME));
+        expectWithMessage("Volume group restrictions for invalid group id exception")
+                .that(thrown).hasMessageThat().contains("is out of range");
+    }
+
+    @Test
+    @EnableFlags(Flags.FLAG_AUDIO_SEND_RESTRICTIONS_TO_OEM_VOLUME_SERVICE)
+    public void setVolumeGroupRestrictions_forInvalidZone_fails() throws Exception {
+        CarAudioService service = setUpAudioService();
+
+        assertThrows(IllegalArgumentException.class,
+                () -> service.setVolumeGroupRestrictions(INVALID_AUDIO_ZONE,
+                        TEST_PRIMARY_ZONE_GROUP_0,
+                        new int[]{EXTRA_INFO_MUTE_TOGGLED_BY_AUDIO_SYSTEM},
+                        TEST_STREAM_VOLUME));
+        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class,
+                () -> service.setVolumeGroupRestrictions(INVALID_AUDIO_ZONE,
+                        TEST_PRIMARY_ZONE_GROUP_0,
+                        new int[]{EXTRA_INFO_MUTE_TOGGLED_BY_AUDIO_SYSTEM}, TEST_STREAM_VOLUME));
+        expectWithMessage("Volume group restrictions for invalid zone exception")
+                .that(thrown).hasMessageThat().contains("audio zone id");
+    }
+
+    @Test
+    @EnableFlags(Flags.FLAG_AUDIO_SEND_RESTRICTIONS_TO_OEM_VOLUME_SERVICE)
+    public void setVolumeGroupRestrictions_attenuatesGroup() throws Exception {
+        CarAudioService service = setUpAudioService();
+        service.setVolumeGroupMute(PRIMARY_AUDIO_ZONE, TEST_PRIMARY_ZONE_GROUP_0,
+                /* mute= */ false, TEST_FLAGS);
+        int initialVolume = service.getGroupVolume(PRIMARY_AUDIO_ZONE, TEST_PRIMARY_ZONE_GROUP_0);
+        int restrictionIndex = initialVolume - 2;
+
+        service.setVolumeGroupRestrictions(PRIMARY_AUDIO_ZONE, TEST_PRIMARY_ZONE_GROUP_0,
+                new int[]{EXTRA_INFO_TRANSIENT_ATTENUATION_THERMAL}, restrictionIndex);
+
+        CarVolumeGroupInfo restrictedInfo = service.getVolumeGroupInfo(PRIMARY_AUDIO_ZONE,
+                TEST_PRIMARY_ZONE_GROUP_0);
+        expectWithMessage("Volume group limited by restriction")
+                .that(restrictedInfo.isLimited()).isTrue();
+        expectWithMessage("Volume group limited gain index by restriction")
+                .that(restrictedInfo.getLimitedGainIndex()).isEqualTo(restrictionIndex);
+
+        // Clear restrictions
+        service.setVolumeGroupRestrictions(PRIMARY_AUDIO_ZONE, TEST_PRIMARY_ZONE_GROUP_0,
+                new int[]{}, initialVolume);
+
+        CarVolumeGroupInfo unrestrictedInfo = service.getVolumeGroupInfo(PRIMARY_AUDIO_ZONE,
+                TEST_PRIMARY_ZONE_GROUP_0);
+        expectWithMessage("Volume group not limited after clearing restriction")
+                .that(unrestrictedInfo.isLimited()).isFalse();
+    }
+
+    @Test
+    @EnableFlags(Flags.FLAG_AUDIO_SEND_RESTRICTIONS_TO_OEM_VOLUME_SERVICE)
+    public void setVolumeGroupRestrictions_withVolumeGroupEventsDisabled_fails() throws Exception {
+        CarAudioService service =
+                setUpAudioServiceWithDisabledResource(audioUseCarVolumeGroupEvent);
+
+        IllegalStateException thrown = assertThrows(IllegalStateException.class,
+                () -> service.setVolumeGroupRestrictions(PRIMARY_AUDIO_ZONE,
+                        TEST_PRIMARY_ZONE_GROUP_0,
+                        new int[]{EXTRA_INFO_TRANSIENT_ATTENUATION_THERMAL}, TEST_STREAM_VOLUME));
+
+        expectWithMessage("Volume group restrictions with volume group events disabled exception")
+                .that(thrown).hasMessageThat()
+                .contains("Car Volume Group Event is required");
     }
 
     @Test

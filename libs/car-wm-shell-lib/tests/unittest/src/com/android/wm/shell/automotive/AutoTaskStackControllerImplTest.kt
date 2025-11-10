@@ -30,6 +30,7 @@ import android.os.Looper
 import android.testing.AndroidTestingRunner
 import android.view.SurfaceControl
 import android.view.WindowManager.TRANSIT_OPEN
+import android.view.WindowManager.TRANSIT_TO_BACK
 import android.window.TaskOrganizer
 import android.window.TransitionInfo
 import android.window.TransitionRequestInfo
@@ -1019,6 +1020,7 @@ class AutoTaskStackControllerImplTest : CarWmShellTestCase() {
             })
             .addChange(TransitionInfo.Change(rootTaskInfo2.token, taskLeash).apply {
                 taskInfo = rootTaskInfo2
+                mode = TRANSIT_TO_BACK
             })
             // Send an additional change for the rootTask3 child
             .addChange(TransitionInfo.Change(rootTask3Child.token, taskLeash).apply {
@@ -1040,6 +1042,10 @@ class AutoTaskStackControllerImplTest : CarWmShellTestCase() {
         assertThat(result).isTrue()
         assertThat(delegate.lastTaskStackStates).containsKey(rootTaskInfo3.taskId)
         assertThat(delegate.lastTaskStackStates).containsEntry(
+            rootTaskInfo2.taskId,
+            AutoTaskStackState(Rect(10, 10, 40, 300), false, 0)
+        )
+        assertThat(delegate.lastTaskStackStates).containsEntry(
             rootTaskInfo3.taskId,
             AutoTaskStackState(Rect(10, 10, 40, 300), true, 900)
         )
@@ -1056,5 +1062,32 @@ class AutoTaskStackControllerImplTest : CarWmShellTestCase() {
                 AutoTaskStackState(Rect(10, 10, 30, 30), true, -1)
             )
         }
+    }
+
+    @Test
+    fun startTransition_whenTransitionsReturnsNull_returnsNull() {
+        // Arrange
+        // Mock transitions.startTransition to return null, simulating a failed transition start.
+        whenever(
+            transitions.startTransition(
+                anyInt(),
+                any(WindowContainerTransaction::class.java),
+                any(Transitions.TransitionHandler::class.java)
+            )
+        ).thenReturn(null)
+
+        val (taskInfo, _) = setupRootTask(taskId = 1)
+        val transaction = AutoTaskStackTransaction().setTaskStackState(
+            taskInfo.taskId,
+            AutoTaskStackState(Rect(10, 10, 10, 10), true, 0)
+        )
+
+        // Act
+        // Call the method under test.
+        val result = controller.startTransition(transaction)
+
+        // Assert
+        // Verify that the result is null, as expected when the transition fails to start.
+        assertThat(result).isNull()
     }
 }

@@ -5,5 +5,5 @@ per-file src/android/car/extendedapitest/CarProperty* = file:platform/hardware/i
 per-file src/android/car/extendedapitest/VehiclePropertyIdsTest.java = file:platform/hardware/interfaces:/automotive/vehicle/OWNERS
 
 # System
-per-file src/com/android/car/internal/* = ericjeong@google.com
-per-file test_aidl/android/car/apitest/* = ericjeong@google.com
+per-file src/com/android/car/internal/* = hubertmis@google.com
+per-file test_aidl/android/car/apitest/* = hubertmis@google.com

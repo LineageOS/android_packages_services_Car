@@ -24,17 +24,6 @@
     <item target="attr/oemShapeCornerSmall" value="@attr/oemShapeCornerSmall" />
     <item target="attr/oemShapeCornerExtraLarge" value="@attr/oemShapeCornerExtraLarge" />
 
-    <item target="attr/cardCornerRadius" value="@attr/cardCornerRadius" />
-    <item target="attr/cornerFamily" value="@attr/cornerFamily" />
-    <item target="attr/cornerSize" value="@attr/cornerSize" />
-    <item target="attr/shapeAppearanceOverlay" value="@attr/shapeAppearanceOverlay" />
-    <item target="attr/strokeColor" value="@attr/strokeColor" />
-    <item target="attr/strokeWidth" value="@attr/strokeWidth" />
-
-    <item target="color/icon_tint" value="@color/icon_tint" />
-    <item target="color/media_button_tint" value="@color/media_button_tint" />
-    <item target="color/media_button_tint_disabled" value="@color/media_button_tint_disabled" />
-
     <item target="id/card_background" value="@id/card_background" />
     <item target="id/card_background_image" value="@id/card_background_image" />
     <item target="id/card_icon" value="@id/card_icon" />
@@ -53,7 +42,6 @@
     <item target="id/primary_text" value="@id/primary_text" />
     <item target="id/secondary_text" value="@id/secondary_text" />
     <item target="id/title" value="@id/title" />
-
 
     <item target="id/button_trio" value="@id/button_trio" />
     <item target="id/button_center" value="@id/button_center" />

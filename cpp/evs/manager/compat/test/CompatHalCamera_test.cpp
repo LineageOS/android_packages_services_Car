@@ -36,7 +36,7 @@ namespace android::hardware::automotive::evs::compat {
 
 class MockVirtualCamera : public CompatVirtualCamera {
 public:
-    MockVirtualCamera(const std::vector<std::shared_ptr<CompatHalCamera>>& halCameras) :
+    explicit MockVirtualCamera(const std::vector<std::shared_ptr<CompatHalCamera>>& halCameras) :
           CompatVirtualCamera(halCameras) {}
 
     MOCK_METHOD(bool, deliverFrame, (const aidlevs::BufferDesc&), (override));
@@ -184,8 +184,8 @@ TEST_F(CompatHalCameraTest, clientStreamStarting_Success) {
     EXPECT_CALL(mMockNdkCamera, ACameraOutputTarget_free(dummyOutputTarget)).Times(1);
     EXPECT_CALL(mMockNdkCamera, AImageReader_delete(dummyReader)).Times(1);
 
-    // Call cleanUpNdkResources to trigger the mocked clean up functions
-    mHalCamera->cleanUpNdkResources();
+    // Call cleanUpNdkStreamResources to trigger the mocked clean up functions
+    mHalCamera->cleanUpNdkStreamResources();
 }
 
 TEST_F(CompatHalCameraTest, clientStreamStarting_AlreadyRunning) {
@@ -374,6 +374,38 @@ TEST_F(CompatHalCameraTest, clientStreamEnding_ClientStopsWithOthersRunning) {
 
     mHalCamera->clientStreamEnding(virtualCamera1.get());
     EXPECT_EQ(mHalCamera->mStreamState, CompatHalCamera::RUNNING);
+}
+
+TEST_F(CompatHalCameraTest, MetadataHandling) {
+    auto* metadata1 = reinterpret_cast<ACameraMetadata*>(0x1111);
+    auto* metadata1_copy = reinterpret_cast<ACameraMetadata*>(0x1112);
+    auto* metadata2 = reinterpret_cast<ACameraMetadata*>(0x2222);
+    auto* metadata2_copy = reinterpret_cast<ACameraMetadata*>(0x2223);
+
+    // 1. First capture completion
+    EXPECT_CALL(mMockNdkCamera, ACameraMetadata_copy(metadata1)).WillOnce(Return(metadata1_copy));
+    mHalCamera->handleCaptureCompleted(metadata1);
+
+    // 2. Verify getLatestMetadata returns the copied metadata
+    EXPECT_CALL(mMockNdkCamera, ACameraMetadata_copy(metadata1_copy))
+            .WillOnce(Return(metadata1_copy));
+    ACameraMetadata* retrievedMetadata = mHalCamera->getLatestMetadata();
+    EXPECT_EQ(retrievedMetadata, metadata1_copy);
+
+    // 3. Second capture completion, expect the old metadata to be freed
+    EXPECT_CALL(mMockNdkCamera, ACameraMetadata_free(metadata1_copy)).Times(1);
+    EXPECT_CALL(mMockNdkCamera, ACameraMetadata_copy(metadata2)).WillOnce(Return(metadata2_copy));
+    mHalCamera->handleCaptureCompleted(metadata2);
+
+    // 4. Verify getLatestMetadata returns the new metadata
+    EXPECT_CALL(mMockNdkCamera, ACameraMetadata_copy(metadata2_copy))
+            .WillOnce(Return(metadata2_copy));
+    retrievedMetadata = mHalCamera->getLatestMetadata();
+    EXPECT_EQ(retrievedMetadata, metadata2_copy);
+
+    // 5. Verify metadata is freed on destruction
+    EXPECT_CALL(mMockNdkCamera, ACameraMetadata_free(metadata2_copy)).Times(1);
+    mHalCamera.reset();
 }
 
 }  // namespace android::hardware::automotive::evs::compat

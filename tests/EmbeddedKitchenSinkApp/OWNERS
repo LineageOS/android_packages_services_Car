@@ -1,11 +1,6 @@
 # TLs
 dnek@google.com
 
-# Audio
-per-file src/com/google/android/car/kitchensink/AudioAutoStartActivity.java = oscarazu@google.com, ericjeong@google.com
-per-file src/com/google/android/car/kitchensink/audio/* = oscarazu@google.com, ericjeong@google.com
-per-file src/com/google/android/car/kitchensink/volume/* = oscarazu@google.com, ericjeong@google.com
-
 # Bluetooth
 per-file src/com/google/android/car/kitchensink/bluetooth/* = salsavage@google.com, chengandrew@google.com
 
@@ -16,16 +11,16 @@ per-file src/com/google/android/car/kitchensink/connectivity/* = salsavage@googl
 per-file src/com/google/android/car/kitchensink/cluster/* = bkchoi@google.com
 
 # OccupantZone
-per-file src/com/google/android/car/kitchensink/OccupantZoneStartActivity.java = xiangw@google.com, oscarazu@google.com, ericjeong@google.com
+per-file src/com/google/android/car/kitchensink/OccupantZoneStartActivity.java = xiangw@google.com
 
 # PackageManager
 per-file src/com/google/android/car/kitchensink/packageinfo/* = gargmayank@google.com, gauravbhola@google.com
 
 # Power
-per-file src/com/google/android/car/kitchensink/power/* = ericjeong@google.com
+per-file src/com/google/android/car/kitchensink/power/* = hubertmis@google.com
 
 # Radio
-per-file src/com/google/android/car/kitchensink/radio/* = oscarazu@google.com, ericjeong@google.com
+per-file src/com/google/android/car/kitchensink/radio/* = hubertmis@google.com
 
 # Watchdog
 per-file src/com/google/android/car/kitchensink/CarWatchdogClient.java = lakshmana@google.com
@@ -38,4 +33,4 @@ per-file src/com/google/android/car/kitchensink/property/* = file:platform/hardw
 per-file src/com/google/android/car/kitchensink/sensor/* = file:platform/hardware/interfaces:/automotive/vehicle/OWNERS
 
 # res folder
-per-file res/** = oscarazu@google.com, salsavage@google.com, chengandrew@google.com, twasilczyk@google.com, lakshmana@google.com, aaqibismail@google.com, evaschen@google.com
+per-file res/** = salsavage@google.com, chengandrew@google.com, twasilczyk@google.com, lakshmana@google.com, aaqibismail@google.com, evaschen@google.com

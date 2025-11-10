@@ -143,6 +143,10 @@ camera_status_t ACameraMetadata_getConstEntry(const ACameraMetadata* metadata, u
     return MockNdkCamera::getMockInstance()->ACameraMetadata_getConstEntry(metadata, tag, entry);
 }
 
+ACameraMetadata* ACameraMetadata_copy(const ACameraMetadata* src) {
+    return MockNdkCamera::getMockInstance()->ACameraMetadata_copy(src);
+}
+
 void ACameraMetadata_free(ACameraMetadata* metadata) {
     MockNdkCamera::getMockInstance()->ACameraMetadata_free(metadata);
 }

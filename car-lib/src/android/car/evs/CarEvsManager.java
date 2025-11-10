@@ -443,7 +443,7 @@ public final class CarEvsManager extends CarManagerBase {
          *
          * @param event {@link #CarEvsStreamEvent}; e.g. a stream started
          *
-         * @deprecated Use {@link CarEvsStreamCallback#onStreamEvent(origin, event) instead.
+         * @deprecated Use {@link CarEvsStreamCallback#onStreamEvent(origin, event)} instead.
          */
         @Deprecated
         @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)

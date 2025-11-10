@@ -937,6 +937,44 @@ public final class CarAudioManager extends CarManagerBase {
     }
 
     /**
+     * Sets restrictions on a volume group, preventing certain types of volume changes.
+     *
+     * <p>The restrictions are defined by a list of {@code EXTRA_INFO_*} constants from
+     * {@link CarVolumeGroupEvent}. When a restriction is active, any volume change event that
+     * carries the corresponding extra info will be ignored for this volume group.
+     *
+     * <p>For example, adding
+     * {@link CarVolumeGroupEvent#EXTRA_INFO_TRANSIENT_ATTENUATION_THERMAL} to the list will
+     * attenuate volume due to thermal throttling for that group. Passing an empty list
+     * removes all restrictions.
+     *
+     * @param zoneId The audio zone ID where the volume group resides.
+     * @param groupId The ID of the volume group to which restrictions will be applied.
+     * @param restrictions A list of {@code EXTRA_INFO_*} constants from
+     *        {@link CarVolumeGroupEvent} to apply as restrictions.
+     * @param volumeIndex The index of the volume group to which restrictions will be applied.
+     *
+     * @throws SecurityException if the caller does not hold the
+     *         {@link Car#PERMISSION_CAR_CONTROL_AUDIO_VOLUME} permission.
+     * @throws IllegalStateException if volume group events are not enabled
+     *
+     * @hide
+     */
+    @TestApi
+    @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME)
+    @FlaggedApi(Flags.FLAG_AUDIO_SEND_RESTRICTIONS_TO_OEM_VOLUME_SERVICE)
+    public void setVolumeGroupRestrictions(int zoneId, int groupId,
+            @NonNull List<Integer> restrictions, int volumeIndex) {
+        Objects.requireNonNull(restrictions, "Restrictions cannot be null");
+        try {
+            mService.setVolumeGroupRestrictions(zoneId, groupId,
+                    toIntArray(restrictions), volumeIndex);
+        } catch (RemoteException e) {
+            handleRemoteExceptionFromCarService(e);
+        }
+    }
+
+    /**
      * Returns a list of volume group info associated with the zone id.
      *
      * <p>The volume information, including mute, blocked, limited state will reflect the state

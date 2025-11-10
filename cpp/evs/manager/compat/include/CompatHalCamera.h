@@ -54,7 +54,9 @@ class CompatHalCamera final : public aidlevs::BnEvsCameraStream {
     friend class CompatHalCameraTest_clientStreamEnding_NotRunning_Test;
     friend class CompatHalCameraTest_clientStreamEnding_OneClientStops_Test;
     friend class CompatHalCameraTest_clientStreamEnding_ClientStopsWithOthersRunning_Test;
+    friend class CompatHalCameraTest_MetadataHandling_Test;
 #endif
+
 public:
     CompatHalCamera(ACameraDevice* device, const std::string& cameraId,
                     const aidlevs::CameraDesc* desc, const aidlevs::Stream& streamConfig);
@@ -65,7 +67,6 @@ public:
 
     ::ndk::ScopedAStatus doneWithFrame(aidlevs::BufferDesc buffer);
     inline aidlevs::Stream getStreamConfig() const { return mStreamConfig; }
-    ACameraDevice* getDevice() const { return mDevice; }
     std::string getId() const { return mCameraId; }
     aidlevs::CameraDesc getCameraDesc() const { return mCameraDesc; }
     bool ownVirtualCamera(const std::shared_ptr<CompatVirtualCamera>& virtualCamera);
@@ -73,15 +74,28 @@ public:
     ::ndk::ScopedAStatus clientStreamStarting();
     void clientStreamEnding(const CompatVirtualCamera* virtualCamera);
     bool tryIsStopped(bool& result) const;
+    unsigned getOwnedVirtualCameraCount() const {
+        std::lock_guard<std::mutex> lock(mMutex);
+        return mVirtualCameras.size();
+    };
     void requestNewFrame(std::shared_ptr<CompatVirtualCamera> virtualCamera, int64_t timestamp);
+    // Closes the underlying ACameraDevice if open and marks it as closed.
+    // Returns true if the device was open and closed, false otherwise.
+    bool releaseACameraDevice();
+    ACameraMetadata* getLatestMetadata() const;
 
 private:
     ::ndk::ScopedAStatus startNdkCameraStream(int32_t maxImages);
-    void cleanUpNdkResources();
+    // Cleans up NDK resources related to the camera stream (Session, ImageReader, etc.).
+    // This method does NOT close the underlying ACameraDevice.
+    void cleanUpNdkStreamResources();
     static void onImageAvailable(void* context, AImageReader* reader);
     static void onSessionClosed(void* context, ACameraCaptureSession* session);
+    void handleCaptureCompleted(const ACameraMetadata* result);
+    static void onCaptureCompleted(void* context, ACameraCaptureSession* session,
+                                   ACaptureRequest* request, const ACameraMetadata* result);
 
-    ACameraDevice* mDevice;
+    ACameraDevice* mDevice GUARDED_BY(mMutex);
     std::string mCameraId;
     aidlevs::CameraDesc mCameraDesc;
     aidlevs::Stream mStreamConfig;
@@ -130,6 +144,9 @@ private:
 
     bool mFrameOpInProgress GUARDED_BY(mMutex) = false;
     std::condition_variable mFrameOpDone;
+
+    mutable std::mutex mMetadataLock;
+    ACameraMetadata* mLatestMetadata GUARDED_BY(mMetadataLock) = nullptr;
 };
 
 }  // namespace android::hardware::automotive::evs::compat

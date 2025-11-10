@@ -7,13 +7,15 @@ per-file src/com/android/car/SystemActivityMonitoringService.java = gauravbhola@
 per-file src/com/android/car/am/* = gauravbhola@google.com
 per-file src/com/android/car/systeminterface/ActivityManagerInterface.java = gauravbhola@google.com
 
-# Audio
-per-file proto/android/car/audio/* = oscarazu@google.com, ericjeong@google.com
-per-file src/com/android/car/audio/* = oscarazu@google.com, ericjeong@google.com
-per-file src/com/android/car/audio/hal/* = oscarazu@google.com, ericjeong@google.com
-
 # Bluetooth
-per-file src/com/android/car/bluetooth/* = salsavage@google.com, chengandrew@google.com
+per-file src/com/android/car/bluetooth/* = salsavage@google.com
+
+# Car framework
+per-file src/com/android/car/CarFeatureController.java = hubertmis@google.com
+per-file src/com/android/car/CarLocalService.java = hubertmis@google.com
+per-file src/com/android/car/CarLog.java = hubertmis@google.com
+per-file src/com/android/car/CarService*.java = hubertmis@google.com
+per-file src/com/android/car/ICarImpl.java = hubertmis@google.com
 
 # Cluster
 per-file src/com/android/car/cluster/* = bkchoi@google.com
@@ -31,12 +33,12 @@ per-file src/com/android/car/pm/Vendor*.java = gargmayank@google.com
 per-file src/com/android/car/pm/WindowDumpParser.java = gauravbhola@google.com
 
 # Power
-per-file src/com/android/car/garagemode/* = ericjeong@google.com
-per-file src/com/android/car/hal/PowerHalService.java = ericjeong@google.com
-per-file src/com/android/car/power/* = ericjeong@google.com
-per-file src/com/android/car/systeminterface/SystemPowerControlHelper.java = ericjeong@google.com
-per-file src/com/android/car/systeminterface/SystemStateInterface.java = ericjeong@google.com
-per-file src/com/android/car/systeminterface/WakeLockInterface.java = ericjeong@google.com
+per-file src/com/android/car/garagemode/* = hubertmis@google.com
+per-file src/com/android/car/hal/PowerHalService.java = hubertmis@google.com
+per-file src/com/android/car/power/* = hubertmis@google.com
+per-file src/com/android/car/systeminterface/SystemPowerControlHelper.java = hubertmis@google.com
+per-file src/com/android/car/systeminterface/SystemStateInterface.java = hubertmis@google.com
+per-file src/com/android/car/systeminterface/WakeLockInterface.java = hubertmis@google.com
 
 # Property
 per-file src/com/android/car/CarPropertyService.java = file:platform/hardware/interfaces:/automotive/vehicle/OWNERS
@@ -44,9 +46,19 @@ per-file src/com/android/car/hal/PropertyHalService.java = file:platform/hardwar
 per-file src/com/android/car/hal/property/*.java = file:platform/hardware/interfaces:/automotive/vehicle/OWNERS
 per-file src/com/android/car/property/*.java = file:platform/hardware/interfaces:/automotive/vehicle/OWNERS
 
+# RemoteAccess
+per-file src/com/android/car/remoteaccess/* = hubertmis@google.com
+
 # StorageMonitor
 per-file src/com/android/car/CarStorageMonitoringService.java = lakshmana@google.com
 per-file src/com/android/car/systeminterface/StorageMonitoringInterface.java = lakshmana@google.com
+
+# System interface
+per-file src/com/android/systeminterface/DisplayHelperInterface.java = hubertmis@google.com
+per-file src/com/android/systeminterface/DisplayInterface.java = hubertmis@google.com
+per-file src/com/android/systeminterface/SystemPowerControlHelper.java = hubertmis@google.com
+per-file src/com/android/systeminterface/SystemStateInterface.java = hubertmis@google.com
+per-file src/com/android/systeminterface/WakeLockInterface.java = hubertmis@google.com
 
 # VHAL
 per-file src/com/android/car/*VehicleStub.java = file:platform/hardware/interfaces:/automotive/vehicle/OWNERS

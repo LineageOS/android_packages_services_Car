@@ -16,7 +16,9 @@
 
 package com.google.android.car.kitchensink.perfetto;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.os.UserHandle;
 import android.util.IndentingPrintWriter;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -29,7 +31,6 @@ import android.widget.TextView;
 import androidx.fragment.app.Fragment;
 
 import com.google.android.car.kitchensink.R;
-
 
 import java.io.StringWriter;
 
@@ -46,7 +47,6 @@ import java.io.StringWriter;
  * <p>The status of these operations is displayed in a {@link TextView}.
  */
 public class PerfettoFragment extends Fragment {
-
     private PerfettoController mPerfettoController;
     private TextView mStatusView;
     private String mStatusPrefix;
@@ -80,6 +80,9 @@ public class PerfettoFragment extends Fragment {
 
         Button removeButton = view.findViewById(R.id.btn_remove_config);
         removeButton.setOnClickListener(v -> removeFieldTraceConfig());
+
+        Button openTraceListButton = view.findViewById(R.id.btn_open_trace_list);
+        openTraceListButton.setOnClickListener(v -> launchTraceListActivity());
 
         mFabView.setOnClickListener(v -> mScrollView.smoothScrollTo(0, 0));
 
@@ -156,5 +159,15 @@ public class PerfettoFragment extends Fragment {
      */
     private void updateStatus(String message) {
         mStatusView.setText(mStatusPrefix + " " + message);
+    }
+
+    /**
+     * Launches the {@link PerfettoTraceListActivity} to show the list of saved traces.
+     */
+    private void launchTraceListActivity() {
+        Intent intent = new Intent(getContext(), PerfettoTraceListActivity.class);
+        // Launch the activity as User 0 to ensure access to trace files saved by
+        // PerfettoReportService.
+        getContext().startActivityAsUser(intent, UserHandle.of(UserHandle.USER_SYSTEM));
     }
 }

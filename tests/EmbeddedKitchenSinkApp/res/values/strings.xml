@@ -580,4 +580,11 @@
     <string name="perfetto_remove_success" translatable="false">Config removed successfully.</string>
     <string name="perfetto_remove_fail" translatable="false">Failed to remove config.</string>
     <string name="perfetto_status_prefix" translatable="false">Status:</string>
+    <string name="perfetto_open_trace_list" translatable="false">Open Trace List</string>
+    <string name="perfetto_trace_list_activity" translatable="false">Perfetto trace list activity</string>
+    <string name="perfetto_trace_list_activity_title" translatable="false">List of reported perfetto traces</string>
+    <string name="perfetto_trace_list_no_files" translatable="false">No trace files found</string>
+    <string name="perfetto_notification_channel_label" translatable="false">Perfetto Report Service Channel</string>
+    <string name="perfetto_issue_detected_notification_title" translatable="false">Detected performance/stability issue</string>
+    <string name="perfetto_issue_detected_notification_content" translatable="false">Perfetto trace saved to disk. Tap to view trace list</string>
 </resources>

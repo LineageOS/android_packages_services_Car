@@ -14,15 +14,16 @@
  * limitations under the License.
  */
 
-#include <gtest/gtest.h>
-#include <android-base/logging.h>
-#include <android_car_feature.h>
+#include "CompatEnumerator.h"
+#include "NdkCameraManager.h"
+
 #include <aidl/android/hardware/automotive/evs/CameraDesc.h>
 #include <aidl/android/hardware/automotive/evs/IEvsCamera.h>
 #include <aidl/android/hardware/automotive/evs/Stream.h>
+#include <android-base/logging.h>
+#include <gtest/gtest.h>
 
-#include "CompatEnumerator.h"
-#include "NdkCameraManager.h"
+#include <android_car_feature.h>
 
 namespace android::hardware::automotive::evs::compat {
 
@@ -68,9 +69,9 @@ TEST_F(CompatEnumeratorIntegrationTest, OpenAndCloseFirstAvailableCamera) {
 
     if (camera) {
         LOG(INFO) << "Successfully opened camera: " << cameraId;
-        // TODO: close camera and verify close success.
-        // status = enumerator->closeCamera(camera);
-        // EXPECT_TRUE(status.isOk())
+        status = enumerator->closeCamera(camera);
+        EXPECT_TRUE(status.isOk())
+                << "Failed to close camera " << cameraId << ": " << status.getDescription();
     }
 }
 
@@ -91,15 +92,15 @@ TEST_F(CompatEnumeratorIntegrationTest, OpenAllAvailableCameras) {
         Stream streamCfg;  // Default stream config
         std::shared_ptr<IEvsCamera> camera;
         status = enumerator->openCamera(cameraId, streamCfg, &camera);
-        EXPECT_TRUE(status.isOk()) << "Failed to open camera " << cameraId << ": "
-                                   << status.getDescription();
+        EXPECT_TRUE(status.isOk())
+                << "Failed to open camera " << cameraId << ": " << status.getDescription();
         EXPECT_NE(camera, nullptr) << "openCamera returned null for " << cameraId;
 
         if (camera) {
             LOG(INFO) << "Successfully opened camera: " << cameraId;
-            // TODO: close camera and verify close success.
-            // status = enumerator->closeCamera(camera);
-            // EXPECT_TRUE(status.isOk())
+            status = enumerator->closeCamera(camera);
+            EXPECT_TRUE(status.isOk())
+                    << "Failed to close camera " << cameraId << ": " << status.getDescription();
         }
     }
 }

@@ -582,6 +582,60 @@ public final class CarAudioGainMonitorTest extends AbstractExtendedMockitoTestCa
                 .that(CarAudioGainMonitor.convertReasonsToExtraInfo(reasons).isEmpty()).isTrue();
     }
 
+    @Test
+    public void convertExtraInfoToReasons_supportedExtraInfos_isEqualTo() {
+        int[] extraInfos =
+                new int[] {
+                        CarVolumeGroupEvent.EXTRA_INFO_MUTE_TOGGLED_BY_AUDIO_SYSTEM,
+                        CarVolumeGroupEvent.EXTRA_INFO_TRANSIENT_ATTENUATION_THERMAL,
+                        CarVolumeGroupEvent.EXTRA_INFO_ATTENUATION_ACTIVATION,
+                        CarVolumeGroupEvent.EXTRA_INFO_MUTE_TOGGLED_BY_EMERGENCY,
+                        CarVolumeGroupEvent.EXTRA_INFO_TRANSIENT_ATTENUATION_EXTERNAL,
+                        CarVolumeGroupEvent.EXTRA_INFO_TRANSIENT_ATTENUATION_NAVIGATION,
+                        CarVolumeGroupEvent.EXTRA_INFO_VOLUME_INDEX_CHANGED_BY_AUDIO_SYSTEM,
+                        CarVolumeGroupEvent.EXTRA_INFO_TRANSIENT_ATTENUATION_PROJECTION,
+                        // An unsupported extra info should be ignored
+                        CarVolumeGroupEvent.EXTRA_INFO_NONE
+                };
+        List<Integer> expectedReasons =
+                List.of(
+                        Reasons.REMOTE_MUTE,
+                        Reasons.THERMAL_LIMITATION,
+                        Reasons.SUSPEND_EXIT_VOL_LIMITATION,
+                        Reasons.TCU_MUTE,
+                        Reasons.ADAS_DUCKING,
+                        Reasons.NAV_DUCKING,
+                        Reasons.EXTERNAL_AMP_VOL_FEEDBACK,
+                        Reasons.PROJECTION_DUCKING);
+
+        assertWithMessage("Convert extra infos to reasons")
+                .that(CarAudioGainMonitor.convertExtraInfoToReasons(extraInfos))
+                .containsExactlyElementsIn(expectedReasons);
+    }
+
+    @Test
+    public void convertExtraInfoToReasons_unSupportedExtraInfos_isEmpty() {
+        int[] extraInfos =
+                new int[] {
+                        CarVolumeGroupEvent.EXTRA_INFO_NONE,
+                        CarVolumeGroupEvent.EXTRA_INFO_MUTE_TOGGLED_BY_UI,
+                        -100 // An unknown value
+                };
+
+        assertWithMessage("Convert extra infos to reasons with unsupported values")
+                .that(CarAudioGainMonitor.convertExtraInfoToReasons(extraInfos))
+                .isEmpty();
+    }
+
+    @Test
+    public void convertExtraInfoToReasons_nullExtraInfos_isEmpty() {
+        int[] extraInfos = null;
+
+        assertWithMessage("Convert null extra infos to reasons")
+                .that(CarAudioGainMonitor.convertExtraInfoToReasons(extraInfos))
+                .isEmpty();
+    }
+
     private static SparseArray<CarAudioZone> generateZoneMocks() {
         SparseArray<CarAudioZone> zones = new SparseArray<>();
         CarAudioZone primaryZone = mock(CarAudioZone.class, RETURNS_DEEP_STUBS);

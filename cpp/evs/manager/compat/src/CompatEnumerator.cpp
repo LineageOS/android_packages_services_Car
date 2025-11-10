@@ -35,6 +35,8 @@
 namespace android::hardware::automotive::evs::compat {
 
 using ::aidl::android::hardware::automotive::evs::CameraDesc;
+using ::aidl::android::hardware::automotive::evs::DeviceStatus;
+using ::aidl::android::hardware::automotive::evs::DeviceStatusType;
 using ::aidl::android::hardware::automotive::evs::DisplayState;
 using ::aidl::android::hardware::automotive::evs::IEvsCamera;
 using ::aidl::android::hardware::automotive::evs::IEvsDisplay;
@@ -73,7 +75,20 @@ CompatEnumerator::CompatEnumerator() {
         mIsReady = false;
         return;
     }
+
+    initializeAvailabilityCallbacks();
+
     mIsReady = true;
+}
+
+void CompatEnumerator::initializeAvailabilityCallbacks() {
+    mAvailabilityCallbacks.context = this;
+    mAvailabilityCallbacks.onCameraAvailable = &CompatEnumerator::onCameraAvailable;
+    mAvailabilityCallbacks.onCameraUnavailable = &CompatEnumerator::onCameraUnavailable;
+    camera_status_t status = mCameraManager->registerAvailabilityCallback(&mAvailabilityCallbacks);
+    if (status != ACAMERA_OK) {
+        LOG(ERROR) << "Failed to register camera availability callback: " << status;
+    }
 }
 
 #ifdef EVS_COMPAT_TEST
@@ -81,19 +96,60 @@ CompatEnumerator::CompatEnumerator() {
 CompatEnumerator::CompatEnumerator(std::unique_ptr<ICameraManager> cameraManager) :
       mCameraManager(std::move(cameraManager)) {
     mIsReady = android::car::feature::car_evs_compat_lib();
+    if (!mIsReady) return;
+    initializeAvailabilityCallbacks();
 }
 #endif
 
 CompatEnumerator::~CompatEnumerator() {
+    if (mCameraManager && mCameraManager->isAvailable()) {
+        mCameraManager->unregisterAvailabilityCallback(&mAvailabilityCallbacks);
+    }
     if (mLibHandle) {
         dlclose(mLibHandle);
         mLibHandle = nullptr;
     }
 }
 
-ScopedAStatus CompatEnumerator::closeCamera(
-        [[maybe_unused]] const std::shared_ptr<IEvsCamera>& carCamera) {
-    return ScopedAStatus::fromExceptionCode(EX_UNSUPPORTED_OPERATION);
+ScopedAStatus CompatEnumerator::closeCamera(const std::shared_ptr<IEvsCamera>& carCamera) {
+    LOG(DEBUG) << __FUNCTION__;
+    if (!carCamera) {
+        LOG(WARNING) << "closeCamera called with a null camera. Ignoring.";
+        return ScopedAStatus::fromServiceSpecificError(
+                static_cast<int32_t>(aidlevs::EvsResult::INVALID_ARG));
+    }
+    {
+        std::lock_guard lock(mLock);
+        CompatVirtualCamera* virtualCamera =
+                reinterpret_cast<CompatVirtualCamera*>(carCamera.get());
+        auto it = std::find_if(mActiveVirtualCameras.begin(), mActiveVirtualCameras.end(),
+                               [virtualCamera](std::weak_ptr<CompatVirtualCamera>& pVirtualCamera) {
+                                   auto vc = pVirtualCamera.lock();
+                                   return vc.get() == virtualCamera;
+                               });
+        if (it == mActiveVirtualCameras.end()) {
+            LOG(ERROR) << "Failed to find a virtual camera to close. ignoring.";
+            return ScopedAStatus::fromServiceSpecificError(
+                    static_cast<int32_t>(aidlevs::EvsResult::INVALID_ARG));
+        }
+        // Stop the stream first. This calls halCamera->clientStreamEnding ->
+        // cleanUpNdkStreamResources,which cleans up stream resources but does NOT close the
+        // ACameraDevice.
+        virtualCamera->stopVideoStream();
+
+        // Remove the virtual camera from the active list
+        mActiveVirtualCameras.erase(it);
+
+        // Disown and check if HAL cameras need to be closed
+        for (auto&& halCamera : virtualCamera->getHalCameras()) {
+            halCamera->disownVirtualCamera(virtualCamera);
+            if (halCamera->getOwnedVirtualCameraCount() == 0) {
+                LOG(INFO) << "Camera " << halCamera->getId() << " has no more virtual cameras.";
+                removeActiveCamera(halCamera->getId().c_str());
+            }
+        }
+        return ScopedAStatus::ok();
+    }
 }
 
 ScopedAStatus CompatEnumerator::closeDisplay(
@@ -296,39 +352,65 @@ ScopedAStatus CompatEnumerator::isHardware(bool* _aidl_return) {
     return ScopedAStatus::ok();
 }
 
-void CompatEnumerator::onDeviceDisconnected(void* context, ACameraDevice* device) {
-    if (!context || !device) return;
-    CompatEnumerator* self = static_cast<CompatEnumerator*>(context);
+void CompatEnumerator::handleDeviceStatusChange(ACameraDevice* device, const char* functionName,
+                                                const int* error) {
+    if (device == nullptr) {
+        LOG(ERROR) << functionName << " called with a null device. Ignoring.";
+        return;
+    }
     const char* cameraId = ACameraDevice_getId(device);
-    LOG(WARNING) << "Camera device " << cameraId << " disconnected. Removing from active list.";
-    self->removeActiveCamera(cameraId);
+
+    if (error == nullptr) {
+        LOG(WARNING) << "Camera device " << cameraId << " disconnected. Removing from active list.";
+    } else {
+        LOG(ERROR) << "Camera device " << cameraId << " error: " << *error
+                   << ". Removing from active list.";
+    }
+    {
+        std::lock_guard lock(mLock);
+        removeActiveCamera(cameraId);
+    }
+}
+
+void CompatEnumerator::onDeviceDisconnected(void* context, ACameraDevice* device) {
+    if (!context) {
+        LOG(ERROR) << __FUNCTION__ << " called with a null context.";
+        if (device) ACameraDevice_close(device);
+        return;
+    }
+    CompatEnumerator* self = static_cast<CompatEnumerator*>(context);
+    self->handleDeviceStatusChange(device, __FUNCTION__);
 }
 
 void CompatEnumerator::onDeviceError(void* context, ACameraDevice* device, int error) {
-    if (!context || !device) return;
+    if (!context) {
+        LOG(ERROR) << __FUNCTION__ << " called with a null context.";
+        if (device) ACameraDevice_close(device);
+        return;
+    }
     CompatEnumerator* self = static_cast<CompatEnumerator*>(context);
-    const char* cameraId = ACameraDevice_getId(device);
-    LOG(ERROR) << "Camera device " << cameraId << " error: " << error
-               << ". Removing from active list.";
-    self->removeActiveCamera(cameraId);
+    self->handleDeviceStatusChange(device, __FUNCTION__, &error);
 }
 
 void CompatEnumerator::removeActiveCamera(const char* cameraId) {
     if (!cameraId) return;
-    std::lock_guard lock(mLock);
-    if (mActiveCameras.erase(cameraId) > 0) {
+    // mLock is already held by the caller
+    auto it = mActiveCameras.find(cameraId);
+    if (it != mActiveCameras.end()) {
+        if (it->second) {
+            it->second->releaseACameraDevice();
+        }
+        mActiveCameras.erase(it);
         LOG(INFO) << "Removed camera " << cameraId << " from active list.";
+    } else {
+        LOG(WARNING) << "Camera " << cameraId << " not found in active list for removal.";
     }
 }
 
 void CompatEnumerator::cleanupOpenedCameras(const std::vector<std::string>& cameraIds) {
+    std::lock_guard lock(mLock);
     for (const auto& idToClose : cameraIds) {
-        auto camIt = mActiveCameras.find(idToClose);
-        if (camIt != mActiveCameras.end()) {
-            ACameraDevice_close(camIt->second->getDevice());
-            mActiveCameras.erase(camIt);
-            LOG(INFO) << "Cleaned up and closed camera " << idToClose;
-        }
+        removeActiveCamera(idToClose.c_str());
     }
 }
 
@@ -465,8 +547,10 @@ ScopedAStatus CompatEnumerator::openUltrasonicsArray(
 }
 
 ScopedAStatus CompatEnumerator::registerStatusCallback(
-        [[maybe_unused]] const std::shared_ptr<IEvsEnumeratorStatusCallback>& callback) {
-    return ScopedAStatus::fromExceptionCode(EX_UNSUPPORTED_OPERATION);
+        const std::shared_ptr<IEvsEnumeratorStatusCallback>& callback) {
+    std::lock_guard lock(mLock);
+    mDeviceStatusCallbacks.insert(callback);
+    return ScopedAStatus::ok();
 }
 
 ScopedAStatus CompatEnumerator::getDisplayStateById([[maybe_unused]] int32_t id,
@@ -544,4 +628,43 @@ std::unordered_set<std::string> CompatEnumerator::getPhysicalCameraIds(
     LOG(WARNING) << "Camera ID " << cameraId << " not found as logical or physical camera.";
     return {};
 }
+
+void CompatEnumerator::broadcastDeviceStatusChange(const std::vector<aidlevs::DeviceStatus>& list) {
+    std::lock_guard lock(mLock);
+    auto it = mDeviceStatusCallbacks.begin();
+    while (it != mDeviceStatusCallbacks.end()) {
+        ScopedAStatus status = (*it)->deviceStatusChanged(list);
+        if (!status.isOk()) {
+            // Remove callbacks that fail to process status changes. Update the iterator to the next
+            // valid element after removal to ensure the loop continues correctly.
+            it = mDeviceStatusCallbacks.erase(it);
+        } else {
+            ++it;
+        }
+    }
+}
+
+void CompatEnumerator::notifyDeviceStatusChange(const char* cameraId, DeviceStatusType statusType) {
+    std::vector<DeviceStatus> statusList(1);
+    statusList[0] = DeviceStatus{
+            .id = cameraId,
+            .status = statusType,
+    };
+    broadcastDeviceStatusChange(statusList);
+}
+
+void CompatEnumerator::onCameraAvailable(void* context, const char* cameraId) {
+    LOG(INFO) << "Camera " << cameraId << " is available.";
+    if (!context) return;
+    CompatEnumerator* self = static_cast<CompatEnumerator*>(context);
+    self->notifyDeviceStatusChange(cameraId, DeviceStatusType::CAMERA_AVAILABLE);
+}
+
+void CompatEnumerator::onCameraUnavailable(void* context, const char* cameraId) {
+    LOG(INFO) << "Camera " << cameraId << " is unavailable.";
+    if (!context) return;
+    CompatEnumerator* self = static_cast<CompatEnumerator*>(context);
+    self->notifyDeviceStatusChange(cameraId, DeviceStatusType::CAMERA_NOT_AVAILABLE);
+}
+
 }  // namespace android::hardware::automotive::evs::compat

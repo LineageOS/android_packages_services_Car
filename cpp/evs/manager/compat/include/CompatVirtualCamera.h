@@ -24,6 +24,8 @@
 #include <aidl/android/hardware/automotive/evs/IEvsCameraStream.h>
 #include <aidl/android/hardware/automotive/evs/IEvsDisplay.h>
 #include <aidl/android/hardware/automotive/evs/ParameterRange.h>
+#include <camera/NdkCameraMetadataTags.h>
+#include <system/camera_metadata.h>
 #include <utils/Mutex.h>
 
 #include <deque>
@@ -91,6 +93,7 @@ public:
     ::ndk::ScopedAStatus unsetPrimaryClient() override;
 
     virtual bool deliverFrame(const aidlevs::BufferDesc& bufferDesc);
+    std::vector<std::shared_ptr<CompatHalCamera>> getHalCameras() const;
 
     virtual bool isStreaming() const {
         std::lock_guard<std::mutex> lock(mMutex);
@@ -106,6 +109,10 @@ public:
 
 private:
     void shutdown();
+
+    std::vector<aidlevs::CameraParam> mSupportedParams;
+    bool mSupportedParamsPopulated GUARDED_BY(mMutex) = false;
+    ::ndk::ScopedAStatus populateSupportedParametersLocked() REQUIRES(mMutex);
 
     std::unordered_map<std::string, std::weak_ptr<CompatHalCamera>> mHalCameras;
     unsigned int mMaxFramesInFlight GUARDED_BY(mMutex) = 1;
