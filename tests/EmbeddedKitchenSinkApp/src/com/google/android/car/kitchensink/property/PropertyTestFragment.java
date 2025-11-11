@@ -25,6 +25,7 @@ import android.annotation.Nullable;
 import android.car.Car;
 import android.car.VehiclePropertyIds;
 import android.car.VehiclePropertyType;
+import android.car.feature.Flags;
 import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.CarPropertyValue;
 import android.car.hardware.property.CarPropertyManager;
@@ -775,11 +776,24 @@ public class PropertyTestFragment extends Fragment implements OnItemSelectedList
                     ? Arrays.toString((Object[]) value.getValue())
                     : value.getValue().toString();
 
-            mTvLogEvent.append(String.format("Event %1$s: elapsedRealtimeNanos=%2$s propId=0x%3$s "
-                    + "areaId=0x%4$s name=%5$s systemStatus=%6$s vendorStatus=%7$s value=%8$s",
-                    mNumEvents.get(propId), value.getTimestamp(), toHexString(propId),
-                    toHexString(areaId), PropertyInfo.getPropertyName(propId),
-                    value.getPropertyStatus(), value.getPropertyVendorStatus(), valueString));
+            String statusString;
+            if (Flags.carPropertyStatusDetailedNotAvailable()) {
+                statusString = String.format("systemStatus=%s vendorStatus=%s",
+                        value.getPropertyStatus(), value.getPropertyVendorStatus());
+            } else {
+                statusString = String.format("status=%s", value.getStatus());
+            }
+
+            mTvLogEvent.append(String.format("Event %1$s: elapsedRealtimeNanos=%2$s "
+                            + "propId=0x%3$s areaId=0x%4$s name=%5$s %6$s value=%7$s",
+                    mNumEvents.get(propId),
+                    value.getTimestamp(),
+                    toHexString(propId),
+                    toHexString(areaId),
+                    PropertyInfo.getPropertyName(propId),
+                    statusString,
+                    valueString));
+
             if (mPropSubscriptionRateHz.contains(propId)) {
                 mTvLogEvent.append(
                         String.format(" selected subscription rate (Hz)=%1$s "
