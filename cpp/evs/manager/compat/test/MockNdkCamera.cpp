@@ -151,6 +151,16 @@ void ACameraMetadata_free(ACameraMetadata* metadata) {
     MockNdkCamera::getMockInstance()->ACameraMetadata_free(metadata);
 }
 
+camera_status_t ACameraMetadata_getAllTags(const ACameraMetadata* metadata, int32_t* numEntries,
+                                           const uint32_t** tags) {
+    return MockNdkCamera::getMockInstance()->ACameraMetadata_getAllTags(metadata, numEntries, tags);
+}
+
+camera_status_t ACaptureRequest_setEntry_u8(ACaptureRequest* request, uint32_t tag, uint32_t count,
+                                            const uint8_t* data) {
+    return MockNdkCamera::getMockInstance()->ACaptureRequest_setEntry_u8(request, tag, count, data);
+}
+
 #ifdef __cplusplus
 }
 #endif

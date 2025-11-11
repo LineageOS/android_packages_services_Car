@@ -408,4 +408,43 @@ TEST_F(CompatHalCameraTest, MetadataHandling) {
     mHalCamera.reset();
 }
 
+TEST_F(CompatHalCameraTest, updateRequest_Success) {
+    // Set state to RUNNING and create a dummy session and request
+    {
+        std::lock_guard<std::mutex> lock(mHalCamera->mMutex);
+        mHalCamera->mStreamState = CompatHalCamera::RUNNING;
+        mHalCamera->mSession = dummySession;
+        mHalCamera->mCaptureRequest = dummyCaptureRequest;
+    }
+
+    // Create dummy metadata with a setting
+    camera_metadata_t* rawMetadata = allocate_camera_metadata(1, 1);
+    ASSERT_NE(rawMetadata, nullptr);
+    uint8_t aeMode = ACAMERA_CONTROL_AE_MODE_ON;
+    add_camera_metadata_entry(rawMetadata, ACAMERA_CONTROL_AE_MODE, &aeMode, 1);
+    ACameraMetadata* settings = reinterpret_cast<ACameraMetadata*>(rawMetadata);
+
+    // Mock NDK calls
+    uint32_t tag = ACAMERA_CONTROL_AE_MODE;
+    ACameraMetadata_const_entry entry;
+    entry.tag = tag;
+    entry.type = ACAMERA_TYPE_BYTE;
+    entry.count = 1;
+    entry.data.u8 = &aeMode;
+
+    EXPECT_CALL(mMockNdkCamera, ACaptureRequest_setEntry_u8(dummyCaptureRequest, tag, 1, &aeMode))
+            .WillOnce(Return(ACAMERA_OK));
+    EXPECT_CALL(mMockNdkCamera, ACameraCaptureSession_setRepeatingRequest(dummySession, _, 1, _, _))
+            .WillOnce(Return(ACAMERA_OK));
+
+    // Call the method under test
+    ::ndk::ScopedAStatus status = mHalCamera->updateRequest(entry);
+
+    // Verify
+    EXPECT_TRUE(status.isOk());
+
+    // Clean up
+    free_camera_metadata(rawMetadata);
+}
+
 }  // namespace android::hardware::automotive::evs::compat

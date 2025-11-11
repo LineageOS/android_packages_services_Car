@@ -55,6 +55,7 @@ class CompatHalCamera final : public aidlevs::BnEvsCameraStream {
     friend class CompatHalCameraTest_clientStreamEnding_OneClientStops_Test;
     friend class CompatHalCameraTest_clientStreamEnding_ClientStopsWithOthersRunning_Test;
     friend class CompatHalCameraTest_MetadataHandling_Test;
+    friend class CompatHalCameraTest_updateRequest_Success_Test;
 #endif
 
 public:
@@ -83,6 +84,7 @@ public:
     // Returns true if the device was open and closed, false otherwise.
     bool releaseACameraDevice();
     ACameraMetadata* getLatestMetadata() const;
+    ::ndk::ScopedAStatus updateRequest(const ACameraMetadata_const_entry& entry);
     void handleCaptureCompleted(const ACameraMetadata* result);
 
 private:

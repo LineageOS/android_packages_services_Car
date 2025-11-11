@@ -674,4 +674,64 @@ ACameraMetadata* CompatHalCamera::getLatestMetadata() const {
     return ACameraMetadata_copy(mLatestMetadata);
 }
 
+::ndk::ScopedAStatus CompatHalCamera::updateRequest(const ACameraMetadata_const_entry& entry) {
+    std::lock_guard<std::mutex> lock(mMutex);
+    if (mStreamState != RUNNING || !mSession || !mCaptureRequest) {
+        LOG(WARNING) << "Cannot update request when stream is not running.";
+        return ::ndk::ScopedAStatus::fromServiceSpecificError(
+                static_cast<int32_t>(aidlevs::EvsResult::RESOURCE_BUSY));
+    }
+
+    camera_status_t status = ACAMERA_OK;
+    switch (entry.type) {
+        case ACAMERA_TYPE_BYTE:
+            status = ACaptureRequest_setEntry_u8(mCaptureRequest, entry.tag, entry.count,
+                                                 entry.data.u8);
+            break;
+        case ACAMERA_TYPE_INT32:
+            status = ACaptureRequest_setEntry_i32(mCaptureRequest, entry.tag, entry.count,
+                                                  entry.data.i32);
+            break;
+        case ACAMERA_TYPE_FLOAT:
+            status = ACaptureRequest_setEntry_float(mCaptureRequest, entry.tag, entry.count,
+                                                    entry.data.f);
+            break;
+        case ACAMERA_TYPE_INT64:
+            status = ACaptureRequest_setEntry_i64(mCaptureRequest, entry.tag, entry.count,
+                                                  entry.data.i64);
+            break;
+        case ACAMERA_TYPE_DOUBLE:
+            status = ACaptureRequest_setEntry_double(mCaptureRequest, entry.tag, entry.count,
+                                                     entry.data.d);
+            break;
+        case ACAMERA_TYPE_RATIONAL:
+            status = ACaptureRequest_setEntry_rational(mCaptureRequest, entry.tag, entry.count,
+                                                       entry.data.r);
+            break;
+        default:
+            LOG(ERROR) << "Unsupported metadata type " << entry.type << " for tag " << entry.tag;
+            return ::ndk::ScopedAStatus::fromServiceSpecificError(
+                    static_cast<int>(aidlevs::EvsResult::INVALID_ARG));
+    }
+
+    if (status != ACAMERA_OK) {
+        LOG(ERROR) << "Failed to set entry for tag " << entry.tag << ", type " << entry.type
+                   << ", error: " << status;
+        return ::ndk::ScopedAStatus::fromServiceSpecificError(
+                static_cast<int>(aidlevs::EvsResult::UNDERLYING_SERVICE_ERROR));
+    }
+
+    // Resubmit the request
+    status = ACameraCaptureSession_setRepeatingRequest(mSession, &mCaptureCallbacks, 1,
+                                                       &mCaptureRequest, nullptr);
+    if (status != ACAMERA_OK) {
+        LOG(ERROR) << "Failed to update repeating request, status: " << status;
+        return ::ndk::ScopedAStatus::fromServiceSpecificError(
+                static_cast<int>(aidlevs::EvsResult::UNDERLYING_SERVICE_ERROR));
+    }
+
+    LOG(DEBUG) << "Successfully updated request for tag " << entry.tag;
+    return ::ndk::ScopedAStatus::ok();
+}
+
 }  // namespace android::hardware::automotive::evs::compat
