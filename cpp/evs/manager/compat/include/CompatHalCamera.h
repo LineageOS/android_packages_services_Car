@@ -77,12 +77,13 @@ public:
     unsigned getOwnedVirtualCameraCount() const {
         std::lock_guard<std::mutex> lock(mMutex);
         return mVirtualCameras.size();
-    };
+    }
     void requestNewFrame(std::shared_ptr<CompatVirtualCamera> virtualCamera, int64_t timestamp);
     // Closes the underlying ACameraDevice if open and marks it as closed.
     // Returns true if the device was open and closed, false otherwise.
     bool releaseACameraDevice();
     ACameraMetadata* getLatestMetadata() const;
+    void handleCaptureCompleted(const ACameraMetadata* result);
 
 private:
     ::ndk::ScopedAStatus startNdkCameraStream(int32_t maxImages);
@@ -91,7 +92,6 @@ private:
     void cleanUpNdkStreamResources();
     static void onImageAvailable(void* context, AImageReader* reader);
     static void onSessionClosed(void* context, ACameraCaptureSession* session);
-    void handleCaptureCompleted(const ACameraMetadata* result);
     static void onCaptureCompleted(void* context, ACameraCaptureSession* session,
                                    ACaptureRequest* request, const ACameraMetadata* result);
 
