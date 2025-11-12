@@ -267,11 +267,14 @@ android.car.content.pm CarPackageManager String DRIVING_SAFETY_ACTIVITY_METADATA
 android.car.content.pm CarPackageManager String DRIVING_SAFETY_REGION_ALL
 android.car.content.pm CarPackageManager String getCurrentDrivingSafetyRegion()
 android.car.content.pm CarPackageManager boolean requiresDisplayCompatForUser(String packageName, int userId)
+android.car.content.pm CarPackageManager float DENSITY_SCALE_FACTOR_DEFAULT_SCALE
+android.car.content.pm CarPackageManager float getDensityScaleFactor(String packageName, int userId, int displayId)
 android.car.content.pm CarPackageManager int ERROR_CODE_NO_PACKAGE
 android.car.content.pm CarPackageManager void controlTemporaryActivityBlockingBypassingAsUser(String packageName, String activityClassName, boolean bypass, int userId)
 android.car.content.pm CarPackageManager void onCarDisconnected()
 android.car.content.pm CarPackageManager void registerBlockingUiCommandListener(int displayId, Executor callbackExecutor, BlockingUiCommandListener listener)
 android.car.content.pm CarPackageManager void restartTask(int taskId)
+android.car.content.pm CarPackageManager void setDensityScaleFactor(String packageName, int userId, int displayId, float densityScaleFactor)
 android.car.content.pm CarPackageManager void setEnableActivityBlocking(boolean enable)
 android.car.content.pm CarPackageManager void unregisterBlockingUiCommandListener(BlockingUiCommandListener listener)
 android.car.content.pm CarPackageManager.BlockingUiCommandListener void finishBlockingUi()

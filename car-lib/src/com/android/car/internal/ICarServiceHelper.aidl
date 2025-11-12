@@ -129,4 +129,15 @@ interface ICarServiceHelper {
      * Sets the launch behavior for a Root Task.
      */
     void setLaunchBehaviorForRootTask(in IBinder rootTaskToken, int behavior) = 21;
+
+    /**
+     * Gets the density scale factor corresponding to the given {@code packageName}.
+     */
+    float getDensityScaleFactor(in String packageName, int userId, int displayId) = 22;
+
+    /**
+     * Sets the density scale factor corresponding to the given {@code packageName}.
+     */
+    void setDensityScaleFactor(in String packageName, int userId, int displayId, float densityScaleFactor) = 23;
+
 }

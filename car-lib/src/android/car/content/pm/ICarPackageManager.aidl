@@ -42,4 +42,6 @@ interface ICarPackageManager {
     void registerBlockingUiCommandListener(in ICarBlockingUiCommandListener listener, int displayId) = 13;
     void unregisterBlockingUiCommandListener(in ICarBlockingUiCommandListener listener) = 14;
     boolean requiresDisplayCompatForUser(in String packageName, int userId) = 15;
+    float getDensityScaleFactor(in String packageName, int userId, int displayId) = 16;
+    void setDensityScaleFactor(in String packageName, int userId, int displayId, float densityScaleFactor) = 17;
 }

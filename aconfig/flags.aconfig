@@ -481,6 +481,14 @@ flag {
     bug: "379954641"
 }
 
+# DisplayCompat v2 feature development
+flag {
+    name: "display_compatibility_v2"
+    namespace: "car_sys_exp"
+    description: "This flag controls v2 development to enable display compatibility feature."
+    bug: "364382110"
+}
+
 # CarWatchdog ANR Kill Metrics Reporting
 flag {
     name: "car_watchdog_anr_metrics"
