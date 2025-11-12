@@ -157,7 +157,6 @@ PRODUCT_PACKAGES += \
     Keyguard \
     Launcher2 \
     PacProcessor \
-    PrintSpooler \
     ProxyHandler \
     SharedStorageBackup \
     VpnDialogs \
