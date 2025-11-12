@@ -89,6 +89,7 @@ import com.google.android.car.kitchensink.media.MultidisplayMediaFragment;
 import com.google.android.car.kitchensink.notification.NotificationFragment;
 import com.google.android.car.kitchensink.orientation.OrientationTestFragment;
 import com.google.android.car.kitchensink.os.CarPerformanceTestFragment;
+import com.google.android.car.kitchensink.overlay.MutableOverlayListFragment;
 import com.google.android.car.kitchensink.packageinfo.PackageInfoFragment;
 import com.google.android.car.kitchensink.perfetto.PerfettoFragment;
 import com.google.android.car.kitchensink.power.PowerTestFragment;
@@ -340,6 +341,7 @@ public class KitchenSinkActivity extends FragmentActivity implements KitchenSink
             new Pair<>("inst cluster", InstrumentClusterFragment.class),
             new Pair<>("mainline", CarMainlineFragment.class),
             new Pair<>("MD media", MultidisplayMediaFragment.class),
+            new Pair<>("mutable overlay toggles", MutableOverlayListFragment.class),
             new Pair<>("notification", NotificationFragment.class),
             new Pair<>("orientation test", OrientationTestFragment.class),
             new Pair<>("package info", PackageInfoFragment.class),
