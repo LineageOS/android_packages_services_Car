@@ -22,10 +22,19 @@ import android.car.evs.CarEvsStatus;
  * Binder method for CarEvsStatusListener.
  *
  * @hide
+ * @deprecated EVS functionality and APIs are deprecated.
+ *             Applications should use the standard Android <a
+ *             href="https://developer.android.com/media/camera/camera2">Camera2 API
+ *             (android.hardware.camera2)</a> for camera access and management. Use either the
+ *             Camera2 NDK APIs (<a
+ *             href="https://developer.android.com/ndk/reference/group/camera#acameramanager">ACameraManager</a>)
+ *             or Camera2 Java APIs ({@link android.hardware.camera2.CameraManager}) instead.
  */
 oneway interface ICarEvsStatusListener {
     /**
      * Called when the status of CarEvsService gets changed.
+     *
+     * @deprecated EVS functionality and APIs are deprecated.
      */
     void onStatusChanged(in CarEvsStatus status);
 }

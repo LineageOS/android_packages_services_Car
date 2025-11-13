@@ -16,8 +16,7 @@
 
 package android.car.evs;
 
-import static android.car.feature.Flags.FLAG_CAR_EVS_QUERY_SERVICE_STATUS;
-import static android.car.feature.Flags.FLAG_CAR_EVS_STREAM_MANAGEMENT;
+import static android.car.feature.Flags.FLAG_CAR_EVS_DEPRECATION;
 
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
 
@@ -62,9 +61,28 @@ import java.util.concurrent.TimeUnit;
  * Provides an application interface for interativing with the Extended View System service.
  *
  * @hide
+ * @deprecated EVS functionality and APIs are deprecated. Applications should use the standard
+ *     Android <a href="https://developer.android.com/media/camera/camera2">Camera2 API
+ *     (android.hardware.camera2)</a> for camera access and management. Use either the Camera2 NDK
+ *     APIs (<a
+ *     href="https://developer.android.com/ndk/reference/group/camera#acameramanager">ACameraManager</a>)
+ *     or Camera2 Java APIs ({@link android.hardware.camera2.CameraManager}) instead. CarEvsService
+ *     is deprecated, and OEMs who use this feature must transition the associated logic to an
+ *     OEM-owned app:
+ *     <ul>
+ *       <li>Monitor the <code>GEAR_SELECTION VHAL</code> property.
+ *       <li>Launch the rear view camera activity when the reverse gear is activated.
+ *       <li>Use Camera2 APIs to display the camera feed.
+ *     </ul>
+ *     See <a
+ *     href="https://source.android.com/docs/automotive/camera/acs/camera2-migration#camera2_4">here</a>
+ *     for the recommended guidelines and for more information on implementing a rear view camera
+ *     stream using Camera2 APIs.
  */
 @RequiredFeature(Car.CAR_EVS_SERVICE)
 @SystemApi
+@FlaggedApi(FLAG_CAR_EVS_DEPRECATION)
+@Deprecated
 public final class CarEvsManager extends CarManagerBase {
     public static final String EXTRA_SESSION_TOKEN = "android.car.evs.extra.SESSION_TOKEN";
 
@@ -100,7 +118,6 @@ public final class CarEvsManager extends CarManagerBase {
     /**
      * This literal represents an unknown service type and is added for the backward compatibility.
      */
-    @FlaggedApi(FLAG_CAR_EVS_STREAM_MANAGEMENT)
     public static final int SERVICE_TYPE_UNKNOWN = -1;
 
     /**
@@ -456,7 +473,6 @@ public final class CarEvsManager extends CarManagerBase {
          * @param event {@link #CarEvsStreamEvent}; e.g. a stream started
          */
         @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
-        @FlaggedApi(FLAG_CAR_EVS_STREAM_MANAGEMENT)
         default void onStreamEvent(@CarEvsServiceType int origin, @CarEvsStreamEvent int event) {
             // By default, we forward this event callback to
             // {@link CarEvsStreamCallback#onStreamEvent(int)}.
@@ -834,10 +850,7 @@ public final class CarEvsManager extends CarManagerBase {
         }
     }
 
-    /**
-     * Requests to stop a given {@link #CarEvsServiceType}.
-     */
-    @FlaggedApi(FLAG_CAR_EVS_STREAM_MANAGEMENT)
+    /** Requests to stop a given {@link #CarEvsServiceType}. */
     @RequiresPermission(Car.PERMISSION_USE_CAR_EVS_CAMERA)
     public void stopVideoStream(@CarEvsServiceType int type) {
         synchronized (mStreamLock) {
@@ -868,7 +881,6 @@ public final class CarEvsManager extends CarManagerBase {
      * @return {@link android.car.evs.CarEvsStatus} that describes current status of
      * a given CarEvsService type.
      */
-    @FlaggedApi(FLAG_CAR_EVS_QUERY_SERVICE_STATUS)
     @RequiresPermission(Car.PERMISSION_MONITOR_CAR_EVS_STATUS)
     @Nullable
     public CarEvsStatus getCurrentStatus(@CarEvsServiceType int type) {

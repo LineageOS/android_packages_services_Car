@@ -16,6 +16,8 @@
 
 package com.android.car.evs;
 
+import static android.car.feature.Flags.FLAG_CAR_EVS_DEPRECATION;
+
 import static android.car.evs.CarEvsManager.ERROR_NONE;
 import static android.car.evs.CarEvsManager.ERROR_UNAVAILABLE;
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_UNLOCKED;
@@ -26,6 +28,7 @@ import static com.android.car.evs.StateMachine.REQUEST_PRIORITY_HIGH;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DEBUGGING_CODE;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
+import android.annotation.FlaggedApi;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.car.Car;
@@ -109,7 +112,27 @@ import java.util.Set;
  * ACTIVE: CarEvsService is actively streaming a video to the client.
  *
  * See CarEvsService.StateMachine class for more details.
+ *
+ * @deprecated EVS functionality and APIs are deprecated. Applications should use the standard
+ *     Android <a href="https://developer.android.com/media/camera/camera2">Camera2 API
+ *     (android.hardware.camera2)</a> for camera access and management. Use either the Camera2 NDK
+ *     APIs (<a
+ *     href="https://developer.android.com/ndk/reference/group/camera#acameramanager">ACameraManager</a>)
+ *     or Camera2 Java APIs ({@link android.hardware.camera2.CameraManager}) instead. CarEvsService
+ *     is deprecated, and OEMs who use this feature must transition the associated logic to an
+ *     OEM-owned app:
+ *     <ul>
+ *       <li>Monitor the <code>GEAR_SELECTION VHAL</code> property.
+ *       <li>Launch the rear view camera activity when the reverse gear is activated.
+ *       <li>Use Camera2 APIs to display the camera feed.
+ *     </ul>
+ *     See <a
+ *     href="https://source.android.com/docs/automotive/camera/acs/camera2-migration#camera2_4">here</a>
+ *     for the recommended guidelines and for more information on implementing a rear view camera
+ *     stream using Camera2 APIs.
  */
+@FlaggedApi(FLAG_CAR_EVS_DEPRECATION)
+@Deprecated
 public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
         implements CarServiceBase {
 

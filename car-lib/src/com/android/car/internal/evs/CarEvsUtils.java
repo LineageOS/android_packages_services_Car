@@ -16,6 +16,8 @@
 
 package com.android.car.internal.evs;
 
+import static android.car.feature.Flags.FLAG_CAR_EVS_DEPRECATION;
+
 import static android.car.evs.CarEvsManager.SERVICE_TYPE_REARVIEW;
 import static android.car.evs.CarEvsManager.SERVICE_TYPE_SURROUNDVIEW;
 import static android.car.evs.CarEvsManager.SERVICE_TYPE_FRONTVIEW;
@@ -29,6 +31,7 @@ import static android.car.evs.CarEvsManager.SERVICE_TYPE_USER_DEFINED;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DEPRECATED_CODE;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.PRIVATE_CONSTRUCTOR;
 
+import android.annotation.FlaggedApi;
 import android.car.builtin.util.Slogf;
 import android.car.evs.CarEvsManager.CarEvsServiceType;
 
@@ -36,7 +39,16 @@ import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 
 /**
  * This class provide utility methods for CarEvsService clients.
+ *
+ * @deprecated EVS functionality and APIs are deprecated. Applications should use the standard
+ *     Android <a href="https://developer.android.com/media/camera/camera2">Camera2 API
+ *     (android.hardware.camera2)</a> for camera access and management. Use either the Camera2 NDK
+ *     APIs (<a
+ *     href="https://developer.android.com/ndk/reference/group/camera#acameramanager">ACameraManager</a>)
+ *     or Camera2 Java APIs ({@link android.hardware.camera2.CameraManager}) instead.
  */
+@FlaggedApi(FLAG_CAR_EVS_DEPRECATION)
+@Deprecated
 public final class CarEvsUtils {
     private static final String TAG = CarEvsUtils.class.getSimpleName();
 

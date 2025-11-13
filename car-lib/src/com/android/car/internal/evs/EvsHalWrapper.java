@@ -16,11 +16,23 @@
 
 package com.android.car.internal.evs;
 
+import static android.car.feature.Flags.FLAG_CAR_EVS_DEPRECATION;
+
+import android.annotation.FlaggedApi;
 import android.hardware.HardwareBuffer;
 
 /**
  * Abstracts EVS HAL. This is used as an interface between updatable and builtin.
+ *
+ * @deprecated EVS functionality and APIs are deprecated. Applications should use the standard
+ *     Android <a href="https://developer.android.com/media/camera/camera2">Camera2 API
+ *     (android.hardware.camera2)</a> for camera access and management. Use either the Camera2 NDK
+ *     APIs (<a
+ *     href="https://developer.android.com/ndk/reference/group/camera#acameramanager">ACameraManager</a>)
+ *     or Camera2 Java APIs ({@link android.hardware.camera2.CameraManager}) instead.
  */
+@FlaggedApi(FLAG_CAR_EVS_DEPRECATION)
+@Deprecated
 public abstract class EvsHalWrapper {
     /** Callback for events from HAL */
     public interface HalEventCallback {
