@@ -18,15 +18,48 @@
 
 #include <android-base/logging.h>
 
+#include <dlfcn.h>
+
 namespace android::hardware::automotive::evs::compat {
 
 NdkCameraManager::NdkCameraManager() : mManager(ACameraManager_create()) {
     if (!mManager) {
         LOG(ERROR) << "Failed to create ACameraManager.";
+        return;
     }
+
+    // Dynamically load camera sharing and streaming functions
+    void* libcamera_ndk = dlopen("libcamera2ndk.so", RTLD_NOW);
+    if (!libcamera_ndk) {
+        LOG(ERROR) << "Failed to open libcamera2ndk.so: " << dlerror();
+        return;
+    }
+
+    mOpenSharedCameraFn = reinterpret_cast<ACameraManager_openSharedCamera_fn>(
+            dlsym(libcamera_ndk, "ACameraManager_openSharedCamera"));
+    mIsCameraDeviceSharingSupportedFn =
+            reinterpret_cast<ACameraManager_isCameraDeviceSharingSupported_fn>(
+                    dlsym(libcamera_ndk, "ACameraManager_isCameraDeviceSharingSupported"));
+    mCaptureSessionSharedStartStreamingFn =
+            reinterpret_cast<ACameraCaptureSessionShared_startStreaming_fn>(
+                    dlsym(libcamera_ndk, "ACameraCaptureSessionShared_startStreaming"));
+    mCaptureSessionSharedStopStreamingFn =
+            reinterpret_cast<ACameraCaptureSessionShared_stopStreaming_fn>(
+                    dlsym(libcamera_ndk, "ACameraCaptureSessionShared_stopStreaming"));
+
+    if (!mOpenSharedCameraFn || !mIsCameraDeviceSharingSupportedFn ||
+        !mCaptureSessionSharedStartStreamingFn || !mCaptureSessionSharedStopStreamingFn) {
+        LOG(WARNING) << "Failed to load all camera sharing/streaming symbols.";
+    }
+
+    mLibCameraNdkHandle = libcamera_ndk;
 }
 
 NdkCameraManager::~NdkCameraManager() {
+    if (mLibCameraNdkHandle) {
+        dlclose(mLibCameraNdkHandle);
+        mLibCameraNdkHandle = nullptr;
+    }
     if (mManager) {
         ACameraManager_delete(mManager);
     }
@@ -82,6 +115,26 @@ camera_status_t NdkCameraManager::unregisterAvailabilityCallback(
         LOG(ERROR) << "ACameraManager_unregisterAvailabilityCallback failed: " << status;
     }
     return status;
+}
+
+// Accessors for dynamically loaded functions
+ACameraManager_openSharedCamera_fn NdkCameraManager::getOpenSharedCameraFn() {
+    return mOpenSharedCameraFn;
+}
+
+ACameraManager_isCameraDeviceSharingSupported_fn
+NdkCameraManager::getIsCameraDeviceSharingSupportedFn() {
+    return mIsCameraDeviceSharingSupportedFn;
+}
+
+ACameraCaptureSessionShared_startStreaming_fn
+NdkCameraManager::getCaptureSessionSharedStartStreamingFn() {
+    return mCaptureSessionSharedStartStreamingFn;
+}
+
+ACameraCaptureSessionShared_stopStreaming_fn
+NdkCameraManager::getCaptureSessionSharedStopStreamingFn() {
+    return mCaptureSessionSharedStopStreamingFn;
 }
 
 }  // namespace android::hardware::automotive::evs::compat

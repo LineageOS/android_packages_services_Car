@@ -17,6 +17,7 @@
 #pragma once
 
 #include "CompatVirtualCamera.h"
+#include "ICameraManager.h"
 
 #include <aidl/android/hardware/automotive/evs/BnEvsCameraStream.h>
 #include <aidl/android/hardware/automotive/evs/BufferDesc.h>
@@ -48,6 +49,10 @@ class CompatHalCamera final : public aidlevs::BnEvsCameraStream {
     friend class CompatHalCameraTest_clientStreamStarting_Success_Test;
     friend class CompatHalCameraTest_clientStreamStarting_AlreadyRunning_Test;
     friend class CompatHalCameraTest_clientStreamStarting_StartStreamFail_Test;
+    friend class CompatHalCameraTest_clientStreamStarting_PrimaryClient_Test;
+    friend class CompatHalCameraTest_clientStreamStarting_SecondaryClient_Test;
+    friend class CompatHalCameraTest_cleanUpNdkStreamResources_PrimaryClient_Test;
+    friend class CompatHalCameraTest_cleanUpNdkStreamResources_SecondaryClient_Test;
     friend class CompatHalCameraTest_doneWithFrame_InvalidBufferId_Test;
     friend class CompatHalCameraTest_doneWithFrame_ValidBufferId_Test;
     friend class CompatHalCameraTest_deliverFrame_NonEmptyBuffer_Test;
@@ -60,7 +65,8 @@ class CompatHalCamera final : public aidlevs::BnEvsCameraStream {
 
 public:
     CompatHalCamera(ACameraDevice* device, const std::string& cameraId,
-                    const aidlevs::CameraDesc* desc, const aidlevs::Stream& streamConfig);
+                    const aidlevs::CameraDesc* desc, const aidlevs::Stream& streamConfig,
+                    bool isPrimaryClient, ICameraManager* cameraManager);
     ~CompatHalCamera() override;
 
     ::ndk::ScopedAStatus deliverFrame(const std::vector<aidlevs::BufferDesc>& buffer) override;
@@ -83,6 +89,7 @@ public:
     // Closes the underlying ACameraDevice if open and marks it as closed.
     // Returns true if the device was open and closed, false otherwise.
     bool releaseACameraDevice();
+    void setPrimaryClient(bool isPrimary);
     ACameraMetadata* getLatestMetadata() const;
     ::ndk::ScopedAStatus updateRequest(const ACameraMetadata_const_entry& entry);
     void handleCaptureCompleted(const ACameraMetadata* result);
@@ -101,6 +108,8 @@ private:
     std::string mCameraId;
     aidlevs::CameraDesc mCameraDesc;
     aidlevs::Stream mStreamConfig;
+    bool mIsPrimaryClient;
+    ICameraManager* mCameraManager;
     mutable std::mutex mMutex;
     std::list<std::weak_ptr<CompatVirtualCamera>> mVirtualCameras GUARDED_BY(mMutex);
 
@@ -120,7 +129,7 @@ private:
     ACaptureRequest* mCaptureRequest = nullptr;
     ACameraDevice_StateCallbacks mDeviceStateCallbacks;
     ACameraCaptureSession_stateCallbacks mSessionStateCallbacks;
-    ACameraCaptureSession_captureCallbacks mCaptureCallbacks;
+    ACameraCaptureSession_captureCallbacksV2 mCaptureCallbacksV2;
 
     std::unordered_map<uint64_t, uint32_t> mBufferIdMap GUARDED_BY(mMutex);
 
