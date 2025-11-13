@@ -67,6 +67,13 @@ public:
                  ACameraCaptureSession** session));
     MOCK_METHOD(void, ACameraCaptureSession_close, (ACameraCaptureSession * session));
 
+    MOCK_METHOD(camera_status_t, ACameraCaptureSessionShared_startStreaming,
+                (ACameraCaptureSession * session,
+                 ACameraCaptureSession_captureCallbacksV2* callbacks, int numWindows,
+                 ANativeWindow** windows, int* sequenceId));
+    MOCK_METHOD(camera_status_t, ACameraCaptureSessionShared_stopStreaming,
+                (ACameraCaptureSession * session));
+
     MOCK_METHOD(camera_status_t, ACameraDevice_createCaptureRequest,
                 (const ACameraDevice* device, ACameraDevice_request_template templateId,
                  ACaptureRequest** request));
@@ -74,9 +81,10 @@ public:
                 (ACaptureRequest * request, const ACameraOutputTarget* outputTarget));
     MOCK_METHOD(void, ACaptureRequest_free, (ACaptureRequest * request));
 
-    MOCK_METHOD(camera_status_t, ACameraCaptureSession_setRepeatingRequest,
-                (ACameraCaptureSession * session, ACameraCaptureSession_captureCallbacks* callbacks,
-                 int numRequests, ACaptureRequest** requests, int* sequenceId));
+    MOCK_METHOD(camera_status_t, ACameraCaptureSession_setRepeatingRequestV2,
+                (ACameraCaptureSession * session,
+                 ACameraCaptureSession_captureCallbacksV2* callbacks, int numRequests,
+                 ACaptureRequest** requests, int* sequenceId));
     MOCK_METHOD(camera_status_t, ACameraCaptureSession_stopRepeating,
                 (ACameraCaptureSession * session));
 

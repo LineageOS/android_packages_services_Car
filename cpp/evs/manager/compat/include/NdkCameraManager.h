@@ -45,8 +45,23 @@ public:
     camera_status_t unregisterAvailabilityCallback(
             const ACameraManager_AvailabilityCallbacks* callback) override;
 
+    // Accessors for dynamically loaded functions
+    ACameraManager_openSharedCamera_fn getOpenSharedCameraFn() override;
+    ACameraManager_isCameraDeviceSharingSupported_fn getIsCameraDeviceSharingSupportedFn() override;
+    ACameraCaptureSessionShared_startStreaming_fn getCaptureSessionSharedStartStreamingFn()
+            override;
+    ACameraCaptureSessionShared_stopStreaming_fn getCaptureSessionSharedStopStreamingFn() override;
+
 private:
     ACameraManager* mManager;
+
+    // Function pointers for dynamically loaded symbols
+    ACameraManager_openSharedCamera_fn mOpenSharedCameraFn = nullptr;
+    ACameraManager_isCameraDeviceSharingSupported_fn mIsCameraDeviceSharingSupportedFn = nullptr;
+    ACameraCaptureSessionShared_startStreaming_fn mCaptureSessionSharedStartStreamingFn = nullptr;
+    ACameraCaptureSessionShared_stopStreaming_fn mCaptureSessionSharedStopStreamingFn = nullptr;
+
+    void* mLibCameraNdkHandle = nullptr;
 };
 
 }  // namespace android::hardware::automotive::evs::compat

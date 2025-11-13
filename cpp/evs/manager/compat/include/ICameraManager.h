@@ -16,12 +16,26 @@
 
 #pragma once
 
+#include <camera/NdkCameraDevice.h>
 #include <camera/NdkCameraManager.h>
 
 #include <string>
 #include <vector>
 
 namespace android::hardware::automotive::evs::compat {
+
+// Function pointer types for shared camera
+typedef camera_status_t (*ACameraManager_openSharedCamera_fn)(
+        ACameraManager* manager, const char* cameraId, ACameraDevice_StateCallbacks* callback,
+        /*out*/ ACameraDevice** device, /*out*/ bool* primaryClient);
+typedef bool (*ACameraManager_isCameraDeviceSharingSupported_fn)(ACameraManager* manager);
+
+// Function pointer types for shared camera streaming
+typedef camera_status_t (*ACameraCaptureSessionShared_startStreaming_fn)(
+        ACameraCaptureSession* sharedSession, ACameraCaptureSession_captureCallbacksV2* callbacks,
+        int numOutputWindows, ANativeWindow** window, int* captureSequenceId);
+typedef camera_status_t (*ACameraCaptureSessionShared_stopStreaming_fn)(
+        ACameraCaptureSession* session);
 
 /**
  * Wrapper interface for NDK ACameraManager C functions.
@@ -74,6 +88,15 @@ public:
      */
     virtual camera_status_t unregisterAvailabilityCallback(
             const ACameraManager_AvailabilityCallbacks* callback) = 0;
+
+    // Accessors for dynamically loaded functions
+    virtual ACameraManager_openSharedCamera_fn getOpenSharedCameraFn() = 0;
+    virtual ACameraManager_isCameraDeviceSharingSupported_fn
+    getIsCameraDeviceSharingSupportedFn() = 0;
+    virtual ACameraCaptureSessionShared_startStreaming_fn
+    getCaptureSessionSharedStartStreamingFn() = 0;
+    virtual ACameraCaptureSessionShared_stopStreaming_fn
+    getCaptureSessionSharedStopStreamingFn() = 0;
 };
 
 }  // namespace android::hardware::automotive::evs::compat

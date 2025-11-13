@@ -55,8 +55,9 @@ protected:
         mMockCameraManager->openSharedCamera("mockCam0", &device);
 
         aidlevs::Stream streamConfig;
-        mMockHalCamera = ::ndk::SharedRefBase::make<CompatHalCamera>(device, "mockCam0", nullptr,
-                                                                     streamConfig);
+        mMockHalCamera =
+                ::ndk::SharedRefBase::make<CompatHalCamera>(device, "mockCam0", nullptr,
+                                                            streamConfig, true, mMockCameraManager);
         mHalCameras.push_back(mMockHalCamera);
 
         mVirtualCamera = ::ndk::SharedRefBase::make<CompatVirtualCamera>(mHalCameras);
@@ -97,7 +98,8 @@ protected:
         ACameraDevice* device = reinterpret_cast<ACameraDevice*>(0x1234);
         aidlevs::Stream streamConfig;
         auto halCamera =
-                ::ndk::SharedRefBase::make<CompatHalCamera>(device, cameraId, &desc, streamConfig);
+                ::ndk::SharedRefBase::make<CompatHalCamera>(device, cameraId, &desc, streamConfig,
+                                                            true, mMockCameraManager);
         mTestHalCameras.push_back(halCamera);
 
         // 6. Create CompatVirtualCamera
@@ -154,7 +156,7 @@ TEST_F(CompatVirtualCameraTest, getPhysicalCameraInfo_Success) {
     validDesc.id = "mockCam1";
     std::shared_ptr<CompatHalCamera> halCameraWithDesc =
             ::ndk::SharedRefBase::make<CompatHalCamera>(dummyDevice, "mockCam1", &validDesc,
-                                                        streamConfig);
+                                                        streamConfig, true, mMockCameraManager);
     std::vector<std::shared_ptr<CompatHalCamera>> halCameras = {halCameraWithDesc};
     std::shared_ptr<CompatVirtualCamera> virtualCamera =
             ::ndk::SharedRefBase::make<CompatVirtualCamera>(halCameras);
@@ -287,7 +289,8 @@ TEST_F(CompatVirtualCameraTest, getCameraInfo_PhysicalCamera) {
     expectedDesc.id = "mockCam_physical";
     std::shared_ptr<CompatHalCamera> halCamera =
             ::ndk::SharedRefBase::make<CompatHalCamera>(dummyDevice, "mockCam_physical",
-                                                        &expectedDesc, streamConfig);
+                                                        &expectedDesc, streamConfig, true,
+                                                        mMockCameraManager);
     std::vector<std::shared_ptr<CompatHalCamera>> halCameras = {halCamera};
     auto virtualCamera = ::ndk::SharedRefBase::make<CompatVirtualCamera>(halCameras);
 
@@ -304,7 +307,7 @@ TEST_F(CompatVirtualCameraTest, getCameraInfo_LogicalCamera) {
     aidlevs::Stream streamConfig;
     std::shared_ptr<CompatHalCamera> mockHalCamera2 =
             ::ndk::SharedRefBase::make<CompatHalCamera>(dummyDevice2, "mockCam1", nullptr,
-                                                        streamConfig);
+                                                        streamConfig, true, mMockCameraManager);
     std::vector<std::shared_ptr<CompatHalCamera>> logicalHalCameras = {mHalCameras[0],
                                                                        mockHalCamera2};
     auto logicalVirtualCamera = ::ndk::SharedRefBase::make<CompatVirtualCamera>(logicalHalCameras);
@@ -341,8 +344,9 @@ TEST_F(CompatVirtualCameraTest, getCameraInfo_ExpiredHalCamera) {
     {
         ACameraDevice* dummyDevice = reinterpret_cast<ACameraDevice*>(0xDEADBEEF);
         aidlevs::Stream streamConfig;
-        auto halCamera = ::ndk::SharedRefBase::make<CompatHalCamera>(dummyDevice, "expiredCam",
-                                                                     nullptr, streamConfig);
+        auto halCamera =
+                ::ndk::SharedRefBase::make<CompatHalCamera>(dummyDevice, "expiredCam", nullptr,
+                                                            streamConfig, true, mMockCameraManager);
         std::vector<std::shared_ptr<CompatHalCamera>> halCameras = {halCamera};
         virtualCamera = ::ndk::SharedRefBase::make<CompatVirtualCamera>(halCameras);
     }  // halCamera is destroyed here, weak_ptr in virtualCamera should be expired
@@ -427,7 +431,8 @@ TEST_F(CompatVirtualCameraTest, startVideoStream_Success) {
             }));
     EXPECT_CALL(mMockNdkCamera, ACaptureRequest_addTarget(dummyCaptureRequest, dummyOutputTarget))
             .WillOnce(Return(ACAMERA_OK));
-    EXPECT_CALL(mMockNdkCamera, ACameraCaptureSession_setRepeatingRequest(dummySession, _, 1, _, _))
+    EXPECT_CALL(mMockNdkCamera,
+                ACameraCaptureSession_setRepeatingRequestV2(dummySession, _, 1, _, _))
             .WillOnce(Return(ACAMERA_OK));
 
     auto mockStream = ::ndk::SharedRefBase::make<MockEvsCameraStream>();
@@ -448,7 +453,8 @@ TEST_F(CompatVirtualCameraTest, getParameterList_logicalCamera) {
     // Add a second, distinct camera to make it logical
     auto anotherMockHalCamera =
             ::ndk::SharedRefBase::make<CompatHalCamera>(nullptr, "mockCam1", nullptr,
-                                                        aidlevs::Stream());
+                                                        aidlevs::Stream(), true,
+                                                        mMockCameraManager);
     halCameras.push_back(anotherMockHalCamera);
     auto virtualCamera = ::ndk::SharedRefBase::make<CompatVirtualCamera>(halCameras);
 
@@ -466,7 +472,8 @@ TEST_F(CompatVirtualCameraTest, getParameterList_halCameraNotAvailable) {
         // Create a HalCamera that will go out of scope, leaving an expired weak_ptr in the virtual
         // camera.
         auto halCamera = ::ndk::SharedRefBase::make<CompatHalCamera>(nullptr, "test", nullptr,
-                                                                     aidlevs::Stream());
+                                                                     aidlevs::Stream(), true,
+                                                                     mMockCameraManager);
         std::vector<std::shared_ptr<CompatHalCamera>> halCameras = {halCamera};
         virtualCamera = ::ndk::SharedRefBase::make<CompatVirtualCamera>(halCameras);
     }
@@ -495,7 +502,8 @@ TEST_F(CompatVirtualCameraTest, getParameterList_emptyMetadata) {
     desc.id = "testCam";
     // desc.metadata is empty by default
     auto halCamera = ::ndk::SharedRefBase::make<CompatHalCamera>(nullptr, "testCam", &desc,
-                                                                 aidlevs::Stream());
+                                                                 aidlevs::Stream(), true,
+                                                                 mMockCameraManager);
     std::vector<std::shared_ptr<CompatHalCamera>> halCameras = {halCamera};
     auto virtualCamera = ::ndk::SharedRefBase::make<CompatVirtualCamera>(halCameras);
 
@@ -610,11 +618,13 @@ TEST_F(CompatVirtualCameraTest, getParameterList_supportsAutoWhiteBalanceAndTemp
     ASSERT_NE(mRawMetadata, nullptr);
     std::vector<uint8_t> awbModes = {ACAMERA_CONTROL_AWB_MODE_AUTO, ACAMERA_CONTROL_AWB_MODE_OFF};
     ASSERT_EQ(add_camera_metadata_entry(mRawMetadata, ACAMERA_CONTROL_AWB_AVAILABLE_MODES,
-                                        awbModes.data(), awbModes.size()), 0);
+                                        awbModes.data(), awbModes.size()),
+              0);
     std::vector<int32_t> tempRange = {2000, 8000};
     ASSERT_EQ(add_camera_metadata_entry(mRawMetadata,
                                         ACAMERA_COLOR_CORRECTION_COLOR_TEMPERATURE_RANGE,
-                                        tempRange.data(), tempRange.size()), 0);
+                                        tempRange.data(), tempRange.size()),
+              0);
     ASSERT_EQ(validate_camera_metadata_structure(mRawMetadata, nullptr), 0);
 
     // Create camera with this metadata
@@ -625,7 +635,8 @@ TEST_F(CompatVirtualCameraTest, getParameterList_supportsAutoWhiteBalanceAndTemp
     desc.id = "testCam";
     desc.metadata = metadataVector;
     auto halCamera = ::ndk::SharedRefBase::make<CompatHalCamera>(nullptr, "testCam", &desc,
-                                                                 aidlevs::Stream());
+                                                                 aidlevs::Stream(), true,
+                                                                 mMockCameraManager);
     mTestHalCameras.push_back(halCamera);
     mVirtualCamera = ::ndk::SharedRefBase::make<CompatVirtualCamera>(mTestHalCameras);
 
@@ -679,12 +690,14 @@ TEST_F(CompatVirtualCameraTest, getParameterList_doesNotSupportTemperature_inval
     ASSERT_NE(mRawMetadata, nullptr);
     std::vector<uint8_t> awbModes = {ACAMERA_CONTROL_AWB_MODE_OFF};
     ASSERT_EQ(add_camera_metadata_entry(mRawMetadata, ACAMERA_CONTROL_AWB_AVAILABLE_MODES,
-                                        awbModes.data(), awbModes.size()), 0);
+                                        awbModes.data(), awbModes.size()),
+              0);
     // Invalid range
     std::vector<int32_t> tempRange = {8000, 2000};
     ASSERT_EQ(add_camera_metadata_entry(mRawMetadata,
                                         ACAMERA_COLOR_CORRECTION_COLOR_TEMPERATURE_RANGE,
-                                        tempRange.data(), tempRange.size()), 0);
+                                        tempRange.data(), tempRange.size()),
+              0);
     ASSERT_EQ(validate_camera_metadata_structure(mRawMetadata, nullptr), 0);
 
     // Create camera with this metadata
@@ -695,7 +708,8 @@ TEST_F(CompatVirtualCameraTest, getParameterList_doesNotSupportTemperature_inval
     desc.id = "testCam";
     desc.metadata = metadataVector;
     auto halCamera = ::ndk::SharedRefBase::make<CompatHalCamera>(nullptr, "testCam", &desc,
-                                                                 aidlevs::Stream());
+                                                                 aidlevs::Stream(), true,
+                                                                 mMockCameraManager);
     mTestHalCameras.push_back(halCamera);
     mVirtualCamera = ::ndk::SharedRefBase::make<CompatVirtualCamera>(mTestHalCameras);
 
@@ -712,11 +726,13 @@ TEST_F(CompatVirtualCameraTest, getParameterList_supportsOnlyWhiteBalanceTempera
     ASSERT_NE(mRawMetadata, nullptr);
     std::vector<uint8_t> awbModes = {ACAMERA_CONTROL_AWB_MODE_OFF};
     ASSERT_EQ(add_camera_metadata_entry(mRawMetadata, ACAMERA_CONTROL_AWB_AVAILABLE_MODES,
-                                        awbModes.data(), awbModes.size()), 0);
+                                        awbModes.data(), awbModes.size()),
+              0);
     std::vector<int32_t> tempRange = {2000, 8000};
     ASSERT_EQ(add_camera_metadata_entry(mRawMetadata,
                                         ACAMERA_COLOR_CORRECTION_COLOR_TEMPERATURE_RANGE,
-                                        tempRange.data(), tempRange.size()), 0);
+                                        tempRange.data(), tempRange.size()),
+              0);
     ASSERT_EQ(validate_camera_metadata_structure(mRawMetadata, nullptr), 0);
 
     // Create camera with this metadata
@@ -727,7 +743,8 @@ TEST_F(CompatVirtualCameraTest, getParameterList_supportsOnlyWhiteBalanceTempera
     desc.id = "testCam";
     desc.metadata = metadataVector;
     auto halCamera = ::ndk::SharedRefBase::make<CompatHalCamera>(nullptr, "testCam", &desc,
-                                                                 aidlevs::Stream());
+                                                                 aidlevs::Stream(), true,
+                                                                 mMockCameraManager);
     mTestHalCameras.push_back(halCamera);
     mVirtualCamera = ::ndk::SharedRefBase::make<CompatVirtualCamera>(mTestHalCameras);
 
@@ -781,10 +798,12 @@ TEST_F(CompatVirtualCameraTest, getParameterList_supportsAutoAndAbsoluteExposure
     ASSERT_NE(mRawMetadata, nullptr);
     std::vector<uint8_t> aeModes = {ACAMERA_CONTROL_AE_MODE_ON, ACAMERA_CONTROL_AE_MODE_OFF};
     ASSERT_EQ(add_camera_metadata_entry(mRawMetadata, ACAMERA_CONTROL_AE_AVAILABLE_MODES,
-                                        aeModes.data(), aeModes.size()), 0);
+                                        aeModes.data(), aeModes.size()),
+              0);
     std::vector<int64_t> exposureRange = {1000, 100000000};
     ASSERT_EQ(add_camera_metadata_entry(mRawMetadata, ACAMERA_SENSOR_INFO_EXPOSURE_TIME_RANGE,
-                                        exposureRange.data(), exposureRange.size()), 0);
+                                        exposureRange.data(), exposureRange.size()),
+              0);
     ASSERT_EQ(validate_camera_metadata_structure(mRawMetadata, nullptr), 0);
 
     // Create camera with this metadata
@@ -795,7 +814,8 @@ TEST_F(CompatVirtualCameraTest, getParameterList_supportsAutoAndAbsoluteExposure
     desc.id = "testCam";
     desc.metadata = metadataVector;
     auto halCamera = ::ndk::SharedRefBase::make<CompatHalCamera>(nullptr, "testCam", &desc,
-                                                                 aidlevs::Stream());
+                                                                 aidlevs::Stream(), true,
+                                                                 mMockCameraManager);
     mTestHalCameras.push_back(halCamera);
     mVirtualCamera = ::ndk::SharedRefBase::make<CompatVirtualCamera>(mTestHalCameras);
 
@@ -849,11 +869,13 @@ TEST_F(CompatVirtualCameraTest, getParameterList_doesNotSupportAbsoluteExposure_
     ASSERT_NE(mRawMetadata, nullptr);
     std::vector<uint8_t> aeModes = {ACAMERA_CONTROL_AE_MODE_OFF};
     ASSERT_EQ(add_camera_metadata_entry(mRawMetadata, ACAMERA_CONTROL_AE_AVAILABLE_MODES,
-                                        aeModes.data(), aeModes.size()), 0);
+                                        aeModes.data(), aeModes.size()),
+              0);
     // Invalid range
     std::vector<int64_t> exposureRange = {100000000, 1000};
     ASSERT_EQ(add_camera_metadata_entry(mRawMetadata, ACAMERA_SENSOR_INFO_EXPOSURE_TIME_RANGE,
-                                        exposureRange.data(), exposureRange.size()), 0);
+                                        exposureRange.data(), exposureRange.size()),
+              0);
     ASSERT_EQ(validate_camera_metadata_structure(mRawMetadata, nullptr), 0);
 
     // Create camera with this metadata
@@ -864,7 +886,8 @@ TEST_F(CompatVirtualCameraTest, getParameterList_doesNotSupportAbsoluteExposure_
     desc.id = "testCam";
     desc.metadata = metadataVector;
     auto halCamera = ::ndk::SharedRefBase::make<CompatHalCamera>(nullptr, "testCam", &desc,
-                                                                 aidlevs::Stream());
+                                                                 aidlevs::Stream(), true,
+                                                                 mMockCameraManager);
     mTestHalCameras.push_back(halCamera);
     mVirtualCamera = ::ndk::SharedRefBase::make<CompatVirtualCamera>(mTestHalCameras);
 
@@ -881,10 +904,12 @@ TEST_F(CompatVirtualCameraTest, getParameterList_supportsOnlyAbsoluteExposure) {
     ASSERT_NE(mRawMetadata, nullptr);
     std::vector<uint8_t> aeModes = {ACAMERA_CONTROL_AE_MODE_OFF};
     ASSERT_EQ(add_camera_metadata_entry(mRawMetadata, ACAMERA_CONTROL_AE_AVAILABLE_MODES,
-                                        aeModes.data(), aeModes.size()), 0);
+                                        aeModes.data(), aeModes.size()),
+              0);
     std::vector<int64_t> exposureRange = {1000, 100000000};
     ASSERT_EQ(add_camera_metadata_entry(mRawMetadata, ACAMERA_SENSOR_INFO_EXPOSURE_TIME_RANGE,
-                                        exposureRange.data(), exposureRange.size()), 0);
+                                        exposureRange.data(), exposureRange.size()),
+              0);
     ASSERT_EQ(validate_camera_metadata_structure(mRawMetadata, nullptr), 0);
 
     // Create camera with this metadata
@@ -895,7 +920,8 @@ TEST_F(CompatVirtualCameraTest, getParameterList_supportsOnlyAbsoluteExposure) {
     desc.id = "testCam";
     desc.metadata = metadataVector;
     auto halCamera = ::ndk::SharedRefBase::make<CompatHalCamera>(nullptr, "testCam", &desc,
-                                                                 aidlevs::Stream());
+                                                                 aidlevs::Stream(), true,
+                                                                 mMockCameraManager);
     mTestHalCameras.push_back(halCamera);
     mVirtualCamera = ::ndk::SharedRefBase::make<CompatVirtualCamera>(mTestHalCameras);
 
@@ -1105,11 +1131,13 @@ TEST_F(CompatVirtualCameraTest, getIntParameterRange_whiteBalanceTemperature) {
     ASSERT_NE(mRawMetadata, nullptr);
     std::vector<uint8_t> awbModes = {ACAMERA_CONTROL_AWB_MODE_OFF};
     ASSERT_EQ(add_camera_metadata_entry(mRawMetadata, ACAMERA_CONTROL_AWB_AVAILABLE_MODES,
-                                        awbModes.data(), awbModes.size()), 0);
+                                        awbModes.data(), awbModes.size()),
+              0);
     std::vector<int32_t> tempRange = {2000, 8000};
     ASSERT_EQ(add_camera_metadata_entry(mRawMetadata,
                                         ACAMERA_COLOR_CORRECTION_COLOR_TEMPERATURE_RANGE,
-                                        tempRange.data(), tempRange.size()), 0);
+                                        tempRange.data(), tempRange.size()),
+              0);
     ASSERT_EQ(validate_camera_metadata_structure(mRawMetadata, nullptr), 0);
 
     // Create camera with this metadata
@@ -1120,7 +1148,8 @@ TEST_F(CompatVirtualCameraTest, getIntParameterRange_whiteBalanceTemperature) {
     desc.id = "testCam";
     desc.metadata = metadataVector;
     auto halCamera = ::ndk::SharedRefBase::make<CompatHalCamera>(nullptr, "testCam", &desc,
-                                                                 aidlevs::Stream());
+                                                                 aidlevs::Stream(), true,
+                                                                 mMockCameraManager);
     mTestHalCameras.push_back(halCamera);
     mVirtualCamera = ::ndk::SharedRefBase::make<CompatVirtualCamera>(mTestHalCameras);
 
@@ -1152,10 +1181,12 @@ TEST_F(CompatVirtualCameraTest, getIntParameterRange_absoluteExposure) {
     ASSERT_NE(mRawMetadata, nullptr);
     std::vector<uint8_t> aeModes = {ACAMERA_CONTROL_AE_MODE_OFF};
     ASSERT_EQ(add_camera_metadata_entry(mRawMetadata, ACAMERA_CONTROL_AE_AVAILABLE_MODES,
-                                        aeModes.data(), aeModes.size()), 0);
+                                        aeModes.data(), aeModes.size()),
+              0);
     std::vector<int64_t> exposureRange = {1000, 100000000};
     ASSERT_EQ(add_camera_metadata_entry(mRawMetadata, ACAMERA_SENSOR_INFO_EXPOSURE_TIME_RANGE,
-                                        exposureRange.data(), exposureRange.size()), 0);
+                                        exposureRange.data(), exposureRange.size()),
+              0);
     ASSERT_EQ(validate_camera_metadata_structure(mRawMetadata, nullptr), 0);
 
     // Create camera with this metadata
@@ -1166,7 +1197,8 @@ TEST_F(CompatVirtualCameraTest, getIntParameterRange_absoluteExposure) {
     desc.id = "testCam";
     desc.metadata = metadataVector;
     auto halCamera = ::ndk::SharedRefBase::make<CompatHalCamera>(nullptr, "testCam", &desc,
-                                                                 aidlevs::Stream());
+                                                                 aidlevs::Stream(), true,
+                                                                 mMockCameraManager);
     mTestHalCameras.push_back(halCamera);
     mVirtualCamera = ::ndk::SharedRefBase::make<CompatVirtualCamera>(mTestHalCameras);
 
@@ -1260,7 +1292,8 @@ TEST_F(CompatVirtualCameraTest, getIntParameter_failsForLogicalCamera) {
     halCameras.push_back(mMockHalCamera);
     auto anotherMockHalCamera =
             ::ndk::SharedRefBase::make<CompatHalCamera>(nullptr, "mockCam1", nullptr,
-                                                        aidlevs::Stream());
+                                                        aidlevs::Stream(), true,
+                                                        mMockCameraManager);
     halCameras.push_back(anotherMockHalCamera);
     auto virtualCamera = ::ndk::SharedRefBase::make<CompatVirtualCamera>(halCameras);
 
@@ -1277,7 +1310,8 @@ TEST_F(CompatVirtualCameraTest, getIntParameter_failsWhenHalCameraNotAvailable) 
     {
         // Create a HalCamera that will go out of scope, leaving an expired weak_ptr
         auto halCamera = ::ndk::SharedRefBase::make<CompatHalCamera>(nullptr, "test", nullptr,
-                                                                     aidlevs::Stream());
+                                                                     aidlevs::Stream(), true,
+                                                                     mMockCameraManager);
         std::vector<std::shared_ptr<CompatHalCamera>> halCameras = {halCamera};
         virtualCamera = ::ndk::SharedRefBase::make<CompatVirtualCamera>(halCameras);
     }
@@ -1309,7 +1343,8 @@ TEST_F(CompatVirtualCameraTest, getIntParameter_failsWhenMetadataIsEmpty) {
     desc.id = "testCam";
     // desc.metadata is empty by default
     auto halCamera = ::ndk::SharedRefBase::make<CompatHalCamera>(nullptr, "testCam", &desc,
-                                                                 aidlevs::Stream());
+                                                                 aidlevs::Stream(), true,
+                                                                 mMockCameraManager);
     std::vector<std::shared_ptr<CompatHalCamera>> halCameras = {halCamera};
     auto virtualCamera = ::ndk::SharedRefBase::make<CompatVirtualCamera>(halCameras);
 
@@ -1803,7 +1838,8 @@ TEST_F(CompatVirtualCameraTest, getIntParameter_whiteBalanceTemperature_awbOff) 
     desc.id = "testCam";
     desc.metadata = metadataVector;
     auto halCamera = ::ndk::SharedRefBase::make<CompatHalCamera>(nullptr, "testCam", &desc,
-                                                                 aidlevs::Stream());
+                                                                 aidlevs::Stream(), true,
+                                                                 mMockCameraManager);
     mTestHalCameras.push_back(halCamera);
     mVirtualCamera = ::ndk::SharedRefBase::make<CompatVirtualCamera>(mTestHalCameras);
 
@@ -1888,7 +1924,8 @@ TEST_F(CompatVirtualCameraTest, getIntParameter_whiteBalanceTemperature_awbOn) {
     desc.id = "testCam";
     desc.metadata = metadataVector;
     auto halCamera = ::ndk::SharedRefBase::make<CompatHalCamera>(nullptr, "testCam", &desc,
-                                                                 aidlevs::Stream());
+                                                                 aidlevs::Stream(), true,
+                                                                 mMockCameraManager);
     mTestHalCameras.push_back(halCamera);
     mVirtualCamera = ::ndk::SharedRefBase::make<CompatVirtualCamera>(mTestHalCameras);
 
@@ -2098,7 +2135,8 @@ TEST_F(CompatVirtualCameraTest, getIntParameter_absoluteExposure_manualControl) 
     desc.id = "testCam";
     desc.metadata = metadataVector;
     auto halCamera = ::ndk::SharedRefBase::make<CompatHalCamera>(nullptr, "testCam", &desc,
-                                                                 aidlevs::Stream());
+                                                                 aidlevs::Stream(), true,
+                                                                 mMockCameraManager);
     mTestHalCameras.push_back(halCamera);
     mVirtualCamera = ::ndk::SharedRefBase::make<CompatVirtualCamera>(mTestHalCameras);
 
@@ -2191,7 +2229,8 @@ TEST_F(CompatVirtualCameraTest, getIntParameter_absoluteExposure_autoControl) {
     desc.id = "testCam";
     desc.metadata = metadataVector;
     auto halCamera = ::ndk::SharedRefBase::make<CompatHalCamera>(nullptr, "testCam", &desc,
-                                                                 aidlevs::Stream());
+                                                                 aidlevs::Stream(), true,
+                                                                 mMockCameraManager);
     mTestHalCameras.push_back(halCamera);
     mVirtualCamera = ::ndk::SharedRefBase::make<CompatVirtualCamera>(mTestHalCameras);
 
@@ -2350,7 +2389,8 @@ TEST_F(CompatVirtualCameraTest, getIntParameter_absoluteFocus_afOff) {
     ASSERT_NE(latestMetadata, nullptr);
     float focusValue = 5.0f;
     ASSERT_EQ(add_camera_metadata_entry(latestMetadata, ACAMERA_LENS_FOCUS_DISTANCE, &focusValue,
-                                        1), 0);
+                                        1),
+              0);
     uint8_t afMode = ACAMERA_CONTROL_AF_MODE_OFF;
     ASSERT_EQ(add_camera_metadata_entry(latestMetadata, ACAMERA_CONTROL_AF_MODE, &afMode, 1), 0);
     auto* ndkLatestMetadata = reinterpret_cast<ACameraMetadata*>(latestMetadata);

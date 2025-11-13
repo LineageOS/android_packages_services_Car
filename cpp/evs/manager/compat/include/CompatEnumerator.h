@@ -100,6 +100,8 @@ private:
     ::ndk::ScopedAStatus initCameraDescs();
     static void onDeviceDisconnected(void* context, ACameraDevice* device);
     static void onDeviceError(void* context, ACameraDevice* device, int error);
+    static void onClientSharedAccessPriorityChanged(void* context, ACameraDevice* device,
+                                                    bool isPrimaryClient);
     void handleDeviceStatusChange(ACameraDevice* device, const char* functionName,
                                   const int* error = nullptr);
     static void onCameraAvailable(void* context, const char* cameraId);
@@ -127,12 +129,6 @@ private:
     std::unordered_map<std::string, std::shared_ptr<CompatHalCamera>> mActiveCameras
             GUARDED_BY(mLock);
     std::list<std::weak_ptr<CompatVirtualCamera>> mActiveVirtualCameras GUARDED_BY(mLock);
-
-    void* mLibHandle = nullptr;
-    typedef camera_status_t (*ACameraManager_openSharedCamera_fn)(
-            ACameraManager* manager, const char* cameraId, ACameraDevice_StateCallbacks* callback,
-            /*out*/ ACameraDevice** device, /*out*/ bool* primaryClient);
-    ACameraManager_openSharedCamera_fn mOpenSharedCameraFn = nullptr;
 
     std::set<std::shared_ptr<aidlevs::IEvsEnumeratorStatusCallback>> mDeviceStatusCallbacks;
 };
